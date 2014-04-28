@@ -120,9 +120,15 @@ public:
 
 	/// Extend the MBR by the given point
 	void addPoint(Point2f pt);
-    
+
+    /// Extend the MBR by the given point
+	void addPoint(Point2d pt);
+
     /// Extend the MBR by the givenpoints
     void addPoints(const std::vector<Point2f> &coords);
+
+    /// Extend the MBR by the givenpoints
+    void addPoints(const std::vector<Point2d> &coords);
 
 	/// See if this Mbr overlaps the other one
 	bool overlaps(const Mbr &that) const;
@@ -203,6 +209,9 @@ public:
 
 	/// See if a single geo coordinate is inside the MBR
 	bool inside(GeoCoord coord) const;
+    
+    /// Expand this MBR by the bounds of the other one
+    void expand(const GeoMbr &mbr);
     
     operator Mbr() { return Mbr(pt_ll,pt_ur); }
 

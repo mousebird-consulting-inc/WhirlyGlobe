@@ -731,6 +731,9 @@ using namespace WhirlyKit;
         // Get the data for the tile and sort out what the delegate returned to us
         id tileReturn = [_tileSource imageForTile:tileID];
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
+        if (tileSize > 0) {
+            tileData.targetSize = CGSize{(CGFloat)tileSize, (CGFloat)tileSize};
+        }
         WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderTexel convertToRaw:true];
         
         if (tileData && !loadTile)
@@ -806,6 +809,9 @@ using namespace WhirlyKit;
 
     // Get the data for the tile and sort out what the delegate returned to us
     MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
+    if (tileSize > 0) {
+        tileData.targetSize = CGSize{(CGFloat)tileSize, (CGFloat)tileSize};
+    }
     WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderTexel convertToRaw:true];
 
     // Start with elevation

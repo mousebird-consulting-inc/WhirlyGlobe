@@ -90,6 +90,16 @@ bool ConvexPolyIntersect(const std::vector<Point2f> &pts0,const std::vector<Poin
     return mbr0.overlaps(mbr1);
 }
 
+bool ConvexPolyIntersect(const std::vector<Point2d> &pts0,const std::vector<Point2d> &pts1)
+{
+    // Simple bounding box check
+    Mbr mbr0;
+    mbr0.addPoints(pts0);
+    Mbr mbr1;
+    mbr1.addPoints(pts1);
+    return mbr0.overlaps(mbr1);
+}
+
 // Courtesy: http://acius2.blogspot.com/2007/11/calculating-next-power-of-2.html
 unsigned int NextPowOf2(unsigned int val)
 {

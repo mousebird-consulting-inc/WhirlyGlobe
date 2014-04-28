@@ -21,12 +21,29 @@
 #import "MaplyVectorTextStyle.h"
 #import "MaplyScreenLabel.h"
 
+typedef enum {
+  TextPlacementPoint,
+  TextPlacementLine,
+  TextPlacementVertex,
+  TextPlacementInterior
+} TextSymbolizerPlacement;
+
+typedef enum {
+    TextTransformNone,
+    TextTransformUppercase,
+    TextTransformLowercase,
+    TextTransformCapitalize
+} TextSymbolizerTextTransform;
+
 @interface MaplyVectorTileSubStyleText : NSObject
 {
 @public
     NSMutableDictionary *desc;
     float dx,dy;
     float textSize;
+    TextSymbolizerPlacement placement;
+    TextSymbolizerTextTransform textTransform;
+    NSString *textField;
 }
 
 @end
@@ -66,6 +83,7 @@
             if (thisFont)
                 font = thisFont;
         }
+        
         UIColor *outlineColor = nil;
         if (styleEntry[@"halo-fill"])
             outlineColor = [MaplyVectorTiles ParseColor:styleEntry[@"halo-fill"]];
@@ -78,6 +96,31 @@
         subStyle->dy = 0.0;
         if (styleEntry[@"dy"])
             subStyle->dy = [styleEntry[@"dy"] floatValue] * settings.textScale;
+        
+        subStyle->placement = TextPlacementPoint;
+        if(styleEntry[@"placement"])
+        {
+            NSString *placement = styleEntry[@"placement"];
+            if([placement isEqualToString:@"line"])
+                subStyle->placement = TextPlacementLine;
+            else if([placement isEqualToString:@"point"])
+                subStyle->placement = TextPlacementPoint;
+            else if([placement isEqualToString:@"interior"])
+                subStyle->placement = TextPlacementInterior;
+            else if([placement isEqualToString:@"vertex"])
+                subStyle->placement = TextPlacementVertex;
+        }
+        
+        subStyle->textTransform = TextTransformNone;
+        if(styleEntry[@"text-transform"])
+        {
+            if([styleEntry[@"text-transform"] isEqualToString:@"uppercase"])
+                subStyle->textTransform = TextTransformUppercase;
+            else if([styleEntry[@"text-transform"] isEqualToString:@"lowercase"])
+                subStyle->textTransform = TextTransformLowercase;
+            else if([styleEntry[@"text-transform"] isEqualToString:@"capitalize"])
+                subStyle->textTransform = TextTransformCapitalize;
+        }
         
         if ([styleEntry[@"tilegeom"] isEqualToString:@"add"])
             self.geomAdditive = true;
@@ -93,6 +136,11 @@
 
         [self resolveVisibility:styleEntry settings:settings desc:subStyle->desc];
 
+        if(styleEntry[@"value"])
+            subStyle->textField = styleEntry[@"value"];
+        else
+            subStyle->textField = @"[name]";
+        
         [subStyles addObject:subStyle];
     }
     
@@ -109,21 +157,68 @@
         for (MaplyVectorObject *vec in vecObjs)
         {
             MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
-            // Note: HACK!
-            label.text = vec.attributes[@"NAME"];
-            if (!label.text)
-                label.text = vec.attributes[@"name"];
-            MaplyCoordinate center = [vec center];
-            label.loc = center;
+            label.text = [self formatText:subStyle->textField forObject:vec];
+            switch (subStyle->textTransform)
+            {
+                case TextTransformCapitalize:
+                    label.text = [label.text capitalizedString];
+                    break;
+                case TextTransformLowercase:
+                    label.text = [label.text lowercaseString];
+                    break;
+                case TextTransformUppercase:
+                    label.text = [label.text uppercaseString];
+                    break;
+                default:
+                    break;
+            }
+            label.layoutPlacement = kMaplyLayoutCenter | kMaplyLayoutRight | kMaplyLayoutLeft | kMaplyLayoutAbove | kMaplyLayoutBelow;
             if (label.text)
-                [labels addObject:label];
-            label.size = CGSizeMake(subStyle->textSize,subStyle->textSize);
-            label.offset = CGPointMake(subStyle->dx, subStyle->dy);
-            label.layoutImportance = 1.0;
-            label.selectable = false;
+            {
+                if(subStyle->placement == TextPlacementPoint ||
+                   subStyle->placement == TextPlacementInterior)
+                {
+                    MaplyCoordinate center = [vec center];
+                    label.loc = center;
+                } else if (subStyle->placement == TextPlacementLine)
+                {
+                    MaplyCoordinate middle;
+                    double rot;
+                    if ([vec linearMiddle:&middle rot:&rot])
+                    {
+                        //TODO: text-max-char-angle-delta
+                        //TODO: rotation calculation is not ideal, it is between 2 points, but it needs to be avergared over a longer distance
+                        label.loc = middle;
+                        label.layoutPlacement = kMaplyLayoutCenter;
+                        label.rotation = rot+M_PI/2.0;
+                        // Keep the labels upright
+                        if (label.rotation > M_PI/2 && label.rotation < 3*M_PI/2)
+                            label.rotation = label.rotation + M_PI;
+                    } else {
+                        label = nil;
+                    }
+                } else if(subStyle->placement == TextPlacementVertex)
+                {
+                    MaplyCoordinate vertex;
+                    if([vec middleCoordinate:&vertex]) {
+                        label.loc = vertex;
+                    } else {
+                        label = nil;
+                    }
+                }
+
+                if(label)
+                {
+                    [labels addObject:label];
+                    label.offset = CGPointMake(subStyle->dx, subStyle->dy);
+                    // Make bigger text slightly more important
+                    label.layoutImportance = 1.0 + subStyle->textSize/1000;
+                    label.selectable = false;
+                }
+            }
         }
 
-        MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc];
+        MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc mode:MaplyThreadAny];
         if (compObj)
             [compObjs addObject:compObj];
     }

@@ -393,7 +393,7 @@ void SetupDefaultShaders(Scene *scene)
         NSLog(@"SetupDefaultShaders: Triangle shader for screen space objects didn't compile.");
         delete screenShader;
     } else {
-        scene->addProgram(kToolkitDefaultScreenSpaceProgram, triShaderMultiTex);
+        scene->addProgram(kToolkitDefaultScreenSpaceProgram, screenShader);
     }
     
     OpenGLES2Program *billShader = BuildBillboardProgram();

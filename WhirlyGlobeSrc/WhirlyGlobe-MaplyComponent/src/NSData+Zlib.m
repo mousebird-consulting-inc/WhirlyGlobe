@@ -22,6 +22,13 @@
 #import <zlib.h>
 
 @implementation NSData(zlib)
+- (BOOL)isCompressed
+{
+  	return self.length > 2 &&
+      (uint8_t)((const char*)self.bytes)[0] == 0x78 &&
+      (uint8_t)((const char*)self.bytes)[1] == 0x9C;
+}
+
 
 - (NSData *) compressData
 {

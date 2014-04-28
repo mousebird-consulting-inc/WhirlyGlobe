@@ -31,6 +31,9 @@
 /// Return an uncompressed verison of the given data
 - (NSData *) uncompressGZip;
 
+/// test if the data is zlib compressed
+- (BOOL)isCompressed;
+
 @end
 
 // A function we can call to force the linker to bring in categories

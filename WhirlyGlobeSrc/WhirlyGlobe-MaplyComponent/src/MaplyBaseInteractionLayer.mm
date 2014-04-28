@@ -193,7 +193,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     layerThread = inLayerThread;
     scene = (WhirlyGlobe::GlobeScene *)inScene;
-    userObjects = [NSMutableArray array];    
+    userObjects = [NSMutableSet set];
 }
 
 - (void)shutdown
@@ -477,7 +477,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             wgMarker.selectID = Identifiable::genId();
         }
         wgMarker.layoutImportance = marker.layoutImportance;
-        wgMarker.offset = Point2f(marker.offset.x,marker.offset.y);
+        wgMarker.offset = Point2d(marker.offset.x,marker.offset.y);
         
         [wgMarkers addObject:wgMarker];
         
@@ -647,10 +647,6 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         if (tex)
             wgLabel.iconTexture = tex.texID;
         wgLabel.iconSize = label.iconSize;
-        if (label.size.width > 0.0)
-            [desc setObject:[NSNumber numberWithFloat:label.size.width] forKey:@"width"];
-        if (label.size.height > 0.0)
-            [desc setObject:[NSNumber numberWithFloat:label.size.height] forKey:@"height"];
         if (label.color)
             [desc setObject:label.color forKey:@"textColor"];
         if (label.layoutImportance != MAXFLOAT)
@@ -898,7 +894,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     
     // If the vectors are selectable we want to keep them around
     id selVal = inDesc[@"selectable"];
-    if (!selVal || [selVal boolValue])
+    if (selVal && [selVal boolValue])
         compObj.vectors = vectors;
     
     pthread_mutex_lock(&userLock);

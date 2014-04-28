@@ -50,6 +50,20 @@ void Mbr::addPoint(Point2f pt)
 	pt_ur.x() = std::max(pt_ur.x(),pt.x());
 	pt_ur.y() = std::max(pt_ur.y(),pt.y());
 }
+
+void Mbr::addPoint(Point2d pt)
+{
+    if (!valid())
+    {
+        pt_ll = pt_ur = Point2f(pt.x(),pt.y());
+        return;
+    }
+    
+    pt_ll.x() = std::min(pt_ll.x(),(float)pt.x());
+    pt_ll.y() = std::min(pt_ll.y(),(float)pt.y());
+    pt_ur.x() = std::max(pt_ur.x(),(float)pt.x());
+    pt_ur.y() = std::max(pt_ur.y(),(float)pt.y());
+}
     
 void Mbr::addPoints(const std::vector<Point2f> &coords)
 {
@@ -57,6 +71,12 @@ void Mbr::addPoints(const std::vector<Point2f> &coords)
         addPoint(coords[ii]);
 }
 
+void Mbr::addPoints(const std::vector<Point2d> &coords)
+{
+    for (unsigned int ii=0;ii<coords.size();ii++)
+        addPoint(Point2f(coords[ii].x(),coords[ii].y()));
+}
+    
 // Calculate MBR overlap.  All the various kinds.
 bool Mbr::overlaps(const Mbr &that) const
 {
@@ -191,6 +211,12 @@ bool GeoMbr::inside(GeoCoord coord) const
 			return true;
 	
 	return false;
+}
+    
+void GeoMbr::expand(const GeoMbr &mbr)
+{
+    addGeoCoord(mbr.ll());
+    addGeoCoord(mbr.ur());
 }
 	
 float GeoMbr::area() const
