@@ -211,6 +211,10 @@ NSData *Texture::processData()
             case GL_ALPHA:
                 return ConvertRGBATo8(texData,byteSource);
                 break;
+            case GL_COMPRESSED_RGB8_ETC2:
+                // Can't convert this (for now)
+                return texData;
+                break;
         }
 	}
     
@@ -348,6 +352,9 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
                 break;
             case GL_ALPHA:
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, [convertedData bytes]);
+                break;
+            case GL_COMPRESSED_RGB8_ETC2:
+                glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB8_ETC2, width, height, 0, (GLsizei)[convertedData length], [convertedData bytes]);
                 break;
         }
         CheckGLError("Texture::createInGL() glTexImage2D()");

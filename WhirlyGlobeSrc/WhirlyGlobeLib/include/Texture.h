@@ -23,6 +23,8 @@
 #import <OpenGLES/ES1/glext.h>
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
+#import <OpenGLES/ES3/gl.h>
+#import <OpenGLES/ES3/glext.h>
 
 #import "Identifiable.h"
 #import "WhirlyVector.h"
@@ -73,7 +75,7 @@ typedef enum {WKSingleRed,WKSingleGreen,WKSingleBlue,WKSingleRGB,WKSingleAlpha} 
 class Texture : public TextureBase
 {
 public:
-    /// Construct emty
+    /// Construct empty
 	Texture(const std::string &name);
 	/// Construct with raw texture data.  PVRTC is preferred.
 	Texture(const std::string &name,NSData *texData,bool isPVRTC);

@@ -24,6 +24,8 @@
 #import "MaplyTexture_private.h"
 #import "MaplyAnnotation_private.h"
 #import "NSDictionary+StyleRules.h"
+#import "DDXMLElementAdditions.h"
+#import "NSString+DDXML.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -176,6 +178,9 @@ using namespace WhirlyKit;
     {
         NSDataDummyFunc();
         NSDictionaryStyleDummyFunc();
+        DDXMLElementDummyFunc();
+        DDXMLDummyFunc();
+        
         dummyInit = true;
     }
     
@@ -185,7 +190,9 @@ using namespace WhirlyKit;
     [self loadSetup_glView];
 
 	// Set up the OpenGL ES renderer
-    sceneRenderer = [[WhirlyKitSceneRendererES2 alloc] init];
+    sceneRenderer = [[WhirlyKitSceneRendererES3 alloc] init];
+    if (!sceneRenderer)
+        sceneRenderer = [[WhirlyKitSceneRendererES2 alloc] init];
     sceneRenderer.zBufferMode = zBufferOffDefault;
     // Switch to that context for any assets we create
     // Note: Should be switching back at the end

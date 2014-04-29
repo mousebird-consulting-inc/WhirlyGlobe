@@ -548,7 +548,12 @@ void BigDrawable::executeFlush(int whichBuffer)
 
     // Redo the entire element buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBuffer.elementBufferId);
-    GLubyte *elBuffer = (GLubyte *)glMapBufferOES(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+    GLubyte *elBuffer = NULL;
+    EAGLContext *context = [EAGLContext currentContext];
+    if (context.API < kEAGLRenderingAPIOpenGLES3)
+        elBuffer = (GLubyte *)glMapBufferOES(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+    else
+        elBuffer = (GLubyte *)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, numElementBytes, GL_MAP_WRITE_BIT);
     GLubyte *elBufPtr = elBuffer;
     int elBufferSize = 0;
     for (ElementChunkSet::iterator it = elementChunks.begin();
@@ -564,7 +569,10 @@ void BigDrawable::executeFlush(int whichBuffer)
     {
         NSLog(@"Exceeded element buffer size");
     }
-    glUnmapBufferOES(GL_ELEMENT_ARRAY_BUFFER);
+    if (context.API < kEAGLRenderingAPIOpenGLES3)
+        glUnmapBufferOES(GL_ELEMENT_ARRAY_BUFFER);
+    else
+        glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     theBuffer.numElement = elBufferSize / singleElementSize;
 }

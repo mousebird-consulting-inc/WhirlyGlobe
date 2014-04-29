@@ -1074,6 +1074,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     int numVerts = (int)points.size();
     
     // We're handed an external buffer, so just use it
+    int bufferSize = 0;
     if (externalSharedBuf)
 	{
         sharedBuffer = externalSharedBuf;
@@ -1081,7 +1082,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
         sharedBufferIsExternal = true;
     } else {
         // Set up the buffer
-        int bufferSize = vertexSize*numVerts;
+        bufferSize = vertexSize*numVerts;
         if (!tris.empty())
         {
                 bufferSize += tris.size()*sizeof(Triangle);
@@ -1093,7 +1094,12 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     
     // Now copy in the data
     glBindBuffer(GL_ARRAY_BUFFER, sharedBuffer);
-    void *glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+    void *glMem = NULL;
+    EAGLContext *context = [EAGLContext currentContext];
+    if (context.API < kEAGLRenderingAPIOpenGLES3)
+        glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+    else
+        glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
     unsigned char *basePtr = (unsigned char *)glMem + sharedBufferOffset;
     for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
         addPointToBuffer(basePtr,ii);
@@ -1106,7 +1112,10 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
         for (unsigned int ii=0;ii<tris.size();ii++,basePtr+=sizeof(Triangle))
             memcpy(basePtr, &tris[ii], sizeof(Triangle));
 	}
-    glUnmapBufferOES(GL_ARRAY_BUFFER);
+    if (context.API < kEAGLRenderingAPIOpenGLES3)
+        glUnmapBufferOES(GL_ARRAY_BUFFER);
+    else
+        glUnmapBuffer(GL_ARRAY_BUFFER);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
