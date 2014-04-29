@@ -209,6 +209,9 @@ using namespace WhirlyKit;
         case WKTilePVRTC4:
             return GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
             break;
+        case WKTileETC2_RGB8:
+            return GL_COMPRESSED_RGB8_ETC2;
+            break;
     }
     
     return GL_UNSIGNED_BYTE;

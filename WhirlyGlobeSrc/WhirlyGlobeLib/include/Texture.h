@@ -75,7 +75,7 @@ typedef enum {WKSingleRed,WKSingleGreen,WKSingleBlue,WKSingleRGB,WKSingleAlpha} 
 class Texture : public TextureBase
 {
 public:
-    /// Construct emty
+    /// Construct empty
 	Texture(const std::string &name);
 	/// Construct with raw texture data.  PVRTC is preferred.
 	Texture(const std::string &name,NSData *texData,bool isPVRTC);

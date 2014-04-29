@@ -1096,6 +1096,7 @@ static const int NumMegaMarkers = 40000;
 
                              // Now for the paging layer itself
                              MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
+                             pageLayer.numSimultaneousFetches = 4;
                              pageLayer.flipY = false;
                              pageLayer.importance = 1024*1024;
                              pageLayer.useTargetZoomLevel = true;
