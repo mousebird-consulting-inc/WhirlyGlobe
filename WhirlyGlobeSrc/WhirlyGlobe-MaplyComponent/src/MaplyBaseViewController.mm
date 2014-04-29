@@ -24,6 +24,8 @@
 #import "MaplyTexture_private.h"
 #import "MaplyAnnotation_private.h"
 #import "NSDictionary+StyleRules.h"
+#import "DDXMLElementAdditions.h"
+#import "NSString+DDXML.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -176,6 +178,9 @@ using namespace WhirlyKit;
     {
         NSDataDummyFunc();
         NSDictionaryStyleDummyFunc();
+        DDXMLElementDummyFunc();
+        DDXMLDummyFunc();
+        
         dummyInit = true;
     }
     
