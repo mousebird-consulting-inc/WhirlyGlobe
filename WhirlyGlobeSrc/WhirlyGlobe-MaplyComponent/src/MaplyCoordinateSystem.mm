@@ -76,20 +76,6 @@ using namespace WhirlyKit;
         *ret_ur = ur;
 }
 
-- (void)setBoundsExternalLL:(MaplyCoordinate *)inLL ur:(MaplyCoordinate *)inUR
-{
-    llExternal = *inLL;
-    urExternal = *inUR;
-}
-
-- (void)getBoundsExternalLL:(MaplyCoordinate *)ret_ll ur:(MaplyCoordinate *)ret_ur
-{
-    if (ret_ll)
-        *ret_ll = llExternal;
-    if (ret_ur)
-        *ret_ur = urExternal;
-}
-
 - (MaplyCoordinate)geoToLocal:(MaplyCoordinate)coord
 {
     GeoCoord pt(coord.x,coord.y);
@@ -135,9 +121,6 @@ using namespace WhirlyKit;
     ll.x = pt0.x();  ll.y = pt0.y();
     ur.x = pt1.x();  ur.y = pt1.y();
     
-    llExternal.x = -180; llExternal.y = -90;
-    urExternal.x =  180; urExternal.y =  90;
-    
     return self;
 }
 
@@ -163,10 +146,6 @@ using namespace WhirlyKit;
     Point3f pt1 = coordSys->geographicToLocal(GeoCoord::CoordFromDegrees( 180, 85.05113));
     ll.x = pt0.x();  ll.y = pt0.y();
     ur.x = pt1.x();  ur.y = pt1.y();
-
-    // http://docs.openlayers.org/library/spherical_mercator.html
-    llExternal.x = -20037508.34; llExternal.y = -20037508.34;
-    urExternal.x =  20037508.34; urExternal.y =  20037508.34;
     
     return self;
 }

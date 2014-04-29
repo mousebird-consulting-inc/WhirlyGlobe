@@ -350,7 +350,7 @@
 
         // Coordinates of the tile we're asking for
         MaplyCoordinate ll,ur;
-        [_coordSys getBoundsExternalLL:&ll ur:&ur];
+        [self getBoundsLL:&ll ur:&ur];
         MaplyCoordinate tileLL,tileUR;
         int numSide = 1<<tileID.level;
         tileLL.x = tileID.x * (ur.x-ll.x)/numSide + ll.x;
@@ -395,5 +395,25 @@
     return imgData;
 }
 
+// get the bounds of the most common tiling schema for the coordSys in units usable for WMS BBOX
+- (void)getBoundsLL:(MaplyCoordinate *)ret_ll ur:(MaplyCoordinate *)ret_ur
+{
+    if ([_coordSys isKindOfClass:[MaplyPlateCarree class]])
+    {
+        ret_ll->x = -180.0; ret_ll->y = -90;
+        ret_ur->x =  180.0; ret_ur->y =  90;
+    }
+    else if ([_coordSys isKindOfClass:[MaplySphericalMercator class]])
+    {
+        // http://docs.openlayers.org/library/spherical_mercator.html
+        ret_ll->x = -20037508.34; ret_ll->y = -20037508.34;
+        ret_ur->x =  20037508.34; ret_ur->y =  20037508.34;
+    }
+    else
+    {
+        // fallback. might not work..
+        [_coordSys getBoundsLL:ret_ll ur:ret_ur];
+    }
+}
 
 @end
