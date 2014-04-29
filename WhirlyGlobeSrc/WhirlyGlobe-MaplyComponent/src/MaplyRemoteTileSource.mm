@@ -146,7 +146,7 @@ using namespace WhirlyKit;
         cacheInit = true;
     }
     
-    NSString *localName = [NSString stringWithFormat:@"%@/%d_%d_%d",_cacheDir,tileID.level,tileID.x,tileID.y];
+    NSString *localName = [NSString stringWithFormat:@"%@/%d_%d_%d.%@",_cacheDir,tileID.level,tileID.x,tileID.y,_ext];
     return localName;
 }
 
