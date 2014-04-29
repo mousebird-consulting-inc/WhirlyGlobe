@@ -229,7 +229,8 @@ unsigned char *Texture::ResolvePKM(NSData *texData,int &pkmType,int &size,int &w
     if ([texData length] < 16)
         return NULL;
     const unsigned char *header = (const unsigned char *)[texData bytes];
-    unsigned int *type = (unsigned int *)&header[4];
+//    unsigned short *version = (unsigned short *)&header[4];
+    const unsigned char *type = &header[7];
     
     // Verify the magic number
     if (strncmp((char *)header, "PKM ", 4))
@@ -269,9 +270,10 @@ unsigned char *Texture::ResolvePKM(NSData *texData,int &pkmType,int &size,int &w
     }
     if (glType == -1)
         return NULL;
+    pkmType = glType;
 
-    width = *((unsigned short *)&header[8]);
-    height = *((unsigned short *)&header[8+2]);
+    width = (header[8] << 8) | header[9];
+    height = (header[10] << 8) | header[11];;
     // Skipping original width/height
 
     size = width * height / 2;
