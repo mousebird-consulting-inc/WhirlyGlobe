@@ -122,6 +122,8 @@ using namespace WhirlyKit;
 {
     Texture *newTex = new Texture("LoadedTile");
     newTex->setPKMData(theData);
+    newTex->setWidth(theWidth);
+    newTex->setHeight(theHeight);
     
     // Note: Check the width/height
     
