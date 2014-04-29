@@ -27,7 +27,7 @@
 	url = https://github.com/lunixbochs/glues.git
 [submodule "third-party/KissXML"]
 	path = third-party/KissXML
-	url = https://github.com/robbiehanson/KissXML.git
+	url = https://github.com/mousebird/KissXML.git
 [submodule "third-party/AFKissXMLRequestOperation"]
 	path = third-party/AFKissXMLRequestOperation
 	url = https://github.com/AFNetworking/AFKissXMLRequestOperation.git
@@ -39,7 +39,4 @@
 	url = https://github.com/nfarina/calloutview.git
 [submodule "libs/tinyxml2"]
 	path = libs/tinyxml2
-	url = https://github.com/leethomason/tinyxml2
-[submodule "third-party/tinyxml2"]
-	path = third-party/tinyxml2
 	url = https://github.com/leethomason/tinyxml2
