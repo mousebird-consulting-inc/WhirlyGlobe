@@ -46,7 +46,7 @@
 typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDataRawData,WKLoadedImagePVRTC4,WKLoadedImagePlaceholder,WKLoadedImageMax} WhirlyKitLoadedImageType;
 
 /// Used to specify the image type for the textures we create
-typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WKTileUByteRed,WKTileUByteGreen,WKTileUByteBlue,WKTileUByteAlpha,WKTileUByteRGB,WKTilePVRTC4} WhirlyKitTileImageType;
+typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WKTileUByteRed,WKTileUByteGreen,WKTileUByteBlue,WKTileUByteAlpha,WKTileUByteRGB,WKTilePVRTC4,WKTileETC2_RGB8} WhirlyKitTileImageType;
 
 /// How we'll scale the tiles up or down to the nearest power of 2 (square) or not at all
 typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} WhirlyKitTileScaleType;
