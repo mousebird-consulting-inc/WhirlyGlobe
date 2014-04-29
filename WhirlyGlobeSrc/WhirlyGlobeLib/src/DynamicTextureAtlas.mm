@@ -522,6 +522,10 @@ void DynamicTextureAtlas::log()
             // Doesn't really matter.  Can't do these.
             texelSize = 1;
             break;
+        case GL_COMPRESSED_RGB8_ETC2:
+            // Note: Not really
+            texelSize = 1;
+            break;
         default:
             break;
             

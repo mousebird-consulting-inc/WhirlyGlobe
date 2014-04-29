@@ -18,7 +18,7 @@
  *
  */
 
-#import "SceneRendererES2.h"
+#import "SceneRendererES3.h"
 #import "UIColor+Stuff.h"
 #import "GLUtils.h"
 #import "DefaultShaderPrograms.h"
@@ -108,6 +108,11 @@ public:
 
 - (id) init
 {
+    return [self initWithVersion:kEAGLRenderingAPIOpenGLES2];
+}
+
+- (id) initWithVersion:(EAGLRenderingAPI)apiVersion
+{
     // We do this to pull in the categories without the -ObjC flag.
     // It's dumb, but it works
     static bool dummyInit = false;
@@ -119,8 +124,10 @@ public:
         NSStringDummyFunc();
         dummyInit = true;
     }
-
-    self = [super initWithOpenGLESVersion:kEAGLRenderingAPIOpenGLES2];
+    
+    self = [super initWithOpenGLESVersion:apiVersion];
+    if (!self)
+        return nil;
     lights = [NSMutableArray array];
     
     // Add a simple default light
@@ -755,7 +762,10 @@ static const float ScreenOverlap = 0.1;
 
     // Explicitly discard the depth buffer
     const GLenum discards[]  = {GL_DEPTH_ATTACHMENT};
-    glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
+    if (context.API < kEAGLRenderingAPIOpenGLES3)
+        glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
+    else
+        glInvalidateFramebuffer(GL_FRAMEBUFFER,1,discards);
     CheckGLError("SceneRendererES2: glDiscardFramebufferEXT");
 
     if (!renderSetup)
