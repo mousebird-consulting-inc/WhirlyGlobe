@@ -56,11 +56,13 @@
 - (id)initWithImageArray:(NSArray *)images;
 
 /** @brief Initialize with an NSData object containing PNG or JPEG data that can be interpreted by UIImage.
+    @details We're expecting PNG, JPEG or another self identified format (e.g. PKM).  These we can interpret ourselves.
  */
 - (id)initWithPNGorJPEGData:(NSData *)data;
 
 /** @brief Initialize with an NSArray of NSData objects containing PNG or JPEG data that can be interpreted by UIImage
     @details This is for tiles that require multiple images.
+    @details We're expecting PNG, JPEG or another self identified format (e.g. PKM).  These we can interpret ourselves.
  */
 - (id)initWithPNGorJPEGDataArray:(NSArray *)data;
 
