@@ -23,7 +23,15 @@
 #import "MaplyTileSource.h"
 
 /// The various image formats we support.  RGBA is the default, and most expensive.
-typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyImageUShort5551,MaplyImageUByteRed,MaplyImageUByteGreen,MaplyImageUByteBlue,MaplyImageUByteAlpha,MaplyImageUByteRGB,MaplyImage4Layer8Bit} MaplyQuadImageFormat;
+typedef enum {MaplyImageIntRGBA,
+        MaplyImageUShort565,
+        MaplyImageUShort4444,
+        MaplyImageUShort5551,
+        MaplyImageUByteRed,MaplyImageUByteGreen,MaplyImageUByteBlue,MaplyImageUByteAlpha,
+        MaplyImageUByteRGB,
+        MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
+        MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
+        MaplyImage4Layer8Bit} MaplyQuadImageFormat;
 
 /// Wrap values for certain types of textures
 #define MaplyImageWrapNone (0)

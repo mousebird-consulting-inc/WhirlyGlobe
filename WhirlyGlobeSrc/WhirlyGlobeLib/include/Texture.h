@@ -23,6 +23,8 @@
 #import <OpenGLES/ES1/glext.h>
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
+#import <OpenGLES/ES3/gl.h>
+#import <OpenGLES/ES3/glext.h>
 
 #import "Identifiable.h"
 #import "WhirlyVector.h"
@@ -73,7 +75,7 @@ typedef enum {WKSingleRed,WKSingleGreen,WKSingleBlue,WKSingleRGB,WKSingleAlpha} 
 class Texture : public TextureBase
 {
 public:
-    /// Construct emty
+    /// Construct empty
 	Texture(const std::string &name);
 	/// Construct with raw texture data.  PVRTC is preferred.
 	Texture(const std::string &name,NSData *texData,bool isPVRTC);
@@ -89,6 +91,9 @@ public:
 	    
     /// Process the data for display based on the format.
     NSData *processData();
+    
+    /// Set up from raw PKM (ETC2/EAC) data
+    void setPKMData(NSData *data);
 	
     /// Set the texture width
     void setWidth(unsigned int newWidth) { width = newWidth; }
@@ -112,12 +117,18 @@ public:
 	
 	/// Render side only.  Don't call this.  Destroy the openGL version
 	virtual void destroyInGL(OpenGLMemManager *memManager);
-	
+
+    /// Sort the PKM dat out from the NSData
+    /// This is static so the dynamic (haha) textures can use it
+    static unsigned char *ResolvePKM(NSData *texData,int &pkmType,int &size,int &width,int &height);
+
 protected:
 	/// Raw texture data
 	NSData * __strong texData;
 	/// Need to know how we're going to load it
 	bool isPVRTC;
+    /// This one has a header
+    bool isPKM;
     /// If not PVRTC, the format we'll use for the texture
     GLenum format;
     /// If we're converting down to one byte, where do we get it?
