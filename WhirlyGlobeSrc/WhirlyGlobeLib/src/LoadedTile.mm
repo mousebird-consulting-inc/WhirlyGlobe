@@ -72,19 +72,31 @@ using namespace WhirlyKit;
 + (WhirlyKitLoadedImage *)LoadedImageWithNSDataAsPNGorJPG:(NSData *)imageData
 {
     WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
-    loadImage.type = WKLoadedImageNSDataAsImage;
-    loadImage.borderSize = 0;
-    loadImage.imageData = imageData;
-    loadImage.width = loadImage.height = 0;
-    UIImage *texImage = [UIImage imageWithData:(NSData *)imageData];
-    if (texImage)
+    
+    // Check if it's a PKM
+    int dataLen = [imageData length];
+    if (dataLen > 3 && !strncmp((char *)[imageData bytes], "PKM", 3))
     {
-        loadImage.imageData = texImage;
-        loadImage.width = CGImageGetWidth(texImage.CGImage);
-        loadImage.height = CGImageGetHeight(texImage.CGImage);
-        loadImage.type = WKLoadedImageUIImage;
-    } else
-        return nil;
+        loadImage.type = WKLoadedImageNSDataPKM;
+        loadImage.borderSize = 0;
+        loadImage.width = loadImage.height = sqrtf(dataLen*2-16);
+        loadImage.imageData = imageData;
+    } else {
+        loadImage.type = WKLoadedImageNSDataAsImage;
+        loadImage.borderSize = 0;
+        loadImage.width = loadImage.height = 0;
+        loadImage.imageData = imageData;
+
+        UIImage *texImage = [UIImage imageWithData:(NSData *)imageData];
+        if (texImage)
+        {
+            loadImage.imageData = texImage;
+            loadImage.width = CGImageGetWidth(texImage.CGImage);
+            loadImage.height = CGImageGetHeight(texImage.CGImage);
+            loadImage.type = WKLoadedImageUIImage;
+        } else
+            return nil;
+    }
     
     return loadImage;
 }
@@ -102,6 +114,18 @@ using namespace WhirlyKit;
     Texture *newTex = new Texture("Tile Quad Loader",theData,false);
     newTex->setWidth(theWidth);
     newTex->setHeight(theHeight);
+    
+    return newTex;
+}
+
+- (WhirlyKit::Texture *)textureFromPKMData:(NSData *)theData width:(int)theWidth height:(int)theHeight
+{
+    Texture *newTex = new Texture("LoadedTile");
+    newTex->setPKMData(theData);
+    newTex->setWidth(theWidth);
+    newTex->setHeight(theHeight);
+    
+    // Note: Check the width/height
     
     return newTex;
 }
@@ -128,6 +152,12 @@ using namespace WhirlyKit;
             {
                 // Note: This isn't complete
                 return [self textureFromRawData:(NSData *)_imageData width:_width height:_height];
+            }
+            break;
+        case WKLoadedImageNSDataPKM:
+            if ([_imageData isKindOfClass:[NSData class]])
+            {
+                return [self textureFromPKMData:(NSData *)_imageData width:_width height:_height];
             }
             break;
         case WKLoadedImagePVRTC4:
