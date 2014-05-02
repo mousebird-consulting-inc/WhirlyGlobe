@@ -37,10 +37,11 @@ namespace WhirlyKit
 class DrawableContainer
 {
 public:
-    DrawableContainer(Drawable *draw,Matrix4f *mat) : drawable(draw), mat(mat) { }
+    DrawableContainer(Drawable *draw) : drawable(draw) { mat = mat.Identity(); }
+    DrawableContainer(Drawable *draw,Matrix4d mat) : drawable(draw), mat(mat) { }
     
     Drawable *drawable;
-    Matrix4f *mat;
+    Matrix4d mat;
 };
 
 // Alpha stuff goes at the end
@@ -482,18 +483,21 @@ static const float ScreenOverlap = 0.1;
         std::vector<DrawableContainer> drawList;
         std::vector<DrawableRef> screenDrawables;
         std::vector<DrawableRef> generatedDrawables;
-        std::vector<Matrix4f> mvpMats;
+        std::vector<Matrix4d> mvpMats;
+        std::vector<Matrix4f> mvpMats4f;
         mvpMats.resize(offsetMats.size());
+        mvpMats4f.resize(offsetMats.size());
         for (unsigned int off=0;off<offsetMats.size();off++)
         {
             WhirlyKitRendererFrameInfo *offFrameInfo = [[WhirlyKitRendererFrameInfo alloc] initWithFrameInfo:baseFrameInfo];
             // Tweak with the appropriate offset matrix
             modelAndViewMat4d = viewTrans4d * offsetMats[off] * modelTrans4d;
             modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
-            mvpMats[off] = projMat * (modelAndViewMat);
+            mvpMats[off] = projMat4d * modelAndViewMat4d;
+            mvpMats4f[off] = Matrix4dToMatrix4f(mvpMats[off]);
             modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
-            Matrix4f *thisMvpMat = &mvpMats[off];
-            offFrameInfo.mvpMat = mvpMats[off];
+            Matrix4d &thisMvpMat = mvpMats[off];
+            offFrameInfo.mvpMat = mvpMats4f[off];
             offFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
             offFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
             offFrameInfo.viewAndModelMat = modelAndViewMat;
@@ -518,8 +522,15 @@ static const float ScreenOverlap = 0.1;
                 {
                     Drawable *theDrawable = it->get();
                     if (theDrawable)
-                        drawList.push_back(DrawableContainer(theDrawable,thisMvpMat));
-                    else
+                    {
+                        const Matrix4d *localMat = theDrawable->getMatrix();
+                        if (localMat)
+                        {
+                            Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
+                            drawList.push_back(DrawableContainer(theDrawable,newMvpMat));
+                        } else
+                            drawList.push_back(DrawableContainer(theDrawable,thisMvpMat));
+                    } else
                         NSLog(@"Bad drawable coming from cull tree.");
                 }
                 cullTreeCount = cullTree->getCount();
@@ -527,17 +538,26 @@ static const float ScreenOverlap = 0.1;
                 DrawableRefSet rawDrawables = scene->getDrawables();
                 for (DrawableRefSet::iterator it = rawDrawables.begin(); it != rawDrawables.end(); ++it)
                 {
-                    if ((*it)->isOn(offFrameInfo))
-                        drawList.push_back(DrawableContainer(it->get(),thisMvpMat));
+                    Drawable *theDrawable = it->get();
+                    if (theDrawable->isOn(offFrameInfo))
+                    {
+                        const Matrix4d *localMat = theDrawable->getMatrix();
+                        if (localMat)
+                        {
+                            Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
+                            drawList.push_back(DrawableContainer(theDrawable,newMvpMat));
+                        } else
+                            drawList.push_back(DrawableContainer(theDrawable,thisMvpMat));
+                    }
                 }
             }
             
             
             if (perfInterval > 0)
-            perfTimer.stopTiming("Culling");
+                perfTimer.stopTiming("Culling");
             
             if (perfInterval > 0)
-            perfTimer.startTiming("Generators - generate");
+                perfTimer.startTiming("Generators - generate");
 
             // Run the generators only once, they have to be aware of multiple offset matrices
             if (off == offsetMats.size()-1)
@@ -614,16 +634,16 @@ static const float ScreenOverlap = 0.1;
             }
             
             // Transform to use
-            Matrix4f currentMvpMat = *drawContain.mat;
+            Matrix4f currentMvpMat = Matrix4dToMatrix4f(drawContain.mat);
             
             // If it has a local transform, apply that
-            const Matrix4d *localMat = drawContain.drawable->getMatrix();
-            if (localMat)
-            {
-                Eigen::Matrix4d newMvpMat = projMat4d * (viewTrans4d * (modelTrans4d * (*localMat)));
-                Eigen::Matrix4f newMvpMat4f = Matrix4dToMatrix4f(newMvpMat);
-                currentMvpMat = newMvpMat4f;
-            }
+//            const Matrix4d *localMat = drawContain.drawable->getMatrix();
+//            if (localMat)
+//            {
+//                Eigen::Matrix4d newMvpMat = projMat4d * (viewTrans4d * (modelTrans4d * (*localMat)));
+//                Eigen::Matrix4f newMvpMat4f = Matrix4dToMatrix4f(newMvpMat);
+//                currentMvpMat = newMvpMat4f;
+//            }
             baseFrameInfo.mvpMat = currentMvpMat;
             
             // Figure out the program to use for drawing
@@ -691,7 +711,7 @@ static const float ScreenOverlap = 0.1;
             {
                 Drawable *theDrawable = screenDrawables[ii].get();
                 if (theDrawable)
-                    drawList.push_back(DrawableContainer(theDrawable,NULL));
+                    drawList.push_back(DrawableContainer(theDrawable));
                 else
                     NSLog(@"Bad drawable coming from generator.");
             }

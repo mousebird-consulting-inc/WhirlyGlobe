@@ -38,7 +38,7 @@ BigDrawable::Buffer::Buffer()
 
 BigDrawable::BigDrawable(const std::string &name,int singleVertexSize,const std::vector<VertexAttribute> &templateAttributes,int singleElementSize,int numVertexBytes,int numElementBytes)
     : Drawable(name), singleVertexSize(singleVertexSize), vertexAttributes(templateAttributes), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), drawPriority(0), requestZBuffer(false),
-    waitingOnSwap(false), programId(0), elementChunkSize(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minVisibleFadeBand(0.0), maxVisibleFadeBand(0.0), enable(true)
+    waitingOnSwap(false), programId(0), elementChunkSize(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minVisibleFadeBand(0.0), maxVisibleFadeBand(0.0), enable(true), center(0,0,0)
 {
     activeBuffer = -1;
     
@@ -57,7 +57,7 @@ BigDrawable::~BigDrawable()
     pthread_cond_destroy(&useCondition);
 }
 
-bool BigDrawable::isCompatible(BasicDrawable *draw)
+bool BigDrawable::isCompatible(BasicDrawable *draw,const Point3d *drawCenter,double objSize)
 {
     // Note: We change the big drawable texture IDs without them knowing
 //    if (getTexId() == draw->getTexId() &&
@@ -68,7 +68,21 @@ bool BigDrawable::isCompatible(BasicDrawable *draw)
         draw->getVisibleRange(minVis, maxVis, minVisibleFadeBand, maxVisibleFadeBand);
         if (this->minVis == minVis && this->maxVis == maxVis && this->minVisibleFadeBand == minVisibleFadeBand &&
             this->maxVisibleFadeBand == maxVisibleFadeBand)
-            return true;
+        {
+            // Now check that the centers are compatible
+            if (drawCenter)
+            {
+                // Distance from one center to another
+                double dist = (*drawCenter - center).norm();
+                double testVal = dist/objSize;
+                
+                if (testVal < 10e2)
+                    return true;
+                else
+                    return false;
+            } else
+                return true;
+        }
     }
     
     return false;
@@ -81,6 +95,21 @@ void BigDrawable::setModes(BasicDrawable *draw)
     writeZBuffer = draw->getWriteZbuffer();
     drawPriority = draw->getDrawPriority();
     draw->getVisibleRange(minVis, maxVis, minVisibleFadeBand, maxVisibleFadeBand);
+}
+    
+const Eigen::Matrix4d *BigDrawable::getMatrix() const
+{
+    if (center.x() == 0.0 && center.y() == 0.0 && center.z() == 0.0)
+        return NULL;
+    
+    return &transMat;
+}
+    
+void BigDrawable::setCenter(const Point3d &newCenter)
+{
+    center = newCenter;
+    Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
+    transMat = trans.matrix();
 }
 
 void BigDrawable::setTexID(unsigned int which,SimpleIdentity texId)
