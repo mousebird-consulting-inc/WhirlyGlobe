@@ -40,7 +40,7 @@ public:
 
     /// See if this big drawable can represent data in the given drawable.
     /// We check various modes (e.g. draw priority, z buffer on, etc)
-    bool isCompatible(BasicDrawable *);
+    bool isCompatible(BasicDrawable *,const Point3d *center,double objSize);
     
     /// Set the various drawing modes to be compatible with the given
     ///  drawable.
@@ -48,6 +48,15 @@ public:
 
     /// No bounding box, since these change constantly
     Mbr getLocalMbr() const { return Mbr(); }
+    
+    /// Return an offset matrix, if we need one
+    const Eigen::Matrix4d *getMatrix() const;
+    
+    /// Set the center (needs to be done right after creation)
+    void setCenter(const Point3d &newCenter);
+    
+    /// Return the center if there is one
+    const Point3d *getCenter() { if (center.x() == 0.0 && center.y() == 0.0 && center.z() == 0.0) return NULL;  return &center; }
 
     /// Draw priority for ordering
     unsigned int getDrawPriority() const { return drawPriority; }
@@ -137,6 +146,8 @@ protected:
     std::vector<BasicDrawable::TexInfo> texInfo;
     int drawPriority;
     bool requestZBuffer,writeZBuffer;
+    Point3d center;
+    Eigen::Matrix4d transMat;
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
     
     // The vertex attributes we're representing in the buffers

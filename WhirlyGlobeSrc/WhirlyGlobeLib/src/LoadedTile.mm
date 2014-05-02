@@ -52,8 +52,8 @@ using namespace WhirlyKit;
     loadImage.borderSize = 0;
     loadImage.imageData = image;
     CGImageRef cgImage = image.CGImage;
-    loadImage.width = CGImageGetWidth(cgImage);
-    loadImage.height = CGImageGetHeight(cgImage);
+    loadImage.width = (int)CGImageGetWidth(cgImage);
+    loadImage.height = (int)CGImageGetHeight(cgImage);
     
     return loadImage;
 }
@@ -74,7 +74,7 @@ using namespace WhirlyKit;
     WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
     
     // Check if it's a PKM
-    int dataLen = [imageData length];
+    int dataLen = (int)[imageData length];
     if (dataLen > 3 && !strncmp((char *)[imageData bytes], "PKM", 3))
     {
         loadImage.type = WKLoadedImageNSDataPKM;
@@ -916,6 +916,8 @@ LoadedTile::LoadedTile()
     placeholder = false;
     drawId = EmptyIdentity;
     skirtDrawId = EmptyIdentity;
+    dispCenter = Point3d(0,0,0);
+    tileSize = 0.0;
     for (unsigned int ii=0;ii<4;ii++)
     {
         childDrawIds[ii] = EmptyIdentity;
@@ -931,11 +933,23 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
     drawId = EmptyIdentity;
     skirtDrawId = EmptyIdentity;
     elevData = nil;
+    dispCenter = Point3d(0,0,0);
+    tileSize = 0.0;
     for (unsigned int ii=0;ii<4;ii++)
     {
         childDrawIds[ii] = EmptyIdentity;
         childSkirtDrawIds[ii] = EmptyIdentity;
     }
+}
+    
+void LoadedTile::calculateSize(Quadtree *quadTree,CoordSystemDisplayAdapter *coordAdapt,CoordSystem *coordSys)
+{
+    Mbr mbr = quadTree->generateMbrForNode(nodeInfo.ident);
+    CoordSystem *sceneCoordSys = coordAdapt->getCoordSystem();
+    Point3d ll = coordAdapt->localToDisplay(sceneCoordSys->geocentricToLocal(coordSys->localToGeocentric(Point3d(mbr.ll().x(),mbr.ll().y(),0.0))));
+    Point3d ur = coordAdapt->localToDisplay(sceneCoordSys->geocentricToLocal(coordSys->localToGeocentric(Point3d(mbr.ur().x(),mbr.ur().y(),0.0))));
+    dispCenter = (ll+ur)/2.0;
+    tileSize = (ll-ur).norm();
 }
 
 // Add the geometry and texture to the scene for a given tile
@@ -993,12 +1007,12 @@ bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoaded
     if (tileBuilder->drawAtlas)
     {
         bool addedBigDraw = false;
-        tileBuilder->drawAtlas->addDrawable(draw,changeRequests,true,EmptyIdentity,&addedBigDraw);
+        tileBuilder->drawAtlas->addDrawable(draw,changeRequests,true,EmptyIdentity,&addedBigDraw,&dispCenter,tileSize);
         tileBuilder->newDrawables |= addedBigDraw;
         delete draw;
         if (skirtDraw)
         {
-            tileBuilder->drawAtlas->addDrawable(skirtDraw,changeRequests,true,EmptyIdentity,&addedBigDraw);
+            tileBuilder->drawAtlas->addDrawable(skirtDraw,changeRequests,true,EmptyIdentity,&addedBigDraw,&dispCenter,tileSize);
             tileBuilder->newDrawables |= addedBigDraw;
             delete skirtDraw;
         }
@@ -1148,12 +1162,12 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
                         if (tileBuilder->drawAtlas)
                         {
                             bool addedBigDrawable = false;
-                            tileBuilder->drawAtlas->addDrawable(childDraw, changeRequests,true,EmptyIdentity,&addedBigDrawable);
+                            tileBuilder->drawAtlas->addDrawable(childDraw, changeRequests,true,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
                             tileBuilder->newDrawables |= addedBigDrawable;
                             delete childDraw;
                             if (childSkirtDraw)
                             {
-                                tileBuilder->drawAtlas->addDrawable(childSkirtDraw, changeRequests,true,EmptyIdentity,&addedBigDrawable);
+                                tileBuilder->drawAtlas->addDrawable(childSkirtDraw, changeRequests,true,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
                                 tileBuilder->newDrawables |= addedBigDrawable;
                                 delete childSkirtDraw;
                             }
@@ -1196,12 +1210,12 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
             if (tileBuilder->drawAtlas)
             {
                 bool addedBigDrawable = false;
-                tileBuilder->drawAtlas->addDrawable(draw, changeRequests,true,EmptyIdentity,&addedBigDrawable);
+                tileBuilder->drawAtlas->addDrawable(draw, changeRequests,true,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
                 tileBuilder->newDrawables |= addedBigDrawable;
                 delete draw;
                 if (skirtDraw)
                 {
-                    tileBuilder->drawAtlas->addDrawable(skirtDraw, changeRequests,true,EmptyIdentity,&addedBigDrawable);
+                    tileBuilder->drawAtlas->addDrawable(skirtDraw, changeRequests,true,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
                     tileBuilder->newDrawables |= addedBigDrawable;
                     delete skirtDraw;
                 }
