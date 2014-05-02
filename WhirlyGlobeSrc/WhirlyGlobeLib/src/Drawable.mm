@@ -1024,10 +1024,20 @@ GLuint BasicDrawable::singleVertexSize()
 }
 
 // Adds the basic vertex data to an interleaved vertex buffer
-void BasicDrawable::addPointToBuffer(unsigned char *basePtr,int which)
+void BasicDrawable::addPointToBuffer(unsigned char *basePtr,int which,const Point3d *center)
 {
     if (!points.empty())
-        memcpy(basePtr+pointBuffer, &points[which].x(), 3*sizeof(GLfloat));
+    {
+        // If there's a center, we have to offset everything first
+        if (center)
+        {
+            Point3f &pt = points[which];
+            Point3f newPt(pt.x()-center->x(),pt.y()-center->y(),pt.z()-center->z());
+            memcpy(basePtr+pointBuffer, &newPt.x(), 3*sizeof(GLfloat));
+        } else
+            // Otherwise, copy it straight in
+            memcpy(basePtr+pointBuffer, &points[which].x(), 3*sizeof(GLfloat));
+    }
     
     for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
     {
@@ -1102,7 +1112,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
         glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
     unsigned char *basePtr = (unsigned char *)glMem + sharedBufferOffset;
     for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
-        addPointToBuffer(basePtr,ii);
+        addPointToBuffer(basePtr,ii,NULL);
 
     // And copy in the element buffer
 	if (tris.size())
@@ -1157,18 +1167,18 @@ NSData *BasicDrawable::asData(bool dupStart,bool dupEnd)
         unsigned char *basePtr = buffer;
         if (dupStart)
         {
-            addPointToBuffer(basePtr, 0);
+            addPointToBuffer(basePtr, 0, NULL);
             basePtr += vertexSize;
-            addPointToBuffer(basePtr, 0);
+            addPointToBuffer(basePtr, 0, NULL);
             basePtr += vertexSize;
         }
         for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
-            addPointToBuffer(basePtr, ii);
+            addPointToBuffer(basePtr, ii, NULL);
         if (dupEnd)
         {
-            addPointToBuffer(basePtr, (int)(points.size()-1));
+            addPointToBuffer(basePtr, (int)(points.size()-1), NULL);
             basePtr += vertexSize;
-            addPointToBuffer(basePtr, (int)(points.size()-1));
+            addPointToBuffer(basePtr, (int)(points.size()-1), NULL);
             basePtr += vertexSize;
         }
     }
@@ -1176,7 +1186,7 @@ NSData *BasicDrawable::asData(bool dupStart,bool dupEnd)
     return retData;
 }
     
-void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutableData **retElementData,int singleElementSize)
+void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutableData **retElementData,int singleElementSize,const Point3d *center)
 {
     *retVertData = nil;
     *retElementData = nil;
@@ -1201,7 +1211,7 @@ void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutable
     NSMutableData *vertData = [[NSMutableData alloc] initWithBytesNoCopy:(malloc(vertexSize * numVerts)) length:vertexSize*numVerts freeWhenDone:YES];
     unsigned char *basePtr = (unsigned char *)[vertData mutableBytes];
     for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
-        addPointToBuffer(basePtr, ii);
+        addPointToBuffer(basePtr, ii, center);
         
     // Build up the triangles
     int triSize = singleElementSize * 3;

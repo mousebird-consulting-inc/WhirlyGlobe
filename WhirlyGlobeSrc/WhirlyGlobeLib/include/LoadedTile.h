@@ -245,6 +245,9 @@ public:
     LoadedTile(const WhirlyKit::Quadtree::Identifier &);
     ~LoadedTile() { }
     
+    /// Calculate the tile's overall size.  Needed later.
+    void calculateSize(Quadtree *quadTree,CoordSystemDisplayAdapter *coordAdapt,CoordSystem *coordSys);
+    
     /// Build the data needed for a scene representation
     bool addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,int currentImage0,int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
@@ -283,6 +286,10 @@ public:
     std::vector<WhirlyKit::SubTexture> subTexs;
     /// If here, the elevation data needed to build geometry
     WhirlyKitElevationChunk *elevData;
+    /// Center of the tile in display coordinates
+    Point3d dispCenter;
+    /// Size in display coordinates
+    double tileSize;
     
     // IDs for the various fake child geometry
     WhirlyKit::SimpleIdentity childDrawIds[4];
