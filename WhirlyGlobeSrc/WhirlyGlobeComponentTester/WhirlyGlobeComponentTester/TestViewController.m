@@ -995,7 +995,8 @@ static const int NumMegaMarkers = 40000;
                   kMaplyFade: @(1.0)};
     vectorDesc = @{kMaplyColor: vecColor,
                    kMaplyVecWidth: @(vecWidth),
-                   kMaplyFade: @(1.0)};
+                   kMaplyFade: @(1.0),
+                   kMaplySelectable: @(true)};
     
 }
 
@@ -1421,7 +1422,7 @@ static const int NumMegaMarkers = 40000;
         loc = screenMarker.loc;
         title = (NSString *)screenMarker.userObject;
         subTitle = @"Screen Marker";
-        offset = CGPointMake(0.0, -16.0);
+        offset = CGPointMake(0.0, -8.0);
     } else if ([selectedObj isKindOfClass:[MaplyLabel class]])
     {
         MaplyLabel *label = (MaplyLabel *)selectedObj;
@@ -1434,7 +1435,7 @@ static const int NumMegaMarkers = 40000;
         loc = screenLabel.loc;
         title = (NSString *)screenLabel.userObject;
         subTitle = @"Screen Label";
-        offset = CGPointMake(0.0, -18.0);
+        offset = CGPointMake(0.0, -6.0);
     } else if ([selectedObj isKindOfClass:[MaplyVectorObject class]])
     {
         MaplyVectorObject *vecObj = (MaplyVectorObject *)selectedObj;
