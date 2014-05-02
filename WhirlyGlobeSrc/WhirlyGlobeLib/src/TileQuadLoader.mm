@@ -387,6 +387,7 @@ using namespace WhirlyKit;
     LoadedTile *newTile = new LoadedTile();
     newTile->nodeInfo = tileInfo;
     newTile->isLoading = true;
+    newTile->calculateSize(layer.quadtree, layer.scene->getCoordAdapter(), layer.coordSys);
 
     pthread_mutex_lock(&tileLock);
     tileSet.insert(newTile);

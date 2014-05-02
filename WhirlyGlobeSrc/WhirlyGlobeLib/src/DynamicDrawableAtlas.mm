@@ -37,7 +37,7 @@ DynamicDrawableAtlas::~DynamicDrawableAtlas()
     swapChanges.clear();
 }
     
-bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled,SimpleIdentity destTexId,bool *addedNewBigDrawable)
+bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled,SimpleIdentity destTexId,bool *addedNewBigDrawable,const Point3d *center,double objSize)
 {
     if (addedNewBigDrawable)
         *addedNewBigDrawable = false;
@@ -80,27 +80,40 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
             return false;
         }
 
-    // Turn the vertex and element data in to NSData objects
     NSMutableData *vertData = nil, *elementData = nil;
-    draw->asVertexAndElementData(&vertData,&elementData,singleElementSize);
-    if (!vertData || !elementData)
-        return false;
+    // Turn the vertex and element data in to NSData objects
+    // If there's no center, we can calculate this data once
+    if (!center)
+    {
+        draw->asVertexAndElementData(&vertData,&elementData,singleElementSize,NULL);
+        if (!vertData || !elementData)
+            return false;
+    }
     
-    // Look for a big drawable that uses the same texture
+    // Look for a big drawable that's compatible (e.g. uses the same textures and so forth)
     BigDrawable *foundBigDraw = nil;
     DrawRepresent represent(draw->getId());
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
     {
         BigDrawableInfo bigDrawInfo = *it;
         if (bigDrawInfo.baseTexId == draw->getTexId(0)
-            && bigDrawInfo.bigDraw->isCompatible(draw))
+            && bigDrawInfo.bigDraw->isCompatible(draw,center,objSize))
         {
+            // If there is a center, it's dependent on the big drawable's center
+            if (!vertData)
+                draw->asVertexAndElementData(&vertData,&elementData,singleElementSize,bigDrawInfo.bigDraw->getCenter());
+            if (!vertData || !elementData)
+                return false;
+
             if ((represent.elementChunkId = bigDrawInfo.bigDraw->addRegion(vertData, represent.vertexPos, elementData,enabled)) != EmptyIdentity)
             {
                 represent.vertexSize = (int)[vertData length];
                 represent.bigDrawId = bigDrawInfo.bigDraw->getId();
                 foundBigDraw = bigDrawInfo.bigDraw;
                 break;
+            } else {
+                vertData = nil;
+                elementData = nil;
             }
         }
     }
@@ -115,6 +128,8 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
             newBigDraw = new BigDrawable(name,singleVertexSize,vertexAttributes,singleElementSize,numVertexBytes,numElementBytes);
         if (addedNewBigDrawable)
             *addedNewBigDrawable = true;
+        if (center)
+            newBigDraw->setCenter(*center);
         newBigDraw->setOnOff(this->enable);
         newBigDraw->setProgram(shaderId);
 
@@ -127,6 +142,12 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
             newBigDraw->texInfo[0].texId = destTexId;
         }
         represent.bigDrawId = newBigDraw->getId();
+        // If there's a center, the data is dependent on that center.
+        // Note: We're creating this twice in some rare cases, which is annoying
+        if (!vertData)
+            draw->asVertexAndElementData(&vertData,&elementData,singleElementSize,newBigDraw->getCenter());
+        if (!vertData || !elementData)
+            return false;
         if ((represent.elementChunkId = newBigDraw->addRegion(vertData, represent.vertexPos, elementData,enabled)) != EmptyIdentity)
         {
             represent.vertexSize = (int)[vertData length];
