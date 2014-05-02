@@ -651,10 +651,10 @@ static const float PerfOutputDelay = 15.0;
     {
         annotate.calloutView.delegate = self;
         [annotations addObject:annotate];
-        [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView permittedArrowDirections:SMCalloutArrowDirectionAny animated:YES];
+        [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView animated:YES];
     } else {
         annotate.calloutView.delegate = nil;
-        [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView permittedArrowDirections:SMCalloutArrowDirectionAny animated:NO];
+        [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView animated:NO];
     }
     
     // But then we move it back because we're controlling its positioning
