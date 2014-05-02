@@ -524,7 +524,7 @@ public:
     NSData *asData(bool dupStart,bool dupEnd);
     
     /// Copy vertex and element data into appropriate NSData objects
-    void asVertexAndElementData(NSMutableData **retVertData,NSMutableData **retElementData,int singleElementSize);
+    void asVertexAndElementData(NSMutableData **retVertData,NSMutableData **retElementData,int singleElementSize,const Point3d *center);
     
     /// Assuming this is a set of triangles, convert to a triangle strip
     void convertToTriStrip();
@@ -539,7 +539,7 @@ protected:
     virtual void drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
     /// Add a single point to the GL Buffer.
     /// Override this to add your own data to interleaved vertex buffers.
-    virtual void addPointToBuffer(unsigned char *basePtr,int which);
+    virtual void addPointToBuffer(unsigned char *basePtr,int which,const Point3d *center);
     /// Called while a new VAO is bound.  Set up your VAO-related state here.
     virtual void setupAdditionalVAO(OpenGLES2Program *prog,GLuint vertArrayObj) { }
     /// Called after the drawable has bound all its various data, but before it actually
