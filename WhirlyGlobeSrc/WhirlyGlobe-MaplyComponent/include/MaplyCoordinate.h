@@ -32,6 +32,16 @@ typedef struct
     float x,y;
 } MaplyCoordinate;
 
+/** @typedef struct MaplyCoordinateD
+    @brief Double precision version of 2D coordinate.
+    @details This works the same was as the MaplyCoordinate, but has
+    more precision.
+  */
+typedef struct
+{
+    double x,y;
+} MaplyCoordinateD;
+
 /** @typedef struct MaplyCoordinate3d
     @brief A 3D coordinate representation.
     @details The 3D version of the Maply Coordinate adds a z values, often
@@ -94,6 +104,14 @@ MaplyBoundingBox MaplyBoundingBoxMakeWithDegrees(float degLon0,float degLat0,flo
     @return Returns true if they did overlap, false otherwise.
  */
 bool MaplyBoundingBoxesOverlap(MaplyBoundingBox bbox0,MaplyBoundingBox bbox1);
+
+/** @brief Calculate the great circle distance between two geo coordinates.
+    @details This calculates the distance on a sphere between one point and another.
+    @param p0 The starting point, lon/lat in radians.
+    @param p1 The end point, lon/lat in radians.
+    @return The distance between p0 and p1 in meters.
+  */
+double MaplyGreatCircleDistance(MaplyCoordinate p0,MaplyCoordinate p1);
     
 #if __cplusplus
 }
