@@ -82,6 +82,8 @@ using namespace WhirlyGlobe;
     doubleTapDelegate = nil;
     twoFingerTapDelegate = nil;
     doubleTapDragDelegate = nil;
+    
+    delegateRespondsToViewUpdate = false;
 }
 
 - (void) dealloc
@@ -90,11 +92,29 @@ using namespace WhirlyGlobe;
         [self clear];
 }
 
+- (void)setDelegate:(NSObject<WhirlyGlobeViewControllerDelegate> *)delegate
+{
+    _delegate = delegate;
+    delegateRespondsToViewUpdate = [_delegate respondsToSelector:@selector(globeViewController:didMove:)];
+}
+
+// Called by the globe view when something changes
+- (void)viewUpdated:(WhirlyKitView *)view
+{
+    if (delegateRespondsToViewUpdate)
+    {
+        MaplyCoordinate corners[4];
+        [self corners:corners forRot:globeView.rotQuat viewMat:[globeView calcViewMatrix]];
+        [_delegate globeViewController:self didMove:corners];
+    }
+}
+
 // Create the globe view
 - (WhirlyKitView *) loadSetup_view
 {
 	globeView = [[WhirlyGlobeView alloc] init];
     globeView.continuousZoom = true;
+    [globeView addWatcherDelegate:self];
     
     return globeView;
 }
@@ -962,6 +982,20 @@ using namespace WhirlyGlobe;
         GeoCoord geoCoord = visualView.coordAdapter->getCoordSystem()->localToGeographic(visualView.coordAdapter->displayToLocal(hit));
         retCoord->x = geoCoord.x();
         retCoord->y = geoCoord.y();
+        
+        return true;
+	} else
+        return false;
+}
+
+- (bool)geocPointFromScreen:(CGPoint)screenPt geocCoord:(double *)retCoords
+{
+	Point3d hit;
+	Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
+    if ([globeView pointOnSphereFromScreen:screenPt transform:&theTransform frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
+    {
+        Point3d geoC = visualView.coordAdapter->getCoordSystem()->localToGeocentric(visualView.coordAdapter->displayToLocal(hit));
+        retCoords[0] = geoC.x();  retCoords[1] = geoC.y();  retCoords[2] = geoC.z();
         
         return true;
 	} else
