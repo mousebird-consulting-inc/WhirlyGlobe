@@ -21,6 +21,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MaplyQuadPagingLayer.h"
+#import "MaplyTileSource.h"
 
 typedef enum  {
   GeomTypeUnknown = 0,
@@ -37,7 +38,6 @@ typedef enum {
 } MapnikCommandType;
 
 @class MaplyVectorTileStyle;
-@class MaplyRemoteTileInfo;
 
 @protocol VectorStyleDelegate <NSObject>
 
@@ -58,7 +58,7 @@ typedef enum {
 @property (nonatomic, assign) BOOL debugLabel;
 @property (nonatomic, assign) BOOL debugOutline;
 
-- (instancetype) initWithTileSource:(MaplyRemoteTileInfo*)tileSource;
+- (instancetype) initWithTileSource:(NSObject<MaplyTileSource>*)tileSource;
 - (instancetype) initWithTileSources:(NSArray*)tileSources;
 
 @end
