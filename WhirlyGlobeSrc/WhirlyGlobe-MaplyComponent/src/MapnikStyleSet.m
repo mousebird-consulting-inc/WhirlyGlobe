@@ -176,7 +176,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
         
         NSMutableDictionary *mutableSymbolizerDict = [NSMutableDictionary dictionaryWithDictionary:symbolizerDict];
         //draw priority increments as we go through the rule sets, so objects are stack based on symbolizer order in the file
-        mutableSymbolizerDict[@"drawpriority"] = @(symbolizerId);
+        mutableSymbolizerDict[@"drawpriority"] = @(symbolizerId + self.drawPriorityOffset);
         if(rule.minZoom >= self.tileMaxZoom) {
           //only set min/max vis when we are at max zoom to make things appear when overzooming
           if(rule.minScaleDenominator != 0) {
