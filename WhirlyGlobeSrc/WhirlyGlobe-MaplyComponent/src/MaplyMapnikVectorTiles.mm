@@ -422,7 +422,7 @@ static double MAX_EXTENT = 20037508.342789244;
 
 - (int)maxZoom {
   if(self.tileSources.count) {
-    return [(MaplyRemoteTileInfo*)self.tileSources[0] maxZoom];
+    return [(NSObject <MaplyTileSource>*)self.tileSources[0] maxZoom];
   } else {
     return 14;
   }
