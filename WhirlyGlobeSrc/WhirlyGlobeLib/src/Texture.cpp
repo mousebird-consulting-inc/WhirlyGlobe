@@ -130,13 +130,13 @@ namespace WhirlyKit
 {
 	
 Texture::Texture(const std::string &name)
-	: TextureBase(name), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
+	: TextureBase(name), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
 {
 }
 	
 // Construct with raw texture data
 Texture::Texture(const std::string &name,RawDataRef texData,bool isPVRTC)
-	: TextureBase(name), texData(texData), isPVRTC(isPVRTC), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
+	: TextureBase(name), texData(texData), isPVRTC(isPVRTC), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
 { 
 }
 
@@ -153,10 +153,10 @@ void Texture::setRawData(RawData *inRawData,int inWidth,int inHeight)
 
 RawDataRef Texture::processData()
 {
-	if (isPVRTC)
-	{
+    if (isPVRTC)
+    {
         return texData;
-	} else {
+    } else {
         // Depending on the format, we may need to mess around with the bytes
         switch (format)
         {
@@ -176,10 +176,78 @@ RawDataRef Texture::processData()
             case GL_ALPHA:
                 return RawDataRef(ConvertRGBATo8(texData,byteSource));
                 break;
+            case GL_COMPRESSED_RGB8_ETC2:
+                // Can't convert this (for now)
+                return texData;
+                break;                
         }
-	}
+    }
     
     return RawDataRef();
+}
+    
+void Texture::setPKMData(RawDataRef inData)
+{
+    texData = inData;
+    isPKM = true;
+}
+
+// Figure out the PKM data
+unsigned char *Texture::ResolvePKM(RawDataRef texData,int &pkmType,int &size,int &width,int &height)
+{
+    if (texData->getLen() < 16)
+        return NULL;
+    const unsigned char *header = (const unsigned char *)texData->getRawData();
+//    unsigned short *version = (unsigned short *)&header[4];
+    const unsigned char *type = &header[7];
+    
+    // Verify the magic number
+    if (strncmp((char *)header, "PKM ", 4))
+        return NULL;
+    
+    // Resolve the GL type
+    int glType = -1;
+    switch (*type)
+    {
+        case 0:
+            // ETC1 not supported
+            break;
+        case 1:
+            glType = GL_COMPRESSED_RGB8_ETC2;
+            break;
+        case 2:
+            // Unused
+            break;
+        case 3:
+            glType = GL_COMPRESSED_RGBA8_ETC2_EAC;
+            break;
+        case 4:
+            glType = GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+            break;
+        case 5:
+            glType = GL_COMPRESSED_R11_EAC;
+            break;
+        case 6:
+            glType = GL_COMPRESSED_RG11_EAC;
+            break;
+        case 7:
+            glType = GL_COMPRESSED_SIGNED_R11_EAC;
+            break;
+        case 8:
+            glType = GL_COMPRESSED_SIGNED_RG11_EAC;
+            break;
+    }
+    if (glType == -1)
+        return NULL;
+    pkmType = glType;
+
+    width = (header[8] << 8) | header[9];
+    height = (header[10] << 8) | header[11];;
+    // Skipping original width/height
+
+    size = width * height / 2;
+
+    return (unsigned char*)&header[16];
 }
     
 // Define the texture in OpenGL
@@ -220,13 +288,20 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
 	// If it's in an optimized form, we can use that more efficiently
 	if (isPVRTC)
 	{
-		// Will always be 4 bits per pixel and RGB
-		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, width, height, 0, convertedData->getLen(), convertedData->getRawData());
-        CheckGLError("Texture::createInGL() glCompressedTexImage2D()");
+	    // Will always be 4 bits per pixel and RGB
+        // Note: Porting
+//	    glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, width, height, 0, (GLsizei)convertedData->getLen(), convertedData->getRawData());
+//            CheckGLError("Texture::createInGL() glCompressedTexImage2D()");
+    } else if (isPKM) {
+            int compressedType,size;
+            int thisWidth,thisHeight;
+            unsigned char *rawData = ResolvePKM(texData,compressedType,size,thisWidth,thisHeight);
+            glCompressedTexImage2D(GL_TEXTURE_2D, 0, compressedType, width, height, 0, size, rawData);
+            CheckGLError("Texture::createInGL() glCompressedTexImage2D()");
 	} else {
-        // Depending on the format, we may need to mess around with the bytes
-        switch (format)
-        {
+         // Depending on the format, we may need to mess around with the bytes
+         switch (format)
+         {
             case GL_UNSIGNED_BYTE:
             default:
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, convertedData->getRawData());
@@ -243,9 +318,12 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
             case GL_ALPHA:
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, convertedData->getRawData());
                 break;
-        }
-        CheckGLError("Texture::createInGL() glTexImage2D()");
-	}	
+            case GL_COMPRESSED_RGB8_ETC2:
+                glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB8_ETC2, width, height, 0, (GLsizei)convertedData->getLen(), convertedData->getRawData());
+                break;
+         }
+         CheckGLError("Texture::createInGL() glTexImage2D()");
+ 	}	
     
     if (usesMipmaps)
         glGenerateMipmap(GL_TEXTURE_2D);

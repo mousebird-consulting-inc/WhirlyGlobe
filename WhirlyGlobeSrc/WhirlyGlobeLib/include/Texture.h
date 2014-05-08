@@ -84,6 +84,9 @@ public:
 	    
     /// Process the data for display based on the format.
     RawDataRef processData();
+
+    /// Set up from raw PKM (ETC2/EAC) data
+    void setPKMData(RawDataRef data);
 	
     /// Set the texture width
     void setWidth(unsigned int newWidth) { width = newWidth; }
@@ -103,16 +106,22 @@ public:
     void setSingleByteSource(WKSingleByteSource source) { byteSource = source; }
 
     /// Render side only.  Don't call this.  Create the openGL version
-	virtual bool createInGL(OpenGLMemManager *memManager);
+    virtual bool createInGL(OpenGLMemManager *memManager);
 	
-	/// Render side only.  Don't call this.  Destroy the openGL version
-	virtual void destroyInGL(OpenGLMemManager *memManager);
+    /// Render side only.  Don't call this.  Destroy the openGL version
+    virtual void destroyInGL(OpenGLMemManager *memManager);
 	
+    /// Sort the PKM data out from the NSData
+    /// This is static so the dynamic (haha) textures can use it
+    static unsigned char *ResolvePKM(RawDataRef texData,int &pkmType,int &size,int &width,int &height);
+
 protected:
-	/// Raw texture data
-	RawDataRef texData;
-	/// Need to know how we're going to load it
-	bool isPVRTC;
+    /// Raw texture data
+    RawDataRef texData;
+    /// Need to know how we're going to load it
+    bool isPVRTC;
+    /// This one has a header
+    bool isPKM;
     /// If not PVRTC, the format we'll use for the texture
     GLenum format;
     /// If we're converting down to one byte, where do we get it?

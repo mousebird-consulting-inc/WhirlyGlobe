@@ -209,11 +209,12 @@ public:
                 return;
             }
             // We happen to store tilt in the view matrix.
-            if (!viewState->viewMatrix.isIdentity())
-            {
-                canShortCircuitImportance = false;
-                return;
-            }
+            // Note: Can't detect tilt reliably
+//            if (!viewState->viewMatrix.isIdentity())
+//            {
+//                canShortCircuitImportance = false;
+//                return;
+//            }
             // The tile source coordinate system must be the same as the display's system
             if (!coordSys->isSameAs(coordAdapter->getCoordSystem()))
             {
@@ -248,6 +249,11 @@ public:
 
     virtual void adapterWakeUp()
     {
+    }
+
+    virtual void reset(ChangeSet &changes)
+    {
+    	// Note: Porting.  Fix this.
     }
 
     /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.

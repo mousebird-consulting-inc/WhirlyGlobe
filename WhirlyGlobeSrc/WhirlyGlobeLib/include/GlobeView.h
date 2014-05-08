@@ -112,6 +112,9 @@ public:
      */
     Eigen::Quaterniond makeRotationToGeoCoord(const WhirlyKit::GeoCoord &worldLoc,bool northUp);
 
+    // Construct a rotation to given location and heading
+    Eigen::Quaterniond makeRotationToGeoCoord(const WhirlyKit::GeoCoord &worldCoord,double heading);
+
     /// Cancel any outstanding animation
     void cancelAnimation();
 

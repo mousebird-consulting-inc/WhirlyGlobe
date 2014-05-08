@@ -83,9 +83,91 @@ float MapView::calcZbufferRes()
 Eigen::Matrix4d MapView::calcModelMatrix()
 {
     Eigen::Affine3d trans(Eigen::Translation3d(-loc.x(),-loc.y(),-loc.z()));
+//    Eigen::Affine3d rot(Eigen::AngleAxisd(-_rotAngle, Vector3d::UnitZ()).toRotationMatrix());
+//    return (rot * trans).matrix();
+    return trans.matrix();
+}
+
+Eigen::Matrix4d MapView::calcViewMatrix()
+{
     Eigen::Affine3d rot(Eigen::AngleAxisd(-rotAngle, Vector3d::UnitZ()).toRotationMatrix());
+    return rot.matrix();
+}
+
+void MapView::getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize)
+{
+    Point3f ll,ur;
+    if (wrap && coordAdapter->getBounds(ll, ur))
+    {
+        // Figure out where we are, first off
+        GeoCoord geoLL = coordAdapter->getCoordSystem()->localToGeographic(ll);
+        GeoCoord geoUR = coordAdapter->getCoordSystem()->localToGeographic(ur);
+        float spanX = geoUR.x()-geoLL.x();
+        float offX = loc.x()-geoLL.x();
+        int num = floorf(offX/spanX);
+        std::vector<int> nums;
+        nums.push_back(num);
+        nums.push_back(num-1);
+        nums.push_back(num+1);
+        
+        float localSpanX = ur.x()-ll.x();
+        
+        // See if the framebuffer lands in any of the potential matrices
+        Eigen::Matrix4d modelTrans = calcViewMatrix() * calcModelMatrix();
+        Mbr screenMbr;
+        screenMbr.addPoint(Point2f(-1.0,-1.0));
+        screenMbr.addPoint(Point2f(1.0,1.0));
+        Matrix4d projMat = calcProjectionMatrix(frameBufferSize,0.0);
+        for (unsigned int ii=0;ii<nums.size();ii++)
+        {
+            int thisNum = nums[ii];
+            Eigen::Affine3d offsetMat(Eigen::Translation3d(thisNum*localSpanX,0.0,0.0));
+            Eigen::Matrix4d testMat = projMat * modelTrans;
+            Point3d testPts[4];
+            testPts[0] = Point3d(thisNum*localSpanX+ll.x(),ll.y(),0.0);
+            testPts[1] = Point3d((thisNum+1)*localSpanX+ll.x(),ll.y(),0.0);
+            testPts[2] = Point3d((thisNum+1)*localSpanX+ll.x(),ur.y(),0.0);
+            testPts[3] = Point3d(thisNum*localSpanX+ll.x(),ur.y(),0.0);
+            Mbr testMbr;
+            for (unsigned int jj=0;jj<4;jj++)
+            {
+                Vector4d screenPt = testMat * Vector4d(testPts[jj].x(),testPts[jj].y(),testPts[jj].z(),1.0);
+                screenPt /= screenPt.w();
+                testMbr.addPoint(Point2f(screenPt.x(),screenPt.y()));
+            }
+            if (testMbr.overlaps(screenMbr))
+                offsetMatrices.push_back(offsetMat.matrix());
+        }
+
+        // Don't know why this would happen, but let's not tempt fate
+        if (offsetMatrices.empty())
+            offsetMatrices.push_back(Matrix4d::Identity());
+    } else {
+        // Just pass back the identity matrix
+        Eigen::Matrix4d ident;
+        offsetMatrices.push_back(ident.Identity());
+    }
+}
+
+WhirlyKit::Point2f MapView::unwrapCoordinate(const WhirlyKit::Point2f &inPt)
+{
+    Point2f pt = inPt;
     
-    return (rot * trans).matrix();
+    if (wrap)
+    {
+        Point3f ll,ur;
+        if (coordAdapter->getBounds(ll, ur))
+        {
+            GeoCoord geoLL = coordAdapter->getCoordSystem()->localToGeographic(ll);
+            GeoCoord geoUR = coordAdapter->getCoordSystem()->localToGeographic(ur);
+            float spanX = geoUR.x()-geoLL.x();
+            float offX = pt.x()-geoLL.x();
+            int num = floorf(offX/spanX);
+            pt.x() += -num * spanX;
+        }
+    }
+    
+    return pt;
 }
 
 double MapView::heightAboveSurface()

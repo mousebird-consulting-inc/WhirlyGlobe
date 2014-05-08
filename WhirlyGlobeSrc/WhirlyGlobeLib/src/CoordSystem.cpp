@@ -49,9 +49,10 @@ Point3d CoordSystemConvert3d(CoordSystem *inSystem,CoordSystem *outSystem,Point3
     return outPt;
 }
     
-GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,Point3d ll,Point3d ur,Point3d center)
-    : CoordSystemDisplayAdapter(coordSys,center), ll(ll), ur(ur), center(center), coordSys(coordSys)
+GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,Point3d ll,Point3d ur,Point3d inCenter)
+    : CoordSystemDisplayAdapter(coordSys,center), ll(ll), ur(ur), coordSys(coordSys)
 {
+    center = inCenter;
 }
 
 GeneralCoordSystemDisplayAdapter::~GeneralCoordSystemDisplayAdapter()

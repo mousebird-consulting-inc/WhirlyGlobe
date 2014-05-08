@@ -22,9 +22,12 @@
 
 #define GL_GLEXT_PROTOTYPES
 //#define __USE_SDL_GLES__
-#include <GLES2/gl2platform.h>
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
+//#include <GLES2/gl2platform.h>
+//#include <GLES2/gl2.h>
+//#include <GLES2/gl2ext.h>
+#include <GLES3/gl3platform.h>
+#include <GLES3/gl3.h>
+#include <GLES3/gl3ext.h>
 #include <EGL/egl.h>
 
 /// Returns false if it can't find all the extensions it needs
@@ -37,6 +40,8 @@ extern bool SetupGLESExtensions();
 #import <OpenGLES/ES1/glext.h>
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
+#import <OpenGLES/ES3/gl.h>
+#import <OpenGLES/ES3/glext.h>
 
 #endif
 

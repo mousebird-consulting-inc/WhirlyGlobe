@@ -370,7 +370,7 @@ bool OpenGLES2Program::hasLights()
 //        return false;
 //    lightsLastUpdated = lastUpdate;
 //    
-//    int numLights = [lights count];
+//    int numLights = (int)[lights count];
 //    if (numLights > 8) numLights = 8;
 //    bool lightsSet = true;
 //    for (unsigned int ii=0;ii<numLights;ii++)

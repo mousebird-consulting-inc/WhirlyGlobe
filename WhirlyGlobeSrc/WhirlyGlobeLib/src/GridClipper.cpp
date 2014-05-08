@@ -74,7 +74,7 @@ bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr,std::vector<VectorRing>
 bool ClipLoopToGrid(const VectorRing &ring,Point2f org,Point2f spacing,std::vector<VectorRing> &rets)
 {
     Mbr mbr(ring);
-    int startRet = rets.size();
+    int startRet = (int)(rets.size());
     
     int ll_ix = (int)std::floor((mbr.ll().x()-org.x())/spacing.x());
     int ll_iy = (int)std::floor((mbr.ll().y()-org.y())/spacing.y());

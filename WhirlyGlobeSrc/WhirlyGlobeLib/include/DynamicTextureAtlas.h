@@ -167,6 +167,9 @@ public:
     /// Return the IDs for the dynamic textures we're using
     void getTextureIDs(std::vector<SimpleIdentity> &texIDs,int which);
 
+    /// Look for any textures that should be cleaned up
+    void cleanup(ChangeSet &changes);
+
     /// Clear out the active dynamic textures.  Caller deals with the
     ///  change requests.
     void shutdown(ChangeSet &changes);

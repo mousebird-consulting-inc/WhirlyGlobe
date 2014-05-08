@@ -69,8 +69,9 @@ public:
     /// Dump out info about the view state
     void log();
     
-    Eigen::Matrix4d modelMatrix,viewMatrix,fullMatrix,projMatrix,fullNormalMatrix;
-    Eigen::Matrix4d invModelMatrix,invViewMatrix,invFullMatrix,invProjMatrix;
+    Eigen::Matrix4d modelMatrix,projMatrix;
+    std::vector<Eigen::Matrix4d> viewMatrices,invViewMatrices,fullMatrices,fullNormalMatrices,invFullMatrices;
+    Eigen::Matrix4d invModelMatrix,invProjMatrix;
     double fieldOfView;
     double imagePlaneSize;
     double nearPlane;

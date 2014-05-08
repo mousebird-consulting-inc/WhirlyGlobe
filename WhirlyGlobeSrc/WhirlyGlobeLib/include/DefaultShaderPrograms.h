@@ -35,6 +35,8 @@ namespace WhirlyKit
 #define kToolkitDefaultLineNoBackfaceProgram "Default Line;backface=no"
 /// Billboard shader
 #define kToolkitDefaultBillboardProgram "Default Billboard"
+/// Screen space shader
+#define kToolkitDefaultScreenSpaceProgram "Default Screenspace"
 
 /// Create the default shaders and register them in the appropriate places in the scene
 void SetupDefaultShaders(Scene *);

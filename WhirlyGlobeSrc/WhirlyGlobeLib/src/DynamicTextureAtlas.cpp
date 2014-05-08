@@ -49,9 +49,45 @@ DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,
             format = GL_ALPHA;
             type = GL_UNSIGNED_BYTE;
             break;
-        case GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
+            // Note: Porting
+//        case GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
+//            compressed = true;
+//            format = GL_RGBA;
+//            type = inFormat;
+//            break;
+        case GL_COMPRESSED_RGB8_ETC2:
+            compressed = true;
+            format = GL_RGB;
+            type = inFormat;
+            break;
+        case GL_COMPRESSED_RGBA8_ETC2_EAC:
             compressed = true;
             format = GL_RGBA;
+            type = inFormat;
+            break;
+        case GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
+            compressed = true;
+            format = GL_RGBA;
+            type = inFormat;
+            break;
+        case GL_COMPRESSED_R11_EAC:
+            compressed = true;
+            format = GL_ALPHA;
+            type = inFormat;
+            break;
+        case GL_COMPRESSED_SIGNED_R11_EAC:
+            compressed = true;
+            format = GL_ALPHA;
+            type = inFormat;
+            break;
+        case GL_COMPRESSED_RG11_EAC:
+            compressed = true;
+            format = GL_ALPHA;
+            type = inFormat;
+            break;
+        case GL_COMPRESSED_SIGNED_RG11_EAC:
+            compressed = true;
+            format = GL_ALPHA;
             type = inFormat;
             break;
         default:
@@ -100,7 +136,7 @@ bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
     if (compressed)
     {
         size_t size = texSize * texSize / 2;
-		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, texSize, texSize, 0, size, NULL);
+	glCompressedTexImage2D(GL_TEXTURE_2D, 0, type, texSize, texSize, 0, (GLsizei)size, NULL);
     } else {
         // Turn this on to provide glTexImage2D with empty memory so Instruments doesn't complain
 //        size_t size = texSize*texSize*4;
@@ -146,8 +182,13 @@ void DynamicTexture::addTextureData(int startX,int startY,int width,int height,R
         CheckGLError("DynamicTexture::createInGL() glBindTexture()");
         if (compressed)
         {
-            size_t size = width * height / 2;
-            glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, size, data->getRawData());
+            int pkmType;
+            int size,thisWidth,thisHeight;
+            unsigned char *pixData = Texture::ResolvePKM(data,pkmType, size, thisWidth, thisHeight);
+            if (!pixData || pkmType != type || thisWidth != width || thisHeight != height)
+                fprintf(stderr,"Compressed texture doesn't match atlas.");
+            else
+                glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, thisWidth, thisHeight, pkmType, (GLsizei)size, pixData);
         } else {
             glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, data->getRawData());
         }
@@ -403,14 +444,27 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &chan
             DynamicTextureVec *texVec = *it;
             DynamicTexture *tex = texVec->at(0);
             tex->getNumRegions()--;
-            if (tex->getNumRegions() == 0)
-            {
-                for (unsigned int ii=0;ii<texVec->size();ii++)
-                    changes.push_back(new RemTextureReq(texVec->at(ii)->getId()));
-                textures.erase(it);
-                // Note: Debugging
-//                NSLog(@"Removing dynamic texture %ld (%ld)",tex->getId(),textures.size());
-            }
+        }
+    }
+}
+
+void DynamicTextureAtlas::cleanup(ChangeSet &changes)
+{
+    DynamicTextureSet::iterator itNext;
+    for (DynamicTextureSet::iterator it = textures.begin();it != textures.end(); it = itNext)
+    {
+        itNext = it;
+        ++itNext;
+        DynamicTextureVec *texVec = *it;
+        DynamicTexture *tex = texVec->at(0);
+        if (tex->getNumRegions() == 0)
+        {
+            for (unsigned int ii=0;ii<texVec->size();ii++)
+                changes.push_back(new RemTextureReq(texVec->at(ii)->getId()));
+            delete texVec;
+            textures.erase(it);
+            // Note: Debugging
+            //                NSLog(@"Removing dynamic texture %ld (%ld)",tex->getId(),textures.size());
         }
     }
 }
@@ -433,6 +487,7 @@ void DynamicTextureAtlas::shutdown(ChangeSet &changes)
         DynamicTextureVec *texVec = *it;
         for (unsigned int ii=0;ii<texVec->size();ii++)
             changes.push_back(new RemTextureReq(texVec->at(ii)->getId()));
+        delete texVec;
     }
     textures.clear();
     regions.clear();
@@ -465,8 +520,13 @@ void DynamicTextureAtlas::log()
         case GL_ALPHA:
             texelSize = 1;
             break;
-        case GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
-            // Doesn't really matter.  Can't do these.
+            // Note: Porting
+//        case GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
+//            // Doesn't really matter.  Can't do these.
+//            texelSize = 1;
+//            break;
+        case GL_COMPRESSED_RGB8_ETC2:
+            // Note: Not really
             texelSize = 1;
             break;
         default:

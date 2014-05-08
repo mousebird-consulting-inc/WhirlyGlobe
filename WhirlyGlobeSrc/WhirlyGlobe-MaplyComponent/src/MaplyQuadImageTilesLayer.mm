@@ -589,13 +589,6 @@ public:
             canShortCircuitImportance = false;
             return;
         }
-        // We happen to store tilt in the view matrix.
-        Eigen::Matrix4d &viewMat = viewState->viewMatrix;
-        if (!viewMat.isIdentity())
-        {
-            canShortCircuitImportance = false;
-            return;
-        }
         // The tile source coordinate system must be the same as the display's system
         if (!coordSys->coordSystem->isSameAs(coordAdapter->getCoordSystem()))
         {
@@ -605,6 +598,8 @@ public:
         
         // We need to feel our way down to the appropriate level
         maxShortCircuitLevel = [self targetZoomLevel];
+        if (singleLevelLoading)
+            quadLayer->targetLevel = maxShortCircuitLevel;
     } else {
         // Note: Can't short circuit in this case.  Something wrong with the math
         canShortCircuitImportance = false;

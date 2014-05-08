@@ -87,6 +87,7 @@ public:
     
     /// QuadLoader methods
     virtual void init(QuadDisplayController *inControl,Scene *inScene);
+    virtual void reset(ChangeSet &changes);
     virtual void shutdownLayer(ChangeSet &changes);
     virtual bool isReady();
     virtual void loadTile(const Quadtree::NodeInfo &tileInfo);

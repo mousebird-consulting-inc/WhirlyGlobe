@@ -35,7 +35,7 @@ ScreenSpaceGenerator::SimpleGeometry::SimpleGeometry()
 {
 }
 
-ScreenSpaceGenerator::SimpleGeometry::SimpleGeometry(SimpleIdentity texID,SimpleIdentity programID,RGBAColor color,const Point2fVector &coords,const std::vector<TexCoord> &texCoords)
+ScreenSpaceGenerator::SimpleGeometry::SimpleGeometry(SimpleIdentity texID,SimpleIdentity programID,RGBAColor color,const Point2dVector &coords,const std::vector<TexCoord> &texCoords)
     : texID(texID), programID(programID), color(color), coords(coords), texCoords(texCoords)
 {    
 }
@@ -61,145 +61,149 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::Renderer
            (shape->maxVis <= visVal && visVal <= shape->minVis))))
         return;
         
-    // Project the world location to the screen
-    Point2f screenPt;
-    Eigen::Matrix4d modelTrans = Matrix4fToMatrix4d(frameInfo->viewAndModelMat);
-
-    WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(frameInfo->theView);
-    Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(frameInfo->theView);
-    if (globeView)
+    for (unsigned int offi=0;offi<frameInfo->offsetMatrices.size();offi++)
     {
-        mapView = NULL;
-        // Make sure this one is facing toward the viewer
-        if (CheckPointAndNormFacing(shape->worldLoc,shape->worldLoc.normalized(),frameInfo->viewAndModelMat,frameInfo->viewModelNormalMat) < 0.0)
-            return;
+        // Project the world location to the screen
+        Point2f screenPt;
+        Eigen::Matrix4d &offMatrix = frameInfo->offsetMatrices[offi];
+        Eigen::Matrix4d modelAndViewMat = frameInfo->viewTrans4d * offMatrix * frameInfo->modelTrans4d;
 
-        // Note: Need to move to the view frustum logic
-        screenPt = globeView->pointOnScreenFromSphere(Vector3fToVector3d(shape->worldLoc),&modelTrans,frameInfo->sceneRenderer->getFramebufferSize());
-    } else {
-        screenPt = mapView->pointOnScreenFromPlane(Vector3fToVector3d(shape->worldLoc),&modelTrans,frameInfo->sceneRenderer->getFramebufferSize());
-    }
-            
-    // Note: This check is too simple
-    if (screenPt.x() < frameMbr.ll().x() || screenPt.y() < frameMbr.ll().y() ||
-        screenPt.x() > frameMbr.ur().x() || screenPt.y() > frameMbr.ur().y())
-        return;
-    
-    float resScale = frameInfo->sceneRenderer->getScale();
-
-    screenPt.x() += shape->offset.x()*resScale;
-    screenPt.y() += shape->offset.y()*resScale;
-    
-    // It survived, so add it to the list if someone else needs to know where they wound up
-    ProjectedPoint projPt;
-    projPt.shapeID = shape->getId();
-    projPt.screenLoc = Point2f(screenPt.x(),screenPt.y());
-    projPts.push_back(projPt);
-
-    // If we need to do a rotation, throw out a point along the vector and see where it goes
-    float screenRot = 0.0;
-    Matrix2f screenRotMat;
-    if (shape->useRotation)
-    {
-        Point3f norm,right,up;
-        
+        WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(frameInfo->theView);
+        Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(frameInfo->theView);
         if (globeView)
         {
-            Point3f simpleUp(0,0,1);
-            norm = shape->worldLoc;
-            norm.normalize();
-            right = simpleUp.cross(norm);
-            up = norm.cross(right);
-            right.normalize();
-            up.normalize();
+            mapView = NULL;
+            // Make sure this one is facing toward the viewer
+            Point3f worldLoc3f(shape->worldLoc.x(),shape->worldLoc.y(),shape->worldLoc.z());
+            if (CheckPointAndNormFacing(worldLoc3f,worldLoc3f.normalized(),frameInfo->viewAndModelMat,frameInfo->viewModelNormalMat) < 0.0)
+                continue;
+
+            // Note: Need to move to the view frustum logic
+            screenPt = globeView->pointOnScreenFromSphere(shape->worldLoc,&modelAndViewMat,frameInfo->sceneRenderer->getFramebufferSize());
         } else {
-            right = Point3f(1,0,0);
-            norm = Point3f(0,0,1);
-            up = Point3f(0,1,0);
+            screenPt = mapView->pointOnScreenFromPlane(shape->worldLoc,&modelAndViewMat,frameInfo->sceneRenderer->getFramebufferSize());
         }
-        // Note: Check if the axes made any sense.  We might be at a pole.
-        Point3f rightDir = right * sinf(shape->rotation);
-        Point3f upDir = up * cosf(shape->rotation);
-        
-        Point3f outPt = rightDir * 1.0 + upDir * 1.0 + shape->worldLoc;
-        Point2f outScreenPt;
-        if (globeView)
-            outScreenPt = globeView->pointOnScreenFromSphere(Vector3fToVector3d(outPt),&modelTrans,frameInfo->sceneRenderer->getFramebufferSize());
-        else
-            outScreenPt = mapView->pointOnScreenFromPlane(Vector3fToVector3d(outPt),&modelTrans,frameInfo->sceneRenderer->getFramebufferSize());
-        screenRot = M_PI/2.0-atan2f(screenPt.y()-outScreenPt.y(),outScreenPt.x()-screenPt.x());
-        screenRotMat = Eigen::Rotation2Df(screenRot);
-    }
+            
+        // Note: This check is too simple
+        if (screenPt.x() < frameMbr.ll().x() || screenPt.y() < frameMbr.ll().y() ||
+            screenPt.x() > frameMbr.ur().x() || screenPt.y() > frameMbr.ur().y())
+            continue;
+    
+        float resScale = frameInfo->sceneRenderer->getScale();
 
-    // Set up the alpha scaling
-    bool hasAlpha = false;
-    float scale = 1.0;
-    if (shape->fadeDown < shape->fadeUp)
-    {
-        // Heading to 1
-        if (frameInfo->currentTime < shape->fadeDown)
-            scale = 0.0;
-        else
-            if (frameInfo->currentTime > shape->fadeUp)
-                scale = 1.0;
-            else
-            {
-                scale = (frameInfo->currentTime - shape->fadeDown)/(shape->fadeUp - shape->fadeDown);
-                hasAlpha = true;
-            }
-    } else
-        if (shape->fadeUp < shape->fadeDown)
+        screenPt.x() += shape->offset.x()*resScale;
+        screenPt.y() += shape->offset.y()*resScale;
+    
+        // If we need to do a rotation, throw out a point along the vector and see where it goes
+        float screenRot = 0.0;
+        Matrix2d screenRotMat;
+        if (shape->useRotation)
         {
-            // Heading to 0
-            if (frameInfo->currentTime < shape->fadeUp)
-                scale = 1.0;
+            Point3d norm,right,up;
+        
+            if (globeView)
+            {
+                Point3d simpleUp(0,0,1);
+                norm = shape->worldLoc;
+                norm.normalize();
+                right = simpleUp.cross(norm);
+                up = norm.cross(right);
+                right.normalize();
+                up.normalize();
+            } else {
+                right = Point3d(1,0,0);
+                norm = Point3d(0,0,1);
+                up = Point3d(0,1,0);
+            }
+            // Note: Check if the axes made any sense.  We might be at a pole.
+            Point3d rightDir = right * sinf(shape->rotation);
+            Point3d upDir = up * cosf(shape->rotation);
+        
+            Point3d outPt = rightDir * 0.00001 + upDir * 0.00001 + shape->worldLoc;
+            Point2f outScreenPt;
+            if (globeView)
+                outScreenPt = globeView->pointOnScreenFromSphere(outPt,&modelAndViewMat,frameInfo->sceneRenderer->getFramebufferSize());
             else
-                if (frameInfo->currentTime > shape->fadeDown)
-                    scale = 0.0;
+                outScreenPt = mapView->pointOnScreenFromPlane(outPt,&modelAndViewMat,frameInfo->sceneRenderer->getFramebufferSize());
+            screenRot = M_PI/2.0-atan2f(screenPt.y()-outScreenPt.y(),outScreenPt.x()-screenPt.x());
+            screenRotMat = Eigen::Rotation2Dd(screenRot);
+        }
+        
+        // It survived, so add it to the list if someone else needs to know where they wound up
+        ProjectedPoint projPt;
+        projPt.shapeID = shape->getId();
+        projPt.screenLoc = Point2d(screenPt.x()+shape->offset.x()*resScale,screenPt.y()+shape->offset.y()*resScale);
+        projPts.push_back(projPt);
+
+        // Set up the alpha scaling
+        bool hasAlpha = false;
+        float scale = 1.0;
+        if (shape->fadeDown < shape->fadeUp)
+        {
+            // Heading to 1
+            if (frameInfo->currentTime < shape->fadeDown)
+                scale = 0.0;
+            else
+                if (frameInfo->currentTime > shape->fadeUp)
+                    scale = 1.0;
                 else
                 {
+                    scale = (frameInfo->currentTime - shape->fadeDown)/(shape->fadeUp - shape->fadeDown);
                     hasAlpha = true;
-                    scale = 1.0-(frameInfo->currentTime - shape->fadeUp)/(shape->fadeDown - shape->fadeUp);
                 }
-        }
-
-    // Work through the individual pieces of geometry
-    for (unsigned int si=0;si<shape->geom.size();si++)
-    {
-        SimpleGeometry &geom = shape->geom[si];
-
-        DrawableMap::iterator it = drawables.find(TextureAndProgram(geom.texID,geom.programID));
-        BasicDrawable *draw = NULL;
-        if (it == drawables.end())
-        {
-            draw = new BasicDrawable("Screen Space Generator");
-            draw->setType(GL_TRIANGLES);
-            draw->setTexId(0,geom.texID);
-            draw->setProgram(geom.programID);
-            drawables[TextureAndProgram(geom.texID,geom.programID)] = draw;
         } else
-            draw = it->second;
+            if (shape->fadeUp < shape->fadeDown)
+            {
+                // Heading to 0
+                if (frameInfo->currentTime < shape->fadeUp)
+                    scale = 1.0;
+                else
+                    if (frameInfo->currentTime > shape->fadeDown)
+                        scale = 0.0;
+                    else
+                    {
+                        hasAlpha = true;
+                        scale = 1.0-(frameInfo->currentTime - shape->fadeUp)/(shape->fadeDown - shape->fadeUp);
+                    }
+            }
 
-        // Now build the points, texture coordinates and colors
-        Point2f center = screenPt;
-        int vOff = draw->getNumPoints();
-
-        RGBAColor color(scale*geom.color.r,scale*geom.color.g,scale*geom.color.b,scale*geom.color.a);
-    
-        // Set up the point, including snap to make it look better
-        float resScale = frameInfo->sceneRenderer->getScale();
-        Point2fVector pts;
-        pts.resize(geom.coords.size());
-        Point2f org(MAXFLOAT,MAXFLOAT);
-        for (unsigned int ii=0;ii<geom.coords.size();ii++)
+        // Work through the individual pieces of geometry
+        for (unsigned int si=0;si<shape->geom.size();si++)
         {
-            Point2f coord = geom.coords[ii];
-            if (screenRot != 0.0)
-                coord = screenRotMat * coord;
-            pts[ii] = Point2f(coord.x()*resScale,coord.y()*resScale)+center;
-            org.x() = std::min(pts[ii].x(),org.x());
-            org.y() = std::min(pts[ii].y(),org.y());
-        }
+            SimpleGeometry &geom = shape->geom[si];
+
+            DrawableMap::iterator it = drawables.find(TextureAndProgram(geom.texID,geom.programID));
+            BasicDrawable *draw = NULL;
+            if (it == drawables.end())
+            {
+                draw = new BasicDrawable("Screen Space Generator");
+                draw->setType(GL_TRIANGLES);
+                draw->setTexId(0,geom.texID);
+                draw->setProgram(geom.programID);
+                drawables[TextureAndProgram(geom.texID,geom.programID)] = draw;
+            } else
+                draw = it->second;
+
+            // Now build the points, texture coordinates and colors
+            Point2f center = screenPt;
+            int vOff = draw->getNumPoints();
+
+            RGBAColor color(scale*geom.color.r,scale*geom.color.g,scale*geom.color.b,scale*geom.color.a);
+    
+            // Set up the point, including snap to make it look better
+            float resScale = frameInfo->sceneRenderer->getScale();
+            Point2fVector pts;
+            pts.resize(geom.coords.size());
+            Point2f org(MAXFLOAT,MAXFLOAT);
+            for (unsigned int ii=0;ii<geom.coords.size();ii++)
+            {
+                Point2d coord = geom.coords[ii] + shape->offset;
+                if (screenRot != 0.0)
+                    coord = screenRotMat * coord;
+                pts[ii] = Point2f(coord.x()*resScale,coord.y()*resScale)+center;
+                org.x() = std::min(pts[ii].x(),org.x());
+                org.y() = std::min(pts[ii].y(),org.y());
+            }
     
     // Snapping doesn't look that good
 #if 0
@@ -218,28 +222,29 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::Renderer
         float orgY = 0.0;
 #endif
     
-        for (unsigned int ii=0;ii<geom.coords.size();ii++)
-        {
-            Point2f coord = pts[ii];
-            draw->addPoint(Point3f(coord.x()+orgX,coord.y()+orgY,0.0));
-            draw->addTexCoord(0,geom.texCoords[ii]);
-            draw->addColor(color);
-            draw->addNormal(Point3f(0,0,1));
-        }
-        draw->setAlpha(hasAlpha);
+            for (unsigned int ii=0;ii<geom.coords.size();ii++)
+            {
+                Point2f coord = pts[ii];
+                draw->addPoint(Point3f(coord.x()+orgX,coord.y()+orgY,0.0));
+                draw->addTexCoord(0,geom.texCoords[ii]);
+                draw->addColor(color);
+                draw->addNormal(Point3f(0,0,1));
+            }
+            draw->setAlpha(hasAlpha);
 
-        // Build the triangles
-        for (unsigned int ii=2;ii<geom.coords.size();ii++)
-        {
-            draw->addTriangle(BasicDrawable::Triangle(0+vOff,ii+vOff,ii-1+vOff));
-        }
+            // Build the triangles
+            for (unsigned int ii=2;ii<geom.coords.size();ii++)
+            {
+                draw->addTriangle(BasicDrawable::Triangle(0+vOff,ii+vOff,ii-1+vOff));
+            }
         
-        int oldDrawPriority = draw->getDrawPriority();
-        draw->setDrawPriority((shape->drawPriority > oldDrawPriority) ? shape->drawPriority : oldDrawPriority);
-    }    
+            int oldDrawPriority = draw->getDrawPriority();
+            draw->setDrawPriority((shape->drawPriority > oldDrawPriority) ? shape->drawPriority : oldDrawPriority);
+        } 
+    }   
 }
     
-ScreenSpaceGenerator::ScreenSpaceGenerator(const std::string &name,Point2f margin)
+ScreenSpaceGenerator::ScreenSpaceGenerator(const std::string &name,Point2d margin)
     : Generator(name), margin(margin)
 {
     pthread_mutex_init(&projectedPtsLock,NULL);    

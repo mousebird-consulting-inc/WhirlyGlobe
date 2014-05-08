@@ -114,6 +114,10 @@ public:
     /// isInitial is set if this is the first time through
     virtual bool shouldUpdate(ViewState *viewState,bool isInitial) = 0;
 
+    /// If this is filled in, we can do a hard reset while the layer is running.
+    /// This is pretty much identical to shutdownLayer:scene: but we expect to run again afterwards.
+    virtual void reset(ChangeSet &changes) = 0;
+
     /// Normally we'd call an endUpdates, but if we're holding that open for a while
     /// (e.g. matching frame boundaries), let's at least get all the work done.
     virtual void updateWithoutFlush() { };
@@ -213,6 +217,9 @@ public:
     /// How far the viewer has to move to force an update (if non-zero)
     float getMinUpdateDist() { return minUpdateDist; }
     void setMinUpdateDist(float newDist) { minUpdateDist = newDist; }
+    /// If set, we're only displaying the target level, ideally
+    int getTargetLevel() { return targetLevel; }
+    void setTargetLevel(int newLevel) { targetLevel = newLevel; }
 
     /// Draw lines instead of polygons, for demonstration.
     bool getLineMode() { return lineMode; }
@@ -256,6 +263,13 @@ public:
 
     /// Call this to force a reload for all existing tiles
     void refresh(ChangeSet &changes);
+    
+    /// This cleans out existing resources and allows you to change tile sources.
+    /// It only works if the tile loader supports reload
+    void reset(ChangeSet &changes);
+
+    /// Call this to have the layer re-evaluate its currently displayed data
+    void poke();
 
     // If we were waiting for something, apparently we no longer are
     // No idea what thread this might get called on
@@ -290,6 +304,7 @@ protected:
     TimeInterval fullLoadTimeout;
     TimeInterval viewUpdatePeriod;
     float minUpdateDist;
+    int targetLevel;
 
     bool lineMode;
     bool debugMode;
@@ -297,10 +312,14 @@ protected:
     /// Nodes being evaluated for loading
     QuadNodeInfoSet nodesForEval;
     
+    // Nodes to turn into phantoms.  We like to wait a bit
+    WhirlyKit::QuadNodeInfoSet toPhantom;
+    
     /// State of the view the last time we were called
     ViewState viewState;
     
     // In metered mode, the last time we flushed data to the scene
+    // Porting: The iOS branch has an updated version of this
     TimeInterval lastFlush;
     
     // In metered mode, we'll only flush if something happened

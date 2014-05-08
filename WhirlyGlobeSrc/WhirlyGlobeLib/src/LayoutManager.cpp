@@ -44,7 +44,7 @@ public:
     }
     
     // Try to add an object.  Might fail (kind of the whole point).
-    bool addObject(const Point2fVector &pts)
+    bool addObject(const Point2dVector &pts)
     {
         Mbr objMbr;
         for (unsigned int ii=0;ii<pts.size();ii++)
@@ -72,7 +72,7 @@ public:
         
         // Okay, so it doesn't overlap.  Let's add it where needed.
         objects.resize(objects.size()+1);
-        int newId = objects.size()-1;
+        int newId = (int)(objects.size()-1);
         BoundedObject &newObj = objects[newId];
         newObj.pts = pts;
         for (int ix=sx;ix<=ex;ix++)
@@ -91,7 +91,7 @@ protected:
     {
     public:
         ~BoundedObject() { }
-        Point2fVector pts;
+        Point2dVector pts;
     };
     
     Mbr mbr;
@@ -250,35 +250,51 @@ void LayoutManager::runLayoutRules(WhirlyKit::ViewState *viewState)
     Mbr screenMbr(Point2f(-ScreenBuffer * frameBufferSize.x(),-ScreenBuffer * frameBufferSize.y()),frameBufferSize * (1.0 + ScreenBuffer));
     OverlapManager overlapMan(screenMbr,OverlapSampleX,OverlapSampleY);
     
-    Matrix4d modelTrans = viewState->fullMatrix;
-    Matrix4f fullMatrix4f = Matrix4dToMatrix4f(viewState->fullMatrix);
-    Matrix4f fullNormalMatrix4f = Matrix4dToMatrix4f(viewState->fullNormalMatrix);
+    Matrix4d modelTrans = viewState->fullMatrices[0];
+    Matrix4f fullMatrix4f = Matrix4dToMatrix4f(viewState->fullMatrices[0]);
+    Matrix4f fullNormalMatrix4f = Matrix4dToMatrix4f(viewState->fullNormalMatrices[0]);
     int numSoFar = 0;
+    bool isActive;
+    Point2d objOffset(0.0,0.0);
+    float screenRot;
+    LayoutObjectEntry *layoutObj;
+    Point2dVector objPts(4);
+
     for (LayoutSortingSet::iterator it = layoutObjs.begin();
          it != layoutObjs.end(); ++it)
     {
-        LayoutObjectEntry *layoutObj = *it;
+        layoutObj = *it;
         
         // Start with a max objects check
-        bool isActive = true;
+        isActive = true;
         if (maxDisplayObjects != 0 && (numSoFar >= maxDisplayObjects))
             isActive = false;
         // Start with a back face check
         if (isActive && globeViewState)
         {
             // Make sure this one is facing toward the viewer
-            isActive = CheckPointAndNormFacing(layoutObj->obj.dispLoc,layoutObj->obj.dispLoc.normalized(),fullMatrix4f,fullNormalMatrix4f) > 0.0;
+            isActive = CheckPointAndNormFacing(Vector3dToVector3f(layoutObj->obj.dispLoc),Vector3dToVector3f(layoutObj->obj.dispLoc.normalized()),fullMatrix4f,fullNormalMatrix4f) > 0.0;
         }
-        Point2f objOffset(0.0,0.0);
         
         // Figure out the rotation situation
-        float screenRot = 0.0;
-        Matrix2f screenRotMat;
+        screenRot = 0.0;
+        Matrix2d screenRotMat;
         if (isActive)
         {
             // Figure out where this will land
-            Point2f objPt = viewState->pointOnScreenFromDisplay(Vector3fToVector3d(layoutObj->obj.dispLoc),&modelTrans,frameBufferSize);
-            isActive = screenMbr.inside(Point2f(objPt.x(),objPt.y()));
+            bool isInside = false;
+            Point2d objPt;
+            for (unsigned int offi=0;offi<viewState->viewMatrices.size();offi++)
+            {
+                Eigen::Matrix4d modelTrans = viewState->fullMatrices[offi];
+                Point2f thisObjPt = viewState->pointOnScreenFromDisplay(layoutObj->obj.dispLoc, &modelTrans, frameBufferSize);
+                if (screenMbr.inside(Point2f(thisObjPt.x(),thisObjPt.y())))
+                {
+                    isInside = true;
+                    objPt = Vector2fToVector2d(thisObjPt);
+                }
+            }
+            isActive &= isInside;
             
             // Deal with the rotation
             if (layoutObj->obj.rotation != 0.0)
@@ -288,7 +304,7 @@ void LayoutManager::runLayoutRules(WhirlyKit::ViewState *viewState)
                 if (globeViewState)
                 {
                     Point3d simpleUp(0,0,1);
-                    norm = Vector3fToVector3d(layoutObj->obj.dispLoc);
+                    norm = layoutObj->obj.dispLoc;
                     norm.normalize();
                     right = simpleUp.cross(norm);
                     up = norm.cross(right);
@@ -303,21 +319,21 @@ void LayoutManager::runLayoutRules(WhirlyKit::ViewState *viewState)
                 Point3d rightDir = right * sinf(layoutObj->obj.rotation);
                 Point3d upDir = up * cosf(layoutObj->obj.rotation);
                 
-                Point3d outPt = rightDir * 1.0 + upDir * 1.0 + Vector3fToVector3d(layoutObj->obj.dispLoc);
+                Point3d outPt = rightDir * 1.0 + upDir * 1.0 + layoutObj->obj.dispLoc;
                 Point2f outScreenPt;
                 outScreenPt = viewState->pointOnScreenFromDisplay(outPt,&modelTrans,frameBufferSize);
                 screenRot = M_PI/2.0-atan2f(objPt.y()-outScreenPt.y(),outScreenPt.x()-objPt.x());
-                screenRotMat = Eigen::Rotation2Df(screenRot);
+                screenRotMat = Eigen::Rotation2Dd(screenRot);
             }
             
             // Now for the overlap checks
             if (isActive)
             {
-                // Try the four diffierent orientations
+                // Try the four different orientations
                 if (layoutObj->obj.size.x() != 0.0 && layoutObj->obj.size.y() != 0.0)
                 {
                     bool validOrient = false;
-                    for (unsigned int orient=0;orient<4;orient++)
+                    for (unsigned int orient=0;orient<5;orient++)
                     {
                         // May only want to be placed certain ways.  Fair enough.
                         if (!(layoutObj->obj.acceptablePlacement & (1<<orient)))
@@ -326,37 +342,40 @@ void LayoutManager::runLayoutRules(WhirlyKit::ViewState *viewState)
                         // Set up the offset for this orientation
                         switch (orient)
                         {
-                                // Right
+                                //center
                             case 0:
-                                objOffset = Point2f(layoutObj->obj.iconSize.x(),0.0);
+                                objOffset = Point2d(-layoutObj->obj.size.x()/2.0,0.0);
+                                break;
+                                // Right
+                            case 1:
+                                objOffset = Point2d(layoutObj->obj.iconSize.x(),0.0);
                                 break;
                                 // Left
-                            case 1:
-                                objOffset = Point2f(-(layoutObj->obj.size.x()+layoutObj->obj.iconSize.x()/2.0),0.0);
+                            case 2:
+                                objOffset = Point2d(-(layoutObj->obj.size.x()+layoutObj->obj.iconSize.x()/2.0),0.0);
                                 break;
                                 // Above
-                            case 2:
-                                objOffset = Point2f(-layoutObj->obj.size.x()/2.0,-(layoutObj->obj.size.y()+layoutObj->obj.iconSize.y())/2.0);
+                            case 3:
+                                objOffset = Point2d(-layoutObj->obj.size.x()/2.0,-(layoutObj->obj.size.y()+layoutObj->obj.iconSize.y())/2.0);
                                 break;
                                 // Below
-                            case 3:
-                                objOffset = Point2f(-layoutObj->obj.size.x()/2.0,(layoutObj->obj.size.y()+layoutObj->obj.iconSize.y())/2.0);
+                            case 4:
+                                objOffset = Point2d(-layoutObj->obj.size.x()/2.0,(layoutObj->obj.size.y()+layoutObj->obj.iconSize.y())/2.0);
                                 break;
                         }
                         
                         // Rotate the rectangle
-                        Point2fVector objPts(4);
                         if (screenRot == 0.0)
                         {
-                            objPts[0] = Point2f(objPt.x(),objPt.y()) + objOffset*resScale;
-                            objPts[1] = objPts[0] + Point2f(layoutObj->obj.size.x()*resScale,0.0);
-                            objPts[2] = objPts[0] + Point2f(layoutObj->obj.size.x()*resScale,layoutObj->obj.size.y()*resScale);
-                            objPts[3] = objPts[0] + Point2f(0.0,layoutObj->obj.size.y()*resScale);
+                            objPts[0] = Point2d(objPt.x(),objPt.y()) + objOffset*resScale;
+                            objPts[1] = objPts[0] + Point2d(layoutObj->obj.size.x()*resScale,0.0);
+                            objPts[2] = objPts[0] + Point2d(layoutObj->obj.size.x()*resScale,layoutObj->obj.size.y()*resScale);
+                            objPts[3] = objPts[0] + Point2d(0.0,layoutObj->obj.size.y()*resScale);
                         } else {
-                            objPts[0] = Point2f(objPt.x(),objPt.y()) + objOffset*resScale;
-                            objPts[1] = objPts[0] + screenRotMat * Point2f(layoutObj->obj.size.x()*resScale,0.0);
-                            objPts[2] = objPts[0] + screenRotMat * Point2f(layoutObj->obj.size.x()*resScale,layoutObj->obj.size.y()*resScale);
-                            objPts[3] = objPts[0] + screenRotMat * Point2f(0.0,layoutObj->obj.size.y()*resScale);
+                            objPts[0] = Point2d(objPt.x(),objPt.y()) + objOffset*resScale;
+                            objPts[1] = objPts[0] + screenRotMat * Point2d(layoutObj->obj.size.x()*resScale,0.0);
+                            objPts[2] = objPts[0] + screenRotMat * Point2d(layoutObj->obj.size.x()*resScale,layoutObj->obj.size.y()*resScale);
+                            objPts[3] = objPts[0] + screenRotMat * Point2d(0.0,layoutObj->obj.size.y()*resScale);
                         }
                         
                         // Now try it
@@ -419,7 +438,7 @@ void LayoutManager::updateLayout(WhirlyKit::ViewState *viewState,ChangeSet &chan
                 change.offset = layoutObj->offset;
             else
                 // This is a stealth enable
-                change.offset = Point2f(MAXFLOAT,MAXFLOAT);
+                change.offset = Point2d(MAXFLOAT,MAXFLOAT);
             // Fade in when we add them
             if (!layoutObj->currentEnable)
             {
@@ -436,7 +455,7 @@ void LayoutManager::updateLayout(WhirlyKit::ViewState *viewState,ChangeSet &chan
                 ScreenSpaceGeneratorGangChangeRequest::ShapeChange change;
                 change.shapeID = *sit;
                 if (!layoutObj->currentEnable)
-                    change.offset = Point2f(MAXFLOAT,MAXFLOAT);
+                    change.offset = Point2d(MAXFLOAT,MAXFLOAT);
                 shapeChanges.push_back(change);
             }
             
@@ -444,7 +463,8 @@ void LayoutManager::updateLayout(WhirlyKit::ViewState *viewState,ChangeSet &chan
         }
     }
     
-    changes.push_back(new ScreenSpaceGeneratorGangChangeRequest(scene->getScreenSpaceGeneratorID(),shapeChanges));
+    if (!shapeChanges.empty())
+        changes.push_back(new ScreenSpaceGeneratorGangChangeRequest(scene->getScreenSpaceGeneratorID(),shapeChanges));
     hasUpdates = false;
     
     pthread_mutex_unlock(&layoutLock);

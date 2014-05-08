@@ -38,7 +38,7 @@ BigDrawable::Buffer::Buffer()
 
 BigDrawable::BigDrawable(const std::string &name,int singleVertexSize,const std::vector<VertexAttribute> &templateAttributes,int singleElementSize,int numVertexBytes,int numElementBytes)
     : Drawable(name), singleVertexSize(singleVertexSize), vertexAttributes(templateAttributes), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), drawPriority(0), requestZBuffer(false),
-    waitingOnSwap(false), programId(0), elementChunkSize(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minVisibleFadeBand(0.0), maxVisibleFadeBand(0.0), enable(true)
+    waitingOnSwap(false), programId(0), elementChunkSize(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minVisibleFadeBand(0.0), maxVisibleFadeBand(0.0), enable(true), center(0,0,0)
 {
     activeBuffer = -1;
     
@@ -57,7 +57,7 @@ BigDrawable::~BigDrawable()
     pthread_cond_destroy(&useCondition);
 }
 
-bool BigDrawable::isCompatible(BasicDrawable *draw)
+bool BigDrawable::isCompatible(BasicDrawable *draw,const Point3d *drawCenter,double objSize)
 {
     // Note: We change the big drawable texture IDs without them knowing
 //    if (getTexId() == draw->getTexId() &&
@@ -68,7 +68,21 @@ bool BigDrawable::isCompatible(BasicDrawable *draw)
         draw->getVisibleRange(minVis, maxVis, minVisibleFadeBand, maxVisibleFadeBand);
         if (this->minVis == minVis && this->maxVis == maxVis && this->minVisibleFadeBand == minVisibleFadeBand &&
             this->maxVisibleFadeBand == maxVisibleFadeBand)
-            return true;
+        {
+            // Now check that the centers are compatible
+            if (drawCenter)
+            {
+                // Distance from one center to another
+                double dist = (*drawCenter - center).norm();
+                double testVal = dist/objSize;
+                
+                if (testVal < 10e2)
+                    return true;
+                else
+                    return false;
+            } else
+                return true;
+        }
     }
     
     return false;
@@ -81,6 +95,21 @@ void BigDrawable::setModes(BasicDrawable *draw)
     writeZBuffer = draw->getWriteZbuffer();
     drawPriority = draw->getDrawPriority();
     draw->getVisibleRange(minVis, maxVis, minVisibleFadeBand, maxVisibleFadeBand);
+}
+
+const Eigen::Matrix4d *BigDrawable::getMatrix() const
+{
+    if (center.x() == 0.0 && center.y() == 0.0 && center.z() == 0.0)
+        return NULL;
+    
+    return &transMat;
+}
+    
+void BigDrawable::setCenter(const Point3d &newCenter)
+{
+    center = newCenter;
+    Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
+    transMat = trans.matrix();
 }
 
 void BigDrawable::setTexID(unsigned int which,SimpleIdentity texId)
@@ -131,7 +160,7 @@ void BigDrawable::teardownGL(OpenGLMemManager *memManager)
         theBuffer.elementBufferId = 0;
         theBuffer.changes.clear();
         if (theBuffer.vertexArrayObj)
-            glDeleteVertexArraysOES(1,&buffers[ii].vertexArrayObj);
+            glDeleteVertexArrays(1,&buffers[ii].vertexArrayObj);
         theBuffer.vertexArrayObj = 0;
     }
 }
@@ -141,7 +170,7 @@ void BigDrawable::updateRenderer(WhirlyKit::SceneRendererES *renderer)
     // Let's pull the default shaders out if need be
     if (programId == EmptyIdentity)
     {
-        programId = renderer->getScene()->getProgramIDBySceneName(kSceneDefaultTriShader);
+        programId = (int)renderer->getScene()->getProgramIDBySceneName(kSceneDefaultTriShader);
     }
 }
 
@@ -185,7 +214,11 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
         const BasicDrawable::TexInfo &thisTexInfo = texInfo[ii];
         GLuint glTexID = 0;
         if (thisTexInfo.texId != EmptyIdentity)
+        {
             glTexID = scene->getGLTexture(thisTexInfo.texId);
+//            if (!glTexID)
+//                NSLog(@"Missing texture");
+        }
         glTexIDs.push_back(glTexID);
     }
     
@@ -258,8 +291,8 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
     {
         if (hasVertexArraySupport)
         {
-            glGenVertexArraysOES(1,&theBuffer.vertexArrayObj);
-            glBindVertexArrayOES(theBuffer.vertexArrayObj);
+            glGenVertexArrays(1,&theBuffer.vertexArrayObj);
+            glBindVertexArray(theBuffer.vertexArrayObj);
         }
 
         glBindBuffer(GL_ARRAY_BUFFER,theBuffer.vertexBufferId);
@@ -291,7 +324,7 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
         }
         
         if (hasVertexArraySupport)
-            glBindVertexArrayOES(0);
+            glBindVertexArray(0);
         
         // Let a subclass set up their own VAO state
         setupAdditionalVAO(prog,theBuffer.vertexArrayObj);
@@ -321,10 +354,10 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
     
     // Draw it
     if (hasVertexArraySupport)
-    	glBindVertexArrayOES(theBuffer.vertexArrayObj);
+    	glBindVertexArray(theBuffer.vertexArrayObj);
     glDrawElements(GL_TRIANGLES, theBuffer.numElement, GL_UNSIGNED_SHORT, 0);
     if (hasVertexArraySupport)
-    	glBindVertexArrayOES(0);
+    	glBindVertexArray(0);
     
     // Unbind any texture
     for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
@@ -379,7 +412,7 @@ SimpleIdentity BigDrawable::addRegion(RawDataRef vertData,int &vertPos,RawDataRe
         vertPos = theRegion.pos;
         
         // Split up the remaining space, if there is any
-        Region newRegion(theRegion.pos + vertexSize,theRegion.len - vertexSize);
+        Region newRegion((int)(theRegion.pos + vertexSize),(int)(theRegion.len - vertexSize));
         if (newRegion.len > 0)
             vertexRegions.insert(newRegion);
     }
@@ -567,26 +600,28 @@ void BigDrawable::executeFlush(int whichBuffer)
     }
 
     // Redo the entire element buffer
+    // Note: OpenGL ES 3 has map buffer support.  Add that back
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBuffer.elementBufferId);
     int elBufferSize = 0;
     if (hasMapBufferSupport)
     {
-        GLubyte *elBuffer = (GLubyte *)glMapBufferOES(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-        GLubyte *elBufPtr = elBuffer;
-        for (ElementChunkSet::iterator it = elementChunks.begin();
-             it != elementChunks.end(); ++it)
-            if (it->enabled)
-        {
-            size_t len = it->elementData->getLen();
-            memcpy(elBufPtr, it->elementData->getRawData(), len);
-            elBufPtr += len;
-            elBufferSize += len;
-        }
-        if (elBufPtr - elBuffer > numElementBytes)
-        {
-    //        NSLog(@"Exceeded element buffer size");
-        }
-        glUnmapBufferOES(GL_ELEMENT_ARRAY_BUFFER);
+        // Note: Porting
+//        GLubyte *elBuffer = (GLubyte *)glMapBufferOES(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+//        GLubyte *elBufPtr = elBuffer;
+//        for (ElementChunkSet::iterator it = elementChunks.begin();
+//             it != elementChunks.end(); ++it)
+//            if (it->enabled)
+//        {
+//            size_t len = it->elementData->getLen();
+//            memcpy(elBufPtr, it->elementData->getRawData(), len);
+//            elBufPtr += len;
+//            elBufferSize += len;
+//        }
+//        if (elBufPtr - elBuffer > numElementBytes)
+//        {
+//    //        NSLog(@"Exceeded element buffer size");
+//        }
+//        glUnmapBufferOES(GL_ELEMENT_ARRAY_BUFFER);
     } else {
         // Copy the data in with subData calls
         for (ElementChunkSet::iterator it = elementChunks.begin();
@@ -668,7 +703,7 @@ void BigDrawable::swapBuffers(int whichBuffer)
         Buffer &theBuffer = buffers[ii];
         if (theBuffer.vertexArrayObj)
         {
-            glDeleteVertexArraysOES(1,&theBuffer.vertexArrayObj);
+            glDeleteVertexArrays(1,&theBuffer.vertexArrayObj);
             theBuffer.vertexArrayObj = 0;
         }
 
@@ -728,4 +763,20 @@ void BigDrawableOnOffChangeRequest::execute(Scene *scene,WhirlyKit::SceneRendere
         bigDraw->setOnOff(enable);
 }
 
+    void BigDrawableDrawPriorityChangeRequest::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
+{
+    DrawableRef draw = scene->getDrawable(drawId);
+    BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+    if (bigDraw)
+        bigDraw->setDrawPriority(drawPriority);
+}
+
+    void BigDrawableProgramIDChangeRequest::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
+{
+    DrawableRef draw = scene->getDrawable(drawId);
+    BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+    if (bigDraw)
+        bigDraw->setProgram(programID);
+}
+    
 }

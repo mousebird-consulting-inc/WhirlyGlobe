@@ -24,6 +24,7 @@
 //#import "UIColor+Stuff.h"
 #import "GLUtils.h"
 #import "DefaultShaderPrograms.h"
+#import "MaplyView.h"
 // Note: Porting
 //#import "UIImage+Stuff.h"
 //#import "NSDictionary+Stuff.h"
@@ -34,6 +35,17 @@ using namespace WhirlyKit;
 
 namespace WhirlyKit
 {
+
+// Keep track of a drawable and the MVP we're supposed to use with it
+class DrawableContainer
+{
+public:
+    DrawableContainer(Drawable *draw) : drawable(draw) { mat = mat.Identity(); }
+    DrawableContainer(Drawable *draw,Matrix4d mat) : drawable(draw), mat(mat) { }
+    
+    Drawable *drawable;
+    Matrix4d mat;
+};
 
 // Alpha stuff goes at the end
 // Otherwise sort by draw priority
@@ -54,8 +66,10 @@ public:
         frameInfo = that.frameInfo;
         return *this;
     }
-    bool operator()(Drawable *a,Drawable *b)
+    bool operator()(const DrawableContainer &conA, const DrawableContainer &conB)
     {
+        Drawable *a = conA.drawable;
+        Drawable *b = conB.drawable;
         // We may or may not sort all alpha containing drawables to the end
         if (useAlpha)
             if (a->hasAlpha(frameInfo) != b->hasAlpha(frameInfo))
@@ -211,8 +225,9 @@ void SceneRendererES2::render()
         glEnable(GL_BLEND);
     }
 
-    // See if we're dealing with a globe view
+    // See if we're dealing with a globe or map view
     WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(theView);
+    Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(theView);
 
     if (!renderSetup)
     {
@@ -236,6 +251,7 @@ void SceneRendererES2::render()
     
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
+    Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
     Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
     Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
 
@@ -282,6 +298,7 @@ void SceneRendererES2::render()
     
 	if (scene)
 	{
+        Point2f frameSize(framebufferWidth,framebufferHeight);
 		int numDrawables = 0;
         
         SimpleIdentity defaultTriShader = scene->getProgramIDBySceneName(kSceneDefaultTriShader);
@@ -293,23 +310,28 @@ void SceneRendererES2::render()
             return;
         }
         
-        WhirlyKit::RendererFrameInfo frameInfo;
+        WhirlyKit::RendererFrameInfo baseFrameInfo;
         // Note: Porting
-//        frameInfo.oglVersion = kEAGLRenderingAPIOpenGLES2;
-        frameInfo.oglVersion = 2;
-        frameInfo.sceneRenderer = this;
-        frameInfo.theView = theView;
-        frameInfo.modelTrans = modelTrans;
-        frameInfo.scene = scene;
+//        baseFrameInfo.oglVersion = kEAGLRenderingAPIOpenGLES2;
+        baseFrameInfo.oglVersion = 2;
+        baseFrameInfo.sceneRenderer = this;
+        baseFrameInfo.theView = theView;
+        baseFrameInfo.viewTrans = viewTrans;
+        baseFrameInfo.viewTrans4d = viewTrans4d;
+        baseFrameInfo.modelTrans = modelTrans;
+        baseFrameInfo.modelTrans4d = modelTrans4d;
+        baseFrameInfo.scene = scene;
 //        frameInfo.frameLen = duration;
-        frameInfo.currentTime = TimeGetCurrent();
-        frameInfo.projMat = projMat;
-        frameInfo.mvpMat = mvpMat;
-        frameInfo.viewModelNormalMat = modelAndViewNormalMat;
-        frameInfo.viewAndModelMat = modelAndViewMat;
+        baseFrameInfo.currentTime = TimeGetCurrent();
+        baseFrameInfo.projMat = projMat;
+        baseFrameInfo.mvpMat = mvpMat;
+        baseFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
+        baseFrameInfo.viewAndModelMat = modelAndViewMat;
+        baseFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
+        theView->getOffsetMatrices(baseFrameInfo.offsetMatrices, frameSize);
         // Note: Porting
 //        frameInfo.lights = lights;
-        frameInfo.stateOpt = renderStateOptimizer;
+        baseFrameInfo.stateOpt = renderStateOptimizer;
 		
         if (perfInterval > 0)
             perfTimer.startTiming("Scene processing");
@@ -338,75 +360,147 @@ void SceneRendererES2::render()
 		Eigen::Matrix4f modelTransInv = modelTrans.inverse();
 		Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
 		Vector3f eyeVec3(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
-        frameInfo.eyeVec = eyeVec3;
+        baseFrameInfo.eyeVec = eyeVec3;
         Eigen::Matrix4f fullTransInv = modelAndViewMat.inverse();
         Vector4f fullEyeVec4 = fullTransInv * Vector4f(0,0,1,0);
         Vector3f fullEyeVec3(fullEyeVec4.x(),fullEyeVec4.y(),fullEyeVec4.z());
-        frameInfo.fullEyeVec = -fullEyeVec3;
-        frameInfo.heightAboveSurface = 0.0;
+        baseFrameInfo.fullEyeVec = -fullEyeVec3;
+        baseFrameInfo.heightAboveSurface = 0.0;
         // Note: Should deal with map view as well
         if (globeView)
-            frameInfo.heightAboveSurface = globeView->heightAboveSurface();
+            baseFrameInfo.heightAboveSurface = globeView->heightAboveSurface();
 		
-        // If we're looking at a globe, run the culling
-        std::set<DrawableRef> toDraw;
-        int drawablesConsidered = 0;
-        CullTree *cullTree = scene->getCullTree();
-        // Recursively search for the drawables that overlap the screen
-        Mbr screenMbr;
-        // Stretch the screen MBR a little for safety
-        screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
-        screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
-        findDrawables(cullTree->getTopCullable(),globeView,Point2f(framebufferWidth,framebufferHeight),&modelTrans4d,eyeVec3 ,&frameInfo,screenMbr,true,&toDraw,&drawablesConsidered);
-        
+		
+        // Calculate a good center point for the generated drawables
+        Point2f screenPt(frameSize.x()/2.0, frameSize.y()/2.0);
+        if (globeView)
+        {
+            Point3d hit;
+            if (globeView->pointOnSphereFromScreen(screenPt, &modelAndViewMat4d, frameSize, &hit, true))
+                baseFrameInfo.dispCenter = hit;
+            else
+                baseFrameInfo.dispCenter = Point3d(0,0,0);
+        } else {
+            Point3d hit;
+            if (mapView->pointOnPlaneFromScreen(screenPt,&modelAndViewMat4d,frameSize,&hit,false))
+                baseFrameInfo.dispCenter = hit;
+            else
+                baseFrameInfo.dispCenter = Point3d(0,0,0);
+        }
+		
+        // Work through the available offset matrices (only 1 if we're not wrapping)
+        std::vector<Matrix4d> &offsetMats = baseFrameInfo.offsetMatrices;
         // Turn these drawables in to a vector
-		std::vector<Drawable *> drawList;
-        //		drawList.reserve(toDraw.size());
-		for (std::set<DrawableRef>::iterator it = toDraw.begin();
-			 it != toDraw.end(); ++it)
+        std::vector<DrawableContainer> drawList;
+        std::vector<DrawableRef> screenDrawables;
+        std::vector<DrawableRef> generatedDrawables;
+        std::vector<Matrix4d> mvpMats;
+        std::vector<Matrix4f> mvpMats4f;
+        mvpMats.resize(offsetMats.size());
+        mvpMats4f.resize(offsetMats.size());
+        for (unsigned int off=0;off<offsetMats.size();off++)
         {
-            Drawable *theDrawable = it->get();
-            if (theDrawable)
-                drawList.push_back(theDrawable);
-            else {
-                // Note: Porting
-//                NSLog(@"Bad drawable coming from cull tree.");
+            WhirlyKit::RendererFrameInfo offFrameInfo(baseFrameInfo);
+            // Tweak with the appropriate offset matrix
+            modelAndViewMat4d = viewTrans4d * offsetMats[off] * modelTrans4d;
+            modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
+            mvpMats[off] = projMat4d * modelAndViewMat4d;
+            mvpMats4f[off] = Matrix4dToMatrix4f(mvpMats[off]);
+            modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
+            Matrix4d &thisMvpMat = mvpMats[off];
+            offFrameInfo.mvpMat = mvpMats4f[off];
+            offFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
+            offFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
+            offFrameInfo.viewAndModelMat = modelAndViewMat;
+            
+            // If we're looking at a globe, run the culling
+            int drawablesConsidered = 0;
+            int cullTreeCount = 0;
+            if (doCulling)
+            {
+                std::set<DrawableRef> toDraw;
+                CullTree *cullTree = scene->getCullTree();
+                // Recursively search for the drawables that overlap the screen
+                Mbr screenMbr;
+                // Stretch the screen MBR a little for safety
+                screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
+                screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
+                findDrawables(cullTree->getTopCullable(),globeView,frameSize,&modelTrans4d,eyeVec3,&offFrameInfo,screenMbr,true,&toDraw,&drawablesConsidered);
+                
+                //		drawList.reserve(toDraw.size());
+                for (std::set<DrawableRef>::iterator it = toDraw.begin();
+                     it != toDraw.end(); ++it)
+                {
+                    Drawable *theDrawable = it->get();
+                    if (theDrawable)
+                    {
+                        const Matrix4d *localMat = theDrawable->getMatrix();
+                        if (localMat)
+                        {
+                            Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
+                            drawList.push_back(DrawableContainer(theDrawable,newMvpMat));
+                        } else
+                            drawList.push_back(DrawableContainer(theDrawable,thisMvpMat));
+                    } else
+                        fprintf(stderr,"Bad drawable coming from cull tree.");
+                }
+                cullTreeCount = cullTree->getCount();
+            } else {
+                DrawableRefSet rawDrawables = scene->getDrawables();
+                for (DrawableRefSet::iterator it = rawDrawables.begin(); it != rawDrawables.end(); ++it)
+                {
+                    Drawable *theDrawable = it->get();
+                    if (theDrawable->isOn(&offFrameInfo))
+                    {
+                        const Matrix4d *localMat = theDrawable->getMatrix();
+                        if (localMat)
+                        {
+                            Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
+                            drawList.push_back(DrawableContainer(theDrawable,newMvpMat));
+                        } else
+                            drawList.push_back(DrawableContainer(theDrawable,thisMvpMat));
+                    }
+                }
             }
+            
+            
+            if (perfInterval > 0)
+                perfTimer.stopTiming("Culling");
+            
+            if (perfInterval > 0)
+                perfTimer.startTiming("Generators - generate");
+
+            // Run the generators only once, they have to be aware of multiple offset matrices
+            if (off == offsetMats.size()-1)
+            {
+                // Now ask our generators to make their drawables
+                // Note: Not doing any culling here
+                //       And we should reuse these Drawables
+                const GeneratorSet *generators = scene->getGenerators();
+                for (GeneratorSet::iterator it = generators->begin();
+                     it != generators->end(); ++it)
+                    (*it)->generateDrawables(&baseFrameInfo, generatedDrawables, screenDrawables);
+                
+                // Add the generated drawables and sort them all together
+                for (unsigned int ii=0;ii<generatedDrawables.size();ii++)
+                {
+                    Drawable *theDrawable = generatedDrawables[ii].get();
+                    if (theDrawable)
+                        drawList.push_back(DrawableContainer(theDrawable,thisMvpMat));
+                }
+                bool sortLinesToEnd = (zBufferMode == zBufferOffDefault);
+                std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(sortAlphaToEnd,sortLinesToEnd,&baseFrameInfo));
+            }
+            
+            if (perfInterval > 0)
+            {
+                perfTimer.addCount("Drawables considered", drawablesConsidered);
+                perfTimer.addCount("Cullables", cullTreeCount);
+            }
+            
+            if (perfInterval > 0)
+                perfTimer.stopTiming("Generators - generate");
         }
-        
-        if (perfInterval > 0)
-            perfTimer.stopTiming("Culling");
-        
-        if (perfInterval > 0)
-            perfTimer.startTiming("Generators - generate");
-        
-        // Now ask our generators to make their drawables
-        // Note: Not doing any culling here
-        //       And we should reuse these Drawables
-        std::vector<DrawableRef> generatedDrawables,screenDrawables;
-        const GeneratorSet *generators = scene->getGenerators();
-        for (GeneratorSet::const_iterator it = generators->begin();
-             it != generators->end(); ++it)
-            (*it)->generateDrawables(&frameInfo, generatedDrawables, screenDrawables);
-        
-        // Add the generated drawables and sort them all together
-        for (unsigned int ii=0;ii<generatedDrawables.size();ii++)
-        {
-            Drawable *theDrawable = generatedDrawables[ii].get();
-            if (theDrawable)
-                drawList.push_back(theDrawable);
-        }
-        bool sortLinesToEnd = (zBufferMode == zBufferOffDefault);
-        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(sortAlphaToEnd,sortLinesToEnd,&frameInfo));
-        
-        if (perfInterval > 0)
-        {
-            perfTimer.addCount("Drawables considered", drawablesConsidered);
-            perfTimer.addCount("Cullables", cullTree->getCount());
-        }
-        
-        if (perfInterval > 0)
-            perfTimer.stopTiming("Generators - generate");
         
         if (perfInterval > 0)
             perfTimer.startTiming("Draw Execution");
@@ -414,15 +508,15 @@ void SceneRendererES2::render()
         SimpleIdentity curProgramId = EmptyIdentity;
 		
         bool depthMaskOn = (zBufferMode == zBufferOn);
-		for (unsigned int ii=0;ii<drawList.size();ii++)
-		{
-			Drawable *drawable = drawList[ii];
+        for (unsigned int ii=0;ii<drawList.size();ii++)
+        {
+            DrawableContainer &drawContain = drawList[ii];
             
             // The first time we hit an explicitly alpha drawable
             //  turn off the depth buffer
             if (depthBufferOffForAlpha && !(zBufferMode == zBufferOffDefault))
             {
-                if (depthMaskOn && depthBufferOffForAlpha && drawable->hasAlpha(&frameInfo))
+                if (depthMaskOn && depthBufferOffForAlpha && drawContain.drawable->hasAlpha(&baseFrameInfo))
                 {
                     depthMaskOn = false;
                     renderStateOptimizer->setEnableDepthTest(false);
@@ -432,7 +526,7 @@ void SceneRendererES2::render()
             // For this mode we turn the z buffer off until we get a request to turn it on
             if (zBufferMode == zBufferOffDefault)
             {
-                if (drawable->getRequestZBuffer())
+                if (drawContain.drawable->getRequestZBuffer())
                 {
                     renderStateOptimizer->setDepthFunc(GL_LESS);
                     depthMaskOn = true;
@@ -444,23 +538,19 @@ void SceneRendererES2::render()
             // If we're drawing lines or points we don't want to update the z buffer
             if (zBufferMode != zBufferOff)
             {
-                if (drawable->getWriteZbuffer())
+                if (drawContain.drawable->getWriteZbuffer())
                     renderStateOptimizer->setDepthMask(GL_TRUE);
                 else
                     renderStateOptimizer->setDepthMask(GL_FALSE);
             }
             
-            // If it has a local transform, apply that
-            const Matrix4d *localMat = drawable->getMatrix();
-            if (localMat)
-            {
-                Eigen::Matrix4d newMvpMat = projMat4d * (viewTrans4d * (modelTrans4d * (*localMat)));
-                Eigen::Matrix4f newMvpMat4f = Matrix4dToMatrix4f(newMvpMat);
-                frameInfo.mvpMat = newMvpMat4f;
-            }
+            // Transform to use
+            Matrix4f currentMvpMat = Matrix4dToMatrix4f(drawContain.mat);         
+            
+            baseFrameInfo.mvpMat = currentMvpMat;
             
             // Figure out the program to use for drawing
-            SimpleIdentity drawProgramId = drawable->getProgram();
+            SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
             if (drawProgramId == EmptyIdentity)
                 drawProgramId = defaultTriShader;
             if (drawProgramId != curProgramId)
@@ -479,18 +569,18 @@ void SceneRendererES2::render()
                     // Note: Porting
 //                    program->setUniform(kWKOGLNumLights, (int)[lights count]);
 
-                    frameInfo.program = program;
+                    baseFrameInfo.program = program;
                 }
             }
             if (drawProgramId == EmptyIdentity)
                 continue;
             
             // Draw using the given program
-            drawable->draw(&frameInfo,scene);
+            drawContain.drawable->draw(&baseFrameInfo,scene);
             
             // If we had a local matrix, set the frame info back to the general one
-            if (localMat)
-                frameInfo.mvpMat = mvpMat;
+//            if (localMat)
+//                frameInfo.mvpMat = mvpMat;
             
             numDrawables++;
             if (perfInterval > 0)
@@ -532,7 +622,7 @@ void SceneRendererES2::render()
 //                    NSLog(@"Bad drawable coming from generator.");
                 }
             }
-            std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(false,false,&frameInfo));
+            std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(false,false,&baseFrameInfo));
 
             // Build an orthographic projection
             // We flip the vertical axis and spread the window out (0,0)->(width,height)
@@ -544,19 +634,19 @@ void SceneRendererES2::render()
             orthoMat(1,3) = -framebufferHeight / delta.y();
             orthoMat(2,2) = -2.0f / delta.z();
             orthoMat(2,3) = 0.0f;
-            frameInfo.mvpMat = orthoMat;
+            baseFrameInfo.mvpMat = orthoMat;
             // Turn off lights
             // Note: Porting
-//            frameInfo.lights = nil;
+//            baseFrameInfo.lights = nil;
             
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {
-                Drawable *drawable = drawList[ii];
+                DrawableContainer &drawContain = drawList[ii];
                 
-                if (drawable->isOn(&frameInfo))
+                if (drawContain.drawable->isOn(&baseFrameInfo))
                 {
                     // Figure out the program to use for drawing
-                    SimpleIdentity drawProgramId = drawable->getProgram();
+                    SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
                     if (drawProgramId == EmptyIdentity)
                         drawProgramId = defaultTriShader;
                     if (drawProgramId != curProgramId)
@@ -570,11 +660,11 @@ void SceneRendererES2::render()
                             // Explicitly turn the lights off
                             // Note: Porting
 //                            program->setUniform(kWKOGLNumLights, 0);
-                            frameInfo.program = program;
+                            baseFrameInfo.program = program;
                         }
                     }
 
-                    drawable->draw(&frameInfo,scene);
+                    drawContain.drawable->draw(&baseFrameInfo,scene);
                     numDrawables++;
                 }
             }

@@ -248,11 +248,12 @@ public:
                 return;
             }
             // We happen to store tilt in the view matrix.
-            if (!viewState->viewMatrix.isIdentity())
-            {
-                canShortCircuitImportance = false;
-                return;
-            }
+            // Note: Porting
+//            if (!viewState->viewMatrix.isIdentity())
+//            {
+//                canShortCircuitImportance = false;
+//                return;
+//            }
             // The tile source coordinate system must be the same as the display's system
             if (!coordSys->isSameAs(coordAdapter->getCoordSystem()))
             {

@@ -72,7 +72,7 @@ bool PointInPolygon(Point2f pt,const Point2fVector &ring)
 {
 	int ii, jj;
 	bool c = false;
-	for (ii = 0, jj = ring.size()-1; ii < ring.size(); jj = ii++) {
+	for (ii = 0, jj = (int)(ring.size()-1); ii < ring.size(); jj = ii++) {
 		if ( ((ring[ii].y()>pt.y()) != (ring[jj].y()>pt.y())) &&
 			(pt.x() < (ring[jj].x()-ring[ii].x()) * (pt.y()-ring[ii].y()) / (ring[jj].y()-ring[ii].y()) + ring[ii].x()) )
 			c = !c;
@@ -90,6 +90,15 @@ bool ConvexPolyIntersect(const Point2fVector &pts0,const Point2fVector &pts1)
     return mbr0.overlaps(mbr1);
 }
 
+bool ConvexPolyIntersect(const Point2dVector &pts0,const Point2dVector &pts1)
+{
+    // Simple bounding box check
+    Mbr mbr0;
+    mbr0.addPoints(pts0);
+    Mbr mbr1;
+    mbr1.addPoints(pts1);
+    return mbr0.overlaps(mbr1);
+}
 // Courtesy: http://acius2.blogspot.com/2007/11/calculating-next-power-of-2.html
 unsigned int NextPowOf2(unsigned int val)
 {

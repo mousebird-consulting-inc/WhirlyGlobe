@@ -37,8 +37,11 @@ DynamicDrawableAtlas::~DynamicDrawableAtlas()
     swapChanges.clear();
 }
     
-bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled,SimpleIdentity destTexId)
+bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled,SimpleIdentity destTexId,bool *addedNewBigDrawable,const Point3d *center,double objSize)
 {
+    if (addedNewBigDrawable)
+        *addedNewBigDrawable = false;
+
     // See if we're already representing it
     {
         DrawRepresent represent(draw->getId());
@@ -77,11 +80,14 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
             return false;
         }
 
-    // Turn the vertex and element data in to NSData objects
+    // Turn the vertex and element data into data objects
     MutableRawDataRef vertData, elementData;
-    draw->asVertexAndElementData(vertData,elementData,singleElementSize);
-    if (!vertData || !elementData)
-        return false;
+    if (!center)
+    {
+        draw->asVertexAndElementData(vertData,elementData,singleElementSize,NULL);
+        if (!vertData || !elementData)
+            return false;
+    }
     
     // Look for a big drawable that uses the same texture
     BigDrawable *foundBigDraw = NULL;
@@ -90,14 +96,23 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
     {
         BigDrawableInfo bigDrawInfo = *it;
         if (bigDrawInfo.baseTexId == draw->getTexId(0)
-            && bigDrawInfo.bigDraw->isCompatible(draw))
+            && bigDrawInfo.bigDraw->isCompatible(draw,center,objSize))
         {
+            // If there is a center, it's dependent on the big drawable's center
+            if (!vertData)
+                draw->asVertexAndElementData(vertData,elementData,singleElementSize,center);
+            if (!vertData || !elementData)
+                return false;
+
             if ((represent.elementChunkId = bigDrawInfo.bigDraw->addRegion(vertData, represent.vertexPos, elementData,enabled)) != EmptyIdentity)
             {
-                represent.vertexSize = vertData->getLen();
+                represent.vertexSize = (int)vertData->getLen();
                 represent.bigDrawId = bigDrawInfo.bigDraw->getId();
                 foundBigDraw = bigDrawInfo.bigDraw;
                 break;
+            } else {
+                vertData.reset();
+                elementData.reset();
             }
         }
     }
@@ -110,6 +125,10 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
             newBigDraw = (*newBigDrawable)(draw,singleElementSize,numVertexBytes,numElementBytes);
         else
             newBigDraw = new BigDrawable(name,singleVertexSize,vertexAttributes,singleElementSize,numVertexBytes,numElementBytes);
+        if (addedNewBigDrawable)
+            *addedNewBigDrawable = true;
+        if (center)
+            newBigDraw->setCenter(*center);
         newBigDraw->setOnOff(this->enable);
         newBigDraw->setProgram(shaderId);
 
@@ -122,9 +141,15 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
             newBigDraw->texInfo[0].texId = destTexId;
         }
         represent.bigDrawId = newBigDraw->getId();
+        // If there's a center, the data is dependent on that center.
+        // Note: We're creating this twice in some rare cases, which is annoying
+        if (!vertData)
+              draw->asVertexAndElementData(vertData,elementData,singleElementSize,center);
+        if (!vertData || !elementData)
+            return false;
         if ((represent.elementChunkId = newBigDraw->addRegion(vertData, represent.vertexPos, elementData,enabled)) != EmptyIdentity)
         {
-            represent.vertexSize = vertData->getLen();
+            represent.vertexSize = (int)vertData->getLen();
             represent.bigDrawId = newBigDraw->getId();
             foundBigDraw = newBigDraw;
         }
@@ -177,6 +202,18 @@ void DynamicDrawableAtlas::setEnableAllDrawables(bool newEnable,ChangeSet &chang
         changes.push_back(new BigDrawableOnOffChangeRequest(it->bigDraw->getId(),enable));
 }
 
+void DynamicDrawableAtlas::setDrawPriorityAllDrawables(int drawPriority,ChangeSet &changes)
+{
+    for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
+        changes.push_back(new BigDrawableDrawPriorityChangeRequest(it->bigDraw->getId(),drawPriority));
+}
+    
+void DynamicDrawableAtlas::setProgramIDAllDrawables(SimpleIdentity programID,ChangeSet &changes)
+{
+    for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
+        changes.push_back(new BigDrawableProgramIDChangeRequest(it->bigDraw->getId(),programID));
+}
+    
 bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,ChangeSet &changes)
 {
     // Look for the representation

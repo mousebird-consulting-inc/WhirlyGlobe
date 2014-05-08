@@ -114,6 +114,7 @@ class RendererFrameInfo
 {
 public:
     RendererFrameInfo();
+    RendererFrameInfo(const RendererFrameInfo &that);
     
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
@@ -125,15 +126,19 @@ public:
     WhirlyKit::View *theView;
     /// Current model matrix from the view
     Eigen::Matrix4f modelTrans,viewTrans;
+    Eigen::Matrix4d modelTrans4d,viewTrans4d;
     /// Current projection matrix
     Eigen::Matrix4f projMat;
     /// What's currently in the GL model matrix.
     /// We combine view and model together
     Eigen::Matrix4f viewAndModelMat;
+    Eigen::Matrix4d viewAndModelMat4d;
     /// The model, view, and projection matrix all rolled into one
     Eigen::Matrix4f mvpMat;
     /// Model, and view matrix but for normal transformation
     Eigen::Matrix4f viewModelNormalMat;
+    /// If the visual view supports wrapping, these are the available offset matrices
+    std::vector<Eigen::Matrix4d> offsetMatrices;
     /// Scene itself.  Don't mess with this
     WhirlyKit::Scene *scene;
     /// Expected length of the current frame
@@ -144,6 +149,8 @@ public:
     Eigen::Vector3f eyeVec;
     /// Vector out from the eye point, including tilt
     Eigen::Vector3f fullEyeVec;
+    /// Location of the middle of the screen in display coordinates
+    Eigen::Vector3d dispCenter;
     /// Height above surface, if that makes sense
     float heightAboveSurface;
     /// If using OpenGL ES 2.x, this is the shader

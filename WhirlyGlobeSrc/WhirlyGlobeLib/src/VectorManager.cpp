@@ -35,7 +35,7 @@ namespace WhirlyKit
 VectorInfo::VectorInfo() :
     enable(true), drawOffset(0.0), priority(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
     filled(false), sample(0.0), texId(EmptyIdentity), texScale(1.0,1.0), subdivEps(1.0), gridSubdiv(false),
-    texProj(TextureProjectionNone), color(255,255,255,255), fade(0.0), lineWidth(1.0)
+    texProj(TextureProjectionNone), color(255,255,255,255), fade(0.0), lineWidth(1.0), centered(false)
 {
 }
 
@@ -61,6 +61,7 @@ void VectorInfo::parseDict(const Dictionary &dict)
     gridSubdiv = !subdivType.compare(MaplySubdivGrid);
     std::string texProjStr = dict.getString(MaplyVecTextureProjection,"");
     texProj = TextureProjectionNone;
+    centered = dict.getBool(MaplyVecCentered,false);
     if (!texProjStr.compare(MaplyProjectionTangentPlane))
         texProj = TextureProjectionTanPlane;
 }
@@ -79,7 +80,7 @@ class VectorDrawableBuilder
 {
 public:
     VectorDrawableBuilder(Scene *scene,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
-                          const VectorInfo *vecInfo,bool linesOrPoints)
+                          const VectorInfo *vecInfo,bool linesOrPoints,bool doColor)
     : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL)
     {
         primType = (linesOrPoints ? GL_LINES : GL_POINTS);
@@ -90,6 +91,12 @@ public:
         flush();
     }
     
+    void setCenter(const Point3d &newCenter)
+    {
+        centerValid = true;
+        center = newCenter;
+    }
+
     void addPoints(VectorRing &pts,bool closed,Dictionary *attrs)
     {
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
@@ -97,7 +104,7 @@ public:
         
         // Decide if we'll appending to an existing drawable or
         //  create a new one
-        int ptCount = 2*(pts.size()+1);
+        int ptCount = (int)(2*(pts.size()+1));
         if (!drawable || (drawable->getNumPoints()+ptCount > MaxDrawablePoints))
         {
             // We're done with it, toss it to the scene
@@ -123,24 +130,30 @@ public:
             // Convert to real world coordinates and offset from the globe
             Point2f &geoPt = pts[jj];
             GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-            Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoord);
-            Point3f norm = coordAdapter->normalForLocal(localPt);
-            Point3f pt = coordAdapter->localToDisplay(localPt);
+            Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(geoCoord);
+            Point3d norm3d = coordAdapter->normalForLocal(localPt);
+            Point3f norm(norm3d.x(),norm3d.y(),norm3d.z());
+            Point3d pt3d = coordAdapter->localToDisplay(localPt) - center;
+            Point3f pt(pt3d.x(),pt3d.y(),pt3d.z());
             
             // Add to drawable
             // Depending on the type, we do this differently
             if (primType == GL_POINTS)
             {
                 drawable->addPoint(pt);
-                drawable->addColor(ringColor);
+                if (doColor)
+                   drawable->addColor(ringColor);
                 drawable->addNormal(norm);
             } else {
                 if (jj > 0)
                 {
                     drawable->addPoint(prevPt);
                     drawable->addPoint(pt);
-                    drawable->addColor(ringColor);
-                    drawable->addColor(ringColor);
+                    if (doColor)
+                    {
+                        drawable->addColor(ringColor);
+                        drawable->addColor(ringColor);
+                    }
                     drawable->addNormal(prevNorm);
                     drawable->addNormal(norm);
                 } else {
@@ -157,8 +170,11 @@ public:
         {
             drawable->addPoint(prevPt);
             drawable->addPoint(firstPt);
-            drawable->addColor(ringColor);
-            drawable->addColor(ringColor);
+            if (doColor)
+            {
+                drawable->addColor(ringColor);
+                drawable->addColor(ringColor);
+            }
             drawable->addNormal(prevNorm);
             drawable->addNormal(firstNorm);
         }
@@ -172,6 +188,12 @@ public:
             {
                 drawable->setLocalMbr(drawMbr);
                 sceneRep->drawIDs.insert(drawable->getId());
+                if (centerValid)
+                {
+                    Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
+                    Matrix4d transMat = trans.matrix();
+                    drawable->setMatrix(&transMat);
+                }
                 
                 if (vecInfo->fade > 0.0)
                 {
@@ -186,12 +208,15 @@ public:
     }
     
 protected:
+    bool doColor;
     Scene *scene;
     ChangeSet &changeRequests;
     VectorSceneRep *sceneRep;
     Mbr drawMbr;
     BasicDrawable *drawable;
     const VectorInfo *vecInfo;
+    Point3d center;
+    bool centerValid;
     GLenum primType;
 };
 
@@ -203,7 +228,7 @@ class VectorDrawableBuilderTri
 {
 public:
     VectorDrawableBuilderTri(Scene *scene,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
-                             const VectorInfo *vecInfo)
+                             const VectorInfo *vecInfo,bool doColor)
     : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL)
     {
     }
@@ -211,6 +236,12 @@ public:
     ~VectorDrawableBuilderTri()
     {
         flush();
+    }
+    
+    void setCenter(const Point3d &newCenter)
+    {
+        centerValid = true;
+        center = newCenter;
     }
     
     // This version converts a ring into a mesh (chopping, tesselating, etc...)
@@ -248,8 +279,8 @@ public:
             mesh->getTriangle(ir, pts);
             // Decide if we'll appending to an existing drawable or
             //  create a new one
-            int ptCount = pts.size();
-            int triCount = pts.size()-2;
+            int ptCount = (int)pts.size();
+            int triCount = (int)(pts.size()-2);
             if (!drawable ||
                 (drawable->getNumPoints()+ptCount > MaxDrawablePoints) ||
                 (drawable->getNumTris()+triCount > MaxDrawableTriangles))
@@ -275,13 +306,13 @@ public:
             drawMbr.addPoints(pts);
             
             // Need an origin for this type of texture coordinate projection
-            Point3f planeOrg(0,0,0),planeUp(0,0,1),planeX(1,0,0),planeY(0,1,0);
+            Point3d planeOrg(0,0,0),planeUp(0,0,1),planeX(1,0,0),planeY(0,1,0);
             if (vecInfo->texProj == TextureProjectionTanPlane)
             {
-                Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(centroid.x(),centroid.y()));
+                Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(centroid.x(),centroid.y()));
                 planeOrg = coordAdapter->localToDisplay(localPt);
                 planeUp = coordAdapter->normalForLocal(localPt);
-                planeX = Point3f(0,0,1).cross(planeUp);
+                planeX = Point3d(0,0,1).cross(planeUp);
                 planeY = planeUp.cross(planeX);
                 planeX.normalize();
                 planeY.normalize();
@@ -302,9 +333,9 @@ public:
                     {
                         case TextureProjectionTanPlane:
                         {
-                            Point3f dispPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(geoPt.x(),geoPt.y())));
-                            Point3f dir = dispPt - planeOrg;
-                            Point3f comp(dir.dot(planeX),dir.dot(planeY),dir.dot(planeUp));
+                            Point3d dispPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoPt.x(),geoPt.y())))-center;
+                            Point3d dir = dispPt - planeOrg;
+                            Point3d comp(dir.dot(planeX),dir.dot(planeY),dir.dot(planeUp));
                             texCoord.x() = comp.x();
                             texCoord.y() = comp.y();
                         }
@@ -337,12 +368,15 @@ public:
                 // Convert to real world coordinates and offset from the globe
                 Point2f &geoPt = pts[jj];
                 GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-                Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoord);
-                Point3f norm = coordAdapter->normalForLocal(localPt);
-                Point3f pt = coordAdapter->localToDisplay(localPt);
+                Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(geoCoord);
+                Point3d norm3d = coordAdapter->normalForLocal(localPt);
+                Point3f norm(norm3d.x(),norm3d.y(),norm3d.z());
+                Point3d pt3d = coordAdapter->localToDisplay(localPt) - center;
+                Point3f pt(pt3d.x(),pt3d.y(),pt3d.z());
                 
                 drawable->addPoint(pt);
-                drawable->addColor(ringColor);
+                if (doColor)
+                    drawable->addColor(ringColor);
                 drawable->addNormal(norm);
                 if (vecInfo->texId != EmptyIdentity)
                 {
@@ -364,6 +398,12 @@ public:
             if (drawable->getNumPoints() > 0)
             {
                 drawable->setLocalMbr(drawMbr);
+                if (centerValid)
+                {
+                    Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
+                    Matrix4d transMat = trans.matrix();
+                    drawable->setMatrix(&transMat);
+                }
                 sceneRep->drawIDs.insert(drawable->getId());
                 
                 if (vecInfo->fade > 0.0)
@@ -380,10 +420,13 @@ public:
     }
     
 protected:   
+    bool doColor;
     Scene *scene;
     ChangeSet &changeRequests;
     VectorSceneRep *sceneRep;
     Mbr drawMbr;
+    Point3d center;
+    bool centerValid;
     BasicDrawable *drawable;
     const VectorInfo *vecInfo;
 };
@@ -415,10 +458,46 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
 //    VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*first);
 //    bool linesOrPoints = (thePoints.get() ? false : true);
     
+    // Look for per vector colors
+    bool doColors = false;
+    for (ShapeSet::iterator it = shapes->begin();it != shapes->end(); ++it)
+    {
+        if ((*it)->getAttrDict()->hasField("color"))
+        {
+            doColors = true;
+            break;
+        }
+    }
+
+    // Look for a geometry center.  We'll offset everything if there is one
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    CoordSystem *coordSys = coordAdapter->getCoordSystem();
+    Point3d center(0,0,0);
+    bool centerValid = false;
+    // Note: Should work for the globe, but doesn't
+    if (vecInfo.centered && coordAdapter->isFlat())
+    {
+        // Calculate the center
+        GeoMbr geoMbr;
+        for (ShapeSet::iterator it = shapes->begin();it != shapes->end(); ++it)
+            geoMbr.expand((*it)->calcGeoMbr());
+        if (geoMbr.valid())
+        {
+            Point3d p0 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ll()));
+            Point3d p1 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ur()));
+            center = (p0+p1)/2.0;
+            centerValid = true;
+        }
+    }
+    
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
-    VectorDrawableBuilder drawBuild(scene,changes,sceneRep,&vecInfo,true);
-    VectorDrawableBuilderTri drawBuildTri(scene,changes,sceneRep,&vecInfo);
+    VectorDrawableBuilder drawBuild(scene,changes,sceneRep,&vecInfo,true,doColors);
+    if (centerValid)
+        drawBuild.setCenter(center);
+    VectorDrawableBuilderTri drawBuildTri(scene,changes,sceneRep,&vecInfo,doColors);
+    if (centerValid)
+        drawBuildTri.setCenter(center);
         
     for (ShapeSet::iterator it = shapes->begin();
          it != shapes->end(); ++it)
@@ -467,7 +546,16 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
                 VectorTrianglesRef theMesh = boost::dynamic_pointer_cast<VectorTriangles>(*it);
                 if (theMesh.get())
                 {
-                    drawBuildTri.addPoints(theMesh,theMesh->getAttrDict());
+                    if (vecInfo.filled)
+                        drawBuildTri.addPoints(theMesh,theMesh->getAttrDict());
+                    else {
+                        for (unsigned int ti=0;ti<theMesh->tris.size();ti++)
+                        {
+                            VectorRing ring;
+                            theMesh->getTriangle(ti, ring);
+                            drawBuild.addPoints(ring,true,theMesh->getAttrDict());
+                        }
+                    }
                 } else {
                     // Note: Points are.. pointless
                     //                    VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*it);
@@ -491,6 +579,70 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
     return vecID;
 }
 
+SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const Dictionary *desc,ChangeSet &changes)
+{
+    SimpleIdentity newId = EmptyIdentity;
+    
+    pthread_mutex_lock(&vectorLock);
+    
+    // Look for the representation
+    VectorSceneRep dummyRep(vecID);
+    VectorSceneRepSet::iterator it = vectorReps.find(&dummyRep);
+    if (it != vectorReps.end())
+    {
+        VectorSceneRep *sceneRep = *it;
+        VectorSceneRep *newSceneRep = new VectorSceneRep();
+        for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
+             idIt != sceneRep->drawIDs.end(); ++idIt)
+        {
+            // Make up a BasicDrawableInstance
+            BasicDrawableInstance *drawInst = new BasicDrawableInstance("VectorManager",*idIt);
+            
+            // Changed color
+            DictionaryType type = desc->getType(MaplyColor);
+            if (type == DictTypeInt || type == DictTypeString)
+            {
+                RGBAColor newColor = desc->getColor(MaplyColor, RGBAColor(255,255,255,255));
+                changes.push_back(new ColorChangeRequest(*idIt, newColor));
+            }
+            // Changed visibility
+            if (desc->hasField(MaplyMinVis) || desc->hasField(MaplyMaxVis))
+            {
+                float minVis = desc->getDouble(MaplyMinVis, DrawVisibleInvalid);
+                float maxVis = desc->getDouble(MaplyMaxVis, DrawVisibleInvalid);
+                changes.push_back(new VisibilityChangeRequest(*idIt, minVis, maxVis));
+            }
+            
+            // Changed line width
+            if (desc->hasField(MaplyVecWidth))
+            {
+                float lineWidth = desc->getDouble(MaplyVecWidth,1.0);
+                changes.push_back(new LineWidthChangeRequest(*idIt, lineWidth));
+            }
+            
+            // Changed draw priority
+            if (desc->hasField(MaplyDrawPriority) || desc->hasField("priority"))
+            {
+                int priority = desc->getInt(MaplyDrawPriority,0);
+                // This looks like an old bug
+                priority = desc->getInt("priority",priority);
+                changes.push_back(new DrawPriorityChangeRequest(*idIt, priority));
+            }
+
+            // Note: Should set fade
+            newSceneRep->instIDs.insert(drawInst->getId());
+            changes.push_back(new AddDrawableReq(drawInst));
+        }
+        
+        vectorReps.insert(newSceneRep);
+        newId = newSceneRep->getId();
+    }
+
+    pthread_mutex_unlock(&vectorLock);
+    
+    return newId;
+}
+
 void VectorManager::changeVectors(SimpleIdentity vecID,const Dictionary *desc,ChangeSet &changes)
 {
     pthread_mutex_lock(&vectorLock);
@@ -501,8 +653,11 @@ void VectorManager::changeVectors(SimpleIdentity vecID,const Dictionary *desc,Ch
     if (it != vectorReps.end())
     {
         VectorSceneRep *sceneRep = *it;
-        for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-             idIt != sceneRep->drawIDs.end(); ++idIt)
+        // Make sure we change both drawables and instances
+        SimpleIDSet allIDs = sceneRep->drawIDs;
+        allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
+
+        for (SimpleIDSet::iterator idIt = allIDs.begin();idIt != allIDs.end(); ++idIt)
         {
             // Turned it on or off
             if (desc->hasField(MaplyEnable))
@@ -559,11 +714,14 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
         {
             VectorSceneRep *sceneRep = *it;
             
+            SimpleIDSet allIDs = sceneRep->drawIDs;
+            allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
+
             // Note: Porting
 //            if (sceneRep->fade > 0.0)
 //            {
-//                for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-//                     idIt != sceneRep->drawIDs.end(); ++idIt)
+//                for (SimpleIDSet::iterator idIt = allIDs.begin();
+//                     idIt != allIDs.end(); ++idIt)
 //                    changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+sceneRep->fade));
 //                
 //                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
@@ -578,8 +736,8 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 //                               );
 //                sceneRep->fade = 0.0;
 //            } else {
-                for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-                     idIt != sceneRep->drawIDs.end(); ++idIt)
+                for (SimpleIDSet::iterator idIt = allIDs.begin();
+                     idIt != allIDs.end(); ++idIt)
                     changes.push_back(new RemDrawableReq(*idIt));
                 vectorReps.erase(it);
                 
@@ -603,8 +761,9 @@ void VectorManager::enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &cha
         {
             VectorSceneRep *sceneRep = *it;
             
-            for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-                 idIt != sceneRep->drawIDs.end(); ++idIt)
+            SimpleIDSet allIDs = sceneRep->drawIDs;
+            allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
+            for (SimpleIDSet::iterator idIt = allIDs.begin(); idIt != allIDs.end(); ++idIt)
                 changes.push_back(new OnOffChangeRequest(*idIt,enable));
         }
     }

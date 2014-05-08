@@ -111,6 +111,10 @@
 /// If filled is set, we draw the areals as filled polygons
 #define MaplyFilled WKString("filled")
 
+/// If set, we'll centered each group of vectors and offset with a matrix
+/// This fixes jitter.
+#define MaplyVecCentered WKString("centered")
+
 /// If set, the texture to apply to the feature
 #define MaplyVecTexture WKString("texture")
 #define MaplyVecTexScaleX WKString("texscalex")

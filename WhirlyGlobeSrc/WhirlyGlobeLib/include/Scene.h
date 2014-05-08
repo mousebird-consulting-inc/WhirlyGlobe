@@ -355,6 +355,9 @@ public:
     // Note: Porting
 //    dispatch_queue_t getDispatchQueue() { return dispatchQueue; }
 	
+    // Return all the drawables in a list.  Only call this on the main thread.
+    const DrawableRefSet &getDrawables();
+
     /// Dump out stats on what is currently in the scene.
     /// Use this sparingly, as it writes to the log.
     void dumpStats();

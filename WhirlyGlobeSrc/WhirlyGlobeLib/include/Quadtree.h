@@ -65,7 +65,7 @@ public:
     {
     public:
         NodeInfo() { }
-        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance), attrs(that.attrs) { }
+        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance), phantom(that.phantom), attrs(that.attrs) { }
         ~NodeInfo() { }
         
         /// Compare based on importance.  Used for sorting
@@ -77,6 +77,8 @@ public:
         Mbr mbr;
         /// Importance as calculated by the callback.  More is better.
         float importance;
+        /// Set if this is a phantom tile.  We pretended to load it, but it's not really here.
+        bool phantom;
 
         /// Put any attributes you'd like to keep track of here.
         /// There are things you might calculate for a given tile over and over.
@@ -90,7 +92,13 @@ public:
         This means either there's room or less important nodes loaded
         It could already be loaded.  Check that separately.
      */
-    bool willAcceptTile(NodeInfo nodeInfo);
+    bool willAcceptTile(const NodeInfo &nodeInfo);
+    
+    /// Return true if this is a phantom tile
+    bool isPhantom(const Identifier &ident);
+    
+    /// Set the phantom flag on the given node
+    void setPhantom(const Identifier &nodeInfo,bool newPhantom);
     
     /// Recalculate the importance of everything.  This calls the callback.
     void reevaluateNodes();
@@ -128,7 +136,7 @@ public:
     
     /// Fetch the least important (smallest) node currently loaded.
     /// Returns false if there wasn't one
-    bool leastImportantNode(NodeInfo &nodeInfo,bool ignoreImportance=false);
+    bool leastImportantNode(NodeInfo &nodeInfo,bool ignoreImportance=false,int targetLevel=-1);
 
     /// Return a vector of all nodes less than the given importance without children
     void unimportantNodes(std::vector<NodeInfo> &nodes,float importance);
@@ -197,6 +205,7 @@ protected:
     int minLevel,maxLevel;
     int maxNodes;
     float minImportance;
+    int numPhantomNodes;
     /// Used to calculate importance for a particular 
     QuadTreeImportanceCalculator *importDelegate;
     

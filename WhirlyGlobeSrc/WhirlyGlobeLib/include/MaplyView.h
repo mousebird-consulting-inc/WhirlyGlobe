@@ -59,11 +59,17 @@ public:
     /// Generate the model view matrix for use by OpenGL.
     virtual Eigen::Matrix4d calcModelMatrix();
     
+    /// Generate the view matrix for use by OpenGL
+    virtual Eigen::Matrix4d calcViewMatrix();
+    
     /// Generate the whole matrix (minus projection)
     virtual Eigen::Matrix4d calcFullMatrix();
 
     /// Height above the plane
     double heightAboveSurface();
+    
+    /// Put together one or more offset matrices to express wrapping
+    virtual void getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize);
 
     /// Minimum valid height above plane
     double minHeightAboveSurface();
@@ -82,6 +88,12 @@ public:
     
     /// Return the current rotation
     double getRotAngle() { return rotAngle; }
+    
+    /// Return the wrap status
+    bool getWrap() { return wrap; }
+    
+    /// Set whether we're wrapping across world boundaries
+    void setWrap(bool inWrap)  { wrap = inWrap; }
 
     /** Given a location on the screen and the screen size, figure out where we touched
         the plane.  Returns true if we hit and where.
@@ -97,11 +109,16 @@ public:
     /// Set the rotation angle
     void setRotAngle(double newRotAngle);
     
+    /// Turn a wrapped coordinate (e.g. may be outside -M_PI,M_PI) back into a real world coordinate
+    WhirlyKit::Point2f unwrapCoordinate(const WhirlyKit::Point2f &pt);
+    
 protected:
     /// Viewer location
     WhirlyKit::Point3d loc;
     /// Viewer rotation angle
     double rotAngle;
+    /// If set, we're wrapping across the date line
+    bool wrap;
     /// Used to update position based on time (or whatever)
     // Note: Porting
 //    NSObject<MaplyAnimationDelegate> *delegate;

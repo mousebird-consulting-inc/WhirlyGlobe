@@ -95,7 +95,9 @@ TileBuilder::TileBuilder(CoordSystem *coordSys,Mbr mbr,WhirlyKit::Quadtree *quad
     lineMode(false),
     activeTextures(-1),
     enabled(true),
-    texAtlas(NULL)
+    texAtlas(NULL),
+    newDrawables(false),
+    singleLevel(-1)
 {
     pthread_mutex_init(&texAtlasMappingLock, NULL);
 }
@@ -143,6 +145,7 @@ void TileBuilder::initAtlases(WhirlyKitTileImageType imageType,int numImages,int
         imageDepth = numImages;
         texAtlas = new DynamicTextureAtlas(textureAtlasSize,texSortSize,glFormat,numImages);
         drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);
+        newDrawables = true;
     }
 }
     
@@ -242,7 +245,14 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
 //        sphereTessX = elevData.numX-1;
 //        sphereTessY = elevData.numY-1;
 //    }
-    
+
+    // For single level mode it's not worth getting fancy
+    if (singleLevel != -1)
+    {
+        sphereTessX = 1;
+        sphereTessY = 1;
+    }
+
     // Unit size of each tesselation in spherical mercator
     Point2f incr(chunkSize.x()/sphereTessX,chunkSize.y()/sphereTessY);
     
@@ -322,6 +332,12 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
         int elevEntry = 0;
         if (includeElev)
             elevEntry = chunk->addAttribute(BDFloatType, "a_elev");
+        // Single level mode uses Z to sort out priority
+//        if (singleLevel != -1)
+//        {
+//            chunk->setRequestZBuffer(true);
+//            chunk->setWriteZBuffer(true);
+//        }
         
         // We're in line mode or the texture didn't load
         if (lineMode || (texs && !texs->empty() && !((*texs)[0])))
@@ -380,6 +396,11 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                     Point3f loc3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),locZ)));
                     if (coordAdapter->isFlat())
                         loc3D.z() = locZ;
+
+                    // Use Z priority to sort the levels
+//                    if (singleLevel != -1)
+//                        loc3D.z() = (drawPriority + nodeInfo->ident.level * 0.01)/10000;
+                    
                     locs[iy*(sphereTessX+1)+ix] = loc3D;
                     
                     // Do the texture coordinate seperately
@@ -725,6 +746,8 @@ InternalLoadedTile::InternalLoadedTile()
     placeholder = false;
     drawId = EmptyIdentity;
     skirtDrawId = EmptyIdentity;
+    dispCenter = Point3d(0,0,0);
+    tileSize = 0.0;
     for (unsigned int ii=0;ii<4;ii++)
     {
         childDrawIds[ii] = EmptyIdentity;
@@ -741,11 +764,23 @@ InternalLoadedTile::InternalLoadedTile(const WhirlyKit::Quadtree::Identifier &id
     skirtDrawId = EmptyIdentity;
     // Note: Porting
 //    elevData = nil;
+    dispCenter = Point3d(0,0,0);
+    tileSize = 0.0;
     for (unsigned int ii=0;ii<4;ii++)
     {
         childDrawIds[ii] = EmptyIdentity;
         childSkirtDrawIds[ii] = EmptyIdentity;
     }
+}
+
+void InternalLoadedTile::calculateSize(Quadtree *quadTree,CoordSystemDisplayAdapter *coordAdapt,CoordSystem *coordSys)
+{
+    Mbr mbr = quadTree->generateMbrForNode(nodeInfo.ident);
+    CoordSystem *sceneCoordSys = coordAdapt->getCoordSystem();
+    Point3d ll = coordAdapt->localToDisplay(sceneCoordSys->geocentricToLocal(coordSys->localToGeocentric(Point3d(mbr.ll().x(),mbr.ll().y(),0.0))));
+    Point3d ur = coordAdapt->localToDisplay(sceneCoordSys->geocentricToLocal(coordSys->localToGeocentric(Point3d(mbr.ur().x(),mbr.ur().y(),0.0))));
+    dispCenter = (ll+ur)/2.0;
+    tileSize = (ll-ur).norm();
 }
 
 // Add the geometry and texture to the scene for a given tile
@@ -802,11 +837,14 @@ bool InternalLoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<LoadedI
     // Now for the changes to the scene
     if (tileBuilder->drawAtlas)
     {
-        tileBuilder->drawAtlas->addDrawable(draw,changeRequests);
+        bool addedBigDraw = false;
+        tileBuilder->drawAtlas->addDrawable(draw,changeRequests,true,EmptyIdentity,&addedBigDraw,&dispCenter,tileSize);
+        tileBuilder->newDrawables |= addedBigDraw;
         delete draw;
         if (skirtDraw)
         {
-            tileBuilder->drawAtlas->addDrawable(skirtDraw,changeRequests);
+            tileBuilder->drawAtlas->addDrawable(skirtDraw,changeRequests,true,EmptyIdentity,&addedBigDraw,&dispCenter,tileSize);
+            tileBuilder->newDrawables |= addedBigDraw;
             delete skirtDraw;
         }
     } else {
@@ -954,11 +992,14 @@ void InternalLoadedTile::updateContents(TileBuilder *tileBuilder,InternalLoadedT
                         }
                         if (tileBuilder->drawAtlas)
                         {
-                            tileBuilder->drawAtlas->addDrawable(childDraw, changeRequests);
+                            bool addedBigDrawable = false;
+                            tileBuilder->drawAtlas->addDrawable(childDraw, changeRequests,true,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
+                            tileBuilder->newDrawables |= addedBigDrawable;
                             delete childDraw;
                             if (childSkirtDraw)
                             {
-                                tileBuilder->drawAtlas->addDrawable(childSkirtDraw, changeRequests);
+                                tileBuilder->drawAtlas->addDrawable(childSkirtDraw, changeRequests,true,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
+                                tileBuilder->newDrawables |= addedBigDrawable;
                                 delete childSkirtDraw;
                             }
                         } else {
@@ -999,11 +1040,14 @@ void InternalLoadedTile::updateContents(TileBuilder *tileBuilder,InternalLoadedT
             }
             if (tileBuilder->drawAtlas)
             {
-                tileBuilder->drawAtlas->addDrawable(draw, changeRequests);
+                bool addedBigDrawable = false;
+                tileBuilder->drawAtlas->addDrawable(draw, changeRequests,true,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
+                tileBuilder->newDrawables |= addedBigDrawable;
                 delete draw;
                 if (skirtDraw)
                 {
-                    tileBuilder->drawAtlas->addDrawable(skirtDraw, changeRequests);
+                    tileBuilder->drawAtlas->addDrawable(skirtDraw, changeRequests,true,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
+                    tileBuilder->newDrawables |= addedBigDrawable;
                     delete skirtDraw;
                 }
             } else {

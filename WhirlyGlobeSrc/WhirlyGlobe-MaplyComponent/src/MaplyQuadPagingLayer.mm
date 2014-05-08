@@ -92,6 +92,11 @@ public:
     {
     }
     
+    virtual void reset(ChangeSet &changes)
+    {
+        // Note: Porting Unimplemented
+    }
+    
     /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
     virtual void shutdown()
     {

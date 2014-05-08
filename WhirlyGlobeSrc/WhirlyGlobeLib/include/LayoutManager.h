@@ -55,7 +55,7 @@ public:
     /// Think map icon.
     WhirlyKit::SimpleIDSet auxIDs;
     /// Location in display coordinate system
-    WhirlyKit::Point3f dispLoc;
+    WhirlyKit::Point3d dispLoc;
     /// Size (in pixels) of the object we're laying out
     WhirlyKit::Point2f size;
     /// If we're hovering around an icon, this is its size in pixels.  Zero means its just us.
@@ -81,7 +81,7 @@ public:
     : Identifiable(theId)
     {
         currentEnable = newEnable = false;
-        offset = Point2f(MAXFLOAT,MAXFLOAT);
+        offset = Point2d(MAXFLOAT,MAXFLOAT);
         changed = true;
     }
     
@@ -93,7 +93,7 @@ public:
     // Set if it's going to be on
     bool newEnable;
     // The offset, as calculated
-    WhirlyKit::Point2f offset;
+    WhirlyKit::Point2d offset;
     // Set if we changed something during evaluation
     bool changed;
 };

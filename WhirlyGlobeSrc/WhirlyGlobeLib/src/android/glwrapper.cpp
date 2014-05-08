@@ -26,47 +26,49 @@
 bool hasVertexArraySupport = false;
 bool hasMapBufferSupport = false;
 
-PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayEXT = NULL;
-PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysEXT = NULL;
-PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysEXT = NULL;
-PFNGLMAPBUFFEROESPROC glMapBufferEXT = NULL;
-PFNGLUNMAPBUFFEROESPROC glUnmapBufferEXT = NULL;
+// Note: Porting
+//PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayEXT = NULL;
+//PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysEXT = NULL;
+//PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysEXT = NULL;
+//PFNGLMAPBUFFEROESPROC glMapBufferEXT = NULL;
+//PFNGLUNMAPBUFFEROESPROC glUnmapBufferEXT = NULL;
 
 // Wire up the various function pointers for extensions
 bool SetupGLESExtensions()
 {
 	const char *cap = (const char *)glGetString(GL_EXTENSIONS);
 
-	if (strstr(cap,"GL_OES_vertex_array_object"))
-		hasVertexArraySupport = true;
-	if (strstr(cap,"GL_OES_mapbuffer"))
-		hasMapBufferSupport = true;
-
-	if (hasVertexArraySupport)
-	{
-		glBindVertexArrayEXT = (PFNGLBINDVERTEXARRAYOESPROC)eglGetProcAddress ( "glBindVertexArrayOES" );
-		if ( !glBindVertexArrayEXT )
-			return false;
-
-		glDeleteVertexArraysEXT = (PFNGLDELETEVERTEXARRAYSOESPROC)eglGetProcAddress ( "glDeleteVertexArraysOES" );
-		if ( !glDeleteVertexArraysEXT )
-			return false;
-
-	    glGenVertexArraysEXT = (PFNGLGENVERTEXARRAYSOESPROC)eglGetProcAddress ( "glGenVertexArraysOES" );
-	    if ( !glGenVertexArraysEXT )
-	        return false;
-	}
-    
-	if (hasMapBufferSupport)
-	{
-		glMapBufferEXT = (PFNGLMAPBUFFEROESPROC)eglGetProcAddress ( "glMapBufferOES" );
-		if ( !glMapBufferEXT )
-			return false;
-
-		glUnmapBufferEXT = (PFNGLUNMAPBUFFEROESPROC)eglGetProcAddress ( "glUnmapBufferOES" );
-		if ( !glUnmapBufferEXT )
-			return false;
-	}
+    // Note: Porting
+//	if (strstr(cap,"GL_OES_vertex_array_object"))
+//		hasVertexArraySupport = true;
+//	if (strstr(cap,"GL_OES_mapbuffer"))
+//		hasMapBufferSupport = true;
+//
+//	if (hasVertexArraySupport)
+//	{
+//		glBindVertexArrayEXT = (PFNGLBINDVERTEXARRAYOESPROC)eglGetProcAddress ( "glBindVertexArrayOES" );
+//		if ( !glBindVertexArrayEXT )
+//			return false;
+//
+//		glDeleteVertexArraysEXT = (PFNGLDELETEVERTEXARRAYSOESPROC)eglGetProcAddress ( "glDeleteVertexArraysOES" );
+//		if ( !glDeleteVertexArraysEXT )
+//			return false;
+//
+//	    glGenVertexArraysEXT = (PFNGLGENVERTEXARRAYSOESPROC)eglGetProcAddress ( "glGenVertexArraysOES" );
+//	    if ( !glGenVertexArraysEXT )
+//	        return false;
+//	}
+//    
+//	if (hasMapBufferSupport)
+//	{
+//		glMapBufferEXT = (PFNGLMAPBUFFEROESPROC)eglGetProcAddress ( "glMapBufferOES" );
+//		if ( !glMapBufferEXT )
+//			return false;
+//
+//		glUnmapBufferEXT = (PFNGLUNMAPBUFFEROESPROC)eglGetProcAddress ( "glUnmapBufferOES" );
+//		if ( !glUnmapBufferEXT )
+//			return false;
+//	}
     
     // note: Porting.  Debugging VAO's
     hasVertexArraySupport = false;
@@ -74,30 +76,31 @@ bool SetupGLESExtensions()
     return true;
 }
 
-GL_APICALL void GL_APIENTRY glBindVertexArrayOES (GLuint array)
-{
-    return (*glBindVertexArrayEXT)(array);
-}
-
-GL_APICALL void GL_APIENTRY glDeleteVertexArraysOES (GLsizei n, const GLuint *arrays)
-{
-    return (*glDeleteVertexArraysEXT)(n,arrays);
-}
-
-GL_APICALL void GL_APIENTRY glGenVertexArraysOES (GLsizei n, GLuint *arrays)
-{
-    return (*glGenVertexArraysEXT)(n,arrays);
-}
-
-GL_APICALL void* GL_APIENTRY glMapBufferOES (GLenum target, GLenum access)
-{
-    return (*glMapBufferEXT)(target,access);
-}
-
-GL_APICALL GLboolean GL_APIENTRY glUnmapBufferOES (GLenum target)
-{
-    return (*glUnmapBufferEXT)(target);
-}
+// Note: Porting
+//GL_APICALL void GL_APIENTRY glBindVertexArrayOES (GLuint array)
+//{
+//    return (*glBindVertexArrayEXT)(array);
+//}
+//
+//GL_APICALL void GL_APIENTRY glDeleteVertexArraysOES (GLsizei n, const GLuint *arrays)
+//{
+//    return (*glDeleteVertexArraysEXT)(n,arrays);
+//}
+//
+//GL_APICALL void GL_APIENTRY glGenVertexArraysOES (GLsizei n, GLuint *arrays)
+//{
+//    return (*glGenVertexArraysEXT)(n,arrays);
+//}
+//
+//GL_APICALL void* GL_APIENTRY glMapBufferOES (GLenum target, GLenum access)
+//{
+//    return (*glMapBufferEXT)(target,access);
+//}
+//
+//GL_APICALL GLboolean GL_APIENTRY glUnmapBufferOES (GLenum target)
+//{
+//    return (*glUnmapBufferEXT)(target);
+//}
 
 #else
 

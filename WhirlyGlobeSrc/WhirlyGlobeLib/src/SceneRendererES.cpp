@@ -51,7 +51,11 @@ RendererFrameInfo::RendererFrameInfo()
     // Note: Porting
 //,lights(NULL)
 {
+}
     
+RendererFrameInfo::RendererFrameInfo(const RendererFrameInfo &that)
+{
+    *this = that;
 }
     
 OpenGLStateOptimizer::OpenGLStateOptimizer()

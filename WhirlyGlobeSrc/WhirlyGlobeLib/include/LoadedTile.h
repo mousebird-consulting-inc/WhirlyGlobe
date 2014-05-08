@@ -35,7 +35,8 @@ namespace WhirlyKit
 {
 
 /// Used to specify the image type for the textures we create
-typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WKTileUByteRed,WKTileUByteGreen,WKTileUByteBlue,WKTileUByteAlpha,WKTileUByteRGB,WKTilePVRTC4} WhirlyKitTileImageType;
+typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WKTileUByteRed,WKTileUByteGreen,WKTileUByteBlue,WKTileUByteAlpha,WKTileUByteRGB,WKTilePVRTC4,WKTileETC2_RGB8,
+    WKTileETC2_RGBA8,WKTileETC2_RGB8_PunchAlpha,WKTileEAC_R11,WKTileEAC_R11_Signed,WKTileEAC_RG11,WKTileEAC_RG11_Signed} WhirlyKitTileImageType;
 
 /// How we'll scale the tiles up or down to the nearest power of 2 (square) or not at all
 typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} WhirlyKitTileScaleType;
@@ -195,6 +196,12 @@ public:
     
     // Number of textures we're feeding drawables at once
     int activeTextures;
+    
+    // Set when we create new drawables
+    bool newDrawables;
+    
+    // Set if we're in single level mode.  That is, we're only trying to display a single level.
+    int singleLevel;
 };
     
 /** The Loaded Tile is used to track tiles that have been
@@ -208,6 +215,9 @@ public:
     InternalLoadedTile(const WhirlyKit::Quadtree::Identifier &);
     ~InternalLoadedTile() { }
 
+    /// Calculate the tile's overall size.  Needed later.
+    void calculateSize(Quadtree *quadTree,CoordSystemDisplayAdapter *coordAdapt,CoordSystem *coordSys);
+ 
     // Note: Porting
     /// Build the data needed for a scene representation
 //    bool addToScene(TileBuilder *tileBuilder,std::vector<LoadedImage *>loadImages,int currentImage0,int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
@@ -236,6 +246,8 @@ public:
     bool placeholder;
     /// Set if this tile is in the process of loading
     bool isLoading;
+    /// Set if we skipped this tile (in flat mode)
+    bool isUnknown;
     // DrawID for this parent tile
     WhirlyKit::SimpleIdentity drawId;
     // Optional ID for the skirts
@@ -247,6 +259,10 @@ public:
     // Note: Porting
     /// If here, the elevation data needed to build geometry
 //    WhirlyKitElevationChunk *elevData;
+    /// Center of the tile in display coordinates
+    Point3d dispCenter;
+    /// Size in display coordinates
+    double tileSize;
     
     // IDs for the various fake child geometry
     WhirlyKit::SimpleIdentity childDrawIds[4];

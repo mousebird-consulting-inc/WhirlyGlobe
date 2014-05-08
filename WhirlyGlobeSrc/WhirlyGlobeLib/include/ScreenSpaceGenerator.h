@@ -37,7 +37,7 @@ namespace WhirlyKit
 class ScreenSpaceGenerator : public Generator
 {
 public:
-    ScreenSpaceGenerator(const std::string &name,Point2f margin);
+    ScreenSpaceGenerator(const std::string &name,Point2d margin);
     virtual ~ScreenSpaceGenerator();
     
     /// Generate drawables for the current frame
@@ -63,17 +63,16 @@ public:
     typedef std::map<TextureAndProgram,BasicDrawable *> DrawableMap;
     
     /// A simple geometric representation used in shapes
-    /// We do it this way so we can have multiple 
     class SimpleGeometry
     {
     public:
         SimpleGeometry();
-        SimpleGeometry(SimpleIdentity texID,SimpleIdentity programID,RGBAColor color,const Point2fVector &coords,const std::vector<TexCoord> &texCoords);
+        SimpleGeometry(SimpleIdentity texID,SimpleIdentity programID,RGBAColor color,const Point2dVector &coords,const std::vector<TexCoord> &texCoords);
 
         SimpleIdentity texID;
         SimpleIdentity programID;
         RGBAColor color;
-        Point2fVector coords;
+        Point2dVector coords;
         std::vector<TexCoord> texCoords;
     };
 
@@ -87,11 +86,11 @@ public:
         ConvexShape();
 
         /// Center location
-        Point3f worldLoc;
+        Point3d worldLoc;
         /// If true we'll use the rotation.  If not, we won't.
         bool useRotation;
         /// Rotation clockwise from north
-        float rotation;
+        double rotation;
         /// If we're fading in or out, these are used
         TimeInterval fadeUp,fadeDown;
         /// Sort by draw priority
@@ -99,7 +98,7 @@ public:
         /// Visual range
         float minVis,maxVis;
         /// 2D offset to be applied (probably from the layout engine)
-        Point2f offset;
+        Point2d offset;
         /// false if we're not to draw this one
         bool enable;
         
@@ -111,7 +110,7 @@ public:
     typedef struct
     {
         SimpleIdentity shapeID;
-        Point2f screenLoc;
+        Point2d screenLoc;
     } ProjectedPoint;
 
     /// Called by the marker generator build the geometry
@@ -144,7 +143,7 @@ protected:
     typedef std::set<ConvexShape *,IdentifiableSorter> ConvexShapeSet;
     ConvexShapeSet convexShapes;
     ConvexShapeSet activeShapes;
-    Point2f margin;
+    Point2d margin;
 	pthread_mutex_t projectedPtsLock;
     std::vector<ProjectedPoint> projectedPoints;
 };
@@ -230,7 +229,7 @@ public:
         ShapeChange();
         SimpleIdentity shapeID;
         TimeInterval fadeUp,fadeDown;
-        Point2f offset;
+        Point2d offset;
     };
     
     /// Construct with a generator ID and a list of shapes to change

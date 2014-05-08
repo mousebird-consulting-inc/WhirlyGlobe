@@ -84,11 +84,26 @@ public:
     /// Return the nominal height above the surface of the data
     virtual double heightAboveSurface();
     
+    /// Put together one or more offset matrices to express wrapping
+    virtual void getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize);
+
+    /// If we're wrapping, we may need a non-wrapped coordinate
+    WhirlyKit::Point2f unwrapCoordinate(const WhirlyKit::Point2f &pt);
+    
     /// From a screen point calculate the corresponding point in 3-space
     virtual WhirlyKit::Point3d pointUnproject(Point2f screenPt,unsigned int frameWidth,unsigned int frameHeight,bool clip);
     
     /// Return the ray running from eye through the given screen point in display space
     //- (WhirlyKit::Ray3f)displaySpaceRayFromScreenPt:(WhirlyKit::Point2f)screenPt width:(float)frameWidth height:(float)frameHeight;
+    
+    /// Calculate a map scale
+    double currentMapScale(const WhirlyKit::Point2f &frameSize);
+
+    /// Calculate the height for a given scale.  Probably for minVis/maxVis
+    double heightForMapScale(double scale,WhirlyKit::Point2f &frameSize);
+
+    /// Calculate map zoom
+    double currentMapZoom(const WhirlyKit::Point2f &frameSize,double latitude);
     
     /// Add a watcher delegate.  Call this on the main thread.
     virtual void addWatcher(ViewWatcher *delegate);
@@ -100,6 +115,7 @@ public:
     virtual void runViewUpdates();
     
     double fieldOfView,imagePlaneSize,nearPlane,farPlane;
+    std::vector<Eigen::Matrix4d> offsetMatrices;
     /// The last time the position was changed
     TimeInterval lastChangedTime;
     /// Display adapter and coordinate system we're working in

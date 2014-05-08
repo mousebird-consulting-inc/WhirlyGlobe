@@ -22,6 +22,7 @@
 #import "WhirlyVector.h"
 #import "WhirlyKitView.h"
 #import "WhirlyGeometry.h"
+#import "FlatMath.h"
 
 using namespace Eigen;
 
@@ -118,6 +119,17 @@ Eigen::Matrix4d View::calcProjectionMatrix(Point2f frameBufferSize,float margin)
     return projMat;
 }
 
+void View::getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize)
+{
+    Eigen::Matrix4d ident;
+    offsetMatrices.push_back(ident.Identity());
+}
+
+WhirlyKit::Point2f View::unwrapCoordinate(const WhirlyKit::Point2f &pt)
+{
+    return pt;
+}
+
 double View::heightAboveSurface()
 {
     return 0.0;
@@ -159,6 +171,52 @@ Point3d View::pointUnproject(Point2f screenPt,unsigned int frameWidth,unsigned i
 //        
 //    return Ray3f(eyePt,(dispPt-eyePt).normalized());
 //}
+
+
+double View::currentMapScale(const WhirlyKit::Point2f &frameSize)
+{
+    //    *height = globeView.heightAboveGlobe;
+    //    Point3d localPt = [globeView currentUp];
+    //    GeoCoord geoCoord = globeView.coordAdapter->getCoordSystem()->localToGeographic(globeView.coordAdapter->displayToLocal(localPt));
+    //    pos->x = geoCoord.lon();  pos->y = geoCoord.lat();
+    
+//    Point2f frameSize(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+//    Eigen::Matrix4d modelTrans = [visualView calcFullMatrix];
+//    Point3d sp0,sp1;
+//    bool sp0Valid = [globeView pointOnSphereFromScreen:CGPointMake(0.0, frameSize.y()/2.0) transform:&modelTrans frameSize:frameSize hit:&sp0 normalized:true];
+//    bool sp1Valid = [globeView pointOnSphereFromScreen:CGPointMake(frameSize.x(), frameSize.y()/2.0) transform:&modelTrans frameSize:frameSize hit:&sp1 normalized:true];
+//    // Bogus scale at this point
+//    if (!sp0Valid || !sp1Valid)
+//        return 0.0;
+//    sp0 *= EarthRadius;
+//    sp1 *= EarthRadius;
+//    // Assume the local coordinate are in meters.  WHAT COULD POSSIBLY GO WRONG!
+//    double dist = (sp1-sp0).norm();
+    
+    // This is Mapnik scale:
+    // scale_denominator = map_width_in_metres/ (map_width_in_pixels * standardized_pixel_size/*0.28mm*/)
+    double scale = (2 * heightAboveSurface() *  tan(fieldOfView/2.0) * EarthRadius) / (frameSize.x() * 0.00096) ;
+    return scale;
+}
+
+double View::heightForMapScale(double scale,WhirlyKit::Point2f &frameSize)
+{
+    double height = (scale * frameSize.x() * 0.00096) / (2 * tan(fieldOfView/2.0) * EarthRadius);
+    return height;
+}
+
+/*
+ S = C*cos(y)/2^(z+8)
+ z = log2(C * cos(y) / S) - 8
+*/
+double View::currentMapZoom(const WhirlyKit::Point2f &frameSize,double latitude)
+{
+  double mapWidthInMeters = (2 * heightAboveSurface() *  tan(fieldOfView/2.0) * EarthRadius);
+  double metersPerPizel = mapWidthInMeters/frameSize.x();
+  double zoom = log(EarthRadius * RadToDeg(cos(latitude))/ metersPerPizel)/log(2.0) - 8;
+  
+  return zoom;
+}
 
 /// Add a watcher delegate
 void View::addWatcher(ViewWatcher *watcher)

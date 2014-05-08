@@ -115,7 +115,7 @@ void OpenGLMemManager::clearBufferIDs()
          it != buffIDs.end(); ++it)
         toRemove.push_back(*it);
     if (!toRemove.empty())
-        glDeleteBuffers(toRemove.size(), &toRemove[0]);
+        glDeleteBuffers((GLsizei)toRemove.size(), &toRemove[0]);
     buffIDs.clear();
     
     pthread_mutex_unlock(&idLock);
@@ -177,7 +177,7 @@ void OpenGLMemManager::clearTextureIDs()
          it != texIDs.end(); ++it)
         toRemove.push_back(*it);
     if (!toRemove.empty())
-        glDeleteTextures(toRemove.size(), &toRemove[0]);
+        glDeleteTextures((GLsizei)toRemove.size(), &toRemove[0]);
     texIDs.clear();
     
     pthread_mutex_unlock(&idLock);    
@@ -367,25 +367,25 @@ int VertexAttribute::numElements() const
         case BDFloat3Type:
         {
             std::vector<Vector3f> *vecs = (std::vector<Vector3f> *)data;
-            return vecs->size();
+            return (int)vecs->size();
         }
             break;
         case BDFloat2Type:
         {
             std::vector<Vector2f> *vecs = (std::vector<Vector2f> *)data;
-            return vecs->size();
+            return (int)vecs->size();
         }
             break;
         case BDChar4Type:
         {
             std::vector<RGBAColor> *colors = (std::vector<RGBAColor> *)data;
-            return colors->size();
+            return (int)colors->size();
         }
             break;
         case BDFloatType:
         {
             std::vector<float> *floats = (std::vector<float> *)data;
-            return floats->size();
+            return (int)floats->size();
         }
             break;
     }    
@@ -633,7 +633,7 @@ void BasicDrawable::setupTexCoordEntry(int which,int numReserve)
     if (which < texInfo.size())
         return;
     
-    for (unsigned int ii=texInfo.size();ii<=which;ii++)
+    for (unsigned int ii=(unsigned int)texInfo.size();ii<=which;ii++)
     {
         TexInfo newInfo;
         char attributeName[40];
@@ -850,7 +850,7 @@ bool BasicDrawable::getWriteZbuffer() const
 unsigned int BasicDrawable::addPoint(Point3f pt)
 {
     points.push_back(pt);
-    return points.size()-1;
+    return (unsigned int)(points.size()-1);
 }
 
 Point3f BasicDrawable::getPoint(int which)
@@ -948,14 +948,14 @@ int BasicDrawable::addAttribute(BDAttributeDataType dataType,const std::string &
     VertexAttribute *attr = new VertexAttribute(dataType,name);
     vertexAttributes.push_back(attr);
     
-    return vertexAttributes.size()-1;
+    return (unsigned int)(vertexAttributes.size()-1);
 }
     
 unsigned int BasicDrawable::getNumPoints() const
-{ return points.size(); }
+{ return (unsigned int)points.size(); }
 
 unsigned int BasicDrawable::getNumTris() const
-{ return tris.size(); }
+{ return (unsigned int)tris.size(); }
 
 void BasicDrawable::reserveNumPoints(int numPoints)
 { points.reserve(points.size()+numPoints); }
@@ -1012,10 +1012,20 @@ GLuint BasicDrawable::singleVertexSize()
 }
 
 // Adds the basic vertex data to an interleaved vertex buffer
-void BasicDrawable::addPointToBuffer(unsigned char *basePtr,int which)
+void BasicDrawable::addPointToBuffer(unsigned char *basePtr,int which,const Point3d *center)
 {
     if (!points.empty())
-        memcpy(basePtr+pointBuffer, &points[which].x(), 3*sizeof(GLfloat));
+    {
+        // If there's a center, we have to offset everything first
+        if (center)
+        {
+            Point3f &pt = points[which];
+            Point3f newPt(pt.x()-center->x(),pt.y()-center->y(),pt.z()-center->z());
+            memcpy(basePtr+pointBuffer, &newPt.x(), 3*sizeof(GLfloat));
+        } else
+            // Otherwise, copy it straight in
+            memcpy(basePtr+pointBuffer, &points[which].x(), 3*sizeof(GLfloat));
+    }
     
     for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
     {
@@ -1059,9 +1069,10 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     // The other buffer pointers are now strides
     // Size of a single vertex entry
     vertexSize = singleVertexSize();
-    int numVerts = points.size();
+    int numVerts = (int)points.size();
     
     // We're handed an external buffer, so just use it
+    int bufferSize = 0;
     if (externalSharedBuf)
 	{
         sharedBuffer = externalSharedBuf;
@@ -1080,23 +1091,25 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
 	}
     
     // Now copy in the data
+    // Note: OpenGL ES 3.0 has mapped buffer support, but it's different
     glBindBuffer(GL_ARRAY_BUFFER, sharedBuffer);
     if (hasMapBufferSupport)
     {
-        void *glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-        unsigned char *basePtr = (unsigned char *)glMem + sharedBufferOffset;
-        for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
-            addPointToBuffer(basePtr,ii);
-
-        // And copy in the element buffer
-        if (tris.size())
-        {
-            triBuffer = vertexSize*numVerts;
-            unsigned char *basePtr = (unsigned char *)glMem + triBuffer + sharedBufferOffset;
-            for (unsigned int ii=0;ii<tris.size();ii++,basePtr+=sizeof(Triangle))
-                memcpy(basePtr, &tris[ii], sizeof(Triangle));
-        }
-        glUnmapBufferOES(GL_ARRAY_BUFFER);
+        // Note: Porting
+//        void *glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+//        unsigned char *basePtr = (unsigned char *)glMem + sharedBufferOffset;
+//        for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
+//            addPointToBuffer(basePtr,ii,NULL);
+//
+//        // And copy in the element buffer
+//        if (tris.size())
+//        {
+//            triBuffer = vertexSize*numVerts;
+//            unsigned char *basePtr = (unsigned char *)glMem + triBuffer + sharedBufferOffset;
+//            for (unsigned int ii=0;ii<tris.size();ii++,basePtr+=sizeof(Triangle))
+//                memcpy(basePtr, &tris[ii], sizeof(Triangle));
+//        }
+//        glUnmapBufferOES(GL_ARRAY_BUFFER);
     } else {
         int bufferSize = numVerts*vertexSize+tris.size()*sizeof(Triangle);
         
@@ -1104,7 +1117,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
         unsigned char *glMem = (unsigned char *)malloc(bufferSize);
         unsigned char *basePtr = glMem;
         for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
-            addPointToBuffer(basePtr, ii);
+            addPointToBuffer(basePtr, ii,NULL);
 
         // Now the element buffer
         triBuffer = numVerts*vertexSize;
@@ -1137,7 +1150,7 @@ RawDataRef BasicDrawable::asData(bool dupStart,bool dupEnd)
         return retData;
     
     // Verify that everything else (that has data) has the same amount)
-    int numElements = points.size();
+    int numElements = (int)points.size();
     for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
     {
         VertexAttribute *attr = vertexAttributes[ii];
@@ -1149,24 +1162,24 @@ RawDataRef BasicDrawable::asData(bool dupStart,bool dupEnd)
     if (type == GL_TRIANGLE_STRIP || type == GL_POINTS || type == GL_LINES || type == GL_LINE_STRIP)
     {
         vertexSize = singleVertexSize();
-        int numVerts = points.size() + (dupStart ? 2 : 0) + (dupEnd ? 2 : 0);
+        int numVerts = (int)points.size() + (dupStart ? 2 : 0) + (dupEnd ? 2 : 0);
 
         retData = MutableRawDataRef(new MutableRawData(vertexSize*numVerts));
         unsigned char *basePtr = (unsigned char *)retData->getRawData();
         if (dupStart)
         {
-            addPointToBuffer(basePtr, 0);
+            addPointToBuffer(basePtr, 0, NULL);
             basePtr += vertexSize;
-            addPointToBuffer(basePtr, 0);
+            addPointToBuffer(basePtr, 0, NULL);
             basePtr += vertexSize;
         }
         for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
-            addPointToBuffer(basePtr, ii);
+            addPointToBuffer(basePtr, ii, NULL);
         if (dupEnd)
         {
-            addPointToBuffer(basePtr, points.size()-1);
+            addPointToBuffer(basePtr, (int)(points.size()-1), NULL);
             basePtr += vertexSize;
-            addPointToBuffer(basePtr, points.size()-1);
+            addPointToBuffer(basePtr, (int)(points.size()-1), NULL);
             basePtr += vertexSize;
         }
     }
@@ -1174,7 +1187,7 @@ RawDataRef BasicDrawable::asData(bool dupStart,bool dupEnd)
     return retData;
 }
     
-void BasicDrawable::asVertexAndElementData(MutableRawDataRef &vertData,MutableRawDataRef &elementData,int singleElementSize)
+void BasicDrawable::asVertexAndElementData(MutableRawDataRef &vertData,MutableRawDataRef &elementData,int singleElementSize,const Point3d *center)
 {
     if (type != GL_TRIANGLES)
         return;
@@ -1182,7 +1195,7 @@ void BasicDrawable::asVertexAndElementData(MutableRawDataRef &vertData,MutableRa
         return;
 
     // Verify that everything else (that has data) has the same amount)
-    int numElements = points.size();
+    int numElements = (int)points.size();
     for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
     {
         VertexAttribute *attr = vertexAttributes[ii];
@@ -1193,15 +1206,15 @@ void BasicDrawable::asVertexAndElementData(MutableRawDataRef &vertData,MutableRa
 
     // Build up the vertices
     vertexSize = singleVertexSize();
-    int numVerts = points.size();
+    int numVerts = (int)points.size();
     vertData = MutableRawDataRef(new MutableRawData(vertexSize * numVerts));
     unsigned char *basePtr = (unsigned char *)vertData->getRawData();
     for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
-        addPointToBuffer(basePtr, ii);
+        addPointToBuffer(basePtr, ii, center);
         
     // Build up the triangles
     int triSize = singleElementSize * 3;
-    int numTris = tris.size();
+    int numTris = (int)tris.size();
     int totSize = numTris*triSize;
     elementData = MutableRawDataRef(new MutableRawData(totSize));
     GLushort *elPtr = (GLushort *)elementData->getRawData();
@@ -1358,7 +1371,7 @@ void BasicDrawable::convertToTriStrip()
 void BasicDrawable::teardownGL(OpenGLMemManager *memManager)
 {
     if (vertArrayObj)
-        glDeleteVertexArraysOES(1,&vertArrayObj);
+        glDeleteVertexArrays(1,&vertArrayObj);
     vertArrayObj = 0;
     
     if (sharedBuffer && !sharedBufferIsExternal)
@@ -1391,8 +1404,8 @@ void BasicDrawable::setupVAO(OpenGLES2Program *prog)
 {
     const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
 
-    glGenVertexArraysOES(1, &vertArrayObj);
-    glBindVertexArrayOES(vertArrayObj);
+    glGenVertexArrays(1, &vertArrayObj);
+    glBindVertexArray(vertArrayObj);
     
     // We're using a single buffer for all of our vertex attributes
     if (sharedBuffer)
@@ -1432,7 +1445,7 @@ void BasicDrawable::setupVAO(OpenGLES2Program *prog)
         CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
     }    
     
-    glBindVertexArrayOES(0);
+    glBindVertexArray(0);
 
     // Let a subclass set up their own VAO state
     setupAdditionalVAO(prog,vertArrayObj);
@@ -1651,7 +1664,7 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
     // If we're using a vertex array object, bind it and draw
     if (vertArrayObj)
     {
-        glBindVertexArrayOES(vertArrayObj);
+        glBindVertexArray(vertArrayObj);
         switch (type)
         {
             case GL_TRIANGLES:
@@ -1671,7 +1684,7 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
                 CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                 break;
         }
-        glBindVertexArrayOES(0);
+        glBindVertexArray(0);
     } else {
         // Draw without a VAO
         switch (type)
@@ -1758,7 +1771,14 @@ ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
 void ColorChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    if (basicDrawable)
+    {
 	basicDrawable->setColor(color);
+    } else {
+        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        if (basicDrawInst)
+            basicDrawInst->setColor(RGBAColor(color[0],color[1],color[2],color[3]));
+    }
 }
 	
 OnOffChangeRequest::OnOffChangeRequest(SimpleIdentity drawId,bool OnOff)
@@ -1770,7 +1790,13 @@ OnOffChangeRequest::OnOffChangeRequest(SimpleIdentity drawId,bool OnOff)
 void OnOffChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    if (basicDrawable)
 	basicDrawable->setOnOff(newOnOff);
+    else {
+        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        if (basicDrawInst)
+            basicDrawInst->setEnable(newOnOff);
+    }
 }
     
 VisibilityChangeRequest::VisibilityChangeRequest(SimpleIdentity drawId,float minVis,float maxVis)
@@ -1781,7 +1807,12 @@ VisibilityChangeRequest::VisibilityChangeRequest(SimpleIdentity drawId,float min
 void VisibilityChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    if (basicDrawable)
     basicDrawable->setVisibleRange(minVis,maxVis);
+    else {
+        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        basicDrawInst->setVisibleRange(minVis, maxVis);
+    }
 }
     
 FadeChangeRequest::FadeChangeRequest(SimpleIdentity drawId,TimeInterval fadeUp,TimeInterval fadeDown)
@@ -1794,7 +1825,10 @@ void FadeChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *render
 {
     // Fade it out, then remove it
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
-    basicDrawable->setFade(fadeDown, fadeUp);
+    if (basicDrawable)
+    {
+        basicDrawable->setFade(fadeDown, fadeUp);
+    }
     
     // And let the renderer know
     renderer->setRenderUntil(fadeDown);
@@ -1845,7 +1879,13 @@ DrawPriorityChangeRequest::DrawPriorityChangeRequest(SimpleIdentity drawId,int d
 void DrawPriorityChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
-    basicDrawable->setDrawPriority(drawPriority);
+    if (basicDrawable)
+        basicDrawable->setDrawPriority(drawPriority);
+    else {
+        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        if (basicDrawInst)
+            basicDrawInst->setDrawPriority(drawPriority);
+    }
 }
 
 LineWidthChangeRequest::LineWidthChangeRequest(SimpleIdentity drawId,float lineWidth)
@@ -1856,8 +1896,93 @@ LineWidthChangeRequest::LineWidthChangeRequest(SimpleIdentity drawId,float lineW
 void LineWidthChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
-    basicDrawable->setLineWidth(lineWidth);
+    if (basicDrawable)
+        basicDrawable->setLineWidth(lineWidth);
+    else {
+        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        if (basicDrawInst)
+            basicDrawInst->setLineWidth(lineWidth);
+    }
 }
 
+BasicDrawableInstance::BasicDrawableInstance(const std::string &name,SimpleIdentity masterID)
+    : Drawable(name), enable(true), masterID(masterID)
+{
+}
+
+Mbr BasicDrawableInstance::getLocalMbr() const
+{
+    return basicDraw->getLocalMbr();
+}
+    
+unsigned int BasicDrawableInstance::getDrawPriority() const
+{
+    if (hasDrawPriority)
+        return drawPriority;
+    return basicDraw->getDrawPriority();
+}
+
+SimpleIdentity BasicDrawableInstance::getProgram() const
+{
+    return basicDraw->getProgram();
+}
+
+bool BasicDrawableInstance::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
+{
+    if (minVis == DrawVisibleInvalid || !enable)
+        return enable;
+    
+    double visVal = frameInfo->theView->heightAboveSurface();
+    
+    bool test = ((minVis <= visVal && visVal <= maxVis) ||
+                 (maxVis <= visVal && visVal <= minVis));
+    return test;
+}
+
+GLenum BasicDrawableInstance::getType() const
+{
+    return basicDraw->getType();
+}
+
+bool BasicDrawableInstance::hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const
+{
+    return basicDraw->hasAlpha(frameInfo);
+}
+
+void BasicDrawableInstance::updateRenderer(WhirlyKit::SceneRendererES *renderer)
+{
+    return basicDraw->updateRenderer(renderer);
+}
+
+void BasicDrawableInstance::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
+{
+    int oldDrawPriority = basicDraw->getDrawPriority();
+    RGBAColor oldColor = basicDraw->getColor();
+    float oldLineWidth = basicDraw->getLineWidth();
+    float oldMinVis,oldMaxVis;
+    basicDraw->getVisibleRange(oldMinVis, oldMaxVis);
+    
+    // Change the drawable
+    if (hasDrawPriority)
+        basicDraw->setDrawPriority(drawPriority);
+    if (hasColor)
+        basicDraw->setColor(color);
+    if (hasLineWidth)
+        basicDraw->setLineWidth(lineWidth);
+    if (hasMinVis || hasMaxVis)
+        basicDraw->setVisibleRange(minVis, maxVis);
+    
+    basicDraw->draw(frameInfo,scene);
+    
+    // Set it back
+    if (hasDrawPriority)
+        basicDraw->setDrawPriority(oldDrawPriority);
+    if (hasColor)
+        basicDraw->setColor(oldColor);
+    if (hasLineWidth)
+        basicDraw->setLineWidth(oldLineWidth);
+    if (hasMinVis || hasMaxVis)
+        basicDraw->setVisibleRange(oldMinVis, oldMaxVis);
+}
 
 }

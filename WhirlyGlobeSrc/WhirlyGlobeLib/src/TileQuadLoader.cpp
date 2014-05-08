@@ -101,6 +101,10 @@ InternalLoadedTile *QuadTileLoader::getTile(const Quadtree::Identifier &ident)
 // Make all the various parents update their child geometry
 void QuadTileLoader::refreshParents()
 {
+    // If we're in single level mode we don't bother with this
+    if (control->getTargetLevel() != -1)
+        return;
+    
     // Update just the parents that have changed recently
     for (std::set<Quadtree::Identifier>::iterator it = parents.begin();
          it != parents.end(); ++it)
@@ -139,14 +143,16 @@ void QuadTileLoader::flushUpdates(ChangeSet &changes)
     {
         if (tileBuilder->drawAtlas->hasUpdates() && !tileBuilder->drawAtlas->waitingOnSwap())
         {
+            tileBuilder->texAtlas->cleanup(changeRequests);
             tileBuilder->drawAtlas->swap(changeRequests, &BigDrawableSwapCallback, this);
         }
     }
 
     // If we added geometry or textures, we may need to reset this
-    if (tileBuilder)
+    if (tileBuilder && tileBuilder->newDrawables)
     {
         runSetCurrentImage(changeRequests);
+        tileBuilder->newDrawables = false;
     }
     
     if (!changeRequests.empty())
@@ -320,8 +326,8 @@ void QuadTileLoader::init(QuadDisplayController *inControl,Scene *inScene)
 {
     QuadLoader::init(inControl,inScene);
 }
-
-void QuadTileLoader::shutdownLayer(ChangeSet &changes)
+    
+void QuadTileLoader::reset(ChangeSet &changes)
 {
     // Flush out any existing change requests
     if (!changeRequests.empty())
@@ -338,11 +344,19 @@ void QuadTileLoader::shutdownLayer(ChangeSet &changes)
         tile->clearContents(tileBuilder,changes);
     }
     pthread_mutex_unlock(&tileLock);
+
+    networkFetches.clear();
+    localFetches.clear();
     
     if (tileBuilder)
         tileBuilder->clearAtlases(changes);
     
     clear();
+}
+
+void QuadTileLoader::shutdownLayer(ChangeSet &changes)
+{
+    reset(changes);
 }
 
 // We can do another fetch if we haven't hit the max
@@ -361,12 +375,12 @@ bool QuadTileLoader::isReady()
 
 int QuadTileLoader::numNetworkFetches()
 {
-    return networkFetches.size();
+    return (int)networkFetches.size();
 }
 
 int QuadTileLoader::numLocalFetches()
 {
-    return localFetches.size();
+    return (int)localFetches.size();
 }
 
 // Ask the data source to start loading the image for this tile
@@ -376,6 +390,7 @@ void QuadTileLoader::loadTile(const Quadtree::NodeInfo &tileInfo)
     InternalLoadedTile *newTile = new InternalLoadedTile();
     newTile->nodeInfo = tileInfo;
     newTile->isLoading = true;
+    newTile->calculateSize(control->getQuadtree(), control->getScene()->getCoordAdapter(), control->getCoordSys());
 
     pthread_mutex_lock(&tileLock);
     tileSet.insert(newTile);
@@ -394,6 +409,10 @@ void QuadTileLoader::loadTile(const Quadtree::NodeInfo &tileInfo)
 // Check if we're in the process of loading the given tile
 bool QuadTileLoader::canLoadChildrenOfTile(const Quadtree::NodeInfo &tileInfo)
 {
+    // For single level mode, you can always do this
+    if (control->getTargetLevel() != -1)
+        return true;
+
     InternalLoadedTile *tile = getTile(tileInfo.ident);
     if (!tile)
         return false;
@@ -459,7 +478,7 @@ void QuadTileLoader::unloadTile(const Quadtree::NodeInfo &tileInfo)
 //    NSLog(@"Unloaded tile (%d,%d,%d)",tileInfo.ident.x,tileInfo.ident.y,tileInfo.ident.level);
     
     // We'll put this on the list of parents to update, but it'll actually happen in EndUpdates
-    if (tileInfo.ident.level > 0)
+    if (tileInfo.ident.level > 0 && control->getTargetLevel() == -1)
         parents.insert(Quadtree::Identifier(tileInfo.ident.x/2,tileInfo.ident.y/2,tileInfo.ident.level-1));
     
     updateTexAtlasMapping();
@@ -542,8 +561,30 @@ static GLenum glEnumFromOurFormat(WhirlyKitTileImageType imageType)
         case WKTileUByteRGB:
             return GL_ALPHA;
             break;
-        case WKTilePVRTC4:
-            return GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
+            // Note: Porting
+//        case WKTilePVRTC4:
+//            return GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
+//            break;
+        case WKTileETC2_RGB8:
+            return GL_COMPRESSED_RGB8_ETC2;
+            break;
+        case WKTileETC2_RGBA8:
+            return GL_COMPRESSED_RGBA8_ETC2_EAC;
+            break;
+        case WKTileETC2_RGB8_PunchAlpha:
+            return GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+            break;
+        case WKTileEAC_R11:
+            return GL_COMPRESSED_R11_EAC;
+            break;
+        case WKTileEAC_R11_Signed:
+            return GL_COMPRESSED_SIGNED_R11_EAC;
+            break;
+        case WKTileEAC_RG11:
+            return GL_COMPRESSED_RG11_EAC;
+            break;
+        case WKTileEAC_RG11_Signed:
+            return GL_COMPRESSED_SIGNED_RG11_EAC;
             break;
     }
     
@@ -605,6 +646,7 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
         tileBuilder->scene = control->getScene();
         tileBuilder->lineMode = false;
         tileBuilder->borderTexel = borderTexel;
+        tileBuilder->singleLevel = control->getTargetLevel();
         
         // If we haven't decided how many active textures we'll have, do that
         if (activeTextures == -1)
@@ -718,7 +760,7 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
     //    NSLog(@"Loaded image for tile (%d,%d,%d)",col,row,level);
     
     // Various child state changed so let's update the parents
-    if (level > 0)
+    if (level > 0 && control->getTargetLevel() == -1)
         parents.insert(Quadtree::Identifier(col/2,row/2,level-1));
         
     if (!doingUpdate)
@@ -734,5 +776,127 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
     if (createdAtlases)
         runSetCurrentImage(changeRequests);
 }
+    
+    // Note: Porting
+//    - (void)runSetDrawPriority:(NSNumber *)newDrawPriorityObj
+//    {
+//        int newDrawPriority = (int)[newDrawPriorityObj integerValue];
+//        if (newDrawPriority == _drawPriority)
+//            return;
+//        
+//        _drawPriority = newDrawPriority;
+//        
+//        if (!_quadLayer)
+//            return;
+//        
+//        ChangeSet theChanges;
+//        if (_useDynamicAtlas)
+//        {
+//            if (tileBuilder)
+//            {
+//                tileBuilder->drawPriority = _drawPriority;
+//                if (tileBuilder->drawAtlas)
+//                    tileBuilder->drawAtlas->setDrawPriorityAllDrawables(_drawPriority, theChanges);
+//                    }
+//        }
+//        
+//        [_quadLayer.layerThread addChangeRequests:theChanges];
+//    }
+//    
+//    - (void)setDrawPriority:(int)drawPriority
+//    {
+//        if (!_quadLayer)
+//        {
+//            _drawPriority = drawPriority;
+//            return;
+//        }
+//        
+//        if ([NSThread currentThread] != _quadLayer.layerThread)
+//        {
+//            [self performSelector:@selector(runSetDrawPriority:) onThread:_quadLayer.layerThread withObject:@(drawPriority) waitUntilDone:NO];
+//        } else {
+//            [self runSetDrawPriority:@(drawPriority)];
+//        }
+//    }
+//    
+//    - (void)runSetColor:(UIColor *)newColorObj
+//    {
+//        RGBAColor newColor = [newColorObj asRGBAColor];
+//        if (newColor == _color)
+//            return;
+//        
+//        _color = newColor;
+//        
+//        if (!_quadLayer)
+//            return;
+//        
+//        ChangeSet theChanges;
+//        if (_useDynamicAtlas)
+//        {
+//            if (tileBuilder)
+//            {
+//                tileBuilder->color = _color;
+//                // Note: We can't change the color of existing drawables.  The color is in the data itself.
+//            }
+//        }
+//        [_quadLayer.layerThread addChangeRequests:theChanges];
+//    }
+//    
+//    - (void)setColor:(WhirlyKit::RGBAColor)color
+//    {
+//        if (!_quadLayer)
+//        {
+//            _color = color;
+//            return;
+//        }
+//        
+//        UIColor *newColor = [UIColor colorWithRed:color.r/255.0 green:color.g/255.0 blue:color.b/255.0 alpha:color.a/255.0];
+//        if ([NSThread currentThread] != _quadLayer.layerThread)
+//        {
+//            [self performSelector:@selector(runSetColor:) onThread:_quadLayer.layerThread withObject:newColor waitUntilDone:NO];
+//        } else {
+//            [self runSetColor:newColor];
+//        }
+//    }
+//    
+//    - (void)runSetProgramId:(NSNumber *)programIDObj
+//    {
+//        int newProgramID = (int)[programIDObj integerValue];
+//        if (newProgramID == _programId)
+//            return;
+//        
+//        _programId = newProgramID;
+//        
+//        if (!_quadLayer)
+//            return;
+//        
+//        ChangeSet theChanges;
+//        if (_useDynamicAtlas)
+//        {
+//            if (tileBuilder)
+//            {
+//                tileBuilder->programId = _programId;
+//                if (tileBuilder->drawAtlas)
+//                    tileBuilder->drawAtlas->setProgramIDAllDrawables(_programId, theChanges);
+//                    }
+//        }
+//        [_quadLayer.layerThread addChangeRequests:theChanges];
+//    }
+//    
+//    - (void)setProgramId:(WhirlyKit::SimpleIdentity)programId
+//    {
+//        if (!_quadLayer)
+//        {
+//            _programId = programId;
+//            return;
+//        }
+//        
+//        if ([NSThread currentThread] != _quadLayer.layerThread)
+//        {
+//            [self performSelector:@selector(runSetProgramId:) onThread:_quadLayer.layerThread withObject:@(programId) waitUntilDone:NO];
+//        } else {
+//            [self runSetProgramId:@(programId)];
+//        }
+//    }
 
 }

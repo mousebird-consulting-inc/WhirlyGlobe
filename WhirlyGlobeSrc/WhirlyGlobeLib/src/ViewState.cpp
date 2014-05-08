@@ -33,13 +33,27 @@ ViewState::ViewState(WhirlyKit::View *view,SceneRendererES *renderer)
 {
     modelMatrix = view->calcModelMatrix();
     invModelMatrix = modelMatrix.inverse();
-    viewMatrix = view->calcViewMatrix();
-    invViewMatrix = viewMatrix.inverse();
-    fullMatrix = view->calcFullMatrix();
-    invFullMatrix = fullMatrix.inverse();
+    
+    std::vector<Eigen::Matrix4d> offMatrices;
+    Point2f frameSize = renderer->getFramebufferSize();
+    view->getOffsetMatrices(offMatrices, frameSize);
+    viewMatrices.resize(offMatrices.size());
+    invViewMatrices.resize(offMatrices.size());
+    fullMatrices.resize(offMatrices.size());
+    invFullMatrices.resize(offMatrices.size());
+    fullNormalMatrices.resize(offMatrices.size());
+
     projMatrix = view->calcProjectionMatrix(renderer->getFramebufferSize(),0.0);
     invProjMatrix = projMatrix.inverse();
-    fullNormalMatrix = fullMatrix.inverse().transpose();
+    Eigen::Matrix4d baseViewMatrix = view->calcViewMatrix();
+    for (unsigned int ii=0;ii<offMatrices.size();ii++)
+    {
+        viewMatrices[ii] = baseViewMatrix * offMatrices[ii];
+        invViewMatrices[ii] = viewMatrices[ii].inverse();
+        fullMatrices[ii] = viewMatrices[ii] * modelMatrix;
+        invFullMatrices[ii] = fullMatrices[ii].inverse();
+        fullNormalMatrices[ii] = fullMatrices[ii].inverse().transpose();
+    }
     
     fieldOfView = view->fieldOfView;
     imagePlaneSize = view->imagePlaneSize;
@@ -47,13 +61,13 @@ ViewState::ViewState(WhirlyKit::View *view,SceneRendererES *renderer)
     farPlane = view->farPlane;
     
     // Need the eye point for backface checking
-    Vector4d eyeVec4 = invFullMatrix * Vector4d(0,0,1,0);
+    Vector4d eyeVec4 = invFullMatrices[0] * Vector4d(0,0,1,0);
     eyeVec = Vector3d(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
     // Also a version for the model matrix (e.g. just location, not direction)
     eyeVec4 = invModelMatrix * Vector4d(0,0,1,0);
     eyeVecModel = Vector3d(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
     // And calculate where the eye actually is
-    Vector4d eyePos4 = invFullMatrix * Vector4d(0,0,0,1);
+    Vector4d eyePos4 = invFullMatrices[0] * Vector4d(0,0,0,1);
     eyePos = Vector3d(eyePos4.x(),eyePos4.y(),eyePos4.z());
     
     ll.x() = ur.x() = 0.0;
@@ -135,8 +149,8 @@ bool ViewState::isSameAs(WhirlyKit::ViewState *other)
         return false;
     
     // Matrix comparison
-    double *floatsA = fullMatrix.data();
-    double *floatsB = other->fullMatrix.data();
+    double *floatsA = fullMatrices[0].data();
+    double *floatsB = other->fullMatrices[0].data();
     for (unsigned int ii=0;ii<16;ii++)
         if (floatsA[ii] != floatsB[ii])
             return false;

@@ -401,6 +401,7 @@
 		2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9212F09EA0005003AE /* dbfopen.c */; };
 		2BDC4AC4133404C600E25283 /* shpopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9012F09E91005003AE /* shpopen.c */; };
 		2BDC4AC5133404CA00E25283 /* safileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951DF012F0AC50005003AE /* safileio.c */; };
+		2BDC89CB191C2ADE00DFECF0 /* SceneRendererES3.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC89CA191C2ADE00DFECF0 /* SceneRendererES3.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -805,6 +806,7 @@
 		2BDC4A621333F0E900E25283 /* WhirlyGlobeLib-iphoneos-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphoneos-Prefix.pch"; sourceTree = "<group>"; };
 		2BDC4ABB133404BB00E25283 /* libWhirlyGlobeLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWhirlyGlobeLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BDC4ABF133404BB00E25283 /* WhirlyGlobeLib-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-Prefix.pch"; sourceTree = "<group>"; };
+		2BDC89CA191C2ADE00DFECF0 /* SceneRendererES3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES3.h; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -1279,6 +1281,7 @@
 		2BC53FA412DE217E00778431 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2BDC89CA191C2ADE00DFECF0 /* SceneRendererES3.h */,
 				2B35677518D762BF00EF8DB1 /* BigDrawable.h */,
 				2B35677618D762BF00EF8DB1 /* CoordSystem.h */,
 				2B35677718D762BF00EF8DB1 /* Cullable.h */,
@@ -1503,6 +1506,7 @@
 				2B35680F18D762BF00EF8DB1 /* ShapeDrawableBuilder.h in Headers */,
 				2B35683E18D762BF00EF8DB1 /* WhirlyTypes.h in Headers */,
 				2B009CF2186102E4001E2EE8 /* JSONAllocator.h in Headers */,
+				2BDC89CB191C2ADE00DFECF0 /* SceneRendererES3.h in Headers */,
 				2B3567F918D762BF00EF8DB1 /* LabelLayer.h in Headers */,
 				2B35682418D762BF00EF8DB1 /* MarkerManager.h in Headers */,
 				2B009D05186102E4001E2EE8 /* JSONPreparse.h in Headers */,
