@@ -171,7 +171,7 @@ void TileBuilder::clearAtlases(ChangeSet &theChangeRequests)
 }
 
 // Helper routine for constructing the skirt around a tile
-void TileBuilder::buildSkirt(BasicDrawable *draw,std::vector<Point3f> &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev)
+void TileBuilder::buildSkirt(BasicDrawable *draw,Point3fVector &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev)
 {
     for (unsigned int ii=0;ii<pts.size()-1;ii++)
     {
@@ -371,7 +371,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
         } else {
             chunk->setType(GL_TRIANGLES);
             // Generate point, texture coords, and normals
-            std::vector<Point3f> locs((sphereTessX+1)*(sphereTessY+1));
+            Point3fVector locs((sphereTessX+1)*(sphereTessY+1));
 //            std::vector<float> elevs;
 //            if (includeElev || useElevAsZ)
 //                elevs.resize((sphereTessX+1)*(sphereTessY+1));
@@ -555,7 +555,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                     skirtFactor = 1.0 - 0.2 / (1<<nodeInfo->ident.level);
                 
                 // Bottom skirt
-                std::vector<Point3f> skirtLocs;
+                Point3fVector skirtLocs;
                 std::vector<TexCoord> skirtTexCoords;
                 for (unsigned int ix=0;ix<=sphereTessX;ix++)
                 {

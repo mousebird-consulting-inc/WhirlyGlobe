@@ -109,7 +109,7 @@ public:
     void initAtlases(WhirlyKitTileImageType imageType,int numImages,int textureAtlasSize,int sampleSizeX,int sampleSizeY);
     
     // Build the edge matching skirt
-    void buildSkirt(BasicDrawable *draw,std::vector<Point3f> &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev);
+    void buildSkirt(BasicDrawable *draw,Point3fVector &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev);
     
     // Build a given tile
     // Note: Porting

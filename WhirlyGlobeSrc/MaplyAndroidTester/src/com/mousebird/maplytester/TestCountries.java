@@ -41,7 +41,7 @@ public class TestCountries
 	{
 //	   	mapControl.setPosition(-122.416667 / 180.0 * 3.1415, 37.783333 / 180.0 * 3.1415, 4.0) ;
 
-		Point3d testPt = new Point3d(0.f,0.f,0.f);
+//		Point3d testPt = new Point3d(0.f,0.f,0.f);
 
     	// Go load vector files (on another thread, please)
     	Thread thread = new Thread()

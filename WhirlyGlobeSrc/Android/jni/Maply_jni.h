@@ -60,6 +60,7 @@ public:
 		if (!obj)
 		{
 			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Null object handle in getHandle().");
+			return NULL;
 		}
 	    jlong handle = env->GetLongField(obj, getHandleField(env, obj));
 	    return reinterpret_cast<T *>(handle);
@@ -71,6 +72,7 @@ public:
 		if (!t)
 		{
 			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Null handle in setHandle()");
+			return;
 		}
 	    jlong handle = reinterpret_cast<jlong>(t);
 	    env->SetLongField(obj, getHandleField(env, obj), handle);
@@ -96,7 +98,7 @@ public:
 	{
 		if (!classInfoObj)
 		{
-			jclass cls = env->FindClass("com/mousebird/maply/AttrDictionary");
+			jclass cls = env->FindClass(className);
 			classInfoObj = new JavaClassInfo(env,cls);
 			env->DeleteLocalRef(cls);
 		}

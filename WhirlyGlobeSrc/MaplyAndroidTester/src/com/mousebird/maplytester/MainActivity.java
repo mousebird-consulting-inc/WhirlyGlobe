@@ -10,7 +10,7 @@ import com.mousebird.maplytester.TestRemoteImageTiles;
 
 import android.os.*;
 import android.app.*;
-import android.util.Log;
+//import android.util.Log;
 //import android.widget.Toast;
 import android.view.View;
 import android.widget.AdapterView;

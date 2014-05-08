@@ -61,7 +61,7 @@ public:
     virtual ~ShapeDrawableBuilder();
         
     /// A group of points (in display space) all at once
-    void addPoints(std::vector<Point3f> &pts,RGBAColor color,Mbr mbr,float lineWidth,bool closed);
+    void addPoints(Point3fVector &pts,RGBAColor color,Mbr mbr,float lineWidth,bool closed);
     
     /// Flush out the current drawable (if there is one) to the list of finished ones
     void flush();
@@ -94,10 +94,10 @@ public:
     void addTriangle(Point3f p0,Point3f n0,RGBAColor c0,Point3f p1,Point3f n1,RGBAColor c1,Point3f p2,Point3f n2,RGBAColor c2,Mbr shapeMbr);
     
     // Add a group of pre-build triangles
-    void addTriangles(std::vector<Point3f> &pts,std::vector<Point3f> &norms,std::vector<RGBAColor> &colors,std::vector<BasicDrawable::Triangle> &tris);
+    void addTriangles(Point3fVector &pts,Point3fVector &norms,std::vector<RGBAColor> &colors,std::vector<BasicDrawable::Triangle> &tris);
     
     // Add a convex outline, triangulated
-    void addConvexOutline(std::vector<Point3f> &pts,Point3f norm,RGBAColor color,Mbr shapeMbr);
+    void addConvexOutline(Point3fVector &pts,Point3f norm,RGBAColor color,Mbr shapeMbr);
     
     /// Flush out the current drawable (if there is one) to the list of finished ones
     void flush();
