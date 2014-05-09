@@ -135,7 +135,7 @@ bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
     if (compressed)
     {
         size_t size = texSize * texSize / 2;
-		glCompressedTexImage2D(GL_TEXTURE_2D, 0, type, texSize, texSize, 0, (GLsizei)size, NULL);
+	glCompressedTexImage2D(GL_TEXTURE_2D, 0, type, texSize, texSize, 0, (GLsizei)size, NULL);
     } else {
         // Turn this on to provide glTexImage2D with empty memory so Instruments doesn't complain
 //        size_t size = texSize*texSize*4;
