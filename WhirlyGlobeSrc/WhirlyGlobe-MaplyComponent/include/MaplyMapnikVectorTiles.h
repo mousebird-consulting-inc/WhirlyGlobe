@@ -21,7 +21,11 @@
 
 #import <Foundation/Foundation.h>
 #import "MaplyQuadPagingLayer.h"
+#import "MaplyMBTileSource.h"
 
+/** @brief Geometry type for data found within PBF files.
+    @details These are the geometry types supported within Mapnik PBF files.
+  */
 typedef enum  {
   GeomTypeUnknown = 0,
   GeomTypePoint = 1,
@@ -39,6 +43,11 @@ typedef enum {
 @class MaplyVectorTileStyle;
 @class MaplyRemoteTileInfo;
 
+/** @brief Protocol for styling the vectors.
+    @details You pass in an object which adheres to this protocol and will style
+    the vectors read by a MaplyMapnikVectorTiles object.  In general, this will be
+    a parsed Mapnik vector file, but you can substitute your own logic as well.
+  */
 @protocol VectorStyleDelegate <NSObject>
 
 - (NSArray*)stylesForFeatureWithAttributes:(NSDictionary*)attributes
@@ -51,6 +60,11 @@ typedef enum {
 @end
 
 
+/** @brief Provides an demand creation for Mapnik style vector tiles.
+    @details Create one of these to read Mapnik PBF style tiles from a remote
+    or local source.  This handles the geometry creation, calls a delegate
+    for the styling and can read from remote or local data files.
+  */
 @interface MaplyMapnikVectorTiles : NSObject <MaplyPagingDelegate>
 
 @property (nonatomic, readonly) NSArray *tileSources;
@@ -58,7 +72,21 @@ typedef enum {
 @property (nonatomic, assign) BOOL debugLabel;
 @property (nonatomic, assign) BOOL debugOutline;
 
+/** @brief Init with a single remote tile source.
+  */
+
 - (instancetype) initWithTileSource:(MaplyRemoteTileInfo*)tileSource;
+
+/** @brief Init with a list of tile sources.
+    @details These are MaplyRemoteTileInfo objects and will be combined by the
+    MaplyMapnikVectorTiles object for display.
+  */
 - (instancetype) initWithTileSources:(NSArray*)tileSources;
+
+/** @brief Init with the filename of an MBTiles archive containing PBF tiles.
+    @details This will read individual tiles from an MBTiles archive containging PBF.
+    @details The file should be local.
+  */
+- (instancetype) initWithMBTiles:(MaplyMBTileSource *)tileSource;
 
 @end

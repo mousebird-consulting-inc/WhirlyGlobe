@@ -288,7 +288,7 @@ typedef std::set<SortedTile> SortedTileSet;
 // Got an error while trying to fetch tile
 - (void)failedToGetTile:(MaplyTileID)tileID error:(NSError *)error layer:(MaplyQuadImageTilesLayer *)layer
 {
-    NSLog(@"Failed load for tile %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+    NSLog(@"Failed load for tile %d: (%d,%d)\n%@",tileID.level,tileID.x,tileID.y,error);
     
     [self clearFetchesFor:tileID];
     
