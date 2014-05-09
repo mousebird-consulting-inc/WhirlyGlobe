@@ -380,8 +380,7 @@ using namespace WhirlyKit;
         MaplyRemoteTileSource __weak *weakSelf = self;
         AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:urlReq];
         dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        op.successCallbackQueue = queue;
-        op.failureCallbackQueue = queue;
+        op.completionQueue = queue;
         [op setCompletionBlockWithSuccess:
          ^(AFHTTPRequestOperation *operation, id responseObject)
             {

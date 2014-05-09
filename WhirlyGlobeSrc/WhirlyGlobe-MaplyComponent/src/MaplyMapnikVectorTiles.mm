@@ -102,7 +102,7 @@ static double MAX_EXTENT = 20037508.342789244;
     Point2f firstCoord;
 
     NSMutableArray *components = [NSMutableArray array];
-    CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
+//    CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
 
     unsigned featureCount = 0;
     
