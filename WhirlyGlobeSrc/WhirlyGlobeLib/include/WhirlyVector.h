@@ -124,10 +124,10 @@ public:
     /// Extend the MBR by the given point
 	void addPoint(Point2d pt);
 
-    /// Extend the MBR by the givenpoints
+    /// Extend the MBR by the given points
     void addPoints(const std::vector<Point2f> &coords);
 
-    /// Extend the MBR by the givenpoints
+    /// Extend the MBR by the given points
     void addPoints(const std::vector<Point2d> &coords);
 
 	/// See if this Mbr overlaps the other one
