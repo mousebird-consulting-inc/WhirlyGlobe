@@ -189,7 +189,7 @@ static double MAX_EXTENT = 20037508.342789244;
                   } else if (value.has_double_value()) {
                     attributes[key] = @(value.double_value());
                   } else if (value.has_float_value()) {
-                    attributes[key] = @(value.double_value());
+                    attributes[key] = @(value.float_value());
                   } else if (value.has_bool_value()) {
                     attributes[key] = @(value.bool_value());
                   } else if (value.has_sint_value()) {
