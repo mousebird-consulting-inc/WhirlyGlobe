@@ -68,3 +68,9 @@ bool MaplyBoundingBoxesOverlap(MaplyBoundingBox bbox0,MaplyBoundingBox bbox1)
     
     return mbr0.overlaps(mbr1);
 }
+
+double MaplyGreatCircleDistance(MaplyCoordinate p0,MaplyCoordinate p1)
+{
+    double delta = acos(sin(p0.y)*sin(p1.y) + cos(p0.y)*cos(p1.y)*cos(p1.x-p0.x));
+    return delta * EarthRadius;
+}
