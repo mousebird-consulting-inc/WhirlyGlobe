@@ -47,10 +47,17 @@ using namespace WhirlyKit;
     if ([[NSFileManager defaultManager] fileExistsAtPath:mbTilesName])
         infoPath = mbTilesName;
     else {
-        // Now try looking for it in the bundle
-        infoPath = [[NSBundle mainBundle] pathForResource:mbTilesName ofType:@"mbtiles"];
+        // Try the documents directory
+        NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+        infoPath = [NSString stringWithFormat:@"%@/%@",docDir,mbTilesName];
+        if (![[NSFileManager defaultManager] fileExistsAtPath:infoPath])
+            infoPath = nil;
         if (!infoPath)
+        {
+            // Now try looking for it in the bundle
+            infoPath = [[NSBundle mainBundle] pathForResource:mbTilesName ofType:@"mbtiles"];
             return nil;
+        }
     }
     
     // Open the sqlite DB

@@ -90,17 +90,34 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   return self;
 }
 
+- (void)loadXmlData:(NSData *)docData
+{
+    startTime = CFAbsoluteTimeGetCurrent();
+    self.styleDictionary = [NSMutableDictionary dictionary];
+    NSXMLParser *parser = [[NSXMLParser alloc] initWithData:docData];
+    docData = nil;
+    parser.delegate = self;
+    [parser parse];
+}
 
 - (void)loadXmlFile:(NSString*)filePath {
   self.parsing = YES;
-  
-  startTime = CFAbsoluteTimeGetCurrent();
-  self.styleDictionary = [NSMutableDictionary dictionary];
-  NSData *docData = [[NSData alloc] initWithContentsOfFile:filePath];
-  NSXMLParser *parser = [[NSXMLParser alloc] initWithData:docData];
-  docData = nil;
-  parser.delegate = self;
-  [parser parse];
+    
+    // Let's find it
+    NSString *fullPath = nil;
+    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath])
+        fullPath = filePath;
+    if (!fullPath)
+    {
+        NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+        fullPath = [NSString stringWithFormat:@"%@/%@",docDir,filePath];
+        if (![[NSFileManager defaultManager] fileExistsAtPath:fullPath])
+            fullPath = nil;
+    }
+    if (!fullPath)
+        fullPath = [[NSBundle mainBundle] pathForResource:filePath ofType:@"xml"];
+
+    return [self loadXmlData:[[NSData alloc] initWithContentsOfFile:fullPath]];
 }
 
 
