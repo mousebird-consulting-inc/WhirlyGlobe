@@ -131,6 +131,14 @@
  */
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC willStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion;
 
+/** @brief Called whenever the viewpoint moves.
+    @details This is called whenever the viewpoint moves.  That includes user motion as well as animations.
+    @details It may be triggered as often as every frame.  If that's a problem, use the globeViewController:didStopMoving:userMotion: or globeViewController:willStopMoving:userMotion: calls.
+    @param viewC The globe view controller.
+    @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.
+  */
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC didMove:(MaplyCoordinate *)corners;
+
 @end
 
 /** @brief This view controller implements a 3D interactive globe.
@@ -302,12 +310,19 @@
   */
 - (bool)screenPointFromGeo:(MaplyCoordinate)geoCoord screenPt:(CGPoint *)screenPt;
 
-/** @brief Calculate a geo coordinate form a point on the screen.
+/** @brief Calculate a geo coordinate from a point on the screen.
     @param screenPt Location on the screen.
     @param geoCoord Point on the earth in lat/lon radians.
     @return True if the point was on the globe, false otherwise.
   */
 - (bool)geoPointFromScreen:(CGPoint)screenPt geoCoord:(MaplyCoordinate *)geoCoord;
+
+/** @brief Calculate a geocentric coordinate from a point on the screen.
+    @param screenPt Location on the screen.
+    @param retCoords An array of 3 doubles.  The geocentric coordinate will be returned here.
+    @return True if the point was on the globe, false otherwise.
+ */
+- (bool)geocPointFromScreen:(CGPoint)screenPt geocCoord:(double *)retCoords;
 
 /** @brief Find a height that shows the given bounding box.
     @details This method will search for a height that shows the given bounding box within the view.  The search is inefficient, so don't call this a lot.
