@@ -240,6 +240,9 @@ unsigned char *Texture::ResolvePKM(NSData *texData,int &pkmType,int &size,int &w
     if (strncmp((char *)header, "PKM ", 4))
         return NULL;
     
+    width = (header[8] << 8) | header[9];
+    height = (header[10] << 8) | header[11];;
+    
     // Resolve the GL type
     int glType = -1;
     switch (*type)
@@ -249,38 +252,39 @@ unsigned char *Texture::ResolvePKM(NSData *texData,int &pkmType,int &size,int &w
             break;
         case 1:
             glType = GL_COMPRESSED_RGB8_ETC2;
+            size = width * height / 2;
             break;
         case 2:
             // Unused
             break;
         case 3:
             glType = GL_COMPRESSED_RGBA8_ETC2_EAC;
+            size = width * height;
             break;
         case 4:
             glType = GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+            size = width * height / 2;
             break;
         case 5:
             glType = GL_COMPRESSED_R11_EAC;
+            size = width * height / 2;
             break;
         case 6:
             glType = GL_COMPRESSED_RG11_EAC;
+            size = width * height;
             break;
         case 7:
             glType = GL_COMPRESSED_SIGNED_R11_EAC;
+            size = width * height / 2;
             break;
         case 8:
             glType = GL_COMPRESSED_SIGNED_RG11_EAC;
+            size = width * height;
             break;
     }
     if (glType == -1)
         return NULL;
     pkmType = glType;
-
-    width = (header[8] << 8) | header[9];
-    height = (header[10] << 8) | header[11];;
-    // Skipping original width/height
-
-    size = width * height / 2;
 
     return (unsigned char*)&header[16];
 }
