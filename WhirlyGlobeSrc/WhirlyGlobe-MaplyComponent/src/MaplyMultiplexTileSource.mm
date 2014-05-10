@@ -288,7 +288,7 @@ typedef std::set<SortedTile> SortedTileSet;
 // Got an error while trying to fetch tile
 - (void)failedToGetTile:(MaplyTileID)tileID error:(NSError *)error layer:(MaplyQuadImageTilesLayer *)layer
 {
-    NSLog(@"Failed load for tile %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+    NSLog(@"Failed load for tile %d: (%d,%d)\n%@",tileID.level,tileID.x,tileID.y,error);
     
     [self clearFetchesFor:tileID];
     
@@ -335,8 +335,7 @@ typedef std::set<SortedTile> SortedTileSet;
             MaplyMultiplexTileSource __weak *weakSelf = self;
             AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:urlReq];
             dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-            op.successCallbackQueue = queue;
-            op.failureCallbackQueue = queue;
+            op.completionQueue = queue;
             [op setCompletionBlockWithSuccess:
              ^(AFHTTPRequestOperation *operation, id responseObject)
              {

@@ -131,11 +131,27 @@ bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    CheckGLError("DynamicTexture::createInGL() glTexParameteri()");
 
     if (compressed)
     {
-        size_t size = texSize * texSize / 2;
-	glCompressedTexImage2D(GL_TEXTURE_2D, 0, type, texSize, texSize, 0, (GLsizei)size, NULL);
+        size_t size = 0;
+        switch (type)
+        {
+        case GL_COMPRESSED_RGB8_ETC2:
+        case GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
+        case GL_COMPRESSED_R11_EAC:
+        case GL_COMPRESSED_SIGNED_R11_EAC:
+            size = texSize * texSize / 2;
+            break;
+        case GL_COMPRESSED_RGBA8_ETC2_EAC:
+        case GL_COMPRESSED_RG11_EAC:
+        case GL_COMPRESSED_SIGNED_RG11_EAC:
+            size = texSize * texSize;
+            break;
+        }
+        
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, type, texSize, texSize, 0, (GLsizei)size, NULL);
     } else {
         // Turn this on to provide glTexImage2D with empty memory so Instruments doesn't complain
 //        size_t size = texSize*texSize*4;
