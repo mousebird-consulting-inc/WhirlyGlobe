@@ -52,6 +52,13 @@
   */
 @property (nonatomic) int maxZoom;
 
+/** @brief The minimum zoom level in the MBTiles archive.
+ @details This is initially the min zoom level read out
+ of the MBTiles archive.  However, you can override it
+ to limit the zoom level, if that's what you need.
+ */
+@property (nonatomic) int minZoom;
+
 /** @brief The coordinate system for the MBTiles file.
     @details The coordinate system for an MBTiles file
      is always web mercator with the web extents.  This is

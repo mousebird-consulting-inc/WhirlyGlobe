@@ -131,11 +131,17 @@ LayoutManager::~LayoutManager()
     
 void LayoutManager::setMaxDisplayObjects(int numObjects)
 {
+    pthread_mutex_lock(&layoutLock);
+
     maxDisplayObjects = numObjects;
+
+    pthread_mutex_unlock(&layoutLock);
 }
     
 void LayoutManager::addLayoutObjects(const std::vector<LayoutObject> &newObjects)
 {
+    pthread_mutex_lock(&layoutLock);
+
     for (unsigned int ii=0;ii<newObjects.size();ii++)
     {
         const LayoutObject &layoutObj = newObjects[ii];
@@ -144,11 +150,15 @@ void LayoutManager::addLayoutObjects(const std::vector<LayoutObject> &newObjects
         layoutObjects.insert(entry);
     }
     hasUpdates = true;
+
+    pthread_mutex_unlock(&layoutLock);
 }
     
 /// Enable/disable layout objects
 void LayoutManager::enableLayoutObjects(const SimpleIDSet &theObjects,bool enable)
 {
+    pthread_mutex_lock(&layoutLock);
+
     for (SimpleIDSet::const_iterator it = theObjects.begin();
          it != theObjects.end(); ++it)
     {
@@ -158,10 +168,14 @@ void LayoutManager::enableLayoutObjects(const SimpleIDSet &theObjects,bool enabl
             (*eit)->obj.enable = enable;
     }
     hasUpdates = true;    
+
+    pthread_mutex_unlock(&layoutLock);
 }
     
 void LayoutManager::removeLayoutObjects(const SimpleIDSet &oldObjects)
 {
+    pthread_mutex_lock(&layoutLock);
+
     for (SimpleIDSet::const_iterator it = oldObjects.begin();
          it != oldObjects.end(); ++it)
     {
@@ -174,6 +188,8 @@ void LayoutManager::removeLayoutObjects(const SimpleIDSet &oldObjects)
         }
     }
     hasUpdates = true;
+
+    pthread_mutex_unlock(&layoutLock);
 }
     
 bool LayoutManager::hasChanges()
