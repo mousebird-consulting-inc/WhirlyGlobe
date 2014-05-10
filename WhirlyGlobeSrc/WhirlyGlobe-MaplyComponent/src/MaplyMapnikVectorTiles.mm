@@ -62,6 +62,10 @@ static double MAX_EXTENT = 20037508.342789244;
   return self;
 }
 
+- (instancetype) initWithMBTiles:(MaplyMBTileSource *)tileSource {
+    self = [self initWithTileSources:@[tileSource]];
+    return self;
+}
 
 #pragma mark - MaplyPagingDelegate
 - (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer {
@@ -98,26 +102,40 @@ static double MAX_EXTENT = 20037508.342789244;
     Point2f firstCoord;
 
     NSMutableArray *components = [NSMutableArray array];
-    CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
+//    CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
 
     unsigned featureCount = 0;
     
     NSMutableDictionary *featureStyles = [NSMutableDictionary new];
     
-    for(MaplyRemoteTileInfo *tileSource in self.tileSources) {
-      if([tileSource tileIsLocal:tileID]) {
-        tileData = [NSData dataWithContentsOfFile:[tileSource fileNameForTile:tileID]];
+    for(id thisTileSource in self.tileSources) {
+      if ([thisTileSource isKindOfClass:[MaplyMBTileSource class]])
+      {
+          MaplyMBTileSource *mbTileSource = thisTileSource;
+          tileData = [mbTileSource imageForTile:tileID];
       } else {
-        NSURLRequest *request = [tileSource requestForTile:tileID];
-        if(request) {
-          NSURLResponse *response;
-          NSError *error;
-          tileData = [NSURLConnection sendSynchronousRequest:request
-                                           returningResponse:&response error:&error];
-          if(tileData) {
-            [tileData writeToFile:[tileSource fileNameForTile:tileID] atomically:NO];
+          MaplyRemoteTileInfo *tileSource = thisTileSource;
+          if([tileSource tileIsLocal:tileID]) {
+            tileData = [NSData dataWithContentsOfFile:[tileSource fileNameForTile:tileID]];
+          } else {
+            NSURLRequest *request = [tileSource requestForTile:tileID];
+            if(request) {
+              NSURLResponse *response;
+              NSError *error;
+              tileData = [NSURLConnection sendSynchronousRequest:request
+                                               returningResponse:&response error:&error];
+              if(tileData) {
+                [tileData writeToFile:[tileSource fileNameForTile:tileID] atomically:NO];
+              }
+            }
           }
-        }
+      }
+        
+      // No data means no tile, need to report that accordingly
+      if (!tileData || tileData.length == 0)
+      {
+          [layer tileFailedToLoad:tileID];
+          return;
       }
       
       if(tileData.length) {
@@ -171,7 +189,7 @@ static double MAX_EXTENT = 20037508.342789244;
                   } else if (value.has_double_value()) {
                     attributes[key] = @(value.double_value());
                   } else if (value.has_float_value()) {
-                    attributes[key] = @(value.double_value());
+                    attributes[key] = @(value.float_value());
                   } else if (value.has_bool_value()) {
                     attributes[key] = @(value.bool_value());
                   } else if (value.has_sint_value()) {
@@ -414,18 +432,22 @@ static double MAX_EXTENT = 20037508.342789244;
     [layer addData:components forTile:tileID style:MaplyDataStyleReplace];
     [layer tileDidLoad:tileID];
 
-    CFTimeInterval duration = CFAbsoluteTimeGetCurrent() - start;
-    NSLog(@"Added %lu components for %d features for tile %d/%d/%d in %f seconds",
-          (unsigned long)components.count, featureCount,
-          tileID.level, tileID.x, tileID.y,
-          duration);
+      // Note: Turn this back on for debugging
+//    CFTimeInterval duration = CFAbsoluteTimeGetCurrent() - start;
+//    NSLog(@"Added %lu components for %d features for tile %d/%d/%d in %f seconds",
+//          (unsigned long)components.count, featureCount,
+//          tileID.level, tileID.x, tileID.y,
+//          duration);
   });
 }
 
 
 - (int)minZoom {
   if(self.tileSources.count) {
-    return [(MaplyRemoteTileInfo*)self.tileSources[0] minZoom];
+      id tileSource = self.tileSources[0];
+      if ([tileSource isKindOfClass:[MaplyMBTileSource class]])
+          return [(MaplyMBTileSource *)tileSource minZoom];
+      return [(MaplyRemoteTileInfo*)self.tileSources[0] minZoom];
   } else {
     return 3;
   }
@@ -434,7 +456,10 @@ static double MAX_EXTENT = 20037508.342789244;
 
 - (int)maxZoom {
   if(self.tileSources.count) {
-    return [(MaplyRemoteTileInfo*)self.tileSources[0] maxZoom];
+      id tileSource = self.tileSources[0];
+      if ([tileSource isKindOfClass:[MaplyMBTileSource class]])
+          return [(MaplyMBTileSource *)tileSource maxZoom];
+      return [(MaplyRemoteTileInfo*)self.tileSources[0] maxZoom];
   } else {
     return 14;
   }

@@ -20,8 +20,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import "TestViewController.h"
-#import "AFJSONRequestOperation.h"
-#import "AFKissXMLRequestOperation.h"
+#import "AFHTTPRequestOperation.h"
 #import "AnimationTest.h"
 #import "WeatherShader.h"
 
@@ -340,14 +339,14 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 {
     NSString *capabilitiesURL = [MaplyWMSCapabilities CapabilitiesURLFor:baseURL];
     
-    AFKissXMLRequestOperation *operation = [AFKissXMLRequestOperation XMLDocumentRequestOperationWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:capabilitiesURL]] success:^(NSURLRequest *request, NSHTTPURLResponse *response, DDXMLDocument *XMLDocument)
-    {
-        [self startWMSLayerBaseURL:baseURL xml:XMLDocument layer:layerName style:styleName cacheDir:thisCacheDir ovlName:ovlName];
-    } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, DDXMLDocument *XMLDocument)
-    {
+    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:capabilitiesURL]]];
+    operation.responseSerializer = [AFXMLParserResponseSerializer serializer];
+    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        [self startWMSLayerBaseURL:baseURL xml:responseObject layer:layerName style:styleName cacheDir:thisCacheDir ovlName:ovlName];
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         // Sometimes this works anyway
-        if (![self startWMSLayerBaseURL:baseURL xml:XMLDocument layer:layerName style:styleName cacheDir:thisCacheDir ovlName:ovlName])
-            NSLog(@"Failed to get capabilities from WMS server: %@",capabilitiesURL);
+//        if (![self startWMSLayerBaseURL:baseURL xml:XMLDocument layer:layerName style:styleName cacheDir:thisCacheDir ovlName:ovlName])
+//            NSLog(@"Failed to get capabilities from WMS server: %@",capabilitiesURL);
     }];
     
     [operation start];
@@ -951,12 +950,12 @@ static const int NumMegaMarkers = 40000;
     {
         NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:jsonTileSpec]];
         
-        AFJSONRequestOperation *operation =
-        [AFJSONRequestOperation JSONRequestOperationWithRequest:request
-                                                        success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)
+        AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+        operation.responseSerializer = [AFJSONResponseSerializer serializer];
+        [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
          {
              // Add a quad earth paging layer based on the tile spec we just fetched
-             MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:JSON];
+             MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:responseObject];
              tileSource.cacheDir = thisCacheDir;
              if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
                  tileSource.tileInfo.maxZoom = zoomLimit;
@@ -974,7 +973,7 @@ static const int NumMegaMarkers = 40000;
              [self performSelector:@selector(reloadLayer:) withObject:nil afterDelay:10.0];
 #endif
          }
-                                                        failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
+        failure:^(AFHTTPRequestOperation *operation, NSError *error)
          {
              NSLog(@"Failed to reach JSON tile spec at: %@",jsonTileSpec);
          }
@@ -1072,13 +1071,13 @@ static const int NumMegaMarkers = 40000;
                 NSString *jsonTileSpec = @"http://a.tiles.mapbox.com/v3/mapbox.mapbox-streets-v4.json";
                 NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:jsonTileSpec]];
                 
-                AFJSONRequestOperation *operation =
-                [AFJSONRequestOperation JSONRequestOperationWithRequest:request
-                                                                success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)
+                AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+                operation.responseSerializer = [AFJSONResponseSerializer serializer];
+                [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
                  {
                      // Got the tile spec, parse out the basics
                      // Note: This should be a vector specific version
-                     MaplyRemoteTileInfo *tileInfo = [[MaplyRemoteTileInfo alloc] initWithTilespec:JSON];
+                     MaplyRemoteTileInfo *tileInfo = [[MaplyRemoteTileInfo alloc] initWithTilespec:responseObject];
                      if (!tileInfo)
                      {
                          NSLog(@"Failed to parse tile info from: %@",jsonTileSpec);
@@ -1108,7 +1107,7 @@ static const int NumMegaMarkers = 40000;
                             NSLog(@"Failed to load style file osm-bright.xml");
                      }
                  }
-                                                                failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
+                failure:^(AFHTTPRequestOperation *operation, NSError *error)
                  {
                      NSLog(@"Failed to reach JSON tile spec at: %@",jsonTileSpec);
                  }
