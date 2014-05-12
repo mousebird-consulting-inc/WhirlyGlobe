@@ -83,6 +83,7 @@ using namespace WhirlyKit;
     _uuid = styleEntry[@"uuid"];
     if ([styleEntry[@"tilegeom"] isEqualToString:@"add"])
         self.geomAdditive = true;
+    _selectable = styleEntry[kMaplySelectable];
     
     return self;
 }

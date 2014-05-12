@@ -453,6 +453,13 @@ public:
         {
             if (areal->pointInside(GeoCoord(coord.x,coord.y)))
                 return true;
+        } else {
+            VectorTrianglesRef tris = boost::dynamic_pointer_cast<VectorTriangles>(*it);
+            if (tris)
+            {
+                if (tris->pointInside(GeoCoord(coord.x,coord.y)))
+                    return true;
+            }
         }
     }
                 
