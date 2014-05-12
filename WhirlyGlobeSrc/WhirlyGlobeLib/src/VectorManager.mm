@@ -707,7 +707,7 @@ void VectorManager::changeVectors(SimpleIdentity vecID,NSDictionary *desc,Change
     if (it != vectorReps.end())
     {
         VectorSceneRep *sceneRep = *it;
-        // Make sure we change both drawables and intances
+        // Make sure we change both drawables and instances
         SimpleIDSet allIDs = sceneRep->drawIDs;
         allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
 
