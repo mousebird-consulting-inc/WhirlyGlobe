@@ -93,6 +93,7 @@
         for (MaplyVectorObject *vec in vecObjs)
         {
             MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
+            marker.selectable = self.selectable;
             marker.selectable = false;
             if(subStyle->markerImage)
                 marker.image = subStyle->markerImage;

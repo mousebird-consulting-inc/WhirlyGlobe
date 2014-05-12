@@ -53,7 +53,8 @@
         NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
                 @{kMaplyFilled: @(YES),
                  kMaplyDrawPriority: @(drawPriority+kMaplyVectorDrawPriorityDefault),
-                  kMaplyVecCentered: @(true)
+                  kMaplyVecCentered: @(true),
+                  kMaplySelectable: @(self.selectable)
                  }];
         
         if (styleEntry[@"fill"])
