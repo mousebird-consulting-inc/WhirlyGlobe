@@ -14,6 +14,7 @@ import android.graphics.Rect;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Looper;
+import android.util.Log;
 import android.view.*;
 import android.widget.Toast;
 
@@ -159,13 +160,15 @@ public class MaplyController implements View.OnTouchListener
 	}
 	
 	// Tie in the gestures we want
-	ScaleGestureDetector sgd;
-	GestureDetector gd;
+	ScaleGestureDetector sgd = null;
+	ScaleListener sl = null;
+	GestureDetector gd = null;
+	GestureListener gl = null;
 	private void setupGestures(View view)
 	{
-		ScaleListener sl = new ScaleListener(this);
+		sl = new ScaleListener(this);
 		sgd = new ScaleGestureDetector(view.getContext(),sl);
-		GestureListener gl = new GestureListener(this);
+		gl = new GestureListener(this);
 		gd = new GestureDetector(view.getContext(),gl);
 		sl.gl = gl;
 	}
@@ -177,6 +180,7 @@ public class MaplyController implements View.OnTouchListener
 		double startZ;
 		float startDist;
 		GestureListener gl = null;
+		public boolean isActive = false;
 		
 		ScaleListener(MaplyController inMaplyControl)
 		{
@@ -188,9 +192,11 @@ public class MaplyController implements View.OnTouchListener
 		{
 			startZ = maplyControl.mapView.getLoc().getZ();
 			startDist = detector.getCurrentSpan();
+//			Log.d("Maply","Starting zoom");
 			// Cancel the panning
 			if (gl != null)
 				gl.valid = false;
+			isActive = true;
 			return true;
 		}
 		
@@ -202,17 +208,21 @@ public class MaplyController implements View.OnTouchListener
 			{
 				float scale = startDist/curDist;
 				Point3d pos = maplyControl.mapView.getLoc();
+				mapView.cancelAnimation();
 				maplyControl.mapView.setLoc(pos.getX(),pos.getY(),startZ*scale);
 //				Log.d("Maply","Zoom: " + maplyControl.mapView.getLoc().getZ() + " Scale: " + scale);
 				return true;
 			}
 			
+			isActive = false;
 			return false;
 		}
 		
 		@Override
 		public void onScaleEnd(ScaleGestureDetector detector)
 		{
+//			Log.d("Maply","Ending scale");
+			isActive = false;
 		}
 	}
 	
@@ -235,14 +245,15 @@ public class MaplyController implements View.OnTouchListener
 		@Override
 		public boolean onDown(MotionEvent e) 
 		{
+//			Log.d("Maply","onDown");
+
 			// Starting state for pan
 			startScreenPos = new Point2d(e.getX(),e.getY());
 			startTransform = maplyControl.mapView.calcModelViewMatrix();
 			startPos = maplyControl.mapView.getLoc();
 			startOnPlane = maplyControl.mapView.pointOnPlaneFromScreen(startScreenPos, startTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
 			valid = true;
-
-			return false;
+			return true;
 		}
 
 		@Override
@@ -261,19 +272,44 @@ public class MaplyController implements View.OnTouchListener
 				Point3d newPos = new Point3d(startOnPlane.getX()-hit.getX()+startPos.getX(),
 						startOnPlane.getY()-hit.getY()+startPos.getY(),
 						maplyControl.mapView.getLoc().getZ());
+				mapView.cancelAnimation();
 				maplyControl.mapView.setLoc(newPos);
 //				Log.d("Maply","New Pos = (" + newPos.getX() + "," + newPos.getY() + "," + newPos.getZ() + ")");
 			}
 			
-			return false;
+			return true;
 		}
+		
+		// How long we'll animate the momentum 
+		static final double AnimMomentumTime = 1.0;
 		
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 				float velocityY) 
 		{
-//			Log.d("Maply","Fling");
-			return false;
+//			Log.d("Maply","Fling: (x,y) = " + velocityX + " " + velocityY);
+			
+			// Project the points into map space
+			Matrix4d mapTransform = maplyControl.mapView.calcModelViewMatrix();
+			Point2d touch0 = new Point2d(e1.getX(),e1.getY());
+			Point2d touch1 = touch0.addTo(new Point2d(velocityX,velocityY));
+			Point3d pt0 = mapView.pointOnPlaneFromScreen(touch0, mapTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
+			Point3d pt1 = mapView.pointOnPlaneFromScreen(touch1, mapTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
+			
+			// That gives us a direction in map space
+			Point3d dir = pt0.subtract(pt1);
+			dir.multiplyBy(-1.0);
+			double len = dir.length();
+			dir = dir.multiplyBy(1.0/len);
+			double modelVel = len / AnimMomentumTime;
+			
+			// Acceleration based on how far we want this to go
+			double accel = - modelVel / (AnimMomentumTime * AnimMomentumTime);
+			
+			// Now kick off the animation
+			mapView.setAnimationDelegate(new AnimateTranslateMomentum(mapView, modelVel, accel, dir, null));
+			
+			return true;
 		}
 		
 		@Override
@@ -314,6 +350,7 @@ public class MaplyController implements View.OnTouchListener
 		{
 			Point3d loc = mapView.getLoc();
 			loc.setValue(loc.getX(), loc.getY(), loc.getZ()/2.0);
+			mapView.cancelAnimation();
 			mapView.setLoc(loc);
 			return true;
 		}		
@@ -322,10 +359,25 @@ public class MaplyController implements View.OnTouchListener
 	// Where we receive events from the gl view
 	@Override
 	public boolean onTouch(View v, MotionEvent event) 
-	{
+	{		
 		// Try for a pinch or another gesture
-		return gd.onTouchEvent(event) ||
-				sgd.onTouchEvent(event);
+		boolean sgdRet = sgd.onTouchEvent(event);
+		boolean gdRet = false;
+		if (!sgdRet || !sl.isActive)
+			gdRet = gd.onTouchEvent(event);
+		
+		if (event.getPointerCount() == 2 && ((event.getActionMasked() & MotionEvent.ACTION_UP) != 0))
+		{
+			Point3d loc = mapView.getLoc();
+			loc.setValue(loc.getX(), loc.getY(), loc.getZ()*2.0);
+			mapView.cancelAnimation();
+			mapView.setLoc(loc);
+			sl.isActive = false;
+			gl.valid = false;
+			return true;			
+		}
+		
+		return sgdRet || gdRet;
 	}      
 			
 	public void dispose()
@@ -655,6 +707,7 @@ public class MaplyController implements View.OnTouchListener
 	 */
 	public void setPosition(double x,double y,double z)
 	{
+		mapView.cancelAnimation();
 		mapView.setLoc(x, y, z);
 	}
 	

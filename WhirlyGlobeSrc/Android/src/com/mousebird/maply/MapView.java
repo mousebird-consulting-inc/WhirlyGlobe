@@ -11,7 +11,7 @@ import java.util.ArrayList;
  *
  */
 class MapView 
-{
+{	
 	private MapView()
 	{
 	}
@@ -30,6 +30,38 @@ class MapView
 	interface ViewWatcher
 	{
 		public void viewUpdated(MapView view);
+	}
+	
+	// These are viewpoint animations
+	interface AnimationDelegate
+	{
+		// Called to update the view every frame
+		public void updateView(MapView view);
+	}
+	
+	AnimationDelegate animationDelegate = null;
+	
+	// Set the animation delegate.  Called every frame.
+	void setAnimationDelegate(AnimationDelegate delegate)
+	{
+		animationDelegate = delegate;
+	}
+	
+	// Clear the animation delegate
+	public void cancelAnimation() 
+	{
+		animationDelegate = null;
+	}
+	
+	// Called on the rendering thread right before we render
+	public void animate() 
+	{
+		if (animationDelegate != null)
+		{
+			animationDelegate.updateView(this);
+			// Note: This is probably the wrong thread
+			runViewUpdates();
+		}
 	}
 	
 	// Set the view location from a Point3d

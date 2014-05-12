@@ -28,7 +28,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapView_initialise
 	{
 		CoordSystemDisplayAdapter *coordAdapter = CoordSystemDisplayAdapterInfo::getClassInfo()->getObject(env,coordAdapterObj);
 		Maply::MapView *inst = new Maply::MapView(coordAdapter);
-		inst->setWrap(false);
 		MapViewClassInfo::getClassInfo()->setHandle(env,obj,inst);
 	}
 	catch (...)

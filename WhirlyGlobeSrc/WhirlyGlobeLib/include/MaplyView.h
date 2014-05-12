@@ -43,6 +43,7 @@ class MapView : public WhirlyKit::View
 public:
     MapView(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
     virtual ~MapView();
+
     /// Set the callback delegate
     // Note: Porting
 //    void setDelegate(NSObject<MaplyAnimationDelegate> *delegate);

@@ -46,6 +46,27 @@ public class Point3d
 		return "(" + getX() + "," + getY() + "," + getZ() + ")";
 	}
 	
+	public Point3d addTo(Point3d that)
+	{
+		return new Point3d(getX()+that.getX(),getY()+that.getY(),getZ()+that.getZ());
+	}
+	
+	public Point3d multiplyBy(double t)
+	{
+		return new Point3d(getX()*t,getY()*t,getZ()*t);
+	}
+
+	public Point3d subtract(Point3d pt1) 
+	{
+		return new Point3d(getX()-pt1.getX(),getY()-pt1.getY(),getZ()-pt1.getZ());
+	}
+	
+	public double length() 
+	{
+		double x = getX(), y = getY(), z = getZ();
+		return Math.sqrt(x*x+y*y+z*z);
+	}
+	
 	/**
 	 * Return the X value.
 	 */

@@ -114,7 +114,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setScene
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setView
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setViewNative
   (JNIEnv *env, jobject obj, jobject objView)
 {
 	try

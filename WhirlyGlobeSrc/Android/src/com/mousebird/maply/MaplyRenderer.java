@@ -35,8 +35,18 @@ class MaplyRenderer
 		return resize(width,height);
 	}
 	
+	MapView view = null;
+	public void setView(MapView inView)
+	{
+		view = inView;
+		setViewNative(inView);
+	}
+	
 	public void doRender()
 	{
+		if (view != null)
+			view.animate();
+		
 		render();
 	}
 	
@@ -52,7 +62,7 @@ class MaplyRenderer
 	}
 
 	public native void setScene(MapScene scene);
-	public native void setView(MapView view);
+	public native void setViewNative(MapView view);
 	public native void setClearColor(float r,float g,float b,float a);
 	protected native boolean teardown();
 	protected native boolean resize(int width,int height);

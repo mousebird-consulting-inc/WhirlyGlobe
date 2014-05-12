@@ -36,6 +36,16 @@ public class Point2d
 		initialise();
 		setValue(x,y);
 	}
+
+	public Point2d addTo(Point2d that)
+	{
+		return new Point2d(getX()+that.getX(),getY()+that.getY());
+	}
+	
+	public Point2d multiplyBy(double t)
+	{
+		return new Point2d(getX()*t,getY()*t);
+	}
 	
 	/**
 	 * Create a Point2D geo coordinate from degrees.

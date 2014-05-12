@@ -17,10 +17,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setScene
 
 /*
  * Class:     com_mousebird_maply_MaplyRenderer
- * Method:    setView
+ * Method:    setViewNative
  * Signature: (Lcom/mousebird/maply/MapView;)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setView
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setViewNative
   (JNIEnv *, jobject, jobject);
 
 /*
