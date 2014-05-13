@@ -195,7 +195,7 @@ public class MaplyController implements View.OnTouchListener
 //			Log.d("Maply","Starting zoom");
 			// Cancel the panning
 			if (gl != null)
-				gl.valid = false;
+				gl.isActive = false;
 			isActive = true;
 			return true;
 		}
@@ -221,7 +221,7 @@ public class MaplyController implements View.OnTouchListener
 		@Override
 		public void onScaleEnd(ScaleGestureDetector detector)
 		{
-//			Log.d("Maply","Ending scale");
+			Log.d("Maply","Ending scale");
 			isActive = false;
 		}
 	}
@@ -231,7 +231,7 @@ public class MaplyController implements View.OnTouchListener
 				GestureDetector.OnDoubleTapListener
 	{
 		MaplyController maplyControl;
-		public boolean valid = false;
+		public boolean isActive = false;
 		
 		GestureListener(MaplyController inMaplyControl)
 		{
@@ -252,7 +252,7 @@ public class MaplyController implements View.OnTouchListener
 			startTransform = maplyControl.mapView.calcModelViewMatrix();
 			startPos = maplyControl.mapView.getLoc();
 			startOnPlane = maplyControl.mapView.pointOnPlaneFromScreen(startScreenPos, startTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
-			valid = true;
+			isActive = true;
 			return true;
 		}
 
@@ -260,7 +260,7 @@ public class MaplyController implements View.OnTouchListener
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
 				float distanceY) 
 		{
-			if (!valid)
+			if (!isActive)
 				return false;
 			
 			Point2d newScreenPos = new Point2d(e2.getX(),e2.getY());
@@ -308,6 +308,8 @@ public class MaplyController implements View.OnTouchListener
 			
 			// Now kick off the animation
 			mapView.setAnimationDelegate(new AnimateTranslateMomentum(mapView, modelVel, accel, dir, null));
+		
+			isActive = false;
 			
 			return true;
 		}
@@ -335,7 +337,7 @@ public class MaplyController implements View.OnTouchListener
 		public boolean onDoubleTapEvent(MotionEvent e) 
 		{
 //			Log.d("Maply","Double tap update");
-			return true;
+			return false;
 		}
 
 		@Override
@@ -352,6 +354,9 @@ public class MaplyController implements View.OnTouchListener
 			loc.setValue(loc.getX(), loc.getY(), loc.getZ()/2.0);
 			mapView.cancelAnimation();
 			mapView.setLoc(loc);
+			
+			isActive = false;
+			
 			return true;
 		}		
 	}
@@ -360,24 +365,34 @@ public class MaplyController implements View.OnTouchListener
 	@Override
 	public boolean onTouch(View v, MotionEvent event) 
 	{		
+		// If they're using two fingers, cancel any outstanding pan
+		if (event.getPointerCount() == 2)
+			gl.isActive = false;
+		
 		// Try for a pinch or another gesture
-		boolean sgdRet = sgd.onTouchEvent(event);
-		boolean gdRet = false;
-		if (!sgdRet || !sl.isActive)
-			gdRet = gd.onTouchEvent(event);
-		
-		if (event.getPointerCount() == 2 && ((event.getActionMasked() & MotionEvent.ACTION_UP) != 0))
+		boolean slWasActive = sl.isActive;
+		if (sl.isActive || event.getPointerCount() == 2)
 		{
-			Point3d loc = mapView.getLoc();
-			loc.setValue(loc.getX(), loc.getY(), loc.getZ()*2.0);
-			mapView.cancelAnimation();
-			mapView.setLoc(loc);
-			sl.isActive = false;
-			gl.valid = false;
-			return true;			
+			sgd.onTouchEvent(event);
 		}
+		if (!sl.isActive && event.getPointerCount() == 1)
+			gd.onTouchEvent(event);
 		
-		return sgdRet || gdRet;
+		if (!sl.isActive && !gl.isActive && !slWasActive)
+		{
+			if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP))
+			{
+				Point3d loc = mapView.getLoc();
+				loc.setValue(loc.getX(), loc.getY(), loc.getZ()*2.0);
+				mapView.cancelAnimation();
+				mapView.setLoc(loc);
+				sl.isActive = false;
+				gl.isActive = false;
+				return true;			
+			}
+		}
+
+		return true;
 	}      
 			
 	public void dispose()
