@@ -327,7 +327,9 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
             }
             if (!theStyle)
                 return nil;
-            styleObj = [MaplyVectorTileStyle styleFromStyleEntry:theStyle settings:_settings viewC:_viewC];
+            NSMutableDictionary *thisStyleDict = [NSMutableDictionary dictionaryWithDictionary:theStyle];
+            thisStyleDict[kMaplySelectable] = @(_selectable);
+            styleObj = [MaplyVectorTileStyle styleFromStyleEntry:thisStyleDict settings:_settings viewC:_viewC];
             styleObjects[uuid] = styleObj;
         } else
             styleObj = it->second;
