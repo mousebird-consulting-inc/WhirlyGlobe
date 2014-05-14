@@ -1482,6 +1482,8 @@
 				DSTROOT = /tmp/WhirlyGlobeComponent.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WhirlyGlobe-MaplyComponent/WhirlyGlobe-MaplyComponent-Prefix.pch";
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				"GCC_WARN_64_TO_32_BIT_CONVERSION[arch=*64]" = NO;
 				GENERATE_MASTER_OBJECT_FILE = NO;
 				HEADER_SEARCH_PATHS = (
 					../WhirlyGlobeLib/include/,
@@ -1489,8 +1491,8 @@
 					"../../third-party/eigen/",
 					"../../third-party/proj-4/src/",
 					"../../third-party/KissXML/KissXML/",
-					/usr/include/libxml2,
 					"../../third-party/",
+					/usr/include/libxml2/,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
@@ -1510,6 +1512,8 @@
 				DSTROOT = /tmp/WhirlyGlobeComponent.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WhirlyGlobe-MaplyComponent/WhirlyGlobe-MaplyComponent-Prefix.pch";
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				"GCC_WARN_64_TO_32_BIT_CONVERSION[arch=*64]" = NO;
 				GENERATE_MASTER_OBJECT_FILE = NO;
 				HEADER_SEARCH_PATHS = (
 					../WhirlyGlobeLib/include/,
@@ -1517,8 +1521,8 @@
 					"../../third-party/eigen/",
 					"../../third-party/proj-4/src/",
 					"../../third-party/KissXML/KissXML/",
-					/usr/include/libxml2,
 					"../../third-party/",
+					/usr/include/libxml2/,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
