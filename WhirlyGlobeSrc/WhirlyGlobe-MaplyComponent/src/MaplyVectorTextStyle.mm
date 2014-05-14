@@ -157,6 +157,7 @@ typedef enum {
         for (MaplyVectorObject *vec in vecObjs)
         {
             MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
+            label.selectable = self.selectable;
             label.text = [self formatText:subStyle->textField forObject:vec];
             switch (subStyle->textTransform)
             {
