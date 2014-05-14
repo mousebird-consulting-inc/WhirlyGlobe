@@ -209,7 +209,7 @@ public class MaplyController implements View.OnTouchListener
 				float scale = startDist/curDist;
 				Point3d pos = maplyControl.mapView.getLoc();
 				mapView.cancelAnimation();
-				maplyControl.mapView.setLoc(pos.getX(),pos.getY(),startZ*scale);
+				maplyControl.mapView.setLoc(new Point3d(pos.getX(),pos.getY(),startZ*scale));
 //				Log.d("Maply","Zoom: " + maplyControl.mapView.getLoc().getZ() + " Scale: " + scale);
 				return true;
 			}
@@ -723,7 +723,7 @@ public class MaplyController implements View.OnTouchListener
 	public void setPosition(double x,double y,double z)
 	{
 		mapView.cancelAnimation();
-		mapView.setLoc(x, y, z);
+		mapView.setLoc(new Point3d(x,y,z));
 	}
 	
     private boolean isProbablyEmulator() {

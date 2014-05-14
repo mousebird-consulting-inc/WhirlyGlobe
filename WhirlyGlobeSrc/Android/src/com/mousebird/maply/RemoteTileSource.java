@@ -167,51 +167,68 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 			{
 				// See if it's here locally
 				File cacheFile = null;
+				Bitmap bm = null;
 				if (locFile != null)
 				{
 					cacheFile = new File(locFile);
 					if (cacheFile.exists())
 					{
 						BufferedInputStream aBufferedInputStream = new BufferedInputStream(new FileInputStream(cacheFile));
-			    		final Bitmap bm = BitmapFactory.decodeStream(aBufferedInputStream);				
+			    		bm = BitmapFactory.decodeStream(aBufferedInputStream);				
 			    		Log.d("Maply","Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
-			    		return bm;
 					}
 				}
 				
-	    		/* Open a connection to that URL. */
-	    		final HttpURLConnection aHttpURLConnection = (HttpURLConnection) url.openConnection();
-	    		aHttpURLConnection.setReadTimeout(1000 * 15);
-
-	    		/* Define InputStreams to read from the URLConnection. */
-	    		InputStream aInputStream = aHttpURLConnection.getInputStream();
-	    		BufferedInputStream aBufferedInputStream = new BufferedInputStream(
-	    				aInputStream);
-	    		ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
-	    		// Copy the input to our byte stream
-	    		int n = 0;
-	    		byte[] buff = new byte[16*1024];
-	    		while ((n = aBufferedInputStream.read(buff)) > 0)
-	    		{
-	    			bytesStream.write(buff, 0, n);
-	    		}
-	    		aBufferedInputStream.close();
-	    		byte[] rawImage = bytesStream.toByteArray();
+				// Wasn't cached
+				if (bm == null)
+				{
+		    		/* Open a connection to that URL. */
+		    		final HttpURLConnection aHttpURLConnection = (HttpURLConnection) url.openConnection();
+		    		aHttpURLConnection.setReadTimeout(1000 * 15);
+	
+		    		/* Define InputStreams to read from the URLConnection. */
+		    		InputStream aInputStream = aHttpURLConnection.getInputStream();
+		    		BufferedInputStream aBufferedInputStream = new BufferedInputStream(
+		    				aInputStream);
+		    		ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
+		    		// Copy the input to our byte stream
+		    		int n = 0;
+		    		byte[] buff = new byte[16*1024];
+		    		while ((n = aBufferedInputStream.read(buff)) > 0)
+		    		{
+		    			bytesStream.write(buff, 0, n);
+		    		}
+		    		aBufferedInputStream.close();
+		    		byte[] rawImage = bytesStream.toByteArray();
+		    		
+		    		bm = BitmapFactory.decodeByteArray(rawImage, 0, bytesStream.size());				
+		    		
+		    		// Save to cache
+		    		if (cacheFile != null)
+		    		{
+		    			OutputStream fOut;
+		    			fOut = new FileOutputStream(cacheFile);
+		    			fOut.write(rawImage);
+		    			fOut.close();
+		    		}
+		    		bytesStream.close();
+		    		Log.d("Maply","Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+				}
 	    		
-	    		final Bitmap bm = BitmapFactory.decodeByteArray(rawImage, 0, bytesStream.size());				
-	    		
-	    		// Save to cache
-	    		if (cacheFile != null)
-	    		{
-	    			OutputStream fOut;
-	    			fOut = new FileOutputStream(cacheFile);
-	    			fOut.write(rawImage);
-	    			fOut.close();
-	    		}
-	    		bytesStream.close();
-	    		Log.d("Maply","Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
-	    		
-	    		return bm;
+				// Let the layer and delegate know what happened with it
+		    	if (bm != null)
+		    	{
+		    		MaplyImageTile imageTile = new MaplyImageTile(bm);
+		    		if (tileSource.delegate != null)
+		    			tileSource.delegate.tileDidLoad(tileSource,tileID);
+		    		layer.loadedTile(tileID, imageTile);
+		    	} else {
+		    		if (tileSource.delegate != null)
+		    			tileSource.delegate.tileDidNotLoad(tileSource,tileID);
+		    		layer.loadedTile(tileID, null);
+		    	}
+		    	
+		    	return null;
 			}
 			catch (IOException e)
 			{
@@ -227,17 +244,6 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	    @Override
 	    protected void onPostExecute(Bitmap bm) 
 	    {
-	    	if (bm != null)
-	    	{
-	    		MaplyImageTile imageTile = new MaplyImageTile(bm);
-	    		if (tileSource.delegate != null)
-	    			tileSource.delegate.tileDidLoad(tileSource,tileID);
-	    		layer.loadedTile(tileID, imageTile);
-	    	} else {
-	    		if (tileSource.delegate != null)
-	    			tileSource.delegate.tileDidNotLoad(tileSource,tileID);
-	    		layer.loadedTile(tileID, null);
-	    	}
 	    }
 
 	}
@@ -261,7 +267,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 		ConnectionTask task = new ConnectionTask(layer,this,tileID,tileURL,cacheFile);
 		String[] params = new String[1];
 		params[0] = tileURL;
-		task.execute(params);
+		task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,params);
 	}
 	
 }

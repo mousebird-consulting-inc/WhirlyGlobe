@@ -16,6 +16,7 @@ public:
 	}
 
 	// Construct the texture
+	// Note: Need to handle borderSize
     virtual Texture *buildTexture(int borderSize,int width,int height)
     {
     	// Note: Testing
@@ -63,6 +64,7 @@ public:
 	int minZoom,maxZoom;
 	int simultaneousFetches;
 	bool useTargetZoomLevel;
+	bool singleLevelLoading;
 	bool canShortCircuitImportance;
 	int maxShortCircuitLevel;
 	Point2d ll,ur;
@@ -76,6 +78,7 @@ public:
 	{
 		useTargetZoomLevel = true;
         canShortCircuitImportance = false;
+        singleLevelLoading = false;
         maxShortCircuitLevel = -1;
 	}
 
@@ -205,6 +208,11 @@ public:
 
         int zoomLevel = 0;
         WhirlyKit::Point2f center = Point2f(viewState->eyePos.x(),viewState->eyePos.y());
+        // The coordinate adapter might have its own center
+        Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
+        center.x() += adaptCenter.x();
+        center.y() += adaptCenter.y();
+
         while (zoomLevel < maxZoom)
         {
             WhirlyKit::Quadtree::Identifier ident;
@@ -263,6 +271,8 @@ public:
 
             // We need to feel our way down to the appropriate level
             maxShortCircuitLevel = targetZoomLevel(viewState);
+            if (singleLevelLoading)
+            	control->setTargetLevel(maxShortCircuitLevel);
 
 //    		__android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
 
@@ -413,6 +423,40 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setSimultaneo
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setSimultaneousFetches()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setUseTargetZoomLevel
+  (JNIEnv *env, jobject obj, jboolean newVal)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		adapter->useTargetZoomLevel = newVal;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setUseTargetZoomLevel()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setSingleLevelLoading
+  (JNIEnv *env, jobject obj, jboolean newVal)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		adapter->singleLevelLoading = newVal;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setSingleLevelLoading()");
 	}
 }
 

@@ -2,22 +2,14 @@ package com.mousebird.maplytester;
 
 import java.io.File;
 
+import android.app.Activity;
+
 import com.mousebird.maply.MaplyController;
 import com.mousebird.maply.QuadPagingLayer;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
-import com.mousebird.maply.OSMVectorTilePager;
+import com.mousebird.maply.TestQuadPager;
 
-import android.app.Activity;
-
-/**
- * Test Maply by creating a quad paging layer with an OSMVectorTilePager.
- * This is effectively an OSM vector map.
- * 
- * @author sjg
- *
- */
-public class TestRemoteOSM 
-{
+public class TestVectorPager {
 	Activity activity = null;
 	MaplyController mapControl = null;
 	
@@ -25,7 +17,7 @@ public class TestRemoteOSM
 	 * Construct with the main activity and maply controller.  Won't actually
 	 * do anything, though, call start() for that.
 	 */
-	TestRemoteOSM(Activity inActivity,MaplyController inMapControl)
+	TestVectorPager(Activity inActivity,MaplyController inMapControl)
 	{
 		activity = inActivity;
 		mapControl = inMapControl;
@@ -44,11 +36,10 @@ public class TestRemoteOSM
 		// Set up a paging layer in spherical mercator and the proper delegate
 		SphericalMercatorCoordSystem coordSys = new SphericalMercatorCoordSystem();
 		int numThreads = 8;
-		OSMVectorTilePager pager = new OSMVectorTilePager(mapControl,"http://tile.openstreetmap.us/vectiles-all/",0,16,numThreads);
-		pager.setCacheDir(cacheDir);
-//		TestQuadPager pager = new TestQuadPager(0,16);
-		QuadPagingLayer pagingLayer = new QuadPagingLayer(mapControl,coordSys, pager);
+		TestQuadPager testPager = new TestQuadPager(0,22);
+		QuadPagingLayer pagingLayer = new QuadPagingLayer(mapControl,coordSys,testPager);
 		pagingLayer.setSimultaneousFetches(numThreads);
+		pagingLayer.setImportance(256*256);
 		pagingLayer.setSingleLevelLoading(true);
 		pagingLayer.setUseTargetZoomLevel(true);
 		mapControl.getLayerThread().addLayer(pagingLayer);

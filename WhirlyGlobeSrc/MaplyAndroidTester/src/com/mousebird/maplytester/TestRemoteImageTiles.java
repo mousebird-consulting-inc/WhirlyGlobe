@@ -40,6 +40,7 @@ public class TestRemoteImageTiles implements RemoteTileSource.TileSourceDelegate
 		tileSource.setCacheDir(cacheDir);
 		tileSource.delegate = this;
 		QuadImageTileLayer layer = new QuadImageTileLayer(mapControl,coordSys,tileSource);
+		layer.setSimultaneousFetches(8);
 		mapControl.getLayerThread().addLayer(layer);
 	}
 

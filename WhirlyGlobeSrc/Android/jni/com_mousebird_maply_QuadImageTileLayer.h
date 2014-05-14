@@ -25,6 +25,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setSimultaneo
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setUseTargetZoomLevel
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setUseTargetZoomLevel
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setSingleLevelLoading
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setSingleLevelLoading
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    nativeInit
  * Signature: ()V
  */

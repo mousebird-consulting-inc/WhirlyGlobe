@@ -115,7 +115,6 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	    			aByteArrayBuffer.append((byte) current);
 	    		}
 
-
 	    		/* Convert the Bytes read to a String. */
 	    		aString = new String(aByteArrayBuffer.toByteArray());               
 	    	} 
@@ -123,16 +122,18 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 //	    		Log.d("OSMVectorTilePager", e.toString());
 	    		pager.didNotLoad(layer,tileID);
 	    	}
-	    	return aString;
+
+	    	if (aString != null)
+	    		pager.didLoad(layer,tileID,aString,false);
+	    	else
+	    		pager.didNotLoad(layer,tileID);
+	    	
+	    	return null;
 	    }
 
 	    @Override
 	    protected void onPostExecute(String result) 
 	    {
-	    	if (result != null)
-	    		pager.didLoad(layer,tileID,result,false);
-	    	else
-	    		pager.didNotLoad(layer,tileID);
 	    }
 
 	}
@@ -177,7 +178,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 							ConnectionTask task = new ConnectionTask(pager,layer,tileID);
 							String[] params = new String[1];
 							params[0] = tileURL;
-							task.execute(params);				
+							task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,params);
 						}
 					});				
 			}

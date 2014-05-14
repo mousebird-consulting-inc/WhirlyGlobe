@@ -3,6 +3,7 @@ package com.mousebird.maply;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 /**
  * The quad image tiling layer manages a self contained basemap.  Basemaps are
@@ -262,6 +263,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 				public void run()
 				{
 					loadedTile(tileID,imageTile);
+					Log.d("Maply","Responding to load for tile: " + tileID.level + ": (" + tileID.x + "," + tileID.y);
 				}
 			});
 			return;
@@ -276,12 +278,26 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	}
 	
 	native void nativeShutdown(ChangeSet changes);
+	
 	/**
 	 * We can only have a certain number of fetches going at once.
 	 * We'll create this number of threads (in some cases) based
 	 * on this number.
 	 */
 	public native void setSimultaneousFetches(int numFetches);
+	
+	/**
+	 * If set we'll calculate a single target zoom level for the whole
+	 * viewport, rather than evaluating tiles individually.  This works
+	 * for 2D maps, but not for 3D maps or globes.
+	 */
+	public native void setUseTargetZoomLevel(boolean newVal);
+	
+	/**
+	 * If set we'll skip the lower levels of the pyramid and load only
+	 * the current target zoom level.
+	 */
+	public native void setSingleLevelLoading(boolean newVal);
 
 	static
 	{

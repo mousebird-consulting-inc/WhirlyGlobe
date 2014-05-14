@@ -267,7 +267,7 @@ double PolyImportance(const Point3dVector &poly,const Point3d &norm,WhirlyKit::V
     
         // Outside the viewing frustum, so ignore it
         if (clipSpacePts.empty())
-            return 0.0;
+            continue;
     
         // Project to the screen
         Point2dVector screenPts;
@@ -306,7 +306,7 @@ double PolyImportance(const Point3dVector &poly,const Point3d &norm,WhirlyKit::V
         // Note: Turned off for the moment
         double newImport =  std::abs(screenArea) * scale;
         if (newImport > import)
-        import = newImport;
+        	import = newImport;
     }
     
     return import;

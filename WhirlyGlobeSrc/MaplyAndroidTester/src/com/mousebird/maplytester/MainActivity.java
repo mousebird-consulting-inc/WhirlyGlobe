@@ -39,6 +39,7 @@ public class MainActivity extends Activity
 		optionsList.add(createEntry("entry", "OSM Paging"));
 		optionsList.add(createEntry("entry", "Satellite Basemap"));
 		optionsList.add(createEntry("entry", "Countries"));		
+		optionsList.add(createEntry("entry", "Test Pager"));
 	}
 	
 	// Create an entry for the list view
@@ -51,7 +52,7 @@ public class MainActivity extends Activity
 	}
 	
 	// Demo types for the user to choose
-	public enum DemoType { OSMPaging, SatelliteBasemap, Countries };
+	public enum DemoType { OSMPaging, SatelliteBasemap, Countries, TestPager };
 	
 	@Override
 	protected void onCreate(Bundle savedInstState)
@@ -106,7 +107,12 @@ public class MainActivity extends Activity
 		{
 	    	TestCountries test = new TestCountries(this,mapControl);
 	    	test.start();
+		}
 			break;
+		case TestPager:
+		{
+			TestVectorPager test = new TestVectorPager(this,mapControl);
+			test.start();
 		}
 		}				
 	}	

@@ -28,6 +28,11 @@ public class MaplyTileID implements Comparable<MaplyTileID>
 		level = inLevel;
 	}
 	
+	public String toString()
+	{
+		return level + ": (" + x + "," + y + ")";
+	}
+	
 	@Override
 	public int compareTo(MaplyTileID that) 
 	{

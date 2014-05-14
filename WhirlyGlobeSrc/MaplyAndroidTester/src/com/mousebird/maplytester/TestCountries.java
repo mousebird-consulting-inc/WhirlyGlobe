@@ -11,7 +11,6 @@ import com.mousebird.maply.MaplyController;
 import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.NamedBitmap;
 import com.mousebird.maply.Point2d;
-import com.mousebird.maply.Point3d;
 import com.mousebird.maply.ScreenLabel;
 import com.mousebird.maply.ScreenMarker;
 import com.mousebird.maply.VectorInfo;

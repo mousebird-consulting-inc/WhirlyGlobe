@@ -7,6 +7,7 @@ import java.util.Map;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 /**
  * The quad paging layer is a general purpose data paging layer.  You hand it
@@ -76,6 +77,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	public MaplyController maplyControl = null;
 	public CoordSystem coordSys = null;
 	PagingInterface pagingDelegate = null;
+	boolean singleLevelLoading = false;
 	
 	/**
 	 * Construct with the information needed to page geometry into the system.
@@ -99,6 +101,16 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	public void finalize()
 	{
 		dispose();
+	}
+	
+	/**
+	 * If set we'll skip the lower levels of the pyramid and load only
+	 * the current target zoom level.
+	 */
+	public void setSingleLevelLoading(boolean newVal)
+	{
+		singleLevelLoading = newVal;
+		nativeSetSingleLevelLoading(newVal);
 	}
 	
 	@Override
@@ -282,7 +294,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		if (!valid)
 			return;
 
-//		Log.i("QuadPagingLayer","Unload tile: " + level + "(" + x + "," + y + ")");		
+		Log.i("QuadPagingLayer","Unload tile: " + level + "(" + x + "," + y + ")");		
 		
 		MaplyTileID tileID = new MaplyTileID(x,y,level);
 		LoadedTile tile = findLoadedTile(tileID);
@@ -294,7 +306,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		tile.clear(maplyControl);
 		
 		// Check the parent
-		if (tileID.level>= pagingDelegate.minZoom())
+		if (tileID.level>= pagingDelegate.minZoom() && !singleLevelLoading)
 		{
 			runTileUpdate(parentTile(tileID));
 		}
@@ -443,7 +455,12 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			tile.isLoading = false;
 			tile.didLoad = true;
 		}
-		runTileUpdate(parentTile(tileID));
+		if (singleLevelLoading)
+		{
+			if (tile != null)
+				maplyControl.enableObjects(tile.compObjs);
+		} else
+			runTileUpdate(parentTile(tileID));
 		
 		// Call the native code back on the layer thread
 		layerThread.addTask(new Runnable()
@@ -454,6 +471,8 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 				scheduleEvalStep();
 			}
 		});
+		
+		Log.d("Maply","Tile " + tileID.toString() + " did load");
 	}
 
 	/**
@@ -475,7 +494,8 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			tile.clear(maplyControl);
 			removeLoadedTile(tileID);
 		}
-		runTileUpdate(parentTile(tileID));
+		if (!singleLevelLoading)
+			runTileUpdate(parentTile(tileID));
 		
 		// Call the native code back on the layer thread
 		layerThread.addTask(new Runnable()
@@ -486,6 +506,8 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 				scheduleEvalStep();
 			}
 		});
+		
+		Log.d("Maply","Tile " + tileID.toString() + " failed to load");
 	}
 	
 	// Evaluate whether this tile should be on and all the children
@@ -578,6 +600,20 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	 * on this number.
 	 */
 	public native void setSimultaneousFetches(int numFetches);
+	
+	/**
+	 * If set we'll calculate a single target zoom level for the whole
+	 * viewport, rather than evaluating tiles individually.  This works
+	 * for 2D maps, but not for 3D maps or globes.
+	 */
+	public native void setUseTargetZoomLevel(boolean newVal);
+	
+	public native void nativeSetSingleLevelLoading(boolean newVal);
+	
+	/**
+	 * This is the number of pixels we'll want a tile to be before we load it.
+	 */
+	public native void setImportance(double imp);
 
 	static
 	{

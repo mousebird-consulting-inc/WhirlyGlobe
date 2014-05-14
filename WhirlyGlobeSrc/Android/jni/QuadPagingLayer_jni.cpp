@@ -22,6 +22,7 @@ public:
 	int numFetches;
 	int simultaneousFetches;
 	bool useTargetZoomLevel;
+	bool singleLevelLoading;
 	bool canShortCircuitImportance;
 	int maxShortCircuitLevel;
 
@@ -34,6 +35,8 @@ public:
 	{
 		useTargetZoomLevel = true;
         canShortCircuitImportance = false;
+        singleLevelLoading = false;
+        shortCircuitImportance = -1;
         maxShortCircuitLevel = -1;
 	}
 
@@ -67,7 +70,8 @@ public:
 		// Note: Porting
 		// Note: Explicitly setting the min importance for a 128*128 tile
 //		getController()->setMinImportance(128*128);
-		shortCircuitImportance = 256*256 * 16;
+		if (shortCircuitImportance == -1)
+			shortCircuitImportance = 256*256 * 16;
 		getController()->setMinImportance(1.0);
 	}
 
@@ -125,30 +129,23 @@ public:
             return MAXFLOAT;
 
         double import = 0;
-        if (canShortCircuitImportance && maxShortCircuitLevel != -1)
-        {
-        	// We load in all four children at once, so we need to look at the parent extents
-        	Quadtree::Identifier parentIdent;
-        	parentIdent.level = ident.level-1;
-        	parentIdent.x = ident.x / 2;
-        	parentIdent.y = ident.y / 2;
-        	Mbr parentMbr = getController()->getQuadtree()->generateMbrForNode(parentIdent);
+		// For a child tile, we're taking the size of our parent so all the children load at once
+		WhirlyKit::Quadtree::Identifier parentIdent;
+		parentIdent.x = ident.x / 2;
+		parentIdent.y = ident.y / 2;
+		parentIdent.level = ident.level - 1;
 
-            if (TileIsOnScreen(viewState, frameSize, coordSys, scene->getCoordAdapter(), parentMbr, parentIdent, attrs))
+		Mbr parentMbr = control->getQuadtree()->generateMbrForNode(parentIdent);
+
+		if (canShortCircuitImportance && maxShortCircuitLevel != -1)
+        {
+            if (TileIsOnScreen(viewState, frameSize, coordSys, scene->getCoordAdapter(), (singleLevelLoading ? mbr : parentMbr), ident, attrs))
             {
                 import = 1.0/(ident.level+10);
                 if (ident.level <= maxShortCircuitLevel)
                 	import += 1.0;
             }
         } else {
-			// For a child tile, we're taking the size of our parent so all the children load at once
-			WhirlyKit::Quadtree::Identifier parentIdent;
-			parentIdent.x = ident.x / 2;
-			parentIdent.y = ident.y / 2;
-			parentIdent.level = ident.level - 1;
-
-			Mbr parentMbr = control->getQuadtree()->generateMbrForNode(parentIdent);
-
 			// This is how much screen real estate we're covering for this tile
 			import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, coordSys, scene->getCoordAdapter(), parentMbr, ident, attrs) / 4;
         }
@@ -166,6 +163,12 @@ public:
 
         int zoomLevel = 0;
         WhirlyKit::Point2f center = Point2f(viewState->eyePos.x(),viewState->eyePos.y());
+
+        // The coordinate adapter might have its own center
+        Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
+        center.x() += adaptCenter.x();
+        center.y() += adaptCenter.y();
+
         while (zoomLevel < maxZoom)
         {
             WhirlyKit::Quadtree::Identifier ident;
@@ -224,6 +227,8 @@ public:
 
             // We need to feel our way down to the appropriate level
             maxShortCircuitLevel = targetZoomLevel(viewState);
+            if (singleLevelLoading)
+            	control->setTargetLevel(maxShortCircuitLevel);
 
 //    		__android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
 
@@ -276,6 +281,8 @@ public:
 
     virtual bool canLoadChildrenOfTile(const Quadtree::NodeInfo &tileInfo)
     {
+    	// Note: Should be checking this for non-single loading mode
+
     	return true;
     }
 
@@ -292,9 +299,9 @@ public:
     {
     }
 
-    virtual int networkFetches() { return -1; }
+    virtual int numNetworkFetches() { return numFetches; }
 
-    virtual int localFetches() { return -1; }
+    virtual int numLocalFetches() { return 0; }
 
     virtual void log()
     {
@@ -364,6 +371,58 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_setSimultaneousF
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::setSimultaneousFetches()");
 	}
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_setUseTargetZoomLevel
+  (JNIEnv *env, jobject obj, jboolean newVal)
+{
+	try
+	{
+		QPLAdapterClassInfo *classInfo = QPLAdapterClassInfo::getClassInfo();
+		QuadPagingLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		adapter->useTargetZoomLevel = newVal;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::setUseTargetZoomLevel()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_nativeSetSingleLevelLoading
+  (JNIEnv *env, jobject obj, jboolean newVal)
+{
+	try
+	{
+		QPLAdapterClassInfo *classInfo = QPLAdapterClassInfo::getClassInfo();
+		QuadPagingLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		adapter->singleLevelLoading = newVal;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::setSingleLevelLoading()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_setImportance
+  (JNIEnv *env, jobject obj, jdouble newImport)
+{
+	try
+	{
+		QPLAdapterClassInfo *classInfo = QPLAdapterClassInfo::getClassInfo();
+		QuadPagingLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		adapter->shortCircuitImportance = newImport;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::setImportance()");
+	}
+}
+
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_geoBoundsForTileNative
   (JNIEnv *env, jobject obj, jint x, jint y, jint level, jobject llObj, jobject urObj)

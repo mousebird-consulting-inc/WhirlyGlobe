@@ -2,6 +2,8 @@ package com.mousebird.maply;
 
 import java.util.ArrayList;
 
+import android.util.Log;
+
 /**
  * Test Maply's quad paging by creating a rectangle for each tile
  * with a label in the center.  This is extremely useful for debugging
@@ -15,7 +17,7 @@ public class TestQuadPager implements QuadPagingLayer.PagingInterface
 	int minZoom = 0;
 	int maxZoom = 16;
 	
-	TestQuadPager(int inMinZoom,int inMaxZoom)
+	public TestQuadPager(int inMinZoom,int inMaxZoom)
 	{		
 		minZoom = inMinZoom;
 		maxZoom = inMaxZoom;
@@ -55,6 +57,7 @@ public class TestQuadPager implements QuadPagingLayer.PagingInterface
 				vecObj.addAreal(pts);
 
 				VectorInfo vecInfo = new VectorInfo();
+				vecInfo.setColor(1.f, 0.f, 0.f, 1.f);
 				vecInfo.setEnable(false);
 				ComponentObject compObj = layer.maplyControl.addVector(vecObj, vecInfo);
 				compObjs.add(compObj);
@@ -70,6 +73,8 @@ public class TestQuadPager implements QuadPagingLayer.PagingInterface
 				compObjs.add(compObj);
 						
 				layer.addData(compObjs, tileID);
+				
+				Log.d("Maply","Loaded tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
 
 				layer.tileDidLoad(tileID);				
 			}

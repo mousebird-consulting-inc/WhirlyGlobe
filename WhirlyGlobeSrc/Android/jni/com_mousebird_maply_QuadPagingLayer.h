@@ -33,6 +33,30 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_setSimultaneousF
 
 /*
  * Class:     com_mousebird_maply_QuadPagingLayer
+ * Method:    setUseTargetZoomLevel
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_setUseTargetZoomLevel
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_QuadPagingLayer
+ * Method:    nativeSetSingleLevelLoading
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_nativeSetSingleLevelLoading
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_QuadPagingLayer
+ * Method:    setImportance
+ * Signature: (D)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_setImportance
+  (JNIEnv *, jobject, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_QuadPagingLayer
  * Method:    nativeInit
  * Signature: ()V
  */

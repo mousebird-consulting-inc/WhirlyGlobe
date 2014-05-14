@@ -98,7 +98,7 @@ class MapView
 	// Maximum possible height above the surface
 	native double maxHeightAboveSurface();
 	// Set the view location (including height)
-	native void setLoc(double x,double y,double z);
+	private native void setLoc(double x,double y,double z);
 	// Get the current view location
 	public native Point3d getLoc();
 	// Set the 2D rotation

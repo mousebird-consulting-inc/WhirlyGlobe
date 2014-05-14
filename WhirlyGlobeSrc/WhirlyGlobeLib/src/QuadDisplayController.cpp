@@ -258,7 +258,7 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
 
                 
                     // It is loaded (as far as we're concerned), so we need to know if we can traverse below that
-                    if (nodeInfo.ident.level < maxZoom && loader->canLoadChildrenOfTile(nodeInfo))
+                    if (nodeInfo.ident.level < maxZoom && (isPhantom || loader->canLoadChildrenOfTile(nodeInfo)))
                     {
                         std::vector<Quadtree::NodeInfo> childNodes;
                         quadtree->generateChildren(nodeInfo.ident, childNodes);
@@ -305,7 +305,7 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
         activityLevel += loader->numLocalFetches();
         activityLevel += loader->numNetworkFetches();
         
-        if (activityLevel == 0)
+        if (activityLevel <= 0)
         {
             for (std::set<Quadtree::NodeInfo>::iterator it = toPhantom.begin();it != toPhantom.end(); ++it)
             {
