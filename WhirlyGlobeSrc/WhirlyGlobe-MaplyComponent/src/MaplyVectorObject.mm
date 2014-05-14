@@ -212,7 +212,7 @@ public:
     return VectorWriteFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], _shapes);
 }
 
-- (NSDictionary *)attributes
+- (NSMutableDictionary *)attributes
 {
     if (_shapes.empty())
         return nil;
