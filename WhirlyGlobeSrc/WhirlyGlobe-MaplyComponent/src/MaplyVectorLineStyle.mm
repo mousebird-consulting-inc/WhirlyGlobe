@@ -70,7 +70,8 @@
                  kMaplyDrawPriority: @(drawPriority+kMaplyVectorDrawPriorityDefault),
                  kMaplyEnable: @(NO),
                   kMaplyFade: @(0.0),
-                  kMaplyVecCentered: @(true)
+                  kMaplyVecCentered: @(true),
+                  kMaplySelectable: @(self.selectable)
                  }];
         [self resolveVisibility:styleEntry settings:settings desc:desc];
 

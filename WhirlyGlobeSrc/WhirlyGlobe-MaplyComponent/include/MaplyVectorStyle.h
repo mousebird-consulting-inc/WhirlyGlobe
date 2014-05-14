@@ -69,4 +69,8 @@
 /// @brief The view controller we're constructing objects in
 @property (nonatomic,weak) MaplyBaseViewController *viewC;
 
+/// @brief If set, we create selectable objects
+/// @details This controls whether the objects we create are selectable.  Off by default.
+@property (nonatomic) bool selectable;
+
 @end

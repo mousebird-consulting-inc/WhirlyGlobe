@@ -79,4 +79,9 @@
 /// @details If we're fetching tiles over the network we'll look here first.  Set it to nil to turn off caching.
 @property (nonatomic) NSString *cacheDir;
 
+/// @brief If set, all vectors created are selectable.
+/// @details Keeping track of vectors for selection can be expensive.  If you're not going to ever select them, there's no need to keep them around.
+/// @details Off by default.
+@property (nonatomic) bool selectable;
+
 @end
