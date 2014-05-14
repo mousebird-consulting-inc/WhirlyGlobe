@@ -1400,7 +1400,7 @@ void BasicDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 }
         
 // Used to pass in buffer offsets
-#define CALCBUFOFF(base,off) ((char *)(base) + (off))
+#define CALCBUFOFF(base,off) ((char *)((long)(base) + (off)))
 
     
 // Called once to set up a Vertex Array Object
