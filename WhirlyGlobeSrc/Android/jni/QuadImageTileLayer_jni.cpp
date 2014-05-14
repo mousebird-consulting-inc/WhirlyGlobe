@@ -19,9 +19,9 @@ public:
 	// Note: Need to handle borderSize
     virtual Texture *buildTexture(int borderSize,int width,int height)
     {
-    	// Note: Testing
+    	// Test code.  Off by default, obviously
 //    	for (unsigned int ii=0;ii<width*height;ii++)
-//    		((unsigned int *)rawData->getRawData())[ii] = 0x00000000;
+//    		((unsigned int *)rawData->getRawData())[ii] = 0xff0000ff;
 
     	Texture *tex = new Texture("Tile Quad Loader",rawData,false);
     	tex->setWidth(width);
@@ -138,7 +138,7 @@ public:
 		// Note: Porting
 		// Note: Explicitly setting the min importance for a 128*128 tile
 //		getController()->setMinImportance(128*128);
-		shortCircuitImportance = 256*256 * 2;
+		shortCircuitImportance = 256*256;
 		control->setMinImportance(1.0);
 	}
 
@@ -178,7 +178,7 @@ public:
     /// Return an importance value for the given tile
     virtual double importanceForTile(const Quadtree::Identifier &ident,const Mbr &mbr,ViewState *viewState,const Point2f &frameSize,Dictionary *attrs)
     {
-        if (ident.level <= 1)
+        if (ident.level < 1)
             return MAXFLOAT;
 
         double import = 0;

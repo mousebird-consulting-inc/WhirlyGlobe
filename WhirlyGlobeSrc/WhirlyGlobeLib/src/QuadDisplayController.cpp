@@ -35,6 +35,9 @@ QuadDisplayController::QuadDisplayController(QuadDataStructure *dataStructure,Qu
     greedyMode(false), meteredMode(true), waitForLocalLoads(false),fullLoad(false), fullLoadTimeout(4.0), viewUpdatePeriod(0.1),
     minUpdateDist(0.0), lineMode(false), debugMode(false), lastFlush(0.0), somethingHappened(false), firstUpdate(true), targetLevel(-1)
 {
+    // Note: Debugging
+    greedyMode = true;
+    meteredMode = false;
 }
 
 QuadDisplayController::~QuadDisplayController()
@@ -316,32 +319,35 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
         }
     }
 
-    // Let the loader know we're done with this eval step
-    if (meteredMode || waitingForLocalLoads() || didSomething)
-    {
-        loader->updateWithoutFlush();
-    } else {
-        loader->endUpdates(changes);
-    }
-
     if (debugMode)
         dumpInfo();
 
-    if (!didSomething)
+    if (meteredMode)
     {
-        // If we're not waiting for local reloads, we may be done
-        if (!meteredMode && !waitingForLocalLoads())
-        {
-            loader->endUpdates(changes);
-            somethingHappened = false;
-        }
-        
-        // We're done waiting for local fetches.  Let the next frame boundary catch it
-        if (waitForLocalLoads && !!waitingForLocalLoads())
-        {
-            waitForLocalLoads = false;
-        }
-    }
+		// Let the loader know we're done with this eval step
+		if (waitingForLocalLoads() || didSomething)
+		{
+			loader->updateWithoutFlush();
+		}
+
+		if (!didSomething)
+	    {
+	        // If we're not waiting for local reloads, we may be done
+	        if (!meteredMode && !waitingForLocalLoads())
+	        {
+	            loader->endUpdates(changes);
+	            somethingHappened = false;
+	        }
+
+	        // We're done waiting for local fetches.  Let the next frame boundary catch it
+	        if (waitForLocalLoads && !!waitingForLocalLoads())
+	        {
+	            waitForLocalLoads = false;
+	        }
+	    }
+    } else
+    	loader->endUpdates(changes);
+
     
     somethingHappened |= didSomething;
     

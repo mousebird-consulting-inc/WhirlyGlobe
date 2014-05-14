@@ -175,7 +175,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 					{
 						BufferedInputStream aBufferedInputStream = new BufferedInputStream(new FileInputStream(cacheFile));
 			    		bm = BitmapFactory.decodeStream(aBufferedInputStream);				
-			    		Log.d("Maply","Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+//			    		Log.d("Maply","Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
 					}
 				}
 				
@@ -212,7 +212,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 		    			fOut.close();
 		    		}
 		    		bytesStream.close();
-		    		Log.d("Maply","Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+//		    		Log.d("Maply","Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
 				}
 	    		
 				// Let the layer and delegate know what happened with it
@@ -254,7 +254,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	@Override
 	public void startFetchForTile(QuadImageTileLayer layer, MaplyTileID tileID) 
 	{
-		Log.d("Maply","Starting fetch for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+//		Log.d("Maply","Starting fetch for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
 		
 		// Form the tile URL
 		int maxY = 1<<tileID.level;

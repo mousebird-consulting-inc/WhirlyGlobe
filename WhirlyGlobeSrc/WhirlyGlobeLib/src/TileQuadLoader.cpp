@@ -157,7 +157,7 @@ void QuadTileLoader::flushUpdates(ChangeSet &changes)
     
     if (!changeRequests.empty())
     {
-        changes = changeRequests;
+        changes.insert(changes.end(), changeRequests.begin(),changeRequests.end());
         changeRequests.clear();
     }
 }
@@ -503,8 +503,7 @@ void QuadTileLoader::endUpdates(ChangeSet &changes)
     {
         refreshParents();
         
-        changes = changeRequests;
-        changeRequests.clear();
+        flushUpdates(changes);
     }
     
     doingUpdate = false;

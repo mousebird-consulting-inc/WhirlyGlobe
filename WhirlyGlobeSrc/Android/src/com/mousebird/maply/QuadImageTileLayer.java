@@ -3,7 +3,6 @@ package com.mousebird.maply;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 /**
  * The quad image tiling layer manages a self contained basemap.  Basemaps are
@@ -263,7 +262,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 				public void run()
 				{
 					loadedTile(tileID,imageTile);
-					Log.d("Maply","Responding to load for tile: " + tileID.level + ": (" + tileID.x + "," + tileID.y);
+//					Log.d("Maply","Responding to load for tile: " + tileID.level + ": (" + tileID.x + "," + tileID.y);
 				}
 			});
 			return;

@@ -472,7 +472,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			}
 		});
 		
-		Log.d("Maply","Tile " + tileID.toString() + " did load");
+//		Log.d("Maply","Tile " + tileID.toString() + " did load");
 	}
 
 	/**
@@ -507,7 +507,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			}
 		});
 		
-		Log.d("Maply","Tile " + tileID.toString() + " failed to load");
+//		Log.d("Maply","Tile " + tileID.toString() + " failed to load");
 	}
 	
 	// Evaluate whether this tile should be on and all the children
