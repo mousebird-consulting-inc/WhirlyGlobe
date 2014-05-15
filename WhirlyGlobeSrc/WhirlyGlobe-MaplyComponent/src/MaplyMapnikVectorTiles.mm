@@ -20,6 +20,7 @@
 
 
 #import "MaplyMapnikVectorTiles.h"
+#import "MaplyTileSource.h"
 
 #include <iostream>
 #include <fstream>
@@ -104,21 +105,8 @@ static double MAX_EXTENT = 20037508.342789244;
     
     NSMutableDictionary *featureStyles = [NSMutableDictionary new];
     
-    for(MaplyRemoteTileInfo *tileSource in self.tileSources) {
-      if([tileSource tileIsLocal:tileID]) {
-        tileData = [NSData dataWithContentsOfFile:[tileSource fileNameForTile:tileID]];
-      } else {
-        NSURLRequest *request = [tileSource requestForTile:tileID];
-        if(request) {
-          NSURLResponse *response;
-          NSError *error;
-          tileData = [NSURLConnection sendSynchronousRequest:request
-                                           returningResponse:&response error:&error];
-          if(tileData) {
-            [tileData writeToFile:[tileSource fileNameForTile:tileID] atomically:NO];
-          }
-        }
-      }
+    for(NSObject<MaplyTileSource> *tileSource in self.tileSources) {
+      tileData = [tileSource imageForTile:tileID];
       
       if(tileData.length) {
         if([tileData isCompressed]) {
@@ -434,7 +422,7 @@ static double MAX_EXTENT = 20037508.342789244;
 
 - (int)maxZoom {
   if(self.tileSources.count) {
-    return [(MaplyRemoteTileInfo*)self.tileSources[0] maxZoom];
+    return [(NSObject <MaplyTileSource>*)self.tileSources[0] maxZoom];
   } else {
     return 14;
   }
