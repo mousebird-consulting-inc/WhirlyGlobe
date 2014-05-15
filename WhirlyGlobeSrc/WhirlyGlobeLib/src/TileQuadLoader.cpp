@@ -40,7 +40,7 @@ QuadTileLoader::QuadTileLoader(const std::string &name,QuadTileImageDataSource *
     ignoreEdgeMatching(false), coverPoles(false),
     imageType(WKTileIntRGBA), useDynamicAtlas(true), tileScale(WKTileScaleNone), fixedTileSize(256), textureAtlasSize(2048), borderTexel(1),
     tileBuilder(NULL), doingUpdate(false), defaultTessX(10), defaultTessY(10),
-    currentImage0(0), currentImage1(0)
+    currentImage0(0), currentImage1(0), texAtlasPixelFudge(0.0)
 {
     pthread_mutex_init(&tileLock, NULL);
 }
@@ -646,6 +646,7 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
         tileBuilder->lineMode = false;
         tileBuilder->borderTexel = borderTexel;
         tileBuilder->singleLevel = control->getTargetLevel();
+        tileBuilder->texAtlasPixelFudge = texAtlasPixelFudge;
         
         // If we haven't decided how many active textures we'll have, do that
         if (activeTextures == -1)

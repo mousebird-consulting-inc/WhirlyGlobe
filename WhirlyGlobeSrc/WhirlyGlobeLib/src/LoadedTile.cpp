@@ -97,7 +97,8 @@ TileBuilder::TileBuilder(CoordSystem *coordSys,Mbr mbr,WhirlyKit::Quadtree *quad
     enabled(true),
     texAtlas(NULL),
     newDrawables(false),
-    singleLevel(-1)
+    singleLevel(-1),
+    texAtlasPixelFudge(0.0)
 {
     pthread_mutex_init(&texAtlasMappingLock, NULL);
 }
@@ -144,6 +145,7 @@ void TileBuilder::initAtlases(WhirlyKitTileImageType imageType,int numImages,int
         
         imageDepth = numImages;
         texAtlas = new DynamicTextureAtlas(textureAtlasSize,texSortSize,glFormat,numImages);
+        texAtlas->setPixelFudgeFactor(texAtlasPixelFudge);
         drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);
         newDrawables = true;
     }

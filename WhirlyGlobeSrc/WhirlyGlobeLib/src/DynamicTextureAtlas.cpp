@@ -297,7 +297,7 @@ void DynamicTextureAddRegion::execute(Scene *scene,WhirlyKit::SceneRendererES *r
 }
     
 DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth)
-    : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth)
+    : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth), pixelFudge(0.0)
 {
 }
     
@@ -305,6 +305,11 @@ DynamicTextureAtlas::~DynamicTextureAtlas()
 {
     // It's up to the scene to actually delete the textures
     textures.clear();
+}
+    
+void DynamicTextureAtlas::setPixelFudgeFactor(float pixFudge)
+{
+    pixelFudge = pixFudge;
 }
     
 // If set, we ask the main thread to do the sub texture loads
@@ -404,7 +409,7 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,P
         Point2f inTexSize = realSize ? *realSize : Point2f(firstTex->getWidth(),firstTex->getHeight());
         Point2f offset = realOffset ? *realOffset : Point2f(0,0);
         if (borderPixels == 0)
-            boundaryPix = Point2f(0,0);
+            boundaryPix = Point2f(pixelFudge/texSize,pixelFudge/texSize);
         else
 //            boundaryPix = Point2f((borderPixels-0.5) / texSize, (borderPixels-0.5) / texSize);
             boundaryPix = Point2f((borderPixels) / (float)texSize, (borderPixels) / (float)texSize);

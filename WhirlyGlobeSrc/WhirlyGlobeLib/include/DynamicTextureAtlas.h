@@ -158,6 +158,10 @@ public:
     DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1);
     ~DynamicTextureAtlas();
 
+    /// Fudge factor for border pixels.  We'll add this/pixelSize to the lower left
+    ///  and subtract this/pixelSize from the upper right for each texture application.
+    void setPixelFudgeFactor(float pixFudge);
+
     /// Try to add the texture to one of our dynamic textures, or create one.
     bool addTexture(const std::vector<Texture *> &textures,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0);
     
@@ -193,7 +197,8 @@ protected:
     int texSize;
     int cellSize;
     GLenum format;
-    
+    float pixelFudge;
+
     typedef std::set<TextureRegion> TextureRegionSet;
     TextureRegionSet regions;
     typedef std::set<DynamicTextureVec *,DynamicTextureVecSorter> DynamicTextureSet;

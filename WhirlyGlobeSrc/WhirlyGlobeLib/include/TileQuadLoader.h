@@ -206,6 +206,11 @@ public:
     void setBorderTexel(int inVal) { borderTexel = inVal; }
     int getBorderTexel() { return borderTexel; }
     
+    /// A fudge factor for border texels.  This lets us pretend we have them
+    ///  and split the difference between bogus and ugly.
+    void setBorderPixelFudge(float fudge) { texAtlasPixelFudge = fudge; }
+    float getBorderPixelFudge() { return texAtlasPixelFudge; }
+    
 protected:
     void clear();
     void refreshParents();
@@ -247,6 +252,7 @@ protected:
     int fixedTileSize;
     int textureAtlasSize;
     int borderTexel;
+    float texAtlasPixelFudge;
 
     TileBuilder *tileBuilder;
     bool doingUpdate;

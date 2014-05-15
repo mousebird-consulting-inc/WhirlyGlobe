@@ -124,6 +124,8 @@ public:
 	    tileLoader->setDrawPriority(0);
 	    tileLoader->setNumImages(1);
 	    tileLoader->setIncludeElev(false);
+	    tileLoader->setBorderTexel(0);
+	    tileLoader->setBorderPixelFudge(0.5);
 	    // Note: Should check this
 	    tileLoader->setTextureAtlasSize(2048);
 //	    ChangeSet changes;

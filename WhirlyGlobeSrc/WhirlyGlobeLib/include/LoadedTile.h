@@ -150,6 +150,9 @@ public:
     RGBAColor color;
     SimpleIdentity programId;
     
+    // Fudge factor for texture atlas
+    float texAtlasPixelFudge;
+    
     // If set we're using elevation data
     bool includeElev,useElevAsZ;
     
