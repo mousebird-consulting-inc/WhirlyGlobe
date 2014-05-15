@@ -336,21 +336,39 @@ using namespace WhirlyKit;
 // For a remote tile source, this one only works if it's local
 - (id)imageForTile:(MaplyTileID)tileID
 {
-    bool doLoad = true;
-    NSString *fileName = [_tileInfo fileNameForTile:tileID];
-    if (_tileInfo.cachedFileLifetime > 0)
+    if ([_tileInfo tileIsLocal:tileID])
     {
-        NSDate *timeStamp = [MaplyRemoteTileInfo dateForFile:fileName];
-        if (timeStamp)
+        bool doLoad = true;
+        NSString *fileName = [_tileInfo fileNameForTile:tileID];
+        if (_tileInfo.cachedFileLifetime > 0)
         {
-            int ageOfFile = (int) [[NSDate date] timeIntervalSinceDate:timeStamp];
-            if (ageOfFile > _tileInfo.cachedFileLifetime)
-                doLoad = false;
+            NSDate *timeStamp = [MaplyRemoteTileInfo dateForFile:fileName];
+            if (timeStamp)
+            {
+                int ageOfFile = (int) [[NSDate date] timeIntervalSinceDate:timeStamp];
+                if (ageOfFile > _tileInfo.cachedFileLifetime)
+                    doLoad = false;
+            }
         }
+        if (doLoad)
+            return [NSData dataWithContentsOfFile:fileName];
+        
     }
     
-    if (doLoad)
-        return [NSData dataWithContentsOfFile:fileName];
+    NSURLRequest *urlReq = [_tileInfo requestForTile:tileID];
+    if(urlReq)
+    {
+        NSURLResponse *response;
+        NSError *error;
+        NSData *tileData = [NSURLConnection sendSynchronousRequest:urlReq
+                                                 returningResponse:&response error:&error];
+        
+        // Let's also write it back out for the cache
+        if (_tileInfo.cacheDir)
+            [tileData writeToFile:[_tileInfo fileNameForTile:tileID] atomically:YES];
+        
+        return tileData;
+    }
     
     return nil;
 }

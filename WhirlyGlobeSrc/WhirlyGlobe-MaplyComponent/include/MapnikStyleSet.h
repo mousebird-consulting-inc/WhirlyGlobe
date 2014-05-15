@@ -32,6 +32,7 @@
 @property (nonatomic, readonly) BOOL parsing;
 @property (nonatomic, strong) UIColor *backgroundColor;
 @property (nonatomic, assign) NSInteger tileMaxZoom;
+@property (nonatomic, assign) NSInteger drawPriorityOffset;
 
 - (instancetype)initForViewC:(MaplyBaseViewController *)viewC;
 - (void)loadXmlFile:(NSString*)filePath;
