@@ -21,6 +21,7 @@
 #import <UIKit/UIKit.h>
 #import "MaplyImageTile.h"
 #import "MaplyCoordinate.h"
+#import "MaplyCoordinateSystem.h"
 
 /** @typedef struct MaplyTileID
     @brief This represents the indentifier for a unique tile in the pyramid.
@@ -67,6 +68,15 @@ typedef struct
     @return Return true for local tile sources or if you have the tile cached.
   */
 - (bool)tileIsLocal:(MaplyTileID)tileID;
+
+/** @brief The coordinate system the image pyramid is in.
+ @details This is typically going to be MaplySphericalMercator
+ with the web mercator extents.  That's what you'll get from
+ OpenStreetMap and, often, MapBox.  In other cases it might
+ be MaplyPlateCarree, which covers the whole earth.  Sometimes
+ it might even be something unique of your own.
+ */
+- (MaplyCoordinateSystem*)coordSys;
 
 @optional
 
