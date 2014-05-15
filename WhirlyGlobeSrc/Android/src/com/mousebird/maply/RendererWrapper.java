@@ -26,8 +26,6 @@ class RendererWrapper implements Renderer
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config)
 	{		
-//		GLES20.glClearColor(1.0f,0.0f,1.0f,0.0f);
-		
 		maplyRender = new MaplyRenderer();
   		maplyRender.setScene(mapScene);
 		maplyRender.setView(mapView);
@@ -45,8 +43,6 @@ class RendererWrapper implements Renderer
 	@Override
 	public void onDrawFrame(GL10 gl)
 	{
-//		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-		
 		maplyRender.doRender();
 	}
 }

@@ -151,6 +151,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setClearColor
 	}
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setPerfInterval
+  (JNIEnv *env, jobject obj, jint perfInterval)
+{
+	try
+	{
+		MaplySceneRendererInfo *classInfo = MaplySceneRendererInfo::getClassInfo();
+		MaplySceneRenderer *renderer = classInfo->getObject(env,obj);
+		if (!renderer)
+			return;
+
+		renderer->setPerfInterval(perfInterval);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MaplyRenderer::setPerfInterval()");
+	}
+}
+
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MaplyRenderer_teardown
   (JNIEnv *, jobject)
 {

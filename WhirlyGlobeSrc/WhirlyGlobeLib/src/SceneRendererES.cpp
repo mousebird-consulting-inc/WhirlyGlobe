@@ -362,7 +362,7 @@ bool SceneRendererES::viewDidChange()
 
 void SceneRendererES::forceDrawNextFrame()
 {
-    lastDraw = 0;
+    triggerDraw = true;
 }
 
 }

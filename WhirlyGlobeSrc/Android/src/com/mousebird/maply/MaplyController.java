@@ -40,6 +40,14 @@ public class MaplyController implements View.OnTouchListener
 	// Represents an ID that doesn't have data associated with it
 	public static long EmptyIdentity = 0;
 	
+	/**
+	 * This is how often we'll kick off a render when the frame sync comes in.
+	 * We get a notification when the render for a given frame starts, this is
+	 * usually 60 times a second.  This tells us how many to skip to achieve
+	 * our desired frame rate.  2 means 30hz.  3 means 20hz and so forth.
+	 */
+	public int frameInterval = 2;
+	
 	// Implements the GL renderer protocol
 	RendererWrapper renderWrapper;
 	
@@ -122,6 +130,10 @@ public class MaplyController implements View.OnTouchListener
         	
         	glSurfaceView.setEGLContextClientVersion(2);
         	glSurfaceView.setRenderer(renderWrapper);        	        
+
+        	// Attach to the Choreographer on the main thread
+        	// Note: I'd rather do this on the render thread, but there's no Looper
+//        	Choreographer.getInstance().postFrameCallbackDelayed(this, 15);
         } else {
         	Toast.makeText(mainActivity,  "This device does not support OpenGL ES 2.0.", Toast.LENGTH_LONG).show();
         	return;
@@ -139,6 +151,7 @@ public class MaplyController implements View.OnTouchListener
 	// Tear down views
 	public void shutdown()
 	{
+//		Choreographer.getInstance().removeFrameCallback(this);
 		layerThread.shutdown();
 		
 		glSurfaceView = null;
@@ -157,7 +170,35 @@ public class MaplyController implements View.OnTouchListener
 	{
         // Kick off the layer thread for background operations
 		layerThread.setRenderer(renderWrapper.maplyRender);
+		renderWrapper.maplyRender.setPerfInterval(perfInterval);
+
+		// Set up a periodic update for the renderer
+//    	glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 	}
+
+//	long lastRender = 0;
+//	// Called by the Choreographer to render a frame
+//	@Override
+//	public void doFrame(long frameTimeNanos) 
+//	{		
+//		// Need to do this every frame
+//    	Choreographer.getInstance().postFrameCallbackDelayed(this, 15);
+//
+//    	// Compare how long since the last render
+//    	long diff = frameTimeNanos - lastRender;
+//		if (diff >= 16666700*(frameInterval-0.25))
+//		{
+//			glSurfaceView.queueEvent(new Runnable()
+//			{
+//				public void run()
+//				{
+//					glSurfaceView.requestRender();
+//				}
+//			});
+//			glSurfaceView.requestRender();
+//			lastRender = frameTimeNanos;
+//		}
+//	}
 	
 	// Tie in the gestures we want
 	ScaleGestureDetector sgd = null;
@@ -406,6 +447,19 @@ public class MaplyController implements View.OnTouchListener
 		mapView = null;
 		
 		renderWrapper = null;
+	}
+	
+	int perfInterval = 0;
+	/**
+	 * Report performance stats in the console ever few frames.
+	 * Setting this to zero turns it off.
+	 * @param perfInterval
+	 */
+	public void setPerfInterval(int inPerfInterval)
+	{
+		perfInterval = inPerfInterval;
+		if (renderWrapper != null && renderWrapper.maplyRender != null)
+			renderWrapper.maplyRender.setPerfInterval(perfInterval);
 	}
 
 	/**

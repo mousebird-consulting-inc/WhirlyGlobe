@@ -1,7 +1,5 @@
 package com.mousebird.maplytester;
 
-import java.io.File;
-
 import android.app.Activity;
 
 import com.mousebird.maply.MaplyController;

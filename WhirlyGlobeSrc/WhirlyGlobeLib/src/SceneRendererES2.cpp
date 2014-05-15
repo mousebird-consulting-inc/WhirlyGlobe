@@ -207,7 +207,7 @@ void SceneRendererES2::render()
 
     // Decide if we even need to draw
 	// Note: Porting
-////    if (!scene->hasChanges() && !viewDidChange())
+//    if (!scene->hasChanges() && !viewDidChange())
 //        return;
         
     lastDraw = TimeGetCurrent();
@@ -720,8 +720,10 @@ void SceneRendererES2::render()
 		frameCount = 0;
         
         // Note: Porting
-//        NSLog(@"---Rendering Performance---");
-//        NSLog(@" Frames per sec = %.2f",framesPerSec);
+        perfTimer.report("---Rendering Performance---");
+        char fpsReport[1024];
+        sprintf(fpsReport,"Frames per sec = %.2f",framesPerSec);
+        perfTimer.report(fpsReport);
         perfTimer.log();
         perfTimer.clear();
 	}

@@ -67,6 +67,9 @@ public:
     /// Add a count for a particular instance
     void addCount(const std::string &what,int count);
     
+    /// Print out a string
+    void report(const std::string &what);
+    
     /// Clean out existing timings
     void clear();
     

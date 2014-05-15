@@ -23,6 +23,11 @@
 #import <algorithm>
 #import "PerformanceTimer.h"
 #import "Platform.h"
+#if defined(__ANDROID__)
+#import <android/log.h>
+#else
+#import <Foundation/Foundation.h>
+#endif
 
 namespace WhirlyKit
 {
@@ -132,6 +137,15 @@ static bool TimeEntryByMax (const PerformanceTimer::TimeEntry &a,const Performan
     return a.avgDur > b.avgDur;
 }
     
+void PerformanceTimer::report(const std::string &what)
+{
+#if defined(__ANDROID__)
+    __android_log_print(ANDROID_LOG_VERBOSE, "Maply Performance", "%s", what.c_str());
+#else
+    NSLog("%s",what.c_str());
+#endif
+}
+    
 void PerformanceTimer::log()
 {
     std::vector<TimeEntry> sortedEntries;
@@ -143,18 +157,23 @@ void PerformanceTimer::log()
     std::sort(sortedEntries.begin(),sortedEntries.end(),TimeEntryByMax);
     for (unsigned int ii=0;ii<sortedEntries.size();ii++)
     {
-//        TimeEntry &entry = sortedEntries[ii];
-        // Note: Porting
-//        if (entry.numRuns > 0)
-//            NSLog(@"  %s: min, max, avg = (%.2f,%.2f,%.2f) ms",entry.name.c_str(),1000*entry.minDur,1000*entry.maxDur,1000*entry.avgDur / entry.numRuns);
+        TimeEntry &entry = sortedEntries[ii];
+        if (entry.numRuns > 0)
+        {
+            char line[1024];
+            sprintf(line,"%s: min, max, avg = (%.2f,%.2f,%.2f) ms",entry.name.c_str(),1000*entry.minDur,1000*entry.maxDur,1000*entry.avgDur / entry.numRuns);
+            report(line);
+        }
     }
     for (std::map<std::string,CountEntry>::iterator it = countEntries.begin();
          it != countEntries.end(); ++it)
     {
-//        CountEntry &entry = it->second;
-        // Note: Porting
-//        if (entry.numRuns > 0)
-//            NSLog(@"  %s: min, max, avg = (%d,%d,%2.f,  %d) count",entry.name.c_str(),entry.minCount,entry.maxCount,(float)entry.avgCount / (float)entry.numRuns,entry.avgCount);
+        CountEntry &entry = it->second;
+        if (entry.numRuns > 0)
+        {
+            char line[1024];
+            sprintf(line,"%s: min, max, avg = (%d,%d,%2.f,  %d) count",entry.name.c_str(),entry.minCount,entry.maxCount,(float)entry.avgCount / (float)entry.numRuns,entry.avgCount);
+        }
     }
 }
     

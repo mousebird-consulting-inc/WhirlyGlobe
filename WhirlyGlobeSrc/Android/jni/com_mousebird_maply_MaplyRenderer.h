@@ -57,6 +57,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_render
 
 /*
  * Class:     com_mousebird_maply_MaplyRenderer
+ * Method:    setPerfInterval
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setPerfInterval
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_MaplyRenderer
  * Method:    nativeInit
  * Signature: ()V
  */

@@ -67,6 +67,7 @@ class MaplyRenderer
 	protected native boolean teardown();
 	protected native boolean resize(int width,int height);
 	protected native void render();
+	public native void setPerfInterval(int perfInterval);
 
 	static
 	{
