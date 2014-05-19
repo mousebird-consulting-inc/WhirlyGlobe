@@ -55,6 +55,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapView_dispose
 	}
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapView_nativeClone
+  (JNIEnv *env, jobject obj, jobject destObj)
+{
+	try
+	{
+		MapViewClassInfo *classInfo = MapViewClassInfo::getClassInfo();
+		Maply::MapView *src = classInfo->getObject(env,obj);
+		Maply::MapView *dest = new Maply::MapView(*src);
+		MapViewClassInfo::getClassInfo()->setHandle(env,destObj,dest);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::dispose()");
+	}
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapView_setLoc
   (JNIEnv *env, jobject obj, jdouble x, jdouble y, jdouble z)
 {

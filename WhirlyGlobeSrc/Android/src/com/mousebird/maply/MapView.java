@@ -16,14 +16,39 @@ class MapView
 	{
 	}
 	
-	MapView(CoordSystemDisplayAdapter coordAdapter)
+	CoordSystemDisplayAdapter coordAdapter = null;
+	
+	MapView(CoordSystemDisplayAdapter inCoordAdapter)
 	{
+		coordAdapter = inCoordAdapter;
 		initialise(coordAdapter);
+	}
+	
+	/**
+	 * Make a copy of this MapView and return it.
+	 * Handles the native side stuff
+	 */
+	protected MapView clone()
+	{
+		MapView that = new MapView(coordAdapter);
+		nativeClone(that);
+		return that;
 	}
 
 	public void finalize()
 	{
 		dispose();
+	}
+
+	/**
+	 * Return the coordinate adapter used by this view.
+	 * The coordinate adapter manages transformation from the local coordinate system
+	 * to display coordinates and vice versa.
+	 * @return
+	 */
+	CoordSystemDisplayAdapter getCoordAdapter()
+	{
+		return coordAdapter;
 	}
 	
 	// For objects that want to know when the view changes (every time it does)
@@ -67,7 +92,11 @@ class MapView
 	// Set the view location from a Point3d
 	void setLoc(Point3d loc)
 	{
-		setLoc(loc.getX(),loc.getY(),loc.getZ());
+		double z = loc.getZ();
+		z = Math.min(maxHeightAboveSurface(), z);
+		z = Math.max(minHeightAboveSurface(), z);
+		
+		setLoc(loc.getX(),loc.getY(),z);
 		
 		runViewUpdates();
 	}
@@ -109,6 +138,8 @@ class MapView
 	native Matrix4d calcModelViewMatrix();	
 	// Calculate the point on the view plan given the screen location
 	native Point3d pointOnPlaneFromScreen(Point2d screenPt,Matrix4d viewModelMatrix,Point2d frameSize,boolean clip);
+	// Make a copy of this map view and return it
+	protected native void nativeClone(MapView dest);
 			
 	static
 	{

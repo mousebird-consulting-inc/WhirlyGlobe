@@ -53,6 +53,7 @@ class View : public DelayedDeletable
 {
 public:
     View();
+    View(const View &);
     virtual ~View();
 
     /// Calculate the viewing frustum (which is also the image plane)

@@ -42,6 +42,8 @@ class MapView : public WhirlyKit::View
 {
 public:
     MapView(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
+    /// Copy constructor
+    MapView(const MapView &that);
     virtual ~MapView();
 
     /// Set the callback delegate

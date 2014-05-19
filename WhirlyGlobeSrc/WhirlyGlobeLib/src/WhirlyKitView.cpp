@@ -39,6 +39,13 @@ View::View()
     continuousZoom = false;
 }
     
+View::View(const View &that)
+    : fieldOfView(that.fieldOfView), nearPlane(that.nearPlane), imagePlaneSize(that.imagePlaneSize),
+    farPlane(that.farPlane), lastChangedTime(that.lastChangedTime), continuousZoom(that.continuousZoom),
+    coordAdapter(that.coordAdapter)
+{
+}
+    
 View::~View()
 {
 }

@@ -73,6 +73,14 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapView_pointOnPlaneFromScree
 
 /*
  * Class:     com_mousebird_maply_MapView
+ * Method:    nativeClone
+ * Signature: (Lcom/mousebird/maply/MapView;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapView_nativeClone
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_MapView
  * Method:    nativeInit
  * Signature: ()V
  */

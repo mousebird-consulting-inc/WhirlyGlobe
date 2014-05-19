@@ -66,6 +66,16 @@ public class Point3d
 		double x = getX(), y = getY(), z = getZ();
 		return Math.sqrt(x*x+y*y+z*z);
 	}
+
+	/**
+	 * Truncate a Point3d and return just the 2D values
+	 * 
+	 * @return X and Y from the Point3d
+	 */
+	public Point2d toPoint2d() 
+	{
+		return new Point2d(getX(),getY());
+	}
 	
 	/**
 	 * Return the X value.

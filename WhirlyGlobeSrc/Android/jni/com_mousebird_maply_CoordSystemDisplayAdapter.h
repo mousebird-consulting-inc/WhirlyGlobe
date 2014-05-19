@@ -9,6 +9,30 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_CoordSystemDisplayAdapter
+ * Method:    displayToLocal
+ * Signature: (Lcom/mousebird/maply/Point3d;)Lcom/mousebird/maply/Point3d;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_displayToLocal
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_CoordSystemDisplayAdapter
+ * Method:    localToDisplay
+ * Signature: (Lcom/mousebird/maply/Point3d;)Lcom/mousebird/maply/Point3d;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_localToDisplay
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_CoordSystemDisplayAdapter
+ * Method:    getBounds
+ * Signature: (Lcom/mousebird/maply/Point3d;Lcom/mousebird/maply/Point3d;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_getBounds
+  (JNIEnv *, jobject, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_CoordSystemDisplayAdapter
  * Method:    nativeInit
  * Signature: ()V
  */
@@ -18,10 +42,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_native
 /*
  * Class:     com_mousebird_maply_CoordSystemDisplayAdapter
  * Method:    initialise
- * Signature: ()V
+ * Signature: (Lcom/mousebird/maply/CoordSystem;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_initialise
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_CoordSystemDisplayAdapter

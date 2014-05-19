@@ -1,22 +1,32 @@
 package com.mousebird.maply;
 
+/**
+ * Implements a translation with momentum to a new point.
+ * @author sjg
+ *
+ */
 public class AnimateTranslateMomentum implements MapView.AnimationDelegate
 {
+	MapView mapView = null;
+	MaplyRenderer renderer = null;
 	double velocity,acceleration;
 	Point3d dir = null;
 	Mbr bounds = null;
 	double startTime,maxTime;
 	Point3d org = null;
+	Point2d viewBounds[] = null;
 
-	AnimateTranslateMomentum(MapView view,double inVel,double inAcc,Point3d inDir,Mbr inBounds)
+	AnimateTranslateMomentum(MapView inView,MaplyRenderer inRender,double inVel,double inAcc,Point3d inDir,Point2d inBounds[])
 	{
+		mapView = inView;
+		renderer = inRender;
 		velocity = inVel;
 		acceleration = inAcc;
 		dir = inDir;
-		bounds = inBounds;
+		viewBounds = inBounds;
 		
 		startTime = System.currentTimeMillis()/1000.0;
-		org = view.getLoc();
+		org = mapView.getLoc();
 		
 		// Calculate the max time
 		if (acceleration != 0.0)
@@ -49,10 +59,11 @@ public class AnimateTranslateMomentum implements MapView.AnimationDelegate
 		// Calculate distance
 //		Point3d oldLoc = view.getLoc();
 		double dist = (velocity + 0.5 * acceleration * sinceStart) * sinceStart;
-		Point3d newLoc = org.addTo(dir.multiplyBy(dist));
+		Point3d newPos = org.addTo(dir.multiplyBy(dist));
 		
-		// Note: Should be doing bounds checking
-		view.setLoc(newLoc);
+		// Bounds check and set
+		if (GestureHandler.withinBounds(view, renderer.frameSize, newPos, viewBounds))
+			view.setLoc(newPos);
 	}
 
 }

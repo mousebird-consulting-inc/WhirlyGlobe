@@ -40,6 +40,11 @@ MapView::MapView(WhirlyKit::CoordSystemDisplayAdapter *inCoordAdapter)
     rotAngle = 0.0;
 }
     
+MapView::MapView(const MapView &that)
+    : loc(that.loc), rotAngle(that.rotAngle)
+{
+}
+    
 MapView::~MapView()
 {    
 }
