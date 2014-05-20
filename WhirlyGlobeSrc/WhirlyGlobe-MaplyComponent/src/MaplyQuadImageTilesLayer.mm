@@ -598,8 +598,9 @@ public:
         
         // We need to feel our way down to the appropriate level
         maxShortCircuitLevel = [self targetZoomLevel];
-        if (singleLevelLoading)
-            quadLayer->targetLevel = maxShortCircuitLevel;
+        // Note: Porting
+//        if (_singleLevelLoading)
+//            quadLayer.targetLevel = maxShortCircuitLevel;
     } else {
         // Note: Can't short circuit in this case.  Something wrong with the math
         canShortCircuitImportance = false;

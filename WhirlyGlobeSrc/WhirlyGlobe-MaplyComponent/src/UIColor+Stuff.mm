@@ -25,6 +25,11 @@ using namespace Eigen;
 
 @implementation UIColor(Stuff)
 
++ (UIColor *) colorFromRGBA:(const WhirlyKit::RGBAColor &)color
+{
+    return [UIColor colorWithRed:color.r/255.0 green:color.g/255.0 blue:color.b/255.0 alpha:color.a/255.0];
+}
+
 + (UIColor *) colorFromHexRGB:(int)hexColor
 {
     float red = (((hexColor) >> 16) & 0xFF)/255.0;
@@ -37,7 +42,7 @@ using namespace Eigen;
 - (RGBAColor) asRGBAColor
 {
     RGBAColor color;
-    int numComponents = CGColorGetNumberOfComponents(self.CGColor);
+    int numComponents = (int)CGColorGetNumberOfComponents(self.CGColor);
     const CGFloat *colors = CGColorGetComponents(self.CGColor);
     
     switch (numComponents)
@@ -69,7 +74,7 @@ using namespace Eigen;
 - (Vector4f) asVec4
 {
     Vector4f color;
-    int numComponents = CGColorGetNumberOfComponents(self.CGColor);
+    int numComponents = (int)CGColorGetNumberOfComponents(self.CGColor);
     const CGFloat *colors = CGColorGetComponents(self.CGColor);
     
     switch (numComponents)

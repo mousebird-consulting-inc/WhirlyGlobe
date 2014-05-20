@@ -26,7 +26,8 @@
 #if defined(__ANDROID__)
 #import <android/log.h>
 #else
-#import <Foundation/Foundation.h>
+// Note: Porting
+//#import <Foundation/Foundation.h>
 #endif
 
 namespace WhirlyKit
@@ -142,7 +143,8 @@ void PerformanceTimer::report(const std::string &what)
 #if defined(__ANDROID__)
     __android_log_print(ANDROID_LOG_VERBOSE, "Maply Performance", "%s", what.c_str());
 #else
-    NSLog("%s",what.c_str());
+    // Note: Porting
+//    NSLog("%s",what.c_str());
 #endif
 }
     

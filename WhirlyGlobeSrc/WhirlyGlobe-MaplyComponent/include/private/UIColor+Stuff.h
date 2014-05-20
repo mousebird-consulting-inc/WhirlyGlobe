@@ -26,6 +26,9 @@
 /// Build a UIColor from a hex value
 + (UIColor *) colorFromHexRGB:(int)hexColor;
 
+/// Build from an RGBA color
++ (UIColor *) colorFromRGBA:(const WhirlyKit::RGBAColor &)color;
+
 /// Convert a UIColor to the RBGA color we use internally
 - (WhirlyKit::RGBAColor) asRGBAColor;
 

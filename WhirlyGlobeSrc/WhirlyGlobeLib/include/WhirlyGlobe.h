@@ -44,6 +44,7 @@
 //#import "RotateDelegate.h"
 //#import "LayerThread.h"
 #import "VectorData.h"
+#import "FontTextureManager.h"
 //#import "VectorDatabase.h"
 #import "ShapeReader.h"
 #import "VectorManager.h"
