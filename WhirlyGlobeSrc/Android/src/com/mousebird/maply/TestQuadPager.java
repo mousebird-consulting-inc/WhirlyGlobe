@@ -68,7 +68,6 @@ public class TestQuadPager implements QuadPagingLayer.PagingInterface
 				label.text = tileID.level + ": (" + tileID.x + "," + tileID.y + ")";
 				LabelInfo labelInfo = new LabelInfo();
 				labelInfo.setEnable(false);
-				labelInfo.fontSize = 32.f;
 				compObj = layer.maplyControl.addScreenLabel(label, labelInfo);
 				compObjs.add(compObj);
 						

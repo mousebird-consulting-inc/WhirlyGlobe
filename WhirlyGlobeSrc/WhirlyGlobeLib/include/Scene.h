@@ -439,6 +439,9 @@ public:
     /// Returns the font texture manager, which is thread safe
     FontTextureManager *getFontTextureManager() { return fontTextureManager; }
     
+    /// Set up the font texture manager.  Don't call this yourself.
+    void setFontTextureManager(FontTextureManager *newManager) { if (fontTextureManager)  delete fontTextureManager; fontTextureManager = newManager; }
+    
     /// Font texture manager (created on startup)
     // Note: Porting
 //    WhirlyKitFontTextureManager *fontTexManager;

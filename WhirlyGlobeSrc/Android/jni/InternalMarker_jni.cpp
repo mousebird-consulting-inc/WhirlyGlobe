@@ -5,7 +5,6 @@
 
 using namespace WhirlyKit;
 
-typedef JavaClassInfo<WhirlyKit::Marker> MarkerClassInfo;
 template<> MarkerClassInfo *MarkerClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_nativeInit

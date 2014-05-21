@@ -70,7 +70,7 @@ public:
     Point2d screenOffset;
 
     // Used to build the drawable string on specific platforms
-    virtual DrawableString *generateDrawableString(const LabelInfo *,FontTextureManager *fontTexManager) = 0;
+    virtual DrawableString *generateDrawableString(const LabelInfo *,FontTextureManager *fontTexManager,ChangeSet &changes) = 0;
     
 // Note: Porting
 //    /// This is used to sort out width and height from the defaults.  Pass

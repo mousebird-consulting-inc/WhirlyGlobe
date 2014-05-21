@@ -128,7 +128,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
         
         // We set this if the color is embedded in the "font"
         bool embeddedColor = (labelInfo->outlineSize > 0.0 || label->desc.hasField(MaplyTextOutlineSize));
-        DrawableString *drawStr = label->generateDrawableString(labelInfo,fontTexManager);
+        DrawableString *drawStr = label->generateDrawableString(labelInfo,fontTexManager,changes);
 
         Point2d iconOff(0,0);
         ScreenSpaceGenerator::ConvexShape *screenShape = NULL;

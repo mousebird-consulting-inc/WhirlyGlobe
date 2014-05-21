@@ -32,7 +32,7 @@ class MarkerManager
 	public native void removeMarkers(long ids[],ChangeSet changes);
 	
 	// Enable/disable markers by ID
-	public native void enableMarkers(long ids[],boolean eanble,ChangeSet changes);
+	public native void enableMarkers(long ids[],boolean enable,ChangeSet changes);
 	
 	static
 	{

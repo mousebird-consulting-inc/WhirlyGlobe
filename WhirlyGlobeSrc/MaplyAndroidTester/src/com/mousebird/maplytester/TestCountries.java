@@ -119,7 +119,7 @@ public class TestCountries
     	        	ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
     	        	labels.add(testLabel);
     	        	LabelInfo labelInfo = new LabelInfo();
-    	        	labelInfo.setFontSize(24.f);
+//    	        	labelInfo.setFontSize(24.f);
 //    	        	mapControl.addScreenLabels(labels,labelInfo);
     	        	
     	        } catch (Exception e) 

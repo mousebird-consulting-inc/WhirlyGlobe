@@ -11,27 +11,29 @@ package com.mousebird.maply;
  */
 public class LabelInfo 
 {
+	public LabelInfo()
+	{
+		initialise();
+	}
+	
+	public void finalize()
+	{
+		dispose();
+	}
+	
 	/**
 	 * Controls whether or not the geometry will be visible.  By
 	 * default this is true.
 	 * @param newEnable New value for the enable.
 	 */
-	public void setEnable(boolean newEnable)
-	{
-		enable = newEnable;
-	}
-	boolean enable = true;
+	public native void setEnable(boolean enable);
 
-	/**
-	 * Controls the font size used for the text.
-	 * 
-	 * @param newSize The new size value
-	 */
-	public void setFontSize(float newSize)
-	{
-		fontSize = newSize;
-	}
-	float fontSize = 16.f;
+	public native void setDrawOffset(float drawOffset);
+	public native void setDrawPriority(int drawPriority);
+	public native void setMinVis(float minVis);
+	public native void setMaxVis(float maxVis);
+	public native void setTextColor(float r,float g,float b,float a);
+	public native void setBackgroundColor(float r,float g,float b,float a);
 
 	/**
 	 * The amount of time (in seconds) it takes for new geometry
@@ -39,9 +41,15 @@ public class LabelInfo
 	 * 
 	 * @param newFade The new fade value.
 	 */
-	public void setFade(float newFade)
+	public native void setFade(float fade);
+	
+	static
 	{
-		fade = newFade;
+		nativeInit();
 	}
-	float fade = 0.0f;
+	private static native void nativeInit();
+	native void initialise();
+	native void dispose();
+	private long nativeHandle;
+
 }

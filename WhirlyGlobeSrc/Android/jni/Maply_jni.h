@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <android/log.h>
 #include <WhirlyGlobe.h>
+#import "SingleLabelAndroid.h"
 
 /* Java Class Info
  * This tracks JNI info about classes we implement.
@@ -228,6 +229,55 @@ protected:
 	jmethodID putMethodID;
 };
 
+// Wrapper for List
+class JavaListInfo
+{
+private:
+	JavaListInfo(JNIEnv *env)
+	{
+		jclass localListClass = env->FindClass("java/util/List");
+		listClass = (jclass)env->NewGlobalRef(localListClass);
+		jclass localIterClass = env->FindClass("java/util/Iterator");
+		iterClass = (jclass)env->NewGlobalRef(localIterClass);
+		literMethodID = env->GetMethodID(listClass,"iterator","()Ljava/util/Iterator;");
+		hasNextID = env->GetMethodID(iterClass,"hasNext","()Z");
+		nextID = env->GetMethodID(iterClass,"next","()Ljava/lang/Object;");
+	}
+
+public:
+	// Return the iterator for a given list object
+	jobject getIter(JNIEnv *env,jobject listObj)
+	{
+		return env->CallObjectMethod(listObj,literMethodID);
+	}
+
+	// See if there's a next object
+	bool hasNext(JNIEnv *env,jobject listObj,jobject iterObj)
+	{
+		return env->CallBooleanMethod(iterObj, hasNextID);
+	}
+
+	// Get the next object with an iterator
+	jobject getNext(JNIEnv *env,jobject listObj,jobject iterObj)
+	{
+		return env->CallObjectMethod(iterObj, nextID);
+	}
+
+public:
+
+	static JavaListInfo *classInfoObj;
+	static JavaListInfo *getClassInfo(JNIEnv *env)
+	{
+		if (!classInfoObj)
+			classInfoObj = new JavaListInfo(env);
+		return classInfoObj;
+	}
+
+protected:
+	jclass listClass,iterClass;
+	jmethodID literMethodID,hasNextID,nextID;
+};
+
 // Wrappers for class info for all the various classes that have presence in Java
 typedef JavaClassInfo<WhirlyKit::Dictionary> AttrDictClassInfo;
 typedef JavaClassInfo<WhirlyKit::ChangeSet> ChangeSetClassInfo;
@@ -244,7 +294,10 @@ typedef JavaClassInfo<Maply::MapView> MapViewClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorInfo> VectorInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorObject> VectorObjectClassInfo;
 typedef JavaClassInfo<WhirlyKit::MarkerInfo> MarkerInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::LabelInfo> LabelInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::ViewState> ViewStateClassInfo;
+typedef JavaClassInfo<WhirlyKit::Marker> MarkerClassInfo;
+typedef JavaClassInfo<WhirlyKit::SingleLabelAndroid> LabelClassInfo;
 
 // The shared JNIEnv set in the ::render call
 extern JNIEnv *maplyCurrentEnv;

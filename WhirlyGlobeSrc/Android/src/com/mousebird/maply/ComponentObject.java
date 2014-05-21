@@ -54,15 +54,23 @@ public class ComponentObject
 		vectorIDs.add(id);
 	}
 	
+	// Track the given label ID as associated with us
+	void addLabelID(long id)
+	{
+		if (labelIDs == null)
+			labelIDs = new ArrayList<Long>();
+		labelIDs.add(id);
+	}
+	
 	// Enable/disable anything the component object is holding
 	void enable(MaplyController control,boolean enable,ChangeSet changes)
 	{	
 		if (vectorIDs != null && vectorIDs.size() > 0)
-		{
 			control.vecManager.enableVectors(convertIDs(vectorIDs), enable, changes);
-		}
 		if (markerIDs != null && markerIDs.size() > 0)
 			control.markerManager.enableMarkers(convertIDs(markerIDs), enable, changes);
+		if (labelIDs != null && labelIDs.size() > 0)
+			control.labelManager.enableLabels(convertIDs(labelIDs), enable, changes);
 	}
 	
 	// Clear out anything the component object is holding
@@ -78,6 +86,11 @@ public class ComponentObject
 			control.markerManager.removeMarkers(convertIDs(markerIDs), changes);
 			markerIDs.clear();
 		}
+		if (labelIDs != null && labelIDs.size() > 0)
+		{
+			control.labelManager.removeLabels(convertIDs(labelIDs), changes);
+			labelIDs.clear();
+		}
 		if (texIDs != null && texIDs.size() > 0)
 			for (long texID: texIDs)
 				control.texManager.removeTexture(texID, changes);
@@ -89,4 +102,5 @@ public class ComponentObject
 	// Various render-side object types we're representing
 	private ArrayList<Long> markerIDs;
 	private ArrayList<Long> vectorIDs;
+	private ArrayList<Long> labelIDs;
 }

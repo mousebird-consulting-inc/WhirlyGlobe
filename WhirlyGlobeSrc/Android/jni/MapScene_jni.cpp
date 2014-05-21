@@ -9,6 +9,7 @@
 #import "Maply_jni.h"
 #import "com_mousebird_maply_MapScene.h"
 #import "WhirlyGlobe.h"
+#import "FontTextureManagerAndroid.h"
 
 using namespace WhirlyKit;
 
@@ -25,6 +26,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_initialise
 	{
 		CoordSystemDisplayAdapter *coordAdapter = CoordSystemDisplayAdapterInfo::getClassInfo()->getObject(env,coordAdapterObj);
 		Maply::MapScene *scene = new Maply::MapScene(coordAdapter);
+		scene->setFontTextureManager(new FontTextureManagerAndroid(scene));
 		MapSceneClassInfo::getClassInfo()->setHandle(env,obj,scene);
 	}
 	catch (...)

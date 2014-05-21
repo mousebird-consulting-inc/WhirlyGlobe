@@ -22,13 +22,15 @@
 #import <CoreText/CoreText.h>
 #import "UIColor+Stuff.h"
 #import "LabelManager_private.h"
+#import "FontTextureManageriOS.h"
 
 namespace WhirlyKit
 {
 
-DrawableString *SingleLabeliOS::generateDrawableString(const LabelInfo *inLabelInfo,FontTextureManager *fontTexManager)
+DrawableString *SingleLabeliOS::generateDrawableString(const LabelInfo *inLabelInfo,FontTextureManager *inFontTexManager,ChangeSet &changes)
 {
     LabelInfoiOS *labelInfo = (LabelInfoiOS *)inLabelInfo;
+    FontTextureManageriOS *fontTexManager = (FontTextureManageriOS *)inFontTexManager;
     
     RGBAColor theTextColor = labelInfo->textColor;
     RGBAColor theOutlineColor = labelInfo->outlineColor;
@@ -52,6 +54,8 @@ DrawableString *SingleLabeliOS::generateDrawableString(const LabelInfo *inLabelI
         [attrStr addAttribute:kOutlineAttributeColor value:[UIColor colorFromRGBA:theOutlineColor] range:NSMakeRange(0, strLen)];
         [attrStr addAttribute:NSForegroundColorAttributeName value:[UIColor colorFromRGBA:theTextColor] range:NSMakeRange(0, strLen)];
     }
+    
+    return fontTexManager->addString(attrStr,changes);
 }
     
 }

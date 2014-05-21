@@ -46,7 +46,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerManager_dispose
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
-  (JNIEnv *env, jobject obj, jobject markerList, jobject markerInfoObj, jobject changeSetObj)
+  (JNIEnv *env, jobject obj, jobject markerObjList, jobject markerInfoObj, jobject changeSetObj)
 {
 	try
 	{
@@ -60,26 +60,29 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
 			return EmptyIdentity;
 		}
 
-		// Note: Porting.  Turn this back on
-//		std::vector<Marker *> markers;
-//		int objCount = env->GetArrayLength(markerObjArray);
-//		for (int ii=0;ii<objCount;ii++)
-//		{
-//			jobject javaMarkerObj = (jobject) env->GetObjectArrayElement(markerObjArray, ii);
-//			Marker *marker = getHandle<Marker>(env,javaMarkerObj);
-//			markers.push_back(marker);
-//			env->DeleteLocalRef(javaMarkerObj);
-//		}
-//
-//		// Note: Porting
-//		// Note: Shouldn't have to set this
-//    	markerInfo->markerId = Identifiable::genId();
-//
-//		SimpleIdentity markerId = markerManager->addMarkers(markers,*markerInfo,*changeSet);
-//
-//		return markerId;
+		std::vector<Marker *> markers;
 
-		return EmptyIdentity;
+		JavaListInfo *listClassInfo = JavaListInfo::getClassInfo(env);
+		jobject iterObj = listClassInfo->getIter(env,markerObjList);
+
+		MarkerClassInfo *markerClassInfo = MarkerClassInfo::getClassInfo();
+		ShapeSet shapes;
+		while (listClassInfo->hasNext(env,markerObjList,iterObj))
+		{
+			jobject javaMarkerObj = listClassInfo->getNext(env,markerObjList,iterObj);
+			Marker *marker = markerClassInfo->getObject(env,javaMarkerObj);
+			markers.push_back(marker);
+			env->DeleteLocalRef(javaMarkerObj);
+		}
+		env->DeleteLocalRef(iterObj);
+
+		// Note: Porting
+		// Note: Shouldn't have to set this
+    	markerInfo->markerId = Identifiable::genId();
+
+		SimpleIdentity markerId = markerManager->addMarkers(markers,*markerInfo,*changeSet);
+
+		return markerId;
 	}
 	catch (...)
 	{

@@ -6,6 +6,7 @@
 JavaDoubleClassInfo *JavaDoubleClassInfo::classInfoObj = NULL;
 JavaIntegerClassInfo *JavaIntegerClassInfo::classInfoObj = NULL;
 JavaHashMapInfo *JavaHashMapInfo::classInfoObj = NULL;
+JavaListInfo *JavaListInfo::classInfoObj = NULL;
 template<> AttrDictClassInfo *AttrDictClassInfo::classInfoObj = NULL;
 template<> ChangeSetClassInfo *ChangeSetClassInfo::classInfoObj = NULL;
 template<> TextureClassInfo *TextureClassInfo::classInfoObj = NULL;

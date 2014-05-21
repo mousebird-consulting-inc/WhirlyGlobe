@@ -36,7 +36,7 @@ public class ScreenLabel
 	public String text;
 		
 	// Importance value for the layout engine
-//	public float layoutImportance = Float.MAX_VALUE;
+	public float layoutImportance = Float.MAX_VALUE;
 
 	/**
 	 * If non-null an offset to tweak the label by.  We'll move the label
@@ -45,7 +45,7 @@ public class ScreenLabel
 	public Point2d offset = null;
 	
 	// If set, this object is selectable
-//	public boolean selectable = false;
+	public boolean selectable = false;
 
 	/**
 	 * For selection, we include a user accessible object pointer.  You use

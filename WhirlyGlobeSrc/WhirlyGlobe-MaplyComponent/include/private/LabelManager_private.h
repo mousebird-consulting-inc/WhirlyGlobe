@@ -40,7 +40,7 @@ public:
     
 protected:
     // Generates a drawable string (e.g. geometry) for the iOS platform
-    DrawableString *generateDrawableString(const LabelInfo *,FontTextureManager *fontTexManager);
+    DrawableString *generateDrawableString(const LabelInfo *,FontTextureManager *fontTexManager,ChangeSet &changes);
 };
 
 }
