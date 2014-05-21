@@ -45,6 +45,8 @@
 //#import "LayerThread.h"
 #import "VectorData.h"
 #import "FontTextureManager.h"
+#import "LabelManager.h"
+#import "SharedAttributes.h"
 //#import "VectorDatabase.h"
 #import "ShapeReader.h"
 #import "VectorManager.h"

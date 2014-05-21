@@ -50,7 +50,7 @@
 #define MaplyZBufferWrite WKString("zbufferwrite")
 
 /// Assign a shader program to a particular feature.  Use the shader program's name
-#define MaplyShader WKString("shader")
+#define MaplyShaderString WKString("shader")
 /// This is the shader we'll normally get by default on triangles
 #define MaplyDefaultTriangleShader WKString("Default Triangle;lighting=yes")
 /// This shader turns off lighting explicitly (doesn't have the code for it)

@@ -20,6 +20,7 @@
 
 #import "DynamicTextureAtlas.h"
 #import "GLUtils.h"
+#import "Scene.h"
 
 using namespace Eigen;
 

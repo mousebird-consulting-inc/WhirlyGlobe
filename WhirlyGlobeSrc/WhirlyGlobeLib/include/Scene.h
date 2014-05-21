@@ -28,6 +28,7 @@
 #import "Cullable.h"
 #import "Drawable.h"
 #import "Generator.h"
+#import "FontTextureManager.h"
 // Note: Porting
 //#import "ActiveModel.h"
 #import "CoordSystem.h"
@@ -436,8 +437,7 @@ public:
     std::map<std::string,SceneManager *> managers;
     
     /// Returns the font texture manager, which is thread safe
-    // Note: Porting
-//    WhirlyKitFontTextureManager *getFontTextureManager() { return fontTexManager; }
+    FontTextureManager *getFontTextureManager() { return fontTextureManager; }
     
     /// Font texture manager (created on startup)
     // Note: Porting
@@ -491,6 +491,9 @@ protected:
     
     /// A map from the scene names to the various programs
     OpenGLES2ProgramMap glProgramMap;
+    
+    // The font texture manager is created at startup
+    FontTextureManager *fontTextureManager;
 };
 	
 }

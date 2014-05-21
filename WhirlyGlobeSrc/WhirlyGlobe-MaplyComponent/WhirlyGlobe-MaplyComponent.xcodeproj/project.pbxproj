@@ -104,6 +104,8 @@
 		2BCA68A7174195A800696BA8 /* MaplyCoordinateSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCA68A5174195A800696BA8 /* MaplyCoordinateSystem.h */; };
 		2BDC8A68192BEE2800DFECF0 /* FontTextureManageriOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC8A67192BEE2800DFECF0 /* FontTextureManageriOS.h */; };
 		2BDC8A6B192BEE3100DFECF0 /* FontTextureManageriOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BDC8A6A192BEE3100DFECF0 /* FontTextureManageriOS.mm */; };
+		2BDC8A75192C60B700DFECF0 /* LabelManager_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC8A74192C60B700DFECF0 /* LabelManager_private.h */; };
+		2BDC8A77192C60BF00DFECF0 /* LabelManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BDC8A76192C60BF00DFECF0 /* LabelManager.mm */; };
 		2BE43866160930B200A81959 /* MaplyComponentObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE43865160930B200A81959 /* MaplyComponentObject.h */; };
 		2BE88486160A437D00E92A0A /* MaplySharedAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE88485160A437D00E92A0A /* MaplySharedAttributes.h */; };
 		2BF76A421886FCA300465603 /* ImageTexture_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE88491160A59F900E92A0A /* ImageTexture_private.h */; };
@@ -271,6 +273,8 @@
 		2BD115951615E16900A4BF5D /* MaplyShape.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyShape.mm; path = src/MaplyShape.mm; sourceTree = SOURCE_ROOT; };
 		2BDC8A67192BEE2800DFECF0 /* FontTextureManageriOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FontTextureManageriOS.h; path = include/FontTextureManageriOS.h; sourceTree = "<group>"; };
 		2BDC8A6A192BEE3100DFECF0 /* FontTextureManageriOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FontTextureManageriOS.mm; path = src/FontTextureManageriOS.mm; sourceTree = "<group>"; };
+		2BDC8A74192C60B700DFECF0 /* LabelManager_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LabelManager_private.h; path = include/private/LabelManager_private.h; sourceTree = "<group>"; };
+		2BDC8A76192C60BF00DFECF0 /* LabelManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = LabelManager.mm; path = src/LabelManager.mm; sourceTree = "<group>"; };
 		2BE43865160930B200A81959 /* MaplyComponentObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyComponentObject.h; path = include/MaplyComponentObject.h; sourceTree = SOURCE_ROOT; };
 		2BE8491315BC8DEB006CFD3F /* MaplyComponentObject_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = MaplyComponentObject_private.h; path = include/private/MaplyComponentObject_private.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2BE88485160A437D00E92A0A /* MaplySharedAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplySharedAttributes.h; path = include/MaplySharedAttributes.h; sourceTree = "<group>"; };
@@ -632,6 +636,8 @@
 		2BE88490160A59DE00E92A0A /* utility */ = {
 			isa = PBXGroup;
 			children = (
+				2BDC8A74192C60B700DFECF0 /* LabelManager_private.h */,
+				2BDC8A76192C60BF00DFECF0 /* LabelManager.mm */,
 				2BDC8A67192BEE2800DFECF0 /* FontTextureManageriOS.h */,
 				2BDC8A6A192BEE3100DFECF0 /* FontTextureManageriOS.mm */,
 				2B13BAC918BEAF24007DA1A3 /* MaplyRawDataWrapper.h */,
@@ -710,6 +716,7 @@
 				2B0D630817A2EDA300C3298D /* DDXMLElement.h in Headers */,
 				2B0D630A17A2EDA300C3298D /* DDXMLNode.h in Headers */,
 				2BF76A4E1887040200465603 /* UIImage+Stuff.h in Headers */,
+				2BDC8A75192C60B700DFECF0 /* LabelManager_private.h in Headers */,
 				2B0D630C17A2EDA300C3298D /* DDXMLPrivate.h in Headers */,
 				2BC989C117DC1F130071DA9E /* NSData+Zlib.h in Headers */,
 				2BC989D417DC23310071DA9E /* FMDatabase.h in Headers */,
@@ -799,6 +806,7 @@
 			files = (
 				2BBDFE9A188DF74C00AE4CEB /* MaplyQuadDisplayLayer.mm in Sources */,
 				2BA6479F1891804700CFA6E1 /* LayerViewWatcher.mm in Sources */,
+				2BDC8A77192C60BF00DFECF0 /* LabelManager.mm in Sources */,
 				2B13BAB418BC0EFE007DA1A3 /* MaplyImageTile.mm in Sources */,
 				2B13BABC18BE651F007DA1A3 /* MaplyMBTileSource.mm in Sources */,
 				2BA647BC1891A40E00CFA6E1 /* MaplyViewControllerLayer.mm in Sources */,

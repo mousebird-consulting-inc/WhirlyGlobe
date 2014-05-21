@@ -23,7 +23,6 @@
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "Texture.h"
-#import "GlobeScene.h"
 
 namespace WhirlyKit
 {

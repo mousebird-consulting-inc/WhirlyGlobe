@@ -41,6 +41,7 @@ namespace WhirlyKit
 {
     
 Scene::Scene()
+    : fontTextureManager(NULL)
 {
 }
     
@@ -55,6 +56,8 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     pthread_mutex_init(&textureLock,NULL);
     pthread_mutex_init(&generatorLock,NULL);
     pthread_mutex_init(&programLock,NULL);
+    
+    fontTextureManager = new FontTextureManager(this);
     
     // Also toss in a screen space generator to share amongst the layers
     ssGen = new ScreenSpaceGenerator(kScreenSpaceGeneratorShared,Point2d(0.1,0.1));

@@ -355,6 +355,10 @@
 		2BDC89CB191C2ADE00DFECF0 /* SceneRendererES3.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC89CA191C2ADE00DFECF0 /* SceneRendererES3.h */; };
 		2BDC8A60192A9E1700DFECF0 /* FontTextureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC8A5F192A9E1700DFECF0 /* FontTextureManager.h */; };
 		2BDC8A62192A9E3800DFECF0 /* FontTextureManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BDC8A61192A9E3800DFECF0 /* FontTextureManager.cpp */; };
+		2BDC8A6E192C08F600DFECF0 /* LabelManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC8A6C192C08F600DFECF0 /* LabelManager.h */; };
+		2BDC8A6F192C08F600DFECF0 /* LabelRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC8A6D192C08F600DFECF0 /* LabelRenderer.h */; };
+		2BDC8A72192C090400DFECF0 /* LabelManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BDC8A70192C090400DFECF0 /* LabelManager.cpp */; };
+		2BDC8A73192C090400DFECF0 /* LabelRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BDC8A71192C090400DFECF0 /* LabelRenderer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -713,6 +717,10 @@
 		2BDC89CA191C2ADE00DFECF0 /* SceneRendererES3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES3.h; sourceTree = "<group>"; };
 		2BDC8A5F192A9E1700DFECF0 /* FontTextureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontTextureManager.h; sourceTree = "<group>"; };
 		2BDC8A61192A9E3800DFECF0 /* FontTextureManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontTextureManager.cpp; sourceTree = "<group>"; };
+		2BDC8A6C192C08F600DFECF0 /* LabelManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelManager.h; sourceTree = "<group>"; };
+		2BDC8A6D192C08F600DFECF0 /* LabelRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelRenderer.h; sourceTree = "<group>"; };
+		2BDC8A70192C090400DFECF0 /* LabelManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LabelManager.cpp; sourceTree = "<group>"; };
+		2BDC8A71192C090400DFECF0 /* LabelRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LabelRenderer.cpp; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -1131,6 +1139,8 @@
 		2BC53FA412DE217E00778431 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2BDC8A6C192C08F600DFECF0 /* LabelManager.h */,
+				2BDC8A6D192C08F600DFECF0 /* LabelRenderer.h */,
 				2BDC8A5F192A9E1700DFECF0 /* FontTextureManager.h */,
 				2BDC89CA191C2ADE00DFECF0 /* SceneRendererES3.h */,
 				2B35677518D762BF00EF8DB1 /* BigDrawable.h */,
@@ -1194,6 +1204,8 @@
 		2BC53FA512DE218300778431 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2BDC8A70192C090400DFECF0 /* LabelManager.cpp */,
+				2BDC8A71192C090400DFECF0 /* LabelRenderer.cpp */,
 				2BDC8A61192A9E3800DFECF0 /* FontTextureManager.cpp */,
 				2B35671118D762A700EF8DB1 /* BigDrawable.cpp */,
 				2B35671218D762A700EF8DB1 /* CoordSystem.cpp */,
@@ -1344,6 +1356,7 @@
 				2B009CF2186102E4001E2EE8 /* JSONAllocator.h in Headers */,
 				2BDC89CB191C2ADE00DFECF0 /* SceneRendererES3.h in Headers */,
 				2B35682418D762BF00EF8DB1 /* MarkerManager.h in Headers */,
+				2BDC8A6E192C08F600DFECF0 /* LabelManager.h in Headers */,
 				2B009D05186102E4001E2EE8 /* JSONPreparse.h in Headers */,
 				2B3567ED18D762BF00EF8DB1 /* LoadedTile.h in Headers */,
 				2BA2325817984F510063CC84 /* glues_error.h in Headers */,
@@ -1417,6 +1430,7 @@
 				2B35683118D762BF00EF8DB1 /* ShapeReader.h in Headers */,
 				2B35682E18D762BF00EF8DB1 /* ScreenImportance.h in Headers */,
 				2B009CFB186102E4001E2EE8 /* JSONDefs.h in Headers */,
+				2BDC8A6F192C08F600DFECF0 /* LabelRenderer.h in Headers */,
 				2BA2327B179859F30063CC84 /* SDL_opengles.h in Headers */,
 				2B3567EB18D762BF00EF8DB1 /* Identifiable.h in Headers */,
 				2B009D0C186102E4001E2EE8 /* JSONValidator.h in Headers */,
@@ -1574,6 +1588,7 @@
 				2B7EF46A16025D8C00D4079F /* PJ_gnom.c in Sources */,
 				2B7EF46B16025D8C00D4079F /* PJ_goode.c in Sources */,
 				2B7EF46C16025D8C00D4079F /* pj_gridinfo.c in Sources */,
+				2BDC8A72192C090400DFECF0 /* LabelManager.cpp in Sources */,
 				2B7EF46D16025D8C00D4079F /* pj_gridlist.c in Sources */,
 				2B35676318D762A700EF8DB1 /* SceneRendererES.cpp in Sources */,
 				2B7EF46E16025D8C00D4079F /* PJ_gstmerc.c in Sources */,
@@ -1662,6 +1677,7 @@
 				2B7EF4AD16025D8C00D4079F /* PJ_sterea.c in Sources */,
 				2B35674418D762A700EF8DB1 /* CoordSystem.cpp in Sources */,
 				2B35676618D762A700EF8DB1 /* ScreenSpaceGenerator.cpp in Sources */,
+				2BDC8A73192C090400DFECF0 /* LabelRenderer.cpp in Sources */,
 				2B009CF5186102E4001E2EE8 /* JSONDebug.cpp in Sources */,
 				2B7EF4AE16025D8C00D4079F /* pj_strerrno.c in Sources */,
 				2B35675618D762A700EF8DB1 /* MaplyFlatView.cpp in Sources */,

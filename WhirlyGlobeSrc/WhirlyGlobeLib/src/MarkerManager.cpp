@@ -130,7 +130,7 @@ void MarkerInfo::parseDict(const Dictionary &dict)
     height = dict.getDouble(MaplyLabelHeight,(screenObject ? 16.0 : 0.001));
     fade = dict.getDouble(MaplyFade,0.0);
     enable = dict.getBool(MaplyEnable,true);
-    programId = dict.getInt(MaplyShader,EmptyIdentity);
+    programId = dict.getInt(MaplyShaderString,EmptyIdentity);
 }
 
 MarkerManager::MarkerManager()

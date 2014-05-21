@@ -46,6 +46,9 @@ public:
     /// Clean out the contents
     void clear();
     
+    /// Number of fields being represented
+    int numFields() const;
+    
     /// Returns true if the field exists
     bool hasField(const std::string &name) const;
     

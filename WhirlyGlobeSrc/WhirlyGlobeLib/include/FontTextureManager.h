@@ -22,6 +22,7 @@
 #import <map>
 #import "Identifiable.h"
 #import "Drawable.h"
+#import "TextureAtlas.h"
 #import "DynamicTextureAtlas.h"
 
 namespace WhirlyKit

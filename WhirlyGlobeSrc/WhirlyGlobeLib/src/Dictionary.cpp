@@ -163,6 +163,11 @@ void Dictionary::asRawData(MutableRawData *rawData)
     }
 }
     
+int Dictionary::numFields() const
+{
+    return (int)fields.size();
+}
+    
 bool Dictionary::hasField(const std::string &name) const
 {
     FieldMap::const_iterator it = fields.find(name);
