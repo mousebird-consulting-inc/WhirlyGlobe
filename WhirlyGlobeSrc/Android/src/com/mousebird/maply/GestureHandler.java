@@ -91,10 +91,10 @@ public class GestureHandler
 //			Log.d("Maply","Starting zoom");
 
 			// Find the center and zoom around that
-			Point2d center = new Point2d(detector.getFocusX(),detector.getFocusY());
-			Matrix4d modelTransform = maplyControl.mapView.calcModelViewMatrix();
-			Point3d hit = maplyControl.mapView.pointOnPlaneFromScreen(center, modelTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
-			Point3d localPt = mapView.coordAdapter.displayToLocal(hit);
+//			Point2d center = new Point2d(detector.getFocusX(),detector.getFocusY());
+//			Matrix4d modelTransform = maplyControl.mapView.calcModelViewMatrix();
+//			Point3d hit = maplyControl.mapView.pointOnPlaneFromScreen(center, modelTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
+//			Point3d localPt = mapView.coordAdapter.displayToLocal(hit);
 //			centerGeoCoord = mapView.coordAdapter.getCoordSystem().localToGeographic(localPt);
 			
 			// Cancel the panning
@@ -252,7 +252,6 @@ public class GestureHandler
 
 		@Override
 		public boolean onSingleTapConfirmed(MotionEvent e) {
-			// TODO Auto-generated method stub
 			return false;
 		}
 

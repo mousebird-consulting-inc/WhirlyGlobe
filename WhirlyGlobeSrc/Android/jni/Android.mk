@@ -70,7 +70,7 @@ LOCAL_SRC_FILES += $(TESS_SRC_FILES:%=$(TESS_SRC_DIR)/%)
 MAPLY_CORE_SRC_FILES := BigDrawable.cpp CoordSystem.cpp Cullable.cpp DefaultShaderPrograms.cpp Dictionary.cpp \
 					Drawable.cpp DynamicDrawableAtlas.cpp DynamicTextureAtlas.cpp FlatMath.cpp FontTextureManager.cpp \
 					Generator.cpp GlobeMath.cpp GlobeScene.cpp GlobeView.cpp GlobeViewState.cpp GLUtils.cpp GridClipper.cpp Identifiable.cpp \
-					LayoutManager.cpp LoadedTile.cpp MaplyFlatView.cpp MaplyScene.cpp \
+					LabelManager.cpp LabelRenderer.cpp LayoutManager.cpp LoadedTile.cpp MaplyFlatView.cpp MaplyScene.cpp \
 					MaplyView.cpp MaplyViewState.cpp MarkerGenerator.cpp MarkerManager.cpp OpenGLES2Program.cpp \
 					PerformanceTimer.cpp QuadDisplayController.cpp Quadtree.cpp RawData.cpp \
 					Scene.cpp SceneRendererES.cpp \

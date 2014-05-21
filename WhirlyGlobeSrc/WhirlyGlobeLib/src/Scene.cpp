@@ -25,12 +25,12 @@
 #import "ScreenSpaceGenerator.h"
 #import "Platform.h"
 //#import "ViewPlacementGenerator.h"
-//#import "FontTextureManager.h"
+#import "FontTextureManager.h"
 #import "SelectionManager.h"
-//#import "LayoutManager.h"
+#import "LayoutManager.h"
 //#import "ShapeManager.h"
 #import "MarkerManager.h"
-//#import "LabelManager.h"
+#import "LabelManager.h"
 #import "VectorManager.h"
 //#import "SphericalEarthChunkManager.h"
 //#import "LoftManager.h"
@@ -72,14 +72,14 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     pthread_mutex_init(&managerLock,NULL);
     // Selection manager is used for object selection from any thread
     addManager(kWKSelectionManager,new SelectionManager(this,DeviceScreenScale()));
-//    // Layout manager handles text and icon layout
-//    addManager(kWKLayoutManager, new LayoutManager());
+    // Layout manager handles text and icon layout
+    addManager(kWKLayoutManager, new LayoutManager());
 //    // Shape manager handles circles, spheres and such
 //    addManager(kWKShapeManager, new ShapeManager());
     // Marker manager handles 2D and 3D markers
     addManager(kWKMarkerManager, new MarkerManager());
-//    // Label manager handes 2D and 3D labels
-//    addManager(kWKLabelManager, new LabelManager());
+    // Label manager handes 2D and 3D labels
+    addManager(kWKLabelManager, new LabelManager());
     // Vector manager handes vector features
     addManager(kWKVectorManager, new VectorManager());
 //    // Chunk manager handles geographic chunks that cover a large chunk of the globe
