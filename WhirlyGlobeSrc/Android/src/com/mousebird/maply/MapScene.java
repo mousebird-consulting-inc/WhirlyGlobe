@@ -9,13 +9,16 @@ package com.mousebird.maply;
  */
 class MapScene
 {
+	// Used to render individual characters using Android's Canvas/Paint/Typeface
+	CharRenderer charRenderer = new CharRenderer();
+	
 	private MapScene()
 	{
 	}
 	
 	MapScene(CoordSystemDisplayAdapter coordAdapter)
 	{
-		initialise(coordAdapter);
+		initialise(coordAdapter,charRenderer);
 	}
 	
 	public void finalize()
@@ -31,7 +34,7 @@ class MapScene
 		nativeInit();
 	}
 	private static native void nativeInit();
-	native void initialise(CoordSystemDisplayAdapter coordAdapter);
+	native void initialise(CoordSystemDisplayAdapter coordAdapter,CharRenderer charRenderer);
 	native void dispose();
 	private long nativeHandle;
 }

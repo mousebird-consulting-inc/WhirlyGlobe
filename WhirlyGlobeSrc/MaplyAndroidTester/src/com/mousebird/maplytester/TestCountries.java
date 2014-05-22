@@ -115,12 +115,13 @@ public class TestCountries
     	        	// Draw some text
     	        	ScreenLabel testLabel = new ScreenLabel();
     	        	testLabel.loc = Point2d.FromDegrees(-118, 35);
-    	        	testLabel.text = "Test Text";
+    	        	testLabel.text = "Tesp Texq";
     	        	ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
     	        	labels.add(testLabel);
     	        	LabelInfo labelInfo = new LabelInfo();
+    	        	labelInfo.setTextColor(0.f, 0.f, 0.f, 1.f);
 //    	        	labelInfo.setFontSize(24.f);
-//    	        	mapControl.addScreenLabels(labels,labelInfo);
+    	        	mapControl.addScreenLabels(labels,labelInfo);
     	        	
     	        } catch (Exception e) 
     	        {

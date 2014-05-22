@@ -1,5 +1,7 @@
 package com.mousebird.maply;
 
+import android.graphics.Typeface;
+
 /**
  * We use this class to designate attribute shared by a group of labels.
  * Rather than specifying them individually they all go here.  You would
@@ -14,6 +16,8 @@ public class LabelInfo
 	public LabelInfo()
 	{
 		initialise();
+		setTextColor(1.f,1.f,1.f,1.f);
+		setBackgroundColor(0.f,0.f,0.f,0.f);
 	}
 	
 	public void finalize()
@@ -34,6 +38,11 @@ public class LabelInfo
 	public native void setMaxVis(float maxVis);
 	public native void setTextColor(float r,float g,float b,float a);
 	public native void setBackgroundColor(float r,float g,float b,float a);
+	public native void setTypeface(Typeface typeface);
+	
+//	public native Typeface getTypeface();
+//	public native void getTextColor(Float r,Float g,Float b);
+//	public native void getBackColor(Float r,Float g,Float b);
 
 	/**
 	 * The amount of time (in seconds) it takes for new geometry

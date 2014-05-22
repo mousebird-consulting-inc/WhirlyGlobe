@@ -2,6 +2,7 @@
 #import "Maply_jni.h"
 #import "com_mousebird_maply_LabelInfo.h"
 #import "WhirlyGlobe.h"
+#import "LabelInfoAndroid.h"
 
 using namespace WhirlyKit;
 
@@ -18,7 +19,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_initialise
 {
 	try
 	{
-		LabelInfo *info = new LabelInfo();
+		LabelInfoAndroid *info = new LabelInfoAndroid();
 		// Note: Porting
 		info->screenObject = true;
 		LabelInfoClassInfo::getClassInfo()->setHandle(env,obj,info);
@@ -35,9 +36,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_dispose
 	try
 	{
 		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfo *info = classInfo->getObject(env,obj);
+		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
 		if (!info)
 			return;
+		info->clearRefs(env);
 		delete info;
 
 		classInfo->clearHandle(env,obj);
@@ -177,6 +179,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFade
 		if (!info)
 			return;
 		info->fade = fade;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setFade()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTypeface
+  (JNIEnv *env, jobject obj, jobject typefaceObj)
+{
+	try
+	{
+		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+		if (!info)
+			return;
+		info->setTypeface(env,typefaceObj);
 	}
 	catch (...)
 	{

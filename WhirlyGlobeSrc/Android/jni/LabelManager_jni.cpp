@@ -3,6 +3,7 @@
 #import "com_mousebird_maply_LabelManager.h"
 #import "WhirlyGlobe.h"
 #import "SingleLabelAndroid.h"
+#import "LabelInfoAndroid.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
@@ -53,7 +54,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
 	{
 		LabelManagerClassInfo *classInfo = LabelManagerClassInfo::getClassInfo();
 		LabelManager *labelManager = classInfo->getObject(env,obj);
-		LabelInfo *labelInfo = LabelInfoClassInfo::getClassInfo()->getObject(env,labelInfoObj);
+		LabelInfoAndroid *labelInfo = (LabelInfoAndroid *)LabelInfoClassInfo::getClassInfo()->getObject(env,labelInfoObj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!labelManager || !labelInfo || !changeSet)
 		{
@@ -67,6 +68,9 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
 
 		LabelClassInfo *labelClassInfo = LabelClassInfo::getClassInfo();
 		ShapeSet shapes;
+		// We need this in the depths of the engine
+		labelInfo->env = env;
+		labelInfo->labelInfoObj = labelInfoObj;
 		while (listClassInfo->hasNext(env,labelObjList,iterObj))
 		{
 			jobject javaLabelObj = listClassInfo->getNext(env,labelObjList,iterObj);
@@ -77,6 +81,9 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
 		env->DeleteLocalRef(iterObj);
 
 		SimpleIdentity labelId = labelManager->addLabels(labels,*labelInfo,*changeSet);
+
+		labelInfo->env = NULL;
+		labelInfo->labelInfoObj = NULL;
 
 		return labelId;
 	}

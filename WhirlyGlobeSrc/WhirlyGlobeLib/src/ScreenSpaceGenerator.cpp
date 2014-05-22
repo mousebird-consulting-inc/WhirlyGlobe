@@ -189,6 +189,8 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::Renderer
             int vOff = draw->getNumPoints();
 
             RGBAColor color(scale*geom.color.r,scale*geom.color.g,scale*geom.color.b,scale*geom.color.a);
+            // Note: Porting Debugging
+            color = RGBAColor(255,0,0,255);
     
             // Set up the point, including snap to make it look better
             float resScale = frameInfo->sceneRenderer->getScale();

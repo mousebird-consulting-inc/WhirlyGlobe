@@ -131,6 +131,7 @@ private:
 		jclass intLocalClass = env->FindClass("java/lang/Integer");
 		integerClass = (jclass)env->NewGlobalRef(intLocalClass);
 	    integerClassInitID = env->GetMethodID(integerClass, "<init>", "(I)V");
+	    integerGetID = env->GetMethodID(integerClass,"intValue","()I");
 	}
 
 public:
@@ -143,6 +144,12 @@ public:
 	    return env->NewObject(integerClass, integerClassInitID, iVal);
 	}
 
+	// Return the value of an Integer object
+	int getInteger(JNIEnv *env,jobject intObj)
+	{
+		return env->CallIntMethod(intObj,integerGetID);
+	}
+
 	static JavaIntegerClassInfo *classInfoObj;
 	static JavaIntegerClassInfo *getClassInfo(JNIEnv *env)
 	{
@@ -153,7 +160,7 @@ public:
 
 protected:
 	jclass integerClass;
-	jmethodID integerClassInitID;
+	jmethodID integerClassInitID,integerGetID;
 };
 
 // Wrapper for creating Java Double objects

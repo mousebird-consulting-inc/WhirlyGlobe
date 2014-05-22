@@ -26,10 +26,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_nativeInit
 /*
  * Class:     com_mousebird_maply_MapScene
  * Method:    initialise
- * Signature: (Lcom/mousebird/maply/CoordSystemDisplayAdapter;)V
+ * Signature: (Lcom/mousebird/maply/CoordSystemDisplayAdapter;Lcom/mousebird/maply/CharRenderer;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_initialise
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_MapScene

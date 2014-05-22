@@ -20,13 +20,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_nativeInit
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_initialise
-  (JNIEnv *env, jobject obj, jobject coordAdapterObj)
+  (JNIEnv *env, jobject obj, jobject coordAdapterObj, jobject charRendererObj)
 {
 	try
 	{
 		CoordSystemDisplayAdapter *coordAdapter = CoordSystemDisplayAdapterInfo::getClassInfo()->getObject(env,coordAdapterObj);
 		Maply::MapScene *scene = new Maply::MapScene(coordAdapter);
-		scene->setFontTextureManager(new FontTextureManagerAndroid(scene));
+		scene->setFontTextureManager(new FontTextureManagerAndroid(env,scene,charRendererObj));
 		MapSceneClassInfo::getClassInfo()->setHandle(env,obj,scene);
 	}
 	catch (...)

@@ -119,7 +119,7 @@ void FontManager::removeGlyphRefs(const GlyphSet &usedGlyphs,std::vector<SubText
 
                 
 FontTextureManager::FontTextureManager(Scene *scene)
-: scene(scene)
+: scene(scene), texAtlas(NULL)
 {
     pthread_mutex_init(&lock, NULL);
 }

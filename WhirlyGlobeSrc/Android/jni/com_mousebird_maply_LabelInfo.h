@@ -65,6 +65,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setBackgroundColor
 
 /*
  * Class:     com_mousebird_maply_LabelInfo
+ * Method:    setTypeface
+ * Signature: (Landroid/graphics/Typeface;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTypeface
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LabelInfo
  * Method:    setFade
  * Signature: (F)V
  */

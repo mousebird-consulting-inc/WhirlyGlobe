@@ -61,7 +61,6 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
 		}
 
 		std::vector<Marker *> markers;
-
 		JavaListInfo *listClassInfo = JavaListInfo::getClassInfo(env);
 		jobject iterObj = listClassInfo->getIter(env,markerObjList);
 
