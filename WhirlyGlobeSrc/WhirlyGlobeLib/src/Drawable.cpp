@@ -1567,94 +1567,102 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
     
     // If necessary, set up the VAO (once)
     bool boundElements = false;
+    bool usedLocalVertices = false;
+    const OpenGLESAttribute *vertAttr = NULL;
+    const OpenGLESAttribute *progAttrs[vertexAttributes.size()];
     if (hasVertexArraySupport)
     {
         if (vertArrayObj == 0 && sharedBuffer != 0)
             setupVAO(prog);
+
+        // Figure out what we're using
+        vertAttr = prog->findAttribute("a_position");
+
+        // Vertex array
+        if (vertAttr && !(sharedBuffer || pointBuffer))
+        {
+            usedLocalVertices = true;
+            glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &points[0]);
+            CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+            glEnableVertexAttribArray ( vertAttr->index );
+            CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
+        }
+
+        // Other vertex attributes
+        for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+        {
+            VertexAttribute *attr = vertexAttributes[ii];
+            const OpenGLESAttribute *progAttr = prog->findAttribute(attr->name);
+            progAttrs[ii] = NULL;
+            if (progAttr)
+            {
+                // The data hasn't been downloaded, so hook it up directly here
+                if (attr->buffer == 0)
+                {
+                    // We have a data array for it, so hand that over
+                    if (attr->numElements() != 0)
+                    {
+                        glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), 0, attr->addressForElement(0));
+                        CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+                        glEnableVertexAttribArray ( progAttr->index );
+                        CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
+
+                        progAttrs[ii] = progAttr;
+                    } else {
+                        // The program is expecting it, so we need a default
+                        // Note: Could be doing this in the VAO
+                        attr->glSetDefault(progAttr->index);
+                        CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
+                    }
+                }
+            }
+        }
     } else {
         // Note: Porting.  Move this into a shared function
-        const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
+        vertAttr = prog->findAttribute("a_position");
 
         // We're using a single buffer for all of our vertex attributes
         if (sharedBuffer)
         {
             glBindBuffer(GL_ARRAY_BUFFER,sharedBuffer);
             CheckGLError("BasicDrawable::drawVBO2() shared glBindBuffer");
-        }
-        
-        // Vertex array
-        if (vertAttr)
-        {
             glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, CALCBUFOFF(sharedBufferOffset,0));
-            glEnableVertexAttribArray ( vertAttr->index );
+        } else {
+            glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &points[0]);
         }
+        usedLocalVertices = true;
+        glEnableVertexAttribArray ( vertAttr->index );
         
         // All the rest of the attributes
-        const OpenGLESAttribute *progAttrs[vertexAttributes.size()];
         for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
         {
             progAttrs[ii] = NULL;
             VertexAttribute *attr = vertexAttributes[ii];
             const OpenGLESAttribute *thisAttr = prog->findAttribute(attr->name);
-            if (thisAttr && (attr->buffer != 0 || attr->numElements() != 0))
+            if (thisAttr)
             {
-                glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), vertexSize, CALCBUFOFF(sharedBufferOffset,attr->buffer));
-                glEnableVertexAttribArray(thisAttr->index);
-                progAttrs[ii] = thisAttr;
+                if (attr->buffer != 0 || attr->numElements() != 0)
+                {
+                    if (attr->buffer)
+                        glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), vertexSize, CALCBUFOFF(sharedBufferOffset,attr->buffer));
+                    else
+                        glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), 0, attr->addressForElement(0));
+                    glEnableVertexAttribArray(thisAttr->index);
+                    progAttrs[ii] = thisAttr;
+                } else {
+                    // The program is expecting it, so we need a default
+                    attr->glSetDefault(thisAttr->index);
+                    CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
+                }
             }
         }
-        
+
         // Bind the element array
-        if (type == GL_TRIANGLES)
+        if (type == GL_TRIANGLES && sharedBuffer)
         {
             boundElements = true;
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedBuffer);
             CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
-        }
-    }
-
-    // Figure out what we're using
-    const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
-    
-    // Vertex array
-    bool usedLocalVertices = false;
-    if (vertAttr && !(sharedBuffer || pointBuffer))
-    {
-        usedLocalVertices = true;
-        glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &points[0]);
-        CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
-        glEnableVertexAttribArray ( vertAttr->index );            
-        CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
-    }
-    
-    // Other vertex attributes
-    const OpenGLESAttribute *progAttrs[vertexAttributes.size()];
-    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
-    {
-        VertexAttribute *attr = vertexAttributes[ii];
-        const OpenGLESAttribute *progAttr = prog->findAttribute(attr->name);
-        progAttrs[ii] = NULL;
-        if (progAttr)
-        {
-            // The data hasn't been downloaded, so hook it up directly here
-            if (attr->buffer == 0)
-            {
-                // We have a data array for it, so hand that over
-                if (attr->numElements() != 0)
-                {
-                    glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), 0, attr->addressForElement(0));
-                CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
-                    glEnableVertexAttribArray ( progAttr->index );
-                    CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
-                    
-                    progAttrs[ii] = progAttr;
-                } else {
-                    // The program is expecting it, so we need a default
-                    // Note: Could be doing this in the VAO
-                    attr->glSetDefault(progAttr->index);
-                    CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
-                }
-            }
         }
     }
     
@@ -1693,13 +1701,17 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
             {
                 if (triBuffer)
                 {
-                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
+                    if (!boundElements)
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
                     CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
-                    glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, 0);
+                    glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, (void *)triBuffer);
                     CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
                     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                 } else {
-                    glDrawElements(GL_TRIANGLES, (GLsizei)tris.size()*3, GL_UNSIGNED_SHORT, &tris[0]);
+                	if (!boundElements)
+                		glDrawElements(GL_TRIANGLES, (GLsizei)tris.size()*3, GL_UNSIGNED_SHORT, &tris[0]);
+                	else
+                		glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, 0);
                     CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
                 }
             }
@@ -1728,12 +1740,13 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
+    // Note: Porting.  Is this redundant?
     // Tear down the various arrays, if we stood them up
     if (usedLocalVertices)
         glDisableVertexAttribArray(vertAttr->index);
-    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
-        if (progAttrs[ii])
-            glDisableVertexAttribArray(progAttrs[ii]->index);
+//    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+//        if (progAttrs[ii])
+//            glDisableVertexAttribArray(progAttrs[ii]->index);
     
     if (!hasVertexArraySupport)
     {
