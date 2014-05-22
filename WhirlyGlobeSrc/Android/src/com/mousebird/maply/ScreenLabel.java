@@ -26,11 +26,6 @@ public class ScreenLabel
 	public double rotation = 0.0;
 
 	/**
-	 * Size of the label on screen.
-	 */
-	public Point2d size = new Point2d(16,16);
-
-	/**
 	 * The text to display for the label.
 	 */
 	public String text;

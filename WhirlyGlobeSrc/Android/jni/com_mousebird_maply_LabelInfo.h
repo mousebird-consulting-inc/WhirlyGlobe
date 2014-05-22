@@ -73,6 +73,38 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTypeface
 
 /*
  * Class:     com_mousebird_maply_LabelInfo
+ * Method:    setFontSize
+ * Signature: (F)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFontSize
+  (JNIEnv *, jobject, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_LabelInfo
+ * Method:    getTypeface
+ * Signature: ()Landroid/graphics/Typeface;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_LabelInfo_getTypeface
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LabelInfo
+ * Method:    getTextColor
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getTextColor
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LabelInfo
+ * Method:    getBackColor
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getBackColor
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LabelInfo
  * Method:    setFade
  * Signature: (F)V
  */

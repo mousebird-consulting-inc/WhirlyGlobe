@@ -18,6 +18,7 @@ public class LabelInfo
 		initialise();
 		setTextColor(1.f,1.f,1.f,1.f);
 		setBackgroundColor(0.f,0.f,0.f,0.f);
+		setFontSize(48.f);
 	}
 	
 	public void finalize()
@@ -39,10 +40,11 @@ public class LabelInfo
 	public native void setTextColor(float r,float g,float b,float a);
 	public native void setBackgroundColor(float r,float g,float b,float a);
 	public native void setTypeface(Typeface typeface);
+	public native void setFontSize(float size);
 	
-//	public native Typeface getTypeface();
-//	public native void getTextColor(Float r,Float g,Float b);
-//	public native void getBackColor(Float r,Float g,Float b);
+	public native Typeface getTypeface();
+	public native int getTextColor();
+	public native int getBackColor();
 
 	/**
 	 * The amount of time (in seconds) it takes for new geometry

@@ -8,11 +8,8 @@ import java.util.ArrayList;
 
 import com.mousebird.maply.LabelInfo;
 import com.mousebird.maply.MaplyController;
-import com.mousebird.maply.MarkerInfo;
-import com.mousebird.maply.NamedBitmap;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.ScreenLabel;
-import com.mousebird.maply.ScreenMarker;
 import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.VectorObject;
 
@@ -20,6 +17,7 @@ import android.app.Activity;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 
 /**
  * Test Maply by loading every country outline we have and tossing in a couple other objects.
@@ -76,6 +74,8 @@ public class TestCountries
     	        	// Style information for the labels
     	        	LabelInfo labelInfo = new LabelInfo();
     	        	labelInfo.setTextColor(0.f, 0.f, 0.f, 1.f);
+    	        	labelInfo.setBackgroundColor(0.f, 0.f, 0.f, 0.f);
+    	        	labelInfo.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
     	        	ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 
     	        	// Load each of the country files

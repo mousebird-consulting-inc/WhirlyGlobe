@@ -6,11 +6,7 @@ namespace WhirlyKit
 LabelInfoAndroid::LabelInfoAndroid()
 : typefaceObj(NULL), env(NULL), labelInfoObj(NULL)
 {
-	// Note: Porting
-	justify = WhirlyKitLabelLeft;
 	layoutEngine = false;
-	textColor = RGBAColor(0,0,255,255);
-	backColor = RGBAColor(255,0,0,255);
 }
 
 void LabelInfoAndroid::clearRefs(JNIEnv *env)

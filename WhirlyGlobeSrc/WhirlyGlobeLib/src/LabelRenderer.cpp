@@ -127,7 +127,9 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
 //            theOutlineColor = [UIColor blackColor];
         
         // We set this if the color is embedded in the "font"
-        bool embeddedColor = (labelInfo->outlineSize > 0.0 || label->desc.hasField(MaplyTextOutlineSize));
+//        bool embeddedColor = (labelInfo->outlineSize > 0.0 || label->desc.hasField(MaplyTextOutlineSize));
+        // Note: Porting.  Not clear if this makes
+        bool embeddedColor = true;
         DrawableString *drawStr = label->generateDrawableString(labelInfo,fontTexManager,changes);
 
         Point2d iconOff(0,0);
@@ -219,6 +221,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                     if (ss == 1)
                     {
                         soff = Point2d(0,0);
+                        // Note: Debugging
                         color = embeddedColor ? RGBAColor(255,255,255,255) : theTextColor;
                     } else {
                         soff = Point2d(theShadowSize,theShadowSize);

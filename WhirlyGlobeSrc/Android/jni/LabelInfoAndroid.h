@@ -23,6 +23,9 @@ public:
 	// Globe reference to typeface object
 	jobject typefaceObj;
 
+	// Font size
+	float fontSize;
+
 	// Used to pass the JNI Env down into the depths
 	JNIEnv *env;
 	jobject labelInfoObj;

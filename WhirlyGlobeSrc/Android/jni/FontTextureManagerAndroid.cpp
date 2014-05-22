@@ -30,7 +30,7 @@ FontTextureManagerAndroid::FontTextureManagerAndroid(JNIEnv *env,Scene *scene,jo
 	// Note: Porting.  This will leak
 	charRenderObj = env->NewGlobalRef(inCharRenderObj);
 	jclass charRenderClass =  env->GetObjectClass(charRenderObj);
-	renderMethodID = env->GetMethodID(charRenderClass, "renderChar", "(ILcom/mousebird/maply/LabelInfo;)Lcom/mousebird/maply/CharRenderer$Glyph;");
+	renderMethodID = env->GetMethodID(charRenderClass, "renderChar", "(ILcom/mousebird/maply/LabelInfo;F)Lcom/mousebird/maply/CharRenderer$Glyph;");
 	jclass glyphClass = env->FindClass("com/mousebird/maply/CharRenderer$Glyph");
 	bitmapID = env->GetFieldID(glyphClass,"bitmap","Landroid/graphics/Bitmap;");
 	sizeXID = env->GetFieldID(glyphClass,"sizeX","F");
@@ -83,7 +83,7 @@ DrawableString *FontTextureManagerAndroid::addString(JNIEnv *env,const std::stri
     	if (!glyphInfo)
     	{
         	// Call the renderer
-        	jobject glyphObj = env->CallObjectMethod(charRenderObj,renderMethodID,glyph,labelInfoObj);
+        	jobject glyphObj = env->CallObjectMethod(charRenderObj,renderMethodID,glyph,labelInfoObj,labelInfo->fontSize);
         	jobject bitmapObj = env->GetObjectField(glyphObj,bitmapID);
 
         	try

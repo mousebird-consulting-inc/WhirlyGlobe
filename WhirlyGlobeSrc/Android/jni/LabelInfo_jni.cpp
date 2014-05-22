@@ -202,3 +202,77 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTypeface
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setFade()");
 	}
 }
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_LabelInfo_getTypeface
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+		if (!info)
+			return NULL;
+
+		return info->typefaceObj;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getTypeface()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFontSize
+  (JNIEnv *env, jobject obj, jfloat fontSize)
+{
+	try
+	{
+		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+		if (!info)
+			return;
+
+		info->fontSize = fontSize;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getTypeface()");
+	}
+}
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getTextColor
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+		if (!info)
+			return 0;
+
+		int textColor = info->textColor.asInt();
+		return textColor;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getTextColor()");
+	}
+}
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getBackColor
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+		if (!info)
+			return 0;
+
+		int backColor = info->backColor.asInt();
+		return backColor;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getBackColor()");
+	}
+}
