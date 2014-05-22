@@ -225,6 +225,85 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_getAttributes
 	}
 }
 
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_centroid
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+		VectorObject *vecObj = classInfo->getObject(env,obj);
+		if (!vecObj)
+			return NULL;
+
+		Point2f center;
+		if (vecObj->centroid(center))
+		{
+			return MakePoint2d(env,Point2d(center.x(),center.y()));
+		} else
+			return NULL;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::centroid()");
+	}
+}
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_largestLoopCenter
+  (JNIEnv *env, jobject obj, jobject llObj, jobject urObj)
+{
+	try
+	{
+		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+		Point2dClassInfo *pt2dClassInfo = Point2dClassInfo::getClassInfo();
+		VectorObject *vecObj = classInfo->getObject(env,obj);
+		Point2d *ll = pt2dClassInfo->getObject(env,llObj);
+		Point2d *ur = pt2dClassInfo->getObject(env,urObj);
+		if (!vecObj || !ll || !ur)
+			return NULL;
+
+		Point2f center,ll2f,ur2f;
+		if (vecObj->largestLoopCenter(center,ll2f,ur2f))
+		{
+			*ll = Point2d(ll2f.x(),ll2f.y());
+			*ur = Point2d(ur2f.x(),ur2f.y());
+			return MakePoint2d(env,Point2d(center.x(),center.y()));
+		} else
+			return NULL;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::largestLoopCenter()");
+	}
+}
+
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorObject_linearMiddle
+  (JNIEnv *env, jobject obj, jobject midObj)
+{
+	try
+	{
+		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+		Point2dClassInfo *pt2dClassInfo = Point2dClassInfo::getClassInfo();
+		VectorObject *vecObj = classInfo->getObject(env,obj);
+		Point2d *mid = pt2dClassInfo->getObject(env,midObj);
+		if (!vecObj || !mid)
+			return 0.0;
+
+		Point2f mid2f;
+		float rot;
+		if (vecObj->linearMiddle(mid2f,rot))
+		{
+			*mid = Point2d(mid2f.x(),mid2f.y());
+			return rot;
+		} else
+			return 0.0;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::linearMiddle()");
+	}
+}
+
+
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_readFromFile
   (JNIEnv *env, jobject obj, jstring fileNameStr)
 {

@@ -46,6 +46,15 @@ public:
     /// @brief Returns one shape per VectorObject
     void splitVectors(std::vector<VectorObject *> &vecs);
     
+    /// @brief Calculate the centroid
+    bool centroid(Point2f &center);
+    
+    /// @brief Calculate the center of the largest loop
+    bool largestLoopCenter(Point2f &center,Point2f &ll,Point2f &ur);
+    
+    /// @brief Find the middle of a linear feature and return a rotation along that feature
+    bool linearMiddle(Point2f &mid,float &rot);
+
     /// @brief Read from a file
     bool fromFile(const std::string &fileName);
     

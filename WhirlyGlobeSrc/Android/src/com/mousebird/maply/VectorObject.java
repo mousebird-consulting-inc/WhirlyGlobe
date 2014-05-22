@@ -80,7 +80,31 @@ public class VectorObject implements Iterable<VectorObject>
 	public VectorIterator iterator() 
 	{
 		return new VectorIterator(this);
-	}	
+	}
+	
+	/**
+	 * Calculate the centroid of the object.  This assumes we've got at least one areal loop.
+	 * 
+	 * @return Centroid of the object.
+	 */
+	public native Point2d centroid();
+
+	/**
+	 * Find the largest loop and return its center.  Also returns the bounding box the loop.
+	 * 
+	 * @param ll Lower left corner of the largest loop.
+	 * @param ur Upper right corner of the largest loop.
+	 * @return Center of the largest loop.
+	 */
+	public native Point2d largestLoopCenter(Point2d ll,Point2d ur);
+	
+	/**
+	 * Calculate the midpoint of a multi-point line.  Also return the rotation.
+	 * 
+	 * @param middle Midpoint of the line
+	 * @return Orientation along the long at that point
+	 */
+	public native double linearMiddle(Point2d middle);
 	
 	/**
 	 * Load vector objects from a GeoJSON string.

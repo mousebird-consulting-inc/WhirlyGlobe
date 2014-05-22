@@ -73,7 +73,12 @@ public class TestCountries
     	        	vecInfo.setColor(0.f, 0.f, 0.f, 1.f);
     	        	vecInfo.setFade(0.5f);
 
-					// Load each of the country files
+    	        	// Style information for the labels
+    	        	LabelInfo labelInfo = new LabelInfo();
+    	        	labelInfo.setTextColor(0.f, 0.f, 0.f, 1.f);
+    	        	ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
+
+    	        	// Load each of the country files
     	        	for (String country: countries)
     	            {
     	            	String fileName = country.concat(".geojson");
@@ -85,42 +90,25 @@ public class TestCountries
     	                	VectorObject vecObj = new VectorObject();
     	                	vecObj.fromGeoJSON(json);
     	                	vecObjs.add(vecObj);
+    	                	
+    	                	// Also do a label in the middle
+    	                	String name = vecObj.getAttributes().getString("ADMIN");
+    	                	Point2d ll = new Point2d();
+    	                	Point2d ur = new Point2d();
+    	                	Point2d center = vecObj.largestLoopCenter(ll, ur);
+    	                	if (name != null && center != null)
+    	                	{
+    	                		ScreenLabel label = new ScreenLabel();
+    	                		label.loc = center;
+    	                		label.text = name;
+    	                		labels.add(label);
+    	                	}
     	            	}
     	            	
     	            	if (vecObjs.size() > 0)
     	            		mapControl.addVectors(vecObjs,vecInfo);
     	            }
-    	        	    	        	    	        	
-    	        	// Image for a marker
-    	        	String bitmapName = "Star.png";
-    	        	Bitmap bitmap = readBitmap(bitmapName);
-    	        	if (bitmap != null)
-    	        	{
-    	        		NamedBitmap namedBitmap = new NamedBitmap(bitmapName,bitmap);
-    	        		
-        	        	// And a marker
-        	        	ScreenMarker testMarker = new ScreenMarker();
-        	        	testMarker.loc = Point2d.FromDegrees(-122, 37);
-        	        	testMarker.size = new Point2d(32,32);
-        	        	testMarker.image = namedBitmap;
-        	        	ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
-        	        	markers.add(testMarker);
-        	        	
-        	        	MarkerInfo markerInfo = new MarkerInfo();
-        	        	markerInfo.setFade(0.5f);
-        	        	
-//        	        	mapControl.addScreenMarkers(markers,markerInfo);
-    	        	}    	        	
-    	        	
-    	        	// Draw some text
-    	        	ScreenLabel testLabel = new ScreenLabel();
-    	        	testLabel.loc = Point2d.FromDegrees(-118, 35);
-    	        	testLabel.text = "Tesp Texq";
-    	        	ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
-    	        	labels.add(testLabel);
-    	        	LabelInfo labelInfo = new LabelInfo();
-    	        	labelInfo.setTextColor(0.f, 0.f, 0.f, 1.f);
-//    	        	labelInfo.setFontSize(24.f);
+    	        	    	        	    	        	    	        	
     	        	mapControl.addScreenLabels(labels,labelInfo);
     	        	
     	        } catch (Exception e) 

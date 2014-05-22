@@ -3,6 +3,9 @@
 #import "com_mousebird_maply_Matrix4d.h"
 #import <WhirlyGlobe.h>
 
+// Construct a Java-side Point2d
+JNIEXPORT jobject JNICALL MakePoint2d(JNIEnv *env,const WhirlyKit::Point2d &pt);
+
 // Construct a Java-side Point3d
 JNIEXPORT jobject JNICALL MakePoint3d(JNIEnv *env,const WhirlyKit::Point3d &pt);
 

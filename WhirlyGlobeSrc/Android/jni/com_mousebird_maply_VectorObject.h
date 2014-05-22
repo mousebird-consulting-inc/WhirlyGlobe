@@ -41,6 +41,30 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal
 
 /*
  * Class:     com_mousebird_maply_VectorObject
+ * Method:    centroid
+ * Signature: ()Lcom/mousebird/maply/Point2d;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_centroid
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
+ * Method:    largestLoopCenter
+ * Signature: (Lcom/mousebird/maply/Point2d;Lcom/mousebird/maply/Point2d;)Lcom/mousebird/maply/Point2d;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_largestLoopCenter
+  (JNIEnv *, jobject, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
+ * Method:    linearMiddle
+ * Signature: (Lcom/mousebird/maply/Point2d;)D
+ */
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorObject_linearMiddle
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
  * Method:    fromGeoJSON
  * Signature: (Ljava/lang/String;)Z
  */
