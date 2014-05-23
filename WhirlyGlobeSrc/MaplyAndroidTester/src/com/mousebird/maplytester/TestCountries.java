@@ -106,10 +106,10 @@ public class TestCountries
     	            	}
     	            	
     	            	if (vecObjs.size() > 0)
-    	            		mapControl.addVectors(vecObjs,vecInfo);
+    	            		mapControl.addVectors(vecObjs,vecInfo,MaplyController.ThreadMode.ThreadAny);
     	            }
     	        	    	        	    	        	    	        	
-    	        	mapControl.addScreenLabels(labels,labelInfo);
+    	        	mapControl.addScreenLabels(labels,labelInfo,MaplyController.ThreadMode.ThreadAny);
     	        	
     	        } catch (Exception e) 
     	        {

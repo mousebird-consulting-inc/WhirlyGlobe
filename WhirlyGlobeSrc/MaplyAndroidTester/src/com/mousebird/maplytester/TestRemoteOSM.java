@@ -51,7 +51,7 @@ public class TestRemoteOSM
 		pagingLayer.setSimultaneousFetches(numThreads);
 		pagingLayer.setSingleLevelLoading(true);
 		pagingLayer.setUseTargetZoomLevel(true);
-		pagingLayer.setImportance(256*256);
+		pagingLayer.setImportance(512*512);
 		mapControl.getLayerThread().addLayer(pagingLayer);
 //		mapControl.renderWrapper.maplyRender.setClearColor(1.f,1.f,1.f,1.f);
 	}

@@ -284,7 +284,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 				roadInfo.setDrawPriority(roadStyle.drawPriority);
 				roadInfo.setLineWidth(roadStyle.width*scale);
 				roadInfo.setEnable(false);
-				compObjs.add(maplyControl.addVectors(group.vecs, roadInfo));
+				compObjs.add(maplyControl.addVectors(group.vecs, roadInfo,MaplyController.ThreadMode.ThreadCurrent));
 			}
 			
 			// Road itself
@@ -293,7 +293,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 			roadInfo.setDrawPriority(roadStyle.drawPriority+1);
 			roadInfo.setLineWidth(roadStyle.width*scale);
 			roadInfo.setEnable(false);
-			compObjs.add(maplyControl.addVectors(group.vecs, roadInfo));
+			compObjs.add(maplyControl.addVectors(group.vecs, roadInfo,MaplyController.ThreadMode.ThreadCurrent));
 		}
 	}
 	
@@ -310,7 +310,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		buildingInfo.setColor(1.f,186.f/255.f,103.f/255.f,1.f);
 		buildingInfo.setFilled(true);
 		buildingInfo.setDrawPriority(601);
-		ComponentObject compObj = maplyControl.addVector(buildings,buildingInfo);
+		ComponentObject compObj = maplyControl.addVector(buildings,buildingInfo,MaplyController.ThreadMode.ThreadCurrent);
 		compObjs.add(compObj);
 	}
 	
@@ -369,8 +369,9 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 			{
 				VectorInfo landInfo = new VectorInfo();
 				landInfo.setColor(Color.red(landStyle)/255.f, Color.green(landStyle)/255.f, Color.blue(landStyle)/255.f, Color.alpha(landStyle)/255.f);
+				landInfo.setDrawPriority(200);
 				landInfo.setFilled(true);
-				compObjs.add(maplyControl.addVectors(group.vecs, landInfo));
+				compObjs.add(maplyControl.addVectors(group.vecs, landInfo,MaplyController.ThreadMode.ThreadCurrent));
 			}
 		}		
 	}
@@ -384,8 +385,8 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		VectorInfo waterInfo = new VectorInfo();
 		waterInfo.setFilled(true);
 		waterInfo.setColor(137.f/255.f,188.f/255.f,228.f/255.f,1.f);
-		waterInfo.setDrawPriority(200);
-		ComponentObject compObj = maplyControl.addVector(water, waterInfo);
+		waterInfo.setDrawPriority(100);
+		ComponentObject compObj = maplyControl.addVector(water, waterInfo,MaplyController.ThreadMode.ThreadCurrent);
 		compObjs.add(compObj);
 	}
 	
@@ -397,8 +398,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		styleRoads(vecData.get("highroad"),compObjs);
 		styleRoadLabels(vecData.get("skeletron"),compObjs);
 		styleBuildings(vecData.get("buildings"),compObjs);
-		// Note: The land usage is kind of a mess
-//		styleLandUsage(vecData.get("land-usages"),compObjs);
+		styleLandUsage(vecData.get("land-usages"),compObjs);
 		styleWater(vecData.get("water-areas"),compObjs);
 		
 		layer.addData(compObjs, tileID);

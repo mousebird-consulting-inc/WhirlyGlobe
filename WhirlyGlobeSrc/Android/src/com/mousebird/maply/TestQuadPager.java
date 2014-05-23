@@ -59,7 +59,7 @@ public class TestQuadPager implements QuadPagingLayer.PagingInterface
 				VectorInfo vecInfo = new VectorInfo();
 				vecInfo.setColor(1.f, 0.f, 0.f, 1.f);
 				vecInfo.setEnable(false);
-				ComponentObject compObj = layer.maplyControl.addVector(vecObj, vecInfo);
+				ComponentObject compObj = layer.maplyControl.addVector(vecObj, vecInfo,MaplyController.ThreadMode.ThreadAny);
 				compObjs.add(compObj);
 				
 				// Label right in the middle
@@ -68,7 +68,7 @@ public class TestQuadPager implements QuadPagingLayer.PagingInterface
 				label.text = tileID.level + ": (" + tileID.x + "," + tileID.y + ")";
 				LabelInfo labelInfo = new LabelInfo();
 				labelInfo.setEnable(false);
-				compObj = layer.maplyControl.addScreenLabel(label, labelInfo);
+				compObj = layer.maplyControl.addScreenLabel(label, labelInfo,MaplyController.ThreadMode.ThreadAny);
 				compObjs.add(compObj);
 						
 				layer.addData(compObjs, tileID);

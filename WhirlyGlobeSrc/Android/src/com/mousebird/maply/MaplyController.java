@@ -31,6 +31,9 @@ public class MaplyController implements View.OnTouchListener
 	private GLSurfaceView glSurfaceView;
 	Activity activity = null;
 	
+	// When adding features we can run on the current thread or delay the work till layter
+	public enum ThreadMode {ThreadCurrent,ThreadAny};
+	
 	// Represents an ID that doesn't have data associated with it
 	public static long EmptyIdentity = 0;
 	
@@ -263,11 +266,26 @@ public class MaplyController implements View.OnTouchListener
 	/**
 	 * Add a single VectorObject.  See addVectors() for details.
 	 */
-	public ComponentObject addVector(final VectorObject vec,final VectorInfo vecInfo)
+	public ComponentObject addVector(final VectorObject vec,final VectorInfo vecInfo,ThreadMode mode)
 	{
 		ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>();
 		vecObjs.add(vec);
-		return addVectors(vecObjs,vecInfo);
+		return addVectors(vecObjs,vecInfo,mode);
+	}
+	
+	/**
+	 * Add a task according to the thread mode.  If it's ThreadAny, we'll put it on the layer thread.
+	 * If it's ThreadCurrent, we'll do it immediately.
+	 * 
+	 * @param run Runnable to execute.
+	 * @param mode Where to execute it.
+	 */
+	private void addTask(Runnable run,ThreadMode mode)
+	{
+		if (Looper.myLooper() == layerThread.getLooper() || (mode == ThreadMode.ThreadCurrent))
+			run.run();
+		else
+			layerThread.addTask(run);
 	}
 
 	/**
@@ -277,10 +295,11 @@ public class MaplyController implements View.OnTouchListener
 	 * 
 	 * @param vecs A list of VectorObject's created by the user or read in from various sources.
 	 * @param vecInfo A description of how the vectors should look.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return The ComponentObject representing the vectors.  This is necessary for modifying
 	 * or deleting the vectors once created.
 	 */
-	public ComponentObject addVectors(final List<VectorObject> vecs,final VectorInfo vecInfo)
+	public ComponentObject addVectors(final List<VectorObject> vecs,final VectorInfo vecInfo,ThreadMode mode)
 	{
 		final ComponentObject compObj = new ComponentObject();
 		
@@ -301,22 +320,20 @@ public class MaplyController implements View.OnTouchListener
 					compObj.addVectorID(vecId);
 			}
 		};
-		if (Looper.myLooper() == layerThread.getLooper())
-			run.run();
-		else
-			layerThread.addTask(run);
 		
+		addTask(run,mode);
+				
 		return compObj;
 	}
 
 	/**
 	 * Add a single screen marker.  See addScreenMarkers() for details.
 	 */
-	public ComponentObject addScreenMarker(final ScreenMarker marker,final MarkerInfo markerInfo)
+	public ComponentObject addScreenMarker(final ScreenMarker marker,final MarkerInfo markerInfo,ThreadMode mode)
 	{
 		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
 		markers.add(marker);
-		return addScreenMarkers(markers,markerInfo);
+		return addScreenMarkers(markers,markerInfo,mode);
 	}
 
 	/**
@@ -326,9 +343,10 @@ public class MaplyController implements View.OnTouchListener
 	 * 
 	 * @param markers The markers to add to the display
 	 * @param markerInfo How the markers should look.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the screen markers for later modification or deletion.
 	 */
-	public ComponentObject addScreenMarkers(final List<ScreenMarker> markers,final MarkerInfo markerInfo)
+	public ComponentObject addScreenMarkers(final List<ScreenMarker> markers,final MarkerInfo markerInfo,ThreadMode mode)
 	{		
 		final ComponentObject compObj = new ComponentObject();
 
@@ -366,10 +384,8 @@ public class MaplyController implements View.OnTouchListener
 				}
 			}
 		};
-		if (Looper.myLooper() == layerThread.getLooper())
-			run.run();
-		else
-			layerThread.addTask(run);
+		
+		addTask(run,mode);
 
 		return compObj;
 	}
@@ -377,11 +393,11 @@ public class MaplyController implements View.OnTouchListener
 	/**
 	 * Add a single screen label.  See addScreenLabels() for details.
 	 */
-	public ComponentObject addScreenLabel(ScreenLabel label,final LabelInfo labelInfo)
+	public ComponentObject addScreenLabel(ScreenLabel label,final LabelInfo labelInfo,ThreadMode mode)
 	{
 		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 		labels.add(label);
-		return addScreenLabels(labels,labelInfo);
+		return addScreenLabels(labels,labelInfo,mode);
 	}
 
 	/**
@@ -391,9 +407,10 @@ public class MaplyController implements View.OnTouchListener
 	 * 
 	 * @param labels Labels to add to the display.
 	 * @param labelInfo The visual appearance of the labels.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the labels for modification or deletion.
 	 */
-	public ComponentObject addScreenLabels(final List<ScreenLabel> labels,final LabelInfo labelInfo)
+	public ComponentObject addScreenLabels(final List<ScreenLabel> labels,final LabelInfo labelInfo,ThreadMode mode)
 	{
 		final ComponentObject compObj = new ComponentObject();
 
@@ -422,10 +439,8 @@ public class MaplyController implements View.OnTouchListener
 				mapScene.addChanges(changes);
 			}
 		};
-		if (Looper.myLooper() == layerThread.getLooper())
-			run.run();
-		else
-			layerThread.addTask(run);
+		
+		addTask(run,mode);
 		
 		return compObj;
 	}
@@ -436,8 +451,9 @@ public class MaplyController implements View.OnTouchListener
 	 * visible once again with enableObjects()
 	 * 
 	 * @param compObjs Objects to disable in the display.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 */
-	public void disableObjects(final List<ComponentObject> compObjs)
+	public void disableObjects(final List<ComponentObject> compObjs,ThreadMode mode)
 	{
 		if (compObjs == null || compObjs.size() == 0)
 			return;
@@ -454,10 +470,8 @@ public class MaplyController implements View.OnTouchListener
 				mapScene.addChanges(changes);
 			}
 		};
-		if (Looper.myLooper() == layerThread.getLooper())
-			run.run();
-		else
-			layerThread.addTask(run);
+		
+		addTask(run,mode);
 	}
 
 	/**
@@ -465,8 +479,9 @@ public class MaplyController implements View.OnTouchListener
 	 * by the various add calls.  To disable the display, call disableObjects().
 	 *
 	 * @param compObjs Objects to disable.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 */
-	public void enableObjects(final List<ComponentObject> compObjs)
+	public void enableObjects(final List<ComponentObject> compObjs,ThreadMode mode)
 	{
 		if (compObjs == null || compObjs.size() == 0)
 			return;
@@ -484,23 +499,21 @@ public class MaplyController implements View.OnTouchListener
 				mapScene.addChanges(changes);
 			}
 		};
-		if (Looper.myLooper() == layerThread.getLooper())
-			run.run();
-		else
-			layerThread.addTask(run);
+		
+		addTask(run,mode);
 	}
 
 	/**
 	 * Remove a single objects from the display.  See removeObjects() for details.
 	 */
-	public void removeObject(final ComponentObject compObj)
+	public void removeObject(final ComponentObject compObj,ThreadMode mode)
 	{
 		if (compObj == null)
 			return;
 
 		ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
 		compObjs.add(compObj);
-		removeObjects(compObjs);
+		removeObjects(compObjs,mode);
 	}
 
 	/**
@@ -508,8 +521,9 @@ public class MaplyController implements View.OnTouchListener
 	 * from Maply.  The component objects were returned from the various add calls.
 	 * 
 	 * @param compObjs Component Objects to remove.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 */
-	public void removeObjects(final List<ComponentObject> compObjs)
+	public void removeObjects(final List<ComponentObject> compObjs,ThreadMode mode)
 	{
 		if (compObjs == null || compObjs.size() == 0)
 			return;
@@ -527,10 +541,8 @@ public class MaplyController implements View.OnTouchListener
 				mapScene.addChanges(changes);
 			}
 		};
-		if (Looper.myLooper() == layerThread.getLooper())
-			run.run();
-		else
-			layerThread.addTask(run);
+		
+		addTask(run,mode);
 	}
 	
 	/**

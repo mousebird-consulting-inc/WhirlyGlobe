@@ -7,7 +7,6 @@ import java.util.Map;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 /**
  * The quad paging layer is a general purpose data paging layer.  You hand it
@@ -294,7 +293,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		if (!valid)
 			return;
 
-		Log.i("QuadPagingLayer","Unload tile: " + level + "(" + x + "," + y + ")");		
+//		Log.i("QuadPagingLayer","Unload tile: " + level + "(" + x + "," + y + ")");		
 		
 		MaplyTileID tileID = new MaplyTileID(x,y,level);
 		LoadedTile tile = findLoadedTile(tileID);
@@ -342,7 +341,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		// Clear component objects out of maply control
 		public void clear(MaplyController maplyControl)
 		{
-			maplyControl.removeObjects(compObjs);
+			maplyControl.removeObjects(compObjs,MaplyController.ThreadMode.ThreadCurrent);
 			compObjs = new ArrayList<ComponentObject>();
 		}
 		
@@ -420,7 +419,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		// We're no longer interested in the tile, so punt
 		if (tile == null)
 		{
-			maplyControl.removeObjects(compObjs);
+			maplyControl.removeObjects(compObjs,MaplyController.ThreadMode.ThreadCurrent);
 			return;
 		}
 		tile.addToCompObjs(compObjs);
@@ -458,7 +457,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		if (singleLevelLoading)
 		{
 			if (tile != null)
-				maplyControl.enableObjects(tile.compObjs);
+				maplyControl.enableObjects(tile.compObjs,MaplyController.ThreadMode.ThreadCurrent);
 		} else
 			runTileUpdate(parentTile(tileID));
 		
@@ -589,8 +588,8 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 				evaluate(found,true,toEnable,toDisable);
 		}
 		
-		maplyControl.enableObjects(toEnable);
-		maplyControl.disableObjects(toDisable);
+		maplyControl.enableObjects(toEnable,MaplyController.ThreadMode.ThreadCurrent);
+		maplyControl.disableObjects(toDisable,MaplyController.ThreadMode.ThreadCurrent);
 	}
 	
 	native void nativeShutdown(ChangeSet changes);
