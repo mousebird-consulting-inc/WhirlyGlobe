@@ -53,6 +53,7 @@ void Java_com_mousebird_maply_MaplyRenderer_initialise
 	try
 	{
 		MaplySceneRenderer *renderer = new MaplySceneRenderer();
+		renderer->setZBufferMode(zBufferOffDefault);
 		renderer->setClearColor(RGBAColor(255,255,255,255));
 		MaplySceneRendererInfo *classInfo = MaplySceneRendererInfo::getClassInfo();
 		classInfo->setHandle(env,obj,renderer);
