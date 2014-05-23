@@ -18,6 +18,20 @@ void LabelInfoAndroid::clearRefs(JNIEnv *env)
 	}
 }
 
+bool LabelInfoAndroid::typefaceIsSame(const jobject inTypeface) const
+{
+	// Obviously true here
+	if (inTypeface == typefaceObj)
+		return true;
+
+	// Now for a deeper comparison
+	jclass typefaceClass = env->GetObjectClass(inTypeface);
+	jmethodID jmethodID = env->GetMethodID(typefaceClass, "equals", "(Ljava/lang/Object;)Z");
+	bool res = env->CallBooleanMethod(typefaceObj,jmethodID,inTypeface);
+
+	return res;
+}
+
 void LabelInfoAndroid::setTypeface(JNIEnv *env,jobject inTypefaceObj)
 {
 	if (typefaceObj)

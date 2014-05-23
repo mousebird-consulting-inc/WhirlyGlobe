@@ -20,6 +20,9 @@ public:
 	// Add the typeface to the label info.  Needed for rendering
 	void setTypeface(JNIEnv *env,jobject typefacObj);
 
+	// Compare typefaces
+	bool typefaceIsSame(const jobject inTypeface) const;
+
 	// Globe reference to typeface object
 	jobject typefaceObj;
 

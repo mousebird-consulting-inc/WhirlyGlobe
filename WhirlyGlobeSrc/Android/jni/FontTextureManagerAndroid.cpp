@@ -9,14 +9,23 @@ namespace WhirlyKit
 
 static const float BogusFontScale = 2.0;
 
-FontTextureManagerAndroid::FontManagerAndroid::FontManagerAndroid(jobject typefaceObj)
-: typefaceObj(typefaceObj)
+FontTextureManagerAndroid::FontManagerAndroid::FontManagerAndroid(JNIEnv *env,jobject inTypefaceObj)
 {
+	typefaceObj = env->NewGlobalRef(inTypefaceObj);
 }
 
 FontTextureManagerAndroid::FontManagerAndroid::FontManagerAndroid()
 : typefaceObj(NULL)
 {
+}
+
+void FontTextureManagerAndroid::FontManagerAndroid::clearRefs(JNIEnv *env)
+{
+	if (typefaceObj)
+	{
+		env->DeleteGlobalRef(typefaceObj);
+		typefaceObj = NULL;
+	}
 }
 
 FontTextureManagerAndroid::FontManagerAndroid::~FontManagerAndroid()
@@ -166,14 +175,16 @@ DrawableString *FontTextureManagerAndroid::addString(JNIEnv *env,const std::stri
     return drawString;
 }
 
-FontTextureManagerAndroid::FontManagerAndroid *FontTextureManagerAndroid::findFontManagerForFont(jobject typefaceObj,const LabelInfo &labelInfo)
+FontTextureManagerAndroid::FontManagerAndroid *FontTextureManagerAndroid::findFontManagerForFont(jobject typefaceObj,const LabelInfo &inLabelInfo)
 {
+	const LabelInfoAndroid &labelInfo = (LabelInfoAndroid &)inLabelInfo;
+
 	for (FontManagerSet::iterator it = fontManagers.begin();
 			it != fontManagers.end(); ++it)
 	{
 		FontManagerAndroid *fm = (FontManagerAndroid *)*it;
-		// Note: Porting.  Use Java equals
-		if (typefaceObj == fm->typefaceObj &&
+
+		if (labelInfo.typefaceIsSame(fm->typefaceObj) &&
 				fm->color == labelInfo.textColor &&
 				fm->outlineColor == labelInfo.outlineColor &&
 				fm->outlineSize == labelInfo.outlineSize)
@@ -181,7 +192,7 @@ FontTextureManagerAndroid::FontManagerAndroid *FontTextureManagerAndroid::findFo
 	}
 
 	// Didn't find it, so create it
-	FontManagerAndroid *fm = new FontManagerAndroid(typefaceObj);
+	FontManagerAndroid *fm = new FontManagerAndroid(labelInfo.env,typefaceObj);
 	fm->fontName = "";
 	fm->color = labelInfo.textColor;
 	fm->pointSize = labelInfo.height;

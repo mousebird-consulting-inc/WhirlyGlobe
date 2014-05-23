@@ -41,7 +41,7 @@ LabelSceneRep::LabelSceneRep()
 typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
     
 LabelInfo::LabelInfo()
-    : textColor(255,255,255,255), backColor(0,0,0,0), screenObject(true), layoutEngine(true),
+    : textColor(255,255,255,255), outlineColor(0,0,0,0), backColor(0,0,0,0), screenObject(true), layoutEngine(true),
     layoutImportance(1.0), width(0), height(0), drawOffset(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), justify(WhirlyKitLabelRight), drawPriority(0), fade(0.0),
     shadowColor(0,0,0,0), shadowSize(0), outlineSize(0), shaderID(EmptyIdentity), enable(true)
 {

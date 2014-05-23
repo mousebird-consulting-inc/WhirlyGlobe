@@ -18,9 +18,12 @@ public:
     class FontManagerAndroid : public FontManager
     {
     public:
-    	FontManagerAndroid(jobject typefaceObj);
+    	FontManagerAndroid(JNIEnv *env,jobject typefaceObj);
     	FontManagerAndroid();
         ~FontManagerAndroid();
+
+        // Clear out global refs to Java objects we may be sitting on
+        void clearRefs(JNIEnv *env);
 
         jobject typefaceObj;
     };

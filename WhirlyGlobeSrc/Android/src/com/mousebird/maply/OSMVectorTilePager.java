@@ -17,6 +17,7 @@ import org.apache.http.util.ByteArrayBuffer;
 
 
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
@@ -297,8 +298,38 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		}
 	}
 	
+	// Note: We need to share this so we don't go recreating characters all over the place
+	Typeface roadTypeface = Typeface.defaultFromStyle(Typeface.BOLD);
+	
+	// Add road labels.
 	void styleRoadLabels(VectorObject roads,List<ComponentObject> compObjs)
 	{		
+		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
+		
+		for (VectorObject road : roads)
+		{
+			AttrDictionary attrs = road.getAttributes();
+			String name = attrs.getString("name");
+//			String highway = attrs.getString("highway");
+
+			// Figure out where to place the label
+			Point2d mid = new Point2d();
+			double rot = road.linearMiddle(mid);
+			ScreenLabel label = new ScreenLabel();
+			label.loc = mid;
+            label.rotation = rot+Math.PI/2.0;
+            // Keep the labels upright
+            if (label.rotation > Math.PI/2 && label.rotation < 3*Math.PI/2)
+                label.rotation = label.rotation + Math.PI;
+			label.text = name;
+			labels.add(label);
+		}	
+		
+		LabelInfo labelInfo = new LabelInfo();
+    	labelInfo.setTextColor(0.f, 0.f, 0.f, 1.f);
+    	labelInfo.setBackgroundColor(0.f, 0.f, 0.f, 0.f);
+    	labelInfo.setTypeface(roadTypeface);
+		compObjs.add(maplyControl.addScreenLabels(labels, labelInfo, MaplyController.ThreadMode.ThreadAny));
 	}
 
 	void styleBuildings(VectorObject buildings,List<ComponentObject> compObjs)
@@ -397,8 +428,8 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
 		styleRoads(vecData.get("highroad"),compObjs);
 		styleRoadLabels(vecData.get("skeletron"),compObjs);
-		styleBuildings(vecData.get("buildings"),compObjs);
-		styleLandUsage(vecData.get("land-usages"),compObjs);
+//		styleBuildings(vecData.get("buildings"),compObjs);
+//		styleLandUsage(vecData.get("land-usages"),compObjs);
 		styleWater(vecData.get("water-areas"),compObjs);
 		
 		layer.addData(compObjs, tileID);
