@@ -106,7 +106,16 @@ static double MAX_EXTENT = 20037508.342789244;
     NSMutableDictionary *featureStyles = [NSMutableDictionary new];
     
     for(NSObject<MaplyTileSource> *tileSource in self.tileSources) {
-      tileData = [tileSource imageForTile:tileID];
+      MaplyTileID flippedYTile;
+
+      if(layer.flipY) {
+        flippedYTile.level = tileID.level;
+        flippedYTile.x = tileID.x;
+        flippedYTile.y = ((int)(1<<tileID.level)-tileID.y)-1;
+      } else {
+        flippedYTile = tileID;
+      }
+      tileData = [tileSource imageForTile:flippedYTile];
       
       if(tileData.length) {
         if([tileData isCompressed]) {
