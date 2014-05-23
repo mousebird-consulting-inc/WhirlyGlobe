@@ -207,6 +207,20 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	{
 		return addTask(run,false);
 	}
+	
+	/**
+	 * Add a Runnable to the queue, but only execute after the given amount of time.
+	 * 
+	 * @param run Runnable to add to the queue
+	 * @time time Number of seconds to wait before running.
+	 * @return The Handler if you want to cancel this at some point in the future.
+	 */
+	Handler addDelayedTask(Runnable run,float time)
+	{
+		Handler handler = new Handler(getLooper());
+		handler.postDelayed(run, (int)(time*1000));
+		return handler;
+	}
 
 	/**
 	 * Add a Runnable to this thread's queue.  It will be executed at some point in the future.

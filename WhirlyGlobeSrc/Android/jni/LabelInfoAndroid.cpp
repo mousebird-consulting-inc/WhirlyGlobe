@@ -6,7 +6,6 @@ namespace WhirlyKit
 LabelInfoAndroid::LabelInfoAndroid()
 : typefaceObj(NULL), env(NULL), labelInfoObj(NULL)
 {
-	layoutEngine = false;
 }
 
 void LabelInfoAndroid::clearRefs(JNIEnv *env)

@@ -61,6 +61,8 @@ public class MaplyController implements View.OnTouchListener
 	VectorManager vecManager;
 	MarkerManager markerManager;
 	LabelManager labelManager;
+	LayoutManager layoutManager;
+	LayoutLayer layoutLayer = null;
 	
 	// Manage bitmaps and their conversion to textures
 	TextureManager texManager = new TextureManager();
@@ -109,6 +111,7 @@ public class MaplyController implements View.OnTouchListener
 		vecManager = new VectorManager(mapScene);
 		markerManager = new MarkerManager(mapScene);
 		labelManager = new LabelManager(mapScene);
+		layoutManager = new LayoutManager(mapScene);
 
 		// Now for the object that kicks off the rendering
 		renderWrapper = new RendererWrapper(this);
@@ -183,7 +186,13 @@ public class MaplyController implements View.OnTouchListener
 	{
         // Kick off the layer thread for background operations
 		layerThread.setRenderer(renderWrapper.maplyRender);
+
+		// Note: Debugging output
 		renderWrapper.maplyRender.setPerfInterval(perfInterval);
+		
+		// Kick off the layout layer
+		layoutLayer = new LayoutLayer(this,layoutManager);
+		layerThread.addLayer(layoutLayer);
 
 		// Set up a periodic update for the renderer
 //    	glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);

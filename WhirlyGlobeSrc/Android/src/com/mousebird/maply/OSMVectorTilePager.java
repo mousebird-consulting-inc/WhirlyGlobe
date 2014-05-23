@@ -317,10 +317,10 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 			double rot = road.linearMiddle(mid);
 			ScreenLabel label = new ScreenLabel();
 			label.loc = mid;
-            label.rotation = rot+Math.PI/2.0;
-            // Keep the labels upright
-            if (label.rotation > Math.PI/2 && label.rotation < 3*Math.PI/2)
-                label.rotation = label.rotation + Math.PI;
+//            label.rotation = rot+Math.PI/2.0;
+//            // Keep the labels upright
+//            if (label.rotation > Math.PI/2 && label.rotation < 3*Math.PI/2)
+//                label.rotation = label.rotation + Math.PI;
 			label.text = name;
 			labels.add(label);
 		}	

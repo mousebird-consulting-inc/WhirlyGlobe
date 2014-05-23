@@ -19,6 +19,7 @@ public class LabelInfo
 		setTextColor(1.f,1.f,1.f,1.f);
 		setBackgroundColor(0.f,0.f,0.f,0.f);
 		setFontSize(48.f);
+		setLayoutImportance(Float.MAX_VALUE);
 	}
 	
 	public void finalize()
@@ -41,6 +42,7 @@ public class LabelInfo
 	public native void setBackgroundColor(float r,float g,float b,float a);
 	public native void setTypeface(Typeface typeface);
 	public native void setFontSize(float size);
+	public native void setLayoutImportance(float importance);
 	
 	public native Typeface getTypeface();
 	public native int getTextColor();

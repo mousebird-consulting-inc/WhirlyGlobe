@@ -81,6 +81,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFontSize
 
 /*
  * Class:     com_mousebird_maply_LabelInfo
+ * Method:    setLayoutImportance
+ * Signature: (F)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLayoutImportance
+  (JNIEnv *, jobject, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_LabelInfo
  * Method:    getTypeface
  * Signature: ()Landroid/graphics/Typeface;
  */

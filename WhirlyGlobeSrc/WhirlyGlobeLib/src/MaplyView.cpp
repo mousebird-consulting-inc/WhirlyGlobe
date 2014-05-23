@@ -38,6 +38,7 @@ MapView::MapView(WhirlyKit::CoordSystemDisplayAdapter *inCoordAdapter)
     continuousZoom = false;
     loc = Point3d(0,0,4);
     rotAngle = 0.0;
+    wrap = true;
 }
     
 MapView::MapView(const MapView &that)

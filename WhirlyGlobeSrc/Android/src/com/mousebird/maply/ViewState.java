@@ -22,6 +22,14 @@ class ViewState
 	{
 		dispose();
 	}
+	
+	/**
+	 * Compare two view states and return true if they're equal.
+	 * 
+	 * @param viewState View state to compare.
+	 * @return Return true if the view states are the same.
+	 */
+	public native boolean isEqual(ViewState viewState);
 
 	static
 	{

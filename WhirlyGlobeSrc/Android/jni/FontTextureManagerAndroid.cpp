@@ -170,6 +170,17 @@ DrawableString *FontTextureManagerAndroid::addString(JNIEnv *env,const std::stri
     drawStringRep->addGlyphs(fm->getId(),glyphsUsed);
     fm->addGlyphRefs(glyphsUsed);
 
+    // If it didn't produce anything, just delete it now
+    if (drawString->glyphPolys.empty())
+    {
+        delete drawString;
+        delete drawStringRep;
+        drawString = NULL;
+    }
+
+    // We need to track the glyphs we're using
+    drawStringReps.insert(drawStringRep);
+
     pthread_mutex_unlock(&lock);
 
     return drawString;

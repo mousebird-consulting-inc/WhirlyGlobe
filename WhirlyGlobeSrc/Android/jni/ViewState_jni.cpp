@@ -57,3 +57,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ViewState_dispose
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::dispose()");
 	}
 }
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ViewState_isEqual
+  (JNIEnv *env, jobject obj, jobject otherObj)
+{
+	try
+	{
+		ViewStateClassInfo *classInfo = ViewStateClassInfo::getClassInfo();
+		ViewState *viewState = classInfo->getObject(env,obj);
+		ViewState *otherViewState = classInfo->getObject(env,obj);
+		if (!viewState || !otherViewState)
+			return false;
+
+		return viewState->isSameAs(otherViewState);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::isEqual()");
+	}
+}
