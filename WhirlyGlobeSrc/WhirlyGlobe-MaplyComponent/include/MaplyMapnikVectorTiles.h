@@ -41,6 +41,7 @@ typedef enum {
 } MapnikCommandType;
 
 @class MaplyVectorTileStyle;
+@class MaplyMBTileSource;
 
 /** @brief Protocol for styling the vectors.
     @details You pass in an object which adheres to this protocol and will style
