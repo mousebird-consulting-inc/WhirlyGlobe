@@ -101,7 +101,7 @@ public:
         return info;
     }
             
-    // Remove references to the given glyphs.
+    // Add references to the given glyphs.
     void addGlyphRefs(const GlyphSet &usedGlyphs)
     {
         refCount++;
