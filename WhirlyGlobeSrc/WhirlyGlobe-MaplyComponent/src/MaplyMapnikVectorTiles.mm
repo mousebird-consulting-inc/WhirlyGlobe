@@ -36,6 +36,7 @@
 #import "NSData+Zlib.h"
 #import "vector_tile.pb.h"
 #import "VectorData.h"
+#import "MaplyMBTileSource.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
