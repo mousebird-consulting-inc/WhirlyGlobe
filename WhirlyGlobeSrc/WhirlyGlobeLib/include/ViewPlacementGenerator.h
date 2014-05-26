@@ -61,7 +61,7 @@ public:
         /// Where to put the view
         WhirlyKit::GeoCoord loc;
         /// An offset taken from the view origin when it's passed to us
-        Point2f offset;
+        Point2d offset;
         /// The view we're going to move around
         UIView *view;
         /// Minimum visibility above globe
