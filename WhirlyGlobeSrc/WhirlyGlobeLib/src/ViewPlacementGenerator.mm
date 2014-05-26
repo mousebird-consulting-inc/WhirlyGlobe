@@ -47,7 +47,7 @@ void ViewPlacementGenerator::addView(GeoCoord loc,UIView *view,float minVis,floa
     viewInst.minVis = minVis;
     viewInst.maxVis = maxVis;
     CGRect frame = view.frame;
-    viewInst.offset = Point2f(frame.origin.x,frame.origin.y);
+    viewInst.offset = Point2d(frame.origin.x,frame.origin.y);
     viewInstanceSet.insert(viewInst);
 }
 
@@ -62,7 +62,7 @@ void ViewPlacementGenerator::moveView(GeoCoord loc,UIView *view,float minVis,flo
     viewInst.minVis = minVis;
     viewInst.maxVis = maxVis;
     CGRect frame = view.frame;
-    viewInst.offset = Point2f(frame.origin.x,frame.origin.y);
+    viewInst.offset = Point2d(frame.origin.x,frame.origin.y);
     viewInstanceSet.insert(viewInst);
 }
     
@@ -126,7 +126,7 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
     for (unsigned int offi=0;offi<frameInfo.offsetMatrices.size();offi++)
     {
         // Project the world location to the screen
-        Eigen::Matrix4d modelAndViewMat = Matrix4fToMatrix4d(frameInfo.viewTrans) * frameInfo.offsetMatrices[offi] * Matrix4fToMatrix4d(frameInfo.modelTrans);
+        Eigen::Matrix4d modelAndViewMat = frameInfo.viewTrans4d * frameInfo.offsetMatrices[offi] * frameInfo.modelTrans4d;
 //        Eigen::Matrix4d modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
         modelAndViewMats.push_back(modelAndViewMat);
 //        modelAndViewNormalMats.push_back(modelAndViewNormalMat);

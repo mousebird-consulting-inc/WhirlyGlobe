@@ -214,7 +214,7 @@ public:
     return VectorWriteFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], _shapes);
 }
 
-- (NSDictionary *)attributes
+- (NSMutableDictionary *)attributes
 {
     if (_shapes.empty())
         return nil;
@@ -455,6 +455,13 @@ public:
         {
             if (areal->pointInside(GeoCoord(coord.x,coord.y)))
                 return true;
+        } else {
+            VectorTrianglesRef tris = boost::dynamic_pointer_cast<VectorTriangles>(*it);
+            if (tris)
+            {
+                if (tris->pointInside(GeoCoord(coord.x,coord.y)))
+                    return true;
+            }
         }
     }
                 
