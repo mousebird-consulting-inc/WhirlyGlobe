@@ -305,7 +305,7 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
         // Note: Turned off for the moment
         double newImport =  std::abs(screenArea) * scale;
         if (newImport > import)
-        import = newImport;
+            import = newImport;
     }
     
     return import;
