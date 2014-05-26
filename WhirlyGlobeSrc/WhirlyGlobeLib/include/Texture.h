@@ -118,7 +118,7 @@ public:
 	/// Render side only.  Don't call this.  Destroy the openGL version
 	virtual void destroyInGL(OpenGLMemManager *memManager);
 
-    /// Sort the PKM dat out from the NSData
+    /// Sort the PKM data out from the NSData
     /// This is static so the dynamic (haha) textures can use it
     static unsigned char *ResolvePKM(NSData *texData,int &pkmType,int &size,int &width,int &height);
 
