@@ -913,5 +913,23 @@ using namespace Maply;
     }
 }
 
+- (MaplyBoundingBox) getCurrentExtends
+{
+
+    MaplyBoundingBox bbox;
+    
+    CGRect frame = self.view.frame;
+    
+    CGPoint pt = CGPointMake(0,frame.size.height);
+    bbox.ll = [self geoFromScreenPoint:pt];
+    
+    pt = CGPointMake(frame.size.width,0);
+    bbox.ur = [self geoFromScreenPoint:pt];
+    
+    return bbox;
+    
+}
+
+
 
 @end
