@@ -1112,5 +1112,32 @@ using namespace WhirlyGlobe;
     globeView.delegate = self;
 }
 
+- (bool) getCurrentExtends:(MaplyBoundingBox *)bbox
+{
+    CGRect frame = self.view.frame;
+    
+    CGPoint pt = CGPointMake(0,frame.size.height);
+    
+    bool resp = [self geoPointFromScreen:pt geoCoord:&(bbox->ll)];
+    
+    if (!resp)
+    {
+        // Left lower point is outside the globe
+        return false;
+    }
+    
+    pt = CGPointMake(frame.size.width,0);
+    
+    resp = [self geoPointFromScreen:pt geoCoord:&(bbox->ur)];
+    if (!resp)
+    {
+        // Right upper point is outside the globe
+        return false;
+    }
+    
+    return true;
+    
+}
+
 
 @end

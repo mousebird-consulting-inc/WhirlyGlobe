@@ -331,4 +331,12 @@
  */
 - (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos;
 
+/**
+ @brief Return the extends of the current view.
+ @details When we're dealing with a globe the cornes could be outside of the globe, in this case false is returned.
+ @param bbox. The bbox will be returned here.
+ @return Returns true if exists a bounding bbox for the current view, otherwise returns false
+ */
+- (bool) getCurrentExtends:(MaplyBoundingBox *)bbox;
+
 @end
