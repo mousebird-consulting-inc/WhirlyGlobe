@@ -89,8 +89,8 @@ public class MainActivity extends Activity
     	View renderView = mapControl.getContentView();
     	if (renderView != null)
     		this.setContentView(renderView);
-    	// Report stats every 100 frames
-    	mapControl.setPerfInterval(300);
+    	// Report stats every 300 frames
+//    	mapControl.setPerfInterval(300);
 
 		switch (type)
 		{

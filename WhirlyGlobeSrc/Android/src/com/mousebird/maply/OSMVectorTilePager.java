@@ -1,9 +1,11 @@
 package com.mousebird.maply;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 /**
  * The OSM Vector Tile Pager reads vector tiles from a remote source,
@@ -40,7 +43,6 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	int minZoom = 0;
 	int maxZoom = 0;
 	File cacheDir = null;
-	ExecutorService executor = null;
 	
 	/**
 	 * Construct with the data we need to start.
@@ -56,10 +58,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		maplyControl = inMaplyControl;
 		remotePath = inRemotePath;
 		minZoom = inMinZoom;
-		maxZoom = inMaxZoom;
-		
-		// We'll keep 4 threads in a pool for parsing data
-		executor = Executors.newFixedThreadPool(numThreads);
+		maxZoom = inMaxZoom;		
 	}
 
 	@Override
@@ -101,23 +100,37 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	    	try {
 		    	URL url = new URL(urls[0]);
 
+				// Look for it in the cache
+				if (cacheDir != null)
+				{
+					Map<String,VectorObject> vecData = readFromCache(tileID);
+					if (vecData != null)
+					{
+						showData(layer,vecData,tileID);
+						return null;
+					}
+				}
+		    	
 	    		/* Open a connection to that URL. */
 	    		final HttpURLConnection aHttpURLConnection = (HttpURLConnection) url.openConnection();
 
 	    		/* Define InputStreams to read from the URLConnection. */
-	    		InputStream aInputStream = aHttpURLConnection.getInputStream();
-	    		BufferedInputStream aBufferedInputStream = new BufferedInputStream(
-	    				aInputStream);
-
-	    		/* Read bytes to the Buffer until there is nothing more to read(-1) */
-	    		ByteArrayBuffer aByteArrayBuffer = new ByteArrayBuffer(50);
-	    		int current = 0;
-	    		while ((current = aBufferedInputStream.read()) != -1) {
-	    			aByteArrayBuffer.append((byte) current);
+	    		InputStream ips = aHttpURLConnection.getInputStream();
+	    		BufferedReader buf = new BufferedReader(new InputStreamReader(ips,"UTF-8"));
+	    		
+	    		StringBuilder sb = new StringBuilder();
+	    		String s;
+	    		while (true)
+	    		{
+	    			s = buf.readLine();
+	    			if (s==null || s.length()==0)
+	    				break;
+	    			sb.append(s);
 	    		}
-
-	    		/* Convert the Bytes read to a String. */
-	    		aString = new String(aByteArrayBuffer.toByteArray());               
+	    		buf.close();
+	    		ips.close();
+	    		
+	    		aString = sb.toString();
 	    	} 
 	    	catch (IOException e) {
 //	    		Log.d("OSMVectorTilePager", e.toString());
@@ -143,47 +156,18 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	@Override
 	public void startFetchForTile(final QuadPagingLayer layer,final MaplyTileID tileID) 
 	{
-//		Log.i("OSMVectorTilePager","Starting Tile : " + tileID.level + " (" + tileID.x + "," + tileID.y + ")");
-		
-		// Use one of our threads to work through this logic
-		final OSMVectorTilePager thePager = this;
-		executor.execute(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				// Look for it in the cache
-				if (cacheDir != null)
-				{
-					Map<String,VectorObject> vecData = readFromCache(tileID);
-					if (vecData != null)
-					{
-						showData(layer,vecData,tileID);
-						return;
-					}
-				}
-				
-				// Form the tile URL
-				int maxY = 1<<tileID.level;
-				int remoteY = maxY - tileID.y - 1;
-				final String tileURL = remotePath + "/" + tileID.level + "/" + tileID.x + "/" + remoteY + ".json";
-				
-				// Need to kick this task off on the main thread
-				final OSMVectorTilePager pager = thePager;
-				Handler handle = new Handler(Looper.getMainLooper());
-				handle.post(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							ConnectionTask task = new ConnectionTask(pager,layer,tileID);
-							String[] params = new String[1];
-							params[0] = tileURL;
-							task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,params);
-						}
-					});				
-			}
-		});
+		Log.i("OSMVectorTilePager","Starting Tile : " + tileID.level + " (" + tileID.x + "," + tileID.y + ")");
+
+		// Form the tile URL
+		int maxY = 1<<tileID.level;
+		int remoteY = maxY - tileID.y - 1;
+		final String tileURL = remotePath + "/" + tileID.level + "/" + tileID.x + "/" + remoteY + ".json";
+
+		// Kick off the fetch in the background
+		ConnectionTask task = new ConnectionTask(this,layer,tileID);
+		String[] params = new String[1];
+		params[0] = tileURL;
+		task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,params);
 	}
 
 	// Group data together for efficiency
@@ -422,50 +406,50 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	}
 	
 	// Apply the styling to show the data, and let the layer know
-	void showData(QuadPagingLayer layer,Map<String,VectorObject> vecData,MaplyTileID tileID)
+	void showData(final QuadPagingLayer layer,Map<String,VectorObject> vecData,final MaplyTileID tileID)
 	{
 		// Work through the various top level types
 		ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
 		styleRoads(vecData.get("highroad"),compObjs);
 		styleRoadLabels(vecData.get("skeletron"),compObjs);
-//		styleBuildings(vecData.get("buildings"),compObjs);
-//		styleLandUsage(vecData.get("land-usages"),compObjs);
+		styleBuildings(vecData.get("buildings"),compObjs);
+		styleLandUsage(vecData.get("land-usages"),compObjs);
 		styleWater(vecData.get("water-areas"),compObjs);
 		
 		layer.addData(compObjs, tileID);
-		layer.tileDidLoad(tileID);		
+
+		// Let the layer know we loaded
+		layer.layerThread.addTask(
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						layer.tileDidLoad(tileID);
+					}
+				});
 	}
 
 	// The connection task loaded data.  Yay!
 	void didLoad(final QuadPagingLayer layer,final MaplyTileID tileID,final String json,final boolean wasCached)
 	{
-//		Log.i("OSMVectorTilePager","Loaded Tile : " + tileID.level + " (" + tileID.x + "," + tileID.y + ")");
+		Log.i("OSMVectorTilePager","Loaded Tile : " + tileID.level + " (" + tileID.x + "," + tileID.y + ")");
 
-		// Do the merge (which can take a while) on one of our thread pool threads
-		executor.execute(
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{						
-						// Parse the GeoJSON assembly into groups based on the type
-						Map<String,VectorObject> vecData = VectorObject.FromGeoJSONAssembly(json);
-						
-						// And display it
-						showData(layer,vecData,tileID);
+		// Parse the GeoJSON assembly into groups based on the type
+		Map<String,VectorObject> vecData = VectorObject.FromGeoJSONAssembly(json);
+		
+		// And display it
+		showData(layer,vecData,tileID);
 					
-						// Write it out to the cache
-						if (!wasCached)
-							writeToCache(vecData,tileID);
-					}
-				}
-		);
+		// Write it out to the cache
+		if (!wasCached)
+			writeToCache(vecData,tileID);
 	}
 	
 	// The connection task failed to load data.  Boo!
 	void didNotLoad(final QuadPagingLayer layer,final MaplyTileID tileID)
 	{
-//		Log.i("OSMVectorTilePager","Failed Tile : " + tileID.level + " (" + tileID.x + "," + tileID.y + ")");
+		Log.i("OSMVectorTilePager","Failed Tile : " + tileID.level + " (" + tileID.x + "," + tileID.y + ")");
 
 		layer.layerThread.addTask(
 				new Runnable()

@@ -155,7 +155,7 @@ class DynamicTextureAtlas
 {
 public:
     /// Construct with the square size of the textures, the cell size (in pixels) and the pixel format
-    DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1);
+    DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1,bool mainThreadMerge=false);
     ~DynamicTextureAtlas();
 
     /// Fudge factor for border pixels.  We'll add this/pixelSize to the lower left
@@ -198,6 +198,7 @@ protected:
     int cellSize;
     GLenum format;
     float pixelFudge;
+    bool mainThreadMerge;
 
     typedef std::set<TextureRegion> TextureRegionSet;
     TextureRegionSet regions;

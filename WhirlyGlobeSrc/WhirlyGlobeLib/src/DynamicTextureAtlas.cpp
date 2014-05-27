@@ -297,8 +297,8 @@ void DynamicTextureAddRegion::execute(Scene *scene,WhirlyKit::SceneRendererES *r
     }    
 }
     
-DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth)
-    : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth), pixelFudge(0.0)
+DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth,bool mainThreadMerge)
+    : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth), pixelFudge(0.0), mainThreadMerge(mainThreadMerge)
 {
 }
     
@@ -388,7 +388,7 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,P
             dynTex->getNumRegions()++;
             //        NSLog(@"Region: (%d,%d)->(%d,%d)  texture: %ld",texRegion.region.sx,texRegion.region.sy,texRegion.region.ex,texRegion.region.ey,dynTex->getId());
             // Make the main thread do the merge
-            if (MainThreadMerge)
+            if (MainThreadMerge || mainThreadMerge)
                 changes.push_back(new DynamicTextureAddRegion(dynTex->getId(),
                                                               texRegion.region.sx * cellSize, texRegion.region.sy * cellSize, tex->getWidth(), tex->getHeight(),
                                                               tex->processData()));

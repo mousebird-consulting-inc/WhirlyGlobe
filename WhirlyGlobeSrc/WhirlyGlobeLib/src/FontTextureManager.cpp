@@ -144,7 +144,9 @@ void FontTextureManager::init()
     if (!texAtlas)
     {
         // Let's do the biggest possible texture with small cells 32 bits deep
-        texAtlas = new DynamicTextureAtlas(2048,16,GL_UNSIGNED_BYTE);
+        // Note: Porting.  We've turned main thread merge on here, which shouldn't be needed.
+        //       If we leave it off, we get corruption of the dynamic textures
+        texAtlas = new DynamicTextureAtlas(2048,16,GL_UNSIGNED_BYTE,1,true);
     }
 }
             
@@ -202,13 +204,14 @@ void FontTextureManager::removeString(SimpleIdentity drawStringId,ChangeSet &cha
 //            if (!texRemove.empty())
 //                for (unsigned int ii=0;ii<texRemove.size();ii++)
 //                    texAtlas->removeTexture(texRemove[ii], changes);
-            
+
+            // Note: Porting.  The ref counts don't seem to be right
             // Also see if we're done with the font
-            if (fm->refCount <= 0)
-            {
-                fontManagers.erase(fmIt);
-                delete fm;
-            }
+//            if (fm->refCount <= 0)
+//            {
+//                fontManagers.erase(fmIt);
+//                delete fm;
+//            }
         }
     }
     
