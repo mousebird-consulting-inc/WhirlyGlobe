@@ -130,6 +130,8 @@ using namespace WhirlyKit;
 
     if (_fullLoad)
         waitForLocalLoads = true;
+    
+//    [self performSelector:@selector(dumpInfo) withObject:nil afterDelay:15.0];
 }
 
 - (void)shutdown
@@ -234,15 +236,11 @@ using namespace WhirlyKit;
 // Dump out info about what we've got loaded in
 - (void)dumpInfo
 {
-//    NSLog(@"***Loaded Tiles***");
-//    for (LoadedTileSet::iterator it = tileSet.begin();
-//         it != tileSet.end(); ++it)
-//    {
-//        (*it)->Print(quadtree);
-//    }
-//    NSLog(@"******");
+    [_loader log];
     
     _quadtree->Print();
+    
+    [self performSelector:@selector(dumpInfo) withObject:nil afterDelay:15.0];
 }
 
 // Information about what's currently loaded in
@@ -427,10 +425,9 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
         Quadtree::NodeInfo remNodeInfo;
         while (_quadtree->leastImportantNode(remNodeInfo,false,-1))
         {
-    //        NSLog(@"Unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
+//        NSLog(@"Unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
             _quadtree->removeTile(remNodeInfo.ident);
-            if (!remNodeInfo.phantom)
-                [_loader quadDisplayLayer:self unloadTile:remNodeInfo];
+            [_loader quadDisplayLayer:self unloadTile:remNodeInfo];
 
             didSomething = true;
         }
@@ -445,7 +442,6 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
              activityLevel += [_loader localFetches];
         if ([_loader respondsToSelector:@selector(networkFetches)])
             activityLevel += [_loader networkFetches];
-        
         if (activityLevel == 0)
         {
             for (std::set<Quadtree::NodeInfo>::iterator it = toPhantom.begin();it != toPhantom.end(); ++it)
@@ -453,7 +449,10 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 Quadtree::NodeInfo nodeInfo = *it;
                 [_loader quadDisplayLayer:self unloadTile:nodeInfo];
                 _quadtree->setPhantom(nodeInfo.ident, true);
+                didSomething = true;
             }
+            
+            toPhantom.clear();
         }
     }
     
