@@ -23,6 +23,7 @@
 #import "MaplyViewController_private.h"
 #import "MaplyInteractionLayer_private.h"
 #import "MaplyCoordinateSystem_private.h"
+#import "MaplyAnnotation_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -910,6 +911,18 @@ using namespace Maply;
     for (unsigned int ii=0;ii<4;ii++)
     {
         corners[ii] = [self geoFromScreenPoint:screenCorners[ii]];
+    }
+}
+
+- (void)calloutViewClicked:(SMCalloutView *)calloutView
+{
+    if([self.delegate respondsToSelector:@selector(maplyViewController:didClickAnnotation:)]) {
+        for(MaplyAnnotation *annotation in self.annotations) {
+            if(annotation.calloutView == calloutView) {
+                [self.delegate maplyViewController:self didClickAnnotation:annotation];
+                return;
+            }
+        }
     }
 }
 

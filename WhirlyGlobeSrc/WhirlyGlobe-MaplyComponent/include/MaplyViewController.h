@@ -71,6 +71,8 @@
  */
 - (void)maplyViewController:(MaplyViewController *)viewC didStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion;
 
+- (void)maplyViewController:(MaplyViewController *)viewC didClickAnnotation:(MaplyAnnotation*)annotation;
+
 @end
 
 /** @brief This view controller implements a map.
