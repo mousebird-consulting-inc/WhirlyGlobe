@@ -26,7 +26,7 @@ namespace WhirlyKit
     
 DynamicDrawableAtlas::DynamicDrawableAtlas(const std::string &name,int singleElementSize,int numVertexBytes,int numElementBytes,OpenGLMemManager *memManager,BigDrawable *(*newBigDrawable)(BasicDrawable *draw,int singleElementSize,int numVertexBytes,int numElementBytes),
                                            SimpleIdentity shaderId)
-    : name(name), singleVertexSize(0), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager), newBigDrawable(newBigDrawable), shaderId(shaderId), enable(true)
+    : name(name), singleVertexSize(0), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager), newBigDrawable(newBigDrawable), shaderId(shaderId), enable(true), hasChanges(false)
 {
 }
     
@@ -39,6 +39,8 @@ DynamicDrawableAtlas::~DynamicDrawableAtlas()
     
 bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled,SimpleIdentity destTexId,bool *addedNewBigDrawable,const Point3d *center,double objSize)
 {
+    hasChanges = true;
+
     if (addedNewBigDrawable)
         *addedNewBigDrawable = false;
 
@@ -162,12 +164,14 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
 
     // This tracks the region by drawable ID so we can get to it later
     drawables.insert(represent);
-
+    
     return true;
 }
 
 void DynamicDrawableAtlas::setEnableDrawable(SimpleIdentity drawId,bool enabled)
 {
+    hasChanges = true;
+    
     // Look for the representation
     DrawRepresent represent(drawId);
 
@@ -195,6 +199,8 @@ void DynamicDrawableAtlas::setEnableDrawable(SimpleIdentity drawId,bool enabled)
     
 void DynamicDrawableAtlas::setEnableAllDrawables(bool newEnable,ChangeSet &changes)
 {
+    hasChanges = true;
+
     if (newEnable == enable)
         return;
     
@@ -205,18 +211,24 @@ void DynamicDrawableAtlas::setEnableAllDrawables(bool newEnable,ChangeSet &chang
     
 void DynamicDrawableAtlas::setDrawPriorityAllDrawables(int drawPriority,ChangeSet &changes)
 {
+    hasChanges = true;
+
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
         changes.push_back(new BigDrawableDrawPriorityChangeRequest(it->bigDraw->getId(),drawPriority));
 }
     
 void DynamicDrawableAtlas::setProgramIDAllDrawables(SimpleIdentity programID,ChangeSet &changes)
 {
+    hasChanges = true;
+
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
         changes.push_back(new BigDrawableProgramIDChangeRequest(it->bigDraw->getId(),programID));
 }
     
 bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,ChangeSet &changes)
 {
+    hasChanges = true;
+    
     // Look for the representation
     DrawRepresent represent(drawId);
     
@@ -266,6 +278,9 @@ void DynamicDrawableAtlas::getDrawableIDs(SimpleIDSet &drawIDs)
     
 bool DynamicDrawableAtlas::hasUpdates()
 {
+    if (hasChanges)
+        return true;
+    
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
     {
         BigDrawable *bigDraw = it->bigDraw;
@@ -274,6 +289,11 @@ bool DynamicDrawableAtlas::hasUpdates()
     }
     
     return false;
+}
+    
+void DynamicDrawableAtlas::clearUpdateFlag()
+{
+    hasChanges = false;
 }
     
 void DynamicDrawableAtlas::swap(ChangeSet &changes,NSObject * __weak target,SEL sel)
@@ -320,6 +340,8 @@ void DynamicDrawableAtlas::addSwapChanges(const ChangeSet &inSwapChanges)
     
 void DynamicDrawableAtlas::shutdown(ChangeSet &changes)
 {
+    hasChanges = true;
+
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
         changes.push_back(new RemDrawableReq(it->bigDraw->getId()));
     

@@ -186,6 +186,20 @@ void Quadtree::setPhantom(const Identifier &ident,bool newPhantom)
             numPhantomNodes--;
         if (newPhantom)
             numPhantomNodes++;
+    } else
+        // Haven't heard of it
+        return;
+
+    NodesBySizeType::iterator sit = nodesBySize.find(&dummyNode);
+    // Clean it out of the nodes by size if it's a phantom
+    if (newPhantom)
+    {
+        if (sit != nodesBySize.end())
+            nodesBySize.erase(sit);
+    } else {
+        // Add it in if it's no longer a phantom
+        if (sit == nodesBySize.end())
+            nodesBySize.insert(*it);
     }
 }
 
