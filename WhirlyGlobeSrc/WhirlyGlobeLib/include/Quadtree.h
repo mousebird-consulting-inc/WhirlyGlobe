@@ -65,9 +65,10 @@ public:
     class NodeInfo
     {
     public:
-        NodeInfo() { attrs = [NSMutableDictionary dictionary]; }
+        NodeInfo() { attrs = [NSMutableDictionary dictionary]; phantom = false;  importance = 0; }
         NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
-        ~NodeInfo() { }
+        NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
+        ~NodeInfo() { attrs = nil; }
         
         /// Compare based on importance.  Used for sorting
         bool operator < (const NodeInfo &that) const;
