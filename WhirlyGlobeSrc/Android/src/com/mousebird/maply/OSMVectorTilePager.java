@@ -1,28 +1,20 @@
 package com.mousebird.maply;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import org.apache.http.util.ByteArrayBuffer;
-
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 /**
@@ -43,6 +35,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	int minZoom = 0;
 	int maxZoom = 0;
 	File cacheDir = null;
+	OkHttpClient client = new OkHttpClient();
 	
 	/**
 	 * Construct with the data we need to start.
@@ -111,26 +104,11 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 					}
 				}
 		    	
-	    		/* Open a connection to that URL. */
-	    		final HttpURLConnection aHttpURLConnection = (HttpURLConnection) url.openConnection();
+				// Load the JSON from that URL
+			    Request request = new Request.Builder().url(url).build();
 
-	    		/* Define InputStreams to read from the URLConnection. */
-	    		InputStream ips = aHttpURLConnection.getInputStream();
-	    		BufferedReader buf = new BufferedReader(new InputStreamReader(ips,"UTF-8"));
-	    		
-	    		StringBuilder sb = new StringBuilder();
-	    		String s;
-	    		while (true)
-	    		{
-	    			s = buf.readLine();
-	    			if (s==null || s.length()==0)
-	    				break;
-	    			sb.append(s);
-	    		}
-	    		buf.close();
-	    		ips.close();
-	    		
-	    		aString = sb.toString();
+			    Response response = client.newCall(request).execute();
+	    		aString = response.body().string();
 	    	} 
 	    	catch (IOException e) {
 //	    		Log.d("OSMVectorTilePager", e.toString());
@@ -196,6 +174,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 				groups.put(kind, group);
 			}
 			group.vecs.add(vec);
+			attrs.dispose();
 		}	
 		
 		return groups;
@@ -224,12 +203,18 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	// Initialize road styles
 	void initRoadStyles()
 	{
-		roadStyles = new HashMap<String,RoadStyle>();
-		roadStyles.put("highway", new RoadStyle(true,10.f,204.f,141.f,4.f,400));
-		roadStyles.put("major_road", new RoadStyle(true,6.f,239.f,237.f,88.f,402));
-		roadStyles.put("minor_road", new RoadStyle(false,2.f,64,64,64,404));
-		roadStyles.put("rail", new RoadStyle(true,6.f,100,100,100,406));
-		roadStyles.put("path", new RoadStyle(false,1.f,64,64,64,408));
+		synchronized(this)
+		{
+			if (roadStyles == null)
+			{
+				roadStyles = new HashMap<String,RoadStyle>();
+				roadStyles.put("highway", new RoadStyle(true,10.f,204.f,141.f,4.f,400));
+				roadStyles.put("major_road", new RoadStyle(true,6.f,239.f,237.f,88.f,402));
+				roadStyles.put("minor_road", new RoadStyle(false,2.f,64,64,64,404));
+				roadStyles.put("rail", new RoadStyle(true,6.f,100,100,100,406));
+				roadStyles.put("path", new RoadStyle(false,1.f,64,64,64,408));
+			}
+		}
 	}
 		
 	// Style roads based on their type
@@ -238,16 +223,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		if (roads == null)
 			return;
 		
-		if (roadStyles == null)
-			initRoadStyles();
-/*
-		VectorInfo roadInfo = new VectorInfo();
-		roadInfo.setColor(0,0,0,1.f);
-		roadInfo.setDrawPriority(400);
-		roadInfo.setLineWidth(2.f*2);
-		roadInfo.setEnable(false);
-		compObjs.add(maplyControl.addVector(roads, roadInfo));
-	*/	
+		initRoadStyles();
 		HashMap<String,VectorGroup> groups = sortIntoGroups(roads);
 		
 		// Note: Scale up for high res displays
@@ -288,6 +264,9 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	// Add road labels.
 	void styleRoadLabels(VectorObject roads,List<ComponentObject> compObjs)
 	{		
+		if (roads == null)
+			return;
+		
 		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 		
 		for (VectorObject road : roads)
@@ -333,32 +312,38 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	HashMap<String,Integer> landStyles = null;
 	void initLandStyles()
 	{
-		landStyles = new HashMap<String,Integer>();
-		int alpha = 255/4;
-		Integer green = Color.argb(alpha,111,224,136);
-		Integer darkGreen = Color.argb(alpha,111,224,136);
-		Integer tan = Color.argb(alpha,210,180,140);
-		Integer gray = Color.argb(alpha,(int) 0.1f*255,0,0);
-		Integer grayer = Color.argb(alpha,(int) 0.2*255,0,0);
-		Integer grayest = Color.argb(alpha,(int) 0.3*255,0,0);
-		landStyles.put("scrub", green);
-		landStyles.put("park", green);
-		landStyles.put("school", gray);
-		landStyles.put("meadow", tan);
-		landStyles.put("nature_reserve", green);
-		landStyles.put("garden", green);
-		landStyles.put("pitch", green);
-		landStyles.put("wood", darkGreen);
-		landStyles.put("farm", tan);
-		landStyles.put("farmyard", tan);
-		landStyles.put("recreation_ground", green);
-		// Note: There's an awful lot of these
-		landStyles.put("commercial", grayer);
-		landStyles.put("residential", gray);
-		landStyles.put("industrial", grayest);
-		landStyles.put("common", gray);
-		landStyles.put("parking", gray);
-		landStyles.put("default", gray);
+		synchronized(this)
+		{
+			if (landStyles == null)
+			{
+				landStyles = new HashMap<String,Integer>();
+				int alpha = 255/4;
+				Integer green = Color.argb(alpha,111,224,136);
+				Integer darkGreen = Color.argb(alpha,111,224,136);
+				Integer tan = Color.argb(alpha,210,180,140);
+				Integer gray = Color.argb(alpha,(int) 0.1f*255,0,0);
+				Integer grayer = Color.argb(alpha,(int) 0.2*255,0,0);
+				Integer grayest = Color.argb(alpha,(int) 0.3*255,0,0);
+				landStyles.put("scrub", green);
+				landStyles.put("park", green);
+				landStyles.put("school", gray);
+				landStyles.put("meadow", tan);
+				landStyles.put("nature_reserve", green);
+				landStyles.put("garden", green);
+				landStyles.put("pitch", green);
+				landStyles.put("wood", darkGreen);
+				landStyles.put("farm", tan);
+				landStyles.put("farmyard", tan);
+				landStyles.put("recreation_ground", green);
+				// Note: There's an awful lot of these
+				landStyles.put("commercial", grayer);
+				landStyles.put("residential", gray);
+				landStyles.put("industrial", grayest);
+				landStyles.put("common", gray);
+				landStyles.put("parking", gray);
+				landStyles.put("default", gray);
+			}
+		}
 	}
 
 	// Style land use based on the types
@@ -367,8 +352,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		if (land == null)
 			return;
 		
-		if (landStyles == null)
-			initLandStyles();
+		initLandStyles();
 
 		HashMap<String,VectorGroup> groups = sortIntoGroups(land);
 		

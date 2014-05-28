@@ -43,6 +43,6 @@ class RendererWrapper implements Renderer
 	@Override
 	public void onDrawFrame(GL10 gl)
 	{
-		maplyRender.doRender();
+		maplyRender.doRender();		
 	}
 }

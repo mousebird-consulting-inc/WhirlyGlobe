@@ -45,6 +45,9 @@ public class MaplyController implements View.OnTouchListener
 	 */
 	public int frameInterval = 2;
 	
+	// Set when we're not in the process of shutting down
+	boolean running = false;
+	
 	// Implements the GL renderer protocol
 	RendererWrapper renderWrapper;
 	
@@ -95,7 +98,7 @@ public class MaplyController implements View.OnTouchListener
 	 * @param mainActivity Your main activity that we'll attach ourselves to.
 	 */
 	public MaplyController(Activity mainActivity) 
-	{
+	{		
 //		System.loadLibrary("Maply");
 		activity = mainActivity;
 		
@@ -153,7 +156,9 @@ public class MaplyController implements View.OnTouchListener
         } else {
         	Toast.makeText(mainActivity,  "This device does not support OpenGL ES 2.0.", Toast.LENGTH_LONG).show();
         	return;
-        }        
+        }   
+        
+		running = true;
 	}
 	
 	/**
@@ -167,6 +172,7 @@ public class MaplyController implements View.OnTouchListener
 	// Tear down views
 	public void shutdown()
 	{
+		running = false;
 //		Choreographer.getInstance().removeFrameCallback(this);
 		layerThread.shutdown();
 		
@@ -225,6 +231,7 @@ public class MaplyController implements View.OnTouchListener
 			
 	public void dispose()
 	{
+		running = false;
 		vecManager.dispose();
 		vecManager = null;
 		
@@ -292,7 +299,7 @@ public class MaplyController implements View.OnTouchListener
 	 */
 	private void addTask(Runnable run,ThreadMode mode)
 	{
-		if (layerThread == null)
+		if (!running)
 			return;
 		
 		if (Looper.myLooper() == layerThread.getLooper() || (mode == ThreadMode.ThreadCurrent))
@@ -314,7 +321,7 @@ public class MaplyController implements View.OnTouchListener
 	 */
 	public ComponentObject addVectors(final List<VectorObject> vecs,final VectorInfo vecInfo,ThreadMode mode)
 	{
-		if (layerThread == null)
+		if (!running)
 			return null;
 
 		final ComponentObject compObj = new ComponentObject();
@@ -347,7 +354,7 @@ public class MaplyController implements View.OnTouchListener
 	 */
 	public ComponentObject addScreenMarker(final ScreenMarker marker,final MarkerInfo markerInfo,ThreadMode mode)
 	{
-		if (layerThread == null)
+		if (!running)
 			return null;
 
 		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
@@ -367,7 +374,7 @@ public class MaplyController implements View.OnTouchListener
 	 */
 	public ComponentObject addScreenMarkers(final List<ScreenMarker> markers,final MarkerInfo markerInfo,ThreadMode mode)
 	{		
-		if (layerThread == null)
+		if (!running)
 			return null;
 
 		final ComponentObject compObj = new ComponentObject();
@@ -417,7 +424,7 @@ public class MaplyController implements View.OnTouchListener
 	 */
 	public ComponentObject addScreenLabel(ScreenLabel label,final LabelInfo labelInfo,ThreadMode mode)
 	{
-		if (layerThread == null)
+		if (!running)
 			return null;
 		
 		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
@@ -437,7 +444,7 @@ public class MaplyController implements View.OnTouchListener
 	 */
 	public ComponentObject addScreenLabels(final List<ScreenLabel> labels,final LabelInfo labelInfo,ThreadMode mode)
 	{
-		if (layerThread == null)
+		if (!running)
 			return null;
 
 		final ComponentObject compObj = new ComponentObject();
@@ -483,7 +490,7 @@ public class MaplyController implements View.OnTouchListener
 	 */
 	public void disableObjects(final List<ComponentObject> compObjs,ThreadMode mode)
 	{
-		if (layerThread == null)
+		if (!running)
 			return;
 
 		if (compObjs == null || compObjs.size() == 0)
@@ -514,7 +521,7 @@ public class MaplyController implements View.OnTouchListener
 	 */
 	public void enableObjects(final List<ComponentObject> compObjs,ThreadMode mode)
 	{
-		if (layerThread == null)
+		if (!running)
 			return;
 
 		if (compObjs == null || compObjs.size() == 0)
@@ -542,7 +549,7 @@ public class MaplyController implements View.OnTouchListener
 	 */
 	public void removeObject(final ComponentObject compObj,ThreadMode mode)
 	{
-		if (layerThread == null)
+		if (!running)
 			return;
 
 		if (compObj == null)
@@ -562,7 +569,7 @@ public class MaplyController implements View.OnTouchListener
 	 */
 	public void removeObjects(final List<ComponentObject> compObjs,ThreadMode mode)
 	{
-		if (layerThread == null)
+		if (!running)
 			return;
 
 		if (compObjs == null || compObjs.size() == 0)
@@ -593,7 +600,7 @@ public class MaplyController implements View.OnTouchListener
 	 */
 	public void setPosition(double x,double y,double z)
 	{
-		if (layerThread == null)
+		if (!running)
 			return;
 
 		mapView.cancelAnimation();

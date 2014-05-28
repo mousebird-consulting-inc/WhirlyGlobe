@@ -14,6 +14,10 @@ import java.util.ArrayList;
 
 import org.json.*;
 
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -36,6 +40,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	int minZoom = 0;
 	int maxZoom = 0;
 	public CoordSystem coordSys = new SphericalMercatorCoordSystem();
+	OkHttpClient client = new OkHttpClient();
 	
 	/**
 	 * The tile source delegate will be called back when a tile loads
@@ -182,26 +187,13 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 				// Wasn't cached
 				if (bm == null)
 				{
-		    		/* Open a connection to that URL. */
-		    		final HttpURLConnection aHttpURLConnection = (HttpURLConnection) url.openConnection();
-		    		aHttpURLConnection.setReadTimeout(1000 * 15);
-	
-		    		/* Define InputStreams to read from the URLConnection. */
-		    		InputStream aInputStream = aHttpURLConnection.getInputStream();
-		    		BufferedInputStream aBufferedInputStream = new BufferedInputStream(
-		    				aInputStream);
-		    		ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
-		    		// Copy the input to our byte stream
-		    		int n = 0;
-		    		byte[] buff = new byte[16*1024];
-		    		while ((n = aBufferedInputStream.read(buff)) > 0)
-		    		{
-		    			bytesStream.write(buff, 0, n);
-		    		}
-		    		aBufferedInputStream.close();
-		    		byte[] rawImage = bytesStream.toByteArray();
+					// Load the JSON from that URL
+				    Request request = new Request.Builder().url(url).build();
+
+				    Response response = client.newCall(request).execute();
+				    byte[] rawImage = response.body().bytes();
 		    		
-		    		bm = BitmapFactory.decodeByteArray(rawImage, 0, bytesStream.size());				
+		    		bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length);				
 		    		
 		    		// Save to cache
 		    		if (cacheFile != null)
@@ -211,7 +203,6 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 		    			fOut.write(rawImage);
 		    			fOut.close();
 		    		}
-		    		bytesStream.close();
 //		    		Log.d("Maply","Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
 				}
 	    		
