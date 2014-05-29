@@ -919,6 +919,8 @@ static const int NumMegaMarkers = 40000;
         layer.requireElev = requireElev;
         layer.maxTiles = 256;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        // Note: Debugging
+        layer.color = [UIColor colorWithWhite:1.0 alpha:0.75];
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
