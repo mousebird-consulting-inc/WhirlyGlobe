@@ -47,6 +47,7 @@ typedef enum {WideVectorReal,WideVectorScreen} WideVectorType;
 @property (nonatomic,assign) bool enable;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity shader;
 @property (nonatomic,assign) float width;
+@property (nonatomic,assign) float repeatSize;
 @property (nonatomic,assign) WhirlyKit::WideVectorType widenType;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity texID;
 

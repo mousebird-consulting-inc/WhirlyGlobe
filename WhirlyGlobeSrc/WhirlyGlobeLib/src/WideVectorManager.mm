@@ -43,6 +43,7 @@ using namespace Eigen;
     else
         _widenType = WideVectorScreen;
     _texID = [desc intForKey:@"texture" default:EmptyIdentity];
+    _repeatSize = [desc floatForKey:@"repeatSize" default:6371000.0 / 20];
 }
 
 @end
@@ -106,6 +107,7 @@ public:
     void addLinear(VectorRing &pts)
     {
         // Work through the segments
+        double texOrg = 0.0;
         for (unsigned int ii=0;ii<pts.size()-1;ii++)
         {
             // Get the points in display space
@@ -130,9 +132,13 @@ public:
             BasicDrawable *thisDrawable = getDrawable(ptCount,triCount);
             RGBAColor color = [vecInfo.color asRGBAColor];
             
+            double texLen = (pa-pb).norm();
+            
             int startVec = thisDrawable->getNumPoints();
             if (vecInfo.widenType == WideVectorReal)
             {
+                texLen *= vecInfo.repeatSize;
+                
                 Point3f up3f(up.x(),up.y(),up.z());
 
                 drawMbr.addPoint(geoA);
@@ -150,31 +156,33 @@ public:
                 
                 thisDrawable->addPoint(corners3f[0]);
                 if (vecInfo.texID != EmptyIdentity)
-                    thisDrawable->addTexCoord(0, TexCoord(0.0,0.0));
+                    thisDrawable->addTexCoord(0, TexCoord(0.0,texOrg));
                 thisDrawable->addNormal(up3f);
                 thisDrawable->addColor(color);
                 
                 thisDrawable->addPoint(corners3f[1]);
                 if (vecInfo.texID != EmptyIdentity)
-                    thisDrawable->addTexCoord(0, TexCoord(1.0,0.0));
+                    thisDrawable->addTexCoord(0, TexCoord(1.0,texOrg));
                 thisDrawable->addNormal(up3f);
                 thisDrawable->addColor(color);
                 
                 thisDrawable->addPoint(corners3f[2]);
                 if (vecInfo.texID != EmptyIdentity)
-                    thisDrawable->addTexCoord(0, TexCoord(1.0,1.0));
+                    thisDrawable->addTexCoord(0, TexCoord(1.0,texOrg+texLen));
                 thisDrawable->addNormal(up3f);
                 thisDrawable->addColor(color);
                 
                 thisDrawable->addPoint(corners3f[3]);
                 if (vecInfo.texID != EmptyIdentity)
-                    thisDrawable->addTexCoord(0, TexCoord(0.0,1.0));
+                    thisDrawable->addTexCoord(0, TexCoord(0.0,texOrg+texLen));
                 thisDrawable->addNormal(up3f);
                 thisDrawable->addColor(color);
                 
                 thisDrawable->addTriangle(BasicDrawable::Triangle(startVec+0,startVec+1,startVec+3));
                 thisDrawable->addTriangle(BasicDrawable::Triangle(startVec+1,startVec+2,startVec+3));
             } else {
+                texLen *= vecInfo.repeatSize;
+
                 WideVectorDrawable *wideDrawable = (WideVectorDrawable *)thisDrawable;
                 drawMbr.addPoint(geoA);
                 drawMbr.addPoint(geoB);
@@ -186,28 +194,28 @@ public:
                 
                 wideDrawable->addPoint(pa3f);
                 if (vecInfo.texID != EmptyIdentity)
-                    wideDrawable->addTexCoord(0, TexCoord(0.0,0.0));
+                    wideDrawable->addTexCoord(0, TexCoord(0.0,texOrg));
                 wideDrawable->addNormal(up3f);
                 wideDrawable->addDir(dirL);
                 thisDrawable->addColor(color);
 
                 wideDrawable->addPoint(pa3f);
                 if (vecInfo.texID != EmptyIdentity)
-                    wideDrawable->addTexCoord(0, TexCoord(1.0,0.0));
+                    wideDrawable->addTexCoord(0, TexCoord(1.0,texOrg));
                 wideDrawable->addNormal(up3f);
                 wideDrawable->addDir(dirR);
                 thisDrawable->addColor(color);
 
                 wideDrawable->addPoint(pb3f);
                 if (vecInfo.texID != EmptyIdentity)
-                    wideDrawable->addTexCoord(0, TexCoord(1.0,1.0));
+                    wideDrawable->addTexCoord(0, TexCoord(1.0,texOrg+texLen));
                 wideDrawable->addNormal(up3f);
                 wideDrawable->addDir(dirR);
                 thisDrawable->addColor(color);
 
                 wideDrawable->addPoint(pb3f);
                 if (vecInfo.texID != EmptyIdentity)
-                    wideDrawable->addTexCoord(0, TexCoord(0.0,1.0));
+                    wideDrawable->addTexCoord(0, TexCoord(0.0,texOrg+texLen));
                 wideDrawable->addNormal(up3f);
                 wideDrawable->addDir(dirL);
                 thisDrawable->addColor(color);
@@ -215,6 +223,8 @@ public:
                 thisDrawable->addTriangle(BasicDrawable::Triangle(startVec+0,startVec+1,startVec+3));
                 thisDrawable->addTriangle(BasicDrawable::Triangle(startVec+1,startVec+2,startVec+3));
             }
+            
+            texOrg += texLen;
         }
     }
 

@@ -121,6 +121,9 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     NSTimer *_labelAnimationTimer;
     NSMutableDictionary *_trafficLabels;
     
+    // Dashed lines used in wide vector test
+    MaplyTexture *dashedLineTex;
+    
     PerformanceMode perfMode;
 }
 
@@ -605,6 +608,17 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 
 - (void)addShapeFile:(NSString *)shapeFileName
 {
+    // Make the dashed line if it isn't already there
+    if (!dashedLineTex)
+    {
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,128)];
+        [lineTexBuilder setPattern:@[@(64),@(64)]];
+//        [lineTexBuilder setPattern:@[@(128)]];
+        UIImage *dashedLineImage = [lineTexBuilder makeImage];
+        dashedLineTex = [baseViewC addTexture:dashedLineImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapY mode:MaplyThreadAny];
+    }
+    
+    // Add the vectors at three different levels
     MaplyVectorDatabase *vecDb = [MaplyVectorDatabase vectorDatabaseWithShape:shapeFileName];
     if (vecDb)
     {
@@ -623,12 +637,14 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
                                                                                            kMaplyFade: @(fade),
                                                                                            // 10 pixels wide
                                                                                            kMaplyVecWidth: @(10.0),
+                                                                                           kMaplyVecTexture: dashedLineTex,
                                                                                            kMaplyWideVecType: kMaplyWideVecTypeScreen,
                                                                                            kMaplyMaxVis: @(0.00032424763776361942),
                                                                                            kMaplyMinVis: @(0.00011049506429117173)
                                                                                            }];
             MaplyComponentObject *realLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: color,
                                                                                           kMaplyFade: @(fade),
+                                                                                            kMaplyVecTexture: dashedLineTex,
                                                                                           // 10m in display coordinates
                                                                                           kMaplyVecWidth: @(10.0/6371000),
                                                                                           kMaplyWideVecType: kMaplyWideVecTypeReal,
