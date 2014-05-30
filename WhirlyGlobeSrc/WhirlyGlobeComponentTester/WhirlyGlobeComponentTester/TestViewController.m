@@ -96,6 +96,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     MaplyComponentObject *labelsObj;
     MaplyComponentObject *stickersObj;
     MaplyComponentObject *latLonObj;
+    MaplyComponentObject *sfRoadsObj;
     NSArray *vecObjects;
     MaplyComponentObject *megaMarkersObj;
     MaplyComponentObject *autoLabels;
@@ -602,6 +603,27 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     latLonObj = [baseViewC addVectors:vectors desc:desc];
 }
 
+- (void)addShapeFile:(NSString *)shapeFileName
+{
+    MaplyVectorDatabase *vecDb = [MaplyVectorDatabase vectorDatabaseWithShape:shapeFileName];
+    if (vecDb)
+    {
+        MaplyVectorObject *vecObj = [vecDb fetchAllVectors];
+        if (vecObj)
+        {
+//            sfRoadsObj = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor blueColor],
+//                                                                kMaplyFade: @(0.25),
+//                                                                kMaplyVecWidth: @(10.0/6371000),
+//                                                                kMaplyWideVecType: kMaplyWideVecTypeReal
+//                                                                }];
+            sfRoadsObj = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor blueColor],
+                                                                    kMaplyFade: @(0.25),
+                                                                    kMaplyVecWidth: @(10.0),
+                                                                    kMaplyWideVecType: kMaplyWideVecTypeScreen
+                                                                    }];
+        }
+    }
+}
 
 - (void)addStickers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc
 {
@@ -1255,6 +1277,20 @@ static const int NumMegaMarkers = 40000;
         {
             [baseViewC removeObject:latLonObj];
             latLonObj = nil;
+        }
+    }
+    
+    if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestRoads])
+    {
+        if (!sfRoadsObj)
+        {
+            [self addShapeFile:@"tl_2013_06075_roads"];
+        }
+    } else {
+        if (sfRoadsObj)
+        {
+            [baseViewC removeObject:sfRoadsObj];
+            sfRoadsObj = nil;
         }
     }
 
