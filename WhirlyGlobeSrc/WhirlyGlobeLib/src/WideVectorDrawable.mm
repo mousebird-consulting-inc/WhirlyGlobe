@@ -36,6 +36,8 @@ void WideVectorDrawable::addDir(const Point3f &dir)
 
 static const char *vertexShaderTri =
 "uniform mat4  u_mvpMatrix;"
+"uniform mat4  u_mvMatrix;"
+"uniform mat4  u_pMatrix;"
 "uniform float u_fade;"
 "uniform float u_length;"
 ""
@@ -53,7 +55,12 @@ static const char *vertexShaderTri =
 "   v_color = a_color;"
 //"   vec3 newPos = a_position + a_dir * u_length;"
 ""
-"   gl_Position = u_mvpMatrix * vec4(a_position,1.0) + vec4(a_dir * u_length,0.0);"
+//    "   gl_Position = u_mvpMatrix * vec4(a_position,1.0) + vec4(a_dir * u_length,0.0);"
+    " vec4 vertPos = u_mvpMatrix * vec4(a_position,1.0);"
+    " vertPos /= vertPos.w;"
+    " vec2 screenDir = (u_mvpMatrix * vec4(a_dir,0.0)).xy;"
+    " gl_Position = vertPos + vec4(screenDir * u_length,0,0);"
+//"   gl_Position = (u_mvpMatrix * vec4(a_position,1.0) + (u_mvpMatrix * vec4(a_dir,0.0)) * u_length) + vec4(0.0,0.01,0.0,0.0);"
 //"   gl_Position = u_mvpMatrix * vec4(newPos,1.0);"
 "}"
 ;
@@ -91,7 +98,7 @@ WhirlyKit::OpenGLES2Program *BuildWideVectorProgram()
     {
         glUseProgram(shader->getProgram());
         
-        shader->setUniform("u_length", 10.f/10240000);
+        shader->setUniform("u_length", 10.f/1024);
     }
     
     
