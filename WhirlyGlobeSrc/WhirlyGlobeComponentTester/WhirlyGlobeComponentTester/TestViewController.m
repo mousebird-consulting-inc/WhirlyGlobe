@@ -96,7 +96,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     MaplyComponentObject *labelsObj;
     MaplyComponentObject *stickersObj;
     MaplyComponentObject *latLonObj;
-    MaplyComponentObject *sfRoadsObj;
+    NSArray *sfRoadsObjArray;
     NSArray *vecObjects;
     MaplyComponentObject *megaMarkersObj;
     MaplyComponentObject *autoLabels;
@@ -611,16 +611,31 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
         MaplyVectorObject *vecObj = [vecDb fetchAllVectors];
         if (vecObj)
         {
-//            sfRoadsObj = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor blueColor],
-//                                                                kMaplyFade: @(0.25),
-//                                                                kMaplyVecWidth: @(10.0/6371000),
-//                                                                kMaplyWideVecType: kMaplyWideVecTypeReal
-//                                                                }];
-            sfRoadsObj = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor blueColor],
-                                                                    kMaplyFade: @(0.25),
-                                                                    kMaplyVecWidth: @(10.0),
-                                                                    kMaplyWideVecType: kMaplyWideVecTypeScreen
-                                                                    }];
+            UIColor *color = [UIColor blueColor];
+            float fade = 0.25;
+            MaplyComponentObject *lines = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: color,
+                                                                                 kMaplyVecWidth: @(4.0),
+                                                                                 kMaplyFade: @(fade),
+                                                                                 kMaplyMaxVis: @(10.0),
+                                                                                 kMaplyMinVis: @(0.00032424763776361942)}];
+            
+            MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor],
+                                                                                           kMaplyFade: @(fade),
+                                                                                           // 10 pixels wide
+                                                                                           kMaplyVecWidth: @(10.0),
+                                                                                           kMaplyWideVecType: kMaplyWideVecTypeScreen,
+                                                                                           kMaplyMaxVis: @(0.00032424763776361942),
+                                                                                           kMaplyMinVis: @(0.00011049506429117173)
+                                                                                           }];
+            MaplyComponentObject *realLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: color,
+                                                                                          kMaplyFade: @(fade),
+                                                                                          // 10m in display coordinates
+                                                                                          kMaplyVecWidth: @(10.0/6371000),
+                                                                                          kMaplyWideVecType: kMaplyWideVecTypeReal,
+                                                                                         kMaplyMaxVis: @(0.00011049506429117173),
+                                                                                         kMaplyMinVis: @(0.0)
+                                                                                         }];
+            sfRoadsObjArray = @[lines,screenLines,realLines];
         }
     }
 }
@@ -1282,15 +1297,15 @@ static const int NumMegaMarkers = 40000;
     
     if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestRoads])
     {
-        if (!sfRoadsObj)
+        if (!sfRoadsObjArray)
         {
             [self addShapeFile:@"tl_2013_06075_roads"];
         }
     } else {
-        if (sfRoadsObj)
+        if (sfRoadsObjArray)
         {
-            [baseViewC removeObject:sfRoadsObj];
-            sfRoadsObj = nil;
+            [baseViewC removeObjects:sfRoadsObjArray];
+            sfRoadsObjArray = nil;
         }
     }
 
