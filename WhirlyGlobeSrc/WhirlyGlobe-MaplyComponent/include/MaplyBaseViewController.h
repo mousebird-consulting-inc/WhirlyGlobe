@@ -471,6 +471,8 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  | MaplyImageUByteRGB | 8 bits, where we average RGB for the value. |
  | MaplyImage4Layer8Bit | 32 bits, four channels of 8 bits each.  Just like MaplyImageIntRGBA, but a warning not to do anything too clever in sampling. |
 
+    @param wrapFlags These can be MaplyImageWrapX, MaplyImageWrapY, both or none.
+ 
     @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred.
  
     @return A MaplyTexture you'll want to keep track of.  It goes out of scope, the OpenGL ES texture will be deleted.
