@@ -274,6 +274,14 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  */
 - (MaplyComponentObject *)instanceVectors:(MaplyComponentObject *)baseObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
+/** @brief Add one or more widened vectors to the current scene.
+  */
+- (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/// @brief This calls addWideVectors:desc:mode: with mode set to MaplyThreadAny
+- (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc;
+
+
 /// @brief This calls addShapes:desc:mode: with mode set to MaplyThreadAny
 - (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
 

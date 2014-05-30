@@ -923,6 +923,79 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     return compObj;
 }
 
+// Actually add the widened vectors.
+// Called in an unknown thread
+- (void)addWideVectorsRun:(NSArray *)argArray
+{
+    NSArray *vectors = [argArray objectAtIndex:0];
+    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
+    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    
+    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyVectorDrawPriorityDefault) toDict:inDesc];
+    
+    // Might be a custom shader on these
+    [self resolveShader:inDesc];
+    
+    // If there's no shader, we'll apply the default one
+    if (!inDesc[kMaplyShader])
+        inDesc[kMaplyShader] = @(scene->getProgramIDBySceneName(kToolkitDefaultWideVectorProgram));
+
+    // Look for a texture and add it
+    if (inDesc[kMaplyVecTexture])
+    {
+        UIImage *theImage = inDesc[kMaplyVecTexture];
+        MaplyTexture *tex = nil;
+        if ([theImage isKindOfClass:[UIImage class]])
+            tex = [self addImage:theImage imageFormat:MaplyImage4Layer8Bit mode:threadMode];
+        else if ([theImage isKindOfClass:[MaplyTexture class]])
+            tex = (MaplyTexture *)theImage;
+        if (tex.texID)
+            inDesc[kMaplyVecTexture] = @(tex.texID);
+        else
+            [inDesc removeObjectForKey:kMaplyVecTexture];
+    }
+    
+    ShapeSet shapes;
+    for (MaplyVectorObject *vecObj in vectors)
+        shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
+    
+    WideVectorManager *vectorManager = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
+    
+    if (vectorManager)
+    {
+        ChangeSet changes;
+        SimpleIdentity vecID = vectorManager->addVectors(&shapes, inDesc, changes);
+        [self flushChanges:changes mode:threadMode];
+        if (vecID != EmptyIdentity)
+            compObj.wideVectorIDs.insert(vecID);
+    }
+    
+    pthread_mutex_lock(&userLock);
+    [userObjects addObject:compObj];
+    compObj.underConstruction = false;
+    pthread_mutex_unlock(&userLock);
+}
+
+- (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    compObj.underConstruction = true;
+    
+    NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addWideVectorsRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addWideVectorsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
+    
+    return compObj;
+}
+
 // Run the instancing logic
 // Called in an unknown thread
 - (void)instanceVectorsRun:(NSArray *)argArray
@@ -1610,6 +1683,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
     LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
     VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
+    WideVectorManager *wideVectorManager = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
@@ -1635,6 +1709,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                     labelManager->removeLabels(userObj.labelIDs, changes);
                 if (vectorManager)
                     vectorManager->removeVectors(userObj.vectorIDs, changes);
+                if (wideVectorManager)
+                    wideVectorManager->removeVectors(userObj.wideVectorIDs, changes);
                 if (shapeManager)
                     shapeManager->removeShapes(userObj.shapeIDs, changes);
                 if (loftManager)
@@ -1705,6 +1781,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
 
     VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
+    WideVectorManager *wideVectorManager = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
     MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
     LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
@@ -1723,6 +1800,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         {
             if (vectorManager && !compObj.vectorIDs.empty())
                 vectorManager->enableVectors(compObj.vectorIDs, enable, changes);
+            if (wideVectorManager && !compObj.wideVectorIDs.empty())
+                wideVectorManager->enableVectors(compObj.wideVectorIDs, enable, changes);
             if (markerManager && !compObj.markerIDs.empty())
                 markerManager->enableMarkers(compObj.markerIDs, enable, changes);
             if (labelManager && !compObj.labelIDs.empty())

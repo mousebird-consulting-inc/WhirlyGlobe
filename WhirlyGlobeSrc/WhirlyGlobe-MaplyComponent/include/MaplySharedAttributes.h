@@ -149,6 +149,14 @@
 #define kMaplyVecCenterX @"veccenterx"
 #define kMaplyVecCenterY @"veccentery"
 
+/// For wide vectors, this is how we'll widen them
+#define kMaplyWideVecType @"widentype"
+
+/// Widened vectors are widened in real space.  The width is in meters.
+#define kMaplyWideVecTypeReal @"real"
+/// Widened vectors are widened in screen space.  The width is in pixels.
+#define kMaplyWideVecTypeScreen @"screen"
+
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 #define kMaplySubdivEpsilon @"subdivisionepsilon"
 /// If subdiv epsilon is set we'll look for a subdivision type. Default is simple.
