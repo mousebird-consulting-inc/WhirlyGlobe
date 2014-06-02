@@ -18,9 +18,15 @@
  *
  */
 
+<<<<<<< HEAD
 #import <string>
 #import <map>
 #import "WhirlyTypes.h"
+=======
+#import <Foundation/Foundation.h>
+#import <string>
+#import <map>
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 namespace WhirlyKit
 {
@@ -37,10 +43,17 @@ public:
         TimeEntry & operator = (const TimeEntry &that);
         bool operator < (const TimeEntry &that) const;
         
+<<<<<<< HEAD
         void addTime(TimeInterval dur);
         
         std::string name;
         TimeInterval minDur,maxDur,avgDur;
+=======
+        void addTime(NSTimeInterval dur);
+        
+        std::string name;
+        NSTimeInterval minDur,maxDur,avgDur;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         int numRuns;
     };
     
@@ -67,9 +80,12 @@ public:
     /// Add a count for a particular instance
     void addCount(const std::string &what,int count);
     
+<<<<<<< HEAD
     /// Print out a string
     void report(const std::string &what);
     
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Clean out existing timings
     void clear();
     
@@ -77,7 +93,11 @@ public:
     void log();
     
 protected:
+<<<<<<< HEAD
     std::map<std::string,TimeInterval> actives;
+=======
+    std::map<std::string,NSTimeInterval> actives;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     std::map<std::string,TimeEntry> timeEntries;
     std::map<std::string,CountEntry> countEntries;
 };

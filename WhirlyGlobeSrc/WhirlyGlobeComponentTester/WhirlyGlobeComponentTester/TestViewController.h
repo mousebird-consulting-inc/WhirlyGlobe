@@ -19,7 +19,11 @@
  */
 
 #import <UIKit/UIKit.h>
+<<<<<<< HEAD
 #import "MaplyComponent.h"
+=======
+#import "WhirlyGlobeComponent.h"
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 #import "ConfigViewController.h"
 
 // Map or globe or startup
@@ -28,15 +32,23 @@ typedef enum {MaplyGlobe,MaplyGlobeWithElevation,Maply3DMap,Maply2DMap,MaplyNumT
 /** The Test View Controller brings up the WhirlyGlobe Component
     and allows the user to test various functionality.
  */
+<<<<<<< HEAD
 // Note: Porting
 @interface TestViewController : UIViewController <MaplyViewControllerDelegate,UIPopoverControllerDelegate>
 //@interface TestViewController : UIViewController <WhirlyGlobeViewControllerDelegate,MaplyViewControllerDelegate,UIPopoverControllerDelegate>
+=======
+@interface TestViewController : UIViewController <WhirlyGlobeViewControllerDelegate,MaplyViewControllerDelegate,UIPopoverControllerDelegate>
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 {
     /// This is the base class shared between the MaplyViewController and the WhirlyGlobeViewController
     MaplyBaseViewController *baseViewC;
     /// If we're displaying a globe, this is set
+<<<<<<< HEAD
     // Note: Porting
 //    WhirlyGlobeViewController *globeViewC;
+=======
+    WhirlyGlobeViewController *globeViewC;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// If we're displaying a map, this is set
     MaplyViewController *mapViewC;
     UIPopoverController *popControl;

@@ -7,7 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+<<<<<<< HEAD
 #import "MaplyComponent.h"
+=======
+#import "WhirlyGlobeComponent.h"
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 /** The animation test object runs a sphere around the globe
     over a defined time period.

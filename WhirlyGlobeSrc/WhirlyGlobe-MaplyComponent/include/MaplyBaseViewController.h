@@ -20,6 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
+<<<<<<< HEAD
 // Note: Porting
 //#import "MaplyScreenMarker.h"
 #import "MaplyVectorObject.h"
@@ -35,6 +36,20 @@
 // Note: Porting
 //#import "MaplyActiveObject.h"
 //#import "MaplyElevationSource.h"
+=======
+#import "MaplyScreenMarker.h"
+#import "MaplyVectorObject.h"
+#import "MaplyViewTracker.h"
+#import "MaplyComponentObject.h"
+#import "MaplySharedAttributes.h"
+#import "MaplyViewControllerLayer.h"
+#import "MaplyLight.h"
+#import "MaplyShader.h"
+#import "MaplyActiveObject.h"
+#import "MaplyElevationSource.h"
+#import "MaplyQuadImageTilesLayer.h"
+#import "MaplyTexture.h"
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 /// Where we'd like an add to be executed.  If you need immediate feedback,
 ///  then be on the main thread and use MaplyThreadCurrent.  Any is the default. 
@@ -70,6 +85,7 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 @property (nonatomic,assign) int frameInterval;
 
+<<<<<<< HEAD
 // Note: Porting
 ///** @brief The elevation delegate that will provide elevation data per tile.
 //    @details We break the image tiles out from the elevation tiles.  The data is often coming from different sources, but in the end this is a probably a hack.  It's a hack that's going to be in place for a while.
@@ -79,12 +95,23 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 ///// Fill this in to provide elevation data.  It will only work for a matching image layer,
 /////  one with the same coordinate system and extents.
 //@property (nonatomic,weak) NSObject<MaplyElevationSourceDelegate> *elevDelegate;
+=======
+/** @brief The elevation delegate that will provide elevation data per tile.
+    @details We break the image tiles out from the elevation tiles.  The data is often coming from different sources, but in the end this is a probably a hack.  It's a hack that's going to be in place for a while.
+    @details To provide elevation for your compatible MaplyTileSource objects, you fill out the MaplyElevationSourceDelegate protocol and assign the resulting object here.  When an image layer needs elevation, it will check for the delegate and then query for the respective file.
+    @details At present there is no checking for coordinate system compatibility, so be aware.
+  */
+/// Fill this in to provide elevation data.  It will only work for a matching image layer,
+///  one with the same coordinate system and extents.
+@property (nonatomic,weak) NSObject<MaplyElevationSourceDelegate> *elevDelegate;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 /** @brief If set we'll create a new thread for every layer the user adds.
     @details The only layers within the toolkit are for image tile paging.  So effectively this creates a thread for every image layer you add.  This is going to result in faster image paging, but higher CPU usage and a bit more memory.  On by default.
   */
 @property (nonatomic,assign) bool threadPerLayer;
 
+<<<<<<< HEAD
 // Note: Porting
 ///** @brief Clear all the currently active lights.
 //    @details There are a default set of lights, so you'll want to do this before adding your own.
@@ -99,6 +126,21 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 //
 ///// @brief Remove the given light (assuming it's active) from the list of lights.
 //- (void)removeLight:(MaplyLight *)light;
+=======
+/** @brief Clear all the currently active lights.
+    @details There are a default set of lights, so you'll want to do this before adding your own.
+  */
+- (void)clearLights;
+
+/** @brief Add the given light to the list of active lights.
+    @details This method will add the given light to our active lights.  Most shaders will recognize these lights and do the calculations.  If you have a custom shader in place, it may or may not use these.
+    @details Triangle shaders use the lights, but line shaders do not.
+  */
+- (void)addLight:(MaplyLight *)light;
+
+/// @brief Remove the given light (assuming it's active) from the list of lights.
+- (void)removeLight:(MaplyLight *)light;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 /** @brief Set the rendering hints to control how the renderer is configured.
     @details This is a bit vestigial, but still has a few important uses.  The hints should be set right after the init call.  Any later and they'll probably be ignored.
@@ -115,6 +157,7 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 /// @brief This calls addScreenMarkers:desc:mode: with mode set to MaplyThreadAny
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
 
+<<<<<<< HEAD
 ///** @brief Add one or more screen markers to the current scene.
 //    @details This method will add the given MaplyScreenMaker objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
 //    @param markers An NSArray of MaplyScreenMarker objects.
@@ -133,11 +176,32 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 // 
 //    @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
 //  */
+=======
+/** @brief Add one or more screen markers to the current scene.
+    @details This method will add the given MaplyScreenMaker objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
+    @param markers An NSArray of MaplyScreenMarker objects.
+    @param desc The desciption dictionary which controls how the markers will be constructed.  It takes the following entries.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyColor|UIColor|The color we'll use for the rectangle that makes up a marker. White by default.|
+ |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The marker will only be visible if the user is above this height.  Off by default.|
+ |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The marker will only be visible if the user is below this height.  Off by default.|
+ |kMaplyFade|NSNumber|The number of seconds to fade a marker in when it appears and out when it disappears.|
+ |kMaplyShader|NSString|If set, this is the name of the MaplyShader to use when rendering the screen markers.|
+ |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+
+    @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
+ 
+    @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
+  */
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 /// @brief This calls addMarkers:desc:mode: with mode set to MaplyThreadAny
 - (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
 
+<<<<<<< HEAD
 ///** @brief Add one or more 3D markers to the current scene.
 //    @details This method will add the given MaplyMarker objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
 //    @param markers An NSArray of MaplyMarker objects.
@@ -223,6 +287,92 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 // @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
 // */
 //- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+=======
+/** @brief Add one or more 3D markers to the current scene.
+    @details This method will add the given MaplyMarker objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
+    @param markers An NSArray of MaplyMarker objects.
+    @param desc The desciption dictionary which controls how the markers will be constructed.  It takes the following entries.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyColor|UIColor|The color we'll use for the rectangle that makes up a marker. White by default.|
+ |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The marker will only be visible if the user is above this height.  Off by default.|
+ |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The marker will only be visible if the user is below this height.  Off by default.|
+ |kMaplyFade|NSNumber|The number of seconds to fade a marker in when it appears and out when it disappears.|
+ |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyMarkerDrawPriorityDefault.|
+ |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's off by default, meaning that the geometry will draw on top of anything (respecting the kMaplyDrawPriority).|
+ |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
+ |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ 
+ @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
+ 
+ @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
+ */
+- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/// @brief This calls addScreenLabels:desc:mode: with mode set to MaplyThreadAny
+- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc;
+
+/** @brief Add one or more screen labels to the current scene.
+    @details This method will add the given MaplyScreenLabel objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
+    @param labels An NSArray of MaplyScreenLabel objects.
+    @param desc The desciption dictionary which controls how the labels will be constructed.  It takes the following entries.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyTextColor|UIColor|Color we'll use for the text. Black by default.|
+ |kMaplyBackgroundColor|UIColor|Color we'll use for the rectangle background.  Use clearColor to make this invisible.|
+ |kMaplyFont|UIFont|The font we'll use for the text.|
+ |kMaplyLabelHeight|NSNumber|Height of the text in points.|
+ |kMaplyLabelWidth|NSNumber|Width of the text in points.  It's best to set Height and leave this out.  That way the width will be calculated by the toolkit.|
+ |kMaplyJustify|NSString|This can be set to @"middle", @"left", or @"right" to justify the text around the location.|
+ |kMaplyShadowSize|NSNumber|If set, we'll draw a shadow with the kMaplyShadowColor offset by this amount.  We recommend using an outline instead.|
+ |kMaplyShadowColor|UIColor|If we're drawing a shadow, this is its color.|
+ |kMaplyTextOutlineSize|NSNumber|If set, we'll draw an outline around the text (really draw it twice).  The outline will be this large.|
+ |kMaplyTextOutlineColor|UIColor|If we're drawing an outline, it's in this color.|
+ |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The label will only be visible if the user is above this height.  Off by default.|
+ |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The label will only be visible if the user is below this height.  Off by default.|
+ |kMaplyFade|NSNumber|The number of seconds to fade a screen label in when it appears and out when it disappears.|
+ |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ 
+    @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
+ 
+    @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
+ */
+- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/// @brief This calls addLabels:desc:mode: with mode set to MaplyThreadAny
+- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc;
+
+/** @brief Add one or more 3D labels to the current scene.
+    @details This method will add the given MaplyLabel objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
+    @param labels An NSArray of MaplyLabel objects.
+    @param desc The desciption dictionary which controls how the labels will be constructed.  It takes the following entries.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyTextColor|UIColor|Color we'll use for the text. Black by default.|
+ |kMaplyBackgroundColor|UIColor|Color we'll use for the rectangle background.  Use clearColor to make this invisible.|
+ |kMaplyFont|UIFont|The font we'll use for the text.|
+ |kMaplyLabelHeight|NSNumber|Height of the text in display coordinates.  For the globe these are based on radius = 1.0.|
+ |kMaplyLabelWidth|NSNumber|Width of the text in display coordinates.  It's best to set Height and leave this out.  That way the width will be calculated by the toolkit.|
+ |kMaplyJustify|NSString|This can be set to @"middle", @"left", or @"right" to justify the text around the location.|
+ |kMaplyShadowSize|NSNumber|If set, we'll draw a shadow with the kMaplyShadowColor offset by this amount.  We recommend using an outline instead.|
+ |kMaplyShadowColor|UIColor|If we're drawing a shadow, this is its color.|
+ |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The label will only be visible if the user is above this height.  Off by default.|
+ |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The label will only be visible if the user is below this height.  Off by default.|
+ |kMaplyFade|NSNumber|The number of seconds to fade a label in when it appears and out when it disappears.|
+ |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyLabelDrawPriorityDefault.|
+ |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's off by default, meaning that the geometry will draw on top of anything (respecting the kMaplyDrawPriority).|
+ |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
+ |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ 
+ @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
+ 
+ @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
+ */
+- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 /// @brief This calls addVectors:desc:mode: with mode set to MaplyThreadAny
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc;
@@ -257,6 +407,7 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  */
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
+<<<<<<< HEAD
 // Note: Porting
 ///// @brief This calls addShapes:desc:mode: with mode set to MaplyThreadAny
 //- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
@@ -341,6 +492,87 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 //    @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
 //  */
 //- (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+=======
+/// @brief This calls addShapes:desc:mode: with mode set to MaplyThreadAny
+- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
+
+/** @brief Add one or more MaplyShape children to the current scene.
+    @details This method will add the given MaplyShape derived objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
+    @param shapes An NSArray of MaplyShape derived objects.
+    @param desc The desciption dictionary which controls how the shapes will look.  It takes the following entries.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyColor|UIColor|Color we'll use for the shape features.|
+ |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The shapes will only be visible if the user is above this height.  Off by default.|
+ |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The shapes will only be visible if the user is below this height.  Off by default.|
+ |kMaplyFade|NSNumber|The number of seconds to fade a shape in when it appears and out when it disappears.|
+ |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyVectorShapePriorityDefault.|
+ |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's on by default, meaning that the geometry can be occluded by things drawn first.|
+ |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
+ |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ 
+ @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
+ 
+ @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
+ */
+- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/// @brief This calls addStickers:desc:mode: with mode set to MaplyThreadAny
+- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc;
+
+/** @brief Add one or more MaplySticker objects to the current scene.
+    @details This method will add the given MaplySticker objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
+    @param stickers An NSArray of MaplySticker derived objects.
+    @param desc The desciption dictionary which controls how the stickers will look.  It takes the following entries.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyColor|UIColor|Color we'll use for the stickers.|
+ |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The stickers will only be visible if the user is above this height.  Off by default.|
+ |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The stickers will only be visible if the user is below this height.  Off by default.|
+ |kMaplyFade|NSNumber|The number of seconds to fade a sticker in when it appears and out when it disappears.|
+ |kMaplySampleX|NSNumber|Stickers are broken up along two dimensions to adhere to the globe.  By default this is done adaptively.  If you want to override it, this is the X dimension for the sticker.|
+ |kMaplySampleY|NSNumber|If you want to override it, this is the Y dimension for the sticker.|
+ |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyVectorShapePriorityDefault.|
+ |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's off by default, meaning that it will draw on top of things before it..|
+ |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
+ |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ |kMaplyShader|NSString|If set, this is the name of the MaplyShader to use when rendering the sticker(s).|
+ 
+ @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
+ 
+ @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
+ */
+- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/** @brief Modify an existing sticker.  This only supports changing the active textures.
+    @details This method will change attributes of a sticker that's currently in use.  At present that's just the images it's displaying.  
+    @param compObj The component object representing one or more existing stickers.
+    @param desc The description dictionary for changes we're making to the sticker.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyStickerImages|NSARray|The array of images to apply to the sticker.  You can reuse old ones or introduce new ones.|
+  */
+- (void)changeSticker:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/** @brief Add one or more MaplyBillboard objects to the current scene.
+    @details This method will add the given MaplyBillboard objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
+    @param billboards An NSArray of MaplyBillboard objects.
+    @param desc The description dictionary that controls how the billboards will look.  It takes the following entries.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyColor|UIColor|Color we'll use for the stickers.|
+ |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The billboards will only be visible if the user is above this height.  Off by default.|
+ |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The billboards will only be visible if the user is below this height.  Off by default.|
+ |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyBillboardDrawPriorityDefault.|
+
+    @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
+  */
+- (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 /** @brief Add vectors that can be used for selections.
     @details These are MaplyVectorObject's that will show up in user selection, but won't be visible.  So if a user taps on one, you get the vector in your delegate.  Otherwise, no one will know it's there.
@@ -354,6 +586,7 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 - (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc;
 
+<<<<<<< HEAD
 // Note: Porting
 ///** @brief Adds the MaplyVectorObject's passed in as lofted polygons.
 //    @details Lofted polygons are filled polygons draped on top of the globe with height.  By using a transparent color, these can be used to represent selection or relative values on the globe (or map).
@@ -426,6 +659,77 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 //    @details The layout engine works with screen objects, such MaplyScreenLabel and MaplyScreenMaker.  If those have layoutImportance set, this will control the maximum number we can display.
 //  */
 //- (void)setMaxLayoutObjects:(int)maxLayoutObjects;
+=======
+/** @brief Adds the MaplyVectorObject's passed in as lofted polygons.
+    @details Lofted polygons are filled polygons draped on top of the globe with height.  By using a transparent color, these can be used to represent selection or relative values on the globe (or map).
+ 
+    @param polys An NSArray of MaplyVectorObject.
+    @param key This is part of an old caching system that's no longer necessary.  Set it to nil.
+    @param cacheDb This is part of an old caching system that's no longer necessary.  Set it to nil.
+    @param desc The desciption dictionary which controls how the lofted polys will look.  It takes the following entries.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyColor|UIColor|Color we'll use for the lofted polygons.  A bit of alpha looks good.|
+ |kMaplyLoftedPolyHeight|NSNumber|Height of the top of the lofted polygon in display units.  For the globe display units are based on a radius of 1.0.|
+ |kMaplyLoftedPolyTop|NSNumber boolean|If on we'll create the geometry for the top.  On by default.|
+ |kMaplyLoftedPolySide|NSNumber boolean|If on we'll create geometry for the sides.  On by default.|
+ |kMaplyLoftedPolyGridSize|NSNumber|The size of the grid (in degrees) we'll use to chop up the vector features to make them follow the sphere (for a globe).|
+ |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The lofted polys will only be visible if the user is above this height.  Off by default.|
+ |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The lofted polys will only be visible if the user is below this height.  Off by default.|
+ |kMaplyFade|NSNumber|The number of seconds to fade a lofted poly in when it appears and out when it disappears.|
+ |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyLoftedPolysShapePriorityDefault.|
+ |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's on by default, meaning that it can be occluded by geometry coming before it.|
+ |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
+ |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+  
+ @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
+  */
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc;
+
+/// @brief Add a view tracker to move a UIView around based on a geographic location.
+- (void)addViewTracker:(MaplyViewTracker *)viewTrack;
+
+/// @brief Remove an existing view tracker.
+- (void)removeViewTrackForView:(UIView *)view;
+
+/** @brief Add an image as a texture and return a MaplyTexture to track it.
+    @details We reference count UIImages attached to Maply objects, but that has a couple of drawbacks.  First, it retains the UIImage and if that's large, that's a waste of memory.  Second, if you're adding and removing Maply objects you may repeatedly create and delete the same UIImage, which is a waste of CPU.
+    @details This method solves the problem by letting you create the texture associated with the UIImage and use it where you like.  You can assign these in any place a UIImage is accepted on Maply objects.
+    @details You don't have call this before using a UIImage in a MaplyScreenMarker or other object.  The system takes care of it for you.  This is purely for optimization.
+    @param image The image we wish to retain the texture for.
+    @param imageFormat If we create this image, this is the texture format we want it to use.
+ 
+ | Image Format | Description |
+ |:-------------|:------------|
+ | MaplyImageIntRGBA | 32 bit RGBA with 8 bits per channel.  The default. |
+ | MaplyImageUShort565 | 16 bits with 5/6/5 for RGB and none for A. |
+ | MaplyImageUShort4444 | 16 bits with 4 bits for each channel. |
+ | MaplyImageUShort5551 | 16 bits with 5/5/5 bits for RGB and 1 bit for A. |
+ | MaplyImageUByteRed | 8 bits, where we choose the R and ignore the rest. |
+ | MaplyImageUByteGreen | 8 bits, where we choose the G and ignore the rest. |
+ | MaplyImageUByteBlue | 8 bits, where we choose the B and ignore the rest. |
+ | MaplyImageUByteAlpha | 8 bits, where we choose the A and ignore the rest. |
+ | MaplyImageUByteRGB | 8 bits, where we average RGB for the value. |
+ | MaplyImage4Layer8Bit | 32 bits, four channels of 8 bits each.  Just like MaplyImageIntRGBA, but a warning not to do anything too clever in sampling. |
+
+    @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred.
+ 
+    @return A MaplyTexture you'll want to keep track of.  It goes out of scope, the OpenGL ES texture will be deleted.
+ */
+- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
+
+/** @brief Remove the OpenGL ES texture associated with the given MaplyTexture.
+    @details MaplyTexture's will remove their associated OpenGL textures when they go out of scope.  This method does it expicitly and clears out the internals of the MaplyTexture.
+    @details Only call this if you're managing the texture explicitly and know you're finished with them.
+  */
+- (void)removeTexture:(MaplyTexture *)image mode:(MaplyThreadMode)threadMode;
+
+/** @brief Set the max number of objects for the layout engine to display.
+    @details The layout engine works with screen objects, such MaplyScreenLabel and MaplyScreenMaker.  If those have layoutImportance set, this will control the maximum number we can display.
+  */
+- (void)setMaxLayoutObjects:(int)maxLayoutObjects;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 /// @brief Calls removeObjects:mode: with MaplyThreadAny.
 - (void)removeObject:(MaplyComponentObject *)theObj;
@@ -465,6 +769,7 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 - (void)endChanges;
 
+<<<<<<< HEAD
 // Note: Porting
 ///** @brief Add the given active object to the scene.
 //    @details Active objects are used for immediate, frame based updates.  They're fairly expensive, so be careful.  After you create one, you add it to the scene here.
@@ -476,6 +781,18 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 //
 ///// @brief Remove an array of active objects from the scene
 //- (void)removeActiveObjects:(NSArray *)theObjs;
+=======
+/** @brief Add the given active object to the scene.
+    @details Active objects are used for immediate, frame based updates.  They're fairly expensive, so be careful.  After you create one, you add it to the scene here.
+  */
+- (void)addActiveObject:(MaplyActiveObject *)theObj;
+
+/// @brief Remove an active object from the scene.
+- (void)removeActiveObject:(MaplyActiveObject *)theObj;
+
+/// @brief Remove an array of active objects from the scene
+- (void)removeActiveObjects:(NSArray *)theObjs;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 /** @brief Add a MaplyViewControllerLayer to the globe or map.
     @details At present, layers are for paged geometry such as image tiles or vector tiles.  You can create someting like a MaplyQuadImageTilesLayer, set it up and then hand it to addLayer: to add to the scene.

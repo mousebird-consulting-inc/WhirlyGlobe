@@ -27,7 +27,11 @@ using namespace WhirlyKit;
 
 @implementation WhirlyGlobePanDelegate
 {
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/PanDelegate.mm
     WhirlyGlobe::GlobeView *view;
+=======
+	WhirlyGlobeView * __weak view;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/PanDelegate.mm
     /// Set if we're in the process of panning
 	BOOL panning;
 	/// The view transform when we started
@@ -66,7 +70,11 @@ using namespace WhirlyKit;
 {
 	UIPanGestureRecognizer *pan = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)pan.view;
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/PanDelegate.mm
 	WhirlyKit::SceneRendererES *sceneRender = glView.renderer;
+=======
+	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/PanDelegate.mm
 	
 	if (pan.numberOfTouches > 1)
 	{
@@ -81,6 +89,7 @@ using namespace WhirlyKit;
 			view->cancelAnimation();
 
 			// Save the first place we touched
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/PanDelegate.mm
 			startTransform = view->calcFullMatrix();
 			startQuat = view->getRotQuat();
 			panning = NO;
@@ -88,6 +97,14 @@ using namespace WhirlyKit;
             if (view->pointOnSphereFromScreen([pan locationInView:glView],&startTransform,
                                     Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor),
                                             &startOnSphere,true))
+=======
+			startTransform = [view calcFullMatrix];
+			startQuat = [view rotQuat];
+			panning = NO;
+            if ([view pointOnSphereFromScreen:[pan locationInView:glView] transform:&startTransform
+                                    frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                            hit:&startOnSphere normalized:true])
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/PanDelegate.mm
 				panning = YES;
 		}
 			break;
@@ -99,10 +116,16 @@ using namespace WhirlyKit;
 
 				// Figure out where we are now
 				Point3d hit;
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/PanDelegate.mm
                 Point2f frameSize = sceneRender->getFramebufferSize();
                 view->pointOnSphereFromScreen([pan locationInView:glView],&startTransform,
                                     Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor),
                                             &hit,true);
+=======
+                [view pointOnSphereFromScreen:[pan locationInView:glView] transform:&startTransform
+                                    frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                            hit:&hit normalized:true];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/PanDelegate.mm
 
 				// This gives us a direction to rotate around
 				// And how far to rotate

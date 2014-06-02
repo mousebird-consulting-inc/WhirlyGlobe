@@ -20,6 +20,10 @@
 
 #import <vector>
 #import <set>
+<<<<<<< HEAD
+=======
+#import <UIKit/UIKit.h>
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 #import "Identifiable.h"
 #import "WhirlyVector.h"
@@ -59,7 +63,11 @@ public:
     void addTexture(Texture *tex,const Region &region);
     
     /// Add the data at a given location in the texture
+<<<<<<< HEAD
     void addTextureData(int startX,int startY,int width,int height,RawDataRef data);
+=======
+    void addTextureData(int startX,int startY,int width,int height,NSData *data);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// Set or clear a given region
     void setRegion(const Region &region,bool enable);
@@ -118,17 +126,29 @@ typedef struct
 class DynamicTextureAddRegion : public ChangeRequest
 {
 public:
+<<<<<<< HEAD
     DynamicTextureAddRegion(SimpleIdentity texId,int startX,int startY,int width,int height,RawDataRef data)
     : texId(texId), startX(startX), startY(startY), width(width), height(height), data(data) { }
     
 
     /// Add the region.  Never call this.
 	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+=======
+    DynamicTextureAddRegion(SimpleIdentity texId,int startX,int startY,int width,int height,NSData *data)
+    : texId(texId), startX(startX), startY(startY), width(width), height(height), data(data) { }
+
+    /// Add the region.  Never call this.
+	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     SimpleIdentity texId;
     int startX,startY,width,height;
+<<<<<<< HEAD
     RawDataRef data;
+=======
+    NSData *data;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 };
     
 /// Tell a dynamic texture that a region has been released for use
@@ -139,7 +159,11 @@ public:
     DynamicTextureClearRegion(SimpleIdentity texId,const DynamicTexture::Region &region) : texId(texId), region(region) { }
 
     /// Clear the region from the given dynamic texture.  Never call this.
+<<<<<<< HEAD
 	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+=======
+	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 protected:
     SimpleIdentity texId;
@@ -155,6 +179,7 @@ class DynamicTextureAtlas
 {
 public:
     /// Construct with the square size of the textures, the cell size (in pixels) and the pixel format
+<<<<<<< HEAD
     DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1,bool mainThreadMerge=false);
     ~DynamicTextureAtlas();
 
@@ -162,6 +187,11 @@ public:
     ///  and subtract this/pixelSize from the upper right for each texture application.
     void setPixelFudgeFactor(float pixFudge);
 
+=======
+    DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1);
+    ~DynamicTextureAtlas();
+
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Try to add the texture to one of our dynamic textures, or create one.
     bool addTexture(const std::vector<Texture *> &textures,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0);
     
@@ -171,9 +201,12 @@ public:
     /// Return the IDs for the dynamic textures we're using
     void getTextureIDs(std::vector<SimpleIdentity> &texIDs,int which);
 
+<<<<<<< HEAD
     /// Look for any textures that should be cleaned up
     void cleanup(ChangeSet &changes);
 
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Clear out the active dynamic textures.  Caller deals with the
     ///  change requests.
     void shutdown(ChangeSet &changes);
@@ -197,9 +230,13 @@ protected:
     int texSize;
     int cellSize;
     GLenum format;
+<<<<<<< HEAD
     float pixelFudge;
     bool mainThreadMerge;
 
+=======
+    
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     typedef std::set<TextureRegion> TextureRegionSet;
     TextureRegionSet regions;
     typedef std::set<DynamicTextureVec *,DynamicTextureVecSorter> DynamicTextureSet;

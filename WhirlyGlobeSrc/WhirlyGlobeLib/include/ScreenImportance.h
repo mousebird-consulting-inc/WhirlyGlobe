@@ -18,12 +18,24 @@
  *
  */
 
+<<<<<<< HEAD
 #import "Platform.h"
 #import <math.h>
 #import <boost/shared_ptr.hpp>
 #import "WhirlyVector.h"
 #import "Scene.h"
 #import "GlobeMath.h"
+=======
+#import <Foundation/Foundation.h>
+#import <math.h>
+#import "WhirlyVector.h"
+#import "TextureGroup.h"
+#import "Scene.h"
+#import "DataLayer.h"
+#import "LayerThread.h"
+#import "GlobeMath.h"
+#import "sqlhelpers.h"
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 #import "Quadtree.h"
 #import "SceneRendererES.h"
 
@@ -32,6 +44,7 @@ namespace WhirlyKit
 {
 
 /// Check if any part of the given tile is on screen
+<<<<<<< HEAD
 bool TileIsOnScreen(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr,const WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs);
     
 /// Utility function to calculate importance based on pixel screen size.
@@ -41,10 +54,24 @@ double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f
 /// Utility function to calculate importance based on pixel screen size.
 /// This version takes a min/max height and is optimized for volumes.
 double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr, double minZ,double maxZ, const WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs);
+=======
+bool TileIsOnScreen(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs);
+    
+/// Utility function to calculate importance based on pixel screen size.
+/// This would be used by the data source as a default.
+double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed, int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr, WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs);
+
+/// Utility function to calculate importance based on pixel screen size.
+/// This version takes a min/max height and is optimized for volumes.
+double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr, double minZ,double maxZ, WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs);
+
+}
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 /// A solid volume used to describe the display space a tile takes up.
 /// We use these for screen space calculations and cache them in the tile
 ///  idents.
+<<<<<<< HEAD
 class DisplaySolid : public DelayedDeletable
 {
 public:
@@ -74,3 +101,27 @@ public:
 typedef boost::shared_ptr<DisplaySolid> DisplaySolidRef;
 
 }
+=======
+@interface WhirlyKitDisplaySolid : NSObject
+
+/// The actual polygons for the side (we are lazy)
+@property (nonatomic,assign) std::vector<std::vector<WhirlyKit::Point3d> > &polys;
+/// Normals for all 5 or 6 planes
+@property (nonatomic,assign) std::vector<Eigen::Vector3d> &normals;
+/// Normals for the surface.  We use these to make sure the solid is pointing towards us.
+@property (nonatomic,assign) std::vector<Eigen::Vector3d> &surfNormals;
+
+/// Create a display solid, including height.
++ (WhirlyKitDisplaySolid *)displaySolidWithNodeIdent:(WhirlyKit::Quadtree::Identifier &)nodeIdent mbr:(WhirlyKit::Mbr)nodeMbr minZ:(float)minZ maxZ:(float)maxZ srcSystem:(WhirlyKit::CoordSystem *)srcSystem adapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
+
+/// Returns true if the given point (in display space) is inside the volume
+- (bool)isInside:(WhirlyKit::Point3d)pt;
+
+/// Calculate the importance for this display solid given the user's eye position
+- (double)importanceForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
+
+/// See if this display solid is current in the viewing frustum
+- (bool)isOnScreenForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
+
+@end
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b

@@ -42,6 +42,14 @@ public:
     
 typedef boost::shared_ptr<DelayedDeletable> DelayedDeletableRef;
 
+/// This class give us a virtual destructor to make use of
+///  when we're deleting random objects at the end of the layer thread.
+class DelayedDeletable
+{
+public:
+    virtual ~DelayedDeletable() { }
+};
+
 /// Base class for the various coordinate systems
 ///  we use in the toolkits.
 class CoordSystem : public DelayedDeletable
@@ -56,6 +64,7 @@ public:
     /// Convert from lat/lon t the local coordinate system
     virtual WhirlyKit::Point3f geographicToLocal(WhirlyKit::GeoCoord) = 0;
     virtual WhirlyKit::Point3d geographicToLocal3d(WhirlyKit::GeoCoord) = 0;
+<<<<<<< HEAD
 
     /// Convert from the local coordinate system to geocentric
     virtual WhirlyKit::Point3f localToGeocentric(WhirlyKit::Point3f) = 0;
@@ -88,6 +97,40 @@ public:
     /// If the subclass can't support bounds (e.g. a globe), you get false back.
     virtual bool getBounds(Point3f &ll,Point3f &ur) = 0;
 
+=======
+
+    /// Convert from the local coordinate system to geocentric
+    virtual WhirlyKit::Point3f localToGeocentric(WhirlyKit::Point3f) = 0;
+    virtual WhirlyKit::Point3d localToGeocentric(WhirlyKit::Point3d) = 0;
+    
+    /// Convert from display coordinates to geocentric
+    virtual WhirlyKit::Point3f geocentricToLocal(WhirlyKit::Point3f) = 0;
+    virtual WhirlyKit::Point3d geocentricToLocal(WhirlyKit::Point3d) = 0;
+    
+    /// Return true if the given coordinate system is the same as the one passed in
+    virtual bool isSameAs(CoordSystem *coordSys) { return false; }
+};
+    
+/// Convert a point from one coordinate system to another
+Point3f CoordSystemConvert(CoordSystem *inSystem,CoordSystem *outSystem,Point3f inCoord);
+Point3d CoordSystemConvert3d(CoordSystem *inSystem,CoordSystem *outSystem,Point3d inCoord);
+    
+/** The Coordinate System Display Adapter handles the task of
+    converting coordinates in the native system to data values we
+    can display.
+ */
+class CoordSystemDisplayAdapter : public DelayedDeletable
+{
+public:
+    CoordSystemDisplayAdapter(CoordSystem *coordSys,Point3d center) : coordSys(coordSys), center(0.0,0.0,0.0) { }
+    virtual ~CoordSystemDisplayAdapter() { }
+    
+    /// If the subclass can support a bounding box, this returns true
+    ///  and the bounds.  Z values are ignored for now.
+    /// If the subclass can't support bounds (e.g. a globe), you get false back.
+    virtual bool getBounds(Point3f &ll,Point3f &ur) = 0;
+
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Convert from the system's local coordinates to display coordinates
     virtual WhirlyKit::Point3f localToDisplay(WhirlyKit::Point3f) = 0;
     virtual WhirlyKit::Point3d localToDisplay(WhirlyKit::Point3d) = 0;

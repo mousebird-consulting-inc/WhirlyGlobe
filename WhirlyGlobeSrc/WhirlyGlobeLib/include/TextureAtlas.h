@@ -23,6 +23,11 @@
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "Texture.h"
+<<<<<<< HEAD
+=======
+#import "GlobeScene.h"
+#import "LayerThread.h"
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 namespace WhirlyKit
 {
@@ -58,6 +63,7 @@ public:
     
 }
 
+<<<<<<< HEAD
 // Note: Porting
 ///** A Texture Atlas is used to consolidate textures
 //    for performance.  OpenGL doesn't like having a lot of little
@@ -112,3 +118,58 @@ public:
 //- (void)processIntoScene:(WhirlyKit::Scene *)scene layerThread:(WhirlyKitLayerThread *)layerThread texIDs:(std::set<WhirlyKit::SimpleIdentity> *)texIDs;
 //
 //@end
+=======
+/** A Texture Atlas is used to consolidate textures
+    for performance.  OpenGL doesn't like having a lot of little
+    textures and would much prefer one big one.  This is how we do
+    that.
+    Texture Atlases are typically built on the fly with images that
+    come in from other sources.
+ */
+@interface TextureAtlas : NSObject
+
+/// This is the texture ID that will be assigned when the texture is created
+@property (nonatomic,readonly) WhirlyKit::SimpleIdentity texId;
+
+/// Construct with texture size (needs to be a power of 2).
+/// We sort images into buckets (sizeX/gridX,sizeY/gridY)
+- (id)initWithTexSizeX:(unsigned int)texSizeX texSizeY:(unsigned int)texSizeY cellSizeX:(unsigned int)cellSizeX cellSizeY:(unsigned int)cellSizeY;
+    
+/// Add the image to this atlas and return texture coordinates
+///  to map into.
+/// Returns false if there wasn't room
+- (BOOL)addImage:(UIImage *)image texOrg:(WhirlyKit::TexCoord &)org texDest:(WhirlyKit::TexCoord &)dest;
+
+/// We cache the images and their coordinates.  Query the cache
+- (BOOL)getImageLayout:(UIImage *)image texOrg:(WhirlyKit::TexCoord &)org texDest:(WhirlyKit::TexCoord &)dest;
+
+/// Generate a texture from the images
+/// If the retImage pointer is set, you get that back.  It's autreleased.
+- (WhirlyKit::Texture *)createTexture:(UIImage **)retImage;
+
+@end
+
+/** The Texture Atlas Builder is used to build up a list of texture atlases which will be used to
+    speed up rendering related to textures.  You give this object UIImages
+    and it will sort them into appropriate texture atlases.  In return you get an
+    ID which you can use to uniquely identify your texture subset and a mapping into
+    the target texture atlas.  These IDs can be used in place of texture IDs with
+    most layers.  Lastly, you'll need to add all the textures and sub texture mappings
+    into the scene.
+  */
+@interface TextureAtlasBuilder : NSObject
+
+/// Construct with the size of the texture atlases to be produced.
+/// Must be a power of two.
+- (id)initWithTexSizeX:(unsigned int)texSizeX texSizeY:(unsigned int)texSizeY;
+
+/// Add the given image to a texture atlas.  You'll get a sub texture mapping back.
+/// Check the ID of SubTexture.  It will be EmptyIdentity on failure.
+- (WhirlyKit::SimpleIdentity)addImage:(UIImage *)image;
+
+/// Runs through the altases created and adds the resulting textures to the scene.
+/// Also puts the sub texture mappings in to the scene for use on the layer side.
+- (void)processIntoScene:(WhirlyKit::Scene *)scene layerThread:(WhirlyKitLayerThread *)layerThread texIDs:(std::set<WhirlyKit::SimpleIdentity> *)texIDs;
+
+@end
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b

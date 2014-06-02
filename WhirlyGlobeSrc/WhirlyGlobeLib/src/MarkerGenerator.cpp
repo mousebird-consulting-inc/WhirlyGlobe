@@ -29,7 +29,11 @@ void MarkerGenerator::Marker::addToDrawables(WhirlyKit::RendererFrameInfo *frame
 {
     if (!enable)
         return;
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/MarkerGenerator.cpp
     float visVal = frameInfo->theView->heightAboveSurface();
+=======
+    float visVal = [frameInfo->theView heightAboveSurface];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/MarkerGenerator.mm
     if (!(minVis == DrawVisibleInvalid || maxVis == DrawVisibleInvalid ||
          ((minVis <= visVal && visVal <= maxVis) ||
           (maxVis <= visVal && visVal <= minVis))))
@@ -191,7 +195,11 @@ void MarkerGenerator::generateDrawables(WhirlyKit::RendererFrameInfo *frameInfo,
     if (markers.empty())
         return;
 
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/MarkerGenerator.cpp
     float minZres = frameInfo->theView->calcZbufferRes();
+=======
+    float minZres = [frameInfo->theView calcZbufferRes];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/MarkerGenerator.mm
     
     // Keep drawables sorted by destination texture ID
     DrawableMap drawables;
@@ -212,8 +220,12 @@ void MarkerGenerator::generateDrawables(WhirlyKit::RendererFrameInfo *frameInfo,
 
 void MarkerGenerator::dumpStats()
 {
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/MarkerGenerator.cpp
     // Note: Porting
 //    NSLog(@"Marker Generator: %ld markers",markers.size());
+=======
+    NSLog(@"Marker Generator: %ld markers",markers.size());
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/MarkerGenerator.mm
 }
 
 MarkerGeneratorAddRequest::MarkerGeneratorAddRequest(SimpleIdentity genId,MarkerGenerator::Marker *marker)
@@ -234,7 +246,11 @@ MarkerGeneratorAddRequest::~MarkerGeneratorAddRequest()
     markers.clear();
 }
     
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/MarkerGenerator.cpp
 void MarkerGeneratorAddRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen)
+=======
+void MarkerGeneratorAddRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/MarkerGenerator.mm
 {
     MarkerGenerator *markerGen = (MarkerGenerator *)gen;
     markerGen->addMarkers(markers);
@@ -257,7 +273,11 @@ MarkerGeneratorRemRequest::~MarkerGeneratorRemRequest()
 {    
 }
     
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/MarkerGenerator.cpp
 void MarkerGeneratorRemRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen)
+=======
+void MarkerGeneratorRemRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/MarkerGenerator.mm
 {
     MarkerGenerator *markerGen = (MarkerGenerator *)gen;
     markerGen->removeMarkers(markerIDs);
@@ -272,13 +292,21 @@ MarkerGeneratorEnableRequest::~MarkerGeneratorEnableRequest()
 {
 }
     
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/MarkerGenerator.cpp
 void MarkerGeneratorEnableRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen)
+=======
+void MarkerGeneratorEnableRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/MarkerGenerator.mm
 {
     MarkerGenerator *markerGen = (MarkerGenerator *)gen;
     markerGen->enableMarkers(markerIDs,enable);
 }
     
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/MarkerGenerator.cpp
 MarkerGeneratorFadeRequest::MarkerGeneratorFadeRequest(SimpleIdentity genID,SimpleIdentity markerID,TimeInterval fadeUp,TimeInterval fadeDown)
+=======
+MarkerGeneratorFadeRequest::MarkerGeneratorFadeRequest(SimpleIdentity genID,SimpleIdentity markerID,NSTimeInterval fadeUp,NSTimeInterval fadeDown)
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/MarkerGenerator.mm
     : GeneratorChangeRequest(genID), fadeUp(fadeUp), fadeDown(fadeDown)
 {    
     markerIDs.push_back(markerID);
@@ -289,7 +317,11 @@ MarkerGeneratorFadeRequest::MarkerGeneratorFadeRequest(SimpleIdentity genID,cons
 {    
 }
     
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/MarkerGenerator.cpp
 void MarkerGeneratorFadeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen)
+=======
+void MarkerGeneratorFadeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/MarkerGenerator.mm
 {    
     MarkerGenerator *markerGen = (MarkerGenerator *)gen;
     

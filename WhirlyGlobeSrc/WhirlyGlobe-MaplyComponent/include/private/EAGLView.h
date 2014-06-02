@@ -20,7 +20,11 @@
 
 #import <UIKit/UIKit.h>
 
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/EAGLView.h
 #import "SceneRenderer_private.h"
+=======
+#import "SceneRendererES.h"
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/include/EAGLView.h
 
 /** OpenGL View is a
 	base class for implementing an open GL rendering view.
@@ -30,7 +34,11 @@
 @interface WhirlyKitEAGLView  : UIView 
 
 /// We're only expecting this to be set once
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/EAGLView.h
 @property (nonatomic) WhirlyKit::MaplySceneRendererES2 *renderer;
+=======
+@property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/include/EAGLView.h
 /// This is in units of 60/frameRate.  Set it to 4 to get 15 frames/sec (at most)
 @property (nonatomic) NSInteger frameInterval;
 /// True if we've got a displayLink turned on to animate.

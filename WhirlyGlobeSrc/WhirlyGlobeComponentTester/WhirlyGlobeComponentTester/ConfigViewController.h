@@ -39,7 +39,10 @@
 #define kMaplyTestUSGSOrtho @"USGS Ortho (WMS) - Remote"
 #define kMaplyTestOWM @"OpenWeatherMap - Remote"
 #define kMaplyTestForecastIO @"Forecast.IO Snapshot - Remote"
+<<<<<<< HEAD
 #define kMaplyTestQuadPaging @"Quad Paging Vector - Local"
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 // Objects we can display
 #define kMaplyTestCategoryObjects @"Maply Objects"

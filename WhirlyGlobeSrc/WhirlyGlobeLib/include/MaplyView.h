@@ -18,113 +18,74 @@
  *
  */
 
+#import "WhirlyVector.h"
+#import "WhirlyGeometry.h"
 #import "WhirlyKitView.h"
 
-//namespace Maply
-//{
-//class MapView;
-//}
+/// @cond
+@class MaplyView;
+/// @endcond
 
-// Note: Porting
 /// Animation callback
-//@protocol MaplyAnimationDelegate
-//- (void)updateView:(Maply::MapView *)mapView;
-//@end
-
-namespace Maply
-{
+@protocol MaplyAnimationDelegate
+- (void)updateView:(MaplyView *)mapView;
+@end
 
 /** Parameters associated with viewing the map.
     Modify the location to change the current view location.
     Set the delegate to smoothly change location over time.
  */
-class MapView : public WhirlyKit::View
-{
-public:
-    MapView(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
-    /// Copy constructor
-    MapView(const MapView &that);
-    virtual ~MapView();
+@interface MaplyView : WhirlyKitView
 
-    /// Set the callback delegate
-    // Note: Porting
-//    void setDelegate(NSObject<MaplyAnimationDelegate> *delegate);
+/// Viewer location
+@property(nonatomic,readonly) WhirlyKit::Point3d &loc;
+/// Viewer rotation angle
+@property(nonatomic,readonly) double &rotAngle;
+/// Used to update position based on time (or whatever)
+@property(nonatomic,weak) NSObject<MaplyAnimationDelegate> *delegate;
 
-    /// Cancel any outstanding animation
-    void cancelAnimation();
+/// Initialize with the coordinate system we'll use
+- (id)initWithCoordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
 
-    /// Renderer calls this every update
-    void animate();
+/// Cancel any outstanding animation
+- (void)cancelAnimation;
 
-    /// Calculate the Z buffer resolution
-    float calcZbufferRes();
+/// Renderer calls this every update
+- (void)animate;
 
-    /// Generate the model view matrix for use by OpenGL.
-    virtual Eigen::Matrix4d calcModelMatrix();
-    
-    /// Generate the view matrix for use by OpenGL
-    virtual Eigen::Matrix4d calcViewMatrix();
-    
-    /// Generate the whole matrix (minus projection)
-    virtual Eigen::Matrix4d calcFullMatrix();
+/// Calculate the Z buffer resolution
+- (float)calcZbufferRes;
 
-    /// Height above the plane
-    double heightAboveSurface();
-    
-    /// Put together one or more offset matrices to express wrapping
-    virtual void getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize);
+/// Generate the model view matrix for use by OpenGL.
+- (Eigen::Matrix4d)calcModelMatrix;
 
-    /// Minimum valid height above plane
-    double minHeightAboveSurface();
+/// Height above the plane
+- (double)heightAboveSurface;
 
-    /// Maximum valid height above plane
-    double maxHeightAboveSurface();
+/// Minimum valid height above plane
+- (double)minHeightAboveSurface;
 
-    /// Set the location, but we may or may not run updates
-    void setLoc(WhirlyKit::Point3d &loc,bool runUpdates);
+/// Maximum valid height above plane
+- (double)maxHeightAboveSurface;
 
-    /// Set the location we're looking from.  Always runs updates
-    void setLoc(WhirlyKit::Point3d newLoc);
-    
-    /// Return the current location
-    WhirlyKit::Point3d getLoc() { return loc; }
-    
-    /// Return the current rotation
-    double getRotAngle() { return rotAngle; }
-    
-    /// Return the wrap status
-    bool getWrap() { return wrap; }
-    
-    /// Set whether we're wrapping across world boundaries
-    void setWrap(bool inWrap)  { wrap = inWrap; }
+/// Set the location, but we may or may not run updates
+- (void)setLoc:(WhirlyKit::Point3d &)loc runUpdates:(bool)runUpdates;
 
-    /** Given a location on the screen and the screen size, figure out where we touched
-        the plane.  Returns true if we hit and where.
-        Returns false if we didn't, which can only happened if we're turned away.
-     */
-    bool pointOnPlaneFromScreen(WhirlyKit::Point2f pt,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d *hit,bool clip);
+/** Given a location on the screen and the screen size, figure out where we touched
+    the plane.  Returns true if we hit and where.
+    Returns false if we didn't, which can only happened if we're turned away.
+ */
+- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3d *)hit clip:(bool)clip;
 
-    /** From a world location in 3D, figure the projection to the screen.
-        Returns a point within the frame.
-      */
-    WhirlyKit::Point2f pointOnScreenFromPlane(const WhirlyKit::Point3d &worldLoc,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize);
+/** From a world location in 3D, figure the projection to the screen.
+    Returns a point within the frame.
+  */
+- (CGPoint)pointOnScreenFromPlane:(const WhirlyKit::Point3d &)worldLoc transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
 
-    /// Set the rotation angle
-    void setRotAngle(double newRotAngle);
-    
-    /// Turn a wrapped coordinate (e.g. may be outside -M_PI,M_PI) back into a real world coordinate
-    WhirlyKit::Point2f unwrapCoordinate(const WhirlyKit::Point2f &pt);
-    
-protected:
-    /// Viewer location
-    WhirlyKit::Point3d loc;
-    /// Viewer rotation angle
-    double rotAngle;
-    /// If set, we're wrapping across the date line
-    bool wrap;
-    /// Used to update position based on time (or whatever)
-    // Note: Porting
-//    NSObject<MaplyAnimationDelegate> *delegate;
-};
+/// Set the location we're looking from
+- (void)setLoc:(WhirlyKit::Point3d)newLoc;
 
-}
+/// Set the rotation angle
+- (void)setRotAngle:(double)newRotAngle;
+
+@end

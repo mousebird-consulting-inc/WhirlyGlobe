@@ -20,6 +20,7 @@
 
 #import "MaplyQuadImageTilesLayer_private.h"
 #import "MaplyCoordinateSystem_private.h"
+<<<<<<< HEAD
 // Note: Porting
 //#import "MaplyActiveObject.h"
 //#import "MaplyActiveObject_private.h"
@@ -205,30 +206,96 @@ public:
 //}
 //
 //@end
+=======
+#import "QuadDisplayLayer.h"
+#import "MaplyActiveObject.h"
+#import "MaplyActiveObject_private.h"
+#import "MaplyBaseViewController_private.h"
+#import "WhirlyGlobe.h"
+#import "MaplyImageTile_private.h"
+
+using namespace WhirlyKit;
+
+@interface MaplyQuadImageTilesLayer()
+- (void)setCurrentImage:(float)currentImage cancelUpdater:(bool)cancelUpdater;
+@end
+
+/* An active model is called by the renderer right before
+ we render a frame.  This lets us mess with the images
+ being displayed by a tile layer in an immediate way.
+ */
+@interface ActiveImageUpdater : MaplyActiveObject
+// Tile loader that's got the images we need
+@property (nonatomic,weak) MaplyQuadImageTilesLayer *tileLayer;
+// The last valid value for currentImage
+@property float maxCurrentImage;
+// The period over which we'll switch them all
+@property float period;
+// Start time, for offset purposes
+@property NSTimeInterval startTime;
+// The program ID, so we can change the interpolation
+@property SimpleIdentity programId;
+@end
+
+@implementation ActiveImageUpdater
+
+- (bool)hasUpdate
+{
+    return true;
+}
+
+- (void)updateForFrame:(WhirlyKit::RendererFrameInfo *)frameInfo
+{
+    if (!_tileLayer)
+        return;
+    
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    float where = fmodf(now-_startTime,_period)/_period * (_maxCurrentImage-1);
+    
+    [_tileLayer setCurrentImage:where cancelUpdater:false];
+}
+
+@end
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 
 @implementation MaplyQuadImageTilesLayer
 {
     MaplyBaseViewController * __weak _viewC;
+<<<<<<< HEAD
     MaplyQuadImageDisplayAdapter adapter;
     WhirlyKitQuadDisplayLayer *quadLayer;
     QuadTileLoader *tileLoader;
+=======
+    WhirlyKitQuadTileLoader *tileLoader;
+    WhirlyKitQuadDisplayLayer *quadLayer;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     Scene *scene;
     MaplyCoordinateSystem *coordSys;
     NSObject<MaplyTileSource> *tileSource;
     int minZoom,maxZoom;
     int tileSize;
     bool sourceWantsAsync;
+<<<<<<< HEAD
     // Note: Porting
 //    ActiveImageUpdater *imageUpdater;
+=======
+    ActiveImageUpdater *imageUpdater;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     SimpleIdentity _customShader;
     float _minElev,_maxElev;
     bool canShortCircuitImportance;
     int maxShortCircuitLevel;
+<<<<<<< HEAD
     SceneRendererES *_renderer;
     ViewState lastViewState;
     // Note: Porting
 //    NSObject<MaplyElevationSourceDelegate> *elevDelegate;
+=======
+    WhirlyKitSceneRendererES *_renderer;
+    WhirlyKitViewState *lastViewState;
+    NSObject<MaplyElevationSourceDelegate> *elevDelegate;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     bool variableSizeTiles;
     bool canDoValidTiles;
 }
@@ -276,7 +343,11 @@ public:
     return self;
 }
 
+<<<<<<< HEAD
 - (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(SceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC
+=======
+- (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 {
     _viewC = viewC;
     super.layerThread = inLayerThread;
@@ -289,6 +360,7 @@ public:
     tileSize = [tileSource tileSize];
     
     // Set up tile and and quad layer with us as the data source
+<<<<<<< HEAD
     adapter.layer = self;
     tileLoader = new QuadTileLoader("Image Layer",&adapter);
     [self setupTileLoader];
@@ -298,12 +370,27 @@ public:
     quadLayer.displayControl->setMaxTiles(_maxTiles);
     quadLayer.displayControl->setViewUpdatePeriod(_viewUpdatePeriod);
     quadLayer.displayControl->setMinUpdateDist(_minUpdateDist);
+=======
+    tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:self];
+    [self setupTileLoader];
+    
+    quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
+    quadLayer.fullLoad = _waitLoad;
+    quadLayer.fullLoadTimeout = _waitLoadTimeout;
+    quadLayer.maxTiles = _maxTiles;
+    quadLayer.viewUpdatePeriod = _viewUpdatePeriod;
+    quadLayer.minUpdateDist = _minUpdateDist;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     // Look for a custom program
     if (_shaderProgramName)
     {
         _customShader = scene->getProgramIDBySceneName([_shaderProgramName cStringUsingEncoding:NSASCIIStringEncoding]);
+<<<<<<< HEAD
         tileLoader->setProgramId(_customShader);
+=======
+        tileLoader.programId = _customShader;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     } else
         _customShader = EmptyIdentity;
     
@@ -324,14 +411,19 @@ public:
             [self setCurrentImage:_currentImage];
     }
     
+<<<<<<< HEAD
     // Note: Porting
 //    elevDelegate = _viewC.elevDelegate;
+=======
+    elevDelegate = _viewC.elevDelegate;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     [super.layerThread addLayer:quadLayer];
 
     return true;
 }
 
+<<<<<<< HEAD
 - (void)dealloc
 {
     if (tileLoader)
@@ -354,11 +446,26 @@ public:
     ChangeSet changes;
     tileLoader->setEnable(_enable,changes);
     // Note: Not expecting changes here
+=======
+- (void)setupTileLoader
+{
+    tileLoader.ignoreEdgeMatching = !_handleEdges;
+    tileLoader.coverPoles = _coverPoles;
+    tileLoader.minVis = _minVis;
+    tileLoader.maxVis = _maxVis;
+    tileLoader.drawPriority = super.drawPriority;
+    tileLoader.numImages = _imageDepth;
+    tileLoader.includeElev = _includeElevAttrForShader;
+    tileLoader.useElevAsZ = (_viewC.elevDelegate != nil) && _useElevAsZ;
+    tileLoader.textureAtlasSize = _texturAtlasSize;
+    tileLoader.enable = _enable;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     switch (_imageFormat)
     {
         case MaplyImageIntRGBA:
         case MaplyImage4Layer8Bit:
         default:
+<<<<<<< HEAD
             tileLoader->setImageType(WKTileIntRGBA);
             break;
         case MaplyImageUShort565:
@@ -388,12 +495,44 @@ public:
     }
     if (_color)
         tileLoader->setColor([_color asRGBAColor]);
+=======
+            tileLoader.imageType = WKTileIntRGBA;
+            break;
+        case MaplyImageUShort565:
+            tileLoader.imageType = WKTileUShort565;
+            break;
+        case MaplyImageUShort4444:
+            tileLoader.imageType = WKTileUShort4444;
+            break;
+        case MaplyImageUShort5551:
+            tileLoader.imageType = WKTileUShort5551;
+            break;
+        case MaplyImageUByteRed:
+            tileLoader.imageType = WKTileUByteRed;
+            break;
+        case MaplyImageUByteGreen:
+            tileLoader.imageType = WKTileUByteGreen;
+            break;
+        case MaplyImageUByteBlue:
+            tileLoader.imageType = WKTileUByteBlue;
+            break;
+        case MaplyImageUByteAlpha:
+            tileLoader.imageType = WKTileUByteAlpha;
+            break;
+        case MaplyImageUByteRGB:
+            tileLoader.imageType = WKTileUByteRGB;
+            break;
+    }
+    if (_color)
+        tileLoader.color = [_color asRGBAColor];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 - (void)setAnimationPeriod:(float)animationPeriod
 {
     _animationPeriod = animationPeriod;
     
+<<<<<<< HEAD
     // Note: Porting
 //    if (_viewC)
 //    {
@@ -422,6 +561,35 @@ public:
 //            }
 //        }
 //    }
+=======
+    if (_viewC)
+    {
+        if (imageUpdater)
+        {
+            if (_animationPeriod > 0.0)
+            {
+                imageUpdater.period = _animationPeriod;
+            } else {
+                [_viewC removeActiveObject:imageUpdater];
+                imageUpdater = nil;
+            }
+        } else {
+            if (_animationPeriod > 0.0)
+            {
+                imageUpdater = [[ActiveImageUpdater alloc] init];
+                imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
+                if (_maxCurrentImage > 1)
+                    imageUpdater.startTime = imageUpdater.startTime-_currentImage/(_maxCurrentImage-1)*_animationPeriod;
+                imageUpdater.tileLayer = self;
+                imageUpdater.period = _animationPeriod;
+                imageUpdater.maxCurrentImage = _maxCurrentImage;
+                imageUpdater.programId = _customShader;
+                tileLoader.programId = _customShader;
+                [_viewC addActiveObject:imageUpdater];
+            }
+        }
+    }
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 - (void)setCurrentImage:(float)currentImage
@@ -432,6 +600,7 @@ public:
 - (void)setCurrentImage:(float)currentImage cancelUpdater:(bool)cancelUpdater
 {
     _currentImage = currentImage;
+<<<<<<< HEAD
 
     // Note: Porting
 //    if (cancelUpdater && imageUpdater)
@@ -439,6 +608,14 @@ public:
 //        [_viewC removeActiveObject:imageUpdater];
 //        imageUpdater = nil;
 //    }
+=======
+    
+    if (cancelUpdater && imageUpdater)
+    {
+        [_viewC removeActiveObject:imageUpdater];
+        imageUpdater = nil;
+    }
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     if (!scene)
         return;
@@ -460,7 +637,11 @@ public:
     
     // Change the images to give us start and finish
     ChangeSet changes;
+<<<<<<< HEAD
     tileLoader->setCurrentImageStart(image0,image1,changes);
+=======
+    [tileLoader setCurrentImageStart:image0 end:image1 changes:changes];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     if (!changes.empty())
         scene->addChangeRequests(changes);
     
@@ -473,7 +654,11 @@ public:
 
         glUseProgram(prog->getProgram());
         prog->setUniform("u_interp", t);
+<<<<<<< HEAD
         _renderer->forceDrawNextFrame();
+=======
+        [_renderer forceDrawNextFrame];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
         if (oldContext)
             [EAGLContext setCurrentContext:oldContext];
@@ -483,31 +668,47 @@ public:
 - (void)setEnable:(bool)enable
 {
     _enable = enable;
+<<<<<<< HEAD
     ChangeSet changes;
     tileLoader->setEnable(_enable,changes);
     if (!changes.empty())
         scene->addChangeRequests(changes);
+=======
+    tileLoader.enable = _enable;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 - (void)setHandleEdges:(bool)handleEdges
 {
     _handleEdges = handleEdges;
     if (tileLoader)
+<<<<<<< HEAD
         tileLoader->setIgnoreEdgeMatching(!_handleEdges);
+=======
+        tileLoader.ignoreEdgeMatching = !_handleEdges;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 - (void)setCoverPoles:(bool)coverPoles
 {
     _coverPoles = coverPoles;
     if (tileLoader)
+<<<<<<< HEAD
         tileLoader->setCoverPoles(coverPoles);
+=======
+        tileLoader.coverPoles = coverPoles;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 - (void)setDrawPriority:(int)drawPriority
 {
     super.drawPriority = drawPriority;
     if (tileLoader)
+<<<<<<< HEAD
         tileLoader->setDrawPriority(drawPriority);
+=======
+        tileLoader.drawPriority = drawPriority;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 - (void)reload
@@ -524,9 +725,14 @@ public:
 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene
 {
+<<<<<<< HEAD
     // Note: Porting
 //    [_viewC removeActiveObject:imageUpdater];
 //    imageUpdater = nil;
+=======
+    [_viewC removeActiveObject:imageUpdater];
+    imageUpdater = nil;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     [inLayerThread removeLayer:quadLayer];
 }
 
@@ -538,7 +744,11 @@ public:
 
 - (int)targetZoomLevel
 {
+<<<<<<< HEAD
     if (!lastViewState.isValid() || !_renderer || !scene)
+=======
+    if (!lastViewState || !_renderer || !scene)
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         return minZoom;
     
     int zoomLevel = 0;
@@ -548,6 +758,7 @@ public:
         WhirlyKit::Quadtree::Identifier ident;
         ident.x = 0;  ident.y = 0;  ident.level = zoomLevel;
         // Make an MBR right in the middle of where we're looking
+<<<<<<< HEAD
         Mbr mbr = quadLayer.displayControl->getQuadtree()->generateMbrForNode(ident);
         Point2f span = mbr.ur()-mbr.ll();
         mbr.ll() = center - span/2.0;
@@ -555,6 +766,14 @@ public:
         Dictionary attrs;
         float import = ScreenImportance(&lastViewState, _renderer->getFramebufferSize(), lastViewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, &attrs);
         if (import <= quadLayer.displayControl->getMinImportance())
+=======
+        Mbr mbr = quadLayer.quadtree->generateMbrForNode(ident);
+        Point2f span = mbr.ur()-mbr.ll();
+        mbr.ll() = center - span/2.0;
+        mbr.ur() = center + span/2.0;
+        float import = ScreenImportance(lastViewState, Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight), lastViewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
+        if (import <= quadLayer.minImportance)
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         {
             zoomLevel--;
             break;
@@ -568,9 +787,15 @@ public:
 
 /// Called when we get a new view state
 /// We need to decide if we can short circuit the screen space calculations
+<<<<<<< HEAD
 - (void)newViewState:(ViewState *)viewState
 {
     lastViewState = *viewState;
+=======
+- (void)newViewState:(WhirlyKitViewState *)viewState
+{
+    lastViewState = viewState;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
     if (!_useTargetZoomLevel)
     {
@@ -579,7 +804,11 @@ public:
         return;
     }
     
+<<<<<<< HEAD
     CoordSystemDisplayAdapter *coordAdapter = viewState->coordAdapter;
+=======
+    CoordSystemDisplayAdapter *coordAdapter = viewState.coordAdapter;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     Point3d center = coordAdapter->getCenter();
     if (center.x() == 0.0 && center.y() == 0.0 && center.z() == 0.0)
     {
@@ -589,6 +818,16 @@ public:
             canShortCircuitImportance = false;
             return;
         }
+<<<<<<< HEAD
+=======
+        // We happen to store tilt in the view matrix.
+        Eigen::Matrix4d &viewMat = viewState.viewMatrix;
+        if (!viewMat.isIdentity())
+        {
+            canShortCircuitImportance = false;
+            return;
+        }
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         // The tile source coordinate system must be the same as the display's system
         if (!coordSys->coordSystem->isSameAs(coordAdapter->getCoordSystem()))
         {
@@ -598,9 +837,12 @@ public:
         
         // We need to feel our way down to the appropriate level
         maxShortCircuitLevel = [self targetZoomLevel];
+<<<<<<< HEAD
         // Note: Porting
 //        if (_singleLevelLoading)
 //            quadLayer.targetLevel = maxShortCircuitLevel;
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     } else {
         // Note: Can't short circuit in this case.  Something wrong with the math
         canShortCircuitImportance = false;
@@ -640,7 +882,11 @@ public:
 }
 
 /// Return an importance value for the given tile
+<<<<<<< HEAD
 - (double)importanceForTile:(const WhirlyKit::Quadtree::Identifier &)ident mbr:(const WhirlyKit::Mbr &)mbr viewInfo:(ViewState *) viewState frameSize:(const WhirlyKit::Point2f &)frameSize attrs:(Dictionary *)attrs
+=======
+- (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 {
     if (ident.level == 0)
         return MAXFLOAT;
@@ -673,6 +919,7 @@ public:
         if (ident.level <= maxShortCircuitLevel)
             import += 1.0;
     } else {
+<<<<<<< HEAD
 //        if (elevDelegate)
         // Note: Porting
         if (false)
@@ -680,6 +927,13 @@ public:
             import = ScreenImportance(viewState, frameSize, thisTileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, _minElev, _maxElev, ident, attrs);
         } else {
             import = ScreenImportance(viewState, frameSize, viewState->eyeVec, thisTileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+=======
+        if (elevDelegate)
+        {
+            import = ScreenImportance(viewState, frameSize, thisTileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, _minElev, _maxElev, ident, attrs);
+        } else {
+            import = ScreenImportance(viewState, frameSize, viewState.eyeVec, thisTileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         }
     }
 
@@ -717,11 +971,18 @@ public:
     if (isLocal)
         isLocal = [tileSource tileIsLocal:tileID];
     // And the elevation delegate, if there is one
+<<<<<<< HEAD
     // Note: Porting
 //    if (isLocal && elevDelegate)
 //    {
 //        isLocal = [elevDelegate tileIsLocal:tileID];
 //    }
+=======
+    if (isLocal && elevDelegate)
+    {
+        isLocal = [elevDelegate tileIsLocal:tileID];
+    }
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     return isLocal;
 }
@@ -732,7 +993,11 @@ public:
 /// This version of the load method passes in a mutable dictionary.
 /// Store your expensive to generate key/value pairs here.
 // Note: Not handling the case where we get a corrupt image and then store it to the cache.
+<<<<<<< HEAD
 - (void)startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(Dictionary *)attrs
+=======
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 {
     MaplyTileID tileID;
     tileID.x = col;  tileID.y = row;  tileID.level = level;
@@ -740,7 +1005,11 @@ public:
     // If this is lower level than we're representing, just fake it
     if (tileID.level < minZoom)
     {
+<<<<<<< HEAD
         NSArray *args = @[[[MaplyImageTile alloc] initAsPlaceholder],@(tileID.x),@(tileID.y),@(tileID.level)];
+=======
+        NSArray *args = @[[WhirlyKitLoadedImage PlaceholderImage],@(tileID.x),@(tileID.y),@(tileID.level)];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         if (super.layerThread)
         {
             if ([NSThread currentThread] == super.layerThread)
@@ -758,7 +1027,11 @@ public:
         int y = (1<<level)-tileID.y-1;
         tileID.y = y;
     }
+<<<<<<< HEAD
     int borderTexel = tileLoader->getBorderTexel();
+=======
+    int borderTexel = quadLoader.borderTexel;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     // The tile source wants to do all the async management
     // Well fine.  I'm not offended.  Really.  It's fine.
@@ -781,6 +1054,7 @@ public:
     // This is the fetching block.  We'll invoke it a couple of different ways below.
     void (^workBlock)() =
     ^{
+<<<<<<< HEAD
         // Note: Porting
         // Start with elevation
 //        MaplyElevationChunk *elevChunk = nil;
@@ -803,13 +1077,42 @@ public:
 //            
 //            return;
 //        }
+=======
+        // Start with elevation
+        MaplyElevationChunk *elevChunk = nil;
+        if (elevDelegate.minZoom <= tileID.level && tileID.level <= elevDelegate.maxZoom)
+        {
+            elevChunk = [elevDelegate elevForTile:tileID];
+        }
+        
+        // Needed elevation and failed to load, so stop
+        if (elevDelegate && _requireElev && !elevChunk)
+        {
+            NSArray *args = @[[NSNull null],@(col),@(row),@(level)];
+            if (super.layerThread)
+            {
+                if ([NSThread currentThread] == super.layerThread)
+                    [self performSelector:@selector(mergeTile:) withObject:args];
+                else
+                    [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
+            }
+            
+            return;
+        }
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
         // Get the data for the tile and sort out what the delegate returned to us
         id tileReturn = [tileSource imageForTile:tileID];
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
+<<<<<<< HEAD
         [tileData convertToRaw:borderTexel destWidth:-1 destHeight:-1];
         
         if (!tileData)
+=======
+        WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderTexel convertToRaw:true];
+        
+        if (tileData && !loadTile)
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         {
             NSLog(@"Bad image data for tile: %d: (%d,%d)",level,col,row);
         }
@@ -834,6 +1137,7 @@ public:
         }
 #endif
         
+<<<<<<< HEAD
         // Note: Porting
         // Let's not forget the elevation
 //        if (loadTile && tileData.type != MaplyImgTypePlaceholder && elevChunk)
@@ -850,6 +1154,23 @@ public:
 //        }
         
         NSArray *args = @[(tileData ? tileData : [NSNull null]),@(col),@(row),@(level)];
+=======
+        // Let's not forget the elevation
+        if (loadTile && tileData.type != MaplyImgTypePlaceholder && elevChunk)
+        {
+            WhirlyKitElevationChunk *wkChunk = nil;
+            if ([elevChunk.data length] == sizeof(unsigned short)*elevChunk.numX*elevChunk.numY)
+            {
+                wkChunk = [[WhirlyKitElevationChunk alloc] initWithShortData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
+            } else if ([elevChunk.data length] == sizeof(float)*elevChunk.numX*elevChunk.numY)
+            {
+                wkChunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
+            }
+            loadTile.elevChunk = wkChunk;
+        }
+            
+        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level)];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         if (super.layerThread)
         {
             if ([NSThread currentThread] == super.layerThread)
@@ -872,6 +1193,7 @@ public:
 
 - (void)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID
 {
+<<<<<<< HEAD
     int borderTexel = tileLoader->getBorderTexel();
 
     // Get the data for the tile and sort out what the delegate returned to us
@@ -920,6 +1242,54 @@ public:
 //    }
     
     NSArray *args = @[(tileData ? tileData : [NSNull null]),@(tileID.x),@(tileID.y),@(tileID.level)];
+=======
+    int borderTexel = tileLoader.borderTexel;
+
+    // Get the data for the tile and sort out what the delegate returned to us
+    MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
+    WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderTexel convertToRaw:true];
+
+    // Start with elevation
+    MaplyElevationChunk *elevChunk = nil;
+    if (tileData && elevDelegate)
+    {
+        if (elevDelegate.minZoom <= tileID.level && tileID.level <= elevDelegate.maxZoom)
+        {
+            elevChunk = [elevDelegate elevForTile:tileID];
+        }
+        
+        // Needed elevation and failed to load, so stop
+        if (elevDelegate && _requireElev && !elevChunk)
+        {
+            NSArray *args = @[[NSNull null],@(tileID.x),@(tileID.y),@(tileID.level)];
+            if (super.layerThread)
+            {
+                if ([NSThread currentThread] == super.layerThread)
+                    [self performSelector:@selector(mergeTile:) withObject:args];
+                else
+                    [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
+            }
+            
+            return;
+        }
+    }
+    
+    // Let's not forget the elevation
+    if (loadTile && tileData.type != MaplyImgTypePlaceholder && elevChunk)
+    {
+        WhirlyKitElevationChunk *wkChunk = nil;
+        if ([elevChunk.data length] == sizeof(unsigned short)*elevChunk.numX*elevChunk.numY)
+        {
+            wkChunk = [[WhirlyKitElevationChunk alloc] initWithShortData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
+        } else if ([elevChunk.data length] == sizeof(float)*elevChunk.numX*elevChunk.numY)
+        {
+            wkChunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
+        }
+        loadTile.elevChunk = wkChunk;
+    }
+    
+    NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(tileID.y),@(tileID.level)];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     if (super.layerThread)
     {
         if ([NSThread currentThread] == super.layerThread)
@@ -935,17 +1305,26 @@ public:
     if (!super.layerThread)
         return;
     
+<<<<<<< HEAD
     MaplyImageTile *loadTile = args[0];
+=======
+    WhirlyKitLoadedTile *loadTile = args[0];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     if ([loadTile isKindOfClass:[NSNull class]])
         loadTile = nil;
     int col = [args[1] intValue];
     int row = [args[2] intValue];
     int level = [args[3] intValue];
+<<<<<<< HEAD
 
     LoadedImageWrapper tileWrapper(loadTile);
     ChangeSet changes;
     tileLoader->loadedImage(&adapter, &tileWrapper, level, col, row, changes);
     [super.layerThread addChangeRequests:changes];
+=======
+    
+    [tileLoader dataSource: self loadedImage:loadTile forLevel: level col: col row: row];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 

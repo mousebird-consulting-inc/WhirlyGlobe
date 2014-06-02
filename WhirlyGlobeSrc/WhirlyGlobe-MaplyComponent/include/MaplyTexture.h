@@ -20,7 +20,10 @@
 
 #import <Foundation/Foundation.h>
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 /** @brief Represents an OpenGL texture.
     @details The MaplyTexture is an opaque object used to track OpenGL ES textures.  You create one from the MaplyBaseViewController's addImage call.  Then that texture will live until this object is released.
     @details These can be used in place of UIImages in the various objects (e.g. MaplyScreenMarker).

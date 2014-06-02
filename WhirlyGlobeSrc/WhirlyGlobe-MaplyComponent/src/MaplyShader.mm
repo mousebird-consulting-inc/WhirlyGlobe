@@ -29,7 +29,11 @@ using namespace WhirlyKit;
 @implementation MaplyShader
 {
     WhirlyKit::Scene *scene;
+<<<<<<< HEAD
     MaplySceneRendererES2 *renderer;
+=======
+    WhirlyKitSceneRendererES * __weak renderer;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     NSString *buildError;
     EAGLContext *context;
     // Texture we created for use in this shader
@@ -111,6 +115,7 @@ using namespace WhirlyKit;
     return _program->getId();
 }
 
+<<<<<<< HEAD
 // Note: Porting
 //- (void)addTextureNamed:(NSString *)shaderAttrName image:(UIImage *)auxImage
 //{
@@ -143,6 +148,39 @@ using namespace WhirlyKit;
 //    if (oldContext != [EAGLContext currentContext])
 //        [EAGLContext setCurrentContext:oldContext];
 //}
+=======
+- (void)addTextureNamed:(NSString *)shaderAttrName image:(UIImage *)auxImage
+{
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        NSLog(@"Tried to add texture, but not on main thread");
+        return;
+    }
+    
+    if (!scene || !renderer)
+        return;
+
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    [renderer useContext];
+    [renderer forceDrawNextFrame];
+    
+    Texture *auxTex = new Texture([_name cStringUsingEncoding:NSASCIIStringEncoding],auxImage);
+    SimpleIdentity auxTexId = auxTex->getId();
+    auxTex->createInGL(scene->getMemManager());
+    GLuint glTexId = auxTex->getGLId();
+    scene->addChangeRequest(new AddTextureReq(auxTex));
+    OpenGLES2Program *prog = scene->getProgramBySceneName([_name cStringUsingEncoding:NSASCIIStringEncoding]);
+    if (prog)
+    {
+        prog->setTexture([shaderAttrName cStringUsingEncoding:NSASCIIStringEncoding], (int)glTexId);
+    }
+    
+    texIDs.insert(auxTexId);
+    
+    if (oldContext != [EAGLContext currentContext])
+        [EAGLContext setCurrentContext:oldContext];
+}
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 - (bool)setUniformFloatNamed:(NSString *)uniName val:(float)val
 {
@@ -150,8 +188,13 @@ using namespace WhirlyKit;
         return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
+<<<<<<< HEAD
     renderer->useContext();
     renderer->forceDrawNextFrame();
+=======
+    [renderer useContext];
+    [renderer forceDrawNextFrame];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     glUseProgram(_program->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -169,8 +212,13 @@ using namespace WhirlyKit;
         return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
+<<<<<<< HEAD
     renderer->useContext();
     renderer->forceDrawNextFrame();
+=======
+    [renderer useContext];
+    [renderer forceDrawNextFrame];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     glUseProgram(_program->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -188,8 +236,13 @@ using namespace WhirlyKit;
         return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
+<<<<<<< HEAD
     renderer->useContext();
     renderer->forceDrawNextFrame();
+=======
+    [renderer useContext];
+    [renderer forceDrawNextFrame];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     glUseProgram(_program->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -208,8 +261,13 @@ using namespace WhirlyKit;
         return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
+<<<<<<< HEAD
     renderer->useContext();
     renderer->forceDrawNextFrame();
+=======
+    [renderer useContext];
+    [renderer forceDrawNextFrame];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     glUseProgram(_program->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -228,8 +286,12 @@ using namespace WhirlyKit;
         return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
+<<<<<<< HEAD
     renderer->useContext();
     renderer->forceDrawNextFrame();
+=======
+    [renderer useContext];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     glUseProgram(_program->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -256,9 +318,14 @@ using namespace WhirlyKit;
     if (scene)
     {
         ChangeSet changes;
+<<<<<<< HEAD
         // Note: Porting
 //        for (SimpleIDSet::iterator it = texIDs.begin();it != texIDs.end(); ++it)
 //            changes.push_back(new RemTextureReq(*it));
+=======
+        for (SimpleIDSet::iterator it = texIDs.begin();it != texIDs.end(); ++it)
+            changes.push_back(new RemTextureReq(*it));
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         scene->addChangeRequests(changes);
     }
 }

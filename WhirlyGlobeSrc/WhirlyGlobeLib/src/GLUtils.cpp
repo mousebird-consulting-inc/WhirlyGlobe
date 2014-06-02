@@ -22,7 +22,11 @@
 #import "GLUtils.h"
 
 // Turn this off for a little performance gain
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/GLUtils.cpp
 #if DEBUG || __ANDROID__
+=======
+#ifdef DEBUG
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/GLUtils.mm
 static bool ErrorsOn = true;
 #else
 static bool ErrorsOn = false;

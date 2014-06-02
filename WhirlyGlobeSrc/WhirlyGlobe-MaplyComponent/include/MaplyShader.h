@@ -110,6 +110,7 @@ These are the per vertex attributes provided to each vertex shader.
   */
 @property NSString *name;
 
+<<<<<<< HEAD
 // Note: Porting
 ///** @brief Add a texture tied to the given attribute name.
 //    @details Shaders can have a variety of attributes passed to them.  This is incompletely implemented and documented.  In this particular case we add the given image, convert it to a texture and tie it to the shader attribute name.
@@ -117,6 +118,14 @@ These are the per vertex attributes provided to each vertex shader.
 //    @param image The UIImage we'll convert to a texture and pass in.  This UIImage will be tracked by the view controller and disposed of when we're finished iwht it.
 //  */
 //- (void)addTextureNamed:(NSString *)shaderAttrName image:(UIImage *)image;
+=======
+/** @brief Add a texture tied to the given attribute name.
+    @details Shaders can have a variety of attributes passed to them.  This is incompletely implemented and documented.  In this particular case we add the given image, convert it to a texture and tie it to the shader attribute name.
+    @param shaderAttrName The name of the attribute in the shader.  This should be compatible with a texture.
+    @param image The UIImage we'll convert to a texture and pass in.  This UIImage will be tracked by the view controller and disposed of when we're finished iwht it.
+  */
+- (void)addTextureNamed:(NSString *)shaderAttrName image:(UIImage *)image;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 /** @brief Set a float uniform in the shader with the given name.
     @return Returns true if there was such a uniform, false otherwise.

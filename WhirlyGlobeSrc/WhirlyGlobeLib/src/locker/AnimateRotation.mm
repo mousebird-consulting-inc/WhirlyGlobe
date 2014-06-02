@@ -23,13 +23,21 @@
 @implementation AnimateViewRotation
 
 
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/AnimateRotation.mm
 - (id)initWithView:(WhirlyGlobe::GlobeView *)globeView rot:(Eigen::Quaterniond &)newRot howLong:(float)howLong
+=======
+- (id)initWithView:(WhirlyGlobeView *)globeView rot:(Eigen::Quaterniond &)newRot howLong:(float)howLong
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/AnimateRotation.mm
 {
     if ((self = [super init]))
     {
         _startDate = CFAbsoluteTimeGetCurrent();
         _endDate = CFAbsoluteTimeGetCurrent() + howLong;
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/AnimateRotation.mm
         _startRot = globeView->getRotQuat();
+=======
+        _startRot = [globeView rotQuat];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/AnimateRotation.mm
         _endRot = newRot;
     }
     
@@ -50,6 +58,7 @@
 	// All done.  Snap to the end
 	if (remain < 0)
 	{
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/AnimateRotation.mm
 		globeView->setRotQuat(_endRot);
         _startDate = 0;
         _endDate = 0;
@@ -58,6 +67,16 @@
 		// Interpolate somewhere along the path
 		float t = (span-remain)/span;
 		globeView->setRotQuat(_startRot.slerp(t,_endRot));
+=======
+		[globeView setRotQuat:_endRot];
+        _startDate = 0;
+        _endDate = 0;
+        [globeView cancelAnimation];
+	} else {
+		// Interpolate somewhere along the path
+		float t = (span-remain)/span;
+		[globeView setRotQuat:_startRot.slerp(t,_endRot)];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/AnimateRotation.mm
 	}
 }
 

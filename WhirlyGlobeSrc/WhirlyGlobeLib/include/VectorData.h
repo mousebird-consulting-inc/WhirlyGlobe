@@ -28,7 +28,10 @@
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
 #import "CoordSystem.h"
+<<<<<<< HEAD
 #import "Dictionary.h"
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 namespace WhirlyKit
 {
@@ -88,7 +91,11 @@ typedef std::set<VectorShapeRef,VectorShapeRefCmp> ShapeSet;
 /// Calculate area of a loop
 float CalcLoopArea(const VectorRing &);
 /// Calculate area of a loop
+<<<<<<< HEAD
 double CalcLoopArea(const Point2dVector &);
+=======
+double CalcLoopArea(const std::vector<Point2d> &);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 /// Calculate the centroid of a loop
 Point2f CalcLoopCentroid(const VectorRing &loop);
     
@@ -117,7 +124,11 @@ public:
 	GeoMbr geoMbr;
 
     // Shared points
+<<<<<<< HEAD
     Point3fVector pts;
+=======
+    std::vector<Point3f> pts;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     // Triangles
     std::vector<Triangle> tris;
     
@@ -210,7 +221,11 @@ void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool clo
 /// Break any edge that deviates by the given epsilon from the surface described in
 ///  the display adapter.  But rather than using lat lon values, we'll output in
 ///  display coordinates and build points along the great circle.
+<<<<<<< HEAD
 void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,Point3fVector &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float sphereOffset = 0.0,int minPts = 0);
+=======
+void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float sphereOffset = 0.0,int minPts = 0);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 /** Base class for loading a vector data file.
     Fill this into hand data over to whomever wants it.
@@ -245,20 +260,32 @@ public:
     We don't know for sure what we'll get back, so you have to go
     looking through it.  Return false on parse failure.
  */
+<<<<<<< HEAD
 bool VectorParseGeoJSON(ShapeSet &shapes,const std::string &str);
+=======
+bool VectorParseGeoJSON(ShapeSet &shapes,NSData *jsonData);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
  
 /** Helper routine to parse geoJSON into a collection of vectors.
     We don't know for sure what we'll get back, so you have to go
     looking through it.  Return false on parse failure.
  */
+<<<<<<< HEAD
 // Note: Porting
 //bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict);
+=======
+bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 /** Helper routine to parse a GeoJSON assembly into an array of
     collections of vectors.  This format is returned by the experimental
     OSM server for vectors.
   */
+<<<<<<< HEAD
 bool VectorParseGeoJSONAssembly(const std::string &str,std::map<std::string,ShapeSet> &shapes);
+=======
+bool VectorParseGeoJSONAssembly(NSData *data,std::map<std::string,ShapeSet> &shapes);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 bool VectorReadFile(const std::string &fileName,ShapeSet &shapes);
 bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes);

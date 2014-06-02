@@ -21,8 +21,14 @@
 #import "MaplyVectorObject.h"
 #import "MaplyVectorObject_private.h"
 #import <WhirlyGlobe.h>
+<<<<<<< HEAD
 #import <CoreLocation/CoreLocation.h>
 #import "DictionaryWrapper_private.h"
+=======
+#import "Tesselator.h"
+#import "GridClipper.h"
+#import <CoreLocation/CoreLocation.h>
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -36,10 +42,14 @@ using namespace WhirlyGlobe;
     {
         MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
         
+<<<<<<< HEAD
         // Note: Kind of an extra step here
         NSString *str = [[NSString alloc] initWithData:geoJSON encoding:NSUTF8StringEncoding];
         std::string cStr = [str UTF8String];
         if (!VectorParseGeoJSON(vecObj->_shapes, cStr))
+=======
+        if (!VectorParseGeoJSON(vecObj->_shapes, geoJSON))
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
             return nil;
         
         return vecObj;
@@ -53,10 +63,14 @@ using namespace WhirlyGlobe;
     if ([geoJSON length] > 0)
     {
         std::map<std::string,ShapeSet> shapes;
+<<<<<<< HEAD
         // Note: Kind of an extra step here
         NSString *str = [[NSString alloc] initWithData:geoJSON encoding:NSUTF8StringEncoding];
         std::string cStr = [str UTF8String];
         if (!VectorParseGeoJSONAssembly(cStr, shapes))
+=======
+        if (!VectorParseGeoJSONAssembly(geoJSON, shapes))
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
             return nil;
         
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];
@@ -78,6 +92,7 @@ using namespace WhirlyGlobe;
     return nil;
 }
 
+<<<<<<< HEAD
 ///// Parse vector data from geoJSON.  Returns one object to represent
 ////   the whole thing, which might include multiple different vectors.
 //+ (WGVectorObject *)VectorObjectFromGeoJSONApple:(NSData *)geoJSON
@@ -112,6 +127,42 @@ using namespace WhirlyGlobe;
 //    
 //    return vecObj;
 //}
+=======
+/// Parse vector data from geoJSON.  Returns one object to represent
+//   the whole thing, which might include multiple different vectors.
++ (WGVectorObject *)VectorObjectFromGeoJSONApple:(NSData *)geoJSON
+{
+    if([geoJSON length] > 0)
+    {
+        NSError *error = nil;
+        NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:geoJSON options:NULL error:&error];
+        if (error || ![jsonDict isKindOfClass:[NSDictionary class]])
+            return nil;
+        
+        WGVectorObject *vecObj = [[WGVectorObject alloc] init];
+
+        if (!VectorParseGeoJSON(vecObj->_shapes,jsonDict))
+            return nil;
+
+      return vecObj;
+    }
+    
+    return nil;
+}
+
++ (MaplyVectorObject *)VectorObjectFromGeoJSONDictionary:(NSDictionary *)jsonDict
+{
+    if (![jsonDict isKindOfClass:[NSDictionary class]])
+        return nil;
+    
+    WGVectorObject *vecObj = [[WGVectorObject alloc] init];
+    
+    if (!VectorParseGeoJSON(vecObj->_shapes,jsonDict))
+        return nil;
+    
+    return vecObj;
+}
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 + (MaplyVectorObject *)VectorObjectFromShapeFile:(NSString *)fileName
 {
@@ -121,6 +172,7 @@ using namespace WhirlyGlobe;
     }
     if (!fileName)
         return nil;
+<<<<<<< HEAD
 
     const char *cFileName = [fileName cStringUsingEncoding:NSASCIIStringEncoding];
     if (!cFileName)
@@ -128,6 +180,12 @@ using namespace WhirlyGlobe;
     ShapeReader shapeReader(cFileName);
     if (!shapeReader.isValid())
         return NULL;
+=======
+    
+    ShapeReader shapeReader(fileName);
+    if (!shapeReader.isValid())
+        return false;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
     int numObj = shapeReader.getNumObjects();
@@ -140,6 +198,7 @@ using namespace WhirlyGlobe;
     return vecObj;
 }
 
+<<<<<<< HEAD
 // Note: Porting
 //+ (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName
 //{
@@ -168,24 +227,60 @@ using namespace WhirlyGlobe;
 }
 
 // Note: Porting.  This is horribly inefficient
+=======
++ (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName
+{
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+    
+    if (!VectorReadFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], vecObj.shapes))
+        return nil;
+    
+    return vecObj;
+}
+
+- (bool)writeToFile:(NSString *)fileName
+{
+    return VectorWriteFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], _shapes);
+}
+
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 - (NSDictionary *)attributes
 {
     if (_shapes.empty())
         return nil;
     
     VectorShapeRef vec = *(_shapes.begin());
+<<<<<<< HEAD
     return [NSMutableDictionary DictionaryWithMaplyDictionary:vec->getAttrDict()];
+=======
+    return vec->getAttrDict();
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 - (void)setAttributes:(NSDictionary *)attributes
 {
     for (ShapeSet::iterator it = _shapes.begin();
          it != _shapes.end(); ++it)
+<<<<<<< HEAD
     {
         WhirlyKit::Dictionary *dict = (*it)->getAttrDict();
         dict->clear();
         [attributes copyToMaplyDictionary:dict];
     }
+=======
+        (*it)->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attributes]);
+}
+
+- (id)init
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _selectable = true;
+    
+    return self;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 /// Construct with a single point
@@ -197,7 +292,11 @@ using namespace WhirlyGlobe;
     {
         VectorPointsRef pts = VectorPoints::createPoints();
         pts->pts.push_back(GeoCoord(coord->x,coord->y));
+<<<<<<< HEAD
         [attr copyToMaplyDictionary:pts->getAttrDict()];
+=======
+        pts->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         pts->initGeoMbr();
         _shapes.insert(pts);
         
@@ -217,7 +316,11 @@ using namespace WhirlyGlobe;
         VectorLinearRef lin = VectorLinear::createLinear();
         for (unsigned int ii=0;ii<numCoords;ii++)
             lin->pts.push_back(GeoCoord(coords[ii].x,coords[ii].y));
+<<<<<<< HEAD
         [attr copyToMaplyDictionary:lin->getAttrDict()];
+=======
+        lin->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         lin->initGeoMbr();
         _shapes.insert(lin);
         
@@ -239,7 +342,11 @@ using namespace WhirlyGlobe;
         for (unsigned int ii=0;ii<numCoords;ii++)
             pts.push_back(GeoCoord(coords[ii].x,coords[ii].y));
         areal->loops.push_back(pts);
+<<<<<<< HEAD
         [attr copyToMaplyDictionary:areal->getAttrDict()];
+=======
+        areal->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         areal->initGeoMbr();
         _shapes.insert(areal);
         
@@ -365,7 +472,11 @@ using namespace WhirlyGlobe;
         if (points)
         {
             VectorPointsRef newPts = VectorPoints::createPoints();
+<<<<<<< HEAD
             newPts->setAttrDict(*points->getAttrDict());
+=======
+            [newPts->getAttrDict() addEntriesFromDictionary:points->getAttrDict()];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
             newPts->pts = points->pts;
             newVecObj.shapes.insert(newPts);
         } else {
@@ -373,7 +484,11 @@ using namespace WhirlyGlobe;
             if (lin)
             {
                 VectorLinearRef newLin = VectorLinear::createLinear();
+<<<<<<< HEAD
                 newLin->setAttrDict(*lin->getAttrDict());
+=======
+                [newLin->getAttrDict() addEntriesFromDictionary:lin->getAttrDict()];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
                 newLin->pts = lin->pts;
                 newVecObj.shapes.insert(newLin);
             } else {
@@ -381,7 +496,11 @@ using namespace WhirlyGlobe;
                 if (ar)
                 {
                     VectorArealRef newAr = VectorAreal::createAreal();
+<<<<<<< HEAD
                     newAr->setAttrDict(*ar->getAttrDict());
+=======
+                    [newAr->getAttrDict() addEntriesFromDictionary:ar->getAttrDict()];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
                     newAr->loops = ar->loops;
                     newVecObj.shapes.insert(newAr);
                 }
@@ -631,7 +750,11 @@ using namespace WhirlyGlobe;
         VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
         if (lin)
         {
+<<<<<<< HEAD
             Point2fVector outPts;
+=======
+            std::vector<Point2f> outPts;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
             SubdivideEdgesToSurface(lin->pts, outPts, false, &adapter, epsilon);
             lin->pts = outPts;
         } else {
@@ -640,7 +763,11 @@ using namespace WhirlyGlobe;
             {
                 for (unsigned int ii=0;ii<ar->loops.size();ii++)
                 {
+<<<<<<< HEAD
                     Point2fVector outPts;
+=======
+                    std::vector<Point2f> outPts;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
                     SubdivideEdgesToSurface(ar->loops[ii], outPts, true, &adapter, epsilon);
                     ar->loops[ii] = outPts;
                 }
@@ -659,7 +786,11 @@ using namespace WhirlyGlobe;
         VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
         if (lin)
         {
+<<<<<<< HEAD
             Point3fVector outPts;
+=======
+            std::vector<Point3f> outPts;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
             SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, &adapter, epsilon);
             VectorRing outPts2D;
             outPts2D.resize(outPts.size());
@@ -672,7 +803,11 @@ using namespace WhirlyGlobe;
             {
                 for (unsigned int ii=0;ii<ar->loops.size();ii++)
                 {
+<<<<<<< HEAD
                     Point3fVector outPts;
+=======
+                    std::vector<Point3f> outPts;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
                     SubdivideEdgesToSurfaceGC(ar->loops[ii], outPts, true, &adapter, epsilon);
                     VectorRing outPts2D;
                     outPts2D.resize(outPts.size());
@@ -696,7 +831,11 @@ using namespace WhirlyGlobe;
         {
             VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
             TesselateLoops(ar->loops, trisRef);
+<<<<<<< HEAD
             trisRef->setAttrDict(*ar->getAttrDict());
+=======
+            trisRef->setAttrDict(ar->getAttrDict());
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
             newVec->_shapes.insert(trisRef);
         }
     }
@@ -720,7 +859,11 @@ using namespace WhirlyGlobe;
                 for (unsigned int jj=0;jj<newLoops.size();jj++)
                 {
                     VectorArealRef newAr = VectorAreal::createAreal();
+<<<<<<< HEAD
                     newAr->setAttrDict(*ar->getAttrDict());
+=======
+                    newAr->setAttrDict(ar->getAttrDict());
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
                     newAr->loops.push_back(newLoops[jj]);
                     newVec->_shapes.insert(newAr);
                 }
@@ -733,6 +876,7 @@ using namespace WhirlyGlobe;
 
 @end
 
+<<<<<<< HEAD
 // Note: Porting
 //@implementation MaplyVectorDatabase
 //{
@@ -839,3 +983,110 @@ using namespace WhirlyGlobe;
 //}
 //
 //@end
+=======
+@implementation MaplyVectorDatabase
+{
+    VectorDatabase *vectorDb;
+    NSString *baseName;
+}
+
+- (id)initWithVectorDatabase:(VectorDatabase *)inVectorDb
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    vectorDb = inVectorDb;
+    
+    return self;
+}
+
+/// Construct from a shapefile in the bundle
++ (MaplyVectorDatabase *) vectorDatabaseWithShape:(NSString *)shapeName
+{
+    NSString *fileName = [[NSBundle mainBundle] pathForResource:shapeName ofType:@"shp"];
+    VectorDatabase *vecDb = new VectorDatabase([[NSBundle mainBundle] resourcePath],[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject],shapeName,new ShapeReader(fileName),NULL);
+    
+    MaplyVectorDatabase *mVecDb = [[MaplyVectorDatabase alloc] initWithVectorDatabase:vecDb];
+    mVecDb->baseName = shapeName;
+    return mVecDb;
+}
+
+/// Return vectors that match the given SQL query
+- (MaplyVectorObject *)fetchMatchingVectors:(NSString *)sqlQuery
+{
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+    vectorDb->getMatchingVectors(sqlQuery, vecObj.shapes);
+    
+    if (vecObj.shapes.empty())
+        return nil;
+    
+    return vecObj;
+}
+
+/// Search for all the areals that surround the given point (in geographic)
+- (MaplyVectorObject *)fetchArealsForPoint:(MaplyCoordinate)coord
+{
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+    vectorDb->findArealsForPoint(GeoCoord(coord.x,coord.y), vecObj.shapes);
+    
+    if (vecObj.shapes.empty())
+        return nil;
+    
+    return vecObj;
+}
+
+- (MaplyVectorObject *)fetchAllVectors
+{
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+    int numVecs = vectorDb->numVectors();
+    for (unsigned int ii=0;ii<numVecs;ii++)
+    {
+        VectorShapeRef shapeRef = vectorDb->getVector(ii);
+        vecObj.shapes.insert(shapeRef);
+    }
+    
+    if (vecObj.shapes.empty())
+        return nil;
+    
+    return vecObj;
+}
+
+#pragma mark - WhirlyKitLoftedPolyCache delegate
+
+// We'll look for the lofted poly data in the bundle first, then the cache dir
+- (NSData *)readLoftedPolyData:(NSString *)key
+{
+    // Look for cache files in the doc and bundle dirs
+    NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *bundleDir = [[NSBundle mainBundle] resourcePath];
+
+    NSString *cache0 = [NSString stringWithFormat:@"%@/%@_%@.loftcache",bundleDir,baseName,key];
+    NSString *cache1 = [NSString stringWithFormat:@"%@/%@_%@.loftcache",docDir,baseName,key];
+    
+    // Look for an existing file
+    NSString *cacheFile = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:cache0])
+        cacheFile = cache0;
+    else
+        if ([fileManager fileExistsAtPath:cache1])
+            cacheFile = cache1;
+
+    if (!cacheFile)
+        return nil;
+    
+    return [NSData dataWithContentsOfFile:cacheFile];
+}
+
+// We'll write the lofted poly data to the cache dir with the base name and key
+- (bool)writeLoftedPolyData:(NSData *)data cacheName:(NSString *)key
+{
+    NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *cacheFile = [NSString stringWithFormat:@"%@/%@_%@.loftcache",docDir,baseName,key];
+    
+    return [data writeToFile:cacheFile atomically:YES];
+}
+
+@end
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b

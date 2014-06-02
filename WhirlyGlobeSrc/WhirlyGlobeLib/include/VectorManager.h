@@ -22,11 +22,20 @@
 #import <vector>
 #import <set>
 #import <map>
+<<<<<<< HEAD
 #import "Drawable.h"
 #import "VectorData.h"
 #import "GlobeMath.h"
 #import "Dictionary.h"
 #import "Scene.h"
+=======
+#import <Foundation/Foundation.h>
+#import "Drawable.h"
+#import "DataLayer.h"
+#import "VectorData.h"
+#import "GlobeMath.h"
+#import "LayerThread.h"
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 namespace WhirlyKit
 {
@@ -42,18 +51,26 @@ namespace WhirlyKit
 class VectorSceneRep : public Identifiable
 {
 public:
+<<<<<<< HEAD
     VectorSceneRep() : fade(0.0) { }
+=======
+    VectorSceneRep() { }
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     VectorSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
     
     // Clean out the representation
     void clear(ChangeSet &changes);
     
     SimpleIDSet drawIDs;    // The drawables we created
+<<<<<<< HEAD
     SimpleIDSet instIDs;    // Instances if we're doing that
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     float fade;       // If set, the amount of time to fade out before deletion
 };
 typedef std::set<VectorSceneRep *,IdentifiableSorter> VectorSceneRepSet;
 
+<<<<<<< HEAD
 typedef enum {TextureProjectionNone,TextureProjectionTanPlane} TextureProjections;
 
 // Used to describe the drawable we'll construct for a given vector
@@ -82,6 +99,10 @@ public:
 
 #define kWKVectorManager "WKVectorManager"
 
+=======
+#define kWKVectorManager "WKVectorManager"
+    
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 /** The Vector Manager is used to create and destroy geometry associated with
     vector display.  It's entirely thread safe (except for destruction).
   */
@@ -92,6 +113,7 @@ public:
     virtual ~VectorManager();
     
     /// Add an array of vectors.  The returned ID can be used for removal.
+<<<<<<< HEAD
     SimpleIdentity addVectors(ShapeSet *shapes,const VectorInfo &desc,ChangeSet &changes);
     
     /// Change the vector(s) represented by the given ID
@@ -100,6 +122,13 @@ public:
     /// Make an instance of the give vectors with the given attributes and return an ID to identify them.
     SimpleIdentity instanceVectors(SimpleIdentity vecID,const Dictionary *desc,ChangeSet &changes);
 
+=======
+    SimpleIdentity addVectors(ShapeSet *shapes,NSDictionary *desc,ChangeSet &changes);
+    
+    /// Change the vector(s) represented by the given ID
+    void changeVectors(SimpleIdentity vecID,NSDictionary *desc,ChangeSet &changes);
+    
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Remove a group of vectors associated with the given ID
     void removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes);
     
@@ -110,5 +139,9 @@ protected:
     pthread_mutex_t vectorLock;
     VectorSceneRepSet vectorReps;
 };
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }

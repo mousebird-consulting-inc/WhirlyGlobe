@@ -26,7 +26,11 @@
     CADisplayLink *displayLink;
     bool resizeFail;
     int resizeFailRetry;
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/src/EAGLView.mm
     NSInteger _frameInterval;
+=======
+    int _frameInterval;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/EAGLView.mm
 }
 
 @synthesize frameInterval=_frameInterval;
@@ -133,7 +137,11 @@
     if (resizeFail)
         [self layoutSubviews];
 
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/src/EAGLView.mm
     _renderer->render(displayLink.duration*displayLink.frameInterval);
+=======
+    [_renderer render:displayLink.duration*displayLink.frameInterval];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/EAGLView.mm
 }
 
 - (void) setFrame:(CGRect)newFrame
@@ -149,7 +157,11 @@
         return;
     
     // Try to resize the renderer, multiple times if necessary
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/src/EAGLView.mm
 	if (!_renderer->resizeFromLayer((CAEAGLLayer*)self.layer))
+=======
+	if (![_renderer resizeFromLayer:(CAEAGLLayer*)self.layer])
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/EAGLView.mm
     {
         if (!resizeFail)
         {

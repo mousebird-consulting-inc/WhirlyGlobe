@@ -89,8 +89,12 @@
                                                rows:
                 @{kMaplyTestUSGSOrtho: @(NO),
                   kMaplyTestOWM: @(NO),
+<<<<<<< HEAD
                   kMaplyTestForecastIO: @(NO),
                   kMaplyTestQuadPaging: @(NO)}
+=======
+                  kMaplyTestForecastIO: @(NO)}
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
                                                rows:
@@ -120,8 +124,12 @@
                                            rows:
             @{kMaplyTestUSGSOrtho: @(NO),
               kMaplyTestOWM: @(NO),
+<<<<<<< HEAD
               kMaplyTestForecastIO: @(NO),
               kMaplyTestQuadPaging: @(NO)}
+=======
+              kMaplyTestForecastIO: @(NO)}
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
                                    singleSelect:false],
            [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
                                            rows:

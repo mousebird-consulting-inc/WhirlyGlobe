@@ -28,9 +28,13 @@
 #import "Cullable.h"
 #import "Drawable.h"
 #import "Generator.h"
+<<<<<<< HEAD
 #import "FontTextureManager.h"
 // Note: Porting
 //#import "ActiveModel.h"
+=======
+#import "ActiveModel.h"
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 #import "CoordSystem.h"
 #import "OpenGLES2Program.h"
 
@@ -44,8 +48,12 @@ namespace WhirlyKit
 class SceneRendererES;
 }
 
+<<<<<<< HEAD
 // Note: Porting
 //@class WhirlyKitFontTextureManager;
+=======
+@class WhirlyKitFontTextureManager;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 namespace WhirlyKit
 {
@@ -73,7 +81,11 @@ public:
     virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (tex) tex->createInGL(memManager); };
 
 	/// Add to the renderer.  Never call this.
+<<<<<<< HEAD
 	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+=======
+	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 	
     /// Only use this if you've thought it out
     TextureBase *getTex() { return tex; }
@@ -90,7 +102,11 @@ public:
 	RemTextureReq(SimpleIdentity texId) : texture(texId) { }
 
     /// Remove from the renderer.  Never call this.
+<<<<<<< HEAD
 	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+=======
+	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 	
 protected:
 	SimpleIdentity texture;
@@ -112,7 +128,11 @@ public:
     virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (drawable) drawable->setupGL(setupInfo, memManager); };
 
 	/// Add to the renderer.  Never call this
+<<<<<<< HEAD
 	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);	
+=======
+	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);	
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 	
 protected:
 	Drawable *drawable;
@@ -126,7 +146,11 @@ public:
 	RemDrawableReq(SimpleIdentity drawId) : drawable(drawId) { }
 
     /// Remove the drawable.  Never call this
+<<<<<<< HEAD
 	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+=======
+	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 	
 protected:	
 	SimpleIdentity drawable;
@@ -140,7 +164,11 @@ public:
     AddGeneratorReq(Generator *generator) : generator(generator) { }
 
     /// Add to the renderer.  Never call this.
+<<<<<<< HEAD
     void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+=======
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     Generator *generator;
@@ -154,7 +182,11 @@ public:
     RemGeneratorReq(SimpleIdentity genId) : genId(genId) { }
     
     /// Remove from the renderer.  Never call this.
+<<<<<<< HEAD
     void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+=======
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     SimpleIdentity genId;
@@ -162,11 +194,68 @@ protected:
     
 /// Add an OpenGL ES 2.0 program to the scene for user later
 class AddProgramReq : public ChangeRequest
+<<<<<<< HEAD
 {
 public:
     // Construct with the program to add
     AddProgramReq(const std::string &sceneName,OpenGLES2Program *prog) : sceneName(sceneName), program(prog) { }
     ~AddProgramReq() { if (program) delete program; program = NULL; }
+=======
+{
+public:
+    // Construct with the program to add
+    AddProgramReq(const std::string &sceneName,OpenGLES2Program *prog) : sceneName(sceneName), program(prog) { }
+    ~AddProgramReq() { if (program) delete program; program = NULL; }
+    
+    /// Remove from the renderer.  Never call this.
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+
+protected:
+    std::string sceneName;
+    OpenGLES2Program *program;
+};
+    
+/// Remove an OpenGL ES 2.0 program from the scene
+class RemProgramReq : public ChangeRequest
+{
+public:
+    /// Construct with the program ID
+    RemProgramReq(SimpleIdentity progId) : programId(progId) { }
+    
+    /// Remove from the renderer.  Never call this.
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+
+protected:
+    SimpleIdentity programId;
+};
+    
+/// Remove a GL buffer ID, presumably because we needed other things cleaned up first
+class RemBufferReq : public ChangeRequest
+{
+public:
+    /// Construct with the buffer we want to delete
+    RemBufferReq(GLuint bufID) : bufID(bufID) { }
+    
+    /// Actually run the remove.  Never call this.
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    
+protected:
+    GLuint bufID;
+};
+    
+/// Send out a notification (on the main thread) when
+///  we get this request.  Used to figure out when something
+///  has been completely loaded.  Do not overuse.
+class NotificationReq : public ChangeRequest
+{
+public:
+    /// The notification name is required, the objection optional
+    NotificationReq(NSString *noteName,NSObject *noteObj);
+    virtual ~NotificationReq();
+    
+    /// Send out the notification
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// Remove from the renderer.  Never call this.
     void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
@@ -175,7 +264,11 @@ protected:
     std::string sceneName;
     OpenGLES2Program *program;
 };
+        
+/// Sorted set of generators
+typedef std::set<Generator *,IdentifiableSorter> GeneratorSet;
     
+<<<<<<< HEAD
 /// Remove an OpenGL ES 2.0 program from the scene
 class RemProgramReq : public ChangeRequest
 {
@@ -250,6 +343,31 @@ public:
     /// Set the scene we're part of
     virtual void setScene(Scene *inScene) { scene = inScene; }
     
+=======
+typedef std::set<DrawableRef,IdentifiableRefSorter> DrawableRefSet;
+
+typedef std::set<OpenGLES2Program *,IdentifiableSorter> OpenGLES2ProgramSet;
+typedef std::map<std::string,OpenGLES2Program *> OpenGLES2ProgramMap;
+    
+/** The scene manager is a base class for various functionality managers
+    associated with a scene.  These are the objects that build geometry,
+    manage layout, selection, and so forth for a scene.  They typically
+    do their work off of the main thread and then merge data back into
+    the scene on the main thread.
+ */
+class SceneManager
+{
+public:
+    SceneManager() : scene(NULL), renderer(NULL) { }
+    virtual ~SceneManager() { };
+    
+    /// Set (or reset) the current renderer
+    virtual void setRenderer(SceneRendererES *inRenderer) { renderer = inRenderer; }
+
+    /// Set the scene we're part of
+    virtual void setScene(Scene *inScene) { scene = inScene; }
+    
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 protected:
     Scene *scene;
     SceneRendererES *renderer;
@@ -290,7 +408,11 @@ public:
 	
 	/// Process change requests
 	/// Only the renderer should call this in the rendering thread
+<<<<<<< HEAD
 	void processChanges(WhirlyKit::View *view,WhirlyKit::SceneRendererES *renderer);
+=======
+	void processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// True if there are pending updates
     bool hasChanges();
@@ -333,12 +455,19 @@ public:
     void addManager(const char *name,SceneManager *manager);
     
     /// Add an active model.  Only call this on the main thread.
+<<<<<<< HEAD
     // Note: Porting
 //    void addActiveModel(NSObject<WhirlyKitActiveModel> *);
     
     /// Remove an active model (if it's in here).  Only call this on the main thread.
     // Note: Porting
 //    void removeActiveModel(NSObject<WhirlyKitActiveModel> *);
+=======
+    void addActiveModel(NSObject<WhirlyKitActiveModel> *);
+    
+    /// Remove an active model (if it's in here).  Only call this on the main thread.
+    void removeActiveModel(NSObject<WhirlyKitActiveModel> *);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// Return the top level cullable
     CullTree *getCullTree() { return cullTree; }
@@ -353,12 +482,17 @@ public:
     
     /// Return a dispatch queue that we can use for... stuff.
     /// The idea here is we'll wait for these to drain when we tear down.
+<<<<<<< HEAD
     // Note: Porting
 //    dispatch_queue_t getDispatchQueue() { return dispatchQueue; }
 	
     // Return all the drawables in a list.  Only call this on the main thread.
     const DrawableRefSet &getDrawables();
 
+=======
+    dispatch_queue_t getDispatchQueue() { return dispatchQueue; }
+	
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Dump out stats on what is currently in the scene.
     /// Use this sparingly, as it writes to the log.
     void dumpStats();
@@ -382,8 +516,12 @@ public:
 	TextureBase *getTexture(SimpleIdentity texId);
     
     /// All the active models
+<<<<<<< HEAD
     // Note: Porting
 //    NSMutableArray *activeModels;
+=======
+    NSMutableArray *activeModels;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// All the drawable generators we've been handed, sorted by ID
     GeneratorSet generators;
@@ -421,8 +559,12 @@ public:
     OpenGLMemManager memManager;
     
     /// Dispatch queue(s) we'll use for... things
+<<<<<<< HEAD
     // Note: Porting
 //    dispatch_queue_t dispatchQueue;
+=======
+    dispatch_queue_t dispatchQueue;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// Screen space generator created on startup
     ScreenSpaceGenerator *ssGen;
@@ -437,6 +579,7 @@ public:
     std::map<std::string,SceneManager *> managers;
     
     /// Returns the font texture manager, which is thread safe
+<<<<<<< HEAD
     FontTextureManager *getFontTextureManager() { return fontTextureManager; }
     
     /// Set up the font texture manager.  Don't call this yourself.
@@ -445,6 +588,12 @@ public:
     /// Font texture manager (created on startup)
     // Note: Porting
 //    WhirlyKitFontTextureManager *fontTexManager;
+=======
+    WhirlyKitFontTextureManager *getFontTextureManager() { return fontTexManager; }
+    
+    /// Font texture manager (created on startup)
+    WhirlyKitFontTextureManager *fontTexManager;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// Lock for accessing programs
     pthread_mutex_t programLock;
@@ -494,9 +643,12 @@ protected:
     
     /// A map from the scene names to the various programs
     OpenGLES2ProgramMap glProgramMap;
+<<<<<<< HEAD
     
     // The font texture manager is created at startup
     FontTextureManager *fontTextureManager;
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 };
 	
 }

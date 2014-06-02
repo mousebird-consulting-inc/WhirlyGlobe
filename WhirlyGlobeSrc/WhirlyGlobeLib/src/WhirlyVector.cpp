@@ -112,7 +112,11 @@ void Mbr::expand(const Mbr &that)
 }
 
     
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/WhirlyVector.cpp
 void Mbr::asPoints(Point2fVector &pts) const
+=======
+void Mbr::asPoints(std::vector<Point2f> &pts) const
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/WhirlyVector.mm
 {
     pts.push_back(pt_ll);
     pts.push_back(Point2f(pt_ur.x(),pt_ll.y()));
@@ -120,7 +124,11 @@ void Mbr::asPoints(Point2fVector &pts) const
     pts.push_back(Point2f(pt_ll.x(),pt_ur.y()));
 }
 
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/WhirlyVector.cpp
 void Mbr::asPoints(Point2dVector &pts) const
+=======
+void Mbr::asPoints(std::vector<Point2d> &pts) const
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/WhirlyVector.mm
 {
     pts.push_back(Point2d(pt_ll.x(),pt_ll.y()));
     pts.push_back(Point2d(pt_ur.x(),pt_ll.y()));
@@ -282,6 +290,7 @@ Eigen::Matrix4f Matrix4dToMatrix4f(const Eigen::Matrix4d &inMat)
     
     return outMat;
 }
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/WhirlyVector.cpp
     
 /// Floats to doubles
 Eigen::Vector2d Vector2fToVector2d(const Eigen::Vector2f &inVec)
@@ -294,6 +303,8 @@ Eigen::Vector2f Vector2dToVector2f(const Eigen::Vector2d &inVec)
 {
     return Vector2f(inVec.x(),inVec.y());
 }
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/WhirlyVector.mm
 
 /// Floats to doubles
 Eigen::Vector3d Vector3fToVector3d(const Eigen::Vector3f &inVec)

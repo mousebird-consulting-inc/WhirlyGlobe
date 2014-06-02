@@ -21,7 +21,10 @@
 #import <Foundation/Foundation.h>
 #import <WhirlyGlobe.h>
 #import "MaplyViewControllerLayer.h"
+<<<<<<< HEAD
 #import "LayerThread_private.h"
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 @class MaplyBaseViewController;
 
@@ -33,7 +36,11 @@
 @property (nonatomic,weak) WhirlyKitLayerThread *layerThread;
 
 /// Subclasses fill this in.  It's called when the Component layer is added to the view controller.
+<<<<<<< HEAD
 - (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKit::SceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC;
+=======
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 /// Remove resources associated with this layer
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;

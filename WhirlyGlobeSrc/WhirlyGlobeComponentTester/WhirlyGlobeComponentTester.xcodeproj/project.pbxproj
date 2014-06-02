@@ -311,6 +311,10 @@
 		2BFD27E9170B933C00127EF5 /* ZAF.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD26F0170B933C00127EF5 /* ZAF.geojson */; };
 		2BFD27EA170B933C00127EF5 /* ZMB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD26F1170B933C00127EF5 /* ZMB.geojson */; };
 		2BFD27EB170B933C00127EF5 /* ZWE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD26F2170B933C00127EF5 /* ZWE.geojson */; };
+<<<<<<< HEAD
+=======
+		2BFF026217A9BA2D00007842 /* AnimationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFF026117A9BA2D00007842 /* AnimationTest.m */; };
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1471,6 +1475,10 @@
 				2B0D632917A2EEAB00C3298D /* AFXMLRequestOperation.m in Sources */,
 				2B0D632A17A2EEAB00C3298D /* UIImageView+AFNetworking.m in Sources */,
 				2B0D633817A2F2BB00C3298D /* AFKissXMLRequestOperation.m in Sources */,
+<<<<<<< HEAD
+=======
+				2BFF026217A9BA2D00007842 /* AnimationTest.m in Sources */,
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2BC989A817DA66BB0071DA9E /* WeatherShader.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

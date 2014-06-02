@@ -64,10 +64,17 @@ public:
     GeneratorChangeRequest() { }
 
     /// Run the generator request.  Don't override this one.
+<<<<<<< HEAD
     void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
 
     /// Override this method to do whatever you want to do to the generator
     virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *drawGen) = 0;
+=======
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+
+    /// Override this method to do whatever you want to do to the generator
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *drawGen) = 0;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     /// Generator that we're going to modify.

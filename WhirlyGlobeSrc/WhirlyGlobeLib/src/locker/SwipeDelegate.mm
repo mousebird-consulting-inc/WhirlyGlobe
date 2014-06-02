@@ -23,7 +23,11 @@
 
 @implementation WhirlyGlobeSwipeDelegate
 {
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/SwipeDelegate.mm
     WhirlyGlobe::GlobeView *view;
+=======
+	WhirlyGlobeView *view;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/SwipeDelegate.mm
 }
 
 - (id)initWithGlobeView:(WhirlyGlobe::GlobeView *)inView

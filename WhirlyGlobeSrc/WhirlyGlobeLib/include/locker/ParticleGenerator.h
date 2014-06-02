@@ -118,7 +118,11 @@ public:
     ParticleGeneratorAddSystemRequest(SimpleIdentity generatorID,ParticleGenerator::ParticleSystem *partSystem);
     ~ParticleGeneratorAddSystemRequest();
 
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/include/locker/ParticleGenerator.h
     virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen);
+=======
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/include/ParticleGenerator.h
     
 protected:
     ParticleGenerator::ParticleSystem *system;
@@ -131,7 +135,11 @@ public:
     ParticleGeneratorRemSystemRequest(SimpleIdentity generatorID,SimpleIdentity systemId);
     ~ParticleGeneratorRemSystemRequest() { }
     
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/include/locker/ParticleGenerator.h
     virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen);
+=======
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/include/ParticleGenerator.h
     
 protected:
     SimpleIdentity systemId;

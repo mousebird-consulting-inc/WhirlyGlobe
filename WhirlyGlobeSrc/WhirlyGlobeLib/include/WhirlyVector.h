@@ -82,11 +82,16 @@ public:
     /// Returns an an array of 4 floats
     void asUnitFloats(float *ret) const { ret[0] = (float)r / 255.0;  ret[1] = (float)g / 255.0; ret[2] = (float)b / 255.0; ret[3] = (float)a / 255.0; }
     
+<<<<<<< HEAD
     /// Convert to a 32 bit integer (ala Android)
     int asInt() const { return a << 24 | b << 16 | g << 8 | r; }
     
     bool operator == (const RGBAColor &that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
 //    bool operator == (RGBAColor that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
+=======
+    bool operator == (RGBAColor &that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
+    bool operator == (RGBAColor that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     RGBAColor operator * (float alpha) const { return RGBAColor(r*alpha,g*alpha,b*alpha,a*alpha); }
 	
 	unsigned char r,g,b,a;
@@ -154,8 +159,13 @@ public:
     Mbr intersect(const Mbr &that) const;
     
     /// Return a list of points, for those routines that need just a list of points
+<<<<<<< HEAD
     void asPoints(Point2fVector &pts) const;
     void asPoints(Point2dVector &pts) const;
+=======
+    void asPoints(std::vector<Point2f> &pts) const;
+    void asPoints(std::vector<Point2d> &pts) const;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// Expand with the given MBR
     void expand(const Mbr &that);
@@ -253,11 +263,14 @@ Eigen::Matrix4d Matrix4fToMatrix4d(const Eigen::Matrix4f &inMat);
 Eigen::Matrix4f Matrix4dToMatrix4f(const Eigen::Matrix4d &inMat);
     
 /// Floats to doubles
+<<<<<<< HEAD
 Eigen::Vector2d Vector2fToVector2d(const Eigen::Vector2f &inVec);
 /// Doubles to floats
 Eigen::Vector2f Vector2dToVector2f(const Eigen::Vector2d &inVec);
     
 /// Floats to doubles
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 Eigen::Vector3d Vector3fToVector3d(const Eigen::Vector3f &inVec);
 /// Doubles to floats
 Eigen::Vector3f Vector3dToVector3f(const Eigen::Vector3d &inVec);

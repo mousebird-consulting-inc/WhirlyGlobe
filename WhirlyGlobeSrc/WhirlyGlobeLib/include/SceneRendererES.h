@@ -18,14 +18,28 @@
  *
  */
 
+<<<<<<< HEAD
+=======
+#import <QuartzCore/QuartzCore.h>
+#import <OpenGLES/EAGL.h>
+#import <OpenGLES/EAGLDrawable.h>
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 #import "WhirlyVector.h"
 #import "WhirlyKitView.h"
 #import "Scene.h"
 #import "PerformanceTimer.h"
 #import "Cullable.h"
+<<<<<<< HEAD
 // Note: Porting
 //#import "Lighting.h"
+=======
+#import "Lighting.h"
+
+/// @cond
+@class WhirlyKitSceneRendererES;
+/// @endcond
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 namespace WhirlyKit
 {
@@ -114,6 +128,7 @@ class RendererFrameInfo
 {
 public:
     RendererFrameInfo();
+<<<<<<< HEAD
     RendererFrameInfo(const RendererFrameInfo &that);
     
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -127,37 +142,65 @@ public:
     /// Current model matrix from the view
     Eigen::Matrix4f modelTrans,viewTrans;
     Eigen::Matrix4d modelTrans4d,viewTrans4d;
+=======
+    
+    /// Renderer version (e.g. OpenGL ES 1 vs 2)
+    EAGLRenderingAPI oglVersion;
+    /// Renderer itself
+    WhirlyKitSceneRendererES *sceneRenderer;
+    /// View
+    WhirlyKitView * __weak theView;
+    /// Current model matrix from the view
+    Eigen::Matrix4f modelTrans,viewTrans;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Current projection matrix
     Eigen::Matrix4f projMat;
     /// What's currently in the GL model matrix.
     /// We combine view and model together
     Eigen::Matrix4f viewAndModelMat;
+<<<<<<< HEAD
     Eigen::Matrix4d viewAndModelMat4d;
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// The model, view, and projection matrix all rolled into one
     Eigen::Matrix4f mvpMat;
     /// Model, and view matrix but for normal transformation
     Eigen::Matrix4f viewModelNormalMat;
+<<<<<<< HEAD
     /// If the visual view supports wrapping, these are the available offset matrices
     std::vector<Eigen::Matrix4d> offsetMatrices;
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Scene itself.  Don't mess with this
     WhirlyKit::Scene *scene;
     /// Expected length of the current frame
     float frameLen;
     /// Time at the start of frame
+<<<<<<< HEAD
     TimeInterval currentTime;
+=======
+    NSTimeInterval currentTime;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Vector pointing up from the globe describing where the view point is
     Eigen::Vector3f eyeVec;
     /// Vector out from the eye point, including tilt
     Eigen::Vector3f fullEyeVec;
+<<<<<<< HEAD
     /// Location of the middle of the screen in display coordinates
     Eigen::Vector3d dispCenter;
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Height above surface, if that makes sense
     float heightAboveSurface;
     /// If using OpenGL ES 2.x, this is the shader
     WhirlyKit::OpenGLES2Program *program;
     /// Lights, if applicableNSArray *lights;
+<<<<<<< HEAD
     // Note: Porting
 //    NSArray *lights;
+=======
+    NSArray *lights;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// State optimizer.  Used when setting state for drawing
     OpenGLStateOptimizer *stateOpt;
 };
@@ -170,6 +213,7 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 
 /// Base class for the scene renderer.
 /// It's subclassed for the specific version of OpenGL ES
+<<<<<<< HEAD
 class SceneRendererES : public DelayedDeletable
 {
 public:
@@ -184,12 +228,34 @@ public:
     /// Set the render until time.  This is used by things like fade to keep
     ///  the rendering optimization from cutting off animation.
     void setRenderUntil(TimeInterval newTime);
+=======
+class SceneRendererES
+{
+public:
+    SceneRendererES(EAGLRenderingAPI apiVersion);
+    virtual ~SceneRendererES();
+    
+    /// Render to the screen, ideally within the given duration.
+    /// The subclasses fill this in
+    virtual void render(NSTimeInterval duration);
+    
+    /// Called when the layer gets resized.  Need to resize ourselves
+    virtual BOOL resizeFromLayer(CAEAGLLayer *layer);
+    
+    /// Call this before defining things within the OpenGL context
+    virtual void useContext();
+    
+    /// Set the render until time.  This is used by things like fade to keep
+    ///  the rendering optimization from cutting off animation.
+    void setRenderUntil(NSTimeInterval newTime);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// Call this to force a draw on the next frame.
     /// This turns off the draw optimization, but just for one frame.
     void forceDrawNextFrame();
     
     /// Use this to set the clear color for the screen.  Defaults to black
+<<<<<<< HEAD
     void setClearColor(const RGBAColor &color);
     
     /// Get the framebuffer size
@@ -203,6 +269,12 @@ public:
     
     /// Used by the subclasses for culling
     virtual void findDrawables(WhirlyKit::Cullable *cullable,WhirlyGlobe::GlobeView *globeView,WhirlyKit::Point2f frameSize,Eigen::Matrix4d *modelTrans,Eigen::Vector3f eyeVec,WhirlyKit::RendererFrameInfo *frameInfo,WhirlyKit::Mbr screenMbr,bool isTopLevel,std::set<WhirlyKit::DrawableRef> *toDraw,int *drawablesConsidered);
+=======
+    void setClearColor(UIColor *inClearColor);
+    
+    /// Used by the subclasses for culling
+    virtual void findDrawables(WhirlyKit::Cullable *cullable,WhirlyGlobeView *globeView,WhirlyKit::Point2f frameSize,Eigen::Matrix4d *modelTrans,Eigen::Vector3f eyeVec,WhirlyKit::RendererFrameInfo *frameInfo,WhirlyKit::Mbr screenMbr,bool isTopLevel,std::set<WhirlyKit::DrawableRef> *toDraw,int *drawablesConsidered);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// Used by the subclasses to determine if the view changed and needs to be updated
     virtual bool viewDidChange();
@@ -210,6 +282,7 @@ public:
     /// Force a draw at the next opportunity
     virtual void setTriggerDraw();
     
+<<<<<<< HEAD
     /// Set the current z buffer mode
     virtual void setZBufferMode(WhirlyKitSceneRendererZBufferMode inZBufferMode) { zBufferMode = inZBufferMode; }
     
@@ -236,6 +309,21 @@ protected:
     WhirlyKit::Scene *scene;
     /// The view controls how we're looking at the scene
     WhirlyKit::View *theView;
+=======
+    /// Assign a new scene.  Just at startup
+    virtual void setScene(WhirlyKit::Scene *newScene);
+
+protected:
+    Mbr calcCurvedMBR(Point3f *corners,WhirlyGlobeView *globeView,Eigen::Matrix4d *modelTrans,Point2f frameSize);
+    void mergeDrawableSet(const std::set<DrawableRef,IdentifiableRefSorter> &newDrawables,WhirlyGlobeView *globeView,Point2f frameSize,Eigen::Matrix4d *modelTrans,WhirlyKit::RendererFrameInfo *frameInfo,Mbr screenMbr,std::set<DrawableRef> *toDraw,int *drawablesConsidered);
+    
+    /// Rendering context
+    EAGLContext *context;
+    /// Scene we're drawing.  This is set from outside
+    WhirlyKit::Scene *scene;
+    /// The view controls how we're looking at the scene
+    WhirlyKitView * __weak theView;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Set this mode to modify how Z buffering is used (if at all)
     WhirlyKitSceneRendererZBufferMode zBufferMode;
     /// Set this to turn culling on or off.
@@ -279,6 +367,7 @@ protected:
     GLuint depthRenderbuffer;
 	
 	unsigned int frameCount;
+<<<<<<< HEAD
 	TimeInterval frameCountStart;
     WhirlyKit::PerformanceTimer perfTimer;
         
@@ -289,6 +378,18 @@ protected:
     TimeInterval renderUntil;
     
     WhirlyKit::RGBAColor clearColor;
+=======
+	NSTimeInterval frameCountStart;
+    WhirlyKit::PerformanceTimer perfTimer;
+        
+    /// Last time we rendered
+    NSTimeInterval lastDraw;
+    
+    /// Something wants to make sure we render until at least this point.
+    NSTimeInterval renderUntil;
+    
+    WhirlyKit::RGBAColor _clearColor;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
     // View state from the last render, for comparison
     Eigen::Matrix4d modelMat,viewMat,projMat;

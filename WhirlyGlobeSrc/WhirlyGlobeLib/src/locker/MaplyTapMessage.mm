@@ -2,7 +2,11 @@
  *  MaplyTapMessage.mm
  *  WhirlyGlobeLib
  *
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/MaplyTapMessage.mm
  *  Created by Steve Gifford on 9/19/11.
+=======
+ *  Created by Steve Gifford on 5/11/11.
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/include/NSString+Stuff.h
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,5 +26,19 @@
 
 @implementation MaplyTapMessage
 
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/MaplyTapMessage.mm
+=======
+/// Build an NSString from a std::wstring
++(NSString*) stringWithwstring:(const std::wstring&)ws;
+
+/// Convert and return a std::string
+- (std::string) asStdString;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/include/NSString+Stuff.h
 
 @end
+
+// A function we can call to force the linker to bring in categories
+#ifdef __cplusplus
+extern "C"
+#endif
+void NSStringDummyFunc();

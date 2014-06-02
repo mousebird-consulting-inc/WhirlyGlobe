@@ -23,7 +23,11 @@
 
 @implementation MaplyViewControllerLayer
 
+<<<<<<< HEAD
 - (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKit::SceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC
+=======
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 {
     return true;
 }

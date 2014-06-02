@@ -20,6 +20,7 @@
 
 #import "MaplyImageTile.h"
 #import "MaplyImageTile_private.h"
+<<<<<<< HEAD
 #import "UIImage+Stuff.h"
 #import "MaplyRawDataWrapper.h"
 
@@ -98,6 +99,11 @@ using namespace WhirlyKit;
 {
 //    loadImage.type = WKLoadedImageUIImage;
 //    loadImage.borderSize = 0;
+=======
+
+@implementation MaplyImageTile
+{
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     int _width,_height;
     int _targetWidth,_targetHeight;
     
@@ -122,9 +128,13 @@ using namespace WhirlyKit;
     self = [super init];
     _type = MaplyImgTypeRawImage;
     
+<<<<<<< HEAD
     MaplySingleImage *single = [[MaplySingleImage alloc] init];
     single.data = data;
     stuff = @[single];
+=======
+    stuff = @[data];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     _width = width;
     _height = height;
     
@@ -143,6 +153,7 @@ using namespace WhirlyKit;
     
     self = [super init];
     _type = MaplyImgTypeRawImage;
+<<<<<<< HEAD
     
     NSMutableArray *newStuff = [NSMutableArray array];
     for (NSData *data in dataArray)
@@ -152,6 +163,9 @@ using namespace WhirlyKit;
         [newStuff addObject:single];
     }
     stuff = newStuff;
+=======
+    stuff = dataArray;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     _width = width;
     _height = height;
     
@@ -165,12 +179,17 @@ using namespace WhirlyKit;
     
     self = [super init];
     _type = MaplyImgTypeImage;
+<<<<<<< HEAD
     MaplySingleImage *single = [[MaplySingleImage alloc] init];
     single.image = image;
     stuff = @[single];
     CGImageRef cgImage = image.CGImage;
     _width = CGImageGetWidth(cgImage);
     _height = CGImageGetHeight(cgImage);
+=======
+    stuff = @[image];
+    _width = _height = -1;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     return self;
 }
@@ -180,6 +199,7 @@ using namespace WhirlyKit;
     for (UIImage *image in images)
         if (![image isKindOfClass:[UIImage class]])
             return nil;
+<<<<<<< HEAD
     if ([images count] == 0)
         return nil;
     
@@ -196,6 +216,13 @@ using namespace WhirlyKit;
     CGImageRef cgImage = ((UIImage *)images[0]).CGImage;
     _width = CGImageGetWidth(cgImage);
     _height = CGImageGetHeight(cgImage);
+=======
+    
+    self = [super init];
+    _type = MaplyImgTypeImage;
+    stuff = images;
+    _width = _height = -1;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     return self;
 }
@@ -206,6 +233,7 @@ using namespace WhirlyKit;
         return nil;
     
     self = [super init];
+<<<<<<< HEAD
     _type = MaplyImgTypeImage;
     MaplySingleImage *single = [[MaplySingleImage alloc] init];
     single.image = [UIImage imageWithData:data];
@@ -213,6 +241,11 @@ using namespace WhirlyKit;
     CGImageRef cgImage = single.image.CGImage;
     _width = CGImageGetWidth(cgImage);
     _height = CGImageGetHeight(cgImage);
+=======
+    _type = MaplyImgTypeData;
+    stuff = @[data];
+    _width = _height = -1;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     return self;
 }
@@ -227,6 +260,7 @@ using namespace WhirlyKit;
     
     self = [super init];
     _type = MaplyImgTypeData;
+<<<<<<< HEAD
     NSMutableArray *newStuff = [NSMutableArray array];
     for (NSData *data in dataArray)
     {
@@ -238,6 +272,10 @@ using namespace WhirlyKit;
     CGImageRef cgImage = ((MaplySingleImage *)stuff[0]).image.CGImage;
     _width = CGImageGetWidth(cgImage);
     _height = CGImageGetHeight(cgImage);
+=======
+    stuff = dataArray;
+    _width = _height = -1;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     return self;
 }
@@ -253,11 +291,14 @@ using namespace WhirlyKit;
     return CGSizeMake(_targetWidth, _targetHeight);
 }
 
+<<<<<<< HEAD
 - (CGSize)size
 {
     return CGSizeMake(_width, _height);
 }
 
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 - (id)initWithRandomData:(id)theObj
 {
     self = nil;
@@ -289,6 +330,7 @@ using namespace WhirlyKit;
     return self;
 }
 
+<<<<<<< HEAD
 - (void)convertToRaw:(int)borderTexel destWidth:(int)inDestWidth destHeight:(int)inDestHeight
 {
     if (_type == MaplyImgTypePlaceholder)
@@ -314,10 +356,40 @@ using namespace WhirlyKit;
             }
                 break;
             case MaplyImgTypeRawImage:
+=======
+- (WhirlyKitLoadedTile *)wkTile:(int)borderTexel convertToRaw:(bool)convertToRaw
+{
+    WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
+    
+    if (_type == MaplyImgTypePlaceholder)
+    {
+        [loadTile.images addObject:[WhirlyKitLoadedImage PlaceholderImage]];
+        return loadTile;
+    }
+
+    // Work through the various layers
+    for (id thing in stuff)
+    {
+        WhirlyKitLoadedImage *loadImage = nil;
+        switch (_type)
+        {
+            case MaplyImgTypeImage:
+                loadImage = [WhirlyKitLoadedImage LoadedImageWithUIImage:thing];
+                break;
+            case MaplyImgTypeData:
+                loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:thing];
+                break;
+            case MaplyImgTypeRawImage:
+                loadImage = [[WhirlyKitLoadedImage alloc] init];
+                loadImage.imageData = thing;
+                loadImage.width = _width;
+                loadImage.height = _height;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
                 break;
             default:
                 break;
         }
+<<<<<<< HEAD
     }
     _type = MaplyImgTypeRawImage;
 }
@@ -340,4 +412,24 @@ using namespace WhirlyKit;
 }
 
 
+=======
+        if (!loadImage)
+            return nil;
+        if (_targetHeight > 0 && _targetWidth > 0)
+        {
+            loadImage.width = _targetWidth;
+            loadImage.height = _targetHeight;
+        }
+
+        // This pulls the pixels out of their weird little compressed formats
+        // Since we're on our own thread here (probably) this may save time
+        if (convertToRaw)
+            [loadImage convertToRawData:borderTexel];
+        [loadTile.images addObject:loadImage];
+    }
+    
+    return loadTile;
+}
+
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 @end

@@ -56,6 +56,11 @@ using namespace Maply;
     if (!self)
         return nil;
 
+<<<<<<< HEAD
+=======
+    // Turn off lighting
+    [self setHints:@{kMaplyRendererLightingMode: @"none"}];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     _flatMode = true;
     
     return self;
@@ -118,11 +123,18 @@ using namespace Maply;
 
     mapInteractLayer = nil;
     
+<<<<<<< HEAD
     // Note: Porting
 //    tapDelegate = nil;
 //    panDelegate = nil;
 //    pinchDelegate = nil;
 //    rotateDelegate = nil;
+=======
+    tapDelegate = nil;
+    panDelegate = nil;
+    pinchDelegate = nil;
+    rotateDelegate = nil;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
     coordAdapter = NULL;
     _tetherView = NULL;
@@ -144,7 +156,11 @@ using namespace Maply;
 //    NSLog(@"newFrame = (%f,%f)->(%f,%f)",newFrame.origin.x,newFrame.origin.y,newFrame.size.width,newFrame.size.height);
     // Change the flat view's window
     CGPoint contentOffset = scrollView.contentOffset;
+<<<<<<< HEAD
     flatView->setWindowSize(Point2f(newFrame.size.width*scale,newFrame.size.height*scale),Point2f(contentOffset.x*scale,contentOffset.y*scale));
+=======
+    [flatView setWindowSize:Point2f(newFrame.size.width*scale,newFrame.size.height*scale) contentOffset:Point2f(contentOffset.x*scale,contentOffset.y*scale)];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     [glView drawView:self];
 }
@@ -160,11 +176,18 @@ using namespace Maply;
 
 - (void) loadSetup_lighting
 {
+<<<<<<< HEAD
+=======
+    if (![sceneRenderer isKindOfClass:[WhirlyKitSceneRendererES2 class]])
+        return;
+   
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     NSString *lightingType = hints[kWGRendererLightingMode];
     int lightingRegular = true;
     if ([lightingType respondsToSelector:@selector(compare:)])
         lightingRegular = [lightingType compare:@"none"];
     
+<<<<<<< HEAD
     // Note: Porting
 //    // Regular lighting is on by default
 //    // We need to add a new shader to turn it off
@@ -183,6 +206,25 @@ using namespace Maply;
 //        light.viewDependent = false;
 //        [self addLight:light];
 //    }
+=======
+    // Regular lighting is on by default
+    // We need to add a new shader to turn it off
+    if (!lightingRegular)
+    {
+        SimpleIdentity triNoLighting = scene->getProgramIDByName(kToolkitDefaultTriangleNoLightingProgram);
+        if (triNoLighting != EmptyIdentity)
+            scene->setSceneProgram(kSceneDefaultTriShader, triNoLighting);
+        [sceneRenderer replaceLights:nil];
+    } else {
+        // Add a default light
+        MaplyLight *light = [[MaplyLight alloc] init];
+        light.pos = MaplyCoordinate3dMake(0.75, 0.5, -1.0);
+        light.ambient = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
+        light.diffuse = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:1.0];
+        light.viewDependent = false;
+        [self addLight:light];
+    }
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
     // We don't want the backface culling program for lines
     SimpleIdentity lineNoBackface = scene->getProgramIDByName(kToolkitDefaultLineNoBackfaceProgram);
@@ -190,7 +232,11 @@ using namespace Maply;
         scene->setSceneProgram(kSceneDefaultLineShader, lineNoBackface);
 }
 
+<<<<<<< HEAD
 - (WhirlyKit::View *) loadSetup_view
+=======
+- (WhirlyKitView *) loadSetup_view
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 {
     if (_coordSys)
     {
@@ -204,12 +250,21 @@ using namespace Maply;
     
     if (scrollView)
     {
+<<<<<<< HEAD
         flatView = new Maply::FlatView(coordAdapter);
         [self setupFlatView];
         mapView = flatView;
     } else {
         mapView = new Maply::MapView(coordAdapter);
         mapView->continuousZoom = true;
+=======
+        flatView = [[MaplyFlatView alloc] initWithCoordAdapter:coordAdapter];
+        [self setupFlatView];
+        mapView = flatView;
+    } else {
+        mapView = [[MaplyView alloc] initWithCoordAdapter:coordAdapter];
+        mapView.continuousZoom = true;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     }    
 
     return mapView;
@@ -217,7 +272,11 @@ using namespace Maply;
 
 - (Scene *) loadSetup_scene
 {
+<<<<<<< HEAD
     mapScene = new Maply::MapScene(mapView->coordAdapter);
+=======
+    mapScene = new Maply::MapScene(mapView.coordAdapter);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
     return mapScene;
 }
@@ -239,7 +298,11 @@ using namespace Maply;
     if (scrollView)
     {
         glView.reactiveMode = true;
+<<<<<<< HEAD
         sceneRenderer->setZBufferMode(zBufferOffDefault);
+=======
+        sceneRenderer.zBufferMode = zBufferOffDefault;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     }
     
     Point3f ll,ur;
@@ -249,6 +312,7 @@ using namespace Maply;
     if (!_tetheredMode)
     {
         // Wire up the gesture recognizers
+<<<<<<< HEAD
         // Note: Porting
 //        tapDelegate = [MaplyTapDelegate tapDelegateForView:glView mapView:mapView];
 //        panDelegate = [MaplyPanDelegate panDelegateForView:glView mapView:mapView];
@@ -262,6 +326,17 @@ using namespace Maply;
 
     // Turn off lighting
     [self setHints:@{kMaplyRendererLightingMode: @"none"}];
+=======
+        tapDelegate = [MaplyTapDelegate tapDelegateForView:glView mapView:mapView];
+        panDelegate = [MaplyPanDelegate panDelegateForView:glView mapView:mapView];
+        pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:glView mapView:mapView];
+        pinchDelegate.minZoom = [mapView minHeightAboveSurface];
+        pinchDelegate.maxZoom = [mapView maxHeightAboveSurface];
+        rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:glView mapView:mapView];
+    }
+
+    [self setViewExtentsLL:boundLL ur:boundUR];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -276,7 +351,11 @@ using namespace Maply;
     [super viewDidAppear:animated];
     
     // Let's kick off a view update in case the renderer just got set up
+<<<<<<< HEAD
     mapView->runViewUpdates();
+=======
+    [mapView runViewUpdates];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -287,8 +366,12 @@ using namespace Maply;
         [super viewWillDisappear:animated];
     
 	// Stop tracking notifications
+<<<<<<< HEAD
     // Note: Porting
 //    [[NSNotificationCenter defaultCenter] removeObserver:self name:MaplyTapMsg object:nil];
+=======
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:MaplyTapMsg object:nil];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
@@ -297,8 +380,12 @@ using namespace Maply;
 // Note: Fill this in
 - (void)registerForEvents
 {
+<<<<<<< HEAD
     // Note: Porting
 //    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOnMap:) name:MaplyTapMsg object:nil];
+=======
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOnMap:) name:MaplyTapMsg object:nil];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 #pragma mark - Interaction
@@ -312,15 +399,23 @@ using namespace Maply;
 
 - (void)setHeight:(float)height
 {
+<<<<<<< HEAD
     Point3d loc = mapView->getLoc();
     loc.z() = height;
     mapView->setLoc(loc);
+=======
+    mapView.loc.z() = height;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 /// Set the view extents.  This is the box the view point is allowed to be within.
 - (void)setViewExtentsLL:(MaplyCoordinate)ll ur:(MaplyCoordinate)ur
 {
+<<<<<<< HEAD
     CoordSystemDisplayAdapter *adapter = mapView->coordAdapter;
+=======
+    CoordSystemDisplayAdapter *adapter = mapView.coordAdapter;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     CoordSystem *coordSys = adapter->getCoordSystem();
     boundLL = ll;    boundUR = ur;
     
@@ -336,6 +431,7 @@ using namespace Maply;
     
     if (flatView)
     {
+<<<<<<< HEAD
         flatView->setExtents(Mbr(Point2f(ll.x,ll.y),Point2f(ur.x,ur.y)));
     }
     
@@ -344,6 +440,15 @@ using namespace Maply;
 //        [panDelegate setBounds:bounds];
 //    if (pinchDelegate)
 //        [pinchDelegate setBounds:bounds];
+=======
+        [flatView setExtents:Mbr(Point2f(ll.x,ll.y),Point2f(ur.x,ur.y))];
+    }
+    
+    if (panDelegate)
+        [panDelegate setBounds:bounds];
+    if (pinchDelegate)
+        [pinchDelegate setBounds:bounds];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 // Internal animation handler
@@ -352,12 +457,20 @@ using namespace Maply;
     if (_tetheredMode)
         return;
     
+<<<<<<< HEAD
     mapView->cancelAnimation();
 
     // Note: Porting
 //    MaplyAnimateViewTranslation *animTrans = [[MaplyAnimateViewTranslation alloc] initWithView:mapView translate:newLoc howLong:howLong];
 //    curAnimation = animTrans;
 //    mapView.delegate = animTrans;
+=======
+    [mapView cancelAnimation];
+
+    MaplyAnimateViewTranslation *animTrans = [[MaplyAnimateViewTranslation alloc] initWithView:mapView translate:newLoc howLong:howLong];
+    curAnimation = animTrans;
+    mapView.delegate = animTrans;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 // External facing version of rotateToPoint
@@ -372,6 +485,7 @@ using namespace Maply;
     if (newPos.x < boundLL.x)  newPos.x = boundLL.x;
     if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
 
+<<<<<<< HEAD
     // Note: Porting
 //    Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
 //    loc.z() = mapView.loc.z();
@@ -380,11 +494,21 @@ using namespace Maply;
 
 // Note: This may not work with a tilt
 - (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)screenLoc time:(NSTimeInterval)howLong
+=======
+    Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
+    loc.z() = mapView.loc.z();
+    [self animateToPoint:loc time:howLong];
+}
+
+// Note: This may not work with a tilt
+- (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 {
     if (_tetheredMode)
         return;
     
     // Figure out where the point lands on the map
+<<<<<<< HEAD
     Eigen::Matrix4d modelTrans = mapView->calcFullMatrix();
     Point3d whereLoc;
     Point2f frameSize = sceneRenderer->getFramebufferSize();
@@ -397,6 +521,17 @@ using namespace Maply;
         loc.x() -= diffLoc.x();
         loc.y() -= diffLoc.y();
         loc.z() = loc.z();
+=======
+    Eigen::Matrix4d modelTrans = [mapView calcFullMatrix];
+    Point3d whereLoc;
+    if ([mapView pointOnPlaneFromScreen:loc transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc clip:true])
+    {
+        Point3f diffLoc(whereLoc.x()-mapView.loc.x(),whereLoc.y()-mapView.loc.y(),0.0);
+        Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
+        loc.x() -= diffLoc.x();
+        loc.y() -= diffLoc.y();
+        loc.z() = mapView.loc.z();
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         [self animateToPoint:loc time:howLong];
     }
 }
@@ -407,6 +542,7 @@ using namespace Maply;
     if (_tetheredMode)
         return;
 
+<<<<<<< HEAD
     // Note: Porting
 //    if (pinchDelegate)
 //    {
@@ -415,6 +551,15 @@ using namespace Maply;
 //        if (newHeight > pinchDelegate.maxZoom)
 //            newHeight = pinchDelegate.maxZoom;
 //    }
+=======
+    if (pinchDelegate)
+    {
+        if (newHeight < pinchDelegate.minZoom)
+            newHeight = pinchDelegate.minZoom;
+        if (newHeight > pinchDelegate.maxZoom)
+            newHeight = pinchDelegate.maxZoom;
+    }
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
     // Snap to the bounds
     if (newPos.x > boundUR.x)  newPos.x = boundUR.x;
@@ -422,7 +567,11 @@ using namespace Maply;
     if (newPos.x < boundLL.x)  newPos.x = boundLL.x;
     if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
 
+<<<<<<< HEAD
     Point3f loc = mapView->coordAdapter->localToDisplay(mapView->coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
+=======
+    Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     loc.z() = newHeight;
     
     [self animateToPoint:loc time:howLong];
@@ -436,10 +585,16 @@ using namespace Maply;
 
     Point2f windowSize2f(windowSize.width,windowSize.height);
     Point2f contentOffset2f(contentOffset.x,contentOffset.y);
+<<<<<<< HEAD
     // Note: Porting
 //    MaplyAnimateFlat *animate = [[MaplyAnimateFlat alloc] initWithView:flatView destWindow:windowSize2f destContentOffset:contentOffset2f howLong:howLong];
 //    curAnimation = animate;
 //    flatView.delegate = animate;
+=======
+    MaplyAnimateFlat *animate = [[MaplyAnimateFlat alloc] initWithView:flatView destWindow:windowSize2f destContentOffset:contentOffset2f howLong:howLong];
+    curAnimation = animate;
+    flatView.delegate = animate;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 // External facing set position
@@ -448,7 +603,11 @@ using namespace Maply;
     if (scrollView)
         return;
 
+<<<<<<< HEAD
     Point3f loc = Vector3dToVector3f(mapView->getLoc());
+=======
+    Point3f loc = Vector3dToVector3f(mapView.loc);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     [self setPosition:newPos height:loc.z()];
 }
 
@@ -457,6 +616,7 @@ using namespace Maply;
     if (scrollView)
         return;
 
+<<<<<<< HEAD
     mapView->cancelAnimation();
 
     // Note: Porting
@@ -468,12 +628,25 @@ using namespace Maply;
 //            height = pinchDelegate.maxZoom;
 //    }
 //    
+=======
+    [mapView cancelAnimation];
+    
+    if (pinchDelegate)
+    {
+        if (height < pinchDelegate.minZoom)
+            height = pinchDelegate.minZoom;
+        if (height > pinchDelegate.maxZoom)
+            height = pinchDelegate.maxZoom;
+    }
+    
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     // Snap to the bounds
     if (newPos.x > boundUR.x)  newPos.x = boundUR.x;
     if (newPos.y > boundUR.y)  newPos.y = boundUR.y;
     if (newPos.x < boundLL.x)  newPos.x = boundLL.x;
     if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
     
+<<<<<<< HEAD
     Point3d loc = mapView->coordAdapter->localToDisplay(mapView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
     loc.z() = height;
     mapView->setLoc(loc);
@@ -483,34 +656,62 @@ using namespace Maply;
 {
     Point3d loc = mapView->getLoc();
     GeoCoord geoCoord = mapView->coordAdapter->getCoordSystem()->localToGeographic(mapView->coordAdapter->displayToLocal(loc));
+=======
+    Point3d loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
+    loc.z() = height;
+    mapView.loc = loc;
+}
+
+- (void)getPosition:(WGCoordinate *)pos height:(float *)height
+{
+    Point3d loc = mapView.loc;
+    GeoCoord geoCoord = mapView.coordAdapter->getCoordSystem()->localToGeographic(mapView.coordAdapter->displayToLocal(loc));
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     pos->x = geoCoord.x();  pos->y = geoCoord.y();
     *height = loc.z();
 }
 
 - (void)setHeading:(float)heading
 {
+<<<<<<< HEAD
     mapView->setRotAngle(heading);
+=======
+    mapView.rotAngle = heading;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 - (float)heading
 {
+<<<<<<< HEAD
     return mapView->getRotAngle();
+=======
+    return mapView.rotAngle;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 /// Return the min and max heights above the globe for zooming
 - (void)getZoomLimitsMin:(float *)minHeight max:(float *)maxHeight
 {
+<<<<<<< HEAD
     // Note: Porting
 //    if (pinchDelegate)
 //    {
 //        *minHeight = pinchDelegate.minZoom;
 //        *maxHeight = pinchDelegate.maxZoom;
 //    }
+=======
+    if (pinchDelegate)
+    {
+        *minHeight = pinchDelegate.minZoom;
+        *maxHeight = pinchDelegate.maxZoom;
+    }
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 /// Set the min and max heights above the globe for zooming
 - (void)setZoomLimitsMin:(float)minHeight max:(float)maxHeight
 {
+<<<<<<< HEAD
     // Note: Porting
 //    if (pinchDelegate)
 //    {
@@ -522,10 +723,23 @@ using namespace Maply;
 //        if (mapView.heightAboveSurface > maxHeight)
 //            mapView.loc = Point3d(loc.x(),loc.y(),maxHeight);
 //    }
+=======
+    if (pinchDelegate)
+    {
+        pinchDelegate.minZoom = minHeight;
+        pinchDelegate.maxZoom = maxHeight;
+        Point3d loc = mapView.loc;
+        if (mapView.heightAboveSurface < minHeight)
+            mapView.loc = Point3d(loc.x(),loc.y(),minHeight);
+        if (mapView.heightAboveSurface > maxHeight)
+            mapView.loc = Point3d(loc.x(),loc.y(),maxHeight);
+    }
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }
 
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
 {
+<<<<<<< HEAD
     Point3d pt = visualView->coordAdapter->localToDisplay(visualView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
     
     Eigen::Matrix4d modelTrans = visualView->calcFullMatrix();
@@ -542,6 +756,22 @@ using namespace Maply;
     mapView->setLoc(testLoc,false);
     
     Point2fVector pts;
+=======
+    Point3d pt = visualView.coordAdapter->localToDisplay(visualView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
+    
+    Eigen::Matrix4d modelTrans = [visualView calcFullMatrix];
+    return [mapView pointOnScreenFromPlane:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+}
+
+// See if the given bounding box is all on sreen
+- (bool)checkCoverage:(Mbr &)mbr mapView:(MaplyView *)theView height:(float)height
+{
+    Point3d loc = mapView.loc;
+    Point3d testLoc = Point3d(loc.x(),loc.y(),height);
+    [mapView setLoc:testLoc runUpdates:false];
+    
+    std::vector<Point2f> pts;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     mbr.asPoints(pts);
     CGRect frame = self.view.frame;
     for (unsigned int ii=0;ii<pts.size();ii++)
@@ -560,15 +790,22 @@ using namespace Maply;
 - (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos
 {
     
+<<<<<<< HEAD
     Point3d oldLoc = mapView->getLoc();
     Point3d newLoc = Point3d(pos.x,pos.y,oldLoc.z());
     mapView->setLoc(newLoc,false);
+=======
+    Point3d oldLoc = mapView.loc;
+    Point3d newLoc = Point3d(pos.x,pos.y,oldLoc.z());
+    [mapView setLoc:newLoc runUpdates:false];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
     // Note: Test
 //    CGPoint testPt = [self screenPointFromGeo:pos];
     
     Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
     
+<<<<<<< HEAD
     float minHeight = mapView->minHeightAboveSurface();
     float maxHeight = mapView->maxHeightAboveSurface();
     // Note: Porting
@@ -577,13 +814,26 @@ using namespace Maply;
 //        minHeight = std::max(minHeight,pinchDelegate.minZoom);
 //        maxHeight = std::min(maxHeight,pinchDelegate.maxZoom);
 //    }
+=======
+    float minHeight = mapView.minHeightAboveSurface;
+    float maxHeight = mapView.maxHeightAboveSurface;
+    if (pinchDelegate)
+    {
+        minHeight = std::max(minHeight,pinchDelegate.minZoom);
+        maxHeight = std::min(maxHeight,pinchDelegate.maxZoom);
+    }
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     // Check that we can at least see it
     bool minOnScreen = [self checkCoverage:mbr mapView:mapView height:minHeight];
     bool maxOnScreen = [self checkCoverage:mbr mapView:mapView height:maxHeight];
     if (!minOnScreen && !maxOnScreen)
     {
+<<<<<<< HEAD
         mapView->setLoc(oldLoc,false);
+=======
+        [mapView setLoc:oldLoc runUpdates:false];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         return oldLoc.z();
     }
     
@@ -612,11 +862,16 @@ using namespace Maply;
             break;
     } while (true);
     
+<<<<<<< HEAD
     mapView->setLoc(oldLoc,false);
+=======
+    [mapView setLoc:oldLoc runUpdates:false];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
     return maxHeight;
 }
 
+<<<<<<< HEAD
 // Note: Porting
 //// Called back on the main thread after the interaction thread does the selection
 //- (void)handleSelection:(MaplyTapMessage *)msg didSelect:(NSObject *)selectedObj
@@ -656,5 +911,45 @@ using namespace Maply;
 //    // If there is no selection, it will call us back in the main thread
 //    [mapInteractLayer userDidTap:msg];
 //}
+=======
+// Called back on the main thread after the interaction thread does the selection
+- (void)handleSelection:(MaplyTapMessage *)msg didSelect:(NSObject *)selectedObj
+{
+    MaplyCoordinate coord;
+    coord.x = msg.whereGeo.lon();
+    coord.y = msg.whereGeo.lat();
+
+    if (selectedObj && self.selection)
+    {
+        // The user selected something, so let the delegate know
+        if (_delegate)
+        {
+            if ([_delegate respondsToSelector:@selector(maplyViewController:didSelect:atLoc:onScreen:)])
+                [_delegate maplyViewController:self didSelect:selectedObj atLoc:coord onScreen:msg.touchLoc];
+            else if ([_delegate respondsToSelector:@selector(maplyViewController:didSelect:)])
+                [_delegate maplyViewController:self didSelect:selectedObj];
+        }
+    } else {
+        // The user didn't select anything, let the delegate know.
+        if (_delegate)
+        {
+            if ([_delegate respondsToSelector:@selector(maplyViewController:didTapAt:)])
+                [_delegate maplyViewController:self didTapAt:coord];
+        }
+        if (_autoMoveToTap)
+            [self animateToPosition:coord time:1.0];
+    }
+}
+
+
+- (void)tapOnMap:(NSNotification *)note
+{
+    MaplyTapMessage *msg = note.object;
+    
+    // Hand this over to the interaction layer to look for a selection
+    // If there is no selection, it will call us back in the main thread
+    [mapInteractLayer userDidTap:msg];
+}
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 @end

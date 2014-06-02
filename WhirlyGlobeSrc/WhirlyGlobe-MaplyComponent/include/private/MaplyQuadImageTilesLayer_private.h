@@ -22,9 +22,15 @@
 #import "MaplyViewControllerLayer_private.h"
 #import "WhirlyGlobe.h"
 
+<<<<<<< HEAD
 @interface MaplyQuadImageTilesLayer()
 
 - (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKit::SceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC;
+=======
+@interface MaplyQuadImageTilesLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource>
+
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 

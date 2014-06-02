@@ -27,8 +27,14 @@
 
 @end
 
+<<<<<<< HEAD
 // Note: Porting
 //@interface MaplyVectorDatabase() <WhirlyKitLoftedPolyCache>
 //@interface MaplyVectorDatabase()
 //
 //@end
+=======
+@interface MaplyVectorDatabase() <WhirlyKitLoftedPolyCache>
+
+@end
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b

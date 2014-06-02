@@ -22,7 +22,10 @@
 #import "MaplyCoordinateSystem.h"
 #import "WhirlyGlobe.h"
 #import "MaplyCoordinateSystem_private.h"
+<<<<<<< HEAD
 #import "sqlhelpers.h"
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 using namespace Eigen;
 using namespace WhirlyKit;

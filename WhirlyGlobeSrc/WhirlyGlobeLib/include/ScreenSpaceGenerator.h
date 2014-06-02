@@ -63,11 +63,19 @@ public:
     typedef std::map<TextureAndProgram,BasicDrawable *> DrawableMap;
     
     /// A simple geometric representation used in shapes
+<<<<<<< HEAD
+=======
+    /// We do it this way so we can have multiple 
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     class SimpleGeometry
     {
     public:
         SimpleGeometry();
+<<<<<<< HEAD
         SimpleGeometry(SimpleIdentity texID,SimpleIdentity programID,RGBAColor color,const Point2dVector &coords,const std::vector<TexCoord> &texCoords);
+=======
+        SimpleGeometry(SimpleIdentity texID,SimpleIdentity programID,RGBAColor color,const std::vector<Point2f> &coords,const std::vector<TexCoord> &texCoords);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
         SimpleIdentity texID;
         SimpleIdentity programID;
@@ -86,6 +94,7 @@ public:
         ConvexShape();
 
         /// Center location
+<<<<<<< HEAD
         Point3d worldLoc;
         /// If true we'll use the rotation.  If not, we won't.
         bool useRotation;
@@ -93,12 +102,25 @@ public:
         double rotation;
         /// If we're fading in or out, these are used
         TimeInterval fadeUp,fadeDown;
+=======
+        Point3f worldLoc;
+        /// If true we'll use the rotation.  If not, we won't.
+        bool useRotation;
+        /// Rotation clockwise from north
+        float rotation;
+        /// If we're fading in or out, these are used
+        NSTimeInterval fadeUp,fadeDown;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         /// Sort by draw priority
         int drawPriority;
         /// Visual range
         float minVis,maxVis;
         /// 2D offset to be applied (probably from the layout engine)
+<<<<<<< HEAD
         Point2d offset;
+=======
+        Point2f offset;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         /// false if we're not to draw this one
         bool enable;
         
@@ -110,7 +132,11 @@ public:
     typedef struct
     {
         SimpleIdentity shapeID;
+<<<<<<< HEAD
         Point2d screenLoc;
+=======
+        Point2f screenLoc;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     } ProjectedPoint;
 
     /// Called by the marker generator build the geometry
@@ -143,7 +169,11 @@ protected:
     typedef std::set<ConvexShape *,IdentifiableSorter> ConvexShapeSet;
     ConvexShapeSet convexShapes;
     ConvexShapeSet activeShapes;
+<<<<<<< HEAD
     Point2d margin;
+=======
+    Point2f margin;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 	pthread_mutex_t projectedPtsLock;
     std::vector<ProjectedPoint> projectedPoints;
 };
@@ -160,7 +190,11 @@ public:
     ScreenSpaceGeneratorAddRequest(SimpleIdentity genID,const std::vector<ScreenSpaceGenerator::ConvexShape *> &);
     ~ScreenSpaceGeneratorAddRequest();
     
+<<<<<<< HEAD
     virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen);
+=======
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 protected:
     std::vector<ScreenSpaceGenerator::ConvexShape *> shapes;
@@ -177,7 +211,11 @@ public:
     ScreenSpaceGeneratorRemRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> &);
     ~ScreenSpaceGeneratorRemRequest();
     
+<<<<<<< HEAD
     virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen);    
+=======
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);    
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 protected:
     std::vector<SimpleIdentity> shapeIDs;
@@ -195,7 +233,11 @@ public:
     ScreenSpaceGeneratorFadeRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> shapeIDs,TimeInterval fadeUp,TimeInterval fadeDown);
     ~ScreenSpaceGeneratorFadeRequest();
     
+<<<<<<< HEAD
     virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen);
+=======
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 protected:
     TimeInterval fadeUp,fadeDown;
@@ -210,7 +252,11 @@ public:
     /// Construct with the generator ID and a list of IDs to turn on/off
     ScreenSpaceGeneratorEnableRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> &shapeIDs,bool enable);
 
+<<<<<<< HEAD
     virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen);
+=======
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     bool enable;
@@ -228,14 +274,23 @@ public:
     public:
         ShapeChange();
         SimpleIdentity shapeID;
+<<<<<<< HEAD
         TimeInterval fadeUp,fadeDown;
         Point2d offset;
+=======
+        NSTimeInterval fadeUp,fadeDown;
+        Point2f offset;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     };
     
     /// Construct with a generator ID and a list of shapes to change
     ScreenSpaceGeneratorGangChangeRequest(SimpleIdentity genID,const std::vector<ShapeChange> &changes);
     
+<<<<<<< HEAD
     virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen);
+=======
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     std::vector<ShapeChange> changes;

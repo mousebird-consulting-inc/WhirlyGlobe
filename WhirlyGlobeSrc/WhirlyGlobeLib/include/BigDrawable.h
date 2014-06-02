@@ -18,7 +18,10 @@
  *
  */
 
+<<<<<<< HEAD
 #import "RawData.h"
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 #import "Drawable.h"
 #import "CoordSystem.h"
 
@@ -41,7 +44,11 @@ public:
 
     /// See if this big drawable can represent data in the given drawable.
     /// We check various modes (e.g. draw priority, z buffer on, etc)
+<<<<<<< HEAD
     bool isCompatible(BasicDrawable *,const Point3d *center,double objSize);
+=======
+    bool isCompatible(BasicDrawable *);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// Set the various drawing modes to be compatible with the given
     ///  drawable.
@@ -50,6 +57,7 @@ public:
     /// No bounding box, since these change constantly
     Mbr getLocalMbr() const { return Mbr(); }
 
+<<<<<<< HEAD
     /// Return an offset matrix, if we need one
     const Eigen::Matrix4d *getMatrix() const;
     
@@ -62,6 +70,11 @@ public:
     /// Draw priority for ordering
     unsigned int getDrawPriority() const { return drawPriority; }
     void setDrawPriority(int newPriority) { drawPriority = newPriority; }
+=======
+    /// Draw priority for ordering
+    unsigned int getDrawPriority() const { return drawPriority; }
+    void setDrawPriority(unsigned int newPriority) { drawPriority = newPriority; }
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// Set all the texture info at once
     void setTexInfo(const std::vector<BasicDrawable::TexInfo> &newTexInfo) { texInfo = newTexInfo; }
@@ -96,7 +109,11 @@ public:
     bool hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const { return false; }
     
     /// Don't need to update the renderer particularly
+<<<<<<< HEAD
     void updateRenderer(WhirlyKit::SceneRendererES *renderer);
+=======
+    void updateRenderer(WhirlyKitSceneRendererES *renderer);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// If set, we want to use the z buffer
     bool getRequestZBuffer() const { return requestZBuffer; }
@@ -109,7 +126,11 @@ public:
     /// Look for a region of the given size for the given data.
     /// This places the vertex data and adds the element data to the set
     ///  of element chunks we consolidate during a flush.
+<<<<<<< HEAD
     SimpleIdentity addRegion(RawDataRef vertData,int &vertPos,RawDataRef elementData,bool enabled);
+=======
+    SimpleIdentity addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *elementData,bool enabled);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// Enable/Disable a given region
     void setEnableRegion(SimpleIdentity elementChunkId,bool enabled);
@@ -147,8 +168,11 @@ protected:
     std::vector<BasicDrawable::TexInfo> texInfo;
     int drawPriority;
     bool requestZBuffer,writeZBuffer;
+<<<<<<< HEAD
     Point3d center;
     Eigen::Matrix4d transMat;
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
     
     // The vertex attributes we're representing in the buffers
@@ -162,7 +186,11 @@ protected:
     class Change
     {
     public:
+<<<<<<< HEAD
         Change(ChangeType type,int whereVert,RawDataRef vertData,int clearLen=0);
+=======
+        Change(ChangeType type,int whereVert,NSData *vertData,int clearLen=0);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         Change(const Change &that) : type(that.type), whereVert(that.whereVert), vertData(that.vertData), clearLen(that.clearLen) { }
         const Change & operator = (const Change &that) { type = that.type;  whereVert = that.whereVert; vertData = that.vertData;  clearLen = that.clearLen; return *this; }
         ~Change() { }
@@ -172,7 +200,11 @@ protected:
         // Location (in bytes) in the vertex pool
         int whereVert;
         // For an add, the actual data
+<<<<<<< HEAD
         RawDataRef vertData;
+=======
+        NSData *vertData;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         // For a clear, amount of data to clear
         int clearLen;
     };
@@ -231,9 +263,15 @@ protected:
     class ElementChunk : public Identifiable
     {
     public:
+<<<<<<< HEAD
         ElementChunk(RawDataRef elementData) : elementData(elementData), enabled(true) { }
         ElementChunk(SimpleIdentity theId) : Identifiable(theId) { }
         RawDataRef elementData;
+=======
+        ElementChunk(NSData *elementData) : elementData(elementData), enabled(true) { }
+        ElementChunk(SimpleIdentity theId) : Identifiable(theId) { }
+        NSData *elementData;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         bool enabled;
     };
     typedef std::set<ElementChunk> ElementChunkSet;
@@ -244,17 +282,27 @@ protected:
 };
             
 typedef boost::shared_ptr<BigDrawable> BigDrawableRef;
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 /// Tell the renderer to swap buffers in a big drawable
 class BigDrawableSwap : public ChangeRequest
 {
 public:
+<<<<<<< HEAD
     // Called when the bid drawable has swapped (on the rendering thread)
     typedef void (SwapCallback)(BigDrawableSwap *swap,void *data);
 
     /// Construct with the big drawable ID and the buffer to switch to
     BigDrawableSwap(SwapCallback *swapCallback,void *swapData)
     : swapCallback(swapCallback), swapData(swapData) { }
+=======
+    /// Construct with the big drawable ID and the buffer to switch to
+    BigDrawableSwap(NSObject * __weak target,SEL sel)
+    : target(target), sel(sel) { }
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     void addSwap(SimpleIdentity drawId,int whichBuffer)
     {
@@ -262,14 +310,23 @@ public:
     }
 
     /// Run the swap.  Only the renderer calls this.
+<<<<<<< HEAD
     void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+=======
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
     /// We'll want a flush on the layer thread side before we swap buffers on the render side
     virtual bool needsFlush() { return true; }
 
 protected:
+<<<<<<< HEAD
     SwapCallback *swapCallback;
     void *swapData;
+=======
+    NSObject * __weak target;
+    SEL sel;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     class SwapInfo
     {
     public:
@@ -287,7 +344,11 @@ public:
     BigDrawableFlush(SimpleIdentity drawId) : drawId(drawId) { }
 
     /// Run the command.  The renderer calls this
+<<<<<<< HEAD
     void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+=======
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     SimpleIdentity drawId;
@@ -300,7 +361,11 @@ public:
     BigDrawableTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId) : drawId(drawId), which(which), texId(newTexId) { }
     
     /// Run the command.  The renderer calls this
+<<<<<<< HEAD
     void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+=======
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     SimpleIdentity drawId;
@@ -315,13 +380,18 @@ public:
     BigDrawableOnOffChangeRequest(SimpleIdentity drawId,bool enable) : drawId(drawId), enable(enable) { }
 
     /// Run the command.  The renderer calls this
+<<<<<<< HEAD
     void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+=======
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 protected:
     SimpleIdentity drawId;
     bool enable;
 };
 
+<<<<<<< HEAD
 /// Change the draw priority of a big drawable
 class BigDrawableDrawPriorityChangeRequest : public ChangeRequest
 {
@@ -350,4 +420,6 @@ protected:
     SimpleIdentity programID;
 };
     
+=======
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 }

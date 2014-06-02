@@ -26,6 +26,11 @@
 #import "WhirlyKitView.h"
 #import "Scene.h"
 
+<<<<<<< HEAD
+=======
+@class WhirlyKitSceneRendererES;
+
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 namespace WhirlyKit
 {
     
@@ -73,7 +78,11 @@ public:
     // Comparison operator for sorting
     bool operator < (const PolytopeSelectable &that) const;
     
+<<<<<<< HEAD
     std::vector<Point3fVector> polys;
+=======
+    std::vector<std::vector<Point3f> > polys;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     Point3f midPt;        // Point right in the middle of the polytope
 };
 
@@ -158,7 +167,11 @@ public:
     void enableSelectables(const SimpleIDSet &selectIDs,bool enable);
     
     /// Pass in the view point where the user touched.  This returns the closest hit within the given distance
+<<<<<<< HEAD
     SimpleIdentity pickObject(Point2f touchPt,float maxDist,WhirlyKit::View *theView);
+=======
+    SimpleIdentity pickObject(Point2f touchPt,float maxDist,WhirlyKitView *theView);
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     pthread_mutex_t mutex;

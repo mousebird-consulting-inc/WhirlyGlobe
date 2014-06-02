@@ -34,7 +34,11 @@ using namespace WhirlyGlobe;
     WhirlyKit::Scene *scene;
     
     /// Last view state we were given
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/UpdateDisplayLayer.mm
     WhirlyGlobe::GlobeViewState *viewState;
+=======
+    WhirlyGlobeViewState *viewState;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/UpdateDisplayLayer.mm
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyGlobeUpdateDataSource> *)inDataSource moveDist:(float)inMoveDist minTime:(float)inMinTime
@@ -72,15 +76,25 @@ using namespace WhirlyGlobe;
 
 - (void)viewUpdate:(WhirlyGlobe::GlobeViewState *)inViewState
 {
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/UpdateDisplayLayer.mm
     WhirlyGlobe::GlobeViewState *lastViewState = viewState;
     WhirlyGlobe::GlobeViewState *newViewState = inViewState;
+=======
+    WhirlyGlobeViewState *lastViewState = viewState;    
+    WhirlyGlobeViewState *newViewState = inViewState;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/UpdateDisplayLayer.mm
 
     // See how far we've moved
     float dist2 = 0.0;
     if (lastViewState)
     {
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/UpdateDisplayLayer.mm
         Vector3d eye0 = lastViewState->eyePos;
         Vector3d eye1 = newViewState->eyePos;
+=======
+        Vector3d eye0 = [lastViewState eyePos];
+        Vector3d eye1 = [newViewState eyePos];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/UpdateDisplayLayer.mm
         
         dist2 = (eye0-eye1).squaredNorm();
     }

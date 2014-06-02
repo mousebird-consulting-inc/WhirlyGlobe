@@ -199,7 +199,11 @@ void Quadtree::reevaluateNodes()
          it != nodesByIdent.end(); ++it)
     {
         Node *node = *it;
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/Quadtree.cpp
         node->nodeInfo.importance = importDelegate->importanceForTile(node->nodeInfo.ident, node->nodeInfo.mbr, this, &node->nodeInfo.attrs);
+=======
+        node->nodeInfo.importance = [importDelegate importanceForTile:node->nodeInfo.ident mbr:node->nodeInfo.mbr tree:this attrs:node->nodeInfo.attrs];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/Quadtree.mm
         if (!node->hasChildren())
             nodesBySize.insert(node);
     }
@@ -258,7 +262,11 @@ Quadtree::NodeInfo Quadtree::generateNode(Identifier ident)
     NodeInfo nodeInfo;
     nodeInfo.ident = ident;
     nodeInfo.mbr = generateMbrForNode(ident);
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/Quadtree.cpp
     nodeInfo.importance = importDelegate->importanceForTile(nodeInfo.ident, nodeInfo.mbr, this, &nodeInfo.attrs);
+=======
+    nodeInfo.importance = [importDelegate importanceForTile:nodeInfo.ident mbr:nodeInfo.mbr tree:this attrs:nodeInfo.attrs];
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/Quadtree.mm
     
     return nodeInfo;
 }
@@ -276,7 +284,11 @@ Mbr Quadtree::generateMbrForNode(Identifier ident)
     return outMbr;
 }
     
+<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/Quadtree.cpp
 bool Quadtree::leastImportantNode(NodeInfo &nodeInfo,bool ignoreImportance,int targetLevel)
+=======
+bool Quadtree::leastImportantNode(NodeInfo &nodeInfo,bool ignoreImportance)
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/Quadtree.mm
 {
     // Look for the first unimportant node without children
     // If the targetLevel is set, we'll avoid unloading things that have parents

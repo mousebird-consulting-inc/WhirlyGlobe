@@ -55,6 +55,7 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
   */
 + (MaplyVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON;
 
+<<<<<<< HEAD
 ///** @brief Parse vector data from geoJSON.
 //    @details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses slower JSON parser.
 //    @details We assume the geoJSON is all in decimal degrees in WGS84.
@@ -73,6 +74,26 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
 //    @return The vector object(s) read from the file or nil on failure.
 //  */
 //+ (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName;
+=======
+/** @brief Parse vector data from geoJSON.
+    @details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses slower JSON parser.
+    @details We assume the geoJSON is all in decimal degrees in WGS84.
+ */
++ (MaplyVectorObject *)VectorObjectFromGeoJSONApple:(NSData *)geoJSON;
+
+/** @brief Parse vector data from geoJSON.
+    @details Returns one object to represent the whole thing, which might include multiple different vectors.  This version parses its data from an NSDictionary, which had to be parsed from JSON at some point.  Probably the slower path.
+    @details We assume the geoJSON is all in decimal degrees in WGS84.
+ */
++ (MaplyVectorObject *)VectorObjectFromGeoJSONDictionary:(NSDictionary *)geoJSON;
+
+/** @brief Read vector objects from the given cache file.
+    @details MaplyVectorObject's can be written and read from a binary file.  We use this for caching data locally on the device.
+    @param fileName Name of the binary vector file.
+    @return The vector object(s) read from the file or nil on failure.
+  */
++ (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 /** @brief Read vector objects from the given shapefile.
     @details This will read all the shapes in the given shapefile into memory and return them as one MaplyVectorObject.
@@ -101,6 +122,7 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
   */
 - (id)initWithAreal:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr;
 
+<<<<<<< HEAD
 // Note: Porting
 ///** @brief Write the vector object to the given file on the device.
 //    @details We support a binary format for caching vector data.  Typically you write these files on the device or in the simulator and then put them in a place you can easily find them when needed.
@@ -108,6 +130,14 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
 //    @return Returns true on succes, false on failure.
 //  */
 //- (bool)writeToFile:(NSString *)fileName;
+=======
+/** @brief Write the vector object to the given file on the device.
+    @details We support a binary format for caching vector data.  Typically you write these files on the device or in the simulator and then put them in a place you can easily find them when needed.
+    @param fileName The file to read the vector data from.
+    @return Returns true on succes, false on failure.
+  */
+- (bool)writeToFile:(NSString *)fileName;
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 /** @brief Make a deep copy of the vector object and return it.
     @details This makes a complete copy of the vector object, with all features and nothing shared.
@@ -212,6 +242,7 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
 
 typedef MaplyVectorObject WGVectorObject;
 
+<<<<<<< HEAD
 // Note: Porting
 ///** @brief The Maply Vector Database holds reference to a group of features that you can query.
 //    @details This object wraps more complex database-like objects that contain geometric features.  Primarily, that's just shapefiles.
@@ -241,3 +272,33 @@ typedef MaplyVectorObject WGVectorObject;
 //- (MaplyVectorObject *)fetchAllVectors;
 //
 //@end
+=======
+/** @brief The Maply Vector Database holds reference to a group of features that you can query.
+    @details This object wraps more complex database-like objects that contain geometric features.  Primarily, that's just shapefiles.
+    @details You can set this up and then query the database for features you'd like back.  There's an option to make a SQL query or you can just fetch all the vectors at once.
+    @details The point of this object is to keep most features out of memory until needed.  However, a better way of doing that is probably using the MaplyPagingLayer.
+  */
+@interface MaplyVectorDatabase : NSObject
+
+/** @brief Construct from a shapefile in the bundle
+    @details Construct a MaplyVectorDatabase form a shapefile found in the app's bundle.  This will create a bounding box cache file and a sqlite database for the attributes to speed later lookups.
+  */
++ (MaplyVectorDatabase *) vectorDatabaseWithShape:(NSString *)shapeName;
+
+/** @brief Return vectors that match the given SQL query
+    @details Run a SQL query on the data, looking for vectors that match.  These will be returned in a single MaplyVectorObject, or nil if there are none.
+  */
+- (MaplyVectorObject *)fetchMatchingVectors:(NSString *)sqlQuery;
+
+/** @brief Search for all the areals that surround the given point (geographic)
+    @details First this method does a bounding box check to eliminate areal features that won't overlap at all.  Then it runs a point in poly test on each feature that might.  Every areal feature that overlaps is returned in the MaplyVectorObject.
+  */
+- (MaplyVectorObject *)fetchArealsForPoint:(MaplyCoordinate)coord;
+
+/** @brief Return all the vectors in the database.
+    @details This method reads all the vectors in the database sequentially and returns them all in a MaplyVectorObject.  This is basically how you read a shapefile in WhirlyGlobe-Maply.
+  */
+- (MaplyVectorObject *)fetchAllVectors;
+
+@end
+>>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
