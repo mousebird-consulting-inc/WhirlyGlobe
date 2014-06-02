@@ -1,8 +1,34 @@
+/*
+ *  AnimateTranslateMomentum.java
+ *  WhirlyGlobeLib
+ *
+ *  Created by Steve Gifford on 6/2/14.
+ *  Copyright 2011-2014 mousebird consulting
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 package com.mousebird.maply;
 
 /**
  * Implements a translation with momentum to a new point.
- * @author sjg
+ * <p>
+ * Translation with momentum is typically used at the end of a pan or fling
+ * gesture when the user has let go.  The acceleration is negative, thus slowing
+ * the map down.
+ * <p>
+ * In general, the MaplyController creates these and you'd only be doing so
+ * yourself if you've subclassed it.
  *
  */
 public class AnimateTranslateMomentum implements MapView.AnimationDelegate
@@ -16,6 +42,17 @@ public class AnimateTranslateMomentum implements MapView.AnimationDelegate
 	Point3d org = null;
 	Point2d viewBounds[] = null;
 
+	/**
+	 * Constructs an animation that translates from one point in a specific direction with a given acceleration
+	 * (usually deceleration).
+	 * 
+	 * @param inView The map view this is tied to.
+	 * @param inRender Renderer we're using.
+	 * @param inVel Starting velocity.
+	 * @param inAcc Acceleration to apply, probably negative.
+	 * @param inDir Direction to go, rather than a destination point.
+	 * @param inBounds Bounding box to stay within.
+	 */
 	AnimateTranslateMomentum(MapView inView,MaplyRenderer inRender,double inVel,double inAcc,Point3d inDir,Point2d inBounds[])
 	{
 		mapView = inView;

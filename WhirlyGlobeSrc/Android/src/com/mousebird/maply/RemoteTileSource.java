@@ -1,14 +1,30 @@
+/*
+ *  RemoteTileSource.java
+ *  WhirlyGlobeLib
+ *
+ *  Created by Steve Gifford on 6/2/14.
+ *  Copyright 2011-2014 mousebird consulting
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
 package com.mousebird.maply;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -29,8 +45,6 @@ import android.util.Log;
  * such as base URL, file extension and min and max zoom level.
  * 
  * This object works on conjuction with a QuadImageTileLayer.
- * 
- * @author sjg
  *
  */
 public class RemoteTileSource implements QuadImageTileLayer.TileSource
@@ -45,8 +59,9 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	/**
 	 * The tile source delegate will be called back when a tile loads
 	 * or fails to load.
-	 * 
-	 * @author sjg
+	 * <p>
+	 * You use these for tracking what the remote tile source is up to.
+	 * They're not required, but they are handy for capturing failures.
 	 *
 	 */
 	public interface TileSourceDelegate

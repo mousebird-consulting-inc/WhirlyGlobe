@@ -1,3 +1,22 @@
+/*
+ *  QuadPagingLayer.java
+ *  WhirlyGlobeLib
+ *
+ *  Created by Steve Gifford on 6/2/14.
+ *  Copyright 2011-2014 mousebird consulting
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
 package com.mousebird.maply;
 
 import java.util.ArrayList;
@@ -16,8 +35,6 @@ import android.os.Looper;
  * handle the deletion and turning it on and off as needed when the user moves
  * around.
  * 
- * @author sjg
- *
  */
 public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInterface
 {
@@ -247,18 +264,17 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			scheduleEvalStep();
 	}
 
-	// Note: Make this static
 	/**
 	 * Calculate the bounding box for a given tile in geographic, that is in 
 	 * WGS84 longitude/latitude radians.
 	 */
-	public Mbr geoBoundsForTile(MaplyTileID tileID)
+	static public Mbr geoBoundsForTile(MaplyTileID tileID)
 	{
 		Mbr mbr = new Mbr(new Point2d(0,0),new Point2d(0,0));
 		geoBoundsForTileNative(tileID.x,tileID.y,tileID.level,mbr.ll,mbr.ur);
 		return mbr;
 	}
-	public native void geoBoundsForTileNative(int x,int y,int level,Point2d ll,Point2d ur);
+	static public native void geoBoundsForTileNative(int x,int y,int level,Point2d ll,Point2d ur);
 	
 	// Called by the native side when it's time to load a tile
 	void loadTile(int x,int y,int level)
@@ -391,6 +407,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	/**
 	 * When the paging object has loaded a component object, it tells us
 	 * about it here.
+	 * 
 	 * @param compObj The component object handed back by the Maply Controller.
 	 * @param tileID The tile we've loaded data for.
 	 */
@@ -407,6 +424,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	/**
 	 * When the paging object has loaded several component objects, it
 	 * tells us about them here.
+	 * 
 	 * @param compObjs The component objects handed back by the Maply Controller.
 	 * @param tileID The tile we've loaded data for.
 	 */

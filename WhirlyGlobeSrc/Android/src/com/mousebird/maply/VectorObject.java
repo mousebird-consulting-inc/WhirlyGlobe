@@ -3,7 +3,7 @@
  *  com.mousebirdconsulting.maply
  *
  *  Created by Steve Gifford on 12/30/13.
- *  Copyright 2013 mousebird consulting
+ *  Copyright 2013-2014 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.

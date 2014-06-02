@@ -1,3 +1,22 @@
+/*
+ *  OSMVectorTilePager.java
+ *  WhirlyGlobeLib
+ *
+ *  Created by Steve Gifford on 6/2/14.
+ *  Copyright 2011-2014 mousebird consulting
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
 package com.mousebird.maply;
 
 import java.io.File;
@@ -54,11 +73,17 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		maxZoom = inMaxZoom;		
 	}
 
+	/**
+	 * Min zoom level, probably 0.
+	 */
 	@Override
 	public int minZoom() {
 		return minZoom;
 	}
 
+	/**
+	 * Max zoom leve, typically 14 for vector tiles.
+	 */
 	@Override
 	public int maxZoom() {
 		return maxZoom;
@@ -277,7 +302,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 
 			// Figure out where to place the label
 			Point2d mid = new Point2d();
-			double rot = road.linearMiddle(mid);
+//			double rot = road.linearMiddle(mid);
 			ScreenLabel label = new ScreenLabel();
 			label.loc = mid;
 //            label.rotation = rot+Math.PI/2.0;
