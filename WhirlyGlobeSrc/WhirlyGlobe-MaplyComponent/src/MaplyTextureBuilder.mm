@@ -79,7 +79,8 @@
                 for (unsigned int xx=0;xx<size.width;xx++)
                 {
                     // Do a gradiant across the image
-                    float opacity = sinf((xx/(float)(size.width-1))*M_PI);
+                    float sinVal = sinf((xx/(float)(size.width-1))*M_PI);
+                    float opacity = (sinVal > 0.0 ? powf(sinVal,0.33) : 0.0);
                     [[UIColor colorWithWhite:1.0 alpha:opacity] setFill];
                     [[UIColor colorWithWhite:1.0 alpha:opacity] setStroke];
                     CGContextFillRect(ctx, CGRectMake(xx, (curY+jj)/(float)eleSum * size.height, 1, 1));
