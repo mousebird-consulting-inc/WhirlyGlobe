@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-<<<<<<< HEAD
 		2B009C98185FA2CD001E2EE8 /* WhirlyGlobe.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C97185FA2CD001E2EE8 /* WhirlyGlobe.h */; };
 		2B009CEC186102E4001E2EE8 /* libbase64++.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009CC1186102E4001E2EE8 /* libbase64++.h */; };
 		2B009CED186102E4001E2EE8 /* mempool.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009CC3186102E4001E2EE8 /* mempool.h */; };
@@ -156,110 +155,6 @@
 		2B3836A9186244DC00467ABD /* glwrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3836A8186244DC00467ABD /* glwrapper.h */; };
 		2B3836AB18625C9200467ABD /* glwrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3836AA18625C9200467ABD /* glwrapper.cpp */; };
 		2B3A0D41133405700085EF43 /* shapefil.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951D8E12F09E7A005003AE /* shapefil.h */; };
-=======
-		2B03701914C9FDDE00A51AC4 /* MaplyAnimateTranslateMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B03701714C9FDDE00A51AC4 /* MaplyAnimateTranslateMomentum.mm */; };
-		2B03701A14C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B03701814C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm */; };
-		2B03702014CA01C600A51AC4 /* MaplyTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B03701F14CA01C600A51AC4 /* MaplyTapDelegate.mm */; };
-		2B076B35133952C6009D931D /* LongPressDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B076B33133952C5009D931D /* LongPressDelegate.mm */; };
-		2B08059617EB955C0016C813 /* LoadedTile.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B08059517EB955C0016C813 /* LoadedTile.h */; };
-		2B08059817EB95A40016C813 /* LoadedTile.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B08059717EB95A40016C813 /* LoadedTile.mm */; };
-		2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194426138B0CD000E8FA42 /* AnimateRotation.mm */; };
-		2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */; };
-		2B2A258E1559B40800137807 /* ScreenSpaceGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */; };
-		2B308B11171F638F006D7273 /* SelectionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B308B10171F638F006D7273 /* SelectionManager.h */; };
-		2B308B13171F63B3006D7273 /* SelectionManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B308B12171F63B3006D7273 /* SelectionManager.mm */; };
-		2B35A8551337CC5F0047C705 /* GLUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B35A8531337CC5F0047C705 /* GLUtils.mm */; };
-		2B3A0D41133405700085EF43 /* shapefil.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951D8E12F09E7A005003AE /* shapefil.h */; };
-		2B3A0D42133405780085EF43 /* WhirlyGlobe.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FD212DE22FA00778431 /* WhirlyGlobe.h */; };
-		2B3A0D43133405780085EF43 /* WhirlyVector.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FE112DE23BA00778431 /* WhirlyVector.h */; };
-		2B3A0D44133405780085EF43 /* WhirlyGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3A36E412E63F9500698DA1 /* WhirlyGeometry.h */; };
-		2B3A0D45133405780085EF43 /* GlobeMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCABB9812FA14300049D73C /* GlobeMath.h */; };
-		2B3A0D46133405780085EF43 /* UIImage+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDF12DE23BA00778431 /* UIImage+Stuff.h */; };
-		2B3A0D47133405780085EF43 /* NSDictionary+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3C81B9132FE72F0029DEF2 /* NSDictionary+Stuff.h */; };
-		2B3A0D48133405780085EF43 /* UIColor+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3C81BF13301E860029DEF2 /* UIColor+Stuff.h */; };
-		2B3A0D4B133405780085EF43 /* EAGLView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDB12DE23BA00778431 /* EAGLView.h */; };
-		2B3A0D4C133405780085EF43 /* PinchDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE6EE5412E4F44900415490 /* PinchDelegate.h */; };
-		2B3A0D4D133405780085EF43 /* SwipeDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE6EE7612E4F95C00415490 /* SwipeDelegate.h */; };
-		2B3A0D4E133405780085EF43 /* PanDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3A341E12E605C800698DA1 /* PanDelegate.h */; };
-		2B3A0D4F133405780085EF43 /* TapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCAC33112FB754D0049D73C /* TapMessage.h */; };
-		2B3A0D50133405780085EF43 /* TapDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCAC2F512FB6E570049D73C /* TapDelegate.h */; };
-		2B3A0D51133405780085EF43 /* VectorData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD0E68613254D7300CD95A8 /* VectorData.h */; };
-		2B3A0D52133405780085EF43 /* ShapeReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCAB9E712F8CD440049D73C /* ShapeReader.h */; };
-		2B3A0D53133405780085EF43 /* Identifiable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1F07E130098E6001F33CD /* Identifiable.h */; };
-		2B3A0D54133405780085EF43 /* Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1F08613009AC3001F33CD /* Texture.h */; };
-		2B3A0D55133405780085EF43 /* Drawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCABAA912F8E0850049D73C /* Drawable.h */; };
-		2B3A0D56133405780085EF43 /* Cullable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCABAAB12F8E0920049D73C /* Cullable.h */; };
-		2B3A0D57133405780085EF43 /* Scene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDC12DE23BA00778431 /* Scene.h */; };
-		2B3A0D58133405780085EF43 /* GlobeView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B389AA112E112D9006FC3A1 /* GlobeView.h */; };
-		2B3A0D59133405780085EF43 /* TextureGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDE12DE23BA00778431 /* TextureGroup.h */; };
-		2B3A0D5A133405780085EF43 /* LayerThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCAB9BF12F8A3860049D73C /* LayerThread.h */; };
-		2B3A0D5B133405780085EF43 /* DataLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCAB9A912F897E20049D73C /* DataLayer.h */; };
-		2B3A0D5C133405780085EF43 /* SphericalEarthLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDD12DE23BA00778431 /* SphericalEarthLayer.h */; };
-		2B3A0D5D133405780085EF43 /* GridLines.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951C7D12EFA262005003AE /* GridLines.h */; };
-		2B3A0D5F133405780085EF43 /* VectorLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951D9812F09F31005003AE /* VectorLayer.h */; };
-		2B3A0D60133405780085EF43 /* LabelLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1F06813007031001F33CD /* LabelLayer.h */; };
-		2B40467815F9B4CB00937923 /* ActiveModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B40467715F9B4CB00937923 /* ActiveModel.h */; };
-		2B40467B15F9B4D300937923 /* GeometryLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B40467A15F9B4D300937923 /* GeometryLayer.h */; };
-		2B40467D15F9B4F400937923 /* GeometryLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B40467C15F9B4F400937923 /* GeometryLayer.mm */; };
-		2B44187913A2D9BA00514EDE /* RotateDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B44187713A2D9BA00514EDE /* RotateDelegate.h */; };
-		2B44187C13A2DA3C00514EDE /* RotateDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B44187B13A2DA3C00514EDE /* RotateDelegate.mm */; };
-		2B4504B714BCB7EA00C99306 /* WhirlyKitView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4504B614BCB7EA00C99306 /* WhirlyKitView.mm */; };
-		2B4504B914BCC29D00C99306 /* FlatMath.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4504B814BCC29D00C99306 /* FlatMath.mm */; };
-		2B4504E114BD126400C99306 /* MaplyPinchDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4504E014BD126400C99306 /* MaplyPinchDelegate.mm */; };
-		2B4730171732DEF9000507E9 /* MaplyFlatView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4730161732DEF9000507E9 /* MaplyFlatView.h */; };
-		2B4730191732DF0E000507E9 /* MaplyFlatView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4730181732DF0E000507E9 /* MaplyFlatView.mm */; };
-		2B4AE3B417662D6800850F3F /* JSONOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3B217662D6800850F3F /* JSONOptions.h */; };
-		2B4AE3B517662D6800850F3F /* libjson.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3B317662D6800850F3F /* libjson.h */; };
-		2B4AE3E11766610300850F3F /* internalJSONNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AE3B717662DA300850F3F /* internalJSONNode.cpp */; };
-		2B4AE3E21766610300850F3F /* internalJSONNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3B817662DA300850F3F /* internalJSONNode.h */; };
-		2B4AE3E31766610300850F3F /* JSON_Base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3B917662DA300850F3F /* JSON_Base64.h */; };
-		2B4AE3E41766610300850F3F /* JSONAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AE3BA17662DA300850F3F /* JSONAllocator.cpp */; };
-		2B4AE3E51766610300850F3F /* JSONAllocator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3BB17662DA300850F3F /* JSONAllocator.h */; };
-		2B4AE3E61766610300850F3F /* JSONChildren.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AE3BC17662DA300850F3F /* JSONChildren.cpp */; };
-		2B4AE3E71766610300850F3F /* JSONChildren.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3BD17662DA300850F3F /* JSONChildren.h */; };
-		2B4AE3E81766610300850F3F /* JSONDebug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AE3BE17662DA300850F3F /* JSONDebug.cpp */; };
-		2B4AE3E91766610300850F3F /* JSONDebug.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3BF17662DA300850F3F /* JSONDebug.h */; };
-		2B4AE3EA1766610900850F3F /* JSONDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3C517662DA300850F3F /* JSONDefs.h */; };
-		2B4AE3EB1766610900850F3F /* JSONGlobals.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3C617662DA300850F3F /* JSONGlobals.h */; };
-		2B4AE3EC1766610900850F3F /* JSONIterators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AE3C717662DA300850F3F /* JSONIterators.cpp */; };
-		2B4AE3ED1766610900850F3F /* JSONMemory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AE3C817662DA300850F3F /* JSONMemory.cpp */; };
-		2B4AE3EE1766610900850F3F /* JSONMemory.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3C917662DA300850F3F /* JSONMemory.h */; };
-		2B4AE3EF1766610900850F3F /* JSONMemoryPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3CA17662DA300850F3F /* JSONMemoryPool.h */; };
-		2B4AE3F01766610900850F3F /* JSONNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AE3CB17662DA300850F3F /* JSONNode.cpp */; };
-		2B4AE3F11766610900850F3F /* JSONNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3CC17662DA300850F3F /* JSONNode.h */; };
-		2B4AE3F21766610900850F3F /* JSONNode_Mutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AE3CD17662DA300850F3F /* JSONNode_Mutex.cpp */; };
-		2B4AE3F31766610900850F3F /* JSONPreparse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AE3CE17662DA300850F3F /* JSONPreparse.cpp */; };
-		2B4AE3F41766610900850F3F /* JSONPreparse.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3CF17662DA300850F3F /* JSONPreparse.h */; };
-		2B4AE3F51766610900850F3F /* JSONSharedString.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3D017662DA300850F3F /* JSONSharedString.h */; };
-		2B4AE3F61766610900850F3F /* JSONSingleton.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3D117662DA300850F3F /* JSONSingleton.h */; };
-		2B4AE3F71766610900850F3F /* JSONStats.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3D217662DA300850F3F /* JSONStats.h */; };
-		2B4AE3F81766610900850F3F /* JSONStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AE3D317662DA300850F3F /* JSONStream.cpp */; };
-		2B4AE3F91766610900850F3F /* JSONStream.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3D417662DA300850F3F /* JSONStream.h */; };
-		2B4AE3FA1766610900850F3F /* JSONValidator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AE3D517662DA300850F3F /* JSONValidator.cpp */; };
-		2B4AE3FB1766610900850F3F /* JSONValidator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3D617662DA300850F3F /* JSONValidator.h */; };
-		2B4AE3FC1766610900850F3F /* JSONWorker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AE3D717662DA300850F3F /* JSONWorker.cpp */; };
-		2B4AE3FD1766610900850F3F /* JSONWorker.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3D817662DA300850F3F /* JSONWorker.h */; };
-		2B4AE3FE1766610900850F3F /* JSONWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AE3D917662DA300850F3F /* JSONWriter.cpp */; };
-		2B4AE3FF1766610900850F3F /* libjson.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AE3DA17662DA300850F3F /* libjson.cpp */; };
-		2B4AE4001766610900850F3F /* NumberToString.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3DB17662DA300850F3F /* NumberToString.h */; };
-		2B4AFB881803152300C3F948 /* TileQuadOfflineRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AFB871803152300C3F948 /* TileQuadOfflineRenderer.h */; };
-		2B4AFB8A1803153600C3F948 /* TileQuadOfflineRenderer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AFB891803153600C3F948 /* TileQuadOfflineRenderer.mm */; };
-		2B58C6811443C00400EEF3C3 /* ParticleSystemLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */; };
-		2B58C6931445439700EEF3C3 /* Generator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C6921445439700EEF3C3 /* Generator.mm */; };
-		2B58C6C41446A37900EEF3C3 /* ParticleGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C6C31446A37900EEF3C3 /* ParticleGenerator.mm */; };
-		2B5E63D9152283B20007904C /* Scene.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B5E63D8152283B20007904C /* Scene.mm */; };
-		2B65F8FB137DA864004326A9 /* VectorDatabase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F8F9137DA864004326A9 /* VectorDatabase.mm */; };
-		2B65F90E137DBEF3004326A9 /* sqlhelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */; };
-		2B66298413418D9B00A78F16 /* TextureAtlas.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B66298213418D9A00A78F16 /* TextureAtlas.mm */; };
-		2B665469179F271200FB4427 /* SphericalEarthChunkManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B665468179F271200FB4427 /* SphericalEarthChunkManager.h */; };
-		2B66546B179F272700FB4427 /* SphericalEarthChunkManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B66546A179F272700FB4427 /* SphericalEarthChunkManager.mm */; };
-		2B7AD8B01649DD06006C9E75 /* Lighting.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7AD8AF1649DD06006C9E75 /* Lighting.h */; };
-		2B7AD8B31649DF80006C9E75 /* Lighting.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7AD8B21649DF80006C9E75 /* Lighting.mm */; };
-		2B7EF31815FF95CF00D4079F /* MaplyScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF31715FF95CF00D4079F /* MaplyScene.h */; };
-		2B7EF31B15FF95E900D4079F /* MaplyScene.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF31A15FF95E900D4079F /* MaplyScene.mm */; };
-		2B7EF31D15FF965400D4079F /* MaplyPanDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF31C15FF965400D4079F /* MaplyPanDelegate.mm */; };
-		2B7EF31F15FF96D100D4079F /* MaplyView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF31E15FF96D100D4079F /* MaplyView.mm */; };
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 		2B7EF42516025D8C00D4079F /* aasincos.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37A16025D8C00D4079F /* aasincos.c */; };
 		2B7EF42616025D8C00D4079F /* adjlon.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37B16025D8C00D4079F /* adjlon.c */; };
 		2B7EF42716025D8C00D4079F /* bch2bps.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37C16025D8C00D4079F /* bch2bps.c */; };
@@ -418,38 +313,6 @@
 		2B7EF4C816025D8C00D4079F /* projects.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF42216025D8C00D4079F /* projects.h */; };
 		2B7EF4C916025D8C00D4079F /* rtodms.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF42316025D8C00D4079F /* rtodms.c */; };
 		2B7EF4CA16025D8C00D4079F /* vector1.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF42416025D8C00D4079F /* vector1.c */; };
-<<<<<<< HEAD
-=======
-		2B7EF50E1603D76100D4079F /* QuadDisplayLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF50C1603D76100D4079F /* QuadDisplayLayer.h */; };
-		2B7EF50F1603D76100D4079F /* TileQuadLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF50D1603D76100D4079F /* TileQuadLoader.h */; };
-		2B7EF5121603D77E00D4079F /* QuadDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF5101603D77D00D4079F /* QuadDisplayLayer.mm */; };
-		2B7EF5131603D77E00D4079F /* TileQuadLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF5111603D77E00D4079F /* TileQuadLoader.mm */; };
-		2B7EF5151603DCC500D4079F /* CoordSystem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF5141603DCC500D4079F /* CoordSystem.mm */; };
-		2B7EF5191603E01500D4079F /* MBTileQuadSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF5161603E01400D4079F /* MBTileQuadSource.h */; };
-		2B7EF51A1603E01500D4079F /* NetworkTileQuadSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF5171603E01400D4079F /* NetworkTileQuadSource.h */; };
-		2B7EF51B1603E01500D4079F /* SphericalEarthQuadLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF5181603E01400D4079F /* SphericalEarthQuadLayer.h */; };
-		2B7EF51F1603E0AF00D4079F /* MBTileQuadSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF51C1603E0AC00D4079F /* MBTileQuadSource.mm */; };
-		2B7EF5201603E0AF00D4079F /* NetworkTileQuadSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF51D1603E0AD00D4079F /* NetworkTileQuadSource.mm */; };
-		2B7EF5211603E0AF00D4079F /* SphericalEarthQuadLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF51E1603E0AE00D4079F /* SphericalEarthQuadLayer.mm */; };
-		2B7EF5231603EEFB00D4079F /* MaplyLayerViewWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF5221603EEFA00D4079F /* MaplyLayerViewWatcher.h */; };
-		2B7EF5291603F03A00D4079F /* MaplyLayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF5281603F03900D4079F /* MaplyLayerViewWatcher.mm */; };
-		2B80455814990A1A003FFABE /* MarkerGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B80455714990A1A003FFABE /* MarkerGenerator.mm */; };
-		2B8B95EF16E80FD50039DD08 /* BigDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8B95ED16E80FD50039DD08 /* BigDrawable.h */; };
-		2B8B95F016E80FD50039DD08 /* DynamicDrawableAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8B95EE16E80FD50039DD08 /* DynamicDrawableAtlas.h */; };
-		2B8B95F316E80FED0039DD08 /* BigDrawable.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8B95F116E80FED0039DD08 /* BigDrawable.mm */; };
-		2B8B95F416E80FED0039DD08 /* DynamicDrawableAtlas.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8B95F216E80FED0039DD08 /* DynamicDrawableAtlas.mm */; };
-		2B92EF6016370AFF00C5165F /* PerformanceTimer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B92EF5F16370AFF00C5165F /* PerformanceTimer.mm */; };
-		2B92EF6316370B0600C5165F /* SceneRendererES.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B92EF6216370B0600C5165F /* SceneRendererES.mm */; };
-		2B92EF6516370B2000C5165F /* PerformanceTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B92EF6416370B2000C5165F /* PerformanceTimer.h */; };
-		2B92EF6716370B2700C5165F /* SceneRendererES.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B92EF6616370B2700C5165F /* SceneRendererES.h */; };
-		2B92EF911637530C00C5165F /* SceneRendererES2.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B92EF901637530C00C5165F /* SceneRendererES2.h */; };
-		2B92EF941637531700C5165F /* SceneRendererES2.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B92EF931637531700C5165F /* SceneRendererES2.mm */; };
-		2B92EF9D163760C300C5165F /* OpenGLES2Program.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B92EF9C163760C300C5165F /* OpenGLES2Program.h */; };
-		2B92EF9F1637633F00C5165F /* OpenGLES2Program.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B92EF9E1637633F00C5165F /* OpenGLES2Program.mm */; };
-		2B93C818145232C800D768BA /* MarkerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B93C817145232C800D768BA /* MarkerLayer.mm */; };
-		2B9BE6AD180872A0001D9454 /* ScreenImportance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B9BE6AC180872A0001D9454 /* ScreenImportance.h */; };
-		2B9BE6AF180872AA001D9454 /* ScreenImportance.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B9BE6AE180872AA001D9454 /* ScreenImportance.mm */; };
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 		2BA2325617984F510063CC84 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2322F17984F510063CC84 /* glues.h */; };
 		2BA2325717984F510063CC84 /* glues_error.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323017984F510063CC84 /* glues_error.c */; };
 		2BA2325817984F510063CC84 /* glues_error.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323117984F510063CC84 /* glues_error.h */; };
@@ -485,56 +348,10 @@
 		2BA2327817984F510063CC84 /* tessmono.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2325417984F510063CC84 /* tessmono.c */; };
 		2BA2327917984F510063CC84 /* tessmono.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2325517984F510063CC84 /* tessmono.h */; };
 		2BA2327B179859F30063CC84 /* SDL_opengles.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2327A179859F30063CC84 /* SDL_opengles.h */; };
-<<<<<<< HEAD
-=======
-		2BA2328B17986ACA0063CC84 /* LabelManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2328617986ACA0063CC84 /* LabelManager.h */; };
-		2BA2328C17986ACA0063CC84 /* LayoutManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2328717986ACA0063CC84 /* LayoutManager.h */; };
-		2BA2328D17986ACA0063CC84 /* MarkerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2328817986ACA0063CC84 /* MarkerManager.h */; };
-		2BA2328E17986ACA0063CC84 /* ShapeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2328917986ACA0063CC84 /* ShapeManager.h */; };
-		2BA2328F17986ACA0063CC84 /* VectorManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2328A17986ACA0063CC84 /* VectorManager.h */; };
-		2BA2329617986AE90063CC84 /* LabelManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2329117986AE90063CC84 /* LabelManager.mm */; };
-		2BA2329717986AE90063CC84 /* LayoutManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2329217986AE90063CC84 /* LayoutManager.mm */; };
-		2BA2329817986AE90063CC84 /* MarkerManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2329317986AE90063CC84 /* MarkerManager.mm */; };
-		2BA2329917986AE90063CC84 /* ShapeManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2329417986AE90063CC84 /* ShapeManager.mm */; };
-		2BA2329A17986AE90063CC84 /* VectorManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2329517986AE90063CC84 /* VectorManager.mm */; };
-		2BA2BB8A153E106000DAB382 /* GlobeLayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */; };
-		2BA2BB8B153E106000DAB382 /* LayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */; };
-		2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB8C153E107100DAB382 /* Quadtree.mm */; };
-		2BA726DB1778EB11006C710B /* MaplyAnimateFlat.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA726DA1778EB11006C710B /* MaplyAnimateFlat.h */; };
-		2BA726DD1778EB20006C710B /* MaplyAnimateFlat.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA726DC1778EB20006C710B /* MaplyAnimateFlat.mm */; };
-		2BA8FFE01540E60800AEA53C /* SphericalMercator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA8FFDF1540E60800AEA53C /* SphericalMercator.mm */; };
-		2BB0717F1676B5EE00DE387D /* SphericalEarthChunkLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB0717E1676B5EE00DE387D /* SphericalEarthChunkLayer.h */; };
-		2BB071821676B5FE00DE387D /* LayoutLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB071811676B5FE00DE387D /* LayoutLayer.h */; };
-		2BB071841676B66300DE387D /* BufferBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB071831676B66300DE387D /* BufferBuilder.h */; };
-		2BB071861676B67D00DE387D /* BufferBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB071851676B67D00DE387D /* BufferBuilder.mm */; };
-		2BB071891676B69400DE387D /* LayoutLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB071871676B69400DE387D /* LayoutLayer.mm */; };
-		2BB0718A1676B69400DE387D /* SphericalEarthChunkLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB071881676B69400DE387D /* SphericalEarthChunkLayer.mm */; };
-		2BB1786C17A6C6C400AD0614 /* DefaultShaderPrograms.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1786B17A6C6C400AD0614 /* DefaultShaderPrograms.h */; };
-		2BB1786E17A6C72600AD0614 /* DefaultShaderPrograms.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1786D17A6C72600AD0614 /* DefaultShaderPrograms.mm */; };
-		2BB1787417A8313E00AD0614 /* BillboardManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1787117A8313700AD0614 /* BillboardManager.h */; };
-		2BB1787517A8313E00AD0614 /* ParticleSystemManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1787217A8313900AD0614 /* ParticleSystemManager.h */; };
-		2BB1787617A8313E00AD0614 /* LoftManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1787317A8313C00AD0614 /* LoftManager.h */; };
-		2BB1787A17A8315C00AD0614 /* BillboardManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1787717A8315800AD0614 /* BillboardManager.mm */; };
-		2BB1787B17A8315C00AD0614 /* ParticleSystemManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1787817A8315A00AD0614 /* ParticleSystemManager.mm */; };
-		2BB1787C17A8315C00AD0614 /* LoftManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1787917A8315B00AD0614 /* LoftManager.mm */; };
-		2BB25920177A041E00770619 /* ElevationChunk.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB2591F177A041E00770619 /* ElevationChunk.h */; };
-		2BB25924177A042F00770619 /* BillboardLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB25921177A042F00770619 /* BillboardLayer.h */; };
-		2BB25925177A042F00770619 /* BillboardDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB25922177A042F00770619 /* BillboardDrawable.h */; };
-		2BB25926177A042F00770619 /* SceneGraphManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB25923177A042F00770619 /* SceneGraphManager.h */; };
-		2BB25928177A044300770619 /* ElevationChunk.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB25927177A044300770619 /* ElevationChunk.mm */; };
-		2BB2592C177A045300770619 /* BillboardLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB25929177A045300770619 /* BillboardLayer.mm */; };
-		2BB2592D177A045300770619 /* BillboardDrawable.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB2592A177A045300770619 /* BillboardDrawable.mm */; };
-		2BB2592E177A045300770619 /* SceneGraphManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB2592B177A045300770619 /* SceneGraphManager.mm */; };
-		2BB9A8B116DFFF060069E19C /* DynamicTextureAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB9A8B016DFFF060069E19C /* DynamicTextureAtlas.h */; };
-		2BB9A8B316DFFF100069E19C /* DynamicTextureAtlas.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB9A8B216DFFF100069E19C /* DynamicTextureAtlas.mm */; };
-		2BD1158D1615979300A4BF5D /* ShapeLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD1158C1615979300A4BF5D /* ShapeLayer.h */; };
-		2BD11590161597A600A4BF5D /* ShapeLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BD1158F161597A600A4BF5D /* ShapeLayer.mm */; };
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 		2BDC4ABC133404BB00E25283 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9212F09EA0005003AE /* dbfopen.c */; };
 		2BDC4AC4133404C600E25283 /* shpopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9012F09E91005003AE /* shpopen.c */; };
 		2BDC4AC5133404CA00E25283 /* safileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951DF012F0AC50005003AE /* safileio.c */; };
-<<<<<<< HEAD
 		2BDC89CB191C2ADE00DFECF0 /* SceneRendererES3.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC89CA191C2ADE00DFECF0 /* SceneRendererES3.h */; };
 		2BDC8A60192A9E1700DFECF0 /* FontTextureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC8A5F192A9E1700DFECF0 /* FontTextureManager.h */; };
 		2BDC8A62192A9E3800DFECF0 /* FontTextureManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BDC8A61192A9E3800DFECF0 /* FontTextureManager.cpp */; };
@@ -694,164 +511,6 @@
 		2B3836AA18625C9200467ABD /* glwrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glwrapper.cpp; path = android/glwrapper.cpp; sourceTree = "<group>"; };
 		2B3AF66D13EEDDA8004A781D /* framework_info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = framework_info.plist; sourceTree = "<group>"; };
 		2B3C82791333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesimulator-Prefix.pch"; sourceTree = "<group>"; };
-=======
-		2BDC4AC6133404D400E25283 /* UIImage+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC53FED12DE23D400778431 /* UIImage+Stuff.mm */; };
-		2BDC4AC7133404D400E25283 /* NSDictionary+Stuff.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B3C81BD132FE77C0029DEF2 /* NSDictionary+Stuff.m */; };
-		2BDC4AC8133404D400E25283 /* UIColor+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3C81C113301EE30029DEF2 /* UIColor+Stuff.mm */; };
-		2BDC4AC9133404D400E25283 /* WhirlyGeometry.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3A36E512E63F9500698DA1 /* WhirlyGeometry.mm */; };
-		2BDC4ACA133404D400E25283 /* WhirlyVector.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B95192E12EF4417005003AE /* WhirlyVector.mm */; };
-		2BDC4ACB133404D400E25283 /* GlobeMath.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCABB9A12FA14660049D73C /* GlobeMath.mm */; };
-		2BDC4ACD133404D400E25283 /* EAGLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC53FE912DE23D400778431 /* EAGLView.mm */; };
-		2BDC4ACE133404D400E25283 /* PinchDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE6EE5612E4F48800415490 /* PinchDelegate.mm */; };
-		2BDC4ACF133404D400E25283 /* SwipeDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE6EE7712E4F95C00415490 /* SwipeDelegate.mm */; };
-		2BDC4AD0133404D400E25283 /* PanDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3A341F12E605C800698DA1 /* PanDelegate.mm */; };
-		2BDC4AD1133404D400E25283 /* TapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCAC2F712FB6EF70049D73C /* TapDelegate.mm */; };
-		2BDC4AD2133404D400E25283 /* TapMessage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCAC33312FB77FB0049D73C /* TapMessage.mm */; };
-		2BDC4AD3133404D400E25283 /* Identifiable.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1F08013009935001F33CD /* Identifiable.mm */; };
-		2BDC4AD4133404D400E25283 /* Texture.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1F08813009B17001F33CD /* Texture.mm */; };
-		2BDC4AD5133404D400E25283 /* Drawable.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCABA9912F8DEF40049D73C /* Drawable.mm */; };
-		2BDC4AD6133404D400E25283 /* Cullable.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCABA9C12F8DEFF0049D73C /* Cullable.mm */; };
-		2BDC4AD7133404D400E25283 /* GlobeScene.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC53FEA12DE23D400778431 /* GlobeScene.mm */; };
-		2BDC4AD8133404D400E25283 /* GlobeView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B389AA212E112D9006FC3A1 /* GlobeView.mm */; };
-		2BDC4AD9133404D400E25283 /* TextureGroup.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC53FEC12DE23D400778431 /* TextureGroup.mm */; };
-		2BDC4ADA133404D400E25283 /* VectorData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BD0E69213254DF700CD95A8 /* VectorData.mm */; };
-		2BDC4ADB133404D400E25283 /* ShapeReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCABC1012FA1F480049D73C /* ShapeReader.mm */; };
-		2BDC4ADC133404D400E25283 /* LayerThread.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCABCEB12FA2C210049D73C /* LayerThread.mm */; };
-		2BDC4ADD133404D400E25283 /* SphericalEarthLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC53FEB12DE23D400778431 /* SphericalEarthLayer.mm */; };
-		2BDC4ADE133404D400E25283 /* GridLines.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B951C8D12EFA567005003AE /* GridLines.mm */; };
-		2BDC4ADF133404D400E25283 /* VectorLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9A12F0A087005003AE /* VectorLayer.mm */; };
-		2BDC4AE0133404D400E25283 /* LabelLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1F06A130076C5001F33CD /* LabelLayer.mm */; };
-		2BE886CF160A855F00E92A0A /* MaplyTapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE886CE160A855F00E92A0A /* MaplyTapMessage.h */; };
-		2BE886D1160A863700E92A0A /* MaplyTapMessage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE886D0160A863700E92A0A /* MaplyTapMessage.mm */; };
-		2BEA1E4E171E0E0F0039F1A4 /* FontTextureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA1E4B171E0E0F0039F1A4 /* FontTextureManager.h */; };
-		2BEA1E4F171E0E0F0039F1A4 /* LabelRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA1E4C171E0E0F0039F1A4 /* LabelRenderer.h */; };
-		2BEA1E50171E0E0F0039F1A4 /* ShapeDrawableBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA1E4D171E0E0F0039F1A4 /* ShapeDrawableBuilder.h */; };
-		2BEA1E54171E0E280039F1A4 /* FontTextureManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA1E51171E0E280039F1A4 /* FontTextureManager.mm */; };
-		2BEA1E55171E0E280039F1A4 /* LabelRenderer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA1E52171E0E280039F1A4 /* LabelRenderer.mm */; };
-		2BEA1E56171E0E280039F1A4 /* ShapeDrawableBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA1E53171E0E280039F1A4 /* ShapeDrawableBuilder.mm */; };
-		2BEFDE931499643000C63326 /* LoftLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE921499643000C63326 /* LoftLayer.mm */; };
-		2BEFDE9B149966F300C63326 /* GridClipper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE99149966F300C63326 /* GridClipper.mm */; };
-		2BEFDE9C149966F300C63326 /* Tesselator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE9A149966F300C63326 /* Tesselator.mm */; };
-		2BEFDEA214997C0400C63326 /* clipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDEA114997C0400C63326 /* clipper.cpp */; };
-		2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */; };
-		2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */; };
-		2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */; };
-		E594E38C17E81434008D5741 /* MaplyRotateDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = E594E38B17E81434008D5741 /* MaplyRotateDelegate.mm */; };
-/* End PBXBuildFile section */
-
-/* Begin PBXFileReference section */
-		2B03701214C9FA9000A51AC4 /* MaplyAnimateTranslateMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = MaplyAnimateTranslateMomentum.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B03701314C9FA9000A51AC4 /* MaplyAnimateTranslation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = MaplyAnimateTranslation.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B03701714C9FDDE00A51AC4 /* MaplyAnimateTranslateMomentum.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = MaplyAnimateTranslateMomentum.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B03701814C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = MaplyAnimateTranslation.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B03701F14CA01C600A51AC4 /* MaplyTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyTapDelegate.mm; path = src/MaplyTapDelegate.mm; sourceTree = SOURCE_ROOT; };
-		2B03702114CA02A900A51AC4 /* MaplyTapDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTapDelegate.h; sourceTree = "<group>"; };
-		2B076B31133951DE009D931D /* LongPressDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LongPressDelegate.h; sourceTree = "<group>"; };
-		2B076B33133952C5009D931D /* LongPressDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = LongPressDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B08059517EB955C0016C813 /* LoadedTile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoadedTile.h; sourceTree = "<group>"; };
-		2B08059717EB95A40016C813 /* LoadedTile.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoadedTile.mm; sourceTree = "<group>"; };
-		2B194424138B0BC100E8FA42 /* AnimateRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AnimateRotation.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B194426138B0CD000E8FA42 /* AnimateRotation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = AnimateRotation.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AnimateViewMomentum.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = AnimateViewMomentum.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B2A25881559B3C000137807 /* ScreenSpaceGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceGenerator.h; sourceTree = "<group>"; };
-		2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ScreenSpaceGenerator.mm; sourceTree = "<group>"; };
-		2B308B10171F638F006D7273 /* SelectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionManager.h; sourceTree = "<group>"; };
-		2B308B12171F63B3006D7273 /* SelectionManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SelectionManager.mm; sourceTree = "<group>"; };
-		2B35A8501337CC2F0047C705 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GLUtils.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B35A8531337CC5F0047C705 /* GLUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = GLUtils.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B389AA112E112D9006FC3A1 /* GlobeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeView.h; sourceTree = "<group>"; };
-		2B389AA212E112D9006FC3A1 /* GlobeView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = GlobeView.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B3A341E12E605C800698DA1 /* PanDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PanDelegate.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B3A341F12E605C800698DA1 /* PanDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = PanDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B3A36E412E63F9500698DA1 /* WhirlyGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGeometry.h; sourceTree = "<group>"; };
-		2B3A36E512E63F9500698DA1 /* WhirlyGeometry.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WhirlyGeometry.mm; sourceTree = "<group>"; };
-		2B3AF66D13EEDDA8004A781D /* framework_info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = framework_info.plist; sourceTree = "<group>"; };
-		2B3C81B9132FE72F0029DEF2 /* NSDictionary+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "NSDictionary+Stuff.h"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B3C81BD132FE77C0029DEF2 /* NSDictionary+Stuff.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = "NSDictionary+Stuff.m"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		2B3C81BF13301E860029DEF2 /* UIColor+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "UIColor+Stuff.h"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B3C81C113301EE30029DEF2 /* UIColor+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = "UIColor+Stuff.mm"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B3C82791333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesimulator-Prefix.pch"; sourceTree = "<group>"; };
-		2B40467715F9B4CB00937923 /* ActiveModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActiveModel.h; sourceTree = "<group>"; };
-		2B40467A15F9B4D300937923 /* GeometryLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryLayer.h; sourceTree = "<group>"; };
-		2B40467C15F9B4F400937923 /* GeometryLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GeometryLayer.mm; sourceTree = "<group>"; };
-		2B44187713A2D9BA00514EDE /* RotateDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateDelegate.h; sourceTree = "<group>"; };
-		2B44187B13A2DA3C00514EDE /* RotateDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = RotateDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B4504AC14BBAC0100C99306 /* MaplyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyView.h; sourceTree = "<group>"; };
-		2B4504AF14BBAD0B00C99306 /* WhirlyKitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyKitView.h; sourceTree = "<group>"; };
-		2B4504B114BBB40D00C99306 /* CoordSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoordSystem.h; sourceTree = "<group>"; };
-		2B4504B314BBBC6600C99306 /* FlatMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlatMath.h; sourceTree = "<group>"; };
-		2B4504B614BCB7EA00C99306 /* WhirlyKitView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WhirlyKitView.mm; sourceTree = "<group>"; };
-		2B4504B814BCC29D00C99306 /* FlatMath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FlatMath.mm; sourceTree = "<group>"; };
-		2B4504DE14BD119300C99306 /* MaplyPinchDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyPinchDelegate.h; sourceTree = "<group>"; };
-		2B4504E014BD126400C99306 /* MaplyPinchDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyPinchDelegate.mm; sourceTree = "<group>"; };
-		2B4730161732DEF9000507E9 /* MaplyFlatView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyFlatView.h; sourceTree = "<group>"; };
-		2B4730181732DF0E000507E9 /* MaplyFlatView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyFlatView.mm; sourceTree = "<group>"; };
-		2B4AE3B217662D6800850F3F /* JSONOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JSONOptions.h; path = "../../third-party/libjson/JSONOptions.h"; sourceTree = "<group>"; };
-		2B4AE3B317662D6800850F3F /* libjson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libjson.h; path = "../../third-party/libjson/libjson.h"; sourceTree = "<group>"; };
-		2B4AE3B717662DA300850F3F /* internalJSONNode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = internalJSONNode.cpp; sourceTree = "<group>"; };
-		2B4AE3B817662DA300850F3F /* internalJSONNode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = internalJSONNode.h; sourceTree = "<group>"; };
-		2B4AE3B917662DA300850F3F /* JSON_Base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSON_Base64.h; sourceTree = "<group>"; };
-		2B4AE3BA17662DA300850F3F /* JSONAllocator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSONAllocator.cpp; sourceTree = "<group>"; };
-		2B4AE3BB17662DA300850F3F /* JSONAllocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONAllocator.h; sourceTree = "<group>"; };
-		2B4AE3BC17662DA300850F3F /* JSONChildren.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSONChildren.cpp; sourceTree = "<group>"; };
-		2B4AE3BD17662DA300850F3F /* JSONChildren.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONChildren.h; sourceTree = "<group>"; };
-		2B4AE3BE17662DA300850F3F /* JSONDebug.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSONDebug.cpp; sourceTree = "<group>"; };
-		2B4AE3BF17662DA300850F3F /* JSONDebug.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONDebug.h; sourceTree = "<group>"; };
-		2B4AE3C117662DA300850F3F /* GNU_C.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GNU_C.h; sourceTree = "<group>"; };
-		2B4AE3C217662DA300850F3F /* Strings_Defs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Strings_Defs.h; sourceTree = "<group>"; };
-		2B4AE3C317662DA300850F3F /* Unknown_C.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Unknown_C.h; sourceTree = "<group>"; };
-		2B4AE3C417662DA300850F3F /* Visual_C.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Visual_C.h; sourceTree = "<group>"; };
-		2B4AE3C517662DA300850F3F /* JSONDefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONDefs.h; sourceTree = "<group>"; };
-		2B4AE3C617662DA300850F3F /* JSONGlobals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONGlobals.h; sourceTree = "<group>"; };
-		2B4AE3C717662DA300850F3F /* JSONIterators.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSONIterators.cpp; sourceTree = "<group>"; };
-		2B4AE3C817662DA300850F3F /* JSONMemory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSONMemory.cpp; sourceTree = "<group>"; };
-		2B4AE3C917662DA300850F3F /* JSONMemory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONMemory.h; sourceTree = "<group>"; };
-		2B4AE3CA17662DA300850F3F /* JSONMemoryPool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONMemoryPool.h; sourceTree = "<group>"; };
-		2B4AE3CB17662DA300850F3F /* JSONNode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSONNode.cpp; sourceTree = "<group>"; };
-		2B4AE3CC17662DA300850F3F /* JSONNode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONNode.h; sourceTree = "<group>"; };
-		2B4AE3CD17662DA300850F3F /* JSONNode_Mutex.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSONNode_Mutex.cpp; sourceTree = "<group>"; };
-		2B4AE3CE17662DA300850F3F /* JSONPreparse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSONPreparse.cpp; sourceTree = "<group>"; };
-		2B4AE3CF17662DA300850F3F /* JSONPreparse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONPreparse.h; sourceTree = "<group>"; };
-		2B4AE3D017662DA300850F3F /* JSONSharedString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONSharedString.h; sourceTree = "<group>"; };
-		2B4AE3D117662DA300850F3F /* JSONSingleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONSingleton.h; sourceTree = "<group>"; };
-		2B4AE3D217662DA300850F3F /* JSONStats.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONStats.h; sourceTree = "<group>"; };
-		2B4AE3D317662DA300850F3F /* JSONStream.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSONStream.cpp; sourceTree = "<group>"; };
-		2B4AE3D417662DA300850F3F /* JSONStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONStream.h; sourceTree = "<group>"; };
-		2B4AE3D517662DA300850F3F /* JSONValidator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSONValidator.cpp; sourceTree = "<group>"; };
-		2B4AE3D617662DA300850F3F /* JSONValidator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONValidator.h; sourceTree = "<group>"; };
-		2B4AE3D717662DA300850F3F /* JSONWorker.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSONWorker.cpp; sourceTree = "<group>"; };
-		2B4AE3D817662DA300850F3F /* JSONWorker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONWorker.h; sourceTree = "<group>"; };
-		2B4AE3D917662DA300850F3F /* JSONWriter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSONWriter.cpp; sourceTree = "<group>"; };
-		2B4AE3DA17662DA300850F3F /* libjson.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = libjson.cpp; sourceTree = "<group>"; };
-		2B4AE3DB17662DA300850F3F /* NumberToString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NumberToString.h; sourceTree = "<group>"; };
-		2B4AE3DE17662DAB00850F3F /* libbase64++.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "libbase64++.h"; sourceTree = "<group>"; };
-		2B4AE3E017662DAB00850F3F /* mempool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mempool.h; sourceTree = "<group>"; };
-		2B4AFB871803152300C3F948 /* TileQuadOfflineRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileQuadOfflineRenderer.h; sourceTree = "<group>"; };
-		2B4AFB891803153600C3F948 /* TileQuadOfflineRenderer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TileQuadOfflineRenderer.mm; sourceTree = "<group>"; };
-		2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ParticleSystemLayer.mm; path = src/ParticleSystemLayer.mm; sourceTree = SOURCE_ROOT; };
-		2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleSystemLayer.h; sourceTree = "<group>"; };
-		2B58C6921445439700EEF3C3 /* Generator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Generator.mm; sourceTree = "<group>"; };
-		2B58C694144543DB00EEF3C3 /* Generator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Generator.h; sourceTree = "<group>"; };
-		2B58C6B81445FDAB00EEF3C3 /* ParticleGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleGenerator.h; sourceTree = "<group>"; };
-		2B58C6C31446A37900EEF3C3 /* ParticleGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ParticleGenerator.mm; sourceTree = "<group>"; };
-		2B5E6364151C072F0007904C /* GlobeScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeScene.h; sourceTree = "<group>"; };
-		2B5E63D8152283B20007904C /* Scene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Scene.mm; sourceTree = "<group>"; };
-		2B65F8F9137DA864004326A9 /* VectorDatabase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorDatabase.mm; sourceTree = "<group>"; };
-		2B65F90B137DBEE4004326A9 /* sqlhelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlhelpers.h; sourceTree = "<group>"; };
-		2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = sqlhelpers.mm; sourceTree = "<group>"; };
-		2B66298013417DF700A78F16 /* TextureAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureAtlas.h; sourceTree = "<group>"; };
-		2B66298213418D9A00A78F16 /* TextureAtlas.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextureAtlas.mm; sourceTree = "<group>"; };
-		2B665468179F271200FB4427 /* SphericalEarthChunkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalEarthChunkManager.h; sourceTree = "<group>"; };
-		2B66546A179F272700FB4427 /* SphericalEarthChunkManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SphericalEarthChunkManager.mm; path = src/SphericalEarthChunkManager.mm; sourceTree = SOURCE_ROOT; };
-		2B6B3395147B5DE900771FEF /* MarkerGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerGenerator.h; sourceTree = "<group>"; };
-		2B7AD8AF1649DD06006C9E75 /* Lighting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lighting.h; sourceTree = "<group>"; };
-		2B7AD8B21649DF80006C9E75 /* Lighting.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Lighting.mm; sourceTree = "<group>"; };
-		2B7EF31715FF95CF00D4079F /* MaplyScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyScene.h; sourceTree = "<group>"; };
-		2B7EF31A15FF95E900D4079F /* MaplyScene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyScene.mm; sourceTree = "<group>"; };
-		2B7EF31C15FF965400D4079F /* MaplyPanDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyPanDelegate.mm; sourceTree = "<group>"; };
-		2B7EF31E15FF96D100D4079F /* MaplyView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyView.mm; sourceTree = "<group>"; };
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 		2B7EF37A16025D8C00D4079F /* aasincos.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aasincos.c; sourceTree = "<group>"; };
 		2B7EF37B16025D8C00D4079F /* adjlon.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = adjlon.c; sourceTree = "<group>"; };
 		2B7EF37C16025D8C00D4079F /* bch2bps.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bch2bps.c; sourceTree = "<group>"; };
@@ -1010,51 +669,10 @@
 		2B7EF42216025D8C00D4079F /* projects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = projects.h; sourceTree = "<group>"; };
 		2B7EF42316025D8C00D4079F /* rtodms.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rtodms.c; sourceTree = "<group>"; };
 		2B7EF42416025D8C00D4079F /* vector1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vector1.c; sourceTree = "<group>"; };
-<<<<<<< HEAD
-=======
-		2B7EF50C1603D76100D4079F /* QuadDisplayLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadDisplayLayer.h; sourceTree = "<group>"; };
-		2B7EF50D1603D76100D4079F /* TileQuadLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileQuadLoader.h; sourceTree = "<group>"; };
-		2B7EF5101603D77D00D4079F /* QuadDisplayLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuadDisplayLayer.mm; sourceTree = "<group>"; };
-		2B7EF5111603D77E00D4079F /* TileQuadLoader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TileQuadLoader.mm; sourceTree = "<group>"; };
-		2B7EF5141603DCC500D4079F /* CoordSystem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CoordSystem.mm; sourceTree = "<group>"; };
-		2B7EF5161603E01400D4079F /* MBTileQuadSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBTileQuadSource.h; sourceTree = "<group>"; };
-		2B7EF5171603E01400D4079F /* NetworkTileQuadSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkTileQuadSource.h; sourceTree = "<group>"; };
-		2B7EF5181603E01400D4079F /* SphericalEarthQuadLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalEarthQuadLayer.h; sourceTree = "<group>"; };
-		2B7EF51C1603E0AC00D4079F /* MBTileQuadSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MBTileQuadSource.mm; sourceTree = "<group>"; };
-		2B7EF51D1603E0AD00D4079F /* NetworkTileQuadSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NetworkTileQuadSource.mm; sourceTree = "<group>"; };
-		2B7EF51E1603E0AE00D4079F /* SphericalEarthQuadLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SphericalEarthQuadLayer.mm; sourceTree = "<group>"; };
-		2B7EF5221603EEFA00D4079F /* MaplyLayerViewWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyLayerViewWatcher.h; sourceTree = "<group>"; };
-		2B7EF5281603F03900D4079F /* MaplyLayerViewWatcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyLayerViewWatcher.mm; sourceTree = "<group>"; };
-		2B80455714990A1A003FFABE /* MarkerGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MarkerGenerator.mm; sourceTree = "<group>"; };
-		2B8B95ED16E80FD50039DD08 /* BigDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BigDrawable.h; sourceTree = "<group>"; };
-		2B8B95EE16E80FD50039DD08 /* DynamicDrawableAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DynamicDrawableAtlas.h; sourceTree = "<group>"; };
-		2B8B95F116E80FED0039DD08 /* BigDrawable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BigDrawable.mm; sourceTree = "<group>"; };
-		2B8B95F216E80FED0039DD08 /* DynamicDrawableAtlas.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DynamicDrawableAtlas.mm; sourceTree = "<group>"; };
-		2B8D92C8137C958000015833 /* VectorDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorDatabase.h; sourceTree = "<group>"; };
-		2B92105314BD1A8100653536 /* MaplyPanDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyPanDelegate.h; sourceTree = "<group>"; };
-		2B92EF5F16370AFF00C5165F /* PerformanceTimer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PerformanceTimer.mm; sourceTree = "<group>"; };
-		2B92EF6216370B0600C5165F /* SceneRendererES.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneRendererES.mm; sourceTree = "<group>"; };
-		2B92EF6416370B2000C5165F /* PerformanceTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerformanceTimer.h; sourceTree = "<group>"; };
-		2B92EF6616370B2700C5165F /* SceneRendererES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES.h; sourceTree = "<group>"; };
-		2B92EF901637530C00C5165F /* SceneRendererES2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES2.h; sourceTree = "<group>"; };
-		2B92EF931637531700C5165F /* SceneRendererES2.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneRendererES2.mm; sourceTree = "<group>"; };
-		2B92EF9C163760C300C5165F /* OpenGLES2Program.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLES2Program.h; sourceTree = "<group>"; };
-		2B92EF9E1637633F00C5165F /* OpenGLES2Program.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenGLES2Program.mm; sourceTree = "<group>"; };
-		2B93C81514522DE600D768BA /* MarkerLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerLayer.h; sourceTree = "<group>"; };
-		2B93C817145232C800D768BA /* MarkerLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MarkerLayer.mm; sourceTree = "<group>"; };
-		2B95192E12EF4417005003AE /* WhirlyVector.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = WhirlyVector.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B951C7D12EFA262005003AE /* GridLines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridLines.h; sourceTree = "<group>"; };
-		2B951C8D12EFA567005003AE /* GridLines.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GridLines.mm; sourceTree = "<group>"; };
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 		2B951D8E12F09E7A005003AE /* shapefil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shapefil.h; sourceTree = "<group>"; };
 		2B951D9012F09E91005003AE /* shpopen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shpopen.c; sourceTree = "<group>"; };
 		2B951D9212F09EA0005003AE /* dbfopen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dbfopen.c; sourceTree = "<group>"; };
 		2B951DF012F0AC50005003AE /* safileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = safileio.c; sourceTree = "<group>"; };
-<<<<<<< HEAD
-=======
-		2B9BE6AC180872A0001D9454 /* ScreenImportance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenImportance.h; sourceTree = "<group>"; };
-		2B9BE6AE180872AA001D9454 /* ScreenImportance.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ScreenImportance.mm; sourceTree = "<group>"; };
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 		2BA2322F17984F510063CC84 /* glues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues.h; path = "../../third-party/glues/source/glues.h"; sourceTree = "<group>"; };
 		2BA2323017984F510063CC84 /* glues_error.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glues_error.c; path = "../../third-party/glues/source/glues_error.c"; sourceTree = "<group>"; };
 		2BA2323117984F510063CC84 /* glues_error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues_error.h; path = "../../third-party/glues/source/glues_error.h"; sourceTree = "<group>"; };
@@ -1092,95 +710,10 @@
 		2BA2325417984F510063CC84 /* tessmono.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tessmono.c; sourceTree = "<group>"; };
 		2BA2325517984F510063CC84 /* tessmono.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tessmono.h; sourceTree = "<group>"; };
 		2BA2327A179859F30063CC84 /* SDL_opengles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDL_opengles.h; path = "../../third-party/glues/include/SDL/SDL_opengles.h"; sourceTree = "<group>"; };
-<<<<<<< HEAD
-=======
-		2BA2328617986ACA0063CC84 /* LabelManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelManager.h; sourceTree = "<group>"; };
-		2BA2328717986ACA0063CC84 /* LayoutManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayoutManager.h; sourceTree = "<group>"; };
-		2BA2328817986ACA0063CC84 /* MarkerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerManager.h; sourceTree = "<group>"; };
-		2BA2328917986ACA0063CC84 /* ShapeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeManager.h; sourceTree = "<group>"; };
-		2BA2328A17986ACA0063CC84 /* VectorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorManager.h; sourceTree = "<group>"; };
-		2BA2329117986AE90063CC84 /* LabelManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LabelManager.mm; sourceTree = "<group>"; };
-		2BA2329217986AE90063CC84 /* LayoutManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LayoutManager.mm; sourceTree = "<group>"; };
-		2BA2329317986AE90063CC84 /* MarkerManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MarkerManager.mm; sourceTree = "<group>"; };
-		2BA2329417986AE90063CC84 /* ShapeManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ShapeManager.mm; sourceTree = "<group>"; };
-		2BA2329517986AE90063CC84 /* VectorManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorManager.mm; sourceTree = "<group>"; };
-		2BA2BB76153E08F800DAB382 /* Quadtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quadtree.h; sourceTree = "<group>"; };
-		2BA2BB84153E0BC700DAB382 /* LayerViewWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayerViewWatcher.h; sourceTree = "<group>"; };
-		2BA2BB86153E0C6200DAB382 /* GlobeLayerViewWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeLayerViewWatcher.h; sourceTree = "<group>"; };
-		2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeLayerViewWatcher.mm; sourceTree = "<group>"; };
-		2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LayerViewWatcher.mm; sourceTree = "<group>"; };
-		2BA2BB8C153E107100DAB382 /* Quadtree.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Quadtree.mm; sourceTree = "<group>"; };
-		2BA726DA1778EB11006C710B /* MaplyAnimateFlat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyAnimateFlat.h; sourceTree = "<group>"; };
-		2BA726DC1778EB20006C710B /* MaplyAnimateFlat.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyAnimateFlat.mm; sourceTree = "<group>"; };
-		2BA8FFDC1540E21500AEA53C /* SphericalMercator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalMercator.h; sourceTree = "<group>"; };
-		2BA8FFDF1540E60800AEA53C /* SphericalMercator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SphericalMercator.mm; sourceTree = "<group>"; };
-		2BB0717E1676B5EE00DE387D /* SphericalEarthChunkLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalEarthChunkLayer.h; sourceTree = "<group>"; };
-		2BB071811676B5FE00DE387D /* LayoutLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayoutLayer.h; sourceTree = "<group>"; };
-		2BB071831676B66300DE387D /* BufferBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BufferBuilder.h; sourceTree = "<group>"; };
-		2BB071851676B67D00DE387D /* BufferBuilder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BufferBuilder.mm; sourceTree = "<group>"; };
-		2BB071871676B69400DE387D /* LayoutLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LayoutLayer.mm; sourceTree = "<group>"; };
-		2BB071881676B69400DE387D /* SphericalEarthChunkLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SphericalEarthChunkLayer.mm; sourceTree = "<group>"; };
-		2BB1786B17A6C6C400AD0614 /* DefaultShaderPrograms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DefaultShaderPrograms.h; sourceTree = "<group>"; };
-		2BB1786D17A6C72600AD0614 /* DefaultShaderPrograms.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DefaultShaderPrograms.mm; sourceTree = "<group>"; };
-		2BB1787117A8313700AD0614 /* BillboardManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BillboardManager.h; sourceTree = "<group>"; };
-		2BB1787217A8313900AD0614 /* ParticleSystemManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleSystemManager.h; sourceTree = "<group>"; };
-		2BB1787317A8313C00AD0614 /* LoftManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoftManager.h; sourceTree = "<group>"; };
-		2BB1787717A8315800AD0614 /* BillboardManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BillboardManager.mm; sourceTree = "<group>"; };
-		2BB1787817A8315A00AD0614 /* ParticleSystemManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ParticleSystemManager.mm; sourceTree = "<group>"; };
-		2BB1787917A8315B00AD0614 /* LoftManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoftManager.mm; sourceTree = "<group>"; };
-		2BB1F06813007031001F33CD /* LabelLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelLayer.h; sourceTree = "<group>"; };
-		2BB1F06A130076C5001F33CD /* LabelLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LabelLayer.mm; sourceTree = "<group>"; };
-		2BB1F07E130098E6001F33CD /* Identifiable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Identifiable.h; sourceTree = "<group>"; };
-		2BB1F08013009935001F33CD /* Identifiable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Identifiable.mm; sourceTree = "<group>"; };
-		2BB1F08613009AC3001F33CD /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Texture.h; sourceTree = "<group>"; };
-		2BB1F08813009B17001F33CD /* Texture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Texture.mm; sourceTree = "<group>"; };
-		2BB2591F177A041E00770619 /* ElevationChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevationChunk.h; sourceTree = "<group>"; };
-		2BB25921177A042F00770619 /* BillboardLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BillboardLayer.h; sourceTree = "<group>"; };
-		2BB25922177A042F00770619 /* BillboardDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BillboardDrawable.h; sourceTree = "<group>"; };
-		2BB25923177A042F00770619 /* SceneGraphManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneGraphManager.h; sourceTree = "<group>"; };
-		2BB25927177A044300770619 /* ElevationChunk.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ElevationChunk.mm; sourceTree = "<group>"; };
-		2BB25929177A045300770619 /* BillboardLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BillboardLayer.mm; sourceTree = "<group>"; };
-		2BB2592A177A045300770619 /* BillboardDrawable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BillboardDrawable.mm; sourceTree = "<group>"; };
-		2BB2592B177A045300770619 /* SceneGraphManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneGraphManager.mm; sourceTree = "<group>"; };
-		2BB9A8B016DFFF060069E19C /* DynamicTextureAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DynamicTextureAtlas.h; sourceTree = "<group>"; };
-		2BB9A8B216DFFF100069E19C /* DynamicTextureAtlas.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DynamicTextureAtlas.mm; sourceTree = "<group>"; };
-		2BC53FD212DE22FA00778431 /* WhirlyGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = WhirlyGlobe.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BC53FDB12DE23BA00778431 /* EAGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = EAGLView.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BC53FDC12DE23BA00778431 /* Scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Scene.h; sourceTree = "<group>"; };
-		2BC53FDD12DE23BA00778431 /* SphericalEarthLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalEarthLayer.h; sourceTree = "<group>"; };
-		2BC53FDE12DE23BA00778431 /* TextureGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureGroup.h; sourceTree = "<group>"; };
-		2BC53FDF12DE23BA00778431 /* UIImage+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "UIImage+Stuff.h"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BC53FE112DE23BA00778431 /* WhirlyVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyVector.h; sourceTree = "<group>"; };
-		2BC53FE912DE23D400778431 /* EAGLView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = EAGLView.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		2BC53FEA12DE23D400778431 /* GlobeScene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeScene.mm; sourceTree = "<group>"; };
-		2BC53FEB12DE23D400778431 /* SphericalEarthLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SphericalEarthLayer.mm; sourceTree = "<group>"; };
-		2BC53FEC12DE23D400778431 /* TextureGroup.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextureGroup.mm; sourceTree = "<group>"; };
-		2BC53FED12DE23D400778431 /* UIImage+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = "UIImage+Stuff.mm"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BCAB9A912F897E20049D73C /* DataLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = DataLayer.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BCAB9BF12F8A3860049D73C /* LayerThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayerThread.h; sourceTree = "<group>"; };
-		2BCAB9E712F8CD440049D73C /* ShapeReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeReader.h; sourceTree = "<group>"; };
-		2BCABA9912F8DEF40049D73C /* Drawable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = Drawable.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BCABA9C12F8DEFF0049D73C /* Cullable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = Cullable.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BCABAA912F8E0850049D73C /* Drawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Drawable.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BCABAAB12F8E0920049D73C /* Cullable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Cullable.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BCABB9812FA14300049D73C /* GlobeMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeMath.h; sourceTree = "<group>"; };
-		2BCABB9A12FA14660049D73C /* GlobeMath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = GlobeMath.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BCABC1012FA1F480049D73C /* ShapeReader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ShapeReader.mm; sourceTree = "<group>"; };
-		2BCABCEB12FA2C210049D73C /* LayerThread.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LayerThread.mm; sourceTree = "<group>"; };
-		2BCAC2F512FB6E570049D73C /* TapDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapDelegate.h; sourceTree = "<group>"; };
-		2BCAC2F712FB6EF70049D73C /* TapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = TapDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BCAC33112FB754D0049D73C /* TapMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapMessage.h; sourceTree = "<group>"; };
-		2BCAC33312FB77FB0049D73C /* TapMessage.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = TapMessage.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BD0E68613254D7300CD95A8 /* VectorData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = VectorData.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BD0E69213254DF700CD95A8 /* VectorData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = VectorData.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BD1158C1615979300A4BF5D /* ShapeLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeLayer.h; sourceTree = "<group>"; };
-		2BD1158F161597A600A4BF5D /* ShapeLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ShapeLayer.mm; sourceTree = "<group>"; };
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 		2BDC4A171333EFE000E25283 /* WhirlyGlobeLib-iphonesim-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesim-Prefix.pch"; sourceTree = "<group>"; };
 		2BDC4A621333F0E900E25283 /* WhirlyGlobeLib-iphoneos-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphoneos-Prefix.pch"; sourceTree = "<group>"; };
 		2BDC4ABB133404BB00E25283 /* libWhirlyGlobeLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWhirlyGlobeLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BDC4ABF133404BB00E25283 /* WhirlyGlobeLib-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-Prefix.pch"; sourceTree = "<group>"; };
-<<<<<<< HEAD
 		2BDC89CA191C2ADE00DFECF0 /* SceneRendererES3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES3.h; sourceTree = "<group>"; };
 		2BDC8A5F192A9E1700DFECF0 /* FontTextureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontTextureManager.h; sourceTree = "<group>"; };
 		2BDC8A61192A9E3800DFECF0 /* FontTextureManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontTextureManager.cpp; sourceTree = "<group>"; };
@@ -1188,37 +721,8 @@
 		2BDC8A6D192C08F600DFECF0 /* LabelRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelRenderer.h; sourceTree = "<group>"; };
 		2BDC8A70192C090400DFECF0 /* LabelManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LabelManager.cpp; sourceTree = "<group>"; };
 		2BDC8A71192C090400DFECF0 /* LabelRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LabelRenderer.cpp; sourceTree = "<group>"; };
-=======
-		2BE6EE5412E4F44900415490 /* PinchDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PinchDelegate.h; sourceTree = "<group>"; };
-		2BE6EE5612E4F48800415490 /* PinchDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = PinchDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BE6EE7612E4F95C00415490 /* SwipeDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SwipeDelegate.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BE6EE7712E4F95C00415490 /* SwipeDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = SwipeDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BE886CE160A855F00E92A0A /* MaplyTapMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTapMessage.h; sourceTree = "<group>"; };
-		2BE886D0160A863700E92A0A /* MaplyTapMessage.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTapMessage.mm; sourceTree = "<group>"; };
-		2BEA1E4B171E0E0F0039F1A4 /* FontTextureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontTextureManager.h; sourceTree = "<group>"; };
-		2BEA1E4C171E0E0F0039F1A4 /* LabelRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelRenderer.h; sourceTree = "<group>"; };
-		2BEA1E4D171E0E0F0039F1A4 /* ShapeDrawableBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeDrawableBuilder.h; sourceTree = "<group>"; };
-		2BEA1E51171E0E280039F1A4 /* FontTextureManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FontTextureManager.mm; sourceTree = "<group>"; };
-		2BEA1E52171E0E280039F1A4 /* LabelRenderer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LabelRenderer.mm; sourceTree = "<group>"; };
-		2BEA1E53171E0E280039F1A4 /* ShapeDrawableBuilder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ShapeDrawableBuilder.mm; sourceTree = "<group>"; };
-		2BEFDE90149963A800C63326 /* LoftLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoftLayer.h; sourceTree = "<group>"; };
-		2BEFDE921499643000C63326 /* LoftLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoftLayer.mm; sourceTree = "<group>"; };
-		2BEFDE95149966D400C63326 /* GridClipper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridClipper.h; sourceTree = "<group>"; };
-		2BEFDE96149966D400C63326 /* Tesselator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tesselator.h; sourceTree = "<group>"; };
-		2BEFDE99149966F300C63326 /* GridClipper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GridClipper.mm; sourceTree = "<group>"; };
-		2BEFDE9A149966F300C63326 /* Tesselator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Tesselator.mm; sourceTree = "<group>"; };
-		2BEFDEA114997C0400C63326 /* clipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = clipper.cpp; path = "../../../third-party/clipper/cpp/clipper.cpp"; sourceTree = "<group>"; };
-		2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = UpdateDisplayLayer.mm; sourceTree = "<group>"; };
-		2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewPlacementGenerator.mm; sourceTree = "<group>"; };
-		2BF401BE15C0B49500B5BFD9 /* UpdateDisplayLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UpdateDisplayLayer.h; sourceTree = "<group>"; };
-		2BF401BF15C0B49500B5BFD9 /* ViewPlacementGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewPlacementGenerator.h; sourceTree = "<group>"; };
-		2BF74358155D7C4C000499DD /* NSString+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Stuff.h"; sourceTree = "<group>"; };
-		2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		E594E38917E8133D008D5741 /* MaplyRotateDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRotateDelegate.h; sourceTree = "<group>"; };
-		E594E38B17E81434008D5741 /* MaplyRotateDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRotateDelegate.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1268,14 +772,9 @@
 		08FB77AEFE84172EC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-<<<<<<< HEAD
 				2B009D141861091E001E2EE8 /* clipper */,
 				2B009CBE186102B1001E2EE8 /* libjson */,
 				2BA2322A17984F1A0063CC84 /* glu */,
-=======
-				2BA2322A17984F1A0063CC84 /* glu */,
-				2B4AE3B117662D4700850F3F /* libjson */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B951D8A12F09E09005003AE /* shapelib-1.3.0b2 */,
 				2B7EF37916025D3500D4079F /* proj4 */,
 				2BC53FA412DE217E00778431 /* include */,
@@ -1308,17 +807,7 @@
 		2B009CC0186102E4001E2EE8 /* libbase64++ */ = {
 			isa = PBXGroup;
 			children = (
-<<<<<<< HEAD
 				2B009CC1186102E4001E2EE8 /* libbase64++.h */,
-=======
-				2BB1786B17A6C6C400AD0614 /* DefaultShaderPrograms.h */,
-				2B7AD8AF1649DD06006C9E75 /* Lighting.h */,
-				2B92EF9C163760C300C5165F /* OpenGLES2Program.h */,
-				2B92EF6416370B2000C5165F /* PerformanceTimer.h */,
-				2B92EF6616370B2700C5165F /* SceneRendererES.h */,
-				2B92EF901637530C00C5165F /* SceneRendererES2.h */,
-				2BC53FDB12DE23BA00778431 /* EAGLView.h */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 			);
 			path = "libbase64++";
 			sourceTree = "<group>";
@@ -1326,17 +815,7 @@
 		2B009CC2186102E4001E2EE8 /* mempool++ */ = {
 			isa = PBXGroup;
 			children = (
-<<<<<<< HEAD
 				2B009CC3186102E4001E2EE8 /* mempool.h */,
-=======
-				2BB1786D17A6C72600AD0614 /* DefaultShaderPrograms.mm */,
-				2B7AD8B21649DF80006C9E75 /* Lighting.mm */,
-				2B92EF9E1637633F00C5165F /* OpenGLES2Program.mm */,
-				2B92EF5F16370AFF00C5165F /* PerformanceTimer.mm */,
-				2B92EF6216370B0600C5165F /* SceneRendererES.mm */,
-				2B92EF931637531700C5165F /* SceneRendererES2.mm */,
-				2BC53FE912DE23D400778431 /* EAGLView.mm */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 			);
 			path = "mempool++";
 			sourceTree = "<group>";
@@ -1426,280 +905,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-<<<<<<< HEAD
-		2B7EF37916025D3500D4079F /* proj4 */ = {
-=======
-		2B4504AE14BBACF900C99306 /* view */ = {
-			isa = PBXGroup;
-			children = (
-				2B4504AF14BBAD0B00C99306 /* WhirlyKitView.h */,
-			);
-			name = view;
-			sourceTree = "<group>";
-		};
-		2B4504B514BCB6AF00C99306 /* interaction */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = interaction;
-			sourceTree = "<group>";
-		};
-		2B4AE3B117662D4700850F3F /* libjson */ = {
-			isa = PBXGroup;
-			children = (
-				2B4AE3B217662D6800850F3F /* JSONOptions.h */,
-				2B4AE3B317662D6800850F3F /* libjson.h */,
-				2B4AE3DC17662DAB00850F3F /* Dependencies */,
-				2B4AE3B617662DA300850F3F /* Source */,
-			);
-			name = libjson;
-			sourceTree = "<group>";
-		};
-		2B4AE3B617662DA300850F3F /* Source */ = {
-			isa = PBXGroup;
-			children = (
-				2B4AE3B717662DA300850F3F /* internalJSONNode.cpp */,
-				2B4AE3B817662DA300850F3F /* internalJSONNode.h */,
-				2B4AE3B917662DA300850F3F /* JSON_Base64.h */,
-				2B4AE3BA17662DA300850F3F /* JSONAllocator.cpp */,
-				2B4AE3BB17662DA300850F3F /* JSONAllocator.h */,
-				2B4AE3BC17662DA300850F3F /* JSONChildren.cpp */,
-				2B4AE3BD17662DA300850F3F /* JSONChildren.h */,
-				2B4AE3BE17662DA300850F3F /* JSONDebug.cpp */,
-				2B4AE3BF17662DA300850F3F /* JSONDebug.h */,
-				2B4AE3C017662DA300850F3F /* JSONDefs */,
-				2B4AE3C517662DA300850F3F /* JSONDefs.h */,
-				2B4AE3C617662DA300850F3F /* JSONGlobals.h */,
-				2B4AE3C717662DA300850F3F /* JSONIterators.cpp */,
-				2B4AE3C817662DA300850F3F /* JSONMemory.cpp */,
-				2B4AE3C917662DA300850F3F /* JSONMemory.h */,
-				2B4AE3CA17662DA300850F3F /* JSONMemoryPool.h */,
-				2B4AE3CB17662DA300850F3F /* JSONNode.cpp */,
-				2B4AE3CC17662DA300850F3F /* JSONNode.h */,
-				2B4AE3CD17662DA300850F3F /* JSONNode_Mutex.cpp */,
-				2B4AE3CE17662DA300850F3F /* JSONPreparse.cpp */,
-				2B4AE3CF17662DA300850F3F /* JSONPreparse.h */,
-				2B4AE3D017662DA300850F3F /* JSONSharedString.h */,
-				2B4AE3D117662DA300850F3F /* JSONSingleton.h */,
-				2B4AE3D217662DA300850F3F /* JSONStats.h */,
-				2B4AE3D317662DA300850F3F /* JSONStream.cpp */,
-				2B4AE3D417662DA300850F3F /* JSONStream.h */,
-				2B4AE3D517662DA300850F3F /* JSONValidator.cpp */,
-				2B4AE3D617662DA300850F3F /* JSONValidator.h */,
-				2B4AE3D717662DA300850F3F /* JSONWorker.cpp */,
-				2B4AE3D817662DA300850F3F /* JSONWorker.h */,
-				2B4AE3D917662DA300850F3F /* JSONWriter.cpp */,
-				2B4AE3DA17662DA300850F3F /* libjson.cpp */,
-				2B4AE3DB17662DA300850F3F /* NumberToString.h */,
-			);
-			name = Source;
-			path = "../../third-party/libjson/_internal/Source";
-			sourceTree = "<group>";
-		};
-		2B4AE3C017662DA300850F3F /* JSONDefs */ = {
-			isa = PBXGroup;
-			children = (
-				2B4AE3C117662DA300850F3F /* GNU_C.h */,
-				2B4AE3C217662DA300850F3F /* Strings_Defs.h */,
-				2B4AE3C317662DA300850F3F /* Unknown_C.h */,
-				2B4AE3C417662DA300850F3F /* Visual_C.h */,
-			);
-			path = JSONDefs;
-			sourceTree = "<group>";
-		};
-		2B4AE3DC17662DAB00850F3F /* Dependencies */ = {
-			isa = PBXGroup;
-			children = (
-				2B4AE3DD17662DAB00850F3F /* libbase64++ */,
-				2B4AE3DF17662DAB00850F3F /* mempool++ */,
-			);
-			name = Dependencies;
-			path = "../../third-party/libjson/_internal/Dependencies";
-			sourceTree = "<group>";
-		};
-		2B4AE3DD17662DAB00850F3F /* libbase64++ */ = {
-			isa = PBXGroup;
-			children = (
-				2B4AE3DE17662DAB00850F3F /* libbase64++.h */,
-			);
-			path = "libbase64++";
-			sourceTree = "<group>";
-		};
-		2B4AE3DF17662DAB00850F3F /* mempool++ */ = {
-			isa = PBXGroup;
-			children = (
-				2B4AE3E017662DAB00850F3F /* mempool.h */,
-			);
-			path = "mempool++";
-			sourceTree = "<group>";
-		};
-		2B5E6363151C059F0007904C /* scene */ = {
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
-			isa = PBXGroup;
-			children = (
-				2B7EF37A16025D8C00D4079F /* aasincos.c */,
-				2B7EF37B16025D8C00D4079F /* adjlon.c */,
-				2B7EF37C16025D8C00D4079F /* bch2bps.c */,
-				2B7EF37D16025D8C00D4079F /* bchgen.c */,
-				2B7EF37E16025D8C00D4079F /* biveval.c */,
-				2B7EF38016025D8C00D4079F /* dmstor.c */,
-				2B7EF38116025D8C00D4079F /* emess.c */,
-				2B7EF38216025D8C00D4079F /* emess.h */,
-				2B7EF38416025D8C00D4079F /* geocent.c */,
-				2B7EF38516025D8C00D4079F /* geocent.h */,
-				2B7EF38616025D8C00D4079F /* geod_for.c */,
-				2B7EF38716025D8C00D4079F /* geod_inv.c */,
-				2B7EF38816025D8C00D4079F /* geod_set.c */,
-				2B7EF38A16025D8C00D4079F /* geodesic.h */,
-				2B7EF38F16025D8C00D4079F /* mk_cheby.c */,
-				2B7EF39116025D8C00D4079F /* nad_cvt.c */,
-				2B7EF39216025D8C00D4079F /* nad_init.c */,
-				2B7EF39316025D8C00D4079F /* nad_intr.c */,
-				2B7EF39516025D8C00D4079F /* org_proj4_Projections.h */,
-				2B7EF39716025D8C00D4079F /* PJ_aea.c */,
-				2B7EF39816025D8C00D4079F /* PJ_aeqd.c */,
-				2B7EF39916025D8C00D4079F /* PJ_airy.c */,
-				2B7EF39A16025D8C00D4079F /* PJ_aitoff.c */,
-				2B7EF39B16025D8C00D4079F /* pj_apply_gridshift.c */,
-				2B7EF39C16025D8C00D4079F /* pj_apply_vgridshift.c */,
-				2B7EF39D16025D8C00D4079F /* PJ_august.c */,
-				2B7EF39E16025D8C00D4079F /* pj_auth.c */,
-				2B7EF39F16025D8C00D4079F /* PJ_bacon.c */,
-				2B7EF3A016025D8C00D4079F /* PJ_bipc.c */,
-				2B7EF3A116025D8C00D4079F /* PJ_boggs.c */,
-				2B7EF3A216025D8C00D4079F /* PJ_bonne.c */,
-				2B7EF3A316025D8C00D4079F /* PJ_cass.c */,
-				2B7EF3A416025D8C00D4079F /* PJ_cc.c */,
-				2B7EF3A516025D8C00D4079F /* PJ_cea.c */,
-				2B7EF3A616025D8C00D4079F /* PJ_chamb.c */,
-				2B7EF3A716025D8C00D4079F /* PJ_collg.c */,
-				2B7EF3A816025D8C00D4079F /* PJ_crast.c */,
-				2B7EF3A916025D8C00D4079F /* pj_ctx.c */,
-				2B7EF3AA16025D8C00D4079F /* pj_datum_set.c */,
-				2B7EF3AB16025D8C00D4079F /* pj_datums.c */,
-				2B7EF3AC16025D8C00D4079F /* PJ_denoy.c */,
-				2B7EF3AD16025D8C00D4079F /* pj_deriv.c */,
-				2B7EF3AE16025D8C00D4079F /* PJ_eck1.c */,
-				2B7EF3AF16025D8C00D4079F /* PJ_eck2.c */,
-				2B7EF3B016025D8C00D4079F /* PJ_eck3.c */,
-				2B7EF3B116025D8C00D4079F /* PJ_eck4.c */,
-				2B7EF3B216025D8C00D4079F /* PJ_eck5.c */,
-				2B7EF3B316025D8C00D4079F /* pj_ell_set.c */,
-				2B7EF3B416025D8C00D4079F /* pj_ellps.c */,
-				2B7EF3B516025D8C00D4079F /* PJ_eqc.c */,
-				2B7EF3B616025D8C00D4079F /* PJ_eqdc.c */,
-				2B7EF3B716025D8C00D4079F /* pj_errno.c */,
-				2B7EF3B816025D8C00D4079F /* pj_factors.c */,
-				2B7EF3B916025D8C00D4079F /* PJ_fahey.c */,
-				2B7EF3BA16025D8C00D4079F /* PJ_fouc_s.c */,
-				2B7EF3BB16025D8C00D4079F /* pj_fwd.c */,
-				2B7EF3BC16025D8C00D4079F /* PJ_gall.c */,
-				2B7EF3BD16025D8C00D4079F /* pj_gauss.c */,
-				2B7EF3BE16025D8C00D4079F /* pj_geocent.c */,
-				2B7EF3BF16025D8C00D4079F /* PJ_geos.c */,
-				2B7EF3C016025D8C00D4079F /* PJ_gins8.c */,
-				2B7EF3C116025D8C00D4079F /* PJ_gn_sinu.c */,
-				2B7EF3C216025D8C00D4079F /* PJ_gnom.c */,
-				2B7EF3C316025D8C00D4079F /* PJ_goode.c */,
-				2B7EF3C416025D8C00D4079F /* pj_gridinfo.c */,
-				2B7EF3C516025D8C00D4079F /* pj_gridlist.c */,
-				2B7EF3C616025D8C00D4079F /* PJ_gstmerc.c */,
-				2B7EF3C716025D8C00D4079F /* PJ_hammer.c */,
-				2B7EF3C816025D8C00D4079F /* PJ_hatano.c */,
-				2B7EF3C916025D8C00D4079F /* PJ_healpix.c */,
-				2B7EF3CA16025D8C00D4079F /* PJ_igh.c */,
-				2B7EF3CB16025D8C00D4079F /* PJ_imw_p.c */,
-				2B7EF3CC16025D8C00D4079F /* pj_init.c */,
-				2B7EF3CD16025D8C00D4079F /* pj_initcache.c */,
-				2B7EF3CE16025D8C00D4079F /* pj_inv.c */,
-				2B7EF3CF16025D8C00D4079F /* PJ_isea.c */,
-				2B7EF3D016025D8C00D4079F /* PJ_krovak.c */,
-				2B7EF3D116025D8C00D4079F /* PJ_labrd.c */,
-				2B7EF3D216025D8C00D4079F /* PJ_laea.c */,
-				2B7EF3D316025D8C00D4079F /* PJ_lagrng.c */,
-				2B7EF3D416025D8C00D4079F /* PJ_larr.c */,
-				2B7EF3D516025D8C00D4079F /* PJ_lask.c */,
-				2B7EF3D616025D8C00D4079F /* pj_latlong.c */,
-				2B7EF3D716025D8C00D4079F /* PJ_lcc.c */,
-				2B7EF3D816025D8C00D4079F /* PJ_lcca.c */,
-				2B7EF3D916025D8C00D4079F /* pj_list.c */,
-				2B7EF3DA16025D8C00D4079F /* pj_list.h */,
-				2B7EF3DB16025D8C00D4079F /* pj_log.c */,
-				2B7EF3DC16025D8C00D4079F /* PJ_loxim.c */,
-				2B7EF3DD16025D8C00D4079F /* PJ_lsat.c */,
-				2B7EF3DE16025D8C00D4079F /* pj_malloc.c */,
-				2B7EF3DF16025D8C00D4079F /* PJ_mbt_fps.c */,
-				2B7EF3E016025D8C00D4079F /* PJ_mbtfpp.c */,
-				2B7EF3E116025D8C00D4079F /* PJ_mbtfpq.c */,
-				2B7EF3E216025D8C00D4079F /* PJ_merc.c */,
-				2B7EF3E316025D8C00D4079F /* PJ_mill.c */,
-				2B7EF3E416025D8C00D4079F /* pj_mlfn.c */,
-				2B7EF3E516025D8C00D4079F /* PJ_mod_ster.c */,
-				2B7EF3E616025D8C00D4079F /* PJ_moll.c */,
-				2B7EF3E716025D8C00D4079F /* pj_msfn.c */,
-				2B7EF3E816025D8C00D4079F /* pj_mutex.c */,
-				2B7EF3E916025D8C00D4079F /* PJ_natearth.c */,
-				2B7EF3EA16025D8C00D4079F /* PJ_nell_h.c */,
-				2B7EF3EB16025D8C00D4079F /* PJ_nell.c */,
-				2B7EF3EC16025D8C00D4079F /* PJ_nocol.c */,
-				2B7EF3ED16025D8C00D4079F /* PJ_nsper.c */,
-				2B7EF3EE16025D8C00D4079F /* PJ_nzmg.c */,
-				2B7EF3EF16025D8C00D4079F /* PJ_ob_tran.c */,
-				2B7EF3F016025D8C00D4079F /* PJ_ocea.c */,
-				2B7EF3F116025D8C00D4079F /* PJ_oea.c */,
-				2B7EF3F216025D8C00D4079F /* PJ_omerc.c */,
-				2B7EF3F316025D8C00D4079F /* pj_open_lib.c */,
-				2B7EF3F416025D8C00D4079F /* PJ_ortho.c */,
-				2B7EF3F516025D8C00D4079F /* pj_param.c */,
-				2B7EF3F616025D8C00D4079F /* pj_phi2.c */,
-				2B7EF3F716025D8C00D4079F /* PJ_poly.c */,
-				2B7EF3F816025D8C00D4079F /* pj_pr_list.c */,
-				2B7EF3F916025D8C00D4079F /* PJ_putp2.c */,
-				2B7EF3FA16025D8C00D4079F /* PJ_putp3.c */,
-				2B7EF3FB16025D8C00D4079F /* PJ_putp4p.c */,
-				2B7EF3FC16025D8C00D4079F /* PJ_putp5.c */,
-				2B7EF3FD16025D8C00D4079F /* PJ_putp6.c */,
-				2B7EF3FE16025D8C00D4079F /* pj_qsfn.c */,
-				2B7EF3FF16025D8C00D4079F /* pj_release.c */,
-				2B7EF40016025D8C00D4079F /* PJ_robin.c */,
-				2B7EF40116025D8C00D4079F /* PJ_rpoly.c */,
-				2B7EF40216025D8C00D4079F /* PJ_sconics.c */,
-				2B7EF40316025D8C00D4079F /* PJ_somerc.c */,
-				2B7EF40416025D8C00D4079F /* PJ_stere.c */,
-				2B7EF40516025D8C00D4079F /* PJ_sterea.c */,
-				2B7EF40616025D8C00D4079F /* pj_strerrno.c */,
-				2B7EF40716025D8C00D4079F /* PJ_sts.c */,
-				2B7EF40816025D8C00D4079F /* PJ_tcc.c */,
-				2B7EF40916025D8C00D4079F /* PJ_tcea.c */,
-				2B7EF40A16025D8C00D4079F /* PJ_tmerc.c */,
-				2B7EF40B16025D8C00D4079F /* PJ_tpeqd.c */,
-				2B7EF40C16025D8C00D4079F /* pj_transform.c */,
-				2B7EF40D16025D8C00D4079F /* pj_tsfn.c */,
-				2B7EF40E16025D8C00D4079F /* pj_units.c */,
-				2B7EF40F16025D8C00D4079F /* PJ_urm5.c */,
-				2B7EF41016025D8C00D4079F /* PJ_urmfps.c */,
-				2B7EF41116025D8C00D4079F /* pj_utils.c */,
-				2B7EF41216025D8C00D4079F /* PJ_vandg.c */,
-				2B7EF41316025D8C00D4079F /* PJ_vandg2.c */,
-				2B7EF41416025D8C00D4079F /* PJ_vandg4.c */,
-				2B7EF41516025D8C00D4079F /* PJ_wag2.c */,
-				2B7EF41616025D8C00D4079F /* PJ_wag3.c */,
-				2B7EF41716025D8C00D4079F /* PJ_wag7.c */,
-				2B7EF41816025D8C00D4079F /* PJ_wink1.c */,
-				2B7EF41916025D8C00D4079F /* PJ_wink2.c */,
-				2B7EF41A16025D8C00D4079F /* pj_zpoly1.c */,
-				2B7EF41B16025D8C00D4079F /* proj_api.h */,
-				2B7EF41D16025D8C00D4079F /* proj_etmerc.c */,
-				2B7EF41E16025D8C00D4079F /* proj_mdist.c */,
-				2B7EF41F16025D8C00D4079F /* proj_rouss.c */,
-				2B7EF42216025D8C00D4079F /* projects.h */,
-				2B7EF42316025D8C00D4079F /* rtodms.c */,
-				2B7EF42416025D8C00D4079F /* vector1.c */,
-			);
-			name = proj4;
-			path = "../../third-party/proj-4/src";
-			sourceTree = "<group>";
-		};
 		2B7EF37916025D3500D4079F /* proj4 */ = {
 			isa = PBXGroup;
 			children = (
@@ -1864,46 +1069,6 @@
 			);
 			name = proj4;
 			path = "../../third-party/proj-4/src";
-			sourceTree = "<group>";
-		};
-		2B7EF5241603EF0A00D4079F /* scene */ = {
-			isa = PBXGroup;
-			children = (
-				2B7EF31715FF95CF00D4079F /* MaplyScene.h */,
-			);
-			name = scene;
-			sourceTree = "<group>";
-		};
-		2B7EF5251603EF1200D4079F /* layers */ = {
-			isa = PBXGroup;
-			children = (
-				2B7EF5221603EEFA00D4079F /* MaplyLayerViewWatcher.h */,
-			);
-			name = layers;
-			sourceTree = "<group>";
-		};
-		2B7EF5261603EF1A00D4079F /* interaction */ = {
-			isa = PBXGroup;
-			children = (
-				2BA726DA1778EB11006C710B /* MaplyAnimateFlat.h */,
-				2B03701314C9FA9000A51AC4 /* MaplyAnimateTranslation.h */,
-				2B03701214C9FA9000A51AC4 /* MaplyAnimateTranslateMomentum.h */,
-				2B92105314BD1A8100653536 /* MaplyPanDelegate.h */,
-				2B4504DE14BD119300C99306 /* MaplyPinchDelegate.h */,
-				2BE886CE160A855F00E92A0A /* MaplyTapMessage.h */,
-				2B03702114CA02A900A51AC4 /* MaplyTapDelegate.h */,
-				E594E38917E8133D008D5741 /* MaplyRotateDelegate.h */,
-			);
-			name = interaction;
-			sourceTree = "<group>";
-		};
-		2B7EF5271603EF2700D4079F /* view */ = {
-			isa = PBXGroup;
-			children = (
-				2B4504AC14BBAC0100C99306 /* MaplyView.h */,
-				2B4730161732DEF9000507E9 /* MaplyFlatView.h */,
-			);
-			name = view;
 			sourceTree = "<group>";
 		};
 		2B951D8A12F09E09005003AE /* shapelib-1.3.0b2 */ = {
@@ -1916,96 +1081,6 @@
 			);
 			name = "shapelib-1.3.0b2";
 			path = "../../third-party/shapelib";
-<<<<<<< HEAD
-			sourceTree = "<group>";
-		};
-		2BA2322A17984F1A0063CC84 /* glu */ = {
-=======
-			sourceTree = "<group>";
-		};
-		2B951D9612F09EE1005003AE /* layers & generators */ = {
-			isa = PBXGroup;
-			children = (
-				2BA13BF617EE9F1A000C43B7 /* vestigal */,
-				2BB25922177A042F00770619 /* BillboardDrawable.h */,
-				2BEA1E4B171E0E0F0039F1A4 /* FontTextureManager.h */,
-				2BEA1E4C171E0E0F0039F1A4 /* LabelRenderer.h */,
-				2BEA1E4D171E0E0F0039F1A4 /* ShapeDrawableBuilder.h */,
-				2BA2BB84153E0BC700DAB382 /* LayerViewWatcher.h */,
-				2BCAB9BF12F8A3860049D73C /* LayerThread.h */,
-				2B951C7D12EFA262005003AE /* GridLines.h */,
-				2BB1F06813007031001F33CD /* LabelLayer.h */,
-				2B58C6B81445FDAB00EEF3C3 /* ParticleGenerator.h */,
-				2B6B3395147B5DE900771FEF /* MarkerGenerator.h */,
-				2B2A25881559B3C000137807 /* ScreenSpaceGenerator.h */,
-				2B9BE6AC180872A0001D9454 /* ScreenImportance.h */,
-				2B7EF50C1603D76100D4079F /* QuadDisplayLayer.h */,
-				2B08059517EB955C0016C813 /* LoadedTile.h */,
-				2B7EF50D1603D76100D4079F /* TileQuadLoader.h */,
-				2B4AFB871803152300C3F948 /* TileQuadOfflineRenderer.h */,
-				2B7EF5181603E01400D4079F /* SphericalEarthQuadLayer.h */,
-				2BB0717E1676B5EE00DE387D /* SphericalEarthChunkLayer.h */,
-			);
-			name = "layers & generators";
-			sourceTree = "<group>";
-		};
-		2B951D9712F09EEC005003AE /* layers & loaders */ = {
-			isa = PBXGroup;
-			children = (
-				2BB25929177A045300770619 /* BillboardLayer.mm */,
-				2BB2592A177A045300770619 /* BillboardDrawable.mm */,
-				2BB2592B177A045300770619 /* SceneGraphManager.mm */,
-				2B308B12171F63B3006D7273 /* SelectionManager.mm */,
-				2BEA1E51171E0E280039F1A4 /* FontTextureManager.mm */,
-				2BEA1E52171E0E280039F1A4 /* LabelRenderer.mm */,
-				2BEA1E53171E0E280039F1A4 /* ShapeDrawableBuilder.mm */,
-				2B7EF5281603F03900D4079F /* MaplyLayerViewWatcher.mm */,
-				2B7EF31A15FF95E900D4079F /* MaplyScene.mm */,
-				2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */,
-				2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */,
-				2BEFDE921499643000C63326 /* LoftLayer.mm */,
-				2B58C6C31446A37900EEF3C3 /* ParticleGenerator.mm */,
-				2B80455714990A1A003FFABE /* MarkerGenerator.mm */,
-				2BCABCEB12FA2C210049D73C /* LayerThread.mm */,
-				2BC53FEB12DE23D400778431 /* SphericalEarthLayer.mm */,
-				2B951C8D12EFA567005003AE /* GridLines.mm */,
-				2B951D9A12F0A087005003AE /* VectorLayer.mm */,
-				2BB1F06A130076C5001F33CD /* LabelLayer.mm */,
-				2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */,
-				2B93C817145232C800D768BA /* MarkerLayer.mm */,
-				2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */,
-				2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */,
-				2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */,
-				2B40467C15F9B4F400937923 /* GeometryLayer.mm */,
-				2B7EF5101603D77D00D4079F /* QuadDisplayLayer.mm */,
-				2B9BE6AE180872AA001D9454 /* ScreenImportance.mm */,
-				2B08059717EB95A40016C813 /* LoadedTile.mm */,
-				2B7EF5111603D77E00D4079F /* TileQuadLoader.mm */,
-				2B4AFB891803153600C3F948 /* TileQuadOfflineRenderer.mm */,
-				2B7EF51C1603E0AC00D4079F /* MBTileQuadSource.mm */,
-				2B7EF51D1603E0AD00D4079F /* NetworkTileQuadSource.mm */,
-				2B7EF51E1603E0AE00D4079F /* SphericalEarthQuadLayer.mm */,
-				2BD1158F161597A600A4BF5D /* ShapeLayer.mm */,
-				2BB071871676B69400DE387D /* LayoutLayer.mm */,
-				2BB071881676B69400DE387D /* SphericalEarthChunkLayer.mm */,
-			);
-			name = "layers & loaders";
-			sourceTree = "<group>";
-		};
-		2BA13BF617EE9F1A000C43B7 /* vestigal */ = {
-			isa = PBXGroup;
-			children = (
-				2B93C81514522DE600D768BA /* MarkerLayer.h */,
-				2B951D9812F09F31005003AE /* VectorLayer.h */,
-				2BCAB9A912F897E20049D73C /* DataLayer.h */,
-				2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */,
-				2BB25921177A042F00770619 /* BillboardLayer.h */,
-				2B7EF5161603E01400D4079F /* MBTileQuadSource.h */,
-				2B7EF5171603E01400D4079F /* NetworkTileQuadSource.h */,
-				2BD1158C1615979300A4BF5D /* ShapeLayer.h */,
-				2BB071811676B5FE00DE387D /* LayoutLayer.h */,
-			);
-			name = vestigal;
 			sourceTree = "<group>";
 		};
 		2BA2322A17984F1A0063CC84 /* glu */ = {
@@ -2056,101 +1131,6 @@
 				2BA2325317984F510063CC84 /* tess.h */,
 				2BA2325417984F510063CC84 /* tessmono.c */,
 				2BA2325517984F510063CC84 /* tessmono.h */,
-			);
-			name = libtess;
-			path = "../../third-party/glues/source/libtess";
-			sourceTree = "<group>";
-		};
-		2BA2328517986A9F0063CC84 /* managers */ = {
-			isa = PBXGroup;
-			children = (
-				2BA2328617986ACA0063CC84 /* LabelManager.h */,
-				2BA2328717986ACA0063CC84 /* LayoutManager.h */,
-				2BA2328817986ACA0063CC84 /* MarkerManager.h */,
-				2BA2328917986ACA0063CC84 /* ShapeManager.h */,
-				2BA2328A17986ACA0063CC84 /* VectorManager.h */,
-				2BB25923177A042F00770619 /* SceneGraphManager.h */,
-				2B308B10171F638F006D7273 /* SelectionManager.h */,
-				2B665468179F271200FB4427 /* SphericalEarthChunkManager.h */,
-				2BB1787117A8313700AD0614 /* BillboardManager.h */,
-				2BB1787217A8313900AD0614 /* ParticleSystemManager.h */,
-				2BB1787317A8313C00AD0614 /* LoftManager.h */,
-			);
-			name = managers;
-			sourceTree = "<group>";
-		};
-		2BA2329017986AD40063CC84 /* managers */ = {
-			isa = PBXGroup;
-			children = (
-				2BA2329117986AE90063CC84 /* LabelManager.mm */,
-				2BA2329217986AE90063CC84 /* LayoutManager.mm */,
-				2BA2329317986AE90063CC84 /* MarkerManager.mm */,
-				2BA2329417986AE90063CC84 /* ShapeManager.mm */,
-				2BA2329517986AE90063CC84 /* VectorManager.mm */,
-				2B66546A179F272700FB4427 /* SphericalEarthChunkManager.mm */,
-				2BB1787717A8315800AD0614 /* BillboardManager.mm */,
-				2BB1787817A8315A00AD0614 /* ParticleSystemManager.mm */,
-				2BB1787917A8315B00AD0614 /* LoftManager.mm */,
-			);
-			name = managers;
-			sourceTree = "<group>";
-		};
-		2BA8FFDB1540E12300AEA53C /* coordinate systems */ = {
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
-			isa = PBXGroup;
-			children = (
-				2BA2327A179859F30063CC84 /* SDL_opengles.h */,
-				2BA2322F17984F510063CC84 /* glues.h */,
-				2BA2323017984F510063CC84 /* glues_error.c */,
-				2BA2323117984F510063CC84 /* glues_error.h */,
-				2BA2323217984F510063CC84 /* glues_mipmap.c */,
-				2BA2323317984F510063CC84 /* glues_mipmap.h */,
-				2BA2323417984F510063CC84 /* glues_project.c */,
-				2BA2323517984F510063CC84 /* glues_project.h */,
-				2BA2323617984F510063CC84 /* glues_quad.c */,
-				2BA2323717984F510063CC84 /* glues_quad.h */,
-				2BA2323817984F510063CC84 /* glues_registry.c */,
-				2BA2323917984F510063CC84 /* glues_registry.h */,
-				2BA2323A17984F510063CC84 /* glues.h */,
-				2BA2323B17984F510063CC84 /* libtess */,
-			);
-			name = glu;
-			sourceTree = "<group>";
-		};
-		2BA2323B17984F510063CC84 /* libtess */ = {
-			isa = PBXGroup;
-			children = (
-<<<<<<< HEAD
-				2BA2323C17984F510063CC84 /* alg-outline */,
-				2BA2323D17984F510063CC84 /* dict-list.h */,
-				2BA2323E17984F510063CC84 /* dict.c */,
-				2BA2323F17984F510063CC84 /* dict.h */,
-				2BA2324017984F510063CC84 /* geom.c */,
-				2BA2324117984F510063CC84 /* geom.h */,
-				2BA2324217984F510063CC84 /* memalloc.c */,
-				2BA2324317984F510063CC84 /* memalloc.h */,
-				2BA2324417984F510063CC84 /* mesh.c */,
-				2BA2324517984F510063CC84 /* mesh.h */,
-				2BA2324617984F510063CC84 /* normal.c */,
-				2BA2324717984F510063CC84 /* normal.h */,
-				2BA2324817984F510063CC84 /* priorityq-heap.h */,
-				2BA2324A17984F510063CC84 /* priorityq-sort.h */,
-				2BA2324B17984F510063CC84 /* priorityq.c */,
-				2BA2324C17984F510063CC84 /* priorityq.h */,
-				2BA2324E17984F510063CC84 /* render.c */,
-				2BA2324F17984F510063CC84 /* render.h */,
-				2BA2325017984F510063CC84 /* sweep.c */,
-				2BA2325117984F510063CC84 /* sweep.h */,
-				2BA2325217984F510063CC84 /* tess.c */,
-				2BA2325317984F510063CC84 /* tess.h */,
-				2BA2325417984F510063CC84 /* tessmono.c */,
-				2BA2325517984F510063CC84 /* tessmono.h */,
-=======
-				2B7EF5141603DCC500D4079F /* CoordSystem.mm */,
-				2BCABB9A12FA14660049D73C /* GlobeMath.mm */,
-				2B4504B814BCC29D00C99306 /* FlatMath.mm */,
-				2BA8FFDF1540E60800AEA53C /* SphericalMercator.mm */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 			);
 			name = libtess;
 			path = "../../third-party/glues/source/libtess";
@@ -2159,7 +1139,6 @@
 		2BC53FA412DE217E00778431 /* include */ = {
 			isa = PBXGroup;
 			children = (
-<<<<<<< HEAD
 				2BDC8A6C192C08F600DFECF0 /* LabelManager.h */,
 				2BDC8A6D192C08F600DFECF0 /* LabelRenderer.h */,
 				2BDC8A5F192A9E1700DFECF0 /* FontTextureManager.h */,
@@ -2218,12 +1197,6 @@
 				2B3567DA18D762BF00EF8DB1 /* WhirlyVector.h */,
 				2B009C97185FA2CD001E2EE8 /* WhirlyGlobe.h */,
 				2B3836A8186244DC00467ABD /* glwrapper.h */,
-=======
-				2BC53FD212DE22FA00778431 /* WhirlyGlobe.h */,
-				2BCF39DF14BB8E3F006B0FC0 /* WhirlyKit */,
-				2BCF39E014BB8EA2006B0FC0 /* WhirlyGlobe */,
-				2BCF39E414BB8FD6006B0FC0 /* Maply */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 			);
 			path = include;
 			sourceTree = "<group>";
@@ -2231,7 +1204,6 @@
 		2BC53FA512DE218300778431 /* src */ = {
 			isa = PBXGroup;
 			children = (
-<<<<<<< HEAD
 				2BDC8A70192C090400DFECF0 /* LabelManager.cpp */,
 				2BDC8A71192C090400DFECF0 /* LabelRenderer.cpp */,
 				2BDC8A61192A9E3800DFECF0 /* FontTextureManager.cpp */,
@@ -2286,199 +1258,10 @@
 				2B35674118D762A700EF8DB1 /* WhirlyKitView.cpp */,
 				2B35674218D762A700EF8DB1 /* WhirlyVector.cpp */,
 				2B3836AA18625C9200467ABD /* glwrapper.cpp */,
-=======
-				2B35A8521337CC3B0047C705 /* OpenGL Utils */,
-				2B3890BF12DF8F87006FC3A1 /* Cocoa Utils */,
-				2BCABA6612F8D9FC0049D73C /* geometry utils */,
-				2BA8FFDE1540E5F100AEA53C /* coordinate systems */,
-				2B3890A712DF8C90006FC3A1 /* rendering */,
-				2BE6EE5312E4F3D100415490 /* interaction */,
-				2BCABA6712F8DA280049D73C /* scene & view */,
-				2BD0E69013254DCA00CD95A8 /* data */,
-				2BA2329017986AD40063CC84 /* managers */,
-				2B951D9712F09EEC005003AE /* layers & loaders */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 			);
 			path = src;
 			sourceTree = "<group>";
 		};
-<<<<<<< HEAD
-=======
-		2BCABA5912F8D6DD0049D73C /* geometry utils */ = {
-			isa = PBXGroup;
-			children = (
-				2BC53FE112DE23BA00778431 /* WhirlyVector.h */,
-				2B3A36E412E63F9500698DA1 /* WhirlyGeometry.h */,
-				2BEFDE95149966D400C63326 /* GridClipper.h */,
-				2BEFDE96149966D400C63326 /* Tesselator.h */,
-				2BA2BB76153E08F800DAB382 /* Quadtree.h */,
-			);
-			name = "geometry utils";
-			sourceTree = "<group>";
-		};
-		2BCABA5A12F8D7070049D73C /* scene */ = {
-			isa = PBXGroup;
-			children = (
-				2BB1F07E130098E6001F33CD /* Identifiable.h */,
-				2BB1F08613009AC3001F33CD /* Texture.h */,
-				2BB071831676B66300DE387D /* BufferBuilder.h */,
-				2BCABAA912F8E0850049D73C /* Drawable.h */,
-				2B58C694144543DB00EEF3C3 /* Generator.h */,
-				2BCABAAB12F8E0920049D73C /* Cullable.h */,
-				2BC53FDC12DE23BA00778431 /* Scene.h */,
-				2BC53FDE12DE23BA00778431 /* TextureGroup.h */,
-				2B66298013417DF700A78F16 /* TextureAtlas.h */,
-				2BB9A8B016DFFF060069E19C /* DynamicTextureAtlas.h */,
-				2B8B95ED16E80FD50039DD08 /* BigDrawable.h */,
-				2B8B95EE16E80FD50039DD08 /* DynamicDrawableAtlas.h */,
-				2B40467715F9B4CB00937923 /* ActiveModel.h */,
-			);
-			name = scene;
-			sourceTree = "<group>";
-		};
-		2BCABA6612F8D9FC0049D73C /* geometry utils */ = {
-			isa = PBXGroup;
-			children = (
-				2B3A36E512E63F9500698DA1 /* WhirlyGeometry.mm */,
-				2B95192E12EF4417005003AE /* WhirlyVector.mm */,
-				2BEFDE99149966F300C63326 /* GridClipper.mm */,
-				2BEFDE9A149966F300C63326 /* Tesselator.mm */,
-				2BEFDEA114997C0400C63326 /* clipper.cpp */,
-				2BA2BB8C153E107100DAB382 /* Quadtree.mm */,
-			);
-			name = "geometry utils";
-			sourceTree = "<group>";
-		};
-		2BCABA6712F8DA280049D73C /* scene & view */ = {
-			isa = PBXGroup;
-			children = (
-				2B4504B614BCB7EA00C99306 /* WhirlyKitView.mm */,
-				2BB1F08013009935001F33CD /* Identifiable.mm */,
-				2BB1F08813009B17001F33CD /* Texture.mm */,
-				2BB071851676B67D00DE387D /* BufferBuilder.mm */,
-				2BCABA9912F8DEF40049D73C /* Drawable.mm */,
-				2B58C6921445439700EEF3C3 /* Generator.mm */,
-				2BCABA9C12F8DEFF0049D73C /* Cullable.mm */,
-				2B5E63D8152283B20007904C /* Scene.mm */,
-				2BC53FEA12DE23D400778431 /* GlobeScene.mm */,
-				2B389AA212E112D9006FC3A1 /* GlobeView.mm */,
-				2B194426138B0CD000E8FA42 /* AnimateRotation.mm */,
-				2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */,
-				2BC53FEC12DE23D400778431 /* TextureGroup.mm */,
-				2B66298213418D9A00A78F16 /* TextureAtlas.mm */,
-				2BB9A8B216DFFF100069E19C /* DynamicTextureAtlas.mm */,
-				2B8B95F116E80FED0039DD08 /* BigDrawable.mm */,
-				2B8B95F216E80FED0039DD08 /* DynamicDrawableAtlas.mm */,
-				2B7EF31E15FF96D100D4079F /* MaplyView.mm */,
-				2B4730181732DF0E000507E9 /* MaplyFlatView.mm */,
-			);
-			name = "scene & view";
-			sourceTree = "<group>";
-		};
-		2BCF39DE14BB814F006B0FC0 /* view */ = {
-			isa = PBXGroup;
-			children = (
-				2B389AA112E112D9006FC3A1 /* GlobeView.h */,
-				2B194424138B0BC100E8FA42 /* AnimateRotation.h */,
-				2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */,
-			);
-			name = view;
-			sourceTree = "<group>";
-		};
-		2BCF39DF14BB8E3F006B0FC0 /* WhirlyKit */ = {
-			isa = PBXGroup;
-			children = (
-				2BCABA5912F8D6DD0049D73C /* geometry utils */,
-				2BA8FFDB1540E12300AEA53C /* coordinate systems */,
-				2B35A84F1337CC0F0047C705 /* OpenGL Utils */,
-				2B3890BE12DF8F69006FC3A1 /* Cocoa Utils */,
-				2B3890A612DF8C8B006FC3A1 /* rendering */,
-				2BD0E68513254D4D00CD95A8 /* data */,
-				2B4504AE14BBACF900C99306 /* view */,
-				2BCABA5A12F8D7070049D73C /* scene */,
-				2B4504B514BCB6AF00C99306 /* interaction */,
-				2BA2328517986A9F0063CC84 /* managers */,
-				2B951D9612F09EE1005003AE /* layers & generators */,
-			);
-			name = WhirlyKit;
-			sourceTree = "<group>";
-		};
-		2BCF39E014BB8EA2006B0FC0 /* WhirlyGlobe */ = {
-			isa = PBXGroup;
-			children = (
-				2BCF39E114BB8EC2006B0FC0 /* geometry utils */,
-				2BE6EE5212E4F3BE00415490 /* interaction */,
-				2BCF39DE14BB814F006B0FC0 /* view */,
-				2B5E6363151C059F0007904C /* scene */,
-				2BCF39E214BB8EF9006B0FC0 /* rendering */,
-				2BCF39E314BB8F16006B0FC0 /* layers */,
-			);
-			name = WhirlyGlobe;
-			sourceTree = "<group>";
-		};
-		2BCF39E114BB8EC2006B0FC0 /* geometry utils */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = "geometry utils";
-			sourceTree = "<group>";
-		};
-		2BCF39E214BB8EF9006B0FC0 /* rendering */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = rendering;
-			sourceTree = "<group>";
-		};
-		2BCF39E314BB8F16006B0FC0 /* layers */ = {
-			isa = PBXGroup;
-			children = (
-				2B40467A15F9B4D300937923 /* GeometryLayer.h */,
-				2BA2BB86153E0C6200DAB382 /* GlobeLayerViewWatcher.h */,
-				2BEFDE90149963A800C63326 /* LoftLayer.h */,
-				2BC53FDD12DE23BA00778431 /* SphericalEarthLayer.h */,
-				2BF401BE15C0B49500B5BFD9 /* UpdateDisplayLayer.h */,
-				2BF401BF15C0B49500B5BFD9 /* ViewPlacementGenerator.h */,
-			);
-			name = layers;
-			sourceTree = "<group>";
-		};
-		2BCF39E414BB8FD6006B0FC0 /* Maply */ = {
-			isa = PBXGroup;
-			children = (
-				2B7EF5261603EF1A00D4079F /* interaction */,
-				2B7EF5271603EF2700D4079F /* view */,
-				2B7EF5241603EF0A00D4079F /* scene */,
-				2B7EF5251603EF1200D4079F /* layers */,
-			);
-			name = Maply;
-			sourceTree = "<group>";
-		};
-		2BD0E68513254D4D00CD95A8 /* data */ = {
-			isa = PBXGroup;
-			children = (
-				2BB2591F177A041E00770619 /* ElevationChunk.h */,
-				2B65F90B137DBEE4004326A9 /* sqlhelpers.h */,
-				2BD0E68613254D7300CD95A8 /* VectorData.h */,
-				2B8D92C8137C958000015833 /* VectorDatabase.h */,
-				2BCAB9E712F8CD440049D73C /* ShapeReader.h */,
-			);
-			name = data;
-			sourceTree = "<group>";
-		};
-		2BD0E69013254DCA00CD95A8 /* data */ = {
-			isa = PBXGroup;
-			children = (
-				2BB25927177A044300770619 /* ElevationChunk.mm */,
-				2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */,
-				2BD0E69213254DF700CD95A8 /* VectorData.mm */,
-				2BCABC1012FA1F480049D73C /* ShapeReader.mm */,
-				2B65F8F9137DA864004326A9 /* VectorDatabase.mm */,
-			);
-			name = data;
-			sourceTree = "<group>";
-		};
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 		2BDC4A151333EFE000E25283 /* WhirlyGlobeLib-iphonesim */ = {
 			isa = PBXGroup;
 			children = (
@@ -2527,45 +1310,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-<<<<<<< HEAD
-=======
-		2BE6EE5212E4F3BE00415490 /* interaction */ = {
-			isa = PBXGroup;
-			children = (
-				2BE6EE5412E4F44900415490 /* PinchDelegate.h */,
-				2BE6EE7612E4F95C00415490 /* SwipeDelegate.h */,
-				2B3A341E12E605C800698DA1 /* PanDelegate.h */,
-				2B076B31133951DE009D931D /* LongPressDelegate.h */,
-				2B44187713A2D9BA00514EDE /* RotateDelegate.h */,
-				2BCAC2F512FB6E570049D73C /* TapDelegate.h */,
-				2BCAC33112FB754D0049D73C /* TapMessage.h */,
-			);
-			name = interaction;
-			sourceTree = "<group>";
-		};
-		2BE6EE5312E4F3D100415490 /* interaction */ = {
-			isa = PBXGroup;
-			children = (
-				2BA726DC1778EB20006C710B /* MaplyAnimateFlat.mm */,
-				2BE6EE5612E4F48800415490 /* PinchDelegate.mm */,
-				2BE6EE7712E4F95C00415490 /* SwipeDelegate.mm */,
-				2B3A341F12E605C800698DA1 /* PanDelegate.mm */,
-				2BCAC2F712FB6EF70049D73C /* TapDelegate.mm */,
-				2BCAC33312FB77FB0049D73C /* TapMessage.mm */,
-				2B076B33133952C5009D931D /* LongPressDelegate.mm */,
-				2B44187B13A2DA3C00514EDE /* RotateDelegate.mm */,
-				2BE886D0160A863700E92A0A /* MaplyTapMessage.mm */,
-				2B03701F14CA01C600A51AC4 /* MaplyTapDelegate.mm */,
-				2B4504E014BD126400C99306 /* MaplyPinchDelegate.mm */,
-				2B7EF31C15FF965400D4079F /* MaplyPanDelegate.mm */,
-				2B03701714C9FDDE00A51AC4 /* MaplyAnimateTranslateMomentum.mm */,
-				2B03701814C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm */,
-				E594E38B17E81434008D5741 /* MaplyRotateDelegate.mm */,
-			);
-			name = interaction;
-			sourceTree = "<group>";
-		};
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 		32C88DFF0371C24200C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
@@ -2581,7 +1325,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-<<<<<<< HEAD
 				2B3567E518D762BF00EF8DB1 /* GlobeMath.h in Headers */,
 				2B3567DD18D762BF00EF8DB1 /* Cullable.h in Headers */,
 				2B3836A9186244DC00467ABD /* glwrapper.h in Headers */,
@@ -2600,50 +1343,10 @@
 				2B3567E618D762BF00EF8DB1 /* GlobeScene.h in Headers */,
 				2B35683918D762BF00EF8DB1 /* VectorManager.h in Headers */,
 				2B3567E118D762BF00EF8DB1 /* DynamicDrawableAtlas.h in Headers */,
-=======
-				2B3A0D42133405780085EF43 /* WhirlyGlobe.h in Headers */,
-				2B3A0D43133405780085EF43 /* WhirlyVector.h in Headers */,
-				2B3A0D44133405780085EF43 /* WhirlyGeometry.h in Headers */,
-				2B3A0D45133405780085EF43 /* GlobeMath.h in Headers */,
-				2B3A0D46133405780085EF43 /* UIImage+Stuff.h in Headers */,
-				2B3A0D47133405780085EF43 /* NSDictionary+Stuff.h in Headers */,
-				2B3A0D48133405780085EF43 /* UIColor+Stuff.h in Headers */,
-				2B3A0D4B133405780085EF43 /* EAGLView.h in Headers */,
-				2B3A0D4C133405780085EF43 /* PinchDelegate.h in Headers */,
-				2B3A0D4D133405780085EF43 /* SwipeDelegate.h in Headers */,
-				2B3A0D4E133405780085EF43 /* PanDelegate.h in Headers */,
-				2B3A0D4F133405780085EF43 /* TapMessage.h in Headers */,
-				2B3A0D50133405780085EF43 /* TapDelegate.h in Headers */,
-				2B3A0D51133405780085EF43 /* VectorData.h in Headers */,
-				2B3A0D52133405780085EF43 /* ShapeReader.h in Headers */,
-				2B3A0D53133405780085EF43 /* Identifiable.h in Headers */,
-				2B3A0D54133405780085EF43 /* Texture.h in Headers */,
-				2B3A0D55133405780085EF43 /* Drawable.h in Headers */,
-				2B3A0D56133405780085EF43 /* Cullable.h in Headers */,
-				2B3A0D57133405780085EF43 /* Scene.h in Headers */,
-				2B3A0D58133405780085EF43 /* GlobeView.h in Headers */,
-				2B3A0D59133405780085EF43 /* TextureGroup.h in Headers */,
-				2B3A0D5A133405780085EF43 /* LayerThread.h in Headers */,
-				2B3A0D5B133405780085EF43 /* DataLayer.h in Headers */,
-				2B3A0D5C133405780085EF43 /* SphericalEarthLayer.h in Headers */,
-				2B3A0D5D133405780085EF43 /* GridLines.h in Headers */,
-				2B3A0D5F133405780085EF43 /* VectorLayer.h in Headers */,
-				2B3A0D60133405780085EF43 /* LabelLayer.h in Headers */,
-				2B3A0D41133405700085EF43 /* shapefil.h in Headers */,
-				2B44187913A2D9BA00514EDE /* RotateDelegate.h in Headers */,
-				2B40467815F9B4CB00937923 /* ActiveModel.h in Headers */,
-				2B40467B15F9B4D300937923 /* GeometryLayer.h in Headers */,
-				2B7EF31815FF95CF00D4079F /* MaplyScene.h in Headers */,
-				2B7EF42D16025D8C00D4079F /* emess.h in Headers */,
-				2B7EF43016025D8C00D4079F /* geocent.h in Headers */,
-				2B7EF43516025D8C00D4079F /* geodesic.h in Headers */,
-				2B9BE6AD180872A0001D9454 /* ScreenImportance.h in Headers */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF43D16025D8C00D4079F /* org_proj4_Projections.h in Headers */,
 				2B7EF48216025D8C00D4079F /* pj_list.h in Headers */,
 				2B7EF4C316025D8C00D4079F /* proj_api.h in Headers */,
 				2B7EF4C816025D8C00D4079F /* projects.h in Headers */,
-<<<<<<< HEAD
 				2B3567E218D762BF00EF8DB1 /* DynamicTextureAtlas.h in Headers */,
 				2B009CED186102E4001E2EE8 /* mempool.h in Headers */,
 				2B35683818D762BF00EF8DB1 /* VectorData.h in Headers */,
@@ -2735,89 +1438,6 @@
 				2B009CFF186102E4001E2EE8 /* JSONMemory.h in Headers */,
 				2B3567DB18D762BF00EF8DB1 /* BigDrawable.h in Headers */,
 				2B35683D18D762BF00EF8DB1 /* WhirlyKitView.h in Headers */,
-=======
-				2B7EF50E1603D76100D4079F /* QuadDisplayLayer.h in Headers */,
-				2B7EF50F1603D76100D4079F /* TileQuadLoader.h in Headers */,
-				2B7EF5191603E01500D4079F /* MBTileQuadSource.h in Headers */,
-				2B7EF51A1603E01500D4079F /* NetworkTileQuadSource.h in Headers */,
-				2B7EF51B1603E01500D4079F /* SphericalEarthQuadLayer.h in Headers */,
-				2B7EF5231603EEFB00D4079F /* MaplyLayerViewWatcher.h in Headers */,
-				2BE886CF160A855F00E92A0A /* MaplyTapMessage.h in Headers */,
-				2BD1158D1615979300A4BF5D /* ShapeLayer.h in Headers */,
-				2B92EF6516370B2000C5165F /* PerformanceTimer.h in Headers */,
-				2B92EF6716370B2700C5165F /* SceneRendererES.h in Headers */,
-				2B92EF911637530C00C5165F /* SceneRendererES2.h in Headers */,
-				2B92EF9D163760C300C5165F /* OpenGLES2Program.h in Headers */,
-				2B7AD8B01649DD06006C9E75 /* Lighting.h in Headers */,
-				2BB0717F1676B5EE00DE387D /* SphericalEarthChunkLayer.h in Headers */,
-				2BB071821676B5FE00DE387D /* LayoutLayer.h in Headers */,
-				2BB071841676B66300DE387D /* BufferBuilder.h in Headers */,
-				2BB9A8B116DFFF060069E19C /* DynamicTextureAtlas.h in Headers */,
-				2B8B95EF16E80FD50039DD08 /* BigDrawable.h in Headers */,
-				2B8B95F016E80FD50039DD08 /* DynamicDrawableAtlas.h in Headers */,
-				2BEA1E4E171E0E0F0039F1A4 /* FontTextureManager.h in Headers */,
-				2BEA1E4F171E0E0F0039F1A4 /* LabelRenderer.h in Headers */,
-				2BEA1E50171E0E0F0039F1A4 /* ShapeDrawableBuilder.h in Headers */,
-				2B308B11171F638F006D7273 /* SelectionManager.h in Headers */,
-				2B4730171732DEF9000507E9 /* MaplyFlatView.h in Headers */,
-				2B4AE3B417662D6800850F3F /* JSONOptions.h in Headers */,
-				2B4AE3B517662D6800850F3F /* libjson.h in Headers */,
-				2B4AE3E21766610300850F3F /* internalJSONNode.h in Headers */,
-				2B4AE3E31766610300850F3F /* JSON_Base64.h in Headers */,
-				2B4AE3E51766610300850F3F /* JSONAllocator.h in Headers */,
-				2B4AE3E71766610300850F3F /* JSONChildren.h in Headers */,
-				2B4AE3E91766610300850F3F /* JSONDebug.h in Headers */,
-				2B4AE3EA1766610900850F3F /* JSONDefs.h in Headers */,
-				2B4AE3EB1766610900850F3F /* JSONGlobals.h in Headers */,
-				2B4AE3EE1766610900850F3F /* JSONMemory.h in Headers */,
-				2B4AE3EF1766610900850F3F /* JSONMemoryPool.h in Headers */,
-				2B4AE3F11766610900850F3F /* JSONNode.h in Headers */,
-				2B4AE3F41766610900850F3F /* JSONPreparse.h in Headers */,
-				2B4AE3F51766610900850F3F /* JSONSharedString.h in Headers */,
-				2B4AE3F61766610900850F3F /* JSONSingleton.h in Headers */,
-				2B4AE3F71766610900850F3F /* JSONStats.h in Headers */,
-				2B4AE3F91766610900850F3F /* JSONStream.h in Headers */,
-				2B4AE3FB1766610900850F3F /* JSONValidator.h in Headers */,
-				2B4AE3FD1766610900850F3F /* JSONWorker.h in Headers */,
-				2B4AE4001766610900850F3F /* NumberToString.h in Headers */,
-				2B08059617EB955C0016C813 /* LoadedTile.h in Headers */,
-				2BA726DB1778EB11006C710B /* MaplyAnimateFlat.h in Headers */,
-				2BB25920177A041E00770619 /* ElevationChunk.h in Headers */,
-				2BB25924177A042F00770619 /* BillboardLayer.h in Headers */,
-				2BB25925177A042F00770619 /* BillboardDrawable.h in Headers */,
-				2BB25926177A042F00770619 /* SceneGraphManager.h in Headers */,
-				2BA2325617984F510063CC84 /* glues.h in Headers */,
-				2BA2325817984F510063CC84 /* glues_error.h in Headers */,
-				2BA2325A17984F510063CC84 /* glues_mipmap.h in Headers */,
-				2BA2325C17984F510063CC84 /* glues_project.h in Headers */,
-				2BA2325E17984F510063CC84 /* glues_quad.h in Headers */,
-				2BA2326017984F510063CC84 /* glues_registry.h in Headers */,
-				2BA2326217984F510063CC84 /* dict-list.h in Headers */,
-				2BA2326417984F510063CC84 /* dict.h in Headers */,
-				2B4AFB881803152300C3F948 /* TileQuadOfflineRenderer.h in Headers */,
-				2BA2326617984F510063CC84 /* geom.h in Headers */,
-				2BA2326817984F510063CC84 /* memalloc.h in Headers */,
-				2BA2326A17984F510063CC84 /* mesh.h in Headers */,
-				2BA2326C17984F510063CC84 /* normal.h in Headers */,
-				2BA2326D17984F510063CC84 /* priorityq-heap.h in Headers */,
-				2BA2326F17984F510063CC84 /* priorityq-sort.h in Headers */,
-				2BA2327117984F510063CC84 /* priorityq.h in Headers */,
-				2BA2327317984F510063CC84 /* render.h in Headers */,
-				2BA2327517984F510063CC84 /* sweep.h in Headers */,
-				2BA2327717984F510063CC84 /* tess.h in Headers */,
-				2BA2327917984F510063CC84 /* tessmono.h in Headers */,
-				2BA2327B179859F30063CC84 /* SDL_opengles.h in Headers */,
-				2BA2328B17986ACA0063CC84 /* LabelManager.h in Headers */,
-				2BA2328C17986ACA0063CC84 /* LayoutManager.h in Headers */,
-				2BA2328D17986ACA0063CC84 /* MarkerManager.h in Headers */,
-				2BA2328E17986ACA0063CC84 /* ShapeManager.h in Headers */,
-				2BA2328F17986ACA0063CC84 /* VectorManager.h in Headers */,
-				2B665469179F271200FB4427 /* SphericalEarthChunkManager.h in Headers */,
-				2BB1786C17A6C6C400AD0614 /* DefaultShaderPrograms.h in Headers */,
-				2BB1787417A8313E00AD0614 /* BillboardManager.h in Headers */,
-				2BB1787517A8313E00AD0614 /* ParticleSystemManager.h in Headers */,
-				2BB1787617A8313E00AD0614 /* LoftManager.h in Headers */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2874,42 +1494,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-<<<<<<< HEAD
 				2B35676018D762A700EF8DB1 /* Quadtree.cpp in Sources */,
-=======
-				2BDC4AC6133404D400E25283 /* UIImage+Stuff.mm in Sources */,
-				2BDC4AC7133404D400E25283 /* NSDictionary+Stuff.m in Sources */,
-				2BDC4AC8133404D400E25283 /* UIColor+Stuff.mm in Sources */,
-				2BDC4AC9133404D400E25283 /* WhirlyGeometry.mm in Sources */,
-				2BDC4ACA133404D400E25283 /* WhirlyVector.mm in Sources */,
-				2BDC4ACB133404D400E25283 /* GlobeMath.mm in Sources */,
-				2BDC4ACD133404D400E25283 /* EAGLView.mm in Sources */,
-				2BDC4ACE133404D400E25283 /* PinchDelegate.mm in Sources */,
-				2BDC4ACF133404D400E25283 /* SwipeDelegate.mm in Sources */,
-				2BDC4AD0133404D400E25283 /* PanDelegate.mm in Sources */,
-				2BDC4AD1133404D400E25283 /* TapDelegate.mm in Sources */,
-				2BDC4AD2133404D400E25283 /* TapMessage.mm in Sources */,
-				2BDC4AD3133404D400E25283 /* Identifiable.mm in Sources */,
-				2BDC4AD4133404D400E25283 /* Texture.mm in Sources */,
-				2BDC4AD5133404D400E25283 /* Drawable.mm in Sources */,
-				2BDC4AD6133404D400E25283 /* Cullable.mm in Sources */,
-				2BDC4AD7133404D400E25283 /* GlobeScene.mm in Sources */,
-				2BDC4AD8133404D400E25283 /* GlobeView.mm in Sources */,
-				2BDC4AD9133404D400E25283 /* TextureGroup.mm in Sources */,
-				2BDC4ADA133404D400E25283 /* VectorData.mm in Sources */,
-				2BDC4ADB133404D400E25283 /* ShapeReader.mm in Sources */,
-				2BDC4ADC133404D400E25283 /* LayerThread.mm in Sources */,
-				2BDC4ADD133404D400E25283 /* SphericalEarthLayer.mm in Sources */,
-				2BDC4ADE133404D400E25283 /* GridLines.mm in Sources */,
-				2BDC4ADF133404D400E25283 /* VectorLayer.mm in Sources */,
-				2BDC4AE0133404D400E25283 /* LabelLayer.mm in Sources */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2BDC4AC5133404CA00E25283 /* safileio.c in Sources */,
 				2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */,
 				2B35675718D762A700EF8DB1 /* MaplyScene.cpp in Sources */,
 				2B35676818D762A700EF8DB1 /* ShapeReader.cpp in Sources */,
 				2BDC4AC4133404C600E25283 /* shpopen.c in Sources */,
-<<<<<<< HEAD
 				2B7EF42516025D8C00D4079F /* aasincos.c in Sources */,
 				2B7EF42616025D8C00D4079F /* adjlon.c in Sources */,
 				2B7EF42716025D8C00D4079F /* bch2bps.c in Sources */,
@@ -2923,53 +1513,6 @@
 				2B7EF42C16025D8C00D4079F /* emess.c in Sources */,
 				2B7EF42F16025D8C00D4079F /* geocent.c in Sources */,
 				2B35675D18D762A700EF8DB1 /* PerformanceTimer.cpp in Sources */,
-=======
-				2B35A8551337CC5F0047C705 /* GLUtils.mm in Sources */,
-				2B076B35133952C6009D931D /* LongPressDelegate.mm in Sources */,
-				2B66298413418D9B00A78F16 /* TextureAtlas.mm in Sources */,
-				2B65F8FB137DA864004326A9 /* VectorDatabase.mm in Sources */,
-				2B65F90E137DBEF3004326A9 /* sqlhelpers.mm in Sources */,
-				2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */,
-				2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */,
-				2B44187C13A2DA3C00514EDE /* RotateDelegate.mm in Sources */,
-				2B58C6811443C00400EEF3C3 /* ParticleSystemLayer.mm in Sources */,
-				2B08059817EB95A40016C813 /* LoadedTile.mm in Sources */,
-				2B58C6931445439700EEF3C3 /* Generator.mm in Sources */,
-				2B58C6C41446A37900EEF3C3 /* ParticleGenerator.mm in Sources */,
-				2B93C818145232C800D768BA /* MarkerLayer.mm in Sources */,
-				2B80455814990A1A003FFABE /* MarkerGenerator.mm in Sources */,
-				2BEFDE931499643000C63326 /* LoftLayer.mm in Sources */,
-				2BEFDE9B149966F300C63326 /* GridClipper.mm in Sources */,
-				2BEFDE9C149966F300C63326 /* Tesselator.mm in Sources */,
-				2BEFDEA214997C0400C63326 /* clipper.cpp in Sources */,
-				2B4504B714BCB7EA00C99306 /* WhirlyKitView.mm in Sources */,
-				2B4504B914BCC29D00C99306 /* FlatMath.mm in Sources */,
-				2B4504E114BD126400C99306 /* MaplyPinchDelegate.mm in Sources */,
-				2B03701914C9FDDE00A51AC4 /* MaplyAnimateTranslateMomentum.mm in Sources */,
-				2B03701A14C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm in Sources */,
-				2B03702014CA01C600A51AC4 /* MaplyTapDelegate.mm in Sources */,
-				2B5E63D9152283B20007904C /* Scene.mm in Sources */,
-				2BA2BB8A153E106000DAB382 /* GlobeLayerViewWatcher.mm in Sources */,
-				2BA2BB8B153E106000DAB382 /* LayerViewWatcher.mm in Sources */,
-				2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */,
-				2BA8FFE01540E60800AEA53C /* SphericalMercator.mm in Sources */,
-				2B2A258E1559B40800137807 /* ScreenSpaceGenerator.mm in Sources */,
-				2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */,
-				2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */,
-				2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */,
-				2B40467D15F9B4F400937923 /* GeometryLayer.mm in Sources */,
-				2B7EF31B15FF95E900D4079F /* MaplyScene.mm in Sources */,
-				2B7EF31D15FF965400D4079F /* MaplyPanDelegate.mm in Sources */,
-				2B7EF31F15FF96D100D4079F /* MaplyView.mm in Sources */,
-				2B7EF42516025D8C00D4079F /* aasincos.c in Sources */,
-				2B7EF42616025D8C00D4079F /* adjlon.c in Sources */,
-				2B7EF42716025D8C00D4079F /* bch2bps.c in Sources */,
-				2B7EF42816025D8C00D4079F /* bchgen.c in Sources */,
-				2B7EF42916025D8C00D4079F /* biveval.c in Sources */,
-				2B7EF42B16025D8C00D4079F /* dmstor.c in Sources */,
-				2B7EF42C16025D8C00D4079F /* emess.c in Sources */,
-				2B7EF42F16025D8C00D4079F /* geocent.c in Sources */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF43116025D8C00D4079F /* geod_for.c in Sources */,
 				2B7EF43216025D8C00D4079F /* geod_inv.c in Sources */,
 				2B7EF43316025D8C00D4079F /* geod_set.c in Sources */,
@@ -2977,10 +1520,7 @@
 				2B7EF43916025D8C00D4079F /* nad_cvt.c in Sources */,
 				2B7EF43A16025D8C00D4079F /* nad_init.c in Sources */,
 				2B7EF43B16025D8C00D4079F /* nad_intr.c in Sources */,
-<<<<<<< HEAD
 				2B35674918D762A700EF8DB1 /* DynamicDrawableAtlas.cpp in Sources */,
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF43F16025D8C00D4079F /* PJ_aea.c in Sources */,
 				2B7EF44016025D8C00D4079F /* PJ_aeqd.c in Sources */,
 				2B7EF44116025D8C00D4079F /* PJ_airy.c in Sources */,
@@ -2988,42 +1528,29 @@
 				2B7EF44316025D8C00D4079F /* pj_apply_gridshift.c in Sources */,
 				2B7EF44416025D8C00D4079F /* pj_apply_vgridshift.c in Sources */,
 				2B7EF44516025D8C00D4079F /* PJ_august.c in Sources */,
-<<<<<<< HEAD
 				2B35675818D762A700EF8DB1 /* MaplyView.cpp in Sources */,
 				2B7EF44616025D8C00D4079F /* pj_auth.c in Sources */,
 				2B7EF44716025D8C00D4079F /* PJ_bacon.c in Sources */,
 				2B009D171861093A001E2EE8 /* clipper.cpp in Sources */,
 				2B7EF44816025D8C00D4079F /* PJ_bipc.c in Sources */,
 				2B35677118D762A700EF8DB1 /* ViewState.cpp in Sources */,
-=======
-				2B7EF44616025D8C00D4079F /* pj_auth.c in Sources */,
-				2B7EF44716025D8C00D4079F /* PJ_bacon.c in Sources */,
-				2B7EF44816025D8C00D4079F /* PJ_bipc.c in Sources */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF44916025D8C00D4079F /* PJ_boggs.c in Sources */,
 				2B7EF44A16025D8C00D4079F /* PJ_bonne.c in Sources */,
 				2B7EF44B16025D8C00D4079F /* PJ_cass.c in Sources */,
 				2B7EF44C16025D8C00D4079F /* PJ_cc.c in Sources */,
-<<<<<<< HEAD
 				2B35677318D762A700EF8DB1 /* WhirlyKitView.cpp in Sources */,
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF44D16025D8C00D4079F /* PJ_cea.c in Sources */,
 				2B7EF44E16025D8C00D4079F /* PJ_chamb.c in Sources */,
 				2B7EF44F16025D8C00D4079F /* PJ_collg.c in Sources */,
 				2B7EF45016025D8C00D4079F /* PJ_crast.c in Sources */,
 				2B7EF45116025D8C00D4079F /* pj_ctx.c in Sources */,
-<<<<<<< HEAD
 				2B35676F18D762A700EF8DB1 /* VectorManager.cpp in Sources */,
 				2B35677418D762A700EF8DB1 /* WhirlyVector.cpp in Sources */,
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF45216025D8C00D4079F /* pj_datum_set.c in Sources */,
 				2B7EF45316025D8C00D4079F /* pj_datums.c in Sources */,
 				2B7EF45416025D8C00D4079F /* PJ_denoy.c in Sources */,
 				2B7EF45516025D8C00D4079F /* pj_deriv.c in Sources */,
 				2B7EF45616025D8C00D4079F /* PJ_eck1.c in Sources */,
-<<<<<<< HEAD
 				2B35676918D762A700EF8DB1 /* SphericalMercator.cpp in Sources */,
 				2B7EF45716025D8C00D4079F /* PJ_eck2.c in Sources */,
 				2B35677218D762A700EF8DB1 /* WhirlyGeometry.cpp in Sources */,
@@ -3038,19 +1565,10 @@
 				2B35674618D762A700EF8DB1 /* DefaultShaderPrograms.cpp in Sources */,
 				2B7EF45C16025D8C00D4079F /* pj_ellps.c in Sources */,
 				2B009D0F186102E4001E2EE8 /* JSONWriter.cpp in Sources */,
-=======
-				2B7EF45716025D8C00D4079F /* PJ_eck2.c in Sources */,
-				2B7EF45816025D8C00D4079F /* PJ_eck3.c in Sources */,
-				2B7EF45916025D8C00D4079F /* PJ_eck4.c in Sources */,
-				2B7EF45A16025D8C00D4079F /* PJ_eck5.c in Sources */,
-				2B7EF45B16025D8C00D4079F /* pj_ell_set.c in Sources */,
-				2B7EF45C16025D8C00D4079F /* pj_ellps.c in Sources */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF45D16025D8C00D4079F /* PJ_eqc.c in Sources */,
 				2B7EF45E16025D8C00D4079F /* PJ_eqdc.c in Sources */,
 				2B7EF45F16025D8C00D4079F /* pj_errno.c in Sources */,
 				2B7EF46016025D8C00D4079F /* pj_factors.c in Sources */,
-<<<<<<< HEAD
 				2B009CFE186102E4001E2EE8 /* JSONMemory.cpp in Sources */,
 				2B7EF46116025D8C00D4079F /* PJ_fahey.c in Sources */,
 				2B7EF46216025D8C00D4079F /* PJ_fouc_s.c in Sources */,
@@ -3084,28 +1602,6 @@
 				2B7EF47316025D8C00D4079F /* PJ_imw_p.c in Sources */,
 				2B35674C18D762A700EF8DB1 /* Generator.cpp in Sources */,
 				2BDC8A62192A9E3800DFECF0 /* FontTextureManager.cpp in Sources */,
-=======
-				2B7EF46116025D8C00D4079F /* PJ_fahey.c in Sources */,
-				2B7EF46216025D8C00D4079F /* PJ_fouc_s.c in Sources */,
-				2B4AFB8A1803153600C3F948 /* TileQuadOfflineRenderer.mm in Sources */,
-				2B7EF46316025D8C00D4079F /* pj_fwd.c in Sources */,
-				2B7EF46416025D8C00D4079F /* PJ_gall.c in Sources */,
-				2B7EF46516025D8C00D4079F /* pj_gauss.c in Sources */,
-				2B7EF46616025D8C00D4079F /* pj_geocent.c in Sources */,
-				2B7EF46716025D8C00D4079F /* PJ_geos.c in Sources */,
-				2B7EF46816025D8C00D4079F /* PJ_gins8.c in Sources */,
-				2B7EF46916025D8C00D4079F /* PJ_gn_sinu.c in Sources */,
-				2B7EF46A16025D8C00D4079F /* PJ_gnom.c in Sources */,
-				2B7EF46B16025D8C00D4079F /* PJ_goode.c in Sources */,
-				2B7EF46C16025D8C00D4079F /* pj_gridinfo.c in Sources */,
-				2B7EF46D16025D8C00D4079F /* pj_gridlist.c in Sources */,
-				2B7EF46E16025D8C00D4079F /* PJ_gstmerc.c in Sources */,
-				2B7EF46F16025D8C00D4079F /* PJ_hammer.c in Sources */,
-				2B7EF47016025D8C00D4079F /* PJ_hatano.c in Sources */,
-				2B7EF47116025D8C00D4079F /* PJ_healpix.c in Sources */,
-				2B7EF47216025D8C00D4079F /* PJ_igh.c in Sources */,
-				2B7EF47316025D8C00D4079F /* PJ_imw_p.c in Sources */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF47416025D8C00D4079F /* pj_init.c in Sources */,
 				2B7EF47516025D8C00D4079F /* pj_initcache.c in Sources */,
 				2B7EF47616025D8C00D4079F /* pj_inv.c in Sources */,
@@ -3116,17 +1612,12 @@
 				2B7EF47B16025D8C00D4079F /* PJ_lagrng.c in Sources */,
 				2B7EF47C16025D8C00D4079F /* PJ_larr.c in Sources */,
 				2B7EF47D16025D8C00D4079F /* PJ_lask.c in Sources */,
-<<<<<<< HEAD
-=======
-				2B9BE6AF180872AA001D9454 /* ScreenImportance.mm in Sources */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF47E16025D8C00D4079F /* pj_latlong.c in Sources */,
 				2B7EF47F16025D8C00D4079F /* PJ_lcc.c in Sources */,
 				2B7EF48016025D8C00D4079F /* PJ_lcca.c in Sources */,
 				2B7EF48116025D8C00D4079F /* pj_list.c in Sources */,
 				2B7EF48316025D8C00D4079F /* pj_log.c in Sources */,
 				2B7EF48416025D8C00D4079F /* PJ_loxim.c in Sources */,
-<<<<<<< HEAD
 				2B35674718D762A700EF8DB1 /* Dictionary.cpp in Sources */,
 				2B7EF48516025D8C00D4079F /* PJ_lsat.c in Sources */,
 				2B7EF48616025D8C00D4079F /* pj_malloc.c in Sources */,
@@ -3137,46 +1628,28 @@
 				2B3836AB18625C9200467ABD /* glwrapper.cpp in Sources */,
 				2B7EF48A16025D8C00D4079F /* PJ_merc.c in Sources */,
 				2B35675318D762A700EF8DB1 /* Identifiable.cpp in Sources */,
-=======
-				2B7EF48516025D8C00D4079F /* PJ_lsat.c in Sources */,
-				2B7EF48616025D8C00D4079F /* pj_malloc.c in Sources */,
-				2B7EF48716025D8C00D4079F /* PJ_mbt_fps.c in Sources */,
-				2B7EF48816025D8C00D4079F /* PJ_mbtfpp.c in Sources */,
-				2B7EF48916025D8C00D4079F /* PJ_mbtfpq.c in Sources */,
-				2B7EF48A16025D8C00D4079F /* PJ_merc.c in Sources */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF48B16025D8C00D4079F /* PJ_mill.c in Sources */,
 				2B7EF48C16025D8C00D4079F /* pj_mlfn.c in Sources */,
 				2B7EF48D16025D8C00D4079F /* PJ_mod_ster.c in Sources */,
 				2B7EF48E16025D8C00D4079F /* PJ_moll.c in Sources */,
 				2B7EF48F16025D8C00D4079F /* pj_msfn.c in Sources */,
-<<<<<<< HEAD
 				2B35675018D762A700EF8DB1 /* GlobeViewState.cpp in Sources */,
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF49016025D8C00D4079F /* pj_mutex.c in Sources */,
 				2B7EF49116025D8C00D4079F /* PJ_natearth.c in Sources */,
 				2B7EF49216025D8C00D4079F /* PJ_nell_h.c in Sources */,
 				2B7EF49316025D8C00D4079F /* PJ_nell.c in Sources */,
-<<<<<<< HEAD
 				2B35676518D762A700EF8DB1 /* ScreenImportance.cpp in Sources */,
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF49416025D8C00D4079F /* PJ_nocol.c in Sources */,
 				2B7EF49516025D8C00D4079F /* PJ_nsper.c in Sources */,
 				2B7EF49616025D8C00D4079F /* PJ_nzmg.c in Sources */,
 				2B7EF49716025D8C00D4079F /* PJ_ob_tran.c in Sources */,
-<<<<<<< HEAD
 				2B009D03186102E4001E2EE8 /* JSONNode_Mutex.cpp in Sources */,
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF49816025D8C00D4079F /* PJ_ocea.c in Sources */,
 				2B7EF49916025D8C00D4079F /* PJ_oea.c in Sources */,
 				2B7EF49A16025D8C00D4079F /* PJ_omerc.c in Sources */,
 				2B7EF49B16025D8C00D4079F /* pj_open_lib.c in Sources */,
 				2B7EF49C16025D8C00D4079F /* PJ_ortho.c in Sources */,
 				2B7EF49D16025D8C00D4079F /* pj_param.c in Sources */,
-<<<<<<< HEAD
 				2B009D09186102E4001E2EE8 /* JSONStream.cpp in Sources */,
 				2B35674518D762A700EF8DB1 /* Cullable.cpp in Sources */,
 				2B7EF49E16025D8C00D4079F /* pj_phi2.c in Sources */,
@@ -3186,18 +1659,11 @@
 				2B35676218D762A700EF8DB1 /* Scene.cpp in Sources */,
 				2B7EF4A116025D8C00D4079F /* PJ_putp2.c in Sources */,
 				2B35675218D762A700EF8DB1 /* GridClipper.cpp in Sources */,
-=======
-				2B7EF49E16025D8C00D4079F /* pj_phi2.c in Sources */,
-				2B7EF49F16025D8C00D4079F /* PJ_poly.c in Sources */,
-				2B7EF4A016025D8C00D4079F /* pj_pr_list.c in Sources */,
-				2B7EF4A116025D8C00D4079F /* PJ_putp2.c in Sources */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF4A216025D8C00D4079F /* PJ_putp3.c in Sources */,
 				2B7EF4A316025D8C00D4079F /* PJ_putp4p.c in Sources */,
 				2B7EF4A416025D8C00D4079F /* PJ_putp5.c in Sources */,
 				2B7EF4A516025D8C00D4079F /* PJ_putp6.c in Sources */,
 				2B7EF4A616025D8C00D4079F /* pj_qsfn.c in Sources */,
-<<<<<<< HEAD
 				2B35674A18D762A700EF8DB1 /* DynamicTextureAtlas.cpp in Sources */,
 				2B7EF4A716025D8C00D4079F /* pj_release.c in Sources */,
 				2B35676E18D762A700EF8DB1 /* VectorData.cpp in Sources */,
@@ -3217,16 +1683,6 @@
 				2B35675618D762A700EF8DB1 /* MaplyFlatView.cpp in Sources */,
 				2B35676D18D762A700EF8DB1 /* TileQuadLoader.cpp in Sources */,
 				2B009CEE186102E4001E2EE8 /* internalJSONNode.cpp in Sources */,
-=======
-				2B7EF4A716025D8C00D4079F /* pj_release.c in Sources */,
-				2B7EF4A816025D8C00D4079F /* PJ_robin.c in Sources */,
-				2B7EF4A916025D8C00D4079F /* PJ_rpoly.c in Sources */,
-				2B7EF4AA16025D8C00D4079F /* PJ_sconics.c in Sources */,
-				2B7EF4AB16025D8C00D4079F /* PJ_somerc.c in Sources */,
-				2B7EF4AC16025D8C00D4079F /* PJ_stere.c in Sources */,
-				2B7EF4AD16025D8C00D4079F /* PJ_sterea.c in Sources */,
-				2B7EF4AE16025D8C00D4079F /* pj_strerrno.c in Sources */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF4AF16025D8C00D4079F /* PJ_sts.c in Sources */,
 				2B7EF4B016025D8C00D4079F /* PJ_tcc.c in Sources */,
 				2B7EF4B116025D8C00D4079F /* PJ_tcea.c in Sources */,
@@ -3239,10 +1695,7 @@
 				2B7EF4B816025D8C00D4079F /* PJ_urmfps.c in Sources */,
 				2B7EF4B916025D8C00D4079F /* pj_utils.c in Sources */,
 				2B7EF4BA16025D8C00D4079F /* PJ_vandg.c in Sources */,
-<<<<<<< HEAD
 				2B35674818D762A700EF8DB1 /* Drawable.cpp in Sources */,
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF4BB16025D8C00D4079F /* PJ_vandg2.c in Sources */,
 				2B7EF4BC16025D8C00D4079F /* PJ_vandg4.c in Sources */,
 				2B7EF4BD16025D8C00D4079F /* PJ_wag2.c in Sources */,
@@ -3250,106 +1703,35 @@
 				2B7EF4BF16025D8C00D4079F /* PJ_wag7.c in Sources */,
 				2B7EF4C016025D8C00D4079F /* PJ_wink1.c in Sources */,
 				2B7EF4C116025D8C00D4079F /* PJ_wink2.c in Sources */,
-<<<<<<< HEAD
 				2B35677018D762A700EF8DB1 /* VectorObject.cpp in Sources */,
 				2B7EF4C216025D8C00D4079F /* pj_zpoly1.c in Sources */,
 				2B009CFD186102E4001E2EE8 /* JSONIterators.cpp in Sources */,
 				2B35674D18D762A700EF8DB1 /* GlobeMath.cpp in Sources */,
-=======
-				2B7EF4C216025D8C00D4079F /* pj_zpoly1.c in Sources */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2B7EF4C416025D8C00D4079F /* proj_etmerc.c in Sources */,
 				2B7EF4C516025D8C00D4079F /* proj_mdist.c in Sources */,
 				2B7EF4C616025D8C00D4079F /* proj_rouss.c in Sources */,
 				2B7EF4C916025D8C00D4079F /* rtodms.c in Sources */,
 				2B7EF4CA16025D8C00D4079F /* vector1.c in Sources */,
-<<<<<<< HEAD
-=======
-				2B7EF5121603D77E00D4079F /* QuadDisplayLayer.mm in Sources */,
-				2B7EF5131603D77E00D4079F /* TileQuadLoader.mm in Sources */,
-				2B7EF5151603DCC500D4079F /* CoordSystem.mm in Sources */,
-				2B7EF51F1603E0AF00D4079F /* MBTileQuadSource.mm in Sources */,
-				2B7EF5201603E0AF00D4079F /* NetworkTileQuadSource.mm in Sources */,
-				2B7EF5211603E0AF00D4079F /* SphericalEarthQuadLayer.mm in Sources */,
-				2B7EF5291603F03A00D4079F /* MaplyLayerViewWatcher.mm in Sources */,
-				2BE886D1160A863700E92A0A /* MaplyTapMessage.mm in Sources */,
-				2BD11590161597A600A4BF5D /* ShapeLayer.mm in Sources */,
-				2B92EF6016370AFF00C5165F /* PerformanceTimer.mm in Sources */,
-				2B92EF6316370B0600C5165F /* SceneRendererES.mm in Sources */,
-				2B92EF941637531700C5165F /* SceneRendererES2.mm in Sources */,
-				2B92EF9F1637633F00C5165F /* OpenGLES2Program.mm in Sources */,
-				2B7AD8B31649DF80006C9E75 /* Lighting.mm in Sources */,
-				2BB071861676B67D00DE387D /* BufferBuilder.mm in Sources */,
-				2BB071891676B69400DE387D /* LayoutLayer.mm in Sources */,
-				2BB0718A1676B69400DE387D /* SphericalEarthChunkLayer.mm in Sources */,
-				2BB9A8B316DFFF100069E19C /* DynamicTextureAtlas.mm in Sources */,
-				2B8B95F316E80FED0039DD08 /* BigDrawable.mm in Sources */,
-				2B8B95F416E80FED0039DD08 /* DynamicDrawableAtlas.mm in Sources */,
-				2BEA1E54171E0E280039F1A4 /* FontTextureManager.mm in Sources */,
-				2BEA1E55171E0E280039F1A4 /* LabelRenderer.mm in Sources */,
-				2BEA1E56171E0E280039F1A4 /* ShapeDrawableBuilder.mm in Sources */,
-				2B308B13171F63B3006D7273 /* SelectionManager.mm in Sources */,
-				2B4730191732DF0E000507E9 /* MaplyFlatView.mm in Sources */,
-				2B4AE3E11766610300850F3F /* internalJSONNode.cpp in Sources */,
-				2B4AE3E41766610300850F3F /* JSONAllocator.cpp in Sources */,
-				2B4AE3E61766610300850F3F /* JSONChildren.cpp in Sources */,
-				2B4AE3E81766610300850F3F /* JSONDebug.cpp in Sources */,
-				2B4AE3EC1766610900850F3F /* JSONIterators.cpp in Sources */,
-				2B4AE3ED1766610900850F3F /* JSONMemory.cpp in Sources */,
-				2B4AE3F01766610900850F3F /* JSONNode.cpp in Sources */,
-				2B4AE3F21766610900850F3F /* JSONNode_Mutex.cpp in Sources */,
-				2B4AE3F31766610900850F3F /* JSONPreparse.cpp in Sources */,
-				2B4AE3F81766610900850F3F /* JSONStream.cpp in Sources */,
-				2B4AE3FA1766610900850F3F /* JSONValidator.cpp in Sources */,
-				2B4AE3FC1766610900850F3F /* JSONWorker.cpp in Sources */,
-				2B4AE3FE1766610900850F3F /* JSONWriter.cpp in Sources */,
-				2B4AE3FF1766610900850F3F /* libjson.cpp in Sources */,
-				2BA726DD1778EB20006C710B /* MaplyAnimateFlat.mm in Sources */,
-				2BB25928177A044300770619 /* ElevationChunk.mm in Sources */,
-				2BB2592C177A045300770619 /* BillboardLayer.mm in Sources */,
-				2BB2592D177A045300770619 /* BillboardDrawable.mm in Sources */,
-				2BB2592E177A045300770619 /* SceneGraphManager.mm in Sources */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2BA2325717984F510063CC84 /* glues_error.c in Sources */,
 				2BA2325917984F510063CC84 /* glues_mipmap.c in Sources */,
 				2BA2325B17984F510063CC84 /* glues_project.c in Sources */,
 				2BA2325D17984F510063CC84 /* glues_quad.c in Sources */,
 				2BA2325F17984F510063CC84 /* glues_registry.c in Sources */,
 				2BA2326317984F510063CC84 /* dict.c in Sources */,
-<<<<<<< HEAD
 				2B009CF3186102E4001E2EE8 /* JSONChildren.cpp in Sources */,
 				2B35676A18D762A700EF8DB1 /* Tesselator.cpp in Sources */,
 				2B35674E18D762A700EF8DB1 /* GlobeScene.cpp in Sources */,
 				2B009D10186102E4001E2EE8 /* libjson.cpp in Sources */,
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2BA2326517984F510063CC84 /* geom.c in Sources */,
 				2BA2326717984F510063CC84 /* memalloc.c in Sources */,
 				2BA2326917984F510063CC84 /* mesh.c in Sources */,
 				2BA2326B17984F510063CC84 /* normal.c in Sources */,
-<<<<<<< HEAD
 				2B009D04186102E4001E2EE8 /* JSONPreparse.cpp in Sources */,
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 				2BA2327017984F510063CC84 /* priorityq.c in Sources */,
 				2BA2327217984F510063CC84 /* render.c in Sources */,
 				2BA2327417984F510063CC84 /* sweep.c in Sources */,
 				2BA2327617984F510063CC84 /* tess.c in Sources */,
 				2BA2327817984F510063CC84 /* tessmono.c in Sources */,
-<<<<<<< HEAD
-=======
-				2BA2329617986AE90063CC84 /* LabelManager.mm in Sources */,
-				2BA2329717986AE90063CC84 /* LayoutManager.mm in Sources */,
-				2BA2329817986AE90063CC84 /* MarkerManager.mm in Sources */,
-				2BA2329917986AE90063CC84 /* ShapeManager.mm in Sources */,
-				2BA2329A17986AE90063CC84 /* VectorManager.mm in Sources */,
-				2B66546B179F272700FB4427 /* SphericalEarthChunkManager.mm in Sources */,
-				2BB1786E17A6C72600AD0614 /* DefaultShaderPrograms.mm in Sources */,
-				2BB1787A17A8315C00AD0614 /* BillboardManager.mm in Sources */,
-				2BB1787B17A8315C00AD0614 /* ParticleSystemManager.mm in Sources */,
-				2BB1787C17A8315C00AD0614 /* LoftManager.mm in Sources */,
-				E594E38C17E81434008D5741 /* MaplyRotateDelegate.mm in Sources */,
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

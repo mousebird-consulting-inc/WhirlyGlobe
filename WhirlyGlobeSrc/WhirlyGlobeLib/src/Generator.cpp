@@ -24,11 +24,7 @@
 namespace WhirlyKit
 {
     
-<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/Generator.cpp
 void GeneratorChangeRequest::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
-=======
-void GeneratorChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/Generator.mm
 {
     Generator *theGenerator = scene->getGenerator(genId);
 	if (theGenerator)

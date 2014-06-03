@@ -25,11 +25,7 @@
 #import "Drawable.h"
 #import "Scene.h"
 #import "SceneRendererES.h"
-<<<<<<< HEAD
 #import "ViewState.h"
-=======
-#import "GlobeLayerViewWatcher.h"
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 namespace WhirlyKit
 {
@@ -59,11 +55,7 @@ public:
     /// Think map icon.
     WhirlyKit::SimpleIDSet auxIDs;
     /// Location in display coordinate system
-<<<<<<< HEAD
     WhirlyKit::Point3d dispLoc;
-=======
-    WhirlyKit::Point3f dispLoc;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Size (in pixels) of the object we're laying out
     WhirlyKit::Point2f size;
     /// If we're hovering around an icon, this is its size in pixels.  Zero means its just us.
@@ -79,11 +71,6 @@ public:
     /// Options for where to place this object:  WhirlyKitLayoutPlacementLeft, WhirlyKitLayoutPlacementRight,
     ///  WhirlyKitLayoutPlacementAbove, WhirlyKitLayoutPlacementBelow
     int acceptablePlacement;
-<<<<<<< HEAD
-=======
-    /// Debugging hint
-    NSString *hint;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 };
 
 // Private fields we use for object layout
@@ -94,11 +81,7 @@ public:
     : Identifiable(theId)
     {
         currentEnable = newEnable = false;
-<<<<<<< HEAD
         offset = Point2d(MAXFLOAT,MAXFLOAT);
-=======
-        offset = Point2f(MAXFLOAT,MAXFLOAT);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         changed = true;
     }
     
@@ -110,11 +93,7 @@ public:
     // Set if it's going to be on
     bool newEnable;
     // The offset, as calculated
-<<<<<<< HEAD
     WhirlyKit::Point2d offset;
-=======
-    WhirlyKit::Point2f offset;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     // Set if we changed something during evaluation
     bool changed;
 };
@@ -148,21 +127,13 @@ public:
     void enableLayoutObjects(const SimpleIDSet &layoutObjects,bool enable);
     
     /// Run the layout logic for everything we're aware of (thread safe)
-<<<<<<< HEAD
     void updateLayout(WhirlyKit::ViewState *viewState,ChangeSet &changes);
-=======
-    void updateLayout(WhirlyKitViewState *viewState,ChangeSet &changes);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// True if we've got changes since the last update
     bool hasChanges();
         
 protected:
-<<<<<<< HEAD
     void runLayoutRules(WhirlyKit::ViewState *viewState);
-=======
-    void runLayoutRules(WhirlyKitViewState *viewState);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     pthread_mutex_t layoutLock;
     /// If non-zero the maximum number of objects we'll display at once

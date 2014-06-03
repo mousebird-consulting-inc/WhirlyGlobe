@@ -36,11 +36,7 @@ public:
     
     /// Add the given drawable to the drawable atlas.
     /// Returns true on success.  Reference the drawable by its ID.
-<<<<<<< HEAD
     bool addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled=true,SimpleIdentity destTexId=EmptyIdentity,bool *addedBigDrawable=NULL,const Point3d *center=NULL,double objSize=0.0);
-=======
-    bool addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled=true,SimpleIdentity destTexId=EmptyIdentity);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// Remove the data for a drawable by ID
     bool removeDrawable(SimpleIdentity drawId,ChangeSet &changes);
@@ -51,15 +47,12 @@ public:
     /// Enable/disable all the big drawables we're using
     void setEnableAllDrawables(bool enabled,ChangeSet &changes);
     
-<<<<<<< HEAD
     /// Change the draw priority of all the drawables we're using
     void setDrawPriorityAllDrawables(int drawPriority,ChangeSet &changes);
     
     /// Change the program ID for all the drawables we're using
     void setProgramIDAllDrawables(SimpleIdentity programID,ChangeSet &changes);
         
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Used to track the remappings we need from one set of textures to another
     class DrawTexInfo
     {
@@ -83,11 +76,7 @@ public:
     /// Pass in a target and selector to pass through to the main thread.
     /// This will be called when one or more parts of the flush have done their
     ///  thing on the main thread.  Use this to wake yourself up on another thread.
-<<<<<<< HEAD
     void swap(ChangeSet &changes,BigDrawableSwap::SwapCallback *,void *swapData);
-=======
-    void swap(ChangeSet &changes,NSObject * __weak target,SEL sel);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// Check if we're waiting on an active drawable buffer swap
     bool waitingOnSwap();

@@ -27,11 +27,7 @@ using namespace WhirlyKit;
 
 @implementation WhirlyGlobeLongPressDelegate
 {
-<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/LongPressDelegate.mm
     WhirlyGlobe::GlobeView *globeView;
-=======
-    WhirlyGlobeView *globeView;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/LongPressDelegate.mm
 }
 
 - (id)initWithGlobeView:(WhirlyGlobe::GlobeView *)inView
@@ -63,11 +59,7 @@ using namespace WhirlyKit;
 {
 	UILongPressGestureRecognizer *press = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)press.view;
-<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/LongPressDelegate.mm
 	WhirlyKit::SceneRendererES *sceneRender = glView.renderer;
-=======
-	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/LongPressDelegate.mm
 //    WhirlyKit::Scene *scene = sceneRender.scene;
     
     if (press.state == UIGestureRecognizerStateBegan)
@@ -75,16 +67,10 @@ using namespace WhirlyKit;
         // Translate that to the sphere
         // If we hit, then we'll generate a message
         Point3d hit;
-<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/LongPressDelegate.mm
         Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
         CGPoint touchLoc = [press locationInView:press.view];
         Point2f frameSize = sceneRender->getFramebufferSize();
         if (globeView->pointOnSphereFromScreen(touchLoc,&theTransform,Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor),&hit,true))
-=======
-        Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
-        CGPoint touchLoc = [press locationInView:press.view];
-        if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/LongPressDelegate.mm
         {
             WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
             msg.view = press.view;

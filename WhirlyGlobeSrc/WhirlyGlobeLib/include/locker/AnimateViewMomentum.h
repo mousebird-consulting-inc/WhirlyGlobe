@@ -27,11 +27,7 @@
 @interface AnimateViewMomentumMessage : NSObject
 
 /// The globe view this related to
-<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/include/locker/AnimateViewMomentum.h
 @property (nonatomic,readonly) WhirlyGlobe::GlobeView *globeView;
-=======
-@property (nonatomic,readonly) WhirlyGlobeView *globeView;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/include/AnimateViewMomentum.h
 
 /// When this animation will end
 @property (nonatomic,readonly) NSTimeInterval endTime;

@@ -19,21 +19,11 @@
  */
 
 #import <vector>
-<<<<<<< HEAD
 #import "glwrapper.h"
 #import "WhirlyTypes.h"
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 
-=======
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
-#import "Identifiable.h"
-#import "WhirlyVector.h"
-
-@class WhirlyKitMaterial;
-
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 namespace WhirlyKit
 {
     
@@ -72,11 +62,7 @@ public:
 // Used for sorting
 typedef struct
 {
-<<<<<<< HEAD
     bool operator()(const OpenGLESUniform *a,const OpenGLESUniform *b) const
-=======
-    bool operator()(const OpenGLESUniform *a,const OpenGLESUniform *b)
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     {
         return a->name < b->name;
     }
@@ -108,11 +94,7 @@ public:
 // Used for sorting
 typedef struct
 {
-<<<<<<< HEAD
     bool operator()(const OpenGLESAttribute *a,const OpenGLESAttribute *b) const
-=======
-    bool operator()(const OpenGLESAttribute *a,const OpenGLESAttribute *b)
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     {
         return a->name < b->name;
     }
@@ -158,14 +140,9 @@ public:
     
     /// Set the attributes associated with lighting.
     /// We'll check their last updated time against ours.
-<<<<<<< HEAD
     // Note: Porting
 //    bool setLights(NSArray *lights,CFTimeInterval lastUpdated,WhirlyKitMaterial *mat,Eigen::Matrix4f &modelMat);
     
-=======
-    bool setLights(NSArray *lights,CFTimeInterval lastUpdated,WhirlyKitMaterial *mat,Eigen::Matrix4f &modelMat);
-        
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Search for the given attribute name and return the info.  NULL on failure.
     const OpenGLESAttribute *findAttribute(const std::string &attrName);
     
@@ -187,11 +164,7 @@ protected:
     GLuint program;
     GLuint vertShader;
     GLuint fragShader;
-<<<<<<< HEAD
     TimeInterval lightsLastUpdated;
-=======
-    CFTimeInterval lightsLastUpdated;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     // Uniforms sorted for fast lookup
     std::set<OpenGLESUniform *,UniformNameSortStruct> uniforms;
     // Attributes sorted for fast lookup

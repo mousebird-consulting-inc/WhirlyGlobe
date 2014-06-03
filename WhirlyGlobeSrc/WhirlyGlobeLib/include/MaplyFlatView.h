@@ -20,12 +20,9 @@
 
 #import "MaplyView.h"
 
-<<<<<<< HEAD
 namespace Maply
 {
 
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 /** The flat view implements a top down orthogonal projection
     which is prefect for doing a straight up 2D map.
     It thinks more like a window in that it's trying to
@@ -34,7 +31,6 @@ namespace Maply
     We presume the caller will move that smaller window around, thus
     changing our model and projection matrices.
   */
-<<<<<<< HEAD
 class FlatView : public MapView
 {
 public:
@@ -86,40 +82,3 @@ protected:
 };
 
 }
-=======
-@interface MaplyFlatView : MaplyView
-
-/// Initialize with the coordinate system we'll use
-- (id)initWithCoordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
-
-/// Generate the model view matrix for use by OpenGL.
-- (Eigen::Matrix4d)calcModelMatrix;
-
-/// Height above the plane.  Always returns 0.
-- (double)heightAboveSurface;
-
-/// Minimum valid height above plane.  Always returns 0.
-- (double)minHeightAboveSurface;
-
-/// Maximum valid height above plane.  Always returns 0.
-- (double)maxHeightAboveSurface;
-
-/// Set where the middle of the displayed region is.  Current disabled.
-- (void)setLoc:(WhirlyKit::Point3d)newLoc;
-
-/// This view tries to display the given extents in display space
-@property (nonatomic,assign) WhirlyKit::Mbr extents;
-
-/// Size of the overall window we're simulating
-@property (nonatomic,readonly) WhirlyKit::Point2f windowSize;
-
-/// Content offset within the overall window
-@property (nonatomic,readonly) WhirlyKit::Point2f contentOffset;
-
-/// Sets the total window size and the region we're looking at within it.
-/// This just gets converted to model and projection matrix parameters
-- (void)setWindowSize:(WhirlyKit::Point2f)inWindowSize contentOffset:(WhirlyKit::Point2f)inContentOffset;
-
-@end
-
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b

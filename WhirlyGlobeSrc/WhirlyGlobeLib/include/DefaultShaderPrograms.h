@@ -18,10 +18,6 @@
  *
  */
 
-<<<<<<< HEAD
-=======
-#import <Foundation/Foundation.h>
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 #import "OpenGLES2Program.h"
 #import "Scene.h"
 
@@ -39,11 +35,8 @@ namespace WhirlyKit
 #define kToolkitDefaultLineNoBackfaceProgram "Default Line;backface=no"
 /// Billboard shader
 #define kToolkitDefaultBillboardProgram "Default Billboard"
-<<<<<<< HEAD
 /// Screen space shader
 #define kToolkitDefaultScreenSpaceProgram "Default Screenspace"
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 /// Create the default shaders and register them in the appropriate places in the scene
 void SetupDefaultShaders(Scene *);

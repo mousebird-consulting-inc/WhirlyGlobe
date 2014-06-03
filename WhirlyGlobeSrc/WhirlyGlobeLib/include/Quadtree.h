@@ -22,14 +22,6 @@
 #import "Dictionary.h"
 #import <set>
 
-<<<<<<< HEAD
-=======
-/// @cond
-@class WhirlyKitViewState;
-@protocol WhirlyKitQuadTreeImportanceDelegate;
-/// @endcond
-
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 namespace WhirlyKit
 {
 
@@ -72,13 +64,8 @@ public:
     class NodeInfo
     {
     public:
-<<<<<<< HEAD
         NodeInfo() { }
         NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance), phantom(that.phantom), attrs(that.attrs) { }
-=======
-        NodeInfo() { attrs = [NSMutableDictionary dictionary]; }
-        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
         ~NodeInfo() { }
         
         /// Compare based on importance.  Used for sorting
@@ -90,19 +77,12 @@ public:
         Mbr mbr;
         /// Importance as calculated by the callback.  More is better.
         float importance;
-<<<<<<< HEAD
         /// Set if this is a phantom tile.  We pretended to load it, but it's not really here.
         bool phantom;
 
         /// Put any attributes you'd like to keep track of here.
         /// There are things you might calculate for a given tile over and over.
         Dictionary attrs;
-=======
-
-        /// Put any attributes you'd like to keep track of here.
-        /// There are things you might calculate for a given tile over and over.
-        NSMutableDictionary *attrs;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     };
 
     /// Check if the given tile is already present
@@ -156,11 +136,7 @@ public:
     
     /// Fetch the least important (smallest) node currently loaded.
     /// Returns false if there wasn't one
-<<<<<<< HEAD
     bool leastImportantNode(NodeInfo &nodeInfo,bool ignoreImportance=false,int targetLevel=-1);
-=======
-    bool leastImportantNode(NodeInfo &nodeInfo,bool ignoreImportance=false);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
     /// Return a vector of all nodes less than the given importance without children
     void unimportantNodes(std::vector<NodeInfo> &nodes,float importance);
@@ -231,11 +207,7 @@ protected:
     float minImportance;
     int numPhantomNodes;
     /// Used to calculate importance for a particular 
-<<<<<<< HEAD
     QuadTreeImportanceCalculator *importDelegate;
-=======
-    NSObject<WhirlyKitQuadTreeImportanceDelegate> * __weak importDelegate;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     // All nodes, sorted by ID
     NodesByIdentType nodesByIdent;
@@ -244,7 +216,6 @@ protected:
 };
 
 /// Fill in this protocol to return the importance value for a given tile.
-<<<<<<< HEAD
 class QuadTreeImportanceCalculator
 {
 public:
@@ -254,10 +225,4 @@ public:
 };
     
 }
-=======
-@protocol WhirlyKitQuadTreeImportanceDelegate
-/// Return a number signifying importance.  MAXFLOAT is very important, 0 is not at all
-- (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr tree:(WhirlyKit::Quadtree *)tree attrs:(NSMutableDictionary *)attrs;
-@end
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 

@@ -203,11 +203,7 @@ ParticleGeneratorAddSystemRequest::~ParticleGeneratorAddSystemRequest()
         delete system;
 }
     
-<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/ParticleGenerator.mm
 void ParticleGeneratorAddSystemRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen)
-=======
-void ParticleGeneratorAddSystemRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/ParticleGenerator.mm
 {
     ParticleGenerator *theGen = (ParticleGenerator *)gen;
     theGen->addParticleSystem(system);
@@ -220,11 +216,7 @@ ParticleGeneratorRemSystemRequest::ParticleGeneratorRemSystemRequest(SimpleIdent
     genId = generatorID;
 }
     
-<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/ParticleGenerator.mm
 void ParticleGeneratorRemSystemRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen)
-=======
-void ParticleGeneratorRemSystemRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/ParticleGenerator.mm
 {
     ParticleGenerator *theGen = (ParticleGenerator *)gen;
     theGen->removeParticleSystem(systemId);

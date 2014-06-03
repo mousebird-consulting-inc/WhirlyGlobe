@@ -35,16 +35,10 @@ CullTree::~CullTree()
     delete topCullable;
 }
 
-<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/Cullable.cpp
 void CullTree::dumpStats()
 {
     // Note: Porting
 //    NSLog(@"CullTree: %d nodes",topCullable->countNodes());
-=======
-   void CullTree::dumpStats()
-{
-    NSLog(@"CullTree: %d nodes",topCullable->countNodes());
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/Cullable.mm
 }
     
 Cullable::Cullable(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr localMbr,int depth)

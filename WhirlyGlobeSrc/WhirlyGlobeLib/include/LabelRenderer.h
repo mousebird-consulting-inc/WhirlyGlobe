@@ -23,26 +23,16 @@
 #import <map>
 #import "Identifiable.h"
 #import "Drawable.h"
-<<<<<<< HEAD
 #import "TextureAtlas.h"
 #import "FontTextureManager.h"
 #import "LayoutManager.h"
 #import "SelectionManager.h"
 #import "Dictionary.h"
 #import "Platform.h"
-=======
-#import "DataLayer.h"
-#import "LayerThread.h"
-#import "TextureAtlas.h"
-#import "SelectionManager.h"
-#import "LayoutLayer.h"
-#import "FontTextureManager.h"
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 namespace WhirlyKit
 {
     
-<<<<<<< HEAD
 /// Default for label draw priority
 static const int LabelDrawPriority=1000;
 
@@ -52,8 +42,6 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
     
 class SingleLabel;
     
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 /** The Label Scene Representation is used to encapsulate a set of
     labels that are being added or have been added to the scene and
     their associated textures and drawable IDs.
@@ -74,7 +62,6 @@ public:
 };
 typedef std::set<LabelSceneRep *,IdentifiableSorter> LabelSceneRepSet;
     
-<<<<<<< HEAD
 // How a label is justified for display
 typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} LabelJustify;
 
@@ -103,44 +90,10 @@ public:
     bool enable;
 };
     
-=======
-}
-
-// How a label is justified for display
-typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} WhirlyKitLabelJustify;
-
-// Label spec passed around between threads
-@interface WhirlyKitLabelInfo : NSObject
-
-@property (nonatomic) NSArray *strs;
-@property (nonatomic) UIColor *textColor,*backColor;
-@property (nonatomic) UIFont *font;
-@property (nonatomic,assign) bool screenObject;
-@property (nonatomic,assign) bool layoutEngine;
-@property (nonatomic,assign) float layoutImportance;
-@property (nonatomic,assign) float width,height;
-@property (nonatomic,assign) int drawOffset;
-@property (nonatomic,assign) float minVis,maxVis;
-@property (nonatomic,assign) WhirlyKitLabelJustify justify;
-@property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) float fade;
-@property (nonatomic,strong) UIColor *shadowColor;
-@property (nonatomic,assign) float shadowSize;
-@property (nonatomic) UIColor *outlineColor;
-@property (nonatomic,assign) float outlineSize;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity shaderID;
-@property (nonatomic,assign) bool enable;
-
-- (id)initWithStrs:(NSArray *)inStrs desc:(NSDictionary *)desc;
-
-@end
-
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 /** Used to render a group of labels, possibly on
     a dispatch queue.  Up to you to set that up.
     You call this and process the results.
   */
-<<<<<<< HEAD
 class LabelRenderer
 {
 public:
@@ -173,36 +126,3 @@ public:
 };
 
 }
-=======
-@interface WhirlyKitLabelRenderer : NSObject
-
-/// Description of the labels
-@property (nonatomic) WhirlyKitLabelInfo *labelInfo;
-/// How big texture atlases should be if we're not using fonts
-@property (nonatomic,assign) int textureAtlasSize;
-/// Coordinate system display adapater
-@property (nonatomic,assign) WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
-/// Label represention (return value)
-@property (nonatomic) WhirlyKit::LabelSceneRep *labelRep;
-/// Scene we're building in
-@property (nonatomic,assign) WhirlyKit::Scene *scene;
-/// Layout objects (pass these to the layout engine if you want that)
-@property (nonatomic,assign) std::vector<WhirlyKit::LayoutObject> &layoutObjects;
-/// Selectable objects (3D) to pass to the selection manager
-@property (nonatomic,assign) std::vector<WhirlyKit::RectSelectable3D> &selectables3D;
-/// Selectable objects (2D) to pass to the selection manager
-@property (nonatomic,assign) std::vector<WhirlyKit::RectSelectable2D> &selectables2D;
-
-/// Change requests to pass to the scene
-@property (nonatomic,assign) std::vector<WhirlyKit::ChangeRequest *> &changeRequests;
-/// Font texture manager to use if we're doing fonts
-@property (nonatomic) WhirlyKitFontTextureManager *fontTexManager;
-/// Set if want to use attributed strings (we usually do)
-@property (nonatomic,assign) bool useAttributedString;
-
-/// Renders the labels into a big texture and stores the resulting info
-- (void)render;
-
-@end
-
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b

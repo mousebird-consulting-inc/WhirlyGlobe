@@ -49,12 +49,9 @@
 
 @optional
 
-<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/DataLayer_private.h
 /// Called when a view updates (more or less)
 - (void)viewUpdate:(WhirlyKit::ViewState *)viewState;
 
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/include/DataLayer.h
 /// Dump logging information out to the console
 - (void)log;
 

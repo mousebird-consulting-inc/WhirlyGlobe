@@ -40,10 +40,6 @@
 
 /// Kick off a rotate to the given position over the given time
 /// Assign this to the globe view's delegate and it'll do the rest
-<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/include/locker/AnimateRotation.h
 - (id)initWithView:(WhirlyGlobe::GlobeView *)globeView rot:(Eigen::Quaterniond &)newRot howLong:(float)howLong;
-=======
-- (id)initWithView:(WhirlyGlobeView *)globeView rot:(Eigen::Quaterniond &)newRot howLong:(float)howLong;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/include/AnimateRotation.h
 
 @end

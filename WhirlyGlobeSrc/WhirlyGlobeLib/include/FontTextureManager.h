@@ -20,17 +20,9 @@
 #import <math.h>
 #import <set>
 #import <map>
-<<<<<<< HEAD
 #import "Identifiable.h"
 #import "Drawable.h"
 #import "TextureAtlas.h"
-=======
-#import <CoreText/CoreText.h>
-#import "Identifiable.h"
-#import "Drawable.h"
-#import "DataLayer.h"
-#import "LayerThread.h"
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 #import "DynamicTextureAtlas.h"
 
 namespace WhirlyKit
@@ -41,7 +33,6 @@ namespace WhirlyKit
 /// Defines the outline color of an NSAttributedString
 #define kOutlineAttributeColor @"MaplyOutlineAttributeColor"
 
-<<<<<<< HEAD
 // This is sufficient for unicode
 typedef uint32_t WKGlyph;
 
@@ -118,12 +109,6 @@ typedef std::map<SimpleIdentity,GlyphSet> SimpleIDGlyphMap;
 /** Information sufficient to draw a string as 3D geometry.
     All coordinates are in a local space related to the font size.
  */
-=======
-
-/** Information sufficient to draw a string as 3D geometry.
-    All coordinates are in a local space related to the font size.
-  */
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 class DrawableString : public Identifiable
 {
 public:
@@ -139,16 +124,11 @@ public:
         SubTexture subTex;
     };
     std::vector<Rect> glyphPolys;
-<<<<<<< HEAD
     
-=======
-
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Bounding box of the string in coordinates related to the font size
     Mbr mbr;
 };
 
-<<<<<<< HEAD
 /** Used to manage a dynamic texture set containing glyphs from
     various fonts.
   */
@@ -204,26 +184,3 @@ protected:
 };
     
 }
-=======
-}
-
-/** Used to manage a dynamic texture set containing glyphs from
-    various fonts.
-  */
-@interface WhirlyKitFontTextureManager : NSObject
-
-/// Initialize with a scene (for the subtextures)
-- (id)initWithScene:(WhirlyKit::Scene *)scene;
-
-/// Add the given string.  Caller is responsible for deleting
-///  the DrawableString
-- (WhirlyKit::DrawableString *)addString:(NSAttributedString *)str changes:(std::vector<WhirlyKit::ChangeRequest *> &)changes;
-
-/// Remove resources associated with the given string
-- (void)removeString:(WhirlyKit::SimpleIdentity)drawStringId changes:(std::vector<WhirlyKit::ChangeRequest *> &)changes;
-
-/// Tear down anything we've built
-- (void)clear:(std::vector<WhirlyKit::ChangeRequest *> &)changes;
-
-@end
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b

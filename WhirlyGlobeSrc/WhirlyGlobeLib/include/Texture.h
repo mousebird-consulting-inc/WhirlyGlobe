@@ -73,21 +73,11 @@ public:
     /// Construct emty
 	Texture(const std::string &name);
 	/// Construct with raw texture data.  PVRTC is preferred.
-<<<<<<< HEAD
 	Texture(const std::string &name,RawDataRef,bool isPVRTC);
-=======
-	Texture(const std::string &name,NSData *texData,bool isPVRTC);
-	/// Construct with a file name and extension
-	Texture(const std::string &name,NSString *baseName,NSString *ext);
-	/// Construct with a UIImage.  Expecting this to be a power of 2 on each side.
-    /// If it's not we'll round up or down, depending on the flag
-	Texture(const std::string &name,UIImage *inImage, bool roundUp=true);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Construct from a FILE, presumably because it was cached
     Texture(const std::string &name,FILE *fp);
 	
 	virtual ~Texture();
-<<<<<<< HEAD
     
     /// Set the raw data directly
     void setRawData(RawData *rawData,int width,int height);
@@ -97,11 +87,6 @@ public:
 
     /// Set up from raw PKM (ETC2/EAC) data
     void setPKMData(RawDataRef data);
-=======
-	    
-    /// Process the data for display based on the format.
-    NSData *processData();
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 	
     /// Set the texture width
     void setWidth(unsigned int newWidth) { width = newWidth; }
@@ -121,14 +106,7 @@ public:
     void setSingleByteSource(WKSingleByteSource source) { byteSource = source; }
 
     /// Render side only.  Don't call this.  Create the openGL version
-<<<<<<< HEAD
     virtual bool createInGL(OpenGLMemManager *memManager);
-=======
-	virtual bool createInGL(OpenGLMemManager *memManager);
-	
-	/// Render side only.  Don't call this.  Destroy the openGL version
-	virtual void destroyInGL(OpenGLMemManager *memManager);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 	
     /// Render side only.  Don't call this.  Destroy the openGL version
     virtual void destroyInGL(OpenGLMemManager *memManager);
@@ -138,19 +116,12 @@ public:
     static unsigned char *ResolvePKM(RawDataRef texData,int &pkmType,int &size,int &width,int &height);
 
 protected:
-<<<<<<< HEAD
     /// Raw texture data
     RawDataRef texData;
     /// Need to know how we're going to load it
     bool isPVRTC;
     /// This one has a header
     bool isPKM;
-=======
-	/// Raw texture data
-	NSData * __strong texData;
-	/// Need to know how we're going to load it
-	bool isPVRTC;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// If not PVRTC, the format we'll use for the texture
     GLenum format;
     /// If we're converting down to one byte, where do we get it?

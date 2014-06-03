@@ -46,7 +46,4 @@ typedef enum {RotNone,RotFree} RotationType;
 /// If set, the rotation will occur around the center between the two fingers rather than the current viewpoint
 @property (nonatomic) bool rotateAroundCenter;
 
-/// If set, the rotation will occur around the center between the two fingers rather than the current viewpoint
-@property (nonatomic) bool rotateAroundCenter;
-
 @end

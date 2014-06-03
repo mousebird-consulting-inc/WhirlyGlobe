@@ -20,30 +20,17 @@
 
 #import "MaplyTexture_private.h"
 #import "MaplyBaseViewController_private.h"
-<<<<<<< HEAD
 #import "UIImage+Stuff.h"
-=======
-
-using namespace WhirlyKit;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 @implementation MaplyTexture
 
 - (void)clear
 {
-<<<<<<< HEAD
     if (_viewC && _viewC->scene && _texID != WhirlyKit::EmptyIdentity)
     {
         _viewC->scene->addChangeRequest(new WhirlyKit::RemTextureReq(_texID));
         _viewC = nil;
         _texID = WhirlyKit::EmptyIdentity;
-=======
-    if (_viewC && _viewC->scene && _texID != EmptyIdentity)
-    {
-        _viewC->scene->addChangeRequest(new RemTextureReq(_texID));
-        _viewC = nil;
-        _texID = EmptyIdentity;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     }
 }
 
@@ -53,7 +40,6 @@ using namespace WhirlyKit;
 }
 
 @end
-<<<<<<< HEAD
 
 namespace WhirlyKit
 {
@@ -102,5 +88,3 @@ MaplyTextureWrapper::MaplyTextureWrapper(const std::string &name,UIImage *inImag
 }
     
 }
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b

@@ -74,12 +74,9 @@
  */
 @property (nonatomic) CGSize targetSize;
 
-<<<<<<< HEAD
 /** @brief Image size.
     @details This is the size of the image as it presently exists.
   */
 @property (nonatomic,readonly) CGSize size;
 
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 @end

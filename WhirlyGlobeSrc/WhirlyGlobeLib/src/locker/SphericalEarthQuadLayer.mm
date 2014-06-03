@@ -80,20 +80,12 @@ using namespace WhirlyKit;
 }
 
 /// Return an importance value for the given tile
-<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/SphericalEarthQuadLayer.mm
 - (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKit::ViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
-=======
-- (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/SphericalEarthQuadLayer.mm
 {
     if (ident.level == [self minZoom])
         return MAXFLOAT;
     
-<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/SphericalEarthQuadLayer.mm
     return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsSquare, &coordSystem, viewState->coordAdapter, tileMbr, ident, attrs);
-=======
-    return ScreenImportance(viewState, frameSize, viewState.eyeVec, pixelsSquare, &coordSystem, viewState.coordAdapter, tileMbr, ident, attrs);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/SphericalEarthQuadLayer.mm
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
@@ -204,20 +196,12 @@ using namespace WhirlyKit;
     quadTileLoader.ignoreEdgeMatching = ignoreEdgeMatching;
 }
 
-<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/SphericalEarthQuadLayer.mm
 - (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKit::SceneRendererES *)inRenderer
-=======
-- (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES *)inRenderer
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/SphericalEarthQuadLayer.mm
 {
     return [self initWithInfo:infoName imageType:WKTileIntRGBA renderer:inRenderer];
 }
 
-<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/src/locker/SphericalEarthQuadLayer.mm
 - (id) initWithInfo:(NSString *)infoName imageType:(WhirlyKitTileImageType)imageType renderer:(WhirlyKit::SceneRendererES *)inRenderer;
-=======
-- (id) initWithInfo:(NSString *)infoName imageType:(WhirlyKitTileImageType)imageType renderer:(WhirlyKitSceneRendererES *)inRenderer;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/src/SphericalEarthQuadLayer.mm
 {
     // Data source serves the tiles
     ImageDataSource *theDataSource = [[ImageDataSource alloc] initWithInfo:infoName];

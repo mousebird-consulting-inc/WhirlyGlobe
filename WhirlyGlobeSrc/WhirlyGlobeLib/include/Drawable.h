@@ -27,32 +27,7 @@
 #import "RawData.h"
 #import "Identifiable.h"
 #import "WhirlyVector.h"
-<<<<<<< HEAD
 #import "WhirlyKitView.h"
-=======
-#import "GlobeView.h"
-
-/// @cond
-@class WhirlyKitSceneRendererES;
-/// @endcond
-
-namespace WhirlyKit
-{
-    class RendererFrameInfo;
-}
-
-/** This is the configuration info passed to setupGL for each
-    drawable.  Sometimes this will be render thread side, sometimes
-    layer thread side.  The defaults should be valid.
-  */
-@interface WhirlyKitGLSetupInfo : NSObject
-{
-@public
-    /// If we're using drawOffset, this is the units
-    float minZres;
-}
-@end
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 namespace WhirlyKit
 {
@@ -72,11 +47,7 @@ public:
 };
 
 class Scene;
-<<<<<<< HEAD
 class OpenGLES2Program;
-=======
-    class OpenGLES2Program;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 
 /// We'll only keep this many buffers or textures around for reuse
 #define WhirlyKitOpenGLMemCacheMax 32
@@ -149,11 +120,7 @@ public:
     virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { };
 		
 	/// Make a change to the scene.  For the renderer.  Never call this.
-<<<<<<< HEAD
 	virtual void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view) = 0;
-=======
-	virtual void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view) = 0;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 };
     
 /// Representation of a list of changes.  Might get more complex in the future.
@@ -208,11 +175,7 @@ public:
     virtual bool getWriteZbuffer() const { return true; }
     
     /// Update anything associated with the renderer.  Probably renderUntil.
-<<<<<<< HEAD
     virtual void updateRenderer(WhirlyKit::SceneRendererES *renderer) = 0;
-=======
-    virtual void updateRenderer(WhirlyKitSceneRendererES *renderer) = 0;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     std::string name;
@@ -231,7 +194,6 @@ public:
     /// Construct with the ID of the Drawable we'll be changing
 	DrawableChangeRequest(SimpleIdentity drawId) : drawId(drawId) { }
 	virtual ~DrawableChangeRequest() { }
-<<<<<<< HEAD
     
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 	
@@ -241,15 +203,6 @@ public:
 	/// This is called by execute if there's a drawable to modify.
     /// This is the one you override.
 	virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw) = 0;
-=======
-	
-	/// This will look for the drawable by ID and then call execute2()
-	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
-	
-	/// This is called by execute if there's a drawable to modify.
-    /// This is the one you override.
-	virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw) = 0;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 	
 protected:
 	SimpleIdentity drawId;
@@ -370,12 +323,6 @@ public:
     /// For OpenGLES2, you can set the program to use in rendering
     void setProgram(SimpleIdentity progId);
 
-    /// For OpenGLES2, this is the program to use to render this drawable.
-    virtual SimpleIdentity getProgram() const;
-
-    /// For OpenGLES2, you can set the program to use in rendering
-    void setProgram(SimpleIdentity progId);
-
 	/// Set up the VBOs
 	virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
 
@@ -461,11 +408,7 @@ public:
     /// Retrieve the visible range, including bands
     void getVisibleRange(float &minVis,float &maxVis,float &minVisBand,float &maxVisBand);
     /// Set the fade in and out
-<<<<<<< HEAD
     void setFade(TimeInterval inFadeDown,TimeInterval inFadeUp);
-=======
-    void setFade(NSTimeInterval inFadeDown,NSTimeInterval inFadeUp);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// Set the line width (if using lines)
     void setLineWidth(float inWidth);
@@ -500,17 +443,10 @@ public:
 
     /// Add a normal
 	void addNormal(Point3f norm);
-<<<<<<< HEAD
 
     /// Add a vector to the given attribute array
     void addAttributeValue(int attrId,Eigen::Vector2f vec);
 
-=======
-
-    /// Add a vector to the given attribute array
-    void addAttributeValue(int attrId,Eigen::Vector2f vec);
-
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Add a 2D vector to the given attribute array
     void addAttributeValue(int attrId,Eigen::Vector3f vec);
     
@@ -575,7 +511,6 @@ public:
     void applySubTexture(int which,SubTexture subTex,int startingAt=0);
 
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
-<<<<<<< HEAD
     virtual void updateRenderer(WhirlyKit::SceneRendererES *renderer);
     
     /// Copy the vertex data into an NSData object and return it
@@ -583,15 +518,6 @@ public:
     
     /// Copy vertex and element data into appropriate NSData objects
     void asVertexAndElementData(MutableRawDataRef &retVertData,MutableRawDataRef &retElementData,int singleElementSize,const Point3d *center);
-=======
-    virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
-    
-    /// Copy the vertex data into an NSData object and return it
-    NSData *asData(bool dupStart,bool dupEnd);
-    
-    /// Copy vertex and element data into appropriate NSData objects
-    void asVertexAndElementData(NSMutableData **retVertData,NSMutableData **retElementData,int singleElementSize);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
     /// Assuming this is a set of triangles, convert to a triangle strip
     void convertToTriStrip();
@@ -606,11 +532,7 @@ protected:
     virtual void drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene);
     /// Add a single point to the GL Buffer.
     /// Override this to add your own data to interleaved vertex buffers.
-<<<<<<< HEAD
     virtual void addPointToBuffer(unsigned char *basePtr,int which,const Point3d *center);
-=======
-    virtual void addPointToBuffer(unsigned char *basePtr,int which);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     /// Called while a new VAO is bound.  Set up your VAO-related state here.
     virtual void setupAdditionalVAO(OpenGLES2Program *prog,GLuint vertArrayObj) { }
     /// Called after the drawable has bound all its various data, but before it actually
@@ -671,11 +593,7 @@ class ColorChangeRequest : public DrawableChangeRequest
 public:
 	ColorChangeRequest(SimpleIdentity drawId,RGBAColor color);
 	
-<<<<<<< HEAD
 	void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
-=======
-	void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 	
 protected:
 	unsigned char color[4];
@@ -687,11 +605,7 @@ class OnOffChangeRequest : public DrawableChangeRequest
 public:
 	OnOffChangeRequest(SimpleIdentity drawId,bool OnOff);
 	
-<<<<<<< HEAD
 	void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
-=======
-	void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
 	
 protected:
 	bool newOnOff;
@@ -703,11 +617,7 @@ class VisibilityChangeRequest : public DrawableChangeRequest
 public:
     VisibilityChangeRequest(SimpleIdentity drawId,float minVis,float maxVis);
     
-<<<<<<< HEAD
     void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
-=======
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     float minVis,maxVis;
@@ -719,11 +629,7 @@ class FadeChangeRequest : public DrawableChangeRequest
 public:
     FadeChangeRequest(SimpleIdentity drawId,TimeInterval fadeUp,TimeInterval fadeDown);
     
-<<<<<<< HEAD
     void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
-=======
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     TimeInterval fadeUp,fadeDown;
@@ -735,11 +641,7 @@ class DrawTexChangeRequest : public DrawableChangeRequest
 public:
     DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId);
     
-<<<<<<< HEAD
     void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
-=======
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     unsigned int which;
@@ -752,11 +654,7 @@ class DrawTexturesChangeRequest : public DrawableChangeRequest
 public:
     DrawTexturesChangeRequest(SimpleIdentity drawId,const std::vector<SimpleIdentity> &newTexIDs);
     
-<<<<<<< HEAD
     void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
-=======
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     const std::vector<SimpleIdentity> newTexIDs;
@@ -768,11 +666,7 @@ class TransformChangeRequest : public DrawableChangeRequest
 public:
     TransformChangeRequest(SimpleIdentity drawId,const Eigen::Matrix4d *newMat);
     
-<<<<<<< HEAD
     void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
-=======
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     Eigen::Matrix4d newMat;
@@ -784,11 +678,7 @@ class DrawPriorityChangeRequest : public DrawableChangeRequest
 public:
     DrawPriorityChangeRequest(SimpleIdentity drawId,int drawPriority);
     
-<<<<<<< HEAD
     void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
-=======
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     int drawPriority;
@@ -800,16 +690,11 @@ class LineWidthChangeRequest : public DrawableChangeRequest
 public:
     LineWidthChangeRequest(SimpleIdentity drawId,float lineWidth);
     
-<<<<<<< HEAD
     void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
-=======
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 protected:
     float lineWidth;
 };
-<<<<<<< HEAD
     
 /** A Basic Drawable Instance replicates a basic drawable while
     tweaking some of the fields.  This is good for using the same
@@ -886,7 +771,5 @@ protected:
 /// Reference counted version of BasicDrawableInstance
 typedef boost::shared_ptr<BasicDrawableInstance> BasicDrawableInstanceRef;
 
-=======
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b
     
 }

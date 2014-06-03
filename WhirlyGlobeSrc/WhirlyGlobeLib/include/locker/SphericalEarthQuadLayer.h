@@ -42,16 +42,9 @@
 @property (nonatomic,assign) bool ignoreEdgeMatching;
 
 /// Initialize with name of the plist the defines the image data set
-<<<<<<< HEAD:WhirlyGlobeSrc/WhirlyGlobeLib/include/locker/SphericalEarthQuadLayer.h
 - (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKit::SceneRendererES *)renderer;
 
 /// Initialize with the plist and the image format for the quad loader
 - (id) initWithInfo:(NSString *)infoName imageType:(WhirlyKitTileImageType)imageType renderer:(WhirlyKit::SceneRendererES *)renderer;
-=======
-- (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES *)renderer;
-
-/// Initialize with the plist and the image format for the quad loader
-- (id) initWithInfo:(NSString *)infoName imageType:(WhirlyKitTileImageType)imageType renderer:(WhirlyKitSceneRendererES *)renderer;
->>>>>>> 8b82d413fa1eea92c764cf2cc76045872be7384b:WhirlyGlobeSrc/WhirlyGlobeLib/include/SphericalEarthQuadLayer.h
 
 @end
