@@ -636,7 +636,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
             MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor],
                                                                                            kMaplyFade: @(fade),
                                                                                            // 10 pixels wide
-                                                                                           kMaplyVecWidth: @(10.0),
+                                                                                           kMaplyVecWidth: @(2.0),
                                                                                            kMaplyVecTexture: dashedLineTex,
                                                                                            kMaplyWideVecType: kMaplyWideVecTypeScreen,
                                                                                            kMaplyMaxVis: @(0.00032424763776361942),
@@ -837,8 +837,8 @@ static const int NumMegaMarkers = 40000;
         self.title = @"Geography Class - MBTiles Local";
         // This is the Geography Class MBTiles data set from MapBox
         MaplyMBTileSource *tileSource = [[MaplyMBTileSource alloc] initWithMBTiles:@"geography-class"];
-        if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
-            tileSource.maxZoom = zoomLimit;
+        tileSource.minZoom = 0;
+        tileSource.maxZoom = 22;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         baseLayer = layer;
         layer.handleEdges = true;

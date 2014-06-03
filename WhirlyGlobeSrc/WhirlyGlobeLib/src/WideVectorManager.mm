@@ -81,8 +81,10 @@ public:
             {
                 drawable = new BasicDrawable("WideVector");
             } else {
-                drawable = new WideVectorDrawable();
+                WideVectorDrawable *wideDrawable = new WideVectorDrawable();
+                drawable = wideDrawable;
                 drawable->setProgram(vecInfo.shader);
+                wideDrawable->setWidth(vecInfo.width);
             }
             drawMbr.reset();
             drawable->setType(GL_TRIANGLES);
