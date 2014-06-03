@@ -39,7 +39,14 @@ public:
     /// Each vertex has an offset in 3-space
     void addDir(const Point3f &dir);
     
+    /// Set the width we'll we'll use
+    void setWidth(float inWidth) { width = inWidth; }
+    
+    /// We override draw so we can set our own values
+    virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    
 protected:
+    float width;
     int offsetIndex;
 };
     

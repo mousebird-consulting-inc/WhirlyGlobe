@@ -20,11 +20,12 @@
 
 #import "WideVectorDrawable.h"
 #import "OpenGLES2Program.h"
+#import "SceneRendererES.h"
 
 namespace WhirlyKit
 {
     
-WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector")
+WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), width(10.0/1024.0)
 {
     offsetIndex = addAttribute(BDFloat3Type, "a_dir");
 }
@@ -32,6 +33,17 @@ WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector")
 void WideVectorDrawable::addDir(const Point3f &dir)
 {
     addAttributeValue(offsetIndex, dir);
+}
+    
+void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scene)
+{
+    if (frameInfo.program)
+    {
+        float scale = std::max(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight);
+        frameInfo.program->setUniform("u_length", width/scale);
+    }
+    
+    BasicDrawable::draw(frameInfo,scene);
 }
 
 static const char *vertexShaderTri =
