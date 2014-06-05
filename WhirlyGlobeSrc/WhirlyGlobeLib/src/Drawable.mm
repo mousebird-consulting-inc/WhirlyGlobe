@@ -859,11 +859,18 @@ void BasicDrawable::setWriteZBuffer(bool val)
 bool BasicDrawable::getWriteZbuffer() const
 { if (type == GL_LINES || type == GL_LINE_LOOP || type == GL_POINTS) return false;  return writeZBuffer; }
 
-unsigned int BasicDrawable::addPoint(Point3f pt)
+unsigned int BasicDrawable::addPoint(const Point3f &pt)
 {
     points.push_back(pt);
     return (unsigned int)(points.size()-1);
 }
+    
+unsigned int BasicDrawable::addPoint(const Point3d &pt)
+{
+    points.push_back(Point3f(pt.x(),pt.y(),pt.z()));
+    return (unsigned int)(points.size()-1);
+}
+
 
 Point3f BasicDrawable::getPoint(int which)
 {
@@ -889,9 +896,12 @@ void BasicDrawable::addTexCoord(int which,TexCoord coord)
 void BasicDrawable::addColor(RGBAColor color)
 { vertexAttributes[colorEntry]->addColor(color); }
 
-void BasicDrawable::addNormal(Point3f norm)
+void BasicDrawable::addNormal(const Point3f &norm)
 { vertexAttributes[normalEntry]->addVector3f(norm); }
 
+void BasicDrawable::addNormal(const Point3d &norm)
+{ vertexAttributes[normalEntry]->addVector3f(Point3f(norm.x(),norm.y(),norm.z())); }
+ 
 void BasicDrawable::addAttributeValue(int attrId,Eigen::Vector2f vec)
 { vertexAttributes[attrId]->addVector2f(vec); }
 

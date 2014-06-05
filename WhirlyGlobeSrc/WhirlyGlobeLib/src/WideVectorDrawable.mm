@@ -35,6 +35,11 @@ void WideVectorDrawable::addDir(const Point3f &dir)
     addAttributeValue(offsetIndex, dir);
 }
     
+void WideVectorDrawable::addDir(const Point3d &dir)
+{
+    addAttributeValue(offsetIndex, Point3f(dir.x(),dir.y(),dir.z()));
+}
+    
 void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scene)
 {
     if (frameInfo.program)

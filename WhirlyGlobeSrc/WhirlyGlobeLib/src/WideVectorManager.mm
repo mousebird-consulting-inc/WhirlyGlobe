@@ -21,6 +21,7 @@
 #import "WideVectorManager.h"
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
+#import "FlatMath.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -37,11 +38,9 @@ using namespace Eigen;
     _enable = [desc boolForKey:@"enable" default:true];
     _shader = [desc intForKey:@"shader" default:EmptyIdentity];
     _width = [desc floatForKey:@"width" default:2.0];
-    NSString *widenType = desc[@"widentype"];
-    if ([widenType isEqualToString:@"real"])
-        _widenType = WideVectorReal;
-    else
-        _widenType = WideVectorScreen;
+    _coordType = (WhirlyKit::WideVectorCoordsType)[desc enumForKey:@"wideveccoordtype" values:@[@"real",@"screen"] default:WideVecCoordScreen];
+    _joinType = (WhirlyKit::WideVectorLineJoinType)[desc enumForKey:@"wideveclinejointype" values:@[@"miter",@"round",@"bevel"] default:WideVecMiterJoin];
+    _capType = (WhirlyKit::WideVectorLineCapType)[desc enumForKey:@"wideveclinecaptype" values:@[@"butt",@"round",@"square"] default:WideVecButtCap];
     _texID = [desc intForKey:@"texture" default:EmptyIdentity];
     _repeatSize = [desc floatForKey:@"repeatSize" default:6371000.0 / 20];
 }
@@ -50,7 +49,285 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
+
+class WideVectorBuilder
+{
+public:
+    WideVectorBuilder(WhirlyKitWideVectorInfo *vecInfo,const Point3d &center,const RGBAColor inColor)
+    : vecInfo(vecInfo), angleCutoff(DegToRad(30.0)), texOffset(0.0), center(center), edgePointsValid(false)
+    {
+//        color = [vecInfo.color asRGBAColor];
+        color = inColor;
+    }
     
+    // Intersect widened lines for the miter case
+    bool intersectWideLines(const Point3d &p0,const Point3d &p1,const Point3d &p2,const Point3d &n0,const Point3d &n1,Point3d &iPt)
+    {
+        Point2d p10(p1.x()-p0.x(),p1.y()-p0.y());
+        Point2d p21(p2.x()-p1.x(),p2.y()-p1.y());
+        Point2d pn0(p0.x()+n0.x(),p0.y()+n0.y());
+        Point2d pn1(p1.x()+n1.x(),p1.y()+n1.y());
+        
+        // Choose the form of the equation based on the size of this denominator
+        double num, denom;
+        if (std::abs(p10.x()) > std::abs(p10.y()))
+        {
+            double termA = p10.y()/p10.x();
+            denom = p21.y() - p21.x() * termA;
+            num = (pn1.x() - pn0.x())*termA + pn0.y()-pn1.y();
+        } else {
+            double termA = p10.x()/p10.y();
+            denom = p21.y()*termA-p21.x();
+            num = pn1.x() - pn0.x() + (pn0.y() - pn1.y())*termA;
+        }
+        if (denom == 0.0)
+            return false;
+        
+        double t1 = num/denom;
+        iPt = (p2-p1) * t1 + p1 + n1;
+        
+        return true;
+    }
+    
+    // Build the polygons for a widened line segment
+    void buildPolys(const Point3d *pa,const Point3d *pb,const Point3d *pc,const Point3d &up,BasicDrawable *drawable,double texLen)
+    {
+        // We need the normal (with respect to the line), and its inverse
+        // These are half, for half the width
+        Point3d norm0 = (*pb-*pa).cross(up);
+        norm0.normalize();
+        norm0 /= 2.0;
+        Point3d revNorm0 = norm0 * -1.0;
+        
+        Point3d norm1(0,0,0),revNorm1(0,0,0);
+        if (pc)
+        {
+            norm1 = (*pc-*pb).cross(up);
+            norm1.normalize();
+            norm1 /= 2.0;
+            revNorm1 = norm1 * -1.0;
+        }
+        
+        if (vecInfo.coordType == WideVecCoordReal)
+        {
+            norm0 *= vecInfo.width;
+            norm1 *= vecInfo.width;
+            revNorm0 *= vecInfo.width;
+            revNorm1 *= vecInfo.width;
+        }
+        
+        // Look for valid starting points.  If they're not there, make some simple ones
+        if (!edgePointsValid)
+        {
+            if (vecInfo.coordType == WideVecCoordReal)
+            {
+                e0 = *pa + revNorm0 - center;
+                e1 = *pa + norm0 - center;
+            } else {
+                e0 = revNorm0;
+                e1 = norm0;
+            }
+        }
+        
+        RGBAColor thisColor = color;
+//        float scale = drand48() / 2 + 0.5;
+//        thisColor.r *= scale;
+//        thisColor.g *= scale;
+//        thisColor.b *= scale;
+
+        int startPt = drawable->getNumPoints();
+        if (vecInfo.coordType == WideVecCoordReal)
+        {
+            // Calculate points for the expanded linear
+            Point3d corners[4];
+            
+            switch (vecInfo.joinType)
+            {
+                case WideVecMiterJoin:
+                {
+                    bool iPtsValid = false;
+                    Point3d rPt,lPt;
+                    if (pc)
+                    {
+                        if (intersectWideLines(*pa-center,*pb-center,*pc-center,norm0,norm1,rPt) &&
+                            intersectWideLines(*pa-center,*pb-center,*pc-center,revNorm0,revNorm1, lPt))
+                            iPtsValid = true;
+                    }
+                    
+                    corners[0] = e0;
+                    corners[1] = e1;
+                    if (iPtsValid)
+                    {
+                        corners[2] = rPt;
+                        corners[3] = lPt;
+                    } else
+                    {
+                        corners[2] = *pb + norm0 - center;
+                        corners[3] = *pb + revNorm0 - center;
+                    }
+                }
+                    break;
+                case WideVecBevelJoin:
+                    break;
+                case WideVecRoundJoin:
+                    break;
+            }
+            
+            drawable->addPoint(corners[0]);
+            if (vecInfo.texID != EmptyIdentity)
+                drawable->addTexCoord(0, TexCoord(0.0,texOffset));
+            drawable->addNormal(up);
+            drawable->addColor(thisColor);
+            
+            drawable->addPoint(corners[1]);
+            if (vecInfo.texID != EmptyIdentity)
+                drawable->addTexCoord(0, TexCoord(1.0,texOffset));
+            drawable->addNormal(up);
+            drawable->addColor(thisColor);
+            
+            drawable->addPoint(corners[2]);
+            if (vecInfo.texID != EmptyIdentity)
+                drawable->addTexCoord(0, TexCoord(1.0,texOffset+texLen));
+            drawable->addNormal(up);
+            drawable->addColor(thisColor);
+            
+            drawable->addPoint(corners[3]);
+            if (vecInfo.texID != EmptyIdentity)
+                drawable->addTexCoord(0, TexCoord(0.0,texOffset+texLen));
+            drawable->addNormal(up);
+            drawable->addColor(thisColor);
+            
+            drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+3));
+            drawable->addTriangle(BasicDrawable::Triangle(startPt+1,startPt+2,startPt+3));
+            
+            e0 = corners[3];
+            e1 = corners[2];
+            edgePointsValid = true;
+        } else {
+            WideVectorDrawable *wideDrawable = (WideVectorDrawable *)drawable;
+            
+            Point3d dirR,dirL;
+            switch (vecInfo.joinType)
+            {
+                case WideVecMiterJoin:
+                {
+                    bool iPtsValid = false;
+                    Point3d rPt,lPt;
+                    if (pc)
+                    {
+                        Point3d scaleNorm0 = norm0/EarthRadius, scaleNorm1 = norm1/EarthRadius;
+                        Point3d scalRevNorm0 = revNorm0/EarthRadius, scaleRevNorm1 = revNorm1/EarthRadius;
+                        if (intersectWideLines(*pa-center,*pb-center,*pc-center,scaleNorm0,scaleNorm1,rPt) &&
+                            intersectWideLines(*pa-center,*pb-center,*pc-center,scalRevNorm0,scaleRevNorm1, lPt))
+                            iPtsValid = true;
+                    }
+
+                    if (iPtsValid)
+                    {
+                        // We need vectors (with length), not actual points
+                        dirR = (rPt-(*pb-center)) * EarthRadius;
+                        dirL = (lPt-(*pb-center)) * EarthRadius;
+                    } else {
+                        dirR = norm0;  dirL = revNorm0;
+                    }
+                }
+                    break;
+                case WideVecBevelJoin:
+                    dirR = norm0;  dirL = revNorm0;
+                    break;
+                case WideVecRoundJoin:
+                    dirR = norm0;  dirL = revNorm0;
+                    break;
+            }
+            
+            // Add the "expanded" linear
+            Point3d paAdj = *pa-center,pbAdj = *pb-center;
+            
+            wideDrawable->addPoint(paAdj);
+            if (vecInfo.texID != EmptyIdentity)
+                wideDrawable->addTexCoord(0, TexCoord(0.0,texOffset));
+            wideDrawable->addNormal(up);
+            wideDrawable->addDir(e0);
+            wideDrawable->addColor(thisColor);
+            
+            wideDrawable->addPoint(paAdj);
+            if (vecInfo.texID != EmptyIdentity)
+                wideDrawable->addTexCoord(0, TexCoord(1.0,texOffset));
+            wideDrawable->addNormal(up);
+            wideDrawable->addDir(e1);
+            wideDrawable->addColor(thisColor);
+            
+            wideDrawable->addPoint(pbAdj);
+            if (vecInfo.texID != EmptyIdentity)
+                wideDrawable->addTexCoord(0, TexCoord(1.0,texOffset+texLen));
+            wideDrawable->addNormal(up);
+            wideDrawable->addDir(dirR);
+            wideDrawable->addColor(thisColor);
+            
+            wideDrawable->addPoint(pbAdj);
+            if (vecInfo.texID != EmptyIdentity)
+                wideDrawable->addTexCoord(0, TexCoord(0.0,texOffset+texLen));
+            wideDrawable->addNormal(up);
+            wideDrawable->addDir(dirL);
+            wideDrawable->addColor(thisColor);
+            
+            wideDrawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+3));
+            wideDrawable->addTriangle(BasicDrawable::Triangle(startPt+1,startPt+2,startPt+3));
+            
+            e0 = dirL;
+            e1 = dirR;
+            edgePointsValid = true;
+        }
+        
+        texOffset += texLen;
+    }
+    
+    // Add a point to the widened linear we're building
+    void addPoint(const Point3d &inPt,const Point3d &up,BasicDrawable *drawable)
+    {
+        pts.push_back(inPt);
+        if (pts.size() >= 3)
+        {
+            const Point3d &pa = pts[pts.size()-3];
+            const Point3d &pb = pts[pts.size()-2];
+            const Point3d &pc = pts[pts.size()-1];
+            double texLen = (pb-pa).norm();
+            texLen *= vecInfo.repeatSize;
+            buildPolys(&pa,&pb,&pc,up,drawable,texLen);
+            texOffset += texLen;
+        }
+        lastUp = up;
+    }
+    
+    // Flush out any outstanding points
+    void flush(BasicDrawable *drawable)
+    {
+        if (pts.size() >= 2)
+        {
+            const Point3d &pa = pts[pts.size()-2];
+            const Point3d &pb = pts[pts.size()-1];
+            double texLen = (pb-pa).norm();
+            texLen *= vecInfo.repeatSize;
+            buildPolys(&pa, &pb, NULL, lastUp, drawable, texLen);
+            texOffset += texLen;
+        }
+    }
+
+    WhirlyKitWideVectorInfo *vecInfo;
+    RGBAColor color;
+    Point3d center;
+    double angleCutoff;
+    
+    double texOffset;
+
+    std::vector<Point3d> pts;
+    Point3d lastUp;
+    
+    bool edgePointsValid;
+    Point3d e0,e1;
+};
+
+// Used to build up drawables
 class WideVectorDrawableBuilder
 {
 public:
@@ -77,7 +354,7 @@ public:
         {
             flush();
           
-            if (vecInfo.widenType == WideVectorReal)
+            if (vecInfo.coordType == WideVecCoordReal)
             {
                 drawable = new BasicDrawable("WideVector");
             } else {
@@ -86,7 +363,7 @@ public:
                 drawable->setProgram(vecInfo.shader);
                 wideDrawable->setWidth(vecInfo.width);
             }
-            drawMbr.reset();
+//            drawMbr.reset();
             drawable->setType(GL_TRIANGLES);
             drawable->setOnOff(vecInfo.enable);
             drawable->setColor([vecInfo.color asRGBAColor]);
@@ -108,126 +385,32 @@ public:
     // Add the points for a linear
     void addLinear(VectorRing &pts)
     {
+//        RGBAColor color;
+//        color.r = random()%256;
+//        color.g = random()%256;
+//        color.b = random()%256;
+//        color.a = 255;
+        WideVectorBuilder vecBuilder(vecInfo,center,[vecInfo.color asRGBAColor]);
+        
         // Work through the segments
-        double texOrg = 0.0;
-        for (unsigned int ii=0;ii<pts.size()-1;ii++)
+        for (unsigned int ii=0;ii<pts.size();ii++)
         {
             // Get the points in display space
             Point2f geoA = pts[ii];
-            Point2f geoB = pts[ii+1];
             Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y()));
-            Point3d localPb = coordSys->geographicToLocal3d(GeoCoord(geoB.x(),geoB.y()));
             Point3d pa = coordAdapter->localToDisplay(localPa);
-            Point3d pb = coordAdapter->localToDisplay(localPb);
-            
-            // We need the normal (with respect to the line), and its inverse
-            // These are half, for half the width
             Point3d up = coordAdapter->normalForLocal(localPa);
-            Point3d norm = (pb-pa).cross(up);
-            norm.normalize();
-            norm /= 2.0;
-            Point3d revNorm = norm * -1.0;
             
             // Get a drawable ready
-            int ptCount = 4;
-            int triCount = 2;
+            int ptCount = 5;
+            int triCount = 4;
             BasicDrawable *thisDrawable = getDrawable(ptCount,triCount);
-            RGBAColor color = [vecInfo.color asRGBAColor];
+            drawMbr.addPoint(geoA);
             
-            double texLen = (pa-pb).norm();
-            
-            int startVec = thisDrawable->getNumPoints();
-            if (vecInfo.widenType == WideVectorReal)
-            {
-                texLen *= vecInfo.repeatSize;
-                
-                Point3f up3f(up.x(),up.y(),up.z());
-
-                drawMbr.addPoint(geoA);
-                drawMbr.addPoint(geoB);
-
-                // Calculate points for the expanded linear
-                Point3d corners[4];
-                corners[0] = pa + revNorm * vecInfo.width - center;
-                corners[1] = pa + norm * vecInfo.width - center;
-                corners[2] = pb + norm * vecInfo.width - center;
-                corners[3] = pb + revNorm * vecInfo.width - center;
-                Point3f corners3f[4];
-                for (unsigned int jj=0;jj<4;jj++)
-                    corners3f[jj] = Point3f(corners[jj].x(),corners[jj].y(),corners[jj].z());
-                
-                thisDrawable->addPoint(corners3f[0]);
-                if (vecInfo.texID != EmptyIdentity)
-                    thisDrawable->addTexCoord(0, TexCoord(0.0,texOrg));
-                thisDrawable->addNormal(up3f);
-                thisDrawable->addColor(color);
-                
-                thisDrawable->addPoint(corners3f[1]);
-                if (vecInfo.texID != EmptyIdentity)
-                    thisDrawable->addTexCoord(0, TexCoord(1.0,texOrg));
-                thisDrawable->addNormal(up3f);
-                thisDrawable->addColor(color);
-                
-                thisDrawable->addPoint(corners3f[2]);
-                if (vecInfo.texID != EmptyIdentity)
-                    thisDrawable->addTexCoord(0, TexCoord(1.0,texOrg+texLen));
-                thisDrawable->addNormal(up3f);
-                thisDrawable->addColor(color);
-                
-                thisDrawable->addPoint(corners3f[3]);
-                if (vecInfo.texID != EmptyIdentity)
-                    thisDrawable->addTexCoord(0, TexCoord(0.0,texOrg+texLen));
-                thisDrawable->addNormal(up3f);
-                thisDrawable->addColor(color);
-                
-                thisDrawable->addTriangle(BasicDrawable::Triangle(startVec+0,startVec+1,startVec+3));
-                thisDrawable->addTriangle(BasicDrawable::Triangle(startVec+1,startVec+2,startVec+3));
-            } else {
-                texLen *= vecInfo.repeatSize;
-
-                WideVectorDrawable *wideDrawable = (WideVectorDrawable *)thisDrawable;
-                drawMbr.addPoint(geoA);
-                drawMbr.addPoint(geoB);
-                
-                // Add the "expanded" linear
-                Point3f pa3f(pa.x()-center.x(),pa.y()-center.y(),pa.z()-center.z()),pb3f(pb.x()-center.x(),pb.y()-center.y(),pb.z()-center.z());
-                Point3f dirR(norm.x(),norm.y(),norm.z()),dirL(revNorm.x(),revNorm.y(),revNorm.z());
-                Point3f up3f(up.x(),up.y(),up.z());
-                
-                wideDrawable->addPoint(pa3f);
-                if (vecInfo.texID != EmptyIdentity)
-                    wideDrawable->addTexCoord(0, TexCoord(0.0,texOrg));
-                wideDrawable->addNormal(up3f);
-                wideDrawable->addDir(dirL);
-                thisDrawable->addColor(color);
-
-                wideDrawable->addPoint(pa3f);
-                if (vecInfo.texID != EmptyIdentity)
-                    wideDrawable->addTexCoord(0, TexCoord(1.0,texOrg));
-                wideDrawable->addNormal(up3f);
-                wideDrawable->addDir(dirR);
-                thisDrawable->addColor(color);
-
-                wideDrawable->addPoint(pb3f);
-                if (vecInfo.texID != EmptyIdentity)
-                    wideDrawable->addTexCoord(0, TexCoord(1.0,texOrg+texLen));
-                wideDrawable->addNormal(up3f);
-                wideDrawable->addDir(dirR);
-                thisDrawable->addColor(color);
-
-                wideDrawable->addPoint(pb3f);
-                if (vecInfo.texID != EmptyIdentity)
-                    wideDrawable->addTexCoord(0, TexCoord(0.0,texOrg+texLen));
-                wideDrawable->addNormal(up3f);
-                wideDrawable->addDir(dirL);
-                thisDrawable->addColor(color);
-
-                thisDrawable->addTriangle(BasicDrawable::Triangle(startVec+0,startVec+1,startVec+3));
-                thisDrawable->addTriangle(BasicDrawable::Triangle(startVec+1,startVec+2,startVec+3));
-            }
-            
-            texOrg += texLen;
+            vecBuilder.addPoint(pa,up,thisDrawable);
         }
+
+        vecBuilder.flush(drawable);
     }
 
     // Flush out the drawables

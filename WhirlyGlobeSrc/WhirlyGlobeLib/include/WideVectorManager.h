@@ -32,7 +32,13 @@ namespace WhirlyKit
 {
 
 /// Vectors are widened in real world or screen coordinates
-typedef enum {WideVectorReal,WideVectorScreen} WideVectorType;
+typedef enum {WideVecCoordReal,WideVecCoordScreen} WideVectorCoordsType;
+
+/// How the lines are joined.  See: http://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty
+typedef enum {WideVecMiterJoin,WideVecRoundJoin,WideVecBevelJoin} WideVectorLineJoinType;
+    
+/// How the lines begin and end.  See: http://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
+typedef enum {WideVecButtCap,WideVecRoundCap,WideVecSquareCap} WideVectorLineCapType;
     
 }
 
@@ -48,7 +54,9 @@ typedef enum {WideVectorReal,WideVectorScreen} WideVectorType;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity shader;
 @property (nonatomic,assign) float width;
 @property (nonatomic,assign) float repeatSize;
-@property (nonatomic,assign) WhirlyKit::WideVectorType widenType;
+@property (nonatomic,assign) WhirlyKit::WideVectorCoordsType coordType;
+@property (nonatomic,assign) WhirlyKit::WideVectorLineJoinType joinType;
+@property (nonatomic,assign) WhirlyKit::WideVectorLineCapType capType;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity texID;
 
 - (void)parseDesc:(NSDictionary *)desc;
