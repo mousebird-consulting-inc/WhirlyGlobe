@@ -179,6 +179,9 @@
 /// Widened vector ends are extended a bit and then flush
 #define kMaplyWideVecSquareCap @"square"
 
+/// This number defines a limit past which the wide vector will switch from miters to bevels
+#define kMaplyWideVecMiterLimit @"miterLimit"
+
 
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 #define kMaplySubdivEpsilon @"subdivisionepsilon"
