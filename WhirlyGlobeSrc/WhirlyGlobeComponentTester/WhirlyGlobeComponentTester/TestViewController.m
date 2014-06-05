@@ -608,6 +608,14 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 
 - (NSArray *)addWideVectors:(MaplyVectorObject *)vecObj
 {
+    // Make the dashed line if it isn't already there
+    if (!dashedLineTex)
+    {
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,128)];
+        [lineTexBuilder setPattern:@[@(32),@(32),@(32),@(32)]];
+        UIImage *dashedLineImage = [lineTexBuilder makeImage];
+        dashedLineTex = [baseViewC addTexture:dashedLineImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapY mode:MaplyThreadAny];
+    }
     
     UIColor *color = [UIColor blueColor];
     float fade = 0.25;
@@ -620,7 +628,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor],
                                                                                    kMaplyFade: @(fade),
                                                                                    // 10 pixels wide
-                                                                                   kMaplyVecWidth: @(10.0),
+                                                                                   kMaplyVecWidth: @(20.0),
                                                                                    kMaplyVecTexture: dashedLineTex,
                                                                                    kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
                                                                                    
@@ -642,16 +650,6 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 
 - (void)addShapeFile:(NSString *)shapeFileName
 {
-    // Make the dashed line if it isn't already there
-    if (!dashedLineTex)
-    {
-        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,128)];
-        [lineTexBuilder setPattern:@[@(64),@(64)]];
-//        [lineTexBuilder setPattern:@[@(128)]];
-        UIImage *dashedLineImage = [lineTexBuilder makeImage];
-        dashedLineTex = [baseViewC addTexture:dashedLineImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapY mode:MaplyThreadAny];
-    }
-    
     // Add the vectors at three different levels
     MaplyVectorDatabase *vecDb = [MaplyVectorDatabase vectorDatabaseWithShape:shapeFileName];
     if (vecDb)

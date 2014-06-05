@@ -43,6 +43,7 @@ using namespace Eigen;
     _capType = (WhirlyKit::WideVectorLineCapType)[desc enumForKey:@"wideveclinecaptype" values:@[@"butt",@"round",@"square"] default:WideVecButtCap];
     _texID = [desc intForKey:@"texture" default:EmptyIdentity];
     _repeatSize = [desc floatForKey:@"repeatSize" default:6371000.0 / 20];
+    _miterLimit = [desc floatForKey:@"miterLimit" default:2.0];
 }
 
 @end
@@ -90,8 +91,11 @@ public:
     }
     
     // Build the polygons for a widened line segment
-    void buildPolys(const Point3d *pa,const Point3d *pb,const Point3d *pc,const Point3d &up,BasicDrawable *drawable,double texLen)
+    void buildPolys(const Point3d *pa,const Point3d *pb,const Point3d *pc,const Point3d &up,BasicDrawable *drawable)
     {
+        double texLen = (*pb-*pa).norm();
+        texLen *= vecInfo.repeatSize;
+
         // We need the normal (with respect to the line), and its inverse
         // These are half, for half the width
         Point3d norm0 = (*pb-*pa).cross(up);
@@ -130,40 +134,41 @@ public:
         }
         
         RGBAColor thisColor = color;
-//        float scale = drand48() / 2 + 0.5;
-//        thisColor.r *= scale;
-//        thisColor.g *= scale;
-//        thisColor.b *= scale;
+        // Note: Debugging
+        float scale = drand48() / 2 + 0.5;
+        thisColor.r *= scale;
+        thisColor.g *= scale;
+        thisColor.b *= scale;
 
         int startPt = drawable->getNumPoints();
         if (vecInfo.coordType == WideVecCoordReal)
         {
             // Calculate points for the expanded linear
             Point3d corners[4];
+            TexCoord texCoords[4];
             
+            Point3d rPt,lPt;
+            Point3d paLocal = *pa-center;
+            Point3d pbLocal = *pb-center;
+            Point3d pcLocal = (pc ? *pc-center: Point3d(0,0,0));
             switch (vecInfo.joinType)
             {
                 case WideVecMiterJoin:
                 {
                     bool iPtsValid = false;
-                    Point3d rPt,lPt;
                     if (pc)
                     {
-                        if (intersectWideLines(*pa-center,*pb-center,*pc-center,norm0,norm1,rPt) &&
-                            intersectWideLines(*pa-center,*pb-center,*pc-center,revNorm0,revNorm1, lPt))
+                        if (intersectWideLines(paLocal,pbLocal,pcLocal,norm0,norm1,rPt) &&
+                            intersectWideLines(paLocal,pbLocal,pcLocal,revNorm0,revNorm1, lPt))
                             iPtsValid = true;
                     }
                     
                     corners[0] = e0;
                     corners[1] = e1;
-                    if (iPtsValid)
+                    if (!iPtsValid)
                     {
-                        corners[2] = rPt;
-                        corners[3] = lPt;
-                    } else
-                    {
-                        corners[2] = *pb + norm0 - center;
-                        corners[3] = *pb + revNorm0 - center;
+                        rPt = pbLocal + norm0;
+                        lPt = pbLocal + revNorm0;
                     }
                 }
                     break;
@@ -172,30 +177,30 @@ public:
                 case WideVecRoundJoin:
                     break;
             }
+
+            corners[2] = rPt;
+            corners[3] = lPt;
             
-            drawable->addPoint(corners[0]);
-            if (vecInfo.texID != EmptyIdentity)
-                drawable->addTexCoord(0, TexCoord(0.0,texOffset));
-            drawable->addNormal(up);
-            drawable->addColor(thisColor);
+            double rStartT=0.0,lStartT=0.0;
+            double rEndT=1.0,lEndT=1.0;
+            ClosestPointOnLineSegment(Point2d(paLocal.x(),paLocal.y()), Point2d(pbLocal.x(),pbLocal.y()), Point2d(e1.x(),e1.y()), rStartT);
+            ClosestPointOnLineSegment(Point2d(paLocal.x(),paLocal.y()), Point2d(pbLocal.x(),pbLocal.y()), Point2d(e0.x(),e0.y()), lStartT);
+            ClosestPointOnLineSegment(Point2d(paLocal.x(),paLocal.y()), Point2d(pbLocal.x(),pbLocal.y()), Point2d(rPt.x(),rPt.y()), rEndT);
+            ClosestPointOnLineSegment(Point2d(paLocal.x(),paLocal.y()), Point2d(pbLocal.x(),pbLocal.y()), Point2d(lPt.x(),lPt.y()), lEndT);
             
-            drawable->addPoint(corners[1]);
-            if (vecInfo.texID != EmptyIdentity)
-                drawable->addTexCoord(0, TexCoord(1.0,texOffset));
-            drawable->addNormal(up);
-            drawable->addColor(thisColor);
+            texCoords[0] = TexCoord(0.0,texOffset+lStartT*texLen);
+            texCoords[1] = TexCoord(1.0,texOffset+rStartT*texLen);
+            texCoords[2] = TexCoord(1.0,texOffset+texLen*rEndT);
+            texCoords[3] = TexCoord(0.0,texOffset+texLen*lEndT);
             
-            drawable->addPoint(corners[2]);
-            if (vecInfo.texID != EmptyIdentity)
-                drawable->addTexCoord(0, TexCoord(1.0,texOffset+texLen));
-            drawable->addNormal(up);
-            drawable->addColor(thisColor);
-            
-            drawable->addPoint(corners[3]);
-            if (vecInfo.texID != EmptyIdentity)
-                drawable->addTexCoord(0, TexCoord(0.0,texOffset+texLen));
-            drawable->addNormal(up);
-            drawable->addColor(thisColor);
+            for (unsigned int vi=0;vi<4;vi++)
+            {
+                drawable->addPoint(corners[vi]);
+                if (vecInfo.texID != EmptyIdentity)
+                    drawable->addTexCoord(0, texCoords[vi]);
+                drawable->addNormal(up);
+                drawable->addColor(thisColor);
+            }
             
             drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+3));
             drawable->addTriangle(BasicDrawable::Triangle(startPt+1,startPt+2,startPt+3));
@@ -207,6 +212,8 @@ public:
             WideVectorDrawable *wideDrawable = (WideVectorDrawable *)drawable;
             
             Point3d dirR,dirL;
+            Point3d paAdj = *pa-center,pbAdj = *pb-center;
+            Point3d pcAdj = (pc ? *pc-center : Point3d(0,0,0));
             switch (vecInfo.joinType)
             {
                 case WideVecMiterJoin:
@@ -215,18 +222,16 @@ public:
                     Point3d rPt,lPt;
                     if (pc)
                     {
-                        Point3d scaleNorm0 = norm0/EarthRadius, scaleNorm1 = norm1/EarthRadius;
-                        Point3d scalRevNorm0 = revNorm0/EarthRadius, scaleRevNorm1 = revNorm1/EarthRadius;
-                        if (intersectWideLines(*pa-center,*pb-center,*pc-center,scaleNorm0,scaleNorm1,rPt) &&
-                            intersectWideLines(*pa-center,*pb-center,*pc-center,scalRevNorm0,scaleRevNorm1, lPt))
+                        if (intersectWideLines(paAdj,pbAdj,pcAdj,norm0/EarthRadius,norm1/EarthRadius,rPt) &&
+                            intersectWideLines(paAdj,pbAdj,pcAdj,revNorm0/EarthRadius,revNorm1/EarthRadius,lPt))
                             iPtsValid = true;
                     }
 
                     if (iPtsValid)
                     {
                         // We need vectors (with length), not actual points
-                        dirR = (rPt-(*pb-center)) * EarthRadius;
-                        dirL = (lPt-(*pb-center)) * EarthRadius;
+                        dirR = (rPt-pbAdj) * EarthRadius;
+                        dirL = (lPt-pbAdj) * EarthRadius;
                     } else {
                         dirR = norm0;  dirL = revNorm0;
                     }
@@ -240,33 +245,50 @@ public:
                     break;
             }
             
+            // Note: This doesn't quite work.  Still see a bit of pulling in textures.
+            double rStartT=0.0,lStartT=0.0;
+            double rEndT=1.0,lEndT=1.0;
+            Point3d e1Real = (paAdj + e1/EarthRadius);
+            Point3d e0Real = (paAdj + e0/EarthRadius);
+            Point3d rPtReal = (pbAdj + dirR/EarthRadius);
+            Point3d lPtReal = (pbAdj + dirL/EarthRadius);
+            ClosestPointOnLineSegment(Point2d(paAdj.x(),paAdj.y()), Point2d(pbAdj.x(),pbAdj.y()), Point2d(e1Real.x(),e1Real.y()), rStartT);
+            ClosestPointOnLineSegment(Point2d(paAdj.x(),paAdj.y()), Point2d(pbAdj.x(),pbAdj.y()), Point2d(e0Real.x(),e0Real.y()), lStartT);
+            ClosestPointOnLineSegment(Point2d(paAdj.x(),paAdj.y()), Point2d(pbAdj.x(),pbAdj.y()), Point2d(rPtReal.x(),rPtReal.y()), rEndT);
+            ClosestPointOnLineSegment(Point2d(paAdj.x(),paAdj.y()), Point2d(pbAdj.x(),pbAdj.y()), Point2d(lPtReal.x(),lPtReal.y()), lEndT);
+            
+            TexCoord texCoords[4];
+            texCoords[0] = TexCoord(0.0,texOffset+lStartT*texLen);
+            texCoords[1] = TexCoord(1.0,texOffset+rStartT*texLen);
+            texCoords[2] = TexCoord(1.0,texOffset+texLen*rEndT);
+            texCoords[3] = TexCoord(0.0,texOffset+texLen*lEndT);
+
             // Add the "expanded" linear
-            Point3d paAdj = *pa-center,pbAdj = *pb-center;
             
             wideDrawable->addPoint(paAdj);
             if (vecInfo.texID != EmptyIdentity)
-                wideDrawable->addTexCoord(0, TexCoord(0.0,texOffset));
+                wideDrawable->addTexCoord(0, texCoords[0]);
             wideDrawable->addNormal(up);
             wideDrawable->addDir(e0);
             wideDrawable->addColor(thisColor);
             
             wideDrawable->addPoint(paAdj);
             if (vecInfo.texID != EmptyIdentity)
-                wideDrawable->addTexCoord(0, TexCoord(1.0,texOffset));
+                wideDrawable->addTexCoord(0, texCoords[1]);
             wideDrawable->addNormal(up);
             wideDrawable->addDir(e1);
             wideDrawable->addColor(thisColor);
             
             wideDrawable->addPoint(pbAdj);
             if (vecInfo.texID != EmptyIdentity)
-                wideDrawable->addTexCoord(0, TexCoord(1.0,texOffset+texLen));
+                wideDrawable->addTexCoord(0, texCoords[2]);
             wideDrawable->addNormal(up);
             wideDrawable->addDir(dirR);
             wideDrawable->addColor(thisColor);
             
             wideDrawable->addPoint(pbAdj);
             if (vecInfo.texID != EmptyIdentity)
-                wideDrawable->addTexCoord(0, TexCoord(0.0,texOffset+texLen));
+                wideDrawable->addTexCoord(0, texCoords[3]);
             wideDrawable->addNormal(up);
             wideDrawable->addDir(dirL);
             wideDrawable->addColor(thisColor);
@@ -291,10 +313,7 @@ public:
             const Point3d &pa = pts[pts.size()-3];
             const Point3d &pb = pts[pts.size()-2];
             const Point3d &pc = pts[pts.size()-1];
-            double texLen = (pb-pa).norm();
-            texLen *= vecInfo.repeatSize;
-            buildPolys(&pa,&pb,&pc,up,drawable,texLen);
-            texOffset += texLen;
+            buildPolys(&pa,&pb,&pc,up,drawable);
         }
         lastUp = up;
     }
@@ -306,10 +325,7 @@ public:
         {
             const Point3d &pa = pts[pts.size()-2];
             const Point3d &pb = pts[pts.size()-1];
-            double texLen = (pb-pa).norm();
-            texLen *= vecInfo.repeatSize;
-            buildPolys(&pa, &pb, NULL, lastUp, drawable, texLen);
-            texOffset += texLen;
+            buildPolys(&pa, &pb, NULL, lastUp, drawable);
         }
     }
 
@@ -385,12 +401,13 @@ public:
     // Add the points for a linear
     void addLinear(VectorRing &pts)
     {
-//        RGBAColor color;
-//        color.r = random()%256;
-//        color.g = random()%256;
-//        color.b = random()%256;
-//        color.a = 255;
-        WideVectorBuilder vecBuilder(vecInfo,center,[vecInfo.color asRGBAColor]);
+        // Note: Debugging
+        RGBAColor color = [vecInfo.color asRGBAColor];
+        color.r = random()%256;
+        color.g = random()%256;
+        color.b = random()%256;
+        color.a = 255;
+        WideVectorBuilder vecBuilder(vecInfo,center,color);
         
         // Work through the segments
         for (unsigned int ii=0;ii<pts.size();ii++)
