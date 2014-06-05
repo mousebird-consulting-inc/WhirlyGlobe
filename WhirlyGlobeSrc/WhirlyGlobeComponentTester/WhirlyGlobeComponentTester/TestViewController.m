@@ -606,6 +606,40 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     latLonObj = [baseViewC addVectors:vectors desc:desc];
 }
 
+- (NSArray *)addWideVectors:(MaplyVectorObject *)vecObj
+{
+    
+    UIColor *color = [UIColor blueColor];
+    float fade = 0.25;
+    MaplyComponentObject *lines = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: color,
+                                                                         kMaplyVecWidth: @(4.0),
+                                                                         kMaplyFade: @(fade),
+                                                                         kMaplyMaxVis: @(10.0),
+                                                                         kMaplyMinVis: @(0.00032424763776361942)}];
+    
+    MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor],
+                                                                                   kMaplyFade: @(fade),
+                                                                                   // 10 pixels wide
+                                                                                   kMaplyVecWidth: @(10.0),
+                                                                                   kMaplyVecTexture: dashedLineTex,
+                                                                                   kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+                                                                                   
+                                                                                   kMaplyMaxVis: @(0.00032424763776361942),
+                                                                                   kMaplyMinVis: @(0.00011049506429117173)
+                                                                                   }];
+    MaplyComponentObject *realLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: color,
+                                                                                 kMaplyFade: @(fade),
+                                                                                 kMaplyVecTexture: dashedLineTex,
+                                                                                 // 10m in display coordinates
+                                                                                 kMaplyVecWidth: @(10.0/6371000),
+                                                                                 kMaplyWideVecCoordType: kMaplyWideVecCoordTypeReal,
+                                                                                 kMaplyMaxVis: @(0.00011049506429117173),
+                                                                                 kMaplyMinVis: @(0.0)
+                                                                                 }];
+    
+    return @[lines,screenLines,realLines];
+}
+
 - (void)addShapeFile:(NSString *)shapeFileName
 {
     // Make the dashed line if it isn't already there
@@ -625,33 +659,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
         MaplyVectorObject *vecObj = [vecDb fetchAllVectors];
         if (vecObj)
         {
-            UIColor *color = [UIColor blueColor];
-            float fade = 0.25;
-            MaplyComponentObject *lines = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: color,
-                                                                                 kMaplyVecWidth: @(4.0),
-                                                                                 kMaplyFade: @(fade),
-                                                                                 kMaplyMaxVis: @(10.0),
-                                                                                 kMaplyMinVis: @(0.00032424763776361942)}];
-            
-            MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor],
-                                                                                           kMaplyFade: @(fade),
-                                                                                           // 10 pixels wide
-                                                                                           kMaplyVecWidth: @(2.0),
-                                                                                           kMaplyVecTexture: dashedLineTex,
-                                                                                           kMaplyWideVecType: kMaplyWideVecTypeScreen,
-                                                                                           kMaplyMaxVis: @(0.00032424763776361942),
-                                                                                           kMaplyMinVis: @(0.00011049506429117173)
-                                                                                           }];
-            MaplyComponentObject *realLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: color,
-                                                                                          kMaplyFade: @(fade),
-                                                                                            kMaplyVecTexture: dashedLineTex,
-                                                                                          // 10m in display coordinates
-                                                                                          kMaplyVecWidth: @(10.0/6371000),
-                                                                                          kMaplyWideVecType: kMaplyWideVecTypeReal,
-                                                                                         kMaplyMaxVis: @(0.00011049506429117173),
-                                                                                         kMaplyMinVis: @(0.0)
-                                                                                         }];
-            sfRoadsObjArray = @[lines,screenLines,realLines];
+            sfRoadsObjArray = [self addWideVectors:vecObj];
         }
     }
 }
@@ -1316,6 +1324,14 @@ static const int NumMegaMarkers = 40000;
         if (!sfRoadsObjArray)
         {
             [self addShapeFile:@"tl_2013_06075_roads"];
+//            MaplyCoordinate coords[5];
+//            coords[2] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.783333);
+//            coords[1] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.8);
+////            coords[2] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.8);
+//            coords[0] = MaplyCoordinateMakeWithDegrees(-122.3, 37.783333);
+////            coords[3] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.783333);
+//            MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:3 attributes:nil];
+//            sfRoadsObjArray = [self addWideVectors:vecObj];
         }
     } else {
         if (sfRoadsObjArray)
