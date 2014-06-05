@@ -38,6 +38,7 @@ public:
     
     /// Each vertex has an offset in 3-space
     void addDir(const Point3f &dir);
+    void addDir(const Point3d &dir);
     
     /// Set the width we'll we'll use
     void setWidth(float inWidth) { width = inWidth; }

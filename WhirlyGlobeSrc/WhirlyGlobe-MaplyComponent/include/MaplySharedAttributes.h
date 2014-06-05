@@ -149,13 +149,36 @@
 #define kMaplyVecCenterX @"veccenterx"
 #define kMaplyVecCenterY @"veccentery"
 
-/// For wide vectors, this is how we'll widen them
-#define kMaplyWideVecType @"widentype"
+/// For wide vectors, we can widen them in screen space or display space
+#define kMaplyWideVecCoordType @"wideveccoordtype"
 
 /// Widened vectors are widened in real space.  The width is in meters.
-#define kMaplyWideVecTypeReal @"real"
+#define kMaplyWideVecCoordTypeReal @"real"
 /// Widened vectors are widened in screen space.  The width is in pixels.
-#define kMaplyWideVecTypeScreen @"screen"
+#define kMaplyWideVecCoordTypeScreen @"screen"
+
+/// For wide vectors we can control the line joins
+/// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty
+#define kMaplyWideVecJoinType @"wideveclinejointype"
+
+/// Widened vectors are joined with miters
+#define kMaplyWideVecMiterJoin @"miter"
+/// Widened vectors are joined with a curve
+#define kMaplyWideVecRoundJoin @"round"
+/// Widened vectors are joined with a bevel
+#define kMaplyWideVecBevelJoin @"bevel"
+
+/// For wide vectors we can control the ends
+/// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
+#define kMaplyWideVecLineCapType @"wideveclinecaptype"
+
+/// Widened vector ends are flush
+#define kMaplyWideVecButtCap @"butt"
+/// Widened vector ends are round (e.g. hot dog roads)
+#define kMaplyWideVecRoundCap @"round"
+/// Widened vector ends are extended a bit and then flush
+#define kMaplyWideVecSquareCap @"square"
+
 
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 #define kMaplySubdivEpsilon @"subdivisionepsilon"
