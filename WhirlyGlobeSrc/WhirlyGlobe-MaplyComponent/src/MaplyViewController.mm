@@ -913,7 +913,7 @@ using namespace Maply;
     }
 }
 
-- (MaplyBoundingBox) getCurrentExtends
+- (MaplyBoundingBox) getCurrentExtents
 {
 
     MaplyBoundingBox bbox;

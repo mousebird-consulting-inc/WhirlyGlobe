@@ -1112,7 +1112,7 @@ using namespace WhirlyGlobe;
     globeView.delegate = self;
 }
 
-- (bool) getCurrentExtends:(MaplyBoundingBox *)bbox
+- (bool) getCurrentExtents:(MaplyBoundingBox *)bbox
 {
     CGRect frame = self.view.frame;
     
