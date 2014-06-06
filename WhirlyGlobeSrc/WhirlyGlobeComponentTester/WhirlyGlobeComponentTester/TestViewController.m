@@ -608,15 +608,6 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 
 - (NSArray *)addWideVectors:(MaplyVectorObject *)vecObj
 {
-    // Make the dashed line if it isn't already there
-    if (!dashedLineTex)
-    {
-        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,128)];
-        [lineTexBuilder setPattern:@[@(32),@(32),@(32),@(32)]];
-        UIImage *dashedLineImage = [lineTexBuilder makeImage];
-        dashedLineTex = [baseViewC addTexture:dashedLineImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapY mode:MaplyThreadAny];
-    }
-    
     UIColor *color = [UIColor blueColor];
     float fade = 0.25;
     MaplyComponentObject *lines = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: color,
@@ -628,7 +619,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor],
                                                                                    kMaplyFade: @(fade),
                                                                                    // 10 pixels wide
-                                                                                   kMaplyVecWidth: @(20.0),
+                                                                                   kMaplyVecWidth: @(8.0),
                                                                                    kMaplyVecTexture: dashedLineTex,
                                                                                    kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
                                                                                    
@@ -639,7 +630,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
                                                                                  kMaplyFade: @(fade),
                                                                                  kMaplyVecTexture: dashedLineTex,
                                                                                  // 10m in display coordinates
-                                                                                 kMaplyVecWidth: @(10.0/6371000),
+                                                                                 kMaplyVecWidth: @(8.0/6371000),
                                                                                  kMaplyWideVecCoordType: kMaplyWideVecCoordTypeReal,
                                                                                  kMaplyMaxVis: @(0.00011049506429117173),
                                                                                  kMaplyMinVis: @(0.0)
@@ -650,16 +641,29 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 
 - (void)addShapeFile:(NSString *)shapeFileName
 {
-    // Add the vectors at three different levels
-    MaplyVectorDatabase *vecDb = [MaplyVectorDatabase vectorDatabaseWithShape:shapeFileName];
-    if (vecDb)
+    // Make the dashed line if it isn't already there
+    if (!dashedLineTex)
     {
-        MaplyVectorObject *vecObj = [vecDb fetchAllVectors];
-        if (vecObj)
-        {
-            sfRoadsObjArray = [self addWideVectors:vecObj];
-        }
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,128)];
+        [lineTexBuilder setPattern:@[@(128)]];
+        lineTexBuilder.opacityFunc = MaplyOpacitySin3;
+        UIImage *dashedLineImage = [lineTexBuilder makeImage];
+        dashedLineTex = [baseViewC addTexture:dashedLineImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapY mode:MaplyThreadAny];
     }
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+    ^{
+        // Add the vectors at three different levels
+        MaplyVectorDatabase *vecDb = [MaplyVectorDatabase vectorDatabaseWithShape:shapeFileName];
+        if (vecDb)
+        {
+            MaplyVectorObject *vecObj = [vecDb fetchAllVectors];
+            if (vecObj)
+            {
+                sfRoadsObjArray = [self addWideVectors:vecObj];
+            }
+        }
+    });
 }
 
 - (void)addStickers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc
