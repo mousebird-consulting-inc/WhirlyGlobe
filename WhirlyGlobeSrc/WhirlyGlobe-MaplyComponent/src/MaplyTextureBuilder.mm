@@ -89,6 +89,12 @@
                 opacityVal = (sinVal > 0.0 ? sinVal : 0.0);
             }
                 break;
+            case MaplyOpacitySin2:
+            {
+                float sinVal = sinf((ii/(float)(size.width-1))*M_PI);
+                opacityVal = (sinVal > 0.0 ? powf(sinVal,0.5) : 0.0);
+            }
+                break;
             case MaplyOpacitySin3:
             {
                 float sinVal = sinf((ii/(float)(size.width-1))*M_PI);
