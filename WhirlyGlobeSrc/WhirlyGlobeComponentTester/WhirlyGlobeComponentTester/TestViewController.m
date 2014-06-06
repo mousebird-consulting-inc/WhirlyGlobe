@@ -122,7 +122,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     NSMutableDictionary *_trafficLabels;
     
     // Dashed lines used in wide vector test
-    MaplyTexture *dashedLineTex;
+    MaplyTexture *dashedLineTex,*filledLineTex;
     
     PerformanceMode perfMode;
 }
@@ -618,8 +618,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     
     MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor],
                                                                                    kMaplyFade: @(fade),
-                                                                                   // 10 pixels wide
-                                                                                   kMaplyVecWidth: @(8.0),
+                                                                                   kMaplyVecWidth: @(4.0),
                                                                                    kMaplyVecTexture: dashedLineTex,
                                                                                    kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
                                                                                    
@@ -628,8 +627,8 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
                                                                                    }];
     MaplyComponentObject *realLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: color,
                                                                                  kMaplyFade: @(fade),
-                                                                                 kMaplyVecTexture: dashedLineTex,
-                                                                                 // 10m in display coordinates
+                                                                                 kMaplyVecTexture: filledLineTex,
+                                                                                 // 8m in display coordinates
                                                                                  kMaplyVecWidth: @(8.0/6371000),
                                                                                  kMaplyWideVecCoordType: kMaplyWideVecCoordTypeReal,
                                                                                  kMaplyMaxVis: @(0.00011049506429117173),
@@ -644,11 +643,19 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     // Make the dashed line if it isn't already there
     if (!dashedLineTex)
     {
-        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,128)];
-        [lineTexBuilder setPattern:@[@(128)]];
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(4,32)];
+        [lineTexBuilder setPattern:@[@(8),@(8),@(8),@(8)]];
         lineTexBuilder.opacityFunc = MaplyOpacitySin2;
         UIImage *dashedLineImage = [lineTexBuilder makeImage];
         dashedLineTex = [baseViewC addTexture:dashedLineImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapY mode:MaplyThreadAny];
+    }
+    if (!filledLineTex)
+    {
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,32)];
+        [lineTexBuilder setPattern:@[@(32)]];
+        lineTexBuilder.opacityFunc = MaplyOpacitySin2;
+        UIImage *lineImage = [lineTexBuilder makeImage];
+        filledLineTex = [baseViewC addTexture:lineImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapY mode:MaplyThreadAny];
     }
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
