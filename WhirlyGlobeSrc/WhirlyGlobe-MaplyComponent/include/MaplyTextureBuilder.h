@@ -21,7 +21,7 @@
 #import <UIKit/UIKit.h>
 
 /// The opacity function we'll apply to each row of the texture.  This lets us blend.
-typedef enum {MaplyOpacityFlat,MaplyOpacityLinear,MaplyOpacitySin1,MaplyOpacitySin3} MaplyLinearTextureOpacity;
+typedef enum {MaplyOpacityFlat,MaplyOpacityLinear,MaplyOpacitySin1,MaplyOpacitySin2,MaplyOpacitySin3} MaplyLinearTextureOpacity;
 
 /** @brief The Maply Linear Texture Builder is used to construct linear textures
     for use on widened vectors.
