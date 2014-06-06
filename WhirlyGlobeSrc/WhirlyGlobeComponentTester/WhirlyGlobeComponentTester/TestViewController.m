@@ -646,7 +646,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     {
         MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,128)];
         [lineTexBuilder setPattern:@[@(128)]];
-        lineTexBuilder.opacityFunc = MaplyOpacitySin3;
+        lineTexBuilder.opacityFunc = MaplyOpacitySin2;
         UIImage *dashedLineImage = [lineTexBuilder makeImage];
         dashedLineTex = [baseViewC addTexture:dashedLineImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapY mode:MaplyThreadAny];
     }
