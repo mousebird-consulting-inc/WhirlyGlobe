@@ -20,6 +20,7 @@
 
 #import "DefaultShaderPrograms.h"
 #import "BillboardDrawable.h"
+#import "WideVectorDrawable.h"
 
 namespace WhirlyKit
 {
@@ -395,13 +396,23 @@ void SetupDefaultShaders(Scene *scene)
     } else {
         scene->addProgram(kToolkitDefaultScreenSpaceProgram, screenShader);
     }
-    
+
+    // Billboard shader
     OpenGLES2Program *billShader = BuildBillboardProgram();
     if (!billShader)
     {
-        NSLog(@"SetupDefaultShaders: Billboard shader didn't compiled.");
+        NSLog(@"SetupDefaultShaders: Billboard shader didn't compile.");
     } else {
         scene->addProgram(kToolkitDefaultBillboardProgram, billShader);
+    }
+    
+    // Widened vector shader
+    OpenGLES2Program *wideVecShader = BuildWideVectorProgram();
+    if (!wideVecShader)
+    {
+        NSLog(@"SetupDefaultShaders: Wide Vector shader didn't compile.");
+    } else {
+        scene->addProgram(kToolkitDefaultWideVectorProgram, wideVecShader);
     }
 
 }

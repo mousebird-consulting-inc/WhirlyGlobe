@@ -372,7 +372,8 @@ void TileBuilder::buildSkirt(BasicDrawable *draw,std::vector<Point3f> &pts,std::
                         for (unsigned int jj=0;jj<4;jj++)
                         {
                             draw->addPoint(corners[jj]);
-                            draw->addNormal((pts[ii]+pts[ii+1])/2.0);
+                            Point3f norm = (pts[ii]+pts[ii+1])/2.f;
+                            draw->addNormal(norm);
                             TexCoord texCoord = cornerTex[jj];
                             draw->addTexCoord(-1,texCoord);
                         }

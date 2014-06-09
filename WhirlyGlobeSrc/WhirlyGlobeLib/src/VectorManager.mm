@@ -37,7 +37,7 @@ typedef enum {TextureProjectionNone,TextureProjectionTanPlane} TextureProjection
     // For creation request, the shapes
     ShapeSet                    shapes;
     BOOL                        enable;
-    float                         drawOffset;
+    float                       drawOffset;
     int                         priority;
     float                       minVis,maxVis;
     BOOL                        filled;

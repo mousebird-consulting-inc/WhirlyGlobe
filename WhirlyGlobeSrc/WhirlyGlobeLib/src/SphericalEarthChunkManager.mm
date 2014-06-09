@@ -70,7 +70,8 @@ static const float SkirtFactor = 0.95;
         for (unsigned int jj=0;jj<4;jj++)
         {
             draw->addPoint(corners[jj]);
-            draw->addNormal((pts[ii]+pts[ii+1])/2.0);
+            Point3f norm = (pts[ii]+pts[ii+1])/2.0;
+            draw->addNormal(norm);
             TexCoord texCoord = cornerTex[jj];
             draw->addTexCoord(0,texCoord);
         }

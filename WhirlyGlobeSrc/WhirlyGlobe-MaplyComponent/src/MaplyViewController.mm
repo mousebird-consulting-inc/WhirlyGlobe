@@ -914,6 +914,23 @@ using namespace Maply;
     }
 }
 
+- (MaplyBoundingBox) getCurrentExtents
+{
+
+    MaplyBoundingBox bbox;
+    
+    CGRect frame = self.view.frame;
+    
+    CGPoint pt = CGPointMake(0,frame.size.height);
+    bbox.ll = [self geoFromScreenPoint:pt];
+    
+    pt = CGPointMake(frame.size.width,0);
+    bbox.ur = [self geoFromScreenPoint:pt];
+    
+    return bbox;
+    
+}
+
 - (void)calloutViewClicked:(SMCalloutView *)calloutView
 {
     if([self.delegate respondsToSelector:@selector(maplyViewController:didClickAnnotation:)]) {
@@ -925,6 +942,7 @@ using namespace Maply;
         }
     }
 }
+
 
 
 @end
