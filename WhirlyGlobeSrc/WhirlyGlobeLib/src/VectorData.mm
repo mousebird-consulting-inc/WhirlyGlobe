@@ -222,6 +222,8 @@ VectorTrianglesRef VectorTriangles::createTriangles()
     
 GeoMbr VectorTriangles::calcGeoMbr()
 {
+    if (!geoMbr.valid())
+        initGeoMbr();
     return geoMbr;
 }
     
@@ -291,7 +293,9 @@ bool VectorAreal::pointInside(GeoCoord coord)
     
 GeoMbr VectorAreal::calcGeoMbr() 
 { 
-    return geoMbr; 
+    if (!geoMbr.valid())
+        initGeoMbr();
+    return geoMbr;
 }
     
 void VectorAreal::initGeoMbr()
@@ -325,7 +329,9 @@ VectorLinearRef VectorLinear::createLinear()
     
 GeoMbr VectorLinear::calcGeoMbr() 
 { 
-    return geoMbr; 
+    if (!geoMbr.valid())
+        initGeoMbr();
+    return geoMbr;
 }
 
 void VectorLinear::initGeoMbr()

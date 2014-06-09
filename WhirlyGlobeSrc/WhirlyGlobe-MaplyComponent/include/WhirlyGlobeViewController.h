@@ -325,4 +325,12 @@
  */
 - (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos;
 
+/**
+ @brief Return the extents of the current view.
+ @details When we're dealing with a globe the corners could be outside of the globe, in this case false is returned.
+ @param bbox. The bbox will be returned here.
+ @return Returns true if exists a bounding bbox for the current view, otherwise returns false
+ */
+- (bool) getCurrentExtents:(MaplyBoundingBox *)bbox;
+
 @end

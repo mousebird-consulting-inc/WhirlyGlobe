@@ -67,6 +67,7 @@ public:
     public:
         NodeInfo() { attrs = [NSMutableDictionary dictionary]; phantom = false;  importance = 0; }
         NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
+        NodeInfo(const Identifier &ident) : ident(ident) { attrs = nil; }
         NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
         ~NodeInfo() { attrs = nil; }
         
@@ -106,7 +107,7 @@ public:
     void reevaluateNodes();
     
     /// Add the given tile, keeping track of what needed to be removed
-    void addTile(NodeInfo nodeInfo,std::vector<Identifier> &tilesRemoved);
+    void addTile(NodeInfo nodeInfo,std::vector<Identifier> &tilesRemoved,int targetLevel=-1);
     
     /// Explicitly remove a given tile
     void removeTile(Identifier which);

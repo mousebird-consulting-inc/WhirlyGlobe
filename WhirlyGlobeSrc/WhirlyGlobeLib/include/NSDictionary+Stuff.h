@@ -43,6 +43,9 @@
 /// Returns default if not or wrong type
 - (NSString *)stringForKey:(NSString *)name default:(NSString *)theDefault;
 
+/// Parse an enumerated type and return an int
+- (int)enumForKey:(NSString *)name values:(NSArray *)values default:(int)theDefault;
+
 @end
 
 // A function we can call to force the linker to bring in categories
