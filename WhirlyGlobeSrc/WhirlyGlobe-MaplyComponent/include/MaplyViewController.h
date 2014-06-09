@@ -252,4 +252,10 @@
   */
 - (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos;
 
+/**
+ @brief Return the extents of the current view
+ @return Returns the Bounding Box (in radians) corresponding to the current view
+ */
+- (MaplyBoundingBox) getCurrentExtents;
+
 @end

@@ -33,6 +33,7 @@
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &markerIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &labelIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &vectorIDs;
+@property (nonatomic,assign) WhirlyKit::SimpleIDSet &wideVectorIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &shapeIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &chunkIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &loftIDs;

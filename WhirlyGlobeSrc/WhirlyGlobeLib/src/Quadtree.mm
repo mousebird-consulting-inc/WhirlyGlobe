@@ -100,12 +100,12 @@ bool Quadtree::Node::hasChildren()
     
 void Quadtree::Node::Print()
 {
-    NSLog(@"Node (%d,%d,%d)",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level);
+    NSLog(@"Node %d: (%d,%d), phantom = %@",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y,(nodeInfo.phantom ? @"yes" : @"no"));
     if (parent)
-        NSLog(@" Parent = (%d,%d,%d)",parent->nodeInfo.ident.x,parent->nodeInfo.ident.y,parent->nodeInfo.ident.level);
+        NSLog(@" Parent = %d: (%d,%d)",parent->nodeInfo.ident.level,parent->nodeInfo.ident.x,parent->nodeInfo.ident.y);
     for (unsigned int ii=0;ii<4;ii++)
         if (children[ii])
-            NSLog(@"  Child = (%d,%d,%d)",children[ii]->nodeInfo.ident.x,children[ii]->nodeInfo.ident.y,children[ii]->nodeInfo.ident.level);
+            NSLog(@"  Child = %d: (%d,%d)",children[ii]->nodeInfo.ident.level,children[ii]->nodeInfo.ident.x,children[ii]->nodeInfo.ident.y);
 }
 
 Quadtree::Quadtree(Mbr mbr,int minLevel,int maxLevel,int maxNodes,float minImportance,NSObject<WhirlyKitQuadTreeImportanceDelegate> *importDelegate)
@@ -218,7 +218,7 @@ void Quadtree::reevaluateNodes()
     }
 }
 
-void Quadtree::addTile(NodeInfo nodeInfo, std::vector<Identifier> &tilesRemoved)
+void Quadtree::addTile(NodeInfo nodeInfo, std::vector<Identifier> &tilesRemoved,int targetLevel)
 {
     // Look for the parent
     Node *parent = NULL;
@@ -237,10 +237,10 @@ void Quadtree::addTile(NodeInfo nodeInfo, std::vector<Identifier> &tilesRemoved)
 
     // Need to remove a node
     int numNodes = (int)nodesByIdent.size();
-    if (numNodes > maxNodes)
+    if (numNodes-numPhantomNodes > maxNodes)
     {
         NodesBySizeType::iterator it = nodesBySize.begin();
-        if (it != nodesBySize.end())
+        if (it != nodesBySize.end() && (*it)->nodeInfo.ident.level != targetLevel)
         {
             tilesRemoved.push_back((*it)->nodeInfo.ident);
             removeNode(*it);
