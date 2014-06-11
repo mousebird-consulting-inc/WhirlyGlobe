@@ -971,6 +971,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             compObj.wideVectorIDs.insert(vecID);
     }
     
+    // If the vectors are selectable we want to keep them around
+    id selVal = inDesc[@"selectable"];
+    if (selVal && [selVal boolValue])
+        compObj.vectors = vectors;
+    
     pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
     compObj.underConstruction = false;
