@@ -29,43 +29,51 @@ using namespace ClipperLib;
 static float PolyScale = 1e14;
 
 // Clip the given loop to the given MBR
-bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr,std::vector<VectorRing> &rets)
+bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr, const bool closed,std::vector<VectorRing> &rets)
 {
-    Polygon subject(ring.size());
+    Path subject(ring.size());
     for (unsigned int ii=0;ii<ring.size();ii++)
     {
         const Point2f &pt = ring[ii];
         subject[ii] = IntPoint(pt.x()*PolyScale,pt.y()*PolyScale);
     }
-    Polygon clip(4);
+    Path clip(4);
     clip[0] = IntPoint(mbr.ll().x()*PolyScale,mbr.ll().y()*PolyScale);
     clip[1] = IntPoint(mbr.ur().x()*PolyScale,mbr.ll().y()*PolyScale);
     clip[2] = IntPoint(mbr.ur().x()*PolyScale,mbr.ur().y()*PolyScale);
     clip[3] = IntPoint(mbr.ll().x()*PolyScale,mbr.ur().y()*PolyScale);
     
     Clipper c;
-    c.AddPolygon(subject, ptSubject);
-    c.AddPolygon(clip, ptClip);
-    Polygons solution;
-    if (c.Execute(ctIntersection, solution))
+    c.AddPath(subject, ptSubject, closed);
+    c.AddPath(clip, ptClip, true);
+    Paths solution;
+  
+    if(!closed)
     {
-        for (unsigned int ii=0;ii<solution.size();ii++)
+        PolyTree polyTreeSolution = *new PolyTree();
+        c.Execute(ctIntersection, polyTreeSolution, pftEvenOdd, pftEvenOdd);
+        PolyTreeToPaths(polyTreeSolution, solution);
+    } else
+    {
+        if (!c.Execute(ctIntersection, solution))
         {
-            Polygon &outPoly = solution[ii];
-            VectorRing outRing;
-            for (unsigned jj=0;jj<outPoly.size();jj++)
-            {
-                IntPoint &outPt = outPoly[jj];
-                outRing.push_back(Point2f(outPt.X/PolyScale,outPt.Y/PolyScale));
-            }
-            if (outRing.size() > 2)
-                rets.push_back(outRing);
+            return false;
         }
-        
-        return true;
     }
     
-    return false;
+    for (unsigned int ii=0;ii<solution.size();ii++)
+    {
+        Path &outPoly = solution[ii];
+        VectorRing outRing;
+        for (unsigned jj=0;jj<outPoly.size();jj++)
+        {
+            IntPoint &outPt = outPoly[jj];
+            outRing.push_back(Point2f(outPt.X/PolyScale,outPt.Y/PolyScale));
+        }
+        if (outRing.size() > 2)
+            rets.push_back(outRing);
+    }
+    return true;
 }
 
 // Clip the given loop to the given grid (org and spacing)
@@ -89,7 +97,7 @@ bool ClipLoopToGrid(const VectorRing &ring,Point2f org,Point2f spacing,std::vect
         Mbr left(l0,l1);
         
         std::vector<VectorRing> leftStrip;
-        ClipLoopToMbr(ring,left,leftStrip);
+        ClipLoopToMbr(ring,left, true, leftStrip);
         
         // Now clip the left strip vertically
         for (int iy=ll_iy;iy<=ur_iy;iy++)
@@ -99,7 +107,7 @@ bool ClipLoopToGrid(const VectorRing &ring,Point2f org,Point2f spacing,std::vect
             Point2f b1(mbr.ur().x(),(iy+1)*spacing.y()+org.y());
             Mbr bot(b0,b1);
             for (unsigned int ic=0;ic<leftStrip.size();ic++)
-                ClipLoopToMbr(leftStrip[ic], bot, rets);
+                ClipLoopToMbr(leftStrip[ic], bot, true, rets);
         }
     }
     
