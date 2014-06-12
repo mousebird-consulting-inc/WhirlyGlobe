@@ -910,11 +910,11 @@ public:
             VectorLinearRef linear = boost::dynamic_pointer_cast<VectorLinear>(*it);
             std::vector<VectorRing> newLoops;
             ClipLoopToMbr(linear->pts, mbr, false, newLoops);
-            for (unsigned int jj=0;jj<newLoops.size();jj++)
+            for (std::vector<VectorRing>::iterator it = newLoops.begin(); it != newLoops.end(); it++)
             {
                 VectorLinearRef newLinear = VectorLinear::createLinear();
                 newLinear->setAttrDict(linear->getAttrDict());
-                newLinear->pts = newLoops[jj];
+                newLinear->pts = *it;
                 newVec->_shapes.insert(newLinear);
             }
         } else if(boost::dynamic_pointer_cast<VectorAreal>(*it) != NULL)
