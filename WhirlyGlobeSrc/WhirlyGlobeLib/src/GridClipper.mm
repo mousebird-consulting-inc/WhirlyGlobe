@@ -70,7 +70,8 @@ bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr, const bool closed,std:
             IntPoint &outPt = outPoly[jj];
             outRing.push_back(Point2f(outPt.X/PolyScale,outPt.Y/PolyScale));
         }
-        if (outRing.size() > 2)
+     
+        if ((closed && outRing.size() > 2) || (!closed && outRing.size() > 1))
             rets.push_back(outRing);
     }
     return true;
