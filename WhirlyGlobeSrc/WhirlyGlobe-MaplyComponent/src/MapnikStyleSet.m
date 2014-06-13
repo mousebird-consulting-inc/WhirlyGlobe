@@ -261,13 +261,18 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
       if(tileID.level <= rule.maxZoom && (tileID.level >= rule.minZoom ||
                                           (tileID.level == _tileMaxZoom && rule.minZoom >= _tileMaxZoom))) {
         //some rules dont take effect until after max zoom, so we need to apply them at maxZoom
-        if([rule.filterPredicate evaluateWithObject:attributes]) {
-          [symbolizers addObjectsFromArray:rule.symbolizers];
-          if(style.filterModeFirst) {
-            //filter mode first means we stop applying rules after the first match
-            //https://github.com/mapnik/mapnik/issues/706
-            break;
+        @try {
+          if([rule.filterPredicate evaluateWithObject:attributes]) {
+            [symbolizers addObjectsFromArray:rule.symbolizers];
+            if(style.filterModeFirst) {
+              //filter mode first means we stop applying rules after the first match
+              //https://github.com/mapnik/mapnik/issues/706
+              break;
+            }
           }
+        }
+        @catch (NSException *exception) {
+          NSLog(@"Error evaluating rule:%@", rule.filterPredicate);
         }
       }
     }
