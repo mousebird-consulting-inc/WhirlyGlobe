@@ -111,8 +111,12 @@ static double MAX_EXTENT = 20037508.342789244;
     NSMutableDictionary *featureStyles = [NSMutableDictionary new];
     
     for(NSObject<MaplyTileSource> *tileSource in self.tileSources) {
-      MaplyTileID flippedYTile;
+      if(tileID.level > tileSource.maxZoom || tileID.level < tileSource.minZoom) {
+        //this should probably check validTile, but that could be slower
+        continue;
+      }
 
+      MaplyTileID flippedYTile;
       if(layer.flipY) {
         flippedYTile.level = tileID.level;
         flippedYTile.x = tileID.x;
