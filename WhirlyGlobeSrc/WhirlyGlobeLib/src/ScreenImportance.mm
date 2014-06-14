@@ -305,7 +305,7 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
         // Note: Turned off for the moment
         double newImport =  std::abs(screenArea) * scale;
         if (newImport > import)
-        import = newImport;
+            import = newImport;
     }
     
     return import;
@@ -357,7 +357,10 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
         totalImport += import;
     }
     
-    return totalImport/2.0;
+    // The flat map case is optimized to only evaluate one poly, since there's no curvature
+    double scaleFactor = (_polys.size() > 1 ? 0.5 : 1.0);
+    
+    return totalImport*scaleFactor;
 }
 
 - (bool)isOnScreenForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
@@ -442,7 +445,7 @@ double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSi
     // The system is expecting an estimate of pixel size on screen
     import = import/(pixelsSquare * pixelsSquare);
     
-    //    NSLog(@"Import: %d: (%d,%d)  %f",nodeIdent.level,nodeIdent.x,nodeIdent.y,import);
+//    NSLog(@"Import: %d: (%d,%d)  %f",nodeIdent.level,nodeIdent.x,nodeIdent.y,import);
     
     return import;
 }

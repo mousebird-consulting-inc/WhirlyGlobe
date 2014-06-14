@@ -212,7 +212,7 @@ public:
     return VectorWriteFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], _shapes);
 }
 
-- (NSDictionary *)attributes
+- (NSMutableDictionary *)attributes
 {
     if (_shapes.empty())
         return nil;
@@ -840,6 +840,64 @@ public:
     
     return newVec;
 }
+
+- (MaplyVectorObject *) clipToMbr:(MaplyCoordinate)ll upperRight:(MaplyCoordinate)ur
+{
+    MaplyVectorObject *newVec = [[MaplyVectorObject alloc] init];
+    
+    Mbr mbr(Point2f(ll.x, ll.y), Point2f(ur.x, ur.y));
+    
+    for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
+    {
+        if(boost::dynamic_pointer_cast<VectorLinear>(*it) != NULL)
+        {
+            VectorLinearRef linear = boost::dynamic_pointer_cast<VectorLinear>(*it);
+            std::vector<VectorRing> newLoops;
+            ClipLoopToMbr(linear->pts, mbr, false, newLoops);
+            for (std::vector<VectorRing>::iterator it = newLoops.begin(); it != newLoops.end(); it++)
+            {
+                VectorLinearRef newLinear = VectorLinear::createLinear();
+                newLinear->setAttrDict(linear->getAttrDict());
+                newLinear->pts = *it;
+                newVec->_shapes.insert(newLinear);
+            }
+        } else if(boost::dynamic_pointer_cast<VectorAreal>(*it) != NULL)
+        {
+            VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+            if (ar)
+            {
+                for (int ii=0;ii<ar->loops.size();ii++)
+                {
+                    std::vector<VectorRing> newLoops;
+                    ClipLoopToMbr(ar->loops[ii], mbr, true, newLoops);
+                    for (unsigned int jj=0;jj<newLoops.size();jj++)
+                    {
+                        VectorArealRef newAr = VectorAreal::createAreal();
+                        newAr->setAttrDict(ar->getAttrDict());
+                        newAr->loops.push_back(newLoops[jj]);
+                        newVec->_shapes.insert(newAr);
+                    }
+                }
+            }
+        } else if(boost::dynamic_pointer_cast<VectorPoints>(*it) != NULL)
+        {
+            VectorPointsRef points = boost::dynamic_pointer_cast<VectorPoints>(*it);
+            VectorPointsRef newPoints = VectorPoints::createPoints();
+            for (unsigned int ii=0;ii<points->pts.size();ii++)
+            {
+                const Point2f &pt = points->pts[ii];
+                if(pt.x() >= ll.x && pt.x() <= ur.x &&
+                   pt.y() >= ll.y && pt.y() <= ur.y)
+                {
+                    newPoints->pts.push_back(pt);
+                }
+            }
+        }
+    }
+    
+    return newVec;
+}
+
 
 // Read from the raw vector format in the Vector DB
 // Note: Put this somewhere else.

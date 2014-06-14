@@ -416,6 +416,10 @@
 		2BDC4ADE133404D400E25283 /* GridLines.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B951C8D12EFA567005003AE /* GridLines.mm */; };
 		2BDC4ADF133404D400E25283 /* VectorLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9A12F0A087005003AE /* VectorLayer.mm */; };
 		2BDC4AE0133404D400E25283 /* LabelLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1F06A130076C5001F33CD /* LabelLayer.mm */; };
+		2BDC8A811937B56300DFECF0 /* WideVectorManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC8A801937B56300DFECF0 /* WideVectorManager.h */; };
+		2BDC8A831937B57600DFECF0 /* WideVectorManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BDC8A821937B57600DFECF0 /* WideVectorManager.mm */; };
+		2BDC8A851937B76800DFECF0 /* WideVectorDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC8A841937B76800DFECF0 /* WideVectorDrawable.h */; };
+		2BDC8A871937B77C00DFECF0 /* WideVectorDrawable.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BDC8A861937B77C00DFECF0 /* WideVectorDrawable.mm */; };
 		2BE886CF160A855F00E92A0A /* MaplyTapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE886CE160A855F00E92A0A /* MaplyTapMessage.h */; };
 		2BE886D1160A863700E92A0A /* MaplyTapMessage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE886D0160A863700E92A0A /* MaplyTapMessage.mm */; };
 		2BEA1E4E171E0E0F0039F1A4 /* FontTextureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA1E4B171E0E0F0039F1A4 /* FontTextureManager.h */; };
@@ -883,6 +887,10 @@
 		2BDC4A621333F0E900E25283 /* WhirlyGlobeLib-iphoneos-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphoneos-Prefix.pch"; sourceTree = "<group>"; };
 		2BDC4ABB133404BB00E25283 /* libWhirlyGlobeLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWhirlyGlobeLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BDC4ABF133404BB00E25283 /* WhirlyGlobeLib-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-Prefix.pch"; sourceTree = "<group>"; };
+		2BDC8A801937B56300DFECF0 /* WideVectorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorManager.h; sourceTree = "<group>"; };
+		2BDC8A821937B57600DFECF0 /* WideVectorManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WideVectorManager.mm; sourceTree = "<group>"; };
+		2BDC8A841937B76800DFECF0 /* WideVectorDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorDrawable.h; sourceTree = "<group>"; };
+		2BDC8A861937B77C00DFECF0 /* WideVectorDrawable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WideVectorDrawable.mm; sourceTree = "<group>"; };
 		2BE6EE5412E4F44900415490 /* PinchDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PinchDelegate.h; sourceTree = "<group>"; };
 		2BE6EE5612E4F48800415490 /* PinchDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = PinchDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2BE6EE7612E4F95C00415490 /* SwipeDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SwipeDelegate.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -1409,7 +1417,6 @@
 			isa = PBXGroup;
 			children = (
 				2BA13BF617EE9F1A000C43B7 /* vestigal */,
-				2BB25922177A042F00770619 /* BillboardDrawable.h */,
 				2BEA1E4B171E0E0F0039F1A4 /* FontTextureManager.h */,
 				2BEA1E4C171E0E0F0039F1A4 /* LabelRenderer.h */,
 				2BEA1E4D171E0E0F0039F1A4 /* ShapeDrawableBuilder.h */,
@@ -1556,8 +1563,11 @@
 				2B308B10171F638F006D7273 /* SelectionManager.h */,
 				2B665468179F271200FB4427 /* SphericalEarthChunkManager.h */,
 				2BB1787117A8313700AD0614 /* BillboardManager.h */,
+				2BB25922177A042F00770619 /* BillboardDrawable.h */,
 				2BB1787217A8313900AD0614 /* ParticleSystemManager.h */,
 				2BB1787317A8313C00AD0614 /* LoftManager.h */,
+				2BDC8A801937B56300DFECF0 /* WideVectorManager.h */,
+				2BDC8A841937B76800DFECF0 /* WideVectorDrawable.h */,
 			);
 			name = managers;
 			sourceTree = "<group>";
@@ -1574,6 +1584,8 @@
 				2BB1787717A8315800AD0614 /* BillboardManager.mm */,
 				2BB1787817A8315A00AD0614 /* ParticleSystemManager.mm */,
 				2BB1787917A8315B00AD0614 /* LoftManager.mm */,
+				2BDC8A821937B57600DFECF0 /* WideVectorManager.mm */,
+				2BDC8A861937B77C00DFECF0 /* WideVectorDrawable.mm */,
 			);
 			name = managers;
 			sourceTree = "<group>";
@@ -1945,6 +1957,7 @@
 				2B95F91718A5AB1F00D72645 /* GlobeTwoFingerTapDelegate.h in Headers */,
 				2B3A0D60133405780085EF43 /* LabelLayer.h in Headers */,
 				2B3A0D41133405700085EF43 /* shapefil.h in Headers */,
+				2BDC8A811937B56300DFECF0 /* WideVectorManager.h in Headers */,
 				2B44187913A2D9BA00514EDE /* RotateDelegate.h in Headers */,
 				2B40467815F9B4CB00937923 /* ActiveModel.h in Headers */,
 				2B40467B15F9B4D300937923 /* GeometryLayer.h in Headers */,
@@ -1999,6 +2012,7 @@
 				2B4AE3F51766610900850F3F /* JSONSharedString.h in Headers */,
 				2B4AE3F61766610900850F3F /* JSONSingleton.h in Headers */,
 				2B4AE3F71766610900850F3F /* JSONStats.h in Headers */,
+				2BDC8A851937B76800DFECF0 /* WideVectorDrawable.h in Headers */,
 				2BA539391908601000A2540C /* SceneRendererES3.h in Headers */,
 				2B4AE3F91766610900850F3F /* JSONStream.h in Headers */,
 				2B4AE3FB1766610900850F3F /* JSONValidator.h in Headers */,
@@ -2151,6 +2165,7 @@
 				2B4504E114BD126400C99306 /* MaplyPinchDelegate.mm in Sources */,
 				2B03701914C9FDDE00A51AC4 /* MaplyAnimateTranslateMomentum.mm in Sources */,
 				2B03701A14C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm in Sources */,
+				2BDC8A831937B57600DFECF0 /* WideVectorManager.mm in Sources */,
 				2B03702014CA01C600A51AC4 /* MaplyTapDelegate.mm in Sources */,
 				2B5E63D9152283B20007904C /* Scene.mm in Sources */,
 				2BA2BB8A153E106000DAB382 /* GlobeLayerViewWatcher.mm in Sources */,
@@ -2312,6 +2327,7 @@
 				2B7EF4BA16025D8C00D4079F /* PJ_vandg.c in Sources */,
 				2B7EF4BB16025D8C00D4079F /* PJ_vandg2.c in Sources */,
 				2B7EF4BC16025D8C00D4079F /* PJ_vandg4.c in Sources */,
+				2BDC8A871937B77C00DFECF0 /* WideVectorDrawable.mm in Sources */,
 				2B7EF4BD16025D8C00D4079F /* PJ_wag2.c in Sources */,
 				2B7EF4BE16025D8C00D4079F /* PJ_wag3.c in Sources */,
 				2B7EF4BF16025D8C00D4079F /* PJ_wag7.c in Sources */,
@@ -2474,6 +2490,7 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				GCC_VERSION = "";
+				"GCC_WARN_64_TO_32_BIT_CONVERSION[arch=*64]" = NO;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
@@ -2512,6 +2529,7 @@
 				GCC_PREFIX_HEADER = "WhirlyGlobeLib/WhirlyGlobeLib-Prefix.pch";
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				GCC_VERSION = "";
+				"GCC_WARN_64_TO_32_BIT_CONVERSION[arch=*64]" = NO;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
