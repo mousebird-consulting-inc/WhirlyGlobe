@@ -216,6 +216,8 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
   */
 - (MaplyVectorObject *) clipToGrid:(CGSize)gridSize;
 
+- (MaplyVectorObject *) clipToMbr:(MaplyCoordinate)ll upperRight:(MaplyCoordinate)ur;
+
 @end
 
 typedef MaplyVectorObject WGVectorObject;
