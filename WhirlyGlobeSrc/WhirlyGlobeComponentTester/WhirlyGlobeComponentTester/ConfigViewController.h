@@ -57,6 +57,7 @@
 #define kMaplyTestLoftedPoly @"Lofted Polygons"
 #define kMaplyTestMegaMarkers @"Mega Markers"
 #define kMaplyTestLatLon @"Lon/Lat lines"
+#define kMaplyTestRoads @"SF Roads"
 
 // Animation
 #define kMaplyTestCategoryAnimation @"Animation"

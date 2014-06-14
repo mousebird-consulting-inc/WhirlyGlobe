@@ -531,6 +531,17 @@ static const float PerfOutputDelay = 15.0;
     return [interactLayer instanceVectors:baseObj desc:desc mode:threadMode];
 }
 
+- (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    return [interactLayer addWideVectors:vectors desc:desc mode:threadMode];
+}
+
+- (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc
+{
+    return [self addWideVectors:vectors desc:desc mode:MaplyThreadAny];
+}
+
+
 - (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     return [interactLayer addBillboards:billboards desc:desc mode:threadMode];

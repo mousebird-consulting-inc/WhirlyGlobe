@@ -47,7 +47,7 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
     @details All vectors should have some set of attribution.  If there's more than one vector feature here, we'll return the attributes on the first one.
     @details The attribution is returned as an NSDictionary and, though you can modify it, you probably shouldn't.
   */
-@property (nonatomic,readonly) NSDictionary *attributes;
+@property (nonatomic,readonly) NSMutableDictionary *attributes;
 
 /** @brief Parse vector data from geoJSON.  
     @details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses the faster JSON parser.
@@ -215,6 +215,8 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
     @return New areal features broken up along the grid.
   */
 - (MaplyVectorObject *) clipToGrid:(CGSize)gridSize;
+
+- (MaplyVectorObject *) clipToMbr:(MaplyCoordinate)ll upperRight:(MaplyCoordinate)ur;
 
 @end
 

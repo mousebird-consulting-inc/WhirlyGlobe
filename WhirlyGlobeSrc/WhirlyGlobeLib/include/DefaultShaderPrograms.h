@@ -38,6 +38,8 @@ namespace WhirlyKit
 #define kToolkitDefaultBillboardProgram "Default Billboard"
 /// Screen space shader
 #define kToolkitDefaultScreenSpaceProgram "Default Screenspace"
+/// Widened vector shader
+#define kToolkitDefaultWideVectorProgram "Default Wide Vector"
 
 /// Create the default shaders and register them in the appropriate places in the scene
 void SetupDefaultShaders(Scene *);

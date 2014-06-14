@@ -96,6 +96,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     MaplyComponentObject *labelsObj;
     MaplyComponentObject *stickersObj;
     MaplyComponentObject *latLonObj;
+    NSArray *sfRoadsObjArray;
     NSArray *vecObjects;
     MaplyComponentObject *megaMarkersObj;
     MaplyComponentObject *autoLabels;
@@ -119,6 +120,9 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     // Label test
     NSTimer *_labelAnimationTimer;
     NSMutableDictionary *_trafficLabels;
+    
+    // Dashed lines used in wide vector test
+    MaplyTexture *dashedLineTex,*filledLineTex;
     
     PerformanceMode perfMode;
 }
@@ -602,6 +606,72 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     latLonObj = [baseViewC addVectors:vectors desc:desc];
 }
 
+- (NSArray *)addWideVectors:(MaplyVectorObject *)vecObj
+{
+    UIColor *color = [UIColor blueColor];
+    float fade = 0.25;
+    MaplyComponentObject *lines = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: color,
+                                                                         kMaplyVecWidth: @(4.0),
+                                                                         kMaplyFade: @(fade),
+                                                                         kMaplyMaxVis: @(10.0),
+                                                                         kMaplyMinVis: @(0.00032424763776361942)}];
+    
+    MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor],
+                                                                                   kMaplyFade: @(fade),
+                                                                                   kMaplyVecWidth: @(4.0),
+                                                                                   kMaplyVecTexture: dashedLineTex,
+                                                                                   kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+                                                                                   
+                                                                                   kMaplyMaxVis: @(0.00032424763776361942),
+                                                                                   kMaplyMinVis: @(0.00011049506429117173)
+                                                                                   }];
+    MaplyComponentObject *realLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: color,
+                                                                                 kMaplyFade: @(fade),
+                                                                                 kMaplyVecTexture: filledLineTex,
+                                                                                 // 8m in display coordinates
+                                                                                 kMaplyVecWidth: @(8.0/6371000),
+                                                                                 kMaplyWideVecCoordType: kMaplyWideVecCoordTypeReal,
+                                                                                 kMaplyMaxVis: @(0.00011049506429117173),
+                                                                                 kMaplyMinVis: @(0.0)
+                                                                                 }];
+    
+    return @[lines,screenLines,realLines];
+}
+
+- (void)addShapeFile:(NSString *)shapeFileName
+{
+    // Make the dashed line if it isn't already there
+    if (!dashedLineTex)
+    {
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(4,32)];
+        [lineTexBuilder setPattern:@[@(8),@(8),@(8),@(8)]];
+        lineTexBuilder.opacityFunc = MaplyOpacitySin2;
+        UIImage *dashedLineImage = [lineTexBuilder makeImage];
+        dashedLineTex = [baseViewC addTexture:dashedLineImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapY mode:MaplyThreadAny];
+    }
+    if (!filledLineTex)
+    {
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,32)];
+        [lineTexBuilder setPattern:@[@(32)]];
+        lineTexBuilder.opacityFunc = MaplyOpacitySin2;
+        UIImage *lineImage = [lineTexBuilder makeImage];
+        filledLineTex = [baseViewC addTexture:lineImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapY mode:MaplyThreadAny];
+    }
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+    ^{
+        // Add the vectors at three different levels
+        MaplyVectorDatabase *vecDb = [MaplyVectorDatabase vectorDatabaseWithShape:shapeFileName];
+        if (vecDb)
+        {
+            MaplyVectorObject *vecObj = [vecDb fetchAllVectors];
+            if (vecObj)
+            {
+                sfRoadsObjArray = [self addWideVectors:vecObj];
+            }
+        }
+    });
+}
 
 - (void)addStickers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc
 {
@@ -784,12 +854,10 @@ static const int NumMegaMarkers = 40000;
         self.title = @"Geography Class - MBTiles Local";
         // This is the Geography Class MBTiles data set from MapBox
         MaplyMBTileSource *tileSource = [[MaplyMBTileSource alloc] initWithMBTiles:@"geography-class"];
-        if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
-            tileSource.maxZoom = zoomLimit;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         baseLayer = layer;
-        layer.handleEdges = true;
-        layer.coverPoles = true;
+        layer.handleEdges = (globeViewC != nil);
+        layer.coverPoles = (globeViewC != nil);
         layer.requireElev = requireElev;
         layer.waitLoad = imageWaitLoad;
         layer.drawPriority = 0;
@@ -914,11 +982,13 @@ static const int NumMegaMarkers = 40000;
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
         MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:21 depth:1];
+        tileSource.pixelsPerSide = 128;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.waitLoad = imageWaitLoad;
         layer.requireElev = requireElev;
-        layer.maxTiles = 256;
+        layer.maxTiles = 512;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        layer.color = [UIColor colorWithWhite:1.0 alpha:0.75];
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
@@ -1255,6 +1325,28 @@ static const int NumMegaMarkers = 40000;
             latLonObj = nil;
         }
     }
+    
+    if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestRoads])
+    {
+        if (!sfRoadsObjArray)
+        {
+            [self addShapeFile:@"tl_2013_06075_roads"];
+//            MaplyCoordinate coords[5];
+//            coords[2] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.783333);
+//            coords[1] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.8);
+////            coords[2] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.8);
+//            coords[0] = MaplyCoordinateMakeWithDegrees(-122.3, 37.783333);
+////            coords[3] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.783333);
+//            MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:3 attributes:nil];
+//            sfRoadsObjArray = [self addWideVectors:vecObj];
+        }
+    } else {
+        if (sfRoadsObjArray)
+        {
+            [baseViewC removeObjects:sfRoadsObjArray];
+            sfRoadsObjArray = nil;
+        }
+    }
 
     if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestCountry])
     {
@@ -1333,6 +1425,12 @@ static const int NumMegaMarkers = 40000;
         globeViewC.keepNorthUp = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestNorthUp];
         globeViewC.pinchGesture = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestPinch];
         globeViewC.rotateGesture = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestRotate];
+    } else {
+        if([configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestNorthUp]) {
+            mapViewC.heading = 0;
+        }
+        mapViewC.pinchGesture = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestPinch];
+        mapViewC.rotateGesture = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestRotate];
     }
     
     // Update rendering hints

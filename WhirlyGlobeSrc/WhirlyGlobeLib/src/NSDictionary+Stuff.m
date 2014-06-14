@@ -71,6 +71,27 @@
     return str;
 }
 
+/// Parse an enumerated type and return an int
+- (int)enumForKey:(NSString *)name values:(NSArray *)values default:(int)theDefault
+{
+    id what = [self objectForKey:name];
+    if (!what || ![what isKindOfClass:[NSString class]])
+        return theDefault;
+    
+    NSString *str = what;
+    
+    int which = 0;
+    for (NSString *valStr in values)
+    {
+        if ([valStr isKindOfClass:[NSString class]])
+            if ([str isEqualToString:valStr])
+                return which;
+        which++;
+    }
+    
+    return theDefault;
+}
+
 @end
 
 void NSDictionaryDummyFunc()

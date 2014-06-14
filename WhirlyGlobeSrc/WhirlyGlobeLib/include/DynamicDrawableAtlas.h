@@ -72,6 +72,10 @@ public:
     /// Check if there are any active updates in any of the drawable buffers
     bool hasUpdates();
     
+    /// Clear the top level update flag.  This is for additions and deletions
+    ///  of dynamic drawables.  The drawables themselves may still have changes.
+    void clearUpdateFlag();
+    
     /// Flush out any outstanding changes and swap the drawables
     /// Pass in a target and selector to pass through to the main thread.
     /// This will be called when one or more parts of the flush have done their
@@ -107,6 +111,7 @@ protected:
         SimpleIdentity elementChunkId;
     };
 
+    bool hasChanges;
     bool enable;
     BigDrawable *(*newBigDrawable)(BasicDrawable *draw,int singleElementSize,int numVertexBytes,int numElementBytes);
     SimpleIdentity shaderId;
