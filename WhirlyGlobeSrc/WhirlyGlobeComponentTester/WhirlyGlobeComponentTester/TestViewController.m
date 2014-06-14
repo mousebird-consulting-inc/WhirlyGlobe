@@ -1425,6 +1425,12 @@ static const int NumMegaMarkers = 40000;
         globeViewC.keepNorthUp = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestNorthUp];
         globeViewC.pinchGesture = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestPinch];
         globeViewC.rotateGesture = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestRotate];
+    } else {
+        if([configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestNorthUp]) {
+            mapViewC.heading = 0;
+        }
+        mapViewC.pinchGesture = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestPinch];
+        mapViewC.rotateGesture = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestRotate];
     }
     
     // Update rendering hints
