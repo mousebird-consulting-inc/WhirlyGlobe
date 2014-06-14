@@ -436,7 +436,8 @@ public:
     bool getWriteZbuffer() const;
 
 	/// Add a point when building up geometry.  Returns the index.
-	unsigned int addPoint(Point3f pt);
+	unsigned int addPoint(const Point3f &pt);
+    unsigned int addPoint(const Point3d &pt);
     
     /// Return a given point
     Point3f getPoint(int which);
@@ -449,7 +450,8 @@ public:
     void addColor(RGBAColor color);
 
     /// Add a normal
-	void addNormal(Point3f norm);
+	void addNormal(const Point3f &norm);
+	void addNormal(const Point3d &norm);
 
     /// Add a vector to the given attribute array
     void addAttributeValue(int attrId,Eigen::Vector2f vec);

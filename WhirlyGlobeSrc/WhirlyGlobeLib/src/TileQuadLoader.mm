@@ -319,10 +319,13 @@ using namespace WhirlyKit;
     // Note: Need to replace selector with some lock-like thing
     if (tileBuilder && tileBuilder->drawAtlas)
     {
+        // Note: Debugging
+//        if (tileBuilder->drawAtlas->hasUpdates() && !tileBuilder->drawAtlas->waitingOnSwap())
         if (tileBuilder->drawAtlas->hasUpdates() && !tileBuilder->drawAtlas->waitingOnSwap())
         {
             tileBuilder->drawAtlas->swap(changeRequests,_quadLayer,@selector(wakeUp));
             tileBuilder->texAtlas->cleanup(changeRequests);
+            tileBuilder->drawAtlas->clearUpdateFlag();
         }
     }
 
@@ -351,7 +354,17 @@ using namespace WhirlyKit;
 // Dump out some information on resource usage
 - (void)log
 {
+    // Resource utilization
     tileBuilder->log(name);
+    
+    // Loaded tiles
+    NSLog(@"====TileQuadLoader===");
+    for (LoadedTileSet::iterator it = tileSet.begin();it!=tileSet.end();++it)
+    {
+        LoadedTile *tile = *it;
+        NSLog(@"Tile %d: (%d,%d)",tile->nodeInfo.ident.level,tile->nodeInfo.ident.x,tile->nodeInfo.ident.y);
+    }
+    NSLog(@"=====================");
 }
 
 #pragma mark - Loader delegate

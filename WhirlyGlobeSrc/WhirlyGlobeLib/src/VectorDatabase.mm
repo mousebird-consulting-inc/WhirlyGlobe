@@ -149,7 +149,7 @@ VectorShapeRef VectorDatabase::getVector(unsigned int vecIndex,bool withAttribut
         StringSet filter;
         retShape = reader->getObjectByIndex(vecIndex, &filter);
     }
-    
+        
     return retShape;
 }
     
