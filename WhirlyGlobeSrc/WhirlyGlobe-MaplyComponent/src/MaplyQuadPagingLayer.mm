@@ -804,4 +804,9 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     [quadLayer refresh];
 }
 
+
+- (NSObject<MaplyPagingDelegate>*)pagingDelegate {
+  return tileSource;
+}
+
 @end
