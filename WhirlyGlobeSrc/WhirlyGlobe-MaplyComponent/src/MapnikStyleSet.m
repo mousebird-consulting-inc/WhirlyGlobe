@@ -211,6 +211,14 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
           mutableSymbolizerDict[OPACITY_ATTRIBUTE] = @(self.alpha);
         }
         
+        if([mutableSymbolizerDict[@"type"] isEqualToString:POLYGONSYMBOLIZER_ELEMENT]) {
+          if(styleDict[@"fill-opacity"]) {
+            mutableSymbolizerDict[@"fill-opacity"] = @([styleDict[@"fill-opacity"] floatValue] * self.alpha);
+          } else {
+            mutableSymbolizerDict[@"fill-opacity"] = @(self.alpha);
+          }
+        }
+        
         MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": mutableSymbolizerDict[@"type"], @"substyles": @[mutableSymbolizerDict]}
                                                                    settings:self.tileStyleSettings
                                                                       viewC:self.viewC];
