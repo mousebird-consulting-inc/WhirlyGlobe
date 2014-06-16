@@ -66,9 +66,13 @@ typedef enum {
     for (NSDictionary *styleEntry in stylesArray)
     {
         MaplyVectorTileSubStyleText *subStyle = [[MaplyVectorTileSubStyleText alloc] init];
+        float alpha = 1.0;
+        if(styleEntry[@"opacity"])
+            alpha = [styleEntry[@"opacity"] floatValue];
+        
         UIColor *fillColor = [UIColor blackColor];
         if (styleEntry[@"fill"])
-            fillColor = [MaplyVectorTiles ParseColor:styleEntry[@"fill"]];
+            fillColor = [MaplyVectorTiles ParseColor:styleEntry[@"fill"] alpha:alpha];
         subStyle->textSize = 12.0;
         if (styleEntry[@"size"])
         {
@@ -86,7 +90,7 @@ typedef enum {
         
         UIColor *outlineColor = nil;
         if (styleEntry[@"halo-fill"])
-            outlineColor = [MaplyVectorTiles ParseColor:styleEntry[@"halo-fill"]];
+            outlineColor = [MaplyVectorTiles ParseColor:styleEntry[@"halo-fill"] alpha:alpha];
         float outlineSize = 1.0;
         if (styleEntry[@"halo-radius"])
             outlineSize = [styleEntry[@"halo-radius"] floatValue];
