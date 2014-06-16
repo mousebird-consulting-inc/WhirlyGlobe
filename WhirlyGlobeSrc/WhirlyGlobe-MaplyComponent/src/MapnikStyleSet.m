@@ -78,6 +78,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
     self.tileStyleSettings = [MaplyVectorTileStyleSettings new];
     self.tileStyleSettings.lineScale = [UIScreen mainScreen].scale;
     self.tileMaxZoom = 14;
+    self.alpha = 1.0;
   }
   return self;
 }
@@ -205,7 +206,9 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
         }
         
         if(styleDict[OPACITY_ATTRIBUTE]) {
-          mutableSymbolizerDict[OPACITY_ATTRIBUTE] = styleDict[OPACITY_ATTRIBUTE];
+          mutableSymbolizerDict[OPACITY_ATTRIBUTE] = @([styleDict[OPACITY_ATTRIBUTE] floatValue] * self.alpha);
+        } else {
+          mutableSymbolizerDict[OPACITY_ATTRIBUTE] = @(self.alpha);
         }
         
         MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": mutableSymbolizerDict[@"type"], @"substyles": @[mutableSymbolizerDict]}
