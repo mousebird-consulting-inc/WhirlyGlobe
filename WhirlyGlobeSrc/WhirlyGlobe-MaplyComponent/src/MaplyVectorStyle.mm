@@ -122,41 +122,120 @@ using namespace WhirlyKit;
 }
 
 
+//sometimes we get strings that look like [name]+'\n '+[ele]
 - (NSString*)formatText:(NSString*)formatString forObject:(MaplyVectorObject*)vec
 {
-    if (!formatString) {
+    if (!formatString)
+    {
         return nil;
     }
-
-    NSError *error;
-    NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"\\[[^\\[\\]]+\\]"
-                                                                      options:0
-                                                                        error:&error];
-    NSArray* matches = [regex matchesInString:formatString
-                                     options:0
-                                       range:NSMakeRange(0, formatString.length)];
     
-    if(!matches.count)
-    {
-        return formatString;
-    }
-    
-    NSDictionary *attributes = vec.attributes;
-    NSMutableString *result = [NSMutableString stringWithString:formatString];
-    for (int i=(int)matches.count-1; i>= 0; i--)
-    {
-        NSTextCheckingResult* match = matches[i];
-        NSString *matchedStr = [formatString substringWithRange:NSMakeRange(match.range.location + 1,
-                                                                            match.range.length - 2)];
-        id replacement = attributes[matchedStr]?:@"";
-        if([replacement isKindOfClass:[NSNumber class]])
+    @try {
+        //Do variable substitution on [ ... ]
+        NSMutableString *result;
         {
-            replacement = [replacement stringValue];
+            NSError *error;
+            NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"\\[[^\\[\\]]+\\]"
+                                                                              options:0
+                                                                                error:&error];
+            NSArray* matches = [regex matchesInString:formatString
+                                              options:0
+                                                range:NSMakeRange(0, formatString.length)];
+            
+            if(matches.count)
+            {
+                NSDictionary *attributes = vec.attributes;
+                result = [NSMutableString stringWithString:formatString];
+                for (int i=(int)matches.count-1; i>= 0; i--)
+                {
+                    NSTextCheckingResult* match = matches[i];
+                    NSString *matchedStr = [formatString substringWithRange:NSMakeRange(match.range.location + 1,
+                                                                                        match.range.length - 2)];
+                    id replacement = attributes[matchedStr]?:@"";
+                    if([replacement isKindOfClass:[NSNumber class]])
+                    {
+                        replacement = [replacement stringValue];
+                    }
+                    [result replaceCharactersInRange:match.range withString:replacement];
+                }
+            }
         }
-        [result replaceCharactersInRange:match.range withString:replacement];
+        
+        //replace \n with a newline
+        if([formatString rangeOfString:@"\\"].location != NSNotFound )
+        {
+            if(!result)
+            {
+                result = [NSMutableString stringWithString:formatString];
+            }
+            [result replaceOccurrencesOfString:@"\\n"
+                                    withString:@"\n"
+                                       options:nil
+                                         range:NSMakeRange(0, result.length)];
+        }
+        
+        //replace + and surrounding whitespace
+        //This should probably check if the plus is surrounded by '', but for now i havent needed that
+        {
+            NSError *error;
+            NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"\\s?\\+\\s?"
+                                                                              options:0
+                                                                                error:&error];
+            NSArray* matches = [regex matchesInString:result?:formatString
+                                              options:0
+                                                range:NSMakeRange(0, result?result.length:formatString.length)];
+            
+            if(matches.count)
+            {
+                if(!result)
+                {
+                    result = [NSMutableString stringWithString:formatString];
+                }
+                for (int i=(int)matches.count-1; i>= 0; i--)
+                {
+                    NSTextCheckingResult* match = matches[i];
+                    [result deleteCharactersInRange:match.range];
+                }
+            }
+        }
+        
+        //replace quotes around quoted strings
+        {
+            NSError *error;
+            NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"'[^\\.]+'"
+                                                                              options:0
+                                                                                error:&error];
+            NSArray* matches = [regex matchesInString:result?:formatString
+                                              options:0
+                                                range:NSMakeRange(0, result?result.length:formatString.length)];
+            
+            if(matches.count)
+            {
+                if(!result)
+                {
+                    result = [NSMutableString stringWithString:formatString];
+                }
+                for (int i=(int)matches.count-1; i>= 0; i--)
+                {
+                    NSTextCheckingResult* match = matches[i];
+                    NSString *matchedStr = [result substringWithRange:NSMakeRange(match.range.location + 1,
+                                                                                        match.range.length - 2)];
+                    [result replaceCharactersInRange:match.range withString:matchedStr];
+                }
+            }
+        }
+        
+        if(result)
+        {
+            return result;
+        } else {
+            return formatString;
+        }
     }
-    
-    return result;
+    @catch (NSException *exception){
+        NSLog(@"Error formatting string:\"%@\" exception:%@", formatString, exception);
+        return nil;
+    }
 }
 
 
