@@ -99,8 +99,8 @@ using namespace WhirlyKit;
     }
     if (styleEntry[@"maxscaledenom"])
     {
-        float minScale = [styleEntry[@"maxscaledenom"] floatValue];
-        maxVis = [self.viewC heightForMapScale:minScale] * settings.mapScaleScale;
+        float maxScale = [styleEntry[@"maxscaledenom"] floatValue];
+        maxVis = [self.viewC heightForMapScale:maxScale] * settings.mapScaleScale;
     }
     if (minVis != DrawVisibleInvalid)
     {
