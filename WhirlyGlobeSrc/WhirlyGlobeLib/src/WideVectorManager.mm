@@ -471,7 +471,7 @@ public:
                     {
                         // lPt1 is a point in the middle of the prospective bevel
                         Point3d lNorm = (lPt-pbLocal).normalized();
-                        Point3d lPt1 = rPt + lNorm * vecInfo.miterLimit * calcScale;
+                        Point3d lPt1 = rPt + lNorm * vecInfo.miterLimit * calcScale * (vecInfo.coordType == WideVecCoordReal ? vecInfo.width : 1.0);
                         Point3d iNorm = up.cross(lNorm);
                         pbLocalAdj = (rPt+lPt1)/2.0;
                         
@@ -531,7 +531,7 @@ public:
                         // Bending left
                         // rPt1 is a point in the middle of the prospective bevel
                         Point3d rNorm = (rPt-pbLocal).normalized();
-                        Point3d rPt1 = lPt + rNorm * vecInfo.miterLimit * calcScale;
+                        Point3d rPt1 = lPt + rNorm * vecInfo.miterLimit * calcScale * (vecInfo.coordType == WideVecCoordReal ? vecInfo.width : 1.0);
                         Point3d iNorm = rNorm.cross(up);
                         pbLocalAdj = (lPt+rPt1)/2.0;
                         
