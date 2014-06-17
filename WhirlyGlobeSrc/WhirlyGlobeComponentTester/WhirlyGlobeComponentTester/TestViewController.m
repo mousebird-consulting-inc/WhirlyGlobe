@@ -618,31 +618,31 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 ////                                                                         kMaplyMinVis: @(0.00032424763776361942)
 //                                                                         }];
     
-    MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor],
-                                                                                   kMaplyFade: @(fade),
-                                                                                   kMaplyVecWidth: @(20.0),
-//                                                                                   kMaplyVecTexture: dashedLineTex,
-                                                                                   kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
-                                                                                   kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
-                                                                                   kMaplyWideVecMiterLimit: @(1.01),
-//                                                                                   kMaplyMaxVis: @(0.00032424763776361942),
-//                                                                                   kMaplyMinVis: @(0.00011049506429117173)
-                                                                                   }];
-//    MaplyComponentObject *realLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: color,
-//                                                                                 kMaplyFade: @(fade),
-////                                                                                 kMaplyVecTexture: filledLineTex,
-//                                                                                 // 8m in display coordinates
-//                                                                                 kMaplyVecWidth: @(8.0/6371000),
-//                                                                                 kMaplyWideVecCoordType: kMaplyWideVecCoordTypeReal,
-//                                                                                 kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
-//                                                                                 kMaplyWideVecMiterLimit: @(1.01)
-////                                                                                 kMaplyMaxVis: @(0.00011049506429117173),
-////                                                                                 kMaplyMinVis: @(0.0)
-//                                                                                 }];
+//    MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor],
+//                                                                                   kMaplyFade: @(fade),
+//                                                                                   kMaplyVecWidth: @(20.0),
+////                                                                                   kMaplyVecTexture: dashedLineTex,
+//                                                                                   kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+//                                                                                   kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
+//                                                                                   kMaplyWideVecMiterLimit: @(1.01),
+////                                                                                   kMaplyMaxVis: @(0.00032424763776361942),
+////                                                                                   kMaplyMinVis: @(0.00011049506429117173)
+//                                                                                   }];
+    MaplyComponentObject *realLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: color,
+                                                                                 kMaplyFade: @(fade),
+//                                                                                 kMaplyVecTexture: filledLineTex,
+                                                                                 // 8m in display coordinates
+                                                                                 kMaplyVecWidth: @(8.0/6371000),
+                                                                                 kMaplyWideVecCoordType: kMaplyWideVecCoordTypeReal,
+                                                                                 kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
+                                                                                 kMaplyWideVecMiterLimit: @(1.01)
+//                                                                                 kMaplyMaxVis: @(0.00011049506429117173),
+//                                                                                 kMaplyMinVis: @(0.0)
+                                                                                 }];
     
 //    return @[lines,screenLines,realLines];
 //    return @[lines,realLines];
-    return @[screenLines];
+    return @[realLines];
 }
 
 - (void)addShapeFile:(NSString *)shapeFileName
