@@ -219,7 +219,7 @@ typedef enum {
             }
         }
 
-        MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc mode:MaplyThreadAny];
+        MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc mode:MaplyThreadCurrent];
         if (compObj)
             [compObjs addObject:compObj];
     }
