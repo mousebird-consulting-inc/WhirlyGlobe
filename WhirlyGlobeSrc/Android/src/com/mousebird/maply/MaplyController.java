@@ -155,7 +155,7 @@ public class MaplyController implements View.OnTouchListener
         ActivityManager activityManager = (ActivityManager) mainActivity.getSystemService(Context.ACTIVITY_SERVICE);
         ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
         
-        final boolean supportsEs2 = configurationInfo.reqGlEsVersion > 0x20000 || isProbablyEmulator();
+        final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000 || isProbablyEmulator();
         if (supportsEs2)
         {
         	glSurfaceView = new GLSurfaceView(mainActivity);
