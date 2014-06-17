@@ -272,10 +272,10 @@ public:
         
         RGBAColor thisColor = color;
         // Note: Debugging
-        float scale = drand48() / 2 + 0.5;
-        thisColor.r *= scale;
-        thisColor.g *= scale;
-        thisColor.b *= scale;
+//        float scale = drand48() / 2 + 0.5;
+//        thisColor.r *= scale;
+//        thisColor.g *= scale;
+//        thisColor.b *= scale;
         
         // Calculate points for the expanded linear
         Point3d corners[4];
@@ -356,9 +356,9 @@ public:
         }
         
         texCoords[0] = TexCoord(0.0,texOffset);
-        texCoords[1] = TexCoord(1.0,texOffset+texLen);
+        texCoords[1] = TexCoord(1.0,texOffset);
         texCoords[2] = TexCoord(1.0,texOffset+texLen);
-        texCoords[3] = TexCoord(0.0,texOffset);
+        texCoords[3] = TexCoord(0.0,texOffset+texLen);
         
         // Make an explicit join
         Point3d triVerts[3];
@@ -715,10 +715,10 @@ public:
     {
         // Note: Debugging
         RGBAColor color = [vecInfo.color asRGBAColor];
-        color.r = random()%256;
-        color.g = random()%256;
-        color.b = random()%256;
-        color.a = 255;
+//        color.r = random()%256;
+//        color.g = random()%256;
+//        color.b = random()%256;
+//        color.a = 255;
         WideVectorBuilder vecBuilder(vecInfo,center,color);
         
         // Work through the segments
