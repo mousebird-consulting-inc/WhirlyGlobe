@@ -35,9 +35,9 @@
     for (NSDictionary *styleEntry in subStylesArray)
     {
         float strokeWidth = 1.0;
-        int red = 255,green = 255,blue = 255;
         float alpha = 1.0;
-        
+        UIColor *strokeColor = [UIColor blackColor];
+      
         // Build up the vector description dictionary
         if (styleEntry[@"stroke-width"])
             strokeWidth = [styleEntry[@"stroke-width"] floatValue];
@@ -49,15 +49,7 @@
         }
         if (styleEntry[@"stroke"])
         {
-            NSString *colorStr = styleEntry[@"stroke"];
-            // parse the hex
-            NSScanner *scanner = [NSScanner scannerWithString:colorStr];
-            unsigned int colorVal;
-            [scanner setScanLocation:1]; // bypass #
-            [scanner scanHexInt:&colorVal];
-            blue = colorVal & 0xFF;
-            green = (colorVal >> 8) & 0xFF;
-            red = (colorVal >> 16) & 0xFF;
+            strokeColor = [MaplyVectorTiles ParseColor:styleEntry[@"stroke"] alpha:alpha];
         }
         int drawPriority = 0;
         if (styleEntry[@"drawpriority"])
@@ -66,7 +58,7 @@
         }
         NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
                 @{kMaplyVecWidth: @(settings.lineScale * strokeWidth),
-                 kMaplyColor: [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha],
+                 kMaplyColor: strokeColor,
                  kMaplyDrawPriority: @(drawPriority+kMaplyVectorDrawPriorityDefault),
                  kMaplyEnable: @(NO),
                   kMaplyFade: @(0.0),
