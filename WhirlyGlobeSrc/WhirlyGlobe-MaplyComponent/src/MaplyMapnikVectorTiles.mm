@@ -71,7 +71,7 @@ static double MAX_EXTENT = 20037508.342789244;
 
 #pragma mark - MaplyPagingDelegate
 - (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer {
-  //NSLog(@"MVTTiles startFetchForTile: %d/%d/%d",tileID.level,tileID.x,tileID.y);
+  //NSLog(@"%@ startFetchForTile: %d/%d/%d", NSStringFromClass([self class]), tileID.level,tileID.x,tileID.y);
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     //calulate tile bounds and coordinate shift
     int tileSize = 256;
