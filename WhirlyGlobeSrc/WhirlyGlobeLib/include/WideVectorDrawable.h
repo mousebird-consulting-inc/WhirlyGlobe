@@ -42,12 +42,13 @@ public:
     
     /// Set the width we'll we'll use
     void setWidth(float inWidth) { width = inWidth; }
+    void setTexRepeat(float inTexRepeat) { texRepeat = inTexRepeat; }
     
     /// We override draw so we can set our own values
     virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
     
 protected:
-    float width;
+    float width,texRepeat;
     int offsetIndex;
 };
     

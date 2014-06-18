@@ -694,6 +694,7 @@ public:
                 WideVectorDrawable *wideDrawable = new WideVectorDrawable();
                 drawable = wideDrawable;
                 drawable->setProgram(vecInfo.shader);
+                wideDrawable->setTexRepeat(vecInfo.repeatSize);
                 wideDrawable->setWidth(vecInfo.width);
             }
 //            drawMbr.reset();
