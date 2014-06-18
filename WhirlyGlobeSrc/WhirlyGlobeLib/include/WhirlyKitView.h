@@ -106,6 +106,9 @@ typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewW
 /// Calculate map zoom
 - (double)currentMapZoom:(WhirlyKit::Point2f &)frameSize latitude:(double)latitude;
 
+/// Return the screen size in display coordinates
+- (WhirlyKit::Point2d)screenSizeInDisplayCoords:(WhirlyKit::Point2f &)frameSize;
+
 /// Add a watcher delegate.  Call this on the main thread.
 - (void)addWatcherDelegate:(NSObject<WhirlyKitViewWatcherDelegate> *)delegate;
 

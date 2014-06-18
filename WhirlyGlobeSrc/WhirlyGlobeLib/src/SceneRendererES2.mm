@@ -421,6 +421,8 @@ static const float ScreenOverlap = 0.1;
         baseFrameInfo.viewAndModelMat = modelAndViewMat;
         baseFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
         [super.theView getOffsetMatrices:baseFrameInfo.offsetMatrices frameBuffer:frameSize];
+        Point2d screenSize = [super.theView screenSizeInDisplayCoords:frameSize];
+        baseFrameInfo.screenSizeInDisplayCoords = screenSize;
         baseFrameInfo.lights = lights;
         baseFrameInfo.stateOpt = renderStateOptimizer;
 		

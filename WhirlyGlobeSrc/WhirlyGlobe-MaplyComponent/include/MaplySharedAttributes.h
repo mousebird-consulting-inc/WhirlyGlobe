@@ -182,6 +182,10 @@
 /// This number defines a limit past which the wide vector will switch from miters to bevels
 #define kMaplyWideVecMiterLimit @"miterLimit"
 
+/// This is the length you'd like the texture to start repeating after.
+/// It's real world coordinates for kMaplyWideVecCoordTypeReal and pixel size for kMaplyWideVecCoordTypeScreen
+#define kMaplyWideVecTexRepeatLen @"repeatSize"
+
 
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 #define kMaplySubdivEpsilon @"subdivisionepsilon"
