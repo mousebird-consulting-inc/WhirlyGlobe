@@ -776,6 +776,7 @@ public:
             return NULL;
         
         WideVectorSceneRep *sceneRep = new WideVectorSceneRep();
+        sceneRep->fade = vecInfo.fade;
         for (unsigned int ii=0;ii<drawables.size();ii++)
         {
             Drawable *drawable = drawables[ii];
