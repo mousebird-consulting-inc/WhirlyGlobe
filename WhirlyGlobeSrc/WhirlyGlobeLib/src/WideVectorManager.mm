@@ -217,7 +217,8 @@ public:
         // Degenerate segment
         if (texLen == 0.0)
             return;
-        texLen *= vecInfo.repeatSize;
+        if (vecInfo.coordType == WideVecCoordReal)
+            texLen /= vecInfo.repeatSize;
         
         // Next segment is degenerate
         if (pc)
@@ -619,6 +620,10 @@ public:
     // Add a point to the widened linear we're building
     void addPoint(const Point3d &inPt,const Point3d &up,BasicDrawable *drawable)
     {
+        // Compare with the last point, if it's the same, toss it
+        if (!pts.empty() && pts.back() == inPt)
+            return;
+        
         pts.push_back(inPt);
         if (pts.size() >= 3)
         {
