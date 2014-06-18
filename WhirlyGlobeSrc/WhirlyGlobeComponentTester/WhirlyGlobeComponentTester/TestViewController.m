@@ -631,12 +631,14 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
                                                                                    }];
     MaplyComponentObject *realLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: color,
                                                                                  kMaplyFade: @(fade),
-                                                                                 kMaplyVecTexture: filledLineTex,
+                                                                                 kMaplyVecTexture: dashedLineTex,
                                                                                  // 8m in display coordinates
-                                                                                 kMaplyVecWidth: @(4.0/6371000),
+                                                                                 kMaplyVecWidth: @(10.0/6371000),
                                                                                  kMaplyWideVecCoordType: kMaplyWideVecCoordTypeReal,
                                                                                  kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                                                                  kMaplyWideVecMiterLimit: @(1.01),
+                                                                                 // Repeat every 100m
+                                                                                 kMaplyWideVecTexRepeatLen: @(100/6371000.f),
                                                                                  kMaplyMaxVis: @(0.00011049506429117173),
                                                                                  kMaplyMinVis: @(0.0)
                                                                                  }];
