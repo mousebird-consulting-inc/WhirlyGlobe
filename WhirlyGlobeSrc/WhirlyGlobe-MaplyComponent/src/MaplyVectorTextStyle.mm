@@ -153,6 +153,8 @@ typedef enum {
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
 {
+    MaplyCoordinateSystem *displaySystem = viewC.coordSystem;
+    
     NSMutableArray *compObjs = [NSMutableArray array];
     for (MaplyVectorTileSubStyleText *subStyle in subStyles)
     {
@@ -189,7 +191,7 @@ typedef enum {
                 {
                     MaplyCoordinate middle;
                     double rot;
-                    if ([vec linearMiddle:&middle rot:&rot])
+                    if ([vec linearMiddle:&middle rot:&rot displayCoordSys:displaySystem])
                     {
                         //TODO: text-max-char-angle-delta
                         //TODO: rotation calculation is not ideal, it is between 2 points, but it needs to be avergared over a longer distance
