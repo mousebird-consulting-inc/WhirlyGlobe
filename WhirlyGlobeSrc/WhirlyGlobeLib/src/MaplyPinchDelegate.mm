@@ -29,6 +29,8 @@ using namespace WhirlyKit;
 {
     /// If we're zooming, where we started
     float startZ;
+    CGPoint startingMidPoint;
+    Point3d startingGeoPoint;
 }
 
 + (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
@@ -51,10 +53,25 @@ using namespace WhirlyKit;
 	switch (theState)
 	{
 		case UIGestureRecognizerStateBegan:
+        {
 			// Store the starting Z for comparison
-			startZ = self.mapView.loc.z();
+            startZ = self.mapView.loc.z();
+            
+            //calculate center between touches, in screen and map coords
+            CGPoint t0 = [pinch locationOfTouch:0 inView:pinch.view];
+            CGPoint t1 = [pinch locationOfTouch:1 inView:pinch.view];
+            startingMidPoint.x = (t0.x + t1.x) / 2.0;
+            startingMidPoint.y = (t0.y + t1.y) / 2.0;
+            Eigen::Matrix4d modelTrans = [self.mapView calcFullMatrix];
+            [self.mapView pointOnPlaneFromScreen:startingMidPoint
+                                       transform:&modelTrans
+                                       frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)
+                                             hit:&startingGeoPoint
+                                            clip:true];
+            
             [self.mapView cancelAnimation];
             [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidStart object:self.mapView];
+        }
 			break;
 		case UIGestureRecognizerStateChanged:
         {
@@ -62,7 +79,32 @@ using namespace WhirlyKit;
             double newZ = startZ/pinch.scale;
             if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
             {
-                [self.mapView setLoc:Point3d(curLoc.x(),curLoc.y(),newZ)];
+                //set new height, but dont update display yet
+                Point3d newLoc(curLoc.x(), curLoc.y(), newZ);
+                [self.mapView setLoc:newLoc runUpdates:NO];
+
+                //calculatute scalepoint offset in screenspace
+                Eigen::Matrix4d modelTrans = [self.mapView calcFullMatrix];
+                CGPoint currentScalePointScreenLoc = [self.mapView pointOnScreenFromPlane:startingGeoPoint
+                                                                               transform:&modelTrans
+                                                                               frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+                CGPoint screenOffset = {startingMidPoint.x - currentScalePointScreenLoc.x,
+                    startingMidPoint.y - currentScalePointScreenLoc.y};
+
+                //calculate a new map center to maintain scalepoint in place on screen
+                CGPoint newMapCenterPoint = {(glView.frame.size.width/2.0) - screenOffset.x,
+                    (glView.frame.size.height/2.0) - screenOffset.y};
+                Point3d newCenterGeoPoint;
+                [self.mapView pointOnPlaneFromScreen:newMapCenterPoint
+                                           transform:&modelTrans
+                                           frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)
+                                                 hit:&newLoc
+                                                clip:true];
+                newLoc.z() = newZ;
+                
+                [self.mapView setLoc:newLoc runUpdates:YES];
+
+                //Check if we've gone out of bounds, undo changes if needed
                 if (![self withinBounds:self.mapView.loc view:glView renderer:sceneRenderer])
                     [self.mapView setLoc:curLoc];
             }
