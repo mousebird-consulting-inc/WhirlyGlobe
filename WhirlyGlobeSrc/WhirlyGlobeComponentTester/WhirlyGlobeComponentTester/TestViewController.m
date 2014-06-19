@@ -643,39 +643,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
                                                                                  kMaplyMinVis: @(0.0)
                                                                                  }];
     
-    // Look for some labels
-    MaplyComponentObject *labelObj = nil;
-    for (MaplyVectorObject *road in [vecObj splitVectors])
-    {
-        MaplyCoordinate middle;
-        double rot;
-        // Note: We should get this from the view controller
-        MaplyCoordinateSystem *coordSys = [[MaplySphericalMercator alloc] initWebStandard];
-        [road linearMiddle:&middle rot:&rot displayCoordSys:coordSys];
-        NSDictionary *attrs = road.attributes;
-        
-        NSString *name = attrs[@"FULLNAME"];
-        
-        NSMutableArray *labels = [NSMutableArray array];
-        if (name)
-        {
-            MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
-            label.loc = middle;
-            label.text = name;
-            label.layoutImportance = 1.0;
-            label.rotation = rot + M_PI/2.0;
-            [labels addObject:label];
-        }
-        
-        labelObj = [baseViewC addScreenLabels:labels desc:
-                    @{kMaplyTextOutlineSize: @(1.0),
-                      kMaplyTextOutlineColor: [UIColor blackColor],
-                      kMaplyFont: [UIFont systemFontOfSize:18.0]
-                                                            }];
-    }
-    
-    
-    return @[lines,screenLines,realLines,labelObj];
+    return @[lines,screenLines,realLines];
 }
 
 - (void)addShapeFile:(NSString *)shapeFileName
