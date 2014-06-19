@@ -21,11 +21,12 @@
 #import "WideVectorDrawable.h"
 #import "OpenGLES2Program.h"
 #import "SceneRendererES.h"
+#import "FlatMath.h"
 
 namespace WhirlyKit
 {
     
-WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), width(10.0/1024.0)
+WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), width(10.0/1024.0), texRepeat(1.0)
 {
     offsetIndex = addAttribute(BDFloat3Type, "a_dir");
 }
@@ -45,7 +46,10 @@ void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scen
     if (frameInfo.program)
     {
         float scale = std::max(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight);
+        double screenSize = std::max(frameInfo.screenSizeInDisplayCoords.x(),frameInfo.screenSizeInDisplayCoords.y());
         frameInfo.program->setUniform("u_length", width/scale);
+        float texScale = texRepeat/screenSize;
+        frameInfo.program->setUniform("u_texScale", texScale);
     }
     
     BasicDrawable::draw(frameInfo,scene);
@@ -57,6 +61,7 @@ static const char *vertexShaderTri =
 "uniform mat4  u_pMatrix;"
 "uniform float u_fade;"
 "uniform float u_length;"
+"uniform float u_texScale;"
 ""
 "attribute vec3 a_position;"
 "attribute vec2 a_texCoord0;"
@@ -68,17 +73,12 @@ static const char *vertexShaderTri =
 ""
 "void main()"
 "{"
-"   v_texCoord = a_texCoord0;"
+"   v_texCoord = vec2(a_texCoord0.x, a_texCoord0.y * u_texScale);"
 "   v_color = a_color;"
-//"   vec3 newPos = a_position + a_dir * u_length;"
-""
-//    "   gl_Position = u_mvpMatrix * vec4(a_position,1.0) + vec4(a_dir * u_length,0.0);"
     " vec4 vertPos = u_mvpMatrix * vec4(a_position,1.0);"
     " vertPos /= vertPos.w;"
     " vec2 screenDir = (u_mvpMatrix * vec4(a_dir,0.0)).xy;"
     " gl_Position = vertPos + vec4(screenDir * u_length,0,0);"
-//"   gl_Position = (u_mvpMatrix * vec4(a_position,1.0) + (u_mvpMatrix * vec4(a_dir,0.0)) * u_length) + vec4(0.0,0.01,0.0,0.0);"
-//"   gl_Position = u_mvpMatrix * vec4(newPos,1.0);"
 "}"
 ;
 
@@ -93,10 +93,7 @@ static const char *fragmentShaderTri =
 "\n"
 "void main()                                         \n"
 "{                                                   \n"
-//"  vec4 baseColor = texture2D(s_baseMap0, v_texCoord); \n"
 "  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
-//"  if (baseColor.a < 0.1)                            \n"
-//"      discard;                                      \n"
 "  gl_FragColor = v_color * baseColor;  \n"
 "}                                                   \n"
 ;
@@ -116,6 +113,7 @@ WhirlyKit::OpenGLES2Program *BuildWideVectorProgram()
         glUseProgram(shader->getProgram());
         
         shader->setUniform("u_length", 10.f/1024);
+        shader->setUniform("u_texScale", 1.f);
     }
     
     

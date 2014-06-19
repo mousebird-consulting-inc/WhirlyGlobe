@@ -620,22 +620,25 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     
     MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor],
                                                                                    kMaplyFade: @(fade),
-                                                                                   kMaplyVecWidth: @(10.0),
+                                                                                   kMaplyVecWidth: @(4.0),
                                                                                    kMaplyVecTexture: dashedLineTex,
                                                                                    kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
                                                                                    kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                                                                    kMaplyWideVecMiterLimit: @(1.01),
+                                                                                   kMaplyWideVecTexRepeatLen: @(32),
                                                                                    kMaplyMaxVis: @(0.00032424763776361942),
                                                                                    kMaplyMinVis: @(0.00011049506429117173)
                                                                                    }];
     MaplyComponentObject *realLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: color,
                                                                                  kMaplyFade: @(fade),
-                                                                                 kMaplyVecTexture: filledLineTex,
+                                                                                 kMaplyVecTexture: dashedLineTex,
                                                                                  // 8m in display coordinates
-                                                                                 kMaplyVecWidth: @(8.0/6371000),
+                                                                                 kMaplyVecWidth: @(10.0/6371000),
                                                                                  kMaplyWideVecCoordType: kMaplyWideVecCoordTypeReal,
                                                                                  kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                                                                  kMaplyWideVecMiterLimit: @(1.01),
+                                                                                 // Repeat every 100m
+                                                                                 kMaplyWideVecTexRepeatLen: @(100/6371000.f),
                                                                                  kMaplyMaxVis: @(0.00011049506429117173),
                                                                                  kMaplyMinVis: @(0.0)
                                                                                  }];
@@ -1337,14 +1340,11 @@ static const int NumMegaMarkers = 40000;
         {
             [self addShapeFile:@"tl_2013_06075_roads"];
 //            MaplyCoordinate coords[5];
-////            coords[2] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.783333);
-////            coords[1] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.8);
-////            coords[2] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.8);
-//            coords[0] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.783333);
+//            coords[0] = MaplyCoordinateMakeWithDegrees(-122.3, 37.7);
 //            coords[1] = MaplyCoordinateMakeWithDegrees(-122.3, 37.783333);
-//            coords[2] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.7);
-////            coords[3] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.783333);
-//            MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:3 attributes:nil];
+//            coords[2] = MaplyCoordinateMakeWithDegrees(-122.3, 37.783333);
+//            coords[3] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.8333);
+//            MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:4 attributes:nil];
 //            sfRoadsObjArray = [self addWideVectors:vecObj];
         }
     } else {
