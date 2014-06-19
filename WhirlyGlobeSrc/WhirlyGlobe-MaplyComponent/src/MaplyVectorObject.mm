@@ -24,6 +24,7 @@
 #import "Tesselator.h"
 #import "GridClipper.h"
 #import <CoreLocation/CoreLocation.h>
+#import "MaplyCoordinateSystem_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -518,6 +519,55 @@ public:
             return true;
         }
 
+        lenSoFar += len;
+    }
+    
+    middle->x = pts.back().x();
+    middle->y = pts.back().y();
+    if (rot)
+        *rot = 0.0;
+    
+    return true;
+}
+
+- (bool)linearMiddle:(MaplyCoordinate *)middle rot:(double *)rot displayCoordSys:(MaplyCoordinateSystem *)maplyCoordSys
+{
+    if (_shapes.empty())
+        return false;
+    
+    VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*(_shapes.begin()));
+    if (!lin)
+        return false;
+    
+    VectorRing pts = lin->pts;
+    float totLen = 0;
+    for (int ii=0;ii<pts.size()-1;ii++)
+    {
+        float len = (pts[ii+1]-pts[ii]).norm();
+        totLen += len;
+    }
+    float halfLen = totLen / 2.0;
+    
+    WhirlyKit::CoordSystem *coordSys = maplyCoordSys->coordSystem;
+    
+    // Now we'll walk along, looking for the middle
+    float lenSoFar = 0.0;
+    for (unsigned int ii=0;ii<pts.size();ii++)
+    {
+        Point3d pt0 = coordSys->geographicToLocal3d(GeoCoord(pts[ii].x(),pts[ii].y()));
+        Point3d pt1 = coordSys->geographicToLocal3d(GeoCoord(pts[ii+1].x(),pts[ii+1].y()));
+        double len = (pt1-pt0).norm();
+        if (halfLen <= lenSoFar+len)
+        {
+            double t = (halfLen-lenSoFar)/len;
+            Point3d thePt = (pt1-pt0)*t + pt0;
+            GeoCoord middleGeo = coordSys->localToGeographic(thePt);
+            middle->x = middleGeo.x();
+            middle->y = middleGeo.y();
+            *rot = M_PI/2.0-atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
+            return true;
+        }
+        
         lenSoFar += len;
     }
     
