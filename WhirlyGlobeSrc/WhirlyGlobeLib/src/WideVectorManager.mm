@@ -214,6 +214,7 @@ public:
         WideVectorDrawable *wideDrawable = dynamic_cast<WideVectorDrawable *>(drawable);
         
         double texLen = (*pb-*pa).norm();
+        double texJoinLen = 0;
         // Degenerate segment
         if (texLen == 0.0)
             return;
@@ -400,9 +401,11 @@ public:
                     if (t0l > 1.0)
                     {
                         // Build two triangles to join up to the middle
+                        double texJoinLens[2];
+                        texJoinLens[0] = (lPt-corners[3]).norm()/2.0;
                         triTex[0] = TexCoord(0.0,texOffset+texLen);
                         triTex[1] = TexCoord(1.0,texOffset+texLen);
-                        triTex[2] = TexCoord(0.0,texOffset+texLen);
+                        triTex[2] = TexCoord(0.0,texOffset+texLen+texJoinLens[0]);
                         if (vecInfo.coordType == WideVecCoordReal)
                         {
                             triVerts[0] = corners[3];
@@ -415,9 +418,10 @@ public:
                             triVerts[2] = (lPt-pbLocal)/calcScale;
                             addWideTri(wideDrawable,triVerts,pbLocal,triTex,up,thisColor);
                         }
-                        triTex[0] = TexCoord(0.0,texOffset+texLen);
-                        triTex[1] = TexCoord(1.0,texOffset+texLen);
-                        triTex[2] = TexCoord(0.0,texOffset+texLen);
+                        texJoinLens[1] = (next_e0-lPt).norm()/2.0;
+                        triTex[0] = TexCoord(0.0,texOffset+texLen+texJoinLens[0]);
+                        triTex[1] = TexCoord(1.0,texOffset+texLen+texJoinLens[0]);
+                        triTex[2] = TexCoord(0.0,texOffset+texLen+texJoinLens[0]+texJoinLens[1]);
                         if (vecInfo.coordType == WideVecCoordReal)
                         {
                             triVerts[0] = lPt;
@@ -430,11 +434,14 @@ public:
                             triVerts[2] = (next_e0-pbLocal)/calcScale;
                             addWideTri(wideDrawable,triVerts,pbLocal,triTex,up,thisColor);
                         }
+                        texJoinLen = texJoinLens[0] + texJoinLens[1];
                     } else {
                         // Bending left
+                        double texJoinLens[2];
+                        texJoinLens[0] = (rPt-corners[2]).norm()/2.0;
                         triTex[0] = TexCoord(0.0,texOffset+texLen);
                         triTex[1] = TexCoord(1.0,texOffset+texLen);
-                        triTex[2] = TexCoord(1.0,texOffset+texLen);
+                        triTex[2] = TexCoord(1.0,texOffset+texLen+texJoinLens[0]);
                         if (vecInfo.coordType == WideVecCoordReal)
                         {
                             triVerts[0] = lPt;
@@ -447,9 +454,10 @@ public:
                             triVerts[2] = (rPt-pbLocal)/calcScale;
                             addWideTri(wideDrawable,triVerts,pbLocal,triTex,up,thisColor);
                         }
-                        triTex[0] = TexCoord(0.0,texOffset+texLen);
-                        triTex[1] = TexCoord(1.0,texOffset+texLen);
-                        triTex[2] = TexCoord(1.0,texOffset+texLen);
+                        texJoinLens[1] = (next_e1-rPt).norm()/2.0;
+                        triTex[0] = TexCoord(0.0,texOffset+texLen+texJoinLens[0]);
+                        triTex[1] = TexCoord(1.0,texOffset+texLen+texJoinLens[0]);
+                        triTex[2] = TexCoord(1.0,texOffset+texLen+texJoinLens[0]+texJoinLens[1]);
                         if (vecInfo.coordType == WideVecCoordReal)
                         {
                             triVerts[0] = lPt;
@@ -462,6 +470,7 @@ public:
                             triVerts[2] = (next_e1-pbLocal)/calcScale;
                             addWideTri(wideDrawable,triVerts,pbLocal,triTex,up,thisColor);
                         }
+                        texJoinLen = texJoinLens[0] + texJoinLens[1];
                     }
                 }
                     break;
@@ -481,10 +490,12 @@ public:
                         if (intersectLinesDir(lPt1,iNorm,corners[0],pbLocal-paLocal,li0) &&
                             intersectLinesDir(lPt1,iNorm,next_e0,pcLocal-pbLocal,li1))
                         {
+                            double texLens[3];
                             // Form three triangles for this junction
+                            texLens[0] = (li0-corners[3]).norm()/2.0;
                             triTex[0] = TexCoord(0.0,texOffset+texLen);
                             triTex[1] = TexCoord(1.0,texOffset+texLen);
-                            triTex[2] = TexCoord(0.0,texOffset+texLen);
+                            triTex[2] = TexCoord(0.0,texOffset+texLen+texLens[0]);
                             if (vecInfo.coordType == WideVecCoordReal)
                             {
                                 triVerts[0] = corners[3];
@@ -497,9 +508,10 @@ public:
                                 triVerts[2] = (li0-pbLocalAdj)/calcScale;
                                 addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,up,thisColor);
                             }
-                            triTex[0] = TexCoord(0.0,texOffset+texLen);
-                            triTex[1] = TexCoord(1.0,texOffset+texLen);
-                            triTex[2] = TexCoord(0.0,texOffset+texLen);
+                            texLens[1] = (li1-li0).norm()/2.0;
+                            triTex[0] = TexCoord(0.0,texOffset+texLen+texLens[0]);
+                            triTex[1] = TexCoord(1.0,texOffset+texLen+texLens[0]);
+                            triTex[2] = TexCoord(0.0,texOffset+texLen+texLens[0]+texLens[1]);
                             if (vecInfo.coordType == WideVecCoordReal)
                             {
                                 triVerts[0] = li0;
@@ -512,9 +524,10 @@ public:
                                 triVerts[2] = (li1-pbLocalAdj)/calcScale;
                                 addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,up,thisColor);
                             }
-                            triTex[0] = TexCoord(0.0,texOffset+texLen);
-                            triTex[1] = TexCoord(1.0,texOffset+texLen);
-                            triTex[2] = TexCoord(0.0,texOffset+texLen);
+                            texLens[2] = (next_e0-li1).norm()/2.0;
+                            triTex[0] = TexCoord(0.0,texOffset+texLen+texLens[0]+texLens[1]);
+                            triTex[1] = TexCoord(1.0,texOffset+texLen+texLens[0]+texLens[1]);
+                            triTex[2] = TexCoord(0.0,texOffset+texLen+texLens[0]+texLens[1]+texLens[2]);
                             if (vecInfo.coordType == WideVecCoordReal)
                             {
                                 triVerts[0] = li1;
@@ -527,6 +540,7 @@ public:
                                 triVerts[2] = (next_e0-pbLocalAdj)/calcScale;
                                 addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,up,thisColor);
                             }
+                            texJoinLen = texLens[0] + texLens[1] + texLens[2];
                         }
                     } else {
                         // Bending left
@@ -541,10 +555,12 @@ public:
                         if (intersectLinesDir(rPt1,iNorm,corners[1], pbLocal-paLocal, ri0) &&
                             intersectLinesDir(rPt1,iNorm,next_e1,pcLocal-pbLocal,ri1))
                         {
+                            double texLens[3];
                             // Form three triangles for this junction
+                            texLens[0] = (ri0-corners[2]).norm()/2.0;
                             triTex[0] = TexCoord(0.0,texOffset+texLen);
                             triTex[1] = TexCoord(1.0,texOffset+texLen);
-                            triTex[2] = TexCoord(1.0,texOffset+texLen);
+                            triTex[2] = TexCoord(1.0,texOffset+texLen+texLens[0]);
                             if (vecInfo.coordType == WideVecCoordReal)
                             {
                                 triVerts[0] = lPt;
@@ -557,9 +573,10 @@ public:
                                 triVerts[2] = (ri0-pbLocalAdj)/calcScale;
                                 addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,up,thisColor);
                             }
-                            triTex[0] = TexCoord(0.0,texOffset+texLen);
-                            triTex[1] = TexCoord(1.0,texOffset+texLen);
-                            triTex[2] = TexCoord(1.0,texOffset+texLen);
+                            texLens[1] = (ri1-ri0).norm()/2.0;
+                            triTex[0] = TexCoord(0.0,texOffset+texLen+texLens[0]);
+                            triTex[1] = TexCoord(1.0,texOffset+texLen+texLens[0]);
+                            triTex[2] = TexCoord(1.0,texOffset+texLen+texLens[0]+texLens[1]);
                             if (vecInfo.coordType == WideVecCoordReal)
                             {
                                 triVerts[0] = lPt;
@@ -572,9 +589,10 @@ public:
                                 triVerts[2] = (ri1-pbLocalAdj)/calcScale;
                                 addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,up,thisColor);
                             }
-                            triTex[0] = TexCoord(0.0,texOffset+texLen);
-                            triTex[1] = TexCoord(1.0,texOffset+texLen);
-                            triTex[2] = TexCoord(1.0,texOffset+texLen);
+                            texLens[2] = (next_e1-ri1).norm()/2.0;
+                            triTex[0] = TexCoord(0.0,texOffset+texLen+texLens[0]+texLens[1]);
+                            triTex[1] = TexCoord(1.0,texOffset+texLen+texLens[0]+texLens[1]);
+                            triTex[2] = TexCoord(1.0,texOffset+texLen+texLens[0]+texLens[1]+texLens[2]);
                             if (vecInfo.coordType == WideVecCoordReal)
                             {
                                 triVerts[0] = lPt;
@@ -587,6 +605,7 @@ public:
                                 triVerts[2] = (next_e1-pbLocalAdj)/calcScale;
                                 addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,up,thisColor);
                             }
+                            texJoinLen = texLens[0] + texLens[1] + texLens[2];
                         }
                     }
                 }
@@ -613,7 +632,7 @@ public:
         e1 = next_e1;
         centerAdj = pbLocalAdj;
         edgePointsValid = true;
-        texOffset += texLen;
+        texOffset += texLen+texJoinLen;
     }
     
     
@@ -694,6 +713,7 @@ public:
                 WideVectorDrawable *wideDrawable = new WideVectorDrawable();
                 drawable = wideDrawable;
                 drawable->setProgram(vecInfo.shader);
+                wideDrawable->setTexRepeat(vecInfo.repeatSize);
                 wideDrawable->setWidth(vecInfo.width);
             }
 //            drawMbr.reset();
@@ -756,6 +776,7 @@ public:
             return NULL;
         
         WideVectorSceneRep *sceneRep = new WideVectorSceneRep();
+        sceneRep->fade = vecInfo.fade;
         for (unsigned int ii=0;ii<drawables.size();ii++)
         {
             Drawable *drawable = drawables[ii];
