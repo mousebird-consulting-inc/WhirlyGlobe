@@ -986,4 +986,12 @@ static const float PerfOutputDelay = 15.0;
     return (float)[visualView currentMapZoom:frameSize latitude:coordinate.y];
 }
 
+- (MaplyCoordinateSystem *)coordSystem
+{
+    // Note: Hack.  Should wrap the real coordinate system
+    MaplyCoordinateSystem *coordSys = [[MaplySphericalMercator alloc] init];
+    
+    return coordSys;
+}
+
 @end
