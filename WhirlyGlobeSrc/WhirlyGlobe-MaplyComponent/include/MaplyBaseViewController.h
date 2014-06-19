@@ -614,7 +614,7 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  */
 - (float)currentMapZoom:(MaplyCoordinate)coordinate;
 
-/** @brief Return the coordinate system being used by the view controller.
+/** @brief Return the coordinate system being used for the display.
   */
 - (MaplyCoordinateSystem *)coordSystem;
 
