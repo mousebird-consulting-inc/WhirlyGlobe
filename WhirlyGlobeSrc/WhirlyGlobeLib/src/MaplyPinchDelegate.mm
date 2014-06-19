@@ -92,8 +92,8 @@ using namespace WhirlyKit;
                     startingMidPoint.y - currentScalePointScreenLoc.y};
 
                 //calculate a new map center to maintain scalepoint in place on screen
-                CGPoint newMapCenterPoint = {(glView.frame.size.width/2.0) - screenOffset.x,
-                    (glView.frame.size.height/2.0) - screenOffset.y};
+                CGPoint newMapCenterPoint = {static_cast<CGFloat>((glView.frame.size.width/2.0) - screenOffset.x),
+                    static_cast<CGFloat>((glView.frame.size.height/2.0) - screenOffset.y)};
                 Point3d newCenterGeoPoint;
                 [self.mapView pointOnPlaneFromScreen:newMapCenterPoint
                                            transform:&modelTrans
