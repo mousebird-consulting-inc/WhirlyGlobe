@@ -21,7 +21,6 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <MaplyCoordinate.h>
-#import <MaplyCoordinateSystem.h>
 
 @class MaplyBaseViewController;
 
@@ -162,8 +161,6 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
     @details Why?  Think label road placement.
   */
 - (bool)linearMiddle:(MaplyCoordinate *)middle rot:(double *)rot;
-
-- (bool)linearMiddle:(MaplyCoordinate *)middle rot:(double *)rot displayCoordSys:(MaplyCoordinateSystem *)coordSys;
 
 /** @brief return the middle coordinate in a line feature.
  */
