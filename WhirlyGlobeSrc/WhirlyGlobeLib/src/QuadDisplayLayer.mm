@@ -475,11 +475,11 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 {
     if (tileIdent.level < maxZoom)
     {
+        _quadtree->setLoading(tileIdent, false);
+
         // Make sure we still want this one
         if (!_quadtree->isTilePresent(tileIdent) || _quadtree->isPhantom(tileIdent))
             return;
-        
-        _quadtree->setLoading(tileIdent, false);
         
         if (_targetLevel == -1 || tileIdent.level < _targetLevel)
         {
