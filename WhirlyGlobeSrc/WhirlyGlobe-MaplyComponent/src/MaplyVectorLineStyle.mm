@@ -32,7 +32,7 @@
 - (id)initWithStyleEntry:(NSDictionary *)style settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
 {
     self = [super initWithStyleEntry:style viewC:viewC];
-    useWideVectors = NO;
+    useWideVectors = YES;
     
     subStyles = [NSMutableArray array];
     NSArray *subStylesArray = style[@"substyles"];
@@ -92,9 +92,18 @@
                 dashComponents = @[@(patternLength)];
             }
             
-            MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(settings.lineScale * strokeWidth,patternLength)];
+            int width = settings.lineScale * strokeWidth;
+            // Width needs to be a bit bigger for falloff at edges to work
+            if (width < 1)
+                width = 1;
+            // For odd sizes, we'll expand by 2, even 1
+            if (width & 0x1)
+                width += 2;
+            else
+                width += 1;
+            MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,patternLength)];
             [lineTexBuilder setPattern:dashComponents];
-            lineTexBuilder.opacityFunc = MaplyOpacitySin2;
+            lineTexBuilder.opacityFunc = MaplyOpacitySin3;
             UIImage *lineImage = [lineTexBuilder makeImage];
             MaplyTexture *filledLineTex = [viewC addTexture:lineImage
                                                 imageFormat:MaplyImageIntRGBA
@@ -102,6 +111,7 @@
                                                        mode:MaplyThreadAny];
             desc[kMaplyVecTexture] = filledLineTex;
             desc[kMaplyWideVecCoordType] = kMaplyWideVecCoordTypeScreen;
+            desc[kMaplyWideVecTexRepeatLen] = @(patternLength);
         }
         
         [self resolveVisibility:styleEntry settings:settings desc:desc];
