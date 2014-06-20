@@ -625,7 +625,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
                                                                                    kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
                                                                                    kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                                                                    kMaplyWideVecMiterLimit: @(1.01),
-                                                                                   kMaplyWideVecTexRepeatLen: @(32),
+                                                                                   kMaplyWideVecTexRepeatLen: @(8),
                                                                                    kMaplyMaxVis: @(0.00032424763776361942),
                                                                                    kMaplyMinVis: @(0.00011049506429117173)
                                                                                    }];
@@ -683,8 +683,8 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     // Make the dashed line if it isn't already there
     if (!dashedLineTex)
     {
-        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(4,32)];
-        [lineTexBuilder setPattern:@[@(8),@(8),@(8),@(8)]];
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(4,8)];
+        [lineTexBuilder setPattern:@[@(4),@(4)]];
         lineTexBuilder.opacityFunc = MaplyOpacitySin2;
         UIImage *dashedLineImage = [lineTexBuilder makeImage];
         dashedLineTex = [baseViewC addTexture:dashedLineImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapY mode:MaplyThreadAny];
