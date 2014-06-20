@@ -33,6 +33,7 @@
 #define kMaplyTestMapBoxRegular @"MapBox Regular - Remote"
 #define kMaplyTestQuadTest @"Quad Test Layer"
 #define kMaplyTestQuadTestAnimate @"Quad Test Layer - Animated"
+#define kMaplyTestQuadVectorTest @"Quad Vector Test Layer"
 
 // Overlay image layers
 #define kMaplyTestCategoryOverlayLayers @"Overlay layers"
