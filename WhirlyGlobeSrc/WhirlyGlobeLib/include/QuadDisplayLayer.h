@@ -38,7 +38,7 @@
 namespace WhirlyKit
 {
 /// Quad tree Nodeinfo structures sorted by importance
-typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
+typedef std::set<WhirlyKit::Quadtree::Identifier> QuadIdentSet;
 }
 
 /** Quad tree based data structure.  Fill this in to provide structure and

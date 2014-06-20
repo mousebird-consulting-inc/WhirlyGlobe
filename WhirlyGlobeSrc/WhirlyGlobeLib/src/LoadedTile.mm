@@ -1324,10 +1324,6 @@ void LoadedTile::Print(TileBuilder *tileBuilder)
     {
         NSLog(@" Child %d drawId = %d",ii,(int)childDrawIds[ii]);
     }
-    std::vector<Quadtree::Identifier> childIdents;
-    tileBuilder->tree->childrenForNode(nodeInfo.ident,childIdents);
-    for (unsigned int ii=0;ii<childIdents.size();ii++)
-        NSLog(@" Query child (%d,%d,%d)",childIdents[ii].x,childIdents[ii].y,childIdents[ii].level);
 }
 
 }

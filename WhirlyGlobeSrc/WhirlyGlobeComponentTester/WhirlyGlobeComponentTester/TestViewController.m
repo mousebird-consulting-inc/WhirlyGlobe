@@ -625,7 +625,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
                                                                                    kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
                                                                                    kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                                                                    kMaplyWideVecMiterLimit: @(1.01),
-                                                                                   kMaplyWideVecTexRepeatLen: @(32),
+                                                                                   kMaplyWideVecTexRepeatLen: @(8),
                                                                                    kMaplyMaxVis: @(0.00032424763776361942),
                                                                                    kMaplyMinVis: @(0.00011049506429117173)
                                                                                    }];
@@ -683,8 +683,8 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     // Make the dashed line if it isn't already there
     if (!dashedLineTex)
     {
-        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(4,32)];
-        [lineTexBuilder setPattern:@[@(8),@(8),@(8),@(8)]];
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(4,8)];
+        [lineTexBuilder setPattern:@[@(4),@(4)]];
         lineTexBuilder.opacityFunc = MaplyOpacitySin2;
         UIImage *dashedLineImage = [lineTexBuilder makeImage];
         dashedLineTex = [baseViewC addTexture:dashedLineImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapY mode:MaplyThreadAny];
@@ -1029,6 +1029,22 @@ static const int NumMegaMarkers = 40000;
         layer.maxTiles = 512;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
         layer.color = [UIColor colorWithWhite:1.0 alpha:0.75];
+        [baseViewC addLayer:layer];
+        layer.drawPriority = 0;
+        baseLayer = layer;
+    } else if (![baseLayerName compare:kMaplyTestQuadVectorTest])
+    {
+        self.title = @"Quad Paging Test Layer";
+        screenLabelColor = [UIColor whiteColor];
+        screenLabelBackColor = [UIColor whiteColor];
+        labelColor = [UIColor blackColor];
+        labelBackColor = [UIColor whiteColor];
+        vecColor = [UIColor blackColor];
+        vecWidth = 4.0;
+        MaplyPagingVectorTestTileSource *tileSource = [[MaplyPagingVectorTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:21];
+        MaplyQuadPagingLayer *layer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:tileSource.coordSys delegate:tileSource];
+        layer.importance = 128*128;
+        layer.singleLevelLoading = (startupMapType == Maply2DMap);
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
