@@ -34,6 +34,12 @@ using namespace Eigen;
     return [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
 }
 
+- (int) asHexRGB
+{
+  RGBAColor rgb = [self asRGBAColor];
+  return (rgb.r << 16) | (rgb.g << 8)| rgb.b;
+}
+
 - (RGBAColor) asRGBAColor
 {
     RGBAColor color;

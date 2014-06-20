@@ -7,10 +7,11 @@
 //
 
 #import "MaplyIconManager.h"
+#import "UIColor+Stuff.h"
 
 @implementation MaplyIconManager
 {
-    NSMutableDictionary *imgDict;
+    NSCache *imageCache;
 }
 
 + (MaplyIconManager *)shared
@@ -29,7 +30,7 @@
 - (id)init
 {
     self = [super init];
-    imgDict = [NSMutableDictionary dictionary];
+    imageCache = [[NSCache alloc] init];
     
     return self;
 }
@@ -37,12 +38,13 @@
 - (UIImage *)iconForName:(NSString *)name size:(CGSize)size color:(UIColor *)color strokeSize:(float)strokeSize strokeColor:(UIColor *)strokeColor
 {
     // Look for the cached version
-    NSString *fakeName = [NSString stringWithFormat:@"%@_%d_%d",name,(int)size.width,(int)size.height];
-    @synchronized(self)
-    {
-        if (imgDict[fakeName])
-            return imgDict[fakeName];
-    }
+    NSString *cacheKey = [NSString stringWithFormat:@"%@_%d_%d_%.1f_%0.6X_%0.6X", name,
+                          (int)size.width, (int)size.height,
+                          strokeSize, [color asHexRGB], [strokeColor asHexRGB]];
+    
+    id cached = [imageCache objectForKey:cacheKey];
+    if (cached)
+        return cached;
     
     NSString *fullName = nil;
     UIImage *iconImage;
@@ -62,7 +64,7 @@
             
             if (!iconImage)
             {
-                imgDict[fakeName] = [NSNull null];
+                [imageCache setObject:[NSNull null] forKey:cacheKey];
                 return nil;
             }
         }
@@ -98,10 +100,7 @@
     UIGraphicsEndImageContext();
     
     // Cache it
-    @synchronized(self)
-    {
-        imgDict[fakeName] = retImage;
-    }
+    [imageCache setObject:retImage forKey:cacheKey];
     
     return retImage;
 }

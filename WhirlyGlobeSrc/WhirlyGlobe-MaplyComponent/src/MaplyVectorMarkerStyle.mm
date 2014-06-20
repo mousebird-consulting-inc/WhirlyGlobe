@@ -27,6 +27,7 @@
     NSMutableDictionary *desc;
     UIImage *markerImage;
     float width;
+    float height;
     bool allowOverlap;
     NSString *markerImageTemplate;
 }
@@ -58,26 +59,34 @@
             fillColor = [MaplyVectorTiles ParseColor:styleEntry[@"fill"]];
         UIColor *strokeColor = [UIColor blackColor];
         if (styleEntry[@"stroke"])
-            strokeColor = [MaplyVectorTiles  ParseColor:styleEntry[@"stroke"]];
+            strokeColor = [MaplyVectorTiles ParseColor:styleEntry[@"stroke"]];
         subStyle->width = 10.0;
         if (styleEntry[@"width"])
             subStyle->width = [styleEntry[@"width"] floatValue];
+        subStyle->height = subStyle->width;
+        if (styleEntry[@"height"])
+            subStyle->height = [styleEntry[@"height"] floatValue];
         subStyle->allowOverlap = false;
         if (styleEntry[@"allow-overlap"])
             subStyle->allowOverlap = [styleEntry[@"allow-overlap"] boolValue];
         float strokeWidth = 2.0;
-        NSString *fileName = nil;;
+        NSString *fileName = nil;
         if (styleEntry[@"file"])
             fileName = styleEntry[@"file"];
-      
+        
         subStyle->desc = [NSMutableDictionary dictionary];
         [self resolveVisibility:styleEntry settings:settings desc:subStyle->desc];
-        
-        if([fileName rangeOfString:@"["].location == NSNotFound)
-            subStyle->markerImage = [MaplyIconManager iconForName:fileName size:CGSizeMake(4*settings.markerScale*subStyle->width, 4*settings.markerScale*subStyle->width) color:fillColor strokeSize:2*settings.markerScale*strokeWidth strokeColor:strokeColor];
+      
+        if(!fileName || [fileName rangeOfString:@"["].location == NSNotFound)
+            subStyle->markerImage = [MaplyIconManager iconForName:fileName
+                                                             size:CGSizeMake(4*settings.markerScale*subStyle->width,
+                                                                             4*settings.markerScale*subStyle->height)
+                                                            color:fillColor
+                                                       strokeSize:2*settings.markerScale*strokeWidth
+                                                      strokeColor:strokeColor];
         else
             subStyle->markerImageTemplate = fileName;
-        
+
         [subStyles addObject:subStyle];
     }
     
@@ -94,7 +103,6 @@
         {
             MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
             marker.selectable = self.selectable;
-            marker.selectable = false;
             if(subStyle->markerImage)
                 marker.image = subStyle->markerImage;
             else
@@ -104,7 +112,7 @@
             if (marker.image) {
                 marker.loc = [vec center];
                 marker.layoutImportance = 2.0;
-                marker.size = CGSizeMake(settings.markerScale*subStyle->width, settings.markerScale*subStyle->width);
+                marker.size = CGSizeMake(settings.markerScale*subStyle->width, settings.markerScale*subStyle->height);
                 [markers addObject:marker];
             }
         }
