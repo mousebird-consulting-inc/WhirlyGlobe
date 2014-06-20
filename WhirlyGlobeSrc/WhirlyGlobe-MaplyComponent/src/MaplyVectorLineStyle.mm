@@ -79,14 +79,13 @@
                 NSArray *componentStrings = [styleEntry[@"stroke-dasharray"] componentsSeparatedByString:@","];
                 NSMutableArray *componentNumbers = [NSMutableArray arrayWithCapacity:componentStrings.count];
                 for(NSString *s in componentStrings) {
-                    int n = [s intValue];
+                    int n = [s intValue] * settings.dashPatternScale;
                     patternLength += n;
                     if(n > 0) {
                         [componentNumbers addObject:@(n)];
                     }
                 }
                 dashComponents = componentNumbers;
-                NSLog(@"dash pattern:%@", dashComponents);
             } else  {
                 patternLength = 32;
                 dashComponents = @[@(patternLength)];
