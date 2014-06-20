@@ -42,7 +42,7 @@ using namespace Eigen;
     _joinType = (WhirlyKit::WideVectorLineJoinType)[desc enumForKey:@"wideveclinejointype" values:@[@"miter",@"round",@"bevel"] default:WideVecMiterJoin];
     _capType = (WhirlyKit::WideVectorLineCapType)[desc enumForKey:@"wideveclinecaptype" values:@[@"butt",@"round",@"square"] default:WideVecButtCap];
     _texID = [desc intForKey:@"texture" default:EmptyIdentity];
-    _repeatSize = [desc floatForKey:@"repeatSize" default:6371000.0 / 20];
+    _repeatSize = [desc floatForKey:@"repeatSize" default:(_coordType == WideVecCoordScreen ? 32 : 6371000.0 / 20)];
     _miterLimit = [desc floatForKey:@"miterLimit" default:2.0];
 }
 
