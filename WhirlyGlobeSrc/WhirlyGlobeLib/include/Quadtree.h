@@ -148,6 +148,9 @@ public:
     /// MBR and importance.
     NodeInfo generateNode(const Identifier &ident);
     
+    /// Return the node info for a given node
+    const NodeInfo *getNodeInfo(const Identifier &ident);
+    
     /// Add the given tile, without looking for any to remove.  This is probably a phantom.
     const Quadtree::NodeInfo *addTile(const Identifier &ident,bool newEval,bool checkImportance);
     
