@@ -884,7 +884,7 @@ SimpleIdentity WideVectorManager::addVectors(ShapeSet *shapes,NSDictionary *desc
     }
     
     WideVectorSceneRep *sceneRep = builder.flush(changes);
-    SimpleIdentity vecID = sceneRep->getId();
+    SimpleIdentity vecID = EmptyIdentity;
     if (sceneRep)
     {
         vecID = sceneRep->getId();
