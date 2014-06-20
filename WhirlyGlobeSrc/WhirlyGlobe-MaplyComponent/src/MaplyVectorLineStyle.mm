@@ -26,12 +26,14 @@
 @implementation MaplyVectorTileStyleLine
 {
     NSMutableArray *subStyles;
+    BOOL useWideVectors;
 }
 
 - (id)initWithStyleEntry:(NSDictionary *)style settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
 {
     self = [super initWithStyleEntry:style viewC:viewC];
-
+    useWideVectors = NO;
+    
     subStyles = [NSMutableArray array];
     NSArray *subStylesArray = style[@"substyles"];
     for (NSDictionary *styleEntry in subStylesArray)
@@ -53,34 +55,6 @@
         {
             strokeColor = [MaplyVectorTiles ParseColor:styleEntry[@"stroke"] alpha:alpha];
         }
-
-        int patternLength = 0;
-        NSArray *dashComponents;
-        if(styleEntry[@"stroke-dasharray"])
-        {
-            NSArray *componentStrings = [styleEntry[@"stroke-dasharray"] componentsSeparatedByString:@","];
-            NSMutableArray *componentNumbers = [NSMutableArray arrayWithCapacity:componentStrings.count];
-            for(NSString *s in componentStrings) {
-                int n = [s intValue];
-                patternLength += n;
-                if(n > 0) {
-                    [componentNumbers addObject:@(n)];
-                }
-            }
-            dashComponents = componentNumbers;
-        } else  {
-            patternLength = 32;
-            dashComponents = @[@(patternLength)];
-        }
-        
-        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(settings.lineScale * strokeWidth,patternLength)];
-        [lineTexBuilder setPattern:dashComponents];
-        lineTexBuilder.opacityFunc = MaplyOpacitySin2;
-        UIImage *lineImage = [lineTexBuilder makeImage];
-        MaplyTexture *filledLineTex = [viewC addTexture:lineImage
-                                            imageFormat:MaplyImageIntRGBA
-                                              wrapFlags:MaplyImageWrapY
-                                                   mode:MaplyThreadAny];
         
         int drawPriority = 0;
         if (styleEntry[@"drawpriority"])
@@ -88,16 +62,48 @@
             drawPriority = (int)[styleEntry[@"drawpriority"] integerValue];
         }
         NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
-                @{kMaplyVecWidth: @(settings.lineScale * strokeWidth),
-                 kMaplyColor: strokeColor,
+                                     @{kMaplyVecWidth: @(settings.lineScale * strokeWidth),
+                                       kMaplyColor: strokeColor,
                                        kMaplyDrawPriority: @(drawPriority+kMaplyVectorDrawPriorityDefault),
                                        kMaplyEnable: @NO,
                                        kMaplyFade: @0.0,
                                        kMaplyVecCentered: @YES,
-                                       kMaplySelectable: @(self.selectable),
-                                       kMaplyVecTexture: filledLineTex,
-                                       kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+                                       kMaplySelectable: @(self.selectable)
                                        }];
+        
+        if(useWideVectors) {
+            int patternLength = 0;
+            NSArray *dashComponents;
+            if(styleEntry[@"stroke-dasharray"])
+            {
+                NSArray *componentStrings = [styleEntry[@"stroke-dasharray"] componentsSeparatedByString:@","];
+                NSMutableArray *componentNumbers = [NSMutableArray arrayWithCapacity:componentStrings.count];
+                for(NSString *s in componentStrings) {
+                    int n = [s intValue];
+                    patternLength += n;
+                    if(n > 0) {
+                        [componentNumbers addObject:@(n)];
+                    }
+                }
+                dashComponents = componentNumbers;
+                NSLog(@"dash pattern:%@", dashComponents);
+            } else  {
+                patternLength = 32;
+                dashComponents = @[@(patternLength)];
+            }
+            
+            MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(settings.lineScale * strokeWidth,patternLength)];
+            [lineTexBuilder setPattern:dashComponents];
+            lineTexBuilder.opacityFunc = MaplyOpacitySin2;
+            UIImage *lineImage = [lineTexBuilder makeImage];
+            MaplyTexture *filledLineTex = [viewC addTexture:lineImage
+                                                imageFormat:MaplyImageIntRGBA
+                                                  wrapFlags:MaplyImageWrapY
+                                                       mode:MaplyThreadAny];
+            desc[kMaplyVecTexture] = filledLineTex;
+            desc[kMaplyWideVecCoordType] = kMaplyWideVecCoordTypeScreen;
+        }
+        
         [self resolveVisibility:styleEntry settings:settings desc:desc];
         
         [subStyles addObject:desc];
@@ -113,11 +119,27 @@
     for (NSDictionary *desc in subStyles)
     {
         MaplyComponentObject *compObj = nil;
-        if (!baseObj)
-            baseObj = compObj = [viewC addWideVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
+        if (!baseObj) {
+            if(useWideVectors)
+            {
+                baseObj = compObj = [viewC addWideVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
+            } else
+            {
+                baseObj = compObj = [viewC addVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
+            }
+        }
         else
+        {
             // Note: Should do current thread here
-            compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadCurrent];
+            if(useWideVectors)
+            {
+//TODO: I dont think this is right, but it doesnt ever come up with Mapnik Styles, because there is only ever 1 substyle
+                compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadCurrent];
+            } else
+            {
+                compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadCurrent];
+            }
+        }
         if (compObj)
             [compObjs addObject:compObj];
     }
