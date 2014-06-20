@@ -422,6 +422,7 @@ void Quadtree::reevaluateNodes()
 const Quadtree::NodeInfo *Quadtree::addTile(const Identifier &ident,bool newEval,bool checkImportance)
 {
     bool oldEval = false;
+    bool oldLoading = false;
     Node *node = getNode(ident);
 
     // Make up a new node
@@ -453,6 +454,7 @@ const Quadtree::NodeInfo *Quadtree::addTile(const Identifier &ident,bool newEval
             numPhantomNodes++;
     } else {
         oldEval = node->nodeInfo.eval;
+        oldLoading = node->nodeInfo.loading;
         node->nodeInfo.eval = newEval;
     }
 
@@ -484,6 +486,24 @@ const Quadtree::NodeInfo *Quadtree::addTile(const Identifier &ident,bool newEval
             evalNodes.erase(it);
     }
     
+    if (!oldLoading && node->nodeInfo.loading)
+    {
+        Node *parent = node->parent;
+        while (parent)
+        {
+            parent->nodeInfo.childrenLoading++;
+            parent = parent->parent;
+        }
+    } else if (oldLoading && !node->nodeInfo.loading)
+    {
+        Node *parent = node->parent;
+        while (parent)
+        {
+            parent->nodeInfo.childrenLoading--;
+            parent = parent->parent;
+        }
+    }
+    
     return &node->nodeInfo;
 }
     
@@ -497,6 +517,15 @@ void Quadtree::removeTile(const Identifier &ident)
     
     if (node)
         removeNode(node);
+}
+    
+const Quadtree::NodeInfo *Quadtree::getNodeInfo(const Identifier &ident)
+{
+    Node *node = getNode(ident);
+    if (!node)
+        return NULL;
+    
+    return &node->nodeInfo;
 }
     
 Quadtree::NodeInfo Quadtree::generateNode(const Identifier &ident)

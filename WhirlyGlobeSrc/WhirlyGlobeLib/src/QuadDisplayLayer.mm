@@ -413,17 +413,21 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
         
         for (std::set<Quadtree::Identifier>::iterator it = toPhantom.begin();it != toPhantom.end(); ++it)
         {
-            Quadtree::NodeInfo nodeInfo = *it;
+            Quadtree::Identifier ident = *it;
             
-            if (!_quadtree->childrenEvaluating(nodeInfo.ident) && !_quadtree->childrenLoading(nodeInfo.ident))
+            if (!_quadtree->childrenEvaluating(ident) && !_quadtree->childrenLoading(ident))
             {
 //                NSLog(@"Flushing phantom tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
-                [_loader quadDisplayLayer:self unloadTile:nodeInfo];
-                _quadtree->setPhantom(nodeInfo.ident, true);
-                _quadtree->setLoading(nodeInfo.ident, false);
-                didSomething = true;
+                const Quadtree::NodeInfo *nodeInfo = _quadtree->getNodeInfo(ident);
+                if (nodeInfo)
+                {
+                    [_loader quadDisplayLayer:self unloadTile:*nodeInfo];
+                    _quadtree->setPhantom(ident, true);
+                    _quadtree->setLoading(ident, false);
+                    didSomething = true;
+                }
             } else {
-                toKeep.insert(nodeInfo.ident);
+                toKeep.insert(ident);
                 //                NSLog(@"Children loading");
             }
         }
@@ -473,10 +477,9 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 // Once loaded we can try the children
 - (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidLoad:(WhirlyKit::Quadtree::Identifier)tileIdent
 {
+    _quadtree->setLoading(tileIdent, false);
     if (tileIdent.level < maxZoom)
     {
-        _quadtree->setLoading(tileIdent, false);
-
         // Make sure we still want this one
         if (!_quadtree->isTilePresent(tileIdent) || _quadtree->isPhantom(tileIdent))
             return;
@@ -503,6 +506,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 - (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent
 {
     _quadtree->setLoading(tileIdent, false);
+    _quadtree->setPhantom(tileIdent, true);
     
     // Might get stuck here
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
