@@ -65,10 +65,10 @@ public:
     class NodeInfo
     {
     public:
-        NodeInfo() { attrs = [NSMutableDictionary dictionary]; phantom = false;  importance = 0; }
-        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
-        NodeInfo(const Identifier &ident) : ident(ident) { attrs = nil; }
-        NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
+        NodeInfo() { attrs = [NSMutableDictionary dictionary]; phantom = false;  importance = 0; loading = false; childrenLoading = 0; childrenEval = 0;}
+        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom),loading(that.loading),childrenLoading(that.childrenLoading),childrenEval(that.childrenEval) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
+        NodeInfo(const Identifier &ident) : ident(ident), importance(0.0), phantom(false), loading(false), childrenLoading(0), childrenEval(0) { attrs = nil; }
+        NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; loading = that.loading;  childrenLoading = that.childrenLoading; childrenEval = that.childrenEval; attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
         ~NodeInfo() { attrs = nil; }
         
         /// Compare based on importance.  Used for sorting
@@ -82,6 +82,14 @@ public:
         float importance;
         /// Set if this is a phantom tile.  We pretended to load it, but it's not really here.
         bool phantom;
+        /// Tile is in the process of loading
+        bool loading;
+        /// Tile is in the process of evaluation
+        bool eval;
+        /// Number of children in the process of loading
+        int childrenLoading;
+        /// Number of children being evalulated
+        int childrenEval;
 
         /// Put any attributes you'd like to keep track of here.
         /// There are things you might calculate for a given tile over and over.
@@ -89,60 +97,82 @@ public:
     };
 
     /// Check if the given tile is already present
-    bool isTileLoaded(Identifier ident);
+    bool isTilePresent(const Identifier &ident);
 
     /** Check if the quad tree will accept the given tile.
         This means either there's room or less important nodes loaded
         It could already be loaded.  Check that separately.
      */
-    bool willAcceptTile(const NodeInfo &nodeInfo);
+    bool shouldLoadTile(const Identifier &ident);
+    
+    /// Return true if we've go the maximum nodes loaded in
+    bool isFull();
     
     /// Return true if this is a phantom tile
     bool isPhantom(const Identifier &ident);
     
     /// Set the phantom flag on the given node
     void setPhantom(const Identifier &nodeInfo,bool newPhantom);
+
+    /// Return true if this tile is loading
+    bool isLoading(const Identifier &ident);
+    
+    /// Set the loading flag on the given node
+    void setLoading(const Identifier &nodeInfo,bool newLoading);
+    
+    /// Set if something is evaluating this node
+    bool isEvaluating(const Identifier &ident);
+
+    /// Set the evaluating flag
+    void setEvaluating(const Identifier &nodeInfo,bool newEval);
+    
+    /// Number of nodes in the eval queue
+    int numEvals();
+    
+    /// Clear everything that's evaluating
+    void clearEvals();
+    
+    /// Return the next nodes we're evaluating
+    const NodeInfo *popLastEval();
+    
+    /// Look for children of this tile being laoded
+    bool childrenLoading(const Identifier &ident);
+    
+    /// Look for children of this tile being evaluated
+    bool childrenEvaluating(const Identifier &ident);
     
     /// Recalculate the importance of everything.  This calls the callback.
     void reevaluateNodes();
     
-    /// Add the given tile, keeping track of what needed to be removed
-    void addTile(NodeInfo nodeInfo,std::vector<Identifier> &tilesRemoved,int targetLevel=-1);
-    
-    /// Explicitly remove a given tile
-    void removeTile(Identifier which);
-    
-    // Remove the given tile
-//    void removeTile(Identifier ident);
-
     /// Given an identifier, fill out the node info such as
     /// MBR and importance.
-    NodeInfo generateNode(Identifier ident);
-
-    /// Given the identifier of a parent, fill out the children IDs.
-    /// This does not load them.
-    void generateChildren(Identifier ident,std::vector<NodeInfo> &nodes);
+    NodeInfo generateNode(const Identifier &ident);
     
-    /// Return the loaded children of the given node.
-    /// If the node isn't in the tree, return false
-    bool childrenForNode(Identifier ident,std::vector<Identifier> &childIdents);
+    /// Add the given tile, without looking for any to remove.  This is probably a phantom.
+    const Quadtree::NodeInfo *addTile(const Identifier &ident,bool newEval,bool checkImportance);
+    
+    /// Explicitly remove a given tile
+    void removeTile(const Identifier &which);
+    
+    /// Return the IDs for this node's children.  Doesn't check if they're there
+    void childrenForNode(const Identifier &ident,std::vector<Identifier> &childIdents);
+    
+    /// Check if a parent is in the process of loading
+    bool parentIsLoading(const Identifier &ident);
     
     /// Check if the given node has a parent loaded.
     /// Return true if so, false if not.
-    bool hasParent(Identifier ident,Identifier &parentIdent);
+    bool hasParent(const Identifier &dent,Identifier &parentIdent);
     
     /// Check if the given node has children loaded
-    bool hasChildren(Identifier ident);
+    bool hasChildren(const Identifier &ident);
     
     /// Generate an MBR for the given node identifier
-    Mbr generateMbrForNode(Identifier ident);
+    Mbr generateMbrForNode(const Identifier &ident);
     
     /// Fetch the least important (smallest) node currently loaded.
     /// Returns false if there wasn't one
-    bool leastImportantNode(NodeInfo &nodeInfo,bool ignoreImportance=false,int targetLevel=-1);
-
-    /// Return a vector of all nodes less than the given importance without children
-    void unimportantNodes(std::vector<NodeInfo> &nodes,float importance);
+    bool leastImportantNode(NodeInfo &nodeInfo,bool force=false);
     
     /// Update the maximum number of nodes.
     /// This won't check to see if we already have more than that
@@ -192,16 +222,19 @@ protected:
         void addChild(Quadtree *tree,Node *child);
         void removeChild(Quadtree *tree,Node *child);
         bool hasChildren();
+        bool parentLoading();
+        bool hasNonPhantomParent();
         void Print();
         
     protected:
         NodesByIdentType::iterator identPos;
         NodesBySizeType::iterator sizePos;
+        NodesBySizeType::iterator evalPos;
         Node *parent;
         Node *children[4];
     };
         
-    Node *getNode(Identifier ident);
+    Node *getNode(const Identifier &ident);
     void removeNode(Node *);
 
     Mbr mbr;
@@ -216,6 +249,8 @@ protected:
     NodesByIdentType nodesByIdent;
     // Child nodes, sorted by importance
     NodesBySizeType nodesBySize;
+    // Nodes we're evaluating
+    NodesBySizeType evalNodes;
 };
 
 }
