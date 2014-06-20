@@ -558,7 +558,7 @@ bool Quadtree::leastImportantNode(NodeInfo &nodeInfo,bool force)
          it != nodesBySize.end(); ++it)
     {
         Node *node = *it;
-        if (force || ((node->nodeInfo.importance < minImportance && node->nodeInfo.ident.level > minLevel) &&
+        if (force || node->nodeInfo.importance == 0.0 || ((node->nodeInfo.importance < minImportance && node->nodeInfo.ident.level > minLevel) &&
                                  !node->parentLoading() && node->nodeInfo.childrenLoading == 0 && node->hasNonPhantomParent()))
         {
             unsigned int ii;
