@@ -76,7 +76,8 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   self = [super init];
   if(self) {
     self.tileStyleSettings = [MaplyVectorTileStyleSettings new];
-    self.tileStyleSettings.lineScale = [UIScreen mainScreen].scale;//*4 is needed if were using wide vectors
+    self.tileStyleSettings.lineScale = [UIScreen mainScreen].scale;
+    self.tileStyleSettings.dashPatternScale =  [UIScreen mainScreen].scale;
     self.tileMaxZoom = 14;
     self.alpha = 1.0;
   }
