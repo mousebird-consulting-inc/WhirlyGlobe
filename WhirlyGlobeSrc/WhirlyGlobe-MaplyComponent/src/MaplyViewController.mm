@@ -933,10 +933,10 @@ using namespace Maply;
 
 - (void)calloutViewClicked:(SMCalloutView *)calloutView
 {
-    if([self.delegate respondsToSelector:@selector(maplyViewController:didClickAnnotation:)]) {
+    if([self.delegate respondsToSelector:@selector(maplyViewController:didTapAnnotation:)]) {
         for(MaplyAnnotation *annotation in self.annotations) {
             if(annotation.calloutView == calloutView) {
-                [self.delegate maplyViewController:self didClickAnnotation:annotation];
+                [self.delegate maplyViewController:self didTapAnnotation:annotation];
                 return;
             }
         }

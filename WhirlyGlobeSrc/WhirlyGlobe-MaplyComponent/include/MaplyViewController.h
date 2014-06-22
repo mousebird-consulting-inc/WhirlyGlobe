@@ -71,7 +71,11 @@
  */
 - (void)maplyViewController:(MaplyViewController *)viewC didStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion;
 
-- (void)maplyViewController:(MaplyViewController *)viewC didClickAnnotation:(MaplyAnnotation*)annotation;
+/** @brief Called when the user taps on one of your annotations.
+    @details This is called when the user taps on an annotation.
+    @param annotation Which annotation they tapped on.
+  */
+- (void)maplyViewController:(MaplyViewController *)viewC didTapAnnotation:(MaplyAnnotation*)annotation;
 
 @end
 

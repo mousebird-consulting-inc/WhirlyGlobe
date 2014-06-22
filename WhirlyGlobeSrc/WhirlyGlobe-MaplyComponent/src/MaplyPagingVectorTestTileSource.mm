@@ -44,50 +44,55 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
                        // Add in a little delay
-                       usleep(0.5 * 1e6);
+//                       usleep(0.5 * 1e6);
                        
-                       MaplyCoordinate ll,ur;
-                       [layer geoBoundsforTile:tileID ll:&ll ur:&ur];
-                       MaplyCoordinate center;
-                       center.x = (ll.x+ur.x)/2.0;  center.y = (ll.y+ur.y)/2.0;
-                       MaplyCoordinate coords[4];
-                       coords[0] = ll;
-                       coords[1].x = ur.x;  coords[1].y = ll.y;
-                       coords[2] = ur;
-                       coords[3].x = ll.x;  coords[3].y = ur.y;
-                       
-                       // Color rectangle with outline
-                       int hexColor = debugColors[tileID.level % MaxDebugColors];
-                       float red = (((hexColor) >> 16) & 0xFF)/255.0;
-                       float green = (((hexColor) >> 8) & 0xFF)/255.0;
-                       float blue = (((hexColor) >> 0) & 0xFF)/255.0;
-                       UIColor *color = [UIColor colorWithRed:red green:green blue:blue alpha:0.75];
-                       MaplyVectorObject *rect = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:4 attributes:nil];
-                       MaplyComponentObject *compObj0 = [layer.viewC addVectors:@[rect] desc:
-                                                        @{kMaplyFilled: @(true),
-                                                          kMaplyColor: color
-                                                          }
-                                                        ];
-                       MaplyComponentObject *compObj1 = [layer.viewC addVectors:@[rect] desc:
-                                                         @{kMaplyFilled: @(false),
-                                                           kMaplyColor: [UIColor whiteColor]
-                                                           }
-                                                         ];
-                       
-                       // Label
-                       MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
-                       label.loc = center;
-                       label.text = [NSString stringWithFormat:@"%d: (%d,%d)",tileID.level,tileID.x,tileID.y];
-                       MaplyComponentObject *compObj2 = [layer.viewC addScreenLabels:@[label] desc:
-                                                         @{kMaplyFont: [UIFont systemFontOfSize:18.0],
-                                                           kMaplyJustify: @"center",
-                                                           kMaplyTextOutlineSize: @(1.0)
-                                                           }];
-                       
-                       
-                       [layer addData:@[compObj0,compObj1,compObj2] forTile:tileID];
-                       
-                       [layer tileDidLoad:tileID];
+                       if (tileID.level == _maxZoom)
+                       {
+                           [layer tileDidLoad:tileID];
+                       } else {
+                           MaplyCoordinate ll,ur;
+                           [layer geoBoundsforTile:tileID ll:&ll ur:&ur];
+                           MaplyCoordinate center;
+                           center.x = (ll.x+ur.x)/2.0;  center.y = (ll.y+ur.y)/2.0;
+                           MaplyCoordinate coords[4];
+                           coords[0] = ll;
+                           coords[1].x = ur.x;  coords[1].y = ll.y;
+                           coords[2] = ur;
+                           coords[3].x = ll.x;  coords[3].y = ur.y;
+                           
+                           // Color rectangle with outline
+                           int hexColor = debugColors[tileID.level % MaxDebugColors];
+                           float red = (((hexColor) >> 16) & 0xFF)/255.0;
+                           float green = (((hexColor) >> 8) & 0xFF)/255.0;
+                           float blue = (((hexColor) >> 0) & 0xFF)/255.0;
+                           UIColor *color = [UIColor colorWithRed:red green:green blue:blue alpha:0.75];
+                           MaplyVectorObject *rect = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:4 attributes:nil];
+                           MaplyComponentObject *compObj0 = [layer.viewC addVectors:@[rect] desc:
+                                                            @{kMaplyFilled: @(true),
+                                                              kMaplyColor: color
+                                                              }
+                                                            ];
+                           MaplyComponentObject *compObj1 = [layer.viewC addVectors:@[rect] desc:
+                                                             @{kMaplyFilled: @(false),
+                                                               kMaplyColor: [UIColor whiteColor]
+                                                               }
+                                                             ];
+                           
+                           // Label
+                           MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
+                           label.loc = center;
+                           label.text = [NSString stringWithFormat:@"%d: (%d,%d)",tileID.level,tileID.x,tileID.y];
+                           MaplyComponentObject *compObj2 = [layer.viewC addScreenLabels:@[label] desc:
+                                                             @{kMaplyFont: [UIFont systemFontOfSize:18.0],
+                                                               kMaplyJustify: @"center",
+                                                               kMaplyTextOutlineSize: @(1.0)
+                                                               }];
+                           
+                           
+                           [layer addData:@[compObj0,compObj1,compObj2] forTile:tileID];
+                           
+                           [layer tileDidLoad:tileID];
+                       }
                    });
 }
 

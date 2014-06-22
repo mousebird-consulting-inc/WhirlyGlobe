@@ -181,9 +181,12 @@ using namespace WhirlyKit;
 
 - (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
 {
-    sqlhelpers::StatementRead readStmt(_sqlDb,[NSString stringWithFormat:@"SELECT 1 from tiles where zoom_level='%d' AND tile_column='%d' AND tile_row='%d';",tileID.level,tileID.x,tileID.y]);
-    if (readStmt.stepRow())
-        return YES;
+    @synchronized(self)
+    {
+        sqlhelpers::StatementRead readStmt(_sqlDb,[NSString stringWithFormat:@"SELECT 1 from tiles where zoom_level='%d' AND tile_column='%d' AND tile_row='%d';",tileID.level,tileID.x,tileID.y]);
+        if (readStmt.stepRow())
+            return YES;
+    }
 
     return NO;
 }
