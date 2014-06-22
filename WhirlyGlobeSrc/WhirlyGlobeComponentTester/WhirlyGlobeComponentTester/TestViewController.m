@@ -1043,7 +1043,7 @@ static const int NumMegaMarkers = 40000;
         vecWidth = 4.0;
         MaplyPagingVectorTestTileSource *tileSource = [[MaplyPagingVectorTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:21];
         MaplyQuadPagingLayer *layer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:tileSource.coordSys delegate:tileSource];
-        layer.importance = 128*128;
+        layer.importance = 256*256;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
