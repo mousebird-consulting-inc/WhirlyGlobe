@@ -330,8 +330,9 @@ typedef std::set<SortedTile> SortedTileSet;
         } else {
             // It's not local, so we need to kick off a request
             NSURLRequest *urlReq = [tileSource requestForTile:tileID];
+            
             if(urlReq) {
-                // Kick of an async request for the data
+                // Kick off an async request for the data
                 MaplyMultiplexTileSource __weak *weakSelf = self;
                 AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:urlReq];
                 dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);

@@ -21,34 +21,6 @@
 #import "MaplyTileSource.h"
 #import "MaplyCoordinateSystem.h"
 
-@protocol MaplyTileInfo <NSObject>
-
-/** @brief The minimum zoom level available.
- @details This is the lowest level we'll try to fetch.  Any levels below that will be filled in with placeholders.  Those are empty, but they allow us to load tiles beneath.
- */
-@property (nonatomic) int minZoom;
-
-/** @brief The maximum zoom level available.
- @details This is the highest level (e.g. largest) that we'll
- fetch for a given pyramid tile source.  The source can sparse,
- so you are not required to have these tiles available, but this
- is as high as the MaplyQuadImageTilesLayer will fetch.
- */
-@property (nonatomic) int maxZoom;
-
-/** @brief Number of pixels on a side for any given tile.
- @details This is the number of pixels on any side for a
- given tile and it's typically 128 or 256.  This is largely
- a hint for the screen space based pager.  In most cases you
- are not required to actually return an image of the size
- you specify here, but it's a good idea.
- */
-@property (nonatomic) int pixelsPerSide;
-
-- (NSData*)dataForTile:(MaplyTileID)tileID;
-
-@end
-
 /** The remote tile info encapsulates settings for a remote tile source.
     It describes where the tile source is and presents URLs for getting the data,
     and information about local caching.
