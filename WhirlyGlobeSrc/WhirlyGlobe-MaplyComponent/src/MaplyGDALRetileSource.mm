@@ -61,6 +61,11 @@
     return _tileSize;
 }
 
+- (MaplyCoordinateSystem*)coordSys
+{
+  return _coordSys;
+}
+
 - (bool)tileIsLocal:(MaplyTileID)tileID
 {
     return false;
