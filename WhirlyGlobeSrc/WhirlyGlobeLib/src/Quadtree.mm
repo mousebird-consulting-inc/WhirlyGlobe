@@ -338,6 +338,41 @@ void Quadtree::setEvaluating(const Identifier &ident,bool newEval)
         return;
 }
     
+bool Quadtree::didFail(const Quadtree::Identifier &ident)
+{
+    Node *node = getNode(ident);
+    
+    if (node)
+        return node->nodeInfo.failed;
+    
+    return false;
+}
+    
+void Quadtree::setFailed(const Identifier &ident,bool newFail)
+{
+    Node dummyNode(this);
+    dummyNode.nodeInfo.ident = ident;
+    
+    NodesByIdentType::iterator it = nodesByIdent.find(&dummyNode);
+    if (it != nodesByIdent.end())
+    {
+        (*it)->nodeInfo.failed = newFail;
+    }
+}
+
+bool Quadtree::childFailed(const Identifier &ident)
+{
+    for (unsigned int ix=0;ix<2;ix++)
+        for (unsigned int iy=0;iy<2;iy++)
+        {
+            Node *child = getNode(Identifier(ident.x*2+ix,ident.y*2+iy,ident.level+1));
+            if (child && child->nodeInfo.failed)
+                return true;
+        }
+    
+    return false;
+}
+    
 int Quadtree::numEvals()
 {
     return evalNodes.size();
@@ -356,6 +391,15 @@ void Quadtree::clearEvals()
     evalNodes.clear();
 }
     
+void Quadtree::clearFails()
+{
+    for (NodesByIdentType::iterator it = nodesByIdent.begin();it != nodesByIdent.end(); ++it)
+    {
+        Node *node = *it;
+        node->nodeInfo.failed = false;
+    }
+}
+    
 const Quadtree::NodeInfo *Quadtree::popLastEval()
 {
     if (evalNodes.empty())
@@ -364,6 +408,7 @@ const Quadtree::NodeInfo *Quadtree::popLastEval()
     it--;
     Node *node = *it;
     evalNodes.erase(it);
+    node->nodeInfo.eval = false;
     
     // Remove children eval
     Node *parent = node->parent;
