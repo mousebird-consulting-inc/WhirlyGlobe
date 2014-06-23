@@ -295,6 +295,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
         {
             // Grab the node
             const Quadtree::NodeInfo *nodeInfo = _quadtree->popLastEval();
+            
+//            NSLog(@"Evaluating: %d: (%d,%d)",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y);
 
             // Various actions we'll take after evaluation
             bool makePhantom = false;
@@ -318,8 +320,11 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 if (nodeInfo->phantom)
                 {
                     if (nodeInfo->ident.level < _targetLevel)
+                    {
                         addChildren = true;
-                    else if (nodeInfo->ident.level == _targetLevel)
+                        if (_quadtree->childFailed(nodeInfo->ident))
+                            shouldLoad = _quadtree->shouldLoadTile(nodeInfo->ident);
+                    } else if (nodeInfo->ident.level == _targetLevel && !nodeInfo->failed)
                         shouldLoad = _quadtree->shouldLoadTile(nodeInfo->ident);
                     else if (nodeInfo->ident.level > _targetLevel)
                         shouldUnload = true;
@@ -327,7 +332,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                     if (nodeInfo->ident.level < _targetLevel)
                     {
                         addChildren = true;
-                        makePhantom = true;
+                        if (!_quadtree->childFailed(nodeInfo->ident))
+                            makePhantom = true;
                     }
                 }
             }
@@ -339,7 +345,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 std::vector<Quadtree::Identifier> childNodes;
                 _quadtree->childrenForNode(nodeInfo->ident, childNodes);
                 for (unsigned int ic=0;ic<childNodes.size();ic++)
-                    _quadtree->addTile(childNodes[ic], true, true);
+                    if (!_quadtree->didFail(childNodes[ic]))
+                        _quadtree->addTile(childNodes[ic], true, true);
             }
             
             // Actually load a tile
@@ -399,7 +406,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     Quadtree::NodeInfo remNodeInfo;
     while (_quadtree->leastImportantNode(remNodeInfo,false))
     {
-        //            NSLog(@"Unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
+//        NSLog(@"Unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
         _quadtree->removeTile(remNodeInfo.ident);
         [_loader quadDisplayLayer:self unloadTile:remNodeInfo];
         
@@ -417,7 +424,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             
             if (!_quadtree->childrenEvaluating(ident) && !_quadtree->childrenLoading(ident))
             {
-//                NSLog(@"Flushing phantom tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
+//                NSLog(@"Flushing phantom tile: %d: (%d,%d)",ident.level,ident.x,ident.y);
                 const Quadtree::NodeInfo *nodeInfo = _quadtree->getNodeInfo(ident);
                 if (nodeInfo)
                 {
@@ -478,6 +485,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 - (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidLoad:(WhirlyKit::Quadtree::Identifier)tileIdent
 {
     _quadtree->setLoading(tileIdent, false);
+    _quadtree->setFailed(tileIdent, false);
     if (tileIdent.level < maxZoom)
     {
         // Make sure we still want this one
@@ -490,7 +498,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             std::vector<Quadtree::Identifier> childNodes;
             _quadtree->childrenForNode(tileIdent, childNodes);
             for (unsigned int ic=0;ic<childNodes.size();ic++)
-                _quadtree->addTile(childNodes[ic], true, true);
+                if (!_quadtree->didFail(childNodes[ic]))
+                    _quadtree->addTile(childNodes[ic], true, true);
         }
     }
 
@@ -505,8 +514,18 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 // At the moment we don't care, but we won't look at the children
 - (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent
 {
-    _quadtree->setLoading(tileIdent, false);
+//    NSLog(@"Tile failed to load: %d: (%d,%d)",tileIdent.level,tileIdent.x,tileIdent.y);
+
+    _quadtree->setLoading(tileIdent, true);
     _quadtree->setPhantom(tileIdent, true);
+    _quadtree->setFailed(tileIdent, true);
+    
+    // Let's try to load the parent if we're in target level mode
+    if (_targetLevel != -1)
+    {
+        Quadtree::Identifier parentIdent(tileIdent.x/2,tileIdent.y/2,tileIdent.level-1);
+        _quadtree->addTile(parentIdent, true, true);
+    }
     
     // Might get stuck here
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
@@ -531,6 +550,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     // Clean out anything we might be currently evaluating
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     _quadtree->clearEvals();
+    _quadtree->clearFails();
 
     // Remove nodes until we run out
     Quadtree::NodeInfo remNodeInfo;
@@ -572,6 +592,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     // Clean out anything we might be currently evaluating
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     _quadtree->clearEvals();
+    _quadtree->clearFails();
     
     // Remove nodes until we run out
     Quadtree::NodeInfo remNodeInfo;
