@@ -393,6 +393,14 @@ using namespace WhirlyKit;
         [layer loadedImages:imgData forTile:tileID];
     } else {
         NSURLRequest *urlReq = [_tileInfo requestForTile:tileID];
+        if(!urlReq)
+        {
+            [layer loadError:nil forTile:tileID];
+            if (self.delegate && [self.delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
+                [self.delegate remoteTileSource:self tileDidNotLoad:tileID error:nil];
+            [self clearTile:tileID];
+            return;
+        }
         
         // Kick off an async request for the data
         MaplyRemoteTileSource __weak *weakSelf = self;
