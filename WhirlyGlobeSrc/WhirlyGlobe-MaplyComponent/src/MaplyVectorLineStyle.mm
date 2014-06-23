@@ -32,7 +32,7 @@
 - (id)initWithStyleEntry:(NSDictionary *)style settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
 {
     self = [super initWithStyleEntry:style viewC:viewC];
-    useWideVectors = YES;
+    useWideVectors = YES; //this makes drawing take twice as long, but turned off lines look terible
     
     subStyles = [NSMutableArray array];
     NSArray *subStylesArray = style[@"substyles"];

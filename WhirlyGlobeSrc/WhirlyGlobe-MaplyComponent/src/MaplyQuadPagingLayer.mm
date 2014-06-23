@@ -291,7 +291,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     center.x() += adaptCenter.x();
     center.y() += adaptCenter.y();
 
-    while (zoomLevel < maxZoom)
+    while (zoomLevel <= maxZoom)
     {
         WhirlyKit::Quadtree::Identifier ident;
         ident.x = 0;  ident.y = 0;  ident.level = zoomLevel;
@@ -309,7 +309,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         zoomLevel++;
     }
     
-    return zoomLevel;
+    return std::min(zoomLevel,maxZoom);
 }
 
 /// Called when we get a new view state
