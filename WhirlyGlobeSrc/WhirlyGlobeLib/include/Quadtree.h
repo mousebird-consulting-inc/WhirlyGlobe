@@ -65,10 +65,10 @@ public:
     class NodeInfo
     {
     public:
-        NodeInfo() { attrs = [NSMutableDictionary dictionary]; phantom = false;  importance = 0; loading = false; childrenLoading = 0; childrenEval = 0;}
-        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom),loading(that.loading),childrenLoading(that.childrenLoading),childrenEval(that.childrenEval) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
-        NodeInfo(const Identifier &ident) : ident(ident), importance(0.0), phantom(false), loading(false), childrenLoading(0), childrenEval(0) { attrs = nil; }
-        NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; loading = that.loading;  childrenLoading = that.childrenLoading; childrenEval = that.childrenEval; attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
+        NodeInfo() { attrs = [NSMutableDictionary dictionary]; phantom = false;  importance = 0; loading = false; childrenLoading = 0; childrenEval = 0; eval = false; failed = false;}
+        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom),loading(that.loading),childrenLoading(that.childrenLoading),eval(that.eval), failed(that.failed), childrenEval(that.childrenEval) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
+        NodeInfo(const Identifier &ident) : ident(ident), importance(0.0), phantom(false), loading(false), eval(false), failed(false), childrenLoading(0), childrenEval(0) { attrs = nil; }
+        NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; loading = that.loading; eval = that.eval;  failed = that.failed; childrenLoading = that.childrenLoading; childrenEval = that.childrenEval; attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
         ~NodeInfo() { attrs = nil; }
         
         /// Compare based on importance.  Used for sorting
@@ -86,6 +86,8 @@ public:
         bool loading;
         /// Tile is in the process of evaluation
         bool eval;
+        /// This node failed to load
+        bool failed;
         /// Number of children in the process of loading
         int childrenLoading;
         /// Number of children being evalulated
@@ -126,11 +128,23 @@ public:
     /// Set the evaluating flag
     void setEvaluating(const Identifier &nodeInfo,bool newEval);
     
+    /// Check if a given tile failed to load at one point
+    bool didFail(const Identifier &ident);
+    
+    /// Set the failed flag
+    void setFailed(const Identifier &ident,bool newFail);
+    
+    /// Check if any of the children of the given node failed to load
+    bool childFailed(const Identifier &ident);
+    
     /// Number of nodes in the eval queue
     int numEvals();
     
     /// Clear everything that's evaluating
     void clearEvals();
+    
+    /// Clear all the failure flags
+    void clearFails();
     
     /// Return the next nodes we're evaluating
     const NodeInfo *popLastEval();
