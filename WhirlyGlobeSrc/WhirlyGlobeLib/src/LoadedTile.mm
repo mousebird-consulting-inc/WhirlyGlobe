@@ -499,6 +499,9 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
         if (activeTextures > 0)
             chunk->setTexId(activeTextures-1, EmptyIdentity);
         chunk->setDrawOffset(drawOffset);
+        int thisDrawPriority = drawPriority;
+        if (singleLevel)
+            thisDrawPriority += nodeInfo->ident.level;
         chunk->setDrawPriority(drawPriority);
         chunk->setVisibleRange(minVis, maxVis);
         chunk->setAlpha(hasAlpha);
