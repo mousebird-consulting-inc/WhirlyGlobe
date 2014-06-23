@@ -467,7 +467,7 @@ using namespace WhirlyKit;
     Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
     center.x() += adaptCenter.x();
     center.y() += adaptCenter.y();
-    while (zoomLevel < maxZoom)
+    while (zoomLevel <= maxZoom)
     {
         WhirlyKit::Quadtree::Identifier ident;
         ident.x = 0;  ident.y = 0;  ident.level = zoomLevel;
@@ -485,7 +485,7 @@ using namespace WhirlyKit;
         zoomLevel++;
     }
     
-    return zoomLevel;
+    return std::min(zoomLevel,maxZoom);
 }
 
 
