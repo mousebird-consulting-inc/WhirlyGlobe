@@ -525,6 +525,11 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     {
         Quadtree::Identifier parentIdent(tileIdent.x/2,tileIdent.y/2,tileIdent.level-1);
         _quadtree->addTile(parentIdent, true, true);
+
+        // Take it out of the phantom list
+        QuadIdentSet::iterator it = toPhantom.find(parentIdent);
+        if (it != toPhantom.end())
+            toPhantom.erase(it);
     }
     
     // Might get stuck here

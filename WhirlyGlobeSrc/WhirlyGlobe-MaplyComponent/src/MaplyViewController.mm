@@ -941,6 +941,16 @@ using namespace Maply;
             }
         }
     }
+
+    // Note: Old version of name
+    if([self.delegate respondsToSelector:@selector(maplyViewController:didClickAnnotation:)]) {
+        for(MaplyAnnotation *annotation in self.annotations) {
+            if(annotation.calloutView == calloutView) {
+                [self.delegate maplyViewController:self didClickAnnotation:annotation];
+                return;
+            }
+        }
+    }
 }
 
 

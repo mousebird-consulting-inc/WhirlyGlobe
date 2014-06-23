@@ -77,6 +77,9 @@
   */
 - (void)maplyViewController:(MaplyViewController *)viewC didTapAnnotation:(MaplyAnnotation*)annotation;
 
+/// Note: Deprecated
+- (void)maplyViewController:(MaplyViewController *)viewC didClickAnnotation:(MaplyAnnotation*)annotation;
+
 @end
 
 /** @brief This view controller implements a map.
