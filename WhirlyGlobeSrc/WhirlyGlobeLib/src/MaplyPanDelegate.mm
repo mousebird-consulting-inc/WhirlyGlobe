@@ -185,33 +185,35 @@ static const float AnimLen = 1.0;
             {
                 // We'll use this to get two points in model space
                 CGPoint vel = [pan velocityInView:glView];
-                CGPoint touch0 = lastTouch;
-                CGPoint touch1 = touch0;  touch1.x += AnimLen*vel.x; touch1.y += AnimLen*vel.y;
-                Point3d model_p0,model_p1;
-
-                Eigen::Matrix4d modelMat = [mapView calcFullMatrix];
-                [mapView pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&model_p0 clip:false];
-                [mapView pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&model_p1 clip:false];
-                
-                // This will give us a direction
-                Point2f dir(model_p1.x()-model_p0.x(),model_p1.y()-model_p0.y());
-                dir *= -1.0;
-                float len = dir.norm();
-                float modelVel = len / AnimLen;
-                dir.normalize();
-
-                // Calculate the acceleration based on how far we'd like it to go
-                float accel = - modelVel / (AnimLen * AnimLen);
-
-                // Kick off a little movement at the end
-                translateDelegate = [[MaplyAnimateTranslateMomentum alloc] initWithView:mapView velocity:modelVel accel:accel dir:Point3f(dir.x(),dir.y(),0.0) bounds:bounds view:glView renderer:sceneRender];
-                mapView.delegate = translateDelegate;
-                
+                if((fabsf(vel.x) + fabsf(vel.y)) > 150) {
+                    //if the velocity is to slow, its probably not just a finger up
+                    CGPoint touch0 = lastTouch;
+                    CGPoint touch1 = touch0;  touch1.x += AnimLen*vel.x; touch1.y += AnimLen*vel.y;
+                    Point3d model_p0,model_p1;
+                    
+                    Eigen::Matrix4d modelMat = [mapView calcFullMatrix];
+                    [mapView pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&model_p0 clip:false];
+                    [mapView pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&model_p1 clip:false];
+                    
+                    // This will give us a direction
+                    Point2f dir(model_p1.x()-model_p0.x(),model_p1.y()-model_p0.y());
+                    dir *= -1.0;
+                    float len = dir.norm();
+                    float modelVel = len / AnimLen;
+                    dir.normalize();
+                    
+                    // Calculate the acceleration based on how far we'd like it to go
+                    float accel = - modelVel / (AnimLen * AnimLen);
+                    
+                    // Kick off a little movement at the end
+                    translateDelegate = [[MaplyAnimateTranslateMomentum alloc] initWithView:mapView velocity:modelVel accel:accel dir:Point3f(dir.x(),dir.y(),0.0) bounds:bounds view:glView renderer:sceneRender];
+                    mapView.delegate = translateDelegate;
+                }
                 panning = NO;
                 [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:mapView];
             }
-            break;
-        default:
+        break;
+      default:
             break;
     }
 }

@@ -389,10 +389,17 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                             objPts[2] = objPts[0] + Point2d(layoutObj->obj.size.x()*resScale,layoutObj->obj.size.y()*resScale);
                             objPts[3] = objPts[0] + Point2d(0.0,layoutObj->obj.size.y()*resScale);
                         } else {
-                            objPts[0] = Point2d(objPt.x,objPt.y) + objOffset*resScale;
-                            objPts[1] = objPts[0] + screenRotMat * Point2d(layoutObj->obj.size.x()*resScale,0.0);
-                            objPts[2] = objPts[0] + screenRotMat * Point2d(layoutObj->obj.size.x()*resScale,layoutObj->obj.size.y()*resScale);
-                            objPts[3] = objPts[0] + screenRotMat * Point2d(0.0,layoutObj->obj.size.y()*resScale);
+                            Point2d center(objPt.x,objPt.y);
+                            objPts[0] = objOffset;
+                            objPts[1] = objOffset + Point2d(layoutObj->obj.size.x(),0.0);
+                            objPts[2] = objOffset + Point2d(layoutObj->obj.size.x(),layoutObj->obj.size.y());
+                            objPts[3] = objOffset + Point2d(0.0,layoutObj->obj.size.y());
+                            for (unsigned int oi=0;oi<4;oi++)
+                            {
+                                Point2d &thisObjPt = objPts[oi];
+                                thisObjPt = screenRotMat * thisObjPt;
+                                thisObjPt = Point2d(thisObjPt.x()*resScale,thisObjPt.y()*resScale)+center;
+                            }
                         }
                         
                         // Now try it

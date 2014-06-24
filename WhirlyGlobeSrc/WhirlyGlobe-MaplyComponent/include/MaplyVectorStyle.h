@@ -37,6 +37,9 @@
   */
 @property (nonatomic) float mapScaleScale;
 
+/// @brief Dashed lines will be scaled by this amount before display.
+@property (nonatomic) float dashPatternScale;
+
 @end
 
 /** The Maply Vector Tile Style is an internal representation of the style JSON coming out

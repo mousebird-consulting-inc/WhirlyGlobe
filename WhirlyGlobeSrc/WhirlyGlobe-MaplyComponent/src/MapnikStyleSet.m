@@ -77,7 +77,10 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   if(self) {
     self.tileStyleSettings = [MaplyVectorTileStyleSettings new];
     self.tileStyleSettings.lineScale = [UIScreen mainScreen].scale;
+    self.tileStyleSettings.dashPatternScale =  [UIScreen mainScreen].scale;
+    self.tileStyleSettings.markerScale = [UIScreen mainScreen].scale;
     self.tileMaxZoom = 14;
+    self.alpha = 1.0;
   }
   return self;
 }
@@ -193,7 +196,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
         
         NSMutableDictionary *mutableSymbolizerDict = [NSMutableDictionary dictionaryWithDictionary:symbolizerDict];
         //draw priority increments as we go through the rule sets, so objects are stack based on symbolizer order in the file
-        mutableSymbolizerDict[@"drawpriority"] = @(symbolizerId);
+        mutableSymbolizerDict[@"drawpriority"] = @(symbolizerId + self.drawPriorityOffset);
         if(rule.minZoom >= self.tileMaxZoom) {
           //only set min/max vis when we are at max zoom to make things appear when overzooming
           if(rule.minScaleDenominator != 0) {
@@ -205,7 +208,17 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
         }
         
         if(styleDict[OPACITY_ATTRIBUTE]) {
-          mutableSymbolizerDict[OPACITY_ATTRIBUTE] = styleDict[OPACITY_ATTRIBUTE];
+          mutableSymbolizerDict[OPACITY_ATTRIBUTE] = @([styleDict[OPACITY_ATTRIBUTE] floatValue] * self.alpha);
+        } else {
+          mutableSymbolizerDict[OPACITY_ATTRIBUTE] = @(self.alpha);
+        }
+        
+        if([mutableSymbolizerDict[@"type"] isEqualToString:POLYGONSYMBOLIZER_ELEMENT]) {
+          if(styleDict[@"fill-opacity"]) {
+            mutableSymbolizerDict[@"fill-opacity"] = @([styleDict[@"fill-opacity"] floatValue] * self.alpha);
+          } else {
+            mutableSymbolizerDict[@"fill-opacity"] = @(self.alpha);
+          }
         }
         
         MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": mutableSymbolizerDict[@"type"], @"substyles": @[mutableSymbolizerDict]}
@@ -261,13 +274,18 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
       if(tileID.level <= rule.maxZoom && (tileID.level >= rule.minZoom ||
                                           (tileID.level == _tileMaxZoom && rule.minZoom >= _tileMaxZoom))) {
         //some rules dont take effect until after max zoom, so we need to apply them at maxZoom
-        if([rule.filterPredicate evaluateWithObject:attributes]) {
-          [symbolizers addObjectsFromArray:rule.symbolizers];
-          if(style.filterModeFirst) {
-            //filter mode first means we stop applying rules after the first match
-            //https://github.com/mapnik/mapnik/issues/706
-            break;
+        @try {
+          if([rule.filterPredicate evaluateWithObject:attributes]) {
+            [symbolizers addObjectsFromArray:rule.symbolizers];
+            if(style.filterModeFirst) {
+              //filter mode first means we stop applying rules after the first match
+              //https://github.com/mapnik/mapnik/issues/706
+              break;
+            }
           }
+        }
+        @catch (NSException *exception) {
+          NSLog(@"Error evaluating rule:%@", rule.filterPredicate);
         }
       }
     }

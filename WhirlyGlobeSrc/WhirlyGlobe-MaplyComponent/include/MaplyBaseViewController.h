@@ -614,6 +614,10 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  */
 - (float)currentMapZoom:(MaplyCoordinate)coordinate;
 
+/** @brief Return the coordinate system being used for the display.
+  */
+- (MaplyCoordinateSystem *)coordSystem;
+
 /// @brief Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;
 

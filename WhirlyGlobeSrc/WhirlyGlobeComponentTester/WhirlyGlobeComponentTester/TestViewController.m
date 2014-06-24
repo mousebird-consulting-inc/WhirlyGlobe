@@ -613,29 +613,69 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     MaplyComponentObject *lines = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: color,
                                                                          kMaplyVecWidth: @(4.0),
                                                                          kMaplyFade: @(fade),
+                                                                         kMaplyVecCentered: @(true),
                                                                          kMaplyMaxVis: @(10.0),
-                                                                         kMaplyMinVis: @(0.00032424763776361942)}];
+                                                                         kMaplyMinVis: @(0.00032424763776361942)
+                                                                         }];
     
     MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor],
                                                                                    kMaplyFade: @(fade),
                                                                                    kMaplyVecWidth: @(4.0),
                                                                                    kMaplyVecTexture: dashedLineTex,
                                                                                    kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
-                                                                                   
+                                                                                   kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
+                                                                                   kMaplyWideVecMiterLimit: @(1.01),
+                                                                                   kMaplyWideVecTexRepeatLen: @(8),
                                                                                    kMaplyMaxVis: @(0.00032424763776361942),
                                                                                    kMaplyMinVis: @(0.00011049506429117173)
                                                                                    }];
     MaplyComponentObject *realLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: color,
                                                                                  kMaplyFade: @(fade),
-                                                                                 kMaplyVecTexture: filledLineTex,
+                                                                                 kMaplyVecTexture: dashedLineTex,
                                                                                  // 8m in display coordinates
-                                                                                 kMaplyVecWidth: @(8.0/6371000),
+                                                                                 kMaplyVecWidth: @(10.0/6371000),
                                                                                  kMaplyWideVecCoordType: kMaplyWideVecCoordTypeReal,
+                                                                                 kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
+                                                                                 kMaplyWideVecMiterLimit: @(1.01),
+                                                                                 // Repeat every 100m
+                                                                                 kMaplyWideVecTexRepeatLen: @(100/6371000.f),
                                                                                  kMaplyMaxVis: @(0.00011049506429117173),
                                                                                  kMaplyMinVis: @(0.0)
                                                                                  }];
     
-    return @[lines,screenLines,realLines];
+    // Look for some labels
+    MaplyComponentObject *labelObj = nil;
+    for (MaplyVectorObject *road in [vecObj splitVectors])
+    {
+        MaplyCoordinate middle;
+        double rot;
+        // Note: We should get this from the view controller
+        MaplyCoordinateSystem *coordSys = [[MaplySphericalMercator alloc] initWebStandard];
+        [road linearMiddle:&middle rot:&rot displayCoordSys:coordSys];
+        NSDictionary *attrs = road.attributes;
+        
+        NSString *name = attrs[@"FULLNAME"];
+        
+        NSMutableArray *labels = [NSMutableArray array];
+        if (name)
+        {
+            MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
+            label.loc = middle;
+            label.text = name;
+            label.layoutImportance = 1.0;
+            label.rotation = rot + M_PI/2.0;
+            [labels addObject:label];
+        }
+        
+        labelObj = [baseViewC addScreenLabels:labels desc:
+                    @{kMaplyTextOutlineSize: @(1.0),
+                      kMaplyTextOutlineColor: [UIColor blackColor],
+                      kMaplyFont: [UIFont systemFontOfSize:18.0]
+                                                            }];
+    }
+    
+    
+    return @[lines,screenLines,realLines,labelObj];
 }
 
 - (void)addShapeFile:(NSString *)shapeFileName
@@ -643,8 +683,8 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     // Make the dashed line if it isn't already there
     if (!dashedLineTex)
     {
-        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(4,32)];
-        [lineTexBuilder setPattern:@[@(8),@(8),@(8),@(8)]];
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(4,8)];
+        [lineTexBuilder setPattern:@[@(4),@(4)]];
         lineTexBuilder.opacityFunc = MaplyOpacitySin2;
         UIImage *dashedLineImage = [lineTexBuilder makeImage];
         dashedLineTex = [baseViewC addTexture:dashedLineImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapY mode:MaplyThreadAny];
@@ -992,6 +1032,22 @@ static const int NumMegaMarkers = 40000;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
+    } else if (![baseLayerName compare:kMaplyTestQuadVectorTest])
+    {
+        self.title = @"Quad Paging Test Layer";
+        screenLabelColor = [UIColor whiteColor];
+        screenLabelBackColor = [UIColor whiteColor];
+        labelColor = [UIColor blackColor];
+        labelBackColor = [UIColor whiteColor];
+        vecColor = [UIColor blackColor];
+        vecWidth = 4.0;
+        MaplyPagingVectorTestTileSource *tileSource = [[MaplyPagingVectorTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:10];
+        MaplyQuadPagingLayer *layer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:tileSource.coordSys delegate:tileSource];
+        layer.importance = 128*128;
+        layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        [baseViewC addLayer:layer];
+        layer.drawPriority = 0;
+        baseLayer = layer;
     } else if (![baseLayerName compare:kMaplyTestQuadTestAnimate])
     {
         self.title = @"Quad Paging Test Layer (animated)";
@@ -1147,8 +1203,8 @@ static const int NumMegaMarkers = 40000;
                  {
                      // Got the tile spec, parse out the basics
                      // Note: This should be a vector specific version
-                     MaplyRemoteTileInfo *tileInfo = [[MaplyRemoteTileInfo alloc] initWithTilespec:responseObject];
-                     if (!tileInfo)
+                     MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:responseObject];
+                     if (!tileSource)
                      {
                          NSLog(@"Failed to parse tile info from: %@",jsonTileSpec);
                      } else {
@@ -1161,7 +1217,7 @@ static const int NumMegaMarkers = 40000;
                              [styleSet loadXmlFile:stylePath];
                              
                              // Now build the Mapnik vector tiles object
-                             MaplyMapnikVectorTiles *vecTiles = [[MaplyMapnikVectorTiles alloc] initWithTileSource:tileInfo];
+                             MaplyMapnikVectorTiles *vecTiles = [[MaplyMapnikVectorTiles alloc] initWithTileSource:tileSource];
                              vecTiles.styleDelegate = styleSet;
 
                              // Now for the paging layer itself
@@ -1332,12 +1388,11 @@ static const int NumMegaMarkers = 40000;
         {
             [self addShapeFile:@"tl_2013_06075_roads"];
 //            MaplyCoordinate coords[5];
-//            coords[2] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.783333);
-//            coords[1] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.8);
-////            coords[2] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.8);
-//            coords[0] = MaplyCoordinateMakeWithDegrees(-122.3, 37.783333);
-////            coords[3] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.783333);
-//            MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:3 attributes:nil];
+//            coords[0] = MaplyCoordinateMakeWithDegrees(-122.3, 37.7);
+//            coords[1] = MaplyCoordinateMakeWithDegrees(-122.3, 37.783333);
+//            coords[2] = MaplyCoordinateMakeWithDegrees(-122.3, 37.783333);
+//            coords[3] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.8333);
+//            MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:4 attributes:nil];
 //            sfRoadsObjArray = [self addWideVectors:vecObj];
         }
     } else {
