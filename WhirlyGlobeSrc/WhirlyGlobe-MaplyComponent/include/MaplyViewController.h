@@ -218,6 +218,15 @@
   */
 - (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
 
+/** @brief Animate the given position to the screen position over time.
+ @details This is similar to animateToPosition:time: except that it will attempt to match up the screen position and the geographic position.  This is how you offset the location you're looking at.
+ @details If it's impossible to move newPos to loc, then nothing happens.
+ @param newPos The geographic position (lon/lat in radians) to move to.
+ @param newHeight Height the view point above the map.
+ @param howLong How long in seconds to take getting there.
+ */
+- (void)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight time:(NSTimeInterval)howLong;
+
 /** @brief Set the center of the screen to the given position immediately.
     @param newPos The geographic position (lon/lat in radians) to move to.
   */
