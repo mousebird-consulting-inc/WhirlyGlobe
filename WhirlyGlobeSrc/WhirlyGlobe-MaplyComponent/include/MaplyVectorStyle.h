@@ -40,6 +40,9 @@
 /// @brief Dashed lines will be scaled by this amount before display.
 @property (nonatomic) float dashPatternScale;
 
+/// @brief Use widened vectors (which do anti-aliasing and such)
+@property (nonatomic) bool useWideVectors;
+
 @end
 
 /** The Maply Vector Tile Style is an internal representation of the style JSON coming out
