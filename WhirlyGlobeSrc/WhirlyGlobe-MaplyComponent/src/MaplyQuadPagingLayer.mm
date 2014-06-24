@@ -435,12 +435,12 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 }
 
 // Called on the layer thread
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo
 {
     MaplyTileID tileID;
-    tileID.x = tileInfo.ident.x;
-    tileID.y = tileInfo.ident.y;
-    tileID.level = tileInfo.ident.level;
+    tileID.x = tileInfo->ident.x;
+    tileID.y = tileInfo->ident.y;
+    tileID.level = tileInfo->ident.level;
     
 //    if (!_flipY)
 //    {
@@ -452,7 +452,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     
     // Look for the existing tile, just in case
     pthread_mutex_lock(&tileSetLock);
-    QuadPagingLoadedTile dummyTile(tileInfo.ident);
+    QuadPagingLoadedTile dummyTile(tileInfo->ident);
     QuadPagingLoadedTileSet::iterator it = tileSet.find(&dummyTile);
     if (it != tileSet.end())
         isThere = true;
@@ -464,7 +464,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     numFetches++;
     
     // Okay, let's add it
-    QuadPagingLoadedTile *newTile = new QuadPagingLoadedTile(tileInfo.ident);
+    QuadPagingLoadedTile *newTile = new QuadPagingLoadedTile(tileInfo->ident);
     newTile->isLoading = true;
     newTile->didLoad = false;
     newTile->enable = false;
@@ -484,18 +484,18 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 // Called on the layer thread
 // Clean out the data created for the tile
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo
 {
     MaplyTileID tileID;
-    tileID.x = tileInfo.ident.x;
-    tileID.y = tileInfo.ident.y;
-    tileID.level = tileInfo.ident.level;
+    tileID.x = tileInfo->ident.x;
+    tileID.y = tileInfo->ident.y;
+    tileID.level = tileInfo->ident.level;
     
     QuadPagingLoadedTile *tile = NULL;
     NSArray *addCompObjs = nil,*replaceCompObjs = nil;
     
     pthread_mutex_lock(&tileSetLock);
-    QuadPagingLoadedTile dummyTile(tileInfo.ident);
+    QuadPagingLoadedTile dummyTile(tileInfo->ident);
     QuadPagingLoadedTileSet::iterator it = tileSet.find(&dummyTile);
     if (it != tileSet.end())
     {
@@ -511,12 +511,12 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     [_viewC removeObjects:replaceCompObjs];
     
     // Check the parent
-    if (tileInfo.ident.level >= minZoom && !_singleLevelLoading)
+    if (tileInfo->ident.level >= minZoom && !_singleLevelLoading)
     {
         MaplyTileID parentID;
-        parentID.x = tileInfo.ident.x/2;
-        parentID.y = tileInfo.ident.y/2;
-        parentID.level = tileInfo.ident.level-1;
+        parentID.x = tileInfo->ident.x/2;
+        parentID.y = tileInfo->ident.y/2;
+        parentID.level = tileInfo->ident.level-1;
         [self runTileUpdate];
     }
 

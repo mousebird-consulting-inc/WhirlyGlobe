@@ -556,6 +556,9 @@ void Quadtree::removeTile(const Identifier &ident)
 {
     Node *node = getNode(ident);
     
+    if (!node)
+        return;
+    
     // Can't remove nodes that have children
     if (node->hasChildren())
         return;

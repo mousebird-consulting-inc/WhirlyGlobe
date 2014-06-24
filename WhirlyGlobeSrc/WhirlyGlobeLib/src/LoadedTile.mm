@@ -500,9 +500,9 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
             chunk->setTexId(activeTextures-1, EmptyIdentity);
         chunk->setDrawOffset(drawOffset);
         int thisDrawPriority = drawPriority;
-        if (singleLevel)
+        if (singleLevel != -1)
             thisDrawPriority += nodeInfo->ident.level;
-        chunk->setDrawPriority(drawPriority);
+        chunk->setDrawPriority(thisDrawPriority);
         chunk->setVisibleRange(minVis, maxVis);
         chunk->setAlpha(hasAlpha);
         chunk->setColor(color);
@@ -973,8 +973,6 @@ bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoaded
         subTexs.resize(loadImages.size());
     if (!tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, (!loadImages.empty() ? &texs : NULL), Point2f(1.0,1.0), Point2f(0.0,0.0), &loadImages, loadElev))
         return false;
-//    if (![loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:(!loadImages.empty() ? &texs : NULL) activeTextures:loader.activeTextures texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:&loadImages elevData:loadElev])
-//        return false;
     drawId = draw->getId();
     skirtDrawId = (skirtDraw ? skirtDraw->getId() : EmptyIdentity);
 
@@ -1144,7 +1142,6 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
                         BasicDrawable *childDraw = NULL;
                         BasicDrawable *childSkirtDraw = NULL;
                         tileBuilder->buildTile(&childInfo,&childDraw,&childSkirtDraw,NULL,Point2f(0.5,0.5),Point2f(0.5*ix,0.5*iy),nil,elevData);
-//                        [loader buildTile:&childInfo draw:&childDraw skirtDraw:&childSkirtDraw tex:NULL activeTextures:loader.activeTextures texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:layer.lineMode layer:layer imageData:nil elevData:elevData];
                         // Set this to change the color of child drawables.  Helpfull for debugging
                         //                        childDraw->setColor(RGBAColor(64,64,64,255));
                         childDrawIds[whichChild] = childDraw->getId();
@@ -1195,7 +1192,6 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
             BasicDrawable *draw = NULL;
             BasicDrawable *skirtDraw = NULL;
             tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, NULL, Point2f(1.0,1.0), Point2f(0.0,0.0), nil, elevData);
-//            [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:NULL activeTextures:loader.activeTextures texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil elevData:elevData];
             drawId = draw->getId();
             if (!texIds.empty())
                 draw->setTexId(0,texIds[0]);
