@@ -971,6 +971,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             compObj.wideVectorIDs.insert(vecID);
     }
     
+    // If the vectors are selectable we want to keep them around
+    id selVal = inDesc[@"selectable"];
+    if (selVal && [selVal boolValue])
+        compObj.vectors = vectors;
+    
     pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
     compObj.underConstruction = false;
@@ -1879,7 +1884,12 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 
 // Search for a point inside any of our vector objects
 // Runs in layer thread
-- (NSObject *)findVectorInPoint:(Point2f)pt
+- (NSObject *)findVectorInPoint:(Point2f)pt {
+  return [self findVectorInPoint:pt inView:nil];
+}
+
+
+- (NSObject *)findVectorInPoint:(Point2f)pt inView:(MaplyBaseViewController*)vc
 {
     NSObject *selObj = nil;
     
@@ -1900,6 +1910,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                     coord.y = pt.y();
                     if ([vecObj pointInAreal:coord])
                     {
+                        selObj = vecObj;
+                        break;
+                    } else if (vc && [vecObj pointNearLinear:coord distance:20 inViewController:vc]) {
                         selObj = vecObj;
                         break;
                     }

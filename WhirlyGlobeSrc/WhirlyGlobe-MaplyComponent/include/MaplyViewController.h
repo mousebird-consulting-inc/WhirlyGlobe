@@ -71,6 +71,15 @@
  */
 - (void)maplyViewController:(MaplyViewController *)viewC didStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion;
 
+/** @brief Called when the user taps on one of your annotations.
+    @details This is called when the user taps on an annotation.
+    @param annotation Which annotation they tapped on.
+  */
+- (void)maplyViewController:(MaplyViewController *)viewC didTapAnnotation:(MaplyAnnotation*)annotation;
+
+/// Note: Deprecated
+- (void)maplyViewController:(MaplyViewController *)viewC didClickAnnotation:(MaplyAnnotation*)annotation;
+
 @end
 
 /** @brief This view controller implements a map.
@@ -237,11 +246,6 @@
     @param maxHeight The farthest away a viewer is allowed to get from the map surface.
  */
 - (void)setZoomLimitsMin:(float)minHeight max:(float)maxHeight;
-
-/** @brief Return the location on screen for a given geographic (lon/lat radians) coordinate.
-    @return Returns the screen point corresponding to a given geo coordinate.
- */
-- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
 
 /** @brief Return the geographic (lon/lat radians) coordinate in radians for a given screen point.
     @return Returns the geo coordinate corresponding to a given screen point in radians.

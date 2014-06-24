@@ -173,4 +173,7 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
   */
 - (void)reload;
 
+
+- (NSObject<MaplyPagingDelegate>*)pagingDelegate;
+
 @end

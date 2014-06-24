@@ -23,6 +23,7 @@
 #import "MaplyViewController_private.h"
 #import "MaplyInteractionLayer_private.h"
 #import "MaplyCoordinateSystem_private.h"
+#import "MaplyAnnotation_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -731,7 +732,7 @@ using namespace Maply;
     CGPoint ulScreen = [self screenPointFromGeo:ul];
     CGPoint lrScreen = [self screenPointFromGeo:lr];
     
-    return lrScreen.x - ulScreen.x < frame.size.width && lrScreen.y - ulScreen.y < frame.size.height;
+    return std::abs(lrScreen.x - ulScreen.x) < frame.size.width && std::abs(lrScreen.y - ulScreen.y) < frame.size.height;
 }
 
 - (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos
@@ -928,6 +929,28 @@ using namespace Maply;
     
     return bbox;
     
+}
+
+- (void)calloutViewClicked:(SMCalloutView *)calloutView
+{
+    if([self.delegate respondsToSelector:@selector(maplyViewController:didTapAnnotation:)]) {
+        for(MaplyAnnotation *annotation in self.annotations) {
+            if(annotation.calloutView == calloutView) {
+                [self.delegate maplyViewController:self didTapAnnotation:annotation];
+                return;
+            }
+        }
+    }
+
+    // Note: Old version of name
+    if([self.delegate respondsToSelector:@selector(maplyViewController:didClickAnnotation:)]) {
+        for(MaplyAnnotation *annotation in self.annotations) {
+            if(annotation.calloutView == calloutView) {
+                [self.delegate maplyViewController:self didClickAnnotation:annotation];
+                return;
+            }
+        }
+    }
 }
 
 

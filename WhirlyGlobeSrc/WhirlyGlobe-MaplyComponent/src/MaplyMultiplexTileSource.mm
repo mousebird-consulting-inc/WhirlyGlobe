@@ -331,30 +331,34 @@ typedef std::set<SortedTile> SortedTileSet;
             // It's not local, so we need to kick off a request
             NSURLRequest *urlReq = [tileSource requestForTile:tileID];
             
-            // Kick of an async request for the data
-            MaplyMultiplexTileSource __weak *weakSelf = self;
-            AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:urlReq];
-            dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-            op.completionQueue = queue;
-            [op setCompletionBlockWithSuccess:
-             ^(AFHTTPRequestOperation *operation, id responseObject)
-             {
-                 if (weakSelf)
-                     [self gotTile:tileID which:which data:responseObject layer:layer];
-             }
-                                      failure:
-             ^(AFHTTPRequestOperation *operation, NSError *error)
-             {
-                 if (weakSelf)
+            if(urlReq) {
+                // Kick off an async request for the data
+                MaplyMultiplexTileSource __weak *weakSelf = self;
+                AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:urlReq];
+                dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+                op.completionQueue = queue;
+                [op setCompletionBlockWithSuccess:
+                 ^(AFHTTPRequestOperation *operation, id responseObject)
                  {
-                     if (weakSelf.acceptFailures)
-                         [self gotTile:tileID which:which data:error layer:layer];
-                     else
-                         [self failedToGetTile:tileID error:error layer:layer];
+                     if (weakSelf)
+                         [self gotTile:tileID which:which data:responseObject layer:layer];
                  }
-             }];
-            
-            newTile.fetches.insert(Maply::TileFetch(which,op));
+                                          failure:
+                 ^(AFHTTPRequestOperation *operation, NSError *error)
+                 {
+                     if (weakSelf)
+                     {
+                         if (weakSelf.acceptFailures)
+                             [self gotTile:tileID which:which data:error layer:layer];
+                         else
+                             [self failedToGetTile:tileID error:error layer:layer];
+                     }
+                 }];
+                
+                newTile.fetches.insert(Maply::TileFetch(which,op));
+            } else {
+                [self failedToGetTile:tileID error:nil layer:layer];
+            }
         }
         which++;
     }

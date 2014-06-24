@@ -21,6 +21,7 @@
 #import <UIKit/UIKit.h>
 #import "MaplyImageTile.h"
 #import "MaplyCoordinate.h"
+#import "MaplyCoordinateSystem.h"
 
 /** @typedef struct MaplyTileID
     @brief This represents the indentifier for a unique tile in the pyramid.
@@ -68,6 +69,15 @@ typedef struct
   */
 - (bool)tileIsLocal:(MaplyTileID)tileID;
 
+/** @brief The coordinate system the image pyramid is in.
+ @details This is typically going to be MaplySphericalMercator
+ with the web mercator extents.  That's what you'll get from
+ OpenStreetMap and, often, MapBox.  In other cases it might
+ be MaplyPlateCarree, which covers the whole earth.  Sometimes
+ it might even be something unique of your own.
+ */
+- (MaplyCoordinateSystem*)coordSys;
+
 @optional
 
 /** @brief Check if we should even try to load a given tile.
@@ -90,9 +100,10 @@ typedef struct
     @details For this method, you can return either a full UIImage or a MaplyImageTile.
     @details If you fail to load the image, just return nil.  At that point the paging won't page in tiles below this image, assuming that image pyramid is truncated at that point.
     @details If you don't have an image to load (because there isn't one) and you want the layer to keep paging below that, you should pass in a MaplyImageTile set up as a placeholder.  The visual tile will be blank, but you'll have the opportunity to provide higher resolution tiles.
-    @return Return a UIImage or a MaplyImageTile.
+    @return Return an NSData*.
   */
 - (id)imageForTile:(MaplyTileID)tileID;
+
 
 /** @brief Start fetching the given tile, probably with your own threads.
     @details If this is filled in that means the layer is expecting you to do your own asynchronous fetch.  You'll be called on a random thread here, so act accordingly.
