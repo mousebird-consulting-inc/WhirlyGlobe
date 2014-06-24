@@ -32,7 +32,7 @@
 - (id)initWithStyleEntry:(NSDictionary *)style settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
 {
     self = [super initWithStyleEntry:style viewC:viewC];
-    useWideVectors = YES; //this makes drawing take twice as long, but turned off lines look terible
+    useWideVectors = settings.useWideVectors;
     
     subStyles = [NSMutableArray array];
     NSArray *subStylesArray = style[@"substyles"];
@@ -108,7 +108,8 @@
                                                 imageFormat:MaplyImageIntRGBA
                                                   wrapFlags:MaplyImageWrapY
                                                        mode:MaplyThreadAny];
-            desc[kMaplyVecTexture] = filledLineTex;
+            // Note: Debugging
+//            desc[kMaplyVecTexture] = filledLineTex;
             desc[kMaplyWideVecCoordType] = kMaplyWideVecCoordTypeScreen;
             desc[kMaplyWideVecTexRepeatLen] = @(patternLength);
         }
@@ -140,14 +141,7 @@
         else
         {
             // Note: Should do current thread here
-            if(useWideVectors)
-            {
-//TODO: I dont think this is right, but it doesnt ever come up with Mapnik Styles, because there is only ever 1 substyle
-                compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadCurrent];
-            } else
-            {
-                compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadCurrent];
-            }
+            compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadCurrent];
         }
         if (compObj)
             [compObjs addObject:compObj];

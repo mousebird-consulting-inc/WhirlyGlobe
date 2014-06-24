@@ -1035,18 +1035,28 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     if (makeVisible)
     {
         VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
+        WideVectorManager *wideVectorManager = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
         
+        ChangeSet changes;
         if (vectorManager)
         {
-            ChangeSet changes;
             for (SimpleIDSet::iterator it = baseObj.vectorIDs.begin();it != baseObj.vectorIDs.end(); ++it)
             {
                 SimpleIdentity instID = vectorManager->instanceVectors(*it, inDesc, changes);
                 if (instID != EmptyIdentity)
                     compObj.vectorIDs.insert(instID);
             }
-            [self flushChanges:changes mode:threadMode];
         }
+        if (wideVectorManager)
+        {
+            for (SimpleIDSet::iterator it = baseObj.wideVectorIDs.begin();it != baseObj.wideVectorIDs.end(); ++it)
+            {
+                SimpleIdentity instID = wideVectorManager->instanceVectors(*it, inDesc, changes);
+                if (instID != EmptyIdentity)
+                    compObj.wideVectorIDs.insert(instID);
+            }
+        }
+        [self flushChanges:changes mode:threadMode];
     }
     
     pthread_mutex_lock(&userLock);

@@ -80,6 +80,7 @@ public:
     void clearContents(ChangeSet &changes);
     
     SimpleIDSet drawIDs;
+    SimpleIDSet instIDs;    // Instances if we're doing that
     float fade;
 };
 
@@ -101,6 +102,9 @@ public:
 
     /// Enable/disable active vectors
     void enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &changes);
+    
+    /// Make an instance of the give vectors with the given attributes and return an ID to identify them.
+    SimpleIdentity instanceVectors(SimpleIdentity vecID,NSDictionary *desc,ChangeSet &changes);
     
     /// Remove a gruop of vectors named by the given ID
     void removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes);
