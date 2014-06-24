@@ -191,5 +191,10 @@ using namespace WhirlyKit;
     return NO;
 }
 
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"<%@: %p> zoom:%d-%d", NSStringFromClass([self class]), self,
+            _minZoom, _maxZoom];
+}
 
 @end
