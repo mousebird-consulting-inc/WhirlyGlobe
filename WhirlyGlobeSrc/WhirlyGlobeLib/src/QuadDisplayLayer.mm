@@ -359,11 +359,11 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                     _quadtree->leastImportantNode(remNodeInfo,true);
 //                    NSLog(@"Forcing unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
                     _quadtree->removeTile(remNodeInfo.ident);
-                    [_loader quadDisplayLayer:self unloadTile:remNodeInfo];
+                    [_loader quadDisplayLayer:self unloadTile:&remNodeInfo];
                 }
                 
 //                NSLog(@"Loading tile: %d: (%d,%d)",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y);
-                [_loader quadDisplayLayer:self loadTile:*nodeInfo ];
+                [_loader quadDisplayLayer:self loadTile:nodeInfo ];
                 _quadtree->setPhantom(nodeInfo->ident, false);
                 _quadtree->setLoading(nodeInfo->ident, true);
                 
@@ -378,7 +378,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             {
 //                NSLog(@"Unload tile: %d: (%d,%d)",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y);
                 _quadtree->removeTile(nodeInfo->ident);
-                [_loader quadDisplayLayer:self unloadTile:*nodeInfo];
+                [_loader quadDisplayLayer:self unloadTile:nodeInfo];
 
                 // Take it out of the phantom list
                 QuadIdentSet::iterator it = toPhantom.find(nodeInfo->ident);
@@ -408,7 +408,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     {
 //        NSLog(@"Unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
         _quadtree->removeTile(remNodeInfo.ident);
-        [_loader quadDisplayLayer:self unloadTile:remNodeInfo];
+        [_loader quadDisplayLayer:self unloadTile:&remNodeInfo];
         
         didSomething = true;
     }
@@ -428,7 +428,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 const Quadtree::NodeInfo *nodeInfo = _quadtree->getNodeInfo(ident);
                 if (nodeInfo)
                 {
-                    [_loader quadDisplayLayer:self unloadTile:*nodeInfo];
+                    [_loader quadDisplayLayer:self unloadTile:nodeInfo];
                     _quadtree->setPhantom(ident, true);
                     _quadtree->setLoading(ident, false);
                     didSomething = true;
@@ -440,7 +440,6 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
         }
         
         toPhantom = toKeep;
-        didSomething = true;
     }
     
     // Let the loader know we're done with this eval step
@@ -499,7 +498,14 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             _quadtree->childrenForNode(tileIdent, childNodes);
             for (unsigned int ic=0;ic<childNodes.size();ic++)
                 if (!_quadtree->didFail(childNodes[ic]))
+                {
                     _quadtree->addTile(childNodes[ic], true, true);
+
+                    // Take it out of the phantom list
+                    QuadIdentSet::iterator it = toPhantom.find(childNodes[ic]);
+                    if (it != toPhantom.end())
+                        toPhantom.erase(it);
+                }
         }
     }
 
@@ -516,7 +522,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 {
 //    NSLog(@"Tile failed to load: %d: (%d,%d)",tileIdent.level,tileIdent.x,tileIdent.y);
 
-    _quadtree->setLoading(tileIdent, true);
+    _quadtree->setLoading(tileIdent, false);
     _quadtree->setPhantom(tileIdent, true);
     _quadtree->setFailed(tileIdent, true);
     
@@ -564,7 +570,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     {
         
         _quadtree->removeTile(remNodeInfo.ident);
-        [_loader quadDisplayLayer:self unloadTile:remNodeInfo];        
+        [_loader quadDisplayLayer:self unloadTile:&remNodeInfo];
     }
     waitForLocalLoads = true;
     
