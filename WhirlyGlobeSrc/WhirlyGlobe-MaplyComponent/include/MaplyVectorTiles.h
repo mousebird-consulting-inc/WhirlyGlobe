@@ -32,6 +32,7 @@
 /** @brief Parse a color in #rrggbbaa format out of a string.
   */
 + (UIColor *)ParseColor:(NSString *)colorStr;
++ (UIColor *) ParseColor:(NSString *)colorStr alpha:(CGFloat)alpha;
 
 /** @brief Kick off a maply vector tiles database from a remote URL.
     @details Creating a vector tiles database from a remote URL is a multi-stage process.  It requires a couple of network fetches first before we can safely start the db.  This runs through that process, creating the tile source and then calling the block when it's done.  It's up to the caller to provide a block that creates the paging layer and adds it to the view controller.

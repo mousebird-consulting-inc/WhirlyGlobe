@@ -66,9 +66,13 @@ typedef enum {
     for (NSDictionary *styleEntry in stylesArray)
     {
         MaplyVectorTileSubStyleText *subStyle = [[MaplyVectorTileSubStyleText alloc] init];
+        float alpha = 1.0;
+        if(styleEntry[@"opacity"])
+            alpha = [styleEntry[@"opacity"] floatValue];
+        
         UIColor *fillColor = [UIColor blackColor];
         if (styleEntry[@"fill"])
-            fillColor = [MaplyVectorTiles ParseColor:styleEntry[@"fill"]];
+            fillColor = [MaplyVectorTiles ParseColor:styleEntry[@"fill"] alpha:alpha];
         subStyle->textSize = 12.0;
         if (styleEntry[@"size"])
         {
@@ -86,7 +90,7 @@ typedef enum {
         
         UIColor *outlineColor = nil;
         if (styleEntry[@"halo-fill"])
-            outlineColor = [MaplyVectorTiles ParseColor:styleEntry[@"halo-fill"]];
+            outlineColor = [MaplyVectorTiles ParseColor:styleEntry[@"halo-fill"] alpha:alpha];
         float outlineSize = 1.0;
         if (styleEntry[@"halo-radius"])
             outlineSize = [styleEntry[@"halo-radius"] floatValue];
@@ -149,6 +153,8 @@ typedef enum {
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
 {
+    MaplyCoordinateSystem *displaySystem = viewC.coordSystem;
+    
     NSMutableArray *compObjs = [NSMutableArray array];
     for (MaplyVectorTileSubStyleText *subStyle in subStyles)
     {
@@ -185,7 +191,7 @@ typedef enum {
                 {
                     MaplyCoordinate middle;
                     double rot;
-                    if ([vec linearMiddle:&middle rot:&rot])
+                    if ([vec linearMiddle:&middle rot:&rot displayCoordSys:displaySystem])
                     {
                         //TODO: text-max-char-angle-delta
                         //TODO: rotation calculation is not ideal, it is between 2 points, but it needs to be avergared over a longer distance
@@ -219,7 +225,7 @@ typedef enum {
             }
         }
 
-        MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc mode:MaplyThreadCurrent];
+        MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc mode:MaplyThreadAny];
         if (compObj)
             [compObjs addObject:compObj];
     }

@@ -71,6 +71,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     _fullEyeVec = info.fullEyeVec;
     _dispCenter = info.dispCenter;
     _heightAboveSurface = info.heightAboveSurface;
+    _screenSizeInDisplayCoords = info.screenSizeInDisplayCoords;
     _program = info.program;
     _lights = info.lights;
     _stateOpt = info.stateOpt;

@@ -119,20 +119,24 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
 }
 
 // Parse a UIColor from hex values
-+(UIColor *) ParseColor:(NSString *)colorStr
++ (UIColor *) ParseColor:(NSString *)colorStr
 {
-    int red = 255, green = 255, blue = 255;
-    float alpha = 1.0;
-    // parse the hex
-    NSScanner *scanner = [NSScanner scannerWithString:colorStr];
-    unsigned int colorVal;
-    [scanner setScanLocation:1]; // bypass #
-    [scanner scanHexInt:&colorVal];
-    blue = colorVal & 0xFF;
-    green = (colorVal >> 8) & 0xFF;
-    red = (colorVal >> 16) & 0xFF;
-    
-    return [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha];
+  return [MaplyVectorTiles ParseColor:colorStr alpha:1.0];
+}
+
++ (UIColor *) ParseColor:(NSString *)colorStr alpha:(CGFloat)alpha
+{
+  int red = 255, green = 255, blue = 255;
+  // parse the hex
+  NSScanner *scanner = [NSScanner scannerWithString:colorStr];
+  unsigned int colorVal;
+  [scanner setScanLocation:1]; // bypass #
+  [scanner scanHexInt:&colorVal];
+  blue = colorVal & 0xFF;
+  green = (colorVal >> 8) & 0xFF;
+  red = (colorVal >> 16) & 0xFF;
+  
+  return [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha];
 }
 
 - (id)initWithDirectory:(NSString *)tilesDir viewC:(MaplyBaseViewController *)viewC
