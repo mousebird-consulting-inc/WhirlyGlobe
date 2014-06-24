@@ -145,6 +145,8 @@ public:
 @property (nonatomic,assign) Eigen::Vector3d dispCenter;
 /// Height above surface, if that makes sense
 @property (nonatomic,assign) float heightAboveSurface;
+/// Screen size in display coordinates
+@property (nonatomic,assign) WhirlyKit::Point2d &screenSizeInDisplayCoords;
 /// If using OpenGL ES 2.x, this is the shader
 @property (nonatomic,assign) WhirlyKit::OpenGLES2Program *program;
 /// Lights, if applicableNSArray *lights;

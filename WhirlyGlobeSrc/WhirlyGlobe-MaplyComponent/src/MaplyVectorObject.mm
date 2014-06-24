@@ -24,6 +24,11 @@
 #import "Tesselator.h"
 #import "GridClipper.h"
 #import <CoreLocation/CoreLocation.h>
+#import "MaplyBaseViewController.mm"
+#import "MaplyViewController.h"
+#import "MaplyCoordinateSystem_private.h"
+#import "MaplyCoordinateSystem_private.h"
+#import "MaplyViewController.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -466,6 +471,60 @@ public:
     return false;
 }
 
+//Fuzzy matching for selecting Linear features
+- (bool)pointNearLinear:(MaplyCoordinate)coord distance:(float)maxDistance inViewController:(MaplyBaseViewController*)vc
+{
+    for (ShapeSet::iterator it = _shapes.begin();it != _shapes.end();++it)
+    {
+        VectorLinearRef linear = boost::dynamic_pointer_cast<VectorLinear>(*it);
+        if (linear)
+        {
+            GeoMbr geoMbr = linear->calcGeoMbr();
+            if(geoMbr.inside(GeoCoord(coord.x,coord.y)))
+            {
+                CGPoint p = [vc screenPointFromGeo:coord];
+                VectorRing pts = linear->pts;
+                float distance;
+                for (int ii=0;ii<pts.size()-1;ii++)
+                {
+                    distance = MAXFLOAT;
+                    Point2f p0 = pts[ii];
+                    MaplyCoordinate pc;
+                    pc.x = p0.x();
+                    pc.y = p0.y();
+                    CGPoint a = [vc screenPointFromGeo:pc];
+
+                    Point2f p1 = pts[ii + 1];
+                    pc.x = p1.x();
+                    pc.y = p1.y();
+                    CGPoint b = [vc screenPointFromGeo:pc];
+                    
+                    CGPoint aToP = CGPointMake(a.x - p.x, a.y - p.y);
+                    CGPoint aToB = CGPointMake(a.x - b.x, a.y - b.y);
+                    double aToBMagitude = pow(hypot(aToB.x, aToB.y), 2);
+                    double dot = aToP.x * aToB.x + aToP.y * aToB.y;
+                    double d = dot/aToBMagitude;
+                    
+                    if(d < 0)
+                    {
+                        distance = hypot(p.x - a.x, p.y - a.y);
+                    } else if(d > 1) {
+                        distance = hypot(p.x - b.x, p.y - b.y);
+                    } else {
+                        distance = hypot(p.x - a.x + (aToB.x * d),
+                                         p.y - a.y + (aToB.y * d));
+                    }
+                    
+                    if (distance < maxDistance)
+                        return true;
+                }
+            }
+        }
+    }
+    
+    return false;
+}
+
 // Calculate a center
 - (MaplyCoordinate)center
 {
@@ -518,6 +577,55 @@ public:
             return true;
         }
 
+        lenSoFar += len;
+    }
+    
+    middle->x = pts.back().x();
+    middle->y = pts.back().y();
+    if (rot)
+        *rot = 0.0;
+    
+    return true;
+}
+
+- (bool)linearMiddle:(MaplyCoordinate *)middle rot:(double *)rot displayCoordSys:(MaplyCoordinateSystem *)maplyCoordSys
+{
+    if (_shapes.empty())
+        return false;
+    
+    VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*(_shapes.begin()));
+    if (!lin)
+        return false;
+    
+    VectorRing pts = lin->pts;
+    float totLen = 0;
+    for (int ii=0;ii<pts.size()-1;ii++)
+    {
+        float len = (pts[ii+1]-pts[ii]).norm();
+        totLen += len;
+    }
+    float halfLen = totLen / 2.0;
+    
+    WhirlyKit::CoordSystem *coordSys = maplyCoordSys->coordSystem;
+    
+    // Now we'll walk along, looking for the middle
+    float lenSoFar = 0.0;
+    for (unsigned int ii=0;ii<pts.size();ii++)
+    {
+        Point3d pt0 = coordSys->geographicToLocal3d(GeoCoord(pts[ii].x(),pts[ii].y()));
+        Point3d pt1 = coordSys->geographicToLocal3d(GeoCoord(pts[ii+1].x(),pts[ii+1].y()));
+        double len = (pt1-pt0).norm();
+        if (halfLen <= lenSoFar+len)
+        {
+            double t = (halfLen-lenSoFar)/len;
+            Point3d thePt = (pt1-pt0)*t + pt0;
+            GeoCoord middleGeo = coordSys->localToGeographic(thePt);
+            middle->x = middleGeo.x();
+            middle->y = middleGeo.y();
+            *rot = M_PI/2.0-atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
+            return true;
+        }
+        
         lenSoFar += len;
     }
     

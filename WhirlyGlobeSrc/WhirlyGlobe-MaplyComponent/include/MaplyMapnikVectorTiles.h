@@ -21,7 +21,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MaplyQuadPagingLayer.h"
-#import "MaplyMBTileSource.h"
+#import "MaplyTileSource.h"
 
 /** @brief Geometry type for data found within PBF files.
     @details These are the geometry types supported within Mapnik PBF files.
@@ -41,7 +41,7 @@ typedef enum {
 } MapnikCommandType;
 
 @class MaplyVectorTileStyle;
-@class MaplyRemoteTileInfo;
+@class MaplyMBTileSource;
 
 /** @brief Protocol for styling the vectors.
     @details You pass in an object which adheres to this protocol and will style
@@ -75,12 +75,12 @@ typedef enum {
 /** @brief Init with a single remote tile source.
   */
 
-- (instancetype) initWithTileSource:(MaplyRemoteTileInfo*)tileSource;
+- (instancetype) initWithTileSource:(NSObject<MaplyTileSource>*)tileSource;
 
 /** @brief Init with a list of tile sources.
     @details These are MaplyRemoteTileInfo objects and will be combined by the
     MaplyMapnikVectorTiles object for display.
-  */
+*/
 - (instancetype) initWithTileSources:(NSArray*)tileSources;
 
 /** @brief Init with the filename of an MBTiles archive containing PBF tiles.

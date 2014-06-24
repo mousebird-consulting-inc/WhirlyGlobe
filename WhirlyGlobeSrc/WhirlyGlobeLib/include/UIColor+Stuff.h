@@ -32,6 +32,9 @@
 /// Convert a UIColor to Vector4, which we also use internally
 - (Eigen::Vector4f) asVec4;
 
+////Convert a UIColor to a hex value
+- (int) asHexRGB;
+
 @end
 
 // A function we can call to force the linker to bring in categories

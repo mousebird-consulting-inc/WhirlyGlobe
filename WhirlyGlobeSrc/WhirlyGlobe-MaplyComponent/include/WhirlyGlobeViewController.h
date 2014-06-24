@@ -297,12 +297,6 @@
   */
 - (WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name;
 
-/** @brief Return the location on screen for a given geographic (lon/lat radians) coordinate.
-    @return Returns the screen point corresponding to a given geo coordinate.
-    @param geoCoord Point on the earth in lat/lon radians you want a screen position for.
-  */
-- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
-
 /** @brief Return a location on the screen for a given geographic coordinate or false if it's not on the screen.
     @param geoCoord Point on the earth in lat/lon radians you want a screen position for.
     @param screenPt Location on the screen.

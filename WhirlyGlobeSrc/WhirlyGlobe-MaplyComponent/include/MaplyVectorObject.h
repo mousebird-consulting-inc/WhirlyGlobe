@@ -21,6 +21,9 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <MaplyCoordinate.h>
+#import <MaplyCoordinateSystem.h>
+
+@class MaplyBaseViewController;
 
 /// Data type for the vector.  Multi means it contains multiple types
 typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,MaplyVectorArealType,MaplyVectorMultiType} MaplyVectorObjectType;
@@ -141,6 +144,10 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
   */
 - (bool)pointInAreal:(MaplyCoordinate)coord;
 
+/** @brief Test if any linear feature is within distance of coord
+ */
+- (bool)pointNearLinear:(MaplyCoordinate)coord distance:(float)maxDistance inViewController:(MaplyBaseViewController*)vc;
+
 /** @brief Calculate the center of the entire set of vectors in this object.
   */
 - (MaplyCoordinate)center;
@@ -155,6 +162,8 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
     @details Why?  Think label road placement.
   */
 - (bool)linearMiddle:(MaplyCoordinate *)middle rot:(double *)rot;
+
+- (bool)linearMiddle:(MaplyCoordinate *)middle rot:(double *)rot displayCoordSys:(MaplyCoordinateSystem *)coordSys;
 
 /** @brief return the middle coordinate in a line feature.
  */

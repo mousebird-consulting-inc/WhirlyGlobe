@@ -20,6 +20,7 @@
 
 
 #import "MaplyMapnikVectorTiles.h"
+#import "MaplyTileSource.h"
 
 #include <iostream>
 #include <fstream>
@@ -35,6 +36,7 @@
 #import "NSData+Zlib.h"
 #import "vector_tile.pb.h"
 #import "VectorData.h"
+#import "MaplyMBTileSource.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -69,7 +71,7 @@ static double MAX_EXTENT = 20037508.342789244;
 
 #pragma mark - MaplyPagingDelegate
 - (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer {
-  //NSLog(@"MVTTiles startFetchForTile: %d/%d/%d",tileID.level,tileID.x,tileID.y);
+  //NSLog(@"%@ startFetchForTile: %d/%d/%d", NSStringFromClass([self class]), tileID.level,tileID.x,tileID.y);
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     //calulate tile bounds and coordinate shift
     int tileSize = 256;
@@ -108,35 +110,21 @@ static double MAX_EXTENT = 20037508.342789244;
     
     NSMutableDictionary *featureStyles = [NSMutableDictionary new];
     
-    for(id thisTileSource in self.tileSources) {
-      if ([thisTileSource isKindOfClass:[MaplyMBTileSource class]])
-      {
-          MaplyMBTileSource *mbTileSource = thisTileSource;
-          tileData = [mbTileSource imageForTile:tileID];
+    for(NSObject<MaplyTileSource> *tileSource in self.tileSources) {
+      if(tileID.level > tileSource.maxZoom || tileID.level < tileSource.minZoom) {
+        //this should probably check validTile, but that could be slower
+        continue;
+      }
+
+      MaplyTileID flippedYTile;
+      if(layer.flipY) {
+        flippedYTile.level = tileID.level;
+        flippedYTile.x = tileID.x;
+        flippedYTile.y = ((int)(1<<tileID.level)-tileID.y)-1;
       } else {
-          MaplyRemoteTileInfo *tileSource = thisTileSource;
-          if([tileSource tileIsLocal:tileID]) {
-            tileData = [NSData dataWithContentsOfFile:[tileSource fileNameForTile:tileID]];
-          } else {
-            NSURLRequest *request = [tileSource requestForTile:tileID];
-            if(request) {
-              NSURLResponse *response;
-              NSError *error;
-              tileData = [NSURLConnection sendSynchronousRequest:request
-                                               returningResponse:&response error:&error];
-              if(tileData) {
-                [tileData writeToFile:[tileSource fileNameForTile:tileID] atomically:NO];
-              }
-            }
-          }
+        flippedYTile = tileID;
       }
-        
-      // No data means no tile, need to report that accordingly
-      if (!tileData || tileData.length == 0)
-      {
-          [layer tileFailedToLoad:tileID];
-          return;
-      }
+      tileData = [tileSource imageForTile:flippedYTile];
       
       if(tileData.length) {
         if([tileData isCompressed]) {
@@ -459,7 +447,7 @@ static double MAX_EXTENT = 20037508.342789244;
       id tileSource = self.tileSources[0];
       if ([tileSource isKindOfClass:[MaplyMBTileSource class]])
           return [(MaplyMBTileSource *)tileSource maxZoom];
-      return [(MaplyRemoteTileInfo*)self.tileSources[0] maxZoom];
+    return [(NSObject <MaplyTileSource>*)self.tileSources[0] maxZoom];
   } else {
     return 14;
   }
@@ -479,15 +467,5 @@ static double MAX_EXTENT = 20037508.342789244;
   return coord;
 }
 
-
-MaplyTileID tileWithFlippedY(MaplyTileID tileId) {
-    // Note: Debugging
-//  MaplyTileID flippedYTile;
-//  flippedYTile.level = tileId.level;
-//  flippedYTile.x = tileId.x;
-//  flippedYTile.y = ((int)(1<<tileId.level)-tileId.y)-1;
-//  return flippedYTile;
-    return tileId;
-}
 
 @end
