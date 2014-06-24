@@ -394,11 +394,11 @@ using namespace WhirlyKit;
 }
 
 // Ask the data source to start loading the image for this tile
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo
 {
     // Build the new tile
     LoadedTile *newTile = new LoadedTile();
-    newTile->nodeInfo = tileInfo;
+    newTile->nodeInfo = *tileInfo;
     newTile->isLoading = true;
     newTile->calculateSize(layer.quadtree, layer.scene->getCoordAdapter(), layer.coordSys);
 
@@ -406,13 +406,13 @@ using namespace WhirlyKit;
     tileSet.insert(newTile);
     pthread_mutex_unlock(&tileLock);
     
-    bool isNetworkFetch = ![dataSource respondsToSelector:@selector(tileIsLocalLevel:col:row:)] || ![dataSource tileIsLocalLevel:tileInfo.ident.level col:tileInfo.ident.x row:tileInfo.ident.y];
+    bool isNetworkFetch = ![dataSource respondsToSelector:@selector(tileIsLocalLevel:col:row:)] || ![dataSource tileIsLocalLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y];
     if (isNetworkFetch)
-        networkFetches.insert(tileInfo.ident);
+        networkFetches.insert(tileInfo->ident);
     else
-        localFetches.insert(tileInfo.ident);
+        localFetches.insert(tileInfo->ident);
     
-    [dataSource quadTileLoader:self startFetchForLevel:tileInfo.ident.level col:tileInfo.ident.x row:tileInfo.ident.y attrs:tileInfo.attrs];
+    [dataSource quadTileLoader:self startFetchForLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y attrs:tileInfo->attrs];
 }
 
 // Check if we're in the process of loading the given tile
@@ -629,20 +629,20 @@ using namespace WhirlyKit;
     doingUpdate = true;
 }
 
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo
 {
     // Might be unloading something we're in the middle of fetches
-    std::set<WhirlyKit::Quadtree::Identifier>::iterator nit = networkFetches.find(tileInfo.ident);
+    std::set<WhirlyKit::Quadtree::Identifier>::iterator nit = networkFetches.find(tileInfo->ident);
     if (nit != networkFetches.end())
         networkFetches.erase(nit);
-    nit = localFetches.find(tileInfo.ident);
+    nit = localFetches.find(tileInfo->ident);
     if (nit != localFetches.end())
         localFetches.erase(nit);
     
     // Get rid of an old tile
     pthread_mutex_lock(&tileLock);
     LoadedTile dummyTile;
-    dummyTile.nodeInfo.ident = tileInfo.ident;
+    dummyTile.nodeInfo.ident = tileInfo->ident;
     LoadedTileSet::iterator it = tileSet.find(&dummyTile);
     if (it != tileSet.end())
     {
@@ -657,8 +657,8 @@ using namespace WhirlyKit;
 //    NSLog(@"Unloaded tile (%d,%d,%d)",tileInfo.ident.x,tileInfo.ident.y,tileInfo.ident.level);
 
     // We'll put this on the list of parents to update, but it'll actually happen in EndUpdates
-    if (tileInfo.ident.level > 0 && layer.targetLevel == -1)
-        parents.insert(Quadtree::Identifier(tileInfo.ident.x/2,tileInfo.ident.y/2,tileInfo.ident.level-1));
+    if (tileInfo->ident.level > 0 && layer.targetLevel == -1)
+        parents.insert(Quadtree::Identifier(tileInfo->ident.x/2,tileInfo->ident.y/2,tileInfo->ident.level-1));
     
     [self updateTexAtlasMapping];
 }
