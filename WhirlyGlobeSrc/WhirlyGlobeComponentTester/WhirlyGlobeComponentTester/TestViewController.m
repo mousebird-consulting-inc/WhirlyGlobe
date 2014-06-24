@@ -637,8 +637,8 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
                                                                                  kMaplyWideVecCoordType: kMaplyWideVecCoordTypeReal,
                                                                                  kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                                                                  kMaplyWideVecMiterLimit: @(1.01),
-                                                                                 // Repeat every 100m
-                                                                                 kMaplyWideVecTexRepeatLen: @(100/6371000.f),
+                                                                                 // Repeat every 10m
+                                                                                 kMaplyWideVecTexRepeatLen: @(10/6371000.f),
                                                                                  kMaplyMaxVis: @(0.00011049506429117173),
                                                                                  kMaplyMinVis: @(0.0)
                                                                                  }];

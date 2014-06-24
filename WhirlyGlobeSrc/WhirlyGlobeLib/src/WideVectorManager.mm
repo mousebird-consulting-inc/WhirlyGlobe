@@ -54,8 +54,8 @@ namespace WhirlyKit
 class WideVectorBuilder
 {
 public:
-    WideVectorBuilder(WhirlyKitWideVectorInfo *vecInfo,const Point3d &center,const RGBAColor inColor)
-    : vecInfo(vecInfo), angleCutoff(DegToRad(30.0)), texOffset(0.0), center(center), edgePointsValid(false)
+    WideVectorBuilder(WhirlyKitWideVectorInfo *vecInfo,const Point3d &localCenter,const Point3d &dispCenter,const RGBAColor inColor,CoordSystemDisplayAdapter *coordAdapter)
+    : vecInfo(vecInfo), angleCutoff(DegToRad(30.0)), texOffset(0.0), edgePointsValid(false), coordAdapter(coordAdapter), localCenter(localCenter), dispCenter(dispCenter)
     {
 //        color = [vecInfo.color asRGBAColor];
         color = inColor;
@@ -142,7 +142,8 @@ public:
 
         for (unsigned int vi=0;vi<4;vi++)
         {
-            drawable->addPoint(corners[vi]);
+            Point3d dispPt = corners[vi];
+            drawable->addPoint(dispPt);
             if (vecInfo.texID != EmptyIdentity)
                 drawable->addTexCoord(0, texCoords[vi]);
             drawable->addNormal(up);
@@ -193,7 +194,7 @@ public:
     void addWideTri(WideVectorDrawable *drawable,Point3d *corners,const Point3d &org,TexCoord *texCoords,const Point3d &up,const RGBAColor &thisColor)
     {
         int startPt = drawable->getNumPoints();
-        
+
         for (unsigned int vi=0;vi<3;vi++)
         {
             drawable->addPoint(org);
@@ -254,8 +255,8 @@ public:
             revNorm1 *= vecInfo.width;
         }
 
-        Point3d paLocal = *pa-center;
-        Point3d pbLocal = *pb-center;
+        Point3d paLocal = *pa-dispCenter;
+        Point3d pbLocal = *pb-dispCenter;
         Point3d pbLocalAdj = pbLocal;
 
         // Look for valid starting points.  If they're not there, make some simple ones
@@ -284,7 +285,7 @@ public:
         TexCoord texCoords[4];
         
         Point3d rPt,lPt;
-        Point3d pcLocal = (pc ? *pc-center: Point3d(0,0,0));
+        Point3d pcLocal = (pc ? *pc-dispCenter: Point3d(0,0,0));
         Point3d dirA = (paLocal-pbLocal).normalized();
         Point3d dirB;
         
@@ -666,8 +667,9 @@ public:
     }
 
     WhirlyKitWideVectorInfo *vecInfo;
+    CoordSystemDisplayAdapter *coordAdapter;
     RGBAColor color;
-    Point3d center;
+    Point3d localCenter,dispCenter;
     double angleCutoff;
     
     double texOffset;
@@ -684,17 +686,18 @@ class WideVectorDrawableBuilder
 {
 public:
     WideVectorDrawableBuilder(Scene *scene,WhirlyKitWideVectorInfo *vecInfo)
-    : scene(scene), vecInfo(vecInfo), drawable(NULL), centerValid(false)
+    : scene(scene), vecInfo(vecInfo), drawable(NULL), centerValid(false), localCenter(0,0,0), dispCenter(0,0,0)
     {
         coordAdapter = scene->getCoordAdapter();
         coordSys = coordAdapter->getCoordSystem();
     }
     
     // Center to use for drawables we create
-    void setCenter(const Point3d &newCenter)
+    void setCenter(const Point3d &newLocalCenter,const Point3d &newDispCenter)
     {
         centerValid = true;
-        center = newCenter;
+        localCenter = newLocalCenter;
+        dispCenter = newDispCenter;
     }
     
     // Build or return a suitable drawable (depending on the mode)
@@ -726,7 +729,7 @@ public:
                 drawable->setTexId(0, vecInfo.texID);
             if (centerValid)
             {
-                Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
+                Eigen::Affine3d trans(Eigen::Translation3d(dispCenter.x(),dispCenter.y(),dispCenter.z()));
                 Matrix4d transMat = trans.matrix();
                 drawable->setMatrix(&transMat);
             }
@@ -736,7 +739,7 @@ public:
     }
     
     // Add the points for a linear
-    void addLinear(VectorRing &pts)
+    void addLinear(VectorRing &pts,const Point3d &up)
     {
         // Note: Debugging
         RGBAColor color = [vecInfo.color asRGBAColor];
@@ -744,16 +747,14 @@ public:
 //        color.g = random()%256;
 //        color.b = random()%256;
 //        color.a = 255;
-        WideVectorBuilder vecBuilder(vecInfo,center,color);
+        WideVectorBuilder vecBuilder(vecInfo,localCenter,dispCenter,color,coordAdapter);
         
         // Work through the segments
         for (unsigned int ii=0;ii<pts.size();ii++)
         {
             // Get the points in display space
             Point2f geoA = pts[ii];
-            Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y()));
-            Point3d pa = coordAdapter->localToDisplay(localPa);
-            Point3d up = coordAdapter->normalForLocal(localPa);
+            Point3d dispPa = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y())));
             
             // Get a drawable ready
             int ptCount = 5;
@@ -761,7 +762,7 @@ public:
             BasicDrawable *thisDrawable = getDrawable(ptCount,triCount);
             drawMbr.addPoint(geoA);
             
-            vecBuilder.addPoint(pa,up,thisDrawable);
+            vecBuilder.addPoint(dispPa,up,thisDrawable);
         }
 
         vecBuilder.flush(drawable);
@@ -802,7 +803,7 @@ protected:
     }
 
     bool centerValid;
-    Point3d center;
+    Point3d localCenter,dispCenter;
     Mbr drawMbr;
     Scene *scene;
     CoordSystemDisplayAdapter *coordAdapter;
@@ -870,16 +871,23 @@ SimpleIdentity WideVectorManager::addVectors(ShapeSet *shapes,NSDictionary *desc
     // No data?
     if (!geoMbr.valid())
         return EmptyIdentity;
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     GeoCoord centerGeo = geoMbr.mid();
-    Point3d centerDisp = scene->getCoordAdapter()->localToDisplay(scene->getCoordAdapter()->getCoordSystem()->geographicToLocal3d(centerGeo));
-    builder.setCenter(centerDisp);
+    Point3d localCenter = coordAdapter->getCoordSystem()->geographicToLocal3d(centerGeo);
+    Point3d centerDisp = coordAdapter->localToDisplay(localCenter);
+    builder.setCenter(localCenter,centerDisp);
+    Point3d centerUp(0,0,1);
+    if (!coordAdapter->isFlat())
+    {
+        centerUp = coordAdapter->normalForLocal(localCenter);
+    }
     
     for (ShapeSet::iterator it = shapes->begin(); it != shapes->end(); ++it)
     {
         VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
         if (lin)
         {
-            builder.addLinear(lin->pts);
+            builder.addLinear(lin->pts,centerUp);
         }
     }
     
@@ -914,6 +922,66 @@ void WideVectorManager::enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet 
     }
     
     pthread_mutex_unlock(&vecLock);
+}
+    
+SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,NSDictionary *desc,ChangeSet &changes)
+{
+    SimpleIdentity newId = EmptyIdentity;
+    
+    pthread_mutex_lock(&vecLock);
+    
+    // Look for the representation
+    WideVectorSceneRep dummyRep(vecID);
+    WideVectorSceneRepSet::iterator it = sceneReps.find(&dummyRep);
+    if (it != sceneReps.end())
+    {
+        WideVectorSceneRep *sceneRep = *it;
+        WideVectorSceneRep *newSceneRep = new WideVectorSceneRep();
+        for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
+             idIt != sceneRep->drawIDs.end(); ++idIt)
+        {
+            // Make up a BasicDrawableInstance
+            BasicDrawableInstance *drawInst = new BasicDrawableInstance("VectorManager",*idIt);
+            
+            // Changed color
+            if ([desc objectForKey:@"color"]) {
+                RGBAColor newColor = [[desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]] asRGBAColor];
+                drawInst->setColor(newColor);
+            }
+            
+            // Changed visibility
+            if ([desc objectForKey:@"minVis"] || [desc objectForKey:@"maxVis"]) {
+                float minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
+                float maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
+                drawInst->setVisibleRange(minVis, maxVis);
+            }
+            
+            // Changed line width
+            if ([desc objectForKey:@"width"]) {
+                float lineWidth = [desc floatForKey:@"width" default:1.0];
+                drawInst->setLineWidth(lineWidth);
+            }
+            
+            // Changed draw priority
+            if ([desc objectForKey:@"drawPriority"] || [desc objectForKey:@"priority"]) {
+                int priority = [desc intForKey:@"drawPriority" default:0];
+                // This looks like an old bug
+                priority = [desc intForKey:@"priority" default:priority];
+                drawInst->setDrawPriority(priority);
+            }
+            
+            // Note: Should set fade
+            newSceneRep->instIDs.insert(drawInst->getId());
+            changes.push_back(new AddDrawableReq(drawInst));
+        }
+        
+        sceneReps.insert(newSceneRep);
+        newId = newSceneRep->getId();
+    }
+    
+    pthread_mutex_unlock(&vecLock);
+    
+    return newId;
 }
     
 void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
