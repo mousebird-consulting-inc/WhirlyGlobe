@@ -141,7 +141,10 @@ using namespace WhirlyKit;
         return formatString;
     }
     
-    NSDictionary *attributes = vec.attributes;
+    NSMutableDictionary *attributes = (NSMutableDictionary *)vec.attributes;
+    // Note: This is a terrible hack.  Change the regex string or fix the data.
+    if (attributes[@"NAME"] && !attributes[@"name"])
+        attributes[@"name"] = attributes[@"NAME"];
     NSMutableString *result = [NSMutableString stringWithString:formatString];
     for (int i=(int)matches.count-1; i>= 0; i--)
     {
