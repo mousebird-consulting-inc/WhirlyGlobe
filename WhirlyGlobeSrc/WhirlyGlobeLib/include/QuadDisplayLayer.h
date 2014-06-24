@@ -97,11 +97,11 @@ typedef std::set<WhirlyKit::Quadtree::Identifier> QuadIdentSet;
 /// The quad tree wants to load the given tile.
 /// Call the layer back when the tile is loaded.
 /// This is in the layer thread.
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo;
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo;
 
 /// Quad tree wants to unload the given tile immediately.
 /// This is in the layer thread.
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo;
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo;
 
 /// The layer is checking to see if it's allowed to traverse below the given tile.
 /// If the loader is still trying to load that given tile (or has some other information about it),
