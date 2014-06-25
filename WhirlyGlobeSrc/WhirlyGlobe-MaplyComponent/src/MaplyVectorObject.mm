@@ -24,7 +24,7 @@
 #import "Tesselator.h"
 #import "GridClipper.h"
 #import <CoreLocation/CoreLocation.h>
-#import "MaplyBaseViewController.mm"
+#import "MaplyBaseViewController.h"
 #import "MaplyViewController.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyCoordinateSystem_private.h"
