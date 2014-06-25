@@ -185,7 +185,8 @@ static const float AnimLen = 1.0;
             {
                 // We'll use this to get two points in model space
                 CGPoint vel = [pan velocityInView:glView];
-                if((fabsf(vel.x) + fabsf(vel.y)) > 150) {
+                if((fabsf(vel.x) + fabsf(vel.y)) > 150)
+                {
                     //if the velocity is to slow, its probably not just a finger up
                     CGPoint touch0 = lastTouch;
                     CGPoint touch1 = touch0;  touch1.x += AnimLen*vel.x; touch1.y += AnimLen*vel.y;
@@ -208,9 +209,12 @@ static const float AnimLen = 1.0;
                     // Kick off a little movement at the end
                     translateDelegate = [[MaplyAnimateTranslateMomentum alloc] initWithView:mapView velocity:modelVel accel:accel dir:Point3f(dir.x(),dir.y(),0.0) bounds:bounds view:glView renderer:sceneRender];
                     mapView.delegate = translateDelegate;
+                } else
+                {
+                    //If we animate the end of the animation will call hanldeStopMoving, but if we dont animate, it gets triggered by this notification
+                    [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:mapView];
                 }
                 panning = NO;
-                [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:mapView];
             }
         break;
       default:

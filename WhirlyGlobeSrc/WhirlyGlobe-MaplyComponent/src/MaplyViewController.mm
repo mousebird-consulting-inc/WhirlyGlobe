@@ -364,6 +364,7 @@ using namespace Maply;
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOnMap:) name:MaplyTapMsg object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidStart:) name:kPanDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidEnd:) name:kPanDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidStart:) name:kZoomGestureDelegateDidStart object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidEnd:) name:kZoomGestureDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidStart:) name:kMaplyDoubleTapDragDidStart object:nil];
@@ -375,6 +376,7 @@ using namespace Maply;
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:MaplyTapMsg object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kPanDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kPanDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kZoomGestureDelegateDidStart object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kZoomGestureDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kMaplyDoubleTapDragDidStart object:nil];
@@ -836,6 +838,15 @@ using namespace Maply;
     //    NSLog(@"Pan started");
     
     [self handleStartMoving:true];
+}
+
+// Called when the pan delegate stops moving
+- (void) panDidEnd:(NSNotification *)note
+{
+    if (note.object != mapView)
+        return;
+    
+    [self handleStopMoving:true];
 }
 
 - (void) zoomGestureDidStart:(NSNotification *)note
