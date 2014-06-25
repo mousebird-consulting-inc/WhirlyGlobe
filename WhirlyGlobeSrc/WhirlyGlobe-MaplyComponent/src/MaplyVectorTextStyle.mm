@@ -138,12 +138,8 @@ typedef enum {
             subStyle->desc[kMaplyTextOutlineSize] = @(outlineSize*settings.textScale);
         }
 
-        // Note: Debugging
-//        [self resolveVisibility:styleEntry settings:settings desc:subStyle->desc];
+        [self resolveVisibility:styleEntry settings:settings desc:subStyle->desc];
         
-        // Note: Debugging
-        subStyle->desc[kMaplyEnable] = @YES;
-
         if(styleEntry[@"value"])
             subStyle->textField = styleEntry[@"value"];
         else
