@@ -43,6 +43,9 @@
 /// @brief Use widened vectors (which do anti-aliasing and such)
 @property (nonatomic) bool useWideVectors;
 
+/// @brief If we're using widened vectors, only active them for strokes wider than this.  Defaults to zero.
+@property (nonatomic) float wideVecCuttoff;
+
 @end
 
 /** The Maply Vector Tile Style is an internal representation of the style JSON coming out
