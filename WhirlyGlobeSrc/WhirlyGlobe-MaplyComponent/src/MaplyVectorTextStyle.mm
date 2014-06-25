@@ -138,7 +138,11 @@ typedef enum {
             subStyle->desc[kMaplyTextOutlineSize] = @(outlineSize*settings.textScale);
         }
 
-        [self resolveVisibility:styleEntry settings:settings desc:subStyle->desc];
+        // Note: Debugging
+//        [self resolveVisibility:styleEntry settings:settings desc:subStyle->desc];
+        
+        // Note: Debugging
+        subStyle->desc[kMaplyEnable] = @YES;
 
         if(styleEntry[@"value"])
             subStyle->textField = styleEntry[@"value"];
@@ -225,6 +229,8 @@ typedef enum {
             }
         }
 
+        // Note: This should be MaplyThreadCurrent, but...
+        //   We need a GL context present for the text rendering
         MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc mode:MaplyThreadAny];
         if (compObj)
             [compObjs addObject:compObj];

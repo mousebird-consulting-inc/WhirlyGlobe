@@ -38,6 +38,7 @@ using namespace WhirlyKit;
     _mapScaleScale = 1.0;
     _dashPatternScale = 1.0;
     _useWideVectors = true;
+    _wideVecCuttoff = 0.0;
   
     return self;
 }

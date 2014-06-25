@@ -915,9 +915,10 @@ void WideVectorManager::enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet 
         if (it != sceneReps.end())
         {
             WideVectorSceneRep *vecRep = *it;
-            for (SimpleIDSet::iterator dit = vecRep->drawIDs.begin();
-                 dit != vecRep->drawIDs.end(); ++dit)
-                changes.push_back(new OnOffChangeRequest((*dit), enable));
+            SimpleIDSet allIDs = vecRep->drawIDs;
+            allIDs.insert(vecRep->instIDs.begin(),vecRep->instIDs.end());
+            for (SimpleIDSet::iterator idIt = allIDs.begin(); idIt != allIDs.end(); ++idIt)
+                changes.push_back(new OnOffChangeRequest(*idIt,enable));
         }
     }
     

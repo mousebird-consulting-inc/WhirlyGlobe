@@ -154,7 +154,7 @@ using namespace WhirlyKit;
 
     // If we don't have one coming, schedule a merge
     if (changeRequests.empty())
-        [self performSelector:@selector(runAddChangeRequests) withObject:nil afterDelay:0.0];
+        [self performSelector:@selector(runAddChangeRequests) onThread:self withObject:nil waitUntilDone:NO];
     
     changeRequests.insert(changeRequests.end(), newChangeRequests.begin(), newChangeRequests.end());
     
