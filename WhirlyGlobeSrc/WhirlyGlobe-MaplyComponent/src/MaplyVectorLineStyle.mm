@@ -18,6 +18,7 @@
  *
  */
 
+#import <vector>
 #import "MaplyVectorLineStyle.h"
 #import "MaplyTexture.h"
 #import "MaplyTextureBuilder.h"
@@ -26,17 +27,18 @@
 @implementation MaplyVectorTileStyleLine
 {
     NSMutableArray *subStyles;
-    BOOL useWideVectors;
+    std::vector<bool> wideVecs;
 }
 
 - (id)initWithStyleEntry:(NSDictionary *)style settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
 {
     self = [super initWithStyleEntry:style viewC:viewC];
-    useWideVectors = settings.useWideVectors;
     
     subStyles = [NSMutableArray array];
     NSArray *subStylesArray = style[@"substyles"];
-    for (NSDictionary *styleEntry in subStylesArray)
+    wideVecs.resize([subStylesArray count],false);
+    int which = 0;
+    for (NSMutableDictionary *styleEntry in subStylesArray)
     {
         float strokeWidth = 1.0;
         float alpha = 1.0;
@@ -71,7 +73,12 @@
                                        kMaplySelectable: @(self.selectable)
                                        }];
         
-        if(useWideVectors) {
+        // Decide whether to use wide lines in this particular sub style
+        bool useWideVectors = (settings.useWideVectors && strokeWidth >= settings.wideVecCuttoff);
+        wideVecs[which] = useWideVectors;
+        
+        if(useWideVectors)
+        {
             int patternLength = 0;
             NSArray *dashComponents;
             if(styleEntry[@"stroke-dasharray"])
@@ -108,8 +115,7 @@
                                                 imageFormat:MaplyImageIntRGBA
                                                   wrapFlags:MaplyImageWrapY
                                                        mode:MaplyThreadAny];
-            // Note: Debugging
-//            desc[kMaplyVecTexture] = filledLineTex;
+            desc[kMaplyVecTexture] = filledLineTex;
             desc[kMaplyWideVecCoordType] = kMaplyWideVecCoordTypeScreen;
             desc[kMaplyWideVecTexRepeatLen] = @(patternLength);
         }
@@ -117,6 +123,7 @@
         [self resolveVisibility:styleEntry settings:settings desc:desc];
         
         [subStyles addObject:desc];
+        which++;
     }
     
     return self;
@@ -124,27 +131,29 @@
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
 {
-    MaplyComponentObject *baseObj = nil;
+    MaplyComponentObject *baseWideObj = nil;
+    MaplyComponentObject *baseRegObj = nil;
     NSMutableArray *compObjs = [NSMutableArray array];
+    int which = 0;
     for (NSDictionary *desc in subStyles)
     {
         MaplyComponentObject *compObj = nil;
-        if (!baseObj) {
-            if(useWideVectors)
-            {
-                baseObj = compObj = [viewC addWideVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
-            } else
-            {
-                baseObj = compObj = [viewC addVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
-            }
-        }
-        else
+        if (wideVecs[which])
         {
-            // Note: Should do current thread here
-            compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadCurrent];
+            if (!baseWideObj)
+                baseWideObj = compObj = [viewC addWideVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
+            else
+                compObj = [viewC instanceVectors:baseWideObj desc:desc mode:MaplyThreadCurrent];
+        } else {
+            if (!baseRegObj)
+                baseRegObj = compObj = [viewC addVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
+            else
+                compObj = [viewC instanceVectors:baseRegObj desc:desc mode:MaplyThreadCurrent];
         }
+
         if (compObj)
             [compObjs addObject:compObj];
+        which++;
     }
     
     return compObjs;
