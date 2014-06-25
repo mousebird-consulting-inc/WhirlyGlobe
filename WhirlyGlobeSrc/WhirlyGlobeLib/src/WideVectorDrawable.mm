@@ -77,7 +77,7 @@ static const char *vertexShaderTri =
 "void main()"
 "{"
 "   v_texCoord = vec2(a_texCoord0.x, a_texCoord0.y * u_texScale);"
-"   v_color = a_color;"
+    "   v_color = a_color;"
     " vec4 vertPos = u_mvpMatrix * vec4(a_position,1.0);"
     " vertPos /= vertPos.w;"
     " vec2 screenDir = (u_mvpMatrix * vec4(a_dir,0.0)).xy;"

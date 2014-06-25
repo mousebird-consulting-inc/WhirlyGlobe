@@ -760,6 +760,9 @@ public:
     /// Set the drawable we're instancing
     void setMaster(BasicDrawableRef draw) { basicDraw = draw; }
     
+    /// Return the translation matrix if there is one
+    const Eigen::Matrix4d *getMatrix() const;
+    
 protected:
     SimpleIdentity masterID;
     BasicDrawableRef basicDraw;

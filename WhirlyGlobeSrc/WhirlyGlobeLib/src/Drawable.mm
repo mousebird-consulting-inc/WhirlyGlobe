@@ -1904,6 +1904,11 @@ void BasicDrawableInstance::updateRenderer(WhirlyKitSceneRendererES *renderer)
 {
     return basicDraw->updateRenderer(renderer);
 }
+    
+const Eigen::Matrix4d *BasicDrawableInstance::getMatrix() const
+{
+    return basicDraw->getMatrix();
+}
 
 void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {

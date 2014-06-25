@@ -669,9 +669,9 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     pthread_mutex_unlock(&tileSetLock);
 
     if ([toEnable count] > 0)
-        [_viewC enableObjects:toEnable mode:MaplyThreadAny];
+        [_viewC enableObjects:toEnable mode:MaplyThreadCurrent];
     if ([toDisable count] > 0)
-        [_viewC disableObjects:toDisable mode:MaplyThreadAny];
+        [_viewC disableObjects:toDisable mode:MaplyThreadCurrent];
 }
 
 // Notify the quad paging layer that we loaded, but do it on the layer thread
@@ -703,12 +703,12 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
     // These are added immediately and stick around till the tile is deleted
     if ([addCompObjs count] > 0)
-        [_viewC enableObjects:addCompObjs mode:MaplyThreadAny];
+        [_viewC enableObjects:addCompObjs mode:MaplyThreadCurrent];
     
     if (_singleLevelLoading)
     {
         if ([replaceCompObjs count] > 0)
-            [_viewC enableObjects:replaceCompObjs mode:MaplyThreadAny];
+            [_viewC enableObjects:replaceCompObjs mode:MaplyThreadCurrent];
     } else
         [self runTileUpdate];
     
