@@ -75,6 +75,7 @@
             fileName = styleEntry[@"file"];
         
         subStyle->desc = [NSMutableDictionary dictionary];
+        subStyle->desc[kMaplyEnable] = @NO;
         [self resolveVisibility:styleEntry settings:settings desc:subStyle->desc];
       
         if(!fileName || [fileName rangeOfString:@"["].location == NSNotFound)
@@ -96,9 +97,10 @@
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
 {
     // One marker per object
-    NSMutableArray *markers = [NSMutableArray array];
+    NSMutableArray *compObjs = [NSMutableArray array];
     for (MaplyVectorTileSubStyleMarker *subStyle in subStyles)
     {
+        NSMutableArray *markers = [NSMutableArray array];
         for (MaplyVectorObject *vec in vecObjs)
         {
             MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
@@ -111,18 +113,18 @@
             
             if (marker.image) {
                 marker.loc = [vec center];
-                marker.layoutImportance = 2.0;
+                marker.layoutImportance = settings.markerImportance;
                 marker.size = CGSizeMake(settings.markerScale*subStyle->width, settings.markerScale*subStyle->height);
                 [markers addObject:marker];
             }
         }
+
+        MaplyComponentObject *compObj = [viewC addScreenMarkers:markers desc:subStyle->desc mode:MaplyThreadCurrent];
+        if (compObj)
+            [compObjs addObject:compObj];
     }
     
-    MaplyComponentObject *compObj = [viewC addScreenMarkers:markers desc:nil mode:MaplyThreadCurrent];
-    if (compObj)
-        return @[compObj];
-    
-    return nil;
+    return compObjs;
 }
 
 @end
