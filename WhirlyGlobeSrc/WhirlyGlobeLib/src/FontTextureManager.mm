@@ -306,7 +306,6 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     CGContextSetFillColorWithColor(theContext, textColor.CGColor);
     CTFontDrawGlyphs(fm->font,&glyph,&pos,1,theContext);
     
-    // Note: Debugging
     // Draw the baseline
 //    CGContextSetStrokeColorWithColor(theContext,[UIColor whiteColor].CGColor);
 //    CGContextBeginPath(theContext);
@@ -314,7 +313,6 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
 //    CGContextAddLineToPoint(theContext, width, -baselineOffY+textureOffset.y);
 //    CGContextStrokePath(theContext);
     
-    // Note: Debugging
 //    UIImage *theImage = [UIImage imageWithRawData:retData width:width height:height];
 //    if (theImage)
 //    {

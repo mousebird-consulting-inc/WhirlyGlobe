@@ -319,8 +319,6 @@ using namespace WhirlyKit;
     // Note: Need to replace selector with some lock-like thing
     if (tileBuilder && tileBuilder->drawAtlas)
     {
-        // Note: Debugging
-//        if (tileBuilder->drawAtlas->hasUpdates() && !tileBuilder->drawAtlas->waitingOnSwap())
         if (tileBuilder->drawAtlas->hasUpdates() && !tileBuilder->drawAtlas->waitingOnSwap())
         {
             tileBuilder->drawAtlas->swap(changeRequests,_quadLayer,@selector(wakeUp));
