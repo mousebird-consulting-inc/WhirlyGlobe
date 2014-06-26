@@ -513,7 +513,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Called in the main thread.
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[markers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
@@ -601,7 +601,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Add 3D markers
 - (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[markers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
@@ -697,7 +697,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Add screen space (2D) labels
 - (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[labels, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
@@ -800,7 +800,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Add 3D labels
 - (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[labels, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
@@ -906,7 +906,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Add vectors
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], @(threadMode)];
@@ -984,7 +984,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 
 - (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
@@ -1068,7 +1068,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Instance vectors
 - (MaplyComponentObject *)instanceVectors:(MaplyComponentObject *)baseObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[baseObj, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], @(threadMode)];
@@ -1088,7 +1088,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Add vectors that we'll only use for selection
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors desc:(NSDictionary *)desc
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = false;
     
     NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:NO], @(MaplyThreadCurrent)];
@@ -1317,7 +1317,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Add shapes
 - (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[shapes, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
@@ -1424,7 +1424,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Add stickers
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[stickers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
@@ -1573,7 +1573,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Add lofted polys
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], (key ? key : [NSNull null]), (cache ? cache : [NSNull null]), @(threadMode)];
@@ -1671,7 +1671,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Add lofted polys
 - (MaplyComponentObject *)addBillboards:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
@@ -1813,6 +1813,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 
         if (isHere)
         {
+            compObj.enable = enable;
             if (vectorManager && !compObj.vectorIDs.empty())
                 vectorManager->enableVectors(compObj.vectorIDs, enable, changes);
             if (wideVectorManager && !compObj.wideVectorIDs.empty())
@@ -1908,7 +1909,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     pthread_mutex_lock(&userLock);
     for (MaplyComponentObject *userObj in userObjects)
     {
-        if (userObj.vectors && userObj.isSelectable)
+        if (userObj.vectors && userObj.isSelectable && userObj.enable)
         {
             for (MaplyVectorObject *vecObj in userObj.vectors)
             {
