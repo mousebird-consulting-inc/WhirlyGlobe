@@ -118,6 +118,7 @@
             desc[kMaplyVecTexture] = filledLineTex;
             desc[kMaplyWideVecCoordType] = kMaplyWideVecCoordTypeScreen;
             desc[kMaplyWideVecTexRepeatLen] = @(patternLength);
+            desc[kMaplyVecWidth] = @(width);
         }
         
         [self resolveVisibility:styleEntry settings:settings desc:desc];
