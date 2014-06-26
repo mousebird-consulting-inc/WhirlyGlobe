@@ -23,6 +23,10 @@
     @details You can keep these around to remove the visual objects you added earlier, but that's about all the interaction you'll have with them.
   */
 @interface MaplyComponentObject : NSObject
+
+/// @brief Construct with a description.  Uses the kMaplyEnable.
+- (id)initWithDesc:(NSDictionary *)desc;
+
 @end
 
 typedef MaplyComponentObject WGComponentObject;

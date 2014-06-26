@@ -26,6 +26,19 @@
 {
     self = [super init];
     _isSelectable = true;
+    _enable = true;
+    
+    return self;
+}
+
+- (id)initWithDesc:(NSDictionary *)desc
+{
+    self = [super init];
+    _isSelectable = true;
+    _enable = true;
+    id enable = desc[kMaplyEnable];
+    if (enable)
+        _enable = [enable boolValue];
     
     return self;
 }
