@@ -378,10 +378,13 @@ using namespace WhirlyKit;
     NSData *imgData = nil;
     NSString *fileName = nil;
     // Look for the image in the cache first
-    if (_tileInfo.cacheDir && [_tileInfo tileIsLocal:tileID])
+    if (_tileInfo.cacheDir)
     {
         fileName = [_tileInfo fileNameForTile:tileID];
-        imgData = [self imageForTile:tileID];
+        if ([_tileInfo tileIsLocal:tileID])
+        {
+            imgData = [self imageForTile:tileID];
+        }
     }
     
     if (imgData)
