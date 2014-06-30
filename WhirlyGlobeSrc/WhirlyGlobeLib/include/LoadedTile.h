@@ -231,7 +231,7 @@ public:
     bool newDrawables;
     
     // Set if we're in single level mode.  That is, we're only trying to display a single level.
-    int singleLevel;
+    bool singleLevel;
 };
     
 /** The Loaded Tile is used to track tiles that have been
