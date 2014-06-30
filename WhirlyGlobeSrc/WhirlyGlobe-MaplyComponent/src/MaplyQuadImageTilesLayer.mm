@@ -92,6 +92,7 @@ using namespace WhirlyKit;
     NSObject<MaplyElevationSourceDelegate> *elevDelegate;
     bool variableSizeTiles;
     bool canDoValidTiles;
+    bool canFetchFrames;
 }
 
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
@@ -126,8 +127,9 @@ using namespace WhirlyKit;
     _maxCurrentImage = -1;
     _useElevAsZ = true;
     _importanceScale = 1.0;
+    canFetchFrames = false;
     
-    // See if we're letting the source do the async calls r what
+    // See if we're letting the source do the async calls or what
     sourceWantsAsync = [_tileSource respondsToSelector:@selector(startFetchLayer:tile:)];
     
     // See if the delegate is doing variable sized tiles (kill me)
@@ -135,6 +137,9 @@ using namespace WhirlyKit;
     
     // Can answer questions about tiles
     canDoValidTiles = [_tileSource respondsToSelector:@selector(validTile:bbox:)];
+    
+    // Can the source fetch individual frames of animation
+    canFetchFrames = [_tileSource respondsToSelector:@selector(startFetchLayer:tile:frame:)];
     
     return self;
 }
@@ -652,13 +657,18 @@ using namespace WhirlyKit;
     return isLocal;
 }
 
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
+{
+    [self quadTileLoader:quadLoader startFetchForLevel:level col:col row:row frame:-1 attrs:attrs];
+}
+
 // Turn this on to break a fraction of the images.  This is for internal testing
 //#define TRASHTEST 1
 
 /// This version of the load method passes in a mutable dictionary.
 /// Store your expensive to generate key/value pairs here.
 // Note: Not handling the case where we get a corrupt image and then store it to the cache.
-- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row frame:(int)frame attrs:(NSMutableDictionary *)attrs
 {
     MaplyTileID tileID;
     tileID.x = col;  tileID.y = row;  tileID.level = level;
@@ -693,12 +703,18 @@ using namespace WhirlyKit;
         if (_asyncFetching)
         {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-                           ^{                               
-                               [_tileSource startFetchLayer:self tile:tileID];
+                           ^{
+                               if (frame != -1 && canFetchFrames)
+                                   [_tileSource startFetchLayer:self tile:tileID frame:frame];
+                               else
+                                   [_tileSource startFetchLayer:self tile:tileID];
                            }
                            );
         } else {
-            [_tileSource startFetchLayer:self tile:tileID];
+            if (frame != -1 && canFetchFrames)
+                [_tileSource startFetchLayer:self tile:tileID frame:frame];
+            else
+                [_tileSource startFetchLayer:self tile:tileID];
         }
         return;
     }
@@ -729,7 +745,11 @@ using namespace WhirlyKit;
         }
 
         // Get the data for the tile and sort out what the delegate returned to us
-        id tileReturn = [_tileSource imageForTile:tileID];
+        id tileReturn = nil;
+        if (frame != -1 && canFetchFrames)
+            tileReturn = [_tileSource imageForTile:tileID frame:frame];
+        else
+            tileReturn = [_tileSource imageForTile:tileID];
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
         if (tileSize > 0) {
             tileData.targetSize = CGSize{(CGFloat)tileSize, (CGFloat)tileSize};
@@ -797,6 +817,11 @@ using namespace WhirlyKit;
 }
 
 - (void)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID
+{
+    [self loadedImages:tileReturn forTile:tileID frame:-1];
+}
+
+- (void)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID frame:(int)frame
 {
     int borderTexel = tileLoader.borderTexel;
 

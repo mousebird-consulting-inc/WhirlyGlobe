@@ -258,8 +258,17 @@ typedef enum {MaplyImageIntRGBA,
     @details When we're loading just one image per tile, call this with a UIImage or MaplyImageTile. If we're expecting multiple images (see: imageDepth) then pass in a MaplyImageTile that's been set up appropriately.
     @param images Either one of UIImage or MaplyPlaceholderImage.
     @param tileID The tile we've loaded.
-  */
+ */
 - (void)loadedImages:(id)images forTile:(MaplyTileID)tileID;
+
+/** @brief Pass back the loaded image(s) for a given tile.
+    @details If the tile source implements startFetchForTile: then we'll expect it to do the asynchronous loading.  When it's done loading an image, it calls this.
+    @details When we're loading just one image per tile, call this with a UIImage or MaplyImageTile. If we're expecting multiple images (see: imageDepth) then pass in a MaplyImageTile that's been set up appropriately.
+    @param images Either one of UIImage or MaplyPlaceholderImage.
+    @param tileID The tile we've loaded.
+    @param frame If we're loading an animation frame by frame, this is the frame ID.
+  */
+- (void)loadedImages:(id)images forTile:(MaplyTileID)tileID frame:(int)frame;
 
 /** @brief Pass back an error for a given tile.
     @details If the tile source implements startFetchForTile: then this is how it tells us about a specific failure.
