@@ -48,11 +48,11 @@ class SortedTile
 {
 public:
     SortedTile(MaplyTileID tileID)
-    : tileID(tileID)
+    : tileID(tileID), singleFetch(false)
     {
     }
     SortedTile(MaplyTileID tileID,int depth)
-    : tileID(tileID)
+    : tileID(tileID), singleFetch(false)
     {
         tileData.resize(depth,nil);
     }
@@ -82,6 +82,8 @@ public:
     }
     
     MaplyTileID tileID;
+    // If this is just a single fetch as opposed to part of a set
+    bool singleFetch;
     // What we're currently fetching
     TileFetchSet fetches;
     // The data we've already fetched
@@ -225,6 +227,7 @@ typedef std::set<SortedTile> SortedTileSet;
     // Look for it in the bit list
     bool done = true;
     Maply::SortedTile theTile(tileID);
+    int singleFetch = false;
     @synchronized(self)
     {
         Maply::SortedTileSet::iterator it;
@@ -235,14 +238,23 @@ typedef std::set<SortedTile> SortedTileSet;
         theTile = *it;
         sortedTiles.erase(it);
 
-        // Add the tile data in and see if we're done
-        theTile.tileData[which] = (tileData ? tileData : [NSNull null]);
-        for (unsigned int ii=0;ii<theTile.tileData.size();ii++)
-            if (theTile.tileData[ii] == nil)
-            {
-                done = false;
-                break;
-            }
+        if (theTile.singleFetch)
+        {
+            singleFetch = theTile.singleFetch;
+            done = true;
+        }
+
+        if (!done)
+        {
+            // Add the tile data in and see if we're done
+            theTile.tileData[which] = (tileData ? tileData : [NSNull null]);
+            for (unsigned int ii=0;ii<theTile.tileData.size();ii++)
+                if (theTile.tileData[ii] == nil)
+                {
+                    done = false;
+                    break;
+                }
+        }
 
         // If we're not, put the tile back in the set
         if (!done)
@@ -272,10 +284,14 @@ typedef std::set<SortedTile> SortedTileSet;
         if (!marshalError)
         {
             // Let the delegate know we loaded successfully
+            // Note: Not passing in frame
             if (_delegate && [_delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
                 [_delegate remoteTileSource:self tileDidLoad:tileID];
         
-            [layer loadedImages:allData forTile:tileID];
+            if (singleFetch)
+                [layer loadedImages:allData forTile:tileID frame:which];
+            else
+                [layer loadedImages:allData forTile:tileID];
         } else {
             // Last minute failure!
             [layer loadError:marshalError forTile:tileID];
@@ -299,6 +315,11 @@ typedef std::set<SortedTile> SortedTileSet;
 }
 
 - (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID
+{
+    [self startFetchLayer:layer tile:tileID frame:-1];
+}
+
+- (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID frame:(int)frame
 {
 //    NSLog(@"Starting fetch for tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
     

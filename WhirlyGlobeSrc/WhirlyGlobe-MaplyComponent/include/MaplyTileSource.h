@@ -104,6 +104,15 @@ typedef struct
   */
 - (id)imageForTile:(MaplyTileID)tileID;
 
+/** @brief Fetch the image for a given frame of a given tile.  These are for animation.
+    @details For this method, you can return either a full UIImage or a MaplyImageTile.
+    @details If you fail to load the image, just return nil.  At that point the paging won't page in tiles below this image, assuming that image pyramid is truncated at that point.
+    @details If you don't have an image to load (because there isn't one) and you want the layer to keep paging below that, you should pass in a MaplyImageTile set up as a placeholder.  The visual tile will be blank, but you'll have the opportunity to provide higher resolution tiles.
+    @param tileID Tile to load.
+    @param frame Frame of tile animation to load.
+    @return Return an NSData*.
+ */
+- (id)imageForTile:(MaplyTileID)tileID frame:(int)frame;
 
 /** @brief Start fetching the given tile, probably with your own threads.
     @details If this is filled in that means the layer is expecting you to do your own asynchronous fetch.  You'll be called on a random thread here, so act accordingly.
@@ -112,5 +121,14 @@ typedef struct
     @param tileID The tile you should start fetching.
   */
 - (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID;
+
+/** @brief Start fetching the given tile, but just the given frame.  This is for multi-frame tiles (e.g. animations).
+    @details If this is filled in that means the layer is expecting you to do your own asynchronous fetch.  You'll be called on a random thread here, so act accordingly.
+    @details If you're using a MaplyQuadImageTilesLayer, when you're done fetching (successful or otherwise) call loadedImagesForTile: with the results.
+    @param layer This is probably a MaplyQuadImageTilesLayer, but others use this protocol as well.  Your tile source should know.
+    @param tileID The tile you should start fetching.
+    @param frame The individual frame (of an animation) to fetch.
+  */
+- (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID frame:(int)frame;
 
 @end
