@@ -245,7 +245,7 @@ typedef enum {MaplyImageIntRGBA,
     @details We do this so that the user doesn't have to wait for the target level to load.  This can be distracting on large displays with small tiles.  If you use this mode, the layer will load lower levels first, filling in quicker and then load the target level.  This looks much better, but doesn't take as long as the full quad tree based loading.
     @details The layer calculates the optimal target level (for 2D maps, if you're in that mode).  The entries in this array are relative to that level or absolute.  For example [0,-4,-2] means the layer will always try to load levels 0, targetLevel-4 and targetLevel-2, but only the latter two if they make sense.
   */
-@property (nonatomic) NSArray *multilLevelLoads;
+@property (nonatomic) NSArray *multiLevelLoads;
 
 /** @brief The target zoom level for this layer given the current view settings.
     @details Calculates the target zoom level for the middle of the screen.
