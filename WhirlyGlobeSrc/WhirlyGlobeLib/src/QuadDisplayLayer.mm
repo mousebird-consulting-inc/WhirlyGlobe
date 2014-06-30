@@ -518,7 +518,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
         if (!_quadtree->isTilePresent(tileIdent) || _quadtree->isPhantom(tileIdent))
             return;
         
-        int maxTargetLevel = _targetLevels.empty() ? -1 : *(--(_targetLevels.end()));
+        int maxTargetLevel = _targetLevels.empty() ? maxZoom : *(--(_targetLevels.end()));
         if (_targetLevels.empty() || tileIdent.level < maxTargetLevel)
         {
 
