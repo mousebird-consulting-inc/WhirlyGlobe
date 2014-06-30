@@ -282,7 +282,7 @@ using namespace WhirlyKit;
 - (void)refreshParents:(WhirlyKitQuadDisplayLayer *)layer
 {
     // If we're in single level mode we don't bother with this
-    if (_quadLayer.targetLevel != -1)
+    if (!_quadLayer.targetLevels.empty())
         return;
     
     // Update just the parents that have changed recently
@@ -417,7 +417,7 @@ using namespace WhirlyKit;
 - (bool)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer canLoadChildrenOfTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
     // For single level mode, you can always do this
-    if (layer.targetLevel != -1)
+    if (!layer.targetLevels.empty())
         return true;
     
     LoadedTile *tile = [self getTile:tileInfo.ident];
@@ -495,7 +495,7 @@ using namespace WhirlyKit;
         tileBuilder->scene = _quadLayer.scene;
         tileBuilder->lineMode = false;
         tileBuilder->borderTexel = _borderTexel;
-        tileBuilder->singleLevel = _quadLayer.targetLevel;
+        tileBuilder->singleLevel = !_quadLayer.targetLevels.empty();
 
         // If we haven't decided how many active textures we'll have, do that
         if (_activeTextures == -1)
@@ -606,7 +606,7 @@ using namespace WhirlyKit;
 //    NSLog(@"Loaded image for tile (%d,%d,%d)",col,row,level);
     
     // Various child state changed so let's update the parents
-    if (level > 0 && _quadLayer.targetLevel == -1)
+    if (level > 0 && _quadLayer.targetLevels.empty())
         parents.insert(Quadtree::Identifier(col/2,row/2,level-1));
     
     if (!doingUpdate)
@@ -655,7 +655,7 @@ using namespace WhirlyKit;
 //    NSLog(@"Unloaded tile (%d,%d,%d)",tileInfo.ident.x,tileInfo.ident.y,tileInfo.ident.level);
 
     // We'll put this on the list of parents to update, but it'll actually happen in EndUpdates
-    if (tileInfo->ident.level > 0 && layer.targetLevel == -1)
+    if (tileInfo->ident.level > 0 && layer.targetLevels.empty())
         parents.insert(Quadtree::Identifier(tileInfo->ident.x/2,tileInfo->ident.y/2,tileInfo->ident.level-1));
     
     [self updateTexAtlasMapping];
