@@ -1090,7 +1090,11 @@ static const int NumMegaMarkers = 40000;
              layer.waitLoad = imageWaitLoad;
              layer.requireElev = requireElev;
              layer.maxTiles = maxLayerTiles;
-             layer.singleLevelLoading = (startupMapType == Maply2DMap);
+             if (startupMapType == Maply2DMap)
+             {
+                 layer.singleLevelLoading = true;
+                 layer.multilLevelLoads = @[@(-2)];
+             }
              [baseViewC addLayer:layer];
              layer.drawPriority = 0;
              baseLayer = layer;
