@@ -538,7 +538,7 @@ using namespace WhirlyKit;
         {
             std::set<int> targetLevels;
             targetLevels.insert(maxShortCircuitLevel);
-            for (NSNumber *level in _multilLevelLoads)
+            for (NSNumber *level in _multiLevelLoads)
             {
                 if ([level isKindOfClass:[NSNumber class]])
                 {

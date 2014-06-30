@@ -290,6 +290,17 @@ using namespace WhirlyKit;
         {
             std::set<int> targetLevels;
             targetLevels.insert(maxShortCircuitLevel);
+            for (NSNumber *level in _multiLevelLoads)
+            {
+                if ([level isKindOfClass:[NSNumber class]])
+                {
+                    int whichLevel = [level integerValue];
+                    if (whichLevel < 0)
+                        whichLevel = maxShortCircuitLevel+whichLevel;
+                    if (whichLevel >= 0 && whichLevel < maxShortCircuitLevel)
+                        targetLevels.insert(whichLevel);
+                }
+            }
             quadLayer.targetLevels = targetLevels;
         }
     } else {
