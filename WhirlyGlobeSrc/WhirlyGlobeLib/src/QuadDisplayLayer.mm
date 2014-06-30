@@ -316,6 +316,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 }
             } else {
                 bool isInTargetLevels = _targetLevels.find(nodeInfo->ident.level) != _targetLevels.end();
+                bool singleTargetLevel = _targetLevels.size() == 1;
                 int minTargetLevel = *(_targetLevels.begin());
                 int maxTargetLevel = *(--(_targetLevels.end()));
                 // Single level loading mode
@@ -340,7 +341,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                     if (nodeInfo->ident.level < maxTargetLevel)
                     {
                         addChildren = true;
-                        if (nodeInfo->childCoverage)
+                        if (nodeInfo->childCoverage || singleTargetLevel)
                             makePhantom = true;
                     }
                 }
