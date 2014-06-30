@@ -225,7 +225,7 @@ typedef std::set<SortedTile> SortedTileSet;
 //    NSLog(@"Got tile: %d: (%d,%d), %d",tileID.level,tileID.x,tileID.y,which);
     
     // Look for it in the bit list
-    bool done = true;
+    bool done = false;
     Maply::SortedTile theTile(tileID);
     int singleFetch = false;
     @synchronized(self)
