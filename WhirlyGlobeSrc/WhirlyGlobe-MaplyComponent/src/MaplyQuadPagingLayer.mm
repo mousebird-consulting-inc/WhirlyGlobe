@@ -353,7 +353,11 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         // We need to feel our way down to the appropriate level
         maxShortCircuitLevel = [self targetZoomLevel];
         if (_singleLevelLoading)
-            quadLayer.targetLevel = maxShortCircuitLevel;
+        {
+            std::set<int> targetLevels;
+            targetLevels.insert(maxShortCircuitLevel);
+            quadLayer.targetLevels = targetLevels;
+        }
     } else {
         // Note: Can't short circuit in this case.  Something wrong with the math
         canShortCircuitImportance = false;
