@@ -866,7 +866,7 @@ static const float PerfOutputDelay = 15.0;
         {
             if (!newLayer.drawPriorityWasSet)
             {
-                newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
+                newLayer.drawPriority = 100*(layerDrawPriority++) + kMaplyImageLayerDrawPriorityDefault;
             }
             [userLayers addObject:newLayer];
             return true;
