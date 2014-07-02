@@ -1197,53 +1197,30 @@ static const int NumMegaMarkers = 40000;
                 layer = precipLayer;
             } else if (![layerName compare:kMaplyTestMapboxStreets])
             {
-                // Fetch the tilespec for the vector tiles
-                NSString *jsonTileSpec = @"http://a.tiles.mapbox.com/v3/mapbox.mapbox-streets-v4.json";
-                NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:jsonTileSpec]];
-                
-                AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-                operation.responseSerializer = [AFJSONResponseSerializer serializer];
-                [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
-                 {
-                     // Got the tile spec, parse out the basics
-                     // Note: This should be a vector specific version
-                     MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:responseObject];
-                     if (!tileSource)
-                     {
-                         NSLog(@"Failed to parse tile info from: %@",jsonTileSpec);
-                     } else {
-                         // Now for the Mapnik XML
-                         NSString *stylePath = [[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"];
-                         if (stylePath)
-                         {
-                             // This deals with the Mapnik styles themselves
-                             MapnikStyleSet *styleSet = [[MapnikStyleSet alloc] initForViewC:baseViewC];
-                             [styleSet loadXmlFile:stylePath];
-                             
-                             // Now build the Mapnik vector tiles object
-                             MaplyMapnikVectorTiles *vecTiles = [[MaplyMapnikVectorTiles alloc] initWithTileSource:tileSource];
-                             vecTiles.styleDelegate = styleSet;
-
-                             // Now for the paging layer itself
-                             MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
-                             pageLayer.numSimultaneousFetches = 4;
-                             pageLayer.flipY = false;
-                             pageLayer.importance = 1024*1024;
-                             pageLayer.useTargetZoomLevel = true;
-                             pageLayer.singleLevelLoading = true;
-                             [baseViewC addLayer:pageLayer];
-                             ovlLayers[layerName] = pageLayer;
-                         } else
-                            NSLog(@"Failed to load style file osm-bright.xml");
-                     }
-                 }
-                failure:^(AFHTTPRequestOperation *operation, NSError *error)
-                 {
-                     NSLog(@"Failed to reach JSON tile spec at: %@",jsonTileSpec);
-                 }
+                thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
+                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"http://a.tiles.mapbox.com/v3/mapbox.mapbox-streets-v4.json"
+                  style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"]
+                  cacheDir:thisCacheDir
+                     viewC:baseViewC
+                   success:
+                         ^(MaplyMapnikVectorTiles *vecTiles)
+                        {
+                            // Now for the paging layer itself
+                            MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
+                            pageLayer.numSimultaneousFetches = 4;
+                            pageLayer.flipY = false;
+                            pageLayer.importance = 1024*1024;
+                            pageLayer.useTargetZoomLevel = true;
+                            pageLayer.singleLevelLoading = true;
+                            [baseViewC addLayer:pageLayer];
+                            ovlLayers[layerName] = pageLayer;
+                         }
+                   failure:
+                         ^(NSError *error){
+                             NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
+                         }
                  ];
                 
-                [operation start];
             }
         } else if (!isOn && layer)
         {
