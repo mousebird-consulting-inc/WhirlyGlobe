@@ -22,6 +22,7 @@
 #import "MaplyVectorLineStyle.h"
 #import "MaplyTexture.h"
 #import "MaplyTextureBuilder.h"
+#import <WhirlyGlobe.h>
 
 // Line styles
 @implementation MaplyVectorTileStyleLine
@@ -74,12 +75,13 @@
                                        }];
         
         // Decide whether to use wide lines in this particular sub style
-        bool useWideVectors = (settings.useWideVectors && strokeWidth >= settings.wideVecCuttoff);
+        bool useWideVectors = (settings.useWideVectors && (strokeWidth >= settings.wideVecCuttoff || styleEntry[@"stroke-dasharray"]));
         wideVecs[which] = useWideVectors;
         
         if(useWideVectors)
         {
             int patternLength = 0;
+            float repeatLen = 1.0;
             NSArray *dashComponents;
             if(styleEntry[@"stroke-dasharray"])
             {
@@ -93,8 +95,13 @@
                     }
                 }
                 dashComponents = componentNumbers;
+                
+                // We seem to need powers of two for some devices.  Not totally clear on why.
+                repeatLen = patternLength;
+                patternLength = WhirlyKit::NextPowOf2(patternLength);
             } else  {
                 patternLength = 32;
+                repeatLen = patternLength;
                 dashComponents = @[@(patternLength)];
             }
             
@@ -114,11 +121,12 @@
             MaplyTexture *filledLineTex = [viewC addTexture:lineImage
                                                 imageFormat:MaplyImageIntRGBA
                                                   wrapFlags:MaplyImageWrapY
-                                                       mode:MaplyThreadAny];
+                                                       mode:MaplyThreadCurrent];
             desc[kMaplyVecTexture] = filledLineTex;
             desc[kMaplyWideVecCoordType] = kMaplyWideVecCoordTypeScreen;
-            desc[kMaplyWideVecTexRepeatLen] = @(patternLength);
+            desc[kMaplyWideVecTexRepeatLen] = @(repeatLen);
             desc[kMaplyVecWidth] = @(width);
+            
         }
         
         [self resolveVisibility:styleEntry settings:settings desc:desc];
