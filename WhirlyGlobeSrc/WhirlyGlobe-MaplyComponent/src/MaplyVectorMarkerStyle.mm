@@ -95,7 +95,7 @@
 }
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
-{
+{    
     // One marker per object
     NSMutableArray *compObjs = [NSMutableArray array];
     for (MaplyVectorTileSubStyleMarker *subStyle in subStyles)
