@@ -47,6 +47,11 @@
   */
 @property (nonatomic,assign) float rotation;
 
+/** @brief When the screen is rotated, try to keep the label upright.
+    @details This tells the layout and display engine to keep the label oriented upright no matter what.  In practice this means it will manipulate the rotation by 180 degrees.
+  */
+@property (nonatomic,assign) bool keepUpright;
+
 /** @brief The actual text to display.
     @details This is a simple NSString for the text.  Things like font are set in the NSDictionary passed in to the add call in the view controller.
   */
