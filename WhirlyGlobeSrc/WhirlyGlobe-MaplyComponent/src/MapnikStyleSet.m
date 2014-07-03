@@ -127,7 +127,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 {
     NSError *error = nil;
     self.styleDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&error];
-    [self generateStyles];
+//    [self generateStyles];
 }
 
 - (void)loadJsonFile:(NSString*)filePath {
@@ -140,7 +140,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
                                                                  error:&error];
       self.styleDictionary = jsonDict;
         
-        [self generateStyles];
+//        [self generateStyles];
     }
   }
 }
@@ -408,7 +408,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 
 - (void)parserDidEndDocument:(NSXMLParser *)parser {
   //NSLog(@"Parse time:%f, %d styles", CFAbsoluteTimeGetCurrent() - startTime, self.styles.count);
-  [self generateStyles];
+//  [self generateStyles];
   self.success = YES;
   [self cleanup];
 }
