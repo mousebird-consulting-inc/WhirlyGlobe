@@ -50,22 +50,29 @@
     UIImage *iconImage;
     if (name)
     {
-        fullName = [NSString stringWithFormat:@"%@-24@2x.png",name];
-        iconImage = [UIImage imageNamed:fullName];
+        NSString *fileName = [name lastPathComponent];
+        iconImage = [UIImage imageNamed:fileName];
         if (!iconImage)
         {
-            // Try without the extension
-            NSString *shortName = [name stringByDeletingPathExtension];
-            if (shortName)
-            {
-                fullName = [NSString stringWithFormat:@"%@@2x.png",shortName];
-                iconImage = [UIImage imageNamed:fullName];
-            }
             
+            
+            fullName = [NSString stringWithFormat:@"%@-24@2x.png",name];
+            iconImage = [UIImage imageNamed:fullName];
             if (!iconImage)
             {
-                [imageCache setObject:[NSNull null] forKey:cacheKey];
-                return nil;
+                // Try without the extension
+                NSString *shortName = [name stringByDeletingPathExtension];
+                if (shortName)
+                {
+                    fullName = [NSString stringWithFormat:@"%@@2x.png",shortName];
+                    iconImage = [UIImage imageNamed:fullName];
+                }
+                
+                if (!iconImage)
+                {
+                    [imageCache setObject:[NSNull null] forKey:cacheKey];
+                    return nil;
+                }
             }
         }
     }

@@ -277,7 +277,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     [configViewC view];
     
     // Maximum number of objects for the layout engine to display
-    [baseViewC setMaxLayoutObjects:1000];
+//    [baseViewC setMaxLayoutObjects:1000];
     
     // Bring up things based on what's turned on
     [self performSelector:@selector(changeMapContents) withObject:nil afterDelay:0.0];
@@ -1198,7 +1198,6 @@ static const int NumMegaMarkers = 40000;
             } else if (![layerName compare:kMaplyTestMapboxStreets])
             {
                 thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
-                [baseViewC setMaxLayoutObjects:1000000];
                 [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"http://a.tiles.mapbox.com/v3/mapbox.mapbox-streets-v4.json"
                   style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"]
                   cacheDir:thisCacheDir
