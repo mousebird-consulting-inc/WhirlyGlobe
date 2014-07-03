@@ -1198,6 +1198,7 @@ static const int NumMegaMarkers = 40000;
             } else if (![layerName compare:kMaplyTestMapboxStreets])
             {
                 thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
+                [baseViewC setMaxLayoutObjects:1000000];
                 [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"http://a.tiles.mapbox.com/v3/mapbox.mapbox-streets-v4.json"
                   style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"]
                   cacheDir:thisCacheDir
@@ -1205,8 +1206,10 @@ static const int NumMegaMarkers = 40000;
                    success:
                          ^(MaplyMapnikVectorTiles *vecTiles)
                         {
+                            // Note: These are set after the MapnikStyleSet has already been initialized
                             MapnikStyleSet *styleSet = (MapnikStyleSet *)vecTiles.styleDelegate;
                             styleSet.tileStyleSettings.markerImportance = 10.0;
+                            styleSet.tileStyleSettings.fontName = @"Gill Sans";
                             
                             // Now for the paging layer itself
                             MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
