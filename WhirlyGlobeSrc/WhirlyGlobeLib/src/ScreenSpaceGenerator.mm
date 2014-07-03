@@ -48,6 +48,7 @@ ScreenSpaceGenerator::ConvexShape::ConvexShape()
     rotation = 0.0;
     offset.x() = 0.0;
     offset.y() = 0.0;
+    keepUpright = false;
     enable = true;
 }
 
@@ -127,6 +128,12 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
             else
                 outScreenPt = [mapView pointOnScreenFromPlane:outPt transform:&modelAndViewMat frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
             screenRot = M_PI/2.0-atan2(screenPt.y-outScreenPt.y,outScreenPt.x-screenPt.x);
+            
+            // Keep the labels upright
+            if (shape->keepUpright)
+                if (screenRot > M_PI/2 && screenRot < 3*M_PI/2)
+                    screenRot = screenRot + M_PI;
+            
             screenRotMat = Eigen::Rotation2Dd(screenRot);
         }
         
