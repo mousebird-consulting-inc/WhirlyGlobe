@@ -233,7 +233,7 @@ static double MAX_EXTENT = 20037508.342789244;
     Point2f firstCoord;
 
     NSMutableArray *components = [NSMutableArray array];
-    CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
+//    CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
 
     unsigned featureCount = 0;
     
@@ -550,7 +550,7 @@ static double MAX_EXTENT = 20037508.342789244;
     [layer tileDidLoad:tileID];
 
       // Note: Turn this back on for debugging
-    CFTimeInterval duration = CFAbsoluteTimeGetCurrent() - start;
+//    CFTimeInterval duration = CFAbsoluteTimeGetCurrent() - start;
 //    NSLog(@"Added %lu components for %d features for tile %d/%d/%d in %f seconds",
 //          (unsigned long)components.count, featureCount,
 //          tileID.level, tileID.x, tileID.y,

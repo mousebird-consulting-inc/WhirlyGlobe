@@ -322,6 +322,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     screenShape->maxVis = _labelInfo.maxVis;
                     screenShape->offset.x() = 0.0;
                     screenShape->offset.y() = 0.0;
+                    screenShape->keepUpright = label.keepUpright;
                     if (label.rotation != 0.0)
                     {
                         screenShape->useRotation = true;
