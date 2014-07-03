@@ -111,24 +111,21 @@
         NSMutableArray *markers = [NSMutableArray array];
         for (MaplyVectorObject *vec in vecObjs)
         {
-            // Note: Should be processing the regular expression in the marker
-            NSString *maki = vec.attributes[@"maki"];
-            
             MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
             marker.selectable = self.selectable;
             if(subStyle->markerImage)
                 marker.image = subStyle->markerImage;
-            else
-                marker.image = [UIImage imageNamed:[self formatText:subStyle->markerImageTemplate
-                                                          forObject:vec]];
-            if (maki)
-                marker.image = [MaplyIconManager iconForName:maki
-                                                        size:CGSizeMake(settings.markerScale*subStyle->width+2,
-                                                                        settings.markerScale*subStyle->height+2)
-                                                       color:[UIColor blackColor]
-                                                 circleColor:subStyle->fillColor
-                                                  strokeSize:settings.markerScale*subStyle->strokeWidth
-                                                 strokeColor:subStyle->strokeColor];
+            else {
+                NSString *markerName = [self formatText:subStyle->markerImageTemplate forObject:vec];
+                marker.image =  [MaplyIconManager iconForName:markerName
+                                                       size:CGSizeMake(settings.markerScale*subStyle->width+2,
+                                                                       settings.markerScale*subStyle->height+2)
+                                                      color:[UIColor blackColor]
+                                                circleColor:subStyle->fillColor
+                                                 strokeSize:settings.markerScale*subStyle->strokeWidth
+                                                  strokeColor:subStyle->strokeColor];
+            }
+
             if (marker.image) {
                 marker.loc = [vec center];
                 // Note: Debugging
