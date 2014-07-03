@@ -78,6 +78,8 @@ static double MAX_EXTENT = 20037508.342789244;
         vecTiles.styleDelegate = styleSet;
 
         successBlock(vecTiles);
+        
+        [styleSet generateStyles];
     };
     
     // This block fetches the json tile spec after the style data has been read
@@ -156,6 +158,8 @@ static double MAX_EXTENT = 20037508.342789244;
         vecTiles.styleDelegate = styleSet;
         
         successBlock(vecTiles);
+        
+        [styleSet generateStyles];
     };
     
     // Fetch the style file
