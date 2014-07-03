@@ -639,6 +639,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         wgLabel.loc = GeoCoord(label.loc.x,label.loc.y);
         wgLabel.rotation = label.rotation;
         wgLabel.text = label.text;
+        wgLabel.keepUpright = label.keepUpright;
         MaplyTexture *tex = nil;
         if (label.iconImage) {
             tex = [self addImage:label.iconImage imageFormat:MaplyImageIntRGBA mode:threadMode];
