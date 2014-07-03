@@ -1205,11 +1205,14 @@ static const int NumMegaMarkers = 40000;
                    success:
                          ^(MaplyMapnikVectorTiles *vecTiles)
                         {
+                            MapnikStyleSet *styleSet = (MapnikStyleSet *)vecTiles.styleDelegate;
+                            styleSet.tileStyleSettings.markerImportance = 10.0;
+                            
                             // Now for the paging layer itself
                             MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
-                            pageLayer.numSimultaneousFetches = 4;
+                            pageLayer.numSimultaneousFetches = 6;
                             pageLayer.flipY = false;
-                            pageLayer.importance = 1024*1024;
+                            pageLayer.importance = 1024*1024*2;
                             pageLayer.useTargetZoomLevel = true;
                             pageLayer.singleLevelLoading = true;
                             [baseViewC addLayer:pageLayer];
@@ -1220,7 +1223,34 @@ static const int NumMegaMarkers = 40000;
                              NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
                          }
                  ];
-                
+            } else if (![layerName compare:kMaplyMapzenVectors])
+            {
+                thisCacheDir = [NSString stringWithFormat:@"%@/mapzen-vectiles",cacheDir];
+                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithURL:@"http://vector.mapzen.com/osm/all/"
+                                                                  ext:@"mapbox"
+                                                              minZoom:8
+                                                              maxZoom:14
+                                                                style:[[NSBundle mainBundle] pathForResource:@"MapzenStyles" ofType:@"json"]
+                                                                  cacheDir:thisCacheDir
+                                                                     viewC:baseViewC
+                                                                   success:
+                 ^(MaplyMapnikVectorTiles *vecTiles)
+                 {
+                     // Now for the paging layer itself
+                     MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
+                     pageLayer.numSimultaneousFetches = 4;
+                     pageLayer.flipY = false;
+                     pageLayer.importance = 1024*1024;
+                     pageLayer.useTargetZoomLevel = true;
+                     pageLayer.singleLevelLoading = true;
+                     [baseViewC addLayer:pageLayer];
+                     ovlLayers[layerName] = pageLayer;
+                 }
+                                                                   failure:
+                 ^(NSError *error){
+                     NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
+                 }
+                 ];
             }
         } else if (!isOn && layer)
         {

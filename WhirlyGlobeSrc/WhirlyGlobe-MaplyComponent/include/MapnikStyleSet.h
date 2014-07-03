@@ -38,7 +38,9 @@
 - (instancetype)initForViewC:(MaplyBaseViewController *)viewC;
 - (void)loadXmlFile:(NSString*)filePath;
 - (void)loadXmlData:(NSData *)docData;
+- (void)loadJsonData:(NSData *)jsonData;
 - (void)loadJsonFile:(NSString*)filePath;
+- (void)saveAsJSON:(NSString *)filePath;
 - (void)generateStyles;
 
 @end

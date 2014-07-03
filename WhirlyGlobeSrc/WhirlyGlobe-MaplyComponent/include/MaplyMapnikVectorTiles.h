@@ -86,6 +86,7 @@ typedef enum {
 /** @brief A convenience method that fetches all the relevant files and creates a vector tiles object.
     @details This method will fetch all the relevant config files necessary to start a Mapnik vector tile object and the call you back to set up the actual layer.
     @param tileURL The URL to fetch vector tiles from.
+    @param ext The tile extension to use.
     @param minZoom The minimum zoom level to use.
     @param maxZoom The maximum zoom level to use
     @param styleFile Either a local file name or a URL for the Mapnik XML style file.
@@ -94,7 +95,7 @@ typedef enum {
     @param successBlock This block is called with the vector tiles object on success.  You'll need to create the paging layer and attach the vector tiles to it.
     @param failureBlock This block is called if any of the loading fails.
  */
-+ (void) StartRemoteVectorTilesWithURL:(NSString *)tileURL minZoom:(int)minZoom maxZoom:(int)maxZoom style:(NSString *)styleFile cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MaplyMapnikVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock;
++ (void) StartRemoteVectorTilesWithURL:(NSString *)tileURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom style:(NSString *)styleFile cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MaplyMapnikVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock;
 
 /** @brief Init with a single remote tile source.
   */

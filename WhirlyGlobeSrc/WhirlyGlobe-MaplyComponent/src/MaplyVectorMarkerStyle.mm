@@ -26,8 +26,11 @@
 @public
     NSMutableDictionary *desc;
     UIImage *markerImage;
+    UIColor *fillColor;
+    UIColor *strokeColor;
     float width;
     float height;
+    float strokeWidth;
     bool allowOverlap;
     NSString *markerImageTemplate;
 }
@@ -54,12 +57,12 @@
     for (NSDictionary *styleEntry in stylesArray)
     {
         MaplyVectorTileSubStyleMarker *subStyle = [[MaplyVectorTileSubStyleMarker alloc] init];
-        UIColor *fillColor = [UIColor whiteColor];
+        subStyle->fillColor = [UIColor whiteColor];
         if (styleEntry[@"fill"])
-            fillColor = [MaplyVectorTiles ParseColor:styleEntry[@"fill"]];
-        UIColor *strokeColor = [UIColor blackColor];
+            subStyle->fillColor = [MaplyVectorTiles ParseColor:styleEntry[@"fill"]];
+        subStyle->strokeColor = nil;
         if (styleEntry[@"stroke"])
-            strokeColor = [MaplyVectorTiles ParseColor:styleEntry[@"stroke"]];
+            subStyle->strokeColor = [MaplyVectorTiles ParseColor:styleEntry[@"stroke"]];
         subStyle->width = 10.0;
         if (styleEntry[@"width"])
             subStyle->width = [styleEntry[@"width"] floatValue];
@@ -69,10 +72,12 @@
         subStyle->allowOverlap = false;
         if (styleEntry[@"allow-overlap"])
             subStyle->allowOverlap = [styleEntry[@"allow-overlap"] boolValue];
-        float strokeWidth = 2.0;
+        subStyle->strokeWidth = 1.0;
         NSString *fileName = nil;
         if (styleEntry[@"file"])
             fileName = styleEntry[@"file"];
+        if (subStyle->fillColor && !subStyle->strokeColor)
+            subStyle->strokeColor = [UIColor blackColor];
         
         subStyle->desc = [NSMutableDictionary dictionary];
         subStyle->desc[kMaplyEnable] = @NO;
@@ -80,11 +85,12 @@
       
         if(!fileName || [fileName rangeOfString:@"["].location == NSNotFound)
             subStyle->markerImage = [MaplyIconManager iconForName:fileName
-                                                             size:CGSizeMake(4*settings.markerScale*subStyle->width,
-                                                                             4*settings.markerScale*subStyle->height)
-                                                            color:fillColor
-                                                       strokeSize:2*settings.markerScale*strokeWidth
-                                                      strokeColor:strokeColor];
+                                                             size:CGSizeMake(settings.markerScale*subStyle->width+2,
+                                                                             settings.markerScale*subStyle->height+2)
+                                                            color:[UIColor blackColor]
+                                                      circleColor:subStyle->fillColor
+                                                       strokeSize:settings.markerScale*subStyle->strokeWidth
+                                                      strokeColor:subStyle->strokeColor];
         else
             subStyle->markerImageTemplate = fileName;
 
@@ -96,6 +102,8 @@
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
 {    
+    bool isRetina = [UIScreen mainScreen].scale > 1.0;
+
     // One marker per object
     NSMutableArray *compObjs = [NSMutableArray array];
     for (MaplyVectorTileSubStyleMarker *subStyle in subStyles)
@@ -103,6 +111,9 @@
         NSMutableArray *markers = [NSMutableArray array];
         for (MaplyVectorObject *vec in vecObjs)
         {
+            // Note: Should be processing the regular expression in the marker
+            NSString *maki = vec.attributes[@"maki"];
+            
             MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
             marker.selectable = self.selectable;
             if(subStyle->markerImage)
@@ -110,11 +121,27 @@
             else
                 marker.image = [UIImage imageNamed:[self formatText:subStyle->markerImageTemplate
                                                           forObject:vec]];
-            
+            if (maki)
+                marker.image = [MaplyIconManager iconForName:maki
+                                                        size:CGSizeMake(settings.markerScale*subStyle->width+2,
+                                                                        settings.markerScale*subStyle->height+2)
+                                                       color:[UIColor blackColor]
+                                                 circleColor:subStyle->fillColor
+                                                  strokeSize:settings.markerScale*subStyle->strokeWidth
+                                                 strokeColor:subStyle->strokeColor];
             if (marker.image) {
                 marker.loc = [vec center];
-                marker.layoutImportance = settings.markerImportance;
-                marker.size = CGSizeMake(settings.markerScale*subStyle->width, settings.markerScale*subStyle->height);
+                // Note: Debugging
+                marker.layoutImportance = 10.0;
+//                marker.layoutImportance = settings.markerImportance;
+                if (marker.image)
+                {
+                    marker.size = ((UIImage *)marker.image).size;
+                    // The markers will be scaled up on a retina display, so compensate
+                    if (isRetina)
+                        marker.size = CGSizeMake(marker.size.width/2.0, marker.size.height/2.0);
+                } else
+                    marker.size = CGSizeMake(settings.markerScale*subStyle->width, settings.markerScale*subStyle->height);
                 [markers addObject:marker];
             }
         }
