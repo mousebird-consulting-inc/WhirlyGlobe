@@ -330,7 +330,7 @@ static const bool MainThreadMerge = false;
     
 bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels,TextureRegion *outTexRegion)
 {
-    if (newTextures.size() != imageDepth)
+    if (newTextures.size() != imageDepth && frame < 0)
         return false;
     
     // Make sure we can fit the thing
@@ -388,7 +388,7 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
     
     if (found)
     {
-        for (unsigned int ii=0;ii<dynTexVec->size();ii++)
+        for (unsigned int ii=0;ii<newTextures.size();ii++)
         {
             // If there's only one frame, we're updating that
             int which = frame != -1 ? ii : frame;
@@ -430,7 +430,6 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
         texRegion.subTex.texId = dynTexVec->at(0)->getId();
         
         subTex = texRegion.subTex;
-        return true;
     }
     
     if (found && outTexRegion)
