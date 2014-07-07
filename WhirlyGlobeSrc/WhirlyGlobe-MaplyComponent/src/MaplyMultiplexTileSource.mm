@@ -227,7 +227,7 @@ typedef std::set<SortedTile> SortedTileSet;
     // Look for it in the bit list
     bool done = false;
     Maply::SortedTile theTile(tileID);
-    int singleFetch = false;
+    bool singleFetch = false;
     @synchronized(self)
     {
         Maply::SortedTileSet::iterator it;
@@ -278,8 +278,11 @@ typedef std::set<SortedTile> SortedTileSet;
         
         // Let the paging layer know about it
         NSMutableArray *allData = [NSMutableArray array];
-        for (unsigned int ii=0;ii<theTile.tileData.size();ii++)
-            [allData addObject:theTile.tileData[ii]];
+        if (singleFetch)
+            [allData addObject:tileData];
+        else
+            for (unsigned int ii=0;ii<theTile.tileData.size();ii++)
+                [allData addObject:theTile.tileData[ii]];
  
         NSError *marshalError = [self marshalDataArray:allData];
         if (!marshalError)
@@ -327,12 +330,13 @@ typedef std::set<SortedTile> SortedTileSet;
     // Clear out any existing state and add clean state
     [self clearFetchesFor:tileID];
     Maply::SortedTile newTile(tileID,(int)[_tileSources count]);
+    newTile.singleFetch = (frame !=-1);
     // Don't think about this one too hard.
     std::vector<void (^)()> workBlocks;
     
     // Work through the sources, kicking off a request as we go
-    int which = 0;
-    for (MaplyRemoteTileInfo *tileSource in _tileSources)
+    int which = (frame == -1 ? 0 : frame);
+    for (MaplyRemoteTileInfo *tileSource in (frame == -1 ? _tileSources : @[_tileSources[frame]]))
     {
         // If it's local, just go fetch it
         if ([tileSource tileIsLocal:tileID])

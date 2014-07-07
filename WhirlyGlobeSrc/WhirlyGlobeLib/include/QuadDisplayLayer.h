@@ -94,11 +94,6 @@ typedef std::set<WhirlyKit::Quadtree::Identifier> QuadIdentSet;
 /// Called right after we finish a series of updates
 - (void)quadDisplayLayerEndUpdates:(WhirlyKitQuadDisplayLayer *)layer;
 
-/// The quad tree wants to load the given tile.
-/// Call the layer back when the tile is loaded.
-/// This is in the layer thread.
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo;
-
 /// Quad tree wants to unload the given tile immediately.
 /// This is in the layer thread.
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo;
@@ -111,7 +106,25 @@ typedef std::set<WhirlyKit::Quadtree::Identifier> QuadIdentSet;
 /// Called when the layer is about to shut down.  Clear out any drawables and caches.
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene;
 
+/// Number of frames of animation per tile (if we're doing animation)
+- (int)numFrames;
+
+/// If we're doing animation, currently active frame.
+/// If numFrames = 1, this should be -1.  If numFrames > 1, -1 means load all frames at once
+- (int)currentFrame;
+
 @optional
+
+/// The quad tree wants to load the given tile.
+/// Call the layer back when the tile is loaded.
+/// This is in the layer thread.
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo;
+
+/// The quad tree wants to load the given tile for the given frame (of animation).
+/// Call the layer back when the tile is loaded.
+/// This is in the layer thread.
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo frame:(int)frame;
+
 /// Called right before the view update to determine if we should even be paging
 /// You can use this to temporarily suspend paging.
 /// isInitial is set if this is the first time through

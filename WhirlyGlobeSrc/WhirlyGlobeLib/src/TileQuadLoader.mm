@@ -38,6 +38,7 @@ using namespace WhirlyKit;
     TileBuilder *tileBuilder;
     int defaultTessX,defaultTessY;
     bool _enable;
+    bool canLoadFrames;
 }
 
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
@@ -98,6 +99,7 @@ using namespace WhirlyKit;
         _borderTexel = 1;
         _enable = true;
         defaultTessX = defaultTessY = 10;
+        canLoadFrames = [inDataSource respondsToSelector:@selector(quadTileLoader:startFetchForLevel:col:row:frame:attrs:)];
         pthread_mutex_init(&tileLock, NULL);
     }
     
@@ -392,14 +394,14 @@ using namespace WhirlyKit;
 }
 
 // Ask the data source to start loading the image for this tile
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo frame:(int)frame
 {
     // Build the new tile
     LoadedTile *newTile = new LoadedTile();
     newTile->nodeInfo = *tileInfo;
     newTile->isLoading = true;
     newTile->calculateSize(layer.quadtree, layer.scene->getCoordAdapter(), layer.coordSys);
-
+    
     pthread_mutex_lock(&tileLock);
     tileSet.insert(newTile);
     pthread_mutex_unlock(&tileLock);
@@ -410,7 +412,7 @@ using namespace WhirlyKit;
     else
         localFetches.insert(tileInfo->ident);
     
-    [dataSource quadTileLoader:self startFetchForLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y attrs:tileInfo->attrs];
+    [dataSource quadTileLoader:self startFetchForLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y frame:frame attrs:tileInfo->attrs];
 }
 
 // Check if we're in the process of loading the given tile
@@ -442,7 +444,7 @@ using namespace WhirlyKit;
         loadImage.imageData = image;
     }
 
-    [self dataSource:inDataSource loadedImage:loadImage forLevel:level col:col row:row];
+    [self dataSource:inDataSource loadedImage:loadImage forLevel:level col:col row:row frame:-1];
 }
 
 - (bool)tileIsPlaceholder:(id)loadTile
@@ -467,7 +469,12 @@ using namespace WhirlyKit;
     return false;
 }
 
-- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadTile forLevel:(int)level col:(int)col row:(int)row
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)inDataSource loadedImage:(id)loadImage forLevel:(int)level col:(int)col row:(int)row
+{
+    [self dataSource:inDataSource loadedImage:loadImage forLevel:level col:col row:row frame:-1];
+}
+
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadTile forLevel:(int)level col:(int)col row:(int)row frame:(int)frame
 {
     bool isPlaceholder = [self tileIsPlaceholder:loadTile];
     
@@ -553,7 +560,7 @@ using namespace WhirlyKit;
     }
     
     bool loadingSuccess = true;
-    if (!isPlaceholder && _numImages != loadImages.size())
+    if (!isPlaceholder && (_numImages != loadImages.size() && (frame != -1 && loadImages.size() != 1)))
     {
         // Only print out a message if they bothered to hand in something.  If not, they meant
         //  to tell us it was empty.
@@ -665,6 +672,19 @@ using namespace WhirlyKit;
 - (void)updateWithoutFlush
 {
     [self refreshParents:_quadLayer];
+}
+
+- (int)numFrames
+{
+    return _numImages;
+}
+
+- (int)currentFrame
+{
+    if (_numImages <= 1)
+        return -1;
+    else
+        return currentImage0;
 }
 
 // Thus ends the unloads.  Now we can update parents
