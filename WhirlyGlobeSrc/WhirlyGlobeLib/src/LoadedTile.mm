@@ -986,7 +986,7 @@ bool LoadedTile::updateTexture(TileBuilder *tileBuilder,WhirlyKitLoadedImage *lo
     
     if (tileBuilder->texAtlas)
     {
-        tileBuilder->texAtlas->updateTexture(newTex, frame, tileBuilder->scene->getMemManager(), changeRequests, tileBuilder->borderTexel);
+        tileBuilder->texAtlas->updateTexture(newTex, frame, texRegion, changeRequests);
         changeRequests.push_back(NULL);
     }
     
@@ -1015,7 +1015,7 @@ bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoaded
 
     if (tileBuilder->texAtlas)
     {
-        tileBuilder->texAtlas->addTexture(texs, frame, NULL, NULL, subTexs[0], tileBuilder->scene->getMemManager(), changeRequests, tileBuilder->borderTexel);
+        tileBuilder->texAtlas->addTexture(texs, frame, NULL, NULL, subTexs[0], tileBuilder->scene->getMemManager(), changeRequests, tileBuilder->borderTexel, 0, &texRegion);
         changeRequests.push_back(NULL);
     }
     for (unsigned int ii=0;ii<texs.size();ii++)
