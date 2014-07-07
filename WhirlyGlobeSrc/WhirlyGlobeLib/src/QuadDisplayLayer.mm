@@ -56,6 +56,9 @@ using namespace WhirlyKit;
     
     // In metered mode, we'll only flush if something happened
     bool somethingHappened;
+    
+    // The loader can load individual frames of an animation
+    bool canLoadFrames;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES *)inRenderer;
@@ -83,6 +86,7 @@ using namespace WhirlyKit;
         _fullLoadTimeout = 4.0;
         waitForLocalLoads = false;
         somethingHappened = false;
+        canLoadFrames = false;
     }
     
     return self;
@@ -126,6 +130,8 @@ using namespace WhirlyKit;
 
     if (_fullLoad)
         waitForLocalLoads = true;
+    
+    canLoadFrames = [_loader respondsToSelector:@selector(quadDisplayLayer:loadTile:frame:)];
     
 //    [self performSelector:@selector(dumpInfo) withObject:nil afterDelay:15.0];
 }
@@ -372,7 +378,12 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 }
                 
 //                NSLog(@"Loading tile: %d: (%d,%d)",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y);
-                [_loader quadDisplayLayer:self loadTile:nodeInfo ];
+                // Note: Debugging
+                int frameId = 0;
+                if (canLoadFrames)
+                    [_loader quadDisplayLayer:self loadTile:nodeInfo frame:frameId];
+                else
+                    [_loader quadDisplayLayer:self loadTile:nodeInfo ];
                 _quadtree->setPhantom(nodeInfo->ident, false);
                 _quadtree->setLoading(nodeInfo->ident, true);
                 
