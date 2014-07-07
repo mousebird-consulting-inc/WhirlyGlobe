@@ -410,6 +410,17 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 #pragma mark - WhirlyKitQuadLoader
 
+- (int)numFrames
+{
+    return 1;
+}
+
+- (int)currentFrame
+{
+    return -1;
+}
+
+
 - (void)setQuadLayer:(WhirlyKitQuadDisplayLayer *)layer
 {
     quadLayer = layer;
