@@ -946,8 +946,11 @@ using namespace Maply;
     if([self.delegate respondsToSelector:@selector(maplyViewController:didClickAnnotation:)]) {
         for(MaplyAnnotation *annotation in self.annotations) {
             if(annotation.calloutView == calloutView) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"                
                 [self.delegate maplyViewController:self didClickAnnotation:annotation];
                 return;
+#pragma clang diagostic pop
             }
         }
     }

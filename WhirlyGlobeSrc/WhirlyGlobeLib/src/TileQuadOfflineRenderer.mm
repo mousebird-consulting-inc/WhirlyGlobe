@@ -122,6 +122,17 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     [self clear];
 }
 
+- (int)numFrames
+{
+    return _numImages;
+}
+
+- (int)currentFrame
+{
+    // Note: Should make this more specific
+    return -1;
+}
+
 - (void)setPeriod:(NSTimeInterval)period
 {
     _period = period;

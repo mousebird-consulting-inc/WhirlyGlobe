@@ -862,6 +862,23 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
     
     return true;
 }
+    
+Texture *TileBuilder::buildTexture(WhirlyKitLoadedImage *loadImage)
+{
+    // They'll all be the same width
+    int destWidth,destHeight;
+    textureSize(loadImage.width,loadImage.height,&destWidth,&destHeight);
+    
+    Texture *newTex = [loadImage buildTexture:borderTexel destWidth:destWidth destHeight:destHeight];
+    
+    if (newTex)
+    {
+        newTex->setFormat(glFormat);
+        newTex->setSingleByteSource(singleByteSource);
+    }
+    
+    return newTex;
+}
 
 // Note: Off for now
 bool TileBuilder::flushUpdates(ChangeSet &changes)
@@ -956,8 +973,28 @@ void LoadedTile::calculateSize(Quadtree *quadTree,CoordSystemDisplayAdapter *coo
     tileSize = (ll-ur).norm();
 }
 
+// Note: This only works with texture atlases
+bool LoadedTile::updateTexture(TileBuilder *tileBuilder,WhirlyKitLoadedImage *loadImage,int frame,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+{
+    if (!loadImage && loadImage.type == WKLoadedImagePlaceholder)
+    {
+        placeholder = true;
+        return true;
+    }
+    
+    Texture *newTex = tileBuilder->buildTexture(loadImage);
+    
+    if (tileBuilder->texAtlas)
+    {
+        tileBuilder->texAtlas->updateTexture(newTex, frame, tileBuilder->scene->getMemManager(), changeRequests, tileBuilder->borderTexel);
+        changeRequests.push_back(NULL);
+    }
+    
+    return true;
+}
+
 // Add the geometry and texture to the scene for a given tile
-bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,int currentImage0,int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,int frame,int currentImage0,int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
     // If it's a placeholder, we don't create geometry
     if (!loadImages.empty() && loadImages[0].type == WKLoadedImagePlaceholder)
@@ -978,7 +1015,7 @@ bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoaded
 
     if (tileBuilder->texAtlas)
     {
-        tileBuilder->texAtlas->addTexture(texs, NULL, NULL, subTexs[0], tileBuilder->scene->getMemManager(), changeRequests, tileBuilder->borderTexel);
+        tileBuilder->texAtlas->addTexture(texs, frame, NULL, NULL, subTexs[0], tileBuilder->scene->getMemManager(), changeRequests, tileBuilder->borderTexel);
         changeRequests.push_back(NULL);
     }
     for (unsigned int ii=0;ii<texs.size();ii++)
