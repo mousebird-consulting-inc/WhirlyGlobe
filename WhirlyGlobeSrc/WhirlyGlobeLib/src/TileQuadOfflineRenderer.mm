@@ -577,6 +577,11 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 - (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadTile forLevel:(int)level col:(int)col row:(int)row
 {
+    [self dataSource:dataSource loadedImage:loadTile forLevel:level col:col row:row frame:-1];
+}
+
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadTile forLevel:(int)level col:(int)col row:(int)row frame:(int)frame
+{
 //    NSLog(@"Tile loaded: %d: (%d,%d)",level,col,row);
     
     numFetches--;

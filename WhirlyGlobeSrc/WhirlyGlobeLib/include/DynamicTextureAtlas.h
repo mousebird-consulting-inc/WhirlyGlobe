@@ -154,12 +154,26 @@ protected:
 class DynamicTextureAtlas
 {
 public:
+    /// This maps a given texture to its location in a dynamic texture
+    class TextureRegion
+    {
+    public:
+        bool operator < (const TextureRegion &that) const { return subTex.getId() < that.subTex.getId(); }
+        
+        SubTexture subTex;
+        SimpleIdentity dynTexId;
+        DynamicTexture::Region region;
+    };
+
     /// Construct with the square size of the textures, the cell size (in pixels) and the pixel format
     DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1);
     ~DynamicTextureAtlas();
 
     /// Try to add the texture to one of our dynamic textures, or create one.
-    bool addTexture(const std::vector<Texture *> &textures,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0);
+    bool addTexture(const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0,TextureRegion *texRegion=NULL);
+    
+    /// Update one of the frames of a multi-frame texture atlas
+    bool updateTexture(Texture *,int frame,const TextureRegion &texRegion,ChangeSet &changes);
     
     /// Free up the space for a texture from one of the dynamic textures
     void removeTexture(const SubTexture &subTex,ChangeSet &changes);
@@ -178,17 +192,6 @@ public:
     void log();
 
 protected:
-    /// This maps a given texture to its location in a dynamic texture
-    class TextureRegion
-    {
-    public:
-        bool operator < (const TextureRegion &that) const { return subTex.getId() < that.subTex.getId(); }
-        
-        SubTexture subTex;
-        SimpleIdentity dynTexId;
-        DynamicTexture::Region region;
-    };
-
     int imageDepth;
     int texSize;
     int cellSize;

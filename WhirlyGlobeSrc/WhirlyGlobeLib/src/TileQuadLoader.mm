@@ -589,7 +589,7 @@ using namespace WhirlyKit;
     if (loadingSuccess && (isPlaceholder || !loadImages.empty() || loadElev))
     {
         tile->elevData = loadElev;
-        if (tile->addToScene(tileBuilder,loadImages,currentImage0,currentImage1,loadElev,changeRequests))
+        if (tile->addToScene(tileBuilder,loadImages,frame,currentImage0,currentImage1,loadElev,changeRequests))
         {
             // If we have more than one image to dispay, make sure we're doing the right one
             if (!isPlaceholder && _numImages > 1 && tileBuilder->texAtlas)
