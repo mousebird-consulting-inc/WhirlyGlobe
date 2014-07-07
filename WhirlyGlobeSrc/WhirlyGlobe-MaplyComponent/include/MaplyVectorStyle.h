@@ -48,6 +48,9 @@
 /// @brief If we're using widened vectors, only active them for strokes wider than this.  Defaults to zero.
 @property (nonatomic) float wideVecCuttoff;
 
+/// @brief The default font family for all text
+@property (nonatomic,strong) NSString *fontName;
+
 @end
 
 /** The Maply Vector Tile Style is an internal representation of the style JSON coming out
