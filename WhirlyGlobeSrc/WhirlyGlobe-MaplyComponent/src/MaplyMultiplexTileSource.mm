@@ -243,6 +243,7 @@ typedef std::set<SortedTile> SortedTileSet;
             singleFetch = theTile.singleFetch;
             done = true;
         } else {
+            done = true;
             // Add the tile data in and see if we're done
             theTile.tileData[which] = (tileData ? tileData : [NSNull null]);
             for (unsigned int ii=0;ii<theTile.tileData.size();ii++)
