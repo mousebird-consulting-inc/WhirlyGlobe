@@ -16,6 +16,6 @@
 + (UIImage *)iconForName:(NSString *)name size:(CGSize)size;
 
 // Slightly more complex icon
-+ (UIImage *)iconForName:(NSString *)name size:(CGSize)size color:(UIColor *)color strokeSize:(float)strokeSize strokeColor:(UIColor *)strokeColor;
++ (UIImage *)iconForName:(NSString *)name size:(CGSize)size color:(UIColor *)color circleColor:(UIColor *)circleColor strokeSize:(float)strokeSize strokeColor:(UIColor *)strokeColor;
 
 @end

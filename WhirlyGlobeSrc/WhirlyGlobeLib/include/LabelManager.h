@@ -63,6 +63,8 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
 /// Rotation around the origin
 @property (nonatomic,assign) float rotation;
+/// Keep a label oriented upright on the screen
+@property (nonatomic,assign) bool keepUpright;
 /// This dictionary contains overrides for certain attributes
 ///  for just this label.  Only width, height, icon, text color, and
 ///  background color supported.

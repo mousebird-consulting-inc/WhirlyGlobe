@@ -62,6 +62,8 @@ public:
     WhirlyKit::Point2f iconSize;
     /// Rotation of the object
     float rotation;
+    /// If set, keep the object upright
+    bool keepUpright;
     /// Minimum visiblity
     float minVis;
     /// Maximum visibility
