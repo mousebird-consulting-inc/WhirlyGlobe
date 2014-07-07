@@ -296,6 +296,8 @@ public:
     Point3d dispCenter;
     /// Size in display coordinates
     double tileSize;
+    /// Where the textures live in the dynamic texture(s)
+    DynamicTextureAtlas::TextureRegion texRegion;
     
     // IDs for the various fake child geometry
     WhirlyKit::SimpleIdentity childDrawIds[4];
