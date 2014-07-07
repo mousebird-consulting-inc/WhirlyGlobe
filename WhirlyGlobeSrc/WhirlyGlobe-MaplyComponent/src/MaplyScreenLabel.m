@@ -31,6 +31,7 @@
     _selectable = true;
     _layoutImportance = MAXFLOAT;
     _layoutPlacement = kMaplyLayoutRight | kMaplyLayoutLeft | kMaplyLayoutAbove | kMaplyLayoutBelow;
+    _keepUpright = false;
     
     return self;
 }
