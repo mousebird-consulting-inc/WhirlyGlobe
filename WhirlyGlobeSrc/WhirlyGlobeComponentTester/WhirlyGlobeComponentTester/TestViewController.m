@@ -1197,6 +1197,7 @@ static const int NumMegaMarkers = 40000;
                 layer = precipLayer;
             } else if (![layerName compare:kMaplyTestMapboxStreets])
             {
+                self.title = @"Mapbox Vector Streets";
                 thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
                 [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"http://a.tiles.mapbox.com/v3/mapbox.mapbox-streets-v4.json"
                   style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"]
