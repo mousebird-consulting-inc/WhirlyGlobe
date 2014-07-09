@@ -1,9 +1,6 @@
 [submodule "third-party/shapelib"]
 	path = third-party/shapelib
 	url = https://github.com/mousebird/shapelib.git
-[submodule "third-party/clipper"]
-	path = third-party/clipper
-	url = https://github.com/trailbehind/clipper.git
 [submodule "third-party/boost"]
 	path = third-party/boost
 	url = https://github.com/mousebird/boost.git
