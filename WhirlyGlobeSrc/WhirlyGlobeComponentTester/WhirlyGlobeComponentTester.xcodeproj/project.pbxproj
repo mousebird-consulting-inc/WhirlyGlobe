@@ -576,6 +576,7 @@
 		2BC0FB80196DB88F0043E1FD /* osm-bright.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "osm-bright.xml"; sourceTree = "<group>"; };
 		2BC0FB83196DB8960043E1FD /* MapzenStyles.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = MapzenStyles.json; sourceTree = "<group>"; };
 		2BC0FB85196DB93C0043E1FD /* geography-class_medres.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = "geography-class_medres.mbtiles"; path = "../../../resources/base_maps/geography-class_medres.mbtiles"; sourceTree = "<group>"; };
+		2BC0FBA9196DE1F80043E1FD /* tl_2013_06075_roads.mbr */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.mbr; sourceTree = "<group>"; };
 		2BC989A617DA66BB0071DA9E /* WeatherShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeatherShader.h; sourceTree = "<group>"; };
 		2BC989A717DA66BB0071DA9E /* WeatherShader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WeatherShader.m; sourceTree = "<group>"; };
 		2BC989E117DC28350071DA9E /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
@@ -1150,6 +1151,7 @@
 				2BDC8A8A1937E33F00DFECF0 /* tl_2013_06075_roads.prj */,
 				2BDC8A8B1937E33F00DFECF0 /* tl_2013_06075_roads.shp */,
 				2BDC8A8C1937E33F00DFECF0 /* tl_2013_06075_roads.shx */,
+				2BC0FBA9196DE1F80043E1FD /* tl_2013_06075_roads.mbr */,
 			);
 			name = sf_roads;
 			path = ../../../resources/vectors/sf_roads;
