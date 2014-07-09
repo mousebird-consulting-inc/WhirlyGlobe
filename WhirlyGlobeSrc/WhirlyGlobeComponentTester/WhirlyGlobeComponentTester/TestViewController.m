@@ -893,7 +893,7 @@ static const int NumMegaMarkers = 40000;
     {
         self.title = @"Geography Class - MBTiles Local";
         // This is the Geography Class MBTiles data set from MapBox
-        MaplyMBTileSource *tileSource = [[MaplyMBTileSource alloc] initWithMBTiles:@"geography-class"];
+        MaplyMBTileSource *tileSource = [[MaplyMBTileSource alloc] initWithMBTiles:@"geography-class_medres"];
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         baseLayer = layer;
         layer.handleEdges = (globeViewC != nil);
