@@ -7,12 +7,6 @@
 [submodule "third-party/boost"]
 	path = third-party/boost
 	url = https://github.com/mousebird/boost.git
-[submodule "third-party/eigen"]
-	path = third-party/eigen
-	url = https://github.com/mousebird/eigen.git
-[submodule "resources"]
-	path = resources
-	url = https://github.com/mousebird/wg-resources.git
 [submodule "third-party/proj-4"]
 	path = third-party/proj-4
 	url = https://github.com/mousebird/proj-4.git
@@ -46,3 +40,6 @@
 [submodule "resources_new"]
 	path = resources
 	url = https://github.com/mousebird/wg-resources-new.git
+[submodule "clipper2"]
+	path = third-party/clipper
+	url = https://github.com/mousebird/clipper
