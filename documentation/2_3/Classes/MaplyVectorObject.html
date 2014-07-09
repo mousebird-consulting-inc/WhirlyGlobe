@@ -1,0 +1,2045 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
+		<title>MaplyVectorObject Class Reference</title>
+		<meta id="xcode-display" name="xcode-display" content="render"/>
+		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
+		<link rel="stylesheet" type="text/css" media="print" href="../css/stylesPrint.css" />
+		<meta name="generator" content="appledoc 2.2 (build 961)" />
+	</head>
+	<body>
+		<header id="top_header">
+			<div id="library" class="hideInXcode">
+				<h1><a id="libraryTitle" href="../index.html">WhirlyGlobe-Maply </a></h1>
+				<a id="developerHome" href="../index.html">mousebird consulting inc</a>
+			</div>
+			
+			<div id="title" role="banner">
+				<h1 class="hideInXcode">MaplyVectorObject Class Reference</h1>
+			</div>
+			<ul id="headerButtons" role="toolbar">
+				<li id="toc_button">
+					<button aria-label="Show Table of Contents" role="checkbox" class="open" id="table_of_contents"><span class="disclosure"></span>Table of Contents</button>
+				</li>
+				<li id="jumpto_button" role="navigation">
+					<select id="jumpTo">
+	<option value="top">Jump To&#133;</option>
+	
+	<option value="overview">Overview</option>
+	
+	
+	
+	
+	<option value="tasks">Tasks</option>
+	
+	
+	
+	
+	
+	<option value="properties">Properties</option>
+	
+	<option value="//api/name/attributes">&nbsp;&nbsp;&nbsp;&nbsp;attributes</option>
+	
+	<option value="//api/name/selectable">&nbsp;&nbsp;&nbsp;&nbsp;selectable</option>
+	
+	<option value="//api/name/userObject">&nbsp;&nbsp;&nbsp;&nbsp;userObject</option>
+	
+	
+	
+	
+	<option value="class_methods">Class Methods</option>
+	
+	<option value="//api/name/VectorObjectFromFile:">&nbsp;&nbsp;&nbsp;&nbsp;+ VectorObjectFromFile:</option>
+	
+	<option value="//api/name/VectorObjectFromGeoJSON:">&nbsp;&nbsp;&nbsp;&nbsp;+ VectorObjectFromGeoJSON:</option>
+	
+	<option value="//api/name/VectorObjectFromGeoJSONApple:">&nbsp;&nbsp;&nbsp;&nbsp;+ VectorObjectFromGeoJSONApple:</option>
+	
+	<option value="//api/name/VectorObjectFromGeoJSONDictionary:">&nbsp;&nbsp;&nbsp;&nbsp;+ VectorObjectFromGeoJSONDictionary:</option>
+	
+	<option value="//api/name/VectorObjectFromShapeFile:">&nbsp;&nbsp;&nbsp;&nbsp;+ VectorObjectFromShapeFile:</option>
+	
+	<option value="//api/name/VectorObjectsFromGeoJSONAssembly:">&nbsp;&nbsp;&nbsp;&nbsp;+ VectorObjectsFromGeoJSONAssembly:</option>
+	
+	
+	
+	
+	<option value="instance_methods">Instance Methods</option>
+	
+	<option value="//api/name/addHole:numCoords:">&nbsp;&nbsp;&nbsp;&nbsp;- addHole:numCoords:</option>
+	
+	<option value="//api/name/asCLLocationArrays">&nbsp;&nbsp;&nbsp;&nbsp;- asCLLocationArrays</option>
+	
+	<option value="//api/name/asNumbers">&nbsp;&nbsp;&nbsp;&nbsp;- asNumbers</option>
+	
+	<option value="//api/name/boundingBoxLL:ur:">&nbsp;&nbsp;&nbsp;&nbsp;- boundingBoxLL:ur:</option>
+	
+	<option value="//api/name/center">&nbsp;&nbsp;&nbsp;&nbsp;- center</option>
+	
+	<option value="//api/name/centroid:">&nbsp;&nbsp;&nbsp;&nbsp;- centroid:</option>
+	
+	<option value="//api/name/clipToGrid:">&nbsp;&nbsp;&nbsp;&nbsp;- clipToGrid:</option>
+	
+	<option value="//api/name/deepCopy">&nbsp;&nbsp;&nbsp;&nbsp;- deepCopy</option>
+	
+	<option value="//api/name/initWithAreal:numCoords:attributes:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithAreal:numCoords:attributes:</option>
+	
+	<option value="//api/name/initWithLineString:numCoords:attributes:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithLineString:numCoords:attributes:</option>
+	
+	<option value="//api/name/initWithPoint:attributes:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithPoint:attributes:</option>
+	
+	<option value="//api/name/largestLoopCenter:mbrLL:mbrUR:">&nbsp;&nbsp;&nbsp;&nbsp;- largestLoopCenter:mbrLL:mbrUR:</option>
+	
+	<option value="//api/name/linearMiddle:rot:">&nbsp;&nbsp;&nbsp;&nbsp;- linearMiddle:rot:</option>
+	
+	<option value="//api/name/log">&nbsp;&nbsp;&nbsp;&nbsp;- log</option>
+	
+	<option value="//api/name/mergeVectorsFrom:">&nbsp;&nbsp;&nbsp;&nbsp;- mergeVectorsFrom:</option>
+	
+	<option value="//api/name/middleCoordinate:">&nbsp;&nbsp;&nbsp;&nbsp;- middleCoordinate:</option>
+	
+	<option value="//api/name/pointInAreal:">&nbsp;&nbsp;&nbsp;&nbsp;- pointInAreal:</option>
+	
+	<option value="//api/name/pointNearLinear:distance:inViewController:">&nbsp;&nbsp;&nbsp;&nbsp;- pointNearLinear:distance:inViewController:</option>
+	
+	<option value="//api/name/splitVectors">&nbsp;&nbsp;&nbsp;&nbsp;- splitVectors</option>
+	
+	<option value="//api/name/subdivideToGlobe:">&nbsp;&nbsp;&nbsp;&nbsp;- subdivideToGlobe:</option>
+	
+	<option value="//api/name/subdivideToGlobeGreatCircle:">&nbsp;&nbsp;&nbsp;&nbsp;- subdivideToGlobeGreatCircle:</option>
+	
+	<option value="//api/name/tesselate">&nbsp;&nbsp;&nbsp;&nbsp;- tesselate</option>
+	
+	<option value="//api/name/vectorType">&nbsp;&nbsp;&nbsp;&nbsp;- vectorType</option>
+	
+	<option value="//api/name/writeToFile:">&nbsp;&nbsp;&nbsp;&nbsp;- writeToFile:</option>
+	
+	
+	
+</select>
+				</li>
+			</ul>
+		</header>
+		<nav id="tocContainer" class="isShowingTOC">
+			<ul id="toc" role="tree">
+				
+<li role="treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#overview">Overview</a></span></li>
+
+
+
+
+<li role="treeitem" id="task_treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#tasks">Tasks</a></span><ul>
+	
+</ul></li>
+
+
+
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#properties">Properties</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/attributes">attributes</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/selectable">selectable</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/userObject">userObject</a></span></li>
+	
+</ul></li>
+
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#class_methods">Class Methods</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/VectorObjectFromFile:">VectorObjectFromFile:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/VectorObjectFromGeoJSON:">VectorObjectFromGeoJSON:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/VectorObjectFromGeoJSONApple:">VectorObjectFromGeoJSONApple:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/VectorObjectFromGeoJSONDictionary:">VectorObjectFromGeoJSONDictionary:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/VectorObjectFromShapeFile:">VectorObjectFromShapeFile:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/VectorObjectsFromGeoJSONAssembly:">VectorObjectsFromGeoJSONAssembly:</a></span></li>
+	
+</ul></li>
+
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/addHole:numCoords:">addHole:numCoords:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/asCLLocationArrays">asCLLocationArrays</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/asNumbers">asNumbers</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/boundingBoxLL:ur:">boundingBoxLL:ur:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/center">center</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/centroid:">centroid:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/clipToGrid:">clipToGrid:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/deepCopy">deepCopy</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithAreal:numCoords:attributes:">initWithAreal:numCoords:attributes:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithLineString:numCoords:attributes:">initWithLineString:numCoords:attributes:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithPoint:attributes:">initWithPoint:attributes:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/largestLoopCenter:mbrLL:mbrUR:">largestLoopCenter:mbrLL:mbrUR:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/linearMiddle:rot:">linearMiddle:rot:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/log">log</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/mergeVectorsFrom:">mergeVectorsFrom:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/middleCoordinate:">middleCoordinate:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/pointInAreal:">pointInAreal:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/pointNearLinear:distance:inViewController:">pointNearLinear:distance:inViewController:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/splitVectors">splitVectors</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/subdivideToGlobe:">subdivideToGlobe:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/subdivideToGlobeGreatCircle:">subdivideToGlobeGreatCircle:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/tesselate">tesselate</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/vectorType">vectorType</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/writeToFile:">writeToFile:</a></span></li>
+	
+</ul></li>
+
+
+			</ul>
+		</nav>
+		<article>
+			<div id="contents" class="isShowingTOC" role="main">
+				<a title="MaplyVectorObject Class Reference" name="top"></a>
+				<div class="main-navigation navigation-top">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="header">
+					<div class="section-header">
+						<h1 class="title title-header">MaplyVectorObject Class Reference</h1>
+					</div>		
+				</div>
+				<div id="container">	
+					
+					<div class="section section-specification"><table cellspacing="0"><tbody>
+						<tr>
+	<td class="specification-title">Inherits from</td>
+	<td class="specification-value">NSObject</td>
+</tr><tr>
+	<td class="specification-title">Declared in</td>
+	<td class="specification-value">MaplyVectorObject.h</td>
+</tr>
+						</tbody></table></div>
+					
+                    
+                    
+					
+					<div class="section section-overview">
+						<a title="Overview" name="overview"></a>
+						<h2 class="subtitle subtitle-overview">Overview</h2>
+						<p>The Vector Object can hold several vector features of the same or different types.  It&rsquo;s meant to be a fairly opaque structure, often read from GeoJSON or Shapefiles.  It&rsquo;s less opaque than originally planned, however, and sports a number of specific methods.</p><p>If you&rsquo;re doing real vector manipulation, it&rsquo;s best to do it somewhere else and then create one of these as needed for display.</p><p>Vector Objects can be created directly or read from a <a href="../Classes/MaplyVectorDatabase.html">MaplyVectorDatabase</a>.  They are typically then displayed on top of a <a href="../Classes/MaplyViewController.html">MaplyViewController</a> or <a href="../Classes/WhirlyGlobeViewController.html">WhirlyGlobeViewController</a> as vectors.</p><p>Vector Objects vertices are always in geographic, with longitude = x and latitude = y.</p>
+					</div>
+					
+					
+					
+					
+					
+					<div class="section section-tasks">
+						<a title="Tasks" name="tasks"></a>
+						<h2 class="subtitle subtitle-tasks">Tasks</h2>
+						
+						
+						
+						
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/userObject">&nbsp;&nbsp;userObject</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/selectable">&nbsp;&nbsp;selectable</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/attributes">&nbsp;&nbsp;attributes</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/VectorObjectFromGeoJSON:">+&nbsp;VectorObjectFromGeoJSON:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/VectorObjectFromGeoJSONApple:">+&nbsp;VectorObjectFromGeoJSONApple:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/VectorObjectFromGeoJSONDictionary:">+&nbsp;VectorObjectFromGeoJSONDictionary:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/VectorObjectFromFile:">+&nbsp;VectorObjectFromFile:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/VectorObjectFromShapeFile:">+&nbsp;VectorObjectFromShapeFile:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/VectorObjectsFromGeoJSONAssembly:">+&nbsp;VectorObjectsFromGeoJSONAssembly:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/initWithPoint:attributes:">&ndash;&nbsp;initWithPoint:attributes:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/initWithLineString:numCoords:attributes:">&ndash;&nbsp;initWithLineString:numCoords:attributes:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/initWithAreal:numCoords:attributes:">&ndash;&nbsp;initWithAreal:numCoords:attributes:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/writeToFile:">&ndash;&nbsp;writeToFile:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/deepCopy">&ndash;&nbsp;deepCopy</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/log">&ndash;&nbsp;log</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/addHole:numCoords:">&ndash;&nbsp;addHole:numCoords:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/vectorType">&ndash;&nbsp;vectorType</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/pointInAreal:">&ndash;&nbsp;pointInAreal:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/pointNearLinear:distance:inViewController:">&ndash;&nbsp;pointNearLinear:distance:inViewController:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/center">&ndash;&nbsp;center</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/mergeVectorsFrom:">&ndash;&nbsp;mergeVectorsFrom:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/linearMiddle:rot:">&ndash;&nbsp;linearMiddle:rot:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/middleCoordinate:">&ndash;&nbsp;middleCoordinate:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/largestLoopCenter:mbrLL:mbrUR:">&ndash;&nbsp;largestLoopCenter:mbrLL:mbrUR:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/centroid:">&ndash;&nbsp;centroid:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/boundingBoxLL:ur:">&ndash;&nbsp;boundingBoxLL:ur:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/asCLLocationArrays">&ndash;&nbsp;asCLLocationArrays</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/asNumbers">&ndash;&nbsp;asNumbers</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/splitVectors">&ndash;&nbsp;splitVectors</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/subdivideToGlobe:">&ndash;&nbsp;subdivideToGlobe:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/subdivideToGlobeGreatCircle:">&ndash;&nbsp;subdivideToGlobeGreatCircle:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/tesselate">&ndash;&nbsp;tesselate</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/clipToGrid:">&ndash;&nbsp;clipToGrid:</a></code>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+					</div>
+					
+					
+					
+					
+					
+					<div class="section section-methods">
+						<a title="Properties" name="properties"></a>
+						<h2 class="subtitle subtitle-methods">Properties</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/attributes" title="attributes"></a>
+	<h3 class="subsubtitle method-title">attributes</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Return the attributes for the vector object.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, readonly) NSMutableDictionary *attributes</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>All vectors should have some set of attribution.  If there&rsquo;s more than one vector feature here, we&rsquo;ll return the attributes on the first one.</p><p>The attribution is returned as an NSDictionary and, though you can modify it, you probably shouldn&rsquo;t.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/selectable" title="selectable"></a>
+	<h3 class="subsubtitle method-title">selectable</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Turn this off to make this vector invisible to selection.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) bool selectable</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>On by default.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/userObject" title="userObject"></a>
+	<h3 class="subsubtitle method-title">userObject</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>NSObject set by the user for their tracking, usually through selection.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, strong) NSObject *userObject</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is a strong references to an NSObject the developer can assign.  It&rsquo;ll show up again during selection, for example, wllowing you to figure out what a given object means to you.</p><p>nil by default.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
+					
+					
+					<div class="section section-methods">
+						<a title="Class Methods" name="class_methods"></a>
+						<h2 class="subtitle subtitle-methods">Class Methods</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/VectorObjectFromFile:" title="VectorObjectFromFile:"></a>
+	<h3 class="subsubtitle method-title">VectorObjectFromFile:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Read vector objects from the given cache file.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (MaplyVectorObject *)VectorObjectFromFile:(NSString *)<em>fileName</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>fileName</em></dt>
+			<dd><p>Name of the binary vector file.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>The vector object(s) read from the file or nil on failure.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>MaplyVectorObject&rsquo;s can be written and read from a binary file.  We use this for caching data locally on the device.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/VectorObjectFromGeoJSON:" title="VectorObjectFromGeoJSON:"></a>
+	<h3 class="subsubtitle method-title">VectorObjectFromGeoJSON:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Parse vector data from geoJSON.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (MaplyVectorObject *)VectorObjectFromGeoJSON:(NSData *)<em>geoJSON</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses the faster JSON parser.</p><p>We assume the geoJSON is all in decimal degrees in WGS84.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/VectorObjectFromGeoJSONApple:" title="VectorObjectFromGeoJSONApple:"></a>
+	<h3 class="subsubtitle method-title">VectorObjectFromGeoJSONApple:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Parse vector data from geoJSON.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (MaplyVectorObject *)VectorObjectFromGeoJSONApple:(NSData *)<em>geoJSON</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses slower JSON parser.</p><p>We assume the geoJSON is all in decimal degrees in WGS84.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/VectorObjectFromGeoJSONDictionary:" title="VectorObjectFromGeoJSONDictionary:"></a>
+	<h3 class="subsubtitle method-title">VectorObjectFromGeoJSONDictionary:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Parse vector data from geoJSON.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (MaplyVectorObject *)VectorObjectFromGeoJSONDictionary:(NSDictionary *)<em>geoJSON</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Returns one object to represent the whole thing, which might include multiple different vectors.  This version parses its data from an NSDictionary, which had to be parsed from JSON at some point.  Probably the slower path.</p><p>We assume the geoJSON is all in decimal degrees in WGS84.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/VectorObjectFromShapeFile:" title="VectorObjectFromShapeFile:"></a>
+	<h3 class="subsubtitle method-title">VectorObjectFromShapeFile:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Read vector objects from the given shapefile.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (MaplyVectorObject *)VectorObjectFromShapeFile:(NSString *)<em>fileName</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>fileName</em></dt>
+			<dd><p>The basename of the shape file.  Don&rsquo;t include the extension.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>The vector object(s) read from the file or nil on failure.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This will read all the shapes in the given shapefile into memory and return them as one MaplyVectorObject.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/VectorObjectsFromGeoJSONAssembly:" title="VectorObjectsFromGeoJSONAssembly:"></a>
+	<h3 class="subsubtitle method-title">VectorObjectsFromGeoJSONAssembly:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Parse vector objects from a JSON assembly.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>+ (NSDictionary *)VectorObjectsFromGeoJSONAssembly:(NSData *)<em>geoJSON</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This version can deal with non-compliant assemblies returned by the experimental OSM server</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
+					
+					
+					<div class="section section-methods">
+						<a title="Instance Methods" name="instance_methods"></a>
+						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/addHole:numCoords:" title="addHole:numCoords:"></a>
+	<h3 class="subsubtitle method-title">addHole:numCoords:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Add a hole to an existing feature.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)addHole:(MaplyCoordinate *)<em>coords</em> numCoords:(int)<em>numCoords</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This method is expecting to find exactly one areal feature.  If it finds one, it will add the given hole as a loop on the end of the list of loops.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/asCLLocationArrays" title="asCLLocationArrays"></a>
+	<h3 class="subsubtitle method-title">asCLLocationArrays</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Convert a feature to an NSArray of NSArrays of CLLocation points.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (NSArray *)asCLLocationArrays</code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Returns an NSArray of NSArray&rsquo;s which then contain CLLocation points.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is intended for areal features.  It will convert those coordinates to CLLocation values and return them.  Obviously this is intended for things that need CLLocation values.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/asNumbers" title="asNumbers"></a>
+	<h3 class="subsubtitle method-title">asNumbers</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Return the data as an NSArray of NSNumbers.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (NSArray *)asNumbers</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If this is a linear, we&rsquo;ll return the points as an NSArray of NSNumbers.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/boundingBoxLL:ur:" title="boundingBoxLL:ur:"></a>
+	<h3 class="subsubtitle method-title">boundingBoxLL:ur:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Calculate the bounding box of all the features in this vector object.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)boundingBoxLL:(MaplyCoordinate *)<em>ll</em> ur:(MaplyCoordinate *)<em>ur</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/center" title="center"></a>
+	<h3 class="subsubtitle method-title">center</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Calculate the center of the entire set of vectors in this object.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (MaplyCoordinate)center</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/centroid:" title="centroid:"></a>
+	<h3 class="subsubtitle method-title">centroid:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Calculate the centroid of the largest loop in the areal feature.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)centroid:(MaplyCoordinate *)<em>centroid</em></code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Returns false if there was no loop (probably wasn&rsquo;t an areal).</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The centroid is a better <a href="#//api/name/center">center</a> for label placement than the middle of the largest loop as calculated by <a href="#//api/name/largestLoopCenter:mbrLL:mbrUR:">largestLoopCenter:mbrLL:mbrUR:</a></p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/clipToGrid:" title="clipToGrid:"></a>
+	<h3 class="subsubtitle method-title">clipToGrid:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Clip the given (presumably areal) feature(s) to a grid in radians of the given size.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (MaplyVectorObject *)clipToGrid:(CGSize)<em>gridSize</em></code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>New areal features broken up along the grid.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This will run through the loops in the input vectors and clip them against a grid.  The grid size is given in radians.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/deepCopy" title="deepCopy"></a>
+	<h3 class="subsubtitle method-title">deepCopy</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Make a deep copy of the vector object and return it.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (MaplyVectorObject *)deepCopy</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This makes a complete copy of the vector object, with all features and nothing shared.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/initWithAreal:numCoords:attributes:" title="initWithAreal:numCoords:attributes:"></a>
+	<h3 class="subsubtitle method-title">initWithAreal:numCoords:attributes:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Inintialize as an areal feature.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (id)initWithAreal:(MaplyCoordinate *)<em>coords</em> numCoords:(int)<em>numCoords</em> attributes:(NSDictionary *)<em>attr</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This version takes an array of coordinates, the size of that array and the attribution.  With this it will make a single area feature with one (exterior) loop.  To add loops, call <a href="#//api/name/addHole:numCoords:">addHole:numCoords:</a></p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/initWithLineString:numCoords:attributes:" title="initWithLineString:numCoords:attributes:"></a>
+	<h3 class="subsubtitle method-title">initWithLineString:numCoords:attributes:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Initialize with a linear feature.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (id)initWithLineString:(MaplyCoordinate *)<em>coords</em> numCoords:(int)<em>numCoords</em> attributes:(NSDictionary *)<em>attr</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This version takes an array of coordinates, the size of that array and the attribution.  With this it will make a linear feature.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/initWithPoint:attributes:" title="initWithPoint:attributes:"></a>
+	<h3 class="subsubtitle method-title">initWithPoint:attributes:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Initialize with a single data point and attribution.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (id)initWithPoint:(MaplyCoordinate *)<em>coord</em> attributes:(NSDictionary *)<em>attr</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This version takes a single coordinate and the <a href="#//api/name/attributes">attributes</a> to go with it.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/largestLoopCenter:mbrLL:mbrUR:" title="largestLoopCenter:mbrLL:mbrUR:"></a>
+	<h3 class="subsubtitle method-title">largestLoopCenter:mbrLL:mbrUR:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Calculate the <a href="#//api/name/center">center</a> and extents of the largest loop in an areal feature.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)largestLoopCenter:(MaplyCoordinate *)<em>center</em> mbrLL:(MaplyCoordinate *)<em>ll</em> mbrUR:(MaplyCoordinate *)<em>ur</em></code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Returns false if there was no loop (i.e. probably isn&rsquo;t an areal)</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The vector object contains a number of half baked geometric queries, this being one of them.</p><p>If this vector contains at least one areal feature, we&rsquo;ll determine which loop is the largest and return the <a href="#//api/name/center">center</a> of that loop, as well as its bounding box.</p><p>Why?  Think label placement on an areal feature.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/linearMiddle:rot:" title="linearMiddle:rot:"></a>
+	<h3 class="subsubtitle method-title">linearMiddle:rot:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>For a linear feature, calculate the mid oint and rotation at that point.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)linearMiddle:(MaplyCoordinate *)<em>middle</em> rot:(double *)<em>rot</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The vector object contains a number of half baked geometric queries, this being one of them.</p><p>This finds the middle (as measured by distance) of a linear feature and then calculations an angle corresponding to the line segment that middle sits in.</p><p>Why?  Think label road placement.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/log" title="log"></a>
+	<h3 class="subsubtitle method-title">log</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Dump the feature(s) out as text</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (NSString *)log</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This will write each feature out as text for debugging.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/mergeVectorsFrom:" title="mergeVectorsFrom:"></a>
+	<h3 class="subsubtitle method-title">mergeVectorsFrom:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Copy the vectors in the given vector object into this one.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)mergeVectorsFrom:(MaplyVectorObject *)<em>otherVec</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/middleCoordinate:" title="middleCoordinate:"></a>
+	<h3 class="subsubtitle method-title">middleCoordinate:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>return the middle coordinate in a line feature.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)middleCoordinate:(MaplyCoordinate *)<em>middle</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/pointInAreal:" title="pointInAreal:"></a>
+	<h3 class="subsubtitle method-title">pointInAreal:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Run a point in polygon test on all the areal features within the object.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)pointInAreal:(MaplyCoordinate)<em>coord</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>We&rsquo;ll run a point in polygon test on all the areal features within the vector object.  If the point is within one of them, we return true, otherwise false.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/pointNearLinear:distance:inViewController:" title="pointNearLinear:distance:inViewController:"></a>
+	<h3 class="subsubtitle method-title">pointNearLinear:distance:inViewController:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Test if any linear feature is within distance of coord</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)pointNearLinear:(MaplyCoordinate)<em>coord</em> distance:(float)<em>maxDistance</em> inViewController:(MaplyBaseViewController *)<em>vc</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/splitVectors" title="splitVectors"></a>
+	<h3 class="subsubtitle method-title">splitVectors</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Split up ths feature into individual features and return an array of them.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (NSArray *)splitVectors</code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An NSArray of MaplyVectorObject.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>A vector object can represent multiple features with no real rhyme or reason to it.  This method will make one vector object per feature, allowing you to operate on those individually.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/subdivideToGlobe:" title="subdivideToGlobe:"></a>
+	<h3 class="subsubtitle method-title">subdivideToGlobe:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Subdivide the edges in this feature to a given tolerance.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)subdivideToGlobe:(float)<em>epsilon</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This will break up long edges in a vector until they lie flat on a globe to a given epsilon.  The epislon is in display coordinates (radius = 1.0). This routine breaks this up along geographic boundaries.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/subdivideToGlobeGreatCircle:" title="subdivideToGlobeGreatCircle:"></a>
+	<h3 class="subsubtitle method-title">subdivideToGlobeGreatCircle:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Subdivide the edges in this feature to a given tolerance, using great circle math.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)subdivideToGlobeGreatCircle:(float)<em>epsilon</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This will break up long edges in a vector until they lie flat on a globe to a given epsilon using a great circle route.  The epsilon is in display coordinates (radius = 1.0).</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/tesselate" title="tesselate"></a>
+	<h3 class="subsubtitle method-title">tesselate</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Tesselate the areal geometry in this vector object and return triangles.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (MaplyVectorObject *)tesselate</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This will attempt to tesselate the areals (with holes) and turn them into triangles.  No attribution will be assigned to the new triangles, so be aware.  The tesselator is the GLU based one and does a decent job.  Odds are if there&rsquo;s something wrong it&rsquo;s in the input data.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/vectorType" title="vectorType"></a>
+	<h3 class="subsubtitle method-title">vectorType</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Returns the type of the vector feature.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (MaplyVectorObjectType)vectorType</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This method returns the type of the vector.  Since vector objects can contain multiple types of vectors at once, this is somewhat complicated.</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">Type </th>
+<th align="center"> Description </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">MaplyVectorNoneType </td>
+<td align="center"> There are no features in this object. </td>
+</tr>
+<tr>
+<td align="left">MaplyVectorPointType </td>
+<td align="center"> There are only points (and multi-points) in the object. </td>
+</tr>
+<tr>
+<td align="left">MaplyVectorLinearType </td>
+<td align="center"> There are only linear features in the object. </td>
+</tr>
+<tr>
+<td align="left">MaplyVectorArealType </td>
+<td align="center"> There are only areal features in the object. </td>
+</tr>
+<tr>
+<td align="left">MaplyVectorMultiType </td>
+<td align="center"> There are multiple features of different types in the object. </td>
+</tr>
+</tbody>
+</table>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/writeToFile:" title="writeToFile:"></a>
+	<h3 class="subsubtitle method-title">writeToFile:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Write the vector object to the given file on the device.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)writeToFile:(NSString *)<em>fileName</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>fileName</em></dt>
+			<dd><p>The file to read the vector data from.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Returns true on succes, false on failure.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>We support a binary format for caching vector data.  Typically you write these files on the device or in the simulator and then put them in a place you can easily find them when needed.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
+					
+                    
+                    
+				</div>
+				<div class="main-navigation navigation-bottom">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="footer">
+					<hr />
+					<div class="footer-copyright">
+						<p><span class="copyright">&copy; 2014 mousebird consulting inc. All rights reserved. (Last updated: 2014-07-09)</span><br />
+						
+						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2 (build 961)</a>.</span></p>
+						
+					</div>
+				</div>
+			</div>
+		</article>
+		<script type="text/javascript">
+			function jumpToChange()
+			{
+				window.location.hash = this.options[this.selectedIndex].value;
+			}
+			
+			function toggleTOC()
+			{
+				var contents = document.getElementById('contents');
+				var tocContainer = document.getElementById('tocContainer');
+				
+				if (this.getAttribute('class') == 'open')
+				{
+					this.setAttribute('class', '');
+					contents.setAttribute('class', '');
+					tocContainer.setAttribute('class', '');
+					
+					window.name = "hideTOC";
+				}
+				else
+				{
+					this.setAttribute('class', 'open');
+					contents.setAttribute('class', 'isShowingTOC');
+					tocContainer.setAttribute('class', 'isShowingTOC');
+					
+					window.name = "";
+				}
+				return false;
+			}
+			
+			function toggleTOCEntryChildren(e)
+			{
+				e.stopPropagation();
+				var currentClass = this.getAttribute('class');
+				if (currentClass == 'children') {
+					this.setAttribute('class', 'children open');
+				}
+				else if (currentClass == 'children open') {
+					this.setAttribute('class', 'children');
+				}
+				return false;
+			}
+			
+			function tocEntryClick(e)
+			{
+				e.stopPropagation();
+				return true;
+			}
+			
+			function init()
+			{
+				var selectElement = document.getElementById('jumpTo');
+				selectElement.addEventListener('change', jumpToChange, false);
+				
+				var tocButton = document.getElementById('table_of_contents');
+				tocButton.addEventListener('click', toggleTOC, false);
+				
+				var taskTreeItem = document.getElementById('task_treeitem');
+				if (taskTreeItem.getElementsByTagName('li').length > 0)
+				{
+					taskTreeItem.setAttribute('class', 'children');
+					taskTreeItem.firstChild.setAttribute('class', 'disclosure');
+				}
+				
+				var tocList = document.getElementById('toc');
+				
+				var tocEntries = tocList.getElementsByTagName('li');
+				for (var i = 0; i < tocEntries.length; i++) {
+					tocEntries[i].addEventListener('click', toggleTOCEntryChildren, false);
+				}
+				
+				var tocLinks = tocList.getElementsByTagName('a');
+				for (var i = 0; i < tocLinks.length; i++) {
+					tocLinks[i].addEventListener('click', tocEntryClick, false);
+				}
+				
+				if (window.name == "hideTOC") {
+					toggleTOC.call(tocButton);
+				}
+			}
+			
+			window.onload = init;
+			
+			// If showing in Xcode, hide the TOC and Header
+			if (navigator.userAgent.match(/xcode/i)) {
+				document.getElementById("contents").className = "hideInXcode"
+				document.getElementById("tocContainer").className = "hideInXcode"
+				document.getElementById("top_header").className = "hideInXcode"
+			}
+			
+		</script>
+	</body>
+</html>

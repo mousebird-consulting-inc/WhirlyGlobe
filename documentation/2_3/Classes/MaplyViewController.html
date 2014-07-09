@@ -1,0 +1,2065 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
+		<title>MaplyViewController Class Reference</title>
+		<meta id="xcode-display" name="xcode-display" content="render"/>
+		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
+		<link rel="stylesheet" type="text/css" media="print" href="../css/stylesPrint.css" />
+		<meta name="generator" content="appledoc 2.2 (build 961)" />
+	</head>
+	<body>
+		<header id="top_header">
+			<div id="library" class="hideInXcode">
+				<h1><a id="libraryTitle" href="../index.html">WhirlyGlobe-Maply </a></h1>
+				<a id="developerHome" href="../index.html">mousebird consulting inc</a>
+			</div>
+			
+			<div id="title" role="banner">
+				<h1 class="hideInXcode">MaplyViewController Class Reference</h1>
+			</div>
+			<ul id="headerButtons" role="toolbar">
+				<li id="toc_button">
+					<button aria-label="Show Table of Contents" role="checkbox" class="open" id="table_of_contents"><span class="disclosure"></span>Table of Contents</button>
+				</li>
+				<li id="jumpto_button" role="navigation">
+					<select id="jumpTo">
+	<option value="top">Jump To&#133;</option>
+	
+	<option value="overview">Overview</option>
+	
+	
+	
+	
+	<option value="tasks">Tasks</option>
+	
+	
+	
+	
+	
+	<option value="properties">Properties</option>
+	
+	<option value="//api/name/autoMoveToTap">&nbsp;&nbsp;&nbsp;&nbsp;autoMoveToTap</option>
+	
+	<option value="//api/name/coordSys">&nbsp;&nbsp;&nbsp;&nbsp;coordSys</option>
+	
+	<option value="//api/name/delegate">&nbsp;&nbsp;&nbsp;&nbsp;delegate</option>
+	
+	<option value="//api/name/displayCenter">&nbsp;&nbsp;&nbsp;&nbsp;displayCenter</option>
+	
+	<option value="//api/name/doubleTapDragGesture">&nbsp;&nbsp;&nbsp;&nbsp;doubleTapDragGesture</option>
+	
+	<option value="//api/name/doubleTapZoomGesture">&nbsp;&nbsp;&nbsp;&nbsp;doubleTapZoomGesture</option>
+	
+	<option value="//api/name/flatMode">&nbsp;&nbsp;&nbsp;&nbsp;flatMode</option>
+	
+	<option value="//api/name/heading">&nbsp;&nbsp;&nbsp;&nbsp;heading</option>
+	
+	<option value="//api/name/height">&nbsp;&nbsp;&nbsp;&nbsp;height</option>
+	
+	<option value="//api/name/panGesture">&nbsp;&nbsp;&nbsp;&nbsp;panGesture</option>
+	
+	<option value="//api/name/pinchGesture">&nbsp;&nbsp;&nbsp;&nbsp;pinchGesture</option>
+	
+	<option value="//api/name/rotateGesture">&nbsp;&nbsp;&nbsp;&nbsp;rotateGesture</option>
+	
+	<option value="//api/name/tetherView">&nbsp;&nbsp;&nbsp;&nbsp;tetherView</option>
+	
+	<option value="//api/name/tetheredMode">&nbsp;&nbsp;&nbsp;&nbsp;tetheredMode</option>
+	
+	<option value="//api/name/twoFingerTapGesture">&nbsp;&nbsp;&nbsp;&nbsp;twoFingerTapGesture</option>
+	
+	<option value="//api/name/viewWrap">&nbsp;&nbsp;&nbsp;&nbsp;viewWrap</option>
+	
+	
+	
+	
+	
+	
+	<option value="instance_methods">Instance Methods</option>
+	
+	<option value="//api/name/animateToExtentsWindowSize:contentOffset:time:">&nbsp;&nbsp;&nbsp;&nbsp;- animateToExtentsWindowSize:contentOffset:time:</option>
+	
+	<option value="//api/name/animateToPosition:onScreen:time:">&nbsp;&nbsp;&nbsp;&nbsp;- animateToPosition:onScreen:time:</option>
+	
+	<option value="//api/name/animateToPosition:time:">&nbsp;&nbsp;&nbsp;&nbsp;- animateToPosition:time:</option>
+	
+	<option value="//api/name/findHeightToViewBounds:pos:">&nbsp;&nbsp;&nbsp;&nbsp;- findHeightToViewBounds:pos:</option>
+	
+	<option value="//api/name/geoFromScreenPoint:">&nbsp;&nbsp;&nbsp;&nbsp;- geoFromScreenPoint:</option>
+	
+	<option value="//api/name/getCurrentExtents">&nbsp;&nbsp;&nbsp;&nbsp;- getCurrentExtents</option>
+	
+	<option value="//api/name/getPosition:height:">&nbsp;&nbsp;&nbsp;&nbsp;- getPosition:height:</option>
+	
+	<option value="//api/name/getViewExtentsLL:ur:">&nbsp;&nbsp;&nbsp;&nbsp;- getViewExtentsLL:ur:</option>
+	
+	<option value="//api/name/getZoomLimitsMin:max:">&nbsp;&nbsp;&nbsp;&nbsp;- getZoomLimitsMin:max:</option>
+	
+	<option value="//api/name/init">&nbsp;&nbsp;&nbsp;&nbsp;- init</option>
+	
+	<option value="//api/name/initAsFlatMap">&nbsp;&nbsp;&nbsp;&nbsp;- initAsFlatMap</option>
+	
+	<option value="//api/name/initAsTetheredFlatMap:tetherView:">&nbsp;&nbsp;&nbsp;&nbsp;- initAsTetheredFlatMap:tetherView:</option>
+	
+	<option value="//api/name/resetTetheredFlatMap:tetherView:">&nbsp;&nbsp;&nbsp;&nbsp;- resetTetheredFlatMap:tetherView:</option>
+	
+	<option value="//api/name/setPosition:">&nbsp;&nbsp;&nbsp;&nbsp;- setPosition:</option>
+	
+	<option value="//api/name/setPosition:height:">&nbsp;&nbsp;&nbsp;&nbsp;- setPosition:height:</option>
+	
+	<option value="//api/name/setViewExtentsLL:ur:">&nbsp;&nbsp;&nbsp;&nbsp;- setViewExtentsLL:ur:</option>
+	
+	<option value="//api/name/setZoomLimitsMin:max:">&nbsp;&nbsp;&nbsp;&nbsp;- setZoomLimitsMin:max:</option>
+	
+	
+	
+</select>
+				</li>
+			</ul>
+		</header>
+		<nav id="tocContainer" class="isShowingTOC">
+			<ul id="toc" role="tree">
+				
+<li role="treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#overview">Overview</a></span></li>
+
+
+
+
+<li role="treeitem" id="task_treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#tasks">Tasks</a></span><ul>
+	
+</ul></li>
+
+
+
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#properties">Properties</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/autoMoveToTap">autoMoveToTap</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/coordSys">coordSys</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/delegate">delegate</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/displayCenter">displayCenter</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/doubleTapDragGesture">doubleTapDragGesture</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/doubleTapZoomGesture">doubleTapZoomGesture</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/flatMode">flatMode</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/heading">heading</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/height">height</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/panGesture">panGesture</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/pinchGesture">pinchGesture</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/rotateGesture">rotateGesture</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/tetherView">tetherView</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/tetheredMode">tetheredMode</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/twoFingerTapGesture">twoFingerTapGesture</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/viewWrap">viewWrap</a></span></li>
+	
+</ul></li>
+
+
+
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/animateToExtentsWindowSize:contentOffset:time:">animateToExtentsWindowSize:contentOffset:time:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/animateToPosition:onScreen:time:">animateToPosition:onScreen:time:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/animateToPosition:time:">animateToPosition:time:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/findHeightToViewBounds:pos:">findHeightToViewBounds:pos:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/geoFromScreenPoint:">geoFromScreenPoint:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/getCurrentExtents">getCurrentExtents</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/getPosition:height:">getPosition:height:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/getViewExtentsLL:ur:">getViewExtentsLL:ur:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/getZoomLimitsMin:max:">getZoomLimitsMin:max:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/init">init</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initAsFlatMap">initAsFlatMap</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initAsTetheredFlatMap:tetherView:">initAsTetheredFlatMap:tetherView:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/resetTetheredFlatMap:tetherView:">resetTetheredFlatMap:tetherView:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setPosition:">setPosition:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setPosition:height:">setPosition:height:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setViewExtentsLL:ur:">setViewExtentsLL:ur:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setZoomLimitsMin:max:">setZoomLimitsMin:max:</a></span></li>
+	
+</ul></li>
+
+
+			</ul>
+		</nav>
+		<article>
+			<div id="contents" class="isShowingTOC" role="main">
+				<a title="MaplyViewController Class Reference" name="top"></a>
+				<div class="main-navigation navigation-top">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="header">
+					<div class="section-header">
+						<h1 class="title title-header">MaplyViewController Class Reference</h1>
+					</div>		
+				</div>
+				<div id="container">	
+					
+					<div class="section section-specification"><table cellspacing="0"><tbody>
+						<tr>
+	<td class="specification-title">Inherits from</td>
+	<td class="specification-value"><a href="../Classes/MaplyBaseViewController.html">MaplyBaseViewController</a> : UIViewController</td>
+</tr><tr>
+	<td class="specification-title">Declared in</td>
+	<td class="specification-value">MaplyViewController.h</td>
+</tr>
+						</tbody></table></div>
+					
+                    
+                    
+					
+					<div class="section section-overview">
+						<a title="Overview" name="overview"></a>
+						<h2 class="subtitle subtitle-overview">Overview</h2>
+						<p>This is the main entry point for displaying a 2D or 3D map.  Create one of these, fill it with data and let your users mess around with it.</p><p>You can display a variety of features on the map, including tile base maps (<a href="../Classes/MaplyQuadImageTilesLayer.html">MaplyQuadImageTilesLayer</a>), vectors (<a href="../Classes/MaplyVectorObject.html">MaplyVectorObject</a>), shapes (<a href="../Classes/MaplyShape.html">MaplyShape</a>), and others.  Check out the add calls in the <a href="../Classes/MaplyBaseViewController.html">MaplyBaseViewController</a> for details.</p><p>The Maply View Controller can be initialized in 3D map, 2D map mode.  The 2D mode can be tethered to a UIScrollView if you want to handle gestures that way.  That mode is very specific at the moment.</p><p>To get selection and tap callbacks, fill out the <a href="../Protocols/MaplyViewControllerDelegate.html">MaplyViewControllerDelegate</a> and assign the <a href="#//api/name/delegate">delegate</a>.</p><p>Most of the functionality is shared with <a href="../Classes/MaplyBaseViewController.html">MaplyBaseViewController</a>.  Be sure to look in there first.</p>
+					</div>
+					
+					
+					
+					
+					
+					<div class="section section-tasks">
+						<a title="Tasks" name="tasks"></a>
+						<h2 class="subtitle subtitle-tasks">Tasks</h2>
+						
+						
+						
+						
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/init">&ndash;&nbsp;init</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/initAsFlatMap">&ndash;&nbsp;initAsFlatMap</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/initAsTetheredFlatMap:tetherView:">&ndash;&nbsp;initAsTetheredFlatMap:tetherView:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/resetTetheredFlatMap:tetherView:">&ndash;&nbsp;resetTetheredFlatMap:tetherView:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/flatMode">&nbsp;&nbsp;flatMode</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/tetherView">&nbsp;&nbsp;tetherView</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/tetheredMode">&nbsp;&nbsp;tetheredMode</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/coordSys">&nbsp;&nbsp;coordSys</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/displayCenter">&nbsp;&nbsp;displayCenter</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/pinchGesture">&nbsp;&nbsp;pinchGesture</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/rotateGesture">&nbsp;&nbsp;rotateGesture</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/panGesture">&nbsp;&nbsp;panGesture</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/doubleTapZoomGesture">&nbsp;&nbsp;doubleTapZoomGesture</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/twoFingerTapGesture">&nbsp;&nbsp;twoFingerTapGesture</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/doubleTapDragGesture">&nbsp;&nbsp;doubleTapDragGesture</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/heading">&nbsp;&nbsp;heading</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/autoMoveToTap">&nbsp;&nbsp;autoMoveToTap</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/delegate">&nbsp;&nbsp;delegate</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/height">&nbsp;&nbsp;height</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/viewWrap">&nbsp;&nbsp;viewWrap</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/getViewExtentsLL:ur:">&ndash;&nbsp;getViewExtentsLL:ur:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/setViewExtentsLL:ur:">&ndash;&nbsp;setViewExtentsLL:ur:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/animateToPosition:time:">&ndash;&nbsp;animateToPosition:time:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/animateToExtentsWindowSize:contentOffset:time:">&ndash;&nbsp;animateToExtentsWindowSize:contentOffset:time:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/animateToPosition:onScreen:time:">&ndash;&nbsp;animateToPosition:onScreen:time:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/setPosition:">&ndash;&nbsp;setPosition:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/setPosition:height:">&ndash;&nbsp;setPosition:height:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/getPosition:height:">&ndash;&nbsp;getPosition:height:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/getZoomLimitsMin:max:">&ndash;&nbsp;getZoomLimitsMin:max:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/setZoomLimitsMin:max:">&ndash;&nbsp;setZoomLimitsMin:max:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/geoFromScreenPoint:">&ndash;&nbsp;geoFromScreenPoint:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/findHeightToViewBounds:pos:">&ndash;&nbsp;findHeightToViewBounds:pos:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/getCurrentExtents">&ndash;&nbsp;getCurrentExtents</a></code>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+					</div>
+					
+					
+					
+					
+					
+					<div class="section section-methods">
+						<a title="Properties" name="properties"></a>
+						<h2 class="subtitle subtitle-methods">Properties</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/autoMoveToTap" title="autoMoveToTap"></a>
+	<h3 class="subsubtitle method-title">autoMoveToTap</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>If set, we&rsquo;ll automatically move to wherever the user tapped.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) bool autoMoveToTap</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>When on we&rsquo;ll move the current location to wherever the user tapped if they tapped the globe.  That&rsquo;s true for selection as well.  On by default.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/coordSys" title="coordSys"></a>
+	<h3 class="subsubtitle method-title">coordSys</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Set the coordinate system to use in display.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) MaplyCoordinateSystem *coordSys</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The coordinate system needs to be valid in flat mode.  The extents, if present, will be used to define the coordinate system origin.</p><p>nil is the default and will result in a full web style Spherical Mercator.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/delegate" title="delegate"></a>
+	<h3 class="subsubtitle method-title">delegate</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Delegate for selection and location tapping.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, weak) NSObject&lt;MaplyViewControllerDelegate&gt; *delegate</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Fill in the <a href="../Protocols/MaplyViewControllerDelegate.html">MaplyViewControllerDelegate</a> and assign it here to get callbacks for object selection and tapping.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/displayCenter" title="displayCenter"></a>
+	<h3 class="subsubtitle method-title">displayCenter</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Set the center of the display coordinate system.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) MaplyCoordinate3d displayCenter</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is (0,0,0) by default.  If you set it to something else all display coordinates will be offset from that origin.</p><p>The option is useful when displaying small maps (of a city, say) at very high resolution.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/doubleTapDragGesture" title="doubleTapDragGesture"></a>
+	<h3 class="subsubtitle method-title">doubleTapDragGesture</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Turn on the double tap and drag gesture to zoom in and out.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) bool doubleTapDragGesture</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>On by default.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/doubleTapZoomGesture" title="doubleTapZoomGesture"></a>
+	<h3 class="subsubtitle method-title">doubleTapZoomGesture</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Turn the double tap to zoom gesture recognizer on and off</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) bool doubleTapZoomGesture</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>On by default.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/flatMode" title="flatMode"></a>
+	<h3 class="subsubtitle method-title">flatMode</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Set if we&rsquo;re in 2D mode.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, readonly) bool flatMode</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/heading" title="heading"></a>
+	<h3 class="subsubtitle method-title">heading</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The current rotation away from north.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) float heading</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/height" title="height"></a>
+	<h3 class="subsubtitle method-title">height</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Current height above terrain.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) float height</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>In 3D map mode this is the height from which the user is viewing the map.  Maps are usually -PI to +PI along their horizontal edges.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/panGesture" title="panGesture"></a>
+	<h3 class="subsubtitle method-title">panGesture</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Turn the pan gesture on and off</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) bool panGesture</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Pan gesture is on by default</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/pinchGesture" title="pinchGesture"></a>
+	<h3 class="subsubtitle method-title">pinchGesture</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Turn the pinch (zoom) gesture recognizer on and off</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) bool pinchGesture</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>On by default.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/rotateGesture" title="rotateGesture"></a>
+	<h3 class="subsubtitle method-title">rotateGesture</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Turn the rotate gesture recognizer on and off</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) bool rotateGesture</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>On by default.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/tetherView" title="tetherView"></a>
+	<h3 class="subsubtitle method-title">tetherView</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>If we&rsquo;re in tethered flat map mode, this is the view we&rsquo;re monitoring for size and offset changes.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, weak) UIView *tetherView</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/tetheredMode" title="tetheredMode"></a>
+	<h3 class="subsubtitle method-title">tetheredMode</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>If set before startup (after <a href="#//api/name/init">init</a>), we&rsquo;ll turn off all gestures and work only in tethered mode.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) bool tetheredMode</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/twoFingerTapGesture" title="twoFingerTapGesture"></a>
+	<h3 class="subsubtitle method-title">twoFingerTapGesture</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Turn the 2 finger tap to zoom out gesture recognizer on and off</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) bool twoFingerTapGesture</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>On by default.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/viewWrap" title="viewWrap"></a>
+	<h3 class="subsubtitle method-title">viewWrap</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>2D visual views can do some simple wrapping.  This turns that on and off (off by default).</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) bool viewWrap</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>On some 2D visual views we&rsquo;re allowed to wrap across the edge of the world.  This will attempt to do that.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
+					
+					
+					
+					
+					<div class="section section-methods">
+						<a title="Instance Methods" name="instance_methods"></a>
+						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/animateToExtentsWindowSize:contentOffset:time:" title="animateToExtentsWindowSize:contentOffset:time:"></a>
+	<h3 class="subsubtitle method-title">animateToExtentsWindowSize:contentOffset:time:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Animate to new window extents over time.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)animateToExtentsWindowSize:(CGSize)<em>windowSize</em> contentOffset:(CGPoint)<em>contentOffset</em> time:(NSTimeInterval)<em>howLong</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>windowSize</em></dt>
+			<dd><p>The new window size we&rsquo;re matching.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>contentOffset</em></dt>
+			<dd><p>The contentOffset from the UIScrollView.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>howLong</em></dt>
+			<dd><p>The length of time to take getting there.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This method is similar to <a href="#//api/name/animateToPosition:time:">animateToPosition:time:</a> but only works in 2D flat map mode.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/animateToPosition:onScreen:time:" title="animateToPosition:onScreen:time:"></a>
+	<h3 class="subsubtitle method-title">animateToPosition:onScreen:time:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Animate the given position to the screen position over time.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)animateToPosition:(MaplyCoordinate)<em>newPos</em> onScreen:(CGPoint)<em>loc</em> time:(NSTimeInterval)<em>howLong</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>newPos</em></dt>
+			<dd><p>The geographic position (lon/lat in radians) to move to.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>loc</em></dt>
+			<dd><p>The location on the screen where we&rsquo;d like it to go.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>howLong</em></dt>
+			<dd><p>How long in seconds to take getting there.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is similar to <a href="#//api/name/animateToPosition:time:">animateToPosition:time:</a> except that it will attempt to match up the screen position and the geographic position.  This is how you offset the location you&rsquo;re looking at.</p><p>If it&rsquo;s impossible to move newPos to loc, then nothing happens.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/animateToPosition:time:" title="animateToPosition:time:"></a>
+	<h3 class="subsubtitle method-title">animateToPosition:time:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Animate to the given position over time.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)animateToPosition:(MaplyCoordinate)<em>newPos</em> time:(NSTimeInterval)<em>howLong</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>newPos</em></dt>
+			<dd><p>A coordinate in geographic (lon/lat radians)</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>howLong</em></dt>
+			<dd><p>A time in seconds.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/findHeightToViewBounds:pos:" title="findHeightToViewBounds:pos:"></a>
+	<h3 class="subsubtitle method-title">findHeightToViewBounds:pos:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Find a <a href="#//api/name/height">height</a> that shows the given bounding box.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (float)findHeightToViewBounds:(MaplyBoundingBox *)<em>bbox</em> pos:(MaplyCoordinate)<em>pos</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>pos</em></dt>
+			<dd><p>Where the view will be looking.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>The</em></dt>
+			<dd><p>bounding box (in radians) we&rsquo;re trying to view.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This method will search for a <a href="#//api/name/height">height</a> that shows the given bounding box within the view.  The search is inefficient, so don&rsquo;t call this a lot.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/geoFromScreenPoint:" title="geoFromScreenPoint:"></a>
+	<h3 class="subsubtitle method-title">geoFromScreenPoint:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Return the geographic (lon/lat radians) coordinate in radians for a given screen point.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (MaplyCoordinate)geoFromScreenPoint:(CGPoint)<em>point</em></code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Returns the geo coordinate corresponding to a given screen point in radians.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/getCurrentExtents" title="getCurrentExtents"></a>
+	<h3 class="subsubtitle method-title">getCurrentExtents</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Return the extents of the current view</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (MaplyBoundingBox)getCurrentExtents</code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Returns the Bounding Box (in radians) corresponding to the current view</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/getPosition:height:" title="getPosition:height:"></a>
+	<h3 class="subsubtitle method-title">getPosition:height:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Return the current center position and <a href="#//api/name/height">height</a>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)getPosition:(MaplyCoordinate *)<em>pos</em> height:(float *)<em>height</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>pos</em></dt>
+			<dd><p>The center of the screen in geographic (lon/lat in radians).</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>height</em></dt>
+			<dd><p>The current view point&rsquo;s <a href="#//api/name/height">height</a> above the map.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/getViewExtentsLL:ur:" title="getViewExtentsLL:ur:"></a>
+	<h3 class="subsubtitle method-title">getViewExtentsLL:ur:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The box the view point can be in.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)getViewExtentsLL:(MaplyCoordinate *)<em>ll</em> ur:(MaplyCoordinate *)<em>ur</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box.  Coordinates are in geographic (radians).</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/getZoomLimitsMin:max:" title="getZoomLimitsMin:max:"></a>
+	<h3 class="subsubtitle method-title">getZoomLimitsMin:max:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Return the zoom limits for 3D map mode.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)getZoomLimitsMin:(float *)<em>minHeight</em> max:(float *)<em>maxHeight</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>minHeight</em></dt>
+			<dd><p>The closest a viewer is allowed to get to the map surface.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>maxHeight</em></dt>
+			<dd><p>The farthest away a viewer is allowed to get from the map surface.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/init" title="init"></a>
+	<h3 class="subsubtitle method-title">init</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Initialize as a 3D map.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (id)init</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/initAsFlatMap" title="initAsFlatMap"></a>
+	<h3 class="subsubtitle method-title">initAsFlatMap</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Initialize as a 2D map.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (id)initAsFlatMap</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/initAsTetheredFlatMap:tetherView:" title="initAsTetheredFlatMap:tetherView:"></a>
+	<h3 class="subsubtitle method-title">initAsTetheredFlatMap:tetherView:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Initialize as a 2D map tied to a UIScrollView.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (id)initAsTetheredFlatMap:(UIScrollView *)<em>scrollView</em> tetherView:(UIView *)<em>tetherView</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>scrollView</em></dt>
+			<dd><p>The UIScrollView to track.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>tetherView</em></dt>
+			<dd><p>If set, we assume the scroll view is manipulating a blank UIView which we&rsquo;ll watch.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>In this mode we disable all the the gestures.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/resetTetheredFlatMap:tetherView:" title="resetTetheredFlatMap:tetherView:"></a>
+	<h3 class="subsubtitle method-title">resetTetheredFlatMap:tetherView:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Reset the UIScrollView for tethered mode.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)resetTetheredFlatMap:(UIScrollView *)<em>scrollView</em> tetherView:(UIView *)<em>tetherView</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>scrollView</em></dt>
+			<dd><p>The UIScrollView to track.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>tetherView</em></dt>
+			<dd><p>If set, we assume the scroll view is manipulating a blank UIView which we&rsquo;ll watch.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Occasionally we need to reset the UIScrollView and tether view.  This will do that.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/setPosition:" title="setPosition:"></a>
+	<h3 class="subsubtitle method-title">setPosition:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Set the center of the screen to the given position immediately.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)setPosition:(MaplyCoordinate)<em>newPos</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>newPos</em></dt>
+			<dd><p>The geographic position (lon/lat in radians) to move to.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/setPosition:height:" title="setPosition:height:"></a>
+	<h3 class="subsubtitle method-title">setPosition:height:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Set the center of the screen and the <a href="#//api/name/height">height</a> offset immediately.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)setPosition:(MaplyCoordinate)<em>newPos</em> height:(float)<em>height</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>newPos</em></dt>
+			<dd><p>The geographic position (lon/lat in radians) to move to.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>height</em></dt>
+			<dd><p>Height the view point above the map.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/setViewExtentsLL:ur:" title="setViewExtentsLL:ur:"></a>
+	<h3 class="subsubtitle method-title">setViewExtentsLL:ur:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The box the view point can be in.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)setViewExtentsLL:(MaplyCoordinate)<em>ll</em> ur:(MaplyCoordinate)<em>ur</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box. Coordinates are in geographic (radians).</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/setZoomLimitsMin:max:" title="setZoomLimitsMin:max:"></a>
+	<h3 class="subsubtitle method-title">setZoomLimitsMin:max:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Set the zoom limits for 3D map mode.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)setZoomLimitsMin:(float)<em>minHeight</em> max:(float)<em>maxHeight</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>minHeight</em></dt>
+			<dd><p>The closest a viewer is allowed to get to the map surface.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>maxHeight</em></dt>
+			<dd><p>The farthest away a viewer is allowed to get from the map surface.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
+					
+                    
+                    
+				</div>
+				<div class="main-navigation navigation-bottom">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="footer">
+					<hr />
+					<div class="footer-copyright">
+						<p><span class="copyright">&copy; 2014 mousebird consulting inc. All rights reserved. (Last updated: 2014-07-09)</span><br />
+						
+						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2 (build 961)</a>.</span></p>
+						
+					</div>
+				</div>
+			</div>
+		</article>
+		<script type="text/javascript">
+			function jumpToChange()
+			{
+				window.location.hash = this.options[this.selectedIndex].value;
+			}
+			
+			function toggleTOC()
+			{
+				var contents = document.getElementById('contents');
+				var tocContainer = document.getElementById('tocContainer');
+				
+				if (this.getAttribute('class') == 'open')
+				{
+					this.setAttribute('class', '');
+					contents.setAttribute('class', '');
+					tocContainer.setAttribute('class', '');
+					
+					window.name = "hideTOC";
+				}
+				else
+				{
+					this.setAttribute('class', 'open');
+					contents.setAttribute('class', 'isShowingTOC');
+					tocContainer.setAttribute('class', 'isShowingTOC');
+					
+					window.name = "";
+				}
+				return false;
+			}
+			
+			function toggleTOCEntryChildren(e)
+			{
+				e.stopPropagation();
+				var currentClass = this.getAttribute('class');
+				if (currentClass == 'children') {
+					this.setAttribute('class', 'children open');
+				}
+				else if (currentClass == 'children open') {
+					this.setAttribute('class', 'children');
+				}
+				return false;
+			}
+			
+			function tocEntryClick(e)
+			{
+				e.stopPropagation();
+				return true;
+			}
+			
+			function init()
+			{
+				var selectElement = document.getElementById('jumpTo');
+				selectElement.addEventListener('change', jumpToChange, false);
+				
+				var tocButton = document.getElementById('table_of_contents');
+				tocButton.addEventListener('click', toggleTOC, false);
+				
+				var taskTreeItem = document.getElementById('task_treeitem');
+				if (taskTreeItem.getElementsByTagName('li').length > 0)
+				{
+					taskTreeItem.setAttribute('class', 'children');
+					taskTreeItem.firstChild.setAttribute('class', 'disclosure');
+				}
+				
+				var tocList = document.getElementById('toc');
+				
+				var tocEntries = tocList.getElementsByTagName('li');
+				for (var i = 0; i < tocEntries.length; i++) {
+					tocEntries[i].addEventListener('click', toggleTOCEntryChildren, false);
+				}
+				
+				var tocLinks = tocList.getElementsByTagName('a');
+				for (var i = 0; i < tocLinks.length; i++) {
+					tocLinks[i].addEventListener('click', tocEntryClick, false);
+				}
+				
+				if (window.name == "hideTOC") {
+					toggleTOC.call(tocButton);
+				}
+			}
+			
+			window.onload = init;
+			
+			// If showing in Xcode, hide the TOC and Header
+			if (navigator.userAgent.match(/xcode/i)) {
+				document.getElementById("contents").className = "hideInXcode"
+				document.getElementById("tocContainer").className = "hideInXcode"
+				document.getElementById("top_header").className = "hideInXcode"
+			}
+			
+		</script>
+	</body>
+</html>
