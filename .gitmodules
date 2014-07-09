@@ -40,3 +40,9 @@
 [submodule "third-party/tinyxml2"]
 	path = third-party/tinyxml2
 	url = https://github.com/leethomason/tinyxml2
+[submodule "eigen2"]
+	path = third-party/eigen
+	url = https://github.com/RLovelett/eigen
+[submodule "resources_new"]
+	path = resources
+	url = https://github.com/mousebird/wg-resources-new.git
