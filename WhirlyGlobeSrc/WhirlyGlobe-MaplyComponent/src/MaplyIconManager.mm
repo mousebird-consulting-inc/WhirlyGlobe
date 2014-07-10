@@ -54,8 +54,6 @@
         iconImage = [UIImage imageNamed:fileName];
         if (!iconImage)
         {
-            
-            
             fullName = [NSString stringWithFormat:@"%@-24@2x.png",name];
             iconImage = [UIImage imageNamed:fullName];
             if (!iconImage)
