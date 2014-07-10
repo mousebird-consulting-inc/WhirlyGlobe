@@ -126,17 +126,38 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
 
 + (UIColor *) ParseColor:(NSString *)colorStr alpha:(CGFloat)alpha
 {
-  int red = 255, green = 255, blue = 255;
-  // parse the hex
-  NSScanner *scanner = [NSScanner scannerWithString:colorStr];
-  unsigned int colorVal;
-  [scanner setScanLocation:1]; // bypass #
-  [scanner scanHexInt:&colorVal];
-  blue = colorVal & 0xFF;
-  green = (colorVal >> 8) & 0xFF;
-  red = (colorVal >> 16) & 0xFF;
-  
-  return [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha];
+    // Hex color string
+    if ([colorStr characterAtIndex:0] == '#')
+    {
+      int red = 255, green = 255, blue = 255;
+      // parse the hex
+      NSScanner *scanner = [NSScanner scannerWithString:colorStr];
+      unsigned int colorVal;
+      [scanner setScanLocation:1]; // bypass #
+      [scanner scanHexInt:&colorVal];
+      blue = colorVal & 0xFF;
+      green = (colorVal >> 8) & 0xFF;
+      red = (colorVal >> 16) & 0xFF;
+      
+      return [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha];
+    } else if ([colorStr rangeOfString:@"rgba"].location == 0)
+    {
+        NSScanner *scanner = [NSScanner scannerWithString:colorStr];
+        NSMutableCharacterSet *skipSet = [[NSMutableCharacterSet alloc] init];
+        [skipSet addCharactersInString:@"(), "];
+        [scanner setCharactersToBeSkipped:skipSet];
+        [scanner setScanLocation:5];
+        int red,green,blue;
+        [scanner scanInt:&red];
+        [scanner scanInt:&green];
+        [scanner scanInt:&blue];
+        float locAlpha;
+        [scanner scanFloat:&locAlpha];
+        
+        return [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:locAlpha*alpha];
+    }
+    
+    return [UIColor colorWithWhite:1.0 alpha:alpha];
 }
 
 - (id)initWithDirectory:(NSString *)tilesDir viewC:(MaplyBaseViewController *)viewC

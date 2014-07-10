@@ -645,6 +645,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     
     // Look for some labels
     MaplyComponentObject *labelObj = nil;
+    NSMutableArray *labels = [NSMutableArray array];
     for (MaplyVectorObject *road in [vecObj splitVectors])
     {
         MaplyCoordinate middle;
@@ -656,7 +657,6 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
         
         NSString *name = attrs[@"FULLNAME"];
         
-        NSMutableArray *labels = [NSMutableArray array];
         if (name)
         {
             MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
@@ -664,16 +664,16 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
             label.text = name;
             label.layoutImportance = 1.0;
             label.rotation = rot + M_PI/2.0;
+            label.keepUpright = true;
+            label.layoutImportance = kMaplyLayoutBelow;
             [labels addObject:label];
         }
-        
-        labelObj = [baseViewC addScreenLabels:labels desc:
-                    @{kMaplyTextOutlineSize: @(1.0),
-                      kMaplyTextOutlineColor: [UIColor blackColor],
-                      kMaplyFont: [UIFont systemFontOfSize:18.0]
-                                                            }];
     }
-    
+    labelObj = [baseViewC addScreenLabels:labels desc:
+                @{kMaplyTextOutlineSize: @(1.0),
+                  kMaplyTextOutlineColor: [UIColor blackColor],
+                  kMaplyFont: [UIFont systemFontOfSize:18.0]
+                  }];
     
     return @[lines,screenLines,realLines,labelObj];
 }
@@ -893,7 +893,7 @@ static const int NumMegaMarkers = 40000;
     {
         self.title = @"Geography Class - MBTiles Local";
         // This is the Geography Class MBTiles data set from MapBox
-        MaplyMBTileSource *tileSource = [[MaplyMBTileSource alloc] initWithMBTiles:@"geography-class"];
+        MaplyMBTileSource *tileSource = [[MaplyMBTileSource alloc] initWithMBTiles:@"geography-class_medres"];
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         baseLayer = layer;
         layer.handleEdges = (globeViewC != nil);
@@ -1170,6 +1170,7 @@ static const int NumMegaMarkers = 40000;
                 layer = weatherLayer;
                 weatherLayer.handleEdges = false;
                 [baseViewC addLayer:weatherLayer];
+                ovlLayers[layerName] = layer;
             } else if (![layerName compare:kMaplyTestForecastIO])
             {
                 // Collect up the various precipitation sources
@@ -1195,8 +1196,10 @@ static const int NumMegaMarkers = 40000;
                 precipLayer.shaderProgramName = [WeatherShader setupWeatherShader:baseViewC];
                 [baseViewC addLayer:precipLayer];
                 layer = precipLayer;
+                ovlLayers[layerName] = layer;
             } else if (![layerName compare:kMaplyTestMapboxStreets])
             {
+                self.title = @"Mapbox Vector Streets";
                 thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
                 [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"http://a.tiles.mapbox.com/v3/mapbox.mapbox-streets-v4.json"
                   style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"]

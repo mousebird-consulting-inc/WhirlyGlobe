@@ -1,18 +1,9 @@
 [submodule "third-party/shapelib"]
 	path = third-party/shapelib
 	url = https://github.com/mousebird/shapelib.git
-[submodule "third-party/clipper"]
-	path = third-party/clipper
-	url = https://github.com/trailbehind/clipper.git
 [submodule "third-party/boost"]
 	path = third-party/boost
 	url = https://github.com/mousebird/boost.git
-[submodule "third-party/eigen"]
-	path = third-party/eigen
-	url = https://github.com/mousebird/eigen.git
-[submodule "resources"]
-	path = resources
-	url = https://github.com/mousebird/wg-resources.git
 [submodule "third-party/proj-4"]
 	path = third-party/proj-4
 	url = https://github.com/mousebird/proj-4.git
@@ -40,3 +31,12 @@
 [submodule "third-party/tinyxml2"]
 	path = third-party/tinyxml2
 	url = https://github.com/leethomason/tinyxml2
+[submodule "eigen2"]
+	path = third-party/eigen
+	url = https://github.com/RLovelett/eigen
+[submodule "resources_new"]
+	path = resources
+	url = https://github.com/mousebird/wg-resources-new.git
+[submodule "clipper2"]
+	path = third-party/clipper
+	url = https://github.com/mousebird/clipper
