@@ -905,6 +905,11 @@ using namespace WhirlyKit;
 
 - (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID
 {
+    [self loadError:error forTile:tileID frame:-1];
+}
+
+- (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID frame:(int)frame
+{
     // Adjust the y back to what the system is expecting
     int y = tileID.y;
     if (!_flipY)
@@ -912,7 +917,7 @@ using namespace WhirlyKit;
         y = (1<<tileID.level)-tileID.y-1;
     }
 
-    NSArray *args = @[([NSNull null]),@(tileID.x),@(y),@(tileID.level),_tileSource];
+    NSArray *args = @[([NSNull null]),@(tileID.x),@(y),@(tileID.level),@(frame),_tileSource];
     if (super.layerThread)
     {
         if ([NSThread currentThread] == super.layerThread)
