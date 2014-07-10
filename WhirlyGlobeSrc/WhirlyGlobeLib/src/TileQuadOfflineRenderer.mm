@@ -34,7 +34,7 @@ class OfflineTile
 public:
     OfflineTile() : isLoading(false), placeholder(false) { };
     OfflineTile(const WhirlyKit::Quadtree::Identifier &ident) : ident(ident), isLoading(false), placeholder(false) { }
-    OfflineTile(std::vector<WhirlyKitLoadedImage *>loadImages) : isLoading(false), placeholder(false) { }
+    OfflineTile(const WhirlyKit::Quadtree::Identifier &ident,int numImages) : ident(ident), isLoading(false), placeholder(false) { images.resize(numImages); }
     ~OfflineTile()
     {
     }
@@ -390,7 +390,8 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
                             imageToDraw = [UIImage imageWithData:(NSData *)imageToDraw];
                         if (![imageToDraw isKindOfClass:[UIImage class]])
                         {
-                            NSLog(@"Found bad image in offline renderer.");
+                            // Note: Debugging.  Should put this back
+//                            NSLog(@"Found bad image in offline renderer.");
                             imageToDraw = nil;
                         }
                     }
@@ -529,14 +530,19 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo
 {
+    [self quadDisplayLayer:layer loadTile:tileInfo frame:-1];
+}
+
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo frame:(int)frame
+{
 //    NSLog(@"Loading tile: %d: (%d,%d)",tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y);
     
-    OfflineTile *newTile = new OfflineTile(tileInfo->ident);
+    OfflineTile *newTile = new OfflineTile(tileInfo->ident,_numImages);
     newTile->isLoading = true;
     
     tiles.insert(newTile);
     
-    [_imageSource quadTileLoader:self startFetchForLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y attrs:tileInfo->attrs];
+    [_imageSource quadTileLoader:self startFetchForLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y frame:frame attrs:tileInfo->attrs];
     numFetches++;
     somethingChanged = true;
 }
@@ -603,17 +609,22 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         for (WhirlyKitLoadedImage *loadImage in toLoad.images)
             loadImages.push_back(loadImage);
     }
-    if (_numImages != loadImages.size())
+    if ((frame == -1 && _numImages != loadImages.size()) || (frame != -1 && loadImages.size() != 1))
     {
         if (loadTile)
             NSLog(@"TileQuadLoader: Got %ld images in callback, but was expecting %d.  Punting tile.",loadImages.size(),_numImages);
-        [_quadLayer loader:self tileDidNotLoad:tileIdent];
+        [_quadLayer loader:self tileDidNotLoad:tileIdent frame:frame];
         return;
     }
-    tile->images = loadImages;
+    if (frame == -1)
+    {
+        tile->images = loadImages;
+    } else {
+        tile->images[frame] = loadImages[0];
+    }
 
-//    NSLog(@"Loaded tile %d: (%d,%d)",level,col,row);
-    [_quadLayer loader:self tileDidLoad:tileIdent];
+//    NSLog(@"Loaded tile %d: (%d,%d), frame = %d",level,col,row,frame);
+    [_quadLayer loader:self tileDidLoad:tileIdent frame:frame];
     somethingChanged = true;
 }
 

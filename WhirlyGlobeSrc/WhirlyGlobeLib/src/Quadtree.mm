@@ -45,6 +45,15 @@ bool Quadtree::NodeInfo::operator<(const NodeInfo &that) const
     return importance < that.importance;
 }
     
+int Quadtree::NodeInfo::nextFrame(int maxFrame) const
+{
+    for (unsigned int ii=0;ii<maxFrame;ii++)
+        if (!(frames & (1<<ii)))
+            return ii;
+    
+    return -1;
+}
+        
 Quadtree::Node::Node(Quadtree *tree)
 {
     parent = NULL;
@@ -274,11 +283,12 @@ void Quadtree::setPhantom(const Identifier &ident,bool newPhantom)
 {
     Node dummyNode(this);
     dummyNode.nodeInfo.ident = ident;
-    
+
+    Node *node = NULL;
     NodesByIdentType::iterator it = nodesByIdent.find(&dummyNode);
     if (it != nodesByIdent.end())
     {
-        Node *node = *it;
+        node = *it;
         bool wasPhantom = node->nodeInfo.phantom;
         node->nodeInfo.phantom = newPhantom;
         if (wasPhantom)
@@ -295,6 +305,7 @@ void Quadtree::setPhantom(const Identifier &ident,bool newPhantom)
     // Clean it out of the nodes by size if it's a phantom
     if (newPhantom)
     {
+        node->nodeInfo.frames = 0;
         if (sit != nodesBySize.end())
             nodesBySize.erase(sit);
     } else {
@@ -349,6 +360,19 @@ void Quadtree::setLoading(const Identifier &ident,bool newLoading)
     } else
         // Haven't heard of it
         return;
+}
+    
+void Quadtree::didLoad(const Identifier &tileIdent,int frame)
+{
+    Node *node = getNode(tileIdent);
+    if (!node)
+        return;
+    
+    // Note: Could make these more efficient
+    setLoading(tileIdent, false);
+    setFailed(tileIdent, false);
+    
+    node->nodeInfo.frames |= 1<<frame;
 }
     
 bool Quadtree::isEvaluating(const Identifier &ident)
