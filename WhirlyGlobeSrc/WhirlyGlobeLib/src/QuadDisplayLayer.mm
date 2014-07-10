@@ -139,10 +139,7 @@ using namespace WhirlyKit;
     numFrames = [_loader numFrames];
     if (numFrames == 1)
         canLoadFrames = false;
-    
-    // note: Debugging
-    canLoadFrames = false;
-    
+        
 //    [self performSelector:@selector(dumpInfo) withObject:nil afterDelay:15.0];
 }
 
