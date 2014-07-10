@@ -36,6 +36,7 @@ using namespace WhirlyKit;
     _textScale = 1.0;
     _markerScale = 1.0;
     _markerImportance = 2.0;
+    _markerSize = 10.0;
     _mapScaleScale = 1.0;
     _dashPatternScale = 1.0;
     _useWideVectors = true;
