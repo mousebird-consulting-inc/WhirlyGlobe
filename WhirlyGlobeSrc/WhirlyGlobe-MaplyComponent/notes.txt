@@ -1,0 +1,2 @@
+appledoc --project-name "WhirlyGlobe-Maply" --project-company "mousebird consulting inc"  --company-id "com.mousebirdconsulting" --output doc include/Maply* include/NSData* include/Mapnik* include/NSDictionary+StyleRules.h include/WGCoordinate.h include/WhirlyGlobe*
+appledoc --project-name "WhirlyGlobe-Maply" --project-company "mousebird consulting inc"  --company-id "com.mousebirdconsulting" --keep-intermediate-files --output doc include/Maply* include/NSData* include/Mapnik* include/NSDictionary+StyleRules.h include/WGCoordinate.h include/WhirlyGlobe*
