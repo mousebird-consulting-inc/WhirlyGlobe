@@ -393,6 +393,11 @@ using namespace WhirlyKit;
     return (int)localFetches.size();
 }
 
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo
+{
+    [self quadDisplayLayer:layer loadTile:tileInfo frame:-1];
+}
+
 // Ask the data source to start loading the image for this tile
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo frame:(int)frame
 {
@@ -589,22 +594,29 @@ using namespace WhirlyKit;
     if (loadingSuccess && (isPlaceholder || !loadImages.empty() || loadElev))
     {
         tile->elevData = loadElev;
-        if (tile->addToScene(tileBuilder,loadImages,frame,currentImage0,currentImage1,loadElev,changeRequests))
+        if (tile->drawId == EmptyIdentity)
         {
-            // If we have more than one image to dispay, make sure we're doing the right one
-            if (!isPlaceholder && _numImages > 1 && tileBuilder->texAtlas)
+            // Build the tile geometry
+            if (tile->addToScene(tileBuilder,loadImages,frame,currentImage0,currentImage1,loadElev,changeRequests))
             {
-                tile->setCurrentImages(tileBuilder, currentImage0, currentImage1, changeRequests);
-            }
-        } else
-            loadingSuccess = false;
+                // If we have more than one image to dispay, make sure we're doing the right one
+                if (!isPlaceholder && _numImages > 1 && tileBuilder->texAtlas)
+                {
+                    tile->setCurrentImages(tileBuilder, currentImage0, currentImage1, changeRequests);
+                }
+            } else
+                loadingSuccess = false;
+        } else {
+            // Update a texture in an existing slot
+            tile->updateTexture(tileBuilder, loadImages[0], frame, changeRequests);
+        }
     }
 
     if (loadingSuccess)
-        [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
+        [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident frame:frame];
     else {
         // Shouldn't have a visual representation, so just lose it
-        [_quadLayer loader:self tileDidNotLoad:tile->nodeInfo.ident];
+        [_quadLayer loader:self tileDidNotLoad:tile->nodeInfo.ident frame:frame];
         tileSet.erase(it);
         delete tile;
     }

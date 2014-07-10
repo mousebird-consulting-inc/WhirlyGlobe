@@ -202,11 +202,11 @@ typedef std::set<WhirlyKit::Quadtree::Identifier> QuadIdentSet;
 
 /// A loader calls this after successfully loading a tile.
 /// Must be called in the layer thread.
-- (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidLoad:(WhirlyKit::Quadtree::Identifier)tileIdent;
+- (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidLoad:(WhirlyKit::Quadtree::Identifier)tileIdent frame:(int)frame;
 
 /// Loader calls this after a failed tile load.
 /// Must be called in the layer thread.
-- (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent;
+- (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent frame:(int)frame;
 
 /// Call this to force a reload for all existing tiles
 - (void)refresh;
