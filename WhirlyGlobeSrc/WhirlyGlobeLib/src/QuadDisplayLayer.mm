@@ -59,6 +59,9 @@ using namespace WhirlyKit;
     
     // The loader can load individual frames of an animation
     bool canLoadFrames;
+    
+    // Number of frames we'll try load per tile
+    int numFrames;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES *)inRenderer;
@@ -84,6 +87,7 @@ using namespace WhirlyKit;
         _meteredMode = true;
         _fullLoad = false;
         _fullLoadTimeout = 4.0;
+        numFrames = 1;
         waitForLocalLoads = false;
         somethingHappened = false;
         canLoadFrames = false;
@@ -132,6 +136,12 @@ using namespace WhirlyKit;
         waitForLocalLoads = true;
     
     canLoadFrames = [_loader respondsToSelector:@selector(quadDisplayLayer:loadTile:frame:)];
+    numFrames = [_loader numFrames];
+    if (numFrames == 1)
+        canLoadFrames = false;
+    
+    // note: Debugging
+    canLoadFrames = false;
     
 //    [self performSelector:@selector(dumpInfo) withObject:nil afterDelay:15.0];
 }
@@ -315,7 +325,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 // If it's loading, just leave things alone
                 if (!nodeInfo->loading)
                 {
-                    if (nodeInfo->phantom)
+                    if (nodeInfo->phantom || (canLoadFrames && nodeInfo->nextFrame(numFrames) != -1))
                         shouldLoad = _quadtree->shouldLoadTile(nodeInfo->ident);
                     else
                         addChildren = true;
@@ -344,11 +354,16 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                     else if (!isInTargetLevels)
                         addChildren = true;
                 } else {
-                    if (nodeInfo->ident.level < maxTargetLevel)
+                    if (isInTargetLevels && canLoadFrames && nodeInfo->nextFrame(numFrames) != -1)
                     {
-                        addChildren = true;
-                        if (nodeInfo->childCoverage || singleTargetLevel)
-                            makePhantom = true;
+                        shouldLoad = true;
+                    } else {
+                        if (nodeInfo->ident.level < maxTargetLevel)
+                        {
+                            addChildren = true;
+                            if (nodeInfo->childCoverage || singleTargetLevel)
+                                makePhantom = true;
+                        }
                     }
                 }
             }
@@ -379,11 +394,13 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 
 //                NSLog(@"Loading tile: %d: (%d,%d)",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y);
                 // Note: Debugging
-                int frameId = 0;
                 if (canLoadFrames)
+                {
+                    int frameId = nodeInfo->nextFrame(numFrames);
+//                    NSLog(@"Loading tile: %d: (%d,%d), frame = %d",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y,frameId);
                     [_loader quadDisplayLayer:self loadTile:nodeInfo frame:frameId];
-                else
-                    [_loader quadDisplayLayer:self loadTile:nodeInfo ];
+                } else
+                    [_loader quadDisplayLayer:self loadTile:nodeInfo];
                 _quadtree->setPhantom(nodeInfo->ident, false);
                 _quadtree->setLoading(nodeInfo->ident, true);
                 
@@ -501,10 +518,10 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 
 // This is called by the loader when it finished loading a tile
 // Once loaded we can try the children
-- (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidLoad:(WhirlyKit::Quadtree::Identifier)tileIdent
+- (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidLoad:(WhirlyKit::Quadtree::Identifier)tileIdent frame:(int)frame
 {
-    _quadtree->setLoading(tileIdent, false);
-    _quadtree->setFailed(tileIdent, false);
+//    _quadtree->setLoading(tileIdent, false);
+//    _quadtree->setFailed(tileIdent, false);
     
     // Update the parent coverage and then make those tiles phantoms if
     //  they're now fully covered
@@ -524,16 +541,30 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     }
     
     
-    if (tileIdent.level < maxZoom)
+    // Make sure we still want this one
+    const Quadtree::NodeInfo *node = _quadtree->getNodeInfo(tileIdent);
+    if (!node)
+        return;
+    
+    // We're loading individual frames
+    _quadtree->didLoad(tileIdent,frame);
+    bool loadChildren = true;
+    if (canLoadFrames && frame != -1)
     {
-        // Make sure we still want this one
-        if (!_quadtree->isTilePresent(tileIdent))
-            return;
-        
+        int nextFrame = node->nextFrame(numFrames);
+        if (nextFrame >= 0)
+        {
+            loadChildren = false;
+            _quadtree->setEvaluating(tileIdent, true);
+        }
+    }
+
+    // May want to consider the children next
+    if (tileIdent.level < maxZoom && loadChildren)
+    {
         int maxTargetLevel = _targetLevels.empty() ? maxZoom : *(--(_targetLevels.end()));
         if (_targetLevels.empty() || tileIdent.level < maxTargetLevel)
         {
-
             if (tileIdent.level < maxTargetLevel)
             {
                 // Now try the children
@@ -562,14 +593,14 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 
 // Tile failed to load.
 // At the moment we don't care, but we won't look at the children
-- (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent
+- (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent frame:(int)frame
 {
 //    NSLog(@"Tile failed to load: %d: (%d,%d)",tileIdent.level,tileIdent.x,tileIdent.y);
 
     _quadtree->setLoading(tileIdent, false);
     _quadtree->setPhantom(tileIdent, true);
     _quadtree->setFailed(tileIdent, true);
-    
+
     // Let's try to load the parent if we're in target level mode
     if (!_targetLevels.empty() && tileIdent.level > 0)
     {
@@ -581,7 +612,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
         if (it != toPhantom.end())
             toPhantom.erase(it);
     }
-    
+
     // Might get stuck here
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];    

@@ -456,9 +456,8 @@ bool DynamicTextureAtlas::updateTexture(Texture *tex,int frame,const TextureRegi
     
     
     // Look for the matching dynamic texture
-    int which = frame != -1 ? 0 : frame;
+    int which = frame == -1 ? 0 : frame;
     DynamicTexture *dynTex = dynTexVec->at(which);
-    dynTex->setRegion(texRegion.region, true);
     
     // Merge in the data
     //        NSLog(@"Region: (%d,%d)->(%d,%d)  texture: %ld",texRegion.region.sx,texRegion.region.sy,texRegion.region.ex,texRegion.region.ey,dynTex->getId());
