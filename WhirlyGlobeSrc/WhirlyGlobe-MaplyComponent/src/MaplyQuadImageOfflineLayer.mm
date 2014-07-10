@@ -363,7 +363,7 @@ using namespace WhirlyKit;
     return import * _importanceScale;
 }
 
-- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row frame:(int)frame attrs:(NSMutableDictionary *)attrs
 {
     MaplyTileID tileID;
     tileID.x = col;  tileID.y = row;  tileID.level = level;
@@ -383,11 +383,11 @@ using namespace WhirlyKit;
         {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                            ^{
-                               [_tileSource startFetchLayer:self tile:tileID];
+                               [_tileSource startFetchLayer:self tile:tileID frame:frame];
                            }
                            );
         } else {
-            [_tileSource startFetchLayer:self tile:tileID];
+            [_tileSource startFetchLayer:self tile:tileID frame:frame];
         }
         return;
     }
@@ -396,7 +396,7 @@ using namespace WhirlyKit;
     void (^workBlock)() =
     ^{
         // Get the data for the tile and sort out what the delegate returned to us
-        id tileReturn = [_tileSource imageForTile:tileID];
+        id tileReturn = [_tileSource imageForTile:tileID frame:frame];
         
         if ([tileReturn isKindOfClass:[NSError class]])
         {
@@ -407,7 +407,7 @@ using namespace WhirlyKit;
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
         WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:false];
         
-        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level),_tileSource];
+        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level),@(frame),_tileSource];
         if (super.layerThread)
         {
             if ([NSThread currentThread] == super.layerThread)
@@ -430,6 +430,12 @@ using namespace WhirlyKit;
 
 - (void)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID
 {
+    [self loadedImages:tileReturn forTile:tileID frame:-1];
+}
+
+
+- (void)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID frame:(int)frame
+{
     // Adjust the y back to what the system is expecting
     int y = tileID.y;
     if (!_flipY)
@@ -440,7 +446,7 @@ using namespace WhirlyKit;
     MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
     WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:false];
     
-    NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(y),@(tileID.level),_tileSource];
+    NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(y),@(tileID.level),@(frame),_tileSource];
     if (super.layerThread)
     {
         if ([NSThread currentThread] == super.layerThread)
@@ -467,13 +473,14 @@ using namespace WhirlyKit;
     int col = [args[1] intValue];
     int row = [args[2] intValue];
     int level = [args[3] intValue];
-    id oldTileSource = args[4];
+    int frame = [args[4] intValue];
+    id oldTileSource = args[5];
     
     // This might happen if we change tile sources while we're waiting for a network call
     if (_tileSource != oldTileSource)
         return;
     
-    [tileLoader dataSource: self loadedImage:loadTile forLevel: level col: col row: row];
+    [tileLoader dataSource: self loadedImage:loadTile forLevel: level col: col row: row frame:frame];
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
