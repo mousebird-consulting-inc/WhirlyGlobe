@@ -283,6 +283,12 @@ typedef enum {MaplyImageIntRGBA,
   */
 - (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID;
 
+/** @brief Pass back an error for a given tile and frame (if we're loading animations).
+    @details If the tile source implements startFetchForTile: then this is how it tells us about a specific failure.
+    @details It can also just call loadedImages:forTile: with nil, but this is more helpful.
+ */
+- (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID frame:(int)frame;
+
 /** @brief Do a hard reset of the layer.
     @details This will clean out all the layers resources and force it to start loading again.
     @details Call this right after you change a tile source.  This lets you change the tile source to something incompatible with the previous one.
