@@ -392,7 +392,7 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
         {
             // If there's only one frame, we're updating that
             int which = frame == -1 ? ii : frame;
-            Texture *tex = newTextures[which];
+            Texture *tex = newTextures[newTextures.size() == 1 ? 0 : which];
             DynamicTexture *dynTex = dynTexVec->at(which);
             dynTex->setRegion(texRegion.region, true);
             dynTex->getNumRegions()++;
