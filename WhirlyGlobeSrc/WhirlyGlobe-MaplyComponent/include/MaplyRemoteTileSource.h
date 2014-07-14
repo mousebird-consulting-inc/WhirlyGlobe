@@ -248,4 +248,7 @@
 /// @brief Passes through the cacheDir from the MaplyRemoteTileInfo
 @property (nonatomic,strong) NSString *cacheDir;
 
+/// Number of outstanding connections across all remote tile sources
++ (int)numOutstandingConnections;
+
 @end
