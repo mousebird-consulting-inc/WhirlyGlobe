@@ -456,9 +456,9 @@ using namespace WhirlyKit;
     }
 }
 
-- (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID
+- (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID frame:(int)frame
 {
-    // Note doing with the error right now
+    [self loadedImages:nil forTile:tileID frame:frame];
 }
 
 // Merge the tile result back on the layer thread
