@@ -634,7 +634,7 @@ using namespace WhirlyGlobe;
     // Figure out where the north pole went
     Vector3d northPole = (globeView.rotQuat * Vector3d(0,0,1)).normalized();
     if (northPole.y() != 0.0)
-        retHeading = atan(northPole.x()/northPole.y());
+        retHeading = atan2(-northPole.x(),northPole.y());
     
     return retHeading;
 }
