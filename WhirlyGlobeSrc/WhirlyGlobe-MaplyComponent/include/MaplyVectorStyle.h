@@ -34,6 +34,9 @@
 @property (nonatomic) float markerScale;
 /// @brief Importance for markers in the layout engine
 @property (nonatomic) float markerImportance;
+/// @brief Default marker size when none is specified
+@property (nonatomic) float markerSize;
+
 /** @brief The overall map scale calculations will be scaled by this amount.
     @details We use the map scale calculations to figure out what is dispalyed and when.  Not what to load in, mind you, that's a separate, but related calculation.  This controls the scaling of those calculations.  Scale it down to load things in later, up to load them in sooner.
   */
