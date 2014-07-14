@@ -371,7 +371,6 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
             dynTexVec->push_back(dynTex);
             dynTex->createInGL(memManager);
         }
-        // Note: Debugging
 //        NSLog(@"Added dynamic texture %ld (%ld)",dynTex->getId(),textures.size());
         textures.insert(dynTexVec);
         DynamicTexture::Region thisRegion;
@@ -515,7 +514,6 @@ void DynamicTextureAtlas::cleanup(ChangeSet &changes)
                 changes.push_back(new RemTextureReq(texVec->at(ii)->getId()));
             delete texVec;
             textures.erase(it);
-            // Note: Debugging
             //                NSLog(@"Removing dynamic texture %ld (%ld)",tex->getId(),textures.size());
         }
     }

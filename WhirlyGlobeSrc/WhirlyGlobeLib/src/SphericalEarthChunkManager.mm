@@ -112,7 +112,6 @@ static const float SkirtFactor = 0.95;
             thisSampleY = std::min(thisSampleY,_sampleY);
     }
     
-    // Note: Debugging
     //    NSLog(@"Sampling: (%d,%d)",thisSampleX,thisSampleY);
 }
 
@@ -559,7 +558,6 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             BasicDrawable *drawable = nil,*skirtDraw = nil;
             [chunk buildDrawable:&drawable skirtDraw:(request.doEdgeMatching ? &skirtDraw : nil) enabled:request.chunkInfo->enable adapter:coordAdapter];
             
-            // Note: Debugging
             //            int color = drand48()*50+205;
             //            RGBAColor randomColor(color/4,color/4,color/4,255/4);
             //            drawable->setColor(randomColor);
