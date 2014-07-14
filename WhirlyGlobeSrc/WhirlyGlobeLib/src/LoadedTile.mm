@@ -1192,9 +1192,9 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
                         }
                         if (tileBuilder->texAtlas)
                         {
-                            if (childDraw)
+                            if (childDraw && !subTexs.empty())
                                 childDraw->applySubTexture(-1,subTexs[0]);
-                            if (childSkirtDraw)
+                            if (childSkirtDraw && !subTexs.empty())
                                 childSkirtDraw->applySubTexture(-1,subTexs[0]);
                         }
                         if (tileBuilder->drawAtlas)

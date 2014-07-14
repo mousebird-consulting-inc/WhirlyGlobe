@@ -94,6 +94,8 @@ typedef std::set<SortedTile> SortedTileSet;
 
 }
 
+static int numConnections = 0;
+
 @implementation MaplyMultiplexTileSource
 {
     NSArray *_tileSources;
@@ -140,6 +142,11 @@ typedef std::set<SortedTile> SortedTileSet;
         }
         sortedTiles.clear();
     }
+}
+
++ (int)numOutstandingConnections
+{
+    return numConnections;
 }
 
 - (int)minZoom
@@ -335,6 +342,8 @@ typedef std::set<SortedTile> SortedTileSet;
     int which = (frame == -1 ? 0 : frame);
     for (MaplyRemoteTileInfo *tileSource in (frame == -1 ? _tileSources : @[_tileSources[frame]]))
     {
+        numConnections++;
+
         // If it's local, just go fetch it
         if ([tileSource tileIsLocal:tileID])
         {
@@ -348,6 +357,8 @@ typedef std::set<SortedTile> SortedTileSet;
                     [self failedToGetTile:tileID error:nil layer:layer];
                 else
                     [self gotTile:tileID which:which data:imgData layer:layer];
+
+                numConnections--;
             };
             workBlocks.push_back(workBlock);
         } else {
@@ -365,6 +376,8 @@ typedef std::set<SortedTile> SortedTileSet;
                  {
                      if (weakSelf)
                          [self gotTile:tileID which:which data:responseObject layer:layer];
+                     
+                     numConnections--;
                  }
                                           failure:
                  ^(AFHTTPRequestOperation *operation, NSError *error)
@@ -376,11 +389,15 @@ typedef std::set<SortedTile> SortedTileSet;
                          else
                              [self failedToGetTile:tileID error:error layer:layer];
                      }
+
+                     numConnections--;
                  }];
                 
                 newTile.fetches.insert(Maply::TileFetch(which,op));
             } else {
                 [self failedToGetTile:tileID error:nil layer:layer];
+
+                numConnections--;
             }
         }
         which++;
