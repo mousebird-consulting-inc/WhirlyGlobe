@@ -302,7 +302,7 @@ static int numConnections = 0;
                 [layer loadedImages:allData forTile:tileID];
         } else {
             // Last minute failure!
-            [layer loadError:marshalError forTile:tileID];
+            [layer loadError:marshalError forTile:tileID frame:which];
             if (_delegate && [_delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
                 [_delegate remoteTileSource:self tileDidNotLoad:tileID error:marshalError];
         }
@@ -310,14 +310,14 @@ static int numConnections = 0;
 }
 
 // Got an error while trying to fetch tile
-- (void)failedToGetTile:(MaplyTileID)tileID error:(NSError *)error layer:(MaplyQuadImageTilesLayer *)layer
+- (void)failedToGetTile:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error layer:(MaplyQuadImageTilesLayer *)layer
 {
     NSLog(@"Failed load for tile %d: (%d,%d)\n%@",tileID.level,tileID.x,tileID.y,error);
     
     [self clearFetchesFor:tileID];
     
     // Unsucessful load
-    [layer loadError:error forTile:tileID];
+    [layer loadError:error forTile:tileID frame:frame];
     if (_delegate && [_delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
         [_delegate remoteTileSource:self tileDidNotLoad:tileID error:error];
 }
@@ -342,19 +342,19 @@ static int numConnections = 0;
     int which = (frame == -1 ? 0 : frame);
     for (MaplyRemoteTileInfo *tileSource in (frame == -1 ? _tileSources : @[_tileSources[frame]]))
     {
-        numConnections++;
-
         // If it's local, just go fetch it
         if ([tileSource tileIsLocal:tileID])
         {
             // We'll save the block for later and run at the end
             void (^workBlock)() =
             ^{
+                numConnections++;
+
                 NSString *fileName = [tileSource fileNameForTile:tileID];
                 NSData *imgData = [NSData dataWithContentsOfFile:fileName];
                 
                 if (!imgData)
-                    [self failedToGetTile:tileID error:nil layer:layer];
+                    [self failedToGetTile:tileID frame:frame error:nil layer:layer];
                 else
                     [self gotTile:tileID which:which data:imgData layer:layer];
 
@@ -366,6 +366,8 @@ static int numConnections = 0;
             NSURLRequest *urlReq = [tileSource requestForTile:tileID];
             
             if(urlReq) {
+                numConnections++;
+
                 // Kick off an async request for the data
                 MaplyMultiplexTileSource __weak *weakSelf = self;
                 AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:urlReq];
@@ -387,7 +389,7 @@ static int numConnections = 0;
                          if (weakSelf.acceptFailures)
                              [self gotTile:tileID which:which data:error layer:layer];
                          else
-                             [self failedToGetTile:tileID error:error layer:layer];
+                             [self failedToGetTile:tileID frame:frame error:error layer:layer];
                      }
 
                      numConnections--;
@@ -395,9 +397,7 @@ static int numConnections = 0;
                 
                 newTile.fetches.insert(Maply::TileFetch(which,op));
             } else {
-                [self failedToGetTile:tileID error:nil layer:layer];
-
-                numConnections--;
+                [self failedToGetTile:tileID frame:frame error:nil layer:layer];
             }
         }
         which++;

@@ -53,6 +53,9 @@ public:
         /// Comparison based on x,y,level.  Used for sorting
         bool operator < (const Identifier &that) const;
         
+        /// Quality operator
+        bool operator == (const Identifier &that) const;
+        
         /// Spatial subdivision along the X axis relative to the space
         int x;
         /// Spatial subdivision along tye Y axis relative to the space

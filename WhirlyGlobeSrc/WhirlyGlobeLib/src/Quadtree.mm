@@ -37,7 +37,12 @@ bool Quadtree::Identifier::operator<(const Identifier &that) const
     
     return level < that.level;
 }
-    
+
+bool Quadtree::Identifier::operator==(const Identifier &that) const
+{
+    return level == that.level && x == that.x && y == that.y;
+}
+
 bool Quadtree::NodeInfo::operator<(const NodeInfo &that) const
 {
     if (importance == that.importance)
@@ -176,6 +181,10 @@ bool Quadtree::shouldLoadTile(const Identifier &ident)
 {
     Node *node = getNode(ident);
     if (!node)
+        return false;
+    
+    // It's already loading.
+    if (node->nodeInfo.loading)
         return false;
     
     // Reject it out of hand if it's too small
