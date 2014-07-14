@@ -58,4 +58,7 @@
   */
 @property (nonatomic) bool acceptFailures;
 
+/// Number of outstanding connections across all tile sources
++ (int)numOutstandingConnections;
+
 @end
