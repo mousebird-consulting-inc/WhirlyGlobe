@@ -828,15 +828,19 @@ WideVectorSceneRep::~WideVectorSceneRep()
 
 void WideVectorSceneRep::enableContents(bool enable,ChangeSet &changes)
 {
-    for (SimpleIDSet::iterator it = drawIDs.begin();
-         it != drawIDs.end(); ++it)
+    SimpleIDSet allIDs = drawIDs;
+    allIDs.insert(instIDs.begin(),instIDs.end());
+    for (SimpleIDSet::iterator it = allIDs.begin();
+         it != allIDs.end(); ++it)
         changes.push_back(new OnOffChangeRequest(*it,enable));
 }
 
 void WideVectorSceneRep::clearContents(ChangeSet &changes)
 {
-    for (SimpleIDSet::iterator it = drawIDs.begin();
-         it != drawIDs.end(); ++it)
+    SimpleIDSet allIDs = drawIDs;
+    allIDs.insert(instIDs.begin(),instIDs.end());
+    for (SimpleIDSet::iterator it = allIDs.begin();
+         it != allIDs.end(); ++it)
         changes.push_back(new RemDrawableReq(*it));
 }
 
@@ -942,7 +946,7 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,NSDiction
              idIt != sceneRep->drawIDs.end(); ++idIt)
         {
             // Make up a BasicDrawableInstance
-            BasicDrawableInstance *drawInst = new BasicDrawableInstance("VectorManager",*idIt);
+            BasicDrawableInstance *drawInst = new BasicDrawableInstance("WideVectorManager",*idIt);
             
             // Changed color
             if ([desc objectForKey:@"color"]) {
@@ -1000,8 +1004,10 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
             
             if (sceneRep->fade > 0.0)
             {
-                for (SimpleIDSet::iterator it = sceneRep->drawIDs.begin();
-                     it != sceneRep->drawIDs.end(); ++it)
+                SimpleIDSet allIDs = sceneRep->drawIDs;
+                allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
+                for (SimpleIDSet::iterator it = allIDs.begin();
+                     it != allIDs.end(); ++it)
                     changes.push_back(new FadeChangeRequest(*it, curTime, curTime+sceneRep->fade));
                 
                 // Spawn off the deletion for later
