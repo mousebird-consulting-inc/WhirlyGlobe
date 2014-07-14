@@ -63,7 +63,7 @@
         subStyle->strokeColor = nil;
         if (styleEntry[@"stroke"])
             subStyle->strokeColor = [MaplyVectorTiles ParseColor:styleEntry[@"stroke"]];
-        subStyle->width = 10.0;
+        subStyle->width = inSettings.markerSize;
         if (styleEntry[@"width"])
             subStyle->width = [styleEntry[@"width"] floatValue];
         subStyle->height = subStyle->width;
