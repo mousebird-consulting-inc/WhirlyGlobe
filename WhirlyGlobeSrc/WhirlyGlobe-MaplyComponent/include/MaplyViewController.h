@@ -161,6 +161,9 @@
   */
 @property(nonatomic,assign) bool doubleTapDragGesture;
 
+/** @brief turn the touch to cancel animation gesture on and off
+    @details off by default
+ */
 @property(nonatomic,assign) bool cancelAnimationOnTouch;
 
 /** @brief The current rotation away from north.
