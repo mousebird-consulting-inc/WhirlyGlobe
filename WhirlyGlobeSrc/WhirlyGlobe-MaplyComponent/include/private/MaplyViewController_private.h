@@ -52,6 +52,7 @@
     MaplyDoubleTapDelegate *doubleTapDelegate;
     MaplyTwoFingerTapDelegate *twoFingerTapDelegate;
     MaplyDoubleTapDragDelegate *doubleTapDragDelegate;
+    UILongPressGestureRecognizer *touchRecognizer;
   
     /// Bounding box for the viewer
     MaplyCoordinate boundLL,boundUR;
