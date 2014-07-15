@@ -306,10 +306,7 @@ using namespace Maply;
         }
         if(_cancelAnimationOnTouch)
         {
-            touchRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self
-                                                                            action:@selector(handleLongPress:)];
-            touchRecognizer.minimumPressDuration = 0.01;
-            [glView addGestureRecognizer:touchRecognizer];
+            touchDelegate = [MaplyTouchCancelAnimationDelegate touchDelegateForView:glView mapView:mapView];
         }
     }
 
@@ -500,16 +497,14 @@ using namespace Maply;
     _cancelAnimationOnTouch = cancelAnimationOnTouch;
     if(cancelAnimationOnTouch)
     {
-        if(!touchRecognizer)
+        if(!touchDelegate)
         {
-            touchRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self
-                                                                            action:@selector(handleLongPress:)];
-            touchRecognizer.minimumPressDuration = 0.01;
-            [glView addGestureRecognizer:touchRecognizer];
+            touchDelegate = [MaplyTouchCancelAnimationDelegate touchDelegateForView:glView mapView:mapView];
         }
     } else {
-        [glView removeGestureRecognizer:touchRecognizer];
-        touchRecognizer = nil;
+        [glView removeGestureRecognizer:touchDelegate.gestureRecognizer];
+        touchDelegate.gestureRecognizer = nil;
+        touchDelegate = nil;
     }
 }
 

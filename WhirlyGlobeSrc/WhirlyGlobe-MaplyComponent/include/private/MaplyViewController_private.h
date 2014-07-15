@@ -24,6 +24,7 @@
 #import "MaplyDoubleTapDelegate.h"
 #import "MaplyTwoFingerTapDelegate.h"
 #import "MaplyDoubleTapDragDelegate.h"
+#import "MaplyTouchCancelAnimationDelegate.h"
 
 @interface MaplyViewController()
 {
@@ -52,7 +53,7 @@
     MaplyDoubleTapDelegate *doubleTapDelegate;
     MaplyTwoFingerTapDelegate *twoFingerTapDelegate;
     MaplyDoubleTapDragDelegate *doubleTapDragDelegate;
-    UILongPressGestureRecognizer *touchRecognizer;
+    MaplyTouchCancelAnimationDelegate *touchDelegate;
   
     /// Bounding box for the viewer
     MaplyCoordinate boundLL,boundUR;
