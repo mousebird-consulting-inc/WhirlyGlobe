@@ -161,6 +161,8 @@
   */
 @property(nonatomic,assign) bool doubleTapDragGesture;
 
+@property(nonatomic,assign) bool cancelAnimationOnTouch;
+
 /** @brief The current rotation away from north.
  */
 @property(nonatomic,assign) float heading;

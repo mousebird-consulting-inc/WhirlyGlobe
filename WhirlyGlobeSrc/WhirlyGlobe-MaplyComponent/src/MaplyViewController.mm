@@ -304,9 +304,22 @@ using namespace Maply;
             [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
             [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
         }
+        if(_cancelAnimationOnTouch)
+        {
+            touchRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self
+                                                                            action:@selector(handleLongPress:)];
+            touchRecognizer.minimumPressDuration = 0.01;
+            [glView addGestureRecognizer:touchRecognizer];
+        }
     }
 
     [self setViewExtentsLL:boundLL ur:boundUR];
+}
+
+- (void)handleLongPress:(UIGestureRecognizer*)sender {
+    if(sender.state == UIGestureRecognizerStateBegan) {
+        [mapView cancelAnimation];
+    }
 }
 
 - (void)setViewWrap:(bool)viewWrap
@@ -479,6 +492,24 @@ using namespace Maply;
             doubleTapDragDelegate.gestureRecognizer = nil;
             doubleTapDragDelegate = nil;
         }
+    }
+}
+
+- (void)setCancelAnimationOnTouch:(bool)cancelAnimationOnTouch
+{
+    _cancelAnimationOnTouch = cancelAnimationOnTouch;
+    if(cancelAnimationOnTouch)
+    {
+        if(!touchRecognizer)
+        {
+            touchRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self
+                                                                            action:@selector(handleLongPress:)];
+            touchRecognizer.minimumPressDuration = 0.01;
+            [glView addGestureRecognizer:touchRecognizer];
+        }
+    } else {
+        [glView removeGestureRecognizer:touchRecognizer];
+        touchRecognizer = nil;
     }
 }
 
