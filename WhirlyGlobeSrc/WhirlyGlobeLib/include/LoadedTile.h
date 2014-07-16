@@ -276,6 +276,8 @@ public:
     // Details of which node we're representing
     WhirlyKit::Quadtree::NodeInfo nodeInfo;
     
+    /// Set if this has been initialized (e.g. geometry was built at one point)
+    bool isInitialized;
     /// Set if this is just a placeholder (no geometry)
     bool placeholder;
     /// Set if this tile is in the process of loading

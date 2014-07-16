@@ -55,7 +55,7 @@
     return _pixelsPerSide;
 }
 
-- (bool)tileIsLocal:(MaplyTileID)tileID
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame
 {
     return true;
 }
@@ -72,6 +72,9 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     // One for each layer we're
 //    for (unsigned int ii=0;ii<_depth;ii++)
     {
+        // Random delay
+        usleep(drand48()* 0.215 * 1e6);
+
         CGSize size;  size = CGSizeMake(128,128);
         UIGraphicsBeginImageContext(size);
         

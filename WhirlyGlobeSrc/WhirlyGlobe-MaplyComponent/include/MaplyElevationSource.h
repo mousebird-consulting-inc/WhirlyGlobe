@@ -86,7 +86,7 @@
 /** @brief Return true if the data is local to the device.
     @details Let us know if the data is local or remote.  This is a hint to the pager and will be called before elevForTile:.  If you don't know, just return false.
   */
-- (bool)tileIsLocal:(MaplyTileID)tileID;
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame;
 
 @end
 
