@@ -68,6 +68,9 @@ using namespace WhirlyKit;
     
     // If we're loading frames, this is the order we load them in
     std::vector<int> frameLoadingPriority;
+    
+    // If we're loading frames, the frame loading status last time through the eval loop
+    long long frameLoadStatus;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES *)inRenderer;
@@ -121,6 +124,14 @@ using namespace WhirlyKit;
 {
     _minImportance = newMinImportance;
     _quadtree->setMinImportance(newMinImportance);
+}
+
+- (void)setFrameLoadingPriorities:(std::vector<int> &)priorities
+{
+    if (priorities.size() != numFrames)
+        return;
+    
+    frameLoadingPriority = priorities;
 }
 
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
@@ -564,6 +575,28 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
         if (howLong < 0.0)
             howLong = 0.0;
         [self performSelector:@selector(frameEndThread) withObject:nil afterDelay:howLong];
+    }
+    
+    // Update the frame load status.
+    // We expect this to be accessed outside of the thread
+    // Note: Might be nice to only do this when necessary
+    @synchronized(self)
+    {
+        if (!frameLoadingPriority.empty())
+        {
+            frameLoadStatus = 0;
+            for (unsigned int ii=0;ii<numFrames;ii++)
+                if (_quadtree->frameIsLoaded(ii))
+                    frameLoadStatus |= 1 << ii;
+        }
+    }
+}
+
+- (long long)getFrameLoadStatus
+{
+    @synchronized(self)
+    {
+        return frameLoadStatus;
     }
 }
 

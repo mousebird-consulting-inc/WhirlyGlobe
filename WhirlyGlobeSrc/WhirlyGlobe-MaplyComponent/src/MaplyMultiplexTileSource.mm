@@ -95,6 +95,7 @@ typedef std::set<SortedTile> SortedTileSet;
 }
 
 static int numConnections = 0;
+static bool trackConnections = false;
 
 @implementation MaplyMultiplexTileSource
 {
@@ -142,6 +143,11 @@ static int numConnections = 0;
         }
         sortedTiles.clear();
     }
+}
+
++ (void)setTrackConnections:(bool)track
+{
+    trackConnections = track;
 }
 
 + (int)numOutstandingConnections
@@ -357,7 +363,11 @@ static int numConnections = 0;
             // We'll save the block for later and run at the end
             void (^workBlock)() =
             ^{
-                numConnections++;
+                if (trackConnections)
+                    @synchronized([MaplyMultiplexTileSource class])
+                {
+                    numConnections++;
+                }
 
                 NSString *fileName = [tileSource fileNameForTile:tileID];
                 NSData *imgData = [NSData dataWithContentsOfFile:fileName];
@@ -367,7 +377,11 @@ static int numConnections = 0;
                 else
                     [self gotTile:tileID which:which data:imgData layer:layer];
 
-                numConnections--;
+                if (trackConnections)
+                    @synchronized([MaplyMultiplexTileSource class])
+                {
+                    numConnections--;
+                }
             };
             workBlocks.push_back(workBlock);
         } else {
@@ -375,7 +389,11 @@ static int numConnections = 0;
             NSURLRequest *urlReq = [tileSource requestForTile:tileID];
             
             if(urlReq) {
-                numConnections++;
+                if (trackConnections)
+                    @synchronized([MaplyMultiplexTileSource class])
+                {
+                    numConnections++;
+                }
 
                 // Kick off an async request for the data
                 MaplyMultiplexTileSource __weak *weakSelf = self;
@@ -388,7 +406,11 @@ static int numConnections = 0;
                      if (weakSelf)
                          [self gotTile:tileID which:which data:responseObject layer:layer];
                      
-                     numConnections--;
+                     if (trackConnections)
+                         @synchronized([MaplyMultiplexTileSource class])
+                     {
+                         numConnections--;
+                     }
                  }
                                           failure:
                  ^(AFHTTPRequestOperation *operation, NSError *error)
@@ -401,7 +423,11 @@ static int numConnections = 0;
                              [self failedToGetTile:tileID frame:frame error:error layer:layer];
                      }
 
-                     numConnections--;
+                     if (trackConnections)
+                         @synchronized([MaplyMultiplexTileSource class])
+                     {
+                         numConnections--;
+                     }
                  }];
                 
                 newTile.fetches.insert(Maply::TileFetch(which,op));
