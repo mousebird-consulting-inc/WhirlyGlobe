@@ -102,6 +102,11 @@ using namespace WhirlyKit;
     [quadLayer refresh];
 }
 
+- (long long)loadedFrames
+{
+    return [quadLayer getFrameLoadStatus];
+}
+
 - (void)setImportanceScale:(float)importanceScale
 {
     _importanceScale = importanceScale;

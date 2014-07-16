@@ -301,6 +301,11 @@ using namespace WhirlyKit;
         tileLoader.color = [_color asRGBAColor];
 }
 
+- (long long)loadedFrames
+{
+    return [quadLayer getFrameLoadStatus];
+}
+
 - (void)setDrawPriority:(int)drawPriority
 {
     super.drawPriority = drawPriority;

@@ -208,6 +208,14 @@ typedef std::set<WhirlyKit::Quadtree::Identifier> QuadIdentSet;
 /// Must be called in the layer thread.
 - (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent frame:(int)frame;
 
+/// This should be a list of numbers giving us the order to load frames in.  First is most important.
+/// The list should be numFrames long
+- (void)setFrameLoadingPriorities:(std::vector<int> &)priorities;
+
+/// Return the frame loading status from the quad tree.
+/// true is fully loaded.  Only makes sense if numFrames > 1
+- (long long)getFrameLoadStatus;
+
 /// Call this to force a reload for all existing tiles
 - (void)refresh;
 

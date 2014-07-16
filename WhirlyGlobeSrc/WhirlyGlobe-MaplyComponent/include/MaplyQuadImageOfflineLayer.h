@@ -153,6 +153,12 @@
   */
 @property (nonatomic) MaplyBoundingBox bbox;
 
+/** @brief Bit fields describing which frames are loaded.
+ @details Query this to find out which frames are completely loaded into memory and which are not.
+ @details This queries the underlying control logic and there is no delegate.  It's polling only.
+ */
+@property (nonatomic, readonly) long long loadedFrames;
+
 /** @brief The delegate called with the image stack produced at irregular intervals.
     @details Set this delegate to get the images out of the offline rendering layer.
   */
