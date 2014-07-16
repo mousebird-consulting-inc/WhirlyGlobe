@@ -401,17 +401,22 @@ using namespace WhirlyKit;
 // Ask the data source to start loading the image for this tile
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo frame:(int)frame
 {
-    // Build the new tile
-    LoadedTile *newTile = new LoadedTile();
-    newTile->nodeInfo = *tileInfo;
-    newTile->isLoading = true;
-    newTile->calculateSize(layer.quadtree, layer.scene->getCoordAdapter(), layer.coordSys);
+    // Look for an existing tile
+    LoadedTile *theTile = [self getTile:tileInfo->ident];
+    if (!theTile)
+    {
+        // Build the new tile
+        theTile = new LoadedTile();
+        theTile->nodeInfo = *tileInfo;
+        theTile->calculateSize(layer.quadtree, layer.scene->getCoordAdapter(), layer.coordSys);
+
+        pthread_mutex_lock(&tileLock);
+        tileSet.insert(theTile);
+        pthread_mutex_unlock(&tileLock);        
+    }
+    theTile->isLoading = true;
     
-    pthread_mutex_lock(&tileLock);
-    tileSet.insert(newTile);
-    pthread_mutex_unlock(&tileLock);
-    
-    bool isNetworkFetch = ![dataSource respondsToSelector:@selector(tileIsLocalLevel:col:row:)] || ![dataSource tileIsLocalLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y];
+    bool isNetworkFetch = ![dataSource respondsToSelector:@selector(tileIsLocalLevel:col:row:frame:)] || ![dataSource tileIsLocalLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y frame:frame];
     if (isNetworkFetch)
         networkFetches.insert(tileInfo->ident);
     else
@@ -591,12 +596,15 @@ using namespace WhirlyKit;
     
     LoadedTile *tile = *it;
     tile->isLoading = false;
+    bool parentUpdate = false;
     if (loadingSuccess && (isPlaceholder || !loadImages.empty() || loadElev))
     {
         tile->elevData = loadElev;
-        if (tile->drawId == EmptyIdentity)
+        if (!tile->isInitialized)
         {
+            parentUpdate = true;
             // Build the tile geometry
+//            NSLog(@"Adding to scene: %d: (%d,%d) %d",tile->nodeInfo.ident.level,tile->nodeInfo.ident.x,tile->nodeInfo.ident.y,frame);
             if (tile->addToScene(tileBuilder,loadImages,frame,currentImage0,currentImage1,loadElev,changeRequests))
             {
                 // If we have more than one image to dispay, make sure we're doing the right one
@@ -607,7 +615,9 @@ using namespace WhirlyKit;
             } else
                 loadingSuccess = false;
         } else {
+            parentUpdate = false;
             // Update a texture in an existing slot
+//            NSLog(@"Updating texture: %d: (%d,%d) %d",tile->nodeInfo.ident.level,tile->nodeInfo.ident.x,tile->nodeInfo.ident.y,frame);
             tile->updateTexture(tileBuilder, loadImages[0], frame, changeRequests);
         }
     }
@@ -625,13 +635,13 @@ using namespace WhirlyKit;
 //    NSLog(@"Loaded image for tile (%d,%d,%d)",col,row,level);
     
     // Various child state changed so let's update the parents
-    if (level > 0 && _quadLayer.targetLevels.empty())
+    if (parentUpdate && level > 0 && _quadLayer.targetLevels.empty())
         parents.insert(Quadtree::Identifier(col/2,row/2,level-1));
     
     if (!doingUpdate)
         [self flushUpdates:_quadLayer.layerThread];
 
-    if (!isPlaceholder)
+    if (!isPlaceholder && parentUpdate)
         [self updateTexAtlasMapping];
 
     // They might have set the current image already

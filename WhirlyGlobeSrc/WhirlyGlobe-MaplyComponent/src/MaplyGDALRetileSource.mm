@@ -66,7 +66,7 @@
   return _coordSys;
 }
 
-- (bool)tileIsLocal:(MaplyTileID)tileID
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame
 {
     return false;
 }

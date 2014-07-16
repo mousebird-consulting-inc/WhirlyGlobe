@@ -180,17 +180,26 @@ static int numConnections = 0;
 }
 
 // It's local if all the tile sources say so
-- (bool)tileIsLocal:(MaplyTileID)tileID
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame
 {
     bool tileLocal = true;
-    for (NSObject<MaplyTileSource> *tileSource in _tileSources)
+    if (frame == -1)
     {
-        if ([tileSource respondsToSelector:@selector(tileIsLocal:)])
-            tileLocal &= [tileSource tileIsLocal:tileID];
+        for (NSObject<MaplyTileSource> *tileSource in _tileSources)
+        {
+            if ([tileSource respondsToSelector:@selector(tileIsLocal:frame:)])
+                tileLocal &= [tileSource tileIsLocal:tileID frame:frame];
+            else
+                tileLocal = false;
+            if (!tileLocal)
+                break;
+        }
+    } else {
+        NSObject<MaplyTileSource> *tileSource = _tileSources[frame];
+        if ([tileSource respondsToSelector:@selector(tileIsLocal:frame:)])
+            tileLocal = [tileSource tileIsLocal:tileID frame:frame];
         else
             tileLocal = false;
-        if (!tileLocal)
-            break;
     }
     
     return tileLocal;
@@ -329,7 +338,7 @@ static int numConnections = 0;
 
 - (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID frame:(int)frame
 {
-//    NSLog(@"Starting fetch for tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+//    NSLog(@"Starting fetch for tile: %d: (%d,%d) %d",tileID.level,tileID.x,tileID.y,frame);
     
     // Clear out any existing state and add clean state
     [self clearFetchesFor:tileID];
@@ -343,7 +352,7 @@ static int numConnections = 0;
     for (MaplyRemoteTileInfo *tileSource in (frame == -1 ? _tileSources : @[_tileSources[frame]]))
     {
         // If it's local, just go fetch it
-        if ([tileSource tileIsLocal:tileID])
+        if ([tileSource tileIsLocal:tileID frame:frame])
         {
             // We'll save the block for later and run at the end
             void (^workBlock)() =

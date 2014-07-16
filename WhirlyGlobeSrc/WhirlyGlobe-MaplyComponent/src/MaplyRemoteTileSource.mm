@@ -153,7 +153,7 @@ static int numConnections = 0;
     return localName;
 }
 
-- (bool)tileIsLocal:(MaplyTileID)tileID
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame
 {
     if (!_cacheDir)
         return false;
@@ -320,9 +320,9 @@ static int numConnections = 0;
     return _tileInfo.pixelsPerSide;
 }
 
-- (bool)tileIsLocal:(MaplyTileID)tileID
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame
 {
-    return [_tileInfo tileIsLocal:tileID];
+    return [_tileInfo tileIsLocal:tileID frame:frame];
 }
 
 - (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
@@ -346,7 +346,7 @@ static int numConnections = 0;
 {
     numConnections++;
     
-    if ([_tileInfo tileIsLocal:tileID])
+    if ([_tileInfo tileIsLocal:tileID frame:-1])
     {
         bool doLoad = true;
         NSString *fileName = [_tileInfo fileNameForTile:tileID];
@@ -398,7 +398,7 @@ static int numConnections = 0;
     if (_tileInfo.cacheDir)
     {
         fileName = [_tileInfo fileNameForTile:tileID];
-        if ([_tileInfo tileIsLocal:tileID])
+        if ([_tileInfo tileIsLocal:tileID frame:-1])
         {
             imgData = [self imageForTile:tileID];
         }
