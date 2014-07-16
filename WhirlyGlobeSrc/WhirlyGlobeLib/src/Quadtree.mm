@@ -50,15 +50,11 @@ bool Quadtree::NodeInfo::operator<(const NodeInfo &that) const
     return importance < that.importance;
 }
     
-int Quadtree::NodeInfo::nextFrame(int maxFrame) const
+bool Quadtree::NodeInfo::isFrameLoaded(int theFrame) const
 {
-    for (unsigned int ii=0;ii<maxFrame;ii++)
-        if (!(frames & (1<<ii)))
-            return ii;
-    
-    return -1;
+    return frameFlags & (1<<theFrame);
 }
-        
+    
 Quadtree::Node::Node(Quadtree *tree)
 {
     parent = NULL;
@@ -225,6 +221,7 @@ bool Quadtree::isPhantom(const Identifier &ident)
     return phantom;
 }
     
+    
 bool Quadtree::Node::recalcCoverage()
 {
     bool newChildCoverage = true;
@@ -239,6 +236,40 @@ bool Quadtree::Node::recalcCoverage()
     nodeInfo.childCoverage = newChildCoverage;
 
     return newChildCoverage;
+}
+    
+int Quadtree::getFrameCount(int frame)
+{
+    if (frame >= frameLoadCounts.size())
+        return 0;
+    return frameLoadCounts[frame];
+}
+    
+void Quadtree::addFrameLoaded(int frame)
+{
+    for (int ii=frameLoadCounts.size();ii<=frame;ii++)
+        frameLoadCounts.push_back(0);
+    frameLoadCounts[frame]++;
+}
+
+void Quadtree::clearFlagCounts(int frameFlags)
+{
+    for (unsigned int ii=0;ii<frameLoadCounts.size();ii++)
+        if (frameFlags & (1<<ii))
+            frameLoadCounts[ii]--;
+}
+    
+bool Quadtree::frameIsLoaded(int frame)
+{
+    int count = getFrameCount(frame);
+    
+    // Make sure we don't agree when there's nothing going on
+    if (count == 0)
+        return false;
+    
+    bool isLoaded = (count+numPhantomNodes) == nodesByIdent.size();
+    
+    return isLoaded;
 }
     
 void Quadtree::updateParentCoverage(const Identifier &ident,std::vector<Identifier> &coveredTiles,std::vector<Identifier> &unCoveredTiles)
@@ -314,7 +345,8 @@ void Quadtree::setPhantom(const Identifier &ident,bool newPhantom)
     // Clean it out of the nodes by size if it's a phantom
     if (newPhantom)
     {
-        node->nodeInfo.frames = 0;
+        clearFlagCounts(node->nodeInfo.frameFlags);
+        node->nodeInfo.frameFlags = 0;
         if (sit != nodesBySize.end())
             nodesBySize.erase(sit);
     } else {
@@ -381,7 +413,11 @@ void Quadtree::didLoad(const Identifier &tileIdent,int frame)
     setLoading(tileIdent, false);
     setFailed(tileIdent, false);
     
-    node->nodeInfo.frames |= 1<<frame;
+    if (frame != -1)
+    {
+        node->nodeInfo.frameFlags |= 1<<frame;
+        addFrameLoaded(frame);
+    }
 }
     
 bool Quadtree::isEvaluating(const Identifier &ident)
@@ -783,6 +819,8 @@ Quadtree::Node *Quadtree::getNode(const Identifier &ident)
     
 void Quadtree::removeNode(Node *node)
 {
+    clearFlagCounts(node->nodeInfo.frameFlags);
+
     if (node->nodeInfo.phantom)
         numPhantomNodes--;
 

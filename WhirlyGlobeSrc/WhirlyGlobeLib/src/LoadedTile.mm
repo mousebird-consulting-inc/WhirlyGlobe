@@ -933,6 +933,7 @@ void TileBuilder::log(NSString *name)
 
 LoadedTile::LoadedTile()
 {
+    isInitialized = false;
     isLoading = false;
     placeholder = false;
     drawId = EmptyIdentity;
@@ -949,6 +950,7 @@ LoadedTile::LoadedTile()
 LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
 {
     nodeInfo.ident = ident;
+    isInitialized = false;
     isLoading = false;
     placeholder = false;
     drawId = EmptyIdentity;
@@ -990,12 +992,16 @@ bool LoadedTile::updateTexture(TileBuilder *tileBuilder,WhirlyKitLoadedImage *lo
         changeRequests.push_back(NULL);
     }
     
+    delete newTex;
+    
     return true;
 }
 
 // Add the geometry and texture to the scene for a given tile
 bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,int frame,int currentImage0,int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
+    isInitialized = true;
+
     // If it's a placeholder, we don't create geometry
     if (!loadImages.empty() && loadImages[0].type == WKLoadedImagePlaceholder)
     {

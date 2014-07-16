@@ -317,7 +317,7 @@
     return localName;
 }
 
-- (bool)tileIsLocal:(MaplyTileID)tileID
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame
 {
     if (!_cacheDir)
     return false;

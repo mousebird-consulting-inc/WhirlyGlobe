@@ -28,7 +28,7 @@ using namespace WhirlyKit;
 
 // These are just pointers and they won't change
 // We'll initialize them once
-static projPJ pj_latlon,pj_geocentric;
+static projPJ pj_latlon=NULL,pj_geocentric=NULL;
 
 namespace WhirlyKit
 {
@@ -36,15 +36,14 @@ namespace WhirlyKit
 // Initialize the Proj-4 objects
 void InitProj4()
 {
-    // Note: Bad monkey.  No cookie.
-//    @synchronized(pj_latlon)
-//    {
+    static dispatch_once_t once=0;
+    dispatch_once(&once, ^ {
         if (!pj_latlon || !pj_geocentric)
         {
             pj_latlon = pj_init_plus("+proj=latlong +datum=WGS84");
             pj_geocentric = pj_init_plus("+proj=geocent +datum=WGS84");
         }
-//    }
+    });
 }
     
 /// Convert from the local coordinate system to lat/lon

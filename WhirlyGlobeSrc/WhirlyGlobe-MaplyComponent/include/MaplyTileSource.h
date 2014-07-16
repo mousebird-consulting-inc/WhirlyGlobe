@@ -67,7 +67,7 @@ typedef struct
     @details We may ask the tile source if the tile is local or needs to be fetched over the network.  This is a hint for the loader.  Don't return true in error, though, that'll hold up the paging.
     @return Return true for local tile sources or if you have the tile cached.
   */
-- (bool)tileIsLocal:(MaplyTileID)tileID;
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame;
 
 /** @brief The coordinate system the image pyramid is in.
  @details This is typically going to be MaplySphericalMercator

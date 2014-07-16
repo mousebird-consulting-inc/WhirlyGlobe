@@ -82,7 +82,7 @@
 
 /// Check if the given tile is a local or remote fetch.  This is a hint
 ///  to the pager.  It can display local tiles as a group faster.
-- (bool)tileIsLocalLevel:(int)level col:(int)col row:(int)row;
+- (bool)tileIsLocalLevel:(int)level col:(int)col row:(int)row frame:(int)frame;
 
 @end
 

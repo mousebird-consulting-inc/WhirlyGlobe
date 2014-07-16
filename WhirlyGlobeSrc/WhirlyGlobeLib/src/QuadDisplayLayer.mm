@@ -62,6 +62,12 @@ using namespace WhirlyKit;
     
     // Number of frames we'll try load per tile
     int numFrames;
+
+    // Current entry in the frame priority list (not the actual frame) if we're loading frames
+    int curFrameEntry;
+    
+    // If we're loading frames, this is the order we load them in
+    std::vector<int> frameLoadingPriority;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES *)inRenderer;
@@ -91,6 +97,7 @@ using namespace WhirlyKit;
         waitForLocalLoads = false;
         somethingHappened = false;
         canLoadFrames = false;
+        curFrameEntry = -1;
     }
     
     return self;
@@ -139,7 +146,17 @@ using namespace WhirlyKit;
     numFrames = [_loader numFrames];
     if (numFrames == 1)
         canLoadFrames = false;
-        
+    if (canLoadFrames)
+    {
+        // Make up some reasonable frame priorities
+        if (frameLoadingPriority.size() != numFrames)
+        {
+            for (unsigned int ii=0;ii<numFrames;ii++)
+                frameLoadingPriority.push_back(ii);
+        }
+        curFrameEntry = 0;
+    }
+    
 //    [self performSelector:@selector(dumpInfo) withObject:nil afterDelay:15.0];
 }
 
@@ -226,6 +243,21 @@ using namespace WhirlyKit;
         waitForLocalLoads = true;
         
     viewState = inViewState;
+    
+    // Start loading at frame zero again (if we're doing frame loading)
+    if (!frameLoadingPriority.empty())
+    {
+        curFrameEntry = 0;
+//        NSLog(@"Frame reset: 0");
+    }
+    
+    [self resetEvaluation];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
+    [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
+}
+
+- (void)resetEvaluation
+{
     _quadtree->clearEvals();
     toPhantom.clear();
     _quadtree->reevaluateNodes();
@@ -234,9 +266,6 @@ using namespace WhirlyKit;
     for (int ix=0;ix<1<<minZoom;ix++)
         for (int iy=0;iy<1<<minZoom;iy++)
             _quadtree->addTile(Quadtree::Identifier(ix,iy,minZoom),true,false);
-    
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
-    [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
 }
 
 // Dump out info about what we've got loaded in
@@ -300,6 +329,11 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     if (!_meteredMode)
         [_loader quadDisplayLayerStartUpdates:self];
     
+    // If we're doing frame loading, figure out which frame
+    int curFrame = -1;
+    if (!frameLoadingPriority.empty())
+        curFrame = frameLoadingPriority[curFrameEntry];
+    
     if (_quadtree->numEvals() != 0)
     {
         // Let the loader know we're about to do some updates        
@@ -322,9 +356,9 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 // If it's loading, just leave things alone
                 if (!nodeInfo->loading)
                 {
-                    if (nodeInfo->phantom || (canLoadFrames && nodeInfo->nextFrame(numFrames) != -1))
+                    if (nodeInfo->phantom || (canLoadFrames && !nodeInfo->isFrameLoaded(curFrame)))
                         shouldLoad = _quadtree->shouldLoadTile(nodeInfo->ident);
-                    else
+                    else if (nodeInfo->ident.level < maxZoom)
                         addChildren = true;
                 }
             } else {
@@ -351,7 +385,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                     else if (!isInTargetLevels)
                         addChildren = true;
                 } else {
-                    if (isInTargetLevels && canLoadFrames && nodeInfo->nextFrame(numFrames) != -1)
+                    bool shouldLoadFrame = canLoadFrames && !nodeInfo->isFrameLoaded(curFrame);
+                    if (isInTargetLevels && shouldLoadFrame)
                     {
                         shouldLoad = !nodeInfo->loading;
                     } else {
@@ -360,6 +395,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                             addChildren = true;
                             if (nodeInfo->childCoverage || singleTargetLevel)
                                 makePhantom = true;
+                            else
+                                shouldLoad = shouldLoadFrame && !nodeInfo->loading;
                         }
                     }
                 }
@@ -392,7 +429,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 //                NSLog(@"Loading tile: %d: (%d,%d)",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y);
                 if (canLoadFrames)
                 {
-                    int frameId = nodeInfo->nextFrame(numFrames);
+                    int frameId = frameLoadingPriority[curFrameEntry];
 //                    NSLog(@"Loading tile: %d: (%d,%d), frame = %d",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y,frameId);
                     [_loader quadDisplayLayer:self loadTile:nodeInfo frame:frameId];
                 } else
@@ -486,6 +523,23 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 
     if (_debugMode)
         [self dumpInfo];
+
+    // See if we can move on to the next frame (if we're frame loading
+    if (!didSomething && !frameLoadingPriority.empty() && _quadtree->frameIsLoaded(frameLoadingPriority[curFrameEntry]))
+    {
+        for (int ii=1;ii<numFrames;ii++)
+        {
+            int newFrameEntry = (curFrameEntry+ii)%numFrames;
+            if (!_quadtree->frameIsLoaded(frameLoadingPriority[newFrameEntry]))
+            {
+                curFrameEntry = newFrameEntry;
+                [self resetEvaluation];
+                didSomething = true;
+//                NSLog(@"Switching to frame entry: %d",curFrameEntry);
+                break;
+            }
+        }
+    }
     
     if (didSomething)
         [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
@@ -548,18 +602,9 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     // We're loading individual frames
     _quadtree->didLoad(tileIdent,frame);
     bool loadChildren = true;
-    if (canLoadFrames && frame != -1)
-    {
-        int nextFrame = node->nextFrame(numFrames);
-        if (nextFrame >= 0)
-        {
-            loadChildren = false;
-            _quadtree->setEvaluating(tileIdent, true);
-        }
-    }
 
     // May want to consider the children next
-    if (tileIdent.level < maxZoom && loadChildren)
+    if (!frameLoadingPriority.empty()  && tileIdent.level < maxZoom && loadChildren)
     {
         int maxTargetLevel = _targetLevels.empty() ? maxZoom : *(--(_targetLevels.end()));
         if (_targetLevels.empty() || tileIdent.level < maxTargetLevel)
