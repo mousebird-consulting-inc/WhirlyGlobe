@@ -154,6 +154,12 @@ typedef enum {MaplyImageIntRGBA,
   */
 @property (nonatomic, assign) bool animationWrap;
 
+/** @brief Bit fields describing which frames are loaded.
+    @details Query this to find out which frames are completely loaded into memory and which are not.
+    @details This queries the underlying control logic and there is no delegate.  It's polling only.
+  */
+@property (nonatomic, readonly) long long loadedFrames;
+
 /** @brief Include the original z values in the tile geometry for a custom shader.
     @details When generating tiles for the globe we project the coordinates from their local system (probably MaplySphericalMercator) into a display system.  If you wanted the original z values, to say, write a custom shader that maps color to elevation, that data is now missing.
     @details If set, this adds the z values back as a separate vertex attribute called "a_elev" for your shader to pick up.
