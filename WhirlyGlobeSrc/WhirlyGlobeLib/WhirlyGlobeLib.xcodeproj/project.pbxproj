@@ -438,6 +438,8 @@
 		88115B7618A068F6008D702C /* MaplyDoubleTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88115B7418A068F6008D702C /* MaplyDoubleTapDelegate.mm */; };
 		88115B7A18A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88115B7818A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm */; };
 		88115B7F18A14EAF008D702C /* MaplyZoomGestureDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88115B7E18A14EAF008D702C /* MaplyZoomGestureDelegate.mm */; };
+		884D4F6D1975812700F2D517 /* MaplyTouchCancelAnimationDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 884D4F6B1975812700F2D517 /* MaplyTouchCancelAnimationDelegate.mm */; };
+		884D4F6F1975818C00F2D517 /* MaplyTouchCancelAnimationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 884D4F6E1975818C00F2D517 /* MaplyTouchCancelAnimationDelegate.h */; };
 		E594E38C17E81434008D5741 /* MaplyRotateDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = E594E38B17E81434008D5741 /* MaplyRotateDelegate.mm */; };
 /* End PBXBuildFile section */
 
@@ -923,6 +925,8 @@
 		88115B7D18A14E6A008D702C /* MaplyZoomGestureDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyZoomGestureDelegate.h; sourceTree = "<group>"; };
 		88115B7E18A14EAF008D702C /* MaplyZoomGestureDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyZoomGestureDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
 		88115B8018A153DC008D702C /* MaplyZoomGestureDelegate_private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyZoomGestureDelegate_private.h; sourceTree = "<group>"; };
+		884D4F6B1975812700F2D517 /* MaplyTouchCancelAnimationDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTouchCancelAnimationDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
+		884D4F6E1975818C00F2D517 /* MaplyTouchCancelAnimationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTouchCancelAnimationDelegate.h; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		E594E38917E8133D008D5741 /* MaplyRotateDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRotateDelegate.h; sourceTree = "<group>"; };
@@ -1382,6 +1386,7 @@
 				2B4504DE14BD119300C99306 /* MaplyPinchDelegate.h */,
 				2BE886CE160A855F00E92A0A /* MaplyTapMessage.h */,
 				2B03702114CA02A900A51AC4 /* MaplyTapDelegate.h */,
+				884D4F6E1975818C00F2D517 /* MaplyTouchCancelAnimationDelegate.h */,
 				88115B7218A06865008D702C /* MaplyDoubleTapDelegate.h */,
 				E594E38917E8133D008D5741 /* MaplyRotateDelegate.h */,
 				88115B7C18A14DE7008D702C /* MaplyTwoFingerTapDelegate.h */,
@@ -1898,6 +1903,7 @@
 				2B44187B13A2DA3C00514EDE /* RotateDelegate.mm */,
 				2BE886D0160A863700E92A0A /* MaplyTapMessage.mm */,
 				2B03701F14CA01C600A51AC4 /* MaplyTapDelegate.mm */,
+				884D4F6B1975812700F2D517 /* MaplyTouchCancelAnimationDelegate.mm */,
 				2B4504E014BD126400C99306 /* MaplyPinchDelegate.mm */,
 				88115B7418A068F6008D702C /* MaplyDoubleTapDelegate.mm */,
 				88115B7818A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm */,
@@ -2033,6 +2039,7 @@
 				2BA2326217984F510063CC84 /* dict-list.h in Headers */,
 				2BA2326417984F510063CC84 /* dict.h in Headers */,
 				2B4AFB881803152300C3F948 /* TileQuadOfflineRenderer.h in Headers */,
+				884D4F6F1975818C00F2D517 /* MaplyTouchCancelAnimationDelegate.h in Headers */,
 				2BA2326617984F510063CC84 /* geom.h in Headers */,
 				2BA2326817984F510063CC84 /* memalloc.h in Headers */,
 				2BA2326A17984F510063CC84 /* mesh.h in Headers */,
@@ -2280,6 +2287,7 @@
 				2B7EF48B16025D8C00D4079F /* PJ_mill.c in Sources */,
 				2B7EF48C16025D8C00D4079F /* pj_mlfn.c in Sources */,
 				2B7EF48D16025D8C00D4079F /* PJ_mod_ster.c in Sources */,
+				884D4F6D1975812700F2D517 /* MaplyTouchCancelAnimationDelegate.mm in Sources */,
 				2B7EF48E16025D8C00D4079F /* PJ_moll.c in Sources */,
 				2B7EF48F16025D8C00D4079F /* pj_msfn.c in Sources */,
 				2B7EF49016025D8C00D4079F /* pj_mutex.c in Sources */,
