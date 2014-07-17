@@ -93,6 +93,7 @@ using namespace WhirlyKit;
     bool variableSizeTiles;
     bool canDoValidTiles;
     bool canFetchFrames;
+    std::vector<int> framePriorities;
 }
 
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
@@ -166,6 +167,8 @@ using namespace WhirlyKit;
     quadLayer.maxTiles = _maxTiles;
     quadLayer.viewUpdatePeriod = _viewUpdatePeriod;
     quadLayer.minUpdateDist = _minUpdateDist;
+    if (!framePriorities.empty())
+        [quadLayer setFrameLoadingPriorities:framePriorities];
     
     // Look for a custom program
     if (_shaderProgramName)
@@ -304,6 +307,18 @@ using namespace WhirlyKit;
 - (long long)loadedFrames
 {
     return [quadLayer getFrameLoadStatus];
+}
+
+- (void)setFrameLoadingPriority:(NSArray *)priorities
+{
+    if ([priorities count] != _imageDepth)
+        return;
+    framePriorities.resize([priorities count]);
+    for (unsigned int ii=0;ii<[priorities count];ii++)
+        framePriorities[ii] = [priorities[ii] intValue];
+
+    if (quadLayer)
+        [quadLayer setFrameLoadingPriorities:framePriorities];
 }
 
 - (void)setDrawPriority:(int)drawPriority
