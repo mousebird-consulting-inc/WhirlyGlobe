@@ -52,6 +52,7 @@ using namespace WhirlyKit;
     bool canDoValidTiles;
     bool canShortCircuitImportance;
     int maxShortCircuitLevel;
+    std::vector<int> framePriorities;
 }
 
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
@@ -105,6 +106,18 @@ using namespace WhirlyKit;
 - (long long)loadedFrames
 {
     return [quadLayer getFrameLoadStatus];
+}
+
+- (void)setFrameLoadingPriority:(NSArray *)priorities
+{
+    if ([priorities count] != _imageDepth)
+        return;
+    framePriorities.resize([priorities count]);
+    for (unsigned int ii=0;ii<[priorities count];ii++)
+        framePriorities[ii] = [priorities[ii] intValue];
+    
+    if (quadLayer)
+        [quadLayer setFrameLoadingPriorities:framePriorities];
 }
 
 - (void)setImportanceScale:(float)importanceScale
@@ -169,6 +182,8 @@ using namespace WhirlyKit;
     
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
     quadLayer.maxTiles = _maxTiles;
+    if (!framePriorities.empty())
+        [quadLayer setFrameLoadingPriorities:framePriorities];
     
     [super.layerThread addLayer:quadLayer];
     
