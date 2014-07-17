@@ -128,9 +128,6 @@ using namespace WhirlyKit;
 
 - (void)setFrameLoadingPriorities:(std::vector<int> &)priorities
 {
-    if (priorities.size() != numFrames)
-        return;
-    
     frameLoadingPriority = priorities;
 }
 
@@ -165,7 +162,7 @@ using namespace WhirlyKit;
             for (unsigned int ii=0;ii<numFrames;ii++)
                 frameLoadingPriority.push_back(ii);
         }
-        curFrameEntry = 0;
+        curFrameEntry = frameLoadingPriority[0];
     }
     
 //    [self performSelector:@selector(dumpInfo) withObject:nil afterDelay:15.0];
