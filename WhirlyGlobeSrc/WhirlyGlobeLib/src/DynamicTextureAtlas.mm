@@ -387,14 +387,16 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
     
     if (found)
     {
+        DynamicTexture *dynTex0 = dynTexVec->at(0);
+        dynTex0->setRegion(texRegion.region, true);
+        dynTex0->getNumRegions()++;
+        
         for (unsigned int ii=0;ii<newTextures.size();ii++)
         {
             // If there's only one frame, we're updating that
             int which = frame == -1 ? ii : frame;
             Texture *tex = newTextures[newTextures.size() == 1 ? 0 : which];
             DynamicTexture *dynTex = dynTexVec->at(which);
-            dynTex->setRegion(texRegion.region, true);
-            dynTex->getNumRegions()++;
             //        NSLog(@"Region: (%d,%d)->(%d,%d)  texture: %ld",texRegion.region.sx,texRegion.region.sy,texRegion.region.ex,texRegion.region.ey,dynTex->getId());
             // Make the main thread do the merge
             if (MainThreadMerge)
