@@ -771,26 +771,41 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)removeObject:(MaplyComponentObject *)theObj
 {
+    if (!theObj)
+        return;
+
     [self removeObjects:@[theObj] mode:MaplyThreadAny];
 }
 
 - (void)removeObjects:(NSArray *)theObjs mode:(MaplyThreadMode)threadMode
 {
+    if (!theObjs)
+        return;
+
     [interactLayer removeObjects:[NSArray arrayWithArray:theObjs] mode:threadMode];
 }
 
 - (void)removeObjects:(NSArray *)theObjs
 {
+    if (!theObjs)
+        return;
+    
     [self removeObjects:theObjs mode:MaplyThreadAny];
 }
 
 - (void)disableObjects:(NSArray *)theObjs mode:(MaplyThreadMode)threadMode
 {
+    if (!theObjs)
+        return;
+
     [interactLayer disableObjects:theObjs mode:threadMode];
 }
 
 - (void)enableObjects:(NSArray *)theObjs mode:(MaplyThreadMode)threadMode
 {
+    if (!theObjs)
+        return;
+
     [interactLayer enableObjects:theObjs mode:threadMode];
 }
 
