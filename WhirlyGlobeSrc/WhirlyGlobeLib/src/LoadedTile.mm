@@ -190,13 +190,20 @@ using namespace WhirlyKit;
                 int size = std::max(destWidth,destHeight);
                 destWidth = destHeight = size;
             }
-            NSData *rawData = [(UIImage *)_imageData rawDataScaleWidth:destWidth height:destHeight border:borderTexel];
-            if (rawData)
+            if ([_imageData isKindOfClass:[NSData class]])
             {
-                _imageData = rawData;
                 _type = WKLoadedImageNSDataRawData;
                 _width = destWidth;
                 _height = destHeight;
+            } else {
+                NSData *rawData = [(UIImage *)_imageData rawDataScaleWidth:destWidth height:destHeight border:borderTexel];
+                if (rawData)
+                {
+                    _imageData = rawData;
+                    _type = WKLoadedImageNSDataRawData;
+                    _width = destWidth;
+                    _height = destHeight;
+                }
             }
         }
             break;
