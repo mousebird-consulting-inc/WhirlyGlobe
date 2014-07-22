@@ -9,7 +9,7 @@ cd resources
 git checkout master
 cd ../
 cd third-party/eigen
-git checkout master
+git checkout tags/3.1.2
 cd ../../
 cd third-party/clipper
 git checkout master
