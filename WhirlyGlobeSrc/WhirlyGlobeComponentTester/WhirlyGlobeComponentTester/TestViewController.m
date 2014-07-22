@@ -1093,7 +1093,7 @@ static const int NumMegaMarkers = 40000;
              if (startupMapType == Maply2DMap)
              {
                  layer.singleLevelLoading = true;
-                 layer.multilLevelLoads = @[@(-2)];
+                 layer.multilLevelLoads = @[@(-4), @(-2)];
              }
              [baseViewC addLayer:layer];
              layer.drawPriority = 0;
