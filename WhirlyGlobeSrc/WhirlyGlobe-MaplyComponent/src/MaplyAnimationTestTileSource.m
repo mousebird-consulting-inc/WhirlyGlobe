@@ -67,6 +67,9 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 {
     NSMutableArray *images = [NSMutableArray array];
     
+    // Slow down for testing
+    usleep(0.215 * 1e6);
+    
 //    NSLog(@"Loading tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
     
     // One for each layer we're
