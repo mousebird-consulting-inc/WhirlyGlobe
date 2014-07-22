@@ -128,7 +128,9 @@ using namespace WhirlyKit;
 
 - (void)setFrameLoadingPriorities:(std::vector<int> &)priorities
 {
+    curFrameEntry = 0;
     frameLoadingPriority = priorities;
+    [self resetEvaluation];
 }
 
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
