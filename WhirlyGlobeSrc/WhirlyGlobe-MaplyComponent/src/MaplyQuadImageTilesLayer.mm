@@ -620,7 +620,7 @@ using namespace WhirlyKit;
     tileID.x = ident.x;
     tileID.y = ident.y;
     
-    if (canDoValidTiles)
+    if (canDoValidTiles && ident.level >= minZoom)
     {
         MaplyBoundingBox bbox;
         bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();

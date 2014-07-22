@@ -71,6 +71,7 @@ using namespace WhirlyKit;
     
     // Look at the metadata
     sqlhelpers::StatementRead readStmt(_sqlDb,@"select value from metadata where name='bounds';");
+    // Note: Debugging
     if (readStmt.stepRow())
     {
         NSString *bounds = readStmt.getString();
@@ -183,9 +184,16 @@ using namespace WhirlyKit;
 {
     @synchronized(self)
     {
-        sqlhelpers::StatementRead readStmt(_sqlDb,[NSString stringWithFormat:@"SELECT 1 from tiles where zoom_level='%d' AND tile_column='%d' AND tile_row='%d';",tileID.level,tileID.x,tileID.y]);
-        if (readStmt.stepRow())
-            return YES;
+        if (tilesStyles)
+        {
+            sqlhelpers::StatementRead readStmt(_sqlDb,[NSString stringWithFormat:@"SELECT 1 from tiles where zoom_level='%d' AND tile_column='%d' AND tile_row='%d';",tileID.level,tileID.x,tileID.y]);
+            if (readStmt.stepRow())
+                return YES;
+        } else {
+            sqlhelpers::StatementRead readStmt(_sqlDb,[NSString stringWithFormat:@"SELECT 1 from map where zoom_level='%d' AND tile_column='%d' AND tile_row='%d';",tileID.level,tileID.x,tileID.y]);
+            if (readStmt.stepRow())
+                return YES;
+        }
     }
 
     return NO;
