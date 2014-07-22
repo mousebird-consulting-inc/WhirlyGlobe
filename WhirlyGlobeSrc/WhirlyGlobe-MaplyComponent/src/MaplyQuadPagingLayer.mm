@@ -596,8 +596,9 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     QuadPagingLoadedTileSet::iterator it = tileSet.find(&dummyTile);
     if (it != tileSet.end())
     {
+        QuadPagingLoadedTile *theTile = *it;
         tileSet.erase(it);
-        delete *it;
+        delete theTile;
     }
     numFetches--;
     pthread_mutex_unlock(&tileSetLock);
