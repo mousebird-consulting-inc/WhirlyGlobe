@@ -312,7 +312,10 @@ using namespace WhirlyKit;
 - (void)setFrameLoadingPriority:(NSArray *)priorities
 {
     if ([NSThread currentThread] != super.layerThread)
+    {
         [self performSelector:@selector(setFrameLoadingPriority:) onThread:super.layerThread withObject:priorities waitUntilDone:NO];
+        return;
+    }
 
     if ([priorities count] != _imageDepth)
         return;
