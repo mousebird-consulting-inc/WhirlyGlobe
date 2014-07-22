@@ -101,7 +101,7 @@ using namespace WhirlyKit;
     
     [self setupTileLoader];
     [quadLayer refresh];
-}
+} 
 
 - (long long)loadedFrames
 {
