@@ -39,6 +39,9 @@ typedef struct
     int x, y, level;
 } MaplyTileID;
 
+/// @brief Convert a MaplyTileID to an NSString
+NSString *MaplyTileIDString(MaplyTileID tileID);
+
 /** @brief The protocol for a Maply Tile Source.  
     @details Fill out this protocol and you can pass in your own data tile by tile. This protocol is used by the MaplyQuadImageTilesLayer to pull in image data per tile.  This can be one or more images, they can be local, remote or even generated on the fly.  It's up to the object itself to return suitable data as requested or indicate failure (by returning nil).
     @details The tile source should know its coordinate system, which is handed to Maply separately.
@@ -130,5 +133,13 @@ typedef struct
     @param frame The individual frame (of an animation) to fetch.
   */
 - (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID frame:(int)frame;
+
+/** @brief Called when the tile is unloaded.
+    @details Normally you won't get called when an image or vector tile is unloaded from memory.  If you set this, you will.
+    @details You're not required to do anything, but you can clean up data of your own if you like.
+    @details You will be called on another thread, so act accordingly.
+    @param tileID The tile tha that just got unloaded.
+  */
+- (void)tileUnloaded:(MaplyTileID)tileID;
 
 @end
