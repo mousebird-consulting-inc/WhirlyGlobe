@@ -93,6 +93,7 @@ using namespace WhirlyKit;
     bool variableSizeTiles;
     bool canDoValidTiles;
     bool canFetchFrames;
+    bool wantsUnload;
 }
 
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
@@ -140,6 +141,9 @@ using namespace WhirlyKit;
     
     // Can the source fetch individual frames of animation
     canFetchFrames = [_tileSource respondsToSelector:@selector(startFetchLayer:tile:frame:)];
+    
+    // Wants unload callbacks
+    wantsUnload = [_tileSource respondsToSelector:@selector(tileUnloaded:)];
     
     return self;
 }
@@ -943,5 +947,21 @@ using namespace WhirlyKit;
     [tileLoader dataSource: self loadedImage:loadTile forLevel: level col: col row: row];
 }
 
+- (void)tileWasUnloadedLevel:(int)level col:(int)col row:(int)row
+{
+    if (wantsUnload)
+    {
+        MaplyTileID tileID;
+        tileID.x = col;  tileID.y = row;  tileID.level = level;
+        // If we're not doing OSM style addressing, we need to flip the Y back to TMS
+        if (!_flipY)
+        {
+            int y = (1<<level)-tileID.y-1;
+            tileID.y = y;
+        }
+
+        [_tileSource tileUnloaded:tileID];
+    }
+}
 
 @end

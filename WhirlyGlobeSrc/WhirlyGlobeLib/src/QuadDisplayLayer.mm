@@ -310,7 +310,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 if (!nodeInfo->loading)
                 {
                     if (nodeInfo->phantom)
-                        shouldLoad = _quadtree->shouldLoadTile(nodeInfo->ident);
+                        shouldLoad = _quadtree->shouldLoadTile(nodeInfo->ident) && nodeInfo->ident.level <= maxZoom;
                     else
                         addChildren = true;
                 }
@@ -372,7 +372,6 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 }
                 
 //                NSLog(@"Loading tile: %d: (%d,%d)",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y);
-                [_loader quadDisplayLayer:self loadTile:nodeInfo ];
                 _quadtree->setPhantom(nodeInfo->ident, false);
                 _quadtree->setLoading(nodeInfo->ident, true);
                 
@@ -380,6 +379,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 QuadIdentSet::iterator it = toPhantom.find(nodeInfo->ident);
                 if (it != toPhantom.end())
                     toPhantom.erase(it);
+
+                [_loader quadDisplayLayer:self loadTile:nodeInfo ];
             }
             
             // Unload a tile
@@ -387,12 +388,12 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             {
 //                NSLog(@"Unload tile: %d: (%d,%d)",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y);
                 _quadtree->removeTile(nodeInfo->ident);
-                [_loader quadDisplayLayer:self unloadTile:nodeInfo];
-
                 // Take it out of the phantom list
                 QuadIdentSet::iterator it = toPhantom.find(nodeInfo->ident);
                 if (it != toPhantom.end())
                     toPhantom.erase(it);
+
+                [_loader quadDisplayLayer:self unloadTile:nodeInfo];
             }
             
             // Turn this into a phantom node
