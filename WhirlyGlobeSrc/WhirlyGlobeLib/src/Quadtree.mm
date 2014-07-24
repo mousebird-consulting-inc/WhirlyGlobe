@@ -269,6 +269,9 @@ bool Quadtree::frameIsLoaded(int frame)
     
     bool isLoaded = (count+numPhantomNodes) == nodesByIdent.size();
     
+//    if (count+numPhantomNodes > nodesByIdent.size())
+//        NSLog(@"Got one");
+    
     return isLoaded;
 }
     
@@ -415,8 +418,11 @@ void Quadtree::didLoad(const Identifier &tileIdent,int frame)
     
     if (frame != -1)
     {
-        node->nodeInfo.frameFlags |= 1<<frame;
-        addFrameLoaded(frame);
+        if (!(node->nodeInfo.frameFlags & 1<<frame))
+        {
+            node->nodeInfo.frameFlags |= 1<<frame;
+            addFrameLoaded(frame);
+        }
     }
 }
     
