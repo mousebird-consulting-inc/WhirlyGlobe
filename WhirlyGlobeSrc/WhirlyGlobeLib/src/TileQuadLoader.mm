@@ -659,6 +659,9 @@ using namespace WhirlyKit;
         parents.insert(Quadtree::Identifier(tileInfo->ident.x/2,tileInfo->ident.y/2,tileInfo->ident.level-1));
     
     [self updateTexAtlasMapping];
+    
+    if ([dataSource respondsToSelector:@selector(tileWasUnloadedLevel:col:row:)])
+        [dataSource tileWasUnloadedLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y];
 }
 
 // Run the parent updates, without doing a flush
