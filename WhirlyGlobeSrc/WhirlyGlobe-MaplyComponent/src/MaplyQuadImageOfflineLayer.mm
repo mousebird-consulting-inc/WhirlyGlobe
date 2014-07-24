@@ -233,7 +233,7 @@ using namespace WhirlyKit;
 /// Return the minimum quad tree zoom level (usually 0)
 - (int)minZoom
 {
-    return minZoom;
+    return 0;
 }
 
 /// Return the maximum quad tree zoom level.  Must be at least minZoom
@@ -275,6 +275,7 @@ using namespace WhirlyKit;
         mbr.ll() = centerLocal - span/2.0;
         mbr.ur() = centerLocal + span/2.0;
         float import = ScreenImportance(lastViewState, Point2f(renderer.framebufferWidth,renderer.framebufferHeight), lastViewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
+        import *= _importanceScale;
         if (import <= quadLayer.minImportance)
         {
             zoomLevel--;
@@ -379,17 +380,32 @@ using namespace WhirlyKit;
         }
     } else {
         import = ScreenImportance(viewState, frameSize, viewState.eyeVec, tileSize, [coordSys getCoordSystem], coordAdapter, mbr, ident, attrs);
+        import *= _importanceScale;
     }
     
 //    NSLog(@"Tiles = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
     
-    return import * _importanceScale;
+    return import;
 }
 
 - (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row frame:(int)frame attrs:(NSMutableDictionary *)attrs
 {
     MaplyTileID tileID;
     tileID.x = col;  tileID.y = row;  tileID.level = level;
+    
+    // If this is a lower level than we provide, just do a placeholder
+    if (tileID.level < minZoom)
+    {
+        NSArray *args = @[[WhirlyKitLoadedImage PlaceholderImage],@(tileID.x),@(tileID.y),@(tileID.level),@(frame),_tileSource];
+        if (super.layerThread)
+        {
+            if ([NSThread currentThread] == super.layerThread)
+                [self performSelector:@selector(mergeTile:) withObject:args];
+            else
+                [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
+        }
+        return;
+    }
     
     // If we're not doing OSM style addressing, we need to flip the Y back to TMS
     if (!_flipY)
