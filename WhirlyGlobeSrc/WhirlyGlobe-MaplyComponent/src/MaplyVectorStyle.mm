@@ -182,7 +182,7 @@ using namespace WhirlyKit;
             }
             [result replaceOccurrencesOfString:@"\\n"
                                     withString:@"\n"
-                                       options:nil
+                                       options:0
                                          range:NSMakeRange(0, result.length)];
         }
         
