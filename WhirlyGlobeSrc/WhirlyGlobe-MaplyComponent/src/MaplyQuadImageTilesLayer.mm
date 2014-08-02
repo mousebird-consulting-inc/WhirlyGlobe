@@ -486,6 +486,7 @@ using namespace WhirlyKit;
         mbr.ll() = center - span/2.0;
         mbr.ur() = center + span/2.0;
         float import = ScreenImportance(lastViewState, Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight), lastViewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
+        import *= _importanceScale;
         if (import <= quadLayer.minImportance)
         {
             zoomLevel--;
@@ -632,11 +633,12 @@ using namespace WhirlyKit;
         } else {
             import = ScreenImportance(viewState, frameSize, viewState.eyeVec, thisTileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
         }
+        import *= _importanceScale;
     }
 
 //    NSLog(@"Tiles = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
     
-    return import * _importanceScale;
+    return import;
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
