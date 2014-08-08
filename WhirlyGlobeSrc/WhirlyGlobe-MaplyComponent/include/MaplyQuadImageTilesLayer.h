@@ -154,12 +154,6 @@ typedef enum {MaplyImageIntRGBA,
   */
 @property (nonatomic, assign) bool animationWrap;
 
-/** @brief Bit fields describing which frames are loaded.
-    @details Query this to find out which frames are completely loaded into memory and which are not.
-    @details This queries the underlying control logic and there is no delegate.  It's polling only.
-  */
-@property (nonatomic, readonly) long long loadedFrames;
-
 /** @brief For the case where we're loading individual frames, this sets the order to load them in.
     @details When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.
   */
@@ -299,6 +293,12 @@ typedef enum {MaplyImageIntRGBA,
     @details It can also just call loadedImages:forTile: with nil, but this is more helpful.
  */
 - (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID frame:(int)frame;
+
+/** @brief Status structures describing which frames are loaded.
+    @details Query this to find out which frames are completely loaded into memory and which are not.
+    @details This queries the underlying control logic and there is no delegate.  It's polling only.
+ */
+- (NSArray *)loadedFrames;
 
 /** @brief Do a hard reset of the layer.
     @details This will clean out all the layers resources and force it to start loading again.
