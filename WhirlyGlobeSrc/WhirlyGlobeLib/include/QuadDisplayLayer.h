@@ -39,6 +39,20 @@ namespace WhirlyKit
 {
 /// Quad tree Nodeinfo structures sorted by importance
 typedef std::set<WhirlyKit::Quadtree::Identifier> QuadIdentSet;
+
+/// The frame load status gives us information about a single frame (if we're in that mode)
+class FrameLoadStatus
+{
+public:
+    FrameLoadStatus() : complete(false), currentFrame(false), numTilesLoaded(0) { }
+    /// True if this one is fully loaded
+    bool complete;
+    /// True if this frame is currently being worked on
+    bool currentFrame;
+    /// Number of tiles currently loaded
+    int numTilesLoaded;
+};
+    
 }
 
 /** Quad tree based data structure.  Fill this in to provide structure and
@@ -213,8 +227,8 @@ typedef std::set<WhirlyKit::Quadtree::Identifier> QuadIdentSet;
 - (void)setFrameLoadingPriorities:(std::vector<int> &)priorities;
 
 /// Return the frame loading status from the quad tree.
-/// true is fully loaded.  Only makes sense if numFrames > 1
-- (long long)getFrameLoadStatus;
+/// Each entry is for one total frame.  Only makes sense if numFrames > 1
+- (void)getFrameLoadStatus:(std::vector<WhirlyKit::FrameLoadStatus> &)frameLoadStats;
 
 /// Call this to force a reload for all existing tiles
 - (void)refresh;

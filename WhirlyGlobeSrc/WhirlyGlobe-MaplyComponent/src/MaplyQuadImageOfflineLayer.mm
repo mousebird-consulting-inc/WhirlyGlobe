@@ -103,9 +103,24 @@ using namespace WhirlyKit;
     [quadLayer refresh];
 } 
 
-- (long long)loadedFrames
+- (NSArray *)loadedFrames
 {
-    return [quadLayer getFrameLoadStatus];
+    std::vector<WhirlyKit::FrameLoadStatus> frameStatus;
+    [quadLayer getFrameLoadStatus:frameStatus];
+    
+    NSMutableArray *stats = [NSMutableArray array];
+    for (unsigned int ii=0;ii<frameStatus.size();ii++)
+    {
+        FrameLoadStatus &inStatus = frameStatus[ii];
+        MaplyFrameStatus *status = [[MaplyFrameStatus alloc] init];
+        status.numTilesLoaded = inStatus.numTilesLoaded;
+        status.fullyLoaded = inStatus.complete;
+        status.currentFrame = inStatus.currentFrame;
+        
+        [stats addObject:status];
+    }
+    
+    return stats;
 }
 
 - (void)setFrameLoadingPriority:(NSArray *)priorities

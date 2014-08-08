@@ -23,6 +23,17 @@
 #import "MaplyCoordinate.h"
 #import "MaplyCoordinateSystem.h"
 
+/** @brief Status information for each frame's loading status.
+ @details When loading animated frames, this contains the status of a single frame.
+ */
+@interface MaplyFrameStatus : NSObject
+
+@property (nonatomic) int numTilesLoaded;
+@property (nonatomic) bool fullyLoaded;
+@property (nonatomic) int currentFrame;
+
+@end
+
 /** @typedef struct MaplyTileID
     @brief This represents the indentifier for a unique tile in the pyramid.
     @details Each tile in an image (or vector tile) pyramid can be uniquely
