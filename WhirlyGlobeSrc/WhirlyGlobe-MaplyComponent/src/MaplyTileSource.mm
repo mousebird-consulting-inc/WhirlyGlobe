@@ -20,3 +20,5 @@
 
 #import "MaplyTileSource.h"
 
+@implementation MaplyFrameStatus
+@end

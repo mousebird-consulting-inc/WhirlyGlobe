@@ -153,12 +153,6 @@
   */
 @property (nonatomic) MaplyBoundingBox bbox;
 
-/** @brief Bit fields describing which frames are loaded.
- @details Query this to find out which frames are completely loaded into memory and which are not.
- @details This queries the underlying control logic and there is no delegate.  It's polling only.
- */
-@property (nonatomic, readonly) long long loadedFrames;
-
 /** @brief For the case where we're loading individual frames, this sets the order to load them in.
     @details When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.
  */
@@ -168,6 +162,12 @@
     @details Set this delegate to get the images out of the offline rendering layer.
   */
 @property (nonatomic,weak) NSObject<MaplyQuadImageOfflineDelegate> *delegate;
+
+/** @brief Status objects describing the state of each frame.
+    @details Query this to find out which frames are completely loaded into memory and which are not.
+    @details This queries the underlying control logic and there is no delegate.  It's polling only.
+ */
+- (NSArray *)loadedFrames;
 
 /// @brief Force the layer to reload its tiles and rerender.
 - (void)reload;

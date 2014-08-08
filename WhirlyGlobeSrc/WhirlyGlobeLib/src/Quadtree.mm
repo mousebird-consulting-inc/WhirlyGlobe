@@ -259,9 +259,11 @@ void Quadtree::clearFlagCounts(int frameFlags)
             frameLoadCounts[ii]--;
 }
     
-bool Quadtree::frameIsLoaded(int frame)
+bool Quadtree::frameIsLoaded(int frame,int *tilesLoaded)
 {
     int count = getFrameCount(frame);
+    if (tilesLoaded)
+        *tilesLoaded = count;
     
     // Make sure we don't agree when there's nothing going on
     if (count == 0)

@@ -70,7 +70,7 @@ using namespace WhirlyKit;
     std::vector<int> frameLoadingPriority;
     
     // If we're loading frames, the frame loading status last time through the eval loop
-    long long frameLoadStatus;
+    std::vector<FrameLoadStatus> frameLoadStats;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES *)inRenderer;
@@ -537,12 +537,12 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
         [self dumpInfo];
 
     // See if we can move on to the next frame (if we're frame loading
-    if (!didSomething && !frameLoadingPriority.empty() && _quadtree->frameIsLoaded(frameLoadingPriority[curFrameEntry]))
+    if (!didSomething && !frameLoadingPriority.empty() && _quadtree->frameIsLoaded(frameLoadingPriority[curFrameEntry],NULL))
     {
         for (int ii=1;ii<numFrames;ii++)
         {
             int newFrameEntry = (curFrameEntry+ii)%numFrames;
-            if (!_quadtree->frameIsLoaded(frameLoadingPriority[newFrameEntry]))
+            if (!_quadtree->frameIsLoaded(frameLoadingPriority[newFrameEntry],NULL))
             {
                 curFrameEntry = newFrameEntry;
                 [self resetEvaluation];
@@ -585,19 +585,23 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     {
         if (!frameLoadingPriority.empty())
         {
-            frameLoadStatus = 0;
+            frameLoadStats.resize(numFrames);
+            
             for (unsigned int ii=0;ii<numFrames;ii++)
-                if (_quadtree->frameIsLoaded(ii))
-                    frameLoadStatus |= 1 << ii;
+            {
+                FrameLoadStatus &status = frameLoadStats[ii];
+                status.complete = _quadtree->frameIsLoaded(ii, &status.numTilesLoaded);
+                status.currentFrame = ii == frameLoadingPriority[curFrameEntry];
+            }
         }
     }
 }
 
-- (long long)getFrameLoadStatus
+- (void)getFrameLoadStatus:(std::vector<WhirlyKit::FrameLoadStatus> &)retFrameLoadStats
 {
     @synchronized(self)
     {
-        return frameLoadStatus;
+        retFrameLoadStats = frameLoadStats;
     }
 }
 
