@@ -577,6 +577,7 @@ using namespace WhirlyKit;
         
         offlineImage.textures = maplyTextures;
         offlineImage.centerSize = inImage.centerSize;
+        offlineImage.texSize = inImage.texSize;
         for (unsigned int ii=0;ii<4;ii++)
             offlineImage->cornerSizes[ii] = inImage->cornerSizes[ii];
         

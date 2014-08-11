@@ -469,11 +469,15 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         WhirlyKitQuadTileOfflineImage *image = [[WhirlyKitQuadTileOfflineImage alloc] init];
         image.textures = texIDs;
         image.mbr = mbr;
+        image.texSize = texSize;
         image.centerSize = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(texSize.width/2.0, texSize.height/2.0)];
         image->cornerSizes[0] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(0.0, 0.0)];
         image->cornerSizes[1] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(texSize.width, 0.0)];
         image->cornerSizes[2] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(texSize.width, texSize.height)];
         image->cornerSizes[3] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(0.0, texSize.height)];
+        
+//        NSLog(@"CenterSize = (%f,%f), texSize = (%d,%d)",image.centerSize.width,image.centerSize.height,(int)texSize.width,(int)texSize.height);
+        
         [_outputDelegate loader:self image:image];
     }
     
