@@ -42,6 +42,9 @@
 /// Size of the center pixel in meters
 @property (nonatomic) CGSize centerSize;
 
+/// Size of the textures we're producing
+@property (nonatomic) CGSize texSize;
+
 @end
 
 
