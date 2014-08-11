@@ -513,6 +513,7 @@ using namespace WhirlyKit;
         tileBuilder->lineMode = false;
         tileBuilder->borderTexel = _borderTexel;
         tileBuilder->singleLevel = !_quadLayer.targetLevels.empty();
+        tileBuilder->enabled = _enable;
 
         // If we haven't decided how many active textures we'll have, do that
         if (_activeTextures == -1)
@@ -590,6 +591,8 @@ using namespace WhirlyKit;
             estTexY = std::max(loadElev.numY-1,estTexY);
         }
         tileBuilder->initAtlases(_imageType,_numImages,_textureAtlasSize,estTexX,estTexY);
+        if (!_enable)
+            tileBuilder->drawAtlas->setEnableAllDrawables(false, changeRequests);
 
         createdAtlases = true;
     }
