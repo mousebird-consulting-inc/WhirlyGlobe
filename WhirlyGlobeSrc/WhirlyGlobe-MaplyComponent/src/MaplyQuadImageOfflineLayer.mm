@@ -157,6 +157,7 @@ using namespace WhirlyKit;
 {
     _on = on;
     tileLoader.on = _on;
+    quadLayer.enable = _on;
 }
 
 - (void)setPeriod:(float)period
