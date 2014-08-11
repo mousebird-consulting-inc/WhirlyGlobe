@@ -210,6 +210,8 @@ public:
 @property (nonatomic,assign) bool fullLoad;
 /// If fullLoad is on, we need a timeout.  Otherwise changes just pile up until we run out of memory
 @property (nonatomic,assign) NSTimeInterval fullLoadTimeout;
+/// On by default.  If you turn this off we won't evaluate any view changes.
+@property (nonatomic,assign) bool enable;
 
 /// Construct with a renderer and data source for the tiles
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)dataSource loader:(NSObject<WhirlyKitQuadLoader> *)loader renderer:(WhirlyKitSceneRendererES *)renderer;

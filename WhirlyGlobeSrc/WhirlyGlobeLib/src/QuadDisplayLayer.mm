@@ -101,6 +101,7 @@ using namespace WhirlyKit;
         somethingHappened = false;
         canLoadFrames = false;
         curFrameEntry = -1;
+        _enable = true;
     }
     
     return self;
@@ -131,6 +132,35 @@ using namespace WhirlyKit;
     curFrameEntry = 0;
     frameLoadingPriority = priorities;
     [self resetEvaluation];
+}
+
+- (void)setEnable:(bool)enable
+{
+    if ([NSThread currentThread] != _layerThread)
+    {
+        [self performSelector:@selector(runSetEnable:) onThread:_layerThread withObject:@(enable) waitUntilDone:NO];
+        return;
+    }
+    
+    [self runSetEnable:@(enable)];
+}
+
+- (void)runSetEnable:(NSNumber *)enable
+{
+    bool newEnable = [enable boolValue];
+    if (_enable != newEnable)
+    {
+        _enable = newEnable;
+        
+        if (_enable)
+        {
+            [self resetEvaluation];
+            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
+            [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
+        } else {
+            [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
+        }
+    }
 }
 
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
@@ -241,6 +271,10 @@ using namespace WhirlyKit;
     if (!inViewState)
         return;
     
+    // We'll just ignore changes
+    if (!_enable)
+        return;
+    
     // Check if we should even be doing an update
     if ([_loader respondsToSelector:@selector(shouldUpdate:initial:)])
         if (![_loader shouldUpdate:inViewState initial:(viewState == nil)])
@@ -322,6 +356,10 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 - (void)evalStep:(id)Sender
 {
     bool didSomething = false;
+    
+    // Might have been turned off
+    if (!_enable)
+        return;
     
     // If the renderer hasn't been set up, punt and try again later
     if (_renderer.framebufferWidth == 0 || _renderer.framebufferHeight == 0 || viewState == nil)
