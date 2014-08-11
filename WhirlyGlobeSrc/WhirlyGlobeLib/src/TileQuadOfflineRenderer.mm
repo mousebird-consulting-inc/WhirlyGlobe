@@ -50,6 +50,17 @@ public:
         }
     }
     
+    // Return the number of loaded frames
+    int getNumLoaded()
+    {
+        int numLoad = 0;
+        for (unsigned int ii=0;ii<images.size();ii++)
+            if (images[ii])
+                numLoad++;
+        
+        return numLoad;
+    }
+    
     // Details of which node we're representing
     WhirlyKit::Quadtree::Identifier ident;
 
@@ -152,7 +163,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     if (!_quadLayer)
         return;
     
-//    NSLog(@"MBR changed");
+    NSLog(@"MBR changed");
 
     if (mbr.ll().x() < 0 && mbr.ur().x() > 0 && (mbr.ur().x() - mbr.ll().x() > M_PI))
     {
@@ -177,7 +188,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 - (void)imageRenderImmediate
 {
-//    NSLog(@"Render:: Immediate");
+    NSLog(@"Render:: Immediate");
     immediateScheduled = false;
     
     if (_on)
@@ -212,7 +223,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
         if (_on && somethingChanged)
         {
-    //        NSLog(@"Render:: Periodic");
+        NSLog(@"Render:: Periodic");
             CFTimeInterval now = CFAbsoluteTimeGetCurrent();
             if (now - lastRender >= _period)
                 [self imageRenderToLevel:-1];
@@ -253,7 +264,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         for (OfflineTileSet::iterator it = tiles.begin(); it != tiles.end(); ++it)
         {
             OfflineTile *tile = *it;
-            if (tile->numLoading > 0)
+            if (tile->getNumLoaded() == 0)
                 continue;
             // Scale the extents to the output image
             Mbr tileMbr[2];
@@ -349,7 +360,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
                 }
 
                 OfflineTile *tile = *it;
-                if (tile->numLoading > 0)
+                if (tile->images[ii] == nil)
                     continue;
                 if (deep > 0 && tile->ident.level > deep)
                     continue;
@@ -419,7 +430,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         CGContextRelease(theContext);
         CGColorSpaceRelease(colorSpace);
         
-//        NSLog(@"Rendered %d tiles of %d",numRenderedTiles,(int)tiles.size());
+//        NSLog(@"Rendered %d tiles of %d, depth = %d",numRenderedTiles,(int)tiles.size(),deep);
         
         // Convert the images into OpenGL ES textures
         bool aborted = false;
