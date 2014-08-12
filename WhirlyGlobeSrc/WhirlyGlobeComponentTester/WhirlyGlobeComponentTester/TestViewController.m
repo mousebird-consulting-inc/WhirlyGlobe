@@ -238,10 +238,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
         baseViewC.clearColor = [UIColor blackColor];
     else
         baseViewC.clearColor = [UIColor whiteColor];
-    
-    // We'll let the toolkit create a thread per image layer.
-    baseViewC.threadPerLayer = true;
-    
+        
     if (globeViewC)
     {
         // Start up over San Francisco
