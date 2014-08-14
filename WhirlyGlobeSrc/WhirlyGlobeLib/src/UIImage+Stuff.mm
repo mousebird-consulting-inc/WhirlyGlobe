@@ -105,7 +105,6 @@ using namespace WhirlyKit;
     CGColorSpaceRelease(colorSpace);
     
     // Copy over the extra pixels
-    // Note: Only supporting one pixel
     unsigned int *buf = (unsigned int *)[retData mutableBytes];
     if (border > 0)
     {
