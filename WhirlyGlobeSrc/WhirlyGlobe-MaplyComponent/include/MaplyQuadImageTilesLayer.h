@@ -221,6 +221,12 @@ typedef enum {MaplyImageIntRGBA,
   */
 @property (nonatomic) MaplyQuadImageFormat imageFormat;
 
+/** @brief Number of border texels to set up around image tiles.
+    @details For matching image tiles along borders in 3D (probably the globe) we resample the image slightly smaller than we get and make up a boundary around the outside.  This number controls that border size.
+    @details By default this is 1.  It's safe to set it to 0 for 2D maps and some overalys.
+  */
+@property (nonatomic) int borderTexel;
+
 /** @brief Control how tiles are indexed, either from the lower left or the upper left.
     @details If set, we'll use the OSM approach (also Google Maps) to y indexing.  That's that default and it's normally what you're run into.
     @details Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you're tile source looks odd, try setting this to false.

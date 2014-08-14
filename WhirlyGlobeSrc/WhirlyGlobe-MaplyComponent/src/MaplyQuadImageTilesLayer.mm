@@ -128,6 +128,7 @@ using namespace WhirlyKit;
     _maxCurrentImage = -1;
     _useElevAsZ = true;
     _importanceScale = 1.0;
+    _borderTexel = 1;
     canFetchFrames = false;
     
     // See if we're letting the source do the async calls or what
@@ -248,6 +249,7 @@ using namespace WhirlyKit;
     tileLoader.useElevAsZ = (_viewC.elevDelegate != nil) && _useElevAsZ;
     tileLoader.textureAtlasSize = _texturAtlasSize;
     tileLoader.enable = _enable;
+    tileLoader.borderTexel = _borderTexel;
     switch (_imageFormat)
     {
         case MaplyImageIntRGBA:
