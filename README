@@ -1,15 +1,20 @@
 If you're new to WhirlyGlobe-Maply, please go read the main page.
 http://mousebird.github.com/WhirlyGlobe/
 
-There's a mailing list for announcements.  Please join!
+There's a mailing list for announcements.  Join!
 http://eepurl.com/D30CD
+
+Check out the blog for current progress.
+http://mousebirdconsulting.blogspot.com
 
 What is WhirlyGlobe-Maply?
 ---
 
-The WhirlyGlobe part is a self contained 3D earth display component suitable for use in iPhone and iPad apps. The globe is rendered in OpenGL ES with a pageable quad tree texture and support for vector data overlays.  You can use it to drop a simple globe into your app or implement a big, complicated interactive globe.
+WhirlyGlobe-Maply is a toolkit with two parts, hence the dash.  The WhirlyGlobe part is an interactive 3D globe.    The Maply part is an interactive 2D map.  There are separate view controllers (on iOS) for each, but otherwise they share 95% of their code.
 
-The Maply part displays exactly the same data in much the same way except as a flat map (with or without perspective).  It's the same toolkit, with different entry points (view controllers, basically).  You get both in the WhirlyGlobe-Maply distribution.
+This toolkit is used in quite a few big, complicated apps and even more smaller, less complicated apps.  Feel free to use it in yours.
+
+WG-Maply is available for iOS and Android.  The iOS version is stable and well tested.  The Android version is still in beta in the develop_3_0 branch.
 
 This is the master branch of the WhirlyGlobe-Maply Component and API version 2.3.  It should be easy to compile, as all the crazy dependencies are in submodules.  You can also get a precompiled version.  Check the project page for that.
 
