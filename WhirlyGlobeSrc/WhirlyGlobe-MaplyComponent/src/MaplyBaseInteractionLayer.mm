@@ -618,6 +618,27 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     return compObj;
 }
 
+// Make a temporary EAGL context if we need it.
+// This happens if we're making OpenGL calls on a thread that doesn't have a context.
+- (EAGLContext *)setupTempContext:(MaplyThreadMode)threadMode
+{
+    EAGLContext *tmpContext = nil;
+    if (threadMode == MaplyThreadCurrent && ![EAGLContext currentContext])
+    {
+        tmpContext = [[EAGLContext alloc] initWithAPI:layerThread.renderer.context.API sharegroup:layerThread.renderer.context.sharegroup];
+        [EAGLContext setCurrentContext:tmpContext];
+    }
+    
+    return tmpContext;
+}
+
+// This just releases the context, but we may want to keep a queue of these in future
+- (void)clearTempContext:(EAGLContext *)context
+{
+    if (context)
+        [EAGLContext setCurrentContext:nil];
+}
+
 // Actually add the labels.
 // Called in an unknown thread.
 - (void)addScreenLabelsRun:(NSArray *)argArray
@@ -626,6 +647,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+
+    // May need a temporary context when setting up screen label textures
+    EAGLContext *tmpContext = [self setupTempContext:threadMode];
     
     // Might be a custom shader on these
     [self resolveShader:inDesc];
@@ -693,6 +717,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     [userObjects addObject:compObj];
     compObj.underConstruction = false;
     pthread_mutex_unlock(&userLock);
+
+    [self clearTempContext:tmpContext];
 }
 
 // Add screen space (2D) labels
@@ -726,6 +752,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
 
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyLabelDrawPriorityDefault) toDict:inDesc];
+
+    // May need a temporary context when setting up label textures
+    EAGLContext *tmpContext = [self setupTempContext:threadMode];
 
     // Might be a custom shader on these
     [self resolveShader:inDesc];
@@ -796,6 +825,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     [userObjects addObject:compObj];
     compObj.underConstruction = false;
     pthread_mutex_unlock(&userLock);
+    
+    [self clearTempContext:tmpContext];
 }
 
 // Add 3D labels
