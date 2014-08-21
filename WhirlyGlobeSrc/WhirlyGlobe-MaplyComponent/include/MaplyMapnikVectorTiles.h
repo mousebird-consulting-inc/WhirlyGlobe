@@ -71,6 +71,7 @@ typedef enum {
 @property (nonatomic, strong) NSObject<VectorStyleDelegate> *styleDelegate;
 @property (nonatomic, assign) BOOL debugLabel;
 @property (nonatomic, assign) BOOL debugOutline;
+@property (nonatomic, assign) int minZoom,maxZoom;
 
 /** @brief A convenience method that fetches all the relevant files and creates a vector tiles object.
     @details This method will fetch all the relevant config files necessary to start a Mapnik vector tile object and the call you back to set up the actual layer.
