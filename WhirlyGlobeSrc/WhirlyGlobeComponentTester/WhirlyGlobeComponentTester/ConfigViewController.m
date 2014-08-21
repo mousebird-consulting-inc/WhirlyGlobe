@@ -93,7 +93,8 @@
                   kMaplyTestOWM: @(NO),
                   kMaplyTestForecastIO: @(NO),
                   kMaplyTestMapboxStreets: @(NO),
-                  kMaplyMapzenVectors: @(NO)}
+//                  kMaplyMapzenVectors: @(NO)
+                  }
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
                                                rows:
@@ -126,7 +127,8 @@
               kMaplyTestOWM: @(NO),
               kMaplyTestForecastIO: @(NO),
               kMaplyTestMapboxStreets: @(NO),
-              kMaplyMapzenVectors: @(NO)}
+//              kMaplyMapzenVectors: @(NO)
+              }
                                    singleSelect:false],
            [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
                                            rows:
