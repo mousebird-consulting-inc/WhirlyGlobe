@@ -563,7 +563,11 @@ static double MAX_EXTENT = 20037508.342789244;
 }
 
 
-- (int)minZoom {
+- (int)minZoom
+{
+    if (_minZoom != 0)
+        return _minZoom;
+    
   if(self.tileSources.count) {
       id tileSource = self.tileSources[0];
       if ([tileSource isKindOfClass:[MaplyMBTileSource class]])
@@ -575,7 +579,8 @@ static double MAX_EXTENT = 20037508.342789244;
 }
 
 
-- (int)maxZoom {
+- (int)maxZoom
+{
   if(self.tileSources.count) {
       id tileSource = self.tileSources[0];
       if ([tileSource isKindOfClass:[MaplyMBTileSource class]])
