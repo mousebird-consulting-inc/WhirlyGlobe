@@ -24,6 +24,7 @@
 		2BA13C0717F10ECA000C43B7 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B8218CC176FCB7C0012322A /* CoreLocation.framework */; };
 		2BA13C0817F10EEA000C43B7 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC989E117DC28350071DA9E /* libz.dylib */; };
 		2BA13C0917F11068000C43B7 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BA13BF117EE1875000C43B7 /* libc++.dylib */; };
+		2BADF95B19A6AB4E00C40CAA /* tl_2013_06075_roads.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2BADF95919A6AB4800C40CAA /* tl_2013_06075_roads.sqlite */; };
 		2BB54ECC17CEB8330065451F /* icon-iPhone.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54ECB17CEB8330065451F /* icon-iPhone.png */; };
 		2BB54ECF17CEB8380065451F /* icon-iPhone@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54ECE17CEB8370065451F /* icon-iPhone@2x.png */; };
 		2BB54ED117CEB83E0065451F /* icon-iPad.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54ED017CEB83E0065451F /* icon-iPad.png */; };
@@ -456,6 +457,7 @@
 		2BA13BF117EE1875000C43B7 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		2BA13BF317EE1884000C43B7 /* libc++abi.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++abi.dylib"; path = "usr/lib/libc++abi.dylib"; sourceTree = SDKROOT; };
 		2BA13C0017F10E49000C43B7 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		2BADF95919A6AB4800C40CAA /* tl_2013_06075_roads.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.sqlite; sourceTree = "<group>"; };
 		2BB54ECB17CEB8330065451F /* icon-iPhone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-iPhone.png"; sourceTree = "<group>"; };
 		2BB54ECE17CEB8370065451F /* icon-iPhone@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-iPhone@2x.png"; sourceTree = "<group>"; };
 		2BB54ED017CEB83E0065451F /* icon-iPad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-iPad.png"; sourceTree = "<group>"; };
@@ -1152,6 +1154,7 @@
 				2BDC8A8B1937E33F00DFECF0 /* tl_2013_06075_roads.shp */,
 				2BDC8A8C1937E33F00DFECF0 /* tl_2013_06075_roads.shx */,
 				2BC0FBA9196DE1F80043E1FD /* tl_2013_06075_roads.mbr */,
+				2BADF95919A6AB4800C40CAA /* tl_2013_06075_roads.sqlite */,
 			);
 			name = sf_roads;
 			path = ../../../resources/vectors/sf_roads;
@@ -1902,6 +1905,7 @@
 				2BC0FB311964D3580043E1FD /* industrial-24@2x.png in Resources */,
 				2BC0FB88196DBA1C0043E1FD /* geography-class_medres.mbtiles in Resources */,
 				2BC0FB81196DB88F0043E1FD /* osm-bright.xml in Resources */,
+				2BADF95B19A6AB4E00C40CAA /* tl_2013_06075_roads.sqlite in Resources */,
 				2BB54ED917CEB8580065451F /* Default-Portrait~ipad.png in Resources */,
 				2BB54EDB17CEB85D0065451F /* Default-Portrait@2x~ipad.png in Resources */,
 				2BB54EDF17CEB88F0065451F /* Default-568h@2x.png in Resources */,
