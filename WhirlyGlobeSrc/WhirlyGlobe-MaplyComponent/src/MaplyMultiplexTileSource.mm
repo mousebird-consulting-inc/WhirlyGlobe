@@ -94,6 +94,9 @@ typedef std::set<SortedTile> SortedTileSet;
 
 }
 
+static int numConnections = 0;
+static bool trackConnections = false;
+
 @implementation MaplyMultiplexTileSource
 {
     NSArray *_tileSources;
@@ -142,6 +145,16 @@ typedef std::set<SortedTile> SortedTileSet;
     }
 }
 
++ (void)setTrackConnections:(bool)track
+{
+    trackConnections = track;
+}
+
++ (int)numOutstandingConnections
+{
+    return numConnections;
+}
+
 - (int)minZoom
 {
     return _minZoom;
@@ -173,17 +186,26 @@ typedef std::set<SortedTile> SortedTileSet;
 }
 
 // It's local if all the tile sources say so
-- (bool)tileIsLocal:(MaplyTileID)tileID
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame
 {
     bool tileLocal = true;
-    for (NSObject<MaplyTileSource> *tileSource in _tileSources)
+    if (frame == -1)
     {
-        if ([tileSource respondsToSelector:@selector(tileIsLocal:)])
-            tileLocal &= [tileSource tileIsLocal:tileID];
+        for (NSObject<MaplyTileSource> *tileSource in _tileSources)
+        {
+            if ([tileSource respondsToSelector:@selector(tileIsLocal:frame:)])
+                tileLocal &= [tileSource tileIsLocal:tileID frame:frame];
+            else
+                tileLocal = false;
+            if (!tileLocal)
+                break;
+        }
+    } else {
+        NSObject<MaplyTileSource> *tileSource = _tileSources[frame];
+        if ([tileSource respondsToSelector:@selector(tileIsLocal:frame:)])
+            tileLocal = [tileSource tileIsLocal:tileID frame:frame];
         else
             tileLocal = false;
-        if (!tileLocal)
-            break;
     }
     
     return tileLocal;
@@ -225,9 +247,9 @@ typedef std::set<SortedTile> SortedTileSet;
 //    NSLog(@"Got tile: %d: (%d,%d), %d",tileID.level,tileID.x,tileID.y,which);
     
     // Look for it in the bit list
-    bool done = true;
+    bool done = false;
     Maply::SortedTile theTile(tileID);
-    int singleFetch = false;
+    bool singleFetch = false;
     @synchronized(self)
     {
         Maply::SortedTileSet::iterator it;
@@ -243,6 +265,7 @@ typedef std::set<SortedTile> SortedTileSet;
             singleFetch = theTile.singleFetch;
             done = true;
         } else {
+            done = true;
             // Add the tile data in and see if we're done
             theTile.tileData[which] = (tileData ? tileData : [NSNull null]);
             for (unsigned int ii=0;ii<theTile.tileData.size();ii++)
@@ -274,8 +297,11 @@ typedef std::set<SortedTile> SortedTileSet;
         
         // Let the paging layer know about it
         NSMutableArray *allData = [NSMutableArray array];
-        for (unsigned int ii=0;ii<theTile.tileData.size();ii++)
-            [allData addObject:theTile.tileData[ii]];
+        if (singleFetch)
+            [allData addObject:tileData];
+        else
+            for (unsigned int ii=0;ii<theTile.tileData.size();ii++)
+                [allData addObject:theTile.tileData[ii]];
  
         NSError *marshalError = [self marshalDataArray:allData];
         if (!marshalError)
@@ -291,7 +317,7 @@ typedef std::set<SortedTile> SortedTileSet;
                 [layer loadedImages:allData forTile:tileID];
         } else {
             // Last minute failure!
-            [layer loadError:marshalError forTile:tileID];
+            [layer loadError:marshalError forTile:tileID frame:which];
             if (_delegate && [_delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
                 [_delegate remoteTileSource:self tileDidNotLoad:tileID error:marshalError];
         }
@@ -299,14 +325,14 @@ typedef std::set<SortedTile> SortedTileSet;
 }
 
 // Got an error while trying to fetch tile
-- (void)failedToGetTile:(MaplyTileID)tileID error:(NSError *)error layer:(MaplyQuadImageTilesLayer *)layer
+- (void)failedToGetTile:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error layer:(MaplyQuadImageTilesLayer *)layer
 {
     NSLog(@"Failed load for tile %d: (%d,%d)\n%@",tileID.level,tileID.x,tileID.y,error);
     
     [self clearFetchesFor:tileID];
     
     // Unsucessful load
-    [layer loadError:error forTile:tileID];
+    [layer loadError:error forTile:tileID frame:frame];
     if (_delegate && [_delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
         [_delegate remoteTileSource:self tileDidNotLoad:tileID error:error];
 }
@@ -318,31 +344,44 @@ typedef std::set<SortedTile> SortedTileSet;
 
 - (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID frame:(int)frame
 {
-//    NSLog(@"Starting fetch for tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+//    NSLog(@"Starting fetch for tile: %d: (%d,%d) %d",tileID.level,tileID.x,tileID.y,frame);
     
     // Clear out any existing state and add clean state
     [self clearFetchesFor:tileID];
     Maply::SortedTile newTile(tileID,(int)[_tileSources count]);
+    newTile.singleFetch = (frame !=-1);
     // Don't think about this one too hard.
     std::vector<void (^)()> workBlocks;
     
     // Work through the sources, kicking off a request as we go
-    int which = 0;
-    for (MaplyRemoteTileInfo *tileSource in _tileSources)
+    int which = (frame == -1 ? 0 : frame);
+    for (MaplyRemoteTileInfo *tileSource in (frame == -1 ? _tileSources : @[_tileSources[frame]]))
     {
         // If it's local, just go fetch it
-        if ([tileSource tileIsLocal:tileID])
+        if ([tileSource tileIsLocal:tileID frame:frame])
         {
             // We'll save the block for later and run at the end
             void (^workBlock)() =
             ^{
+                if (trackConnections)
+                    @synchronized([MaplyMultiplexTileSource class])
+                {
+                    numConnections++;
+                }
+
                 NSString *fileName = [tileSource fileNameForTile:tileID];
                 NSData *imgData = [NSData dataWithContentsOfFile:fileName];
                 
                 if (!imgData)
-                    [self failedToGetTile:tileID error:nil layer:layer];
+                    [self failedToGetTile:tileID frame:frame error:nil layer:layer];
                 else
                     [self gotTile:tileID which:which data:imgData layer:layer];
+
+                if (trackConnections)
+                    @synchronized([MaplyMultiplexTileSource class])
+                {
+                    numConnections--;
+                }
             };
             workBlocks.push_back(workBlock);
         } else {
@@ -350,6 +389,12 @@ typedef std::set<SortedTile> SortedTileSet;
             NSURLRequest *urlReq = [tileSource requestForTile:tileID];
             
             if(urlReq) {
+                if (trackConnections)
+                    @synchronized([MaplyMultiplexTileSource class])
+                {
+                    numConnections++;
+                }
+
                 // Kick off an async request for the data
                 MaplyMultiplexTileSource __weak *weakSelf = self;
                 AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:urlReq];
@@ -360,6 +405,12 @@ typedef std::set<SortedTile> SortedTileSet;
                  {
                      if (weakSelf)
                          [self gotTile:tileID which:which data:responseObject layer:layer];
+                     
+                     if (trackConnections)
+                         @synchronized([MaplyMultiplexTileSource class])
+                     {
+                         numConnections--;
+                     }
                  }
                                           failure:
                  ^(AFHTTPRequestOperation *operation, NSError *error)
@@ -369,13 +420,19 @@ typedef std::set<SortedTile> SortedTileSet;
                          if (weakSelf.acceptFailures)
                              [self gotTile:tileID which:which data:error layer:layer];
                          else
-                             [self failedToGetTile:tileID error:error layer:layer];
+                             [self failedToGetTile:tileID frame:frame error:error layer:layer];
+                     }
+
+                     if (trackConnections)
+                         @synchronized([MaplyMultiplexTileSource class])
+                     {
+                         numConnections--;
                      }
                  }];
                 
                 newTile.fetches.insert(Maply::TileFetch(which,op));
             } else {
-                [self failedToGetTile:tileID error:nil layer:layer];
+                [self failedToGetTile:tileID frame:frame error:nil layer:layer];
             }
         }
         which++;

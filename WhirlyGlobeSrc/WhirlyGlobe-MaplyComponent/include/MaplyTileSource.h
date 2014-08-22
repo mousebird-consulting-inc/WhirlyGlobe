@@ -23,6 +23,17 @@
 #import "MaplyCoordinate.h"
 #import "MaplyCoordinateSystem.h"
 
+/** @brief Status information for each frame's loading status.
+ @details When loading animated frames, this contains the status of a single frame.
+ */
+@interface MaplyFrameStatus : NSObject
+
+@property (nonatomic) int numTilesLoaded;
+@property (nonatomic) bool fullyLoaded;
+@property (nonatomic) int currentFrame;
+
+@end
+
 /** @typedef struct MaplyTileID
     @brief This represents the indentifier for a unique tile in the pyramid.
     @details Each tile in an image (or vector tile) pyramid can be uniquely
@@ -70,7 +81,7 @@ NSString *MaplyTileIDString(MaplyTileID tileID);
     @details We may ask the tile source if the tile is local or needs to be fetched over the network.  This is a hint for the loader.  Don't return true in error, though, that'll hold up the paging.
     @return Return true for local tile sources or if you have the tile cached.
   */
-- (bool)tileIsLocal:(MaplyTileID)tileID;
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame;
 
 /** @brief The coordinate system the image pyramid is in.
  @details This is typically going to be MaplySphericalMercator

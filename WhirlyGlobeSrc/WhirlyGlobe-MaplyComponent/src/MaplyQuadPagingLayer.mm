@@ -410,6 +410,17 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 #pragma mark - WhirlyKitQuadLoader
 
+- (int)numFrames
+{
+    return 1;
+}
+
+- (int)currentFrame
+{
+    return -1;
+}
+
+
 - (void)setQuadLayer:(WhirlyKitQuadDisplayLayer *)layer
 {
     quadLayer = layer;
@@ -572,7 +583,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 - (void)loadFailNotify:(MaplyTileIDObject *)tileIDObj
 {
     MaplyTileID tileID = tileIDObj.tileID;
-    [quadLayer loader:self tileDidNotLoad:Quadtree::Identifier(tileID.x,tileID.y,tileID.level)];
+    [quadLayer loader:self tileDidNotLoad:Quadtree::Identifier(tileID.x,tileID.y,tileID.level) frame:-1];
 }
 
 // If it failed, clear out the tile
@@ -683,7 +694,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 - (void)loadNotify:(MaplyTileIDObject *)tileIDObj
 {
     MaplyTileID tileID = tileIDObj.tileID;
-    [quadLayer loader:self tileDidLoad:Quadtree::Identifier(tileID.x,tileID.y,tileID.level)];
+    [quadLayer loader:self tileDidLoad:Quadtree::Identifier(tileID.x,tileID.y,tileID.level) frame:-1];
 }
 
 - (void)tileDidLoad:(MaplyTileID)tileID

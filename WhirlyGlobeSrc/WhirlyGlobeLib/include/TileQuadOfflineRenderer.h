@@ -52,6 +52,9 @@
 /// Size of the center pixel in meters
 @property (nonatomic) CGSize centerSize;
 
+/// Textures size of the images being produced
+@property (nonatomic) CGSize texSize;
+
 @end
 
 /** Fill in this delegate to receive the UIImage this layer

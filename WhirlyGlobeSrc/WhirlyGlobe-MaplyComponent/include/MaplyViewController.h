@@ -77,8 +77,8 @@
   */
 - (void)maplyViewController:(MaplyViewController *)viewC didTapAnnotation:(MaplyAnnotation*)annotation;
 
-/// Note: Deprecated
-- (void)maplyViewController:(MaplyViewController *)viewC didClickAnnotation:(MaplyAnnotation*)annotation;
+/// Old version for compatibility.  Use tap instead.
+- (void)maplyViewController:(MaplyViewController *)viewC didClickAnnotation:(MaplyAnnotation*)annotation __deprecated;
 
 @end
 
