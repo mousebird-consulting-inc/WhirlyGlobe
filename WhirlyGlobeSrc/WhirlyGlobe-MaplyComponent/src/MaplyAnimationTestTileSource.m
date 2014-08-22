@@ -55,7 +55,7 @@
     return _pixelsPerSide;
 }
 
-- (bool)tileIsLocal:(MaplyTileID)tileID
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame
 {
     return true;
 }
@@ -63,7 +63,7 @@
 static const int MaxDebugColors = 10;
 static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x4F256F, 0xD89CDE, 0x773B28, 0x333D99, 0x862D52, 0xC2C653, 0xB8583D};
 
-- (MaplyImageTile *)imageForTile:(MaplyTileID)tileID
+- (MaplyImageTile *)imageForTile:(MaplyTileID)tileID frame:(int)frame
 {
     NSMutableArray *images = [NSMutableArray array];
     
@@ -73,8 +73,11 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 //    NSLog(@"Loading tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
     
     // One for each layer we're
-    for (unsigned int ii=0;ii<_depth;ii++)
+//    for (unsigned int ii=0;ii<_depth;ii++)
     {
+        // Random delay
+        usleep(drand48()* 0.215 * 1e6);
+
         CGSize size;  size = CGSizeMake(128,128);
         UIGraphicsBeginImageContext(size);
         
@@ -95,7 +98,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
         if (_depth == 1)
             textStr = [NSString stringWithFormat:@"%d: (%d,%d)",tileID.level,tileID.x,tileID.y];
         else
-            textStr = [NSString stringWithFormat:@"%d: (%d,%d); %d",tileID.level,tileID.x,tileID.y,ii];
+            textStr = [NSString stringWithFormat:@"%d: (%d,%d); %d",tileID.level,tileID.x,tileID.y,frame];
         [textStr drawInRect:CGRectMake(0,0,size.width,size.height) withFont:[UIFont systemFontOfSize:24.0]];
         
         // Grab the image and shut things down

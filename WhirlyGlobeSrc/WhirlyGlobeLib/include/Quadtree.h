@@ -53,6 +53,9 @@ public:
         /// Comparison based on x,y,level.  Used for sorting
         bool operator < (const Identifier &that) const;
         
+        /// Quality operator
+        bool operator == (const Identifier &that) const;
+        
         /// Spatial subdivision along the X axis relative to the space
         int x;
         /// Spatial subdivision along tye Y axis relative to the space
@@ -65,14 +68,17 @@ public:
     class NodeInfo
     {
     public:
-        NodeInfo() { attrs = [NSMutableDictionary dictionary]; phantom = false;  importance = 0; loading = false; childrenLoading = 0; childrenEval = 0; eval = false; failed = false; childCoverage = false;}
-        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom),loading(that.loading),childrenLoading(that.childrenLoading),eval(that.eval), failed(that.failed), childrenEval(that.childrenEval), childCoverage(that.childCoverage) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
-        NodeInfo(const Identifier &ident) : ident(ident), importance(0.0), phantom(false), loading(false), eval(false), failed(false), childrenLoading(0), childrenEval(0), childCoverage(false) { attrs = nil; }
-        NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; loading = that.loading; eval = that.eval;  failed = that.failed; childrenLoading = that.childrenLoading; childrenEval = that.childrenEval;  childCoverage = that.childCoverage; attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
+        NodeInfo() { attrs = [NSMutableDictionary dictionary]; phantom = false;  importance = 0; loading = false; childrenLoading = 0; childrenEval = 0; eval = false; failed = false; childCoverage = false; frameFlags = 0;}
+        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom),loading(that.loading),childrenLoading(that.childrenLoading),eval(that.eval), failed(that.failed), childrenEval(that.childrenEval), childCoverage(that.childCoverage), frameFlags(that.frameFlags) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
+        NodeInfo(const Identifier &ident) : ident(ident), importance(0.0), phantom(false), loading(false), eval(false), failed(false), childrenLoading(0), childrenEval(0), childCoverage(false), frameFlags(0) { attrs = nil; }
+        NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; loading = that.loading; eval = that.eval;  failed = that.failed; childrenLoading = that.childrenLoading; childrenEval = that.childrenEval;  childCoverage = that.childCoverage; frameFlags = that.frameFlags; attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
         ~NodeInfo() { attrs = nil; }
         
         /// Compare based on importance.  Used for sorting
         bool operator < (const NodeInfo &that) const;
+        
+        /// Check if the given frame is loaded
+        bool isFrameLoaded(int theFrame) const;
         
         /// Unique identifier for the particular node
         Identifier ident;
@@ -94,6 +100,8 @@ public:
         int childrenEval;
         /// This tile is covered by loaded children.
         bool childCoverage;
+        /// 64 bits of frame flags
+        long long frameFlags;
 
         /// Put any attributes you'd like to keep track of here.
         /// There are things you might calculate for a given tile over and over.
@@ -123,6 +131,9 @@ public:
     
     /// Set the loading flag on the given node
     void setLoading(const Identifier &nodeInfo,bool newLoading);
+    
+    /// Mark a tile (with a frame) as loaded
+    void didLoad(const Identifier &nodeInfo,int frame);
     
     /// Set if something is evaluating this node
     bool isEvaluating(const Identifier &ident);
@@ -203,6 +214,12 @@ public:
     /// Recalculate the child coverage for a given node
     void updateParentCoverage(const Identifier &ident,std::vector<Identifier> &coveredTiles,std::vector<Identifier> &unCoveredTiles);
     
+    /// Return the loaded count for a given frame (if we're loading frames)
+    int getFrameCount(int frame);
+    
+    /// Check if a given frame is completely loaded (if we're in frame mode)
+    bool frameIsLoaded(int frame,int *tilesLoaded);
+    
     /// Dump out to the log for debugging
     void Print();
     
@@ -262,6 +279,10 @@ protected:
     void removeNode(Node *);
     /// Recalculate child coverage for a node and its parents
     void recalcCoverage(Node *node);
+    /// Add an entry for the given flag index
+    void addFrameLoaded(int frame);
+    /// Clear the flag counts for the given flag entries
+    void clearFlagCounts(int frameFlags);
 
     Mbr mbr;
     int minLevel,maxLevel;
@@ -277,6 +298,7 @@ protected:
     NodesBySizeType nodesBySize;
     // Nodes we're evaluating
     NodesBySizeType evalNodes;
+    std::vector<int> frameLoadCounts;
 };
 
 }

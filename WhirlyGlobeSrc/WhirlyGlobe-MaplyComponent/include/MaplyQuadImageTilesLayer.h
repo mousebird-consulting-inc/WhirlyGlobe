@@ -154,6 +154,11 @@ typedef enum {MaplyImageIntRGBA,
   */
 @property (nonatomic, assign) bool animationWrap;
 
+/** @brief For the case where we're loading individual frames, this sets the order to load them in.
+    @details When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.
+  */
+- (void)setFrameLoadingPriority:(NSArray *)priorities;
+
 /** @brief Include the original z values in the tile geometry for a custom shader.
     @details When generating tiles for the globe we project the coordinates from their local system (probably MaplySphericalMercator) into a display system.  If you wanted the original z values, to say, write a custom shader that maps color to elevation, that data is now missing.
     @details If set, this adds the z values back as a separate vertex attribute called "a_elev" for your shader to pick up.
@@ -251,7 +256,7 @@ typedef enum {MaplyImageIntRGBA,
     @details We do this so that the user doesn't have to wait for the target level to load.  This can be distracting on large displays with small tiles.  If you use this mode, the layer will load lower levels first, filling in quicker and then load the target level.  This looks much better, but doesn't take as long as the full quad tree based loading.
     @details The layer calculates the optimal target level (for 2D maps, if you're in that mode).  The entries in this array are relative to that level or absolute.  For example [0,-4,-2] means the layer will always try to load levels 0, targetLevel-4 and targetLevel-2, but only the latter two if they make sense.
   */
-@property (nonatomic) NSArray *multilLevelLoads;
+@property (nonatomic) NSArray *multiLevelLoads;
 
 /** @brief The target zoom level for this layer given the current view settings.
     @details Calculates the target zoom level for the middle of the screen.
@@ -288,6 +293,18 @@ typedef enum {MaplyImageIntRGBA,
     @details It can also just call loadedImages:forTile: with nil, but this is more helpful.
   */
 - (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID;
+
+/** @brief Pass back an error for a given tile and frame (if we're loading animations).
+    @details If the tile source implements startFetchForTile: then this is how it tells us about a specific failure.
+    @details It can also just call loadedImages:forTile: with nil, but this is more helpful.
+ */
+- (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID frame:(int)frame;
+
+/** @brief Status structures describing which frames are loaded.
+    @details Query this to find out which frames are completely loaded into memory and which are not.
+    @details This queries the underlying control logic and there is no delegate.  It's polling only.
+ */
+- (NSArray *)loadedFrames;
 
 /** @brief Do a hard reset of the layer.
     @details This will clean out all the layers resources and force it to start loading again.

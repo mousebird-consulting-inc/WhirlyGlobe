@@ -148,7 +148,7 @@ using namespace WhirlyKit;
     return _pixelsPerTile;
 }
 
-- (bool)tileIsLocal:(MaplyTileID)tileID
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame
 {
     return true;
 }
