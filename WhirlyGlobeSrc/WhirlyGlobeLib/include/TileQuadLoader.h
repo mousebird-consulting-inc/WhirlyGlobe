@@ -51,6 +51,9 @@
 ///  quad tile loader.
 /// You can pass back a WhirlyKitLoadedTile or a WhirlyKitLoadedImage or
 ///  just a WhirlyKitElevationChunk.
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadImage forLevel:(int)level col:(int)col row:(int)row frame:(int)frame;
+
+/// Older version that doesn't support frame loads
 - (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadImage forLevel:(int)level col:(int)col row:(int)row;
 
 @end
@@ -73,9 +76,13 @@
 /// Store your expensive to generate key/value pairs here.
 - (void)quadTileLoader:(NSObject<WhirlyKitQuadTileLoaderSupport> *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs;
 
+/// This version can load frames individually.  It's used for loading
+/// animations.  It's not required.
+- (void)quadTileLoader:(NSObject<WhirlyKitQuadTileLoaderSupport> *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row frame:(int)frame attrs:(NSMutableDictionary *)attrs;
+
 /// Check if the given tile is a local or remote fetch.  This is a hint
 ///  to the pager.  It can display local tiles as a group faster.
-- (bool)tileIsLocalLevel:(int)level col:(int)col row:(int)row;
+- (bool)tileIsLocalLevel:(int)level col:(int)col row:(int)row frame:(int)frame;
 
 /// An optional callback provided when a tile is unloaded.
 /// You don't have to do anything
@@ -158,7 +165,7 @@
 ///  quad tile loader.
 /// You can pass back a WhirlyKitLoadedTile or a WhirlyKitLoadedImage or
 ///  just a WhirlyKitElevationChunk.
-- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadImage forLevel:(int)level col:(int)col row:(int)row;
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadImage forLevel:(int)level col:(int)col row:(int)row frame:(int)frame;
 
 /// Set up the change requests to make the given image layer the active one
 /// The call is thread safe

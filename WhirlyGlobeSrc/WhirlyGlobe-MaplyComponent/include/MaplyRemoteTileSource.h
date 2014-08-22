@@ -147,8 +147,9 @@
 /** @brief Check if a given tile is stored in the local cache.
     @details This checks if the given tile ID is represented in the local cache directory.
     @param tileID The tile we'd like to check for.
+    @param frame If you're loading individual frames this will be the frame.  Otherwise, -1.
   */
-- (bool)tileIsLocal:(MaplyTileID)tileID;
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame;
 
 /** @brief Check if we should even try to load a given tile.
  @details Check whether tile level is within zoom limits for the source, and if the tile is within any MBRs that have been added.
@@ -247,5 +248,11 @@
 
 /// @brief Passes through the cacheDir from the MaplyRemoteTileInfo
 @property (nonatomic,strong) NSString *cacheDir;
+
+/// @brief If set, we'll track the outstanding connections across all remote tile sources
++ (void)setTrackConnections:(bool)track;
+
+/// @brief Number of outstanding connections across all remote tile sources
++ (int)numOutstandingConnections;
 
 @end

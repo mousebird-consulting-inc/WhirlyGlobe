@@ -37,12 +37,22 @@ bool Quadtree::Identifier::operator<(const Identifier &that) const
     
     return level < that.level;
 }
-    
+
+bool Quadtree::Identifier::operator==(const Identifier &that) const
+{
+    return level == that.level && x == that.x && y == that.y;
+}
+
 bool Quadtree::NodeInfo::operator<(const NodeInfo &that) const
 {
     if (importance == that.importance)
         return (ident < that.ident);
     return importance < that.importance;
+}
+    
+bool Quadtree::NodeInfo::isFrameLoaded(int theFrame) const
+{
+    return frameFlags & (1<<theFrame);
 }
     
 Quadtree::Node::Node(Quadtree *tree)
@@ -169,6 +179,10 @@ bool Quadtree::shouldLoadTile(const Identifier &ident)
     if (!node)
         return false;
     
+    // It's already loading.
+    if (node->nodeInfo.loading)
+        return false;
+    
     // Reject it out of hand if it's too small
     if (node->nodeInfo.importance < minImportance)
         return false;
@@ -207,6 +221,7 @@ bool Quadtree::isPhantom(const Identifier &ident)
     return phantom;
 }
     
+    
 bool Quadtree::Node::recalcCoverage()
 {
     bool newChildCoverage = true;
@@ -221,6 +236,45 @@ bool Quadtree::Node::recalcCoverage()
     nodeInfo.childCoverage = newChildCoverage;
 
     return newChildCoverage;
+}
+    
+int Quadtree::getFrameCount(int frame)
+{
+    if (frame >= frameLoadCounts.size())
+        return 0;
+    return frameLoadCounts[frame];
+}
+    
+void Quadtree::addFrameLoaded(int frame)
+{
+    for (int ii=frameLoadCounts.size();ii<=frame;ii++)
+        frameLoadCounts.push_back(0);
+    frameLoadCounts[frame]++;
+}
+
+void Quadtree::clearFlagCounts(int frameFlags)
+{
+    for (unsigned int ii=0;ii<frameLoadCounts.size();ii++)
+        if (frameFlags & (1<<ii))
+            frameLoadCounts[ii]--;
+}
+    
+bool Quadtree::frameIsLoaded(int frame,int *tilesLoaded)
+{
+    int count = getFrameCount(frame);
+    if (tilesLoaded)
+        *tilesLoaded = count;
+    
+    // Make sure we don't agree when there's nothing going on
+    if (count == 0)
+        return false;
+    
+    bool isLoaded = (count+numPhantomNodes) == nodesByIdent.size();
+    
+//    if (count+numPhantomNodes > nodesByIdent.size())
+//        NSLog(@"Got one");
+    
+    return isLoaded;
 }
     
 void Quadtree::updateParentCoverage(const Identifier &ident,std::vector<Identifier> &coveredTiles,std::vector<Identifier> &unCoveredTiles)
@@ -274,11 +328,12 @@ void Quadtree::setPhantom(const Identifier &ident,bool newPhantom)
 {
     Node dummyNode(this);
     dummyNode.nodeInfo.ident = ident;
-    
+
+    Node *node = NULL;
     NodesByIdentType::iterator it = nodesByIdent.find(&dummyNode);
     if (it != nodesByIdent.end())
     {
-        Node *node = *it;
+        node = *it;
         bool wasPhantom = node->nodeInfo.phantom;
         node->nodeInfo.phantom = newPhantom;
         if (wasPhantom)
@@ -295,6 +350,8 @@ void Quadtree::setPhantom(const Identifier &ident,bool newPhantom)
     // Clean it out of the nodes by size if it's a phantom
     if (newPhantom)
     {
+        clearFlagCounts(node->nodeInfo.frameFlags);
+        node->nodeInfo.frameFlags = 0;
         if (sit != nodesBySize.end())
             nodesBySize.erase(sit);
     } else {
@@ -349,6 +406,26 @@ void Quadtree::setLoading(const Identifier &ident,bool newLoading)
     } else
         // Haven't heard of it
         return;
+}
+    
+void Quadtree::didLoad(const Identifier &tileIdent,int frame)
+{
+    Node *node = getNode(tileIdent);
+    if (!node)
+        return;
+    
+    // Note: Could make these more efficient
+    setLoading(tileIdent, false);
+    setFailed(tileIdent, false);
+    
+    if (frame != -1)
+    {
+        if (!(node->nodeInfo.frameFlags & 1<<frame))
+        {
+            node->nodeInfo.frameFlags |= 1<<frame;
+            addFrameLoaded(frame);
+        }
+    }
 }
     
 bool Quadtree::isEvaluating(const Identifier &ident)
@@ -750,6 +827,8 @@ Quadtree::Node *Quadtree::getNode(const Identifier &ident)
     
 void Quadtree::removeNode(Node *node)
 {
+    clearFlagCounts(node->nodeInfo.frameFlags);
+
     if (node->nodeInfo.phantom)
         numPhantomNodes--;
 
