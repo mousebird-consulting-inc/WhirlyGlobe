@@ -274,7 +274,6 @@ public:
         }
         
         RGBAColor thisColor = color;
-        // Note: Debugging
 //        float scale = drand48() / 2 + 0.5;
 //        thisColor.r *= scale;
 //        thisColor.g *= scale;
@@ -741,7 +740,6 @@ public:
     // Add the points for a linear
     void addLinear(VectorRing &pts,const Point3d &up)
     {
-        // Note: Debugging
         RGBAColor color = [vecInfo.color asRGBAColor];
 //        color.r = random()%256;
 //        color.g = random()%256;

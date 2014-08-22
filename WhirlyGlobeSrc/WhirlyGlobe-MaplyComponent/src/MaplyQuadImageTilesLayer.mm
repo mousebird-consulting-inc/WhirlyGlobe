@@ -94,6 +94,7 @@ using namespace WhirlyKit;
     bool canDoValidTiles;
     bool canFetchFrames;
     bool wantsUnload;
+    std::vector<int> framePriorities;
 }
 
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
@@ -141,7 +142,7 @@ using namespace WhirlyKit;
     canDoValidTiles = [_tileSource respondsToSelector:@selector(validTile:bbox:)];
     
     // Can the source fetch individual frames of animation
-    canFetchFrames = [_tileSource respondsToSelector:@selector(startFetchLayer:tile:frame:)];
+    canFetchFrames = [_tileSource respondsToSelector:@selector(startFetchLayer:tile:frame:)] || [_tileSource respondsToSelector:@selector(imageForTile:frame:)];
     
     // Wants unload callbacks
     wantsUnload = [_tileSource respondsToSelector:@selector(tileUnloaded:)];
@@ -171,6 +172,8 @@ using namespace WhirlyKit;
     quadLayer.maxTiles = _maxTiles;
     quadLayer.viewUpdatePeriod = _viewUpdatePeriod;
     quadLayer.minUpdateDist = _minUpdateDist;
+    if (!framePriorities.empty())
+        [quadLayer setFrameLoadingPriorities:framePriorities];
     
     // Look for a custom program
     if (_shaderProgramName)
@@ -305,6 +308,44 @@ using namespace WhirlyKit;
     }
     if (_color)
         tileLoader.color = [_color asRGBAColor];
+}
+
+- (NSArray *)loadedFrames
+{
+    std::vector<WhirlyKit::FrameLoadStatus> frameStatus;
+    [quadLayer getFrameLoadStatus:frameStatus];
+    
+    NSMutableArray *stats = [NSMutableArray array];
+    for (unsigned int ii=0;ii<frameStatus.size();ii++)
+    {
+        FrameLoadStatus &inStatus = frameStatus[ii];
+        MaplyFrameStatus *status = [[MaplyFrameStatus alloc] init];
+        status.numTilesLoaded = inStatus.numTilesLoaded;
+        status.fullyLoaded = inStatus.complete;
+        status.currentFrame = inStatus.currentFrame;
+        
+        [stats addObject:status];
+    }
+    
+    return stats;
+}
+
+- (void)setFrameLoadingPriority:(NSArray *)priorities
+{
+    if ([NSThread currentThread] != super.layerThread)
+    {
+        [self performSelector:@selector(setFrameLoadingPriority:) onThread:super.layerThread withObject:priorities waitUntilDone:NO];
+        return;
+    }
+
+    if ([priorities count] != _imageDepth)
+        return;
+    framePriorities.resize([priorities count]);
+    for (unsigned int ii=0;ii<[priorities count];ii++)
+        framePriorities[ii] = [priorities[ii] intValue];
+
+    if (quadLayer)
+        [quadLayer setFrameLoadingPriorities:framePriorities];
 }
 
 - (void)setDrawPriority:(int)drawPriority
@@ -545,7 +586,7 @@ using namespace WhirlyKit;
         {
             std::set<int> targetLevels;
             targetLevels.insert(maxShortCircuitLevel);
-            for (NSNumber *level in _multilLevelLoads)
+            for (NSNumber *level in _multiLevelLoads)
             {
                 if ([level isKindOfClass:[NSNumber class]])
                 {
@@ -655,7 +696,7 @@ using namespace WhirlyKit;
     return _numSimultaneousFetches;
 }
 
-- (bool)tileIsLocalLevel:(int)level col:(int)col row:(int)row
+- (bool)tileIsLocalLevel:(int)level col:(int)col row:(int)row frame:(int)frame
 {
     MaplyTileID tileID;
     tileID.x = col;  tileID.y = row;  tileID.level = level;
@@ -668,13 +709,13 @@ using namespace WhirlyKit;
     }
 
     // Check with the tile source
-    bool isLocal = [_tileSource respondsToSelector:@selector(tileIsLocal:)];
+    bool isLocal = [_tileSource respondsToSelector:@selector(tileIsLocal:frame:)];
     if (isLocal)
-        isLocal = [_tileSource tileIsLocal:tileID];
+        isLocal = [_tileSource tileIsLocal:tileID frame:frame];
     // And the elevation delegate, if there is one
     if (isLocal && elevDelegate)
     {
-        isLocal = [elevDelegate tileIsLocal:tileID];
+        isLocal = [elevDelegate tileIsLocal:tileID frame:frame];
     }
     
     return isLocal;
@@ -699,7 +740,7 @@ using namespace WhirlyKit;
     // If this is lower level than we're representing, just fake it
     if (tileID.level < minZoom)
     {
-        NSArray *args = @[[WhirlyKitLoadedImage PlaceholderImage],@(tileID.x),@(tileID.y),@(tileID.level),_tileSource];
+        NSArray *args = @[[WhirlyKitLoadedImage PlaceholderImage],@(tileID.x),@(tileID.y),@(tileID.level),@(frame),_tileSource];
         if (super.layerThread)
         {
             if ([NSThread currentThread] == super.layerThread)
@@ -755,7 +796,7 @@ using namespace WhirlyKit;
         // Needed elevation and failed to load, so stop
         if (elevDelegate && _requireElev && !elevChunk)
         {
-            NSArray *args = @[[NSNull null],@(col),@(row),@(level),_tileSource];
+            NSArray *args = @[[NSNull null],@(col),@(row),@(level),@(frame),_tileSource];
             if (super.layerThread)
             {
                 if ([NSThread currentThread] == super.layerThread)
@@ -818,7 +859,7 @@ using namespace WhirlyKit;
             loadTile.elevChunk = wkChunk;
         }
             
-        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level),_tileSource];
+        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level),@(frame),_tileSource];
         if (super.layerThread)
         {
             if ([NSThread currentThread] == super.layerThread)
@@ -874,7 +915,7 @@ using namespace WhirlyKit;
         // Needed elevation and failed to load, so stop
         if (elevDelegate && _requireElev && !elevChunk)
         {
-            NSArray *args = @[[NSNull null],@(tileID.x),@(y),@(tileID.level),_tileSource];
+            NSArray *args = @[[NSNull null],@(tileID.x),@(y),@(tileID.level),@(frame),_tileSource];
             if (super.layerThread)
             {
                 if ([NSThread currentThread] == super.layerThread)
@@ -901,7 +942,7 @@ using namespace WhirlyKit;
         loadTile.elevChunk = wkChunk;
     }
     
-    NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(y),@(tileID.level),_tileSource];
+    NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(y),@(tileID.level),@(frame),_tileSource];
     if (super.layerThread)
     {
         if ([NSThread currentThread] == super.layerThread)
@@ -913,6 +954,11 @@ using namespace WhirlyKit;
 
 - (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID
 {
+    [self loadError:error forTile:tileID frame:-1];
+}
+
+- (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID frame:(int)frame
+{
     // Adjust the y back to what the system is expecting
     int y = tileID.y;
     if (!_flipY)
@@ -920,7 +966,7 @@ using namespace WhirlyKit;
         y = (1<<tileID.level)-tileID.y-1;
     }
 
-    NSArray *args = @[([NSNull null]),@(tileID.x),@(y),@(tileID.level),_tileSource];
+    NSArray *args = @[([NSNull null]),@(tileID.x),@(y),@(tileID.level),@(frame),_tileSource];
     if (super.layerThread)
     {
         if ([NSThread currentThread] == super.layerThread)
@@ -942,13 +988,14 @@ using namespace WhirlyKit;
     int col = [args[1] intValue];
     int row = [args[2] intValue];
     int level = [args[3] intValue];
-    id oldTileSource = args[4];
+    int frame = [args[4] intValue];
+    id oldTileSource = args[5];
     
     // This might happen if we change tile sources while we're waiting for a network call
     if (_tileSource != oldTileSource)
         return;
     
-    [tileLoader dataSource: self loadedImage:loadTile forLevel: level col: col row: row];
+    [tileLoader dataSource: self loadedImage:loadTile forLevel: level col: col row: row frame: frame];
 }
 
 - (void)tileWasUnloadedLevel:(int)level col:(int)col row:(int)row

@@ -58,4 +58,10 @@
   */
 @property (nonatomic) bool acceptFailures;
 
+/// @brief If set, we'll track the outstanding connections across all remote tile sources
++ (void)setTrackConnections:(bool)track;
+
+/// @brief Number of outstanding connections across all tile sources
++ (int)numOutstandingConnections;
+
 @end

@@ -38,6 +38,7 @@ using namespace WhirlyKit;
     TileBuilder *tileBuilder;
     int defaultTessX,defaultTessY;
     bool _enable;
+    bool canLoadFrames;
 }
 
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
@@ -98,6 +99,7 @@ using namespace WhirlyKit;
         _borderTexel = 1;
         _enable = true;
         defaultTessX = defaultTessY = 10;
+        canLoadFrames = [inDataSource respondsToSelector:@selector(quadTileLoader:startFetchForLevel:col:row:frame:attrs:)];
         pthread_mutex_init(&tileLock, NULL);
     }
     
@@ -391,26 +393,36 @@ using namespace WhirlyKit;
     return (int)localFetches.size();
 }
 
-// Ask the data source to start loading the image for this tile
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo
 {
-    // Build the new tile
-    LoadedTile *newTile = new LoadedTile();
-    newTile->nodeInfo = *tileInfo;
-    newTile->isLoading = true;
-    newTile->calculateSize(layer.quadtree, layer.scene->getCoordAdapter(), layer.coordSys);
+    [self quadDisplayLayer:layer loadTile:tileInfo frame:-1];
+}
 
-    pthread_mutex_lock(&tileLock);
-    tileSet.insert(newTile);
-    pthread_mutex_unlock(&tileLock);
+// Ask the data source to start loading the image for this tile
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo frame:(int)frame
+{
+    // Look for an existing tile
+    LoadedTile *theTile = [self getTile:tileInfo->ident];
+    if (!theTile)
+    {
+        // Build the new tile
+        theTile = new LoadedTile();
+        theTile->nodeInfo = *tileInfo;
+        theTile->calculateSize(layer.quadtree, layer.scene->getCoordAdapter(), layer.coordSys);
+
+        pthread_mutex_lock(&tileLock);
+        tileSet.insert(theTile);
+        pthread_mutex_unlock(&tileLock);        
+    }
+    theTile->isLoading = true;
     
-    bool isNetworkFetch = ![dataSource respondsToSelector:@selector(tileIsLocalLevel:col:row:)] || ![dataSource tileIsLocalLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y];
+    bool isNetworkFetch = ![dataSource respondsToSelector:@selector(tileIsLocalLevel:col:row:frame:)] || ![dataSource tileIsLocalLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y frame:frame];
     if (isNetworkFetch)
         networkFetches.insert(tileInfo->ident);
     else
         localFetches.insert(tileInfo->ident);
     
-    [dataSource quadTileLoader:self startFetchForLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y attrs:tileInfo->attrs];
+    [dataSource quadTileLoader:self startFetchForLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y frame:frame attrs:tileInfo->attrs];
 }
 
 // Check if we're in the process of loading the given tile
@@ -442,7 +454,7 @@ using namespace WhirlyKit;
         loadImage.imageData = image;
     }
 
-    [self dataSource:inDataSource loadedImage:loadImage forLevel:level col:col row:row];
+    [self dataSource:inDataSource loadedImage:loadImage forLevel:level col:col row:row frame:-1];
 }
 
 - (bool)tileIsPlaceholder:(id)loadTile
@@ -467,7 +479,12 @@ using namespace WhirlyKit;
     return false;
 }
 
-- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadTile forLevel:(int)level col:(int)col row:(int)row
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)inDataSource loadedImage:(id)loadImage forLevel:(int)level col:(int)col row:(int)row
+{
+    [self dataSource:inDataSource loadedImage:loadImage forLevel:level col:col row:row frame:-1];
+}
+
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadTile forLevel:(int)level col:(int)col row:(int)row frame:(int)frame
 {
     bool isPlaceholder = [self tileIsPlaceholder:loadTile];
     
@@ -496,6 +513,7 @@ using namespace WhirlyKit;
         tileBuilder->lineMode = false;
         tileBuilder->borderTexel = _borderTexel;
         tileBuilder->singleLevel = !_quadLayer.targetLevels.empty();
+        tileBuilder->enabled = _enable;
 
         // If we haven't decided how many active textures we'll have, do that
         if (_activeTextures == -1)
@@ -553,7 +571,7 @@ using namespace WhirlyKit;
     }
     
     bool loadingSuccess = true;
-    if (!isPlaceholder && _numImages != loadImages.size())
+    if (!isPlaceholder && (_numImages != loadImages.size() && (frame != -1 && loadImages.size() != 1)))
     {
         // Only print out a message if they bothered to hand in something.  If not, they meant
         //  to tell us it was empty.
@@ -573,31 +591,45 @@ using namespace WhirlyKit;
             estTexY = std::max(loadElev.numY-1,estTexY);
         }
         tileBuilder->initAtlases(_imageType,_numImages,_textureAtlasSize,estTexX,estTexY);
+        if (!_enable)
+            tileBuilder->drawAtlas->setEnableAllDrawables(false, changeRequests);
 
         createdAtlases = true;
     }
     
     LoadedTile *tile = *it;
     tile->isLoading = false;
+    bool parentUpdate = false;
     if (loadingSuccess && (isPlaceholder || !loadImages.empty() || loadElev))
     {
         tile->elevData = loadElev;
-        if (tile->addToScene(tileBuilder,loadImages,currentImage0,currentImage1,loadElev,changeRequests))
+        if (!tile->isInitialized)
         {
-            // If we have more than one image to dispay, make sure we're doing the right one
-            if (!isPlaceholder && _numImages > 1 && tileBuilder->texAtlas)
+            parentUpdate = true;
+            // Build the tile geometry
+//            NSLog(@"Adding to scene: %d: (%d,%d) %d",tile->nodeInfo.ident.level,tile->nodeInfo.ident.x,tile->nodeInfo.ident.y,frame);
+            if (tile->addToScene(tileBuilder,loadImages,frame,currentImage0,currentImage1,loadElev,changeRequests))
             {
-                tile->setCurrentImages(tileBuilder, currentImage0, currentImage1, changeRequests);
-            }
-        } else
-            loadingSuccess = false;
+                // If we have more than one image to dispay, make sure we're doing the right one
+                if (!isPlaceholder && _numImages > 1 && tileBuilder->texAtlas)
+                {
+                    tile->setCurrentImages(tileBuilder, currentImage0, currentImage1, changeRequests);
+                }
+            } else
+                loadingSuccess = false;
+        } else {
+            parentUpdate = false;
+            // Update a texture in an existing slot
+//            NSLog(@"Updating texture: %d: (%d,%d) %d",tile->nodeInfo.ident.level,tile->nodeInfo.ident.x,tile->nodeInfo.ident.y,frame);
+            tile->updateTexture(tileBuilder, loadImages[0], frame, changeRequests);
+        }
     }
 
     if (loadingSuccess)
-        [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
+        [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident frame:frame];
     else {
         // Shouldn't have a visual representation, so just lose it
-        [_quadLayer loader:self tileDidNotLoad:tile->nodeInfo.ident];
+        [_quadLayer loader:self tileDidNotLoad:tile->nodeInfo.ident frame:frame];
         tileSet.erase(it);
         delete tile;
     }
@@ -606,13 +638,13 @@ using namespace WhirlyKit;
 //    NSLog(@"Loaded image for tile (%d,%d,%d)",col,row,level);
     
     // Various child state changed so let's update the parents
-    if (level > 0 && _quadLayer.targetLevels.empty())
+    if (parentUpdate && level > 0 && _quadLayer.targetLevels.empty())
         parents.insert(Quadtree::Identifier(col/2,row/2,level-1));
     
     if (!doingUpdate)
         [self flushUpdates:_quadLayer.layerThread];
 
-    if (!isPlaceholder)
+    if (!isPlaceholder && parentUpdate)
         [self updateTexAtlasMapping];
 
     // They might have set the current image already
@@ -668,6 +700,19 @@ using namespace WhirlyKit;
 - (void)updateWithoutFlush
 {
     [self refreshParents:_quadLayer];
+}
+
+- (int)numFrames
+{
+    return _numImages;
+}
+
+- (int)currentFrame
+{
+    if (_numImages <= 1)
+        return -1;
+    else
+        return currentImage0;
 }
 
 // Thus ends the unloads.  Now we can update parents
