@@ -207,6 +207,69 @@ bool Quadtree::isPhantom(const Identifier &ident)
     return phantom;
 }
     
+bool Quadtree::Node::recalcCoverage()
+{
+    bool newChildCoverage = true;
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        Node *child = children[ii];
+        if (child)
+            newChildCoverage &= child->nodeInfo.childCoverage || (!child->nodeInfo.phantom && !child->nodeInfo.loading);
+        else
+            newChildCoverage = false;
+    }
+    nodeInfo.childCoverage = newChildCoverage;
+
+    return newChildCoverage;
+}
+    
+void Quadtree::updateParentCoverage(const Identifier &ident,std::vector<Identifier> &coveredTiles,std::vector<Identifier> &unCoveredTiles)
+{
+    Node *node = getNode(ident);
+
+    if (node)
+    {
+        Node *p = node->parent;
+        while (p)
+        {
+            bool pOldChildCoverage = p->nodeInfo.childCoverage;
+            bool pNewChildCoverage = p->recalcCoverage();
+            if (pOldChildCoverage == pNewChildCoverage)
+            {
+                break;
+            } else {
+                if (pNewChildCoverage)
+                    coveredTiles.push_back(p->nodeInfo.ident);
+                else
+                    unCoveredTiles.push_back(p->nodeInfo.ident);
+            }
+            
+            p = p->parent;
+        }
+    }
+}
+    
+void Quadtree::recalcCoverage(Node *node)
+{
+    bool oldChildCoverage = node->nodeInfo.childCoverage;
+    bool newChildCoverage = node->recalcCoverage();
+    
+    // Need to propagate the changes upward
+    if (oldChildCoverage != newChildCoverage)
+    {
+        Node *p = node->parent;
+        while (p)
+        {
+            bool pOldChildCoverage = p->nodeInfo.childCoverage;
+            bool pNewChildCoverage = p->recalcCoverage();
+            if (pOldChildCoverage == pNewChildCoverage)
+                break;
+            
+            p = p->parent;
+        }
+    }
+}
+    
 void Quadtree::setPhantom(const Identifier &ident,bool newPhantom)
 {
     Node dummyNode(this);
@@ -215,12 +278,15 @@ void Quadtree::setPhantom(const Identifier &ident,bool newPhantom)
     NodesByIdentType::iterator it = nodesByIdent.find(&dummyNode);
     if (it != nodesByIdent.end())
     {
-        bool wasPhantom = (*it)->nodeInfo.phantom;
-        (*it)->nodeInfo.phantom = newPhantom;
+        Node *node = *it;
+        bool wasPhantom = node->nodeInfo.phantom;
+        node->nodeInfo.phantom = newPhantom;
         if (wasPhantom)
             numPhantomNodes--;
         if (newPhantom)
             numPhantomNodes++;
+        
+        recalcCoverage(node);
     } else
         // Haven't heard of it
         return;

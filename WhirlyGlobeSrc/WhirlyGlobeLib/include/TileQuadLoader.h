@@ -77,6 +77,10 @@
 ///  to the pager.  It can display local tiles as a group faster.
 - (bool)tileIsLocalLevel:(int)level col:(int)col row:(int)row;
 
+/// An optional callback provided when a tile is unloaded.
+/// You don't have to do anything
+- (void)tileWasUnloadedLevel:(int)level col:(int)col row:(int)row;
+
 @end
 
 /** The Globe Quad Tile Loader responds to the Quad Loader protocol and

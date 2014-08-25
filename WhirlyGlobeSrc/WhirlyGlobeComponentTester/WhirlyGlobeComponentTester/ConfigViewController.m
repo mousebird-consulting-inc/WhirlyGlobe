@@ -92,7 +92,9 @@
                 @{kMaplyTestUSGSOrtho: @(NO),
                   kMaplyTestOWM: @(NO),
                   kMaplyTestForecastIO: @(NO),
-                  kMaplyTestMapboxStreets: @(NO)}
+                  kMaplyTestMapboxStreets: @(NO),
+//                  kMaplyMapzenVectors: @(NO)
+                  }
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
                                                rows:
@@ -124,7 +126,9 @@
             @{kMaplyTestUSGSOrtho: @(NO),
               kMaplyTestOWM: @(NO),
               kMaplyTestForecastIO: @(NO),
-              kMaplyTestMapboxStreets: @(NO)}
+              kMaplyTestMapboxStreets: @(NO),
+//              kMaplyMapzenVectors: @(NO)
+              }
                                    singleSelect:false],
            [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
                                            rows:

@@ -46,7 +46,7 @@ void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scen
     if (frameInfo.program)
     {
         float scale = frameInfo.sceneRenderer.framebufferWidth;
-        double screenSize = frameInfo.screenSizeInDisplayCoords.x();
+        float screenSize = frameInfo.screenSizeInDisplayCoords.x();
         frameInfo.program->setUniform("u_length", width/scale);
         float texScale = scale/(screenSize*texRepeat);
         frameInfo.program->setUniform("u_texScale", texScale);

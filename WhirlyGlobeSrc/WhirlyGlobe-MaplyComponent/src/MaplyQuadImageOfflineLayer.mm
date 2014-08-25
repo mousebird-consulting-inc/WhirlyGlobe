@@ -42,12 +42,16 @@ using namespace WhirlyKit;
     MaplyCoordinateSystem *coordSys;
     WhirlyKitQuadTileOfflineLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
+    WhirlyKitViewState *lastViewState;
+    WhirlyKitSceneRendererES *renderer;
     Scene *scene;
     bool sourceSupportsMulti;
     bool sourceWantsAsync;
     int minZoom,maxZoom;
     int tileSize;
     bool canDoValidTiles;
+    bool canShortCircuitImportance;
+    int maxShortCircuitLevel;
 }
 
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
@@ -68,6 +72,9 @@ using namespace WhirlyKit;
     _textureSize = CGSizeMake(1024, 1024);
     _autoRes = true;
     _importanceScale = 1.0;
+    _singleLevelLoading = false;
+    canShortCircuitImportance = false;
+    maxShortCircuitLevel = -1;
 
     // See if we're letting the source do the async calls r what
     sourceWantsAsync = [_tileSource respondsToSelector:@selector(startFetchLayer:tile:)];
@@ -140,11 +147,12 @@ using namespace WhirlyKit;
 
 #pragma mark - WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource
 
-- (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC
+- (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)inRenderer viewC:(MaplyBaseViewController *)viewC
 {
     _viewC = viewC;
     super.layerThread = inLayerThread;
     scene = inScene;
+    renderer = inRenderer;
     
     minZoom = [_tileSource minZoom];
     maxZoom = [_tileSource maxZoom];
@@ -211,11 +219,94 @@ using namespace WhirlyKit;
     return maxZoom;
 }
 
+- (int)targetZoomLevel
+{
+    if (!lastViewState || !renderer || !scene)
+        return minZoom;
+    
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    
+    int zoomLevel = 0;
+    Point3d center3d = CoordSystemConvert3d(coordAdapter->getCoordSystem(),coordSys->coordSystem,coordAdapter->displayToLocal(lastViewState.eyeVecModel));
+    Point2f centerLocal(center3d.x(),center3d.y());
+
+    // Bounding box in local coordinate system
+    Point3d ll,ur;
+    ll = coordSys->coordSystem->geographicToLocal3d(GeoCoord(-M_PI,-M_PI/2.0));
+    ur = coordSys->coordSystem->geographicToLocal3d(GeoCoord(M_PI,M_PI/2));
+    
+    // The coordinate adapter might have its own center
+    Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
+    centerLocal += Point2f(adaptCenter.x(),adaptCenter.y());
+    while (zoomLevel <= maxZoom)
+    {
+        WhirlyKit::Quadtree::Identifier ident;
+        Point2d thisTileSize((ur.x()-ll.x())/(1<<zoomLevel),(ur.y()-ll.y())/(1<<zoomLevel));
+        ident.x = (centerLocal.x()-ll.x())/thisTileSize.x();
+        ident.y = (centerLocal.y()-ll.y())/thisTileSize.y();
+        ident.level = zoomLevel;
+        
+        // Make an MBR right in the middle of where we're looking
+        Mbr mbr = quadLayer.quadtree->generateMbrForNode(ident);
+        Point2f span = mbr.ur()-mbr.ll();
+        mbr.ll() = centerLocal - span/2.0;
+        mbr.ur() = centerLocal + span/2.0;
+        float import = ScreenImportance(lastViewState, Point2f(renderer.framebufferWidth,renderer.framebufferHeight), lastViewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
+        if (import <= quadLayer.minImportance)
+        {
+            zoomLevel--;
+            break;
+        }
+        zoomLevel++;
+    }
+    
+    return std::min(zoomLevel,maxZoom);
+}
+
+/// Called by the quad display layer when the view changes
+- (void)newViewState:(WhirlyKitViewState *)viewState
+{
+    lastViewState = viewState;
+    
+    if (!_singleLevelLoading)
+    {
+        canShortCircuitImportance = false;
+        maxShortCircuitLevel = -1;
+        return;
+    }
+    
+    CoordSystemDisplayAdapter *coordAdapter = viewState.coordAdapter;
+    Point3d center = coordAdapter->getCenter();
+    if (center.x() == 0.0 && center.y() == 0.0 && center.z() == 0.0)
+    {
+        canShortCircuitImportance = true;
+        
+        // Normally we would insist the coordinate system be flat, but
+        // we make an exception for offline rendering
+        
+        // We need to feel our way down to the appropriate level
+        maxShortCircuitLevel = [self targetZoomLevel];
+        if (_singleLevelLoading)
+        {
+            std::set<int> targetLevels;
+            targetLevels.insert(maxShortCircuitLevel);
+            quadLayer.targetLevels = targetLevels;
+        }
+    } else {
+        // Note: Can't short circuit in this case.  Something wrong with the math
+        canShortCircuitImportance = false;
+    }
+    
+//    NSLog(@"Offline renderer:  target level = %d",maxShortCircuitLevel);
+}
+
 /// Return an importance value for the given tile
 - (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     if (ident.level == 0)
         return MAXFLOAT;
+    
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
 
     MaplyTileID tileID;
     tileID.level = ident.level;
@@ -230,11 +321,33 @@ using namespace WhirlyKit;
         if (![_tileSource validTile:tileID bbox:&bbox])
             return 0.0;
     }
-    
+ 
     double import = 0.0;
-    import = ScreenImportance(viewState, frameSize, viewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+    if (canShortCircuitImportance && maxShortCircuitLevel != -1)
+    {
+        if (coordAdapter->isFlat())
+        {
+            if (TileIsOnScreen(viewState, frameSize, coordSys->coordSystem, coordAdapter, mbr, ident, attrs))
+            {
+                import = 1.0/(ident.level+10);
+                if (ident.level <= maxShortCircuitLevel)
+                    import += 1.0;
+            }
+        } else {
+            // We need the backfacing checks that ScreenImportance does
+            import = ScreenImportance(viewState, frameSize, viewState.eyeVec, tileSize, [coordSys getCoordSystem], coordAdapter, mbr, ident, attrs);
+            if (import > 0.0)
+            {
+                import = 1.0/(ident.level+10);
+                if (ident.level <= maxShortCircuitLevel)
+                    import += 1.0;
+            }
+        }
+    } else {
+        import = ScreenImportance(viewState, frameSize, viewState.eyeVec, tileSize, [coordSys getCoordSystem], coordAdapter, mbr, ident, attrs);
+    }
     
-    //    NSLog(@"Tiles = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
+//    NSLog(@"Tiles = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
     
     return import * _importanceScale;
 }
