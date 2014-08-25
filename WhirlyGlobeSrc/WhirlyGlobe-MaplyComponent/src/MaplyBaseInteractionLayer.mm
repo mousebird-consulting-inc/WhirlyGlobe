@@ -513,7 +513,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Called in the main thread.
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[markers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
@@ -601,7 +601,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Add 3D markers
 - (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[markers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
@@ -618,6 +618,27 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     return compObj;
 }
 
+// Make a temporary EAGL context if we need it.
+// This happens if we're making OpenGL calls on a thread that doesn't have a context.
+- (EAGLContext *)setupTempContext:(MaplyThreadMode)threadMode
+{
+    EAGLContext *tmpContext = nil;
+    if (threadMode == MaplyThreadCurrent && ![EAGLContext currentContext])
+    {
+        tmpContext = [[EAGLContext alloc] initWithAPI:layerThread.renderer.context.API sharegroup:layerThread.renderer.context.sharegroup];
+        [EAGLContext setCurrentContext:tmpContext];
+    }
+    
+    return tmpContext;
+}
+
+// This just releases the context, but we may want to keep a queue of these in future
+- (void)clearTempContext:(EAGLContext *)context
+{
+    if (context)
+        [EAGLContext setCurrentContext:nil];
+}
+
 // Actually add the labels.
 // Called in an unknown thread.
 - (void)addScreenLabelsRun:(NSArray *)argArray
@@ -626,6 +647,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+
+    // May need a temporary context when setting up screen label textures
+    EAGLContext *tmpContext = [self setupTempContext:threadMode];
     
     // Might be a custom shader on these
     [self resolveShader:inDesc];
@@ -639,6 +663,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         wgLabel.loc = GeoCoord(label.loc.x,label.loc.y);
         wgLabel.rotation = label.rotation;
         wgLabel.text = label.text;
+        wgLabel.keepUpright = label.keepUpright;
         MaplyTexture *tex = nil;
         if (label.iconImage) {
             tex = [self addImage:label.iconImage imageFormat:MaplyImageIntRGBA mode:threadMode];
@@ -692,12 +717,14 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     [userObjects addObject:compObj];
     compObj.underConstruction = false;
     pthread_mutex_unlock(&userLock);
+
+    [self clearTempContext:tmpContext];
 }
 
 // Add screen space (2D) labels
 - (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[labels, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
@@ -725,6 +752,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
 
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyLabelDrawPriorityDefault) toDict:inDesc];
+
+    // May need a temporary context when setting up label textures
+    EAGLContext *tmpContext = [self setupTempContext:threadMode];
 
     // Might be a custom shader on these
     [self resolveShader:inDesc];
@@ -795,12 +825,14 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     [userObjects addObject:compObj];
     compObj.underConstruction = false;
     pthread_mutex_unlock(&userLock);
+    
+    [self clearTempContext:tmpContext];
 }
 
 // Add 3D labels
 - (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[labels, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
@@ -906,7 +938,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Add vectors
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], @(threadMode)];
@@ -984,7 +1016,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 
 - (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
@@ -1068,7 +1100,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Instance vectors
 - (MaplyComponentObject *)instanceVectors:(MaplyComponentObject *)baseObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[baseObj, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], @(threadMode)];
@@ -1088,7 +1120,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Add vectors that we'll only use for selection
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors desc:(NSDictionary *)desc
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = false;
     
     NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:NO], @(MaplyThreadCurrent)];
@@ -1317,7 +1349,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Add shapes
 - (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[shapes, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
@@ -1424,7 +1456,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Add stickers
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[stickers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
@@ -1573,7 +1605,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Add lofted polys
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], (key ? key : [NSNull null]), (cache ? cache : [NSNull null]), @(threadMode)];
@@ -1671,7 +1703,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Add lofted polys
 - (MaplyComponentObject *)addBillboards:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
     NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
@@ -1813,6 +1845,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 
         if (isHere)
         {
+            compObj.enable = enable;
             if (vectorManager && !compObj.vectorIDs.empty())
                 vectorManager->enableVectors(compObj.vectorIDs, enable, changes);
             if (wideVectorManager && !compObj.wideVectorIDs.empty())
@@ -1908,7 +1941,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     pthread_mutex_lock(&userLock);
     for (MaplyComponentObject *userObj in userObjects)
     {
-        if (userObj.vectors && userObj.isSelectable)
+        if (userObj.vectors && userObj.isSelectable && userObj.enable)
         {
             for (MaplyVectorObject *vecObj in userObj.vectors)
             {
