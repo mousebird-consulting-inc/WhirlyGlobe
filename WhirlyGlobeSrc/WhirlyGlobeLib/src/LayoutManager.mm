@@ -101,7 +101,7 @@ protected:
 // Default constructor for layout object
 LayoutObject::LayoutObject()
     : Identifiable(),
-        enable(true), dispLoc(0,0,0), size(0,0), iconSize(0,0), rotation(0.0), minVis(DrawVisibleInvalid),
+        enable(true), dispLoc(0,0,0), size(0,0), iconSize(0,0), rotation(0.0), keepUpright(false), minVis(DrawVisibleInvalid),
         maxVis(DrawVisibleInvalid), importance(MAXFLOAT), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
 {
 }    
@@ -340,6 +340,10 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                 CGPoint outScreenPt;
                 outScreenPt = [viewState pointOnScreenFromDisplay:outPt transform:&modelTrans frameSize:frameBufferSize];
                 screenRot = M_PI/2.0-atan2f(objPt.y-outScreenPt.y,outScreenPt.x-objPt.x);
+                // Keep the labels upright
+                if (layoutObj->obj.keepUpright)
+                    if (screenRot > M_PI/2 && screenRot < 3*M_PI/2)
+                        screenRot = screenRot + M_PI;
                 screenRotMat = Eigen::Rotation2Dd(screenRot);
             }
             

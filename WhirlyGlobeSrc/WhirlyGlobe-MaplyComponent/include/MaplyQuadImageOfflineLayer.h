@@ -135,6 +135,11 @@
   */
 @property (nonatomic) float period;
 
+/** @brief If on, we'll try to load only a single level at a time.
+    @details If set we'll use the target level logic to only show a single level at a time.
+  */
+@property (nonatomic) bool singleLevelLoading;
+
 /** @brief The bounding box for the images produced by the offline layer.
     @details This bounding box should be in the layer's coordinate system.
   */

@@ -221,6 +221,12 @@ typedef enum {MaplyImageIntRGBA,
   */
 @property (nonatomic) MaplyQuadImageFormat imageFormat;
 
+/** @brief Number of border texels to set up around image tiles.
+    @details For matching image tiles along borders in 3D (probably the globe) we resample the image slightly smaller than we get and make up a boundary around the outside.  This number controls that border size.
+    @details By default this is 1.  It's safe to set it to 0 for 2D maps and some overalys.
+  */
+@property (nonatomic) int borderTexel;
+
 /** @brief Control how tiles are indexed, either from the lower left or the upper left.
     @details If set, we'll use the OSM approach (also Google Maps) to y indexing.  That's that default and it's normally what you're run into.
     @details Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you're tile source looks odd, try setting this to false.
@@ -240,6 +246,13 @@ typedef enum {MaplyImageIntRGBA,
   */
 @property (nonatomic) bool singleLevelLoading;
 
+/** @brief Detail the levels you want loaded in target level mode.
+    @details The image display can work in one of two modes, quad tree where it loads everything starting from the min level or a target level mode where it just tries to load one or more target levels.  This is the array that controls which levels it will try to load.
+    @details We do this so that the user doesn't have to wait for the target level to load.  This can be distracting on large displays with small tiles.  If you use this mode, the layer will load lower levels first, filling in quicker and then load the target level.  This looks much better, but doesn't take as long as the full quad tree based loading.
+    @details The layer calculates the optimal target level (for 2D maps, if you're in that mode).  The entries in this array are relative to that level or absolute.  For example [0,-4,-2] means the layer will always try to load levels 0, targetLevel-4 and targetLevel-2, but only the latter two if they make sense.
+  */
+@property (nonatomic) NSArray *multilLevelLoads;
+
 /** @brief The target zoom level for this layer given the current view settings.
     @details Calculates the target zoom level for the middle of the screen.
     @details This only makes sense for flat maps that use the same coordinate system we're using in this tile source.  In addition, the viewer can't have a tilt or any non-2D transform in the view matrix.  If it does, this is meaningless, but it'll return a number anyway.
@@ -258,8 +271,17 @@ typedef enum {MaplyImageIntRGBA,
     @details When we're loading just one image per tile, call this with a UIImage or MaplyImageTile. If we're expecting multiple images (see: imageDepth) then pass in a MaplyImageTile that's been set up appropriately.
     @param images Either one of UIImage or MaplyPlaceholderImage.
     @param tileID The tile we've loaded.
-  */
+ */
 - (void)loadedImages:(id)images forTile:(MaplyTileID)tileID;
+
+/** @brief Pass back the loaded image(s) for a given tile.
+    @details If the tile source implements startFetchForTile: then we'll expect it to do the asynchronous loading.  When it's done loading an image, it calls this.
+    @details When we're loading just one image per tile, call this with a UIImage or MaplyImageTile. If we're expecting multiple images (see: imageDepth) then pass in a MaplyImageTile that's been set up appropriately.
+    @param images Either one of UIImage or MaplyPlaceholderImage.
+    @param tileID The tile we've loaded.
+    @param frame If we're loading an animation frame by frame, this is the frame ID.
+  */
+- (void)loadedImages:(id)images forTile:(MaplyTileID)tileID frame:(int)frame;
 
 /** @brief Pass back an error for a given tile.
     @details If the tile source implements startFetchForTile: then this is how it tells us about a specific failure.

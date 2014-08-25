@@ -390,8 +390,8 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 //                        CGContextBeginPath(theContext);
 //                        CGContextAddRect(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()));
 //                        CGFloat green[4] = {0,1,0,1};
-//                        CGContextSetFillColor(theContext, green);
-//                        CGContextDrawPath(theContext, kCGPathFill);
+//                        CGContextSetStrokeColor(theContext, green);
+//                        CGContextDrawPath(theContext, kCGPathStroke);
                         CGContextDrawImage(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()), imageToDraw.CGImage);
                     }
                 }

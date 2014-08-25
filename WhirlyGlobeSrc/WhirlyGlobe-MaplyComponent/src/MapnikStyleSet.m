@@ -70,6 +70,7 @@ static NSString *PARAMETER_ELEMENT = @"Parameter";
 
 static NSString *NAME_ATTRIBUTE = @"name";
 static NSString *OPACITY_ATTRIBUTE = @"opacity";
+static NSString *OPACITY_ATTRIBUTE_ALT = @"fill-opacity";
 static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 
 - (instancetype)init {
@@ -123,6 +124,12 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
     return [self loadXmlData:[[NSData alloc] initWithContentsOfFile:fullPath]];
 }
 
+- (void)loadJsonData:(NSData *)jsonData
+{
+    NSError *error = nil;
+    self.styleDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&error];
+//    [self generateStyles];
+}
 
 - (void)loadJsonFile:(NSString*)filePath {
   if(filePath) {
@@ -133,10 +140,19 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
                                                                options:NSJSONReadingMutableContainers
                                                                  error:&error];
       self.styleDictionary = jsonDict;
+        
+//        [self generateStyles];
     }
   }
 }
 
+- (void)saveAsJSON:(NSString *)filePath
+{
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.styleDictionary options:0 error:&error];
+    if (jsonData)
+        [jsonData writeToFile:filePath atomically:NO];
+}
 
 - (void)generateStyles {
   self.styles = [NSMutableDictionary dictionary];
@@ -207,14 +223,14 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
           }
         }
         
-        if(styleDict[OPACITY_ATTRIBUTE]) {
+        if(symbolizerDict[OPACITY_ATTRIBUTE]) {
           mutableSymbolizerDict[OPACITY_ATTRIBUTE] = @([styleDict[OPACITY_ATTRIBUTE] floatValue] * self.alpha);
         } else {
           mutableSymbolizerDict[OPACITY_ATTRIBUTE] = @(self.alpha);
         }
         
         if([mutableSymbolizerDict[@"type"] isEqualToString:POLYGONSYMBOLIZER_ELEMENT]) {
-          if(styleDict[@"fill-opacity"]) {
+          if(symbolizerDict[@"fill-opacity"]) {
             mutableSymbolizerDict[@"fill-opacity"] = @([styleDict[@"fill-opacity"] floatValue] * self.alpha);
           } else {
             mutableSymbolizerDict[@"fill-opacity"] = @(self.alpha);
@@ -393,7 +409,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 
 - (void)parserDidEndDocument:(NSXMLParser *)parser {
   //NSLog(@"Parse time:%f, %d styles", CFAbsoluteTimeGetCurrent() - startTime, self.styles.count);
-  [self generateStyles];
+//  [self generateStyles];
   self.success = YES;
   [self cleanup];
 }

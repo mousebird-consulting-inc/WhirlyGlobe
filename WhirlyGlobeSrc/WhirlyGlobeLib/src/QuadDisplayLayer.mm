@@ -71,7 +71,6 @@ using namespace WhirlyKit;
         maxZoom = [_dataStructure maxZoom];
         _maxTiles = 128;
         _minImportance = 1.0;
-        _targetLevel = -1;
         _viewUpdatePeriod = 0.1;
         _quadtree = new Quadtree([_dataStructure totalExtents],minZoom,maxZoom,_maxTiles,_minImportance,self);
         _renderer = (WhirlyKitSceneRendererES2 *)inRenderer;
@@ -305,34 +304,44 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             bool addChildren = false;
             
             // Quad tree loading mode
-            if (_targetLevel == -1)
+            if (_targetLevels.empty())
             {
                 // If it's loading, just leave things alone
                 if (!nodeInfo->loading)
                 {
                     if (nodeInfo->phantom)
-                        shouldLoad = _quadtree->shouldLoadTile(nodeInfo->ident);
+                        shouldLoad = _quadtree->shouldLoadTile(nodeInfo->ident) && nodeInfo->ident.level <= maxZoom;
                     else
                         addChildren = true;
                 }
             } else {
+                bool isInTargetLevels = _targetLevels.find(nodeInfo->ident.level) != _targetLevels.end();
+                bool singleTargetLevel = _targetLevels.size() == 1;
+                int minTargetLevel = *(_targetLevels.begin());
+                int maxTargetLevel = *(--(_targetLevels.end()));
                 // Single level loading mode
                 if (nodeInfo->phantom)
                 {
-                    if (nodeInfo->ident.level < _targetLevel)
+                    if (nodeInfo->ident.level < minTargetLevel)
                     {
                         addChildren = true;
                         if (_quadtree->childFailed(nodeInfo->ident))
                             shouldLoad = _quadtree->shouldLoadTile(nodeInfo->ident);
-                    } else if (nodeInfo->ident.level == _targetLevel && !nodeInfo->failed)
-                        shouldLoad = _quadtree->shouldLoadTile(nodeInfo->ident);
-                    else if (nodeInfo->ident.level > _targetLevel)
+                    } else if (isInTargetLevels && !nodeInfo->failed)
+                    {
+                        if (nodeInfo->childCoverage && nodeInfo->ident.level != maxTargetLevel)
+                            addChildren = true;
+                        else
+                            shouldLoad = _quadtree->shouldLoadTile(nodeInfo->ident);
+                    } else if (nodeInfo->ident.level > maxTargetLevel)
                         shouldUnload = true;
+                    else if (!isInTargetLevels)
+                        addChildren = true;
                 } else {
-                    if (nodeInfo->ident.level < _targetLevel)
+                    if (nodeInfo->ident.level < maxTargetLevel)
                     {
                         addChildren = true;
-                        if (!_quadtree->childFailed(nodeInfo->ident))
+                        if (nodeInfo->childCoverage || singleTargetLevel)
                             makePhantom = true;
                     }
                 }
@@ -363,7 +372,6 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 }
                 
 //                NSLog(@"Loading tile: %d: (%d,%d)",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y);
-                [_loader quadDisplayLayer:self loadTile:nodeInfo ];
                 _quadtree->setPhantom(nodeInfo->ident, false);
                 _quadtree->setLoading(nodeInfo->ident, true);
                 
@@ -371,6 +379,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 QuadIdentSet::iterator it = toPhantom.find(nodeInfo->ident);
                 if (it != toPhantom.end())
                     toPhantom.erase(it);
+
+                [_loader quadDisplayLayer:self loadTile:nodeInfo ];
             }
             
             // Unload a tile
@@ -378,12 +388,12 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             {
 //                NSLog(@"Unload tile: %d: (%d,%d)",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y);
                 _quadtree->removeTile(nodeInfo->ident);
-                [_loader quadDisplayLayer:self unloadTile:nodeInfo];
-
                 // Take it out of the phantom list
                 QuadIdentSet::iterator it = toPhantom.find(nodeInfo->ident);
                 if (it != toPhantom.end())
                     toPhantom.erase(it);
+
+                [_loader quadDisplayLayer:self unloadTile:nodeInfo];
             }
             
             // Turn this into a phantom node
@@ -485,27 +495,51 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 {
     _quadtree->setLoading(tileIdent, false);
     _quadtree->setFailed(tileIdent, false);
+    
+    // Update the parent coverage and then make those tiles phantoms if
+    //  they're now fully covered
+    if (!_targetLevels.empty())
+    {
+        std::vector<Quadtree::Identifier> tilesCovered,tilesUncovered;
+        _quadtree->updateParentCoverage(tileIdent,tilesCovered,tilesUncovered);
+        for (unsigned int ii=0;ii<tilesCovered.size();ii++)
+        {
+            const Quadtree::Identifier &ident = tilesCovered[ii];
+            if (!_quadtree->isPhantom(ident))
+            {
+//                NSLog(@"Adding to phantom due to coverage: %d: (%d,%d)",ident.level,ident.x,ident.y);
+                toPhantom.insert(ident);
+            }
+        }
+    }
+    
+    
     if (tileIdent.level < maxZoom)
     {
         // Make sure we still want this one
-        if (!_quadtree->isTilePresent(tileIdent) || _quadtree->isPhantom(tileIdent))
+        if (!_quadtree->isTilePresent(tileIdent))
             return;
         
-        if (_targetLevel == -1 || tileIdent.level < _targetLevel)
+        int maxTargetLevel = _targetLevels.empty() ? maxZoom : *(--(_targetLevels.end()));
+        if (_targetLevels.empty() || tileIdent.level < maxTargetLevel)
         {
-            // Now try the children
-            std::vector<Quadtree::Identifier> childNodes;
-            _quadtree->childrenForNode(tileIdent, childNodes);
-            for (unsigned int ic=0;ic<childNodes.size();ic++)
-                if (!_quadtree->didFail(childNodes[ic]))
-                {
-                    _quadtree->addTile(childNodes[ic], true, true);
 
-                    // Take it out of the phantom list
-                    QuadIdentSet::iterator it = toPhantom.find(childNodes[ic]);
-                    if (it != toPhantom.end())
-                        toPhantom.erase(it);
-                }
+            if (tileIdent.level < maxTargetLevel)
+            {
+                // Now try the children
+                std::vector<Quadtree::Identifier> childNodes;
+                _quadtree->childrenForNode(tileIdent, childNodes);
+                for (unsigned int ic=0;ic<childNodes.size();ic++)
+                    if (!_quadtree->didFail(childNodes[ic]))
+                    {
+                        _quadtree->addTile(childNodes[ic], true, true);
+
+                        // Take it out of the phantom list
+                        QuadIdentSet::iterator it = toPhantom.find(childNodes[ic]);
+                        if (it != toPhantom.end())
+                            toPhantom.erase(it);
+                    }
+            }
         }
     }
 
@@ -527,7 +561,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     _quadtree->setFailed(tileIdent, true);
     
     // Let's try to load the parent if we're in target level mode
-    if (_targetLevel != -1)
+    if (!_targetLevels.empty() && tileIdent.level > 0)
     {
         Quadtree::Identifier parentIdent(tileIdent.x/2,tileIdent.y/2,tileIdent.level-1);
         _quadtree->addTile(parentIdent, true, true);

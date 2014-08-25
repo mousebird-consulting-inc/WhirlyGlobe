@@ -156,8 +156,8 @@ typedef std::set<WhirlyKit::Quadtree::Identifier> QuadIdentSet;
 @property (nonatomic,assign) int maxTiles;
 /// Minimum screen area to consider for a pixel
 @property (nonatomic,assign) float minImportance;
-/// If set, we're trying to only display the target level
-@property (nonatomic,assign) int targetLevel;
+/// If set, we're trying to display a given set of levels, with the last one being the highest
+@property (nonatomic,assign) std::set<int> &targetLevels;
 /// Draw lines instead of polygons, for demonstration.
 @property (nonatomic,assign) bool lineMode;
 /// If set, we print out way too much debugging info.

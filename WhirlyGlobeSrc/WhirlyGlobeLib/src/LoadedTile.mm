@@ -190,13 +190,20 @@ using namespace WhirlyKit;
                 int size = std::max(destWidth,destHeight);
                 destWidth = destHeight = size;
             }
-            NSData *rawData = [(UIImage *)_imageData rawDataScaleWidth:destWidth height:destHeight border:borderTexel];
-            if (rawData)
+            if ([_imageData isKindOfClass:[NSData class]])
             {
-                _imageData = rawData;
                 _type = WKLoadedImageNSDataRawData;
                 _width = destWidth;
                 _height = destHeight;
+            } else {
+                NSData *rawData = [(UIImage *)_imageData rawDataScaleWidth:destWidth height:destHeight border:borderTexel];
+                if (rawData)
+                {
+                    _imageData = rawData;
+                    _type = WKLoadedImageNSDataRawData;
+                    _width = destWidth;
+                    _height = destHeight;
+                }
             }
         }
             break;
@@ -272,7 +279,7 @@ TileBuilder::TileBuilder(CoordSystem *coordSys,Mbr mbr,WhirlyKit::Quadtree *quad
     enabled(true),
     texAtlas(NULL),
     newDrawables(false),
-    singleLevel(-1)
+    singleLevel(false)
 {
     pthread_mutex_init(&texAtlasMappingLock, NULL);
 }
@@ -423,7 +430,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
     }
     
     // For single level mode it's not worth getting fancy
-    if (singleLevel != -1)
+    if (singleLevel)
     {
         sphereTessX = 1;
         sphereTessY = 1;
@@ -500,7 +507,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
             chunk->setTexId(activeTextures-1, EmptyIdentity);
         chunk->setDrawOffset(drawOffset);
         int thisDrawPriority = drawPriority;
-        if (singleLevel != -1)
+        if (singleLevel)
             thisDrawPriority += nodeInfo->ident.level;
         chunk->setDrawPriority(thisDrawPriority);
         chunk->setVisibleRange(minVis, maxVis);

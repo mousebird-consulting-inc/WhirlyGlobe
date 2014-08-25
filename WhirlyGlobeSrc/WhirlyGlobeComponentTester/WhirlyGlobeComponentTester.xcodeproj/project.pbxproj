@@ -15,7 +15,6 @@
 		2B62DD8816E7F3A2001F52FC /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2B62DD7E16E7F3A2001F52FC /* ConfigViewController.xib */; };
 		2B62DD8A16E7F3A2001F52FC /* StartupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD8316E7F3A2001F52FC /* StartupViewController.m */; };
 		2B62DD8B16E7F3A2001F52FC /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD8516E7F3A2001F52FC /* TestViewController.m */; };
-		2B86DA721905D628007B7A20 /* osm-bright.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2B86DA711905D628007B7A20 /* osm-bright.xml */; };
 		2BA13BFF17F10D9A000C43B7 /* libWhirlyGlobe-MaplyComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DD9216E7F3D3001F52FC /* libWhirlyGlobe-MaplyComponent.a */; };
 		2BA13C0117F10E49000C43B7 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BA13C0017F10E49000C43B7 /* CFNetwork.framework */; };
 		2BA13C0317F10E64000C43B7 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B0D630D17A2EE0400C3298D /* libxml2.dylib */; };
@@ -36,6 +35,115 @@
 		2BB54EDF17CEB88F0065451F /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54EDE17CEB88F0065451F /* Default-568h@2x.png */; };
 		2BB54EE017CEB8950065451F /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54EDC17CEB8830065451F /* Default.png */; };
 		2BB54EE217CEB8A20065451F /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54EE117CEB8A20065451F /* Default@2x.png */; };
+		2BC0FB041964D3580043E1FD /* airfield-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FA9A1964D3580043E1FD /* airfield-24@2x.png */; };
+		2BC0FB051964D3580043E1FD /* airport-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FA9B1964D3580043E1FD /* airport-24@2x.png */; };
+		2BC0FB061964D3580043E1FD /* alcohol-shop-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FA9C1964D3580043E1FD /* alcohol-shop-24@2x.png */; };
+		2BC0FB071964D3580043E1FD /* america-football-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FA9D1964D3580043E1FD /* america-football-24@2x.png */; };
+		2BC0FB081964D3580043E1FD /* art-gallery-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FA9E1964D3580043E1FD /* art-gallery-24@2x.png */; };
+		2BC0FB091964D3580043E1FD /* bakery-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FA9F1964D3580043E1FD /* bakery-24@2x.png */; };
+		2BC0FB0A1964D3580043E1FD /* bank-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAA01964D3580043E1FD /* bank-24@2x.png */; };
+		2BC0FB0B1964D3580043E1FD /* bar-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAA11964D3580043E1FD /* bar-24@2x.png */; };
+		2BC0FB0C1964D3580043E1FD /* baseball-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAA21964D3580043E1FD /* baseball-24@2x.png */; };
+		2BC0FB0D1964D3580043E1FD /* basketball-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAA31964D3580043E1FD /* basketball-24@2x.png */; };
+		2BC0FB0E1964D3580043E1FD /* beer-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAA41964D3580043E1FD /* beer-24@2x.png */; };
+		2BC0FB0F1964D3580043E1FD /* bicycle-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAA51964D3580043E1FD /* bicycle-24@2x.png */; };
+		2BC0FB101964D3580043E1FD /* building-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAA61964D3580043E1FD /* building-24@2x.png */; };
+		2BC0FB111964D3580043E1FD /* bus-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAA71964D3580043E1FD /* bus-24@2x.png */; };
+		2BC0FB121964D3580043E1FD /* cafe-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAA81964D3580043E1FD /* cafe-24@2x.png */; };
+		2BC0FB131964D3580043E1FD /* camera-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAA91964D3580043E1FD /* camera-24@2x.png */; };
+		2BC0FB141964D3580043E1FD /* campsite-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAAA1964D3580043E1FD /* campsite-24@2x.png */; };
+		2BC0FB151964D3580043E1FD /* car-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAAB1964D3580043E1FD /* car-24@2x.png */; };
+		2BC0FB161964D3580043E1FD /* cemetery-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAAC1964D3580043E1FD /* cemetery-24@2x.png */; };
+		2BC0FB171964D3580043E1FD /* cinema-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAAD1964D3580043E1FD /* cinema-24@2x.png */; };
+		2BC0FB181964D3580043E1FD /* circle-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAAE1964D3580043E1FD /* circle-24@2x.png */; };
+		2BC0FB191964D3580043E1FD /* circle-stroked-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAAF1964D3580043E1FD /* circle-stroked-24@2x.png */; };
+		2BC0FB1A1964D3580043E1FD /* city-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAB01964D3580043E1FD /* city-24@2x.png */; };
+		2BC0FB1B1964D3580043E1FD /* clothing-store-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAB11964D3580043E1FD /* clothing-store-24@2x.png */; };
+		2BC0FB1C1964D3580043E1FD /* college-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAB21964D3580043E1FD /* college-24@2x.png */; };
+		2BC0FB1D1964D3580043E1FD /* commercial-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAB31964D3580043E1FD /* commercial-24@2x.png */; };
+		2BC0FB1E1964D3580043E1FD /* cricket-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAB41964D3580043E1FD /* cricket-24@2x.png */; };
+		2BC0FB1F1964D3580043E1FD /* cross-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAB51964D3580043E1FD /* cross-24@2x.png */; };
+		2BC0FB201964D3580043E1FD /* dam-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAB61964D3580043E1FD /* dam-24@2x.png */; };
+		2BC0FB211964D3580043E1FD /* danger-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAB71964D3580043E1FD /* danger-24@2x.png */; };
+		2BC0FB221964D3580043E1FD /* disability-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAB81964D3580043E1FD /* disability-24@2x.png */; };
+		2BC0FB231964D3580043E1FD /* dog-park-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAB91964D3580043E1FD /* dog-park-24@2x.png */; };
+		2BC0FB241964D3580043E1FD /* embassy-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FABA1964D3580043E1FD /* embassy-24@2x.png */; };
+		2BC0FB251964D3580043E1FD /* emergency-telephone-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FABB1964D3580043E1FD /* emergency-telephone-24@2x.png */; };
+		2BC0FB261964D3580043E1FD /* farm-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FABC1964D3580043E1FD /* farm-24@2x.png */; };
+		2BC0FB271964D3580043E1FD /* fast-food-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FABD1964D3580043E1FD /* fast-food-24@2x.png */; };
+		2BC0FB281964D3580043E1FD /* ferry-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FABE1964D3580043E1FD /* ferry-24@2x.png */; };
+		2BC0FB291964D3580043E1FD /* fire-station-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FABF1964D3580043E1FD /* fire-station-24@2x.png */; };
+		2BC0FB2A1964D3580043E1FD /* fuel-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAC01964D3580043E1FD /* fuel-24@2x.png */; };
+		2BC0FB2B1964D3580043E1FD /* garden-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAC11964D3580043E1FD /* garden-24@2x.png */; };
+		2BC0FB2C1964D3580043E1FD /* golf-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAC21964D3580043E1FD /* golf-24@2x.png */; };
+		2BC0FB2D1964D3580043E1FD /* grocery-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAC31964D3580043E1FD /* grocery-24@2x.png */; };
+		2BC0FB2E1964D3580043E1FD /* harbor-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAC41964D3580043E1FD /* harbor-24@2x.png */; };
+		2BC0FB2F1964D3580043E1FD /* heliport-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAC51964D3580043E1FD /* heliport-24@2x.png */; };
+		2BC0FB301964D3580043E1FD /* hospital-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAC61964D3580043E1FD /* hospital-24@2x.png */; };
+		2BC0FB311964D3580043E1FD /* industrial-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAC71964D3580043E1FD /* industrial-24@2x.png */; };
+		2BC0FB321964D3580043E1FD /* land-use-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAC81964D3580043E1FD /* land-use-24@2x.png */; };
+		2BC0FB331964D3580043E1FD /* laundry-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAC91964D3580043E1FD /* laundry-24@2x.png */; };
+		2BC0FB341964D3580043E1FD /* library-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FACA1964D3580043E1FD /* library-24@2x.png */; };
+		2BC0FB351964D3580043E1FD /* lighthouse-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FACB1964D3580043E1FD /* lighthouse-24@2x.png */; };
+		2BC0FB361964D3580043E1FD /* lodging-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FACC1964D3580043E1FD /* lodging-24@2x.png */; };
+		2BC0FB371964D3580043E1FD /* logging-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FACD1964D3580043E1FD /* logging-24@2x.png */; };
+		2BC0FB381964D3580043E1FD /* london-underground-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FACE1964D3580043E1FD /* london-underground-24@2x.png */; };
+		2BC0FB391964D3580043E1FD /* marker-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FACF1964D3580043E1FD /* marker-24@2x.png */; };
+		2BC0FB3A1964D3580043E1FD /* marker-stroked-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAD01964D3580043E1FD /* marker-stroked-24@2x.png */; };
+		2BC0FB3B1964D3580043E1FD /* minefield-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAD11964D3580043E1FD /* minefield-24@2x.png */; };
+		2BC0FB3C1964D3580043E1FD /* monument-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAD21964D3580043E1FD /* monument-24@2x.png */; };
+		2BC0FB3D1964D3580043E1FD /* museum-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAD31964D3580043E1FD /* museum-24@2x.png */; };
+		2BC0FB3E1964D3580043E1FD /* music-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAD41964D3580043E1FD /* music-24@2x.png */; };
+		2BC0FB3F1964D3580043E1FD /* oil-well-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAD51964D3580043E1FD /* oil-well-24@2x.png */; };
+		2BC0FB401964D3580043E1FD /* park-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAD61964D3580043E1FD /* park-24@2x.png */; };
+		2BC0FB411964D3580043E1FD /* park2-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAD71964D3580043E1FD /* park2-24@2x.png */; };
+		2BC0FB421964D3580043E1FD /* parking-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAD81964D3580043E1FD /* parking-24@2x.png */; };
+		2BC0FB431964D3580043E1FD /* parking-garage-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAD91964D3580043E1FD /* parking-garage-24@2x.png */; };
+		2BC0FB441964D3580043E1FD /* pharmacy-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FADA1964D3580043E1FD /* pharmacy-24@2x.png */; };
+		2BC0FB451964D3580043E1FD /* pitch-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FADB1964D3580043E1FD /* pitch-24@2x.png */; };
+		2BC0FB461964D3580043E1FD /* place-of-worship-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FADC1964D3580043E1FD /* place-of-worship-24@2x.png */; };
+		2BC0FB471964D3580043E1FD /* playground-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FADD1964D3580043E1FD /* playground-24@2x.png */; };
+		2BC0FB481964D3580043E1FD /* police-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FADE1964D3580043E1FD /* police-24@2x.png */; };
+		2BC0FB491964D3580043E1FD /* polling-place-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FADF1964D3580043E1FD /* polling-place-24@2x.png */; };
+		2BC0FB4A1964D3580043E1FD /* post-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAE01964D3580043E1FD /* post-24@2x.png */; };
+		2BC0FB4B1964D3580043E1FD /* prison-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAE11964D3580043E1FD /* prison-24@2x.png */; };
+		2BC0FB4C1964D3580043E1FD /* rail-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAE21964D3580043E1FD /* rail-24@2x.png */; };
+		2BC0FB4D1964D3580043E1FD /* rail-above-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAE31964D3580043E1FD /* rail-above-24@2x.png */; };
+		2BC0FB4E1964D3580043E1FD /* rail-underground-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAE41964D3580043E1FD /* rail-underground-24@2x.png */; };
+		2BC0FB4F1964D3580043E1FD /* religious-christian-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAE51964D3580043E1FD /* religious-christian-24@2x.png */; };
+		2BC0FB501964D3580043E1FD /* religious-jewish-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAE61964D3580043E1FD /* religious-jewish-24@2x.png */; };
+		2BC0FB511964D3580043E1FD /* religious-muslim-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAE71964D3580043E1FD /* religious-muslim-24@2x.png */; };
+		2BC0FB521964D3580043E1FD /* restaurant-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAE81964D3580043E1FD /* restaurant-24@2x.png */; };
+		2BC0FB531964D3580043E1FD /* roadblock-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAE91964D3580043E1FD /* roadblock-24@2x.png */; };
+		2BC0FB541964D3580043E1FD /* rocket-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAEA1964D3580043E1FD /* rocket-24@2x.png */; };
+		2BC0FB551964D3580043E1FD /* school-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAEB1964D3580043E1FD /* school-24@2x.png */; };
+		2BC0FB561964D3580043E1FD /* shop-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAEC1964D3580043E1FD /* shop-24@2x.png */; };
+		2BC0FB571964D3580043E1FD /* skiing-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAED1964D3580043E1FD /* skiing-24@2x.png */; };
+		2BC0FB581964D3580043E1FD /* slaughterhouse-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAEE1964D3580043E1FD /* slaughterhouse-24@2x.png */; };
+		2BC0FB591964D3580043E1FD /* soccer-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAEF1964D3580043E1FD /* soccer-24@2x.png */; };
+		2BC0FB5A1964D3580043E1FD /* square-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAF01964D3580043E1FD /* square-24@2x.png */; };
+		2BC0FB5B1964D3580043E1FD /* square-stroked-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAF11964D3580043E1FD /* square-stroked-24@2x.png */; };
+		2BC0FB5C1964D3580043E1FD /* star-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAF21964D3580043E1FD /* star-24@2x.png */; };
+		2BC0FB5D1964D3580043E1FD /* star-stroked-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAF31964D3580043E1FD /* star-stroked-24@2x.png */; };
+		2BC0FB5E1964D3580043E1FD /* suitcase-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAF41964D3580043E1FD /* suitcase-24@2x.png */; };
+		2BC0FB5F1964D3580043E1FD /* swimming-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAF51964D3580043E1FD /* swimming-24@2x.png */; };
+		2BC0FB601964D3580043E1FD /* telephone-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAF61964D3580043E1FD /* telephone-24@2x.png */; };
+		2BC0FB611964D3580043E1FD /* tennis-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAF71964D3580043E1FD /* tennis-24@2x.png */; };
+		2BC0FB621964D3580043E1FD /* theatre-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAF81964D3580043E1FD /* theatre-24@2x.png */; };
+		2BC0FB631964D3580043E1FD /* toilets-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAF91964D3580043E1FD /* toilets-24@2x.png */; };
+		2BC0FB641964D3580043E1FD /* town-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAFA1964D3580043E1FD /* town-24@2x.png */; };
+		2BC0FB651964D3580043E1FD /* town-hall-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAFB1964D3580043E1FD /* town-hall-24@2x.png */; };
+		2BC0FB661964D3580043E1FD /* triangle-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAFC1964D3580043E1FD /* triangle-24@2x.png */; };
+		2BC0FB671964D3580043E1FD /* triangle-stroked-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAFD1964D3580043E1FD /* triangle-stroked-24@2x.png */; };
+		2BC0FB681964D3580043E1FD /* village-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAFE1964D3580043E1FD /* village-24@2x.png */; };
+		2BC0FB691964D3580043E1FD /* warehouse-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FAFF1964D3580043E1FD /* warehouse-24@2x.png */; };
+		2BC0FB6A1964D3580043E1FD /* waste-basket-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB001964D3580043E1FD /* waste-basket-24@2x.png */; };
+		2BC0FB6B1964D3580043E1FD /* water-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB011964D3580043E1FD /* water-24@2x.png */; };
+		2BC0FB6C1964D3580043E1FD /* wetland-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB021964D3580043E1FD /* wetland-24@2x.png */; };
+		2BC0FB6D1964D3580043E1FD /* zoo-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB031964D3580043E1FD /* zoo-24@2x.png */; };
+		2BC0FB81196DB88F0043E1FD /* osm-bright.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB80196DB88F0043E1FD /* osm-bright.xml */; };
+		2BC0FB84196DB8960043E1FD /* MapzenStyles.json in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB83196DB8960043E1FD /* MapzenStyles.json */; };
+		2BC0FB88196DBA1C0043E1FD /* geography-class_medres.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB85196DB93C0043E1FD /* geography-class_medres.mbtiles */; };
 		2BC989A817DA66BB0071DA9E /* WeatherShader.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989A717DA66BB0071DA9E /* WeatherShader.m */; };
 		2BC989E517DC289B0071DA9E /* world_web_mercator.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2BC989E417DC289B0071DA9E /* world_web_mercator.sqlite */; };
 		2BDC8A8D1937E33F00DFECF0 /* tl_2013_06075_roads.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 2BDC8A891937E33F00DFECF0 /* tl_2013_06075_roads.dbf */; };
@@ -45,7 +153,6 @@
 		2BFD25DD170B92AD00127EF5 /* map_pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD25DA170B92AD00127EF5 /* map_pin.png */; };
 		2BFD25DE170B92AD00127EF5 /* Smiley_Face_Avatar_by_PixelTwist.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD25DB170B92AD00127EF5 /* Smiley_Face_Avatar_by_PixelTwist.png */; };
 		2BFD25DF170B92AD00127EF5 /* Star.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD25DC170B92AD00127EF5 /* Star.png */; };
-		2BFD25ED170B932000127EF5 /* geography-class.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD25E0170B932000127EF5 /* geography-class.mbtiles */; };
 		2BFD25EE170B932000127EF5 /* lowres_wtb_0x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD25E2170B932000127EF5 /* lowres_wtb_0x0.pvrtc */; };
 		2BFD25EF170B932000127EF5 /* lowres_wtb_0x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD25E3170B932000127EF5 /* lowres_wtb_0x1.pvrtc */; };
 		2BFD25F0170B932000127EF5 /* lowres_wtb_1x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD25E4170B932000127EF5 /* lowres_wtb_1x0.pvrtc */; };
@@ -346,7 +453,6 @@
 		2B62DDBB16E7F51B001F52FC /* libstdc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libstdc++.dylib"; path = "usr/lib/libstdc++.dylib"; sourceTree = SDKROOT; };
 		2B62DDBD16E7F54B001F52FC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		2B8218CC176FCB7C0012322A /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		2B86DA711905D628007B7A20 /* osm-bright.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "osm-bright.xml"; path = "../../../resources/mapbox vectors/osm-bright.xml"; sourceTree = "<group>"; };
 		2BA13BF117EE1875000C43B7 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		2BA13BF317EE1884000C43B7 /* libc++abi.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++abi.dylib"; path = "usr/lib/libc++abi.dylib"; sourceTree = SDKROOT; };
 		2BA13C0017F10E49000C43B7 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -361,6 +467,116 @@
 		2BB54EDC17CEB8830065451F /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		2BB54EDE17CEB88F0065451F /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		2BB54EE117CEB8A20065451F /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
+		2BC0FA9A1964D3580043E1FD /* airfield-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "airfield-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FA9B1964D3580043E1FD /* airport-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "airport-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FA9C1964D3580043E1FD /* alcohol-shop-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "alcohol-shop-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FA9D1964D3580043E1FD /* america-football-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "america-football-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FA9E1964D3580043E1FD /* art-gallery-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "art-gallery-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FA9F1964D3580043E1FD /* bakery-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bakery-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAA01964D3580043E1FD /* bank-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bank-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAA11964D3580043E1FD /* bar-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bar-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAA21964D3580043E1FD /* baseball-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "baseball-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAA31964D3580043E1FD /* basketball-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "basketball-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAA41964D3580043E1FD /* beer-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "beer-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAA51964D3580043E1FD /* bicycle-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bicycle-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAA61964D3580043E1FD /* building-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "building-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAA71964D3580043E1FD /* bus-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bus-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAA81964D3580043E1FD /* cafe-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cafe-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAA91964D3580043E1FD /* camera-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "camera-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAAA1964D3580043E1FD /* campsite-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "campsite-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAAB1964D3580043E1FD /* car-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "car-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAAC1964D3580043E1FD /* cemetery-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cemetery-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAAD1964D3580043E1FD /* cinema-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cinema-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAAE1964D3580043E1FD /* circle-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "circle-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAAF1964D3580043E1FD /* circle-stroked-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "circle-stroked-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAB01964D3580043E1FD /* city-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "city-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAB11964D3580043E1FD /* clothing-store-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "clothing-store-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAB21964D3580043E1FD /* college-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "college-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAB31964D3580043E1FD /* commercial-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "commercial-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAB41964D3580043E1FD /* cricket-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cricket-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAB51964D3580043E1FD /* cross-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cross-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAB61964D3580043E1FD /* dam-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "dam-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAB71964D3580043E1FD /* danger-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "danger-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAB81964D3580043E1FD /* disability-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "disability-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAB91964D3580043E1FD /* dog-park-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "dog-park-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FABA1964D3580043E1FD /* embassy-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "embassy-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FABB1964D3580043E1FD /* emergency-telephone-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "emergency-telephone-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FABC1964D3580043E1FD /* farm-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "farm-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FABD1964D3580043E1FD /* fast-food-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "fast-food-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FABE1964D3580043E1FD /* ferry-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ferry-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FABF1964D3580043E1FD /* fire-station-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "fire-station-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAC01964D3580043E1FD /* fuel-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "fuel-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAC11964D3580043E1FD /* garden-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "garden-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAC21964D3580043E1FD /* golf-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "golf-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAC31964D3580043E1FD /* grocery-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "grocery-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAC41964D3580043E1FD /* harbor-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "harbor-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAC51964D3580043E1FD /* heliport-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heliport-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAC61964D3580043E1FD /* hospital-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "hospital-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAC71964D3580043E1FD /* industrial-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "industrial-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAC81964D3580043E1FD /* land-use-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "land-use-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAC91964D3580043E1FD /* laundry-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "laundry-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FACA1964D3580043E1FD /* library-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "library-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FACB1964D3580043E1FD /* lighthouse-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lighthouse-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FACC1964D3580043E1FD /* lodging-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lodging-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FACD1964D3580043E1FD /* logging-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "logging-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FACE1964D3580043E1FD /* london-underground-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "london-underground-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FACF1964D3580043E1FD /* marker-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "marker-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAD01964D3580043E1FD /* marker-stroked-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "marker-stroked-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAD11964D3580043E1FD /* minefield-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "minefield-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAD21964D3580043E1FD /* monument-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "monument-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAD31964D3580043E1FD /* museum-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "museum-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAD41964D3580043E1FD /* music-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "music-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAD51964D3580043E1FD /* oil-well-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "oil-well-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAD61964D3580043E1FD /* park-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "park-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAD71964D3580043E1FD /* park2-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "park2-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAD81964D3580043E1FD /* parking-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "parking-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAD91964D3580043E1FD /* parking-garage-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "parking-garage-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FADA1964D3580043E1FD /* pharmacy-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pharmacy-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FADB1964D3580043E1FD /* pitch-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pitch-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FADC1964D3580043E1FD /* place-of-worship-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "place-of-worship-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FADD1964D3580043E1FD /* playground-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "playground-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FADE1964D3580043E1FD /* police-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "police-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FADF1964D3580043E1FD /* polling-place-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "polling-place-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAE01964D3580043E1FD /* post-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "post-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAE11964D3580043E1FD /* prison-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "prison-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAE21964D3580043E1FD /* rail-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "rail-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAE31964D3580043E1FD /* rail-above-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "rail-above-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAE41964D3580043E1FD /* rail-underground-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "rail-underground-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAE51964D3580043E1FD /* religious-christian-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "religious-christian-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAE61964D3580043E1FD /* religious-jewish-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "religious-jewish-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAE71964D3580043E1FD /* religious-muslim-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "religious-muslim-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAE81964D3580043E1FD /* restaurant-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "restaurant-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAE91964D3580043E1FD /* roadblock-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "roadblock-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAEA1964D3580043E1FD /* rocket-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "rocket-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAEB1964D3580043E1FD /* school-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "school-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAEC1964D3580043E1FD /* shop-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "shop-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAED1964D3580043E1FD /* skiing-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "skiing-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAEE1964D3580043E1FD /* slaughterhouse-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "slaughterhouse-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAEF1964D3580043E1FD /* soccer-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "soccer-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAF01964D3580043E1FD /* square-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "square-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAF11964D3580043E1FD /* square-stroked-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "square-stroked-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAF21964D3580043E1FD /* star-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAF31964D3580043E1FD /* star-stroked-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star-stroked-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAF41964D3580043E1FD /* suitcase-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "suitcase-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAF51964D3580043E1FD /* swimming-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "swimming-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAF61964D3580043E1FD /* telephone-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "telephone-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAF71964D3580043E1FD /* tennis-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tennis-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAF81964D3580043E1FD /* theatre-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "theatre-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAF91964D3580043E1FD /* toilets-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "toilets-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAFA1964D3580043E1FD /* town-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "town-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAFB1964D3580043E1FD /* town-hall-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "town-hall-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAFC1964D3580043E1FD /* triangle-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "triangle-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAFD1964D3580043E1FD /* triangle-stroked-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "triangle-stroked-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAFE1964D3580043E1FD /* village-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "village-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FAFF1964D3580043E1FD /* warehouse-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "warehouse-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FB001964D3580043E1FD /* waste-basket-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "waste-basket-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FB011964D3580043E1FD /* water-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "water-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FB021964D3580043E1FD /* wetland-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "wetland-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FB031964D3580043E1FD /* zoo-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "zoo-24@2x.png"; sourceTree = "<group>"; };
+		2BC0FB80196DB88F0043E1FD /* osm-bright.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "osm-bright.xml"; sourceTree = "<group>"; };
+		2BC0FB83196DB8960043E1FD /* MapzenStyles.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = MapzenStyles.json; sourceTree = "<group>"; };
+		2BC0FB85196DB93C0043E1FD /* geography-class_medres.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = "geography-class_medres.mbtiles"; path = "../../../resources/base_maps/geography-class_medres.mbtiles"; sourceTree = "<group>"; };
+		2BC0FBA9196DE1F80043E1FD /* tl_2013_06075_roads.mbr */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.mbr; sourceTree = "<group>"; };
 		2BC989A617DA66BB0071DA9E /* WeatherShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeatherShader.h; sourceTree = "<group>"; };
 		2BC989A717DA66BB0071DA9E /* WeatherShader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WeatherShader.m; sourceTree = "<group>"; };
 		2BC989E117DC28350071DA9E /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
@@ -383,7 +599,6 @@
 		2BFD25DA170B92AD00127EF5 /* map_pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = map_pin.png; path = resources/map_pin.png; sourceTree = SOURCE_ROOT; };
 		2BFD25DB170B92AD00127EF5 /* Smiley_Face_Avatar_by_PixelTwist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Smiley_Face_Avatar_by_PixelTwist.png; path = resources/Smiley_Face_Avatar_by_PixelTwist.png; sourceTree = SOURCE_ROOT; };
 		2BFD25DC170B92AD00127EF5 /* Star.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Star.png; path = resources/Star.png; sourceTree = SOURCE_ROOT; };
-		2BFD25E0170B932000127EF5 /* geography-class.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = "geography-class.mbtiles"; path = "../../../resources/base_maps/geography-class.mbtiles"; sourceTree = "<group>"; };
 		2BFD25E2170B932000127EF5 /* lowres_wtb_0x0.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_0x0.pvrtc; sourceTree = "<group>"; };
 		2BFD25E3170B932000127EF5 /* lowres_wtb_0x1.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_0x1.pvrtc; sourceTree = "<group>"; };
 		2BFD25E4170B932000127EF5 /* lowres_wtb_1x0.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_1x0.pvrtc; sourceTree = "<group>"; };
@@ -780,11 +995,153 @@
 			name = AFNetworking;
 			sourceTree = "<group>";
 		};
-		2BBDFE881889F91500AE4CEB /* vector tiles */ = {
+		2BC0FA991964D3580043E1FD /* maki icons */ = {
 			isa = PBXGroup;
 			children = (
+				2BC0FA9A1964D3580043E1FD /* airfield-24@2x.png */,
+				2BC0FA9B1964D3580043E1FD /* airport-24@2x.png */,
+				2BC0FA9C1964D3580043E1FD /* alcohol-shop-24@2x.png */,
+				2BC0FA9D1964D3580043E1FD /* america-football-24@2x.png */,
+				2BC0FA9E1964D3580043E1FD /* art-gallery-24@2x.png */,
+				2BC0FA9F1964D3580043E1FD /* bakery-24@2x.png */,
+				2BC0FAA01964D3580043E1FD /* bank-24@2x.png */,
+				2BC0FAA11964D3580043E1FD /* bar-24@2x.png */,
+				2BC0FAA21964D3580043E1FD /* baseball-24@2x.png */,
+				2BC0FAA31964D3580043E1FD /* basketball-24@2x.png */,
+				2BC0FAA41964D3580043E1FD /* beer-24@2x.png */,
+				2BC0FAA51964D3580043E1FD /* bicycle-24@2x.png */,
+				2BC0FAA61964D3580043E1FD /* building-24@2x.png */,
+				2BC0FAA71964D3580043E1FD /* bus-24@2x.png */,
+				2BC0FAA81964D3580043E1FD /* cafe-24@2x.png */,
+				2BC0FAA91964D3580043E1FD /* camera-24@2x.png */,
+				2BC0FAAA1964D3580043E1FD /* campsite-24@2x.png */,
+				2BC0FAAB1964D3580043E1FD /* car-24@2x.png */,
+				2BC0FAAC1964D3580043E1FD /* cemetery-24@2x.png */,
+				2BC0FAAD1964D3580043E1FD /* cinema-24@2x.png */,
+				2BC0FAAE1964D3580043E1FD /* circle-24@2x.png */,
+				2BC0FAAF1964D3580043E1FD /* circle-stroked-24@2x.png */,
+				2BC0FAB01964D3580043E1FD /* city-24@2x.png */,
+				2BC0FAB11964D3580043E1FD /* clothing-store-24@2x.png */,
+				2BC0FAB21964D3580043E1FD /* college-24@2x.png */,
+				2BC0FAB31964D3580043E1FD /* commercial-24@2x.png */,
+				2BC0FAB41964D3580043E1FD /* cricket-24@2x.png */,
+				2BC0FAB51964D3580043E1FD /* cross-24@2x.png */,
+				2BC0FAB61964D3580043E1FD /* dam-24@2x.png */,
+				2BC0FAB71964D3580043E1FD /* danger-24@2x.png */,
+				2BC0FAB81964D3580043E1FD /* disability-24@2x.png */,
+				2BC0FAB91964D3580043E1FD /* dog-park-24@2x.png */,
+				2BC0FABA1964D3580043E1FD /* embassy-24@2x.png */,
+				2BC0FABB1964D3580043E1FD /* emergency-telephone-24@2x.png */,
+				2BC0FABC1964D3580043E1FD /* farm-24@2x.png */,
+				2BC0FABD1964D3580043E1FD /* fast-food-24@2x.png */,
+				2BC0FABE1964D3580043E1FD /* ferry-24@2x.png */,
+				2BC0FABF1964D3580043E1FD /* fire-station-24@2x.png */,
+				2BC0FAC01964D3580043E1FD /* fuel-24@2x.png */,
+				2BC0FAC11964D3580043E1FD /* garden-24@2x.png */,
+				2BC0FAC21964D3580043E1FD /* golf-24@2x.png */,
+				2BC0FAC31964D3580043E1FD /* grocery-24@2x.png */,
+				2BC0FAC41964D3580043E1FD /* harbor-24@2x.png */,
+				2BC0FAC51964D3580043E1FD /* heliport-24@2x.png */,
+				2BC0FAC61964D3580043E1FD /* hospital-24@2x.png */,
+				2BC0FAC71964D3580043E1FD /* industrial-24@2x.png */,
+				2BC0FAC81964D3580043E1FD /* land-use-24@2x.png */,
+				2BC0FAC91964D3580043E1FD /* laundry-24@2x.png */,
+				2BC0FACA1964D3580043E1FD /* library-24@2x.png */,
+				2BC0FACB1964D3580043E1FD /* lighthouse-24@2x.png */,
+				2BC0FACC1964D3580043E1FD /* lodging-24@2x.png */,
+				2BC0FACD1964D3580043E1FD /* logging-24@2x.png */,
+				2BC0FACE1964D3580043E1FD /* london-underground-24@2x.png */,
+				2BC0FACF1964D3580043E1FD /* marker-24@2x.png */,
+				2BC0FAD01964D3580043E1FD /* marker-stroked-24@2x.png */,
+				2BC0FAD11964D3580043E1FD /* minefield-24@2x.png */,
+				2BC0FAD21964D3580043E1FD /* monument-24@2x.png */,
+				2BC0FAD31964D3580043E1FD /* museum-24@2x.png */,
+				2BC0FAD41964D3580043E1FD /* music-24@2x.png */,
+				2BC0FAD51964D3580043E1FD /* oil-well-24@2x.png */,
+				2BC0FAD61964D3580043E1FD /* park-24@2x.png */,
+				2BC0FAD71964D3580043E1FD /* park2-24@2x.png */,
+				2BC0FAD81964D3580043E1FD /* parking-24@2x.png */,
+				2BC0FAD91964D3580043E1FD /* parking-garage-24@2x.png */,
+				2BC0FADA1964D3580043E1FD /* pharmacy-24@2x.png */,
+				2BC0FADB1964D3580043E1FD /* pitch-24@2x.png */,
+				2BC0FADC1964D3580043E1FD /* place-of-worship-24@2x.png */,
+				2BC0FADD1964D3580043E1FD /* playground-24@2x.png */,
+				2BC0FADE1964D3580043E1FD /* police-24@2x.png */,
+				2BC0FADF1964D3580043E1FD /* polling-place-24@2x.png */,
+				2BC0FAE01964D3580043E1FD /* post-24@2x.png */,
+				2BC0FAE11964D3580043E1FD /* prison-24@2x.png */,
+				2BC0FAE21964D3580043E1FD /* rail-24@2x.png */,
+				2BC0FAE31964D3580043E1FD /* rail-above-24@2x.png */,
+				2BC0FAE41964D3580043E1FD /* rail-underground-24@2x.png */,
+				2BC0FAE51964D3580043E1FD /* religious-christian-24@2x.png */,
+				2BC0FAE61964D3580043E1FD /* religious-jewish-24@2x.png */,
+				2BC0FAE71964D3580043E1FD /* religious-muslim-24@2x.png */,
+				2BC0FAE81964D3580043E1FD /* restaurant-24@2x.png */,
+				2BC0FAE91964D3580043E1FD /* roadblock-24@2x.png */,
+				2BC0FAEA1964D3580043E1FD /* rocket-24@2x.png */,
+				2BC0FAEB1964D3580043E1FD /* school-24@2x.png */,
+				2BC0FAEC1964D3580043E1FD /* shop-24@2x.png */,
+				2BC0FAED1964D3580043E1FD /* skiing-24@2x.png */,
+				2BC0FAEE1964D3580043E1FD /* slaughterhouse-24@2x.png */,
+				2BC0FAEF1964D3580043E1FD /* soccer-24@2x.png */,
+				2BC0FAF01964D3580043E1FD /* square-24@2x.png */,
+				2BC0FAF11964D3580043E1FD /* square-stroked-24@2x.png */,
+				2BC0FAF21964D3580043E1FD /* star-24@2x.png */,
+				2BC0FAF31964D3580043E1FD /* star-stroked-24@2x.png */,
+				2BC0FAF41964D3580043E1FD /* suitcase-24@2x.png */,
+				2BC0FAF51964D3580043E1FD /* swimming-24@2x.png */,
+				2BC0FAF61964D3580043E1FD /* telephone-24@2x.png */,
+				2BC0FAF71964D3580043E1FD /* tennis-24@2x.png */,
+				2BC0FAF81964D3580043E1FD /* theatre-24@2x.png */,
+				2BC0FAF91964D3580043E1FD /* toilets-24@2x.png */,
+				2BC0FAFA1964D3580043E1FD /* town-24@2x.png */,
+				2BC0FAFB1964D3580043E1FD /* town-hall-24@2x.png */,
+				2BC0FAFC1964D3580043E1FD /* triangle-24@2x.png */,
+				2BC0FAFD1964D3580043E1FD /* triangle-stroked-24@2x.png */,
+				2BC0FAFE1964D3580043E1FD /* village-24@2x.png */,
+				2BC0FAFF1964D3580043E1FD /* warehouse-24@2x.png */,
+				2BC0FB001964D3580043E1FD /* waste-basket-24@2x.png */,
+				2BC0FB011964D3580043E1FD /* water-24@2x.png */,
+				2BC0FB021964D3580043E1FD /* wetland-24@2x.png */,
+				2BC0FB031964D3580043E1FD /* zoo-24@2x.png */,
 			);
-			name = "vector tiles";
+			name = "maki icons";
+			path = "../../../resources/maki icons";
+			sourceTree = "<group>";
+		};
+		2BC0FB7F196DB88F0043E1FD /* mapbox vectors */ = {
+			isa = PBXGroup;
+			children = (
+				2BC0FB80196DB88F0043E1FD /* osm-bright.xml */,
+			);
+			name = "mapbox vectors";
+			path = "../../../resources/mapbox vectors";
+			sourceTree = "<group>";
+		};
+		2BC0FB82196DB8960043E1FD /* mapzen vectors */ = {
+			isa = PBXGroup;
+			children = (
+				2BC0FB83196DB8960043E1FD /* MapzenStyles.json */,
+			);
+			name = "mapzen vectors";
+			path = "../../../resources/mapzen vectors";
+			sourceTree = "<group>";
+		};
+		2BC0FB86196DB94C0043E1FD /* elevation */ = {
+			isa = PBXGroup;
+			children = (
+				2BC989E417DC289B0071DA9E /* world_web_mercator.sqlite */,
+			);
+			name = elevation;
+			sourceTree = "<group>";
+		};
+		2BC0FB87196DB9560043E1FD /* base maps */ = {
+			isa = PBXGroup;
+			children = (
+				2BC0FB85196DB93C0043E1FD /* geography-class_medres.mbtiles */,
+				2BFD25E1170B932000127EF5 /* lowres_wtb */,
+			);
+			name = "base maps";
 			sourceTree = "<group>";
 		};
 		2BDC8A881937E33F00DFECF0 /* sf_roads */ = {
@@ -794,6 +1151,7 @@
 				2BDC8A8A1937E33F00DFECF0 /* tl_2013_06075_roads.prj */,
 				2BDC8A8B1937E33F00DFECF0 /* tl_2013_06075_roads.shp */,
 				2BDC8A8C1937E33F00DFECF0 /* tl_2013_06075_roads.shx */,
+				2BC0FBA9196DE1F80043E1FD /* tl_2013_06075_roads.mbr */,
 			);
 			name = sf_roads;
 			path = ../../../resources/vectors/sf_roads;
@@ -802,13 +1160,13 @@
 		2BFD25D8170B929E00127EF5 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				2BC0FA991964D3580043E1FD /* maki icons */,
+				2BC0FB82196DB8960043E1FD /* mapzen vectors */,
+				2BC0FB7F196DB88F0043E1FD /* mapbox vectors */,
 				2BDC8A881937E33F00DFECF0 /* sf_roads */,
-				2B86DA711905D628007B7A20 /* osm-bright.xml */,
-				2BBDFE881889F91500AE4CEB /* vector tiles */,
-				2BC989E417DC289B0071DA9E /* world_web_mercator.sqlite */,
+				2BC0FB87196DB9560043E1FD /* base maps */,
+				2BC0FB86196DB94C0043E1FD /* elevation */,
 				2BFD25F9170B933B00127EF5 /* country_json_50m */,
-				2BFD25E0170B932000127EF5 /* geography-class.mbtiles */,
-				2BFD25E1170B932000127EF5 /* lowres_wtb */,
 				2BFD25DA170B92AD00127EF5 /* map_pin.png */,
 				2BFD25DB170B92AD00127EF5 /* Smiley_Face_Avatar_by_PixelTwist.png */,
 				2BFD25DC170B92AD00127EF5 /* Star.png */,
@@ -1163,18 +1521,20 @@
 				2B62DD6816E7F0BC001F52FC /* InfoPlist.strings in Resources */,
 				2B62DD8816E7F3A2001F52FC /* ConfigViewController.xib in Resources */,
 				2BFD25DD170B92AD00127EF5 /* map_pin.png in Resources */,
+				2BC0FB5D1964D3580043E1FD /* star-stroked-24@2x.png in Resources */,
 				2BFD25DE170B92AD00127EF5 /* Smiley_Face_Avatar_by_PixelTwist.png in Resources */,
 				2BFD25DF170B92AD00127EF5 /* Star.png in Resources */,
-				2BFD25ED170B932000127EF5 /* geography-class.mbtiles in Resources */,
 				2BFD25EE170B932000127EF5 /* lowres_wtb_0x0.pvrtc in Resources */,
 				2BFD25EF170B932000127EF5 /* lowres_wtb_0x1.pvrtc in Resources */,
 				2BFD25F0170B932000127EF5 /* lowres_wtb_1x0.pvrtc in Resources */,
+				2BC0FB3A1964D3580043E1FD /* marker-stroked-24@2x.png in Resources */,
 				2BFD25F1170B932000127EF5 /* lowres_wtb_1x1.pvrtc in Resources */,
 				2BFD25F2170B932000127EF5 /* lowres_wtb_2x0.pvrtc in Resources */,
 				2BFD25F3170B932000127EF5 /* lowres_wtb_2x1.pvrtc in Resources */,
 				2BFD25F4170B932000127EF5 /* lowres_wtb_3x0.pvrtc in Resources */,
 				2BFD25F5170B932000127EF5 /* lowres_wtb_3x1.pvrtc in Resources */,
 				2BFD25F6170B932000127EF5 /* lowres_wtb_4x0.pvrtc in Resources */,
+				2BC0FB491964D3580043E1FD /* polling-place-24@2x.png in Resources */,
 				2BFD25F7170B932000127EF5 /* lowres_wtb_4x1.pvrtc in Resources */,
 				2BFD25F8170B932000127EF5 /* lowres_wtb_info.plist in Resources */,
 				2BFD26F3170B933C00127EF5 /* ABW.geojson in Resources */,
@@ -1187,24 +1547,41 @@
 				2BFD26F9170B933C00127EF5 /* AND.geojson in Resources */,
 				2BFD26FA170B933C00127EF5 /* ARE.geojson in Resources */,
 				2BFD26FB170B933C00127EF5 /* ARG.geojson in Resources */,
+				2BC0FB431964D3580043E1FD /* parking-garage-24@2x.png in Resources */,
+				2BC0FB611964D3580043E1FD /* tennis-24@2x.png in Resources */,
 				2BFD26FC170B933C00127EF5 /* ARM.geojson in Resources */,
 				2BFD26FD170B933C00127EF5 /* ASM.geojson in Resources */,
 				2BFD26FE170B933C00127EF5 /* ATA.geojson in Resources */,
+				2BC0FB241964D3580043E1FD /* embassy-24@2x.png in Resources */,
 				2BFD26FF170B933C00127EF5 /* ATF.geojson in Resources */,
+				2BC0FB381964D3580043E1FD /* london-underground-24@2x.png in Resources */,
+				2BC0FB661964D3580043E1FD /* triangle-24@2x.png in Resources */,
 				2BFD2700170B933C00127EF5 /* ATG.geojson in Resources */,
 				2BFD2701170B933C00127EF5 /* AUS.geojson in Resources */,
 				2BFD2702170B933C00127EF5 /* AUT.geojson in Resources */,
+				2BC0FB411964D3580043E1FD /* park2-24@2x.png in Resources */,
+				2BC0FB481964D3580043E1FD /* police-24@2x.png in Resources */,
 				2BFD2703170B933C00127EF5 /* AZE.geojson in Resources */,
+				2BC0FB5C1964D3580043E1FD /* star-24@2x.png in Resources */,
+				2BC0FB151964D3580043E1FD /* car-24@2x.png in Resources */,
 				2BFD2704170B933C00127EF5 /* BDI.geojson in Resources */,
 				2BFD2705170B933C00127EF5 /* BEL.geojson in Resources */,
+				2BC0FB341964D3580043E1FD /* library-24@2x.png in Resources */,
+				2BC0FB6D1964D3580043E1FD /* zoo-24@2x.png in Resources */,
+				2BC0FB591964D3580043E1FD /* soccer-24@2x.png in Resources */,
 				2BFD2706170B933C00127EF5 /* BEN.geojson in Resources */,
 				2BFD2707170B933C00127EF5 /* BES.geojson in Resources */,
 				2BFD2708170B933C00127EF5 /* BFA.geojson in Resources */,
+				2BC0FB1A1964D3580043E1FD /* city-24@2x.png in Resources */,
+				2BC0FB281964D3580043E1FD /* ferry-24@2x.png in Resources */,
+				2BC0FB4D1964D3580043E1FD /* rail-above-24@2x.png in Resources */,
+				2BC0FB511964D3580043E1FD /* religious-muslim-24@2x.png in Resources */,
 				2BFD2709170B933C00127EF5 /* BGD.geojson in Resources */,
 				2BFD270A170B933C00127EF5 /* BGR.geojson in Resources */,
 				2BFD270B170B933C00127EF5 /* BHR.geojson in Resources */,
 				2BFD270C170B933C00127EF5 /* BHS.geojson in Resources */,
 				2BDC8A8F1937E33F00DFECF0 /* tl_2013_06075_roads.shp in Resources */,
+				2BC0FB641964D3580043E1FD /* town-24@2x.png in Resources */,
 				2BFD270D170B933C00127EF5 /* BIH.geojson in Resources */,
 				2BFD270E170B933C00127EF5 /* BLM.geojson in Resources */,
 				2BFD270F170B933C00127EF5 /* BLR.geojson in Resources */,
@@ -1215,8 +1592,11 @@
 				2BFD2713170B933C00127EF5 /* BRA.geojson in Resources */,
 				2BFD2714170B933C00127EF5 /* BRB.geojson in Resources */,
 				2BFD2715170B933C00127EF5 /* BRN.geojson in Resources */,
+				2BC0FB051964D3580043E1FD /* airport-24@2x.png in Resources */,
 				2BFD2716170B933C00127EF5 /* BTN.geojson in Resources */,
+				2BC0FB451964D3580043E1FD /* pitch-24@2x.png in Resources */,
 				2BFD2717170B933C00127EF5 /* BVT.geojson in Resources */,
+				2BC0FB4A1964D3580043E1FD /* post-24@2x.png in Resources */,
 				2BFD2718170B933C00127EF5 /* BWA.geojson in Resources */,
 				2BFD2719170B933C00127EF5 /* CAF.geojson in Resources */,
 				2BFD271A170B933C00127EF5 /* CAN.geojson in Resources */,
@@ -1224,37 +1604,53 @@
 				2BFD271C170B933C00127EF5 /* CHE.geojson in Resources */,
 				2BFD271D170B933C00127EF5 /* CHL.geojson in Resources */,
 				2BFD271E170B933C00127EF5 /* CHN.geojson in Resources */,
+				2BC0FB2D1964D3580043E1FD /* grocery-24@2x.png in Resources */,
+				2BC0FB401964D3580043E1FD /* park-24@2x.png in Resources */,
+				2BC0FB0B1964D3580043E1FD /* bar-24@2x.png in Resources */,
+				2BC0FB271964D3580043E1FD /* fast-food-24@2x.png in Resources */,
 				2BFD271F170B933C00127EF5 /* CIV.geojson in Resources */,
 				2BFD2720170B933C00127EF5 /* CMR.geojson in Resources */,
+				2BC0FB141964D3580043E1FD /* campsite-24@2x.png in Resources */,
 				2BFD2721170B933C00127EF5 /* COD.geojson in Resources */,
 				2BFD2722170B933C00127EF5 /* COG.geojson in Resources */,
 				2BFD2723170B933C00127EF5 /* COK.geojson in Resources */,
+				2BC0FB541964D3580043E1FD /* rocket-24@2x.png in Resources */,
 				2BFD2724170B933C00127EF5 /* COL.geojson in Resources */,
 				2BFD2725170B933C00127EF5 /* COM.geojson in Resources */,
 				2BFD2726170B933C00127EF5 /* CPV.geojson in Resources */,
 				2BFD2727170B933C00127EF5 /* CRI.geojson in Resources */,
 				2BFD2728170B933C00127EF5 /* CUB.geojson in Resources */,
 				2BFD2729170B933C00127EF5 /* CUW.geojson in Resources */,
+				2BC0FB3C1964D3580043E1FD /* monument-24@2x.png in Resources */,
 				2BFD272A170B933C00127EF5 /* CXR.geojson in Resources */,
+				2BC0FB121964D3580043E1FD /* cafe-24@2x.png in Resources */,
 				2BFD272B170B933C00127EF5 /* CYM.geojson in Resources */,
 				2BFD272C170B933C00127EF5 /* CYP.geojson in Resources */,
+				2BC0FB4E1964D3580043E1FD /* rail-underground-24@2x.png in Resources */,
 				2BFD272D170B933C00127EF5 /* CZE.geojson in Resources */,
 				2BFD272E170B933C00127EF5 /* DEU.geojson in Resources */,
 				2BFD272F170B933C00127EF5 /* DJI.geojson in Resources */,
 				2BFD2730170B933C00127EF5 /* DMA.geojson in Resources */,
 				2BFD2731170B933C00127EF5 /* DNK.geojson in Resources */,
 				2BFD2732170B933C00127EF5 /* DOM.geojson in Resources */,
+				2BC0FB0D1964D3580043E1FD /* basketball-24@2x.png in Resources */,
 				2BFD2733170B933C00127EF5 /* DZA.geojson in Resources */,
 				2BFD2734170B933C00127EF5 /* ECU.geojson in Resources */,
+				2BC0FB251964D3580043E1FD /* emergency-telephone-24@2x.png in Resources */,
+				2BC0FB501964D3580043E1FD /* religious-jewish-24@2x.png in Resources */,
 				2BFD2735170B933C00127EF5 /* EGY.geojson in Resources */,
+				2BC0FB5E1964D3580043E1FD /* suitcase-24@2x.png in Resources */,
 				2BFD2736170B933C00127EF5 /* ERI.geojson in Resources */,
 				2BFD2737170B933C00127EF5 /* ESH.geojson in Resources */,
 				2BFD2738170B933C00127EF5 /* ESP.geojson in Resources */,
 				2BFD2739170B933C00127EF5 /* EST.geojson in Resources */,
 				2BFD273A170B933C00127EF5 /* ETH.geojson in Resources */,
+				2BC0FB5B1964D3580043E1FD /* square-stroked-24@2x.png in Resources */,
 				2BFD273B170B933C00127EF5 /* FIN.geojson in Resources */,
+				2BC0FB391964D3580043E1FD /* marker-24@2x.png in Resources */,
 				2BFD273C170B933C00127EF5 /* FJI.geojson in Resources */,
 				2BFD273D170B933C00127EF5 /* FLK.geojson in Resources */,
+				2BC0FB111964D3580043E1FD /* bus-24@2x.png in Resources */,
 				2BFD273E170B933C00127EF5 /* FRA.geojson in Resources */,
 				2BFD273F170B933C00127EF5 /* FRO.geojson in Resources */,
 				2BFD2740170B933C00127EF5 /* FSM.geojson in Resources */,
@@ -1264,20 +1660,26 @@
 				2BFD2744170B933C00127EF5 /* GGY.geojson in Resources */,
 				2BFD2745170B933C00127EF5 /* GHA.geojson in Resources */,
 				2BFD2746170B933C00127EF5 /* GIB.geojson in Resources */,
+				2BC0FB0A1964D3580043E1FD /* bank-24@2x.png in Resources */,
 				2BFD2747170B933C00127EF5 /* GIN.geojson in Resources */,
 				2BFD2748170B933C00127EF5 /* GLP.geojson in Resources */,
+				2BC0FB421964D3580043E1FD /* parking-24@2x.png in Resources */,
 				2BFD2749170B933C00127EF5 /* GMB.geojson in Resources */,
 				2BFD274A170B933C00127EF5 /* GNB.geojson in Resources */,
 				2BFD274B170B933C00127EF5 /* GNQ.geojson in Resources */,
 				2BFD274C170B933C00127EF5 /* GRC.geojson in Resources */,
 				2BFD274D170B933C00127EF5 /* GRD.geojson in Resources */,
+				2BC0FB1C1964D3580043E1FD /* college-24@2x.png in Resources */,
 				2BFD274E170B933C00127EF5 /* GRL.geojson in Resources */,
 				2BFD274F170B933C00127EF5 /* GTM.geojson in Resources */,
+				2BC0FB461964D3580043E1FD /* place-of-worship-24@2x.png in Resources */,
 				2BFD2750170B933C00127EF5 /* GUF.geojson in Resources */,
 				2BFD2751170B933C00127EF5 /* GUM.geojson in Resources */,
 				2BFD2752170B933C00127EF5 /* GUY.geojson in Resources */,
 				2BFD2753170B933C00127EF5 /* HKG.geojson in Resources */,
+				2BC0FB261964D3580043E1FD /* farm-24@2x.png in Resources */,
 				2BFD2754170B933C00127EF5 /* HMD.geojson in Resources */,
+				2BC0FB581964D3580043E1FD /* slaughterhouse-24@2x.png in Resources */,
 				2BFD2755170B933C00127EF5 /* HND.geojson in Resources */,
 				2BFD2756170B933C00127EF5 /* HRV.geojson in Resources */,
 				2BFD2757170B933C00127EF5 /* HTI.geojson in Resources */,
@@ -1291,58 +1693,86 @@
 				2BFD275F170B933C00127EF5 /* IRQ.geojson in Resources */,
 				2BFD2760170B933C00127EF5 /* ISL.geojson in Resources */,
 				2BFD2761170B933C00127EF5 /* ISR.geojson in Resources */,
+				2BC0FB5F1964D3580043E1FD /* swimming-24@2x.png in Resources */,
 				2BFD2762170B933C00127EF5 /* ITA.geojson in Resources */,
-				2B86DA721905D628007B7A20 /* osm-bright.xml in Resources */,
 				2BFD2763170B933C00127EF5 /* JAM.geojson in Resources */,
+				2BC0FB1F1964D3580043E1FD /* cross-24@2x.png in Resources */,
+				2BC0FB291964D3580043E1FD /* fire-station-24@2x.png in Resources */,
 				2BFD2764170B933C00127EF5 /* JEY.geojson in Resources */,
+				2BC0FB3F1964D3580043E1FD /* oil-well-24@2x.png in Resources */,
+				2BC0FB681964D3580043E1FD /* village-24@2x.png in Resources */,
 				2BFD2765170B933C00127EF5 /* JOR.geojson in Resources */,
 				2BFD2766170B933C00127EF5 /* JPN.geojson in Resources */,
 				2BFD2767170B933C00127EF5 /* KAZ.geojson in Resources */,
 				2BFD2768170B933C00127EF5 /* KEN.geojson in Resources */,
 				2BFD2769170B933C00127EF5 /* KGZ.geojson in Resources */,
+				2BC0FB161964D3580043E1FD /* cemetery-24@2x.png in Resources */,
 				2BFD276A170B933C00127EF5 /* KHM.geojson in Resources */,
+				2BC0FB4F1964D3580043E1FD /* religious-christian-24@2x.png in Resources */,
 				2BFD276B170B933C00127EF5 /* KIR.geojson in Resources */,
+				2BC0FB041964D3580043E1FD /* airfield-24@2x.png in Resources */,
+				2BC0FB0F1964D3580043E1FD /* bicycle-24@2x.png in Resources */,
 				2BFD276C170B933C00127EF5 /* KNA.geojson in Resources */,
 				2BFD276D170B933C00127EF5 /* KOR.geojson in Resources */,
 				2BFD276E170B933C00127EF5 /* KWT.geojson in Resources */,
 				2BFD276F170B933C00127EF5 /* LAO.geojson in Resources */,
+				2BC0FB4B1964D3580043E1FD /* prison-24@2x.png in Resources */,
 				2BFD2770170B933C00127EF5 /* LBN.geojson in Resources */,
+				2BC0FB2F1964D3580043E1FD /* heliport-24@2x.png in Resources */,
+				2BC0FB84196DB8960043E1FD /* MapzenStyles.json in Resources */,
 				2BFD2771170B933C00127EF5 /* LBR.geojson in Resources */,
 				2BFD2772170B933C00127EF5 /* LBY.geojson in Resources */,
 				2BFD2773170B933C00127EF5 /* LCA.geojson in Resources */,
 				2BFD2774170B933C00127EF5 /* LIE.geojson in Resources */,
 				2BFD2775170B933C00127EF5 /* LKA.geojson in Resources */,
+				2BC0FB201964D3580043E1FD /* dam-24@2x.png in Resources */,
 				2BFD2776170B933C00127EF5 /* LSO.geojson in Resources */,
+				2BC0FB071964D3580043E1FD /* america-football-24@2x.png in Resources */,
 				2BFD2777170B933C00127EF5 /* LTU.geojson in Resources */,
+				2BC0FB0E1964D3580043E1FD /* beer-24@2x.png in Resources */,
 				2BFD2778170B933C00127EF5 /* LUX.geojson in Resources */,
 				2BFD2779170B933C00127EF5 /* LVA.geojson in Resources */,
 				2BFD277A170B933C00127EF5 /* MAC.geojson in Resources */,
+				2BC0FB191964D3580043E1FD /* circle-stroked-24@2x.png in Resources */,
 				2BFD277B170B933C00127EF5 /* MAF.geojson in Resources */,
 				2BFD277C170B933C00127EF5 /* MAR.geojson in Resources */,
 				2BFD277D170B933C00127EF5 /* MCO.geojson in Resources */,
 				2BFD277E170B933C00127EF5 /* MDA.geojson in Resources */,
+				2BC0FB521964D3580043E1FD /* restaurant-24@2x.png in Resources */,
 				2BFD277F170B933C00127EF5 /* MDG.geojson in Resources */,
 				2BFD2780170B933C00127EF5 /* MDV.geojson in Resources */,
+				2BC0FB441964D3580043E1FD /* pharmacy-24@2x.png in Resources */,
 				2BFD2781170B933C00127EF5 /* MEX.geojson in Resources */,
 				2BFD2782170B933C00127EF5 /* MHL.geojson in Resources */,
 				2BFD2783170B933C00127EF5 /* MKD.geojson in Resources */,
 				2BFD2784170B933C00127EF5 /* MLI.geojson in Resources */,
+				2BC0FB2C1964D3580043E1FD /* golf-24@2x.png in Resources */,
 				2BFD2785170B933C00127EF5 /* MLT.geojson in Resources */,
+				2BC0FB091964D3580043E1FD /* bakery-24@2x.png in Resources */,
 				2BFD2786170B933C00127EF5 /* MMR.geojson in Resources */,
+				2BC0FB221964D3580043E1FD /* disability-24@2x.png in Resources */,
 				2BFD2787170B933C00127EF5 /* MNE.geojson in Resources */,
 				2BFD2788170B933C00127EF5 /* MNG.geojson in Resources */,
 				2BFD2789170B933C00127EF5 /* MNP.geojson in Resources */,
 				2BDC8A901937E33F00DFECF0 /* tl_2013_06075_roads.shx in Resources */,
 				2BFD278A170B933C00127EF5 /* MOZ.geojson in Resources */,
+				2BC0FB171964D3580043E1FD /* cinema-24@2x.png in Resources */,
+				2BC0FB601964D3580043E1FD /* telephone-24@2x.png in Resources */,
 				2BFD278B170B933C00127EF5 /* MRT.geojson in Resources */,
 				2BFD278C170B933C00127EF5 /* MSR.geojson in Resources */,
+				2BC0FB181964D3580043E1FD /* circle-24@2x.png in Resources */,
+				2BC0FB6C1964D3580043E1FD /* wetland-24@2x.png in Resources */,
+				2BC0FB2B1964D3580043E1FD /* garden-24@2x.png in Resources */,
 				2BFD278D170B933C00127EF5 /* MTQ.geojson in Resources */,
 				2BFD278E170B933C00127EF5 /* MUS.geojson in Resources */,
 				2BFD278F170B933C00127EF5 /* MWI.geojson in Resources */,
 				2BFD2790170B933C00127EF5 /* MYS.geojson in Resources */,
+				2BC0FB651964D3580043E1FD /* town-hall-24@2x.png in Resources */,
 				2BFD2791170B933C00127EF5 /* MYT.geojson in Resources */,
 				2BFD2792170B933C00127EF5 /* NAM.geojson in Resources */,
+				2BC0FB371964D3580043E1FD /* logging-24@2x.png in Resources */,
 				2BFD2793170B933C00127EF5 /* NCL.geojson in Resources */,
+				2BC0FB081964D3580043E1FD /* art-gallery-24@2x.png in Resources */,
 				2BFD2794170B933C00127EF5 /* NER.geojson in Resources */,
 				2BFD2795170B933C00127EF5 /* NFK.geojson in Resources */,
 				2BFD2796170B933C00127EF5 /* NGA.geojson in Resources */,
@@ -1352,8 +1782,12 @@
 				2BFD279A170B933C00127EF5 /* NOR.geojson in Resources */,
 				2BFD279B170B933C00127EF5 /* NPL.geojson in Resources */,
 				2BFD279C170B933C00127EF5 /* NRU.geojson in Resources */,
+				2BC0FB6A1964D3580043E1FD /* waste-basket-24@2x.png in Resources */,
 				2BFD279D170B933C00127EF5 /* NZL.geojson in Resources */,
 				2BFD279E170B933C00127EF5 /* OMN.geojson in Resources */,
+				2BC0FB671964D3580043E1FD /* triangle-stroked-24@2x.png in Resources */,
+				2BC0FB331964D3580043E1FD /* laundry-24@2x.png in Resources */,
+				2BC0FB061964D3580043E1FD /* alcohol-shop-24@2x.png in Resources */,
 				2BFD279F170B933C00127EF5 /* PAK.geojson in Resources */,
 				2BFD27A0170B933C00127EF5 /* PAN.geojson in Resources */,
 				2BFD27A1170B933C00127EF5 /* PCN.geojson in Resources */,
@@ -1362,35 +1796,46 @@
 				2BFD27A4170B933C00127EF5 /* PLW.geojson in Resources */,
 				2BFD27A5170B933C00127EF5 /* PNG.geojson in Resources */,
 				2BFD27A6170B933C00127EF5 /* POL.geojson in Resources */,
+				2BC0FB2A1964D3580043E1FD /* fuel-24@2x.png in Resources */,
 				2BFD27A7170B933C00127EF5 /* PRI.geojson in Resources */,
+				2BC0FB0C1964D3580043E1FD /* baseball-24@2x.png in Resources */,
 				2BFD27A8170B933C00127EF5 /* PRK.geojson in Resources */,
 				2BFD27A9170B933C00127EF5 /* PRT.geojson in Resources */,
 				2BFD27AA170B933C00127EF5 /* PRY.geojson in Resources */,
 				2BFD27AB170B933C00127EF5 /* PSE.geojson in Resources */,
 				2BFD27AC170B933C00127EF5 /* PYF.geojson in Resources */,
+				2BC0FB2E1964D3580043E1FD /* harbor-24@2x.png in Resources */,
 				2BFD27AD170B933C00127EF5 /* QAT.geojson in Resources */,
 				2BFD27AE170B933C00127EF5 /* REU.geojson in Resources */,
 				2BFD27AF170B933C00127EF5 /* ROU.geojson in Resources */,
 				2BFD27B0170B933C00127EF5 /* RUS.geojson in Resources */,
+				2BC0FB3B1964D3580043E1FD /* minefield-24@2x.png in Resources */,
+				2BC0FB571964D3580043E1FD /* skiing-24@2x.png in Resources */,
 				2BFD27B1170B933C00127EF5 /* RWA.geojson in Resources */,
 				2BFD27B2170B933C00127EF5 /* SAU.geojson in Resources */,
+				2BC0FB3D1964D3580043E1FD /* museum-24@2x.png in Resources */,
 				2BFD27B3170B933C00127EF5 /* SDN.geojson in Resources */,
 				2BFD27B4170B933C00127EF5 /* SEN.geojson in Resources */,
+				2BC0FB621964D3580043E1FD /* theatre-24@2x.png in Resources */,
 				2BFD27B5170B933C00127EF5 /* SGP.geojson in Resources */,
 				2BFD27B6170B933C00127EF5 /* SGS.geojson in Resources */,
 				2BFD27B7170B933C00127EF5 /* SHN.geojson in Resources */,
 				2BFD27B8170B933C00127EF5 /* SJM.geojson in Resources */,
 				2BFD27B9170B933C00127EF5 /* SLB.geojson in Resources */,
 				2BFD27BA170B933C00127EF5 /* SLE.geojson in Resources */,
+				2BC0FB5A1964D3580043E1FD /* square-24@2x.png in Resources */,
 				2BFD27BB170B933C00127EF5 /* SLV.geojson in Resources */,
 				2BFD27BC170B933C00127EF5 /* SMR.geojson in Resources */,
 				2BFD27BD170B933C00127EF5 /* SOM.geojson in Resources */,
 				2BFD27BE170B933C00127EF5 /* SPM.geojson in Resources */,
 				2BFD27BF170B933C00127EF5 /* SRB.geojson in Resources */,
+				2BC0FB1D1964D3580043E1FD /* commercial-24@2x.png in Resources */,
 				2BFD27C0170B933C00127EF5 /* SSD.geojson in Resources */,
 				2BFD27C1170B933C00127EF5 /* STP.geojson in Resources */,
 				2BFD27C2170B933C00127EF5 /* SUR.geojson in Resources */,
 				2BFD27C3170B933C00127EF5 /* SVK.geojson in Resources */,
+				2BC0FB351964D3580043E1FD /* lighthouse-24@2x.png in Resources */,
+				2BC0FB4C1964D3580043E1FD /* rail-24@2x.png in Resources */,
 				2BFD27C4170B933C00127EF5 /* SVN.geojson in Resources */,
 				2BFD27C5170B933C00127EF5 /* SWE.geojson in Resources */,
 				2BFD27C6170B933C00127EF5 /* SWZ.geojson in Resources */,
@@ -1400,43 +1845,63 @@
 				2BFD27CA170B933C00127EF5 /* TCA.geojson in Resources */,
 				2BFD27CB170B933C00127EF5 /* TCD.geojson in Resources */,
 				2BFD27CC170B933C00127EF5 /* TGO.geojson in Resources */,
+				2BC0FB321964D3580043E1FD /* land-use-24@2x.png in Resources */,
+				2BC0FB1B1964D3580043E1FD /* clothing-store-24@2x.png in Resources */,
 				2BFD27CD170B933C00127EF5 /* THA.geojson in Resources */,
 				2BFD27CE170B933C00127EF5 /* TJK.geojson in Resources */,
 				2BFD27CF170B933C00127EF5 /* TKL.geojson in Resources */,
+				2BC0FB561964D3580043E1FD /* shop-24@2x.png in Resources */,
 				2BFD27D0170B933C00127EF5 /* TKM.geojson in Resources */,
 				2BFD27D1170B933C00127EF5 /* TLS.geojson in Resources */,
+				2BC0FB101964D3580043E1FD /* building-24@2x.png in Resources */,
 				2BFD27D2170B933C00127EF5 /* TON.geojson in Resources */,
 				2BFD27D3170B933C00127EF5 /* TTO.geojson in Resources */,
 				2BFD27D4170B933C00127EF5 /* TUN.geojson in Resources */,
+				2BC0FB551964D3580043E1FD /* school-24@2x.png in Resources */,
 				2BFD27D5170B933C00127EF5 /* TUR.geojson in Resources */,
+				2BC0FB361964D3580043E1FD /* lodging-24@2x.png in Resources */,
 				2BFD27D6170B933C00127EF5 /* TUV.geojson in Resources */,
 				2BFD27D7170B933C00127EF5 /* TWN.geojson in Resources */,
 				2BFD27D8170B933C00127EF5 /* TZA.geojson in Resources */,
+				2BC0FB531964D3580043E1FD /* roadblock-24@2x.png in Resources */,
 				2BFD27D9170B933C00127EF5 /* UGA.geojson in Resources */,
+				2BC0FB131964D3580043E1FD /* camera-24@2x.png in Resources */,
 				2BFD27DA170B933C00127EF5 /* UKR.geojson in Resources */,
 				2BFD27DB170B933C00127EF5 /* UMI.geojson in Resources */,
 				2BFD27DC170B933C00127EF5 /* URY.geojson in Resources */,
+				2BC0FB631964D3580043E1FD /* toilets-24@2x.png in Resources */,
 				2BFD27DD170B933C00127EF5 /* USA.geojson in Resources */,
 				2BFD27DE170B933C00127EF5 /* UZB.geojson in Resources */,
+				2BC0FB6B1964D3580043E1FD /* water-24@2x.png in Resources */,
 				2BFD27DF170B933C00127EF5 /* VAT.geojson in Resources */,
 				2BFD27E0170B933C00127EF5 /* VCT.geojson in Resources */,
 				2BFD27E1170B933C00127EF5 /* VEN.geojson in Resources */,
+				2BC0FB301964D3580043E1FD /* hospital-24@2x.png in Resources */,
 				2BFD27E2170B933C00127EF5 /* VGB.geojson in Resources */,
 				2BFD27E3170B933C00127EF5 /* VIR.geojson in Resources */,
 				2BFD27E4170B933C00127EF5 /* VNM.geojson in Resources */,
 				2BFD27E5170B933C00127EF5 /* VUT.geojson in Resources */,
 				2BFD27E6170B933C00127EF5 /* WLF.geojson in Resources */,
+				2BC0FB471964D3580043E1FD /* playground-24@2x.png in Resources */,
 				2BFD27E7170B933C00127EF5 /* WSM.geojson in Resources */,
 				2BFD27E8170B933C00127EF5 /* YEM.geojson in Resources */,
 				2BFD27E9170B933C00127EF5 /* ZAF.geojson in Resources */,
+				2BC0FB231964D3580043E1FD /* dog-park-24@2x.png in Resources */,
 				2BFD27EA170B933C00127EF5 /* ZMB.geojson in Resources */,
 				2BFD27EB170B933C00127EF5 /* ZWE.geojson in Resources */,
 				2BB54ECC17CEB8330065451F /* icon-iPhone.png in Resources */,
 				2BB54ECF17CEB8380065451F /* icon-iPhone@2x.png in Resources */,
 				2BB54ED117CEB83E0065451F /* icon-iPad.png in Resources */,
+				2BC0FB691964D3580043E1FD /* warehouse-24@2x.png in Resources */,
+				2BC0FB3E1964D3580043E1FD /* music-24@2x.png in Resources */,
+				2BC0FB211964D3580043E1FD /* danger-24@2x.png in Resources */,
+				2BC0FB1E1964D3580043E1FD /* cricket-24@2x.png in Resources */,
 				2BB54ED317CEB8430065451F /* Icon-iPad@2x.png in Resources */,
 				2BB54ED517CEB84A0065451F /* Default-Landscape~ipad.png in Resources */,
 				2BB54ED717CEB84F0065451F /* Default-Landscape@2x~ipad.png in Resources */,
+				2BC0FB311964D3580043E1FD /* industrial-24@2x.png in Resources */,
+				2BC0FB88196DBA1C0043E1FD /* geography-class_medres.mbtiles in Resources */,
+				2BC0FB81196DB88F0043E1FD /* osm-bright.xml in Resources */,
 				2BB54ED917CEB8580065451F /* Default-Portrait~ipad.png in Resources */,
 				2BB54EDB17CEB85D0065451F /* Default-Portrait@2x~ipad.png in Resources */,
 				2BB54EDF17CEB88F0065451F /* Default-568h@2x.png in Resources */,

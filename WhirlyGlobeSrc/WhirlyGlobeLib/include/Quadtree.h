@@ -65,10 +65,10 @@ public:
     class NodeInfo
     {
     public:
-        NodeInfo() { attrs = [NSMutableDictionary dictionary]; phantom = false;  importance = 0; loading = false; childrenLoading = 0; childrenEval = 0; eval = false; failed = false;}
-        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom),loading(that.loading),childrenLoading(that.childrenLoading),eval(that.eval), failed(that.failed), childrenEval(that.childrenEval) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
-        NodeInfo(const Identifier &ident) : ident(ident), importance(0.0), phantom(false), loading(false), eval(false), failed(false), childrenLoading(0), childrenEval(0) { attrs = nil; }
-        NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; loading = that.loading; eval = that.eval;  failed = that.failed; childrenLoading = that.childrenLoading; childrenEval = that.childrenEval; attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
+        NodeInfo() { attrs = [NSMutableDictionary dictionary]; phantom = false;  importance = 0; loading = false; childrenLoading = 0; childrenEval = 0; eval = false; failed = false; childCoverage = false;}
+        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom),loading(that.loading),childrenLoading(that.childrenLoading),eval(that.eval), failed(that.failed), childrenEval(that.childrenEval), childCoverage(that.childCoverage) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
+        NodeInfo(const Identifier &ident) : ident(ident), importance(0.0), phantom(false), loading(false), eval(false), failed(false), childrenLoading(0), childrenEval(0), childCoverage(false) { attrs = nil; }
+        NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; loading = that.loading; eval = that.eval;  failed = that.failed; childrenLoading = that.childrenLoading; childrenEval = that.childrenEval;  childCoverage = that.childCoverage; attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
         ~NodeInfo() { attrs = nil; }
         
         /// Compare based on importance.  Used for sorting
@@ -92,6 +92,8 @@ public:
         int childrenLoading;
         /// Number of children being evalulated
         int childrenEval;
+        /// This tile is covered by loaded children.
+        bool childCoverage;
 
         /// Put any attributes you'd like to keep track of here.
         /// There are things you might calculate for a given tile over and over.
@@ -149,7 +151,7 @@ public:
     /// Return the next nodes we're evaluating
     const NodeInfo *popLastEval();
     
-    /// Look for children of this tile being laoded
+    /// Look for children of this tile being loaded
     bool childrenLoading(const Identifier &ident);
     
     /// Look for children of this tile being evaluated
@@ -198,6 +200,9 @@ public:
     /// Change the minimum importance value
     void setMinImportance(float newMinImportance);
     
+    /// Recalculate the child coverage for a given node
+    void updateParentCoverage(const Identifier &ident,std::vector<Identifier> &coveredTiles,std::vector<Identifier> &unCoveredTiles);
+    
     /// Dump out to the log for debugging
     void Print();
     
@@ -219,7 +224,7 @@ protected:
         bool operator() (const Node *a,const Node *b)
         {
             if (a->nodeInfo.importance == b->nodeInfo.importance)
-                return a < b;
+                return a->nodeInfo.ident < b->nodeInfo.ident;
             return a->nodeInfo.importance < b->nodeInfo.importance;
         }
     } NodeSizeSorter;
@@ -242,6 +247,8 @@ protected:
         bool parentLoading();
         bool hasNonPhantomParent();
         void Print();
+        /// Recalculate child coverage
+        bool recalcCoverage();
         
     protected:
         NodesByIdentType::iterator identPos;
@@ -253,6 +260,8 @@ protected:
         
     Node *getNode(const Identifier &ident);
     void removeNode(Node *);
+    /// Recalculate child coverage for a node and its parents
+    void recalcCoverage(Node *node);
 
     Mbr mbr;
     int minLevel,maxLevel;
