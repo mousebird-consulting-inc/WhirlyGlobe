@@ -304,9 +304,19 @@ using namespace Maply;
             [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
             [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
         }
+        if(_cancelAnimationOnTouch)
+        {
+            touchDelegate = [MaplyTouchCancelAnimationDelegate touchDelegateForView:glView mapView:mapView];
+        }
     }
 
     [self setViewExtentsLL:boundLL ur:boundUR];
+}
+
+- (void)handleLongPress:(UIGestureRecognizer*)sender {
+    if(sender.state == UIGestureRecognizerStateBegan) {
+        [mapView cancelAnimation];
+    }
 }
 
 - (void)setViewWrap:(bool)viewWrap
@@ -479,6 +489,22 @@ using namespace Maply;
             doubleTapDragDelegate.gestureRecognizer = nil;
             doubleTapDragDelegate = nil;
         }
+    }
+}
+
+- (void)setCancelAnimationOnTouch:(bool)cancelAnimationOnTouch
+{
+    _cancelAnimationOnTouch = cancelAnimationOnTouch;
+    if(cancelAnimationOnTouch)
+    {
+        if(!touchDelegate)
+        {
+            touchDelegate = [MaplyTouchCancelAnimationDelegate touchDelegateForView:glView mapView:mapView];
+        }
+    } else {
+        [glView removeGestureRecognizer:touchDelegate.gestureRecognizer];
+        touchDelegate.gestureRecognizer = nil;
+        touchDelegate = nil;
     }
 }
 

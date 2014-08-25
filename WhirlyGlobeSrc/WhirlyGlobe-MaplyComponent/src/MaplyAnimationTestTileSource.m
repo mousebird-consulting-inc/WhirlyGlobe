@@ -67,6 +67,11 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 {
     NSMutableArray *images = [NSMutableArray array];
     
+    // Slow down for testing
+    usleep(0.215 * 1e6);
+    
+//    NSLog(@"Loading tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+    
     // One for each layer we're
     for (unsigned int ii=0;ii<_depth;ii++)
     {
@@ -90,7 +95,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
         if (_depth == 1)
             textStr = [NSString stringWithFormat:@"%d: (%d,%d)",tileID.level,tileID.x,tileID.y];
         else
-            textStr = [NSString stringWithFormat:@"image %d",ii];
+            textStr = [NSString stringWithFormat:@"%d: (%d,%d); %d",tileID.level,tileID.x,tileID.y,ii];
         [textStr drawInRect:CGRectMake(0,0,size.width,size.height) withFont:[UIFont systemFontOfSize:24.0]];
         
         // Grab the image and shut things down

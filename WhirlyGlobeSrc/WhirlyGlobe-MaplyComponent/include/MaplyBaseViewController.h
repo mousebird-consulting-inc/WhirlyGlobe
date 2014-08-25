@@ -386,6 +386,7 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |:--|:---|:----------|
  |kMaplyColor|UIColor|Color we'll use for the lofted polygons.  A bit of alpha looks good.|
  |kMaplyLoftedPolyHeight|NSNumber|Height of the top of the lofted polygon in display units.  For the globe display units are based on a radius of 1.0.|
+ |kMaplyLoftedPolyBase|NSNumber|If present, we'll start the lofted poly at this height.  The height is in globe units, based on a radius of 1.0.|
  |kMaplyLoftedPolyTop|NSNumber boolean|If on we'll create the geometry for the top.  On by default.|
  |kMaplyLoftedPolySide|NSNumber boolean|If on we'll create geometry for the sides.  On by default.|
  |kMaplyLoftedPolyGridSize|NSNumber|The size of the grid (in degrees) we'll use to chop up the vector features to make them follow the sphere (for a globe).|

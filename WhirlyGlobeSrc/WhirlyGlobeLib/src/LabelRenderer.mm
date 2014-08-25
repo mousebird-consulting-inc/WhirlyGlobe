@@ -322,6 +322,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     screenShape->maxVis = _labelInfo.maxVis;
                     screenShape->offset.x() = 0.0;
                     screenShape->offset.y() = 0.0;
+                    screenShape->keepUpright = label.keepUpright;
                     if (label.rotation != 0.0)
                     {
                         screenShape->useRotation = true;
@@ -424,6 +425,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         layoutObj.acceptablePlacement = layoutPlacement;
                         layoutObj.enable = _labelInfo.enable;
                         layoutObj.rotation = label.rotation;
+                        layoutObj.keepUpright = label.keepUpright;
                         _layoutObjects.push_back(layoutObj);
                         
                         // The shape starts out disabled
@@ -726,6 +728,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 layoutObj.maxVis = _labelInfo.maxVis;
                 layoutObj.enable = _labelInfo.enable;
                 layoutObj.rotation = label.rotation;
+                layoutObj.keepUpright = label.keepUpright;
                 // Note: Should parse out acceptable placements as well
                 layoutObj.acceptablePlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow;
                 _layoutObjects.push_back(layoutObj);

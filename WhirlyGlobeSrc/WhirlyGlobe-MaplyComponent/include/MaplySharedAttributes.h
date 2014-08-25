@@ -223,6 +223,8 @@
 #define kMaplyLoftedPolyTop @"top"
 /// Boolean that turns on/off sides (on by default)
 #define kMaplyLoftedPolySide @"side"
+/// If present, we'll start the lofted poly above 0 height
+#define kMaplyLoftedPolyBase @"base"
 /// Grid size we used to chop the lofted polygons up (10 degress by default)
 #define kMaplyLoftedPolyGridSize @"gridsize"
 

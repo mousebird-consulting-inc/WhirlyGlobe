@@ -1,8 +1,8 @@
 /*
- *  WGComponentObject_private.h
- *  WhirlyGlobeComponent
+ *  MaplyTouchCancelAnimationDelegate.mm
+ *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 7/21/12.
+ *  Created by Jesse Crocker on 7/15/14.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,29 +18,18 @@
  *
  */
 
-#import "MaplyComponentObject_private.h"
+#import <Foundation/Foundation.h>
+#import "MaplyView.h"
 
-@implementation MaplyComponentObject
+@interface MaplyTouchCancelAnimationDelegate : NSObject <UIGestureRecognizerDelegate>
 
-- (id)init
-{
-    self = [super init];
-    _isSelectable = true;
-    _enable = true;
-    
-    return self;
-}
+/// The gesture recognizer
+@property (nonatomic,strong) UIGestureRecognizer *gestureRecognizer;
+@property (nonatomic,weak) MaplyView *mapView;
 
-- (id)initWithDesc:(NSDictionary *)desc
-{
-    self = [super init];
-    _isSelectable = true;
-    _enable = true;
-    id enable = desc[kMaplyEnable];
-    if (enable)
-        _enable = [enable boolValue];
-    
-    return self;
-}
+/// Create a touch gesture and a delegate and wire them up to the given UIView
++ (MaplyTouchCancelAnimationDelegate*)touchDelegateForView:(UIView *)view mapView:(MaplyView*)mapView;
+
+- (instancetype)initWithMapView:(MaplyView *)inView;
 
 @end

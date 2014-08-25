@@ -78,7 +78,11 @@ typedef enum {
         {
             subStyle->textSize = [styleEntry[@"size"] floatValue];
         }
-        UIFont *font = [UIFont systemFontOfSize:subStyle->textSize];
+        UIFont *font = nil;
+        if (settings.fontName)
+            font = [UIFont fontWithName:settings.fontName size:subStyle->textSize];
+        if (!font)
+            font = [UIFont systemFontOfSize:subStyle->textSize];
         if (styleEntry[@"face-name"])
         {
             // Note: This doesn't work all that well
@@ -137,6 +141,8 @@ typedef enum {
             subStyle->desc[kMaplyTextOutlineColor] = outlineColor;
             subStyle->desc[kMaplyTextOutlineSize] = @(outlineSize*settings.textScale);
         }
+        // Just turn fade off for these
+        subStyle->desc[kMaplyFade] = @(0.0);
 
         [self resolveVisibility:styleEntry settings:settings desc:subStyle->desc];
         
@@ -198,9 +204,7 @@ typedef enum {
                         label.loc = middle;
                         label.layoutPlacement = kMaplyLayoutCenter;
                         label.rotation = rot+M_PI/2.0;
-                        // Keep the labels upright
-                        if (label.rotation > M_PI/2 && label.rotation < 3*M_PI/2)
-                            label.rotation = label.rotation + M_PI;
+                        label.keepUpright = true;
                     } else {
                         label = nil;
                     }

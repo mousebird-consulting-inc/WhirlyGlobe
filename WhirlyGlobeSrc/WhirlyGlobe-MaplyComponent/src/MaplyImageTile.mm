@@ -144,6 +144,9 @@
 {
     self = nil;
     
+    if ([theObj isKindOfClass:[MaplyImageTile class]])
+        return theObj;
+    
     if (!theObj)
         return self;
     

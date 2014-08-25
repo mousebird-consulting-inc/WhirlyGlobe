@@ -35,7 +35,7 @@
     return self;
 }
 
-- (UIImage *)iconForName:(NSString *)name size:(CGSize)size color:(UIColor *)color strokeSize:(float)strokeSize strokeColor:(UIColor *)strokeColor
+- (UIImage *)iconForName:(NSString *)name size:(CGSize)size color:(UIColor *)color circleColor:(UIColor *)circleColor strokeSize:(float)strokeSize strokeColor:(UIColor *)strokeColor
 {
     // Look for the cached version
     NSString *cacheKey = [NSString stringWithFormat:@"%@_%d_%d_%.1f_%0.6X_%0.6X", name,
@@ -50,22 +50,27 @@
     UIImage *iconImage;
     if (name)
     {
-        fullName = [NSString stringWithFormat:@"%@-24@2x.png",name];
-        iconImage = [UIImage imageNamed:fullName];
+        NSString *fileName = [name lastPathComponent];
+        iconImage = [UIImage imageNamed:fileName];
         if (!iconImage)
         {
-            // Try without the extension
-            NSString *shortName = [name stringByDeletingPathExtension];
-            if (shortName)
-            {
-                fullName = [NSString stringWithFormat:@"%@@2x.png",shortName];
-                iconImage = [UIImage imageNamed:fullName];
-            }
-            
+            fullName = [NSString stringWithFormat:@"%@-24@2x.png",name];
+            iconImage = [UIImage imageNamed:fullName];
             if (!iconImage)
             {
-                [imageCache setObject:[NSNull null] forKey:cacheKey];
-                return nil;
+                // Try without the extension
+                NSString *shortName = [name stringByDeletingPathExtension];
+                if (shortName)
+                {
+                    fullName = [NSString stringWithFormat:@"%@@2x.png",shortName];
+                    iconImage = [UIImage imageNamed:fullName];
+                }
+                
+                if (!iconImage)
+                {
+                    [imageCache setObject:[NSNull null] forKey:cacheKey];
+                    return nil;
+                }
             }
         }
     }
@@ -78,20 +83,27 @@
     CGContextRef ctx = UIGraphicsGetCurrentContext();
     CGContextFillRect(ctx, CGRectMake(0,0,size.width,size.height));
     
-    CGContextBeginPath(ctx);
-    CGContextAddEllipseInRect(ctx, CGRectMake(1,1,size.width-2,size.height-2));
-    [strokeColor setFill];
-    CGContextDrawPath(ctx, kCGPathFill);
+    if (strokeColor)
+    {
+        CGContextBeginPath(ctx);
+        CGContextAddEllipseInRect(ctx, CGRectMake(1,1,size.width-2,size.height-2));
+        [strokeColor setFill];
+        CGContextDrawPath(ctx, kCGPathFill);
+    }
     
-    CGContextBeginPath(ctx);
-    CGContextAddEllipseInRect(ctx, CGRectMake(1+strokeSize,1+strokeSize,size.width-2-2*strokeSize,size.height-2-2*strokeSize));
-    [color setFill];
-    CGContextDrawPath(ctx, kCGPathFill);
+    if (circleColor)
+    {
+        CGContextBeginPath(ctx);
+        CGContextAddEllipseInRect(ctx, CGRectMake(1+strokeSize,1+strokeSize,size.width-2-2*strokeSize,size.height-2-2*strokeSize));
+        [circleColor setFill];
+        CGContextDrawPath(ctx, kCGPathFill);
+    }
     
-    if (name)
+    if (name && color)
     {
         CGContextTranslateCTM(ctx, 0, size.height);
         CGContextScaleCTM(ctx, 1.0, -1.0);
+        [color setFill];
         CGContextDrawImage(ctx, CGRectMake(4, 4, size.width-8, size.height-8), iconImage.CGImage);
     }
     
@@ -107,12 +119,12 @@
 
 + (UIImage *)iconForName:(NSString *)name size:(CGSize)size
 {
-    return [[self shared] iconForName:name size:size color:[UIColor whiteColor] strokeSize:1.0 strokeColor:[UIColor blackColor]];
+    return [[self shared] iconForName:name size:size color:[UIColor blackColor] circleColor:[UIColor whiteColor] strokeSize:1.0 strokeColor:[UIColor blackColor]];
 }
 
-+ (UIImage *)iconForName:(NSString *)name size:(CGSize)size color:(UIColor *)color strokeSize:(float)strokeSize strokeColor:(UIColor *)strokeColor
++ (UIImage *)iconForName:(NSString *)name size:(CGSize)size color:(UIColor *)color circleColor:(UIColor *)circleColor strokeSize:(float)strokeSize strokeColor:(UIColor *)strokeColor
 {
-    return [[self shared] iconForName:name size:size color:color strokeSize:strokeSize strokeColor:strokeColor];
+    return [[self shared] iconForName:name size:size color:color circleColor:circleColor strokeSize:strokeSize strokeColor:strokeColor];
 }
 
 @end

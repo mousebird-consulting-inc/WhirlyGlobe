@@ -39,6 +39,9 @@ typedef struct
     int x, y, level;
 } MaplyTileID;
 
+/// @brief Convert a MaplyTileID to an NSString
+NSString *MaplyTileIDString(MaplyTileID tileID);
+
 /** @brief The protocol for a Maply Tile Source.  
     @details Fill out this protocol and you can pass in your own data tile by tile. This protocol is used by the MaplyQuadImageTilesLayer to pull in image data per tile.  This can be one or more images, they can be local, remote or even generated on the fly.  It's up to the object itself to return suitable data as requested or indicate failure (by returning nil).
     @details The tile source should know its coordinate system, which is handed to Maply separately.
@@ -104,6 +107,15 @@ typedef struct
   */
 - (id)imageForTile:(MaplyTileID)tileID;
 
+/** @brief Fetch the image for a given frame of a given tile.  These are for animation.
+    @details For this method, you can return either a full UIImage or a MaplyImageTile.
+    @details If you fail to load the image, just return nil.  At that point the paging won't page in tiles below this image, assuming that image pyramid is truncated at that point.
+    @details If you don't have an image to load (because there isn't one) and you want the layer to keep paging below that, you should pass in a MaplyImageTile set up as a placeholder.  The visual tile will be blank, but you'll have the opportunity to provide higher resolution tiles.
+    @param tileID Tile to load.
+    @param frame Frame of tile animation to load.
+    @return Return an NSData*.
+ */
+- (id)imageForTile:(MaplyTileID)tileID frame:(int)frame;
 
 /** @brief Start fetching the given tile, probably with your own threads.
     @details If this is filled in that means the layer is expecting you to do your own asynchronous fetch.  You'll be called on a random thread here, so act accordingly.
@@ -112,5 +124,22 @@ typedef struct
     @param tileID The tile you should start fetching.
   */
 - (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID;
+
+/** @brief Start fetching the given tile, but just the given frame.  This is for multi-frame tiles (e.g. animations).
+    @details If this is filled in that means the layer is expecting you to do your own asynchronous fetch.  You'll be called on a random thread here, so act accordingly.
+    @details If you're using a MaplyQuadImageTilesLayer, when you're done fetching (successful or otherwise) call loadedImagesForTile: with the results.
+    @param layer This is probably a MaplyQuadImageTilesLayer, but others use this protocol as well.  Your tile source should know.
+    @param tileID The tile you should start fetching.
+    @param frame The individual frame (of an animation) to fetch.
+  */
+- (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID frame:(int)frame;
+
+/** @brief Called when the tile is unloaded.
+    @details Normally you won't get called when an image or vector tile is unloaded from memory.  If you set this, you will.
+    @details You're not required to do anything, but you can clean up data of your own if you like.
+    @details You will be called on another thread, so act accordingly.
+    @param tileID The tile tha that just got unloaded.
+  */
+- (void)tileUnloaded:(MaplyTileID)tileID;
 
 @end
