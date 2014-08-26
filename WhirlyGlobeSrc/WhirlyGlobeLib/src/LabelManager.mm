@@ -23,7 +23,7 @@
 #import "GlobeMath.h"
 #import "NSString+Stuff.h"
 #import "NSDictionary+Stuff.h"
-#import "ScreenSpaceGenerator.h"
+#import "ScreenSpaceManager.h"
 #import "FontTextureManager.h"
 
 #import "LabelManager.h"

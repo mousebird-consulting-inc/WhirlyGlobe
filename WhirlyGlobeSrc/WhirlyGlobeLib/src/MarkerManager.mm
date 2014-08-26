@@ -22,7 +22,7 @@
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
 #import "MarkerGenerator.h"
-#import "ScreenSpaceGenerator.h"
+#import "ScreenSpaceManager.h"
 #import "LayoutManager.h"
 
 using namespace Eigen;
@@ -195,7 +195,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
     std::vector<MarkerGenerator::Marker *> markersToAdd;
     
     // Screen space markers
-    std::vector<ScreenSpaceGenerator::ConvexShape *> screenShapes;
+    std::vector<ScreenSpaceManager::Mesh> screenShapes;
     
     // Objects to be controlled by the layout layer
     std::vector<LayoutObject> layoutObjects;
