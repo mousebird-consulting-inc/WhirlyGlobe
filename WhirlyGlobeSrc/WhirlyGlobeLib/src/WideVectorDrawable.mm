@@ -26,8 +26,9 @@
 namespace WhirlyKit
 {
     
-WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), width(10.0/1024.0), texRepeat(1.0)
+WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), texRepeat(1.0)
 {
+    lineWidth = 10.0/1024.0;
     offsetIndex = addAttribute(BDFloat3Type, "a_dir");
 }
     
@@ -47,7 +48,7 @@ void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scen
     {
         float scale = frameInfo.sceneRenderer.framebufferWidth;
         float screenSize = frameInfo.screenSizeInDisplayCoords.x();
-        frameInfo.program->setUniform("u_length", width/scale);
+        frameInfo.program->setUniform("u_length", lineWidth/scale);
         float texScale = scale/(screenSize*texRepeat);
         frameInfo.program->setUniform("u_texScale", texScale);
     }
