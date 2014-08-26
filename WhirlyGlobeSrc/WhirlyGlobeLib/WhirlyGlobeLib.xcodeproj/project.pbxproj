@@ -13,7 +13,7 @@
 		2B076B35133952C6009D931D /* LongPressDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B076B33133952C5009D931D /* LongPressDelegate.mm */; };
 		2B08059617EB955C0016C813 /* LoadedTile.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B08059517EB955C0016C813 /* LoadedTile.h */; };
 		2B08059817EB95A40016C813 /* LoadedTile.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B08059717EB95A40016C813 /* LoadedTile.mm */; };
-		2B13BAA418B7E192007DA1A3 /* ScreenSpaceManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BAA318B7E192007DA1A3 /* ScreenSpaceManager.h */; };
+		2B13BAA418B7E192007DA1A3 /* ScreenSpaceBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BAA318B7E192007DA1A3 /* ScreenSpaceBuilder.h */; };
 		2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194426138B0CD000E8FA42 /* AnimateRotation.mm */; };
 		2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */; };
 		2B2A258E1559B40800137807 /* ScreenSpaceGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */; };
@@ -360,6 +360,9 @@
 		2BA726DB1778EB11006C710B /* MaplyAnimateFlat.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA726DA1778EB11006C710B /* MaplyAnimateFlat.h */; };
 		2BA726DD1778EB20006C710B /* MaplyAnimateFlat.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA726DC1778EB20006C710B /* MaplyAnimateFlat.mm */; };
 		2BA8FFE01540E60800AEA53C /* SphericalMercator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA8FFDF1540E60800AEA53C /* SphericalMercator.mm */; };
+		2BADF96519A7D78100C40CAA /* ScreenSpaceBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BADF96419A7D78100C40CAA /* ScreenSpaceBuilder.mm */; };
+		2BADF96719A7D83700C40CAA /* ScreenSpaceDrawable.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BADF96619A7D83700C40CAA /* ScreenSpaceDrawable.mm */; };
+		2BADF96919A7D85000C40CAA /* ScreenSpaceDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BADF96819A7D85000C40CAA /* ScreenSpaceDrawable.h */; };
 		2BB0717F1676B5EE00DE387D /* SphericalEarthChunkLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB0717E1676B5EE00DE387D /* SphericalEarthChunkLayer.h */; };
 		2BB071821676B5FE00DE387D /* LayoutLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB071811676B5FE00DE387D /* LayoutLayer.h */; };
 		2BB071841676B66300DE387D /* BufferBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB071831676B66300DE387D /* BufferBuilder.h */; };
@@ -454,7 +457,7 @@
 		2B076B33133952C5009D931D /* LongPressDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = LongPressDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B08059517EB955C0016C813 /* LoadedTile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoadedTile.h; sourceTree = "<group>"; };
 		2B08059717EB95A40016C813 /* LoadedTile.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoadedTile.mm; sourceTree = "<group>"; };
-		2B13BAA318B7E192007DA1A3 /* ScreenSpaceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceManager.h; sourceTree = "<group>"; };
+		2B13BAA318B7E192007DA1A3 /* ScreenSpaceBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceBuilder.h; sourceTree = "<group>"; };
 		2B194424138B0BC100E8FA42 /* AnimateRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AnimateRotation.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B194426138B0CD000E8FA42 /* AnimateRotation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = AnimateRotation.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AnimateViewMomentum.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -824,6 +827,9 @@
 		2BA726DC1778EB20006C710B /* MaplyAnimateFlat.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyAnimateFlat.mm; sourceTree = "<group>"; };
 		2BA8FFDC1540E21500AEA53C /* SphericalMercator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalMercator.h; sourceTree = "<group>"; };
 		2BA8FFDF1540E60800AEA53C /* SphericalMercator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SphericalMercator.mm; sourceTree = "<group>"; };
+		2BADF96419A7D78100C40CAA /* ScreenSpaceBuilder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ScreenSpaceBuilder.mm; sourceTree = "<group>"; };
+		2BADF96619A7D83700C40CAA /* ScreenSpaceDrawable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ScreenSpaceDrawable.mm; sourceTree = "<group>"; };
+		2BADF96819A7D85000C40CAA /* ScreenSpaceDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceDrawable.h; sourceTree = "<group>"; };
 		2BB0717E1676B5EE00DE387D /* SphericalEarthChunkLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalEarthChunkLayer.h; sourceTree = "<group>"; };
 		2BB071811676B5FE00DE387D /* LayoutLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayoutLayer.h; sourceTree = "<group>"; };
 		2BB071831676B66300DE387D /* BufferBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BufferBuilder.h; sourceTree = "<group>"; };
@@ -1558,7 +1564,6 @@
 		2BA2328517986A9F0063CC84 /* managers */ = {
 			isa = PBXGroup;
 			children = (
-				2B13BAA318B7E192007DA1A3 /* ScreenSpaceManager.h */,
 				2BA2328617986ACA0063CC84 /* LabelManager.h */,
 				2BA2328717986ACA0063CC84 /* LayoutManager.h */,
 				2BA2328817986ACA0063CC84 /* MarkerManager.h */,
@@ -1573,6 +1578,8 @@
 				2BB1787317A8313C00AD0614 /* LoftManager.h */,
 				2BDC8A801937B56300DFECF0 /* WideVectorManager.h */,
 				2BDC8A841937B76800DFECF0 /* WideVectorDrawable.h */,
+				2BADF96819A7D85000C40CAA /* ScreenSpaceDrawable.h */,
+				2B13BAA318B7E192007DA1A3 /* ScreenSpaceBuilder.h */,
 			);
 			name = managers;
 			sourceTree = "<group>";
@@ -1591,6 +1598,8 @@
 				2BB1787917A8315B00AD0614 /* LoftManager.mm */,
 				2BDC8A821937B57600DFECF0 /* WideVectorManager.mm */,
 				2BDC8A861937B77C00DFECF0 /* WideVectorDrawable.mm */,
+				2BADF96619A7D83700C40CAA /* ScreenSpaceDrawable.mm */,
+				2BADF96419A7D78100C40CAA /* ScreenSpaceBuilder.mm */,
 			);
 			name = managers;
 			sourceTree = "<group>";
@@ -1981,7 +1990,7 @@
 				2B7EF5191603E01500D4079F /* MBTileQuadSource.h in Headers */,
 				2B7EF51A1603E01500D4079F /* NetworkTileQuadSource.h in Headers */,
 				2B7EF51B1603E01500D4079F /* SphericalEarthQuadLayer.h in Headers */,
-				2B13BAA418B7E192007DA1A3 /* ScreenSpaceManager.h in Headers */,
+				2B13BAA418B7E192007DA1A3 /* ScreenSpaceBuilder.h in Headers */,
 				2B7EF5231603EEFB00D4079F /* MaplyLayerViewWatcher.h in Headers */,
 				2BE886CF160A855F00E92A0A /* MaplyTapMessage.h in Headers */,
 				2BD1158D1615979300A4BF5D /* ShapeLayer.h in Headers */,
@@ -2041,6 +2050,7 @@
 				2B4AFB881803152300C3F948 /* TileQuadOfflineRenderer.h in Headers */,
 				884D4F6F1975818C00F2D517 /* MaplyTouchCancelAnimationDelegate.h in Headers */,
 				2BA2326617984F510063CC84 /* geom.h in Headers */,
+				2BADF96919A7D85000C40CAA /* ScreenSpaceDrawable.h in Headers */,
 				2BA2326817984F510063CC84 /* memalloc.h in Headers */,
 				2BA2326A17984F510063CC84 /* mesh.h in Headers */,
 				2BA2326C17984F510063CC84 /* normal.h in Headers */,
@@ -2133,7 +2143,9 @@
 				2BDC4AD2133404D400E25283 /* TapMessage.mm in Sources */,
 				2BDC4AD3133404D400E25283 /* Identifiable.mm in Sources */,
 				2BDC4AD4133404D400E25283 /* Texture.mm in Sources */,
+				2BADF96519A7D78100C40CAA /* ScreenSpaceBuilder.mm in Sources */,
 				2BDC4AD5133404D400E25283 /* Drawable.mm in Sources */,
+				2BADF96719A7D83700C40CAA /* ScreenSpaceDrawable.mm in Sources */,
 				2BDC4AD6133404D400E25283 /* Cullable.mm in Sources */,
 				2BDC4AD7133404D400E25283 /* GlobeScene.mm in Sources */,
 				2BDC4AD8133404D400E25283 /* GlobeView.mm in Sources */,

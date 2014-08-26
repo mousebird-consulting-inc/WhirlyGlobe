@@ -39,7 +39,7 @@ public:
     BillboardDrawable();
     
     /// Each vertex has an offset in 3-space
-    void addOffset(Point3f offset);
+    void addOffset(const Point3f offset);
     
 protected:
     int offsetIndex;

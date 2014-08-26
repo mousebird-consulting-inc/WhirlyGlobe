@@ -25,7 +25,7 @@
 #import "NSString+Stuff.h"
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
-#import "ScreenSpaceGenerator.h"
+#import "ScreenSpaceManager.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;

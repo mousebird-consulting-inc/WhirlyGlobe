@@ -29,7 +29,7 @@ namespace WhirlyKit
 /// Construct and return the Billboard shader program
 OpenGLES2Program *BuildWideVectorProgram();
 
-/** This drawable adds convenience functions for
+/** This drawable adds convenience functions for wide vectors.
   */
 class WideVectorDrawable : public BasicDrawable
 {
