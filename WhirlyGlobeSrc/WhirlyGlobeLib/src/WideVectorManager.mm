@@ -147,7 +147,7 @@ public:
             if (vecInfo.texID != EmptyIdentity)
                 drawable->addTexCoord(0, texCoords[vi]);
             drawable->addNormal(up);
-            drawable->addColor(thisColor);
+//            drawable->addColor(thisColor);
         }
         
         drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+3));
@@ -166,7 +166,7 @@ public:
             if (vecInfo.texID != EmptyIdentity)
                 drawable->addTexCoord(0, texCoords[vi]);
             drawable->addNormal(up);
-            drawable->addColor(thisColor);
+//            drawable->addColor(thisColor);
         }
         
         drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+3));
@@ -184,7 +184,7 @@ public:
             if (vecInfo.texID != EmptyIdentity)
                 drawable->addTexCoord(0, texCoords[vi]);
             drawable->addNormal(up);
-            drawable->addColor(thisColor);
+//            drawable->addColor(thisColor);
         }
         
         drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+2));
@@ -203,7 +203,7 @@ public:
             if (vecInfo.texID != EmptyIdentity)
                 drawable->addTexCoord(0, texCoords[vi]);
             drawable->addNormal(up);
-            drawable->addColor(thisColor);
+//            drawable->addColor(thisColor);
         }
         
         drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+2));
@@ -716,7 +716,7 @@ public:
                 drawable = wideDrawable;
                 drawable->setProgram(vecInfo.shader);
                 wideDrawable->setTexRepeat(vecInfo.repeatSize);
-                wideDrawable->setWidth(vecInfo.width);
+                wideDrawable->setLineWidth(vecInfo.width);
             }
 //            drawMbr.reset();
             drawable->setType(GL_TRIANGLES);
