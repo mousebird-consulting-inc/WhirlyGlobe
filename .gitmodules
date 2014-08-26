@@ -31,6 +31,9 @@
 [submodule "third-party/tinyxml2"]
 	path = third-party/tinyxml2
 	url = https://github.com/leethomason/tinyxml2
+[submodule "third-party/kompex-sqlite-wrapper"]
+	path = third-party/kompex-sqlite-wrapper
+	url = https://github.com/Aethelflaed/kompex-sqlite-wrapper.git
 [submodule "eigen2"]
 	path = third-party/eigen
 	url = https://github.com/RLovelett/eigen

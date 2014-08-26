@@ -9,12 +9,12 @@
 /* Begin PBXBuildFile section */
 		2B3836B7187491FF00467ABD /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3836B6187491FF00467ABD /* tinyxml2.cpp */; };
 		2B3836BA1874937100467ABD /* MapnikConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3836B81874937100467ABD /* MapnikConfig.cpp */; };
-		2B99A2B018F7361D00C2DA98 /* KompexSQLiteBlob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B99A2AC18F7361D00C2DA98 /* KompexSQLiteBlob.cpp */; };
-		2B99A2B118F7361D00C2DA98 /* KompexSQLiteDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B99A2AD18F7361D00C2DA98 /* KompexSQLiteDatabase.cpp */; };
-		2B99A2B218F7361D00C2DA98 /* KompexSQLiteStatement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B99A2AE18F7361D00C2DA98 /* KompexSQLiteStatement.cpp */; };
-		2B99A2B318F7361D00C2DA98 /* sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B99A2AF18F7361D00C2DA98 /* sqlite3.c */; };
 		2BAD0ED01852876900FFB126 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAD0ECF1852876900FFB126 /* main.cpp */; };
 		2BAD0ED21852876900FFB126 /* vector_dice.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2BAD0ED11852876900FFB126 /* vector_dice.1 */; };
+		2BADF96F19ABAABE00C40CAA /* KompexSQLiteBlob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BADF96A19ABAABE00C40CAA /* KompexSQLiteBlob.cpp */; };
+		2BADF97019ABAABE00C40CAA /* KompexSQLiteDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BADF96B19ABAABE00C40CAA /* KompexSQLiteDatabase.cpp */; };
+		2BADF97119ABAABE00C40CAA /* KompexSQLiteStatement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BADF96C19ABAABE00C40CAA /* KompexSQLiteStatement.cpp */; };
+		2BADF97319ABAABE00C40CAA /* sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BADF96E19ABAABE00C40CAA /* sqlite3.c */; };
 		2BBCF35B187E1D2000103DDF /* VectorDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBCF359187E1D2000103DDF /* VectorDB.cpp */; };
 		2BBCF35D187F20B200103DDF /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BBCF35C187F20B200103DDF /* libz.dylib */; };
 /* End PBXBuildFile section */
@@ -37,21 +37,21 @@
 		2B3836B6187491FF00467ABD /* tinyxml2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tinyxml2.cpp; path = "../../third-party/tinyxml2/tinyxml2.cpp"; sourceTree = "<group>"; };
 		2B3836B81874937100467ABD /* MapnikConfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapnikConfig.cpp; sourceTree = "<group>"; };
 		2B3836B91874937100467ABD /* MapnikConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapnikConfig.h; sourceTree = "<group>"; };
-		2B99A2A418F7361D00C2DA98 /* KompexSQLiteBlob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KompexSQLiteBlob.h; path = "../../../utilities/KompexSQLiteWrapper-Source_1.9.11/inc/KompexSQLiteBlob.h"; sourceTree = "<group>"; };
-		2B99A2A518F7361D00C2DA98 /* KompexSQLiteDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KompexSQLiteDatabase.h; path = "../../../utilities/KompexSQLiteWrapper-Source_1.9.11/inc/KompexSQLiteDatabase.h"; sourceTree = "<group>"; };
-		2B99A2A618F7361D00C2DA98 /* KompexSQLiteException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KompexSQLiteException.h; path = "../../../utilities/KompexSQLiteWrapper-Source_1.9.11/inc/KompexSQLiteException.h"; sourceTree = "<group>"; };
-		2B99A2A718F7361D00C2DA98 /* KompexSQLitePrerequisites.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KompexSQLitePrerequisites.h; path = "../../../utilities/KompexSQLiteWrapper-Source_1.9.11/inc/KompexSQLitePrerequisites.h"; sourceTree = "<group>"; };
-		2B99A2A818F7361D00C2DA98 /* KompexSQLiteStatement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KompexSQLiteStatement.h; path = "../../../utilities/KompexSQLiteWrapper-Source_1.9.11/inc/KompexSQLiteStatement.h"; sourceTree = "<group>"; };
-		2B99A2A918F7361D00C2DA98 /* KompexSQLiteStreamRedirection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KompexSQLiteStreamRedirection.h; path = "../../../utilities/KompexSQLiteWrapper-Source_1.9.11/inc/KompexSQLiteStreamRedirection.h"; sourceTree = "<group>"; };
-		2B99A2AA18F7361D00C2DA98 /* sqlite3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqlite3.h; path = "../../../utilities/KompexSQLiteWrapper-Source_1.9.11/inc/sqlite3.h"; sourceTree = "<group>"; };
-		2B99A2AB18F7361D00C2DA98 /* sqlite3ext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqlite3ext.h; path = "../../../utilities/KompexSQLiteWrapper-Source_1.9.11/inc/sqlite3ext.h"; sourceTree = "<group>"; };
-		2B99A2AC18F7361D00C2DA98 /* KompexSQLiteBlob.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KompexSQLiteBlob.cpp; path = "../../../utilities/KompexSQLiteWrapper-Source_1.9.11/src/KompexSQLiteBlob.cpp"; sourceTree = "<group>"; };
-		2B99A2AD18F7361D00C2DA98 /* KompexSQLiteDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KompexSQLiteDatabase.cpp; path = "../../../utilities/KompexSQLiteWrapper-Source_1.9.11/src/KompexSQLiteDatabase.cpp"; sourceTree = "<group>"; };
-		2B99A2AE18F7361D00C2DA98 /* KompexSQLiteStatement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KompexSQLiteStatement.cpp; path = "../../../utilities/KompexSQLiteWrapper-Source_1.9.11/src/KompexSQLiteStatement.cpp"; sourceTree = "<group>"; };
-		2B99A2AF18F7361D00C2DA98 /* sqlite3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sqlite3.c; path = "../../../utilities/KompexSQLiteWrapper-Source_1.9.11/src/sqlite3.c"; sourceTree = "<group>"; };
 		2BAD0ECC1852876900FFB126 /* carto_vector_dice */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = carto_vector_dice; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BAD0ECF1852876900FFB126 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		2BAD0ED11852876900FFB126 /* vector_dice.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = vector_dice.1; sourceTree = "<group>"; };
+		2BADF96A19ABAABE00C40CAA /* KompexSQLiteBlob.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KompexSQLiteBlob.cpp; path = "../../third-party/kompex-sqlite-wrapper/src/KompexSQLiteBlob.cpp"; sourceTree = "<group>"; };
+		2BADF96B19ABAABE00C40CAA /* KompexSQLiteDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KompexSQLiteDatabase.cpp; path = "../../third-party/kompex-sqlite-wrapper/src/KompexSQLiteDatabase.cpp"; sourceTree = "<group>"; };
+		2BADF96C19ABAABE00C40CAA /* KompexSQLiteStatement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KompexSQLiteStatement.cpp; path = "../../third-party/kompex-sqlite-wrapper/src/KompexSQLiteStatement.cpp"; sourceTree = "<group>"; };
+		2BADF96E19ABAABE00C40CAA /* sqlite3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sqlite3.c; path = "../../third-party/kompex-sqlite-wrapper/src/sqlite3.c"; sourceTree = "<group>"; };
+		2BADF97419ABAACA00C40CAA /* KompexSQLiteBlob.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = KompexSQLiteBlob.h; path = "../../third-party/kompex-sqlite-wrapper/include/KompexSQLiteBlob.h"; sourceTree = "<group>"; };
+		2BADF97519ABAACA00C40CAA /* KompexSQLiteDatabase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = KompexSQLiteDatabase.h; path = "../../third-party/kompex-sqlite-wrapper/include/KompexSQLiteDatabase.h"; sourceTree = "<group>"; };
+		2BADF97619ABAACA00C40CAA /* KompexSQLiteException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = KompexSQLiteException.h; path = "../../third-party/kompex-sqlite-wrapper/include/KompexSQLiteException.h"; sourceTree = "<group>"; };
+		2BADF97719ABAACA00C40CAA /* KompexSQLitePrerequisites.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = KompexSQLitePrerequisites.h; path = "../../third-party/kompex-sqlite-wrapper/include/KompexSQLitePrerequisites.h"; sourceTree = "<group>"; };
+		2BADF97819ABAACA00C40CAA /* KompexSQLiteStatement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = KompexSQLiteStatement.h; path = "../../third-party/kompex-sqlite-wrapper/include/KompexSQLiteStatement.h"; sourceTree = "<group>"; };
+		2BADF97919ABAACA00C40CAA /* KompexSQLiteStreamRedirection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = KompexSQLiteStreamRedirection.h; path = "../../third-party/kompex-sqlite-wrapper/include/KompexSQLiteStreamRedirection.h"; sourceTree = "<group>"; };
+		2BADF97A19ABAACA00C40CAA /* sqlite3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sqlite3.h; path = "../../third-party/kompex-sqlite-wrapper/include/sqlite3.h"; sourceTree = "<group>"; };
+		2BADF97B19ABAACA00C40CAA /* sqlite3ext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sqlite3ext.h; path = "../../third-party/kompex-sqlite-wrapper/include/sqlite3ext.h"; sourceTree = "<group>"; };
 		2BBCF359187E1D2000103DDF /* VectorDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VectorDB.cpp; path = vector_dice/VectorDB.cpp; sourceTree = "<group>"; };
 		2BBCF35A187E1D2000103DDF /* VectorDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VectorDB.h; path = vector_dice/VectorDB.h; sourceTree = "<group>"; };
 		2BBCF35C187F20B200103DDF /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
@@ -112,18 +112,18 @@
 		2BBCF347187E1C7F00103DDF /* Kompex SQLite */ = {
 			isa = PBXGroup;
 			children = (
-				2B99A2A418F7361D00C2DA98 /* KompexSQLiteBlob.h */,
-				2B99A2A518F7361D00C2DA98 /* KompexSQLiteDatabase.h */,
-				2B99A2A618F7361D00C2DA98 /* KompexSQLiteException.h */,
-				2B99A2A718F7361D00C2DA98 /* KompexSQLitePrerequisites.h */,
-				2B99A2A818F7361D00C2DA98 /* KompexSQLiteStatement.h */,
-				2B99A2A918F7361D00C2DA98 /* KompexSQLiteStreamRedirection.h */,
-				2B99A2AA18F7361D00C2DA98 /* sqlite3.h */,
-				2B99A2AB18F7361D00C2DA98 /* sqlite3ext.h */,
-				2B99A2AC18F7361D00C2DA98 /* KompexSQLiteBlob.cpp */,
-				2B99A2AD18F7361D00C2DA98 /* KompexSQLiteDatabase.cpp */,
-				2B99A2AE18F7361D00C2DA98 /* KompexSQLiteStatement.cpp */,
-				2B99A2AF18F7361D00C2DA98 /* sqlite3.c */,
+				2BADF97419ABAACA00C40CAA /* KompexSQLiteBlob.h */,
+				2BADF97519ABAACA00C40CAA /* KompexSQLiteDatabase.h */,
+				2BADF97619ABAACA00C40CAA /* KompexSQLiteException.h */,
+				2BADF97719ABAACA00C40CAA /* KompexSQLitePrerequisites.h */,
+				2BADF97819ABAACA00C40CAA /* KompexSQLiteStatement.h */,
+				2BADF97919ABAACA00C40CAA /* KompexSQLiteStreamRedirection.h */,
+				2BADF97A19ABAACA00C40CAA /* sqlite3.h */,
+				2BADF97B19ABAACA00C40CAA /* sqlite3ext.h */,
+				2BADF96A19ABAABE00C40CAA /* KompexSQLiteBlob.cpp */,
+				2BADF96B19ABAABE00C40CAA /* KompexSQLiteDatabase.cpp */,
+				2BADF96C19ABAABE00C40CAA /* KompexSQLiteStatement.cpp */,
+				2BADF96E19ABAABE00C40CAA /* sqlite3.c */,
 			);
 			name = "Kompex SQLite";
 			sourceTree = "<group>";
@@ -188,14 +188,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BADF97319ABAABE00C40CAA /* sqlite3.c in Sources */,
 				2B3836B7187491FF00467ABD /* tinyxml2.cpp in Sources */,
 				2BAD0ED01852876900FFB126 /* main.cpp in Sources */,
 				2BBCF35B187E1D2000103DDF /* VectorDB.cpp in Sources */,
-				2B99A2B018F7361D00C2DA98 /* KompexSQLiteBlob.cpp in Sources */,
-				2B99A2B118F7361D00C2DA98 /* KompexSQLiteDatabase.cpp in Sources */,
+				2BADF96F19ABAABE00C40CAA /* KompexSQLiteBlob.cpp in Sources */,
+				2BADF97019ABAABE00C40CAA /* KompexSQLiteDatabase.cpp in Sources */,
 				2B3836BA1874937100467ABD /* MapnikConfig.cpp in Sources */,
-				2B99A2B218F7361D00C2DA98 /* KompexSQLiteStatement.cpp in Sources */,
-				2B99A2B318F7361D00C2DA98 /* sqlite3.c in Sources */,
+				2BADF97119ABAABE00C40CAA /* KompexSQLiteStatement.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -206,7 +206,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -218,7 +218,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -243,7 +243,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -257,7 +257,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -273,6 +273,7 @@
 		2BAD0ED61852876900FFB126 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LIBRARY = "libc++";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -281,9 +282,9 @@
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				OTHER_LDFLAGS = (
 					"-lGDAL",
-					"-lboost_regex-mt",
-					"-lboost_filesystem-mt",
-					"-lboost_system-mt",
+					"-lboost_regex",
+					"-lboost_filesystem",
+					"-lboost_system",
 				);
 				PRODUCT_NAME = carto_vector_dice;
 				SDKROOT = macosx10.8;
@@ -293,6 +294,7 @@
 		2BAD0ED71852876900FFB126 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LIBRARY = "libc++";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -301,9 +303,9 @@
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				OTHER_LDFLAGS = (
 					"-lGDAL",
-					"-lboost_regex-mt",
-					"-lboost_filesystem-mt",
-					"-lboost_system-mt",
+					"-lboost_regex",
+					"-lboost_filesystem",
+					"-lboost_system",
 				);
 				PRODUCT_NAME = carto_vector_dice;
 				SDKROOT = macosx10.8;

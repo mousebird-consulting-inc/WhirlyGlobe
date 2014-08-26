@@ -126,7 +126,6 @@
             desc[kMaplyWideVecCoordType] = kMaplyWideVecCoordTypeScreen;
             desc[kMaplyWideVecTexRepeatLen] = @(repeatLen);
             desc[kMaplyVecWidth] = @(width);
-            
         }
         
         [self resolveVisibility:styleEntry settings:settings desc:desc];
