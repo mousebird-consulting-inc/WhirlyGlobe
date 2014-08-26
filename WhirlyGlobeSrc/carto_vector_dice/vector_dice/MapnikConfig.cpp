@@ -26,6 +26,8 @@ void MapnikConfig::CompiledSymbolizerTable::addSymbolizerGroup(MapnikConfig *map
     SortedLayer::SortedStyle *style = (SortedLayer::SortedStyle *)inStyle;
     std::map<SymbolizerType,SymbolizerGroup *> groups;
     
+    int drawPriority = 0;
+    
     // Work through the symbolizers, building up compatible groups as we go
     for (unsigned int ii=0;ii<style->styleInstances.size();ii++)
     {
@@ -51,7 +53,8 @@ void MapnikConfig::CompiledSymbolizerTable::addSymbolizerGroup(MapnikConfig *map
                 } else
                     group = it->second;
                 SubSymbolizer subSym;
-                subSym.drawPriority = rule.symbolizers[si];
+//                subSym.drawPriority = rule.symbolizers[si];
+                subSym.drawPriority = drawPriority++;
                 subSym.minScaleDenom = sym.minScaleDenom;
                 subSym.maxScaleDenom = sym.maxScaleDenom;
                 subSym.xmlEl = sym.xmlEl;
