@@ -273,6 +273,7 @@
 		2BAD0ED61852876900FFB126 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LIBRARY = "libc++";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -281,9 +282,9 @@
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				OTHER_LDFLAGS = (
 					"-lGDAL",
-					"-lboost_regex-mt",
-					"-lboost_filesystem-mt",
-					"-lboost_system-mt",
+					"-lboost_regex",
+					"-lboost_filesystem",
+					"-lboost_system",
 				);
 				PRODUCT_NAME = carto_vector_dice;
 				SDKROOT = macosx10.8;
@@ -293,6 +294,7 @@
 		2BAD0ED71852876900FFB126 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LIBRARY = "libc++";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -301,9 +303,9 @@
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				OTHER_LDFLAGS = (
 					"-lGDAL",
-					"-lboost_regex-mt",
-					"-lboost_filesystem-mt",
-					"-lboost_system-mt",
+					"-lboost_regex",
+					"-lboost_filesystem",
+					"-lboost_system",
 				);
 				PRODUCT_NAME = carto_vector_dice;
 				SDKROOT = macosx10.8;
