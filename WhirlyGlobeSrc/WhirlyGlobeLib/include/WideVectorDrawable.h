@@ -39,16 +39,15 @@ public:
     /// Each vertex has an offset in 3-space
     void addDir(const Point3f &dir);
     void addDir(const Point3d &dir);
-    
-    /// Set the width we'll we'll use
-    void setWidth(float inWidth) { width = inWidth; }
+
+    /// How often the texture repeats
     void setTexRepeat(float inTexRepeat) { texRepeat = inTexRepeat; }
     
     /// We override draw so we can set our own values
     virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
     
 protected:
-    float width,texRepeat;
+    float texRepeat;
     int offsetIndex;
 };
     
