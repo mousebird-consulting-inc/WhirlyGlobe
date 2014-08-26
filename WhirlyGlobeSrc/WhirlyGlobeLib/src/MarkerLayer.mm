@@ -23,7 +23,7 @@
 #import "UIColor+Stuff.h"
 #import "GlobeMath.h"
 #import "MarkerGenerator.h"
-#import "ScreenSpaceGenerator.h"
+#import "ScreenSpaceManager.h"
 #import "LayoutManager.h"
 
 using namespace Eigen;
