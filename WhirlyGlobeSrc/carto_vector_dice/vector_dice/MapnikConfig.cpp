@@ -51,7 +51,8 @@ void MapnikConfig::CompiledSymbolizerTable::addSymbolizerGroup(MapnikConfig *map
                 } else
                     group = it->second;
                 SubSymbolizer subSym;
-                subSym.drawPriority = rule.symbolizers[si];
+//                subSym.drawPriority = rule.symbolizers[si];
+                subSym.drawPriority = currentDrawPriority++;
                 subSym.minScaleDenom = sym.minScaleDenom;
                 subSym.maxScaleDenom = sym.maxScaleDenom;
                 subSym.xmlEl = sym.xmlEl;
