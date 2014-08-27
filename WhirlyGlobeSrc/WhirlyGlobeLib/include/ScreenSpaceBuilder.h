@@ -1,5 +1,5 @@
 /*
- *  ScreenSpaceManager.h
+ *  ScreenSpaceBuild.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/21/14.
@@ -34,36 +34,17 @@
 namespace WhirlyKit
 {
     
+class ScreenSpaceObject;
+    
 /** Screen space objects are used for both labels and markers.  This builder
     helps construct the drawables needed to represent them.
   */
 class ScreenSpaceBuilder
 {
 public:
-    ScreenSpaceBuilder();
+    ScreenSpaceBuilder(CoordSystemDisplayAdapter *coordAdapter);
     virtual ~ScreenSpaceBuilder();
     
-    /// Set the active texture ID
-    void setTexID(SimpleIdentity texID);
-    /// Set the active program ID
-    void setProgramID(SimpleIdentity progID);
-    /// Set the fade in/out
-    void setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown);
-    /// Set the draw priority
-    void setDrawPriority(int drawPriority);
-    /// Set the visibility range
-    void setVisibility(float minVis,float maxVis);
-
-    /// Add a single rectangle with no rotation
-    void addRectangle(const Point3d &worldLoc,const Point3d *coords,const TexCoord *texCoords);
-    /// Add a single rectangle with rotation, possibly keeping upright
-    void addRectangle(const Point3d &worldLoc,double rotation,bool keepUpright,const Point3d *coord,const TexCoord *texCoords);
-
-    // Return the drawables constructed.  Caller responsible for deletion.
-    void buildDrawables(std::vector<ScreenSpaceDrawable *> &draws);
-    
-protected:
-
     // State information we're keeping around.
     // Defaults to something resonable
     class DrawableState
@@ -80,23 +61,120 @@ protected:
         int drawPriority;
         float minVis,maxVis;
     };
+    
+    /// Set the active texture ID
+    void setTexID(SimpleIdentity texID);
+    /// Set the active program ID
+    void setProgramID(SimpleIdentity progID);
+    /// Set the fade in/out
+    void setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown);
+    /// Set the draw priority
+    void setDrawPriority(int drawPriority);
+    /// Set the visibility range
+    void setVisibility(float minVis,float maxVis);
 
+    /// Add a single rectangle with no rotation
+    void addRectangle(const Point3d &worldLoc,const Point2d *coords,const TexCoord *texCoords);
+    /// Add a single rectangle with rotation, possibly keeping upright
+    void addRectangle(const Point3d &worldLoc,double rotation,bool keepUpright,const Point2d *coord,const TexCoord *texCoords);
+
+    /// Add a whole bunch of predefined Scene Objects
+    void addScreenObjects(std::vector<ScreenSpaceObject> &screenObjects);
+    
+    /// Return the drawables constructed.  Caller responsible for deletion.
+    void buildDrawables(std::vector<ScreenSpaceDrawable *> &draws);
+    
+    /// Build drawables and add them to the change list
+    void flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs);
+    
+protected:
     // Wrapper used to track
     class DrawableWrap
     {
     public:
         DrawableWrap();
+        DrawableWrap(const DrawableState &state);
         
-        void addVertex(const Point3f &worldLoc,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color);
+        // Comparison operator for set
+        bool operator < (const DrawableWrap &that) const;
+        
+        void addVertex(CoordSystemDisplayAdapter *coordAdapter,const Point3f &worldLoc,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color);
         void addTri(int v0,int v1,int v2);
         
         DrawableState state;
         ScreenSpaceDrawable *draw;
     };
-    typedef std::set<DrawableWrap *> DrawableWrapSet;
+
+    // Comparitor for drawable wrapper set
+    typedef struct
+    {
+        bool operator()(const DrawableWrap *a,const DrawableWrap *b)
+        {
+            return *a < *b;
+        }
+    } DrawableWrapComparator;
     
+    typedef std::set<DrawableWrap *,DrawableWrapComparator> DrawableWrapSet;
+    
+    DrawableWrap *findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTri);
+    
+    CoordSystemDisplayAdapter *coordAdapter;
     DrawableState curState;
     DrawableWrapSet drawables;
+    std::vector<DrawableWrap *> fullDrawables;
+};
+    
+/** Keeps track of the basic information about a screen space object.
+    These are passed around by the
+ */
+class ScreenSpaceObject : public Identifiable
+{
+public:
+    friend ScreenSpaceBuilder;
+    
+    ScreenSpaceObject();
+    virtual ~ScreenSpaceObject();
+    
+    /// Represents a simple set of convex geometry
+    class ConvexGeometry
+    {
+    public:
+        ConvexGeometry();
+        
+        /// Texture ID used for just this object
+        SimpleIdentity texID;
+        /// Program ID used to render this geometry
+        SimpleIdentity progID;
+        /// Color for the geometry
+        RGBAColor color;
+        
+        std::vector<Point2d> coords;
+        std::vector<TexCoord> texCoords;
+    };
+    
+    /// Center of the object in world coordinates
+    void setWorldLoc(const Point3d &worldLoc);
+    Point3d getWorldLoc();
+    
+    void setEnable(bool enable);
+    void setVisibility(float minVis,float maxVis);
+    void setDrawPriority(int drawPriority);
+    void setKeepUpright(bool keepUpright);
+    void setRotation(double rotation);
+    void setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown);
+    void setOffset(const Point2d &offset);
+    
+    void addGeometry(const ConvexGeometry &geom);
+    
+protected:
+    bool enable;
+    Point3d worldLoc;
+    Point2d offset;
+    double rotation;
+    bool useRotation;
+    bool keepUpright;
+    ScreenSpaceBuilder::DrawableState state;
+    std::vector<ConvexGeometry> geometry;
 };
     
 }

@@ -50,7 +50,50 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
     return false;
 }
     
-ScreenSpaceBuilder::ScreenSpaceBuilder()
+ScreenSpaceBuilder::DrawableWrap::DrawableWrap()
+    : draw(NULL)
+{
+}
+    
+ScreenSpaceBuilder::DrawableWrap::DrawableWrap(const DrawableState &state)
+    : state(state)
+{
+    draw = new ScreenSpaceDrawable();
+    draw->setType(GL_TRIANGLES);
+    draw->setTexId(0, state.texID);
+    draw->setProgram(state.progID);
+    draw->setDrawPriority(state.drawPriority);
+    draw->setFade(state.fadeDown, state.fadeUp);
+    draw->setVisibleRange(state.minVis, state.maxVis);
+    draw->setRequestZBuffer(false);
+    draw->setWriteZBuffer(false);
+}
+    
+bool ScreenSpaceBuilder::DrawableWrap::operator < (const DrawableWrap &that) const
+{
+    return state < that.state;
+}
+    
+void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,const Point3f &worldLoc,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color)
+{
+    draw->addPoint(worldLoc);
+    Point3f norm = coordAdapter->isFlat() ? Point3f(0,0,1) : worldLoc.normalized();
+    draw->addNormal(norm);
+    // Note: Rotation
+    draw->addOffset(vert);
+    draw->addTexCoord(0, texCoord);
+}
+    
+void ScreenSpaceBuilder::DrawableWrap::addTri(int v0, int v1, int v2)
+{
+    if (!draw)
+        return;
+    
+    draw->addTriangle(BasicDrawable::Triangle(v0,v1,v2));
+}
+    
+ScreenSpaceBuilder::ScreenSpaceBuilder(CoordSystemDisplayAdapter *coordAdapter)
+    : coordAdapter(coordAdapter)
 {
 }
 
@@ -87,164 +130,183 @@ void ScreenSpaceBuilder::setVisibility(float minVis,float maxVis)
     curState.maxVis = maxVis;
 }
     
-void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,const Point3d *coords,const TexCoord *texCoords)
+ScreenSpaceBuilder::DrawableWrap *ScreenSpaceBuilder::findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTri)
 {
+    // Look for an existing drawable
+    DrawableWrap dummy(state);
+    DrawableWrap *drawWrap = NULL;
+    DrawableWrapSet::iterator it = drawables.find(&dummy);
+    if (it == drawables.end())
+    {
+        // Nope, create one
+        drawWrap = new DrawableWrap(state);
+        drawables.insert(drawWrap);
+    } else {
+        drawWrap = *it;
+        
+        // Make sure this one isn't too large
+        if (drawWrap->draw->getNumPoints() + numVerts >= MaxDrawablePoints || drawWrap->draw->getNumTris() >= MaxDrawableTriangles)
+        {
+            // It is, so we need to flush it and create a new one
+            fullDrawables.push_back(drawWrap);
+            drawables.erase(it);
+            drawWrap = new DrawableWrap(state);
+            drawables.insert(drawWrap);
+        }
+    }
     
+    return drawWrap;
+}
+    
+void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,const Point2d *coords,const TexCoord *texCoords)
+{
+    DrawableWrap *drawWrap = findOrAddDrawWrap(curState,4,2);
+    
+    int baseVert = drawWrap->draw->getNumPoints();
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        Point2f coord(coords[ii].x(),coords[ii].y());
+        drawWrap->addVertex(coordAdapter,Point3f(worldLoc.x(),worldLoc.y(),worldLoc.z()), 0.0, coord, texCoords[ii], RGBAColor(255,255,255,255));
+    }
+    drawWrap->addTri(0+baseVert,1+baseVert,2+baseVert);
+    drawWrap->addTri(0+baseVert,2+baseVert,3+baseVert);
 }
 
+void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,double rotation,bool keepUpright,const Point2d *coords,const TexCoord *texCoords)
+{
+    DrawableWrap *drawWrap = findOrAddDrawWrap(curState,4,2);
+    
+    // Note: Do something with keepUpright
+    int baseVert = drawWrap->draw->getNumPoints();
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        Point2f coord(coords[ii].x(),coords[ii].y());
+        drawWrap->addVertex(coordAdapter,Point3f(worldLoc.x(),worldLoc.y(),worldLoc.z()), rotation, coord, texCoords[ii], RGBAColor(255,255,255,255));
+    }
+    drawWrap->addTri(0+baseVert,1+baseVert,2+baseVert);
+    drawWrap->addTri(0+baseVert,2+baseVert,3+baseVert);
+}
+
+void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject> &screenObjects)
+{
+    for (unsigned int ii=0;ii<screenObjects.size();ii++)
+    {
+        ScreenSpaceObject &ssObj = screenObjects[ii];
+        
+        for (unsigned int ii=0;ii<ssObj.geometry.size();ii++)
+        {
+            ScreenSpaceObject::ConvexGeometry &geom = ssObj.geometry[ii];
+            DrawableState state = ssObj.state;
+            state.texID = geom.texID;
+            state.progID = geom.progID;
+            DrawableWrap *drawWrap = findOrAddDrawWrap(state,geom.coords.size(),geom.coords.size()-2);
+
+            int baseVert = drawWrap->draw->getNumPoints();
+            for (unsigned int jj=0;jj<geom.coords.size();jj++)
+            {
+                Point2d &coord = geom.coords[jj];
+                drawWrap->addVertex(coordAdapter,Point3f(ssObj.worldLoc.x(),ssObj.worldLoc.y(),ssObj.worldLoc.z()), ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], RGBAColor(255,255,255,255));
+            }
+            for (unsigned int jj=0;jj<geom.coords.size()-2;jj++)
+                drawWrap->addTri(0+baseVert, jj+1+baseVert, jj+2+baseVert);
+        }
+    }
+}
+    
 void ScreenSpaceBuilder::buildDrawables(std::vector<ScreenSpaceDrawable *> &draws)
 {
-    for (DrawableWrapSet::iterator it = drawables.begin(); it != drawables.end(); ++it)
-        draws.push_back((*it)->draw);
+    for (unsigned int ii=0;ii<fullDrawables.size();ii++)
+    {
+        draws.push_back(fullDrawables[ii]->draw);
+        delete fullDrawables[ii];
+    }
+    fullDrawables.clear();
     
+    for (DrawableWrapSet::iterator it = drawables.begin(); it != drawables.end(); ++it)
+    {
+        draws.push_back((*it)->draw);
+        delete *it;
+    }
     drawables.clear();
 }
     
-/// Used to group meshes that we can consolidate together
-class MeshList
+void ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
 {
-public:
-    MeshList() {}
-    MeshList(const ScreenSpaceBuilder::Mesh *mesh) { meshes.push_back(mesh); }
-    
-    // Comparison operator
-    bool operator < (const MeshList &that) const
+    std::vector<ScreenSpaceDrawable *> draws;
+    buildDrawables(draws);
+    for (unsigned int ii=0;ii<draws.size();ii++)
     {
-        const ScreenSpaceBuilder::Mesh *mesh = meshes[0];
-        const ScreenSpaceBuilder::Mesh *thatMesh = that.meshes[0];
-        
-        if (mesh->texID != thatMesh->texID)
-            return mesh->texID < thatMesh->texID;
-        if (mesh->programID != thatMesh->programID)
-            return mesh->programID < thatMesh->programID;
-        
-        return false;
+        ScreenSpaceDrawable *draw = draws[ii];
+        drawIDs.insert(draw->getId());
+        changes.push_back(new AddDrawableReq(draw));
     }
+}
     
-    // Construct a drawable with all the meshes
-    ScreenSpaceDrawable *createDrawable(const ScreenSpaceBuilder::ScreenSpaceObject &screenShape)
-    {
-        const ScreenSpaceBuilder::Mesh &firstMesh = screenShape.meshes[0];
-        int numVerts = 0;
-        int numTris = 0;
-        
-        for (unsigned int ii=0;ii<screenShape.meshes.size();ii++)
-        {
-            const ScreenSpaceBuilder::Mesh &mesh = screenShape.meshes[ii];
-            numVerts += mesh.coords.size();
-            numTris += mesh.tris.size();
-        }
-        
-        if (numVerts == 0 || numTris == 0)
-            return NULL;
-        
-        // Set up the drawable
-        ScreenSpaceDrawable *draw = new ScreenSpaceDrawable();
-        draw->reserveNumPoints(numVerts);
-        draw->reserveNumTexCoords(numVerts, 1);
-        draw->reserveNumColors(numVerts);
-        draw->reserveNumTris(numTris);
-        draw->setTexId(0, firstMesh.texID);
-        draw->setProgram(firstMesh.programID);
-        draw->setDrawPriority(screenShape.drawPriority);
-        draw->setFade(screenShape.fadeDown, screenShape.fadeUp);
-        draw->setVisibleRange(screenShape.minVis, screenShape.maxVis);
-
-        // Note: Still need useRotation, keepUpright, rotation
-        
-        for (unsigned int ii=0;ii<screenShape.meshes.size();ii++)
-        {
-            const ScreenSpaceBuilder::Mesh &mesh = screenShape.meshes[ii];
-            
-            int baseVert = draw->getNumPoints();
-            for (unsigned int jj=0;jj<mesh.coords.size();jj++)
-            {
-                draw->addPoint(mesh.worldLoc);
-                const Point2d &coord = mesh.coords[jj];
-                draw->addOffset(Point2f(coord.x(),coord.y()));
-                draw->addColor(mesh.colors[jj]);
-                draw->addTexCoord(0, mesh.texCoords[jj]);
-                // Note: Normal?
-            }
-            
-            for (unsigned int jj=0;jj<mesh.tris.size();jj++)
-            {
-                BasicDrawable::Triangle tri = mesh.tris[jj];
-                for (unsigned int kk=0;kk<3;kk++)
-                    tri.verts[kk] += baseVert;
-                draw->addTriangle(tri);
-            }
-        }
-        
-        return draw;
-    }
-    
-    std::vector<const ScreenSpaceBuilder::Mesh *> meshes;
-};
-
-struct MeshListComparitor
-{
-    bool operator()(const MeshList *a,const MeshList *b)
-    {
-        return *a < *b;
-    }
-};
-    
-typedef std::set<MeshList *,MeshListComparitor> MeshListSet;
-    
-ScreenSpaceBuilder::Mesh::Mesh()
-    : texID(EmptyIdentity), programID(EmptyIdentity), worldLoc(0,0,0), rotation(0.0)
+ScreenSpaceObject::ScreenSpaceObject::ConvexGeometry::ConvexGeometry()
+    : texID(EmptyIdentity), progID(EmptyIdentity), color(255,255,255,255)
 {
 }
     
-ScreenSpaceBuilder::ScreenSpaceObject::ScreenSpaceObject()
-    : useRotation(false), keepUpright(false), fadeUp(0), fadeDown(0), drawPriority(0),
-    minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid)
+ScreenSpaceObject::ScreenSpaceObject()
+    : enable(true), worldLoc(0,0,0), offset(0,0), rotation(0), useRotation(false), keepUpright(false)
+{
+}
+
+ScreenSpaceObject::~ScreenSpaceObject()
 {
 }
     
-SimpleIdentity ScreenSpaceBuilder::addShapes(const ScreenSpaceObject &screenShape,ChangeSet &changes)
+void ScreenSpaceObject::setWorldLoc(const Point3d &inWorldLoc)
 {
-    MeshListSet meshes;
-
-    // Sort the meshes we can put together
-    for (unsigned int ii=0;ii<screenShape.meshes.size();ii++)
-    {
-        const Mesh *mesh = &screenShape.meshes[ii];
-        MeshList dummy(mesh);
-        
-        MeshList *meshList = NULL;
-        MeshListSet::iterator it = meshes.find(&dummy);
-        if (it == meshes.end())
-            meshList = new MeshList();
-        else
-            meshList = *it;
-        
-        meshList->meshes.push_back(mesh);
-    }
-
-    ScreenSpaceRep *sceneRep = new ScreenSpaceRep();
-    SimpleIdentity sceneId = sceneRep->getId();
-    for (MeshListSet::iterator it = meshes.begin(); it != meshes.end(); ++it)
-    {
-        MeshList *meshList = *it;
-        
-        ScreenSpaceDrawable *screenDraw = meshList->createDrawable(screenShape);
-        if (screenDraw)
-        {
-            sceneRep->drawIDs.insert(screenDraw->getId());
-            changes.push_back(new AddDrawableReq(screenDraw));
-        }
-    }
-    
-    for (MeshListSet::iterator it = meshes.begin();it!=meshes.end();++it)
-        delete *it;
-    
-    pthread_mutex_lock(&shapeLock);
-    shapeReps.insert(sceneRep);
-    pthread_mutex_unlock(&shapeLock);
-
-    return sceneId;
+    worldLoc = inWorldLoc;
 }
-        
+    
+Point3d ScreenSpaceObject::getWorldLoc()
+{
+    return worldLoc;
+}
+
+void ScreenSpaceObject::setEnable(bool inEnable)
+{
+    enable = inEnable;
+}
+    
+void ScreenSpaceObject::setVisibility(float minVis,float maxVis)
+{
+    state.minVis = minVis;
+    state.maxVis = maxVis;
+}
+
+void ScreenSpaceObject::setDrawPriority(int drawPriority)
+{
+    state.drawPriority = drawPriority;
+}
+
+void ScreenSpaceObject::setKeepUpright(bool inKeepUpright)
+{
+    keepUpright = inKeepUpright;
+}
+
+void ScreenSpaceObject::setRotation(double inRot)
+{
+    useRotation = true;
+    rotation = inRot;
+}
+
+void ScreenSpaceObject::setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown)
+{
+    state.fadeUp = fadeUp;
+    state.fadeDown = fadeDown;
+}
+    
+void ScreenSpaceObject::setOffset(const Point2d &inOffset)
+{
+    offset = inOffset;
+}
+
+void ScreenSpaceObject::addGeometry(const ConvexGeometry &geom)
+{
+    geometry.push_back(geom);
+}
+    
 }
