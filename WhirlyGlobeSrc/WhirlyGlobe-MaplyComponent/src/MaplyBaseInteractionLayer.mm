@@ -406,7 +406,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 }
 
 // We can refer to shaders by ID or by name.  Figure that out.
-- (void)resolveShader:(NSMutableDictionary *)inDesc
+- (void)resolveShader:(NSMutableDictionary *)inDesc defaultShader:(NSString *)defaultShaderName
 {
     NSObject *shader = inDesc[kMaplyShader];
     if (shader)
@@ -421,6 +421,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             else
                 inDesc[kMaplyShader] = @(shaderID);
         }
+    } else if (defaultShaderName)
+    {
+        SimpleIdentity shaderID = scene->getProgramIDBySceneName([defaultShaderName cStringUsingEncoding:NSASCIIStringEncoding]);
+        if (shaderID != EmptyIdentity)
+            inDesc[kMaplyShader] = @(shaderID);
     }
 }
 
@@ -441,7 +446,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc];
+    [self resolveShader:inDesc defaultShader:@(kToolkitDefaultScreenSpaceProgram)];
     
     // Convert to WG markers
     NSMutableArray *wgMarkers = [NSMutableArray array];
@@ -543,7 +548,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyMarkerDrawPriorityDefault) toDict:inDesc];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc];
+    [self resolveShader:inDesc defaultShader:nil];
     
     // Convert to WG markers
     NSMutableArray *wgMarkers = [NSMutableArray array];
@@ -652,7 +657,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc];
+    [self resolveShader:inDesc defaultShader:nil];
 
     // Convert to WG screen labels
     NSMutableArray *wgLabels = [NSMutableArray array];
@@ -757,7 +762,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
 
     // Might be a custom shader on these
-    [self resolveShader:inDesc];
+    [self resolveShader:inDesc defaultShader:nil];
 
     // Convert to WG labels
     NSMutableArray *wgLabels = [NSMutableArray array];
@@ -863,7 +868,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyVectorDrawPriorityDefault) toDict:inDesc];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc];
+    [self resolveShader:inDesc defaultShader:nil];
     
     // Look for a texture and add it
     if (inDesc[kMaplyVecTexture])
@@ -967,7 +972,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyVectorDrawPriorityDefault) toDict:inDesc];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc];
+    [self resolveShader:inDesc defaultShader:nil];
     
     // If there's no shader, we'll apply the default one
     if (!inDesc[kMaplyShader])
@@ -1047,7 +1052,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyVectorDrawPriorityDefault) toDict:inDesc];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc];
+    [self resolveShader:inDesc defaultShader:nil];
     
     // Look for a texture and add it
     if (inDesc[kMaplyVecTexture])
@@ -1196,7 +1201,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyShapeDrawPriorityDefault) toDict:inDesc];
 
     // Might be a custom shader on these
-    [self resolveShader:inDesc];
+    [self resolveShader:inDesc defaultShader:nil];
 
     // Need to convert shapes to the form the API is expecting
     NSMutableArray *ourShapes = [NSMutableArray array];
@@ -1377,7 +1382,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyStickerDrawPriorityDefault) toDict:inDesc];
 
     // Might be a custom shader on these
-    [self resolveShader:inDesc];
+    [self resolveShader:inDesc defaultShader:nil];
 
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     
@@ -1576,7 +1581,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyLoftedPolysDrawPriorityDefault) toDict:inDesc];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc];
+    [self resolveShader:inDesc defaultShader:nil];
     
     ShapeSet shapes;
     for (MaplyVectorObject *vecObj in vectors)
@@ -1636,7 +1641,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyBillboardDrawPriorityDefault) toDict:inDesc];
 
     // Might be a custom shader on these
-    [self resolveShader:inDesc];
+    [self resolveShader:inDesc defaultShader:nil];
     
     SimpleIdentity billShaderID = [inDesc[kMaplyShader] intValue];
     if (billShaderID == EmptyIdentity)

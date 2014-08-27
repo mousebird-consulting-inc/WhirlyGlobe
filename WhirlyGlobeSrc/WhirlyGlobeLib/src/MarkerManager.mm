@@ -22,7 +22,7 @@
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
 #import "MarkerGenerator.h"
-#import "ScreenSpaceManager.h"
+#import "ScreenSpaceBuilder.h"
 #import "LayoutManager.h"
 
 using namespace Eigen;
@@ -50,11 +50,12 @@ void MarkerSceneRep::enableContents(SelectionManager *selectManager,LayoutManage
     }
     if (!screenShapeIDs.empty())
     {
-        std::vector<SimpleIdentity> screenIDVec;
-        for (SimpleIDSet::iterator idIt = screenShapeIDs.begin();
-             idIt != screenShapeIDs.end(); ++idIt)
-            screenIDVec.push_back(*idIt);
-        changes.push_back(new ScreenSpaceGeneratorEnableRequest(screenGenId, screenIDVec, enable));
+        // Note: ScreenSpace
+//        std::vector<SimpleIdentity> screenIDVec;
+//        for (SimpleIDSet::iterator idIt = screenShapeIDs.begin();
+//             idIt != screenShapeIDs.end(); ++idIt)
+//            screenIDVec.push_back(*idIt);
+//        changes.push_back(new ScreenSpaceGeneratorEnableRequest(screenGenId, screenIDVec, enable));
     }
     
     if (selectManager && !selectIDs.empty())
@@ -84,11 +85,12 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
     
     if (!screenShapeIDs.empty())
     {
-        std::vector<SimpleIdentity> screenIDVec;
-        for (SimpleIDSet::iterator idIt = screenShapeIDs.begin();
-             idIt != screenShapeIDs.end(); ++idIt)
-            screenIDVec.push_back(*idIt);
-        changes.push_back(new ScreenSpaceGeneratorRemRequest(screenGenId, screenIDVec));
+        // Note: ScreenSpace
+//        std::vector<SimpleIdentity> screenIDVec;
+//        for (SimpleIDSet::iterator idIt = screenShapeIDs.begin();
+//             idIt != screenShapeIDs.end(); ++idIt)
+//            screenIDVec.push_back(*idIt);
+//        changes.push_back(new ScreenSpaceGeneratorRemRequest(screenGenId, screenIDVec));
     }
     screenShapeIDs.clear();
     
@@ -195,7 +197,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
     std::vector<MarkerGenerator::Marker *> markersToAdd;
     
     // Screen space markers
-    std::vector<ScreenSpaceManager::Mesh> screenShapes;
+    std::vector<ScreenSpaceObject> screenShapes;
     
     // Objects to be controlled by the layout layer
     std::vector<LayoutObject> layoutObjects;
@@ -270,17 +272,17 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             // Build one set of texture coordinates
             std::vector<TexCoord> texCoord;
             texCoord.resize(4);
-            texCoord[0].u() = 0.0;  texCoord[0].v() = 0.0;
-            texCoord[1].u() = 1.0;  texCoord[1].v() = 0.0;
-            texCoord[2].u() = 1.0;  texCoord[2].v() = 1.0;
-            texCoord[3].u() = 0.0;  texCoord[3].v() = 1.0;
+            texCoord[3].u() = 0.0;  texCoord[3].v() = 0.0;
+            texCoord[2].u() = 1.0;  texCoord[2].v() = 0.0;
+            texCoord[1].u() = 1.0;  texCoord[1].v() = 1.0;
+            texCoord[0].u() = 0.0;  texCoord[0].v() = 1.0;
             subTex.processTexCoords(texCoord);
             
             if (markerInfo.screenObject)
             {
-                ScreenSpaceGenerator::SimpleGeometry smGeom;
+                ScreenSpaceObject::ConvexGeometry smGeom;
                 smGeom.texID = subTex.texId;
-                smGeom.programID = markerInfo.programId;
+                smGeom.progID = markerInfo.programId;
                 smGeom.color = [markerInfo.color asRGBAColor];
                 if (marker.color)
                     smGeom.color = [marker.color asRGBAColor];
@@ -289,33 +291,26 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     smGeom.coords.push_back(Point2d(pts[ii].x(),pts[ii].y()));
                     smGeom.texCoords.push_back(texCoord[ii]);
                 }
-                ScreenSpaceGenerator::ConvexShape *shape = new ScreenSpaceGenerator::ConvexShape();
+                ScreenSpaceObject shape;
                 if (marker.isSelectable && marker.selectID != EmptyIdentity)
-                    shape->setId(marker.selectID);
-                    shape->worldLoc = coordAdapter->localToDisplay(localPt);
-                    if (marker.lockRotation)
-                    {
-                        shape->useRotation = true;
-                        shape->rotation = marker.rotation;
-                    }
+                    shape.setId(marker.selectID);
+                shape.setWorldLoc(coordAdapter->localToDisplay(localPt));
+                if (marker.lockRotation)
+                    shape.setRotation(marker.rotation);
                 if (markerInfo.fade > 0.0)
-                {
-                    shape->fadeDown = curTime;
-                    shape->fadeUp = curTime+markerInfo.fade;
-                }
-                shape->minVis = markerInfo.minVis;
-                shape->maxVis = markerInfo.maxVis;
-                shape->drawPriority = markerInfo.drawPriority;
-                shape->enable = markerInfo.enable;
-                shape->geom.push_back(smGeom);
+                    shape.setFade(curTime+markerInfo.fade, curTime);
+                shape.setVisibility(markerInfo.minVis, markerInfo.maxVis);
+                shape.setDrawPriority(markerInfo.drawPriority);
+                shape.setEnable(markerInfo.enable);
+                shape.addGeometry(smGeom);
                 screenShapes.push_back(shape);
-                markerRep->screenShapeIDs.insert(shape->getId());
+                markerRep->screenShapeIDs.insert(shape.getId());
                 
                 // Set up for the layout layer
                 if (layoutManager && marker.layoutImportance != MAXFLOAT)
                 {
-                    WhirlyKit::LayoutObject layoutObj(shape->getId());
-                    layoutObj.dispLoc = shape->worldLoc;
+                    WhirlyKit::LayoutObject layoutObj(shape.getId());
+                    layoutObj.dispLoc = shape.getWorldLoc();
                     // Note: This means they won't take up space
                     layoutObj.size = Point2f(2*width2,2*height2);
                     layoutObj.iconSize = Point2f(0.0,0.0);
@@ -328,10 +323,10 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     layoutObjects.push_back(layoutObj);
                     
                     // Start out off, let the layout layer handle the rest
-                    shape->enable = markerInfo.enable;
-                    shape->offset = Point2d(MAXFLOAT,MAXFLOAT);
+                    shape.setEnable(markerInfo.enable);
+                    shape.setOffset(Point2d(MAXFLOAT,MAXFLOAT));
                 } else
-                    shape->offset = marker.offset;
+                    shape.setOffset(marker.offset);
                 
             } else {
                 // We're sorting the static drawables by texture, so look for that
@@ -396,10 +391,10 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             // Each set of texture coordinates may be different
             std::vector<TexCoord> texCoord;
             texCoord.resize(4);
-            texCoord[0].u() = 0.0;  texCoord[0].v() = 0.0;
-            texCoord[1].u() = 1.0;  texCoord[1].v() = 0.0;
-            texCoord[2].u() = 1.0;  texCoord[2].v() = 1.0;
-            texCoord[3].u() = 0.0;  texCoord[3].v() = 1.0;
+            texCoord[3].u() = 0.0;  texCoord[3].v() = 0.0;
+            texCoord[2].u() = 1.0;  texCoord[2].v() = 0.0;
+            texCoord[1].u() = 1.0;  texCoord[1].v() = 1.0;
+            texCoord[0].u() = 0.0;  texCoord[0].v() = 1.0;
             for (unsigned int ii=0;ii<marker.texIDs.size();ii++)
             {
                 SubTexture subTex = scene->getSubTexture(marker.texIDs.at(ii));
@@ -432,9 +427,14 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
     }
     drawables.clear();
     
+    // Note: ScreenSpace
+    // This ignore layout
+    ScreenSpaceBuilder ssBuild(coordAdapter);
+    ssBuild.addScreenObjects(screenShapes);
+    ssBuild.flushChanges(changes,markerRep->drawIDs);
+    
+    // Note: ScreenSpace
     // Add all the screen space markers at once
-    if (!screenShapes.empty())
-        changes.push_back(new ScreenSpaceGeneratorAddRequest(screenGenId,screenShapes));
     screenShapes.clear();
             
     // And any layout constraints to the layout engine
@@ -505,11 +505,12 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
                 
                 if (!markerRep->screenShapeIDs.empty())
                 {
-                    std::vector<SimpleIdentity> screenIDs;
-                    for (SimpleIDSet::iterator idIt = markerRep->screenShapeIDs.begin();
-                         idIt != markerRep->screenShapeIDs.end(); ++idIt)
-                        screenIDs.push_back(*idIt);
-                    changes.push_back(new ScreenSpaceGeneratorFadeRequest(screenGenId,screenIDs,curTime, curTime+markerRep->fade));
+                    // Note: ScreenSpace
+//                    std::vector<SimpleIdentity> screenIDs;
+//                    for (SimpleIDSet::iterator idIt = markerRep->screenShapeIDs.begin();
+//                         idIt != markerRep->screenShapeIDs.end(); ++idIt)
+//                        screenIDs.push_back(*idIt);
+//                    changes.push_back(new ScreenSpaceGeneratorFadeRequest(screenGenId,screenIDs,curTime, curTime+markerRep->fade));
                 }
                 
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, markerRep->fade * NSEC_PER_SEC),

@@ -75,7 +75,6 @@
 #import "TileQuadLoader.h"
 #import "TileQuadOfflineRenderer.h"
 #import "NetworkTileQuadSource.h"
-#import "ScreenSpaceManager.h"
 #import "SceneGraphManager.h"
 #import "SphericalEarthChunkLayer.h"
 #import "SphericalEarthQuadLayer.h"
