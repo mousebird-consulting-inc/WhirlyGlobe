@@ -23,7 +23,7 @@
 #import "GlobeMath.h"
 #import "NSString+Stuff.h"
 #import "NSDictionary+Stuff.h"
-#import "ScreenSpaceManager.h"
+#import "ScreenSpaceBuilder.h"
 #import "FontTextureManager.h"
 
 #import "LabelManager.h"
@@ -314,7 +314,7 @@ void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &chan
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    SimpleIdentity screenGenId = scene->getScreenSpaceGeneratorID();
+//    SimpleIdentity screenGenId = scene->getScreenSpaceGeneratorID();
     
     pthread_mutex_lock(&labelLock);
 
@@ -332,8 +332,9 @@ void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &chan
             for (SimpleIDSet::iterator idIt = sceneRep->screenIDs.begin();
                  idIt != sceneRep->screenIDs.end(); ++idIt)
                 screenEnables.push_back(*idIt);
-            if (!screenEnables.empty())
-                changes.push_back(new ScreenSpaceGeneratorEnableRequest(screenGenId,screenEnables,enable));
+            // Note: ScreenSpace
+//            if (!screenEnables.empty())
+//                changes.push_back(new ScreenSpaceGeneratorEnableRequest(screenGenId,screenEnables,enable));
             if (sceneRep->selectID != EmptyIdentity && selectManager)
                 selectManager->enableSelectable(sceneRep->selectID, enable);
             if (!sceneRep->screenIDs.empty() && layoutManager)
@@ -370,9 +371,10 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
                      idIt != labelRep->drawIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fade));
                 
-                for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
-                     idIt != labelRep->screenIDs.end(); ++idIt)
-                    changes.push_back(new ScreenSpaceGeneratorFadeRequest(screenGenId, *idIt, curTime, curTime+labelRep->fade));
+                // Note: ScreenSpace
+//                for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
+//                     idIt != labelRep->screenIDs.end(); ++idIt)
+//                    changes.push_back(new ScreenSpaceGeneratorFadeRequest(screenGenId, *idIt, curTime, curTime+labelRep->fade));
                 
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, labelRep->fade * NSEC_PER_SEC),
                                scene->getDispatchQueue(),
@@ -393,9 +395,10 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
                 for (SimpleIDSet::iterator idIt = labelRep->texIDs.begin();
                      idIt != labelRep->texIDs.end(); ++idIt)
                     changes.push_back(new RemTextureReq(*idIt));
-                for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
-                     idIt != labelRep->screenIDs.end(); ++idIt)
-                    changes.push_back(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt));
+                // Note: ScreenSpace
+//                for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
+//                     idIt != labelRep->screenIDs.end(); ++idIt)
+//                    changes.push_back(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt));
                 for (SimpleIDSet::iterator idIt = labelRep->drawStrIDs.begin();
                      idIt != labelRep->drawStrIDs.end(); ++idIt)
                 {

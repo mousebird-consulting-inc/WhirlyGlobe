@@ -318,6 +318,8 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
 {
     if (!renderer)
         return EmptyIdentity;
+    if (!scene->getScreenSpaceGenerator())
+        return EmptyIdentity;
     
     float maxDist2 = maxDist * maxDist;
     
