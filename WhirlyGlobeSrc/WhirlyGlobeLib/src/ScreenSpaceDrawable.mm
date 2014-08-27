@@ -53,49 +53,59 @@ void ScreenSpaceDrawable::addOffset(const Point2d &offset)
     
 void ScreenSpaceDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
+    if (frameInfo.program)
+    {
+        frameInfo.program->setUniform("u_scale", Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
+    }
+
     BasicDrawable::draw(frameInfo,scene);
 }
 
 static const char *vertexShaderTri =
 "uniform mat4  u_mvpMatrix;"
 "uniform mat4  u_mvMatrix;"
-"uniform mat4  u_pMatrix;"
+"uniform mat4  u_mvNormalMatrix;"
 "uniform float u_fade;"
-"uniform float u_length;"
-"uniform float u_texScale;"
+"uniform vec2  u_scale;"
 ""
 "attribute vec3 a_position;"
+"attribute vec3 a_normal;"
 "attribute vec2 a_texCoord0;"
 "attribute vec4 a_color;"
-"attribute vec3 a_offset;"
+"attribute vec2 a_offset;"
 ""
 "varying vec2 v_texCoord;"
 "varying vec4 v_color;"
+"varying float v_dot;"
 ""
 "void main()"
 "{"
-"   v_texCoord = vec2(a_texCoord0.x, a_texCoord0.y * u_texScale);"
-"   v_color = a_color;"
-" vec4 vertPos = u_mvpMatrix * vec4(a_position,1.0);"
-" vertPos /= vertPos.w;"
-" gl_Position = vertPos + vec4(a_offset,0,0);"
+"   v_texCoord = a_texCoord0;"
+"   vec4 vertPos = u_mvpMatrix * vec4(a_position,1.0);"
+"   vertPos /= vertPos.w;"
+"   vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);"
+// Note: This seems a bit inefficient
+"   vec4 pt = u_mvMatrix * vec4(a_position,1.0);"
+"   pt /= pt.w;"
+"   v_color = a_color * u_fade;"
+"   gl_Position = dot(-pt.xyz,testNorm.xyz) > 0.0 ? vec4(vertPos.xy + vec2(a_offset.x*u_scale.x,a_offset.y*u_scale.y),0.0,1.0) : vec4(0,0,0,0);"
 "}"
 ;
 
 static const char *fragmentShaderTri =
-"precision mediump float;                            \n"
-"\n"
-"uniform sampler2D s_baseMap0;                        \n"
-"uniform bool  u_hasTexture;                         \n"
-"\n"
-"varying vec2      v_texCoord;                       \n"
-"varying vec4      v_color;                          \n"
-"\n"
-"void main()                                         \n"
-"{                                                   \n"
-"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
-"  gl_FragColor = v_color * baseColor;  \n"
-"}                                                   \n"
+"precision mediump float;"
+""
+"uniform sampler2D s_baseMap0;"
+"uniform bool  u_hasTexture;"
+""
+"varying vec2      v_texCoord;"
+"varying vec4      v_color;"
+""
+"void main()"
+"{"
+"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0);"
+"  gl_FragColor = v_color * baseColor;"
+"}"
 ;
 
 WhirlyKit::OpenGLES2Program *BuildScreenSpaceProgram()
@@ -109,7 +119,6 @@ WhirlyKit::OpenGLES2Program *BuildScreenSpaceProgram()
     
     if (shader)
         glUseProgram(shader->getProgram());
-    
     
     return shader;
 }

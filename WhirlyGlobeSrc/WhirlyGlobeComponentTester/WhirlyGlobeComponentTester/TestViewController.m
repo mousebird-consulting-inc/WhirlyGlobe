@@ -798,7 +798,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 }
 
 // Number of markers to whip up for the large test case
-static const int NumMegaMarkers = 40000;
+static const int NumMegaMarkers = 30000;
 
 // Make up a large number of markers and add them
 - (void)addMegaMarkers
@@ -813,7 +813,8 @@ static const int NumMegaMarkers = 40000;
                marker.image = image;
                marker.size = CGSizeMake(40,40);
                marker.loc = MaplyCoordinateMakeWithDegrees(drand48()*360-180, drand48()*140-70);
-               marker.layoutImportance = drand48();
+               // Note: Testing
+//               marker.layoutImportance = drand48();
                [markers addObject:marker];
            }
            dispatch_async(dispatch_get_main_queue(),
