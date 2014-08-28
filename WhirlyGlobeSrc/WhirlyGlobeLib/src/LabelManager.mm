@@ -221,6 +221,7 @@ LabelManager::~LabelManager()
     
 SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,ChangeSet &changes)
 {
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithStrs:labels desc:desc];
     
     // Set up the representation (but then hand it off)
@@ -252,16 +253,31 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
         labelRenderer.useAttributedString = !oldiOS;
         [labelRenderer render];
     }
-    
-    changes.insert(changes.end(),labelRenderer.changeRequests.begin(), labelRenderer.changeRequests.end());
-    
+
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+
+    // New drawables created for labels
+    changes.insert(changes.end(),labelRenderer.changeRequests.begin(), labelRenderer.changeRequests.end());
+
+    // Create screen shapes
+    if (!labelRenderer.screenObjects.empty())
+    {
+        ScreenSpaceBuilder ssBuild(coordAdapter,renderer.scale);
+        for (unsigned int ii=0;ii<labelRenderer.screenObjects.size();ii++)
+            ssBuild.addScreenObject(*(labelRenderer.screenObjects[ii]));
+        ssBuild.flushChanges(changes, labelRep->drawIDs);
+    }
     
-    // And any layout constraints to the layout engine
+    // Hand over some to the layout manager
     if (layoutManager && !labelRenderer.layoutObjects.empty())
+    {
+        for (unsigned int ii=0;ii<labelRenderer.layoutObjects.size();ii++)
+            labelRep->screenIDs.insert(labelRenderer.layoutObjects[ii]->getId());
         layoutManager->addLayoutObjects(labelRenderer.layoutObjects);
+    }
     
+    // Pass on selection data
     if (selectManager)
     {
         for (unsigned int ii=0;ii<labelRenderer.selectables2D.size();ii++)
@@ -327,11 +343,11 @@ void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &chan
             for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                  idIt != sceneRep->drawIDs.end(); ++idIt)
                 changes.push_back(new OnOffChangeRequest(*idIt,enable));
-            if (sceneRep->selectID != EmptyIdentity && selectManager)
-                selectManager->enableSelectable(sceneRep->selectID, enable);
             // Note: ScreenSpace
-//            if (!sceneRep->screenIDs.empty() && layoutManager)
-//                layoutManager->enableLayoutObjects(sceneRep->screenIDs,enable);
+//            if (sceneRep->selectID != EmptyIdentity && selectManager)
+//                selectManager->enableSelectable(sceneRep->selectID, enable);
+            if (!sceneRep->screenIDs.empty() && layoutManager)
+                layoutManager->enableLayoutObjects(sceneRep->screenIDs,enable);
         }
     }
     
@@ -363,11 +379,6 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
                      idIt != labelRep->drawIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fade));
                 
-                // Note: ScreenSpace
-//                for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
-//                     idIt != labelRep->screenIDs.end(); ++idIt)
-//                    changes.push_back(new ScreenSpaceGeneratorFadeRequest(screenGenId, *idIt, curTime, curTime+labelRep->fade));
-                
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, labelRep->fade * NSEC_PER_SEC),
                                scene->getDispatchQueue(),
                                ^{
@@ -394,12 +405,13 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
                         [fontTexManager removeString:*idIt changes:changes];
                 }
                 
-                if (labelRep->selectID != EmptyIdentity && selectManager)
-                    selectManager->removeSelectable(labelRep->selectID);
-
                 // Note: ScreenSpace
-//                if (layoutManager && !labelRep->screenIDs.empty())
-//                    layoutManager->removeLayoutObjects(labelRep->screenIDs);
+//                if (labelRep->selectID != EmptyIdentity && selectManager)
+//                    selectManager->removeSelectable(labelRep->selectID);
+
+                // Note: Screenspace  Doesn't handle fade
+                if (layoutManager && !labelRep->screenIDs.empty())
+                    layoutManager->removeLayoutObjects(labelRep->screenIDs);
                 
                 labelReps.erase(it);
                 delete labelRep;
