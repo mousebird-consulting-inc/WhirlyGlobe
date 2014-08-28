@@ -34,7 +34,6 @@ namespace WhirlyKit
 {
     LabelSceneRep::LabelSceneRep()
     {
-        selectID = EmptyIdentity;
     }
     
     // We use these for labels that have icons
@@ -225,6 +224,14 @@ public:
     return self;
 }
 
+- (void)dealloc
+{
+    for (unsigned int ii=0;ii<_screenObjects.size();ii++)
+        delete _screenObjects[ii];
+    for (unsigned int ii=0;ii<_layoutObjects.size();ii++)
+        delete _layoutObjects[ii];
+}
+
 - (void)render
 {
     if (_fontTexManager && _useAttributedString)
@@ -238,9 +245,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
 - (void)renderWithFonts
 {
     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-    
-    // Any screen space objects we're creating
-    std::vector<ScreenSpaceObject> screenObjects;
     
     // Drawables used for the icons
     IconDrawables iconDrawables;
@@ -288,6 +292,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
         }
         Point2d iconOff(0,0);
         ScreenSpaceObject *screenShape = NULL;
+        LayoutObject *layoutObject = NULL;
         if (attrStr && strLen > 0)
         {
             DrawableString *drawStr = [_fontTexManager addString:attrStr changes:_changeRequests];
@@ -314,23 +319,28 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     // Set if we're letting the layout engine control placement
                     bool layoutEngine = (_labelInfo.layoutEngine || [label.desc boolForKey:@"layout" default:false]);
                     
+                    if (layoutEngine)
+                    {
+                        layoutObject = new LayoutObject();
+                        screenShape = layoutObject;
+                    } else
+                        screenShape = new ScreenSpaceObject();
+                    
                     // If we're doing layout, don't justify it
                     if (layoutEngine)
                         justifyOff = Point2d(0,0);
                     
-                    ScreenSpaceObject ssObject;
-                    ssObject.setDrawPriority(_labelInfo.drawPriority);
-                    ssObject.setVisibility(_labelInfo.minVis, _labelInfo.maxVis);
-                    ssObject.setKeepUpright(label.keepUpright);
+                    screenShape->setDrawPriority(_labelInfo.drawPriority);
+                    screenShape->setVisibility(_labelInfo.minVis, _labelInfo.maxVis);
+                    screenShape->setKeepUpright(label.keepUpright);
                     
                     if (label.rotation != 0.0)
-                        ssObject.setRotation(label.rotation);
+                        screenShape->setRotation(label.rotation);
                     if (_labelInfo.fade > 0.0)
-                        ssObject.setFade(curTime+_labelInfo.fade, curTime);
+                        screenShape->setFade(curTime+_labelInfo.fade, curTime);
                     if (label.isSelectable && label.selectID != EmptyIdentity)
-                        ssObject.setId(label.selectID);
-                    _labelRep->drawIDs.insert(ssObject.getId());
-                    ssObject.setWorldLoc(_coordAdapter->localToDisplay(_coordAdapter->getCoordSystem()->geographicToLocal3d(label.loc)));
+                        screenShape->setId(label.selectID);
+                    screenShape->setWorldLoc(_coordAdapter->localToDisplay(_coordAdapter->getCoordSystem()->geographicToLocal3d(label.loc)));
 
                     // If there's an icon, we need to offset
                     float height = drawStr->mbr.ur().y()-drawStr->mbr.ll().y();
@@ -359,7 +369,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
 
                         smGeom.color = backColor;
                         // Note: This would be a great place for a texture
-                        ssObject.addGeometry(smGeom);
+                        screenShape->addGeometry(smGeom);
                     }
                     
                     // Turn the glyph polys into simple geometry
@@ -397,7 +407,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                             smGeom.texID = poly.subTex.texId;
                             smGeom.color = color;
                             poly.subTex.processTexCoords(smGeom.texCoords);
-                            ssObject.addGeometry(smGeom);
+                            screenShape->addGeometry(smGeom);
                         }
                     }
                     
@@ -408,26 +418,21 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         int layoutPlacement = [label.desc intForKey:@"layoutPlacement" default:(int)(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)];
                         
                         // Put together the layout info
-                        WhirlyKit::LayoutObject layoutObj(ssObject.getId());
-                        layoutObj.hint = label.text;
-                        layoutObj.dispLoc = ssObject.getWorldLoc();
-                        layoutObj.size = drawStr->mbr.ur() - drawStr->mbr.ll();
+                        layoutObject->hint = label.text;
+                        Point2f size = drawStr->mbr.ur() - drawStr->mbr.ll();
+                        layoutObject->size = Point2d(size.x(),size.y());
                         
 //                        layoutObj->iconSize = Point2f(iconSize,iconSize);
-                        layoutObj.importance = layoutImportance;
-                        layoutObj.minVis = _labelInfo.minVis;
-                        layoutObj.maxVis = _labelInfo.maxVis;
-                        layoutObj.acceptablePlacement = layoutPlacement;
-                        layoutObj.enable = _labelInfo.enable;
-                        layoutObj.rotation = label.rotation;
-                        layoutObj.keepUpright = label.keepUpright;
-                        _layoutObjects.push_back(layoutObj);
+                        layoutObject->importance = layoutImportance;
+                        layoutObject->acceptablePlacement = layoutPlacement;
+                        layoutObject->setEnable(_labelInfo.enable);
                         
                         // The shape starts out disabled
-                        ssObject.setEnable(_labelInfo.enable);
-                        ssObject.setOffset(Point2d(MAXFLOAT,MAXFLOAT));
-                    } else
-                        ssObject.setEnable(_labelInfo.enable);
+                        screenShape->setEnable(_labelInfo.enable);
+                        screenShape->setOffset(Point2d(MAXFLOAT,MAXFLOAT));
+                    } else {
+                        screenShape->setEnable(_labelInfo.enable);
+                    }
                     
                     // Register the main label as selectable
                     if (label.isSelectable)
@@ -448,11 +453,12 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         select2d.minVis = _labelInfo.minVis;
                         select2d.maxVis = _labelInfo.maxVis;
                         _selectables2D.push_back(select2d);
-                        _labelRep->selectID = label.selectID;
                     }
                     
-                    screenObjects.push_back(ssObject);
-                    screenShape = &screenObjects[screenObjects.size()-1];
+                    if (layoutObject)
+                        _layoutObjects.push_back(layoutObject);
+                    else if (screenShape)
+                        _screenObjects.push_back(screenShape);
                 }
             
                 delete drawStr;
@@ -521,12 +527,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
         _changeRequests.push_back(new AddDrawableReq(iconDrawable));
         _labelRep->drawIDs.insert(iconDrawable->getId());
     }
-    
-    // Note: ScreenSpace
-    // Not dealing with layout
-    ScreenSpaceBuilder ssBuild(_coordAdapter,_scale);
-    ssBuild.addScreenObjects(screenObjects);
-    ssBuild.flushChanges(_changeRequests, _labelRep->drawIDs);
 }
 
 - (void)renderWithImages
@@ -536,9 +536,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
     // Texture atlases we're building up for the labels
     std::vector<TextureAtlas *> texAtlases;
     std::vector<BasicDrawable *> drawables;
-    
-    // Screen space objects to create
-    std::vector<ScreenSpaceObject> screenObjects;
     
     // Drawables used for the icons
     IconDrawables iconDrawables;
@@ -663,11 +660,19 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
         Point3f norm;
         Point3f pts[4],iconPts[4];
         ScreenSpaceObject *screenShape = NULL;
+        LayoutObject *layoutObject = NULL;
         if (_labelInfo.screenObject)
         {
             // Set if we're letting the layout engine control placement
             bool layoutEngine = (_labelInfo.layoutEngine || [label.desc boolForKey:@"layout" default:false]);
             
+            if (layoutEngine)
+            {
+                layoutObject = new LayoutObject();
+                screenShape = layoutObject;
+            } else
+                screenShape = new ScreenSpaceObject();
+
             // Texture coordinates are a little odd because text might not take up the whole texture
             TexCoord texCoord[4];
             texCoord[3].u() = texOrg.u();  texCoord[3].v() = texDest.v();
@@ -676,16 +681,14 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
             texCoord[0].u() = texOrg.u();  texCoord[0].v() = texOrg.v();
             
             [label calcScreenExtents2:width2 height2:height2 iconSize:iconSize justify:_labelInfo.justify corners:pts iconCorners:iconPts useIconOffset:(layoutEngine == false)];
-            ScreenSpaceObject ssObject;
-            ssObject.setDrawPriority(_labelInfo.drawPriority);
-            ssObject.setVisibility(_labelInfo.minVis, _labelInfo.maxVis);
-            ssObject.setOffset(Point2d(label.screenOffset.width,label.screenOffset.height));
+            screenShape->setDrawPriority(_labelInfo.drawPriority);
+            screenShape->setVisibility(_labelInfo.minVis, _labelInfo.maxVis);
+            screenShape->setOffset(Point2d(label.screenOffset.width,label.screenOffset.height));
             if (_labelInfo.fade > 0.0)
-                ssObject.setFade(curTime+_labelInfo.fade, curTime);
+                screenShape->setFade(curTime+_labelInfo.fade, curTime);
             if (label.isSelectable && label.selectID != EmptyIdentity)
-                ssObject.setId(label.selectID);
-            _labelRep->drawIDs.insert(ssObject.getId());
-            ssObject.setWorldLoc(_coordAdapter->localToDisplay(_coordAdapter->getCoordSystem()->geographicToLocal3d(label.loc)));
+                screenShape->setId(label.selectID);
+            screenShape->setWorldLoc(_coordAdapter->localToDisplay(_coordAdapter->getCoordSystem()->geographicToLocal3d(label.loc)));
             ScreenSpaceObject::ConvexGeometry smGeom;
             smGeom.progID = _labelInfo.programID;
             for (unsigned int ii=0;ii<4;ii++)
@@ -705,7 +708,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 _labelRep->texIDs.insert(tex->getId());
             } else
                 smGeom.texID = texAtlas.texId;
-            ssObject.addGeometry(smGeom);
+            screenShape->addGeometry(smGeom);
             
             // If it's being passed to the layout engine, do that as well
             if (layoutEngine)
@@ -713,28 +716,22 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 float layoutImportance = [label.desc floatForKey:@"layoutImportance" default:_labelInfo.layoutImportance];
                 
                 // Put together the layout info
-                WhirlyKit::LayoutObject layoutObj(ssObject.getId());
-                layoutObj.dispLoc = ssObject.getWorldLoc();
-                layoutObj.size = Point2f(width2*2.0,height2*2.0);
-                layoutObj.iconSize = iconSize;
-                layoutObj.importance = layoutImportance;
-                layoutObj.minVis = _labelInfo.minVis;
-                layoutObj.maxVis = _labelInfo.maxVis;
-                layoutObj.enable = _labelInfo.enable;
-                layoutObj.rotation = label.rotation;
-                layoutObj.keepUpright = label.keepUpright;
+                layoutObject->size = Point2d(width2*2.0,height2*2.0);
+                layoutObject->iconSize = Point2d(iconSize.x(),iconSize.y());
+                layoutObject->importance = layoutImportance;
                 // Note: Should parse out acceptable placements as well
-                layoutObj.acceptablePlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow;
-                _layoutObjects.push_back(layoutObj);
+                layoutObject->acceptablePlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow;
                 
                 // The shape starts out disabled
-                ssObject.setEnable(_labelInfo.enable);
-                ssObject.setOffset(Point2d(MAXFLOAT,MAXFLOAT));
+                screenShape->setEnable(_labelInfo.enable);
+                screenShape->setOffset(Point2d(MAXFLOAT,MAXFLOAT));
             } else
-                ssObject.setEnable(_labelInfo.enable);
+                screenShape->setEnable(_labelInfo.enable);
             
-            screenObjects.push_back(ssObject);
-            screenShape = &screenObjects[screenObjects.size()-1];
+            if (layoutObject)
+                _layoutObjects.push_back(layoutObject);
+            else if (screenShape)
+                _screenObjects.push_back(screenShape);
         } else {
             // Texture coordinates are a little odd because text might not take up the whole texture
             TexCoord texCoord[4];
@@ -801,7 +798,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 select2d.minVis = _labelInfo.minVis;
                 select2d.maxVis = _labelInfo.maxVis;
                 _selectables2D.push_back(select2d);
-                _labelRep->selectID = label.selectID;
             } else {
                 RectSelectable3D select3d;
                 select3d.enable = _labelInfo.enable;
@@ -809,7 +805,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 for (unsigned int jj=0;jj<4;jj++)
                     select3d.pts[jj] = pts[jj];
                 _selectables3D.push_back(select3d);
-                _labelRep->selectID = label.selectID;
             }
         }
         
@@ -939,15 +934,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
         }
         _changeRequests.push_back(new AddDrawableReq(iconDrawable));
         _labelRep->drawIDs.insert(iconDrawable->getId());
-    }
-    
-    if (!screenObjects.empty())
-    {
-        // Note: ScreenSpace
-        // Send the screen objects to the layout engine or the scene
-        ScreenSpaceBuilder ssBuild(_coordAdapter,_scale);
-        ssBuild.addScreenObjects(screenObjects);
-        ssBuild.flushChanges(_changeRequests, _labelRep->drawIDs);
     }
 }
 

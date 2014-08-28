@@ -196,23 +196,28 @@ void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject> &screen
     {
         ScreenSpaceObject &ssObj = screenObjects[ii];
         
-        for (unsigned int ii=0;ii<ssObj.geometry.size();ii++)
+        addScreenObject(ssObj);
+    }
+}
+    
+void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
+{
+    for (unsigned int ii=0;ii<ssObj.geometry.size();ii++)
+    {
+        const ScreenSpaceObject::ConvexGeometry &geom = ssObj.geometry[ii];
+        DrawableState state = ssObj.state;
+        state.texID = geom.texID;
+        state.progID = geom.progID;
+        DrawableWrap *drawWrap = findOrAddDrawWrap(state,geom.coords.size(),geom.coords.size()-2);
+        
+        int baseVert = drawWrap->draw->getNumPoints();
+        for (unsigned int jj=0;jj<geom.coords.size();jj++)
         {
-            ScreenSpaceObject::ConvexGeometry &geom = ssObj.geometry[ii];
-            DrawableState state = ssObj.state;
-            state.texID = geom.texID;
-            state.progID = geom.progID;
-            DrawableWrap *drawWrap = findOrAddDrawWrap(state,geom.coords.size(),geom.coords.size()-2);
-
-            int baseVert = drawWrap->draw->getNumPoints();
-            for (unsigned int jj=0;jj<geom.coords.size();jj++)
-            {
-                Point2d &coord = geom.coords[jj];
-                drawWrap->addVertex(coordAdapter,scale,Point3f(ssObj.worldLoc.x(),ssObj.worldLoc.y(),ssObj.worldLoc.z()), ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], RGBAColor(255,255,255,255));
-            }
-            for (unsigned int jj=0;jj<geom.coords.size()-2;jj++)
-                drawWrap->addTri(0+baseVert, jj+1+baseVert, jj+2+baseVert);
+            Point2d coord = geom.coords[jj] + ssObj.offset;
+            drawWrap->addVertex(coordAdapter,scale,Point3f(ssObj.worldLoc.x(),ssObj.worldLoc.y(),ssObj.worldLoc.z()), ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], RGBAColor(255,255,255,255));
         }
+        for (unsigned int jj=0;jj<geom.coords.size()-2;jj++)
+            drawWrap->addTri(0+baseVert, jj+1+baseVert, jj+2+baseVert);
     }
 }
     
@@ -252,6 +257,11 @@ ScreenSpaceObject::ScreenSpaceObject::ConvexGeometry::ConvexGeometry()
     
 ScreenSpaceObject::ScreenSpaceObject()
     : enable(true), worldLoc(0,0,0), offset(0,0), rotation(0), useRotation(false), keepUpright(false)
+{
+}
+
+ScreenSpaceObject::ScreenSpaceObject(SimpleIdentity theID)
+: Identifiable(theID), enable(true), worldLoc(0,0,0), offset(0,0), rotation(0), useRotation(false), keepUpright(false)
 {
 }
 

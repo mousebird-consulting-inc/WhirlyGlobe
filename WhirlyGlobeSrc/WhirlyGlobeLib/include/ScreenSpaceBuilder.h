@@ -27,7 +27,6 @@
 #import "LayerThread.h"
 #import "TextureAtlas.h"
 #import "SelectionManager.h"
-#import "LayoutManager.h"
 #import "ScreenSpaceDrawable.h"
 #import "Scene.h"
 
@@ -84,6 +83,9 @@ public:
     /// Add a whole bunch of predefined Scene Objects
     void addScreenObjects(std::vector<ScreenSpaceObject> &screenObjects);
     
+    /// Add a single screen space object
+    void addScreenObject(const ScreenSpaceObject &screenObject);
+    
     /// Return the drawables constructed.  Caller responsible for deletion.
     void buildDrawables(std::vector<ScreenSpaceDrawable *> &draws);
     
@@ -135,9 +137,11 @@ protected:
 class ScreenSpaceObject : public Identifiable
 {
 public:
+    friend class LayoutManager;
     friend ScreenSpaceBuilder;
     
     ScreenSpaceObject();
+    ScreenSpaceObject(SimpleIdentity theId);
     virtual ~ScreenSpaceObject();
     
     /// Represents a simple set of convex geometry

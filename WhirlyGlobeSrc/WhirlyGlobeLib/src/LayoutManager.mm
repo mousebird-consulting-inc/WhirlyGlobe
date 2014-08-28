@@ -22,7 +22,6 @@
 #import "SceneRendererES2.h"
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
-#import "ScreenSpaceGenerator.h"
 
 using namespace Eigen;
 
@@ -100,15 +99,12 @@ protected:
 
 // Default constructor for layout object
 LayoutObject::LayoutObject()
-    : Identifiable(),
-        enable(true), dispLoc(0,0,0), size(0,0), iconSize(0,0), rotation(0.0), keepUpright(false), minVis(DrawVisibleInvalid),
-        maxVis(DrawVisibleInvalid), importance(MAXFLOAT), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
+    : ScreenSpaceObject(), iconSize(0,0), size(0,0), importance(MAXFLOAT), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
 {
 }    
     
-LayoutObject::LayoutObject(SimpleIdentity theId) : Identifiable(theId),
-    enable(true), dispLoc(0,0,0), size(0,0), iconSize(0,0), rotation(0.0), minVis(DrawVisibleInvalid),
-    maxVis(DrawVisibleInvalid), importance(MAXFLOAT), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
+LayoutObject::LayoutObject(SimpleIdentity theId) : ScreenSpaceObject(theId),
+    iconSize(0,0), size(0,0), importance(MAXFLOAT), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
 {
     
 }
@@ -153,7 +149,23 @@ void LayoutManager::addLayoutObjects(const std::vector<LayoutObject> &newObjects
 
     pthread_mutex_unlock(&layoutLock);
 }
+
+void LayoutManager::addLayoutObjects(const std::vector<LayoutObject *> &newObjects)
+{
+    pthread_mutex_lock(&layoutLock);
     
+    for (unsigned int ii=0;ii<newObjects.size();ii++)
+    {
+        const LayoutObject *layoutObj = newObjects[ii];
+        LayoutObjectEntry *entry = new LayoutObjectEntry(layoutObj->getId());
+        entry->obj = *(newObjects[ii]);
+        layoutObjects.insert(entry);
+    }
+    hasUpdates = true;
+    
+    pthread_mutex_unlock(&layoutLock);
+}
+
 /// Enable/disable layout objects
 void LayoutManager::enableLayoutObjects(const SimpleIDSet &theObjects,bool enable)
 {
@@ -225,10 +237,12 @@ static const int OverlapSampleY = 60;
 static const float ScreenBuffer = 0.1;
     
 // Do the actual layout logic.  We'll modify the offset and on value in place.
-void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
+bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
 {
     if (layoutObjects.empty())
-        return;
+        return false;
+    
+    bool hadChanges = false;
     
     LayoutSortingSet layoutObjs;
     
@@ -245,13 +259,15 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
             bool use = false;
             if (globeViewState)
             {
-                if (obj->obj.minVis == DrawVisibleInvalid || obj->obj.maxVis == DrawVisibleInvalid ||
-                    (obj->obj.minVis < globeViewState.heightAboveGlobe && globeViewState.heightAboveGlobe < obj->obj.maxVis))
+                if (obj->obj.state.minVis == DrawVisibleInvalid || obj->obj.state.maxVis == DrawVisibleInvalid ||
+                    (obj->obj.state.minVis < globeViewState.heightAboveGlobe && globeViewState.heightAboveGlobe < obj->obj.state.maxVis))
                     use = true;
             } else
                 use = true;
             if (use)
                 layoutObjs.insert(*it);
+            if ((use && !obj->currentEnable) || (!use && obj->currentEnable))
+                hadChanges = true;
         }
     }
     
@@ -290,7 +306,7 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
         if (isActive && globeViewState)
         {
             // Make sure this one is facing toward the viewer
-            isActive = CheckPointAndNormFacing(Vector3dToVector3f(layoutObj->obj.dispLoc),Vector3dToVector3f(layoutObj->obj.dispLoc.normalized()),fullMatrix4f,fullNormalMatrix4f) > 0.0;
+            isActive = CheckPointAndNormFacing(Vector3dToVector3f(layoutObj->obj.worldLoc),Vector3dToVector3f(layoutObj->obj.worldLoc.normalized()),fullMatrix4f,fullNormalMatrix4f) > 0.0;
         }
         
         // Figure out the rotation situation
@@ -304,7 +320,7 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
             for (unsigned int offi=0;offi<viewState.viewMatrices.size();offi++)
             {
                 Eigen::Matrix4d modelTrans = viewState.fullMatrices[offi];
-                CGPoint thisObjPt = [viewState pointOnScreenFromDisplay:layoutObj->obj.dispLoc transform:&modelTrans frameSize:frameBufferSize];
+                CGPoint thisObjPt = [viewState pointOnScreenFromDisplay:layoutObj->obj.worldLoc transform:&modelTrans frameSize:frameBufferSize];
                 if (screenMbr.inside(Point2f(thisObjPt.x,thisObjPt.y)))
                 {
                     isInside = true;
@@ -321,7 +337,7 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                 if (globeViewState)
                 {
                     Point3d simpleUp(0,0,1);
-                    norm = layoutObj->obj.dispLoc;
+                    norm = layoutObj->obj.worldLoc;
                     norm.normalize();
                     right = simpleUp.cross(norm);
                     up = norm.cross(right);
@@ -336,7 +352,7 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                 Point3d rightDir = right * sinf(layoutObj->obj.rotation);
                 Point3d upDir = up * cosf(layoutObj->obj.rotation);
                 
-                Point3d outPt = rightDir * 1.0 + upDir * 1.0 + layoutObj->obj.dispLoc;
+                Point3d outPt = rightDir * 1.0 + upDir * 1.0 + layoutObj->obj.worldLoc;
                 CGPoint outScreenPt;
                 outScreenPt = [viewState pointOnScreenFromDisplay:outPt transform:&modelTrans frameSize:frameBufferSize];
                 screenRot = M_PI/2.0-atan2f(objPt.y-outScreenPt.y,outScreenPt.x-objPt.x);
@@ -429,12 +445,17 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
         layoutObj->changed = (layoutObj->currentEnable != isActive);
         if (!layoutObj->changed && layoutObj->newEnable &&
             (layoutObj->offset.x() != objOffset.x() || layoutObj->offset.y() != objOffset.y()))
+        {
             layoutObj->changed = true;
+        }
+        hadChanges |= layoutObj->changed;
         layoutObj->newEnable = isActive;
         layoutObj->offset = objOffset;
     }
     
 //    NSLog(@"----Finished layout----");
+    
+    return hadChanges;
 }
 
 // Time we'll take to disappear objects
@@ -443,56 +464,46 @@ static float const DisappearFade = 0.1;
 // Layout all the objects we're tracking
 void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &changes)
 {
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    
     pthread_mutex_lock(&layoutLock);
 
     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
     
-    // This will recalulate the offsets and enables
-    runLayoutRules(viewState);
-    
-    std::vector<ScreenSpaceGeneratorGangChangeRequest::ShapeChange> shapeChanges;
-    changes.reserve(layoutObjects.size());
-    
-    for (LayoutEntrySet::iterator it = layoutObjects.begin();
-         it != layoutObjects.end(); ++it)
+    // This will recalculate the offsets and enables
+    // If there were any changes, we need to regenerate
+    bool layoutChanges = runLayoutRules(viewState);
+    if (hasUpdates || layoutChanges)
     {
-        LayoutObjectEntry *layoutObj = *it;
-        if (layoutObj->changed)
+        // Get rid of the last set of drawables
+        for (SimpleIDSet::iterator it = drawIDs.begin(); it != drawIDs.end(); ++it)
+            changes.push_back(new RemDrawableReq(*it));
+        drawIDs.clear();
+
+        // Generate the drawables
+        ScreenSpaceBuilder ssBuild(coordAdapter,renderer.scale);
+        for (LayoutEntrySet::iterator it = layoutObjects.begin();
+             it != layoutObjects.end(); ++it)
         {
-            // Put in the change for the main object
-            ScreenSpaceGeneratorGangChangeRequest::ShapeChange change;
-            change.shapeID = layoutObj->obj.getId();
-            if (layoutObj->newEnable)
-                change.offset = layoutObj->offset;
-            else
-                // This is a stealth enable
-                change.offset = Point2d(MAXFLOAT,MAXFLOAT);
-            // Fade in when we add them
+            LayoutObjectEntry *layoutObj = *it;
+
+            layoutObj->obj.offset = layoutObj->offset;
             if (!layoutObj->currentEnable)
             {
-                change.fadeDown = curTime;
-                change.fadeUp = curTime+DisappearFade;
+                layoutObj->obj.state.fadeDown = curTime;
+                layoutObj->obj.state.fadeUp = curTime+DisappearFade;
             }
             layoutObj->currentEnable = layoutObj->newEnable;
-            shapeChanges.push_back(change);
-            
-            // And auxiliary objects
-            for (SimpleIDSet::iterator sit = layoutObj->obj.auxIDs.begin();
-                 sit != layoutObj->obj.auxIDs.end(); ++sit)
-            {
-                ScreenSpaceGeneratorGangChangeRequest::ShapeChange change;
-                change.shapeID = *sit;
-                if (!layoutObj->currentEnable)
-                    change.offset = Point2d(MAXFLOAT,MAXFLOAT);
-                shapeChanges.push_back(change);
-            }
             
             layoutObj->changed = false;
+            
+            if (layoutObj->currentEnable)
+                ssBuild.addScreenObject(layoutObj->obj);
         }
+        
+        ssBuild.flushChanges(changes, drawIDs);
     }
     
-    if (!shapeChanges.empty())
-        changes.push_back(new ScreenSpaceGeneratorGangChangeRequest(scene->getScreenSpaceGeneratorID(),shapeChanges));
     hasUpdates = false;
     
     pthread_mutex_unlock(&layoutLock);

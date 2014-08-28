@@ -197,10 +197,10 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
     std::vector<MarkerGenerator::Marker *> markersToAdd;
     
     // Screen space markers
-    std::vector<ScreenSpaceObject> screenShapes;
+    std::vector<ScreenSpaceObject *> screenShapes;
     
     // Objects to be controlled by the layout layer
-    std::vector<LayoutObject> layoutObjects;
+    std::vector<LayoutObject *> layoutObjects;
     
     for (WhirlyKitMarker *marker in markerInfo.markers)
     {
@@ -280,6 +280,15 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             
             if (markerInfo.screenObject)
             {
+                ScreenSpaceObject *shape = NULL;
+                LayoutObject *layoutObj = NULL;
+                if (layoutManager && marker.layoutImportance != MAXFLOAT)
+                {
+                    layoutObj = new LayoutObject();
+                    shape = layoutObj;
+                } else
+                    shape = new ScreenSpaceObject();
+                
                 ScreenSpaceObject::ConvexGeometry smGeom;
                 smGeom.texID = subTex.texId;
                 smGeom.progID = markerInfo.programId;
@@ -291,43 +300,40 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     smGeom.coords.push_back(Point2d(pts[ii].x(),pts[ii].y()));
                     smGeom.texCoords.push_back(texCoord[ii]);
                 }
-                ScreenSpaceObject shape;
                 if (marker.isSelectable && marker.selectID != EmptyIdentity)
-                    shape.setId(marker.selectID);
-                shape.setWorldLoc(coordAdapter->localToDisplay(localPt));
+                    shape->setId(marker.selectID);
+                shape->setWorldLoc(coordAdapter->localToDisplay(localPt));
                 if (marker.lockRotation)
-                    shape.setRotation(marker.rotation);
+                    shape->setRotation(marker.rotation);
                 if (markerInfo.fade > 0.0)
-                    shape.setFade(curTime+markerInfo.fade, curTime);
-                shape.setVisibility(markerInfo.minVis, markerInfo.maxVis);
-                shape.setDrawPriority(markerInfo.drawPriority);
-                shape.setEnable(markerInfo.enable);
-                shape.addGeometry(smGeom);
-                screenShapes.push_back(shape);
-                markerRep->screenShapeIDs.insert(shape.getId());
+                    shape->setFade(curTime+markerInfo.fade, curTime);
+                shape->setVisibility(markerInfo.minVis, markerInfo.maxVis);
+                shape->setDrawPriority(markerInfo.drawPriority);
+                shape->setEnable(markerInfo.enable);
+                shape->addGeometry(smGeom);
+                markerRep->screenShapeIDs.insert(shape->getId());
                 
                 // Set up for the layout layer
                 if (layoutManager && marker.layoutImportance != MAXFLOAT)
                 {
-                    WhirlyKit::LayoutObject layoutObj(shape.getId());
-                    layoutObj.dispLoc = shape.getWorldLoc();
                     // Note: This means they won't take up space
-                    layoutObj.size = Point2f(2*width2,2*height2);
-                    layoutObj.iconSize = Point2f(0.0,0.0);
-                    layoutObj.importance = marker.layoutImportance;
-                    layoutObj.minVis = markerInfo.minVis;
-                    layoutObj.maxVis = markerInfo.maxVis;
+                    layoutObj->size = Point2d(2*width2,2*height2);
+                    layoutObj->iconSize = Point2d(0.0,0.0);
+                    layoutObj->importance = marker.layoutImportance;
                     // No moving it around
-                    layoutObj.acceptablePlacement = 1;
-                    layoutObj.enable = markerInfo.enable;
-                    layoutObjects.push_back(layoutObj);
+                    layoutObj->acceptablePlacement = 1;
                     
                     // Start out off, let the layout layer handle the rest
-                    shape.setEnable(markerInfo.enable);
-                    shape.setOffset(Point2d(MAXFLOAT,MAXFLOAT));
-                } else
-                    shape.setOffset(marker.offset);
+                    shape->setEnable(markerInfo.enable);
+                    shape->setOffset(Point2d(MAXFLOAT,MAXFLOAT));
+                } else {
+                    shape->setOffset(marker.offset);
+                }
                 
+                if (layoutObj)
+                    layoutObjects.push_back(layoutObj);
+                else if (shape)
+                    screenShapes.push_back(shape);
             } else {
                 // We're sorting the static drawables by texture, so look for that
                 DrawableMap::iterator it = drawables.find(subTex.texId);
@@ -427,19 +433,23 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
     }
     drawables.clear();
     
-    // Note: ScreenSpace
-    // This ignore layout
-    ScreenSpaceBuilder ssBuild(coordAdapter,renderer.scale);
-    ssBuild.addScreenObjects(screenShapes);
-    ssBuild.flushChanges(changes,markerRep->drawIDs);
+    // Add any simple 2D markers to the scene
+    if (!screenShapes.empty())
+    {
+        ScreenSpaceBuilder ssBuild(coordAdapter,renderer.scale);
+        for (unsigned int ii=0;ii<screenShapes.size();ii++)
+        {
+            ssBuild.addScreenObject(*(screenShapes[ii]));
+            delete screenShapes[ii];
+        }
+        ssBuild.flushChanges(changes, markerRep->drawIDs);
+    }
     
-    // Note: ScreenSpace
-    // Add all the screen space markers at once
-    screenShapes.clear();
-            
     // And any layout constraints to the layout engine
     if (layoutManager && !layoutObjects.empty())
         layoutManager->addLayoutObjects(layoutObjects);
+    for (unsigned int ii=0;ii<layoutObjects.size();ii++)
+        delete layoutObjects[ii];
     
     pthread_mutex_lock(&markerLock);
     markerReps.insert(markerRep);
