@@ -42,7 +42,7 @@ class ScreenSpaceObject;
 class ScreenSpaceBuilder
 {
 public:
-    ScreenSpaceBuilder(CoordSystemDisplayAdapter *coordAdapter);
+    ScreenSpaceBuilder(CoordSystemDisplayAdapter *coordAdapter,float scale);
     virtual ~ScreenSpaceBuilder();
     
     // State information we're keeping around.
@@ -61,6 +61,9 @@ public:
         int drawPriority;
         float minVis,maxVis;
     };
+    
+    /// Draw priorities can mix and match with other objects, but we probably don't want that
+    void setDrawPriorityOffset(int drawPriorityOffset);
     
     /// Set the active texture ID
     void setTexID(SimpleIdentity texID);
@@ -98,7 +101,7 @@ protected:
         // Comparison operator for set
         bool operator < (const DrawableWrap &that) const;
         
-        void addVertex(CoordSystemDisplayAdapter *coordAdapter,const Point3f &worldLoc,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color);
+        void addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color);
         void addTri(int v0,int v1,int v2);
         
         DrawableState state;
@@ -118,6 +121,8 @@ protected:
     
     DrawableWrap *findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTri);
     
+    float scale;
+    int drawPriorityOffset;
     CoordSystemDisplayAdapter *coordAdapter;
     DrawableState curState;
     DrawableWrapSet drawables;

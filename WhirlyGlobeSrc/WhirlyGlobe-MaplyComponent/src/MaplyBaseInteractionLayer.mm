@@ -657,7 +657,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:nil];
+    [self resolveShader:inDesc defaultShader:@(kToolkitDefaultScreenSpaceProgram)];
 
     // Convert to WG screen labels
     NSMutableArray *wgLabels = [NSMutableArray array];

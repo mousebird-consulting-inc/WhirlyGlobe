@@ -429,7 +429,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
     
     // Note: ScreenSpace
     // This ignore layout
-    ScreenSpaceBuilder ssBuild(coordAdapter);
+    ScreenSpaceBuilder ssBuild(coordAdapter,renderer.scale);
     ssBuild.addScreenObjects(screenShapes);
     ssBuild.flushChanges(changes,markerRep->drawIDs);
     
