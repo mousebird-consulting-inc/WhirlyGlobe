@@ -76,7 +76,6 @@ using namespace WhirlyKit;
     }
     Point3f ll;
     
-    
     switch (justify)
     {
         case WhirlyKitLabelLeft:
@@ -240,6 +239,7 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
     labelRenderer.labelRep = labelRep;
     labelRenderer.scene = scene;
     labelRenderer.fontTexManager = (labelInfo.screenObject ? fontTexManager : nil);
+    labelRenderer.scale = renderer.scale;
     
     // Can't use fancy strings on ios5 and we can't use dynamic texture atlases in a block
     bool oldiOS = [[[UIDevice currentDevice] systemVersion] floatValue] < 6.0;
@@ -314,7 +314,6 @@ void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &chan
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-//    SimpleIdentity screenGenId = scene->getScreenSpaceGeneratorID();
     
     pthread_mutex_lock(&labelLock);
 
@@ -328,17 +327,11 @@ void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &chan
             for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                  idIt != sceneRep->drawIDs.end(); ++idIt)
                 changes.push_back(new OnOffChangeRequest(*idIt,enable));
-            std::vector<SimpleIdentity> screenEnables;
-            for (SimpleIDSet::iterator idIt = sceneRep->screenIDs.begin();
-                 idIt != sceneRep->screenIDs.end(); ++idIt)
-                screenEnables.push_back(*idIt);
-            // Note: ScreenSpace
-//            if (!screenEnables.empty())
-//                changes.push_back(new ScreenSpaceGeneratorEnableRequest(screenGenId,screenEnables,enable));
             if (sceneRep->selectID != EmptyIdentity && selectManager)
                 selectManager->enableSelectable(sceneRep->selectID, enable);
-            if (!sceneRep->screenIDs.empty() && layoutManager)
-                layoutManager->enableLayoutObjects(sceneRep->screenIDs,enable);
+            // Note: ScreenSpace
+//            if (!sceneRep->screenIDs.empty() && layoutManager)
+//                layoutManager->enableLayoutObjects(sceneRep->screenIDs,enable);
         }
     }
     
@@ -350,7 +343,6 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    SimpleIdentity screenGenId = scene->getScreenSpaceGeneratorID();
     WhirlyKitFontTextureManager *fontTexManager = scene->getFontTextureManager();
     
     pthread_mutex_lock(&labelLock);
@@ -395,10 +387,6 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
                 for (SimpleIDSet::iterator idIt = labelRep->texIDs.begin();
                      idIt != labelRep->texIDs.end(); ++idIt)
                     changes.push_back(new RemTextureReq(*idIt));
-                // Note: ScreenSpace
-//                for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
-//                     idIt != labelRep->screenIDs.end(); ++idIt)
-//                    changes.push_back(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt));
                 for (SimpleIDSet::iterator idIt = labelRep->drawStrIDs.begin();
                      idIt != labelRep->drawStrIDs.end(); ++idIt)
                 {
@@ -409,8 +397,9 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
                 if (labelRep->selectID != EmptyIdentity && selectManager)
                     selectManager->removeSelectable(labelRep->selectID);
 
-                if (layoutManager && !labelRep->screenIDs.empty())
-                    layoutManager->removeLayoutObjects(labelRep->screenIDs);
+                // Note: ScreenSpace
+//                if (layoutManager && !labelRep->screenIDs.empty())
+//                    layoutManager->removeLayoutObjects(labelRep->screenIDs);
                 
                 labelReps.erase(it);
                 delete labelRep;
