@@ -48,7 +48,7 @@ public:
     SimpleIDSet texIDs;  // Textures we created for this
     SimpleIDSet drawIDs; // Drawables created for this
     SimpleIDSet drawStrIDs;  // Drawable strings created with the font manager
-    SimpleIdentity selectID;  // Selection rect
+    SimpleIDSet screenIDs;  // IDs passed to selection and layout engine
 };
 typedef std::set<LabelSceneRep *,IdentifiableSorter> LabelSceneRepSet;
     
@@ -100,8 +100,10 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic) WhirlyKit::LabelSceneRep *labelRep;
 /// Scene we're building in
 @property (nonatomic,assign) WhirlyKit::Scene *scene;
+/// Screen space objects
+@property (nonatomic,assign) std::vector<WhirlyKit::ScreenSpaceObject *> &screenObjects;
 /// Layout objects (pass these to the layout engine if you want that)
-@property (nonatomic,assign) std::vector<WhirlyKit::LayoutObject> &layoutObjects;
+@property (nonatomic,assign) std::vector<WhirlyKit::LayoutObject *> &layoutObjects;
 /// Selectable objects (3D) to pass to the selection manager
 @property (nonatomic,assign) std::vector<WhirlyKit::RectSelectable3D> &selectables3D;
 /// Selectable objects (2D) to pass to the selection manager
