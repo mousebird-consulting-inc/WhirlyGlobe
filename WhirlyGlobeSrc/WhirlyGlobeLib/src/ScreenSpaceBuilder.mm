@@ -21,12 +21,14 @@
 #import "ScreenSpaceBuilder.h"
 #import "ScreenSpaceDrawable.h"
 
+static int ScreenSpaceDrawPriorityOffset = 1000000;
+
 namespace WhirlyKit
 {
 
 ScreenSpaceBuilder::DrawableState::DrawableState()
     : texID(EmptyIdentity), progID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0),
-    drawPriority(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid)
+    drawPriority(ScreenSpaceDrawPriorityOffset), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid)
 {
 }
     
@@ -74,12 +76,13 @@ bool ScreenSpaceBuilder::DrawableWrap::operator < (const DrawableWrap &that) con
     return state < that.state;
 }
     
-void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,const Point3f &worldLoc,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color)
+void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color)
 {
     draw->addPoint(worldLoc);
     Point3f norm = coordAdapter->isFlat() ? Point3f(0,0,1) : worldLoc.normalized();
     draw->addNormal(norm);
     // Note: Rotation
+    Point2f vert = inVert * scale;
     draw->addOffset(vert);
     draw->addTexCoord(0, texCoord);
 }
@@ -92,8 +95,8 @@ void ScreenSpaceBuilder::DrawableWrap::addTri(int v0, int v1, int v2)
     draw->addTriangle(BasicDrawable::Triangle(v0,v1,v2));
 }
     
-ScreenSpaceBuilder::ScreenSpaceBuilder(CoordSystemDisplayAdapter *coordAdapter)
-    : coordAdapter(coordAdapter)
+ScreenSpaceBuilder::ScreenSpaceBuilder(CoordSystemDisplayAdapter *coordAdapter,float scale)
+    : coordAdapter(coordAdapter), scale(scale), drawPriorityOffset(ScreenSpaceDrawPriorityOffset)
 {
 }
 
@@ -121,7 +124,7 @@ void ScreenSpaceBuilder::setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown)
 
 void ScreenSpaceBuilder::setDrawPriority(int drawPriority)
 {
-    curState.drawPriority = drawPriority;
+    curState.drawPriority = ScreenSpaceDrawPriorityOffset+drawPriority;
 }
 
 void ScreenSpaceBuilder::setVisibility(float minVis,float maxVis)
@@ -166,7 +169,7 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,const Point2d *coo
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point2f coord(coords[ii].x(),coords[ii].y());
-        drawWrap->addVertex(coordAdapter,Point3f(worldLoc.x(),worldLoc.y(),worldLoc.z()), 0.0, coord, texCoords[ii], RGBAColor(255,255,255,255));
+        drawWrap->addVertex(coordAdapter,scale,Point3f(worldLoc.x(),worldLoc.y(),worldLoc.z()), 0.0, coord, texCoords[ii], RGBAColor(255,255,255,255));
     }
     drawWrap->addTri(0+baseVert,1+baseVert,2+baseVert);
     drawWrap->addTri(0+baseVert,2+baseVert,3+baseVert);
@@ -181,7 +184,7 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,double rotation,bo
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point2f coord(coords[ii].x(),coords[ii].y());
-        drawWrap->addVertex(coordAdapter,Point3f(worldLoc.x(),worldLoc.y(),worldLoc.z()), rotation, coord, texCoords[ii], RGBAColor(255,255,255,255));
+        drawWrap->addVertex(coordAdapter,scale,Point3f(worldLoc.x(),worldLoc.y(),worldLoc.z()), rotation, coord, texCoords[ii], RGBAColor(255,255,255,255));
     }
     drawWrap->addTri(0+baseVert,1+baseVert,2+baseVert);
     drawWrap->addTri(0+baseVert,2+baseVert,3+baseVert);
@@ -205,7 +208,7 @@ void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject> &screen
             for (unsigned int jj=0;jj<geom.coords.size();jj++)
             {
                 Point2d &coord = geom.coords[jj];
-                drawWrap->addVertex(coordAdapter,Point3f(ssObj.worldLoc.x(),ssObj.worldLoc.y(),ssObj.worldLoc.z()), ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], RGBAColor(255,255,255,255));
+                drawWrap->addVertex(coordAdapter,scale,Point3f(ssObj.worldLoc.x(),ssObj.worldLoc.y(),ssObj.worldLoc.z()), ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], RGBAColor(255,255,255,255));
             }
             for (unsigned int jj=0;jj<geom.coords.size()-2;jj++)
                 drawWrap->addTri(0+baseVert, jj+1+baseVert, jj+2+baseVert);
@@ -279,7 +282,7 @@ void ScreenSpaceObject::setVisibility(float minVis,float maxVis)
 
 void ScreenSpaceObject::setDrawPriority(int drawPriority)
 {
-    state.drawPriority = drawPriority;
+    state.drawPriority = ScreenSpaceDrawPriorityOffset+drawPriority;
 }
 
 void ScreenSpaceObject::setKeepUpright(bool inKeepUpright)

@@ -489,7 +489,8 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
         MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
         label.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
         label.text = [NSString stringWithFormat:@"%s",location->name];
-        label.layoutImportance = 2.0;
+        // Note: Debugging
+//        label.layoutImportance = 2.0;
         label.userObject = [NSString stringWithFormat:@"%s",location->name];
         [labels addObject:label];
     }
@@ -798,7 +799,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 }
 
 // Number of markers to whip up for the large test case
-static const int NumMegaMarkers = 30000;
+static const int NumMegaMarkers = 15000;
 
 // Make up a large number of markers and add them
 - (void)addMegaMarkers
