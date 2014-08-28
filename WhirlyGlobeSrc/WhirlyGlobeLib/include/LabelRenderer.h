@@ -48,7 +48,6 @@ public:
     SimpleIDSet texIDs;  // Textures we created for this
     SimpleIDSet drawIDs; // Drawables created for this
     SimpleIDSet drawStrIDs;  // Drawable strings created with the font manager
-    SimpleIDSet screenIDs;  // Screen space objects
     SimpleIdentity selectID;  // Selection rect
 };
 typedef std::set<LabelSceneRep *,IdentifiableSorter> LabelSceneRepSet;
@@ -79,6 +78,7 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic,assign) float outlineSize;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity shaderID;
 @property (nonatomic,assign) bool enable;
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity programID;
 
 - (id)initWithStrs:(NSArray *)inStrs desc:(NSDictionary *)desc;
 
@@ -113,6 +113,8 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic) WhirlyKitFontTextureManager *fontTexManager;
 /// Set if want to use attributed strings (we usually do)
 @property (nonatomic,assign) bool useAttributedString;
+/// Scale, if we're using that
+@property (nonatomic,assign) float scale;
 
 /// Renders the labels into a big texture and stores the resulting info
 - (void)render;
