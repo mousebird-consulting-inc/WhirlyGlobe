@@ -304,12 +304,15 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 }
 
 // Remove an image for the cache, or just decrement its reference count
-- (void)removeImageTexture:(MaplyTexture *)tex;
+- (void)removeImageTexture:(MaplyTexture *)tex changes:(ChangeSet &)changes
 {
     pthread_mutex_lock(&imageLock);
     
     // Look for an existing one
-    MaplyImageTextureSet::iterator it = imageTextures.find(tex);
+    MaplyImageTextureSet::iterator it;
+    for (it = imageTextures.begin();it!=imageTextures.end();++it)
+        if (it->maplyTex == tex)
+            break;
     if (it != imageTextures.end())
     {
         // Decrement the reference count
@@ -322,6 +325,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         } else {
             // Note: This time is a hack.  Should look at the fade out.
             [self performSelector:@selector(delayedRemoveTexture:) withObject:it->maplyTex afterDelay:2.0];
+            if (tex.texID != EmptyIdentity)
+            {
+                changes.push_back(new RemTextureReq(tex.texID));
+                tex.texID = EmptyIdentity;
+            }
             imageTextures.erase(it);
         }
     }
@@ -1773,6 +1781,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                     billManager->removeBillboards(userObj.billIDs, changes);
                 
                 // And associated textures
+                for (std::set<MaplyTexture *>::iterator it = userObj.textures.begin();
+                     it != userObj.textures.end(); ++it)
+                    [self removeImageTexture:*it changes:changes];
                 userObj.textures.clear();
 
                 // And any references to selection objects
