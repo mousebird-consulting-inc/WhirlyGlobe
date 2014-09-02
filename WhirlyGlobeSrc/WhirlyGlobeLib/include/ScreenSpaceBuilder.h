@@ -76,9 +76,9 @@ public:
     void setVisibility(float minVis,float maxVis);
 
     /// Add a single rectangle with no rotation
-    void addRectangle(const Point3d &worldLoc,const Point2d *coords,const TexCoord *texCoords);
+    void addRectangle(const Point3d &worldLoc,const Point2d *coords,const TexCoord *texCoords,const RGBAColor &color);
     /// Add a single rectangle with rotation, possibly keeping upright
-    void addRectangle(const Point3d &worldLoc,double rotation,bool keepUpright,const Point2d *coord,const TexCoord *texCoords);
+    void addRectangle(const Point3d &worldLoc,double rotation,bool keepUpright,const Point2d *coord,const TexCoord *texCoords,const RGBAColor &color);
 
     /// Add a whole bunch of predefined Scene Objects
     void addScreenObjects(std::vector<ScreenSpaceObject> &screenObjects);
