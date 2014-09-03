@@ -1025,7 +1025,12 @@ static const int NumMegaMarkers = 15000;
         layer.waitLoad = imageWaitLoad;
         layer.requireElev = requireElev;
         layer.maxTiles = 512;
-        layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        if (startupMapType == Maply2DMap)
+        {
+            layer.useTargetZoomLevel = true;
+            layer.singleLevelLoading = true;
+            layer.multiLevelLoads = @[@(-4), @(-2)];
+        }
         layer.color = [UIColor colorWithWhite:1.0 alpha:0.75];
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
