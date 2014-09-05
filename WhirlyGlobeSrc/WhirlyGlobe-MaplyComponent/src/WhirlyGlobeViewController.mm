@@ -1084,6 +1084,8 @@ using namespace WhirlyGlobe;
     if (lastOne)
     {
         [globeView cancelAnimation];
+        if ([animationDelegate respondsToSelector:@selector(globeViewControllerDidFinishAnimation:)])
+            [animationDelegate globeViewControllerDidFinishAnimation:self];
         animationDelegate = nil;
     }
 }
