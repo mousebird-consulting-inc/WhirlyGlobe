@@ -53,7 +53,10 @@ public:
             features[ii] = layer->GetFeature(ii);
             OGRFeature *feature = features[ii];
             OGREnvelope env;
-            feature->GetGeometryRef()->getEnvelope(&env);
+            OGRGeometry *geom = feature->GetGeometryRef();
+            if (!geom)
+                continue;
+            geom->getEnvelope(&env);
             mbrs[ii] = env;
             double spanX = env.MaxX - env.MinX, spanY = env.MaxY - env.MinY;
             // Note: This assumes meters-like numbers
@@ -297,7 +300,11 @@ void TransformLayer(OGRLayer *inLayer,std::vector<OGRFeature *> &inFeatures,OGRL
             {
                 OGRGeometry *geom = geoms[igeom];
                 OGREnvelope startEnv;
+                
+                if (!geom)
+                    continue;
                 geom->getEnvelope(&startEnv);
+                
                 OGRErr err = geom->transform(transform);
                 if (err != OGRERR_NONE)
                 {
