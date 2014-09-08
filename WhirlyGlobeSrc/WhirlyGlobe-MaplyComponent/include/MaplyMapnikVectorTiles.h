@@ -69,6 +69,7 @@ typedef enum {
 
 @property (nonatomic, readonly) NSArray *tileSources;
 @property (nonatomic, strong) NSObject<VectorStyleDelegate> *styleDelegate;
+@property (nonatomic, strong) NSString *accessToken;
 @property (nonatomic, assign) BOOL debugLabel;
 @property (nonatomic, assign) BOOL debugOutline;
 @property (nonatomic, assign) int minZoom,maxZoom;
