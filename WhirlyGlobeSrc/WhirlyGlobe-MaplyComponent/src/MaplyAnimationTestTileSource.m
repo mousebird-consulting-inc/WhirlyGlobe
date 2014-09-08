@@ -63,12 +63,17 @@
 static const int MaxDebugColors = 10;
 static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x4F256F, 0xD89CDE, 0x773B28, 0x333D99, 0x862D52, 0xC2C653, 0xB8583D};
 
+- (MaplyImageTile *)imageForTile:(MaplyTileID)tileID
+{
+    return [self imageForTile:tileID frame:-1];
+}
+
 - (MaplyImageTile *)imageForTile:(MaplyTileID)tileID frame:(int)frame
 {
     NSMutableArray *images = [NSMutableArray array];
     
     // Slow down for testing
-    usleep(0.215 * 1e6);
+    usleep(0.05);
     
 //    NSLog(@"Loading tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
     

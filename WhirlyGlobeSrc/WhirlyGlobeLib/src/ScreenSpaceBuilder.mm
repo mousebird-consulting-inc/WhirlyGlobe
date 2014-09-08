@@ -53,12 +53,12 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
 }
     
 ScreenSpaceBuilder::DrawableWrap::DrawableWrap()
-    : draw(NULL)
+    : draw(NULL), center(0,0,0)
 {
 }
     
 ScreenSpaceBuilder::DrawableWrap::DrawableWrap(const DrawableState &state)
-    : state(state)
+    : state(state), center(0,0,0)
 {
     draw = new ScreenSpaceDrawable();
     draw->setType(GL_TRIANGLES);
@@ -78,7 +78,7 @@ bool ScreenSpaceBuilder::DrawableWrap::operator < (const DrawableWrap &that) con
     
 void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color)
 {
-    draw->addPoint(worldLoc);
+    draw->addPoint(Point3d(worldLoc.x()-center.x(),worldLoc.y()-center.y(),worldLoc.z()-center.z()));
     Point3f norm = coordAdapter->isFlat() ? Point3f(0,0,1) : worldLoc.normalized();
     draw->addNormal(norm);
     // Note: Rotation
@@ -96,8 +96,8 @@ void ScreenSpaceBuilder::DrawableWrap::addTri(int v0, int v1, int v2)
     draw->addTriangle(BasicDrawable::Triangle(v0,v1,v2));
 }
     
-ScreenSpaceBuilder::ScreenSpaceBuilder(CoordSystemDisplayAdapter *coordAdapter,float scale)
-    : coordAdapter(coordAdapter), scale(scale), drawPriorityOffset(ScreenSpaceDrawPriorityOffset)
+ScreenSpaceBuilder::ScreenSpaceBuilder(CoordSystemDisplayAdapter *coordAdapter,float scale,float centerDist)
+    : coordAdapter(coordAdapter), scale(scale), drawPriorityOffset(ScreenSpaceDrawPriorityOffset), centerDist(centerDist)
 {
 }
 
@@ -133,8 +133,8 @@ void ScreenSpaceBuilder::setVisibility(float minVis,float maxVis)
     curState.minVis = minVis;
     curState.maxVis = maxVis;
 }
-    
-ScreenSpaceBuilder::DrawableWrap *ScreenSpaceBuilder::findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTri)
+
+ScreenSpaceBuilder::DrawableWrap *ScreenSpaceBuilder::findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTri,const Point3d &center)
 {
     // Look for an existing drawable
     DrawableWrap dummy(state);
@@ -144,6 +144,10 @@ ScreenSpaceBuilder::DrawableWrap *ScreenSpaceBuilder::findOrAddDrawWrap(const Dr
     {
         // Nope, create one
         drawWrap = new DrawableWrap(state);
+        drawWrap->center = center;
+        Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
+        Eigen::Matrix4d transMat = trans.matrix();
+        drawWrap->draw->setMatrix(&transMat);
         drawables.insert(drawWrap);
     } else {
         drawWrap = *it;
@@ -164,7 +168,7 @@ ScreenSpaceBuilder::DrawableWrap *ScreenSpaceBuilder::findOrAddDrawWrap(const Dr
     
 void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,const Point2d *coords,const TexCoord *texCoords,const RGBAColor &color)
 {
-    DrawableWrap *drawWrap = findOrAddDrawWrap(curState,4,2);
+    DrawableWrap *drawWrap = findOrAddDrawWrap(curState,4,2,worldLoc);
     
     int baseVert = drawWrap->draw->getNumPoints();
     for (unsigned int ii=0;ii<4;ii++)
@@ -178,7 +182,7 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,const Point2d *coo
 
 void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,double rotation,bool keepUpright,const Point2d *coords,const TexCoord *texCoords,const RGBAColor &color)
 {
-    DrawableWrap *drawWrap = findOrAddDrawWrap(curState,4,2);
+    DrawableWrap *drawWrap = findOrAddDrawWrap(curState,4,2,worldLoc);
     
     // Note: Do something with keepUpright
     int baseVert = drawWrap->draw->getNumPoints();
@@ -209,7 +213,7 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
         DrawableState state = ssObj.state;
         state.texID = geom.texID;
         state.progID = geom.progID;
-        DrawableWrap *drawWrap = findOrAddDrawWrap(state,geom.coords.size(),geom.coords.size()-2);
+        DrawableWrap *drawWrap = findOrAddDrawWrap(state,geom.coords.size(),geom.coords.size()-2,ssObj.worldLoc);
         
         int baseVert = drawWrap->draw->getNumPoints();
         for (unsigned int jj=0;jj<geom.coords.size();jj++)

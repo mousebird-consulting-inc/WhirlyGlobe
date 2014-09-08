@@ -53,7 +53,7 @@ public:
     virtual bool isSameAs(CoordSystem *coordSys);
         
 protected:
-    float originLon;
+    double originLon;
 };
     
 /** The Spherical Mercator Display adapter uses an origin and geo MBR
@@ -94,7 +94,7 @@ public:
     virtual bool isFlat() { return true; }    
     
 protected:
-    Point2f org,ll,ur;
+    Point2d org,ll,ur;
     SphericalMercatorCoordSystem smCoordSys;
 };
     
