@@ -68,6 +68,14 @@
   */
 - (WhirlyGlobeViewControllerAnimationState *)globeViewController:(WhirlyGlobeViewController *)viewC stateForTime:(NSTimeInterval)currentTime;
 
+@optional
+
+/** @brief This method is called at the end of the animation.
+    @details The globe view controller calls this method when the animation is finished.  Do your cleanup here if need be.
+    @param viewC The globe view controller.
+  */
+- (void)globeViewControllerDidFinishAnimation:(WhirlyGlobeViewController *)viewC;
+
 @end
 
 /** @brief Globe View Controller Delegate protocol for getting back selection and tap events.

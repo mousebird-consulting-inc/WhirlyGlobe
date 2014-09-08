@@ -212,7 +212,9 @@ static bool trackConnections = false;
             [urlReq setTimeoutInterval:_timeOut];
     } else {
         // Fetch the traditional way
-        NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,tileID.level,tileID.x,y,_ext];
+        NSMutableString *fullURLStr = [NSMutableString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,tileID.level,tileID.x,y,_ext];
+        if (_queryStr)
+            [fullURLStr appendFormat:@"?%@",_queryStr];
         urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
         if (_timeOut != 0.0)
             [urlReq setTimeoutInterval:_timeOut];
