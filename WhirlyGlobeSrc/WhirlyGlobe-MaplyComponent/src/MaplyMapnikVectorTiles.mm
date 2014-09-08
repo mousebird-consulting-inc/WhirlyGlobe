@@ -202,6 +202,19 @@ static double MAX_EXTENT = 20037508.342789244;
     return self;
 }
 
+- (void)setAccessToken:(NSString *)accessToken
+{
+    _accessToken = accessToken;
+    
+    for (MaplyRemoteTileSource *tileSource in _tileSources)
+    {
+        if ([tileSource isKindOfClass:[MaplyRemoteTileSource class]])
+        {
+            tileSource.tileInfo.queryStr = [NSString stringWithFormat:@"access_token=%@",_accessToken];
+        }
+    }
+}
+
 #pragma mark - MaplyPagingDelegate
 - (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer {
 //  NSLog(@"%@ startFetchForTile: %d/%d/%d", NSStringFromClass([self class]), tileID.level,tileID.x,tileID.y);
