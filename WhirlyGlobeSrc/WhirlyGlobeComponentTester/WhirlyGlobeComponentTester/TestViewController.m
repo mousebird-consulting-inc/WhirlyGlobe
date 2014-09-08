@@ -248,7 +248,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
         mapViewC.height = 1.0;
         [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
     }
-
+    
     // For elevation mode, we need to do some other stuff
     if (startupMapType == MaplyGlobeWithElevation)
     {
@@ -932,7 +932,7 @@ static const int NumMegaMarkers = 15000;
         // These are the Stamen Watercolor tiles.
         // They're beautiful, but the server isn't so great.
         thisCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",cacheDir];
-        int maxZoom = 10;
+        int maxZoom = 16;
         if (zoomLimit != 0 && zoomLimit < maxZoom)
             maxZoom = zoomLimit;
         MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/" ext:@"png" minZoom:0 maxZoom:maxZoom];
@@ -1204,37 +1204,67 @@ static const int NumMegaMarkers = 15000;
             {
                 self.title = @"Mapbox Vector Streets";
                 thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
-                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"http://a.tiles.mapbox.com/v3/mapbox.mapbox-streets-v4.json"
-                  style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"]
-                  cacheDir:thisCacheDir
-                     viewC:baseViewC
-                   success:
-                         ^(MaplyMapnikVectorTiles *vecTiles)
-                        {
-                            // Don't load the lowest levels for the globe
-                            if (globeViewC)
-                                vecTiles.minZoom = 5;
-                            
-                            // Note: These are set after the MapnikStyleSet has already been initialized
-                            MapnikStyleSet *styleSet = (MapnikStyleSet *)vecTiles.styleDelegate;
-                            styleSet.tileStyleSettings.markerImportance = 10.0;
-                            styleSet.tileStyleSettings.fontName = @"Gill Sans";
-                            
-                            // Now for the paging layer itself
-                            MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
-                            pageLayer.numSimultaneousFetches = 6;
-                            pageLayer.flipY = false;
-                            pageLayer.importance = 1024*1024*2;
-                            pageLayer.useTargetZoomLevel = true;
-                            pageLayer.singleLevelLoading = true;
-                            [baseViewC addLayer:pageLayer];
-                            ovlLayers[layerName] = pageLayer;
-                         }
-                   failure:
-                         ^(NSError *error){
-                             NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
-                         }
+                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithURL:@"https://b.tiles.mapbox.com/v4/mapbox.mapbox-streets-v6-dev/" ext:@"vector.pbf" minZoom:0 maxZoom:14 style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"] cacheDir:thisCacheDir viewC:baseViewC success:
+                 ^(MaplyMapnikVectorTiles *vecTiles)
+                 {
+                     // You need your own access token here
+                     vecTiles.accessToken = @"pk.eyJ1IjoibW91c2ViaXJkIiwiYSI6IlBYR1B2WVUifQ.BHURUUNbQPsbQqUj_Ej7Jw";
+                     // Don't load the lowest levels for the globe
+//                     if (globeViewC)
+//                         vecTiles.minZoom = 5;
+                     
+                     // Note: These are set after the MapnikStyleSet has already been initialized
+                     MapnikStyleSet *styleSet = (MapnikStyleSet *)vecTiles.styleDelegate;
+                     styleSet.tileStyleSettings.markerImportance = 10.0;
+                     styleSet.tileStyleSettings.fontName = @"Gill Sans";
+                     
+                     // Now for the paging layer itself
+                     MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
+                     pageLayer.numSimultaneousFetches = 6;
+                     pageLayer.flipY = false;
+                     pageLayer.importance = 1024*1024*2;
+                     pageLayer.useTargetZoomLevel = true;
+                     pageLayer.singleLevelLoading = true;
+                     [baseViewC addLayer:pageLayer];
+                     ovlLayers[layerName] = pageLayer;
+                 }
+                                                              failure:
+                 ^(NSError *error){
+                     NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
+                 }
                  ];
+                
+//                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"http://a.tiles.mapbox.com/v3/mapbox.mapbox-streets-v4.json"
+//                  style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"]
+//                  cacheDir:thisCacheDir
+//                     viewC:baseViewC
+//                   success:
+//                         ^(MaplyMapnikVectorTiles *vecTiles)
+//                        {
+//                            // Don't load the lowest levels for the globe
+//                            if (globeViewC)
+//                                vecTiles.minZoom = 5;
+//                            
+//                            // Note: These are set after the MapnikStyleSet has already been initialized
+//                            MapnikStyleSet *styleSet = (MapnikStyleSet *)vecTiles.styleDelegate;
+//                            styleSet.tileStyleSettings.markerImportance = 10.0;
+//                            styleSet.tileStyleSettings.fontName = @"Gill Sans";
+//                            
+//                            // Now for the paging layer itself
+//                            MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
+//                            pageLayer.numSimultaneousFetches = 6;
+//                            pageLayer.flipY = false;
+//                            pageLayer.importance = 1024*1024*2;
+//                            pageLayer.useTargetZoomLevel = true;
+//                            pageLayer.singleLevelLoading = true;
+//                            [baseViewC addLayer:pageLayer];
+//                            ovlLayers[layerName] = pageLayer;
+//                         }
+//                   failure:
+//                         ^(NSError *error){
+//                             NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
+//                         }
+//                 ];
             } else if (![layerName compare:kMaplyMapzenVectors])
             {
                 thisCacheDir = [NSString stringWithFormat:@"%@/mapzen-vectiles",cacheDir];

@@ -41,7 +41,7 @@ class ScreenSpaceObject;
 class ScreenSpaceBuilder
 {
 public:
-    ScreenSpaceBuilder(CoordSystemDisplayAdapter *coordAdapter,float scale);
+    ScreenSpaceBuilder(CoordSystemDisplayAdapter *coordAdapter,float scale,float centerDist=10e2);
     virtual ~ScreenSpaceBuilder();
     
     // State information we're keeping around.
@@ -106,6 +106,7 @@ protected:
         void addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color);
         void addTri(int v0,int v1,int v2);
         
+        Point3d center;
         DrawableState state;
         ScreenSpaceDrawable *draw;
     };
@@ -121,8 +122,9 @@ protected:
     
     typedef std::set<DrawableWrap *,DrawableWrapComparator> DrawableWrapSet;
     
-    DrawableWrap *findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTri);
+    DrawableWrap *findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTri,const Point3d &center);
     
+    float centerDist;
     float scale;
     int drawPriorityOffset;
     CoordSystemDisplayAdapter *coordAdapter;
