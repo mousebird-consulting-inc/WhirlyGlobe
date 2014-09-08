@@ -124,6 +124,8 @@
                                                 circleColor:subStyle->fillColor
                                                  strokeSize:settings.markerScale*subStyle->strokeWidth
                                                   strokeColor:subStyle->strokeColor];
+                if ([marker.image isKindOfClass:[NSNull class]])
+                    marker.image = nil;
             }
 
             if (marker.image) {
