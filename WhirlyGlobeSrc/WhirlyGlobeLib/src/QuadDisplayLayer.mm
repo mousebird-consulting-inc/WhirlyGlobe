@@ -651,6 +651,13 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 //    _quadtree->setLoading(tileIdent, false);
 //    _quadtree->setFailed(tileIdent, false);
     
+    // Make sure we still want this one
+    const Quadtree::NodeInfo *node = _quadtree->getNodeInfo(tileIdent);
+    if (!node)
+        return;
+    
+    _quadtree->didLoad(tileIdent,frame);
+
     // Update the parent coverage and then make those tiles phantoms if
     //  they're now fully covered
     if (!_targetLevels.empty())
@@ -662,19 +669,11 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             const Quadtree::Identifier &ident = tilesCovered[ii];
             if (!_quadtree->isPhantom(ident))
             {
-//                NSLog(@"Adding to phantom due to coverage: %d: (%d,%d)",ident.level,ident.x,ident.y);
+                //                NSLog(@"Adding to phantom due to coverage: %d: (%d,%d)",ident.level,ident.x,ident.y);
                 toPhantom.insert(ident);
             }
         }
     }
-    
-    
-    // Make sure we still want this one
-    const Quadtree::NodeInfo *node = _quadtree->getNodeInfo(tileIdent);
-    if (!node)
-        return;
-    
-    _quadtree->didLoad(tileIdent,frame);
 
     // May want to consider the children next
     if (tileIdent.level < maxZoom)
