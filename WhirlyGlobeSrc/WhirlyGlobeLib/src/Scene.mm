@@ -40,6 +40,7 @@ namespace WhirlyKit
 {
     
 Scene::Scene()
+    : ssGen(NULL)
 {
 }
     
