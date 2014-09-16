@@ -133,6 +133,7 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
             if (entry.atlas->empty())
             {
                 entry.atlas->shutdown(changes);
+                delete entry.atlas;
                 atlases.erase(entry.atlas);
             }
             
