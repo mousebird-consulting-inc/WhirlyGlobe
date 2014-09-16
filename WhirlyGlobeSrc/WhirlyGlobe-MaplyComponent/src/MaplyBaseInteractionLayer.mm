@@ -345,7 +345,6 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         if (requiresFlush)
         {
             glFlush();
-            glFinish();
             
             // If there were no changes to add we probably still want to poke the scene
             // Otherwise texture changes don't show up
@@ -387,6 +386,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     pthread_mutex_lock(&imageLock);
     
+    // Atlas textures take care of themselves via the MaplyTexture dealloc
+    
     // Look for an existing one
     MaplyImageTextureSet::iterator it;
     for (it = imageTextures.begin();it!=imageTextures.end();++it)
@@ -402,14 +403,20 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             copyTex.refCount--;
             imageTextures.insert(copyTex);
         } else {
+            // If it's associated with the view controller, it exists outside us, so we just let it clean itself up
+            //  when it gets dealloc'ed.
             // Note: This time is a hack.  Should look at the fade out.
-            [self performSelector:@selector(delayedRemoveTexture:) withObject:it->maplyTex afterDelay:2.0];
-            if (tex.texID != EmptyIdentity)
-            {
-                changes.push_back(new RemTextureReq(tex.texID));
-                tex.texID = EmptyIdentity;
+            if (it->maplyTex.viewC)
+                [self performSelector:@selector(delayedRemoveTexture:) withObject:it->maplyTex afterDelay:2.0];
+            else {
+                // If we created it in this object, we'll clean it up
+                if (tex.texID != EmptyIdentity)
+                {
+                    changes.push_back(new RemTextureReq(tex.texID));
+                    tex.texID = EmptyIdentity;
+                }
+                imageTextures.erase(it);
             }
-            imageTextures.erase(it);
         }
     }
     
