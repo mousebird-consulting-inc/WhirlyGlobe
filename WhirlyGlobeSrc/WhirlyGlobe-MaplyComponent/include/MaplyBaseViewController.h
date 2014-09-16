@@ -480,11 +480,52 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  */
 - (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
 
+/** @brief Add an image as a texture, but put it in a texture atlas.  Return a
+ @details Texture atlases consolidate a number of compatible textures, speeding up rendering of any geometry they're used on.  If you know you're going to be using a UIImage with a lot of other images in, say, a group of markers, it's wise to add it here first.
+ @details The entry in a texture atlas will be released when the MaplyTexture is released.  So keep a copy of it around if you're going to use it.
+ @param image The image we're going to put in the texture.
+ @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred if you're on the main thread.
+ @return A MaplyTexture you'll want to keep track of.  It goes out of scope, the entry in the texture atlas will be cleared.
+ */
+- (MaplyTexture *)addTextureToAtlas:(UIImage *)image mode:(MaplyThreadMode)threadMode;
+
+/** @brief Add an image as a texture, but put it in a texture atlas and return a MaplyTexture to track it.
+    @details Texture atlases consolidate a number of compatible textures, speeding up rendering of any geometry they're used on.  If you know you're going to be using a UIImage with a lot of other images in, say, a group of markers, it's wise to add it here first.
+    @details The entry in a texture atlas will be released when the MaplyTexture is released.  So keep a copy of it around if you're going to use it.
+ @param image The image we're going to put in the texture.
+ @param imageFormat If we create this image, this is the texture format we want it to use.
+ 
+ | Image Format | Description |
+ |:-------------|:------------|
+ | MaplyImageIntRGBA | 32 bit RGBA with 8 bits per channel.  The default. |
+ | MaplyImageUShort565 | 16 bits with 5/6/5 for RGB and none for A. |
+ | MaplyImageUShort4444 | 16 bits with 4 bits for each channel. |
+ | MaplyImageUShort5551 | 16 bits with 5/5/5 bits for RGB and 1 bit for A. |
+ | MaplyImageUByteRed | 8 bits, where we choose the R and ignore the rest. |
+ | MaplyImageUByteGreen | 8 bits, where we choose the G and ignore the rest. |
+ | MaplyImageUByteBlue | 8 bits, where we choose the B and ignore the rest. |
+ | MaplyImageUByteAlpha | 8 bits, where we choose the A and ignore the rest. |
+ | MaplyImageUByteRGB | 8 bits, where we average RGB for the value. |
+ | MaplyImage4Layer8Bit | 32 bits, four channels of 8 bits each.  Just like MaplyImageIntRGBA, but a warning not to do anything too clever in sampling. |
+
+ @param wrapFlags These can be MaplyImageWrapX, MaplyImageWrapY, both or none.
+
+ @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred if you're on the main thread.
+ @return A MaplyTexture you'll want to keep track of.  It goes out of scope, the entry in the texture atlas will be cleared.
+  */
+- (MaplyTexture *)addTextureToAtlas:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
+
 /** @brief Remove the OpenGL ES texture associated with the given MaplyTexture.
     @details MaplyTexture's will remove their associated OpenGL textures when they go out of scope.  This method does it expicitly and clears out the internals of the MaplyTexture.
     @details Only call this if you're managing the texture explicitly and know you're finished with them.
   */
 - (void)removeTexture:(MaplyTexture *)image mode:(MaplyThreadMode)threadMode;
+
+/** @brief Remove the OpenGL ES textures associated with the given MaplyTextures.
+    @details MaplyTextures will remove their associated OpenGL textures when they go out of scope.  This method does it expicitly and clears out the internals of the MaplyTexture.
+    @details Only call this if you're managing the texture explicitly and know you're finished with them.
+ */
+- (void)removeTextures:(NSArray *)texture mode:(MaplyThreadMode)threadMode;
 
 /** @brief Set the max number of objects for the layout engine to display.
     @details The layout engine works with screen objects, such MaplyScreenLabel and MaplyScreenMaker.  If those have layoutImportance set, this will control the maximum number we can display.

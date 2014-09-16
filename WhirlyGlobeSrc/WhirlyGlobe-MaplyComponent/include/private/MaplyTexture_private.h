@@ -28,6 +28,9 @@
 // The view controller the texture is nominally associated with
 @property (nonatomic,weak) MaplyBaseViewController *viewC;
 
+// Set if this is a sub texture reference
+@property (nonatomic) bool isSubTex;
+
 // If set, the texture ID associated with this texture
 @property (nonatomic) WhirlyKit::SimpleIdentity texID;
 
