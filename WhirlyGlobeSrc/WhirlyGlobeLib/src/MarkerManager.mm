@@ -316,8 +316,10 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                 // Set up for the layout layer
                 if (layoutManager && marker.layoutImportance != MAXFLOAT)
                 {
-                    // Note: This means they won't take up space
-                    layoutObj->size = Point2d(2*width2,2*height2);
+                    if (marker.layoutWidth >= 0.0)
+                        layoutObj->size = Point2d(marker.layoutWidth,marker.layoutHeight);
+                    else
+                        layoutObj->size = Point2d(2*width2,2*height2);
                     layoutObj->iconSize = Point2d(0.0,0.0);
                     layoutObj->importance = marker.layoutImportance;
                     // No moving it around
