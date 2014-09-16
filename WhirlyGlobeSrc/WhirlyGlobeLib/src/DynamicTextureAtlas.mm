@@ -503,6 +503,11 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &chan
     }
 }
     
+bool DynamicTextureAtlas::empty()
+{
+    return textures.empty();
+}
+    
 void DynamicTextureAtlas::cleanup(ChangeSet &changes)
 {
     DynamicTextureSet::iterator itNext;

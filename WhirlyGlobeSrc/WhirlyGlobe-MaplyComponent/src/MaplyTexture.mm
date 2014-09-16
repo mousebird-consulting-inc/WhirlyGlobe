@@ -25,13 +25,40 @@ using namespace WhirlyKit;
 
 @implementation MaplyTexture
 
+- (id)init
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _isSubTex = false;
+    _texID = EmptyIdentity;
+    
+    return self;
+}
+
 - (void)clear
 {
     if (_viewC && _viewC->scene && _texID != EmptyIdentity)
     {
-        _viewC->scene->addChangeRequest(new RemTextureReq(_texID));
-        _viewC = nil;
-        _texID = EmptyIdentity;
+        if (_isSubTex)
+        {
+            if (_viewC->interactLayer)
+            {
+                ChangeSet changes;
+                [_viewC->interactLayer->atlasGroup removeTexture:_texID changes:changes];
+                if (_viewC->scene)
+                {
+                    _viewC->scene->addChangeRequests(changes);
+                    _viewC->scene->removeSubTexture(_texID);
+                }
+            }
+        } else {
+            if (_viewC->scene)
+                _viewC->scene->addChangeRequest(new RemTextureReq(_texID));
+            _viewC = nil;
+            _texID = EmptyIdentity;
+        }
     }
 }
 

@@ -181,6 +181,13 @@ public:
     /// Return the IDs for the dynamic textures we're using
     void getTextureIDs(std::vector<SimpleIdentity> &texIDs,int which);
     
+    /// Return the dynamic texture's format
+    GLenum getFormat() { return format; }
+    
+    /// Check if the dynamic texture atlas is empty.
+    /// Call cleanup() first
+    bool empty();
+    
     /// Look for any textures that should be cleaned up
     void cleanup(ChangeSet &changes);
 

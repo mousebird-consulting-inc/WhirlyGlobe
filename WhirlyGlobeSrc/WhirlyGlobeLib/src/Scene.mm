@@ -405,6 +405,16 @@ void Scene::addSubTextures(const std::vector<SubTexture> &subTexes)
     subTextureMap.insert(subTexes.begin(),subTexes.end());
     pthread_mutex_unlock(&subTexLock);
 }
+    
+void Scene::removeSubTexture(SimpleIdentity subTexID)
+{
+    pthread_mutex_lock(&subTexLock);
+    SubTexture dumbTex(subTexID);
+    SubTextureSet::iterator it = subTextureMap.find(dumbTex);
+    if (it != subTextureMap.end())
+        subTextureMap.erase(it);
+    pthread_mutex_unlock(&subTexLock);
+}
 
 // Look for a sub texture by ID
 SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
