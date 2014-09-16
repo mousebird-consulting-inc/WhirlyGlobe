@@ -569,6 +569,14 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             wgMarker.selectID = Identifiable::genId();
         }
         wgMarker.layoutImportance = marker.layoutImportance;
+        if (marker.layoutSize.width >= 0.0)
+        {
+            wgMarker.layoutWidth = marker.layoutSize.width;
+            wgMarker.layoutHeight = marker.layoutSize.height;
+        } else {
+            wgMarker.layoutWidth = wgMarker.width;
+            wgMarker.layoutHeight = wgMarker.height;
+        }
         wgMarker.offset = Point2d(marker.offset.x,marker.offset.y);
         
         [wgMarkers addObject:wgMarker];

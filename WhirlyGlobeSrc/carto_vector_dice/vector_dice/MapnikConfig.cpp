@@ -574,7 +574,7 @@ MapnikConfig::SortedLayer::SortedLayer(MapnikConfig *mapnikConfig,const Layer &l
 }
 
 MapnikConfig::MapnikConfig() :
-    paramEl(NULL)
+    paramEl(NULL), defaultGeomType(Symbolizer::TileGeomAdd)
 {
 }
 
