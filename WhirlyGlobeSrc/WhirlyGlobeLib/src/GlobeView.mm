@@ -49,9 +49,9 @@ using namespace Eigen;
        	defaultNearPlane = super.nearPlane;
        	defaultFarPlane = super.farPlane;
        	// This will get you down to r17 in the usual tile sets
-       	absoluteMinNearPlane = 0.00001;
+       	absoluteMinNearPlane = 0.0000005;
        	absoluteMinFarPlane = 0.001;
-       	absoluteMinHeight = 0.00005;
+       	absoluteMinHeight = 0.000001;
        	heightInflection = 0.011;
 		self.heightAboveGlobe = 1.1;
        	_tilt = 0.0;
