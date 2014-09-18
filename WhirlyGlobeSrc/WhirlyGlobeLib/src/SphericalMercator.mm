@@ -50,7 +50,16 @@ GeoCoord SphericalMercatorCoordSystem::localToGeographic(Point3d pt)
     
     return coord;    
 }
+
+Point2d SphericalMercatorCoordSystem::localToGeographicD(Point3d pt)
+{
+    Point2d coord;
+    coord.x() = pt.x() + originLon;
+    coord.y() = atan(sinh(pt.y()));
     
+    return coord;
+}
+
 /// Convert from lat/lon t the local coordinate system
 Point3f SphericalMercatorCoordSystem::geographicToLocal(GeoCoord geo)
 {
@@ -70,6 +79,19 @@ Point3d SphericalMercatorCoordSystem::geographicToLocal3d(GeoCoord geo)
     Point3d coord;
     coord.x() = geo.lon() - originLon;
     float lat = geo.lat();
+    if (lat < -PoleLimit) lat = -PoleLimit;
+    if (lat > PoleLimit) lat = PoleLimit;
+    coord.y() = log((1.0f+sin(lat))/cos(lat));
+    coord.z() = 0.0;
+    
+    return coord;    
+}
+
+Point3d SphericalMercatorCoordSystem::geographicToLocal(Point2d geo)
+{
+    Point3d coord;
+    coord.x() = geo.x() - originLon;
+    float lat = geo.y();
     if (lat < -PoleLimit) lat = -PoleLimit;
     if (lat > PoleLimit) lat = PoleLimit;
     coord.y() = log((1.0f+sin(lat))/cos(lat));

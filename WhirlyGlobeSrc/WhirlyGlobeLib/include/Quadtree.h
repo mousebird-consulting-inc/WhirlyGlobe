@@ -200,6 +200,9 @@ public:
     /// Generate an MBR for the given node identifier
     Mbr generateMbrForNode(const Identifier &ident);
     
+    /// Generate a bounding box for a given node ID in 64 bit precision
+    void generateMbrForNode(const Identifier &ident,Point2d &ll,Point2d &ur);
+    
     /// Fetch the least important (smallest) node currently loaded.
     /// Returns false if there wasn't one
     bool leastImportantNode(NodeInfo &nodeInfo,bool force=false);
