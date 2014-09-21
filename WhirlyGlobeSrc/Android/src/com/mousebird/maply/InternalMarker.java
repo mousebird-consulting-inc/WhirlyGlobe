@@ -49,6 +49,7 @@ class InternalMarker
 		setHeight(marker.size.getX());
 		setWidth(marker.size.getY());
 		setOffset(marker.offset);
+		setLayoutImportance(Float.MAX_VALUE);
 	}
 	
 	public void finalize()

@@ -29,7 +29,7 @@ import android.graphics.Bitmap;
 public class NamedBitmap 
 {
 	/**
-	 * Construct with the name, which should be unqiue, and the bitmap
+	 * Construct with the name, which should be unique, and the bitmap
 	 * to use for the texture.
 	 * 
 	 * @param inName Name of the bitmap.  Probably the filename or resource name.
@@ -42,5 +42,5 @@ public class NamedBitmap
 	}
 		
 	String name;
-	Bitmap bitmap;
+	public Bitmap bitmap;
 }

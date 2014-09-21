@@ -53,7 +53,7 @@ public class ScreenMarker
 	public NamedBitmap image = null;
 
 	/**
-	 * Background color for a marker can be overriden at this level.
+	 * Background color for a marker can be overridden at this level.
 	 */
 	public int color = 0xFFFFFFFF;
 	
