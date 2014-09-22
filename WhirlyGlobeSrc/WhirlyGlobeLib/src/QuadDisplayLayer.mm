@@ -113,6 +113,7 @@ using namespace WhirlyKit;
 
     if (_quadtree)
         delete _quadtree;
+    _quadtree = NULL;
 }
 
 - (void)setMaxTiles:(int)newMaxTiles
