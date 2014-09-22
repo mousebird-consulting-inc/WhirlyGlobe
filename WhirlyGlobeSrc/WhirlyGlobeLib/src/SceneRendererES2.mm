@@ -37,11 +37,11 @@ namespace WhirlyKit
 class DrawableContainer
 {
 public:
-    DrawableContainer(Drawable *draw) : drawable(draw) { mat = mat.Identity(); }
-    DrawableContainer(Drawable *draw,Matrix4d mat) : drawable(draw), mat(mat) { }
+    DrawableContainer(Drawable *draw) : drawable(draw) { mvpMat = mvpMat.Identity(); mvMat = mvMat.Identity();  mvNormalMat = mvNormalMat.Identity(); }
+    DrawableContainer(Drawable *draw,Matrix4d mvpMat,Matrix4d mvMat,Matrix4d mvNormalMat) : drawable(draw), mvpMat(mvpMat), mvMat(mvMat), mvNormalMat(mvNormalMat) { }
     
     Drawable *drawable;
-    Matrix4d mat;
+    Matrix4d mvpMat,mvMat,mvNormalMat;
 };
 
 // Alpha stuff goes at the end
@@ -354,7 +354,8 @@ static const float ScreenOverlap = 0.1;
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
     Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
-    Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
+    Eigen::Matrix4d modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
+    Eigen::Matrix4f modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
 
     switch (super.zBufferMode)
     {
@@ -497,7 +498,8 @@ static const float ScreenOverlap = 0.1;
             modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
             mvpMats[off] = projMat4d * modelAndViewMat4d;
             mvpMats4f[off] = Matrix4dToMatrix4f(mvpMats[off]);
-            modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
+            modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
+            modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
             Matrix4d &thisMvpMat = mvpMats[off];
             offFrameInfo.mvpMat = mvpMats4f[off];
             offFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
@@ -529,9 +531,11 @@ static const float ScreenOverlap = 0.1;
                         if (localMat)
                         {
                             Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
-                            drawList.push_back(DrawableContainer(theDrawable,newMvpMat));
+                            Eigen::Matrix4d newMvMat = viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
+                            Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
+                            drawList.push_back(DrawableContainer(theDrawable,newMvpMat,newMvMat,newMvNormalMat));
                         } else
-                            drawList.push_back(DrawableContainer(theDrawable,thisMvpMat));
+                            drawList.push_back(DrawableContainer(theDrawable,thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d));
                     } else
                         NSLog(@"Bad drawable coming from cull tree.");
                 }
@@ -547,9 +551,11 @@ static const float ScreenOverlap = 0.1;
                         if (localMat)
                         {
                             Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
-                            drawList.push_back(DrawableContainer(theDrawable,newMvpMat));
+                            Eigen::Matrix4d newMvMat = viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
+                            Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
+                            drawList.push_back(DrawableContainer(theDrawable,newMvpMat,newMvMat,newMvNormalMat));
                         } else
-                            drawList.push_back(DrawableContainer(theDrawable,thisMvpMat));
+                            drawList.push_back(DrawableContainer(theDrawable,thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d));
                     }
                 }
             }
@@ -577,7 +583,7 @@ static const float ScreenOverlap = 0.1;
                 {
                     Drawable *theDrawable = generatedDrawables[ii].get();
                     if (theDrawable)
-                        drawList.push_back(DrawableContainer(theDrawable,thisMvpMat));
+                        drawList.push_back(DrawableContainer(theDrawable,thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d));
                 }
                 bool sortLinesToEnd = (super.zBufferMode == zBufferOffDefault);
                 std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(super.sortAlphaToEnd,sortLinesToEnd,baseFrameInfo));
@@ -634,19 +640,14 @@ static const float ScreenOverlap = 0.1;
                 else
                     [renderStateOptimizer setDepthMask:GL_FALSE];
             }
-            
-            // Transform to use
-            Matrix4f currentMvpMat = Matrix4dToMatrix4f(drawContain.mat);
-            
-            // If it has a local transform, apply that
-//            const Matrix4d *localMat = drawContain.drawable->getMatrix();
-//            if (localMat)
-//            {
-//                Eigen::Matrix4d newMvpMat = projMat4d * (viewTrans4d * (modelTrans4d * (*localMat)));
-//                Eigen::Matrix4f newMvpMat4f = Matrix4dToMatrix4f(newMvpMat);
-//                currentMvpMat = newMvpMat4f;
-//            }
+
+            // Set up transforms to use right now
+            Matrix4f currentMvpMat = Matrix4dToMatrix4f(drawContain.mvpMat);
+            Matrix4f currentMvMat = Matrix4dToMatrix4f(drawContain.mvMat);
+            Matrix4f currentMvNormalMat = Matrix4dToMatrix4f(drawContain.mvNormalMat);
             baseFrameInfo.mvpMat = currentMvpMat;
+            baseFrameInfo.viewAndModelMat = currentMvMat;
+            baseFrameInfo.viewModelNormalMat = currentMvNormalMat;
             
             // Figure out the program to use for drawing
             SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
