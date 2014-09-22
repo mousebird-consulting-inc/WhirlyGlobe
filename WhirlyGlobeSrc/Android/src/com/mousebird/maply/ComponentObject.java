@@ -48,6 +48,14 @@ public class ComponentObject
 		return ids;
 	}
 	
+	// Track selection IDs associated with this object
+	void addSelectID(long id)
+	{
+		if (selectIDs == null)
+			selectIDs = new ArrayList<Long>();
+		selectIDs.add(id);
+	}
+	
 	// Track the given texture ID as belonging to us
 	void addTexID(long id)
 	{
@@ -114,11 +122,14 @@ public class ComponentObject
 				control.texManager.removeTexture(texID, changes);
 	}
 	
+	// Selection IDs associated with this object
+	protected ArrayList<Long> selectIDs = null;
+	
 	// Textures in use by this object
-	private ArrayList<Long> texIDs;
+	private ArrayList<Long> texIDs = null;
 
 	// Various render-side object types we're representing
-	private ArrayList<Long> markerIDs;
-	private ArrayList<Long> vectorIDs;
-	private ArrayList<Long> labelIDs;
+	private ArrayList<Long> markerIDs = null;
+	private ArrayList<Long> vectorIDs = null;
+	private ArrayList<Long> labelIDs = null;
 }

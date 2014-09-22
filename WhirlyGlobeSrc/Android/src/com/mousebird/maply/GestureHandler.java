@@ -20,6 +20,7 @@
 
 package com.mousebird.maply;
 
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -274,8 +275,10 @@ public class GestureHandler
 		}
 
 		@Override
-		public boolean onSingleTapConfirmed(MotionEvent e) {
-			return false;
+		public boolean onSingleTapConfirmed(MotionEvent e) 
+		{
+			mapControl.processTap(new Point2d(e.getX(),e.getY()));
+			return true;
 		}
 
 		// Zoom in on double tap

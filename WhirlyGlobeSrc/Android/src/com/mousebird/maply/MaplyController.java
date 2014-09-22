@@ -21,7 +21,9 @@
 package com.mousebird.maply;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.app.*;
 import android.content.Context;
@@ -50,6 +52,39 @@ public class MaplyController implements View.OnTouchListener
 {	
 	private GLSurfaceView glSurfaceView;
 	Activity activity = null;
+
+	/**
+	 * Use this delegate when you want user interface feedback from the maply controller.
+	 * 
+	 * @author sjg
+	 *
+	 */
+	public interface GestureDelegate
+	{
+		/**
+		 * The user selected the given object.  Up to you to figure out what it is.
+		 * 
+		 * @param mapControl The maply controller this is associated with.
+		 * @param selObj The object the user selected (e.g. MaplyScreenMarker).
+		 * @param loc The location they tapped on.  This is in radians.
+		 * @param screenLoc The location on the OpenGL surface.
+		 */
+		void userDidSelect(MaplyController mapControl,Object selObj,Point2d loc,Point2d screenLoc);
+		
+		/**
+		 * The user tapped somewhere, but not on a selectable object.
+		 * 
+		 * @param mapControl The maply controller this is associated with.
+		 * @param loc The location they tapped on.  This is in radians.
+		 * @param screenLoc The location on the OpenGL surface.
+		 */
+		void userDidTap(MaplyController mapControl,Point2d loc,Point2d screenLoc);
+	}
+
+	/**
+	 * Set the gesture delegate to get callbacks when the user taps somewhere.
+	 */
+	public GestureDelegate gestureDelegate = null;
 	
 	// When adding features we can run on the current thread or delay the work till layter
 	public enum ThreadMode {ThreadCurrent,ThreadAny};
@@ -84,6 +119,7 @@ public class MaplyController implements View.OnTouchListener
 	VectorManager vecManager;
 	MarkerManager markerManager;
 	LabelManager labelManager;
+	SelectionManager selectionManager;
 	LayoutManager layoutManager;
 	LayoutLayer layoutLayer = null;
 	
@@ -135,6 +171,7 @@ public class MaplyController implements View.OnTouchListener
 		markerManager = new MarkerManager(mapScene);
 		labelManager = new LabelManager(mapScene);
 		layoutManager = new LayoutManager(mapScene);
+		selectionManager = new SelectionManager(mapScene);
 
 		// Now for the object that kicks off the rendering
 		renderWrapper = new RendererWrapper(this);
@@ -179,6 +216,33 @@ public class MaplyController implements View.OnTouchListener
         }   
         
 		running = true;
+	}
+	
+	// Called by the gesture handler to let us know the user tapped
+	public void processTap(Point2d screenLoc)
+	{
+		if (gestureDelegate != null)
+		{
+			Matrix4d mapTransform = mapView.calcModelViewMatrix();
+			Point3d loc = mapView.pointOnPlaneFromScreen(screenLoc, mapTransform, renderWrapper.maplyRender.frameSize, false);
+			
+			// Look for a selection first
+			long selectID = selectionManager.pickObject(mapView, screenLoc);
+			if (selectID != EmptyIdentity)
+			{
+				// Look for the object
+				Object selObj = null;
+				synchronized(selectionMap)
+				{
+					selObj = selectionMap.get(selectID);
+				}
+				
+				// Let the delegate know the user selected something
+				gestureDelegate.userDidSelect(this, selObj, loc.toPoint2d(), screenLoc);
+			} else 
+				// Just a simple tap, then
+				gestureDelegate.userDidTap(this, loc.toPoint2d(), screenLoc);
+		}
 	}
 	
 	/**
@@ -424,8 +488,14 @@ public class MaplyController implements View.OnTouchListener
 						intMarker.addTexID(texID);
 					
 					intMarkers.add(intMarker);
+					
+					// Keep track of this one for selection
+					if (marker.selectable)
+					{
+						addSelectableObject(marker.ident,marker,compObj);
+					}
 				}
-						
+
 				// Add the markers and flush the changes
 				long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
 				mapScene.addChanges(changes);
@@ -440,6 +510,31 @@ public class MaplyController implements View.OnTouchListener
 		addTask(run,mode);
 
 		return compObj;
+	}
+	
+	Map<Long, Object> selectionMap = new HashMap<Long, Object>();
+	
+	// Add selectable objects to the list
+	private void addSelectableObject(long selectID,Object selObj,ComponentObject compObj)
+	{
+		synchronized(selectionMap)
+		{
+			compObj.addSelectID(selectID);
+			selectionMap.put(selectID,selObj);
+		}
+	}
+	
+	// Remove selectable objects
+	private void removeSelectableObjects(ComponentObject compObj)
+	{
+		if (compObj.selectIDs != null)
+		{
+			synchronized(selectionMap)
+			{
+				for (long selectID : compObj.selectIDs)
+					selectionMap.remove(selectID);
+			}
+		}
 	}
 
 	/**
@@ -607,7 +702,10 @@ public class MaplyController implements View.OnTouchListener
 			{
 				ChangeSet changes = new ChangeSet();
 				for (ComponentObject compObj : compObjs)
+				{
 					compObj.clear(control, changes);
+					removeSelectableObjects(compObj);
+				}
 				mapScene.addChanges(changes);
 			}
 		};

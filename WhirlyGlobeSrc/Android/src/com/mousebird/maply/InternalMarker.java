@@ -49,7 +49,10 @@ class InternalMarker
 		setWidth(marker.size.getX());
 		setHeight(marker.size.getY());
 		setOffset(marker.offset);
-		setLayoutImportance(Float.MAX_VALUE);
+		setLayoutImportance(marker.layoutImportance);
+		setSelectable(marker.selectable);
+		if (marker.selectable)
+			setSelectID(marker.ident);
 	}
 	
 	public void finalize()
