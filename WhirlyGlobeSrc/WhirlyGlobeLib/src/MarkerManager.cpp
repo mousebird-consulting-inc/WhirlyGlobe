@@ -257,6 +257,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                 smGeom.color = markerInfo.color;
                 if (marker->colorSet)
                     smGeom.color = marker->color;
+                
                 for (unsigned int ii=0;ii<4;ii++)
                 {
                     smGeom.coords.push_back(Point2d(pts[ii].x(),pts[ii].y()));
