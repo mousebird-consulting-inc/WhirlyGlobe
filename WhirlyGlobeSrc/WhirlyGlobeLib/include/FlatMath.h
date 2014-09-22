@@ -34,9 +34,11 @@ public:
     /// Convert from the local coordinate system to lat/lon
     GeoCoord localToGeographic(Point3f);
     GeoCoord localToGeographic(Point3d);
+    Point2d localToGeographicD(Point3d);
     /// Convert from lat/lon t the local coordinate system
     Point3f geographicToLocal(GeoCoord);
     Point3d geographicToLocal3d(GeoCoord);
+    Point3d geographicToLocal(Point2d);
 
     /// Convert from local coordinates to WGS84 geocentric
     Point3f localToGeocentric(Point3f);

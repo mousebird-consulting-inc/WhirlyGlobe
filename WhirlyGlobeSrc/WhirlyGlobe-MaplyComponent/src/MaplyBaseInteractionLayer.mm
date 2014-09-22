@@ -1054,7 +1054,16 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     // If the vectors are selectable we want to keep them around
     id selVal = inDesc[@"selectable"];
     if (selVal && [selVal boolValue])
+    {
+        if ([inDesc[kMaplyVecCentered] boolValue])
+        {
+            if (inDesc[kMaplyVecCenterX])
+                compObj.vectorOffset.x() = [inDesc[kMaplyVecCenterX] doubleValue];
+            if (inDesc[kMaplyVecCenterY])
+                compObj.vectorOffset.y() = [inDesc[kMaplyVecCenterY] doubleValue];
+        }
         compObj.vectors = vectors;
+    }
     
     pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
@@ -2079,8 +2088,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                 {
                     // Note: Take visibility into account too
                     MaplyCoordinate coord;
-                    coord.x = pt.x();
-                    coord.y = pt.y();
+                    coord.x = pt.x()-userObj.vectorOffset.x();
+                    coord.y = pt.y()-userObj.vectorOffset.y();
                     if ([vecObj pointInAreal:coord])
                     {
                         selObj = vecObj;
