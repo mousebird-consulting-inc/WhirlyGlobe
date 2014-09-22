@@ -46,6 +46,8 @@ Scene::Scene()
     
 void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth)
 {
+    ssGen = NULL;
+    
     pthread_mutex_init(&coordAdapterLock,NULL);
     coordAdapter = adapter;
     cullTree = new CullTree(adapter,localMbr,depth);
