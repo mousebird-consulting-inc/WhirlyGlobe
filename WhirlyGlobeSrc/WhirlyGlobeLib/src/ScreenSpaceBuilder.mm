@@ -150,11 +150,10 @@ ScreenSpaceBuilder::DrawableWrap *ScreenSpaceBuilder::findOrAddDrawWrap(const Dr
     {
         // Nope, create one
         drawWrap = new DrawableWrap(state);
-        // Note: Centers are causing problems with the back facing logic
-//        drawWrap->center = center;
-//        Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
-//        Eigen::Matrix4d transMat = trans.matrix();
-//        drawWrap->draw->setMatrix(&transMat);
+        drawWrap->center = center;
+        Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
+        Eigen::Matrix4d transMat = trans.matrix();
+        drawWrap->draw->setMatrix(&transMat);
         drawables.insert(drawWrap);
     } else {
         drawWrap = *it;
