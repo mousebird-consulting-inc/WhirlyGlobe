@@ -41,7 +41,7 @@ public class MaplyTileID implements Comparable<MaplyTileID>
 	 * @param inY Vertical tile
 	 * @param inLevel Level in the quad tree.
 	 */
-	MaplyTileID(int inX,int inY,int inLevel)
+	public MaplyTileID(int inX,int inY,int inLevel)
 	{
 		x = inX;
 		y = inY;

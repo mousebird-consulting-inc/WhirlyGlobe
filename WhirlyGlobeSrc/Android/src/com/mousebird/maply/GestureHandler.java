@@ -20,7 +20,6 @@
 
 package com.mousebird.maply;
 
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;

@@ -336,7 +336,7 @@ public class MaplyController implements View.OnTouchListener
 	 * @param ll Lower left corner.
 	 * @param ur Upper right corner.
 	 */
-	void setViewExtents(Point2d ll,Point2d ur)
+	public void setViewExtents(Point2d ll,Point2d ur)
 	{
 		CoordSystemDisplayAdapter coordAdapter = mapView.getCoordAdapter();
 		CoordSystem coordSys = coordAdapter.getCoordSystem();
@@ -346,6 +346,134 @@ public class MaplyController implements View.OnTouchListener
 		viewBounds[1] = coordAdapter.localToDisplay(coordSys.geographicToLocal(new Point3d(ur.getX(),ll.getY(),0.0))).toPoint2d();
 		viewBounds[2] = coordAdapter.localToDisplay(coordSys.geographicToLocal(new Point3d(ur.getX(),ur.getY(),0.0))).toPoint2d();
 		viewBounds[3] = coordAdapter.localToDisplay(coordSys.geographicToLocal(new Point3d(ll.getX(),ur.getY(),0.0))).toPoint2d();
+	}
+	
+	// Convert a geo coord to a screen point
+	private Point2d screenPointFromGeo(MapView theMapView,Point2d geoCoord)
+	{
+		CoordSystemDisplayAdapter coordAdapter = theMapView.getCoordAdapter();
+		CoordSystem coordSys = coordAdapter.getCoordSystem();
+		Point3d localPt = coordSys.geographicToLocal(new Point3d(geoCoord.getX(),geoCoord.getY(),0.0));
+		Point3d dispPt = coordAdapter.localToDisplay(localPt);
+		
+		Matrix4d modelMat = theMapView.calcModelViewMatrix();
+		return theMapView.pointOnScreenFromPlane(dispPt, modelMat, renderWrapper.maplyRender.frameSize);
+	}
+	
+	/**
+	 * Return the screen coordinate for a given geographic coordinate (in radians).
+	 * 
+	 * @param geoCoord Geographic coordinate to convert (in radians).
+	 * @return Screen coordinate.
+	 */
+	public Point2d screenPointFromGeo(Point2d geoCoord)
+	{
+		return screenPointFromGeo(mapView,geoCoord);
+	}
+	
+	/**
+	 * Return the geographic point (radians) corresponding to the screen point.
+	 * 
+	 * @param screenPt Input point on the screen.
+	 * @return The geographic coordinate (radians) corresponding to the screen point.
+	 */
+	public Point2d geoPointFromScreen(Point2d screenPt)
+	{
+		CoordSystemDisplayAdapter coordAdapter = mapView.getCoordAdapter();
+		CoordSystem coordSys = coordAdapter.getCoordSystem();
+		
+		Matrix4d modelMat = mapView.calcModelViewMatrix();
+		Point3d dispPt = mapView.pointOnPlaneFromScreen(screenPt, modelMat, renderWrapper.maplyRender.frameSize, false);
+		Point3d localPt = coordAdapter.displayToLocal(dispPt);
+		Point3d geoCoord = coordSys.localToGeographic(localPt);
+		
+		return new Point2d(geoCoord.getX(),geoCoord.getY());
+	}
+	
+	/**
+	 * Returns what the user is currently looking at in geographic extents.
+	 */
+	public Mbr getCurrentViewGeo()
+	{
+		Mbr geoMbr = new Mbr();
+		
+		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+		geoMbr.addPoint(geoPointFromScreen(new Point2d(0,0)));
+		geoMbr.addPoint(geoPointFromScreen(new Point2d(frameSize.getX(),0)));
+		geoMbr.addPoint(geoPointFromScreen(new Point2d(frameSize.getX(),frameSize.getY())));
+		geoMbr.addPoint(geoPointFromScreen(new Point2d(0,frameSize.getY())));
+		
+		return geoMbr;
+	}
+	
+	boolean checkCoverage(Mbr mbr,MapView theMapView,double height)
+	{
+		Point2d centerLoc = mbr.middle();
+		Point3d localCoord = mapView.coordAdapter.coordSys.geographicToLocal(new Point3d(centerLoc.getX(),centerLoc.getY(),0.0));
+		theMapView.setLoc(new Point3d(localCoord.getX(),localCoord.getY(),height));
+		
+		List<Point2d> pts = mbr.asPoints();
+		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+		for (Point2d pt : pts)
+		{
+			Point2d screenPt = screenPointFromGeo(theMapView,pt);
+			if (screenPt.getX() < 0.0 || screenPt.getY() < 0.0 || screenPt.getX() > frameSize.getX() || screenPt.getY() > frameSize.getY())
+				return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * For a given position, how high do we have to be to see the given area.
+	 * <p>
+	 * Even for 2D maps we represent things in terms of height.
+	 * 
+	 * @param mbr Bounding box for the area we want to see in geographic (radians).
+	 * @param pos Center of the viewing area in geographic (radians).
+	 * @return Returns a height for the viewer.
+	 */
+	public double findHeightToViewBounds(Mbr mbr,Point2d pos)
+	{
+		// We'll experiment on a copy of the map view
+		MapView newMapView = mapView.clone();
+		
+		double minHeight = mapView.minHeightAboveSurface();
+		double maxHeight = mapView.maxHeightAboveSurface();
+		
+		boolean minOnScreen = checkCoverage(mbr,newMapView,minHeight);
+		boolean maxOnScreen = checkCoverage(mbr,newMapView,maxHeight);
+		
+		// No idea, just give up
+		if (!minOnScreen && !maxOnScreen)
+			return mapView.getLoc().getZ();
+		
+		// Do a binary search between the two heights
+		double minRange = 1e-5;
+		do
+		{
+			double midHeight = (minHeight + maxHeight)/2.0;
+			boolean midOnScreen = checkCoverage(mbr,newMapView,midHeight);
+			
+			if (!minOnScreen && midOnScreen)
+			{
+				maxHeight = midHeight;
+				maxOnScreen = midOnScreen;
+			} else if (!midOnScreen && maxOnScreen)
+			{
+				checkCoverage(mbr,newMapView,midHeight);
+				minHeight = midHeight;
+				minOnScreen = midOnScreen;
+			} else {
+				// Shouldn't happen, but probably does
+				break;
+			}
+			
+			if (maxHeight-minHeight < minRange)
+				break;
+		} while (true);
+		
+		return maxHeight;
 	}
 	
 	// Pass the touches on to the gesture handler
@@ -715,17 +843,18 @@ public class MaplyController implements View.OnTouchListener
 	
 	/**
 	 * Set the current view position.
-	 * @param x Horizontal location of the center of the screen in radians (not degrees).
-	 * @param y Vertical location of the center of the screen in radians (not degrees).
+	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
 	 * @param z Height above the map in display units.
 	 */
-	public void setPosition(double x,double y,double z)
+	public void setPositionGeo(double x,double y,double z)
 	{
 		if (!running)
 			return;
 
 		mapView.cancelAnimation();
-		mapView.setLoc(new Point3d(x,y,z));
+		Point3d geoCoord = mapView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
+		mapView.setLoc(new Point3d(geoCoord.getX(),geoCoord.getY(),z));
 	}
 	
     private boolean isProbablyEmulator() {
