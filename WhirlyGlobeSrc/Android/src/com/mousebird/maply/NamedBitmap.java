@@ -41,6 +41,6 @@ public class NamedBitmap
 		bitmap = inBitmap;
 	}
 		
-	String name;
+	public String name;
 	public Bitmap bitmap;
 }

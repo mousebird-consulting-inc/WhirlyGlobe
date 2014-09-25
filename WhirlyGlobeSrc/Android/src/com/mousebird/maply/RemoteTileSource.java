@@ -202,7 +202,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 				// Wasn't cached
 				if (bm == null)
 				{
-					// Load the JSON from that URL
+					// Load the data from that URL
 				    Request request = new Request.Builder().url(url).build();
 
 				    Response response = client.newCall(request).execute();
