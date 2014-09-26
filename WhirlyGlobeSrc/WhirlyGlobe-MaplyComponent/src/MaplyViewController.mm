@@ -821,7 +821,7 @@ using namespace Maply;
     coord.x = msg.whereGeo.lon();
     coord.y = msg.whereGeo.lat();
     
-    // Adjust this if it's outside than geographic bounds
+    // Adjust this if it's outside geographic bounds
     if (coord.x < -M_PI)
         coord.x += 2*M_PI * std::ceil(std::abs((coord.x + M_PI)/(2*M_PI)));
     if (coord.x > M_PI)
