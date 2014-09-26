@@ -39,6 +39,7 @@
     id enable = desc[kMaplyEnable];
     if (enable)
         _enable = [enable boolValue];
+    _vectorOffset = WhirlyKit::Point2d(0,0);
     
     return self;
 }

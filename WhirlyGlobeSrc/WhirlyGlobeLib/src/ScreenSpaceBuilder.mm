@@ -57,6 +57,12 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap()
 {
 }
     
+ScreenSpaceBuilder::DrawableWrap::~DrawableWrap()
+{
+    if (draw)
+        delete draw;
+}
+    
 ScreenSpaceBuilder::DrawableWrap::DrawableWrap(const DrawableState &state)
     : state(state), center(0,0,0)
 {
@@ -230,15 +236,19 @@ void ScreenSpaceBuilder::buildDrawables(std::vector<ScreenSpaceDrawable *> &draw
 {
     for (unsigned int ii=0;ii<fullDrawables.size();ii++)
     {
-        draws.push_back(fullDrawables[ii]->draw);
-        delete fullDrawables[ii];
+        DrawableWrap *drawWrap = fullDrawables[ii];
+        draws.push_back(drawWrap->draw);
+        drawWrap->draw = NULL;
+        delete drawWrap;
     }
     fullDrawables.clear();
     
     for (DrawableWrapSet::iterator it = drawables.begin(); it != drawables.end(); ++it)
     {
-        draws.push_back((*it)->draw);
-        delete *it;
+        DrawableWrap *drawWrap = *it;
+        draws.push_back(drawWrap->draw);
+        drawWrap->draw = NULL;
+        delete drawWrap;
     }
     drawables.clear();
 }
@@ -253,6 +263,7 @@ void ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
         drawIDs.insert(draw->getId());
         changes.push_back(new AddDrawableReq(draw));
     }
+    draws.clear();
 }
     
 ScreenSpaceObject::ScreenSpaceObject::ConvexGeometry::ConvexGeometry()

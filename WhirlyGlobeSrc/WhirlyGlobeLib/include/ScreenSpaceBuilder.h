@@ -99,6 +99,7 @@ protected:
     public:
         DrawableWrap();
         DrawableWrap(const DrawableState &state);
+        ~DrawableWrap();
         
         // Comparison operator for set
         bool operator < (const DrawableWrap &that) const;

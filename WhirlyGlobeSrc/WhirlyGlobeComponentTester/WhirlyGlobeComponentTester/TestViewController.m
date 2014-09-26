@@ -99,6 +99,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     NSArray *sfRoadsObjArray;
     NSArray *vecObjects;
     MaplyComponentObject *megaMarkersObj;
+    NSArray *megaMarkersImages;
     MaplyComponentObject *autoLabels;
     MaplyActiveObject *animSphere;
     NSMutableDictionary *loftPolyDict;
@@ -797,31 +798,59 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     );
 }
 
+// Number of unique images to use for the mega markers
+static const int NumMegaMarkerImages = 1000;
 // Number of markers to whip up for the large test case
 static const int NumMegaMarkers = 15000;
+
+// Generate a random image for testing
+- (UIImage *)randomImage
+{
+    CGSize size = CGSizeMake(16, 16);
+    UIGraphicsBeginImageContext(size);
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    
+    CGRect rect = CGRectMake(1, 1, size.width-2, size.height-2);
+    CGContextAddEllipseInRect(ctx, rect);
+    [[UIColor whiteColor] setStroke];
+    CGContextStrokePath(ctx);
+    [[UIColor colorWithRed:drand48() green:drand48() blue:drand48() alpha:1.0] setFill];
+    CGContextFillEllipseInRect(ctx, rect);
+    
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return image;
+}
 
 // Make up a large number of markers and add them
 - (void)addMegaMarkers
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
        ^{
-           UIImage *image = [UIImage imageNamed:@"map_pin.png"];
+           // Make up a few markers
+           NSMutableArray *markerImages = [NSMutableArray array];
+           for (unsigned int ii=0;ii<NumMegaMarkerImages;ii++)
+           {
+               UIImage *image = [self randomImage];
+               MaplyTexture *tex = [baseViewC addTextureToAtlas:image mode:MaplyThreadCurrent];
+               [markerImages addObject:tex];
+           }
+           
            NSMutableArray *markers = [NSMutableArray array];
            for (unsigned int ii=0;ii<NumMegaMarkers;ii++)
            {
                MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
-               marker.image = image;
-               marker.size = CGSizeMake(40,40);
+               marker.image = [markerImages objectAtIndex:random()%NumMegaMarkerImages];
+               marker.size = CGSizeMake(16,16);
                marker.loc = MaplyCoordinateMakeWithDegrees(drand48()*360-180, drand48()*140-70);
                marker.layoutImportance = MAXFLOAT;
 //               marker.layoutImportance = drand48();
                [markers addObject:marker];
            }
-           dispatch_async(dispatch_get_main_queue(),
-                          ^{
-                              megaMarkersObj = [baseViewC addScreenMarkers:markers desc:nil];
-                          }
-                          );
+
+           megaMarkersObj = [baseViewC addScreenMarkers:markers desc:nil mode:MaplyThreadCurrent];
+           megaMarkersImages = markerImages;
        }
     );
 }
@@ -1510,6 +1539,7 @@ static const int NumMegaMarkers = 15000;
         if (megaMarkersObj)
         {
             [baseViewC removeObject:megaMarkersObj];
+            [baseViewC removeTextures:megaMarkersImages mode:MaplyThreadAny];
             megaMarkersObj = nil;
         }
     }

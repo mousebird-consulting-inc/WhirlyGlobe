@@ -40,11 +40,14 @@ namespace WhirlyKit
 {
     
 Scene::Scene()
+    : ssGen(NULL)
 {
 }
     
 void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth)
 {
+    ssGen = NULL;
+    
     pthread_mutex_init(&coordAdapterLock,NULL);
     coordAdapter = adapter;
     cullTree = new CullTree(adapter,localMbr,depth);
@@ -402,6 +405,16 @@ void Scene::addSubTextures(const std::vector<SubTexture> &subTexes)
 {
     pthread_mutex_lock(&subTexLock);
     subTextureMap.insert(subTexes.begin(),subTexes.end());
+    pthread_mutex_unlock(&subTexLock);
+}
+    
+void Scene::removeSubTexture(SimpleIdentity subTexID)
+{
+    pthread_mutex_lock(&subTexLock);
+    SubTexture dumbTex(subTexID);
+    SubTextureSet::iterator it = subTextureMap.find(dumbTex);
+    if (it != subTextureMap.end())
+        subTextureMap.erase(it);
     pthread_mutex_unlock(&subTexLock);
 }
 
