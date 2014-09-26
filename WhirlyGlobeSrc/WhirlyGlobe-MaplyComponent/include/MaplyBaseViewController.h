@@ -382,7 +382,8 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
     @param key This is part of an old caching system that's no longer necessary.  Set it to nil.
     @param cacheDb This is part of an old caching system that's no longer necessary.  Set it to nil.
     @param desc The desciption dictionary which controls how the lofted polys will look.  It takes the following entries.
- 
+    @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred.
+
  |Key|Type|Description|
  |:--|:---|:----------|
  |kMaplyColor|UIColor|Color we'll use for the lofted polygons.  A bit of alpha looks good.|
@@ -401,7 +402,7 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
   */
-- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc;
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 /// @brief Add a view tracker to move a UIView around based on a geographic location.
 - (void)addViewTracker:(MaplyViewTracker *)viewTrack;
