@@ -127,9 +127,7 @@ bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
     CheckGLError("DynamicTexture::createInGL() glBindTexture()");
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    // note: debugging
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -501,6 +499,11 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &chan
             tex->getNumRegions()--;
         }
     }
+}
+    
+bool DynamicTextureAtlas::empty()
+{
+    return textures.empty();
 }
     
 void DynamicTextureAtlas::cleanup(ChangeSet &changes)

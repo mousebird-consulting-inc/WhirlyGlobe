@@ -113,6 +113,10 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 @property (nonatomic,assign) float height;
 /// The width in 3-space (remember the globe has radius = 1.0)
 @property (nonatomic,assign) float width;
+/// Height in screen space to consider for layout
+@property (nonatomic,assign) float layoutHeight;
+/// Width in screen space to soncider for layout
+@property (nonatomic,assign) float layoutWidth;
 /// Set if we want a static rotation.  Only matters in screen space
 /// This is rotation clockwise from north in radians
 @property (nonatomic,assign) float rotation;
