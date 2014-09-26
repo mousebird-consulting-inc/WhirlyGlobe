@@ -172,6 +172,8 @@
 		2BE8848C160A46C700E92A0A /* MaplyInteractionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE8848B160A46C700E92A0A /* MaplyInteractionLayer.mm */; };
 		2BE8848F160A544D00E92A0A /* SelectObject_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE8848E160A544D00E92A0A /* SelectObject_private.h */; };
 		2BE88492160A59F900E92A0A /* ImageTexture_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE88491160A59F900E92A0A /* ImageTexture_private.h */; };
+		2BEA064A19C3BB7200F2BB93 /* MaplyTextureAtlas_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA064919C3BB7200F2BB93 /* MaplyTextureAtlas_private.h */; };
+		2BEA064D19C3BB7D00F2BB93 /* MaplyTextureAtlas.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA064C19C3BB7D00F2BB93 /* MaplyTextureAtlas.mm */; };
 		2BEA1E5C171E0EBD0039F1A4 /* MaplyActiveObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA1E57171E0EBD0039F1A4 /* MaplyActiveObject.h */; };
 		2BEA1E60171E0EBD0039F1A4 /* MaplyActiveObject_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA1E5B171E0EBD0039F1A4 /* MaplyActiveObject_private.h */; };
 		2BEA1E66171E0ED90039F1A4 /* MaplyActiveObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA1E62171E0ED90039F1A4 /* MaplyActiveObject.mm */; };
@@ -456,6 +458,8 @@
 		2BE8848B160A46C700E92A0A /* MaplyInteractionLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyInteractionLayer.mm; path = src/MaplyInteractionLayer.mm; sourceTree = "<group>"; };
 		2BE8848E160A544D00E92A0A /* SelectObject_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SelectObject_private.h; path = include/private/SelectObject_private.h; sourceTree = "<group>"; };
 		2BE88491160A59F900E92A0A /* ImageTexture_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ImageTexture_private.h; path = include/private/ImageTexture_private.h; sourceTree = "<group>"; };
+		2BEA064919C3BB7200F2BB93 /* MaplyTextureAtlas_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyTextureAtlas_private.h; path = include/private/MaplyTextureAtlas_private.h; sourceTree = "<group>"; };
+		2BEA064C19C3BB7D00F2BB93 /* MaplyTextureAtlas.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyTextureAtlas.mm; path = src/MaplyTextureAtlas.mm; sourceTree = "<group>"; };
 		2BEA1E57171E0EBD0039F1A4 /* MaplyActiveObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyActiveObject.h; path = include/MaplyActiveObject.h; sourceTree = SOURCE_ROOT; };
 		2BEA1E5B171E0EBD0039F1A4 /* MaplyActiveObject_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyActiveObject_private.h; path = include/private/MaplyActiveObject_private.h; sourceTree = SOURCE_ROOT; };
 		2BEA1E62171E0ED90039F1A4 /* MaplyActiveObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyActiveObject.mm; path = src/MaplyActiveObject.mm; sourceTree = SOURCE_ROOT; };
@@ -977,6 +981,8 @@
 				2BEB21F318441AF30048DDE3 /* MaplyTexture.h */,
 				2BEB21F418441AF30048DDE3 /* MaplyTexture_private.h */,
 				2BEB21F818441B020048DDE3 /* MaplyTexture.mm */,
+				2BEA064919C3BB7200F2BB93 /* MaplyTextureAtlas_private.h */,
+				2BEA064C19C3BB7D00F2BB93 /* MaplyTextureAtlas.mm */,
 				2B7DD74F19392C7400799224 /* MaplyTextureBuilder.h */,
 				2B7DD75219392C8000799224 /* MaplyTextureBuilder.mm */,
 			);
@@ -1224,6 +1230,7 @@
 				881F66C318F20A8F00D17110 /* stringprintf.h in Headers */,
 				2BCA68A7174195A800696BA8 /* MaplyCoordinateSystem.h in Headers */,
 				881F669818F20A8F00D17110 /* gzip_stream.h in Headers */,
+				2BEA064A19C3BB7200F2BB93 /* MaplyTextureAtlas_private.h in Headers */,
 				2BCA68A8174195A800696BA8 /* MaplyQuadImageTilesLayer.h in Headers */,
 				2B96D35918A9AC1600999E24 /* MaplyVectorPolygonStyle.h in Headers */,
 				2BCA68AA174195B500696BA8 /* MaplyQuadImageTilesLayer_private.h in Headers */,
@@ -1381,6 +1388,7 @@
 				2BEBABAA1811F65700A9419C /* MaplyImageTile.mm in Sources */,
 				2B61D7C51607ACC3007888CF /* WGViewControllerLayer.mm in Sources */,
 				2BDC8A22191D994F00DFECF0 /* AFURLConnectionOperation.m in Sources */,
+				2BEA064D19C3BB7D00F2BB93 /* MaplyTextureAtlas.mm in Sources */,
 				881F66A418F20A8F00D17110 /* message.cc in Sources */,
 				2BC0FBA1196DC02A0043E1FD /* FMResultSet.m in Sources */,
 				2BE8848C160A46C700E92A0A /* MaplyInteractionLayer.mm in Sources */,

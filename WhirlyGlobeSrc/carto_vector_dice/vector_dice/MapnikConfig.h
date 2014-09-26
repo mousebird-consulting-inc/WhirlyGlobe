@@ -355,6 +355,8 @@ public:
     // Write the TileJSON-like format for vector tiles
     bool writeTileJSON(std::string &json,const std::string &webDbName,const std::string &webDbURL);
     
+    Symbolizer::TileGeometryType defaultGeomType;
+    
     // Parameters (unparsed at present)
     tinyxml2::XMLElement *paramEl;
     

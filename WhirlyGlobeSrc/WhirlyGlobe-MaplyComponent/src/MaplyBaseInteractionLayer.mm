@@ -166,6 +166,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     pthread_mutex_init(&imageLock, NULL);
     pthread_mutex_init(&userLock, NULL);
     pthread_mutex_init(&changeLock,NULL);
+    pthread_mutex_init(&tempContextLock,NULL);
     
     return self;
 }
@@ -176,6 +177,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     pthread_mutex_destroy(&imageLock);
     pthread_mutex_destroy(&userLock);
     pthread_mutex_destroy(&changeLock);
+    pthread_mutex_destroy(&tempContextLock);
     
     for (ThreadChangeSet::iterator it = perThreadChanges.begin();
          it != perThreadChanges.end();++it)
@@ -194,6 +196,10 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     layerThread = inLayerThread;
     scene = (WhirlyGlobe::GlobeScene *)inScene;
     userObjects = [NSMutableSet set];
+    atlasGroup = [[MaplyTextureAtlasGroup alloc] initWithScene:scene];
+    
+    glSetupInfo = [[WhirlyKitGLSetupInfo alloc] init];
+    glSetupInfo->minZres = [visualView calcZbufferRes];
 }
 
 - (void)shutdown
@@ -202,6 +208,52 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     scene = NULL;
     imageTextures.clear();
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
+}
+
+- (Texture *)createTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
+{
+    // Add it and download it
+    Texture *tex = new Texture("MaplyBaseInteraction",image,true);
+    tex->setWrap(wrapFlags & MaplyImageWrapX, wrapFlags & MaplyImageWrapY);
+    switch (imageFormat)
+    {
+        case MaplyImageIntRGBA:
+        case MaplyImage4Layer8Bit:
+        default:
+            tex->setFormat(GL_UNSIGNED_BYTE);
+            break;
+        case MaplyImageUShort565:
+            tex->setFormat(GL_UNSIGNED_SHORT_5_6_5);
+            break;
+        case MaplyImageUShort4444:
+            tex->setFormat(GL_UNSIGNED_SHORT_4_4_4_4);
+            break;
+        case MaplyImageUShort5551:
+            tex->setFormat(GL_UNSIGNED_SHORT_5_5_5_1);
+            break;
+        case MaplyImageUByteRed:
+            tex->setFormat(GL_ALPHA);
+            tex->setSingleByteSource(WKSingleRed);
+            break;
+        case MaplyImageUByteGreen:
+            tex->setFormat(GL_ALPHA);
+            tex->setSingleByteSource(WKSingleGreen);
+            break;
+        case MaplyImageUByteBlue:
+            tex->setFormat(GL_ALPHA);
+            tex->setSingleByteSource(WKSingleBlue);
+            break;
+        case MaplyImageUByteAlpha:
+            tex->setFormat(GL_ALPHA);
+            tex->setSingleByteSource(WKSingleAlpha);
+            break;
+        case MaplyImageUByteRGB:
+            tex->setFormat(GL_ALPHA);
+            tex->setSingleByteSource(WKSingleRGB);
+            break;
+    }
+    
+    return tex;
 }
 
 // Explicitly add a texture
@@ -228,47 +280,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     {
         MaplyTexture *maplyTex = [[MaplyTexture alloc] init];
         
-        // Add it and download it
-        Texture *tex = new Texture("MaplyBaseInteraction",image,true);
+        Texture *tex = [self createTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
         maplyTex.texID = tex->getId();
-        tex->setWrap(wrapFlags & MaplyImageWrapX, wrapFlags & MaplyImageWrapY);
-        switch (imageFormat)
-        {
-            case MaplyImageIntRGBA:
-            case MaplyImage4Layer8Bit:
-            default:
-                tex->setFormat(GL_UNSIGNED_BYTE);
-                break;
-            case MaplyImageUShort565:
-                tex->setFormat(GL_UNSIGNED_SHORT_5_6_5);
-                break;
-            case MaplyImageUShort4444:
-                tex->setFormat(GL_UNSIGNED_SHORT_4_4_4_4);
-                break;
-            case MaplyImageUShort5551:
-                tex->setFormat(GL_UNSIGNED_SHORT_5_5_5_1);
-                break;
-            case MaplyImageUByteRed:
-                tex->setFormat(GL_ALPHA);
-                tex->setSingleByteSource(WKSingleRed);
-                break;
-            case MaplyImageUByteGreen:
-                tex->setFormat(GL_ALPHA);
-                tex->setSingleByteSource(WKSingleGreen);
-                break;
-            case MaplyImageUByteBlue:
-                tex->setFormat(GL_ALPHA);
-                tex->setSingleByteSource(WKSingleBlue);
-                break;
-            case MaplyImageUByteAlpha:
-                tex->setFormat(GL_ALPHA);
-                tex->setSingleByteSource(WKSingleAlpha);
-                break;
-            case MaplyImageUByteRGB:
-                tex->setFormat(GL_ALPHA);
-                tex->setSingleByteSource(WKSingleRGB);
-                break;
-        }
         
         changes.push_back(new AddTextureReq(tex));
         maplyImageTex = MaplyImageTexture(image, maplyTex);
@@ -284,9 +297,74 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     return maplyImageTex.maplyTex;
 }
 
-- (void)removeTexture:(MaplyTexture *)texture
+- (MaplyTexture *)addTextureToAtlas:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
 {
-    [texture clear];
+    ChangeSet changes;
+
+    // May need a temporary context when setting up textures
+    EAGLContext *tmpContext = [self setupTempContext:threadMode];
+
+    // Convert to a texture
+    Texture *tex = [self createTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+    if (!tex)
+        return nil;
+    
+    // Add to a texture atlas
+    MaplyTexture *maplyTex = nil;
+    SubTexture subTex;
+    if ([atlasGroup addTexture:tex subTex:subTex changes:changes])
+    {
+        maplyTex = [[MaplyTexture alloc] init];
+        maplyTex.texID = subTex.getId();
+        maplyTex.isSubTex = true;
+    }
+    delete tex;
+
+    // If we're making changes in this thread, do the flushes
+    if (threadMode == MaplyThreadCurrent)
+    {
+        // Note: Borrowed from layer thread
+        bool requiresFlush = false;
+        
+        // Set up anything that needs to be set up
+        ChangeSet changesToAdd;
+        for (unsigned int ii=0;ii<changes.size();ii++)
+        {
+            ChangeRequest *change = changes[ii];
+            if (change)
+            {
+                requiresFlush |= change->needsFlush();
+                change->setupGL(glSetupInfo, scene->getMemManager());
+                changesToAdd.push_back(change);
+            } else
+                // A NULL change request is just a flush request
+                requiresFlush = true;
+        }
+        
+        // If anything needed a flush after that, let's do it
+        if (requiresFlush)
+        {
+            glFlush();
+            
+            // If there were no changes to add we probably still want to poke the scene
+            // Otherwise texture changes don't show up
+            if (changesToAdd.empty())
+                changesToAdd.push_back(NULL);
+        }
+        
+        scene->addChangeRequests(changesToAdd);
+    } else
+        scene->addChangeRequests(changes);
+    
+    [self clearTempContext:tmpContext];
+    
+    return maplyTex;
+}
+
+- (void)removeTextures:(NSArray *)textures mode:(MaplyThreadMode)threadMode
+{
+    for (MaplyTexture *texture in textures)
+        [texture clear];
 }
 
 - (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
@@ -308,6 +386,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     pthread_mutex_lock(&imageLock);
     
+    // Atlas textures take care of themselves via the MaplyTexture dealloc
+    
     // Look for an existing one
     MaplyImageTextureSet::iterator it;
     for (it = imageTextures.begin();it!=imageTextures.end();++it)
@@ -323,14 +403,20 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             copyTex.refCount--;
             imageTextures.insert(copyTex);
         } else {
+            // If it's associated with the view controller, it exists outside us, so we just let it clean itself up
+            //  when it gets dealloc'ed.
             // Note: This time is a hack.  Should look at the fade out.
-            [self performSelector:@selector(delayedRemoveTexture:) withObject:it->maplyTex afterDelay:2.0];
-            if (tex.texID != EmptyIdentity)
-            {
-                changes.push_back(new RemTextureReq(tex.texID));
-                tex.texID = EmptyIdentity;
+            if (it->maplyTex.viewC)
+                [self performSelector:@selector(delayedRemoveTexture:) withObject:it->maplyTex afterDelay:2.0];
+            else {
+                // If we created it in this object, we'll clean it up
+                if (tex.texID != EmptyIdentity)
+                {
+                    changes.push_back(new RemTextureReq(tex.texID));
+                    tex.texID = EmptyIdentity;
+                }
+                imageTextures.erase(it);
             }
-            imageTextures.erase(it);
         }
     }
     
@@ -490,6 +576,14 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             wgMarker.selectID = Identifiable::genId();
         }
         wgMarker.layoutImportance = marker.layoutImportance;
+        if (marker.layoutSize.width >= 0.0)
+        {
+            wgMarker.layoutWidth = marker.layoutSize.width;
+            wgMarker.layoutHeight = marker.layoutSize.height;
+        } else {
+            wgMarker.layoutWidth = wgMarker.width;
+            wgMarker.layoutHeight = wgMarker.height;
+        }
         wgMarker.offset = Point2d(marker.offset.x,marker.offset.y);
         
         [wgMarkers addObject:wgMarker];
@@ -638,8 +732,21 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     EAGLContext *tmpContext = nil;
     if (threadMode == MaplyThreadCurrent && ![EAGLContext currentContext])
     {
-        tmpContext = [[EAGLContext alloc] initWithAPI:layerThread.renderer.context.API sharegroup:layerThread.renderer.context.sharegroup];
+        pthread_mutex_lock(&tempContextLock);
+
+        // See if we need to create a new one
+        if (tempContexts.empty())
+        {
+            tmpContext = [[EAGLContext alloc] initWithAPI:layerThread.renderer.context.API sharegroup:layerThread.renderer.context.sharegroup];
+        } else {
+            // We can use an existing one
+            std::set<EAGLContext *>::iterator it = tempContexts.begin();
+            tmpContext = *it;
+            tempContexts.erase(it);
+        }
         [EAGLContext setCurrentContext:tmpContext];
+        
+        pthread_mutex_unlock(&tempContextLock);
     }
     
     return tmpContext;
@@ -649,7 +756,14 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 - (void)clearTempContext:(EAGLContext *)context
 {
     if (context)
+    {
         [EAGLContext setCurrentContext:nil];
+
+        // Put this one back for use by another thread
+        pthread_mutex_lock(&tempContextLock);
+        tempContexts.insert(context);
+        pthread_mutex_unlock(&tempContextLock);
+    }
 }
 
 // Actually add the labels.
@@ -940,7 +1054,16 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     // If the vectors are selectable we want to keep them around
     id selVal = inDesc[@"selectable"];
     if (selVal && [selVal boolValue])
+    {
+        if ([inDesc[kMaplyVecCentered] boolValue])
+        {
+            if (inDesc[kMaplyVecCenterX])
+                compObj.vectorOffset.x() = [inDesc[kMaplyVecCenterX] doubleValue];
+            if (inDesc[kMaplyVecCenterY])
+                compObj.vectorOffset.y() = [inDesc[kMaplyVecCenterY] doubleValue];
+        }
         compObj.vectors = vectors;
+    }
     
     pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
@@ -1850,6 +1973,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
+    LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
 
     ChangeSet changes;
     for (MaplyComponentObject *compObj in theObjs)
@@ -1874,6 +1998,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                 shapeManager->enableShapes(compObj.shapeIDs, enable, changes);
             if (billManager && !compObj.billIDs.empty())
                 billManager->enableBillboards(compObj.billIDs, enable, changes);
+            if (loftManager && !compObj.loftIDs.empty())
+                loftManager->enableLoftedPolys(compObj.loftIDs, enable, changes);
             if (chunkManager && !compObj.chunkIDs.empty())
             {
                 for (SimpleIDSet::iterator it = compObj.chunkIDs.begin();
@@ -1965,8 +2091,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                 {
                     // Note: Take visibility into account too
                     MaplyCoordinate coord;
-                    coord.x = pt.x();
-                    coord.y = pt.y();
+                    coord.x = pt.x()-userObj.vectorOffset.x();
+                    coord.y = pt.y()-userObj.vectorOffset.y();
                     if ([vecObj pointInAreal:coord])
                     {
                         selObj = vecObj;

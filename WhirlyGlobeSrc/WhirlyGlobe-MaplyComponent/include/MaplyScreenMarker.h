@@ -58,6 +58,11 @@
  */
 @property (nonatomic,assign) float layoutImportance;
 
+/** @brief The size of the marker for layout purposes.
+    @details If layoutImportance is not set to MAXFLOAT, the screen marker will get throw into the mix when doing screen layout.  With this, you can set the size of the marker when considering layout.  If you set this to (0,0) the maker will take up no space, but still be considered in the layout.
+  */
+@property (nonatomic,assign) CGSize layoutSize;
+
 /** @brief Offset in screen coordinates.
     @details Set to zero by default, this is the offset we'll apply to a given screen marker before it's drawn.  The values are screen points.
   */

@@ -91,7 +91,7 @@ public:
     void removeLoftedPolys(SimpleIDSet &polyIDs,ChangeSet &changes);
         
 protected:
-    void addGeometryToBuilder(LoftedPolySceneRep *sceneRep,WhirlyKitLoftedPolyInfo *polyInfo,GeoMbr &drawMbr,ChangeSet &changes);
+    void addGeometryToBuilder(LoftedPolySceneRep *sceneRep,WhirlyKitLoftedPolyInfo *polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ChangeSet &changes);
     
     pthread_mutex_t loftLock;
     LoftedPolySceneRepSet loftReps;
