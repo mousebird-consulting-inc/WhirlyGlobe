@@ -69,6 +69,7 @@
                 if (!iconImage)
                 {
                     [imageCache setObject:[NSNull null] forKey:cacheKey];
+                    NSLog(@"Couldn't find: %@",shortName);
                     return nil;
                 }
             }

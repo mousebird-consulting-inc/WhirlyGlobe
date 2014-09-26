@@ -820,6 +820,10 @@ using namespace Maply;
     MaplyCoordinate coord;
     coord.x = msg.whereGeo.lon();
     coord.y = msg.whereGeo.lat();
+    
+    // Adjust this if it's less than geograhic bounds
+    while (coord.x < -M_PI)
+        coord.x += 2*M_PI;
 
     if (selectedObj && self.selection)
     {
