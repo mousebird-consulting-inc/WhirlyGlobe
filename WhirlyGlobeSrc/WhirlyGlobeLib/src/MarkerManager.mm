@@ -215,10 +215,10 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
         
         if (markerInfo.screenObject)
         {
-            pts[0] = Point3f(-width2,-height2,0.0);
-            pts[1] = Point3f(width2,-height2,0.0);
-            pts[2] = Point3f(width2,height2,0.0);
-            pts[3] = Point3f(-width2,height2,0.0);
+            pts[0] = Point3f(-width2+marker.offset.x(),-height2+marker.offset.y(),0.0);
+            pts[1] = Point3f(width2+marker.offset.x(),-height2+marker.offset.y(),0.0);
+            pts[2] = Point3f(width2+marker.offset.x(),height2+marker.offset.y(),0.0);
+            pts[3] = Point3f(-width2+marker.offset.x(),height2+marker.offset.y(),0.0);
         } else {
             Point3d center = coordAdapter->localToDisplay(localPt);
             Vector3d up(0,0,1);
@@ -316,8 +316,10 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                 // Set up for the layout layer
                 if (layoutManager && marker.layoutImportance != MAXFLOAT)
                 {
-                    // Note: This means they won't take up space
-                    layoutObj->size = Point2d(2*width2,2*height2);
+                    if (marker.layoutWidth >= 0.0)
+                        layoutObj->size = Point2d(marker.layoutWidth,marker.layoutHeight);
+                    else
+                        layoutObj->size = Point2d(2*width2,2*height2);
                     layoutObj->iconSize = Point2d(0.0,0.0);
                     layoutObj->importance = marker.layoutImportance;
                     // No moving it around
@@ -326,8 +328,6 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     // Start out off, let the layout layer handle the rest
                     shape->setEnable(markerInfo.enable);
                     shape->setOffset(Point2d(MAXFLOAT,MAXFLOAT));
-                } else {
-                    shape->setOffset(marker.offset);
                 }
                 
                 if (layoutObj)

@@ -153,12 +153,20 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
 - (void)tileDidLoad:(MaplyTileID)tileID part:(int)whichPart;
 
 /** @brief Calculate the bounding box for a single tile in geographic.
-    @details This is a utility method for calculating the extents of a given tile in the local coordinate system (e.g. the one paging layer is using).
+    @details This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
     @param tileID The ID for the tile we're interested in.
     @param ll The lower left corner of the tile in geographic coordinates.
     @param ur The upper right corner of the tile in geographic coordinates.
   */
 - (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
+
+/** @brief Calculate the bounding box for a single tile in geographic using doubles.
+ @details This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
+ @param tileID The ID for the tile we're interested in.
+ @param ll The lower left corner of the tile in geographic coordinates.
+ @param ur The upper right corner of the tile in geographic coordinates.
+ */
+- (void)geoBoundsForTileD:(MaplyTileID)tileID ll:(MaplyCoordinateD *)ll ur:(MaplyCoordinateD *)ur;
 
 /** @brief Calculate the bounding box for a single tile in the local coordinate system.
     @details This utility method calculates the bounding box for a tile in the coordinate system used for the layer.

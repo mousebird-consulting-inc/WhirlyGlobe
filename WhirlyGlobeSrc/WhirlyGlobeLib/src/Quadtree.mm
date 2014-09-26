@@ -742,6 +742,16 @@ Mbr Quadtree::generateMbrForNode(const Identifier &ident)
     return outMbr;
 }
 
+void Quadtree::generateMbrForNode(const Identifier &ident,Point2d &ll,Point2d &ur)
+{
+    Point2d chunkSize(mbr.ur().x()-mbr.ll().x(),mbr.ur().y()-mbr.ll().y());
+    chunkSize.x() /= (1<<ident.level);
+    chunkSize.y() /= (1<<ident.level);
+    
+    ll = Point2d(chunkSize.x()*ident.x,chunkSize.y()*ident.y) + Point2d(mbr.ll().x(),mbr.ll().y());
+    ur = Point2d(chunkSize.x()*(ident.x+1),chunkSize.y()*(ident.y+1)) + Point2d(mbr.ll().x(),mbr.ll().y());
+}
+    
 bool Quadtree::leastImportantNode(NodeInfo &nodeInfo,bool force)
 {
     // Look for the most unimportant node that isn't therwise engaged
