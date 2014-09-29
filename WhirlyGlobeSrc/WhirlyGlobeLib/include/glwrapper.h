@@ -22,16 +22,24 @@
 
 #define GL_GLEXT_PROTOTYPES
 //#define __USE_SDL_GLES__
-//#include <GLES2/gl2platform.h>
-//#include <GLES2/gl2.h>
-//#include <GLES2/gl2ext.h>
-#include <GLES3/gl3platform.h>
-#include <GLES3/gl3.h>
-#include <GLES3/gl3ext.h>
+#include <GLES2/gl2platform.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+// Note: Would be nice to make this conditional
+//#include <GLES3/gl3platform.h>
+//#include <GLES3/gl3.h>
+//#include <GLES3/gl3ext.h>
 #include <EGL/egl.h>
 
 /// Returns false if it can't find all the extensions it needs
 extern bool SetupGLESExtensions();
+
+// Note: Here for compatibility.  We're not using them
+void glBindVertexArray (GLuint array);
+void glDeleteVertexArrays (GLsizei n, const GLuint *arrays);
+void glGenVertexArrays (GLsizei n, GLuint *arrays);
+void* glMapBuffer (GLenum target, GLenum access);
+GLboolean glUnmapBuffer (GLenum target);
 
 #else
 

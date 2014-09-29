@@ -564,27 +564,28 @@ static GLenum glEnumFromOurFormat(WhirlyKitTileImageType imageType)
 //        case WKTilePVRTC4:
 //            return GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
 //            break;
-        case WKTileETC2_RGB8:
-            return GL_COMPRESSED_RGB8_ETC2;
-            break;
-        case WKTileETC2_RGBA8:
-            return GL_COMPRESSED_RGBA8_ETC2_EAC;
-            break;
-        case WKTileETC2_RGB8_PunchAlpha:
-            return GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
-            break;
-        case WKTileEAC_R11:
-            return GL_COMPRESSED_R11_EAC;
-            break;
-        case WKTileEAC_R11_Signed:
-            return GL_COMPRESSED_SIGNED_R11_EAC;
-            break;
-        case WKTileEAC_RG11:
-            return GL_COMPRESSED_RG11_EAC;
-            break;
-        case WKTileEAC_RG11_Signed:
-            return GL_COMPRESSED_SIGNED_RG11_EAC;
-            break;
+            // Note: Porting
+//        case WKTileETC2_RGB8:
+//            return GL_COMPRESSED_RGB8_ETC2;
+//            break;
+//        case WKTileETC2_RGBA8:
+//            return GL_COMPRESSED_RGBA8_ETC2_EAC;
+//            break;
+//        case WKTileETC2_RGB8_PunchAlpha:
+//            return GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+//            break;
+//        case WKTileEAC_R11:
+//            return GL_COMPRESSED_R11_EAC;
+//            break;
+//        case WKTileEAC_R11_Signed:
+//            return GL_COMPRESSED_SIGNED_R11_EAC;
+//            break;
+//        case WKTileEAC_RG11:
+//            return GL_COMPRESSED_RG11_EAC;
+//            break;
+//        case WKTileEAC_RG11_Signed:
+//            return GL_COMPRESSED_SIGNED_RG11_EAC;
+//            break;
     }
     
     return GL_UNSIGNED_BYTE;

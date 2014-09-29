@@ -78,7 +78,7 @@ MAPLY_CORE_SRC_FILES := BigDrawable.cpp CoordSystem.cpp Cullable.cpp DefaultShad
 					SphericalMercator.cpp Tesselator.cpp Texture.cpp TextureAtlas.cpp TileQuadLoader.cpp \
 					VectorData.cpp VectorManager.cpp ViewState.cpp VectorObject.cpp WhirlyGeometry.cpp \
 					WhirlyKitView.cpp WhirlyVector.cpp
-					
+		
 MAPLY_CORE_SRC_DIR := $(SRC_DIR)
 LOCAL_SRC_FILES += $(MAPLY_CORE_SRC_FILES:%=$(MAPLY_CORE_SRC_DIR)/%)
 
@@ -94,6 +94,6 @@ MAPLY_PLATFORM_FILES := platform.cpp glwrapper.cpp
 MAPLY_PLATFORM_SRC_DIR := $(SRC_DIR)/android
 LOCAL_SRC_FILES += $(MAPLY_PLATFORM_FILES:%=$(MAPLY_PLATFORM_SRC_DIR)/%)
 
-LOCAL_LDLIBS := -llog -lGLESv3 -lGLESv1_CM -landroid -lEGL -ljnigraphics
+LOCAL_LDLIBS := -llog -lGLESv2 -lGLESv1_CM -landroid -lEGL -ljnigraphics
 
 include $(BUILD_SHARED_LIBRARY)

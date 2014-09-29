@@ -27,11 +27,11 @@ bool hasVertexArraySupport = false;
 bool hasMapBufferSupport = false;
 
 // Note: Porting
-//PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayEXT = NULL;
-//PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysEXT = NULL;
-//PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysEXT = NULL;
-//PFNGLMAPBUFFEROESPROC glMapBufferEXT = NULL;
-//PFNGLUNMAPBUFFEROESPROC glUnmapBufferEXT = NULL;
+PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayEXT = NULL;
+PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysEXT = NULL;
+PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysEXT = NULL;
+PFNGLMAPBUFFEROESPROC glMapBufferEXT = NULL;
+PFNGLUNMAPBUFFEROESPROC glUnmapBufferEXT = NULL;
 
 // Wire up the various function pointers for extensions
 bool SetupGLESExtensions()
@@ -101,6 +101,33 @@ bool SetupGLESExtensions()
 //{
 //    return (*glUnmapBufferEXT)(target);
 //}
+
+// Note: There are here to make the linker happy.
+
+void glBindVertexArray (GLuint array)
+{
+    return (*glBindVertexArrayEXT)(array);
+}
+
+void glDeleteVertexArrays (GLsizei n, const GLuint *arrays)
+{
+    return (*glDeleteVertexArraysEXT)(n,arrays);
+}
+
+void glGenVertexArrays (GLsizei n, GLuint *arrays)
+{
+    return (*glGenVertexArraysEXT)(n,arrays);
+}
+
+void* glMapBuffer (GLenum target, GLenum access)
+{
+    return (*glMapBufferEXT)(target,access);
+}
+
+GLboolean glUnmapBuffer (GLenum target)
+{
+    return (*glUnmapBufferEXT)(target);
+}
 
 #else
 
