@@ -292,7 +292,7 @@ using namespace WhirlyKit;
          it != parents.end(); ++it)
     {
         LoadedTile *theTile = [self getTile:*it];
-        if (theTile && !theTile->isLoading)
+        if (theTile && theTile->isInitialized)
         {
 //            NSLog(@"Updating parent (%d,%d,%d)",theTile->nodeInfo.ident.x,theTile->nodeInfo.ident.y,
 //                  theTile->nodeInfo.ident.level);
@@ -436,8 +436,8 @@ using namespace WhirlyKit;
     if (!tile)
         return false;
     
-    // If it's not loading, sure
-    return !tile->isLoading;
+    // If it's initialized, then sure
+    return tile->isInitialized;
 }
 
 // When the data source loads the image, we'll get called here
@@ -610,7 +610,7 @@ using namespace WhirlyKit;
 //            NSLog(@"Adding to scene: %d: (%d,%d) %d",tile->nodeInfo.ident.level,tile->nodeInfo.ident.x,tile->nodeInfo.ident.y,frame);
             if (tile->addToScene(tileBuilder,loadImages,frame,currentImage0,currentImage1,loadElev,changeRequests))
             {
-                // If we have more than one image to dispay, make sure we're doing the right one
+                // If we have more than one image to display, make sure we're doing the right one
                 if (!isPlaceholder && _numImages > 1 && tileBuilder->texAtlas)
                 {
                     tile->setCurrentImages(tileBuilder, currentImage0, currentImage1, changeRequests);

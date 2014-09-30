@@ -470,13 +470,13 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 {
                     Quadtree::NodeInfo remNodeInfo;
                     _quadtree->leastImportantNode(remNodeInfo,true);
-                    NSLog(@"Forcing unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
+//                    NSLog(@"Forcing unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
                     _quadtree->removeTile(remNodeInfo.ident);
                     
                     [_loader quadDisplayLayer:self unloadTile:&remNodeInfo];
                 }
                 
-                NSLog(@"Loading tile: %d: (%d,%d)",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y);
+//                NSLog(@"Loading tile: %d: (%d,%d)",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y);
                 _quadtree->setPhantom(nodeInfo->ident, false);
                 _quadtree->setLoading(nodeInfo->ident, true);
                 
@@ -488,7 +488,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 if (canLoadFrames)
                 {
                     int frameId = frameLoadingPriority[curFrameEntry];
-                    NSLog(@"Loading tile: %d: (%d,%d), frame = %d",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y,frameId);
+//                    NSLog(@"Loading tile: %d: (%d,%d), frame = %d",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y,frameId);
                     [_loader quadDisplayLayer:self loadTile:nodeInfo frame:frameId];
                 } else
                     [_loader quadDisplayLayer:self loadTile:nodeInfo];
@@ -502,7 +502,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 QuadIdentSet::iterator it = toPhantom.find(nodeInfo->ident);
                 if (it != toPhantom.end())
                     toPhantom.erase(it);
-                NSLog(@"Unload tile: %d: (%d,%d)",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y);
+//                NSLog(@"Unload tile: %d: (%d,%d)",nodeInfo->ident.level,nodeInfo->ident.x,nodeInfo->ident.y);
                 [_loader quadDisplayLayer:self unloadTile:nodeInfo];
             }
             
@@ -526,7 +526,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     Quadtree::NodeInfo remNodeInfo;
     while (_quadtree->leastImportantNode(remNodeInfo,false))
     {
-        NSLog(@"Unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
+//        NSLog(@"Unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
         _quadtree->removeTile(remNodeInfo.ident);
         if (!remNodeInfo.phantom)
             [_loader quadDisplayLayer:self unloadTile:&remNodeInfo];
@@ -545,7 +545,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             
             if (!_quadtree->childrenEvaluating(ident) && !_quadtree->childrenLoading(ident))
             {
-                NSLog(@"Flushing phantom tile: %d: (%d,%d)",ident.level,ident.x,ident.y);
+//                NSLog(@"Flushing phantom tile: %d: (%d,%d)",ident.level,ident.x,ident.y);
                 const Quadtree::NodeInfo *nodeInfo = _quadtree->getNodeInfo(ident);
                 if (nodeInfo)
                 {
@@ -585,7 +585,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 curFrameEntry = newFrameEntry;
                 [self resetEvaluation];
                 didSomething = true;
-                NSLog(@"Switching to frame entry: %d",curFrameEntry);
+//                NSLog(@"Switching to frame entry: %d",curFrameEntry);
                 break;
             }
         }
