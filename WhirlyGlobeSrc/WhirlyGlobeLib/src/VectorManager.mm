@@ -538,7 +538,6 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
     Point3d center(0,0,0);
     bool centerValid = false;
     Point2d geoCenter(0,0);
-    // Note: Doesn't quite work for globe.  It's the shader that can't handle the center offset
     if (desc[@"centered"] && [desc[@"centered"] boolValue])
     {
         // We might pass in a center

@@ -24,7 +24,9 @@
 #import "Identifiable.h"
 #import "WhirlyGeometry.h"
 #import "WhirlyKitView.h"
+#import "MaplyView.h"
 #import "Scene.h"
+#import "ScreenSpaceBuilder.h"
 
 @class WhirlyKitSceneRendererES;
 
@@ -91,6 +93,7 @@ public:
     // Comparison operator for sorting
     bool operator < (const RectSelectable2D &that) const;
     
+    Point3d center;  // Location of the center of the rectangle
     Point2f pts[4];  // Geometry
 };
 
@@ -139,7 +142,7 @@ public:
     void addSelectableRect(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable);
     
     /// Add a screen space rectangle (2D) for selection, between the given visibilities
-    void addSelectableScreenRect(SimpleIdentity selectId,Point2f *pts,float minVis,float maxVis,bool enable);
+    void addSelectableScreenRect(SimpleIdentity selectId,const Point3d &center,Point2f *pts,float minVis,float maxVis,bool enable);
     
     /// Add a rectangular solid for selection.  Pass in 8 points (bottom four + top four)
     void addSelectableRectSolid(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable);
@@ -162,7 +165,28 @@ public:
     /// Pass in the view point where the user touched.  This returns the closest hit within the given distance
     SimpleIdentity pickObject(Point2f touchPt,float maxDist,WhirlyKitView *theView);
     
+    // Everything we need to project a world coordinate to one or more screen locations
+    class PlacementInfo
+    {
+    public:
+        PlacementInfo(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer);
+        
+        WhirlyGlobeView *globeView;
+        MaplyView *mapView;
+        double heightAboveSurface;
+        Eigen::Matrix4d viewMat,modelMat,viewAndModelMat,viewModelNormalMat,projMat,modelInvMat;
+        std::vector<Eigen::Matrix4d> offsetMatrices;
+        Point2f frameSize;
+        Point2f frameSizeScale;
+        Mbr frameMbr;
+    };
+
 protected:
+    // Projects a world coordinate to one or more points on the screen (wrapping)
+    void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,std::vector<Point2d> &screenPts);
+    // Convert rect selectables into more generic screen space objects
+    void getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenObjs);
+    
     pthread_mutex_t mutex;
     Scene *scene;
     float scale;
