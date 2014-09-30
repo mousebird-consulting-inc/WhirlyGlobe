@@ -26,7 +26,6 @@
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "TextureAtlas.h"
-#import "SelectionManager.h"
 #import "ScreenSpaceDrawable.h"
 #import "Scene.h"
 
@@ -34,6 +33,7 @@ namespace WhirlyKit
 {
     
 class ScreenSpaceObject;
+class ScreenSpaceObjectLocation;
     
 /** Screen space objects are used for both labels and markers.  This builder
     helps construct the drawables needed to represent them.
@@ -187,6 +187,24 @@ protected:
     bool keepUpright;
     ScreenSpaceBuilder::DrawableState state;
     std::vector<ConvexGeometry> geometry;
+};
+    
+/** We use the screen space object location to communicate where
+    a screen space object is on the screen.
+  */
+class ScreenSpaceObjectLocation
+{
+public:
+    ScreenSpaceObjectLocation();
+
+    // ID for selector
+    SimpleIdentity shapeID;
+    // Location of object in display space
+    Point3d dispLoc;
+    // Offset on the screen (presumably if it's been moved around during layout)
+    Point2d offset;
+    // Size of the object in screen space
+    std::vector<Point2d> pts;
 };
     
 }
