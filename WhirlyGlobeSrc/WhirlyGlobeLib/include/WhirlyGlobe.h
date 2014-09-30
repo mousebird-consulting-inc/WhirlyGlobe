@@ -52,6 +52,7 @@
 #import "ParticleSystemLayer.h"
 #import "MarkerLayer.h"
 #import "LoftLayer.h"
+#import "LoftManager.h"
 #import "SelectionManager.h"
 #import "TextureAtlas.h"
 #import "LayerThread.h"

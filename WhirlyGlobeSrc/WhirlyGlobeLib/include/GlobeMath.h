@@ -147,4 +147,7 @@ protected:
 // Returns negative if the given location (with its normal) is currently facing away from the viewer
 float CheckPointAndNormFacing(const Point3f &dispLoc,const Point3f &norm,const Eigen::Matrix4f &viewAndModelMat,const Eigen::Matrix4f &viewModelNormalMat);
 
+// Returns negative if the given location (with its normal) is currently facing away from the viewer
+double CheckPointAndNormFacing(const Point3d &dispLoc,const Point3d &norm,const Eigen::Matrix4d &viewAndModelMat,const Eigen::Matrix4d &viewModelNormalMat);
+
 }

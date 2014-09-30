@@ -99,14 +99,35 @@ protected:
 
 // Default constructor for layout object
 LayoutObject::LayoutObject()
-    : ScreenSpaceObject(), iconSize(0,0), size(0,0), importance(MAXFLOAT), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
+    : ScreenSpaceObject(), importance(MAXFLOAT), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
 {
-}    
+}
     
 LayoutObject::LayoutObject(SimpleIdentity theId) : ScreenSpaceObject(theId),
-    iconSize(0,0), size(0,0), importance(MAXFLOAT), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
+     importance(MAXFLOAT), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
 {
+}
     
+void LayoutObject::setLayoutSize(const Point2d &layoutSize,const Point2d &offset)
+{
+    if (layoutSize.x() == 0.0 && layoutSize.y() == 0.0)
+        return;
+    
+    layoutPts.push_back(Point2d(0,0)+offset);
+    layoutPts.push_back(Point2d(layoutSize.x(),0.0)+offset);
+    layoutPts.push_back(layoutSize+offset);
+    layoutPts.push_back(Point2d(0.0,layoutSize.y())+offset);
+}
+    
+void LayoutObject::setSelectSize(const Point2d &selectSize,const Point2d &offset)
+{
+    if (selectSize.x() == 0.0 && selectSize.y() == 0.0)
+        return;
+    
+    selectPts.push_back(Point2d(0,0)+offset);
+    selectPts.push_back(Point2d(selectSize.x(),0.0)+offset);
+    selectPts.push_back(selectSize+offset);
+    selectPts.push_back(Point2d(0.0,selectSize.y())+offset);
 }
     
 LayoutManager::LayoutManager()
@@ -229,6 +250,30 @@ typedef struct
 } LayoutEntrySorter;
 typedef std::set<LayoutObjectEntry *,LayoutEntrySorter> LayoutSortingSet;
     
+// Return the screen space objects in a form the selection manager can understand
+void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs)
+{
+    pthread_mutex_lock(&layoutLock);
+    
+    for (LayoutEntrySet::iterator it = layoutObjects.begin();
+         it != layoutObjects.end(); ++it)
+    {
+        LayoutObjectEntry *entry = *it;
+        if (entry->currentEnable)
+        {
+            ScreenSpaceObjectLocation ssObj;
+            ssObj.shapeID = entry->obj.getId();
+            ssObj.dispLoc = entry->obj.worldLoc;
+            ssObj.offset = entry->offset;
+            ssObj.pts = entry->obj.selectPts;
+            
+            screenSpaceObjs.push_back(ssObj);
+        }
+    }
+    
+    pthread_mutex_unlock(&layoutLock);
+}
+
 // Size of the overlap sampler
 static const int OverlapSampleX = 10;
 static const int OverlapSampleY = 60;
@@ -367,7 +412,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
             if (isActive)
             {
                 // Try the four different orientations
-                if (layoutObj->obj.size.x() != 0.0 && layoutObj->obj.size.y() != 0.0)
+                if (!layoutObj->obj.layoutPts.empty())
                 {
                     bool validOrient = false;
                     for (unsigned int orient=0;orient<5;orient++)
@@ -375,29 +420,34 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                         // May only want to be placed certain ways.  Fair enough.
                         if (!(layoutObj->obj.acceptablePlacement & (1<<orient)))
                             continue;
+                        const std::vector<Point2d> &layoutPts = layoutObj->obj.layoutPts;
+                        Mbr layoutMbr;
+                        for (unsigned int li=0;li<layoutPts.size();li++)
+                            layoutMbr.addPoint(layoutPts[li]);
+                        Point2f layoutSpan(layoutMbr.ur().x()-layoutMbr.ll().x(),layoutMbr.ur().y()-layoutMbr.ll().y());
                         
                         // Set up the offset for this orientation
                         switch (orient)
                         {
                                 //center
                             case 0:
-                                objOffset = Point2d(-layoutObj->obj.size.x()/2.0,0.0);
+                                objOffset = Point2d(-layoutSpan.x()/2.0,0.0);
                                 break;
                                 // Right
                             case 1:
-                                objOffset = Point2d(layoutObj->obj.iconSize.x(),0.0);
+                                objOffset = Point2d(0.0,0.0);
                                 break;
                                 // Left
                             case 2:
-                                objOffset = Point2d(-(layoutObj->obj.size.x()+layoutObj->obj.iconSize.x()/2.0),0.0);
+                                objOffset = Point2d(-(layoutSpan.x()),0.0);
                                 break;
                                 // Above
                             case 3:
-                                objOffset = Point2d(-layoutObj->obj.size.x()/2.0,-(layoutObj->obj.size.y()+layoutObj->obj.iconSize.y())/2.0);
+                                objOffset = Point2d(-layoutSpan.x()/2.0,-(layoutSpan.y())/2.0);
                                 break;
                                 // Below
                             case 4:
-                                objOffset = Point2d(-layoutObj->obj.size.x()/2.0,(layoutObj->obj.size.y()+layoutObj->obj.iconSize.y())/2.0);
+                                objOffset = Point2d(-layoutSpan.x()/2.0,(layoutSpan.y())/2.0);
                                 break;
                         }
                         
@@ -405,15 +455,15 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                         if (screenRot == 0.0)
                         {
                             objPts[0] = Point2d(objPt.x,objPt.y) + objOffset*resScale;
-                            objPts[1] = objPts[0] + Point2d(layoutObj->obj.size.x()*resScale,0.0);
-                            objPts[2] = objPts[0] + Point2d(layoutObj->obj.size.x()*resScale,layoutObj->obj.size.y()*resScale);
-                            objPts[3] = objPts[0] + Point2d(0.0,layoutObj->obj.size.y()*resScale);
+                            objPts[1] = objPts[0] + Point2d(layoutSpan.x()*resScale,0.0);
+                            objPts[2] = objPts[0] + Point2d(layoutSpan.x()*resScale,layoutSpan.y()*resScale);
+                            objPts[3] = objPts[0] + Point2d(0.0,layoutSpan.y()*resScale);
                         } else {
                             Point2d center(objPt.x,objPt.y);
                             objPts[0] = objOffset;
-                            objPts[1] = objOffset + Point2d(layoutObj->obj.size.x(),0.0);
-                            objPts[2] = objOffset + Point2d(layoutObj->obj.size.x(),layoutObj->obj.size.y());
-                            objPts[3] = objOffset + Point2d(0.0,layoutObj->obj.size.y());
+                            objPts[1] = objOffset + Point2d(layoutSpan.x(),0.0);
+                            objPts[2] = objOffset + Point2d(layoutSpan.x(),layoutSpan.y());
+                            objPts[3] = objOffset + Point2d(0.0,layoutSpan.y());
                             for (unsigned int oi=0;oi<4;oi++)
                             {
                                 Point2d &thisObjPt = objPts[oi];
@@ -487,7 +537,7 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
         {
             LayoutObjectEntry *layoutObj = *it;
 
-            layoutObj->obj.offset = layoutObj->offset;
+            layoutObj->obj.offset = Point2d(layoutObj->offset.x(),-layoutObj->offset.y());
             if (!layoutObj->currentEnable)
             {
                 layoutObj->obj.state.fadeDown = curTime;
