@@ -284,7 +284,7 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
         {
             std::vector<WhirlyKit::RectSelectable2D> &selectables2D = labelRenderer.selectables2D;
             RectSelectable2D &sel = selectables2D[ii];
-            selectManager->addSelectableScreenRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis,sel.enable);
+            selectManager->addSelectableScreenRect(sel.selectID,sel.center,sel.pts,sel.minVis,sel.maxVis,sel.enable);
         }
         for (unsigned int ii=0;ii<labelRenderer.selectables3D.size();ii++)
         {
@@ -343,9 +343,8 @@ void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &chan
             for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                  idIt != sceneRep->drawIDs.end(); ++idIt)
                 changes.push_back(new OnOffChangeRequest(*idIt,enable));
-            // Note: ScreenSpace
-//            if (sceneRep->selectID != EmptyIdentity && selectManager)
-//                selectManager->enableSelectable(sceneRep->selectID, enable);
+            if (!sceneRep->screenIDs.empty() && selectManager)
+                selectManager->enableSelectables(sceneRep->screenIDs, enable);
             if (!sceneRep->screenIDs.empty() && layoutManager)
                 layoutManager->enableLayoutObjects(sceneRep->screenIDs,enable);
         }
@@ -405,9 +404,8 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
                         [fontTexManager removeString:*idIt changes:changes];
                 }
                 
-                // Note: ScreenSpace
-//                if (labelRep->selectID != EmptyIdentity && selectManager)
-//                    selectManager->removeSelectable(labelRep->selectID);
+                if (!labelRep->screenIDs.empty() && selectManager)
+                    selectManager->removeSelectables(labelRep->screenIDs);
 
                 // Note: Screenspace  Doesn't handle fade
                 if (layoutManager && !labelRep->screenIDs.empty())

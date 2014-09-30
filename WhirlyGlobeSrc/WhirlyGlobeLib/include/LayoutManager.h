@@ -27,6 +27,7 @@
 #import "SceneRendererES.h"
 #import "GlobeLayerViewWatcher.h"
 #import "ScreenSpaceBuilder.h"
+#import "SelectionManager.h"
 
 namespace WhirlyKit
 {
@@ -50,11 +51,17 @@ public:
     LayoutObject();
     LayoutObject(SimpleIdentity theId);
     
-    // Size of an optional icon to work around
-    Point2d iconSize;
+    // Set the layout size from width/height
+    void setLayoutSize(const Point2d &layoutSize,const Point2d &offset);
     
-    // Size of the geometry
-    Point2d size;
+    // Set the selection size from width/height
+    void setSelectSize(const Point2d &layoutSize,const Point2d &offset);
+
+    // Size to use for laying out
+    std::vector<Point2d> layoutPts;
+    
+    // Size to use for selection
+    std::vector<Point2d> selectPts;
 
     /// This is used to sort objects for layout.  Bigger is more important.
     float importance;
@@ -126,7 +133,10 @@ public:
     
     /// True if we've got changes since the last update
     bool hasChanges();
-        
+    
+    /// Return the active objects in a form the selection manager can handle
+    void getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs);
+    
 protected:
     bool runLayoutRules(WhirlyKitViewState *viewState);
     
