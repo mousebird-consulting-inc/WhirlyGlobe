@@ -1973,6 +1973,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
+    LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
 
     ChangeSet changes;
     for (MaplyComponentObject *compObj in theObjs)
@@ -1997,6 +1998,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                 shapeManager->enableShapes(compObj.shapeIDs, enable, changes);
             if (billManager && !compObj.billIDs.empty())
                 billManager->enableBillboards(compObj.billIDs, enable, changes);
+            if (loftManager && !compObj.loftIDs.empty())
+                loftManager->enableLoftedPolys(compObj.loftIDs, enable, changes);
             if (chunkManager && !compObj.chunkIDs.empty())
             {
                 for (SimpleIDSet::iterator it = compObj.chunkIDs.begin();

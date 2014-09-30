@@ -765,6 +765,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
                                  screenLabel.layoutImportance = 1.0;
                                  screenLabel.text = vecName;
                                  screenLabel.userObject = screenLabel.text;
+                                 screenLabel.layoutPlacement = kMaplyLayoutRight | kMaplyLayoutAbove | kMaplyLayoutLeft | kMaplyLayoutBelow;
                                  screenLabel.selectable = true;
                                  if (screenLabel.text)
                                      [locAutoLabels addObject:screenLabel];
@@ -786,7 +787,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
                                                                       @{kMaplyTextColor: [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1.0],
                                                                             kMaplyFont: [UIFont systemFontOfSize:24.0],
                                                                          kMaplyTextOutlineColor: [UIColor blackColor],
-                                                                          kMaplyTextOutlineSize: @(1.0)
+                                                                          kMaplyTextOutlineSize: @(1.0),
 //                                                                               kMaplyShadowSize: @(1.0)
                                                                       } mode:MaplyThreadAny];
 
@@ -1684,7 +1685,7 @@ static const int NumMegaMarkers = 15000;
                 // See if there already is one
                 if (!loftPolyDict[name])
                 {
-                    MaplyComponentObject *compObj = [baseViewC addLoftedPolys:@[vecObj] key:nil cache:nil desc:@{kMaplyColor: [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.25], kMaplyLoftedPolyHeight: @(0.05), kMaplyFade: @(0.5)}];
+                    MaplyComponentObject *compObj = [baseViewC addLoftedPolys:@[vecObj] key:nil cache:nil desc:@{kMaplyColor: [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.25], kMaplyLoftedPolyHeight: @(0.05), kMaplyFade: @(0.5)} mode:MaplyThreadAny];
                     if (compObj)
                     {
                         loftPolyDict[name] = compObj;

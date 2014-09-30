@@ -997,6 +997,10 @@ using namespace WhirlyGlobe;
         Point3d geoC = visualView.coordAdapter->getCoordSystem()->localToGeocentric(visualView.coordAdapter->displayToLocal(hit));
         retCoords[0] = geoC.x();  retCoords[1] = geoC.y();  retCoords[2] = geoC.z();
         
+        // Note: Obviously doing something stupid here
+        if (isnan(retCoords[0]) || isnan(retCoords[1]) || isnan(retCoords[2]))
+            return false;
+        
         return true;
 	} else
         return false;
