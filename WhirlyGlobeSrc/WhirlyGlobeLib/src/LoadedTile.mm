@@ -1158,7 +1158,7 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
             Quadtree::Identifier childIdent(2*nodeInfo.ident.x+ix,2*nodeInfo.ident.y+iy,nodeInfo.ident.level+1);
 //            LoadedTile *childTile = [loader getTile:childIdent];
             LoadedTile *childTile = childTiles[iy*2+ix];
-            isPresent = childTile && !childTile->isLoading;
+            isPresent = childTile && childTile->isInitialized;
             
             // If it exists, make sure we're not representing it here
             if (isPresent)
