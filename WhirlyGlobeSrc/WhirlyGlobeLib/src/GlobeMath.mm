@@ -299,5 +299,13 @@ float CheckPointAndNormFacing(const Point3f &dispLoc,const Point3f &norm,const M
     Vector4f testDir = viewModelNormalMat * Vector4f(norm.x(),norm.y(),norm.z(),0.0);
     return Vector3f(-pt.x(),-pt.y(),-pt.z()).dot(Vector3f(testDir.x(),testDir.y(),testDir.z()));
 }
-    
+
+double CheckPointAndNormFacing(const Point3d &dispLoc,const Point3d &norm,const Matrix4d &viewAndModelMat,const Matrix4d &viewModelNormalMat)
+{
+    Vector4d pt = viewAndModelMat * Vector4d(dispLoc.x(),dispLoc.y(),dispLoc.z(),1.0);
+    pt /= pt.w();
+    Vector4d testDir = viewModelNormalMat * Vector4d(norm.x(),norm.y(),norm.z(),0.0);
+    return Vector3d(-pt.x(),-pt.y(),-pt.z()).dot(Vector3d(testDir.x(),testDir.y(),testDir.z()));
+}
+
 }
