@@ -422,9 +422,9 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                             continue;
                         const std::vector<Point2d> &layoutPts = layoutObj->obj.layoutPts;
                         Mbr layoutMbr;
-                        Point2f layoutSpan(layoutMbr.ur().x()-layoutMbr.ll().x(),layoutMbr.ur().y()-layoutMbr.ll().y());
                         for (unsigned int li=0;li<layoutPts.size();li++)
                             layoutMbr.addPoint(layoutPts[li]);
+                        Point2f layoutSpan(layoutMbr.ur().x()-layoutMbr.ll().x(),layoutMbr.ur().y()-layoutMbr.ll().y());
                         
                         // Set up the offset for this orientation
                         switch (orient)
@@ -537,7 +537,7 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
         {
             LayoutObjectEntry *layoutObj = *it;
 
-            layoutObj->obj.offset = layoutObj->offset;
+            layoutObj->obj.offset = Point2d(layoutObj->offset.x(),-layoutObj->offset.y());
             if (!layoutObj->currentEnable)
             {
                 layoutObj->obj.state.fadeDown = curTime;
