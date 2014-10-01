@@ -96,6 +96,8 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     bool renderScheduled,immediateScheduled;
     CFTimeInterval lastRender;
     bool somethingChanged;
+    // Frames that have gotten new tiles
+    std::set<int> updatedFrames;
     int currentMbr;
 }
 
@@ -135,6 +137,12 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 - (int)numFrames
 {
+    @synchronized(self)
+    {
+        for (unsigned int ii=0;ii<_numImages;ii++)
+            updatedFrames.insert(ii);
+    }
+    
     return _numImages;
 }
 
@@ -146,7 +154,9 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 - (void)setPeriod:(NSTimeInterval)period
 {
-    _period = period;
+    // Note: Debugging
+    _period = 1.0;
+//    _period = period;
     
     if (!_quadLayer)
         return;
@@ -177,13 +187,20 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     {
         _mbr = mbr;
         currentMbr++;
+        updatedFrames.clear();
+        @synchronized(self)
+        {
+            for (unsigned int ii=0;ii<_numImages;ii++)
+                updatedFrames.insert(ii);
+        }
     }
     somethingChanged = true;
-    if (!immediateScheduled)
-    {
-        [self performSelector:@selector(imageRenderImmediate) onThread:_quadLayer.layerThread withObject:nil waitUntilDone:NO];
-        immediateScheduled = true;
-    }
+    // Note: Debugging
+//    if (!immediateScheduled)
+//    {
+//        [self performSelector:@selector(imageRenderImmediate) onThread:_quadLayer.layerThread withObject:nil waitUntilDone:NO];
+//        immediateScheduled = true;
+//    }
 }
 
 - (void)imageRenderImmediate
@@ -310,18 +327,24 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 - (void)imageRenderToLevel:(int)deep
 {
-    if (_outputDelegate)
+    if (!_outputDelegate)
+        return;
+    
+    std::set<int> framesToRender;
+    int whichMbr;
+    Mbr mbr;
+    @synchronized(self)
+    {
+        framesToRender = updatedFrames;
+        updatedFrames.clear();
+        mbr = _mbr;
+        whichMbr = currentMbr;
+    }
+    
+    if (!framesToRender.empty())
     {
         lastRender = CFAbsoluteTimeGetCurrent();
-        int whichMbr;
         
-        Mbr mbr;
-        @synchronized(self)
-        {
-            mbr = _mbr;
-            whichMbr = currentMbr;
-        }
-
         // Note: Assuming geographic or spherical mercator
         GeoMbr geoMbr(GeoCoord(mbr.ll().x(), mbr.ll().y()),GeoCoord(mbr.ur().x(),mbr.ur().y()));
         std::vector<Mbr> testMbrs;
@@ -333,8 +356,6 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
             testMbrs.push_back(Mbr(geoMbr.ll(),geoMbr.ur()));
         }
         
-        NSMutableArray *images = [NSMutableArray array];
-        
         CGSize texSize = [self calculateSize];
 //        NSLog(@"Tex Size = (%f,%f)",texSize.width,texSize.height);
         
@@ -342,8 +363,15 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
         CGContextRef theContext = CGBitmapContextCreate(NULL, texSize.width, texSize.height, 8, texSize.width * 4, colorSpace, kCGImageAlphaPremultipliedLast);
         int numRenderedTiles = 0;
-        for (unsigned int ii=0;ii<_numImages;ii++)
+        
+        // We'll just re-render the frames that were updated
+        for (std::set<int>::iterator it = framesToRender.begin(); it != framesToRender.end(); ++it)
         {
+            if (whichMbr != currentMbr)
+                break;
+
+            int whichFrame = *it;
+            
             // Note: This draws the background in red.  Useful for seeing what doesn't get filled
 //            CGContextSetRGBFillColor(theContext, 1, 0, 0, 1);
 //            CGContextFillRect(theContext, CGRectMake(0, 0, texSize.width, texSize.height));
@@ -360,7 +388,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
                 }
 
                 OfflineTile *tile = *it;
-                if (tile->images[ii] == nil)
+                if (tile->images[whichFrame] == nil)
                     continue;
                 if (deep > 0 && tile->ident.level > deep)
                     continue;
@@ -394,9 +422,9 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
                     
                     // Find the right input image
                     UIImage *imageToDraw = nil;
-                    if (ii < tile->images.size())
+                    if (whichFrame < tile->images.size())
                     {
-                        imageToDraw = (UIImage *)tile->images[ii].imageData;
+                        imageToDraw = (UIImage *)tile->images[whichFrame].imageData;
                         if ([imageToDraw isKindOfClass:[NSData class]])
                             imageToDraw = [UIImage imageWithData:(NSData *)imageToDraw];
                         if (![imageToDraw isKindOfClass:[UIImage class]])
@@ -424,61 +452,39 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
             CGImageRef imageRef = CGBitmapContextCreateImage(theContext);
             UIImage *image = [UIImage imageWithCGImage:imageRef];
             CGImageRelease(imageRef);
-            if (image)
-                [images addObject:image];
+            
+            NSLog(@"Offline: Rendered frame %d",whichFrame);
+            
+            // Convert the images into OpenGL ES textures
+            ChangeSet changes;
+            Texture *tex = new Texture("TileQuadOfflineRenderer",image,true);
+            SimpleIdentity texID = tex->getId();
+            tex->createInGL(_quadLayer.scene->getMemManager());
+            changes.push_back(new AddTextureReq(tex));
+            
+            [_quadLayer.layerThread addChangeRequests:changes];
+            [_quadLayer.layerThread flushChangeRequests];
+            
+            WhirlyKitQuadTileOfflineImage *offImage = [[WhirlyKitQuadTileOfflineImage alloc] init];
+            offImage.texture = texID;
+            offImage.frame = whichFrame;
+            offImage.mbr = mbr;
+            offImage.texSize = texSize;
+            offImage.centerSize = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(texSize.width/2.0, texSize.height/2.0)];
+            offImage->cornerSizes[0] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(0.0, 0.0)];
+            offImage->cornerSizes[1] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(texSize.width, 0.0)];
+            offImage->cornerSizes[2] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(texSize.width, texSize.height)];
+            offImage->cornerSizes[3] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(0.0, texSize.height)];
+
+            [_outputDelegate loader:self image:offImage];
         }
         CGContextRelease(theContext);
         CGColorSpaceRelease(colorSpace);
         
 //        NSLog(@"Rendered %d tiles of %d, depth = %d",numRenderedTiles,(int)tiles.size(),deep);
         
-        // Convert the images into OpenGL ES textures
-        bool aborted = false;
-        ChangeSet changes;
-        std::vector<WhirlyKit::SimpleIdentity> texIDs;
-        for (UIImage *image in images)
-        {
-            Texture *tex = new Texture("TileQuadOfflineRenderer",image,true);
-            texIDs.push_back(tex->getId());
-            tex->createInGL(_quadLayer.scene->getMemManager());
-            changes.push_back(new AddTextureReq(tex));
-            if (whichMbr != currentMbr)
-            {
-                aborted = true;
-                break;
-            }
-        }
-        
-        // The texture setup can take a while, so let's be ready to abort here
-        if (aborted)
-        {
-            for (unsigned int ii=0;ii<changes.size();ii++)
-            {
-                AddTextureReq *texReq = (AddTextureReq *)changes[ii];
-                texReq->getTex()->destroyInGL(_quadLayer.scene->getMemManager());
-                delete changes[ii];
-            }
-            changes.clear();
-//            NSLog(@"Aborted render (2)");
-            return;
-        }
-        
-        [_quadLayer.layerThread addChangeRequests:changes];
-        [_quadLayer.layerThread flushChangeRequests];
-        
-        WhirlyKitQuadTileOfflineImage *image = [[WhirlyKitQuadTileOfflineImage alloc] init];
-        image.textures = texIDs;
-        image.mbr = mbr;
-        image.texSize = texSize;
-        image.centerSize = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(texSize.width/2.0, texSize.height/2.0)];
-        image->cornerSizes[0] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(0.0, 0.0)];
-        image->cornerSizes[1] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(texSize.width, 0.0)];
-        image->cornerSizes[2] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(texSize.width, texSize.height)];
-        image->cornerSizes[3] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(0.0, texSize.height)];
         
 //        NSLog(@"CenterSize = (%f,%f), texSize = (%d,%d)",image.centerSize.width,image.centerSize.height,(int)texSize.width,(int)texSize.height);
-        
-        [_outputDelegate loader:self image:image];
     }
     
     // If we did a quick render, we need to go back again
@@ -623,7 +629,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         numFetches--;
         tile->numLoading--;
     }
-
+    
     // Assemble the images
     std::vector<WhirlyKitLoadedImage *> loadImages;
     if ([loadTile isKindOfClass:[WhirlyKitLoadedImage class]])
@@ -651,7 +657,12 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 //    NSLog(@"Loaded tile %d: (%d,%d), frame = %d",level,col,row,frame);
     [_quadLayer loader:self tileDidLoad:tileIdent frame:frame];
-    somethingChanged = true;
+    // We'll need to update this frame
+    @synchronized(self)
+    {
+        updatedFrames.insert(frame);
+        somethingChanged = true;
+    }
 }
 
 

@@ -46,8 +46,11 @@
 /// Bounding box for the rendered area
 @property (nonatomic) WhirlyKit::Mbr &mbr;
 
+/// Which frame this is
+@property (nonatomic,assign) int frame;
+
 /// Textures produced by the offline renderer.  Delegate is responsible for cleanup
-@property (nonatomic,assign) std::vector<WhirlyKit::SimpleIdentity> &textures;
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity texture;
 
 /// Size of the center pixel in meters
 @property (nonatomic) CGSize centerSize;
@@ -62,7 +65,7 @@
   */
 @protocol WhirlyKitQuadTileOfflineDelegate <NSObject>
 
-/// Here's the generated image.  Query the loader for extents.
+/// Here's the generated image.  One texture at a time.
 - (void)loader:(WhirlyKitQuadTileOfflineLoader *)loader image:(WhirlyKitQuadTileOfflineImage *)image;
 
 @end
@@ -107,8 +110,6 @@
 /// When a data source has finished its fetch for a given tile, it
 ///  calls this method to hand the data (along with key info) back to the
 ///  quad tile loader.
-/// You can pass back a WhirlyKitLoadedTile or a WhirlyKitLoadedImage or
-///  just a WhirlyKitElevationChunk.
-- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadImage forLevel:(int)level col:(int)col row:(int)row;
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadTile forLevel:(int)level col:(int)col row:(int)row frame:(int)frame;
 
 @end
