@@ -1008,7 +1008,7 @@ bool LoadedTile::updateTexture(TileBuilder *tileBuilder,WhirlyKitLoadedImage *lo
 bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,int frame,int currentImage0,int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
     isInitialized = true;
-
+    
     // If it's a placeholder, we don't create geometry
     if (!loadImages.empty() && loadImages[0].type == WKLoadedImagePlaceholder)
     {

@@ -36,8 +36,11 @@
 /// Bounding box for the rendered area
 @property (nonatomic) MaplyBoundingBox bbox;
 
-/// Images produced by the renderer represented as MaplyTexture objects
-@property (nonatomic) NSArray *textures;
+/// Which frame this is
+@property (nonatomic,assign) int frame;
+
+/// Image updated by the renderer
+@property (nonatomic) MaplyTexture *tex;
 
 /// Size of the center pixel in meters
 @property (nonatomic) CGSize centerSize;
@@ -59,7 +62,7 @@
     @param images One or more images rendered by the offline layer.  The size of the array will correspond to the depth of the tile source provided to the offline layer.
     @param bbox The bounding box of the images in the coordinate system of the offline layer.
   */
-- (void)offlineLayer:(MaplyQuadImageOfflineLayer *)layer images:(MaplyOfflineImage *)offlineImage;
+- (void)offlineLayer:(MaplyQuadImageOfflineLayer *)layer image:(MaplyOfflineImage *)offlineImage;
 
 @end
 
