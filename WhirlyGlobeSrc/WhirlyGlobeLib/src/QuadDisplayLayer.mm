@@ -274,7 +274,11 @@ using namespace WhirlyKit;
     
     // We'll just ignore changes
     if (!_enable)
+    {
+        // We do need an initial view state, though
+        viewState = inViewState;
         return;
+    }
     
     // Check if we should even be doing an update
     if ([_loader respondsToSelector:@selector(shouldUpdate:initial:)])
