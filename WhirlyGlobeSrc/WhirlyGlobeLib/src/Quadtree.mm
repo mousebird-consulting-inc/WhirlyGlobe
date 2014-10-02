@@ -529,6 +529,9 @@ void Quadtree::clearEvals()
         node->evalPos = evalNodes.end();
         node->nodeInfo.eval = false;
         node->nodeInfo.childrenEval = 0;
+        node->nodeInfo.loading = false;
+        node->nodeInfo.childrenLoading = 0;
+        node->nodeInfo.childrenEval = 0;
     }
     
     evalNodes.clear();
