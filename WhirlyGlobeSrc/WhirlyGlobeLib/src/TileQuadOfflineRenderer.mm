@@ -43,10 +43,17 @@ public:
     void GetTileSize(int &numX,int &numY)
     {
         numX = numY = 0;
-        if (images.size() > 0)
+        WhirlyKitLoadedImage *exampleImage = nil;
+        for (unsigned int ii=0;ii<images.size();ii++)
+            if (images[ii])
+            {
+                exampleImage = images[ii];
+                break;
+            }
+        if (exampleImage)
         {
-            numX = images[0].width;
-            numY = images[0].height;
+            numX = exampleImage.width;
+            numY = exampleImage.height;
         }
     }
     
@@ -281,8 +288,8 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         for (OfflineTileSet::iterator it = tiles.begin(); it != tiles.end(); ++it)
         {
             OfflineTile *tile = *it;
-            if (tile->getNumLoaded() == 0)
-                continue;
+//            if (tile->getNumLoaded() == 0)
+//                continue;
             // Scale the extents to the output image
             Mbr tileMbr[2];
             tileMbr[0] = _quadLayer.quadtree->generateMbrForNode(tile->ident);
@@ -453,7 +460,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
             UIImage *image = [UIImage imageWithCGImage:imageRef];
             CGImageRelease(imageRef);
             
-            NSLog(@"Offline: Rendered frame %d",whichFrame);
+//            NSLog(@"Offline: Rendered frame %d, Tex Size = (%f,%f)",whichFrame,texSize.width,texSize.height);
             
             // Convert the images into OpenGL ES textures
             ChangeSet changes;
@@ -615,7 +622,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 - (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadTile forLevel:(int)level col:(int)col row:(int)row frame:(int)frame
 {
 //    if (loadTile)
-//        NSLog(@"Tile loaded: %d: (%d,%d) %d numFetches = %d",level,col,row,frame,numFetches);
+//        NSLog(@"Tile loaded: %d: (%d,%d) %d",level,col,row,frame);
 //    else
 //        NSLog(@"Tile failed to load: %d: (%d,%d) %d  numFetches = %d",level,col,row,frame,numFetches);
     

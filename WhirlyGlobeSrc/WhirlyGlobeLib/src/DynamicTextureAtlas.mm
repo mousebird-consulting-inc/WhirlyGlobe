@@ -537,6 +537,19 @@ void DynamicTextureAtlas::getTextureIDs(std::vector<SimpleIdentity> &texIDs,int 
     }
 }
     
+SimpleIdentity DynamicTextureAtlas::getTextureIDForFrame(SimpleIdentity baseTexID,int which)
+{
+    for (DynamicTextureSet::iterator it = textures.begin();
+         it != textures.end(); ++it)
+    {
+        DynamicTextureVec *dynTexVec = *it;
+        if (((*dynTexVec)[0])->getId() == baseTexID && which < dynTexVec->size())
+            return ((*dynTexVec)[which])->getId();
+    }
+    
+    return EmptyIdentity;
+}
+    
 void DynamicTextureAtlas::shutdown(ChangeSet &changes)
 {
     for (DynamicTextureSet::iterator it = textures.begin(); it != textures.end(); ++it)
