@@ -181,6 +181,9 @@ public:
     /// Return the IDs for the dynamic textures we're using
     void getTextureIDs(std::vector<SimpleIdentity> &texIDs,int which);
     
+    /// Return the texture ID for a given frame, corresponding to the base Tex ID
+    SimpleIdentity getTextureIDForFrame(SimpleIdentity baseTexID,int which);
+    
     /// Return the dynamic texture's format
     GLenum getFormat() { return format; }
     
