@@ -303,7 +303,7 @@ using namespace WhirlyKit;
                     Quadtree::Identifier childIdent(2*theTile->nodeInfo.ident.x+ix,2*theTile->nodeInfo.ident.y+iy,theTile->nodeInfo.ident.level+1);
                     childTiles[iy*2+ix] = [self getTile:childIdent];
                 }
-            theTile->updateContents(tileBuilder,childTiles,changeRequests);
+            theTile->updateContents(tileBuilder,childTiles,currentImage0,currentImage1,changeRequests);
         }
     }
     parents.clear();
@@ -329,12 +329,13 @@ using namespace WhirlyKit;
         }
     }
 
+    // Note: Shouldn't need to do this anymore
     // If we added geometry or textures, we may need to reset this
-    if (tileBuilder && tileBuilder->newDrawables)
-    {
-        [self runSetCurrentImage:changeRequests];
-        tileBuilder->newDrawables = false;
-    }
+//    if (tileBuilder && tileBuilder->newDrawables)
+//    {
+//        [self runSetCurrentImage:changeRequests];
+//        tileBuilder->newDrawables = false;
+//    }
     
     if (!changeRequests.empty())
     {
