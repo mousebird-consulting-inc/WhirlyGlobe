@@ -409,7 +409,7 @@ public class MaplyController implements View.OnTouchListener
 	boolean checkCoverage(Mbr mbr,MapView theMapView,double height)
 	{
 		Point2d centerLoc = mbr.middle();
-		Point3d localCoord = mapView.coordAdapter.coordSys.geographicToLocal(new Point3d(centerLoc.getX(),centerLoc.getY(),0.0));
+		Point3d localCoord = theMapView.coordAdapter.coordSys.geographicToLocal(new Point3d(centerLoc.getX(),centerLoc.getY(),0.0));
 		theMapView.setLoc(new Point3d(localCoord.getX(),localCoord.getY(),height));
 		
 		List<Point2d> pts = mbr.asPoints();
@@ -437,9 +437,10 @@ public class MaplyController implements View.OnTouchListener
 	{
 		// We'll experiment on a copy of the map view
 		MapView newMapView = mapView.clone();
+		newMapView.setLoc(new Point3d(pos.getX(),pos.getY(),2.0));
 		
-		double minHeight = mapView.minHeightAboveSurface();
-		double maxHeight = mapView.maxHeightAboveSurface();
+		double minHeight = newMapView.minHeightAboveSurface();
+		double maxHeight = newMapView.maxHeightAboveSurface();
 		
 		boolean minOnScreen = checkCoverage(mbr,newMapView,minHeight);
 		boolean maxOnScreen = checkCoverage(mbr,newMapView,maxHeight);
@@ -447,6 +448,9 @@ public class MaplyController implements View.OnTouchListener
 		// No idea, just give up
 		if (!minOnScreen && !maxOnScreen)
 			return mapView.getLoc().getZ();
+		
+		if (minOnScreen)
+			return minHeight;
 		
 		// Do a binary search between the two heights
 		double minRange = 1e-5;
@@ -855,6 +859,23 @@ public class MaplyController implements View.OnTouchListener
 		mapView.cancelAnimation();
 		Point3d geoCoord = mapView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
 		mapView.setLoc(new Point3d(geoCoord.getX(),geoCoord.getY(),z));
+	}
+	
+	/**
+	 * Animate to a new view position
+	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 * @param howLong Time (in seconds) to animate.
+	 */
+	public void animatePositionGeo(double x,double y,double z,double howLong)
+	{
+		if (!running)
+			return;
+
+		mapView.cancelAnimation();
+		Point3d geoCoord = mapView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
+		mapView.setAnimationDelegate(new AnimateTranslate(mapView, renderWrapper.maplyRender, new Point3d(geoCoord.getX(),geoCoord.getY(),z), (float) howLong, viewBounds));		
 	}
 	
     private boolean isProbablyEmulator() {

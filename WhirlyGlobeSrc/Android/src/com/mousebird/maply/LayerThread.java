@@ -167,7 +167,14 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 			layer.shutdown();
 		}
 		// Note: Is this blocking?
-		quitSafely();
+		try
+		{
+			quit();
+		}
+		catch (Exception e)
+		{
+			
+		}
 		layers = null;
 		view = null;
 		scene = null;
@@ -244,10 +251,10 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	 * @time time Number of seconds to wait before running.
 	 * @return The Handler if you want to cancel this at some point in the future.
 	 */
-	Handler addDelayedTask(Runnable run,float time)
+	Handler addDelayedTask(Runnable run,long time)
 	{
 		Handler handler = new Handler(getLooper());
-		handler.postDelayed(run, (int)(time*1000));
+		handler.postDelayed(run, time);
 		return handler;
 	}
 
@@ -384,6 +391,41 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 		}		
 	}
 	
+	Handler trailingHandle = null;
+	Runnable trailingRun = null;
+	// Schedule a lagging update (e.g. not too often, but no less than 100ms
+	void scheduleLateUpdate(long delay)
+	{
+		if (trailingHandle != null)
+			synchronized(this)
+			{
+				trailingHandle.removeCallbacks(trailingRun);
+				trailingHandle = null;
+				trailingRun = null;
+			}
+		
+		synchronized(this)
+		{
+			trailingRun = new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					final ViewState viewState = new ViewState(view,renderer);
+					long now = System.currentTimeMillis();
+					updateWatchers(viewState,now);
+					
+					trailingHandle = null;
+					trailingRun = null;
+				}				
+			};
+			
+			trailingHandle = addDelayedTask(trailingRun,delay);
+		}
+	}
+	
+	static long UpdatePeriod = 100;
+	
 	// Called when the view updates its information
 	public void viewUpdated(MapView view)
 	{
@@ -392,9 +434,13 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 		long now = System.currentTimeMillis();
 
 		// Note: Hardwired to 1/10 second.  Lame.
-		if (now - viewUpdateLastCalled > 100)
+		long timeUntil = now - viewUpdateLastCalled;
+		if (timeUntil > UpdatePeriod)
 		{
 			updateWatchers(viewState,now);
+		} else {
+			// Note: Technically, should do the difference here
+			scheduleLateUpdate(UpdatePeriod);
 		}
 	}
 }
