@@ -114,7 +114,7 @@
                 width += 2;
             else
                 width += 1;
-            MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,patternLength)];
+            MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(width,patternLength)];
             [lineTexBuilder setPattern:dashComponents];
             lineTexBuilder.opacityFunc = MaplyOpacitySin3;
             UIImage *lineImage = [lineTexBuilder makeImage];
