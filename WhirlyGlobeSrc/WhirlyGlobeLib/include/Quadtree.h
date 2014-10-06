@@ -68,10 +68,10 @@ public:
     class NodeInfo
     {
     public:
-        NodeInfo() { attrs = [NSMutableDictionary dictionary]; phantom = false;  importance = 0; loading = false; childrenLoading = 0; childrenEval = 0; eval = false; failed = false; childCoverage = false; frameFlags = 0;}
-        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom),loading(that.loading),childrenLoading(that.childrenLoading),eval(that.eval), failed(that.failed), childrenEval(that.childrenEval), childCoverage(that.childCoverage), frameFlags(that.frameFlags) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
-        NodeInfo(const Identifier &ident) : ident(ident), importance(0.0), phantom(false), loading(false), eval(false), failed(false), childrenLoading(0), childrenEval(0), childCoverage(false), frameFlags(0) { attrs = nil; }
-        NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; loading = that.loading; eval = that.eval;  failed = that.failed; childrenLoading = that.childrenLoading; childrenEval = that.childrenEval;  childCoverage = that.childCoverage; frameFlags = that.frameFlags; attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
+        NodeInfo() { attrs = [NSMutableDictionary dictionary]; phantom = false;  importance = 0; frameLoadingFlags = 0; childrenLoading = 0; childrenEval = 0; eval = false; failed = false; childCoverage = false; frameFlags = 0;}
+        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom),frameLoadingFlags(that.frameLoadingFlags),childrenLoading(that.childrenLoading),eval(that.eval), failed(that.failed), childrenEval(that.childrenEval), childCoverage(that.childCoverage), frameFlags(that.frameFlags) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
+        NodeInfo(const Identifier &ident) : ident(ident), importance(0.0), phantom(false), frameLoadingFlags(0), eval(false), failed(false), childrenLoading(0), childrenEval(0), childCoverage(false), frameFlags(0) { attrs = nil; }
+        NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; frameLoadingFlags = that.frameLoadingFlags; eval = that.eval;  failed = that.failed; childrenLoading = that.childrenLoading; childrenEval = that.childrenEval;  childCoverage = that.childCoverage; frameFlags = that.frameFlags; attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
         ~NodeInfo() { attrs = nil; }
         
         /// Compare based on importance.  Used for sorting
@@ -79,6 +79,12 @@ public:
         
         /// Check if the given frame is loaded
         bool isFrameLoaded(int theFrame) const;
+        
+        /// Check if the given frame is loading
+        bool isFrameLoading(int theFrame) const;
+        
+        /// Set the frame loading bit
+        void setFrameLoading(int theFrame,bool val);
         
         /// Unique identifier for the particular node
         Identifier ident;
@@ -88,8 +94,6 @@ public:
         float importance;
         /// Set if this is a phantom tile.  We pretended to load it, but it's not really here.
         bool phantom;
-        /// Tile is in the process of loading
-        bool loading;
         /// Tile is in the process of evaluation
         bool eval;
         /// This node failed to load
@@ -102,6 +106,8 @@ public:
         bool childCoverage;
         /// 64 bits of frame flags
         long long frameFlags;
+        /// 64 bits of frame loading flags
+        long long frameLoadingFlags;
 
         /// Put any attributes you'd like to keep track of here.
         /// There are things you might calculate for a given tile over and over.
@@ -115,7 +121,7 @@ public:
         This means either there's room or less important nodes loaded
         It could already be loaded.  Check that separately.
      */
-    bool shouldLoadTile(const Identifier &ident);
+    bool shouldLoadTile(const Identifier &ident,int frame);
     
     /// Return true if we've go the maximum nodes loaded in
     bool isFull();
@@ -127,10 +133,10 @@ public:
     void setPhantom(const Identifier &nodeInfo,bool newPhantom);
 
     /// Return true if this tile is loading
-    bool isLoading(const Identifier &ident);
+    bool isLoading(const Identifier &ident,int frame);
     
     /// Set the loading flag on the given node
-    void setLoading(const Identifier &nodeInfo,bool newLoading);
+    void setLoading(const Identifier &nodeInfo,int frame,bool newLoading);
     
     /// Mark a tile (with a frame) as loaded
     void didLoad(const Identifier &nodeInfo,int frame);

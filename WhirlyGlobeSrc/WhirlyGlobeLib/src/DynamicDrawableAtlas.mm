@@ -37,7 +37,7 @@ DynamicDrawableAtlas::~DynamicDrawableAtlas()
     swapChanges.clear();
 }
     
-bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled,SimpleIdentity destTexId,bool *addedNewBigDrawable,const Point3d *center,double objSize)
+bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled,std::vector<SimpleIdentity> *destTexIDs,bool *addedNewBigDrawable,const Point3d *center,double objSize)
 {
     hasChanges = true;
 
@@ -139,9 +139,11 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
         newBigDraw->setupGL(NULL, memManager);
         changes.push_back(new AddDrawableReq(newBigDraw));
         bigDrawables.insert(BigDrawableInfo(draw->getTexId(0),newBigDraw));
-        if (destTexId != EmptyIdentity && newBigDraw->texInfo.size() > 0)
+        if (destTexIDs && newBigDraw->texInfo.size() > 0)
         {
-            newBigDraw->texInfo[0].texId = destTexId;
+            for (unsigned int ti=0;ti<destTexIDs->size();ti++)
+                if (ti<newBigDraw->texInfo.size())
+                    newBigDraw->texInfo[ti].texId = destTexIDs->at(ti);
         }
         represent.bigDrawId = newBigDraw->getId();
         // If there's a center, the data is dependent on that center.
