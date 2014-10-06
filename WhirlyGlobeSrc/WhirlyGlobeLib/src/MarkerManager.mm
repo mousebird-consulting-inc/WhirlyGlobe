@@ -92,13 +92,14 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
 //            screenIDVec.push_back(*idIt);
 //        changes.push_back(new ScreenSpaceGeneratorRemRequest(screenGenId, screenIDVec));
     }
-    screenShapeIDs.clear();
     
     if (selectManager && !selectIDs.empty())
         selectManager->removeSelectables(selectIDs);
     
     if (layoutManager)
         layoutManager->removeLayoutObjects(screenShapeIDs);
+
+    screenShapeIDs.clear();
 }
     
 }
