@@ -126,7 +126,10 @@ using namespace WhirlyKit;
 - (void)setFrameLoadingPriority:(NSArray *)priorities
 {
     if ([NSThread currentThread] != super.layerThread)
+    {
         [self performSelector:@selector(setFrameLoadingPriority:) onThread:super.layerThread withObject:priorities waitUntilDone:NO];
+        return;
+    }
 
     if ([priorities count] != _imageDepth)
         return;
@@ -556,7 +559,7 @@ using namespace WhirlyKit;
 // We're not on the main thread, Dorothy.
 - (void)loader:(WhirlyKitQuadTileOfflineLoader *)loader image:(WhirlyKitQuadTileOfflineImage *)inImage
 {
-    if (_delegate && inImage && !inImage.textures.empty())
+    if (_delegate && inImage && inImage.texture != EmptyIdentity)
     {
         MaplyBoundingBox bbox;
         Mbr mbr = inImage.mbr;
@@ -566,22 +569,18 @@ using namespace WhirlyKit;
         offlineImage.bbox = bbox;
         
         // Convert the textures into MaplyTextures
-        NSMutableArray *maplyTextures = [NSMutableArray array];
-        for (unsigned int ii=0;ii<inImage.textures.size();ii++)
-        {
-            MaplyTexture *maplyTex = [[MaplyTexture alloc] init];
-            maplyTex.texID = inImage.textures[ii];
-            maplyTex.viewC = _viewC;
-            [maplyTextures addObject:maplyTex];
-        }
+        MaplyTexture *maplyTex = [[MaplyTexture alloc] init];
+        maplyTex.texID = inImage.texture;
+        maplyTex.viewC = _viewC;
         
-        offlineImage.textures = maplyTextures;
+        offlineImage.tex = maplyTex;
         offlineImage.centerSize = inImage.centerSize;
         offlineImage.texSize = inImage.texSize;
+        offlineImage.frame = inImage.frame;
         for (unsigned int ii=0;ii<4;ii++)
             offlineImage->cornerSizes[ii] = inImage->cornerSizes[ii];
         
-        [_delegate offlineLayer:self images:offlineImage];
+        [_delegate offlineLayer:self image:offlineImage];
     }
 }
 

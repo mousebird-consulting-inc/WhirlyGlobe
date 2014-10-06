@@ -427,6 +427,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                         Point2f layoutSpan(layoutMbr.ur().x()-layoutMbr.ll().x(),layoutMbr.ur().y()-layoutMbr.ll().y());
                         
                         // Set up the offset for this orientation
+                        // Note: This is all wrong for markers now
                         switch (orient)
                         {
                                 //center

@@ -70,15 +70,66 @@ public:
     }
     
     // Kill any outstanding fetches
-    void cancel()
+    void cancelAll()
     {
-        for (TileFetchSet::iterator it = fetches.begin();
+        TileFetchSet::iterator it;
+        for (it = fetches.begin();
              it != fetches.end(); ++it)
         {
             [it->op cancel];
         }
-        fetches.clear();
+
+        fetches.erase(it);
         tileData.clear();
+    }
+
+    // Kill a specific outstanding fetch
+    void cancel(int frame)
+    {
+        int which = (frame == -1 ? 0 : frame);
+        
+        TileFetchSet::iterator it;
+        for (it = fetches.begin();
+             it != fetches.end(); ++it)
+        {
+            if (it->which == which)
+            {
+                break;
+            }
+        }
+        if (it != fetches.end())
+        {
+            fetches.erase(it);
+            [it->op cancel];
+        }
+        
+        tileData[which] = nil;
+    }
+    
+    // Clear the fetch for a given frame
+    void clearFetch(int frame)
+    {
+        int which = (frame == -1 ? 0 : frame);
+        
+        TileFetchSet::iterator it;
+        for (it = fetches.begin();
+             it != fetches.end(); ++it)
+        {
+            if (it->which == which)
+            {
+                break;
+            }
+        }
+        if (it != fetches.end())
+        {
+            fetches.erase(it);
+        }
+    }
+    
+    // Number of active fetches
+    int numFetches()
+    {
+        return fetches.size();
     }
     
     MaplyTileID tileID;
@@ -139,7 +190,7 @@ static bool trackConnections = false;
              it != sortedTiles.end(); ++it)
         {
             Maply::SortedTile tile = *it;
-            tile.cancel();
+            tile.cancelAll();
         }
         sortedTiles.clear();
     }
@@ -212,7 +263,7 @@ static bool trackConnections = false;
 }
 
 // Kill any outstanding fetches for a given tile
-- (void)clearFetchesFor:(MaplyTileID)tileID
+- (void)clearFetchesFor:(MaplyTileID)tileID frame:(int)frame
 {
     @synchronized(self)
     {
@@ -220,8 +271,9 @@ static bool trackConnections = false;
         if (it != sortedTiles.end())
         {
             Maply::SortedTile tile = *it;
-            tile.cancel();
+            tile.cancel(frame);
             sortedTiles.erase(it);
+            sortedTiles.insert(tile);
         }
     }
 }
@@ -248,12 +300,13 @@ static bool trackConnections = false;
     
     // Look for it in the bit list
     bool done = false;
+    bool shouldNotify = false;
     Maply::SortedTile theTile(tileID);
+    
     bool singleFetch = false;
     @synchronized(self)
     {
-        Maply::SortedTileSet::iterator it;
-        it = sortedTiles.find(Maply::SortedTile(tileID));
+        Maply::SortedTileSet::iterator it = sortedTiles.find(theTile);
         if (it == sortedTiles.end())
             // That's weird.  Just punt
             return;
@@ -263,7 +316,9 @@ static bool trackConnections = false;
         if (theTile.singleFetch)
         {
             singleFetch = theTile.singleFetch;
-            done = true;
+            theTile.clearFetch(which);
+            done = theTile.numFetches() == 0;
+            shouldNotify = true;
         } else {
             done = true;
             // Add the tile data in and see if we're done
@@ -274,6 +329,7 @@ static bool trackConnections = false;
                     done = false;
                     break;
                 }
+            shouldNotify = done;
         }
 
         // If we're not, put the tile back in the set
@@ -291,7 +347,7 @@ static bool trackConnections = false;
     }
 
     // We're done, so let everyone know
-    if (done)
+    if (shouldNotify)
     {
 //        NSLog(@"Finished load for tile %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
         
@@ -327,9 +383,9 @@ static bool trackConnections = false;
 // Got an error while trying to fetch tile
 - (void)failedToGetTile:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error layer:(MaplyQuadImageTilesLayer *)layer
 {
-    NSLog(@"Failed load for tile %d: (%d,%d)\n%@",tileID.level,tileID.x,tileID.y,error);
+    NSLog(@"Failed load for tile %d: (%d,%d), frame = %d\n%@",tileID.level,tileID.x,tileID.y,frame,error);
     
-    [self clearFetchesFor:tileID];
+    [self clearFetchesFor:tileID frame:(frame == -1 ? 0 : frame)];
     
     // Unsucessful load
     [layer loadError:error forTile:tileID frame:frame];
@@ -346,9 +402,19 @@ static bool trackConnections = false;
 {
 //    NSLog(@"Starting fetch for tile: %d: (%d,%d) %d",tileID.level,tileID.x,tileID.y,frame);
     
-    // Clear out any existing state and add clean state
-    [self clearFetchesFor:tileID];
     Maply::SortedTile newTile(tileID,(int)[_tileSources count]);
+    
+    @synchronized(self)
+    {
+        // Look for an existing tile.  We may be working on another frame
+        Maply::SortedTileSet::iterator it = sortedTiles.find(newTile);
+        if (it != sortedTiles.end())
+        {
+            newTile = *it;
+            sortedTiles.erase(it);
+            newTile.cancel(frame);
+        }
+    }
     newTile.singleFetch = (frame !=-1);
     // Don't think about this one too hard.
     std::vector<void (^)()> workBlocks;
@@ -389,6 +455,8 @@ static bool trackConnections = false;
             NSURLRequest *urlReq = [tileSource requestForTile:tileID];
             
             if(urlReq) {
+//                NSLog(@"Fetching: %@",urlReq);
+                
                 if (trackConnections)
                     @synchronized([MaplyMultiplexTileSource class])
                 {
