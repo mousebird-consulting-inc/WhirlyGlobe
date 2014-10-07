@@ -225,7 +225,7 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 						changeHandler = null;
 						changes.process(scene);
 					}
-				});
+				},true);
 			}
 		}
 	}
@@ -386,7 +386,7 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 							watcher.watcher.viewUpdated(currentViewState);
 						}
 					}
-				});
+				},true);
 			}
 		}		
 	}
