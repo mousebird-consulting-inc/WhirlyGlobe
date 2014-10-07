@@ -30,8 +30,8 @@ import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.*;
 import android.widget.Toast;
 
@@ -275,6 +275,8 @@ public class MaplyController implements View.OnTouchListener
 		layerThread = null;
 	}
 	
+	ArrayList<Runnable> surfaceTasks = new ArrayList<Runnable>();
+	
 	// Called by the render wrapper when the surface is created.
 	// Can't start doing anything until that happens
 	void surfaceCreated(RendererWrapper wrap)
@@ -288,9 +290,32 @@ public class MaplyController implements View.OnTouchListener
 		// Kick off the layout layer
 		layoutLayer = new LayoutLayer(this,layoutManager);
 		layerThread.addLayer(layoutLayer);
+		
+		// Run any outstanding runnables
+		for (Runnable run: surfaceTasks)
+		{
+			Handler handler = new Handler(activity.getMainLooper());
+			handler.post(run);
+		}
+		surfaceTasks = null;
 
 		// Set up a periodic update for the renderer
 //    	glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+	}
+	
+	/**
+	 * It takes a little time to set up the OpenGL ES drawable.  Add a runnable
+	 * to be run after the surface is created.  If it's already been created we
+	 * just run it here.
+	 * <p>
+	 * Only call this on the main thread.
+	 */
+	public void onSurfaceCreatedTask(Runnable run)
+	{
+		if (surfaceTasks != null)
+			surfaceTasks.add(run);
+		else
+			run.run();
 	}
 
 //	long lastRender = 0;
