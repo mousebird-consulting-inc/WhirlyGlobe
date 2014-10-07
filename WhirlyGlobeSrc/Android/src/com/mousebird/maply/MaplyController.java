@@ -31,6 +31,7 @@ import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Looper;
+import android.util.Log;
 import android.view.*;
 import android.widget.Toast;
 
@@ -524,7 +525,7 @@ public class MaplyController implements View.OnTouchListener
 		if (Looper.myLooper() == layerThread.getLooper() || (mode == ThreadMode.ThreadCurrent))
 			run.run();
 		else
-			layerThread.addTask(run);
+			layerThread.addTask(run,true);
 	}
 
 	/**

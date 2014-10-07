@@ -51,6 +51,10 @@ class InternalMarker
 		setOffset(marker.offset);
 		setLayoutImportance(marker.layoutImportance);
 		setSelectable(marker.selectable);
+		if (marker.offset == null)
+			setOffset(new Point2d(0,0));
+		else
+			setOffset(marker.offset);
 		if (marker.selectable)
 			setSelectID(marker.ident);
 	}

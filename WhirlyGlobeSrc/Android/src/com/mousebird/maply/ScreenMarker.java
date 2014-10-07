@@ -73,7 +73,7 @@ public class ScreenMarker
 	 * If non-null an offset to tweak the label by.  We'll move the label
 	 * this number of pixels from where it normally would be.
 	 */
-	public Point2d offset = null;
+	public Point2d offset = new Point2d(0,0);
 
 	/**
 	 * Turn this on if you want the marker object to be selectable.
