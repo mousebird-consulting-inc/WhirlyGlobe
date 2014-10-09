@@ -138,8 +138,13 @@
             desc[kMaplyWideVecCoordType] = kMaplyWideVecCoordTypeScreen;
             desc[kMaplyWideVecTexRepeatLen] = @(repeatLen);
             desc[kMaplyVecWidth] = @(width);
+        } else {
+            // If we're not using wide vectors, figure out the width
+            desc[kMaplyVecWidth] = @(settings.lineScale * strokeWidth * settings.oldVecWidthScale);
         }
         
+        desc[kMaplySelectable] = @(settings.selectable);
+
         [self resolveVisibility:styleEntry settings:settings desc:desc];
         
         [subStyles addObject:desc];
