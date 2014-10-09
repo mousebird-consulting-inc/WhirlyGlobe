@@ -41,6 +41,8 @@ using namespace WhirlyKit;
     _dashPatternScale = 1.0;
     _useWideVectors = true;
     _wideVecCuttoff = 0.0;
+    _oldVecWidthScale = 1.0;
+    _selectable = false;
   
     return self;
 }
