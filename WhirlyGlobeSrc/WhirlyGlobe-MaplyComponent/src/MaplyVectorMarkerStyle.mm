@@ -133,9 +133,7 @@
 
             if (marker.image) {
                 marker.loc = [vec center];
-                // Note: Debugging
-                marker.layoutImportance = 10.0;
-//                marker.layoutImportance = settings.markerImportance;
+                marker.layoutImportance = settings.markerImportance;
                 if (marker.image)
                 {
                     marker.size = ((UIImage *)marker.image).size;

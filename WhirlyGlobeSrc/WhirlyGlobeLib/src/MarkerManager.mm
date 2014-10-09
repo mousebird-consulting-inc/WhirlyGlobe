@@ -32,6 +32,7 @@ namespace WhirlyKit
 {
     
 MarkerSceneRep::MarkerSceneRep()
+    : useLayout(false)
 {
 }
     
@@ -96,7 +97,7 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
     if (selectManager && !selectIDs.empty())
         selectManager->removeSelectables(selectIDs);
     
-    if (layoutManager)
+    if (layoutManager && useLayout)
         layoutManager->removeLayoutObjects(screenShapeIDs);
 
     screenShapeIDs.clear();
@@ -239,6 +240,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             LayoutObject *layoutObj = NULL;
             if (layoutManager && marker.layoutImportance != MAXFLOAT)
             {
+                markerRep->useLayout = true;
                 layoutObj = new LayoutObject();
                 shape = layoutObj;
             } else

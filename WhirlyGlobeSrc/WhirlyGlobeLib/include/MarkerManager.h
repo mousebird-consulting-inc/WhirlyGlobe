@@ -60,6 +60,7 @@ public:
     SimpleIDSet selectIDs;  // IDs used for selection
     SimpleIDSet markerIDs;  // IDs for markers sent to the generator
     SimpleIDSet screenShapeIDs;  // IDs for screen space objects
+    bool useLayout;  // True if we used the layout manager (and thus need to delete)
     float fade;   // Time to fade away for deletion
 };
 typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
