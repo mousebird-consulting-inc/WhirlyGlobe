@@ -60,6 +60,7 @@
         {
             desc[kMaplyColor] = [MaplyVectorTiles ParseColor:styleEntry[@"fill"] alpha:alpha];
         }
+        desc[kMaplySelectable] = @(settings.selectable);
         /*
         if(styleEntry[@"file"])
         {

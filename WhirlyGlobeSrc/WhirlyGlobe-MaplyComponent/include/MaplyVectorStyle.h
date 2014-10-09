@@ -48,8 +48,14 @@
 /// @brief Use widened vectors (which do anti-aliasing and such)
 @property (nonatomic) bool useWideVectors;
 
+/// @brief Where we're using old vectors (e.g. not wide) scale them by this amount
+@property (nonatomic) float oldVecWidthScale;
+
 /// @brief If we're using widened vectors, only active them for strokes wider than this.  Defaults to zero.
 @property (nonatomic) float wideVecCuttoff;
+
+/// @brief If set, we'll make the areal features selectable.  If not, this saves memory.
+@property (nonatomic) bool selectable;
 
 /// @brief The default font family for all text
 @property (nonatomic,strong) NSString *fontName;
