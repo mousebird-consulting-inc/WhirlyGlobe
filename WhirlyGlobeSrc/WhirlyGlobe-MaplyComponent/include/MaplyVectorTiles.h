@@ -58,10 +58,10 @@
 - (id)initWithTileSpec:(NSDictionary *)jsonSpec styles:(NSDictionary *)styles viewC:(MaplyBaseViewController *)viewC;
 
 /// @brief The minimum level this database covers
-@property (nonatomic,readonly) int minLevel;
+@property (nonatomic,assign) int minLevel;
 
 /// @brief The maximum level this database covers
-@property (nonatomic,readonly) int maxLevel;
+@property (nonatomic,assign) int maxLevel;
 
 /// @brief The view controller the vector database paging builds its objects in
 @property (nonatomic,weak) MaplyBaseViewController *viewC;
