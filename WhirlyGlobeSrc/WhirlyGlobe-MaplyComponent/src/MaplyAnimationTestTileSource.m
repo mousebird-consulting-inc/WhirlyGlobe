@@ -91,14 +91,30 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
         float red = (((hexColor) >> 16) & 0xFF)/255.0;
         float green = (((hexColor) >> 8) & 0xFF)/255.0;
         float blue = (((hexColor) >> 0) & 0xFF)/255.0;
-        UIColor *backColor = [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
-        [backColor setFill];
+        UIColor *backColor = nil;
+        UIColor *fillColor = [UIColor whiteColor];
+        if (_transparentMode)
+        {
+            backColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
+            fillColor = [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
+        } else
+            backColor = [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
         CGContextRef ctx = UIGraphicsGetCurrentContext();
-        CGContextFillRect(ctx, CGRectMake(0,0,size.width,size.height));
+
+        // Draw a rectangle around the edges for testing
+        [backColor setFill];
+        if (_transparentMode)
+        {
+            CGContextFillRect(ctx, CGRectMake(0, 0, size.width, size.height));
+            [fillColor setStroke];
+            CGContextStrokeRect(ctx, CGRectMake(0, 0, size.width-1, size.height-1));
+        } else {
+            CGContextFillRect(ctx, CGRectMake(0,0,size.width,size.height));
+        }
         
+        [fillColor setStroke];
+        [fillColor setFill];
         CGContextSetTextDrawingMode(ctx, kCGTextFill);
-        [[UIColor whiteColor] setStroke];
-        [[UIColor whiteColor] setFill];
         NSString *textStr = nil;
         if (_depth == 1)
             textStr = [NSString stringWithFormat:@"%d: (%d,%d)",tileID.level,tileID.x,tileID.y];

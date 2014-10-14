@@ -36,4 +36,7 @@
 /// How big the images we generate are
 @property (nonatomic) int pixelsPerSide;
 
+/// If set, we'll keep it mostly transparent for testing edges
+@property (nonatomic) bool transparentMode;
+
 @end

@@ -89,6 +89,8 @@ void ShapeSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &cha
 // Note: Make this a parameter
 static int CircleSamples = 10;
 
+static const float sqrt2 = 1.4142135623;
+
 @implementation WhirlyKitCircle
 
 // Build the geometry for a circle in display space
@@ -124,20 +126,46 @@ static int CircleSamples = 10;
         samples[ii] =  xAxis * _radius * sinf(2*M_PI*ii/(float)(CircleSamples-1)) + _radius * yAxis * cosf(2*M_PI*ii/(float)(CircleSamples-1)) + dispPt;
     
     // We need the bounding box in the local coordinate system
+    Point3f bot,top;
     Mbr shapeMbr;
     for (unsigned int ii=0;ii<samples.size();ii++)
     {
         Point3f thisLocalPt = coordAdapter->displayToLocal(samples[ii]);
+        if (ii==0)
+        {
+            bot = top = thisLocalPt;
+        } else {
+            bot.x() = std::min(thisLocalPt.x(),bot.x());
+            bot.y() = std::min(thisLocalPt.y(),bot.y());
+            bot.z() = std::min(thisLocalPt.z(),bot.z());
+            top.x() = std::max(thisLocalPt.x(),top.x());
+            top.y() = std::max(thisLocalPt.y(),top.y());
+            top.z() = std::max(thisLocalPt.z(),top.z());
+        }
         // Note: If this shape has height, this is insufficient
         shapeMbr.addPoint(Point2f(thisLocalPt.x(),thisLocalPt.y()));
     }
     
     triBuilder->addConvexOutline(samples,norm,theColor,shapeMbr);
+
+    // Add a selection region
+    if (super.isSelectable)
+    {
+        Point3f pts[8];
+        pts[0] = Point3f(bot.x(),bot.y(),bot.z());
+        pts[1] = Point3f(top.x(),bot.y(),bot.z());
+        pts[2] = Point3f(top.x(),top.y(),bot.z());
+        pts[3] = Point3f(bot.x(),top.y(),bot.z());
+        pts[4] = Point3f(bot.x(),bot.y(),top.z());
+        pts[5] = Point3f(top.x(),bot.y(),top.z());
+        pts[6] = Point3f(top.x(),top.y(),top.z());
+        pts[7] = Point3f(bot.x(),top.y(),top.z());
+        selectManager->addSelectableRectSolid(super.selectID,pts,triBuilder->getShapeInfo().minVis,triBuilder->getShapeInfo().maxVis,regBuilder->getShapeInfo().enable);
+        sceneRep->selectIDs.insert(super.selectID);
+    }
 }
 
 @end
-
-static const float sqrt2 = 1.4142135623;
 
 @implementation WhirlyKitSphere
 
@@ -329,6 +357,12 @@ static std::vector<Point3f> circleSamples;
 - (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectManager:(SelectionManager *)selectManager sceneRep:(ShapeSceneRep *)sceneRep
 {
     RGBAColor theColor = (super.useColor ? super.color : [regBuilder->getShapeInfo().color asRGBAColor]);
+    
+    if (super.isSelectable)
+    {
+        selectManager->addSelectableLinear(super.selectID,_pts,regBuilder->getShapeInfo().minVis,regBuilder->getShapeInfo().maxVis,regBuilder->getShapeInfo().enable);
+        sceneRep->selectIDs.insert(super.selectID);
+    }
     
     regBuilder->addPoints(_pts, theColor, _mbr, _lineWidth, false);
 }

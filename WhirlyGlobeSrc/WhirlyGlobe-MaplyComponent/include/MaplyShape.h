@@ -31,6 +31,11 @@
  */
 @property (nonatomic,strong) UIColor *color;
 
+/** @brief If set, the object is selectable
+ @details The object is selectable if this is set when the object is passed in to an add call.  If not set, you'll never see it in selection.
+ */
+@property (nonatomic,assign) bool selectable;
+
 /** @brief User data for object.
  @details User data can be set by the caller and is ignored by the toolkit.  This is useful for including custom data for selection.
  */
@@ -82,11 +87,6 @@ typedef MaplyShapeCircle WGShapeCircle;
  */
 @property (nonatomic,assign) float height;
 
-/** @brief If set, the sphere is selectable
-    @details The sphere is selectable if this is set when the object is passed in to an add call.  If not set, you'll never see it in selection.
-  */
-@property (nonatomic,assign) bool selectable;
-
 @end
 
 typedef MaplyShapeSphere WGShapeSphere;
@@ -115,11 +115,6 @@ typedef MaplyShapeSphere WGShapeSphere;
     @details This is the height of the cylinder.  The top of the cylinder will be at baseHeight+height.  It's also in display units, like the radius.
  */
 @property (nonatomic,assign) float height;
-
-/** @brief If set, the cylinder is selectable
-    @details The cylinder is selectable if this is set when the object is passed in to an add call.  If not set, you'll never see it in selection.
- */
-@property (nonatomic,assign) bool selectable;
 
 @end
 

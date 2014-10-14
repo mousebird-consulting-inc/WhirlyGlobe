@@ -38,5 +38,4 @@
 /// Max zoom level supported
 @property (nonatomic) int maxZoom;
 
-
 @end
