@@ -205,13 +205,19 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 					// Load the data from that URL
 				    Request request = new Request.Builder().url(url).build();
 
-				    Response response = client.newCall(request).execute();
-				    byte[] rawImage = response.body().bytes();
-		    		
-		    		bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length);				
+				    byte[] rawImage = null;
+				    try
+				    {
+				    	Response response = client.newCall(request).execute();
+				    	rawImage = response.body().bytes();
+				    	bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length);				
+				    }
+				    catch (Exception e)
+				    {
+				    }
 		    		
 		    		// Save to cache
-		    		if (cacheFile != null)
+		    		if (cacheFile != null && rawImage != null)
 		    		{
 		    			OutputStream fOut;
 		    			fOut = new FileOutputStream(cacheFile);

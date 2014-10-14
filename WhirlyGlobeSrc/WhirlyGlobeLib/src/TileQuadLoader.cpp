@@ -619,7 +619,7 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
 {
     // Note: Porting
 //    bool isPlaceholder = tileIsPlaceholder(loadImage);
-    bool isPlaceholder = loadImage->isPlaceholder();
+    bool isPlaceholder = loadImage && loadImage->isPlaceholder();
     
     if (!isPlaceholder && !tileBuilder)
     {
@@ -705,7 +705,8 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
 //                    loadImages.push_back(loadImage);
 //                    loadElev = toLoad.elevChunk;
 //                    }
-    loadImages.push_back(loadImage);
+    if (loadImage)
+        loadImages.push_back(loadImage);
     
     bool loadingSuccess = true;
     if (!isPlaceholder && numImages != loadImages.size())

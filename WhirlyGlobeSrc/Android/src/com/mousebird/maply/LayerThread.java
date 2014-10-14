@@ -396,16 +396,15 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	// Schedule a lagging update (e.g. not too often, but no less than 100ms
 	void scheduleLateUpdate(long delay)
 	{
-		if (trailingHandle != null)
-			synchronized(this)
+		synchronized(this)
+		{
+			if (trailingHandle != null)
 			{
 				trailingHandle.removeCallbacks(trailingRun);
 				trailingHandle = null;
 				trailingRun = null;
 			}
-		
-		synchronized(this)
-		{
+
 			trailingRun = new Runnable()
 			{
 				@Override
