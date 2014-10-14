@@ -614,6 +614,14 @@ static const float PerfOutputDelay = 15.0;
         [glView addSubview:viewTrack.view];
 }
 
+- (void)moveViewTracker:(MaplyViewTracker *)viewTrack moveTo:(MaplyCoordinate)newPos
+{
+    ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
+    vpGen->moveView(GeoCoord(newPos.x,newPos.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
+
+    sceneRenderer.triggerDraw = true;
+}
+
 /// Remove the view tracker associated with the given UIView
 - (void)removeViewTrackForView:(UIView *)view
 {
