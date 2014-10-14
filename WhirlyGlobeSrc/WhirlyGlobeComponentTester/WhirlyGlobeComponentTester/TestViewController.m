@@ -236,7 +236,9 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     
     // Set the background color for the globe
     if (globeViewC)
-        baseViewC.clearColor = [UIColor blackColor];
+        // Note: Debugging
+        baseViewC.clearColor = [UIColor colorWithWhite:0.8 alpha:1.0];
+//    baseViewC.clearColor = [UIColor blackColor];
     else
         baseViewC.clearColor = [UIColor whiteColor];
         
@@ -282,6 +284,16 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     
     // Settings panel
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(showConfig)];
+    
+    // Test animation
+//    if (globeViewC)
+//        [self performSelector:@selector(viewAnimationTest) withObject:nil afterDelay:2.0];
+}
+
+// Test animation to a point with height and heading
+- (void)viewAnimationTest
+{
+    [globeViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222) height:0.1 heading:45.0/180.0*M_PI time:10.0];
 }
 
 // Create a bunch of labels periodically
@@ -565,6 +577,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
         greatCircle.startPt = MaplyCoordinateMakeWithDegrees(loc0->lon, loc0->lat);
         greatCircle.endPt = MaplyCoordinateMakeWithDegrees(loc1->lon, loc1->lat);
         greatCircle.lineWidth = 6.0;
+        greatCircle.selectable = true;
         // This limits the height based on the length of the great circle
         float angle = [greatCircle calcAngleBetween];
         greatCircle.height = 0.3 * angle / M_PI;
@@ -616,10 +629,10 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
                                                                          kMaplyMinVis: @(0.00032424763776361942)
                                                                          }];
     
-    MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor],
+    MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor colorWithRed:0.5 green:0.0 blue:0.0 alpha:0.5],
                                                                                    kMaplyFade: @(fade),
-                                                                                   kMaplyVecWidth: @(4.0),
-                                                                                   kMaplyVecTexture: dashedLineTex,
+                                                                                   kMaplyVecWidth: @(3.0),
+                                                                                   kMaplyVecTexture: filledLineTex,
                                                                                    kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
                                                                                    kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                                                                    kMaplyWideVecMiterLimit: @(1.01),
@@ -627,6 +640,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
                                                                                    kMaplyMaxVis: @(0.00032424763776361942),
                                                                                    kMaplyMinVis: @(0.00011049506429117173)
                                                                                    }];
+    
     MaplyComponentObject *realLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: color,
                                                                                  kMaplyFade: @(fade),
                                                                                  kMaplyVecTexture: dashedLineTex,
@@ -689,7 +703,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     }
     if (!filledLineTex)
     {
-        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,32)];
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(3,32)];
         [lineTexBuilder setPattern:@[@(32)]];
         lineTexBuilder.opacityFunc = MaplyOpacitySin2;
         UIImage *lineImage = [lineTexBuilder makeImage];
@@ -1051,17 +1065,18 @@ static const int NumMegaMarkers = 15000;
         vecWidth = 4.0;
         MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:21 depth:1];
         tileSource.pixelsPerSide = 128;
+        tileSource.transparentMode = true;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.waitLoad = imageWaitLoad;
         layer.requireElev = requireElev;
         layer.maxTiles = 512;
+        layer.handleEdges = true;
         if (startupMapType == Maply2DMap)
         {
             layer.useTargetZoomLevel = true;
             layer.singleLevelLoading = true;
             layer.multiLevelLoads = @[@(-4), @(-2)];
         }
-        layer.color = [UIColor colorWithWhite:1.0 alpha:0.75];
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
@@ -1096,6 +1111,7 @@ static const int NumMegaMarkers = 15000;
         layer.waitLoad = imageWaitLoad;
         layer.requireElev = requireElev;
         layer.imageDepth = 4;
+        layer.handleEdges = true;
         // We'll cycle through at 1s per layer
         layer.animationPeriod = 4.0;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
@@ -1705,9 +1721,16 @@ static const int NumMegaMarkers = 15000;
         loc = cyl.baseCenter;
         title = @"Shape";
         subTitle = @"Cylinder";
-    } else
+    } else if ([selectedObj isKindOfClass:[MaplyShapeGreatCircle class]])
+    {
+        MaplyShapeGreatCircle *gc = (MaplyShapeGreatCircle *)selectedObj;
+        loc = gc.startPt;
+        title = @"Shape";
+        subTitle = @"Great Circle";
+    } else {
         // Don't know what it is
         return;
+    }
     
     // Build the selection view and hand it over to the globe to track
 //    selectedViewTrack = [[MaplyViewTracker alloc] init];

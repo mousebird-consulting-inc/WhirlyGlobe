@@ -109,7 +109,7 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 
 /** A linear feature (with width) that we'll draw on
  top of a globe or map.  This is different from the
- vector layer features in that it has exactly locations.
+ vector layer features in that it has exact locations.
  */
 @interface WhirlyKitShapeLinear : WhirlyKitShape
 
