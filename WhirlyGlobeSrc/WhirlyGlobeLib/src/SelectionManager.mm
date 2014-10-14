@@ -48,6 +48,11 @@ bool PolytopeSelectable::operator < (const PolytopeSelectable &that) const
     return selectID < that.selectID;
 }
 
+bool LinearSelectable::operator < (const LinearSelectable &that) const
+{
+    return selectID < that.selectID;
+}
+
 bool BillboardSelectable::operator < (const BillboardSelectable &that) const
 {
     return selectID < that.selectID;
@@ -151,6 +156,28 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *p
     pthread_mutex_unlock(&mutex);
 }
 
+void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const std::vector<Point3f> &pts,float minVis,float maxVis,bool enable)
+{
+    if (selectId == EmptyIdentity)
+        return;
+    
+    LinearSelectable newSelect;
+    newSelect.selectID = selectId;
+    newSelect.minVis = minVis;
+    newSelect.maxVis = maxVis;
+    newSelect.enable = enable;
+    newSelect.pts.resize(pts.size());
+    for (unsigned int ii=0;ii<pts.size();ii++)
+    {
+        const Point3f &pt = pts[ii];
+        newSelect.pts[ii] = Point3d(pt.x(),pt.y(),pt.z());
+    }
+
+    pthread_mutex_lock(&mutex);
+    linearSelectables.insert(newSelect);
+    pthread_mutex_unlock(&mutex);
+}
+
 void SelectionManager::addSelectableBillboard(SimpleIdentity selectId,Point3f center,Point3f norm,Point2f size,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
@@ -202,6 +229,15 @@ void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
         polytopeSelectables.insert(sel);
     }
     
+    LinearSelectableSet::iterator it5 = linearSelectables.find(LinearSelectable(selectID));
+    if (it5 != linearSelectables.end())
+    {
+        LinearSelectable sel = *it5;
+        linearSelectables.erase(it5);
+        sel.enable = enable;
+        linearSelectables.insert(sel);
+    }
+    
     BillboardSelectableSet::iterator it4 = billboardSelectables.find(BillboardSelectable(selectID));
     if (it4 != billboardSelectables.end())
     {
@@ -249,6 +285,15 @@ void SelectionManager::enableSelectables(const SimpleIDSet &selectIDs,bool enabl
             polytopeSelectables.insert(sel);
         }
         
+        LinearSelectableSet::iterator it5 = linearSelectables.find(LinearSelectable(selectID));
+        if (it5 != linearSelectables.end())
+        {
+            LinearSelectable sel = *it5;
+            linearSelectables.erase(it5);
+            sel.enable = enable;
+            linearSelectables.insert(sel);
+        }
+
         BillboardSelectableSet::iterator it4 = billboardSelectables.find(BillboardSelectable(selectID));
         if (it4 != billboardSelectables.end())
         {
@@ -280,6 +325,10 @@ void SelectionManager::removeSelectable(SimpleIdentity selectID)
     if (it3 != polytopeSelectables.end())
         polytopeSelectables.erase(it3);
     
+    LinearSelectableSet::iterator it5 = linearSelectables.find(LinearSelectable(selectID));
+    if (it5 != linearSelectables.end())
+        linearSelectables.erase(it5);
+    
     BillboardSelectableSet::iterator it4 = billboardSelectables.find(BillboardSelectable(selectID));
     if (it4 != billboardSelectables.end())
         billboardSelectables.erase(it4);
@@ -306,6 +355,10 @@ void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
         PolytopeSelectableSet::iterator it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
         if (it3 != polytopeSelectables.end())
             polytopeSelectables.erase(it3);
+
+        LinearSelectableSet::iterator it5 = linearSelectables.find(LinearSelectable(selectID));
+        if (it5 != linearSelectables.end())
+            linearSelectables.erase(it5);
 
         BillboardSelectableSet::iterator it4 = billboardSelectables.find(BillboardSelectable(selectID));
         if (it4 != billboardSelectables.end())
@@ -371,7 +424,7 @@ SelectionManager::PlacementInfo::PlacementInfo(WhirlyKitView *view,WhirlyKitScen
     [view getOffsetMatrices:offsetMatrices frameBuffer:frameSize];
 }
 
-void SelectionManager::projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,std::vector<Point2d> &screenPts)
+void SelectionManager::projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,std::vector<Point2d> &screenPts,float scale)
 {
     for (unsigned int offi=0;offi<pInfo.offsetMatrices.size();offi++)
     {
@@ -401,7 +454,7 @@ void SelectionManager::projectWorldPointToScreen(const Point3d &worldLoc,const P
             screenPt.x > pInfo.frameMbr.ur().x() || screenPt.y > pInfo.frameMbr.ur().y())
             continue;
         
-        screenPts.push_back(Point2d(screenPt.x,screenPt.y));
+        screenPts.push_back(Point2d(screenPt.x/scale,screenPt.y/scale));
     }
 }
 
@@ -442,14 +495,11 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
         ScreenSpaceObjectLocation &screenObj = ssObjs[ii];
         
         std::vector<Point2d> projPts;
-        projectWorldPointToScreen(screenObj.dispLoc, pInfo, projPts);
+        projectWorldPointToScreen(screenObj.dispLoc, pInfo, projPts,scale);
         
         for (unsigned int jj=0;jj<projPts.size();jj++)
         {
             Point2d projPt = projPts[jj];
-            // If we're on a retina display, we need to scale accordingly
-            projPt.x() /= scale;
-            projPt.y() /= scale;
             
             if (screenObj.shapeID != EmptyIdentity)
             {
@@ -554,6 +604,47 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
         }
         
         retId = foundId;
+    }
+    
+    if (retId == EmptyIdentity && !linearSelectables.empty())
+    {
+        for (LinearSelectableSet::iterator it = linearSelectables.begin();
+             it != linearSelectables.end(); ++it)
+        {
+            LinearSelectable sel = *it;
+            
+            if (sel.selectID != EmptyIdentity && sel.enable)
+            {
+                if (sel.minVis == DrawVisibleInvalid ||
+                    (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
+                {
+                    std::vector<Point2d> p0Pts;
+                    projectWorldPointToScreen(sel.pts[0],pInfo,p0Pts,scale);
+                    for (unsigned int ip=1;ip<sel.pts.size();ip++)
+                    {
+                        std::vector<Point2d> p1Pts;
+                        projectWorldPointToScreen(sel.pts[ip],pInfo,p1Pts,scale);
+                        
+                        if (p0Pts.size() == p1Pts.size())
+                        {
+                            // Look for a nearby hit along the line
+                            for (unsigned int iw=0;iw<p0Pts.size();iw++)
+                            {
+                                Point2f closePt = ClosestPointOnLineSegment(Point2f(p0Pts[iw].x(),p0Pts[iw].y()),Point2f(p1Pts[iw].x(),p1Pts[iw].y()),touchPt);
+                                float dist2 = (closePt-touchPt).squaredNorm();
+                                if (dist2 <= maxDist2 && (dist2 < closeDist2))
+                                {
+                                    retId = sel.selectID;
+                                    closeDist2 = dist2;
+                                }                            
+                            }
+                        }
+                        
+                        p0Pts = p1Pts;
+                    }
+                }
+            }
+        }
     }
     
     if (retId == EmptyIdentity && !rect3Dselectables.empty())

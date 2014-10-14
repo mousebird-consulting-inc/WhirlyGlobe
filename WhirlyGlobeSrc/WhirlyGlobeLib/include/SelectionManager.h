@@ -83,6 +83,21 @@ public:
 
 typedef std::set<WhirlyKit::PolytopeSelectable> PolytopeSelectableSet;
     
+/** This is a linear features with arbitrary 3D points.
+  */
+class LinearSelectable : public Selectable
+{
+public:
+    LinearSelectable() : Selectable() { }
+    LinearSelectable(SimpleIdentity theID) : Selectable(theID) { }
+    // Comparison operator for sorting
+    bool operator < (const LinearSelectable &that) const;
+    
+    std::vector<Point3d> pts;
+};
+
+typedef std::set<WhirlyKit::LinearSelectable> LinearSelectableSet;
+
 /** Rectangle Selectable (screen space version).
  */
 class RectSelectable2D : public Selectable
@@ -147,6 +162,9 @@ public:
     /// Add a rectangular solid for selection.  Pass in 8 points (bottom four + top four)
     void addSelectableRectSolid(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable);
     
+    /// Add a linear in 3-space for selection.
+    void addSelectableLinear(SimpleIdentity selectId,const std::vector<Point3f> &pts,float minVis,float maxVis,bool enable);
+    
     /// Add a billboard for selection.  Pass in the middle of the base and size
     void addSelectableBillboard(SimpleIdentity selectId,Point3f center,Point3f norm,Point2f size,float minVis,float maxVis,bool enable);
     
@@ -183,7 +201,7 @@ public:
 
 protected:
     // Projects a world coordinate to one or more points on the screen (wrapping)
-    void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,std::vector<Point2d> &screenPts);
+    void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,std::vector<Point2d> &screenPts,float scale);
     // Convert rect selectables into more generic screen space objects
     void getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenObjs);
     
@@ -194,6 +212,7 @@ protected:
     WhirlyKit::RectSelectable3DSet rect3Dselectables;
     WhirlyKit::RectSelectable2DSet rect2Dselectables;
     WhirlyKit::PolytopeSelectableSet polytopeSelectables;
+    WhirlyKit::LinearSelectableSet linearSelectables;
     WhirlyKit::BillboardSelectableSet billboardSelectables;
 };
  
