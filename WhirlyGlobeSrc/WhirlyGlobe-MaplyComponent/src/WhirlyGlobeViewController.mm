@@ -41,6 +41,48 @@ using namespace WhirlyGlobe;
 
 @end
 
+@implementation WhirlyGlobeViewControllerSimpleAnimationDelegate
+{
+    WhirlyGlobeViewControllerAnimationState *startState;
+    WhirlyGlobeViewControllerAnimationState *endState;
+    NSTimeInterval startTime,endTime;
+}
+
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC startState:(WhirlyGlobeViewControllerAnimationState *)inStartState startTime:(NSTimeInterval)inStartTime endTime:(NSTimeInterval)inEndTime
+{
+    startState = inStartState;
+    endState = [[WhirlyGlobeViewControllerAnimationState alloc] init];
+    endState.heading = _heading;
+    endState.height = _height;
+    endState.tilt = _tilt;
+    endState.pos = _loc;
+    startTime = inStartTime;
+    endTime = inEndTime;
+}
+
+- (WhirlyGlobeViewControllerAnimationState *)globeViewController:(WhirlyGlobeViewController *)viewC stateForTime:(NSTimeInterval)currentTime
+{
+    WhirlyGlobeViewControllerAnimationState *state = [[WhirlyGlobeViewControllerAnimationState alloc] init];
+    double t = (currentTime-startTime)/(endTime-startTime);
+    if (t < 0.0)  t = 0.0;
+    if (t > 1.0)  t = 1.0;
+    state.heading = (endState.heading - startState.heading)*t + startState.heading;
+    state.height = (endState.height - startState.height)*t + startState.height;
+    state.tilt = (endState.tilt - startState.tilt)*t + startState.tilt;
+    MaplyCoordinate pos;
+    pos.x = (endState.pos.x - startState.pos.x)*t + startState.pos.x;
+    pos.y = (endState.pos.y - startState.pos.y)*t + startState.pos.y;
+    state.pos = pos;
+    
+    return state;
+}
+
+- (void)globeViewControllerDidFinishAnimation:(WhirlyGlobeViewController *)viewC
+{
+}
+
+@end
+
 @interface WhirlyGlobeViewController() <WGInteractionLayerDelegate,WhirlyGlobeAnimationDelegate>
 @end
 
@@ -582,6 +624,21 @@ using namespace WhirlyGlobe;
         return true;
     } else
         return false;
+}
+
+- (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong
+{
+    [globeView cancelAnimation];
+
+    WhirlyGlobeViewControllerSimpleAnimationDelegate *anim = [[WhirlyGlobeViewControllerSimpleAnimationDelegate alloc] init];
+    anim.loc = newPos;
+    anim.heading = newHeading;
+    anim.height = newHeight;
+    anim.tilt = [self tilt];
+    
+    [self animateWithDelegate:anim time:howLong];
+    
+    return true;
 }
 
 // External facing set position
