@@ -78,6 +78,25 @@
 
 @end
 
+/** @brief A simple animation delegate for moving the globe around.
+    @details The animation delegate support provides a lot of flexibility.  This version just provides all the standard fields and interpolates from beginning to end.
+  */
+@interface WhirlyGlobeViewControllerSimpleAnimationDelegate : NSObject <WhirlyGlobeViewControllerAnimationDelegate>
+
+/// @brief Location at the end of the animation
+@property (nonatomic) MaplyCoordinate loc;
+
+/// @brief Heading at the end of the animation
+@property (nonatomic) double heading;
+
+/// @brief Height at the end of the animation
+@property (nonatomic) double height;
+
+/// @brief Tilt at the end of the animation
+@property (nonatomic) double tilt;
+
+@end
+
 /** @brief Globe View Controller Delegate protocol for getting back selection and tap events.
     @details Fill out the methods in this protocol and assign yourself as a delegate in the WhirlyGlobeViewController to get selection and tap events.
   */
@@ -267,6 +286,14 @@
     @param howLong How long in seconds to take getting there.
  */
 - (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
+
+/** @brief Animate to the given position, heading and height over time.
+    @param newPos A coordinate in geographic (lon/lat radians)
+    @param newHeight New height to animate to.
+    @param newHeading New heading to finish on.
+    @param howLong A time interval in seconds.
+ */
+- (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong;
 
 /** @brief Animate with a delegate over time.
     @details Fill in the WhirlyGlobeViewControllerAnimationDelegate and you can control the visual view on a frame by frame basis.  You'll get called back at the appropriate time on the main thread over the time period.
