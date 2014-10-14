@@ -407,6 +407,9 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 /// @brief Add a view tracker to move a UIView around based on a geographic location.
 - (void)addViewTracker:(MaplyViewTracker *)viewTrack;
 
+/// @brief Move an existing view tracker to a new location
+- (void)moveViewTracker:(MaplyViewTracker *)viewTrack moveTo:(MaplyCoordinate)newPos;
+
 /** @brief Add a single annotation which will track the given point.
     @details This adds a MaplyAnnotation that will follow the given geo coordinate, applying the screen offset as given.
     @param annotate The annotation we want to track a given point.
