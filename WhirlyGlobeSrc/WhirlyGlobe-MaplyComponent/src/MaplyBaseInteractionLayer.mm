@@ -1353,6 +1353,15 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                 RGBAColor color = [circle.color asRGBAColor];
                 newCircle.color = color;
             }
+            if (circle.selectable)
+            {
+                newCircle.isSelectable = true;
+                newCircle.selectID = Identifiable::genId();
+                pthread_mutex_lock(&selectLock);
+                selectObjectSet.insert(SelectObject(newCircle.selectID,circle));
+                pthread_mutex_unlock(&selectLock);
+                compObj.selectIDs.insert(newCircle.selectID);
+            }
             [ourShapes addObject:newCircle];
         } else if ([shape isKindOfClass:[MaplyShapeSphere class]])
         {
@@ -1422,6 +1431,15 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                 RGBAColor color = [gc.color asRGBAColor];
                 lin.color = color;
             }
+            if (gc.selectable)
+            {
+                lin.isSelectable = true;
+                lin.selectID = Identifiable::genId();
+                pthread_mutex_lock(&selectLock);
+                selectObjectSet.insert(SelectObject(lin.selectID,gc));
+                pthread_mutex_unlock(&selectLock);
+                compObj.selectIDs.insert(lin.selectID);
+            }
             [specialShapes addObject:lin];
         } else if ([shape isKindOfClass:[MaplyShapeLinear class]])
         {
@@ -1445,6 +1463,15 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                 newLin.useColor = true;
                 RGBAColor color = [lin.color asRGBAColor];
                 newLin.color = color;
+            }
+            if (lin.selectable)
+            {
+                newLin.isSelectable = true;
+                newLin.selectID = Identifiable::genId();
+                pthread_mutex_lock(&selectLock);
+                selectObjectSet.insert(SelectObject(newLin.selectID,lin));
+                pthread_mutex_unlock(&selectLock);
+                compObj.selectIDs.insert(newLin.selectID);
             }
             [ourShapes addObject:newLin];
         }
