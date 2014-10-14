@@ -1735,8 +1735,10 @@ static const int NumMegaMarkers = 15000;
     // Build the selection view and hand it over to the globe to track
 //    selectedViewTrack = [[MaplyViewTracker alloc] init];
 //    selectedViewTrack.loc = loc;
-//    selectedViewTrack.view = [self makeSelectionView:msg];
+//    selectedViewTrack.view = [self makeSelectionView:[NSString stringWithFormat:@"%@: %@",title,subTitle]];
 //    [baseViewC addViewTracker:selectedViewTrack];
+//    
+//    [self performSelector:@selector(moveViewTracker:) withObject:selectedViewTrack afterDelay:1.0];
     if (title)
     {
         MaplyAnnotation *annotate = [[MaplyAnnotation alloc] init];
@@ -1745,6 +1747,12 @@ static const int NumMegaMarkers = 15000;
         [baseViewC clearAnnotations];
         [baseViewC addAnnotation:annotate forPoint:loc offset:offset];
     }
+}
+
+// Test moving a view tracker
+- (void)moveViewTracker:(MaplyViewTracker *)viewTrack
+{
+    [baseViewC moveViewTracker:viewTrack moveTo:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793)];
 }
 
 // User selected something
