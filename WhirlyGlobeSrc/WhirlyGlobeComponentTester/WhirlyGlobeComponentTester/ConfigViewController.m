@@ -106,6 +106,7 @@
                   kMaplyTestShapeCylinder: @(NO),
                   kMaplyTestShapeSphere: @(NO),
                   kMaplyTestShapeGreatCircle: @(NO),
+                  kMaplyTestShapeArrows: @(NO),
                   kMaplyTestCountry: @(NO),
                   kMaplyTestLoftedPoly: @(NO),
                   kMaplyTestMegaMarkers: @(NO),

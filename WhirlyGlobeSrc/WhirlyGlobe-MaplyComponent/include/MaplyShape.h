@@ -168,3 +168,43 @@ typedef MaplyShapeCylinder WGShapeCylinder;
 - (int)getCoords:(MaplyCoordinate3d **)retCoords;
 
 @end
+
+/** @brief An extruded shape with an arbitrary outline.
+    @details This object represents an extruded shape with the given thickness.  It can be oriented according to the pitch, roll, yaw and height.
+  */
+@interface MaplyShapeExtruded : MaplyShape
+
+/** @brief Construct with the coordinates for the outline to extrude.
+    @details Pass in pairs of doubles that correspond to the
+  */
+- (id)initWithOutline:(double *)coords numCoordPairs:(int)numCoordPairs;
+
+/** @brief Number of coordinate pairs in this shape.
+  */
+@property (nonatomic,readonly) int numCoordPairs;
+
+/** @brief Array of coordinate values.
+  */
+@property (nonatomic,readonly) double *coordData;
+
+/** @brief Where we'd like to place the extruded shape.
+    @details This is the center of the object in geographic radians.
+  */
+@property (nonatomic) MaplyCoordinate center;
+
+/** @brief Scale for coordinates.  Set to 1/EarthRadiusInMeters by default.
+    @details The coordinates will be scaled by this before creating the geometry.  By default this is set to 1/EarthRadius(m) so you can build your shape in meters.  Also applies to thickness and height.
+  */
+@property (nonatomic,assign) double scale;
+
+/** @brief Thickness for the resulting shape.
+    @details We build an extruded shape out of this information and this is its thickness.  If this is zero, you just get a double sided polygon.
+  */
+@property (nonatomic,assign) double thickness;
+
+/** @brief Height to place the resulting shape at.
+    @details We'll put this shape at the given height above the surface of the globe or map.
+  */
+@property (nonatomic,assign) double height;
+
+@end
