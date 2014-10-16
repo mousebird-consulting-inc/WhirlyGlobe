@@ -156,6 +156,14 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *p
     pthread_mutex_unlock(&mutex);
 }
 
+void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,const BBox &bbox,float minVis,float maxVis,bool enable)
+{
+    std::vector<Point3f> pts;
+    pts.reserve(8);
+    bbox.asPoints(pts);
+    addSelectableRect(selectId,&pts[0],minVis,maxVis,enable);
+}
+
 void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const std::vector<Point3f> &pts,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)

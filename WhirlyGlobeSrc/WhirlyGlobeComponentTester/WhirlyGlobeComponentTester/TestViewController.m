@@ -92,6 +92,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     MaplyComponentObject *shapeCylObj;
     MaplyComponentObject *shapeSphereObj;
     MaplyComponentObject *greatCircleObj;
+    MaplyComponentObject *arrowsObj;
     MaplyComponentObject *screenLabelsObj;
     MaplyComponentObject *labelsObj;
     MaplyComponentObject *stickersObj;
@@ -565,7 +566,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     shapeSphereObj = [baseViewC addShapes:spheres desc:desc];
 }
 
-// Add spheres
+// Add great circles
 - (void)addGreatCircles:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc
 {
     NSMutableArray *circles = [[NSMutableArray alloc] init];
@@ -585,6 +586,29 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     }
     
     greatCircleObj = [baseViewC addShapes:circles desc:desc ];
+}
+
+// Add arrows
+- (void)addArrows:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc
+{
+    double arrowCoords[2*7] = {-0.25,-0.75, -0.25,0.25, -0.5,0.25, 0.0,1.0,  0.5,0.25, 0.25,0.25, 0.25,-0.75};
+    
+    NSMutableArray *arrows = [[NSMutableArray alloc] init];
+    for (unsigned int ii=offset;ii<len;ii+=stride)
+    {
+        LocationInfo *loc = &locations[ii];
+        MaplyShapeExtruded *exShape = [[MaplyShapeExtruded alloc] initWithOutline:arrowCoords numCoordPairs:7];
+        // This makes the scale 100km
+        exShape.scale = exShape.scale * 100000;
+        exShape.center = MaplyCoordinateMakeWithDegrees(loc->lon, loc->lat);
+        exShape.selectable = true;
+        exShape.thickness = 1;
+        exShape.height = 1.0;
+        
+        [arrows addObject:exShape];
+    }
+    
+    arrowsObj = [baseViewC addShapes:arrows desc:desc];
 }
 
 - (void)addLinesLon:(float)lonDelta lat:(float)latDelta color:(UIColor *)color
@@ -1467,6 +1491,20 @@ static const int NumMegaMarkers = 15000;
         }
     }
     
+    if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestShapeArrows])
+    {
+        if (!arrowsObj)
+        {
+            [self addArrows:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0], kMaplyFade: @(1.0)}];
+        }
+    } else {
+        if (arrowsObj)
+        {
+            [baseViewC removeObject:arrowsObj];
+            arrowsObj = nil;
+        }
+    }
+    
     if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestLatLon])
     {
         if (!latLonObj)
@@ -1727,7 +1765,14 @@ static const int NumMegaMarkers = 15000;
         loc = gc.startPt;
         title = @"Shape";
         subTitle = @"Great Circle";
-    } else {
+    } else if ([selectedObj isKindOfClass:[MaplyShapeExtruded class]])
+    {
+        MaplyShapeExtruded *ex = (MaplyShapeExtruded *)selectedObj;
+        loc = ex.center;
+        title = @"Shape";
+        subTitle = @"Extruded";
+    } else
+    {
         // Don't know what it is
         return;
     }

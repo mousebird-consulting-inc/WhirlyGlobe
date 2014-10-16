@@ -57,7 +57,7 @@ class ShapeDrawableBuilder
 public:
     /// Construct the builder with the fade value for each created drawable and
     ///  whether we're doing lines or points
-    ShapeDrawableBuilder(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKitShapeInfo *shapeInfo,bool linesOrPoints);
+    ShapeDrawableBuilder(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKitShapeInfo *shapeInfo,bool linesOrPoints,const Point3d &center);
     virtual ~ShapeDrawableBuilder();
         
     /// A group of points (in display space) all at once
@@ -78,6 +78,7 @@ protected:
     Mbr drawMbr;
     BasicDrawable *drawable;
     std::vector<BasicDrawable *> drawables;
+    Point3d center;
 };
 
 /** Drawable Builder (Triangle version) is used to build up shapes made out of triangles.
@@ -87,18 +88,27 @@ class ShapeDrawableBuilderTri
 {
 public:
     /// Construct with the visual description
-    ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKitShapeInfo *shapeInfo);
+    ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKitShapeInfo *shapeInfo,const Point3d &center);
     virtual ~ShapeDrawableBuilderTri();
     
     // Add a triangle with normals
     void addTriangle(Point3f p0,Point3f n0,RGBAColor c0,Point3f p1,Point3f n1,RGBAColor c1,Point3f p2,Point3f n2,RGBAColor c2,Mbr shapeMbr);
-    
+
+    // Add a triangle with normals
+    void addTriangle(Point3d p0,Point3d n0,RGBAColor c0,Point3d p1,Point3d n1,RGBAColor c1,Point3d p2,Point3d n2,RGBAColor c2,Mbr shapeMbr);
+
     // Add a group of pre-build triangles
     void addTriangles(std::vector<Point3f> &pts,std::vector<Point3f> &norms,std::vector<RGBAColor> &colors,std::vector<BasicDrawable::Triangle> &tris);
     
     // Add a convex outline, triangulated
     void addConvexOutline(std::vector<Point3f> &pts,Point3f norm,RGBAColor color,Mbr shapeMbr);
+
+    // Add a convex outline, triangulated
+    void addConvexOutline(std::vector<Point3d> &pts,Point3d norm,RGBAColor color,Mbr shapeMbr);
     
+    // Add a complex outline, triangulated
+    void addComplexOutline(std::vector<Point3d> &pts,Point3d norm,RGBAColor color,Mbr shapeMbr);
+
     /// Flush out the current drawable (if there is one) to the list of finished ones
     void flush();
     
@@ -116,6 +126,7 @@ protected:
     WhirlyKitShapeInfo *shapeInfo;
     BasicDrawable *drawable;
     std::vector<BasicDrawable *> drawables;
+    Point3d center;
 };
 
 }

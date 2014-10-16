@@ -104,3 +104,33 @@ using namespace WhirlyKit;
 }
 
 @end
+
+@implementation MaplyShapeExtruded
+{
+    int numCoords;
+    NSData *coords;
+}
+
+- (id)initWithOutline:(double *)inCoords numCoordPairs:(int)numCoordPairs
+{
+    self = [super init];
+    
+    numCoords = numCoordPairs;
+    coords = [NSData dataWithBytes:inCoords length:sizeof(double)*numCoordPairs*2];
+    _scale = 1/WhirlyKit::EarthRadius;
+    
+    return self;
+}
+
+- (int)numCoordPairs
+{
+    return numCoords;
+}
+
+- (double *)coordData
+{
+    return (double *)[coords bytes];
+}
+
+@end
+
