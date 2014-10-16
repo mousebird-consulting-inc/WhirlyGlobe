@@ -1474,6 +1474,39 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                 compObj.selectIDs.insert(newLin.selectID);
             }
             [ourShapes addObject:newLin];
+        } else if ([shape isKindOfClass:[MaplyShapeExtruded class]])
+        {
+            MaplyShapeExtruded *ex = (MaplyShapeExtruded *)shape;
+            WhirlyKitShapeExtruded *newEx = [[WhirlyKitShapeExtruded alloc] init];
+            Point3d loc(ex.center.x,ex.center.y,ex.height*ex.scale);
+            newEx.loc = loc;
+            newEx.thickness = ex.thickness*ex.scale;
+            int numCoords = ex.numCoordPairs;
+            double *coords = ex.coordData;
+            std::vector<Point2d> pts;
+            pts.resize(numCoords);
+            for (unsigned int ii=0;ii<numCoords;ii++)
+            {
+                Point2d pt(coords[2*ii]*ex.scale,coords[2*ii+1]*ex.scale);
+                pts[ii] = pt;
+            }
+            newEx.pts = pts;
+            if (ex.color)
+            {
+                newEx.useColor = true;
+                RGBAColor color = [ex.color asRGBAColor];
+                newEx.color = color;
+            }
+            if (ex.selectable)
+            {
+                newEx.isSelectable = true;
+                newEx.selectID = Identifiable::genId();
+                pthread_mutex_lock(&selectLock);
+                selectObjectSet.insert(SelectObject(newEx.selectID,ex));
+                pthread_mutex_unlock(&selectLock);
+                compObj.selectIDs.insert(newEx.selectID);
+            }
+            [ourShapes addObject:newEx];
         }
     }
     

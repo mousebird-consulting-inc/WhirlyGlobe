@@ -123,6 +123,21 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 
 @end
 
+/** An extruded shape
+  */
+@interface WhirlyKitShapeExtruded : WhirlyKitShape
+
+/// The location for the origin of the shape
+@property (nonatomic,assign) WhirlyKit::Point3d &loc;
+
+/// Points around the origin defining the shape
+@property (nonatomic,assign) std::vector<WhirlyKit::Point2d> &pts;
+
+/// Thickness of the shape
+@property (nonatomic,assign) double thickness;
+
+@end
+
 namespace WhirlyKit
 {
     
