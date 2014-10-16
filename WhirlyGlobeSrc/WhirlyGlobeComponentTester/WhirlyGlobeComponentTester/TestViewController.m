@@ -591,7 +591,9 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 // Add arrows
 - (void)addArrows:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc
 {
-    double arrowCoords[2*7] = {-0.25,-0.75, -0.25,0.25, -0.5,0.25, 0.0,1.0,  0.5,0.25, 0.25,0.25, 0.25,-0.75};
+    // Let's make this arrow about 100km big
+    double size = 100000;
+    double arrowCoords[2*7] = {-0.25*size,-0.75*size, -0.25*size,0.25*size, -0.5*size,0.25*size, 0.0*size,1.0*size,  0.5*size,0.25*size, 0.25*size,0.25*size, 0.25*size,-0.75*size};
     
     NSMutableArray *arrows = [[NSMutableArray alloc] init];
     for (unsigned int ii=offset;ii<len;ii+=stride)
@@ -599,11 +601,12 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
         LocationInfo *loc = &locations[ii];
         MaplyShapeExtruded *exShape = [[MaplyShapeExtruded alloc] initWithOutline:arrowCoords numCoordPairs:7];
         // This makes the scale 100km
-        exShape.scale = exShape.scale * 100000;
+        exShape.scale = exShape.scale;
         exShape.center = MaplyCoordinateMakeWithDegrees(loc->lon, loc->lat);
         exShape.selectable = true;
-        exShape.thickness = 1;
-        exShape.height = 1.0;
+        exShape.thickness = size * 1.0;
+        exShape.height = 0.0;
+        exShape.color = [UIColor colorWithRed:0.8 green:0.25 blue:0.25 alpha:1.0];
         
         [arrows addObject:exShape];
     }
