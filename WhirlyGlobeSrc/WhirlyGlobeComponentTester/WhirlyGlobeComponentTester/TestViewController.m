@@ -607,7 +607,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
         exShape.thickness = size * 1.0;
         exShape.height = 0.0;
         exShape.color = [UIColor colorWithRed:0.8 green:0.25 blue:0.25 alpha:1.0];
-        exShape.transform = [[MaplyMatrix alloc] initWithYaw:45.0/180.0*M_PI pitch:0.0 roll:0.0];
+        exShape.transform = [[MaplyMatrix alloc] initWithYaw:0.0 pitch:0.0 roll:45.0/180.0*M_PI];
         
         [arrows addObject:exShape];
     }
