@@ -600,8 +600,6 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     {
         LocationInfo *loc = &locations[ii];
         MaplyShapeExtruded *exShape = [[MaplyShapeExtruded alloc] initWithOutline:arrowCoords numCoordPairs:7];
-        // This makes the scale 100km
-        exShape.scale = exShape.scale;
         exShape.center = MaplyCoordinateMakeWithDegrees(loc->lon, loc->lat);
         exShape.selectable = true;
         exShape.thickness = size * 1.0;
