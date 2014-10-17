@@ -32,6 +32,7 @@
 #import "MaplySharedAttributes.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyTexture_private.h"
+#import "MaplyMatrix_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -1481,6 +1482,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             Point3d loc(ex.center.x,ex.center.y,ex.height*ex.scale);
             newEx.loc = loc;
             newEx.thickness = ex.thickness*ex.scale;
+            newEx.transform = ex.transform.mat;
             int numCoords = ex.numCoordPairs;
             double *coords = ex.coordData;
             std::vector<Point2d> pts;
