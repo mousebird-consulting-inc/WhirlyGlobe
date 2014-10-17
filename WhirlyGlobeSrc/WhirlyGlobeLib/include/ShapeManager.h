@@ -136,6 +136,9 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 /// Thickness of the shape
 @property (nonatomic,assign) double thickness;
 
+/// Transform to apply to this extruded shape before placement
+@property (nonatomic,assign) Eigen::Matrix4d &transform;
+
 @end
 
 namespace WhirlyKit

@@ -20,6 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import "WGCoordinate.h"
+#import "MaplyMatrix.h"
 
 /** @brief Maply Shape is the base class for the actual shape objects.
     @details The maply shape is just the base class.  Look to MaplyShapeCircle, MaplyShapeCylinder, MaplyShapeSphere, MaplyShapeGreatCircle, and MaplyShapeLinear.
@@ -206,5 +207,10 @@ typedef MaplyShapeCylinder WGShapeCylinder;
     @details We'll put this shape at the given height above the surface of the globe or map.
   */
 @property (nonatomic,assign) double height;
+
+/** @brief The transform to apply to this shape.
+    @details If set, this transform is applied before placing the feature.  You can set a transform matrix up with roll, pitch, and yaw.
+  */
+@property (nonatomic) MaplyMatrix *transform;
 
 @end
