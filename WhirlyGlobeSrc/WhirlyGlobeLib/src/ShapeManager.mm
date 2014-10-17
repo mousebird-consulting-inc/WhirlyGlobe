@@ -453,18 +453,30 @@ static std::vector<Point3f> circleSamples;
         yAxis = norm.cross(xAxis);  yAxis.normalize();
     }
     
-    Matrix4d normalMat = _transform;
+    // Set up a shift matrix that moves coordinate to the right orientation on the globe (or not)
+    Matrix4d shiftMat;
+    shiftMat(0,0) = xAxis.x();
+    shiftMat(0,1) = yAxis.x();
+    shiftMat(0,2) = norm.x();
+    shiftMat(0,3) = 0.0;
     
-    // Adjust the axes according to the transform
-    Vector4d xAxis4 = normalMat * Vector4d(xAxis.x(),xAxis.y(),xAxis.z(),0.0);
-    Vector4d yAxis4 = normalMat * Vector4d(yAxis.x(),yAxis.y(),yAxis.z(),0.0);
-    Vector4d norm4 = normalMat * Vector4d(norm.x(),norm.y(),norm.z(),0.0);
-    xAxis = Point3d(xAxis4.x(),xAxis4.y(),xAxis4.z());
-    xAxis.normalize();
-    yAxis = Point3d(yAxis4.x(),yAxis4.y(),yAxis4.z());
-    yAxis.normalize();
-    norm = Point3d(norm4.x(),norm4.y(),norm4.z());
-    norm.normalize();
+    shiftMat(1,0) = xAxis.y();
+    shiftMat(1,1) = yAxis.y();
+    shiftMat(1,2) = norm.y();
+    shiftMat(1,3) = 0.0;
+    
+    shiftMat(2,0) = xAxis.z();
+    shiftMat(2,1) = yAxis.z();
+    shiftMat(2,2) = norm.z();
+    shiftMat(2,3) = 0.0;
+    
+    shiftMat(3,0) = 0.0;
+    shiftMat(3,1) = 0.0;
+    shiftMat(3,2) = 0.0;
+    shiftMat(3,3) = 1.0;
+
+    // Now add in the transform for orientation
+    shiftMat = shiftMat * _transform;
     
     // Note: Should make this bigger
     Mbr shapeMbr;
@@ -489,8 +501,10 @@ static std::vector<Point3f> circleSamples;
         for (unsigned int jj=0;jj<3;jj++)
         {
             const Point3f &pt = trisRef->pts[tri.pts[jj]];
-            bot[jj] = pt.x() * xAxis + pt.y() * yAxis + dispPt + norm * (_loc.z() - _thickness/2.0);
-            top[jj] = pt.x() * xAxis + pt.y() * yAxis + dispPt + norm * (_loc.z() + _thickness/2.0);
+            Vector4d bot4d = shiftMat * Vector4d(pt.x(),pt.y(),_loc.z()-_thickness/2.0,1.0);
+            bot[jj] = Point3d(bot4d.x(),bot4d.y(),bot4d.z())/bot4d.w() + dispPt;
+            Vector4d top4d = shiftMat * Vector4d(pt.x(),pt.y(),_loc.z()+_thickness/2.0,1.0);
+            top[jj] = Point3d(top4d.x(),top4d.y(),top4d.z())/top4d.w() + dispPt;
         }
         triBuilder->addTriangle(top[0],norm,theColor,top[1],norm,theColor,top[2],norm,theColor,shapeMbr);
         triBuilder->addTriangle(bot[2],norm,theColor,bot[1],norm,theColor,bot[0],norm,theColor,shapeMbr);
@@ -503,11 +517,14 @@ static std::vector<Point3f> circleSamples;
         const Point2d &p0 = _pts[ii];
         const Point2d &p1 = _pts[(ii+1)%_pts.size()];
         
+        std::vector<Vector4d> pts4d(4);
+        pts4d[0] = shiftMat * Vector4d(p0.x(),p0.y(),_loc.z() - _thickness/2.0,1.0);
+        pts4d[1] = shiftMat * Vector4d(p1.x(),p1.y(),_loc.z() - _thickness/2.0,1.0);
+        pts4d[2] = shiftMat * Vector4d(p1.x(),p1.y(),_loc.z() + _thickness/2.0,1.0);
+        pts4d[3] = shiftMat * Vector4d(p0.x(),p0.y(),_loc.z() + _thickness/2.0,1.0);
         std::vector<Point3d> pts(4);
-        pts[0] = p0.x() * xAxis + p0.y() * yAxis + dispPt + norm * (_loc.z() - _thickness/2.0);
-        pts[1] = p1.x() * xAxis + p1.y() * yAxis + dispPt + norm * (_loc.z() - _thickness/2.0);
-        pts[2] = p1.x() * xAxis + p1.y() * yAxis + dispPt + norm * (_loc.z() + _thickness/2.0);
-        pts[3] = p0.x() * xAxis + p0.y() * yAxis + dispPt + norm * (_loc.z() + _thickness/2.0);
+        for (unsigned int jj=0;jj<4;jj++)
+            pts[jj] = Point3d(pts4d[jj].x(),pts4d[jj].y(),pts4d[jj].z())/pts4d[jj].w() + dispPt;
         
         bbox.addPoints(pts);
         Point3d thisNorm = (pts[0]-pts[1]).cross(pts[2]-pts[1]);
