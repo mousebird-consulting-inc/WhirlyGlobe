@@ -412,6 +412,15 @@ static std::vector<Point3f> circleSamples;
 
 @implementation WhirlyKitShapeExtruded
 
+- (id)init
+{
+    self = [super init];
+    
+    _transform = Eigen::Matrix4d::Identity();
+    
+    return self;
+}
+
 - (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter
 {
     Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(_loc.x(),_loc.y()));
@@ -430,9 +439,8 @@ static std::vector<Point3f> circleSamples;
     Point3d dispPt = coordAdapter->localToDisplay(localPt);
     Point3d norm = coordAdapter->normalForLocal(localPt);
     Point3f norm3f(norm.x(),norm.y(),norm.z());
-
+    
     // Construct a set of axes to build the shape around
-    Point3d up = norm;
     Point3d xAxis,yAxis;
     if (coordAdapter->isFlat())
     {
@@ -441,9 +449,22 @@ static std::vector<Point3f> circleSamples;
     } else {
         Point3d north(0,0,1);
         // Note: Also check if we're at a pole
-        xAxis = north.cross(up);  xAxis.normalize();
-        yAxis = up.cross(xAxis);  yAxis.normalize();
+        xAxis = north.cross(norm);  xAxis.normalize();
+        yAxis = norm.cross(xAxis);  yAxis.normalize();
     }
+    
+    Matrix4d normalMat = _transform;
+    
+    // Adjust the axes according to the transform
+    Vector4d xAxis4 = normalMat * Vector4d(xAxis.x(),xAxis.y(),xAxis.z(),0.0);
+    Vector4d yAxis4 = normalMat * Vector4d(yAxis.x(),yAxis.y(),yAxis.z(),0.0);
+    Vector4d norm4 = normalMat * Vector4d(norm.x(),norm.y(),norm.z(),0.0);
+    xAxis = Point3d(xAxis4.x(),xAxis4.y(),xAxis4.z());
+    xAxis.normalize();
+    yAxis = Point3d(yAxis4.x(),yAxis4.y(),yAxis4.z());
+    yAxis.normalize();
+    norm = Point3d(norm4.x(),norm4.y(),norm4.z());
+    norm.normalize();
     
     // Note: Should make this bigger
     Mbr shapeMbr;
@@ -468,8 +489,8 @@ static std::vector<Point3f> circleSamples;
         for (unsigned int jj=0;jj<3;jj++)
         {
             const Point3f &pt = trisRef->pts[tri.pts[jj]];
-            bot[jj] = pt.x() * xAxis + pt.y() * yAxis + dispPt + norm * _loc.z();
-            top[jj] = pt.x() * xAxis + pt.y() * yAxis + dispPt + norm * (_loc.z() + _thickness);
+            bot[jj] = pt.x() * xAxis + pt.y() * yAxis + dispPt + norm * (_loc.z() - _thickness/2.0);
+            top[jj] = pt.x() * xAxis + pt.y() * yAxis + dispPt + norm * (_loc.z() + _thickness/2.0);
         }
         triBuilder->addTriangle(top[0],norm,theColor,top[1],norm,theColor,top[2],norm,theColor,shapeMbr);
         triBuilder->addTriangle(bot[2],norm,theColor,bot[1],norm,theColor,bot[0],norm,theColor,shapeMbr);
@@ -483,10 +504,11 @@ static std::vector<Point3f> circleSamples;
         const Point2d &p1 = _pts[(ii+1)%_pts.size()];
         
         std::vector<Point3d> pts(4);
-        pts[0] = p0.x() * xAxis + p0.y() * yAxis + dispPt + norm * _loc.z();
-        pts[1] = p1.x() * xAxis + p1.y() * yAxis + dispPt + norm * _loc.z();
-        pts[2] = p1.x() * xAxis + p1.y() * yAxis + dispPt + norm * (_loc.z() + _thickness);
-        pts[3] = p0.x() * xAxis + p0.y() * yAxis + dispPt + norm * (_loc.z() + _thickness);
+        pts[0] = p0.x() * xAxis + p0.y() * yAxis + dispPt + norm * (_loc.z() - _thickness/2.0);
+        pts[1] = p1.x() * xAxis + p1.y() * yAxis + dispPt + norm * (_loc.z() - _thickness/2.0);
+        pts[2] = p1.x() * xAxis + p1.y() * yAxis + dispPt + norm * (_loc.z() + _thickness/2.0);
+        pts[3] = p0.x() * xAxis + p0.y() * yAxis + dispPt + norm * (_loc.z() + _thickness/2.0);
+        
         bbox.addPoints(pts);
         Point3d thisNorm = (pts[0]-pts[1]).cross(pts[2]-pts[1]);
         thisNorm.normalize();

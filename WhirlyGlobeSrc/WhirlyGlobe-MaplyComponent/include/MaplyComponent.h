@@ -20,6 +20,7 @@
 
 #import <MaplyCoordinate.h>
 #import <MaplyCoordinateSystem.h>
+#import <MaplyMatrix.h>
 #import <MaplyTexture.h>
 #import <MaplyLabel.h>
 #import <MaplyScreenLabel.h>
