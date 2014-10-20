@@ -186,7 +186,6 @@
 /// It's real world coordinates for kMaplyWideVecCoordTypeReal and pixel size for kMaplyWideVecCoordTypeScreen
 #define kMaplyWideVecTexRepeatLen @"repeatSize"
 
-
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 #define kMaplySubdivEpsilon @"subdivisionepsilon"
 /// If subdiv epsilon is set we'll look for a subdivision type. Default is simple.

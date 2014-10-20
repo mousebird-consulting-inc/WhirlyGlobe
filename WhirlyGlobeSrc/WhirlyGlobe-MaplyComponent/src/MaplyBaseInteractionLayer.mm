@@ -549,21 +549,35 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     {
         WhirlyKitMarker *wgMarker = [[WhirlyKitMarker alloc] init];
         wgMarker.loc = GeoCoord(marker.loc.x,marker.loc.y);
-        MaplyTexture *tex = nil;
+        std::vector<MaplyTexture *> texs;
         if (marker.image)
         {
             if ([marker.image isKindOfClass:[UIImage class]])
             {
-                tex = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
+                texs.push_back([self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode]);
             } else if ([marker.image isKindOfClass:[MaplyTexture class]])
             {
-                tex = (MaplyTexture *)marker.image;
+                texs.push_back((MaplyTexture *)marker.image);
             }
-            compObj.textures.insert(tex);
+        } else if (marker.images)
+        {
+            for (id image in marker.images)
+            {
+                if ([image isKindOfClass:[UIImage class]])
+                    texs.push_back([self addImage:image imageFormat:MaplyImageIntRGBA mode:threadMode]);
+                else if ([image isKindOfClass:[MaplyTexture class]])
+                    texs.push_back((MaplyTexture *)image);
+            }
         }
+        if (texs.size() > 1)
+            wgMarker.period = marker.period;
+        compObj.textures.insert(texs.begin(),texs.end());
         wgMarker.color = marker.color;
-        if (tex)
-            wgMarker.texIDs.push_back(tex.texID);
+        if (!texs.empty())
+        {
+            for (unsigned int ii=0;ii<texs.size();ii++)
+                wgMarker.texIDs.push_back(texs[ii].texID);
+        }
         wgMarker.width = marker.size.width;
         wgMarker.height = marker.size.height;
         if (marker.rotation != 0.0)
