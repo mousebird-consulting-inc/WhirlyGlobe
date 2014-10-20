@@ -47,6 +47,7 @@ public:
     virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
     
 protected:
+    bool snapTex;
     float texRepeat;
     int offsetIndex;
 };

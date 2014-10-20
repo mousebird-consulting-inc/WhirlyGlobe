@@ -47,6 +47,16 @@
   */
 @property (nonatomic,strong) id image;
 
+/** @brief Images to display on the sticker.
+    @details If this is set rather than image, we will cycle through these images on the screen marker.  It will take period time to cycle through them all.
+  */
+@property (nonatomic,strong) NSArray *images;
+
+/** @brief The time we'll take to cycle through all the images for the marker.
+    @details If images are passed in, this is the time it will take to cycle through them all.  By default this is 5s.
+  */
+@property (nonatomic) double period;
+
 /** @brief Color for this particular marker.
     @details If set, this the color we'll use for the marker or how we'll tint the image.
     @details This overrides the color set in the description dictionary.

@@ -217,8 +217,13 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
         // Note: Not supporting more than one texture at the moment
         
         // Look for a texture sub mapping
-        SimpleIdentity texID = (marker.texIDs.empty() ? EmptyIdentity : marker.texIDs.at(0));
-        SubTexture subTex = scene->getSubTexture(texID);
+        std::vector<SubTexture> subTexs;
+        for (unsigned int ii=0; ii<marker.texIDs.size();ii++)
+        {
+            SimpleIdentity texID = marker.texIDs.at(ii);
+            SubTexture subTex = scene->getSubTexture(texID);
+            subTexs.push_back(subTex);
+        }
         
         // Build one set of texture coordinates
         std::vector<TexCoord> texCoord;
@@ -227,7 +232,9 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
         texCoord[2].u() = 1.0;  texCoord[2].v() = 0.0;
         texCoord[1].u() = 1.0;  texCoord[1].v() = 1.0;
         texCoord[0].u() = 0.0;  texCoord[0].v() = 1.0;
-        subTex.processTexCoords(texCoord);
+        // Note: This assume they all have the same (or no) sub texture mapping
+        if (!subTexs.empty())
+            subTexs[0].processTexCoords(texCoord);
         
         if (markerInfo.screenObject)
         {
@@ -245,9 +252,11 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                 shape = layoutObj;
             } else
                 shape = new ScreenSpaceObject();
+            shape->setPeriod(marker.period);
             
             ScreenSpaceObject::ConvexGeometry smGeom;
-            smGeom.texID = subTex.texId;
+            for (unsigned int ii=0;ii<subTexs.size();ii++)
+                smGeom.texIDs.push_back(subTexs[ii].texId);
             smGeom.progID = markerInfo.programId;
             smGeom.color = [markerInfo.color asRGBAColor];
             if (marker.color)
@@ -340,7 +349,8 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             pts[3] = Vector3dToVector3f(ll + 2 * height2 * vert);
 
             // We're sorting the static drawables by texture, so look for that
-            DrawableMap::iterator it = drawables.find(subTex.texId);
+            SimpleIdentity subTexID = (subTexs.empty() ? EmptyIdentity : subTexs[0].texId);
+            DrawableMap::iterator it = drawables.find(subTexID);
             BasicDrawable *draw = NULL;
             if (it != drawables.end())
                 draw = it->second;
@@ -351,9 +361,9 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     draw->setColor([markerInfo.color asRGBAColor]);
                     draw->setDrawPriority(markerInfo.drawPriority);
                     draw->setVisibleRange(markerInfo.minVis, markerInfo.maxVis);
-                    draw->setTexId(0,subTex.texId);
+                    draw->setTexId(0,subTexID);
                     draw->setOnOff(markerInfo.enable);
-                    drawables[subTex.texId] = draw;
+                    drawables[subTexID] = draw;
                     markerRep->drawIDs.insert(draw->getId());
                 }
             

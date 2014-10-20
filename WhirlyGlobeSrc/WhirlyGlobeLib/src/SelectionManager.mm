@@ -22,7 +22,6 @@
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
 #import "GlobeMath.h"
-#import "ScreenSpaceGenerator.h"
 #import "MaplyView.h"
 #import "WhirlyGeometry.h"
 #import "Scene.h"

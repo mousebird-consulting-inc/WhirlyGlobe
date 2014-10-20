@@ -673,6 +673,9 @@ static const float ScreenOverlap = 0.1;
             if (drawProgramId == EmptyIdentity)
                 continue;
             
+            // Run any tweakers right here
+            drawContain.drawable->runTweakers(baseFrameInfo);
+            
             // Draw using the given program
             drawContain.drawable->draw(baseFrameInfo,scene);
             

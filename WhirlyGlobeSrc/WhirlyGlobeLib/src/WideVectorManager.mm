@@ -44,6 +44,7 @@ using namespace Eigen;
     _texID = [desc intForKey:@"texture" default:EmptyIdentity];
     _repeatSize = [desc floatForKey:@"repeatSize" default:(_coordType == WideVecCoordScreen ? 32 : 6371000.0 / 20)];
     _miterLimit = [desc floatForKey:@"miterLimit" default:2.0];
+    _texSnap = [desc boolForKey:@"texsnap" default:false];
 }
 
 @end

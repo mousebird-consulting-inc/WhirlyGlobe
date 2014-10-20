@@ -59,6 +59,7 @@ typedef enum {WideVecButtCap,WideVecRoundCap,WideVecSquareCap} WideVectorLineCap
 @property (nonatomic,assign) WhirlyKit::WideVectorLineCapType capType;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity texID;
 @property (nonatomic,assign) float miterLimit;
+@property (nonatomic,assign) bool texSnap;
 
 - (void)parseDesc:(NSDictionary *)desc;
 

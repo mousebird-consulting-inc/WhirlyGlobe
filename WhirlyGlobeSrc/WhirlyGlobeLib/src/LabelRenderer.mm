@@ -404,7 +404,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                             smGeom.coords.push_back(Point2d(poly.pts[0].x()+label.screenOffset.width,poly.pts[0].y()-label.screenOffset.height) + soff + iconOff + justifyOff);
                             smGeom.texCoords.push_back(TexCoord(poly.texCoords[0].u(),poly.texCoords[0].v()));
 
-                            smGeom.texID = poly.subTex.texId;
+                            smGeom.texIDs.push_back(poly.subTex.texId);
                             smGeom.color = color;
                             poly.subTex.processTexCoords(smGeom.texCoords);
                             screenShape->addGeometry(smGeom);
@@ -483,7 +483,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
 
             // Note: We're not registering icons correctly with the selection layer
             ScreenSpaceObject::ConvexGeometry iconGeom;
-            iconGeom.texID = subTex.texId;
+            iconGeom.texIDs.push_back(subTex.texId);
             iconGeom.progID = _labelInfo.programID;
             Point2d iconPts[4];
             iconPts[0] = Point2d(0,0);
@@ -709,10 +709,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 if (_labelInfo.screenObject)
                     tex->setUsesMipmaps(false);
                 _changeRequests.push_back(new AddTextureReq(tex));
-                smGeom.texID = tex->getId();
+                smGeom.texIDs.push_back(tex->getId());
                 _labelRep->texIDs.insert(tex->getId());
             } else
-                smGeom.texID = texAtlas.texId;
+                smGeom.texIDs.push_back(texAtlas.texId);
             screenShape->addGeometry(smGeom);
             
             // If it's being passed to the layout engine, do that as well
@@ -835,7 +835,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
 
                 ScreenSpaceObject::ConvexGeometry iconGeom;
                 iconGeom.progID = _labelInfo.programID;
-                iconGeom.texID = subTex.texId;
+                iconGeom.texIDs.push_back(subTex.texId);
                 for (unsigned int ii=0;ii<4;ii++)
                 {
                     iconGeom.coords.push_back(Point2d(iconPts[ii].x(),iconPts[ii].y()));
