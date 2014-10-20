@@ -21,7 +21,6 @@
 #import <map>
 #import "LayoutLayer.h"
 #import "GlobeLayerViewWatcher.h"
-#import "ScreenSpaceGenerator.h"
 #import "GlobeMath.h"
 
 using namespace Eigen;

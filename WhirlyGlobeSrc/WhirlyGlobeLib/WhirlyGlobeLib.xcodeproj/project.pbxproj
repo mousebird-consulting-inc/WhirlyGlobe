@@ -16,7 +16,6 @@
 		2B13BAA418B7E192007DA1A3 /* ScreenSpaceBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BAA318B7E192007DA1A3 /* ScreenSpaceBuilder.h */; };
 		2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194426138B0CD000E8FA42 /* AnimateRotation.mm */; };
 		2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */; };
-		2B2A258E1559B40800137807 /* ScreenSpaceGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */; };
 		2B308B11171F638F006D7273 /* SelectionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B308B10171F638F006D7273 /* SelectionManager.h */; };
 		2B308B13171F63B3006D7273 /* SelectionManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B308B12171F63B3006D7273 /* SelectionManager.mm */; };
 		2B35A8551337CC5F0047C705 /* GLUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B35A8531337CC5F0047C705 /* GLUtils.mm */; };
@@ -462,8 +461,6 @@
 		2B194426138B0CD000E8FA42 /* AnimateRotation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = AnimateRotation.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AnimateViewMomentum.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = AnimateViewMomentum.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B2A25881559B3C000137807 /* ScreenSpaceGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceGenerator.h; sourceTree = "<group>"; };
-		2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ScreenSpaceGenerator.mm; sourceTree = "<group>"; };
 		2B308B10171F638F006D7273 /* SelectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionManager.h; sourceTree = "<group>"; };
 		2B308B12171F63B3006D7273 /* SelectionManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SelectionManager.mm; sourceTree = "<group>"; };
 		2B35A8501337CC2F0047C705 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GLUtils.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -1437,7 +1434,6 @@
 				2BB1F06813007031001F33CD /* LabelLayer.h */,
 				2B58C6B81445FDAB00EEF3C3 /* ParticleGenerator.h */,
 				2B6B3395147B5DE900771FEF /* MarkerGenerator.h */,
-				2B2A25881559B3C000137807 /* ScreenSpaceGenerator.h */,
 				2B9BE6AC180872A0001D9454 /* ScreenImportance.h */,
 				2B7EF50C1603D76100D4079F /* QuadDisplayLayer.h */,
 				2B08059517EB955C0016C813 /* LoadedTile.h */,
@@ -1473,7 +1469,6 @@
 				2BB1F06A130076C5001F33CD /* LabelLayer.mm */,
 				2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */,
 				2B93C817145232C800D768BA /* MarkerLayer.mm */,
-				2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */,
 				2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */,
 				2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */,
 				2B40467C15F9B4F400937923 /* GeometryLayer.mm */,
@@ -2191,7 +2186,6 @@
 				2BA2BB8B153E106000DAB382 /* LayerViewWatcher.mm in Sources */,
 				2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */,
 				2BA8FFE01540E60800AEA53C /* SphericalMercator.mm in Sources */,
-				2B2A258E1559B40800137807 /* ScreenSpaceGenerator.mm in Sources */,
 				2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */,
 				2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */,
 				2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */,
