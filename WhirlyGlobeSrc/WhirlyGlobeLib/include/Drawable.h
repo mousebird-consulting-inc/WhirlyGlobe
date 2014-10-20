@@ -58,7 +58,8 @@ namespace WhirlyKit
 {
 	
 class Scene;
-    class OpenGLES2Program;
+class OpenGLES2Program;
+class Drawable;
 
 /// We'll only keep this many buffers or textures around for reuse
 #define WhirlyKitOpenGLMemCacheMax 32
@@ -137,6 +138,19 @@ public:
 /// Representation of a list of changes.  Might get more complex in the future.
 typedef std::vector<ChangeRequest *> ChangeSet;
 
+/** Drawable tweakers are called every frame to mess with things.
+    It's up to you to make the changes, just make them quick.
+  */
+class DrawableTweaker : public Identifiable
+{
+public:
+    /// Do your tweaking here
+    virtual void tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frame) = 0;
+};
+    
+typedef boost::shared_ptr<DrawableTweaker> DrawableTweakerRef;
+typedef std::set<DrawableTweakerRef> DrawableTweakerRefSet;
+
 /** The Drawable base class.  Inherit from this and fill in the virtual
     methods.  In general, use the BasicDrawable.
  */
@@ -188,8 +202,18 @@ public:
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer) = 0;
     
+    /// Add a tweaker to this list to be run each frame
+    virtual void addTweaker(DrawableTweakerRef tweakRef) { tweakers.insert(tweakRef); }
+    
+    /// Remove a tweaker from the list
+    virtual void removeTweaker(DrawableTweakerRef tweakRef) { tweakers.erase(tweakRef); }
+    
+    /// Run the tweakers
+    virtual void runTweakers(WhirlyKitRendererFrameInfo *frame);
+    
 protected:
     std::string name;
+    DrawableTweakerRefSet tweakers;
 };
 
 /// Reference counted Drawable pointer
@@ -591,6 +615,22 @@ protected:
     GLuint vertArrayObj;
     GLuint sharedBufferOffset;
     bool sharedBufferIsExternal;
+};
+    
+/** Drawable Tweaker that cycles through textures.
+    Looks at the current time and decides which two textures to use.
+  */
+class BasicDrawableTexTweaker : public DrawableTweaker
+{
+public:
+    BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,NSTimeInterval startTime,double period);
+    
+    /// Modify the active texture IDs
+    void tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frame);
+protected:
+    std::vector<SimpleIdentity> texIDs;
+    NSTimeInterval startTime;
+    double period;
 };
     
 /// Reference counted version of BasicDrawable

@@ -27,15 +27,17 @@ namespace WhirlyKit
 {
 
 ScreenSpaceBuilder::DrawableState::DrawableState()
-    : texID(EmptyIdentity), progID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0),
+    : period(0.0), progID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0),
     drawPriority(ScreenSpaceDrawPriorityOffset), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid)
 {
 }
     
 bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) const
 {
-    if (texID != that.texID)
-        return texID < that.texID;
+    if (texIDs != that.texIDs)
+        return texIDs < that.texIDs;
+    if (period != that.period)
+        return period < that.period;
     if (progID != that.progID)
         return progID < that.progID;
     if (drawPriority != that.drawPriority)
@@ -68,13 +70,23 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(const DrawableState &state)
 {
     draw = new ScreenSpaceDrawable();
     draw->setType(GL_TRIANGLES);
-    draw->setTexId(0, state.texID);
+    // A max of two textures per
+    for (unsigned int ii=0;ii<state.texIDs.size() && ii<2;ii++)
+        draw->setTexId(ii, state.texIDs[ii]);
     draw->setProgram(state.progID);
     draw->setDrawPriority(state.drawPriority);
     draw->setFade(state.fadeDown, state.fadeUp);
     draw->setVisibleRange(state.minVis, state.maxVis);
     draw->setRequestZBuffer(false);
     draw->setWriteZBuffer(false);
+    
+    // If we've got more than one texture ID and a period, we need a tweaker
+    if (state.texIDs.size() > 1 && state.period != 0.0)
+    {
+        NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+        BasicDrawableTexTweaker *tweak = new BasicDrawableTexTweaker(state.texIDs,now,state.period);
+        draw->addTweaker(DrawableTweakerRef(tweak));
+    }
 }
     
 bool ScreenSpaceBuilder::DrawableWrap::operator < (const DrawableWrap &that) const
@@ -115,7 +127,14 @@ ScreenSpaceBuilder::~ScreenSpaceBuilder()
     
 void ScreenSpaceBuilder::setTexID(SimpleIdentity texID)
 {
-    curState.texID = texID;
+    curState.texIDs.clear();
+    curState.texIDs.push_back(texID);
+}
+    
+void ScreenSpaceBuilder::setTexIDs(const std::vector<SimpleIdentity> &texIDs,double period)
+{
+    curState.texIDs = texIDs;
+    curState.period = period;
 }
 
 void ScreenSpaceBuilder::setProgramID(SimpleIdentity progID)
@@ -217,7 +236,7 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
     {
         const ScreenSpaceObject::ConvexGeometry &geom = ssObj.geometry[ii];
         DrawableState state = ssObj.state;
-        state.texID = geom.texID;
+        state.texIDs = geom.texIDs;
         state.progID = geom.progID;
         DrawableWrap *drawWrap = findOrAddDrawWrap(state,geom.coords.size(),geom.coords.size()-2,ssObj.worldLoc);
         
@@ -267,7 +286,7 @@ void ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
 }
     
 ScreenSpaceObject::ScreenSpaceObject::ConvexGeometry::ConvexGeometry()
-    : texID(EmptyIdentity), progID(EmptyIdentity), color(255,255,255,255)
+    : progID(EmptyIdentity), color(255,255,255,255)
 {
 }
     
@@ -331,6 +350,11 @@ void ScreenSpaceObject::setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown)
 void ScreenSpaceObject::setOffset(const Point2d &inOffset)
 {
     offset = inOffset;
+}
+    
+void ScreenSpaceObject::setPeriod(NSTimeInterval period)
+{
+    state.period = period;
 }
 
 void ScreenSpaceObject::addGeometry(const ConvexGeometry &geom)

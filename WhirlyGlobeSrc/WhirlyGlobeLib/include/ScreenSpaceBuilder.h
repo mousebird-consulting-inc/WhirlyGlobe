@@ -54,7 +54,8 @@ public:
         // Comparison operator for set
         bool operator < (const DrawableState &that) const;
         
-        SimpleIdentity texID;
+        std::vector<SimpleIdentity> texIDs;
+        double period;
         SimpleIdentity progID;
         NSTimeInterval fadeUp,fadeDown;
         int drawPriority;
@@ -66,6 +67,8 @@ public:
     
     /// Set the active texture ID
     void setTexID(SimpleIdentity texID);
+    /// Set the active texture IDs
+    void setTexIDs(const std::vector<SimpleIdentity> &texIDs,double period);
     /// Set the active program ID
     void setProgramID(SimpleIdentity progID);
     /// Set the fade in/out
@@ -154,7 +157,7 @@ public:
         ConvexGeometry();
         
         /// Texture ID used for just this object
-        SimpleIdentity texID;
+        std::vector<SimpleIdentity> texIDs;
         /// Program ID used to render this geometry
         SimpleIdentity progID;
         /// Color for the geometry
@@ -175,6 +178,7 @@ public:
     void setRotation(double rotation);
     void setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown);
     void setOffset(const Point2d &offset);
+    void setPeriod(NSTimeInterval period);
     
     void addGeometry(const ConvexGeometry &geom);
     
