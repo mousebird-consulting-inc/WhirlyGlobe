@@ -164,6 +164,9 @@ public:
 
     /// Add a rectangular solid for selection.  Pass in 8 points (bottom four + top four)
     void addSelectableRectSolid(SimpleIdentity selectId,const BBox &bbox,float minVis,float maxVis,bool enable);
+    
+    /// Add a polytope, represented by a set of surfaces
+    void addPolytope(SimpleIdentity selectId,const std::vector<std::vector<Point3d> > &surfaces,float minVis,float maxVis,bool enable);
 
     /// Add a linear in 3-space for selection.
     void addSelectableLinear(SimpleIdentity selectId,const std::vector<Point3f> &pts,float minVis,float maxVis,bool enable);
