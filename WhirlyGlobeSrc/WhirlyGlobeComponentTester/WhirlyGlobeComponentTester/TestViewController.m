@@ -222,6 +222,9 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     [self.view addSubview:baseViewC.view];
     baseViewC.view.frame = self.view.bounds;
     [self addChildViewController:baseViewC];
+    
+    // This lets us mix screen space objects with everything else
+//    baseViewC.screenObjectDrawPriorityOffset = 0;
 
     // Note: Debugging
 //    [self labelExercise];
@@ -469,7 +472,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
         [markers addObject:marker];
     }
     
-    screenMarkersObj = [baseViewC addScreenMarkers:markers desc:@{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(1.0)}];
+    screenMarkersObj = [baseViewC addScreenMarkers:markers desc:@{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(1.0), kMaplyDrawPriority: @(100)}];
 }
 
 // Add 3D markers
@@ -710,7 +713,8 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     labelObj = [baseViewC addScreenLabels:labels desc:
                 @{kMaplyTextOutlineSize: @(1.0),
                   kMaplyTextOutlineColor: [UIColor blackColor],
-                  kMaplyFont: [UIFont systemFontOfSize:18.0]
+                  kMaplyFont: [UIFont systemFontOfSize:18.0],
+                  kMaplyDrawPriority: @(200)
                   }];
     
     return @[lines,screenLines,realLines,labelObj];
@@ -1455,7 +1459,7 @@ static const int NumMegaMarkers = 15000;
     {
         if (!shapeCylObj)
         {
-            [self addShapeCylinders:locations len:NumLocations stride:4 offset:0 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8], kMaplyFade: @(1.0)}];
+            [self addShapeCylinders:locations len:NumLocations stride:4 offset:0 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000)}];
         }
     } else {
         if (shapeCylObj)
@@ -1469,7 +1473,7 @@ static const int NumMegaMarkers = 15000;
     {
         if (!shapeSphereObj)
         {
-            [self addShapeSpheres:locations len:NumLocations stride:4 offset:1 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.8], kMaplyFade: @(1.0)}];
+            [self addShapeSpheres:locations len:NumLocations stride:4 offset:1 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.8], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000)}];
         }
     } else {
         if (shapeSphereObj)
@@ -1483,7 +1487,7 @@ static const int NumMegaMarkers = 15000;
     {
         if (!greatCircleObj)
         {
-            [self addGreatCircles:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0], kMaplyFade: @(1.0)}];
+            [self addGreatCircles:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000)}];
         }
     } else {
         if (greatCircleObj)

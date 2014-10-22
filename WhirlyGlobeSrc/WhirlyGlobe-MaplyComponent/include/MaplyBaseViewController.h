@@ -82,6 +82,12 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 @property (nonatomic,assign) bool threadPerLayer;
 
+/** @brief Set the offset for the screen space objects.
+    @details In general you want the screen space objects to appear on top of everything else.  There used to be structural versions for this, but now you can mix and match where everything appears.  This controls the offset that's used to push screen space objects behind everything else in the list (and thus, on top).
+    @details If you set this to 0, you can control the ordering of everything more precisely.
+ */
+@property (nonatomic,assign) int screenObjectDrawPriorityOffset;
+
 /** @brief Clear all the currently active lights.
     @details There are a default set of lights, so you'll want to do this before adding your own.
   */

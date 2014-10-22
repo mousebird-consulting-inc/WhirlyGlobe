@@ -531,6 +531,18 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         dict[key] = val;
 }
 
+- (void)resolveDrawPriority:(NSMutableDictionary *)desc offset:(int)offsetPriority
+{
+    NSNumber *setting = desc[@"drawPriority"];
+    int iVal = 0;
+    if ([setting isKindOfClass:[NSNumber class]])
+    {
+        iVal = [setting intValue];
+    }
+    iVal += offsetPriority;
+    desc[@"drawPriority"] = @(iVal);
+}
+
 // Actually add the markers.
 // Called in an unknown thread
 - (void)addScreenMarkersRun:(NSArray *)argArray
@@ -542,6 +554,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     
     // Might be a custom shader on these
     [self resolveShader:inDesc defaultShader:@(kToolkitDefaultScreenSpaceProgram)];
+    [self resolveDrawPriority:inDesc offset:_screenObjectDrawPriorityOffset];
     
     // Convert to WG markers
     NSMutableArray *wgMarkers = [NSMutableArray array];
@@ -795,6 +808,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     
     // Might be a custom shader on these
     [self resolveShader:inDesc defaultShader:@(kToolkitDefaultScreenSpaceProgram)];
+    [self resolveDrawPriority:inDesc offset:_screenObjectDrawPriorityOffset];
 
     // Convert to WG screen labels
     NSMutableArray *wgLabels = [NSMutableArray array];
