@@ -172,6 +172,8 @@ using namespace WhirlyKit;
 {
     allowRepositionForAnnnotations = true;
     
+    _screenObjectDrawPriorityOffset = 1000000;
+    
     // Need this logic here to pull in the categories
     static bool dummyInit = false;
     if (!dummyInit)
@@ -233,6 +235,7 @@ using namespace WhirlyKit;
     
     // Lastly, an interaction layer of our own
     interactLayer = [self loadSetup_interactionLayer];
+    interactLayer.screenObjectDrawPriorityOffset = _screenObjectDrawPriorityOffset;
     interactLayer.glView = glView;
     [baseLayerThread addLayer:interactLayer];
     
@@ -261,6 +264,13 @@ using namespace WhirlyKit;
                                              selector:@selector(appForeground:)
                                                  name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
+}
+
+- (void)setScreenObjectDrawPriorityOffset:(int)drawPriorityOffset
+{
+    _screenObjectDrawPriorityOffset = drawPriorityOffset;
+    if (interactLayer)
+        interactLayer.screenObjectDrawPriorityOffset = _screenObjectDrawPriorityOffset;
 }
 
 - (void) useGLContext

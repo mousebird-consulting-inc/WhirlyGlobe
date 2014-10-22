@@ -21,7 +21,8 @@
 #import "ScreenSpaceBuilder.h"
 #import "ScreenSpaceDrawable.h"
 
-static int ScreenSpaceDrawPriorityOffset = 1000000;
+// Note: This was replaced at the component level
+static int ScreenSpaceDrawPriorityOffset = 0;
 
 namespace WhirlyKit
 {
