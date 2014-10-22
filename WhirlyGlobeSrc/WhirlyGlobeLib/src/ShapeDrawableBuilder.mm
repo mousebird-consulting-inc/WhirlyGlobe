@@ -312,7 +312,8 @@ void ShapeDrawableBuilderTri::addTriangles(std::vector<Point3f> &pts,std::vector
     int baseVert = drawable->getNumPoints();
     for (unsigned int ii=0;ii<pts.size();ii++)
     {
-        drawable->addPoint(pts[ii]);
+        const Point3f &pt = pts[ii];
+        drawable->addPoint(Point3d(pt.x()-center.x(),pt.y()-center.y(),pt.z()-center.z()));
         drawable->addNormal(norms[ii]);
         drawable->addColor(colors[ii]);
     }
