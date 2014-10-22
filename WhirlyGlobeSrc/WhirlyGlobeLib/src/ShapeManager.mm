@@ -494,6 +494,7 @@ static std::vector<Point3f> circleSamples;
     VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
     TesselateRing(ring,trisRef);
     
+    std::vector<std::vector<Point3d> > polytope;
     for (unsigned int ii=0;ii<trisRef->tris.size();ii++)
     {
         VectorTriangles::Triangle &tri = trisRef->tris[ii];
@@ -508,10 +509,12 @@ static std::vector<Point3f> circleSamples;
         }
         triBuilder->addTriangle(top[0],norm,theColor,top[1],norm,theColor,top[2],norm,theColor,shapeMbr);
         triBuilder->addTriangle(bot[2],norm,theColor,bot[1],norm,theColor,bot[0],norm,theColor,shapeMbr);
+        
+        polytope.push_back(top);
+        polytope.push_back(bot);
     }
     
     // Work around the outside doing sides
-    BBox bbox;
     for (unsigned int ii=0;ii<_pts.size();ii++)
     {
         const Point2d &p0 = _pts[ii];
@@ -525,8 +528,8 @@ static std::vector<Point3f> circleSamples;
         std::vector<Point3d> pts(4);
         for (unsigned int jj=0;jj<4;jj++)
             pts[jj] = Point3d(pts4d[jj].x(),pts4d[jj].y(),pts4d[jj].z())/pts4d[jj].w() + dispPt;
+        polytope.push_back(pts);
         
-        bbox.addPoints(pts);
         Point3d thisNorm = (pts[0]-pts[1]).cross(pts[2]-pts[1]);
         thisNorm.normalize();
         triBuilder->addConvexOutline(pts, thisNorm, theColor, shapeMbr);
@@ -535,7 +538,7 @@ static std::vector<Point3f> circleSamples;
     // Add a selection region
     if (super.isSelectable)
     {
-        selectManager->addSelectableRectSolid(super.selectID,bbox,triBuilder->getShapeInfo().minVis,triBuilder->getShapeInfo().maxVis,triBuilder->getShapeInfo().enable);
+        selectManager->addPolytope(super.selectID,polytope,triBuilder->getShapeInfo().minVis,triBuilder->getShapeInfo().maxVis,triBuilder->getShapeInfo().enable);
         sceneRep->selectIDs.insert(super.selectID);
     }
 }
