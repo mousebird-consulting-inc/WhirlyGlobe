@@ -735,6 +735,10 @@ using namespace WhirlyGlobe;
 {
     WhirlyGlobeTapMessage *msg = note.object;
     
+    // Ignore taps from other view controllers
+    if (msg.view != glView)
+        return;
+    
     // Hand this over to the interaction layer to look for a selection
     // If there is no selection, it will call us back in the main thread
     [globeInteractLayer userDidTap:msg];

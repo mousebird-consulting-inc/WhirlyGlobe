@@ -63,6 +63,9 @@
 // Note: Not a great idea to be passing this in
 @property (nonatomic,weak) UIView * glView;
 
+// Offset for draw priorities on screen objects
+@property (nonatomic,assign) int screenObjectDrawPriorityOffset;
+
 // Initialize with the view we'll be using
 - (id)initWithView:(WhirlyKitView *)visualView;
 
