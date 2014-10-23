@@ -1103,9 +1103,10 @@ static const int NumMegaMarkers = 15000;
         layer.handleEdges = true;
         if (startupMapType == Maply2DMap)
         {
+            // Note: Debugging
             layer.useTargetZoomLevel = true;
             layer.singleLevelLoading = true;
-            layer.multiLevelLoads = @[@(-4), @(-2)];
+//            layer.multiLevelLoads = @[@(-4), @(-2)];
         }
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;

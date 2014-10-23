@@ -157,6 +157,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     pthread_mutex_init(&tileSetLock, NULL);
     _importance = 512*512;
     _flipY = true;
+    _maxTiles = 256;
     canShortCircuitImportance = false;
     maxShortCircuitLevel = -1;
     _useTargetZoomLevel = true;
@@ -192,7 +193,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:self renderer:renderer];
     // A tile needs to take up this much screen space
     quadLayer.minImportance = _importance;
-    quadLayer.maxTiles = 256;
+    quadLayer.maxTiles = _maxTiles;
     
     [super.layerThread addLayer:quadLayer];
     
