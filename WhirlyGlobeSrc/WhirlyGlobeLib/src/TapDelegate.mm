@@ -82,9 +82,12 @@ using namespace WhirlyKit;
         msg.heightAboveSurface = globeView.heightAboveGlobe;
 		
 		[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapMsg object:msg]];
-	} else
+    } else {
+        WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
+        [msg setView:glView];
         // If we didn't hit, we generate a different message
-        [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapOutsideMsg object:[NSNull null]]];
+        [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapOutsideMsg object:msg]];
+    }
 }
 
 @end

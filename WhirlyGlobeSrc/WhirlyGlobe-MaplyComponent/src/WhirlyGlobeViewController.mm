@@ -747,6 +747,12 @@ using namespace WhirlyGlobe;
 // Called when the user taps outside the globe.
 - (void) tapOutsideGlobe:(NSNotification *)note
 {
+    WhirlyGlobeTapMessage *msg = note.object;
+
+    // Ignore taps from other view controllers
+    if (msg.view != glView)
+        return;
+
     if (self.selection && _delegate && [_delegate respondsToSelector:@selector(globeViewControllerDidTapOutside:)])
         [_delegate globeViewControllerDidTapOutside:self];
 }
