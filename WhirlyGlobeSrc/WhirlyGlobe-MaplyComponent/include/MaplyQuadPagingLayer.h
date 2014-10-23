@@ -176,6 +176,12 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
   */
 - (void)boundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
 
+/** @brief Maximum number of tiles to load in at once.
+ @details This is the maximum number of tiles the pager will have loaded into memory at once.  The default is 256 and that's generally good enough.  However, if your tile size is small, you may want to load in more.
+ @details Tile loading can get out of control when using elevation data.  The toolkit calculates potential sceen coverage for each tile so elevation data makes all tiles more important.  As a result the system will happily page in way more data than you may want.  The limit becomes important in elevation mode, so leave it at 128 unless you need to change it.
+ */
+@property (nonatomic) int maxTiles;
+
 /** @brief Reload the paging layer contents.
     @details This asks the paging layer to clean out its current data and reload everything from scratch.
   */
