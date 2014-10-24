@@ -70,13 +70,13 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
                            MaplyComponentObject *compObj0 = [layer.viewC addVectors:@[rect] desc:
                                                             @{kMaplyFilled: @(true),
                                                               kMaplyColor: color,
-                                                              kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+100)
+                                                              kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+100+tileID.level)
                                                               }
                                                             ];
                            MaplyComponentObject *compObj1 = [layer.viewC addVectors:@[rect] desc:
                                                              @{kMaplyFilled: @(false),
                                                                kMaplyColor: [UIColor whiteColor],
-                                                               kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+101)
+                                                               kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+101+tileID.level)
                                                                }
                                                              ];
                            
