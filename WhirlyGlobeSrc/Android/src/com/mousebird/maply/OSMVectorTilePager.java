@@ -82,7 +82,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	}
 
 	/**
-	 * Max zoom leve, typically 14 for vector tiles.
+	 * Max zoom level, typically 14 for vector tiles.
 	 */
 	@Override
 	public int maxZoom() {

@@ -289,7 +289,9 @@ static const char *fragmentShaderNoLightTri =
 "  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
 //"  if (baseColor.a < 0.1)                            \n"
 //"      discard;                                      \n"
-"  gl_FragColor = v_color * baseColor;  \n"
+// Note: Porting  Having some trouble with random colors showing up
+"  gl_FragColor = vec4(1.0,1.0,1.0,1.0) * baseColor;"
+//"  gl_FragColor = v_color * baseColor;  \n"
 "}                                                   \n"
 ;
 

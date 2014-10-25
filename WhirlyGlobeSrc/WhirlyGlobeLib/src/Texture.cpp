@@ -176,10 +176,11 @@ RawDataRef Texture::processData()
             case GL_ALPHA:
                 return RawDataRef(ConvertRGBATo8(texData,byteSource));
                 break;
-            case GL_COMPRESSED_RGB8_ETC2:
-                // Can't convert this (for now)
-                return texData;
-                break;                
+                // Note: Porting
+//            case GL_COMPRESSED_RGB8_ETC2:
+//                // Can't convert this (for now)
+//                return texData;
+//                break;                
         }
     }
     
@@ -195,6 +196,10 @@ void Texture::setPKMData(RawDataRef inData)
 // Figure out the PKM data
 unsigned char *Texture::ResolvePKM(RawDataRef texData,int &pkmType,int &size,int &width,int &height)
 {
+    // Note: Porting
+    return NULL;
+#if 0
+    
     if (texData->getLen() < 16)
         return NULL;
     const unsigned char *header = (const unsigned char *)texData->getRawData();
@@ -248,6 +253,8 @@ unsigned char *Texture::ResolvePKM(RawDataRef texData,int &pkmType,int &size,int
     size = width * height / 2;
 
     return (unsigned char*)&header[16];
+    
+#endif
 }
     
 // Define the texture in OpenGL
@@ -318,9 +325,10 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
             case GL_ALPHA:
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, convertedData->getRawData());
                 break;
-            case GL_COMPRESSED_RGB8_ETC2:
-                glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB8_ETC2, width, height, 0, (GLsizei)convertedData->getLen(), convertedData->getRawData());
-                break;
+                 // Note: Porting
+//            case GL_COMPRESSED_RGB8_ETC2:
+//                glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB8_ETC2, width, height, 0, (GLsizei)convertedData->getLen(), convertedData->getRawData());
+//                break;
          }
          CheckGLError("Texture::createInGL() glTexImage2D()");
  	}	

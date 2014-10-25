@@ -274,8 +274,10 @@ public class GestureHandler
 		}
 
 		@Override
-		public boolean onSingleTapConfirmed(MotionEvent e) {
-			return false;
+		public boolean onSingleTapConfirmed(MotionEvent e) 
+		{
+			mapControl.processTap(new Point2d(e.getX(),e.getY()));
+			return true;
 		}
 
 		// Zoom in on double tap

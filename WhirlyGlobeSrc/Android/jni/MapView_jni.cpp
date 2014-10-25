@@ -261,3 +261,28 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapView_pointOnPlaneFromScree
 	}
 }
 
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapView_pointOnScreenFromPlane
+  (JNIEnv *env, jobject obj, jobject dispPtObj, jobject viewModelMatObj, jobject frameObj)
+{
+	try
+	{
+		MapViewClassInfo *classInfo = MapViewClassInfo::getClassInfo();
+		Maply::MapView *view = classInfo->getObject(env,obj);
+		if (!view)
+			return NULL;
+		Point3d *dispPt = Point3dClassInfo::getClassInfo()->getObject(env,dispPtObj);
+		Matrix4d *viewModelMat = Matrix4dClassInfo::getClassInfo()->getObject(env,viewModelMatObj);
+		Point2d *framePt = Point2dClassInfo::getClassInfo()->getObject(env,frameObj);
+		Point3d hit;
+
+		Point2f framePt2f(framePt->x(),framePt->y());
+		Point2f retPt = view->pointOnScreenFromPlane(*dispPt,viewModelMat,framePt2f);
+
+		return MakePoint2d(env,Point2d(retPt.x(),retPt.y()));
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::pointOnPlaneFromScreen()");
+	}
+}
+

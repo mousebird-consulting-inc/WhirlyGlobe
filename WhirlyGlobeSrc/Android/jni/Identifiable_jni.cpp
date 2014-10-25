@@ -1,5 +1,5 @@
 /*
- *  NamedBitmap.java
+ *  Identifiable_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
@@ -17,30 +17,17 @@
  *  limitations under the License.
  *
  */
-package com.mousebird.maply;
 
-import android.graphics.Bitmap;
+#import <jni.h>
+#import "Maply_jni.h"
+#import "com_mousebird_maply_Identifiable.h"
+#import "Maply_utils_jni.h"
+#import "WhirlyGlobe.h"
 
-/**
- * The named bitmap lets us track Bitmap objects via a filename or other
- * unique string.  Thus we can cache Textures in the rendering engine.
- *
- */
-public class NamedBitmap 
+using namespace WhirlyKit;
+
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Identifiable_genID
+  (JNIEnv *, jclass)
 {
-	/**
-	 * Construct with the name, which should be unique, and the bitmap
-	 * to use for the texture.
-	 * 
-	 * @param inName Name of the bitmap.  Probably the filename or resource name.
-	 * @param inBitmap Bitmap to use for the texture.
-	 */
-	public NamedBitmap(String inName,Bitmap inBitmap)
-	{
-		name = inName;
-		bitmap = inBitmap;
-	}
-		
-	public String name;
-	public Bitmap bitmap;
+	return Identifiable::genId();
 }

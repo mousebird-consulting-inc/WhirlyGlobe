@@ -56,41 +56,42 @@ DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,
 //            format = GL_RGBA;
 //            type = inFormat;
 //            break;
-        case GL_COMPRESSED_RGB8_ETC2:
-            compressed = true;
-            format = GL_RGB;
-            type = inFormat;
-            break;
-        case GL_COMPRESSED_RGBA8_ETC2_EAC:
-            compressed = true;
-            format = GL_RGBA;
-            type = inFormat;
-            break;
-        case GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
-            compressed = true;
-            format = GL_RGBA;
-            type = inFormat;
-            break;
-        case GL_COMPRESSED_R11_EAC:
-            compressed = true;
-            format = GL_ALPHA;
-            type = inFormat;
-            break;
-        case GL_COMPRESSED_SIGNED_R11_EAC:
-            compressed = true;
-            format = GL_ALPHA;
-            type = inFormat;
-            break;
-        case GL_COMPRESSED_RG11_EAC:
-            compressed = true;
-            format = GL_ALPHA;
-            type = inFormat;
-            break;
-        case GL_COMPRESSED_SIGNED_RG11_EAC:
-            compressed = true;
-            format = GL_ALPHA;
-            type = inFormat;
-            break;
+            // Note: Porting
+//        case GL_COMPRESSED_RGB8_ETC2:
+//            compressed = true;
+//            format = GL_RGB;
+//            type = inFormat;
+//            break;
+//        case GL_COMPRESSED_RGBA8_ETC2_EAC:
+//            compressed = true;
+//            format = GL_RGBA;
+//            type = inFormat;
+//            break;
+//        case GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
+//            compressed = true;
+//            format = GL_RGBA;
+//            type = inFormat;
+//            break;
+//        case GL_COMPRESSED_R11_EAC:
+//            compressed = true;
+//            format = GL_ALPHA;
+//            type = inFormat;
+//            break;
+//        case GL_COMPRESSED_SIGNED_R11_EAC:
+//            compressed = true;
+//            format = GL_ALPHA;
+//            type = inFormat;
+//            break;
+//        case GL_COMPRESSED_RG11_EAC:
+//            compressed = true;
+//            format = GL_ALPHA;
+//            type = inFormat;
+//            break;
+//        case GL_COMPRESSED_SIGNED_RG11_EAC:
+//            compressed = true;
+//            format = GL_ALPHA;
+//            type = inFormat;
+//            break;
         default:
             return;
             break;
@@ -531,10 +532,11 @@ void DynamicTextureAtlas::log()
 //            // Doesn't really matter.  Can't do these.
 //            texelSize = 1;
 //            break;
-        case GL_COMPRESSED_RGB8_ETC2:
-            // Note: Not really
-            texelSize = 1;
-            break;
+            // Note: Porting
+//        case GL_COMPRESSED_RGB8_ETC2:
+//            // Note: Not really
+//            texelSize = 1;
+//            break;
         default:
             break;
             

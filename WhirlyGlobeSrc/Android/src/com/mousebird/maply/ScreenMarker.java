@@ -26,8 +26,13 @@ package com.mousebird.maply;
  * this object and more general information in the associated MarkerInfo.
  * 
  */
-public class ScreenMarker 
-{
+public class ScreenMarker
+{	
+	/**
+	 * Unique ID used by Maply for selection.
+	 */
+	long ident = Identifiable.genID();
+	
 	/**
 	 * The location in geographic (WGS84) radians.  x is longitude, y is latitude.
 	 * The marker will track this location.
@@ -53,21 +58,27 @@ public class ScreenMarker
 	public NamedBitmap image = null;
 
 	/**
-	 * Background color for a marker can be overriden at this level.
+	 * Background color for a marker can be overridden at this level.
 	 */
 	public int color = 0xFFFFFFFF;
-	
-	// Importance value for the layout engine
-//	public float layoutImportance = Float.MAX_VALUE;
+
+	/**
+	 * This is the importance value passed to the layout engine.  Layout
+	 * will take place in importance priority.  Set it to MAX_VALUE to avoid
+	 * layout entirely.
+	 */
+	public float layoutImportance = Float.MAX_VALUE;
 	
 	/**
 	 * If non-null an offset to tweak the label by.  We'll move the label
 	 * this number of pixels from where it normally would be.
 	 */
-	public Point2d offset = null;
-	
-	// If set, this object is selectable
-//	public boolean selectable = false;
+	public Point2d offset = new Point2d(0,0);
+
+	/**
+	 * Turn this on if you want the marker object to be selectable.
+	 */
+	public boolean selectable = false;
 	
 	/**
 	 * For selection, we include a user accessible object pointer.  You use

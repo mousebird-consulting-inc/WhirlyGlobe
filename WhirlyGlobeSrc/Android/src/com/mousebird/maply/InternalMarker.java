@@ -46,9 +46,17 @@ class InternalMarker
 		setLoc(marker.loc);
 		setColor(Color.red(marker.color)/255.f,Color.green(marker.color)/255.f,Color.blue(marker.color)/255.f,Color.alpha(marker.color)/255.f);
 		setRotation(marker.rotation);
-		setHeight(marker.size.getX());
-		setWidth(marker.size.getY());
+		setWidth(marker.size.getX());
+		setHeight(marker.size.getY());
 		setOffset(marker.offset);
+		setLayoutImportance(marker.layoutImportance);
+		setSelectable(marker.selectable);
+		if (marker.offset == null)
+			setOffset(new Point2d(0,0));
+		else
+			setOffset(marker.offset);
+		if (marker.selectable)
+			setSelectID(marker.ident);
 	}
 	
 	public void finalize()

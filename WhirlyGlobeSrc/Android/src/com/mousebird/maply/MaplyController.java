@@ -21,13 +21,16 @@
 package com.mousebird.maply;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.app.*;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Looper;
 import android.view.*;
 import android.widget.Toast;
@@ -50,6 +53,39 @@ public class MaplyController implements View.OnTouchListener
 {	
 	private GLSurfaceView glSurfaceView;
 	Activity activity = null;
+
+	/**
+	 * Use this delegate when you want user interface feedback from the maply controller.
+	 * 
+	 * @author sjg
+	 *
+	 */
+	public interface GestureDelegate
+	{
+		/**
+		 * The user selected the given object.  Up to you to figure out what it is.
+		 * 
+		 * @param mapControl The maply controller this is associated with.
+		 * @param selObj The object the user selected (e.g. MaplyScreenMarker).
+		 * @param loc The location they tapped on.  This is in radians.
+		 * @param screenLoc The location on the OpenGL surface.
+		 */
+		void userDidSelect(MaplyController mapControl,Object selObj,Point2d loc,Point2d screenLoc);
+		
+		/**
+		 * The user tapped somewhere, but not on a selectable object.
+		 * 
+		 * @param mapControl The maply controller this is associated with.
+		 * @param loc The location they tapped on.  This is in radians.
+		 * @param screenLoc The location on the OpenGL surface.
+		 */
+		void userDidTap(MaplyController mapControl,Point2d loc,Point2d screenLoc);
+	}
+
+	/**
+	 * Set the gesture delegate to get callbacks when the user taps somewhere.
+	 */
+	public GestureDelegate gestureDelegate = null;
 	
 	// When adding features we can run on the current thread or delay the work till layter
 	public enum ThreadMode {ThreadCurrent,ThreadAny};
@@ -84,6 +120,7 @@ public class MaplyController implements View.OnTouchListener
 	VectorManager vecManager;
 	MarkerManager markerManager;
 	LabelManager labelManager;
+	SelectionManager selectionManager;
 	LayoutManager layoutManager;
 	LayoutLayer layoutLayer = null;
 	
@@ -135,6 +172,7 @@ public class MaplyController implements View.OnTouchListener
 		markerManager = new MarkerManager(mapScene);
 		labelManager = new LabelManager(mapScene);
 		layoutManager = new LayoutManager(mapScene);
+		selectionManager = new SelectionManager(mapScene);
 
 		// Now for the object that kicks off the rendering
 		renderWrapper = new RendererWrapper(this);
@@ -181,6 +219,33 @@ public class MaplyController implements View.OnTouchListener
 		running = true;
 	}
 	
+	// Called by the gesture handler to let us know the user tapped
+	public void processTap(Point2d screenLoc)
+	{
+		if (gestureDelegate != null)
+		{
+			Matrix4d mapTransform = mapView.calcModelViewMatrix();
+			Point3d loc = mapView.pointOnPlaneFromScreen(screenLoc, mapTransform, renderWrapper.maplyRender.frameSize, false);
+			
+			// Look for a selection first
+			long selectID = selectionManager.pickObject(mapView, screenLoc);
+			if (selectID != EmptyIdentity)
+			{
+				// Look for the object
+				Object selObj = null;
+				synchronized(selectionMap)
+				{
+					selObj = selectionMap.get(selectID);
+				}
+				
+				// Let the delegate know the user selected something
+				gestureDelegate.userDidSelect(this, selObj, loc.toPoint2d(), screenLoc);
+			} else 
+				// Just a simple tap, then
+				gestureDelegate.userDidTap(this, loc.toPoint2d(), screenLoc);
+		}
+	}
+	
 	/**
 	 * Return the main content view used to represent the Maply Control.
 	 */
@@ -210,6 +275,8 @@ public class MaplyController implements View.OnTouchListener
 		layerThread = null;
 	}
 	
+	ArrayList<Runnable> surfaceTasks = new ArrayList<Runnable>();
+	
 	// Called by the render wrapper when the surface is created.
 	// Can't start doing anything until that happens
 	void surfaceCreated(RendererWrapper wrap)
@@ -223,9 +290,32 @@ public class MaplyController implements View.OnTouchListener
 		// Kick off the layout layer
 		layoutLayer = new LayoutLayer(this,layoutManager);
 		layerThread.addLayer(layoutLayer);
+		
+		// Run any outstanding runnables
+		for (Runnable run: surfaceTasks)
+		{
+			Handler handler = new Handler(activity.getMainLooper());
+			handler.post(run);
+		}
+		surfaceTasks = null;
 
 		// Set up a periodic update for the renderer
 //    	glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+	}
+	
+	/**
+	 * It takes a little time to set up the OpenGL ES drawable.  Add a runnable
+	 * to be run after the surface is created.  If it's already been created we
+	 * just run it here.
+	 * <p>
+	 * Only call this on the main thread.
+	 */
+	public void onSurfaceCreatedTask(Runnable run)
+	{
+		if (surfaceTasks != null)
+			surfaceTasks.add(run);
+		else
+			run.run();
 	}
 
 //	long lastRender = 0;
@@ -272,7 +362,7 @@ public class MaplyController implements View.OnTouchListener
 	 * @param ll Lower left corner.
 	 * @param ur Upper right corner.
 	 */
-	void setViewExtents(Point2d ll,Point2d ur)
+	public void setViewExtents(Point2d ll,Point2d ur)
 	{
 		CoordSystemDisplayAdapter coordAdapter = mapView.getCoordAdapter();
 		CoordSystem coordSys = coordAdapter.getCoordSystem();
@@ -282,6 +372,138 @@ public class MaplyController implements View.OnTouchListener
 		viewBounds[1] = coordAdapter.localToDisplay(coordSys.geographicToLocal(new Point3d(ur.getX(),ll.getY(),0.0))).toPoint2d();
 		viewBounds[2] = coordAdapter.localToDisplay(coordSys.geographicToLocal(new Point3d(ur.getX(),ur.getY(),0.0))).toPoint2d();
 		viewBounds[3] = coordAdapter.localToDisplay(coordSys.geographicToLocal(new Point3d(ll.getX(),ur.getY(),0.0))).toPoint2d();
+	}
+	
+	// Convert a geo coord to a screen point
+	private Point2d screenPointFromGeo(MapView theMapView,Point2d geoCoord)
+	{
+		CoordSystemDisplayAdapter coordAdapter = theMapView.getCoordAdapter();
+		CoordSystem coordSys = coordAdapter.getCoordSystem();
+		Point3d localPt = coordSys.geographicToLocal(new Point3d(geoCoord.getX(),geoCoord.getY(),0.0));
+		Point3d dispPt = coordAdapter.localToDisplay(localPt);
+		
+		Matrix4d modelMat = theMapView.calcModelViewMatrix();
+		return theMapView.pointOnScreenFromPlane(dispPt, modelMat, renderWrapper.maplyRender.frameSize);
+	}
+	
+	/**
+	 * Return the screen coordinate for a given geographic coordinate (in radians).
+	 * 
+	 * @param geoCoord Geographic coordinate to convert (in radians).
+	 * @return Screen coordinate.
+	 */
+	public Point2d screenPointFromGeo(Point2d geoCoord)
+	{
+		return screenPointFromGeo(mapView,geoCoord);
+	}
+	
+	/**
+	 * Return the geographic point (radians) corresponding to the screen point.
+	 * 
+	 * @param screenPt Input point on the screen.
+	 * @return The geographic coordinate (radians) corresponding to the screen point.
+	 */
+	public Point2d geoPointFromScreen(Point2d screenPt)
+	{
+		CoordSystemDisplayAdapter coordAdapter = mapView.getCoordAdapter();
+		CoordSystem coordSys = coordAdapter.getCoordSystem();
+		
+		Matrix4d modelMat = mapView.calcModelViewMatrix();
+		Point3d dispPt = mapView.pointOnPlaneFromScreen(screenPt, modelMat, renderWrapper.maplyRender.frameSize, false);
+		Point3d localPt = coordAdapter.displayToLocal(dispPt);
+		Point3d geoCoord = coordSys.localToGeographic(localPt);
+		
+		return new Point2d(geoCoord.getX(),geoCoord.getY());
+	}
+	
+	/**
+	 * Returns what the user is currently looking at in geographic extents.
+	 */
+	public Mbr getCurrentViewGeo()
+	{
+		Mbr geoMbr = new Mbr();
+		
+		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+		geoMbr.addPoint(geoPointFromScreen(new Point2d(0,0)));
+		geoMbr.addPoint(geoPointFromScreen(new Point2d(frameSize.getX(),0)));
+		geoMbr.addPoint(geoPointFromScreen(new Point2d(frameSize.getX(),frameSize.getY())));
+		geoMbr.addPoint(geoPointFromScreen(new Point2d(0,frameSize.getY())));
+		
+		return geoMbr;
+	}
+	
+	boolean checkCoverage(Mbr mbr,MapView theMapView,double height)
+	{
+		Point2d centerLoc = mbr.middle();
+		Point3d localCoord = theMapView.coordAdapter.coordSys.geographicToLocal(new Point3d(centerLoc.getX(),centerLoc.getY(),0.0));
+		theMapView.setLoc(new Point3d(localCoord.getX(),localCoord.getY(),height));
+		
+		List<Point2d> pts = mbr.asPoints();
+		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+		for (Point2d pt : pts)
+		{
+			Point2d screenPt = screenPointFromGeo(theMapView,pt);
+			if (screenPt.getX() < 0.0 || screenPt.getY() < 0.0 || screenPt.getX() > frameSize.getX() || screenPt.getY() > frameSize.getY())
+				return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * For a given position, how high do we have to be to see the given area.
+	 * <p>
+	 * Even for 2D maps we represent things in terms of height.
+	 * 
+	 * @param mbr Bounding box for the area we want to see in geographic (radians).
+	 * @param pos Center of the viewing area in geographic (radians).
+	 * @return Returns a height for the viewer.
+	 */
+	public double findHeightToViewBounds(Mbr mbr,Point2d pos)
+	{
+		// We'll experiment on a copy of the map view
+		MapView newMapView = mapView.clone();
+		newMapView.setLoc(new Point3d(pos.getX(),pos.getY(),2.0));
+		
+		double minHeight = newMapView.minHeightAboveSurface();
+		double maxHeight = newMapView.maxHeightAboveSurface();
+		
+		boolean minOnScreen = checkCoverage(mbr,newMapView,minHeight);
+		boolean maxOnScreen = checkCoverage(mbr,newMapView,maxHeight);
+		
+		// No idea, just give up
+		if (!minOnScreen && !maxOnScreen)
+			return mapView.getLoc().getZ();
+		
+		if (minOnScreen)
+			return minHeight;
+		
+		// Do a binary search between the two heights
+		double minRange = 1e-5;
+		do
+		{
+			double midHeight = (minHeight + maxHeight)/2.0;
+			boolean midOnScreen = checkCoverage(mbr,newMapView,midHeight);
+			
+			if (!minOnScreen && midOnScreen)
+			{
+				maxHeight = midHeight;
+				maxOnScreen = midOnScreen;
+			} else if (!midOnScreen && maxOnScreen)
+			{
+				checkCoverage(mbr,newMapView,midHeight);
+				minHeight = midHeight;
+				minOnScreen = midOnScreen;
+			} else {
+				// Shouldn't happen, but probably does
+				break;
+			}
+			
+			if (maxHeight-minHeight < minRange)
+				break;
+		} while (true);
+		
+		return maxHeight;
 	}
 	
 	// Pass the touches on to the gesture handler
@@ -328,7 +550,7 @@ public class MaplyController implements View.OnTouchListener
 		if (Looper.myLooper() == layerThread.getLooper() || (mode == ThreadMode.ThreadCurrent))
 			run.run();
 		else
-			layerThread.addTask(run);
+			layerThread.addTask(run,true);
 	}
 
 	/**
@@ -424,8 +646,14 @@ public class MaplyController implements View.OnTouchListener
 						intMarker.addTexID(texID);
 					
 					intMarkers.add(intMarker);
+					
+					// Keep track of this one for selection
+					if (marker.selectable)
+					{
+						addSelectableObject(marker.ident,marker,compObj);
+					}
 				}
-						
+
 				// Add the markers and flush the changes
 				long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
 				mapScene.addChanges(changes);
@@ -440,6 +668,31 @@ public class MaplyController implements View.OnTouchListener
 		addTask(run,mode);
 
 		return compObj;
+	}
+	
+	Map<Long, Object> selectionMap = new HashMap<Long, Object>();
+	
+	// Add selectable objects to the list
+	private void addSelectableObject(long selectID,Object selObj,ComponentObject compObj)
+	{
+		synchronized(selectionMap)
+		{
+			compObj.addSelectID(selectID);
+			selectionMap.put(selectID,selObj);
+		}
+	}
+	
+	// Remove selectable objects
+	private void removeSelectableObjects(ComponentObject compObj)
+	{
+		if (compObj.selectIDs != null)
+		{
+			synchronized(selectionMap)
+			{
+				for (long selectID : compObj.selectIDs)
+					selectionMap.remove(selectID);
+			}
+		}
 	}
 
 	/**
@@ -607,7 +860,10 @@ public class MaplyController implements View.OnTouchListener
 			{
 				ChangeSet changes = new ChangeSet();
 				for (ComponentObject compObj : compObjs)
+				{
 					compObj.clear(control, changes);
+					removeSelectableObjects(compObj);
+				}
 				mapScene.addChanges(changes);
 			}
 		};
@@ -617,17 +873,35 @@ public class MaplyController implements View.OnTouchListener
 	
 	/**
 	 * Set the current view position.
-	 * @param x Horizontal location of the center of the screen in radians (not degrees).
-	 * @param y Vertical location of the center of the screen in radians (not degrees).
+	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
 	 * @param z Height above the map in display units.
 	 */
-	public void setPosition(double x,double y,double z)
+	public void setPositionGeo(double x,double y,double z)
 	{
 		if (!running)
 			return;
 
 		mapView.cancelAnimation();
-		mapView.setLoc(new Point3d(x,y,z));
+		Point3d geoCoord = mapView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
+		mapView.setLoc(new Point3d(geoCoord.getX(),geoCoord.getY(),z));
+	}
+	
+	/**
+	 * Animate to a new view position
+	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 * @param howLong Time (in seconds) to animate.
+	 */
+	public void animatePositionGeo(double x,double y,double z,double howLong)
+	{
+		if (!running)
+			return;
+
+		mapView.cancelAnimation();
+		Point3d geoCoord = mapView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
+		mapView.setAnimationDelegate(new AnimateTranslate(mapView, renderWrapper.maplyRender, new Point3d(geoCoord.getX(),geoCoord.getY(),z), (float) howLong, viewBounds));		
 	}
 	
     private boolean isProbablyEmulator() {

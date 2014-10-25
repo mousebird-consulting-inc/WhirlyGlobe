@@ -154,8 +154,10 @@ class MapView
 	native double getRot();
 	// Return the current model & view matrix combined (but not projection)
 	native Matrix4d calcModelViewMatrix();	
-	// Calculate the point on the view plan given the screen location
+	// Calculate the point on the view plane given the screen location
 	native Point3d pointOnPlaneFromScreen(Point2d screenPt,Matrix4d viewModelMatrix,Point2d frameSize,boolean clip);
+	// Calculate the point on the screen from a point on the view plane
+	native Point2d pointOnScreenFromPlane(Point3d pt,Matrix4d viewModelMatrix,Point2d frameSize);
 	// Make a copy of this map view and return it
 	protected native void nativeClone(MapView dest);
 			
