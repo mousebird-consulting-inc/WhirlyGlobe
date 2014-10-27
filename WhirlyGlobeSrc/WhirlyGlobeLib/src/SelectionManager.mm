@@ -608,7 +608,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                         }
                         
                         std::vector<Point2f> screenPts;
-                        ClipAndProjectPolygon(pInfo.modelMat,pInfo.projMat,pInfo.frameSizeScale,poly,screenPts);
+                        ClipAndProjectPolygon(pInfo.viewAndModelMat,pInfo.projMat,pInfo.frameSizeScale,poly,screenPts);
                         
                         if (screenPts.size() > 3)
                         {
@@ -707,9 +707,9 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                         CGPoint screenPt;
                         Point3d pt3d(sel.pts[ii].x(),sel.pts[ii].y(),sel.pts[ii].z());
                         if (pInfo.globeView)
-                            screenPt = [pInfo.globeView pointOnScreenFromSphere:pt3d transform:&pInfo.modelMat frameSize:pInfo.frameSizeScale];
+                            screenPt = [pInfo.globeView pointOnScreenFromSphere:pt3d transform:&pInfo.viewAndModelMat frameSize:pInfo.frameSizeScale];
                         else
-                            screenPt = [pInfo.mapView pointOnScreenFromPlane:pt3d transform:&pInfo.modelMat frameSize:pInfo.frameSizeScale];
+                            screenPt = [pInfo.mapView pointOnScreenFromPlane:pt3d transform:&pInfo.viewAndModelMat frameSize:pInfo.frameSizeScale];
                         screenPts.push_back(Point2f(screenPt.x,screenPt.y));
                     }
                     
@@ -769,7 +769,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                 BillboardSelectable sel = *it;
 
                 std::vector<Point2f> screenPts;
-                ClipAndProjectPolygon(pInfo.modelMat,pInfo.projMat,pInfo.frameSizeScale,poly,screenPts);
+                ClipAndProjectPolygon(pInfo.viewAndModelMat,pInfo.projMat,pInfo.frameSizeScale,poly,screenPts);
                 
                 if (screenPts.size() > 3)
                 {
