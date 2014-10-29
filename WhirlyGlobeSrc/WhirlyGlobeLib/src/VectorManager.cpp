@@ -61,7 +61,7 @@ void VectorInfo::parseDict(const Dictionary &dict)
     gridSubdiv = !subdivType.compare(MaplySubdivGrid);
     std::string texProjStr = dict.getString(MaplyVecTextureProjection,"");
     texProj = TextureProjectionNone;
-    centered = dict.getBool(MaplyVecCentered,false);
+    centered = dict.getBool(MaplyVecCentered,true);
     if (!texProjStr.compare(MaplyProjectionTangentPlane))
         texProj = TextureProjectionTanPlane;
 }
@@ -229,7 +229,7 @@ class VectorDrawableBuilderTri
 public:
     VectorDrawableBuilderTri(Scene *scene,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
                              const VectorInfo *vecInfo,bool doColor)
-    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), centerValid(false), center(0,0,0)
+    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), centerValid(false), center(0,0,0), doColor(doColor)
     {
     }
     

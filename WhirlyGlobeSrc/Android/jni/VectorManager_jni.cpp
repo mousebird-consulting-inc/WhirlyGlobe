@@ -94,6 +94,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
 		if (!wrap || !vecInfo || !changeSet)
 			return EmptyIdentity;
 
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "VectorInfo: (min,max) = (%f, %f), color = (%d,%d,%d,%d)",vecInfo->minVis,vecInfo->maxVis,(int)vecInfo->color.r,(int)vecInfo->color.g,(int)vecInfo->color.b,(int)vecInfo->color.a);
+
 		// Get the iterator
 		// Note: Look these up once
 		jclass listClass = env->GetObjectClass(vecObjList);

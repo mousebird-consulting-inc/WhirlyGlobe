@@ -35,6 +35,8 @@ public class VectorInfo
 	public VectorInfo()
 	{
 		initialise();
+		setMinVis((float)1e10);
+		setMaxVis((float)1e10);
 	}
 	
 	public void finalize()

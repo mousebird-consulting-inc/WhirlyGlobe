@@ -149,6 +149,7 @@ bool QuadDisplayController::waitingForLocalLoads()
 bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameInterval,float availableFrame,ChangeSet &changes)
 {
     bool didSomething = false;
+    somethingHappened = false;
     
     // If the loader isn't ready, it's up to it to wake us up when it is
     if (!loader->isReady())

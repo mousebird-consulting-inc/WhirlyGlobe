@@ -141,7 +141,7 @@ SceneRendererES::SceneRendererES(int apiVersion)
     numDrawables = 0;
     frameCountStart = 0.0;
     zBufferMode = zBufferOn;
-    doCulling = true;
+    doCulling = false;
     // Note: Debugging
     clearColor.r = 0;  clearColor.g = 0;  clearColor.b = 0;  clearColor.a = 0;
     perfInterval = -1;

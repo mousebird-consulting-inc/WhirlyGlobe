@@ -51,7 +51,7 @@ import android.widget.Toast;
  */
 public class MaplyController implements View.OnTouchListener
 {	
-	private GLSurfaceView glSurfaceView;
+	public GLSurfaceView glSurfaceView;
 	Activity activity = null;
 
 	/**
