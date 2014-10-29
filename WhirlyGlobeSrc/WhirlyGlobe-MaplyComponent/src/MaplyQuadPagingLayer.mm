@@ -675,7 +675,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
             if (tile->enable)
             {
                 tile->enable = false;
-                [toDisable addObjectsFromArray:tile->replaceCompObjs];
+                if ([tile->replaceCompObjs count] > 0)
+                    [toDisable addObjectsFromArray:tile->replaceCompObjs];
             }
         } else {
             // Disable the children
@@ -685,7 +686,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
             if (!tile->isLoading && !tile->enable)
             {
                 tile->enable = true;
-                [toEnable addObjectsFromArray:tile->replaceCompObjs];
+                if ([tile->replaceCompObjs count] > 0)
+                    [toEnable addObjectsFromArray:tile->replaceCompObjs];
             }
         }
     } else {
@@ -696,7 +698,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         if (tile->enable)
         {
             tile->enable = false;
-            [toDisable addObjectsFromArray:tile->replaceCompObjs];
+            if ([tile->replaceCompObjs count] > 0)
+                [toDisable addObjectsFromArray:tile->replaceCompObjs];
         }
     }
 }
