@@ -38,10 +38,10 @@ using namespace WhirlyKit;
     float       height;
     float       base;
     float       minVis,maxVis;
-    int         priority;
+    int         priority,outlineDrawPriority;
     bool        top,side;
     bool        layered;
-    bool        outline;
+    bool        outline,outlineSide;
     UIColor     *outlineColor;
     float       outlineWidth;
     bool        readZBuffer;
@@ -87,7 +87,7 @@ using namespace WhirlyKit;
 - (void)parseDesc:(NSDictionary *)dict key:(NSString *)inKey
 {
     self.color = [dict objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    priority = [dict intForKey:@"drawPriority" default:0];
+    priority = [dict intForKey:@"drawPriority" default:70000];
     priority = [dict intForKey:@"priority" default:priority];
     height = [dict floatForKey:@"height" default:.01];
     base = [dict floatForKey:@"base" default:0.0];
@@ -100,6 +100,8 @@ using namespace WhirlyKit;
     outline = [dict boolForKey:@"outline" default:false];
     outlineColor = [dict objectForKey:@"outlineColor" checkType:[UIColor class] default:[UIColor whiteColor]];
     outlineWidth = [dict floatForKey:@"outlineWidth" default:1.0];
+    outlineDrawPriority = [dict intForKey:@"outlineDrawPriority" default:priority+1];
+    outlineSide = [dict boolForKey:@"outlineSide" default:NO];
     readZBuffer = [dict boolForKey:@"zbufferread" default:YES];
     writeZBuffer = [dict boolForKey:@"zbufferwrite" default:NO];
     enable = [dict boolForKey:@"enable" default:true];
@@ -245,7 +247,7 @@ public:
             if (primType == GL_LINES)
                 drawable->setLineWidth(polyInfo->outlineWidth);
             drawable->setOnOff(polyInfo->enable);
-            drawable->setDrawPriority(polyInfo->priority);
+            drawable->setDrawPriority(polyInfo->outlineDrawPriority);
             drawable->setRequestZBuffer(polyInfo->readZBuffer);
             drawable->setWriteZBuffer(polyInfo->writeZBuffer);
             drawable->setVisibleRange(polyInfo->minVis,polyInfo->maxVis);
@@ -439,6 +441,37 @@ public:
         }
     }
     
+    void addUprights(VectorRing &pts)
+    {
+        if (primType != GL_LINES)
+            return;
+        CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+        
+        // Decide if we'll appending to an existing drawable or
+        //  create a new one
+        int ptCount = (int)(2*pts.size());
+        setupDrawable(ptCount);
+        
+        for (unsigned int jj=0;jj<pts.size();jj++)
+        {
+            // Get some real world coordinates and corresponding normal
+            Point2f &geoPt = pts[jj];
+            Point2d geoCoordD(geoPt.x()+geoCenter.x(),geoPt.y()+geoCenter.y());
+            Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoordD);
+            Point3d norm = coordAdapter->normalForLocal(localPt);
+            Point3d pt0 = coordAdapter->localToDisplay(localPt);
+            Point3d pt1 = pt0 + norm * polyInfo->height;
+            if (polyInfo->base > 0.0)
+                pt0 = pt0 + norm * polyInfo->base;
+            
+            // Just do the uprights as lines
+            drawable->addPoint(pt0);
+            drawable->addNormal(pt0);
+            drawable->addPoint(pt1);
+            drawable->addNormal(pt0);
+        }
+    }
+    
     void flush()
     {
         if (drawable)
@@ -508,6 +541,8 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,WhirlyKitLof
     // Toss in the polygons for the sides
     if (polyInfo->height != 0.0)
     {
+        DrawableBuilder2 drawBuild2(scene,changes,sceneRep,polyInfo,GL_LINES,drawMbr);
+
         for (ShapeSet::iterator it = sceneRep->shapes.begin();
              it != sceneRep->shapes.end(); ++it)
         {
@@ -520,6 +555,10 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,WhirlyKitLof
                     {
                         drawBuild.addSkirtPoints(theAreal->loops[ri]);
                         numShapes++;
+                        
+                        // Do the uprights around the side
+                        if (polyInfo->outlineSide)
+                            drawBuild2.addUprights(theAreal->loops[ri]);
                     }
                 }
             }
@@ -537,6 +576,7 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,WhirlyKitLof
             if (centerValid)
                 drawBuild2.setCenter(center,geoCenter);
             drawBuild2.addOutline(sceneRep->outlines);
+            
             sceneRep->outlines.clear();
         }
     
