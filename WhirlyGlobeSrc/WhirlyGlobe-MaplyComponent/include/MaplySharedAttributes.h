@@ -226,6 +226,16 @@
 #define kMaplyLoftedPolyBase @"base"
 /// Grid size we used to chop the lofted polygons up (10 degress by default)
 #define kMaplyLoftedPolyGridSize @"gridsize"
+/// If set to @(YES) this will draw an outline of the lofted poly in lines
+#define kMaplyLoftedPolyOutline @"outline"
+/// If the outline is one this is the outline's color
+#define kMaplyLoftedPolyOutlineColor @"outlineColor"
+/// This is the outline's width if it's turned on
+#define kMaplyLoftedPolyOutlineWidth @"outlineWidth"
+/// Draw priority of the lines created for the lofted poly outline
+#define kMaplyLoftedPolyOutlineDrawPriority @"outlineDrawPriority"
+/// If set and we're drawing an outline, this will create lines up the sides
+#define kMaplyLoftedPolyOutlineSide @"outlineSide"
 
 /// These are used by active vector objects
 #define kMaplyVecHeight @"height"
