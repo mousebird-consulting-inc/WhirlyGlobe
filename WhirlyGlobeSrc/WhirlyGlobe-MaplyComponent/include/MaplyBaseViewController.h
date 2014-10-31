@@ -289,7 +289,12 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |Key|Type|Description|
  |:--|:---|:----------|
  |kMaplyColor|UIColor|Color we'll use for the features.|
- |kMaplyVecWidth|NSNumber|If the geometry is not filled, this is the width of the GL lines.|
+ |kMaplyVecWidth|NSNumber|If the geometry is not filled, this is the width of the lines.|
+ |kMaplyWideVecCoordType|NSNumber|Vectors can be widened in real coordinates (kMaplyWideVecCoordTypeReal) or screen coordinates (kMaplyWideVecCoordTypeScreen).  In the latter case they stay the same size now matter how you zoom.|
+ |kMaplyWideVecJoinType|NSNumber|When lines meet in a join there are several options for representing them.  These include kMaplyWideVecMiterJoin, which is a simple miter join and kMaplyWideVecBevelJoin which is a more complicated bevel.  See http://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty for how these look.|
+ |kMaplyWideVecMiterLimit|NSNumber|When using miter joins you can trigger them at a certain threshold.|
+ |kMaplyWideVecTexRepeatLen|NSNumber|This is the repeat size for a texture applied along the widened line.  For kMaplyWideVecCoordTypeScreen this is pixels.|
+ |kMaplyVecTexture|UIImage or MaplyTexture|This the texture to be applied to the widened vector.|
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The vectors will only be visible if the user is above this height.  Off by default.|
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The vectors will only be visible if the user is below this height.  Off by default.|
  |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyVectorDrawPriorityDefault.|
@@ -411,15 +416,15 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyLoftedPolyTop|NSNumber boolean|If on we'll create the geometry for the top.  On by default.|
  |kMaplyLoftedPolySide|NSNumber boolean|If on we'll create geometry for the sides.  On by default.|
  |kMaplyLoftedPolyGridSize|NSNumber|The size of the grid (in degrees) we'll use to chop up the vector features to make them follow the sphere (for a globe).|
- |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The lofted polys will only be visible if the user is above this height.  Off by default.|
- |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The lofted polys will only be visible if the user is below this height.  Off by default.|
- |kMaplyFade|NSNumber|The number of seconds to fade a lofted poly in when it appears and out when it disappears.|
- |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyLoftedPolysShapePriorityDefault.|
  |kMaplyLoftedPolyOutline|NSNumber boolean|If set to @(YES) this will draw an outline of the lofted poly in lines.|
  |kMaplyLoftedPolyOutlineColor|UIColor|If the outline is one this is the outline's color.|
  |kMaplyLoftedPolyOutlineWidth|NSNumber|This is the outline's width if it's turned on.|
  |kMaplyLoftedPolyOutlineDrawPriority|NSNumber|Draw priority of the lines created for the lofted poly outline.|
  |kMaplyLoftedPolyOutlineSide|NSNumber boolean|If set and we're drawing an outline, this will create lines up the sides.|
+ |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The lofted polys will only be visible if the user is above this height.  Off by default.|
+ |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The lofted polys will only be visible if the user is below this height.  Off by default.|
+ |kMaplyFade|NSNumber|The number of seconds to fade a lofted poly in when it appears and out when it disappears.|
+ |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyLoftedPolysShapePriorityDefault.|
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's on by default, meaning that it can be occluded by geometry coming before it.|
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
