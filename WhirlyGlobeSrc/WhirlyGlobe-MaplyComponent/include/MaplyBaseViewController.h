@@ -415,6 +415,11 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The lofted polys will only be visible if the user is below this height.  Off by default.|
  |kMaplyFade|NSNumber|The number of seconds to fade a lofted poly in when it appears and out when it disappears.|
  |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyLoftedPolysShapePriorityDefault.|
+ |kMaplyLoftedPolyOutline|NSNumber boolean|If set to @(YES) this will draw an outline of the lofted poly in lines.|
+ |kMaplyLoftedPolyOutlineColor|UIColor|If the outline is one this is the outline's color.|
+ |kMaplyLoftedPolyOutlineWidth|NSNumber|This is the outline's width if it's turned on.|
+ |kMaplyLoftedPolyOutlineDrawPriority|NSNumber|Draw priority of the lines created for the lofted poly outline.|
+ |kMaplyLoftedPolyOutlineSide|NSNumber boolean|If set and we're drawing an outline, this will create lines up the sides.|
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's on by default, meaning that it can be occluded by geometry coming before it.|
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
