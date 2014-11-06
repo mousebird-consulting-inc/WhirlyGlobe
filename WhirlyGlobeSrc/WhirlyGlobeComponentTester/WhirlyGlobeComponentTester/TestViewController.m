@@ -284,6 +284,9 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     // Force the view to load so we can get the default switch values
     [configViewC view];
     
+    // Note: Testing
+//    [self performSelector:@selector(findHeightTest) withObject:nil afterDelay:0.0];
+
     // Maximum number of objects for the layout engine to display
 //    [baseViewC setMaxLayoutObjects:1000];
     
@@ -296,6 +299,21 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     // Test animation
 //    if (globeViewC)
 //        [self performSelector:@selector(viewAnimationTest) withObject:nil afterDelay:2.0];
+}
+
+- (void)findHeightTest
+{
+    if (mapViewC)
+    {
+        MaplyBoundingBox bbox;
+        bbox.ll = MaplyCoordinateMakeWithDegrees(7.05090689853, 47.7675500593);
+        bbox.ur = MaplyCoordinateMakeWithDegrees(8.06813647023, 49.0562323851);
+        MaplyCoordinate center = MaplyCoordinateMakeWithDegrees((7.05090689853+8.06813647023)/2, (47.7675500593+49.0562323851)/2);
+        double height = [mapViewC findHeightToViewBounds:&bbox pos:center];
+        mapViewC.height = height;
+        [mapViewC animateToPosition:center time:1.0];
+        NSLog(@"height = %f",height);
+    }    
 }
 
 // Test animation to a point with height and heading
