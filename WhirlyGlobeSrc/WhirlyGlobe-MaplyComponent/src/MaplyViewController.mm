@@ -289,13 +289,16 @@ using namespace Maply;
             doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:glView mapView:mapView];
             doubleTapDelegate.minZoom = [mapView minHeightAboveSurface];
             doubleTapDelegate.maxZoom = [mapView maxHeightAboveSurface];
+            [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
         }
         if(_twoFingerTapGesture)
         {
             twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:glView mapView:mapView];
             twoFingerTapDelegate.minZoom = [mapView minHeightAboveSurface];
             twoFingerTapDelegate.maxZoom = [mapView maxHeightAboveSurface];
-            [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+            if (pinchDelegate)
+                [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+            [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
         }
         if (_doubleTapDragGesture)
         {

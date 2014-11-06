@@ -75,7 +75,6 @@ using namespace Eigen;
         {
             Quaterniond endRot = [self rotForTime:maxTime];
             AnimateViewMomentumMessage *msg = [[AnimateViewMomentumMessage alloc] initWithGlobeView:globeView rot:endRot time:startDate+maxTime];
-            [[NSNotificationCenter defaultCenter] postNotificationName:kAnimateViewMomentum object:msg userInfo:nil];
         }
     }
     
