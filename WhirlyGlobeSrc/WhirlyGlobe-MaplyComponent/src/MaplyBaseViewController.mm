@@ -612,7 +612,11 @@ static const float PerfOutputDelay = 15.0;
 {
     // Make sure we're not duplicating and add the object
     [self removeViewTrackForView:viewTrack.view];
-    [viewTrackers addObject:viewTrack];
+
+    @synchronized(self)
+    {
+        [viewTrackers addObject:viewTrack];
+    }
     
     // Hook it into the renderer
     ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
@@ -620,6 +624,7 @@ static const float PerfOutputDelay = 15.0;
     sceneRenderer.triggerDraw = true;
     
     // And add it to the view hierarchy
+    // Can only do this on the main thread anyway
     if ([viewTrack.view superview] == nil)
         [glView addSubview:viewTrack.view];
 }
@@ -627,31 +632,34 @@ static const float PerfOutputDelay = 15.0;
 - (void)moveViewTracker:(MaplyViewTracker *)viewTrack moveTo:(MaplyCoordinate)newPos
 {
     ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
-    vpGen->moveView(GeoCoord(newPos.x,newPos.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
 
+    vpGen->moveView(GeoCoord(newPos.x,newPos.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
     sceneRenderer.triggerDraw = true;
 }
 
 /// Remove the view tracker associated with the given UIView
 - (void)removeViewTrackForView:(UIView *)view
 {
-    // Look for the entry
-    WGViewTracker *theTracker = nil;
-    for (WGViewTracker *viewTrack in viewTrackers)
-        if (viewTrack.view == view)
-        {
-            theTracker = viewTrack;
-            break;
-        }
-    
-    if (theTracker)
+    @synchronized(self)
     {
-        [viewTrackers removeObject:theTracker];
-        ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
-        vpGen->removeView(theTracker.view);
-        if ([theTracker.view superview] == glView)
-            [theTracker.view removeFromSuperview];
-        sceneRenderer.triggerDraw = true;
+        // Look for the entry
+        WGViewTracker *theTracker = nil;
+        for (WGViewTracker *viewTrack in viewTrackers)
+            if (viewTrack.view == view)
+            {
+                theTracker = viewTrack;
+                break;
+            }
+        
+        if (theTracker)
+        {
+            [viewTrackers removeObject:theTracker];
+            ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
+            vpGen->removeView(theTracker.view);
+            if ([theTracker.view superview] == glView)
+                [theTracker.view removeFromSuperview];
+            sceneRenderer.triggerDraw = true;
+        }
     }
 }
 
