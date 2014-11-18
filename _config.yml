@@ -4,7 +4,7 @@ email: contact@mousebirdconsulting.com
 description: > # this means to ignore newlines until "baseurl:"
   An open source geospatial display toolkit for iOS and Android.
 
-baseurl: "/WhirlyGlobe-Maply-Site"
+baseurl: "/WhirlyGlobe"
 url: "http://mousebird.github.io/"
 twitter_username: mousebirdc
 github_username:  mousebird
