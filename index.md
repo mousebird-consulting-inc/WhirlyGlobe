@@ -3,8 +3,6 @@ title: WhirlyGlobe-Maply
 layout: home
 ---
 
-<meta name="description" content="WhirlyGlobe-Maply, a high performance map and globe toolkit for iOS and Android.">
-
 ## WhirlyGlobe-Maply for iOS and Android
 
 Based on OpenGL ES and focused on mobile first, WhirlyGlobe-Maply is used in a wide variety of altas, weather, visualization, and map apps.  The toolkit is both a 3D interactive globe for iOS and a 2D flat (or slippy) map for iOS and Android.  It's all open source.
