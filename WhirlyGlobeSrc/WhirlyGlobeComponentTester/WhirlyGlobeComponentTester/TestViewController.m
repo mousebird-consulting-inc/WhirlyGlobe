@@ -1769,14 +1769,14 @@ static const int NumMegaMarkers = 15000;
                 if (!loftPolyDict[name])
                 {
                     MaplyComponentObject *compObj = [baseViewC addLoftedPolys:@[vecObj] key:nil cache:nil desc:
-                                                        @{kMaplyColor: [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.25], kMaplyLoftedPolyHeight: @(0.05),
+                                                        @{kMaplyColor: [UIColor colorWithRed:0.25 green:0.0 blue:0.0 alpha:0.25], kMaplyLoftedPolyHeight: @(0.05),
                                                           kMaplyFade: @(0.5),
                                                           kMaplyDrawPriority: @(kMaplyLoftedPolysDrawPriorityDefault),
-//                                                          kMaplyLoftedPolyOutline: @(YES),
-//                                                          kMaplyLoftedPolyOutlineColor: [UIColor whiteColor],
-//                                                          kMaplyLoftedPolyOutlineWidth: @(4),
-//                                                          kMaplyLoftedPolyOutlineDrawPriority: @(kMaplyLoftedPolysDrawPriorityDefault+1),
-//                                                          kMaplyLoftedPolyOutlineSide: @(YES)
+                                                          kMaplyLoftedPolyOutline: @(YES),
+                                                          kMaplyLoftedPolyOutlineColor: [UIColor whiteColor],
+                                                          kMaplyLoftedPolyOutlineWidth: @(4),
+                                                          kMaplyLoftedPolyOutlineDrawPriority: @(kMaplyLoftedPolysDrawPriorityDefault+1),
+                                                          kMaplyLoftedPolyOutlineSide: @(YES)
                                                           }
                                                                          mode:MaplyThreadAny];
                     if (compObj)
