@@ -1,43 +1,49 @@
 ---
-title: WhirlyGlobe-Maply Binary Distribution
+title: Binary Distribution
 layout: tutorial
 ---
 
-Getting the source code is the most open-source-y way to use WhirlyGlobe-Maply, but it's not required.  There's a binary framework you can download and install.  Yes, that's faster and simpler.
+The binary distribution is one of the easiest ways to get started with WhirlyGlobe-Maply.  We distribute the toolkit as a framework for iOS device and simulator.
 
-Setting up a WG-Maply project using a binary distribution is slightly different. First, download the [binary distribution](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe_Maply_Distribution_2_3.zip) and unzip it into your projects directory. It should look something like this:
+First, download the [binary distribution](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe_Maply_Distribution_2_3.zip) and unzip it into your projects directory. It should look something like this:
 
-    projects/WhirlyGlobe_Maply_Distribution_2_3
+{% highlight bash %}
+projects/WhirlyGlobe_Maply_Distribution_2_3
+{% endhighlight %}
 
-This guide will simply refer to it as 'BinaryDirectory' for purposes of indicating paths.
+This guide will simply refer to it as **BinaryDirectory** for purposes of indicating paths.
 
-Open Xcode and click Create a new Xcode Project. Create a new IOS Application using the Empty Application template. Call it HelloEarth, (or HelloEarthBinary if you're plowing through both of these sections) and check the Source Control box to create a local git repository for your project.
+You will need your HelloEarth project [from earlier](hello_earth.html) for the next part.
 
-Easy.
+### Adding the Dependencies
 
-Now that Xcode is done creating the project, we need to pull in the libraries we'll need. Go to Build Phases and expand Link Binary With Libraries. Click + and then Add Other.
+To add an external library in Xcode, select the top level HelloEarth node in the project tab, pick **Build Phases** on the right and open the **Link Binary With Libraries** area.
 
-Navigate to BinaryDirectory and select WhirlyGlobeMaplyComponent.framework., then click Open. Click + and Add Other again, navigate to BinaryDirectory/WhirlyGlobeMaplyComponent.framework/Versions/Current and select libWhirlyGlobeMaplyComponent.a. 
+![Adding the Framework]({{ site.baseurl }}/images/tutorial/binary_dist_1.png)
 
-Finally, we'll need to add some libraries that WG-Maply needs. Click + and add
+Click on the + and select **Add Other**.  Navigate to **BinaryDirectory** and select WhirlyGlobeMaplyComponent.framework., then click Open.
 
-    CoreLocation
-    libc++
-    libz
-    libxml2
-    libsqlite3
+Finally, we'll need to add some libraries that WG-Maply needs. Click + again and add the following.
 
-The last thing we need to do is indicate where to search for WG-Maply header files. Open up Build Settings and scroll down to Header Search Paths. Add the path corresponding to 'BinaryDirectory/WhirlyGlobeMaplyComponent.framework/Headers/'.
+{% highlight bash %}
++ CoreLocation
++ libc++
++ libz
++ libxml2
++ libsqlite3
+{% endhighlight %}
 
-That's it! You should be set up properly for a project using WG-Maply.
+After you’ve put all those in it should look like this.
 
-### Component Tester App
+![Libraries]({{ site.baseurl }}/images/tutorial/binary_dist_2.png)
 
-The toolkit ships with a test app that exercises most of the good parts.  In the binary distribution you'll see it under examples.
+The last thing we need to do is indicate where to search for WG-Maply header files. Open up Build Settings and scroll down to Header Search Paths. Add the path as follows.  Don’t forget to replace **BinaryDirectory** with your own.
 
-Build and run it, preferably on some good hardware. Fool around with the various display options, and you'll get a taste of how capable WG-­Maply is.
+{% highlight bash %}
+“BinaryDirectory/WhirlyGlobeMaplyComponent.framework/Headers/“
+{% endhighlight %}
 
-Spending a few minutes with WhirlyGlobeComponentTester will familiarize you with many of the toolkit’s capabilities. Over the next few sections we'll use some of those ourselves, and show you how to build a simple app with a globe or a flat map that displays the world, shows country outlines, and responds to taps and selections. After that, hopefully you'll be comfortable browsing through the [WG-Maply documentation](http://mousebird.github.io/WhirlyGlobe/documentation/2_3/) and the WhirlyGlobeComponentTester source for ideas of what to try next.
+Try and compile, just to make sure the basic are working.  But that’s it!  You should be set up properly for a project using WG-Maply.
 
 Next up, let's look at building a map or a globe.
 

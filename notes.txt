@@ -1,1 +1,0 @@
-/usr/local/Cellar/ruby/2.1.1/lib/ruby/gems/2.1.0/gems/jekyll-2.3.0/bin/jekyll serve --watch
