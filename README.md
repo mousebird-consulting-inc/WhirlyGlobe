@@ -24,13 +24,13 @@ This is the master branch of the WhirlyGlobe-Maply Component and API version 2.3
 
 WhirlyGlobe-Maply uses a bunch of submodules, which you'll need to get.  Like so.
 
-git submodule init
-git submodule update
+- git submodule init
+- git submodule update
 
 Get comfortable.  The data is contained in a submodule and it's large.
 
 Once you get all this synced, try to build WhirlyGlobeComponentTester.  If it builds, you're good to go.  Enjoy.
 
-Questions to:  sjg@mousebirdconsulting.com
+Want more detail?  Go read the (Tutorials)[http://mousebird.github.io/WhirlyGlobe/tutorial/getting_started.html] on the WhirlyGlobe-Maply site.
 
----
+Questions to:  contact@mousebirdconsulting.com
