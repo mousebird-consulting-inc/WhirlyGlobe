@@ -5,6 +5,7 @@
 
 // Our variables
 $background-color: #443933; // supplemented with an image pattern below.
+$tutorial-blue:      #00557e;
 $triangle-color-1:   #f2b200;
 $triangle-color-2:   #e84b38;
 
@@ -137,6 +138,19 @@ a:hover.bb-source, a:hover.bb-binary, a:hover.bb-documentation, a:hover.bb-cocoa
       border-bottom:  none;
     }
   }
+  a {
+    color:             $grey-color;
+    text-decoration:   none;
+
+    &:visited {
+      color:           silver;
+    }
+
+    &:hover {
+      color:           $tutorial-blue;
+      text-decoration: underline;
+    }
+  }
 }
 ul.docs-and-resources {
   li {
@@ -166,14 +180,6 @@ ul.docs-and-resources {
   li.mousebird:before {
     background-position: 0 -90px;
   }
-  a:link
-  {
-    color: #000;
-  }
-  a:visited
-  {
-    color: #222;
-  }
 }
 
 // Tutorial
@@ -195,7 +201,7 @@ ul.docs-and-resources {
   }
 }
 .tutorial-main {
-  background-color: #00557e;
+  background-color: $tutorial-blue;
   padding-bottom:   30px;
   h2, h3, h4, h5, h6 {
     padding-top:    1em;
@@ -223,16 +229,13 @@ ul.docs-and-resources {
   }
   .well {
     margin-left:   $base-font-size * 2;
-    color:         #00557e;
+    color:         $tutorial-blue;
     background:    #dddbdc no-repeat top right;
     border-radius: 16px;
     h4, p {
       padding-top: 0.2em;
       margin-left: 0;
     }
-  }
-  li {
-    margin-left:   $base-font-size;
   }
 }
 
