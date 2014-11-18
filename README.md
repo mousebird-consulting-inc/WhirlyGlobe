@@ -31,6 +31,6 @@ Get comfortable.  The data is contained in a submodule and it's large.
 
 Once you get all this synced, try to build WhirlyGlobeComponentTester.  If it builds, you're good to go.  Enjoy.
 
-Want more detail?  Go read the (Tutorials)[http://mousebird.github.io/WhirlyGlobe/tutorial/getting_started.html] on the WhirlyGlobe-Maply site.
+Want more detail?  Go read the [Tutorials](http://mousebird.github.io/WhirlyGlobe/tutorial/getting_started.html) on the WhirlyGlobe-Maply site.
 
 Questions to:  contact@mousebirdconsulting.com
