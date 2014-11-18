@@ -61,7 +61,7 @@ The feature list is pretty long, but here are a few things you can display with 
 <b style="opacity:0.7;">Animation</b>
 </div>
 <div class="col-sm-3">
-<b style="opacity:0.7;">Lofted Polys</b>
+<b style="opacity:0.7;">WMS</b>
 </div>
 <div class="col-sm-3">
 <b style="opacity:0.7;">Vector Tiles</b>

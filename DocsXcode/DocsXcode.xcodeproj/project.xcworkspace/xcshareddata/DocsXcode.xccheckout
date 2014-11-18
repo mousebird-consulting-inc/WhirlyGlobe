@@ -12,22 +12,34 @@
 	<dict>
 		<key>677F2FFD76EDF621E416F2AE4C8628CADAE93C4F</key>
 		<string>https://github.com/mousebird/WhirlyGlobe-1</string>
+		<key>AB6425E65BE62C775600610766D5C087DEA41CAD</key>
+		<string>git+ssh://github.com/mousebird/WhirlyGlobe.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>DocsXcode/DocsXcode.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>677F2FFD76EDF621E416F2AE4C8628CADAE93C4F</key>
+		<string>../../../../WhirlyGlobeEricDocs</string>
+		<key>AB6425E65BE62C775600610766D5C087DEA41CAD</key>
 		<string>../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>https://github.com/mousebird/WhirlyGlobe-1</string>
+	<string>git+ssh://github.com/mousebird/WhirlyGlobe.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>677F2FFD76EDF621E416F2AE4C8628CADAE93C4F</string>
+	<string>AB6425E65BE62C775600610766D5C087DEA41CAD</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>AB6425E65BE62C775600610766D5C087DEA41CAD</string>
+			<key>IDESourceControlWCCName</key>
+			<string>WhirlyGlobe2</string>
+		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
