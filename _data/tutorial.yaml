@@ -34,5 +34,6 @@
 
 - section: Advanced
   files:
+    - filename: cartodb_layer.html
     - filename: component_tester.html
 

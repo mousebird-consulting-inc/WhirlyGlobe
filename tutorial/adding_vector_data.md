@@ -5,7 +5,7 @@ layout: tutorial
 
 HelloEarth is looking good, but it's still a bit plain. Almost all map or globe apps have some sort of overlay which adds additional information or context. Let's add some country outlines to get a taste of what's involved when adding vector data in WhirlyGlobe­-Maply.
 
-This tutorial depends on at least the [local image layer](remote_image_layer.html) tutorial.  Go ahead and open your HelloEarth project.
+This tutorial depends on at least the [local image layer](local_image_layer.html) tutorial.  Go ahead and open your HelloEarth project.
 
 ![Xcode HelloEarth]({{ site.baseurl }}/images/tutorial/adding_vector_data_1.png)
 
