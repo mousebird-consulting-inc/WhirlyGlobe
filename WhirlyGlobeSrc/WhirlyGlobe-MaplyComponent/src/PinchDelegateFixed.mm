@@ -25,6 +25,49 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
+@implementation WGStandardTiltDelegate
+{
+    // Tilt parameters
+    float minTilt,maxTilt,minTiltHeight,maxTiltHeight;
+}
+
+- (void)setMinTilt:(float)inMinTilt maxTilt:(float)inMaxTilt minHeight:(float)inMinHeight maxHeight:(float)inMaxHeight
+{
+    minTilt = inMinTilt;
+    maxTilt = inMaxTilt;
+    minTiltHeight = inMinHeight;
+    maxTiltHeight = inMaxHeight;
+}
+
+- (void)getMinTilt:(float *)retMinTilt maxTilt:(float *)retMaxTilt minHeight:(float *)retMinHeight maxHeight:(float *)retMaxHeight
+{
+    *retMinTilt = minTilt;
+    *retMaxTilt = maxTilt;
+    *retMinHeight = minTiltHeight;
+    *retMaxHeight = maxTiltHeight;
+}
+
+- (double)tiltFromHeight:(double)height
+{
+    float newTilt = 0.0;
+    
+    // Now the tilt, if we're in that mode
+    float newHeight = height;
+    if (newHeight <= minTiltHeight)
+        newTilt = minTilt;
+    else if (newHeight >= maxTiltHeight)
+        newTilt = maxTilt;
+    else {
+        float t = (newHeight-minTiltHeight)/(maxTiltHeight - minTiltHeight);
+        if (t != 0.0)
+            newTilt = t * (maxTilt - minTilt) + minTilt;
+    }
+    
+    return newTilt;
+}
+
+@end
+
 @implementation WGPinchDelegateFixed
 {
     /// If we're in the process of zooming in, where we started
@@ -38,9 +81,6 @@ using namespace WhirlyKit;
     bool valid;
 	WhirlyGlobeView *globeView;
     double startRot;
-    // Tilt parameters
-    bool tiltZoom;
-    float minTilt,maxTilt,minTiltHeight,maxTiltHeight;
 }
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
@@ -54,59 +94,11 @@ using namespace WhirlyKit;
         _zoomAroundPinch = true;
         _doRotation = false;
         _northUp = false;
-        tiltZoom = false;
         valid = false;
 	}
 	
 	return self;
 }
-
-- (void)setMinTilt:(float)inMinTilt maxTilt:(float)inMaxTilt minHeight:(float)inMinHeight maxHeight:(float)inMaxHeight
-{
-    tiltZoom = true;
-    minTilt = inMinTilt;
-    maxTilt = inMaxTilt;
-    minTiltHeight = inMinHeight;
-    maxTiltHeight = inMaxHeight;
-}
-
-- (bool)getMinTilt:(float *)retMinTilt maxTilt:(float *)retMaxTilt minHeight:(float *)retMinHeight maxHeight:(float *)retMaxHeight
-{
-    *retMinTilt = minTilt;
-    *retMaxTilt = maxTilt;
-    *retMinHeight = minTiltHeight;
-    *retMaxHeight = maxTiltHeight;
-    
-    return tiltZoom;
-}
-
-- (void)clearTiltZoom
-{
-    tiltZoom = false;
-}
-
-- (float)calcTilt
-{
-    float newTilt = 0.0;
-
-    // Now the tilt, if we're in that mode
-    if (tiltZoom)
-    {
-        float newHeight = globeView.heightAboveGlobe;
-        if (newHeight <= minTiltHeight)
-            newTilt = minTilt;
-        else if (newHeight >= maxTiltHeight)
-            newTilt = maxTilt;
-        else {
-            float t = (newHeight-minTiltHeight)/(maxTiltHeight - minTiltHeight);
-            if (t != 0.0)
-                newTilt = t * (maxTilt - minTilt) + minTilt;
-        }
-    }
-    
-    return newTilt;
-}
-
 
 + (WGPinchDelegateFixed *)pinchDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
 {
@@ -243,8 +235,11 @@ using namespace WhirlyKit;
                 }
                 
                 [globeView setRotQuat:(newRotQuat) updateWatchers:false];
-                float newTilt = [self calcTilt];
-                [globeView setTilt:newTilt];
+                if (_tiltDelegate)
+                {
+                    float newTilt = [_tiltDelegate tiltFromHeight:newH];
+                    [globeView setTilt:newTilt];
+                }
                 
                 if (_rotateDelegate)
                     [_rotateDelegate updateWithCenter:[pinch locationInView:glView] touch:[pinch locationOfTouch:0 inView:glView ] glView:glView];
