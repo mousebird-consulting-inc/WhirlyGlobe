@@ -223,10 +223,9 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     baseViewC.view.frame = self.view.bounds;
     [self addChildViewController:baseViewC];
     
-//    if (globeViewC)
-//        [globeViewC setTiltMinHeight:0.001 maxHeight:2.0 minTilt:1.21771169 maxTilt:0.0];
+    if (globeViewC)
+        [globeViewC setTiltMinHeight:0.001 maxHeight:0.01 minTilt:1.21771169 maxTilt:0.0];
 
-    
     // This lets us mix screen space objects with everything else
 //    baseViewC.screenObjectDrawPriorityOffset = 0;
 

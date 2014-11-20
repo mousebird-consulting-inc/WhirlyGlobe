@@ -20,6 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import "GlobeView.h"
+#import "PinchDelegate.h"
 
 @class WhirlyGlobeRotateDelegate;
 
@@ -27,6 +28,11 @@
 #define kPinchDelegateDidStart @"WKPinchDelegateStarted"
 // Sent out when the pinch delegate finished (but hands off to momentum)
 #define kPinchDelegateDidEnd @"WKPinchDelegateEnded"
+
+/** A simple tilt delegate.
+  */
+@interface WGStandardTiltDelegate : NSObject<WGTiltDelegate>
+@end
 
 /** WhirlyGlobe Pinch Gesture Delegate
  Responds to pinches on a UIView and manipulates the globe view
@@ -44,13 +50,6 @@
 /// Also need the view parameters in WhirlyGlobeView
 + (WGPinchDelegateFixed *)pinchDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
 
-/// If this is called, the pan delegate will vary the tilt between the given values for the
-///  given height range.
-- (void)setMinTilt:(float)minTilt maxTilt:(float)maxTilt minHeight:(float)minHeight maxHeight:(float)maxHeight;
-
-/// Returns true if the tilt zoom mode is set and the appropriate values
-- (bool)getMinTilt:(float *)retMinTilt maxTilt:(float *)retMaxTilt minHeight:(float *)retMinHeight maxHeight:(float *)retMaxHeight;
-
 /// If set, we'll zoom around the pinch, rather than the center of the view
 @property (nonatomic,assign) bool zoomAroundPinch;
 
@@ -62,11 +61,8 @@
 
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 
-/// Turn off the tilt controlled by zoom height
-- (void)clearTiltZoom;
-
-/// Calculate the current tilt based on the tilt zoom values, if they're there
-- (float)calcTilt;
+// If set, we calculate the tilt every time we update
+@property (nonatomic,weak) NSObject<WGTiltDelegate> *tiltDelegate;
 
 
 @end

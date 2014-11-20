@@ -27,7 +27,7 @@
     double startHeight,endHeight;
 }
 
-- (id)initWithView:(WhirlyGlobeView *)globeView toHeight:(double)height howLong:(float)howLong;
+- (id)initWithView:(WhirlyGlobeView *)globeView toHeight:(double)height howLong:(float)howLong delegate:(NSObject<WGTiltDelegate> *)tiltDelegate
 {
     if ((self = [super init]))
     {
@@ -35,6 +35,7 @@
         endDate = startDate+howLong;
         startHeight = globeView.heightAboveGlobe;
         endHeight = height;
+        _tiltDelegate = tiltDelegate;
     }
     
     return self;
@@ -62,7 +63,13 @@
 		// Interpolate somewhere along the path
 		float t = (span-remain)/span;
         globeView.heightAboveGlobe = startHeight + (endHeight-startHeight)*t;
-	}
+
+        if (_tiltDelegate)
+        {
+            float newTilt = [_tiltDelegate tiltFromHeight:globeView.heightAboveGlobe];
+            [globeView setTilt:newTilt];
+        }
+    }
 }
 
 @end
