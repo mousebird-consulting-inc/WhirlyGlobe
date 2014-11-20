@@ -20,6 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "GlobeView.h"
+#import "PinchDelegate.h"
 
 @interface WhirlyGlobeDoubleTapDelegate : NSObject<UIGestureRecognizerDelegate>
 
@@ -36,5 +37,8 @@
 
 /// Zoom limits
 @property (nonatomic) float minZoom,maxZoom;
+
+// If set, we calculate the tilt every time we update
+@property (nonatomic,weak) NSObject<WGTiltDelegate> *tiltDelegate;
 
 @end

@@ -80,6 +80,8 @@ using namespace WhirlyKit;
             if (_minZoom < newZ && newZ < _maxZoom)
             {
                 globeView.heightAboveGlobe = newZ;
+                if (_tiltDelegate)
+                    globeView.tilt = [_tiltDelegate tiltFromHeight:newZ];
             }
         }
             break;
