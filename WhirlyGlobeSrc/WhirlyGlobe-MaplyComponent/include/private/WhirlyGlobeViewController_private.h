@@ -47,6 +47,7 @@
     WhirlyGlobeDoubleTapDelegate *doubleTapDelegate;
     WhirlyGlobeTwoFingerTapDelegate *twoFingerTapDelegate;
     WhirlyGlobeDoubleTapDragDelegate *doubleTapDragDelegate;
+    WGStandardTiltDelegate *tiltDelegate;
 
     // Set when we're animating the view point but we know where it's going
     bool knownAnimateEndRot;

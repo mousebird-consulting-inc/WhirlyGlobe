@@ -62,7 +62,7 @@ using namespace WhirlyKit;
         double newH = curH * _zoomTapFactor;
         if (_minZoom < newH && newH < _maxZoom)
         {
-            animate = [[WhirlyGlobeAnimateViewHeight alloc] initWithView:globeView toHeight:newH howLong:_zoomAnimationDuration];
+            animate = [[WhirlyGlobeAnimateViewHeight alloc] initWithView:globeView toHeight:newH howLong:_zoomAnimationDuration delegate:self.tiltDelegate];
             globeView.delegate = animate;
         }
     }
