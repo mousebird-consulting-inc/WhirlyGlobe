@@ -223,10 +223,9 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     baseViewC.view.frame = self.view.bounds;
     [self addChildViewController:baseViewC];
     
-//    if (globeViewC)
-//        [globeViewC setTiltMinHeight:0.001 maxHeight:2.0 minTilt:1.21771169 maxTilt:0.0];
+    if (globeViewC)
+        [globeViewC setTiltMinHeight:0.001 maxHeight:0.01 minTilt:1.21771169 maxTilt:0.0];
 
-    
     // This lets us mix screen space objects with everything else
 //    baseViewC.screenObjectDrawPriorityOffset = 0;
 
@@ -1769,10 +1768,11 @@ static const int NumMegaMarkers = 15000;
                 if (!loftPolyDict[name])
                 {
                     MaplyComponentObject *compObj = [baseViewC addLoftedPolys:@[vecObj] key:nil cache:nil desc:
-                                                        @{kMaplyColor: [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.25], kMaplyLoftedPolyHeight: @(0.05),
+                                                        @{kMaplyColor: [UIColor colorWithRed:0.25 green:0.0 blue:0.0 alpha:0.25], kMaplyLoftedPolyHeight: @(0.05),
                                                           kMaplyFade: @(0.5),
                                                           kMaplyDrawPriority: @(kMaplyLoftedPolysDrawPriorityDefault),
 //                                                          kMaplyLoftedPolyOutline: @(YES),
+//                                                          kMaplyLoftedPolyOutlineBottom: @(YES),
 //                                                          kMaplyLoftedPolyOutlineColor: [UIColor whiteColor],
 //                                                          kMaplyLoftedPolyOutlineWidth: @(4),
 //                                                          kMaplyLoftedPolyOutlineDrawPriority: @(kMaplyLoftedPolysDrawPriorityDefault+1),

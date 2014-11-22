@@ -466,15 +466,25 @@ using namespace WhirlyGlobe;
 
 - (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt
 {
+    tiltDelegate = [[WGStandardTiltDelegate alloc] init];
+    [tiltDelegate setMinTilt:minTilt maxTilt:maxTilt minHeight:minHeight maxHeight:maxHeight];
     if (pinchDelegate)
-        [pinchDelegate setMinTilt:minTilt maxTilt:maxTilt minHeight:minHeight maxHeight:maxHeight];
+        pinchDelegate.tiltDelegate = tiltDelegate;
+    if (doubleTapDelegate)
+        doubleTapDelegate.tiltDelegate = tiltDelegate;
+    if (twoFingerTapDelegate)
+        twoFingerTapDelegate.tiltDelegate = tiltDelegate;
 }
 
 /// Turn off varying tilt by height
 - (void)clearTiltHeight
 {
     if (pinchDelegate)
-        [pinchDelegate clearTiltZoom];
+        pinchDelegate.tiltDelegate = nil;
+    if (doubleTapDelegate)
+        doubleTapDelegate.tiltDelegate = nil;
+    if (twoFingerTapDelegate)
+        twoFingerTapDelegate.tiltDelegate = nil;
 }
 
 - (float)tilt
@@ -647,11 +657,9 @@ using namespace WhirlyGlobe;
     // Note: This might conceivably be a problem, though I'm not sure how.
     [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:0.0];
     // If there's a pinch delegate, ask it to calculate the height.
-    if (pinchDelegate)
-    {
-        self.tilt = [pinchDelegate calcTilt];
-    }
-}
+    if (tiltDelegate)
+        self.tilt = [tiltDelegate tiltFromHeight:globeView.heightAboveGlobe];
+ }
 
 - (void)setPosition:(WGCoordinate)newPos height:(float)height
 {
@@ -1146,7 +1154,7 @@ using namespace WhirlyGlobe;
     
     // Set the tilt either directly or as a consequence of the height
     if (animState.tilt == MAXFLOAT)
-        globeView.tilt = [pinchDelegate calcTilt];
+        globeView.tilt = [tiltDelegate tiltFromHeight:globeView.heightAboveGlobe];
     else
         globeView.tilt = animState.tilt;
     
