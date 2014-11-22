@@ -113,8 +113,9 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
 
 /** @brief Make a deep copy of the vector object and return it.
     @details This makes a complete copy of the vector object, with all features and nothing shared.
+    @details Had to rename this because Apple's private method scanner is dumb.
   */
-- (MaplyVectorObject *)deepCopy;
+- (MaplyVectorObject *)deepCopy2;
 
 /** @brief Dump the feature(s) out as text
     @details This will write each feature out as text for debugging.
