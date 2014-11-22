@@ -411,7 +411,7 @@ public:
     return outStr;
 }
 
-- (MaplyVectorObject *)deepCopy
+- (MaplyVectorObject *)deepCopy2
 {
     MaplyVectorObject *newVecObj = [[MaplyVectorObject alloc] init];
     
