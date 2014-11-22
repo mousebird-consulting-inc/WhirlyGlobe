@@ -821,8 +821,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         wgLabel.text = label.text;
         wgLabel.keepUpright = label.keepUpright;
         MaplyTexture *tex = nil;
-        if (label.iconImage) {
-            tex = [self addImage:label.iconImage imageFormat:MaplyImageIntRGBA mode:threadMode];
+        if (label.iconImage2) {
+            tex = [self addImage:label.iconImage2 imageFormat:MaplyImageIntRGBA mode:threadMode];
             compObj.textures.insert(tex);
         }
         if (tex)
@@ -924,8 +924,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         wgLabel.loc = GeoCoord(label.loc.x,label.loc.y);
         wgLabel.text = label.text;
         MaplyTexture *tex = nil;
-        if (label.iconImage) {
-            tex = [self addImage:label.iconImage imageFormat:MaplyImageIntRGBA mode:threadMode];
+        if (label.iconImage2) {
+            tex = [self addImage:label.iconImage2 imageFormat:MaplyImageIntRGBA mode:threadMode];
             compObj.textures.insert(tex);
         }
         wgLabel.iconTexture = tex.texID;
@@ -1047,7 +1047,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             bool greatCircle = ![subdivType compare:kMaplySubdivGreatCircle];
             bool grid = ![subdivType compare:kMaplySubdivGrid];
             bool staticSubdiv = ![subdivType compare:kMaplySubdivStatic];
-            MaplyVectorObject *newVecObj = [vecObj deepCopy];
+            MaplyVectorObject *newVecObj = [vecObj deepCopy2];
             if (greatCircle)
                 [newVecObj subdivideToGlobeGreatCircle:eps];
             else if (grid)
