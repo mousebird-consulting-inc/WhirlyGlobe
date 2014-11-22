@@ -21,6 +21,22 @@
 #import <UIKit/UIKit.h>
 #import "GlobeView.h"
 
+/** Protocol for a delegate that handles tilt calculation.
+ */
+@protocol WGTiltDelegate <NSObject>
+
+/// If this is called, the pan delegate will vary the tilt between the given values for the
+///  given height range.
+- (void)setMinTilt:(float)minTilt maxTilt:(float)maxTilt minHeight:(float)minHeight maxHeight:(float)maxHeight;
+
+/// Returns true if the tilt zoom mode is set and the appropriate values
+- (void)getMinTilt:(float *)retMinTilt maxTilt:(float *)retMaxTilt minHeight:(float *)retMinHeight maxHeight:(float *)retMaxHeight;
+
+/// Return a calculated tilt
+- (double)tiltFromHeight:(double)height;
+
+@end
+
 /** WhirlyGlobe Pinch Gesture Delegate
 	Responds to pinches on a UIView and manipulates the globe view
 	accordingly.

@@ -570,10 +570,10 @@ void Quadtree::clearFails()
     }
 }
     
-const Quadtree::NodeInfo *Quadtree::popLastEval()
+bool Quadtree::popLastEval(NodeInfo &retNodeInfo)
 {
     if (evalNodes.empty())
-        return NULL;
+        return false;
     NodesBySizeType::iterator it = evalNodes.end();
     it--;
     Node *node = *it;
@@ -588,7 +588,8 @@ const Quadtree::NodeInfo *Quadtree::popLastEval()
         parent = parent->parent;
     }
     
-    return &node->nodeInfo;
+    retNodeInfo = node->nodeInfo;
+    return true;
 }
     
 bool Quadtree::childrenLoading(const Identifier &ident)

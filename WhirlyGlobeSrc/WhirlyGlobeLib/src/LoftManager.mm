@@ -41,7 +41,7 @@ using namespace WhirlyKit;
     int         priority,outlineDrawPriority;
     bool        top,side;
     bool        layered;
-    bool        outline,outlineSide;
+    bool        outline,outlineSide,outlineBottom;
     UIColor     *outlineColor;
     float       outlineWidth;
     bool        readZBuffer;
@@ -102,6 +102,7 @@ using namespace WhirlyKit;
     outlineWidth = [dict floatForKey:@"outlineWidth" default:1.0];
     outlineDrawPriority = [dict intForKey:@"outlineDrawPriority" default:priority+1];
     outlineSide = [dict boolForKey:@"outlineSide" default:NO];
+    outlineBottom = [dict boolForKey:@"outlineBottom" default:NO];
     readZBuffer = [dict boolForKey:@"zbufferread" default:YES];
     writeZBuffer = [dict boolForKey:@"zbufferwrite" default:NO];
     enable = [dict boolForKey:@"enable" default:true];
@@ -307,10 +308,11 @@ public:
     }
     
     // Add a set of outlines
-    void addOutline(std::vector<VectorRing> &rings)
+    void addOutline(std::vector<VectorRing> &rings,bool useHeight)
     {
         if (primType != GL_LINES)
             return;
+        double height = (useHeight ? polyInfo->height : 0.0);
         
         setupDrawable(0);
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
@@ -327,7 +329,7 @@ public:
                 Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoordD);
                 Point3d dispPt = coordAdapter->localToDisplay(localPt);
                 Point3d norm = coordAdapter->normalForLocal(localPt);
-                Point3d pt = dispPt + norm * polyInfo->height - center;
+                Point3d pt = dispPt + norm * height - center;
                 
                 // Add to drawable
                 // Depending on the type, we do this differently
@@ -569,16 +571,19 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,WhirlyKitLof
     if (polyInfo->top)
         drawBuild.addPolyGroup(sceneRep->triMesh);
         
-        // And do the top outline if it's there
-        if (polyInfo->top && polyInfo->outline)
-        {
-            DrawableBuilder2 drawBuild2(scene,changes,sceneRep,polyInfo,GL_LINES,drawMbr);
-            if (centerValid)
-                drawBuild2.setCenter(center,geoCenter);
-            drawBuild2.addOutline(sceneRep->outlines);
-            
-            sceneRep->outlines.clear();
-        }
+    // And do the top outline if it's there
+    if (polyInfo->outline || polyInfo->outlineBottom)
+    {
+        DrawableBuilder2 drawBuild2(scene,changes,sceneRep,polyInfo,GL_LINES,drawMbr);
+        if (centerValid)
+            drawBuild2.setCenter(center,geoCenter);
+        if (polyInfo->outline)
+            drawBuild2.addOutline(sceneRep->outlines,true);
+        if (polyInfo->outlineBottom)
+            drawBuild2.addOutline(sceneRep->outlines,false);
+        
+        sceneRep->outlines.clear();
+    }
     
     //    printf("Added %d shapes and %d triangles from mesh\n",(int)numShapes,(int)sceneRep->triMesh.size());        
 }

@@ -69,9 +69,9 @@ public:
     {
     public:
         NodeInfo() { attrs = [NSMutableDictionary dictionary]; phantom = false;  importance = 0; frameLoadingFlags = 0; childrenLoading = 0; childrenEval = 0; eval = false; failed = false; childCoverage = false; frameFlags = 0;}
-        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom),frameLoadingFlags(that.frameLoadingFlags),childrenLoading(that.childrenLoading),eval(that.eval), failed(that.failed), childrenEval(that.childrenEval), childCoverage(that.childCoverage), frameFlags(that.frameFlags) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
+        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom),frameLoadingFlags(that.frameLoadingFlags),childrenLoading(that.childrenLoading),eval(that.eval), failed(that.failed), childrenEval(that.childrenEval), childCoverage(that.childCoverage), frameFlags(that.frameFlags) { attrs = nil; if (that.attrs) attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
         NodeInfo(const Identifier &ident) : ident(ident), importance(0.0), phantom(false), frameLoadingFlags(0), eval(false), failed(false), childrenLoading(0), childrenEval(0), childCoverage(false), frameFlags(0) { attrs = nil; }
-        NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; frameLoadingFlags = that.frameLoadingFlags; eval = that.eval;  failed = that.failed; childrenLoading = that.childrenLoading; childrenEval = that.childrenEval;  childCoverage = that.childCoverage; frameFlags = that.frameFlags; attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
+        NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; frameLoadingFlags = that.frameLoadingFlags; eval = that.eval;  failed = that.failed; childrenLoading = that.childrenLoading; childrenEval = that.childrenEval;  childCoverage = that.childCoverage; frameFlags = that.frameFlags; attrs = nil; if (that.attrs) attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
         ~NodeInfo() { attrs = nil; }
         
         /// Compare based on importance.  Used for sorting
@@ -166,7 +166,7 @@ public:
     void clearFails();
     
     /// Return the next nodes we're evaluating
-    const NodeInfo *popLastEval();
+    bool popLastEval(NodeInfo &);
     
     /// Look for children of this tile being loaded
     bool childrenLoading(const Identifier &ident);

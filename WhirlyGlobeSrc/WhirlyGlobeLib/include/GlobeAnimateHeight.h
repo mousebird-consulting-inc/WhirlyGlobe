@@ -22,11 +22,15 @@
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
 #import "GlobeView.h"
+#import "PinchDelegate.h"
 
 /// Animate height for a globe view over time
 @interface WhirlyGlobeAnimateViewHeight : NSObject<WhirlyGlobeAnimationDelegate>
 
 /// Start interpolating height immediately for the given time period
-- (id)initWithView:(WhirlyGlobeView *)globeView toHeight:(double)height howLong:(float)howLong;
+- (id)initWithView:(WhirlyGlobeView *)globeView toHeight:(double)height howLong:(float)howLong delegate:(NSObject<WGTiltDelegate> *)tiltDelegate;
+
+// If set, we calculate the tilt every time we update
+@property (nonatomic,weak) NSObject<WGTiltDelegate> *tiltDelegate;
 
 @end
