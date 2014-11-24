@@ -486,6 +486,7 @@ using namespace WhirlyGlobe;
     if (twoFingerTapDelegate)
         twoFingerTapDelegate.tiltDelegate = nil;
     tiltDelegate = nil;
+    globeView.tilt = 0.0;
 }
 
 - (float)tilt
