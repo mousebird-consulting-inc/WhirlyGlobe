@@ -13,6 +13,5 @@ We've got examples for both versions right here.  Pick your favorite, map or glo
 
 The rest of the tutorials will work with either, so jump on in!
 
-[Your First Globe](your_first_globe.html)
-
-[Your First Map](your_first_map.html)
+* [Your First Globe](your_first_globe.html)
+* [Your First Map](your_first_map.html)

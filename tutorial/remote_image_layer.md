@@ -80,5 +80,3 @@ Give it a try.  It's even more fun on a device. You can zoom in to your heart's 
 All that with just a few lines of code.  WhirlyGlobe-Maply is doing a lot of work behind the scenes.  As you move around it pulls in new data, caches it to the local device, displays it, gets rid of the old data and so forth.  But setting all this up is easy.
 
 Next up, let’s overlay some data on here.  How about some vectors?
-
-[Adding Vector Data](adding_vector_data.html)

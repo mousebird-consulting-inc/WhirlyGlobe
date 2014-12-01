@@ -5,6 +5,10 @@ layout: default
 
 A toolkit is only as good as the apps that use it.  Here are some of our favorites. If you'd like to be included, just send an image, a short description and a link.
 
+{% include app_entry.html name="Dark Sky" image="darksky.jpeg" body="Dark Sky is one of the Apple app store's favorite weather apps.  Not only will it tell when it's going to rain it'll show you beautiful animated weather and temperature data." link="https://itunes.apple.com/us/app/dark-sky-weather-radar-hyperlocal/id517329357?mt=8" %}
+
+{% include app_entry.html name="WhirlyViz" image="whirlyviz.jpeg" body="WhirlyViz is a data visualization engine for iPad and iPhone.  It uses Javascript modules to let users play with big, complex data sets." link="https://itunes.apple.com/us/app/whirlyviz/id752701884?mt=8" %}
+
 {% include app_entry.html name="Gaia GPS" image="gaiagps.png" body="Gaia GPS was featured in Apple's Your Verse stories, Gaia GPS helps people explore remote places, and stay safer in the woods." link="https://itunes.apple.com/us/app/gaia-gps-topo-maps-trails/id329127297?mt=8" %}
 
 {% include app_entry.html name="Offline Topo Maps" image="offlinetopomaps.png" body="Offline Topo Maps is a simpler version of Gaia GPS." link="https://itunes.apple.com/us/app/offline-topo-maps/id376535806?mt=8" %}
@@ -13,13 +17,11 @@ A toolkit is only as good as the apps that use it.  Here are some of our favorit
 
 {% include app_entry.html name="Stratalogica" image="stratalogica.jpeg" body="Stratalogica is a big, gorgeous interactive globe for students of all ages.  You can browse existing content or make your own with an on-globe editor." link="https://itunes.apple.com/us/app/stratalogica/id588832342?mt=8" %}
 
-{% include app_entry.html name="Dark Sky" image="darksky.jpeg" body="Dark Sky is one of the Apple app store's favorite weather apps.  Not only will it tell when it's going to rain it'll show you beautiful animated weather and temperature data." link="https://itunes.apple.com/us/app/dark-sky-weather-radar-hyperlocal/id517329357?mt=8" %}
-
 {% include app_entry.html name="eLLaWalk" image="ellawalk.png" body="eLLaWalk is part of the promotion for the new eLLa fragrance from Victorinox.  This Android app lets you see your organized walks on your device." link="https://play.google.com/store/apps/details?id=com.ellawalk.android" %}
 
-{% include app_entry.html name="Planet.ly" image="planetly.png" body="Planet.ly is a fun news aggregator that shows you what's happening around the globe." link="https://itunes.apple.com/AU/app/id843213596" %}
+{% include app_entry.html name="Deforestation Visualization" image="deforestation.png" body="A visualization by José Manuel Navarro made for Vizzuality. It shows deforestation in Indonesia over time.  Colored vectors are used to denote intensity." link="https://www.youtube.com/watch?v=-eiiL19stw0" %}
 
-{% include app_entry.html name="WhirlyViz" image="whirlyviz.jpeg" body="WhirlyViz is a data visualization engine for iPad and iPhone.  It uses Javascript modules to let users play with big, complex data sets." link="https://itunes.apple.com/us/app/whirlyviz/id752701884?mt=8" %}
+{% include app_entry.html name="Planet.ly" image="planetly.png" body="Planet.ly is a fun news aggregator that shows you what's happening around the globe." link="https://itunes.apple.com/AU/app/id843213596" %}
 
 {% include app_entry.html name="Mapbox Earth" image="mapboxearth.png" body="Mapbox Earth is a neat little browser for Mapbox's excellent satellite imagery data sets." link="https://itunes.apple.com/us/app/mapbox-earth/id643883241?mt=8" %}
 

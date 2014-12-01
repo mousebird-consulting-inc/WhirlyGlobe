@@ -108,6 +108,3 @@ The view controller returns a <a href= "{{ site.baseurl }}/reference/ios_2_3/Cla
 You might notice we're pulling a string called _@"ADMIN"_ out of each vector.  This will be handly later if we want to know which country it was.
 
 Next up, let's do some vector selection.
-
-[Taps and Selection](taps_and_selection.html)
-

@@ -46,5 +46,3 @@ The last thing we need to do is indicate where to search for WG-Maply header fil
 Try and compile, just to make sure the basic are working.  But that’s it!  You should be set up properly for a project using WG-Maply.
 
 Next up, let's look at building a map or a globe.
-
-[Globe or Map](globe_or_map.html)

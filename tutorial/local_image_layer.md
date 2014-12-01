@@ -106,5 +106,3 @@ The MaplyMBTileSource is responsible for reading the MBTiles file, which is just
 There are plenty of other properties we haven't touched on here.  Browse through the documentation and you'll see a lot more.
 
 Next up, an image layer you page over the network.
-
-[Remote Image Layer](remote_image_layer.html)

@@ -81,6 +81,3 @@ Click + and add the following path.
 At this point, your project should be set up properly and you’ll be linked to the github repo for updates.
 
 Next up, let’s look at something!
-
-[Globe or Map](globe_or_map.html)
-

@@ -46,5 +46,3 @@ That's it! Pick a real or virtual iOS device and run the app. If you get a blank
 If you encounter build errors, or something other than a black screen comes up on the device review the above steps, and ensure that you have done everything correctly!
 
 Next up, adding an image layer to your globe.
-
-[Adding a Layer](local_image_layer.html)
