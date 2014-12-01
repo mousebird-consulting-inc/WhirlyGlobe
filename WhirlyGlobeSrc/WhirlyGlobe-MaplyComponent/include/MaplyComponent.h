@@ -48,3 +48,4 @@
 #import <MaplyVectorTiles.h>
 #import <MaplyIconManager.h>
 #import <MaplyTextureBuilder.h>
+#import <MaplyGeomModel.h>
