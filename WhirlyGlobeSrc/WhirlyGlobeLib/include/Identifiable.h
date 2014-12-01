@@ -79,13 +79,13 @@ typedef boost::shared_ptr<Identifiable> IdentifiableRef;
 /// Used to sort identifiables in a set or similar STL container
 typedef struct
 {
-	bool operator () (const Identifiable *a,const Identifiable *b) { return a->getId() < b->getId(); }
+	bool operator () (const Identifiable *a,const Identifiable *b) const { return a->getId() < b->getId(); }
 } IdentifiableSorter;
     
 /// Used to sort identifiable Refs in a container
 typedef struct
 {
-	bool operator () (const IdentifiableRef a,const IdentifiableRef b) { return a->getId() < b->getId(); }    
+	bool operator () (const IdentifiableRef a,const IdentifiableRef b) const { return a->getId() < b->getId(); }
 } IdentifiableRefSorter;
 
 }

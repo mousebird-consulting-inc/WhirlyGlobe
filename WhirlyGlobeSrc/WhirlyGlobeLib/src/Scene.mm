@@ -35,6 +35,7 @@
 #import "ParticleSystemManager.h"
 #import "BillboardManager.h"
 #import "WideVectorManager.h"
+#import "GeometryManager.h"
 
 namespace WhirlyKit
 {
@@ -81,6 +82,8 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     addManager(kWKBillboardManager, new BillboardManager());
     // Widened vectors
     addManager(kWKWideVectorManager, new WideVectorManager());
+    // Raw Geometry
+    addManager(kWKGeometryManager, new GeometryManager());
     
     // Font Texture manager is used from any thread
     fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];

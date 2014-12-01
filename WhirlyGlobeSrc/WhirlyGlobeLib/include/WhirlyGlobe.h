@@ -91,3 +91,5 @@
 #import "BillboardLayer.h"
 #import "OpenGLES2Program.h"
 #import "DefaultShaderPrograms.h"
+#import "GeometryManager.h"
+#import "GeometryOBJReader.h"
