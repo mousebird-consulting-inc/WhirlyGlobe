@@ -98,9 +98,7 @@ The MaplyMBTileSource is responsible for reading the MBTiles file, which is just
 <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyQuadImageTilesLayer.html" target="_blank">MaplyQuadImageTilesLayers</a> are pretty flexible.  Let's look at some of the properties.
 
 - _handleEdges_ will add some extra geometry to ensure there's no gap when mismatching levels of detail abut. You'll never need this for a flat map, but for a globe or a 3D map, you might.
-
 - _coverPoles_ will create 'caps' for the north and south poles. If you're using a globe, and your projection doesn't go all the way to the poles (this is common), you'll want to turn this on.
-
 - _drawPriority_ sets the priority of geometry created.  You can use this to overlay image layers, with one caveat: it must be set immediately after the layer is created. You can't change it later.
 
 There are plenty of other properties we haven't touched on here.  Browse through the documentation and you'll see a lot more.
