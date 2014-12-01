@@ -56,6 +56,7 @@
 #define kMaplyTestShapeSphere @"Shapes: Spheres"
 #define kMaplyTestShapeGreatCircle @"Shapes: Great Circles"
 #define kMaplyTestShapeArrows @"Shapes: Arrows"
+#define kMaplyTestModels @"Models"
 #define kMaplyTestCountry @"Countries"
 #define kMaplyTestLoftedPoly @"Lofted Polygons"
 #define kMaplyTestMegaMarkers @"Mega Markers"

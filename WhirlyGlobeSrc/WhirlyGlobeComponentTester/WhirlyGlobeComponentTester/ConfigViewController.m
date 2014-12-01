@@ -93,7 +93,7 @@
                   kMaplyTestOWM: @(NO),
                   kMaplyTestForecastIO: @(NO),
                   kMaplyTestMapboxStreets: @(NO),
-//                  kMaplyMapzenVectors: @(NO)
+                  kMaplyMapzenVectors: @(NO)
                   }
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
@@ -107,6 +107,7 @@
                   kMaplyTestShapeSphere: @(NO),
                   kMaplyTestShapeGreatCircle: @(NO),
                   kMaplyTestShapeArrows: @(NO),
+                  kMaplyTestModels: @(NO),
                   kMaplyTestCountry: @(NO),
                   kMaplyTestLoftedPoly: @(NO),
                   kMaplyTestMegaMarkers: @(NO),
@@ -128,7 +129,7 @@
               kMaplyTestOWM: @(NO),
               kMaplyTestForecastIO: @(NO),
               kMaplyTestMapboxStreets: @(NO),
-//              kMaplyMapzenVectors: @(NO)
+              kMaplyMapzenVectors: @(NO)
               }
                                    singleSelect:false],
            [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects

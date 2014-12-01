@@ -103,6 +103,8 @@
 		2BB54EEA17CFABDF0065451F /* MaplyElevationSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB54EE917CFABDF0065451F /* MaplyElevationSource.h */; };
 		2BB54EED17CFABEA0065451F /* MaplyElevationSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB54EEC17CFABEA0065451F /* MaplyElevationSource.mm */; };
 		2BB54EEF17CFB8040065451F /* MaplyElevationSource_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB54EEE17CFB8030065451F /* MaplyElevationSource_private.h */; };
+		2BB7A96C1A26587400E50DC5 /* MaplyGeomModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB7A96B1A26587400E50DC5 /* MaplyGeomModel.h */; };
+		2BB7A96F1A26588000E50DC5 /* MaplyGeomModel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB7A96E1A26588000E50DC5 /* MaplyGeomModel.mm */; };
 		2BB7FB4F16B9AD050017EB2F /* MaplyLight.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB7FB4E16B9AD050017EB2F /* MaplyLight.h */; };
 		2BB7FB5316B9AD0D0017EB2F /* MaplyLight.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB7FB5216B9AD0D0017EB2F /* MaplyLight.m */; };
 		2BB9E01715BF9EE300F1DDD8 /* MaplyLabel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB9E01415BF9EE300F1DDD8 /* MaplyLabel.h */; };
@@ -391,6 +393,8 @@
 		2BB54EE917CFABDF0065451F /* MaplyElevationSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyElevationSource.h; path = include/MaplyElevationSource.h; sourceTree = SOURCE_ROOT; };
 		2BB54EEC17CFABEA0065451F /* MaplyElevationSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyElevationSource.mm; path = src/MaplyElevationSource.mm; sourceTree = SOURCE_ROOT; };
 		2BB54EEE17CFB8030065451F /* MaplyElevationSource_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyElevationSource_private.h; path = include/private/MaplyElevationSource_private.h; sourceTree = SOURCE_ROOT; };
+		2BB7A96B1A26587400E50DC5 /* MaplyGeomModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyGeomModel.h; path = include/MaplyGeomModel.h; sourceTree = SOURCE_ROOT; };
+		2BB7A96E1A26588000E50DC5 /* MaplyGeomModel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyGeomModel.mm; path = src/MaplyGeomModel.mm; sourceTree = SOURCE_ROOT; };
 		2BB7FB4E16B9AD050017EB2F /* MaplyLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyLight.h; path = include/MaplyLight.h; sourceTree = SOURCE_ROOT; };
 		2BB7FB5216B9AD0D0017EB2F /* MaplyLight.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MaplyLight.m; path = src/MaplyLight.m; sourceTree = SOURCE_ROOT; };
 		2BB9E01415BF9EE300F1DDD8 /* MaplyLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = MaplyLabel.h; path = include/MaplyLabel.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -786,6 +790,8 @@
 				2B2E2FFB16C4886800CAD143 /* MaplyShader.mm */,
 				2BBAA906181EEE3100BE1277 /* MaplyBillboard.h */,
 				2BBAA909181EEE3F00BE1277 /* MaplyBillboard.mm */,
+				2BB7A96B1A26587400E50DC5 /* MaplyGeomModel.h */,
+				2BB7A96E1A26588000E50DC5 /* MaplyGeomModel.mm */,
 			);
 			name = "visible objects";
 			path = WhirlyGlobeComponent;
@@ -1208,6 +1214,7 @@
 				2BB071771676B58F00DE387D /* WhirlyGlobeViewController_private.h in Headers */,
 				2BB0717B1676B5A800DE387D /* MaplySticker.h in Headers */,
 				881F66B518F20A8F00D17110 /* atomicops_internals_pnacl.h in Headers */,
+				2BB7A96C1A26587400E50DC5 /* MaplyGeomModel.h in Headers */,
 				881F66A818F20A8F00D17110 /* package_info.h in Headers */,
 				881F66A118F20A8F00D17110 /* zero_copy_stream_impl.h in Headers */,
 				2B73BD4619F07D8900CDB242 /* MaplyMatrix_private.h in Headers */,
@@ -1361,6 +1368,7 @@
 				2B897A8B15BC698800250F23 /* MaplyScreenMarker.m in Sources */,
 				881F668E18F20A8F00D17110 /* extension_set_heavy.cc in Sources */,
 				2BDC8A1E191D994F00DFECF0 /* AFNetworkReachabilityManager.m in Sources */,
+				2BB7A96F1A26588000E50DC5 /* MaplyGeomModel.mm in Sources */,
 				2B897A8D15BC6BF000250F23 /* MaplyComponentObject.mm in Sources */,
 				2BAC290E184D571B00FD14FD /* MaplyGDALRetileSource.mm in Sources */,
 				2BBAA90A181EEE3F00BE1277 /* MaplyBillboard.mm in Sources */,

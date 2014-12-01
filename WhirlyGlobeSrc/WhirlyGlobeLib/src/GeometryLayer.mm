@@ -26,21 +26,6 @@ using namespace Eigen;
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
-void GeomSceneRep::removeFromScene(std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
-{
-    for (SimpleIDSet::iterator it = drawIDs.begin();
-         it != drawIDs.end(); ++it)
-        changeRequests.push_back(new RemDrawableReq(*it));
-}
-
-void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
-{
-    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-    for (SimpleIDSet::iterator it = drawIDs.begin();
-         it != drawIDs.end(); ++it)
-        changeRequests.push_back(new FadeChangeRequest(*it, curTime, curTime+fade));
-}
-
 // Used to pass geometry around internally
 @interface GeomInfo : NSObject
 {
