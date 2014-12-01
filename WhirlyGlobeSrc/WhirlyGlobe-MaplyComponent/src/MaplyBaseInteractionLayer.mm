@@ -33,6 +33,7 @@
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyTexture_private.h"
 #import "MaplyMatrix_private.h"
+#import "MaplyGeomModel.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -1586,6 +1587,51 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             break;
         case MaplyThreadAny:
             [self performSelector:@selector(addShapesRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
+    
+    return compObj;
+}
+
+// Called in the layer thread
+- (void)addModelInstancesRun:(NSArray *)argArray
+{
+    NSArray *modelInstances = argArray[0];
+    MaplyComponentObject *compObj = argArray[1];
+    NSMutableDictionary *inDesc = argArray[2];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    
+    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyStickerDrawPriorityDefault) toDict:inDesc];
+    
+    // Might be a custom shader on these
+    [self resolveShader:inDesc defaultShader:nil];
+    
+    GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
+    
+    for (MaplyGeomModelInstance *mInst in modelInstances)
+    {
+    }
+    
+    pthread_mutex_lock(&userLock);
+    [userObjects addObject:compObj];
+    compObj.underConstruction = false;
+    pthread_mutex_unlock(&userLock);
+}
+
+
+- (MaplyComponentObject *)addModelInstances:(NSArray *)modelInstances desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
+    compObj.underConstruction = true;
+    
+    NSArray *argArray = @[modelInstances, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addModelInstancesRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addModelInstancesRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
             break;
     }
     

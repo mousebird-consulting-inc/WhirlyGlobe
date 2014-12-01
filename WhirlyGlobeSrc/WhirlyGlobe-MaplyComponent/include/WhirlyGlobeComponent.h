@@ -51,3 +51,4 @@
 #import <MaplyIconManager.h>
 #import <MaplyMapnikVectorTiles.h>
 #import <MapnikStyleSet.h>
+#import <MaplyGeomModel.h>
