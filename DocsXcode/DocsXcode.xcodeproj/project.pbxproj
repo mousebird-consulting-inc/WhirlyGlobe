@@ -139,6 +139,7 @@
 		2B76A04E1A1D2AD300C60136 /* CartoDBLayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CartoDBLayer.h; sourceTree = "<group>"; };
 		2B76A04F1A1D2B0B00C60136 /* cartodb_results.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cartodb_results.png; sourceTree = "<group>"; };
 		2B76A0501A1D2C7100C60136 /* globezoomnumbers.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = globezoomnumbers.gif; sourceTree = "<group>"; };
+		2BB94D8B1A2CEDCE0076B1B4 /* deforestation.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = deforestation.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -299,6 +300,7 @@
 		2B4E06B81A153FB100ADA318 /* apps */ = {
 			isa = PBXGroup;
 			children = (
+				2BB94D8B1A2CEDCE0076B1B4 /* deforestation.png */,
 				2B4E06B91A153FB100ADA318 /* darksky.jpeg */,
 				2B4E06BA1A153FB100ADA318 /* ellawalk.png */,
 				2B4E06BB1A153FB100ADA318 /* gaiagps.png */,
