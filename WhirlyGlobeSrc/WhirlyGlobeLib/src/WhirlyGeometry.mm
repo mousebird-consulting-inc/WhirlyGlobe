@@ -45,7 +45,7 @@ bool IntersectUnitSphere(Point3f org,Vector3f dir,Point3f &hit)
 	return true;
 }
 
-bool IntersectUnitSphere(Point3d org,Vector3d dir,Point3d &hit)
+bool IntersectUnitSphere(Point3d org,Vector3d dir,Point3d &hit,double *retT)
 {
     double a = dir.dot(dir);
     double b = 2.0f * org.dot(dir);
@@ -60,6 +60,8 @@ bool IntersectUnitSphere(Point3d org,Vector3d dir,Point3d &hit)
     double tb = (-b - rt) / (2.0f * a);
     
     double t = std::min(ta,tb);
+    if (retT)
+        *retT = t;
     
     hit = org + dir * t;
     return true;
