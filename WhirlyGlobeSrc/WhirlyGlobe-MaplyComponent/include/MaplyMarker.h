@@ -51,7 +51,7 @@
 /** @brief User data object for selection
     @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the label means to them.
  */
-@property (nonatomic,strong) NSObject *userObject;
+@property (nonatomic,strong) id userObject;
 
 @end
 

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B1FB5371A1EC5FE0004B394 /* MapzenSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1FB5361A1EC5FE0004B394 /* MapzenSource.m */; };
 		2B2EB66518C901AD008C5320 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB516E7F505001F52FC /* OpenGLES.framework */; };
 		2B62DD6816E7F0BC001F52FC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B62DD6616E7F0BC001F52FC /* InfoPlist.strings */; };
 		2B62DD6A16E7F0BC001F52FC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD6916E7F0BC001F52FC /* main.m */; };
@@ -36,6 +37,10 @@
 		2BB54EDF17CEB88F0065451F /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54EDE17CEB88F0065451F /* Default-568h@2x.png */; };
 		2BB54EE017CEB8950065451F /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54EDC17CEB8830065451F /* Default.png */; };
 		2BB54EE217CEB8A20065451F /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54EE117CEB8A20065451F /* Default@2x.png */; };
+		2BB94D7C1A26A94B0076B1B4 /* airboat.obj in Resources */ = {isa = PBXBuildFile; fileRef = 2BB94D781A26A94B0076B1B4 /* airboat.obj */; };
+		2BB94D7D1A26A94B0076B1B4 /* airboat.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB94D791A26A94B0076B1B4 /* airboat.png */; };
+		2BB94D7E1A26A94B0076B1B4 /* cessna.obj in Resources */ = {isa = PBXBuildFile; fileRef = 2BB94D7A1A26A94B0076B1B4 /* cessna.obj */; };
+		2BB94D7F1A26A94B0076B1B4 /* cessna.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB94D7B1A26A94B0076B1B4 /* cessna.png */; };
 		2BC0FB041964D3580043E1FD /* airfield-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FA9A1964D3580043E1FD /* airfield-24@2x.png */; };
 		2BC0FB051964D3580043E1FD /* airport-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FA9B1964D3580043E1FD /* airport-24@2x.png */; };
 		2BC0FB061964D3580043E1FD /* alcohol-shop-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FA9C1964D3580043E1FD /* alcohol-shop-24@2x.png */; };
@@ -429,6 +434,8 @@
 
 /* Begin PBXFileReference section */
 		2B0D630D17A2EE0400C3298D /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
+		2B1FB5351A1EC5FE0004B394 /* MapzenSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapzenSource.h; sourceTree = "<group>"; };
+		2B1FB5361A1EC5FE0004B394 /* MapzenSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapzenSource.m; sourceTree = "<group>"; };
 		2B62DD5A16E7F0BC001F52FC /* WhirlyGlobeComponentTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhirlyGlobeComponentTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B62DD5D16E7F0BC001F52FC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		2B62DD5F16E7F0BC001F52FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -469,6 +476,10 @@
 		2BB54EDC17CEB8830065451F /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		2BB54EDE17CEB88F0065451F /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		2BB54EE117CEB8A20065451F /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
+		2BB94D781A26A94B0076B1B4 /* airboat.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = airboat.obj; sourceTree = "<group>"; };
+		2BB94D791A26A94B0076B1B4 /* airboat.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = airboat.png; sourceTree = "<group>"; };
+		2BB94D7A1A26A94B0076B1B4 /* cessna.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cessna.obj; sourceTree = "<group>"; };
+		2BB94D7B1A26A94B0076B1B4 /* cessna.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cessna.png; sourceTree = "<group>"; };
 		2BC0FA9A1964D3580043E1FD /* airfield-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "airfield-24@2x.png"; sourceTree = "<group>"; };
 		2BC0FA9B1964D3580043E1FD /* airport-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "airport-24@2x.png"; sourceTree = "<group>"; };
 		2BC0FA9C1964D3580043E1FD /* alcohol-shop-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "alcohol-shop-24@2x.png"; sourceTree = "<group>"; };
@@ -951,6 +962,8 @@
 				2B62DD8316E7F3A2001F52FC /* StartupViewController.m */,
 				2BFF026017A9BA2C00007842 /* AnimationTest.h */,
 				2BFF026117A9BA2D00007842 /* AnimationTest.m */,
+				2B1FB5351A1EC5FE0004B394 /* MapzenSource.h */,
+				2B1FB5361A1EC5FE0004B394 /* MapzenSource.m */,
 				2BC989A617DA66BB0071DA9E /* WeatherShader.h */,
 				2BC989A717DA66BB0071DA9E /* WeatherShader.m */,
 				2B62DD8416E7F3A2001F52FC /* TestViewController.h */,
@@ -995,6 +1008,18 @@
 				2BDC8A38191DA05F00DFECF0 /* AFURLSessionManager.h */,
 			);
 			name = AFNetworking;
+			sourceTree = "<group>";
+		};
+		2BB94D771A26A94B0076B1B4 /* models */ = {
+			isa = PBXGroup;
+			children = (
+				2BB94D781A26A94B0076B1B4 /* airboat.obj */,
+				2BB94D791A26A94B0076B1B4 /* airboat.png */,
+				2BB94D7A1A26A94B0076B1B4 /* cessna.obj */,
+				2BB94D7B1A26A94B0076B1B4 /* cessna.png */,
+			);
+			name = models;
+			path = ../../../resources/models;
 			sourceTree = "<group>";
 		};
 		2BC0FA991964D3580043E1FD /* maki icons */ = {
@@ -1170,6 +1195,7 @@
 				2BC0FB87196DB9560043E1FD /* base maps */,
 				2BC0FB86196DB94C0043E1FD /* elevation */,
 				2BFD25F9170B933B00127EF5 /* country_json_50m */,
+				2BB94D771A26A94B0076B1B4 /* models */,
 				2BFD25DA170B92AD00127EF5 /* map_pin.png */,
 				2BFD25DB170B92AD00127EF5 /* Smiley_Face_Avatar_by_PixelTwist.png */,
 				2BFD25DC170B92AD00127EF5 /* Star.png */,
@@ -1703,6 +1729,7 @@
 				2BC0FB291964D3580043E1FD /* fire-station-24@2x.png in Resources */,
 				2BFD2764170B933C00127EF5 /* JEY.geojson in Resources */,
 				2BC0FB3F1964D3580043E1FD /* oil-well-24@2x.png in Resources */,
+				2BB94D7C1A26A94B0076B1B4 /* airboat.obj in Resources */,
 				2BC0FB681964D3580043E1FD /* village-24@2x.png in Resources */,
 				2BFD2765170B933C00127EF5 /* JOR.geojson in Resources */,
 				2BFD2766170B933C00127EF5 /* JPN.geojson in Resources */,
@@ -1756,6 +1783,7 @@
 				2BC0FB221964D3580043E1FD /* disability-24@2x.png in Resources */,
 				2BFD2787170B933C00127EF5 /* MNE.geojson in Resources */,
 				2BFD2788170B933C00127EF5 /* MNG.geojson in Resources */,
+				2BB94D7D1A26A94B0076B1B4 /* airboat.png in Resources */,
 				2BFD2789170B933C00127EF5 /* MNP.geojson in Resources */,
 				2BDC8A901937E33F00DFECF0 /* tl_2013_06075_roads.shx in Resources */,
 				2BFD278A170B933C00127EF5 /* MOZ.geojson in Resources */,
@@ -1861,6 +1889,7 @@
 				2BFD27D3170B933C00127EF5 /* TTO.geojson in Resources */,
 				2BFD27D4170B933C00127EF5 /* TUN.geojson in Resources */,
 				2BC0FB551964D3580043E1FD /* school-24@2x.png in Resources */,
+				2BB94D7E1A26A94B0076B1B4 /* cessna.obj in Resources */,
 				2BFD27D5170B933C00127EF5 /* TUR.geojson in Resources */,
 				2BC0FB361964D3580043E1FD /* lodging-24@2x.png in Resources */,
 				2BFD27D6170B933C00127EF5 /* TUV.geojson in Resources */,
@@ -1886,6 +1915,7 @@
 				2BFD27E5170B933C00127EF5 /* VUT.geojson in Resources */,
 				2BFD27E6170B933C00127EF5 /* WLF.geojson in Resources */,
 				2BC0FB471964D3580043E1FD /* playground-24@2x.png in Resources */,
+				2BB94D7F1A26A94B0076B1B4 /* cessna.png in Resources */,
 				2BFD27E7170B933C00127EF5 /* WSM.geojson in Resources */,
 				2BFD27E8170B933C00127EF5 /* YEM.geojson in Resources */,
 				2BFD27E9170B933C00127EF5 /* ZAF.geojson in Resources */,
@@ -1927,6 +1957,7 @@
 				2B62DD8716E7F3A2001F52FC /* ConfigViewController.m in Sources */,
 				2B62DD8A16E7F3A2001F52FC /* StartupViewController.m in Sources */,
 				2B62DD8B16E7F3A2001F52FC /* TestViewController.m in Sources */,
+				2B1FB5371A1EC5FE0004B394 /* MapzenSource.m in Sources */,
 				2BFF026217A9BA2D00007842 /* AnimationTest.m in Sources */,
 				2BC989A817DA66BB0071DA9E /* WeatherShader.m in Sources */,
 			);
