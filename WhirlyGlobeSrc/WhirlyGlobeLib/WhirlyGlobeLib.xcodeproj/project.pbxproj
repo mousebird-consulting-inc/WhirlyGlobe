@@ -49,8 +49,6 @@
 		2B3A0D5F133405780085EF43 /* VectorLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951D9812F09F31005003AE /* VectorLayer.h */; };
 		2B3A0D60133405780085EF43 /* LabelLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1F06813007031001F33CD /* LabelLayer.h */; };
 		2B40467815F9B4CB00937923 /* ActiveModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B40467715F9B4CB00937923 /* ActiveModel.h */; };
-		2B40467B15F9B4D300937923 /* GeometryLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B40467A15F9B4D300937923 /* GeometryLayer.h */; };
-		2B40467D15F9B4F400937923 /* GeometryLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B40467C15F9B4F400937923 /* GeometryLayer.mm */; };
 		2B44187913A2D9BA00514EDE /* RotateDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B44187713A2D9BA00514EDE /* RotateDelegate.h */; };
 		2B44187C13A2DA3C00514EDE /* RotateDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B44187B13A2DA3C00514EDE /* RotateDelegate.mm */; };
 		2B4504B714BCB7EA00C99306 /* WhirlyKitView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4504B614BCB7EA00C99306 /* WhirlyKitView.mm */; };
@@ -307,15 +305,10 @@
 		2B9BE6AD180872A0001D9454 /* ScreenImportance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B9BE6AC180872A0001D9454 /* ScreenImportance.h */; };
 		2B9BE6AF180872AA001D9454 /* ScreenImportance.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B9BE6AE180872AA001D9454 /* ScreenImportance.mm */; };
 		2BA2325617984F510063CC84 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2322F17984F510063CC84 /* glues.h */; };
-		2BA2325717984F510063CC84 /* glues_error.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323017984F510063CC84 /* glues_error.c */; };
 		2BA2325817984F510063CC84 /* glues_error.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323117984F510063CC84 /* glues_error.h */; };
-		2BA2325917984F510063CC84 /* glues_mipmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323217984F510063CC84 /* glues_mipmap.c */; };
 		2BA2325A17984F510063CC84 /* glues_mipmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323317984F510063CC84 /* glues_mipmap.h */; };
-		2BA2325B17984F510063CC84 /* glues_project.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323417984F510063CC84 /* glues_project.c */; };
 		2BA2325C17984F510063CC84 /* glues_project.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323517984F510063CC84 /* glues_project.h */; };
-		2BA2325D17984F510063CC84 /* glues_quad.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323617984F510063CC84 /* glues_quad.c */; };
 		2BA2325E17984F510063CC84 /* glues_quad.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323717984F510063CC84 /* glues_quad.h */; };
-		2BA2325F17984F510063CC84 /* glues_registry.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323817984F510063CC84 /* glues_registry.c */; };
 		2BA2326017984F510063CC84 /* glues_registry.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323917984F510063CC84 /* glues_registry.h */; };
 		2BA2326217984F510063CC84 /* dict-list.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323D17984F510063CC84 /* dict-list.h */; };
 		2BA2326317984F510063CC84 /* dict.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323E17984F510063CC84 /* dict.c */; };
@@ -384,6 +377,15 @@
 		2BB2592C177A045300770619 /* BillboardLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB25929177A045300770619 /* BillboardLayer.mm */; };
 		2BB2592D177A045300770619 /* BillboardDrawable.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB2592A177A045300770619 /* BillboardDrawable.mm */; };
 		2BB2592E177A045300770619 /* SceneGraphManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB2592B177A045300770619 /* SceneGraphManager.mm */; };
+		2BB7A9681A250A5600E50DC5 /* GeometryManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB7A9671A250A5600E50DC5 /* GeometryManager.h */; };
+		2BB7A96A1A250A6300E50DC5 /* GeometryManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB7A9691A250A6300E50DC5 /* GeometryManager.mm */; };
+		2BB7A9711A2661A700E50DC5 /* GeometryOBJReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB7A9701A2661A700E50DC5 /* GeometryOBJReader.h */; };
+		2BB7A9731A2661B300E50DC5 /* GeometryOBJReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB7A9721A2661B300E50DC5 /* GeometryOBJReader.mm */; };
+		2BB94D811A2CE01D0076B1B4 /* glues_error.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323017984F510063CC84 /* glues_error.c */; };
+		2BB94D821A2CE01D0076B1B4 /* glues_mipmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323217984F510063CC84 /* glues_mipmap.c */; };
+		2BB94D831A2CE01D0076B1B4 /* glues_project.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323417984F510063CC84 /* glues_project.c */; };
+		2BB94D841A2CE01D0076B1B4 /* glues_quad.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323617984F510063CC84 /* glues_quad.c */; };
+		2BB94D851A2CE01D0076B1B4 /* glues_registry.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323817984F510063CC84 /* glues_registry.c */; };
 		2BB9A8B116DFFF060069E19C /* DynamicTextureAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB9A8B016DFFF060069E19C /* DynamicTextureAtlas.h */; };
 		2BB9A8B316DFFF100069E19C /* DynamicTextureAtlas.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB9A8B216DFFF100069E19C /* DynamicTextureAtlas.mm */; };
 		2BD1158D1615979300A4BF5D /* ShapeLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD1158C1615979300A4BF5D /* ShapeLayer.h */; };
@@ -478,8 +480,6 @@
 		2B3C81C113301EE30029DEF2 /* UIColor+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = "UIColor+Stuff.mm"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B3C82791333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesimulator-Prefix.pch"; sourceTree = "<group>"; };
 		2B40467715F9B4CB00937923 /* ActiveModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActiveModel.h; sourceTree = "<group>"; };
-		2B40467A15F9B4D300937923 /* GeometryLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryLayer.h; sourceTree = "<group>"; };
-		2B40467C15F9B4F400937923 /* GeometryLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GeometryLayer.mm; sourceTree = "<group>"; };
 		2B44187713A2D9BA00514EDE /* RotateDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateDelegate.h; sourceTree = "<group>"; };
 		2B44187B13A2DA3C00514EDE /* RotateDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = RotateDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B4504AC14BBAC0100C99306 /* MaplyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyView.h; sourceTree = "<group>"; };
@@ -855,6 +855,10 @@
 		2BB25929177A045300770619 /* BillboardLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BillboardLayer.mm; sourceTree = "<group>"; };
 		2BB2592A177A045300770619 /* BillboardDrawable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BillboardDrawable.mm; sourceTree = "<group>"; };
 		2BB2592B177A045300770619 /* SceneGraphManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneGraphManager.mm; sourceTree = "<group>"; };
+		2BB7A9671A250A5600E50DC5 /* GeometryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryManager.h; sourceTree = "<group>"; };
+		2BB7A9691A250A6300E50DC5 /* GeometryManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GeometryManager.mm; path = src/GeometryManager.mm; sourceTree = SOURCE_ROOT; };
+		2BB7A9701A2661A700E50DC5 /* GeometryOBJReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryOBJReader.h; sourceTree = "<group>"; };
+		2BB7A9721A2661B300E50DC5 /* GeometryOBJReader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GeometryOBJReader.mm; path = src/GeometryOBJReader.mm; sourceTree = SOURCE_ROOT; };
 		2BB9A8B016DFFF060069E19C /* DynamicTextureAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DynamicTextureAtlas.h; sourceTree = "<group>"; };
 		2BB9A8B216DFFF100069E19C /* DynamicTextureAtlas.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DynamicTextureAtlas.mm; sourceTree = "<group>"; };
 		2BC53FD212DE22FA00778431 /* WhirlyGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = WhirlyGlobe.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -1471,7 +1475,6 @@
 				2B93C817145232C800D768BA /* MarkerLayer.mm */,
 				2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */,
 				2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */,
-				2B40467C15F9B4F400937923 /* GeometryLayer.mm */,
 				2B7EF5101603D77D00D4079F /* QuadDisplayLayer.mm */,
 				2B9BE6AE180872AA001D9454 /* ScreenImportance.mm */,
 				2B08059717EB95A40016C813 /* LoadedTile.mm */,
@@ -1575,6 +1578,10 @@
 				2BDC8A841937B76800DFECF0 /* WideVectorDrawable.h */,
 				2BADF96819A7D85000C40CAA /* ScreenSpaceDrawable.h */,
 				2B13BAA318B7E192007DA1A3 /* ScreenSpaceBuilder.h */,
+				2BB7A9671A250A5600E50DC5 /* GeometryManager.h */,
+				2BB7A9691A250A6300E50DC5 /* GeometryManager.mm */,
+				2BB7A9701A2661A700E50DC5 /* GeometryOBJReader.h */,
+				2BB7A9721A2661B300E50DC5 /* GeometryOBJReader.mm */,
 			);
 			name = managers;
 			sourceTree = "<group>";
@@ -1780,7 +1787,6 @@
 		2BCF39E314BB8F16006B0FC0 /* layers */ = {
 			isa = PBXGroup;
 			children = (
-				2B40467A15F9B4D300937923 /* GeometryLayer.h */,
 				2BA2BB86153E0C6200DAB382 /* GlobeLayerViewWatcher.h */,
 				2BEFDE90149963A800C63326 /* LoftLayer.h */,
 				2BC53FDD12DE23BA00778431 /* SphericalEarthLayer.h */,
@@ -1953,6 +1959,7 @@
 				2B3A0D52133405780085EF43 /* ShapeReader.h in Headers */,
 				2B3A0D53133405780085EF43 /* Identifiable.h in Headers */,
 				2B3A0D54133405780085EF43 /* Texture.h in Headers */,
+				2BB7A9681A250A5600E50DC5 /* GeometryManager.h in Headers */,
 				2B3A0D55133405780085EF43 /* Drawable.h in Headers */,
 				2B3A0D56133405780085EF43 /* Cullable.h in Headers */,
 				2B3A0D57133405780085EF43 /* Scene.h in Headers */,
@@ -1970,7 +1977,6 @@
 				2BDC8A811937B56300DFECF0 /* WideVectorManager.h in Headers */,
 				2B44187913A2D9BA00514EDE /* RotateDelegate.h in Headers */,
 				2B40467815F9B4CB00937923 /* ActiveModel.h in Headers */,
-				2B40467B15F9B4D300937923 /* GeometryLayer.h in Headers */,
 				2B7EF31815FF95CF00D4079F /* MaplyScene.h in Headers */,
 				2B7EF42D16025D8C00D4079F /* emess.h in Headers */,
 				2B7EF43016025D8C00D4079F /* geocent.h in Headers */,
@@ -1990,6 +1996,7 @@
 				2BE886CF160A855F00E92A0A /* MaplyTapMessage.h in Headers */,
 				2BD1158D1615979300A4BF5D /* ShapeLayer.h in Headers */,
 				2B92EF6516370B2000C5165F /* PerformanceTimer.h in Headers */,
+				2BB7A9711A2661A700E50DC5 /* GeometryOBJReader.h in Headers */,
 				2B92EF6716370B2700C5165F /* SceneRendererES.h in Headers */,
 				2B92EF911637530C00C5165F /* SceneRendererES2.h in Headers */,
 				2B92EF9D163760C300C5165F /* OpenGLES2Program.h in Headers */,
@@ -2178,6 +2185,7 @@
 				2B4504B914BCC29D00C99306 /* FlatMath.mm in Sources */,
 				2B4504E114BD126400C99306 /* MaplyPinchDelegate.mm in Sources */,
 				2B03701914C9FDDE00A51AC4 /* MaplyAnimateTranslateMomentum.mm in Sources */,
+				2BB94D831A2CE01D0076B1B4 /* glues_project.c in Sources */,
 				2B03701A14C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm in Sources */,
 				2BDC8A831937B57600DFECF0 /* WideVectorManager.mm in Sources */,
 				2B03702014CA01C600A51AC4 /* MaplyTapDelegate.mm in Sources */,
@@ -2189,7 +2197,6 @@
 				2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */,
 				2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */,
 				2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */,
-				2B40467D15F9B4F400937923 /* GeometryLayer.mm in Sources */,
 				2B7EF31B15FF95E900D4079F /* MaplyScene.mm in Sources */,
 				2B7EF31D15FF965400D4079F /* MaplyPanDelegate.mm in Sources */,
 				2B7EF31F15FF96D100D4079F /* MaplyView.mm in Sources */,
@@ -2214,6 +2221,7 @@
 				2B7EF44016025D8C00D4079F /* PJ_aeqd.c in Sources */,
 				2B7EF44116025D8C00D4079F /* PJ_airy.c in Sources */,
 				2B7EF44216025D8C00D4079F /* PJ_aitoff.c in Sources */,
+				2BB94D851A2CE01D0076B1B4 /* glues_registry.c in Sources */,
 				2B7EF44316025D8C00D4079F /* pj_apply_gridshift.c in Sources */,
 				2B7EF44416025D8C00D4079F /* pj_apply_vgridshift.c in Sources */,
 				2B7EF44516025D8C00D4079F /* PJ_august.c in Sources */,
@@ -2232,12 +2240,14 @@
 				2B7EF45216025D8C00D4079F /* pj_datum_set.c in Sources */,
 				2B7EF45316025D8C00D4079F /* pj_datums.c in Sources */,
 				2B7EF45416025D8C00D4079F /* PJ_denoy.c in Sources */,
+				2BB7A9731A2661B300E50DC5 /* GeometryOBJReader.mm in Sources */,
 				2B7EF45516025D8C00D4079F /* pj_deriv.c in Sources */,
 				2B7EF45616025D8C00D4079F /* PJ_eck1.c in Sources */,
 				2B7EF45716025D8C00D4079F /* PJ_eck2.c in Sources */,
 				2B7EF45816025D8C00D4079F /* PJ_eck3.c in Sources */,
 				2B7EF45916025D8C00D4079F /* PJ_eck4.c in Sources */,
 				2B7EF45A16025D8C00D4079F /* PJ_eck5.c in Sources */,
+				2BB7A96A1A250A6300E50DC5 /* GeometryManager.mm in Sources */,
 				2B7EF45B16025D8C00D4079F /* pj_ell_set.c in Sources */,
 				2B7EF45C16025D8C00D4079F /* pj_ellps.c in Sources */,
 				2B7EF45D16025D8C00D4079F /* PJ_eqc.c in Sources */,
@@ -2289,6 +2299,7 @@
 				2B7EF48716025D8C00D4079F /* PJ_mbt_fps.c in Sources */,
 				2B7EF48816025D8C00D4079F /* PJ_mbtfpp.c in Sources */,
 				2B7EF48916025D8C00D4079F /* PJ_mbtfpq.c in Sources */,
+				2BB94D821A2CE01D0076B1B4 /* glues_mipmap.c in Sources */,
 				2B7EF48A16025D8C00D4079F /* PJ_merc.c in Sources */,
 				2B7EF48B16025D8C00D4079F /* PJ_mill.c in Sources */,
 				2B7EF48C16025D8C00D4079F /* pj_mlfn.c in Sources */,
@@ -2303,6 +2314,7 @@
 				2B7EF49416025D8C00D4079F /* PJ_nocol.c in Sources */,
 				2B7EF49516025D8C00D4079F /* PJ_nsper.c in Sources */,
 				2B7EF49616025D8C00D4079F /* PJ_nzmg.c in Sources */,
+				2BB94D811A2CE01D0076B1B4 /* glues_error.c in Sources */,
 				2B7EF49716025D8C00D4079F /* PJ_ob_tran.c in Sources */,
 				2B7EF49816025D8C00D4079F /* PJ_ocea.c in Sources */,
 				2B7EF49916025D8C00D4079F /* PJ_oea.c in Sources */,
@@ -2349,6 +2361,7 @@
 				2B7EF4C116025D8C00D4079F /* PJ_wink2.c in Sources */,
 				2B7EF4C216025D8C00D4079F /* pj_zpoly1.c in Sources */,
 				88115B7A18A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm in Sources */,
+				2BB94D841A2CE01D0076B1B4 /* glues_quad.c in Sources */,
 				2B7EF4C416025D8C00D4079F /* proj_etmerc.c in Sources */,
 				2B7EF4C516025D8C00D4079F /* proj_mdist.c in Sources */,
 				2B7EF4C616025D8C00D4079F /* proj_rouss.c in Sources */,
@@ -2400,11 +2413,6 @@
 				2BB2592C177A045300770619 /* BillboardLayer.mm in Sources */,
 				2BB2592D177A045300770619 /* BillboardDrawable.mm in Sources */,
 				2BB2592E177A045300770619 /* SceneGraphManager.mm in Sources */,
-				2BA2325717984F510063CC84 /* glues_error.c in Sources */,
-				2BA2325917984F510063CC84 /* glues_mipmap.c in Sources */,
-				2BA2325B17984F510063CC84 /* glues_project.c in Sources */,
-				2BA2325D17984F510063CC84 /* glues_quad.c in Sources */,
-				2BA2325F17984F510063CC84 /* glues_registry.c in Sources */,
 				2BA2326317984F510063CC84 /* dict.c in Sources */,
 				2BA2326517984F510063CC84 /* geom.c in Sources */,
 				2BA2326717984F510063CC84 /* memalloc.c in Sources */,
