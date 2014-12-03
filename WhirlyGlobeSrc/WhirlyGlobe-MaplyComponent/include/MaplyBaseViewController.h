@@ -310,6 +310,10 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 /// @brief This calls addShapes:desc:mode: with mode set to MaplyThreadAny
 - (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
 
+/** @brief Note: Fill this in
+  */
+- (MaplyComponentObject *)addModelInstances:(NSArray *)modelInstances desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
 /** @brief Add one or more MaplyShape children to the current scene.
     @details This method will add the given MaplyShape derived objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
     @param shapes An NSArray of MaplyShape derived objects.
