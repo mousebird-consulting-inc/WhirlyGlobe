@@ -23,6 +23,7 @@
 #import "AFHTTPRequestOperation.h"
 #import "AnimationTest.h"
 #import "WeatherShader.h"
+#import "MapzenSource.h"
 
 // Simple representation of locations and name for testing
 typedef struct
@@ -93,6 +94,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     MaplyComponentObject *shapeSphereObj;
     MaplyComponentObject *greatCircleObj;
     MaplyComponentObject *arrowsObj;
+    MaplyComponentObject *modelsObj;
     MaplyComponentObject *screenLabelsObj;
     MaplyComponentObject *labelsObj;
     MaplyComponentObject *stickersObj;
@@ -635,6 +637,30 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     }
     
     arrowsObj = [baseViewC addShapes:arrows desc:desc];
+}
+
+// Add models
+- (void)addModels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc
+{
+    // Load the model
+    NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"cessna" ofType:@"obj"];
+    if (!fullPath)
+        return;
+    MaplyGeomModel *model = [[MaplyGeomModel alloc] initWithObj:fullPath];
+    if (!model)
+        return;
+
+    NSMutableArray *modelInstances = [NSMutableArray array];
+    for (unsigned int ii=offset;ii<len;ii+=stride)
+    {
+        LocationInfo *loc = &locations[ii];
+        MaplyGeomModelInstance *mInst = [[MaplyGeomModelInstance alloc] init];
+        mInst.center = MaplyCoordinateMakeWithDegrees(loc->lon, loc->lat);
+        mInst.selectable = true;
+        [modelInstances addObject:mInst];
+    }
+    
+    modelsObj = [baseViewC addModelInstances:modelInstances desc:desc mode:MaplyThreadAny];
 }
 
 - (void)addLinesLon:(float)lonDelta lat:(float)latDelta color:(UIColor *)color
@@ -1366,31 +1392,46 @@ static const int NumMegaMarkers = 15000;
             } else if (![layerName compare:kMaplyMapzenVectors])
             {
                 thisCacheDir = [NSString stringWithFormat:@"%@/mapzen-vectiles",cacheDir];
-                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithURL:@"http://vector.mapzen.com/osm/all/"
-                                                                  ext:@"mapbox"
-                                                              minZoom:8
-                                                              maxZoom:14
-                                                                style:[[NSBundle mainBundle] pathForResource:@"MapzenStyles" ofType:@"json"]
-                                                                  cacheDir:thisCacheDir
-                                                                     viewC:baseViewC
-                                                                   success:
-                 ^(MaplyMapnikVectorTiles *vecTiles)
-                 {
-                     // Now for the paging layer itself
-                     MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
-                     pageLayer.numSimultaneousFetches = 4;
-                     pageLayer.flipY = false;
-                     pageLayer.importance = 1024*1024;
-                     pageLayer.useTargetZoomLevel = true;
-                     pageLayer.singleLevelLoading = true;
-                     [baseViewC addLayer:pageLayer];
-                     ovlLayers[layerName] = pageLayer;
-                 }
-                                                                   failure:
-                 ^(NSError *error){
-                     NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
-                 }
-                 ];
+                MapzenSource *mzSource = [[MapzenSource alloc]
+                                          initWithBase:@"http://vector.mapzen.com/osm"
+                                          layers:@[@"water",@"earth",@"landuse",@"roads",@"buildings",@"pois",@"places"]];
+                mzSource.minZoom = 4;
+                mzSource.maxZoom = 20;
+                 // Now for the paging layer itself
+                 MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:mzSource];
+                 pageLayer.numSimultaneousFetches = 2;
+                 pageLayer.flipY = false;
+                 pageLayer.importance = 256*256;
+                 pageLayer.useTargetZoomLevel = true;
+                 pageLayer.singleLevelLoading = true;
+                 [baseViewC addLayer:pageLayer];
+                 ovlLayers[layerName] = pageLayer;
+                
+//                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithURL:@"http://vector.mapzen.com/osm/all/"
+//                                                                  ext:@"mapbox"
+//                                                              minZoom:8
+//                                                              maxZoom:14
+//                                                                style:[[NSBundle mainBundle] pathForResource:@"MapzenStyles" ofType:@"json"]
+//                                                                  cacheDir:thisCacheDir
+//                                                                     viewC:baseViewC
+//                                                                   success:
+//                 ^(MaplyMapnikVectorTiles *vecTiles)
+//                 {
+//                     // Now for the paging layer itself
+//                     MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
+//                     pageLayer.numSimultaneousFetches = 4;
+//                     pageLayer.flipY = false;
+//                     pageLayer.importance = 1024*1024;
+//                     pageLayer.useTargetZoomLevel = true;
+//                     pageLayer.singleLevelLoading = true;
+//                     [baseViewC addLayer:pageLayer];
+//                     ovlLayers[layerName] = pageLayer;
+//                 }
+//                                                                   failure:
+//                 ^(NSError *error){
+//                     NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
+//                 }
+//                 ];
             }
         } else if (!isOn && layer)
         {
@@ -1530,6 +1571,20 @@ static const int NumMegaMarkers = 15000;
         {
             [baseViewC removeObject:arrowsObj];
             arrowsObj = nil;
+        }
+    }
+    
+    if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestModels])
+    {
+        if (!modelsObj)
+        {
+            [self addModels:locations len:NumLocations stride:4 offset:3 desc:@{}];
+        }
+    } else {
+        if (modelsObj)
+        {
+            [baseViewC removeObject:modelsObj];
+            modelsObj = nil;
         }
     }
     
