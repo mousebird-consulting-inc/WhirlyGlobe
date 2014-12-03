@@ -460,6 +460,7 @@ SelectionManager::PlacementInfo::PlacementInfo(WhirlyKitView *view,WhirlyKitScen
     modelMat = [view calcModelMatrix];
     modelInvMat = modelMat.inverse();
     viewAndModelMat = viewMat * modelMat;
+    viewAndModelInvMat = viewAndModelMat.inverse();
     viewModelNormalMat = viewAndModelMat.inverse().transpose();
     projMat = [view calcProjectionMatrix:frameSizeScale margin:0.0];
     [view getOffsetMatrices:offsetMatrices frameBuffer:frameSize];
@@ -513,7 +514,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
         return EmptyIdentity;
 
     // And the eye vector for billboards
-    Vector4d eyeVec4 = pInfo.modelInvMat * Vector4d(0,0,1,0);
+    Vector4d eyeVec4 = pInfo.viewAndModelInvMat * Vector4d(0,0,1,0);
     Vector3d eyeVec(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
 
     SimpleIdentity retId = EmptyIdentity;

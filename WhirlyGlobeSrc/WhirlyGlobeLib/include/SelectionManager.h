@@ -198,7 +198,7 @@ public:
         WhirlyGlobeView *globeView;
         MaplyView *mapView;
         double heightAboveSurface;
-        Eigen::Matrix4d viewMat,modelMat,viewAndModelMat,viewModelNormalMat,projMat,modelInvMat;
+        Eigen::Matrix4d viewMat,modelMat,viewAndModelMat,viewAndModelInvMat,viewModelNormalMat,projMat,modelInvMat;
         std::vector<Eigen::Matrix4d> offsetMatrices;
         Point2f frameSize;
         Point2f frameSizeScale;
