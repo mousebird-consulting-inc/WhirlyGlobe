@@ -1,6 +1,9 @@
 ---
 title: Hello Earth Project
 layout: tutorial
+prev_next:
+  prev: getting_started.html
+  next: building_from_binary.html
 ---
 
 You need to create an Xcode project.  We’ll call it **HelloEarth** and you’ll add all your tutorial code to it.

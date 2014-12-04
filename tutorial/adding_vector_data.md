@@ -100,10 +100,9 @@ The code block itself is pretty simple.  We're doing the following.
 
 - Figuring out which geojson files are in the device bundle.
 - Loading them in, one by one
-- Converting them from GeoJSON to a <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyVectorObject.html" target="_blank">MaplyVectorObject</a>
-- Adding the <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyVectorObject.html" target="_blank">MaplyVectorObject</a> to <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyBaseViewController.html" target="_blank">MaplyBaseViewController</a>.
+- Converting them from GeoJSON to a MaplyVectorObject to MaplyBaseViewController.
 
-The view controller returns a <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyComponentObject.html" target="_blank">MaplyComponentObject</a>.  If you ever want to remove or modify these, you'll need that object.
+The view controller returns a MaplyComponentObject.  If you ever want to remove or modify these, you'll need that object.
 
 You might notice we're pulling a string called _@"ADMIN"_ out of each vector.  This will be handly later if we want to know which country it was.
 

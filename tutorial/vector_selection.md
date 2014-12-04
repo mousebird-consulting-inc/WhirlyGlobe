@@ -15,7 +15,7 @@ Let's start with annotations.
 
 ### Annotations
 
-A <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyAnnotation.html" target="_blank">MaplyAnnotation</a> is a little <a href= "https://developer.apple.com/library/ios/documentation/uikit/reference/UIView_Class/index.html" target="_blank">UIView</a> that you place at a geo location.  It will follow that location on the map or globe as the user moves around.
+A MaplyAnnotation is a little UIView that you place at a geo location.  It will follow that location on the map or globe as the user moves around.
 
 We'll create one of these annotations where the user taps or selects a country.  Let's start with the addAnnotation method.
 
@@ -43,7 +43,7 @@ That will add an annotation at a given point, but we still need to wire up tappi
 
 ### Delegates for Tapping
 
-To get taps and selection we need to fill in either the <a href= "{{ site.baseurl }}/reference/ios_2_3/Protocols/MaplyViewControllerDelegate.html" target="_blank">WhirlyGlobeViewControllerDelegate protocol</a> (for globes), or the <a href= "{{ site.baseurl }}/reference/ios_2_3/Protocols/WhirlyGlobeViewControllerDelegate.html" target="_blank">MaplyViewControllerDelegate protocol</a> (for maps).  We assign ourselves as a delegate and implement any tap or selection methods we're interested in. Let's try taps first.
+To get taps and selection we need to fill in either the WhirlyGlobeViewControllerDelegate protocol (for globes), or the MaplyViewControllerDelegate protocol (for maps).  We assign ourselves as a delegate and implement any tap or selection methods we're interested in. Let's try taps first.
 
 We're going to pop up a little annotation to show where the user tapped.
 

@@ -1,6 +1,9 @@
 ---
 title: Your First Map
 layout: tutorial
+prev_next:
+  prev: globe_or_map.html
+  next: local_image_layer.html
 ---
 
 You'll need to start with the [HelloEarth app](hello_earth.html) you wrote earlier.  Go do that if you haven't already.

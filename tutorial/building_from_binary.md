@@ -1,6 +1,9 @@
 ---
 title: Binary Distribution
 layout: tutorial
+prev_next:
+  prev: hello_earth.html
+  next: globe_or_map.html
 ---
 
 The binary distribution is one of the easiest ways to get started with WhirlyGlobe-Maply.  We distribute the toolkit as a framework for iOS device and simulator.

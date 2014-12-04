@@ -25,7 +25,7 @@ To keep things small and fast on a mobile device, we must load only what we're l
 
 Since we don't really know what's in a vector data set, what format it's in, or how it should look, we need you to fill in the details.  The MaplyQuadPagingLayer will handle the tiling logic, but you have to actually fetch and display the data.  It's easier than it sounds.
 
-You make a new class that implements the MaplyQuadPagingDelegate.  There's one important call to go get your data and then a bunch of WhirlyGlobe-Maply methods to display it.  The MaplyQuadPagingLayer does the rest.
+You make a new class that implements the MaplyPagingDelegate.  There's one important call to go get your data and then a bunch of WhirlyGlobe-Maply methods to display it.  The MaplyQuadPagingLayer does the rest.
 
 ### HelloEarth
 
@@ -151,7 +151,7 @@ We're squirreling that search string away for later and we promise to explain it
 
 ### Fetching Data Per Tile
 
-The most important method in the MaplyQuadPagingDelegate is _startFetchForTile_.  This is how the toolkit tells us to go get our data for a given tile and display it.  Let's take a look.
+The most important method in the MaplyPagingDelegate is _startFetchForTile_.  This is how the toolkit tells us to go get our data for a given tile and display it.  Let's take a look.
 
 {% highlight objc %}
 - (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer

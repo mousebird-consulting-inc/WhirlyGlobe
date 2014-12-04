@@ -67,9 +67,9 @@ if (useLocalTiles)
 
 Don't forget the call to addLayer below this.  We're just creating a slightly different data source, we still need to add the layer to the globe or map.
 
-There's only one important change here.  Rather than use a <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyMBTileSource.html" target="_blank">MaplyMBTileSource</a> we create a <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyRemoteTileSource.html" target="_blank">MaplyRemoteTileSource</a>.  It does just what it sounds like, loads its tiles from a remote source.
+There's only one important change here.  Rather than use a MaplyMBTileSource we create a MaplyRemoteTileSource.  It does just what it sounds like, loads its tiles from a remote source.
 
-We also set up a cache for the tiles because it's rude to thrash the server.  We set up the <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyQuadImageTilesLayer.html" target="_blank">MaplyQuadImageTilesLayer</a> as before.  It can handle a variety of data sources.
+We also set up a cache for the tiles because it's rude to thrash the server.  We set up the MaplyQuadImageTilesLayer as before.  It can handle a variety of data sources.
 
 ### Build and Run
 

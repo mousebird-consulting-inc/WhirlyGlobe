@@ -47,7 +47,7 @@ As a reminder, that routine is doing the following.
 - Loading each and every GeoJSON file it finds.
 - Adding them as vectors.
 
-We're going to make a really minor tweak to add a <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyScreenLabel.html" target="_blank">MaplyScreenLabel</a> per country.
+We're going to make a really minor tweak to add a MaplyScreenLabel per country.
 
 ### Screen Labels
 
@@ -57,7 +57,7 @@ We'll be adding code right after the line where it says the following.
 ­// If you ever intend to remove these, keep track of the MaplyComponentObjects above.
 {% endhighlight %}
 
-Here's the plan.  We'll create a <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyScreenLabel.html" target="_blank">MaplyScreenLabel</a>, give it a location and some text and then add it.  Adding it involves a little styling, but we'll keep it simple.
+Here's the plan.  We'll create a MaplyScreenLabel, give it a location and some text and then add it.  Adding it involves a little styling, but we'll keep it simple.
 
 {% highlight objc %}
 ­// Add a screen label per country
@@ -83,19 +83,19 @@ So labels!  Great!  And they move around but stay the same size!  Let's look a l
 
 ### Label Details
 
-Let's look at what we did there.  First, we created a <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyScreenLabel.html" target="_blank">MaplyScreenLabel</a>.  We gave it some text, which was the country name and we gave it a location, the center of the country.  Then it gets interesting.
+Let's look at what we did there.  First, we created a MaplyScreenLabel.  We gave it some text, which was the country name and we gave it a location, the center of the country.  Then it gets interesting.
 
-You may notice we're calling <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyBaseViewController.html#//api/name/addScreenLabels:desc:" target="_blank">addScreenLabels</a> to, ya know, add the labels.  This method takes an array, so we make a small one and it takes a description dictionary.
+You may notice we're calling addScreenLabels to, ya know, add the labels.  This method takes an array, so we make a small one and it takes a description dictionary.
 
-Description dictionaries are a little wacky.  Rather than specify everything in the <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyScreenLabel.html" target="_blank">MaplyScreenLabel</a>, we stuff much of it in an NSDictionary and pass that in.  This lets us leave lots of stuff out and gives it a styling sort of feel.
+Description dictionaries are a little wacky.  Rather than specify everything in the MaplyScreenLabel, we stuff much of it in an NSDictionary and pass that in.  This lets us leave lots of stuff out and gives it a styling sort of feel.
 
-The description dictionary contains entries for the font, outline details, and the text color.  Consult the <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyBaseViewController.html#//api/name/addScreenLabels:desc:" target="_blank">addScreenLabels</a> method documentation for a full list of options.
+The description dictionary contains entries for the font, outline details, and the text color.  Consult the addScreenLabels method documentation for a full list of options.
 
 But there's one problem.  Those labels are all on top of each other.  Can we do anything about that?
 
 ### Layout Engine
 
-WhirlyGlobe-Maply has an interactive label and marker layout engine.  All you have to do is use it.  Right when you create the <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyScreenLabel.html" target="_blank">MaplyScreenLabel</a> do this.
+WhirlyGlobe-Maply has an interactive label and marker layout engine.  All you have to do is use it.  Right when you create the MaplyScreenLabel do this.
 
 {% highlight objc %}
 label.layoutImportance = 10.0;

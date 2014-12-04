@@ -91,11 +91,11 @@ If you're doing a map it'll look like that.  Only, you know, flat.
 
 ### Deeper Dive
 
-You might notice there were two interesting objects there.  First was the <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyMBTileSource.html" target="_blank">MaplyMBTileSource</a> and the second a <a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyQuadImageTilesLayer.html" target="_blank">MaplyQuadImageTilesLayer</a>.
+You might notice there were two interesting objects there.  First was the MaplyMBTileSource and the second a MaplyQuadImageTilesLayer.
 
 The MaplyMBTileSource is responsible for reading the MBTiles file, which is just a big sqlite file with a bunch of images in it.  The MaplyQuadImageTilesLayer is much more complicated.  It responds to changes in viewer position and loads the most appropriate image tiles.
 
-<a href= "{{ site.baseurl }}/reference/ios_2_3/Classes/MaplyQuadImageTilesLayer.html" target="_blank">MaplyQuadImageTilesLayers</a> are pretty flexible.  Let's look at some of the properties.
+The MaplyQuadImageTilesLayer is pretty flexible.  Let's look at some of the properties.
 
 - _handleEdges_ will add some extra geometry to ensure there's no gap when mismatching levels of detail abut. You'll never need this for a flat map, but for a globe or a 3D map, you might.
 - _coverPoles_ will create 'caps' for the north and south poles. If you're using a globe, and your projection doesn't go all the way to the poles (this is common), you'll want to turn this on.

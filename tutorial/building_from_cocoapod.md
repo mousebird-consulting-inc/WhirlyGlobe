@@ -1,6 +1,9 @@
 ---
 title: Cocoapods
 layout: tutorial
+prev_next:
+  prev: hello_earth.html
+  next: globe_or_map.html
 ---
 
 _<a href= "http://cocoapods.org/" target="_blank">CocoaPods</a> is the dependency manager for Objective-C projects. It has thousands of libraries and can help you scale your projects elegantly._  According to their web site, anyway.  Sounds good to us.

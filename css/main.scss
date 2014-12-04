@@ -26,6 +26,9 @@ $grey-color-dark:  darken($grey-color, 25%);
 $on-palm:          600px;
 $on-laptop:        800px;
 
+$tutorial-index-left-margin: 12px;
+$footer-height:    124px;
+
 // Overall
 // Scale It Down
 //
@@ -45,6 +48,22 @@ h3 {
 h4 {
   font-size:       $base-font-size * 1.2;
 }
+
+html, body {
+  height: 100%;
+}
+
+// Wrapper for page content to push down footer
+#wrap {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  /* Negative indent footer by its height */
+  margin: 0 auto -1 * $footer-height;
+  /* Pad bottom by footer height */
+  padding: 0 0 $footer-height;
+}
+
 // Background image
 //
 body {
@@ -213,6 +232,9 @@ ul.docs-and-resources {
   p, h4, h5, h6, .highlight {
     margin-left:   $base-font-size * 2;
   }
+  ol, ul, li {
+    margin-left:   $base-font-size * 1.5;
+  }
   h2::before {
     content:       '▶';
     font-size:     $base-font-size * 1.2;
@@ -237,17 +259,29 @@ ul.docs-and-resources {
       margin-left: 0;
     }
   }
-}
-
+}.affix-bottom {
+  position:        absolute;
+ }
 .tutorial-sidebar {
-  ol, ul {
-    margin-left: 10px;
-  }
   li {
     font-family:   Roboto;
   }
   li.sidebar-header-item {
     text-transform: uppercase;
+    padding-left:   $tutorial-index-left-margin;
+  }
+  ol.sidebar-list-items {
+    margin-left:    $tutorial-index-left-margin;
+    padding-bottom: 1/3 * $spacing-unit;
+  }
+  li.sidebar-list-item.current {
+    padding-left:   0;
+    &:before {
+      margin-left:  -$base-font-size * 0.92;
+      content:      '▶ ';
+      font-size:    $base-font-size * 0.8;
+      color:        $triangle-color-1;
+    }
   }
 }
 
@@ -289,6 +323,9 @@ a:active.prev, a:active.next {
 }
 
 // footer
+.site-footer {
+  height:     $footer-height;
+}
 .site-description {
   text-align: center;
 }

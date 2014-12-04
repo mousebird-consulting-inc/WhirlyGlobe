@@ -1,5 +1,5 @@
 ---
-title: Screen Markers
+title: Screen Marker Selection
 layout: tutorial
 ---
 
