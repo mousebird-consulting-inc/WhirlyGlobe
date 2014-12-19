@@ -1,6 +1,5 @@
 //
 //  MaplySharedAttribute.swift
-//  overlanding
 //
 // The idea is to use enums instead of string to name the keys, and use an array of keys instead 
 // of a dictionary of strings, so that it can be type checked and auto-completed in XCode
