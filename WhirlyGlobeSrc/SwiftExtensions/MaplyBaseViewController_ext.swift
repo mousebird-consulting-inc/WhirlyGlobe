@@ -1,5 +1,5 @@
 //
-//  WhirlyGlobeViewControllerFacade.swift
+//  WhirlyGlobeViewController_ext.swift
 //
 
 import UIKit
