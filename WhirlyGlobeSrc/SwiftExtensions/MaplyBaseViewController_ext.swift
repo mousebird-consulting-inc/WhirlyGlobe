@@ -1,5 +1,5 @@
 //
-//  WhirlyGlobeViewController_ext.swift
+//  MaplyBaseViewController_ext.swift
 //
 
 import UIKit
