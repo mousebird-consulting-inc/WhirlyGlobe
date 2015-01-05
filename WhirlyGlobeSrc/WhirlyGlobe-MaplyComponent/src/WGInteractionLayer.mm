@@ -120,26 +120,49 @@ using namespace WhirlyGlobe;
     
     // First, we'll look for labels and markers
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
-    SimpleIdentity selID = selectManager->pickObject(Point2f(msg.touchLoc.x,msg.touchLoc.y),10.0,globeView);
+    std::vector<SelectionManager::SelectedObject> selectedObjs;
+    selectManager->pickObjects(Point2f(msg.touchLoc.x,msg.touchLoc.y),10.0,globeView,selectedObjs);
 
-    NSObject *selObj;
-    if (selID != EmptyIdentity)
-    {       
-        // Found something.  Now find the associated object
-        SelectObjectSet::iterator it = selectObjectSet.find(SelectObject(selID));
-        if (it != selectObjectSet.end())
+    NSMutableArray *retSelectArr = [NSMutableArray array];
+    if (!selectedObjs.empty())
+    {
+        // Work through the objects the manager found, creating entries for each
+        for (unsigned int ii=0;ii<selectedObjs.size();ii++)
         {
-            selObj = it->obj;
+            SelectionManager::SelectedObject &theSelObj = selectedObjs[ii];
+            MaplySelectedObject *selObj = [[MaplySelectedObject alloc] init];
+
+            SelectObjectSet::iterator it = selectObjectSet.find(SelectObject(theSelObj.selectID));
+            if (it != selectObjectSet.end())
+                selObj.selectedObj = it->obj;
+
+            selObj.screenDist = theSelObj.screenDist;
+            selObj.zDist = theSelObj.distIn3D;
+            
+            if (selObj.selectedObj)
+                [retSelectArr addObject:selObj];
         }
+        
+        // Found something.  Now find the associated object
     } else {
         // Next, try the vectors
-        selObj = [self findVectorInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y())];
+        // Note: This means we'll never get both vectors and other objects
+        NSObject *vecObj = [self findVectorInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y())];
+        if (vecObj)
+        {
+            MaplySelectedObject *selObj = [[MaplySelectedObject alloc] init];
+            selObj.selectedObj = vecObj;
+            selObj.screenDist = 0.0;
+            // Note: Not quite right
+            selObj.zDist = 0.0;
+            [retSelectArr addObject:selObj];
+        }
     }
     
     // Tell the view controller about it
     dispatch_async(dispatch_get_main_queue(),^
                    {
-                       [_viewController handleSelection:msg didSelect:selObj];
+                       [_viewController handleSelection:msg didSelect:retSelectArr];
                    }
                    );
 }

@@ -715,19 +715,27 @@ using namespace WhirlyGlobe;
 }
 
 // Called back on the main thread after the interaction thread does the selection
-- (void)handleSelection:(WhirlyGlobeTapMessage *)msg didSelect:(NSObject *)selectedObj
+- (void)handleSelection:(WhirlyGlobeTapMessage *)msg didSelect:(NSArray *)selectedObjs
 {
     WGCoordinate coord;
     coord.x = msg.whereGeo.lon();
     coord.y = msg.whereGeo.lat();
 
-    if (selectedObj && self.selection)
+    if ([selectedObjs count] > 0 && self.selection)
     {
         // The user selected something, so let the delegate know
-        if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:atLoc:onScreen:)])
-            [_delegate globeViewController:self didSelect:selectedObj atLoc:coord onScreen:msg.touchLoc];
-        else if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:)])
-            [_delegate globeViewController:self didSelect:selectedObj];
+        if ([_delegate respondsToSelector:@selector(globeViewController:allSelect:atLoc:onScreen:)])
+            [_delegate globeViewController:self allSelect:selectedObjs atLoc:coord onScreen:msg.touchLoc];
+        else {
+            MaplySelectedObject *selObj = [selectedObjs objectAtIndex:0];
+            
+            if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:atLoc:onScreen:)])
+                [_delegate globeViewController:self didSelect:selObj.selectedObj atLoc:coord onScreen:msg.touchLoc];
+            else if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:)])
+            {
+                [_delegate globeViewController:self didSelect:selObj.selectedObj];
+            }
+        }
     } else {
         // The user didn't select anything, let the delegate know.
         if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didTapAt:)])

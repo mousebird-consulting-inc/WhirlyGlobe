@@ -49,15 +49,6 @@ void MarkerSceneRep::enableContents(SelectionManager *selectManager,LayoutManage
             markerIDVec.push_back(*idIt);
         changes.push_back(new MarkerGeneratorEnableRequest(generatorId,markerIDVec,enable));
     }
-    if (!screenShapeIDs.empty())
-    {
-        // Note: ScreenSpace
-//        std::vector<SimpleIdentity> screenIDVec;
-//        for (SimpleIDSet::iterator idIt = screenShapeIDs.begin();
-//             idIt != screenShapeIDs.end(); ++idIt)
-//            screenIDVec.push_back(*idIt);
-//        changes.push_back(new ScreenSpaceGeneratorEnableRequest(screenGenId, screenIDVec, enable));
-    }
     
     if (selectManager && !selectIDs.empty())
         selectManager->enableSelectables(selectIDs, enable);
@@ -83,16 +74,6 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
         changes.push_back(new MarkerGeneratorRemRequest(generatorId,markerIDVec));
     }
     markerIDs.clear();
-    
-    if (!screenShapeIDs.empty())
-    {
-        // Note: ScreenSpace
-//        std::vector<SimpleIdentity> screenIDVec;
-//        for (SimpleIDSet::iterator idIt = screenShapeIDs.begin();
-//             idIt != screenShapeIDs.end(); ++idIt)
-//            screenIDVec.push_back(*idIt);
-//        changes.push_back(new ScreenSpaceGeneratorRemRequest(screenGenId, screenIDVec));
-    }
     
     if (selectManager && !selectIDs.empty())
         selectManager->removeSelectables(selectIDs);
@@ -484,16 +465,6 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
                          idIt != markerRep->markerIDs.end(); ++idIt)
                         markerIDs.push_back(*idIt);
                     changes.push_back(new MarkerGeneratorFadeRequest(generatorId,markerIDs,curTime,curTime+markerRep->fade));
-                }
-                
-                if (!markerRep->screenShapeIDs.empty())
-                {
-                    // Note: ScreenSpace
-//                    std::vector<SimpleIdentity> screenIDs;
-//                    for (SimpleIDSet::iterator idIt = markerRep->screenShapeIDs.begin();
-//                         idIt != markerRep->screenShapeIDs.end(); ++idIt)
-//                        screenIDs.push_back(*idIt);
-//                    changes.push_back(new ScreenSpaceGeneratorFadeRequest(screenGenId,screenIDs,curTime, curTime+markerRep->fade));
                 }
                 
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, markerRep->fade * NSEC_PER_SEC),

@@ -380,6 +380,7 @@ void SelectionManager::removeSelectable(SimpleIdentity selectID)
 void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
 {
     pthread_mutex_lock(&mutex);
+    bool found = false;
     
     for (SimpleIDSet::iterator sit = selectIDs.begin(); sit != selectIDs.end(); ++sit)
     {
@@ -387,24 +388,42 @@ void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
         RectSelectable3DSet::iterator it = rect3Dselectables.find(RectSelectable3D(selectID));
         
         if (it != rect3Dselectables.end())
+        {
+            found = true;
             rect3Dselectables.erase(it);
+        }
         
         RectSelectable2DSet::iterator it2 = rect2Dselectables.find(RectSelectable2D(selectID));
         if (it2 != rect2Dselectables.end())
+        {
+            found = true;
             rect2Dselectables.erase(it2);
+        }
         
         PolytopeSelectableSet::iterator it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
         if (it3 != polytopeSelectables.end())
+        {
+            found = true;
             polytopeSelectables.erase(it3);
+        }
 
         LinearSelectableSet::iterator it5 = linearSelectables.find(LinearSelectable(selectID));
         if (it5 != linearSelectables.end())
+        {
+            found = true;
             linearSelectables.erase(it5);
+        }
 
         BillboardSelectableSet::iterator it4 = billboardSelectables.find(BillboardSelectable(selectID));
         if (it4 != billboardSelectables.end())
+        {
+            found = true;
             billboardSelectables.erase(it4);
+        }
     }
+    
+    if (!found)
+        NSLog(@"Tried to delete selectable that doesn't exist.");
     
     pthread_mutex_unlock(&mutex);
 }
@@ -428,6 +447,7 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
                 {
                     Point2f pt = sel.pts[ii];
                     objLoc.pts.push_back(Point2d(pt.x(),pt.y()));
+                    objLoc.mbr.addPoint(pt);
                 }
                 screenPts.push_back(objLoc);
             }
@@ -500,26 +520,55 @@ void SelectionManager::projectWorldPointToScreen(const Point3d &worldLoc,const P
     }
 }
 
-/// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
-// Note: Should switch to a view state, rather than a view
+// Sorter for selected objects
+struct selectedsorter
+{
+    bool operator() (const SelectionManager::SelectedObject &a,const SelectionManager::SelectedObject &b) const
+    {
+        if (a.screenDist == b.screenDist)
+            return a.distIn3D < b.distIn3D;
+        return a.screenDist < b.screenDist;
+    }
+} SelectedSorter;
+
+// Return a list of objects that pass the selection criteria
+void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *theView,std::vector<SelectedObject> &selObjs)
+{
+    pickObjects(touchPt, maxDist, theView, true, selObjs);
+
+    std::sort(selObjs.begin(),selObjs.end(),SelectedSorter);
+}
+
+// Look for the single closest object
 SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,WhirlyKitView *theView)
 {
-    if (!renderer)
+    std::vector<SelectedObject> selObjs;
+    pickObjects(touchPt, maxDist, theView, false, selObjs);
+
+    std::sort(selObjs.begin(),selObjs.end(),SelectedSorter);
+    
+    if (selObjs.empty())
         return EmptyIdentity;
+    return selObjs[0].selectID;
+}
+
+/// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
+// Note: Should switch to a view state, rather than a view
+void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *theView,bool multi,std::vector<SelectedObject> &selObjs)
+{
+    if (!renderer)
+        return;
     float maxDist2 = maxDist * maxDist;
     
     // All the various parameters we need to evalute... stuff
     PlacementInfo pInfo(theView,renderer);
     if (!pInfo.globeView && !pInfo.mapView)
-        return EmptyIdentity;
+        return;
 
     // And the eye vector for billboards
     Vector4d eyeVec4 = pInfo.viewAndModelInvMat * Vector4d(0,0,1,0);
     Vector3d eyeVec(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
 
-    SimpleIdentity retId = EmptyIdentity;
-    float closeDist2 = MAXFLOAT;
-    
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
     
     pthread_mutex_lock(&mutex);
@@ -539,9 +588,18 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
         std::vector<Point2d> projPts;
         projectWorldPointToScreen(screenObj.dispLoc, pInfo, projPts,scale);
         
+        float closeDist2 = MAXFLOAT;
+        // Work through the possible locations of the projected point
         for (unsigned int jj=0;jj<projPts.size();jj++)
         {
             Point2d projPt = projPts[jj];
+            Mbr objMbr = screenObj.mbr;
+            objMbr.ll() += Point2f(projPt.x(),projPt.y());
+            objMbr.ur() += Point2f(projPt.x(),projPt.y());
+            
+            // Make sure it's on the screen at least
+            if (!pInfo.frameMbr.overlaps(objMbr))
+                continue;
             
             if (screenObj.shapeID != EmptyIdentity)
             {
@@ -556,36 +614,40 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                 // See if we fall within that polygon
                 if (PointInPolygon(touchPt, screenPts))
                 {
-                    retId = screenObj.shapeID;
+                    SelectedObject selObj(screenObj.shapeID,0.0,0.0);
+                    selObjs.push_back(selObj);
                     break;
                 }
                 
                 // Now for a proximity check around the edges
                 for (unsigned int ii=0;ii<4;ii++)
                 {
-                    Point2f closePt = ClosestPointOnLineSegment(screenPts[ii],screenPts[(ii+1)%4],touchPt);
+                    float t;
+                    Point2f closePt = ClosestPointOnLineSegment(screenPts[ii],screenPts[(ii+1)%4],touchPt,t);
                     float dist2 = (closePt-touchPt).squaredNorm();
-                    if (dist2 <= maxDist2 && (dist2 < closeDist2))
-                    {
-                        retId = screenObj.shapeID;
-                        closeDist2 = dist2;
-                    }
-                }                    
+                    closeDist2 = std::min(dist2,closeDist2);
+                }
             }
         }
+        // Got close enough to this object to select it
+        if (closeDist2 < maxDist2)
+        {
+            SelectedObject selObj(screenObj.shapeID,0.0,sqrtf(closeDist2));
+            selObjs.push_back(selObj);
+        }
+        
+        if (!multi && !selObjs.empty())
+            return;
     }
 
-    if (retId == EmptyIdentity && !polytopeSelectables.empty())
+    Point3d eyePos;
+    if (pInfo.globeView)
+        eyePos = pInfo.globeView.eyePos;
+    else
+        NSLog(@"Need to fill in eyePos for mapView");
+
+    if (!polytopeSelectables.empty())
     {
-        // We'll look for the closest object we can find
-        float distToObj2 = MAXFLOAT;
-        SimpleIdentity foundId = EmptyIdentity;
-        Point3f eyePos;
-        if (pInfo.globeView)
-            eyePos = Vector3dToVector3f(pInfo.globeView.eyePos);
-        else
-            NSLog(@"Need to fill in eyePos for mapView");
-        
         // Work through the axis aligned rectangular solids
         for (PolytopeSelectableSet::iterator it = polytopeSelectables.begin();
              it != polytopeSelectables.end(); ++it)
@@ -596,6 +658,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                 if (sel.minVis == DrawVisibleInvalid ||
                     (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
                 {
+                    float closeDist2 = MAXFLOAT;
                     // Project each plane to the screen, including clipping
                     for (unsigned int ii=0;ii<sel.polys.size();ii++)
                     {
@@ -615,40 +678,32 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                         {
                             if (PointInPolygon(touchPt, screenPts))
                             {
-                                float dist2 = (sel.midPt - eyePos).squaredNorm();
-                                if (dist2 < distToObj2)
-                                {
-                                    distToObj2 = dist2;
-                                    foundId = sel.selectID;
-                                }
+                                closeDist2 = 0.0;
                                 break;
                             }
                             
                             for (unsigned int jj=0;jj<screenPts.size();jj++)
                             {
-                                Point2f closePt = ClosestPointOnLineSegment(screenPts[jj],screenPts[(jj+1)%4],touchPt);
+                                float t;
+                                Point2f closePt = ClosestPointOnLineSegment(screenPts[jj],screenPts[(jj+1)%4],touchPt,t);
                                 float dist2 = (closePt-touchPt).squaredNorm();
-                                if (dist2 <= maxDist2)
-                                {
-                                    float objDist2 = (sel.midPt - eyePos).squaredNorm();
-                                    if (objDist2 < distToObj2)
-                                    {
-                                        distToObj2 = objDist2;
-                                        foundId = sel.selectID;
-                                        break;
-                                    }
-                                }
-                            }                            
+                                closeDist2 = std::min(dist2,closeDist2);
+                            }
                         }
+                    }
+
+                    if (closeDist2 < maxDist2)
+                    {
+                        float dist3d = (Point3d(sel.midPt.x(),sel.midPt.y(),sel.midPt.z()) - eyePos).norm();
+                        SelectedObject selObj(sel.selectID,dist3d,sqrtf(closeDist2));
+                        selObjs.push_back(selObj);
                     }
                 }
             }
         }
-        
-        retId = foundId;
     }
     
-    if (retId == EmptyIdentity && !linearSelectables.empty())
+    if (!linearSelectables.empty())
     {
         for (LinearSelectableSet::iterator it = linearSelectables.begin();
              it != linearSelectables.end(); ++it)
@@ -662,6 +717,8 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                 {
                     std::vector<Point2d> p0Pts;
                     projectWorldPointToScreen(sel.pts[0],pInfo,p0Pts,scale);
+                    float closeDist2 = MAXFLOAT;
+                    float closeDist3d = MAXFLOAT;
                     for (unsigned int ip=1;ip<sel.pts.size();ip++)
                     {
                         std::vector<Point2d> p1Pts;
@@ -672,24 +729,33 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                             // Look for a nearby hit along the line
                             for (unsigned int iw=0;iw<p0Pts.size();iw++)
                             {
-                                Point2f closePt = ClosestPointOnLineSegment(Point2f(p0Pts[iw].x(),p0Pts[iw].y()),Point2f(p1Pts[iw].x(),p1Pts[iw].y()),touchPt);
+                                float t;
+                                Point2f closePt = ClosestPointOnLineSegment(Point2f(p0Pts[iw].x(),p0Pts[iw].y()),Point2f(p1Pts[iw].x(),p1Pts[iw].y()),touchPt,t);
                                 float dist2 = (closePt-touchPt).squaredNorm();
-                                if (dist2 <= maxDist2 && (dist2 < closeDist2))
+                                if (dist2 < closeDist2)
                                 {
-                                    retId = sel.selectID;
+                                    // Calculate the point in 3D we almost hit
+                                    const Point3d &p0 = sel.pts[ip-1], &p1 = sel.pts[ip];
+                                    Point3d midPt = (p1-p0)*t + p0;
+                                    closeDist3d = (midPt-eyePos).norm();
                                     closeDist2 = dist2;
-                                }                            
+                                }
                             }
                         }
                         
                         p0Pts = p1Pts;
+                    }
+                    if (closeDist2 < maxDist2)
+                    {
+                        SelectedObject selObj(sel.selectID,closeDist3d,sqrtf(closeDist2));
+                        selObjs.push_back(selObj);
                     }
                 }
             }
         }
     }
     
-    if (retId == EmptyIdentity && !rect3Dselectables.empty())
+    if (!rect3Dselectables.empty())
     {
         // Work through the 3D rectangles
         for (RectSelectable3DSet::iterator it = rect3Dselectables.begin();
@@ -714,40 +780,48 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                         screenPts.push_back(Point2f(screenPt.x,screenPt.y));
                     }
                     
+                    float closeDist2 = MAXFLOAT;
+                    float closeDist3d = MAXFLOAT;
+
                     // See if we fall within that polygon
                     if (PointInPolygon(touchPt, screenPts))
                     {
-                        retId = sel.selectID;
-                        break;
+                        closeDist2 = 0.0;
+                        // Note: Lame way to calculate distance
+                        Point3d midPt(0,0,0);
+                        for (unsigned int ii=0;ii<4;ii++)
+                            midPt += Vector3fToVector3d(sel.pts[ii]);
+                        midPt /= 4.0;
+                        closeDist3d = (midPt - eyePos).norm();
+                    } else {
+                        // Now for a proximity check around the edges
+                        for (unsigned int ii=0;ii<4;ii++)
+                        {
+                            float t;
+                            Point2f closePt = ClosestPointOnLineSegment(screenPts[ii],screenPts[(ii+1)%4],touchPt,t);
+                            float dist2 = (closePt-touchPt).squaredNorm();
+                            const Point3d p0 = Vector3fToVector3d(sel.pts[ii]), p1 = Vector3fToVector3d(sel.pts[(ii+1)%4]);
+                            Point3d midPt = (p1-p0)*t + p0;
+                            if (dist2 <= maxDist2 && (dist2 < closeDist2))
+                            {
+                                closeDist2 = dist2;
+                                closeDist3d = (midPt-eyePos).norm();
+                            }
+                        }
                     }
                     
-                    // Now for a proximity check around the edges
-                    for (unsigned int ii=0;ii<4;ii++)
+                    if (closeDist2 < maxDist2)
                     {
-                        Point2f closePt = ClosestPointOnLineSegment(screenPts[ii],screenPts[(ii+1)%4],touchPt);
-                        float dist2 = (closePt-touchPt).squaredNorm();
-                        if (dist2 <= maxDist2 && (dist2 < closeDist2))
-                        {
-                            retId = sel.selectID;
-                            closeDist2 = dist2;
-                        }
+                        SelectedObject selObj(sel.selectID,closeDist3d,sqrtf(closeDist2));
+                        selObjs.push_back(selObj);
                     }
                 }
             }
         }
     }
     
-    if (retId == EmptyIdentity && !billboardSelectables.empty())
+    if (!billboardSelectables.empty())
     {
-        // We'll look for the closest object we can find
-        float distToObj2 = MAXFLOAT;
-        SimpleIdentity foundId = EmptyIdentity;
-        Point3f eyePos;
-        if (pInfo.globeView)
-            eyePos = Vector3dToVector3f(pInfo.globeView.eyePos);
-        else
-            NSLog(@"Need to fill in eyePos for mapView");
-
         // Work through the billboards
         for (BillboardSelectableSet::iterator it = billboardSelectables.begin();
              it != billboardSelectables.end(); ++it)
@@ -772,42 +846,38 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                 std::vector<Point2f> screenPts;
                 ClipAndProjectPolygon(pInfo.viewAndModelMat,pInfo.projMat,pInfo.frameSizeScale,poly,screenPts);
                 
+                float closeDist2 = MAXFLOAT;
+                float closeDist3d = MAXFLOAT;
+
                 if (screenPts.size() > 3)
                 {
                     if (PointInPolygon(touchPt, screenPts))
                     {
-                        float dist2 = (sel.center - eyePos).squaredNorm();
-                        if (dist2 < distToObj2)
-                        {
-                            distToObj2 = dist2;
-                            foundId = sel.selectID;
-                        }
+                        closeDist3d = (Vector3fToVector3d(sel.center) - eyePos).norm();
                         break;
                     }
                     
                     for (unsigned int jj=0;jj<screenPts.size();jj++)
                     {
-                        Point2f closePt = ClosestPointOnLineSegment(screenPts[jj],screenPts[(jj+1)%4],touchPt);
+                        float t;
+                        Point2f closePt = ClosestPointOnLineSegment(screenPts[jj],screenPts[(jj+1)%4],touchPt,t);
                         float dist2 = (closePt-touchPt).squaredNorm();
-                        if (dist2 <= maxDist2)
+                        if (dist2 < maxDist2 && dist2 < closeDist2)
                         {
-                            float objDist2 = (sel.center - eyePos).squaredNorm();
-                            if (objDist2 < distToObj2)
-                            {
-                                distToObj2 = objDist2;
-                                foundId = sel.selectID;
-                                break;
-                            }
+                            closeDist3d = (Vector3fToVector3d(sel.center) - eyePos).norm();
+                            closeDist2 = dist2;
                         }
                     }
                 }
+
+                if (closeDist2 < maxDist2)
+                {
+                    SelectedObject selObj(sel.selectID,closeDist3d,sqrtf(closeDist2));
+                    selObjs.push_back(selObj);
+                }
             }
         }
-
-        retId = foundId;
     }
     
     pthread_mutex_unlock(&mutex);
-    
-    return retId;
 }
