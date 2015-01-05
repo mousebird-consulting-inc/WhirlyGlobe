@@ -34,6 +34,23 @@
 #import "MaplyTexture.h"
 #import "MaplyAnnotation.h"
 
+/** @brief When selecting multiple objects, one or more of these is returned.
+    @details When you implement one of the selection delegates that takes multiple objects, you'll get an NSArray of these things.
+  */
+@interface MaplySelectedObject : NSObject
+
+/// @brief Object the user selected
+/// @details This is the original object the user passed in when adding it to the globe or map.
+@property (nonatomic,weak) id selectedObj;
+
+/// @brief Distance from where the user tapped to the closest part of the object on the screen
+@property double screenDist;
+
+/// @brief Distance from the user's viewpoint to the center of the object in 3-space.  Use this for sorting.
+@property double zDist;
+
+@end
+
 /// Where we'd like an add to be executed.  If you need immediate feedback,
 ///  then be on the main thread and use MaplyThreadCurrent.  Any is the default. 
 typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
