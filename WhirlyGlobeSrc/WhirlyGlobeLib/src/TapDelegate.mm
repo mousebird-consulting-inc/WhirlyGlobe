@@ -84,6 +84,7 @@ using namespace WhirlyKit;
 		[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapMsg object:msg]];
     } else {
         WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
+        [msg setTouchLoc:touchLoc];
         [msg setView:glView];
         // If we didn't hit, we generate a different message
         [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapOutsideMsg object:msg]];

@@ -720,6 +720,8 @@ using namespace WhirlyGlobe;
     WGCoordinate coord;
     coord.x = msg.whereGeo.lon();
     coord.y = msg.whereGeo.lat();
+    
+    bool tappedOutside = msg.worldLoc == Point3f(0,0,0);
 
     if ([selectedObjs count] > 0 && self.selection)
     {
@@ -737,10 +739,18 @@ using namespace WhirlyGlobe;
             }
         }
     } else {
-        // The user didn't select anything, let the delegate know.
-        if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
+        if (_delegate)
         {
-            [_delegate globeViewController:self didTapAt:coord];
+            if (tappedOutside)
+            {
+                // User missed all objects and tapped outside the globe
+                if ([_delegate respondsToSelector:@selector(globeViewControllerDidTapOutside:)])
+                    [_delegate globeViewControllerDidTapOutside:self];
+            } else {
+                // The user didn't select anything, let the delegate know.
+                if ([_delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
+                    [_delegate globeViewController:self didTapAt:coord];
+            }
         }
         // Didn't select anything, so rotate
         if (_autoMoveToTap)
@@ -766,13 +776,14 @@ using namespace WhirlyGlobe;
 - (void) tapOutsideGlobe:(NSNotification *)note
 {
     WhirlyGlobeTapMessage *msg = note.object;
-
+    
     // Ignore taps from other view controllers
     if (msg.view != glView)
         return;
 
-    if (self.selection && _delegate && [_delegate respondsToSelector:@selector(globeViewControllerDidTapOutside:)])
-        [_delegate globeViewControllerDidTapOutside:self];
+    // Hand this over to the interaction layer to look for a selection
+    // If there is no selection, it will call us back in the main thread
+    [globeInteractLayer userDidTap:msg];
 }
 
 - (void) handleStartMoving:(bool)userMotion
