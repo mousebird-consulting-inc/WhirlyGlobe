@@ -2085,7 +2085,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                 [userObjects removeObject:userObj];
             }
             
-            NSLog(@"Deleted object %lx",(unsigned long)userObj);
+//            NSLog(@"Deleted object %lx",(unsigned long)userObj);
         } else {
             NSLog(@"Tried to delete object that doesn't exist");
         }
