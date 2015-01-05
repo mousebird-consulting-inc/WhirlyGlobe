@@ -116,7 +116,7 @@ unsigned int NextPowOf2(unsigned int val)
 }
     
 // General purpose 2D point closest to line segment
-Point2f ClosestPointOnLineSegment(const Point2f &p0,const Point2f &p1,const Point2f &pt)
+Point2f ClosestPointOnLineSegment(const Point2f &p0,const Point2f &p1,const Point2f &pt,float &t)
 {
     float dx = p1.x()-p0.x(), dy = p1.y()-p0.y();
     float denom = dx*dx+dy*dy;
@@ -125,6 +125,7 @@ Point2f ClosestPointOnLineSegment(const Point2f &p0,const Point2f &p1,const Poin
         return p0;
     
     float u = ((pt.x()-p0.x())*(p1.x()-p0.x())+(pt.y()-p0.y())*(p1.y()-p0.y()))/denom;
+    t = u;
     
     if (u <= 0.0)
         return p0;
