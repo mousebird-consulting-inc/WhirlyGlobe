@@ -201,6 +201,11 @@
  */
 @property(nonatomic,assign) bool rotateGesture;
 
+/** @brief Turn the tilte gesture recognizer on and off
+    @details Off by default.
+ */
+@property(nonatomic,assign) bool tiltGesture;
+
 /** @brief Turn the double tap to zoom gesture recognizer on and off
  @details On by default.
  */
