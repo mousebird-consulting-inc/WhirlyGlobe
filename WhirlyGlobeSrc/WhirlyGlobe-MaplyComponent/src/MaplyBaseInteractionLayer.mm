@@ -1593,6 +1593,22 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     return compObj;
 }
 
+// Used to put geometry models with instances so we can group them
+class GeomModelInstances
+{
+public:
+    GeomModelInstances(MaplyGeomModel *model) : model(model) { }
+    
+    bool operator < (const GeomModelInstances &that) const
+    {
+        return model < that.model;
+    }
+    
+    MaplyGeomModel *model;
+    std::vector<MaplyGeomModelInstance *> instances;
+};
+typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
+
 // Called in the layer thread
 - (void)addModelInstancesRun:(NSArray *)argArray
 {
@@ -1607,17 +1623,37 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     [self resolveShader:inDesc defaultShader:nil];
     
     GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
-    
+
+    // Sort the instances with their models
+    GeomModelInstancesSet instSort;
     for (MaplyGeomModelInstance *mInst in modelInstances)
     {
+        GeomModelInstances searchInst(mInst.model);
+        GeomModelInstancesSet::iterator it = instSort.find(&searchInst);
+        if (it != instSort.end())
+        {
+            (*it)->instances.push_back(mInst);
+        } else {
+            GeomModelInstances *newInsts = new GeomModelInstances(mInst.model);
+            newInsts->instances.push_back(mInst);
+        }
     }
+    
+    // Add each model with its group of instances
+    for (auto it : instSort)
+    {
+        geomManager->addGeometry(<#std::vector<GeometryRaw *> &geom#>, <#const std::vector<Eigen::Matrix4d> &instances#>, <#NSDictionary *desc#>, <#ChangeSet &changes#>)
+    }
+    
+    // Clean up the instances we sorted
+    for (auto it : instSort)
+        delete it;
     
     pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
     compObj.underConstruction = false;
     pthread_mutex_unlock(&userLock);
 }
-
 
 - (MaplyComponentObject *)addModelInstances:(NSArray *)modelInstances desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
