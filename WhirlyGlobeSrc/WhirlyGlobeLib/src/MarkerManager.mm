@@ -387,8 +387,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             if (selectManager)
             {
                 selectManager->addSelectableRect(marker.selectID,pts,markerInfo.minVis,markerInfo.maxVis,markerInfo.enable);
-                if (!markerInfo.enable)
-                    selectManager->enableSelectable(marker.selectID, false);
+                markerRep->selectIDs.insert(marker.selectID);
             }
         }
     }

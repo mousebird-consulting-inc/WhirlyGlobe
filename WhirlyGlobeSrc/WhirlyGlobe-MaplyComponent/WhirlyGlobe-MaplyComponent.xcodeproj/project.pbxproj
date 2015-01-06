@@ -107,6 +107,7 @@
 		2BB7A96F1A26588000E50DC5 /* MaplyGeomModel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB7A96E1A26588000E50DC5 /* MaplyGeomModel.mm */; };
 		2BB7FB4F16B9AD050017EB2F /* MaplyLight.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB7FB4E16B9AD050017EB2F /* MaplyLight.h */; };
 		2BB7FB5316B9AD0D0017EB2F /* MaplyLight.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB7FB5216B9AD0D0017EB2F /* MaplyLight.m */; };
+		2BB94D911A2D2BC80076B1B4 /* MaplyGeomModel_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB94D901A2D2BC80076B1B4 /* MaplyGeomModel_private.h */; };
 		2BB9E01715BF9EE300F1DDD8 /* MaplyLabel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB9E01415BF9EE300F1DDD8 /* MaplyLabel.h */; };
 		2BB9E01815BF9EE300F1DDD8 /* MaplyMarker.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB9E01515BF9EE300F1DDD8 /* MaplyMarker.h */; };
 		2BB9E01915BF9EE300F1DDD8 /* MaplyScreenLabel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB9E01615BF9EE300F1DDD8 /* MaplyScreenLabel.h */; };
@@ -397,6 +398,7 @@
 		2BB7A96E1A26588000E50DC5 /* MaplyGeomModel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyGeomModel.mm; path = src/MaplyGeomModel.mm; sourceTree = SOURCE_ROOT; };
 		2BB7FB4E16B9AD050017EB2F /* MaplyLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyLight.h; path = include/MaplyLight.h; sourceTree = SOURCE_ROOT; };
 		2BB7FB5216B9AD0D0017EB2F /* MaplyLight.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MaplyLight.m; path = src/MaplyLight.m; sourceTree = SOURCE_ROOT; };
+		2BB94D901A2D2BC80076B1B4 /* MaplyGeomModel_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyGeomModel_private.h; path = include/private/MaplyGeomModel_private.h; sourceTree = SOURCE_ROOT; };
 		2BB9E01415BF9EE300F1DDD8 /* MaplyLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = MaplyLabel.h; path = include/MaplyLabel.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2BB9E01515BF9EE300F1DDD8 /* MaplyMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyMarker.h; path = include/MaplyMarker.h; sourceTree = SOURCE_ROOT; };
 		2BB9E01615BF9EE300F1DDD8 /* MaplyScreenLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyScreenLabel.h; path = include/MaplyScreenLabel.h; sourceTree = SOURCE_ROOT; };
@@ -791,6 +793,7 @@
 				2BBAA906181EEE3100BE1277 /* MaplyBillboard.h */,
 				2BBAA909181EEE3F00BE1277 /* MaplyBillboard.mm */,
 				2BB7A96B1A26587400E50DC5 /* MaplyGeomModel.h */,
+				2BB94D901A2D2BC80076B1B4 /* MaplyGeomModel_private.h */,
 				2BB7A96E1A26588000E50DC5 /* MaplyGeomModel.mm */,
 			);
 			name = "visible objects";
@@ -1161,6 +1164,7 @@
 				2BB9E01815BF9EE300F1DDD8 /* MaplyMarker.h in Headers */,
 				881F66C818F20A8F00D17110 /* substitute.h in Headers */,
 				881F668D18F20A8F00D17110 /* extension_set.h in Headers */,
+				2BB94D911A2D2BC80076B1B4 /* MaplyGeomModel_private.h in Headers */,
 				2BB9E01915BF9EE300F1DDD8 /* MaplyScreenLabel.h in Headers */,
 				2B0B0D1315C1D88600CCB3B2 /* MaplyViewTracker.h in Headers */,
 				881F669B18F20A8F00D17110 /* printer.h in Headers */,
