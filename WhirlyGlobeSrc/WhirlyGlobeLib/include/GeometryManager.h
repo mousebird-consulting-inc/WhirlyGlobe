@@ -86,20 +86,12 @@ public:
 
     /// Apply the given tranformation matrix to the geometry (and normals)
     void applyTransform(const Eigen::Matrix4d &mat);
-
-    /// Apply a transform that orients the geometry as if it were a model at the given
-    ///  position with its nose pointed along forward.  You can also rotate (clockwise)
-    ///  around up.
-    void applyPosition(const Point3d &pos,const Point3d &up,const Point3d &forward,double ang);
-
-    // Construct a position matrix
-    static Eigen::Matrix4d makePosition(const Point3d &pos,const Point3d &up,const Point3d &forward,double ang);
     
     // How big the geometry is likely to be in a drawable
     void estimateSize(int &numPts,int &numTris);
     
-    // Build geometry into a drawable
-    void buildDrawable(BasicDrawable *draw);
+    // Build geometry into a drawable, using the given transform
+    void buildDrawable(BasicDrawable *draw,const Eigen::Matrix4d &mat);
 
 public:
     /// What sort of geometry this is
@@ -130,7 +122,7 @@ public:
     ~GeometryManager();
     
     /// Add raw geometry at the given location
-    SimpleIdentity addGeometry(std::vector<GeometryRaw *> &geom,NSDictionary *desc,ChangeSet &changes);
+    SimpleIdentity addGeometry(std::vector<GeometryRaw *> &geom,const std::vector<Eigen::Matrix4d> &instances,NSDictionary *desc,ChangeSet &changes);
 
     /// Enable/disable active billboards
     void enableGeometry(SimpleIDSet &billIDs,bool enable,ChangeSet &changes);

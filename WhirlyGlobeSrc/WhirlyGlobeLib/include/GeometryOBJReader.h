@@ -23,11 +23,15 @@
 namespace WhirlyKit
 {
     
+// Geometry model parser for Wavefront OBJ format
 class GeometryModelOBJ
 {
 public:
     // Parse file
     bool parse(FILE *fp);
+    
+    // Convert to raw geometry objects
+    void toRawGeometry(std::vector<GeometryRaw> &rawGeom);
     
     // Vertices point to a vertex and optionally a tex coordinate and normal
     class Vertex
@@ -46,24 +50,32 @@ public:
         std::vector<Vertex> verts;
     };
 
+    class Material
+    {
+    public:
+        bool operator < (const Material &that) const
+        {
+            return textureName < that.textureName;
+        }
+            
+        std::string name;
+        std::string textureName;
+    };
+
     // Group is currently just a collection of faces
     class Group
     {
     public:
+        Material *mat;
         std::string name;
         std::vector<Face> faces;
-    };
-
-    class Material
-    {
-        std::string name;
-        std::string textureName;
     };
     
     std::vector<Group> groups;
     std::vector<Point3d> verts;
     std::vector<Point2d> texCoords;
     std::vector<Point3d> norms;
+    std::vector<Material> materials;
 };
-    
+
 }
