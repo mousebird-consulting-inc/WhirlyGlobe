@@ -2268,14 +2268,15 @@ typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
 
 // Search for a point inside any of our vector objects
 // Runs in layer thread
-- (NSObject *)findVectorInPoint:(Point2f)pt {
-  return [self findVectorInPoint:pt inView:nil];
+- (NSArray *)findVectorsInPoint:(Point2f)pt
+{
+  return [self findVectorsInPoint:pt inView:nil];
 }
 
 
-- (NSObject *)findVectorInPoint:(Point2f)pt inView:(MaplyBaseViewController*)vc
+- (NSArray *)findVectorsInPoint:(Point2f)pt inView:(MaplyBaseViewController*)vc multi:(bool)multi
 {
-    NSObject *selObj = nil;
+    NSMutableArray *foundObjs = [NSMutableArray array];
     
     pt = [visualView unwrapCoordinate:pt];
     
@@ -2295,22 +2296,24 @@ typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
                         coord.y = pt.y()-userObj.vectorOffset.y();
                         if ([vecObj pointInAreal:coord])
                         {
-                            selObj = vecObj;
-                            break;
+                            [foundObjs addObject:vecObj];
+                            if (!multi)
+                                break;
                         } else if (vc && [vecObj pointNearLinear:coord distance:20 inViewController:vc]) {
-                            selObj = vecObj;
-                            break;
+                            [foundObjs addObject:vecObj];
+                            if (!multi)
+                                break;
                         }
                     }
                 }
                 
-                if (selObj)
+                if (!multi && [foundObjs count] > 0)
                     break;
             }
         }
     }
-    
-    return selObj;
+
+    return foundObjs;
 }
 
 - (NSObject *)getSelectableObject:(WhirlyKit::SimpleIdentity)objId
