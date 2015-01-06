@@ -144,19 +144,19 @@ using namespace WhirlyGlobe;
         }
         
         // Found something.  Now find the associated object
-    } else {
-        // Next, try the vectors
-        // Note: This means we'll never get both vectors and other objects
-        NSObject *vecObj = [self findVectorInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y())];
-        if (vecObj)
-        {
-            MaplySelectedObject *selObj = [[MaplySelectedObject alloc] init];
-            selObj.selectedObj = vecObj;
-            selObj.screenDist = 0.0;
-            // Note: Not quite right
-            selObj.zDist = 0.0;
-            [retSelectArr addObject:selObj];
-        }
+    }
+    
+    // Next, try the vectors
+    // Note: This means we'll never get both vectors and other objects
+    NSArray *vecObjs = [self findVectorsInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y())];
+    for (MaplyVectorObject *vecObj in vecObjs)
+    {
+        MaplySelectedObject *selObj = [[MaplySelectedObject alloc] init];
+        selObj.selectedObj = vecObj;
+        selObj.screenDist = 0.0;
+        // Note: Not quite right
+        selObj.zDist = 0.0;
+        [retSelectArr addObject:selObj];
     }
     
     // Tell the view controller about it

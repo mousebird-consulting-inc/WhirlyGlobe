@@ -146,8 +146,8 @@
 - (void)removeImageTexture:(MaplyTexture *)tex changes:(WhirlyKit::ChangeSet &)changes;
 
 // Do a point in poly check for vectors we're representing
-- (NSObject *)findVectorInPoint:(WhirlyKit::Point2f)pt;
-- (NSObject *)findVectorInPoint:(WhirlyKit::Point2f)pt inView:(MaplyBaseViewController*)vc;
+- (NSArray *)findVectorsInPoint:(WhirlyKit::Point2f)pt;
+- (NSArray *)findVectorsInPoint:(WhirlyKit::Point2f)pt inView:(MaplyBaseViewController*)vc;
 
 // Find the Maply object corresponding to the given ID (from the selection manager).
 // Thread-safe
