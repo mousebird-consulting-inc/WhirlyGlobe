@@ -111,6 +111,7 @@
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj;
 
 /** @brief Called when the user taps on or near an object.
+    @details This will call back with the closest object it finds near (or on) where the user tapped.
     @details You're given the object you passed in originally, such as a MaplyScreenMarker.
     @details This version is called preferentially if it exists.  Otherwise globeViewController:didSelect: is called if it exists.
     @param viewC The view controller where the user selected something.
@@ -119,6 +120,15 @@
     @param screenPt The location on screen where the user tapped.
   */
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj atLoc:(MaplyCoordinate)coord onScreen:(CGPoint)screenPt;
+
+/** @brief Called when the user taps on or near one or more objects.  Returns them all.
+    @details This method is called when the
+    @param viewC The view controller where the user selected something.
+    @param selectedObjs A list of
+    @param coord The location (geographic lon/lat in radians) where the user tapped.
+    @param screenPt The location on screen where the user tapped.
+  */
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC allSelect:(NSArray *)selectedObjs atLoc:(MaplyCoordinate)coord onScreen:(CGPoint)screenPt;
 
 /** @brief Called when the user taps outside the globe.
   */
@@ -190,6 +200,11 @@
     @details On by default.
  */
 @property(nonatomic,assign) bool rotateGesture;
+
+/** @brief Turn the tilte gesture recognizer on and off
+    @details Off by default.
+ */
+@property(nonatomic,assign) bool tiltGesture;
 
 /** @brief Turn the double tap to zoom gesture recognizer on and off
  @details On by default.

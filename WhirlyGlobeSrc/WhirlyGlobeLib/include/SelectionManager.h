@@ -149,6 +149,16 @@ public:
     /// Pass in the content scaling (not 1.0 if we're on retina)
     SelectionManager(Scene *scene,float viewScale);
     ~SelectionManager();
+    
+    /// When we're selecting multiple objects we'll return a list of these
+    class SelectedObject
+    {
+    public:
+        SelectedObject(SimpleIdentity selectID,double distIn3D,double screenDist) : selectID(selectID), distIn3D(distIn3D), screenDist(screenDist) { }
+        SimpleIdentity selectID;    // What we selected
+        double distIn3D;            // 3D distance from eye
+        double screenDist;          // 2D distance in screen space
+    };
 
     /// Add a rectangle (in 3-space) for selection
     void addSelectableRect(SimpleIdentity selectId,Point3f *pts,bool enable);
@@ -189,6 +199,9 @@ public:
     /// Pass in the view point where the user touched.  This returns the closest hit within the given distance
     SimpleIdentity pickObject(Point2f touchPt,float maxDist,WhirlyKitView *theView);
     
+    /// Find all the objects within a given distance and return them, sorted by distance
+    void pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *theView,std::vector<SelectedObject> &selObjs);
+    
     // Everything we need to project a world coordinate to one or more screen locations
     class PlacementInfo
     {
@@ -198,7 +211,7 @@ public:
         WhirlyGlobeView *globeView;
         MaplyView *mapView;
         double heightAboveSurface;
-        Eigen::Matrix4d viewMat,modelMat,viewAndModelMat,viewModelNormalMat,projMat,modelInvMat;
+        Eigen::Matrix4d viewMat,modelMat,viewAndModelMat,viewAndModelInvMat,viewModelNormalMat,projMat,modelInvMat;
         std::vector<Eigen::Matrix4d> offsetMatrices;
         Point2f frameSize;
         Point2f frameSizeScale;
@@ -210,7 +223,9 @@ protected:
     void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,std::vector<Point2d> &screenPts,float scale);
     // Convert rect selectables into more generic screen space objects
     void getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenObjs);
-    
+    // Internal object picking method
+    void pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *theView,bool multi,std::vector<SelectedObject> &selObjs);
+
     pthread_mutex_t mutex;
     Scene *scene;
     float scale;

@@ -30,6 +30,9 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
+@implementation MaplySelectedObject
+@end
+
 // Target for screen snapshot
 @interface SnapshotTarget : NSObject<WhirlyKitSnapshot>
 @property (nonatomic) UIImage *image;

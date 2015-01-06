@@ -420,10 +420,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         // Put together the layout info
                         layoutObject->hint = label.text;
                         drawStr->mbr.asPoints(layoutObject->layoutPts);
-                        layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ll().x()+label.screenOffset.width,drawStr->mbr.ll().y()+label.screenOffset.height)+justifyOff);
-                        layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ur().x()+label.screenOffset.width,drawStr->mbr.ll().y()+label.screenOffset.height)+justifyOff);
-                        layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ur().x()+label.screenOffset.width,drawStr->mbr.ur().y()+label.screenOffset.height)+justifyOff);
-                        layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ll().x()+label.screenOffset.width,drawStr->mbr.ur().y()+label.screenOffset.height)+justifyOff);
+                        layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ll().x()+label.screenOffset.width,drawStr->mbr.ll().y()+label.screenOffset.height)+iconOff+justifyOff);
+                        layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ur().x()+label.screenOffset.width,drawStr->mbr.ll().y()+label.screenOffset.height)+iconOff+justifyOff);
+                        layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ur().x()+label.screenOffset.width,drawStr->mbr.ur().y()+label.screenOffset.height)+iconOff+justifyOff);
+                        layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ll().x()+label.screenOffset.width,drawStr->mbr.ur().y()+label.screenOffset.height)+iconOff+justifyOff);
                         layoutObject->selectPts = layoutObject->layoutPts;
                         
 //                        layoutObj->iconSize = Point2f(iconSize,iconSize);
@@ -437,7 +437,50 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     } else {
                         screenShape->setEnable(_labelInfo.enable);
                     }
-                    
+
+                    // Deal with the icon here becaue we need its geometry
+                    ScreenSpaceObject::ConvexGeometry iconGeom;
+                    if (label.iconTexture != EmptyIdentity && screenShape)
+                    {
+                        SubTexture subTex = _scene->getSubTexture(label.iconTexture);
+                        std::vector<TexCoord> texCoord;
+                        texCoord.resize(4);
+                        texCoord[3].u() = 0.0;  texCoord[3].v() = 0.0;
+                        texCoord[2].u() = 1.0;  texCoord[2].v() = 0.0;
+                        texCoord[1].u() = 1.0;  texCoord[1].v() = 1.0;
+                        texCoord[0].u() = 0.0;  texCoord[0].v() = 1.0;
+                        subTex.processTexCoords(texCoord);
+                        
+                        iconGeom.texIDs.push_back(subTex.texId);
+                        iconGeom.progID = _labelInfo.programID;
+                        Point2d iconPts[4];
+                        iconPts[0] = Point2d(0,0);
+                        iconPts[1] = Point2d(iconOff.x(),0);
+                        iconPts[2] = iconOff;
+                        iconPts[3] = Point2d(0,iconOff.y());
+                        for (unsigned int ii=0;ii<4;ii++)
+                        {
+                            iconGeom.coords.push_back(Point2d(iconPts[ii].x(),iconPts[ii].y())+Point2d(label.screenOffset.width,label.screenOffset.height));
+                            iconGeom.texCoords.push_back(texCoord[ii]);
+                        }
+                        // For layout objects, we'll put the icons on their own
+                        //            if (layoutObj)
+                        //            {
+                        //                ScreenSpaceGenerator::ConvexShape *iconScreenShape = new ScreenSpaceGenerator::ConvexShape();
+                        //                SimpleIdentity iconId = iconScreenShape->getId();
+                        //                *iconScreenShape = *screenShape;
+                        //                iconScreenShape->setId(iconId);
+                        //                iconScreenShape->geom.clear();
+                        //                iconScreenShape->geom.push_back(iconGeom);
+                        //                screenObjects.push_back(iconScreenShape);
+                        //                labelRep->screenIDs.insert(iconScreenShape->getId());
+                        //                layoutObj->auxIDs.insert(iconScreenShape->getId());
+                        //            } else {
+                        screenShape->addGeometry(iconGeom);
+                        //            }
+                        
+                    }
+
                     // Register the main label as selectable
                     if (label.isSelectable && !layoutObject)
                     {
@@ -448,11 +491,19 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         RectSelectable2D select2d;
                         select2d.center = screenShape->getWorldLoc();
                         select2d.enable = _labelInfo.enable;
-                        Point2f ll = drawStr->mbr.ll(), ur = drawStr->mbr.ur();
-                        select2d.pts[0] = Point2f(ll.x()+label.screenOffset.width+justifyOff.x(),ll.y()+-label.screenOffset.height+justifyOff.y());
-                        select2d.pts[1] = Point2f(ll.x()+label.screenOffset.width+justifyOff.x(),ur.y()+-label.screenOffset.height+justifyOff.y());
-                        select2d.pts[2] = Point2f(ur.x()+label.screenOffset.width+justifyOff.x(),ur.y()+-label.screenOffset.height+justifyOff.y());
-                        select2d.pts[3] = Point2f(ur.x()+label.screenOffset.width+justifyOff.x(),ll.y()+-label.screenOffset.height+justifyOff.y());
+                        Mbr wholeMbr = drawStr->mbr;
+                        wholeMbr.ll() += Point2f(iconOff.x(),iconOff.y()) + Point2f(justifyOff.x(),justifyOff.y());
+                        wholeMbr.ur() += Point2f(iconOff.x(),iconOff.y()) + Point2f(justifyOff.x(),justifyOff.y());
+                        // If there's an icon, just expand the whole thing.
+                        // Note: Not ideal
+                        if (iconGeom.coords.size() > 0)
+                            for (unsigned int ig=0;ig<iconGeom.coords.size();ig++)
+                                wholeMbr.addPoint(iconGeom.coords[ig]);
+                        Point2f ll = wholeMbr.ll(), ur = wholeMbr.ur();
+                        select2d.pts[0] = Point2f(ll.x()+label.screenOffset.width,ll.y()+-label.screenOffset.height);
+                        select2d.pts[1] = Point2f(ll.x()+label.screenOffset.width,ur.y()+-label.screenOffset.height);
+                        select2d.pts[2] = Point2f(ur.x()+label.screenOffset.width,ur.y()+-label.screenOffset.height);
+                        select2d.pts[3] = Point2f(ur.x()+label.screenOffset.width,ll.y()+-label.screenOffset.height);
                         
                         select2d.selectID = label.selectID;
                         select2d.minVis = _labelInfo.minVis;
@@ -468,50 +519,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
             
                 delete drawStr;
             }
-        }
-        
-        if (label.iconTexture != EmptyIdentity && screenShape)
-        {
-            SubTexture subTex = _scene->getSubTexture(label.iconTexture);
-            std::vector<TexCoord> texCoord;
-            texCoord.resize(4);
-            texCoord[3].u() = 0.0;  texCoord[3].v() = 0.0;
-            texCoord[2].u() = 1.0;  texCoord[2].v() = 0.0;
-            texCoord[1].u() = 1.0;  texCoord[1].v() = 1.0;
-            texCoord[0].u() = 0.0;  texCoord[0].v() = 1.0;
-            subTex.processTexCoords(texCoord);
-
-            // Note: We're not registering icons correctly with the selection layer
-            ScreenSpaceObject::ConvexGeometry iconGeom;
-            iconGeom.texIDs.push_back(subTex.texId);
-            iconGeom.progID = _labelInfo.programID;
-            Point2d iconPts[4];
-            iconPts[0] = Point2d(0,0);
-            iconPts[1] = Point2d(iconOff.x(),0);
-            iconPts[2] = iconOff;
-            iconPts[3] = Point2d(0,iconOff.y());
-            for (unsigned int ii=0;ii<4;ii++)
-            {
-                iconGeom.coords.push_back(Point2d(iconPts[ii].x(),iconPts[ii].y())+Point2d(label.screenOffset.width,label.screenOffset.height));
-                iconGeom.texCoords.push_back(texCoord[ii]);
-            }
-            // For layout objects, we'll put the icons on their own
-//            if (layoutObj)
-//            {
-//                ScreenSpaceGenerator::ConvexShape *iconScreenShape = new ScreenSpaceGenerator::ConvexShape();
-//                SimpleIdentity iconId = iconScreenShape->getId();
-//                *iconScreenShape = *screenShape;
-//                iconScreenShape->setId(iconId);
-//                iconScreenShape->geom.clear();
-//                iconScreenShape->geom.push_back(iconGeom);
-//                screenObjects.push_back(iconScreenShape);
-//                labelRep->screenIDs.insert(iconScreenShape->getId());
-//                layoutObj->auxIDs.insert(iconScreenShape->getId());
-//            } else {
-                screenShape->addGeometry(iconGeom);
-//            }
-            
-        }
+        }        
     }
     
     // Flush out any drawables we created for the labels

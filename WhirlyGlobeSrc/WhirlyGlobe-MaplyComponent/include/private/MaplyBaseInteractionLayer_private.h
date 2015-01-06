@@ -48,7 +48,6 @@
     // Used to track textures
     MaplyImageTextureSet imageTextures;
 
-    pthread_mutex_t userLock;
     // Component objects created for the user
     NSMutableSet *userObjects;
     

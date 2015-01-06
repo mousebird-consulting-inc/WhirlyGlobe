@@ -48,7 +48,8 @@ public:
     SimpleIDSet texIDs;  // Textures we created for this
     SimpleIDSet drawIDs; // Drawables created for this
     SimpleIDSet drawStrIDs;  // Drawable strings created with the font manager
-    SimpleIDSet screenIDs;  // IDs passed to selection and layout engine
+    SimpleIDSet layoutIDs;  // IDs passed to layout manager
+    SimpleIDSet selectIDs;  // IDS passed to selection manager
 };
 typedef std::set<LabelSceneRep *,IdentifiableSorter> LabelSceneRepSet;
     
