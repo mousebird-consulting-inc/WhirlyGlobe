@@ -48,6 +48,9 @@ typedef enum {RotNone,RotFree} RotationType;
 /// If set, the rotation will occur around the center between the two fingers rather than the current viewpoint
 @property (nonatomic) bool rotateAroundCenter;
 
+/// Gesture recognizer attached to this delegate (or vice versa, actually)
+@property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
+
 /// Can be called by a cooperating delegate (which is also messing with rotation) (HACK!)
 - (void)updateWithCenter:(CGPoint)center touch:(CGPoint)touch glView:(WhirlyKitEAGLView *)glView;
 
