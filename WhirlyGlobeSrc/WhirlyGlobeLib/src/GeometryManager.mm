@@ -153,24 +153,6 @@ void GeometryRaw::applyTransform(const Matrix4d &mat)
         norm = Point3d(projNorm.x(),projNorm.y(),projNorm.z()).normalized();
     }
 }
-
-Eigen::Matrix4d GeometryRaw::makePosition(const Point3d &pos,const Point3d &up,const Point3d &forward,double ang)
-{
-    Point3d yaxis = forward.normalized();
-    Point3d xaxis = yaxis.cross(up).normalized();
-    Point3d zaxis = xaxis.cross(yaxis);
-    
-    Matrix4d mat;
-    mat(0,0) = xaxis.x();  mat(1,0) = xaxis.y();  mat(2,0) = xaxis.z();  mat(3,0) = 0.0;
-    mat(0,1) = yaxis.x();  mat(1,1) = yaxis.y();  mat(2,1) = yaxis.z();  mat(3,1) = 0.0;
-    mat(0,2) = zaxis.x();  mat(1,2) = zaxis.y();  mat(2,2) = zaxis.z();  mat(3,2) = 0.0;
-    mat(0,3) = pos.x();  mat(1,3) = pos.y();  mat(2,3) = pos.z();  mat(3,3) = 1.0;
-    
-    Eigen::AngleAxisd rot(-ang,up);
-    Matrix4d resMat = ((Affine3d)rot).matrix() * mat;
-    
-    return resMat;
-}
     
 void GeometryRaw::estimateSize(int &numPts,int &numTris)
 {
@@ -178,13 +160,7 @@ void GeometryRaw::estimateSize(int &numPts,int &numTris)
     numTris = triangles.size();
 }
 
-void GeometryRaw::applyPosition(const Point3d &pos,const Point3d &up,const Point3d &forward,double ang)
-{
-    Matrix4d theMat = makePosition(pos, up, forward, ang);
-    applyTransform(theMat);
-}
-
-void GeometryRaw::buildDrawable(BasicDrawable *draw)
+void GeometryRaw::buildDrawable(BasicDrawable *draw,const Eigen::Matrix4d &mat)
 {
     if (!isValid())
         return;
@@ -203,9 +179,19 @@ void GeometryRaw::buildDrawable(BasicDrawable *draw)
     draw->setTexId(0,texId);
     for (unsigned int ii=0;ii<pts.size();ii++)
     {
-        draw->addPoint(pts[ii]);
+        const Point3d &pt = pts[ii];
+        Vector4d outPt = mat * Eigen::Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+        Point3d newPt(outPt.x()/outPt.w(),outPt.y()/outPt.w(),outPt.z()/outPt.w());
+        draw->addPoint(newPt);
         if (!norms.empty())
-            draw->addNormal(norms[ii]);
+        {
+            const Point3d &norm = norms[ii];
+            // Note: Not the right way to transform normals
+            Vector4d projNorm = mat * Eigen::Vector4d(norm.x(),norm.y(),norm.z(),0.0);
+            Point3d newNorm(projNorm.x(),projNorm.y(),projNorm.z());
+            newNorm.normalize();
+            draw->addNormal(newNorm);
+        }
         if (texId != EmptyIdentity)
             draw->addTexCoord(0,texCoords[ii]);
         if (!colors.empty())

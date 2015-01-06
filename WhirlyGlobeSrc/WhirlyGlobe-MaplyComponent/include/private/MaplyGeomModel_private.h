@@ -1,8 +1,8 @@
 /*
- *  MaplyGeomModel.mm
+ *  MaplyGeomModel_private.h
  *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 11/26/14.
+ *  Created by Steve Gifford on 12/1/14.
  *  Copyright 2011-2014 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,34 +18,11 @@
  *
  */
 
-#import "MaplyGeomModel_private.h"
+#import "MaplyGeomModel.h"
+#import <WhirlyGlobe.h>
 
-using namespace WhirlyKit;
-using namespace Eigen;
+@interface MaplyGeomModel()
 
-@implementation MaplyGeomModel
-
-- (id)initWithObj:(NSString *)fullPath
-{
-    self = [super init];
-    
-    const char *str = [fullPath cStringUsingEncoding:NSASCIIStringEncoding];
-    FILE *fp = fopen(str, "r");
-    if (!fp)
-        return nil;
-    
-    // Parse it out of the file
-    GeometryModelOBJ objModel;
-    if (!objModel.parse(fp))
-        return nil;
-
-    objModel.toRawGeometry(_rawGeom);
-    
-    return self;
-}
-
-@end
-
-@implementation MaplyGeomModelInstance
+@property (nonatomic) std::vector<WhirlyKit::GeometryRaw> &rawGeom;
 
 @end

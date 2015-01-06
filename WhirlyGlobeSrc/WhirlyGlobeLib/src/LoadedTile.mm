@@ -985,7 +985,7 @@ void LoadedTile::calculateSize(Quadtree *quadTree,CoordSystemDisplayAdapter *coo
 // Note: This only works with texture atlases
 bool LoadedTile::updateTexture(TileBuilder *tileBuilder,WhirlyKitLoadedImage *loadImage,int frame,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
-    if (!loadImage && loadImage.type == WKLoadedImagePlaceholder)
+    if (!loadImage || loadImage.type == WKLoadedImagePlaceholder)
     {
         placeholder = true;
         return true;

@@ -186,4 +186,36 @@ bool GeometryModelOBJ::parse(FILE *fp)
     return success;
 }
 
+// Used to sort groups by texture name
+class GroupBin
+{
+public:
+    GroupBin(GeometryModelOBJ::Group *group) { groups.push_back(group); }
+    bool operator < (const GroupBin &that) const
+    {
+        return *(groups[0]->mat) < *(that.groups[0]->mat);
+    }
+    
+    std::vector<GeometryModelOBJ::Group *> groups;
+};
+typedef std::set<GroupBin> GroupBinSet;
+    
+void GeometryModelOBJ::toRawGeometry(std::vector<GeometryRaw> &rawGeom)
+{
+    // Sort the groups by texture
+    GroupBinSet groupBins;
+    for (unsigned int ii=0;ii<groups.size();ii++)
+    {
+        GroupBin groupBin(&groups[ii]);
+        const auto &it = groupBins.find(groupBin);
+        if (it == groupBins.end())
+            groupBins.insert(groupBin);
+        else {
+            groupBin.groups.insert(groupBin.groups.end(),it->groups.begin(), it->groups.end());
+            groupBins.erase(it);
+            groupBins.insert(groupBin);
+        }
+    }
+}
+
 }
