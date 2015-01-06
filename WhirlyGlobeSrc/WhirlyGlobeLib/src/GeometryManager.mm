@@ -220,7 +220,7 @@ GeometryManager::~GeometryManager()
     
 
 
-SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,NSDictionary *desc,ChangeSet &changes)
+SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,const std::vector<Eigen::Matrix4d> &instances,NSDictionary *desc,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     GeomSceneRep *sceneRep = new GeomSceneRep();
@@ -273,7 +273,8 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,NSD
                 changes.push_back(new AddDrawableReq(draw));
             }
             
-            raw->buildDrawable(draw);
+            // Note: Debugging
+//            raw->buildDrawable(draw);
             // Note: Do the selection manager
         }
     }

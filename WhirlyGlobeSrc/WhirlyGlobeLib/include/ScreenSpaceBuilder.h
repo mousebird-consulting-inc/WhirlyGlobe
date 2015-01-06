@@ -209,6 +209,8 @@ public:
     Point2d offset;
     // Size of the object in screen space
     std::vector<Point2d> pts;
+    // Bounding box, for quick testing
+    Mbr mbr;
 };
     
 }
