@@ -266,6 +266,8 @@ void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo 
             ssObj.dispLoc = entry->obj.worldLoc;
             ssObj.offset = entry->offset;
             ssObj.pts = entry->obj.selectPts;
+            for (unsigned int ii=0;ii<entry->obj.selectPts.size();ii++)
+                ssObj.mbr.addPoint(entry->obj.selectPts[ii]);
             
             screenSpaceObjs.push_back(ssObj);
         }
