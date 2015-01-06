@@ -1949,7 +1949,7 @@ static const int NumMegaMarkers = 15000;
 
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion
 {
-//    NSLog(@"Stopped moving");
+    NSLog(@"Globe Stopped moving");
 }
 
 #pragma mark - Maply delegate
@@ -1977,7 +1977,7 @@ static const int NumMegaMarkers = 15000;
 
 - (void)maplyViewController:(MaplyViewController *)viewC didStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion
 {
-//    NSLog(@"Stopped moving");
+    NSLog(@"Maply Stopped moving");
 }
 
 #pragma mark - Popover Delegate

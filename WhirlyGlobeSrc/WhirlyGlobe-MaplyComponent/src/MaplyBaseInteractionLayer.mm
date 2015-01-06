@@ -166,7 +166,6 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     visualView = inVisualView;
     pthread_mutex_init(&selectLock, NULL);
     pthread_mutex_init(&imageLock, NULL);
-    pthread_mutex_init(&userLock, NULL);
     pthread_mutex_init(&changeLock,NULL);
     pthread_mutex_init(&tempContextLock,NULL);
     
@@ -177,7 +176,6 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     pthread_mutex_destroy(&selectLock);
     pthread_mutex_destroy(&imageLock);
-    pthread_mutex_destroy(&userLock);
     pthread_mutex_destroy(&changeLock);
     pthread_mutex_destroy(&tempContextLock);
     
@@ -640,10 +638,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         [self flushChanges:changes mode:threadMode];
     }
     
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
+    @synchronized(userObjects)
+    {
+        [userObjects addObject:compObj];
+        compObj.underConstruction = false;
+    }
 }
 
 // Called in the main thread.
@@ -728,10 +727,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         [self flushChanges:changes mode:threadMode];
     }
     
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
+    @synchronized(userObjects)
+    {
+        [userObjects addObject:compObj];
+        compObj.underConstruction = false;
+    }
 }
 
 // Add 3D markers
@@ -870,11 +870,12 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             compObj.labelIDs.insert(labelID);
     }
 
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
-
+    @synchronized(userObjects)
+    {
+        [userObjects addObject:compObj];
+        compObj.underConstruction = false;
+    }
+    
     [self clearTempContext:tmpContext];
 }
 
@@ -978,10 +979,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             compObj.labelIDs.insert(labelID);
     }
     
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
+    @synchronized(userObjects)
+    {
+        [userObjects addObject:compObj];
+        compObj.underConstruction = false;
+    }
     
     [self clearTempContext:tmpContext];
 }
@@ -1095,10 +1097,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         compObj.vectors = vectors;
     }
     
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
+    @synchronized(userObjects)
+    {
+        [userObjects addObject:compObj];
+        compObj.underConstruction = false;
+    }
 }
 
 // Add vectors
@@ -1174,10 +1177,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     if (selVal && [selVal boolValue])
         compObj.vectors = vectors;
     
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
+    @synchronized(userObjects)
+    {
+        [userObjects addObject:compObj];
+        compObj.underConstruction = false;
+    }
 }
 
 - (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
@@ -1257,10 +1261,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         [self flushChanges:changes mode:threadMode];
     }
     
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
+    @synchronized(userObjects)
+    {
+        [userObjects addObject:compObj];
+        compObj.underConstruction = false;
+    }
 }
 
 // Instance vectors
@@ -1305,9 +1310,10 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     @synchronized(vecObj)
     {
         bool isHere = false;
-        pthread_mutex_lock(&userLock);
-        isHere = [userObjects containsObject:vecObj];
-        pthread_mutex_unlock(&userLock);
+        @synchronized(userObjects)
+        {
+            isHere = [userObjects containsObject:vecObj];
+        }
         
         if (!isHere)
             return;
@@ -1567,10 +1573,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         [self flushChanges:changes mode:threadMode];
     }
     
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
+    @synchronized(userObjects)
+    {
+        [userObjects addObject:compObj];
+        compObj.underConstruction = false;
+    }
 }
 
 // Add shapes
@@ -1612,7 +1619,8 @@ typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
 // Called in the layer thread
 - (void)addModelInstancesRun:(NSArray *)argArray
 {
-    NSArray *modelInstances = argArray[0];
+    // Note: Debugging
+/*    NSArray *modelInstances = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
     NSMutableDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
@@ -1649,10 +1657,11 @@ typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
     for (auto it : instSort)
         delete it;
     
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
+    @synchronized(userObjects)
+    {
+        [userObjects addObject:compObj];
+        compObj.underConstruction = false;
+    } */
 }
 
 - (MaplyComponentObject *)addModelInstances:(NSArray *)modelInstances desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
@@ -1755,10 +1764,11 @@ typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
         }
     }
     
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
+    @synchronized(userObjects)
+    {
+        [userObjects addObject:compObj];
+        compObj.underConstruction = false;
+    }
 }
 
 // Add stickers
@@ -1791,9 +1801,10 @@ typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
     @synchronized(stickerObj)
     {
         bool isHere = false;
-        pthread_mutex_lock(&userLock);
-        isHere = [userObjects containsObject:stickerObj];
-        pthread_mutex_unlock(&userLock);
+        @synchronized(userObjects)
+        {
+            isHere = [userObjects containsObject:stickerObj];
+        }
         
         if (!isHere)
             return;
@@ -1904,10 +1915,11 @@ typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
     }
     [self flushChanges:changes mode:threadMode];
     
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
+    @synchronized(userObjects)
+    {
+        [userObjects addObject:compObj];
+        compObj.underConstruction = false;
+    }
 }
 
 // Add lofted polys
@@ -2002,10 +2014,11 @@ typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
     }
     [self flushChanges:changes mode:threadMode];
     
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
+    @synchronized(userObjects)
+    {
+        [userObjects addObject:compObj];
+        compObj.underConstruction = false;
+    }
 }
 
 // Add lofted polys
@@ -2032,7 +2045,7 @@ typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
 // Remove the object, but do it on the layer thread
 - (void)removeObjectRun:(NSArray *)argArray
 {
-    NSArray *userObjs = argArray[0];
+    NSArray *inUserObjs = argArray[0];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:1] intValue];
     
     MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
@@ -2047,32 +2060,37 @@ typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
     ChangeSet changes;
         
     // First, let's make sure we're representing it
-    for (MaplyComponentObject *userObj in userObjs)
+    for (MaplyComponentObject *userObj in inUserObjs)
     {
         bool isHere = false;
-        pthread_mutex_lock(&userLock);
-        isHere = [userObjects containsObject:userObj];
-        pthread_mutex_unlock(&userLock);
+        @synchronized(userObjects)
+        {
+            isHere = [userObjects containsObject:userObj];
+        }
+
         if (isHere)
         {
+            if (userObj.underConstruction)
+                NSLog(@"Deleting an object that's under construction");
+            
             @synchronized(userObj)
             {
                 // Get rid of the various layer objects
-                if (markerManager)
+                if (markerManager && !userObj.markerIDs.empty())
                     markerManager->removeMarkers(userObj.markerIDs, changes);
-                if (labelManager)
+                if (labelManager && !userObj.labelIDs.empty())
                     labelManager->removeLabels(userObj.labelIDs, changes);
-                if (vectorManager)
+                if (vectorManager && !userObj.vectorIDs.empty())
                     vectorManager->removeVectors(userObj.vectorIDs, changes);
-                if (wideVectorManager)
+                if (wideVectorManager && !userObj.wideVectorIDs.empty())
                     wideVectorManager->removeVectors(userObj.wideVectorIDs, changes);
-                if (shapeManager)
+                if (shapeManager && !userObj.shapeIDs.empty())
                     shapeManager->removeShapes(userObj.shapeIDs, changes);
-                if (loftManager)
+                if (loftManager && !userObj.loftIDs.empty())
                     loftManager->removeLoftedPolys(userObj.loftIDs, changes);
-                if (chunkManager)
+                if (chunkManager && !userObj.chunkIDs.empty())
                     chunkManager->removeChunks(userObj.chunkIDs, changes);
-                if (billManager)
+                if (billManager && !userObj.billIDs.empty())
                     billManager->removeBillboards(userObj.billIDs, changes);
                 
                 // And associated textures
@@ -2082,23 +2100,31 @@ typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
                 userObj.textures.clear();
 
                 // And any references to selection objects
-                pthread_mutex_lock(&selectLock);
-                for (SimpleIDSet::iterator it = userObj.selectIDs.begin();
-                     it != userObj.selectIDs.end(); ++it)
+                if (!userObj.selectIDs.empty())
                 {
-                    SelectObjectSet::iterator sit = selectObjectSet.find(SelectObject(*it));
-                    if (sit != selectObjectSet.end())
-                        selectObjectSet.erase(sit);
+                    pthread_mutex_lock(&selectLock);
+                    for (SimpleIDSet::iterator it = userObj.selectIDs.begin();
+                         it != userObj.selectIDs.end(); ++it)
+                    {
+                        SelectObjectSet::iterator sit = selectObjectSet.find(SelectObject(*it));
+                        if (sit != selectObjectSet.end())
+                            selectObjectSet.erase(sit);
+                        else
+                            NSLog(@"Tried to delete non-existent selection ID");
+                    }
+                    pthread_mutex_unlock(&selectLock);
                 }
-                pthread_mutex_unlock(&selectLock);
                 
             }
             
-            pthread_mutex_lock(&userLock);
-            [userObjects removeObject:userObj];
-            pthread_mutex_unlock(&userLock);
+            @synchronized(userObjects)
+            {
+                [userObjects removeObject:userObj];
+            }
+            
+//            NSLog(@"Deleted object %lx",(unsigned long)userObj);
         } else {
-//            NSLog(@"Tried to delete object that doesn't exist");
+            NSLog(@"Tried to delete object that doesn't exist");
         }
     }
     
@@ -2151,9 +2177,10 @@ typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
     for (MaplyComponentObject *compObj in theObjs)
     {
         bool isHere = false;
-        pthread_mutex_lock(&userLock);
-        isHere = [userObjects containsObject:compObj];
-        pthread_mutex_unlock(&userLock);
+        @synchronized(userObjects)
+        {
+            isHere = [userObjects containsObject:compObj];
+        }
 
         if (isHere)
         {
@@ -2252,35 +2279,36 @@ typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
     
     pt = [visualView unwrapCoordinate:pt];
     
-    pthread_mutex_lock(&userLock);
-    for (MaplyComponentObject *userObj in userObjects)
+    @synchronized(userObjects)
     {
-        if (userObj.vectors && userObj.isSelectable && userObj.enable)
+        for (MaplyComponentObject *userObj in userObjects)
         {
-            for (MaplyVectorObject *vecObj in userObj.vectors)
+            if (userObj.vectors && userObj.isSelectable && userObj.enable)
             {
-                if (vecObj.selectable)
+                for (MaplyVectorObject *vecObj in userObj.vectors)
                 {
-                    // Note: Take visibility into account too
-                    MaplyCoordinate coord;
-                    coord.x = pt.x()-userObj.vectorOffset.x();
-                    coord.y = pt.y()-userObj.vectorOffset.y();
-                    if ([vecObj pointInAreal:coord])
+                    if (vecObj.selectable)
                     {
-                        selObj = vecObj;
-                        break;
-                    } else if (vc && [vecObj pointNearLinear:coord distance:20 inViewController:vc]) {
-                        selObj = vecObj;
-                        break;
+                        // Note: Take visibility into account too
+                        MaplyCoordinate coord;
+                        coord.x = pt.x()-userObj.vectorOffset.x();
+                        coord.y = pt.y()-userObj.vectorOffset.y();
+                        if ([vecObj pointInAreal:coord])
+                        {
+                            selObj = vecObj;
+                            break;
+                        } else if (vc && [vecObj pointNearLinear:coord distance:20 inViewController:vc]) {
+                            selObj = vecObj;
+                            break;
+                        }
                     }
                 }
+                
+                if (selObj)
+                    break;
             }
-            
-            if (selObj)
-                break;
         }
     }
-    pthread_mutex_unlock(&userLock);
     
     return selObj;
 }

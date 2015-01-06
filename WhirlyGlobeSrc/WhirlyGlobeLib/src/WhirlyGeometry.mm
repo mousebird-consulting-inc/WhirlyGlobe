@@ -45,7 +45,7 @@ bool IntersectUnitSphere(Point3f org,Vector3f dir,Point3f &hit)
 	return true;
 }
 
-bool IntersectUnitSphere(Point3d org,Vector3d dir,Point3d &hit)
+bool IntersectUnitSphere(Point3d org,Vector3d dir,Point3d &hit,double *retT)
 {
     double a = dir.dot(dir);
     double b = 2.0f * org.dot(dir);
@@ -60,6 +60,8 @@ bool IntersectUnitSphere(Point3d org,Vector3d dir,Point3d &hit)
     double tb = (-b - rt) / (2.0f * a);
     
     double t = std::min(ta,tb);
+    if (retT)
+        *retT = t;
     
     hit = org + dir * t;
     return true;
@@ -114,7 +116,7 @@ unsigned int NextPowOf2(unsigned int val)
 }
     
 // General purpose 2D point closest to line segment
-Point2f ClosestPointOnLineSegment(const Point2f &p0,const Point2f &p1,const Point2f &pt)
+Point2f ClosestPointOnLineSegment(const Point2f &p0,const Point2f &p1,const Point2f &pt,float &t)
 {
     float dx = p1.x()-p0.x(), dy = p1.y()-p0.y();
     float denom = dx*dx+dy*dy;
@@ -123,6 +125,7 @@ Point2f ClosestPointOnLineSegment(const Point2f &p0,const Point2f &p1,const Poin
         return p0;
     
     float u = ((pt.x()-p0.x())*(p1.x()-p0.x())+(pt.y()-p0.y())*(p1.y()-p0.y()))/denom;
+    t = u;
     
     if (u <= 0.0)
         return p0;

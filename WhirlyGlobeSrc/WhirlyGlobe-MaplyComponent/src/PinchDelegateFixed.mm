@@ -247,6 +247,7 @@ using namespace WhirlyKit;
                 [globeView runViewUpdates];
             }
 			break;
+        case UIGestureRecognizerStateCancelled:
         case UIGestureRecognizerStateEnded:
 //            NSLog(@"Pinch ended");
             [[NSNotificationCenter defaultCenter] postNotificationName:kPinchDelegateDidEnd object:globeView];

@@ -88,7 +88,7 @@ using namespace WhirlyGlobe;
 
 @implementation WhirlyGlobeViewController
 {
-    bool isPanning,isRotating,isZooming,isAnimating;
+    bool isPanning,isRotating,isZooming,isAnimating,isTilting;
 }
 
 - (id) init
@@ -117,6 +117,7 @@ using namespace WhirlyGlobe;
     
     pinchDelegate = nil;
     panDelegate = nil;
+    tiltDelegate = nil;
     tapDelegate = nil;
     rotateDelegate = nil;
     animateRotation = nil;    
@@ -182,11 +183,12 @@ using namespace WhirlyGlobe;
     [super loadSetup];
     
     // Wire up the gesture recognizers
-	panDelegate = [PanDelegateFixed panDelegateForView:glView globeView:globeView];
-	tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:glView globeView:globeView];
+    panDelegate = [PanDelegateFixed panDelegateForView:glView globeView:globeView];
+    tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:glView globeView:globeView];
     // These will activate the appropriate gesture
     self.pinchGesture = true;
     self.rotateGesture = true;
+    self.tiltGesture = false;
         
     self.selection = true;
     
@@ -197,7 +199,6 @@ using namespace WhirlyGlobe;
         doubleTapDelegate.maxZoom = pinchDelegate.maxHeight;
         doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
         doubleTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
-        [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
     }
     if(_twoFingerTapGesture)
     {
@@ -253,6 +254,8 @@ using namespace WhirlyGlobe;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sphericalEarthLayerLoaded:) name:kWhirlyGlobeSphericalEarthLoaded object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidStart:) name:kPanDelegateDidStart object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidEnd:) name:kPanDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tiltDidStart:) name:kTiltDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tiltDidEnd:) name:kTiltDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pinchDidStart:) name:kPinchDelegateDidStart object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pinchDidEnd:) name:kPinchDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pinchDidStart:) name:kGlobeDoubleTapDragDidStart object:nil];
@@ -271,6 +274,8 @@ using namespace WhirlyGlobe;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kWhirlyGlobeSphericalEarthLoaded object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kPanDelegateDidStart object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kPanDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiltDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiltDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kPinchDelegateDidStart object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kPinchDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kGlobeDoubleTapDragDidStart object:nil];
@@ -345,12 +350,14 @@ using namespace WhirlyGlobe;
             pinchDelegate.doRotation = false;
             pinchDelegate.northUp = panDelegate.northUp;
             pinchDelegate.rotateDelegate = rotateDelegate;
+            tiltDelegate.pinchDelegate = pinchDelegate;
         }
     } else {
         if (pinchDelegate)
         {
             [glView removeGestureRecognizer:pinchDelegate.gestureRecognizer];
             pinchDelegate = nil;
+            tiltDelegate.pinchDelegate = nil;
         }
     }
 }
@@ -369,6 +376,7 @@ using namespace WhirlyGlobe;
             rotateDelegate = [WhirlyGlobeRotateDelegate rotateDelegateForView:glView globeView:globeView];
             rotateDelegate.rotateAroundCenter = true;
             pinchDelegate.rotateDelegate = rotateDelegate;
+            [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:rotateDelegate.gestureRecognizer];
         }
     } else {
         if (rotateDelegate)
@@ -388,6 +396,32 @@ using namespace WhirlyGlobe;
 - (bool)rotateGesture
 {
     return rotateDelegate != nil;
+}
+
+- (void)setTiltGesture:(bool)tiltGesture
+{
+    if (tiltGesture)
+    {
+        if (!tiltDelegate)
+        {
+            tiltDelegate = [TiltDelegate tiltDelegateForView:glView globeView:globeView];
+            tiltDelegate.pinchDelegate = pinchDelegate;
+            [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
+            [tiltDelegate.gestureRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
+            [tiltDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+        }
+    } else {
+        if (tiltDelegate)
+        {
+            [glView removeGestureRecognizer:tiltDelegate.gestureRecognizer];
+            tiltDelegate = nil;
+        }
+    }
+}
+
+- (bool)tiltGesture
+{
+    return tiltDelegate != nil;
 }
 
 - (void)setAutoRotateInterval:(float)autoRotateInterval degrees:(float)autoRotateDegrees
@@ -466,14 +500,14 @@ using namespace WhirlyGlobe;
 
 - (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt
 {
-    tiltDelegate = [[WGStandardTiltDelegate alloc] init];
-    [tiltDelegate setMinTilt:minTilt maxTilt:maxTilt minHeight:minHeight maxHeight:maxHeight];
+    tiltControlDelegate = [[WGStandardTiltDelegate alloc] init];
+    [tiltControlDelegate setMinTilt:minTilt maxTilt:maxTilt minHeight:minHeight maxHeight:maxHeight];
     if (pinchDelegate)
-        pinchDelegate.tiltDelegate = tiltDelegate;
+        pinchDelegate.tiltDelegate = tiltControlDelegate;
     if (doubleTapDelegate)
-        doubleTapDelegate.tiltDelegate = tiltDelegate;
+        doubleTapDelegate.tiltDelegate = tiltControlDelegate;
     if (twoFingerTapDelegate)
-        twoFingerTapDelegate.tiltDelegate = tiltDelegate;
+        twoFingerTapDelegate.tiltDelegate = tiltControlDelegate;
 }
 
 /// Turn off varying tilt by height
@@ -485,7 +519,7 @@ using namespace WhirlyGlobe;
         doubleTapDelegate.tiltDelegate = nil;
     if (twoFingerTapDelegate)
         twoFingerTapDelegate.tiltDelegate = nil;
-    tiltDelegate = nil;
+    tiltControlDelegate = nil;
     globeView.tilt = 0.0;
 }
 
@@ -659,8 +693,8 @@ using namespace WhirlyGlobe;
     // Note: This might conceivably be a problem, though I'm not sure how.
     [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:0.0];
     // If there's a pinch delegate, ask it to calculate the height.
-    if (tiltDelegate)
-        self.tilt = [tiltDelegate tiltFromHeight:globeView.heightAboveGlobe];
+    if (tiltControlDelegate)
+        self.tilt = [tiltControlDelegate tiltFromHeight:globeView.heightAboveGlobe];
  }
 
 - (void)setPosition:(WGCoordinate)newPos height:(float)height
@@ -715,24 +749,42 @@ using namespace WhirlyGlobe;
 }
 
 // Called back on the main thread after the interaction thread does the selection
-- (void)handleSelection:(WhirlyGlobeTapMessage *)msg didSelect:(NSObject *)selectedObj
+- (void)handleSelection:(WhirlyGlobeTapMessage *)msg didSelect:(NSArray *)selectedObjs
 {
     WGCoordinate coord;
     coord.x = msg.whereGeo.lon();
     coord.y = msg.whereGeo.lat();
+    
+    bool tappedOutside = msg.worldLoc == Point3f(0,0,0);
 
-    if (selectedObj && self.selection)
+    if ([selectedObjs count] > 0 && self.selection)
     {
         // The user selected something, so let the delegate know
-        if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:atLoc:onScreen:)])
-            [_delegate globeViewController:self didSelect:selectedObj atLoc:coord onScreen:msg.touchLoc];
-        else if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:)])
-            [_delegate globeViewController:self didSelect:selectedObj];
+        if ([_delegate respondsToSelector:@selector(globeViewController:allSelect:atLoc:onScreen:)])
+            [_delegate globeViewController:self allSelect:selectedObjs atLoc:coord onScreen:msg.touchLoc];
+        else {
+            MaplySelectedObject *selObj = [selectedObjs objectAtIndex:0];
+            
+            if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:atLoc:onScreen:)])
+                [_delegate globeViewController:self didSelect:selObj.selectedObj atLoc:coord onScreen:msg.touchLoc];
+            else if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:)])
+            {
+                [_delegate globeViewController:self didSelect:selObj.selectedObj];
+            }
+        }
     } else {
-        // The user didn't select anything, let the delegate know.
-        if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
+        if (_delegate)
         {
-            [_delegate globeViewController:self didTapAt:coord];
+            if (tappedOutside)
+            {
+                // User missed all objects and tapped outside the globe
+                if ([_delegate respondsToSelector:@selector(globeViewControllerDidTapOutside:)])
+                    [_delegate globeViewControllerDidTapOutside:self];
+            } else {
+                // The user didn't select anything, let the delegate know.
+                if ([_delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
+                    [_delegate globeViewController:self didTapAt:coord];
+            }
         }
         // Didn't select anything, so rotate
         if (_autoMoveToTap)
@@ -758,18 +810,19 @@ using namespace WhirlyGlobe;
 - (void) tapOutsideGlobe:(NSNotification *)note
 {
     WhirlyGlobeTapMessage *msg = note.object;
-
+    
     // Ignore taps from other view controllers
     if (msg.view != glView)
         return;
 
-    if (self.selection && _delegate && [_delegate respondsToSelector:@selector(globeViewControllerDidTapOutside:)])
-        [_delegate globeViewControllerDidTapOutside:self];
+    // Hand this over to the interaction layer to look for a selection
+    // If there is no selection, it will call us back in the main thread
+    [globeInteractLayer userDidTap:msg];
 }
 
 - (void) handleStartMoving:(bool)userMotion
 {
-    if (!isPanning && !isRotating && !isZooming && !isAnimating)
+    if (!isPanning && !isRotating && !isZooming && !isAnimating && !isTilting)
     {
         if ([_delegate respondsToSelector:@selector(globeViewControllerDidStartMoving:userMotion:)])
             [_delegate globeViewControllerDidStartMoving:self userMotion:userMotion];
@@ -809,7 +862,7 @@ using namespace WhirlyGlobe;
 // Convenience routine to handle the end of moving
 - (void)handleStopMoving:(bool)userMotion
 {
-    if (isPanning || isRotating || isZooming || isAnimating)
+    if (isPanning || isRotating || isZooming || isAnimating || isTilting)
         return;
     
     if (![_delegate respondsToSelector:@selector(globeViewController:didStopMoving:userMotion:)])
@@ -819,6 +872,26 @@ using namespace WhirlyGlobe;
     [self corners:corners forRot:globeView.rotQuat viewMat:[globeView calcViewMatrix]];
 
     [_delegate globeViewController:self didStopMoving:corners userMotion:userMotion];
+}
+
+// Called when the tilt delegate starts moving
+- (void) tiltDidStart:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+    [self handleStartMoving:true];
+    isTilting = true;
+}
+
+// Called when the tilt delegate stops moving
+- (void) tiltDidEnd:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+    isTilting = false;
+    [self handleStopMoving:true];
 }
 
 // Called when the pan delegate starts moving
@@ -1156,7 +1229,7 @@ using namespace WhirlyGlobe;
     
     // Set the tilt either directly or as a consequence of the height
     if (animState.tilt == MAXFLOAT)
-        globeView.tilt = [tiltDelegate tiltFromHeight:globeView.heightAboveGlobe];
+        globeView.tilt = [tiltControlDelegate tiltFromHeight:globeView.heightAboveGlobe];
     else
         globeView.tilt = animState.tilt;
     

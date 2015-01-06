@@ -58,6 +58,7 @@ using namespace WhirlyKit;
     UIRotationGestureRecognizer *rotateRecog = [[UIRotationGestureRecognizer alloc] initWithTarget:rotateDelegate action:@selector(rotateGesture:)];
     rotateRecog.delegate = rotateDelegate;
 	[view addGestureRecognizer:rotateRecog];
+    rotateDelegate.gestureRecognizer = rotateRecog;
 	return rotateDelegate;
 }
 
