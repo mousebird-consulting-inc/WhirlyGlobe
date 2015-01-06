@@ -122,11 +122,21 @@ static const float MomentumAnimLen = 1.0;
 	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView *)pan.view;
 	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
     
-    // Put ourselves on hold for more than one touch
+    if (pan.state == UIGestureRecognizerStateCancelled)
+    {
+        if (panType != PanNone)
+            [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:view];
+        panType = PanNone;
+        return;
+    }
+
+    // Cancel for more than one finger
     if ([pan numberOfTouches] > 1)
     {
         panType = PanSuspended;
         runEndMomentum = false;
+        _gestureRecognizer.enabled = false;
+        _gestureRecognizer.enabled = true;
         return;
     }
 	    
