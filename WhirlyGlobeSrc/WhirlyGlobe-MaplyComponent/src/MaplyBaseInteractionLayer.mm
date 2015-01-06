@@ -2270,7 +2270,7 @@ typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
 // Runs in layer thread
 - (NSArray *)findVectorsInPoint:(Point2f)pt
 {
-  return [self findVectorsInPoint:pt inView:nil];
+    return [self findVectorsInPoint:pt inView:nil multi:true];
 }
 
 
