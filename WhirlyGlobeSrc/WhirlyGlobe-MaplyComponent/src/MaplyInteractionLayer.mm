@@ -87,7 +87,7 @@ using namespace WhirlyGlobe;
     } else {
         // Next, try the vectors
         // Note: Ignoring everything but the first return
-        NSArray *vecObjs = [self findVectorsInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y()) inView:(MaplyBaseViewController*)self.viewController];
+        NSArray *vecObjs = [self findVectorsInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y()) inView:(MaplyBaseViewController*)self.viewController multi:false];
         if ([vecObjs count] > 0)
             selObj = [vecObjs objectAtIndex:0];
     }

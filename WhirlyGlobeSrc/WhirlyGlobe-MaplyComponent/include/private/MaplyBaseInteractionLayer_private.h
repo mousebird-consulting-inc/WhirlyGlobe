@@ -147,7 +147,7 @@
 
 // Do a point in poly check for vectors we're representing
 - (NSArray *)findVectorsInPoint:(WhirlyKit::Point2f)pt;
-- (NSArray *)findVectorsInPoint:(WhirlyKit::Point2f)pt inView:(MaplyBaseViewController*)vc;
+- (NSArray *)findVectorsInPoint:(WhirlyKit::Point2f)pt inView:(MaplyBaseViewController*)vc multi:(bool)multi;
 
 // Find the Maply object corresponding to the given ID (from the selection manager).
 // Thread-safe
