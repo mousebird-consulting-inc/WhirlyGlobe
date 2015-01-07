@@ -406,6 +406,7 @@ using namespace WhirlyGlobe;
         {
             tiltDelegate = [TiltDelegate tiltDelegateForView:glView globeView:globeView];
             tiltDelegate.pinchDelegate = pinchDelegate;
+            tiltDelegate.tiltCalcDelegate = tiltControlDelegate;
             [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
             [tiltDelegate.gestureRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
             [tiltDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
@@ -500,7 +501,7 @@ using namespace WhirlyGlobe;
 
 - (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt
 {
-    tiltControlDelegate = [[WGStandardTiltDelegate alloc] init];
+    tiltControlDelegate = [[WGStandardTiltDelegate alloc] initWithGlobeView:globeView];
     [tiltControlDelegate setMinTilt:minTilt maxTilt:maxTilt minHeight:minHeight maxHeight:maxHeight];
     if (pinchDelegate)
         pinchDelegate.tiltDelegate = tiltControlDelegate;
@@ -508,6 +509,8 @@ using namespace WhirlyGlobe;
         doubleTapDelegate.tiltDelegate = tiltControlDelegate;
     if (twoFingerTapDelegate)
         twoFingerTapDelegate.tiltDelegate = tiltControlDelegate;
+    if (tiltDelegate)
+        tiltDelegate.tiltCalcDelegate = tiltControlDelegate;
 }
 
 /// Turn off varying tilt by height
