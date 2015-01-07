@@ -89,7 +89,7 @@ static const char *vertexShaderTri =
 "   float dot_res = dot(-pt.xyz,testNorm.xyz);"
 "   vec4 screenPt = (u_mvpMatrix * vec4(a_position,1.0));"
 "   screenPt /= screenPt.w;"
-"   gl_Position = dot_res > 0.0 ? vec4(screenPt.xy + vec2(a_offset.x*u_scale.x,a_offset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);"
+"   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(a_offset.x*u_scale.x,a_offset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);"
 "}"
 ;
 

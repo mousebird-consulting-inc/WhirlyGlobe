@@ -21,18 +21,31 @@
 #import "PinchDelegateFixed.h"
 #import "EAGLView.h"
 #import "RotateDelegate.h"
+#import "TiltDelegate.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
 @implementation WGStandardTiltDelegate
 {
+    WhirlyGlobeView *globeView;
+    bool active;
+    double outsideTilt;
     // Tilt parameters
     float minTilt,maxTilt,minTiltHeight,maxTiltHeight;
 }
 
+- (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView
+{
+    self = [super init];
+    globeView = inGlobeView;
+    
+    return self;
+}
+
 - (void)setMinTilt:(float)inMinTilt maxTilt:(float)inMaxTilt minHeight:(float)inMinHeight maxHeight:(float)inMaxHeight
 {
+    active = true;
     minTilt = inMinTilt;
     maxTilt = inMaxTilt;
     minTiltHeight = inMinHeight;
@@ -49,6 +62,9 @@ using namespace WhirlyKit;
 
 - (double)tiltFromHeight:(double)height
 {
+    if (!active)
+        return outsideTilt;
+    
     float newTilt = 0.0;
     
     // Now the tilt, if we're in that mode
@@ -64,6 +80,20 @@ using namespace WhirlyKit;
     }
     
     return newTilt;
+}
+
+/// Return the maximum allowable tilt
+- (double)maxTilt
+{
+    return asin(1.0/(1.0+globeView.heightAboveGlobe));
+}
+
+/// Called by an actual tilt gesture.  We're setting the tilt as given
+- (void)setTilt:(double)newTilt
+{
+    active = false;
+    double theMaxTilt = [self maxTilt];
+    outsideTilt = std::max(newTilt,theMaxTilt);
 }
 
 @end
@@ -112,6 +142,9 @@ using namespace WhirlyKit;
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
+    if ([otherGestureRecognizer.delegate isKindOfClass:[TiltDelegate class]] && valid)
+        return FALSE;
+    
     return TRUE;
 }
 

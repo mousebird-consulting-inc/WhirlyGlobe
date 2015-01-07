@@ -28,9 +28,9 @@
 @interface WhirlyGlobeAnimateViewHeight : NSObject<WhirlyGlobeAnimationDelegate>
 
 /// Start interpolating height immediately for the given time period
-- (id)initWithView:(WhirlyGlobeView *)globeView toHeight:(double)height howLong:(float)howLong delegate:(NSObject<WGTiltDelegate> *)tiltDelegate;
+- (id)initWithView:(WhirlyGlobeView *)globeView toHeight:(double)height howLong:(float)howLong delegate:(NSObject<WGTiltCalculatorDelegate> *)tiltDelegate;
 
 // If set, we calculate the tilt every time we update
-@property (nonatomic,weak) NSObject<WGTiltDelegate> *tiltDelegate;
+@property (nonatomic,weak) NSObject<WGTiltCalculatorDelegate> *tiltDelegate;
 
 @end
