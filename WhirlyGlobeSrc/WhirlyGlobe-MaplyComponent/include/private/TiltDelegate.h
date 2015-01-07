@@ -36,4 +36,7 @@
 // Set so we can turn off the pinch delegate when we're working
 @property (nonatomic,weak) WGPinchDelegateFixed *pinchDelegate;
 
+// Calculator delegate for tilt constraints
+@property (nonatomic,weak) NSObject<WGTiltCalculatorDelegate> *tiltCalcDelegate;
+
 @end

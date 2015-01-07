@@ -23,7 +23,7 @@
 
 /** Protocol for a delegate that handles tilt calculation.
  */
-@protocol WGTiltDelegate <NSObject>
+@protocol WGTiltCalculatorDelegate <NSObject>
 
 /// If this is called, the pan delegate will vary the tilt between the given values for the
 ///  given height range.
@@ -34,6 +34,12 @@
 
 /// Return a calculated tilt
 - (double)tiltFromHeight:(double)height;
+
+/// Return the maximum allowable tilt
+- (double)maxTilt;
+
+/// Called by an actual tilt gesture.  We're setting the tilt as given
+- (void)setTilt:(double)newTilt;
 
 @end
 

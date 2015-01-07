@@ -54,14 +54,10 @@ using namespace WhirlyGlobe;
     return tiltDelegate;
 }
 
-// We'll let other gestures run
+// Don't play well with others
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
-    // We'll ask the rotation handler to defer to us if we're active
-    if ([otherGestureRecognizer.delegate isKindOfClass:[WGPinchDelegateFixed class]] && active)
-        return NO;
-    
-    return TRUE;
+    return FALSE;
 }
 
 // Called for pan actions
@@ -112,9 +108,17 @@ using namespace WhirlyGlobe;
             CGPoint curTouch = [pan locationInView:glView];
             double scale = (curTouch.y-startTouch.y)/frameSize.width;
             double move = scale * M_PI/4;
-            
+
+            // This tilt plants the horizon right in the middle
+            double maxTilt=M_PI/2.0;
+            if (_tiltCalcDelegate)
+                maxTilt = [_tiltCalcDelegate maxTilt];
+            else
+                maxTilt = asin(1.0/(1.0+view.heightAboveGlobe));
             double newTilt = move + startTilt;
-            view.tilt = newTilt;
+            view.tilt = std::min(std::max(0.0,newTilt),maxTilt);
+            if (_tiltCalcDelegate)
+                [_tiltCalcDelegate setTilt:view.tilt];
         }
             break;
         case UIGestureRecognizerStateFailed:
