@@ -172,9 +172,18 @@ static const float MomentumAnimLen = 1.0;
 				Point3d hit;
                 CGPoint touchPt = [pan locationInView:glView];
                 lastTouch = touchPt;
-				[view pointOnSphereFromScreen:touchPt transform:&startTransform 
+				bool onSphere = [view pointOnSphereFromScreen:touchPt transform:&startTransform
 									frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true];
-                                                
+                
+                // The math breaks down when we have a significant tilt
+                // Cancel when they do that
+                if (!onSphere && view.tilt != 0.0)
+                {
+                    self.gestureRecognizer.enabled = NO;
+                    self.gestureRecognizer.enabled = YES;
+                    return;
+                }
+                    
 				// This gives us a direction to rotate around
 				// And how far to rotate
 				Eigen::Quaterniond endRot;
