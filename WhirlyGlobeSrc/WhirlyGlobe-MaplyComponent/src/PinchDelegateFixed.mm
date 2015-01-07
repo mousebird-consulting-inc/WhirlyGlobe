@@ -62,13 +62,16 @@ using namespace WhirlyKit;
 
 - (double)tiltFromHeight:(double)height
 {
+    double maxValidTilt = [self maxTilt];
     if (!active)
-        return outsideTilt;
+    {
+        return std::min(outsideTilt,maxValidTilt);
+    }
     
-    float newTilt = 0.0;
+    double newTilt = 0.0;
     
     // Now the tilt, if we're in that mode
-    float newHeight = height;
+    double newHeight = height;
     if (newHeight <= minTiltHeight)
         newTilt = minTilt;
     else if (newHeight >= maxTiltHeight)
@@ -79,7 +82,7 @@ using namespace WhirlyKit;
             newTilt = t * (maxTilt - minTilt) + minTilt;
     }
     
-    return newTilt;
+    return std::min(newTilt,maxValidTilt);
 }
 
 /// Return the maximum allowable tilt
@@ -92,8 +95,7 @@ using namespace WhirlyKit;
 - (void)setTilt:(double)newTilt
 {
     active = false;
-    double theMaxTilt = [self maxTilt];
-    outsideTilt = std::max(newTilt,theMaxTilt);
+    outsideTilt = newTilt;
 }
 
 @end
@@ -156,6 +158,13 @@ using namespace WhirlyKit;
 	UIGestureRecognizerState theState = pinch.state;
 	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
     
+    if (theState == UIGestureRecognizerStateCancelled)
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kPinchDelegateDidEnd object:globeView];
+        valid = false;
+        return;
+    }
+    
     if (pinch.numberOfTouches != 2)
         valid = false;
 	
@@ -197,6 +206,7 @@ using namespace WhirlyKit;
 		case UIGestureRecognizerStateChanged:
             if (valid)
             {
+                bool onSphere = true;
 //                NSLog(@"Pinch updated");
                 [globeView cancelAnimation];
                 
@@ -207,13 +217,13 @@ using namespace WhirlyKit;
 
                 Eigen::Quaterniond newRotQuat = globeView.rotQuat;
                 Point3d axis = [globeView currentUp];
+                Eigen::Quaterniond oldQuat = globeView.rotQuat;
                 if (_zoomAroundPinch)
                 {
                     // Figure out where we are now
                     // We have to roll back to the original transform with the current height
                     //  to get the rotation we want
                     Point3d hit;
-                    Eigen::Quaterniond oldQuat = globeView.rotQuat;
                     [globeView setRotQuat:startQuat updateWatchers:false];
                     Eigen::Matrix4d curTransform = [globeView calcFullMatrix];
                     if ([globeView pointOnSphereFromScreen:[pinch locationInView:glView] transform:&curTransform
@@ -227,6 +237,7 @@ using namespace WhirlyKit;
                         axis = hit.normalized();
                         newRotQuat = startQuat * endRot;
                     } else {
+                        onSphere = false;
                         newRotQuat = oldQuat;
                     }
                 }
@@ -267,13 +278,22 @@ using namespace WhirlyKit;
                     }
                 }
                 
+                // This does strange things when we've got a serious tilt and we're off the globe
+                if (!onSphere && globeView.tilt != 0.0)
+                {
+                    globeView.rotQuat = oldQuat;
+                    self.gestureRecognizer.enabled = NO;
+                    self.gestureRecognizer.enabled = YES;
+                    return;
+                }
+                
                 [globeView setRotQuat:(newRotQuat) updateWatchers:false];
                 if (_tiltDelegate)
                 {
                     float newTilt = [_tiltDelegate tiltFromHeight:newH];
                     [globeView setTilt:newTilt];
                 }
-                
+
                 if (_rotateDelegate)
                     [_rotateDelegate updateWithCenter:[pinch locationInView:glView] touch:[pinch locationOfTouch:0 inView:glView ] glView:glView];
                 
