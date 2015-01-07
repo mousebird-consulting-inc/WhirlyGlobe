@@ -31,7 +31,11 @@
 
 /** A simple tilt delegate.
   */
-@interface WGStandardTiltDelegate : NSObject<WGTiltDelegate>
+@interface WGStandardTiltDelegate : NSObject<WGTiltCalculatorDelegate>
+
+// Initialize with a globe view
+- (id)initWithGlobeView:(WhirlyGlobeView *)globeView;
+
 @end
 
 /** WhirlyGlobe Pinch Gesture Delegate
@@ -62,7 +66,7 @@
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 
 // If set, we calculate the tilt every time we update
-@property (nonatomic,weak) NSObject<WGTiltDelegate> *tiltDelegate;
+@property (nonatomic,weak) NSObject<WGTiltCalculatorDelegate> *tiltDelegate;
 
 
 @end

@@ -38,6 +38,6 @@
 @property (nonatomic) float minZoom,maxZoom;
 
 // If set, we calculate the tilt every time we update
-@property (nonatomic,weak) NSObject<WGTiltDelegate> *tiltDelegate;
+@property (nonatomic,weak) NSObject<WGTiltCalculatorDelegate> *tiltDelegate;
 
 @end
