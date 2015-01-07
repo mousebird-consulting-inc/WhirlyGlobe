@@ -18,10 +18,137 @@
  *
  */
 
+#import <stdio.h>
 #import "GeometryOBJReader.h"
 
 namespace WhirlyKit
 {
+    
+bool GeometryModelOBJ::parseMaterials(FILE *fp)
+{
+    bool success = true;
+    Material *activeMtl = NULL;
+    
+    char line[2048];
+    int lineNo = 0;
+    
+    while (fgets(line, 2047, fp))
+    {
+        lineNo++;
+        int lineLen = strlen(line);
+        
+        // Empty line
+        if (lineLen == 0 || line[0] == '\n')
+            continue;
+        // Comment
+        if (line[0] == '#')
+            continue;
+        // Chop off a \r
+        if (line[lineNo-1]  == '\r')
+        {
+            line[lineNo-1] = 0;
+            lineNo--;
+        }
+        
+        std::vector<char *> toks;
+        // Parse the various tokens into an array
+        char *tok = NULL;
+        char *ptr = line;
+        char *next = NULL;
+        while ( (tok = strtok_r(ptr, " \t\n\r", &next)) )
+        {
+            toks.push_back(tok);
+            ptr = next;
+        }
+        
+        char *key = toks[0];
+        
+        if (!strcmp(key,"newmtl"))
+        {
+            if (toks.size() < 2)
+            {
+                success = false;
+                break;
+            }
+            
+            char *name = toks[1];
+            materials.resize(materials.size()+1);
+            Material &mat = materials[materials.size()-1];
+            activeMtl = &materials.back();
+            mat.name = name;
+        } else if (!strcmp(key,"Ka"))
+        {
+            if (toks.size() < 4 || !activeMtl)
+            {
+                success = false;
+                break;
+            }
+            
+            for (unsigned int ii=0;ii<3;ii++)
+                activeMtl->Ka[ii] = atof(toks[ii+1]);
+        } else if (!strcmp(key,"Kd"))
+        {
+            if (toks.size() < 4 || !activeMtl)
+            {
+                success = false;
+                break;
+            }
+            
+            for (unsigned int ii=0;ii<3;ii++)
+                activeMtl->Kd[ii] = atof(toks[ii+1]);
+            
+        } else if (!strcmp(key,"Ks"))
+        {
+            if (toks.size() < 4 || !activeMtl)
+            {
+                success = false;
+                break;
+            }
+            
+            for (unsigned int ii=0;ii<3;ii++)
+                activeMtl->Ks[ii] = atof(toks[ii+1]);
+        } else if (!strcmp(key,"d") || !strcmp(key,"Tr"))
+        {
+            if (toks.size() < 2 || !activeMtl)
+            {
+                success = false;
+                break;
+            }
+            
+            activeMtl->trans = atof(toks[1]);
+        } else if (!strcmp(key,"illum"))
+        {
+            if (toks.size() < 2 || !activeMtl)
+            {
+                success = false;
+                break;
+            }
+            
+            activeMtl->illum = atof(toks[1]);
+        } else if (!strcmp(key,"map_Ks"))
+        {
+            if (toks.size() < 2 || !activeMtl)
+            {
+                success = false;
+                break;
+            }
+            
+            activeMtl->tex_ambient = toks[1];
+        } else if (!strcmp(key, "map_Kd"))
+        {
+            if (toks.size() < 2 || !activeMtl)
+            {
+                success = false;
+                break;
+            }
+            
+            activeMtl->tex_diffuse = toks[1];
+        }
+        // Note: Ignoring map_d, map_bump, map_Ks, map_Ns or any of the options
+    }
+    
+    return success;
+}
 
 bool GeometryModelOBJ::parse(FILE *fp)
 {
@@ -71,17 +198,46 @@ bool GeometryModelOBJ::parse(FILE *fp)
             
             // Note: Parse material file
             char *mtlFile = toks[1];
+            
+            // Load the model
+            NSString *fullPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:[NSString stringWithFormat:@"%s",mtlFile]];
+            FILE *mtlFP = fopen([fullPath cStringUsingEncoding:NSASCIIStringEncoding],"r");
+            if (!mtlFP)
+            {
+                success = false;
+                break;
+            }
+            if (!parseMaterials(mtlFP))
+            {
+                success = false;
+                break;
+            }
+            fclose(mtlFP);
         } else if (!strcmp(key,"usemtl"))
         {
             // Use a pre-defined material
-            if (toks.size() < 1)
+            if (toks.size() < 1 || !activeGroup)
             {
                 success = false;
                 break;
             }
             
-            char *mtlName = toks[1];
-            // Note: Do something with the material
+            // Look for the material
+            std::string mtlName = toks[1];
+            for (unsigned int ii=0;ii<materials.size();ii++)
+            {
+                if (mtlName == materials[ii].name)
+                {
+                    activeGroup->mtlID = ii;
+                    break;
+                }
+            }
+            
+            if (activeGroup->mtlID < 0)
+            {
+                success = false;
+                break;
+            }
         } else if (!strcmp(key,"g"))
         {
             groups.resize(groups.size()+1);
@@ -183,6 +339,13 @@ bool GeometryModelOBJ::parse(FILE *fp)
         }
     }
     
+    // Link up the materials
+    for (unsigned int ii=0;ii<groups.size();ii++)
+    {
+        Group &group = groups[ii];
+        group.mat = &materials[ii];
+    }
+    
     return success;
 }
 
@@ -193,6 +356,8 @@ public:
     GroupBin(GeometryModelOBJ::Group *group) { groups.push_back(group); }
     bool operator < (const GroupBin &that) const
     {
+        if (!groups[0]->mat || !that.groups[0]->mat)
+            return groups[0]->mat < that.groups[0]->mat;
         return *(groups[0]->mat) < *(that.groups[0]->mat);
     }
     

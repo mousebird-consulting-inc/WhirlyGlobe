@@ -29,6 +29,8 @@ class GeometryModelOBJ
 public:
     // Parse file
     bool parse(FILE *fp);
+    // Parse material library
+    bool parseMaterials(FILE *fp);
     
     // Convert to raw geometry objects
     void toRawGeometry(std::vector<GeometryRaw> &rawGeom);
@@ -50,16 +52,18 @@ public:
         std::vector<Vertex> verts;
     };
 
+    // Simple material definition
     class Material
     {
     public:
         bool operator < (const Material &that) const
         {
-            return textureName < that.textureName;
+            return name < that.name;
         }
             
         std::string name;
-        std::string textureName;
+        std::string tex_ambient,tex_diffuse;
+        double Ka[3],Kd[3],Ks[3],trans,illum;
     };
 
     // Group is currently just a collection of faces
@@ -67,6 +71,7 @@ public:
     {
     public:
         Material *mat;
+        int mtlID;
         std::string name;
         std::vector<Face> faces;
     };
