@@ -246,8 +246,8 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     // Set the background color for the globe
     if (globeViewC)
         // Note: Debugging
-        baseViewC.clearColor = [UIColor colorWithWhite:0.8 alpha:1.0];
-//    baseViewC.clearColor = [UIColor blackColor];
+//        baseViewC.clearColor = [UIColor colorWithWhite:0.8 alpha:1.0];
+    baseViewC.clearColor = [UIColor blackColor];
     else
         baseViewC.clearColor = [UIColor whiteColor];
         
@@ -643,7 +643,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 - (void)addModels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc
 {
     // Load the model
-    NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"cessna" ofType:@"obj"];
+    NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"Meridian" ofType:@"obj"];
     if (!fullPath)
         return;
     MaplyGeomModel *model = [[MaplyGeomModel alloc] initWithObj:fullPath];
@@ -651,16 +651,21 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
         return;
 
     NSMutableArray *modelInstances = [NSMutableArray array];
+    // We need to scale the models down to display space.  They start out in meters.
+    MaplyMatrix *scaleMat = [[MaplyMatrix alloc] initWithScale:1.0/63710.0];
     for (unsigned int ii=offset;ii<len;ii+=stride)
     {
         LocationInfo *loc = &locations[ii];
         MaplyGeomModelInstance *mInst = [[MaplyGeomModelInstance alloc] init];
-        mInst.center = MaplyCoordinateMakeWithDegrees(loc->lon, loc->lat);
+        mInst.model = model;
+        mInst.transform = scaleMat;
+        MaplyCoordinate loc2d = MaplyCoordinateMakeWithDegrees(loc->lon, loc->lat);
+        mInst.center = MaplyCoordinate3dMake(loc2d.x, loc2d.y, 0.0);
         mInst.selectable = true;
         [modelInstances addObject:mInst];
     }
     
-    modelsObj = [baseViewC addModelInstances:modelInstances desc:desc mode:MaplyThreadAny];
+    modelsObj = [baseViewC addModelInstances:modelInstances desc:desc mode:MaplyThreadCurrent];
 }
 
 - (void)addLinesLon:(float)lonDelta lat:(float)latDelta color:(UIColor *)color
@@ -1578,7 +1583,7 @@ static const int NumMegaMarkers = 15000;
     {
         if (!modelsObj)
         {
-            [self addModels:locations len:NumLocations stride:4 offset:3 desc:@{}];
+            [self addModels:locations len:NumLocations stride:4 offset:2 desc:@{}];
         }
     } else {
         if (modelsObj)

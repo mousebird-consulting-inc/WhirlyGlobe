@@ -122,7 +122,7 @@ public:
     ~GeometryManager();
     
     /// Add raw geometry at the given location
-    SimpleIdentity addGeometry(std::vector<GeometryRaw *> &geom,const std::vector<Eigen::Matrix4d> &instances,NSDictionary *desc,ChangeSet &changes);
+    SimpleIdentity addGeometry(std::vector<GeometryRaw> &geom,const std::vector<Eigen::Matrix4d> &instances,NSDictionary *desc,ChangeSet &changes);
 
     /// Enable/disable active billboards
     void enableGeometry(SimpleIDSet &billIDs,bool enable,ChangeSet &changes);

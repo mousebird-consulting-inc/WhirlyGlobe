@@ -24,6 +24,10 @@ using namespace WhirlyKit;
 using namespace Eigen;
 
 @implementation MaplyGeomModel
+{
+    std::vector<std::string> textures;
+    std::vector<WhirlyKit::GeometryRaw> rawGeom;
+}
 
 - (id)initWithObj:(NSString *)fullPath
 {
@@ -38,10 +42,22 @@ using namespace Eigen;
     GeometryModelOBJ objModel;
     if (!objModel.parse(fp))
         return nil;
-
-    objModel.toRawGeometry(_rawGeom);
+    
+    objModel.toRawGeometry(textures,rawGeom);
     
     return self;
+}
+
+// Return the list of texture file names
+- (void)getTextureFileNames:(std::vector<std::string> &)texFileNames
+{
+    texFileNames = textures;
+}
+
+// Convert to
+- (void)asRawGeometry:(std::vector<WhirlyKit::GeometryRaw> &)outRawGeom withTexMapping:(WhirlyKit::TextureFileMap &)texFileMap
+{
+    outRawGeom = rawGeom;
 }
 
 @end
