@@ -26,8 +26,13 @@
 @interface MaplyMatrix : NSObject
 
 /** @brief Construct with yaw, pitch, and roll parameters.
-    @brief Construct the matrix with the standard yaw, pitch, and roll used by aircraft.
+    @details Construct the matrix with the standard yaw, pitch, and roll used by aircraft.
   */
 - (id)initWithYaw:(double)yaw pitch:(double)pitch roll:(double)roll;
+
+/** @brief Construct with a consistent scale in each dimension.
+    @details Construct with the same scale in x,y, and z.
+  */
+- (id)initWithScale:(double)scale;
 
 @end
