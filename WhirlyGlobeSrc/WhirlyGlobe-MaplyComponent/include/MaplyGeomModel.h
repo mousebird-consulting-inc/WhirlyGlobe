@@ -46,7 +46,7 @@
 /** @brief Where we'd like to place the instanced model.
     @details This is the center of the object in geographic radians.
  */
-@property (nonatomic) MaplyCoordinate center;
+@property (nonatomic) MaplyCoordinate3d center;
 
 /// @brief Transform used to oriented the model instance
 @property (nonatomic) MaplyMatrix *transform;

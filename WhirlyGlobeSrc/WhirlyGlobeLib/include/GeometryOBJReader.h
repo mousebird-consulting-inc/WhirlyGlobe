@@ -33,7 +33,7 @@ public:
     bool parseMaterials(FILE *fp);
     
     // Convert to raw geometry objects
-    void toRawGeometry(std::vector<GeometryRaw> &rawGeom);
+    void toRawGeometry(std::vector<std::string> &textures,std::vector<GeometryRaw> &rawGeom);
     
     // Vertices point to a vertex and optionally a tex coordinate and normal
     class Vertex
@@ -45,33 +45,36 @@ public:
         int norm;
     };
 
-    // Face is just a collection of vertices
-    class Face
-    {
-    public:
-        std::vector<Vertex> verts;
-    };
-
     // Simple material definition
     class Material
     {
     public:
+        Material() { Ka[0] = -1;  Kd[0] = -1, Ks[0] = -1, trans = 1.0, illum = 0.0; }
+        
         bool operator < (const Material &that) const
         {
             return name < that.name;
         }
-            
+        
         std::string name;
         std::string tex_ambient,tex_diffuse;
+        int tex_ambientID,tex_diffuseID;
         double Ka[3],Kd[3],Ks[3],trans,illum;
+    };
+
+    // Face is just a collection of vertices
+    class Face
+    {
+    public:
+        Material *mat;
+        int mtlID;
+        std::vector<Vertex> verts;
     };
 
     // Group is currently just a collection of faces
     class Group
     {
     public:
-        Material *mat;
-        int mtlID;
         std::string name;
         std::vector<Face> faces;
     };

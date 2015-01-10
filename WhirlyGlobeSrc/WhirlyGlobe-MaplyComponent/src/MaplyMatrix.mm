@@ -65,4 +65,16 @@
     return self;
 }
 
+- (id)initWithScale:(double)scale
+{
+    self = [super init];
+    _mat = _mat.Identity();
+    
+    _mat(0,0) = scale;
+    _mat(1,1) = scale;
+    _mat(2,2) = scale;
+    
+    return self;
+}
+
 @end

@@ -44,10 +44,10 @@ bool GeometryModelOBJ::parseMaterials(FILE *fp)
         if (line[0] == '#')
             continue;
         // Chop off a \r
-        if (line[lineNo-1]  == '\r')
+        if (line[lineLen-1]  == '\r')
         {
-            line[lineNo-1] = 0;
-            lineNo--;
+            line[lineLen-1] = 0;
+            lineLen--;
         }
         
         std::vector<char *> toks;
@@ -60,6 +60,9 @@ bool GeometryModelOBJ::parseMaterials(FILE *fp)
             toks.push_back(tok);
             ptr = next;
         }
+        
+        if (toks.empty())
+            continue;
         
         char *key = toks[0];
         
@@ -154,6 +157,7 @@ bool GeometryModelOBJ::parse(FILE *fp)
 {
     bool success = true;
     Group *activeGroup = NULL;
+    int activeMtl = -1;
     
     char line[2048],tmpTok[2048];
     int lineNo = 0;
@@ -170,10 +174,10 @@ bool GeometryModelOBJ::parse(FILE *fp)
         if (line[0] == '#')
             continue;
         // Chop off a \r
-        if (line[lineNo-1]  == '\r')
+        if (line[lineLen-1]  == '\r')
         {
-            line[lineNo-1] = 0;
-            lineNo--;
+            line[lineLen-1] = 0;
+            lineLen--;
         }
         
         std::vector<char *> toks;
@@ -224,20 +228,22 @@ bool GeometryModelOBJ::parse(FILE *fp)
             
             // Look for the material
             std::string mtlName = toks[1];
+            int whichMtl = -1;
             for (unsigned int ii=0;ii<materials.size();ii++)
             {
                 if (mtlName == materials[ii].name)
                 {
-                    activeGroup->mtlID = ii;
+                    whichMtl = ii;
                     break;
                 }
             }
             
-            if (activeGroup->mtlID < 0)
+            if (whichMtl < 0)
             {
                 success = false;
                 break;
             }
+            activeMtl = whichMtl;
         } else if (!strcmp(key,"g"))
         {
             groups.resize(groups.size()+1);
@@ -259,6 +265,7 @@ bool GeometryModelOBJ::parse(FILE *fp)
             }
             activeGroup->faces.resize(activeGroup->faces.size()+1);
             Face &face = activeGroup->faces.back();
+            face.mtlID = activeMtl;
             
             // We've either got numbers of collections of numbers separated by /
             for (unsigned int ii=1;ii<toks.size();ii++)
@@ -343,42 +350,146 @@ bool GeometryModelOBJ::parse(FILE *fp)
     for (unsigned int ii=0;ii<groups.size();ii++)
     {
         Group &group = groups[ii];
-        group.mat = &materials[ii];
+        for (unsigned int jj=0;jj<group.faces.size();jj++)
+        {
+            Face &face = group.faces[jj];
+            if (face.mtlID >= 0 && face.mtlID < materials.size())
+                face.mat = &materials[face.mtlID];
+        }
     }
     
     return success;
 }
 
-// Used to sort groups by texture name
-class GroupBin
+// Used to sort faces by material
+class FaceBin
 {
 public:
-    GroupBin(GeometryModelOBJ::Group *group) { groups.push_back(group); }
-    bool operator < (const GroupBin &that) const
+    FaceBin(GeometryModelOBJ::Face *face) { faces.push_back(face); mtlID = face->mtlID; }
+
+    bool operator < (const FaceBin &that) const
     {
-        if (!groups[0]->mat || !that.groups[0]->mat)
-            return groups[0]->mat < that.groups[0]->mat;
-        return *(groups[0]->mat) < *(that.groups[0]->mat);
+        return mtlID < that.mtlID;
     }
     
-    std::vector<GeometryModelOBJ::Group *> groups;
-};
-typedef std::set<GroupBin> GroupBinSet;
+    int mtlID;
     
-void GeometryModelOBJ::toRawGeometry(std::vector<GeometryRaw> &rawGeom)
+    std::vector<GeometryModelOBJ::Face *> faces;
+};
+typedef std::set<FaceBin> FaceBinSet;
+    
+void GeometryModelOBJ::toRawGeometry(std::vector<std::string> &textures,std::vector<GeometryRaw> &rawGeom)
 {
-    // Sort the groups by texture
-    GroupBinSet groupBins;
+    // Unique list of textures
+    std::map<std::string,int> textureMapping;
+    int texCount = 0;
+    for (unsigned int ii=0;ii<materials.size();ii++)
+    {
+        Material &mat = materials[ii];
+        mat.tex_ambientID = -1;  mat.tex_diffuseID = -1;
+        if (!mat.tex_ambient.empty())
+        {
+            auto it = textureMapping.find(mat.tex_ambient);
+            if (it != textureMapping.end())
+                mat.tex_ambientID = it->second;
+            else {
+                mat.tex_ambientID = texCount;
+                textureMapping[mat.tex_ambient] = texCount++;
+            }
+        }
+        if (!mat.tex_diffuse.empty())
+        {
+            auto it = textureMapping.find(mat.tex_diffuse);
+            if (it != textureMapping.end())
+                mat.tex_diffuseID = it->second;
+            else {
+                mat.tex_diffuseID = texCount;
+                textureMapping[mat.tex_diffuse] = texCount++;
+            }
+        }
+    }
+    textures.resize(texCount);
+    for (auto it: textureMapping)
+        textures[it.second] = it.first;
+    
+    // Sort the faces by material
+    FaceBinSet faceBins;
     for (unsigned int ii=0;ii<groups.size();ii++)
     {
-        GroupBin groupBin(&groups[ii]);
-        const auto &it = groupBins.find(groupBin);
-        if (it == groupBins.end())
-            groupBins.insert(groupBin);
-        else {
-            groupBin.groups.insert(groupBin.groups.end(),it->groups.begin(), it->groups.end());
-            groupBins.erase(it);
-            groupBins.insert(groupBin);
+        Group *group = &groups[ii];
+        for (unsigned int jj=0;jj<group->faces.size();jj++)
+        {
+            Face *face = &group->faces[jj];
+            
+            FaceBin faceBin(face);
+            const auto &it = faceBins.find(faceBin);
+            if (it == faceBins.end())
+                faceBins.insert(faceBin);
+            else {
+                faceBin.faces.insert(faceBin.faces.end(),it->faces.begin(), it->faces.end());
+                faceBins.erase(it);
+                faceBins.insert(faceBin);
+            }
+        }
+    }
+    
+    // Convert the face bins to raw geometry
+    for (auto it: faceBins)
+    {
+        rawGeom.resize(rawGeom.size()+1);
+        GeometryRaw &geom = rawGeom.back();
+        geom.type = WhirlyKitGeometryTriangles;
+        
+        // Work through the groups
+        for (unsigned int jj=0;jj<it.faces.size();jj++)
+        {
+            const Face *face = it.faces[jj];
+            int basePt = geom.pts.size();
+            for (unsigned int kk=0;kk<face->verts.size();kk++)
+            {
+                const Vertex &vert = face->verts[kk];
+                // Note: Should be range checking these
+                int vertId = vert.vert-1;
+                if (vertId < 0 || vertId >= verts.size())
+                    break;
+                Point3d pt = verts[vertId];
+                                    
+                Point3d norm(0,0,1);
+                int normId = vert.norm-1;
+                if (normId >= 0 && normId < norms.size())
+                    norm = norms[normId];
+                TexCoord texCoord(0,0);
+                int texId = vert.texCoord-1;
+                if (texId >= 0 && texId < texCoords.size())
+                {
+                    const Point2d &pt2d = texCoords[vert.texCoord];
+                    texCoord = TexCoord(pt2d.x(),pt2d.y());
+                }
+                RGBAColor diffuse(255,255,255,255);
+                if (face->mat->Kd[0] != -1)
+                {
+                    diffuse.r = face->mat->Kd[0] * 255;
+                    diffuse.g = face->mat->Kd[1] * 255;
+                    diffuse.b = face->mat->Kd[2] * 255;
+                    diffuse.a = face->mat->trans * 255;
+                }
+                
+                geom.pts.push_back(pt);
+                geom.norms.push_back(norm);
+                if (face->mat->tex_ambientID >= 0 || face->mat->tex_diffuseID >= 0)
+                    geom.texCoords.push_back(texCoord);
+                geom.colors.push_back(diffuse);
+            }
+            
+            // Assume these are convex for now
+            for (unsigned int kk = 2;kk<3;kk++)
+            {
+                geom.triangles.resize(geom.triangles.size()+1);
+                GeometryRaw::RawTriangle &tri = geom.triangles.back();
+                tri.verts[0] = basePt;
+                tri.verts[1] = basePt+kk-1;
+                tri.verts[2] = basePt+kk;
+            }
         }
     }
 }

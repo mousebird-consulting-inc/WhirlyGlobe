@@ -220,7 +220,7 @@ GeometryManager::~GeometryManager()
     
 
 
-SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,const std::vector<Eigen::Matrix4d> &instances,NSDictionary *desc,ChangeSet &changes)
+SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const std::vector<Eigen::Matrix4d> &instances,NSDictionary *desc,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     GeomSceneRep *sceneRep = new GeomSceneRep();
@@ -231,7 +231,7 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,con
     std::vector<std::vector<GeometryRaw *>> sortedGeom;
     for (unsigned int ii=0;ii<geom.size();ii++)
     {
-        GeometryRaw *raw = geom[ii];
+        GeometryRaw *raw = &geom[ii];
         bool found = false;
         for (unsigned int jj=0;jj<sortedGeom.size();jj++)
         {
@@ -251,32 +251,49 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,con
         }
     }
     
-    // Convert the sorted lists of geometry into drawables
-    for (unsigned int ii=0;ii<sortedGeom.size();ii++)
+    // Work through the model instances
+    for (unsigned int ii=0;ii<instances.size();ii++)
     {
-        BasicDrawable *draw = NULL;
-        std::vector<GeometryRaw *> &sg = sortedGeom[ii];
-        for (unsigned int jj=0;jj<sg.size();jj++)
+        Matrix4d inInstMat = instances[ii];
+        Vector4d center = inInstMat * Vector4d(0,0,0,1);
+        center.x() /= center.w();  center.y() /= center.w();  center.z() /= center.w();
+        Eigen::Affine3d transBack(Eigen::Translation3d(-center.x(),-center.y(),-center.z()));
+        Matrix4d transBackMat = transBack.matrix();
+        Matrix4d instMat = transBackMat * inInstMat;
+        
+        // Convert the sorted lists of geometry into drawables
+        for (unsigned int jj=0;jj<sortedGeom.size();jj++)
         {
-            GeometryRaw *raw = sg[jj];
-            int numPts,numTris;
-            raw->estimateSize(numPts, numTris);
-            if (!draw || (draw->getNumPoints() + numPts > MaxDrawablePoints) ||
-                (draw->getNumTris() + numTris > MaxDrawableTriangles))
+            BasicDrawable *draw = NULL;
+            std::vector<GeometryRaw *> &sg = sortedGeom[jj];
+            for (unsigned int kk=0;kk<sg.size();kk++)
             {
-                draw = new BasicDrawable("Geometry Manager");
-                draw->setType((raw->type == WhirlyKitGeometryLines ? GL_LINES : GL_TRIANGLES));
-                draw->setOnOff(geomInfo.enable);
-                draw->setColor([geomInfo.color asRGBAColor]);
-                draw->setVisibleRange(geomInfo.minVis, geomInfo.maxVis);
-                draw->setDrawPriority(geomInfo.drawPriority);
-                changes.push_back(new AddDrawableReq(draw));
+                GeometryRaw *raw = sg[kk];
+                int numPts,numTris;
+                raw->estimateSize(numPts, numTris);
+                if (!draw || (draw->getNumPoints() + numPts > MaxDrawablePoints) ||
+                    (draw->getNumTris() + numTris > MaxDrawableTriangles))
+                {
+                    draw = new BasicDrawable("Geometry Manager");
+                    draw->setType((raw->type == WhirlyKitGeometryLines ? GL_LINES : GL_TRIANGLES));
+                    draw->setOnOff(geomInfo.enable);
+                    draw->setColor([geomInfo.color asRGBAColor]);
+                    draw->setVisibleRange(geomInfo.minVis, geomInfo.maxVis);
+                    draw->setDrawPriority(geomInfo.drawPriority);
+                    draw->setRequestZBuffer(true);
+                    draw->setWriteZBuffer(true);
+                    Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
+                    Matrix4d transMat = trans.matrix();
+                    draw->setMatrix(&transMat);
+                    changes.push_back(new AddDrawableReq(draw));
+                }
+                
+                raw->buildDrawable(draw,instMat);
+                // Note: Selection
             }
-            
-            // Note: Debugging
-//            raw->buildDrawable(draw);
-            // Note: Do the selection manager
         }
+        
+        // Note: Not sharing drawables between instances
     }
     
     SimpleIdentity geomID = sceneRep->getId();
