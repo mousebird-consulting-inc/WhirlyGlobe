@@ -33,7 +33,7 @@
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyTexture_private.h"
 #import "MaplyMatrix_private.h"
-#import "MaplyGeomModel.h"
+#import "MaplyGeomModel_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -1614,13 +1614,21 @@ public:
     MaplyGeomModel *model;
     std::vector<MaplyGeomModelInstance *> instances;
 };
-typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
+struct GeomModelInstancesCmp
+{
+    bool operator ()(const GeomModelInstances *a,const GeomModelInstances *b)
+    {
+        return *(a) < *(b);
+    }
+};
+typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelInstancesSet;
 
 // Called in the layer thread
 - (void)addModelInstancesRun:(NSArray *)argArray
 {
-    // Note: Debugging
-/*    NSArray *modelInstances = argArray[0];
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    CoordSystem *coordSys = coordAdapter->getCoordSystem();
+    NSArray *modelInstances = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
     NSMutableDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
@@ -1636,21 +1644,62 @@ typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
     GeomModelInstancesSet instSort;
     for (MaplyGeomModelInstance *mInst in modelInstances)
     {
-        GeomModelInstances searchInst(mInst.model);
-        GeomModelInstancesSet::iterator it = instSort.find(&searchInst);
-        if (it != instSort.end())
+        if (mInst.model)
         {
-            (*it)->instances.push_back(mInst);
-        } else {
-            GeomModelInstances *newInsts = new GeomModelInstances(mInst.model);
-            newInsts->instances.push_back(mInst);
+            GeomModelInstances searchInst(mInst.model);
+            GeomModelInstancesSet::iterator it = instSort.find(&searchInst);
+            if (it != instSort.end())
+            {
+                (*it)->instances.push_back(mInst);
+            } else {
+                GeomModelInstances *newInsts = new GeomModelInstances(mInst.model);
+                newInsts->instances.push_back(mInst);
+                instSort.insert(newInsts);
+            }
         }
     }
     
     // Add each model with its group of instances
-    for (auto it : instSort)
+    if (geomManager)
     {
-        geomManager->addGeometry(<#std::vector<GeometryRaw *> &geom#>, <#const std::vector<Eigen::Matrix4d> &instances#>, <#NSDictionary *desc#>, <#ChangeSet &changes#>)
+        ChangeSet changes;
+        for (auto it : instSort)
+        {
+            // Set up the textures and conver the geometry
+            MaplyGeomModel *model = it->model;
+            
+            // Add the textures
+            std::vector<std::string> texFileNames;
+            [model getTextureFileNames:texFileNames];
+            std::vector<WhirlyKit::GeometryRaw> rawGeom;
+            TextureFileMap texFileMap;
+            [model asRawGeometry:rawGeom withTexMapping:texFileMap];
+            
+            // Convert the matrices
+            std::vector<Matrix4d> matInst;
+            for (unsigned int ii=0;ii<it->instances.size();ii++)
+            {
+                MaplyGeomModelInstance *modelInst = it->instances[ii];
+                Matrix4d mat = mat.Identity();
+
+                // Local transformation, before the placement
+                if (modelInst.transform)
+                    mat = modelInst.transform.mat;
+                
+                // Add in the placement
+                Point3d localPt = coordSys->geographicToLocal(Point2d(modelInst.center.x,modelInst.center.y));
+                Point3d dispLoc = coordAdapter->localToDisplay(Point3d(localPt.x(),localPt.y(),modelInst.center.z));
+                Eigen::Affine3d trans(Eigen::Translation3d(dispLoc.x(),dispLoc.y(),dispLoc.z()));
+                Matrix4d transMat = trans.matrix();
+                mat = transMat * mat;
+
+                matInst.push_back(mat);
+            }
+            
+            geomManager->addGeometry(rawGeom, matInst, inDesc, changes);
+        }
+        
+        [self flushChanges:changes mode:threadMode];
     }
     
     // Clean up the instances we sorted
@@ -1661,7 +1710,7 @@ typedef std::set<GeomModelInstances *> GeomModelInstancesSet;
     {
         [userObjects addObject:compObj];
         compObj.underConstruction = false;
-    } */
+    }
 }
 
 - (MaplyComponentObject *)addModelInstances:(NSArray *)modelInstances desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
