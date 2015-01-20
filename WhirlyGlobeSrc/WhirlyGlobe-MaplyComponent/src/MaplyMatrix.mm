@@ -20,6 +20,8 @@
 
 #import "MaplyMatrix_private.h"
 
+using namespace Eigen;
+
 @implementation MaplyMatrix
 
 - (id)init
@@ -75,6 +77,26 @@
     _mat(2,2) = scale;
     
     return self;
+}
+
+- (id)initWithAngle:(double)ang axisX:(double)x axisY:(double)y axisZ:(double)z
+{
+    self = [super init];
+    Affine3d rotMat(AngleAxisd(ang,Vector3d(x,y,z)));
+    _mat = rotMat.matrix();
+    
+    return self;
+}
+
+- (id)multiplyWith:(MaplyMatrix *)other
+{
+    MaplyMatrix *newMat = [[MaplyMatrix alloc] init];
+    Matrix4d mat1 = _mat;
+    Matrix4d mat2 = other.mat;
+    Matrix4d resMat = mat1 * mat2;
+    newMat.mat = resMat;
+    
+    return newMat;
 }
 
 @end
