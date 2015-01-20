@@ -5,7 +5,7 @@ do
 
 echo "Building header for $mod"
 javac -classpath /Users/sjg/android/adt-bundle-mac-x86_64-20130917/sdk/platforms/android-18/android.jar:.  com/mousebird/maply/$mod.java
-javah -jni com.mousebird.maply.$mod
+javah -classpath /Users/sjg/android/adt-bundle-mac-x86_64-20130917/sdk/platforms/android-18/android.jar:. -jni com.mousebird.maply.$mod
 mv com_mousebird_maply_$mod.h ../jni/
 mv com_mousebird_maply_$mod_*.h ../jni/
 

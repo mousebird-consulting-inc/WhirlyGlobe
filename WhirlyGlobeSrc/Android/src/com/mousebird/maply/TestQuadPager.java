@@ -66,7 +66,7 @@ public class TestQuadPager implements QuadPagingLayer.PagingInterface
 				ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
 
 				// Areal that covers the tile
-				Mbr mbr = QuadPagingLayer.geoBoundsForTile(tileID);
+				Mbr mbr = layer.geoBoundsForTile(tileID);
 				VectorObject vecObj = new VectorObject();
 				Point2d pts[] = new Point2d[4];
 				Point2d span = mbr.span();

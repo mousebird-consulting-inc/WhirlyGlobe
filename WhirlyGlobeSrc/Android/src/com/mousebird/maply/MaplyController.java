@@ -156,7 +156,7 @@ public class MaplyController implements View.OnTouchListener
 	 */
 	public MaplyController(Activity mainActivity) 
 	{		
-//		System.loadLibrary("Maply");
+		System.loadLibrary("Maply");
 		activity = mainActivity;
 		
 		// Need a coordinate system to display conversion

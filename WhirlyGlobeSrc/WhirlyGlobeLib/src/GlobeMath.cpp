@@ -28,7 +28,7 @@ using namespace WhirlyKit;
 
 // These are just pointers and they won't change
 // We'll initialize them once
-static projPJ pj_latlon,pj_geocentric;
+static projPJ pj_latlon=NULL,pj_geocentric=NULL;
 
 namespace WhirlyKit
 {

@@ -268,13 +268,13 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	 * Calculate the bounding box for a given tile in geographic, that is in 
 	 * WGS84 longitude/latitude radians.
 	 */
-	static public Mbr geoBoundsForTile(MaplyTileID tileID)
+	public Mbr geoBoundsForTile(MaplyTileID tileID)
 	{
 		Mbr mbr = new Mbr(new Point2d(0,0),new Point2d(0,0));
 		geoBoundsForTileNative(tileID.x,tileID.y,tileID.level,mbr.ll,mbr.ur);
 		return mbr;
 	}
-	static public native void geoBoundsForTileNative(int x,int y,int level,Point2d ll,Point2d ur);
+	public native void geoBoundsForTileNative(int x,int y,int level,Point2d ll,Point2d ur);
 	
 	// Called by the native side when it's time to load a tile
 	void loadTile(int x,int y,int level)

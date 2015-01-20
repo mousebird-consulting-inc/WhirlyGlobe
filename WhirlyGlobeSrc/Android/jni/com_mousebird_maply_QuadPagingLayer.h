@@ -13,7 +13,7 @@ extern "C" {
  * Signature: (IIILcom/mousebird/maply/Point2d;Lcom/mousebird/maply/Point2d;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_geoBoundsForTileNative
-  (JNIEnv *, jclass, jint, jint, jint, jobject, jobject);
+  (JNIEnv *, jobject, jint, jint, jint, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_QuadPagingLayer
