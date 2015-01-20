@@ -107,7 +107,7 @@ public:
     /// The triangles, which reference points
     std::vector<RawTriangle> triangles;
     /// A texture ID for the geometry
-    WhirlyKit::SimpleIdentity texId;
+    int texId;
 };
 
 #define kWKGeometryManager "WKGeometryManager"

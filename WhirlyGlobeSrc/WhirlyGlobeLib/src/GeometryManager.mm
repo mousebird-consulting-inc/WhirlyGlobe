@@ -274,8 +274,9 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const
                 GeometryRaw *raw = sg[kk];
                 int numPts,numTris;
                 raw->estimateSize(numPts, numTris);
-                if (!draw || (draw->getNumPoints() + numPts > MaxDrawablePoints) ||
-                    (draw->getNumTris() + numTris > MaxDrawableTriangles))
+                // Note: Not sharing drawables at the moment
+//                if (!draw || (draw->getNumPoints() + numPts > MaxDrawablePoints) ||
+//                    (draw->getNumTris() + numTris > MaxDrawableTriangles))
                 {
                     draw = new BasicDrawable("Geometry Manager");
                     draw->setType((raw->type == WhirlyKitGeometryLines ? GL_LINES : GL_TRIANGLES));

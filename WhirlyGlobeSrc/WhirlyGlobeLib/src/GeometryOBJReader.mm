@@ -444,6 +444,15 @@ void GeometryModelOBJ::toRawGeometry(std::vector<std::string> &textures,std::vec
         GeometryRaw &geom = rawGeom.back();
         geom.type = WhirlyKitGeometryTriangles;
         
+        // Figure out if there's a texture ID
+        geom.texId = EmptyIdentity;
+        if (it.mtlID > -1)
+        {
+            Material &mtl = materials[it.mtlID];
+            if (mtl.tex_diffuseID > -1)
+                geom.texId = mtl.tex_diffuseID;
+        }
+        
         // Work through the faces
         for (unsigned int jj=0;jj<it.faces.size();jj++)
         {
@@ -497,14 +506,14 @@ void GeometryModelOBJ::toRawGeometry(std::vector<std::string> &textures,std::vec
 
             // Force double-sided ness
             // Assume these are convex for now
-//            for (unsigned int kk = 2;kk<face->verts.size();kk++)
-//            {
-//                geom.triangles.resize(geom.triangles.size()+1);
-//                GeometryRaw::RawTriangle &tri = geom.triangles.back();
-//                tri.verts[1] = basePt;
-//                tri.verts[0] = basePt+kk-1;
-//                tri.verts[2] = basePt+kk;
-//            }
+            for (unsigned int kk = 2;kk<face->verts.size();kk++)
+            {
+                geom.triangles.resize(geom.triangles.size()+1);
+                GeometryRaw::RawTriangle &tri = geom.triangles.back();
+                tri.verts[1] = basePt;
+                tri.verts[0] = basePt+kk-1;
+                tri.verts[2] = basePt+kk;
+            }
         }
     }
 }

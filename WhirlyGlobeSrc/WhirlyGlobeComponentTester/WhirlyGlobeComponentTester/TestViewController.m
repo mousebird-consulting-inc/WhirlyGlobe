@@ -643,7 +643,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 - (void)addModels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc
 {
     // Load the model
-    NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"Meridian" ofType:@"obj"];
+    NSString *fullPath = [[NSBundle mainBundle] pathForResource:@"cessna" ofType:@"obj"];
     if (!fullPath)
         return;
     MaplyGeomModel *model = [[MaplyGeomModel alloc] initWithObj:fullPath];
