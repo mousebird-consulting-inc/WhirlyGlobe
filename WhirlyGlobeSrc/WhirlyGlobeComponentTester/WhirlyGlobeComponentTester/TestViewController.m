@@ -652,7 +652,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 
     NSMutableArray *modelInstances = [NSMutableArray array];
     // We need to scale the models down to display space.  They start out in meters.
-    MaplyMatrix *scaleMat = [[MaplyMatrix alloc] initWithScale:100.0/63710.0];
+    MaplyMatrix *scaleMat = [[MaplyMatrix alloc] initWithScale:1.0/63710.0];
     for (unsigned int ii=offset;ii<len;ii+=stride)
     {
         LocationInfo *loc = &locations[ii];
