@@ -191,6 +191,9 @@ bool GeometryModelOBJ::parse(FILE *fp)
             ptr = next;
         }
         
+        if (toks.empty())
+            continue;
+        
         char *key = toks[0];
         if (!strcmp(key,"mtllib"))
         {
@@ -237,7 +240,8 @@ bool GeometryModelOBJ::parse(FILE *fp)
                     break;
                 }
             }
-            
+
+            // Note: Allowing materials we don't recognize
             if (whichMtl < 0)
             {
                 success = false;
@@ -432,7 +436,7 @@ void GeometryModelOBJ::toRawGeometry(std::vector<std::string> &textures,std::vec
             }
         }
     }
-    
+        
     // Convert the face bins to raw geometry
     for (auto it: faceBins)
     {
@@ -440,7 +444,7 @@ void GeometryModelOBJ::toRawGeometry(std::vector<std::string> &textures,std::vec
         GeometryRaw &geom = rawGeom.back();
         geom.type = WhirlyKitGeometryTriangles;
         
-        // Work through the groups
+        // Work through the faces
         for (unsigned int jj=0;jj<it.faces.size();jj++)
         {
             const Face *face = it.faces[jj];
@@ -466,7 +470,7 @@ void GeometryModelOBJ::toRawGeometry(std::vector<std::string> &textures,std::vec
                     texCoord = TexCoord(pt2d.x(),pt2d.y());
                 }
                 RGBAColor diffuse(255,255,255,255);
-                if (face->mat->Kd[0] != -1)
+                if (face->mat && face->mat->Kd[0] != -1)
                 {
                     diffuse.r = face->mat->Kd[0] * 255;
                     diffuse.g = face->mat->Kd[1] * 255;
@@ -476,13 +480,13 @@ void GeometryModelOBJ::toRawGeometry(std::vector<std::string> &textures,std::vec
                 
                 geom.pts.push_back(pt);
                 geom.norms.push_back(norm);
-                if (face->mat->tex_ambientID >= 0 || face->mat->tex_diffuseID >= 0)
+                if (face->mat && (face->mat->tex_ambientID >= 0 || face->mat->tex_diffuseID >= 0))
                     geom.texCoords.push_back(texCoord);
                 geom.colors.push_back(diffuse);
             }
             
             // Assume these are convex for now
-            for (unsigned int kk = 2;kk<3;kk++)
+            for (unsigned int kk = 2;kk<face->verts.size();kk++)
             {
                 geom.triangles.resize(geom.triangles.size()+1);
                 GeometryRaw::RawTriangle &tri = geom.triangles.back();
@@ -490,6 +494,17 @@ void GeometryModelOBJ::toRawGeometry(std::vector<std::string> &textures,std::vec
                 tri.verts[1] = basePt+kk-1;
                 tri.verts[2] = basePt+kk;
             }
+
+            // Force double-sided ness
+            // Assume these are convex for now
+//            for (unsigned int kk = 2;kk<face->verts.size();kk++)
+//            {
+//                geom.triangles.resize(geom.triangles.size()+1);
+//                GeometryRaw::RawTriangle &tri = geom.triangles.back();
+//                tri.verts[1] = basePt;
+//                tri.verts[0] = basePt+kk-1;
+//                tri.verts[2] = basePt+kk;
+//            }
         }
     }
 }

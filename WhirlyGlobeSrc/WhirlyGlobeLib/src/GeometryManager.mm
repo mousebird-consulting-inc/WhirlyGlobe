@@ -177,6 +177,7 @@ void GeometryRaw::buildDrawable(BasicDrawable *draw,const Eigen::Matrix4d &mat)
             break;
     }
     draw->setTexId(0,texId);
+    unsigned int baseVert = draw->getNumPoints();
     for (unsigned int ii=0;ii<pts.size();ii++)
     {
         const Point3d &pt = pts[ii];
@@ -195,12 +196,14 @@ void GeometryRaw::buildDrawable(BasicDrawable *draw,const Eigen::Matrix4d &mat)
         if (texId != EmptyIdentity)
             draw->addTexCoord(0,texCoords[ii]);
         if (!colors.empty())
+        {
             draw->addColor(colors[ii]);
+        }
     }
     for (unsigned int ii=0;ii<triangles.size();ii++)
     {
         RawTriangle tri = triangles[ii];
-        draw->addTriangle(BasicDrawable::Triangle(tri.verts[0],tri.verts[1],tri.verts[2]));
+        draw->addTriangle(BasicDrawable::Triangle(tri.verts[0]+baseVert,tri.verts[1]+baseVert,tri.verts[2]+baseVert));
     }
 }
     
@@ -285,6 +288,7 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const
                     Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
                     Matrix4d transMat = trans.matrix();
                     draw->setMatrix(&transMat);
+                    sceneRep->drawIDs.insert(draw->getId());
                     changes.push_back(new AddDrawableReq(draw));
                 }
                 

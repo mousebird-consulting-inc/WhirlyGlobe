@@ -1696,7 +1696,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 matInst.push_back(mat);
             }
             
-            geomManager->addGeometry(rawGeom, matInst, inDesc, changes);
+            SimpleIdentity geomID = geomManager->addGeometry(rawGeom, matInst, inDesc, changes);
+            if (geomID != EmptyIdentity)
+                compObj.geomIDs.insert(geomID);
         }
         
         [self flushChanges:changes mode:threadMode];
@@ -2105,6 +2107,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
     BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
+    GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
 
     ChangeSet changes;
         
@@ -2141,6 +2144,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     chunkManager->removeChunks(userObj.chunkIDs, changes);
                 if (billManager && !userObj.billIDs.empty())
                     billManager->removeBillboards(userObj.billIDs, changes);
+                if (geomManager && !userObj.geomIDs.empty())
+                    geomManager->removeGeometry(userObj.geomIDs, changes);
                 
                 // And associated textures
                 for (std::set<MaplyTexture *>::iterator it = userObj.textures.begin();
