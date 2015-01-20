@@ -17,14 +17,6 @@
 		2B62DD8A16E7F3A2001F52FC /* StartupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD8316E7F3A2001F52FC /* StartupViewController.m */; };
 		2B62DD8B16E7F3A2001F52FC /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD8516E7F3A2001F52FC /* TestViewController.m */; };
 		2B8570B11A5DE4D200705AA7 /* vp.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 2B8570B01A5DE4D200705AA7 /* vp.mtl */; };
-		2B8570CA1A609FD500705AA7 /* Meridian.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 2B8570C81A609FD500705AA7 /* Meridian.mtl */; };
-		2B8570D31A609FDC00705AA7 /* Meridian0.bmp in Resources */ = {isa = PBXBuildFile; fileRef = 2B8570CC1A609FDC00705AA7 /* Meridian0.bmp */; };
-		2B8570D41A609FDC00705AA7 /* Meridian1.bmp in Resources */ = {isa = PBXBuildFile; fileRef = 2B8570CD1A609FDC00705AA7 /* Meridian1.bmp */; };
-		2B8570D51A609FDC00705AA7 /* Meridian2.bmp in Resources */ = {isa = PBXBuildFile; fileRef = 2B8570CE1A609FDC00705AA7 /* Meridian2.bmp */; };
-		2B8570D61A609FDC00705AA7 /* Meridian3.bmp in Resources */ = {isa = PBXBuildFile; fileRef = 2B8570CF1A609FDC00705AA7 /* Meridian3.bmp */; };
-		2B8570D71A609FDC00705AA7 /* Meridian4.bmp in Resources */ = {isa = PBXBuildFile; fileRef = 2B8570D01A609FDC00705AA7 /* Meridian4.bmp */; };
-		2B8570D81A609FDC00705AA7 /* Meridian5.bmp in Resources */ = {isa = PBXBuildFile; fileRef = 2B8570D11A609FDC00705AA7 /* Meridian5.bmp */; };
-		2B8570D91A609FDC00705AA7 /* Meridian6.bmp in Resources */ = {isa = PBXBuildFile; fileRef = 2B8570D21A609FDC00705AA7 /* Meridian6.bmp */; };
 		2B8571531A6DC43F00705AA7 /* cube.obj in Resources */ = {isa = PBXBuildFile; fileRef = 2B8571521A6DC43F00705AA7 /* cube.obj */; };
 		2BA13BFF17F10D9A000C43B7 /* libWhirlyGlobe-MaplyComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DD9216E7F3D3001F52FC /* libWhirlyGlobe-MaplyComponent.a */; };
 		2BA13C0117F10E49000C43B7 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BA13C0017F10E49000C43B7 /* CFNetwork.framework */; };
@@ -469,14 +461,6 @@
 		2B62DDBD16E7F54B001F52FC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		2B8218CC176FCB7C0012322A /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		2B8570B01A5DE4D200705AA7 /* vp.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vp.mtl; sourceTree = "<group>"; };
-		2B8570C81A609FD500705AA7 /* Meridian.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Meridian.mtl; path = "../../../Seattle Avionics/flyq_efb/SaKit/SaKit/Res/models/Meridian.mtl"; sourceTree = "<group>"; };
-		2B8570CC1A609FDC00705AA7 /* Meridian0.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = Meridian0.bmp; path = "../../../Seattle Avionics/flyq_efb/SaKit/SaKit/Res/models/Meridian0.bmp"; sourceTree = "<group>"; };
-		2B8570CD1A609FDC00705AA7 /* Meridian1.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = Meridian1.bmp; path = "../../../Seattle Avionics/flyq_efb/SaKit/SaKit/Res/models/Meridian1.bmp"; sourceTree = "<group>"; };
-		2B8570CE1A609FDC00705AA7 /* Meridian2.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = Meridian2.bmp; path = "../../../Seattle Avionics/flyq_efb/SaKit/SaKit/Res/models/Meridian2.bmp"; sourceTree = "<group>"; };
-		2B8570CF1A609FDC00705AA7 /* Meridian3.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = Meridian3.bmp; path = "../../../Seattle Avionics/flyq_efb/SaKit/SaKit/Res/models/Meridian3.bmp"; sourceTree = "<group>"; };
-		2B8570D01A609FDC00705AA7 /* Meridian4.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = Meridian4.bmp; path = "../../../Seattle Avionics/flyq_efb/SaKit/SaKit/Res/models/Meridian4.bmp"; sourceTree = "<group>"; };
-		2B8570D11A609FDC00705AA7 /* Meridian5.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = Meridian5.bmp; path = "../../../Seattle Avionics/flyq_efb/SaKit/SaKit/Res/models/Meridian5.bmp"; sourceTree = "<group>"; };
-		2B8570D21A609FDC00705AA7 /* Meridian6.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = Meridian6.bmp; path = "../../../Seattle Avionics/flyq_efb/SaKit/SaKit/Res/models/Meridian6.bmp"; sourceTree = "<group>"; };
 		2B8571521A6DC43F00705AA7 /* cube.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cube.obj; path = resources/cube.obj; sourceTree = SOURCE_ROOT; };
 		2BA13BF117EE1875000C43B7 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		2BA13BF317EE1884000C43B7 /* libc++abi.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++abi.dylib"; path = "usr/lib/libc++abi.dylib"; sourceTree = SDKROOT; };
@@ -1027,14 +1011,6 @@
 		2BB94D771A26A94B0076B1B4 /* models */ = {
 			isa = PBXGroup;
 			children = (
-				2B8570CC1A609FDC00705AA7 /* Meridian0.bmp */,
-				2B8570CD1A609FDC00705AA7 /* Meridian1.bmp */,
-				2B8570CE1A609FDC00705AA7 /* Meridian2.bmp */,
-				2B8570CF1A609FDC00705AA7 /* Meridian3.bmp */,
-				2B8570D01A609FDC00705AA7 /* Meridian4.bmp */,
-				2B8570D11A609FDC00705AA7 /* Meridian5.bmp */,
-				2B8570D21A609FDC00705AA7 /* Meridian6.bmp */,
-				2B8570C81A609FD500705AA7 /* Meridian.mtl */,
 				2B8571521A6DC43F00705AA7 /* cube.obj */,
 				2B8570B01A5DE4D200705AA7 /* vp.mtl */,
 				2BB94D7A1A26A94B0076B1B4 /* cessna.obj */,
@@ -1648,7 +1624,6 @@
 				2BC0FB451964D3580043E1FD /* pitch-24@2x.png in Resources */,
 				2BFD2717170B933C00127EF5 /* BVT.geojson in Resources */,
 				2BC0FB4A1964D3580043E1FD /* post-24@2x.png in Resources */,
-				2B8570D31A609FDC00705AA7 /* Meridian0.bmp in Resources */,
 				2BFD2718170B933C00127EF5 /* BWA.geojson in Resources */,
 				2BFD2719170B933C00127EF5 /* CAF.geojson in Resources */,
 				2BFD271A170B933C00127EF5 /* CAN.geojson in Resources */,
@@ -1685,7 +1660,6 @@
 				2BFD2730170B933C00127EF5 /* DMA.geojson in Resources */,
 				2BFD2731170B933C00127EF5 /* DNK.geojson in Resources */,
 				2BFD2732170B933C00127EF5 /* DOM.geojson in Resources */,
-				2B8570D61A609FDC00705AA7 /* Meridian3.bmp in Resources */,
 				2BC0FB0D1964D3580043E1FD /* basketball-24@2x.png in Resources */,
 				2BFD2733170B933C00127EF5 /* DZA.geojson in Resources */,
 				2BFD2734170B933C00127EF5 /* ECU.geojson in Resources */,
@@ -1695,7 +1669,6 @@
 				2BC0FB5E1964D3580043E1FD /* suitcase-24@2x.png in Resources */,
 				2BFD2736170B933C00127EF5 /* ERI.geojson in Resources */,
 				2BFD2737170B933C00127EF5 /* ESH.geojson in Resources */,
-				2B8570D81A609FDC00705AA7 /* Meridian5.bmp in Resources */,
 				2BFD2738170B933C00127EF5 /* ESP.geojson in Resources */,
 				2BFD2739170B933C00127EF5 /* EST.geojson in Resources */,
 				2BFD273A170B933C00127EF5 /* ETH.geojson in Resources */,
@@ -1712,7 +1685,6 @@
 				2BFD2742170B933C00127EF5 /* GBR.geojson in Resources */,
 				2BFD2743170B933C00127EF5 /* GEO.geojson in Resources */,
 				2BFD2744170B933C00127EF5 /* GGY.geojson in Resources */,
-				2B8570D91A609FDC00705AA7 /* Meridian6.bmp in Resources */,
 				2BFD2745170B933C00127EF5 /* GHA.geojson in Resources */,
 				2BFD2746170B933C00127EF5 /* GIB.geojson in Resources */,
 				2BC0FB0A1964D3580043E1FD /* bank-24@2x.png in Resources */,
@@ -1790,7 +1762,6 @@
 				2BFD277A170B933C00127EF5 /* MAC.geojson in Resources */,
 				2BC0FB191964D3580043E1FD /* circle-stroked-24@2x.png in Resources */,
 				2BFD277B170B933C00127EF5 /* MAF.geojson in Resources */,
-				2B8570D51A609FDC00705AA7 /* Meridian2.bmp in Resources */,
 				2BFD277C170B933C00127EF5 /* MAR.geojson in Resources */,
 				2BFD277D170B933C00127EF5 /* MCO.geojson in Resources */,
 				2BFD277E170B933C00127EF5 /* MDA.geojson in Resources */,
@@ -1813,7 +1784,6 @@
 				2BDC8A901937E33F00DFECF0 /* tl_2013_06075_roads.shx in Resources */,
 				2BFD278A170B933C00127EF5 /* MOZ.geojson in Resources */,
 				2BC0FB171964D3580043E1FD /* cinema-24@2x.png in Resources */,
-				2B8570CA1A609FD500705AA7 /* Meridian.mtl in Resources */,
 				2BC0FB601964D3580043E1FD /* telephone-24@2x.png in Resources */,
 				2BFD278B170B933C00127EF5 /* MRT.geojson in Resources */,
 				2BFD278C170B933C00127EF5 /* MSR.geojson in Resources */,
@@ -1904,7 +1874,6 @@
 				2BFD27CC170B933C00127EF5 /* TGO.geojson in Resources */,
 				2BC0FB321964D3580043E1FD /* land-use-24@2x.png in Resources */,
 				2BC0FB1B1964D3580043E1FD /* clothing-store-24@2x.png in Resources */,
-				2B8570D41A609FDC00705AA7 /* Meridian1.bmp in Resources */,
 				2BFD27CD170B933C00127EF5 /* THA.geojson in Resources */,
 				2BFD27CE170B933C00127EF5 /* TJK.geojson in Resources */,
 				2BFD27CF170B933C00127EF5 /* TKL.geojson in Resources */,
@@ -1933,7 +1902,6 @@
 				2BFD27DE170B933C00127EF5 /* UZB.geojson in Resources */,
 				2BC0FB6B1964D3580043E1FD /* water-24@2x.png in Resources */,
 				2BFD27DF170B933C00127EF5 /* VAT.geojson in Resources */,
-				2B8570D71A609FDC00705AA7 /* Meridian4.bmp in Resources */,
 				2BFD27E0170B933C00127EF5 /* VCT.geojson in Resources */,
 				2BFD27E1170B933C00127EF5 /* VEN.geojson in Resources */,
 				2BC0FB301964D3580043E1FD /* hospital-24@2x.png in Resources */,

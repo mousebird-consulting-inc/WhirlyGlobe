@@ -159,12 +159,13 @@ bool GeometryModelOBJ::parse(FILE *fp)
     Group *activeGroup = NULL;
     int activeMtl = -1;
     
-    char line[2048],tmpTok[2048];
+    char line[2048],origLine[2048],tmpTok[2048];
     int lineNo = 0;
     
-    while (fgets(line, 2047, fp))
+    while (fgets(origLine, 2047, fp))
     {
         lineNo++;
+        strcpy(line,origLine);
         int lineLen = strlen(line);
 
         // Empty line
@@ -202,9 +203,17 @@ bool GeometryModelOBJ::parse(FILE *fp)
                 success = false;
                 break;
             }
+
+            // The full name of the material file might contain spaces
+            strcpy(line,origLine);
+            strtok_r(line," \t\n\r", &next);
+            char *mtlFile = strtok_r(next,"\n\r", &next);
             
-            // Note: Parse material file
-            char *mtlFile = toks[1];
+            if (!mtlFile)
+            {
+                success = false;
+                break;
+            }
             
             // Load the model
             NSString *fullPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:[NSString stringWithFormat:@"%s",mtlFile]];
@@ -275,6 +284,9 @@ bool GeometryModelOBJ::parse(FILE *fp)
             for (unsigned int ii=1;ii<toks.size();ii++)
             {
                 strcpy(tmpTok, toks[ii]);
+                bool emptyTexCoord = false;
+                if (strstr(tmpTok,"//"))
+                    emptyTexCoord = true;
                 
                 std::vector<char *> vertToks;
                 char *vertTok = NULL;
@@ -297,13 +309,19 @@ bool GeometryModelOBJ::parse(FILE *fp)
                 {
                     vert.vert = atoi(vertToks[0]);
                 }
-                if (vertToks.size() >= 2)
+                if (emptyTexCoord)
                 {
-                    vert.texCoord = atoi(vertToks[1]);
-                }
-                if (vertToks.size() >= 3)
-                {
-                    vert.norm = atoi(vertToks[2]);
+                    if (vertToks.size() >= 2)
+                        vert.norm = atoi(vertToks[1]);
+                } else {
+                    if (vertToks.size() >= 2)
+                    {
+                        vert.texCoord = atoi(vertToks[1]);
+                    }
+                    if (vertToks.size() >= 3)
+                    {
+                        vert.norm = atoi(vertToks[2]);
+                    }
                 }
             }
         } else if (!strcmp(key,"v"))
@@ -475,8 +493,8 @@ void GeometryModelOBJ::toRawGeometry(std::vector<std::string> &textures,std::vec
                 int texId = vert.texCoord-1;
                 if (texId >= 0 && texId < texCoords.size())
                 {
-                    const Point2d &pt2d = texCoords[vert.texCoord];
-                    texCoord = TexCoord(pt2d.x(),pt2d.y());
+                    const Point2d &pt2d = texCoords[texId];
+                    texCoord = TexCoord(pt2d.x(),1.0-pt2d.y());
                 }
                 RGBAColor diffuse(255,255,255,255);
                 if (face->mat && face->mat->Kd[0] != -1)
