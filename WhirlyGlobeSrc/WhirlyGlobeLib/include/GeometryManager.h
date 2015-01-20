@@ -91,7 +91,7 @@ public:
     void estimateSize(int &numPts,int &numTris);
     
     // Build geometry into a drawable, using the given transform
-    void buildDrawable(BasicDrawable *draw,const Eigen::Matrix4d &mat);
+    void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat);
 
 public:
     /// What sort of geometry this is
