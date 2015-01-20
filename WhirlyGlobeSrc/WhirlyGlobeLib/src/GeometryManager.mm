@@ -160,50 +160,48 @@ void GeometryRaw::estimateSize(int &numPts,int &numTris)
     numTris = triangles.size();
 }
 
-void GeometryRaw::buildDrawable(BasicDrawable *draw,const Eigen::Matrix4d &mat)
+void GeometryRaw::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat)
 {
     if (!isValid())
         return;
     
-    switch (type)
-    {
-        case WhirlyKitGeometryLines:
-            draw->setType(GL_LINES);
-            break;
-        case WhirlyKitGeometryTriangles:
-            draw->setType(GL_TRIANGLES);
-            break;
-        default:
-            break;
-    }
-    draw->setTexId(0,texId);
-    unsigned int baseVert = draw->getNumPoints();
-    for (unsigned int ii=0;ii<pts.size();ii++)
-    {
-        const Point3d &pt = pts[ii];
-        Vector4d outPt = mat * Eigen::Vector4d(pt.x(),pt.y(),pt.z(),1.0);
-        Point3d newPt(outPt.x()/outPt.w(),outPt.y()/outPt.w(),outPt.z()/outPt.w());
-        draw->addPoint(newPt);
-        if (!norms.empty())
-        {
-            const Point3d &norm = norms[ii];
-            // Note: Not the right way to transform normals
-            Vector4d projNorm = mat * Eigen::Vector4d(norm.x(),norm.y(),norm.z(),0.0);
-            Point3d newNorm(projNorm.x(),projNorm.y(),projNorm.z());
-            newNorm.normalize();
-            draw->addNormal(newNorm);
-        }
-        if (texId != EmptyIdentity)
-            draw->addTexCoord(0,texCoords[ii]);
-        if (!colors.empty())
-        {
-            draw->addColor(colors[ii]);
-        }
-    }
+    BasicDrawable *draw = NULL;
     for (unsigned int ii=0;ii<triangles.size();ii++)
     {
         RawTriangle tri = triangles[ii];
-        draw->addTriangle(BasicDrawable::Triangle(tri.verts[0]+baseVert,tri.verts[1]+baseVert,tri.verts[2]+baseVert));
+        // See if we need a new drawable
+        if (!draw || draw->getNumPoints() + 3 > MaxDrawablePoints || draw->getNumTris() + 1 > MaxDrawableTriangles)
+        {
+            draw = new BasicDrawable("Raw Geometry");
+            draw->setType(GL_TRIANGLES);
+            draw->setTexId(0,texId);
+            draws.push_back(draw);
+        }
+        
+        // Add the triangle by copying its vertices (meh)
+        int baseVert = draw->getNumPoints();
+        for (unsigned int jj=0;jj<3;jj++)
+        {
+            const Point3d &pt = pts[tri.verts[jj]];
+            Vector4d outPt = mat * Eigen::Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+            Point3d newPt(outPt.x()/outPt.w(),outPt.y()/outPt.w(),outPt.z()/outPt.w());
+            draw->addPoint(newPt);
+            if (!norms.empty())
+            {
+                const Point3d &norm = norms[tri.verts[jj]];
+                // Note: Not the right way to transform normals
+                Vector4d projNorm = mat * Eigen::Vector4d(norm.x(),norm.y(),norm.z(),0.0);
+                Point3d newNorm(projNorm.x(),projNorm.y(),projNorm.z());
+                newNorm.normalize();
+                draw->addNormal(newNorm);
+            }
+            if (texId != EmptyIdentity)
+                draw->addTexCoord(0,texCoords[tri.verts[jj]]);
+            if (!colors.empty())
+                draw->addColor(colors[tri.verts[jj]]);
+        }
+        
+        draw->addTriangle(BasicDrawable::Triangle(baseVert,baseVert+1,baseVert+2));
     }
 }
     
@@ -267,18 +265,17 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const
         // Convert the sorted lists of geometry into drawables
         for (unsigned int jj=0;jj<sortedGeom.size();jj++)
         {
-            BasicDrawable *draw = NULL;
             std::vector<GeometryRaw *> &sg = sortedGeom[jj];
             for (unsigned int kk=0;kk<sg.size();kk++)
             {
+                std::vector<BasicDrawable *> draws;
                 GeometryRaw *raw = sg[kk];
-                int numPts,numTris;
-                raw->estimateSize(numPts, numTris);
-                // Note: Not sharing drawables at the moment
-//                if (!draw || (draw->getNumPoints() + numPts > MaxDrawablePoints) ||
-//                    (draw->getNumTris() + numTris > MaxDrawableTriangles))
+                raw->buildDrawables(draws,instMat);
+                
+                // Set the various parameters and store the drawables created
+                for (unsigned int ll=0;ll<draws.size();ll++)
                 {
-                    draw = new BasicDrawable("Geometry Manager");
+                    BasicDrawable *draw = draws[ll];
                     draw->setType((raw->type == WhirlyKitGeometryLines ? GL_LINES : GL_TRIANGLES));
                     draw->setOnOff(geomInfo.enable);
                     draw->setColor([geomInfo.color asRGBAColor]);
@@ -293,7 +290,6 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const
                     changes.push_back(new AddDrawableReq(draw));
                 }
                 
-                raw->buildDrawable(draw,instMat);
                 // Note: Selection
             }
         }
