@@ -21,18 +21,12 @@
 #import "MaplyGeomModel.h"
 #import <WhirlyGlobe.h>
 
-namespace WhirlyKit
-{
-// Map the names of textures to their Texture ID
-typedef std::map<std::string,SimpleIdentity> TextureFileMap;
-}
-
 @interface MaplyGeomModel()
 
 // Return the list of texture file names
 - (void)getTextureFileNames:(std::vector<std::string> &)texFileNames;
 
 // Convert to
-- (void)asRawGeometry:(std::vector<WhirlyKit::GeometryRaw> &)rawGeom withTexMapping:(WhirlyKit::TextureFileMap &)texFileMap;
+- (void)asRawGeometry:(std::vector<WhirlyKit::GeometryRaw> &)rawGeom withTexMapping:(const std::vector<WhirlyKit::SimpleIdentity> &)texFileMap;
 
 @end

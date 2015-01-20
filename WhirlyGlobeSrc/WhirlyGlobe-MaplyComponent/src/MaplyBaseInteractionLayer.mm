@@ -1665,17 +1665,32 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         ChangeSet changes;
         for (auto it : instSort)
         {
-            // Set up the textures and conver the geometry
+            // Set up the textures and convert the geometry
             MaplyGeomModel *model = it->model;
             
             // Add the textures
             std::vector<std::string> texFileNames;
             [model getTextureFileNames:texFileNames];
-            std::vector<WhirlyKit::GeometryRaw> rawGeom;
-            TextureFileMap texFileMap;
-            [model asRawGeometry:rawGeom withTexMapping:texFileMap];
+            std::vector<SimpleIdentity> texIDMap(texFileNames.size());
+            int whichTex = 0;
+            for (const std::string &texFileName : texFileNames)
+            {
+                MaplyTexture *tex = [self addImage:[UIImage imageNamed:[NSString stringWithFormat:@"%s",texFileName.c_str()]] imageFormat:MaplyImage4Layer8Bit mode:threadMode];
+                if (tex)
+                {
+                    compObj.textures.insert(tex);
+                    texIDMap[whichTex] = tex.texID;
+                } else {
+                    texIDMap[whichTex] = EmptyIdentity;
+                }
+                whichTex++;
+            }
             
-            // Convert the matrices
+            // Convert the geometry and map the texture IDs
+            std::vector<WhirlyKit::GeometryRaw> rawGeom;
+            [model asRawGeometry:rawGeom withTexMapping:texIDMap];
+            
+            // Convert the instances
             std::vector<Matrix4d> matInst;
             for (unsigned int ii=0;ii<it->instances.size();ii++)
             {
