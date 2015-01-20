@@ -35,4 +35,14 @@
   */
 - (id)initWithScale:(double)scale;
 
+/** @brief Construct a rotation around the given axis.
+    @details Build a matrix that rotates the given amount (in radians) around the given axis.
+  */
+- (id)initWithAngle:(double)ang axisX:(double)x axisY:(double)y axisZ:(double)z;
+
+/** @brief Multiply the given matrix with this one and return a new one.
+    @details Multiply the given matrix like so:  ret = this * other.  Return the new one.
+  */
+- (id)multiplyWith:(MaplyMatrix *)other;
+
 @end

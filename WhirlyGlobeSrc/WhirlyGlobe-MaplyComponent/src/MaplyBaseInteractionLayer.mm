@@ -1695,20 +1695,56 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             for (unsigned int ii=0;ii<it->instances.size();ii++)
             {
                 MaplyGeomModelInstance *modelInst = it->instances[ii];
-                Matrix4d mat = mat.Identity();
+                Matrix4d localMat = localMat.Identity();
 
                 // Local transformation, before the placement
                 if (modelInst.transform)
-                    mat = modelInst.transform.mat;
+                    localMat = modelInst.transform.mat;
                 
                 // Add in the placement
                 Point3d localPt = coordSys->geographicToLocal(Point2d(modelInst.center.x,modelInst.center.y));
                 Point3d dispLoc = coordAdapter->localToDisplay(Point3d(localPt.x(),localPt.y(),modelInst.center.z));
-                Eigen::Affine3d trans(Eigen::Translation3d(dispLoc.x(),dispLoc.y(),dispLoc.z()));
-                Matrix4d transMat = trans.matrix();
-                mat = transMat * mat;
+                Point3d norm = coordAdapter->normalForLocal(localPt);
+                
+                // Construct a set of axes to build the shape around
+                Point3d xAxis,yAxis;
+                if (coordAdapter->isFlat())
+                {
+                    xAxis = Point3d(1,0,0);
+                    yAxis = Point3d(0,1,0);
+                } else {
+                    Point3d north(0,0,1);
+                    // Note: Also check if we're at a pole
+                    xAxis = north.cross(norm);  xAxis.normalize();
+                    yAxis = norm.cross(xAxis);  yAxis.normalize();
+                }
+                
+                // Set up a shift matrix that moves coordinate to the right orientation on the globe (or not)
+                //  and shifts it to the correct position
+                Matrix4d shiftMat;
+                shiftMat(0,0) = xAxis.x();
+                shiftMat(0,1) = yAxis.x();
+                shiftMat(0,2) = norm.x();
+                shiftMat(0,3) = dispLoc.x();
+                
+                shiftMat(1,0) = xAxis.y();
+                shiftMat(1,1) = yAxis.y();
+                shiftMat(1,2) = norm.y();
+                shiftMat(1,3) = dispLoc.y();
+                
+                shiftMat(2,0) = xAxis.z();
+                shiftMat(2,1) = yAxis.z();
+                shiftMat(2,2) = norm.z();
+                shiftMat(2,3) = dispLoc.z();
+                
+                shiftMat(3,0) = 0.0;
+                shiftMat(3,1) = 0.0;
+                shiftMat(3,2) = 0.0;
+                shiftMat(3,3) = 1.0;
 
-                matInst.push_back(mat);
+                localMat = shiftMat * localMat;
+
+                matInst.push_back(localMat);
             }
             
             SimpleIdentity geomID = geomManager->addGeometry(rawGeom, matInst, inDesc, changes);
