@@ -40,6 +40,11 @@
   */
 @interface MaplyGeomModelInstance : NSObject
 
+/** @brief User data object for selection
+ @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the model instance means to them.
+ */
+@property (nonatomic,strong) id userObject;
+
 /// @brief The model to instance
 @property (nonatomic) MaplyGeomModel *model;
 
@@ -50,6 +55,10 @@
 
 /// @brief Transform used to oriented the model instance
 @property (nonatomic) MaplyMatrix *transform;
+
+/// @brief Color to force all polygons to use.
+/// @details If set, this will force all polygons to use this color.  nil by default.
+@property (nonatomic) UIColor *colorOverride;
 
 /// @brief Set if you want to select these
 @property (nonatomic) bool selectable;
