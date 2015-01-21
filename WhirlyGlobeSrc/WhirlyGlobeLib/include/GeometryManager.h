@@ -91,7 +91,7 @@ public:
     void estimateSize(int &numPts,int &numTris);
     
     // Build geometry into a drawable, using the given transform
-    void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat);
+    void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride);
 
 public:
     /// What sort of geometry this is
@@ -110,6 +110,19 @@ public:
     int texId;
 };
 
+/// Represents a single Geometry Instance
+class GeometryInstance
+{
+public:
+    GeometryInstance() : mat(mat.Identity()), colorOverride(false) { }
+    
+    // Placement for the instance
+    Eigen::Matrix4d mat;
+    // Set if we're forcing the colors in an instance
+    bool colorOverride;
+    RGBAColor color;
+};
+
 #define kWKGeometryManager "WKGeometryManager"
     
 /** The Geometry manager displays of simple geometric objects,
@@ -122,7 +135,7 @@ public:
     ~GeometryManager();
     
     /// Add raw geometry at the given location
-    SimpleIdentity addGeometry(std::vector<GeometryRaw> &geom,const std::vector<Eigen::Matrix4d> &instances,NSDictionary *desc,ChangeSet &changes);
+    SimpleIdentity addGeometry(std::vector<GeometryRaw> &geom,const std::vector<GeometryInstance> &instances,NSDictionary *desc,ChangeSet &changes);
 
     /// Enable/disable active billboards
     void enableGeometry(SimpleIDSet &billIDs,bool enable,ChangeSet &changes);

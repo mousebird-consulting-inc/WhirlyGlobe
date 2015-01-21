@@ -1691,7 +1691,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             [model asRawGeometry:rawGeom withTexMapping:texIDMap];
             
             // Convert the instances
-            std::vector<Matrix4d> matInst;
+            std::vector<GeometryInstance> matInst;
             for (unsigned int ii=0;ii<it->instances.size();ii++)
             {
                 MaplyGeomModelInstance *modelInst = it->instances[ii];
@@ -1744,7 +1744,12 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
                 localMat = shiftMat * localMat;
 
-                matInst.push_back(localMat);
+                GeometryInstance thisInst;
+                thisInst.mat = localMat;
+                thisInst.colorOverride = modelInst.colorOverride != nil;
+                if (thisInst.colorOverride)
+                    thisInst.color = [modelInst.colorOverride asRGBAColor];
+                matInst.push_back(thisInst);
             }
             
             SimpleIdentity geomID = geomManager->addGeometry(rawGeom, matInst, inDesc, changes);
