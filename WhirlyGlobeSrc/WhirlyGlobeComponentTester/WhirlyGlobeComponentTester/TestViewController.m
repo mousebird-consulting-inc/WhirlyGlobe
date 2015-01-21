@@ -653,7 +653,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     NSMutableArray *modelInstances = [NSMutableArray array];
     // We need to scale the models down to display space.  They start out in meters.
     // Note: Changes this to 1000.0/6371000.0 if you can't find the models
-    MaplyMatrix *scaleMat = [[MaplyMatrix alloc] initWithScale:1.0/6371000.0];
+    MaplyMatrix *scaleMat = [[MaplyMatrix alloc] initWithScale:100.0/6371000.0];
     // Then we need to rotate around the X axis to get the model pointed up
     MaplyMatrix *rotMat = [[MaplyMatrix alloc] initWithAngle:M_PI/2.0 axisX:1.0 axisY:0.0 axisZ:0.0];
     // Combine the scale and rotation
