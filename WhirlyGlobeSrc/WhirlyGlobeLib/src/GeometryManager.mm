@@ -160,7 +160,7 @@ void GeometryRaw::estimateSize(int &numPts,int &numTris)
     numTris = triangles.size();
 }
 
-void GeometryRaw::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat)
+void GeometryRaw::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride)
 {
     if (!isValid())
         return;
@@ -173,6 +173,8 @@ void GeometryRaw::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen
         if (!draw || draw->getNumPoints() + 3 > MaxDrawablePoints || draw->getNumTris() + 1 > MaxDrawableTriangles)
         {
             draw = new BasicDrawable("Raw Geometry");
+            if (colorOverride)
+                draw->setColor(*colorOverride);
             draw->setType(GL_TRIANGLES);
             draw->setTexId(0,texId);
             draws.push_back(draw);
@@ -197,7 +199,7 @@ void GeometryRaw::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen
             }
             if (texId != EmptyIdentity)
                 draw->addTexCoord(0,texCoords[tri.verts[jj]]);
-            if (!colors.empty())
+            if (!colors.empty() && !colorOverride)
                 draw->addColor(colors[tri.verts[jj]]);
         }
         
@@ -219,9 +221,7 @@ GeometryManager::~GeometryManager()
     sceneReps.clear();
 }
     
-
-
-SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const std::vector<Eigen::Matrix4d> &instances,NSDictionary *desc,ChangeSet &changes)
+SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const std::vector<GeometryInstance> &instances,NSDictionary *desc,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     GeomSceneRep *sceneRep = new GeomSceneRep();
@@ -255,12 +255,12 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const
     // Work through the model instances
     for (unsigned int ii=0;ii<instances.size();ii++)
     {
-        Matrix4d inInstMat = instances[ii];
-        Vector4d center = inInstMat * Vector4d(0,0,0,1);
+        const GeometryInstance &inst = instances[ii];
+        Vector4d center = inst.mat * Vector4d(0,0,0,1);
         center.x() /= center.w();  center.y() /= center.w();  center.z() /= center.w();
         Eigen::Affine3d transBack(Eigen::Translation3d(-center.x(),-center.y(),-center.z()));
         Matrix4d transBackMat = transBack.matrix();
-        Matrix4d instMat = transBackMat * inInstMat;
+        Matrix4d instMat = transBackMat * inst.mat;
         
         // Convert the sorted lists of geometry into drawables
         for (unsigned int jj=0;jj<sortedGeom.size();jj++)
@@ -270,7 +270,7 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const
             {
                 std::vector<BasicDrawable *> draws;
                 GeometryRaw *raw = sg[kk];
-                raw->buildDrawables(draws,instMat);
+                raw->buildDrawables(draws,instMat,(inst.colorOverride ? &inst.color : NULL));
                 
                 // Set the various parameters and store the drawables created
                 for (unsigned int ll=0;ll<draws.size();ll++)
@@ -278,7 +278,7 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const
                     BasicDrawable *draw = draws[ll];
                     draw->setType((raw->type == WhirlyKitGeometryLines ? GL_LINES : GL_TRIANGLES));
                     draw->setOnOff(geomInfo.enable);
-                    draw->setColor([geomInfo.color asRGBAColor]);
+//                    draw->setColor([geomInfo.color asRGBAColor]);
                     draw->setVisibleRange(geomInfo.minVis, geomInfo.maxVis);
                     draw->setDrawPriority(geomInfo.drawPriority);
                     draw->setRequestZBuffer(true);
