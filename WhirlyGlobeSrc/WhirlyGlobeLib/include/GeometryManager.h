@@ -90,6 +90,9 @@ public:
     // How big the geometry is likely to be in a drawable
     void estimateSize(int &numPts,int &numTris);
     
+    // Calculate bounding box
+    void calcBounds(Point3d &ll,Point3d &ur);
+    
     // Build geometry into a drawable, using the given transform
     void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride);
 
@@ -111,16 +114,18 @@ public:
 };
 
 /// Represents a single Geometry Instance
-class GeometryInstance
+class GeometryInstance : public Identifiable
 {
 public:
-    GeometryInstance() : mat(mat.Identity()), colorOverride(false) { }
+    GeometryInstance() : mat(mat.Identity()), colorOverride(false), selectable(false) { }
     
     // Placement for the instance
     Eigen::Matrix4d mat;
     // Set if we're forcing the colors in an instance
     bool colorOverride;
     RGBAColor color;
+    // True if this is selectable
+    bool selectable;
 };
 
 #define kWKGeometryManager "WKGeometryManager"
