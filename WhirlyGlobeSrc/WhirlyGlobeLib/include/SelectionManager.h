@@ -178,6 +178,9 @@ public:
     /// Add a polytope, represented by a set of surfaces
     void addPolytope(SimpleIdentity selectId,const std::vector<std::vector<Point3d> > &surfaces,float minVis,float maxVis,bool enable);
 
+    /// Add a polytope
+    void addPolytopeFromBox(SimpleIdentity selectId,const Point3d &ll,const Point3d &ur,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
+
     /// Add a linear in 3-space for selection.
     void addSelectableLinear(SimpleIdentity selectId,const std::vector<Point3f> &pts,float minVis,float maxVis,bool enable);
     
