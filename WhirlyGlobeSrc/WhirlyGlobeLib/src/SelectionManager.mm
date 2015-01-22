@@ -197,6 +197,45 @@ void SelectionManager::addPolytope(SimpleIdentity selectId,const std::vector<std
     pthread_mutex_unlock(&mutex);
 }
 
+void SelectionManager::addPolytopeFromBox(SimpleIdentity selectId,const Point3d &ll,const Point3d &ur,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable)
+{
+    // Corners of the box
+    Point3d pts[8];
+    pts[0] = Point3d(ll.x(),ll.y(),ll.z());
+    pts[1] = Point3d(ur.x(),ll.y(),ll.z());
+    pts[2] = Point3d(ur.x(),ur.y(),ll.z());
+    pts[3] = Point3d(ll.x(),ur.y(),ll.z());
+    pts[4] = Point3d(ll.x(),ll.y(),ur.z());
+    pts[5] = Point3d(ur.x(),ll.y(),ur.z());
+    pts[6] = Point3d(ur.x(),ur.y(),ur.z());
+    pts[7] = Point3d(ll.x(),ur.y(),ur.z());
+    
+    // Turn the box into a polytope
+    std::vector<std::vector<Point3d> > polys(6);
+    auto &bot = polys[0];  bot.resize(4);
+    auto &side0 = polys[1];  side0.resize(4);
+    auto &side1 = polys[2];  side1.resize(4);
+    auto &side2 = polys[3];  side2.resize(4);
+    auto &side3 = polys[4];  side3.resize(4);
+    auto &top = polys[5];  top.resize(4);
+    bot[0] = pts[0];  bot[1] = pts[1];  bot[2] = pts[2];  bot[3] = pts[3];
+    side0[0] = pts[0];  side0[1] = pts[1];  side0[2] = pts[5];  side0[3] = pts[4];
+    side1[0] = pts[1];  side1[1] = pts[2];  side1[2] = pts[6];  side1[3] = pts[5];
+    side2[0] = pts[2];  side2[1] = pts[3];  side2[2] = pts[7];  side2[3] = pts[6];
+    side3[0] = pts[3];  side3[1] = pts[6];  side3[2] = pts[4];  side3[3] = pts[7];
+    top[0] = pts[4];  top[1] = pts[5];  top[2] = pts[6];  top[3] = pts[7];
+    
+    // Run through the matrix
+    for (auto &side : polys)
+        for (auto &pt : side)
+        {
+            Vector4d newPt = mat * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+            pt = Point3d(newPt.x(),newPt.y(),newPt.z());
+        }
+    
+    addPolytope(selectId, polys, minVis, maxVis, enable);
+}
+
 void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const std::vector<Point3f> &pts,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
