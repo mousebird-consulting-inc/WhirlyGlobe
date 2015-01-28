@@ -181,10 +181,10 @@ int main(int argc, const char * argv[])
     double adfOutTransform[6];
     double cellSizeX = adfInTransform[1];
     double cellSizeY = adfInTransform[5];
-    adfOutTransform[0] = minX+cellSizeX-cellSizeX*numDiv;
+    adfOutTransform[0] = minX;
     adfOutTransform[1] = cellSizeX*numDiv;
     adfOutTransform[2] = 0;
-    adfOutTransform[3] = maxY+cellSizeY-cellSizeY*numDiv;
+    adfOutTransform[3] = maxY;
     adfOutTransform[4] = 0;
     adfOutTransform[5] = cellSizeY*numDiv;
     GDALSetGeoTransform(hDestDS, adfOutTransform);
