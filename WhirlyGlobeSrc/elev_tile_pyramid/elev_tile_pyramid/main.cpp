@@ -109,6 +109,8 @@ GDALDatasetH CreateOutputDataFile(const char *pszFormat,const char *pszFilename,
     return hDstDS;
 }
 
+typedef enum {SampleSingle,SampleMax} SamplingType;
+
 int main(int argc, char * argv[])
 {
     const char *inputFile = NULL;
@@ -122,9 +124,10 @@ int main(int argc, char * argv[])
     double xmin,ymin,xmax,ymax;
     int pixelsX = 16, pixelsY = 16;
     bool flipY = false;
-    int updateMinLevel = -1, updateMaxLevel = -1;
+    int updateMinLevel = -1, updateMaxLevel = -2;
     double updateMinX = 0.0,updateMaxX = 0.0,updateMinY = 0.0,updateMaxY = 0.0;
-    const char *updateShapeFile = NULL,*outShapeFile;
+    const char *updateShapeFile = NULL,*outShapeFile=NULL;
+    SamplingType samplingtype = SampleSingle;
 
     GDALAllRegister();
     OGRRegisterAll();
@@ -250,6 +253,22 @@ int main(int argc, char * argv[])
                 return -1;
             }
             outShapeFile = argv[ii+1];
+        } else if (EQUAL(argv[ii],"-sample"))
+        {
+            numArgs = 2;
+            if (ii+numArgs > argc)
+            {
+                fprintf(stderr,"Expecting type for -sample");
+                return -1;
+            }
+            if (EQUAL(argv[ii+1],"single"))
+                samplingtype = SampleSingle;
+            else if (EQUAL(argv[ii+1],"max"))
+                samplingtype = SampleMax;
+            else {
+                fprintf(stderr,"Expecting single or max for sampling type.");
+                return -1;
+            }
         } else
         {
             if (inputFile)
@@ -283,7 +302,7 @@ int main(int argc, char * argv[])
     }
     if (updateDb)
     {
-        if (updateMinLevel >= updateMaxLevel)
+        if (updateMinLevel > updateMaxLevel)
         {
             fprintf(stderr, "Expecting valid update min and max levels for update mode");
             return -1;
@@ -532,7 +551,7 @@ int main(int argc, char * argv[])
 
     // We might only be updating some of the levels
     int min_level = 0, max_level = levels-1;
-    if (updateMinLevel != updateMaxLevel)
+    if (updateMaxLevel >= updateMinLevel)
     {
         min_level = updateMinLevel;
         max_level = updateMaxLevel;
@@ -661,47 +680,92 @@ int main(int argc, char * argv[])
                             // Project back to the original data file
                             if (hCT)
                                 OCTTransform(hCTBack, 1, &thisX, &thisY, NULL);
-
-                            // Figure out which pixel this is
-                            double pixX = adfInvGeoTransform[0] + adfInvGeoTransform[1] * thisX + adfInvGeoTransform[2] * thisY;
-                            double pixY = adfInvGeoTransform[3] + adfInvGeoTransform[4] * thisX + adfInvGeoTransform[5] * thisY;
                             
-                            // Note: Should do some interpolation
-                            int pixXint = (int)pixX,pixYint = (int)pixY;
-                            
-                            double ta = pixX-pixXint;
-                            double tb = pixY-pixYint;
-
-                            // Look up the four nearby pixels
-                            int pixXlookup[4],pixYlookup[4];
-                            pixXlookup[0] = pixXint;  pixYlookup[0] = pixYint;
-                            pixXlookup[1] = pixXint+1;  pixYlookup[1] = pixYint;
-                            pixXlookup[2] = pixXint+1;  pixYlookup[2] = pixYint+1;
-                            pixXlookup[3] = pixXint;  pixYlookup[3] = pixYint+1;
-                            float pixVals[4];
-                            for (unsigned int pi=0;pi<4;pi++)
+                            if (samplingtype == SampleSingle)
                             {
-                                int pixXlook = pixXlookup[pi];
-                                int pixYlook = pixYlookup[pi];
-                                if (pixXlook < 0) pixXlook = 0;
-                                if (pixYlook < 0) pixYlook = 0;
-                                if (pixXlook >= rasterXSize)  pixXlook = rasterXSize-1;
-                                if (pixYlook >= rasterYSize)  pixYlook = rasterYSize-1;
-                            
+                                // Figure out which pixel this is
+                                double pixX = adfInvGeoTransform[0] + adfInvGeoTransform[1] * thisX + adfInvGeoTransform[2] * thisY;
+                                double pixY = adfInvGeoTransform[3] + adfInvGeoTransform[4] * thisX + adfInvGeoTransform[5] * thisY;
+                                
+                                // Note: Should do some interpolation
+                                int pixXint = (int)pixX,pixYint = (int)pixY;
+                                
+                                double ta = pixX-pixXint;
+                                double tb = pixY-pixYint;
+
+                                // Look up the four nearby pixels
+                                int pixXlookup[4],pixYlookup[4];
+                                pixXlookup[0] = pixXint;  pixYlookup[0] = pixYint;
+                                pixXlookup[1] = pixXint+1;  pixYlookup[1] = pixYint;
+                                pixXlookup[2] = pixXint+1;  pixYlookup[2] = pixYint+1;
+                                pixXlookup[3] = pixXint;  pixYlookup[3] = pixYint+1;
+                                float pixVals[4];
+                                for (unsigned int pi=0;pi<4;pi++)
+                                {
+                                    int pixXlook = pixXlookup[pi];
+                                    int pixYlook = pixYlookup[pi];
+                                    if (pixXlook < 0) pixXlook = 0;
+                                    if (pixYlook < 0) pixYlook = 0;
+                                    if (pixXlook >= rasterXSize)  pixXlook = rasterXSize-1;
+                                    if (pixYlook >= rasterYSize)  pixYlook = rasterYSize-1;
+                                
+                                    // Fetch the pixel
+                                    if (GDALRasterIO( hBand, GF_Read, pixXlook, pixYlook, 1, 1, &pixVals[pi], 1, 1, GDT_Float32, 0,  0) != CE_None)
+                                    {
+                                        fprintf(stderr,"Query failure in GDALRasterIO");
+                                        return -1;
+                                    }
+                                }
+                                
+                                // Now do a bilinear interpolation
+                                float pixA = (pixVals[1]-pixVals[0])*ta + pixVals[0];
+                                float pixB = (pixVals[2]-pixVals[3])*ta + pixVals[3];
+                                float pixVal = (pixB-pixA)*tb+pixA;
+                                
+                                tileData[cy*pixelsX+cx] = pixVal;
+                            } else if (samplingtype == SampleMax)
+                            {
+                                // Make a bounding box and project it into the source data
+                                double pixX[4],pixY[4];
+                                int srcX[4],srcY[4];
+                                srcX[0] = thisX;  srcY[0] = thisY;
+                                srcX[1] = thisX+cellX;  srcY[1] = thisY;
+                                srcX[2] = thisX+cellX;  srcY[2] = thisY+cellY;
+                                srcX[3] = thisX;  srcY[3] = thisY+cellY;
+
+                                int sx=1000000,sy=1000000,ex=-1000000,ey=-1000000;
+                                for (unsigned int pi=0;pi<4;pi++)
+                                {
+                                    pixX[pi] = adfInvGeoTransform[0] + adfInvGeoTransform[1] * srcX[pi] + adfInvGeoTransform[2] * srcY[pi];
+                                    pixY[pi] = adfInvGeoTransform[3] + adfInvGeoTransform[4] * srcX[pi] + adfInvGeoTransform[5] * srcY[pi];
+                                    sx = MIN(sx,floor(pixX[pi]));
+                                    sy = MIN(sy,floor(pixY[pi]));
+                                    ex = MAX(ex,ceil(pixX[pi]));
+                                    ey = MAX(ey,ceil(pixY[pi]));
+                                }
+                                sx = MAX(0,sx);
+                                sy = MAX(0,sy);
+                                ex = MIN(ex,rasterXSize-1);
+                                ey = MIN(ey,rasterYSize-1);
+                                
+                                // Work through the pixels in the source looking for a max
+                                float maxPix = -MAXFLOAT;
+                                
+                                int rowSize = ex-sx+1;
+                                int colSize = ey-sy+1;
+                                float row[rowSize*colSize];
                                 // Fetch the pixel
-                                if (GDALRasterIO( hBand, GF_Read, pixXlook, pixYlook, 1, 1, &pixVals[pi], 1, 1, GDT_Float32, 0,  0) != CE_None)
+                                if (GDALRasterIO( hBand, GF_Read, sx, sy, rowSize, colSize, &row, rowSize, colSize, GDT_Float32, 0,  0) != CE_None)
                                 {
                                     fprintf(stderr,"Query failure in GDALRasterIO");
                                     return -1;
                                 }
+                                
+                                for (int which = 0; which < rowSize*colSize; which++)
+                                    maxPix = MAX(row[which],maxPix);
+                                
+                                tileData[cy*pixelsX+cx] = maxPix;
                             }
-                            
-                            // Now do a bilinear interpolation
-                            float pixA = (pixVals[1]-pixVals[0])*ta + pixVals[0];
-                            float pixB = (pixVals[2]-pixVals[3])*ta + pixVals[3];
-                            float pixVal = (pixB-pixA)*tb+pixA;
-                            
-                            tileData[cy*pixelsX+cx] = pixVal;
                         }
                     
                     // Output directory
