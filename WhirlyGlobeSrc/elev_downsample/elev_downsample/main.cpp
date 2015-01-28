@@ -99,7 +99,6 @@ int main(int argc, const char * argv[])
     hSrcDS = GDALOpen( inputFile, GA_ReadOnly );
     if( hSrcDS == NULL )
         return -1;
-    GDALSetCacheMax64(2*1024*1024*1024);
 
     int rasterXSize = GDALGetRasterXSize(hSrcDS);
     int rasterYSize = GDALGetRasterYSize(hSrcDS);
@@ -153,7 +152,7 @@ int main(int argc, const char * argv[])
                 return -1;
             }
 
-            double maxPix = -MAXFLOAT;
+            double maxPix = -1e10;
             for (int sample=0;sample<numDiv*numDiv;sample++)
             {
                 float &pixVal = inData[sample];
