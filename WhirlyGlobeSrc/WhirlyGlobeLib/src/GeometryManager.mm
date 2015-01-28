@@ -159,6 +159,23 @@ void GeometryRaw::estimateSize(int &numPts,int &numTris)
     numPts = pts.size();
     numTris = triangles.size();
 }
+    
+// Calculate bounding box
+void GeometryRaw::calcBounds(Point3d &ll,Point3d &ur)
+{
+    ll.x() = MAXFLOAT;  ll.y() = MAXFLOAT;  ll.z() = MAXFLOAT;
+    ur.x() = -MAXFLOAT;  ur.y() = -MAXFLOAT;  ur.z() = -MAXFLOAT;
+    
+    for (const auto pt : pts)
+    {
+        ll.x() = std::min(ll.x(),pt.x());
+        ll.y() = std::min(ll.y(),pt.y());
+        ll.z() = std::min(ll.z(),pt.z());
+        ur.x() = std::max(ur.x(),pt.x());
+        ur.y() = std::max(ur.y(),pt.y());
+        ur.z() = std::max(ur.z(),pt.z());
+    }
+}
 
 void GeometryRaw::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride)
 {
@@ -228,11 +245,17 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const
     
     GeomInfo *geomInfo = [[GeomInfo alloc] initWithDesc:desc];
 
+    // Calculate the bounding box for the whole thing
+    Point3d ll,ur;
+
     // Sort the geometry by type and texture
     std::vector<std::vector<GeometryRaw *>> sortedGeom;
     for (unsigned int ii=0;ii<geom.size();ii++)
     {
         GeometryRaw *raw = &geom[ii];
+        
+        raw->calcBounds(ll, ur);
+        
         bool found = false;
         for (unsigned int jj=0;jj<sortedGeom.size();jj++)
         {
@@ -289,12 +312,17 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const
                     sceneRep->drawIDs.insert(draw->getId());
                     changes.push_back(new AddDrawableReq(draw));
                 }
-                
-                // Note: Selection
             }
         }
         
         // Note: Not sharing drawables between instances
+        
+        // Add a selection box for each instance
+        if (inst.selectable)
+        {
+            selectManager->addPolytopeFromBox(inst.getId(), ll, ur, inst.mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
+            sceneRep->selectIDs.insert(inst.getId());
+        }
     }
     
     SimpleIdentity geomID = sceneRep->getId();
