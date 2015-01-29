@@ -36,7 +36,7 @@ public:
     
     /// Add the given drawable to the drawable atlas.
     /// Returns true on success.  Reference the drawable by its ID.
-    bool addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled=true,SimpleIdentity destTexId=EmptyIdentity,bool *addedBigDrawable=NULL,const Point3d *center=NULL,double objSize=0.0);
+    bool addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled=true,std::vector<SimpleIdentity> *destTexIDs=NULL,bool *addedBigDrawable=NULL,const Point3d *center=NULL,double drawSize=0.0);
     
     /// Remove the data for a drawable by ID
     bool removeDrawable(SimpleIdentity drawId,ChangeSet &changes);

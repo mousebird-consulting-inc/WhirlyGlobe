@@ -244,6 +244,52 @@ void GeoMbr::splitIntoMbrs(std::vector<Mbr> &mbrs) const
 	}
 }
 
+void BBox::addPoint(const Point3d &pt)
+{
+    if (isValid())
+    {
+        pt_ll.x() = std::min(pt_ll.x(),pt.x());
+        pt_ll.y() = std::min(pt_ll.y(),pt.y());
+        pt_ll.z() = std::min(pt_ll.z(),pt.z());
+        pt_ur.x() = std::max(pt_ur.x(),pt.x());
+        pt_ur.y() = std::max(pt_ur.y(),pt.y());
+        pt_ur.z() = std::max(pt_ur.z(),pt.z());
+    } else {
+        pt_ll = pt;
+        pt_ur = pt;
+    }
+}
+    
+void BBox::addPoints(const std::vector<Point3d> &pts)
+{
+    for (unsigned int ii=0;ii<pts.size();ii++)
+        addPoint(pts[ii]);
+}
+    
+void BBox::asPoints(std::vector<Point3f> &pts) const
+{
+    pts.push_back(Point3f(pt_ll.x(),pt_ll.y(),pt_ll.z()));
+    pts.push_back(Point3f(pt_ur.x(),pt_ll.y(),pt_ll.z()));
+    pts.push_back(Point3f(pt_ur.x(),pt_ur.y(),pt_ll.z()));
+    pts.push_back(Point3f(pt_ll.x(),pt_ur.y(),pt_ll.z()));
+    pts.push_back(Point3f(pt_ll.x(),pt_ll.y(),pt_ur.z()));
+    pts.push_back(Point3f(pt_ur.x(),pt_ll.y(),pt_ur.z()));
+    pts.push_back(Point3f(pt_ur.x(),pt_ur.y(),pt_ur.z()));
+    pts.push_back(Point3f(pt_ll.x(),pt_ur.y(),pt_ur.z()));
+}
+
+void BBox::asPoints(std::vector<Point3d> &pts) const
+{
+    pts.push_back(Point3d(pt_ll.x(),pt_ll.y(),pt_ll.z()));
+    pts.push_back(Point3d(pt_ur.x(),pt_ll.y(),pt_ll.z()));
+    pts.push_back(Point3d(pt_ur.x(),pt_ur.y(),pt_ll.z()));
+    pts.push_back(Point3d(pt_ll.x(),pt_ur.y(),pt_ll.z()));
+    pts.push_back(Point3d(pt_ll.x(),pt_ll.y(),pt_ur.z()));
+    pts.push_back(Point3d(pt_ur.x(),pt_ll.y(),pt_ur.z()));
+    pts.push_back(Point3d(pt_ur.x(),pt_ur.y(),pt_ur.z()));
+    pts.push_back(Point3d(pt_ll.x(),pt_ur.y(),pt_ur.z()));
+}
+
 Eigen::Quaterniond QuatFromTwoVectors(const Point3d &a,const Point3d &b)
 {
     Eigen::Quaterniond ret;
@@ -256,7 +302,7 @@ Eigen::Quaterniond QuatFromTwoVectors(const Point3d &a,const Point3d &b)
     //  1 (vectors are nearly identical) and -1
     
     Vector3d axis = v0.cross(v1);
-    double s = internal::sqrt((1.f+c)*2.f);
+    double s = sqrt((1.f+c)*2.f);
     double invs = 1.f/s;
     ret.vec() = axis * invs;
     ret.w() = s * 0.5f;

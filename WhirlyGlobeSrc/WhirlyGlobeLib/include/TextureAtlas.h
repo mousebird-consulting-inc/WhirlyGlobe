@@ -36,6 +36,7 @@ class SubTexture : public Identifiable
 {
 public:
     SubTexture() : texId(EmptyIdentity) { trans.setIdentity(); }
+    SubTexture(SimpleIdentity subTexID) : Identifiable(subTexID) { }
     
     /// Set up the transform from destination texture coordinates
     void setFromTex(const TexCoord &texOrg,const TexCoord &texDest);

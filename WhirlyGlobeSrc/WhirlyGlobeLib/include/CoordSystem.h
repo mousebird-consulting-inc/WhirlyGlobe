@@ -52,9 +52,11 @@ public:
     
     /// Convert from the local coordinate system to lat/lon
     virtual WhirlyKit::GeoCoord localToGeographic(WhirlyKit::Point3f) = 0;
+    virtual WhirlyKit::Point2d localToGeographicD(WhirlyKit::Point3d) = 0;
     virtual WhirlyKit::GeoCoord localToGeographic(WhirlyKit::Point3d) = 0;
     /// Convert from lat/lon t the local coordinate system
     virtual WhirlyKit::Point3f geographicToLocal(WhirlyKit::GeoCoord) = 0;
+    virtual WhirlyKit::Point3d geographicToLocal(WhirlyKit::Point2d) = 0;
     virtual WhirlyKit::Point3d geographicToLocal3d(WhirlyKit::GeoCoord) = 0;
 
     /// Convert from the local coordinate system to geocentric

@@ -21,7 +21,7 @@
 #import "LabelRenderer.h"
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
-#import "ScreenSpaceGenerator.h"
+#import "ScreenSpaceBuilder.h"
 #import "FontTextureManager.h"
 
 #import "LabelManager.h"
@@ -210,6 +210,8 @@ LabelManager::~LabelManager()
     
 SimpleIdentity LabelManager::addLabels(std::vector<SingleLabel *> &labels,const LabelInfo &labelInfo,ChangeSet &changes)
 {
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+
     // Set up the representation (but then hand it off)
     LabelSceneRep *labelRep = new LabelSceneRep();
     labelRep->fade = labelInfo.fade;
@@ -223,29 +225,48 @@ SimpleIdentity LabelManager::addLabels(std::vector<SingleLabel *> &labels,const 
     labelRenderer.labelRep = labelRep;
     labelRenderer.scene = scene;
     labelRenderer.fontTexManager = (labelInfo.screenObject ? fontTexManager : NULL);
+    labelRenderer.scale = renderer.scale;
    
     labelRenderer.render(labels, changes);
     
+    changes.insert(changes.end(),labelRenderer.changeRequests.begin(), labelRenderer.changeRequests.end());
+
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
     
-    // And any layout constraints to the layout engine
-    if (layoutManager && !labelRenderer.layoutObjects.empty())
-        layoutManager->addLayoutObjects(labelRenderer.layoutObjects);
+    // Create screen shapes
+    if (!labelRenderer.screenObjects.empty())
+    {
+        ScreenSpaceBuilder ssBuild(coordAdapter,renderer.scale);
+        for (unsigned int ii=0;ii<labelRenderer.screenObjects.size();ii++)
+            ssBuild.addScreenObject(*(labelRenderer.screenObjects[ii]));
+        ssBuild.flushChanges(changes, labelRep->drawIDs);
+    }
     
+    // Hand over some to the layout manager
+    if (layoutManager && !labelRenderer.layoutObjects.empty())
+    {
+        for (unsigned int ii=0;ii<labelRenderer.layoutObjects.size();ii++)
+            labelRep->layoutIDs.insert(labelRenderer.layoutObjects[ii]->getId());
+        layoutManager->addLayoutObjects(labelRenderer.layoutObjects);
+    }
+    
+    // Pass on selection data
     if (selectManager)
     {
         for (unsigned int ii=0;ii<labelRenderer.selectables2D.size();ii++)
         {
             std::vector<WhirlyKit::RectSelectable2D> &selectables2D = labelRenderer.selectables2D;
             RectSelectable2D &sel = selectables2D[ii];
-            selectManager->addSelectableScreenRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis,sel.enable);
+            selectManager->addSelectableScreenRect(sel.selectID,sel.center,sel.pts,sel.minVis,sel.maxVis,sel.enable);
+            labelRep->selectIDs.insert(sel.selectID);
         }
         for (unsigned int ii=0;ii<labelRenderer.selectables3D.size();ii++)
         {
             std::vector<WhirlyKit::RectSelectable3D> &selectables3D = labelRenderer.selectables3D;
             RectSelectable3D &sel = selectables3D[ii];
             selectManager->addSelectableRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis,sel.enable);
+            labelRep->selectIDs.insert(sel.selectID);
         }
     }
 
@@ -299,16 +320,10 @@ void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &chan
             for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                  idIt != sceneRep->drawIDs.end(); ++idIt)
                 changes.push_back(new OnOffChangeRequest(*idIt,enable));
-            std::vector<SimpleIdentity> screenEnables;
-            for (SimpleIDSet::iterator idIt = sceneRep->screenIDs.begin();
-                 idIt != sceneRep->screenIDs.end(); ++idIt)
-                screenEnables.push_back(*idIt);
-            if (!screenEnables.empty())
-                changes.push_back(new ScreenSpaceGeneratorEnableRequest(screenGenId,screenEnables,enable));
-            if (sceneRep->selectID != EmptyIdentity && selectManager)
-                selectManager->enableSelectable(sceneRep->selectID, enable);
-            if (!sceneRep->screenIDs.empty() && layoutManager)
-                layoutManager->enableLayoutObjects(sceneRep->screenIDs,enable);
+            if (!sceneRep->selectIDs.empty() && selectManager)
+                selectManager->enableSelectables(sceneRep->selectIDs, enable);
+            if (!sceneRep->layoutIDs.empty() && layoutManager)
+                layoutManager->enableLayoutObjects(sceneRep->layoutIDs,enable);
         }
     }
     
@@ -320,7 +335,6 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    SimpleIdentity screenGenId = scene->getScreenSpaceGeneratorID();
     FontTextureManager *fontTexManager = scene->getFontTextureManager();
     
     pthread_mutex_lock(&labelLock);
@@ -365,21 +379,19 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
                 for (SimpleIDSet::iterator idIt = labelRep->texIDs.begin();
                      idIt != labelRep->texIDs.end(); ++idIt)
                     changes.push_back(new RemTextureReq(*idIt));
-                for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
-                     idIt != labelRep->screenIDs.end(); ++idIt)
-                    changes.push_back(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt));
                 for (SimpleIDSet::iterator idIt = labelRep->drawStrIDs.begin();
                      idIt != labelRep->drawStrIDs.end(); ++idIt)
                 {
                     if (fontTexManager)
-                        fontTexManager->removeString(*idIt, changes);
+                        [fontTexManager removeString:*idIt changes:changes];
                 }
                 
-                if (labelRep->selectID != EmptyIdentity && selectManager)
-                    selectManager->removeSelectable(labelRep->selectID);
+                if (selectManager && !labelRep->selectIDs.empty())
+                    selectManager->removeSelectables(labelRep->selectIDs);
 
-                if (layoutManager && !labelRep->screenIDs.empty())
-                    layoutManager->removeLayoutObjects(labelRep->screenIDs);
+                // Note: Screenspace  Doesn't handle fade
+                if (layoutManager && !labelRep->layoutIDs.empty())
+                    layoutManager->removeLayoutObjects(labelRep->layoutIDs);
                 
                 labelReps.erase(it);
                 delete labelRep;

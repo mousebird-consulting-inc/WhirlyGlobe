@@ -209,6 +209,13 @@ Drawable::Drawable(const std::string &name)
 Drawable::~Drawable()
 {
 }
+
+void Drawable::runTweakers(WhirlyKitRendererFrameInfo *frame)
+{
+    for (DrawableTweakerRefSet::iterator it = tweakers.begin();
+         it != tweakers.end(); ++it)
+        (*it)->tweakForFrame(this,frame);
+}
 	
 void DrawableChangeRequest::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
 {
@@ -847,9 +854,15 @@ void BasicDrawable::setWriteZBuffer(bool val)
 bool BasicDrawable::getWriteZbuffer() const
 { if (type == GL_LINES || type == GL_LINE_LOOP || type == GL_POINTS) return false;  return writeZBuffer; }
 
-unsigned int BasicDrawable::addPoint(Point3f pt)
+unsigned int BasicDrawable::addPoint(const Point3f &pt)
 {
     points.push_back(pt);
+    return (unsigned int)(points.size()-1);
+}
+
+unsigned int BasicDrawable::addPoint(const Point3d &pt)
+{
+    points.push_back(Point3f(pt.x(),pt.y(),pt.z()));
     return (unsigned int)(points.size()-1);
 }
 
@@ -877,8 +890,11 @@ void BasicDrawable::addTexCoord(int which,TexCoord coord)
 void BasicDrawable::addColor(RGBAColor color)
 { vertexAttributes[colorEntry]->addColor(color); }
 
-void BasicDrawable::addNormal(Point3f norm)
+void BasicDrawable::addNormal(const Point3f &norm)
 { vertexAttributes[normalEntry]->addVector3f(norm); }
+
+void BasicDrawable::addNormal(const Point3d &norm)
+{ vertexAttributes[normalEntry]->addVector3f(Point3f(norm.x(),norm.y(),norm.z())); }
 
 void BasicDrawable::addAttributeValue(int attrId,Eigen::Vector2f vec)
 { vertexAttributes[attrId]->addVector2f(vec); }
@@ -1766,6 +1782,27 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
     postDrawCallback(frameInfo,scene);
 }
 
+BasicDrawableTexTweaker::BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,NSTimeInterval startTime,double period)
+    : texIDs(texIDs), startTime(startTime), period(period)
+{
+}
+    
+void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frame)
+{
+    BasicDrawable *basicDraw = (BasicDrawable *)draw;
+    
+    double t = fmod(frame.currentTime-startTime,period)/period;
+    int base = floor(t * texIDs.size());
+    int next = (base+1)%texIDs.size();
+    
+    basicDraw->setTexId(0, texIDs[base]);
+    basicDraw->setTexId(1, texIDs[next]);
+
+    // This forces a redraw every frame
+    // Note: There has to be a better way
+    frame.scene->addChangeRequest(NULL);
+}
+
 ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
 	: DrawableChangeRequest(drawId)
 {
@@ -1959,6 +1996,11 @@ bool BasicDrawableInstance::hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) co
 void BasicDrawableInstance::updateRenderer(WhirlyKit::SceneRendererES *renderer)
 {
     return basicDraw->updateRenderer(renderer);
+}
+
+const Eigen::Matrix4d *BasicDrawableInstance::getMatrix() const
+{
+    return basicDraw->getMatrix();
 }
 
 void BasicDrawableInstance::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)

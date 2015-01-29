@@ -33,9 +33,11 @@ public:
     /// Convert from the local coordinate system to lat/lon
     GeoCoord localToGeographic(Point3f);
     GeoCoord localToGeographic(Point3d);
+    Point2d localToGeographicD(Point3d);
     /// Convert from lat/lon t the local coordinate system
     Point3f geographicToLocal(GeoCoord);
     Point3d geographicToLocal3d(GeoCoord);
+    Point3d geographicToLocal(Point2d);
 
     /// Convert from local coordinates to WGS84 geocentric
     Point3f localToGeocentric(Point3f);
@@ -144,5 +146,8 @@ protected:
 
 // Returns negative if the given location (with its normal) is currently facing away from the viewer
 float CheckPointAndNormFacing(const Point3f &dispLoc,const Point3f &norm,const Eigen::Matrix4f &viewAndModelMat,const Eigen::Matrix4f &viewModelNormalMat);
+
+// Returns negative if the given location (with its normal) is currently facing away from the viewer
+double CheckPointAndNormFacing(const Point3d &dispLoc,const Point3d &norm,const Eigen::Matrix4d &viewAndModelMat,const Eigen::Matrix4d &viewModelNormalMat);
 
 }

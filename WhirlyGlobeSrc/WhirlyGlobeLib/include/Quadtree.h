@@ -52,6 +52,9 @@ public:
         /// Comparison based on x,y,level.  Used for sorting
         bool operator < (const Identifier &that) const;
         
+        /// Quality operator
+        bool operator == (const Identifier &that) const;
+        
         /// Spatial subdivision along the X axis relative to the space
         int x;
         /// Spatial subdivision along tye Y axis relative to the space
@@ -64,13 +67,24 @@ public:
     class NodeInfo
     {
     public:
-        NodeInfo() { }
-        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance), phantom(that.phantom), attrs(that.attrs) { }
+        NodeInfo() { attrs = [NSMutableDictionary dictionary]; phantom = false;  importance = 0; frameLoadingFlags = 0; childrenLoading = 0; childrenEval = 0; eval = false; failed = false; childCoverage = false; frameFlags = 0;}
+        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom),frameLoadingFlags(that.frameLoadingFlags),childrenLoading(that.childrenLoading),eval(that.eval), failed(that.failed), childrenEval(that.childrenEval), childCoverage(that.childCoverage), frameFlags(that.frameFlags) { attrs = nil; if (that.attrs) attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
+        NodeInfo(const Identifier &ident) : ident(ident), importance(0.0), phantom(false), frameLoadingFlags(0), eval(false), failed(false), childrenLoading(0), childrenEval(0), childCoverage(false), frameFlags(0) { attrs = nil; }
+        NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; frameLoadingFlags = that.frameLoadingFlags; eval = that.eval;  failed = that.failed; childrenLoading = that.childrenLoading; childrenEval = that.childrenEval;  childCoverage = that.childCoverage; frameFlags = that.frameFlags; attrs = nil; if (that.attrs) attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
         ~NodeInfo() { }
         
         /// Compare based on importance.  Used for sorting
         bool operator < (const NodeInfo &that) const;
         
+        /// Check if the given frame is loaded
+        bool isFrameLoaded(int theFrame) const;
+        
+        /// Check if the given frame is loading
+        bool isFrameLoading(int theFrame) const;
+        
+        /// Set the frame loading bit
+        void setFrameLoading(int theFrame,bool val);
+
         /// Unique identifier for the particular node
         Identifier ident;
         /// Bounding box of just this quad node
@@ -79,6 +93,20 @@ public:
         float importance;
         /// Set if this is a phantom tile.  We pretended to load it, but it's not really here.
         bool phantom;
+        /// Tile is in the process of evaluation
+        bool eval;
+        /// This node failed to load
+        bool failed;
+        /// Number of children in the process of loading
+        int childrenLoading;
+        /// Number of children being evalulated
+        int childrenEval;
+        /// This tile is covered by loaded children.
+        bool childCoverage;
+        /// 64 bits of frame flags
+        long long frameFlags;
+        /// 64 bits of frame loading flags
+        long long frameLoadingFlags;
 
         /// Put any attributes you'd like to keep track of here.
         /// There are things you might calculate for a given tile over and over.
@@ -86,13 +114,16 @@ public:
     };
 
     /// Check if the given tile is already present
-    bool isTileLoaded(Identifier ident);
+    bool isTilePresent(const Identifier &ident);
 
     /** Check if the quad tree will accept the given tile.
         This means either there's room or less important nodes loaded
         It could already be loaded.  Check that separately.
      */
-    bool willAcceptTile(const NodeInfo &nodeInfo);
+    bool shouldLoadTile(const Identifier &ident,int frame);
+    
+    /// Return true if we've go the maximum nodes loaded in
+    bool isFull();
     
     /// Return true if this is a phantom tile
     bool isPhantom(const Identifier &ident);
@@ -100,46 +131,86 @@ public:
     /// Set the phantom flag on the given node
     void setPhantom(const Identifier &nodeInfo,bool newPhantom);
     
+    /// Return true if this tile is loading
+    bool isLoading(const Identifier &ident,int frame);
+    
+    /// Set the loading flag on the given node
+    void setLoading(const Identifier &nodeInfo,int frame,bool newLoading);
+    
+    /// Mark a tile (with a frame) as loaded
+    void didLoad(const Identifier &nodeInfo,int frame);
+    
+    /// Set if something is evaluating this node
+    bool isEvaluating(const Identifier &ident);
+
+    /// Set the evaluating flag
+    void setEvaluating(const Identifier &nodeInfo,bool newEval);
+    
+    /// Check if a given tile failed to load at one point
+    bool didFail(const Identifier &ident);
+    
+    /// Set the failed flag
+    void setFailed(const Identifier &ident,bool newFail);
+    
+    /// Check if any of the children of the given node failed to load
+    bool childFailed(const Identifier &ident);
+    
+    /// Number of nodes in the eval queue
+    int numEvals();
+    
+    /// Clear everything that's evaluating
+    void clearEvals();
+    
+    /// Clear all the failure flags
+    void clearFails();
+    
+    /// Return the next nodes we're evaluating
+    bool popLastEval(NodeInfo &);
+    
+    /// Look for children of this tile being loaded
+    bool childrenLoading(const Identifier &ident);
+    
+    /// Look for children of this tile being evaluated
+    bool childrenEvaluating(const Identifier &ident);
+    
     /// Recalculate the importance of everything.  This calls the callback.
     void reevaluateNodes();
     
-    /// Add the given tile, keeping track of what needed to be removed
-    void addTile(NodeInfo nodeInfo,std::vector<Identifier> &tilesRemoved);
-    
-    /// Explicitly remove a given tile
-    void removeTile(Identifier which);
-    
-    // Remove the given tile
-//    void removeTile(Identifier ident);
-
     /// Given an identifier, fill out the node info such as
     /// MBR and importance.
-    NodeInfo generateNode(Identifier ident);
-
-    /// Given the identifier of a parent, fill out the children IDs.
-    /// This does not load them.
-    void generateChildren(Identifier ident,std::vector<NodeInfo> &nodes);
+    NodeInfo generateNode(const Identifier &ident);
     
-    /// Return the loaded children of the given node.
-    /// If the node isn't in the tree, return false
-    bool childrenForNode(Identifier ident,std::vector<Identifier> &childIdents);
+    /// Return the node info for a given node
+    const NodeInfo *getNodeInfo(const Identifier &ident);
+    
+    /// Add the given tile, without looking for any to remove.  This is probably a phantom.
+    const Quadtree::NodeInfo *addTile(const Identifier &ident,bool newEval,bool checkImportance);
+    
+    /// Explicitly remove a given tile
+    void removeTile(const Identifier &which);
+    
+    /// Return the IDs for this node's children.  Doesn't check if they're there
+    void childrenForNode(const Identifier &ident,std::vector<Identifier> &childIdents);
+    
+    /// Check if a parent is in the process of loading
+    bool parentIsLoading(const Identifier &ident);
     
     /// Check if the given node has a parent loaded.
     /// Return true if so, false if not.
-    bool hasParent(Identifier ident,Identifier &parentIdent);
+    bool hasParent(const Identifier &dent,Identifier &parentIdent);
     
     /// Check if the given node has children loaded
-    bool hasChildren(Identifier ident);
+    bool hasChildren(const Identifier &ident);
     
     /// Generate an MBR for the given node identifier
-    Mbr generateMbrForNode(Identifier ident);
+    Mbr generateMbrForNode(const Identifier &ident);
+    
+    /// Generate a bounding box for a given node ID in 64 bit precision
+    void generateMbrForNode(const Identifier &ident,Point2d &ll,Point2d &ur);
     
     /// Fetch the least important (smallest) node currently loaded.
     /// Returns false if there wasn't one
-    bool leastImportantNode(NodeInfo &nodeInfo,bool ignoreImportance=false,int targetLevel=-1);
-
-    /// Return a vector of all nodes less than the given importance without children
-    void unimportantNodes(std::vector<NodeInfo> &nodes,float importance);
+    bool leastImportantNode(NodeInfo &nodeInfo,bool force=false);
     
     /// Update the maximum number of nodes.
     /// This won't check to see if we already have more than that
@@ -147,6 +218,15 @@ public:
     
     /// Change the minimum importance value
     void setMinImportance(float newMinImportance);
+    
+    /// Recalculate the child coverage for a given node
+    void updateParentCoverage(const Identifier &ident,std::vector<Identifier> &coveredTiles,std::vector<Identifier> &unCoveredTiles);
+    
+    /// Return the loaded count for a given frame (if we're loading frames)
+    int getFrameCount(int frame);
+    
+    /// Check if a given frame is completely loaded (if we're in frame mode)
+    bool frameIsLoaded(int frame,int *tilesLoaded);
     
     /// Dump out to the log for debugging
     void Print();
@@ -169,7 +249,7 @@ protected:
         bool operator() (const Node *a,const Node *b)
         {
             if (a->nodeInfo.importance == b->nodeInfo.importance)
-                return a < b;
+                return a->nodeInfo.ident < b->nodeInfo.ident;
             return a->nodeInfo.importance < b->nodeInfo.importance;
         }
     } NodeSizeSorter;
@@ -189,17 +269,28 @@ protected:
         void addChild(Quadtree *tree,Node *child);
         void removeChild(Quadtree *tree,Node *child);
         bool hasChildren();
+        bool parentLoading();
+        bool hasNonPhantomParent();
         void Print();
-        
+        /// Recalculate child coverage
+        bool recalcCoverage();
+ 
     protected:
         NodesByIdentType::iterator identPos;
         NodesBySizeType::iterator sizePos;
+        NodesBySizeType::iterator evalPos;
         Node *parent;
         Node *children[4];
     };
         
-    Node *getNode(Identifier ident);
+    Node *getNode(const Identifier &ident);
     void removeNode(Node *);
+    /// Recalculate child coverage for a node and its parents
+    void recalcCoverage(Node *node);
+    /// Add an entry for the given flag index
+    void addFrameLoaded(int frame);
+    /// Clear the flag counts for the given flag entries
+    void clearFlagCounts(int frameFlags);
 
     Mbr mbr;
     int minLevel,maxLevel;
@@ -213,6 +304,9 @@ protected:
     NodesByIdentType nodesByIdent;
     // Child nodes, sorted by importance
     NodesBySizeType nodesBySize;
+    // Nodes we're evaluating
+    NodesBySizeType evalNodes;
+    std::vector<int> frameLoadCounts;
 };
 
 /// Fill in this protocol to return the importance value for a given tile.

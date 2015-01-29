@@ -225,6 +225,18 @@ double View::currentMapZoom(const WhirlyKit::Point2f &frameSize,double latitude)
   return zoom;
 }
 
+Point2d screenSizeInDisplayCoords(Point2f &frameSize)
+{
+    Point2d screenSize(0,0);
+    if (frameSize.x() == 0.0 || frameSize.y() == 0.0)
+        return screenSize;
+    
+    screenSize.x() = tan(_fieldOfView/2.0) * self.heightAboveSurface * 2.0;
+    screenSize.y() = screenSize.x() / frameSize.x() * frameSize.y();
+    
+    return screenSize;
+}
+
 /// Add a watcher delegate
 void View::addWatcher(ViewWatcher *watcher)
 {

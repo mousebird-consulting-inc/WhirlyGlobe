@@ -34,6 +34,11 @@ GeoCoord PlateCarreeCoordSystem::localToGeographic(Point3d pt)
     return GeoCoord(pt.x(),pt.y());
 }
     
+Point2d PlateCarreeCoordSystem::localToGeographicD(Point3d pt)
+{
+    return Point2d(pt.x(),pt.y());
+}
+
 Point3f PlateCarreeCoordSystem::geographicToLocal(GeoCoord geo)
 {
     return Point3f(geo.lon(),geo.lat(),0.0);
@@ -44,6 +49,11 @@ Point3d PlateCarreeCoordSystem::geographicToLocal3d(GeoCoord geo)
     return Point3d(geo.lon(),geo.lat(),0.0);
 }
     
+Point3d PlateCarreeCoordSystem::geographicToLocal(Point2d geo)
+{
+    return Point3d(geo.x(),geo.y(),0.0);
+}
+
 Point3f PlateCarreeCoordSystem::localToGeocentric(Point3f localPt)
 {
     return GeoCoordSystem::LocalToGeocentric(Point3f(localPt.x(),localPt.y(),localPt.z()));

@@ -47,7 +47,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     
 RendererFrameInfo::RendererFrameInfo()
     : oglVersion(0), sceneRenderer(NULL), theView(NULL), scene(NULL), frameLen(0), currentTime(0),
-    heightAboveSurface(0), program(NULL), stateOpt(NULL)
+    heightAboveSurface(0), screenSizeInDisplayCoords(0), program(NULL), stateOpt(NULL)
     // Note: Porting
 //,lights(NULL)
 {
@@ -139,6 +139,7 @@ SceneRendererES::SceneRendererES(int apiVersion)
     frameCount = 0;
     framesPerSec = 0.0;
     numDrawables = 0;
+    frameCountStart = 0.0;
     frameCountStart = 0.0;
     zBufferMode = zBufferOn;
     doCulling = false;

@@ -49,6 +49,7 @@ ScreenSpaceGenerator::ConvexShape::ConvexShape()
     rotation = 0.0;
     offset.x() = 0.0;
     offset.y() = 0.0;
+    keepUpright = false;
     enable = true;
 }
 

@@ -26,7 +26,7 @@ namespace WhirlyKit
     
 DynamicDrawableAtlas::DynamicDrawableAtlas(const std::string &name,int singleElementSize,int numVertexBytes,int numElementBytes,OpenGLMemManager *memManager,BigDrawable *(*newBigDrawable)(BasicDrawable *draw,int singleElementSize,int numVertexBytes,int numElementBytes),
                                            SimpleIdentity shaderId)
-    : name(name), singleVertexSize(0), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager), newBigDrawable(newBigDrawable), shaderId(shaderId), enable(true)
+    : name(name), singleVertexSize(0), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager), newBigDrawable(newBigDrawable), shaderId(shaderId), enable(true), hasChanges(false)
 {
 }
     
@@ -37,8 +37,10 @@ DynamicDrawableAtlas::~DynamicDrawableAtlas()
     swapChanges.clear();
 }
     
-bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled,SimpleIdentity destTexId,bool *addedNewBigDrawable,const Point3d *center,double objSize)
+bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled,std::vector<SimpleIdentity> *destTexIDs,bool *addedNewBigDrawable,const Point3d *center,double objSize)
 {
+    hasChanges = true;
+
     if (addedNewBigDrawable)
         *addedNewBigDrawable = false;
 
@@ -136,9 +138,11 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
         newBigDraw->setupGL(NULL, memManager);
         changes.push_back(new AddDrawableReq(newBigDraw));
         bigDrawables.insert(BigDrawableInfo(draw->getTexId(0),newBigDraw));
-        if (destTexId != EmptyIdentity && newBigDraw->texInfo.size() > 0)
+        if (destTexIDs && newBigDraw->texInfo.size() > 0)
         {
-            newBigDraw->texInfo[0].texId = destTexId;
+            for (unsigned int ti=0;ti<destTexIDs->size();ti++)
+                if (ti<newBigDraw->texInfo.size())
+                    newBigDraw->texInfo[ti].texId = destTexIDs->at(ti);
         }
         represent.bigDrawId = newBigDraw->getId();
         // If there's a center, the data is dependent on that center.

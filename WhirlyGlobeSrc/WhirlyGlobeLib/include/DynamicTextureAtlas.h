@@ -154,34 +154,6 @@ protected:
 class DynamicTextureAtlas
 {
 public:
-    /// Construct with the square size of the textures, the cell size (in pixels) and the pixel format
-    DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1,bool mainThreadMerge=false);
-    ~DynamicTextureAtlas();
-
-    /// Fudge factor for border pixels.  We'll add this/pixelSize to the lower left
-    ///  and subtract this/pixelSize from the upper right for each texture application.
-    void setPixelFudgeFactor(float pixFudge);
-
-    /// Try to add the texture to one of our dynamic textures, or create one.
-    bool addTexture(const std::vector<Texture *> &textures,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0);
-    
-    /// Free up the space for a texture from one of the dynamic textures
-    void removeTexture(const SubTexture &subTex,ChangeSet &changes);
-    
-    /// Return the IDs for the dynamic textures we're using
-    void getTextureIDs(std::vector<SimpleIdentity> &texIDs,int which);
-
-    /// Look for any textures that should be cleaned up
-    void cleanup(ChangeSet &changes);
-
-    /// Clear out the active dynamic textures.  Caller deals with the
-    ///  change requests.
-    void shutdown(ChangeSet &changes);
-    
-        /// Print out some utilization info
-    void log();
-
-protected:
     /// This maps a given texture to its location in a dynamic texture
     class TextureRegion
     {
@@ -193,6 +165,47 @@ protected:
         DynamicTexture::Region region;
     };
 
+    /// Construct with the square size of the textures, the cell size (in pixels) and the pixel format
+    DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1,bool mainThreadMerge=false);
+    ~DynamicTextureAtlas();
+
+    /// Fudge factor for border pixels.  We'll add this/pixelSize to the lower left
+    ///  and subtract this/pixelSize from the upper right for each texture application.
+    void setPixelFudgeFactor(float pixFudge);
+
+    /// Try to add the texture to one of our dynamic textures, or create one.
+    bool addTexture(const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0);
+    
+    /// Update one of the frames of a multi-frame texture atlas
+    bool updateTexture(Texture *,int frame,const TextureRegion &texRegion,ChangeSet &changes);
+
+    /// Free up the space for a texture from one of the dynamic textures
+    void removeTexture(const SubTexture &subTex,ChangeSet &changes);
+    
+    /// Return the IDs for the dynamic textures we're using
+    void getTextureIDs(std::vector<SimpleIdentity> &texIDs,int which);
+
+    /// Return the texture ID for a given frame, corresponding to the base Tex ID
+    SimpleIdentity getTextureIDForFrame(SimpleIdentity baseTexID,int which);
+    
+    /// Return the dynamic texture's format
+    GLenum getFormat() { return format; }
+    
+    /// Check if the dynamic texture atlas is empty.
+    /// Call cleanup() first
+    bool empty();
+    
+    /// Look for any textures that should be cleaned up
+    void cleanup(ChangeSet &changes);
+
+    /// Clear out the active dynamic textures.  Caller deals with the
+    ///  change requests.
+    void shutdown(ChangeSet &changes);
+    
+        /// Print out some utilization info
+    void log();
+
+protected:
     int imageDepth;
     int texSize;
     int cellSize;

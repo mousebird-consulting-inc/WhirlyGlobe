@@ -97,7 +97,7 @@ TileBuilder::TileBuilder(CoordSystem *coordSys,Mbr mbr,WhirlyKit::Quadtree *quad
     enabled(true),
     texAtlas(NULL),
     newDrawables(false),
-    singleLevel(-1),
+    singleLevel(false),
     texAtlasPixelFudge(0.0)
 {
     pthread_mutex_init(&texAtlasMappingLock, NULL);
@@ -199,7 +199,8 @@ void TileBuilder::buildSkirt(BasicDrawable *draw,Point3fVector &pts,std::vector<
                         for (unsigned int jj=0;jj<4;jj++)
                         {
                             draw->addPoint(corners[jj]);
-                            draw->addNormal((pts[ii]+pts[ii+1])/2.0);
+                            Point3f norm = (pts[ii]+pts[ii+1])/2.f;
+                            draw->addNormal(norm);
                             TexCoord texCoord = cornerTex[jj];
                             draw->addTexCoord(-1,texCoord);
                         }
@@ -249,7 +250,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
 //    }
 
     // For single level mode it's not worth getting fancy
-    if (singleLevel != -1)
+    if (singleLevel)
     {
         sphereTessX = 1;
         sphereTessY = 1;
@@ -325,6 +326,10 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
         if (activeTextures > 0)
             chunk->setTexId(activeTextures-1, EmptyIdentity);
         chunk->setDrawOffset(drawOffset);
+        int thisDrawPriority = drawPriority;
+        if (singleLevel)
+            thisDrawPriority += nodeInfo->ident.level;
+        chunk->setDrawPriority(thisDrawPriority);
         chunk->setDrawPriority(drawPriority);
         chunk->setVisibleRange(minVis, maxVis);
         chunk->setAlpha(hasAlpha);
@@ -691,6 +696,23 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
     return true;
 }
 
+Texture *TileBuilder::buildTexture(WhirlyKitLoadedImage *loadImage)
+{
+    // They'll all be the same width
+    int destWidth,destHeight;
+    textureSize(loadImage.width,loadImage.height,&destWidth,&destHeight);
+    
+    Texture *newTex = [loadImage buildTexture:borderTexel destWidth:destWidth destHeight:destHeight];
+    
+    if (newTex)
+    {
+        newTex->setFormat(glFormat);
+        newTex->setSingleByteSource(singleByteSource);
+    }
+    
+    return newTex;
+}
+
 // Note: Off for now
 bool TileBuilder::flushUpdates(ChangeSet &changes)
 {
@@ -744,6 +766,7 @@ bool TileBuilder::isReady()
 
 InternalLoadedTile::InternalLoadedTile()
 {
+    isInitialized = false;
     isLoading = false;
     placeholder = false;
     drawId = EmptyIdentity;
@@ -760,6 +783,7 @@ InternalLoadedTile::InternalLoadedTile()
 InternalLoadedTile::InternalLoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
 {
     nodeInfo.ident = ident;
+    isInitialized = false;
     isLoading = false;
     placeholder = false;
     drawId = EmptyIdentity;
@@ -785,9 +809,33 @@ void InternalLoadedTile::calculateSize(Quadtree *quadTree,CoordSystemDisplayAdap
     tileSize = (ll-ur).norm();
 }
 
-// Add the geometry and texture to the scene for a given tile
-bool InternalLoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<LoadedImage *>loadImages,int currentImage0,int currentImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+// Note: This only works with texture atlases
+bool LoadedTile::updateTexture(TileBuilder *tileBuilder,WhirlyKitLoadedImage *loadImage,int frame,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
+    if (!loadImage || loadImage.type == WKLoadedImagePlaceholder)
+    {
+        placeholder = true;
+        return true;
+    }
+    
+    Texture *newTex = tileBuilder->buildTexture(loadImage);
+    
+    if (tileBuilder->texAtlas)
+    {
+        tileBuilder->texAtlas->updateTexture(newTex, frame, texRegion, changeRequests);
+        changeRequests.push_back(NULL);
+    }
+    
+    delete newTex;
+    
+    return true;
+}
+
+// Add the geometry and texture to the scene for a given tile
+bool InternalLoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<LoadedImage *>loadImages,int frame,int currentImage0,int currentImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+{
+    isInitialized = true;
+
     // If it's a placeholder, we don't create geometry
     if (!loadImages.empty() && loadImages[0]->isPlaceholder())
     {
@@ -802,14 +850,12 @@ bool InternalLoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<LoadedI
         subTexs.resize(loadImages.size());
     if (!tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, (!loadImages.empty() ? &texs : NULL), Point2f(1.0,1.0), Point2f(0.0,0.0), &loadImages))
         return false;
-//    if (![loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:(!loadImages.empty() ? &texs : NULL) activeTextures:loader.activeTextures texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:&loadImages elevData:loadElev])
-//        return false;
     drawId = draw->getId();
     skirtDrawId = (skirtDraw ? skirtDraw->getId() : EmptyIdentity);
 
     if (tileBuilder->texAtlas)
     {
-        tileBuilder->texAtlas->addTexture(texs, NULL, NULL, subTexs[0], tileBuilder->scene->getMemManager(), changeRequests, tileBuilder->borderTexel);
+        tileBuilder->texAtlas->addTexture(texs, frame, NULL, NULL, subTexs[0], tileBuilder->scene->getMemManager(), changeRequests, tileBuilder->borderTexel);
         changeRequests.push_back(NULL);
     }
     for (unsigned int ii=0;ii<texs.size();ii++)
@@ -835,17 +881,29 @@ bool InternalLoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<LoadedI
         } else
             texIds.push_back(EmptyIdentity);
     }
-    
+
+    // Tex IDs for new drawables
+    std::vector<SimpleIdentity> startTexIDs;
+    if (subTexs.size() > 0)
+    {
+        if (currentImage0 != -1 && currentImage1 != -1)
+        {
+            SimpleIdentity baseTexID = subTexs[0].texId;
+            startTexIDs.push_back(tileBuilder->texAtlas->getTextureIDForFrame(baseTexID, currentImage0));
+            startTexIDs.push_back(tileBuilder->texAtlas->getTextureIDForFrame(baseTexID, currentImage1));
+        }
+    }
+
     // Now for the changes to the scene
     if (tileBuilder->drawAtlas)
     {
         bool addedBigDraw = false;
-        tileBuilder->drawAtlas->addDrawable(draw,changeRequests,true,EmptyIdentity,&addedBigDraw,&dispCenter,tileSize);
+        tileBuilder->drawAtlas->addDrawable(draw,changeRequests,true,&startTexIDs,EmptyIdentity,&addedBigDraw,&dispCenter,tileSize);
         tileBuilder->newDrawables |= addedBigDraw;
         delete draw;
         if (skirtDraw)
         {
-            tileBuilder->drawAtlas->addDrawable(skirtDraw,changeRequests,true,EmptyIdentity,&addedBigDraw,&dispCenter,tileSize);
+            tileBuilder->drawAtlas->addDrawable(skirtDraw,changeRequests,true,&startTexIDs,EmptyIdentity,&addedBigDraw,&dispCenter,tileSize);
             tileBuilder->newDrawables |= addedBigDraw;
             delete skirtDraw;
         }
@@ -922,12 +980,24 @@ bool TileBuilder::isValidTile(const Mbr &theMbr)
 }
 
 // Update based on what children are doing
-void InternalLoadedTile::updateContents(TileBuilder *tileBuilder,InternalLoadedTile *childTiles[],ChangeSet &changeRequests)
+void InternalLoadedTile::updateContents(TileBuilder *tileBuilder,InternalLoadedTile *childTiles[],int currentImage0,int currentImage1,ChangeSet &changeRequests)
 {
     bool childrenExist = false;
     
     if (placeholder)
         return;
+    
+    // Tex IDs for new drawables
+    std::vector<SimpleIdentity> startTexIDs;
+    if (subTexs.size() > 0)
+    {
+        if (currentImage0 != -1 && currentImage1 != -1)
+        {
+            SimpleIdentity baseTexID = subTexs[0].texId;
+            startTexIDs.push_back(tileBuilder->texAtlas->getTextureIDForFrame(baseTexID, currentImage0));
+            startTexIDs.push_back(tileBuilder->texAtlas->getTextureIDForFrame(baseTexID, currentImage1));
+        }
+    }
     
     // Work through the possible children
     int whichChild = 0;
@@ -939,7 +1009,7 @@ void InternalLoadedTile::updateContents(TileBuilder *tileBuilder,InternalLoadedT
             Quadtree::Identifier childIdent(2*nodeInfo.ident.x+ix,2*nodeInfo.ident.y+iy,nodeInfo.ident.level+1);
 //            LoadedTile *childTile = [loader getTile:childIdent];
             InternalLoadedTile *childTile = childTiles[iy*2+ix];
-            isPresent = childTile && !childTile->isLoading;
+            isPresent = childTile && childTile->isInitialized;
             
             // If it exists, make sure we're not representing it here
             if (isPresent)
@@ -973,7 +1043,6 @@ void InternalLoadedTile::updateContents(TileBuilder *tileBuilder,InternalLoadedT
                         BasicDrawable *childDraw = NULL;
                         BasicDrawable *childSkirtDraw = NULL;
                         tileBuilder->buildTile(&childInfo,&childDraw,&childSkirtDraw,NULL,Point2f(0.5,0.5),Point2f(0.5*ix,0.5*iy),NULL);
-//                        [loader buildTile:&childInfo draw:&childDraw skirtDraw:&childSkirtDraw tex:NULL activeTextures:loader.activeTextures texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:layer.lineMode layer:layer imageData:nil elevData:elevData];
                         // Set this to change the color of child drawables.  Helpfull for debugging
                         //                        childDraw->setColor(RGBAColor(64,64,64,255));
                         childDrawIds[whichChild] = childDraw->getId();
@@ -987,20 +1056,20 @@ void InternalLoadedTile::updateContents(TileBuilder *tileBuilder,InternalLoadedT
                         }
                         if (tileBuilder->texAtlas)
                         {
-                            if (childDraw)
+                            if (childDraw && !subTexs.empty())
                                 childDraw->applySubTexture(-1,subTexs[0]);
-                            if (childSkirtDraw)
+                            if (childSkirtDraw && !subTexs.empty())
                                 childSkirtDraw->applySubTexture(-1,subTexs[0]);
                         }
                         if (tileBuilder->drawAtlas)
                         {
                             bool addedBigDrawable = false;
-                            tileBuilder->drawAtlas->addDrawable(childDraw, changeRequests,true,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
+                            tileBuilder->drawAtlas->addDrawable(childDraw, changeRequests,true,&startTexIDs,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
                             tileBuilder->newDrawables |= addedBigDrawable;
                             delete childDraw;
                             if (childSkirtDraw)
                             {
-                                tileBuilder->drawAtlas->addDrawable(childSkirtDraw, changeRequests,true,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
+                                tileBuilder->drawAtlas->addDrawable(childSkirtDraw, changeRequests,true,&startTexIDs,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
                                 tileBuilder->newDrawables |= addedBigDrawable;
                                 delete childSkirtDraw;
                             }
@@ -1024,7 +1093,6 @@ void InternalLoadedTile::updateContents(TileBuilder *tileBuilder,InternalLoadedT
             BasicDrawable *draw = NULL;
             BasicDrawable *skirtDraw = NULL;
             tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, NULL, Point2f(1.0,1.0), Point2f(0.0,0.0), NULL);
-//            [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:NULL activeTextures:loader.activeTextures texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil elevData:elevData];
             drawId = draw->getId();
             if (!texIds.empty())
                 draw->setTexId(0,texIds[0]);
@@ -1043,12 +1111,12 @@ void InternalLoadedTile::updateContents(TileBuilder *tileBuilder,InternalLoadedT
             if (tileBuilder->drawAtlas)
             {
                 bool addedBigDrawable = false;
-                tileBuilder->drawAtlas->addDrawable(draw, changeRequests,true,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
+                tileBuilder->drawAtlas->addDrawable(draw, changeRequests,true,&startTexIDs,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
                 tileBuilder->newDrawables |= addedBigDrawable;
                 delete draw;
                 if (skirtDraw)
                 {
-                    tileBuilder->drawAtlas->addDrawable(skirtDraw, changeRequests,true,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
+                    tileBuilder->drawAtlas->addDrawable(skirtDraw, changeRequests,true,&startTexIDs,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
                     tileBuilder->newDrawables |= addedBigDrawable;
                     delete skirtDraw;
                 }

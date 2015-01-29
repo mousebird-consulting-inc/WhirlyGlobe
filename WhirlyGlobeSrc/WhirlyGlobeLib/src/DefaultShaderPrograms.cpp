@@ -21,6 +21,7 @@
 #import "DefaultShaderPrograms.h"
 // Note: Porting
 //#import "BillboardDrawable.h"
+#import "ScreenSpaceDrawable.h"
 
 namespace WhirlyKit
 {
@@ -299,45 +300,45 @@ static const char *fragmentShaderNoLightTri =
     a_position: Position in 3-space for the center
     a_offset:   Offset from the location
   */
-static const char *vertexShaderScreenSpace =
-"uniform mat4  u_mvMatrix;"
-"uniform mat4  u_mvpMatrix;"
-"uniform mat4  u_mvNormalMatrix;"
-"uniform float u_fade;"
-"attribute vec3 a_position;"
-"attribute vec2 a_offset;"
-"attribute vec3 a_normal;"
-"attribute vec2 a_texCoord0;"
-"attribute vec4 a_color;"
-""
-"varying vec2 v_texCoord0;"
-"varying vec4 v_color;"
-""
-"void main()"
-"{"
-"   v_texCoord0 = a_texCoord0;"
-"   v_color = a_color * u_fade;"
-"   vec4 testPt = u_mvMatrix * vec4(a_position,1.0);"
-"   vec4 testDir = u_mvNormalMatrix * vec4(a_normal,0.0);"
-"   float res = dot(vec3(-testPt.x/testPt.w,-testPt.y/testPt.w,-testPt.z/testPt.w),vec3(testDir.x,testDir.y,testDir.z));"
-"   gl_Position = (u_mvpMatrix * vec4(a_position,1.0) + vec4(a_offset,0.0,0.0)) * step(0.0,res);"
-"}"
-;
+//static const char *vertexShaderScreenSpace =
+//"uniform mat4  u_mvMatrix;"
+//"uniform mat4  u_mvpMatrix;"
+//"uniform mat4  u_mvNormalMatrix;"
+//"uniform float u_fade;"
+//"attribute vec3 a_position;"
+//"attribute vec2 a_offset;"
+//"attribute vec3 a_normal;"
+//"attribute vec2 a_texCoord0;"
+//"attribute vec4 a_color;"
+//""
+//"varying vec2 v_texCoord0;"
+//"varying vec4 v_color;"
+//""
+//"void main()"
+//"{"
+//"   v_texCoord0 = a_texCoord0;"
+//"   v_color = a_color * u_fade;"
+//"   vec4 testPt = u_mvMatrix * vec4(a_position,1.0);"
+//"   vec4 testDir = u_mvNormalMatrix * vec4(a_normal,0.0);"
+//"   float res = dot(vec3(-testPt.x/testPt.w,-testPt.y/testPt.w,-testPt.z/testPt.w),vec3(testDir.x,testDir.y,testDir.z));"
+//"   gl_Position = (u_mvpMatrix * vec4(a_position,1.0) + vec4(a_offset,0.0,0.0)) * step(0.0,res);"
+//"}"
+//;
 
-static const char *fragmentShaderScreenSpace =
-"precision mediump float;"
-""
-"uniform sampler2D s_baseMap0;"
-""
-"varying vec2      v_texCoord0;"
-"varying vec4      v_color;"
-""
-"void main()"
-"{"
-"  vec4 baseColor0 = texture2D(s_baseMap0, v_texCoord0);"
-"  gl_FragColor = v_color * baseColor0;"
-"}"
-;
+//static const char *fragmentShaderScreenSpace =
+//"precision mediump float;"
+//""
+//"uniform sampler2D s_baseMap0;"
+//""
+//"varying vec2      v_texCoord0;"
+//"varying vec4      v_color;"
+//""
+//"void main()"
+//"{"
+//"  vec4 baseColor0 = texture2D(s_baseMap0, v_texCoord0);"
+//"  gl_FragColor = v_color * baseColor0;"
+//"}"
+//;
 
 void SetupDefaultShaders(Scene *scene)
 {
@@ -407,6 +408,16 @@ void SetupDefaultShaders(Scene *scene)
 //    } else {
 //        scene->addProgram(kToolkitDefaultBillboardProgram, billShader);
 //    }
+
+    // Screen space shader
+    OpenGLES2Program *screenSpaceShader = BuildScreenSpaceProgram();
+    if (!screenSpaceShader)
+    {
+        NSLog(@"SetupDefaultShaders: Screen Space shader didn't compile.");
+    } else {
+        scene->addProgram(kToolkitDefaultScreenSpaceProgram, screenSpaceShader);
+    }
+
 }
 
 }

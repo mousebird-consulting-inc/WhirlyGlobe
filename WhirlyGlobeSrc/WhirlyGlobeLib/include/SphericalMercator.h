@@ -38,9 +38,11 @@ public:
     /// Convert from the local coordinate system to lat/lon
     GeoCoord localToGeographic(Point3f);
     GeoCoord localToGeographic(Point3d);
+    Point2d localToGeographicD(Point3d);
     /// Convert from lat/lon t the local coordinate system
     Point3f geographicToLocal(GeoCoord);
     Point3d geographicToLocal3d(GeoCoord);
+    Point3d geographicToLocal(Point2d);
     
     /// Convert from the local coordinate system to geocentric
     Point3f localToGeocentric(Point3f);
@@ -53,7 +55,7 @@ public:
     virtual bool isSameAs(CoordSystem *coordSys);
         
 protected:
-    float originLon;
+    double originLon;
 };
     
 /** The Spherical Mercator Display adapter uses an origin and geo MBR
@@ -94,7 +96,7 @@ public:
     virtual bool isFlat() { return true; }    
     
 protected:
-    Point2f org,ll,ur;
+    Point2d org,ll,ur;
     SphericalMercatorCoordSystem smCoordSys;
 };
     

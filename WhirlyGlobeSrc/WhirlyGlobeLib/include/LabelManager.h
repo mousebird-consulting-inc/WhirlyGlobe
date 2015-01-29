@@ -58,6 +58,8 @@ public:
     GeoCoord loc;
     /// Rotation around the origin
     float rotation;
+    /// Keep a label oriented upright on the screen
+    bool keepUpright;
     /// This dictionary contains overrides for certain attributes
     ///  for just this label.  Only width, height, icon, text color, and
     ///  background color supported.

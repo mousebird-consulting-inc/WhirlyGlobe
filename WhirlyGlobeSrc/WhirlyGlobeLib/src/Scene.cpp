@@ -22,7 +22,6 @@
 #import "GlobeView.h"
 #import "GlobeMath.h"
 #import "TextureAtlas.h"
-#import "ScreenSpaceGenerator.h"
 #import "Platform.h"
 //#import "ViewPlacementGenerator.h"
 #import "FontTextureManager.h"
@@ -60,10 +59,6 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     // Note: Porting.  This won't work.  Need to instantiate a platform version
 //    fontTextureManager = new FontTextureManager(this);
     
-    // Also toss in a screen space generator to share amongst the layers
-    ssGen = new ScreenSpaceGenerator(kScreenSpaceGeneratorShared,Point2d(0.1,0.1));
-    screenSpaceGeneratorID = ssGen->getId();
-    generators.insert(ssGen);
 //    // And put in a UIView placement generator for use in the main thread
 //    vpGen = new ViewPlacementGenerator(kViewPlacementGeneratorShared);
 //    generators.insert(vpGen);

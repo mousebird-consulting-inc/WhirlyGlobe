@@ -217,7 +217,8 @@ bool GlobeView::pointOnSphereFromScreen(Point2f pt,const Eigen::Matrix4d *transf
 	// Now intersect that with a unit sphere to see where we hit
 	Vector4d dir4 = modelScreenPt - modelEye;
 	Vector3d dir(dir4.x(),dir4.y(),dir4.z());
-	if (IntersectUnitSphere(Vector3d(modelEye.x(),modelEye.y(),modelEye.z()), dir, *hit))
+        double t;
+	if (IntersectUnitSphere(Vector3d(modelEye.x(),modelEye.y(),modelEye.z()), dir, *hit, &t) && t > 0.0)
 		return true;
 	
 	// We need the closest pass, if that didn't work out

@@ -40,9 +40,10 @@ QuadTileLoader::QuadTileLoader(const std::string &name,QuadTileImageDataSource *
     ignoreEdgeMatching(false), coverPoles(false),
     imageType(WKTileIntRGBA), useDynamicAtlas(true), tileScale(WKTileScaleNone), fixedTileSize(256), textureAtlasSize(2048), borderTexel(1),
     tileBuilder(NULL), doingUpdate(false), defaultTessX(10), defaultTessY(10),
-    currentImage0(0), currentImage1(0), texAtlasPixelFudge(0.0)
+    currentImage0(0), currentImage1(0), texAtlasPixelFudge(0.0), canLoadFrames(false)
 {
     pthread_mutex_init(&tileLock, NULL);
+    #pragma fail  Figure out if data source an load frames right here
 }
     
 void QuadTileLoader::clear()
@@ -110,7 +111,7 @@ void QuadTileLoader::refreshParents()
          it != parents.end(); ++it)
     {
         InternalLoadedTile *theTile = getTile(*it);
-        if (theTile && !theTile->isLoading)
+        if (theTile && theTile->isInitialized)
         {
 //            NSLog(@"Updating parent (%d,%d,%d)",theTile->nodeInfo.ident.x,theTile->nodeInfo.ident.y,
 //                  theTile->nodeInfo.ident.level);
@@ -121,7 +122,7 @@ void QuadTileLoader::refreshParents()
                     Quadtree::Identifier childIdent(2*theTile->nodeInfo.ident.x+ix,2*theTile->nodeInfo.ident.y+iy,theTile->nodeInfo.ident.level+1);
                     childTiles[iy*2+ix] = getTile(childIdent);
                 }
-            theTile->updateContents(tileBuilder,childTiles,changeRequests);
+            theTile->updateContents(tileBuilder,childTiles,currentImage0,currentImage1,changeRequests);
         }
     }
     parents.clear();
@@ -148,12 +149,13 @@ void QuadTileLoader::flushUpdates(ChangeSet &changes)
         }
     }
 
+    // Note: Shouldn't need to do this anymore
     // If we added geometry or textures, we may need to reset this
-    if (tileBuilder && tileBuilder->newDrawables)
-    {
-        runSetCurrentImage(changeRequests);
-        tileBuilder->newDrawables = false;
-    }
+//    if (tileBuilder && tileBuilder->newDrawables)
+//    {
+//        runSetCurrentImage(changeRequests);
+//        tileBuilder->newDrawables = false;
+//    }
     
     if (!changeRequests.empty())
     {
@@ -384,41 +386,47 @@ int QuadTileLoader::numLocalFetches()
 }
 
 // Ask the data source to start loading the image for this tile
-void QuadTileLoader::loadTile(const Quadtree::NodeInfo &tileInfo)
+void QuadTileLoader::loadTile(const Quadtree::NodeInfo &tileInfo,int frame)
 {
-    // Build the new tile
-    InternalLoadedTile *newTile = new InternalLoadedTile();
-    newTile->nodeInfo = tileInfo;
-    newTile->isLoading = true;
-    newTile->calculateSize(control->getQuadtree(), control->getScene()->getCoordAdapter(), control->getCoordSys());
-
-    pthread_mutex_lock(&tileLock);
-    tileSet.insert(newTile);
-    pthread_mutex_unlock(&tileLock);
+    InternalLoadedTile *theTile = getTile(tileInfo->ident);
     
-    bool isNetworkFetch = !imageSource->tileIsLocal(tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y);
+    if (!theTile)
+    {
+        // Build the new tile
+        theTile = new InternalLoadedTile();
+        newTile->nodeInfo = tileInfo;
+        newTile->isLoading = true;
+        newTile->calculateSize(control->getQuadtree(), control->getScene()->getCoordAdapter(), control->getCoordSys());
+
+        pthread_mutex_lock(&tileLock);
+        tileSet.insert(newTile);
+        pthread_mutex_unlock(&tileLock);
+    }
+    theTile->isLoading = true;
+    
+    bool isNetworkFetch = !imageSource->tileIsLocal(tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y,frame);
     if (isNetworkFetch)
         networkFetches.insert(tileInfo.ident);
     else
         localFetches.insert(tileInfo.ident);
     
     Quadtree::NodeInfo &nonConstTileInfo = const_cast<Quadtree::NodeInfo &>(tileInfo);
-    imageSource->startFetch(this, tileInfo.ident.level, tileInfo.ident.x, tileInfo.ident.y, &nonConstTileInfo.attrs);
+    imageSource->startFetch(this, tileInfo.ident.level, tileInfo.ident.x, tileInfo.ident.y, frame, &nonConstTileInfo.attrs);
 }
 
 // Check if we're in the process of loading the given tile
 bool QuadTileLoader::canLoadChildrenOfTile(const Quadtree::NodeInfo &tileInfo)
 {
     // For single level mode, you can always do this
-    if (control->getTargetLevel() != -1)
+    if (!control->getTargetLevels().empty())
         return true;
 
     InternalLoadedTile *tile = getTile(tileInfo.ident);
     if (!tile)
         return false;
     
-    // If it's not loading, sure
-    return !tile->isLoading;
+    // If it's initialized, then sure
+    return tile->isInitialized;
 }
 
 // Note: Porting
@@ -482,6 +490,8 @@ void QuadTileLoader::unloadTile(const Quadtree::NodeInfo &tileInfo)
         parents.insert(Quadtree::Identifier(tileInfo.ident.x/2,tileInfo.ident.y/2,tileInfo.ident.level-1));
     
     updateTexAtlasMapping();
+    
+    dataSource->tileWasUnloaded(tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y);
 }
     
 // We'll get this before a series of unloads and loads

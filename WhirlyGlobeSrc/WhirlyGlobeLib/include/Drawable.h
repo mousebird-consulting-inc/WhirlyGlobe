@@ -48,6 +48,7 @@ public:
 
 class Scene;
 class OpenGLES2Program;
+class Drawable;
 
 /// We'll only keep this many buffers or textures around for reuse
 #define WhirlyKitOpenGLMemCacheMax 32
@@ -125,6 +126,19 @@ public:
     
 /// Representation of a list of changes.  Might get more complex in the future.
 typedef std::vector<ChangeRequest *> ChangeSet;
+
+/** Drawable tweakers are called every frame to mess with things.
+    It's up to you to make the changes, just make them quick.
+  */
+class DrawableTweaker : public Identifiable
+{
+public:
+    /// Do your tweaking here
+    virtual void tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frame) = 0;
+};
+    
+typedef boost::shared_ptr<DrawableTweaker> DrawableTweakerRef;
+typedef std::set<DrawableTweakerRef> DrawableTweakerRefSet;
 
 /** The Drawable base class.  Inherit from this and fill in the virtual
     methods.  In general, use the BasicDrawable.
@@ -371,96 +385,96 @@ public:
 	};
 
 	/// Set the draw priority.  We sort by draw priority before rendering.
-	void setDrawPriority(unsigned int newPriority);
-	unsigned int getDrawPriority();
+	virtual void setDrawPriority(unsigned int newPriority);
+	virtual unsigned int getDrawPriority();
 
     /// Set the draw offset.  This is an integer offset from the base terrain.
     /// Geometry is moved upward by a certain number of units.
-	void setDrawOffset(float newOffset);
-	float getDrawOffset();
+	virtual void setDrawOffset(float newOffset);
+	virtual float getDrawOffset();
 
 	/// Set the geometry type.  Probably triangles.
-	void setType(GLenum inType);
-	GLenum getType() const;
+	virtual void setType(GLenum inType);
+	virtual GLenum getType() const;
 
     /// Set the texture ID for a specific slot.  You get this from the Texture object.
-	void setTexId(unsigned int which,SimpleIdentity inId);
+	virtual void setTexId(unsigned int which,SimpleIdentity inId);
     
     /// Set all the textures at once
-    void setTexIDs(const std::vector<SimpleIdentity> &texIDs);
+    virtual void setTexIDs(const std::vector<SimpleIdentity> &texIDs);
 
     /// Return the default color
-    RGBAColor getColor() const;
+    virtual RGBAColor getColor() const;
     
     /// Set the color as an RGB color
-	void setColor(RGBAColor inColor);
+	virtual void setColor(RGBAColor inColor);
 
     /// Set the color as an array.
-	void setColor(unsigned char inColor[]);
+	virtual void setColor(unsigned char inColor[]);
 
     /// Set what range we can see this drawable within.
     /// The units are in distance from the center of the globe and
     ///  the surface of the globe as at 1.0
-    void setVisibleRange(float minVis,float maxVis,float minVisBand=0.0,float maxVisBand=0.0);
+    virtual void setVisibleRange(float minVis,float maxVis,float minVisBand=0.0,float maxVisBand=0.0);
     /// Retrieve the visible range, just min and max
-    void getVisibleRange(float &minVis,float &maxVis);
+    virtual void getVisibleRange(float &minVis,float &maxVis);
     
     /// Retrieve the visible range, including bands
-    void getVisibleRange(float &minVis,float &maxVis,float &minVisBand,float &maxVisBand);
+    virtual void getVisibleRange(float &minVis,float &maxVis,float &minVisBand,float &maxVisBand);
     /// Set the fade in and out
-    void setFade(TimeInterval inFadeDown,TimeInterval inFadeUp);
+    virtual void setFade(TimeInterval inFadeDown,TimeInterval inFadeUp);
     
     /// Set the line width (if using lines)
-    void setLineWidth(float inWidth);
+    virtual void setLineWidth(float inWidth);
     
     /// Return the line width (1.0 is the default)
-    float getLineWidth();
+    virtual float getLineWidth();
     
     /// We can ask to use the z buffer
-    void setRequestZBuffer(bool val);
+    virtual void setRequestZBuffer(bool val);
     
     /// Check if the force Z buffer on mode is on
-    bool getRequestZBuffer() const;
+    virtual bool getRequestZBuffer() const;
 
     /// Set the z buffer mode for this drawable
-    void setWriteZBuffer(bool val);
+    virtual void setWriteZBuffer(bool val);
     
     /// Check if we want to write to the z buffer
-    bool getWriteZbuffer() const;
+    virtual bool getWriteZbuffer() const;
 
 	/// Add a point when building up geometry.  Returns the index.
-	unsigned int addPoint(Point3f pt);
+	virtual unsigned int addPoint(Point3f pt);
     
     /// Return a given point
-    Point3f getPoint(int which);
+    virtual Point3f getPoint(int which);
 
     /// Add a texture coordinate. -1 means we add the same
     ///  texture coordinate to all the available texture coordinate sets
-	void addTexCoord(int which,TexCoord coord);
+	virtual void addTexCoord(int which,TexCoord coord);
     
     /// Add a color
-    void addColor(RGBAColor color);
+    virtual void addColor(RGBAColor color);
 
     /// Add a normal
-	void addNormal(Point3f norm);
+	virtual void addNormal(Point3f norm);
 
     /// Add a vector to the given attribute array
-    void addAttributeValue(int attrId,Eigen::Vector2f vec);
+    virtual void addAttributeValue(int attrId,Eigen::Vector2f vec);
 
     /// Add a 2D vector to the given attribute array
-    void addAttributeValue(int attrId,Eigen::Vector3f vec);
+    virtual void addAttributeValue(int attrId,Eigen::Vector3f vec);
     
     /// Add a 4 component char array to the given attribute array
-    void addAttributeValue(int attrId,RGBAColor color);
+    virtual void addAttributeValue(int attrId,RGBAColor color);
     
     /// Add a float to the given attribute array
-    void addAttributeValue(int attrId,float val);
+    virtual void addAttributeValue(int attrId,float val);
     
     /// Add a triangle.  Should point to the vertex IDs.
-	void addTriangle(Triangle tri);
+	virtual void addTriangle(Triangle tri);
     
     /// Return the texture ID
-    SimpleIdentity getTexId(unsigned int which);
+    virtual SimpleIdentity getTexId(unsigned int which);
     
     /// Texture ID and pointer to vertex attribute info
     class TexInfo
@@ -474,56 +488,56 @@ public:
     };
 
     /// Return the current texture info
-    const std::vector<TexInfo> &getTexInfo() { return texInfo; }
+    virtual const std::vector<TexInfo> &getTexInfo() { return texInfo; }
     
     /// Add a new vertex related attribute.  Need a data type and the name the shader refers to
     ///  it by.  The index returned is how you will access it.
-    int addAttribute(BDAttributeDataType dataType,const std::string &name);
+    virtual int addAttribute(BDAttributeDataType dataType,const std::string &name);
     
     /// Return the number of points added so far
-    unsigned int getNumPoints() const;
+    virtual unsigned int getNumPoints() const;
     
     /// Return the number of triangles added so far
-    unsigned int getNumTris() const;
+    virtual unsigned int getNumTris() const;
         
     /// Reserve the extra space for points
-    void reserveNumPoints(int numPoints);
+    virtual void reserveNumPoints(int numPoints);
     
     /// Reserve the extra space for triangles
-    void reserveNumTris(int numTris);
+    virtual void reserveNumTris(int numTris);
     
     /// Reserve extra space for texture coordinates
-    void reserveNumTexCoords(unsigned int which,int numCoords);
+    virtual void reserveNumTexCoords(unsigned int which,int numCoords);
     
     /// Reserve extra space for normals
-    void reserveNumNorms(int numNorms);
+    virtual void reserveNumNorms(int numNorms);
     
     /// Reserve extra space for colors
-    void reserveNumColors(int numColors);
+    virtual void reserveNumColors(int numColors);
 	    
     /// Set the active transform matrix
-    void setMatrix(const Eigen::Matrix4d *inMat);
+    virtual void setMatrix(const Eigen::Matrix4d *inMat);
 
     /// Return the active transform matrix, if we have one
-    const Eigen::Matrix4d *getMatrix() const;
+    virtual const Eigen::Matrix4d *getMatrix() const;
 
     /// Run the texture and texture coordinates based on a SubTexture
-    void applySubTexture(int which,SubTexture subTex,int startingAt=0);
+    virtual void applySubTexture(int which,SubTexture subTex,int startingAt=0);
 
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
     virtual void updateRenderer(WhirlyKit::SceneRendererES *renderer);
     
     /// Copy the vertex data into an NSData object and return it
-    RawDataRef asData(bool dupStart,bool dupEnd);
+    virtual RawDataRef asData(bool dupStart,bool dupEnd);
     
     /// Copy vertex and element data into appropriate NSData objects
-    void asVertexAndElementData(MutableRawDataRef &retVertData,MutableRawDataRef &retElementData,int singleElementSize,const Point3d *center);
+    virtual void asVertexAndElementData(MutableRawDataRef &retVertData,MutableRawDataRef &retElementData,int singleElementSize,const Point3d *center);
     
     /// Assuming this is a set of triangles, convert to a triangle strip
-    void convertToTriStrip();
+//    virtual void convertToTriStrip();
     
     /// Return the vertex attributes for reference
-    const std::vector<VertexAttribute *> &getVertexAttributes();
+    virtual const std::vector<VertexAttribute *> &getVertexAttributes();
         
 protected:
     /// Check for the given texture coordinate entry and add it if it's not there
@@ -582,6 +596,22 @@ protected:
     GLuint vertArrayObj;
     GLuint sharedBufferOffset;
     bool sharedBufferIsExternal;
+};
+    
+/** Drawable Tweaker that cycles through textures.
+    Looks at the current time and decides which two textures to use.
+  */
+class BasicDrawableTexTweaker : public DrawableTweaker
+{
+public:
+    BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,NSTimeInterval startTime,double period);
+    
+    /// Modify the active texture IDs
+    void tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frame);
+protected:
+    std::vector<SimpleIdentity> texIDs;
+    NSTimeInterval startTime;
+    double period;
 };
     
 /// Reference counted version of BasicDrawable
@@ -751,6 +781,9 @@ public:
     
     /// Set the drawable we're instancing
     void setMaster(BasicDrawableRef draw) { basicDraw = draw; }
+    
+    /// Return the translation matrix if there is one
+    const Eigen::Matrix4d *getMatrix() const;
     
 protected:
     SimpleIdentity masterID;

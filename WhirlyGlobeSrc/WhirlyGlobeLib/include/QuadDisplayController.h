@@ -30,9 +30,22 @@
 namespace WhirlyKit
 {
 /// Quad tree Nodeinfo structures sorted by importance
-typedef std::set<Quadtree::NodeInfo> QuadNodeInfoSet;
+typedef std::set<WhirlyKit::Quadtree::Identifier> QuadIdentSet;
     
 class QuadDisplayController;
+    
+/// The frame load status gives us information about a single frame (if we're in that mode)
+class FrameLoadStatus
+{
+public:
+    FrameLoadStatus() : complete(false), currentFrame(false), numTilesLoaded(0) { }
+    /// True if this one is fully loaded
+    bool complete;
+    /// True if this frame is currently being worked on
+    bool currentFrame;
+    /// Number of tiles currently loaded
+    int numTilesLoaded;
+};
 
 /** Quad tree based data structure.  Fill this in to provide structure and
     extents for the quad tree.
@@ -95,7 +108,7 @@ public:
     /// The quad tree wants to load the given tile.
     /// Call the layer back when the tile is loaded.
     /// This is in the layer thread.
-    virtual void loadTile(const Quadtree::NodeInfo &tileInfo) = 0;
+    virtual void loadTile(const Quadtree::NodeInfo &tileInfo,int frame) = 0;
 
     /// Quad tree wants to unload the given tile immediately.
     /// This is in the layer thread.
@@ -108,6 +121,13 @@ public:
 
     /// Called when the layer is about to shut down.  Clear out any drawables and caches.
     virtual void shutdownLayer(ChangeSet &changes) = 0;
+
+    /// Number of frames of animation per tile (if we're doing animation)
+    virtual int numFrames() = 0;
+    
+    /// If we're doing animation, currently active frame.
+    /// If numFrames = 1, this should be -1.  If numFrames > 1, -1 means load all frames at once
+    virtual int currentFrame() = 0;
 
     /// Called right before the view update to determine if we should even be paging
     /// You can use this to temporarily suspend paging.
@@ -218,8 +238,8 @@ public:
     float getMinUpdateDist() { return minUpdateDist; }
     void setMinUpdateDist(float newDist) { minUpdateDist = newDist; }
     /// If set, we're only displaying the target level, ideally
-    int getTargetLevel() { return targetLevel; }
-    void setTargetLevel(int newLevel) { targetLevel = newLevel; }
+    const std::set<int> &getTargetLevel() { return targetLevels; }
+    void setTargetLevels(const std::set<int> &newTargetLevels) { targetLevels = newTargetLevels; }
 
     /// Draw lines instead of polygons, for demonstration.
     bool getLineMode() { return lineMode; }
@@ -232,6 +252,18 @@ public:
     void setLastFlush(TimeInterval when) { lastFlush = when; }
     TimeInterval getLastFlush() { return lastFlush; }
     
+    /// On by default.  If you turn this off we won't evaluate any view changes.
+    void setEnable(bool newEnable);
+    bool getEnable() { return enable; }
+    
+    /// This should be a list of numbers giving us the order to load frames in.  First is most important.
+    /// The list should be numFrames long
+    void setFrameLoadingPriorities(const std::vector<int> &priorities);
+    
+    /// Return the frame loading status from the quad tree.
+    /// Each entry is for one total frame.  Only makes sense if numFrames > 1
+    void getFrameLoadStatus(std::vector<WhirlyKit::FrameLoadStatus> &frameLoadStats);
+    
     /// Something happened with recent updates.  This means we need to flush at some point.
     bool getSomethingHappened() { return somethingHappened; }
     
@@ -239,10 +271,10 @@ public:
     bool getFirstUpdate() { return firstUpdate; }
 
     /// A loader calls this after successfully loading a tile.
-    void tileDidLoad(const Quadtree::Identifier &tileIdent);
+    void tileDidLoad(const Quadtree::Identifier &tileIdent,int frame);
 
     /// Loader calls this after a failed tile load.
-    void tileDidNotLoad(const Quadtree::Identifier &tileIdent);
+    void tileDidNotLoad(const Quadtree::Identifier &tileIdent,int frame);
     
     // Called every so often by the view watcher
     // It's here that we evaluate what to load
@@ -282,6 +314,8 @@ public:
     void dumpInfo();
     
 protected:
+    void resetEvaluation();
+    
     QuadDisplayControllerAdapter *adapter;
     QuadDataStructure *dataStructure;
     QuadLoader *loader;
@@ -304,16 +338,30 @@ protected:
     TimeInterval fullLoadTimeout;
     TimeInterval viewUpdatePeriod;
     float minUpdateDist;
-    int targetLevel;
+    std::set<int> targetLevels;
+    bool enable;
 
     bool lineMode;
     bool debugMode;
 
-    /// Nodes being evaluated for loading
-    QuadNodeInfoSet nodesForEval;
+    // The loader can load individual frames of an animation
+    bool canLoadFrames;
+    
+    // Number of frames we'll try load per tile
+    int numFrames;
+    
+    // Current entry in the frame priority list (not the actual frame) if we're loading frames
+    int curFrameEntry;
+    
+    // If we're loading frames, this is the order we load them in
+    pthread_mutex_t frameLoadingLock;
+    std::vector<int> frameLoadingPriority;
+    
+    // If we're loading frames, the frame loading status last time through the eval loop
+    std::vector<FrameLoadStatus> frameLoadStats;
     
     // Nodes to turn into phantoms.  We like to wait a bit
-    WhirlyKit::QuadNodeInfoSet toPhantom;
+    WhirlyKit::QuadIdentSet toPhantom;
     
     /// State of the view the last time we were called
     ViewState viewState;

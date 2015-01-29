@@ -153,6 +153,8 @@ public:
     Eigen::Vector3d dispCenter;
     /// Height above surface, if that makes sense
     float heightAboveSurface;
+    /// Screen size in display coordinates
+    WhirlyKit::Point2d &screenSizeInDisplayCoords;
     /// If using OpenGL ES 2.x, this is the shader
     WhirlyKit::OpenGLES2Program *program;
     /// Lights, if applicableNSArray *lights;

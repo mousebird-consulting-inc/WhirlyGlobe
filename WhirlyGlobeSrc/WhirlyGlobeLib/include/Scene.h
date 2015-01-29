@@ -302,6 +302,9 @@ public:
     void addSubTexture(const SubTexture &);
     void addSubTextures(const std::vector<SubTexture> &);
     
+    /// Remove a subtexture mapping
+    void removeSubTexture(SimpleIdentity subTexID);
+
     /// Return a sub texture by ID.  The idea being we can use these
     ///  the same way we use full texture IDs.
     SubTexture getSubTexture(SimpleIdentity subTexId);

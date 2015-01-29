@@ -29,5 +29,6 @@ namespace WhirlyKit
     and return the results as individual loops.  This is used by the loft layer.
   */
 bool ClipLoopToGrid(const VectorRing &ring,Point2f org,Point2f spacing,std::vector<VectorRing> &rets);
+bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr, const bool closed,std::vector<VectorRing> &rets);
 
 }

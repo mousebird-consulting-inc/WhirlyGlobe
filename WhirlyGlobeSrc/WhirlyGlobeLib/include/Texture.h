@@ -102,6 +102,8 @@ public:
     void setWrap(bool inWrapU,bool inWrapV) { wrapU = inWrapU;  wrapV = inWrapV; }
     /// Set the format (before createInGL() is called)
     void setFormat(GLenum inFormat) { format = inFormat; }
+    /// Return the format
+    GLenum getFormat() { return format; }
     /// If we're converting to a single byte, set the source
     void setSingleByteSource(WKSingleByteSource source) { byteSource = source; }
 

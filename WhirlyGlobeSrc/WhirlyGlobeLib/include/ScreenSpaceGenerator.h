@@ -91,6 +91,8 @@ public:
         bool useRotation;
         /// Rotation clockwise from north
         double rotation;
+        /// If set we'll modify the rotation to keep things upright
+        bool keepUpright;
         /// If we're fading in or out, these are used
         TimeInterval fadeUp,fadeDown;
         /// Sort by draw priority

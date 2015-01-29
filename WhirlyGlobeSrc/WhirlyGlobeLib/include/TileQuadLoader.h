@@ -50,7 +50,8 @@ public:
     ///  quad tile loader.
     /// You can pass back a WhirlyKitLoadedTile or a WhirlyKitLoadedImage or
     ///  just a WhirlyKitElevationChunk.
-    virtual void loadedImage(QuadTileImageDataSource *dataSource,LoadedImage *loadImage,int level,int col,int row,ChangeSet &changes) = 0;
+
+    virtual void loadedImage(QuadTileImageDataSource *dataSource,LoadedImage *loadImage,int level,int col,int row,int frame,ChangeSet &changes) = 0;
 };
     
 /** Quad Tile Image Data Source is used to load individual images
@@ -67,11 +68,15 @@ public:
 
     /// The quad loader is letting us know to start loading the image.
     /// We'll call the loader back with the image when it's ready.
-    virtual void startFetch(QuadTileLoaderSupport *quadLoader,int level,int col,int row,Dictionary *attrs) = 0;
+    virtual void startFetch(QuadTileLoaderSupport *quadLoader,int level,int col,int row,int frame,Dictionary *attrs) = 0;
 
     /// Check if the given tile is a local or remote fetch.  This is a hint
     ///  to the pager.  It can display local tiles as a group faster.
     virtual bool tileIsLocal(int level,int col,int row) = 0;
+    
+    /// An optional callback provided when a tile is unloaded.
+    /// You don't have to do anything
+    virtual void tileWasUnloaded(int level,int col,int row);
 };
 
 /** The Globe Quad Tile Loader responds to the Quad Loader protocol and
@@ -90,9 +95,9 @@ public:
     virtual void reset(ChangeSet &changes);
     virtual void shutdownLayer(ChangeSet &changes);
     virtual bool isReady();
-    virtual void loadTile(const Quadtree::NodeInfo &tileInfo);
+    virtual void loadTile(const Quadtree::NodeInfo &tileInfo,int frame);
     virtual bool canLoadChildrenOfTile(const Quadtree::NodeInfo &tileInfo);
-    virtual void unloadTile(const Quadtree::NodeInfo &tileInfo);
+    virtual void unloadTile(const Quadtree::NodeInfo &tileInfo,int frame);
     virtual void startUpdates(ChangeSet &changes);
     virtual void updateWithoutFlush();
     virtual void endUpdates(ChangeSet &changes);
@@ -101,7 +106,7 @@ public:
     virtual int numLocalFetches();
     
     /// QuadTileLoaderSupport methods
-    virtual void loadedImage(QuadTileImageDataSource *dataSource,LoadedImage *loadImage,int level,int col,int row,ChangeSet &changes);
+    virtual void loadedImage(QuadTileImageDataSource *dataSource,LoadedImage *loadImage,int level,int col,int row,int frame,ChangeSet &changes);
     
     /// Set up the change requests to make the given image layer the active one
     /// The call is thread safe

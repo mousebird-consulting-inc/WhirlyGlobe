@@ -30,7 +30,7 @@ SphericalMercatorCoordSystem::SphericalMercatorCoordSystem(float originLon)
 }
 
 // Keep things right below/above the poles
-const float PoleLimit = DegToRad(85.05112878);
+const double PoleLimit = DegToRad(85.05113);
     
 /// Convert from the local coordinate system to lat/lon
 GeoCoord SphericalMercatorCoordSystem::localToGeographic(Point3f pt)
@@ -51,6 +51,15 @@ GeoCoord SphericalMercatorCoordSystem::localToGeographic(Point3d pt)
     return coord;    
 }
     
+Point2d SphericalMercatorCoordSystem::localToGeographicD(Point3d pt)
+{
+    Point2d coord;
+    coord.x() = pt.x() + originLon;
+    coord.y() = atan(sinh(pt.y()));
+    
+    return coord;
+}
+
 /// Convert from lat/lon t the local coordinate system
 Point3f SphericalMercatorCoordSystem::geographicToLocal(GeoCoord geo)
 {
@@ -70,6 +79,19 @@ Point3d SphericalMercatorCoordSystem::geographicToLocal3d(GeoCoord geo)
     Point3d coord;
     coord.x() = geo.lon() - originLon;
     float lat = geo.lat();
+    if (lat < -PoleLimit) lat = -PoleLimit;
+    if (lat > PoleLimit) lat = PoleLimit;
+    coord.y() = log((1.0f+sin(lat))/cos(lat));
+    coord.z() = 0.0;
+    
+    return coord;    
+}
+    
+Point3d SphericalMercatorCoordSystem::geographicToLocal(Point2d geo)
+{
+    Point3d coord;
+    coord.x() = geo.x() - originLon;
+    float lat = geo.y();
     if (lat < -PoleLimit) lat = -PoleLimit;
     if (lat > PoleLimit) lat = PoleLimit;
     coord.y() = log((1.0f+sin(lat))/cos(lat));
@@ -120,8 +142,8 @@ bool SphericalMercatorCoordSystem::isSameAs(CoordSystem *coordSys)
 SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon,GeoCoord geoLL,GeoCoord geoUR)
     : CoordSystemDisplayAdapter(&smCoordSys,Point3d(0,0,0)), smCoordSys(originLon)
 {
-    Point3f ll3d = smCoordSys.geographicToLocal(geoLL);
-    Point3f ur3d = smCoordSys.geographicToLocal(geoUR);
+    Point3d ll3d = smCoordSys.geographicToLocal3d(geoLL);
+    Point3d ur3d = smCoordSys.geographicToLocal3d(geoUR);
     ll.x() = ll3d.x();  ll.y() = ll3d.y();
     ur.x() = ur3d.x();  ur.y() = ur3d.y();
     
@@ -131,8 +153,8 @@ SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon
 SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon,GeoCoord geoLL,GeoCoord geoUR,Point3d displayOrigin)
 : CoordSystemDisplayAdapter(&smCoordSys,displayOrigin), smCoordSys(originLon)
 {
-    Point3f ll3d = smCoordSys.geographicToLocal(geoLL);
-    Point3f ur3d = smCoordSys.geographicToLocal(geoUR);
+    Point3d ll3d = smCoordSys.geographicToLocal3d(geoLL);
+    Point3d ur3d = smCoordSys.geographicToLocal3d(geoUR);
     ll.x() = ll3d.x();  ll.y() = ll3d.y();
     ur.x() = ur3d.x();  ur.y() = ur3d.y();
     

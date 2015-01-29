@@ -58,6 +58,11 @@ GeoCoord GeoCoordSystem::localToGeographic(WhirlyKit::Point3d pt)
     return GeoCoord(pt.x(),pt.y());
 }
 
+Point2d GeoCoordSystem::localToGeographicD(WhirlyKit::Point3d pt)
+{
+    return Point2d(pt.x(),pt.y());
+}
+
 /// Convert from lat/lon t the local coordinate system
 Point3f GeoCoordSystem::geographicToLocal(WhirlyKit::GeoCoord coord)
 {
@@ -67,6 +72,11 @@ Point3f GeoCoordSystem::geographicToLocal(WhirlyKit::GeoCoord coord)
 Point3d GeoCoordSystem::geographicToLocal3d(WhirlyKit::GeoCoord coord)
 {
     return Point3d(coord.lon(),coord.lat(),0.0);
+}
+
+Point3d GeoCoordSystem::geographicToLocal(WhirlyKit::Point2d coord)
+{
+    return Point3d(coord.x(),coord.y(),0.0);
 }
 
 Point3f GeoCoordSystem::LocalToGeocentric(Point3f localPt)
@@ -163,9 +173,9 @@ Point3f FakeGeocentricDisplayAdapter::LocalToDisplay(Point3f geoPt)
 
 Point3d FakeGeocentricDisplayAdapter::LocalToDisplay(Point3d geoPt)
 {
-    float z = sinf(geoPt.y());
-    float rad = sqrtf(1.0-z*z);
-    Point3d pt(rad*cosf(geoPt.x()),rad*sinf(geoPt.x()),z);
+    double z = sin(geoPt.y());
+    double rad = sqrt(1.0-z*z);
+    Point3d pt(rad*cos(geoPt.x()),rad*sin(geoPt.x()),z);
     // Scale outward with the z value
     if (geoPt.z() != 0.0)
     {
@@ -199,13 +209,13 @@ Point3f FakeGeocentricDisplayAdapter::DisplayToLocal(Point3f pt)
 
 Point3d FakeGeocentricDisplayAdapter::DisplayToLocal(Point3d pt)
 {
-    GeoCoord geoCoord;
-    geoCoord.lat() = asinf(pt.z());
-    float rad = sqrtf(1.0-pt.z()*pt.z());
-    geoCoord.lon() = acosf(pt.x() / rad);
-    if (pt.y() < 0)  geoCoord.lon() *= -1;
+    Point2d geoCoord;
+    geoCoord.y() = asin(pt.z());
+    double rad = sqrt(1.0-pt.z()*pt.z());
+    geoCoord.x() = acos(pt.x() / rad);
+    if (pt.y() < 0)  geoCoord.x() *= -1;
     
-    return Point3d(geoCoord.lon(),geoCoord.lat(),0.0);
+    return Point3d(geoCoord.x(),geoCoord.y(),0.0);
 }
     
 Point3f FakeGeocentricDisplayAdapter::displayToLocal(Point3f pt)
@@ -291,4 +301,12 @@ float CheckPointAndNormFacing(const Point3f &dispLoc,const Point3f &norm,const M
     return Vector3f(-pt.x(),-pt.y(),-pt.z()).dot(Vector3f(testDir.x(),testDir.y(),testDir.z()));
 }
     
+double CheckPointAndNormFacing(const Point3d &dispLoc,const Point3d &norm,const Matrix4d &viewAndModelMat,const Matrix4d &viewModelNormalMat)
+{
+    Vector4d pt = viewAndModelMat * Vector4d(dispLoc.x(),dispLoc.y(),dispLoc.z(),1.0);
+    pt /= pt.w();
+    Vector4d testDir = viewModelNormalMat * Vector4d(norm.x(),norm.y(),norm.z(),0.0);
+    return Vector3d(-pt.x(),-pt.y(),-pt.z()).dot(Vector3d(testDir.x(),testDir.y(),testDir.z()));
+}
+
 }

@@ -8,7 +8,6 @@
 
 #import <list>
 #import "Tesselator.h"
-#import "cpp/clipper.hpp"
 #import "glues.h"
 
 using namespace Eigen;

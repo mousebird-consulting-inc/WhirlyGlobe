@@ -106,6 +106,9 @@ public:
     /// Calculate map zoom
     double currentMapZoom(const WhirlyKit::Point2f &frameSize,double latitude);
     
+    /// Return the screen size in display coordinates
+    WhirlyKit::Point2d screenSizeInDisplayCoords(WhirlyKit::Point2f &frameSize);
+
     /// Add a watcher delegate.  Call this on the main thread.
     virtual void addWatcher(ViewWatcher *delegate);
     

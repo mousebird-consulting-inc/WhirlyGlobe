@@ -57,8 +57,8 @@ public:
     SimpleIDSet texIDs;  // Textures we created for this
     SimpleIDSet drawIDs; // Drawables created for this
     SimpleIDSet drawStrIDs;  // Drawable strings created with the font manager
-    SimpleIDSet screenIDs;  // Screen space objects
-    SimpleIdentity selectID;  // Selection rect
+    SimpleIDSet layoutIDs;  // Screen space objects
+    SimpleIdentity selectIDs;  // Selection rect
 };
 typedef std::set<LabelSceneRep *,IdentifiableSorter> LabelSceneRepSet;
     
@@ -88,6 +88,7 @@ public:
     float outlineSize;
     SimpleIdentity shaderID;
     bool enable;
+    WhirlyKit::SimpleIdentity programID;
 };
     
 /** Used to render a group of labels, possibly on
@@ -109,6 +110,8 @@ public:
     LabelSceneRep *labelRep;
     /// Scene we're building in
     Scene *scene;
+    /// Screen space objects
+    std::vector<WhirlyKit::ScreenSpaceObject> screenObjects;
     /// Layout objects (pass these to the layout engine if you want that)
     std::vector<LayoutObject> layoutObjects;
     /// Selectable objects (3D) to pass to the selection manager
@@ -120,6 +123,8 @@ public:
     FontTextureManager *fontTexManager;
     /// Set if want to use attributed strings (we usually do)
     bool useAttributedString;
+    /// Scale, if we're using that
+    float scale;
 
     /// Renders the labels into a big texture and stores the resulting info
     void render(std::vector<SingleLabel *> &labels,ChangeSet &changes);

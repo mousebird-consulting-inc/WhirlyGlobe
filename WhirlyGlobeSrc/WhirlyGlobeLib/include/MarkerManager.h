@@ -55,6 +55,7 @@ public:
     SimpleIDSet selectIDs;  // IDs used for selection
     SimpleIDSet markerIDs;  // IDs for markers sent to the generator
     SimpleIDSet screenShapeIDs;  // IDs for screen space objects
+    bool useLayout;  // True if we used the layout manager (and thus need to delete)
     float fade;   // Time to fade away for deletion
 };
 typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
@@ -108,6 +109,10 @@ public:
     float height;
     /// The width in 3-space (remember the globe has radius = 1.0)
     float width;
+    /// Height in screen space to consider for layout
+    float layoutHeight;
+    /// Width in screen space to soncider for layout
+    float layoutWidth;
     /// Set if we want a static rotation.  Only matters in screen space
     /// This is rotation clockwise from north in radians
     float rotation;

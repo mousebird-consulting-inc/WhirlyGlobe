@@ -28,7 +28,7 @@ namespace WhirlyKit
     Returns the intersection in hit or the closest pass
  */
 bool IntersectUnitSphere(Point3f org,Eigen::Vector3f dir,Point3f &hit);
-bool IntersectUnitSphere(Point3d org,Eigen::Vector3d dir,Point3d &hit);
+bool IntersectUnitSphere(Point3d org,Eigen::Vector3d dir,Point3d &hit,double *t=NULL);
 
 /// Returns true if the given point is inside the close polygon
 ///  defined by ring.  Standard winding-ish test.
@@ -45,6 +45,9 @@ unsigned int NextPowOf2(unsigned int val);
     
 /// Find the point on a line segment closest to the give point
 Point2f ClosestPointOnLineSegment(const Point2f &p0,const Point2f &p1,const Point2f &pt);
+	
+/// Find the point on a line segment closest to the given point.  Also returns the parametric value.
+Point2d ClosestPointOnLineSegment(const Point2d &p0,const Point2d &p1,const Point2d &pt,double &t);
 	
 /// Calculates the intersection point of two lines (not line segments) if there is one
 bool IntersectLines(const Point2f &a0,const Point2f &a1,const Point2f &b0,const Point2f &b1,Point2f *iPt);
