@@ -519,6 +519,12 @@ int main(int argc, char * argv[])
         }
         
         outShapeLayer = outShape->CreateLayer("boxes", hTrgSRS);
+        OGRFieldDefn cellIdent("cell",OFTString);
+        outShapeLayer->CreateField(&cellIdent);
+        OGRFieldDefn minIndent("min",OFTReal);
+        outShapeLayer->CreateField(&minIndent);
+        OGRFieldDefn maxIndent("max",OFTReal);
+        outShapeLayer->CreateField(&maxIndent);
     }
 
     if (targetDir)
@@ -527,6 +533,12 @@ int main(int argc, char * argv[])
     // Create a new database.  Blow away the old one if it's there
     if (targetDb)
     {
+        if (!destSRS)
+        {
+            fprintf(stderr, "Need a -t_srs when creating a new elevation database.");
+            return -1;
+        }
+
         remove(targetDb);
         sqliteDb = new Kompex::SQLiteDatabase(targetDb, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, 0);
         if (!sqliteDb->GetDatabaseHandle())
@@ -559,7 +571,7 @@ int main(int argc, char * argv[])
 
     // Work through the levels of detail, starting from the top
     int totalTiles = 0,zeroTiles = 0, skippedTiles = 0;
-    for (unsigned int level=min_level;level<=max_level;level++)
+    for (int level=max_level;level>=min_level;level--)
     {
         printf("Level %d: ",level);
         fflush(stdout);
@@ -631,23 +643,6 @@ int main(int argc, char * argv[])
                 
                 if (includeTile)
                 {
-                    // Update the shape file for what we're... updating
-                    if (outShapeLayer)
-                    {
-                        OGRPolygon *poly = new OGRPolygon();
-                        OGRLinearRing ring;
-                        ring.addPoint(tileMinX, tileMinY);
-                        ring.addPoint(tileMaxX, tileMinY);
-                        ring.addPoint(tileMaxX, tileMaxY);
-                        ring.addPoint(tileMinX, tileMaxY);
-                        ring.addPoint(tileMinX, tileMinY);
-                        poly->addRing(&ring);
-                        OGRFeature *feat = new OGRFeature(outShapeLayer->GetLayerDefn());
-                        feat->SetGeometry(poly);
-                        outShapeLayer->CreateFeature(feat);
-                        OGRFeature::DestroyFeature( feat );
-                    }
-                    
                     GDALDatasetH hDestDS = NULL;
                     GDALRasterBandH hBandOut = NULL;
                     if (targetDir)
@@ -727,11 +722,11 @@ int main(int argc, char * argv[])
                             {
                                 // Make a bounding box and project it into the source data
                                 double pixX[4],pixY[4];
-                                int srcX[4],srcY[4];
-                                srcX[0] = thisX;  srcY[0] = thisY;
-                                srcX[1] = thisX+cellX;  srcY[1] = thisY;
-                                srcX[2] = thisX+cellX;  srcY[2] = thisY+cellY;
-                                srcX[3] = thisX;  srcY[3] = thisY+cellY;
+                                double srcX[4],srcY[4];
+                                srcX[0] = thisX-cellX/2.0;  srcY[0] = thisY-cellY/2.0;
+                                srcX[1] = thisX+cellX/2.0;  srcY[1] = thisY-cellY/2.0;
+                                srcX[2] = thisX+cellX/2.0;  srcY[2] = thisY+cellY/2.0;
+                                srcX[3] = thisX-cellX/2.0;  srcY[3] = thisY+cellY/2.0;
 
                                 int sx=1000000,sy=1000000,ex=-1000000,ey=-1000000;
                                 for (unsigned int pi=0;pi<4;pi++)
@@ -745,6 +740,10 @@ int main(int argc, char * argv[])
                                 }
                                 sx = MAX(0,sx);
                                 sy = MAX(0,sy);
+                                sx = MIN(sx,rasterXSize-1);
+                                sy = MIN(sy,rasterYSize-1);
+                                ex = MAX(0,ex);
+                                ey = MAX(0,ey);
                                 ex = MIN(ex,rasterXSize-1);
                                 ey = MIN(ey,rasterYSize-1);
                                 
@@ -827,6 +826,34 @@ int main(int argc, char * argv[])
                             }
                             zeroTiles++;
                         }                    
+                    }
+                    
+                    // Update the shape file for what we're... updating
+                    if (outShapeLayer)
+                    {
+                        float minElev=MAXFLOAT,maxElev=-MAXFLOAT;
+                        for (unsigned int it=0;it<pixelsX*pixelsY;it++)
+                        {
+                            minElev = MIN(minElev,tileData[it]);
+                            maxElev = MAX(maxElev,tileData[it]);
+                        }
+                        OGRPolygon *poly = new OGRPolygon();
+                        OGRLinearRing ring;
+                        ring.addPoint(tileMinX, tileMinY);
+                        ring.addPoint(tileMaxX, tileMinY);
+                        ring.addPoint(tileMaxX, tileMaxY);
+                        ring.addPoint(tileMinX, tileMaxY);
+                        ring.addPoint(tileMinX, tileMinY);
+                        poly->addRing(&ring);
+                        OGRFeature *feat = new OGRFeature(outShapeLayer->GetLayerDefn());
+                        feat->SetGeometry(poly);
+                        char cellName[1024];
+                        sprintf(cellName,"cell: %d: (%d,%d)",level,ix,iy);
+                        feat->SetField("cell",cellName);
+                        feat->SetField("min", minElev);
+                        feat->SetField("max", maxElev);
+                        outShapeLayer->CreateFeature(feat);
+                        OGRFeature::DestroyFeature( feat );
                     }
                     
                 } else
