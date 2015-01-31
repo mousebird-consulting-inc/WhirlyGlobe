@@ -51,11 +51,12 @@ void ScreenSpaceDrawable::addOffset(const Point2d &offset)
     addAttributeValue(offsetIndex, Point2f(offset.x(),offset.y()));
 }
     
-void ScreenSpaceDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
+void ScreenSpaceDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
 {
-    if (frameInfo.program)
+    if (frameInfo->program)
     {
-        frameInfo.program->setUniform("u_scale", Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
+        Point2f frameSize = frameInfo->sceneRenderer->getFramebufferSize();
+        frameInfo->program->setUniform("u_scale", Point2f(2.f/frameSize.x(),2.f/frameSize.y()));
     }
 
     BasicDrawable::draw(frameInfo,scene);

@@ -46,7 +46,7 @@ public:
     void addOffset(const Point2d &offset);
     
     /// We override draw so we can set our own values
-    virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
 
 protected:
     bool useRotation;

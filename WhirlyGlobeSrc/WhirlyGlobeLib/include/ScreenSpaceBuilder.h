@@ -23,8 +23,6 @@
 #import <map>
 #import "Identifiable.h"
 #import "Drawable.h"
-#import "DataLayer.h"
-#import "LayerThread.h"
 #import "TextureAtlas.h"
 #import "ScreenSpaceDrawable.h"
 #import "Scene.h"
@@ -57,7 +55,7 @@ public:
         std::vector<SimpleIdentity> texIDs;
         double period;
         SimpleIdentity progID;
-        NSTimeInterval fadeUp,fadeDown;
+        TimeInterval fadeUp,fadeDown;
         int drawPriority;
         float minVis,maxVis;
     };
@@ -72,7 +70,7 @@ public:
     /// Set the active program ID
     void setProgramID(SimpleIdentity progID);
     /// Set the fade in/out
-    void setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown);
+    void setFade(TimeInterval fadeUp,TimeInterval fadeDown);
     /// Set the draw priority
     void setDrawPriority(int drawPriority);
     /// Set the visibility range
@@ -163,7 +161,7 @@ public:
         /// Color for the geometry
         RGBAColor color;
         
-        std::vector<Point2d> coords;
+        Point2dVector coords;
         std::vector<TexCoord> texCoords;
     };
     
@@ -176,9 +174,9 @@ public:
     void setDrawPriority(int drawPriority);
     void setKeepUpright(bool keepUpright);
     void setRotation(double rotation);
-    void setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown);
+    void setFade(TimeInterval fadeUp,TimeInterval fadeDown);
     void setOffset(const Point2d &offset);
-    void setPeriod(NSTimeInterval period);
+    void setPeriod(TimeInterval period);
     
     void addGeometry(const ConvexGeometry &geom);
     
@@ -208,7 +206,7 @@ public:
     // Offset on the screen (presumably if it's been moved around during layout)
     Point2d offset;
     // Size of the object in screen space
-    std::vector<Point2d> pts;
+    Point2dVector pts;
     // Bounding box, for quick testing
     Mbr mbr;
 };

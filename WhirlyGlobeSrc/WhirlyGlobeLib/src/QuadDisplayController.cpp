@@ -38,7 +38,7 @@ QuadDisplayController::QuadDisplayController(QuadDataStructure *dataStructure,Qu
     // Note: Debugging
     greedyMode = true;
     meteredMode = false;
-    pthread_mutex_init(&frameLoadingLock);
+    pthread_mutex_init(&frameLoadingLock, NULL);
 }
 
 QuadDisplayController::~QuadDisplayController()
@@ -351,7 +351,7 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
                 if (it != toPhantom.end())
                     toPhantom.erase(it);
                 //                NSLog(@"Unload tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
-                loader->unloadTile(&nodeInfo);
+                loader->unloadTile(nodeInfo);
             }
             
             // Turn this into a phantom node
@@ -359,10 +359,10 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
                 toPhantom.insert(nodeInfo.ident);
             
             // If we're not in greedy mode, we're only doing this for a certain time period, then we'll hand off
-            NSTimeInterval now = CFAbsoluteTimeGetCurrent();
-            if (!greedyMode && _meteredMode)
+            TimeInterval now = TimeGetCurrent();
+            if (!greedyMode && meteredMode)
             {
-                if (now-frameStart > AvailableFrame*frameInterval || ![_loader isReady])
+                if (now-frameStart > availableFrame*frameInterval || !loader->isReady())
                     break;
             }
         }
@@ -377,7 +377,7 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
         //        NSLog(@"Unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
         quadtree->removeTile(remNodeInfo.ident);
         if (!remNodeInfo.phantom)
-            loader->unloadTile(&remNodeInfo);
+            loader->unloadTile(remNodeInfo);
         
         didSomething = true;
     }
@@ -397,7 +397,7 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
                 const Quadtree::NodeInfo *nodeInfo = quadtree->getNodeInfo(ident);
                 if (nodeInfo)
                 {
-                    loader->unloadTile(nodeInfo);
+                    loader->unloadTile(*nodeInfo);
                     quadtree->setPhantom(ident, true);
                     quadtree->setLoading(ident, -1, false);
                     didSomething = true;
@@ -412,7 +412,7 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
     }
     
     // Let the loader know we're done with this eval step
-    if (_meteredMode || waitingForLocalLoads() || didSomething)
+    if (meteredMode || waitingForLocalLoads() || didSomething)
     {
         loader->updateWithoutFlush();
     } else
@@ -487,7 +487,7 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
     return somethingHappened;
 }
 
-QuadDisplayController::tileDidLoad(const WhirlyKit::Quadtree::Identifier &tileIdent,int frame)
+void QuadDisplayController::tileDidLoad(const WhirlyKit::Quadtree::Identifier &tileIdent,int frame)
 {
     //    NSLog(@"Tile did load: %d: (%d,%d), %d",tileIdent.level,tileIdent.x,tileIdent.y,frame);
     
@@ -518,7 +518,7 @@ QuadDisplayController::tileDidLoad(const WhirlyKit::Quadtree::Identifier &tileId
     // May want to consider the children next
     if (tileIdent.level < maxZoom)
     {
-        int maxTargetLevel = _targetLevels.empty() ? maxZoom : *(--(_targetLevels.end()));
+        int maxTargetLevel = targetLevels.empty() ? maxZoom : *(--(targetLevels.end()));
         if (targetLevels.empty() || tileIdent.level < maxTargetLevel)
         {
             if (tileIdent.level < maxTargetLevel)
@@ -547,15 +547,6 @@ QuadDisplayController::tileDidLoad(const WhirlyKit::Quadtree::Identifier &tileId
     
 // Tile failed to load.
 // At the moment we don't care, but we won't look at the children
-void QuadDisplayController::tileDidNotLoad(const Quadtree::Identifier &tileIdent)
-{
-    somethingHappened = true;
-
-    adapter->adapterTileDidNotLoad(tileIdent);
-}
-
-    // Tile failed to load.
-    // At the moment we don't care, but we won't look at the children
 void QuadDisplayController::tileDidNotLoad(const Quadtree::Identifier &tileIdent,int frame)
 {
     //    NSLog(@"Tile failed to load: %d: (%d,%d) %d",tileIdent.level,tileIdent.x,tileIdent.y,frame);

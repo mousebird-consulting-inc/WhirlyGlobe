@@ -269,7 +269,7 @@ static const int OverlapSampleY = 60;
 static const float ScreenBuffer = 0.1;
     
 // Do the actual layout logic.  We'll modify the offset and on value in place.
-bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
+bool LayoutManager::runLayoutRules(ViewState *viewState)
 {
     if (layoutObjects.empty())
         return false;
@@ -290,7 +290,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
             if (globeViewState)
             {
                 if (obj->obj.state.minVis == DrawVisibleInvalid || obj->obj.state.maxVis == DrawVisibleInvalid ||
-                    (obj->obj.state.minVis < globeViewState.heightAboveGlobe && globeViewState.heightAboveGlobe < obj->obj.state.maxVis))
+                    (obj->obj.state.minVis < globeViewState->heightAboveGlobe && globeViewState->heightAboveGlobe < obj->obj.state.maxVis))
                     use = true;
             } else
                 use = true;
@@ -347,9 +347,9 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
             Point2d objPt;
             for (unsigned int offi=0;offi<viewState->viewMatrices.size();offi++)
             {
-                Eigen::Matrix4d modelTrans = viewState.fullMatrices[offi];
-                CGPoint thisObjPt = [viewState pointOnScreenFromDisplay:layoutObj->obj.worldLoc transform:&modelTrans frameSize:frameBufferSize];
-                if (screenMbr.inside(Point2f(thisObjPt.x,thisObjPt.y)))
+                Eigen::Matrix4d modelTrans = viewState->fullMatrices[offi];
+                Point2f thisObjPt = viewState->pointOnScreenFromDisplay(layoutObj->obj.worldLoc,&modelTrans,frameBufferSize);
+                if (screenMbr.inside(Point2f(thisObjPt.x(),thisObjPt.y())))
                 {
                     isInside = true;
                     objPt = Vector2fToVector2d(thisObjPt);
@@ -403,7 +403,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                         // May only want to be placed certain ways.  Fair enough.
                         if (!(layoutObj->obj.acceptablePlacement & (1<<orient)))
                             continue;
-                        const std::vector<Point2d> &layoutPts = layoutObj->obj.layoutPts;
+                        const Point2dVector &layoutPts = layoutObj->obj.layoutPts;
                         Mbr layoutMbr;
                         for (unsigned int li=0;li<layoutPts.size();li++)
                             layoutMbr.addPoint(layoutPts[li]);
@@ -438,12 +438,12 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                         // Rotate the rectangle
                         if (screenRot == 0.0)
                         {
-                            objPts[0] = Point2d(objPt.x,objPt.y) + objOffset*resScale;
+                            objPts[0] = Point2d(objPt.x(),objPt.y()) + objOffset*resScale;
                             objPts[1] = objPts[0] + Point2d(layoutSpan.x()*resScale,0.0);
                             objPts[2] = objPts[0] + Point2d(layoutSpan.x()*resScale,layoutSpan.y()*resScale);
                             objPts[3] = objPts[0] + Point2d(0.0,layoutSpan.y()*resScale);
                         } else {
-                            Point2d center(objPt.x,objPt.y);
+                            Point2d center(objPt.x(),objPt.y());
                             objPts[0] = objOffset;
                             objPts[1] = objOffset + Point2d(layoutSpan.x(),0.0);
                             objPts[2] = objOffset + Point2d(layoutSpan.x(),layoutSpan.y());
@@ -515,7 +515,7 @@ void LayoutManager::updateLayout(WhirlyKit::ViewState *viewState,ChangeSet &chan
         drawIDs.clear();
 
         // Generate the drawables
-        ScreenSpaceBuilder ssBuild(coordAdapter,renderer.scale);
+        ScreenSpaceBuilder ssBuild(coordAdapter,renderer->getScale());
         for (LayoutEntrySet::iterator it = layoutObjects.begin();
              it != layoutObjects.end(); ++it)
         {

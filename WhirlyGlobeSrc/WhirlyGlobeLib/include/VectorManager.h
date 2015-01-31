@@ -78,6 +78,8 @@ public:
     float                       fade;
     float                       lineWidth;
     bool                        centered;
+    bool                        vecCenterSet;
+    Point2f                     vecCenter;
 };
 
 #define kWKVectorManager "WKVectorManager"

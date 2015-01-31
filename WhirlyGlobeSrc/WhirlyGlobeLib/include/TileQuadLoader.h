@@ -72,7 +72,7 @@ public:
 
     /// Check if the given tile is a local or remote fetch.  This is a hint
     ///  to the pager.  It can display local tiles as a group faster.
-    virtual bool tileIsLocal(int level,int col,int row) = 0;
+    virtual bool tileIsLocal(int level,int col,int row,int frame) = 0;
     
     /// An optional callback provided when a tile is unloaded.
     /// You don't have to do anything
@@ -97,7 +97,7 @@ public:
     virtual bool isReady();
     virtual void loadTile(const Quadtree::NodeInfo &tileInfo,int frame);
     virtual bool canLoadChildrenOfTile(const Quadtree::NodeInfo &tileInfo);
-    virtual void unloadTile(const Quadtree::NodeInfo &tileInfo,int frame);
+    virtual void unloadTile(const Quadtree::NodeInfo &tileInfo);
     virtual void startUpdates(ChangeSet &changes);
     virtual void updateWithoutFlush();
     virtual void endUpdates(ChangeSet &changes);

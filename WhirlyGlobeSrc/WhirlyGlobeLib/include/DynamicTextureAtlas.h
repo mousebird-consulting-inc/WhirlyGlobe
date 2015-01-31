@@ -174,7 +174,7 @@ public:
     void setPixelFudgeFactor(float pixFudge);
 
     /// Try to add the texture to one of our dynamic textures, or create one.
-    bool addTexture(const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0);
+    bool addTexture(const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0,TextureRegion *outTexRegion=NULL);
     
     /// Update one of the frames of a multi-frame texture atlas
     bool updateTexture(Texture *,int frame,const TextureRegion &texRegion,ChangeSet &changes);

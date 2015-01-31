@@ -168,7 +168,7 @@ void Quadtree::Node::Print()
 //            NSLog(@"  Child = (%d,%d,%d)",children[ii]->nodeInfo.ident.x,children[ii]->nodeInfo.ident.y,children[ii]->nodeInfo.ident.level);
 }
 
-Quadtree::Quadtree(Mbr mbr,int minLevel,int maxLevel,int maxNodes,float minImportance,NSObject<WhirlyKitQuadTreeImportanceDelegate> *importDelegate)
+Quadtree::Quadtree(Mbr mbr,int minLevel,int maxLevel,int maxNodes,float minImportance,QuadTreeImportanceCalculator *importDelegate)
     : mbr(mbr), minLevel(minLevel), maxLevel(maxLevel), maxNodes(maxNodes), minImportance(minImportance), numPhantomNodes(0)
 {
     this->importDelegate = importDelegate;
@@ -629,7 +629,7 @@ void Quadtree::reevaluateNodes()
          it != nodesByIdent.end(); ++it)
     {
         Node *node = *it;
-        node->nodeInfo.importance = [importDelegate importanceForTile:node->nodeInfo.ident mbr:node->nodeInfo.mbr tree:this attrs:node->nodeInfo.attrs];
+        node->nodeInfo.importance = importDelegate->importanceForTile(node->nodeInfo.ident, node->nodeInfo.mbr, this, &node->nodeInfo.attrs);
         if (!node->hasChildren())
             node->sizePos = nodesBySize.insert(node).first;
         node->evalPos = evalNodes.insert(node).first;
@@ -753,7 +753,7 @@ Quadtree::NodeInfo Quadtree::generateNode(const Identifier &ident)
     NodeInfo nodeInfo;
     nodeInfo.ident = ident;
     nodeInfo.mbr = generateMbrForNode(ident);
-    nodeInfo.importance = [importDelegate importanceForTile:nodeInfo.ident mbr:nodeInfo.mbr tree:this attrs:nodeInfo.attrs];
+    nodeInfo.importance = importDelegate->importanceForTile(nodeInfo.ident, nodeInfo.mbr, this, &nodeInfo.attrs);
     
     return nodeInfo;
 }
@@ -844,14 +844,14 @@ bool Quadtree::hasParent(const Quadtree::Identifier &ident,Quadtree::Identifier 
     
 void Quadtree::Print()
 {
-    NSLog(@"***QuadTree Dump***");
+//    NSLog(@"***QuadTree Dump***");
     for (NodesByIdentType::iterator it = nodesByIdent.begin();
          it != nodesByIdent.end(); ++it)
     {
         Node *node = *it;
         node->Print();
     }
-    NSLog(@"******");
+//    NSLog(@"******");
 }
 
 Quadtree::Node *Quadtree::getNode(const Identifier &ident)

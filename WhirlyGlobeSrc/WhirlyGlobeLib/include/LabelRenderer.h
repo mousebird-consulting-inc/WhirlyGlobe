@@ -58,7 +58,7 @@ public:
     SimpleIDSet drawIDs; // Drawables created for this
     SimpleIDSet drawStrIDs;  // Drawable strings created with the font manager
     SimpleIDSet layoutIDs;  // Screen space objects
-    SimpleIdentity selectIDs;  // Selection rect
+    SimpleIDSet selectIDs;  // Selection rect
 };
 typedef std::set<LabelSceneRep *,IdentifiableSorter> LabelSceneRepSet;
     
@@ -119,6 +119,8 @@ public:
     /// Selectable objects (2D) to pass to the selection manager
     std::vector<RectSelectable2D> selectables2D;
 
+    /// Change requests to pass to the scene
+    ChangeSet changeRequests;
     /// Font texture manager to use if we're doing fonts
     FontTextureManager *fontTexManager;
     /// Set if want to use attributed strings (we usually do)

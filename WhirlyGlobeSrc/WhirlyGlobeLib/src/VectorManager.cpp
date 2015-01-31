@@ -35,7 +35,8 @@ namespace WhirlyKit
 VectorInfo::VectorInfo() :
     enable(true), drawOffset(0.0), priority(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
     filled(false), sample(0.0), texId(EmptyIdentity), texScale(1.0,1.0), subdivEps(1.0), gridSubdiv(false),
-    texProj(TextureProjectionNone), color(255,255,255,255), fade(0.0), lineWidth(1.0), centered(false)
+    texProj(TextureProjectionNone), color(255,255,255,255), fade(0.0), lineWidth(1.0), centered(false),
+    vecCenterSet(false), vecCenter(0,0)
 {
 }
 
@@ -64,6 +65,12 @@ void VectorInfo::parseDict(const Dictionary &dict)
     centered = dict.getBool(MaplyVecCentered,true);
     if (!texProjStr.compare(MaplyProjectionTangentPlane))
         texProj = TextureProjectionTanPlane;
+    if (dict.hasField("veccenterx") && dict.hasField("veccentery"))
+    {
+        vecCenterSet = true;
+        vecCenter.x() = dict.getDouble("veccenterx");
+        vecCenter.x() = dict.getDouble("veccentery");
+    }
 }
     
 void VectorSceneRep::clear(ChangeSet &changes)
@@ -91,7 +98,7 @@ public:
         flush();
     }
     
-    void setCenter(const Point3d &newCenter)
+    void setCenter(const Point3d &newCenter,const Point2d &inGeoCenter)
     {
         centerValid = true;
         center = newCenter;
@@ -485,10 +492,10 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
     if (vecInfo.centered && coordAdapter->isFlat())
     {
         // We might pass in a center
-        if (desc[@"veccenterx"] && desc[@"veccentery"])
+        if (vecInfo.vecCenterSet)
         {
-            geoCenter.x() = [desc[@"veccenterx"] doubleValue];
-            geoCenter.y() = [desc[@"veccentery"] doubleValue];
+            geoCenter.x() = vecInfo.vecCenter.x();
+            geoCenter.y() = vecInfo.vecCenter.y();
             Point3d dispPt = coordAdapter->localToDisplay(coordSys->geographicToLocal(geoCenter));
             center = dispPt;
             centerValid = true;

@@ -696,13 +696,13 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
     return true;
 }
 
-Texture *TileBuilder::buildTexture(WhirlyKitLoadedImage *loadImage)
+Texture *TileBuilder::buildTexture(LoadedImage *loadImage)
 {
     // They'll all be the same width
     int destWidth,destHeight;
-    textureSize(loadImage.width,loadImage.height,&destWidth,&destHeight);
+    textureSize(loadImage->getWidth(),loadImage->getHeight(),&destWidth,&destHeight);
     
-    Texture *newTex = [loadImage buildTexture:borderTexel destWidth:destWidth destHeight:destHeight];
+    Texture *newTex = loadImage->buildTexture(borderTexel,destWidth,destHeight);
     
     if (newTex)
     {
@@ -810,9 +810,9 @@ void InternalLoadedTile::calculateSize(Quadtree *quadTree,CoordSystemDisplayAdap
 }
 
 // Note: This only works with texture atlases
-bool LoadedTile::updateTexture(TileBuilder *tileBuilder,WhirlyKitLoadedImage *loadImage,int frame,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+bool InternalLoadedTile::updateTexture(TileBuilder *tileBuilder,LoadedImage *loadImage,int frame,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
-    if (!loadImage || loadImage.type == WKLoadedImagePlaceholder)
+    if (!loadImage || loadImage->isPlaceholder())
     {
         placeholder = true;
         return true;
@@ -898,12 +898,12 @@ bool InternalLoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<LoadedI
     if (tileBuilder->drawAtlas)
     {
         bool addedBigDraw = false;
-        tileBuilder->drawAtlas->addDrawable(draw,changeRequests,true,&startTexIDs,EmptyIdentity,&addedBigDraw,&dispCenter,tileSize);
+        tileBuilder->drawAtlas->addDrawable(draw,changeRequests,true,&startTexIDs,&addedBigDraw,&dispCenter,tileSize);
         tileBuilder->newDrawables |= addedBigDraw;
         delete draw;
         if (skirtDraw)
         {
-            tileBuilder->drawAtlas->addDrawable(skirtDraw,changeRequests,true,&startTexIDs,EmptyIdentity,&addedBigDraw,&dispCenter,tileSize);
+            tileBuilder->drawAtlas->addDrawable(skirtDraw,changeRequests,true,&startTexIDs,&addedBigDraw,&dispCenter,tileSize);
             tileBuilder->newDrawables |= addedBigDraw;
             delete skirtDraw;
         }
@@ -1064,12 +1064,12 @@ void InternalLoadedTile::updateContents(TileBuilder *tileBuilder,InternalLoadedT
                         if (tileBuilder->drawAtlas)
                         {
                             bool addedBigDrawable = false;
-                            tileBuilder->drawAtlas->addDrawable(childDraw, changeRequests,true,&startTexIDs,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
+                            tileBuilder->drawAtlas->addDrawable(childDraw, changeRequests,true,&startTexIDs,&addedBigDrawable,&dispCenter,tileSize);
                             tileBuilder->newDrawables |= addedBigDrawable;
                             delete childDraw;
                             if (childSkirtDraw)
                             {
-                                tileBuilder->drawAtlas->addDrawable(childSkirtDraw, changeRequests,true,&startTexIDs,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
+                                tileBuilder->drawAtlas->addDrawable(childSkirtDraw, changeRequests,true,&startTexIDs,&addedBigDrawable,&dispCenter,tileSize);
                                 tileBuilder->newDrawables |= addedBigDrawable;
                                 delete childSkirtDraw;
                             }
@@ -1111,12 +1111,12 @@ void InternalLoadedTile::updateContents(TileBuilder *tileBuilder,InternalLoadedT
             if (tileBuilder->drawAtlas)
             {
                 bool addedBigDrawable = false;
-                tileBuilder->drawAtlas->addDrawable(draw, changeRequests,true,&startTexIDs,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
+                tileBuilder->drawAtlas->addDrawable(draw, changeRequests,true,&startTexIDs,&addedBigDrawable,&dispCenter,tileSize);
                 tileBuilder->newDrawables |= addedBigDrawable;
                 delete draw;
                 if (skirtDraw)
                 {
-                    tileBuilder->drawAtlas->addDrawable(skirtDraw, changeRequests,true,&startTexIDs,EmptyIdentity,&addedBigDrawable,&dispCenter,tileSize);
+                    tileBuilder->drawAtlas->addDrawable(skirtDraw, changeRequests,true,&startTexIDs,&addedBigDrawable,&dispCenter,tileSize);
                     tileBuilder->newDrawables |= addedBigDrawable;
                     delete skirtDraw;
                 }

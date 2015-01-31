@@ -33,7 +33,6 @@ namespace WhirlyKit
 
 LabelSceneRep::LabelSceneRep()
 {
-    selectID = EmptyIdentity;
 }
     
 // We use these for labels that have icons
@@ -113,7 +112,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
             theTextColor = label->desc.getColor(MaplyTextColor,theTextColor);
             theBackColor = label->desc.getColor(MaplyBackgroundColor,theBackColor);
             // Note: Porting
-//            theFont = [label.desc objectForKey:@"font" checkType:[UIFont class] default:theFont];
+//            theFont = [label->desc objectForKey:@"font" checkType:[UIFont class] default:theFont];
             theShadowColor = label->desc.getColor(MaplyShadowColor,theShadowColor);
             theShadowSize = label->desc.getDouble(MaplyShadowSize,theShadowSize);
         }
@@ -168,11 +167,11 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                 
                 screenShape->setDrawPriority(labelInfo->drawPriority);
                 screenShape->setVisibility(labelInfo->minVis, labelInfo->maxVis);
-                screenShape->setKeepUpright(label.keepUpright);
+                screenShape->setKeepUpright(label->keepUpright);
                 if (label->rotation != 0.0)
-                    screenShape->setRotation(label.rotation);
+                    screenShape->setRotation(label->rotation);
                 if (labelInfo->fade > 0.0)
-                    screenShape->setFade(curTime+_labelInfo.fade, curTime);
+                    screenShape->setFade(curTime+labelInfo->fade, curTime);
                 if (label->isSelectable && label->selectID != EmptyIdentity)
                     screenShape->setId(label->selectID);
                 screenShape->setWorldLoc(coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(label->loc)));
@@ -190,16 +189,16 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                     float backBorder = 4.0;
                     ScreenSpaceObject::ConvexGeometry smGeom;
                     Point2d ll = Point2d(drawStr->mbr.ll().x(),drawStr->mbr.ll().y())+iconOff+Point2d(-backBorder,-backBorder), ur = Point2d(drawStr->mbr.ur().x(),drawStr->mbr.ur().y())+iconOff+Point2d(backBorder,backBorder);
-                    smGeom.coords.push_back(Point2d(ll.x()+label.screenOffset.width,-ll.y()+label.screenOffset.height)+justifyOff);
+                    smGeom.coords.push_back(Point2d(ll.x()+label->screenOffset.x(),-ll.y()+label->screenOffset.y())+justifyOff);
                     smGeom.texCoords.push_back(TexCoord(0,1));
                     
-                    smGeom.coords.push_back(Point2d(ll.x()+label.screenOffset.width,-ur.y()+label.screenOffset.height)+justifyOff);
+                    smGeom.coords.push_back(Point2d(ll.x()+label->screenOffset.x(),-ur.y()+label->screenOffset.y())+justifyOff);
                     smGeom.texCoords.push_back(TexCoord(1,1));
                     
-                    smGeom.coords.push_back(Point2d(ur.x()+label.screenOffset.width,-ur.y()+label.screenOffset.height)+justifyOff);
+                    smGeom.coords.push_back(Point2d(ur.x()+label->screenOffset.x(),-ur.y()+label->screenOffset.y())+justifyOff);
                     smGeom.texCoords.push_back(TexCoord(1,0));
                     
-                    smGeom.coords.push_back(Point2d(ur.x()+label.screenOffset.width,-ll.y()+label.screenOffset.height)+justifyOff);
+                    smGeom.coords.push_back(Point2d(ur.x()+label->screenOffset.x(),-ll.y()+label->screenOffset.y())+justifyOff);
                     smGeom.texCoords.push_back(TexCoord(0,0));
                     
                     smGeom.color = backColor;
@@ -227,17 +226,17 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                         DrawableString::Rect &poly = drawStr->glyphPolys[ii];
                         // Note: Ignoring the desired size in favor of the font size
                         ScreenSpaceObject::ConvexGeometry smGeom;
-                        smGeom.progID = _labelInfo.programID;
-                        smGeom.coords.push_back(Point2d(poly.pts[1].x()+label.screenOffset.width,poly.pts[0].y()-label.screenOffset.height) + soff + iconOff + justifyOff);
+                        smGeom.progID = labelInfo->programID;
+                        smGeom.coords.push_back(Point2d(poly.pts[1].x()+label->screenOffset.x(),poly.pts[0].y()-label->screenOffset.y()) + soff + iconOff + justifyOff);
                         smGeom.texCoords.push_back(TexCoord(poly.texCoords[1].u(),poly.texCoords[0].v()));
                         
-                        smGeom.coords.push_back(Point2d(poly.pts[1].x()+label.screenOffset.width,poly.pts[1].y()-label.screenOffset.height) + soff + iconOff + justifyOff);
+                        smGeom.coords.push_back(Point2d(poly.pts[1].x()+label->screenOffset.x(),poly.pts[1].y()-label->screenOffset.y()) + soff + iconOff + justifyOff);
                         smGeom.texCoords.push_back(TexCoord(poly.texCoords[1].u(),poly.texCoords[1].v()));
                         
-                        smGeom.coords.push_back(Point2d(poly.pts[0].x()+label.screenOffset.width,poly.pts[1].y()-label.screenOffset.height) + soff + iconOff + justifyOff);
+                        smGeom.coords.push_back(Point2d(poly.pts[0].x()+label->screenOffset.x(),poly.pts[1].y()-label->screenOffset.y()) + soff + iconOff + justifyOff);
                         smGeom.texCoords.push_back(TexCoord(poly.texCoords[0].u(),poly.texCoords[1].y()));
                         
-                        smGeom.coords.push_back(Point2d(poly.pts[0].x()+label.screenOffset.width,poly.pts[0].y()-label.screenOffset.height) + soff + iconOff + justifyOff);
+                        smGeom.coords.push_back(Point2d(poly.pts[0].x()+label->screenOffset.x(),poly.pts[0].y()-label->screenOffset.y()) + soff + iconOff + justifyOff);
                         smGeom.texCoords.push_back(TexCoord(poly.texCoords[0].u(),poly.texCoords[0].v()));
                         
                         smGeom.texIDs.push_back(poly.subTex.texId);
@@ -254,31 +253,31 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                     int layoutPlacement = label->desc.getInt("layoutPlacement",(int)(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow));
                     
                     // Put together the layout info
-                    layoutObject->hint = label.text;
+//                    layoutObject->hint = label->text;
                     drawStr->mbr.asPoints(layoutObject->layoutPts);
-                    layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ll().x()+label.screenOffset.width,drawStr->mbr.ll().y()+label.screenOffset.height)+iconOff+justifyOff);
-                    layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ur().x()+label.screenOffset.width,drawStr->mbr.ll().y()+label.screenOffset.height)+iconOff+justifyOff);
-                    layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ur().x()+label.screenOffset.width,drawStr->mbr.ur().y()+label.screenOffset.height)+iconOff+justifyOff);
-                    layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ll().x()+label.screenOffset.width,drawStr->mbr.ur().y()+label.screenOffset.height)+iconOff+justifyOff);
+                    layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ll().x()+label->screenOffset.x(),drawStr->mbr.ll().y()+label->screenOffset.y())+iconOff+justifyOff);
+                    layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ur().x()+label->screenOffset.x(),drawStr->mbr.ll().y()+label->screenOffset.y())+iconOff+justifyOff);
+                    layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ur().x()+label->screenOffset.x(),drawStr->mbr.ur().y()+label->screenOffset.y())+iconOff+justifyOff);
+                    layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ll().x()+label->screenOffset.x(),drawStr->mbr.ur().y()+label->screenOffset.y())+iconOff+justifyOff);
                     layoutObject->selectPts = layoutObject->layoutPts;
                     
                     //                        layoutObj->iconSize = Point2f(iconSize,iconSize);
                     layoutObject->importance = layoutImportance;
                     layoutObject->acceptablePlacement = layoutPlacement;
-                    layoutObject->setEnable(_labelInfo.enable);
+                    layoutObject->setEnable(labelInfo->enable);
                     
                     // The shape starts out disabled
-                    screenShape->setEnable(_labelInfo.enable);
+                    screenShape->setEnable(labelInfo->enable);
                     screenShape->setOffset(Point2d(MAXFLOAT,MAXFLOAT));
                 } else {
-                    screenShape->setEnable(_labelInfo.enable);
+                    screenShape->setEnable(labelInfo->enable);
                 }
                 
                 // Deal with the icon here becaue we need its geometry
                 ScreenSpaceObject::ConvexGeometry iconGeom;
-                if (label.iconTexture != EmptyIdentity && screenShape)
+                if (label->iconTexture != EmptyIdentity && screenShape)
                 {
-                    SubTexture subTex = _scene->getSubTexture(label.iconTexture);
+                    SubTexture subTex = scene->getSubTexture(label->iconTexture);
                     std::vector<TexCoord> texCoord;
                     texCoord.resize(4);
                     texCoord[3].u() = 0.0;  texCoord[3].v() = 0.0;
@@ -288,7 +287,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                     subTex.processTexCoords(texCoord);
                     
                     iconGeom.texIDs.push_back(subTex.texId);
-                    iconGeom.progID = _labelInfo.programID;
+                    iconGeom.progID = labelInfo->programID;
                     Point2d iconPts[4];
                     iconPts[0] = Point2d(0,0);
                     iconPts[1] = Point2d(iconOff.x(),0);
@@ -296,7 +295,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                     iconPts[3] = Point2d(0,iconOff.y());
                     for (unsigned int ii=0;ii<4;ii++)
                     {
-                        iconGeom.coords.push_back(Point2d(iconPts[ii].x(),iconPts[ii].y())+Point2d(label.screenOffset.width,label.screenOffset.height));
+                        iconGeom.coords.push_back(Point2d(iconPts[ii].x(),iconPts[ii].y())+Point2d(label->screenOffset.x(),label->screenOffset.y()));
                         iconGeom.texCoords.push_back(texCoord[ii]);
                     }
                     // For layout objects, we'll put the icons on their own
@@ -318,15 +317,15 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                 }
                 
                 // Register the main label as selectable
-                if (label.isSelectable && !layoutObject)
+                if (label->isSelectable && !layoutObject)
                 {
                     // If the label doesn't already have an ID, it needs one
-                    if (!label.selectID)
-                        label.selectID = Identifiable::genId();
+                    if (!label->selectID)
+                        label->selectID = Identifiable::genId();
                     
                     RectSelectable2D select2d;
                     select2d.center = screenShape->getWorldLoc();
-                    select2d.enable = _labelInfo.enable;
+                    select2d.enable = labelInfo->enable;
                     Mbr wholeMbr = drawStr->mbr;
                     wholeMbr.ll() += Point2f(iconOff.x(),iconOff.y()) + Point2f(justifyOff.x(),justifyOff.y());
                     wholeMbr.ur() += Point2f(iconOff.x(),iconOff.y()) + Point2f(justifyOff.x(),justifyOff.y());
@@ -336,66 +335,24 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                         for (unsigned int ig=0;ig<iconGeom.coords.size();ig++)
                             wholeMbr.addPoint(iconGeom.coords[ig]);
                     Point2f ll = wholeMbr.ll(), ur = wholeMbr.ur();
-                    select2d.pts[0] = Point2f(ll.x()+label.screenOffset.width,ll.y()+-label.screenOffset.height);
-                    select2d.pts[1] = Point2f(ll.x()+label.screenOffset.width,ur.y()+-label.screenOffset.height);
-                    select2d.pts[2] = Point2f(ur.x()+label.screenOffset.width,ur.y()+-label.screenOffset.height);
-                    select2d.pts[3] = Point2f(ur.x()+label.screenOffset.width,ll.y()+-label.screenOffset.height);
+                    select2d.pts[0] = Point2f(ll.x()+label->screenOffset.x(),ll.y()+-label->screenOffset.y());
+                    select2d.pts[1] = Point2f(ll.x()+label->screenOffset.x(),ur.y()+-label->screenOffset.y());
+                    select2d.pts[2] = Point2f(ur.x()+label->screenOffset.x(),ur.y()+-label->screenOffset.y());
+                    select2d.pts[3] = Point2f(ur.x()+label->screenOffset.x(),ll.y()+-label->screenOffset.y());
                     
-                    select2d.selectID = label.selectID;
-                    select2d.minVis = _labelInfo.minVis;
-                    select2d.maxVis = _labelInfo.maxVis;
-                    _selectables2D.push_back(select2d);
+                    select2d.selectID = label->selectID;
+                    select2d.minVis = labelInfo->minVis;
+                    select2d.maxVis = labelInfo->maxVis;
+                    selectables2D.push_back(select2d);
                 }
                 
                 if (layoutObject)
-                    _layoutObjects.push_back(layoutObject);
+                    layoutObjects.push_back(*layoutObject);
                 else if (screenShape)
-                    _screenObjects.push_back(screenShape);
+                    screenObjects.push_back(*screenShape);
             }
         
             delete drawStr;
-        }
-        
-        if (label->iconTexture != EmptyIdentity && screenShape)
-        {
-            SubTexture subTex = scene->getSubTexture(label->iconTexture);
-            std::vector<TexCoord> texCoord;
-            texCoord.resize(4);
-            texCoord[0].u() = 0.0;  texCoord[0].v() = 0.0;
-            texCoord[1].u() = 1.0;  texCoord[1].v() = 0.0;
-            texCoord[2].u() = 1.0;  texCoord[2].v() = 1.0;
-            texCoord[3].u() = 0.0;  texCoord[3].v() = 1.0;
-            subTex.processTexCoords(texCoord);
-            
-            // Note: We're not registering icons correctly with the selection layer
-            ScreenSpaceGenerator::SimpleGeometry iconGeom;
-            iconGeom.texID = subTex.texId;
-            Point2d iconPts[4];
-            iconPts[0] = Point2d(0,0);
-            iconPts[1] = Point2d(iconOff.x(),0);
-            iconPts[2] = iconOff;
-            iconPts[3] = Point2d(0,iconOff.y());
-            for (unsigned int ii=0;ii<4;ii++)
-            {
-                iconGeom.coords.push_back(Point2d(iconPts[ii].x(),iconPts[ii].y())+Point2d(label->screenOffset.x(),label->screenOffset.y()));
-                iconGeom.texCoords.push_back(texCoord[ii]);
-            }
-            // For layout objects, we'll put the icons on their own
-            //            if (layoutObj)
-            //            {
-            //                ScreenSpaceGenerator::ConvexShape *iconScreenShape = new ScreenSpaceGenerator::ConvexShape();
-            //                SimpleIdentity iconId = iconScreenShape->getId();
-            //                *iconScreenShape = *screenShape;
-            //                iconScreenShape->setId(iconId);
-            //                iconScreenShape->geom.clear();
-            //                iconScreenShape->geom.push_back(iconGeom);
-            //                screenObjects.push_back(iconScreenShape);
-            //                labelRep->screenIDs.insert(iconScreenShape->getId());
-            //                layoutObj->auxIDs.insert(iconScreenShape->getId());
-            //            } else {
-            screenShape->geom.push_back(iconGeom);
-            //            }
-            
         }
     }
     

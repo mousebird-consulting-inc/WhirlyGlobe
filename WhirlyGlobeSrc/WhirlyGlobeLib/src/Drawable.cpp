@@ -210,7 +210,7 @@ Drawable::~Drawable()
 {
 }
 
-void Drawable::runTweakers(WhirlyKitRendererFrameInfo *frame)
+void Drawable::runTweakers(RendererFrameInfo *frame)
 {
     for (DrawableTweakerRefSet::iterator it = tweakers.begin();
          it != tweakers.end(); ++it)
@@ -1782,16 +1782,16 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
     postDrawCallback(frameInfo,scene);
 }
 
-BasicDrawableTexTweaker::BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,NSTimeInterval startTime,double period)
+BasicDrawableTexTweaker::BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,TimeInterval startTime,double period)
     : texIDs(texIDs), startTime(startTime), period(period)
 {
 }
     
-void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frame)
+void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,RendererFrameInfo *frame)
 {
     BasicDrawable *basicDraw = (BasicDrawable *)draw;
     
-    double t = fmod(frame.currentTime-startTime,period)/period;
+    double t = fmod(frame->currentTime-startTime,period)/period;
     int base = floor(t * texIDs.size());
     int next = (base+1)%texIDs.size();
     
@@ -1800,7 +1800,7 @@ void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,WhirlyKitRendererFram
 
     // This forces a redraw every frame
     // Note: There has to be a better way
-    frame.scene->addChangeRequest(NULL);
+    frame->scene->addChangeRequest(NULL);
 }
 
 ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)

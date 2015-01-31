@@ -253,7 +253,7 @@ void SceneRendererES2::render()
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
     Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
-    Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
+    Eigen::Matrix4d modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
     Eigen::Matrix4f modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
 
     switch (zBufferMode)
@@ -330,7 +330,7 @@ void SceneRendererES2::render()
         baseFrameInfo.viewAndModelMat = modelAndViewMat;
         baseFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
         theView->getOffsetMatrices(baseFrameInfo.offsetMatrices, frameSize);
-        Point2d screenSize = [super.theView screenSizeInDisplayCoords:frameSize];
+        Point2d screenSize = theView->screenSizeInDisplayCoords(frameSize);
         baseFrameInfo.screenSizeInDisplayCoords = screenSize;
         // Note: Porting
 //        frameInfo.lights = lights;
@@ -587,7 +587,7 @@ void SceneRendererES2::render()
                 continue;
             
             // Run any tweakers right here
-            drawContain.drawable->runTweakers(baseFrameInfo);
+            drawContain.drawable->runTweakers(&baseFrameInfo);
                         
             // Draw using the given program
             drawContain.drawable->draw(&baseFrameInfo,scene);

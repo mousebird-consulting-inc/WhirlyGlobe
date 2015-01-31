@@ -119,7 +119,7 @@ public:
                    Point2f texScale,Point2f texOffset,std::vector<LoadedImage *> *loadImages);
     
     // Build the texture for a tile
-    Texture *buildTexture(WhirlyKitLoadedImage *loadImage);
+    Texture *buildTexture(LoadedImage *loadImage);
 
     // Flush updates out into the change requests
     bool flushUpdates(ChangeSet &changes);
@@ -227,10 +227,10 @@ public:
     // Note: Porting
     /// Build the data needed for a scene representation
 //    bool addToScene(TileBuilder *tileBuilder,std::vector<LoadedImage *>loadImages,int currentImage0,int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
-    bool addToScene(TileBuilder *tileBuilder,std::vector<LoadedImage *>loadImages,int currentImage0,int currentImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    bool addToScene(TileBuilder *tileBuilder,std::vector<LoadedImage *>loadImages,int frame,int currentImage0,int currentImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Update the texture in an existing tile.  This is for loading frames of animation
-    bool updateTexture(TileBuilder *tileBuilder,WhirlyKitLoadedImage *loadImage,int frame,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    bool updateTexture(TileBuilder *tileBuilder,LoadedImage *loadImage,int frame,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
 
         /// Remove data from scene.  This just sets up the changes requests.
     /// They must still be passed to the scene

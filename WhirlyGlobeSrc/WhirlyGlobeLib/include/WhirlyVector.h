@@ -175,11 +175,11 @@ public:
     void addPoint(const Point3d &pt);
     
     /// Add a vector of points to the bounding box
-    void addPoints(const std::vector<Point3d> &pts);
+    void addPoints(const Point3dVector &pts);
     
     /// Copy the corners into a vector of points
-    void asPoints(std::vector<Point3d> &pts) const;
-    void asPoints(std::vector<Point3f> &pts) const;
+    void asPoints(Point3dVector &pts) const;
+    void asPoints(Point3fVector &pts) const;
     
     // Check if the given bounding box is valid
     bool isValid() { return pt_ur.x() >= pt_ll.x(); }

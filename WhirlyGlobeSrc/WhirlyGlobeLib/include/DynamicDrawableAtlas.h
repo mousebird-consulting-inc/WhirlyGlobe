@@ -107,6 +107,7 @@ protected:
         SimpleIdentity elementChunkId;
     };
 
+    bool hasChanges;
     bool enable;
     BigDrawable *(*newBigDrawable)(BasicDrawable *draw,int singleElementSize,int numVertexBytes,int numElementBytes);
     SimpleIdentity shaderId;

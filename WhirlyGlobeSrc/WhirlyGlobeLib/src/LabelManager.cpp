@@ -225,7 +225,7 @@ SimpleIdentity LabelManager::addLabels(std::vector<SingleLabel *> &labels,const 
     labelRenderer.labelRep = labelRep;
     labelRenderer.scene = scene;
     labelRenderer.fontTexManager = (labelInfo.screenObject ? fontTexManager : NULL);
-    labelRenderer.scale = renderer.scale;
+    labelRenderer.scale = renderer->getScale();
    
     labelRenderer.render(labels, changes);
     
@@ -237,9 +237,9 @@ SimpleIdentity LabelManager::addLabels(std::vector<SingleLabel *> &labels,const 
     // Create screen shapes
     if (!labelRenderer.screenObjects.empty())
     {
-        ScreenSpaceBuilder ssBuild(coordAdapter,renderer.scale);
+        ScreenSpaceBuilder ssBuild(coordAdapter,renderer->getScale());
         for (unsigned int ii=0;ii<labelRenderer.screenObjects.size();ii++)
-            ssBuild.addScreenObject(*(labelRenderer.screenObjects[ii]));
+            ssBuild.addScreenObject(labelRenderer.screenObjects[ii]);
         ssBuild.flushChanges(changes, labelRep->drawIDs);
     }
     
@@ -247,7 +247,7 @@ SimpleIdentity LabelManager::addLabels(std::vector<SingleLabel *> &labels,const 
     if (layoutManager && !labelRenderer.layoutObjects.empty())
     {
         for (unsigned int ii=0;ii<labelRenderer.layoutObjects.size();ii++)
-            labelRep->layoutIDs.insert(labelRenderer.layoutObjects[ii]->getId());
+            labelRep->layoutIDs.insert(labelRenderer.layoutObjects[ii].getId());
         layoutManager->addLayoutObjects(labelRenderer.layoutObjects);
     }
     
@@ -383,7 +383,7 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
                      idIt != labelRep->drawStrIDs.end(); ++idIt)
                 {
                     if (fontTexManager)
-                        [fontTexManager removeString:*idIt changes:changes];
+                        fontTexManager->removeString(*idIt, changes);
                 }
                 
                 if (selectManager && !labelRep->selectIDs.empty())

@@ -156,9 +156,9 @@ public:
     
     /// Check if the given tile is a local or remote fetch.  This is a hint
     ///  to the pager.  It can display local tiles as a group faster.
-    virtual bool tileIsLocal(int level,int col,int row)
+    virtual bool tileIsLocal(int level,int col,int row,int frame)
     {
-        return [layer tileIsLocalLevel:level col:col row:row];
+        return [layer tileIsLocalLevel:level col:col row:row frame:frame];
     }
 
     

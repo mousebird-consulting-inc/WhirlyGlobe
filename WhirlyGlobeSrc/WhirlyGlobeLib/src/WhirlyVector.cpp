@@ -260,13 +260,13 @@ void BBox::addPoint(const Point3d &pt)
     }
 }
     
-void BBox::addPoints(const std::vector<Point3d> &pts)
+void BBox::addPoints(const Point3dVector &pts)
 {
     for (unsigned int ii=0;ii<pts.size();ii++)
         addPoint(pts[ii]);
 }
     
-void BBox::asPoints(std::vector<Point3f> &pts) const
+void BBox::asPoints(Point3fVector &pts) const
 {
     pts.push_back(Point3f(pt_ll.x(),pt_ll.y(),pt_ll.z()));
     pts.push_back(Point3f(pt_ur.x(),pt_ll.y(),pt_ll.z()));
@@ -278,7 +278,7 @@ void BBox::asPoints(std::vector<Point3f> &pts) const
     pts.push_back(Point3f(pt_ll.x(),pt_ur.y(),pt_ur.z()));
 }
 
-void BBox::asPoints(std::vector<Point3d> &pts) const
+void BBox::asPoints(Point3dVector &pts) const
 {
     pts.push_back(Point3d(pt_ll.x(),pt_ll.y(),pt_ll.z()));
     pts.push_back(Point3d(pt_ur.x(),pt_ll.y(),pt_ll.z()));

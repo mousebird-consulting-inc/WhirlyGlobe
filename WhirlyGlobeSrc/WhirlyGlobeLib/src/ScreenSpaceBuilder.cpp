@@ -84,7 +84,7 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(const DrawableState &state)
     // If we've got more than one texture ID and a period, we need a tweaker
     if (state.texIDs.size() > 1 && state.period != 0.0)
     {
-        NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+        TimeInterval now = TimeGetCurrent();
         BasicDrawableTexTweaker *tweak = new BasicDrawableTexTweaker(state.texIDs,now,state.period);
         draw->addTweaker(DrawableTweakerRef(tweak));
     }
@@ -143,7 +143,7 @@ void ScreenSpaceBuilder::setProgramID(SimpleIdentity progID)
     curState.progID = progID;
 }
 
-void ScreenSpaceBuilder::setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown)
+void ScreenSpaceBuilder::setFade(TimeInterval fadeUp,TimeInterval fadeDown)
 {
     curState.fadeUp = fadeUp;
     curState.fadeDown = fadeDown;
@@ -342,7 +342,7 @@ void ScreenSpaceObject::setRotation(double inRot)
     rotation = inRot;
 }
 
-void ScreenSpaceObject::setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown)
+void ScreenSpaceObject::setFade(TimeInterval fadeUp,TimeInterval fadeDown)
 {
     state.fadeUp = fadeUp;
     state.fadeDown = fadeDown;
@@ -353,7 +353,7 @@ void ScreenSpaceObject::setOffset(const Point2d &inOffset)
     offset = inOffset;
 }
     
-void ScreenSpaceObject::setPeriod(NSTimeInterval period)
+void ScreenSpaceObject::setPeriod(TimeInterval period)
 {
     state.period = period;
 }

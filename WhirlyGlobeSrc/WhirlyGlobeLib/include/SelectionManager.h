@@ -91,7 +91,7 @@ public:
     // Comparison operator for sorting
     bool operator < (const LinearSelectable &that) const;
     
-    std::vector<Point3d> pts;
+    Point3dVector pts;
 };
 
 typedef std::set<WhirlyKit::LinearSelectable> LinearSelectableSet;
@@ -162,10 +162,10 @@ public:
     void addSelectableRect(SimpleIdentity selectId,Point3f *pts,bool enable);
     
     /// Add a rectangle (in 3-space) for selection, but only between the given visibilities
-    void addSelectableRect(SimpleIdentity selectId,const Point3d &center,Point3f *pts,float minVis,float maxVis,bool enable);
+    void addSelectableRect(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable);
     
     /// Add a screen space rectangle (2D) for selection, between the given visibilities
-    void addSelectableScreenRect(SimpleIdentity selectId,Point2f *pts,float minVis,float maxVis,bool enable);
+    void addSelectableScreenRect(SimpleIdentity selectId,const Point3d &center,Point2f *pts,float minVis,float maxVis,bool enable);
     
     /// Add a rectangular solid for selection.  Pass in 8 points (bottom four + top four)
     void addSelectableRectSolid(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable);
@@ -174,10 +174,10 @@ public:
     void addSelectableRectSolid(SimpleIdentity selectId,const BBox &bbox,float minVis,float maxVis,bool enable);
     
     /// Add a polytope, represented by a set of surfaces
-    void addPolytope(SimpleIdentity selectId,const std::vector<std::vector<Point3d> > &surfaces,float minVis,float maxVis,bool enable);
+    void addPolytope(SimpleIdentity selectId,const std::vector<Point3dVector > &surfaces,float minVis,float maxVis,bool enable);
 
     /// Add a linear in 3-space for selection.
-    void addSelectableLinear(SimpleIdentity selectId,const std::vector<Point3f> &pts,float minVis,float maxVis,bool enable);
+    void addSelectableLinear(SimpleIdentity selectId,const Point3fVector &pts,float minVis,float maxVis,bool enable);
 
     /// Add a billboard for selection.  Pass in the middle of the base and size
     void addSelectableBillboard(SimpleIdentity selectId,Point3f center,Point3f norm,Point2f size,float minVis,float maxVis,bool enable);
@@ -198,16 +198,16 @@ public:
     SimpleIdentity pickObject(Point2f touchPt,float maxDist,WhirlyKit::View *theView);
     
     /// Find all the objects within a given distance and return them, sorted by distance
-    void pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *theView,std::vector<SelectedObject> &selObjs);
+    void pickObjects(Point2f touchPt,float maxDist,View *theView,std::vector<SelectedObject> &selObjs);
     
     // Everything we need to project a world coordinate to one or more screen locations
     class PlacementInfo
     {
     public:
-        PlacementInfo(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer);
+        PlacementInfo(View *view,SceneRendererES *renderer);
         
-        WhirlyGlobeView *globeView;
-        MaplyView *mapView;
+        WhirlyGlobe::GlobeView *globeView;
+        Maply::MapView *mapView;
         double heightAboveSurface;
         Eigen::Matrix4d viewMat,modelMat,viewAndModelMat,viewAndModelInvMat,viewModelNormalMat,projMat,modelInvMat;
         std::vector<Eigen::Matrix4d> offsetMatrices;
@@ -218,11 +218,11 @@ public:
 
 protected:
     // Projects a world coordinate to one or more points on the screen (wrapping)
-    void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,std::vector<Point2d> &screenPts,float scale);
+    void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,Point2dVector &screenPts,float scale);
     // Convert rect selectables into more generic screen space objects
     void getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenObjs);
     // Internal object picking method
-    void pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *theView,bool multi,std::vector<SelectedObject> &selObjs);
+    void pickObjects(Point2f touchPt,float maxDist,View *theView,bool multi,std::vector<SelectedObject> &selObjs);
 
 
     pthread_mutex_t mutex;

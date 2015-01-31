@@ -155,6 +155,10 @@
 		2B3836A9186244DC00467ABD /* glwrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3836A8186244DC00467ABD /* glwrapper.h */; };
 		2B3836AB18625C9200467ABD /* glwrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3836AA18625C9200467ABD /* glwrapper.cpp */; };
 		2B3A0D41133405700085EF43 /* shapefil.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951D8E12F09E7A005003AE /* shapefil.h */; };
+		2B5F18A31A7B05B4004A8723 /* ScreenSpaceBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B5F18A11A7B05B4004A8723 /* ScreenSpaceBuilder.cpp */; };
+		2B5F18A41A7B05B4004A8723 /* ScreenSpaceDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B5F18A21A7B05B4004A8723 /* ScreenSpaceDrawable.cpp */; };
+		2B5F18A71A7B05BF004A8723 /* ScreenSpaceBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B5F18A51A7B05BF004A8723 /* ScreenSpaceBuilder.h */; };
+		2B5F18A81A7B05BF004A8723 /* ScreenSpaceDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B5F18A61A7B05BF004A8723 /* ScreenSpaceDrawable.h */; };
 		2B7EF42516025D8C00D4079F /* aasincos.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37A16025D8C00D4079F /* aasincos.c */; };
 		2B7EF42616025D8C00D4079F /* adjlon.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37B16025D8C00D4079F /* adjlon.c */; };
 		2B7EF42716025D8C00D4079F /* bch2bps.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37C16025D8C00D4079F /* bch2bps.c */; };
@@ -511,6 +515,10 @@
 		2B3836AA18625C9200467ABD /* glwrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glwrapper.cpp; path = android/glwrapper.cpp; sourceTree = "<group>"; };
 		2B3AF66D13EEDDA8004A781D /* framework_info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = framework_info.plist; sourceTree = "<group>"; };
 		2B3C82791333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesimulator-Prefix.pch"; sourceTree = "<group>"; };
+		2B5F18A11A7B05B4004A8723 /* ScreenSpaceBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScreenSpaceBuilder.cpp; sourceTree = "<group>"; };
+		2B5F18A21A7B05B4004A8723 /* ScreenSpaceDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScreenSpaceDrawable.cpp; sourceTree = "<group>"; };
+		2B5F18A51A7B05BF004A8723 /* ScreenSpaceBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceBuilder.h; sourceTree = "<group>"; };
+		2B5F18A61A7B05BF004A8723 /* ScreenSpaceDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceDrawable.h; sourceTree = "<group>"; };
 		2B7EF37A16025D8C00D4079F /* aasincos.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aasincos.c; sourceTree = "<group>"; };
 		2B7EF37B16025D8C00D4079F /* adjlon.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = adjlon.c; sourceTree = "<group>"; };
 		2B7EF37C16025D8C00D4079F /* bch2bps.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bch2bps.c; sourceTree = "<group>"; };
@@ -1139,6 +1147,8 @@
 		2BC53FA412DE217E00778431 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2B5F18A51A7B05BF004A8723 /* ScreenSpaceBuilder.h */,
+				2B5F18A61A7B05BF004A8723 /* ScreenSpaceDrawable.h */,
 				2BDC8A6C192C08F600DFECF0 /* LabelManager.h */,
 				2BDC8A6D192C08F600DFECF0 /* LabelRenderer.h */,
 				2BDC8A5F192A9E1700DFECF0 /* FontTextureManager.h */,
@@ -1204,6 +1214,8 @@
 		2BC53FA512DE218300778431 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2B5F18A11A7B05B4004A8723 /* ScreenSpaceBuilder.cpp */,
+				2B5F18A21A7B05B4004A8723 /* ScreenSpaceDrawable.cpp */,
 				2BDC8A70192C090400DFECF0 /* LabelManager.cpp */,
 				2BDC8A71192C090400DFECF0 /* LabelRenderer.cpp */,
 				2BDC8A61192A9E3800DFECF0 /* FontTextureManager.cpp */,
@@ -1386,6 +1398,7 @@
 				2B009D06186102E4001E2EE8 /* JSONSharedString.h in Headers */,
 				2BA2326417984F510063CC84 /* dict.h in Headers */,
 				2B35682518D762BF00EF8DB1 /* OpenGLES2Program.h in Headers */,
+				2B5F18A71A7B05BF004A8723 /* ScreenSpaceBuilder.h in Headers */,
 				2B35682318D762BF00EF8DB1 /* MarkerGenerator.h in Headers */,
 				2B3567E818D762BF00EF8DB1 /* GlobeViewState.h in Headers */,
 				2B35682B18D762BF00EF8DB1 /* Scene.h in Headers */,
@@ -1397,6 +1410,7 @@
 				2B009D08186102E4001E2EE8 /* JSONStats.h in Headers */,
 				2B35682A18D762BF00EF8DB1 /* RawData.h in Headers */,
 				2B009D00186102E4001E2EE8 /* JSONMemoryPool.h in Headers */,
+				2B5F18A81A7B05BF004A8723 /* ScreenSpaceDrawable.h in Headers */,
 				2B009D11186102E4001E2EE8 /* NumberToString.h in Headers */,
 				2B009D12186102E4001E2EE8 /* JSONOptions.h in Headers */,
 				2B009CF7186102E4001E2EE8 /* GNU_C.h in Headers */,
@@ -1669,6 +1683,7 @@
 				2B35676E18D762A700EF8DB1 /* VectorData.cpp in Sources */,
 				2B7EF4A816025D8C00D4079F /* PJ_robin.c in Sources */,
 				2B7EF4A916025D8C00D4079F /* PJ_rpoly.c in Sources */,
+				2B5F18A31A7B05B4004A8723 /* ScreenSpaceBuilder.cpp in Sources */,
 				2B7EF4AA16025D8C00D4079F /* PJ_sconics.c in Sources */,
 				2B009D0D186102E4001E2EE8 /* JSONWorker.cpp in Sources */,
 				2B7EF4AB16025D8C00D4079F /* PJ_somerc.c in Sources */,
@@ -1723,6 +1738,7 @@
 				2B35674E18D762A700EF8DB1 /* GlobeScene.cpp in Sources */,
 				2B009D10186102E4001E2EE8 /* libjson.cpp in Sources */,
 				2BA2326517984F510063CC84 /* geom.c in Sources */,
+				2B5F18A41A7B05B4004A8723 /* ScreenSpaceDrawable.cpp in Sources */,
 				2BA2326717984F510063CC84 /* memalloc.c in Sources */,
 				2BA2326917984F510063CC84 /* mesh.c in Sources */,
 				2BA2326B17984F510063CC84 /* normal.c in Sources */,

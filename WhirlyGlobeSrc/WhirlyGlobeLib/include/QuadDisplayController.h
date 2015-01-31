@@ -128,6 +128,9 @@ public:
     /// If we're doing animation, currently active frame.
     /// If numFrames = 1, this should be -1.  If numFrames > 1, -1 means load all frames at once
     virtual int currentFrame() = 0;
+    
+    /// Set if the loader can handle individual frame loading
+    virtual bool canLoadFrames() = 0;
 
     /// Called right before the view update to determine if we should even be paging
     /// You can use this to temporarily suspend paging.
@@ -238,7 +241,7 @@ public:
     float getMinUpdateDist() { return minUpdateDist; }
     void setMinUpdateDist(float newDist) { minUpdateDist = newDist; }
     /// If set, we're only displaying the target level, ideally
-    const std::set<int> &getTargetLevel() { return targetLevels; }
+    const std::set<int> &getTargetLevels() { return targetLevels; }
     void setTargetLevels(const std::set<int> &newTargetLevels) { targetLevels = newTargetLevels; }
 
     /// Draw lines instead of polygons, for demonstration.

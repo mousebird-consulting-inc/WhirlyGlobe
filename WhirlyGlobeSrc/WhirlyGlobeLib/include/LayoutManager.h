@@ -58,10 +58,10 @@ public:
     void setSelectSize(const Point2d &layoutSize,const Point2d &offset);
 
     // Size to use for laying out
-    std::vector<Point2d> layoutPts;
+    Point2dVector layoutPts;
     
     // Size to use for selection
-    std::vector<Point2d> selectPts;
+    Point2dVector selectPts;
 
     /// This is used to sort objects for layout.  Bigger is more important.
     float importance;
@@ -136,7 +136,7 @@ public:
     void getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs);
         
 protected:
-    void runLayoutRules(WhirlyKit::ViewState *viewState);
+    bool runLayoutRules(WhirlyKit::ViewState *viewState);
     
     pthread_mutex_t layoutLock;
     /// If non-zero the maximum number of objects we'll display at once

@@ -134,7 +134,7 @@ class DrawableTweaker : public Identifiable
 {
 public:
     /// Do your tweaking here
-    virtual void tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frame) = 0;
+    virtual void tweakForFrame(Drawable *draw,RendererFrameInfo *frame) = 0;
 };
     
 typedef boost::shared_ptr<DrawableTweaker> DrawableTweakerRef;
@@ -191,8 +191,18 @@ public:
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(WhirlyKit::SceneRendererES *renderer) = 0;
     
+    /// Add a tweaker to this list to be run each frame
+    virtual void addTweaker(DrawableTweakerRef tweakRef) { tweakers.insert(tweakRef); }
+    
+    /// Remove a tweaker from the list
+    virtual void removeTweaker(DrawableTweakerRef tweakRef) { tweakers.erase(tweakRef); }
+    
+    /// Run the tweakers
+    virtual void runTweakers(RendererFrameInfo *frame);
+    
 protected:
     std::string name;
+    DrawableTweakerRefSet tweakers;
 };
 
 /// Reference counted Drawable pointer
@@ -443,7 +453,8 @@ public:
     virtual bool getWriteZbuffer() const;
 
 	/// Add a point when building up geometry.  Returns the index.
-	virtual unsigned int addPoint(Point3f pt);
+	virtual unsigned int addPoint(const Point3f &pt);
+    virtual unsigned int addPoint(const Point3d &pt);
     
     /// Return a given point
     virtual Point3f getPoint(int which);
@@ -456,7 +467,8 @@ public:
     virtual void addColor(RGBAColor color);
 
     /// Add a normal
-	virtual void addNormal(Point3f norm);
+	virtual void addNormal(const Point3f &norm);
+    virtual void addNormal(const Point3d &norm);
 
     /// Add a vector to the given attribute array
     virtual void addAttributeValue(int attrId,Eigen::Vector2f vec);
@@ -604,13 +616,13 @@ protected:
 class BasicDrawableTexTweaker : public DrawableTweaker
 {
 public:
-    BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,NSTimeInterval startTime,double period);
+    BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,TimeInterval startTime,double period);
     
     /// Modify the active texture IDs
-    void tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frame);
+    void tweakForFrame(Drawable *draw,RendererFrameInfo *frame);
 protected:
     std::vector<SimpleIdentity> texIDs;
-    NSTimeInterval startTime;
+    TimeInterval startTime;
     double period;
 };
     

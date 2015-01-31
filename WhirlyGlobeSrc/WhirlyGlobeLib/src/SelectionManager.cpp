@@ -105,12 +105,13 @@ void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts,fl
 }
 
 /// Add a screen space rectangle (2D) for selection, between the given visibilities
-void SelectionManager::addSelectableScreenRect(SimpleIdentity selectId,Point2f *pts,float minVis,float maxVis,bool enable)
+void SelectionManager::addSelectableScreenRect(SimpleIdentity selectId,const Point3d &center,Point2f *pts,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
     
     RectSelectable2D newSelect;
+    newSelect.center = center;
     newSelect.selectID = selectId;
     newSelect.minVis = minVis;
     newSelect.maxVis = maxVis;
@@ -154,13 +155,13 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *p
 
 void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,const BBox &bbox,float minVis,float maxVis,bool enable)
 {
-    std::vector<Point3f> pts;
+    Point3fVector pts;
     pts.reserve(8);
     bbox.asPoints(pts);
     addSelectableRect(selectId,&pts[0],minVis,maxVis,enable);
 }
 
-void SelectionManager::addPolytope(SimpleIdentity selectId,const std::vector<std::vector<Point3d> > &surfaces,float minVis,float maxVis,bool enable)
+void SelectionManager::addPolytope(SimpleIdentity selectId,const std::vector<Point3dVector > &surfaces,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -174,8 +175,8 @@ void SelectionManager::addPolytope(SimpleIdentity selectId,const std::vector<std
     int numPts = 0;
     for (unsigned int si=0;si<surfaces.size();si++)
     {
-        const std::vector<Point3d> &surface = surfaces[si];
-        std::vector<Point3f> surface3f;
+        const Point3dVector &surface = surfaces[si];
+        Point3fVector surface3f;
         surface3f.reserve(surface.size());
         for (unsigned int pi=0;pi<surface.size();pi++)
         {
@@ -194,7 +195,7 @@ void SelectionManager::addPolytope(SimpleIdentity selectId,const std::vector<std
     pthread_mutex_unlock(&mutex);
 }
 
-void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const std::vector<Point3f> &pts,float minVis,float maxVis,bool enable)
+void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const Point3fVector &pts,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -419,8 +420,8 @@ void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
         }
     }
     
-    if (!found)
-        NSLog(@"Tried to delete selectable that doesn't exist.");
+//    if (!found)
+//        NSLog(@"Tried to delete selectable that doesn't exist.");
     
     pthread_mutex_unlock(&mutex);
 }
@@ -452,43 +453,41 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
     }
 }
 
-SelectionManager::PlacementInfo::PlacementInfo(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer)
+SelectionManager::PlacementInfo::PlacementInfo(View *view,SceneRendererES *renderer)
 : globeView(NULL), mapView(NULL)
 {
-    float scale = [UIScreen mainScreen].scale;
+    float scale = renderer->getScale();
     
     // Sort out what kind of view it is
-    if ([view isKindOfClass:[WhirlyGlobeView class]])
-        globeView = (WhirlyGlobeView *)view;
-    else if ([view isKindOfClass:[MaplyView class]])
-        mapView = (MaplyView *)view;
-    heightAboveSurface = view.heightAboveSurface;
+    globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(view);
+    mapView = dynamic_cast<Maply::MapView *>(view);
+    heightAboveSurface = view->heightAboveSurface();
     
     // Calculate a slightly bigger framebuffer to grab nearby features
-    frameSize = Point2f(renderer.framebufferWidth,renderer.framebufferHeight);
-    frameSizeScale = Point2f(renderer.framebufferWidth/scale,renderer.framebufferHeight/scale);
+    frameSize = renderer->getFramebufferSize();
+    frameSizeScale = Point2f(frameSize.x()/scale,frameSize.y()/scale);
     float marginX = frameSize.x() * 0.25;
     float marginY = frameSize.y() * 0.25;
     frameMbr.ll() = Point2f(0 - marginX,0 - marginY);
     frameMbr.ur() = Point2f(frameSize.x() + marginX,frameSize.y() + marginY);
 
     // Now for the various matrices
-    viewMat = [view calcViewMatrix];
-    modelMat = [view calcModelMatrix];
+    viewMat = view->calcViewMatrix();
+    modelMat = view->calcModelMatrix();
     modelInvMat = modelMat.inverse();
     viewAndModelMat = viewMat * modelMat;
     viewAndModelInvMat = viewAndModelMat.inverse();
     viewModelNormalMat = viewAndModelMat.inverse().transpose();
-    projMat = [view calcProjectionMatrix:frameSizeScale margin:0.0];
-    [view getOffsetMatrices:offsetMatrices frameBuffer:frameSize];
+    projMat = view->calcProjectionMatrix(frameSizeScale,0.0);
+    view->getOffsetMatrices(offsetMatrices,frameSize);
 }
 
-void SelectionManager::projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,std::vector<Point2d> &screenPts,float scale)
+void SelectionManager::projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,Point2dVector &screenPts,float scale)
 {
     for (unsigned int offi=0;offi<pInfo.offsetMatrices.size();offi++)
     {
         // Project the world location to the screen
-        CGPoint screenPt;
+        Point2f screenPt;
         const Eigen::Matrix4d &offMatrix = pInfo.offsetMatrices[offi];
         Eigen::Matrix4d modelAndViewMat = pInfo.viewMat * offMatrix * pInfo.modelMat;
         
@@ -499,21 +498,21 @@ void SelectionManager::projectWorldPointToScreen(const Point3d &worldLoc,const P
                 return;
             
             // Note: Should just use
-            screenPt = [pInfo.globeView pointOnScreenFromSphere:worldLoc transform:&modelAndViewMat frameSize:pInfo.frameSize];
+            screenPt = pInfo.globeView->pointOnScreenFromSphere(worldLoc,&modelAndViewMat,pInfo.frameSize);
         } else {
             if (pInfo.mapView)
-                screenPt = [pInfo.mapView pointOnScreenFromPlane:worldLoc transform:&modelAndViewMat frameSize:pInfo.frameSize];
+                screenPt = pInfo.mapView->pointOnScreenFromPlane(worldLoc,&modelAndViewMat,pInfo.frameSize);
             else
                 // No idea what this could be
                 return;
         }
 
         // Isn't on the screen
-        if (screenPt.x < pInfo.frameMbr.ll().x() || screenPt.y < pInfo.frameMbr.ll().y() ||
-            screenPt.x > pInfo.frameMbr.ur().x() || screenPt.y > pInfo.frameMbr.ur().y())
+        if (screenPt.x() < pInfo.frameMbr.ll().x() || screenPt.y() < pInfo.frameMbr.ll().y() ||
+            screenPt.x() > pInfo.frameMbr.ur().x() || screenPt.y() > pInfo.frameMbr.ur().y())
             continue;
         
-        screenPts.push_back(Point2d(screenPt.x/scale,screenPt.y/scale));
+        screenPts.push_back(Point2d(screenPt.x()/scale,screenPt.y()/scale));
     }
 }
 
@@ -529,7 +528,7 @@ struct selectedsorter
 } SelectedSorter;
 
 // Return a list of objects that pass the selection criteria
-void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *theView,std::vector<SelectedObject> &selObjs)
+void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,std::vector<SelectedObject> &selObjs)
 {
     pickObjects(touchPt, maxDist, theView, true, selObjs);
 
@@ -537,7 +536,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
 }
 
 // Look for the single closest object
-SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,WhirlyKitView *theView)
+SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,View *theView)
 {
     std::vector<SelectedObject> selObjs;
     pickObjects(touchPt, maxDist, theView, false, selObjs);
@@ -551,7 +550,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
 
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
 // Note: Should switch to a view state, rather than a view
-void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *theView,bool multi,std::vector<SelectedObject> &selObjs)
+void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,bool multi,std::vector<SelectedObject> &selObjs)
 {
     if (!renderer)
         return;
@@ -582,7 +581,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
     {
         ScreenSpaceObjectLocation &screenObj = ssObjs[ii];
         
-        std::vector<Point2d> projPts;
+        Point2dVector projPts;
         projectWorldPointToScreen(screenObj.dispLoc, pInfo, projPts,scale);
         
         float closeDist2 = MAXFLOAT;
@@ -600,7 +599,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
             
             if (screenObj.shapeID != EmptyIdentity)
             {
-                std::vector<Point2f> screenPts;
+                Point2fVector screenPts;
                 for (unsigned int kk=0;kk<4;kk++)
                 {
                     const Point2d &screenObjPt = screenObj.pts[kk];
@@ -639,9 +638,9 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
 
     Point3d eyePos;
     if (pInfo.globeView)
-        eyePos = pInfo.globeView.eyePos;
-    else
-        NSLog(@"Need to fill in eyePos for mapView");
+        eyePos = pInfo.globeView->eyePos();
+//    else
+//        NSLog(@"Need to fill in eyePos for mapView");
 
     if (!polytopeSelectables.empty())
     {
@@ -653,14 +652,14 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
             if (sel.selectID != EmptyIdentity && sel.enable)
             {
                 if (sel.minVis == DrawVisibleInvalid ||
-                    (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
+                    (sel.minVis < theView->heightAboveSurface() && theView->heightAboveSurface() < sel.maxVis))
                 {
                     float closeDist2 = MAXFLOAT;
                     // Project each plane to the screen, including clipping
                     for (unsigned int ii=0;ii<sel.polys.size();ii++)
                     {
-                        std::vector<Point3f> &poly3f = sel.polys[ii];
-                        std::vector<Point3d> poly;
+                        Point3fVector &poly3f = sel.polys[ii];
+                        Point3dVector poly;
                         poly.reserve(poly3f.size());
                         for (unsigned int jj=0;jj<poly3f.size();jj++)
                         {
@@ -668,7 +667,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
                             poly.push_back(Point3d(pt.x(),pt.y(),pt.z()));
                         }
                         
-                        std::vector<Point2f> screenPts;
+                        Point2fVector screenPts;
                         ClipAndProjectPolygon(pInfo.viewAndModelMat,pInfo.projMat,pInfo.frameSizeScale,poly,screenPts);
                         
                         if (screenPts.size() > 3)
@@ -710,15 +709,15 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
             if (sel.selectID != EmptyIdentity && sel.enable)
             {
                 if (sel.minVis == DrawVisibleInvalid ||
-                    (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
+                    (sel.minVis < theView->heightAboveSurface() && theView->heightAboveSurface() < sel.maxVis))
                 {
-                    std::vector<Point2d> p0Pts;
+                    Point2dVector p0Pts;
                     projectWorldPointToScreen(sel.pts[0],pInfo,p0Pts,scale);
                     float closeDist2 = MAXFLOAT;
                     float closeDist3d = MAXFLOAT;
                     for (unsigned int ip=1;ip<sel.pts.size();ip++)
                     {
-                        std::vector<Point2d> p1Pts;
+                        Point2dVector p1Pts;
                         projectWorldPointToScreen(sel.pts[ip],pInfo,p1Pts,scale);
                         
                         if (p0Pts.size() == p1Pts.size())
@@ -762,19 +761,19 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
             if (sel.selectID != EmptyIdentity && sel.enable)
             {
                 if (sel.minVis == DrawVisibleInvalid ||
-                    (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
+                    (sel.minVis < theView->heightAboveSurface() && theView->heightAboveSurface() < sel.maxVis))
                 {
-                    std::vector<Point2f> screenPts;
+                    Point2fVector screenPts;
                     
                     for (unsigned int ii=0;ii<4;ii++)
                     {
-                        CGPoint screenPt;
+                        Point2f screenPt;
                         Point3d pt3d(sel.pts[ii].x(),sel.pts[ii].y(),sel.pts[ii].z());
                         if (pInfo.globeView)
-                            screenPt = [pInfo.globeView pointOnScreenFromSphere:pt3d transform:&pInfo.viewAndModelMat frameSize:pInfo.frameSizeScale];
+                            screenPt = pInfo.globeView->pointOnScreenFromSphere(pt3d,&pInfo.viewAndModelMat,pInfo.frameSizeScale);
                         else
-                            screenPt = [pInfo.mapView pointOnScreenFromPlane:pt3d transform:&pInfo.viewAndModelMat frameSize:pInfo.frameSizeScale];
-                        screenPts.push_back(Point2f(screenPt.x,screenPt.y));
+                            screenPt = pInfo.mapView->pointOnScreenFromPlane(pt3d,&pInfo.viewAndModelMat,pInfo.frameSizeScale);
+                        screenPts.push_back(screenPt);
                     }
                     
                     float closeDist2 = MAXFLOAT;
@@ -828,7 +827,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
             {
                 
                 // Come up with a rectangle in display space
-                std::vector<Point3d> poly(4);
+                Point3dVector poly(4);
                 Vector3d normal3d = Vector3fToVector3d(sel.normal);
                 Point3d axisX = eyeVec.cross(normal3d);
                 Point3d center3d = Vector3fToVector3d(sel.center);
@@ -840,7 +839,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
                 
                 BillboardSelectable sel = *it;
 
-                std::vector<Point2f> screenPts;
+                Point2fVector screenPts;
                 ClipAndProjectPolygon(pInfo.viewAndModelMat,pInfo.projMat,pInfo.frameSizeScale,poly,screenPts);
                 
                 float closeDist2 = MAXFLOAT;

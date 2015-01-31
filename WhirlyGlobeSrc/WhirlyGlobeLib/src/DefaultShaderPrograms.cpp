@@ -390,14 +390,14 @@ void SetupDefaultShaders(Scene *scene)
     }
     
     // Shader for screen space objects
-    OpenGLES2Program *screenShader = new OpenGLES2Program("Triangle shader for screen space objects",vertexShaderScreenSpace,fragmentShaderScreenSpace);
-    if (!screenShader->isValid())
-    {
-        fprintf(stderr,"SetupDefaultShaders: Triangle shader for screen space objects didn't compile.");
-        delete screenShader;
-    } else {
-        scene->addProgram(kToolkitDefaultScreenSpaceProgram, screenShader);
-    }
+//    OpenGLES2Program *screenShader = new OpenGLES2Program("Triangle shader for screen space objects",vertexShaderScreenSpace,fragmentShaderScreenSpace);
+//    if (!screenShader->isValid())
+//    {
+//        fprintf(stderr,"SetupDefaultShaders: Triangle shader for screen space objects didn't compile.");
+//        delete screenShader;
+//    } else {
+//        scene->addProgram(kToolkitDefaultScreenSpaceProgram, screenShader);
+//    }
 
     
     // Note: Porting
@@ -413,7 +413,8 @@ void SetupDefaultShaders(Scene *scene)
     OpenGLES2Program *screenSpaceShader = BuildScreenSpaceProgram();
     if (!screenSpaceShader)
     {
-        NSLog(@"SetupDefaultShaders: Screen Space shader didn't compile.");
+        fprintf(stderr,"SetupDefaultShaders: Screen Space shader didn't compile.\n");
+        delete screenSpaceShader;
     } else {
         scene->addProgram(kToolkitDefaultScreenSpaceProgram, screenSpaceShader);
     }
