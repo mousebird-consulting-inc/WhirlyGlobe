@@ -136,7 +136,7 @@ public:
 		ll = inLL;  ur = inUR;  minZoom = inMinZoom;  maxZoom = inMaxZoom;
 
 		// Set up the tile loader
-		tileLoader = new QuadTileLoader("Image Layer",this);
+		tileLoader = new QuadTileLoader("Image Layer",this,-1);
 	    tileLoader->setIgnoreEdgeMatching(false);
 	    tileLoader->setCoverPoles(false);
 //	    tileLoader->setMinVis(_minVis);
@@ -294,7 +294,11 @@ public:
             // We need to feel our way down to the appropriate level
             maxShortCircuitLevel = targetZoomLevel(viewState);
             if (singleLevelLoading)
-            	control->setTargetLevel(maxShortCircuitLevel);
+            {
+            	std::set<int> targetLevels;
+            	targetLevels.insert(maxShortCircuitLevel);
+            	control->setTargetLevels(targetLevels);
+            }
 
 //    		__android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
 
@@ -328,7 +332,7 @@ public:
 
     /// The quad loader is letting us know to start loading the image.
     /// We'll call the loader back with the image when it's ready.
-    virtual void startFetch(QuadTileLoaderSupport *quadLoader,int level,int col,int row,Dictionary *attrs)
+    virtual void startFetch(QuadTileLoaderSupport *quadLoader,int level,int col,int row,int frame,Dictionary *attrs)
     {
     	env->CallVoidMethod(javaObj, startFetchJava, level, col, row);
     }
@@ -339,17 +343,43 @@ public:
     	if (imgData)
     	{
     		ImageWrapper tileWrapper(imgData,width,height);
-    		tileLoader->loadedImage(this, &tileWrapper, level, col, row, changes);
+    		tileLoader->loadedImage(this, &tileWrapper, level, col, row, -1, changes);
     	} else {
-    		tileLoader->loadedImage(this, NULL, level, col, row, changes);
+    		tileLoader->loadedImage(this, NULL, level, col, row, -1, changes);
     	}
     }
 
     /// Check if the given tile is a local or remote fetch.  This is a hint
     ///  to the pager.  It can display local tiles as a group faster.
-    virtual bool tileIsLocal(int level,int col,int row)
+    virtual bool tileIsLocal(int level,int col,int row,int frame)
     {
     	return false;
+    }
+
+    // Callback letting us know a tile was removed
+    void tileWasUnloaded(int level,int col,int row)
+    {
+
+    }
+
+    // Bro, do you even load frames?
+    virtual bool canLoadFrames()
+    {
+    	return false;
+    }
+
+    // Number of frames we can load
+    virtual int numFrames()
+    {
+    	// Note: Porting  Take frame into account
+    	return 1;
+    }
+
+    // Current active frame
+    virtual int currentFrame()
+    {
+    	// Note: Porting  Take frame into account
+    	return 0;
     }
 
     // QuadDisplayControllerAdapter related methods

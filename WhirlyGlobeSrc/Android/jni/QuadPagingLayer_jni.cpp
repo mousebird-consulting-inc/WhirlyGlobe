@@ -248,7 +248,11 @@ public:
             // We need to feel our way down to the appropriate level
             maxShortCircuitLevel = targetZoomLevel(viewState);
             if (singleLevelLoading)
-            	control->setTargetLevel(maxShortCircuitLevel);
+            {
+            	std::set<int> targetLevels;
+            	targetLevels.insert(maxShortCircuitLevel);
+            	control->setTargetLevels(targetLevels);
+            }
 
 //    		__android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
 
@@ -287,8 +291,9 @@ public:
     }
 
     // Call loadTile on the java side
-    virtual void loadTile(const Quadtree::NodeInfo &tileInfo)
+    virtual void loadTile(const Quadtree::NodeInfo &tileInfo,int frame)
     {
+    	// Note: Porting  Take frame into account
     	numFetches++;
     	env->CallVoidMethod(javaObj, tileLoadJava, tileInfo.ident.x, tileInfo.ident.y, tileInfo.ident.level);
     }
@@ -297,6 +302,26 @@ public:
     virtual void unloadTile(const Quadtree::NodeInfo &tileInfo)
     {
     	env->CallVoidMethod(javaObj, tileUnloadJava, tileInfo.ident.x, tileInfo.ident.y, tileInfo.ident.level);
+    }
+
+    // Bro, do you even load frames?
+    virtual bool canLoadFrames()
+    {
+    	return false;
+    }
+
+    // Number of frames we can load
+    virtual int numFrames()
+    {
+    	// Note: Porting  Take frame into account
+    	return 1;
+    }
+
+    // Current active frame
+    virtual int currentFrame()
+    {
+    	// Note: Porting  Take frame into account
+    	return 0;
     }
 
     virtual bool canLoadChildrenOfTile(const Quadtree::NodeInfo &tileInfo)
@@ -603,7 +628,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_nativeTileDidLoa
 			return;
 
 		adapter->numFetches--;
-	    adapter->getController()->tileDidLoad(Quadtree::Identifier(x,y,level));
+	    adapter->getController()->tileDidLoad(Quadtree::Identifier(x,y,level),-1);
 	}
 	catch (...)
 	{
@@ -621,7 +646,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_nativeTileDidNot
 			return;
 
 		adapter->numFetches--;
-	    adapter->getController()->tileDidNotLoad(Quadtree::Identifier(x,y,level));
+	    adapter->getController()->tileDidNotLoad(Quadtree::Identifier(x,y,level),-1);
 	}
 	catch (...)
 	{

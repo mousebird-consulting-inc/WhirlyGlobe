@@ -60,7 +60,8 @@ public:
 class QuadTileImageDataSource
 {
 public:
-    virtual ~QuadTileImageDataSource() { }
+    QuadTileImageDataSource();
+    virtual ~QuadTileImageDataSource();
 
     /// Number of simultaneous fetches this data source can support.
     /// You can change this on the fly, but it won't cancel outstanding fetches.
@@ -76,7 +77,7 @@ public:
     
     /// An optional callback provided when a tile is unloaded.
     /// You don't have to do anything
-    virtual void tileWasUnloaded(int level,int col,int row);
+    virtual void tileWasUnloaded(int level,int col,int row) = 0;
 };
 
 /** The Globe Quad Tile Loader responds to the Quad Loader protocol and
@@ -87,7 +88,7 @@ class QuadTileLoader : public QuadLoader, public QuadTileLoaderSupport
 {
 public:
     /// Set this up with an object that'll return an image per tile and a name (for debugging)
-    QuadTileLoader(const std::string &name,QuadTileImageDataSource *imageSource);
+    QuadTileLoader(const std::string &name,QuadTileImageDataSource *imageSource,int numFrames);
     virtual ~QuadTileLoader();
     
     /// QuadLoader methods
@@ -104,6 +105,9 @@ public:
     virtual bool shouldUpdate(ViewState *viewState,bool isInitial);
     virtual int numNetworkFetches();
     virtual int numLocalFetches();
+    virtual int numFrames();
+    virtual int currentFrame();
+    virtual bool canLoadFrames();
     
     /// QuadTileLoaderSupport methods
     virtual void loadedImage(QuadTileImageDataSource *dataSource,LoadedImage *loadImage,int level,int col,int row,int frame,ChangeSet &changes);
@@ -231,6 +235,7 @@ protected:
     std::string name;
 
     bool enable;
+    int numLoadingFrames;
     float drawOffset;
     int drawPriority;
     

@@ -147,7 +147,7 @@ DrawableString *FontTextureManagerAndroid::addString(JNIEnv *env,const std::stri
                     Point2f realSize(glyphSize.x()+2*textureOffset.x(),glyphSize.y()+2*textureOffset.y());
                     std::vector<Texture *> texs;
                     texs.push_back(&tex);
-                    if (texAtlas->addTexture(texs, &realSize, NULL, subTex, scene->getMemManager(), changes, 0))
+                    if (texAtlas->addTexture(texs, -1, &realSize, NULL, subTex, scene->getMemManager(), changes, 0, 0, NULL))
                         glyphInfo = fm->addGlyph(glyph, subTex, Point2f(glyphSize.x(),glyphSize.y()), Point2f(offset.x(),offset.y()), Point2f(textureOffset.x(),textureOffset.y()));
 				}
         	}

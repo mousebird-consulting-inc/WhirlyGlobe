@@ -142,7 +142,7 @@ class ScreenSpaceObject : public Identifiable
 {
 public:
     friend class LayoutManager;
-    friend ScreenSpaceBuilder;
+    friend class ScreenSpaceBuilder;
     
     ScreenSpaceObject();
     ScreenSpaceObject(SimpleIdentity theId);
