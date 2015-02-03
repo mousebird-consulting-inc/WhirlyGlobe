@@ -3,47 +3,74 @@ package com.mousebird.maplytester;
 import java.io.File;
 
 import com.mousebird.maply.MapFragment;
+import com.mousebird.maply.MaplyController;
 import com.mousebird.maply.QuadImageTileLayer;
 import com.mousebird.maply.QuadPagingLayer;
 import com.mousebird.maply.RemoteTileSource;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
 import com.mousebird.maply.TestImageSource;
 import com.mousebird.maply.TestQuadPager;
-import com.mousebird.maplytester.ConfigFragment.ConfigFragmentListener;
-import com.mousebird.maplytester.ConfigFragment.OptionIdent;
+import com.mousebird.maplytester.ConfigView.ConfigViewListener;
 
 import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 /**
  * This fragment manages the map (globe), adding and removing content as the user requests.
  * 
  */
-public class MapTestFragment extends Fragment implements ConfigFragmentListener
+public class MapTestFragment extends Fragment implements ConfigViewListener
 {
+	MaplyController mapControl = null;
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState)
 	{
-		View view = inflater.inflate(R.layout.fragment_map, container, false);
+		DrawerLayout drawer = new android.support.v4.widget.DrawerLayout(getActivity());
+	    DrawerLayout.LayoutParams lp = new DrawerLayout.LayoutParams(
+	    		DrawerLayout.LayoutParams.MATCH_PARENT , DrawerLayout.LayoutParams.MATCH_PARENT);
+		drawer.setLayoutParams(lp);
+
+    	// Create the Maply Controller
+    	mapControl = new MaplyController(getActivity());
+    	View mapView = mapControl.getContentView();
+	    DrawerLayout.LayoutParams mlp = new DrawerLayout.LayoutParams(
+	    		DrawerLayout.LayoutParams.MATCH_PARENT , DrawerLayout.LayoutParams.MATCH_PARENT);
+	    mapView.setLayoutParams(mlp);
+	    drawer.addView(mapView);
+    	
+    	// And the overlaid config view
+    	ConfigView configView = new ConfigView(getActivity());		
+	    DrawerLayout.LayoutParams clp = new DrawerLayout.LayoutParams(
+	    		DrawerLayout.LayoutParams.MATCH_PARENT , DrawerLayout.LayoutParams.MATCH_PARENT);
+	    clp.gravity=Gravity.RIGHT;
+    	configView.setLayoutParams(clp);
+    	configView.setConfigViewListener(this);
+		userChangedSelections(configView);
+		drawer.addView(configView);
 		
-		ConfigFragment config = (ConfigFragment) getFragmentManager().findFragmentById(R.id.configlistview);
-		config.setConfigFragmentListener(this);
-		
-		return view;
+		return drawer;
+	}
+	
+	@Override
+	public void onDestroy()
+	{
+		super.onDestroy();
 	}
 	
 	QuadImageTileLayer baseLayer = null;
 
 	// Called when the user changes what is selected
 	@Override
-	public void userChangedSelections(ConfigFragment config) 
+	public void userChangedSelections(ConfigView config) 
 	{
-		MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapview);
-		
 		String cacheDirName = null;
 		QuadImageTileLayer.TileSource tileSource = null;
 		RemoteTileSource remoteTileSource = null;
@@ -51,10 +78,10 @@ public class MapTestFragment extends Fragment implements ConfigFragmentListener
 		// Get rid of the existing base layer
 		if (baseLayer != null)
 		{
-			mapFragment.mapControl.removeLayer(baseLayer);
+			mapControl.removeLayer(baseLayer);
 		}
 		
-		for (ConfigFragment.ConfigEntry entry : config.sections.get(0).entries)
+		for (ConfigView.ConfigEntry entry : config.sections.get(0).entries)
 		{
 			if (entry.status)
 			{
@@ -94,12 +121,12 @@ public class MapTestFragment extends Fragment implements ConfigFragmentListener
 				{
 					TestQuadPager testPager = new TestQuadPager(0,22);
 					SphericalMercatorCoordSystem coordSys = new SphericalMercatorCoordSystem();
-					QuadPagingLayer pagingLayer = new QuadPagingLayer(mapFragment.mapControl,coordSys,testPager);
+					QuadPagingLayer pagingLayer = new QuadPagingLayer(mapControl,coordSys,testPager);
 					pagingLayer.setSimultaneousFetches(6);
 					pagingLayer.setImportance(256*256);
 					pagingLayer.setSingleLevelLoading(true);
 					pagingLayer.setUseTargetZoomLevel(true);
-					mapFragment.mapControl.addLayer(pagingLayer);
+					mapControl.addLayer(pagingLayer);
 				}
 					break;
 				}
@@ -114,7 +141,7 @@ public class MapTestFragment extends Fragment implements ConfigFragmentListener
 		{
 			// Set up the layer
 			SphericalMercatorCoordSystem coordSys = new SphericalMercatorCoordSystem();
-			baseLayer = new QuadImageTileLayer(mapFragment.mapControl,coordSys,tileSource);
+			baseLayer = new QuadImageTileLayer(mapControl,coordSys,tileSource);
 			baseLayer.setSimultaneousFetches(8);
 
 			// Cache directory for tiles
@@ -125,7 +152,7 @@ public class MapTestFragment extends Fragment implements ConfigFragmentListener
 				remoteTileSource.setCacheDir(cacheDir);
 			}
 				
-			mapFragment.mapControl.addLayer(baseLayer);		
+			mapControl.addLayer(baseLayer);		
 		}
 	}
 	

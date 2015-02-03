@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity" >
 
-    <ListView android:id="@+id/listView"
+    <fragment android:id="@+id/listFragment"
+	          android:name="com.mousebird.maplytester.MainActivity$LocalListFragment"
               android:layout_height="match_parent"
               android:layout_width="match_parent"/>
     

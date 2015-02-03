@@ -29,9 +29,11 @@ import java.util.Map;
 
 import android.os.*;
 import android.app.*;
+import android.view.LayoutInflater;
 //import android.util.Log;
 //import android.widget.Toast;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -43,28 +45,12 @@ import android.widget.SimpleAdapter;
  */
 public class MainActivity extends Activity 
 {
-	List<Map<String, String>> optionsList = new ArrayList<Map<String,String>>();
-
 	// Main constructor
 	public MainActivity()
 	{
 		System.loadLibrary("Maply");
-
-		optionsList.add(createEntry("entry", "Globe (3D)"));
-		optionsList.add(createEntry("entry", "Globe w/ Elevation (3D)"));
-		optionsList.add(createEntry("entry", "Map (3D)"));		
-		optionsList.add(createEntry("entry", "Map (2D)"));
 	}
-	
-	// Create an entry for the list view
-	private HashMap<String,String> createEntry(String key,String name)
-	{
-		HashMap<String,String> entry = new HashMap<String, String>();
-		entry.put(key,name);
 		
-		return entry;
-	}
-	
 	// Demo types for the user to choose
 	public enum DemoType { Globe3D, GlobeElev3D, Map3D, Map2D };
 	
@@ -73,33 +59,57 @@ public class MainActivity extends Activity
 	{
 		super.onCreate(savedInstState);
 		
-		startListView();
-	}
-	
-	// Fire up the list view for user selection
-	void startListView()
-	{
 		setContentView(R.layout.activity_main);
-				
-		final MainActivity mainActivity = this;
-		
-		// Set up the list view
-		ListView lv = (ListView) findViewById(R.id.listView);
-		SimpleAdapter simpleAdpt = new SimpleAdapter(this, optionsList, android.R.layout.simple_list_item_1, new String[] {"entry"}, new int[] {android.R.id.text1});
-		lv.setAdapter(simpleAdpt);
-		lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parentAdapter, View view, int position,long id)
-			{
-				mainActivity.startDemo(DemoType.values()[position]);
-			}
-		});		
+		LocalListFragment lf = (LocalListFragment) getFragmentManager().findFragmentById(R.id.listFragment);
+		lf.mainActivity = this;
 	}
 	
-	// 
+	// Simple list fragment
+	static public class LocalListFragment extends ListFragment
+	{
+		public List<Map<String, String>> optionsList = new ArrayList<Map<String,String>>();
+		public MainActivity mainActivity = null;
+		
+		// Create an entry for the list view
+		private HashMap<String,String> createEntry(String key,String name)
+		{
+			HashMap<String,String> entry = new HashMap<String, String>();
+			entry.put(key,name);
+			
+			return entry;
+		}
+
+		public LocalListFragment()
+		{
+			optionsList.add(createEntry("entry", "Globe (3D)"));
+			optionsList.add(createEntry("entry", "Globe w/ Elevation (3D)"));
+			optionsList.add(createEntry("entry", "Map (3D)"));		
+			optionsList.add(createEntry("entry", "Map (2D)"));
+		}
+	
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+	            Bundle savedInstanceState)
+		{
+			SimpleAdapter simpleAdpt = new SimpleAdapter(getActivity(), optionsList, android.R.layout.simple_list_item_1, new String[] {"entry"}, new int[] {android.R.id.text1});
+			setListAdapter(simpleAdpt);	
+			
+			return super.onCreateView(inflater, container, savedInstanceState);
+		}
+		
+		@Override
+		public void onListItemClick (ListView l, View v, int position, long id)
+		{
+			mainActivity.startDemo(DemoType.values()[position]);
+		}
+	}
+		
+	Fragment mapFragment = null;
+	
+	// Kick off the map (globe)
 	void startDemo(DemoType type)
 	{
 		FragmentManager fragManage = getFragmentManager();
-		Fragment mapFragment = null; 
 				
 		switch (type)
 		{
@@ -124,7 +134,8 @@ public class MainActivity extends Activity
 		
 		if (mapFragment != null)
 			fragManage.beginTransaction()
-				.replace(R.id.main_container, mapFragment)
+				.hide(fragManage.findFragmentById(R.id.listFragment))
+				.add(R.id.main_container,mapFragment)
 				.commit();
 	}	
 	
@@ -132,10 +143,11 @@ public class MainActivity extends Activity
 	public void onBackPressed()
 	{
 		FragmentManager fragManage = getFragmentManager();
-
-		fragManage.popBackStack();
-
-		// Pop back to the list view
-		startListView();
+		fragManage.beginTransaction()
+		.remove(mapFragment)
+		.show(fragManage.findFragmentById(R.id.listFragment))
+		.commit();
+		
+		mapFragment = null;
 	}
 }

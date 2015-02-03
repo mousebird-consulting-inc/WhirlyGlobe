@@ -18,17 +18,41 @@ public class MapFragment extends Fragment
 	{
 	}
 	
+	// Create the map controller
+	@Override 
+	public void onCreate(Bundle savedInstanceState)
+	{
+		super.onCreate(savedInstanceState);
+		
+    	// Create the Maply Controller
+    	mapControl = new MaplyController(this.getActivity());
+	}
+
+	// Return the render view, to be hooked into the hierarchy
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState)
 	{
-    	// Create the Maply Controller
-    	mapControl = new MaplyController(this.getActivity());
+		super.onCreateView(inflater,container,savedInstanceState);
+		
     	View renderView = mapControl.getContentView();
-    	// Report stats every 300 frames
-//    	mapControl.setPerfInterval(300);
 		    	
     	return renderView;
 	}
 
+	// Note: Turn off the rendering loop and layer thread?
+	@Override
+	public void onPause()
+	{
+		super.onPause();
+	}
+	
+	@Override
+	public void onDestroy()
+	{
+		super.onDestroy();
+		
+		mapControl.shutdown();
+		mapControl = null;
+	}
 }
