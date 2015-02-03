@@ -136,6 +136,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	public void shutdown()
 	{
 		valid = false;
+		layerThread.removeWatcher(this);
 		cancelEvalStep();
 		ChangeSet changes = new ChangeSet();
 		nativeShutdown(changes);

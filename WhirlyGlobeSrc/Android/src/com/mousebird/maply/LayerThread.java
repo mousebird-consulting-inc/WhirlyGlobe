@@ -199,6 +199,20 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 		});
 	}
 	
+	// Remove a layer.  Do this on the layer thread
+	public void removeLayer(final Layer layer)
+	{
+		addTask(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				layer.shutdown();
+				layers.remove(layer);
+			}
+		});
+	}
+	
 	// Note: Need a removeLayer()
 	
 	ChangeSet changes = new ChangeSet();

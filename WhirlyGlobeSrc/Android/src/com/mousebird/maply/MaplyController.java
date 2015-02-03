@@ -545,6 +545,15 @@ public class MaplyController implements View.OnTouchListener
 	}
 	
 	/**
+	 * Remove a single layer.  The layer will stop receiving data and be shut down shortly
+	 * after you call this.
+	 */
+	public void removeLayer(Layer layer)
+	{
+		layerThread.removeLayer(layer);
+	}
+	
+	/**
 	 * Add a task according to the thread mode.  If it's ThreadAny, we'll put it on the layer thread.
 	 * If it's ThreadCurrent, we'll do it immediately.
 	 * 
