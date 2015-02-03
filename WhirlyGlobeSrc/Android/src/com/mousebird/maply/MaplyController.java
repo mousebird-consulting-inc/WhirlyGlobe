@@ -536,6 +536,15 @@ public class MaplyController implements View.OnTouchListener
 	}
 	
 	/**
+	 * Add a single layer.  This will start processing its data on the layer thread at some
+	 * point in the near future.
+	 */
+	public void addLayer(Layer layer)
+	{
+		layerThread.addLayer(layer);
+	}
+	
+	/**
 	 * Add a task according to the thread mode.  If it's ThreadAny, we'll put it on the layer thread.
 	 * If it's ThreadCurrent, we'll do it immediately.
 	 * 

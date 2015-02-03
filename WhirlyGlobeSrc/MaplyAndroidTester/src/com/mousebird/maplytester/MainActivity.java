@@ -20,13 +20,12 @@
 
 package com.mousebird.maplytester;
 
+import com.mousebird.maply.MapFragment;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.mousebird.maply.MaplyController;
-import com.mousebird.maplytester.TestRemoteImageTiles;
 
 import android.os.*;
 import android.app.*;
@@ -44,9 +43,6 @@ import android.widget.SimpleAdapter;
  */
 public class MainActivity extends Activity 
 {
-	// Handles drawing, interaction, and so forth for Maply
-	MaplyController mapControl = null;
-	
 	List<Map<String, String>> optionsList = new ArrayList<Map<String,String>>();
 
 	// Main constructor
@@ -54,11 +50,10 @@ public class MainActivity extends Activity
 	{
 		System.loadLibrary("Maply");
 
-		optionsList.add(createEntry("entry", "OSM Paging"));
-		optionsList.add(createEntry("entry", "Satellite Basemap"));
-		optionsList.add(createEntry("entry", "Countries"));		
-		optionsList.add(createEntry("entry", "Test Vector Pager"));
-		optionsList.add(createEntry("entry", "Test Image Pager"));
+		optionsList.add(createEntry("entry", "Globe (3D)"));
+		optionsList.add(createEntry("entry", "Globe w/ Elevation (3D)"));
+		optionsList.add(createEntry("entry", "Map (3D)"));		
+		optionsList.add(createEntry("entry", "Map (2D)"));
 	}
 	
 	// Create an entry for the list view
@@ -71,7 +66,7 @@ public class MainActivity extends Activity
 	}
 	
 	// Demo types for the user to choose
-	public enum DemoType { OSMPaging, SatelliteBasemap, Countries, TestVectorPager, TestImagePager };
+	public enum DemoType { Globe3D, GlobeElev3D, Map3D, Map2D };
 	
 	@Override
 	protected void onCreate(Bundle savedInstState)
@@ -100,60 +95,46 @@ public class MainActivity extends Activity
 		});		
 	}
 	
+	// 
 	void startDemo(DemoType type)
 	{
-    	// Create the Maply Controller
-    	mapControl = new MaplyController(this);
-    	View renderView = mapControl.getContentView();
-    	if (renderView != null)
-    		this.setContentView(renderView);
-    	// Report stats every 300 frames
-//    	mapControl.setPerfInterval(300);
-
+		FragmentManager fragManage = getFragmentManager();
+		Fragment mapFragment = null; 
+				
 		switch (type)
 		{
-		case OSMPaging:
+		case Globe3D:
 		{
-	    	TestRemoteOSM test = new TestRemoteOSM(this,mapControl);
-	    	test.start();
 		}
 			break;
-		case SatelliteBasemap:
+		case GlobeElev3D:
 		{
-	    	TestRemoteImageTiles test = new TestRemoteImageTiles(this,mapControl);
-	    	test.start();
 		}
 			break;
-		case Countries:
+		case Map3D:
 		{
-	    	TestCountries test = new TestCountries(this,mapControl);
-	    	test.start();
 		}
 			break;
-		case TestVectorPager:
+		case Map2D:
 		{
-			TestVectorPager test = new TestVectorPager(this,mapControl);
-			test.start();
+			mapFragment = new MapTestFragment();
 		}
 			break;
-		case TestImagePager:
-		{
-			TestImagePagerSource test = new TestImagePagerSource(this,mapControl);
-			test.start();
 		}
-			break;
-		}				
+		
+		if (mapFragment != null)
+			fragManage.beginTransaction()
+				.replace(R.id.main_container, mapFragment)
+				.commit();
 	}	
 	
 	@Override
 	public void onBackPressed()
 	{
-		// Tear down the display
-		if (mapControl != null)
-		{
-			mapControl.shutdown();
-			mapControl = null;
-		}
+		FragmentManager fragManage = getFragmentManager();
+
+		fragManage.popBackStack();
+
 		// Pop back to the list view
 		startListView();
 	}
