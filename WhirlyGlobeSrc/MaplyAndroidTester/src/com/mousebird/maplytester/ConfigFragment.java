@@ -118,14 +118,14 @@ public class ConfigFragment extends ListFragment
 		// ,,,,OSMMapquest,StamenWatercolor,QuadTest,QuadTestAnimate,QuadVectorTest
 		ConfigSection baseSection = new ConfigSection("Base Layers",true);
 		baseSection.entries.add(new ConfigEntry("Blank",OptionIdent.BlankLayer,Available.All));
-		baseSection.entries.add(new ConfigEntry("Geography Class (local)",OptionIdent.GeographyClass,Available.None));
-		baseSection.entries.add(new ConfigEntry("Mapbox Regular (remote)",OptionIdent.MapboxRegular,Available.All));
+//		baseSection.entries.add(new ConfigEntry("Geography Class (local)",OptionIdent.GeographyClass,Available.None));
+//		baseSection.entries.add(new ConfigEntry("Mapbox Regular (remote)",OptionIdent.MapboxRegular,Available.All));
 		baseSection.entries.add(new ConfigEntry("Mapbox Satellite (remote)",OptionIdent.MapboxSatellite,Available.All));
-		baseSection.entries.add(new ConfigEntry("Mapbox Terrain (remote)",OptionIdent.MapboxTerrain,Available.All));
+//		baseSection.entries.add(new ConfigEntry("Mapbox Terrain (remote)",OptionIdent.MapboxTerrain,Available.All));
 		baseSection.entries.add(new ConfigEntry("OpenStreetMap - Mapquest (remote)",OptionIdent.OSMMapquest,Available.None));
 		baseSection.entries.add(new ConfigEntry("Stamen Watercolor (remote)",OptionIdent.StamenWatercolor,Available.None));
 		baseSection.entries.add(new ConfigEntry("Quad Test Layer",OptionIdent.QuadTest,Available.All));
-		baseSection.entries.add(new ConfigEntry("Quad Test Layer - Animated (remote)",OptionIdent.QuadTestAnimate,Available.None));
+//		baseSection.entries.add(new ConfigEntry("Quad Test Layer - Animated (remote)",OptionIdent.QuadTestAnimate,Available.None));
 		baseSection.entries.add(new ConfigEntry("Quad Vector Test Layer",OptionIdent.QuadVectorTest,Available.All));
 		sections.add(baseSection);
 		

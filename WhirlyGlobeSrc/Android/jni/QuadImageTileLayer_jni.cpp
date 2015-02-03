@@ -580,7 +580,6 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeEva
 {
 	try
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Made it to QuadImageTileLayer::nativeEvalStep()");
 		QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
 		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
 		if (!adapter || !changes)

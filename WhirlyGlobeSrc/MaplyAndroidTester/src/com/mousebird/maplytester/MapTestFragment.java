@@ -4,8 +4,11 @@ import java.io.File;
 
 import com.mousebird.maply.MapFragment;
 import com.mousebird.maply.QuadImageTileLayer;
+import com.mousebird.maply.QuadPagingLayer;
 import com.mousebird.maply.RemoteTileSource;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
+import com.mousebird.maply.TestImageSource;
+import com.mousebird.maply.TestQuadPager;
 import com.mousebird.maplytester.ConfigFragment.ConfigFragmentListener;
 import com.mousebird.maplytester.ConfigFragment.OptionIdent;
 
@@ -42,7 +45,8 @@ public class MapTestFragment extends Fragment implements ConfigFragmentListener
 		MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.mapview);
 		
 		String cacheDirName = null;
-		RemoteTileSource tileSource = null;
+		QuadImageTileLayer.TileSource tileSource = null;
+		RemoteTileSource remoteTileSource = null;
 		
 		// Get rid of the existing base layer
 		if (baseLayer != null)
@@ -67,7 +71,7 @@ public class MapTestFragment extends Fragment implements ConfigFragmentListener
 					break;
 				case MapboxSatellite:
 					cacheDirName = "mapbox_satellite";
-					tileSource = new RemoteTileSource("http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2/","png",0,22);
+					remoteTileSource = new RemoteTileSource("http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2/","png",0,22);
 					break;
 				case MapboxTerrain:
 //					cacheDirName = "mapbox_terrain";
@@ -75,23 +79,37 @@ public class MapTestFragment extends Fragment implements ConfigFragmentListener
 					break;
 				case OSMMapquest:
 					cacheDirName = "osm_mapquest";
-					tileSource = new RemoteTileSource("http://otile1.mqcdn.com/tiles/1.0.0/osm/","png",0,18);
+					remoteTileSource = new RemoteTileSource("http://otile1.mqcdn.com/tiles/1.0.0/osm/","png",0,18);
 					break;
 				case StamenWatercolor:
 					cacheDirName = "stamen_watercolor";
-					tileSource = new RemoteTileSource("http://tile.stamen.com/watercolor/","png",0,18);
+					remoteTileSource = new RemoteTileSource("http://tile.stamen.com/watercolor/","png",0,18);
 					break;
 				case QuadTest:
+					tileSource = new TestImageSource(getActivity().getMainLooper(),0,22);
 					break;
 				case QuadTestAnimate:
 					break;
 				case QuadVectorTest:
+				{
+					TestQuadPager testPager = new TestQuadPager(0,22);
+					SphericalMercatorCoordSystem coordSys = new SphericalMercatorCoordSystem();
+					QuadPagingLayer pagingLayer = new QuadPagingLayer(mapFragment.mapControl,coordSys,testPager);
+					pagingLayer.setSimultaneousFetches(6);
+					pagingLayer.setImportance(256*256);
+					pagingLayer.setSingleLevelLoading(true);
+					pagingLayer.setUseTargetZoomLevel(true);
+					mapFragment.mapControl.addLayer(pagingLayer);
+				}
 					break;
 				}
 			}
 		}
-
+		
 		// New base layer
+		if (remoteTileSource != null)
+			tileSource = remoteTileSource;
+
 		if (tileSource != null)
 		{
 			// Set up the layer
@@ -100,11 +118,11 @@ public class MapTestFragment extends Fragment implements ConfigFragmentListener
 			baseLayer.setSimultaneousFetches(8);
 
 			// Cache directory for tiles
-			if (cacheDirName != null)
+			if (remoteTileSource != null && cacheDirName != null)
 			{
 				File cacheDir = new File(getActivity().getCacheDir(),cacheDirName);
 				cacheDir.mkdir();
-				tileSource.setCacheDir(cacheDir);
+				remoteTileSource.setCacheDir(cacheDir);
 			}
 				
 			mapFragment.mapControl.addLayer(baseLayer);		
