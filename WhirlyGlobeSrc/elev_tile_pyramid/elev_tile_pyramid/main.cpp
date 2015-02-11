@@ -112,6 +112,40 @@ GDALDatasetH CreateOutputDataFile(const char *pszFormat,const char *pszFilename,
     return hDstDS;
 }
 
+// Maximum number of pixels we'll load at once
+static int const MaxPixelLoad = 1048576;
+
+// Look for the maximum pixel in a given area
+float searchForMaxPixel(GDALRasterBandH hBand, int sx, int sy, int ex, int ey)
+{
+    float maxPix = -MAXFLOAT;
+    
+    int rowSize = ex-sx+1;
+//    int colSize = ey-sy+1;
+    
+    // Number of rows to load at once
+    int maxRows = MaxPixelLoad / rowSize;
+    maxRows = MAX(1,maxRows);
+    
+    for (int iy=sy;iy<=ey;iy+=maxRows)
+    {
+        int numRows = maxRows;
+        if (ey-iy<=numRows)
+            numRows = ey-iy+1;
+        float pixels[rowSize*numRows];
+        if (GDALRasterIO( hBand, GF_Read, sx, iy, rowSize, numRows, pixels, rowSize, numRows, GDT_Float32, 0,  0) != CE_None)
+        {
+            fprintf(stderr,"Query failure in GDALRasterIO");
+            return -1;
+        }
+        
+        for (int which = 0; which < rowSize*numRows; which++)
+            maxPix = MAX(pixels[which],maxPix);
+    }
+    
+    return maxPix;
+}
+
 typedef enum {SampleSingle,SampleMax} SamplingType;
 
 int main(int argc, char * argv[])
@@ -752,19 +786,9 @@ int main(int argc, char * argv[])
                                 
                                 // Work through the pixels in the source looking for a max
                                 float maxPix = -MAXFLOAT;
-                                
-                                int rowSize = ex-sx+1;
-                                int colSize = ey-sy+1;
-                                float row[rowSize*colSize];
-                                // Fetch the pixel
-                                if (GDALRasterIO( hBand, GF_Read, sx, sy, rowSize, colSize, &row, rowSize, colSize, GDT_Float32, 0,  0) != CE_None)
-                                {
-                                    fprintf(stderr,"Query failure in GDALRasterIO");
-                                    return -1;
-                                }
-                                
-                                for (int which = 0; which < rowSize*colSize; which++)
-                                    maxPix = MAX(row[which],maxPix);
+
+                                // Search for the maximum pixel in the area
+                                maxPix = searchForMaxPixel(hBand, sx, sy, ex, ey);
                                 
                                 tileData[cy*pixelsX+cx] = maxPix;
                             }
