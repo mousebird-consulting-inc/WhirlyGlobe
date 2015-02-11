@@ -10,6 +10,8 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <float.h>
+#include <math.h>
 #include "gdal_priv.h"
 #include "ogrsf_frmts.h"
 #include "cpl_string.h"
