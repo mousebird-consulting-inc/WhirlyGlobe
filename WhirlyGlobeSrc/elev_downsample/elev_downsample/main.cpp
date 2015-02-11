@@ -99,7 +99,7 @@ int main(int argc, const char * argv[])
     hSrcDS = GDALOpen( inputFile, GA_ReadOnly );
     if( hSrcDS == NULL )
         return -1;
-    GDALSetCacheMax64(2*1024*1024*1024);
+//    GDALSetCacheMax64(2*1024*1024*1024);
 
     int rasterXSize = GDALGetRasterXSize(hSrcDS);
     int rasterYSize = GDALGetRasterYSize(hSrcDS);
