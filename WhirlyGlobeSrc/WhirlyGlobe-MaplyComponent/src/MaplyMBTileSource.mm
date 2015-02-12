@@ -199,5 +199,9 @@ using namespace WhirlyKit;
     return NO;
 }
 
+-(void) dealloc{
+    if (_sqlDb)
+        sqlite3_close(_sqlDb);
+}
 
 @end
