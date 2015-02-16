@@ -508,7 +508,7 @@ typedef std::map<std::string,NSMutableArray *> VecsForStyles;
     {
         // Get the style object and then add the data
         MaplyVectorTileStyle *style = [self getStyle:it->first];
-        NSArray *compObjs = [style buildObjects:it->second viewC:layer.viewC];
+        NSArray *compObjs = [style buildObjects:it->second forTile:tileID layer:layer viewC:layer.viewC];
         if (compObjs)
         {
             [layer addData:compObjs forTile:tileID style:(style.geomAdditive ? MaplyDataStyleAdd : MaplyDataStyleReplace)];

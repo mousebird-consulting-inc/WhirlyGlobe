@@ -84,7 +84,7 @@
 - (void)resolveVisibility:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings desc:(NSMutableDictionary *)desc;
 
 /// @brief Construct objects related to this style based on the input data.
-- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID layer:(MaplyQuadPagingLayer *)layer viewC:(MaplyBaseViewController *)viewC;
 
 /// @brief parse a mapnik style template string
 - (NSString*)formatText:(NSString*)formatString forObject:(MaplyVectorObject*)vec;

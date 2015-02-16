@@ -336,7 +336,8 @@ static double MAX_EXTENT = 20037508.342789244;
               
               NSArray *styles = [self.styleDelegate stylesForFeatureWithAttributes:attributes
                                                                             onTile:tileID
-                                                                           inLayer:layerName];
+                                                                           inLayer:layerName
+                                                                             viewC:layer.viewC];
               if(!styles.count) {
                 continue; //no point parsing the geometry if we arent going to render
               }
@@ -513,16 +514,15 @@ static double MAX_EXTENT = 20037508.342789244;
         }
         tileData = nil;
       } else {
-        NSLog(@"No data for tile %d/%d/%d", flippedYTile.level, flippedYTile.x, flippedYTile.y);
+//        NSLog(@"No data for tile %d/%d/%d", flippedYTile.level, flippedYTile.x, flippedYTile.y);
       }
     }//end of iterating tile sources
     
-    NSArray *symbolizerKeys = [featureStyles.allKeys sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self"
-                                                                                                                 ascending:YES]]];
+    NSArray *symbolizerKeys = [featureStyles.allKeys sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES]]];
     for(id key in symbolizerKeys) {
-      MaplyVectorTileStyle *symbolizer = [self.styleDelegate styleForUUID:key];
+        MaplyVectorTileStyle *symbolizer = [self.styleDelegate styleForUUID:key viewC:layer.viewC];
       NSArray *features = featureStyles[key];
-      [components addObjectsFromArray:[symbolizer buildObjects:features viewC:layer.viewC]];
+        [components addObjectsFromArray:[symbolizer buildObjects:features forTile:tileID layer:layer viewC:layer.viewC]];
     }
     
     if(self.debugLabel || self.debugOutline) {
