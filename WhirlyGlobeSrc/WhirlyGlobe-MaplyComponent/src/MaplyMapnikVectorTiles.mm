@@ -53,7 +53,7 @@ using namespace WhirlyGlobe;
 
 static double MAX_EXTENT = 20037508.342789244;
 
-+ (void) StartRemoteVectorTilesWithTileSpec:(NSString *)tileSpecURL style:(NSString *)styleURL cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MaplyMapnikVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock
++ (void) StartRemoteVectorTilesWithTileSpec:(NSString *)tileSpecURL accessToken:(NSString *)accessToken style:(NSString *)styleURL cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MaplyMapnikVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock
 {
     // We'll invoke this block when we've fetched the tilespec and the style file
     void (^startBlock)(NSDictionary *tileSpec,NSData *styleData) =
@@ -62,6 +62,8 @@ static double MAX_EXTENT = 20037508.342789244;
         // Got the tile spec, parse out the basics
         // Note: This should be a vector specific version
         MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:tileSpec];
+//        if (accessToken)
+//            tileSource.tileInfo.queryStr = [NSString stringWithFormat:@"access_token=%@",accessToken];
         tileSource.cacheDir = cacheDir;
         if (!tileSource)
         {
@@ -90,7 +92,10 @@ static double MAX_EXTENT = 20037508.342789244;
         if (tileSpecDict)
             startBlock(tileSpecDict,styleData);
         else {
-            NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:tileSpecURL]];
+            NSString *fullURL = tileSpecURL;
+            if (accessToken)
+                fullURL = [NSString stringWithFormat:@"%@?access_token=%@",tileSpecURL,accessToken];
+            NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:fullURL]];
             AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
             operation.responseSerializer = [AFJSONResponseSerializer serializer];
             [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
@@ -129,7 +134,7 @@ static double MAX_EXTENT = 20037508.342789244;
     }
 }
 
-+ (void) StartRemoteVectorTilesWithURL:(NSString *)tileURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom style:(NSString *)styleURL cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MaplyMapnikVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock;
++ (void) StartRemoteVectorTilesWithURL:(NSString *)tileURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom accessToken:(NSString *)accessToken style:(NSString *)styleURL cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MaplyMapnikVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock;
 {
     // We'll invoke this block when we've fetched the tilespec and the style file
     void (^startBlock)(NSData *styleData) =
@@ -139,6 +144,8 @@ static double MAX_EXTENT = 20037508.342789244;
         // Note: This should be a vector specific version
         MaplyRemoteTileInfo *tileInfo = [[MaplyRemoteTileInfo alloc] initWithBaseURL:tileURL ext:ext minZoom:minZoom maxZoom:maxZoom];
         MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithInfo:tileInfo];
+        if (accessToken)
+            tileSource.tileInfo.queryStr = [NSString stringWithFormat:@"access_token=%@",accessToken];
         tileSource.cacheDir = cacheDir;
         if (!tileSource)
         {
@@ -282,12 +289,12 @@ static double MAX_EXTENT = 20037508.342789244;
         }
         
         //now attempt to open protobuf
-        mapnik::vector::tile tile;
+        vector_tile::Tile tile;
         if(tile.ParseFromArray(tileData.bytes, (int)tileData.length)) {
           tileData = nil;
           //Itterate layers
           for (unsigned i=0;i<tile.layers_size();++i) {
-            mapnik::vector::tile_layer const& tileLayer = tile.layers(i);
+            vector_tile::Tile_Layer const& tileLayer = tile.layers(i);
             scale = tileLayer.extent() / 256.0;
             NSString *layerName = [NSString stringWithUTF8String:tileLayer.name().c_str()];
             if(![self.styleDelegate layerShouldDisplay:layerName]) {
@@ -298,7 +305,7 @@ static double MAX_EXTENT = 20037508.342789244;
             //itterate features
             for (unsigned j=0;j<tileLayer.features_size();++j) {
               featureCount++;
-              mapnik::vector::tile_feature const & f = tileLayer.features(j);
+              vector_tile::Tile_Feature const & f = tileLayer.features(j);
               g_type = static_cast<MapnikGeometryType>(f.type());
               
               //Parse attributes
@@ -315,7 +322,7 @@ static double MAX_EXTENT = 20037508.342789244;
                     continue;
                   }
                   
-                  mapnik::vector::tile_value const& value = tileLayer.values(key_value);
+                  vector_tile::Tile_Value const& value = tileLayer.values(key_value);
                   if (value.has_string_value()) {
                     attributes[key] = [NSString stringWithUTF8String:value.string_value().c_str()];
                   } else if (value.has_int_value()) {
