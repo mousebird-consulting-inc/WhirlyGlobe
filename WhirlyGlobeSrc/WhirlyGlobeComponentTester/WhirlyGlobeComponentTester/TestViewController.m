@@ -1338,15 +1338,18 @@ static const int NumMegaMarkers = 15000;
             } else if (![layerName compare:kMaplyTestMapboxStreets])
             {
                 self.title = @"Mapbox Vector Streets";
-                thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
-                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithURL:@"https://b.tiles.mapbox.com/v4/mapbox.mapbox-streets-v6-dev/" ext:@"vector.pbf" minZoom:0 maxZoom:14 style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"] cacheDir:thisCacheDir viewC:baseViewC success:
+                // Note: Debugging
+                thisCacheDir = nil;
+//                thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
+                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-streets-v6.json" accessToken:@"pk.eyJ1IjoibWFwYm94IiwiYSI6IlhHVkZmaW8ifQ.hAMX5hSW-QnTeRCMAy9A8Q" style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"] cacheDir:thisCacheDir viewC:baseViewC
+                 success:
                  ^(MaplyMapnikVectorTiles *vecTiles)
                  {
                      // You need your own access token here
                      vecTiles.accessToken = @"pk.eyJ1IjoibW91c2ViaXJkIiwiYSI6IlBYR1B2WVUifQ.BHURUUNbQPsbQqUj_Ej7Jw";
                      // Don't load the lowest levels for the globe
-//                     if (globeViewC)
-//                         vecTiles.minZoom = 5;
+                     if (globeViewC)
+                         vecTiles.minZoom = 5;
                      
                      // Note: These are set after the MapnikStyleSet has already been initialized
                      MapnikStyleSet *styleSet = (MapnikStyleSet *)vecTiles.styleDelegate;
@@ -1355,7 +1358,8 @@ static const int NumMegaMarkers = 15000;
                      
                      // Now for the paging layer itself
                      MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
-                     pageLayer.numSimultaneousFetches = 6;
+                     // Note: Debugging
+                     pageLayer.numSimultaneousFetches = 1;
                      pageLayer.flipY = false;
                      pageLayer.importance = 1024*1024*2;
                      pageLayer.useTargetZoomLevel = true;

@@ -43,3 +43,6 @@
 [submodule "clipper2"]
 	path = third-party/clipper
 	url = https://github.com/mousebird/clipper
+[submodule "third-party/protobuf"]
+	path = third-party/protobuf
+	url = https://github.com/google/protobuf/
