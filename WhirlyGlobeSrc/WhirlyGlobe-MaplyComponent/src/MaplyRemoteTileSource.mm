@@ -392,8 +392,13 @@ static bool trackConnections = false;
         NSData *tileData = [NSURLConnection sendSynchronousRequest:urlReq
                                                  returningResponse:&response error:&error];
         
+        // Look at the response
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        if (httpResponse.statusCode != 200)
+            tileData = nil;
+        
         // Let's also write it back out for the cache
-        if (_tileInfo.cacheDir)
+        if (_tileInfo.cacheDir && tileData)
             [tileData writeToFile:[_tileInfo fileNameForTile:tileID] atomically:YES];
         
         if (trackConnections)
