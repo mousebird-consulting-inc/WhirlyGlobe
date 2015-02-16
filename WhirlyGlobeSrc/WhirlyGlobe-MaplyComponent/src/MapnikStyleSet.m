@@ -281,7 +281,9 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 #pragma mark - VectorStyleDelegate
 - (NSArray*)stylesForFeatureWithAttributes:(NSDictionary*)attributes
                                     onTile:(MaplyTileID)tileID
-                                   inLayer:(NSString*)layer {
+                                   inLayer:(NSString*)layer
+                                     viewC:(MaplyBaseViewController *)viewC
+{
   NSMutableArray *symbolizers = [NSMutableArray new];
   NSArray *styles = self.layers[layer];
 
