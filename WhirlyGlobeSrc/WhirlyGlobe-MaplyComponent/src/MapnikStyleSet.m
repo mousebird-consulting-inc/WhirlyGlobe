@@ -316,7 +316,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 }
 
 
-- (MaplyVectorTileStyle*)styleForUUID:(NSString *)uuid {
+- (MaplyVectorTileStyle*)styleForUUID:(NSString *)uuid viewC:(MaplyBaseViewController *)viewC {
   return self.symbolizers[uuid];
 }
 
