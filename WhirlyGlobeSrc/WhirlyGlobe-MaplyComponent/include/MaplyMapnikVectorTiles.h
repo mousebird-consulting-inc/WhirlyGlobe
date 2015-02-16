@@ -52,10 +52,11 @@ typedef enum {
 
 - (NSArray*)stylesForFeatureWithAttributes:(NSDictionary*)attributes
                       onTile:(MaplyTileID)tileID
-                     inLayer:(NSString*)layer;
+                     inLayer:(NSString*)layer
+                       viewC:(MaplyBaseViewController *)viewC;
 - (BOOL)layerShouldDisplay:(NSString*)layer;
 
-- (MaplyVectorTileStyle*)styleForUUID:(NSString*)uiid;
+- (MaplyVectorTileStyle*)styleForUUID:(NSString*)uiid viewC:(MaplyBaseViewController *)viewC;
 
 @end
 

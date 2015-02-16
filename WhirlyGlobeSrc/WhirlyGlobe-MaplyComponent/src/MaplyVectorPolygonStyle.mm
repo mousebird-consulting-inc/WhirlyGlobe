@@ -77,7 +77,7 @@
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID layer:(MaplyQuadPagingLayer *)layer viewC:(MaplyBaseViewController *)viewC;
 {
     MaplyComponentObject *baseObj = nil;
     NSMutableArray *compObjs = [NSMutableArray array];
