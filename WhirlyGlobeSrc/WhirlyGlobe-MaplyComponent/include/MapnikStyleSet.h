@@ -24,7 +24,7 @@
 
 @class MaplyVectorTileStyleSettings;
 
-@interface MapnikStyleSet : NSObject <NSXMLParserDelegate, VectorStyleDelegate>
+@interface MapnikStyleSet : NSObject <NSXMLParserDelegate, MaplyVectorStyleDelegate>
 
 @property (nonatomic, strong) MaplyVectorTileStyleSettings *tileStyleSettings;
 @property (nonatomic, strong) NSMutableDictionary *styleDictionary;
