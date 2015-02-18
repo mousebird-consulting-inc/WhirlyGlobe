@@ -20,8 +20,37 @@
 
 #import "MapboxVectorStyleSet.h"
 
+typedef enum {MBLineCapButt,MBLineCapRound,MBLineCapSquare} MapboxVectorLineCap;
+typedef enum {MBLineJoinBevel,MBLineJoinRound,MBLineJoinMiter} MapboxVectorLineJoin;
+
+@interface MapboxVectorLineLayout : NSObject
+
+@property (nonatomic) MapboxVectorLineCap cap;
+@property (nonatomic) MapboxVectorLineJoin join;
+@property (nonatomic) double miterLimit;
+@property (nonatomic) double roundLimit;
+
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
+
+@end
+
+@interface MapboxVectorLinePaint : NSObject
+
+@property (nonatomic) double opacity;
+@property (nonatomic) MaplyVectorFunctionStops *opacityFunc;
+@property (nonatomic) UIColor *color;
+@property (nonatomic) double width;
+@property (nonatomic) MaplyVectorFunctionStops *widthFunc;
+
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
+
+@end
+
 /// @brief The line style
 @interface MapboxVectorLayerLine : MaplyMapboxVectorStyleLayer
+
+@property (nonatomic) MapboxVectorLineLayout *layout;
+@property (nonatomic) MapboxVectorLinePaint *paint;
 
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC;
 
