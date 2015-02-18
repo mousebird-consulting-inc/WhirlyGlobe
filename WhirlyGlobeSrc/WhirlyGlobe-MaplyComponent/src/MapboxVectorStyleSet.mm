@@ -218,6 +218,8 @@
     return [UIColor colorWithRed:red*opacity green:green*opacity blue:blue*opacity alpha:alpha*opacity];
 }
 
+static const NSDictionary *colorValues
+
 - (UIColor *)colorValue:(NSString *)name dict:(NSDictionary *)dict defVal:(UIColor *)defVal
 {
     id thing = dict[name];
@@ -283,6 +285,8 @@
         [scanner scanFloat:&alpha];
         
         return [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha];
+    } else {
+        // Try
     }
     
     NSLog(@"Didn't recognize format of color (%@)",name);
@@ -291,6 +295,9 @@
 
 - (NSUInteger)enumValue:(NSString *)name options:(NSArray *)options defVal:(NSUInteger)defVal
 {
+    if (!name)
+        return defVal;
+    
     if (![name isKindOfClass:[NSString class]])
     {
         NSLog(@"Expecting string for enumerated type.");

@@ -91,6 +91,9 @@
 /// @brief Check for and report an unsupported field
 - (void)unsupportedCheck:(NSString *)field in:(NSString *)what styleEntry:(NSDictionary *)styleEntry;
 
+/// @brief Check if the given thing is a constant and return its value if it is.  Otherwise just return it.
+- (id)constantSubstitution:(id)thing forField:(NSString *)field;
+
 @end
 
 /** @brief Layer definition from the Style Sheet.
