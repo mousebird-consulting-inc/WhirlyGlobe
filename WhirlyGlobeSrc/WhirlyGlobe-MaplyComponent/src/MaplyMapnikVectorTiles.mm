@@ -39,6 +39,7 @@
 #import "MaplyMBTileSource.h"
 #import "AFHTTPRequestOperation.h"
 #import "MapnikStyleSet.h"
+#import "MapboxVectorStyleSet.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -387,7 +388,7 @@ static double MAX_EXTENT = 20037508.342789244;
 
 @implementation MaplyMapnikVectorTiles
 
-+ (void) StartRemoteVectorTilesWithTileSpec:(NSString *)tileSpecURL accessToken:(NSString *)accessToken style:(NSString *)styleURL cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MaplyMapnikVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock
++ (void) StartRemoteVectorTilesWithTileSpec:(NSString *)tileSpecURL accessToken:(NSString *)accessToken style:(NSString *)styleURL styleType:(MapnikStyleType)styleType cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MaplyMapnikVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock
 {
     // We'll invoke this block when we've fetched the tilespec and the style file
     void (^startBlock)(NSDictionary *tileSpec,NSData *styleData) =
@@ -405,16 +406,31 @@ static double MAX_EXTENT = 20037508.342789244;
             return;
         }
         
+        NSObject<MaplyVectorStyleDelegate> *styleSet = nil;
+        
         // Now for the styles
         // This deals with the Mapnik styles themselves
-        MapnikStyleSet *styleSet = [[MapnikStyleSet alloc] initForViewC:viewC];
-        [styleSet loadXmlData:styleData];
+        switch (styleType)
+        {
+            case MapnikXMLStyle:
+            {
+                MapnikStyleSet *mapnikStyleSet = [[MapnikStyleSet alloc] initForViewC:viewC];
+                [mapnikStyleSet loadXmlData:styleData];
+                [mapnikStyleSet generateStyles];
+                styleSet = mapnikStyleSet;
+            }
+            break;
+            case MapnikMapboxGLStyle:
+            {
+                MaplyMapboxVectorStyleSet *mapboxStyleSet = [[MaplyMapboxVectorStyleSet alloc] initWithJSON:styleData viewC:viewC];
+                styleSet = mapboxStyleSet;
+            }
+            break;
+        }
         
         MaplyMapnikVectorTiles *vecTiles = [[MaplyMapnikVectorTiles alloc] initWithTileSource:tileSource style:styleSet viewC:viewC];
 
         successBlock(vecTiles);
-        
-        [styleSet generateStyles];
     };
     
     // This block fetches the json tile spec after the style data has been read
@@ -467,7 +483,7 @@ static double MAX_EXTENT = 20037508.342789244;
     }
 }
 
-+ (void) StartRemoteVectorTilesWithURL:(NSString *)tileURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom accessToken:(NSString *)accessToken style:(NSString *)styleURL cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MaplyMapnikVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock;
++ (void) StartRemoteVectorTilesWithURL:(NSString *)tileURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom accessToken:(NSString *)accessToken style:(NSString *)styleURL styleType:(MapnikStyleType)styleType cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MaplyMapnikVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock;
 {
     // We'll invoke this block when we've fetched the tilespec and the style file
     void (^startBlock)(NSData *styleData) =

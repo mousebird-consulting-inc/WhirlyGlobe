@@ -100,6 +100,9 @@ typedef enum {
 
 @end
 
+/// @brief The various types of style that will work with Mapnik vector tiles
+typedef enum {MapnikXMLStyle,MapnikMapboxGLStyle} MapnikStyleType;
+
 /** @brief Provides on demand creation for Mapnik style vector tiles.
     @details Create one of these to read Mapnik PBF style tiles from a remote
     or local source.  This handles the geometry creation, calls a delegate
@@ -132,7 +135,7 @@ typedef enum {
     @param successBlock This block is called with the vector tiles object on success.  You'll need to create the paging layer and attach the vector tiles to it.
     @param failureBlock This block is called if any of the loading fails.
   */
-+ (void) StartRemoteVectorTilesWithTileSpec:(NSString *)tileSpec accessToken:(NSString *)accessToken style:(NSString *)styleFile cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MaplyMapnikVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock;
++ (void) StartRemoteVectorTilesWithTileSpec:(NSString *)tileSpec accessToken:(NSString *)accessToken style:(NSString *)styleFile styleType:(MapnikStyleType)styleType cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MaplyMapnikVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock;
 
 /** @brief A convenience method that fetches all the relevant files and creates a vector tiles object.
     @details This method will fetch all the relevant config files necessary to start a Mapnik vector tile object and the call you back to set up the actual layer.
@@ -147,7 +150,7 @@ typedef enum {
     @param successBlock This block is called with the vector tiles object on success.  You'll need to create the paging layer and attach the vector tiles to it.
     @param failureBlock This block is called if any of the loading fails.
  */
-+ (void) StartRemoteVectorTilesWithURL:(NSString *)tileURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom accessToken:(NSString *)accessToken style:(NSString *)styleFile cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MaplyMapnikVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock;
++ (void) StartRemoteVectorTilesWithURL:(NSString *)tileURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom accessToken:(NSString *)accessToken style:(NSString *)styleFile styleType:(MapnikStyleType)styleType cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MaplyMapnikVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock;
 
 /** @brief Init with a single remote tile source.
   */
