@@ -218,8 +218,6 @@
     return [UIColor colorWithRed:red*opacity green:green*opacity blue:blue*opacity alpha:alpha*opacity];
 }
 
-static const NSDictionary *colorValues
-
 - (UIColor *)colorValue:(NSString *)name dict:(NSDictionary *)dict defVal:(UIColor *)defVal
 {
     id thing = dict[name];
