@@ -1340,8 +1340,8 @@ static const int NumMegaMarkers = 15000;
                 self.title = @"Mapbox Vector Streets";
                 // Note: Debugging
                 thisCacheDir = nil;
-//                thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
-                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-streets-v6.json" accessToken:@"pk.eyJ1IjoibWFwYm94IiwiYSI6IlhHVkZmaW8ifQ.hAMX5hSW-QnTeRCMAy9A8Q" style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"] cacheDir:thisCacheDir viewC:baseViewC
+                thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
+                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-terrain-v2,mapbox.mapbox-streets-v6.json" accessToken:@"pk.eyJ1IjoibWFwYm94IiwiYSI6IlhHVkZmaW8ifQ.hAMX5hSW-QnTeRCMAy9A8Q" style:@"https://www.mapbox.com/mapbox-gl-styles/styles/outdoors-v7.json" styleType:MapnikMapboxGLStyle cacheDir:thisCacheDir viewC:baseViewC
                  success:
                  ^(MaplyMapnikVectorTiles *vecTiles)
                  {
@@ -1358,10 +1358,9 @@ static const int NumMegaMarkers = 15000;
                      
                      // Now for the paging layer itself
                      MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
-                     // Note: Debugging
-                     pageLayer.numSimultaneousFetches = 1;
+                     pageLayer.numSimultaneousFetches = 6;
                      pageLayer.flipY = false;
-                     pageLayer.importance = 1024*1024*2;
+                     pageLayer.importance = 512*512*2;
                      pageLayer.useTargetZoomLevel = true;
                      pageLayer.singleLevelLoading = true;
                      [baseViewC addLayer:pageLayer];
@@ -1997,7 +1996,7 @@ static const int NumMegaMarkers = 15000;
 
 - (void)maplyViewController:(MaplyViewController *)viewC didStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion
 {
-    NSLog(@"Maply Stopped moving");
+//    NSLog(@"Maply Stopped moving");
 }
 
 #pragma mark - Popover Delegate
