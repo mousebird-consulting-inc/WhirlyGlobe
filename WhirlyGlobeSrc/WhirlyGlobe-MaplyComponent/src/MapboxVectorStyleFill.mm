@@ -73,7 +73,6 @@
         return nil;
     }
     
-    // Note: Ignoring opacity
     if (_paint.color)
     {
         fillDesc = [NSMutableDictionary dictionaryWithDictionary:
