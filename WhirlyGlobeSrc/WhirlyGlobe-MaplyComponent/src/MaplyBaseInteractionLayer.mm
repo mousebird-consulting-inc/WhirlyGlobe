@@ -2290,6 +2290,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
     LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
+    GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
 
     ChangeSet changes;
     for (MaplyComponentObject *compObj in theObjs)
@@ -2317,6 +2318,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 billManager->enableBillboards(compObj.billIDs, enable, changes);
             if (loftManager && !compObj.loftIDs.empty())
                 loftManager->enableLoftedPolys(compObj.loftIDs, enable, changes);
+            if (geomManager && !compObj.geomIDs.empty())
+                geomManager->enableGeometry(compObj.geomIDs, enable, changes);
             if (chunkManager && !compObj.chunkIDs.empty())
             {
                 for (SimpleIDSet::iterator it = compObj.chunkIDs.begin();
