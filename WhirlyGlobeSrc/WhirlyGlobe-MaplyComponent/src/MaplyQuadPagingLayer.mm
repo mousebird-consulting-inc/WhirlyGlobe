@@ -114,6 +114,19 @@ public:
                 break;
         }
     }
+    
+    // Make a list of objects to delete
+    void clearContents(NSMutableArray *compObjs)
+    {
+        if (replaceCompObjs)
+            [compObjs addObjectsFromArray:replaceCompObjs];
+        if (addCompObjs)
+            [compObjs addObjectsFromArray:addCompObjs];
+        if (refReplaceCompObjs)
+            [compObjs addObjectsFromArray:refReplaceCompObjs];
+        if (refAddCompObjs)
+            [compObjs addObjectsFromArray:refAddCompObjs];
+    }
 };
     
 /// This is a comparison operator for sorting loaded tile pointers by
@@ -510,7 +523,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 {
 }
 
-- (void)askDelegateForLoad:(MaplyTileID)tileID isRefresh:(bool)isRefresh;
+- (void)askDelegateForLoad:(MaplyTileID)tileID isRefresh:(bool)doRefresh;
 {
     //    if (!_flipY)
     //    {
@@ -520,6 +533,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     
     bool isThere = false;
     bool isLoading = false;
+    bool isRefresh = false;
     
     // Look for the existing tile, just in case
     pthread_mutex_lock(&tileSetLock);
@@ -529,8 +543,10 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     {
         QuadPagingLoadedTile *tile = *it;
         isThere = true;
-        isLoading = (*it)->refreshing;
-        if (!isLoading && isRefresh)
+        isRefresh = (*it)->refreshing;
+        isLoading = (*it)->isLoading;
+        // Note: What if it's loading?
+        if (!isRefresh && doRefresh)
         {
             (*it)->refreshing = true;
             tile->isLoading = true;
@@ -540,11 +556,11 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     pthread_mutex_unlock(&tileSetLock);
     
     // It's already refreshing, so don't bother
-    if (isLoading)
+    if (isRefresh)
         return;
     
     // Now that's weird, why are we loading the tile twice?
-    if (isThere && !isRefresh)
+    if (isThere && !doRefresh)
         return;
     numFetches++;
     
@@ -591,7 +607,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     tileID.level = tileInfo->ident.level;
     
     QuadPagingLoadedTile *tile = NULL;
-    NSMutableArray *addCompObjs = nil,*replaceCompObjs = nil;
+    NSMutableArray *addCompObjs = [NSMutableArray array],*replaceCompObjs = [NSMutableArray array];
     
     pthread_mutex_lock(&tileSetLock);
     QuadPagingLoadedTile dummyTile(tileID);
@@ -679,6 +695,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 // If it failed, clear out the tile
 - (void)tileFailedToLoad:(MaplyTileID)tileID
 {
+    NSMutableArray *compObjs = [NSMutableArray array];
+    
     pthread_mutex_lock(&tileSetLock);
     QuadPagingLoadedTile dummyTile(tileID);
     QuadPagingLoadedTileSet::iterator it = tileSet.find(&dummyTile);
@@ -686,10 +704,13 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     {
         QuadPagingLoadedTile *theTile = *it;
         tileSet.erase(it);
+        theTile->clearContents(compObjs);
         delete theTile;
     }
     numFetches--;
     pthread_mutex_unlock(&tileSetLock);
+    
+    [_viewC removeObjects:compObjs mode:MaplyThreadCurrent];
     
     // Check the parent
     if (tileID.level > 0 && !_singleLevelLoading)
@@ -919,20 +940,13 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
          it != tileSet.end(); ++it)
     {
         QuadPagingLoadedTile *tile = *it;
-        if (tile->replaceCompObjs)
-            [compObjs addObjectsFromArray:tile->replaceCompObjs];
-        if (tile->addCompObjs)
-            [compObjs addObjectsFromArray:tile->addCompObjs];
-        if (tile->refReplaceCompObjs)
-            [compObjs addObjectsFromArray:tile->refReplaceCompObjs];
-        if (tile->refAddCompObjs)
-            [compObjs addObjectsFromArray:tile->refAddCompObjs];
+        tile->clearContents(compObjs);
         delete *it;
     }
     tileSet.clear();
     pthread_mutex_unlock(&tileSetLock);
     
-    [_viewC removeObjects:compObjs];
+    [_viewC removeObjects:compObjs mode:MaplyThreadCurrent];
 }
 
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
