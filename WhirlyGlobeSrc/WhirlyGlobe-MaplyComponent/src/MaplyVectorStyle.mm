@@ -39,7 +39,8 @@ using namespace WhirlyKit;
     _markerSize = 10.0;
     _mapScaleScale = 1.0;
     _dashPatternScale = 1.0;
-    _useWideVectors = true;
+    // Note: Debugging
+    _useWideVectors = false;
     _wideVecCuttoff = 0.0;
     _oldVecWidthScale = 1.0;
     _selectable = false;

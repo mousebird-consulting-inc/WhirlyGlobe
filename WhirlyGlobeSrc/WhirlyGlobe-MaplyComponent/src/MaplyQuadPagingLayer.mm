@@ -168,6 +168,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (void)dealloc
 {
+    coordSys = nil;
     pthread_mutex_lock(&tileSetLock);
     for (QuadPagingLoadedTileSet::iterator it = tileSet.begin();
          it != tileSet.end(); ++it)
@@ -426,7 +427,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     // Just the importance of this tile.
 //    float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
     
-//    NSLog(@"tile %d: (%d,%d) = %f",ident.level,ident.x,ident.y,import);
+//    if (import != 0.0)
+//        NSLog(@"tile %d: (%d,%d) = %f",ident.level,ident.x,ident.y,import);
     
     return import;
 }
@@ -726,6 +728,10 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 // Notify the quad paging layer that we loaded, but do it on the layer thread
 - (void)loadNotify:(MaplyTileIDObject *)tileIDObj
 {
+    // Check if we're still active
+    if (!coordSys)
+        return;
+    
     MaplyTileID tileID = tileIDObj.tileID;
     [quadLayer loader:self tileDidLoad:Quadtree::Identifier(tileID.x,tileID.y,tileID.level) frame:-1];
 }
