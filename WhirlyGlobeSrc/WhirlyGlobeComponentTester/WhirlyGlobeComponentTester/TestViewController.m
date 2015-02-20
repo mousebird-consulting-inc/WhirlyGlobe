@@ -1341,7 +1341,7 @@ static const int NumMegaMarkers = 15000;
                 // Note: Debugging
                 thisCacheDir = nil;
                 thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
-                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-terrain-v2,mapbox.mapbox-streets-v6.json" accessToken:@"pk.eyJ1IjoibWFwYm94IiwiYSI6IlhHVkZmaW8ifQ.hAMX5hSW-QnTeRCMAy9A8Q" style:@"https://www.mapbox.com/mapbox-gl-styles/styles/outdoors-v7.json" styleType:MapnikMapboxGLStyle cacheDir:thisCacheDir viewC:baseViewC
+                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-terrain-v2,mapbox.mapbox-streets-v6.json" accessToken:@"pk.eyJ1IjoibWFwYm94IiwiYSI6IlhHVkZmaW8ifQ.hAMX5hSW-QnTeRCMAy9A8Q" style:[[NSBundle mainBundle] pathForResource:@"nats_mapnik_style" ofType:@"xml"] styleType:MapnikXMLStyle cacheDir:thisCacheDir viewC:baseViewC
                  success:
                  ^(MaplyMapnikVectorTiles *vecTiles)
                  {
@@ -1360,7 +1360,7 @@ static const int NumMegaMarkers = 15000;
                      MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
                      pageLayer.numSimultaneousFetches = 6;
                      pageLayer.flipY = false;
-                     pageLayer.importance = 512*512*2;
+                     pageLayer.importance = 1024*1024*2;
                      pageLayer.useTargetZoomLevel = true;
                      pageLayer.singleLevelLoading = true;
                      [baseViewC addLayer:pageLayer];

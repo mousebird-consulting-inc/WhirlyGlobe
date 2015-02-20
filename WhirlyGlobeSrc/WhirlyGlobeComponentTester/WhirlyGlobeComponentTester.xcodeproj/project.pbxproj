@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2B1FB5371A1EC5FE0004B394 /* MapzenSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1FB5361A1EC5FE0004B394 /* MapzenSource.m */; };
+		2B23FA301A95214400277D5D /* nats_mapnik_style.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2B23FA2F1A95214400277D5D /* nats_mapnik_style.xml */; };
 		2B2EB66518C901AD008C5320 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB516E7F505001F52FC /* OpenGLES.framework */; };
 		2B62DD6816E7F0BC001F52FC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B62DD6616E7F0BC001F52FC /* InfoPlist.strings */; };
 		2B62DD6A16E7F0BC001F52FC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD6916E7F0BC001F52FC /* main.m */; };
@@ -435,6 +436,7 @@
 		2B0D630D17A2EE0400C3298D /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		2B1FB5351A1EC5FE0004B394 /* MapzenSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapzenSource.h; sourceTree = "<group>"; };
 		2B1FB5361A1EC5FE0004B394 /* MapzenSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapzenSource.m; sourceTree = "<group>"; };
+		2B23FA2F1A95214400277D5D /* nats_mapnik_style.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = nats_mapnik_style.xml; path = ../../../../NATS/nats_mapnik_style.xml; sourceTree = "<group>"; };
 		2B62DD5A16E7F0BC001F52FC /* WhirlyGlobeComponentTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhirlyGlobeComponentTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B62DD5D16E7F0BC001F52FC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		2B62DD5F16E7F0BC001F52FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -1185,6 +1187,7 @@
 		2BFD25D8170B929E00127EF5 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				2B23FA2F1A95214400277D5D /* nats_mapnik_style.xml */,
 				2BC0FA991964D3580043E1FD /* maki icons */,
 				2BC0FB82196DB8960043E1FD /* mapzen vectors */,
 				2BC0FB7F196DB88F0043E1FD /* mapbox vectors */,
@@ -1767,6 +1770,7 @@
 				2BFD277E170B933C00127EF5 /* MDA.geojson in Resources */,
 				2BC0FB521964D3580043E1FD /* restaurant-24@2x.png in Resources */,
 				2BFD277F170B933C00127EF5 /* MDG.geojson in Resources */,
+				2B23FA301A95214400277D5D /* nats_mapnik_style.xml in Resources */,
 				2BFD2780170B933C00127EF5 /* MDV.geojson in Resources */,
 				2BC0FB441964D3580043E1FD /* pharmacy-24@2x.png in Resources */,
 				2BFD2781170B933C00127EF5 /* MEX.geojson in Resources */,
