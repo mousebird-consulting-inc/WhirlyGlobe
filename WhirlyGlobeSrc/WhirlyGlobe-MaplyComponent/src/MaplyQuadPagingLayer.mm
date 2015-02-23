@@ -820,8 +820,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 - (void)tileDidLoad:(MaplyTileID)tileID
 {
     NSMutableArray *remCompObjs = [NSMutableArray array];
-    NSArray *addCompObjs = nil;
-    NSArray *replaceCompObjs = nil;
+    NSMutableArray *addCompObjs = [NSMutableArray array];
+    NSMutableArray *replaceCompObjs = [NSMutableArray array];
     
     pthread_mutex_lock(&tileSetLock);
     QuadPagingLoadedTile dummyTile(tileID);
@@ -837,8 +837,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
                 [remCompObjs addObjectsFromArray:tile->addCompObjs];
             if (tile->replaceCompObjs)
                 [remCompObjs addObjectsFromArray:tile->replaceCompObjs];
-            addCompObjs = tile->refAddCompObjs;
-            replaceCompObjs = tile->refReplaceCompObjs;
+            [addCompObjs addObjectsFromArray:tile->refAddCompObjs];
+            [replaceCompObjs addObjectsFromArray:tile->refReplaceCompObjs];
             tile->addCompObjs = tile->refAddCompObjs;
             tile->replaceCompObjs = tile->refReplaceCompObjs;
             tile->refAddCompObjs = nil;
@@ -846,8 +846,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
             tile->refreshing = false;
         } else {
-            addCompObjs = tile->addCompObjs;
-            replaceCompObjs = tile->replaceCompObjs;
+            [addCompObjs addObjectsFromArray:tile->addCompObjs];
+            [replaceCompObjs addObjectsFromArray:tile->replaceCompObjs];
         }
         tile->refreshing = false;
     }
