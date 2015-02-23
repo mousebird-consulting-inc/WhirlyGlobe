@@ -241,10 +241,19 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
         state.progID = geom.progID;
         DrawableWrap *drawWrap = findOrAddDrawWrap(state,geom.coords.size(),geom.coords.size()-2,ssObj.worldLoc);
         
+        // Figure out fixed rotation
+        Eigen::Matrix2d trans = trans.Identity();
+        if (ssObj.useRotation)
+        {
+            Eigen::Rotation2D<double> rot(ssObj.rotation);
+            trans = rot.matrix();
+        }
+        
         int baseVert = drawWrap->draw->getNumPoints();
         for (unsigned int jj=0;jj<geom.coords.size();jj++)
         {
             Point2d coord = geom.coords[jj] + ssObj.offset;
+            coord = trans * coord;
             drawWrap->addVertex(coordAdapter,scale,Point3f(ssObj.worldLoc.x(),ssObj.worldLoc.y(),ssObj.worldLoc.z()), ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], geom.color);
         }
         for (unsigned int jj=0;jj<geom.coords.size()-2;jj++)
