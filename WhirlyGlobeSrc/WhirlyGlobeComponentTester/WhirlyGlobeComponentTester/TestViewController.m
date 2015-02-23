@@ -1341,7 +1341,7 @@ static const int NumMegaMarkers = 15000;
                 // Note: Debugging
                 thisCacheDir = nil;
                 thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
-                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-terrain-v2,mapbox.mapbox-streets-v6.json" accessToken:@"pk.eyJ1IjoibWFwYm94IiwiYSI6IlhHVkZmaW8ifQ.hAMX5hSW-QnTeRCMAy9A8Q" style:[[NSBundle mainBundle] pathForResource:@"nats_mapnik_style" ofType:@"xml"] styleType:MapnikXMLStyle cacheDir:thisCacheDir viewC:baseViewC
+                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-terrain-v2,mapbox.mapbox-streets-v6.json" accessToken:@"" style:[[NSBundle mainBundle] pathForResource:@"nats_mapnik_style" ofType:@"xml"] styleType:MapnikXMLStyle cacheDir:thisCacheDir viewC:baseViewC
                  success:
                  ^(MaplyMapnikVectorTiles *vecTiles)
                  {
