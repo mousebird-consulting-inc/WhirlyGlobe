@@ -1341,12 +1341,11 @@ static const int NumMegaMarkers = 15000;
                 // Note: Debugging
                 thisCacheDir = nil;
                 thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
-                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-terrain-v2,mapbox.mapbox-streets-v6.json" accessToken:@"" style:[[NSBundle mainBundle] pathForResource:@"nats_mapnik_style" ofType:@"xml"] styleType:MapnikXMLStyle cacheDir:thisCacheDir viewC:baseViewC
+                // You need your own access token here
+                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-terrain-v2,mapbox.mapbox-streets-v6.json" accessToken:@"" style:[[NSBundle mainBundle] pathForResource:@"" ofType:@"xml"] styleType:MapnikXMLStyle cacheDir:thisCacheDir viewC:baseViewC
                  success:
                  ^(MaplyMapnikVectorTiles *vecTiles)
                  {
-                     // You need your own access token here
-                     vecTiles.accessToken = @"pk.eyJ1IjoibW91c2ViaXJkIiwiYSI6IlBYR1B2WVUifQ.BHURUUNbQPsbQqUj_Ej7Jw";
                      // Don't load the lowest levels for the globe
                      if (globeViewC)
                          vecTiles.minZoom = 5;

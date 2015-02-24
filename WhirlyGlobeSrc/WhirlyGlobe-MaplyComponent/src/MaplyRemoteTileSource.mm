@@ -338,6 +338,12 @@ static bool trackConnections = false;
     return [_tileInfo validTile:tileID bbox:bbox];
 }
 
+- (void)tileUnloaded:(MaplyTileID)tileID
+{
+    if ([_delegate respondsToSelector:@selector(remoteTileSource:tileUnloaded:)])
+        [_delegate remoteTileSource:self tileUnloaded:tileID];
+}
+
 // Clear out the operation associated with a tile
 - (void)clearTile:(MaplyTileID)tileID
 {
