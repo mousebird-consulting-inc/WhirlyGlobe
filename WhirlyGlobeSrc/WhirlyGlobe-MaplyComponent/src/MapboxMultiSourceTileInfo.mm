@@ -22,8 +22,10 @@
 #import "MapnikStyleSet.h"
 #import "MapboxVectorStyleSet.h"
 #import <set>
+#import <map>
 #import <vector>
 #import <string>
+
 
 // Used to encapsulate a single tile source
 // Yes, it's C++.  Suffer.
@@ -39,6 +41,7 @@ public:
     NSString *ext;
     // Style sheet, if this is vector
     NSObject<MaplyVectorStyleDelegate> *styleSet;
+    MaplyMapnikVectorTileParser *tileParser;
     // Specific tile URLs, if we have them
     NSArray *tileURLs;
     int minZoom,maxZoom;
@@ -51,6 +54,7 @@ public:
     std::vector<SingleTileSource> sources;
     // Sorted by zoom level
     std::vector<std::vector<int> > sourcesByZoom;
+    NSMutableDictionary *vecTiles;
 }
 
 - (id)initWithViewC:(MaplyBaseViewController *)inViewC
@@ -63,6 +67,7 @@ public:
     self.maxZoom = -1;
     super.pixelsPerSide = 256;
     super.coordSys = [[MaplySphericalMercator alloc] initWebStandard];
+    vecTiles = [NSMutableDictionary dictionary];
     
     baseURLs.push_back(@"http://a.tiles.mapbox.com/v4");
     baseURLs.push_back(@"http://b.tiles.mapbox.com/v4");
@@ -120,6 +125,8 @@ public:
         }
             break;
     }
+    
+    MaplyMapnikVectorTileParser *tileParser = [[MaplyMapnikVectorTileParser alloc] initWithStyle:styleSet viewC:viewC];
 
     SingleTileSource source;
     source.isImage = false;
@@ -128,6 +135,7 @@ public:
     source.maxZoom = maxZoom;
     source.ext = @"vector.pbf";
     source.styleSet = styleSet;
+    source.tileParser = tileParser;
     sources.push_back(source);
     [self addedSource:sources.size()-1];
     
@@ -224,5 +232,72 @@ public:
         
     return urlReq;
 }
+
+#pragma mark - Remote Tile Source Delegate
+
+// Called when the tile has successfully loaded
+- (void) remoteTileSource:(MaplyRemoteTileSource *)tileSource tileDidLoad:(MaplyTileID)tileID
+{
+}
+
+// Called right after the data comes back, so we can mess with it
+- (NSData *) remoteTileSource:(MaplyRemoteTileSource *)tileSource modifyTileReturn:(NSData *)tileData forTile:(MaplyTileID)tileID
+{
+    std::vector<SingleTileSource *> partSources;
+    [self findParticipatingSources:partSources forLevel:tileID.level];
+    
+    if (partSources.empty())
+        return tileData;
+    
+    // Note: Only dealing with one at the moment
+    SingleTileSource *source = partSources[0];
+    if (source->isImage)
+        return tileData;
+
+    if (!_imageLayer)
+    {
+        NSLog(@"MapboxMultiSourceTileInfo: imageLayer must be set.");
+        return tileData;
+    }
+    
+    // Must be a vector tile, so parse it
+    MaplyBoundingBox bbox;
+    [_imageLayer geoBoundsforTile:tileID bbox:&bbox];
+    MaplyVectorTileData *vecTileData = [source->tileParser buildObjects:tileData tile:tileID geoBounds:bbox];
+    @synchronized(self)
+    {
+        vecTiles[MaplyTileIDString(tileID)] = vecTileData;
+    }
+    
+    // Make up a fake image to return
+    CGSize size = CGSizeMake(32, 32);
+    UIGraphicsBeginImageContextWithOptions(size, YES, 0);
+    [[UIColor redColor] setFill];
+    UIRectFill(CGRectMake(0, 0, size.width, size.height));
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return UIImagePNGRepresentation(image);
+}
+
+// Letting us know a tile failed to load
+- (void) remoteTileSource:(MaplyRemoteTileSource *)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *)error
+{
+    @synchronized(self)
+    {
+        [vecTiles removeObjectForKey:MaplyTileIDString(tileID)];
+    }
+}
+
+// The given tile unloaded
+- (void)remoteTileSource:(MaplyRemoteTileSource *)tileSource tileUnloaded:(MaplyTileID)tileID
+{
+    @synchronized(self)
+    {
+        [vecTiles removeObjectForKey:MaplyTileIDString(tileID)];
+    }
+}
+
+
 
 @end

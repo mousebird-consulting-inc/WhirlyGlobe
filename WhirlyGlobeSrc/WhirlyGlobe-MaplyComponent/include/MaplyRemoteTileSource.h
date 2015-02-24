@@ -187,7 +187,7 @@
 /** @brief Modify the tile data after it's been read.
     @details This method is useful for messing with tile sources that may not be images, but can be turned into images.
   */
-- (NSData *) remoteTileSource:(id)tileSource modifyTileReturn:(NSData *)tileData;
+- (NSData *) remoteTileSource:(id)tileSource modifyTileReturn:(NSData *)tileData forTile:(MaplyTileID)tileID;
 
 /** @brief The tile failed to load.
     @param tileSource The remote tile source that tried to load the tile.
