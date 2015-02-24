@@ -49,3 +49,4 @@
 #import <MaplyIconManager.h>
 #import <MaplyTextureBuilder.h>
 #import <MaplyGeomModel.h>
+#import <MapboxMultiSourceTileInfo.h>
