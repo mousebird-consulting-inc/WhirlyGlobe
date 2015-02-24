@@ -61,7 +61,8 @@ public:
     viewC = inViewC;
     self.minZoom = -1;
     self.maxZoom = -1;
-    self.coordSys = [[MaplySphericalMercator alloc] initWebStandard];
+    super.pixelsPerSide = 256;
+    super.coordSys = [[MaplySphericalMercator alloc] initWebStandard];
     
     baseURLs.push_back(@"http://a.tiles.mapbox.com/v4");
     baseURLs.push_back(@"http://b.tiles.mapbox.com/v4");
@@ -174,6 +175,9 @@ public:
         std::vector<int> &inLevel = sourcesByZoom[zoom];
         inLevel.push_back(which);
     }
+    
+    super.minZoom = [self minZoom];
+    super.maxZoom = [self maxZoom];
 }
 
 - (void)findParticipatingSources:(std::vector<SingleTileSource *> &)partSources forLevel:(int)level
@@ -217,7 +221,7 @@ public:
     NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
     if (self.timeOut != 0.0)
         [urlReq setTimeoutInterval:self.timeOut];
-    
+        
     return urlReq;
 }
 
