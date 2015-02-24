@@ -168,26 +168,41 @@
 
 @class MaplyRemoteTileSource;
 
-/** The remote tile source delegate provides feedback on which
+/** @brief A delegate called during various parts of the tile loading and display operation.
+    @details The remote tile source delegate provides feedback on which
     tiles loaded and which didn't.  You'll be called in all sorts of
     random threads here, so act accordingly.
+    @details This delegate interface can also be used to modify data as it comes in.
   */
 @protocol MaplyRemoteTileSourceDelegate <NSObject>
 
 @optional
 
-/** The tile successfully loaded.
+/** @brief The tile successfully loaded.
     @param tileSource the remote tile source that loaded the tile.
     @param tileID The ID of the tile we loaded.
   */
 - (void) remoteTileSource:(id)tileSource tileDidLoad:(MaplyTileID)tileID;
 
-/** The tile failed to load.
+/** @brief Modify the tile data after it's been read.
+    @details This method is useful for messing with tile sources that may not be images, but can be turned into images.
+  */
+- (NSData *) remoteTileSource:(id)tileSource modifyTileReturn:(NSData *)tileData;
+
+/** @brief The tile failed to load.
     @param tileSource The remote tile source that tried to load the tile.
     @param tileID The tile ID of the tile that failed to load.
     @param error The NSError message, probably from the network routine.
   */
 - (void) remoteTileSource:(id)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *)error;
+
+/** @brief Called when the tile is unloaded.
+    @details Normally you won't get called when an image or vector tile is unloaded from memory.  If you set this, you will.
+    @details You're not required to do anything, but you can clean up data of your own if you like.
+    @details You will be called on another thread, so act accordingly.
+    @param tileID The tile tha that just got unloaded.
+ */
+- (void)remoteTileSource:(id)tileSource tileUnloaded:(MaplyTileID)tileID;
 
 @end
 

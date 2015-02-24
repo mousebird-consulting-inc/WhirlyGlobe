@@ -52,3 +52,4 @@
 #import <MaplyMapnikVectorTiles.h>
 #import <MapnikStyleSet.h>
 #import <MaplyGeomModel.h>
+#import <MapboxMultiSourceTileInfo.h>
