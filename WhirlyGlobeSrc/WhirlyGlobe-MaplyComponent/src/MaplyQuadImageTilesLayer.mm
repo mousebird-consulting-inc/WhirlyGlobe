@@ -310,6 +310,26 @@ using namespace WhirlyKit;
         tileLoader.color = [_color asRGBAColor];
 }
 
+- (void)geoBoundsforTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+{
+    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+        return;
+    
+    Mbr mbr = quadLayer.quadtree->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
+    
+    GeoMbr geoMbr;
+    CoordSystem *wkCoordSys = quadLayer.coordSys;
+    geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ll().x(),mbr.ll().y(),0.0)));
+    geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ur().x(),mbr.ll().y(),0.0)));
+    geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ur().x(),mbr.ur().y(),0.0)));
+    geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ll().x(),mbr.ur().y(),0.0)));
+    
+    bbox->ll.x = geoMbr.ll().x();
+    bbox->ll.y = geoMbr.ll().y();
+    bbox->ur.x = geoMbr.ur().x();
+    bbox->ur.y = geoMbr.ur().y();
+}
+
 - (NSArray *)loadedFrames
 {
     std::vector<WhirlyKit::FrameLoadStatus> frameStatus;

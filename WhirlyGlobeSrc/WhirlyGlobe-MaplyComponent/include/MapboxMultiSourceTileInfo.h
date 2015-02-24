@@ -24,11 +24,15 @@
 /** @brief Used to represent a Mapbox source compiled from multiple individual sources.
     @details You can use these to merge different sources together (assuming they can be merged), returning image and/or vector tiles.
   */
-@interface MapboxMultiSourceTileInfo : MaplyRemoteTileInfo
+@interface MapboxMultiSourceTileInfo : MaplyRemoteTileInfo <MaplyRemoteTileSourceDelegate>
 
 /** @brief Initialze the multi source tile info object.  Fill in everything else later.
   */
 - (id)initWithViewC:(MaplyBaseViewController *)viewC;
+
+/** @brief The object needs this if you're parsing vector tiles.
+  */
+@property (nonatomic,weak) MaplyQuadImageTilesLayer *imageLayer;
 
 /** @brief The cache directory where we'll store combo tiles.
     @details If set, we'll store the cached returns for image and/or vector tiles.  If not set, we won't cache.
