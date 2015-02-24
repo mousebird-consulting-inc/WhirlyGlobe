@@ -306,6 +306,11 @@ typedef enum {MaplyImageIntRGBA,
  */
 - (NSArray *)loadedFrames;
 
+/** @brief Return the bounding box for a given tile.
+    @details This calculates the bounding box (in geographic) for the given tile.
+  */
+- (void)geoBoundsforTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
+
 /** @brief Do a hard reset of the layer.
     @details This will clean out all the layers resources and force it to start loading again.
     @details Call this right after you change a tile source.  This lets you change the tile source to something incompatible with the previous one.
