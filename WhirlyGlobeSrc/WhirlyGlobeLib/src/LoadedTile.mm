@@ -1202,8 +1202,6 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
                     }
                     childDrawIds[whichChild] = EmptyIdentity;
                     childSkirtDrawIds[whichChild] = EmptyIdentity;
-                    
-                    nodesDisabled.push_back(childTile->nodeInfo.ident);
                 }
                 
                 childrenExist = true;
