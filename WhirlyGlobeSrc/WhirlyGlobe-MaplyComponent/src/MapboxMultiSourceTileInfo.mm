@@ -44,6 +44,7 @@ public:
     MaplyMapnikVectorTileParser *tileParser;
     // Specific tile URLs, if we have them
     NSArray *tileURLs;
+    UIColor *backgroundColor;
     int minZoom,maxZoom;
 };
 
@@ -106,6 +107,13 @@ public:
 
 - (bool)addVectorMap:(NSString *)map style:(NSData *)styleData styleType:(MapnikStyleType)styleType minZoom:(int)minZoom maxZoom:(int)maxZoom
 {
+    SingleTileSource source;
+    source.isImage = false;
+    source.map = map;
+    source.minZoom = minZoom;
+    source.maxZoom = maxZoom;
+    source.ext = @"vector.pbf";
+
     // Parse the style sheet
     NSObject<MaplyVectorStyleDelegate> *styleSet = nil;
     switch (styleType)
@@ -115,6 +123,7 @@ public:
             MapnikStyleSet *mapnikStyleSet = [[MapnikStyleSet alloc] initForViewC:viewC];
             [mapnikStyleSet loadXmlData:styleData];
             [mapnikStyleSet generateStyles];
+            source.backgroundColor = mapnikStyleSet.backgroundColor;
             styleSet = mapnikStyleSet;
         }
             break;
@@ -127,13 +136,6 @@ public:
     }
     
     MaplyMapnikVectorTileParser *tileParser = [[MaplyMapnikVectorTileParser alloc] initWithStyle:styleSet viewC:viewC];
-
-    SingleTileSource source;
-    source.isImage = false;
-    source.map = map;
-    source.minZoom = minZoom;
-    source.maxZoom = maxZoom;
-    source.ext = @"vector.pbf";
     source.styleSet = styleSet;
     source.tileParser = tileParser;
     sources.push_back(source);
@@ -142,7 +144,7 @@ public:
     return true;
 }
 
-- (bool)addTileSpec:(NSDictionary *)jsonDict
+- (bool)addTileSpec:(NSDictionary *)jsonDict minZoom:(int)minZoom maxZoom:(int)maxZoom
 {
     SingleTileSource source;
     source.isImage = false;
@@ -164,12 +166,23 @@ public:
         return false;
     }
     
-    source.minZoom = [jsonDict[@"minzoom"] intValue];
-    source.maxZoom = [jsonDict[@"maxzoom"] intValue];
+    if (minZoom == -1)
+        source.minZoom = [jsonDict[@"minzoom"] intValue];
+    else
+        source.minZoom = minZoom;
+    if (maxZoom == -1)
+        source.maxZoom = [jsonDict[@"maxzoom"] intValue];
+    else
+        source.maxZoom = maxZoom;
     sources.push_back(source);
     [self addedSource:sources.size()-1];
     
     return true;
+}
+
+- (bool)addTileSpec:(NSDictionary *)jsonDict
+{
+    return [self addTileSpec:jsonDict minZoom:-1 maxZoom:-1];
 }
 
 - (void)addedSource:(int)which
@@ -193,7 +206,7 @@ public:
     std::vector<int> &whichIDs = sourcesByZoom[level];
     for (unsigned int ii=0;ii<whichIDs.size();ii++)
     {
-        partSources.push_back(&sources[ii]);
+        partSources.push_back(&sources[whichIDs[ii]]);
     }
 }
 
@@ -225,6 +238,8 @@ public:
         // Pick a base URL and build the full URL
         NSString *baseURL = baseURLs[tileID.x%baseURLs.size()];
         fullURLStr = [NSString stringWithFormat:@"%@/%@/%d/%d/%d.%@",baseURL,source->map,tileID.level,tileID.x,y,source->ext];
+        if (_accessToken)
+            fullURLStr = [fullURLStr stringByAppendingFormat:@"?access_token=%@",_accessToken];
     }
     NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
     if (self.timeOut != 0.0)
@@ -262,17 +277,27 @@ public:
     
     // Must be a vector tile, so parse it
     MaplyBoundingBox bbox;
-    [_imageLayer geoBoundsforTile:tileID bbox:&bbox];
-    MaplyVectorTileData *vecTileData = [source->tileParser buildObjects:tileData tile:tileID geoBounds:bbox];
+
+    // The tile parser wants bounds in meters(ish)
+    [_imageLayer boundsForTile:tileID bbox:&bbox];
+    bbox.ll.x *= 20037508.342789244/M_PI;
+    bbox.ll.y *= 20037508.342789244/(M_PI);
+    bbox.ur.x *= 20037508.342789244/M_PI;
+    bbox.ur.y *= 20037508.342789244/(M_PI);
+    
+    MaplyVectorTileData *vecTileData = [source->tileParser buildObjects:tileData tile:tileID bounds:bbox];
     @synchronized(self)
     {
         vecTiles[MaplyTileIDString(tileID)] = vecTileData;
     }
     
+    // Turn on the new data
+    [viewC enableObjects:vecTileData.compObjs mode:MaplyThreadCurrent];
+    
     // Make up a fake image to return
     CGSize size = CGSizeMake(32, 32);
     UIGraphicsBeginImageContextWithOptions(size, YES, 0);
-    [[UIColor redColor] setFill];
+    [source->backgroundColor setFill];
     UIRectFill(CGRectMake(0, 0, size.width, size.height));
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
@@ -283,21 +308,59 @@ public:
 // Letting us know a tile failed to load
 - (void) remoteTileSource:(MaplyRemoteTileSource *)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *)error
 {
+    MaplyVectorTileData *vecTileData = nil;
     @synchronized(self)
     {
+        NSString *ident = MaplyTileIDString(tileID);
+        vecTileData  = vecTiles[ident];
         [vecTiles removeObjectForKey:MaplyTileIDString(tileID)];
     }
+
+    if (vecTileData)
+        [viewC removeObjects:vecTileData.compObjs];
 }
 
 // The given tile unloaded
 - (void)remoteTileSource:(MaplyRemoteTileSource *)tileSource tileUnloaded:(MaplyTileID)tileID
 {
+    MaplyVectorTileData *vecTileData = nil;
     @synchronized(self)
     {
-        [vecTiles removeObjectForKey:MaplyTileIDString(tileID)];
+        NSString *ident = MaplyTileIDString(tileID);
+        vecTileData  = vecTiles[ident];
+        [vecTiles removeObjectForKey:ident];
     }
+    
+    if (vecTileData)
+        [viewC removeObjects:vecTileData.compObjs mode:MaplyThreadCurrent];
 }
 
+- (void)remoteTileSource:(id)tileSource tileEnabled:(MaplyTileID)tileID
+{
+    MaplyVectorTileData *vecTileData = nil;
+    @synchronized(self)
+    {
+        NSString *ident = MaplyTileIDString(tileID);
+        vecTileData  = vecTiles[ident];
+        [vecTiles removeObjectForKey:ident];
+    }
+    
+    if (vecTileData)
+        [viewC enableObjects:vecTileData.compObjs mode:MaplyThreadCurrent];
+}
 
+- (void)remoteTileSource:(id)tileSource tileDisabled:(MaplyTileID)tileID
+{
+    MaplyVectorTileData *vecTileData = nil;
+    @synchronized(self)
+    {
+        NSString *ident = MaplyTileIDString(tileID);
+        vecTileData  = vecTiles[ident];
+        [vecTiles removeObjectForKey:ident];
+    }
+    
+    if (vecTileData)
+        [viewC disableObjects:vecTileData.compObjs mode:MaplyThreadCurrent];
+}
 
 @end

@@ -309,7 +309,12 @@ typedef enum {MaplyImageIntRGBA,
 /** @brief Return the bounding box for a given tile.
     @details This calculates the bounding box (in geographic) for the given tile.
   */
-- (void)geoBoundsforTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
+- (void)geoBoundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
+
+/** @brief Return the bounding box for a given tile.
+    @details This calculate the bounding box in local coordinates for the given tile.
+  */
+- (void)boundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
 
 /** @brief Do a hard reset of the layer.
     @details This will clean out all the layers resources and force it to start loading again.

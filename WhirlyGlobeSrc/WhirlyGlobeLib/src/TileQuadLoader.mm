@@ -303,7 +303,16 @@ using namespace WhirlyKit;
                     Quadtree::Identifier childIdent(2*theTile->nodeInfo.ident.x+ix,2*theTile->nodeInfo.ident.y+iy,theTile->nodeInfo.ident.level+1);
                     childTiles[iy*2+ix] = [self getTile:childIdent];
                 }
-            theTile->updateContents(tileBuilder,childTiles,currentImage0,currentImage1,changeRequests);
+            std::vector<Quadtree::Identifier> nodesEnabled,nodesDisabled;
+            theTile->updateContents(tileBuilder,childTiles,currentImage0,currentImage1,changeRequests,nodesEnabled,nodesDisabled);
+            
+            // Let the delegate know about enables and disables
+            if (!nodesEnabled.empty() && [dataSource respondsToSelector:@selector(tileWasEnabledLevel:col:row:)])
+                for (const Quadtree::Identifier &ident : nodesEnabled)
+                    [dataSource tileWasEnabledLevel:ident.level col:ident.x row:ident.y];
+            if (!nodesDisabled.empty() && [dataSource respondsToSelector:@selector(tileWasDisabledLevel:col:row:)])
+                for (const Quadtree::Identifier &ident : nodesDisabled)
+                    [dataSource tileWasDisabledLevel:ident.level col:ident.x row:ident.y];
         }
     }
     parents.clear();

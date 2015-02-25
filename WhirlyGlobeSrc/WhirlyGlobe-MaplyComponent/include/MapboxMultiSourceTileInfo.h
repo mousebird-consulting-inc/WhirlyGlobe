@@ -41,7 +41,7 @@
 
 /** @brief If set, we'll use an access key to get map data.
   */
-@property (nonatomic) NSString *accessKey;
+@property (nonatomic) NSString *accessToken;
 
 /** @brief Add an image based map covering the given levels.
     @details This adds an image based map of the given type (e.g. jpg or png) at the given levels.
@@ -57,5 +57,11 @@
     @details This version parses a tile spec and figures out what we're loading from there.
   */
 - (bool)addTileSpec:(NSDictionary *)tileSpec;
+
+/** @brief Add a vector or image map, depending on the tile spec.
+    @details This version parses a tile spec and figures out what we're loading from there.
+    @details You can also override which zoom levels to use.
+ */
+- (bool)addTileSpec:(NSDictionary *)tileSpec minZoom:(int)minZoom maxZoom:(int)maxZoom;
 
 @end
