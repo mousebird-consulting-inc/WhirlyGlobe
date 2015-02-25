@@ -143,6 +143,7 @@ typedef enum {
         }
         // Just turn fade off for these
         subStyle->desc[kMaplyFade] = @(0.0);
+        subStyle->desc[kMaplyEnable] = @NO;
 
         [self resolveVisibility:styleEntry settings:settings desc:subStyle->desc];
         
@@ -231,7 +232,7 @@ typedef enum {
 
         // Note: This should be MaplyThreadCurrent, but...
         //   We need a GL context present for the text rendering
-        MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc mode:MaplyThreadAny];
+        MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc mode:MaplyThreadCurrent];
         if (compObj)
             [compObjs addObject:compObj];
     }

@@ -53,7 +53,8 @@
                 @{kMaplyFilled: @(YES),
                  kMaplyDrawPriority: @(drawPriority+kMaplyVectorDrawPriorityDefault),
                   kMaplyVecCentered: @(true),
-                  kMaplySelectable: @(self.selectable)
+                  kMaplySelectable: @(self.selectable),
+                  kMaplyEnable: @(NO)
                  }];
         
         if (styleEntry[@"fill"])
