@@ -196,11 +196,19 @@
   */
 - (void) remoteTileSource:(id)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *)error;
 
+/** @brief Called when the tile is disabled.
+ */
+- (void)remoteTileSource:(id)tileSource tileDisabled:(MaplyTileID)tileID;
+
+/** @brief Called when the tile is enabled.
+ */
+- (void)remoteTileSource:(id)tileSource tileEnabled:(MaplyTileID)tileID;
+
 /** @brief Called when the tile is unloaded.
     @details Normally you won't get called when an image or vector tile is unloaded from memory.  If you set this, you will.
     @details You're not required to do anything, but you can clean up data of your own if you like.
     @details You will be called on another thread, so act accordingly.
-    @param tileID The tile tha that just got unloaded.
+    @param tileID The tile that that just got unloaded.
  */
 - (void)remoteTileSource:(id)tileSource tileUnloaded:(MaplyTileID)tileID;
 

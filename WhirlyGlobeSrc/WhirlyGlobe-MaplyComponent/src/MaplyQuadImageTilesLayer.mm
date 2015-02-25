@@ -93,7 +93,7 @@ using namespace WhirlyKit;
     bool variableSizeTiles;
     bool canDoValidTiles;
     bool canFetchFrames;
-    bool wantsUnload;
+    bool wantsUnload,wantsEnabled,wantsDisabled;
     std::vector<int> framePriorities;
 }
 
@@ -146,6 +146,8 @@ using namespace WhirlyKit;
     
     // Wants unload callbacks
     wantsUnload = [_tileSource respondsToSelector:@selector(tileUnloaded:)];
+    wantsEnabled = [_tileSource respondsToSelector:@selector(tileWasEnabled:)];
+    wantsDisabled = [_tileSource respondsToSelector:@selector(tileWasDisabled:)];
     
     return self;
 }
@@ -310,10 +312,16 @@ using namespace WhirlyKit;
         tileLoader.color = [_color asRGBAColor];
 }
 
-- (void)geoBoundsforTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+- (void)geoBoundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
 {
     if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
         return;
+
+    if (!_flipY)
+    {
+        int y = (1<<tileID.level)-tileID.y-1;
+        tileID.y = y;
+    }
     
     Mbr mbr = quadLayer.quadtree->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
     
@@ -328,6 +336,25 @@ using namespace WhirlyKit;
     bbox->ll.y = geoMbr.ll().y();
     bbox->ur.x = geoMbr.ur().x();
     bbox->ur.y = geoMbr.ur().y();
+}
+
+- (void)boundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+{
+    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+        return;
+    
+    if (!_flipY)
+    {
+        int y = (1<<tileID.level)-tileID.y-1;
+        tileID.y = y;
+    }
+    
+    Mbr mbr = quadLayer.quadtree->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
+    
+    bbox->ll.x = mbr.ll().x();
+    bbox->ll.y = mbr.ll().y();
+    bbox->ur.x = mbr.ur().x();
+    bbox->ur.y = mbr.ur().y();
 }
 
 - (NSArray *)loadedFrames
@@ -1032,6 +1059,40 @@ using namespace WhirlyKit;
         }
 
         [_tileSource tileUnloaded:tileID];
+    }
+}
+
+- (void)tileWasEnabledLevel:(int)level col:(int)col row:(int)row
+{
+    if (wantsEnabled)
+    {
+        MaplyTileID tileID;
+        tileID.x = col;  tileID.y = row;  tileID.level = level;
+        // If we're not doing OSM style addressing, we need to flip the Y back to TMS
+        if (!_flipY)
+        {
+            int y = (1<<level)-tileID.y-1;
+            tileID.y = y;
+        }
+        
+        [_tileSource tileWasEnabled:tileID];
+    }
+}
+
+- (void)tileWasDisabledLevel:(int)level col:(int)col row:(int)row
+{
+    if (wantsDisabled)
+    {
+        MaplyTileID tileID;
+        tileID.x = col;  tileID.y = row;  tileID.level = level;
+        // If we're not doing OSM style addressing, we need to flip the Y back to TMS
+        if (!_flipY)
+        {
+            int y = (1<<level)-tileID.y-1;
+            tileID.y = y;
+        }
+        
+        [_tileSource tileWasDisabled:tileID];
     }
 }
 
