@@ -64,7 +64,7 @@ static double MAX_EXTENT = 20037508.342789244;
     return self;
 }
 
-- (MaplyVectorTileData *)buildObjects:(NSData *)tileData tile:(MaplyTileID)tileID geoBounds:(MaplyBoundingBox)bbox
+- (MaplyVectorTileData *)buildObjects:(NSData *)tileData tile:(MaplyTileID)tileID bounds:(MaplyBoundingBox)bbox
 {
     //calulate tile bounds and coordinate shift
     int tileSize = 256;
@@ -613,7 +613,7 @@ static double MAX_EXTENT = 20037508.342789244;
                     }
                 }
                 
-                MaplyVectorTileData *retData = [_tileParser buildObjects:tileData tile:tileID geoBounds:bbox];
+                MaplyVectorTileData *retData = [_tileParser buildObjects:tileData tile:tileID bounds:bbox];
                 if (!retData)
                 {
                     NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,flippedYTile.y);

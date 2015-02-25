@@ -96,7 +96,8 @@ typedef enum {
 @property (nonatomic, assign) BOOL debugOutline;
 
 /// @brief Construct the visible objects for the given tile
-- (MaplyVectorTileData *)buildObjects:(NSData *)data tile:(MaplyTileID)tileID geoBounds:(MaplyBoundingBox)bbox;
+/// @param bbox is in the local coordinate system (likely Spherical Mercator)
+- (MaplyVectorTileData *)buildObjects:(NSData *)data tile:(MaplyTileID)tileID bounds:(MaplyBoundingBox)bbox;
 
 @end
 

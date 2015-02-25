@@ -88,6 +88,12 @@
 /// You don't have to do anything
 - (void)tileWasUnloadedLevel:(int)level col:(int)col row:(int)row;
 
+/// Optional callback for when tile is made visible
+- (void)tileWasEnabledLevel:(int)level col:(int)col row:(int)row;
+
+/// Optional callback for when tile is made invisible
+- (void)tileWasDisabledLevel:(int)level col:(int)col row:(int)row;
+
 @end
 
 /** The Globe Quad Tile Loader responds to the Quad Loader protocol and

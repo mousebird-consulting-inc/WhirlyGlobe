@@ -262,7 +262,7 @@ public:
     void clearContents(TileBuilder *tileBuilder,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Update what we're displaying based on the quad tree, particulary for children
-    void updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[],int currentImage0,int currentImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    void updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[],int currentImage0,int currentImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests,std::vector<Quadtree::Identifier> &nodesEnabled,std::vector<Quadtree::Identifier> &nodesDisabled);
     
     /// Switch to the given images
     void setCurrentImages(TileBuilder *tileBuilder,int whichImage0,int whichImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
