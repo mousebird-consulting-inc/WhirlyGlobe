@@ -27,6 +27,26 @@
 #import "Scene.h"
 #import "SelectionManager.h"
 
+namespace WhirlyKit
+{
+
+/// Used to represent a single billboard polygon
+///  with one texture
+class SingleBillboardPoly
+{
+public:
+    /// Coordinates of polygons
+    std::vector<WhirlyKit::Point2d> pts;
+    /// Texture coordinates to go with polygons
+    std::vector<WhirlyKit::TexCoord> texCoords;
+    /// Color of geometry
+    UIColor *color;
+    /// Texture to use
+    WhirlyKit::SimpleIdentity texId;
+};
+
+}
+
 // Used to pass parameters around between threads
 @interface WhirlyKitBillboardInfo : NSObject
 
@@ -51,15 +71,11 @@
 @interface WhirlyKitBillboard : NSObject
 
 /// Center in display coordinates
-@property (nonatomic,assign) WhirlyKit::Point3f center;
-/// Height in display coordinates
-@property (nonatomic,assign) float height;
-/// Width in display coordinates
-@property (nonatomic,assign) float width;
-/// Color of geometry
-@property (nonatomic,assign) UIColor *color;
-/// Texture to use
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity texId;
+@property (nonatomic,assign) WhirlyKit::Point3d center;
+/// Polygons that make up this billboard (there can be more than one)
+@property (nonatomic,assign) std::vector<WhirlyKit::SingleBillboardPoly> &polys;
+/// Size (for selection)
+@property (nonatomic,assign) WhirlyKit::Point2d &size;
 /// If set, this marker should be made selectable
 ///  and it will be if the selection layer has been set
 @property (nonatomic,assign) bool isSelectable;
@@ -96,7 +112,7 @@ public:
     BillboardDrawableBuilder(Scene *scene,ChangeSet &changes,BillboardSceneRep *sceneRep,WhirlyKitBillboardInfo *billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId);
     ~BillboardDrawableBuilder();
     
-    void addBillboard(Point3f center,float width,float height,UIColor *color);
+    void addBillboard(Point3d center,const std::vector<WhirlyKit::Point2d> &pts,const std::vector<WhirlyKit::TexCoord> &texCoords,UIColor *color);
     
     void flush();
     

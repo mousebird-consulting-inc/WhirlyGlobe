@@ -29,9 +29,14 @@ BillboardDrawable::BillboardDrawable() : BasicDrawable("Billboard")
     offsetIndex = addAttribute(BDFloat3Type, "a_offset");
 }
     
-void BillboardDrawable::addOffset(Point3f offset)
+void BillboardDrawable::addOffset(const Point3f &offset)
 {
     addAttributeValue(offsetIndex, offset);
+}
+
+void BillboardDrawable::addOffset(const Point3d &offset)
+{
+    addAttributeValue(offsetIndex, Point3f(offset.x(),offset.y(),offset.z()));
 }
 
 static const char *vertexShaderTri =

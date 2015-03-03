@@ -51,10 +51,10 @@ public:
     void setFromTex(const TexCoord &texOrg,const TexCoord &texDest);
     
     /// Convert the texture coordinate to the destination texture
-    TexCoord processTexCoord(const TexCoord &);
+    TexCoord processTexCoord(const TexCoord &) const;
     
     /// Convert a list of texture coordinates to the dest texture
-    void processTexCoords(std::vector<TexCoord> &);
+    void processTexCoords(std::vector<TexCoord> &) const;
     
     /// Sort operator
     bool operator < (const SubTexture &that) const { return this->myId < that.myId; }

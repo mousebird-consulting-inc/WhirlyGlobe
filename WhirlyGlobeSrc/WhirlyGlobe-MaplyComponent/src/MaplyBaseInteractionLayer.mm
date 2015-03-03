@@ -34,6 +34,7 @@
 #import "MaplyTexture_private.h"
 #import "MaplyMatrix_private.h"
 #import "MaplyGeomModel_private.h"
+#import "MaplyScreenObject_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -2079,18 +2080,16 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     ChangeSet changes;
     BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
-    if (billManager)
+    WhirlyKitFontTextureManager *fontTexManager = scene->getFontTextureManager();
+    if (billManager && fontTexManager)
     {
         NSMutableArray *wkBills = [NSMutableArray array];
         for (MaplyBillboard *bill in bills)
         {
             WhirlyKitBillboard *wkBill = [[WhirlyKitBillboard alloc] init];
-            Point3f localPt = coordSys->geographicToLocal(GeoCoord(bill.center.x,bill.center.y));
-            Point3f dispPt = coordAdapter->localToDisplay(Point3f(localPt.x(),localPt.y(),bill.center.z));
+            Point3d localPt = coordSys->geographicToLocal3d(GeoCoord(bill.center.x,bill.center.y));
+            Point3d dispPt = coordAdapter->localToDisplay(Point3d(localPt.x(),localPt.y(),bill.center.z));
             wkBill.center = dispPt;
-            wkBill.width = bill.size.width;
-            wkBill.height = bill.size.height;
-            wkBill.color = bill.color;
             wkBill.isSelectable = bill.selectable;
             if (wkBill.isSelectable)
                 wkBill.selectID = Identifiable::genId();
@@ -2102,24 +2101,63 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 pthread_mutex_unlock(&selectLock);
                 compObj.selectIDs.insert(wkBill.selectID);
             }
-        
-            UIImage *image = bill.image;
-            if (image)
+
+            MaplyScreenObject *screenObj = bill.screenObj;
+            if (!screenObj)
+                continue;
+            // Work through the individual polygons in a billboard
+            for (const SimplePoly &poly : screenObj->polys)
             {
-                MaplyTexture *tex = nil;
-                if ([image isKindOfClass:[UIImage class]])
+                SingleBillboardPoly billPoly;
+                billPoly.pts = poly.pts;
+                billPoly.texCoords = poly.texCoords;
+                billPoly.color = poly.color;
+                if (poly.texture)
                 {
-                    tex = [self addImage:image imageFormat:MaplyImageIntRGBA mode:threadMode];
-                } else if ([image isKindOfClass:[MaplyTexture class]])
-                {
-                    tex = (MaplyTexture *)image;
+                    MaplyTexture *tex = nil;
+                    if ([poly.texture isKindOfClass:[UIImage class]])
+                    {
+                        tex = [self addImage:poly.texture imageFormat:MaplyImageIntRGBA mode:threadMode];
+                    } else if ([poly.texture isKindOfClass:[MaplyTexture class]])
+                    {
+                        tex = (MaplyTexture *)poly.texture;
+                    }
+                    if (tex)
+                    {
+                        compObj.textures.insert(tex);
+                        billPoly.texId = tex.texID;
+                    }
                 }
-                if (tex)
-                {
-                    compObj.textures.insert(tex);
-                    wkBill.texId = tex.texID;
-                }
+                wkBill.polys.push_back(billPoly);
             }
+            
+            // Now for the
+            for (const StringWrapper &strWrap : screenObj->strings)
+            {
+                // Convert the string to polygons
+                DrawableString *drawStr = [fontTexManager addString:strWrap.str changes:changes];
+                for (const DrawableString::Rect &rect : drawStr->glyphPolys)
+                {
+                    SingleBillboardPoly billPoly;
+                    billPoly.pts.resize(4);
+                    billPoly.texCoords.resize(4);
+                    billPoly.texId = rect.subTex.texId;
+                    billPoly.pts[0] = Point2d(rect.pts[0].x(),rect.pts[0].y());
+                    billPoly.texCoords[0] = rect.subTex.processTexCoord(TexCoord(0,0));
+                    billPoly.pts[1] = Point2d(rect.pts[1].x(),rect.pts[0].y());
+                    billPoly.texCoords[1] = rect.subTex.processTexCoord(TexCoord(1,0));
+                    billPoly.pts[2] = Point2d(rect.pts[1].x(),rect.pts[1].y());
+                    billPoly.texCoords[2] = rect.subTex.processTexCoord(TexCoord(1,1));
+                    billPoly.pts[3] = Point2d(rect.pts[0].x(),rect.pts[1].y());
+                    billPoly.texCoords[3] = rect.subTex.processTexCoord(TexCoord(0,1));
+                    
+                    wkBill.polys.push_back(billPoly);
+                }
+                
+                compObj.drawStringIDs.insert(drawStr->getId());
+                delete drawStr;
+            }
+            
             [wkBills addObject:wkBill];
         }
         
@@ -2172,6 +2210,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
     BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
     GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
+    WhirlyKitFontTextureManager *fontTexManager = scene->getFontTextureManager();
 
     ChangeSet changes;
         
@@ -2210,6 +2249,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     billManager->removeBillboards(userObj.billIDs, changes);
                 if (geomManager && !userObj.geomIDs.empty())
                     geomManager->removeGeometry(userObj.geomIDs, changes);
+                if (fontTexManager && !userObj.drawStringIDs.empty())
+                    for (SimpleIdentity dStrID : userObj.drawStringIDs)
+                        [fontTexManager removeString:dStrID changes:changes];
                 
                 // And associated textures
                 for (std::set<MaplyTexture *>::iterator it = userObj.textures.begin();
