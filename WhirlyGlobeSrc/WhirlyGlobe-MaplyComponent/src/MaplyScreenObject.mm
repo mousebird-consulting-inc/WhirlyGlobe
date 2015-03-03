@@ -75,7 +75,9 @@ using namespace WhirlyKit;
     for (const SimplePoly &poly : polys)
     {
         for (const Point2d &pt : poly.pts)
+        {
             mbr.addPoint(pt);
+        }
     }
     
     for (const StringWrapper &str : strings)
@@ -109,7 +111,7 @@ using namespace WhirlyKit;
     
     for (StringWrapper &str : strings)
     {
-        str.mat = str.mat * mat;
+        str.mat = mat * str.mat;
     }
 }
 
@@ -126,7 +128,7 @@ using namespace WhirlyKit;
     Eigen::Matrix3d mat = trans.matrix();
     for (StringWrapper &str : strings)
     {
-        str.mat = str.mat * mat;
+        str.mat = mat * str.mat;
     }
 }
 
