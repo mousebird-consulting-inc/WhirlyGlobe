@@ -258,7 +258,7 @@ void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const std::ve
     pthread_mutex_unlock(&mutex);
 }
 
-void SelectionManager::addSelectableBillboard(SimpleIdentity selectId,Point3f center,Point3f norm,Point2f size,float minVis,float maxVis,bool enable)
+void SelectionManager::addSelectableBillboard(SimpleIdentity selectId,const Point3d &center,const Point3d &norm,const Point2d &size,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -267,7 +267,7 @@ void SelectionManager::addSelectableBillboard(SimpleIdentity selectId,Point3f ce
     newSelect.selectID = selectId;
     newSelect.center = center;
     newSelect.normal = norm;
-    newSelect.size = size;
+    
     newSelect.enable = enable;
     newSelect.minVis = minVis;
     newSelect.maxVis = maxVis;
@@ -871,9 +871,9 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
                 
                 // Come up with a rectangle in display space
                 std::vector<Point3d> poly(4);
-                Vector3d normal3d = Vector3fToVector3d(sel.normal);
+                Vector3d normal3d = sel.normal;
                 Point3d axisX = eyeVec.cross(normal3d);
-                Point3d center3d = Vector3fToVector3d(sel.center);
+                Point3d center3d = sel.center;
 //                Point3d axisZ = axisX.cross(Vector3fToVector3d(sel.normal));
                 poly[0] = -sel.size.x()/2.0 * axisX + center3d;
                 poly[3] = sel.size.x()/2.0 * axisX + center3d;
@@ -892,7 +892,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
                 {
                     if (PointInPolygon(touchPt, screenPts))
                     {
-                        closeDist3d = (Vector3fToVector3d(sel.center) - eyePos).norm();
+                        closeDist3d = (sel.center - eyePos).norm();
                         break;
                     }
                     
@@ -903,7 +903,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
                         float dist2 = (closePt-touchPt).squaredNorm();
                         if (dist2 < maxDist2 && dist2 < closeDist2)
                         {
-                            closeDist3d = (Vector3fToVector3d(sel.center) - eyePos).norm();
+                            closeDist3d = (sel.center - eyePos).norm();
                             closeDist2 = dist2;
                         }
                     }

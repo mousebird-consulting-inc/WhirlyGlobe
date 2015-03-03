@@ -21,4 +21,17 @@
 #import "MaplyBillboard.h"
 
 @implementation MaplyBillboard
+
+- (id)initWithImage:(id)texture color:(UIColor *)color size:(CGSize)size
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _screenObj = [[MaplyScreenObject alloc] init];
+    [_screenObj addImage:texture color:color size:size];
+    
+    return self;
+}
+
 @end
