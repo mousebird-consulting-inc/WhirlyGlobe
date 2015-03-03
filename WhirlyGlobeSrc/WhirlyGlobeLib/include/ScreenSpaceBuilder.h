@@ -138,7 +138,6 @@ protected:
 };
     
 /** Keeps track of the basic information about a screen space object.
-    These are passed around by the
  */
 class ScreenSpaceObject : public Identifiable
 {
