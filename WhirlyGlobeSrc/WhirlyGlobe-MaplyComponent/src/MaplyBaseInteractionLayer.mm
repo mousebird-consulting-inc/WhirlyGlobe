@@ -2105,6 +2105,10 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             MaplyScreenObject *screenObj = bill.screenObj;
             if (!screenObj)
                 continue;
+            MaplyBoundingBox size = [screenObj getSize];
+            Point2d size2d = Point2d(size.ur.x-size.ll.x,size.ur.y-size.ll.y);
+            wkBill.size = size2d;
+
             // Work through the individual polygons in a billboard
             for (const SimplePoly &poly : screenObj->polys)
             {
@@ -2142,14 +2146,20 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     billPoly.pts.resize(4);
                     billPoly.texCoords.resize(4);
                     billPoly.texId = rect.subTex.texId;
-                    billPoly.pts[0] = Point2d(rect.pts[0].x(),rect.pts[0].y());
                     billPoly.texCoords[0] = rect.subTex.processTexCoord(TexCoord(0,0));
-                    billPoly.pts[1] = Point2d(rect.pts[1].x(),rect.pts[0].y());
                     billPoly.texCoords[1] = rect.subTex.processTexCoord(TexCoord(1,0));
-                    billPoly.pts[2] = Point2d(rect.pts[1].x(),rect.pts[1].y());
                     billPoly.texCoords[2] = rect.subTex.processTexCoord(TexCoord(1,1));
-                    billPoly.pts[3] = Point2d(rect.pts[0].x(),rect.pts[1].y());
                     billPoly.texCoords[3] = rect.subTex.processTexCoord(TexCoord(0,1));
+                    billPoly.pts[0] = Point2d(rect.pts[0].x(),rect.pts[0].y());
+                    billPoly.pts[1] = Point2d(rect.pts[1].x(),rect.pts[0].y());
+                    billPoly.pts[2] = Point2d(rect.pts[1].x(),rect.pts[1].y());
+                    billPoly.pts[3] = Point2d(rect.pts[0].x(),rect.pts[1].y());
+                    for (unsigned int ip=0;ip<4;ip++)
+                    {
+                        const Point2d &oldPt = billPoly.pts[ip];
+                        Point3d newPt = strWrap.mat * Point3d(oldPt.x(),oldPt.y(),1.0);
+                        billPoly.pts[ip] = Point2d(newPt.x(),newPt.y());
+                    }
                     
                     wkBill.polys.push_back(billPoly);
                 }

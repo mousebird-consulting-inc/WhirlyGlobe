@@ -265,6 +265,7 @@ void SelectionManager::addSelectableBillboard(SimpleIdentity selectId,const Poin
     
     BillboardSelectable newSelect;
     newSelect.selectID = selectId;
+    newSelect.size = size;
     newSelect.center = center;
     newSelect.normal = norm;
     
