@@ -123,9 +123,9 @@ public:
     // Comparison operator for sorting
     bool operator < (const BillboardSelectable &that) const;
     
-    Point3f center;  // Location of the middle of the base in display space
-    Point3f normal;  // The billboard points up in this direction
-    Point2f size;    // Size of the billboard in display space
+    Point3d center;  // Location of the middle of the base in display space
+    Point3d normal;  // The billboard points up in this direction
+    Point2d size;    // Size of the billboard in display space
 };
   
 typedef std::set<WhirlyKit::BillboardSelectable> BillboardSelectableSet;
@@ -185,7 +185,7 @@ public:
     void addSelectableLinear(SimpleIdentity selectId,const std::vector<Point3f> &pts,float minVis,float maxVis,bool enable);
     
     /// Add a billboard for selection.  Pass in the middle of the base and size
-    void addSelectableBillboard(SimpleIdentity selectId,Point3f center,Point3f norm,Point2f size,float minVis,float maxVis,bool enable);
+    void addSelectableBillboard(SimpleIdentity selectId,const Point3d &center,const Point3d &norm,const Point2d &size,float minVis,float maxVis,bool enable);
     
     /// Remove the given selectable from consideration
     void removeSelectable(SimpleIdentity selectId);
