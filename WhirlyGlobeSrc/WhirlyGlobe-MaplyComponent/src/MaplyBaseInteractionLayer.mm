@@ -2103,7 +2103,10 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     // Might be a custom shader on these
     [self resolveShader:inDesc defaultShader:nil];
-    
+
+    // May need a temporary context when setting up label textures
+    EAGLContext *tmpContext = [self setupTempContext:threadMode];
+
     SimpleIdentity billShaderID = [inDesc[kMaplyShader] intValue];
     if (billShaderID == EmptyIdentity)
         billShaderID = scene->getProgramIDBySceneName([kMaplyBillboardShader cStringUsingEncoding:NSASCIIStringEncoding]);
@@ -2165,7 +2168,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 wkBill.polys.push_back(billPoly);
             }
             
-            // Now for the
+            // Now for the strings
             for (const StringWrapper &strWrap : screenObj->strings)
             {
                 // Convert the string to polygons
@@ -2212,6 +2215,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         [userObjects addObject:compObj];
         compObj.underConstruction = false;
     }
+    
+    [self clearTempContext:tmpContext];
 }
 
 // Add lofted polys
