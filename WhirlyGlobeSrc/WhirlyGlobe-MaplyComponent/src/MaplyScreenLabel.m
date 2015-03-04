@@ -38,3 +38,7 @@
 
 
 @end
+
+@implementation MaplyMovingScreenLabel
+
+@end

@@ -45,6 +45,9 @@ public:
     // IDs kept with the selection manager
     SimpleIDSet selectIDs;
     
+    // Bounding box (for use in instances of a base model)
+    Point3d ll,ur;
+    
     // If set, the amount of time to fade out before deletion
     float fade;
     
@@ -141,6 +144,12 @@ public:
     
     /// Add raw geometry at the given location
     SimpleIdentity addGeometry(std::vector<GeometryRaw> &geom,const std::vector<GeometryInstance> &instances,NSDictionary *desc,ChangeSet &changes);
+    
+    /// Add geometry we're planning to reuse (as a model, for example)
+    SimpleIdentity addBaseGeometry(std::vector<GeometryRaw> &geom,ChangeSet &changes);
+    
+    /// Add instances that reuse base geometry
+    SimpleIdentity addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,NSDictionary *desc,ChangeSet &changes);
 
     /// Enable/disable active billboards
     void enableGeometry(SimpleIDSet &billIDs,bool enable,ChangeSet &changes);

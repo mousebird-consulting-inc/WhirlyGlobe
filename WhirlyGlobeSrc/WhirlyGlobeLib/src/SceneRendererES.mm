@@ -63,6 +63,8 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     _viewAndModelMat4d = info.viewAndModelMat4d;
     _mvpMat = info.mvpMat;
     _viewModelNormalMat = info.viewModelNormalMat;
+    _pvMat = info.pvMat;
+    _pvMat4d = info.pvMat4d;
     _offsetMatrices = info.offsetMatrices;
     _scene = info.scene;
     _frameLen = info.frameLen;

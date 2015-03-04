@@ -353,6 +353,7 @@ static const float ScreenOverlap = 0.1;
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
+    Eigen::Matrix4d pvMat = projMat4d * viewTrans4d;
     Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
     Eigen::Matrix4d modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
     Eigen::Matrix4f modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
@@ -421,6 +422,9 @@ static const float ScreenOverlap = 0.1;
         baseFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
         baseFrameInfo.viewAndModelMat = modelAndViewMat;
         baseFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
+        Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat);
+        baseFrameInfo.pvMat = pvMat4f;
+        baseFrameInfo.pvMat4d = pvMat;
         [super.theView getOffsetMatrices:baseFrameInfo.offsetMatrices frameBuffer:frameSize];
         Point2d screenSize = [super.theView screenSizeInDisplayCoords:frameSize];
         baseFrameInfo.screenSizeInDisplayCoords = screenSize;
@@ -495,6 +499,7 @@ static const float ScreenOverlap = 0.1;
             WhirlyKitRendererFrameInfo *offFrameInfo = [[WhirlyKitRendererFrameInfo alloc] initWithFrameInfo:baseFrameInfo];
             // Tweak with the appropriate offset matrix
             modelAndViewMat4d = viewTrans4d * offsetMats[off] * modelTrans4d;
+            pvMat = projMat4d * viewTrans4d * offsetMats[off];
             modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
             mvpMats[off] = projMat4d * modelAndViewMat4d;
             mvpMats4f[off] = Matrix4dToMatrix4f(mvpMats[off]);
@@ -505,6 +510,9 @@ static const float ScreenOverlap = 0.1;
             offFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
             offFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
             offFrameInfo.viewAndModelMat = modelAndViewMat;
+            Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat);
+            offFrameInfo.pvMat = pvMat4f;
+            offFrameInfo.pvMat4d = pvMat;
             
             // If we're looking at a globe, run the culling
             int drawablesConsidered = 0;

@@ -803,6 +803,20 @@ public:
     /// Return the translation matrix if there is one
     const Eigen::Matrix4d *getMatrix() const;
     
+    // Single geometry instance when we're doing multiple instance
+    class SingleInstance
+    {
+    public:
+        SingleInstance() : colorOverride(false) { }
+        
+        bool colorOverride;
+        RGBAColor color;
+        Eigen::Matrix4d mat;
+    };
+    
+    /// Add a instance to the stack of instances this instance represents (mmm, noun overload)
+    void addInstances(const std::vector<SingleInstance> &insts);
+
 protected:
     SimpleIdentity masterID;
     BasicDrawableRef basicDraw;
@@ -817,6 +831,11 @@ protected:
     float minVis;
     bool hasMaxVis;
     float maxVis;
+    
+    // If set, we'll instance this one multiple times
+    std::vector<SingleInstance> instances;
+    // While rendering, which instance we're rendering
+    int whichInstance;
 };
     
 /// Reference counted version of BasicDrawableInstance

@@ -129,6 +129,9 @@ public:
 @property (nonatomic,assign) Eigen::Matrix4f &mvpMat;
 /// Model, and view matrix but for normal transformation
 @property (nonatomic,assign) Eigen::Matrix4f &viewModelNormalMat;
+/// Projection, view, and offset matrices rolled together
+@property (nonatomic,assign) Eigen::Matrix4d &pvMat4d;
+@property (nonatomic,assign) Eigen::Matrix4f &pvMat;
 /// If the visual view supports wrapping, these are the available offset matrices
 @property (nonatomic,assign) std::vector<Eigen::Matrix4d> &offsetMatrices;
 /// Scene itself.  Don't mess with this

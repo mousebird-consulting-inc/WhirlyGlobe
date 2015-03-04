@@ -38,6 +38,8 @@ namespace WhirlyKit
 #define kToolkitDefaultBillboardProgram "Default Billboard"
 /// Screen space shader
 #define kToolkitDefaultScreenSpaceProgram "Default Screenspace"
+/// Screen space shader w/ motion
+#define kToolkitDefaultScreenSpaceMotionProgram "Default Screenspace Motion"
 /// Widened vector shader
 #define kToolkitDefaultWideVectorProgram "Default Wide Vector"
 

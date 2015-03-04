@@ -26,11 +26,13 @@
 namespace WhirlyKit
 {
 
-ScreenSpaceDrawable::ScreenSpaceDrawable() : BasicDrawable("ScreenSpace"), useRotation(false), keepUpright(false)
+ScreenSpaceDrawable::ScreenSpaceDrawable(bool hasMotion) : BasicDrawable("ScreenSpace"), useRotation(false), keepUpright(false), motion(hasMotion)
 {
     offsetIndex = addAttribute(BDFloat2Type, "a_offset");
+    if (hasMotion)
+        dirIndex = addAttribute(BDFloat3Type, "a_dir");
 }
-    
+
 void ScreenSpaceDrawable::setUseRotation(bool newVal)
 {
     useRotation = newVal;
@@ -51,11 +53,33 @@ void ScreenSpaceDrawable::addOffset(const Point2d &offset)
     addAttributeValue(offsetIndex, Point2f(offset.x(),offset.y()));
 }
     
+void ScreenSpaceDrawable::addDir(const Point3d &dir)
+{
+    addAttributeValue(dirIndex, Point3f(dir.x(),dir.y(),dir.z()));
+}
+
+void ScreenSpaceDrawable::addDir(const Point3f &dir)
+{
+    addAttributeValue(dirIndex, dir);
+}
+
+void ScreenSpaceDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
+{
+    if (motion)
+    {
+        // Note: Unfortunate side effect of the instanc
+        NSTimeInterval year = 356*24*60*60;
+        [renderer setRenderUntil:(CFAbsoluteTimeGetCurrent()+year)];
+    }
+}
+
 void ScreenSpaceDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
     if (frameInfo.program)
     {
         frameInfo.program->setUniform("u_scale", Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
+        if (motion)
+            frameInfo.program->setUniform("u_time", (float)(frameInfo.currentTime - startTime));
     }
 
     BasicDrawable::draw(frameInfo,scene);
@@ -92,6 +116,40 @@ static const char *vertexShaderTri =
 "   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(a_offset.x*u_scale.x,a_offset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);"
 "}"
 ;
+    
+static const char *vertexShaderMotionTri =
+"uniform mat4  u_mvpMatrix;"
+"uniform mat4  u_mvMatrix;"
+"uniform mat4  u_mvNormalMatrix;"
+"uniform float u_fade;"
+"uniform vec2  u_scale;"
+"uniform float u_time;"
+""
+"attribute vec3 a_position;"
+"attribute vec3 a_dir;"
+"attribute vec3 a_normal;"
+"attribute vec2 a_texCoord0;"
+"attribute vec4 a_color;"
+"attribute vec2 a_offset;"
+""
+"varying vec2 v_texCoord;"
+"varying vec4 v_color;"
+""
+"void main()"
+"{"
+"   v_texCoord = a_texCoord0;"
+"   v_color = a_color * u_fade;"
+""
+"   vec3 thePos = a_position + u_time * a_dir;"
+"   vec4 pt = u_mvMatrix * vec4(thePos,1.0);"
+"   pt /= pt.w;"
+"   vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);"
+"   float dot_res = dot(-pt.xyz,testNorm.xyz);"
+"   vec4 screenPt = (u_mvpMatrix * vec4(thePos,1.0));"
+"   screenPt /= screenPt.w;"
+"   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(a_offset.x*u_scale.x,a_offset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);"
+"}"
+;
 
 static const char *fragmentShaderTri =
 "precision lowp float;"
@@ -122,6 +180,20 @@ WhirlyKit::OpenGLES2Program *BuildScreenSpaceProgram()
     
     return shader;
 }
+
+WhirlyKit::OpenGLES2Program *BuildScreenSpaceMotionProgram()
+{
+    OpenGLES2Program *shader = new OpenGLES2Program(kScreenSpaceShaderMotionName,vertexShaderMotionTri,fragmentShaderTri);
+    if (!shader->isValid())
+    {
+        delete shader;
+        shader = NULL;
+    }
     
+    if (shader)
+        glUseProgram(shader->getProgram());
+    
+    return shader;
+}
     
 }
