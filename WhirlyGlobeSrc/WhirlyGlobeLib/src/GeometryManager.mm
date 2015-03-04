@@ -460,6 +460,8 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
         BasicDrawableInstance *drawInst = new BasicDrawableInstance("GeometryManager",baseDrawID);
         drawInst->setEnable(geomInfo.enable);
         //                    draw->setColor([geomInfo.color asRGBAColor]);
+        drawInst->setRequestZBuffer(true);
+        drawInst->setWriteZBuffer(true);
         drawInst->setVisibleRange(geomInfo.minVis, geomInfo.maxVis);
         drawInst->setDrawPriority(geomInfo.drawPriority);
         drawInst->addInstances(singleInsts);

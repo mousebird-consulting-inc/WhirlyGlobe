@@ -810,6 +810,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     if (context)
     {
+        glFlush();
         [EAGLContext setCurrentContext:nil];
 
         // Put this one back for use by another thread
