@@ -1550,6 +1550,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     
     // Model/View/Projection matrix
     prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
+    prog->setUniform("u_pvMatrix", frameInfo.pvMat);
     prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
     prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
     prog->setUniform("u_pMatrix", frameInfo.projMat);
@@ -1937,9 +1938,16 @@ const Eigen::Matrix4d *BasicDrawableInstance::getMatrix() const
 {
     return basicDraw->getMatrix();
 }
+    
+void BasicDrawableInstance::addInstances(const std::vector<SingleInstance> &insts)
+{
+    instances.insert(instances.end(), insts.begin(), insts.end());
+}
 
 void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
+    whichInstance = -1;
+    
     int oldDrawPriority = basicDraw->getDrawPriority();
     RGBAColor oldColor = basicDraw->getColor();
     float oldLineWidth = basicDraw->getLineWidth();
@@ -1956,7 +1964,47 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
     if (hasMinVis || hasMaxVis)
         basicDraw->setVisibleRange(minVis, maxVis);
     
-    basicDraw->draw(frameInfo,scene);
+    // Note: Debugging
+    Matrix4f oldMvpMat = frameInfo.mvpMat;
+
+    // No matrices, so just one instance
+    if (instances.empty())
+        basicDraw->draw(frameInfo,scene);
+    else {
+        // Run through the list of instances
+        for (unsigned int ii=0;ii<instances.size();ii++)
+        {
+            // Change color
+            const SingleInstance &singleInst = instances[ii];
+            whichInstance = ii;
+            if (singleInst.colorOverride)
+                basicDraw->setColor(singleInst.color);
+            else {
+                if (hasColor)
+                    basicDraw->setColor(color);
+                else
+                    basicDraw->setColor(oldColor);
+            }
+
+            // Set the matrix and let the rest do its thing
+            OpenGLES2Program *prog = frameInfo.program;
+            Matrix4f thisMat = Matrix4dToMatrix4f(singleInst.mat);
+            
+            // Note: Testing
+//            Matrix4d mvpMat = frameInfo.pvMat4d * singleInst.mat;
+            Matrix4d mvMat =  frameInfo.viewTrans4d * singleInst.mat;
+            Matrix4f mvpMat4f = frameInfo.projMat * Matrix4dToMatrix4f(mvMat);
+            frameInfo.mvpMat = mvpMat4f;
+            
+            Vector4d testPt = mvMat * Vector4d(1.0,0.0,0.0,1.0);
+            Vector4d testPtOld = frameInfo.viewAndModelMat4d * Vector4d(1.0,0.0,0.0,1.0);
+            
+//            prog->setUniform("u_mMatrix", thisMat);
+            basicDraw->draw(frameInfo,scene);
+        }
+    }
+    
+    frameInfo.mvpMat = oldMvpMat;
     
     // Set it back
     if (hasDrawPriority)

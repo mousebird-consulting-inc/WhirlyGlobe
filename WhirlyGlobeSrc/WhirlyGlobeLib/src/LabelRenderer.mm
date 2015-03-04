@@ -341,6 +341,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     if (label.isSelectable && label.selectID != EmptyIdentity)
                         screenShape->setId(label.selectID);
                     screenShape->setWorldLoc(_coordAdapter->localToDisplay(_coordAdapter->getCoordSystem()->geographicToLocal3d(label.loc)));
+                    if (label.hasMotion)
+                    {
+                        screenShape->setMovingLoc(_coordAdapter->localToDisplay(_coordAdapter->getCoordSystem()->geographicToLocal3d(label.endLoc)),label.startTime,label.endTime);
+                    }
 
                     // If there's an icon, we need to offset
                     float height = drawStr->mbr.ur().y()-drawStr->mbr.ll().y();

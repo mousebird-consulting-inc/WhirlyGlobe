@@ -425,6 +425,15 @@ void SetupDefaultShaders(Scene *scene)
     } else {
         scene->addProgram(kToolkitDefaultScreenSpaceProgram, screenSpaceShader);
     }
+    
+    // Screen space shader w/ Motion
+    OpenGLES2Program *screenSpaceMotionShader = BuildScreenSpaceMotionProgram();
+    if (!screenSpaceMotionShader)
+    {
+        NSLog(@"SetupDefaultShaders: Screen Space Motion shader didn't compile.");
+    } else {
+        scene->addProgram(kToolkitDefaultScreenSpaceMotionProgram, screenSpaceMotionShader);
+    }
 }
 
 }

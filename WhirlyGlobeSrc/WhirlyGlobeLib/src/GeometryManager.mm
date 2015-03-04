@@ -333,6 +333,148 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const
     
     return geomID;
 }
+    
+/// Add geometry we're planning to reuse (as a model, for example)
+SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw> &geom,ChangeSet &changes)
+{
+    GeomSceneRep *sceneRep = new GeomSceneRep();
+    
+    // Sort the geometry by type and texture
+    std::vector<std::vector<GeometryRaw *>> sortedGeom;
+    for (unsigned int ii=0;ii<geom.size();ii++)
+    {
+        GeometryRaw *raw = &geom[ii];
+        
+        raw->calcBounds(sceneRep->ll, sceneRep->ur);
+        
+        bool found = false;
+        for (unsigned int jj=0;jj<sortedGeom.size();jj++)
+        {
+            std::vector<GeometryRaw *> &sg = sortedGeom[jj];
+            if (*(sg.at(0)) == *raw)
+            {
+                found = true;
+                sg.push_back(raw);
+                break;
+            }
+        }
+        if (!found)
+        {
+            std::vector<GeometryRaw *> arr;
+            arr.push_back(raw);
+            sortedGeom.push_back(arr);
+        }
+    }
+
+    // Instance the geometry once for now
+    Matrix4d instMat = Matrix4d::Identity();
+    
+    // Convert the sorted lists of geometry into drawables
+    for (unsigned int jj=0;jj<sortedGeom.size();jj++)
+    {
+        std::vector<GeometryRaw *> &sg = sortedGeom[jj];
+        for (unsigned int kk=0;kk<sg.size();kk++)
+        {
+            std::vector<BasicDrawable *> draws;
+            GeometryRaw *raw = sg[kk];
+            raw->buildDrawables(draws,instMat,NULL);
+            
+            // Set the various parameters and store the drawables created
+            for (unsigned int ll=0;ll<draws.size();ll++)
+            {
+                BasicDrawable *draw = draws[ll];
+                draw->setType((raw->type == WhirlyKitGeometryLines ? GL_LINES : GL_TRIANGLES));
+                draw->setOnOff(false);
+                draw->setRequestZBuffer(true);
+                draw->setWriteZBuffer(true);
+                sceneRep->drawIDs.insert(draw->getId());
+                changes.push_back(new AddDrawableReq(draw));
+            }
+        }
+    }
+    
+    SimpleIdentity geomID = sceneRep->getId();
+    
+    pthread_mutex_lock(&geomLock);
+    sceneReps.insert(sceneRep);
+    pthread_mutex_unlock(&geomLock);
+    
+    return geomID;
+}
+
+/// Add instances that reuse base geometry
+SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,NSDictionary *desc,ChangeSet &changes)
+{
+    pthread_mutex_lock(&geomLock);
+
+    // Look for the scene rep we're basing this on
+    GeomSceneRep *baseSceneRep = NULL;
+    GeomSceneRep dummyRep(baseGeomID);
+    GeomSceneRepSet::iterator it = sceneReps.find(&dummyRep);
+    if (it != sceneReps.end())
+        baseSceneRep = *it;
+    
+    if (!baseSceneRep)
+    {
+        pthread_mutex_unlock(&geomLock);
+        return EmptyIdentity;
+    }
+    
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
+    GeomSceneRep *sceneRep = new GeomSceneRep();
+    GeomInfo *geomInfo = [[GeomInfo alloc] initWithDesc:desc];
+    
+    // Work through the model instances
+    std::vector<BasicDrawableInstance::SingleInstance> singleInsts;
+    for (unsigned int ii=0;ii<instances.size();ii++)
+    {
+        const GeometryInstance &inst = instances[ii];
+//        Vector4d center = inst.mat * Vector4d(0,0,0,1);
+//        center.x() /= center.w();  center.y() /= center.w();  center.z() /= center.w();
+//        Eigen::Affine3d transBack(Eigen::Translation3d(-center.x(),-center.y(),-center.z()));
+//        Matrix4d transBackMat = transBack.matrix();
+//        Matrix4d instMat = transBackMat * inst.mat;
+
+        BasicDrawableInstance::SingleInstance singleInst;
+        if (geomInfo.color)
+        {
+            singleInst.colorOverride = true;
+            singleInst.color = [geomInfo.color asRGBAColor];
+        }
+        singleInst.mat = inst.mat;
+        singleInsts.push_back(singleInst);
+        
+        // Add a selection box for each instance
+        if (inst.selectable)
+        {
+            Vector4d ll = inst.mat * Vector4d(baseSceneRep->ll.x(),baseSceneRep->ll.y(),baseSceneRep->ll.z(),1.0);
+            Vector4d ur = inst.mat * Vector4d(baseSceneRep->ur.x(),baseSceneRep->ur.y(),baseSceneRep->ur.z(),1.0);
+            selectManager->addPolytopeFromBox(inst.getId(), Point3d(ll.x(),ll.y(),ll.z()), Point3d(ur.x(),ur.y(),ur.z()), inst.mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
+            sceneRep->selectIDs.insert(inst.getId());
+        }
+    }
+
+    // Instance each of the drawables in the base
+    for (SimpleIdentity baseDrawID : baseSceneRep->drawIDs)
+    {
+        BasicDrawableInstance *drawInst = new BasicDrawableInstance("GeometryManager",baseDrawID);
+        drawInst->setEnable(geomInfo.enable);
+        //                    draw->setColor([geomInfo.color asRGBAColor]);
+        drawInst->setVisibleRange(geomInfo.minVis, geomInfo.maxVis);
+        drawInst->setDrawPriority(geomInfo.drawPriority);
+        drawInst->addInstances(singleInsts);
+        
+        sceneRep->drawIDs.insert(drawInst->getId());
+        changes.push_back(new AddDrawableReq(drawInst));
+    }
+
+    SimpleIdentity geomID = sceneRep->getId();
+    
+    sceneReps.insert(sceneRep);
+    pthread_mutex_unlock(&geomLock);
+    
+    return geomID;
+}
 
 void GeometryManager::enableGeometry(SimpleIDSet &geomIDs,bool enable,ChangeSet &changes)
 {
