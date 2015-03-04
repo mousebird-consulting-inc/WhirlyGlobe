@@ -121,6 +121,7 @@ public:
 @property (nonatomic,assign) Eigen::Matrix4d modelTrans4d,viewTrans4d;
 /// Current projection matrix
 @property (nonatomic,assign) Eigen::Matrix4f &projMat;
+@property (nonatomic,assign) Eigen::Matrix4d &projMat4d;
 /// What's currently in the GL model matrix.
 /// We combine view and model together
 @property (nonatomic,assign) Eigen::Matrix4f &viewAndModelMat;

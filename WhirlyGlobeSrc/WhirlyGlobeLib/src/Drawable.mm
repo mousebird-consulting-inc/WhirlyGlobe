@@ -1886,7 +1886,7 @@ void LineWidthChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *ren
 }
 
 BasicDrawableInstance::BasicDrawableInstance(const std::string &name,SimpleIdentity masterID)
-    : Drawable(name), enable(true), masterID(masterID)
+    : Drawable(name), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true)
 {
 }
 
@@ -1988,16 +1988,15 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
 
             // Set the matrix and let the rest do its thing
             OpenGLES2Program *prog = frameInfo.program;
-            Matrix4f thisMat = Matrix4dToMatrix4f(singleInst.mat);
-            
+
+            // Note: Ignoring offsets
+            Eigen::Matrix4d newMvpMat = frameInfo.projMat4d * frameInfo.viewTrans4d * frameInfo.modelTrans4d * singleInst.mat;
+            Eigen::Matrix4d newMvMat = frameInfo.viewTrans4d * frameInfo.modelTrans4d * singleInst.mat;
+            Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
+
             // Note: Testing
-//            Matrix4d mvpMat = frameInfo.pvMat4d * singleInst.mat;
-            Matrix4d mvMat =  frameInfo.viewTrans4d * singleInst.mat;
-            Matrix4f mvpMat4f = frameInfo.projMat * Matrix4dToMatrix4f(mvMat);
+            Matrix4f mvpMat4f = Matrix4dToMatrix4f(newMvpMat);
             frameInfo.mvpMat = mvpMat4f;
-            
-            Vector4d testPt = mvMat * Vector4d(1.0,0.0,0.0,1.0);
-            Vector4d testPtOld = frameInfo.viewAndModelMat4d * Vector4d(1.0,0.0,0.0,1.0);
             
 //            prog->setUniform("u_mMatrix", thisMat);
             basicDraw->draw(frameInfo,scene);
