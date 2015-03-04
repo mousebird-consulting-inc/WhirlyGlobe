@@ -29,7 +29,7 @@ namespace WhirlyKit
 
 ScreenSpaceBuilder::DrawableState::DrawableState()
     : period(0.0), progID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0),
-    drawPriority(ScreenSpaceDrawPriorityOffset), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid)
+    drawPriority(ScreenSpaceDrawPriorityOffset), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), motion(false)
 {
 }
     
@@ -51,6 +51,8 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
         return fadeUp < that.fadeUp;
     if (fadeDown != that.fadeDown)
         return fadeDown < that.fadeDown;
+    if (motion != that.motion)
+        return motion < that.motion;
     
     return false;
 }
@@ -69,7 +71,7 @@ ScreenSpaceBuilder::DrawableWrap::~DrawableWrap()
 ScreenSpaceBuilder::DrawableWrap::DrawableWrap(const DrawableState &state)
     : state(state), center(0,0,0)
 {
-    draw = new ScreenSpaceDrawable();
+    draw = new ScreenSpaceDrawable(state.motion);
     draw->setType(GL_TRIANGLES);
     // A max of two textures per
     for (unsigned int ii=0;ii<state.texIDs.size() && ii<2;ii++)
@@ -106,7 +108,20 @@ void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coor
     draw->addTexCoord(0, texCoord);
     draw->addColor(color);
 }
-    
+
+void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,const Point3f &dir,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color)
+{
+    draw->addPoint(Point3d(worldLoc.x()-center.x(),worldLoc.y()-center.y(),worldLoc.z()-center.z()));
+    Point3f norm = coordAdapter->isFlat() ? Point3f(0,0,1) : worldLoc.normalized();
+    draw->addNormal(norm);
+    // Note: Rotation
+    Point2f vert = inVert * scale;
+    draw->addOffset(vert);
+    draw->addTexCoord(0, texCoord);
+    draw->addColor(color);
+    draw->addDir(dir);
+}
+
 void ScreenSpaceBuilder::DrawableWrap::addTri(int v0, int v1, int v2)
 {
     if (!draw)
@@ -174,6 +189,8 @@ ScreenSpaceBuilder::DrawableWrap *ScreenSpaceBuilder::findOrAddDrawWrap(const Dr
         Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
         Eigen::Matrix4d transMat = trans.matrix();
         drawWrap->draw->setMatrix(&transMat);
+        if (state.motion)
+            drawWrap->draw->setStartTime(CFAbsoluteTimeGetCurrent());
         drawables.insert(drawWrap);
     } else {
         drawWrap = *it;
@@ -249,12 +266,28 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
             trans = rot.matrix();
         }
         
+        // May need to adjust things based on time
+        Point3d startLoc3d = ssObj.worldLoc;
+        Point3f dir(0,0,0);
+        if (state.motion)
+        {
+            Point3d dir3d = ssObj.endWorldLoc - ssObj.worldLoc;
+            // May need to knock the start back a bit
+            double dt = drawWrap->draw->getStartTime() - ssObj.startTime;
+            startLoc3d = dir3d * dt + startLoc3d;
+            dir = Point3f(dir3d.x(),dir3d.y(),dir3d.z());
+        }
+        Point3f startLoc(startLoc3d.x(),startLoc3d.y(),startLoc3d.z());
+
         int baseVert = drawWrap->draw->getNumPoints();
         for (unsigned int jj=0;jj<geom.coords.size();jj++)
         {
             Point2d coord = geom.coords[jj] + ssObj.offset;
             coord = trans * coord;
-            drawWrap->addVertex(coordAdapter,scale,Point3f(ssObj.worldLoc.x(),ssObj.worldLoc.y(),ssObj.worldLoc.z()), ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], geom.color);
+            if (state.motion)
+                drawWrap->addVertex(coordAdapter,scale,startLoc, dir, ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], geom.color);
+            else
+                drawWrap->addVertex(coordAdapter,scale,startLoc, ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], geom.color);
         }
         for (unsigned int jj=0;jj<geom.coords.size()-2;jj++)
             drawWrap->addTri(0+baseVert, jj+1+baseVert, jj+2+baseVert);
@@ -317,6 +350,14 @@ ScreenSpaceObject::~ScreenSpaceObject()
 void ScreenSpaceObject::setWorldLoc(const Point3d &inWorldLoc)
 {
     worldLoc = inWorldLoc;
+}
+    
+void ScreenSpaceObject::setMovingLoc(const Point3d &worldLoc,NSTimeInterval inStartTime,NSTimeInterval inEndTime)
+{
+    state.motion = true;
+    endWorldLoc = worldLoc;
+    startTime = inStartTime;
+    endTime = inEndTime;
 }
     
 Point3d ScreenSpaceObject::getWorldLoc()

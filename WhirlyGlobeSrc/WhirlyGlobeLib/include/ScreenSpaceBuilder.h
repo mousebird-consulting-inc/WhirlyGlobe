@@ -60,6 +60,7 @@ public:
         NSTimeInterval fadeUp,fadeDown;
         int drawPriority;
         float minVis,maxVis;
+        bool motion;
     };
     
     /// Draw priorities can mix and match with other objects, but we probably don't want that
@@ -108,6 +109,7 @@ protected:
         bool operator < (const DrawableWrap &that) const;
         
         void addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color);
+        void addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,const Point3f &dir,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color);
         void addTri(int v0,int v1,int v2);
         
         Point3d center;
@@ -170,6 +172,9 @@ public:
     void setWorldLoc(const Point3d &worldLoc);
     Point3d getWorldLoc();
     
+    /// Set up the end location and timing
+    void setMovingLoc(const Point3d &worldLoc,NSTimeInterval startTime,NSTimeInterval endTime);
+    
     void setEnable(bool enable);
     void setVisibility(float minVis,float maxVis);
     void setDrawPriority(int drawPriority);
@@ -183,7 +188,8 @@ public:
     
 protected:
     bool enable;
-    Point3d worldLoc;
+    Point3d worldLoc,endWorldLoc;
+    NSTimeInterval startTime,endTime;
     Point2d offset;
     double rotation;
     bool useRotation;

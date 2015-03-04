@@ -90,4 +90,17 @@
 
 @end
 
+/** @brief A version of the maply screen marker that moves.
+    @details This version of the screen marker can move in a limited way over time.
+  */
+@interface MaplyMovingScreenMarker : MaplyScreenMarker
+
+/// @brief The end point for animation
+@property (nonatomic,assign) MaplyCoordinate endLoc;
+
+/// @brief How long it will take the screen marker to get to endLoc
+@property (nonatomic,assign) NSTimeInterval duration;
+
+@end
+
 typedef MaplyScreenMarker WGScreenMarker;

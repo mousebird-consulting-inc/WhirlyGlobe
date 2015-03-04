@@ -18,7 +18,9 @@
  *
  */
 
+#import <set>
 #import "MaplyGeomModel_private.h"
+#import "MaplyBaseInteractionLayer_private.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -27,6 +29,9 @@ using namespace Eigen;
 {
     std::vector<std::string> textures;
     std::vector<WhirlyKit::GeometryRaw> rawGeom;
+    __weak MaplyBaseInteractionLayer *layer;
+    SimpleIdentity baseModelID;
+    std::set<MaplyTexture *> maplyTextures;
 }
 
 - (id)initWithObj:(NSString *)fullPath
@@ -66,6 +71,52 @@ using namespace Eigen;
             geom.texId = texFileMap[geom.texId];
         } else
             geom.texId = EmptyIdentity;
+    }
+}
+
+// Return the ID for or generate a base model in the Geometry Manager
+- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer mode:(MaplyThreadMode)threadMode
+{
+    @synchronized(self)
+    {
+        if (layer)
+            return baseModelID;
+        
+        if (!inLayer)
+            return EmptyIdentity;
+
+        ChangeSet changes;
+        layer = inLayer;
+        
+        // Add the textures
+        std::vector<std::string> texFileNames;
+        [self getTextureFileNames:texFileNames];
+        std::vector<SimpleIdentity> texIDMap(texFileNames.size());
+        int whichTex = 0;
+        for (const std::string &texFileName : texFileNames)
+        {
+            MaplyTexture *tex = [layer addImage:[UIImage imageNamed:[NSString stringWithFormat:@"%s",texFileName.c_str()]] imageFormat:MaplyImage4Layer8Bit mode:threadMode];
+            if (tex)
+            {
+                maplyTextures.insert(tex);
+                texIDMap[whichTex] = tex.texID;
+            } else {
+                texIDMap[whichTex] = EmptyIdentity;
+            }
+            whichTex++;
+        }
+        
+        // Convert the geometry and map the texture IDs
+        std::vector<WhirlyKit::GeometryRaw> theRawGeom;
+        [self asRawGeometry:theRawGeom withTexMapping:texIDMap];
+        
+        GeometryManager *geomManager = (GeometryManager *)layer->scene->getManager(kWKGeometryManager);
+        baseModelID = geomManager->addBaseGeometry(rawGeom, changes);
+        
+        // Need to flush these changes immediately
+        layer->scene->addChangeRequests(changes);
+        
+        return baseModelID;
     }
 }
 

@@ -102,6 +102,12 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
 /// The location for the center of the marker.
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
+/// Set if we're moving these over time (screen only)
+@property (nonatomic,assign) bool hasMotion;
+/// Set for animation over time
+@property (nonatomic,assign) WhirlyKit::GeoCoord endLoc;
+/// Timing for animation, if present
+@property (nonatomic,assign) NSTimeInterval startTime,endTime;
 /// Color for this marker
 @property (nonatomic) UIColor *color;
 /// The list of textures to use.  If there's just one
