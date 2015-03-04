@@ -216,8 +216,9 @@ void GeometryRaw::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen
             }
             if (texId != EmptyIdentity)
                 draw->addTexCoord(0,texCoords[tri.verts[jj]]);
-            if (!colors.empty() && !colorOverride)
-                draw->addColor(colors[tri.verts[jj]]);
+            // Note: Turning off colors for the moment
+//            if (!colors.empty() && !colorOverride)
+//                draw->addColor(colors[tri.verts[jj]]);
         }
         
         draw->addTriangle(BasicDrawable::Triangle(baseVert,baseVert+1,baseVert+2));
@@ -429,17 +430,16 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     for (unsigned int ii=0;ii<instances.size();ii++)
     {
         const GeometryInstance &inst = instances[ii];
-//        Vector4d center = inst.mat * Vector4d(0,0,0,1);
-//        center.x() /= center.w();  center.y() /= center.w();  center.z() /= center.w();
-//        Eigen::Affine3d transBack(Eigen::Translation3d(-center.x(),-center.y(),-center.z()));
-//        Matrix4d transBackMat = transBack.matrix();
-//        Matrix4d instMat = transBackMat * inst.mat;
-
         BasicDrawableInstance::SingleInstance singleInst;
         if (geomInfo.color)
         {
             singleInst.colorOverride = true;
             singleInst.color = [geomInfo.color asRGBAColor];
+        }
+        if (inst.colorOverride)
+        {
+            singleInst.colorOverride = true;
+            singleInst.color = inst.color;
         }
         singleInst.mat = inst.mat;
         singleInsts.push_back(singleInst);
