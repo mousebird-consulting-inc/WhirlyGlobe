@@ -1783,7 +1783,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     thisInst.selectable = modelInst.selectable;
                     if (thisInst.selectable)
                     {
-                        compObj.selectIDs.insert(thisInst.selectable);
+                        compObj.selectIDs.insert(thisInst.getId());
                         pthread_mutex_lock(&selectLock);
                         selectObjectSet.insert(SelectObject(thisInst.getId(),modelInst));
                         pthread_mutex_unlock(&selectLock);
