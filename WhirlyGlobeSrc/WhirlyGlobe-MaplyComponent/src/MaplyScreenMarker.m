@@ -37,3 +37,6 @@
 }
 
 @end
+
+@implementation MaplyMovingScreenMarker
+@end

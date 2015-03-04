@@ -552,8 +552,21 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
+    if ([markers count] == 0)
+        return;
+    
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    
+    bool isMotionMarkers = false;
+    if ([[markers objectAtIndex:0] isKindOfClass:[MaplyMovingScreenMarker class]])
+        isMotionMarkers = true;
+    // Note: Check that the caller isn't mixing in regular markers
+    
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:@(kToolkitDefaultScreenSpaceProgram)];
+    if (isMotionMarkers)
+        [self resolveShader:inDesc defaultShader:@(kToolkitDefaultScreenSpaceMotionProgram)];
+    else
+        [self resolveShader:inDesc defaultShader:@(kToolkitDefaultScreenSpaceProgram)];
     [self resolveDrawPriority:inDesc offset:_screenObjectDrawPriorityOffset];
     
     // Convert to WG markers
@@ -614,6 +627,16 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         }
         wgMarker.offset = Point2d(marker.offset.x,marker.offset.y);
         
+        // Now for the motion related fields
+        if ([marker isKindOfClass:[MaplyMovingScreenMarker class]])
+        {
+            MaplyMovingScreenMarker *movingMarker = (MaplyMovingScreenMarker *)marker;
+            wgMarker.hasMotion = true;
+            wgMarker.endLoc = GeoCoord(movingMarker.endLoc.x,movingMarker.endLoc.y);
+            wgMarker.startTime = now;
+            wgMarker.endTime = now + movingMarker.duration;
+        }
+
         [wgMarkers addObject:wgMarker];
         
         if (marker.selectable)
@@ -804,12 +827,25 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    
+    if ([labels count] == 0)
+        return;
 
     // May need a temporary context when setting up screen label textures
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
+
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
     
+    bool isMotionLabels = false;
+    if ([[labels objectAtIndex:0] isKindOfClass:[MaplyMovingScreenLabel class]])
+        isMotionLabels = true;
+    // Note: Check that the caller isn't mixing in regular markers
+
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:@(kToolkitDefaultScreenSpaceProgram)];
+    if (isMotionLabels)
+        [self resolveShader:inDesc defaultShader:@(kToolkitDefaultScreenSpaceMotionProgram)];
+    else
+        [self resolveShader:inDesc defaultShader:@(kToolkitDefaultScreenSpaceProgram)];
     [self resolveDrawPriority:inDesc offset:_screenObjectDrawPriorityOffset];
 
     // Convert to WG screen labels
@@ -846,7 +882,17 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         }
         if ([desc count] > 0)
             wgLabel.desc = desc;
-        
+
+        // Now for the motion related fields
+        if ([label isKindOfClass:[MaplyMovingScreenLabel class]])
+        {
+            MaplyMovingScreenLabel *movingLabel = (MaplyMovingScreenLabel *)label;
+            wgLabel.hasMotion = true;
+            wgLabel.endLoc = GeoCoord(movingLabel.endLoc.x,movingLabel.endLoc.y);
+            wgLabel.startTime = now;
+            wgLabel.endTime = now + movingLabel.duration;
+        }
+
         [wgLabels addObject:wgLabel];
         
         if (label.selectable)
@@ -1669,101 +1715,85 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             // Set up the textures and convert the geometry
             MaplyGeomModel *model = it->model;
             
-            // Add the textures
-            std::vector<std::string> texFileNames;
-            [model getTextureFileNames:texFileNames];
-            std::vector<SimpleIdentity> texIDMap(texFileNames.size());
-            int whichTex = 0;
-            for (const std::string &texFileName : texFileNames)
+            // Return an existing base model or make a new one
+            SimpleIdentity baseModelID = [model getBaseModel:self mode:threadMode];
+            
+            if (baseModelID != EmptyIdentity)
             {
-                MaplyTexture *tex = [self addImage:[UIImage imageNamed:[NSString stringWithFormat:@"%s",texFileName.c_str()]] imageFormat:MaplyImage4Layer8Bit mode:threadMode];
-                if (tex)
+                // Convert the instances
+                std::vector<GeometryInstance> matInst;
+                for (unsigned int ii=0;ii<it->instances.size();ii++)
                 {
-                    compObj.textures.insert(tex);
-                    texIDMap[whichTex] = tex.texID;
-                } else {
-                    texIDMap[whichTex] = EmptyIdentity;
+                    MaplyGeomModelInstance *modelInst = it->instances[ii];
+                    Matrix4d localMat = localMat.Identity();
+
+                    // Local transformation, before the placement
+                    if (modelInst.transform)
+                        localMat = modelInst.transform.mat;
+                    
+                    // Add in the placement
+                    Point3d localPt = coordSys->geographicToLocal(Point2d(modelInst.center.x,modelInst.center.y));
+                    Point3d dispLoc = coordAdapter->localToDisplay(Point3d(localPt.x(),localPt.y(),modelInst.center.z));
+                    Point3d norm = coordAdapter->normalForLocal(localPt);
+                    
+                    // Construct a set of axes to build the shape around
+                    Point3d xAxis,yAxis;
+                    if (coordAdapter->isFlat())
+                    {
+                        xAxis = Point3d(1,0,0);
+                        yAxis = Point3d(0,1,0);
+                    } else {
+                        Point3d north(0,0,1);
+                        // Note: Also check if we're at a pole
+                        xAxis = north.cross(norm);  xAxis.normalize();
+                        yAxis = norm.cross(xAxis);  yAxis.normalize();
+                    }
+                    
+                    // Set up a shift matrix that moves coordinate to the right orientation on the globe (or not)
+                    //  and shifts it to the correct position
+                    Matrix4d shiftMat;
+                    shiftMat(0,0) = xAxis.x();
+                    shiftMat(0,1) = yAxis.x();
+                    shiftMat(0,2) = norm.x();
+                    shiftMat(0,3) = dispLoc.x();
+                    
+                    shiftMat(1,0) = xAxis.y();
+                    shiftMat(1,1) = yAxis.y();
+                    shiftMat(1,2) = norm.y();
+                    shiftMat(1,3) = dispLoc.y();
+                    
+                    shiftMat(2,0) = xAxis.z();
+                    shiftMat(2,1) = yAxis.z();
+                    shiftMat(2,2) = norm.z();
+                    shiftMat(2,3) = dispLoc.z();
+                    
+                    shiftMat(3,0) = 0.0;
+                    shiftMat(3,1) = 0.0;
+                    shiftMat(3,2) = 0.0;
+                    shiftMat(3,3) = 1.0;
+
+                    localMat = shiftMat * localMat;
+
+                    GeometryInstance thisInst;
+                    thisInst.mat = localMat;
+                    thisInst.colorOverride = modelInst.colorOverride != nil;
+                    if (thisInst.colorOverride)
+                        thisInst.color = [modelInst.colorOverride asRGBAColor];
+                    thisInst.selectable = modelInst.selectable;
+                    if (thisInst.selectable)
+                    {
+                        compObj.selectIDs.insert(thisInst.selectable);
+                        pthread_mutex_lock(&selectLock);
+                        selectObjectSet.insert(SelectObject(thisInst.getId(),modelInst));
+                        pthread_mutex_unlock(&selectLock);
+                    }
+                    matInst.push_back(thisInst);
                 }
-                whichTex++;
+                
+                SimpleIdentity geomID = geomManager->addGeometryInstances(baseModelID, matInst, inDesc, changes);
+                if (geomID != EmptyIdentity)
+                    compObj.geomIDs.insert(geomID);
             }
-            
-            // Convert the geometry and map the texture IDs
-            std::vector<WhirlyKit::GeometryRaw> rawGeom;
-            [model asRawGeometry:rawGeom withTexMapping:texIDMap];
-            
-            // Convert the instances
-            std::vector<GeometryInstance> matInst;
-            for (unsigned int ii=0;ii<it->instances.size();ii++)
-            {
-                MaplyGeomModelInstance *modelInst = it->instances[ii];
-                Matrix4d localMat = localMat.Identity();
-
-                // Local transformation, before the placement
-                if (modelInst.transform)
-                    localMat = modelInst.transform.mat;
-                
-                // Add in the placement
-                Point3d localPt = coordSys->geographicToLocal(Point2d(modelInst.center.x,modelInst.center.y));
-                Point3d dispLoc = coordAdapter->localToDisplay(Point3d(localPt.x(),localPt.y(),modelInst.center.z));
-                Point3d norm = coordAdapter->normalForLocal(localPt);
-                
-                // Construct a set of axes to build the shape around
-                Point3d xAxis,yAxis;
-                if (coordAdapter->isFlat())
-                {
-                    xAxis = Point3d(1,0,0);
-                    yAxis = Point3d(0,1,0);
-                } else {
-                    Point3d north(0,0,1);
-                    // Note: Also check if we're at a pole
-                    xAxis = north.cross(norm);  xAxis.normalize();
-                    yAxis = norm.cross(xAxis);  yAxis.normalize();
-                }
-                
-                // Set up a shift matrix that moves coordinate to the right orientation on the globe (or not)
-                //  and shifts it to the correct position
-                Matrix4d shiftMat;
-                shiftMat(0,0) = xAxis.x();
-                shiftMat(0,1) = yAxis.x();
-                shiftMat(0,2) = norm.x();
-                shiftMat(0,3) = dispLoc.x();
-                
-                shiftMat(1,0) = xAxis.y();
-                shiftMat(1,1) = yAxis.y();
-                shiftMat(1,2) = norm.y();
-                shiftMat(1,3) = dispLoc.y();
-                
-                shiftMat(2,0) = xAxis.z();
-                shiftMat(2,1) = yAxis.z();
-                shiftMat(2,2) = norm.z();
-                shiftMat(2,3) = dispLoc.z();
-                
-                shiftMat(3,0) = 0.0;
-                shiftMat(3,1) = 0.0;
-                shiftMat(3,2) = 0.0;
-                shiftMat(3,3) = 1.0;
-
-                localMat = shiftMat * localMat;
-
-                GeometryInstance thisInst;
-                thisInst.mat = localMat;
-                thisInst.colorOverride = modelInst.colorOverride != nil;
-                if (thisInst.colorOverride)
-                    thisInst.color = [modelInst.colorOverride asRGBAColor];
-                thisInst.selectable = modelInst.selectable;
-                if (thisInst.selectable)
-                {
-                    compObj.selectIDs.insert(thisInst.selectable);
-                    pthread_mutex_lock(&selectLock);
-                    selectObjectSet.insert(SelectObject(thisInst.getId(),modelInst));
-                    pthread_mutex_unlock(&selectLock);
-                }
-                matInst.push_back(thisInst);
-            }
-            
-            SimpleIdentity geomID = geomManager->addGeometry(rawGeom, matInst, inDesc, changes);
-            if (geomID != EmptyIdentity)
-                compObj.geomIDs.insert(geomID);
         }
         
         [self flushChanges:changes mode:threadMode];

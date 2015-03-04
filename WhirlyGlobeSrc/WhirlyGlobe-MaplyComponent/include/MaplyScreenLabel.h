@@ -107,4 +107,17 @@
 
 @end
 
+/** @brief A version of the maply screen label that moves.
+    @details This version of the screen label can move in a limited way over time.
+ */
+@interface MaplyMovingScreenLabel : MaplyScreenLabel
+
+/// @brief The end point for animation
+@property (nonatomic,assign) MaplyCoordinate endLoc;
+
+/// @brief How long it will take the screen label to get to endLoc
+@property (nonatomic,assign) NSTimeInterval duration;
+
+@end
+
 typedef MaplyScreenLabel WGScreenLabel;

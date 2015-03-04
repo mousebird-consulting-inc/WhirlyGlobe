@@ -20,13 +20,19 @@
 
 #import "MaplyGeomModel.h"
 #import <WhirlyGlobe.h>
+#import "MaplyBaseViewController_private.h"
+
+@class MaplyBaseInteractionLayer;
 
 @interface MaplyGeomModel()
 
 // Return the list of texture file names
 - (void)getTextureFileNames:(std::vector<std::string> &)texFileNames;
 
-// Convert to
+// Convert to raw geometry
 - (void)asRawGeometry:(std::vector<WhirlyKit::GeometryRaw> &)rawGeom withTexMapping:(const std::vector<WhirlyKit::SimpleIdentity> &)texFileMap;
+
+// Return the ID for or generate a base model in the Geometry Manager
+- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer mode:(MaplyThreadMode)threadMode;
 
 @end

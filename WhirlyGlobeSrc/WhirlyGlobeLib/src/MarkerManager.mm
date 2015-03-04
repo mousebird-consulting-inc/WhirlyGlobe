@@ -250,6 +250,11 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             if (marker.isSelectable && marker.selectID != EmptyIdentity)
                 shape->setId(marker.selectID);
             shape->setWorldLoc(coordAdapter->localToDisplay(localPt));
+            if (marker.hasMotion)
+            {
+                Point3d localEndPt = coordAdapter->getCoordSystem()->geographicToLocal3d(marker.endLoc);
+                shape->setMovingLoc(coordAdapter->localToDisplay(localEndPt), marker.startTime, marker.endTime);
+            }
             if (marker.lockRotation)
                 shape->setRotation(marker.rotation);
             if (markerInfo.fade > 0.0)

@@ -61,6 +61,12 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 /// A geolocation for the middle, left or right of the label
 ///  depending on the justification
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
+/// Set if we're moving these over time (screen only)
+@property (nonatomic,assign) bool hasMotion;
+/// Set for animation over time
+@property (nonatomic,assign) WhirlyKit::GeoCoord endLoc;
+/// Timing for animation, if present
+@property (nonatomic,assign) NSTimeInterval startTime,endTime;
 /// Rotation around the origin
 @property (nonatomic,assign) float rotation;
 /// Keep a label oriented upright on the screen
