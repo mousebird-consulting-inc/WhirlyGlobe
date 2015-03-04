@@ -418,6 +418,7 @@ static const float ScreenOverlap = 0.1;
 //        baseFrameInfo.frameLen = duration;
         baseFrameInfo.currentTime = CFAbsoluteTimeGetCurrent();
         baseFrameInfo.projMat = projMat;
+        baseFrameInfo.projMat4d = projMat4d;
         baseFrameInfo.mvpMat = mvpMat;
         baseFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
         baseFrameInfo.viewAndModelMat = modelAndViewMat;

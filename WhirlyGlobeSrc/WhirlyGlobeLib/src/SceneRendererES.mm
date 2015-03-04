@@ -59,6 +59,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     _viewTrans = info.viewTrans;
     _viewTrans4d = info.viewTrans4d;
     _projMat = info.projMat;
+    _projMat4d = info.projMat4d;
     _viewAndModelMat = info.viewAndModelMat;
     _viewAndModelMat4d = info.viewAndModelMat4d;
     _mvpMat = info.mvpMat;

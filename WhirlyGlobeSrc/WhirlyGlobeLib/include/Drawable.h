@@ -773,6 +773,15 @@ public:
     /// Return true if the drawable has alpha.  These will be sorted last.
     virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const;
 
+    /// We can ask to use the z buffer
+    virtual void setRequestZBuffer(bool val) { requestZBuffer = val; }
+
+    /// Set the z buffer mode for this drawable
+    virtual void setWriteZBuffer(bool val) { writeZBuffer = val; }
+
+    virtual bool getRequestZBuffer() const { return requestZBuffer; }
+    virtual bool getWriteZbuffer() const { return writeZBuffer; }
+
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
     
@@ -818,6 +827,7 @@ public:
     void addInstances(const std::vector<SingleInstance> &insts);
 
 protected:
+    bool requestZBuffer,writeZBuffer;
     SimpleIdentity masterID;
     BasicDrawableRef basicDraw;
     bool enable;
