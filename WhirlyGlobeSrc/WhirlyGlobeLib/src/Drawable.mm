@@ -1550,7 +1550,6 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     
     // Model/View/Projection matrix
     prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
-    prog->setUniform("u_pvMatrix", frameInfo.pvMat);
     prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
     prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
     prog->setUniform("u_pMatrix", frameInfo.projMat);
@@ -1964,8 +1963,9 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
     if (hasMinVis || hasMaxVis)
         basicDraw->setVisibleRange(minVis, maxVis);
     
-    // Note: Debugging
     Matrix4f oldMvpMat = frameInfo.mvpMat;
+    Matrix4f oldMvMat = frameInfo.viewAndModelMat;
+    Matrix4f oldMvNormalMat = frameInfo.viewModelNormalMat;
 
     // No matrices, so just one instance
     if (instances.empty())
@@ -1986,24 +1986,26 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                     basicDraw->setColor(oldColor);
             }
 
-            // Set the matrix and let the rest do its thing
-            OpenGLES2Program *prog = frameInfo.program;
-
-            // Note: Ignoring offsets
+            // Note: Ignoring offsets, so won't work reliably in 2D
             Eigen::Matrix4d newMvpMat = frameInfo.projMat4d * frameInfo.viewTrans4d * frameInfo.modelTrans4d * singleInst.mat;
             Eigen::Matrix4d newMvMat = frameInfo.viewTrans4d * frameInfo.modelTrans4d * singleInst.mat;
             Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
 
-            // Note: Testing
+            // Inefficient, but effective
             Matrix4f mvpMat4f = Matrix4dToMatrix4f(newMvpMat);
+            Matrix4f mvMat4f = Matrix4dToMatrix4f(newMvpMat);
+            Matrix4f mvNormalMat4f = Matrix4dToMatrix4f(newMvNormalMat);
             frameInfo.mvpMat = mvpMat4f;
+            frameInfo.viewAndModelMat = mvMat4f;
+            frameInfo.viewModelNormalMat = mvNormalMat4f;
             
-//            prog->setUniform("u_mMatrix", thisMat);
             basicDraw->draw(frameInfo,scene);
         }
     }
     
     frameInfo.mvpMat = oldMvpMat;
+    frameInfo.viewAndModelMat = oldMvMat;
+    frameInfo.viewModelNormalMat = oldMvNormalMat;
     
     // Set it back
     if (hasDrawPriority)
