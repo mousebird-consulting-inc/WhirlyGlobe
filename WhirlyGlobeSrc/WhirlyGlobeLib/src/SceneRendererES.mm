@@ -273,6 +273,18 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     renderUntil = std::max(renderUntil,newRenderUntil);
 }
 
+- (void)addContinuousRenderRequest:(SimpleIdentity)drawID
+{
+    contRenderRequests.insert(drawID);
+}
+
+- (void)removeContinuousRenderRequest:(SimpleIdentity)drawID
+{
+    SimpleIDSet::iterator it = contRenderRequests.find(drawID);
+    if (it != contRenderRequests.end())
+        contRenderRequests.erase(it);
+}
+
 - (void)setTriggerDraw
 {
     _triggerDraw = true;
