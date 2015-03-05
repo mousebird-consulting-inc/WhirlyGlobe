@@ -36,10 +36,8 @@ class ScreenSpaceDrawable : public BasicDrawable
 {
 public:
     // Construct with or without motion support
-    ScreenSpaceDrawable(bool hasMotion);
+    ScreenSpaceDrawable(bool hasMotion,bool hasRotation);
     
-    // Set whether or not we use the rotation, rather than keeping things horizontal
-    void setUseRotation(bool useRotation);
     // If we've got a rotation, we set this to keep the image facing upright
     //  probably because it's text.
     void setKeepUpright(bool keepUpright);
@@ -52,9 +50,12 @@ public:
     void addOffset(const Point2f &offset);
     void addOffset(const Point2d &offset);
 
-    // Add a direction to the attribute list
+    // Add a direction to the attribute list (for animation)
     void addDir(const Point3f &dir);
     void addDir(const Point3d &dir);
+    
+    // Add a rotation to the attribute list
+    void addRot(double rot);
 
     /// If we have motion we need to force the render to keep rendering
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
@@ -63,11 +64,11 @@ public:
     virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
 
 protected:
-    bool motion;
-    bool useRotation;
+    bool motion,rotation;
     bool keepUpright;
     int offsetIndex;
     int dirIndex;
+    int rotIndex;
     NSTimeInterval startTime;
 };
     
