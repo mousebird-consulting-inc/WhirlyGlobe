@@ -29,7 +29,7 @@ namespace WhirlyKit
 
 ScreenSpaceBuilder::DrawableState::DrawableState()
     : period(0.0), progID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0),
-    drawPriority(ScreenSpaceDrawPriorityOffset), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), motion(false)
+    drawPriority(ScreenSpaceDrawPriorityOffset), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), motion(false), rotation(false), keepUpright(false)
 {
 }
     
@@ -53,6 +53,10 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
         return fadeDown < that.fadeDown;
     if (motion != that.motion)
         return motion < that.motion;
+    if (rotation != that.rotation)
+        return rotation < that.rotation;
+    if (keepUpright != that.keepUpright)
+        return keepUpright < that.keepUpright;
     
     return false;
 }
@@ -71,7 +75,7 @@ ScreenSpaceBuilder::DrawableWrap::~DrawableWrap()
 ScreenSpaceBuilder::DrawableWrap::DrawableWrap(const DrawableState &state)
     : state(state), center(0,0,0)
 {
-    draw = new ScreenSpaceDrawable(state.motion);
+    draw = new ScreenSpaceDrawable(state.motion,state.rotation);
     draw->setType(GL_TRIANGLES);
     // A max of two textures per
     for (unsigned int ii=0;ii<state.texIDs.size() && ii<2;ii++)
@@ -107,6 +111,8 @@ void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coor
     draw->addOffset(vert);
     draw->addTexCoord(0, texCoord);
     draw->addColor(color);
+    if (state.rotation)
+        draw->addRot(rot);
 }
 
 void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,const Point3f &dir,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color)
@@ -120,6 +126,8 @@ void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coor
     draw->addTexCoord(0, texCoord);
     draw->addColor(color);
     draw->addDir(dir);
+    if (state.rotation)
+        draw->addRot(rot);
 }
 
 void ScreenSpaceBuilder::DrawableWrap::addTri(int v0, int v1, int v2)
@@ -258,14 +266,6 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
         state.progID = geom.progID;
         DrawableWrap *drawWrap = findOrAddDrawWrap(state,geom.coords.size(),geom.coords.size()-2,ssObj.worldLoc);
         
-        // Figure out fixed rotation
-        Eigen::Matrix2d trans = trans.Identity();
-        if (ssObj.useRotation)
-        {
-            Eigen::Rotation2D<double> rot(ssObj.rotation);
-            trans = rot.matrix();
-        }
-        
         // May need to adjust things based on time
         Point3d startLoc3d = ssObj.worldLoc;
         Point3f dir(0,0,0);
@@ -284,7 +284,6 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
         for (unsigned int jj=0;jj<geom.coords.size();jj++)
         {
             Point2d coord = geom.coords[jj] + ssObj.offset;
-            coord = trans * coord;
             if (state.motion)
                 drawWrap->addVertex(coordAdapter,scale,startLoc, dir, ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], geom.color);
             else
@@ -335,12 +334,12 @@ ScreenSpaceObject::ScreenSpaceObject::ConvexGeometry::ConvexGeometry()
 }
     
 ScreenSpaceObject::ScreenSpaceObject()
-    : enable(true), worldLoc(0,0,0), offset(0,0), rotation(0), useRotation(false), keepUpright(false)
+    : enable(true), worldLoc(0,0,0), offset(0,0), rotation(0), keepUpright(false)
 {
 }
 
 ScreenSpaceObject::ScreenSpaceObject(SimpleIdentity theID)
-: Identifiable(theID), enable(true), worldLoc(0,0,0), offset(0,0), rotation(0), useRotation(false), keepUpright(false)
+: Identifiable(theID), enable(true), worldLoc(0,0,0), offset(0,0), rotation(0), keepUpright(false)
 {
 }
 
@@ -389,7 +388,7 @@ void ScreenSpaceObject::setKeepUpright(bool inKeepUpright)
 
 void ScreenSpaceObject::setRotation(double inRot)
 {
-    useRotation = true;
+    state.rotation = true;
     rotation = inRot;
 }
 
