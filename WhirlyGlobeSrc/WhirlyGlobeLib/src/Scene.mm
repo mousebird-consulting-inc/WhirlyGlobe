@@ -646,6 +646,8 @@ void RemDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
     DrawableRefSet::iterator it = scene->drawables.find(DrawableRef(dumbDraw));
     if (it != scene->drawables.end())
     {
+        [renderer removeContinuousRenderRequest:(*it)->getId()];
+        
         // Teardown OpenGL foo
         (*it)->teardownGL(scene->getMemManager());
 

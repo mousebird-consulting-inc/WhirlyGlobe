@@ -67,9 +67,8 @@ void ScreenSpaceDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
 {
     if (motion)
     {
-        // Note: Unfortunate side effect of the instanc
-        NSTimeInterval year = 356*24*60*60;
-        [renderer setRenderUntil:(CFAbsoluteTimeGetCurrent()+year)];
+        // Motion requires continuous rendering
+        [renderer addContinuousRenderRequest:getId()];
     }
 }
 

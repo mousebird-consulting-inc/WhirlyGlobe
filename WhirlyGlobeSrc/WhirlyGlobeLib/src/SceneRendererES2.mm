@@ -296,7 +296,7 @@ static const float ScreenOverlap = 0.1;
 	[super.theView animate];
 
     // Decide if we even need to draw
-    if (!scene->hasChanges() && ![self viewDidChange])
+    if (!scene->hasChanges() && ![self viewDidChange] && contRenderRequests.empty())
         return;
     
     NSTimeInterval perfInterval = super.perfInterval;

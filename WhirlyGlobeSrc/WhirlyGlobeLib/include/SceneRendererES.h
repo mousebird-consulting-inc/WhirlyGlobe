@@ -190,6 +190,9 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
     /// Something wants to make sure we render until at least this point.
     NSTimeInterval renderUntil;
     
+    // The drawables that want continuous rendering on
+    WhirlyKit::SimpleIDSet contRenderRequests;
+    
     WhirlyKit::RGBAColor _clearColor;
 }
 
@@ -250,6 +253,12 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 /// Set the render until time.  This is used by things like fade to keep
 ///  the rendering optimization from cutting off animation.
 - (void)setRenderUntil:(NSTimeInterval)newTime;
+
+// A drawable wants continuous rendering (bleah!)
+- (void)addContinuousRenderRequest:(WhirlyKit::SimpleIdentity)drawID;
+
+// Drawable is done with continuous rendering
+- (void)removeContinuousRenderRequest:(WhirlyKit::SimpleIdentity)drawID;
 
 /// Call this to force a draw on the next frame.
 /// This turns off the draw optimization, but just for one frame.
