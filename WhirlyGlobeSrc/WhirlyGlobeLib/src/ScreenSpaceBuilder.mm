@@ -271,7 +271,8 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
         Point3f dir(0,0,0);
         if (state.motion)
         {
-            Point3d dir3d = ssObj.endWorldLoc - ssObj.worldLoc;
+            double dur = ssObj.endTime - ssObj.startTime;
+            Point3d dir3d = (ssObj.endWorldLoc - ssObj.worldLoc)/dur;
             // May need to knock the start back a bit
             double dt = drawWrap->draw->getStartTime() - ssObj.startTime;
             startLoc3d = dir3d * dt + startLoc3d;
