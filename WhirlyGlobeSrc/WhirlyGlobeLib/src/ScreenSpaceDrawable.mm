@@ -26,16 +26,13 @@
 namespace WhirlyKit
 {
 
-ScreenSpaceDrawable::ScreenSpaceDrawable(bool hasMotion) : BasicDrawable("ScreenSpace"), useRotation(false), keepUpright(false), motion(hasMotion)
+ScreenSpaceDrawable::ScreenSpaceDrawable(bool hasMotion,bool hasRotation) : BasicDrawable("ScreenSpace"), keepUpright(false), motion(hasMotion), rotation(hasRotation)
 {
     offsetIndex = addAttribute(BDFloat2Type, "a_offset");
+    if (hasRotation)
+        rotIndex = addAttribute(BDFloatType, "a_rot");
     if (hasMotion)
         dirIndex = addAttribute(BDFloat3Type, "a_dir");
-}
-
-void ScreenSpaceDrawable::setUseRotation(bool newVal)
-{
-    useRotation = newVal;
 }
     
 void ScreenSpaceDrawable::setKeepUpright(bool newVal)
@@ -62,6 +59,11 @@ void ScreenSpaceDrawable::addDir(const Point3f &dir)
 {
     addAttributeValue(dirIndex, dir);
 }
+    
+void ScreenSpaceDrawable::addRot(double rot)
+{
+    addAttributeValue(rotIndex, (float)rot);
+}
 
 void ScreenSpaceDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
 {
@@ -77,6 +79,7 @@ void ScreenSpaceDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scen
     if (frameInfo.program)
     {
         frameInfo.program->setUniform("u_scale", Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
+        frameInfo.program->setUniform("u_upright", keepUpright);
         if (motion)
             frameInfo.program->setUniform("u_time", (float)(frameInfo.currentTime - startTime));
     }
@@ -123,6 +126,7 @@ static const char *vertexShaderMotionTri =
 "uniform float u_fade;"
 "uniform vec2  u_scale;"
 "uniform float u_time;"
+"uniform bool u_upright;"
 ""
 "attribute vec3 a_position;"
 "attribute vec3 a_dir;"
@@ -130,6 +134,7 @@ static const char *vertexShaderMotionTri =
 "attribute vec2 a_texCoord0;"
 "attribute vec4 a_color;"
 "attribute vec2 a_offset;"
+"attribute float a_rot;"
 ""
 "varying vec2 v_texCoord;"
 "varying vec4 v_color;"
@@ -139,6 +144,13 @@ static const char *vertexShaderMotionTri =
 "   v_texCoord = a_texCoord0;"
 "   v_color = a_color * u_fade;"
 ""
+// The offset is modified by a rotation
+"   float sinRot = sin(a_rot);"
+"   float cosRot = cos(a_rot);"
+"   mat2 rotMat = mat2(vec2(cosRot,sinRot),vec2(-sinRot,cosRot));"
+"   vec2 offset = rotMat * a_offset;"
+""
+// Position can be modified over time
 "   vec3 thePos = a_position + u_time * a_dir;"
 "   vec4 pt = u_mvMatrix * vec4(thePos,1.0);"
 "   pt /= pt.w;"
@@ -146,7 +158,7 @@ static const char *vertexShaderMotionTri =
 "   float dot_res = dot(-pt.xyz,testNorm.xyz);"
 "   vec4 screenPt = (u_mvpMatrix * vec4(thePos,1.0));"
 "   screenPt /= screenPt.w;"
-"   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(a_offset.x*u_scale.x,a_offset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);"
+"   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(offset.x*u_scale.x,offset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);"
 "}"
 ;
 

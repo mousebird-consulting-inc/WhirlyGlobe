@@ -114,7 +114,6 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 ///  we show that.  If there's more than one, we switch
 ///  between them over the period.
 @property (nonatomic,assign) std::vector<WhirlyKit::SimpleIdentity> &texIDs;
-/// The width in 3-space (remember the globe has radius = 1.0)
 @property (nonatomic,assign) bool lockRotation;
 /// The height in 3-space (remember the globe has radius = 1.0)
 @property (nonatomic,assign) float height;

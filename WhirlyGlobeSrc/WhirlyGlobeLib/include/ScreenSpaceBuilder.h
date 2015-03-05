@@ -61,6 +61,8 @@ public:
         int drawPriority;
         float minVis,maxVis;
         bool motion;
+        bool rotation;
+        bool keepUpright;
     };
     
     /// Draw priorities can mix and match with other objects, but we probably don't want that
@@ -192,7 +194,6 @@ protected:
     NSTimeInterval startTime,endTime;
     Point2d offset;
     double rotation;
-    bool useRotation;
     bool keepUpright;
     ScreenSpaceBuilder::DrawableState state;
     std::vector<ConvexGeometry> geometry;
