@@ -307,9 +307,12 @@ using namespace WhirlyKit;
 
 - (void)appBackground:(NSNotification *)note
 {
-    wasAnimating = glView.animating;
-    if (wasAnimating)
-        [self stopAnimation];
+    if(!wasAnimating || glView.animating)
+    {
+        wasAnimating = glView.animating;
+        if (wasAnimating)
+            [self stopAnimation];
+    }
 }
 
 - (void)appForeground:(NSNotification *)note
