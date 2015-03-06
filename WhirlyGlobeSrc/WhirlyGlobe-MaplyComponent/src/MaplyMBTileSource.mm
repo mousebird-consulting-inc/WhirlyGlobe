@@ -133,6 +133,15 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (void)dealloc
+{
+    @synchronized(self)
+    {
+        if (_sqlDb)
+            sqlite3_close(_sqlDb);
+    }
+}
+
 - (int)minZoom
 {
     return _minZoom;
