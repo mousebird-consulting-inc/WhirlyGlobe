@@ -583,6 +583,10 @@ void BigDrawable::executeFlush(int whichBuffer)
         elBuffer = (GLubyte *)glMapBufferOES(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
     else
         elBuffer = (GLubyte *)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, numElementBytes, GL_MAP_WRITE_BIT);
+
+    if(!elBuffer)
+        return;
+
     GLubyte *elBufPtr = elBuffer;
     int elBufferSize = 0;
     for (ElementChunkSet::iterator it = elementChunks.begin();
