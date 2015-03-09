@@ -192,7 +192,10 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys delegate:(NSObject<MaplyPagingDelegate> *)inTileSource
 {
     self = [super init];
-    
+
+    if (!inTileSource)
+        return nil;
+
     coordSys = inCoordSys;
     tileSource = inTileSource;
     _numSimultaneousFetches = 8;
