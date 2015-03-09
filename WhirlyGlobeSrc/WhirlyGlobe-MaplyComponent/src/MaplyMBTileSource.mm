@@ -57,7 +57,11 @@ using namespace WhirlyKit;
             // Now try looking for it in the bundle
             infoPath = [[NSBundle mainBundle] pathForResource:mbTilesName ofType:@"mbtiles"];
             if (!infoPath)
-                return nil;
+            {
+                infoPath = [[NSBundle mainBundle] pathForResource:mbTilesName ofType:@"sqlite"];
+                if (!infoPath)
+                    return nil;
+            }
         }
     }
     
