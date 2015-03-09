@@ -99,6 +99,9 @@ using namespace WhirlyKit;
 
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
 {
+    if (!inTileSource)
+        return nil;
+    
     self = [super init];
     
     coordSys = inCoordSys;
