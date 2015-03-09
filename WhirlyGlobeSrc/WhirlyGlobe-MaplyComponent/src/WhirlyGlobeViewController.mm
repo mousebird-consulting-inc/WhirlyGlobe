@@ -627,12 +627,24 @@ using namespace WhirlyGlobe;
 // External facing version of rotateToPoint
 - (void)animateToPosition:(WGCoordinate)newPos time:(NSTimeInterval)howLong
 {
+    if (isnan(newPos.x) || isnan(newPos.y))
+    {
+        NSLog(@"WhirlyGlobeViewController: Invalid location passed to animationToPosition:");
+        return;
+    }
+
     [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:howLong];
 }
 
 // Figure out how to get the geolocation to the given point on the screen
 - (bool)animateToPosition:(WGCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
 {
+    if (isnan(newPos.x) || isnan(newPos.y))
+    {
+        NSLog(@"WhirlyGlobeViewController: Invalid location passed to animationToPosition:");
+        return false;
+    }
+
     [globeView cancelAnimation];
     
     // Figure out where that points lands on the globe
@@ -677,6 +689,12 @@ using namespace WhirlyGlobe;
 
 - (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong
 {
+    if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
+    {
+        NSLog(@"WhirlyGlobeViewController: Invalid location passed to animationToPosition:");
+        return false;
+    }
+
     [globeView cancelAnimation];
 
     WhirlyGlobeViewControllerSimpleAnimationDelegate *anim = [[WhirlyGlobeViewControllerSimpleAnimationDelegate alloc] init];
@@ -693,6 +711,12 @@ using namespace WhirlyGlobe;
 // External facing set position
 - (void)setPosition:(WGCoordinate)newPos
 {
+    if (isnan(newPos.x) || isnan(newPos.y))
+    {
+        NSLog(@"WhirlyGlobeViewController: Invalid location passed to setPosition:");
+        return;
+    }
+    
     // Note: This might conceivably be a problem, though I'm not sure how.
     [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:0.0];
     // If there's a pinch delegate, ask it to calculate the height.
@@ -702,12 +726,24 @@ using namespace WhirlyGlobe;
 
 - (void)setPosition:(WGCoordinate)newPos height:(float)height
 {
+    if (isnan(newPos.x) || isnan(newPos.y) || isnan(height))
+    {
+        NSLog(@"WhirlyGlobeViewController: Invalid location passed to setPosition:");
+        return;
+    }
+
     [self setPosition:newPos];
     globeView.heightAboveGlobe = height;
 }
 
 - (void)setHeading:(float)heading
 {
+    if (isnan(heading))
+    {
+        NSLog(@"WhirlyGlobeViewController: Invalid heading passed to setHeading:");
+        return;
+    }
+
     // Undo the current heading
     Point3d localPt = [globeView currentUp];
     Vector3d northPole = (globeView.rotQuat * Vector3d(0,0,1)).normalized();
