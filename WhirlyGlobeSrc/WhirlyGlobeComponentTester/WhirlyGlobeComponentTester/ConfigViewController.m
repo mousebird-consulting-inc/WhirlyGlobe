@@ -74,8 +74,8 @@
                                    kMaplyTestStamenWatercolor: @(NO),
                                                 kMaplyTestOSM: @(NO),
                                           kMaplyTestMapBoxSat: @(NO),
-                                      kMaplyTestMapBoxTerrain: @(NO),
-                                      kMaplyTestMapBoxRegular: @(NO),
+//                                      kMaplyTestMapBoxTerrain: @(NO),
+//                                      kMaplyTestMapBoxRegular: @(NO),
                                            kMaplyTestQuadTest: @(NO),
                                      kMaplyTestQuadVectorTest: @(NO),
                                     kMaplyTestQuadTestAnimate: @(NO)}
@@ -92,7 +92,7 @@
                 @{kMaplyTestUSGSOrtho: @(NO),
                   kMaplyTestOWM: @(NO),
                   kMaplyTestForecastIO: @(NO),
-                  kMaplyTestMapboxStreets: @(NO),
+//                  kMaplyTestMapboxStreets: @(NO),
                   kMaplyMapzenVectors: @(NO)
                   }
                                        singleSelect:false],
@@ -128,7 +128,7 @@
             @{kMaplyTestUSGSOrtho: @(NO),
               kMaplyTestOWM: @(NO),
               kMaplyTestForecastIO: @(NO),
-              kMaplyTestMapboxStreets: @(NO),
+//              kMaplyTestMapboxStreets: @(NO),
               kMaplyMapzenVectors: @(NO)
               }
                                    singleSelect:false],

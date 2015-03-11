@@ -1404,21 +1404,29 @@ static const int NumMegaMarkers = 15000;
 //                 ];
             } else if (![layerName compare:kMaplyMapzenVectors])
             {
-                thisCacheDir = [NSString stringWithFormat:@"%@/mapzen-vectiles",cacheDir];
-                MapzenSource *mzSource = [[MapzenSource alloc]
-                                          initWithBase:@"http://vector.mapzen.com/osm"
-                                          layers:@[@"water",@"earth",@"landuse",@"roads",@"buildings",@"pois",@"places"]];
-                mzSource.minZoom = 4;
-                mzSource.maxZoom = 20;
-                 // Now for the paging layer itself
-                 MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:mzSource];
-                 pageLayer.numSimultaneousFetches = 2;
-                 pageLayer.flipY = false;
-                 pageLayer.importance = 256*256;
-                 pageLayer.useTargetZoomLevel = true;
-                 pageLayer.singleLevelLoading = true;
-                 [baseViewC addLayer:pageLayer];
-                 ovlLayers[layerName] = pageLayer;
+                // Get the style file
+                NSData *styleData = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"]];
+                
+                if (styleData)
+                {
+                    thisCacheDir = [NSString stringWithFormat:@"%@/mapzen-vectiles",cacheDir];
+                    MapzenSource *mzSource = [[MapzenSource alloc]
+                                              initWithBase:@"http://vector.mapzen.com/osm"
+                                              layers:@[@"water",@"earth",@"landuse",@"roads",@"buildings",@"pois",@"places"]
+                                              styleData:styleData type:MapzenSourcePBF viewC:baseViewC];
+                    mzSource.minZoom = 4;
+                    mzSource.maxZoom = 20;
+                   
+                    // Now for the paging layer itself
+                    MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:mzSource];
+                    pageLayer.numSimultaneousFetches = 8;
+                    pageLayer.flipY = false;
+                    pageLayer.importance = 1024*1024;
+                    pageLayer.useTargetZoomLevel = true;
+                    pageLayer.singleLevelLoading = true;
+                    [baseViewC addLayer:pageLayer];
+                    ovlLayers[layerName] = pageLayer;
+                }
                 
 //                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithURL:@"http://vector.mapzen.com/osm/all/"
 //                                                                  ext:@"mapbox"
