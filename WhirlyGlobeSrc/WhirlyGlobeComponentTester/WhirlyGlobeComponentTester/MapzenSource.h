@@ -9,10 +9,17 @@
 #import <Foundation/Foundation.h>
 #import <WhirlyGlobeComponent.h>
 
+typedef enum {MapzenSourceGeoJSON, MapzenSourcePBF } MapzenSourceType;
+
+/** @brief Mapzen Source type.  Handles fetching from Mapzen.
+    @details Implements a paging delegate that can fetch Mapzen vector tile data.
+  */
 @interface MapzenSource : NSObject<MaplyPagingDelegate>
 
 @property (nonatomic,assign) int minZoom,maxZoom;
 
-- (id)initWithBase:(NSString *)baseURL layers:(NSArray *)layers;
+/** @brief Initialize with the base URL and the layers we want to fetch.
+  */
+- (id)initWithBase:(NSString *)inBaseURL layers:(NSArray *)inLayers styleData:(NSData *)styleData type:(MapzenSourceType)inType viewC:(MaplyBaseViewController *)viewC;
 
 @end
