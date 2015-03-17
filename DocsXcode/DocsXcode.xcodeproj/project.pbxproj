@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		2B19B10B1AB7F4AE00862BCD /* epicenter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epicenter.png; sourceTree = "<group>"; };
 		2B4E068B1A152FAF00ADA318 /* _config.yml */ = {isa = PBXFileReference; lastKnownFileType = text; name = _config.yml; path = ../_config.yml; sourceTree = "<group>"; };
 		2B4E068D1A152FB500ADA318 /* tutorial.yaml */ = {isa = PBXFileReference; lastKnownFileType = text; path = tutorial.yaml; sourceTree = "<group>"; };
 		2B4E068F1A152FD700ADA318 /* app_entry.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = app_entry.html; sourceTree = "<group>"; };
@@ -302,6 +303,7 @@
 		2B4E06B81A153FB100ADA318 /* apps */ = {
 			isa = PBXGroup;
 			children = (
+				2B19B10B1AB7F4AE00862BCD /* epicenter.png */,
 				2BB94D8B1A2CEDCE0076B1B4 /* deforestation.png */,
 				2B4E06B91A153FB100ADA318 /* darksky.jpeg */,
 				2B4E06BA1A153FB100ADA318 /* ellawalk.png */,

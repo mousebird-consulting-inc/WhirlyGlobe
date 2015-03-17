@@ -5,6 +5,8 @@ layout: default
 
 A toolkit is only as good as the apps that use it.  Here are some of our favorites. If you'd like to be included, just send an image, a short description and a link.
 
+{% include app_entry.html name="Epicenter" image=“epicenter.png” body="An interactive, animated app plotting the latest 30 days of USGS earthquake data." link="https://itunes.apple.com/us/app/epicenter-30-days-worldwide/id972755325?mt=8" %}
+
 {% include app_entry.html name="Dark Sky" image="darksky.jpeg" body="Dark Sky is one of the Apple app store's favorite weather apps.  Not only will it tell when it's going to rain it'll show you beautiful animated weather and temperature data." link="https://itunes.apple.com/us/app/dark-sky-weather-radar-hyperlocal/id517329357?mt=8" %}
 
 {% include app_entry.html name="WhirlyViz" image="whirlyviz.jpeg" body="WhirlyViz is a data visualization engine for iPad and iPhone.  It uses Javascript modules to let users play with big, complex data sets." link="https://itunes.apple.com/us/app/whirlyviz/id752701884?mt=8" %}
