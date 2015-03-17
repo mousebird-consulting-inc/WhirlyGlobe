@@ -9,7 +9,7 @@ class SelectionManager
 	{		
 	}
 	
-	SelectionManager(MapScene scene)
+	SelectionManager(Scene scene)
 	{
 		initialise(scene);
 	}
@@ -27,7 +27,7 @@ class SelectionManager
 		nativeInit();
 	}
 	private static native void nativeInit();
-	native void initialise(MapScene scene);
+	native void initialise(Scene scene);
 	native void dispose();
 	private long nativeHandle;
 	private long nativeSceneHandle;

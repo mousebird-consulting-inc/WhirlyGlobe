@@ -1,9 +1,9 @@
 /*
- *  MapScene.java
+ *  GlobeView.java
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Created by Steve Gifford on 3/13/15.
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,42 +20,17 @@
 
 package com.mousebird.maply;
 
-/**
- * The map scene represents an internal Maply Scene object and
- * is completely opaque to toolkit users.
- * 
- * @author sjg
- *
- */
-public class MapScene extends Scene
+public class GlobeView extends View
 {
-	private MapScene()
-	{
-	}
 	
-	MapScene(CoordSystemDisplayAdapter coordAdapter)
-	{
-		initialise(coordAdapter,charRenderer);
-	}
 	
-	public void finalize()
-	{
-		dispose();
-	}
-	
-	// Flush the given changes out to the Scene
-	@Override public void addChanges(ChangeSet changes)
-	{
-		addChangesNative(changes);
-	}
-
-
 	static
 	{
 		nativeInit();
 	}
 	private static native void nativeInit();
-	native void initialise(CoordSystemDisplayAdapter coordAdapter,CharRenderer charRenderer);
-	native void addChangesNative(ChangeSet changes);
+	native void initialise(CoordSystemDisplayAdapter coordAdapter);
+	// Make a copy of this map view and return it
+	protected native void nativeClone(GlobeView dest);
 	native void dispose();
 }

@@ -40,7 +40,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_initialise
 {
 	try
 	{
-		MapScene *scene = MapSceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+		Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
 		LayoutManager *layoutManager = dynamic_cast<LayoutManager *>(scene->getManager(kWKLayoutManager));
 		LayoutManagerClassInfo::getClassInfo()->setHandle(env,obj,layoutManager);
 	}

@@ -67,7 +67,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_dispose
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_addChanges
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_addChangesNative
   (JNIEnv *env, jobject obj, jobject changesObj)
 {
 	try

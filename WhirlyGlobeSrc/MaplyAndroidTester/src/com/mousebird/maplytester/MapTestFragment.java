@@ -2,8 +2,7 @@ package com.mousebird.maplytester;
 
 import java.io.File;
 
-import com.mousebird.maply.MapFragment;
-import com.mousebird.maply.MaplyController;
+import com.mousebird.maply.MapController;
 import com.mousebird.maply.QuadImageTileLayer;
 import com.mousebird.maply.QuadPagingLayer;
 import com.mousebird.maply.RemoteTileSource;
@@ -19,7 +18,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 /**
  * This fragment manages the map (globe), adding and removing content as the user requests.
@@ -27,7 +25,7 @@ import android.widget.LinearLayout;
  */
 public class MapTestFragment extends Fragment implements ConfigViewListener
 {
-	MaplyController mapControl = null;
+	MapController mapControl = null;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -39,7 +37,7 @@ public class MapTestFragment extends Fragment implements ConfigViewListener
 		drawer.setLayoutParams(lp);
 
     	// Create the Maply Controller
-    	mapControl = new MaplyController(getActivity());
+    	mapControl = new MapController(getActivity());
     	View mapView = mapControl.getContentView();
 	    DrawerLayout.LayoutParams mlp = new DrawerLayout.LayoutParams(
 	    		DrawerLayout.LayoutParams.MATCH_PARENT , DrawerLayout.LayoutParams.MATCH_PARENT);

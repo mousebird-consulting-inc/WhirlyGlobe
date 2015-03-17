@@ -90,7 +90,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		public void startFetchForTile(QuadPagingLayer layer,MaplyTileID tileID);
 	}
 	
-	public MaplyController maplyControl = null;
+	public MaplyBaseController maplyControl = null;
 	public CoordSystem coordSys = null;
 	PagingInterface pagingDelegate = null;
 	boolean singleLevelLoading = false;
@@ -103,7 +103,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	 * In most cases this will be SphericalMercatorCoordSystem.
 	 * @param inDelegate The paging object itself.  This is what you need to implement.
 	 */
-	public QuadPagingLayer(MaplyController inMaplyControl,CoordSystem inCoordSys,PagingInterface inDelegate)
+	public QuadPagingLayer(MaplyBaseController inMaplyControl,CoordSystem inCoordSys,PagingInterface inDelegate)
 	{
 		maplyControl = inMaplyControl;
 		coordSys = inCoordSys;
@@ -355,9 +355,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		}
 				
 		// Clear component objects out of maply control
-		public void clear(MaplyController maplyControl)
+		public void clear(MaplyBaseController maplyControl)
 		{
-			maplyControl.removeObjects(compObjs,MaplyController.ThreadMode.ThreadCurrent);
+			maplyControl.removeObjects(compObjs,MaplyBaseController.ThreadMode.ThreadCurrent);
 			compObjs = new ArrayList<ComponentObject>();
 		}
 		
@@ -437,7 +437,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		// We're no longer interested in the tile, so punt
 		if (tile == null)
 		{
-			maplyControl.removeObjects(compObjs,MaplyController.ThreadMode.ThreadCurrent);
+			maplyControl.removeObjects(compObjs,MaplyBaseController.ThreadMode.ThreadCurrent);
 			return;
 		}
 		tile.addToCompObjs(compObjs);
@@ -475,7 +475,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		if (singleLevelLoading)
 		{
 			if (tile != null)
-				maplyControl.enableObjects(tile.compObjs,MaplyController.ThreadMode.ThreadCurrent);
+				maplyControl.enableObjects(tile.compObjs,MaplyBaseController.ThreadMode.ThreadCurrent);
 		} else
 			runTileUpdate(parentTile(tileID));
 		
@@ -606,8 +606,8 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 				evaluate(found,true,toEnable,toDisable);
 		}
 		
-		maplyControl.enableObjects(toEnable,MaplyController.ThreadMode.ThreadCurrent);
-		maplyControl.disableObjects(toDisable,MaplyController.ThreadMode.ThreadCurrent);
+		maplyControl.enableObjects(toEnable,MaplyBaseController.ThreadMode.ThreadCurrent);
+		maplyControl.disableObjects(toDisable,MaplyBaseController.ThreadMode.ThreadCurrent);
 	}
 	
 	native void nativeShutdown(ChangeSet changes);
@@ -641,7 +641,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	native void dispose();
 	private long nativeHandle;
 
-	native void nativeStartLayer(MapScene scene,MaplyRenderer renderer,Point2d ll,Point2d ur,int minZoom,int maxZoom);
+	native void nativeStartLayer(Scene scene,MaplyRenderer renderer,Point2d ll,Point2d ur,int minZoom,int maxZoom);
 	native void nativeViewUpdate(ViewState viewState);	
 	native boolean nativeEvalStep(ChangeSet changes);
 	native boolean nativeRefresh(ChangeSet changes);

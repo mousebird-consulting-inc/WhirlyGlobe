@@ -10,7 +10,7 @@ extern "C" {
 /*
  * Class:     com_mousebird_maply_MaplyRenderer
  * Method:    setScene
- * Signature: (Lcom/mousebird/maply/MapScene;)V
+ * Signature: (Lcom/mousebird/maply/Scene;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setScene
   (JNIEnv *, jobject, jobject);
@@ -18,7 +18,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setScene
 /*
  * Class:     com_mousebird_maply_MaplyRenderer
  * Method:    setViewNative
- * Signature: (Lcom/mousebird/maply/MapView;)V
+ * Signature: (Lcom/mousebird/maply/View;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setViewNative
   (JNIEnv *, jobject, jobject);

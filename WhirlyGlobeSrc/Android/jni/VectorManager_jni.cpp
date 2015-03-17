@@ -30,13 +30,13 @@ using namespace Maply;
 class VecManagerWrapper
 {
 public:
-	VecManagerWrapper(VectorManager *vecManager,MapScene *scene)
+	VecManagerWrapper(VectorManager *vecManager,Scene *scene)
 		: vecManager(vecManager), scene(scene)
 	{
 
 	}
 	VectorManager *vecManager;
-	MapScene *scene;
+	Scene *scene;
 };
 
 typedef JavaClassInfo<VecManagerWrapper> VectorManagerWrapperClassInfo;
@@ -53,7 +53,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_initialise
 {
 	try
 	{
-		MapScene *scene = MapSceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+		Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
 		VectorManager *vecManager = dynamic_cast<VectorManager *>(scene->getManager(kWKVectorManager));
 		VecManagerWrapper *wrap = new VecManagerWrapper(vecManager,scene);
 		VectorManagerWrapperClassInfo::getClassInfo()->setHandle(env,obj,wrap);

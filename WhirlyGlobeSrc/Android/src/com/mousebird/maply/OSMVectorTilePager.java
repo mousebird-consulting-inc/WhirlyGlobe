@@ -49,7 +49,7 @@ import android.util.Log;
  */
 public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 {
-	MaplyController maplyControl = null;
+	MaplyBaseController maplyControl = null;
 	String remotePath = null;
 	int minZoom = 0;
 	int maxZoom = 0;
@@ -65,7 +65,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	 * @param inMaxZoom The maximum zoom level to zoom into.
 	 * @param numThreads Number of threads we're allowed to use in the process of fetching data.
 	 */
-	public OSMVectorTilePager(MaplyController inMaplyControl,String inRemotePath, int inMinZoom, int inMaxZoom, int numThreads)
+	public OSMVectorTilePager(MaplyBaseController inMaplyControl,String inRemotePath, int inMinZoom, int inMaxZoom, int numThreads)
 	{
 		maplyControl = inMaplyControl;
 		remotePath = inRemotePath;
@@ -270,7 +270,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 				roadInfo.setDrawPriority(roadStyle.drawPriority);
 				roadInfo.setLineWidth(roadStyle.width*scale);
 				roadInfo.setEnable(false);
-				compObjs.add(maplyControl.addVectors(group.vecs, roadInfo,MaplyController.ThreadMode.ThreadCurrent));
+				compObjs.add(maplyControl.addVectors(group.vecs, roadInfo,MaplyBaseController.ThreadMode.ThreadCurrent));
 			}
 			
 			// Road itself
@@ -279,7 +279,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 			roadInfo.setDrawPriority(roadStyle.drawPriority+1);
 			roadInfo.setLineWidth(roadStyle.width*scale);
 			roadInfo.setEnable(false);
-			compObjs.add(maplyControl.addVectors(group.vecs, roadInfo,MaplyController.ThreadMode.ThreadCurrent));
+			compObjs.add(maplyControl.addVectors(group.vecs, roadInfo,MaplyBaseController.ThreadMode.ThreadCurrent));
 		}
 	}
 	
@@ -317,7 +317,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
     	labelInfo.setTextColor(0.f, 0.f, 0.f, 1.f);
     	labelInfo.setBackgroundColor(0.f, 0.f, 0.f, 0.f);
     	labelInfo.setTypeface(roadTypeface);
-		compObjs.add(maplyControl.addScreenLabels(labels, labelInfo, MaplyController.ThreadMode.ThreadAny));
+		compObjs.add(maplyControl.addScreenLabels(labels, labelInfo, MaplyBaseController.ThreadMode.ThreadAny));
 	}
 
 	void styleBuildings(VectorObject buildings,List<ComponentObject> compObjs)
@@ -329,7 +329,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		buildingInfo.setColor(1.f,186.f/255.f,103.f/255.f,1.f);
 		buildingInfo.setFilled(true);
 		buildingInfo.setDrawPriority(601);
-		ComponentObject compObj = maplyControl.addVector(buildings,buildingInfo,MaplyController.ThreadMode.ThreadCurrent);
+		ComponentObject compObj = maplyControl.addVector(buildings,buildingInfo,MaplyBaseController.ThreadMode.ThreadCurrent);
 		compObjs.add(compObj);
 	}
 	
@@ -395,7 +395,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 				landInfo.setColor(Color.red(landStyle)/255.f, Color.green(landStyle)/255.f, Color.blue(landStyle)/255.f, Color.alpha(landStyle)/255.f);
 				landInfo.setDrawPriority(200);
 				landInfo.setFilled(true);
-				compObjs.add(maplyControl.addVectors(group.vecs, landInfo,MaplyController.ThreadMode.ThreadCurrent));
+				compObjs.add(maplyControl.addVectors(group.vecs, landInfo,MaplyBaseController.ThreadMode.ThreadCurrent));
 			}
 		}		
 	}
@@ -410,7 +410,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		waterInfo.setFilled(true);
 		waterInfo.setColor(137.f/255.f,188.f/255.f,228.f/255.f,1.f);
 		waterInfo.setDrawPriority(100);
-		ComponentObject compObj = maplyControl.addVector(water, waterInfo,MaplyController.ThreadMode.ThreadCurrent);
+		ComponentObject compObj = maplyControl.addVector(water, waterInfo,MaplyBaseController.ThreadMode.ThreadCurrent);
 		compObjs.add(compObj);
 	}
 	

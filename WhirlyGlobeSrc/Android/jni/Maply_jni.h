@@ -311,7 +311,9 @@ typedef JavaClassInfo<WhirlyKit::CoordSystemDisplayAdapter> CoordSystemDisplayAd
 class MaplySceneRenderer;
 typedef JavaClassInfo<MaplySceneRenderer> MaplySceneRendererInfo;
 typedef JavaClassInfo<Maply::MapScene> MapSceneClassInfo;
+typedef JavaClassInfo<WhirlyKit::Scene> SceneClassInfo;
 typedef JavaClassInfo<Maply::MapView> MapViewClassInfo;
+typedef JavaClassInfo<WhirlyKit::View> ViewClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorInfo> VectorInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorObject> VectorObjectClassInfo;
 typedef JavaClassInfo<WhirlyKit::MarkerInfo> MarkerInfoClassInfo;

@@ -27,7 +27,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import com.mousebird.maply.LabelInfo;
-import com.mousebird.maply.MaplyController;
+import com.mousebird.maply.MapController;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.ScreenLabel;
 import com.mousebird.maply.VectorInfo;
@@ -46,9 +46,9 @@ import android.graphics.Typeface;
 public class TestCountries 
 {
 	Activity activity = null;
-	MaplyController mapControl = null;
+	MapController mapControl = null;
 	
-	TestCountries(Activity inActivity,MaplyController inMapControl)
+	TestCountries(Activity inActivity,MapController inMapControl)
 	{
 		activity = inActivity;
 		mapControl = inMapControl;
@@ -126,10 +126,10 @@ public class TestCountries
     	            	}
     	            	
     	            	if (vecObjs.size() > 0)
-    	            		mapControl.addVectors(vecObjs,vecInfo,MaplyController.ThreadMode.ThreadAny);
+    	            		mapControl.addVectors(vecObjs,vecInfo,MapController.ThreadMode.ThreadAny);
     	            }
     	        	    	        	    	        	    	        	
-    	        	mapControl.addScreenLabels(labels,labelInfo,MaplyController.ThreadMode.ThreadAny);
+    	        	mapControl.addScreenLabels(labels,labelInfo,MapController.ThreadMode.ThreadAny);
     	        	
     	        } catch (Exception e) 
     	        {

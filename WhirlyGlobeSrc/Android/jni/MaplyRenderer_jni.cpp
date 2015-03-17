@@ -111,7 +111,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setScene
 	{
 		MaplySceneRendererInfo *classInfo = MaplySceneRendererInfo::getClassInfo();
 		MaplySceneRenderer *renderer = classInfo->getObject(env,obj);
-		Maply::MapScene *scene = MapSceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+		Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
 		if (!renderer || !scene)
 			return;
 
@@ -135,7 +135,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setViewNative
 	{
 		MaplySceneRendererInfo *classInfo = MaplySceneRendererInfo::getClassInfo();
 		MaplySceneRenderer *renderer = classInfo->getObject(env,obj);
-		Maply::MapView *view = MapViewClassInfo::getClassInfo()->getObject(env,objView);
+		WhirlyKit::View *view = ViewClassInfo::getClassInfo()->getObject(env,objView);
 		if (!renderer || !view)
 			return;
 

@@ -27,7 +27,7 @@ package com.mousebird.maply;
  * don't use this directly unless you've subclasses MaplyController and are doing your own thing.
  *
  */
-public class AnimateTranslate implements MapView.AnimationDelegate 
+public class MapAnimateTranslate implements MapView.AnimationDelegate 
 {
 	MaplyRenderer renderer = null;
 	MapView view = null;
@@ -46,7 +46,7 @@ public class AnimateTranslate implements MapView.AnimationDelegate
 	 * @param duration How long we want the animation to go.
 	 * @param inBounds Bounding box we want to keep the animation within.
 	 */
-	AnimateTranslate(MapView inView,MaplyRenderer inRender,Point3d newLoc,float duration,Point2d inBounds[])
+	MapAnimateTranslate(MapView inView,MaplyRenderer inRender,Point3d newLoc,float duration,Point2d inBounds[])
 	{
 		view = inView;
 		renderer = inRender;
@@ -75,7 +75,7 @@ public class AnimateTranslate implements MapView.AnimationDelegate
 		// Calculate location
 		double t = (curTime-startTime)/(endTime-startTime);
 		Point3d newPos = endLoc.subtract(startLoc).multiplyBy(t).addTo(startLoc);
-		if (GestureHandler.withinBounds(view, renderer.frameSize, newPos, viewBounds))
+		if (MapGestureHandler.withinBounds(view, renderer.frameSize, newPos, viewBounds))
 			view.setLoc(newPos);
 	}
 }

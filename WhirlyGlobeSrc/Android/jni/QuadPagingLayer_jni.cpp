@@ -510,7 +510,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_nativeStartLayer
 		QuadPagingLayerAdapter *adapter = classInfo->getObject(env,obj);
 		Point2d *ll = Point2dClassInfo::getClassInfo()->getObject(env,llObj);
 		Point2d *ur = Point2dClassInfo::getClassInfo()->getObject(env,urObj);
-		Scene *scene = MapSceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+		Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
 		SceneRendererES *renderer = (SceneRendererES *)MaplySceneRendererInfo::getClassInfo()->getObject(env,rendererObj);
 		if (!adapter || !ll || !ur || !scene || !renderer)
 			return;

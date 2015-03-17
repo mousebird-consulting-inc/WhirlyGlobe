@@ -20,21 +20,17 @@
 
 package com.mousebird.maply;
 
-import java.util.ArrayList;
-
 /**
  * The Map View handles math related to user position and orientation.
  * It's largely opaque to toolkit users.  The MaplyController handles
  * passing data to and getting data from it.
  * 
  */
-class MapView 
+public class MapView extends View
 {	
 	private MapView()
 	{
 	}
-	
-	CoordSystemDisplayAdapter coordAdapter = null;
 	
 	MapView(CoordSystemDisplayAdapter inCoordAdapter)
 	{
@@ -57,24 +53,13 @@ class MapView
 	{
 		dispose();
 	}
-
-	/**
-	 * Return the coordinate adapter used by this view.
-	 * The coordinate adapter manages transformation from the local coordinate system
-	 * to display coordinates and vice versa.
-	 * @return
-	 */
-	CoordSystemDisplayAdapter getCoordAdapter()
-	{
-		return coordAdapter;
-	}
 	
-	// For objects that want to know when the view changes (every time it does)
-	interface ViewWatcher
+	// Return a view state for this Map View
+	@Override public ViewState makeViewState(MaplyRenderer renderer)
 	{
-		public void viewUpdated(MapView view);
+		return new MapViewState(this,renderer);
 	}
-	
+		
 	// These are viewpoint animations
 	interface AnimationDelegate
 	{
@@ -91,13 +76,13 @@ class MapView
 	}
 	
 	// Clear the animation delegate
-	public void cancelAnimation() 
+	@Override public void cancelAnimation() 
 	{
 		animationDelegate = null;
 	}
 	
 	// Called on the rendering thread right before we render
-	public void animate() 
+	@Override public void animate() 
 	{
 		if (animationDelegate != null)
 		{
@@ -118,28 +103,11 @@ class MapView
 		
 		runViewUpdates();
 	}
-	
-	ArrayList<ViewWatcher> watchers = new ArrayList<ViewWatcher>();
-	
-	// Add a watcher for callbacks on each and every view related change
-	void addViewWatcher(ViewWatcher watcher)
-	{
-		watchers.add(watcher);
-	}
-	// Remove an object that was watching view changes
-	void removeViewWatcher(ViewWatcher watcher)
-	{
-		watchers.remove(watcher);
-	}
-	// Let everything know we changed the view
-	void runViewUpdates()
-	{
-//		Point3d loc = getLoc();
-//		Log.i("Maply","New pos: (" + loc.getX() + "," + loc.getY() + "," + loc.getZ() + ")");
-		for (ViewWatcher watcher: watchers)
-			watcher.viewUpdated(this);
-	}
-	
+		
+	// Calculate the point on the view plane given the screen location
+	native Point3d pointOnPlaneFromScreen(Point2d screenPt,Matrix4d viewModelMatrix,Point2d frameSize,boolean clip);
+	// Calculate the point on the screen from a point on the view plane
+	native Point2d pointOnScreenFromPlane(Point3d pt,Matrix4d viewModelMatrix,Point2d frameSize);
 	// Minimum possible height above the surface
 	native double minHeightAboveSurface();
 	// Maximum possible height above the surface
@@ -152,21 +120,14 @@ class MapView
 	native void setRot(double rot);
 	// Return the 2D rotation
 	native double getRot();
-	// Return the current model & view matrix combined (but not projection)
-	native Matrix4d calcModelViewMatrix();	
-	// Calculate the point on the view plane given the screen location
-	native Point3d pointOnPlaneFromScreen(Point2d screenPt,Matrix4d viewModelMatrix,Point2d frameSize,boolean clip);
-	// Calculate the point on the screen from a point on the view plane
-	native Point2d pointOnScreenFromPlane(Point3d pt,Matrix4d viewModelMatrix,Point2d frameSize);
-	// Make a copy of this map view and return it
-	protected native void nativeClone(MapView dest);
-			
+
 	static
 	{
 		nativeInit();
 	}
 	private static native void nativeInit();
 	native void initialise(CoordSystemDisplayAdapter coordAdapter);
+	// Make a copy of this map view and return it
+	protected native void nativeClone(MapView dest);
 	native void dispose();
-	private long nativeHandle;
 }

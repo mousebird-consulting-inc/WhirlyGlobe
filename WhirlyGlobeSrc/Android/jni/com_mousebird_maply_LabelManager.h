@@ -42,7 +42,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_nativeInit
 /*
  * Class:     com_mousebird_maply_LabelManager
  * Method:    initialise
- * Signature: (Lcom/mousebird/maply/MapScene;)V
+ * Signature: (Lcom/mousebird/maply/Scene;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_initialise
   (JNIEnv *, jobject, jobject);

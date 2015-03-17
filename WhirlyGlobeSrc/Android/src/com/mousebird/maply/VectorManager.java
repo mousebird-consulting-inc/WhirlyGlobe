@@ -33,7 +33,7 @@ class VectorManager
 	{
 	}
 	
-	VectorManager(MapScene scene)
+	VectorManager(Scene scene)
 	{
 		initialise(scene);
 	}
@@ -57,7 +57,7 @@ class VectorManager
 		nativeInit();
 	}
 	private static native void nativeInit();
-	native void initialise(MapScene scene);
+	native void initialise(Scene scene);
 	native void dispose();
 	private long nativeHandle;
 }

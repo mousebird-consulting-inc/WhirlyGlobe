@@ -89,7 +89,7 @@ public class ComponentObject
 	}
 	
 	// Enable/disable anything the component object is holding
-	void enable(MaplyController control,boolean enable,ChangeSet changes)
+	void enable(MaplyBaseController control,boolean enable,ChangeSet changes)
 	{	
 		if (vectorIDs != null && vectorIDs.size() > 0)
 			control.vecManager.enableVectors(convertIDs(vectorIDs), enable, changes);
@@ -100,7 +100,7 @@ public class ComponentObject
 	}
 	
 	// Clear out anything the component object is holding
-	void clear(MaplyController control,ChangeSet changes)
+	void clear(MaplyBaseController control,ChangeSet changes)
 	{
 		if (vectorIDs != null && vectorIDs.size() > 0)
 		{

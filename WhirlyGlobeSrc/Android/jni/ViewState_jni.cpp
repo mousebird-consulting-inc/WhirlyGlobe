@@ -36,7 +36,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ViewState_initialise
 {
 	try
 	{
-		View *view = MapViewClassInfo::getClassInfo()->getObject(env,viewObj);
+		View *view = ViewClassInfo::getClassInfo()->getObject(env,viewObj);
 		SceneRendererES *renderer = (SceneRendererES *)MaplySceneRendererInfo::getClassInfo()->getObject(env,rendererObj);
 		if (!view || !renderer)
 			return;

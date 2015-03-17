@@ -33,9 +33,9 @@ import android.view.View;
  * create your own subclass of this. 
  *
  */
-public class GestureHandler 
+public class MapGestureHandler 
 {
-	MaplyController mapControl = null;
+	MapController mapControl = null;
 	MapView mapView = null;
 	
 	ScaleGestureDetector sgd = null;
@@ -43,7 +43,7 @@ public class GestureHandler
 	GestureDetector gd = null;
 	GestureListener gl = null;
 	View view = null;
-	public GestureHandler(MaplyController inControl,View inView)
+	public MapGestureHandler(MapController inControl,View inView)
 	{
 		mapControl = inControl;
 		mapView = mapControl.mapView;
@@ -94,14 +94,14 @@ public class GestureHandler
 	// Listening for a pinch scale event
 	private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener
 	{
-		MaplyController maplyControl;
+		MapController maplyControl;
 		double startZ;
 		float startDist;
 		GestureListener gl = null;
 		public boolean isActive = false;
 //		Point3d centerGeoCoord = null;
 		
-		ScaleListener(MaplyController inMaplyControl)
+		ScaleListener(MapController inMaplyControl)
 		{
 			maplyControl = inMaplyControl;
 		}
@@ -159,10 +159,10 @@ public class GestureHandler
 	private class GestureListener implements GestureDetector.OnGestureListener,
 				GestureDetector.OnDoubleTapListener
 	{
-		MaplyController maplyControl;
+		MapController maplyControl;
 		public boolean isActive = false;
 		
-		GestureListener(MaplyController inMaplyControl)
+		GestureListener(MapController inMaplyControl)
 		{
 			maplyControl = inMaplyControl;
 		}
@@ -240,7 +240,7 @@ public class GestureHandler
 			double accel = - modelVel / (AnimMomentumTime * AnimMomentumTime);
 			
 			// Now kick off the animation
-			mapView.setAnimationDelegate(new AnimateTranslateMomentum(mapView, mapControl.renderWrapper.maplyRender, modelVel, accel, dir, maplyControl.viewBounds));
+			mapView.setAnimationDelegate(new MapAnimateTranslateMomentum(mapView, mapControl.renderWrapper.maplyRender, modelVel, accel, dir, maplyControl.viewBounds));
 		
 			isActive = false;
 			
@@ -294,7 +294,7 @@ public class GestureHandler
 			loc.setValue(pt.getX(), pt.getY(), loc.getZ()/2.0);
 			
 			// Now kick off the animation
-			mapView.setAnimationDelegate(new AnimateTranslate(mapView, mapControl.renderWrapper.maplyRender, loc, (float) 0.1, maplyControl.viewBounds));
+			mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, mapControl.renderWrapper.maplyRender, loc, (float) 0.1, maplyControl.viewBounds));
 			isActive = false;
 			
 			return true;
@@ -325,7 +325,7 @@ public class GestureHandler
 				loc.setValue(loc.getX(), loc.getY(), loc.getZ()*2.0);
 				
 				// Now kick off the animation
-				mapView.setAnimationDelegate(new AnimateTranslate(mapView, mapControl.renderWrapper.maplyRender, loc, (float) 0.1, mapControl.viewBounds));
+				mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, mapControl.renderWrapper.maplyRender, loc, (float) 0.1, mapControl.viewBounds));
 
 				sl.isActive = false;
 				gl.isActive = false;

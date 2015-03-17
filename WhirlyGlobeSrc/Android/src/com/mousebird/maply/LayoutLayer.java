@@ -29,10 +29,10 @@ import android.os.Handler;
  */
 class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 {
-	MaplyController maplyControl = null;
+	MaplyBaseController maplyControl = null;
 	LayoutManager layoutManager = null;
 
-	LayoutLayer(MaplyController inMaplyControl,LayoutManager inLayoutManager)
+	LayoutLayer(MaplyBaseController inMaplyControl,LayoutManager inLayoutManager)
 	{
 		maplyControl = inMaplyControl;
 		layoutManager = inLayoutManager;
@@ -120,7 +120,7 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 		// Note: Should wait until the user stops moving
 		ChangeSet changes = new ChangeSet();
 		layoutManager.updateLayout(viewState, changes);
-		maplyControl.mapScene.addChanges(changes);		
+		maplyControl.scene.addChanges(changes);		
 	}
 	
 	@Override

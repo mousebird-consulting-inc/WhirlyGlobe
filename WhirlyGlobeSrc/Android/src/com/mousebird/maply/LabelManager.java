@@ -32,7 +32,7 @@ class LabelManager
 	{
 	}
 	
-	LabelManager(MapScene scene)
+	LabelManager(Scene scene)
 	{
 		initialise(scene);
 	}
@@ -56,7 +56,7 @@ class LabelManager
 		nativeInit();
 	}
 	private static native void nativeInit();
-	native void initialise(MapScene scene);
+	native void initialise(Scene scene);
 	native void dispose();
 	private long nativeHandle;
 	private long nativeSceneHandle;

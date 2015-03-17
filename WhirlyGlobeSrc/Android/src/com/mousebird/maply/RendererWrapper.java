@@ -32,23 +32,23 @@ import android.opengl.GLSurfaceView.*;
 class RendererWrapper implements Renderer
 {
 	public MaplyRenderer maplyRender = null;
-	public MapScene mapScene = null;
-	public MapView mapView = null;
-	public MaplyController mapControl = null;
+	public Scene scene = null;
+	public View view = null;
+	public MaplyBaseController maplyControl = null;
 	
-	public RendererWrapper(MaplyController inMapControl)
+	public RendererWrapper(MaplyBaseController inMapControl)
 	{
-		mapControl = inMapControl;
+		maplyControl = inMapControl;
 	}
 	
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config)
 	{		
 		maplyRender = new MaplyRenderer();
-  		maplyRender.setScene(mapScene);
-		maplyRender.setView(mapView);
+  		maplyRender.setScene(scene);
+		maplyRender.setView(view);
 		maplyRender.setConfig(config);
-		mapControl.surfaceCreated(this);
+		maplyControl.surfaceCreated(this);
 	}
 	
 	@Override

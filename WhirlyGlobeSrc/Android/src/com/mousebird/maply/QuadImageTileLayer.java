@@ -74,7 +74,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		public void startFetchForTile(QuadImageTileLayer layer,MaplyTileID tileID);
 	}
 	
-	public MaplyController maplyControl = null;
+	public MaplyBaseController maplyControl = null;
 	public CoordSystem coordSys = null;
 	TileSource tileSource = null;
 	
@@ -86,7 +86,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	 * @param inCoordSys Coordinate system the layer will work in, probably Spherical Mercator.
 	 * @param inTileSource Tile source for images.
 	 */
-	public QuadImageTileLayer(MaplyController inMaplyControl,CoordSystem inCoordSys,TileSource inTileSource)
+	public QuadImageTileLayer(MaplyBaseController inMaplyControl,CoordSystem inCoordSys,TileSource inTileSource)
 	{
 		maplyControl = inMaplyControl;
 		coordSys = inCoordSys;
@@ -335,7 +335,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	native void dispose();
 	private long nativeHandle;
 
-	native void nativeStartLayer(MapScene scene,MaplyRenderer renderer,Point2d ll,Point2d ur,int minZoom,int maxZoom);
+	native void nativeStartLayer(Scene scene,MaplyRenderer renderer,Point2d ll,Point2d ur,int minZoom,int maxZoom);
 	native void nativeViewUpdate(ViewState viewState);	
 	native boolean nativeEvalStep(ChangeSet changes);
 	native boolean nativeRefresh(ChangeSet changes);

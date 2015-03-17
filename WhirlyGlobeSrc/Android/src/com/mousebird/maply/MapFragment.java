@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 public class MapFragment extends Fragment 
 {
 	// Handles drawing, interaction, and so forth for Maply
-	public MaplyController mapControl = null;
+	public MapController mapControl = null;
 	
 	public MapFragment()
 	{
@@ -24,8 +24,8 @@ public class MapFragment extends Fragment
 	{
 		super.onCreate(savedInstanceState);
 		
-    	// Create the Maply Controller
-    	mapControl = new MaplyController(this.getActivity());
+    	// Create the Map Controller
+    	mapControl = new MapController(this.getActivity());
 	}
 
 	// Return the render view, to be hooked into the hierarchy

@@ -55,8 +55,8 @@ class MaplyRenderer
 		return resize(width,height);
 	}
 	
-	MapView view = null;
-	public void setView(MapView inView)
+	View view = null;
+	public void setView(View inView)
 	{
 		view = inView;
 		setViewNative(inView);
@@ -81,8 +81,8 @@ class MaplyRenderer
 		context = egl.eglGetCurrentContext();
 	}
 
-	public native void setScene(MapScene scene);
-	public native void setViewNative(MapView view);
+	public native void setScene(Scene scene);
+	public native void setViewNative(View view);
 	public native void setClearColor(float r,float g,float b,float a);
 	protected native boolean teardown();
 	protected native boolean resize(int width,int height);

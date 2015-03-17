@@ -73,7 +73,7 @@ class TextureManager
 		// Need to create it
 		Texture texture = new Texture();
 		if (!texture.setBitmap(theBitmap.bitmap))
-			return MaplyController.EmptyIdentity;
+			return MaplyBaseController.EmptyIdentity;
 		testWrapper.refs = 1;
 		testWrapper.texID = texture.getID();
 		

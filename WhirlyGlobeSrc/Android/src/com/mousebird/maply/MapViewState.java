@@ -1,9 +1,9 @@
 /*
- *  MapScene.java
+ *  MapViewState.java
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Created by Steve Gifford on 3/16/15.
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,41 +21,33 @@
 package com.mousebird.maply;
 
 /**
- * The map scene represents an internal Maply Scene object and
- * is completely opaque to toolkit users.
+ * The map view state encapsulates what's in a view at a certain point in time.
+ * It's here so we can pass that around without fear of making a mess.
+ * <p>
+ * In general, toolkit users shouldn't need to interact with these.
  * 
- * @author sjg
- *
  */
-public class MapScene extends Scene
+public class MapViewState extends ViewState
 {
-	private MapScene()
+	/**
+	 * Initialize with the view we're storing the state of and the renderer
+	 * it applies to.
+	 */
+	MapViewState(MapView view,MaplyRenderer renderer)
 	{
+		initialise(view,renderer);
 	}
-	
-	MapScene(CoordSystemDisplayAdapter coordAdapter)
-	{
-		initialise(coordAdapter,charRenderer);
-	}
-	
+
 	public void finalize()
 	{
 		dispose();
 	}
-	
-	// Flush the given changes out to the Scene
-	@Override public void addChanges(ChangeSet changes)
-	{
-		addChangesNative(changes);
-	}
-
 
 	static
 	{
 		nativeInit();
 	}
 	private static native void nativeInit();
-	native void initialise(CoordSystemDisplayAdapter coordAdapter,CharRenderer charRenderer);
-	native void addChangesNative(ChangeSet changes);
+	native void initialise(MapView view,MaplyRenderer renderer);
 	native void dispose();
 }

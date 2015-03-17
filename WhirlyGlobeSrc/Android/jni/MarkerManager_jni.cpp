@@ -42,7 +42,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerManager_initialise
 {
 	try
 	{
-		MapScene *scene = MapSceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+		Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
 		MarkerManager *markerManager = dynamic_cast<MarkerManager *>(scene->getManager(kWKMarkerManager));
 		MarkerManagerClassInfo::getClassInfo()->setHandle(env,obj,markerManager);
 	}

@@ -40,10 +40,10 @@ import android.util.Log;
  * @author sjg
  *
  */
-public class LayerThread extends HandlerThread implements MapView.ViewWatcher
+public class LayerThread extends HandlerThread implements View.ViewWatcher
 {
-	MapView view = null;
-	MapScene scene = null;
+	View view = null;
+	Scene scene = null;
 	MaplyRenderer renderer = null;
 	ReentrantLock startLock = new ReentrantLock();
 	ArrayList<Layer> layers = new ArrayList<Layer>();
@@ -89,7 +89,7 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	 * @param inView The view we're using.
 	 * @param inScene Scene we're putting things into.
 	 */
-	LayerThread(String name,MapView inView,MapScene inScene) 
+	LayerThread(String name,View inView,Scene inScene) 
 	{
 		super(name);
 		view = inView;
@@ -424,7 +424,7 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 				@Override
 				public void run()
 				{
-					final ViewState viewState = new ViewState(view,renderer);
+					final ViewState viewState = view.makeViewState(renderer);
 					long now = System.currentTimeMillis();
 					updateWatchers(viewState,now);
 					
@@ -440,9 +440,9 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	static long UpdatePeriod = 100;
 	
 	// Called when the view updates its information
-	public void viewUpdated(MapView view)
+	public void viewUpdated(View view)
 	{
-		final ViewState viewState = new ViewState(view,renderer);
+		final ViewState viewState = view.makeViewState(renderer);
 
 		long now = System.currentTimeMillis();
 

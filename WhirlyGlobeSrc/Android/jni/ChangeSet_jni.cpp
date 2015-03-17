@@ -95,8 +95,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
 	{
 		ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo();
 		ChangeSet *changes = classInfo->getObject(env,obj);
-		MapSceneClassInfo *mapSceneClassInfo = MapSceneClassInfo::getClassInfo();
-		Scene *scene = mapSceneClassInfo->getObject(env,sceneObj);
+		SceneClassInfo *sceneClassInfo = SceneClassInfo::getClassInfo();
+		Scene *scene = sceneClassInfo->getObject(env,sceneObj);
 		if (!changes || !scene)
 			return;
 

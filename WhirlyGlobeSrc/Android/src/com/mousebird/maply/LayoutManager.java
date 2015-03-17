@@ -33,7 +33,7 @@ class LayoutManager
 	{		
 	}
 	
-	LayoutManager(MapScene scene)
+	LayoutManager(Scene scene)
 	{
 		initialise(scene);
 	}
@@ -69,7 +69,7 @@ class LayoutManager
 		nativeInit();
 	}
 	private static native void nativeInit();
-	native void initialise(MapScene scene);
+	native void initialise(Scene scene);
 	native void dispose();
 	private long nativeHandle;
 }

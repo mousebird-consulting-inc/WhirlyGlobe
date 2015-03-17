@@ -21,7 +21,7 @@
 package com.mousebird.maply;
 
 /**
- * The view state encapulates what's in a view at a certain point in time.
+ * The view state encapsulates what's in a view at a certain point in time.
  * It's here so we can pass that around without fear of making a mess.
  * <p>
  * In general, toolkit users shouldn't need to interact with these.
@@ -29,22 +29,8 @@ package com.mousebird.maply;
  */
 class ViewState 
 {
-	private ViewState()
+	protected ViewState()
 	{
-	}
-
-	/**
-	 * Initialize with the view we're storing the state of and the renderer
-	 * it applies to.
-	 */
-	ViewState(MapView view,MaplyRenderer renderer)
-	{
-		initialise(view,renderer);
-	}
-
-	public void finalize()
-	{
-		dispose();
 	}
 	
 	/**
@@ -55,12 +41,5 @@ class ViewState
 	 */
 	public native boolean isEqual(ViewState viewState);
 
-	static
-	{
-		nativeInit();
-	}
-	private static native void nativeInit();
-	native void initialise(MapView view,MaplyRenderer renderer);
-	native void dispose();
 	private long nativeHandle;
 }

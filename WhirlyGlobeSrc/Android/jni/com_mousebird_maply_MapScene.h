@@ -9,14 +9,6 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_MapScene
- * Method:    addChanges
- * Signature: (Lcom/mousebird/maply/ChangeSet;)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_addChanges
-  (JNIEnv *, jobject, jobject);
-
-/*
- * Class:     com_mousebird_maply_MapScene
  * Method:    nativeInit
  * Signature: ()V
  */
@@ -30,6 +22,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_nativeInit
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_initialise
   (JNIEnv *, jobject, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_MapScene
+ * Method:    addChangesNative
+ * Signature: (Lcom/mousebird/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_addChangesNative
+  (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_MapScene

@@ -66,7 +66,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_dispose
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    nativeStartLayer
- * Signature: (Lcom/mousebird/maply/MapScene;Lcom/mousebird/maply/MaplyRenderer;Lcom/mousebird/maply/Point2d;Lcom/mousebird/maply/Point2d;II)V
+ * Signature: (Lcom/mousebird/maply/Scene;Lcom/mousebird/maply/MaplyRenderer;Lcom/mousebird/maply/Point2d;Lcom/mousebird/maply/Point2d;II)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeStartLayer
   (JNIEnv *, jobject, jobject, jobject, jobject, jobject, jint, jint);

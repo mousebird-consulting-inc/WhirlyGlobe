@@ -9,6 +9,22 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_MapView
+ * Method:    pointOnPlaneFromScreen
+ * Signature: (Lcom/mousebird/maply/Point2d;Lcom/mousebird/maply/Matrix4d;Lcom/mousebird/maply/Point2d;Z)Lcom/mousebird/maply/Point3d;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapView_pointOnPlaneFromScreen
+  (JNIEnv *, jobject, jobject, jobject, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_MapView
+ * Method:    pointOnScreenFromPlane
+ * Signature: (Lcom/mousebird/maply/Point3d;Lcom/mousebird/maply/Matrix4d;Lcom/mousebird/maply/Point2d;)Lcom/mousebird/maply/Point2d;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapView_pointOnScreenFromPlane
+  (JNIEnv *, jobject, jobject, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_MapView
  * Method:    minHeightAboveSurface
  * Signature: ()D
  */
@@ -57,38 +73,6 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_MapView_getRot
 
 /*
  * Class:     com_mousebird_maply_MapView
- * Method:    calcModelViewMatrix
- * Signature: ()Lcom/mousebird/maply/Matrix4d;
- */
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapView_calcModelViewMatrix
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebird_maply_MapView
- * Method:    pointOnPlaneFromScreen
- * Signature: (Lcom/mousebird/maply/Point2d;Lcom/mousebird/maply/Matrix4d;Lcom/mousebird/maply/Point2d;Z)Lcom/mousebird/maply/Point3d;
- */
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapView_pointOnPlaneFromScreen
-  (JNIEnv *, jobject, jobject, jobject, jobject, jboolean);
-
-/*
- * Class:     com_mousebird_maply_MapView
- * Method:    pointOnScreenFromPlane
- * Signature: (Lcom/mousebird/maply/Point3d;Lcom/mousebird/maply/Matrix4d;Lcom/mousebird/maply/Point2d;)Lcom/mousebird/maply/Point2d;
- */
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapView_pointOnScreenFromPlane
-  (JNIEnv *, jobject, jobject, jobject, jobject);
-
-/*
- * Class:     com_mousebird_maply_MapView
- * Method:    nativeClone
- * Signature: (Lcom/mousebird/maply/MapView;)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MapView_nativeClone
-  (JNIEnv *, jobject, jobject);
-
-/*
- * Class:     com_mousebird_maply_MapView
  * Method:    nativeInit
  * Signature: ()V
  */
@@ -101,6 +85,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapView_nativeInit
  * Signature: (Lcom/mousebird/maply/CoordSystemDisplayAdapter;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapView_initialise
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_MapView
+ * Method:    nativeClone
+ * Signature: (Lcom/mousebird/maply/MapView;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapView_nativeClone
   (JNIEnv *, jobject, jobject);
 
 /*

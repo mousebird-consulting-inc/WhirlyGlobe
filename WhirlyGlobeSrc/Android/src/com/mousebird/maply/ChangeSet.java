@@ -46,7 +46,7 @@ class ChangeSet
 	
 	// Create whatever objects want to be created.
 	// We're assuming a valid EGL context is in place
-	public native void process(MapScene scene);
+	public native void process(Scene scene);
 	
 	static
 	{

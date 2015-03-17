@@ -42,7 +42,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_initialise
 {
 	try
 	{
-		MapScene *scene = MapSceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+		Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
 		SelectionManager *selectionManager = dynamic_cast<SelectionManager *>(scene->getManager(kWKSelectionManager));
 		SelectionManagerClassInfo::getClassInfo()->setHandle(env,obj,selectionManager);
 	}
@@ -66,14 +66,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_dispose
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectionManager_pickObject
-  (JNIEnv *env, jobject obj, jobject mapViewObj, jobject pointObj)
+  (JNIEnv *env, jobject obj, jobject viewObj, jobject pointObj)
 {
 	try
 	{
 		SelectionManagerClassInfo *classInfo = SelectionManagerClassInfo::getClassInfo();
 		SelectionManager *selectionManager = classInfo->getObject(env,obj);
-		MapViewClassInfo *mapViewClassInfo = MapViewClassInfo::getClassInfo();
-		MapView *mapView = mapViewClassInfo->getObject(env,mapViewObj);
+		ViewClassInfo *viewClassInfo = ViewClassInfo::getClassInfo();
+		View *mapView = viewClassInfo->getObject(env,viewObj);
 		Point2dClassInfo *point2DclassInfo = Point2dClassInfo::getClassInfo();
 		Point2d *point = point2DclassInfo->getObject(env,pointObj);
 		if (!selectionManager || !mapView || !point)

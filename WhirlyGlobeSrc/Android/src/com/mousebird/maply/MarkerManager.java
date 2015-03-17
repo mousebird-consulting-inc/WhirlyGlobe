@@ -33,7 +33,7 @@ class MarkerManager
 	{		
 	}
 	
-	MarkerManager(MapScene scene)
+	MarkerManager(Scene scene)
 	{
 		initialise(scene);
 	}
@@ -57,7 +57,7 @@ class MarkerManager
 		nativeInit();
 	}
 	private static native void nativeInit();
-	native void initialise(MapScene scene);
+	native void initialise(Scene scene);
 	native void dispose();
 	private long nativeHandle;
 	private long nativeSceneHandle;

@@ -31,7 +31,7 @@ package com.mousebird.maply;
  * yourself if you've subclassed it.
  *
  */
-public class AnimateTranslateMomentum implements MapView.AnimationDelegate
+public class MapAnimateTranslateMomentum implements MapView.AnimationDelegate
 {
 	MapView mapView = null;
 	MaplyRenderer renderer = null;
@@ -53,7 +53,7 @@ public class AnimateTranslateMomentum implements MapView.AnimationDelegate
 	 * @param inDir Direction to go, rather than a destination point.
 	 * @param inBounds Bounding box to stay within.
 	 */
-	AnimateTranslateMomentum(MapView inView,MaplyRenderer inRender,double inVel,double inAcc,Point3d inDir,Point2d inBounds[])
+	MapAnimateTranslateMomentum(MapView inView,MaplyRenderer inRender,double inVel,double inAcc,Point3d inDir,Point2d inBounds[])
 	{
 		mapView = inView;
 		renderer = inRender;
@@ -99,7 +99,7 @@ public class AnimateTranslateMomentum implements MapView.AnimationDelegate
 		Point3d newPos = org.addTo(dir.multiplyBy(dist));
 		
 		// Bounds check and set
-		if (GestureHandler.withinBounds(view, renderer.frameSize, newPos, viewBounds))
+		if (MapGestureHandler.withinBounds(view, renderer.frameSize, newPos, viewBounds))
 			view.setLoc(newPos);
 	}
 

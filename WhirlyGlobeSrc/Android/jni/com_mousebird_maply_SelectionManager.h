@@ -26,7 +26,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_nativeInit
 /*
  * Class:     com_mousebird_maply_SelectionManager
  * Method:    initialise
- * Signature: (Lcom/mousebird/maply/MapScene;)V
+ * Signature: (Lcom/mousebird/maply/Scene;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_initialise
   (JNIEnv *, jobject, jobject);

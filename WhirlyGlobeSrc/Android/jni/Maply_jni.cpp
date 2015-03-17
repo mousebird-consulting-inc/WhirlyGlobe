@@ -38,6 +38,8 @@ template<> CoordSystemDisplayAdapterInfo *CoordSystemDisplayAdapterInfo::classIn
 template<> MaplySceneRendererInfo *MaplySceneRendererInfo::classInfoObj = NULL;
 template<> MapSceneClassInfo *MapSceneClassInfo::classInfoObj = NULL;
 template<> MapViewClassInfo *MapViewClassInfo::classInfoObj = NULL;
+template<> SceneClassInfo *SceneClassInfo::classInfoObj = NULL;
+template<> ViewClassInfo *ViewClassInfo::classInfoObj = NULL;
 template<> VectorInfoClassInfo *VectorInfoClassInfo::classInfoObj = NULL;
 template<> VectorObjectClassInfo *VectorObjectClassInfo::classInfoObj = NULL;
 template<> MarkerInfoClassInfo *MarkerInfoClassInfo::classInfoObj = NULL;
