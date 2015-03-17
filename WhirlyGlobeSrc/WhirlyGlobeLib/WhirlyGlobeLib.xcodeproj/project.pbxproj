@@ -329,7 +329,6 @@
 		2BA2327317984F510063CC84 /* render.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2324F17984F510063CC84 /* render.h */; };
 		2BA2327417984F510063CC84 /* sweep.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2325017984F510063CC84 /* sweep.c */; };
 		2BA2327517984F510063CC84 /* sweep.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2325117984F510063CC84 /* sweep.h */; };
-		2BA2327617984F510063CC84 /* tess.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2325217984F510063CC84 /* tess.c */; };
 		2BA2327717984F510063CC84 /* tess.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2325317984F510063CC84 /* tess.h */; };
 		2BA2327817984F510063CC84 /* tessmono.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2325417984F510063CC84 /* tessmono.c */; };
 		2BA2327917984F510063CC84 /* tessmono.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2325517984F510063CC84 /* tessmono.h */; };
@@ -2421,7 +2420,6 @@
 				2BA2327017984F510063CC84 /* priorityq.c in Sources */,
 				2BA2327217984F510063CC84 /* render.c in Sources */,
 				2BA2327417984F510063CC84 /* sweep.c in Sources */,
-				2BA2327617984F510063CC84 /* tess.c in Sources */,
 				2BA2327817984F510063CC84 /* tessmono.c in Sources */,
 				2BA2329617986AE90063CC84 /* LabelManager.mm in Sources */,
 				2BA2329717986AE90063CC84 /* LayoutManager.mm in Sources */,
