@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B19B1081AB1F72A00862BCD /* OSM-Bright-Mapzen-GLStyle.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B19B1071AB1F72A00862BCD /* OSM-Bright-Mapzen-GLStyle.json */; };
 		2B1FB5371A1EC5FE0004B394 /* MapzenSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1FB5361A1EC5FE0004B394 /* MapzenSource.m */; };
 		2B2EB66518C901AD008C5320 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB516E7F505001F52FC /* OpenGLES.framework */; };
 		2B62DD6816E7F0BC001F52FC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B62DD6616E7F0BC001F52FC /* InfoPlist.strings */; };
@@ -18,6 +19,7 @@
 		2B62DD8B16E7F3A2001F52FC /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD8516E7F3A2001F52FC /* TestViewController.m */; };
 		2B8570B11A5DE4D200705AA7 /* vp.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 2B8570B01A5DE4D200705AA7 /* vp.mtl */; };
 		2B8571531A6DC43F00705AA7 /* cube.obj in Resources */ = {isa = PBXBuildFile; fileRef = 2B8571521A6DC43F00705AA7 /* cube.obj */; };
+		2B8D1E9B1AB0BC8900996F19 /* MapzenGLStyle.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B8D1E9A1AB0BC8900996F19 /* MapzenGLStyle.json */; };
 		2BA13BFF17F10D9A000C43B7 /* libWhirlyGlobe-MaplyComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DD9216E7F3D3001F52FC /* libWhirlyGlobe-MaplyComponent.a */; };
 		2BA13C0117F10E49000C43B7 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BA13C0017F10E49000C43B7 /* CFNetwork.framework */; };
 		2BA13C0317F10E64000C43B7 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B0D630D17A2EE0400C3298D /* libxml2.dylib */; };
@@ -147,7 +149,6 @@
 		2BC0FB6C1964D3580043E1FD /* wetland-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB021964D3580043E1FD /* wetland-24@2x.png */; };
 		2BC0FB6D1964D3580043E1FD /* zoo-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB031964D3580043E1FD /* zoo-24@2x.png */; };
 		2BC0FB81196DB88F0043E1FD /* osm-bright.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB80196DB88F0043E1FD /* osm-bright.xml */; };
-		2BC0FB84196DB8960043E1FD /* MapzenStyles.json in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB83196DB8960043E1FD /* MapzenStyles.json */; };
 		2BC0FB88196DBA1C0043E1FD /* geography-class_medres.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB85196DB93C0043E1FD /* geography-class_medres.mbtiles */; };
 		2BC989A817DA66BB0071DA9E /* WeatherShader.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989A717DA66BB0071DA9E /* WeatherShader.m */; };
 		2BC989E517DC289B0071DA9E /* world_web_mercator.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2BC989E417DC289B0071DA9E /* world_web_mercator.sqlite */; };
@@ -433,6 +434,7 @@
 
 /* Begin PBXFileReference section */
 		2B0D630D17A2EE0400C3298D /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
+		2B19B1071AB1F72A00862BCD /* OSM-Bright-Mapzen-GLStyle.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "OSM-Bright-Mapzen-GLStyle.json"; sourceTree = "<group>"; };
 		2B1FB5351A1EC5FE0004B394 /* MapzenSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapzenSource.h; sourceTree = "<group>"; };
 		2B1FB5361A1EC5FE0004B394 /* MapzenSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapzenSource.m; sourceTree = "<group>"; };
 		2B62DD5A16E7F0BC001F52FC /* WhirlyGlobeComponentTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhirlyGlobeComponentTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -462,6 +464,7 @@
 		2B8218CC176FCB7C0012322A /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		2B8570B01A5DE4D200705AA7 /* vp.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vp.mtl; sourceTree = "<group>"; };
 		2B8571521A6DC43F00705AA7 /* cube.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cube.obj; path = resources/cube.obj; sourceTree = SOURCE_ROOT; };
+		2B8D1E9A1AB0BC8900996F19 /* MapzenGLStyle.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = MapzenGLStyle.json; sourceTree = "<group>"; };
 		2BA13BF117EE1875000C43B7 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		2BA13BF317EE1884000C43B7 /* libc++abi.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++abi.dylib"; path = "usr/lib/libc++abi.dylib"; sourceTree = SDKROOT; };
 		2BA13C0017F10E49000C43B7 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -585,7 +588,6 @@
 		2BC0FB021964D3580043E1FD /* wetland-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "wetland-24@2x.png"; sourceTree = "<group>"; };
 		2BC0FB031964D3580043E1FD /* zoo-24@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "zoo-24@2x.png"; sourceTree = "<group>"; };
 		2BC0FB80196DB88F0043E1FD /* osm-bright.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "osm-bright.xml"; sourceTree = "<group>"; };
-		2BC0FB83196DB8960043E1FD /* MapzenStyles.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = MapzenStyles.json; sourceTree = "<group>"; };
 		2BC0FB85196DB93C0043E1FD /* geography-class_medres.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = "geography-class_medres.mbtiles"; path = "../../../resources/base_maps/geography-class_medres.mbtiles"; sourceTree = "<group>"; };
 		2BC0FBA9196DE1F80043E1FD /* tl_2013_06075_roads.mbr */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.mbr; sourceTree = "<group>"; };
 		2BC989A617DA66BB0071DA9E /* WeatherShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeatherShader.h; sourceTree = "<group>"; };
@@ -1145,7 +1147,8 @@
 		2BC0FB82196DB8960043E1FD /* mapzen vectors */ = {
 			isa = PBXGroup;
 			children = (
-				2BC0FB83196DB8960043E1FD /* MapzenStyles.json */,
+				2B8D1E9A1AB0BC8900996F19 /* MapzenGLStyle.json */,
+				2B19B1071AB1F72A00862BCD /* OSM-Bright-Mapzen-GLStyle.json */,
 			);
 			name = "mapzen vectors";
 			path = "../../../resources/mapzen vectors";
@@ -1732,6 +1735,7 @@
 				2BFD2766170B933C00127EF5 /* JPN.geojson in Resources */,
 				2BFD2767170B933C00127EF5 /* KAZ.geojson in Resources */,
 				2BFD2768170B933C00127EF5 /* KEN.geojson in Resources */,
+				2B19B1081AB1F72A00862BCD /* OSM-Bright-Mapzen-GLStyle.json in Resources */,
 				2BFD2769170B933C00127EF5 /* KGZ.geojson in Resources */,
 				2BC0FB161964D3580043E1FD /* cemetery-24@2x.png in Resources */,
 				2BFD276A170B933C00127EF5 /* KHM.geojson in Resources */,
@@ -1746,7 +1750,6 @@
 				2BC0FB4B1964D3580043E1FD /* prison-24@2x.png in Resources */,
 				2BFD2770170B933C00127EF5 /* LBN.geojson in Resources */,
 				2BC0FB2F1964D3580043E1FD /* heliport-24@2x.png in Resources */,
-				2BC0FB84196DB8960043E1FD /* MapzenStyles.json in Resources */,
 				2BFD2771170B933C00127EF5 /* LBR.geojson in Resources */,
 				2BFD2772170B933C00127EF5 /* LBY.geojson in Resources */,
 				2BFD2773170B933C00127EF5 /* LCA.geojson in Resources */,
@@ -1887,6 +1890,7 @@
 				2BC0FB551964D3580043E1FD /* school-24@2x.png in Resources */,
 				2BB94D7E1A26A94B0076B1B4 /* cessna.obj in Resources */,
 				2BFD27D5170B933C00127EF5 /* TUR.geojson in Resources */,
+				2B8D1E9B1AB0BC8900996F19 /* MapzenGLStyle.json in Resources */,
 				2BC0FB361964D3580043E1FD /* lodging-24@2x.png in Resources */,
 				2BFD27D6170B933C00127EF5 /* TUV.geojson in Resources */,
 				2BFD27D7170B933C00127EF5 /* TWN.geojson in Resources */,

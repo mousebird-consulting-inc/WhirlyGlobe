@@ -154,7 +154,9 @@ static double MAX_EXTENT = 20037508.342789244;
                                                                               onTile:tileID
                                                                              inLayer:layerName
                                                                                viewC:_viewC];
+                
                 if(!styles.count) {
+                    NSLog(@"kind = %@",attributes[@"kind"]);
                     continue; //no point parsing the geometry if we arent going to render
                 }
                 

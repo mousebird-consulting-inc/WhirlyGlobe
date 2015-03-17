@@ -1405,17 +1405,20 @@ static const int NumMegaMarkers = 15000;
             } else if (![layerName compare:kMaplyMapzenVectors])
             {
                 // Get the style file
-                NSData *styleData = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"]];
+                NSData *styleData = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"MapzenGLStyle" ofType:@"json"]];
                 
                 if (styleData)
                 {
                     thisCacheDir = [NSString stringWithFormat:@"%@/mapzen-vectiles",cacheDir];
                     MapzenSource *mzSource = [[MapzenSource alloc]
                                               initWithBase:@"http://vector.mapzen.com/osm"
-                                              layers:@[@"water",@"earth",@"landuse",@"roads",@"buildings",@"pois",@"places"]
-                                              styleData:styleData type:MapzenSourcePBF viewC:baseViewC];
+                                              layers:@[@"all"]
+                                              sourceType:MapzenSourcePBF
+                                              styleData:styleData
+                                              styleType:MapnikMapboxGLStyle
+                                              viewC:baseViewC];
                     mzSource.minZoom = 4;
-                    mzSource.maxZoom = 20;
+                    mzSource.maxZoom = 22;
                    
                     // Now for the paging layer itself
                     MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:mzSource];

@@ -20,6 +20,6 @@ typedef enum {MapzenSourceGeoJSON, MapzenSourcePBF } MapzenSourceType;
 
 /** @brief Initialize with the base URL and the layers we want to fetch.
   */
-- (id)initWithBase:(NSString *)inBaseURL layers:(NSArray *)inLayers styleData:(NSData *)styleData type:(MapzenSourceType)inType viewC:(MaplyBaseViewController *)viewC;
+- (id)initWithBase:(NSString *)inBaseURL layers:(NSArray *)inLayers sourceType:(MapzenSourceType)inType styleData:(NSData *)styleData styleType:(MapnikStyleType)styleType viewC:(MaplyBaseViewController *)viewC;
 
 @end
