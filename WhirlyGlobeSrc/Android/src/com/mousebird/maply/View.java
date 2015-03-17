@@ -95,5 +95,10 @@ public class View
 	// Return the current model & view matrix combined (but not projection)
 	native Matrix4d calcModelViewMatrix();	
 
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	protected long nativeHandle;
 }

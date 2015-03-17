@@ -41,5 +41,10 @@ class ViewState
 	 */
 	public native boolean isEqual(ViewState viewState);
 
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	private long nativeHandle;
 }

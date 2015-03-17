@@ -20,8 +20,6 @@
 
 package com.mousebird.maplytester;
 
-import com.mousebird.maply.MapFragment;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +32,6 @@ import android.view.LayoutInflater;
 //import android.widget.Toast;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 

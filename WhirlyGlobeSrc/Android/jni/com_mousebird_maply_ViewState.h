@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ViewState_isEqual
   (JNIEnv *, jobject, jobject);
 
+/*
+ * Class:     com_mousebird_maply_ViewState
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ViewState_nativeInit
+  (JNIEnv *, jclass);
+
 #ifdef __cplusplus
 }
 #endif

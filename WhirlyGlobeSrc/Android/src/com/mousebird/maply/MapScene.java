@@ -49,7 +49,6 @@ public class MapScene extends Scene
 		addChangesNative(changes);
 	}
 
-
 	static
 	{
 		nativeInit();

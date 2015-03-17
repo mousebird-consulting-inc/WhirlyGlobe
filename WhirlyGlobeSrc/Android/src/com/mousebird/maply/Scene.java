@@ -20,5 +20,10 @@ public class Scene
 	{
 	}
 	
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	protected long nativeHandle;
 }

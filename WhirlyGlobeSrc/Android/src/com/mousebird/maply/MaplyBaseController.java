@@ -98,14 +98,14 @@ public class MaplyBaseController
 	{		
 		System.loadLibrary("Maply");
 		activity = mainActivity;
-	}
-	
-	protected void Init()
-	{
+
 		// Need a coordinate system to display conversion
 		// For now this just sets up spherical mercator
 		coordAdapter = new CoordSystemDisplayAdapter(new SphericalMercatorCoordSystem());
-		
+	}
+	
+	protected void Init()
+	{		
 		// Fire up the managers.  Can't do anything without these.
 		vecManager = new VectorManager(scene);
 		markerManager = new MarkerManager(scene);

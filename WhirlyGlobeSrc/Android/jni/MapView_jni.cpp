@@ -197,42 +197,6 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_MapView_getRot
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MapView_runViewUpdates
-  (JNIEnv *env, jobject obj)
-{
-	try
-	{
-		MapViewClassInfo *classInfo = MapViewClassInfo::getClassInfo();
-		Maply::MapView *view = classInfo->getObject(env,obj);
-		if (!view)
-			return;
-		view->runViewUpdates();
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::runViewUpdates()");
-	}
-}
-
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapView_calcModelViewMatrix
-  (JNIEnv *env, jobject obj)
-{
-	try
-	{
-		MapViewClassInfo *classInfo = MapViewClassInfo::getClassInfo();
-		Maply::MapView *view = classInfo->getObject(env,obj);
-		if (!view)
-			return NULL;
-
-		Matrix4d mat = view->calcModelMatrix();
-		return MakeMatrix4d(env,mat);
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::calcModelViewMatrix()");
-	}
-}
-
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapView_pointOnPlaneFromScreen
   (JNIEnv *env, jobject obj, jobject screenPtObj, jobject viewModelMatObj, jobject frameObj, jboolean clip)
 {

@@ -29,6 +29,10 @@ package com.mousebird.maply;
  */
 public class MapViewState extends ViewState
 {
+	protected MapViewState()
+	{
+	}
+
 	/**
 	 * Initialize with the view we're storing the state of and the renderer
 	 * it applies to.

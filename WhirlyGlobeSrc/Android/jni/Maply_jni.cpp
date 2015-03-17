@@ -44,3 +44,4 @@ template<> VectorInfoClassInfo *VectorInfoClassInfo::classInfoObj = NULL;
 template<> VectorObjectClassInfo *VectorObjectClassInfo::classInfoObj = NULL;
 template<> MarkerInfoClassInfo *MarkerInfoClassInfo::classInfoObj = NULL;
 template<> ViewStateClassInfo *ViewStateClassInfo::classInfoObj = NULL;
+template<> MapViewStateClassInfo *MapViewStateClassInfo::classInfoObj = NULL;
