@@ -43,7 +43,9 @@ namespace WhirlyGlobe
 class GlobeView : public WhirlyKit::View
 {
 public:
-    GlobeView();
+    GlobeView(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
+    /// Copy constructor
+    GlobeView(const GlobeView &that);
     virtual ~GlobeView();
     
     /// Used to update position based on time (or whatever other factor you like)

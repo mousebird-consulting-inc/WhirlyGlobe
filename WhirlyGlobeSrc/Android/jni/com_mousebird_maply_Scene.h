@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_nativeInit
   (JNIEnv *, jclass);
 
+/*
+ * Class:     com_mousebird_maply_Scene
+ * Method:    addChangesNative
+ * Signature: (Lcom/mousebird/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addChangesNative
+  (JNIEnv *, jobject, jobject);
+
 #ifdef __cplusplus
 }
 #endif

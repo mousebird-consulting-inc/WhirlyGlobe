@@ -312,7 +312,9 @@ class MaplySceneRenderer;
 typedef JavaClassInfo<MaplySceneRenderer> MaplySceneRendererInfo;
 typedef JavaClassInfo<Maply::MapScene> MapSceneClassInfo;
 typedef JavaClassInfo<WhirlyKit::Scene> SceneClassInfo;
+typedef JavaClassInfo<WhirlyGlobe::GlobeScene> GlobeSceneClassInfo;
 typedef JavaClassInfo<Maply::MapView> MapViewClassInfo;
+typedef JavaClassInfo<WhirlyGlobe::GlobeView> GlobeViewClassInfo;
 typedef JavaClassInfo<WhirlyKit::View> ViewClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorInfo> VectorInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorObject> VectorObjectClassInfo;
@@ -320,6 +322,7 @@ typedef JavaClassInfo<WhirlyKit::MarkerInfo> MarkerInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::LabelInfo> LabelInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::ViewState> ViewStateClassInfo;
 typedef JavaClassInfo<Maply::MapViewState> MapViewStateClassInfo;
+typedef JavaClassInfo<WhirlyGlobe::GlobeViewState> GlobeViewStateClassInfo;
 typedef JavaClassInfo<WhirlyKit::Marker> MarkerClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleLabelAndroid> LabelClassInfo;
 

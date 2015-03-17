@@ -30,8 +30,9 @@ using namespace Eigen;
 namespace WhirlyGlobe
 {
 
-GlobeView::GlobeView()
+GlobeView::GlobeView(WhirlyKit::CoordSystemDisplayAdapter *inCoordAdapter)
 {
+    coordAdapter = inCoordAdapter;
     rotQuat = Eigen::AngleAxisd(0.0f,Vector3d(0.0f,0.0f,1.0f));
     coordAdapter = new FakeGeocentricDisplayAdapter();
     defaultNearPlane = nearPlane;
@@ -44,12 +45,33 @@ GlobeView::GlobeView()
     heightAboveGlobe = 1.1;
     tilt = 0.0;
 }
+
+//    double absoluteMinHeight;
+//    double heightInflection;
+//    double defaultNearPlane;
+//    double absoluteMinNearPlane;
+//    double defaultFarPlane;
+//    double absoluteMinFarPlane;
+//    
+//protected:
+//    void privateSetHeightAboveGlobe(double newH,bool updateWatchers);
+//    
+//    /// The globe has a radius of 1.0 so 1.0 + heightAboveGlobe is the offset from the middle of the globe
+//    double heightAboveGlobe;
+//    /// Quaternion used for rotation from origin state
+//    Eigen::Quaterniond rotQuat;
+//    /// The view can have a tilt.  0 is straight down.  PI/2 is looking to the horizon.
+//    double tilt;
+
+GlobeView::GlobeView(const GlobeView &that)
+: absoluteMinHeight(that.absoluteMinHeight), heightInflection(that.heightInflection), defaultNearPlane(that.defaultNearPlane),
+    absoluteMinNearPlane(that.absoluteMinNearPlane), defaultFarPlane(that.defaultFarPlane), absoluteMinFarPlane(that.absoluteMinFarPlane),
+    heightAboveGlobe(that.heightAboveGlobe), rotQuat(that.rotQuat), tilt(that.tilt)
+{
+}
     
 GlobeView::~GlobeView()
 {
-    if (coordAdapter)
-        delete coordAdapter;
-    coordAdapter = NULL;
 }
 
 void GlobeView::setRotQuat(Eigen::Quaterniond newRotQuat)

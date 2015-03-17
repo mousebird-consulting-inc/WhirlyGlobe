@@ -12,9 +12,9 @@ public class GlobeScene extends Scene
 	{
 	}
 	
-	GlobeScene(CoordSystemDisplayAdapter coordAdapter)
+	GlobeScene(CoordSystemDisplayAdapter coordAdapter,int cullTreeDepth)
 	{
-		initialise(coordAdapter,charRenderer);
+		initialise(coordAdapter,charRenderer,cullTreeDepth);
 	}
 	
 	public void finalize()
@@ -22,11 +22,17 @@ public class GlobeScene extends Scene
 		dispose();
 	}
 	
+	// Flush the given changes out to the Scene
+	@Override public void addChanges(ChangeSet changes)
+	{
+		addChangesNative(changes);
+	}
+
 	static
 	{
 		nativeInit();
 	}
 	private static native void nativeInit();
-	native void initialise(CoordSystemDisplayAdapter coordAdapter,CharRenderer charRenderer);
+	native void initialise(CoordSystemDisplayAdapter coordAdapter,CharRenderer charRenderer,int cullTreeDepth);
 	native void dispose();
 }

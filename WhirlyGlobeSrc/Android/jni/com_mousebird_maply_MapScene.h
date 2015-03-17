@@ -25,14 +25,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_initialise
 
 /*
  * Class:     com_mousebird_maply_MapScene
- * Method:    addChangesNative
- * Signature: (Lcom/mousebird/maply/ChangeSet;)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_addChangesNative
-  (JNIEnv *, jobject, jobject);
-
-/*
- * Class:     com_mousebird_maply_MapScene
  * Method:    dispose
  * Signature: ()V
  */

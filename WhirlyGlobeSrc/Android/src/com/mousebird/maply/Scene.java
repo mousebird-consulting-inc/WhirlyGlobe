@@ -25,5 +25,6 @@ public class Scene
 		nativeInit();
 	}
 	private static native void nativeInit();
+	native void addChangesNative(ChangeSet changes);
 	protected long nativeHandle;
 }

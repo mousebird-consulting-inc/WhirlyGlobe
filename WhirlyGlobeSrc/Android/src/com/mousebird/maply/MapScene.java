@@ -55,6 +55,5 @@ public class MapScene extends Scene
 	}
 	private static native void nativeInit();
 	native void initialise(CoordSystemDisplayAdapter coordAdapter,CharRenderer charRenderer);
-	native void addChangesNative(ChangeSet changes);
 	native void dispose();
 }

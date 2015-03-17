@@ -30,3 +30,20 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_nativeInit
 {
 	SceneClassInfo::getClassInfo(env,cls);
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addChangesNative
+  (JNIEnv *env, jobject obj, jobject changesObj)
+{
+	try
+	{
+		SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
+		Scene *scene = classInfo->getObject(env,obj);
+		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
+		scene->addChangeRequests(*changes);
+		changes->clear();
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::addChanges()");
+	}
+}
