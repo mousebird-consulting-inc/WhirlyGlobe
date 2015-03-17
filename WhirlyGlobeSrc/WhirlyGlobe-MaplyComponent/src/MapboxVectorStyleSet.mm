@@ -38,6 +38,8 @@
     
     NSError *error = nil;
     NSDictionary *styleDict = [NSJSONSerialization JSONObjectWithData:styleJSON options:NULL error:&error];
+    if (!styleDict)
+        return nil;
     
     _name = styleDict[@"name"];
     _version = [styleDict[@"version"] integerValue];
