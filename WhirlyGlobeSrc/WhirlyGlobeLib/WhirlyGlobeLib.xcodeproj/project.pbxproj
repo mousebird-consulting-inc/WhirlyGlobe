@@ -16,6 +16,7 @@
 		2B13BAA418B7E192007DA1A3 /* ScreenSpaceBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BAA318B7E192007DA1A3 /* ScreenSpaceBuilder.h */; };
 		2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194426138B0CD000E8FA42 /* AnimateRotation.mm */; };
 		2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */; };
+		2B19B1151AB9C70500862BCD /* tess.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2325217984F510063CC84 /* tess.c */; };
 		2B308B11171F638F006D7273 /* SelectionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B308B10171F638F006D7273 /* SelectionManager.h */; };
 		2B308B13171F63B3006D7273 /* SelectionManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B308B12171F63B3006D7273 /* SelectionManager.mm */; };
 		2B35A8551337CC5F0047C705 /* GLUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B35A8531337CC5F0047C705 /* GLUtils.mm */; };
@@ -2218,6 +2219,7 @@
 				2B7EF43B16025D8C00D4079F /* nad_intr.c in Sources */,
 				2B7EF43F16025D8C00D4079F /* PJ_aea.c in Sources */,
 				2B7EF44016025D8C00D4079F /* PJ_aeqd.c in Sources */,
+				2B19B1151AB9C70500862BCD /* tess.c in Sources */,
 				2B7EF44116025D8C00D4079F /* PJ_airy.c in Sources */,
 				2B7EF44216025D8C00D4079F /* PJ_aitoff.c in Sources */,
 				2BB94D851A2CE01D0076B1B4 /* glues_registry.c in Sources */,

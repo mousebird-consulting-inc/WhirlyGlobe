@@ -156,7 +156,7 @@ static double MAX_EXTENT = 20037508.342789244;
                                                                                viewC:_viewC];
                 
                 if(!styles.count) {
-                    NSLog(@"kind = %@",attributes[@"kind"]);
+//                    NSLog(@"kind = %@",attributes[@"kind"]);
                     continue; //no point parsing the geometry if we arent going to render
                 }
                 
