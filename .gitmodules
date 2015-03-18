@@ -15,7 +15,7 @@
 	url = https://github.com/mousebird/libjson.git
 [submodule "third-party/glues"]
 	path = third-party/glues
-	url = https://github.com/lunixbochs/glues.git
+	url = https://github.com/mousebird/glues.git
 [submodule "third-party/KissXML"]
 	path = third-party/KissXML
 	url = https://github.com/mousebird/KissXML.git
