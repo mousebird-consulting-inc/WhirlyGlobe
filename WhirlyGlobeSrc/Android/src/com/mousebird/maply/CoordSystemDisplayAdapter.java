@@ -31,7 +31,7 @@ class CoordSystemDisplayAdapter
 	CoordSystem coordSys = null;
 	
 	// Needed by the JNI side
-	private CoordSystemDisplayAdapter()
+	protected CoordSystemDisplayAdapter()
 	{		
 	}
 	

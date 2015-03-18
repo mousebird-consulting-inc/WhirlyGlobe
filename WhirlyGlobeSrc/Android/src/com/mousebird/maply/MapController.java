@@ -45,7 +45,11 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	public MapController(Activity mainActivity)
 	{
 		super(mainActivity);
-		
+
+		// Need a coordinate system to display conversion
+		// For now this just sets up spherical mercator
+		coordAdapter = new CoordSystemDisplayAdapter(new SphericalMercatorCoordSystem());
+
 		// Create the scene and map view 
 		mapScene = new MapScene(coordAdapter);
 		scene = mapScene;
@@ -59,6 +63,14 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 			glSurfaceView.setOnTouchListener(this);
 			gestureHandler = new MapGestureHandler(this,glSurfaceView);
 		}
+		
+		// Set up the bounds
+		Point3d ll = new Point3d(),ur = new Point3d();
+		coordAdapter.getBounds(ll,ur);
+		// Allow E/W wraping
+		ll.setValue(Float.MAX_VALUE, ll.getY(), ll.getZ());
+		ur.setValue(-Float.MAX_VALUE, ur.getY(), ur.getZ());
+		setViewExtents(new Point2d(ll.getX(),ll.getY()),new Point2d(ur.getX(),ur.getY()));
 	}
 	
 	@Override public void shutdown()

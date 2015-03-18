@@ -103,6 +103,14 @@ public class GlobeView extends View
 		
 		runViewUpdates();
 	}
+	
+	// Set the view rotation from a Quaternion
+	void setRotQuat(Quaternion quat)
+	{
+		setRotQuatNative(quat);
+		
+		runViewUpdates();
+	}
 		
 	// Calculate the point on the view plane given the screen location
 	native Point3d pointOnSphereFromScreen(Point2d screenPt,Matrix4d viewModelMatrix,Point2d frameSize,boolean clip);
@@ -112,6 +120,10 @@ public class GlobeView extends View
 	native double minHeightAboveSurface();
 	// Maximum possible height above the surface
 	native double maxHeightAboveSurface();
+	// Current rotation Quaternion
+	native Quaternion getRotQuat();
+	// Set the current rotation Quaternion
+	native void setRotQuatNative(Quaternion q);
 	// Set the view location (including height)
 	private native void setLoc(double x,double y,double z);
 	// Get the current view location

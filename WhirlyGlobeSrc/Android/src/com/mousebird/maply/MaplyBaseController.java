@@ -98,10 +98,6 @@ public class MaplyBaseController
 	{		
 		System.loadLibrary("Maply");
 		activity = mainActivity;
-
-		// Need a coordinate system to display conversion
-		// For now this just sets up spherical mercator
-		coordAdapter = new CoordSystemDisplayAdapter(new SphericalMercatorCoordSystem());
 	}
 	
 	protected void Init()
@@ -118,14 +114,6 @@ public class MaplyBaseController
 		renderWrapper.scene = scene;
 		renderWrapper.view = view;
 		
-		// Set up the bounds
-		Point3d ll = new Point3d(),ur = new Point3d();
-		coordAdapter.getBounds(ll,ur);
-		// Allow E/W wraping
-		ll.setValue(Float.MAX_VALUE, ll.getY(), ll.getZ());
-		ur.setValue(-Float.MAX_VALUE, ur.getY(), ur.getZ());
-		setViewExtents(new Point2d(ll.getX(),ll.getY()),new Point2d(ur.getX(),ur.getY()));
-
 		// Create the layer thread
         layerThread = new LayerThread("Maply Layer Thread",view,scene);
 		

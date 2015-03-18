@@ -83,6 +83,46 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_nativeClone
 	}
 }
 
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_getRotQuat
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		GlobeViewClassInfo *classInfo = GlobeViewClassInfo::getClassInfo();
+		WhirlyGlobe::GlobeView *view = classInfo->getObject(env,obj);
+		if (!view)
+			return NULL;
+
+		return MakeQuaternion(env,view->getRotQuat());
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::getRotQuat()");
+	}
+
+	return NULL;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setRotQuatNative
+  (JNIEnv *env, jobject obj, jobject quatObj)
+{
+	try
+	{
+		GlobeViewClassInfo *classInfo = GlobeViewClassInfo::getClassInfo();
+		WhirlyGlobe::GlobeView *view = classInfo->getObject(env,obj);
+		QuaternionClassInfo *qClassInfo = QuaternionClassInfo::getClassInfo();
+		Quaterniond *q = qClassInfo->getObject(env,quatObj);
+		if (!view || !q)
+			return;
+
+		view->setRotQuat(*q);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::setRotQuat()");
+	}
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setLoc
   (JNIEnv *env, jobject obj, jdouble x, jdouble y, jdouble z)
 {
@@ -95,6 +135,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setLoc
 
 	    Eigen::Quaterniond newRot = view->makeRotationToGeoCoord(GeoCoord(x,y),true);
 	    view->setRotQuat(newRot,true);
+	    view->setHeightAboveGlobe(z);
 	}
 	catch (...)
 	{
