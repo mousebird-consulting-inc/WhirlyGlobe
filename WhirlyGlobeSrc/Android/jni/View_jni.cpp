@@ -55,8 +55,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_View_calcModelViewMatrix
 {
 	try
 	{
-		MapViewClassInfo *classInfo = MapViewClassInfo::getClassInfo();
-		Maply::MapView *view = classInfo->getObject(env,obj);
+		ViewClassInfo *classInfo = ViewClassInfo::getClassInfo();
+		WhirlyKit::View *view = classInfo->getObject(env,obj);
 		if (!view)
 			return NULL;
 

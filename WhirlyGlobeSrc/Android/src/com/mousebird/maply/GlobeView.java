@@ -105,9 +105,9 @@ public class GlobeView extends View
 	}
 		
 	// Calculate the point on the view plane given the screen location
-//	native Point3d pointOnSphereFromScreen(Point2d screenPt,Matrix4d viewModelMatrix,Point2d frameSize,boolean clip);
+	native Point3d pointOnSphereFromScreen(Point2d screenPt,Matrix4d viewModelMatrix,Point2d frameSize,boolean clip);
 	// Calculate the point on the screen from a point on the view plane
-//	native Point2d pointOnScreenFromSphere(Point3d pt,Matrix4d viewModelMatrix,Point2d frameSize);
+	native Point2d pointOnScreenFromSphere(Point3d pt,Matrix4d viewModelMatrix,Point2d frameSize);
 	// Minimum possible height above the surface
 	native double minHeightAboveSurface();
 	// Maximum possible height above the surface

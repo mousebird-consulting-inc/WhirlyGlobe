@@ -101,7 +101,7 @@ public class MainActivity extends Activity
 		}
 	}
 		
-	Fragment mapFragment = null;
+	MapGlobeTestFragment mapFragment = null;
 	
 	// Kick off the map (globe)
 	void startDemo(DemoType type)
@@ -112,6 +112,8 @@ public class MainActivity extends Activity
 		{
 		case Globe3D:
 		{
+			mapFragment = new MapGlobeTestFragment();
+			mapFragment.mode = MapGlobeTestFragment.TestMode.Globe;
 		}
 			break;
 		case GlobeElev3D:
@@ -124,7 +126,8 @@ public class MainActivity extends Activity
 			break;
 		case Map2D:
 		{
-			mapFragment = new MapTestFragment();
+			mapFragment = new MapGlobeTestFragment();
+			mapFragment.mode = MapGlobeTestFragment.TestMode.Map;
 		}
 			break;
 		}

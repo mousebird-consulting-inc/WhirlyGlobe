@@ -164,3 +164,56 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_GlobeView_maxHeightAboveSurfa
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::maxHeightAboveSurface()");
 	}
 }
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointOnSphereFromScreen
+  (JNIEnv *env, jobject obj, jobject screenPtObj, jobject viewModelMatObj, jobject frameObj, jboolean clip)
+{
+	try
+	{
+		GlobeViewClassInfo *classInfo = GlobeViewClassInfo::getClassInfo();
+		WhirlyGlobe::GlobeView *view = classInfo->getObject(env,obj);
+		if (!view)
+			return NULL;
+		Point2d *screenPt = Point2dClassInfo::getClassInfo()->getObject(env,screenPtObj);
+		Matrix4d *viewModelMat = Matrix4dClassInfo::getClassInfo()->getObject(env,viewModelMatObj);
+		Point2d *framePt = Point2dClassInfo::getClassInfo()->getObject(env,frameObj);
+		Point3d hit;
+
+		Point2f screenPt2f(screenPt->x(),screenPt->y());
+		Point2f framePt2f(framePt->x(),framePt->y());
+		if (view->pointOnSphereFromScreen(screenPt2f,viewModelMat,framePt2f,&hit,clip))
+		{
+			return MakePoint3d(env,hit);
+		} else
+			return NULL;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::pointOnPlaneFromScreen()");
+	}
+}
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointOnScreenFromSphere
+  (JNIEnv *env, jobject obj, jobject dispPtObj, jobject viewModelMatObj, jobject frameObj)
+{
+	try
+	{
+		GlobeViewClassInfo *classInfo = GlobeViewClassInfo::getClassInfo();
+		WhirlyGlobe::GlobeView *view = classInfo->getObject(env,obj);
+		if (!view)
+			return NULL;
+		Point3d *dispPt = Point3dClassInfo::getClassInfo()->getObject(env,dispPtObj);
+		Matrix4d *viewModelMat = Matrix4dClassInfo::getClassInfo()->getObject(env,viewModelMatObj);
+		Point2d *framePt = Point2dClassInfo::getClassInfo()->getObject(env,frameObj);
+		Point3d hit;
+
+		Point2f framePt2f(framePt->x(),framePt->y());
+		Point2f retPt = view->pointOnScreenFromSphere(*dispPt,viewModelMat,framePt2f);
+
+		return MakePoint2d(env,Point2d(retPt.x(),retPt.y()));
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::pointOnPlaneFromScreen()");
+	}
+}
