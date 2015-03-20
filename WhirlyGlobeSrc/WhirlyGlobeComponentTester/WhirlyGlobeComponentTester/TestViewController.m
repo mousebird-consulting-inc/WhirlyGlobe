@@ -1417,19 +1417,20 @@ static const int NumMegaMarkers = 15000;
                                               styleData:styleData
                                               styleType:MapnikMapboxGLStyle
                                               viewC:baseViewC];
-                    mzSource.minZoom = 4;
-                    mzSource.maxZoom = 22;
+                    mzSource.minZoom = 0;
+                    mzSource.maxZoom = 24;
                    
                     // Now for the paging layer itself
                     MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:mzSource];
                     pageLayer.numSimultaneousFetches = 8;
                     pageLayer.flipY = false;
-                    pageLayer.importance = 1024*1024;
+                    pageLayer.importance = 512*512;
                     pageLayer.useTargetZoomLevel = true;
                     pageLayer.singleLevelLoading = true;
                     [baseViewC addLayer:pageLayer];
                     ovlLayers[layerName] = pageLayer;
-                }
+                } else
+                    NSLog(@"Failed to load style sheet for Mapzen.");
                 
 //                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithURL:@"http://vector.mapzen.com/osm/all/"
 //                                                                  ext:@"mapbox"
