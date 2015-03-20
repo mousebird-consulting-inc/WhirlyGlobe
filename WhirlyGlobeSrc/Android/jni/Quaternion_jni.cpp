@@ -33,6 +33,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Quaternion_nativeInit
 	QuaternionClassInfo::getClassInfo(env,cls);
 }
 
+jobject MakeQuaternion(JNIEnv *env,const Eigen::Quaterniond &quat)
+{
+	// Make a Java Quaternion
+	QuaternionClassInfo *classInfo = QuaternionClassInfo::getClassInfo(env,"com/mousebird/maply/Quaternion");
+	Quaterniond *newQuat = new Quaterniond(quat);
+	return classInfo->makeWrapperObject(env,newQuat);
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Quaternion_initialise__
   (JNIEnv *env, jobject obj)
 {
@@ -44,47 +52,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Quaternion_initialise__
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Quaternion::initialise()");
-	}
-
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Quaternion_dispose
-  (JNIEnv *env, jobject obj)
-{
-	try
-	{
-		QuaternionClassInfo *classInfo = QuaternionClassInfo::getClassInfo();
-		Quaterniond *inst = classInfo->getObject(env,obj);
-		if (!inst)
-			return;
-		delete inst;
-
-		classInfo->clearHandle(env,obj);
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Quaternion::dispose()");
-	}
-}
-
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_multiply
-  (JNIEnv *env, jobject obj, jobject otherObj)
-{
-	try
-	{
-		QuaternionClassInfo *classInfo = QuaternionClassInfo::getClassInfo();
-		Quaterniond *quat = classInfo->getObject(env,obj);
-		Quaterniond *otherQuat = classInfo->getObject(env,otherObj);
-		if (!quat || !otherQuat)
-			return NULL;
-
-		Eigen::Quaterniond newQuat = (*quat) * (*otherQuat);
-
-		return MakeQuaternion(env,newQuat);
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Quaternion::multiply()");
 	}
 }
 
@@ -109,11 +76,86 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Quaternion_initialise__Lcom_mous
 	}
 }
 
-jobject MakeQuaternion(JNIEnv *env,const Eigen::Quaterniond &quat)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Quaternion_dispose
+  (JNIEnv *env, jobject obj)
 {
-	// Make a Java Quaternion
-	QuaternionClassInfo *classInfo = QuaternionClassInfo::getClassInfo(env,"com/mousebird/maply/Quaternion");
-	Quaterniond *newQuat = new Quaterniond(quat);
-	return classInfo->makeWrapperObject(env,newQuat);
+	try
+	{
+		QuaternionClassInfo *classInfo = QuaternionClassInfo::getClassInfo();
+		Quaterniond *inst = classInfo->getObject(env,obj);
+		if (!inst)
+			return;
+		delete inst;
+
+		classInfo->clearHandle(env,obj);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Quaternion::dispose()");
+	}
 }
 
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_multiply__Lcom_mousebird_maply_Quaternion_2
+  (JNIEnv *env, jobject obj, jobject otherObj)
+{
+	try
+	{
+		QuaternionClassInfo *classInfo = QuaternionClassInfo::getClassInfo();
+		Quaterniond *quat = classInfo->getObject(env,obj);
+		Quaterniond *otherQuat = classInfo->getObject(env,otherObj);
+		if (!quat || !otherQuat)
+			return NULL;
+
+		Eigen::Quaterniond newQuat = (*quat) * (*otherQuat);
+
+		return MakeQuaternion(env,newQuat);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Quaternion::multiply()");
+	}
+}
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_multiply__Lcom_mousebird_maply_Point3d_2
+  (JNIEnv *env, jobject obj, jobject ptObj)
+{
+	try
+	{
+		QuaternionClassInfo *classInfo = QuaternionClassInfo::getClassInfo();
+		Quaterniond *quat = classInfo->getObject(env,obj);
+		Point3dClassInfo *pt3dClassInfo = Point3dClassInfo::getClassInfo();
+		Point3d *pt = pt3dClassInfo->getObject(env,ptObj);
+		if (!quat || !pt)
+			return NULL;
+
+		Vector3d newVec = (*quat) * Vector3d(pt->x(),pt->y(),pt->z());
+
+		return MakePoint3d(env,newVec);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Quaternion::multiply()");
+	}
+}
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_multiply__Lcom_mousebird_maply_AngleAxis_2
+  (JNIEnv *env, jobject obj, jobject angAxisObj)
+{
+	try
+	{
+		QuaternionClassInfo *classInfo = QuaternionClassInfo::getClassInfo();
+		Quaterniond *quat = classInfo->getObject(env,obj);
+		AngleAxisClassInfo *angAxisClassInfo = AngleAxisClassInfo::getClassInfo();
+		AngleAxisd *angAxis = angAxisClassInfo->getObject(env,angAxisObj);
+		if (!quat || !angAxis)
+			return NULL;
+
+		Eigen::Quaterniond newQuat = (*quat) * (*angAxis);
+
+		return MakeQuaternion(env,newQuat);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Quaternion::multiply()");
+	}
+}

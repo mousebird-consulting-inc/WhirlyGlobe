@@ -308,6 +308,7 @@ typedef JavaClassInfo<WhirlyKit::Point2d> Point2dClassInfo;
 typedef JavaClassInfo<WhirlyKit::Point3d> Point3dClassInfo;
 typedef JavaClassInfo<Eigen::Matrix4d> Matrix4dClassInfo;
 typedef JavaClassInfo<Eigen::Quaterniond> QuaternionClassInfo;
+typedef JavaClassInfo<Eigen::AngleAxisd> AngleAxisClassInfo;
 typedef JavaClassInfo<WhirlyKit::CoordSystemDisplayAdapter> CoordSystemDisplayAdapterInfo;
 typedef JavaClassInfo<WhirlyKit::FakeGeocentricDisplayAdapter> FakeGeocentricDisplayAdapterInfo;
 class MaplySceneRenderer;

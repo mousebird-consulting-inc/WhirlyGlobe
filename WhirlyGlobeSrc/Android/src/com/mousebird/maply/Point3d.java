@@ -85,6 +85,12 @@ public class Point3d
 		double x = getX(), y = getY(), z = getZ();
 		return Math.sqrt(x*x+y*y+z*z);
 	}
+	
+	public Point3d normalized()
+	{
+		double len = length();
+		return new Point3d(getX()/len,getY()/len,getZ()/len);
+	}
 
 	/**
 	 * Truncate a Point3d and return just the 2D values

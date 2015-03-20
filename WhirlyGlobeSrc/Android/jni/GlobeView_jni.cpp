@@ -123,26 +123,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setRotQuatNative
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setLoc
-  (JNIEnv *env, jobject obj, jdouble x, jdouble y, jdouble z)
-{
-	try
-	{
-		GlobeViewClassInfo *classInfo = GlobeViewClassInfo::getClassInfo();
-		WhirlyGlobe::GlobeView *view = classInfo->getObject(env,obj);
-		if (!view)
-			return;
-
-	    Eigen::Quaterniond newRot = view->makeRotationToGeoCoord(GeoCoord(x,y),true);
-	    view->setRotQuat(newRot,true);
-	    view->setHeightAboveGlobe(z);
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::setLoc()");
-	}
-}
-
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_getLoc
   (JNIEnv *env, jobject obj)
 {
@@ -256,5 +236,65 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointOnScreenFromSp
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::pointOnPlaneFromScreen()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setHeight
+  (JNIEnv *env, jobject obj, jdouble newHeight)
+{
+	try
+	{
+		GlobeViewClassInfo *classInfo = GlobeViewClassInfo::getClassInfo();
+		WhirlyGlobe::GlobeView *view = classInfo->getObject(env,obj);
+		if (!view)
+			return;
+
+	    view->setHeightAboveGlobe(newHeight);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::setHeight()");
+	}
+}
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_makeRotationToGeoCoord
+  (JNIEnv *env, jobject obj, jdouble x, jdouble y, jboolean northUp)
+{
+	try
+	{
+		GlobeViewClassInfo *classInfo = GlobeViewClassInfo::getClassInfo();
+		WhirlyGlobe::GlobeView *view = classInfo->getObject(env,obj);
+		if (!view)
+			return NULL;
+
+	    Eigen::Quaterniond newRot = view->makeRotationToGeoCoord(GeoCoord(x,y),(bool)northUp);
+
+	    return MakeQuaternion(env,newRot);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::makeRotationToGeoCoord()");
+	}
+}
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_prospectiveUp
+  (JNIEnv *env, jobject obj, jobject quatObj)
+{
+	try
+	{
+		GlobeViewClassInfo *classInfo = GlobeViewClassInfo::getClassInfo();
+		WhirlyGlobe::GlobeView *view = classInfo->getObject(env,obj);
+		QuaternionClassInfo *quatClassInfo = QuaternionClassInfo::getClassInfo();
+		Quaterniond *quat = quatClassInfo->getObject(env,quatObj);
+		if (!view || !quat)
+			return NULL;
+
+		Vector3d newUp = view->prospectiveUp(*quat);
+
+		MakePoint3d(env,Point3d(newUp.x(),newUp.y(),newUp.z()));
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::prospectiveUp()");
 	}
 }

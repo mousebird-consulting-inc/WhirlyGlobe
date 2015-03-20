@@ -35,6 +35,7 @@ template<> Point2dClassInfo *Point2dClassInfo::classInfoObj = NULL;
 template<> Point3dClassInfo *Point3dClassInfo::classInfoObj = NULL;
 template<> Matrix4dClassInfo *Matrix4dClassInfo::classInfoObj = NULL;
 template<> QuaternionClassInfo *QuaternionClassInfo::classInfoObj = NULL;
+template<> AngleAxisClassInfo *AngleAxisClassInfo::classInfoObj = NULL;
 template<> CoordSystemDisplayAdapterInfo *CoordSystemDisplayAdapterInfo::classInfoObj = NULL;
 template<> FakeGeocentricDisplayAdapterInfo *FakeGeocentricDisplayAdapterInfo::classInfoObj = NULL;
 template<> MaplySceneRendererInfo *MaplySceneRendererInfo::classInfoObj = NULL;

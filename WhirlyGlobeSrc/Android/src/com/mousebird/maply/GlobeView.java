@@ -92,6 +92,11 @@ public class GlobeView extends View
 		}
 	}
 	
+	/**
+	 * Set if we want to keep north pointed upward as the user moves
+	 */
+	public boolean northUp = true;
+	
 	// Set the view location from a Point3d
 	void setLoc(Point3d loc)
 	{
@@ -99,7 +104,9 @@ public class GlobeView extends View
 		z = Math.min(maxHeightAboveSurface(), z);
 		z = Math.max(minHeightAboveSurface(), z);
 		
-		setLoc(loc.getX(),loc.getY(),z);
+	    Quaternion newRot = makeRotationToGeoCoord(loc.getX(),loc.getY(),northUp);
+	    setRotQuatNative(newRot);
+	    setHeight(z);
 		
 		runViewUpdates();
 	}
@@ -124,11 +131,15 @@ public class GlobeView extends View
 	native Quaternion getRotQuat();
 	// Set the current rotation Quaternion
 	native void setRotQuatNative(Quaternion q);
-	// Set the view location (including height)
-	private native void setLoc(double x,double y,double z);
 	// Get the current view location
 	public native Point3d getLoc();
-
+    // Set just the height, rather than the whole location
+	public native void setHeight(double z);
+	// Calculate a rotation to the given (absolute) geographic location
+	public native Quaternion makeRotationToGeoCoord(double x,double y,boolean northUp);
+	// Run (0,0,1) through the given rotation to see where it winds up
+	public native Point3d prospectiveUp(Quaternion rot);
+	
 	static
 	{
 		nativeInit();
