@@ -325,6 +325,26 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	 * the current target zoom level.
 	 */
 	public native void setSingleLevelLoading(boolean newVal);
+	
+	/**
+	 * If set, we'll generate edges between the map tiles to deal with
+	 * diverged tile zoom levels loaded at once.
+	 */
+	public native void setHandleEdges(boolean newVal);
+
+	/**
+	 * If set, we'll provide geometry for the north and south poles.
+	 */
+	public native void setCoverPoles(boolean newVal);
+
+	/**
+	 * By default the quad layer is always visible.  If you set these
+	 * then the layer will only be visible in the given range.
+	 * @param minVis The close zoom range at which to drop out the layer.  0.0 by default.
+	 * @param maxVis The far zoom range at which to drop out the layer.
+	 * Something implausibly large by default.
+	 */
+	public native void setVisibility(double minVis,double maxVis);
 
 	static
 	{

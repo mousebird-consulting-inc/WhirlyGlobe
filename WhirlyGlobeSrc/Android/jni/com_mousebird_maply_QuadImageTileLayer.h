@@ -41,6 +41,30 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setSingleLeve
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setHandleEdges
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setHandleEdges
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setCoverPoles
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setCoverPoles
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setVisibility
+ * Signature: (DD)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setVisibility
+  (JNIEnv *, jobject, jdouble, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    nativeInit
  * Signature: ()V
  */

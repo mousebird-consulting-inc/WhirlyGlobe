@@ -87,6 +87,8 @@ public:
 	bool singleLevelLoading;
 	bool canShortCircuitImportance;
 	int maxShortCircuitLevel;
+	double minVis, maxVis;
+	bool handleEdges, coverPoles;
 	Point2d ll,ur;
 
 	// Methods for Java quad image layer
@@ -94,7 +96,8 @@ public:
 
 	QuadImageLayerAdapter(CoordSystem *coordSys)
 		: env(NULL), javaObj(NULL), renderer(NULL), coordSys(coordSys),
-		  simultaneousFetches(1), tileLoader(NULL)
+		  simultaneousFetches(1), tileLoader(NULL), minVis(0.0), maxVis(10.0),
+		  handleEdges(true),coverPoles(false)
 	{
 		useTargetZoomLevel = true;
         canShortCircuitImportance = false;
@@ -128,7 +131,7 @@ public:
 			env->DeleteGlobalRef(javaObj);
 	}
 
-	// Called to star the layer
+	// Called to start the layer
 	void start(Scene *inScene,SceneRendererES *inRenderer,const Point2d &inLL,const Point2d &inUR,int inMinZoom,int inMaxZoom)
 	{
 		scene = inScene;
@@ -137,10 +140,10 @@ public:
 
 		// Set up the tile loader
 		tileLoader = new QuadTileLoader("Image Layer",this,-1);
-	    tileLoader->setIgnoreEdgeMatching(false);
-	    tileLoader->setCoverPoles(false);
-//	    tileLoader->setMinVis(_minVis);
-//	    tileLoader->setMaxVis(_maxVis);
+	    tileLoader->setIgnoreEdgeMatching(!handleEdges);
+	    tileLoader->setCoverPoles(coverPoles);
+	    tileLoader->setMinVis(minVis);
+	    tileLoader->setMaxVis(maxVis);
 	    tileLoader->setDrawPriority(0);
 	    tileLoader->setNumImages(1);
 	    tileLoader->setIncludeElev(false);
@@ -516,6 +519,37 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setSingleLeve
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setSingleLevelLoading()");
 	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setHandleEdges
+  (JNIEnv *env, jobject obj, jboolean newVal)
+{
+	QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+	QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+	if (!adapter)
+		return;
+	adapter->handleEdges = newVal;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setCoverPoles
+  (JNIEnv *env, jobject obj, jboolean newVal)
+{
+	QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+	QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+	if (!adapter)
+		return;
+	adapter->coverPoles = newVal;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setVisibility
+  (JNIEnv *env, jobject obj, jdouble minVis, jdouble maxVis)
+{
+	QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+	QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+	if (!adapter)
+		return;
+	adapter->minVis = minVis;
+	adapter->maxVis = maxVis;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeStartLayer

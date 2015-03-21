@@ -24,6 +24,7 @@ import javax.microedition.khronos.egl.*;
 import javax.microedition.khronos.opengles.*;
 
 import android.opengl.GLSurfaceView.*;
+import android.os.Looper;
 
 /**
  * This is an internal class used to talk to the OpenGL ES surface.
@@ -57,18 +58,12 @@ class RendererWrapper implements Renderer
 		maplyRender.surfaceChanged(width,height);
 		maplyRender.doRender();
 	}
+
+	int frameCount = 0;
 	
 	@Override
 	public void onDrawFrame(GL10 gl)
 	{
-		try {
-			// Nudge this past the 1/60s frame boundary
-			// Note: Porting.  Egregious hack.
-			Thread.sleep(16);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		maplyRender.doRender();		
 	}
 }

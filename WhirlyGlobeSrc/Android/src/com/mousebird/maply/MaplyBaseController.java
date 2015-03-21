@@ -131,7 +131,8 @@ public class MaplyBaseController
         	}
         	
         	glSurfaceView.setEGLContextClientVersion(2);
-        	glSurfaceView.setRenderer(renderWrapper);        	        
+        	glSurfaceView.setRenderer(renderWrapper);       
+        	glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         	// Attach to the Choreographer on the main thread
         	// Note: I'd rather do this on the render thread, but there's no Looper
