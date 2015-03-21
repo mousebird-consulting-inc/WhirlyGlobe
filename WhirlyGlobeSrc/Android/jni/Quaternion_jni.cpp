@@ -159,3 +159,25 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_multiply__Lcom_mou
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Quaternion::multiply()");
 	}
 }
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_slerp
+  (JNIEnv *env, jobject obj, jobject thatObj, jdouble t)
+{
+	try
+	{
+		QuaternionClassInfo *classInfo = QuaternionClassInfo::getClassInfo();
+		Quaterniond *quat = classInfo->getObject(env,obj);
+		Quaterniond *quat2 = classInfo->getObject(env,thatObj);
+		if (!quat || !quat2)
+			return NULL;
+
+		Eigen::Quaterniond newQuat = (*quat).slerp(t,*quat2);
+
+		return MakeQuaternion(env,newQuat);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Quaternion::slerp()");
+	}
+}
+
