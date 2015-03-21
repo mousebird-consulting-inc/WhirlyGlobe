@@ -45,6 +45,7 @@ public:
 		framebufferWidth = width;
 		framebufferHeight = height;
 		lastDraw = 0;
+		forceRenderSetup();
 
 		return true;
 	}
