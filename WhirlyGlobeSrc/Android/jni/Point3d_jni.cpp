@@ -146,3 +146,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Point3d_setValue
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Point3d::setValue()");
 	}
 }
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Point3d_cross
+  (JNIEnv *env, jobject ptObj, jobject pt2Obj)
+{
+	try
+	{
+		Point3dClassInfo *classInfo = Point3dClassInfo::getClassInfo();
+		Point3d *pt = classInfo->getObject(env,ptObj);
+		Point3d *pt2 = classInfo->getObject(env,pt2Obj);
+		if (!pt || !pt2)
+			return NULL;
+		Point3d ret = pt->cross(*pt2);
+
+		return MakePoint3d(env,ret);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Point3d::cross()");
+	}
+}

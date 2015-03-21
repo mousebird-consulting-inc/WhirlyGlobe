@@ -20,6 +20,7 @@
 
 #import <jni.h>
 #import "Maply_jni.h"
+#import "Maply_utils_jni.h"
 #import "com_mousebird_maply_Matrix4d.h"
 #import "WhirlyGlobe.h"
 
@@ -64,6 +65,47 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix4d_dispose
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix4d::dispose()");
+	}
+}
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_inverse
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		Matrix4dClassInfo *classInfo = Matrix4dClassInfo::getClassInfo();
+		Matrix4d *inst = classInfo->getObject(env,obj);
+		if (!inst)
+			return NULL;
+
+		Matrix4d matInv = inst->inverse();
+		return MakeMatrix4d(env,matInv);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix4d::inverse()");
+	}
+}
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_multiply
+  (JNIEnv *env, jobject obj, jobject ptObj)
+{
+	try
+	{
+		Matrix4dClassInfo *classInfo = Matrix4dClassInfo::getClassInfo();
+		Matrix4d *mat = classInfo->getObject(env,obj);
+		Point4dClassInfo *ptClassInfo = Point4dClassInfo::getClassInfo();
+		Point4d *pt = ptClassInfo->getObject(env,ptObj);
+		if (!mat || !pt)
+			return NULL;
+
+		Point4d ret = (*mat) * (*pt);
+
+		return MakePoint4d(env,ret);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix4d::multiply()");
 	}
 }
 

@@ -65,31 +65,55 @@ public class Point3d
 		return "(" + getX() + "," + getY() + "," + getZ() + ")";
 	}
 	
+	/**
+	 * Add this Point to the one given and return the result.
+	 */
 	public Point3d addTo(Point3d that)
 	{
 		return new Point3d(getX()+that.getX(),getY()+that.getY(),getZ()+that.getZ());
 	}
 	
+	/**
+	 * Scale this point as a vector by the given value.
+	 */
 	public Point3d multiplyBy(double t)
 	{
 		return new Point3d(getX()*t,getY()*t,getZ()*t);
 	}
 
+	/**
+	 * Return this point minus the one given.
+	 */
 	public Point3d subtract(Point3d pt1) 
 	{
 		return new Point3d(getX()-pt1.getX(),getY()-pt1.getY(),getZ()-pt1.getZ());
 	}
 	
+	/**
+	 * Calculate the length of this as a vector.
+	 */
 	public double length() 
 	{
 		double x = getX(), y = getY(), z = getZ();
 		return Math.sqrt(x*x+y*y+z*z);
 	}
 	
+	/**
+	 * Return the normalized vector.
+	 */
 	public Point3d normalized()
 	{
 		double len = length();
 		return new Point3d(getX()/len,getY()/len,getZ()/len);
+	}
+
+	/**
+	 * Normalize this as a vector.
+	 */
+	public void normalize()
+	{
+		double len = length();
+		setValue(getX()/len,getY()/len,getZ()/len);
 	}
 
 	/**
@@ -118,6 +142,11 @@ public class Point3d
 	 * Set the value of the point.
 	 */
 	public native void setValue(double x,double y,double z);
+	
+	/**
+	 * Return the cross product of this vector and the one given.
+	 */
+	public native Point3d cross(Point3d that);
 	
 	static
 	{

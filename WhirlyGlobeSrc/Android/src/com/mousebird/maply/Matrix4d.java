@@ -47,5 +47,13 @@ public class Matrix4d
 	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
+	/**
+	 * Return the inverse of this matrix.
+	 */
+	public native Matrix4d inverse();
+	/**
+	 * Multiply the vector by this matrix and return the result.
+	 */
+	public native Point4d multiply(Point4d vec);
 	private long nativeHandle;
 }

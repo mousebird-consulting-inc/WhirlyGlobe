@@ -299,6 +299,11 @@ protected:
 	jmethodID literMethodID,hasNextID,nextID;
 };
 
+namespace WhirlyKit
+{
+typedef Eigen::Vector4d Point4d;
+}
+
 // Wrappers for class info for all the various classes that have presence in Java
 typedef JavaClassInfo<WhirlyKit::Dictionary> AttrDictClassInfo;
 typedef JavaClassInfo<WhirlyKit::ChangeSet> ChangeSetClassInfo;
@@ -306,6 +311,7 @@ typedef JavaClassInfo<WhirlyKit::Texture> TextureClassInfo;
 typedef JavaClassInfo<WhirlyKit::CoordSystem> CoordSystemClassInfo;
 typedef JavaClassInfo<WhirlyKit::Point2d> Point2dClassInfo;
 typedef JavaClassInfo<WhirlyKit::Point3d> Point3dClassInfo;
+typedef JavaClassInfo<WhirlyKit::Point4d> Point4dClassInfo;
 typedef JavaClassInfo<Eigen::Matrix4d> Matrix4dClassInfo;
 typedef JavaClassInfo<Eigen::Quaterniond> QuaternionClassInfo;
 typedef JavaClassInfo<Eigen::AngleAxisd> AngleAxisClassInfo;

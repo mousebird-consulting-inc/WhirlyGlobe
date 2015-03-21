@@ -133,12 +133,16 @@ public class GlobeView extends View
 	native void setRotQuatNative(Quaternion q);
 	// Get the current view location
 	public native Point3d getLoc();
+	// Get just the height
+	public native double getHeight();
     // Set just the height, rather than the whole location
 	public native void setHeight(double z);
 	// Calculate a rotation to the given (absolute) geographic location
 	public native Quaternion makeRotationToGeoCoord(double x,double y,boolean northUp);
 	// Run (0,0,1) through the given rotation to see where it winds up
 	public native Point3d prospectiveUp(Quaternion rot);
+	// Project a point from the screen to model space
+	public native Point3d pointUnproject(Point2d touch,Point2d frameSize,boolean normalized);
 	
 	static
 	{

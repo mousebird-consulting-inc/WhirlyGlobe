@@ -239,6 +239,25 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointOnScreenFromSp
 	}
 }
 
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_GlobeView_getHeight
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		GlobeViewClassInfo *classInfo = GlobeViewClassInfo::getClassInfo();
+		WhirlyGlobe::GlobeView *view = classInfo->getObject(env,obj);
+		if (!view)
+			return 0.0;
+
+	    return view->heightAboveSurface();
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::getHeight()");
+	}
+}
+
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setHeight
   (JNIEnv *env, jobject obj, jdouble newHeight)
 {
@@ -296,5 +315,27 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_prospectiveUp
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::prospectiveUp()");
+	}
+}
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointUnproject
+  (JNIEnv *env, jobject obj, jobject touchObj,jobject frameSizeObj,jboolean clip)
+{
+	try
+	{
+		GlobeViewClassInfo *classInfo = GlobeViewClassInfo::getClassInfo();
+		WhirlyGlobe::GlobeView *view = classInfo->getObject(env,obj);
+		Point2dClassInfo *ptClassInfo = Point2dClassInfo::getClassInfo();
+		Point2d *touch = ptClassInfo->getObject(env,touchObj);
+		Point2d *frameSize = ptClassInfo->getObject(env,frameSizeObj);
+		if (!view || !touch || !frameSize)
+			return NULL;
+
+		Point3d modelPt = view->pointUnproject(Point2f(touch->x(),touch->y()),(int)frameSize->x(),(int)frameSize->y(),clip);
+		return MakePoint3d(env,modelPt);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::pointUnproject()");
 	}
 }

@@ -33,6 +33,7 @@ template<> TextureClassInfo *TextureClassInfo::classInfoObj = NULL;
 template<> CoordSystemClassInfo *CoordSystemClassInfo::classInfoObj = NULL;
 template<> Point2dClassInfo *Point2dClassInfo::classInfoObj = NULL;
 template<> Point3dClassInfo *Point3dClassInfo::classInfoObj = NULL;
+template<> Point4dClassInfo *Point4dClassInfo::classInfoObj = NULL;
 template<> Matrix4dClassInfo *Matrix4dClassInfo::classInfoObj = NULL;
 template<> QuaternionClassInfo *QuaternionClassInfo::classInfoObj = NULL;
 template<> AngleAxisClassInfo *AngleAxisClassInfo::classInfoObj = NULL;
