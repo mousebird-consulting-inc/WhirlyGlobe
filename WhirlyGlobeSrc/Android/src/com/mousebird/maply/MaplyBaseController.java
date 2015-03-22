@@ -132,11 +132,6 @@ public class MaplyBaseController
         	
         	glSurfaceView.setEGLContextClientVersion(2);
         	glSurfaceView.setRenderer(renderWrapper);       
-        	glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-
-        	// Attach to the Choreographer on the main thread
-        	// Note: I'd rather do this on the render thread, but there's no Looper
-//        	Choreographer.getInstance().postFrameCallbackDelayed(this, 15);
         } else {
         	Toast.makeText(activity,  "This device does not support OpenGL ES 2.0.", Toast.LENGTH_LONG).show();
         	return;
@@ -162,6 +157,7 @@ public class MaplyBaseController
 		running = false;
 //		Choreographer.getInstance().removeFrameCallback(this);
 		layerThread.shutdown();
+		metroThread.shutdown();
 		
 		glSurfaceView = null;
 		renderWrapper = null;
@@ -175,6 +171,9 @@ public class MaplyBaseController
 	}
 	
 	ArrayList<Runnable> surfaceTasks = new ArrayList<Runnable>();
+	
+	// Metronome thread used to time the renderer
+	MetroThread metroThread;
 	
 	// Called by the render wrapper when the surface is created.
 	// Can't start doing anything until that happens
@@ -198,8 +197,9 @@ public class MaplyBaseController
 		}
 		surfaceTasks = null;
 
-		// Set up a periodic update for the renderer
-//    	glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+    	glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+    	// Note: 3fps
+    	metroThread = new MetroThread("Metronome Thread",this,2);
 	}
 	
 	/**
@@ -216,30 +216,6 @@ public class MaplyBaseController
 		else
 			run.run();
 	}
-
-//	long lastRender = 0;
-//	// Called by the Choreographer to render a frame
-//	@Override
-//	public void doFrame(long frameTimeNanos) 
-//	{		
-//		// Need to do this every frame
-//    	Choreographer.getInstance().postFrameCallbackDelayed(this, 15);
-//
-//    	// Compare how long since the last render
-//    	long diff = frameTimeNanos - lastRender;
-//		if (diff >= 16666700*(frameInterval-0.25))
-//		{
-//			glSurfaceView.queueEvent(new Runnable()
-//			{
-//				public void run()
-//				{
-//					glSurfaceView.requestRender();
-//				}
-//			});
-//			glSurfaceView.requestRender();
-//			lastRender = frameTimeNanos;
-//		}
-//	}
 			
 	public void dispose()
 	{
