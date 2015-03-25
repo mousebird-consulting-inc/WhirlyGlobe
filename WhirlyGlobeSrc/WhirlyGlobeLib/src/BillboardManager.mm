@@ -91,7 +91,7 @@ BillboardDrawableBuilder::~BillboardDrawableBuilder()
     flush();
 }
 
-void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<WhirlyKit::Point2d> &pts,const std::vector<WhirlyKit::TexCoord> &texCoords,UIColor *inColor)
+void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<WhirlyKit::Point2d> &pts,const std::vector<WhirlyKit::TexCoord> &texCoords,UIColor *inColor,const SingleVertexAttributeSet &vertAttrs)
 {
     if (pts.size() != 4)
     {
@@ -102,7 +102,8 @@ void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<Whi
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
     // Get the drawable ready
-    if (!drawable || (drawable->getNumPoints()+4 > MaxDrawablePoints) ||
+    if (!drawable || !drawable->compareVertexAttributes(vertAttrs) ||
+        (drawable->getNumPoints()+4 > MaxDrawablePoints) ||
         (drawable->getNumTris()+2 > MaxDrawableTriangles))
     {
         if (drawable)
@@ -117,6 +118,7 @@ void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<Whi
         drawable->setDrawPriority(billInfo.drawPriority);
         drawable->setRequestZBuffer(true);
         drawable->setWriteZBuffer(true);
+        drawable->setVertexAttributes(vertAttrs);
         //        drawable->setForceZBufferOn(true);
     }
     
@@ -134,6 +136,7 @@ void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<Whi
         drawable->addTexCoord(0,texCoords[ii]);
         drawable->addNormal(axisY);
         drawable->addColor(color);
+        drawable->addVertexAttribute(vertAttrs);
     }
     drawable->addTriangle(BasicDrawable::Triangle(startPoint+0,startPoint+1,startPoint+2));
     drawable->addTriangle(BasicDrawable::Triangle(startPoint+0,startPoint+2,startPoint+3));
@@ -207,7 +210,7 @@ SimpleIdentity BillboardManager::addBillboards(NSArray *billboards,NSDictionary 
             } else
                 drawBuilder = it->second;
             
-            drawBuilder->addBillboard(billboard.center, billPoly.pts, billPoly.texCoords, billPoly.color);
+            drawBuilder->addBillboard(billboard.center, billPoly.pts, billPoly.texCoords, billPoly.color, billPoly.vertexAttrs);
         }
 
         // While we're at it, let's add this to the selection layer

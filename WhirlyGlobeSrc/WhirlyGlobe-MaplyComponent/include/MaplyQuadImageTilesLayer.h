@@ -60,7 +60,7 @@ typedef enum {MaplyImageIntRGBA,
 /** @brief Set the active tile source.
     @details If you change this, it will force a reload of all loaded tiles and start fetching from the new tile source.
   */
-@property (nonatomic) NSObject<MaplyTileSource> *tileSource;
+@property (nonatomic,strong) NSObject<MaplyTileSource> *tileSource;
 
 /** @brief Enable/Disable the whole layer.
     @details By default this is on.  If you turn it off, there may be a slight delay before the whole layer disappears.  The layer will keep working, but any geometry will be invisible until you turn it back on.
@@ -181,7 +181,7 @@ typedef enum {MaplyImageIntRGBA,
 /** @brief Color for the tile geometry.
     @details The geometry we create for tiles has an RGBA color.  It's white/full alpha by default, but you can set it here.  You might want to do this if you'd like a semi-transparent layer, sort of a shader of course, where you can do whatever you like.
   */
-@property (nonatomic) UIColor *color;
+@property (nonatomic,strong) UIColor *color;
 
 /** @brief Maximum number of tiles to load in at once.
     @details This is the maximum number of tiles the pager will have loaded into memory at once.  The default is 128 and that's generally good enough.  However, if your tile size is small, you may want to load in more.
@@ -199,7 +199,7 @@ typedef enum {MaplyImageIntRGBA,
     @details Shader programs are accessed by name.  When you create a shader and tie it into the scene, you'll have the name.  Use that name here to ensure that all tiles are rendered with that MaplyShader.
     @details Be sure to set this immediately after layer creation.  It can't be changed in the middle.
   */
-@property (nonatomic) NSString *shaderProgramName;
+@property (nonatomic,strong) NSString *shaderProgramName;
 
 /** @brief Set the (power of two) size of texture atlases the layer will create.
     @details The system makes extensive use of texture atlases for rendering tiles.  Typically we'll only have one or two gigantic textures will all our imagery and a handfull of drawables.  This is what makes the system fast.  Very fast.
@@ -256,7 +256,7 @@ typedef enum {MaplyImageIntRGBA,
     @details We do this so that the user doesn't have to wait for the target level to load.  This can be distracting on large displays with small tiles.  If you use this mode, the layer will load lower levels first, filling in quicker and then load the target level.  This looks much better, but doesn't take as long as the full quad tree based loading.
     @details The layer calculates the optimal target level (for 2D maps, if you're in that mode).  The entries in this array are relative to that level or absolute.  For example [0,-4,-2] means the layer will always try to load levels 0, targetLevel-4 and targetLevel-2, but only the latter two if they make sense.
   */
-@property (nonatomic) NSArray *multiLevelLoads;
+@property (nonatomic,strong) NSArray *multiLevelLoads;
 
 /** @brief The target zoom level for this layer given the current view settings.
     @details Calculates the target zoom level for the middle of the screen.

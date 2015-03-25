@@ -253,7 +253,7 @@ static const unsigned int MaxDrawableTriangles = (MaxDrawablePoints / 3);
 class SubTexture;
 
 /// Data types we'll accept for attributes
-typedef enum {BDFloat3Type,BDChar4Type,BDFloat2Type,BDFloatType} BDAttributeDataType;
+typedef enum {BDFloat3Type,BDChar4Type,BDFloat2Type,BDFloatType,BDIntType} BDAttributeDataType;
     
     
 /// Used to keep track of attributes (other than points)
@@ -287,6 +287,8 @@ public:
     void addVector3f(const Eigen::Vector3f &vec);
     /// Convenience routine to add a float (if the type matches)
     void addFloat(float val);
+    /// Convenience routine to add an int (if the type matches)
+    void addInt(int val);
     
     /// Reserve size in the data array
     void reserve(int size);
@@ -326,12 +328,43 @@ public:
         float vec2[2];
         float floatVal;
         unsigned char color[4];
+        int intVal;
     } defaultData;
     /// std::vector of attribute data.  Type is known by the caller.
     void *data;
     /// Buffer offset within interleaved vertex
     GLuint buffer;
 };
+    
+/** The single vertex attribute hold a single typed value to
+    be merged into a basic drawable's attirbutes arrays.
+  */
+class SingleVertexAttribute
+{
+public:
+    /// Comparison operator for set
+    bool operator < (const SingleVertexAttribute &that) const
+    {
+        return name < that.name;
+    }
+
+    /// Attribute's data type
+    BDAttributeDataType type;
+
+    /// Attribute name (e.g. "u_elev")
+    std::string name;
+
+    /// The actual data
+    union {
+        float vec3[3];
+        float vec2[2];
+        float floatVal;
+        unsigned char color[4];
+        int intVal;
+    } data;
+};
+    
+typedef std::set<SingleVertexAttribute> SingleVertexAttributeSet;
     
 /** The Basic Drawable is the one we use the most.  It's
     a general purpose container for static geometry which
@@ -476,6 +509,15 @@ public:
     /// Add a normal
 	virtual void addNormal(const Point3f &norm);
 	virtual void addNormal(const Point3d &norm);
+    
+    /// Decide if the given list of vertex attributes is the same as the one we have
+    bool compareVertexAttributes(const SingleVertexAttributeSet &attrs);
+
+    /// Set up the required vertex attribute arrays from the given list
+    void setVertexAttributes(const SingleVertexAttributeSet &attrs);
+
+    /// Add the given vertex attributes for the given vertex
+    void addVertexAttribute(const SingleVertexAttributeSet &attrs);
 
     /// Add a vector to the given attribute array
     virtual void addAttributeValue(int attrId,Eigen::Vector2f vec);
