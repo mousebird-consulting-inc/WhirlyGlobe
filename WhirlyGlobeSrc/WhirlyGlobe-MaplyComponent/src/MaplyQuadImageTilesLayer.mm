@@ -78,7 +78,6 @@ using namespace WhirlyKit;
     WhirlyKitQuadDisplayLayer *quadLayer;
     Scene *scene;
     MaplyCoordinateSystem *coordSys;
-    NSObject<MaplyTileSource> *_tileSource;
     int minZoom,maxZoom;
     int tileSize;
     bool sourceWantsAsync;
