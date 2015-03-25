@@ -136,6 +136,8 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 /// Value to use for the layout engine.  Set to MAXFLOAT by
 ///  default, which will always display.
 @property (nonatomic,assign) float layoutImportance;
+/// A list of vertex attributes to apply to the marker
+@property (nonatomic,assign) WhirlyKit::SingleVertexAttributeSet &vertexAttrs;
 
 /// Add a texture ID to be displayed
 - (void)addTexID:(WhirlyKit::SimpleIdentity)texID;
