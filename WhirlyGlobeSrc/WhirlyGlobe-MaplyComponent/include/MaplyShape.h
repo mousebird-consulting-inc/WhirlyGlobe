@@ -211,6 +211,6 @@ typedef MaplyShapeCylinder WGShapeCylinder;
 /** @brief The transform to apply to this shape.
     @details If set, this transform is applied before placing the feature.  You can set a transform matrix up with roll, pitch, and yaw.
   */
-@property (nonatomic) MaplyMatrix *transform;
+@property (nonatomic,strong) MaplyMatrix *transform;
 
 @end

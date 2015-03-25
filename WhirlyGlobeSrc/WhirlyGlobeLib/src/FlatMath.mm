@@ -109,7 +109,16 @@ GeoCoord FlatEarthCoordSystem::localToGeographic(Point3d pt)
     
     return coord;
 }
+
+Point2d FlatEarthCoordSystem::localToGeographicD(Point3d pt)
+{
+    Point2d coord;
+    coord.x() = pt.x() / (MetersPerRadian * converge) + origin.lon();
+    coord.y() = pt.y() / MetersPerRadian + origin.lat();
     
+    return coord;
+}
+
 Point3f FlatEarthCoordSystem::geographicToLocal(GeoCoord geo)
 {
     Point3f pt;
@@ -129,7 +138,17 @@ Point3d FlatEarthCoordSystem::geographicToLocal3d(GeoCoord geo)
     
     return pt;
 }
-        
+
+Point3d FlatEarthCoordSystem::geographicToLocal(Point2d geo)
+{
+    Point3d pt;
+    pt.x() = (geo.x() - origin.lon()) * converge * MetersPerRadian;
+    pt.y() = (geo.y() - origin.lat()) * MetersPerRadian;
+    pt.z() = 0.0;
+    
+    return pt;
+}
+
 /// Convert from local coordinates to WGS84 geocentric
 Point3f FlatEarthCoordSystem::localToGeocentric(Point3f localPt)
 {

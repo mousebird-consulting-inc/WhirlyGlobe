@@ -78,6 +78,12 @@
   */
 @property (nonatomic,assign) CGPoint offset;
 
+/** @brief Vertex attributes to apply to this screen marker.
+    @details MaplyVertexAttribute objects are passed all the way to the shader.  Read that page for details on what they do.
+    @details The array of vertex attributes provided here will be copied onto all the vertices we create for the shader.  This means you can use these to do things for a single billboard in your shader.
+ */
+@property (nonatomic,strong) NSArray *vertexAttributes;
+
 /** @brief Screen marker selectability.  On by default
     @details If set, this marker can be selected by the user.  If not set, this screen marker will never appear in selection results.
  */
