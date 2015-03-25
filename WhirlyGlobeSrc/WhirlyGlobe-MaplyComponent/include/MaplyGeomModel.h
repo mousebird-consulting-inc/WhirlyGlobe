@@ -46,7 +46,7 @@
 @property (nonatomic,strong) id userObject;
 
 /// @brief The model to instance
-@property (nonatomic) MaplyGeomModel *model;
+@property (nonatomic,strong) MaplyGeomModel *model;
 
 /** @brief Where we'd like to place the instanced model.
     @details This is the center of the object in geographic radians.
@@ -54,11 +54,11 @@
 @property (nonatomic) MaplyCoordinate3d center;
 
 /// @brief Transform used to oriented the model instance
-@property (nonatomic) MaplyMatrix *transform;
+@property (nonatomic,strong) MaplyMatrix *transform;
 
 /// @brief Color to force all polygons to use.
 /// @details If set, this will force all polygons to use this color.  nil by default.
-@property (nonatomic) UIColor *colorOverride;
+@property (nonatomic,strong) UIColor *colorOverride;
 
 /// @brief Set if you want to select these
 @property (nonatomic) bool selectable;

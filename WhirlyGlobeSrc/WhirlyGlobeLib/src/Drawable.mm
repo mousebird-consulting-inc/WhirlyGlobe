@@ -334,6 +334,17 @@ void VertexAttribute::addFloat(float val)
     (*floats).push_back(val);
 }
     
+void VertexAttribute::addInt(int val)
+{
+    if (dataType != BDIntType)
+        return;
+
+    if (!data)
+        data = new std::vector<int>();
+    std::vector<int> *ints = (std::vector<int> *)data;
+    (*ints).push_back(val);
+}
+    
 /// Reserve size in the data array
 void VertexAttribute::reserve(int size)
 {
@@ -371,7 +382,15 @@ void VertexAttribute::reserve(int size)
             floats->reserve(size);
         }
             break;
-    }    
+        case BDIntType:
+        {
+            if (!data)
+                data = new std::vector<int>();
+            std::vector<int> *ints = (std::vector<int> *)data;
+            ints->reserve(size);
+        }
+            break;
+    }
 }
 
 /// Number of elements in our array
@@ -406,7 +425,12 @@ int VertexAttribute::numElements() const
             return (int)floats->size();
         }
             break;
-    }    
+        case BDIntType:
+        {
+            std::vector<int> *ints = (std::vector<int> *)data;
+            return ints->size();
+        }
+    }
 }
 
 /// Return the size of a single element
@@ -426,7 +450,10 @@ int VertexAttribute::size() const
         case BDFloatType:
             return sizeof(GLfloat);
             break;
-    }    
+        case BDIntType:
+            return sizeof(GLint);
+            break;
+    }
 }
 
 /// Clean out the data array
@@ -458,6 +485,12 @@ void VertexAttribute::clear()
             {
                 std::vector<float> *floats = (std::vector<float> *)data;
                 delete floats;
+            }
+                break;
+            case BDIntType:
+            {
+                std::vector<int> *ints = (std::vector<int> *)data;
+                delete ints;
             }
                 break;
         }
@@ -494,6 +527,12 @@ void *VertexAttribute::addressForElement(int which)
             return &(*floats)[which];
         }
             break;
+        case BDIntType:
+        {
+            std::vector<int> *ints = (std::vector<int> *)data;
+            return &(*ints)[which];
+        }
+            break;
     }
     
     return NULL;
@@ -516,6 +555,9 @@ GLuint VertexAttribute::glEntryComponents() const
         case BDFloatType:
             return 1;
             break;
+        case BDIntType:
+            return 1;
+            break;
     }
     
     return 0;
@@ -534,6 +576,9 @@ GLenum VertexAttribute::glType() const
         case BDChar4Type:
             return GL_UNSIGNED_BYTE;
             break;
+        case BDIntType:
+            return GL_INT;
+            break;
     }
     return GL_UNSIGNED_BYTE;
 }
@@ -546,6 +591,7 @@ GLboolean VertexAttribute::glNormalize() const
         case BDFloat3Type:
         case BDFloat2Type:
         case BDFloatType:
+        case BDIntType:
             return GL_FALSE;
             break;
         case BDChar4Type:
@@ -569,6 +615,9 @@ void VertexAttribute::glSetDefault(int index) const
             break;
         case BDChar4Type:
             glVertexAttrib4f(index, defaultData.color[0] / 255.0, defaultData.color[1] / 255.0, defaultData.color[2] / 255.0, defaultData.color[3] / 255.0);
+            break;
+        case BDIntType:
+            glVertexAttrib1f(index, defaultData.intVal);
             break;
     }
 }
@@ -920,6 +969,89 @@ void BasicDrawable::addAttributeValue(int attrId,RGBAColor color)
 
 void BasicDrawable::addAttributeValue(int attrId,float val)
 { vertexAttributes[attrId]->addFloat(val); }
+    
+bool BasicDrawable::compareVertexAttributes(const SingleVertexAttributeSet &attrs)
+{
+    for (SingleVertexAttributeSet::iterator it = attrs.begin();
+         it != attrs.end(); ++it)
+    {
+        int attrId = -1;
+        for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+            if (vertexAttributes[ii]->name == it->name)
+            {
+                attrId = ii;
+                break;
+            }
+        if (attrId == -1)
+            return false;
+        if (vertexAttributes[attrId]->getDataType() != it->type)
+            return false;
+    }
+
+    return true;
+}
+
+void BasicDrawable::setVertexAttributes(const SingleVertexAttributeSet &attrs)
+{
+    for (SingleVertexAttributeSet::iterator it = attrs.begin();
+         it != attrs.end(); ++it)
+        addAttribute(it->type,it->name);
+}
+
+void BasicDrawable::addVertexAttribute(const SingleVertexAttributeSet &attrs)
+{
+    for (SingleVertexAttributeSet::iterator it = attrs.begin();
+         it != attrs.end(); ++it)
+    {
+        int attrId = -1;
+        for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+            if (vertexAttributes[ii]->name == it->name)
+            {
+                attrId = ii;
+                break;
+            }
+
+        if (attrId == -1)
+            continue;
+
+        switch (it->type)
+        {
+            case BDFloatType:
+                addAttributeValue(attrId, it->data.floatVal);
+                break;
+            case BDFloat2Type:
+            {
+                Vector2f vec;
+                vec.x() = it->data.vec2[0];
+                vec.y() = it->data.vec2[1];
+                addAttributeValue(attrId, vec);
+            }
+                break;
+            case BDFloat3Type:
+            {
+                Vector3f vec;
+                vec.x() = it->data.vec3[0];
+                vec.y() = it->data.vec3[1];
+                vec.z() = it->data.vec3[2];
+                addAttributeValue(attrId, vec);
+            }
+                break;
+            case BDChar4Type:
+            {
+                RGBAColor color;
+                color.r = it->data.color[0];
+                color.g = it->data.color[1];
+                color.b = it->data.color[2];
+                color.a = it->data.color[3];
+                addAttributeValue(attrId, color);
+            }
+                break;
+            case BDIntType:
+                addAttributeValue(attrId, it->data.intVal);
+                break;
+        }
+    }
+}
 
 void BasicDrawable::addTriangle(Triangle tri)
 { tris.push_back(tri); }

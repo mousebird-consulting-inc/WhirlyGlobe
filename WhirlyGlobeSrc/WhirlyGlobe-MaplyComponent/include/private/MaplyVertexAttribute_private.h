@@ -1,8 +1,8 @@
 /*
- *  MaplyGDALRetileSource.h
+ *  MaplyVertexAttribute_private.h
  *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 12/2/13.
+ *  Created by Steve Gifford on 11/29/13.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,14 +18,12 @@
  *
  */
 
-#import "MaplyTileSource.h"
-#import "MaplyCoordinateSystem.h"
+#import "MaplyVertexAttribute.h"
+#import "WhirlyGlobe.h"
 
-@interface MaplyGDALRetileSource : NSObject<MaplyTileSource>
-
-- (id)initWithURL:(NSString *)baseURL baseName:(NSString *)baseName ext:(NSString *)ext coordSys:(MaplyCoordinateSystem *)coordSys levels:(int)numLevels;
-
-@property (nonatomic,strong) NSString *cacheDir;
-
+@interface MaplyVertexAttribute()
+{
+@public
+    WhirlyKit::SingleVertexAttribute attr;
+}
 @end
-

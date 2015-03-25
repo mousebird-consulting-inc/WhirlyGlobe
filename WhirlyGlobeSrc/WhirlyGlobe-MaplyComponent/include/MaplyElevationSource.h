@@ -50,7 +50,7 @@
 @property unsigned int numY;
 
 /// This is the data.  Elevations are floats (32 bit) in meters.
-@property NSData *data;
+@property (nonatomic,strong) NSData *data;
 
 @end
 

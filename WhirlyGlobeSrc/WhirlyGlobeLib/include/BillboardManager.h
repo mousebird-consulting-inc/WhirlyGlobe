@@ -43,8 +43,10 @@ public:
     UIColor *color;
     /// Texture to use
     WhirlyKit::SimpleIdentity texId;
+    /// Vertex attributes applied to just this poly
+    SingleVertexAttributeSet vertexAttrs;
 };
-
+    
 }
 
 // Used to pass parameters around between threads
@@ -112,7 +114,7 @@ public:
     BillboardDrawableBuilder(Scene *scene,ChangeSet &changes,BillboardSceneRep *sceneRep,WhirlyKitBillboardInfo *billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId);
     ~BillboardDrawableBuilder();
     
-    void addBillboard(Point3d center,const std::vector<WhirlyKit::Point2d> &pts,const std::vector<WhirlyKit::TexCoord> &texCoords,UIColor *color);
+    void addBillboard(Point3d center,const std::vector<WhirlyKit::Point2d> &pts,const std::vector<WhirlyKit::TexCoord> &texCoords,UIColor *color,const SingleVertexAttributeSet &vertAttrs);
     
     void flush();
     
