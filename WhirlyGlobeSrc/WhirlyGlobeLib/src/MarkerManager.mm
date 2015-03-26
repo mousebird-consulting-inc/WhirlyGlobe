@@ -242,8 +242,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             smGeom.color = [markerInfo.color asRGBAColor];
             if (marker.color)
                 smGeom.color = [marker.color asRGBAColor];
-            // Note: Porting
-//            smGeom.attrs = marker.vertexAttrs;
+            smGeom.vertexAttrs = marker.vertexAttrs;
             for (unsigned int ii=0;ii<4;ii++)
             {
                 smGeom.coords.push_back(Point2d(pts[ii].x(),pts[ii].y()));

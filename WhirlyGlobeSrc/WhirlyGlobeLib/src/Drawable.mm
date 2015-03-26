@@ -621,6 +621,30 @@ void VertexAttribute::glSetDefault(int index) const
             break;
     }
 }
+    
+void VertexAttributeSetConvert(const SingleVertexAttributeSet &attrSet,SingleVertexAttributeInfoSet &infoSet)
+{
+    for (auto it : attrSet)
+        infoSet.insert(it);
+}
+    
+bool VertexAttributesAreCompatible(const SingleVertexAttributeInfoSet &infoSet,const SingleVertexAttributeSet &attrSet)
+{
+    if (infoSet.size() != attrSet.size())
+        return false;
+    
+    auto itA = infoSet.begin();
+    auto itB = attrSet.begin();
+    for (;itA != infoSet.end(); ++itA, ++itB)
+    {
+        if (itA->name != itB->name)
+            return false;
+        if (itA->type != itB->type)
+            return false;
+    }
+    
+    return true;
+}
 	
 BasicDrawable::BasicDrawable(const std::string &name)
     : Drawable(name)
@@ -991,14 +1015,14 @@ bool BasicDrawable::compareVertexAttributes(const SingleVertexAttributeSet &attr
     return true;
 }
 
-void BasicDrawable::setVertexAttributes(const SingleVertexAttributeSet &attrs)
+void BasicDrawable::setVertexAttributes(const SingleVertexAttributeInfoSet &attrs)
 {
-    for (SingleVertexAttributeSet::iterator it = attrs.begin();
+    for (auto it = attrs.begin();
          it != attrs.end(); ++it)
         addAttribute(it->type,it->name);
 }
 
-void BasicDrawable::addVertexAttribute(const SingleVertexAttributeSet &attrs)
+void BasicDrawable::addVertexAttributes(const SingleVertexAttributeSet &attrs)
 {
     for (SingleVertexAttributeSet::iterator it = attrs.begin();
          it != attrs.end(); ++it)
