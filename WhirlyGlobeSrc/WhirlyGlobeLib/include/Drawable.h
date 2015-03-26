@@ -336,16 +336,26 @@ public:
     GLuint buffer;
 };
     
-/** The single vertex attribute hold a single typed value to
-    be merged into a basic drawable's attirbutes arrays.
+/** Base class for the single vertex attribute that provides
+    the name and type of a vertex attribute.
   */
-class SingleVertexAttribute
+class SingleVertexAttributeInfo
 {
 public:
     /// Comparison operator for set
-    bool operator < (const SingleVertexAttribute &that) const
+    bool operator < (const SingleVertexAttributeInfo &that) const
     {
+        if (name == that.name)
+            return type < that.type;
         return name < that.name;
+    }
+    
+    bool operator == (const SingleVertexAttributeInfo &that) const
+    {
+        bool ret = (name == that.name);
+        if (ret)
+            return type == that.type;
+        return ret;
     }
 
     /// Attribute's data type
@@ -353,7 +363,16 @@ public:
 
     /// Attribute name (e.g. "u_elev")
     std::string name;
+};
 
+typedef std::set<SingleVertexAttributeInfo> SingleVertexAttributeInfoSet;
+
+/** The single vertex attribute hold sa single typed value to
+    be merged into a basic drawable's attributes arrays.
+ */
+class SingleVertexAttribute : public SingleVertexAttributeInfo
+{
+public:
     /// The actual data
     union {
         float vec3[3];
@@ -365,6 +384,12 @@ public:
 };
     
 typedef std::set<SingleVertexAttribute> SingleVertexAttributeSet;
+
+/// Generate a vertex attribute info set from a vertex attribute set (e.g. strip out the values)
+void VertexAttributeSetConvert(const SingleVertexAttributeSet &attrSet,SingleVertexAttributeInfoSet &infoSet);
+    
+/// See if the given set of attributes is compatible with the set of attributes (without data)
+bool VertexAttributesAreCompatible(const SingleVertexAttributeInfoSet &infoSet,const SingleVertexAttributeSet &attrSet);
     
 /** The Basic Drawable is the one we use the most.  It's
     a general purpose container for static geometry which
@@ -514,10 +539,10 @@ public:
     bool compareVertexAttributes(const SingleVertexAttributeSet &attrs);
 
     /// Set up the required vertex attribute arrays from the given list
-    void setVertexAttributes(const SingleVertexAttributeSet &attrs);
+    void setVertexAttributes(const SingleVertexAttributeInfoSet &attrs);
 
     /// Add the given vertex attributes for the given vertex
-    void addVertexAttribute(const SingleVertexAttributeSet &attrs);
+    void addVertexAttributes(const SingleVertexAttributeSet &attrs);
 
     /// Add a vector to the given attribute array
     virtual void addAttributeValue(int attrId,Eigen::Vector2f vec);

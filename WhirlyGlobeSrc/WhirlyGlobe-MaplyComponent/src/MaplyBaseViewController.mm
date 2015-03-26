@@ -436,6 +436,9 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)addShaderProgram:(MaplyShader *)shader sceneName:(NSString *)sceneName
 {
+    if (!shader)
+        return;
+    
     if (!shaders)
         shaders = [NSMutableArray array];
 
