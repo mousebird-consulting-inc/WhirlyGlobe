@@ -118,7 +118,12 @@ void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<Whi
         drawable->setDrawPriority(billInfo.drawPriority);
         drawable->setRequestZBuffer(true);
         drawable->setWriteZBuffer(true);
-        drawable->setVertexAttributes(vertAttrs);
+        if (!vertAttrs.empty())
+        {
+            SingleVertexAttributeInfoSet vertInfoSet;
+            VertexAttributeSetConvert(vertAttrs,vertInfoSet);
+            drawable->setVertexAttributes(vertInfoSet);
+        }
         //        drawable->setForceZBufferOn(true);
     }
     
@@ -136,7 +141,8 @@ void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<Whi
         drawable->addTexCoord(0,texCoords[ii]);
         drawable->addNormal(axisY);
         drawable->addColor(color);
-        drawable->addVertexAttribute(vertAttrs);
+        if (!vertAttrs.empty())
+            drawable->addVertexAttributes(vertAttrs);
     }
     drawable->addTriangle(BasicDrawable::Triangle(startPoint+0,startPoint+1,startPoint+2));
     drawable->addTriangle(BasicDrawable::Triangle(startPoint+0,startPoint+2,startPoint+3));

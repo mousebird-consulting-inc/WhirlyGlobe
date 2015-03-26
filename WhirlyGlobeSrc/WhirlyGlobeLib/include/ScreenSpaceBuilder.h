@@ -63,6 +63,7 @@ public:
         bool motion;
         bool rotation;
         bool keepUpright;
+        SingleVertexAttributeInfoSet vertexAttrs;
     };
     
     /// Draw priorities can mix and match with other objects, but we probably don't want that
@@ -110,8 +111,8 @@ protected:
         // Comparison operator for set
         bool operator < (const DrawableWrap &that) const;
         
-        void addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color);
-        void addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,const Point3f &dir,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color);
+        void addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color,const SingleVertexAttributeSet *vertAttrs);
+        void addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,const Point3f &dir,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color,const SingleVertexAttributeSet *vertAttrs);
         void addTri(int v0,int v1,int v2);
         
         Point3d center;
@@ -165,6 +166,8 @@ public:
         SimpleIdentity progID;
         /// Color for the geometry
         RGBAColor color;
+        /// Vertex attributes applied to this piece of geometry
+        SingleVertexAttributeSet vertexAttrs;
         
         std::vector<Point2d> coords;
         std::vector<TexCoord> texCoords;
