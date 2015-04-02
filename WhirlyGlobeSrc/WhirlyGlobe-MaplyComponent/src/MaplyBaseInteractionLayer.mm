@@ -213,8 +213,13 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 
 - (Texture *)createTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
 {
+    int imgWidth = image.size.width;
+    int imgHeight = image.size.height;
+    imgWidth = NextPowOf2(imgWidth);
+    imgHeight = NextPowOf2(imgHeight);
+    
     // Add it and download it
-    Texture *tex = new Texture("MaplyBaseInteraction",image,true);
+    Texture *tex = new Texture("MaplyBaseInteraction",image,imgWidth,imgHeight);
     tex->setWrap(wrapFlags & MaplyImageWrapX, wrapFlags & MaplyImageWrapY);
     switch (imageFormat)
     {

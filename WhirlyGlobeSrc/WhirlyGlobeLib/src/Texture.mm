@@ -181,6 +181,13 @@ Texture::Texture(const std::string &name,UIImage *inImage,bool roundUp)
 	texData = [inImage rawDataRetWidth:&width height:&height roundUp:roundUp];
 }
 
+Texture::Texture(const std::string &name,UIImage *inImage,int inWidth,int inHeight)
+    : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
+{
+    texData = [inImage rawDataScaleWidth:inWidth height:inHeight border:0];
+    width = inWidth;  height = inHeight;
+}
+
 Texture::~Texture()
 {
 	texData = nil;
