@@ -101,6 +101,21 @@ bool ScreenSpaceBuilder::DrawableWrap::operator < (const DrawableWrap &that) con
     return state < that.state;
 }
     
+Point3f ScreenSpaceBuilder::DrawableWrap::calcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3f &worldLoc,float rot)
+{
+    // Switch from counter-clockwise to clockwise
+    rot = 2*M_PI-rot;
+    
+    Point3f upVec = coordAdapter->isFlat() ? Point3f(0,0,1) : worldLoc;
+    // Vector pointing north
+    Point3f northVec = Point3f(-worldLoc.x(),-worldLoc.y(),1.0-worldLoc.z());
+    Point3f eastVec = northVec.cross(upVec);
+    
+    Point3f rotVec = eastVec * sinf(rot) + northVec * cosf(rot);
+    
+    return rotVec - worldLoc;
+}
+    
 void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color)
 {
     draw->addPoint(Point3d(worldLoc.x()-center.x(),worldLoc.y()-center.y(),worldLoc.z()-center.z()));
@@ -112,7 +127,7 @@ void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coor
     draw->addTexCoord(0, texCoord);
     draw->addColor(color);
     if (state.rotation)
-        draw->addRot(rot);
+        draw->addRot(calcRotationVec(coordAdapter,worldLoc,rot));
 }
 
 void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,const Point3f &dir,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color)
@@ -127,7 +142,7 @@ void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coor
     draw->addColor(color);
     draw->addDir(dir);
     if (state.rotation)
-        draw->addRot(rot);
+        draw->addRot(calcRotationVec(coordAdapter,worldLoc,rot));
 }
 
 void ScreenSpaceBuilder::DrawableWrap::addTri(int v0, int v1, int v2)

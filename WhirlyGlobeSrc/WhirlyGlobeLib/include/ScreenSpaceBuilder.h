@@ -117,6 +117,9 @@ protected:
         Point3d center;
         DrawableState state;
         ScreenSpaceDrawable *draw;
+        
+    protected:
+        Point3f calcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3f &worldLoc,float rot);        
     };
 
     // Comparitor for drawable wrapper set
