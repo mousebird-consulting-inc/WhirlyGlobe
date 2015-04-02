@@ -253,9 +253,17 @@
             return defVal;
         }
 
-        int red = (iVal >> 16) & 0xff;
-        int green = (iVal >> 8) & 0xff;
-        int blue = iVal & 0xff;
+        int red,green,blue;
+        if ([str length] == 4)
+        {
+            red = (iVal >> 8) & 0xf;  red |= red << 4;
+            green = (iVal >> 4) & 0xf;  green |= green << 4;
+            blue = iVal & 0xf;  blue |= blue << 4;
+        } else {
+            red = (iVal >> 16) & 0xff;
+            green = (iVal >> 8) & 0xff;
+            blue = iVal & 0xff;
+        }
         return [UIColor colorWithRed:(double)red/255.0 green:(double)green/255.0 blue:(double)blue/255.0 alpha:1.0];
     } else if ([str rangeOfString:@"rgb("].location == 0)
     {
@@ -263,7 +271,7 @@
         NSMutableCharacterSet *skipSet = [[NSMutableCharacterSet alloc] init];
         [skipSet addCharactersInString:@"(), "];
         [scanner setCharactersToBeSkipped:skipSet];
-        [scanner setScanLocation:5];
+        [scanner setScanLocation:4];
         int red,green,blue;
         [scanner scanInt:&red];
         [scanner scanInt:&green];
