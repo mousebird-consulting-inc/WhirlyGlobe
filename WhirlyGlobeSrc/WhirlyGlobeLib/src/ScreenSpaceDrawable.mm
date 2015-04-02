@@ -26,11 +26,11 @@
 namespace WhirlyKit
 {
 
-ScreenSpaceDrawable::ScreenSpaceDrawable(bool hasMotion,bool hasRotation) : BasicDrawable("ScreenSpace"), keepUpright(false), motion(hasMotion), rotation(hasRotation)
+ScreenSpaceDrawable::ScreenSpaceDrawable(bool hasMotion,bool hasRotation) : BasicDrawable("ScreenSpace"), keepUpright(false), motion(hasMotion), rotation(hasRotation), offsetIndex(-1), rotIndex(-1), dirIndex(-1)
 {
     offsetIndex = addAttribute(BDFloat2Type, "a_offset");
     if (hasRotation)
-        rotIndex = addAttribute(BDFloatType, "a_rot");
+        rotIndex = addAttribute(BDFloat3Type, "a_rot");
     if (hasMotion)
         dirIndex = addAttribute(BDFloat3Type, "a_dir");
 }
@@ -60,9 +60,14 @@ void ScreenSpaceDrawable::addDir(const Point3f &dir)
     addAttributeValue(dirIndex, dir);
 }
     
-void ScreenSpaceDrawable::addRot(double rot)
+void ScreenSpaceDrawable::addRot(const Point3d &rotDir)
 {
-    addAttributeValue(rotIndex, (float)rot);
+    addRot(Point3f(rotDir.x(),rotDir.y(),rotDir.z()));
+}
+
+void ScreenSpaceDrawable::addRot(const Point3f &rotDir)
+{
+    addAttributeValue(rotIndex, rotDir);
 }
 
 void ScreenSpaceDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
@@ -82,6 +87,7 @@ void ScreenSpaceDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scen
         frameInfo.program->setUniform("u_upright", keepUpright);
         if (motion)
             frameInfo.program->setUniform("u_time", (float)(frameInfo.currentTime - startTime));
+        frameInfo.program->setUniform("u_activerot", (rotIndex >= 0 ? 1 : 0));
     }
 
     BasicDrawable::draw(frameInfo,scene);
@@ -93,12 +99,14 @@ static const char *vertexShaderTri =
 "uniform mat4  u_mvNormalMatrix;"
 "uniform float u_fade;"
 "uniform vec2  u_scale;"
+"uniform bool  u_activerot;"
 ""
 "attribute vec3 a_position;"
 "attribute vec3 a_normal;"
 "attribute vec2 a_texCoord0;"
 "attribute vec4 a_color;"
 "attribute vec2 a_offset;"
+"attribute vec3 a_rot;"
 ""
 "varying vec2 v_texCoord;"
 "varying vec4 v_color;"
@@ -108,14 +116,20 @@ static const char *vertexShaderTri =
 "   v_texCoord = a_texCoord0;"
 "   v_color = a_color * u_fade;"
 ""
-    // Note: This seems a bit inefficient
+// Convert from model space into display space
 "   vec4 pt = u_mvMatrix * vec4(a_position,1.0);"
 "   pt /= pt.w;"
+// Make sure the object is facing the user
 "   vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);"
 "   float dot_res = dot(-pt.xyz,testNorm.xyz);"
+// Project the point all the way to screen space
 "   vec4 screenPt = (u_mvpMatrix * vec4(a_position,1.0));"
 "   screenPt /= screenPt.w;"
-"   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(a_offset.x*u_scale.x,a_offset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);"
+// Project the rotation into display space and drop the Z
+"   vec2 rotY = normalize((u_mvNormalMatrix * vec4(a_rot,0.0)).xy);"
+"   vec2 rotX = vec2(rotY.y,-rotY.x);"
+"   vec2 screenOffset = (u_activerot ? a_offset.x*rotX + a_offset.y*rotY : a_offset);"
+"   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(screenOffset.x*u_scale.x,screenOffset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);"
 "}"
 ;
     
@@ -126,7 +140,7 @@ static const char *vertexShaderMotionTri =
 "uniform float u_fade;"
 "uniform vec2  u_scale;"
 "uniform float u_time;"
-"uniform bool u_upright;"
+"uniform bool  u_activerot;"
 ""
 "attribute vec3 a_position;"
 "attribute vec3 a_dir;"
@@ -134,7 +148,7 @@ static const char *vertexShaderMotionTri =
 "attribute vec2 a_texCoord0;"
 "attribute vec4 a_color;"
 "attribute vec2 a_offset;"
-"attribute float a_rot;"
+"attribute vec3 a_rot;"
 ""
 "varying vec2 v_texCoord;"
 "varying vec4 v_color;"
@@ -144,21 +158,22 @@ static const char *vertexShaderMotionTri =
 "   v_texCoord = a_texCoord0;"
 "   v_color = a_color * u_fade;"
 ""
-// The offset is modified by a rotation
-"   float sinRot = sin(a_rot);"
-"   float cosRot = cos(a_rot);"
-"   mat2 rotMat = mat2(vec2(cosRot,sinRot),vec2(-sinRot,cosRot));"
-"   vec2 offset = rotMat * a_offset;"
-""
 // Position can be modified over time
 "   vec3 thePos = a_position + u_time * a_dir;"
+// Convert from model space into display space
 "   vec4 pt = u_mvMatrix * vec4(thePos,1.0);"
 "   pt /= pt.w;"
+// Make sure the object is facing the user
 "   vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);"
 "   float dot_res = dot(-pt.xyz,testNorm.xyz);"
+// Project the point all the way to screen space
 "   vec4 screenPt = (u_mvpMatrix * vec4(thePos,1.0));"
 "   screenPt /= screenPt.w;"
-"   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(offset.x*u_scale.x,offset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);"
+// Project the rotation into display space and drop the Z
+"   vec2 rotY = normalize((u_mvNormalMatrix * vec4(a_rot,0.0)).xy);"
+"   vec2 rotX = vec2(rotY.y,-rotY.x);"
+"   vec2 screenOffset = (u_activerot ? a_offset.x*rotX + a_offset.y*rotY : a_offset);"
+"   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(screenOffset.x*u_scale.x,screenOffset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);"
 "}"
 ;
 
