@@ -84,6 +84,8 @@ public:
 	/// Construct with a UIImage.  Expecting this to be a power of 2 on each side.
     /// If it's not we'll round up or down, depending on the flag
 	Texture(const std::string &name,UIImage *inImage, bool roundUp=true);
+    /// Construct by scaling the image to the given size
+    Texture(const std::string &name,UIImage *inImage,int width,int height);
     /// Construct from a FILE, presumably because it was cached
     Texture(const std::string &name,FILE *fp);
 	
