@@ -9,6 +9,7 @@
 #import "MapzenSource.h"
 #import "MaplyMapnikVectorTiles.h"
 #import "MapboxVectorStyleSet.h"
+#import "MapboxVectorStyleBackground.h"
 
 @implementation MapzenSource
 {
@@ -19,9 +20,9 @@
     MaplyMapnikVectorTileParser *tileParser;
     NSObject<MaplyVectorStyleDelegate> *styleSet;
 }
-
-- (id)initWithBase:(NSString *)inBaseURL layers:(NSArray *)inLayers sourceType:(MapzenSourceType)inType styleData:(NSData *)styleData styleType:(MapnikStyleType)styleType viewC:(MaplyBaseViewController *)viewC
+nBaseURL layers:(NSArray *)inLayers sourceType:(MapzenSourceType)inType styleData:(NSData *)styleData styleType:(MapnikStyleType)styleType viewC:(MaplyBaseViewController *)viewC
 {
+- (id)initWithBase:(NSString *)i
     self = [super init];
     if (!self)
         return nil;
@@ -52,6 +53,14 @@
                 {
                     MaplyMapboxVectorStyleSet *mapboxStyleSet = [[MaplyMapboxVectorStyleSet alloc] initWithJSON:styleData viewC:viewC];
                     styleSet = mapboxStyleSet;
+                    
+                    for (MapboxVectorLayerBackground *backLayer in mapboxStyleSet.layers)
+                    {
+                        if ([backLayer isKindOfClass:[MapboxVectorLayerBackground class]])
+                        {
+                            _backgroundColor = backLayer.paint.color;
+                        }
+                    }
                 }
                     break;
             }

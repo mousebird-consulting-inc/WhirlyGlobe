@@ -18,6 +18,9 @@ typedef enum {MapzenSourceGeoJSON, MapzenSourcePBF } MapzenSourceType;
 
 @property (nonatomic,assign) int minZoom,maxZoom;
 
+// From the style sheet
+@property (nonatomic) UIColor *backgroundColor;
+
 /** @brief Initialize with the base URL and the layers we want to fetch.
   */
 - (id)initWithBase:(NSString *)inBaseURL layers:(NSArray *)inLayers sourceType:(MapzenSourceType)inType styleData:(NSData *)styleData styleType:(MapnikStyleType)styleType viewC:(MaplyBaseViewController *)viewC;
