@@ -1552,6 +1552,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
     prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
     prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
+    prog->setUniform("u_mvpNormalMatrix", frameInfo.mvpNormalMat);
     prog->setUniform("u_pMatrix", frameInfo.projMat);
     
     // Fade is always mixed in
