@@ -42,6 +42,12 @@ bool RectSelectable2D::operator < (const RectSelectable2D &that) const
     return selectID < that.selectID;
 }
 
+Point3d MovingRectSelectable2D::centerForTime(NSTimeInterval now) const
+{
+    double t = (now-startTime)/(endTime-startTime);
+    return (endCenter-center)*t + center;
+}
+
 bool PolytopeSelectable::operator < (const PolytopeSelectable &that) const
 {
     return selectID < that.selectID;
@@ -123,6 +129,29 @@ void SelectionManager::addSelectableScreenRect(SimpleIdentity selectId,const Poi
     
     pthread_mutex_lock(&mutex);
     rect2Dselectables.insert(newSelect);
+    pthread_mutex_unlock(&mutex);
+}
+
+/// Add a screen space rectangle (2D) for selection, between the given visibilities
+void SelectionManager::addSelectableMovingScreenRect(SimpleIdentity selectId,const Point3d &startCenter,const Point3d &endCenter,NSTimeInterval startTime,NSTimeInterval endTime,Point2f *pts,float minVis,float maxVis,bool enable)
+{
+    if (selectId == EmptyIdentity)
+        return;
+    
+    MovingRectSelectable2D newSelect;
+    newSelect.center = startCenter;
+    newSelect.endCenter = endCenter;
+    newSelect.startTime = startTime;
+    newSelect.endTime = endTime;
+    newSelect.selectID = selectId;
+    newSelect.minVis = minVis;
+    newSelect.maxVis = maxVis;
+    newSelect.enable = enable;
+    for (unsigned int ii=0;ii<4;ii++)
+        newSelect.pts[ii] = pts[ii];
+    
+    pthread_mutex_lock(&mutex);
+    movingRect2Dselectables.insert(newSelect);
     pthread_mutex_unlock(&mutex);
 }
 
@@ -301,6 +330,15 @@ void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
         rect2Dselectables.insert(sel);
     }
     
+    MovingRectSelectable2DSet::iterator itM = movingRect2Dselectables.find(MovingRectSelectable2D(selectID));
+    if (itM != movingRect2Dselectables.end())
+    {
+        MovingRectSelectable2D sel = *itM;
+        movingRect2Dselectables.erase(itM);
+        sel.enable = enable;
+        movingRect2Dselectables.insert(sel);
+    }
+    
     PolytopeSelectableSet::iterator it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
     if (it3 != polytopeSelectables.end())
     {
@@ -357,6 +395,15 @@ void SelectionManager::enableSelectables(const SimpleIDSet &selectIDs,bool enabl
             rect2Dselectables.insert(sel);
         }
         
+        MovingRectSelectable2DSet::iterator itM = movingRect2Dselectables.find(MovingRectSelectable2D(selectID));
+        if (itM != movingRect2Dselectables.end())
+        {
+            MovingRectSelectable2D sel = *itM;
+            movingRect2Dselectables.erase(itM);
+            sel.enable = enable;
+            movingRect2Dselectables.insert(sel);
+        }
+        
         PolytopeSelectableSet::iterator it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
         if (it3 != polytopeSelectables.end())
         {
@@ -401,7 +448,11 @@ void SelectionManager::removeSelectable(SimpleIdentity selectID)
     RectSelectable2DSet::iterator it2 = rect2Dselectables.find(RectSelectable2D(selectID));
     if (it2 != rect2Dselectables.end())
         rect2Dselectables.erase(it2);
-    
+
+    MovingRectSelectable2DSet::iterator itM = movingRect2Dselectables.find(MovingRectSelectable2D(selectID));
+    if (itM != movingRect2Dselectables.end())
+        movingRect2Dselectables.erase(itM);
+
     PolytopeSelectableSet::iterator it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
     if (it3 != polytopeSelectables.end())
         polytopeSelectables.erase(it3);
@@ -440,6 +491,13 @@ void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
             rect2Dselectables.erase(it2);
         }
         
+        MovingRectSelectable2DSet::iterator itM = movingRect2Dselectables.find(MovingRectSelectable2D(selectID));
+        if (itM != movingRect2Dselectables.end())
+        {
+            found = true;
+            movingRect2Dselectables.erase(itM);
+        }
+        
         PolytopeSelectableSet::iterator it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
         if (it3 != polytopeSelectables.end())
         {
@@ -468,7 +526,7 @@ void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
     pthread_mutex_unlock(&mutex);
 }
 
-void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenPts)
+void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenPts,NSTimeInterval now)
 {
     for (RectSelectable2DSet::iterator it = rect2Dselectables.begin();
          it != rect2Dselectables.end(); ++it)
@@ -482,6 +540,30 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
                 ScreenSpaceObjectLocation objLoc;
                 objLoc.shapeID = sel.selectID;
                 objLoc.dispLoc = sel.center;
+                objLoc.offset = Point2d(0,0);
+                for (unsigned int ii=0;ii<4;ii++)
+                {
+                    Point2f pt = sel.pts[ii];
+                    objLoc.pts.push_back(Point2d(pt.x(),pt.y()));
+                    objLoc.mbr.addPoint(pt);
+                }
+                screenPts.push_back(objLoc);
+            }
+        }
+    }
+
+    for (MovingRectSelectable2DSet::iterator it = movingRect2Dselectables.begin();
+         it != movingRect2Dselectables.end(); ++it)
+    {
+        const MovingRectSelectable2D &sel = *it;
+        if (sel.selectID != EmptyIdentity)
+        {
+            if (sel.minVis == DrawVisibleInvalid ||
+                (sel.minVis < pInfo.heightAboveSurface && pInfo.heightAboveSurface < sel.maxVis))
+            {
+                ScreenSpaceObjectLocation objLoc;
+                objLoc.shapeID = sel.selectID;
+                objLoc.dispLoc = sel.centerForTime(now);
                 objLoc.offset = Point2d(0,0);
                 for (unsigned int ii=0;ii<4;ii++)
                 {
@@ -604,6 +686,8 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
     PlacementInfo pInfo(theView,renderer);
     if (!pInfo.globeView && !pInfo.mapView)
         return;
+    
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
 
     // And the eye vector for billboards
     Vector4d eyeVec4 = pInfo.viewAndModelInvMat * Vector4d(0,0,1,0);
@@ -616,7 +700,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
     // Figure out where the screen space objects are, both layout manager
     //  controlled and other
     std::vector<ScreenSpaceObjectLocation> ssObjs;
-    getScreenSpaceObjects(pInfo,ssObjs);
+    getScreenSpaceObjects(pInfo,ssObjs,now);
     if (layoutManager)
         layoutManager->getScreenSpaceObjects(pInfo,ssObjs);
     
