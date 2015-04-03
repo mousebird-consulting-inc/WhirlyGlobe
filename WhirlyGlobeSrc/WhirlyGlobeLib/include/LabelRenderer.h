@@ -109,6 +109,8 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic,assign) std::vector<WhirlyKit::RectSelectable3D> &selectables3D;
 /// Selectable objects (2D) to pass to the selection manager
 @property (nonatomic,assign) std::vector<WhirlyKit::RectSelectable2D> &selectables2D;
+/// Moving selectable objects (2D) to pass to the selection manager
+@property (nonatomic,assign) std::vector<WhirlyKit::MovingRectSelectable2D> &movingSelectables2D;
 
 /// Change requests to pass to the scene
 @property (nonatomic,assign) std::vector<WhirlyKit::ChangeRequest *> &changeRequests;

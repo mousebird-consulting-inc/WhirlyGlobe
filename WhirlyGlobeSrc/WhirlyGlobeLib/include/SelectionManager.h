@@ -114,6 +114,23 @@ public:
 
 typedef std::set<WhirlyKit::RectSelectable2D> RectSelectable2DSet;
 
+/** Rectangle selectable that moves over time.
+  */
+class MovingRectSelectable2D : public RectSelectable2D
+{
+public:
+    MovingRectSelectable2D() : RectSelectable2D() { }
+    MovingRectSelectable2D(SimpleIdentity theID) : RectSelectable2D(theID) { }
+    
+    // Calculate the center based on the time
+    Point3d centerForTime(NSTimeInterval now) const;
+    
+    Point3d endCenter;                  // Location at the end of the time period
+    NSTimeInterval startTime,endTime;   // Start and end time
+};
+
+typedef std::set<WhirlyKit::MovingRectSelectable2D> MovingRectSelectable2DSet;
+
 /// Billboard selectable (3D object that turns towards the viewer)
 class BillboardSelectable : public Selectable
 {
@@ -168,6 +185,9 @@ public:
     
     /// Add a screen space rectangle (2D) for selection, between the given visibilities
     void addSelectableScreenRect(SimpleIdentity selectId,const Point3d &center,Point2f *pts,float minVis,float maxVis,bool enable);
+
+    /// Add a screen space rectangle (2D) for selection, between the given visibilities, and it's moving
+    void addSelectableMovingScreenRect(SimpleIdentity selectId,const Point3d &startCenter,const Point3d &endCenter,NSTimeInterval startTime,NSTimeInterval endTime,Point2f *pts,float minVis,float maxVis,bool enable);
     
     /// Add a rectangular solid for selection.  Pass in 8 points (bottom four + top four)
     void addSelectableRectSolid(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable);
@@ -225,7 +245,7 @@ protected:
     // Projects a world coordinate to one or more points on the screen (wrapping)
     void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,std::vector<Point2d> &screenPts,float scale);
     // Convert rect selectables into more generic screen space objects
-    void getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenObjs);
+    void getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenObjs,NSTimeInterval now);
     // Internal object picking method
     void pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *theView,bool multi,std::vector<SelectedObject> &selObjs);
 
@@ -235,6 +255,7 @@ protected:
     /// The selectable objects themselves
     WhirlyKit::RectSelectable3DSet rect3Dselectables;
     WhirlyKit::RectSelectable2DSet rect2Dselectables;
+    WhirlyKit::MovingRectSelectable2DSet movingRect2Dselectables;
     WhirlyKit::PolytopeSelectableSet polytopeSelectables;
     WhirlyKit::LinearSelectableSet linearSelectables;
     WhirlyKit::BillboardSelectableSet billboardSelectables;
