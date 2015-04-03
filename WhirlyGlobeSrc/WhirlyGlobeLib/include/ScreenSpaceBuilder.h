@@ -176,6 +176,8 @@ public:
     /// Center of the object in world coordinates
     void setWorldLoc(const Point3d &worldLoc);
     Point3d getWorldLoc();
+    Point3d getEndWorldLoc();
+    NSTimeInterval getStartTime(),getEndTime();
     
     /// Set up the end location and timing
     void setMovingLoc(const Point3d &worldLoc,NSTimeInterval startTime,NSTimeInterval endTime);
