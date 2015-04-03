@@ -126,7 +126,8 @@ static const char *vertexShaderTri =
 "   vec4 screenPt = (u_mvpMatrix * vec4(a_position,1.0));"
 "   screenPt /= screenPt.w;"
 // Project the rotation into display space and drop the Z
-"   vec2 rotY = normalize((u_mvNormalMatrix * vec4(a_rot,0.0)).xy);"
+"   vec4 projRot = u_mvNormalMatrix * vec4(a_rot,0.0);"
+"   vec2 rotY = normalize(projRot.xy);"
 "   vec2 rotX = vec2(rotY.y,-rotY.x);"
 "   vec2 screenOffset = (u_activerot ? a_offset.x*rotX + a_offset.y*rotY : a_offset);"
 "   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(screenOffset.x*u_scale.x,screenOffset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);"
@@ -170,7 +171,8 @@ static const char *vertexShaderMotionTri =
 "   vec4 screenPt = (u_mvpMatrix * vec4(thePos,1.0));"
 "   screenPt /= screenPt.w;"
 // Project the rotation into display space and drop the Z
-"   vec2 rotY = normalize((u_mvNormalMatrix * vec4(a_rot,0.0)).xy);"
+"   vec4 projRot = u_mvNormalMatrix * vec4(a_rot,0.0);"
+"   vec2 rotY = normalize(projRot.xy);"
 "   vec2 rotX = vec2(rotY.y,-rotY.x);"
 "   vec2 screenOffset = (u_activerot ? a_offset.x*rotX + a_offset.y*rotY : a_offset);"
 "   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(screenOffset.x*u_scale.x,screenOffset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);"
@@ -209,6 +211,7 @@ WhirlyKit::OpenGLES2Program *BuildScreenSpaceProgram()
 
 WhirlyKit::OpenGLES2Program *BuildScreenSpaceMotionProgram()
 {
+    // note: Debugging
     OpenGLES2Program *shader = new OpenGLES2Program(kScreenSpaceShaderMotionName,vertexShaderMotionTri,fragmentShaderTri);
     if (!shader->isValid())
     {
