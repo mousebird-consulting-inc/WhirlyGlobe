@@ -1,8 +1,8 @@
 ---
 title: WhirlyGlobe-Maply
 layout: home
-redirect_from: "/whirlyglobe"
-redirect_from: "/maply"
+redirect_from: whirlyglobe
+redirect_from: maply
 ---
 
 ## WhirlyGlobe-Maply for iOS and Android
