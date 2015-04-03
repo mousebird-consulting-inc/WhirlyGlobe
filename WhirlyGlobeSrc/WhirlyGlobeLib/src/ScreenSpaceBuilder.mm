@@ -375,6 +375,21 @@ void ScreenSpaceObject::setMovingLoc(const Point3d &worldLoc,NSTimeInterval inSt
     startTime = inStartTime;
     endTime = inEndTime;
 }
+
+Point3d ScreenSpaceObject::getEndWorldLoc()
+{
+    return endWorldLoc;
+}
+
+NSTimeInterval ScreenSpaceObject::getStartTime()
+{
+    return startTime;
+}
+
+NSTimeInterval ScreenSpaceObject::getEndTime()
+{
+    return endTime;
+}
     
 Point3d ScreenSpaceObject::getWorldLoc()
 {
