@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/4/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@
 /** @brief Query string to add after the URL we're fetching from.
     @details Add your access tokens and other query arguments.
   */
-@property (nonatomic) NSString *queryStr;
+@property (nonatomic,strong) NSString *queryStr;
 
 /** @brief Add a bounding box tiles are valid within.
  @details By default all areas within the coordinate system are valid for paging tiles.  If you call this, then only the bounding boxes you've added are valid.  You can call this method multiple times.

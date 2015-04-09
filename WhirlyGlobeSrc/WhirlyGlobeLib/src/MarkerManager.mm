@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/16/13.
- *  Copyright 2011-2013 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2015 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -242,6 +242,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             smGeom.color = [markerInfo.color asRGBAColor];
             if (marker.color)
                 smGeom.color = [marker.color asRGBAColor];
+            smGeom.vertexAttrs = marker.vertexAttrs;
             for (unsigned int ii=0;ii<4;ii++)
             {
                 smGeom.coords.push_back(Point2d(pts[ii].x(),pts[ii].y()));

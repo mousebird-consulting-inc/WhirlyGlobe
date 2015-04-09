@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -305,6 +305,14 @@ using namespace WhirlyKit;
     [glView stopAnimation];
 }
 
+- (void)shutdown
+{
+    if (glView)
+        [glView shutdown];
+    
+    [self clear];
+}
+
 - (void)appBackground:(NSNotification *)note
 {
     if(!wasAnimating || glView.animating)
@@ -436,6 +444,9 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)addShaderProgram:(MaplyShader *)shader sceneName:(NSString *)sceneName
 {
+    if (!shader)
+        return;
+    
     if (!shaders)
         shaders = [NSMutableArray array];
 

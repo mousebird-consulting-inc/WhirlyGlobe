@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 8/29/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@
 @property unsigned int numY;
 
 /// This is the data.  Elevations are floats (32 bit) in meters.
-@property NSData *data;
+@property (nonatomic,strong) NSData *data;
 
 @end
 

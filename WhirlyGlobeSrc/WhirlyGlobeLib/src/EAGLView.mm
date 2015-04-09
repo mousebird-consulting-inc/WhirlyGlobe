@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/5/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -117,8 +117,18 @@
 {
     if (_animating)
     {
-        displayLink.paused = YES;
         _animating = FALSE;
+    }
+}
+
+- (void) shutdown
+{
+    if (_animating)
+    {
+        _animating = NO;
+    }
+    if (displayLink)
+    {
         [displayLink invalidate];
         displayLink = nil;
     }
@@ -133,7 +143,10 @@
     if (resizeFail)
         [self layoutSubviews];
 
-    [_renderer render:displayLink.duration*displayLink.frameInterval];
+    if (_animating)
+        [_renderer render:displayLink.duration*displayLink.frameInterval];
+    else
+        [_renderer processScene];
 }
 
 - (void) setFrame:(CGRect)newFrame
@@ -163,7 +176,6 @@
     resizeFail = false;
     resizeFailRetry = 0;
 
-//	[_renderer resizeFromLayer:(CAEAGLLayer*)self.layer];
     [self drawView:nil];
 }
 

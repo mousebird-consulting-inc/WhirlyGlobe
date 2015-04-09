@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 5/13/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -78,7 +78,6 @@ using namespace WhirlyKit;
     WhirlyKitQuadDisplayLayer *quadLayer;
     Scene *scene;
     MaplyCoordinateSystem *coordSys;
-    NSObject<MaplyTileSource> *_tileSource;
     int minZoom,maxZoom;
     int tileSize;
     bool sourceWantsAsync;
@@ -708,6 +707,8 @@ using namespace WhirlyKit;
     if (variableSizeTiles)
     {
         thisTileSize = [_tileSource tileSizeForTile:tileID];
+        if (thisTileSize <= 0)
+            thisTileSize = [_tileSource tileSize];
     }
 
     double import = 0.0;
@@ -865,8 +866,15 @@ using namespace WhirlyKit;
         else
             tileReturn = [_tileSource imageForTile:tileID];
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
-        if (tileSize > 0) {
-            tileData.targetSize = CGSize{(CGFloat)tileSize, (CGFloat)tileSize};
+        
+        // Take into account variable tile sizes
+        int thisTileSize = tileSize;
+        if (variableSizeTiles)
+        {
+            thisTileSize = [_tileSource tileSizeForTile:tileID];
+        }
+        if (thisTileSize > 0) {
+            tileData.targetSize = CGSize{(CGFloat)thisTileSize, (CGFloat)thisTileSize};
         }
         WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderTexel convertToRaw:true];
         
@@ -948,8 +956,14 @@ using namespace WhirlyKit;
 
     // Get the data for the tile and sort out what the delegate returned to us
     MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
-    if (tileSize > 0) {
-        tileData.targetSize = CGSize{(CGFloat)tileSize, (CGFloat)tileSize};
+    // Take into account variable tile sizes
+    int thisTileSize = tileSize;
+    if (variableSizeTiles)
+    {
+        thisTileSize = [_tileSource tileSizeForTile:tileID];
+    }
+    if (thisTileSize > 0) {
+        tileData.targetSize = CGSize{(CGFloat)thisTileSize, (CGFloat)thisTileSize};
     }
     WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderTexel convertToRaw:true];
 
