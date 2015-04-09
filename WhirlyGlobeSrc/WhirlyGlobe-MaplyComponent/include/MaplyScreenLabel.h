@@ -44,6 +44,7 @@
 
 /** @brief An optional rotation to apply to the screen label.
     @details This is a rotation we'll apply after the screen position has been calculated.  You can use this to do things like track the orientation of roads.
+    @details Rotation is in radians counter-clockwise from north.
   */
 @property (nonatomic,assign) float rotation;
 

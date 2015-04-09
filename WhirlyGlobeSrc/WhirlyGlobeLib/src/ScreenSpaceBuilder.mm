@@ -103,7 +103,23 @@ bool ScreenSpaceBuilder::DrawableWrap::operator < (const DrawableWrap &that) con
 {
     return state < that.state;
 }
+
+Point3f ScreenSpaceBuilder::DrawableWrap::calcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3f &worldLoc,float rot)
+{
+    // Switch from counter-clockwise to clockwise
+    rot = 2*M_PI-rot;
     
+    Point3f upVec = coordAdapter->isFlat() ? Point3f(0,0,1) : worldLoc.normalized();
+    // Vector pointing north
+    Point3f northVec = Point3f(-worldLoc.x(),-worldLoc.y(),1.0-worldLoc.z());
+    Point3f eastVec = northVec.cross(upVec);
+    northVec = upVec.cross(eastVec);
+    
+    Point3f rotVec = eastVec * sinf(rot) + northVec * cosf(rot);
+    
+    return rotVec;
+}
+
 void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color,const SingleVertexAttributeSet *vertAttrs)
 {
     draw->addPoint(Point3d(worldLoc.x()-center.x(),worldLoc.y()-center.y(),worldLoc.z()-center.z()));
@@ -117,7 +133,7 @@ void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coor
     if (vertAttrs && !vertAttrs->empty())
         draw->addVertexAttributes(*vertAttrs);
     if (state.rotation)
-        draw->addRot(rot);
+        draw->addRot(calcRotationVec(coordAdapter,worldLoc,rot));
 }
 
 void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,const Point3f &dir,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color,const SingleVertexAttributeSet *vertAttrs)
@@ -134,7 +150,7 @@ void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coor
     if (vertAttrs && !vertAttrs->empty())
         draw->addVertexAttributes(*vertAttrs);
     if (state.rotation)
-        draw->addRot(rot);
+        draw->addRot(calcRotationVec(coordAdapter,worldLoc,rot));
 }
 
 void ScreenSpaceBuilder::DrawableWrap::addTri(int v0, int v1, int v2)
@@ -366,6 +382,21 @@ void ScreenSpaceObject::setMovingLoc(const Point3d &worldLoc,NSTimeInterval inSt
     endWorldLoc = worldLoc;
     startTime = inStartTime;
     endTime = inEndTime;
+}
+
+Point3d ScreenSpaceObject::getEndWorldLoc()
+{
+    return endWorldLoc;
+}
+
+NSTimeInterval ScreenSpaceObject::getStartTime()
+{
+    return startTime;
+}
+
+NSTimeInterval ScreenSpaceObject::getEndTime()
+{
+    return endTime;
 }
     
 Point3d ScreenSpaceObject::getWorldLoc()

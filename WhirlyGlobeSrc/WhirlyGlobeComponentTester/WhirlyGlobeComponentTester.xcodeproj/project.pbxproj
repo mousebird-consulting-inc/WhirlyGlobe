@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2B19B1081AB1F72A00862BCD /* OSM-Bright-Mapzen-GLStyle.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B19B1071AB1F72A00862BCD /* OSM-Bright-Mapzen-GLStyle.json */; };
 		2B1FB5371A1EC5FE0004B394 /* MapzenSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1FB5361A1EC5FE0004B394 /* MapzenSource.m */; };
 		2B2EB66518C901AD008C5320 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB516E7F505001F52FC /* OpenGLES.framework */; };
 		2B62DD6816E7F0BC001F52FC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B62DD6616E7F0BC001F52FC /* InfoPlist.strings */; };
@@ -434,7 +433,6 @@
 
 /* Begin PBXFileReference section */
 		2B0D630D17A2EE0400C3298D /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
-		2B19B1071AB1F72A00862BCD /* OSM-Bright-Mapzen-GLStyle.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "OSM-Bright-Mapzen-GLStyle.json"; sourceTree = "<group>"; };
 		2B1FB5351A1EC5FE0004B394 /* MapzenSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapzenSource.h; sourceTree = "<group>"; };
 		2B1FB5361A1EC5FE0004B394 /* MapzenSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapzenSource.m; sourceTree = "<group>"; };
 		2B62DD5A16E7F0BC001F52FC /* WhirlyGlobeComponentTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhirlyGlobeComponentTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1148,7 +1146,6 @@
 			isa = PBXGroup;
 			children = (
 				2B8D1E9A1AB0BC8900996F19 /* MapzenGLStyle.json */,
-				2B19B1071AB1F72A00862BCD /* OSM-Bright-Mapzen-GLStyle.json */,
 			);
 			name = "mapzen vectors";
 			path = "../../../resources/mapzen vectors";
@@ -1735,7 +1732,6 @@
 				2BFD2766170B933C00127EF5 /* JPN.geojson in Resources */,
 				2BFD2767170B933C00127EF5 /* KAZ.geojson in Resources */,
 				2BFD2768170B933C00127EF5 /* KEN.geojson in Resources */,
-				2B19B1081AB1F72A00862BCD /* OSM-Bright-Mapzen-GLStyle.json in Resources */,
 				2BFD2769170B933C00127EF5 /* KGZ.geojson in Resources */,
 				2BC0FB161964D3580043E1FD /* cemetery-24@2x.png in Resources */,
 				2BFD276A170B933C00127EF5 /* KHM.geojson in Resources */,

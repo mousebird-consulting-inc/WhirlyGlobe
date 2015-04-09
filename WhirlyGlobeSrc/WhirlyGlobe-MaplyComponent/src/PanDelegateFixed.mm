@@ -91,7 +91,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     lastTouch = [pan locationInView:glView];
     if ([view pointOnSphereFromScreen:startPoint transform:&startTransform 
                             frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&startOnSphere normalized:true])
-        // We'll start out letting them play with box axes
+        // We'll start out letting them play with both axes
         panType = PanFree;                
     else
         panType = PanNone;
