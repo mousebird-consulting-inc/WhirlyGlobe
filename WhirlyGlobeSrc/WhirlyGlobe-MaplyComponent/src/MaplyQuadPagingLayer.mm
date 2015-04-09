@@ -208,6 +208,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     maxShortCircuitLevel = -1;
     _useTargetZoomLevel = true;
     _singleLevelLoading = false;
+    _groupChildrenWithParent = true;
     hasUnload = [tileSource respondsToSelector:@selector(tileDidUnload:)];
     
     return self;
@@ -468,7 +469,10 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         import *= self.importance;
     } else {
         // This is how much screen real estate we're covering for this tile
-        import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), parentMbr, ident, attrs) / 4;
+        if (_groupChildrenWithParent)
+            import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), parentMbr, ident, attrs) / 4;
+        else
+            import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
     }
     
     // Just the importance of this tile.
