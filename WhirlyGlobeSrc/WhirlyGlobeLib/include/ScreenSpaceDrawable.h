@@ -54,8 +54,9 @@ public:
     void addDir(const Point3f &dir);
     void addDir(const Point3d &dir);
     
-    // Add a rotation to the attribute list
-    void addRot(double rot);
+    // Add a rotation vector to the attribute list
+    void addRot(const Point3f &dir);
+    void addRot(const Point3d &dir);
 
     /// If we have motion we need to force the render to keep rendering
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);

@@ -187,6 +187,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     int maxShortCircuitLevel;
     WhirlyKitViewState *lastViewState;
     WhirlyKitSceneRendererES *_renderer;
+    bool hasUnload;
 }
 
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys delegate:(NSObject<MaplyPagingDelegate> *)inTileSource
@@ -207,6 +208,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     maxShortCircuitLevel = -1;
     _useTargetZoomLevel = true;
     _singleLevelLoading = false;
+    hasUnload = [tileSource respondsToSelector:@selector(tileDidUnload:)];
     
     return self;
 }
@@ -643,6 +645,10 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         parentID.level = tileInfo->ident.level-1;
         [self runTileUpdate];
     }
+    
+    // Let the delegate know
+    if (hasUnload)
+        [tileSource tileDidUnload:tileID];
 
 //    NSLog(@"unLoaded Tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 }

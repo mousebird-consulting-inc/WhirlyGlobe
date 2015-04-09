@@ -309,7 +309,10 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     Point2f pts2d[4];
                     for (unsigned int jj=0;jj<4;jj++)
                         pts2d[jj] = Point2f(pts[jj].x(),pts[jj].y());
-                    selectManager->addSelectableScreenRect(marker.selectID,shape->getWorldLoc(),pts2d,markerInfo.minVis,markerInfo.maxVis,markerInfo.enable);
+                    if (marker.hasMotion)
+                        selectManager->addSelectableMovingScreenRect(marker.selectID, shape->getWorldLoc(), shape->getEndWorldLoc(), shape->getStartTime(), shape->getEndTime(), pts2d,markerInfo.minVis,markerInfo.maxVis,markerInfo.enable);
+                    else
+                        selectManager->addSelectableScreenRect(marker.selectID,shape->getWorldLoc(),pts2d,markerInfo.minVis,markerInfo.maxVis,markerInfo.enable);
                     if (!markerInfo.enable)
                         selectManager->enableSelectable(marker.selectID, false);
                 }

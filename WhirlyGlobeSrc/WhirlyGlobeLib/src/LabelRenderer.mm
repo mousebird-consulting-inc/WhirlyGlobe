@@ -512,7 +512,17 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         select2d.selectID = label.selectID;
                         select2d.minVis = _labelInfo.minVis;
                         select2d.maxVis = _labelInfo.maxVis;
-                        _selectables2D.push_back(select2d);
+                        
+                        if (label.hasMotion)
+                        {
+                            MovingRectSelectable2D movingSelect2d;
+                            (RectSelectable2D)movingSelect2d = select2d;
+                            movingSelect2d.endCenter = screenShape->getEndWorldLoc();
+                            movingSelect2d.startTime = screenShape->getStartTime();
+                            movingSelect2d.endTime = screenShape->getEndTime();
+                            _movingSelectables2D.push_back(movingSelect2d);
+                        } else
+                            _selectables2D.push_back(select2d);
                     }
                     
                     if (layoutObject)
@@ -818,7 +828,16 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 select2d.selectID = label.selectID;
                 select2d.minVis = _labelInfo.minVis;
                 select2d.maxVis = _labelInfo.maxVis;
-                _selectables2D.push_back(select2d);
+                if (label.hasMotion)
+                {
+                    MovingRectSelectable2D movingSelect2d;
+                    (RectSelectable2D)movingSelect2d = select2d;
+                    movingSelect2d.endCenter = screenShape->getEndWorldLoc();
+                    movingSelect2d.startTime = screenShape->getStartTime();
+                    movingSelect2d.endTime = screenShape->getEndTime();
+                    _movingSelectables2D.push_back(movingSelect2d);
+                } else
+                    _selectables2D.push_back(select2d);
             } else {
                 RectSelectable3D select3d;
                 select3d.enable = _labelInfo.enable;
