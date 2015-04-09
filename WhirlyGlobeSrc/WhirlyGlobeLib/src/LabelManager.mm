@@ -287,6 +287,13 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
             selectManager->addSelectableScreenRect(sel.selectID,sel.center,sel.pts,sel.minVis,sel.maxVis,sel.enable);
             labelRep->selectIDs.insert(sel.selectID);
         }
+        for (unsigned int ii=0;ii<labelRenderer.movingSelectables2D.size();ii++)
+        {
+            std::vector<WhirlyKit::MovingRectSelectable2D> &movingSelectables2D = labelRenderer.movingSelectables2D;
+            MovingRectSelectable2D &sel = movingSelectables2D[ii];
+            selectManager->addSelectableMovingScreenRect(sel.selectID,sel.center,sel.endCenter,sel.startTime,sel.endTime,sel.pts,sel.minVis,sel.maxVis,sel.enable);
+            labelRep->selectIDs.insert(sel.selectID);
+        }
         for (unsigned int ii=0;ii<labelRenderer.selectables3D.size();ii++)
         {
             std::vector<WhirlyKit::RectSelectable3D> &selectables3D = labelRenderer.selectables3D;

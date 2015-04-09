@@ -128,6 +128,8 @@ public:
 @property (nonatomic,assign) Eigen::Matrix4d &viewAndModelMat4d;
 /// The model, view, and projection matrix all rolled into one
 @property (nonatomic,assign) Eigen::Matrix4f &mvpMat;
+/// Normal matrix for model/view/projection
+@property (nonatomic,assign) Eigen::Matrix4f &mvpNormalMat;
 /// Model, and view matrix but for normal transformation
 @property (nonatomic,assign) Eigen::Matrix4f &viewModelNormalMat;
 /// Projection, view, and offset matrices rolled together
