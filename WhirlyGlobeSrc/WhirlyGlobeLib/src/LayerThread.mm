@@ -295,7 +295,7 @@ using namespace WhirlyKit;
     
     if (_mainLayerThread)
     {
-        // If any of the things we're to releas are other layer threads
+        // If any of the things we're to release are other layer threads
         //  we need to wait for them to shut down.
         for (NSObject *thing in thingsToRelease)
         {

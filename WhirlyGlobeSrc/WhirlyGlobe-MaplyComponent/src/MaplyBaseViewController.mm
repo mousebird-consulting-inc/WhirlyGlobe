@@ -305,6 +305,14 @@ using namespace WhirlyKit;
     [glView stopAnimation];
 }
 
+- (void)shutdown
+{
+    if (glView)
+        [glView shutdown];
+    
+    [self clear];
+}
+
 - (void)appBackground:(NSNotification *)note
 {
     if(!wasAnimating || glView.animating)

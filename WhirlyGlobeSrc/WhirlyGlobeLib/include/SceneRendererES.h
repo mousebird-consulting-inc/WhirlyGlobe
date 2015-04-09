@@ -244,6 +244,9 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 /// The subclasses fill this in
 - (void)render:(NSTimeInterval)duration;
 
+/// Rather do any rendering, just process the outstanding scene changes
+- (void)processScene;
+
 /// Called when the layer gets resized.  Need to resize ourselves
 - (BOOL)resizeFromLayer:(CAEAGLLayer *)layer;
 
