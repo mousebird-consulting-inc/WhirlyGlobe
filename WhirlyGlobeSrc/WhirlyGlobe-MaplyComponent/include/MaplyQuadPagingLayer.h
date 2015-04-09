@@ -122,6 +122,12 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
  */
 - (int)targetZoomLevel;
 
+/** @brief This controls how the importance of tiles is calculated.  Either individually (false) or with the parent (true),
+    @details This is a low level laoding control parameter.  Don't change unless you know why.
+    @details By default this is true.
+ */
+@property (nonatomic) bool groupChildrenWithParent;
+
 /** @brief You call this from your MaplyPagingDelegate with an array of data you've created for a tile.
     @details This method is called by your MaplyPagingDelegate to add MaplyComponentObject's to the data for a given tile.  Please create them disabled by putting @"enable": @(NO) in the description dictionary.  The paging layer will then be responsible for cleaning them up when needed as well as turning them on and off as the user moves around.
     @details The call is thread safe.
