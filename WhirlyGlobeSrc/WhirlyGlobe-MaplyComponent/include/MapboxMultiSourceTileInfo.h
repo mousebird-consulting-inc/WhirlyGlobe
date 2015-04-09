@@ -37,11 +37,11 @@
 /** @brief The cache directory where we'll store combo tiles.
     @details If set, we'll store the cached returns for image and/or vector tiles.  If not set, we won't cache.
   */
-@property (nonatomic) NSString *cacheDir;
+@property (nonatomic,strong) NSString *cacheDir;
 
 /** @brief If set, we'll use an access key to get map data.
   */
-@property (nonatomic) NSString *accessToken;
+@property (nonatomic,strong) NSString *accessToken;
 
 /** @brief Add an image based map covering the given levels.
     @details This adds an image based map of the given type (e.g. jpg or png) at the given levels.

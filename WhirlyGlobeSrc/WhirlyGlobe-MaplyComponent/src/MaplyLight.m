@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/30/13.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.

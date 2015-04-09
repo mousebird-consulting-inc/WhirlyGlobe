@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/16/13.
- *  Copyright 2011-2013 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2015 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -136,6 +136,8 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 /// Value to use for the layout engine.  Set to MAXFLOAT by
 ///  default, which will always display.
 @property (nonatomic,assign) float layoutImportance;
+/// A list of vertex attributes to apply to the marker
+@property (nonatomic,assign) WhirlyKit::SingleVertexAttributeSet &vertexAttrs;
 
 /// Add a texture ID to be displayed
 - (void)addTexID:(WhirlyKit::SimpleIdentity)texID;

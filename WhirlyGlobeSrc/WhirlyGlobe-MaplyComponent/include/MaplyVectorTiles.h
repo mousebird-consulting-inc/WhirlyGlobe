@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@
 @property (nonatomic,weak) MaplyBaseViewController *viewC;
 
 /// @brief Settings that control how objects are built with relation to tiles
-@property (nonatomic) MaplyVectorTileStyleSettings *settings;
+@property (nonatomic,strong) MaplyVectorTileStyleSettings *settings;
 
 /// @brief Individual layers parsed out of the vector tiles database
 @property (nonatomic,readonly) NSArray *layerNames;
@@ -78,7 +78,7 @@
 
 /// @brief Set the cache dir for network fetched tiles.
 /// @details If we're fetching tiles over the network we'll look here first.  Set it to nil to turn off caching.
-@property (nonatomic) NSString *cacheDir;
+@property (nonatomic,strong) NSString *cacheDir;
 
 /// @brief If set, all vectors created are selectable.
 /// @details Keeping track of vectors for selection can be expensive.  If you're not going to ever select them, there's no need to keep them around.

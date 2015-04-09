@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/30/13.
- *  Copyright 2011-2013 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2015 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ BillboardDrawableBuilder::~BillboardDrawableBuilder()
     flush();
 }
 
-void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<WhirlyKit::Point2d> &pts,const std::vector<WhirlyKit::TexCoord> &texCoords,UIColor *inColor)
+void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<WhirlyKit::Point2d> &pts,const std::vector<WhirlyKit::TexCoord> &texCoords,UIColor *inColor,const SingleVertexAttributeSet &vertAttrs)
 {
     if (pts.size() != 4)
     {
@@ -102,7 +102,8 @@ void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<Whi
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
     // Get the drawable ready
-    if (!drawable || (drawable->getNumPoints()+4 > MaxDrawablePoints) ||
+    if (!drawable || !drawable->compareVertexAttributes(vertAttrs) ||
+        (drawable->getNumPoints()+4 > MaxDrawablePoints) ||
         (drawable->getNumTris()+2 > MaxDrawableTriangles))
     {
         if (drawable)
@@ -117,6 +118,12 @@ void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<Whi
         drawable->setDrawPriority(billInfo.drawPriority);
         drawable->setRequestZBuffer(true);
         drawable->setWriteZBuffer(true);
+        if (!vertAttrs.empty())
+        {
+            SingleVertexAttributeInfoSet vertInfoSet;
+            VertexAttributeSetConvert(vertAttrs,vertInfoSet);
+            drawable->setVertexAttributes(vertInfoSet);
+        }
         //        drawable->setForceZBufferOn(true);
     }
     
@@ -134,6 +141,8 @@ void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<Whi
         drawable->addTexCoord(0,texCoords[ii]);
         drawable->addNormal(axisY);
         drawable->addColor(color);
+        if (!vertAttrs.empty())
+            drawable->addVertexAttributes(vertAttrs);
     }
     drawable->addTriangle(BasicDrawable::Triangle(startPoint+0,startPoint+1,startPoint+2));
     drawable->addTriangle(BasicDrawable::Triangle(startPoint+0,startPoint+2,startPoint+3));
@@ -207,7 +216,7 @@ SimpleIdentity BillboardManager::addBillboards(NSArray *billboards,NSDictionary 
             } else
                 drawBuilder = it->second;
             
-            drawBuilder->addBillboard(billboard.center, billPoly.pts, billPoly.texCoords, billPoly.color);
+            drawBuilder->addBillboard(billboard.center, billPoly.pts, billPoly.texCoords, billPoly.color, billPoly.vertexAttrs);
         }
 
         // While we're at it, let's add this to the selection layer

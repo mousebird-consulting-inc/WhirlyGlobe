@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@
 + (id)styleFromStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
 
 /// @brief Unique Identifier for this style
-@property (nonatomic) id<NSCopying> uuid;
+@property (nonatomic,strong) id<NSCopying> uuid;
 
 /// @brief Set if this geometry is additive (e.g. sticks around) rather than replacement
 @property (nonatomic) bool geomAdditive;

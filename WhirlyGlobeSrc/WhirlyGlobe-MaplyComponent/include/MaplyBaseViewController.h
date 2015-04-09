@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -666,6 +666,11 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
     @details The renderer relies on a CADisplayLink.  This will pause it.  You'll want to do this if your app is going into the background or if you generally want the OpenGL ES code to stop doing anything.
   */
 - (void)stopAnimation;
+
+/** @brief This shuts down the rendering and it cannot be restarted.
+    @details There are times we need to explicitly shut down the rendering rather than wait for an unload or release.  This will do that.
+  */
+- (void)shutdown;
 
 /** @brief Add a compiled shader.  We'll refer to it by the scene name.
     @details Once you've create a MaplyShader, you'll need to add it to the scene to use it.

@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@
 #import "MaplyMatrix_private.h"
 #import "MaplyGeomModel_private.h"
 #import "MaplyScreenObject_private.h"
+#import "MaplyVertexAttribute_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -529,6 +530,13 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     }
 }
 
+// Copy vertex attributes from the source to the dest
+- (void)resolveVertexAttrs:(SingleVertexAttributeSet &)destAttrs from:(NSArray *)srcAttrs
+{
+    for (MaplyVertexAttribute *attr in srcAttrs)
+        destAttrs.insert(attr->attr);
+}
+
 // Apply a default value to the dictionary
 -(void) applyDefaultName:(NSString *)key value:(NSObject *)val toDict:(NSMutableDictionary *)dict
 {
@@ -622,6 +630,10 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             wgMarker.selectID = Identifiable::genId();
         }
         wgMarker.layoutImportance = marker.layoutImportance;
+
+        if (marker.vertexAttributes)
+            [self resolveVertexAttrs:wgMarker.vertexAttrs from:marker.vertexAttributes];
+        
         if (marker.layoutSize.width >= 0.0)
         {
             wgMarker.layoutWidth = marker.layoutSize.width;
@@ -2130,6 +2142,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             Point3d dispPt = coordAdapter->localToDisplay(Point3d(localPt.x(),localPt.y(),bill.center.z));
             wkBill.center = dispPt;
             wkBill.isSelectable = bill.selectable;
+            // Note: Porting
+//            if (bill.vertexAttributes)
+//                [self resolveVertexAttrs:wkBill.vertexAttrs from:bill.vertexAttributes];
             if (wkBill.isSelectable)
                 wkBill.selectID = Identifiable::genId();
             

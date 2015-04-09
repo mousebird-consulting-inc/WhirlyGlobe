@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/20/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -479,6 +479,11 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 }
 
 - (void)render:(NSTimeInterval)duration
+{
+    return;
+}
+
+- (void)processScene
 {
     return;
 }
