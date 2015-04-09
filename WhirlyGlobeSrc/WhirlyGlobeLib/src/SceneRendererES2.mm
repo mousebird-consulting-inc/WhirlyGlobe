@@ -278,6 +278,23 @@ static const float ScreenOverlap = 0.1;
         [self renderAsync];
 }
 
+- (void)processScene
+{
+    Scene *scene = super.scene;
+
+    if (!scene)
+        return;
+    
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    if (oldContext != super.context)
+        [EAGLContext setCurrentContext:super.context];
+    
+    scene->processChanges(super.theView,self);
+    
+    if (oldContext != super.context)
+        [EAGLContext setCurrentContext:oldContext];
+}
+
 - (void) renderAsync
 {
     Scene *scene = super.scene;

@@ -117,8 +117,18 @@
 {
     if (_animating)
     {
-        displayLink.paused = YES;
         _animating = FALSE;
+    }
+}
+
+- (void) shutdown
+{
+    if (_animating)
+    {
+        _animating = NO;
+    }
+    if (displayLink)
+    {
         [displayLink invalidate];
         displayLink = nil;
     }
@@ -133,7 +143,10 @@
     if (resizeFail)
         [self layoutSubviews];
 
-    [_renderer render:displayLink.duration*displayLink.frameInterval];
+    if (_animating)
+        [_renderer render:displayLink.duration*displayLink.frameInterval];
+    else
+        [_renderer processScene];
 }
 
 - (void) setFrame:(CGRect)newFrame
@@ -163,7 +176,6 @@
     resizeFail = false;
     resizeFailRetry = 0;
 
-//	[_renderer resizeFromLayer:(CAEAGLLayer*)self.layer];
     [self drawView:nil];
 }
 
