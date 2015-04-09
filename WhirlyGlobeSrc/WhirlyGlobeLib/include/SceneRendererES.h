@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/13/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -245,6 +245,9 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 /// Render to the screen, ideally within the given duration.
 /// The subclasses fill this in
 - (void)render:(NSTimeInterval)duration;
+
+/// Rather do any rendering, just process the outstanding scene changes
+- (void)processScene;
 
 /// Called when the layer gets resized.  Need to resize ourselves
 - (BOOL)resizeFromLayer:(CAEAGLLayer *)layer;

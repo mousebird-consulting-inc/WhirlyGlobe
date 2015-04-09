@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/21/14.
- *  Copyright 2011-2014 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2015 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -57,6 +57,8 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
         return rotation < that.rotation;
     if (keepUpright != that.keepUpright)
         return keepUpright < that.keepUpright;
+    if (vertexAttrs != that.vertexAttrs)
+        return vertexAttrs < that.vertexAttrs;
     
     return false;
 }
@@ -86,6 +88,7 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(const DrawableState &state)
     draw->setVisibleRange(state.minVis, state.maxVis);
     draw->setRequestZBuffer(false);
     draw->setWriteZBuffer(false);
+    draw->setVertexAttributes(state.vertexAttrs);
     
     // If we've got more than one texture ID and a period, we need a tweaker
     if (state.texIDs.size() > 1 && state.period != 0.0)
@@ -100,7 +103,7 @@ bool ScreenSpaceBuilder::DrawableWrap::operator < (const DrawableWrap &that) con
 {
     return state < that.state;
 }
-    
+
 Point3f ScreenSpaceBuilder::DrawableWrap::calcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3f &worldLoc,float rot)
 {
     // Switch from counter-clockwise to clockwise
@@ -116,8 +119,8 @@ Point3f ScreenSpaceBuilder::DrawableWrap::calcRotationVec(CoordSystemDisplayAdap
     
     return rotVec;
 }
-    
-void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color)
+
+void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color,const SingleVertexAttributeSet *vertAttrs)
 {
     draw->addPoint(Point3d(worldLoc.x()-center.x(),worldLoc.y()-center.y(),worldLoc.z()-center.z()));
     Point3f norm = coordAdapter->isFlat() ? Point3f(0,0,1) : worldLoc.normalized();
@@ -127,11 +130,13 @@ void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coor
     draw->addOffset(vert);
     draw->addTexCoord(0, texCoord);
     draw->addColor(color);
+    if (vertAttrs && !vertAttrs->empty())
+        draw->addVertexAttributes(*vertAttrs);
     if (state.rotation)
         draw->addRot(calcRotationVec(coordAdapter,worldLoc,rot));
 }
 
-void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,const Point3f &dir,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color)
+void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,const Point3f &dir,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color,const SingleVertexAttributeSet *vertAttrs)
 {
     draw->addPoint(Point3d(worldLoc.x()-center.x(),worldLoc.y()-center.y(),worldLoc.z()-center.z()));
     Point3f norm = coordAdapter->isFlat() ? Point3f(0,0,1) : worldLoc.normalized();
@@ -142,6 +147,8 @@ void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coor
     draw->addTexCoord(0, texCoord);
     draw->addColor(color);
     draw->addDir(dir);
+    if (vertAttrs && !vertAttrs->empty())
+        draw->addVertexAttributes(*vertAttrs);
     if (state.rotation)
         draw->addRot(calcRotationVec(coordAdapter,worldLoc,rot));
 }
@@ -241,7 +248,7 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,const Point2d *coo
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point2f coord(coords[ii].x(),coords[ii].y());
-        drawWrap->addVertex(coordAdapter,scale,Point3f(worldLoc.x(),worldLoc.y(),worldLoc.z()), 0.0, coord, texCoords[ii], color);
+        drawWrap->addVertex(coordAdapter,scale,Point3f(worldLoc.x(),worldLoc.y(),worldLoc.z()), 0.0, coord, texCoords[ii], color, NULL);
     }
     drawWrap->addTri(0+baseVert,1+baseVert,2+baseVert);
     drawWrap->addTri(0+baseVert,2+baseVert,3+baseVert);
@@ -256,7 +263,7 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,double rotation,bo
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point2f coord(coords[ii].x(),coords[ii].y());
-        drawWrap->addVertex(coordAdapter,scale,Point3f(worldLoc.x(),worldLoc.y(),worldLoc.z()), rotation, coord, texCoords[ii], color);
+        drawWrap->addVertex(coordAdapter,scale,Point3f(worldLoc.x(),worldLoc.y(),worldLoc.z()), rotation, coord, texCoords[ii], color, NULL);
     }
     drawWrap->addTri(0+baseVert,1+baseVert,2+baseVert);
     drawWrap->addTri(0+baseVert,2+baseVert,3+baseVert);
@@ -280,6 +287,7 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
         DrawableState state = ssObj.state;
         state.texIDs = geom.texIDs;
         state.progID = geom.progID;
+        VertexAttributeSetConvert(geom.vertexAttrs,state.vertexAttrs);
         DrawableWrap *drawWrap = findOrAddDrawWrap(state,geom.coords.size(),geom.coords.size()-2,ssObj.worldLoc);
         
         // May need to adjust things based on time
@@ -301,9 +309,9 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
         {
             Point2d coord = geom.coords[jj] + ssObj.offset;
             if (state.motion)
-                drawWrap->addVertex(coordAdapter,scale,startLoc, dir, ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], geom.color);
+                drawWrap->addVertex(coordAdapter,scale,startLoc, dir, ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], geom.color, &geom.vertexAttrs);
             else
-                drawWrap->addVertex(coordAdapter,scale,startLoc, ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], geom.color);
+                drawWrap->addVertex(coordAdapter,scale,startLoc, ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], geom.color, &geom.vertexAttrs);
         }
         for (unsigned int jj=0;jj<geom.coords.size()-2;jj++)
             drawWrap->addTri(0+baseVert, jj+1+baseVert, jj+2+baseVert);

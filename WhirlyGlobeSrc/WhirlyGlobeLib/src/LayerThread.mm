@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/2/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -295,7 +295,7 @@ using namespace WhirlyKit;
     
     if (_mainLayerThread)
     {
-        // If any of the things we're to releas are other layer threads
+        // If any of the things we're to release are other layer threads
         //  we need to wait for them to shut down.
         for (NSObject *thing in thingsToRelease)
         {

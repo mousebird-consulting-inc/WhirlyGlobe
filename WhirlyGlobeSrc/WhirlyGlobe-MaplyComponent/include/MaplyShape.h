@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/28/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -211,6 +211,6 @@ typedef MaplyShapeCylinder WGShapeCylinder;
 /** @brief The transform to apply to this shape.
     @details If set, this transform is applied before placing the feature.  You can set a transform matrix up with roll, pitch, and yaw.
   */
-@property (nonatomic) MaplyMatrix *transform;
+@property (nonatomic,strong) MaplyMatrix *transform;
 
 @end

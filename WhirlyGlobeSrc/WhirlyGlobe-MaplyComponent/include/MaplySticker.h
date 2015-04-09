@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 11/27/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@
 /** @brief If present, this is the coordinate system the sticker is represented in.
     @details By default the coordinates are in geographic.  If this is present, the coordinates are in this system.
   */
-@property (nonatomic) MaplyCoordinateSystem *coordSys;
+@property (nonatomic,strong) MaplyCoordinateSystem *coordSys;
 
 /** @brief Image (or MaplyTexture) to stretch over the sticker.
     @details The UIImage (or MaplyTexture) is cached in the view controller, so multiple references will result in the same texture being used.  The view controller also cleans up the images when it's done with it.
@@ -50,7 +50,7 @@
     @details This is an NSArray of UIImages (or MaplyTextures).  The images will be cached in the view controller, so multiple references will result in the same texture being used.  The view controller also cleans up the images when it's done with them.
     @details All the images passed in here will be presented to the shader program, if it has variables for them.  It's up to you to do something with them in the shader.
   */
-@property (nonatomic) NSArray *images;
+@property (nonatomic,strong) NSArray *images;
 
 /** @brief Set the image format for the created textures.
     @details OpenGL ES offers us several image formats that are more efficient than 32 bit RGBA, but they're not always appropriate.  This property lets you choose one of them.  The 16 or 8 bit ones can save a huge amount of space and will work well for some imagery, most maps, and a lot of weather overlays.

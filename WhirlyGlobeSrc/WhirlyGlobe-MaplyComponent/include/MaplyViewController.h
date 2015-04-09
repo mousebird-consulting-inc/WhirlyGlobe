@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 9/6/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@
 /// @brief Set the coordinate system to use in display.
 /// @details The coordinate system needs to be valid in flat mode.  The extents, if present, will be used to define the coordinate system origin.
 /// @details nil is the default and will result in a full web style Spherical Mercator.
-@property(nonatomic) MaplyCoordinateSystem *coordSys;
+@property(nonatomic,strong) MaplyCoordinateSystem *coordSys;
 
 /** @brief Set the center of the display coordinate system.
     @details This is (0,0,0) by default.  If you set it to something else all display coordinates will be offset from that origin.

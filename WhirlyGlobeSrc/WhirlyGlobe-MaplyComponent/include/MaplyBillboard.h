@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 10/28/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,7 +34,14 @@
 @property (nonatomic) bool selectable;
 
 /// @brief The 2D polygonal description of what the billboard should be
-@property (nonatomic) MaplyScreenObject *screenObj;
+@property (nonatomic,strong) MaplyScreenObject *screenObj;
+
+
+/** @brief Vertex attributes to apply to this billboard.
+    @details MaplyVertexAttribute objects are passed all the way to the shader.  Read that page for details on what they do.
+    @details The array of vertex attributes provided here will be copied onto all the vertices we create for the shader.  This means you can use these to do things for a single billboard in your shader.
+ */
+@property (nonatomic,strong) NSArray *vertexAttributes;
 
 /** @brief User data object for selection
     @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the screen label means to them.
