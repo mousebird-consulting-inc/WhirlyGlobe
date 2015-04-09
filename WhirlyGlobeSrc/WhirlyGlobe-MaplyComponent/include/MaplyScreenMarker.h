@@ -38,7 +38,7 @@
 @property (nonatomic,assign) CGSize size;
 
 /** @brief An optional rotation to apply to the screen marker.
-    @details This is a rotation we'll apply after the screen position has been calculated.
+    @details This is a rotation we'll apply after the screen position has been calculated.  The angle is in radians counter-clockwise from north.
  */
 @property (nonatomic,assign) double rotation;
 

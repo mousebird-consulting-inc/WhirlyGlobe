@@ -52,6 +52,13 @@
   */
 - (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer;
 
+@optional
+
+/** @brief An optional callback when a tile is unloaded.
+    @details If filled in, you'll be called when a tile is unloaded.
+  */
+- (void)tileDidUnload:(MaplyTileID)tileID;
+
 @end
 
 typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
