@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 9/6/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #import <MaplyCoordinate.h>
 #import <MaplyCoordinateSystem.h>
 #import <MaplyMatrix.h>
+#import <MaplyVertexAttribute.h>
 #import <MaplyTexture.h>
 #import <MaplyLabel.h>
 #import <MaplyScreenLabel.h>
@@ -50,3 +51,4 @@
 #import <MaplyTextureBuilder.h>
 #import <MaplyGeomModel.h>
 #import <MapboxMultiSourceTileInfo.h>
+#import <MaplyVertexAttribute.h>

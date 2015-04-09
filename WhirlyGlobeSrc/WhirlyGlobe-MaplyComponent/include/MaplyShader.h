@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/7/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -108,7 +108,7 @@ These are the per vertex attributes provided to each vertex shader.
 /** @brief Name of the shader program.
     @details This is the name passed in to the init call.  You can search by this name in some circumstances.
   */
-@property NSString *name;
+@property (nonatomic,strong) NSString *name;
 
 /** @brief Add a texture tied to the given attribute name.
     @details Shaders can have a variety of attributes passed to them.  This is incompletely implemented and documented.  In this particular case we add the given image, convert it to a texture and tie it to the shader attribute name.

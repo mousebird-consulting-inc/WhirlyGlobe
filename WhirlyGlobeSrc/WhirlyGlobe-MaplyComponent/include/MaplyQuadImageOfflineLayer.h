@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 10/7/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@
 @property (nonatomic,assign) int frame;
 
 /// Image updated by the renderer
-@property (nonatomic) MaplyTexture *tex;
+@property (nonatomic,strong) MaplyTexture *tex;
 
 /// Size of the center pixel in meters
 @property (nonatomic) CGSize centerSize;
@@ -82,7 +82,7 @@
 /** @brief Set the active tile source.
     @details If you change this, it will force a reload of all loaded tiles and start fetching from the new tile source.
  */
-@property (nonatomic) NSObject<MaplyTileSource> *tileSource;
+@property (nonatomic,strong) NSObject<MaplyTileSource> *tileSource;
 
 /** @brief Enable/Disable the whole layer.
     @details By default this is on.  When off, the layer will stop working and calling its delegate.
@@ -152,7 +152,7 @@
     @details We do this so that the user doesn't have to wait for the target level to load.  This can be distracting on large displays with small tiles.  If you use this mode, the layer will load lower levels first, filling in quicker and then load the target level.  This looks much better, but doesn't take as long as the full quad tree based loading.
     @details The layer calculates the optimal target level (for 2D maps, if you're in that mode).  The entries in this array are relative to that level or absolute.  For example [0,-4,-2] means the layer will always try to load levels 0, targetLevel-4 and targetLevel-2, but only the latter two if they make sense.
  */
-@property (nonatomic) NSArray *multiLevelLoads;
+@property (nonatomic,strong) NSArray *multiLevelLoads;
 
 /** @brief The bounding box for the images produced by the offline layer.
     @details This bounding box should be in the layer's coordinate system.

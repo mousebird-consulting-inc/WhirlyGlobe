@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 12/2/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
 
 - (id)initWithURL:(NSString *)baseURL baseName:(NSString *)baseName ext:(NSString *)ext coordSys:(MaplyCoordinateSystem *)coordSys levels:(int)numLevels;
 
-@property (nonatomic) NSString *cacheDir;
+@property (nonatomic,strong) NSString *cacheDir;
 
 @end
 
