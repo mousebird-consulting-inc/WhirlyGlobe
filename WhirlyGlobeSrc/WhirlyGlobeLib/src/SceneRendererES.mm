@@ -482,6 +482,11 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     return;
 }
 
+- (void)processScene
+{
+    return;
+}
+
 @end
 
 

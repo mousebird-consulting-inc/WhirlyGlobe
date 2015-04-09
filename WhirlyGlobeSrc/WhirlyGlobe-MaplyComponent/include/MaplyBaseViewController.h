@@ -667,6 +667,11 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 - (void)stopAnimation;
 
+/** @brief This shuts down the rendering and it cannot be restarted.
+    @details There are times we need to explicitly shut down the rendering rather than wait for an unload or release.  This will do that.
+  */
+- (void)shutdown;
+
 /** @brief Add a compiled shader.  We'll refer to it by the scene name.
     @details Once you've create a MaplyShader, you'll need to add it to the scene to use it.
     @param shader The working shader (be sure valid is true) to add to the scene.
