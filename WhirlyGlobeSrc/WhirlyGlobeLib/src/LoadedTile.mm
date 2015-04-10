@@ -459,6 +459,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
     
     // Translation for the middle.  The drawable stores floats which isn't high res enough zoomed way in
     Point3d chunkMidDisp = coordAdapter->localToDisplay(CoordSystemConvert3d(coordSys,sceneCoordSys,Point3d(chunkMid.x(),chunkMid.y(),0.0)));
+//    NSLog(@"mid = (%f,%f,%f)",chunkMidDisp.x(),chunkMidDisp.y(),chunkMidDisp.z());
     Eigen::Affine3d trans(Eigen::Translation3d(chunkMidDisp.x(),chunkMidDisp.y(),chunkMidDisp.z()));
     Matrix4d transMat = trans.matrix();
     
