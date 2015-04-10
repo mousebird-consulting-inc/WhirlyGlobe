@@ -1201,11 +1201,11 @@ void BasicDrawable::addPointToBuffer(unsigned char *basePtr,int which,const Poin
 {
     if (!points.empty())
     {
+        Point3f &pt = points[which];
+
         // If there's a center, we have to offset everything first
         if (center)
         {
-            Point3f &pt = points[which];
-
             Vector4d pt3d;
             if (hasMatrix)
                 pt3d = mat * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
@@ -1213,9 +1213,17 @@ void BasicDrawable::addPointToBuffer(unsigned char *basePtr,int which,const Poin
                 pt3d = Vector4d(pt.x(),pt.y(),pt.z(),1.0);
             Point3f newPt(pt3d.x()-center->x(),pt3d.y()-center->y(),pt3d.z()-center->z());
             memcpy(basePtr+pointBuffer, &newPt.x(), 3*sizeof(GLfloat));
-        } else
+        } else {
+            Vector4d pt3d;
+            if (hasMatrix)
+                pt3d = mat * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+            else
+                pt3d = Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+            Point3f newPt(pt3d.x(),pt3d.y(),pt3d.z());
+            
             // Otherwise, copy it straight in
-            memcpy(basePtr+pointBuffer, &points[which].x(), 3*sizeof(GLfloat));
+            memcpy(basePtr+pointBuffer, &newPt.x(), 3*sizeof(GLfloat));
+        }
     }
     
     for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
