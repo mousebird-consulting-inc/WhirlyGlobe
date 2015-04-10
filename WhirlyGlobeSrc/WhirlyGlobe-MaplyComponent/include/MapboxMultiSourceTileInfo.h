@@ -37,7 +37,7 @@
 /** @brief The cache directory where we'll store combo tiles.
     @details If set, we'll store the cached returns for image and/or vector tiles.  If not set, we won't cache.
   */
-@property (nonatomic,strong) NSString *cacheDir;
+//@property (nonatomic,strong) NSString *cacheDir;
 
 /** @brief If set, we'll use an access key to get map data.
   */

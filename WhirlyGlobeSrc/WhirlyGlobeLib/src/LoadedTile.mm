@@ -27,6 +27,7 @@
 #import "DynamicTextureAtlas.h"
 #import "DynamicDrawableAtlas.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 
 @implementation WhirlyKitLoadedTile
@@ -353,11 +354,11 @@ void TileBuilder::clearAtlases(ChangeSet &theChangeRequests)
 }
 
 // Helper routine for constructing the skirt around a tile
-void TileBuilder::buildSkirt(BasicDrawable *draw,std::vector<Point3f> &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev)
+void TileBuilder::buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev,const Point3d &theCenter)
 {
     for (unsigned int ii=0;ii<pts.size()-1;ii++)
     {
-        Point3f corners[4];
+        Point3d corners[4];
         TexCoord cornerTex[4];
         corners[0] = pts[ii];
         cornerTex[0] = texCoords[ii];
@@ -378,8 +379,8 @@ void TileBuilder::buildSkirt(BasicDrawable *draw,std::vector<Point3f> &pts,std::
                         int base = draw->getNumPoints();
                         for (unsigned int jj=0;jj<4;jj++)
                         {
-                            draw->addPoint(corners[jj]);
-                            Point3f norm = (pts[ii]+pts[ii+1])/2.f;
+                            draw->addPoint(Point3d(corners[jj]-theCenter));
+                            Point3d norm = (pts[ii]+pts[ii+1])/2.f;
                             draw->addNormal(norm);
                             TexCoord texCoord = cornerTex[jj];
                             draw->addTexCoord(-1,texCoord);
@@ -430,14 +431,15 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
     }
     
     // For single level mode it's not worth getting fancy
-    if (singleLevel)
+    // Note: The level check is kind of a hack.  We're avoiding a resolution problem at high levels
+    if (singleLevel || nodeInfo->ident.level > 17)
     {
         sphereTessX = 1;
         sphereTessY = 1;
     }
     
     // Unit size of each tesselation in spherical mercator
-    Point2f incr(chunkSize.x()/sphereTessX,chunkSize.y()/sphereTessY);
+    Point2d incr(chunkSize.x()/sphereTessX,chunkSize.y()/sphereTessY);
     
     // Texture increment for each tesselation
     TexCoord texIncr(1.0/(float)sphereTessX,1.0/(float)sphereTessY);
@@ -447,12 +449,18 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
     Point2f paramSize(1.0/(xDim*sphereTessX),1.0/(yDim*sphereTessY));
     
     // We need the corners in geographic for the cullable
-    Point2f chunkLL = theMbr.ll();
-    Point2f chunkUR = theMbr.ur();
+    Point2d chunkLL(theMbr.ll().x(),theMbr.ll().y());
+    Point2d chunkUR(theMbr.ur().x(),theMbr.ur().y());
+    Point2d chunkMid = (chunkLL+chunkUR)/2.0;
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     CoordSystem *sceneCoordSys = coordAdapter->getCoordSystem();
-    GeoCoord geoLL(coordSys->localToGeographic(Point3f(chunkLL.x(),chunkLL.y(),0.0)));
-    GeoCoord geoUR(coordSys->localToGeographic(Point3f(chunkUR.x(),chunkUR.y(),0.0)));
+    GeoCoord geoLL(coordSys->localToGeographic(Point3d(chunkLL.x(),chunkLL.y(),0.0)));
+    GeoCoord geoUR(coordSys->localToGeographic(Point3d(chunkUR.x(),chunkUR.y(),0.0)));
+    
+    // Translation for the middle.  The drawable stores floats which isn't high res enough zoomed way in
+    Point3d chunkMidDisp = coordAdapter->localToDisplay(CoordSystemConvert3d(coordSys,sceneCoordSys,Point3d(chunkMid.x(),chunkMid.y(),0.0)));
+    Eigen::Affine3d trans(Eigen::Translation3d(chunkMidDisp.x(),chunkMidDisp.y(),chunkMidDisp.z()));
+    Matrix4d transMat = trans.matrix();
     
     // Get textures (locally)
     if (texs)
@@ -503,6 +511,8 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
     {
         // We'll set up and fill in the drawable
         BasicDrawable *chunk = new BasicDrawable("Tile Quad Loader",(sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
+        chunk->setMatrix(&transMat);
+
         if (activeTextures > 0)
             chunk->setTexId(activeTextures-1, EmptyIdentity);
         chunk->setDrawOffset(drawOffset);
@@ -534,30 +544,30 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
             for (unsigned int iy=0;iy<sphereTessY;iy++)
                 for (unsigned int ix=0;ix<sphereTessX;ix++)
                 {
-                    Point3f org3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
-                    Point3f ptA_3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
-                    Point3f ptB_3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0)));
+                    Point3d org3D = coordAdapter->localToDisplay(CoordSystemConvert3d(coordSys,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
+                    Point3d ptA_3D = coordAdapter->localToDisplay(CoordSystemConvert3d(coordSys,sceneCoordSys,Point3d(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
+                    Point3d ptB_3D = coordAdapter->localToDisplay(CoordSystemConvert3d(coordSys,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0)));
                     
                     TexCoord texCoord(ix*texIncr.x()*texScale.x()+texOffset.x(),1.0-(iy*texIncr.y()*texScale.y()+texOffset.y()));
                     
-                    chunk->addPoint(org3D);
+                    chunk->addPoint(Point3d(org3D-chunkMidDisp));
                     chunk->addNormal(org3D);
                     chunk->addTexCoord(-1,texCoord);
-                    chunk->addPoint(ptA_3D);
+                    chunk->addPoint(Point3d(ptA_3D-chunkMidDisp));
                     chunk->addNormal(ptA_3D);
                     chunk->addTexCoord(-1,texCoord);
                     
-                    chunk->addPoint(org3D);
+                    chunk->addPoint(Point3d(org3D-chunkMidDisp));
                     chunk->addNormal(org3D);
                     chunk->addTexCoord(-1,texCoord);
-                    chunk->addPoint(ptB_3D);
+                    chunk->addPoint(Point3d(ptB_3D-chunkMidDisp));
                     chunk->addNormal(ptB_3D);
                     chunk->addTexCoord(-1,texCoord);
                 }
         } else {
             chunk->setType(GL_TRIANGLES);
             // Generate point, texture coords, and normals
-            std::vector<Point3f> locs((sphereTessX+1)*(sphereTessY+1));
+            std::vector<Point3d> locs((sphereTessX+1)*(sphereTessY+1));
             std::vector<float> elevs;
             if (includeElev || useElevAsZ)
                 elevs.resize((sphereTessX+1)*(sphereTessY+1));
@@ -579,7 +589,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                     // We don't want real elevations in the mesh, just off in another attribute
                     if (!useElevAsZ)
                         locZ = 0.0;
-                    Point3f loc3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),locZ)));
+                    Point3d loc3D = coordAdapter->localToDisplay(CoordSystemConvert3d(coordSys,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),locZ)));
                     if (coordAdapter->isFlat())
                         loc3D.z() = locZ;
 
@@ -604,26 +614,26 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                     {
                         int startPt = chunk->getNumPoints();
                         int idx0 = (iy+1)*(sphereTessX+1)+ix;
-                        Point3f ptA_0 = locs[idx0];
+                        Point3d ptA_0 = locs[idx0];
                         int idx1 = iy*(sphereTessX+1)+ix;
-                        Point3f ptA_1 = locs[idx1];
+                        Point3d ptA_1 = locs[idx1];
                         int idx2 = (iy+1)*(sphereTessX+1)+(ix+1);
-                        Point3f ptA_2 = locs[idx2];
-                        Point3f normA = (ptA_2-ptA_1).cross(ptA_0-ptA_1);
+                        Point3d ptA_2 = locs[idx2];
+                        Point3d normA = (ptA_2-ptA_1).cross(ptA_0-ptA_1);
                         normA.normalize();
-                        chunk->addPoint(ptA_0);
+                        chunk->addPoint(Point3d(ptA_0-chunkMidDisp));
                         chunk->addTexCoord(-1,texCoords[idx0]);
                         chunk->addNormal(normA);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elevs[idx0]);
                         
-                        chunk->addPoint(ptA_1);
+                        chunk->addPoint(Point3d(ptA_1-chunkMidDisp));
                         chunk->addTexCoord(-1,texCoords[idx1]);
                         chunk->addNormal(normA);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elevs[idx1]);
                         
-                        chunk->addPoint(ptA_2);
+                        chunk->addPoint(Point3d(ptA_2-chunkMidDisp));
                         chunk->addTexCoord(-1,texCoords[idx2]);
                         chunk->addNormal(normA);
                         if (elevEntry != 0)
@@ -637,26 +647,26 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                         
                         startPt = chunk->getNumPoints();
                         idx0 = idx2;
-                        Point3f ptB_0 = ptA_2;
+                        Point3d ptB_0 = ptA_2;
                         idx1 = idx1;
-                        Point3f ptB_1 = ptA_1;
+                        Point3d ptB_1 = ptA_1;
                         idx2 = iy*(sphereTessX+1)+(ix+1);
-                        Point3f ptB_2 = locs[idx2];
-                        Point3f normB = (ptB_0-ptB_2).cross(ptB_1-ptB_2);
+                        Point3d ptB_2 = locs[idx2];
+                        Point3d normB = (ptB_0-ptB_2).cross(ptB_1-ptB_2);
                         normB.normalize();
-                        chunk->addPoint(ptB_0);
+                        chunk->addPoint(Point3d(ptB_0-chunkMidDisp));
                         chunk->addTexCoord(-1,texCoords[idx0]);
                         chunk->addNormal(normB);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elevs[idx0]);
                         
-                        chunk->addPoint(ptB_1);
+                        chunk->addPoint(Point3d(ptB_1-chunkMidDisp));
                         chunk->addTexCoord(-1,texCoords[idx1]);
                         chunk->addNormal(normB);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elevs[idx1]);
                         
-                        chunk->addPoint(ptB_2);
+                        chunk->addPoint(Point3d(ptB_2-chunkMidDisp));
                         chunk->addTexCoord(-1,texCoords[idx2]);
                         chunk->addNormal(normB);
                         if (elevEntry != 0)
@@ -675,10 +685,10 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                 for (unsigned int iy=0;iy<sphereTessY+1;iy++)
                     for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                     {
-                        Point3f &loc3D = locs[iy*(sphereTessX+1)+ix];
+                        Point3d &loc3D = locs[iy*(sphereTessX+1)+ix];
                         
                         // And the normal
-                        Point3f norm3D;
+                        Point3d norm3D;
                         if (coordAdapter->isFlat())
                             norm3D = coordAdapter->normalForLocal(loc3D);
                         else
@@ -686,7 +696,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                         
                         TexCoord &texCoord = texCoords[iy*(sphereTessX+1)+ix];
                         
-                        chunk->addPoint(loc3D);
+                        chunk->addPoint(Point3d(loc3D-chunkMidDisp));
                         chunk->addNormal(norm3D);
                         chunk->addTexCoord(-1,texCoord);
                     }
@@ -713,6 +723,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
             {
                 // We'll set up and fill in the drawable
                 BasicDrawable *skirtChunk = new BasicDrawable("Tile Quad Loader Skirt");
+                skirtChunk->setMatrix(&transMat);
                 if (activeTextures > 0)
                     skirtChunk->setTexId(activeTextures-1, EmptyIdentity);
                 skirtChunk->setDrawOffset(drawOffset);
@@ -736,14 +747,14 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                     skirtFactor = 1.0 - 0.2 / (1<<nodeInfo->ident.level);
                 
                 // Bottom skirt
-                std::vector<Point3f> skirtLocs;
+                std::vector<Point3d> skirtLocs;
                 std::vector<TexCoord> skirtTexCoords;
                 for (unsigned int ix=0;ix<=sphereTessX;ix++)
                 {
                     skirtLocs.push_back(locs[ix]);
                     skirtTexCoords.push_back(texCoords[ix]);
                 }
-                buildSkirt(skirtChunk,skirtLocs,skirtTexCoords,skirtFactor,haveElev);
+                buildSkirt(skirtChunk,skirtLocs,skirtTexCoords,skirtFactor,haveElev,chunkMidDisp);
                 // Top skirt
                 skirtLocs.clear();
                 skirtTexCoords.clear();
@@ -752,7 +763,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                     skirtLocs.push_back(locs[(sphereTessY)*(sphereTessX+1)+ix]);
                     skirtTexCoords.push_back(texCoords[(sphereTessY)*(sphereTessX+1)+ix]);
                 }
-                buildSkirt(skirtChunk,skirtLocs,skirtTexCoords,skirtFactor,haveElev);
+                buildSkirt(skirtChunk,skirtLocs,skirtTexCoords,skirtFactor,haveElev,chunkMidDisp);
                 // Left skirt
                 skirtLocs.clear();
                 skirtTexCoords.clear();
@@ -761,7 +772,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                     skirtLocs.push_back(locs[(sphereTessX+1)*iy+0]);
                     skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+0]);
                 }
-                buildSkirt(skirtChunk,skirtLocs,skirtTexCoords,skirtFactor,haveElev);
+                buildSkirt(skirtChunk,skirtLocs,skirtTexCoords,skirtFactor,haveElev,chunkMidDisp);
                 // right skirt
                 skirtLocs.clear();
                 skirtTexCoords.clear();
@@ -770,7 +781,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                     skirtLocs.push_back(locs[(sphereTessX+1)*iy+(sphereTessX)]);
                     skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+(sphereTessX)]);
                 }
-                buildSkirt(skirtChunk,skirtLocs,skirtTexCoords,skirtFactor,haveElev);
+                buildSkirt(skirtChunk,skirtLocs,skirtTexCoords,skirtFactor,haveElev,chunkMidDisp);
                 
                 if (texs && !texs->empty() && !((*texs)[0]))
                     skirtChunk->setTexId(0,(*texs)[0]->getId());
@@ -785,10 +796,10 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                 {
                     TexCoord singleTexCoord(0.5,0.0);
                     // One point for the north pole
-                    Point3f northPt(0,0,1.0);
-                    chunk->addPoint(northPt);
+                    Point3d northPt(0,0,1.0);
+                    chunk->addPoint(Point3d(northPt-chunkMidDisp));
                     chunk->addTexCoord(-1,singleTexCoord);
-                    chunk->addNormal(Point3f(0,0,1.0));
+                    chunk->addNormal(Point3d(0,0,1.0));
                     if (elevEntry != 0)
                         chunk->addAttributeValue(elevEntry, 0.0);
                     int northVert = chunk->getNumPoints()-1;
@@ -798,12 +809,12 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                     int iy = sphereTessY;
                     for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                     {
-                        Point3f pt = locs[(iy*(sphereTessX+1)+ix)];
+                        Point3d pt = locs[(iy*(sphereTessX+1)+ix)];
                         float elev = 0.0;
                         if (!elevs.empty())
                             elev = elevs[(iy*(sphereTessX+1)+ix)];
-                        chunk->addPoint(pt);
-                        chunk->addNormal(Point3f(0,0,1.0));
+                        chunk->addPoint(Point3d(pt-chunkMidDisp));
+                        chunk->addNormal(Point3d(0,0,1.0));
                         chunk->addTexCoord(-1,singleTexCoord);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elev);
@@ -824,10 +835,10 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                 {
                     TexCoord singleTexCoord(0.5,1.0);
                     // One point for the south pole
-                    Point3f southPt(0,0,-1.0);
-                    chunk->addPoint(southPt);
+                    Point3d southPt(0,0,-1.0);
+                    chunk->addPoint(Point3d(southPt-chunkMidDisp));
                     chunk->addTexCoord(-1,singleTexCoord);
-                    chunk->addNormal(Point3f(0,0,-1.0));
+                    chunk->addNormal(Point3d(0,0,-1.0));
                     if (elevEntry != 0)
                         chunk->addAttributeValue(elevEntry, 0.0);
                     int southVert = chunk->getNumPoints()-1;
@@ -837,12 +848,12 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                     int iy = 0;
                     for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                     {
-                        Point3f pt = locs[(iy*(sphereTessX+1)+ix)];
+                        Point3d pt = locs[(iy*(sphereTessX+1)+ix)];
                         float elev = 0.0;
                         if (!elevs.empty())
                             elev = elevs[(iy*(sphereTessX+1)+ix)];
-                        chunk->addPoint(pt);
-                        chunk->addNormal(Point3f(0,0,-1.0));
+                        chunk->addPoint(Point3d(pt-chunkMidDisp));
+                        chunk->addNormal(Point3d(0,0,-1.0));
                         chunk->addTexCoord(-1,singleTexCoord);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elev);
