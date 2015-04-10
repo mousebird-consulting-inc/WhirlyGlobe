@@ -185,7 +185,7 @@ static const float AnimLen = 1.0;
             {
                 // We'll use this to get two points in model space
                 CGPoint vel = [pan velocityInView:glView];
-                if((fabsf(vel.x) + fabsf(vel.y)) > 150) {
+                if((std::abs(vel.x) + std::abs(vel.y)) > 150) {
                     //if the velocity is to slow, its probably not just a finger up
                     CGPoint touch0 = lastTouch;
                     CGPoint touch1 = touch0;  touch1.x += AnimLen*vel.x; touch1.y += AnimLen*vel.y;

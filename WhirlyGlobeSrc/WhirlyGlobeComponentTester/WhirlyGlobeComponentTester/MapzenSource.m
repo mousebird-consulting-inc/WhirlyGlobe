@@ -20,9 +20,8 @@
     MaplyMapnikVectorTileParser *tileParser;
     NSObject<MaplyVectorStyleDelegate> *styleSet;
 }
-nBaseURL layers:(NSArray *)inLayers sourceType:(MapzenSourceType)inType styleData:(NSData *)styleData styleType:(MapnikStyleType)styleType viewC:(MaplyBaseViewController *)viewC
+- (id)initWithBase:(NSString *)inBaseURL layers:(NSArray *)inLayers sourceType:(MapzenSourceType)inType styleData:(NSData *)styleData styleType:(MapnikStyleType)styleType viewC:(MaplyBaseViewController *)viewC
 {
-- (id)initWithBase:(NSString *)i
     self = [super init];
     if (!self)
         return nil;
