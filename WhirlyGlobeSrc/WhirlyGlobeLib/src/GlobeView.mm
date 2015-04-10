@@ -48,10 +48,9 @@ using namespace Eigen;
        	super.coordAdapter = new FakeGeocentricDisplayAdapter();
        	defaultNearPlane = super.nearPlane;
        	defaultFarPlane = super.farPlane;
-       	// This will get you down to r19 in the usual tile sets
-        absoluteMinNearPlane = 0.0000025;
+        absoluteMinNearPlane = 0.000001;
        	absoluteMinFarPlane = 0.001;
-       	absoluteMinHeight = 0.000003;
+       	absoluteMinHeight = 0.000002;
        	heightInflection = 0.011;
 		self.heightAboveGlobe = 1.1;
        	_tilt = 0.0;
