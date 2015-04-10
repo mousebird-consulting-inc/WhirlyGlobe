@@ -48,10 +48,10 @@ using namespace Eigen;
        	super.coordAdapter = new FakeGeocentricDisplayAdapter();
        	defaultNearPlane = super.nearPlane;
        	defaultFarPlane = super.farPlane;
-       	// This will get you down to r17 in the usual tile sets
-        absoluteMinNearPlane = 0.00001;
+       	// This will get you down to r19 in the usual tile sets
+        absoluteMinNearPlane = 0.0000025;
        	absoluteMinFarPlane = 0.001;
-       	absoluteMinHeight = 0.00005;
+       	absoluteMinHeight = 0.000003;
        	heightInflection = 0.011;
 		self.heightAboveGlobe = 1.1;
        	_tilt = 0.0;
@@ -137,10 +137,10 @@ using namespace Eigen;
         {
             double t = 1.0 - (heightInflection - _heightAboveGlobe) / (heightInflection - absoluteMinHeight);
             super.nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
-            //            farPlane = t * (defaultFarPlane-absoluteMinFarPlane) + absoluteMinFarPlane;
+            super.farPlane = t * (defaultFarPlane-absoluteMinFarPlane) + absoluteMinFarPlane;
         } else {
             super.nearPlane = defaultNearPlane;
-            //            farPlane = defaultFarPlane;
+            super.farPlane = defaultFarPlane;
         }
 		super.imagePlaneSize = super.nearPlane * tan(super.fieldOfView / 2.0);
     }
