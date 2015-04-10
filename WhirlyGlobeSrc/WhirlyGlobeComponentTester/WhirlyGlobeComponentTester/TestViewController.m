@@ -224,9 +224,10 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     [self.view addSubview:baseViewC.view];
     baseViewC.view.frame = self.view.bounds;
     [self addChildViewController:baseViewC];
-    
-    if (globeViewC)
-        [globeViewC setTiltMinHeight:0.001 maxHeight:0.01 minTilt:1.21771169 maxTilt:0.0];
+
+    // Note: Debugging
+//    if (globeViewC)
+//        [globeViewC setTiltMinHeight:0.001 maxHeight:0.01 minTilt:1.21771169 maxTilt:0.0];
 
     // This lets us mix screen space objects with everything else
 //    baseViewC.screenObjectDrawPriorityOffset = 0;
@@ -1979,7 +1980,7 @@ static const int NumMegaMarkers = 15000;
 
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion
 {
-    NSLog(@"Globe Stopped moving");
+//    NSLog(@"Globe Stopped moving");
 }
 
 #pragma mark - Maply delegate

@@ -27,7 +27,6 @@
 		2BA13C0617F10EC1000C43B7 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDBD16E7F54B001F52FC /* MobileCoreServices.framework */; };
 		2BA13C0717F10ECA000C43B7 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B8218CC176FCB7C0012322A /* CoreLocation.framework */; };
 		2BA13C0817F10EEA000C43B7 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC989E117DC28350071DA9E /* libz.dylib */; };
-		2BA13C0917F11068000C43B7 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BA13BF117EE1875000C43B7 /* libc++.dylib */; };
 		2BADF95B19A6AB4E00C40CAA /* tl_2013_06075_roads.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2BADF95919A6AB4800C40CAA /* tl_2013_06075_roads.sqlite */; };
 		2BB54ECC17CEB8330065451F /* icon-iPhone.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54ECB17CEB8330065451F /* icon-iPhone.png */; };
 		2BB54ECF17CEB8380065451F /* icon-iPhone@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54ECE17CEB8370065451F /* icon-iPhone@2x.png */; };
@@ -151,6 +150,7 @@
 		2BC0FB88196DBA1C0043E1FD /* geography-class_medres.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB85196DB93C0043E1FD /* geography-class_medres.mbtiles */; };
 		2BC989A817DA66BB0071DA9E /* WeatherShader.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989A717DA66BB0071DA9E /* WeatherShader.m */; };
 		2BC989E517DC289B0071DA9E /* world_web_mercator.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2BC989E417DC289B0071DA9E /* world_web_mercator.sqlite */; };
+		2BDB7DD01AD862F400C9DFCC /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BA13BF117EE1875000C43B7 /* libc++.dylib */; };
 		2BDC8A8D1937E33F00DFECF0 /* tl_2013_06075_roads.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 2BDC8A891937E33F00DFECF0 /* tl_2013_06075_roads.dbf */; };
 		2BDC8A8E1937E33F00DFECF0 /* tl_2013_06075_roads.prj in Resources */ = {isa = PBXBuildFile; fileRef = 2BDC8A8A1937E33F00DFECF0 /* tl_2013_06075_roads.prj */; };
 		2BDC8A8F1937E33F00DFECF0 /* tl_2013_06075_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 2BDC8A8B1937E33F00DFECF0 /* tl_2013_06075_roads.shp */; };
@@ -879,8 +879,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BDB7DD01AD862F400C9DFCC /* libc++.dylib in Frameworks */,
 				2B2EB66518C901AD008C5320 /* OpenGLES.framework in Frameworks */,
-				2BA13C0917F11068000C43B7 /* libc++.dylib in Frameworks */,
 				2BA13C0817F10EEA000C43B7 /* libz.dylib in Frameworks */,
 				2BA13C0717F10ECA000C43B7 /* CoreLocation.framework in Frameworks */,
 				2BA13C0617F10EC1000C43B7 /* MobileCoreServices.framework in Frameworks */,
