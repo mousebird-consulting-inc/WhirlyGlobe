@@ -25,6 +25,12 @@
 @class MaplyBaseInteractionLayer;
 
 @interface MaplyGeomModel()
+{
+@public
+    std::vector<std::string> textures;
+    std::vector<WhirlyKit::GeometryRaw> rawGeom;
+    std::set<MaplyTexture *> maplyTextures;
+}
 
 // Return the list of texture file names
 - (void)getTextureFileNames:(std::vector<std::string> &)texFileNames;

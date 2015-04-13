@@ -27,11 +27,8 @@ using namespace Eigen;
 
 @implementation MaplyGeomModel
 {
-    std::vector<std::string> textures;
-    std::vector<WhirlyKit::GeometryRaw> rawGeom;
     __weak MaplyBaseInteractionLayer *layer;
-    SimpleIdentity baseModelID;
-    std::set<MaplyTexture *> maplyTextures;
+    WhirlyKit::SimpleIdentity baseModelID;    
 }
 
 - (id)initWithObj:(NSString *)fullPath
