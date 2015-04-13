@@ -1214,15 +1214,8 @@ void BasicDrawable::addPointToBuffer(unsigned char *basePtr,int which,const Poin
             Point3f newPt(pt3d.x()-center->x(),pt3d.y()-center->y(),pt3d.z()-center->z());
             memcpy(basePtr+pointBuffer, &newPt.x(), 3*sizeof(GLfloat));
         } else {
-            Vector4d pt3d;
-            if (hasMatrix)
-                pt3d = mat * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
-            else
-                pt3d = Vector4d(pt.x(),pt.y(),pt.z(),1.0);
-            Point3f newPt(pt3d.x(),pt3d.y(),pt3d.z());
-            
             // Otherwise, copy it straight in
-            memcpy(basePtr+pointBuffer, &newPt.x(), 3*sizeof(GLfloat));
+            memcpy(basePtr+pointBuffer, &pt.x(), 3*sizeof(GLfloat));
         }
     }
     
