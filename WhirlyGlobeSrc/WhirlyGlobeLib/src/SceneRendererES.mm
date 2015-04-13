@@ -440,6 +440,9 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 // Check if the view changed from the last frame
 - (bool) viewDidChange
 {
+    // Note: Debugging
+    return true;
+    
     if (!_useViewChanged)
         return true;
     
