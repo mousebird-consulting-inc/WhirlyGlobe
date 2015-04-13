@@ -39,6 +39,18 @@ using namespace WhirlyGlobe;
     return self;
 }
 
++ (WhirlyGlobeViewControllerAnimationState *)Interpolate:(double)t from:(WhirlyGlobeViewControllerAnimationState *)stateA to:(WhirlyGlobeViewControllerAnimationState *)stateB
+{
+    WhirlyGlobeViewControllerAnimationState *newState = [[WhirlyGlobeViewControllerAnimationState alloc] init];
+    
+    newState.heading = (stateB.heading-stateA.heading)*t + stateA.heading;
+    newState.height = (stateB.height-stateA.height)*t + stateA.height;
+    newState.tilt = (stateB.tilt-stateA.tilt)*t + stateA.tilt;
+    newState.pos = MaplyCoordinateMake((stateB.pos.x-stateA.pos.x)*t + stateA.pos.x,(stateB.pos.y-stateA.pos.y)*t + stateA.pos.y);
+    
+    return newState;
+}
+
 @end
 
 @implementation WhirlyGlobeViewControllerSimpleAnimationDelegate
