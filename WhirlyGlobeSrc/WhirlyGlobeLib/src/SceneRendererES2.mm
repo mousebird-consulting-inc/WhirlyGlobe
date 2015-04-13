@@ -396,7 +396,6 @@ static const float ScreenOverlap = 0.1;
     
     if (!renderSetup)
     {
-        // Note: What happens if they change this?
         glClearColor(_clearColor.r / 255.0, _clearColor.g / 255.0, _clearColor.b / 255.0, _clearColor.a / 255.0);
         CheckGLError("SceneRendererES2: glClearColor");
     }
