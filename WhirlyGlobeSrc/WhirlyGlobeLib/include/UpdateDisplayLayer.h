@@ -34,6 +34,9 @@
 /// Fill in this protocol to be called 
 @protocol WhirlyGlobeUpdateDataSource <NSObject>
 
+/// Called once the layer starts
+- (void)start;
+
 /// The update display layer will call this when the viewer has moved sufficiently
 - (void)viewerDidUpdate:(WhirlyGlobeViewState *)viewState scene:(WhirlyKit::Scene *)scene;
 

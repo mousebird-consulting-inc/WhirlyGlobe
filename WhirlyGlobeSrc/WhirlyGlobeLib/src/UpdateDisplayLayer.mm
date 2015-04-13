@@ -55,9 +55,16 @@ using namespace WhirlyGlobe;
     layerThread = inLayerThread;
     scene = inScene;
     
-    // We want view updates, but only 1s in frequency
+    // We want view updates, but only occasionally
     if (layerThread.viewWatcher)
         [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_minTime minDist:0.0 maxLagTime:0.0];
+    
+    [self performSelector:@selector(startOnThread) onThread:layerThread withObject:nil waitUntilDone:NO];
+}
+
+- (void)startOnThread
+{
+    [_dataSource start];
 }
 
 - (void)shutdown

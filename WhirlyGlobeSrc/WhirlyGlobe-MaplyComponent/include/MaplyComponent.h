@@ -34,6 +34,7 @@
 #import <MaplyViewTracker.h>
 #import <MaplyViewController.h>
 #import <MaplyQuadPagingLayer.h>
+#import <MaplyUpdateLayer.h>
 #import <MaplyQuadImageTilesLayer.h>
 #import <MaplyQuadImageOfflineLayer.h>
 #import <MaplyTileSource.h>
