@@ -1392,7 +1392,7 @@ void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutable
     unsigned char *basePtr = (unsigned char *)[vertData mutableBytes];
     for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
         addPointToBuffer(basePtr, ii, center);
-        
+
     // Build up the triangles
     int triSize = singleElementSize * 3;
     int numTris = (int)tris.size();
