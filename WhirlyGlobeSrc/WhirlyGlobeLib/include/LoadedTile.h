@@ -146,7 +146,7 @@ public:
     
     // Build a given tile
     bool buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,std::vector<Texture *> *texs,
-              Point2f texScale,Point2f texOffset,std::vector<WhirlyKitLoadedImage *> *loadImages,WhirlyKitElevationChunk *elevData);
+              Point2f texScale,Point2f texOffset,std::vector<WhirlyKitLoadedImage *> *loadImages,WhirlyKitElevationChunk *elevData,const Point3d &theCenter);
     
     // Build the texture for a tile
     Texture *buildTexture(WhirlyKitLoadedImage *loadImage);
