@@ -458,10 +458,10 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
     GeoCoord geoUR(coordSys->localToGeographic(Point3d(chunkUR.x(),chunkUR.y(),0.0)));
     
     // Translation for the middle.  The drawable stores floats which isn't high res enough zoomed way in
-    Point3d chunkMidDisp = dispCenter;
+    Point3d chunkMidDisp = Point3d(0,0,0);
 //    NSLog(@"mid = (%f,%f,%f)",chunkMidDisp.x(),chunkMidDisp.y(),chunkMidDisp.z());
-    Eigen::Affine3d trans(Eigen::Translation3d(chunkMidDisp.x(),chunkMidDisp.y(),chunkMidDisp.z()));
-    Matrix4d transMat = trans.matrix();
+//    Eigen::Affine3d trans(Eigen::Translation3d(chunkMidDisp.x(),chunkMidDisp.y(),chunkMidDisp.z()));
+//    Matrix4d transMat = trans.matrix();
     
     // Get textures (locally)
     if (texs)
@@ -512,7 +512,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
     {
         // We'll set up and fill in the drawable
         BasicDrawable *chunk = new BasicDrawable("Tile Quad Loader",(sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
-        chunk->setMatrix(&transMat);
+//        chunk->setMatrix(&transMat);
 
         if (activeTextures > 0)
             chunk->setTexId(activeTextures-1, EmptyIdentity);
@@ -724,7 +724,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
             {
                 // We'll set up and fill in the drawable
                 BasicDrawable *skirtChunk = new BasicDrawable("Tile Quad Loader Skirt");
-                skirtChunk->setMatrix(&transMat);
+//                skirtChunk->setMatrix(&transMat);
                 if (activeTextures > 0)
                     skirtChunk->setTexId(activeTextures-1, EmptyIdentity);
                 skirtChunk->setDrawOffset(drawOffset);
