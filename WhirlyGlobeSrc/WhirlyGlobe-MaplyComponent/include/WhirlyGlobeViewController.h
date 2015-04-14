@@ -43,6 +43,11 @@
 /// @brief Position to move to on the globe
 @property (nonatomic) MaplyCoordinate pos;
 
+/** @brief Interpolate a new state between the given states A and B.
+    @details This does a simple interpolation (lat/lon, not great circle) between the two animation states.
+  */
++ (WhirlyGlobeViewControllerAnimationState *)Interpolate:(double)t from:(WhirlyGlobeViewControllerAnimationState *)stateA to:(WhirlyGlobeViewControllerAnimationState *)stateB;
+
 @end
 
 /** @brief An animation delegate that can be set on a WhirlyGlobeViewController to control the view over time.
