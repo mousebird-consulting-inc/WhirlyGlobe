@@ -90,8 +90,6 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
     @details To provide elevation for your compatible MaplyTileSource objects, you fill out the MaplyElevationSourceDelegate protocol and assign the resulting object here.  When an image layer needs elevation, it will check for the delegate and then query for the respective file.
     @details At present there is no checking for coordinate system compatibility, so be aware.
   */
-/// Fill this in to provide elevation data.  It will only work for a matching image layer,
-///  one with the same coordinate system and extents.
 @property (nonatomic,weak) NSObject<MaplyElevationSourceDelegate> *elevDelegate;
 
 /** @brief If set we'll create a new thread for every layer the user adds.
