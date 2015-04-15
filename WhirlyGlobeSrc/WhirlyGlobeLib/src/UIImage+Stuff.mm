@@ -100,7 +100,7 @@ using namespace WhirlyKit;
     
 	NSMutableData *retData = [NSMutableData dataWithLength:destWidth*destHeight*4];
 	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], destWidth, destHeight, 8, destWidth * 4, colorSpace, kCGImageAlphaPremultipliedLast);
-	CGContextDrawImage(theContext, CGRectMake((float)border, (float)border, (CGFloat)(destWidth-2*border), (CGFloat)(destWidth-2*border)), cgImage);
+	CGContextDrawImage(theContext, CGRectMake((float)border, (float)border, (CGFloat)(destWidth-2*border), (CGFloat)(destHeight-2*border)), cgImage);
 	CGContextRelease(theContext);
     CGColorSpaceRelease(colorSpace);
     
