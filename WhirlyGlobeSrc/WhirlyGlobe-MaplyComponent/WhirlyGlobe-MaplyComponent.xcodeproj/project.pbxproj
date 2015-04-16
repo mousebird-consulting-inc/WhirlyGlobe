@@ -203,12 +203,6 @@
 		2BEB2EC61ADDDB630069A27B /* MapnikStyle.m in Sources */ = {isa = PBXBuildFile; fileRef = 8894573F18F20D2800FE60E7 /* MapnikStyle.m */; };
 		2BEB2EC71ADDDB630069A27B /* MapnikStyleRule.m in Sources */ = {isa = PBXBuildFile; fileRef = 8894574018F20D2800FE60E7 /* MapnikStyleRule.m */; };
 		2BEB2EC81ADDDB630069A27B /* MapnikStyleSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 8894574118F20D2800FE60E7 /* MapnikStyleSet.m */; };
-		2BEB2EC91ADDDB830069A27B /* arena.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B5F19081A928169004A8723 /* arena.cc */; };
-		2BEB2ECA1ADDDB830069A27B /* arenastring.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B5F190A1A928169004A8723 /* arenastring.cc */; };
-		2BEB2ECB1ADDDB830069A27B /* descriptor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F663018F20A8F00D17110 /* descriptor.cc */; };
-		2BEB2ECC1ADDDB830069A27B /* descriptor.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F663218F20A8F00D17110 /* descriptor.pb.cc */; };
-		2BEB2ECD1ADDDB830069A27B /* descriptor_database.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F663518F20A8F00D17110 /* descriptor_database.cc */; };
-		2BEB2ECE1ADDDB830069A27B /* dynamic_message.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F663718F20A8F00D17110 /* dynamic_message.cc */; };
 		2BEB2ECF1ADDDB830069A27B /* extension_set.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F663918F20A8F00D17110 /* extension_set.cc */; };
 		2BEB2ED01ADDDB830069A27B /* extension_set_heavy.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F663B18F20A8F00D17110 /* extension_set_heavy.cc */; };
 		2BEB2ED11ADDDB830069A27B /* generated_message_reflection.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F663D18F20A8F00D17110 /* generated_message_reflection.cc */; };
@@ -236,6 +230,12 @@
 		2BEB2EE71ADDDB9A0069A27B /* zero_copy_stream.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F664C18F20A8F00D17110 /* zero_copy_stream.cc */; };
 		2BEB2EE81ADDDB9A0069A27B /* zero_copy_stream_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F664E18F20A8F00D17110 /* zero_copy_stream_impl.cc */; };
 		2BEB2EE91ADDDB9A0069A27B /* zero_copy_stream_impl_lite.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F665018F20A8F00D17110 /* zero_copy_stream_impl_lite.cc */; };
+		2BEB2EED1ADEC37E0069A27B /* arena.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B5F19081A928169004A8723 /* arena.cc */; };
+		2BEB2EEE1ADEC37E0069A27B /* arenastring.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B5F190A1A928169004A8723 /* arenastring.cc */; };
+		2BEB2EEF1ADEC37E0069A27B /* descriptor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F663018F20A8F00D17110 /* descriptor.cc */; };
+		2BEB2EF01ADEC37E0069A27B /* descriptor.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F663218F20A8F00D17110 /* descriptor.pb.cc */; };
+		2BEB2EF11ADEC37E0069A27B /* descriptor_database.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F663518F20A8F00D17110 /* descriptor_database.cc */; };
+		2BEB2EF21ADEC37E0069A27B /* dynamic_message.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F663718F20A8F00D17110 /* dynamic_message.cc */; };
 		2BEBABA51811F64D00A9419C /* MaplyImageTile.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEBABA31811F64D00A9419C /* MaplyImageTile.h */; };
 		2BEBABA61811F64D00A9419C /* MaplyImageTile_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEBABA41811F64D00A9419C /* MaplyImageTile_private.h */; };
 		2BEBABAA1811F65700A9419C /* MaplyImageTile.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEBABA81811F65700A9419C /* MaplyImageTile.mm */; };
@@ -1440,6 +1440,7 @@
 				2B897A8515BB5DEB00250F23 /* WhirlyGlobeViewController.mm in Sources */,
 				2BEB2EE11ADDDB930069A27B /* strutil.cc in Sources */,
 				2B897A8715BBB83E00250F23 /* WGInteractionLayer.mm in Sources */,
+				2BEB2EEF1ADEC37E0069A27B /* descriptor.cc in Sources */,
 				2BEB2EDF1ADDDB930069A27B /* once.cc in Sources */,
 				2BEB2EE41ADDDB9A0069A27B /* gzip_stream.cc in Sources */,
 				2BDC8A1B191D994F00DFECF0 /* AFHTTPSessionManager.m in Sources */,
@@ -1447,8 +1448,10 @@
 				2B73BD4419F07B7F00CDB242 /* MaplyMatrix.mm in Sources */,
 				2B897A8B15BC698800250F23 /* MaplyScreenMarker.m in Sources */,
 				2BEB2EC21ADDDB630069A27B /* MapboxVectorStyleRaster.mm in Sources */,
+				2BEB2EEE1ADEC37E0069A27B /* arenastring.cc in Sources */,
 				2BDC8A1E191D994F00DFECF0 /* AFNetworkReachabilityManager.m in Sources */,
 				2BEB2EC11ADDDB630069A27B /* MapboxVectorStyleLine.mm in Sources */,
+				2BEB2EF11ADEC37E0069A27B /* descriptor_database.cc in Sources */,
 				2BEB2EC71ADDDB630069A27B /* MapnikStyleRule.m in Sources */,
 				2BEB2ED81ADDDB830069A27B /* text_format.cc in Sources */,
 				2BB7A96F1A26588000E50DC5 /* MaplyGeomModel.mm in Sources */,
@@ -1463,11 +1466,11 @@
 				2B897A9115BC6CEE00250F23 /* MaplyViewControllerLayer.mm in Sources */,
 				2BB752621AD84C3900FCA174 /* MaplyVectorLineStyle.mm in Sources */,
 				2B897A9315BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm in Sources */,
+				2BEB2EF21ADEC37E0069A27B /* dynamic_message.cc in Sources */,
 				2BB9E01F15BF9EF200F1DDD8 /* MaplyLabel.m in Sources */,
 				2BB9E02015BF9EF200F1DDD8 /* MaplyMarker.m in Sources */,
 				2BEBABAB1811F65700A9419C /* MaplyTileSource.mm in Sources */,
 				2BDC8A24191D994F00DFECF0 /* AFURLRequestSerialization.m in Sources */,
-				2BEB2ECD1ADDDB830069A27B /* descriptor_database.cc in Sources */,
 				2BDC8A19191D994F00DFECF0 /* AFHTTPRequestOperationManager.m in Sources */,
 				2BB9E02115BF9EF200F1DDD8 /* MaplyScreenLabel.m in Sources */,
 				2B63C8911ADC70B9006CA9AA /* MaplyUpdateLayer.mm in Sources */,
@@ -1476,11 +1479,9 @@
 				2BEB2EE31ADDDB9A0069A27B /* coded_stream.cc in Sources */,
 				2B0B0D1415C1D88600CCB3B2 /* MaplyViewTracker.m in Sources */,
 				2BEB2ED01ADDDB830069A27B /* extension_set_heavy.cc in Sources */,
-				2BEB2ECA1ADDDB830069A27B /* arenastring.cc in Sources */,
 				2BBEB82F15CB06AD00E363E7 /* MaplyVectorObject.mm in Sources */,
 				2BEB2EDE1ADDDB930069A27B /* common.cc in Sources */,
 				2BEB2ED91ADDDB830069A27B /* unknown_field_set.cc in Sources */,
-				2BEB2ECB1ADDDB830069A27B /* descriptor.cc in Sources */,
 				2BEB2EBA1ADDD9EA0069A27B /* FMDatabaseQueue.m in Sources */,
 				2BC122EF1AC095660025326D /* MaplyVertexAttribute.mm in Sources */,
 				880E70A818F76ED200D32A54 /* NSDictionary+StyleRules.m in Sources */,
@@ -1512,9 +1513,7 @@
 				2BD115961615E16900A4BF5D /* MaplyShape.mm in Sources */,
 				2BEB2EB91ADDD9EA0069A27B /* FMDatabasePool.m in Sources */,
 				2BB0717D1676B5BD00DE387D /* MaplySticker.mm in Sources */,
-				2BEB2ECE1ADDDB830069A27B /* dynamic_message.cc in Sources */,
 				2BEB2ED51ADDDB830069A27B /* reflection_ops.cc in Sources */,
-				2BEB2ECC1ADDDB830069A27B /* descriptor.pb.cc in Sources */,
 				2B0A4DB8167BDAD3000D5786 /* MaplyBaseInteractionLayer.mm in Sources */,
 				2BEB2EB81ADDD9EA0069A27B /* FMDatabaseAdditions.m in Sources */,
 				2BB752641AD84C3900FCA174 /* MaplyVectorPolygonStyle.mm in Sources */,
@@ -1537,7 +1536,6 @@
 				2B44E81C174B20C700474C2B /* MaplyQuadPagingLayer.mm in Sources */,
 				2B0D62D317A1D9BB00C3298D /* MaplyWMSTileSource.mm in Sources */,
 				2B789F7C185B92000028E027 /* MaplyAnnotation.mm in Sources */,
-				2BEB2EC91ADDDB830069A27B /* arena.cc in Sources */,
 				2B0D630217A2EDA300C3298D /* DDXMLElementAdditions.m in Sources */,
 				2B0D630417A2EDA300C3298D /* NSString+DDXML.m in Sources */,
 				2BDC8A17191D994F00DFECF0 /* AFHTTPRequestOperation.m in Sources */,
@@ -1545,6 +1543,7 @@
 				2B789F76185B8C950028E027 /* SMCalloutView.m in Sources */,
 				2BB752631AD84C3900FCA174 /* MaplyVectorMarkerStyle.mm in Sources */,
 				2B0D630717A2EDA300C3298D /* DDXMLDocument.m in Sources */,
+				2BEB2EED1ADEC37E0069A27B /* arena.cc in Sources */,
 				2BEB2EBB1ADDD9EA0069A27B /* FMResultSet.m in Sources */,
 				2B0D630917A2EDA300C3298D /* DDXMLElement.m in Sources */,
 				2B0D630B17A2EDA300C3298D /* DDXMLNode.m in Sources */,
@@ -1557,6 +1556,7 @@
 				2BEB2EBF1ADDDB630069A27B /* MapboxVectorStyleBackground.mm in Sources */,
 				2BC988EE17D794010071DA9E /* MaplyMBTileSource.mm in Sources */,
 				2BEB2EBD1ADDDB630069A27B /* MapboxMultiSourceTileInfo.mm in Sources */,
+				2BEB2EF01ADEC37E0069A27B /* descriptor.pb.cc in Sources */,
 				2B760CA11881D696006FE98B /* MaplyIconManager.mm in Sources */,
 				2BC9897117D93EB30071DA9E /* MaplyMultiplexTileSource.mm in Sources */,
 				2B11057317E237D400735C46 /* MaplyElevationDatabase.mm in Sources */,
