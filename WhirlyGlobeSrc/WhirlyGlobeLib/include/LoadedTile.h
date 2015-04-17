@@ -192,6 +192,9 @@ public:
     // Set if we want pole geometry
     bool coverPoles;
     
+    // Set if we'll use tile centers when generating drawables
+    bool useTileCenters;
+    
     // Image format for textures
     GLenum glFormat;
     WKSingleByteSource singleByteSource;
