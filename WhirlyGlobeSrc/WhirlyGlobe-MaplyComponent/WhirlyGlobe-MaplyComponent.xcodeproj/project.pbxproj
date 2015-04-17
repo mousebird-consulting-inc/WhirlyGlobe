@@ -56,6 +56,7 @@
 		2B63C88E1ADC70AE006CA9AA /* MaplyUpdateLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B63C88D1ADC70AE006CA9AA /* MaplyUpdateLayer.h */; };
 		2B63C8911ADC70B9006CA9AA /* MaplyUpdateLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B63C8901ADC70B9006CA9AA /* MaplyUpdateLayer.mm */; };
 		2B63C8931ADC82B0006CA9AA /* MaplyUpdateLayer_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B63C8921ADC82B0006CA9AA /* MaplyUpdateLayer_private.h */; };
+		2B6943E11AE182220042223B /* structurally_valid.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F667318F20A8F00D17110 /* structurally_valid.cc */; };
 		2B73BD4119F07B7600CDB242 /* MaplyMatrix.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73BD4019F07B7600CDB242 /* MaplyMatrix.h */; };
 		2B73BD4419F07B7F00CDB242 /* MaplyMatrix.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B73BD4319F07B7F00CDB242 /* MaplyMatrix.mm */; };
 		2B73BD4619F07D8900CDB242 /* MaplyMatrix_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73BD4519F07D8900CDB242 /* MaplyMatrix_private.h */; };
@@ -1511,6 +1512,7 @@
 				2BEE96AB1AA28875007F9209 /* MaplyScreenObject.mm in Sources */,
 				2BEB2ED31ADDDB830069A27B /* message.cc in Sources */,
 				2BD115961615E16900A4BF5D /* MaplyShape.mm in Sources */,
+				2B6943E11AE182220042223B /* structurally_valid.cc in Sources */,
 				2BEB2EB91ADDD9EA0069A27B /* FMDatabasePool.m in Sources */,
 				2BB0717D1676B5BD00DE387D /* MaplySticker.mm in Sources */,
 				2BEB2ED51ADDDB830069A27B /* reflection_ops.cc in Sources */,
