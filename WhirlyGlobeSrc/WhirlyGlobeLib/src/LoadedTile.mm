@@ -451,7 +451,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
     // We need the corners in geographic for the cullable
     Point2d chunkLL(theMbr.ll().x(),theMbr.ll().y());
     Point2d chunkUR(theMbr.ur().x(),theMbr.ur().y());
-    Point2d chunkMid = (chunkLL+chunkUR)/2.0;
+//    Point2d chunkMid = (chunkLL+chunkUR)/2.0;
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     CoordSystem *sceneCoordSys = coordAdapter->getCoordSystem();
     GeoCoord geoLL(coordSys->localToGeographic(Point3d(chunkLL.x(),chunkLL.y(),0.0)));

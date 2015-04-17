@@ -125,7 +125,6 @@ void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coor
     draw->addPoint(Point3d(worldLoc.x()-center.x(),worldLoc.y()-center.y(),worldLoc.z()-center.z()));
     Point3f norm = coordAdapter->isFlat() ? Point3f(0,0,1) : worldLoc.normalized();
     draw->addNormal(norm);
-    // Note: Rotation
     Point2f vert = inVert * scale;
     draw->addOffset(vert);
     draw->addTexCoord(0, texCoord);
