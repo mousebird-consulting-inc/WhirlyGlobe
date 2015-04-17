@@ -30,6 +30,10 @@
 		2B0D630A17A2EDA300C3298D /* DDXMLNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0D62FD17A2EDA300C3298D /* DDXMLNode.h */; };
 		2B0D630B17A2EDA300C3298D /* DDXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D62FE17A2EDA300C3298D /* DDXMLNode.m */; };
 		2B0D630C17A2EDA300C3298D /* DDXMLPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0D630017A2EDA300C3298D /* DDXMLPrivate.h */; };
+		2B10D4261AE18F4C00D2F3F5 /* strtod.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B10D4251AE18F4C00D2F3F5 /* strtod.cc */; };
+		2B10D4291AE18F5400D2F3F5 /* strtod.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B10D4281AE18F5400D2F3F5 /* strtod.h */; };
+		2B10D42C1AE18FC900D2F3F5 /* map_field.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B10D42A1AE18FC900D2F3F5 /* map_field.cc */; };
+		2B10D42D1AE18FC900D2F3F5 /* map_field.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B10D42B1AE18FC900D2F3F5 /* map_field.h */; };
 		2B11057317E237D400735C46 /* MaplyElevationDatabase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989C617DC21570071DA9E /* MaplyElevationDatabase.mm */; };
 		2B11E0DF15B4C030007AAE3F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B11E0DE15B4C030007AAE3F /* Foundation.framework */; };
 		2B2E2FF816C4885800CAD143 /* MaplyShader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2E2FF616C4885800CAD143 /* MaplyShader.h */; };
@@ -331,6 +335,10 @@
 		2B0D62FD17A2EDA300C3298D /* DDXMLNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDXMLNode.h; path = "../../third-party/KissXML/KissXML/DDXMLNode.h"; sourceTree = "<group>"; };
 		2B0D62FE17A2EDA300C3298D /* DDXMLNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDXMLNode.m; path = "../../third-party/KissXML/KissXML/DDXMLNode.m"; sourceTree = "<group>"; };
 		2B0D630017A2EDA300C3298D /* DDXMLPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDXMLPrivate.h; sourceTree = "<group>"; };
+		2B10D4251AE18F4C00D2F3F5 /* strtod.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = strtod.cc; sourceTree = "<group>"; };
+		2B10D4281AE18F5400D2F3F5 /* strtod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = strtod.h; sourceTree = "<group>"; };
+		2B10D42A1AE18FC900D2F3F5 /* map_field.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = map_field.cc; sourceTree = "<group>"; };
+		2B10D42B1AE18FC900D2F3F5 /* map_field.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map_field.h; sourceTree = "<group>"; };
 		2B11E0DB15B4C030007AAE3F /* libWhirlyGlobe-MaplyComponent.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libWhirlyGlobe-MaplyComponent.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B11E0DE15B4C030007AAE3F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		2B11E0EB15B4C0BA007AAE3F /* WhirlyGlobeLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeLib.xcodeproj; path = ../WhirlyGlobeLib/WhirlyGlobeLib.xcodeproj; sourceTree = "<group>"; };
@@ -1100,6 +1108,8 @@
 		881F662F18F20A8F00D17110 /* protobuf */ = {
 			isa = PBXGroup;
 			children = (
+				2B10D42A1AE18FC900D2F3F5 /* map_field.cc */,
+				2B10D42B1AE18FC900D2F3F5 /* map_field.h */,
 				2B5F19081A928169004A8723 /* arena.cc */,
 				2B5F19091A928169004A8723 /* arena.h */,
 				2B5F190A1A928169004A8723 /* arenastring.cc */,
@@ -1150,6 +1160,8 @@
 		881F664118F20A8F00D17110 /* io */ = {
 			isa = PBXGroup;
 			children = (
+				2B10D4281AE18F5400D2F3F5 /* strtod.h */,
+				2B10D4251AE18F4C00D2F3F5 /* strtod.cc */,
 				881F664218F20A8F00D17110 /* coded_stream.cc */,
 				881F664318F20A8F00D17110 /* coded_stream.h */,
 				881F664418F20A8F00D17110 /* coded_stream_inl.h */,
@@ -1224,6 +1236,7 @@
 				2B897A6E15BB59F300250F23 /* WhirlyGlobeComponent.h in Headers */,
 				2B897A6F15BB59F300250F23 /* WhirlyGlobeViewController.h in Headers */,
 				881F668F18F20A8F00D17110 /* generated_enum_reflection.h in Headers */,
+				2B10D4291AE18F5400D2F3F5 /* strtod.h in Headers */,
 				2B73BD4119F07B7600CDB242 /* MaplyMatrix.h in Headers */,
 				881F668718F20A8F00D17110 /* descriptor.pb.h in Headers */,
 				881F66D318F20A8F00D17110 /* wire_format_lite_inl.h in Headers */,
@@ -1334,6 +1347,7 @@
 				2BEA064A19C3BB7200F2BB93 /* MaplyTextureAtlas_private.h in Headers */,
 				2BCA68A8174195A800696BA8 /* MaplyQuadImageTilesLayer.h in Headers */,
 				2BCA68AA174195B500696BA8 /* MaplyQuadImageTilesLayer_private.h in Headers */,
+				2B10D42D1AE18FC900D2F3F5 /* map_field.h in Headers */,
 				881F66BF18F20A8F00D17110 /* once.h in Headers */,
 				2B789F79185B91F90028E027 /* MaplyAnnotation.h in Headers */,
 				881F66B018F20A8F00D17110 /* atomicops_internals_arm_gcc.h in Headers */,
@@ -1458,6 +1472,7 @@
 				2BB7A96F1A26588000E50DC5 /* MaplyGeomModel.mm in Sources */,
 				2B897A8D15BC6BF000250F23 /* MaplyComponentObject.mm in Sources */,
 				2BAC290E184D571B00FD14FD /* MaplyGDALRetileSource.mm in Sources */,
+				2B10D42C1AE18FC900D2F3F5 /* map_field.cc in Sources */,
 				2BBAA90A181EEE3F00BE1277 /* MaplyBillboard.mm in Sources */,
 				2BEB2EDC1ADDDB930069A27B /* atomicops_internals_x86_gcc.cc in Sources */,
 				2BEB2EC61ADDDB630069A27B /* MapnikStyle.m in Sources */,
@@ -1469,6 +1484,7 @@
 				2B897A9315BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm in Sources */,
 				2BEB2EF21ADEC37E0069A27B /* dynamic_message.cc in Sources */,
 				2BB9E01F15BF9EF200F1DDD8 /* MaplyLabel.m in Sources */,
+				2B10D4261AE18F4C00D2F3F5 /* strtod.cc in Sources */,
 				2BB9E02015BF9EF200F1DDD8 /* MaplyMarker.m in Sources */,
 				2BEBABAB1811F65700A9419C /* MaplyTileSource.mm in Sources */,
 				2BDC8A24191D994F00DFECF0 /* AFURLRequestSerialization.m in Sources */,

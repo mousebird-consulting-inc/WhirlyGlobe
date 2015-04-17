@@ -213,6 +213,7 @@ using namespace WhirlyKit;
     
     // This handles the geometry and loading
     WhirlyKitQuadTileLoader *theLoader = [[WhirlyKitQuadTileLoader alloc] initWithName:@"SphericalEarthQuadLayer" dataSource:theDataSource];
+    theLoader.useTileCenters = false;
     if (![theDataSource.ext compare:@"pvrtc"])
         [theLoader setImageType:WKTilePVRTC4];
     // On non-retina displays we're loading fewer tiles
