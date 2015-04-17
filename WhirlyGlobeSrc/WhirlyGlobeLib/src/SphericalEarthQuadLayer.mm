@@ -198,7 +198,7 @@ using namespace WhirlyKit;
 
 - (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES *)inRenderer
 {
-    return [self initWithInfo:infoName imageType:WKTileIntRGBA renderer:inRenderer];
+    return [self initWithInfo:infoName imageType:WKTileUShort565 renderer:inRenderer];
 }
 
 - (id) initWithInfo:(NSString *)infoName imageType:(WhirlyKitTileImageType)imageType renderer:(WhirlyKitSceneRendererES *)inRenderer;
