@@ -1698,7 +1698,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     NSMutableDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyStickerDrawPriorityDefault) toDict:inDesc];
+    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyModelDrawPriorityDefault) toDict:inDesc];
     
     // Might be a custom shader on these
     [self resolveShader:inDesc defaultShader:nil];
@@ -1753,7 +1753,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     Point3d localPt = coordSys->geographicToLocal(Point2d(modelInst.center.x,modelInst.center.y));
                     Point3d dispLoc = coordAdapter->localToDisplay(Point3d(localPt.x(),localPt.y(),modelInst.center.z));
                     Point3d norm = coordAdapter->normalForLocal(localPt);
-                    
+                                        
                     // Construct a set of axes to build the shape around
                     Point3d xAxis,yAxis;
                     if (coordAdapter->isFlat())
@@ -1828,6 +1828,49 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     }
 }
 
+// Called in the layer thread
+- (void)addGeometryRun:(NSArray *)argArray
+{
+    NSArray *geom = argArray[0];
+    MaplyComponentObject *compObj = argArray[1];
+    NSMutableDictionary *inDesc = argArray[2];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    
+    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyModelDrawPriorityDefault) toDict:inDesc];
+    
+    // Might be a custom shader on these
+    [self resolveShader:inDesc defaultShader:nil];
+    
+    GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
+    
+    // Add each raw geometry model
+    if (geomManager)
+    {
+        ChangeSet changes;
+        
+        for (MaplyGeomModel *model in geom)
+        {
+            // This is intended to be instanced, but we can use it
+            SimpleIdentity geomID = geomManager->addBaseGeometry(model->rawGeom, changes);
+            // If we turn it on
+            SimpleIDSet geomIDs;
+            geomIDs.insert(geomID);
+            geomManager->enableGeometry(geomIDs, true, changes);
+            
+            if (geomID != EmptyIdentity)
+                compObj.geomIDs.insert(geomID);
+        }
+        
+        [self flushChanges:changes mode:threadMode];
+    }
+    
+    @synchronized(userObjects)
+    {
+        [userObjects addObject:compObj];
+        compObj.underConstruction = false;
+    }
+}
+
 - (MaplyComponentObject *)addModelInstances:(NSArray *)modelInstances desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
@@ -1841,6 +1884,25 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             break;
         case MaplyThreadAny:
             [self performSelector:@selector(addModelInstancesRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
+    
+    return compObj;
+}
+
+- (MaplyComponentObject *)addGeometry:(NSArray *)geom desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
+    compObj.underConstruction = true;
+    
+    NSArray *argArray = @[geom, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addGeometryRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addGeometryRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
             break;
     }
     
