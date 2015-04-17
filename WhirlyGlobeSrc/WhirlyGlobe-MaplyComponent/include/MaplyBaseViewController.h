@@ -90,8 +90,6 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
     @details To provide elevation for your compatible MaplyTileSource objects, you fill out the MaplyElevationSourceDelegate protocol and assign the resulting object here.  When an image layer needs elevation, it will check for the delegate and then query for the respective file.
     @details At present there is no checking for coordinate system compatibility, so be aware.
   */
-/// Fill this in to provide elevation data.  It will only work for a matching image layer,
-///  one with the same coordinate system and extents.
 @property (nonatomic,weak) NSObject<MaplyElevationSourceDelegate> *elevDelegate;
 
 /** @brief If set we'll create a new thread for every layer the user adds.
@@ -301,7 +299,7 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 /** @brief Add one or more widened vectors to the current scene.
     @details Build widened vectors
 
- @param desc The description dictionary with controls how vectors will be displayed.  It takes the following entries.
+ @param desc The description dictionary which controls how vectors will be displayed.  It takes the following entries.
 
  |Key|Type|Description|
  |:--|:---|:----------|
@@ -317,6 +315,9 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyVectorDrawPriorityDefault.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
 
+ @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
+ 
+ @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
  */
 - (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
@@ -327,9 +328,37 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 /// @brief This calls addShapes:desc:mode: with mode set to MaplyThreadAny
 - (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
 
-/** @brief Note: Fill this in
+/** @brief Add one or more model instances.
+    @details Each MaplyGeomInstance points to a MaplyGeomModel.  All those passed in here will be grouped and processed together.
+ 
+ @param desc The description dictionary which controls how the models are displayed, selected, and so forth.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplySelectable|NSNumber boolean|Off by default.  When enabled, the vector feature will be selectable by a user.|
+ |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ 
+ @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
+ 
+ @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
   */
 - (MaplyComponentObject *)addModelInstances:(NSArray *)modelInstances desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/** @brief Add one or raw geometry mdoels.
+    @details Each MaplyGeometryModel holds points and triangles in display space.  These are relatively "raw" geometry and are passed to the geometry manager as is.
+ 
+ @param desc The description dictionary which controls how the geometry is displayed, selected, and so forth.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplySelectable|NSNumber boolean|Off by default.  When enabled, the vector feature will be selectable by a user.|
+ |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ 
+ @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
+ 
+ @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
+ */
+- (MaplyComponentObject *)addGeometry:(NSArray *)geom desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 /** @brief Add one or more MaplyShape children to the current scene.
     @details This method will add the given MaplyShape derived objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
