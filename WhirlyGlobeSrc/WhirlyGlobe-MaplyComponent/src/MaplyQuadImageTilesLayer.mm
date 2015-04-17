@@ -968,8 +968,8 @@ using namespace WhirlyKit;
     WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderTexel convertToRaw:true];
 
     // Start with elevation
-    MaplyElevationChunk *elevChunk = nil;
-    if (tileData && elevDelegate)
+    MaplyElevationChunk *elevChunk = tileData.elevChunk;
+    if (!elevChunk && tileData && elevDelegate)
     {
         if (elevDelegate.minZoom <= tileID.level && tileID.level <= elevDelegate.maxZoom)
         {
