@@ -124,6 +124,8 @@
 @property (nonatomic,assign) unsigned int numImages;
 /// Number of active textures we'll have in drawables.  Informational only.
 @property (nonatomic,readonly) int activeTextures;
+/// If set (default) we'll use tile center offsets to allow the user to get very close to the terrain
+@property (nonatomic,assign) bool useTileCenters;
 /// Base color for the drawables created by the layer
 @property (nonatomic,assign) WhirlyKit::RGBAColor color;
 /// Set this if the tile images are partially transparent
