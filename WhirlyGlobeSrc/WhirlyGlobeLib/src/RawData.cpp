@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <string>
 #include <unistd.h>
-#import "rawData.h"
+#import "RawData.h"
 
 namespace WhirlyKit
 {

@@ -18,7 +18,7 @@
  *
  */
 
-#import "platform.h"
+#import "Platform.h"
 
 namespace WhirlyKit
 {
