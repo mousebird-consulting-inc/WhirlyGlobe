@@ -1356,10 +1356,12 @@ static const float LonAng = 2*M_PI/5.0;
 static const float LatAng = M_PI/4.0;
 
 // Can't represent the whole earth with -M_PI/+M_PI.  Have to fudge.
-static const float FullExtentEpsilon = 1e-10;
+static const float FullExtentEps = 1e-5;
 
-- (int)getUsableGeoBoundsForView:(MaplyBoundingBox *)bboxes
+- (int)getUsableGeoBoundsForView:(MaplyBoundingBox *)bboxes visual:(bool)visualBoxes
 {
+    float extentEps = visualBoxes ? FullExtentEps : 0.0;
+    
     CGPoint screenCorners[4];
     screenCorners[0] = CGPointMake(0.0, 0.0);
     screenCorners[1] = CGPointMake(sceneRenderer.framebufferWidth,0.0);
@@ -1389,8 +1391,9 @@ static const float FullExtentEpsilon = 1e-10;
     GeoCoord currentLoc = globeView.coordAdapter->getCoordSystem()->localToGeographic(globeView.coordAdapter->displayToLocal(localPt));
 
     // Toss in the current location
-    Mbr mbr;
-    mbr.addPoint(Point2d(currentLoc.lon(),currentLoc.lat()));
+    std::vector<Mbr> mbrs(1);
+    
+    bool datelineSplit = false;
 
     // If no corners are visible, we'll just make up a hemisphere
     if (numValid == 0)
@@ -1413,6 +1416,7 @@ static const float FullExtentEpsilon = 1e-10;
         e.x() = currentLoc.x()+LonAng;  e.y() = currentLoc.y();
         w.x() = currentLoc.x()-LonAng;  w.y() = currentLoc.y();
         
+        Mbr mbr;
         mbr.addPoint(Point2d(n.x(),n.y()));
         mbr.addPoint(Point2d(s.x(),s.y()));
         mbr.addPoint(Point2d(e.x(),e.y()));
@@ -1420,22 +1424,64 @@ static const float FullExtentEpsilon = 1e-10;
         
         if (northOverflow)
         {
-            mbr.addPoint(Point2d(-M_PI,M_PI/2.0));
-            mbr.addPoint(Point2d(M_PI,M_PI/2.0));
-        }
-        if (southOverflow)
+            mbrs.clear();
+            if (visualBoxes)
+            {
+                mbrs.resize(2);
+                mbrs[0].ll() = Point2f(-M_PI+extentEps,mbr.ll().y());
+                mbrs[0].ur() = Point2f(0,M_PI/2.0);
+                mbrs[1].ll() = Point2f(0,mbr.ll().y());
+                mbrs[1].ur() = Point2f(M_PI-extentEps,M_PI/2.0);
+            } else {
+                mbrs.resize(1);
+                mbrs[0].ll() = Point2f(-M_PI+extentEps,mbr.ll().y());
+                mbrs[0].ur() = Point2f(M_PI-extentEps,M_PI/2.0);
+            }
+        } else if (southOverflow)
         {
-            mbr.addPoint(Point2d(-M_PI,-M_PI/2.0));
-            mbr.addPoint(Point2d(M_PI,-M_PI/2.0));
+            mbrs.clear();
+            if (visualBoxes)
+            {
+                mbrs.resize(2);
+                mbrs[0].ll() = Point2f(-M_PI+extentEps,-M_PI/2.0);
+                mbrs[0].ur() = Point2f(0,mbr.ur().y());
+                mbrs[1].ll() = Point2f(0,-M_PI/2.0);
+                mbrs[1].ur() = Point2f(M_PI-extentEps,mbr.ur().y());
+            } else {
+                mbrs.resize(1);
+                mbrs[0].ll() = Point2f(-M_PI+extentEps,-M_PI/2.0);
+                mbrs[0].ur() = Point2f(M_PI-extentEps,mbr.ur().y());
+            }
+        } else {
+            mbrs[0] = mbr;
         }
     } else {
         // Start with the four (or however many corners)
         for (unsigned int ii=0;ii<4;ii++)
             if (cornerValid[ii])
-                mbr.addPoint(Point2d(corners[ii].x(),corners[ii].y()));
+                mbrs[0].addPoint(Point2d(corners[ii].x(),corners[ii].y()));
+        
+        // See if the MBR is split across +180/-180
+        if (mbrs[0].ur().x() - mbrs[0].ll().x() > M_PI)
+        {
+            // If so, reconstruct the MBRs appropriately
+            mbrs.clear();
+            mbrs.resize(2);
+            datelineSplit = true;
+            for (unsigned int ii=0;ii<4;ii++)
+                if (cornerValid[ii])
+                {
+                    Point2d testPt = Point2d(corners[ii].x(),corners[ii].y());
+                    if (testPt.x() < 0.0)
+                        mbrs[1].addPoint(testPt);
+                    else
+                        mbrs[0].addPoint(testPt);
+                }
+            mbrs[0].addPoint(Point2d(M_PI,mbrs[1].ll().y()));
+            mbrs[1].addPoint(Point2d(-M_PI,mbrs[0].ll().y()));
+        }
 
         // Add midpoints along the edges
-        // Note: Should really do a binary search instead
         for (unsigned int ii=0;ii<4;ii++)
         {
             int a = ii, b = (ii+1)%4;
@@ -1448,7 +1494,14 @@ static const float FullExtentEpsilon = 1e-10;
                     Point3d hit;
                     if ([globeView pointOnSphereFromScreen:screenPt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight) hit:&hit normalized:true]) {
                         Point3d midPt3d = scene->getCoordAdapter()->displayToLocal(hit);
-                        mbr.addPoint(Point2d(midPt3d.x(),midPt3d.y()));
+                        if (mbrs.size() > 1)
+                        {
+                            if (midPt3d.x() < 0.0)
+                                mbrs[1].addPoint(Point2d(midPt3d.x(),midPt3d.y()));
+                            else
+                                mbrs[0].addPoint(Point2d(midPt3d.x(),midPt3d.y()));
+                        } else
+                            mbrs[0].addPoint(Point2d(midPt3d.x(),midPt3d.y()));
                     }
                 }
             }
@@ -1491,7 +1544,14 @@ static const float FullExtentEpsilon = 1e-10;
                     if ([globeView pointOnSphereFromScreen:testPts[0] transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight) hit:&hit normalized:true])
                     {
                         Point3d midPt3d = scene->getCoordAdapter()->displayToLocal(hit);
-                        mbr.addPoint(Point2d(midPt3d.x(),midPt3d.y()));
+                        if (mbrs.size() > 1)
+                        {
+                            if (midPt3d.x() < 0.0)
+                                mbrs[1].addPoint(Point2d(midPt3d.x(),midPt3d.y()));
+                            else
+                                mbrs[0].addPoint(Point2d(midPt3d.x(),midPt3d.y()));
+                        } else
+                            mbrs[0].addPoint(Point2d(midPt3d.x(),midPt3d.y()));
                     }
                 }
             }
@@ -1518,33 +1578,96 @@ static const float FullExtentEpsilon = 1e-10;
                 switch (ii)
                 {
                     case 0:
-                        mbr.addPoint(Point2d(-M_PI+FullExtentEpsilon,M_PI/2.0));
-                        mbr.addPoint(Point2d(M_PI-FullExtentEpsilon,M_PI/2.0));
+                    {
+                        double minY = mbrs[0].ll().y();
+                        if (mbrs.size() > 1)
+                            minY = std::min((double)mbrs[1].ll().y(),minY);
+                        
+                        mbrs.clear();
+                        if (visualBoxes)
+                        {
+                            mbrs.resize(2);
+                            mbrs[0].ll() = Point2f(-M_PI+extentEps,minY);
+                            mbrs[0].ur() = Point2f(0,M_PI/2.0);
+                            mbrs[1].ll() = Point2f(0,minY);
+                            mbrs[1].ur() = Point2f(M_PI-extentEps,M_PI/2.0);
+                        } else {
+                            mbrs.resize(1);
+                            mbrs[0].ll() = Point2f(-M_PI+extentEps,minY);
+                            mbrs[0].ur() = Point2f(M_PI-extentEps,M_PI/2.0);
+                        }
+                        datelineSplit = false;
+                    }
                         break;
                     case 1:
-                        mbr.addPoint(Point2d(-M_PI+FullExtentEpsilon,-M_PI/2.0));
-                        mbr.addPoint(Point2d(M_PI-FullExtentEpsilon,-M_PI/2.0));
+                    {
+                        double maxY = mbrs[0].ur().y();
+                        if (mbrs.size() > 1)
+                            maxY = std::max((double)mbrs[1].ur().y(),maxY);
+                        
+                        mbrs.clear();
+                        if (visualBoxes)
+                        {
+                            mbrs.resize(2);
+                            mbrs[0].ll() = Point2f(-M_PI+extentEps,-M_PI/2.0);
+                            mbrs[0].ur() = Point2f(0,maxY);
+                            mbrs[1].ll() = Point2f(0,-M_PI/2.0);
+                            mbrs[1].ur() = Point2f(M_PI-extentEps,maxY);
+                        } else {
+                            mbrs.resize(1);
+                            mbrs[0].ll() = Point2f(-M_PI+extentEps,-M_PI/2.0);
+                            mbrs[0].ur() = Point2f(M_PI-extentEps,maxY);
+                        }
+                        datelineSplit = false;
+                    }
                         break;
                 }
             }
         }
     }
     
-    // One or two bounding boxes
-    if (mbr.ur().x() - mbr.ll().x() > M_PI)
+    // If the MBR is larger than M_PI, split it up
+    // Has trouble displaying otherwise
+    if (visualBoxes && mbrs.size() == 1 &&
+        mbrs[0].ur().x() - mbrs[0].ll().x() > M_PI)
     {
-        bboxes[0].ll.x = mbr.ll().x();  bboxes[0].ll.y = mbr.ll().y();
-        bboxes[0].ur.x = 0.0;  bboxes[0].ur.y = mbr.ur().y();
-        bboxes[1].ll.x = 0.0;  bboxes[1].ll.y = mbr.ll().y();
-        bboxes[1].ur.x = mbr.ur().x();  bboxes[1].ur.y = mbr.ur().y();
-        
-        return 2;
-    } else {
-        bboxes[0].ll.x = mbr.ll().x();  bboxes[0].ll.y = mbr.ll().y();
-        bboxes[0].ur.x = mbr.ur().x();  bboxes[0].ur.y = mbr.ur().y();
-        
-        return 1;
+        mbrs.push_back(mbrs[0]);
+        mbrs[0].ur().x() = 0.0;
+        mbrs[1].ll().x() = 0.0;
     }
+    
+    // For non-visual requests merge the MBRs back together if we split them
+    if (!visualBoxes && mbrs.size() == 2)
+    {
+        mbrs[0].addPoint(Point2f(mbrs[1].ur().x()+2*M_PI,mbrs[1].ur().y()));
+        mbrs.resize(1);
+    }
+    
+    // Toss in the user's location, which is important for tilt
+    if (datelineSplit && mbrs.size() == 2)
+    {
+        if (currentLoc.x() < 0.0)
+            mbrs[1].addPoint(Point2d(currentLoc.lon(),currentLoc.lat()));
+        else
+            mbrs[0].addPoint(Point2d(currentLoc.lon(),currentLoc.lat()));
+        
+        // And make sure the Y's match up or this will be hard to put back together
+        double minY = std::min(mbrs[0].ll().y(),mbrs[1].ll().y());
+        double maxY = std::max(mbrs[0].ur().y(),mbrs[1].ur().y());
+        mbrs[0].ll().y() = mbrs[1].ll().y() = minY;
+        mbrs[0].ur().y() = mbrs[1].ur().y() = maxY;
+    } else if (mbrs.size() == 1)
+        mbrs[0].addPoint(Point2d(currentLoc.lon(),currentLoc.lat()));
+    
+    for (unsigned int ii=0;ii<mbrs.size();ii++)
+    {
+        const Mbr &mbr = mbrs[ii];
+        MaplyBoundingBox *bbox = &bboxes[ii];
+        bbox->ll.x = mbr.ll().x();  bbox->ll.y = mbr.ll().y();
+        bbox->ur.x = mbr.ur().x();  bbox->ur.y = mbr.ur().y();
+    }
+    
+    return mbrs.size();
 }
 
 @end
