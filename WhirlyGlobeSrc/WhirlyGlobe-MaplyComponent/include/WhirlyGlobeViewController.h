@@ -388,4 +388,10 @@
  */
 - (bool) getCurrentExtents:(MaplyBoundingBox *)bbox;
 
+/**
+  @brief From the current view figure out a usable geo bounding box.
+  @details This is similar to the WhirlyGlobeViewControllerDelegate methods and getCurrentExtents except that it goes a little deeper.  It starts with the four corners of the screen and then tries to take tilt and orientation into account.  Ideally it produces a bounding box that covers everything the user is looking at as opposed to where the four corners are.
+  */
+- (MaplyBoundingBox)getUsableGeoBoundsForView;
+
 @end
