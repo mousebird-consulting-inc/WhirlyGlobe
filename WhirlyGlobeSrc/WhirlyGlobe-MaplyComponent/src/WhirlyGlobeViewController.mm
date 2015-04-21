@@ -910,6 +910,11 @@ using namespace WhirlyGlobe;
     }
 }
 
+- (MaplyBoundingBox)geoBoundsFromCorners:(MaplyCoordinate *)corners
+{
+    
+}
+
 // Convenience routine to handle the end of moving
 - (void)handleStopMoving:(bool)userMotion
 {
@@ -1346,5 +1351,182 @@ using namespace WhirlyGlobe;
     
 }
 
+// Note: Should base this on the 
+static const float LonAng = 2*M_PI/5.0;
+static const float LatAng = M_PI/4.0;
+
+- (MaplyBoundingBox)getUsableGeoBoundsForView
+{
+    CGPoint screenCorners[4];
+    screenCorners[0] = CGPointMake(0.0, 0.0);
+    screenCorners[1] = CGPointMake(sceneRenderer.framebufferWidth,0.0);
+    screenCorners[2] = CGPointMake(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    screenCorners[3] = CGPointMake(0.0, sceneRenderer.framebufferHeight);
+    
+    Eigen::Matrix4d modelTrans = [globeView calcFullMatrix];
+
+    Point3d corners[4];
+    bool cornerValid[4];
+    int numValid = 0;;
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        Point3d hit;
+        if ([globeView pointOnSphereFromScreen:screenCorners[ii] transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight) hit:&hit normalized:true])
+        {
+            corners[ii] = scene->getCoordAdapter()->displayToLocal(hit);
+            cornerValid[ii] = true;
+            numValid++;
+        } else {
+            cornerValid[ii] = false;
+        }
+    }
+    
+    // Current location the user is over
+    Point3d localPt = [globeView currentUp];
+    GeoCoord currentLoc = globeView.coordAdapter->getCoordSystem()->localToGeographic(globeView.coordAdapter->displayToLocal(localPt));
+
+    // Toss in the current location
+    Mbr mbr;
+    mbr.addPoint(Point2d(currentLoc.lon(),currentLoc.lat()));
+
+    // If no corners are visible, we'll just make up a hemisphere
+    if (numValid == 0)
+    {
+        GeoCoord n,s,e,w;
+        bool northOverflow = false, southOverflow = false;
+        n.x() = currentLoc.x();  n.y() = currentLoc.y()+LatAng;
+        if (n.y() > M_PI/2.0)
+        {
+//            n.y() = M_PI-n.y();
+            n.y() = M_PI/2.0;
+//            n.x() += M_PI;
+            northOverflow = true;
+        }
+        s.x() = currentLoc.x();  s.y() = currentLoc.y()-LatAng;
+        if (s.y() < -M_PI/2.0)
+        {
+//            s.y() = -M_PI/2.0-(M_PI/2.0+s.y());
+            s.y() = -M_PI/2.0;
+//            s.x() += M_PI;
+            southOverflow = true;
+        }
+        
+        e.x() = currentLoc.x()+LonAng;  e.y() = currentLoc.y();
+        w.x() = currentLoc.x()-LonAng;  w.y() = currentLoc.y();
+        
+        mbr.addPoint(Point2d(n.x(),n.y()));
+        mbr.addPoint(Point2d(s.x(),s.y()));
+        mbr.addPoint(Point2d(e.x(),e.y()));
+        mbr.addPoint(Point2d(w.x(),w.y()));
+        
+        if (northOverflow)
+        {
+            mbr.addPoint(Point2d(w.x(),M_PI/2.0));
+            mbr.addPoint(Point2d(e.x(),M_PI/2.0));
+        }
+        if (southOverflow)
+        {
+            mbr.addPoint(Point2d(w.x(),-M_PI/2.0));
+            mbr.addPoint(Point2d(e.x(),-M_PI/2.0));
+        }
+    } else {
+        // Start with the four (or however many corners)
+        for (unsigned int ii=0;ii<4;ii++)
+            if (cornerValid[ii])
+                mbr.addPoint(Point2d(corners[ii].x(),corners[ii].y()));
+
+        // Add midpoints along the edges
+        // Note: Should really do a binary search instead
+        for (unsigned int ii=0;ii<4;ii++)
+        {
+            int a = ii, b = (ii+1)%4;
+            if (cornerValid[a] && cornerValid[b])
+            {
+                CGPoint screenPt = CGPointMake((screenCorners[a].x+screenCorners[b].x)/2.0, (screenCorners[a].y+screenCorners[b].y)/2.0);
+                Point3d hit;
+                if ([globeView pointOnSphereFromScreen:screenPt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight) hit:&hit normalized:true]) {
+                    Point3d midPt3d = scene->getCoordAdapter()->displayToLocal(hit);
+                    mbr.addPoint(Point2d(midPt3d.x(),midPt3d.y()));
+                }
+            }
+        }
+        
+        if (numValid < 4)
+        {
+            // Look for intersection between globe and screen
+            for (unsigned int ii=0;ii<4;ii++)
+            {
+                int a = ii, b = (ii+1)%4;
+                if ((cornerValid[a] && !cornerValid[b]) ||
+                    (!cornerValid[a] && cornerValid[b]))
+                {
+                    CGPoint testPts[2];
+                    if (cornerValid[a])
+                    {
+                        testPts[0] = screenCorners[a];
+                        testPts[1] = screenCorners[b];
+                    } else {
+                        testPts[0] = screenCorners[b];
+                        testPts[1] = screenCorners[a];
+                    }
+
+                    // Do a binary search for a few iterations
+                    for (unsigned int bi=0;bi<8;bi++)
+                    {
+                        CGPoint midPt = CGPointMake((testPts[0].x+testPts[1].x)/2, (testPts[0].y+testPts[1].y));
+                        Point3d hit;
+                        if ([globeView pointOnSphereFromScreen:midPt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight) hit:&hit normalized:true])
+                        {
+                            testPts[0] = midPt;
+                        } else {
+                            testPts[1] = midPt;
+                        }
+                    }
+                    
+                    // The first test point is valid, so let's convert that back
+                    
+                }
+            }
+        } else
+        {
+            // Check the poles
+            Point3d poles[2];
+            poles[0] = Point3d(0,0,1);
+            poles[1] = Point3d(0,0,-1);
+            
+            Eigen::Matrix4d modelAndViewNormalMat = modelTrans.inverse().transpose();
+            
+            for (unsigned int ii=0;ii<2;ii++)
+            {
+                const Point3d &pt = poles[ii];
+                if (CheckPointAndNormFacing(pt,pt.normalized(),modelTrans,modelAndViewNormalMat) < 0.0)
+                    continue;
+                
+                CGPoint screenPt = [globeView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+            
+                if (screenPt.x < 0 || screenPt.y < 0 || screenPt.x > sceneRenderer.framebufferWidth || screenPt.y > sceneRenderer.framebufferHeight)
+                    continue;
+                
+                // Note: Need to break the MBR in two
+                switch (ii)
+                {
+                    case 0:
+                        mbr.addPoint(Point2d(0,M_PI/2.0));
+                        break;
+                    case 1:
+                        mbr.addPoint(Point2d(0,-M_PI/2.0));
+                        break;
+                }
+            }
+        }
+    }
+    
+    // Convert to bounding box and return
+    MaplyBoundingBox bbox;
+    bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();
+    bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
+    
+    return bbox;
+}
 
 @end
