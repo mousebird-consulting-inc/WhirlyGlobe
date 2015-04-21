@@ -17,3 +17,5 @@ gradelw.bat
 .idea/copyright/
 .DS_Store
 *.iml
+*.so
+*.o
