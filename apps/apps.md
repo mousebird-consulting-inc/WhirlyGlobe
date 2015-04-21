@@ -7,15 +7,19 @@ A toolkit is only as good as the apps that use it.  Here are some of our favorit
 
 {% include app_entry.html name="National Geographic World Atlas" image="worldatlas.png" body="A very popular reference app on iOS, version 4.0 uses WhirlyGlobe to great effect." link="https://itunes.apple.com/us/app/national-geographic-world/id364733950?mt=8" %}
 
-{% include app_entry.html name="Epicenter" image="epicenter.png" body="An interactive, animated app plotting the latest 30 days of USGS earthquake data." link="https://itunes.apple.com/us/app/epicenter-30-days-worldwide/id972755325?mt=8" %}
-
 {% include app_entry.html name="Dark Sky" image="darksky.jpeg" body="Dark Sky is one of the Apple app store's favorite weather apps.  Not only will it tell when it's going to rain it'll show you beautiful animated weather and temperature data." link="https://itunes.apple.com/us/app/dark-sky-weather-radar-hyperlocal/id517329357?mt=8" %}
 
-{% include app_entry.html name="WhirlyViz" image="whirlyviz.jpeg" body="WhirlyViz is a data visualization engine for iPad and iPhone.  It uses Javascript modules to let users play with big, complex data sets." link="https://itunes.apple.com/us/app/whirlyviz/id752701884?mt=8" %}
+{% include app_entry.html name="FlyQ EFB" image="flyqefb.png" body="One of the more popular aviation planning and visualization apps.  Made by Seattle Avionics, this is one of the most complex WhirlyGlobe-Maply apps." link="https://itunes.apple.com/us/app/flyq-efb/id915571252?mt=8" %}
+
+{% include app_entry.html name="Epicenter" image="epicenter.png" body="An interactive, animated app plotting the latest 30 days of USGS earthquake data." link="https://itunes.apple.com/us/app/epicenter-30-days-worldwide/id972755325?mt=8" %}
 
 {% include app_entry.html name="Gaia GPS" image="gaiagps.png" body="Gaia GPS was featured in Apple's Your Verse stories, Gaia GPS helps people explore remote places, and stay safer in the woods." link="https://itunes.apple.com/us/app/gaia-gps-topo-maps-trails/id329127297?mt=8" %}
 
+{% include app_entry.html name="WhirlyViz" image="whirlyviz.jpeg" body="WhirlyViz is a data visualization engine for iPad and iPhone.  It uses Javascript modules to let users play with big, complex data sets." link="https://itunes.apple.com/us/app/whirlyviz/id752701884?mt=8" %}
+
 {% include app_entry.html name="Offline Topo Maps" image="offlinetopomaps.png" body="Offline Topo Maps is a simpler version of Gaia GPS." link="https://itunes.apple.com/us/app/offline-topo-maps/id376535806?mt=8" %}
+
+{% include app_entry.html name="SmartPlates & Charts" image="smartplates.png" body="An aviation display app for FAA sectionals, charts, and other data." link="https://itunes.apple.com/us/app/smartplates-charts-geo-referenced/id819750299?mt=8" %}
 
 {% include app_entry.html name="Skipper" image="skipper.png" body="Skipper is mobile charts done right. A seamless chart-plotter, with data synced across all of your devices, and backed up to the cloud." link="https://itunes.apple.com/us/app/skipper-noaa-marine-charts/id653171276?mt=8" %}
 
