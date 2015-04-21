@@ -19,3 +19,4 @@ gradelw.bat
 *.iml
 *.so
 *.o
+*.class
