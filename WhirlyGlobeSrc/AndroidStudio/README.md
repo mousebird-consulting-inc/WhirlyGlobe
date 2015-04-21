@@ -10,4 +10,6 @@ Build instructions:
 This results in the native library being compiled for all supported platforms and put into the libs/
 folder.
 - Open the project in Android Studio
-- The project should automatically be compiled, the result is a .aar
+- The project should automatically be compiled, the result is a .aar (see app/build/outputs/aar/)
+
+It also adds an additional tile source which supports

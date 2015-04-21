@@ -139,23 +139,25 @@ public class SSLRemoteTileSource implements QuadImageTileLayer.TileSource
 		ext = inExt;
 		minZoom = inMinZoom;
 		maxZoom = inMaxZoom;
-		KeyStore selfsignedKeys;
-		try {
-			selfsignedKeys = KeyStore.getInstance("BKS");
-		} catch (KeyStoreException e) {
-			throw new IllegalArgumentException(
-								"Could not open keystore BKS instance");
-		}
-		try {
-			selfsignedKeys.load(serverPublicCertKeystore, serverPublicCertKeystorePassword.toCharArray());
-		} catch (NoSuchAlgorithmException e) {
-			throw new IllegalArgumentException(
-                                        "Could not load certificate resource - no such algorithm");
-		} catch (CertificateException e) {
-			throw new IllegalArgumentException(
-                                        "Could not load certificate resource - certificate exception");
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Could not load server certificate, IO error");
+		KeyStore selfsignedKeys = null;
+		if(serverPublicCertKeystore!=null) {
+			try {
+				selfsignedKeys = KeyStore.getInstance("BKS");
+			} catch (KeyStoreException e) {
+				throw new IllegalArgumentException(
+						"Could not open keystore BKS instance");
+			}
+			try {
+				selfsignedKeys.load(serverPublicCertKeystore, serverPublicCertKeystorePassword.toCharArray());
+			} catch (NoSuchAlgorithmException e) {
+				throw new IllegalArgumentException(
+						"Could not load certificate resource - no such algorithm");
+			} catch (CertificateException e) {
+				throw new IllegalArgumentException(
+						"Could not load certificate resource - certificate exception");
+			} catch (IOException e) {
+				throw new IllegalArgumentException("Could not load server certificate, IO error");
+			}
 		}
 		TrustManagerFactory trustMgr;
 		try {
@@ -166,6 +168,7 @@ public class SSLRemoteTileSource implements QuadImageTileLayer.TileSource
                                         "Could not create trust manager instance - no such algorithm");
 		}
 		try {
+			// if selfsignedKeys is null the default keystore _should_ be used.
 			trustMgr.init(selfsignedKeys);
 		} catch (KeyStoreException e) {
 			throw new IllegalArgumentException(
