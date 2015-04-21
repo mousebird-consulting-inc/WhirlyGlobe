@@ -1355,7 +1355,10 @@ using namespace WhirlyGlobe;
 static const float LonAng = 2*M_PI/5.0;
 static const float LatAng = M_PI/4.0;
 
-- (MaplyBoundingBox)getUsableGeoBoundsForView
+// Can't represent the whole earth with -M_PI/+M_PI.  Have to fudge.
+static const float FullExtentEpsilon = 1e-10;
+
+- (int)getUsableGeoBoundsForView:(MaplyBoundingBox *)bboxes
 {
     CGPoint screenCorners[4];
     screenCorners[0] = CGPointMake(0.0, 0.0);
@@ -1397,17 +1400,13 @@ static const float LatAng = M_PI/4.0;
         n.x() = currentLoc.x();  n.y() = currentLoc.y()+LatAng;
         if (n.y() > M_PI/2.0)
         {
-//            n.y() = M_PI-n.y();
             n.y() = M_PI/2.0;
-//            n.x() += M_PI;
             northOverflow = true;
         }
         s.x() = currentLoc.x();  s.y() = currentLoc.y()-LatAng;
         if (s.y() < -M_PI/2.0)
         {
-//            s.y() = -M_PI/2.0-(M_PI/2.0+s.y());
             s.y() = -M_PI/2.0;
-//            s.x() += M_PI;
             southOverflow = true;
         }
         
@@ -1421,13 +1420,13 @@ static const float LatAng = M_PI/4.0;
         
         if (northOverflow)
         {
-            mbr.addPoint(Point2d(w.x(),M_PI/2.0));
-            mbr.addPoint(Point2d(e.x(),M_PI/2.0));
+            mbr.addPoint(Point2d(-M_PI,M_PI/2.0));
+            mbr.addPoint(Point2d(M_PI,M_PI/2.0));
         }
         if (southOverflow)
         {
-            mbr.addPoint(Point2d(w.x(),-M_PI/2.0));
-            mbr.addPoint(Point2d(e.x(),-M_PI/2.0));
+            mbr.addPoint(Point2d(-M_PI,-M_PI/2.0));
+            mbr.addPoint(Point2d(M_PI,-M_PI/2.0));
         }
     } else {
         // Start with the four (or however many corners)
@@ -1442,11 +1441,15 @@ static const float LatAng = M_PI/4.0;
             int a = ii, b = (ii+1)%4;
             if (cornerValid[a] && cornerValid[b])
             {
-                CGPoint screenPt = CGPointMake((screenCorners[a].x+screenCorners[b].x)/2.0, (screenCorners[a].y+screenCorners[b].y)/2.0);
-                Point3d hit;
-                if ([globeView pointOnSphereFromScreen:screenPt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight) hit:&hit normalized:true]) {
-                    Point3d midPt3d = scene->getCoordAdapter()->displayToLocal(hit);
-                    mbr.addPoint(Point2d(midPt3d.x(),midPt3d.y()));
+                int numSamples = 8;
+                for (unsigned int bi=1;bi<numSamples-1;bi++)
+                {
+                    CGPoint screenPt = CGPointMake(bi*(screenCorners[a].x+screenCorners[b].x)/numSamples, bi*(screenCorners[a].y+screenCorners[b].y)/numSamples);
+                    Point3d hit;
+                    if ([globeView pointOnSphereFromScreen:screenPt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight) hit:&hit normalized:true]) {
+                        Point3d midPt3d = scene->getCoordAdapter()->displayToLocal(hit);
+                        mbr.addPoint(Point2d(midPt3d.x(),midPt3d.y()));
+                    }
                 }
             }
         }
@@ -1473,7 +1476,7 @@ static const float LatAng = M_PI/4.0;
                     // Do a binary search for a few iterations
                     for (unsigned int bi=0;bi<8;bi++)
                     {
-                        CGPoint midPt = CGPointMake((testPts[0].x+testPts[1].x)/2, (testPts[0].y+testPts[1].y));
+                        CGPoint midPt = CGPointMake((testPts[0].x+testPts[1].x)/2, (testPts[0].y+testPts[1].y)/2);
                         Point3d hit;
                         if ([globeView pointOnSphereFromScreen:midPt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight) hit:&hit normalized:true])
                         {
@@ -1484,11 +1487,15 @@ static const float LatAng = M_PI/4.0;
                     }
                     
                     // The first test point is valid, so let's convert that back
-                    
+                    Point3d hit;
+                    if ([globeView pointOnSphereFromScreen:testPts[0] transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight) hit:&hit normalized:true])
+                    {
+                        Point3d midPt3d = scene->getCoordAdapter()->displayToLocal(hit);
+                        mbr.addPoint(Point2d(midPt3d.x(),midPt3d.y()));
+                    }
                 }
             }
-        } else
-        {
+        } else {
             // Check the poles
             Point3d poles[2];
             poles[0] = Point3d(0,0,1);
@@ -1506,27 +1513,38 @@ static const float LatAng = M_PI/4.0;
             
                 if (screenPt.x < 0 || screenPt.y < 0 || screenPt.x > sceneRenderer.framebufferWidth || screenPt.y > sceneRenderer.framebufferHeight)
                     continue;
-                
-                // Note: Need to break the MBR in two
+
+                // Include the pole and just do the whole area
                 switch (ii)
                 {
                     case 0:
-                        mbr.addPoint(Point2d(0,M_PI/2.0));
+                        mbr.addPoint(Point2d(-M_PI+FullExtentEpsilon,M_PI/2.0));
+                        mbr.addPoint(Point2d(M_PI-FullExtentEpsilon,M_PI/2.0));
                         break;
                     case 1:
-                        mbr.addPoint(Point2d(0,-M_PI/2.0));
+                        mbr.addPoint(Point2d(-M_PI+FullExtentEpsilon,-M_PI/2.0));
+                        mbr.addPoint(Point2d(M_PI-FullExtentEpsilon,-M_PI/2.0));
                         break;
                 }
             }
         }
     }
     
-    // Convert to bounding box and return
-    MaplyBoundingBox bbox;
-    bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();
-    bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
-    
-    return bbox;
+    // One or two bounding boxes
+    if (mbr.ur().x() - mbr.ll().x() > M_PI)
+    {
+        bboxes[0].ll.x = mbr.ll().x();  bboxes[0].ll.y = mbr.ll().y();
+        bboxes[0].ur.x = 0.0;  bboxes[0].ur.y = mbr.ur().y();
+        bboxes[1].ll.x = 0.0;  bboxes[1].ll.y = mbr.ll().y();
+        bboxes[1].ur.x = mbr.ur().x();  bboxes[1].ur.y = mbr.ur().y();
+        
+        return 2;
+    } else {
+        bboxes[0].ll.x = mbr.ll().x();  bboxes[0].ll.y = mbr.ll().y();
+        bboxes[0].ur.x = mbr.ur().x();  bboxes[0].ur.y = mbr.ur().y();
+        
+        return 1;
+    }
 }
 
 @end
