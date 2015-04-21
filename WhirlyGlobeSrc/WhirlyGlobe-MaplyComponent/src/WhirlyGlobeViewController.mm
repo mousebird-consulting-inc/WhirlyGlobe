@@ -1639,8 +1639,11 @@ static const float FullExtentEps = 1e-5;
     // For non-visual requests merge the MBRs back together if we split them
     if (!visualBoxes && mbrs.size() == 2)
     {
-        mbrs[0].addPoint(Point2f(mbrs[1].ur().x()+2*M_PI,mbrs[1].ur().y()));
-        mbrs.resize(1);
+        Mbr mbr;
+        mbr.ll() = Point2f(mbrs[0].ll().x()-2*M_PI,mbrs[0].ll().y());
+        mbr.ur() = Point2f(mbrs[1].ur().x(),mbrs[1].ur().y());
+        mbrs.clear();
+        mbrs.push_back(mbr);
     }
     
     // Toss in the user's location, which is important for tilt
