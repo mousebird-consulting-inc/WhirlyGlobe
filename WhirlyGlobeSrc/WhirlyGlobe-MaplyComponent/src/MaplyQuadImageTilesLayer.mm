@@ -257,6 +257,8 @@ using namespace WhirlyKit;
     tileLoader.textureAtlasSize = _texturAtlasSize;
     tileLoader.enable = _enable;
     tileLoader.borderTexel = _borderTexel;
+    // Note: Still having problems with this
+    tileLoader.useTileCenters = false;
     switch (_imageFormat)
     {
         case MaplyImageIntRGBA:
