@@ -516,7 +516,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         if (label.hasMotion)
                         {
                             MovingRectSelectable2D movingSelect2d;
-                            (RectSelectable2D)movingSelect2d = select2d;
+                            (RectSelectable2D &)movingSelect2d = select2d;
                             movingSelect2d.endCenter = screenShape->getEndWorldLoc();
                             movingSelect2d.startTime = screenShape->getStartTime();
                             movingSelect2d.endTime = screenShape->getEndTime();
