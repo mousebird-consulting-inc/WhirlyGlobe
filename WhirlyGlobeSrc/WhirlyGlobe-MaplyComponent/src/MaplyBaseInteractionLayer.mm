@@ -565,9 +565,6 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
-    if ([markers count] == 0)
-        return;
-    
     NSTimeInterval now = CFAbsoluteTimeGetCurrent();
     
     bool isMotionMarkers = false;
@@ -692,6 +689,16 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
+    if ([markers count] == 0)
+    {
+        @synchronized(userObjects)
+        {
+            [userObjects addObject:compObj];
+            compObj.underConstruction = false;
+        }
+        return compObj;
+    }
+    
     NSArray *argArray = @[markers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
     
     switch (threadMode)
@@ -780,7 +787,17 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
-    
+
+    if ([markers count] == 0)
+    {
+        @synchronized(userObjects)
+        {
+            [userObjects addObject:compObj];
+            compObj.underConstruction = false;
+        }
+        return compObj;
+    }
+
     NSArray *argArray = @[markers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
@@ -846,9 +863,6 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
-    if ([labels count] == 0)
-        return;
-
     // May need a temporary context when setting up screen label textures
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
 
@@ -949,6 +963,16 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
+    
+    if ([labels count] == 0)
+    {
+        @synchronized(userObjects)
+        {
+            [userObjects addObject:compObj];
+            compObj.underConstruction = false;
+        }
+        return compObj;
+    }
     
     NSArray *argArray = @[labels, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
 
@@ -1058,6 +1082,16 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
+    
+    if ([labels count] == 0)
+    {
+        @synchronized(userObjects)
+        {
+            [userObjects addObject:compObj];
+            compObj.underConstruction = false;
+        }
+        return compObj;
+    }
     
     NSArray *argArray = @[labels, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
 
@@ -1175,6 +1209,16 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
+    if ([vectors count] == 0)
+    {
+        @synchronized(userObjects)
+        {
+            [userObjects addObject:compObj];
+            compObj.underConstruction = false;
+        }
+        return compObj;
+    }
+    
     NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], @(threadMode)];
     switch (threadMode)
     {
@@ -1253,6 +1297,16 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
+    
+    if ([vectors count] == 0)
+    {
+        @synchronized(userObjects)
+        {
+            [userObjects addObject:compObj];
+            compObj.underConstruction = false;
+        }
+        return compObj;
+    }
     
     NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
@@ -1358,6 +1412,16 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = false;
+    
+    if ([vectors count] == 0)
+    {
+        @synchronized(userObjects)
+        {
+            [userObjects addObject:compObj];
+            compObj.underConstruction = false;
+        }
+        return compObj;
+    }
     
     NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:NO], @(MaplyThreadCurrent)];
     [self addVectorsRun:argArray];
@@ -1651,6 +1715,16 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
+    if ([shapes count] == 0)
+    {
+        @synchronized(userObjects)
+        {
+            [userObjects addObject:compObj];
+            compObj.underConstruction = false;
+        }
+        return compObj;
+    }
+    
     NSArray *argArray = @[shapes, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
@@ -1876,6 +1950,16 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
+    if ([modelInstances count] == 0)
+    {
+        @synchronized(userObjects)
+        {
+            [userObjects addObject:compObj];
+            compObj.underConstruction = false;
+        }
+        return compObj;
+    }
+    
     NSArray *argArray = @[modelInstances, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
@@ -1894,6 +1978,16 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
+    
+    if ([geom count] == 0)
+    {
+        @synchronized(userObjects)
+        {
+            [userObjects addObject:compObj];
+            compObj.underConstruction = false;
+        }
+        return compObj;
+    }
     
     NSArray *argArray = @[geom, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
@@ -2002,6 +2096,16 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
+    
+    if ([stickers count] == 0)
+    {
+        @synchronized(userObjects)
+        {
+            [userObjects addObject:compObj];
+            compObj.underConstruction = false;
+        }
+        return compObj;
+    }
     
     NSArray *argArray = @[stickers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
@@ -2154,6 +2258,16 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
+    if ([vectors count] == 0)
+    {
+        @synchronized(userObjects)
+        {
+            [userObjects addObject:compObj];
+            compObj.underConstruction = false;
+        }
+        return compObj;
+    }
+    
     NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], (key ? key : [NSNull null]), (cache ? cache : [NSNull null]), @(threadMode)];
     switch (threadMode)
     {
@@ -2303,12 +2417,22 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 }
 
 // Add lofted polys
-- (MaplyComponentObject *)addBillboards:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+- (MaplyComponentObject *)addBillboards:(NSArray *)bboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
-    NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    if ([bboards count] == 0)
+    {
+        @synchronized(userObjects)
+        {
+            [userObjects addObject:compObj];
+            compObj.underConstruction = false;
+        }
+        return compObj;
+    }
+    
+    NSArray *argArray = @[bboards, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:

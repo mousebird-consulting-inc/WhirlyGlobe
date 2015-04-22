@@ -534,12 +534,6 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (void)askDelegateForLoad:(MaplyTileID)tileID isRefresh:(bool)doRefresh;
 {
-    //    if (!_flipY)
-    //    {
-    //        int y = (1<<tileID.level)-tileID.y-1;
-    //        tileID.y = y;
-    //    }
-    
     bool isThere = false;
     bool isLoading = false;
     bool isRefresh = false;
@@ -637,8 +631,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     pthread_mutex_unlock(&tileSetLock);
     delete tile;
 
-    [_viewC removeObjects:addCompObjs];
-    [_viewC removeObjects:replaceCompObjs];
+    [_viewC removeObjects:addCompObjs mode:MaplyThreadCurrent];
+    [_viewC removeObjects:replaceCompObjs mode:MaplyThreadCurrent];
     
     // Check the parent
     if (tileInfo->ident.level >= minZoom && !_singleLevelLoading)
@@ -666,7 +660,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     // Didn't find it, so immediately delete the thing
     if (it == tileSet.end())
     {
-        [_viewC removeObjects:dataObjects];
+        [_viewC removeObjects:dataObjects mode:MaplyThreadCurrent];
         pthread_mutex_unlock(&tileSetLock);
         return;
     }
@@ -686,7 +680,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     // Didn't find it, so immediately delete the thing
     if (it == tileSet.end())
     {
-        [_viewC removeObjects:dataObjects];
+        [_viewC removeObjects:dataObjects mode:MaplyThreadCurrent];
         pthread_mutex_unlock(&tileSetLock);
         return;
     }
