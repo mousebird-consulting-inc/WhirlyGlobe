@@ -73,6 +73,9 @@
 		2B789F79185B91F90028E027 /* MaplyAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789F77185B91F90028E027 /* MaplyAnnotation.h */; };
 		2B789F7A185B91F90028E027 /* MaplyAnnotation_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789F78185B91F90028E027 /* MaplyAnnotation_private.h */; };
 		2B789F7C185B92000028E027 /* MaplyAnnotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B789F7B185B92000028E027 /* MaplyAnnotation.mm */; };
+		2B7BED451AED576A00F3210B /* MaplyParticleSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7BED441AED576A00F3210B /* MaplyParticleSystem.h */; };
+		2B7BED481AED577A00F3210B /* MaplyParticleSystem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7BED471AED577A00F3210B /* MaplyParticleSystem.mm */; };
+		2B7BED4A1AED5FF700F3210B /* MaplyParticleSystem_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7BED491AED5FF700F3210B /* MaplyParticleSystem_private.h */; };
 		2B7DD75019392C7400799224 /* MaplyTextureBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7DD74F19392C7400799224 /* MaplyTextureBuilder.h */; };
 		2B7DD75319392C8000799224 /* MaplyTextureBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7DD75219392C8000799224 /* MaplyTextureBuilder.mm */; };
 		2B85709F1A5B5F4100705AA7 /* TiltDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B85709E1A5B5F4100705AA7 /* TiltDelegate.h */; };
@@ -395,6 +398,9 @@
 		2B789F77185B91F90028E027 /* MaplyAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyAnnotation.h; path = include/MaplyAnnotation.h; sourceTree = "<group>"; };
 		2B789F78185B91F90028E027 /* MaplyAnnotation_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyAnnotation_private.h; path = include/private/MaplyAnnotation_private.h; sourceTree = "<group>"; };
 		2B789F7B185B92000028E027 /* MaplyAnnotation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyAnnotation.mm; path = src/MaplyAnnotation.mm; sourceTree = "<group>"; };
+		2B7BED441AED576A00F3210B /* MaplyParticleSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyParticleSystem.h; path = include/MaplyParticleSystem.h; sourceTree = SOURCE_ROOT; };
+		2B7BED471AED577A00F3210B /* MaplyParticleSystem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyParticleSystem.mm; path = src/MaplyParticleSystem.mm; sourceTree = SOURCE_ROOT; };
+		2B7BED491AED5FF700F3210B /* MaplyParticleSystem_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyParticleSystem_private.h; path = include/private/MaplyParticleSystem_private.h; sourceTree = SOURCE_ROOT; };
 		2B7DD74F19392C7400799224 /* MaplyTextureBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyTextureBuilder.h; path = include/MaplyTextureBuilder.h; sourceTree = "<group>"; };
 		2B7DD75219392C8000799224 /* MaplyTextureBuilder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyTextureBuilder.mm; path = src/MaplyTextureBuilder.mm; sourceTree = "<group>"; };
 		2B85709E1A5B5F4100705AA7 /* TiltDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiltDelegate.h; path = include/private/TiltDelegate.h; sourceTree = "<group>"; };
@@ -851,6 +857,9 @@
 				2BB7A96B1A26587400E50DC5 /* MaplyGeomModel.h */,
 				2BB94D901A2D2BC80076B1B4 /* MaplyGeomModel_private.h */,
 				2BB7A96E1A26588000E50DC5 /* MaplyGeomModel.mm */,
+				2B7BED441AED576A00F3210B /* MaplyParticleSystem.h */,
+				2B7BED491AED5FF700F3210B /* MaplyParticleSystem_private.h */,
+				2B7BED471AED577A00F3210B /* MaplyParticleSystem.mm */,
 			);
 			name = "visible objects";
 			path = WhirlyGlobeComponent;
@@ -1264,6 +1273,7 @@
 				2BB9E01915BF9EE300F1DDD8 /* MaplyScreenLabel.h in Headers */,
 				2B0B0D1315C1D88600CCB3B2 /* MaplyViewTracker.h in Headers */,
 				881F669B18F20A8F00D17110 /* printer.h in Headers */,
+				2B7BED4A1AED5FF700F3210B /* MaplyParticleSystem_private.h in Headers */,
 				2BBEB82B15CB06A100E363E7 /* MaplyVectorObject.h in Headers */,
 				2B7DD75019392C7400799224 /* MaplyTextureBuilder.h in Headers */,
 				2BEB21F618441AF30048DDE3 /* MaplyTexture_private.h in Headers */,
@@ -1277,6 +1287,7 @@
 				2B7827E819536929004E92EE /* MaplyPagingVectorTestTileSource.h in Headers */,
 				2BC0FB9D196DC02A0043E1FD /* FMDatabaseQueue.h in Headers */,
 				881F669618F20A8F00D17110 /* coded_stream_inl.h in Headers */,
+				2B7BED451AED576A00F3210B /* MaplyParticleSystem.h in Headers */,
 				2BECC1BD15E548EF00FBD805 /* PinchDelegateFixed.h in Headers */,
 				2BEB21F518441AF30048DDE3 /* MaplyTexture.h in Headers */,
 				2B61D7AE16078A3B007888CF /* MaplyComponent.h in Headers */,
@@ -1474,6 +1485,7 @@
 				2BAC290E184D571B00FD14FD /* MaplyGDALRetileSource.mm in Sources */,
 				2B10D42C1AE18FC900D2F3F5 /* map_field.cc in Sources */,
 				2BBAA90A181EEE3F00BE1277 /* MaplyBillboard.mm in Sources */,
+				2B7BED481AED577A00F3210B /* MaplyParticleSystem.mm in Sources */,
 				2BEB2EDC1ADDDB930069A27B /* atomicops_internals_x86_gcc.cc in Sources */,
 				2BEB2EC61ADDDB630069A27B /* MapnikStyle.m in Sources */,
 				2B4AFB8F18031C2B00C3F948 /* MaplyQuadImageOfflineLayer.mm in Sources */,

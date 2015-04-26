@@ -66,6 +66,8 @@
 #define kMaplyNoBackfaceLineShader @"Default Line;backface=no"
 /// The default billboard shader
 #define kMaplyBillboardShader @"Default Billboard"
+/// The default particle system shader
+#define kMaplyParticleSystemPointDefault @"Default Part Sys (Point)"
 
 /// Where we start image layer draw priorities
 #define kMaplyImageLayerDrawPriorityDefault 100
@@ -74,6 +76,7 @@
 #define kMaplyStickerDrawPriorityDefault 30000
 #define kMaplyMarkerDrawPriorityDefault 40000
 #define kMaplyVectorDrawPriorityDefault 50000
+#define kMaplyParticleSystemDrawPriorityDefault 55000
 #define kMaplyLabelDrawPriorityDefault 60000
 #define kMaplyLoftedPolysDrawPriorityDefault 70000
 #define kMaplyShapeDrawPriorityDefault 80000
