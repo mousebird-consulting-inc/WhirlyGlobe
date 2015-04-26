@@ -30,6 +30,7 @@
 #import <MaplyShape.h>
 #import <MaplySticker.h>
 #import <MaplyBillboard.h>
+#import <MaplyParticleSystem.h>
 #import <MaplyVectorObject.h>
 #import <MaplyViewTracker.h>
 #import <MaplyViewController.h>

@@ -33,6 +33,7 @@
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyTexture.h"
 #import "MaplyAnnotation.h"
+#import "MaplyParticleSystem.h"
 
 /** @brief When selecting multiple objects, one or more of these is returned.
     @details When you implement one of the selection delegates that takes multiple objects, you'll get an NSArray of these things.
@@ -437,6 +438,22 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 - (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
+/** @brief Add a particle system to the scene.
+    @details This adds a particle system to the scene, but does not kick off any particles.
+    @param partSys The particle system to start.
+    @param desc Any additional standard parameters (none at present).
+    @param threadMode MaplyThreadAny will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.  For particles, it's best to make a separate thread and use MaplyThreadCurrent.
+  */
+- (MaplyComponentObject *)addParticleSystem:(MaplyParticleSystem *)partSys desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/** @brief Add a batch of particles to the current scene.
+    @details Particles are short term objects, typically very small.  We create them in large groups for efficience.
+    @details You'll need to fill out the MaplyParticleSystem initially and then the MaplyParticleBatch to create them.
+    @param batch The batch of particles to add to an active particle system.
+    @param threadMode MaplyThreadAny will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.  For particles, it's best to make a separate thread and use MaplyThreadCurrent.
+  */
+- (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode;
+
 /** @brief Add vectors that can be used for selections.
     @details These are MaplyVectorObject's that will show up in user selection, but won't be visible.  So if a user taps on one, you get the vector in your delegate.  Otherwise, no one will know it's there.
     @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
@@ -747,8 +764,14 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 - (float)currentMapZoom:(MaplyCoordinate)coordinate;
 
 /** @brief Return the coordinate system being used for the display.
+    @details This returns the local coordinate system, which is used to unroll the earth (for the globe) or via a scaling factor (for the flat map).
   */
 - (MaplyCoordinateSystem *)coordSystem;
+
+/** @brief Convert from a local coordinate (probably spherical mercator) to a display coordinate.
+    @details This converts from a local coordinate (x,y,height) in the view controller's coordinate system (probably spherical mercator) to a coordinate in display space.  For the globe display space is based on a radius of 1.0.  For the flat map it's just stretched with a similar factor.
+  */
+- (MaplyCoordinate3d)displayCoordFromLocal:(MaplyCoordinate3d)localCoord;
 
 /// @brief Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;
