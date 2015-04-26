@@ -2282,7 +2282,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     return compObj;
 }
 
-// Actually add the lofted polys.
+// Actually add the billboards.
 - (void)addBillboardsRun:(NSArray *)argArray
 {
     NSArray *bills = argArray[0];
@@ -2416,7 +2416,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self clearTempContext:tmpContext];
 }
 
-// Add lofted polys
+// Add billboards
 - (MaplyComponentObject *)addBillboards:(NSArray *)bboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
@@ -2446,6 +2446,83 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     return compObj;
 }
 
+- (void)addParticleSystemRun:(NSArray *)argArray
+{
+    MaplyParticleSystem *partSys = argArray[0];
+    MaplyComponentObject *compObj = argArray[1];
+    NSMutableDictionary *inDesc = argArray[2];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    
+    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyParticleSystemDrawPriorityDefault) toDict:inDesc];
+    
+    // Might be a custom shader on these
+    [self resolveShader:inDesc defaultShader:nil];
+    
+    // May need a temporary context
+    EAGLContext *tmpContext = [self setupTempContext:threadMode];
+    
+    SimpleIdentity partSysShaderID = [inDesc[kMaplyShader] intValue];
+    if (partSysShaderID == EmptyIdentity)
+        partSysShaderID = scene->getProgramIDBySceneName([kMaplyParticleSystemPointDefault cStringUsingEncoding:NSASCIIStringEncoding]);
+    
+    ChangeSet changes;
+    [self flushChanges:changes mode:threadMode];
+    
+    @synchronized(userObjects)
+    {
+        [userObjects addObject:compObj];
+        compObj.underConstruction = false;
+    }
+    
+    [self clearTempContext:tmpContext];
+}
+
+- (MaplyComponentObject *)addParticleSystem:(MaplyParticleSystem *)partSys desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
+    compObj.underConstruction = true;
+    
+    NSArray *argArray = @[partSys, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addParticleSystemRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addParticleSystemRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
+    
+    return compObj;
+}
+
+- (void)addParticleSystemBatchRun:(NSArray *)argArray
+{
+    MaplyParticleBatch *batch = argArray[0];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:1] intValue];
+    
+    // May need a temporary context
+    EAGLContext *tmpContext = [self setupTempContext:threadMode];
+    
+    ChangeSet changes;
+    [self flushChanges:changes mode:threadMode];
+    
+    [self clearTempContext:tmpContext];
+}
+
+- (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode
+{
+    NSArray *argArray = @[batch, @(threadMode)];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addParticleSystemBatchRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addParticleSystemBatchRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
+}
 
 // Remove the object, but do it on the layer thread
 - (void)removeObjectRun:(NSArray *)argArray
