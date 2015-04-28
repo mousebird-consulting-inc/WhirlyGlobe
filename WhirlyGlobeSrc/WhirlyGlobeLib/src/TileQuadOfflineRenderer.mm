@@ -161,9 +161,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 - (void)setPeriod:(NSTimeInterval)period
 {
-    // Note: Debugging
-    _period = 1.0;
-//    _period = period;
+    _period = period;
     
     if (!_quadLayer)
         return;
