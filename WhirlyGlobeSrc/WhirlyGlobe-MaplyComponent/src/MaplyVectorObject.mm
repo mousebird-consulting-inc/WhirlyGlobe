@@ -719,6 +719,24 @@ public:
                     bigArea = area;
                 }
             }
+        } else {
+            VectorLinearRef linear = boost::dynamic_pointer_cast<VectorLinear>(*it);
+            if (linear)
+            {
+                GeoCoord midCoord = linear->geoMbr.mid();
+                centroid->x = midCoord.x();
+                centroid->y = midCoord.y();
+                return true;
+            } else {
+                VectorPointsRef pts = boost::dynamic_pointer_cast<VectorPoints>(*it);
+                if (pts)
+                {
+                    GeoCoord midCoord = pts->geoMbr.mid();
+                    centroid->x = midCoord.x();
+                    centroid->y = midCoord.y();
+                    return true;
+                }
+            }
         }
     }
     
