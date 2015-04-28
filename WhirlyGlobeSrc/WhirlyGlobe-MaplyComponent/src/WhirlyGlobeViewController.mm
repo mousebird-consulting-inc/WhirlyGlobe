@@ -910,11 +910,6 @@ using namespace WhirlyGlobe;
     }
 }
 
-- (MaplyBoundingBox)geoBoundsFromCorners:(MaplyCoordinate *)corners
-{
-    
-}
-
 // Convenience routine to handle the end of moving
 - (void)handleStopMoving:(bool)userMotion
 {
