@@ -574,6 +574,19 @@ static const float PerfOutputDelay = 15.0;
     return [interactLayer addBillboards:billboards desc:desc mode:threadMode];
 }
 
+- (MaplyComponentObject *)addParticleSystem:(MaplyParticleSystem *)partSys desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    return [interactLayer addParticleSystem:partSys desc:desc mode:threadMode];
+}
+
+- (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode
+{
+    if (![batch isValid])
+        return;
+    
+    return [interactLayer addParticleBatch:batch mode:threadMode];
+}
+
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors
 {
     return [interactLayer addSelectionVectors:vectors desc:nil];
@@ -1079,6 +1092,15 @@ static const float PerfOutputDelay = 15.0;
     MaplyCoordinateSystem *coordSys = [[MaplySphericalMercator alloc] initWebStandard];
     
     return coordSys;
+}
+
+- (MaplyCoordinate3d)displayCoordFromLocal:(MaplyCoordinate3d)localCoord
+{
+    Point3d pt = visualView.coordAdapter->localToDisplay(Point3d(localCoord.x,localCoord.y,localCoord.z));
+    
+    MaplyCoordinate3d ret;
+    ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
+    return ret;
 }
 
 @end
