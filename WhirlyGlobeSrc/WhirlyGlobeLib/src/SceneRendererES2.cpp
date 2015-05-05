@@ -18,6 +18,8 @@
  *
  */
 
+//#include <android/log.h>
+
 #import "Platform.h"
 #import "SceneRendererES2.h"
 // Note: Porting
@@ -147,7 +149,7 @@ void SceneRendererES2::setScene(WhirlyKit::Scene *inScene)
 {
     SceneRendererES::setScene(inScene);
     scene = inScene;
-    
+    //__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Set default shaders");
     SetupDefaultShaders(scene);
     
     lightsLastUpdated = TimeGetCurrent();
@@ -192,6 +194,7 @@ static const float ScreenOverlap = 0.1;
 
 void SceneRendererES2::render()
 {
+	//__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "In SceneRendererES2::render");
     if (!scene || !theView)
         return;
     
@@ -564,6 +567,7 @@ void SceneRendererES2::render()
                 drawProgramId = defaultTriShader;
             if (drawProgramId != curProgramId)
             {
+				//__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "drawProgramId=%llu, curProgramId=%llu", drawProgramId, curProgramId);
                 curProgramId = drawProgramId;
                 OpenGLES2Program *program = scene->getProgram(drawProgramId);
                 if (program)
@@ -580,9 +584,13 @@ void SceneRendererES2::render()
 
                     baseFrameInfo.program = program;
                 }
+				//else
+				//	__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "drawProgram is null");
             }
-            if (drawProgramId == EmptyIdentity)
+            if (drawProgramId == EmptyIdentity) {
+				//__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "drawProgram is empty");
                 continue;
+			}
             
             // Run any tweakers right here
             drawContain.drawable->runTweakers(&baseFrameInfo);

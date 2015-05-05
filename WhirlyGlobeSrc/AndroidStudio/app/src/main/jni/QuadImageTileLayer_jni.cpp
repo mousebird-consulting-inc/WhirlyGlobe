@@ -97,11 +97,11 @@ public:
 	QuadImageLayerAdapter(CoordSystem *coordSys)
 		: env(NULL), javaObj(NULL), renderer(NULL), coordSys(coordSys),
 		  simultaneousFetches(1), tileLoader(NULL), minVis(0.0), maxVis(10.0),
-		  handleEdges(true),coverPoles(false)
+		  handleEdges(true),coverPoles(false),numFrames(1),currentImage(0.0),shaderProgramName("")
 	{
-		useTargetZoomLevel = true;
+		useTargetZoomLevel = false;
         canShortCircuitImportance = false;
-        singleLevelLoading = false;
+        singleLevelLoading = true;
         maxShortCircuitLevel = -1;
 	}
 
@@ -115,13 +115,17 @@ public:
 	QuadTileLoader *tileLoader;
 	QuadDisplayController *control;
 
+	int numFrames;
+	SimpleIdentity customShader;
+	std::string shaderProgramName;
+
 	// Get Java methods for a particular instance
 	void setJavaRefs(JNIEnv *env,jobject obj)
 	{
 		// Note: Should release this somewhere
 		javaObj = (jobject)env->NewGlobalRef(obj);
 		jclass theClass = env->GetObjectClass(javaObj);
-		startFetchJava = env->GetMethodID(theClass,"startFetch","(III)V");
+		startFetchJava = env->GetMethodID(theClass,"startFetch","(IIII)V");
 		scheduleEvalStepJava = env->GetMethodID(theClass,"scheduleEvalStep","()V");
 	}
 
@@ -139,13 +143,13 @@ public:
 		ll = inLL;  ur = inUR;  minZoom = inMinZoom;  maxZoom = inMaxZoom;
 
 		// Set up the tile loader
-		tileLoader = new QuadTileLoader("Image Layer",this,-1);
+		tileLoader = new QuadTileLoader("Image Layer",this,numFrames);
 	    tileLoader->setIgnoreEdgeMatching(!handleEdges);
 	    tileLoader->setCoverPoles(coverPoles);
 	    tileLoader->setMinVis(minVis);
 	    tileLoader->setMaxVis(maxVis);
 	    tileLoader->setDrawPriority(0);
-	    tileLoader->setNumImages(1);
+	    //tileLoader->setNumImages(1);
 	    tileLoader->setIncludeElev(false);
 	    tileLoader->setBorderTexel(0);
 	    tileLoader->setBorderPixelFudge(0.5);
@@ -154,10 +158,28 @@ public:
 //	    ChangeSet changes;
 //	    tileLoader->setEnable(_enable,changes);
 
+        if(numFrames>1) {
+            // set multitexture program to do the interpolation between frames
+            OpenGLES2Program *prog = scene->getProgramBySceneName(kToolkitDefaultTriangleMultiTex);
+            if(prog) {
+                tileLoader->setProgramId(prog->getId());
+                __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "program id: %llu",  prog->getId());
+            }
+        }
+/*
+        if (shaderProgramName.compare(""))
+        {
+            customShader = scene->getProgramIDBySceneName(shaderProgramName);
+            tileLoader->setProgramId(customShader);
+        } else */
+        customShader = EmptyIdentity;
+
+
 		// Set up the display controller
 		control = new QuadDisplayController(this,tileLoader,this);
 		control->setMaxTiles(256);
 		control->setMeteredMode(false);
+		//control->setMeteredMode(true);
 		control->init(scene,renderer);
 
 		// Note: Porting
@@ -343,18 +365,18 @@ public:
     /// We'll call the loader back with the image when it's ready.
     virtual void startFetch(QuadTileLoaderSupport *quadLoader,int level,int col,int row,int frame,Dictionary *attrs)
     {
-    	env->CallVoidMethod(javaObj, startFetchJava, level, col, row);
+    	env->CallVoidMethod(javaObj, startFetchJava, level, col, row, frame);
     }
 
     /// The tile loaded correctly (or didn't if it's null)
-    void tileLoaded(int level,int col,int row,RawDataRef imgData,int width,int height,ChangeSet &changes)
+    void tileLoaded(int level,int col,int row,int frame,RawDataRef imgData,int width,int height,ChangeSet &changes)
     {
-    	if (imgData)
+    	if (imgData && (width>0))
     	{
     		ImageWrapper tileWrapper(imgData,width,height);
-    		tileLoader->loadedImage(this, &tileWrapper, level, col, row, -1, changes);
+    		tileLoader->loadedImage(this, &tileWrapper, level, col, row, frame, changes);
     	} else {
-    		tileLoader->loadedImage(this, NULL, level, col, row, -1, changes);
+    		tileLoader->loadedImage(this, NULL, level, col, row, frame, changes);
     	}
     }
 
@@ -374,21 +396,83 @@ public:
     // Bro, do you even load frames?
     virtual bool canLoadFrames()
     {
-    	return false;
+    	//return false;
+    	return (tileLoader->numFrames() > 1);
     }
 
     // Number of frames we can load
-    virtual int numFrames()
+    virtual int getNumFrames()
     {
     	// Note: Porting  Take frame into account
-    	return 1;
+    	return numFrames;
     }
 
     // Current active frame
     virtual int currentFrame()
     {
     	// Note: Porting  Take frame into account
-    	return 0;
+    	return tileLoader->currentFrame();
+    }
+
+    float currentImage;
+
+    virtual void setCurrentFrame(float currentImage,ChangeSet &changes)
+    {
+        //frame = frame % numFrames;
+        //tileLoader->setCurrentImage(frame, changes);
+        if (!scene)
+            return;
+
+        unsigned int image0 = floorf(currentImage);
+        unsigned int image1 = ceilf(currentImage);
+    //if (_animationWrap)
+    //{
+    //    if (image1 == _imageDepth)
+    //        image1 = 0;
+    //}
+        if (image0 >= numFrames)
+            image0 = numFrames-1;
+        if (image1 >= numFrames)
+            image1 = -1;
+        float t = currentImage - image0;
+
+        // Change the images to give us start and finish
+        tileLoader->setCurrentImageStart(image0, image1, changes);
+    //if (!changes.empty())
+    //    scene->addChangeRequests(changes);
+
+
+        // Set the interpolation in the program
+        //OpenGLES2Program *prog = scene->getProgram(customShader);
+
+        OpenGLES2Program *prog = scene->getProgramByName(kToolkitDefaultTriangleMultiTex);
+        if (prog)
+        {
+            //scene->setSceneProgram(kToolkitDefaultTriangleMultiTex,prog->getProgram());
+            //EAGLContext *oldContext = [EAGLContext currentContext];
+            //[_viewC useGLContext];
+            //renderer->setUseProgram(prog->getProgram());
+            //glUseProgram(prog->getProgram());
+            //__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "program id: %llu",  prog->getId());
+            glUseProgram(prog->getProgram());
+            prog->setUniform("u_interp", t);
+            //renderer->forceDrawNextFrame();
+            //[_renderer forceDrawNextFrame];
+
+            //if (oldContext)
+            //    [EAGLContext setCurrentContext:oldContext];
+        }
+        renderer->forceDrawNextFrame();
+    }
+
+    virtual void setNumFrames(int frames)
+    {
+        numFrames = frames;
+    }
+
+    virtual void setProgramName(std::string pn)
+    {
+        shaderProgramName = pn;
     }
 
     // QuadDisplayControllerAdapter related methods
@@ -659,7 +743,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeRef
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDidLoad
-  (JNIEnv *env, jobject obj, jint x, jint y, jint level, jobject bitmapObj, jobject changesObj)
+  (JNIEnv *env, jobject obj, jint x, jint y, jint level, jint frame, jobject bitmapObj, jobject changesObj)
 {
 	try
 	{
@@ -688,7 +772,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 		uint32_t* src = (uint32_t*) bitmapPixels;
 		RawDataRef rawDataRef(new MutableRawData(bitmapPixels,info.height*info.width*4));
 
-		adapter->tileLoaded(level,x,y,rawDataRef,info.width,info.height,*changes);
+		adapter->tileLoaded(level,x,y,frame,rawDataRef,info.width,info.height,*changes);
 		AndroidBitmap_unlockPixels(env, bitmapObj);
 	}
 	catch (...)
@@ -698,7 +782,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDidNotLoad
-  (JNIEnv *env, jobject obj, jint x, jint y, jint level, jobject changesObj)
+  (JNIEnv *env, jobject obj, jint x, jint y, jint level, jint frame, jobject changesObj)
 {
 	try
 	{
@@ -707,10 +791,66 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 		if (!adapter || !changes)
 			return;
 
-		adapter->tileLoaded(level,x,y,RawDataRef(),-1,1,*changes);
+		adapter->tileLoaded(level,x,y,frame,RawDataRef(),-1,1,*changes);
 	}
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::nativeTileDidLoad()");
 	}
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeSetCurrentFrame
+  (JNIEnv *env, jobject obj, jfloat frame, jobject changesObj)
+{
+	try
+	{
+		QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
+		if (!adapter || !changes)
+			return;
+
+		adapter->setCurrentFrame(frame,*changes);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::nativeSetCurrentFrame()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeSetNumFrames
+  (JNIEnv *env, jobject obj, jint frames)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		adapter->setNumFrames(frames);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::nativeSetNumFrames()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeSetShaderProgramName
+  (JNIEnv *env, jobject obj, jstring programName)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+        const char *s = env->GetStringUTFChars(programName,NULL);
+        std::string pn = s;
+        env->ReleaseStringUTFChars(programName,s);
+		adapter->setProgramName(pn);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::nativeSetNumFrames()");
+	}
+}
+

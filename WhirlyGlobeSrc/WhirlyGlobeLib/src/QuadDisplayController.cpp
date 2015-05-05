@@ -18,6 +18,8 @@
  *
  */
 
+//#import <android/log.h>
+
 #import "QuadDisplayController.h"
 #import "GlobeMath.h"
 #import "FlatMath.h"
@@ -208,6 +210,7 @@ bool QuadDisplayController::waitingForLocalLoads()
 // Run the evaluation step for outstanding nodes
 bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameInterval,float availableFrame,ChangeSet &changes)
 {
+	//__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "In QuadDisplayController::evalStep, availableFrame: %f", availableFrame);
     bool didSomething = false;
     somethingHappened = false;
     
@@ -226,6 +229,9 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
     int curFrame = -1;
     if (!frameLoadingPriority.empty())
         curFrame = frameLoadingPriority[curFrameEntry];
+	//__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Current frame entry: %d", curFrameEntry);
+	//__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Current frame: %d", curFrame);
+	
     
     if (quadtree->numEvals() != 0)
     {
@@ -489,6 +495,7 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
 
 void QuadDisplayController::tileDidLoad(const WhirlyKit::Quadtree::Identifier &tileIdent,int frame)
 {
+	//__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "In QuadDisplayController::tileDidLoad, frame %d", frame);
     //    NSLog(@"Tile did load: %d: (%d,%d), %d",tileIdent.level,tileIdent.x,tileIdent.y,frame);
     
     // Make sure we still want this one
