@@ -158,11 +158,13 @@ public:
 //	    ChangeSet changes;
 //	    tileLoader->setEnable(_enable,changes);
 
-        OpenGLES2Program *prog = scene->getProgramBySceneName(kToolkitDefaultTriangleMultiTex);
-        //OpenGLES2Program *prog = scene->getProgramByName(kToolkitDefaultTriangleProgram);
-        if(prog) {
-            tileLoader->setProgramId(prog->getId());
-            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "program id: %llu",  prog->getId());
+        if(numFrames>1) {
+            // set multitexture program to do the interpolation between frames
+            OpenGLES2Program *prog = scene->getProgramBySceneName(kToolkitDefaultTriangleMultiTex);
+            if(prog) {
+                tileLoader->setProgramId(prog->getId());
+                __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "program id: %llu",  prog->getId());
+            }
         }
 /*
         if (shaderProgramName.compare(""))
@@ -451,7 +453,7 @@ public:
             //[_viewC useGLContext];
             //renderer->setUseProgram(prog->getProgram());
             //glUseProgram(prog->getProgram());
-            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "program id: %llu",  prog->getId());
+            //__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "program id: %llu",  prog->getId());
             glUseProgram(prog->getProgram());
             prog->setUniform("u_interp", t);
             //renderer->forceDrawNextFrame();
