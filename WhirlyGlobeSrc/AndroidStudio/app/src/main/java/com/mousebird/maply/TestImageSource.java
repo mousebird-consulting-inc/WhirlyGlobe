@@ -62,7 +62,7 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 	static int debugColors[] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x4F256F, 0xD89CDE, 0x773B28, 0x333D99, 0x862D52, 0xC2C653, 0xB8583D};
 
 	@Override
-	public void startFetchForTile(final QuadImageTileLayer layer, final MaplyTileID tileID) 
+	public void startFetchForTile(final QuadImageTileLayer layer, final MaplyTileID tileID, final int frame)
 	{
 		Handler handler = new Handler(mainLooper);
 		handler.post(new Runnable()
@@ -71,7 +71,7 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 		public void run()
 		{		
 			// Render the tile ID into a bitmap
-			String text = tileID.toString();
+			String text = tileID.toString()+"_"+frame;
 			Paint p = new Paint();
 			p.setTextSize(24.f);
 			p.setColor(Color.BLACK);
@@ -94,7 +94,7 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 			c.drawRect(0,0,sizeX,sizeY, p2);
 			c.drawText(text, (sizeX-textLen)/2.f, sizeY/2.f, p);
 	
-			layer.loadedTile(tileID, new MaplyImageTile(bitmap));
+			layer.loadedTile(tileID, new MaplyImageTile(bitmap),frame);
 		}
 		});
 	}

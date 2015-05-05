@@ -267,13 +267,15 @@ public class SSLRemoteTileSource implements QuadImageTileLayer.TileSource
 		MaplyTileID tileID = null;
 		URL url = null;
 		String locFile = null;
+		int frame;
 		
-		ConnectionTask(QuadImageTileLayer inLayer,SSLRemoteTileSource inTileSource, MaplyTileID inTileID,String inURL,String inFile)
+		ConnectionTask(QuadImageTileLayer inLayer,SSLRemoteTileSource inTileSource, MaplyTileID inTileID,String inURL,String inFile,int inFrame)
 		{
 			tileSource = inTileSource;
 			layer = inLayer;
 			tileID = inTileID;
 			locFile = inFile;
+			frame = inFrame;
 			try
 			{
 				url = new URL(inURL);
@@ -337,11 +339,11 @@ public class SSLRemoteTileSource implements QuadImageTileLayer.TileSource
 		    		MaplyImageTile imageTile = new MaplyImageTile(bm);
 		    		if (tileSource.delegate != null)
 		    			tileSource.delegate.tileDidLoad(tileSource,tileID);
-		    		layer.loadedTile(tileID, imageTile);
+		    		layer.loadedTile(tileID, imageTile, frame);
 		    	} else {
 		    		if (tileSource.delegate != null)
 		    			tileSource.delegate.tileDidNotLoad(tileSource,tileID);
-		    		layer.loadedTile(tileID, null);
+		    		layer.loadedTile(tileID, null,frame);
 		    	}
 		    	
 		    	return null;
@@ -368,7 +370,7 @@ public class SSLRemoteTileSource implements QuadImageTileLayer.TileSource
 	 * This is called by the quad image tile layer.  Don't call this yourself.
 	 */
 	@Override
-	public void startFetchForTile(QuadImageTileLayer layer, MaplyTileID tileID) 
+	public void startFetchForTile(QuadImageTileLayer layer, MaplyTileID tileID, int frame)
 	{
 //		Log.d("Maply","Starting fetch for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
 		
@@ -380,7 +382,7 @@ public class SSLRemoteTileSource implements QuadImageTileLayer.TileSource
 		String cacheFile = null;
 		if (cacheDir != null)
 			cacheFile = cacheDir.getAbsolutePath() + "/" + tileID.level + "_" + tileID.x + "_" + tileID.y + "."  + ext;
-		ConnectionTask task = new ConnectionTask(layer,this,tileID,tileURL,cacheFile);
+		ConnectionTask task = new ConnectionTask(layer,this,tileID,tileURL,cacheFile,frame);
 		String[] params = new String[1];
 		params[0] = tileURL;
 		task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,params);

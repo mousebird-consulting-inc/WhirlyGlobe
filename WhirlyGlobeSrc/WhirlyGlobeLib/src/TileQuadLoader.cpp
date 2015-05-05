@@ -18,6 +18,8 @@
  *
  */
 
+//#import <android/log.h>
+
 #import "GlobeMath.h"
 // Note: This works around an Android boost problem
 #define _LITTLE_ENDIAN
@@ -44,7 +46,7 @@ QuadTileLoader::QuadTileLoader(const std::string &name,QuadTileImageDataSource *
     enable(true), drawOffset(0), drawPriority(0),
     minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minPageVis(DrawVisibleInvalid), maxPageVis(DrawVisibleInvalid),
     programId(EmptyIdentity), includeElev(false), useElevAsZ(true),
-    numImages(1), activeTextures(-1), color(255,255,255,255), hasAlpha(false),
+    numImages(numFrames), activeTextures(-1), color(255,255,255,255), hasAlpha(false),
     ignoreEdgeMatching(false), coverPoles(false),
     imageType(WKTileIntRGBA), useDynamicAtlas(true), tileScale(WKTileScaleNone), fixedTileSize(256), textureAtlasSize(2048), borderTexel(1),
     tileBuilder(NULL), doingUpdate(false), defaultTessX(10), defaultTessY(10),
@@ -400,8 +402,10 @@ int QuadTileLoader::numFrames()
     
 int QuadTileLoader::currentFrame()
 {
-    // Note: Porting
-    return -1;
+	if(numLoadingFrames<=1)
+		return -1;
+	else
+		return currentImage0;
 }
     
 bool QuadTileLoader::canLoadFrames()
@@ -651,6 +655,7 @@ static WKSingleByteSource singleByteSourceFromOurFormat(WhirlyKitTileImageType i
     
 void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage *loadImage,int level,int col,int row,int frame,ChangeSet &changes)
 {
+	//__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "In QuadTileLoader::loadedImage %d (%d,%d) %d", level, col, row, frame);
     // Note: Porting
 //    bool isPlaceholder = tileIsPlaceholder(loadImage);
     bool isPlaceholder = loadImage && loadImage->isPlaceholder();
@@ -743,7 +748,7 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
         loadImages.push_back(loadImage);
     
     bool loadingSuccess = true;
-    if (!isPlaceholder && numImages != loadImages.size())
+    if (!isPlaceholder && numImages != loadImages.size() && frame < 0)
     {
         // Only print out a message if they bothered to hand in something.  If not, they meant
         //  to tell us it was empty.
@@ -812,6 +817,15 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
     if (createdAtlases)
         runSetCurrentImage(changeRequests);
 }
+
+//        
+//        if ([NSThread currentThread] != _quadLayer.layerThread)
+//        {
+//            [self performSelector:@selector(runSetProgramId:) onThread:_quadLayer.layerThread withObject:@(programId) waitUntilDone:NO];
+//        } else {
+//            [self runSetProgramId:@(programId)];
+//        }
+//    }
     
     // Note: Porting
 //    - (void)runSetDrawPriority:(NSNumber *)newDrawPriorityObj

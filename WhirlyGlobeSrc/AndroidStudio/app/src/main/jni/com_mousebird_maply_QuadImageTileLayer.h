@@ -57,6 +57,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setCoverPoles
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    nativeSetNumFrames
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeSetNumFrames
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    setVisibility
  * Signature: (DD)V
  */
@@ -122,18 +130,34 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeRef
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    nativeTileDidLoad
- * Signature: (IIILandroid/graphics/Bitmap;Lcom/mousebird/maply/ChangeSet;)V
+ * Signature: (IIIILandroid/graphics/Bitmap;Lcom/mousebird/maply/ChangeSet;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDidLoad
-  (JNIEnv *, jobject, jint, jint, jint, jobject, jobject);
+  (JNIEnv *, jobject, jint, jint, jint, jint, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    nativeTileDidNotLoad
- * Signature: (IIILcom/mousebird/maply/ChangeSet;)V
+ * Signature: (IIIILcom/mousebird/maply/ChangeSet;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDidNotLoad
-  (JNIEnv *, jobject, jint, jint, jint, jobject);
+  (JNIEnv *, jobject, jint, jint, jint, jint, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    nativeSetCurrentFrame
+ * Signature: (FLcom/mousebird/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeSetCurrentFrame
+  (JNIEnv *, jobject, jfloat, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    nativeSetShaderProgramName
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeSetShaderProgramName
+  (JNIEnv *, jobject, jstring);
 
 #ifdef __cplusplus
 }
