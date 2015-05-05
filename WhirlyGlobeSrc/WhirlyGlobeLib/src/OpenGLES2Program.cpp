@@ -18,6 +18,8 @@
  *
  */
 
+//#include <android/log.h>
+
 #import <string>
 #import "OpenGLES2Program.h"
 // Note: Porting
@@ -58,6 +60,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,float val)
     if (uni->isSet && uni->val.fVals[0] == val)
         return true;
     
+	//__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "about to set uniform float %s to %f", name.c_str(), val);
     glUniform1f(uni->index,val);
     CheckGLError("OpenGLES2Program::setUniform() glUniform1f");
     uni->isSet = true;

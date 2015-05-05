@@ -158,12 +158,19 @@ public:
 //	    ChangeSet changes;
 //	    tileLoader->setEnable(_enable,changes);
 
+        OpenGLES2Program *prog = scene->getProgramBySceneName(kToolkitDefaultTriangleMultiTex);
+        //OpenGLES2Program *prog = scene->getProgramByName(kToolkitDefaultTriangleProgram);
+        if(prog) {
+            tileLoader->setProgramId(prog->getId());
+            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "program id: %llu",  prog->getId());
+        }
+/*
         if (shaderProgramName.compare(""))
         {
             customShader = scene->getProgramIDBySceneName(shaderProgramName);
             tileLoader->setProgramId(customShader);
-        } else
-            customShader = EmptyIdentity;
+        } else */
+        customShader = EmptyIdentity;
 
 
 		// Set up the display controller
@@ -436,7 +443,7 @@ public:
         // Set the interpolation in the program
         //OpenGLES2Program *prog = scene->getProgram(customShader);
 
-        OpenGLES2Program *prog = scene->getProgramBySceneName(kToolkitDefaultTriangleMultiTex);
+        OpenGLES2Program *prog = scene->getProgramByName(kToolkitDefaultTriangleMultiTex);
         if (prog)
         {
             //scene->setSceneProgram(kToolkitDefaultTriangleMultiTex,prog->getProgram());
@@ -444,7 +451,9 @@ public:
             //[_viewC useGLContext];
             //renderer->setUseProgram(prog->getProgram());
             //glUseProgram(prog->getProgram());
-            //prog->setUniform("u_interp", t);
+            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "program id: %llu",  prog->getId());
+            glUseProgram(prog->getProgram());
+            prog->setUniform("u_interp", t);
             //renderer->forceDrawNextFrame();
             //[_renderer forceDrawNextFrame];
 
