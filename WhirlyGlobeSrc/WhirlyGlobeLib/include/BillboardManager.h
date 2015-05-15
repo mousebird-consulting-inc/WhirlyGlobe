@@ -150,6 +150,7 @@ public:
     void removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes);
 
 protected:
+    NSObject *canary;
     pthread_mutex_t billLock;
     BillboardSceneRepSet sceneReps;
 };
