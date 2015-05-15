@@ -310,6 +310,12 @@ using namespace WhirlyKit;
         _scene->teardownGL();
     }
     
+    // This should block until the queue is empty
+    dispatch_sync(_scene->getDispatchQueue(), ^{ } );
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
+    dispatch_release(dispatchQueue);
+#endif
+    
     // Delete outstanding change requests
     for (unsigned int ii=0;ii<changeRequests.size();ii++)
         delete changeRequests[ii];

@@ -466,6 +466,13 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 - (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc;
 
+/** @brief Change the representation of the given vector features.
+ @details This will change how any vector features represented by the compObj look.
+ @details You can change kMaplyColor, kMaplyMinVis, kMaplyMaxVis, and kMaplyDrawPriority.
+ @details This version takes a thread mode.
+ */
+- (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
 /** @brief Adds the MaplyVectorObject's passed in as lofted polygons.
     @details Lofted polygons are filled polygons draped on top of the globe with height.  By using a transparent color, these can be used to represent selection or relative values on the globe (or map).
  
