@@ -387,14 +387,19 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
                      idIt != labelRep->drawIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fade));
                 
+                __block NSObject * __weak thisCanary = canary;
+
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, labelRep->fade * NSEC_PER_SEC),
                                scene->getDispatchQueue(),
                                ^{
-                                   SimpleIDSet theIDs;
-                                   theIDs.insert(labelRep->getId());
-                                   ChangeSet delChanges;
-                                   removeLabels(theIDs, delChanges);
-                                   scene->addChangeRequests(delChanges);
+                                   if (thisCanary)
+                                   {
+                                       SimpleIDSet theIDs;
+                                       theIDs.insert(labelRep->getId());
+                                       ChangeSet delChanges;
+                                       removeLabels(theIDs, delChanges);
+                                       scene->addChangeRequests(delChanges);
+                                   }
                                }
                                );
 
