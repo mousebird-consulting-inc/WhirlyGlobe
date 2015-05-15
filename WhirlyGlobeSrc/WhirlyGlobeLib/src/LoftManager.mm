@@ -737,15 +737,20 @@ void LoftManager::removeLoftedPolys(SimpleIDSet &polyIDs,ChangeSet &changes)
                      idIt != sceneRep->drawIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+sceneRep->fade));
                 
+                __block NSObject * __weak thisCanary = canary;
+
                 // Kick off the delete in a bit
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
                                scene->getDispatchQueue(),
                                ^{
-                                   SimpleIDSet theIDs;
-                                   theIDs.insert(sceneRep->getId());
-                                   ChangeSet delChanges;
-                                   removeLoftedPolys(theIDs, delChanges);
-                                   scene->addChangeRequests(delChanges);
+                                   if (thisCanary)
+                                   {
+                                       SimpleIDSet theIDs;
+                                       theIDs.insert(sceneRep->getId());
+                                       ChangeSet delChanges;
+                                       removeLoftedPolys(theIDs, delChanges);
+                                       scene->addChangeRequests(delChanges);
+                                   }
                                }
                                );
                 sceneRep->fade = 0.0;

@@ -1009,15 +1009,20 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
                      it != allIDs.end(); ++it)
                     changes.push_back(new FadeChangeRequest(*it, curTime, curTime+sceneRep->fade));
                 
+                __block NSObject * __weak thisCanary = canary;
+
                 // Spawn off the deletion for later
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
                                scene->getDispatchQueue(),
                                ^{
-                                   SimpleIDSet theIDs;
-                                   theIDs.insert(sceneRep->getId());
-                                   ChangeSet delChanges;
-                                   removeVectors(theIDs, delChanges);
-                                   scene->addChangeRequests(delChanges);
+                                   if (thisCanary)
+                                   {
+                                       SimpleIDSet theIDs;
+                                       theIDs.insert(sceneRep->getId());
+                                       ChangeSet delChanges;
+                                       removeVectors(theIDs, delChanges);
+                                       scene->addChangeRequests(delChanges);
+                                   }
                                }
                                );
                 
