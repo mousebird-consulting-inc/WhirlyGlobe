@@ -207,9 +207,7 @@ using namespace WhirlyKit;
     [sceneRenderer setClearColor:theClearColor];
 
     // Set up the GL View to display it in
-	glView = [[WhirlyKitEAGLView alloc] init];
 	glView.renderer = sceneRenderer;
-	glView.frameInterval = _frameInterval;
     [self.view insertSubview:glView atIndex:0];
     self.view.backgroundColor = [UIColor blackColor];
     self.view.opaque = YES;
