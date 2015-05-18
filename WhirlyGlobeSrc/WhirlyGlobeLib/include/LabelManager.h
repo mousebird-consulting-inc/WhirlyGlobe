@@ -132,6 +132,7 @@ public:
     void enableLabels(SimpleIDSet labelID,bool enable,ChangeSet &changes);
     
 protected:
+    NSObject *canary;
     pthread_mutex_t labelLock;
     
     /// If set, we're using font textures instead of rendering each piece of text

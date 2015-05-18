@@ -75,7 +75,6 @@ using namespace WhirlyKit;
     
     // Look at the metadata
     sqlhelpers::StatementRead readStmt(_sqlDb,@"select value from metadata where name='bounds';");
-    // Note: Debugging
     if (readStmt.stepRow())
     {
         NSString *bounds = readStmt.getString();
