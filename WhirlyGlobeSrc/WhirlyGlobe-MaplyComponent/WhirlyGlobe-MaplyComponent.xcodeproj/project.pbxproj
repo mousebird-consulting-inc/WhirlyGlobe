@@ -36,6 +36,17 @@
 		2B10D42D1AE18FC900D2F3F5 /* map_field.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B10D42B1AE18FC900D2F3F5 /* map_field.h */; };
 		2B11057317E237D400735C46 /* MaplyElevationDatabase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989C617DC21570071DA9E /* MaplyElevationDatabase.mm */; };
 		2B11E0DF15B4C030007AAE3F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B11E0DE15B4C030007AAE3F /* Foundation.framework */; };
+		2B1B31FC1B0A6FDD00A37285 /* FMDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1B31F11B0A6FDD00A37285 /* FMDatabase.h */; };
+		2B1B31FD1B0A6FDD00A37285 /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1B31F21B0A6FDD00A37285 /* FMDatabase.m */; };
+		2B1B31FE1B0A6FDD00A37285 /* FMDatabaseAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1B31F31B0A6FDD00A37285 /* FMDatabaseAdditions.h */; };
+		2B1B31FF1B0A6FDD00A37285 /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1B31F41B0A6FDD00A37285 /* FMDatabaseAdditions.m */; };
+		2B1B32001B0A6FDD00A37285 /* FMDatabasePool.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1B31F51B0A6FDD00A37285 /* FMDatabasePool.h */; };
+		2B1B32011B0A6FDD00A37285 /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1B31F61B0A6FDD00A37285 /* FMDatabasePool.m */; };
+		2B1B32021B0A6FDD00A37285 /* FMDatabaseQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1B31F71B0A6FDD00A37285 /* FMDatabaseQueue.h */; };
+		2B1B32031B0A6FDD00A37285 /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1B31F81B0A6FDD00A37285 /* FMDatabaseQueue.m */; };
+		2B1B32041B0A6FDD00A37285 /* FMDB.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1B31F91B0A6FDD00A37285 /* FMDB.h */; };
+		2B1B32051B0A6FDD00A37285 /* FMResultSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1B31FA1B0A6FDD00A37285 /* FMResultSet.h */; };
+		2B1B32061B0A6FDD00A37285 /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1B31FB1B0A6FDD00A37285 /* FMResultSet.m */; };
 		2B2E2FF816C4885800CAD143 /* MaplyShader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2E2FF616C4885800CAD143 /* MaplyShader.h */; };
 		2B2E2FFC16C4886800CAD143 /* MaplyShader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E2FFB16C4886800CAD143 /* MaplyShader.mm */; };
 		2B37059916B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B37059716B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup.h */; };
@@ -185,11 +196,6 @@
 		2BEA1E5C171E0EBD0039F1A4 /* MaplyActiveObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA1E57171E0EBD0039F1A4 /* MaplyActiveObject.h */; };
 		2BEA1E60171E0EBD0039F1A4 /* MaplyActiveObject_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA1E5B171E0EBD0039F1A4 /* MaplyActiveObject_private.h */; };
 		2BEA1E66171E0ED90039F1A4 /* MaplyActiveObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA1E62171E0ED90039F1A4 /* MaplyActiveObject.mm */; };
-		2BEA43471AF003B300BFA719 /* FMDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA433D1AF003B300BFA719 /* FMDatabase.h */; };
-		2BEA43491AF003B300BFA719 /* FMDatabaseAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA433F1AF003B300BFA719 /* FMDatabaseAdditions.h */; };
-		2BEA434B1AF003B300BFA719 /* FMDatabasePool.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA43411AF003B300BFA719 /* FMDatabasePool.h */; };
-		2BEA434D1AF003B300BFA719 /* FMDatabaseQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA43431AF003B300BFA719 /* FMDatabaseQueue.h */; };
-		2BEA434F1AF003B300BFA719 /* FMResultSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA43451AF003B300BFA719 /* FMResultSet.h */; };
 		2BEB21F518441AF30048DDE3 /* MaplyTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEB21F318441AF30048DDE3 /* MaplyTexture.h */; };
 		2BEB21F618441AF30048DDE3 /* MaplyTexture_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEB21F418441AF30048DDE3 /* MaplyTexture_private.h */; };
 		2BEB21F918441B020048DDE3 /* MaplyTexture.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEB21F818441B020048DDE3 /* MaplyTexture.mm */; };
@@ -339,6 +345,17 @@
 		2B11E0DB15B4C030007AAE3F /* libWhirlyGlobe-MaplyComponent.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libWhirlyGlobe-MaplyComponent.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B11E0DE15B4C030007AAE3F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		2B11E0EB15B4C0BA007AAE3F /* WhirlyGlobeLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeLib.xcodeproj; path = ../WhirlyGlobeLib/WhirlyGlobeLib.xcodeproj; sourceTree = "<group>"; };
+		2B1B31F11B0A6FDD00A37285 /* FMDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDatabase.h; path = "../../third-party/fmdb/src/fmdb/FMDatabase.h"; sourceTree = "<group>"; };
+		2B1B31F21B0A6FDD00A37285 /* FMDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FMDatabase.m; path = "../../third-party/fmdb/src/fmdb/FMDatabase.m"; sourceTree = "<group>"; };
+		2B1B31F31B0A6FDD00A37285 /* FMDatabaseAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDatabaseAdditions.h; path = "../../third-party/fmdb/src/fmdb/FMDatabaseAdditions.h"; sourceTree = "<group>"; };
+		2B1B31F41B0A6FDD00A37285 /* FMDatabaseAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FMDatabaseAdditions.m; path = "../../third-party/fmdb/src/fmdb/FMDatabaseAdditions.m"; sourceTree = "<group>"; };
+		2B1B31F51B0A6FDD00A37285 /* FMDatabasePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDatabasePool.h; path = "../../third-party/fmdb/src/fmdb/FMDatabasePool.h"; sourceTree = "<group>"; };
+		2B1B31F61B0A6FDD00A37285 /* FMDatabasePool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FMDatabasePool.m; path = "../../third-party/fmdb/src/fmdb/FMDatabasePool.m"; sourceTree = "<group>"; };
+		2B1B31F71B0A6FDD00A37285 /* FMDatabaseQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDatabaseQueue.h; path = "../../third-party/fmdb/src/fmdb/FMDatabaseQueue.h"; sourceTree = "<group>"; };
+		2B1B31F81B0A6FDD00A37285 /* FMDatabaseQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FMDatabaseQueue.m; path = "../../third-party/fmdb/src/fmdb/FMDatabaseQueue.m"; sourceTree = "<group>"; };
+		2B1B31F91B0A6FDD00A37285 /* FMDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDB.h; path = "../../third-party/fmdb/src/fmdb/FMDB.h"; sourceTree = "<group>"; };
+		2B1B31FA1B0A6FDD00A37285 /* FMResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMResultSet.h; path = "../../third-party/fmdb/src/fmdb/FMResultSet.h"; sourceTree = "<group>"; };
+		2B1B31FB1B0A6FDD00A37285 /* FMResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FMResultSet.m; path = "../../third-party/fmdb/src/fmdb/FMResultSet.m"; sourceTree = "<group>"; };
 		2B2E2FF616C4885800CAD143 /* MaplyShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyShader.h; path = include/MaplyShader.h; sourceTree = SOURCE_ROOT; };
 		2B2E2FFB16C4886800CAD143 /* MaplyShader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyShader.mm; path = src/MaplyShader.mm; sourceTree = SOURCE_ROOT; };
 		2B37059716B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplySphericalQuadEarthWithTexGroup.h; path = include/MaplySphericalQuadEarthWithTexGroup.h; sourceTree = SOURCE_ROOT; };
@@ -509,16 +526,6 @@
 		2BEA1E57171E0EBD0039F1A4 /* MaplyActiveObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyActiveObject.h; path = include/MaplyActiveObject.h; sourceTree = SOURCE_ROOT; };
 		2BEA1E5B171E0EBD0039F1A4 /* MaplyActiveObject_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyActiveObject_private.h; path = include/private/MaplyActiveObject_private.h; sourceTree = SOURCE_ROOT; };
 		2BEA1E62171E0ED90039F1A4 /* MaplyActiveObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyActiveObject.mm; path = src/MaplyActiveObject.mm; sourceTree = SOURCE_ROOT; };
-		2BEA433D1AF003B300BFA719 /* FMDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDatabase.h; path = ../../../OpenSource/FMDB/FMDatabase.h; sourceTree = "<group>"; };
-		2BEA433E1AF003B300BFA719 /* FMDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FMDatabase.m; path = ../../../OpenSource/FMDB/FMDatabase.m; sourceTree = "<group>"; };
-		2BEA433F1AF003B300BFA719 /* FMDatabaseAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDatabaseAdditions.h; path = ../../../OpenSource/FMDB/FMDatabaseAdditions.h; sourceTree = "<group>"; };
-		2BEA43401AF003B300BFA719 /* FMDatabaseAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FMDatabaseAdditions.m; path = ../../../OpenSource/FMDB/FMDatabaseAdditions.m; sourceTree = "<group>"; };
-		2BEA43411AF003B300BFA719 /* FMDatabasePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDatabasePool.h; path = ../../../OpenSource/FMDB/FMDatabasePool.h; sourceTree = "<group>"; };
-		2BEA43421AF003B300BFA719 /* FMDatabasePool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FMDatabasePool.m; path = ../../../OpenSource/FMDB/FMDatabasePool.m; sourceTree = "<group>"; };
-		2BEA43431AF003B300BFA719 /* FMDatabaseQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDatabaseQueue.h; path = ../../../OpenSource/FMDB/FMDatabaseQueue.h; sourceTree = "<group>"; };
-		2BEA43441AF003B300BFA719 /* FMDatabaseQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FMDatabaseQueue.m; path = ../../../OpenSource/FMDB/FMDatabaseQueue.m; sourceTree = "<group>"; };
-		2BEA43451AF003B300BFA719 /* FMResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMResultSet.h; path = ../../../OpenSource/FMDB/FMResultSet.h; sourceTree = "<group>"; };
-		2BEA43461AF003B300BFA719 /* FMResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FMResultSet.m; path = ../../../OpenSource/FMDB/FMResultSet.m; sourceTree = "<group>"; };
 		2BEB21F318441AF30048DDE3 /* MaplyTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyTexture.h; path = include/MaplyTexture.h; sourceTree = "<group>"; };
 		2BEB21F418441AF30048DDE3 /* MaplyTexture_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyTexture_private.h; path = include/private/MaplyTexture_private.h; sourceTree = "<group>"; };
 		2BEB21F818441B020048DDE3 /* MaplyTexture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyTexture.mm; path = src/MaplyTexture.mm; sourceTree = "<group>"; };
@@ -710,7 +717,7 @@
 				881F662D18F20A8F00D17110 /* google */,
 				2BBDFEB9188EFD4600AE4CEB /* AFNetworking */,
 				2B0D62DB17A2E87B00C3298D /* KissXML */,
-				2BC989C817DC23170071DA9E /* fmdb (local) */,
+				2BC989C817DC23170071DA9E /* fmdb */,
 				2B789F71185B8C420028E027 /* SMCalloutView */,
 				2B61D7AB16078A27007888CF /* Component Base */,
 				2B61D7AA16078A21007888CF /* MaplyComponent */,
@@ -1053,21 +1060,22 @@
 			name = elevation;
 			sourceTree = "<group>";
 		};
-		2BC989C817DC23170071DA9E /* fmdb (local) */ = {
+		2BC989C817DC23170071DA9E /* fmdb */ = {
 			isa = PBXGroup;
 			children = (
-				2BEA433D1AF003B300BFA719 /* FMDatabase.h */,
-				2BEA433E1AF003B300BFA719 /* FMDatabase.m */,
-				2BEA433F1AF003B300BFA719 /* FMDatabaseAdditions.h */,
-				2BEA43401AF003B300BFA719 /* FMDatabaseAdditions.m */,
-				2BEA43411AF003B300BFA719 /* FMDatabasePool.h */,
-				2BEA43421AF003B300BFA719 /* FMDatabasePool.m */,
-				2BEA43431AF003B300BFA719 /* FMDatabaseQueue.h */,
-				2BEA43441AF003B300BFA719 /* FMDatabaseQueue.m */,
-				2BEA43451AF003B300BFA719 /* FMResultSet.h */,
-				2BEA43461AF003B300BFA719 /* FMResultSet.m */,
+				2B1B31F11B0A6FDD00A37285 /* FMDatabase.h */,
+				2B1B31F21B0A6FDD00A37285 /* FMDatabase.m */,
+				2B1B31F31B0A6FDD00A37285 /* FMDatabaseAdditions.h */,
+				2B1B31F41B0A6FDD00A37285 /* FMDatabaseAdditions.m */,
+				2B1B31F51B0A6FDD00A37285 /* FMDatabasePool.h */,
+				2B1B31F61B0A6FDD00A37285 /* FMDatabasePool.m */,
+				2B1B31F71B0A6FDD00A37285 /* FMDatabaseQueue.h */,
+				2B1B31F81B0A6FDD00A37285 /* FMDatabaseQueue.m */,
+				2B1B31F91B0A6FDD00A37285 /* FMDB.h */,
+				2B1B31FA1B0A6FDD00A37285 /* FMResultSet.h */,
+				2B1B31FB1B0A6FDD00A37285 /* FMResultSet.m */,
 			);
-			name = "fmdb (local)";
+			name = fmdb;
 			sourceTree = "<group>";
 		};
 		2BE88490160A59DE00E92A0A /* utility */ = {
@@ -1293,7 +1301,6 @@
 				881F66B118F20A8F00D17110 /* atomicops_internals_arm_qnx.h in Headers */,
 				881F66C918F20A8F00D17110 /* template_util.h in Headers */,
 				881F66A518F20A8F00D17110 /* message.h in Headers */,
-				2BEA434F1AF003B300BFA719 /* FMResultSet.h in Headers */,
 				2BE88486160A437D00E92A0A /* MaplySharedAttributes.h in Headers */,
 				2BDC8A1D191D994F00DFECF0 /* AFNetworkReachabilityManager.h in Headers */,
 				2BE8848A160A46BA00E92A0A /* MaplyInteractionLayer_private.h in Headers */,
@@ -1313,7 +1320,7 @@
 				2BB7A96C1A26587400E50DC5 /* MaplyGeomModel.h in Headers */,
 				881F66A818F20A8F00D17110 /* package_info.h in Headers */,
 				881F66A118F20A8F00D17110 /* zero_copy_stream_impl.h in Headers */,
-				2BEA43471AF003B300BFA719 /* FMDatabase.h in Headers */,
+				2B1B31FC1B0A6FDD00A37285 /* FMDatabase.h in Headers */,
 				2B73BD4619F07D8900CDB242 /* MaplyMatrix_private.h in Headers */,
 				2B0A4DB0167BD795000D5786 /* MaplyBaseViewController.h in Headers */,
 				2BDC8A1C191D994F00DFECF0 /* AFNetworking.h in Headers */,
@@ -1321,7 +1328,7 @@
 				2B0A4DB1167BD795000D5786 /* MaplyBaseViewController_private.h in Headers */,
 				2B0A4DB5167BDAC6000D5786 /* MaplyBaseInteractionLayer_private.h in Headers */,
 				881F66AF18F20A8F00D17110 /* atomicops.h in Headers */,
-				2BEA434D1AF003B300BFA719 /* FMDatabaseQueue.h in Headers */,
+				2B1B32021B0A6FDD00A37285 /* FMDatabaseQueue.h in Headers */,
 				2B5F190F1A928169004A8723 /* arenastring.h in Headers */,
 				2BEE96B01AA52F47007F9209 /* MaplyScreenObject_private.h in Headers */,
 				2B0A4DC0167BFA7A000D5786 /* MaplyViewController_private.h in Headers */,
@@ -1338,7 +1345,7 @@
 				2BEA1E60171E0EBD0039F1A4 /* MaplyActiveObject_private.h in Headers */,
 				2BCA689217416A7000696BA8 /* MaplyViewControllerLayer.h in Headers */,
 				881F66B918F20A8F00D17110 /* atomicops_internals_x86_msvc.h in Headers */,
-				2BEA434B1AF003B300BFA719 /* FMDatabasePool.h in Headers */,
+				2B1B32001B0A6FDD00A37285 /* FMDatabasePool.h in Headers */,
 				2BCA689D1741913200696BA8 /* MaplyTileSource.h in Headers */,
 				881F66AC18F20A8F00D17110 /* repeated_field.h in Headers */,
 				2BBAA907181EEE3100BE1277 /* MaplyBillboard.h in Headers */,
@@ -1354,6 +1361,7 @@
 				2B789F79185B91F90028E027 /* MaplyAnnotation.h in Headers */,
 				881F66B018F20A8F00D17110 /* atomicops_internals_arm_gcc.h in Headers */,
 				2BCA68AC174197C500696BA8 /* MaplyCoordinateSystem_private.h in Headers */,
+				2B1B32051B0A6FDD00A37285 /* FMResultSet.h in Headers */,
 				2B44E817174B20A800474C2B /* MaplyQuadPagingLayer.h in Headers */,
 				2B44E81E174B20F500474C2B /* MaplyQuadPagingLayer_private.h in Headers */,
 				2B0D62D017A1D9AC00C3298D /* MaplyWMSTileSource.h in Headers */,
@@ -1361,7 +1369,7 @@
 				2B0D630117A2EDA300C3298D /* DDXMLElementAdditions.h in Headers */,
 				2B0D630317A2EDA300C3298D /* NSString+DDXML.h in Headers */,
 				2B0D630517A2EDA300C3298D /* DDXML.h in Headers */,
-				2BEA43491AF003B300BFA719 /* FMDatabaseAdditions.h in Headers */,
+				2B1B31FE1B0A6FDD00A37285 /* FMDatabaseAdditions.h in Headers */,
 				2B0D630617A2EDA300C3298D /* DDXMLDocument.h in Headers */,
 				2B0D630817A2EDA300C3298D /* DDXMLElement.h in Headers */,
 				2B0D630A17A2EDA300C3298D /* DDXMLNode.h in Headers */,
@@ -1378,6 +1386,7 @@
 				2BC989C517DC214E0071DA9E /* MaplyElevationDatabase.h in Headers */,
 				2B63C8931ADC82B0006CA9AA /* MaplyUpdateLayer_private.h in Headers */,
 				881F668518F20A8F00D17110 /* descriptor.h in Headers */,
+				2B1B32041B0A6FDD00A37285 /* FMDB.h in Headers */,
 				2BC122EC1AC095580025326D /* MaplyVertexAttribute_private.h in Headers */,
 				881F66AE18F20A8F00D17110 /* service.h in Headers */,
 				881F669D18F20A8F00D17110 /* tokenizer.h in Headers */,
@@ -1455,6 +1464,7 @@
 				2BEB2ED21ADDDB830069A27B /* generated_message_util.cc in Sources */,
 				2BEB2ECF1ADDDB830069A27B /* extension_set.cc in Sources */,
 				2B897A8515BB5DEB00250F23 /* WhirlyGlobeViewController.mm in Sources */,
+				2B1B31FD1B0A6FDD00A37285 /* FMDatabase.m in Sources */,
 				2BEB2EE11ADDDB930069A27B /* strutil.cc in Sources */,
 				2B897A8715BBB83E00250F23 /* WGInteractionLayer.mm in Sources */,
 				2BEB2EEF1ADEC37E0069A27B /* descriptor.cc in Sources */,
@@ -1535,8 +1545,10 @@
 				2B0A4DB8167BDAD3000D5786 /* MaplyBaseInteractionLayer.mm in Sources */,
 				2BB752641AD84C3900FCA174 /* MaplyVectorPolygonStyle.mm in Sources */,
 				2BEB2EE21ADDDB930069A27B /* substitute.cc in Sources */,
+				2B1B32061B0A6FDD00A37285 /* FMResultSet.m in Sources */,
 				2B0A4DB9167BDAD3000D5786 /* MaplyBaseViewController.mm in Sources */,
 				2B37059E16B1E6110096C970 /* MaplySphericalQuadEarthWithTexGroup.mm in Sources */,
+				2B1B31FF1B0A6FDD00A37285 /* FMDatabaseAdditions.m in Sources */,
 				2BB7FB5316B9AD0D0017EB2F /* MaplyLight.m in Sources */,
 				2B2E2FFC16C4886800CAD143 /* MaplyShader.mm in Sources */,
 				2BEB2EE61ADDDB9A0069A27B /* tokenizer.cc in Sources */,
@@ -1559,6 +1571,7 @@
 				2BEB2EBE1ADDDB630069A27B /* MapboxVectorStyleSet.mm in Sources */,
 				2B789F76185B8C950028E027 /* SMCalloutView.m in Sources */,
 				2BB752631AD84C3900FCA174 /* MaplyVectorMarkerStyle.mm in Sources */,
+				2B1B32011B0A6FDD00A37285 /* FMDatabasePool.m in Sources */,
 				2B0D630717A2EDA300C3298D /* DDXMLDocument.m in Sources */,
 				2BEB2EED1ADEC37E0069A27B /* arena.cc in Sources */,
 				2B0D630917A2EDA300C3298D /* DDXMLElement.m in Sources */,
@@ -1577,6 +1590,7 @@
 				2BC9897117D93EB30071DA9E /* MaplyMultiplexTileSource.mm in Sources */,
 				2B11057317E237D400735C46 /* MaplyElevationDatabase.mm in Sources */,
 				2BC989C317DC1F1E0071DA9E /* NSData+Zlib.m in Sources */,
+				2B1B32031B0A6FDD00A37285 /* FMDatabaseQueue.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1608,7 +1622,7 @@
 				OTHER_LDFLAGS = "";
 				SDKROOT = iphoneos;
 				STRIP_INSTALLED_PRODUCT = NO;
-				VALID_ARCHS = "armv7 armv7s";
+				VALID_ARCHS = "";
 			};
 			name = Debug;
 		};
@@ -1632,7 +1646,7 @@
 				SDKROOT = iphoneos;
 				STRIP_INSTALLED_PRODUCT = NO;
 				VALIDATE_PRODUCT = YES;
-				VALID_ARCHS = "armv7 armv7s";
+				VALID_ARCHS = "";
 			};
 			name = Release;
 		};
@@ -1668,6 +1682,7 @@
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "WhirlyGlobe-MaplyComponent";
 				SKIP_INSTALL = YES;
+				VALID_ARCHS = "armv7s armv7 arm64";
 			};
 			name = Debug;
 		};
@@ -1705,6 +1720,7 @@
 				PRODUCT_NAME = "WhirlyGlobe-MaplyComponent";
 				SKIP_INSTALL = YES;
 				STRIP_STYLE = all;
+				VALID_ARCHS = "armv7s armv7 arm64";
 			};
 			name = Release;
 		};
