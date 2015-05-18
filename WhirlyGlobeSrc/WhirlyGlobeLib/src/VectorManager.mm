@@ -491,6 +491,7 @@ protected:
 
 VectorManager::VectorManager()
 {
+    canary = [[NSObject alloc] init];
     pthread_mutex_init(&vectorLock, NULL);
 }
 
@@ -788,14 +789,19 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
                      idIt != allIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+sceneRep->fade));
                 
+                __block NSObject * __weak thisCanary = canary;
+                
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
                                scene->getDispatchQueue(),
                                ^{
-                                   SimpleIDSet theIDs;
-                                   theIDs.insert(sceneRep->getId());
-                                   ChangeSet delChanges;
-                                   removeVectors(theIDs, delChanges);
-                                   scene->addChangeRequests(delChanges);
+                                   if (thisCanary)
+                                   {
+                                       SimpleIDSet theIDs;
+                                       theIDs.insert(sceneRep->getId());
+                                       ChangeSet delChanges;
+                                       removeVectors(theIDs, delChanges);
+                                       scene->addChangeRequests(delChanges);
+                                   }
                                }
                                );
                 sceneRep->fade = 0.0;

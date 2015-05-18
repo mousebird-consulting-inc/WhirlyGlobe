@@ -43,6 +43,10 @@
 /// @brief Position to move to on the globe
 @property (nonatomic) MaplyCoordinate pos;
 
+/// @brief If set, this is a point on the screen where pos should be.
+/// @details By default this is (-1,-1) meaning the screen position is just the middle.  Otherwise, this is where the position should wind up on the screen, if it can.
+@property (nonatomic) CGPoint screenPos;
+
 /** @brief Interpolate a new state between the given states A and B.
     @details This does a simple interpolation (lat/lon, not great circle) between the two animation states.
   */
@@ -339,6 +343,16 @@
     @param height The current view point's height above the globe.
  */
 - (void)getPosition:(MaplyCoordinate *)pos height:(float *)height;
+
+/** @brief Set the viewing state all at once
+    @details This sets the position, tilt, height, screen position and heading all at once.
+  */
+- (void)setViewState:(WhirlyGlobeViewControllerAnimationState *)viewState;
+
+/** @brief Make a WhirlyGlobeViewControllerAnimationState object from the current view state.
+    @details This returns the current view parameters in a single WhirlyGlobeViewControllerAnimationState.
+  */
+- (WhirlyGlobeViewControllerAnimationState *)getViewState;
 
 /** @brief Find a selectable object at or near the given location.
     @details This runs immediately and looks for a Maply object at the given location.  It differs from the WhirlyGlobeViewControllerDelegate in that it doesn't require user interaction.

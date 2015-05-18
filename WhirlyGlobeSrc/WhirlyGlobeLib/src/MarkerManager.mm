@@ -475,14 +475,19 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
                     changes.push_back(new MarkerGeneratorFadeRequest(generatorId,markerIDs,curTime,curTime+markerRep->fade));
                 }
                 
+                __block NSObject * __weak thisCanary = canary;
+                
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, markerRep->fade * NSEC_PER_SEC),
                                scene->getDispatchQueue(),
                                ^{
-                                   SimpleIDSet theseMarkerIDs;
-                                   theseMarkerIDs.insert(markerID);
-                                   ChangeSet delChanges;
-                                   removeMarkers(theseMarkerIDs,delChanges);
-                                   scene->addChangeRequests(delChanges);
+                                   if (thisCanary)
+                                   {
+                                       SimpleIDSet theseMarkerIDs;
+                                       theseMarkerIDs.insert(markerID);
+                                       ChangeSet delChanges;
+                                       removeMarkers(theseMarkerIDs,delChanges);
+                                       scene->addChangeRequests(delChanges);
+                                   }
                                }
                                );
 
