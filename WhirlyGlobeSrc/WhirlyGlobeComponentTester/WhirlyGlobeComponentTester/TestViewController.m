@@ -1063,7 +1063,6 @@ static const int NumMegaMarkers = 15000;
     {
         self.title = @"Stamen Water Color - Remote";
         // These are the Stamen Watercolor tiles.
-        // They're beautiful, but the server isn't so great.
         thisCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",cacheDir];
         int maxZoom = 16;
         if (zoomLimit != 0 && zoomLimit < maxZoom)

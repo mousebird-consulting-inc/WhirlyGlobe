@@ -567,7 +567,7 @@ public:
     {
         Point2f &pt0 = pts[ii],&pt1 = pts[ii+1];
         float len = (pt1-pt0).norm();
-        if (halfLen <= lenSoFar+len)
+        if (len > 0.0 && halfLen <= lenSoFar+len)
         {
             float t = (halfLen-lenSoFar)/len;
             Point2f thePt = (pt1-pt0)*t + pt0;
