@@ -99,12 +99,6 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
 
 Scene::~Scene()
 {
-    // This should block until the queue is empty
-    dispatch_sync(dispatchQueue, ^{});
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
-    dispatch_release(dispatchQueue);
-#endif
-
     pthread_mutex_destroy(&coordAdapterLock);
 
     if (cullTree)
