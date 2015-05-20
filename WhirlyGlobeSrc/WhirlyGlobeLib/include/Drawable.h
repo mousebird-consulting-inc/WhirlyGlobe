@@ -357,6 +357,9 @@ public:
             return type == that.type;
         return ret;
     }
+    
+    /// Return the size for the particular data type
+    int size() const;
 
     /// Attribute's data type
     BDAttributeDataType type;
@@ -367,7 +370,7 @@ public:
 
 typedef std::set<SingleVertexAttributeInfo> SingleVertexAttributeInfoSet;
 
-/** The single vertex attribute hold sa single typed value to
+/** The single vertex attribute holds a single typed value to
     be merged into a basic drawable's attributes arrays.
  */
 class SingleVertexAttribute : public SingleVertexAttributeInfo

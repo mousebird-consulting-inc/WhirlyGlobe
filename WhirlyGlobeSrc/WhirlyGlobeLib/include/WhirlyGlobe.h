@@ -49,7 +49,6 @@
 #import "ShapeReader.h"
 #import "VectorLayer.h"
 #import "LabelLayer.h"
-#import "ParticleSystemLayer.h"
 #import "MarkerLayer.h"
 #import "LoftLayer.h"
 #import "LoftManager.h"
