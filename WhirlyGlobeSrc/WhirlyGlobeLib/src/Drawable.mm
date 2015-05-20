@@ -455,6 +455,28 @@ int VertexAttribute::size() const
             break;
     }
 }
+    
+int SingleVertexAttributeInfo::size() const
+{
+    switch (type)
+    {
+        case BDFloat3Type:
+            return sizeof(GLfloat)*3;
+            break;
+        case BDFloat2Type:
+            return sizeof(GLfloat)*2;
+            break;
+        case BDChar4Type:
+            return sizeof(unsigned char)*4;
+            break;
+        case BDFloatType:
+            return sizeof(GLfloat);
+            break;
+        case BDIntType:
+            return sizeof(GLint);
+            break;
+    }
+}
 
 /// Clean out the data array
 void VertexAttribute::clear()
