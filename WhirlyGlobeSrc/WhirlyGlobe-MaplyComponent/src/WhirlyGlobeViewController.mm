@@ -35,6 +35,7 @@ using namespace WhirlyGlobe;
     _height = 1.0;
     _tilt = MAXFLOAT;
     _pos.x = _pos.y = 0.0;
+    _screenPos = {-1,-1};
     
     return self;
 }
@@ -1242,6 +1243,33 @@ using namespace WhirlyGlobe;
     // Ask the delegate where we're supposed to be
     WhirlyGlobeViewControllerAnimationState *animState = [animationDelegate globeViewController:self stateForTime:now];
     
+    [self setViewState:animState];
+    
+    if (lastOne)
+    {
+        [globeView cancelAnimation];
+        if ([animationDelegate respondsToSelector:@selector(globeViewControllerDidFinishAnimation:)])
+            [animationDelegate globeViewControllerDidFinishAnimation:self];
+        animationDelegate = nil;
+    }
+}
+
+- (void)animateWithDelegate:(NSObject<WhirlyGlobeViewControllerAnimationDelegate> *)inAnimationDelegate time:(NSTimeInterval)howLong
+{
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    animationDelegate = inAnimationDelegate;
+    animationDelegateEnd = now+howLong;
+
+    WhirlyGlobeViewControllerAnimationState *stateStart = [self getViewState];
+    
+    // Tell the delegate what we're up to
+    [animationDelegate globeViewController:self startState:stateStart startTime:now endTime:animationDelegateEnd];
+    
+    globeView.delegate = self;
+}
+
+- (void)setViewState:(WhirlyGlobeViewControllerAnimationState *)animState
+{
     // Start with a rotation from the clean start state to the location
     Point3d worldLoc = globeView.coordAdapter->localToDisplay(globeView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y)));
     Eigen::Quaterniond posRot = QuatFromTwoVectors(worldLoc, Vector3d(0,0,1));
@@ -1285,38 +1313,23 @@ using namespace WhirlyGlobe;
         globeView.tilt = animState.tilt;
     
     globeView.rotQuat = finalQuat;
-    
-    if (lastOne)
-    {
-        [globeView cancelAnimation];
-        if ([animationDelegate respondsToSelector:@selector(globeViewControllerDidFinishAnimation:)])
-            [animationDelegate globeViewControllerDidFinishAnimation:self];
-        animationDelegate = nil;
-    }
 }
 
-- (void)animateWithDelegate:(NSObject<WhirlyGlobeViewControllerAnimationDelegate> *)inAnimationDelegate time:(NSTimeInterval)howLong
+- (WhirlyGlobeViewControllerAnimationState *)getViewState
 {
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
-    animationDelegate = inAnimationDelegate;
-    animationDelegateEnd = now+howLong;
-
     // Figure out the current state
-    WhirlyGlobeViewControllerAnimationState *stateStart = [[WhirlyGlobeViewControllerAnimationState alloc] init];
+    WhirlyGlobeViewControllerAnimationState *state = [[WhirlyGlobeViewControllerAnimationState alloc] init];
     startQuat = globeView.rotQuat;
     startUp = [globeView currentUp];
-    stateStart.heading = self.heading;
-    stateStart.tilt = self.tilt;
+    state.heading = self.heading;
+    state.tilt = self.tilt;
     MaplyCoordinate pos;
     float height;
     [self getPosition:&pos height:&height];
-    stateStart.pos = pos;
-    stateStart.height = height;
+    state.pos = pos;
+    state.height = height;
     
-    // Tell the delegate what we're up to
-    [animationDelegate globeViewController:self startState:stateStart startTime:now endTime:animationDelegateEnd];
-    
-    globeView.delegate = self;
+    return state;
 }
 
 - (bool) getCurrentExtents:(MaplyBoundingBox *)bbox

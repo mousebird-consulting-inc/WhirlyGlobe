@@ -239,7 +239,7 @@ typedef std::map<std::string,OpenGLES2Program *> OpenGLES2ProgramMap;
 class SceneManager
 {
 public:
-    SceneManager() : scene(NULL), renderer(NULL) { }
+    SceneManager() : scene(NULL), renderer(NULL) { canary = [[NSObject alloc] init]; }
     virtual ~SceneManager() { };
     
     /// Set (or reset) the current renderer
@@ -249,6 +249,7 @@ public:
     virtual void setScene(Scene *inScene) { scene = inScene; }
     
 protected:
+    NSObject *canary;
     Scene *scene;
     WhirlyKitSceneRendererES * __weak renderer;
 };
