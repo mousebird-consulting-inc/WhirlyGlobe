@@ -211,7 +211,6 @@ WhirlyKit::OpenGLES2Program *BuildScreenSpaceProgram()
 
 WhirlyKit::OpenGLES2Program *BuildScreenSpaceMotionProgram()
 {
-    // note: Debugging
     OpenGLES2Program *shader = new OpenGLES2Program(kScreenSpaceShaderMotionName,vertexShaderMotionTri,fragmentShaderTri);
     if (!shader->isValid())
     {

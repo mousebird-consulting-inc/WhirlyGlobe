@@ -93,6 +93,7 @@ public:
 protected:
     void addGeometryToBuilder(LoftedPolySceneRep *sceneRep,WhirlyKitLoftedPolyInfo *polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ChangeSet &changes);
     
+    NSObject *canary;
     pthread_mutex_t loftLock;
     LoftedPolySceneRepSet loftReps;
 };

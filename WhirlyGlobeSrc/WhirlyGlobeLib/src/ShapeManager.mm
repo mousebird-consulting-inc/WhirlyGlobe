@@ -644,14 +644,19 @@ void ShapeManager::removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes)
                      idIt != shapeRep->drawIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+shapeRep->fade));
                 
+                __block NSObject * __weak thisCanary = canary;
+
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, shapeRep->fade * NSEC_PER_SEC),
                                scene->getDispatchQueue(),
                                ^{
-                                   SimpleIDSet theseShapeIDs;
-                                   theseShapeIDs.insert(shapeID);
-                                   ChangeSet delChanges;
-                                   removeShapes(theseShapeIDs, delChanges);
-                                   scene->addChangeRequests(delChanges);
+                                   if (thisCanary)
+                                   {
+                                       SimpleIDSet theseShapeIDs;
+                                       theseShapeIDs.insert(shapeID);
+                                       ChangeSet delChanges;
+                                       removeShapes(theseShapeIDs, delChanges);
+                                       scene->addChangeRequests(delChanges);
+                                   }
                                }
                                );
                 shapeRep->fade = 0.0;
