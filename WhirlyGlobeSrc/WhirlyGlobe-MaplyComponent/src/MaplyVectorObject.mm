@@ -567,7 +567,7 @@ public:
     {
         Point2f &pt0 = pts[ii],&pt1 = pts[ii+1];
         float len = (pt1-pt0).norm();
-        if (halfLen <= lenSoFar+len)
+        if (len > 0.0 && halfLen <= lenSoFar+len)
         {
             float t = (halfLen-lenSoFar)/len;
             Point2f thePt = (pt1-pt0)*t + pt0;
@@ -717,6 +717,24 @@ public:
                 {
                     bigLoop = &areal->loops[ii];
                     bigArea = area;
+                }
+            }
+        } else {
+            VectorLinearRef linear = boost::dynamic_pointer_cast<VectorLinear>(*it);
+            if (linear)
+            {
+                GeoCoord midCoord = linear->geoMbr.mid();
+                centroid->x = midCoord.x();
+                centroid->y = midCoord.y();
+                return true;
+            } else {
+                VectorPointsRef pts = boost::dynamic_pointer_cast<VectorPoints>(*it);
+                if (pts)
+                {
+                    GeoCoord midCoord = pts->geoMbr.mid();
+                    centroid->x = midCoord.x();
+                    centroid->y = midCoord.y();
+                    return true;
                 }
             }
         }
