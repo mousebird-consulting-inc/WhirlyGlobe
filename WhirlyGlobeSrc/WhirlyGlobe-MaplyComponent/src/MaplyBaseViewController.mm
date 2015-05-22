@@ -95,6 +95,7 @@ using namespace WhirlyKit;
     sceneRenderer = nil;
     baseLayerThread = nil;
     layoutLayer = nil;
+    partSysLayer = nil;
     
     activeObjects = nil;
     
@@ -233,6 +234,10 @@ using namespace WhirlyKit;
     // Layout still needs a layer to kick it off
     layoutLayer = [[WhirlyKitLayoutLayer alloc] initWithRenderer:sceneRenderer];
     [baseLayerThread addLayer:layoutLayer];
+    
+    // Particle systems need a layer for cleanup
+    partSysLayer = [[WhirlyKitParticleSystemLayer alloc] init];
+    [baseLayerThread addLayer:partSysLayer];
     
     // Lastly, an interaction layer of our own
     interactLayer = [self loadSetup_interactionLayer];

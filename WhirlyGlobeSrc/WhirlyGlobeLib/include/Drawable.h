@@ -253,7 +253,7 @@ static const unsigned int MaxDrawableTriangles = (MaxDrawablePoints / 3);
 class SubTexture;
 
 /// Data types we'll accept for attributes
-typedef enum {BDFloat3Type,BDChar4Type,BDFloat2Type,BDFloatType,BDIntType} BDAttributeDataType;
+typedef enum {BDFloat4Type,BDFloat3Type,BDChar4Type,BDFloat2Type,BDFloatType,BDIntType} BDAttributeDataType;
     
     
 /// Used to keep track of attributes (other than points)
@@ -285,6 +285,8 @@ public:
     void addVector2f(const Eigen::Vector2f &vec);
     /// Convenience routine to add a 3D vector (if the type matches)
     void addVector3f(const Eigen::Vector3f &vec);
+    /// Convenience routine to add a 4D vector (if the type matches)
+    void addVector4f(const Eigen::Vector4f &vec);
     /// Convenience routine to add a float (if the type matches)
     void addFloat(float val);
     /// Convenience routine to add an int (if the type matches)
@@ -324,6 +326,7 @@ public:
     std::string name;
     /// Default value to pass to OpenGL if there's no data array
     union {
+        float vec4[4];
         float vec3[3];
         float vec2[2];
         float floatVal;
@@ -358,6 +361,15 @@ public:
         return ret;
     }
     
+    /// Return the number of components as needed by glVertexAttribPointer
+    GLuint glEntryComponents() const;
+    
+    /// Return the data type as required by glVertexAttribPointer
+    GLenum glType() const;
+    
+    /// Whether or not glVertexAttribPointer will normalize the data
+    GLboolean glNormalize() const;
+    
     /// Return the size for the particular data type
     int size() const;
 
@@ -378,6 +390,7 @@ class SingleVertexAttribute : public SingleVertexAttributeInfo
 public:
     /// The actual data
     union {
+        float vec4[4];
         float vec3[3];
         float vec2[2];
         float floatVal;
@@ -547,12 +560,15 @@ public:
     /// Add the given vertex attributes for the given vertex
     void addVertexAttributes(const SingleVertexAttributeSet &attrs);
 
-    /// Add a vector to the given attribute array
+    /// Add a 2D vector to the given attribute array
     virtual void addAttributeValue(int attrId,Eigen::Vector2f vec);
 
-    /// Add a 2D vector to the given attribute array
+    /// Add a 3D vector to the given attribute array
     virtual void addAttributeValue(int attrId,Eigen::Vector3f vec);
-    
+
+    /// Add a 4D vector to the given attribute array
+    virtual void addAttributeValue(int attrId,Eigen::Vector4f vec);
+
     /// Add a 4 component char array to the given attribute array
     virtual void addAttributeValue(int attrId,RGBAColor color);
     

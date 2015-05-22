@@ -42,6 +42,8 @@ namespace WhirlyKit
 #define kToolkitDefaultScreenSpaceMotionProgram "Default Screenspace Motion"
 /// Widened vector shader
 #define kToolkitDefaultWideVectorProgram "Default Wide Vector"
+/// Particle System shader
+#define kToolkitDefaultParticleSystemProgram "Default Part Sys (Point)"
 
 /// Create the default shaders and register them in the appropriate places in the scene
 void SetupDefaultShaders(Scene *);

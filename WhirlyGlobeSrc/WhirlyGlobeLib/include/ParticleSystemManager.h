@@ -25,18 +25,21 @@
 #import "Drawable.h"
 #import "Scene.h"
 #import "SelectionManager.h"
+#import "ParticleSystemDrawable.h"
 
 namespace WhirlyKit
 {
-#define kWKParticleSystemdManager "WKParticleSystemManager"
+#define kWKParticleSystemManager "WKParticleSystemManager"
 
 typedef enum {ParticleSystemPoint} ParticleSystemType;
 
 /// Defines the parameters for a single particle system
-class ParticleSystem
+class ParticleSystem : public Identifiable
 {
 public:
     std::string name;
+    int drawPriority;
+    float pointSize;
     ParticleSystemType type;
     SimpleIdentity shaderID;
     NSTimeInterval lifetime;
@@ -51,7 +54,7 @@ public:
     // Should match the particle systems batch size
     int batchSize;
     // One entry per vertex attribute.  Order corresponds to the vertAttrs array in the ParticleSystem.
-    std::vector<void *> attrData;
+    std::vector<const void *> attrData;
 };
 
 /// Used to track resources associated with a particle system
@@ -64,10 +67,9 @@ public:
     
     void clearContents(ChangeSet &changes);
     void enableContents(bool enable,ChangeSet &changes);
-    void removeContents(ChangeSet &changes);
     
     ParticleSystem partSys;
-    SimpleIDSet drawIDs;  // Drawables created
+    std::set<ParticleSystemDrawable *> draws;
 };
     
 typedef std::set<ParticleSystemSceneRep *,IdentifiableSorter> ParticleSystemSceneRepSet;
@@ -83,7 +85,7 @@ public:
     SimpleIdentity addParticleSystem(const ParticleSystem &newSystem,ChangeSet &changes);
     
     /// Add a batch of particles
-    void addParticleBatch(SimpleIdentity,const ParticleBatch &batch);
+    void addParticleBatch(SimpleIdentity,const ParticleBatch &batch,ChangeSet &changes);
     
     /// Enable/disable active particle system
     void enableParticleSystem(SimpleIdentity sysID,bool enable,ChangeSet &changes);

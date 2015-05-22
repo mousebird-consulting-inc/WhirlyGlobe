@@ -241,6 +241,7 @@ VertexAttribute::VertexAttribute(BDAttributeDataType dataType,const std::string 
     defaultData.vec3[0] = 0.0;
     defaultData.vec3[1] = 0.0;
     defaultData.vec3[2] = 0.0;
+    defaultData.vec4[3] = 0.0;
 }
     
 VertexAttribute::~VertexAttribute()
@@ -323,6 +324,17 @@ void VertexAttribute::addVector3f(const Eigen::Vector3f &vec)
     (*vecs).push_back(vec);
 }
 
+void VertexAttribute::addVector4f(const Eigen::Vector4f &vec)
+{
+    if (dataType != BDFloat4Type)
+        return;
+    
+    if (!data)
+        data = new std::vector<Vector4f>();
+    std::vector<Vector4f> *vecs = (std::vector<Vector4f> *)data;
+    (*vecs).push_back(vec);
+}
+
 void VertexAttribute::addFloat(float val)
 {
     if (dataType != BDFloatType)
@@ -350,6 +362,14 @@ void VertexAttribute::reserve(int size)
 {
     switch (dataType)
     {
+        case BDFloat4Type:
+        {
+            if (!data)
+                data = new std::vector<Vector4f>();
+            std::vector<Vector4f> *vecs = (std::vector<Vector4f> *)data;
+            vecs->reserve(size);
+        }
+            break;
         case BDFloat3Type:
         {
             if (!data)
@@ -401,6 +421,12 @@ int VertexAttribute::numElements() const
     
     switch (dataType)
     {
+        case BDFloat4Type:
+        {
+            std::vector<Vector4f> *vecs = (std::vector<Vector4f> *)data;
+            return (int)vecs->size();
+        }
+            break;
         case BDFloat3Type:
         {
             std::vector<Vector3f> *vecs = (std::vector<Vector3f> *)data;
@@ -438,6 +464,9 @@ int VertexAttribute::size() const
 {
     switch (dataType)
     {
+        case BDFloat4Type:
+            return sizeof(GLfloat)*4;
+            break;
         case BDFloat3Type:
             return sizeof(GLfloat)*3;
             break;
@@ -460,6 +489,9 @@ int SingleVertexAttributeInfo::size() const
 {
     switch (type)
     {
+        case BDFloat4Type:
+            return sizeof(GLfloat)*4;
+            break;
         case BDFloat3Type:
             return sizeof(GLfloat)*3;
             break;
@@ -485,6 +517,12 @@ void VertexAttribute::clear()
     {
         switch (dataType)
         {
+            case BDFloat4Type:
+            {
+                std::vector<Vector4f> *vecs = (std::vector<Vector4f> *)data;
+                delete vecs;
+            }
+                break;
             case BDFloat3Type:
             {
                 std::vector<Vector3f> *vecs = (std::vector<Vector3f> *)data;
@@ -525,6 +563,12 @@ void *VertexAttribute::addressForElement(int which)
 {
     switch (dataType)
     {
+        case BDFloat4Type:
+        {
+            std::vector<Vector4f> *vecs = (std::vector<Vector4f> *)data;
+            return &(*vecs)[which];;
+        }
+            break;
         case BDFloat3Type:
         {
             std::vector<Vector3f> *vecs = (std::vector<Vector3f> *)data;
@@ -565,6 +609,37 @@ GLuint VertexAttribute::glEntryComponents() const
 {
     switch (dataType)
     {
+        case BDFloat4Type:
+            return 4;
+            break;
+        case BDFloat3Type:
+            return 3;
+            break;
+        case BDFloat2Type:
+            return 2;
+            break;
+        case BDChar4Type:
+            return 4;
+            break;
+        case BDFloatType:
+            return 1;
+            break;
+        case BDIntType:
+            return 1;
+            break;
+    }
+    
+    return 0;
+}
+
+/// Return the number of components as needed by glVertexAttribPointer
+GLuint SingleVertexAttributeInfo::glEntryComponents() const
+{
+    switch (type)
+    {
+        case BDFloat4Type:
+            return 4;
+            break;
         case BDFloat3Type:
             return 3;
             break;
@@ -590,6 +665,7 @@ GLenum VertexAttribute::glType() const
 {
     switch (dataType)
     {
+        case BDFloat4Type:
         case BDFloat3Type:
         case BDFloat2Type:
         case BDFloatType:
@@ -605,11 +681,51 @@ GLenum VertexAttribute::glType() const
     return GL_UNSIGNED_BYTE;
 }
 
+/// Return the data type as required by glVertexAttribPointer
+GLenum SingleVertexAttributeInfo::glType() const
+{
+    switch (type)
+    {
+        case BDFloat4Type:
+        case BDFloat3Type:
+        case BDFloat2Type:
+        case BDFloatType:
+            return GL_FLOAT;
+            break;
+        case BDChar4Type:
+            return GL_UNSIGNED_BYTE;
+            break;
+        case BDIntType:
+            return GL_INT;
+            break;
+    }
+    return GL_UNSIGNED_BYTE;
+}
+    
 /// Whether or not glVertexAttribPointer will normalize the data
 GLboolean VertexAttribute::glNormalize() const
 {
     switch (dataType)
     {
+        case BDFloat4Type:
+        case BDFloat3Type:
+        case BDFloat2Type:
+        case BDFloatType:
+        case BDIntType:
+            return GL_FALSE;
+            break;
+        case BDChar4Type:
+            return GL_TRUE;
+            break;
+    }
+}
+
+/// Whether or not glVertexAttribPointer will normalize the data
+GLboolean SingleVertexAttributeInfo::glNormalize() const
+{
+    switch (type)
+    {
+        case BDFloat4Type:
         case BDFloat3Type:
         case BDFloat2Type:
         case BDFloatType:
@@ -626,6 +742,9 @@ void VertexAttribute::glSetDefault(int index) const
 {
     switch (dataType)
     {
+        case BDFloat4Type:
+            glVertexAttrib4f(index, defaultData.vec4[0], defaultData.vec4[1], defaultData.vec4[2], defaultData.vec4[3]);
+            break;
         case BDFloat3Type:
             glVertexAttrib3f(index, defaultData.vec3[0], defaultData.vec3[1], defaultData.vec3[2]);
             break;
@@ -1010,6 +1129,9 @@ void BasicDrawable::addAttributeValue(int attrId,Eigen::Vector2f vec)
 void BasicDrawable::addAttributeValue(int attrId,Eigen::Vector3f vec)
 { vertexAttributes[attrId]->addVector3f(vec); }
 
+void BasicDrawable::addAttributeValue(int attrId,Eigen::Vector4f vec)
+{ vertexAttributes[attrId]->addVector4f(vec); }
+
 void BasicDrawable::addAttributeValue(int attrId,RGBAColor color)
 { vertexAttributes[attrId]->addColor(color); }
 
@@ -1079,6 +1201,16 @@ void BasicDrawable::addVertexAttributes(const SingleVertexAttributeSet &attrs)
                 vec.x() = it->data.vec3[0];
                 vec.y() = it->data.vec3[1];
                 vec.z() = it->data.vec3[2];
+                addAttributeValue(attrId, vec);
+            }
+                break;
+            case BDFloat4Type:
+            {
+                Vector4f vec;
+                vec.x() = it->data.vec4[0];
+                vec.y() = it->data.vec4[1];
+                vec.z() = it->data.vec4[2];
+                vec.w() = it->data.vec4[3];
                 addAttributeValue(attrId, vec);
             }
                 break;

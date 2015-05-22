@@ -22,6 +22,7 @@
 #import "BillboardDrawable.h"
 #import "WideVectorDrawable.h"
 #import "ScreenSpaceDrawable.h"
+#import "ParticleSystemDrawable.h"
 
 namespace WhirlyKit
 {
@@ -378,6 +379,15 @@ void SetupDefaultShaders(Scene *scene)
         NSLog(@"SetupDefaultShaders: Screen Space Motion shader didn't compile.");
     } else {
         scene->addProgram(kToolkitDefaultScreenSpaceMotionProgram, screenSpaceMotionShader);
+    }
+    
+    // Particle System program
+    OpenGLES2Program *particleSystemShader = BuildParticleSystemProgram();
+    if (!particleSystemShader)
+    {
+        NSLog(@"SetupDefaultShaders: Particle System Shader didn't compile.");
+    } else {
+        scene->addProgram(kToolkitDefaultParticleSystemProgram, particleSystemShader);
     }
 }
 
