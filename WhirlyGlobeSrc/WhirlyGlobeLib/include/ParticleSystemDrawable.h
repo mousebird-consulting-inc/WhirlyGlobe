@@ -61,7 +61,7 @@ public:
     virtual void setProgram(SimpleIdentity newProgId) { programId = newProgId; }
 
     /// Whether it's currently displaying
-    bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const { return enable; }
+    bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const;
     /// True to turn it on, false to turn it off
     void setOnOff(bool onOff) { enable = onOff; }
     
@@ -71,6 +71,10 @@ public:
     /// Set the starting time
     void setStartTime(NSTimeInterval inStartTime) { startTime = inStartTime; }
     NSTimeInterval getStartTime() { return startTime; }
+    
+    /// Set the lifetime
+    void setLifetime(NSTimeInterval inLifetime) { lifetime = inLifetime; }
+    NSTimeInterval getLifetime() { return lifetime; }
     
     /// Create our buffers in GL
     void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
@@ -114,7 +118,7 @@ protected:
     SimpleIdentity programId;
     int drawPriority;
     float pointSize;
-    NSTimeInterval startTime;
+    NSTimeInterval startTime,lifetime;
     bool requestZBuffer,writeZBuffer;
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
     GLuint pointBuffer;
