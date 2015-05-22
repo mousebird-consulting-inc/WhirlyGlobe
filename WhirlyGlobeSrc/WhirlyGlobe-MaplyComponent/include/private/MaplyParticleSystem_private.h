@@ -34,9 +34,9 @@ public:
     // Size of a single data value
     int dataSize();
 };
-    
+
 typedef std::set<ParticleSystemAttribute> ParticleSystemAttributeSet;
-    
+
 class ParticleSystemAttrVals
 {
 public:
@@ -48,6 +48,7 @@ public:
 @interface MaplyParticleSystem()
 
 @property (nonatomic,assign) WhirlyKit::ParticleSystemAttributeSet &attrs;
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity ident;
 
 @end
 

@@ -36,6 +36,7 @@
 #import "MaplyGeomModel_private.h"
 #import "MaplyScreenObject_private.h"
 #import "MaplyVertexAttribute_private.h"
+#import "MaplyParticleSystem_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -2454,18 +2455,64 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyParticleSystemDrawPriorityDefault) toDict:inDesc];
+    [self applyDefaultName:kMaplyPointSize value:@(kMaplyPointSizeDefault) toDict:inDesc];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:nil];
+    [self resolveShader:inDesc defaultShader:kMaplyParticleSystemPointDefaultShader];
     
     // May need a temporary context
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
     
     SimpleIdentity partSysShaderID = [inDesc[kMaplyShader] intValue];
     if (partSysShaderID == EmptyIdentity)
-        partSysShaderID = scene->getProgramIDBySceneName([kMaplyParticleSystemPointDefault cStringUsingEncoding:NSASCIIStringEncoding]);
+        partSysShaderID = scene->getProgramIDBySceneName([kMaplyParticleSystemPointDefaultShader cStringUsingEncoding:NSASCIIStringEncoding]);
     
+    ParticleSystemManager *partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
+
     ChangeSet changes;
+    if (partSysManager)
+    {
+        ParticleSystem wkPartSys;
+        wkPartSys.setId(partSys.ident);
+        wkPartSys.drawPriority = [inDesc[kMaplyDrawPriority] intValue];
+        wkPartSys.pointSize = [inDesc[kMaplyPointSize] floatValue];
+        wkPartSys.name = [partSys.name cStringUsingEncoding:NSASCIIStringEncoding];
+        wkPartSys.type = ParticleSystemPoint;
+        wkPartSys.shaderID = partSysShaderID;
+        wkPartSys.lifetime = partSys.lifetime;
+        wkPartSys.batchSize = partSys.batchSize;
+        for (auto it : partSys.attrs)
+        {
+            SingleVertexAttributeInfo vertAttr;
+            switch (it.type)
+            {
+                case MaplyShaderAttrTypeInt:
+                    vertAttr.type = BDIntType;
+                    break;
+                case MaplyShaderAttrTypeFloat:
+                    vertAttr.type = BDFloatType;
+                    break;
+                case MaplyShaderAttrTypeFloat2:
+                    vertAttr.type = BDFloat2Type;
+                    break;
+                case MaplyShaderAttrTypeFloat3:
+                    vertAttr.type = BDFloat3Type;
+                    break;
+                case MaplyShaderAttrTypeFloat4:
+                    vertAttr.type = BDFloat4Type;
+                    break;
+                default:
+                    NSLog(@"Missing attribute type in MaplyBaseInteractionLayer");
+                    break;
+            }
+            vertAttr.name = [it.name cStringUsingEncoding:NSASCIIStringEncoding];
+            wkPartSys.vertAttrs.push_back(vertAttr);
+        }
+        
+        SimpleIdentity partSysID = partSysManager->addParticleSystem(wkPartSys, changes);
+        partSys.ident = partSysID;
+    }
+    
     [self flushChanges:changes mode:threadMode];
     
     @synchronized(userObjects)
@@ -2504,7 +2551,42 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     // May need a temporary context
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
     
+    ParticleSystemManager *partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
+
     ChangeSet changes;
+    if (partSysManager)
+    {
+        bool validBatch = true;
+        ParticleBatch wkBatch;
+        wkBatch.batchSize = batch.partSys.batchSize;
+        // Copy the attributes over in the right order
+        for (auto mainAttr : batch.partSys.attrs)
+        {
+            bool found = false;
+            // Find the one that matches
+            for (auto thisAttr : batch.attrVals)
+            {
+                if (thisAttr.attrID == mainAttr.getId())
+                {
+                    found = true;
+                    wkBatch.attrData.push_back([thisAttr.data bytes]);
+                    break;
+                }
+            }
+            if (!found)
+            {
+                NSLog(@"Missing attribute data for particle batch.  Dropping.");
+                validBatch = false;
+            }
+        }
+        
+        if (validBatch)
+            partSysManager->addParticleBatch(batch.partSys.ident, wkBatch, changes);
+    }
+    
+    // We always want a glFlush here
+    changes.push_back(NULL);
+    
     [self flushChanges:changes mode:threadMode];
     
     [self clearTempContext:tmpContext];

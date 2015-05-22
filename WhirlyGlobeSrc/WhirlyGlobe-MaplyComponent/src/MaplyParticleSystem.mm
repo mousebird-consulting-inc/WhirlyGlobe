@@ -58,10 +58,11 @@ int ParticleSystemAttribute::dataSize()
     self = [super init];
     if (!self)
         return nil;
-    
+
+    _ident = WhirlyKit::EmptyIdentity;
     _name = name;
     _type = MaplyParticleSystemTypePoint;
-    _shader = kMaplyParticleSystemPointDefault;
+    _shader = kMaplyParticleSystemPointDefaultShader;
     _lifetime = 5.0;
     _batchSize = 2000;
     
@@ -103,7 +104,7 @@ int ParticleSystemAttribute::dataSize()
             WhirlyKit::ParticleSystemAttrVals attrVals;
             attrVals.attrID = attr.getId();
             attrVals.data = data;
-            if ([data length] == attr.dataSize() * _partSys.batchSize)
+            if ([data length] != attr.dataSize() * _partSys.batchSize)
                 return false;
             self.attrVals.push_back(attrVals);
             
