@@ -43,6 +43,14 @@ ParticleSystemDrawable::~ParticleSystemDrawable()
 {
 }
     
+bool ParticleSystemDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
+{
+    if (!enable)
+        return false;
+    
+    return (startTime+lifetime > frameInfo.currentTime);
+}
+    
 void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager)
 {
     if (pointBuffer != 0)
@@ -73,6 +81,9 @@ void ParticleSystemDrawable::teardownGL(OpenGLMemManager *memManager)
     if (pointBuffer)
         memManager->removeBufferID(pointBuffer);
     pointBuffer = 0;
+    if (vertArrayObj)
+        glDeleteVertexArraysOES(1,&vertArrayObj);
+    vertArrayObj = 0;
 }
     
 void ParticleSystemDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
@@ -175,6 +186,8 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
         setupVAO(prog);
     
     prog->setUniform("u_size", pointSize);
+    prog->setUniform("u_time", (float)(frameInfo.currentTime-startTime));
+    prog->setUniform("u_lifetime", (float)lifetime);
     
     // Note: Debugging
     glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
@@ -215,19 +228,17 @@ static const char *vertexShaderTri =
 "void main()"
 "{"
 "   v_color = a_color;"
-"   vec3 normal = a_position;"
-""
-"   vec3 thePos = a_position;"
+"   vec3 thePos = normalize(a_position + u_time*a_dir);"
 // Convert from model space into display space
 "   vec4 pt = u_mvMatrix * vec4(thePos,1.0);"
 "   pt /= pt.w;"
 // Make sure the object is facing the user
-"   vec4 testNorm = u_mvNormalMatrix * vec4(normal,0.0);"
+"   vec4 testNorm = u_mvNormalMatrix * vec4(thePos,0.0);"
 "   float dot_res = dot(-pt.xyz,testNorm.xyz);"
 // Set the point size
 "   gl_PointSize = u_size;"
 // Project the point into 3-space
-"   gl_Position = (dot_res > 0.0) ? u_mvpMatrix * vec4(thePos,1.0) : vec4(0.0,0.0,0.0,0.0);"
+    "   gl_Position = (dot_res > 0.0) ? u_mvpMatrix * vec4(thePos,1.0) : vec4(1000.0,1000.0,1000.0,0.0);"
 "}"
 ;
 

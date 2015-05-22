@@ -125,6 +125,7 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
         draw->setupGL(NULL, scene->getMemManager());
         draw->setDrawPriority(sceneRep->partSys.drawPriority);
         draw->setStartTime(now);
+        draw->setLifetime(sceneRep->partSys.lifetime);
         std::vector<ParticleSystemDrawable::AttributeData> attrData;
         for (unsigned int ii=0;ii<batch.attrData.size();ii++)
         {
@@ -146,20 +147,28 @@ void ParticleSystemManager::housekeeping(NSTimeInterval now,ChangeSet &changes)
 {
     pthread_mutex_lock(&partSysLock);
     
-    for (auto it : sceneReps)
+    std::vector<ParticleSystemSceneRepSet::iterator> sceneRepsToRemove;
+    
+    for (ParticleSystemSceneRepSet::iterator it = sceneReps.begin(); it != sceneReps.end(); ++it)
     {
         std::vector<ParticleSystemDrawable *> toRemove;
-        for (ParticleSystemDrawable *draw : it->draws)
+        for (ParticleSystemDrawable *draw : (*it)->draws)
         {
-            if (draw->getStartTime() + it->partSys.lifetime < now)
+            if (draw->getStartTime() + (*it)->partSys.lifetime < now)
                 toRemove.push_back(draw);
         }
         for (auto rem : toRemove)
         {
-            it->draws.erase(rem);
+            (*it)->draws.erase(rem);
             changes.push_back(new RemDrawableReq(rem->getId()));
         }
+        
+        if ((*it)->draws.empty())
+            sceneRepsToRemove.push_back(it);
     }
+    
+    for (ParticleSystemSceneRepSet::iterator it : sceneRepsToRemove)
+        sceneReps.erase(it);
 
     pthread_mutex_unlock(&partSysLock);
 }
