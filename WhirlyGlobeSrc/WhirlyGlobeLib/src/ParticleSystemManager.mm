@@ -19,6 +19,7 @@
  */
 
 #import "ParticleSystemManager.h"
+#import "ParticleSystemDrawable.h"
 
 namespace WhirlyKit
 {
@@ -38,9 +39,14 @@ ParticleSystemSceneRep::~ParticleSystemSceneRep()
     
 void ParticleSystemSceneRep::clearContents(ChangeSet &changes)
 {
-    for (SimpleIDSet::iterator it = drawIDs.begin();
-         it != drawIDs.end(); ++it)
-        changes.push_back(new RemDrawableReq(*it));
+    for (const ParticleSystemDrawable *it : draws)
+        changes.push_back(new RemDrawableReq(it->getId()));
+}
+    
+void ParticleSystemSceneRep::enableContents(bool enable,ChangeSet &changes)
+{
+    for (const ParticleSystemDrawable *it : draws)
+        changes.push_back(new OnOffChangeRequest(it->getId(),enable));
 }
     
 ParticleSystemManager::ParticleSystemManager()
@@ -91,8 +97,46 @@ void ParticleSystemManager::removeParticleSystem(SimpleIdentity sysID,ChangeSet 
     auto it = sceneReps.find(&dummyRep);
     if (it != sceneReps.end())
     {
-        (*it)->removeContents(changes);
+        (*it)->clearContents(changes);
         sceneReps.erase(it);
+    }
+    
+    pthread_mutex_unlock(&partSysLock);
+}
+    
+void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const ParticleBatch &batch,ChangeSet &changes)
+{
+    pthread_mutex_lock(&partSysLock);
+    
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    
+    ParticleSystemSceneRep *sceneRep = NULL;
+    ParticleSystemSceneRep dummyRep(sysID);
+    auto it = sceneReps.find(&dummyRep);
+    if (it != sceneReps.end())
+        sceneRep = *it;
+    
+    if (sceneRep)
+    {
+        ParticleSystemDrawable *draw = new ParticleSystemDrawable("Particle System",sceneRep->partSys.vertAttrs,sceneRep->partSys.batchSize);
+        draw->setOnOff(true);
+        draw->setPointSize(sceneRep->partSys.pointSize);
+        draw->setProgram(sceneRep->partSys.shaderID);
+        draw->setupGL(NULL, scene->getMemManager());
+        draw->setDrawPriority(sceneRep->partSys.drawPriority);
+        draw->setStartTime(now);
+        std::vector<ParticleSystemDrawable::AttributeData> attrData;
+        for (unsigned int ii=0;ii<batch.attrData.size();ii++)
+        {
+            ParticleSystemDrawable::AttributeData thisAttrData;
+            thisAttrData.data = batch.attrData[ii];
+            attrData.push_back(thisAttrData);
+        }
+        draw->addAttributeData(attrData);
+        
+        changes.push_back(new AddDrawableReq(draw));
+        
+        sceneRep->draws.insert(draw);
     }
     
     pthread_mutex_unlock(&partSysLock);
@@ -100,7 +144,24 @@ void ParticleSystemManager::removeParticleSystem(SimpleIdentity sysID,ChangeSet 
     
 void ParticleSystemManager::housekeeping(NSTimeInterval now,ChangeSet &changes)
 {
-    // Note: Fill this in
+    pthread_mutex_lock(&partSysLock);
+    
+    for (auto it : sceneReps)
+    {
+        std::vector<ParticleSystemDrawable *> toRemove;
+        for (ParticleSystemDrawable *draw : it->draws)
+        {
+            if (draw->getStartTime() + it->partSys.lifetime < now)
+                toRemove.push_back(draw);
+        }
+        for (auto rem : toRemove)
+        {
+            it->draws.erase(rem);
+            changes.push_back(new RemDrawableReq(rem->getId()));
+        }
+    }
+
+    pthread_mutex_unlock(&partSysLock);
 }
     
 }

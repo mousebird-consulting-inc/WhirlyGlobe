@@ -67,7 +67,7 @@
 /// The default billboard shader
 #define kMaplyBillboardShader @"Default Billboard"
 /// The default particle system shader
-#define kMaplyParticleSystemPointDefault @"Default Part Sys (Point)"
+#define kMaplyParticleSystemPointDefaultShader @"Default Part Sys (Point)"
 
 /// Where we start image layer draw priorities
 #define kMaplyImageLayerDrawPriorityDefault 100
@@ -246,6 +246,10 @@
 /// These are used by active vector objects
 #define kMaplyVecHeight @"height"
 #define kMaplyVecMinSample @"minSample"
+
+/// These are used by the particle systems
+#define kMaplyPointSize @"pointSize"
+#define kMaplyPointSizeDefault 4.0
 
 /// These are the various shader programs we set up by default
 #define kMaplyShaderDefaultTri @"Default Triangle;lighting=yes"

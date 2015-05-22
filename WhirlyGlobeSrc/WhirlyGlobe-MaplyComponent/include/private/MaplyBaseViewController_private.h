@@ -41,6 +41,7 @@
     
     WhirlyKitLayerThread *baseLayerThread;
     WhirlyKitLayoutLayer *layoutLayer;
+    WhirlyKitParticleSystemLayer *partSysLayer;
     NSMutableArray *layerThreads;
 
     // Our own interaction layer does most of the work
