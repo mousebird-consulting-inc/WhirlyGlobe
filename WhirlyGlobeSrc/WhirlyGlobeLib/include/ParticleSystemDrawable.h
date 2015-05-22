@@ -24,6 +24,12 @@
 namespace WhirlyKit
 {
     
+// Shader name
+#define kParticleSystemShaderName "Default Part Sys (Point)"
+
+// Build the particle system default shader
+OpenGLES2Program *BuildParticleSystemProgram();
+    
 // Low level drawable used to manage particle systems
 class ParticleSystemDrawable : public Drawable
 {
@@ -33,10 +39,10 @@ public:
     {
     public:
         std::string name;
-        NSData *data;
+        const void *data;
     };
     
-    ParticleSystemDrawable(const std::string &name,const SingleVertexAttributeInfoSet &vertAttrs,int numPoints);
+    ParticleSystemDrawable(const std::string &name,const std::vector<SingleVertexAttributeInfo> &vertAttrs,int numPoints);
     virtual ~ParticleSystemDrawable();
     
     /// No bounding box, since these change constantly
@@ -58,6 +64,13 @@ public:
     bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const { return enable; }
     /// True to turn it on, false to turn it off
     void setOnOff(bool onOff) { enable = onOff; }
+    
+    /// Set the point size
+    void setPointSize(float inPointSize) { pointSize = inPointSize; }
+    
+    /// Set the starting time
+    void setStartTime(NSTimeInterval inStartTime) { startTime = inStartTime; }
+    NSTimeInterval getStartTime() { return startTime; }
     
     /// Create our buffers in GL
     void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
@@ -85,25 +98,30 @@ public:
     bool getWriteZbuffer() const { return writeZBuffer; }
     void setWriteZbuffer(bool enable) { writeZBuffer = enable; }
     
+    /// Number of points we can expect in the attribute data
+    void setNumPoints(int inPts) { numPoints = inPts; }
+    
     /// Add the vertex data (all of it) at once
     void addAttributeData(const std::vector<AttributeData> &attrData);
 
 protected:
+    void setupVAO(OpenGLES2Program *prog);
+    
     bool enable;
     int numPoints;
     int vertexSize;
     std::vector<SingleVertexAttributeInfo> vertAttrs;
     SimpleIdentity programId;
     int drawPriority;
+    float pointSize;
+    NSTimeInterval startTime;
     bool requestZBuffer,writeZBuffer;
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
     GLuint pointBuffer;
+    GLuint vertArrayObj;
 
     // The vertex attributes we're representing in the buffers
     std::vector<VertexAttribute> vertexAttributes;
-    
-    /// Called when a new VAO is bound.  Set up your VAO-related state here.
-    virtual void setupAdditionalVAO(OpenGLES2Program *prog,GLuint vertArrayObj) { }
 };
     
 }
