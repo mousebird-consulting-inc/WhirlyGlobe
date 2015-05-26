@@ -65,6 +65,11 @@ typedef enum {MaplyParticleSystemTypePoint} MaplyParticleSystemType;
   */
 - (void)addAttribute:(NSString *)attrName type:(MaplyShaderAttrType)type;
 
+/** @brief Add a texture to the particle system.
+    @details All the textures will be handed over to the shader.
+  */
+- (void)addTexture:(id)image;
+
 @end
 
 

@@ -171,6 +171,16 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
 {
     OpenGLES2Program *prog = frameInfo.program;
     
+    // GL Texture IDs
+    bool anyTextures = false;
+    std::vector<GLuint> glTexIDs;
+    for (SimpleIdentity texID : texIDs)
+    {
+        GLuint glTexID = scene->getGLTexture(texID);
+        anyTextures = true;
+        glTexIDs.push_back(glTexID);
+    }
+
     // Model/View/Projection matrix
     prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
     prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
@@ -189,6 +199,30 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     prog->setUniform("u_time", (float)(frameInfo.currentTime-startTime));
     prog->setUniform("u_lifetime", (float)lifetime);
     
+    // The program itself may have some textures to bind
+    bool hasTexture[WhirlyKitMaxTextures];
+    int progTexBound = prog->bindTextures();
+    for (unsigned int ii=0;ii<progTexBound;ii++)
+        hasTexture[ii] = true;
+    
+    // Zero or more textures in the drawable
+    for (unsigned int ii=0;ii<WhirlyKitMaxTextures-progTexBound;ii++)
+    {
+        GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
+        char baseMapName[40];
+        sprintf(baseMapName,"s_baseMap%d",ii);
+        const OpenGLESUniform *texUni = prog->findUniform(baseMapName);
+        hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
+        if (hasTexture[ii+progTexBound])
+        {
+            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii+progTexBound)];
+            glBindTexture(GL_TEXTURE_2D, glTexID);
+            CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
+            prog->setUniform(baseMapName, (int)ii+progTexBound);
+            CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
+        }
+    }
+
     // Note: Debugging
     glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
     unsigned char *glMem = NULL;
@@ -208,6 +242,14 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     glBindVertexArrayOES(vertArrayObj);
     glDrawArrays(GL_POINTS, 0, numPoints);
     CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+    
+    // Unbind any textures
+    for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
+        if (hasTexture[ii])
+        {
+            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii)];
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
 
     glBindVertexArrayOES(0);
 }
