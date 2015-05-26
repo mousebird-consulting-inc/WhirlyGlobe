@@ -2485,6 +2485,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         wkPartSys.shaderID = partSysShaderID;
         wkPartSys.lifetime = partSys.lifetime;
         wkPartSys.batchSize = partSys.batchSize;
+        // Do the attributes
         for (auto it : partSys.attrs)
         {
             SingleVertexAttributeInfo vertAttr;
@@ -2511,6 +2512,18 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             }
             vertAttr.name = [it.name cStringUsingEncoding:NSASCIIStringEncoding];
             wkPartSys.vertAttrs.push_back(vertAttr);
+        }
+        // Now the textures
+        for (id image : partSys.images)
+        {
+            MaplyTexture *maplyTex = nil;
+            if ([image isKindOfClass:[UIImage class]])
+            {
+                maplyTex = [self addImage:image imageFormat:MaplyImageIntRGBA mode:threadMode];
+            } else if ([image isKindOfClass:[MaplyTexture class]])
+                maplyTex = image;
+            wkPartSys.texIDs.push_back(maplyTex.texID);
+            compObj.textures.insert(maplyTex);
         }
         
         SimpleIdentity partSysID = partSysManager->addParticleSystem(wkPartSys, changes);

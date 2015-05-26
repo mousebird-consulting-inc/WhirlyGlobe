@@ -76,6 +76,9 @@ public:
     void setLifetime(NSTimeInterval inLifetime) { lifetime = inLifetime; }
     NSTimeInterval getLifetime() { return lifetime; }
     
+    /// Set all the textures at once
+    virtual void setTexIDs(const std::vector<SimpleIdentity> &inTexIDs) { texIDs = inTexIDs; }
+    
     /// Create our buffers in GL
     void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
     
@@ -123,6 +126,7 @@ protected:
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
     GLuint pointBuffer;
     GLuint vertArrayObj;
+    std::vector<SimpleIdentity> texIDs;
 
     // The vertex attributes we're representing in the buffers
     std::vector<VertexAttribute> vertexAttributes;

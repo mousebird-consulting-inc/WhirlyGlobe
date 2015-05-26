@@ -78,6 +78,11 @@ int ParticleSystemAttribute::dataSize()
     self.attrs.insert(attr);
 }
 
+- (void)addTexture:(id)image
+{
+    _images.push_back(image);
+}
+
 @end
 
 @implementation MaplyParticleBatch

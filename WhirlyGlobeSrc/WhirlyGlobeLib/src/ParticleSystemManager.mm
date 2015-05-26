@@ -134,6 +134,7 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
             attrData.push_back(thisAttrData);
         }
         draw->addAttributeData(attrData);
+        draw->setTexIDs(sceneRep->partSys.texIDs);
         
         changes.push_back(new AddDrawableReq(draw));
         
