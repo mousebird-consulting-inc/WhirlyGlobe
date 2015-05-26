@@ -2016,7 +2016,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         }
     }
     
-    // Unbind any texture
+    // Unbind any textures
     for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
         if (hasTexture[ii])
         {

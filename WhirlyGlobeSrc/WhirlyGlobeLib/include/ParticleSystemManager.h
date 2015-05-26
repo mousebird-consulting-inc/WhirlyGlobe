@@ -45,6 +45,7 @@ public:
     NSTimeInterval lifetime;
     int batchSize;
     std::vector<SingleVertexAttributeInfo> vertAttrs;
+    std::vector<SimpleIdentity> texIDs;
 };
 
 /// Holds the data for a batch of particles
