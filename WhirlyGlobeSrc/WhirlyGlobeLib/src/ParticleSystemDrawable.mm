@@ -29,8 +29,8 @@
 namespace WhirlyKit
 {
 
-ParticleSystemDrawable::ParticleSystemDrawable(const std::string &name,const std::vector<SingleVertexAttributeInfo> &inVertAttrs,int numPoints)
-    : Drawable(name), enable(true), numPoints(numPoints), vertexSize(0), programId(0), drawPriority(0), pointBuffer(0), vertArrayObj(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0)
+ParticleSystemDrawable::ParticleSystemDrawable(const std::string &name,const std::vector<SingleVertexAttributeInfo> &inVertAttrs,int numPoints,bool useRectangles,bool useInstancing)
+    : Drawable(name), enable(true), numPoints(numPoints), vertexSize(0), programId(0), drawPriority(0), pointBuffer(0), rectBuffer(0), vertArrayObj(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0), useRectangles(useRectangles), useInstancing(useInstancing)
 {
     for (auto attr : inVertAttrs)
     {
@@ -59,6 +59,37 @@ void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMa
     int totalBytes = vertexSize*numPoints;
     pointBuffer = memManager->getBufferID(totalBytes,GL_DYNAMIC_DRAW);
     
+    // Set up rectangles
+    if (useRectangles)
+    {
+        // Build up the coordinates for two rectangles
+        if (useInstancing)
+        {
+            Point2f verts[2*6];
+            verts[0] = Point2f(-1,-1);
+            verts[1] = Point2f(0,0);
+            verts[2] = Point2f(1,-1);
+            verts[3] = Point2f(1.0,0);
+            verts[4] = Point2f(1,1);
+            verts[5] = Point2f(1.0,1.0);
+            verts[6] = Point2f(-1,-1);
+            verts[7] = Point2f(0,0);
+            verts[8] = Point2f(1,1);
+            verts[9] = Point2f(1.0,1.0);
+            verts[10] = Point2f(-1,1);
+            verts[11] = Point2f(0,1.0);
+            
+            int rectSize = sizeof(float)*6*2;
+            rectBuffer = memManager->getBufferID(0,GL_STATIC_DRAW);
+            
+            glBindBuffer(GL_ARRAY_BUFFER, rectBuffer);
+            glBufferData(GL_ARRAY_BUFFER, rectSize, (const GLvoid *)&verts[0], GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        } else {
+            NSLog(@"ParticleSystemDrawable: Can only do instanced rectangles at present.  This system can't handle instancing.");
+        }
+    }
+    
     // Zero it out to avoid warnings
     // Note: Don't actually have to do this
 //    glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
@@ -81,6 +112,9 @@ void ParticleSystemDrawable::teardownGL(OpenGLMemManager *memManager)
     if (pointBuffer)
         memManager->removeBufferID(pointBuffer);
     pointBuffer = 0;
+    if (rectBuffer)
+        memManager->removeBufferID(rectBuffer);
+    rectBuffer = 0;
     if (vertArrayObj)
         glDeleteVertexArraysOES(1,&vertArrayObj);
     vertArrayObj = 0;
@@ -133,8 +167,15 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
     
 void ParticleSystemDrawable::setupVAO(OpenGLES2Program *prog)
 {
-    glGenVertexArraysOES(1, &vertArrayObj);
-    glBindVertexArrayOES(vertArrayObj);
+    EAGLContext *context = [EAGLContext currentContext];
+    if (context.API < kEAGLRenderingAPIOpenGLES3)
+    {
+        glGenVertexArraysOES(1, &vertArrayObj);
+        glBindVertexArrayOES(vertArrayObj);
+    } else {
+        glGenVertexArrays(1, &vertArrayObj);
+        glBindVertexArray(vertArrayObj);
+    }
 
     glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
     CheckGLError("ParticleSystemDrawable::setupVAO() shared glBindBuffer");
@@ -148,14 +189,54 @@ void ParticleSystemDrawable::setupVAO(OpenGLES2Program *prog)
         const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.name);
         if (thisAttr)
         {
-            glVertexAttribPointer(thisAttr->index, attrInfo.glEntryComponents(), attrInfo.glType(), attrInfo.glNormalize(), vertexSize, (const GLvoid *)attrOffset);
+            glVertexAttribPointer(thisAttr->index, attrInfo.glEntryComponents(), attrInfo.glType(), attrInfo.glNormalize(), vertexSize, (const GLvoid *)(long)attrOffset);
+            if (useInstancing)
+            {
+                if (context.API < kEAGLRenderingAPIOpenGLES3)
+                    glVertexAttribDivisorEXT(thisAttr->index, 1);
+                else
+                    glVertexAttribDivisor(thisAttr->index, 1);
+            }
             glEnableVertexAttribArray(thisAttr->index);
         }
         
         attrOffset += attrSize;
     }
     
-    glBindVertexArrayOES(0);
+    // Rectangle buffer, if it's there
+    if (rectBuffer)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER,rectBuffer);
+        const OpenGLESAttribute *thisAttr = prog->findAttribute("a_offset");
+        if (thisAttr)
+        {
+            glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 2*sizeof(GLfloat), (const GLvoid *)(long)0);
+            CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
+            if (context.API < kEAGLRenderingAPIOpenGLES3)
+                glVertexAttribDivisorEXT(thisAttr->index, 0);
+            else
+                glVertexAttribDivisor(thisAttr->index, 0);
+            glEnableVertexAttribArray(thisAttr->index);
+            CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
+        }
+        thisAttr = prog->findAttribute("a_texCoord");
+        if (thisAttr)
+        {
+            glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 2*sizeof(GLfloat), (const GLvoid *)(long)(2*sizeof(GLfloat)));
+            CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
+            if (context.API < kEAGLRenderingAPIOpenGLES3)
+                glVertexAttribDivisorEXT(thisAttr->index, 0);
+            else
+                glVertexAttribDivisor(thisAttr->index, 0);
+            glEnableVertexAttribArray(thisAttr->index);
+            CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
+        }
+    }
+    
+    if (context.API < kEAGLRenderingAPIOpenGLES3)
+        glBindVertexArrayOES(0);
+    else
+        glBindVertexArray(0);
 
     // Tear down the state
     for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
@@ -169,6 +250,7 @@ void ParticleSystemDrawable::setupVAO(OpenGLES2Program *prog)
 
 void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
+    EAGLContext *context = [EAGLContext currentContext];
     OpenGLES2Program *prog = frameInfo.program;
     
     // GL Texture IDs
@@ -187,6 +269,8 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
     prog->setUniform("u_mvpNormalMatrix", frameInfo.mvpNormalMat);
     prog->setUniform("u_pMatrix", frameInfo.projMat);
+    prog->setUniform("u_scale", Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
+
     
     // If this is present, the drawable wants to do something based where the viewer is looking
     prog->setUniform("u_eyeVec", frameInfo.fullEyeVec);
@@ -223,25 +307,19 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
         }
     }
 
-    // Note: Debugging
-    glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
-    unsigned char *glMem = NULL;
-    EAGLContext *context = [EAGLContext currentContext];
-    if (context.API < kEAGLRenderingAPIOpenGLES3)
-        glMem = (unsigned char *)glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-    else
-        glMem = (unsigned char *)glMapBufferRange(GL_ARRAY_BUFFER, 0, vertexSize*numPoints, GL_MAP_WRITE_BIT);
-
-    if (context.API < kEAGLRenderingAPIOpenGLES3)
-        glUnmapBufferOES(GL_ARRAY_BUFFER);
-    else
-        glUnmapBuffer(GL_ARRAY_BUFFER);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
     // If we're using a vertex array object, bind it and draw
     glBindVertexArrayOES(vertArrayObj);
-    glDrawArrays(GL_POINTS, 0, numPoints);
-    CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+    if (rectBuffer)
+    {
+        if (context.API < kEAGLRenderingAPIOpenGLES3)
+            glDrawArraysInstancedEXT(GL_TRIANGLES, 0, 6, numPoints);
+        else
+            glDrawArraysInstanced(GL_TRIANGLES, 0, 6, numPoints);
+        CheckGLError("BasicDrawable::drawVBO2() glDrawArraysInstanced");
+    } else {
+        glDrawArrays(GL_POINTS, 0, numPoints);
+        CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+    }
     
     // Unbind any textures
     for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)

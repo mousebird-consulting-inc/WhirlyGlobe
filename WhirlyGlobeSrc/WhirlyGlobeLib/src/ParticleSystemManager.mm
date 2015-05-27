@@ -118,7 +118,10 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
     
     if (sceneRep)
     {
-        ParticleSystemDrawable *draw = new ParticleSystemDrawable("Particle System",sceneRep->partSys.vertAttrs,sceneRep->partSys.batchSize);
+        bool useRectangles = sceneRep->partSys.type == ParticleSystemRectangle;
+        // Note: There are devices where this won't work
+        bool useInstancing = useRectangles;
+        ParticleSystemDrawable *draw = new ParticleSystemDrawable("Particle System",sceneRep->partSys.vertAttrs,sceneRep->partSys.batchSize,useRectangles,useInstancing);
         draw->setOnOff(true);
         draw->setPointSize(sceneRep->partSys.pointSize);
         draw->setProgram(sceneRep->partSys.shaderID);
@@ -148,8 +151,6 @@ void ParticleSystemManager::housekeeping(NSTimeInterval now,ChangeSet &changes)
 {
     pthread_mutex_lock(&partSysLock);
     
-    std::vector<ParticleSystemSceneRepSet::iterator> sceneRepsToRemove;
-    
     for (ParticleSystemSceneRepSet::iterator it = sceneReps.begin(); it != sceneReps.end(); ++it)
     {
         std::vector<ParticleSystemDrawable *> toRemove;
@@ -163,14 +164,8 @@ void ParticleSystemManager::housekeeping(NSTimeInterval now,ChangeSet &changes)
             (*it)->draws.erase(rem);
             changes.push_back(new RemDrawableReq(rem->getId()));
         }
-        
-        if ((*it)->draws.empty())
-            sceneRepsToRemove.push_back(it);
     }
     
-    for (ParticleSystemSceneRepSet::iterator it : sceneRepsToRemove)
-        sceneReps.erase(it);
-
     pthread_mutex_unlock(&partSysLock);
 }
     
