@@ -79,7 +79,7 @@ void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMa
             verts[10] = Point2f(-1,1);
             verts[11] = Point2f(0,1.0);
             
-            int rectSize = sizeof(float)*6*2;
+            int rectSize = 2*sizeof(float)*6*2;
             rectBuffer = memManager->getBufferID(0,GL_STATIC_DRAW);
             
             glBindBuffer(GL_ARRAY_BUFFER, rectBuffer);
@@ -210,7 +210,7 @@ void ParticleSystemDrawable::setupVAO(OpenGLES2Program *prog)
         const OpenGLESAttribute *thisAttr = prog->findAttribute("a_offset");
         if (thisAttr)
         {
-            glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 2*sizeof(GLfloat), (const GLvoid *)(long)0);
+            glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)0);
             CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
             if (context.API < kEAGLRenderingAPIOpenGLES3)
                 glVertexAttribDivisorEXT(thisAttr->index, 0);
@@ -222,7 +222,7 @@ void ParticleSystemDrawable::setupVAO(OpenGLES2Program *prog)
         thisAttr = prog->findAttribute("a_texCoord");
         if (thisAttr)
         {
-            glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 2*sizeof(GLfloat), (const GLvoid *)(long)(2*sizeof(GLfloat)));
+            glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)(2*sizeof(GLfloat)));
             CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
             if (context.API < kEAGLRenderingAPIOpenGLES3)
                 glVertexAttribDivisorEXT(thisAttr->index, 0);
@@ -270,7 +270,6 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     prog->setUniform("u_mvpNormalMatrix", frameInfo.mvpNormalMat);
     prog->setUniform("u_pMatrix", frameInfo.projMat);
     prog->setUniform("u_scale", Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
-
     
     // If this is present, the drawable wants to do something based where the viewer is looking
     prog->setUniform("u_eyeVec", frameInfo.fullEyeVec);
