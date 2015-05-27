@@ -31,7 +31,7 @@ namespace WhirlyKit
 {
 #define kWKParticleSystemManager "WKParticleSystemManager"
 
-typedef enum {ParticleSystemPoint} ParticleSystemType;
+typedef enum {ParticleSystemPoint,ParticleSystemRectangle} ParticleSystemType;
 
 /// Defines the parameters for a single particle system
 class ParticleSystem : public Identifiable
