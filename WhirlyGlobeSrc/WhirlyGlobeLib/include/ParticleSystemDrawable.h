@@ -42,7 +42,7 @@ public:
         const void *data;
     };
     
-    ParticleSystemDrawable(const std::string &name,const std::vector<SingleVertexAttributeInfo> &vertAttrs,int numPoints);
+    ParticleSystemDrawable(const std::string &name,const std::vector<SingleVertexAttributeInfo> &vertAttrs,int numPoints,bool useRectangles,bool useInstancing);
     virtual ~ParticleSystemDrawable();
     
     /// No bounding box, since these change constantly
@@ -124,9 +124,10 @@ protected:
     NSTimeInterval startTime,lifetime;
     bool requestZBuffer,writeZBuffer;
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
-    GLuint pointBuffer;
+    GLuint pointBuffer,rectBuffer;
     GLuint vertArrayObj;
     std::vector<SimpleIdentity> texIDs;
+    bool useRectangles,useInstancing;
 
     // The vertex attributes we're representing in the buffers
     std::vector<VertexAttribute> vertexAttributes;
