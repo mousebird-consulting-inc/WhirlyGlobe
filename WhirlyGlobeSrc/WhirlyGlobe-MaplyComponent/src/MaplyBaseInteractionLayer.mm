@@ -2481,10 +2481,19 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         wkPartSys.drawPriority = [inDesc[kMaplyDrawPriority] intValue];
         wkPartSys.pointSize = [inDesc[kMaplyPointSize] floatValue];
         wkPartSys.name = [partSys.name cStringUsingEncoding:NSASCIIStringEncoding];
-        wkPartSys.type = ParticleSystemPoint;
         wkPartSys.shaderID = partSysShaderID;
         wkPartSys.lifetime = partSys.lifetime;
         wkPartSys.batchSize = partSys.batchSize;
+        // Type
+        switch (partSys.type)
+        {
+            case MaplyParticleSystemTypePoint:
+                wkPartSys.type = ParticleSystemPoint;
+                break;
+            case MaplyParticleSystemTypeRectangle:
+                wkPartSys.type = ParticleSystemRectangle;
+                break;
+        }
         // Do the attributes
         for (auto it : partSys.attrs)
         {
