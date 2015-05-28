@@ -31,6 +31,8 @@ typedef struct
     double screenU,screenV;
     /// @brief The tile the corresponding point belonged to.  Level set to -1 if invalid.
     MaplyTileID tileID;
+    /// @brief Location in coordinate system
+    double locX,locY;
     /// @brief Location within tile (scaled from 0-1)
     double tileU,tileV;
 } MaplyQuadTrackerPointReturn;
