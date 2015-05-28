@@ -1106,4 +1106,14 @@ static const float PerfOutputDelay = 15.0;
     return ret;
 }
 
+- (MaplyCoordinate3d)displayCoord:(MaplyCoordinate3d)localCoord fromSystem:(MaplyCoordinateSystem *)coordSys
+{
+    Point3d loc3d = CoordSystemConvert3d(coordSys->coordSystem, visualView.coordAdapter->getCoordSystem(), Point3d(localCoord.x,localCoord.y,localCoord.z));
+    Point3d pt = visualView.coordAdapter->localToDisplay(loc3d);
+    
+    MaplyCoordinate3d ret;
+    ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
+    return ret;
+}
+
 @end
