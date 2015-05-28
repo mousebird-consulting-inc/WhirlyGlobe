@@ -56,3 +56,4 @@
 #import <MapnikStyleSet.h>
 #import <MaplyGeomModel.h>
 #import <MapboxMultiSourceTileInfo.h>
+#import <MaplyQuadTracker.h>
