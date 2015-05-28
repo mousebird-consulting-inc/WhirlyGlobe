@@ -54,3 +54,4 @@
 #import <MaplyGeomModel.h>
 #import <MapboxMultiSourceTileInfo.h>
 #import <MaplyVertexAttribute.h>
+#import <MaplyQuadTracker.h>

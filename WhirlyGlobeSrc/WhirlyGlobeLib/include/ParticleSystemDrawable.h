@@ -26,6 +26,9 @@ namespace WhirlyKit
     
 // Shader name
 #define kParticleSystemShaderName "Default Part Sys (Point)"
+    
+// Maximum size of particle buffers
+#define kMaxParticlesPerDrawable 65536
 
 // Build the particle system default shader
 OpenGLES2Program *BuildParticleSystemProgram();
@@ -132,5 +135,5 @@ protected:
     // The vertex attributes we're representing in the buffers
     std::vector<VertexAttribute> vertexAttributes;
 };
-    
+
 }
