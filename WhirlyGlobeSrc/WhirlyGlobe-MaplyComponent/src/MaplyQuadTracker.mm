@@ -136,6 +136,8 @@ public:
                 Point3d localPt = globeView.coordAdapter->displayToLocal(hit);
                 // This point is in the local (tile) system
                 Point3d coordPt = CoordSystemConvert3d(globeView.coordAdapter->getCoordSystem(), _coordSys->coordSystem, localPt);
+                trackInfo->locX = coordPt.x();
+                trackInfo->locY = coordPt.y();
 
                 // Clip to the overall bounds
                 trackInfo->tileU = (coordPt.x()-wholeMbr.ll.x)/mbrSpanX;
@@ -151,8 +153,10 @@ public:
                 {
                     MaplyTileID nextTile;
                     nextTile.level = trackInfo->tileID.level+1;
-                    int childX = (u < 0.5) ? 0 : 1;
-                    int childY = (v < 0.5) ? 0 : 1;
+                    int childX = (trackInfo->tileU < 0.5) ? 0 : 1;
+                    int childY = (trackInfo->tileV < 0.5) ? 0 : 1;
+                    nextTile.x = 2*trackInfo->tileID.x + childX;
+                    nextTile.y = 2*trackInfo->tileID.y + childY;
                     
                     // See if this tile is here
                     TileWrapper testTile(nextTile);
