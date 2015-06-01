@@ -159,8 +159,8 @@ using namespace WhirlyKit;
 - (void)kickoffViewUpdated
 {
     @synchronized(self)
-{
-    lastViewState = newViewState;
+    {
+        lastViewState = newViewState;
         kickoffScheduled = false;
     }
     [self viewUpdateLayerThread:lastViewState];
