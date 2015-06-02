@@ -2448,7 +2448,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = (
-					"$(ARCHS_STANDARD_32_BIT)",
+					"$(ARCHS_STANDARD)",
 					armv7s,
 				);
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
@@ -2473,7 +2473,7 @@
 				OTHER_LDFLAGS = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "armv7 armv7s";
+				VALID_ARCHS = "armv7 armv7s arm64";
 			};
 			name = Debug;
 		};
@@ -2481,7 +2481,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = (
-					"$(ARCHS_STANDARD_32_BIT)",
+					"$(ARCHS_STANDARD)",
 					armv7s,
 				);
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
@@ -2505,7 +2505,7 @@
 				OTHER_LDFLAGS = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "armv7 armv7s";
+				VALID_ARCHS = "armv7 armv7s arm64";
 			};
 			name = Release;
 		};
