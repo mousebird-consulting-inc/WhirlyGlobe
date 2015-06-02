@@ -20,8 +20,34 @@
 
 #import "MapboxVectorStyleSet.h"
 
+@interface MapboxVectorSymbolLayout : NSObject
+
+/// @brief Field to use when displaying the text
+@property (nonatomic) NSString *textField;
+/// @brief the biggest we'll let the text get (Note: Is this font or what?)
+@property (nonatomic) double textMaxSize;
+
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
+
+@end
+
+@interface MapboxVectorSymbolPaint : NSObject
+
+@property (nonatomic) UIColor *textColor;
+@property (nonatomic) UIColor *textHaloColor;
+
+@property (nonatomic) double textSize;
+@property (nonatomic) MaplyVectorFunctionStops *textSizeFunc;
+
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
+
+@end
+
 /// @brief Icons and symbols
 @interface MapboxVectorLayerSymbol : MaplyMapboxVectorStyleLayer
+
+@property (nonatomic) MapboxVectorSymbolLayout *layout;
+@property (nonatomic) MapboxVectorSymbolPaint *paint;
 
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC;
 
