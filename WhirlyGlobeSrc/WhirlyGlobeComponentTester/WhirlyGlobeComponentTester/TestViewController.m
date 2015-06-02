@@ -1413,6 +1413,8 @@ static const int NumMegaMarkers = 15000;
                     MapzenSource *mzSource = [[MapzenSource alloc]
                                               initWithBase:@"http://vector.mapzen.com/osm"
                                               layers:@[@"all"]
+                                              // Note: Go get your own API key
+                                              apiKey:@"vector-tiles-05s8a-0"
                                               sourceType:MapzenSourcePBF
                                               styleData:styleData
                                               styleType:MapnikMapboxGLStyle
@@ -1431,32 +1433,6 @@ static const int NumMegaMarkers = 15000;
                     ovlLayers[layerName] = pageLayer;
                 } else
                     NSLog(@"Failed to load style sheet for Mapzen.");
-                
-//                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithURL:@"http://vector.mapzen.com/osm/all/"
-//                                                                  ext:@"mapbox"
-//                                                              minZoom:8
-//                                                              maxZoom:14
-//                                                                style:[[NSBundle mainBundle] pathForResource:@"MapzenStyles" ofType:@"json"]
-//                                                                  cacheDir:thisCacheDir
-//                                                                     viewC:baseViewC
-//                                                                   success:
-//                 ^(MaplyMapnikVectorTiles *vecTiles)
-//                 {
-//                     // Now for the paging layer itself
-//                     MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
-//                     pageLayer.numSimultaneousFetches = 4;
-//                     pageLayer.flipY = false;
-//                     pageLayer.importance = 1024*1024;
-//                     pageLayer.useTargetZoomLevel = true;
-//                     pageLayer.singleLevelLoading = true;
-//                     [baseViewC addLayer:pageLayer];
-//                     ovlLayers[layerName] = pageLayer;
-//                 }
-//                                                                   failure:
-//                 ^(NSError *error){
-//                     NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
-//                 }
-//                 ];
             }
         } else if (!isOn && layer)
         {
