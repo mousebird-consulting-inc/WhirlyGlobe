@@ -36,6 +36,7 @@
     if (!self)
         return nil;
     
+    _viewC = viewC;
     NSError *error = nil;
     NSDictionary *styleDict = [NSJSONSerialization JSONObjectWithData:styleJSON options:NULL error:&error];
     if (!styleDict)
@@ -198,8 +199,12 @@
 {
     entry = [self constantSubstitution:entry forField:nil];
     
+    NSNumber *base = nil;
     if ([entry isKindOfClass:[NSDictionary class]])
+    {
+        base = ((NSDictionary *)entry)[@"base"];
         entry = ((NSDictionary *)entry)[@"stops"];
+    }
     
     if (!entry)
     {
@@ -209,7 +214,11 @@
     
     MaplyVectorFunctionStops *stops = [[MaplyVectorFunctionStops alloc] initWithArray:entry styleSet:self viewC:self.viewC];
     if (stops)
+    {
+        if ([base isKindOfClass:[NSNumber class]])
+            stops.base = [base doubleValue];
         return stops;
+    }
     return defEntry;
 }
 
@@ -457,7 +466,7 @@
     } else if (_filterType <= MBFilterLessThanEqual)
     {
         // Filters with two arguments
-        if ([filterArray count] != 3)
+        if ([filterArray count] < 3)
         {
             NSLog(@"Expecting three arugments for filter of type (%@)",[filterArray objectAtIndex:0]);
             return nil;
@@ -635,6 +644,9 @@
 
 @end
 
+@implementation MaplyVectorFunctionStop
+@end
+
 @implementation MaplyVectorFunctionStops
 
 - (id)initWithArray:(NSArray *)dataArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
@@ -644,40 +656,68 @@
         NSLog(@"Expected JSON array for function stops.");
         return nil;
     }
-    if ([dataArray count] != 2)
+    if ([dataArray count] < 2)
     {
-        NSLog(@"Expecting two arguments for function stops.");
+        NSLog(@"Expecting at least two arguments for function stops.");
         return nil;
     }
-    NSArray *start = [dataArray objectAtIndex:0];
-    NSArray *end = [dataArray objectAtIndex:1];
-    if (![start isKindOfClass:[NSArray class]] || ![end isKindOfClass:[NSArray class]])
+    
+    NSMutableArray *stops = [NSMutableArray array];
+    for (NSArray *stop in dataArray)
     {
-        NSLog(@"Expecting two arguments in each entry for a function stop.");
-        return nil;
+        if (![stop isKindOfClass:[NSArray class]] || [stop count] != 2)
+        {
+            NSLog(@"Expecting two arguments in each entry for a function stop.");
+            return nil;
+        }
+        
+        MaplyVectorFunctionStop *fStop = [[MaplyVectorFunctionStop alloc] init];
+        fStop.zoom = [[stop objectAtIndex:0] doubleValue];
+        fStop.val = [[stop objectAtIndex:1] doubleValue];
+        [stops addObject:fStop];
     }
-
+    
     self = [super init];
     if (!self)
         return nil;
     
-    _minZoom = [[start objectAtIndex:0] doubleValue];
-    _minVal = [[start objectAtIndex:1] doubleValue];
-    _maxZoom = [[end objectAtIndex:0] doubleValue];
-    _maxVal = [[end objectAtIndex:1] doubleValue];
+    _base = 1.0;
+    _stops = stops;
     
     return self;
 }
 
 - (double)valueForZoom:(int)zoom
 {
-    if (zoom <= _minZoom)
-        return _minVal;
-    if (zoom >= _maxZoom)
-        return _maxZoom;
+    MaplyVectorFunctionStop *a = _stops[0],*b = nil;
+    if (zoom <= a.zoom)
+        return a.val;
+    for (int which = 1;which < _stops.count; which++)
+    {
+        b = _stops[which];
+        if (a.zoom <= zoom && zoom < b.zoom)
+        {
+            double t = (zoom-a.zoom)/(b.zoom-a.zoom);
+            double scaleT = pow(t,_base);
+            return scaleT * (b.val-a.val) + a.val;
+        }
+        a = b;
+    }
     
-    double t = (zoom-_minZoom)/(_maxZoom-_minZoom);
-    return t * (_maxVal-_minVal) + _minVal;
+    return b.val;
 }
+
+- (double)minValue
+{
+    MaplyVectorFunctionStop *a = _stops[0];
+    return a.val;
+}
+
+- (double)maxValue
+{
+    MaplyVectorFunctionStop *b = _stops[_stops.count-1];
+    return b.val;
+}
+
 
 @end

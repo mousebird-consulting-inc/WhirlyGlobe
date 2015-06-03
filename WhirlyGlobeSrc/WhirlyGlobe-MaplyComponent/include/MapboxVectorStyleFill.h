@@ -23,6 +23,7 @@
 @interface MapboxVectorFillPaint : NSObject
 
 @property (nonatomic) double opacity;
+@property (nonatomic) double opacityBase;
 @property (nonatomic) MaplyVectorFunctionStops *opacityFunc;
 @property (nonatomic) UIColor *color;
 @property (nonatomic) UIColor *outlineColor;
