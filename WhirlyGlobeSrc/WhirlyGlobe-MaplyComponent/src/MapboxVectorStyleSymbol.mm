@@ -94,6 +94,7 @@
     symbolDesc = [NSMutableDictionary dictionaryWithDictionary:
                   @{kMaplyTextColor: _paint.textColor,
                     kMaplyFont: font,
+                    kMaplyFade: @(0.0),
                     kMaplyEnable: @(NO)
                     }];
     if (_paint.textHaloColor)

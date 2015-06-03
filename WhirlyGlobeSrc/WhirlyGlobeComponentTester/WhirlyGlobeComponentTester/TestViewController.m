@@ -1431,6 +1431,8 @@ static const int NumMegaMarkers = 15000;
                     pageLayer.singleLevelLoading = true;
                     [baseViewC addLayer:pageLayer];
                     ovlLayers[layerName] = pageLayer;
+                    
+                    self.title = @"Mapzen Vector Tiles";
                 } else
                     NSLog(@"Failed to load style sheet for Mapzen.");
             }
