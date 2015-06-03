@@ -15,18 +15,20 @@
 {
     NSString *baseURL;
     NSArray *layers;
+    NSString *apiKey;
     NSOperationQueue *opQueue;
     NSString *ext;
     MaplyMapnikVectorTileParser *tileParser;
     NSObject<MaplyVectorStyleDelegate> *styleSet;
 }
-- (id)initWithBase:(NSString *)inBaseURL layers:(NSArray *)inLayers sourceType:(MapzenSourceType)inType styleData:(NSData *)styleData styleType:(MapnikStyleType)styleType viewC:(MaplyBaseViewController *)viewC
+- (id)initWithBase:(NSString *)inBaseURL layers:(NSArray *)inLayers apiKey:(NSString *)inApiKey sourceType:(MapzenSourceType)inType styleData:(NSData *)styleData styleType:(MapnikStyleType)styleType viewC:(MaplyBaseViewController *)viewC
 {
     self = [super init];
     if (!self)
         return nil;
     baseURL = inBaseURL;
     layers = inLayers;
+    apiKey = inApiKey;
     opQueue = [[NSOperationQueue alloc] init];
     
     switch (inType)
@@ -36,7 +38,7 @@
             break;
         case MapzenSourcePBF:
         {
-            ext = @"mapbox";
+            ext = @"mvt";
 
             switch (styleType)
             {
@@ -92,6 +94,8 @@
             }
             
             NSString *fullUrl = [NSString stringWithFormat:@"%@/%@/%d/%d/%d.%@",baseURL,allLayers,tileID.level,tileID.x,y,ext];
+            if (apiKey)
+                fullUrl = [NSString stringWithFormat:@"%@?api_key=%@",fullUrl,apiKey];
             NSString *fileName = [NSString stringWithFormat:@"%@_level%d_%d_%d.%@",allLayers,tileID.level,tileID.x,y,ext];
             NSString *fullPath = [NSString stringWithFormat:@"%@/%@",cacheDir,fileName];
             NSURL *url = [NSURL URLWithString:fullUrl];
