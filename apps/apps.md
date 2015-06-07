@@ -15,7 +15,7 @@ A toolkit is only as good as the apps that use it.  Here are some of our favorit
 
 {% include app_entry.html name="Gaia GPS" image="gaiagps.png" body="Gaia GPS was featured in Apple's Your Verse stories, Gaia GPS helps people explore remote places, and stay safer in the woods." link="https://itunes.apple.com/us/app/gaia-gps-topo-maps-trails/id329127297?mt=8" %}
 
-{% include app_entry.html name="AeroTab EFB" image="aeroicon.jpeg" body="AeroTab EFB is an Electronic Flight Bag app specialising the Russian and the CIS Region." link="https://itunes.apple.com/us/app/aerotab-efb-electronic-flight/id622199134?mt=8" %}
+{% include app_entry.html name="AeroTab EFB" image="aeroicon.jpeg" body="AeroTab EFB is an Electronic Flight Bag app specialising in the Russian and the CIS Region." link="https://itunes.apple.com/us/app/aerotab-efb-electronic-flight/id622199134?mt=8" %}
 
 {% include app_entry.html name="WhirlyViz" image="whirlyviz.jpeg" body="WhirlyViz is a data visualization engine for iPad and iPhone.  It uses Javascript modules to let users play with big, complex data sets." link="https://itunes.apple.com/us/app/whirlyviz/id752701884?mt=8" %}
 
