@@ -42,8 +42,8 @@ public:
     float pointSize;
     ParticleSystemType type;
     SimpleIdentity shaderID;
-    NSTimeInterval lifetime;
-    int batchSize;
+    NSTimeInterval lifetime,baseTime;
+    int totalParticles,batchSize;
     std::vector<SingleVertexAttributeInfo> vertAttrs;
     std::vector<SimpleIdentity> texIDs;
 };
