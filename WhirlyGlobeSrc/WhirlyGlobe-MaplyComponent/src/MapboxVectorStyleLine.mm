@@ -19,6 +19,7 @@
  */
 
 #import "MapboxVectorStyleLine.h"
+#import "MaplyTextureBuilder.h"
 
 @implementation MapboxVectorLineLayout
 
@@ -40,6 +41,25 @@
 
 @end
 
+@implementation MapboxVectorLineDashArray
+
+- (id)initWithStyleEntry:(NSArray *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    NSMutableArray *dashes = [NSMutableArray array];
+    for (NSNumber *num in styleEntry)
+        [dashes addObject:@([num doubleValue])];
+    
+    _dashes = dashes;
+    
+    return self;
+}
+
+@end
+
 @implementation MapboxVectorLinePaint
 
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
@@ -53,7 +73,6 @@
     [styleSet unsupportedCheck:@"line-gap-width" in:@"line-paint" styleEntry:styleEntry];
     [styleSet unsupportedCheck:@"line-blur" in:@"line-paint" styleEntry:styleEntry];
     [styleSet unsupportedCheck:@"line-image" in:@"line-paint" styleEntry:styleEntry];
-    [styleSet unsupportedCheck:@"line-dasharray" in:@"line-paint" styleEntry:styleEntry];
 
     id opEntry = styleEntry[@"line-opacity"];
     if (opEntry)
@@ -74,6 +93,12 @@
             _widthFunc = [styleSet stopsValue:widthEntry defVal:nil];
     } else
         _width = 1.0;
+    id dashArrayEntry = styleEntry[@"line-dasharray"];
+    if (dashArrayEntry)
+    {
+        if ([dashArrayEntry isKindOfClass:[NSArray class]])
+            _lineDashArray = [[MapboxVectorLineDashArray alloc] initWithStyleEntry:dashArrayEntry styleSet:styleSet viewC:viewC];
+    }
     
     return self;
 }
@@ -83,6 +108,19 @@
 @implementation MapboxVectorLayerLine
 {
     NSMutableDictionary *lineDesc;
+}
+
+// Courtesy: http://acius2.blogspot.com/2007/11/calculating-next-power-of-2.html
+static unsigned int NextPowOf2(unsigned int val)
+{
+    val--;
+    val = (val >> 1) | val;
+    val = (val >> 2) | val;
+    val = (val >> 4) | val;
+    val = (val >> 8) | val;
+    val = (val >> 16) | val;
+    
+    return (val + 1);
 }
 
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC
@@ -99,16 +137,71 @@
         NSLog(@"Expecting paint in line layer");
         return nil;
     }
-    
-    lineDesc = [NSMutableDictionary dictionaryWithDictionary:
-            @{kMaplyVecWidth: @(_paint.width),
-              kMaplyColor: _paint.color,
-              kMaplyDrawPriority: @(self.drawPriority),
-              kMaplyFade: @0.0,
-              kMaplyVecCentered: @YES,
-              kMaplySelectable: @NO,
-              kMaplyEnable: @NO
-              }];
+
+    if (_paint.lineDashArray != nil)
+    {
+        NSMutableArray *dashComponents = [NSMutableArray array];
+        double totLen = 0.0;
+        double maxWidth = _paint.width;
+        if (_paint.widthFunc)
+            maxWidth = [_paint.widthFunc maxValue];
+
+        // Figure out the total length
+        for (NSNumber *num in _paint.lineDashArray.dashes)
+            totLen += [num doubleValue] * maxWidth;
+        
+        int totLenRounded = NextPowOf2(totLen);
+        for (NSNumber *num in _paint.lineDashArray.dashes)
+        {
+            double len = [num doubleValue] * maxWidth * totLenRounded / totLen;
+            [dashComponents addObject:@(len)];
+        }
+        
+        // Let's keep the texture a power of 2
+        int texWidth = 4;
+        if (maxWidth <= 4)
+            texWidth=  4;
+        else if (maxWidth <= 8)
+            texWidth = 8;
+        else if (maxWidth <= 16)
+            texWidth = 16;
+        else
+            texWidth = 32;
+        
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(texWidth,totLenRounded)];
+        [lineTexBuilder setPattern:dashComponents];
+        lineTexBuilder.opacityFunc = MaplyOpacitySin3;
+        UIImage *lineImage = [lineTexBuilder makeImage];
+        MaplyTexture *filledLineTex = [viewC addTexture:lineImage
+                                            imageFormat:MaplyImageIntRGBA
+                                              wrapFlags:MaplyImageWrapY
+                                                   mode:MaplyThreadCurrent];
+        lineDesc = [NSMutableDictionary dictionaryWithDictionary:
+                    @{kMaplyVecWidth: @(_paint.width),
+                      kMaplyColor: _paint.color,
+                      kMaplyVecTexture: filledLineTex,
+                      kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+                      // Note: Hack
+                      kMaplyWideVecTexRepeatLen: @(totLen/4.0),
+                      kMaplyDrawPriority: @(self.drawPriority),
+                      kMaplyFade: @0.0,
+                      kMaplyVecCentered: @YES,
+                      kMaplySelectable: @NO,
+                      kMaplyEnable: @NO
+                      }];
+
+    } else {
+        // Simple filled line
+        lineDesc = [NSMutableDictionary dictionaryWithDictionary:
+                @{kMaplyVecWidth: @(_paint.width),
+                  kMaplyColor: _paint.color,
+                  kMaplyDrawPriority: @(self.drawPriority),
+                  kMaplyFade: @0.0,
+                  kMaplyVecCentered: @YES,
+                  kMaplySelectable: @NO,
+                  kMaplyEnable: @NO
+                  }];
+    }
     
     return self;
 }
@@ -126,7 +219,8 @@
         if (width > 0.0)
         {
             NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
-            mutDesc[kMaplyVecWidth] = @(width);
+            // Note: Hack
+            mutDesc[kMaplyVecWidth] = @(width/2.0);
             desc = mutDesc;
         } else
             include = false;
