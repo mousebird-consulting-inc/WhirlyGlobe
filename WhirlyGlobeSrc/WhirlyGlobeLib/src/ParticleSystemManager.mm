@@ -70,6 +70,23 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
     
     SimpleIdentity partSysID = sceneRep->getId();
     
+    // Set up a single giant drawable for a particle system
+    bool useRectangles = sceneRep->partSys.type == ParticleSystemRectangle;
+    // Note: There are devices where this won't work
+    bool useInstancing = useRectangles;
+    int totalParticles = newSystem.totalParticles;
+    ParticleSystemDrawable *draw = new ParticleSystemDrawable("Particle System",sceneRep->partSys.vertAttrs,totalParticles,sceneRep->partSys.batchSize,useRectangles,useInstancing);
+    draw->setOnOff(true);
+    draw->setPointSize(sceneRep->partSys.pointSize);
+    draw->setProgram(sceneRep->partSys.shaderID);
+    draw->setupGL(NULL, scene->getMemManager());
+    draw->setDrawPriority(sceneRep->partSys.drawPriority);
+    draw->setBaseTime(newSystem.baseTime);
+    draw->setLifetime(sceneRep->partSys.lifetime);
+    draw->setTexIDs(sceneRep->partSys.texIDs);
+    changes.push_back(new AddDrawableReq(draw));
+    sceneRep->draws.insert(draw);
+    
     pthread_mutex_lock(&partSysLock);
     sceneReps.insert(sceneRep);
     pthread_mutex_unlock(&partSysLock);
@@ -108,7 +125,7 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
 {
     pthread_mutex_lock(&partSysLock);
     
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+//    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
     
     ParticleSystemSceneRep *sceneRep = NULL;
     ParticleSystemSceneRep dummyRep(sysID);
@@ -118,30 +135,28 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
     
     if (sceneRep)
     {
-        bool useRectangles = sceneRep->partSys.type == ParticleSystemRectangle;
-        // Note: There are devices where this won't work
-        bool useInstancing = useRectangles;
-        ParticleSystemDrawable *draw = new ParticleSystemDrawable("Particle System",sceneRep->partSys.vertAttrs,sceneRep->partSys.batchSize,useRectangles,useInstancing);
-        draw->setOnOff(true);
-        draw->setPointSize(sceneRep->partSys.pointSize);
-        draw->setProgram(sceneRep->partSys.shaderID);
-        draw->setupGL(NULL, scene->getMemManager());
-        draw->setDrawPriority(sceneRep->partSys.drawPriority);
-        draw->setStartTime(now);
-        draw->setLifetime(sceneRep->partSys.lifetime);
-        std::vector<ParticleSystemDrawable::AttributeData> attrData;
-        for (unsigned int ii=0;ii<batch.attrData.size();ii++)
+        // Should be one drawable in there
+        ParticleSystemDrawable *draw = NULL;
+        if (sceneRep->draws.size() == 1)
+            draw = *(sceneRep->draws.begin());
+        
+        if (draw)
         {
-            ParticleSystemDrawable::AttributeData thisAttrData;
-            thisAttrData.data = batch.attrData[ii];
-            attrData.push_back(thisAttrData);
+            ParticleSystemDrawable::Batch theBatch;
+            if (draw->findEmptyBatch(theBatch))
+            {
+                std::vector<ParticleSystemDrawable::AttributeData> attrData;
+                for (unsigned int ii=0;ii<batch.attrData.size();ii++)
+                {
+                    ParticleSystemDrawable::AttributeData thisAttrData;
+                    thisAttrData.data = batch.attrData[ii];
+                    attrData.push_back(thisAttrData);
+                }
+                // Note: Should pick this up from the batch
+                theBatch.startTime = CFAbsoluteTimeGetCurrent();
+                draw->addAttributeData(attrData,theBatch);
+            }
         }
-        draw->addAttributeData(attrData);
-        draw->setTexIDs(sceneRep->partSys.texIDs);
-        
-        changes.push_back(new AddDrawableReq(draw));
-        
-        sceneRep->draws.insert(draw);
     }
     
     pthread_mutex_unlock(&partSysLock);
@@ -150,21 +165,8 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
 void ParticleSystemManager::housekeeping(NSTimeInterval now,ChangeSet &changes)
 {
     pthread_mutex_lock(&partSysLock);
-    
-    for (ParticleSystemSceneRepSet::iterator it = sceneReps.begin(); it != sceneReps.end(); ++it)
-    {
-        std::vector<ParticleSystemDrawable *> toRemove;
-        for (ParticleSystemDrawable *draw : (*it)->draws)
-        {
-            if (draw->getStartTime() + (*it)->partSys.lifetime < now)
-                toRemove.push_back(draw);
-        }
-        for (auto rem : toRemove)
-        {
-            (*it)->draws.erase(rem);
-            changes.push_back(new RemDrawableReq(rem->getId()));
-        }
-    }
+
+    // Note: Not clear if we need this anymore
     
     pthread_mutex_unlock(&partSysLock);
 }

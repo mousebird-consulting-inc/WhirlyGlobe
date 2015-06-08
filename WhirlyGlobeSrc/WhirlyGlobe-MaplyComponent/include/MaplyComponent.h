@@ -55,3 +55,5 @@
 #import <MapboxMultiSourceTileInfo.h>
 #import <MaplyVertexAttribute.h>
 #import <MaplyQuadTracker.h>
+#import <MaplyStarsModel.h>
+

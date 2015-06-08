@@ -65,6 +65,8 @@ int ParticleSystemAttribute::dataSize()
     _shader = kMaplyParticleSystemPointDefaultShader;
     _lifetime = 5.0;
     _batchSize = 2000;
+    _totalParticles = 100000;
+    _baseTime = CFAbsoluteTimeGetCurrent();
     
     return self;
 }
