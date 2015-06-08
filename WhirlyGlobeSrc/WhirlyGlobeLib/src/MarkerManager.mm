@@ -353,6 +353,8 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     draw->setVisibleRange(markerInfo.minVis, markerInfo.maxVis);
                     draw->setTexId(0,subTexID);
                     draw->setOnOff(markerInfo.enable);
+                    if (markerInfo.programId != EmptyIdentity)
+                        draw->setProgram(markerInfo.programId);
                     drawables[subTexID] = draw;
                     markerRep->drawIDs.insert(draw->getId());
                 }

@@ -33,13 +33,15 @@
     [styleSet unsupportedCheck:@"fill-translate-anchor" in:@"paint_fill" styleEntry:styleEntry];
     [styleSet unsupportedCheck:@"fill-image" in:@"paint_fill" styleEntry:styleEntry];
 
+    _opacityBase = 1.0;
     id fillEntry = styleEntry[@"fill-opacity"];
     if (fillEntry)
     {
         if ([fillEntry isKindOfClass:[NSNumber class]])
             _opacity = [styleSet doubleValue:fillEntry defVal:1.0];
-        else
+        else {
             _opacityFunc = [styleSet stopsValue:fillEntry defVal:nil];
+        }
     } else
         _opacity = 1.0;
     _color = [styleSet colorValue:@"fill-color" dict:styleEntry defVal:[UIColor blackColor]];

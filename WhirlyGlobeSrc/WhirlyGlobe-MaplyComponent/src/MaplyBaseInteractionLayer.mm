@@ -818,6 +818,14 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 - (EAGLContext *)setupTempContext:(MaplyThreadMode)threadMode
 {
     EAGLContext *tmpContext = nil;
+    
+    // Use the renderer's context
+    if (threadMode == MaplyThreadCurrent && [NSThread mainThread] == [NSThread currentThread])
+    {
+        tmpContext = layerThread.renderer.context;
+        [EAGLContext setCurrentContext:tmpContext];
+    }
+    
     if (threadMode == MaplyThreadCurrent && ![EAGLContext currentContext])
     {
         pthread_mutex_lock(&tempContextLock);
@@ -843,6 +851,12 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // This just releases the context, but we may want to keep a queue of these in future
 - (void)clearTempContext:(EAGLContext *)context
 {
+    if ([NSThread mainThread] == [NSThread currentThread] && context == layerThread.renderer.context)
+    {
+        [EAGLContext setCurrentContext:nil];
+        return;
+    }
+    
     if (context)
     {
         glFlush();

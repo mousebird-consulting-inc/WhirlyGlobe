@@ -168,16 +168,36 @@ typedef enum {MBGeomPoint,MBGeomLineString,MBGeomPolygon,MBGeomNone} MapboxVecto
 
 @end
 
+/// @brief A single zoom and value
+@interface MaplyVectorFunctionStop : NSObject
+
+/// @brief Zoom level this applies to
+@property (nonatomic) double zoom;
+
+/// @brief Value at that zoom level
+@property (nonatomic) double val;
+
+@end
+
 /// @brief These are used to control simple values based on zoom level
 @interface MaplyVectorFunctionStops : NSObject
 
-@property (nonatomic) double minZoom,maxZoom;
-@property (nonatomic) double minVal,maxVal;
+/// @brief Array of function stops as they apply to value.  These are MaplyVectorFunctionStop objects.
+@property (nonatomic,strong) NSArray *stops;
+
+/// @brief Used in exponential calculation
+@property (nonatomic,assign) double base;
 
 /// @brief Parse out of a JSON array
 - (id)initWithArray:(NSArray *)dataArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
 
 /// @brief Calculate a value given the zoom level
 - (double)valueForZoom:(int)zoom;
+
+/// @brief Returns the minimum value
+- (double)minValue;
+
+/// @brief Returns the maximum value
+- (double)maxValue;
 
 @end
