@@ -186,17 +186,23 @@ using namespace Eigen;
 	
 - (Eigen::Matrix4d)calcModelMatrix
 {
-	Eigen::Affine3d trans(Eigen::Translation3d(0,0,-[self calcEarthZOffset]));
-	Eigen::Affine3d rot(_rotQuat);
-	
-	return (trans * rot).matrix();
+    @synchronized(self)
+    {
+        Eigen::Affine3d trans(Eigen::Translation3d(0,0,-[self calcEarthZOffset]));
+        Eigen::Affine3d rot(_rotQuat);
+        
+        return (trans * rot).matrix();
+    }
 }
 
 - (Eigen::Matrix4d)calcViewMatrix
 {
-    Eigen::Quaterniond selfRotPitch(AngleAxisd(-_tilt, Vector3d::UnitX()));
-    
-    return ((Affine3d)selfRotPitch).matrix();
+    @synchronized(self)
+    {
+        Eigen::Quaterniond selfRotPitch(AngleAxisd(-_tilt, Vector3d::UnitX()));
+        
+        return ((Affine3d)selfRotPitch).matrix();
+    }
 }
 
 - (Vector3d)currentUp
