@@ -256,8 +256,7 @@ using namespace WhirlyKit;
 	[baseLayerThread start];
     
     // Set up defaults for the hints
-    NSDictionary *newHints = [NSDictionary dictionaryWithObjectsAndKeys:
-                              nil];
+    NSDictionary *newHints = [NSDictionary dictionary];
     [self setHints:newHints];
         
     _selection = true;
