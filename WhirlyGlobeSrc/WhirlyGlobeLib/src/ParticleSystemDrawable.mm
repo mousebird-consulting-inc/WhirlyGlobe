@@ -331,13 +331,14 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
                 if (thisAttr)
                 {
                     glVertexAttribPointer(thisAttr->index, attrInfo.glEntryComponents(), attrInfo.glType(), attrInfo.glNormalize(), vertexSize, (const GLvoid *)(long)(attrOffset+batchOffset));
+                    int divisor = 0;
+                    
                     if (useInstancing)
-                    {
-                        if (context.API < kEAGLRenderingAPIOpenGLES3)
-                            glVertexAttribDivisorEXT(thisAttr->index, 1);
-                        else
-                            glVertexAttribDivisor(thisAttr->index, 1);
-                    }
+                        divisor = 1;
+                    if (context.API < kEAGLRenderingAPIOpenGLES3)
+                        glVertexAttribDivisorEXT(thisAttr->index, divisor);
+                    else
+                        glVertexAttribDivisor(thisAttr->index, divisor);
                     glEnableVertexAttribArray(thisAttr->index);
                 }
                 
@@ -357,15 +358,31 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
             }
         }
     }
+    
+    if (rectBuffer)
+    {
+        const OpenGLESAttribute *thisAttr = prog->findAttribute("a_offset");
+        if (thisAttr)
+        {
+            glDisableVertexAttribArray(thisAttr->index);
+            CheckGLError("ParticleSystemDrawable glDisableVertexAttribArray");
+        }
+        thisAttr = prog->findAttribute("a_texCoord");
+        if (thisAttr)
+        {
+            glDisableVertexAttribArray(thisAttr->index);
+            CheckGLError("ParticleSystemDrawable glDisableVertexAttribArray");
+        }
+    }
 
     // Tear down the state
     for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
     {
         const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.name);
-        if (thisAttr)
+        if (thisAttr) {
             glDisableVertexAttribArray(thisAttr->index);
+        }
     }
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Unbind any textures
     for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
@@ -375,7 +392,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
-    glBindVertexArrayOES(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
     
 static const char *vertexShaderTri =

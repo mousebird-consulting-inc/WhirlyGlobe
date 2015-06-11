@@ -67,7 +67,7 @@ static const char *vertexShaderTriPoint =
 ""
 "void main()"
 "{"
-"   v_color = vec4(1.0,0.0,1.0,1.0);"
+"   v_color = vec4(1.0,1.0,1.0,1.0);"
 "   gl_PointSize = a_size;"
 "   gl_Position = u_mvpMatrix * vec4(a_position * u_radius,1.0);"
 "}"
@@ -89,7 +89,7 @@ typedef struct
     float x,y,z;
 } SimpleVec3;
 
-- (void)addToViewC:(WhirlyGlobeViewController *)inViewC desc:(NSDictionary *)desc mode:(MaplyThreadMode)mode
+- (void)addToViewC:(WhirlyGlobeViewController *)inViewC desc:(NSDictionary *)inDesc mode:(MaplyThreadMode)mode
 {
     viewC = inViewC;
     addedMode = mode;
@@ -97,7 +97,11 @@ typedef struct
     // Really simple shader
     MaplyShader *shader = [[MaplyShader alloc] initWithName:@"Star Shader" vertex:[NSString stringWithFormat:@"%s",vertexShaderTriPoint] fragment:[NSString stringWithFormat:@"%s",fragmentShaderTriPoint] viewC:viewC];
     [viewC addShaderProgram:shader sceneName:@"Star Shader"];
-    [shader setUniformFloatNamed:@"u_radius" val:1.5];
+    [shader setUniformFloatNamed:@"u_radius" val:6.0];
+    
+    NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
+    if (!desc[kMaplyDrawPriority])
+        desc[kMaplyDrawPriority] = @(kMaplyStarsDrawPriorityDefault);
 
     // Set up a simple particle system (that doesn't move)
     partSys = [[MaplyParticleSystem alloc] initWithName:@"Stars"];
@@ -126,7 +130,7 @@ typedef struct
         posPtr->x = star->loc.x;
         posPtr->y = star->loc.y;
         posPtr->z = star->loc.z;
-        *magPtr = 6.0;
+        *magPtr = 6.0-star->mag;
         
         posPtr++;   magPtr++;
     }
@@ -134,9 +138,9 @@ typedef struct
     // Set up the particle batch
     MaplyParticleBatch *batch = [[MaplyParticleBatch alloc] initWithParticleSystem:partSys];
     batch.time = CFAbsoluteTimeGetCurrent();
-    NSData *posData = [[NSData alloc] initWithBytesNoCopy:pos length:stars.size()*sizeof(SimpleVec3) freeWhenDone:false];
+    NSData *posData = [[NSData alloc] initWithBytes:pos length:stars.size()*sizeof(SimpleVec3)];
     [batch addAttribute:@"a_position" values:posData];
-    NSData *sizeData = [[NSData alloc] initWithBytesNoCopy:mag length:stars.size()*sizeof(float) freeWhenDone:false];
+    NSData *sizeData = [[NSData alloc] initWithBytes:mag length:stars.size()*sizeof(float)];
     [batch addAttribute:@"a_size" values:sizeData];
     [viewC addParticleBatch:batch mode:mode];
 }
