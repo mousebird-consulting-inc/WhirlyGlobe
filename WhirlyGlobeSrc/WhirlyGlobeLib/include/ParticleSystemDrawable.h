@@ -145,10 +145,21 @@ protected:
     // The vertex attributes we're representing in the buffers
     std::vector<VertexAttribute> vertexAttributes;
     
+    // Chunk of a buffer to render
+    typedef struct
+    {
+        int bufferStart;
+        int numVertices;
+    } BufferChunk;
+    
+    void updateChunks();
+    
     // Chunks we use for rendering
     pthread_mutex_t batchLock;
     int startBatch,endBatch;
     std::vector<Batch> batches;
+    bool chunksDirty;
+    std::vector<BufferChunk> chunks;
 };
 
 }

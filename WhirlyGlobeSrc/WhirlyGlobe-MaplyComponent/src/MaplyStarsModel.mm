@@ -116,13 +116,11 @@ typedef struct
     
     // Data arrays for particles
     // We'll clear them out in case we don't fill them out completely
-    SimpleVec3 pos[stars.size()];
-    memset(pos, 0, stars.size()*sizeof(SimpleVec3));
-    float mag[stars.size()];
-    memset(mag, 0, stars.size()*sizeof(float));
+    NSMutableData *posData = [[NSMutableData alloc] initWithLength:stars.size()*sizeof(SimpleVec3)];
+    NSMutableData *sizeData = [[NSMutableData alloc] initWithLength:stars.size()*sizeof(float)];
 
-    SimpleVec3 *posPtr = pos;
-    float *magPtr = mag;
+    SimpleVec3 *posPtr = (SimpleVec3 *)[posData mutableBytes];
+    float *magPtr = (float *)[sizeData mutableBytes];
     for (unsigned int ii=0;ii<stars.size();ii++)
     {
         SingleStar *star = &stars[ii];
@@ -130,7 +128,10 @@ typedef struct
         posPtr->x = star->loc.x;
         posPtr->y = star->loc.y;
         posPtr->z = star->loc.z;
-        *magPtr = 6.0-star->mag;
+        float mag = 6.0-star->mag;
+        if (mag < 0.0)
+            mag = 0.0;
+        *magPtr = mag;
         
         posPtr++;   magPtr++;
     }
@@ -138,9 +139,7 @@ typedef struct
     // Set up the particle batch
     MaplyParticleBatch *batch = [[MaplyParticleBatch alloc] initWithParticleSystem:partSys];
     batch.time = CFAbsoluteTimeGetCurrent();
-    NSData *posData = [[NSData alloc] initWithBytes:pos length:stars.size()*sizeof(SimpleVec3)];
     [batch addAttribute:@"a_position" values:posData];
-    NSData *sizeData = [[NSData alloc] initWithBytes:mag length:stars.size()*sizeof(float)];
     [batch addAttribute:@"a_size" values:sizeData];
     [viewC addParticleBatch:batch mode:mode];
 }

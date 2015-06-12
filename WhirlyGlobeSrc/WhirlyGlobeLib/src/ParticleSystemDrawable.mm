@@ -30,7 +30,7 @@ namespace WhirlyKit
 {
 
 ParticleSystemDrawable::ParticleSystemDrawable(const std::string &name,const std::vector<SingleVertexAttributeInfo> &inVertAttrs,int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing)
-    : Drawable(name), enable(true), numTotalPoints(numTotalPoints), batchSize(batchSize), vertexSize(0), programId(0), drawPriority(0), pointBuffer(0), rectBuffer(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0), useRectangles(useRectangles), useInstancing(useInstancing), baseTime(0.0)
+    : Drawable(name), enable(true), numTotalPoints(numTotalPoints), batchSize(batchSize), vertexSize(0), programId(0), drawPriority(0), pointBuffer(0), rectBuffer(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0), useRectangles(useRectangles), useInstancing(useInstancing), baseTime(0.0), startBatch(0), endBatch(0), chunksDirty(true)
 {
     pthread_mutex_init(&batchLock, NULL);
     
@@ -107,6 +107,8 @@ void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMa
         batch.len = batchBufLen;
         bufOffset += batchBufLen;
     }
+    chunks.clear();
+    chunksDirty = true;
     
     // Zero it out to avoid warnings
     // Note: Don't actually have to do this
@@ -134,6 +136,7 @@ void ParticleSystemDrawable::teardownGL(OpenGLMemManager *memManager)
         memManager->removeBufferID(rectBuffer);
     rectBuffer = 0;
     batches.clear();
+    chunks.clear();
 }
     
 void ParticleSystemDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
@@ -193,15 +196,52 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
 void ParticleSystemDrawable::updateBatches(NSTimeInterval now)
 {
     pthread_mutex_lock(&batchLock);
-    for (unsigned int ii=0;ii<batches.size();ii++)
+    // Check the batches to see if any have gone off
+    for (int bi=startBatch;bi!=endBatch;)
     {
-        Batch &batch = batches[ii];
+        Batch &batch = batches[bi];
         if (batch.active)
         {
             if (batch.startTime + lifetime < now)
+            {
                 batch.active = false;
-        }
+                chunksDirty = true;
+                startBatch = (startBatch+1)%batches.size();
+            }
+        } else
+            break;
+        
+        bi = (bi+1)%batches.size();
     }
+    pthread_mutex_unlock(&batchLock);
+    
+    updateChunks();
+}
+    
+void ParticleSystemDrawable::updateChunks()
+{
+    if (!chunksDirty)
+        return;
+    
+    pthread_mutex_lock(&batchLock);
+    
+    chunksDirty = false;
+    chunks.clear();
+    if (batches[startBatch].active)
+    {
+        int start = startBatch;
+        do {
+            int end = start;
+            for (;end < batches.size()-1 && batches[end].active;end++);
+            BufferChunk chunk;
+            chunk.bufferStart = start * batchSize * vertexSize;
+            chunk.numVertices = (end-start+1) * batchSize;
+            chunks.push_back(chunk);
+            
+            start = (end+1)%batches.size();
+        } while (start != endBatch && batches[start].active);
+    }
+    
     pthread_mutex_unlock(&batchLock);
 }
     
@@ -210,15 +250,11 @@ bool ParticleSystemDrawable::findEmptyBatch(Batch &retBatch)
     bool ret = false;
     
     pthread_mutex_lock(&batchLock);
-    for (unsigned int ii=0;ii<batches.size();ii++)
+    if (!batches[endBatch].active)
     {
-        Batch &batch = batches[ii];
-        if (!batch.active)
-        {
-            retBatch = batch;
-            ret = true;
-            break;
-        }
+        ret = true;
+        retBatch = batches[endBatch];
+        endBatch = (endBatch+1)%batches.size();
     }
     pthread_mutex_unlock(&batchLock);
     
@@ -228,6 +264,7 @@ bool ParticleSystemDrawable::findEmptyBatch(Batch &retBatch)
 void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
     updateBatches(frameInfo.currentTime);
+    updateChunks();
     
     EAGLContext *context = [EAGLContext currentContext];
     OpenGLES2Program *prog = frameInfo.program;
@@ -316,46 +353,42 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
 
     // Work through the batches
     // Note: Consolidate!
-    for (const Batch &batch : batches)
+    for (const BufferChunk &chunk : chunks)
     {
-        if (batch.active)
+        // Bind the various attributes to their offsets
+        int attrOffset = 0;
+        for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
         {
-            // Bind the various attributes to their offsets
-            int attrOffset = 0;
-            for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
+            int attrSize = attrInfo.size();
+            
+            const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.name);
+            if (thisAttr)
             {
-                int attrSize = attrInfo.size();
-                int batchOffset = batch.batchID*batchSize*vertexSize;
+                glVertexAttribPointer(thisAttr->index, attrInfo.glEntryComponents(), attrInfo.glType(), attrInfo.glNormalize(), vertexSize, (const GLvoid *)(long)(attrOffset+chunk.bufferStart));
+                int divisor = 0;
                 
-                const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.name);
-                if (thisAttr)
-                {
-                    glVertexAttribPointer(thisAttr->index, attrInfo.glEntryComponents(), attrInfo.glType(), attrInfo.glNormalize(), vertexSize, (const GLvoid *)(long)(attrOffset+batchOffset));
-                    int divisor = 0;
-                    
-                    if (useInstancing)
-                        divisor = 1;
-                    if (context.API < kEAGLRenderingAPIOpenGLES3)
-                        glVertexAttribDivisorEXT(thisAttr->index, divisor);
-                    else
-                        glVertexAttribDivisor(thisAttr->index, divisor);
-                    glEnableVertexAttribArray(thisAttr->index);
-                }
-                
-                attrOffset += attrSize;
-            }
-
-            if (rectBuffer)
-            {
+                if (useInstancing)
+                    divisor = 1;
                 if (context.API < kEAGLRenderingAPIOpenGLES3)
-                    glDrawArraysInstancedEXT(GL_TRIANGLES, 0, 6, batchSize);
+                    glVertexAttribDivisorEXT(thisAttr->index, divisor);
                 else
-                    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, batchSize);
-                CheckGLError("BasicDrawable::drawVBO2() glDrawArraysInstanced");
-            } else {
-                glDrawArrays(GL_POINTS, 0, batchSize);
-                CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+                    glVertexAttribDivisor(thisAttr->index, divisor);
+                glEnableVertexAttribArray(thisAttr->index);
             }
+            
+            attrOffset += attrSize;
+        }
+
+        if (rectBuffer)
+        {
+            if (context.API < kEAGLRenderingAPIOpenGLES3)
+                glDrawArraysInstancedEXT(GL_TRIANGLES, 0, 6, chunk.numVertices);
+            else
+                glDrawArraysInstanced(GL_TRIANGLES, 0, 6, chunk.numVertices);
+            CheckGLError("BasicDrawable::drawVBO2() glDrawArraysInstanced");
+        } else {
+            glDrawArrays(GL_POINTS, 0, chunk.numVertices);
+            CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
         }
     }
     
