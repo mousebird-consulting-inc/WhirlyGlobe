@@ -2498,6 +2498,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         wkPartSys.shaderID = partSysShaderID;
         wkPartSys.lifetime = partSys.lifetime;
         wkPartSys.batchSize = partSys.batchSize;
+        wkPartSys.totalParticles = partSys.totalParticles;
+        wkPartSys.baseTime = partSys.baseTime;
         // Type
         switch (partSys.type)
         {
