@@ -68,5 +68,11 @@
 // If set, we calculate the tilt every time we update
 @property (nonatomic,weak) NSObject<WGTiltCalculatorDelegate> *tiltDelegate;
 
+// If set, we'll keep track up rather than north up
+- (void)setTrackUp:(double)trackUp;
+
+// Turn track up back off
+- (void)clearTrackUp;
+
 
 @end
