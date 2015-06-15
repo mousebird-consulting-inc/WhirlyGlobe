@@ -117,6 +117,7 @@ using namespace WhirlyKit;
     bool startRotAxisValid;
     bool _trackUp;
     double trackUpRot;
+    bool sentRotStartMsg;
 }
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
@@ -189,6 +190,8 @@ using namespace WhirlyKit;
 	{
 		case UIGestureRecognizerStateBegan:
 //            NSLog(@"Pinch started");
+            startRotAxisValid = false;
+            sentRotStartMsg = false;
 			startTransform = [globeView calcFullMatrix];
 			startQuat = [globeView rotQuat];
 			// Store the starting Z and pinch center for comparison
@@ -279,6 +282,15 @@ using namespace WhirlyKit;
                     double diffRot = curRot-startRot;
                     Eigen::AngleAxisd rotQuat(-diffRot,startRotAxis);
                     newRotQuat = newRotQuat * rotQuat;
+                    
+                    if (curRot != 0.0)
+                    {
+                        if (!sentRotStartMsg)
+                        {
+                            sentRotStartMsg = true;
+                            [[NSNotificationCenter defaultCenter] postNotificationName:kRotateDelegateDidStart object:globeView];
+                        }
+                    }
                 }
                 
                 // Keep the pole up if necessary
@@ -338,6 +350,11 @@ using namespace WhirlyKit;
         case UIGestureRecognizerStateEnded:
 //            NSLog(@"Pinch ended");
             [[NSNotificationCenter defaultCenter] postNotificationName:kPinchDelegateDidEnd object:globeView];
+            if (sentRotStartMsg)
+            {
+                sentRotStartMsg = false;
+                [[NSNotificationCenter defaultCenter] postNotificationName:kRotateDelegateDidStart object:globeView];
+            }
             valid = false;
             
 			break;
