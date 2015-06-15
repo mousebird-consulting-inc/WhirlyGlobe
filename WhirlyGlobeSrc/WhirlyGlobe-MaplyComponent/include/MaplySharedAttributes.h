@@ -69,6 +69,8 @@
 /// The default particle system shader
 #define kMaplyParticleSystemPointDefaultShader @"Default Part Sys (Point)"
 
+/// Stars
+#define kMaplyStarsDrawPriorityDefault 0
 /// Where we start image layer draw priorities
 #define kMaplyImageLayerDrawPriorityDefault 100
 /// We'll start filling in features right around here
