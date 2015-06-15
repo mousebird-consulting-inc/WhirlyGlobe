@@ -596,7 +596,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    [interactLayer changeVectors:compObj desc:desc mode:MaplyThreadAny];
+    [interactLayer changeVectors:compObj desc:desc mode:threadMode];
 }
 
 - (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc
