@@ -209,7 +209,7 @@ using namespace WhirlyKit;
                 valid = true;
             
             // Calculate a starting rotation
-            if (_doRotation)
+            if (valid && _doRotation)
             {
                 CGPoint center = [pinch locationInView:glView];
                 CGPoint touch0 = [pinch locationOfTouch:0 inView:glView];
@@ -263,12 +263,14 @@ using namespace WhirlyKit;
                         newRotQuat = startQuat * endRot;
                     } else {
                         onSphere = false;
-                        newRotQuat = oldQuat;
+                        newRotQuat = startQuat;
                     }
+                } else {
+                    newRotQuat = startQuat;
                 }
 
                 // And do a rotation around the pinch
-                if (_doRotation && startRotAxisValid && !_northUp && !_trackUp)
+                if (_doRotation && startRotAxisValid && !(_northUp || _trackUp))
                 {
                     CGPoint center = [pinch locationInView:glView];
                     CGPoint touch0 = [pinch locationOfTouch:0 inView:glView];
