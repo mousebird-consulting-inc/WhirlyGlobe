@@ -44,7 +44,7 @@ public:
     LabelSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
     ~LabelSceneRep() { }
     
-    float fade;          // Fade interval, for deletion
+    float fadeOut;          // Fade interval, for deletion
     SimpleIDSet texIDs;  // Textures we created for this
     SimpleIDSet drawIDs; // Drawables created for this
     SimpleIDSet drawStrIDs;  // Drawable strings created with the font manager
@@ -72,7 +72,9 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic,assign) float minVis,maxVis;
 @property (nonatomic,assign) WhirlyKitLabelJustify justify;
 @property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) float fade;
+@property (nonatomic,assign) float fadeIn;
+@property (nonatomic,assign) float fadeOut;
+@property (nonatomic,assign) double fadeOutTime;
 @property (nonatomic,strong) UIColor *shadowColor;
 @property (nonatomic,assign) float shadowSize;
 @property (nonatomic) UIColor *outlineColor;
