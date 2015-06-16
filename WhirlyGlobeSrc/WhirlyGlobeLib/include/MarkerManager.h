@@ -61,7 +61,7 @@ public:
     SimpleIDSet markerIDs;  // IDs for markers sent to the generator
     SimpleIDSet screenShapeIDs;  // IDs for screen space objects
     bool useLayout;  // True if we used the layout manager (and thus need to delete)
-    float fade;   // Time to fade away for deletion
+    float fadeOut;   // Time to fade away for deletion
 };
 typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
     
@@ -77,7 +77,9 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 @property (nonatomic) bool screenObject;
 @property (nonatomic) float width,height;
 @property (nonatomic) int drawPriority;
-@property (nonatomic) float fade;
+@property (nonatomic) float fadeIn;
+@property (nonatomic) float fadeOut;
+@property (nonatomic) NSTimeInterval fadeOutTime;
 @property (nonatomic) bool enable;
 @property (nonatomic) WhirlyKit::SimpleIdentity  markerId;
 @property (nonatomic) WhirlyKit::SimpleIdentity programId;

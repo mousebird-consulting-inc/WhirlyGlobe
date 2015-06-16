@@ -41,6 +41,16 @@
     return [num floatValue];
 }
 
+- (double)doubleForKey:(NSString *)name default:(double)theDefault
+{
+    id what = [self objectForKey:name];
+    if (!what || ![what isKindOfClass:[NSNumber class]])
+        return theDefault;
+    
+    NSNumber *num = what;
+    return [num doubleValue];
+}
+
 - (int)intForKey:(NSString *)name default:(int)theDefault
 {
     id what = [self objectForKey:name];

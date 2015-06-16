@@ -47,6 +47,12 @@
 /// The amount of time for a feature to fade in or out.  Takes an NSNumber float for seconds.
 #define kMaplyFade @"fade"
 #define kWGFade kMaplyFade
+/// Fade the feature in over time.
+#define kMaplyFadeIn @"fadein"
+/// Fade the feature out over time
+#define kMaplyFadeOut @"fadeout"
+/// When to start fading out
+#define kMaplyFadeOutTime @"fadeouttime"
 /// Enable or disable an object.  This can be used to create an object disabled.
 #define kMaplyEnable @"enable"
 /// Request a given object take the z buffer into account
