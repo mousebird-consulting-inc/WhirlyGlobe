@@ -145,6 +145,8 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
     _fadeOut = [desc floatForKey:@"fadeout" default:_fadeOut];
     _fadeOutTime = [desc doubleForKey:@"fadeouttime" default:0.0];
     _enable = [desc boolForKey:@"enable" default:true];
+    _startEnable = [desc doubleForKey:@"enablestart" default:0.0];
+    _endEnable = [desc doubleForKey:@"enableend" default:0.0];
     _programId = [desc intForKey:@"shader" default:EmptyIdentity];
 }
 
@@ -270,6 +272,8 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             shape->setVisibility(markerInfo.minVis, markerInfo.maxVis);
             shape->setDrawPriority(markerInfo.drawPriority);
             shape->setEnable(markerInfo.enable);
+            if (markerInfo.startEnable != markerInfo.endEnable)
+                shape->setEnableTime(markerInfo.startEnable, markerInfo.endEnable);
             shape->addGeometry(smGeom);
             markerRep->screenShapeIDs.insert(shape->getId());
             
@@ -299,6 +303,8 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                 
                 // Start out off, let the layout layer handle the rest
                 shape->setEnable(markerInfo.enable);
+                if (markerInfo.startEnable != markerInfo.endEnable)
+                    shape->setEnableTime(markerInfo.startEnable, markerInfo.endEnable);
                 shape->setOffset(Point2d(MAXFLOAT,MAXFLOAT));
             }
             
