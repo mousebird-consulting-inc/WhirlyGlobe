@@ -71,6 +71,8 @@ namespace WhirlyKit
     _outlineColor = [desc objectForKey:@"outlineColor" checkType:[UIColor class] default:[UIColor blackColor]];
     _shaderID = [desc intForKey:@"shader" default:EmptyIdentity];
     _enable = [desc boolForKey:@"enable" default:true];
+    _startEnable = [desc doubleForKey:@"enablestart" default:0.0];
+    _endEnable = [desc doubleForKey:@"enableend" default:0.0];
     if (![justifyStr compare:@"middle"])
         _justify = WhirlyKitLabelMiddle;
     else {
@@ -444,9 +446,13 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         
                         // The shape starts out disabled
                         screenShape->setEnable(_labelInfo.enable);
+                        if (_labelInfo.startEnable != _labelInfo.endEnable)
+                            screenShape->setEnableTime(_labelInfo.startEnable, _labelInfo.endEnable);
                         screenShape->setOffset(Point2d(MAXFLOAT,MAXFLOAT));
                     } else {
                         screenShape->setEnable(_labelInfo.enable);
+                        if (_labelInfo.startEnable != _labelInfo.endEnable)
+                            screenShape->setEnableTime(_labelInfo.startEnable, _labelInfo.endEnable);
                     }
 
                     // Deal with the icon here becaue we need its geometry
@@ -763,9 +769,14 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 
                 // The shape starts out disabled
                 screenShape->setEnable(_labelInfo.enable);
+                if (_labelInfo.startEnable != _labelInfo.endEnable)
+                    screenShape->setEnableTime(_labelInfo.startEnable, _labelInfo.endEnable);
                 screenShape->setOffset(Point2d(MAXFLOAT,MAXFLOAT));
-            } else
+            } else {
                 screenShape->setEnable(_labelInfo.enable);
+                if (_labelInfo.startEnable != _labelInfo.endEnable)
+                    screenShape->setEnableTime(_labelInfo.startEnable, _labelInfo.endEnable);
+            }
             
             if (layoutObject)
                 _layoutObjects.push_back(layoutObject);

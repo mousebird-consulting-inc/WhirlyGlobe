@@ -29,7 +29,8 @@ namespace WhirlyKit
 
 ScreenSpaceBuilder::DrawableState::DrawableState()
     : period(0.0), progID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0),
-    drawPriority(ScreenSpaceDrawPriorityOffset), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), motion(false), rotation(false), keepUpright(false)
+    drawPriority(ScreenSpaceDrawPriorityOffset), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), motion(false), rotation(false), keepUpright(false),
+    enable(true), startEnable(0.0), endEnable(0.0)
 {
 }
     
@@ -51,6 +52,12 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
         return fadeUp < that.fadeUp;
     if (fadeDown != that.fadeDown)
         return fadeDown < that.fadeDown;
+    if (enable != that.enable)
+        return enable < that.enable;
+    if (startEnable != that.startEnable)
+        return startEnable < that.startEnable;
+    if (endEnable != that.endEnable)
+        return endEnable < that.endEnable;
     if (motion != that.motion)
         return motion < that.motion;
     if (rotation != that.rotation)
@@ -89,6 +96,8 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(const DrawableState &state)
     draw->setRequestZBuffer(false);
     draw->setWriteZBuffer(false);
     draw->setVertexAttributes(state.vertexAttrs);
+    draw->setOnOff(state.enable);
+    draw->setEnableTimeRange(state.startEnable, state.endEnable);
     
     // If we've got more than one texture ID and a period, we need a tweaker
     if (state.texIDs.size() > 1 && state.period != 0.0)
@@ -204,6 +213,17 @@ void ScreenSpaceBuilder::setVisibility(float minVis,float maxVis)
     curState.minVis = minVis;
     curState.maxVis = maxVis;
 }
+    
+void ScreenSpaceBuilder::setEnable(bool inEnable)
+{
+    curState.enable = inEnable;
+}
+
+void ScreenSpaceBuilder::setEnableRange(NSTimeInterval inStartEnable,NSTimeInterval inEndEnable)
+{
+    curState.startEnable = inStartEnable;
+    curState.endEnable = inEndEnable;
+}
 
 ScreenSpaceBuilder::DrawableWrap *ScreenSpaceBuilder::findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTri,const Point3d &center)
 {
@@ -286,6 +306,9 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
         DrawableState state = ssObj.state;
         state.texIDs = geom.texIDs;
         state.progID = geom.progID;
+        state.enable = ssObj.enable;
+        state.startEnable = ssObj.startEnable;
+        state.endEnable = ssObj.endEnable;
         VertexAttributeSetConvert(geom.vertexAttrs,state.vertexAttrs);
         DrawableWrap *drawWrap = findOrAddDrawWrap(state,geom.coords.size(),geom.coords.size()-2,ssObj.worldLoc);
         
@@ -357,17 +380,28 @@ ScreenSpaceObject::ScreenSpaceObject::ConvexGeometry::ConvexGeometry()
 }
     
 ScreenSpaceObject::ScreenSpaceObject()
-    : enable(true), worldLoc(0,0,0), offset(0,0), rotation(0), keepUpright(false)
+    : enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), offset(0,0), rotation(0), keepUpright(false)
 {
 }
 
 ScreenSpaceObject::ScreenSpaceObject(SimpleIdentity theID)
-: Identifiable(theID), enable(true), worldLoc(0,0,0), offset(0,0), rotation(0), keepUpright(false)
+: Identifiable(theID), enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), offset(0,0), rotation(0), keepUpright(false)
 {
 }
 
 ScreenSpaceObject::~ScreenSpaceObject()
 {
+}
+    
+void ScreenSpaceObject::setEnable(bool inEnable)
+{
+    enable = inEnable;
+}
+    
+void ScreenSpaceObject::setEnableTime(NSTimeInterval inStartEnable,NSTimeInterval inEndEnable)
+{
+    startEnable = inStartEnable;
+    endEnable = inEndEnable;
 }
     
 void ScreenSpaceObject::setWorldLoc(const Point3d &inWorldLoc)
@@ -401,11 +435,6 @@ NSTimeInterval ScreenSpaceObject::getEndTime()
 Point3d ScreenSpaceObject::getWorldLoc()
 {
     return worldLoc;
-}
-
-void ScreenSpaceObject::setEnable(bool inEnable)
-{
-    enable = inEnable;
 }
     
 void ScreenSpaceObject::setVisibility(float minVis,float maxVis)

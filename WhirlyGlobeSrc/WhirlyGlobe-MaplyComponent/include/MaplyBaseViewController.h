@@ -149,6 +149,8 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyFadeOutTime|NSNumber|If you want to create an object, just to have it fade out at a specific time, this is what you set.|
  |kMaplyShader|NSString|If set, this is the name of the MaplyShader to use when rendering the screen markers.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ |kMaplyEnableStart|NSNumber|If set, this controls when the resulting objects will be activated.|
+ |kMaplyEnableEnd|NSNumber|If set, this controls when the resulting objects will be deactivated.|
 
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
@@ -208,6 +210,8 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The label will only be visible if the user is below this height.  Off by default.|
  |kMaplyFade|NSNumber|The number of seconds to fade a screen label in when it appears and out when it disappears.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ |kMaplyEnableStart|NSNumber|If set, this controls when the resulting objects will be activated.|
+ |kMaplyEnableEnd|NSNumber|If set, this controls when the resulting objects will be deactivated.|
  
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  

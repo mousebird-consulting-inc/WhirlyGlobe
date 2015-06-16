@@ -55,6 +55,10 @@
 #define kMaplyFadeOutTime @"fadeouttime"
 /// Enable or disable an object.  This can be used to create an object disabled.
 #define kMaplyEnable @"enable"
+/// If set, we'll enable the objects only between the start and end time
+#define kMaplyEnableStart @"enablestart"
+/// If set, we'll enable the objects only between the start and end time
+#define kMaplyEnableEnd @"enableend"
 /// Request a given object take the z buffer into account
 #define kMaplyZBufferRead @"zbufferread"
 /// Have a given object write itself to the z buffer
