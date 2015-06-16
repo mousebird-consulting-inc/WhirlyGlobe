@@ -1824,7 +1824,7 @@
 		2BD0E69013254DCA00CD95A8 /* data */ = {
 			isa = PBXGroup;
 			children = (
-				2BB25927177A044300770619 /* ElevationChunk.mm */,
+				8853E7AD1B3050420039C38C /* elevation */,
 				2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */,
 				2BD0E69213254DF700CD95A8 /* VectorData.mm */,
 				2BCABC1012FA1F480049D73C /* ShapeReader.mm */,
@@ -1934,6 +1934,14 @@
 				AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */,
 			);
 			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		8853E7AD1B3050420039C38C /* elevation */ = {
+			isa = PBXGroup;
+			children = (
+				2BB25927177A044300770619 /* ElevationChunk.mm */,
+			);
+			name = elevation;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
