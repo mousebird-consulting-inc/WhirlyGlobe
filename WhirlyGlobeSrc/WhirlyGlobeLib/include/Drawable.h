@@ -453,7 +453,10 @@ public:
 	virtual bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const;
 	/// True to turn it on, false to turn it off
 	void setOnOff(bool onOff);
-    
+
+    /// Set the time range for enable
+    void setEnableTimeRange(NSTimeInterval inStartEnable,NSTimeInterval inEndEnable) { startEnable = inStartEnable;  endEnable = inEndEnable; }
+
     /// Used for alpha sorting
     virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const;
     /// Set the alpha sorting on or off
@@ -669,6 +672,7 @@ protected:
     void setupStandardAttributes(int numReserve=0);
     	
 	bool on;  // If set, draw.  If not, not
+    NSTimeInterval startEnable,endEnable;
     SimpleIdentity programId;    // Program to use for rendering
     bool usingBuffers;  // If set, we've downloaded the buffers already
     NSTimeInterval fadeUp,fadeDown;  // Controls fade in and fade out
@@ -877,6 +881,9 @@ public:
     /// Set the enable on/off
     void setEnable(bool newEnable) { enable = newEnable; }
     
+    /// Set the time range for enable
+    void setEnableTimeRange(NSTimeInterval inStartEnable,NSTimeInterval inEndEnable) { startEnable = inStartEnable;  endEnable = inEndEnable; }
+    
     /// Set the min/max visible range
     void setVisibleRange(float inMinVis,float inMaxVis) { hasMinVis = true;  minVis = inMinVis;  hasMaxVis = true;  maxVis = inMaxVis; }
     
@@ -917,6 +924,7 @@ protected:
     SimpleIdentity masterID;
     BasicDrawableRef basicDraw;
     bool enable;
+    NSTimeInterval startEnable,endEnable;
     bool hasDrawPriority;
     int drawPriority;
     bool hasColor;

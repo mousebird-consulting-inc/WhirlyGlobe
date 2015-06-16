@@ -81,6 +81,7 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 @property (nonatomic) float fadeOut;
 @property (nonatomic) NSTimeInterval fadeOutTime;
 @property (nonatomic) bool enable;
+@property (nonatomic) NSTimeInterval startEnable,endEnable;
 @property (nonatomic) WhirlyKit::SimpleIdentity  markerId;
 @property (nonatomic) WhirlyKit::SimpleIdentity programId;
 
