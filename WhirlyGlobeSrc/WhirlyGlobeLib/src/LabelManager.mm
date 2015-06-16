@@ -226,7 +226,10 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
     
     // Set up the representation (but then hand it off)
     LabelSceneRep *labelRep = new LabelSceneRep();
-    labelRep->fade = labelInfo.fade;
+    if (labelInfo.fadeOut > 0.0 && labelInfo.fadeOutTime != 0.0)
+        labelRep->fadeOut = labelInfo.fadeOut;
+    else
+        labelRep->fadeOut = 0.0;
 
     WhirlyKitFontTextureManager *fontTexManager = nil;
     if (useFontManager)
@@ -380,16 +383,16 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
             LabelSceneRep *labelRep = *it;
             
             // We need to fade them out, then delete
-            if (labelRep->fade > 0.0)
+            if (labelRep->fadeOut > 0.0)
             {
                 NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
                 for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
                      idIt != labelRep->drawIDs.end(); ++idIt)
-                    changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fade));
+                    changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fadeOut));
                 
                 __block NSObject * __weak thisCanary = canary;
 
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, labelRep->fade * NSEC_PER_SEC),
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, labelRep->fadeOut * NSEC_PER_SEC),
                                scene->getDispatchQueue(),
                                ^{
                                    if (thisCanary)
@@ -403,7 +406,7 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
                                }
                                );
 
-                labelRep->fade = 0.0;
+                labelRep->fadeOut = 0.0;
             } else {
                 for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
                      idIt != labelRep->drawIDs.end(); ++idIt)
