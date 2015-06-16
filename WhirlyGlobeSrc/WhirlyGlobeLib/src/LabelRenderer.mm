@@ -59,7 +59,12 @@ namespace WhirlyKit
     _minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
     _maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
     NSString *justifyStr = [desc stringForKey:@"justify" default:@"middle"];
-    _fade = [desc floatForKey:@"fade" default:0.0];
+    double fade = [desc floatForKey:@"fade" default:0.0];
+    _fadeIn = fade;
+    _fadeOut = fade;
+    _fadeIn = [desc floatForKey:@"fadein" default:_fadeIn];
+    _fadeOut = [desc floatForKey:@"fadeout" default:_fadeOut];
+    _fadeOutTime = [desc doubleForKey:@"fadeouttime" default:0.0];
     _shadowColor = [desc objectForKey:@"shadowColor"];
     _shadowSize = [desc floatForKey:@"shadowSize" default:0.0];
     _outlineSize = [desc floatForKey:@"outlineSize" default:0.0];
@@ -336,8 +341,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     
                     if (label.rotation != 0.0)
                         screenShape->setRotation(label.rotation);
-                    if (_labelInfo.fade > 0.0)
-                        screenShape->setFade(curTime+_labelInfo.fade, curTime);
+                    if (_labelInfo.fadeIn > 0.0)
+                        screenShape->setFade(curTime+_labelInfo.fadeIn, curTime);
+                    else if (_labelInfo.fadeOutTime != 0.0)
+                        screenShape->setFade(_labelInfo.fadeOutTime, _labelInfo.fadeOutTime+_labelInfo.fadeOut);
                     if (label.isSelectable && label.selectID != EmptyIdentity)
                         screenShape->setId(label.selectID);
                     screenShape->setWorldLoc(_coordAdapter->localToDisplay(_coordAdapter->getCoordSystem()->geographicToLocal3d(label.loc)));
@@ -546,10 +553,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
     {
         BasicDrawable *iconDrawable = it->second;
         
-        if (_labelInfo.fade > 0.0)
+        if (_labelInfo.fadeIn > 0.0)
         {
             NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-            iconDrawable->setFade(curTime,curTime+_labelInfo.fade);
+            iconDrawable->setFade(curTime,curTime+_labelInfo.fadeIn);
         }
         _changeRequests.push_back(new AddDrawableReq(iconDrawable));
         _labelRep->drawIDs.insert(iconDrawable->getId());
@@ -711,8 +718,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
             screenShape->setDrawPriority(_labelInfo.drawPriority);
             screenShape->setVisibility(_labelInfo.minVis, _labelInfo.maxVis);
             screenShape->setOffset(Point2d(label.screenOffset.width,label.screenOffset.height));
-            if (_labelInfo.fade > 0.0)
-                screenShape->setFade(curTime+_labelInfo.fade, curTime);
+            if (_labelInfo.fadeIn > 0.0)
+                screenShape->setFade(curTime+_labelInfo.fadeIn, curTime);
+            else if (_labelInfo.fadeOutTime != 0.0)
+                screenShape->setFade(_labelInfo.fadeOutTime, _labelInfo.fadeOutTime+_labelInfo.fadeOut);
             if (label.isSelectable && label.selectID != EmptyIdentity)
                 screenShape->setId(label.selectID);
             screenShape->setWorldLoc(_coordAdapter->localToDisplay(_coordAdapter->getCoordSystem()->geographicToLocal3d(label.loc)));
@@ -797,9 +806,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 Texture *tex = new Texture("Label Layer",textImage);
                 drawable->setTexId(0,tex->getId());
                 
-                if (_labelInfo.fade > 0.0)
+                if (_labelInfo.fadeIn > 0.0)
                 {
-                    drawable->setFade(curTime,curTime+_labelInfo.fade);
+                    drawable->setFade(curTime,curTime+_labelInfo.fadeIn);
                 }
                 
                 // Pass over to the renderer
@@ -951,10 +960,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
             BasicDrawable *drawable = drawables[ii];
             drawable->setTexId(0,tex->getId());
             
-            if (_labelInfo.fade > 0.0)
+            if (_labelInfo.fadeIn > 0.0)
             {
                 NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-                drawable->setFade(curTime,curTime+_labelInfo.fade);
+                drawable->setFade(curTime,curTime+_labelInfo.fadeIn);
             }
             _changeRequests.push_back(new AddDrawableReq(drawable));
             _labelRep->drawIDs.insert(drawable->getId());
@@ -967,10 +976,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
     {
         BasicDrawable *iconDrawable = it->second;
         
-        if (_labelInfo.fade > 0.0)
+        if (_labelInfo.fadeIn > 0.0)
         {
             NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-            iconDrawable->setFade(curTime,curTime+_labelInfo.fade);
+            iconDrawable->setFade(curTime,curTime+_labelInfo.fadeIn);
         }
         _changeRequests.push_back(new AddDrawableReq(iconDrawable));
         _labelRep->drawIDs.insert(iconDrawable->getId());
