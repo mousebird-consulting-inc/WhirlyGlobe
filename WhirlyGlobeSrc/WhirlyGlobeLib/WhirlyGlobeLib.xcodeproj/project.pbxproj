@@ -932,6 +932,9 @@
 		2BF401BF15C0B49500B5BFD9 /* ViewPlacementGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewPlacementGenerator.h; sourceTree = "<group>"; };
 		2BF74358155D7C4C000499DD /* NSString+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Stuff.h"; sourceTree = "<group>"; };
 		2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
+		880BD9041B30CF1D0097F285 /* ElevationCesiumChunk.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ElevationCesiumChunk.mm; sourceTree = "<group>"; };
+		880BD9071B30CF6F0097F285 /* ElevationCesiumChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevationCesiumChunk.h; sourceTree = "<group>"; };
+		880BD9091B30D0D60097F285 /* ElevationCesiumFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevationCesiumFormat.h; sourceTree = "<group>"; };
 		880BD90F1B30D59D0097F285 /* NSData+Zlib.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+Zlib.m"; path = "src/NSData+Zlib.m"; sourceTree = SOURCE_ROOT; };
 		880BD9111B30D5B20097F285 /* NSData+Zlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Zlib.h"; sourceTree = "<group>"; };
 		88115B7218A06865008D702C /* MaplyDoubleTapDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyDoubleTapDelegate.h; sourceTree = "<group>"; };
@@ -1821,7 +1824,7 @@
 		2BD0E68513254D4D00CD95A8 /* data */ = {
 			isa = PBXGroup;
 			children = (
-				2BB2591F177A041E00770619 /* ElevationChunk.h */,
+				880BD9061B30CF530097F285 /* elevation */,
 				2B65F90B137DBEE4004326A9 /* sqlhelpers.h */,
 				2BD0E68613254D7300CD95A8 /* VectorData.h */,
 				2B8D92C8137C958000015833 /* VectorDatabase.h */,
@@ -1945,10 +1948,21 @@
 			name = "Other Sources";
 			sourceTree = "<group>";
 		};
+		880BD9061B30CF530097F285 /* elevation */ = {
+			isa = PBXGroup;
+			children = (
+				2BB2591F177A041E00770619 /* ElevationChunk.h */,
+				880BD9091B30D0D60097F285 /* ElevationCesiumFormat.h */,
+				880BD9071B30CF6F0097F285 /* ElevationCesiumChunk.h */,
+			);
+			name = elevation;
+			sourceTree = "<group>";
+		};
 		8853E7AD1B3050420039C38C /* elevation */ = {
 			isa = PBXGroup;
 			children = (
 				2BB25927177A044300770619 /* ElevationChunk.mm */,
+				880BD9041B30CF1D0097F285 /* ElevationCesiumChunk.mm */,
 			);
 			name = elevation;
 			sourceTree = "<group>";
@@ -1978,6 +1992,7 @@
 				2B3A0D51133405780085EF43 /* VectorData.h in Headers */,
 				2B3A0D52133405780085EF43 /* ShapeReader.h in Headers */,
 				2B3A0D53133405780085EF43 /* Identifiable.h in Headers */,
+				880BD90A1B30D0D60097F285 /* ElevationCesiumFormat.h in Headers */,
 				2B3A0D54133405780085EF43 /* Texture.h in Headers */,
 				2BB7A9681A250A5600E50DC5 /* GeometryManager.h in Headers */,
 				2B3A0D55133405780085EF43 /* Drawable.h in Headers */,
@@ -1992,6 +2007,7 @@
 				2B3A0D5D133405780085EF43 /* GridLines.h in Headers */,
 				2B3A0D5F133405780085EF43 /* VectorLayer.h in Headers */,
 				2B95F91718A5AB1F00D72645 /* GlobeTwoFingerTapDelegate.h in Headers */,
+				880BD9081B30CF6F0097F285 /* ElevationCesiumChunk.h in Headers */,
 				2B3A0D60133405780085EF43 /* LabelLayer.h in Headers */,
 				2B3A0D41133405700085EF43 /* shapefil.h in Headers */,
 				2BDC8A811937B56300DFECF0 /* WideVectorManager.h in Headers */,
@@ -2254,6 +2270,7 @@
 				2B7EF44B16025D8C00D4079F /* PJ_cass.c in Sources */,
 				2B7EF44C16025D8C00D4079F /* PJ_cc.c in Sources */,
 				2B7EF44D16025D8C00D4079F /* PJ_cea.c in Sources */,
+				880BD9051B30CF1D0097F285 /* ElevationCesiumChunk.mm in Sources */,
 				2B7EF44E16025D8C00D4079F /* PJ_chamb.c in Sources */,
 				2B7EF44F16025D8C00D4079F /* PJ_collg.c in Sources */,
 				2B7EF45016025D8C00D4079F /* PJ_crast.c in Sources */,
