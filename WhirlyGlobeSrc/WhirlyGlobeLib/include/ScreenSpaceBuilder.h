@@ -58,6 +58,8 @@ public:
         double period;
         SimpleIdentity progID;
         NSTimeInterval fadeUp,fadeDown;
+        bool enable;
+        NSTimeInterval startEnable,endEnable;
         int drawPriority;
         float minVis,maxVis;
         bool motion;
@@ -81,6 +83,10 @@ public:
     void setDrawPriority(int drawPriority);
     /// Set the visibility range
     void setVisibility(float minVis,float maxVis);
+    /// Set the start enable
+    void setEnable(bool enable);
+    /// Set the enable time range
+    void setEnableRange(NSTimeInterval inStartEnable,NSTimeInterval inEndEnable);
 
     /// Add a single rectangle with no rotation
     void addRectangle(const Point3d &worldLoc,const Point2d *coords,const TexCoord *texCoords,const RGBAColor &color);
@@ -186,6 +192,7 @@ public:
     void setMovingLoc(const Point3d &worldLoc,NSTimeInterval startTime,NSTimeInterval endTime);
     
     void setEnable(bool enable);
+    void setEnableTime(NSTimeInterval startEnable,NSTimeInterval endEnable);
     void setVisibility(float minVis,float maxVis);
     void setDrawPriority(int drawPriority);
     void setKeepUpright(bool keepUpright);
@@ -198,6 +205,7 @@ public:
     
 protected:
     bool enable;
+    NSTimeInterval startEnable,endEnable;
     Point3d worldLoc,endWorldLoc;
     NSTimeInterval startTime,endTime;
     Point2d offset;

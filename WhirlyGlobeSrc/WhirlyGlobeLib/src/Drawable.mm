@@ -791,6 +791,8 @@ BasicDrawable::BasicDrawable(const std::string &name)
     : Drawable(name)
 {
 	on = true;
+    startEnable = 0.0;
+    endEnable = 0.0;
     programId = EmptyIdentity;
     usingBuffers = false;
     isAlpha = false;
@@ -824,6 +826,8 @@ BasicDrawable::BasicDrawable(const std::string &name,unsigned int numVert,unsign
     : Drawable(name)
 {
 	on = true;
+    startEnable = 0.0;
+    endEnable = 0.0;
     programId = EmptyIdentity;
     usingBuffers = false;
     isAlpha = false;
@@ -907,9 +911,16 @@ unsigned int BasicDrawable::getDrawPriority() const
     
 bool BasicDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
 {
+    if (startEnable != endEnable)
+    {
+        if (frameInfo.currentTime < startEnable ||
+            endEnable < frameInfo.currentTime)
+            return false;
+    }
+
     if (minVisible == DrawVisibleInvalid || !on)
         return on;
-
+    
     double visVal = [frameInfo.theView heightAboveSurface];
     
     return ((minVisible <= visVal && visVal <= maxVisible) ||
@@ -2203,7 +2214,7 @@ void LineWidthChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *ren
 }
 
 BasicDrawableInstance::BasicDrawableInstance(const std::string &name,SimpleIdentity masterID)
-    : Drawable(name), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true)
+    : Drawable(name), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true), startEnable(0.0), endEnable(0.0)
 {
 }
 
