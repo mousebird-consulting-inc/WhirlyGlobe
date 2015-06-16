@@ -48,6 +48,12 @@ using namespace WhirlyGlobe;
     newState.height = (stateB.height-stateA.height)*t + stateA.height;
     newState.tilt = (stateB.tilt-stateA.tilt)*t + stateA.tilt;
     newState.pos = MaplyCoordinateMake((stateB.pos.x-stateA.pos.x)*t + stateA.pos.x,(stateB.pos.y-stateA.pos.y)*t + stateA.pos.y);
+    if (stateA.screenPos.x >= 0.0 && stateA.screenPos.y >= 0.0 &&
+        stateB.screenPos.x >= 0.0 && stateB.screenPos.y >= 0.0)
+    {
+        newState.screenPos = CGPointMake((stateB.screenPos.x - stateA.screenPos.x)*t + stateA.screenPos.x,(stateB.screenPos.y - stateA.screenPos.y)*t + stateA.screenPos.y);
+    } else
+        newState.screenPos = stateB.screenPos;
     
     return newState;
 }
@@ -660,7 +666,7 @@ using namespace WhirlyGlobe;
 
     [globeView cancelAnimation];
     
-    // Figure out where that points lands on the globe
+    // Figure out where that point lands on the globe
     Eigen::Matrix4d modelTrans = [globeView calcFullMatrix];
     Point3d whereLoc;
     if ([globeView pointOnSphereFromScreen:loc transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc normalized:true])
@@ -1270,9 +1276,21 @@ using namespace WhirlyGlobe;
 
 - (void)setViewState:(WhirlyGlobeViewControllerAnimationState *)animState
 {
+    Vector3d startLoc(0,0,1);
+    
+    if (animState.screenPos.x >= 0.0 && animState.screenPos.y >= 0.0)
+    {
+        Matrix4d heightTrans = Eigen::Affine3d(Eigen::Translation3d(0,0,-[globeView calcEarthZOffset])).matrix();
+        Point3d hit;
+        if ([globeView pointOnSphereFromScreen:animState.screenPos transform:&heightTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
+        {
+            startLoc = hit;
+        }
+    }
+    
     // Start with a rotation from the clean start state to the location
     Point3d worldLoc = globeView.coordAdapter->localToDisplay(globeView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y)));
-    Eigen::Quaterniond posRot = QuatFromTwoVectors(worldLoc, Vector3d(0,0,1));
+    Eigen::Quaterniond posRot = QuatFromTwoVectors(worldLoc, startLoc);
     
     // Orient with north up.  Either because we want that or we're about do do a heading
     Eigen::Quaterniond posRotNorth = posRot;

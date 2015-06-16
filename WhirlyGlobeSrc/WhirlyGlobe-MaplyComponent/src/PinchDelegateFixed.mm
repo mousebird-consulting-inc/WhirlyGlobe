@@ -113,6 +113,11 @@ using namespace WhirlyKit;
     bool valid;
 	WhirlyGlobeView *globeView;
     double startRot;
+    Point3d startRotAxis;
+    bool startRotAxisValid;
+    bool _trackUp;
+    double trackUpRot;
+    bool sentRotStartMsg;
 }
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
@@ -126,6 +131,7 @@ using namespace WhirlyKit;
         _zoomAroundPinch = true;
         _doRotation = false;
         _northUp = false;
+        _trackUp = false;
         valid = false;
 	}
 	
@@ -150,6 +156,18 @@ using namespace WhirlyKit;
     return TRUE;
 }
 
+- (void)setTrackUp:(double)inTrackUp
+{
+    _northUp = false;
+    _trackUp = true;
+    trackUpRot = inTrackUp;
+}
+
+- (void)clearTrackUp
+{
+    _trackUp = false;
+}
+
 // Called for pinch actions
 - (void)pinchGesture:(id)sender
 {
@@ -172,6 +190,8 @@ using namespace WhirlyKit;
 	{
 		case UIGestureRecognizerStateBegan:
 //            NSLog(@"Pinch started");
+            startRotAxisValid = false;
+            sentRotStartMsg = false;
 			startTransform = [globeView calcFullMatrix];
 			startQuat = [globeView rotQuat];
 			// Store the starting Z and pinch center for comparison
@@ -192,12 +212,20 @@ using namespace WhirlyKit;
                 valid = true;
             
             // Calculate a starting rotation
-            if (_doRotation)
+            if (valid && _doRotation)
             {
                 CGPoint center = [pinch locationInView:glView];
                 CGPoint touch0 = [pinch locationOfTouch:0 inView:glView];
                 float dx = touch0.x-center.x,dy=touch0.y-center.y;
                 startRot = atan2(dy, dx);
+                Point3d hit;
+                if ([globeView pointOnSphereFromScreen:center transform:&startTransform
+                                             frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                                   hit:&hit normalized:true])
+                {
+                    startRotAxisValid = true;
+                    startRotAxis = hit;
+                }
             }
 
             [[NSNotificationCenter defaultCenter] postNotificationName:kPinchDelegateDidStart object:globeView];
@@ -238,24 +266,35 @@ using namespace WhirlyKit;
                         newRotQuat = startQuat * endRot;
                     } else {
                         onSphere = false;
-                        newRotQuat = oldQuat;
+                        newRotQuat = startQuat;
                     }
+                } else {
+                    newRotQuat = startQuat;
                 }
 
                 // And do a rotation around the pinch
-                if (_doRotation)
+                if (_doRotation && startRotAxisValid && !(_northUp || _trackUp))
                 {
                     CGPoint center = [pinch locationInView:glView];
                     CGPoint touch0 = [pinch locationOfTouch:0 inView:glView];
                     float dx = touch0.x-center.x,dy=touch0.y-center.y;
                     double curRot = atan2(dy, dx);
                     double diffRot = curRot-startRot;
-                    Eigen::AngleAxisd rotQuat(-diffRot,axis);
+                    Eigen::AngleAxisd rotQuat(-diffRot,startRotAxis);
                     newRotQuat = newRotQuat * rotQuat;
+                    
+                    if (curRot != 0.0)
+                    {
+                        if (!sentRotStartMsg)
+                        {
+                            sentRotStartMsg = true;
+                            [[NSNotificationCenter defaultCenter] postNotificationName:kRotateDelegateDidStart object:globeView];
+                        }
+                    }
                 }
                 
                 // Keep the pole up if necessary
-                if (_northUp)
+                if (_northUp || _trackUp)
                 {
                     // We'd like to keep the north pole pointed up
                     // So we look at where the north pole is going
@@ -273,6 +312,13 @@ using namespace WhirlyKit;
                         // If so, rotate it back up
                         if (northPole.y() < 0.0)
                             ang += M_PI;
+                        
+                        // Implement track up rather than north up
+                        if (!_northUp && _trackUp)
+                        {
+                            ang += trackUpRot;
+                        }
+                        
                         Eigen::AngleAxisd upRot(ang,newUp);
                         newRotQuat = newRotQuat * upRot;
                     }
@@ -304,6 +350,11 @@ using namespace WhirlyKit;
         case UIGestureRecognizerStateEnded:
 //            NSLog(@"Pinch ended");
             [[NSNotificationCenter defaultCenter] postNotificationName:kPinchDelegateDidEnd object:globeView];
+            if (sentRotStartMsg)
+            {
+                sentRotStartMsg = false;
+                [[NSNotificationCenter defaultCenter] postNotificationName:kRotateDelegateDidStart object:globeView];
+            }
             valid = false;
             
 			break;
