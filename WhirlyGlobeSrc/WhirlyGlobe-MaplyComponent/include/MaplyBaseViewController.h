@@ -144,6 +144,9 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The marker will only be visible if the user is above this height.  Off by default.|
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The marker will only be visible if the user is below this height.  Off by default.|
  |kMaplyFade|NSNumber|The number of seconds to fade a marker in when it appears and out when it disappears.|
+ |kMaplyFadeIn|NSNumber|The number of seconds to fade a marker in when it appears.  This overrides kMaplyFade.|
+ |kMaplyFadeOut|NSNumber|The number of seconds to fade a marker out when it disappears.  This override kMaplyFade.|
+ |kMaplyFadeOutTime|NSNumber|If you want to create an object, just to have it fade out at a specific time, this is what you set.|
  |kMaplyShader|NSString|If set, this is the name of the MaplyShader to use when rendering the screen markers.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
 

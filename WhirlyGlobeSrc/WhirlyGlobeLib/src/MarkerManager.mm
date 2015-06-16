@@ -138,7 +138,12 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
     _screenObject = [desc boolForKey:@"screen" default:false];
     _width = [desc floatForKey:@"width" default:(_screenObject ? 16.0 : 0.001)];
     _height = [desc floatForKey:@"height" default:(_screenObject ? 16.0 : 0.001)];
-    _fade = [desc floatForKey:@"fade" default:0.0];
+    double fade = [desc floatForKey:@"fade" default:0.0];
+    _fadeIn = fade;
+    _fadeOut = fade;
+    _fadeIn = [desc floatForKey:@"fadein" default:_fadeIn];
+    _fadeOut = [desc floatForKey:@"fadeout" default:_fadeOut];
+    _fadeOutTime = [desc doubleForKey:@"fadeouttime" default:0.0];
     _enable = [desc boolForKey:@"enable" default:true];
     _programId = [desc intForKey:@"shader" default:EmptyIdentity];
 }
@@ -172,7 +177,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
     
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     MarkerSceneRep *markerRep = new MarkerSceneRep();
-    markerRep->fade = markerInfo.fade;
+    markerRep->fadeOut = markerInfo.fadeOut;
     markerRep->setId(markerInfo.markerId);
     
     // For static markers, sort by texture
@@ -258,8 +263,10 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             }
             if (marker.lockRotation)
                 shape->setRotation(marker.rotation);
-            if (markerInfo.fade > 0.0)
-                shape->setFade(curTime+markerInfo.fade, curTime);
+            if (markerInfo.fadeIn > 0.0)
+                shape->setFade(curTime+markerInfo.fadeIn, curTime);
+            else if (markerInfo.fadeOut > 0.0 && markerInfo.fadeOutTime > 0.0)
+                shape->setFade(markerInfo.fadeOutTime, markerInfo.fadeOutTime+markerInfo.fadeOut);
             shape->setVisibility(markerInfo.minVis, markerInfo.maxVis);
             shape->setDrawPriority(markerInfo.drawPriority);
             shape->setEnable(markerInfo.enable);
@@ -388,10 +395,10 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
     for (DrawableMap::iterator it = drawables.begin();
          it != drawables.end(); ++it)
     {
-        if (markerInfo.fade > 0.0)
+        if (markerInfo.fadeIn > 0.0)
         {
             NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-            it->second->setFade(curTime,curTime+markerInfo.fade);
+            it->second->setFade(curTime,curTime+markerInfo.fadeIn);
         }
         changes.push_back(new AddDrawableReq(it->second));
     }
@@ -461,12 +468,12 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
         {
             MarkerSceneRep *markerRep = *it;
             
-            if (markerRep->fade > 0.0)
+            if (markerRep->fadeOut > 0.0)
             {
                 NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
                 for (SimpleIDSet::iterator idIt = markerRep->drawIDs.begin();
                      idIt != markerRep->drawIDs.end(); ++idIt)
-                    changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+markerRep->fade));
+                    changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+markerRep->fadeOut));
                 
                 if (!markerRep->markerIDs.empty())
                 {
@@ -474,12 +481,12 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
                     for (SimpleIDSet::iterator idIt = markerRep->markerIDs.begin();
                          idIt != markerRep->markerIDs.end(); ++idIt)
                         markerIDs.push_back(*idIt);
-                    changes.push_back(new MarkerGeneratorFadeRequest(generatorId,markerIDs,curTime,curTime+markerRep->fade));
+                    changes.push_back(new MarkerGeneratorFadeRequest(generatorId,markerIDs,curTime,curTime+markerRep->fadeOut));
                 }
                 
                 __block NSObject * __weak thisCanary = canary;
                 
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, markerRep->fade * NSEC_PER_SEC),
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, markerRep->fadeOut * NSEC_PER_SEC),
                                scene->getDispatchQueue(),
                                ^{
                                    if (thisCanary)
@@ -493,7 +500,7 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
                                }
                                );
 
-                markerRep->fade = 0.0;
+                markerRep->fadeOut = 0.0;
             } else {
                 markerRep->clearContents(selectManager, layoutManager, generatorId, screenGenId, changes);
                 
