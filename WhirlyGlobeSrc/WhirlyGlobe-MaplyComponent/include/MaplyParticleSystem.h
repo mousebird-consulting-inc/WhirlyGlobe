@@ -50,6 +50,16 @@ typedef enum {MaplyParticleSystemTypePoint,MaplyParticleSystemTypeRectangle} Map
   */
 @property (nonatomic,assign) NSTimeInterval lifetime;
 
+/** @brief The base that particle time is measured from.
+    @details Individual particles will measure their own lifetime against this base value.
+  */
+@property (nonatomic,readonly) NSTimeInterval baseTime;
+
+/** @brief Total number of particles to be represented at once.
+    @details This is the most particles we'll have on the screen at any time.  Space will be allocated for them, so don't overdo it.
+  */
+@property (nonatomic,assign) int totalParticles;
+
 /** @brief Batch size for MaplyParticleBatch.
     @details Particles need to be created in large batches for efficiency.  This is the size of individual batches.
   */
