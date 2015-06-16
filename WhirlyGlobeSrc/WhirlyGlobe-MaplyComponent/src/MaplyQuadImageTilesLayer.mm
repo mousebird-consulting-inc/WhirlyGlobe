@@ -911,10 +911,10 @@ using namespace WhirlyKit;
             WhirlyKitElevationChunk *wkChunk = nil;
             if ([elevChunk.data length] == sizeof(unsigned short)*elevChunk.numX*elevChunk.numY)
             {
-                wkChunk = [[WhirlyKitElevationChunk alloc] initWithShortData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
+                wkChunk = [[WhirlyKitElevationGridChunk alloc] initWithShortData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
             } else if ([elevChunk.data length] == sizeof(float)*elevChunk.numX*elevChunk.numY)
             {
-                wkChunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
+                wkChunk = [[WhirlyKitElevationGridChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
             }
             loadTile.elevChunk = wkChunk;
         }
@@ -1000,10 +1000,10 @@ using namespace WhirlyKit;
         WhirlyKitElevationChunk *wkChunk = nil;
         if ([elevChunk.data length] == sizeof(unsigned short)*elevChunk.numX*elevChunk.numY)
         {
-            wkChunk = [[WhirlyKitElevationChunk alloc] initWithShortData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
+            wkChunk = [[WhirlyKitElevationGridChunk alloc] initWithShortData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
         } else if ([elevChunk.data length] == sizeof(float)*elevChunk.numX*elevChunk.numY)
         {
-            wkChunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
+            wkChunk = [[WhirlyKitElevationGridChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
         }
         loadTile.elevChunk = wkChunk;
     }

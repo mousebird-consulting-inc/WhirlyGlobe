@@ -140,8 +140,7 @@ static const float ScaleFactor = 300;
     MaplyElevationChunk *maplyChunk = [elevSource elevForTile:tileID];
     if (maplyChunk)
     {
-        WhirlyKitElevationChunk *wkChunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:maplyChunk.data sizeX:maplyChunk.numX sizeY:maplyChunk.numY];
-        return wkChunk;
+        return [[WhirlyKitElevationGridChunk alloc] initWithFloatData:maplyChunk.data sizeX:maplyChunk.numX sizeY:maplyChunk.numY];
     }
     return nil;
 }
