@@ -256,8 +256,7 @@ using namespace WhirlyKit;
 	[baseLayerThread start];
     
     // Set up defaults for the hints
-    NSDictionary *newHints = [NSDictionary dictionaryWithObjectsAndKeys:
-                              nil];
+    NSDictionary *newHints = [NSDictionary dictionary];
     [self setHints:newHints];
         
     _selection = true;
@@ -597,7 +596,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    [interactLayer changeVectors:compObj desc:desc mode:MaplyThreadAny];
+    [interactLayer changeVectors:compObj desc:desc mode:threadMode];
 }
 
 - (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc

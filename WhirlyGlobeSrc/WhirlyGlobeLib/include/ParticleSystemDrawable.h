@@ -27,8 +27,8 @@ namespace WhirlyKit
 // Shader name
 #define kParticleSystemShaderName "Default Part Sys (Point)"
     
-// Maximum size of particle buffers
-#define kMaxParticlesPerDrawable 65536
+// Maximum size of particle buffers (8MB)
+#define kMaxParticleMemory (8*1024*1024)
 
 // Build the particle system default shader
 OpenGLES2Program *BuildParticleSystemProgram();
@@ -45,7 +45,7 @@ public:
         const void *data;
     };
     
-    ParticleSystemDrawable(const std::string &name,const std::vector<SingleVertexAttributeInfo> &vertAttrs,int numPoints,bool useRectangles,bool useInstancing);
+    ParticleSystemDrawable(const std::string &name,const std::vector<SingleVertexAttributeInfo> &vertAttrs,int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing);
     virtual ~ParticleSystemDrawable();
     
     /// No bounding box, since these change constantly
@@ -68,12 +68,11 @@ public:
     /// True to turn it on, false to turn it off
     void setOnOff(bool onOff) { enable = onOff; }
     
+    /// Set the base time
+    void setBaseTime(NSTimeInterval inBaseTime) { baseTime = inBaseTime; }
+    
     /// Set the point size
     void setPointSize(float inPointSize) { pointSize = inPointSize; }
-    
-    /// Set the starting time
-    void setStartTime(NSTimeInterval inStartTime) { startTime = inStartTime; }
-    NSTimeInterval getStartTime() { return startTime; }
     
     /// Set the lifetime
     void setLifetime(NSTimeInterval inLifetime) { lifetime = inLifetime; }
@@ -108,32 +107,59 @@ public:
     bool getWriteZbuffer() const { return writeZBuffer; }
     void setWriteZbuffer(bool enable) { writeZBuffer = enable; }
     
-    /// Number of points we can expect in the attribute data
-    void setNumPoints(int inPts) { numPoints = inPts; }
+    // Represents a single batch of data
+    class Batch
+    {
+    public:
+        unsigned int batchID;
+        unsigned int offset,len;
+        bool active;
+        NSTimeInterval startTime;
+    };
     
     /// Add the vertex data (all of it) at once
-    void addAttributeData(const std::vector<AttributeData> &attrData);
+    void addAttributeData(const std::vector<AttributeData> &attrData,const Batch &batch);
+    
+    /// Look for an empty batch to reuse
+    bool findEmptyBatch(Batch &retBatch);
+    
+    /// Invalidate old batches
+    void updateBatches(NSTimeInterval now);
 
 protected:
-    void setupVAO(OpenGLES2Program *prog);
-    
     bool enable;
-    int numPoints;
+    int numTotalPoints,batchSize;
     int vertexSize;
     std::vector<SingleVertexAttributeInfo> vertAttrs;
     SimpleIdentity programId;
     int drawPriority;
     float pointSize;
-    NSTimeInterval startTime,lifetime;
+    NSTimeInterval lifetime;
     bool requestZBuffer,writeZBuffer;
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
     GLuint pointBuffer,rectBuffer;
-    GLuint vertArrayObj;
     std::vector<SimpleIdentity> texIDs;
     bool useRectangles,useInstancing;
+    NSTimeInterval baseTime;
 
     // The vertex attributes we're representing in the buffers
     std::vector<VertexAttribute> vertexAttributes;
+    
+    // Chunk of a buffer to render
+    typedef struct
+    {
+        int bufferStart;
+        int numVertices;
+    } BufferChunk;
+    
+    void updateChunks();
+    
+    // Chunks we use for rendering
+    pthread_mutex_t batchLock;
+    int startBatch,endBatch;
+    std::vector<Batch> batches;
+    bool chunksDirty;
+    std::vector<BufferChunk> chunks;
 };
 
 }
