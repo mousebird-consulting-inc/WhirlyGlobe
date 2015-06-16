@@ -31,6 +31,10 @@
 /// Returns default if not or wrong type
 - (float)floatForKey:(NSString *)name default:(float)theDefault;
 
+/// Return a double for the given name if it exists
+/// Returns default if not or wrong type
+- (double)doubleForKey:(NSString *)name default:(double)theDefault;
+
 /// Return an integer for the given name if it exists
 /// Returns default if not or wrong type
 - (int)intForKey:(NSString *)name default:(int)theDefault;
