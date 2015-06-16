@@ -21,17 +21,42 @@
 #import <math.h>
 #import "WhirlyVector.h"
 #import "GlobeMath.h"
+#import "Drawable.h"
 
-@interface WhirlyKitElevationChunk : NSObject
+using namespace WhirlyKit;
 
-/// Number of elements in X and Y
-@property (nonatomic,readonly) int numX,numY;
+
+@protocol WhirlyKitElevationChunkProtocol
+
+/// Tile size in X
+@property (nonatomic,readonly) int sizeX;
+
+/// Tile size in Y
+@property (nonatomic,readonly) int sizeY;
+
+/// Return the elevation at an exact location
+- (float)elevationAtX:(int)x y:(int)y;
+
+/// Interpolate an elevation at the given location
+- (float)interpolateElevationAtX:(float)x y:(float)y;
+
+/// Generate the drawables to represent the elevation
+- (void)generateDrawables:(std::vector<BasicDrawable *> &)drawables;
+
+@end
+
+
+// Fake type
+typedef NSObject<WhirlyKitElevationChunkProtocol> WhirlyKitElevationChunk;
+
+
+@interface WhirlyKitElevationGridChunk : NSObject<WhirlyKitElevationChunkProtocol>
 
 /// Assign or get the no data value
 @property (nonatomic,assign) float noDataValue;
 
 /// Fills in a chunk with random data values.  For testing.
-+ (WhirlyKitElevationChunk *)ElevationChunkWithRandomData;
++ (WhirlyKitElevationGridChunk *)ElevationChunkWithRandomData;
 
 /// Initialize with an NSData full of floats (elevation in meters)
 /// SizeX and SizeY are the number of samples in each direction
@@ -39,11 +64,5 @@
 
 /// Initialize with shorts of the given size
 - (id)initWithShortData:(NSData *)data sizeX:(int)sizeX sizeY:(int)sizeY;
-
-/// Return the elevation at an exact location
-- (float)elevationAtX:(int)x y:(int)y;
-
-/// Interpolate an elevation at the given location
-- (float)interpolateElevationAtX:(float)x y:(float)y;
 
 @end
