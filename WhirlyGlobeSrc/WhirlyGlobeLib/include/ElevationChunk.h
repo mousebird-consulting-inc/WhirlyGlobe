@@ -26,7 +26,7 @@
 using namespace WhirlyKit;
 
 
-@protocol WhirlyKitElevationChunkProtocol
+@protocol WhirlyKitElevationChunkProtocol<NSObject>
 
 /// Tile size in X
 @property (nonatomic,readonly) int sizeX;
