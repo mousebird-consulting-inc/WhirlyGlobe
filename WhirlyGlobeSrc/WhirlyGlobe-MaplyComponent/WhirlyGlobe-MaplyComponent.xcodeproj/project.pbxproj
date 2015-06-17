@@ -306,6 +306,8 @@
 		881F66D018F20A8F00D17110 /* wire_format.h in Headers */ = {isa = PBXBuildFile; fileRef = 881F667F18F20A8F00D17110 /* wire_format.h */; };
 		881F66D218F20A8F00D17110 /* wire_format_lite.h in Headers */ = {isa = PBXBuildFile; fileRef = 881F668118F20A8F00D17110 /* wire_format_lite.h */; };
 		881F66D318F20A8F00D17110 /* wire_format_lite_inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 881F668218F20A8F00D17110 /* wire_format_lite_inl.h */; };
+		88C082031B28AF7600927B2C /* MaplyPagingElevationTestTileSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88C082021B28AF7600927B2C /* MaplyPagingElevationTestTileSource.mm */; };
+		88C082061B28AF8F00927B2C /* MaplyPagingElevationTestTileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 88C082051B28AF8F00927B2C /* MaplyPagingElevationTestTileSource.h */; };
 		C765E3B4190ACA2900931775 /* NSDictionary+StyleRules.h in Headers */ = {isa = PBXBuildFile; fileRef = C765E3B3190ACA2900931775 /* NSDictionary+StyleRules.h */; };
 /* End PBXBuildFile section */
 
@@ -639,6 +641,8 @@
 		8894574A18F20D4200FE60E7 /* MapnikStyleRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapnikStyleRule.h; path = include/MapnikStyleRule.h; sourceTree = "<group>"; };
 		8894574B18F20D4200FE60E7 /* MapnikStyleSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapnikStyleSet.h; path = include/MapnikStyleSet.h; sourceTree = "<group>"; };
 		8894574C18F20D4200FE60E7 /* vector_tile.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vector_tile.pb.h; path = include/vector_tile.pb.h; sourceTree = "<group>"; };
+		88C082021B28AF7600927B2C /* MaplyPagingElevationTestTileSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyPagingElevationTestTileSource.mm; path = src/MaplyPagingElevationTestTileSource.mm; sourceTree = SOURCE_ROOT; };
+		88C082051B28AF8F00927B2C /* MaplyPagingElevationTestTileSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyPagingElevationTestTileSource.h; path = include/MaplyPagingElevationTestTileSource.h; sourceTree = SOURCE_ROOT; };
 		C765E3B3190ACA2900931775 /* NSDictionary+StyleRules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSDictionary+StyleRules.h"; path = "include/NSDictionary+StyleRules.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1028,6 +1032,8 @@
 		2BC988E117D791040071DA9E /* Tile Sources */ = {
 			isa = PBXGroup;
 			children = (
+				88C082021B28AF7600927B2C /* MaplyPagingElevationTestTileSource.mm */,
+				88C082051B28AF8F00927B2C /* MaplyPagingElevationTestTileSource.h */,
 				2B7827EA19536937004E92EE /* MaplyPagingVectorTestTileSource.mm */,
 				2B7827E719536929004E92EE /* MaplyPagingVectorTestTileSource.h */,
 				2B0D62CF17A1D9AC00C3298D /* MaplyWMSTileSource.h */,
@@ -1369,6 +1375,7 @@
 				2BCA68AA174195B500696BA8 /* MaplyQuadImageTilesLayer_private.h in Headers */,
 				2B10D42D1AE18FC900D2F3F5 /* map_field.h in Headers */,
 				881F66BF18F20A8F00D17110 /* once.h in Headers */,
+				88C082061B28AF8F00927B2C /* MaplyPagingElevationTestTileSource.h in Headers */,
 				2B789F79185B91F90028E027 /* MaplyAnnotation.h in Headers */,
 				881F66B018F20A8F00D17110 /* atomicops_internals_arm_gcc.h in Headers */,
 				2BCA68AC174197C500696BA8 /* MaplyCoordinateSystem_private.h in Headers */,
@@ -1602,6 +1609,7 @@
 				2B760CA11881D696006FE98B /* MaplyIconManager.mm in Sources */,
 				2BC9897117D93EB30071DA9E /* MaplyMultiplexTileSource.mm in Sources */,
 				2B11057317E237D400735C46 /* MaplyElevationDatabase.mm in Sources */,
+				88C082031B28AF7600927B2C /* MaplyPagingElevationTestTileSource.mm in Sources */,
 				2B1B32031B0A6FDD00A37285 /* FMDatabaseQueue.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

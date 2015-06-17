@@ -1185,6 +1185,22 @@ static const int NumMegaMarkers = 15000;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
+    } else if (![baseLayerName compare:kMaplyTestElevation])
+    {
+        self.title = @"Elevation Test Layer";
+        screenLabelColor = [UIColor whiteColor];
+        screenLabelBackColor = [UIColor whiteColor];
+        labelColor = [UIColor blackColor];
+        labelBackColor = [UIColor whiteColor];
+        vecColor = [UIColor blackColor];
+        vecWidth = 4.0;
+        MaplyPagingElevationTestTileSource *tileSource = [[MaplyPagingElevationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:10 elevSource:elevSource];
+        MaplyQuadPagingLayer *layer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:tileSource.coordSys delegate:tileSource];
+        layer.importance = 128*128;
+        layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        [baseViewC addLayer:layer];
+        layer.drawPriority = 0;
+        baseLayer = layer;
     } else if (![baseLayerName compare:kMaplyTestQuadTestAnimate])
     {
         self.title = @"Quad Paging Test Layer (animated)";
