@@ -57,6 +57,7 @@ using namespace WhirlyKit;
     _minZoom = minZoom;
     _maxZoom = maxZoom;
     _timeOut = 0.0;
+	_pixelsPerSide = 256;
     _coordSys = [[MaplySphericalMercator alloc] initWebStandard];
     
     return self;
@@ -251,7 +252,7 @@ using namespace WhirlyKit;
     }
 }
 
-- (MaplyElevationChunk *)elevForTile:(MaplyTileID)tileID sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY
+- (MaplyElevationChunk *)elevForTile:(MaplyTileID)tileID
 {
     if ([_tileInfo tileIsLocal:tileID frame:-1])
     {
@@ -272,7 +273,7 @@ using namespace WhirlyKit;
             NSData *tileData = [NSData dataWithContentsOfFile:fileName];
             if (tileData)
             {
-				MaplyElevationChunk *elevChunk = [self decodeElevationData:tileData sizeX:sizeX sizeY:sizeY];
+				MaplyElevationChunk *elevChunk = [self decodeElevationData:tileData];
 
                 if ([_delegate respondsToSelector:@selector(remoteTileSource:modifyElevReturn:forTile:)])
                 {
@@ -303,7 +304,7 @@ using namespace WhirlyKit;
 			//JM Do this asynchronously??
             [tileData writeToFile:[_tileInfo fileNameForTile:tileID] atomically:YES];
 
-		MaplyElevationChunk *elevChunk = [self decodeElevationData:tileData sizeX:sizeX sizeY:sizeY];
+		MaplyElevationChunk *elevChunk = [self decodeElevationData:tileData];
 
 		//JM what about to serialize & cache MaplyElevationChunk decoded data instead of raw server data?
 		// We would save the decoding time when we hit the cache
@@ -318,7 +319,7 @@ using namespace WhirlyKit;
     return nil;
 }
 
-- (MaplyElevationChunk *)decodeElevationData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY
+- (MaplyElevationChunk *)decodeElevationData:(NSData *)data
 {
 	NSAssert(NO, @"decodeElevationData is intended to be overriden");
 	return nil;
@@ -334,7 +335,7 @@ using namespace WhirlyKit;
         fileName = [_tileInfo fileNameForTile:tileID];
         if ([_tileInfo tileIsLocal:tileID frame:-1])
         {
-            elevChunk = [self elevForTile:tileID sizeX:layer.tileSource.tileSize sizeY:layer.tileSource.tileSize];
+            elevChunk = [self elevForTile:tileID];
         }
     }
     
@@ -383,7 +384,7 @@ using namespace WhirlyKit;
 						//JM why not asynchronously?
                         [elevData writeToFile:fileName atomically:YES];
 
-					MaplyElevationChunk *elevChunk = [self decodeElevationData:elevData sizeX:layer.tileSource.tileSize sizeY:layer.tileSource.tileSize];
+					MaplyElevationChunk *elevChunk = [self decodeElevationData:elevData];
 
                     if ([_delegate respondsToSelector:@selector(remoteTileElevationSource:modifyTileReturn:forTile:)])
                         elevChunk = [_delegate remoteTileElevationSource:self modifyElevReturn:elevChunk forTile:tileID];
@@ -421,9 +422,9 @@ using namespace WhirlyKit;
 
 @implementation MaplyRemoteTileElevationCesiumSource
 
-- (MaplyElevationChunk *)decodeElevationData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY
+- (MaplyElevationChunk *)decodeElevationData:(NSData *)data
 {
-	return [[MaplyElevationChunk alloc] initWithCesiumData:data sizeX:sizeX sizeY:sizeY];
+	return [[MaplyElevationChunk alloc] initWithCesiumData:data sizeX:self.tileInfo.pixelsPerSide sizeY:self.tileInfo.pixelsPerSide];
 }
 
 @end
