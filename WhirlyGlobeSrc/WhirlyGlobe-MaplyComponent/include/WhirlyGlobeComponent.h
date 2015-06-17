@@ -48,6 +48,7 @@
 #import <MaplyRemoteTileSource.h>
 #import <MaplyAnimationTestTileSource.h>
 #import <MaplyPagingVectorTestTileSource.h>
+#import <MaplyPagingElevationTestTileSource.h>
 #import <MaplyElevationSource.h>
 #import <MaplyElevationDatabase.h>
 #import <MaplyVectorTiles.h>
