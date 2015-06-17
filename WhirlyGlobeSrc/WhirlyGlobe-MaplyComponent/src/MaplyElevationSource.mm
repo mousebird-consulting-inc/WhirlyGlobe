@@ -133,32 +133,3 @@ static const float ScaleFactor = 300;
 }
 
 @end
-
-@implementation MaplyElevationSourceAdapter
-{
-    NSObject<MaplyElevationSourceDelegate> *elevSource;
-}
-
-- (id)initWithElevationSource:(NSObject<MaplyElevationSourceDelegate> *)inElevSource
-{
-    self = [super init];
-    if (!self)
-        return nil;
-    elevSource = inElevSource;
-    
-    return self;
-}
-
-- (WhirlyKitElevationChunk *)elevForLevel:(int)level col:(int)col row:(int)row
-{
-    MaplyTileID tileID;
-    tileID.x = col;    tileID.y = row;    tileID.level = level;
-    MaplyElevationChunk *maplyChunk = [elevSource elevForTile:tileID];
-    if (maplyChunk)
-    {
-        return [[WhirlyKitElevationGridChunk alloc] initWithFloatData:maplyChunk.data sizeX:maplyChunk.numX sizeY:maplyChunk.numY];
-    }
-    return nil;
-}
-
-@end
