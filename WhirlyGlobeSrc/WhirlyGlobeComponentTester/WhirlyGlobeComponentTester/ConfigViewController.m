@@ -78,7 +78,8 @@
 //                                      kMaplyTestMapBoxRegular: @(NO),
                                            kMaplyTestQuadTest: @(NO),
                                      kMaplyTestQuadVectorTest: @(NO),
-                                    kMaplyTestQuadTestAnimate: @(NO)}
+                                    kMaplyTestQuadTestAnimate: @(NO),
+									      kMaplyTestElevation: @(NO)}
                                                  singleSelect:true]];
     
     // We won't let the user do some things in terrain mode (overlay, basically)
