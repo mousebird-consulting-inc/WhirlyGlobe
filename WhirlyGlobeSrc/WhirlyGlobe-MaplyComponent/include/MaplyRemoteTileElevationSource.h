@@ -35,8 +35,7 @@
 
 @property (nonatomic,assign) float timeOut;
 
-//JM need this?
-//@property (nonatomic) int pixelsPerSide;
+@property (nonatomic) int pixelsPerSide;
 
 @property (nonatomic,strong) MaplyCoordinateSystem *coordSys;
 
@@ -97,13 +96,13 @@
 - (int)minZoom;
 - (int)maxZoom;
 
-- (MaplyElevationChunk *)elevForTile:(MaplyTileID)tileID sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY;
+- (MaplyElevationChunk *)elevForTile:(MaplyTileID)tileID;
 
 - (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame;
 
 - (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID;
 
-- (MaplyElevationChunk *)decodeElevationData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY;
+- (MaplyElevationChunk *)decodeElevationData:(NSData *)data;
 
 
 @property (nonatomic,readonly) MaplyRemoteTileElevationInfo *tileInfo;
