@@ -906,19 +906,9 @@ using namespace WhirlyKit;
 #endif
         
         // Let's not forget the elevation
-        if (loadTile && tileData.type != MaplyImgTypePlaceholder && elevChunk)
-        {
-            WhirlyKitElevationChunk *wkChunk = nil;
-            if ([elevChunk.data length] == sizeof(unsigned short)*elevChunk.numX*elevChunk.numY)
-            {
-                wkChunk = [[WhirlyKitElevationGridChunk alloc] initWithShortData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
-            } else if ([elevChunk.data length] == sizeof(float)*elevChunk.numX*elevChunk.numY)
-            {
-                wkChunk = [[WhirlyKitElevationGridChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
-            }
-            loadTile.elevChunk = wkChunk;
-        }
-            
+        if (loadTile && tileData.type != MaplyImgTypePlaceholder)
+            loadTile.elevChunk = elevChunk.chunkImpl;
+
         NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level),@(frame),_tileSource];
         if (super.layerThread)
         {
@@ -995,19 +985,9 @@ using namespace WhirlyKit;
     }
     
     // Let's not forget the elevation
-    if (loadTile && tileData.type != MaplyImgTypePlaceholder && elevChunk)
-    {
-        WhirlyKitElevationChunk *wkChunk = nil;
-        if ([elevChunk.data length] == sizeof(unsigned short)*elevChunk.numX*elevChunk.numY)
-        {
-            wkChunk = [[WhirlyKitElevationGridChunk alloc] initWithShortData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
-        } else if ([elevChunk.data length] == sizeof(float)*elevChunk.numX*elevChunk.numY)
-        {
-            wkChunk = [[WhirlyKitElevationGridChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
-        }
-        loadTile.elevChunk = wkChunk;
-    }
-    
+    if (loadTile && tileData.type != MaplyImgTypePlaceholder)
+        loadTile.elevChunk = elevChunk.chunkImpl;
+
     NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(y),@(tileID.level),@(frame),_tileSource];
     if (super.layerThread)
     {

@@ -134,8 +134,7 @@
             float *floats = (float *)malloc(sizeof(float)*_tileSizeX*_tileSizeY);
             memset(floats, 0, sizeof(float)*_tileSizeX*_tileSizeY);
             NSData *floatData = [NSData dataWithBytesNoCopy:floats length:_tileSizeX*_tileSizeY*sizeof(float) freeWhenDone:YES];
-            MaplyElevationChunk *chunk = [[MaplyElevationChunk alloc] initWithData:floatData numX:_tileSizeX numY:_tileSizeY];
-            return chunk;
+            return [[MaplyElevationChunk alloc] initWithGridData:floatData sizeX:_tileSizeX sizeY:_tileSizeY];
         } else
             return nil;
     }
@@ -145,9 +144,7 @@
     for (unsigned int ii=0;ii<_tileSizeX*_tileSizeY;ii++)
         floats[ii] = ((short *)[uncompressedData bytes])[ii];
     NSData *floatData = [NSData dataWithBytesNoCopy:floats length:_tileSizeX*_tileSizeY*sizeof(float) freeWhenDone:YES];
-    MaplyElevationChunk *chunk = [[MaplyElevationChunk alloc] initWithData:floatData numX:_tileSizeX numY:_tileSizeY];
-
-    return chunk;
+    return [[MaplyElevationChunk alloc] initWithGridData:floatData sizeX:_tileSizeX sizeY:_tileSizeY];
 }
 
 @end
