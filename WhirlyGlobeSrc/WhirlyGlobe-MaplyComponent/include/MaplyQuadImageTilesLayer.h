@@ -288,6 +288,9 @@ typedef enum {MaplyImageIntRGBA,
   */
 - (void)loadedImages:(id)images forTile:(MaplyTileID)tileID frame:(int)frame;
 
+- (void)loadedElevation:(MaplyElevationChunk *)elevChunk forTile:(MaplyTileID)tileID;
+- (void)loadedElevation:(MaplyElevationChunk *)elevChunk forTile:(MaplyTileID)tileID frame:(int)frame;
+
 /** @brief Pass back an error for a given tile.
     @details If the tile source implements startFetchForTile: then this is how it tells us about a specific failure.
     @details It can also just call loadedImages:forTile: with nil, but this is more helpful.

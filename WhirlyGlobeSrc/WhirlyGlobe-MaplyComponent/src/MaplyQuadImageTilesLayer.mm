@@ -1022,6 +1022,19 @@ using namespace WhirlyKit;
     }
 }
 
+- (void)loadedElevation:(MaplyElevationChunk *)elevChunk forTile:(MaplyTileID)tileID
+{
+    [self loadedElevation:elevChunk forTile:tileID frame:-1];
+}
+
+- (void)loadedElevation:(MaplyElevationChunk *)elevChunk forTile:(MaplyTileID)tileID frame:(int)frame
+{
+	//JM we need to set the elevation in the tile (loadTile.elevChunk = wkChunk)
+	// and for that we need to get the MaplyImageTile (from the raw data)
+	// How???
+	//MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
+}
+
 // Merge the tile result back on the layer thread
 - (void)mergeTile:(NSArray *)args
 {
