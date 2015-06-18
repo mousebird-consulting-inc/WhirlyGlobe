@@ -24,6 +24,7 @@
 #import "AnimationTest.h"
 #import "WeatherShader.h"
 #import "MapzenSource.h"
+#import "MaplyRemoteTileElevationSource.h"
 
 // Simple representation of locations and name for testing
 typedef struct
@@ -1187,7 +1188,15 @@ static const int NumMegaMarkers = 15000;
         baseLayer = layer;
     } else if (![baseLayerName compare:kMaplyTestElevation])
     {
-        self.title = @"Elevation Test Layer";
+        self.title = @"Cesium Elevation Test Layer";
+
+        int maxZoom = 16;
+        if (zoomLimit != 0 && zoomLimit < maxZoom)
+            maxZoom = zoomLimit;
+
+        elevSource = [[MaplyRemoteTileElevationCesiumSource alloc] initWithBaseURL:@"http://cesiumjs.org/stk-terrain/tilesets/world/tiles/" ext:@"terrain" minZoom:0 maxZoom:maxZoom];
+        baseViewC.elevDelegate = elevSource;
+
         screenLabelColor = [UIColor whiteColor];
         screenLabelBackColor = [UIColor whiteColor];
         labelColor = [UIColor blackColor];
