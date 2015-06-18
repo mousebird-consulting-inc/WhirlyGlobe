@@ -34,7 +34,7 @@
 #define kMaplyTestQuadTest @"Quad Test Layer"
 #define kMaplyTestQuadTestAnimate @"Quad Test Layer - Animated"
 #define kMaplyTestQuadVectorTest @"Quad Vector Test Layer"
-#define kMaplyTestElevation @"Elevation Test Layer"
+#define kMaplyTestElevation @"Cesium Elevation Test Layer"
 
 // Overlay image layers
 #define kMaplyTestCategoryOverlayLayers @"Overlay layers"
