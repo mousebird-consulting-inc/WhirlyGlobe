@@ -61,6 +61,7 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 		_sizeY = sizeY;
 
 		NSData *uncompressedData = [data uncompressGZip];
+		if (!uncompressedData) uncompressedData = data;
 
 		[self readData:(uint8_t *) [uncompressedData bytes]];
 	}
@@ -208,6 +209,7 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 	vector<uint32_t> list;
 	Byte *data = *dataRef;
 	uint32_t vertexCount = *(uint32_t *)data;
+	data += sizeof(uint32_t);
 
 	if (is32)
 	{
@@ -215,6 +217,8 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 
 		for (int i = 0; i < vertexCount; ++i)
 			list.push_back(indices[i]);
+
+		*dataRef += sizeof(uint32_t) + (vertexCount * sizeof(uint32_t));
 	}
 	else
 	{
@@ -222,9 +226,10 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 
 		for (int i = 0; i < vertexCount; ++i)
 			list.push_back(indices[i]);
+
+		*dataRef += sizeof(uint32_t) + (vertexCount * sizeof(uint16_t));
 	}
 
-	*dataRef += vertexCount * (is32 ? sizeof(uint32_t) : sizeof(uint16_t));
 
 	return list;
 }
