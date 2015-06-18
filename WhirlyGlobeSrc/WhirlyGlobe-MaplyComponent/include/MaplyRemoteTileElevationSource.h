@@ -121,5 +121,8 @@
 
 
 @interface MaplyRemoteTileElevationCesiumSource : MaplyRemoteTileElevationSource
-
 @end
+
+@interface MaplyRemoteTileElevationCesiumInfo : MaplyRemoteTileElevationInfo
+@end
+
