@@ -123,19 +123,8 @@ using namespace WhirlyKit;
 
 - (NSURLRequest *)requestForTile:(MaplyTileID)tileID
 {
-    int y = ((int)(1<<tileID.level)-tileID.y)-1;
-    NSMutableURLRequest *urlReq = nil;
-    
-    // Fetch the traditional way
-    NSMutableString *fullURLStr = [NSMutableString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,tileID.level,tileID.x,y,_ext];
-    if (_queryStr)
-        [fullURLStr appendFormat:@"?%@",_queryStr];
-
-    urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
-    if (_timeOut != 0.0)
-        [urlReq setTimeoutInterval:_timeOut];
-
-    return urlReq;
+	NSAssert(NO, @"requestForTile is intended to be overriden");
+	return nil;
 }
 
 @end
@@ -351,9 +340,6 @@ using namespace WhirlyKit;
         dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         op.completionQueue = queue;
 
-		//JM TODO add custom header
-		//Accept: application/vnd.quantized-mesh,application/octet-stream;q=0.9
-
         [op setCompletionBlockWithSuccess:
          ^(AFHTTPRequestOperation *operation, id responseObject)
             {
@@ -408,9 +394,41 @@ using namespace WhirlyKit;
 
 @implementation MaplyRemoteTileElevationCesiumSource
 
+- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
+{
+	MaplyRemoteTileElevationInfo *info = [[MaplyRemoteTileElevationCesiumInfo alloc] initWithBaseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom];
+
+    return [super initWithInfo:info];
+}
+
 - (MaplyElevationChunk *)decodeElevationData:(NSData *)data
 {
 	return [[MaplyElevationChunk alloc] initWithCesiumData:data sizeX:self.tileInfo.pixelsPerSide sizeY:self.tileInfo.pixelsPerSide];
+}
+
+@end
+
+
+@implementation MaplyRemoteTileElevationCesiumInfo
+
+- (NSURLRequest *)requestForTile:(MaplyTileID)tileID
+{
+    int y = ((int)(1<<tileID.level)-tileID.y)-1;
+    NSMutableURLRequest *urlReq = nil;
+    
+    // Fetch the traditional way
+    NSMutableString *fullURLStr = [NSMutableString stringWithFormat:@"%@%d/%d/%d.%@",self.baseURL,tileID.level,tileID.x,y,self.ext];
+    if (self.queryStr)
+        [fullURLStr appendFormat:@"?%@", self.queryStr];
+
+    urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+    if (self.timeOut != 0.0)
+        [urlReq setTimeoutInterval:self.timeOut];
+
+	[urlReq setValue:@"application/vnd.quantized-mesh,application/octet-stream;q=0.9" forHTTPHeaderField:@"Accept"];
+	[urlReq setValue:@"gzip, deflate" forHTTPHeaderField:@"Accept-Encoding"];
+
+    return urlReq;
 }
 
 @end
