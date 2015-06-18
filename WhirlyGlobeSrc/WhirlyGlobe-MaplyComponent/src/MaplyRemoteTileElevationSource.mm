@@ -40,7 +40,6 @@ using namespace WhirlyKit;
 
 @implementation MaplyRemoteTileElevationInfo
 {
-    NSArray *_tileURLs;
     bool cacheInit;
 
     int _minZoom,_maxZoom;
@@ -127,28 +126,15 @@ using namespace WhirlyKit;
     int y = ((int)(1<<tileID.level)-tileID.y)-1;
     NSMutableURLRequest *urlReq = nil;
     
-    if (_tileURLs)
-    {
-        // Decide here which URL we'll use
-        NSString *tileURL = [_tileURLs objectAtIndex:tileID.x%[_tileURLs count]];
-        
-        // Use the JSON tile spec
-        NSString *fullURLStr = [[[tileURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(tileID.level) stringValue]]
-                                 stringByReplacingOccurrencesOfString:@"{x}" withString:[@(tileID.x) stringValue]]
-                                stringByReplacingOccurrencesOfString:@"{y}" withString:[@(y) stringValue]];
-        urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
-        if (_timeOut != 0.0)
-            [urlReq setTimeoutInterval:_timeOut];
-    } else {
-        // Fetch the traditional way
-        NSMutableString *fullURLStr = [NSMutableString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,tileID.level,tileID.x,y,_ext];
-        if (_queryStr)
-            [fullURLStr appendFormat:@"?%@",_queryStr];
-        urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
-        if (_timeOut != 0.0)
-            [urlReq setTimeoutInterval:_timeOut];
-    }
-    
+    // Fetch the traditional way
+    NSMutableString *fullURLStr = [NSMutableString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,tileID.level,tileID.x,y,_ext];
+    if (_queryStr)
+        [fullURLStr appendFormat:@"?%@",_queryStr];
+
+    urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+    if (_timeOut != 0.0)
+        [urlReq setTimeoutInterval:_timeOut];
+
     return urlReq;
 }
 
