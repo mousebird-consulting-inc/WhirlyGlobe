@@ -20,7 +20,6 @@
 
 #import "ElevationCesiumChunk.h"
 #import "ElevationCesiumFormat.h"
-#import "NSData+Zlib.h"
 
 using namespace WhirlyKit;
 
@@ -60,10 +59,7 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 		_sizeX = sizeX;
 		_sizeY = sizeY;
 
-		NSData *uncompressedData = [data uncompressGZip];
-		if (!uncompressedData) uncompressedData = data;
-
-		[self readData:(uint8_t *) [uncompressedData bytes]];
+		[self readData:(uint8_t *) [data bytes]];
 	}
 
 	return self;
