@@ -20,20 +20,36 @@
 
 #import "MaplyElevationSource.h"
 #import "MaplyElevationSource_private.h"
+#import "ElevationChunk.h"
+#import "ElevationCesiumChunk.h"
+
 
 @implementation MaplyElevationChunk
 
-- (id)initWithData:(NSData *)data numX:(unsigned int)numX numY:(unsigned int)numY
+- (id)initWithGridData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY
 {
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    _numX = numX;
-    _numY = numY;
-    _data = data;
-    
+	if (self = [super init])
+		_chunkImpl = [[WhirlyKitElevationGridChunk alloc] initWithFloatData:data sizeX:sizeX sizeY:sizeY];
+
     return self;
+}
+
+- (id)initWithCesiumData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY
+{
+	if (self = [super init])
+		_chunkImpl = [[WhirlyKitElevationCesiumChunk alloc] initWithCesiumData:data sizeX:sizeX sizeY:sizeY];
+
+    return self;
+}
+
+- (unsigned int)sizeX
+{
+	return _chunkImpl.sizeX;
+}
+
+- (unsigned int)sizeY
+{
+	return _chunkImpl.sizeY;
 }
 
 
@@ -111,39 +127,9 @@ static const float ScaleFactor = 300;
         }
     
     NSData *data = [[NSData alloc] initWithBytesNoCopy:floatData length:sizeof(float)*(numX+1)*(numY+1) freeWhenDone:YES];
-    MaplyElevationChunk *elevChunk = [[MaplyElevationChunk alloc] initWithData:data numX:(numX+1) numY:(numY+1)];
+    MaplyElevationChunk *elevChunk = [[MaplyElevationChunk alloc] initWithGridData:data sizeX:(numX+1) sizeY:(numY+1)];
     
     return elevChunk;
-}
-
-@end
-
-@implementation MaplyElevationSourceAdapter
-{
-    NSObject<MaplyElevationSourceDelegate> *elevSource;
-}
-
-- (id)initWithElevationSource:(NSObject<MaplyElevationSourceDelegate> *)inElevSource
-{
-    self = [super init];
-    if (!self)
-        return nil;
-    elevSource = inElevSource;
-    
-    return self;
-}
-
-- (WhirlyKitElevationChunk *)elevForLevel:(int)level col:(int)col row:(int)row
-{
-    MaplyTileID tileID;
-    tileID.x = col;    tileID.y = row;    tileID.level = level;
-    MaplyElevationChunk *maplyChunk = [elevSource elevForTile:tileID];
-    if (maplyChunk)
-    {
-        WhirlyKitElevationChunk *wkChunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:maplyChunk.data sizeX:maplyChunk.numX sizeY:maplyChunk.numY];
-        return wkChunk;
-    }
-    return nil;
 }
 
 @end

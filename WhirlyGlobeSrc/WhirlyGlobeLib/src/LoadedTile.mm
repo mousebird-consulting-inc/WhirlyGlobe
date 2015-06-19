@@ -425,10 +425,12 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
     Point2f chunkSize = theMbr.ur() - theMbr.ll();
     
     int sphereTessX = defaultSphereTessX,sphereTessY = defaultSphereTessY;
-    if (elevData)
+    if ([elevData isKindOfClass:[WhirlyKitElevationGridChunk class]])
     {
-        sphereTessX = elevData.numX-1;
-        sphereTessY = elevData.numY-1;
+        WhirlyKitElevationGridChunk *gridElev = (WhirlyKitElevationGridChunk *)elevData;
+
+        sphereTessX = gridElev.sizeX-1;
+        sphereTessY = gridElev.sizeY-1;
     }
     
     // For single level mode it's not worth getting fancy
@@ -581,10 +583,13 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                     float locZ = 0.0;
                     if (!elevs.empty())
                     {
-                        if (elevData)
+                        if ([elevData isKindOfClass:[WhirlyKitElevationGridChunk class]])
                         {
-                            float whereX = ix*texScale.x() + (elevData.numX-1)*texOffset.x();
-                            float whereY = iy*texScale.y() + (elevData.numY-1)*texOffset.y();
+                            WhirlyKitElevationGridChunk *gridElev = (WhirlyKitElevationGridChunk *)elevData;
+
+                            float whereX = ix*texScale.x() + (gridElev.sizeX-1)*texOffset.x();
+                            float whereY = iy*texScale.y() + (gridElev.sizeY-1)*texOffset.y();
+
                             locZ = [elevData interpolateElevationAtX:whereX y:whereY];
                         }
                         elevs[iy*(sphereTessX+1)+ix] = locZ;
