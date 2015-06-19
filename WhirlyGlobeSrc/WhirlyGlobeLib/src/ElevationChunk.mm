@@ -23,15 +23,20 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
+
 typedef enum {WhirlyKitElevationFloats,WhirlyKitElevationShorts} WhirlyKitElevationFormat;
 
-@implementation WhirlyKitElevationChunk
+
+@implementation WhirlyKitElevationGridChunk
 {
     WhirlyKitElevationFormat dataType;
     NSData *data;
 }
 
-+ (WhirlyKitElevationChunk *)ElevationChunkWithRandomData
+@synthesize sizeX = _sizeX, sizeY = _sizeY;
+
+
++ (WhirlyKitElevationGridChunk *)ElevationChunkWithRandomData
 {
     int numX = 20;
     int numY = 20;
@@ -39,9 +44,8 @@ typedef enum {WhirlyKitElevationFloats,WhirlyKitElevationShorts} WhirlyKitElevat
     for (unsigned int ii=0;ii<numX*numY;ii++)
         floatArray[ii] = drand48()*30000;
     NSMutableData *data = [[NSMutableData alloc] initWithBytes:floatArray length:sizeof(float)*numX*numY];
-    WhirlyKitElevationChunk *chunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:data sizeX:numX sizeY:numY];
-    
-    return chunk;
+
+    return [[WhirlyKitElevationGridChunk alloc] initWithFloatData:data sizeX:numX sizeY:numY];
 }
 
 - (id)initWithFloatData:(NSData *)inData sizeX:(int)sizeX sizeY:(int)sizeY
@@ -50,8 +54,8 @@ typedef enum {WhirlyKitElevationFloats,WhirlyKitElevationShorts} WhirlyKitElevat
     if (!self)
         return nil;
     
-    _numX = sizeX;
-    _numY = sizeY;
+    _sizeX = sizeX;
+    _sizeY = sizeY;
     dataType = WhirlyKitElevationFloats;
     data = inData;
     _noDataValue = -10000000;
@@ -65,8 +69,8 @@ typedef enum {WhirlyKitElevationFloats,WhirlyKitElevationShorts} WhirlyKitElevat
     if (!self)
         return nil;
     
-    _numX = sizeX;
-    _numY = sizeY;
+    _sizeX = sizeX;
+    _sizeY = sizeY;
     dataType = WhirlyKitElevationShorts;
     data = inData;
     _noDataValue = -10000000;
@@ -74,25 +78,23 @@ typedef enum {WhirlyKitElevationFloats,WhirlyKitElevationShorts} WhirlyKitElevat
     return self;    
 }
 
-
-/// Return a single elevation at the given location
 - (float)elevationAtX:(int)x y:(int)y
 {
     if (!data)
         return 0.0;
     if (x < 0)  x = 0;
     if (y < 0)  y = 0;
-    if (x >= _numX)  x = _numX-1;
-    if (y >= _numY)  y = _numY-1;
+    if (x >= _sizeX)  x = _sizeX-1;
+    if (y >= _sizeY)  y = _sizeY-1;
     
     float ret = 0.0;
     switch (dataType)
     {
         case WhirlyKitElevationShorts:
-            ret = ((short *)[data bytes])[y*_numX+x];
+            ret = ((short *)[data bytes])[y*_sizeX+x];
             break;
         case WhirlyKitElevationFloats:
-            ret = ((float *)[data bytes])[y*_numX+x];
+            ret = ((float *)[data bytes])[y*_sizeX+x];
             break;
     }
     
@@ -123,6 +125,11 @@ typedef enum {WhirlyKitElevationFloats,WhirlyKitElevationShorts} WhirlyKitElevat
     float ret = (elev1-elev0)*tb + elev0;
     
     return ret;
+}
+
+- (void)generateDrawables:(std::vector<BasicDrawable *> &)drawables
+{
+	//TODO
 }
 
 
