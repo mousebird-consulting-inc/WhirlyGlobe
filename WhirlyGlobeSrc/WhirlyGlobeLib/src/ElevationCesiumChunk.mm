@@ -23,7 +23,7 @@
 
 using namespace WhirlyKit;
 
-static inline uint16_t decodeZigZag(uint16_t encodedValue)
+static inline int16_t decodeZigZag(uint16_t encodedValue)
 {
     return (encodedValue >> 1) ^ (-(encodedValue & 1));
 }
@@ -79,21 +79,28 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 	uint32_t vertexCount = CFSwapInt32LittleToHost(*(uint32_t *)data);
 	data += sizeof(uint32_t);
 
-	BOOL use32bits = (vertexCount > 64 * 1024);
-	int indexSize = use32bits ? sizeof(uint32_t) : sizeof(uint16_t);
+
+	BOOL use32bits = NO;
+	int indexSize = sizeof(uint16_t);
+
+	if (vertexCount > 64 * 1024)
+	{
+		use32bits = YES;
+		indexSize = sizeof(uint32_t);
+	}
 
 	_mesh = VectorTriangles::createTriangles();
 	_mesh->pts.reserve(vertexCount);
 
 	uint16_t *horizontalCoords = (uint16_t *)data;
-	uint16_t *verticalCoords = (uint16_t *)horizontalCoords + (sizeof(uint16_t) * vertexCount);
-	uint16_t *heights = (uint16_t *)verticalCoords + (sizeof(uint16_t) * vertexCount);
+	uint16_t *verticalCoords   = (uint16_t *)data + (sizeof(uint16_t) * vertexCount);
+	uint16_t *heights          = (uint16_t *)data + (sizeof(uint16_t) * vertexCount * 2);
 
 	const double MaxValue = 32767.0;
 
-	uint16_t u = 0;	// horizontal value
-	uint16_t v = 0;	// vertical value
-	uint16_t h = 0;	// height value
+	int16_t u = 0;	// horizontal value
+	int16_t v = 0;	// vertical value
+	int16_t h = 0;	// height value
 
 	for (int i = 0; i < vertexCount; ++i)
 	{
