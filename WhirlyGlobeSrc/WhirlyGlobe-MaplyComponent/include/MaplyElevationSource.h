@@ -22,6 +22,9 @@
 #import "MaplyCoordinateSystem.h"
 #import "MaplyTileSource.h"
 
+// unwrap fake WhirlyKitElevationChunk type
+@protocol WhirlyKitElevationChunkProtocol;
+
 /** @brief The Maply Elevation Chunk holds elevations for a single tile.
     @details This object holds elevaiton data for a single tile.
     Each tile overlaps the the eastern and northern neighbors by one
@@ -32,25 +35,34 @@
   */
 @interface MaplyElevationChunk : NSObject
 
-/** @brief Initialize with the data and size.
+/** @brief Initialize with the data (with floats) and size.
     @details This initializer takes an NSData object with the given number of
     samples.  Don't forget to add an extra one along the eastern and
     northern edges to match up with those tiles.  You still need to
     pass in as many samples as you're saying you are.  So if you say
     11 x 11, then there need to be 121 floats in the NSData object.
     @param data The NSData full of float (32 bit) samples.
-    @param numX Number of samples in X.
-    @param numY Number of samples in Y.
+    @param sizeX Number of samples in X.
+    @param sizeY Number of samples in Y.
   */
-- (id)initWithData:(NSData *)data numX:(unsigned int)numX numY:(unsigned int)numY;
+- (id)initWithGridData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY;
 
-/// @brief Number of samples in X
-@property unsigned int numX;
-/// @brief Number of samples in Y
-@property unsigned int numY;
+/** @brief Initialize with the Cesium elevation data and size.
+    @details This initializer takes an NSData object with the format 
+	specified in: http://cesiumjs.org/data-and-assets/terrain/formats/quantized-mesh-1.0.html
+    @param data The NSData with the specified format
+    @param sizeX tile size in X.
+    @param sizeY tile size in Y.
+  */
+- (id)initWithCesiumData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY;
 
-/// This is the data.  Elevations are floats (32 bit) in meters.
-@property (nonatomic,strong) NSData *data;
+/// @brief tile size in X
+@property (readonly) unsigned int sizeX;
+/// @brief tile size in Y
+@property (readonly) unsigned int sizeY;
+
+/// @brief access internal chunk implementation
+@property (nonatomic,readonly,strong) NSObject<WhirlyKitElevationChunkProtocol>* chunkImpl;
 
 @end
 

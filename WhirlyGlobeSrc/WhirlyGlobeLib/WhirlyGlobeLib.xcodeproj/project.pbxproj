@@ -441,6 +441,11 @@
 		2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */; };
 		2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */; };
 		2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */; };
+		880BD9051B30CF1D0097F285 /* ElevationCesiumChunk.mm in Sources */ = {isa = PBXBuildFile; fileRef = 880BD9041B30CF1D0097F285 /* ElevationCesiumChunk.mm */; };
+		880BD9081B30CF6F0097F285 /* ElevationCesiumChunk.h in Headers */ = {isa = PBXBuildFile; fileRef = 880BD9071B30CF6F0097F285 /* ElevationCesiumChunk.h */; };
+		880BD90A1B30D0D60097F285 /* ElevationCesiumFormat.h in Headers */ = {isa = PBXBuildFile; fileRef = 880BD9091B30D0D60097F285 /* ElevationCesiumFormat.h */; };
+		880BD9101B30D59D0097F285 /* NSData+Zlib.m in Sources */ = {isa = PBXBuildFile; fileRef = 880BD90F1B30D59D0097F285 /* NSData+Zlib.m */; };
+		880BD9121B30D5B20097F285 /* NSData+Zlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 880BD9111B30D5B20097F285 /* NSData+Zlib.h */; };
 		88115B7618A068F6008D702C /* MaplyDoubleTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88115B7418A068F6008D702C /* MaplyDoubleTapDelegate.mm */; };
 		88115B7A18A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88115B7818A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm */; };
 		88115B7F18A14EAF008D702C /* MaplyZoomGestureDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88115B7E18A14EAF008D702C /* MaplyZoomGestureDelegate.mm */; };
@@ -927,6 +932,11 @@
 		2BF401BF15C0B49500B5BFD9 /* ViewPlacementGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewPlacementGenerator.h; sourceTree = "<group>"; };
 		2BF74358155D7C4C000499DD /* NSString+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Stuff.h"; sourceTree = "<group>"; };
 		2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
+		880BD9041B30CF1D0097F285 /* ElevationCesiumChunk.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ElevationCesiumChunk.mm; sourceTree = "<group>"; };
+		880BD9071B30CF6F0097F285 /* ElevationCesiumChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevationCesiumChunk.h; sourceTree = "<group>"; };
+		880BD9091B30D0D60097F285 /* ElevationCesiumFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevationCesiumFormat.h; sourceTree = "<group>"; };
+		880BD90F1B30D59D0097F285 /* NSData+Zlib.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+Zlib.m"; path = "src/NSData+Zlib.m"; sourceTree = SOURCE_ROOT; };
+		880BD9111B30D5B20097F285 /* NSData+Zlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Zlib.h"; sourceTree = "<group>"; };
 		88115B7218A06865008D702C /* MaplyDoubleTapDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyDoubleTapDelegate.h; sourceTree = "<group>"; };
 		88115B7418A068F6008D702C /* MaplyDoubleTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyDoubleTapDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
 		88115B7818A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTwoFingerTapDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
@@ -1052,6 +1062,7 @@
 				2B3C81B9132FE72F0029DEF2 /* NSDictionary+Stuff.h */,
 				2B3C81BF13301E860029DEF2 /* UIColor+Stuff.h */,
 				2BF74358155D7C4C000499DD /* NSString+Stuff.h */,
+				880BD9111B30D5B20097F285 /* NSData+Zlib.h */,
 			);
 			name = "Cocoa Utils";
 			sourceTree = "<group>";
@@ -1063,6 +1074,7 @@
 				2B3C81BD132FE77C0029DEF2 /* NSDictionary+Stuff.m */,
 				2B3C81C113301EE30029DEF2 /* UIColor+Stuff.mm */,
 				2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */,
+				880BD90F1B30D59D0097F285 /* NSData+Zlib.m */,
 			);
 			name = "Cocoa Utils";
 			sourceTree = "<group>";
@@ -1812,7 +1824,7 @@
 		2BD0E68513254D4D00CD95A8 /* data */ = {
 			isa = PBXGroup;
 			children = (
-				2BB2591F177A041E00770619 /* ElevationChunk.h */,
+				880BD9061B30CF530097F285 /* elevation */,
 				2B65F90B137DBEE4004326A9 /* sqlhelpers.h */,
 				2BD0E68613254D7300CD95A8 /* VectorData.h */,
 				2B8D92C8137C958000015833 /* VectorDatabase.h */,
@@ -1824,7 +1836,7 @@
 		2BD0E69013254DCA00CD95A8 /* data */ = {
 			isa = PBXGroup;
 			children = (
-				2BB25927177A044300770619 /* ElevationChunk.mm */,
+				8853E7AD1B3050420039C38C /* elevation */,
 				2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */,
 				2BD0E69213254DF700CD95A8 /* VectorData.mm */,
 				2BCABC1012FA1F480049D73C /* ShapeReader.mm */,
@@ -1936,6 +1948,25 @@
 			name = "Other Sources";
 			sourceTree = "<group>";
 		};
+		880BD9061B30CF530097F285 /* elevation */ = {
+			isa = PBXGroup;
+			children = (
+				2BB2591F177A041E00770619 /* ElevationChunk.h */,
+				880BD9091B30D0D60097F285 /* ElevationCesiumFormat.h */,
+				880BD9071B30CF6F0097F285 /* ElevationCesiumChunk.h */,
+			);
+			name = elevation;
+			sourceTree = "<group>";
+		};
+		8853E7AD1B3050420039C38C /* elevation */ = {
+			isa = PBXGroup;
+			children = (
+				2BB25927177A044300770619 /* ElevationChunk.mm */,
+				880BD9041B30CF1D0097F285 /* ElevationCesiumChunk.mm */,
+			);
+			name = elevation;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1954,12 +1985,14 @@
 				2B3A0D4B133405780085EF43 /* EAGLView.h in Headers */,
 				2B3A0D4C133405780085EF43 /* PinchDelegate.h in Headers */,
 				2B3A0D4D133405780085EF43 /* SwipeDelegate.h in Headers */,
+				880BD9121B30D5B20097F285 /* NSData+Zlib.h in Headers */,
 				2B3A0D4E133405780085EF43 /* PanDelegate.h in Headers */,
 				2B3A0D4F133405780085EF43 /* TapMessage.h in Headers */,
 				2B3A0D50133405780085EF43 /* TapDelegate.h in Headers */,
 				2B3A0D51133405780085EF43 /* VectorData.h in Headers */,
 				2B3A0D52133405780085EF43 /* ShapeReader.h in Headers */,
 				2B3A0D53133405780085EF43 /* Identifiable.h in Headers */,
+				880BD90A1B30D0D60097F285 /* ElevationCesiumFormat.h in Headers */,
 				2B3A0D54133405780085EF43 /* Texture.h in Headers */,
 				2BB7A9681A250A5600E50DC5 /* GeometryManager.h in Headers */,
 				2B3A0D55133405780085EF43 /* Drawable.h in Headers */,
@@ -1974,6 +2007,7 @@
 				2B3A0D5D133405780085EF43 /* GridLines.h in Headers */,
 				2B3A0D5F133405780085EF43 /* VectorLayer.h in Headers */,
 				2B95F91718A5AB1F00D72645 /* GlobeTwoFingerTapDelegate.h in Headers */,
+				880BD9081B30CF6F0097F285 /* ElevationCesiumChunk.h in Headers */,
 				2B3A0D60133405780085EF43 /* LabelLayer.h in Headers */,
 				2B3A0D41133405700085EF43 /* shapefil.h in Headers */,
 				2BDC8A811937B56300DFECF0 /* WideVectorManager.h in Headers */,
@@ -2236,6 +2270,7 @@
 				2B7EF44B16025D8C00D4079F /* PJ_cass.c in Sources */,
 				2B7EF44C16025D8C00D4079F /* PJ_cc.c in Sources */,
 				2B7EF44D16025D8C00D4079F /* PJ_cea.c in Sources */,
+				880BD9051B30CF1D0097F285 /* ElevationCesiumChunk.mm in Sources */,
 				2B7EF44E16025D8C00D4079F /* PJ_chamb.c in Sources */,
 				2B7EF44F16025D8C00D4079F /* PJ_collg.c in Sources */,
 				2B7EF45016025D8C00D4079F /* PJ_crast.c in Sources */,
@@ -2414,6 +2449,7 @@
 				2B4AE3FF1766610900850F3F /* libjson.cpp in Sources */,
 				2BA726DD1778EB20006C710B /* MaplyAnimateFlat.mm in Sources */,
 				2BB25928177A044300770619 /* ElevationChunk.mm in Sources */,
+				880BD9101B30D59D0097F285 /* NSData+Zlib.m in Sources */,
 				2BB2592C177A045300770619 /* BillboardLayer.mm in Sources */,
 				2BB2592D177A045300770619 /* BillboardDrawable.mm in Sources */,
 				2BB2592E177A045300770619 /* SceneGraphManager.mm in Sources */,

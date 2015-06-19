@@ -906,19 +906,9 @@ using namespace WhirlyKit;
 #endif
         
         // Let's not forget the elevation
-        if (loadTile && tileData.type != MaplyImgTypePlaceholder && elevChunk)
-        {
-            WhirlyKitElevationChunk *wkChunk = nil;
-            if ([elevChunk.data length] == sizeof(unsigned short)*elevChunk.numX*elevChunk.numY)
-            {
-                wkChunk = [[WhirlyKitElevationChunk alloc] initWithShortData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
-            } else if ([elevChunk.data length] == sizeof(float)*elevChunk.numX*elevChunk.numY)
-            {
-                wkChunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
-            }
-            loadTile.elevChunk = wkChunk;
-        }
-            
+        if (loadTile && tileData.type != MaplyImgTypePlaceholder)
+            loadTile.elevChunk = elevChunk.chunkImpl;
+
         NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level),@(frame),_tileSource];
         if (super.layerThread)
         {
@@ -995,19 +985,9 @@ using namespace WhirlyKit;
     }
     
     // Let's not forget the elevation
-    if (loadTile && tileData.type != MaplyImgTypePlaceholder && elevChunk)
-    {
-        WhirlyKitElevationChunk *wkChunk = nil;
-        if ([elevChunk.data length] == sizeof(unsigned short)*elevChunk.numX*elevChunk.numY)
-        {
-            wkChunk = [[WhirlyKitElevationChunk alloc] initWithShortData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
-        } else if ([elevChunk.data length] == sizeof(float)*elevChunk.numX*elevChunk.numY)
-        {
-            wkChunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
-        }
-        loadTile.elevChunk = wkChunk;
-    }
-    
+    if (loadTile && tileData.type != MaplyImgTypePlaceholder)
+        loadTile.elevChunk = elevChunk.chunkImpl;
+
     NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(y),@(tileID.level),@(frame),_tileSource];
     if (super.layerThread)
     {
@@ -1040,6 +1020,19 @@ using namespace WhirlyKit;
         else
             [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
     }
+}
+
+- (void)loadedElevation:(MaplyElevationChunk *)elevChunk forTile:(MaplyTileID)tileID
+{
+    [self loadedElevation:elevChunk forTile:tileID frame:-1];
+}
+
+- (void)loadedElevation:(MaplyElevationChunk *)elevChunk forTile:(MaplyTileID)tileID frame:(int)frame
+{
+	//JM we need to set the elevation in the tile (loadTile.elevChunk = wkChunk)
+	// and for that we need to get the MaplyImageTile (from the raw data)
+	// How???
+	//MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
 }
 
 // Merge the tile result back on the layer thread
