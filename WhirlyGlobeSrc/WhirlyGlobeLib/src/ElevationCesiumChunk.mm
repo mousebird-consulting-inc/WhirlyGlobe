@@ -20,7 +20,6 @@
 
 #import "ElevationCesiumChunk.h"
 #import "ElevationCesiumFormat.h"
-#import "NSData+Zlib.h"
 
 using namespace WhirlyKit;
 
@@ -60,10 +59,7 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 		_sizeX = sizeX;
 		_sizeY = sizeY;
 
-		NSData *uncompressedData = [data uncompressGZip];
-		if (!uncompressedData) uncompressedData = data;
-
-		[self readData:(uint8_t *) [uncompressedData bytes]];
+		[self readData:(uint8_t *) [data bytes]];
 	}
 
 	return self;
@@ -80,7 +76,7 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 
 	// VertexData
 	// ====================
-	uint32_t vertexCount = *(uint32_t *)data;
+	uint32_t vertexCount = CFSwapInt32LittleToHost(*(uint32_t *)data);
 	data += sizeof(uint32_t);
 
 	BOOL use32bits = (vertexCount > 64 * 1024);
@@ -104,9 +100,9 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 		// According to the forums, it's zig-zag AND delta encoded
 		// https://groups.google.com/d/msg/cesium-dev/IpcBEvjt-DA/98D0E8c0ET0J
 
-		u += decodeZigZag(horizontalCoords[i]);
-		v += decodeZigZag(verticalCoords[i]);
-		h += decodeZigZag(heights[i]);
+		u += decodeZigZag(CFSwapInt16LittleToHost(horizontalCoords[i]));
+		v += decodeZigZag(CFSwapInt16LittleToHost(verticalCoords[i]));
+		h += decodeZigZag(CFSwapInt16LittleToHost(heights[i]));
 
 		int posX = _sizeX * (u / MaxValue);
 		int posY = _sizeY * (v / MaxValue);
@@ -133,7 +129,7 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 		data += (indexSize - (currentPosition % indexSize));
 	}
 
-	uint32_t triangleCount = *(uint32_t *)data;
+	uint32_t triangleCount = CFSwapInt32LittleToHost(*(uint32_t *)data);
 	data += sizeof(uint32_t);
 
 	uint32_t *indices32 = (uint32_t *)data;
@@ -150,9 +146,9 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 	{
 		while ((uint8_t *)indices32 < data)
 		{
-			encodedInd.push_back(indices32[0]);
-			encodedInd.push_back(indices32[1]);
-			encodedInd.push_back(indices32[2]);
+			encodedInd.push_back(CFSwapInt32LittleToHost(indices32[0]));
+			encodedInd.push_back(CFSwapInt32LittleToHost(indices32[1]));
+			encodedInd.push_back(CFSwapInt32LittleToHost(indices32[2]));
 
 			indices32 += 3;
 		}
@@ -161,9 +157,9 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 	{
 		while ((uint8_t *)indices16 < data)
 		{
-			encodedInd.push_back(indices16[0]);
-			encodedInd.push_back(indices16[1]);
-			encodedInd.push_back(indices16[2]);
+			encodedInd.push_back(CFSwapInt16LittleToHost(indices16[0]));
+			encodedInd.push_back(CFSwapInt16LittleToHost(indices16[1]));
+			encodedInd.push_back(CFSwapInt16LittleToHost(indices16[2]));
 
 			indices16 += 3;
 		}
@@ -208,7 +204,8 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 {
 	vector<uint32_t> list;
 	Byte *data = *dataRef;
-	uint32_t vertexCount = *(uint32_t *)data;
+
+	uint32_t vertexCount = CFSwapInt32LittleToHost(*(uint32_t *)data);
 	data += sizeof(uint32_t);
 
 	if (is32)
@@ -216,7 +213,7 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 		uint32_t *indices = (uint32_t *)data;
 
 		for (int i = 0; i < vertexCount; ++i)
-			list.push_back(indices[i]);
+			list.push_back(CFSwapInt32LittleToHost(indices[i]));
 
 		*dataRef += sizeof(uint32_t) + (vertexCount * sizeof(uint32_t));
 	}
@@ -225,7 +222,7 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 		uint16_t *indices = (uint16_t *)data;
 
 		for (int i = 0; i < vertexCount; ++i)
-			list.push_back(indices[i]);
+			list.push_back(CFSwapInt16LittleToHost(indices[i]));
 
 		*dataRef += sizeof(uint32_t) + (vertexCount * sizeof(uint16_t));
 	}
