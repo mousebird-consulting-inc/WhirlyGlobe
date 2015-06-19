@@ -596,11 +596,14 @@ using namespace WhirlyKit;
     bool createdAtlases = false;
     if (!isPlaceholder && loadingSuccess && _useDynamicAtlas && !tileBuilder->texAtlas && !loadImages.empty())
     {
-        int estTexX = tileBuilder->defaultSphereTessX, estTexY = tileBuilder->defaultSphereTessY;
-        if (loadElev)
+        int estTexX = tileBuilder->defaultSphereTessX;
+        int estTexY = tileBuilder->defaultSphereTessY;
+
+        if ([loadElev isKindOfClass:[WhirlyKitElevationGridChunk class]])
         {
-            estTexX = std::max(loadElev.numX-1,estTexX);
-            estTexY = std::max(loadElev.numY-1,estTexY);
+            WhirlyKitElevationGridChunk *gridElev = (WhirlyKitElevationGridChunk *)loadElev;
+            estTexX = std::max(gridElev.sizeX-1, estTexX);
+            estTexY = std::max(gridElev.sizeY-1, estTexY);
         }
         tileBuilder->initAtlases(_imageType,_numImages,_textureAtlasSize,estTexX,estTexY);
         if (!_enable)
