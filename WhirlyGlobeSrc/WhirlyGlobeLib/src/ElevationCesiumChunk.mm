@@ -67,6 +67,10 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 
 - (void)readData:(uint8_t *)data
 {
+	// This tool may be useful to compare values read with Cesium's JS code
+	// https://github.com/jmnavarro/cesium-quantized-mesh-terrain-format-logger
+	//
+
 	uint8_t *startData = data;
 
 	// QuantizedMeshHeader
@@ -93,8 +97,8 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 	_mesh->pts.reserve(vertexCount);
 
 	uint16_t *horizontalCoords = (uint16_t *)data;
-	uint16_t *verticalCoords   = (uint16_t *)data + (sizeof(uint16_t) * vertexCount);
-	uint16_t *heights          = (uint16_t *)data + (sizeof(uint16_t) * vertexCount * 2);
+	uint16_t *verticalCoords   = ((uint16_t *)data) + vertexCount;
+	uint16_t *heights          = ((uint16_t *)data) + (vertexCount * 2);
 
 	const double MaxValue = 32767.0;
 
