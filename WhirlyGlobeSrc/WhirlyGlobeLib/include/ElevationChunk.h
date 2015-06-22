@@ -22,9 +22,37 @@
 #import "WhirlyVector.h"
 #import "GlobeMath.h"
 #import "Drawable.h"
+#import "Texture.h"
+#import "Quadtree.h"
 
 using namespace WhirlyKit;
 
+/// Settings needed to turn elevation into drawables
+typedef struct
+{
+    Mbr theMbr;
+    int xDim,yDim;
+    bool coverPoles;
+    bool useTileCenters;
+    Point2f texScale,texOffset;
+    Point3d dispCenter;
+    Eigen::Matrix4d transMat;
+    int drawPriority;
+    std::vector<WhirlyKit::Texture *> *texs;
+    CoordSystemDisplayAdapter *coordAdapter;
+    CoordSystem *coordSys;
+    Point3d chunkMidDisp;
+    bool ignoreEdgeMatching;
+    WhirlyKit::Quadtree::Identifier ident;
+    int activeTextures;
+    int drawOffset;
+    float minVis,maxVis;
+    bool hasAlpha;
+    RGBAColor color;
+    SimpleIdentity programId;
+    bool includeElev,useElevAsZ;
+    bool lineMode;
+} WhirlyKitElevationDrawInfo;
 
 /** A protocol for handling elevation data chunks.
     The data itself can be a grid or triangle mesh or what have you.
@@ -39,7 +67,7 @@ using namespace WhirlyKit;
 - (float)interpolateElevationAtX:(float)x y:(float)y;
 
 /// Generate the drawables to represent the elevation
-- (void)generateDrawables:(std::vector<BasicDrawable *> &)drawables;
+- (void)generateDrawables:(WhirlyKitElevationDrawInfo *)drawInfo chunk:(BasicDrawable **)draw skirts:(BasicDrawable **)skirtDraw;
 
 @end
 
