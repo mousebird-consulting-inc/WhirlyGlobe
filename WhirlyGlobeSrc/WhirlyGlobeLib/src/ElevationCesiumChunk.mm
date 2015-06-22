@@ -50,9 +50,6 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 
 @implementation WhirlyKitElevationCesiumChunk
 
-@synthesize sizeX = _sizeX, sizeY = _sizeY;
-
-
 - (id)initWithCesiumData:(NSData *)data sizeX:(int)sizeX sizeY:(int)sizeY
 {
 	if (self = [super init]) {

@@ -107,7 +107,7 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 @interface WhirlyKitLoadedTile : NSObject
 
 @property (nonatomic,readonly) NSMutableArray *images;
-@property (nonatomic) WhirlyKitElevationChunk *elevChunk;
+@property (nonatomic) NSObject<WhirlyKitElevationChunk> *elevChunk;
 
 @end
 
@@ -117,7 +117,7 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
  */
 @protocol WhirlyKitElevationHelper
 /// Return the elevation data for the given tile or nil if there is none
-- (WhirlyKitElevationChunk *)elevForLevel:(int)level col:(int)col row:(int)row;
+- (NSObject<WhirlyKitElevationChunk> *)elevForLevel:(int)level col:(int)col row:(int)row;
 @end
 
 namespace WhirlyKit
@@ -146,7 +146,7 @@ public:
     
     // Build a given tile
     bool buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,std::vector<Texture *> *texs,
-              Point2f texScale,Point2f texOffset,std::vector<WhirlyKitLoadedImage *> *loadImages,WhirlyKitElevationChunk *elevData,const Point3d &theCenter);
+              Point2f texScale,Point2f texOffset,std::vector<WhirlyKitLoadedImage *> *loadImages,NSObject<WhirlyKitElevationChunk> *elevData,const Point3d &theCenter);
     
     // Build the texture for a tile
     Texture *buildTexture(WhirlyKitLoadedImage *loadImage);
@@ -255,7 +255,7 @@ public:
     void calculateSize(Quadtree *quadTree,CoordSystemDisplayAdapter *coordAdapt,CoordSystem *coordSys);
     
     /// Build the data needed for a scene representation
-    bool addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,int frame,int currentImage0,int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    bool addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,int frame,int currentImage0,int currentImage1,NSObject<WhirlyKitElevationChunk> *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Update the texture in an existing tile.  This is for loading frames of animation
     bool updateTexture(TileBuilder *tileBuilder,WhirlyKitLoadedImage *loadImage,int frame,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
@@ -296,7 +296,7 @@ public:
     /// If set, these are subsets of a larger dynamic texture
     std::vector<WhirlyKit::SubTexture> subTexs;
     /// If here, the elevation data needed to build geometry
-    WhirlyKitElevationChunk *elevData;
+    NSObject<WhirlyKitElevationChunk> *elevData;
     /// Center of the tile in display coordinates
     Point3d dispCenter;
     /// Size in display coordinates

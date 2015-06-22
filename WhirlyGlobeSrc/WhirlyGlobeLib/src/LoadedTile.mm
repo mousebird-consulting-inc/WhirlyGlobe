@@ -395,7 +395,7 @@ void TileBuilder::buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std::
 
     
 bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,std::vector<Texture *> *texs,
-                            Point2f texScale,Point2f texOffset,std::vector<WhirlyKitLoadedImage *> *loadImages,WhirlyKitElevationChunk *elevData,const Point3d &dispCenter)
+                            Point2f texScale,Point2f texOffset,std::vector<WhirlyKitLoadedImage *> *loadImages,NSObject<WhirlyKitElevationChunk> *elevData,const Point3d &dispCenter)
 {
     Mbr theMbr = nodeInfo->mbr;
     
@@ -1025,7 +1025,7 @@ bool LoadedTile::updateTexture(TileBuilder *tileBuilder,WhirlyKitLoadedImage *lo
 }
 
 // Add the geometry and texture to the scene for a given tile
-bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,int frame,int currentImage0,int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,int frame,int currentImage0,int currentImage1,NSObject<WhirlyKitElevationChunk> *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
     isInitialized = true;
     
