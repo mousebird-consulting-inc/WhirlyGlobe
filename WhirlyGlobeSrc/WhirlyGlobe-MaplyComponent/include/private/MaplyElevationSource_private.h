@@ -30,3 +30,9 @@
 - (id)initWithElevationSource:(NSObject<MaplyElevationSourceDelegate> *)elevSource;
 
 @end
+
+@interface MaplyElevationChunk()
+
+@property NSObject<WhirlyKitElevationChunk> *chunkImpl;
+
+@end
