@@ -117,6 +117,8 @@ static int const MaxPixelLoad = 1048576;
 // Look for the maximum pixel in a given area
 float searchForMaxPixel(GDALRasterBandH hBand, int sx, int sy, int ex, int ey)
 {
+    fprintf(stderr,"Sampling pixels: %d\n",(ex-sx+1)*(ey-sy+1));
+    
     float maxPix = -MAXFLOAT;
     
     int rowSize = ex-sx+1;
@@ -708,12 +710,12 @@ int main(int argc, char * argv[])
                             double thisX = tileMinX + cellX*cx;
                             double thisY = tileMinY + cellY*cy;
                             
-                            // Project back to the original data file
-                            if (hCT)
-                                OCTTransform(hCTBack, 1, &thisX, &thisY, NULL);
-                            
                             if (samplingtype == SampleSingle)
                             {
+                                // Project back to the original data file
+                                if (hCT)
+                                    OCTTransform(hCTBack, 1, &thisX, &thisY, NULL);
+
                                 // Figure out which pixel this is
                                 double pixX = adfInvGeoTransform[0] + adfInvGeoTransform[1] * thisX + adfInvGeoTransform[2] * thisY;
                                 double pixY = adfInvGeoTransform[3] + adfInvGeoTransform[4] * thisX + adfInvGeoTransform[5] * thisY;
@@ -763,6 +765,11 @@ int main(int argc, char * argv[])
                                 srcX[1] = thisX+cellX/2.0;  srcY[1] = thisY-cellY/2.0;
                                 srcX[2] = thisX+cellX/2.0;  srcY[2] = thisY+cellY/2.0;
                                 srcX[3] = thisX-cellX/2.0;  srcY[3] = thisY+cellY/2.0;
+                                
+                                // Convert the rectangle points individually, if needed
+                                if (hCT)
+                                    for (unsigned int pi=0;pi<4;pi++)
+                                        OCTTransform(hCTBack, 1, &srcX[pi], &srcY[pi], NULL);
 
                                 int sx=1000000,sy=1000000,ex=-1000000,ey=-1000000;
                                 for (unsigned int pi=0;pi<4;pi++)
@@ -782,6 +789,8 @@ int main(int argc, char * argv[])
                                 ey = MAX(0,ey);
                                 ex = MIN(ex,rasterXSize-1);
                                 ey = MIN(ey,rasterYSize-1);
+                                
+                                
                                 
                                 // Work through the pixels in the source looking for a max
                                 float maxPix = -MAXFLOAT;
