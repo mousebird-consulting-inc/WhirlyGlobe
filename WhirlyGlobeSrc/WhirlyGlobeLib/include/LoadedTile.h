@@ -144,6 +144,9 @@ public:
     // Build the edge matching skirt
     void buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev,const Point3d &theCenter);
     
+    // Generate drawables for a no-elevation tile
+    void generateDrawables(WhirlyKitElevationDrawInfo *drawInfo,BasicDrawable **draw,BasicDrawable **skirtDraw);
+    
     // Build a given tile
     bool buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,std::vector<Texture *> *texs,
               Point2f texScale,Point2f texOffset,std::vector<WhirlyKitLoadedImage *> *loadImages,NSObject<WhirlyKitElevationChunk> *elevData,const Point3d &theCenter);
