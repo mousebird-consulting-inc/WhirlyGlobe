@@ -23,35 +23,31 @@
 #import "ElevationChunk.h"
 #import "ElevationCesiumChunk.h"
 
-
 @implementation MaplyElevationChunk
+
+@end
+
+@implementation MaplyElevationGridChunk
 
 - (id)initWithGridData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY
 {
-	if (self = [super init])
-		_chunkImpl = [[WhirlyKitElevationGridChunk alloc] initWithFloatData:data sizeX:sizeX sizeY:sizeY];
-
+    if (self = [super init])
+        self.chunkImpl = [[WhirlyKitElevationGridChunk alloc] initWithFloatData:data sizeX:sizeX sizeY:sizeY];
+    
     return self;
 }
+
+@end
+
+@implementation MaplyElevationCesiumChunk
 
 - (id)initWithCesiumData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY
 {
-	if (self = [super init])
-		_chunkImpl = [[WhirlyKitElevationCesiumChunk alloc] initWithCesiumData:data sizeX:sizeX sizeY:sizeY];
-
+    if (self = [super init])
+        self.chunkImpl = [[WhirlyKitElevationCesiumChunk alloc] initWithCesiumData:data sizeX:sizeX sizeY:sizeY];
+    
     return self;
 }
-
-- (unsigned int)sizeX
-{
-	return _chunkImpl.sizeX;
-}
-
-- (unsigned int)sizeY
-{
-	return _chunkImpl.sizeY;
-}
-
 
 @end
 
@@ -127,7 +123,7 @@ static const float ScaleFactor = 300;
         }
     
     NSData *data = [[NSData alloc] initWithBytesNoCopy:floatData length:sizeof(float)*(numX+1)*(numY+1) freeWhenDone:YES];
-    MaplyElevationChunk *elevChunk = [[MaplyElevationChunk alloc] initWithGridData:data sizeX:(numX+1) sizeY:(numY+1)];
+    MaplyElevationChunk *elevChunk = [[MaplyElevationGridChunk alloc] initWithGridData:data sizeX:(numX+1) sizeY:(numY+1)];
     
     return elevChunk;
 }

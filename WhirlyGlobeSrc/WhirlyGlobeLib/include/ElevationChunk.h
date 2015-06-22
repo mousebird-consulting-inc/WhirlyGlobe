@@ -26,13 +26,11 @@
 using namespace WhirlyKit;
 
 
-@protocol WhirlyKitElevationChunkProtocol<NSObject>
-
-/// Tile size in X
-@property (nonatomic,readonly) int sizeX;
-
-/// Tile size in Y
-@property (nonatomic,readonly) int sizeY;
+/** A protocol for handling elevation data chunks.
+    The data itself can be a grid or triangle mesh or what have you.
+    The requirement is that you turn it into a set of drawables and interpolate on demand.
+  */
+@protocol WhirlyKitElevationChunk<NSObject>
 
 /// Return the elevation at an exact location
 - (float)elevationAtX:(int)x y:(int)y;
@@ -46,11 +44,17 @@ using namespace WhirlyKit;
 @end
 
 
-// Fake type
-typedef NSObject<WhirlyKitElevationChunkProtocol> WhirlyKitElevationChunk;
+/** Elevation data in grid format.
+    These are simple rows and columns of elevation data that can be
+    interpolated from or converted into displayable form.
+  */
+@interface WhirlyKitElevationGridChunk : NSObject<WhirlyKitElevationChunk>
 
+/// Tile size in X
+@property (nonatomic,readonly) int sizeX;
 
-@interface WhirlyKitElevationGridChunk : NSObject<WhirlyKitElevationChunkProtocol>
+/// Tile size in Y
+@property (nonatomic,readonly) int sizeY;
 
 /// Assign or get the no data value
 @property (nonatomic,assign) float noDataValue;
