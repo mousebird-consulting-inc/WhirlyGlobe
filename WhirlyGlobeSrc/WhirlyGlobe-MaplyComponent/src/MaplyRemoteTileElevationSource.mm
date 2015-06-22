@@ -403,7 +403,7 @@ using namespace WhirlyKit;
 
 - (MaplyElevationChunk *)decodeElevationData:(NSData *)data
 {
-	return [[MaplyElevationChunk alloc] initWithCesiumData:data sizeX:self.tileInfo.pixelsPerSide sizeY:self.tileInfo.pixelsPerSide];
+	return [[MaplyElevationCesiumChunk alloc] initWithCesiumData:data sizeX:self.tileInfo.pixelsPerSide sizeY:self.tileInfo.pixelsPerSide];
 }
 
 @end

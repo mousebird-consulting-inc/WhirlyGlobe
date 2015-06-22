@@ -1,8 +1,8 @@
 /*
- *  ElevationChunk.h
+ *  ElevationCesiumChunk.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 6/24/13.
+ *  Created by @jmnavarro on 6/22/15.
  *  Copyright 2011-2015 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,15 +24,24 @@
 
 using namespace std;
 
-@interface WhirlyKitElevationCesiumChunk : NSObject<WhirlyKitElevationChunkProtocol>
+/** An elevation chunk that understands Cesium's terrainf format.
+    This converts Cesium data into a form we can interpolate or display.
+  */
+@interface WhirlyKitElevationCesiumChunk : NSObject<WhirlyKitElevationChunk>
 
 - (id)initWithCesiumData:(NSData *)data sizeX:(int)sizeX sizeY:(int)sizeY;
 
+/// Tile size in X
+@property (nonatomic,readonly) int sizeX;
+
+/// Tile size in Y
+@property (nonatomic,readonly) int sizeY;
+
 @property (nonatomic, readonly) VectorTrianglesRef mesh;
 
-@property (nonatomic, readonly) vector<unsigned int> westVertices;
-@property (nonatomic, readonly) vector<unsigned int> southVertices;
-@property (nonatomic, readonly) vector<unsigned int> eastVertices;
-@property (nonatomic, readonly) vector<unsigned int> northVertices;
+@property (nonatomic, readonly) vector<unsigned int> &westVertices;
+@property (nonatomic, readonly) vector<unsigned int> &southVertices;
+@property (nonatomic, readonly) vector<unsigned int> &eastVertices;
+@property (nonatomic, readonly) vector<unsigned int> &northVertices;
 
 @end

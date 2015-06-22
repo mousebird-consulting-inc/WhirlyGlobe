@@ -475,7 +475,7 @@ using namespace WhirlyKit;
         WhirlyKitLoadedImage *loadImage = (WhirlyKitLoadedImage *)loadTile;
         return loadImage.type == WKLoadedImagePlaceholder;
     }
-    else if ([loadTile isKindOfClass:[WhirlyKitElevationChunk class]])
+    else if ([loadTile conformsToProtocol:@protocol(WhirlyKitElevationChunk)])
         return false;
     else if ([loadTile isKindOfClass:[WhirlyKitLoadedTile class]])
     {
@@ -568,10 +568,10 @@ using namespace WhirlyKit;
     
     
     std::vector<WhirlyKitLoadedImage *> loadImages;
-    WhirlyKitElevationChunk *loadElev = nil;
+    NSObject<WhirlyKitElevationChunk> *loadElev = nil;
     if ([loadTile isKindOfClass:[WhirlyKitLoadedImage class]])
         loadImages.push_back(loadTile);
-    else if ([loadTile isKindOfClass:[WhirlyKitElevationChunk class]])
+    else if ([loadTile conformsToProtocol:@protocol(WhirlyKitElevationChunk)])
         loadElev = loadTile;
     else if ([loadTile isKindOfClass:[WhirlyKitLoadedTile class]])
     {
