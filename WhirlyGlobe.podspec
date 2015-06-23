@@ -41,7 +41,6 @@ Pod::Spec.new do |s|
 
   s.subspec 'shapefile' do |shp|
     shp.source_files = 'WhirlyGlobeSrc/local_libs/shapefile/**/*.{c,h}'
-    shp.public_header_files = 'WhirlyGlobeSrc/local_libs/shapefile/include/**/*.h'
   end
 
   s.subspec 'kissxml' do |kss|
