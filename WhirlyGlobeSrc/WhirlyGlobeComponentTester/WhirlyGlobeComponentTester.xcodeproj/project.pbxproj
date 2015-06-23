@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2B1FB5371A1EC5FE0004B394 /* MapzenSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1FB5361A1EC5FE0004B394 /* MapzenSource.m */; };
 		2B2EB66518C901AD008C5320 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB516E7F505001F52FC /* OpenGLES.framework */; };
 		2B62DD6816E7F0BC001F52FC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B62DD6616E7F0BC001F52FC /* InfoPlist.strings */; };
 		2B62DD6A16E7F0BC001F52FC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD6916E7F0BC001F52FC /* main.m */; };
@@ -1953,7 +1952,6 @@
 				2B62DD8716E7F3A2001F52FC /* ConfigViewController.m in Sources */,
 				2B62DD8A16E7F3A2001F52FC /* StartupViewController.m in Sources */,
 				2B62DD8B16E7F3A2001F52FC /* TestViewController.m in Sources */,
-				2B1FB5371A1EC5FE0004B394 /* MapzenSource.m in Sources */,
 				2BFF026217A9BA2D00007842 /* AnimationTest.m in Sources */,
 				2BC989A817DA66BB0071DA9E /* WeatherShader.m in Sources */,
 			);
