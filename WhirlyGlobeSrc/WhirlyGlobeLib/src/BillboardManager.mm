@@ -129,8 +129,13 @@ void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<Whi
     
     RGBAColor color = [(inColor ? inColor : billInfo.color) asRGBAColor];
     
+    Point3d centerOnSphere = center;
+    double len = sqrt(centerOnSphere.x()*centerOnSphere.x() + centerOnSphere.y()*centerOnSphere.y() + centerOnSphere.z()*centerOnSphere.z());
+    if (len != 0.0)
+        centerOnSphere /= len;
+    
     // Normal is straight up
-    Point3d localPt = coordAdapter->displayToLocal(center);
+    Point3d localPt = coordAdapter->displayToLocal(centerOnSphere);
     Point3d axisY = coordAdapter->normalForLocal(localPt);
     
     int startPoint = drawable->getNumPoints();
