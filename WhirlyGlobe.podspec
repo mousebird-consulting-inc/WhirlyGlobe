@@ -32,9 +32,17 @@ Pod::Spec.new do |s|
 
   s.default_subspec = 'MaplyComponent'
 
+  s.subspec 'glues-wg' do |gl|
+    gl.source_files = 'WhirlyGlobeSrc/local_libs/glues/**/*.{c,h}'
+    gl.public_header_files = 'WhirlyGlobeSrc/local_libs/glues/include/**/*.h'
+    gl.header_mappings_dir = 'include/'
+  end
+
   s.subspec 'Lib-Headers' do |lh|
     lh.source_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
     lh.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
+    lh.dependency 'boost', '~> 1.57.0'
+    lh.dependency 'boost/string_algorithms-includes', '~> 1.57.0'
     lh.dependency 'boost/shared_ptr-includes', '~> 1.57.0'
     lh.dependency 'boost/pointer_cast-includes', '~> 1.57.0'
     lh.dependency 'boost/math-includes', '~> 1.57.0'
@@ -47,7 +55,6 @@ Pod::Spec.new do |s|
     l.dependency 'proj4'
     l.dependency 'shapelib'
     l.dependency 'clipper'
-    l.dependency 'glues'
     l.dependency 'libjson'
     l.dependency 'tinyxml'
     l.libraries = 'c++', 'sqlite3'
@@ -66,6 +73,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'MaplyComponent' do |mc|
     mc.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/src/*'
+    mc.dependency 'WhirlyGlobe/glues-wg'
     mc.dependency 'WhirlyGlobe/Lib'
     mc.dependency 'WhirlyGlobe/MaplyComponent-Headers'
     mc.dependency 'AFNetworking'
