@@ -45,7 +45,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'kissxml' do |kss|
-    kss.source_files = 'WhirlyGlobeSrc/local_libs/KissXML/**/*.{c,h,mm,m}'
+    kss.source_files = 'WhirlyGlobeSrc/local_libs/KissXML/**/*.{c,h,m}'
   end
 
   s.subspec 'Lib-Headers' do |lh|
