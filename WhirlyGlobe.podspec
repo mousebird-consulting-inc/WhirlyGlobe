@@ -59,7 +59,7 @@ Pod::Spec.new do |s|
     l.source_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/src/*.{mm,m}'
     l.dependency 'WhirlyGlobe/Lib-Headers'
     l.dependency 'proj4'
-    l.dependency 'shapelib'
+#    l.dependency 'shapelib'
     l.dependency 'clipper', '~> 6.1.3a'
     l.dependency 'libjson'
     l.dependency 'tinyxml'
