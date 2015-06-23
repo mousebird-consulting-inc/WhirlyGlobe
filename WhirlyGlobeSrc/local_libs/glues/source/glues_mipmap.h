@@ -34,7 +34,7 @@
 #define __GLUES_MIPMAP_H__
 
 #if defined(__USE_SDL_GLES__)
-   #include <SDL/SDL_opengles.h>
+   #include <SDL_opengles.h>
    #ifndef GLAPI
       #define GLAPI GL_API
    #endif

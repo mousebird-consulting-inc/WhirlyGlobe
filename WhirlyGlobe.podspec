@@ -44,6 +44,10 @@ Pod::Spec.new do |s|
     shp.public_header_files = 'WhirlyGlobeSrc/local_libs/shapefile/include/**/*.h'
   end
 
+  s.subspec 'kissxml' do |kss|
+    kss.source_files = 'WhirlyGlobeSrc/local_libs/KissXML/**/*.{c,h,mm,m}'
+  end
+
   s.subspec 'Lib-Headers' do |lh|
     lh.source_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
     lh.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
@@ -79,12 +83,14 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'MaplyComponent' do |mc|
-mc.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/src/*.{mm,m,cpp}'
+    mc.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/src/*.{mm,m,cpp}'
     mc.dependency 'WhirlyGlobe/glues-wg'
+    mc.dependency 'WhirlyGlobe/shapefile'
+    mc.dependency 'WhirlyGlobe/kissxml'
     mc.dependency 'WhirlyGlobe/Lib'
     mc.dependency 'WhirlyGlobe/MaplyComponent-Headers'
     mc.dependency 'AFNetworking'
-    mc.dependency 'KissXML'
+#    mc.dependency 'KissXML'
     mc.dependency 'SMCalloutView'
     mc.dependency 'FMDB'
 #    mc.dependency 'GoogleProtobuf', '3.0.0'
