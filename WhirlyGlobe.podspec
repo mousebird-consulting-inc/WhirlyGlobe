@@ -36,16 +36,17 @@ Pod::Spec.new do |s|
     gl.source_files = 'WhirlyGlobeSrc/local_libs/glues/**/*.{c,h}'
     gl.public_header_files = 'WhirlyGlobeSrc/local_libs/glues/include/**/*.h'
     gl.header_mappings_dir = 'include/'
+    gl.header_mappings_dir = 'SDL'
   end
 
   s.subspec 'Lib-Headers' do |lh|
     lh.source_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
     lh.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
-    lh.dependency 'boost', '~> 1.57.0'
-    lh.dependency 'boost/string_algorithms-includes', '~> 1.57.0'
-    lh.dependency 'boost/shared_ptr-includes', '~> 1.57.0'
-    lh.dependency 'boost/pointer_cast-includes', '~> 1.57.0'
-    lh.dependency 'boost/math-includes', '~> 1.57.0'
+    lh.dependency 'boost/string_algorithms-includes', '<= 1.51.0'
+    lh.dependency 'boost/shared_ptr-includes', '<= 1.51.0'
+    lh.dependency 'boost/pointer_cast-includes', '<= 1.51.0'
+    lh.dependency 'boost/math-includes', '<= 1.51.0'
+    lh.dependency 'boost/graph-includes', '<= 1.51.0'
     lh.dependency 'eigen', '~> 3.2.4'
   end
 
@@ -54,7 +55,7 @@ Pod::Spec.new do |s|
     l.dependency 'WhirlyGlobe/Lib-Headers'
     l.dependency 'proj4'
     l.dependency 'shapelib'
-    l.dependency 'clipper'
+    l.dependency 'clipper', '=> 6.1.3'
     l.dependency 'libjson'
     l.dependency 'tinyxml'
     l.libraries = 'c++', 'sqlite3'
@@ -80,9 +81,9 @@ Pod::Spec.new do |s|
     mc.dependency 'KissXML'
     mc.dependency 'SMCalloutView'
     mc.dependency 'FMDB'
+#    mc.dependency 'GoogleProtobuf', '3.0.0'
     mc.libraries = 'z', 'xml2'
     mc.frameworks = 'CoreLocation', 'MobileCoreServices', 'SystemConfiguration', 'CFNetwork'
   end
 
-#  s.dependency 'GoogleProtobuf'
 end

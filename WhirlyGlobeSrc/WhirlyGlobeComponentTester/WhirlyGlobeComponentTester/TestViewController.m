@@ -23,7 +23,7 @@
 #import "AFHTTPRequestOperation.h"
 #import "AnimationTest.h"
 #import "WeatherShader.h"
-#import "MapzenSource.h"
+//#import "MapzenSource.h"
 
 // Simple representation of locations and name for testing
 typedef struct
@@ -1337,6 +1337,7 @@ static const int NumMegaMarkers = 15000;
                 ovlLayers[layerName] = layer;
             } else if (![layerName compare:kMaplyTestMapboxStreets])
             {
+#if 0
                 self.title = @"Mapbox Vector Streets";
                 // Note: Debugging
                 thisCacheDir = nil;
@@ -1370,6 +1371,7 @@ static const int NumMegaMarkers = 15000;
                      NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
                  }
                  ];
+#endif
                 
 //                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"http://a.tiles.mapbox.com/v3/mapbox.mapbox-streets-v4.json"
 //                  style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"]
@@ -1404,6 +1406,7 @@ static const int NumMegaMarkers = 15000;
 //                 ];
             } else if (![layerName compare:kMaplyMapzenVectors])
             {
+#if 0
                 // Get the style file
                 NSData *styleData = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"MapzenGLStyle" ofType:@"json"]];
                 
@@ -1435,6 +1438,7 @@ static const int NumMegaMarkers = 15000;
                     self.title = @"Mapzen Vector Tiles";
                 } else
                     NSLog(@"Failed to load style sheet for Mapzen.");
+#endif
             }
         } else if (!isOn && layer)
         {
