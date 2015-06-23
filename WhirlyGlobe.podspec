@@ -39,6 +39,11 @@ Pod::Spec.new do |s|
     gl.header_mappings_dir = 'SDL'
   end
 
+  s.subspec 'shapefile' do |shp|
+    shp.source_files = 'WhirlyGlobeSrc/local_libs/shapefile/**/*.{c,h}'
+    shp.public_header_files = 'WhirlyGlobeSrc/local_libs/shapefile/include/**/*.h'
+  end
+
   s.subspec 'Lib-Headers' do |lh|
     lh.source_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
     lh.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
@@ -55,7 +60,7 @@ Pod::Spec.new do |s|
     l.dependency 'WhirlyGlobe/Lib-Headers'
     l.dependency 'proj4'
     l.dependency 'shapelib'
-    l.dependency 'clipper', '=> 6.1.3'
+    l.dependency 'clipper', '~> 6.1.3a'
     l.dependency 'libjson'
     l.dependency 'tinyxml'
     l.libraries = 'c++', 'sqlite3'
@@ -63,7 +68,8 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'MaplyComponent-Headers' do |mch|
-    mch.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/**/*.h'
+    mch.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/*.h'
+    mch.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h'
     mch.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/*.h'
     mch.dependency 'WhirlyGlobe/Lib-Headers'
   end
@@ -73,7 +79,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'MaplyComponent' do |mc|
-    mc.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/src/*'
+mc.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/src/*.{mm,m,cpp}'
     mc.dependency 'WhirlyGlobe/glues-wg'
     mc.dependency 'WhirlyGlobe/Lib'
     mc.dependency 'WhirlyGlobe/MaplyComponent-Headers'
