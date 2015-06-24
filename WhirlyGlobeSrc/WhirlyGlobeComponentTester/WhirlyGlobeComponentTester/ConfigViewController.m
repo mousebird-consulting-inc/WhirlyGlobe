@@ -112,7 +112,9 @@
                   kMaplyTestLoftedPoly: @(NO),
                   kMaplyTestMegaMarkers: @(NO),
                   kMaplyTestLatLon: @(NO),
-                  kMaplyTestRoads: @(NO)}
+                  kMaplyTestRoads: @(NO),
+                  kMaplyTestStars: @(NO)
+                  }
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryAnimation
                                                rows:
@@ -142,7 +144,9 @@
               kMaplyTestCountry: @(NO),
               kMaplyTestMegaMarkers: @(NO),
               kMaplyTestLatLon: @(NO),
-              kMaplyTestRoads: @(NO)}
+              kMaplyTestRoads: @(NO),
+              kMaplyTestStars: @(NO)
+              }
                                    singleSelect:false]]];
             break;
     }
