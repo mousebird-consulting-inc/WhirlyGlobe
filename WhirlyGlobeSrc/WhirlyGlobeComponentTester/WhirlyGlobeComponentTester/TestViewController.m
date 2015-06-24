@@ -72,6 +72,9 @@ LocationInfo locations[NumLocations] =
 // High performance vs. low performance devices
 typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 
+// Lowest priority for base layers
+static const int BaseEarthPriority = 10;
+
 // Local interface for TestViewController
 // We'll hide a few things here
 @interface TestViewController ()
@@ -106,6 +109,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     MaplyComponentObject *autoLabels;
     MaplyActiveObject *animSphere;
     NSMutableDictionary *loftPolyDict;
+    MaplyStarsModel *stars;
 
     // A source of elevation data, if we're in that mode
     NSObject<MaplyElevationSourceDelegate> *elevSource;
@@ -902,6 +906,20 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     );
 }
 
+- (void)addStars:(NSString *)inFile
+{
+    if (!globeViewC)
+        return;
+    
+    // Load the stars
+    NSString *fileName = [[NSBundle mainBundle] pathForResource:inFile ofType:@"txt"];
+    if (fileName)
+    {
+        stars = [[MaplyStarsModel alloc] initWithFileName:fileName];
+        [stars addToViewC:globeViewC desc:nil mode:MaplyThreadCurrent];
+    }
+}
+
 // Number of unique images to use for the mega markers
 static const int NumMegaMarkerImages = 1000;
 // Number of markers to whip up for the large test case
@@ -1031,7 +1049,7 @@ static const int NumMegaMarkers = 15000;
         layer.coverPoles = (globeViewC != nil);
         layer.requireElev = requireElev;
         layer.waitLoad = imageWaitLoad;
-        layer.drawPriority = 0;
+        layer.drawPriority = BaseEarthPriority;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
         [baseViewC addLayer:layer];
         
@@ -1051,7 +1069,7 @@ static const int NumMegaMarkers = 15000;
             // This is the static image set, included with the app, built with ImageChopper
             WGViewControllerLayer *layer = [globeViewC addSphericalEarthLayerWithImageSet:@"lowres_wtb_info"];
             baseLayer = (MaplyViewControllerLayer *)layer;
-            baseLayer.drawPriority = 0;
+            baseLayer.drawPriority = BaseEarthPriority;
             screenLabelColor = [UIColor whiteColor];
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
@@ -1073,7 +1091,7 @@ static const int NumMegaMarkers = 15000;
         layer.handleEdges = true;
         layer.requireElev = requireElev;
         [baseViewC addLayer:layer];
-        layer.drawPriority = 0;
+        layer.drawPriority = BaseEarthPriority;
         layer.waitLoad = imageWaitLoad;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
         baseLayer = layer;
@@ -1094,14 +1112,14 @@ static const int NumMegaMarkers = 15000;
         MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png" minZoom:0 maxZoom:maxZoom];
         tileSource.cacheDir = thisCacheDir;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
-        layer.drawPriority = 0;
+        layer.drawPriority = BaseEarthPriority;
         layer.handleEdges = true;
         layer.requireElev = requireElev;
         layer.waitLoad = imageWaitLoad;
         layer.maxTiles = maxLayerTiles;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
         [baseViewC addLayer:layer];
-        layer.drawPriority = 0;
+        layer.drawPriority = BaseEarthPriority;
         baseLayer = layer;
         screenLabelColor = [UIColor whiteColor];
         screenLabelBackColor = [UIColor whiteColor];
@@ -1167,7 +1185,7 @@ static const int NumMegaMarkers = 15000;
 //            layer.multiLevelLoads = @[@(-4), @(-2)];
         }
         [baseViewC addLayer:layer];
-        layer.drawPriority = 0;
+        layer.drawPriority = BaseEarthPriority;
         baseLayer = layer;
     } else if (![baseLayerName compare:kMaplyTestQuadVectorTest])
     {
@@ -1183,7 +1201,7 @@ static const int NumMegaMarkers = 15000;
         layer.importance = 128*128;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
         [baseViewC addLayer:layer];
-        layer.drawPriority = 0;
+        layer.drawPriority = BaseEarthPriority;
         baseLayer = layer;
     } else if (![baseLayerName compare:kMaplyTestQuadTestAnimate])
     {
@@ -1205,7 +1223,7 @@ static const int NumMegaMarkers = 15000;
         layer.animationPeriod = 4.0;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
         [baseViewC addLayer:layer];
-        layer.drawPriority = 0;
+        layer.drawPriority = BaseEarthPriority;
         baseLayer = layer;        
     }
     
@@ -1234,7 +1252,7 @@ static const int NumMegaMarkers = 15000;
                  layer.multiLevelLoads = @[@(-4), @(-2)];
              }
              [baseViewC addLayer:layer];
-             layer.drawPriority = 0;
+             layer.drawPriority = BaseEarthPriority;
              baseLayer = layer;
 
 #ifdef RELOADTEST
@@ -1627,6 +1645,20 @@ static const int NumMegaMarkers = 15000;
         {
             [baseViewC removeObjects:sfRoadsObjArray];
             sfRoadsObjArray = nil;
+        }
+    }
+    
+    if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestStars])
+    {
+        if (!stars)
+        {
+            [self addStars:@"starcatalog_short"];
+        }
+    } else {
+        if (stars)
+        {
+            [stars removeFromViewC];
+            stars = nil;
         }
     }
 
