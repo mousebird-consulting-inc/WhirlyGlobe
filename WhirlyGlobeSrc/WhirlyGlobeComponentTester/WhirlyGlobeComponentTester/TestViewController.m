@@ -1160,6 +1160,39 @@ static const int NumMegaMarkers = 15000;
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
+    } else if (![baseLayerName compare:kMaplyTestNightAndDay])
+    {
+        self.title = @"Day/Night Basemap";
+        int minZoom = 1;
+        int maxZoom = 8;
+        MaplyRemoteTileInfo *tileSource1 = [[MaplyRemoteTileInfo alloc] initWithBaseURL:@"http://map1.vis.earthdata.nasa.gov/wmts-webmerc/MODIS_Terra_CorrectedReflectance_TrueColor/default/2015-05-07/GoogleMapsCompatible_Level9/{z}/{y}/{x}" ext:@"jpg" minZoom:minZoom maxZoom:maxZoom];
+        tileSource1.cacheDir = [NSString stringWithFormat:@"%@/daytexture-2015-05-07/",cacheDir];
+        MaplyRemoteTileInfo *tileSource2 = [[MaplyRemoteTileInfo alloc] initWithBaseURL:@"http://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/2015-05-07/GoogleMapsCompatible_Level8/{z}/{y}/{x}" ext:@"jpg" minZoom:minZoom maxZoom:maxZoom];
+        tileSource1.cacheDir = [NSString stringWithFormat:@"%@/nighttexture-2015-05-07/",cacheDir];
+        
+        MaplyMultiplexTileSource *tileSource = [[MaplyMultiplexTileSource alloc] initWithSources:@[tileSource1,tileSource2]];
+        
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource1.coordSys tileSource:tileSource];
+        layer.drawPriority = BaseEarthPriority;
+        layer.handleEdges = true;
+        layer.requireElev = requireElev;
+        layer.waitLoad = imageWaitLoad;
+        layer.maxTiles = maxLayerTiles;
+        layer.imageDepth = 2;
+        layer.allowFrameLoading = false;
+        layer.currentImage = 0.5;
+        layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        layer.shaderProgramName = kMaplyShaderDefaultTriNightDay;
+        [baseViewC addLayer:layer];
+        layer.drawPriority = BaseEarthPriority;
+        baseLayer = layer;
+
+        screenLabelColor = [UIColor whiteColor];
+        screenLabelBackColor = [UIColor whiteColor];
+        labelColor = [UIColor blackColor];
+        labelBackColor = [UIColor whiteColor];
+        vecColor = [UIColor blackColor];
+        vecWidth = 4.0;
     } else if (![baseLayerName compare:kMaplyTestQuadTest])
     {
         self.title = @"Quad Paging Test Layer";
