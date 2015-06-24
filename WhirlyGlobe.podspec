@@ -34,6 +34,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'glues-wg' do |gl|
     gl.source_files = 'WhirlyGlobeSrc/local_libs/glues/**/*.{c,h,i}'
+    gl.private_header_files = 'WhirlyGlobeSrc/local_libs/glues/**/*.i'
 #    gl.public_header_files = 'WhirlyGlobeSrc/local_libs/glues/include/**/*.h'
     gl.header_mappings_dir = 'include/'
     gl.header_mappings_dir = 'SDL'
