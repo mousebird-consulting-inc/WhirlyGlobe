@@ -107,6 +107,8 @@
 		2B897A9115BC6CEE00250F23 /* MaplyViewControllerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A9015BC6CEE00250F23 /* MaplyViewControllerLayer.mm */; };
 		2B897A9315BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A9215BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm */; };
 		2B9BAD4D1B39CFA800B95CC2 /* NSDictionary+StyleRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 880E70A618F76ED200D32A54 /* NSDictionary+StyleRules.m */; };
+		2B9BAD7B1B3B6EF900B95CC2 /* MaplySun.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B9BAD7A1B3B6EF900B95CC2 /* MaplySun.h */; };
+		2B9BAD7E1B3B6F0D00B95CC2 /* MaplySun.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B9BAD7D1B3B6F0D00B95CC2 /* MaplySun.mm */; };
 		2BAC290B184D571400FD14FD /* MaplyGDALRetileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BAC290A184D571400FD14FD /* MaplyGDALRetileSource.h */; };
 		2BAC290E184D571B00FD14FD /* MaplyGDALRetileSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BAC290D184D571B00FD14FD /* MaplyGDALRetileSource.mm */; };
 		2BACF3F416C4B94A00C7A4AC /* MaplyShader_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BACF3F316C4B94A00C7A4AC /* MaplyShader_private.h */; };
@@ -395,6 +397,8 @@
 		2B96D35F18A9AC2600999E24 /* MaplyVectorTextStyle.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyVectorTextStyle.mm; path = src/vector_tiles/MaplyVectorTextStyle.mm; sourceTree = "<group>"; tabWidth = 4; };
 		2B96D36518AAE81F00999E24 /* MaplyVectorStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyVectorStyle.h; path = include/vector_tiles/MaplyVectorStyle.h; sourceTree = "<group>"; };
 		2B96D36718AAE82700999E24 /* MaplyVectorStyle.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyVectorStyle.mm; path = src/vector_tiles/MaplyVectorStyle.mm; sourceTree = "<group>"; };
+		2B9BAD7A1B3B6EF900B95CC2 /* MaplySun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplySun.h; path = include/MaplySun.h; sourceTree = "<group>"; };
+		2B9BAD7D1B3B6F0D00B95CC2 /* MaplySun.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplySun.mm; path = src/MaplySun.mm; sourceTree = "<group>"; };
 		2BAC290A184D571400FD14FD /* MaplyGDALRetileSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyGDALRetileSource.h; path = include/MaplyGDALRetileSource.h; sourceTree = SOURCE_ROOT; };
 		2BAC290D184D571B00FD14FD /* MaplyGDALRetileSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyGDALRetileSource.mm; path = src/MaplyGDALRetileSource.mm; sourceTree = SOURCE_ROOT; };
 		2BACF3F316C4B94A00C7A4AC /* MaplyShader_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyShader_private.h; path = include/private/MaplyShader_private.h; sourceTree = SOURCE_ROOT; };
@@ -1059,6 +1063,8 @@
 				2BE481761B168389002C854B /* MaplyQuadTracker.mm */,
 				2B3CAAFB1B20E60500D0E796 /* MaplyStarsModel.h */,
 				2B3CAAFE1B20E61000D0E796 /* MaplyStarsModel.mm */,
+				2B9BAD7A1B3B6EF900B95CC2 /* MaplySun.h */,
+				2B9BAD7D1B3B6F0D00B95CC2 /* MaplySun.mm */,
 				2B760C9D1881D68C006FE98B /* MaplyIconManager.h */,
 				2B760CA01881D696006FE98B /* MaplyIconManager.mm */,
 			);
@@ -1305,6 +1311,7 @@
 				2BACF3F416C4B94A00C7A4AC /* MaplyShader_private.h in Headers */,
 				2BDC8A1A191D994F00DFECF0 /* AFHTTPSessionManager.h in Headers */,
 				2BEA1E5C171E0EBD0039F1A4 /* MaplyActiveObject.h in Headers */,
+				2B9BAD7B1B3B6EF900B95CC2 /* MaplySun.h in Headers */,
 				2BEA1E60171E0EBD0039F1A4 /* MaplyActiveObject_private.h in Headers */,
 				2BCA689217416A7000696BA8 /* MaplyViewControllerLayer.h in Headers */,
 				881F66B918F20A8F00D17110 /* atomicops_internals_x86_msvc.h in Headers */,
@@ -1424,6 +1431,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B9BAD7E1B3B6F0D00B95CC2 /* MaplySun.mm in Sources */,
 				2B897A8515BB5DEB00250F23 /* WhirlyGlobeViewController.mm in Sources */,
 				2B1B31FD1B0A6FDD00A37285 /* FMDatabase.m in Sources */,
 				2B897A8715BBB83E00250F23 /* WGInteractionLayer.mm in Sources */,
