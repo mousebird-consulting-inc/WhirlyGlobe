@@ -210,6 +210,8 @@ public:
 @property (nonatomic,assign) bool fullLoad;
 /// If fullLoad is on, we need a timeout.  Otherwise changes just pile up until we run out of memory
 @property (nonatomic,assign) NSTimeInterval fullLoadTimeout;
+/// If set (by default) we'll try to load individual frames when we have them
+@property (nonatomic,assign) bool frameLoading;
 /// On by default.  If you turn this off we won't evaluate any view changes.
 @property (nonatomic,assign) bool enable;
 
