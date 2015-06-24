@@ -33,8 +33,8 @@ Pod::Spec.new do |s|
   s.default_subspec = 'MaplyComponent'
 
   s.subspec 'glues-wg' do |gl|
-    gl.source_files = 'WhirlyGlobeSrc/local_libs/glues/**/*.{c,h}'
-    gl.public_header_files = 'WhirlyGlobeSrc/local_libs/glues/include/**/*.h'
+    gl.source_files = 'WhirlyGlobeSrc/local_libs/glues/**/*.{c,h,i}'
+#    gl.public_header_files = 'WhirlyGlobeSrc/local_libs/glues/include/**/*.h'
     gl.header_mappings_dir = 'include/'
     gl.header_mappings_dir = 'SDL'
   end
