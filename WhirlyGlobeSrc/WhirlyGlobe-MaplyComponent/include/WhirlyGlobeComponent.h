@@ -58,3 +58,4 @@
 //#import <MapboxMultiSourceTileInfo.h>
 #import <MaplyQuadTracker.h>
 #import <MaplyStarsModel.h>
+#import <MaplySun.h>

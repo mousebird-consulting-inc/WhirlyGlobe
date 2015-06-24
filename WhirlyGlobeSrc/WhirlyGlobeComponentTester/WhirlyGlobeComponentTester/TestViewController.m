@@ -920,6 +920,17 @@ static const int BaseEarthPriority = 10;
     }
 }
 
+- (void)addSun
+{
+    if (!globeViewC)
+        return;
+    
+    MaplySun *sun = [[MaplySun alloc] initWithDate:[NSDate date]];
+    MaplyLight *sunLight = [sun makeLight];
+    [baseViewC clearLights];
+    [baseViewC addLight:sunLight];
+}
+
 // Number of unique images to use for the mega markers
 static const int NumMegaMarkerImages = 1000;
 // Number of markers to whip up for the large test case
@@ -1681,11 +1692,12 @@ static const int NumMegaMarkers = 15000;
         }
     }
     
-    if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestStars])
+    if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestStarsAndSun])
     {
         if (!stars)
         {
             [self addStars:@"starcatalog_short"];
+            [self addSun];
         }
     } else {
         if (stars)

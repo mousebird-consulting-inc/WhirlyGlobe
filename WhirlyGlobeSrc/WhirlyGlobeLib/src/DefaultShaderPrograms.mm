@@ -243,7 +243,7 @@ static const char *vertexShaderTriNightDay =
 "        float ndotl;\n"
 //"        float ndoth;\n"
 "        ndotl = max(0.0, dot(adjNorm, light[ii].direction));\n"
-"        ndotl = pow(ndotl,0.5);\n"
+"        ndotl = pow(ndotl,0.1);\n"
 "        v_sunComp = ndotl;"
 //"        ndoth = max(0.0, dot(adjNorm, light[ii].halfplane));\n"
 "        ambient += light[ii].ambient;\n"

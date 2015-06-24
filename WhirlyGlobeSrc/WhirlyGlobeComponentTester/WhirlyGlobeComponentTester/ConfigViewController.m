@@ -114,7 +114,7 @@
                   kMaplyTestMegaMarkers: @(NO),
                   kMaplyTestLatLon: @(NO),
                   kMaplyTestRoads: @(NO),
-                  kMaplyTestStars: @(NO)
+                  kMaplyTestStarsAndSun: @(NO),
                   }
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryAnimation
@@ -146,7 +146,7 @@
               kMaplyTestMegaMarkers: @(NO),
               kMaplyTestLatLon: @(NO),
               kMaplyTestRoads: @(NO),
-              kMaplyTestStars: @(NO)
+              kMaplyTestStarsAndSun: @(NO)
               }
                                    singleSelect:false]]];
             break;
