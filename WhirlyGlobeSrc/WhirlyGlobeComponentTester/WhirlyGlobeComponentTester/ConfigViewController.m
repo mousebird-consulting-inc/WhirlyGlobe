@@ -77,6 +77,7 @@
 //                                      kMaplyTestMapBoxTerrain: @(NO),
 //                                      kMaplyTestMapBoxRegular: @(NO),
                                            kMaplyTestQuadTest: @(NO),
+                                        kMaplyTestNightAndDay: @(NO),
                                      kMaplyTestQuadVectorTest: @(NO),
                                     kMaplyTestQuadTestAnimate: @(NO)}
                                                  singleSelect:true]];
