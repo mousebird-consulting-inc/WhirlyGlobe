@@ -63,7 +63,7 @@
 #define kMaplyTestMegaMarkers @"Mega Markers"
 #define kMaplyTestLatLon @"Lon/Lat lines"
 #define kMaplyTestRoads @"SF Roads"
-#define kMaplyTestStars @"Stars"
+#define kMaplyTestStarsAndSun @"Stars and Sun"
 
 // Animation
 #define kMaplyTestCategoryAnimation @"Animation"
