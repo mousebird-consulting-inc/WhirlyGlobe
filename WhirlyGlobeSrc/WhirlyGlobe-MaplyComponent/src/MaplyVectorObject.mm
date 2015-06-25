@@ -598,6 +598,19 @@ public:
         return false;
     
     VectorRing pts = lin->pts;
+    
+    if (pts.empty())
+        return false;
+    
+    if (pts.size() == 1)
+    {
+        middle->x = pts[0].x();
+        middle->y = pts[0].y();
+        if (rot)
+            *rot = 0.0;
+        return true;
+    }
+    
     float totLen = 0;
     for (int ii=0;ii<pts.size()-1;ii++)
     {

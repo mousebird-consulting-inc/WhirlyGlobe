@@ -347,7 +347,8 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     
     // Draw it
     glBindVertexArrayOES(theBuffer.vertexArrayObj);
-    glDrawElements(GL_TRIANGLES, theBuffer.numElement, GL_UNSIGNED_SHORT, 0);
+    if (theBuffer.numElement != 0)
+        glDrawElements(GL_TRIANGLES, theBuffer.numElement, GL_UNSIGNED_SHORT, 0);
     glBindVertexArrayOES(0);
     
     // Unbind any texture
