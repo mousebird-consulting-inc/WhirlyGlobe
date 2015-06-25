@@ -99,5 +99,9 @@
     return sunLight;
 }
 
+- (MaplyCoordinate)asPosition
+{
+    return MaplyCoordinateMake(sunLon,sunLat);
+}
 
 @end

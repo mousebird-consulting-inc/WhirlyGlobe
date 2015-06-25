@@ -39,4 +39,7 @@
 /// @brief Makes up a light that corresponds to the sun's location at a given time
 - (MaplyLight *)makeLight;
 
+/// @brief Returns the location above the globe in lon/lat.  Yay geocentrism!
+- (MaplyCoordinate)asPosition;
+
 @end

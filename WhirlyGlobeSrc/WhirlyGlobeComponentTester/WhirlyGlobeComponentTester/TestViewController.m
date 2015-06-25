@@ -110,6 +110,7 @@ static const int BaseEarthPriority = 10;
     MaplyActiveObject *animSphere;
     NSMutableDictionary *loftPolyDict;
     MaplyStarsModel *stars;
+    MaplyComponentObject *sunObj;
 
     // A source of elevation data, if we're in that mode
     NSObject<MaplyElevationSourceDelegate> *elevSource;
@@ -258,6 +259,11 @@ static const int BaseEarthPriority = 10;
         
     if (globeViewC)
     {
+        // Limit the zoom (for sun & stars)
+        float minHeight,maxHeight;
+        [globeViewC getZoomLimitsMin:&minHeight max:&maxHeight];
+        [globeViewC setZoomLimitsMin:minHeight max:3.0];
+        
         // Start up over San Francisco
         globeViewC.height = 0.8;
         [globeViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
@@ -925,10 +931,20 @@ static const int BaseEarthPriority = 10;
     if (!globeViewC)
         return;
     
+    // Lighting for the sun
     MaplySun *sun = [[MaplySun alloc] initWithDate:[NSDate date]];
     MaplyLight *sunLight = [sun makeLight];
     [baseViewC clearLights];
     [baseViewC addLight:sunLight];
+    
+    // And a model, because why not
+    MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
+    sphere.center = [sun asPosition];
+    sphere.radius = 0.2;
+    sphere.height = 4.0;
+    sunObj = [globeViewC addShapes:@[sphere] desc:
+                @{kMaplyColor: [UIColor yellowColor],
+                  kMaplyShader: kMaplyShaderDefaultTriNoLighting}];
 }
 
 // Number of unique images to use for the mega markers
@@ -1703,6 +1719,8 @@ static const int NumMegaMarkers = 15000;
         if (stars)
         {
             [stars removeFromViewC];
+            [baseViewC removeObject:sunObj];
+            sunObj = nil;
             stars = nil;
         }
     }
