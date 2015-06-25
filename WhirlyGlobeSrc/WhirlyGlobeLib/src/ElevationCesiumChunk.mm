@@ -251,9 +251,75 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 	return -1;
 }
 
-- (void)generateDrawables:(std::vector<BasicDrawable *> &)drawables
+- (void)generateDrawables:(WhirlyKitElevationDrawInfo *)drawInfo chunk:(BasicDrawable **)draw skirts:(BasicDrawable **)skirtDraw
 {
-	//TODO
+    // Size of each chunk
+    Point2f chunkSize = drawInfo->theMbr.ur() - drawInfo->theMbr.ll();
+    
+    // We need the corners in geographic for the cullable
+    Point2d chunkLL(drawInfo->theMbr.ll().x(),drawInfo->theMbr.ll().y());
+    Point2d chunkUR(drawInfo->theMbr.ur().x(),drawInfo->theMbr.ur().y());
+    //    Point2d chunkMid = (chunkLL+chunkUR)/2.0;
+    CoordSystem *sceneCoordSys = drawInfo->coordAdapter->getCoordSystem();
+    GeoCoord geoLL(drawInfo->coordSys->localToGeographic(Point3d(chunkLL.x(),chunkLL.y(),0.0)));
+    GeoCoord geoUR(drawInfo->coordSys->localToGeographic(Point3d(chunkUR.x(),chunkUR.y(),0.0)));
+
+    // Texture increment for each "pixel"
+    TexCoord texIncr(1.0/(float)_sizeX,1.0/(float)_sizeY);
+
+    // We'll set up and fill in the drawable
+    BasicDrawable *chunk = new BasicDrawable("Tile Quad Loader",_mesh->pts.size(),_mesh->tris.size());
+    if (drawInfo->useTileCenters)
+        chunk->setMatrix(&drawInfo->transMat);
+    
+    if (drawInfo->activeTextures > 0)
+        chunk->setTexId(drawInfo->activeTextures-1, EmptyIdentity);
+    chunk->setDrawOffset(drawInfo->drawOffset);
+    chunk->setDrawPriority(drawInfo->drawPriority);
+    chunk->setVisibleRange(drawInfo->minVis, drawInfo->maxVis);
+    chunk->setAlpha(drawInfo->hasAlpha);
+    chunk->setColor(drawInfo->color);
+    chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
+    chunk->setProgram(drawInfo->programId);
+    int elevEntry = 0;
+    if (drawInfo->includeElev)
+        elevEntry = chunk->addAttribute(BDFloatType, "a_elev");
+    // Single level mode uses Z to sort out priority
+    //        if (singleLevel != -1)
+    //        {
+    //            chunk->setRequestZBuffer(true);
+    //            chunk->setWriteZBuffer(true);
+    //        }
+    
+    chunk->setType(GL_TRIANGLES);
+    
+    // Work through the points
+    for (unsigned int ip=0;ip<_mesh->pts.size();ip++)
+    {
+        // Convert the point to display space
+        const Point3f &pt = _mesh->pts[ip];
+        Point3d loc3d(chunkLL.x()+pt.x()/_sizeX * chunkSize.x(),chunkLL.y()+pt.y()/_sizeY * chunkSize.y(),pt.z()*100);
+        NSLog(@"z = %f",pt.z());
+        Point3d disp3d = drawInfo->coordAdapter->localToDisplay(CoordSystemConvert3d(drawInfo->coordSys,sceneCoordSys,loc3d));
+        
+        // Texture runs across the tile [0,1]
+        TexCoord texCoord(texIncr.x()*pt.x()*drawInfo->texScale.x()+drawInfo->texOffset.x(),1.0-(texIncr.y()*pt.y()*drawInfo->texScale.y()+drawInfo->texOffset.y()));
+        
+        chunk->addPoint(disp3d);
+        chunk->addTexCoord(-1, texCoord);
+        if (elevEntry != 0)
+            chunk->addAttributeValue(elevEntry, pt.z());
+        // Note: Do normal
+    }
+    
+    // Work through the triangles
+    for (unsigned int it=0;it<_mesh->tris.size();it++)
+    {
+        auto &tri = _mesh->tris[it];
+        chunk->addTriangle(BasicDrawable::Triangle(tri.pts[0],tri.pts[1],tri.pts[2]));
+    }
+    
+    *draw = chunk;
 }
 
 

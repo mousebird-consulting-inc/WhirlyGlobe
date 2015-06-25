@@ -274,19 +274,23 @@ using namespace WhirlyKit;
         if (httpResponse.statusCode != 200)
             tileData = nil;
         
-        // Let's also write it back out for the cache
-        if (_tileInfo.cacheDir && tileData)
-			//JM Do this asynchronously??
-            [tileData writeToFile:[_tileInfo fileNameForTile:tileID] atomically:YES];
+        MaplyElevationChunk *elevChunk = nil;
+        if (tileData != nil)
+        {
+            // Let's also write it back out for the cache.
+            // We're already on another thread.  No need to do that in the background.
+            if (_tileInfo.cacheDir && tileData)
+                [tileData writeToFile:[_tileInfo fileNameForTile:tileID] atomically:YES];
 
-		MaplyElevationChunk *elevChunk = [self decodeElevationData:tileData];
+            elevChunk = [self decodeElevationData:tileData];
 
-		//JM what about to serialize & cache MaplyElevationChunk decoded data instead of raw server data?
-		// We would save the decoding time when we hit the cache
+            //JM what about to serialize & cache MaplyElevationChunk decoded data instead of raw server data?
+            // We would save the decoding time when we hit the cache
 
-        if ([_delegate respondsToSelector:@selector(remoteTileElevationSource:modifyTileReturn:forTile:)]) {
-            elevChunk = [_delegate remoteTileElevationSource:self modifyElevReturn:elevChunk forTile:tileID];
-		}
+            if ([_delegate respondsToSelector:@selector(remoteTileElevationSource:modifyTileReturn:forTile:)]) {
+                elevChunk = [_delegate remoteTileElevationSource:self modifyElevReturn:elevChunk forTile:tileID];
+            }
+        }
 
         return elevChunk;
     }
