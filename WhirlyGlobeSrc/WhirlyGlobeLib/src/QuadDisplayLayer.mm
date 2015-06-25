@@ -101,6 +101,7 @@ using namespace WhirlyKit;
         somethingHappened = false;
         canLoadFrames = false;
         curFrameEntry = -1;
+        _frameLoading = true;
         _enable = true;
     }
     
@@ -185,8 +186,9 @@ using namespace WhirlyKit;
     
     canLoadFrames = [_loader respondsToSelector:@selector(quadDisplayLayer:loadTile:frame:)];
     numFrames = [_loader numFrames];
-    if (numFrames == 1)
+    if (numFrames == 1 || !_frameLoading)
         canLoadFrames = false;
+    
     if (canLoadFrames)
     {
         // Make up some reasonable frame priorities
