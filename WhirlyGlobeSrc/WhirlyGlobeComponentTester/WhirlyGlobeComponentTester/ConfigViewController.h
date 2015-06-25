@@ -31,6 +31,7 @@
 #define kMaplyTestMapBoxSat @"MapBox Satellite - Remote"
 #define kMaplyTestMapBoxTerrain @"MapBox Terrain - Remote"
 #define kMaplyTestMapBoxRegular @"MapBox Regular - Remote"
+#define kMaplyTestNightAndDay @"Night/Day Images - Remote"
 #define kMaplyTestQuadTest @"Quad Test Layer"
 #define kMaplyTestQuadTestAnimate @"Quad Test Layer - Animated"
 #define kMaplyTestQuadVectorTest @"Quad Vector Test Layer"
@@ -63,6 +64,7 @@
 #define kMaplyTestMegaMarkers @"Mega Markers"
 #define kMaplyTestLatLon @"Lon/Lat lines"
 #define kMaplyTestRoads @"SF Roads"
+#define kMaplyTestStarsAndSun @"Stars and Sun"
 
 // Animation
 #define kMaplyTestCategoryAnimation @"Animation"

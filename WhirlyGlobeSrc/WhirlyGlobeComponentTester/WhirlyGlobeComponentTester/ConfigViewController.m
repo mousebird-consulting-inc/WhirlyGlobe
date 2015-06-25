@@ -77,6 +77,7 @@
 //                                      kMaplyTestMapBoxTerrain: @(NO),
 //                                      kMaplyTestMapBoxRegular: @(NO),
                                            kMaplyTestQuadTest: @(NO),
+                                        kMaplyTestNightAndDay: @(NO),
                                      kMaplyTestQuadVectorTest: @(NO),
                                     kMaplyTestQuadTestAnimate: @(NO),
 									      kMaplyTestElevation: @(NO)}
@@ -113,7 +114,9 @@
                   kMaplyTestLoftedPoly: @(NO),
                   kMaplyTestMegaMarkers: @(NO),
                   kMaplyTestLatLon: @(NO),
-                  kMaplyTestRoads: @(NO)}
+                  kMaplyTestRoads: @(NO),
+                  kMaplyTestStarsAndSun: @(NO),
+                  }
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryAnimation
                                                rows:
@@ -143,7 +146,9 @@
               kMaplyTestCountry: @(NO),
               kMaplyTestMegaMarkers: @(NO),
               kMaplyTestLatLon: @(NO),
-              kMaplyTestRoads: @(NO)}
+              kMaplyTestRoads: @(NO),
+              kMaplyTestStarsAndSun: @(NO)
+              }
                                    singleSelect:false]]];
             break;
     }

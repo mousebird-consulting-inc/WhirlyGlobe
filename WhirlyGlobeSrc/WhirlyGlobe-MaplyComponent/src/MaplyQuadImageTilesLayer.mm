@@ -133,6 +133,7 @@ using namespace WhirlyKit;
     _useElevAsZ = true;
     _importanceScale = 1.0;
     _borderTexel = 1;
+    _allowFrameLoading = true;
     canFetchFrames = false;
     
     // See if we're letting the source do the async calls or what
@@ -177,6 +178,7 @@ using namespace WhirlyKit;
     quadLayer.maxTiles = _maxTiles;
     quadLayer.viewUpdatePeriod = _viewUpdatePeriod;
     quadLayer.minUpdateDist = _minUpdateDist;
+    quadLayer.frameLoading = _allowFrameLoading;
     if (!framePriorities.empty())
         [quadLayer setFrameLoadingPriorities:framePriorities];
     
@@ -201,8 +203,13 @@ using namespace WhirlyKit;
         if (_animationPeriod > 0.0)
         {
             self.animationPeriod = _animationPeriod;
-        } else
-            [self setCurrentImage:_currentImage];
+        } else {
+            // Need the setup to settle before we can do this
+            dispatch_async(dispatch_get_main_queue(),
+                           ^{
+                               [self setCurrentImage:_currentImage];
+                           });
+        }
     }
     
     elevDelegate = _viewC.elevDelegate;
