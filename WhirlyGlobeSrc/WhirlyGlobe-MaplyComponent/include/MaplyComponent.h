@@ -48,12 +48,13 @@
 #import <MaplyPagingVectorTestTileSource.h>
 #import <MaplyElevationSource.h>
 #import <MaplyElevationDatabase.h>
-#import <MaplyVectorTiles.h>
+//#import <MaplyVectorTiles.h>
 #import <MaplyIconManager.h>
 #import <MaplyTextureBuilder.h>
 #import <MaplyGeomModel.h>
-#import <MapboxMultiSourceTileInfo.h>
+//#import <MapboxMultiSourceTileInfo.h>
 #import <MaplyVertexAttribute.h>
 #import <MaplyQuadTracker.h>
 #import <MaplyStarsModel.h>
+#import <MaplySun.h>
 

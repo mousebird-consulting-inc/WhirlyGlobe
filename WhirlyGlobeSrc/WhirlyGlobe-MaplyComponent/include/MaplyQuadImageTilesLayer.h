@@ -154,6 +154,12 @@ typedef enum {MaplyImageIntRGBA,
   */
 @property (nonatomic, assign) bool animationWrap;
 
+/** @brief If set, we'll try to fetch frames individually.
+    @details When fetching from a data source that has multiple frames we'll fetch each frame individually and allow them to display as we go.
+    @details If this is false, we'll force all the frames to load for a given tile before we move on to the next tile.
+  */
+@property (nonatomic, assign) bool allowFrameLoading;
+
 /** @brief For the case where we're loading individual frames, this sets the order to load them in.
     @details When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.
   */

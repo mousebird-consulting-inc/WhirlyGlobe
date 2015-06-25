@@ -147,7 +147,7 @@ typedef struct
 - (void)removeFromViewC
 {
     if (partSysObj)
-        [viewC removeObjects:@[partSys] mode:addedMode];
+        [viewC removeObjects:@[partSysObj] mode:addedMode];
 }
 
 @end
