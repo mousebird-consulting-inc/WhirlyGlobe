@@ -747,7 +747,11 @@ using namespace WhirlyKit;
 - (void)setCurrentImage:(int)newImage changes:(WhirlyKit::ChangeSet &)theChanges;
 {
     if (!_quadLayer)
+    {
+        currentImage0 = newImage;
+        currentImage1 = 0;
         return;
+    }
 
     if (currentImage0 != newImage || currentImage1 != 0)
     {
@@ -838,7 +842,11 @@ using namespace WhirlyKit;
 - (void)setCurrentImageStart:(int)startImage end:(int)endImage changes:(WhirlyKit::ChangeSet &)theChanges
 {
     if (!_quadLayer)
+    {
+        currentImage0 = startImage;
+        currentImage1 = endImage;
         return;
+    }
     
     if (currentImage0 != startImage || currentImage1 != endImage)
     {

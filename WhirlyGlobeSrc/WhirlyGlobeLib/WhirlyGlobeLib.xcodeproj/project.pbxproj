@@ -750,12 +750,12 @@
 		2B95192E12EF4417005003AE /* WhirlyVector.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = WhirlyVector.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B951C7D12EFA262005003AE /* GridLines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridLines.h; sourceTree = "<group>"; };
 		2B951C8D12EFA567005003AE /* GridLines.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GridLines.mm; sourceTree = "<group>"; };
-		2B951D8E12F09E7A005003AE /* shapefil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shapefil.h; sourceTree = "<group>"; };
-		2B951D9012F09E91005003AE /* shpopen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shpopen.c; sourceTree = "<group>"; };
-		2B951D9212F09EA0005003AE /* dbfopen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dbfopen.c; sourceTree = "<group>"; };
+		2B951D8E12F09E7A005003AE /* shapefil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shapefil.h; path = ../../WhirlyGlobeSrc/local_libs/shapefile/shapefil.h; sourceTree = "<group>"; };
+		2B951D9012F09E91005003AE /* shpopen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = shpopen.c; path = ../../WhirlyGlobeSrc/local_libs/shapefile/shpopen.c; sourceTree = "<group>"; };
+		2B951D9212F09EA0005003AE /* dbfopen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dbfopen.c; path = ../../WhirlyGlobeSrc/local_libs/shapefile/dbfopen.c; sourceTree = "<group>"; };
 		2B951D9812F09F31005003AE /* VectorLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorLayer.h; sourceTree = "<group>"; };
 		2B951D9A12F0A087005003AE /* VectorLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorLayer.mm; sourceTree = "<group>"; };
-		2B951DF012F0AC50005003AE /* safileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = safileio.c; sourceTree = "<group>"; };
+		2B951DF012F0AC50005003AE /* safileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = safileio.c; path = ../../WhirlyGlobeSrc/local_libs/shapefile/safileio.c; sourceTree = "<group>"; };
 		2B95F90E18A594D800D72645 /* MaplyDoubleTapDragDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyDoubleTapDragDelegate.h; sourceTree = "<group>"; };
 		2B95F91018A594EF00D72645 /* MaplyDoubleTapDragDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyDoubleTapDragDelegate.mm; sourceTree = "<group>"; };
 		2B95F91218A5AB1F00D72645 /* GlobeDoubleTapDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeDoubleTapDelegate.h; sourceTree = "<group>"; };
@@ -879,9 +879,9 @@
 		2BCAB9A912F897E20049D73C /* DataLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = DataLayer.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2BCAB9BF12F8A3860049D73C /* LayerThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayerThread.h; sourceTree = "<group>"; };
 		2BCAB9E712F8CD440049D73C /* ShapeReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeReader.h; sourceTree = "<group>"; };
-		2BCABA9912F8DEF40049D73C /* Drawable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = Drawable.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2BCABA9912F8DEF40049D73C /* Drawable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = Drawable.mm; sourceTree = "<group>"; };
 		2BCABA9C12F8DEFF0049D73C /* Cullable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = Cullable.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BCABAA912F8E0850049D73C /* Drawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Drawable.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2BCABAA912F8E0850049D73C /* Drawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Drawable.h; sourceTree = "<group>"; };
 		2BCABAAB12F8E0920049D73C /* Cullable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Cullable.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2BCABB9812FA14300049D73C /* GlobeMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeMath.h; sourceTree = "<group>"; };
 		2BCABB9A12FA14660049D73C /* GlobeMath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = GlobeMath.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };

@@ -23,7 +23,7 @@
 #import "AFHTTPRequestOperation.h"
 #import "AnimationTest.h"
 #import "WeatherShader.h"
-#import "MapzenSource.h"
+//#import "MapzenSource.h"
 #import "MaplyRemoteTileElevationSource.h"
 
 // Simple representation of locations and name for testing
@@ -73,6 +73,9 @@ LocationInfo locations[NumLocations] =
 // High performance vs. low performance devices
 typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 
+// Lowest priority for base layers
+static const int BaseEarthPriority = 10;
+
 // Local interface for TestViewController
 // We'll hide a few things here
 @interface TestViewController ()
@@ -107,6 +110,8 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     MaplyComponentObject *autoLabels;
     MaplyActiveObject *animSphere;
     NSMutableDictionary *loftPolyDict;
+    MaplyStarsModel *stars;
+    MaplyComponentObject *sunObj;
 
     // A source of elevation data, if we're in that mode
     NSObject<MaplyElevationSourceDelegate> *elevSource;
@@ -255,6 +260,11 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
         
     if (globeViewC)
     {
+        // Limit the zoom (for sun & stars)
+        float minHeight,maxHeight;
+        [globeViewC getZoomLimitsMin:&minHeight max:&maxHeight];
+        [globeViewC setZoomLimitsMin:minHeight max:3.0];
+        
         // Start up over San Francisco
         globeViewC.height = 0.8;
         [globeViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
@@ -903,6 +913,41 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     );
 }
 
+- (void)addStars:(NSString *)inFile
+{
+    if (!globeViewC)
+        return;
+    
+    // Load the stars
+    NSString *fileName = [[NSBundle mainBundle] pathForResource:inFile ofType:@"txt"];
+    if (fileName)
+    {
+        stars = [[MaplyStarsModel alloc] initWithFileName:fileName];
+        [stars addToViewC:globeViewC desc:nil mode:MaplyThreadCurrent];
+    }
+}
+
+- (void)addSun
+{
+    if (!globeViewC)
+        return;
+    
+    // Lighting for the sun
+    MaplySun *sun = [[MaplySun alloc] initWithDate:[NSDate date]];
+    MaplyLight *sunLight = [sun makeLight];
+    [baseViewC clearLights];
+    [baseViewC addLight:sunLight];
+    
+    // And a model, because why not
+    MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
+    sphere.center = [sun asPosition];
+    sphere.radius = 0.2;
+    sphere.height = 4.0;
+    sunObj = [globeViewC addShapes:@[sphere] desc:
+                @{kMaplyColor: [UIColor yellowColor],
+                  kMaplyShader: kMaplyShaderDefaultTriNoLighting}];
+}
+
 // Number of unique images to use for the mega markers
 static const int NumMegaMarkerImages = 1000;
 // Number of markers to whip up for the large test case
@@ -1032,7 +1077,7 @@ static const int NumMegaMarkers = 15000;
         layer.coverPoles = (globeViewC != nil);
         layer.requireElev = requireElev;
         layer.waitLoad = imageWaitLoad;
-        layer.drawPriority = 0;
+        layer.drawPriority = BaseEarthPriority;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
         [baseViewC addLayer:layer];
         
@@ -1052,7 +1097,7 @@ static const int NumMegaMarkers = 15000;
             // This is the static image set, included with the app, built with ImageChopper
             WGViewControllerLayer *layer = [globeViewC addSphericalEarthLayerWithImageSet:@"lowres_wtb_info"];
             baseLayer = (MaplyViewControllerLayer *)layer;
-            baseLayer.drawPriority = 0;
+            baseLayer.drawPriority = BaseEarthPriority;
             screenLabelColor = [UIColor whiteColor];
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
@@ -1074,7 +1119,7 @@ static const int NumMegaMarkers = 15000;
         layer.handleEdges = true;
         layer.requireElev = requireElev;
         [baseViewC addLayer:layer];
-        layer.drawPriority = 0;
+        layer.drawPriority = BaseEarthPriority;
         layer.waitLoad = imageWaitLoad;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
         baseLayer = layer;
@@ -1095,14 +1140,14 @@ static const int NumMegaMarkers = 15000;
         MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png" minZoom:0 maxZoom:maxZoom];
         tileSource.cacheDir = thisCacheDir;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
-        layer.drawPriority = 0;
+        layer.drawPriority = BaseEarthPriority;
         layer.handleEdges = true;
         layer.requireElev = requireElev;
         layer.waitLoad = imageWaitLoad;
         layer.maxTiles = maxLayerTiles;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
         [baseViewC addLayer:layer];
-        layer.drawPriority = 0;
+        layer.drawPriority = BaseEarthPriority;
         baseLayer = layer;
         screenLabelColor = [UIColor whiteColor];
         screenLabelBackColor = [UIColor whiteColor];
@@ -1143,6 +1188,39 @@ static const int NumMegaMarkers = 15000;
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
+    } else if (![baseLayerName compare:kMaplyTestNightAndDay])
+    {
+        self.title = @"Day/Night Basemap";
+        int minZoom = 1;
+        int maxZoom = 8;
+        MaplyRemoteTileInfo *tileSource1 = [[MaplyRemoteTileInfo alloc] initWithBaseURL:@"http://map1.vis.earthdata.nasa.gov/wmts-webmerc/MODIS_Terra_CorrectedReflectance_TrueColor/default/2015-05-07/GoogleMapsCompatible_Level9/{z}/{y}/{x}" ext:@"jpg" minZoom:minZoom maxZoom:maxZoom];
+        tileSource1.cacheDir = [NSString stringWithFormat:@"%@/daytexture-2015-05-07/",cacheDir];
+        MaplyRemoteTileInfo *tileSource2 = [[MaplyRemoteTileInfo alloc] initWithBaseURL:@"http://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/2015-05-07/GoogleMapsCompatible_Level8/{z}/{y}/{x}" ext:@"jpg" minZoom:minZoom maxZoom:maxZoom];
+        tileSource1.cacheDir = [NSString stringWithFormat:@"%@/nighttexture-2015-05-07/",cacheDir];
+        
+        MaplyMultiplexTileSource *tileSource = [[MaplyMultiplexTileSource alloc] initWithSources:@[tileSource1,tileSource2]];
+        
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource1.coordSys tileSource:tileSource];
+        layer.drawPriority = BaseEarthPriority;
+        layer.handleEdges = true;
+        layer.requireElev = requireElev;
+        layer.waitLoad = imageWaitLoad;
+        layer.maxTiles = maxLayerTiles;
+        layer.imageDepth = 2;
+        layer.allowFrameLoading = false;
+        layer.currentImage = 0.5;
+        layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        layer.shaderProgramName = kMaplyShaderDefaultTriNightDay;
+        [baseViewC addLayer:layer];
+        layer.drawPriority = BaseEarthPriority;
+        baseLayer = layer;
+
+        screenLabelColor = [UIColor whiteColor];
+        screenLabelBackColor = [UIColor whiteColor];
+        labelColor = [UIColor blackColor];
+        labelBackColor = [UIColor whiteColor];
+        vecColor = [UIColor blackColor];
+        vecWidth = 4.0;
     } else if (![baseLayerName compare:kMaplyTestQuadTest])
     {
         self.title = @"Quad Paging Test Layer";
@@ -1168,7 +1246,7 @@ static const int NumMegaMarkers = 15000;
 //            layer.multiLevelLoads = @[@(-4), @(-2)];
         }
         [baseViewC addLayer:layer];
-        layer.drawPriority = 0;
+        layer.drawPriority = BaseEarthPriority;
         baseLayer = layer;
     } else if (![baseLayerName compare:kMaplyTestQuadVectorTest])
     {
@@ -1184,7 +1262,7 @@ static const int NumMegaMarkers = 15000;
         layer.importance = 128*128;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
         [baseViewC addLayer:layer];
-        layer.drawPriority = 0;
+        layer.drawPriority = BaseEarthPriority;
         baseLayer = layer;
     } else if (![baseLayerName compare:kMaplyTestElevation])
     {
@@ -1230,7 +1308,7 @@ static const int NumMegaMarkers = 15000;
         layer.animationPeriod = 4.0;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
         [baseViewC addLayer:layer];
-        layer.drawPriority = 0;
+        layer.drawPriority = BaseEarthPriority;
         baseLayer = layer;        
     }
     
@@ -1259,7 +1337,7 @@ static const int NumMegaMarkers = 15000;
                  layer.multiLevelLoads = @[@(-4), @(-2)];
              }
              [baseViewC addLayer:layer];
-             layer.drawPriority = 0;
+             layer.drawPriority = BaseEarthPriority;
              baseLayer = layer;
 
 #ifdef RELOADTEST
@@ -1362,6 +1440,7 @@ static const int NumMegaMarkers = 15000;
                 ovlLayers[layerName] = layer;
             } else if (![layerName compare:kMaplyTestMapboxStreets])
             {
+#if 0
                 self.title = @"Mapbox Vector Streets";
                 // Note: Debugging
                 thisCacheDir = nil;
@@ -1395,6 +1474,7 @@ static const int NumMegaMarkers = 15000;
                      NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
                  }
                  ];
+#endif
                 
 //                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"http://a.tiles.mapbox.com/v3/mapbox.mapbox-streets-v4.json"
 //                  style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"]
@@ -1429,6 +1509,7 @@ static const int NumMegaMarkers = 15000;
 //                 ];
             } else if (![layerName compare:kMaplyMapzenVectors])
             {
+#if 0
                 // Get the style file
                 NSData *styleData = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"MapzenGLStyle" ofType:@"json"]];
                 
@@ -1460,6 +1541,7 @@ static const int NumMegaMarkers = 15000;
                     self.title = @"Mapzen Vector Tiles";
                 } else
                     NSLog(@"Failed to load style sheet for Mapzen.");
+#endif
             }
         } else if (!isOn && layer)
         {
@@ -1648,6 +1730,23 @@ static const int NumMegaMarkers = 15000;
         {
             [baseViewC removeObjects:sfRoadsObjArray];
             sfRoadsObjArray = nil;
+        }
+    }
+    
+    if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestStarsAndSun])
+    {
+        if (!stars)
+        {
+            [self addStars:@"starcatalog_short"];
+            [self addSun];
+        }
+    } else {
+        if (stars)
+        {
+            [stars removeFromViewC];
+            [baseViewC removeObject:sunObj];
+            sunObj = nil;
+            stars = nil;
         }
     }
 
