@@ -281,9 +281,10 @@ static const int BaseEarthPriority = 10;
             [globeViewC setTiltMinHeight:0.001 maxHeight:0.04 minTilt:1.21771169 maxTilt:0.0];
         globeViewC.frameInterval = 2;  // 30fps
 
-        // An elevation source.  This one just makes up sine waves to get some data in there
-        elevSource = [[MaplyElevationDatabase alloc] initWithName:@"world_web_mercator"];
-        zoomLimit = elevSource.maxZoom;
+        // Cesium as an elevation source
+        elevSource = [[MaplyRemoteTileElevationCesiumSource alloc] initWithBaseURL:@"http://cesiumjs.org/stk-terrain/tilesets/world/tiles/" ext:@"terrain" minZoom:0 maxZoom:22];
+        baseViewC.elevDelegate = elevSource;
+        zoomLimit = 22;
         requireElev = true;
         baseViewC.elevDelegate = elevSource;
         
