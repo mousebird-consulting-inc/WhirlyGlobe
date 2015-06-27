@@ -357,9 +357,16 @@ using namespace WhirlyKit;
 {
     [super didReceiveMemoryWarning];
     
-    // We may retain a bit of memory here.  Clear it up.
-    scene->getMemManager()->clearBufferIDs();
-    scene->getMemManager()->clearTextureIDs();
+    if (scene)
+    {
+        WhirlyKit::OpenGLMemManager *memManager = scene->getMemManager();
+        // We may retain a bit of memory here.  Clear it up.
+        if (memManager)
+        {
+            memManager->clearBufferIDs();
+            memManager->clearTextureIDs();
+        }
+    }
 }
 
 - (void)setFrameInterval:(int)frameInterval
