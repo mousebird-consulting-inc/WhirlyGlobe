@@ -357,9 +357,16 @@ using namespace WhirlyKit;
 {
     [super didReceiveMemoryWarning];
     
-    // We may retain a bit of memory here.  Clear it up.
-    scene->getMemManager()->clearBufferIDs();
-    scene->getMemManager()->clearTextureIDs();
+    if (scene)
+    {
+        WhirlyKit::OpenGLMemManager *memManager = scene->getMemManager();
+        // We may retain a bit of memory here.  Clear it up.
+        if (memManager)
+        {
+            memManager->clearBufferIDs();
+            memManager->clearTextureIDs();
+        }
+    }
 }
 
 - (void)setFrameInterval:(int)frameInterval
@@ -1005,6 +1012,14 @@ static const float PerfOutputDelay = 15.0;
             [layerThreads removeObject:layerThread];
             [layerThread addThingToRelease:theLayer];
             [layerThread cancel];
+
+            // We also have to make sure it actually does finish
+            bool finished = true;
+            do {
+                finished = [layerThread isFinished];
+                if (!finished)
+                    [NSThread sleepForTimeInterval:0.0001];
+            } while (!finished);
         }
     }
 }

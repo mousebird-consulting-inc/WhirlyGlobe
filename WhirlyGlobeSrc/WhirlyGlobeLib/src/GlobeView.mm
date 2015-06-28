@@ -35,6 +35,7 @@ using namespace Eigen;
     double absoluteMinNearPlane;
     double defaultFarPlane;
     double absoluteMinFarPlane;
+    FakeGeocentricDisplayAdapter fakeGeoC;
 }
 @end
 
@@ -45,7 +46,7 @@ using namespace Eigen;
 	if ((self = [super init]))
 	{
 		_rotQuat = Eigen::AngleAxisd(0.0f,Vector3d(0.0f,0.0f,1.0f));
-       	super.coordAdapter = new FakeGeocentricDisplayAdapter();
+       	super.coordAdapter = &fakeGeoC;
        	defaultNearPlane = super.nearPlane;
        	defaultFarPlane = super.farPlane;
         absoluteMinNearPlane = 0.000001;
