@@ -150,6 +150,7 @@
 		2BC0FB88196DBA1C0043E1FD /* geography-class_medres.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB85196DB93C0043E1FD /* geography-class_medres.mbtiles */; };
 		2BC989A817DA66BB0071DA9E /* WeatherShader.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989A717DA66BB0071DA9E /* WeatherShader.m */; };
 		2BC989E517DC289B0071DA9E /* world_web_mercator.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2BC989E417DC289B0071DA9E /* world_web_mercator.sqlite */; };
+		2BD5A8291B3F6D2700DDAEE3 /* SunImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD5A8281B3F6D2700DDAEE3 /* SunImage.png */; };
 		2BDB7DD01AD862F400C9DFCC /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BA13BF117EE1875000C43B7 /* libc++.dylib */; };
 		2BDC8A8D1937E33F00DFECF0 /* tl_2013_06075_roads.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 2BDC8A891937E33F00DFECF0 /* tl_2013_06075_roads.dbf */; };
 		2BDC8A8E1937E33F00DFECF0 /* tl_2013_06075_roads.prj in Resources */ = {isa = PBXBuildFile; fileRef = 2BDC8A8A1937E33F00DFECF0 /* tl_2013_06075_roads.prj */; };
@@ -593,6 +594,7 @@
 		2BC989A717DA66BB0071DA9E /* WeatherShader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WeatherShader.m; sourceTree = "<group>"; };
 		2BC989E117DC28350071DA9E /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		2BC989E417DC289B0071DA9E /* world_web_mercator.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = world_web_mercator.sqlite; path = ../../../resources/elevation/world_web_mercator.sqlite; sourceTree = "<group>"; };
+		2BD5A8281B3F6D2700DDAEE3 /* SunImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SunImage.png; path = resources/SunImage.png; sourceTree = SOURCE_ROOT; };
 		2BDC8A2F191DA05F00DFECF0 /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AFHTTPRequestOperation.h; path = "../../third-party/AFNetworking/AFNetworking/AFHTTPRequestOperation.h"; sourceTree = "<group>"; };
 		2BDC8A30191DA05F00DFECF0 /* AFHTTPRequestOperationManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AFHTTPRequestOperationManager.h; path = "../../third-party/AFNetworking/AFNetworking/AFHTTPRequestOperationManager.h"; sourceTree = "<group>"; };
 		2BDC8A31191DA05F00DFECF0 /* AFHTTPSessionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AFHTTPSessionManager.h; path = "../../third-party/AFNetworking/AFNetworking/AFHTTPSessionManager.h"; sourceTree = "<group>"; };
@@ -1012,6 +1014,7 @@
 		2B9BAD6F1B3B2B6D00B95CC2 /* stars */ = {
 			isa = PBXGroup;
 			children = (
+				2BD5A8281B3F6D2700DDAEE3 /* SunImage.png */,
 				2B9BAD711B3B2BA100B95CC2 /* starcatalog_short.txt */,
 			);
 			name = stars;
@@ -1862,6 +1865,7 @@
 				2BFD27BA170B933C00127EF5 /* SLE.geojson in Resources */,
 				2BC0FB5A1964D3580043E1FD /* square-24@2x.png in Resources */,
 				2BFD27BB170B933C00127EF5 /* SLV.geojson in Resources */,
+				2BD5A8291B3F6D2700DDAEE3 /* SunImage.png in Resources */,
 				2BFD27BC170B933C00127EF5 /* SMR.geojson in Resources */,
 				2BFD27BD170B933C00127EF5 /* SOM.geojson in Resources */,
 				2BFD27BE170B933C00127EF5 /* SPM.geojson in Resources */,
@@ -2030,6 +2034,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
