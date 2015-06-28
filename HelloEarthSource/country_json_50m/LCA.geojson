@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 1, "LabelRank": 1, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Saint Lucia", "SOV_A3": "LCA", "ADM0_DIF": 0.0, "LEVEL": 2.0, "TYPE": "Sovereign country", "ADMIN": "Saint Lucia", "ADM0_A3": "LCA", "GEOU_DIF": 0.0, "GEOUNIT": "Saint Lucia", "GU_A3": "LCA", "SU_DIF": 0.0, "SUBUNIT": "Saint Lucia", "SU_A3": "LCA", "NAME": "Saint Lucia", "ABBREV": "S.L.", "POSTAL": "LC", "NAME_FORMA": "", "TERR_": "", "NAME_SORT": "Saint Lucia", "MAP_COLOR": 4.0, "POP_EST": 160267.0, "GDP_MD_EST": 1778.0, "FIPS_10_": "ST", "ISO_A2": "LC", "ISO_A3": "LCA", "ISO_N3": 662.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -60.895218, 13.821999 ], [ -60.951416, 13.717561 ], [ -61.060634, 13.783087 ], [ -61.073114, 13.865562 ], [ -61.063554, 13.915585 ], [ -60.996659, 14.010928 ], [ -60.944569, 14.072836 ], [ -60.908085, 14.093352 ], [ -60.886769, 14.011135 ], [ -60.895218, 13.821999 ] ] ] } }
-
-]
-}

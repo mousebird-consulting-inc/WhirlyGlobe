@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 5, "LabelRank": 5, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Australia", "SOV_A3": "AU1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Dependency", "ADMIN": "Heard Island and McDonald Islands", "ADM0_A3": "HMD", "GEOU_DIF": 0.0, "GEOUNIT": "Heard Island and McDonald Islands", "GU_A3": "HMD", "SU_DIF": 0.0, "SUBUNIT": "Heard Island and McDonald Islands", "SU_A3": "HMD", "NAME": "Heard I. and McDonald Is.", "ABBREV": "H.M.Is.", "POSTAL": "HM", "NAME_FORMA": "Territory of Heard Island and McDonald Islands", "TERR_": "Auz.", "NAME_SORT": "Heard Island and McDonald Islands", "MAP_COLOR": 7.0, "POP_EST": 0.0, "GDP_MD_EST": 0.0, "FIPS_10_": "HM", "ISO_A2": "HM", "ISO_A3": "HMD", "ISO_N3": 334.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 73.70747, -53.137066 ], [ 73.587994, -53.184609 ], [ 73.465108, -53.184195 ], [ 73.413225, -53.146782 ], [ 73.33633, -53.029889 ], [ 73.285481, -53.021518 ], [ 73.253855, -52.989323 ], [ 73.251167, -52.975836 ], [ 73.305324, -52.966327 ], [ 73.38811, -52.999917 ], [ 73.585721, -53.027099 ], [ 73.731241, -53.091178 ], [ 73.837798, -53.112778 ], [ 73.795114, -53.129883 ], [ 73.70747, -53.137066 ] ] ] } }
-
-]
-}
