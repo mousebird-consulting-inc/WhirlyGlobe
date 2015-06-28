@@ -75,7 +75,8 @@
 /// This point/line shader turns off the backface logic for lines
 #define kMaplyNoBackfaceLineShader @"Default Line;backface=no"
 /// The default billboard shader
-#define kMaplyBillboardShader @"Default Billboard"
+#define kMaplyBillboardShaderGround @"Default Billboard ground"
+#define kMaplyBillboardShaderEye @"Default Billboard eye"
 /// The default particle system shader
 #define kMaplyParticleSystemPointDefaultShader @"Default Part Sys (Point)"
 
@@ -229,6 +230,15 @@
 #define kMaplyStickerImages @"images"
 /// Image format to use for the new images
 #define kMaplyStickerImageFormat @"imageformat"
+
+/// These are used for billboards
+
+/// Billboard orientation
+#define kMaplyBillboardOrient @"billboardorient"
+/// Billboards are oriented toward the eye, but rotate on the ground
+#define kMaplyBillboardOrientGround @"billboardorientground"
+/// Billboards are oriented only towards the eye
+#define kMaplyBillboardOrientEye @"billboardorienteye"
 
 /// These are used for lofted polygons
 

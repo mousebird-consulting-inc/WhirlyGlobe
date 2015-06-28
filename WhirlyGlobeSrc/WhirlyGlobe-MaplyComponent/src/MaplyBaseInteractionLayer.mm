@@ -2309,6 +2309,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     CoordSystem *coordSys = coordAdapter->getCoordSystem();
     
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyBillboardDrawPriorityDefault) toDict:inDesc];
+    [self applyDefaultName:kMaplyBillboardOrient value:kMaplyBillboardOrientGround toDict:inDesc];
 
     // Might be a custom shader on these
     [self resolveShader:inDesc defaultShader:nil];
@@ -2318,7 +2319,12 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     SimpleIdentity billShaderID = [inDesc[kMaplyShader] intValue];
     if (billShaderID == EmptyIdentity)
-        billShaderID = scene->getProgramIDBySceneName([kMaplyBillboardShader cStringUsingEncoding:NSASCIIStringEncoding]);
+    {
+        if ([inDesc[kMaplyBillboardOrient] isEqualToString:kMaplyBillboardOrientEye])
+            billShaderID = scene->getProgramIDBySceneName([kMaplyBillboardShaderEye cStringUsingEncoding:NSASCIIStringEncoding]);
+        else
+            billShaderID = scene->getProgramIDBySceneName([kMaplyBillboardShaderGround cStringUsingEncoding:NSASCIIStringEncoding]);
+    }
     
     ChangeSet changes;
     BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);

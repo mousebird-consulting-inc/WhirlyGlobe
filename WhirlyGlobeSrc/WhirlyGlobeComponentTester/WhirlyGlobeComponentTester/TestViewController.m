@@ -23,7 +23,9 @@
 #import "AFHTTPRequestOperation.h"
 #import "AnimationTest.h"
 #import "WeatherShader.h"
-//#import "MapzenSource.h"
+#ifdef NOTPODSPECWG
+#import "MapzenSource.h"
+#endif
 
 // Simple representation of locations and name for testing
 typedef struct
@@ -926,6 +928,9 @@ static const int BaseEarthPriority = 10;
     }
 }
 
+static const bool UseSunSphere = false;
+static const float EarthRadius = 6371000;
+
 - (void)addSun
 {
     if (!globeViewC)
@@ -938,13 +943,25 @@ static const int BaseEarthPriority = 10;
     [baseViewC addLight:sunLight];
     
     // And a model, because why not
-    MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
-    sphere.center = [sun asPosition];
-    sphere.radius = 0.2;
-    sphere.height = 4.0;
-    sunObj = [globeViewC addShapes:@[sphere] desc:
-                @{kMaplyColor: [UIColor yellowColor],
-                  kMaplyShader: kMaplyShaderDefaultTriNoLighting}];
+    if (UseSunSphere)
+    {
+        MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
+        sphere.center = [sun asPosition];
+        sphere.radius = 0.2;
+        sphere.height = 4.0;
+        sunObj = [globeViewC addShapes:@[sphere] desc:
+                    @{kMaplyColor: [UIColor yellowColor],
+                      kMaplyShader: kMaplyShaderDefaultTriNoLighting}];
+    } else {
+        MaplyBillboard *bill = [[MaplyBillboard alloc] init];
+        MaplyCoordinate centerGeo = [sun asPosition];
+        bill.center = MaplyCoordinate3dMake(centerGeo.x, centerGeo.y, 4*EarthRadius);
+        bill.selectable = false;
+        bill.screenObj = [[MaplyScreenObject alloc] init];
+        UIImage *globeImage = [UIImage imageNamed:@"SunImage"];
+        [bill.screenObj addImage:globeImage color:[UIColor whiteColor] size:CGSizeMake(1.0, 1.0)];
+        sunObj = [globeViewC addBillboards:@[bill] desc:@{kMaplyBillboardOrient: kMaplyBillboardOrientEye} mode:MaplyThreadAny];
+    }
 }
 
 // Number of unique images to use for the mega markers
@@ -1415,7 +1432,7 @@ static const int NumMegaMarkers = 15000;
                 ovlLayers[layerName] = layer;
             } else if (![layerName compare:kMaplyTestMapboxStreets])
             {
-#if 0
+#if NOTPODSPECWG
                 self.title = @"Mapbox Vector Streets";
                 // Note: Debugging
                 thisCacheDir = nil;
@@ -1484,7 +1501,7 @@ static const int NumMegaMarkers = 15000;
 //                 ];
             } else if (![layerName compare:kMaplyMapzenVectors])
             {
-#if 0
+#ifdef NOTPODSPECWG
                 // Get the style file
                 NSData *styleData = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"MapzenGLStyle" ofType:@"json"]];
                 

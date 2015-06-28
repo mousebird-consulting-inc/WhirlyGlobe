@@ -370,11 +370,9 @@
 		2BB1787B17A8315C00AD0614 /* ParticleSystemManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1787817A8315A00AD0614 /* ParticleSystemManager.mm */; };
 		2BB1787C17A8315C00AD0614 /* LoftManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1787917A8315B00AD0614 /* LoftManager.mm */; };
 		2BB25920177A041E00770619 /* ElevationChunk.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB2591F177A041E00770619 /* ElevationChunk.h */; };
-		2BB25924177A042F00770619 /* BillboardLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB25921177A042F00770619 /* BillboardLayer.h */; };
 		2BB25925177A042F00770619 /* BillboardDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB25922177A042F00770619 /* BillboardDrawable.h */; };
 		2BB25926177A042F00770619 /* SceneGraphManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB25923177A042F00770619 /* SceneGraphManager.h */; };
 		2BB25928177A044300770619 /* ElevationChunk.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB25927177A044300770619 /* ElevationChunk.mm */; };
-		2BB2592C177A045300770619 /* BillboardLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB25929177A045300770619 /* BillboardLayer.mm */; };
 		2BB2592D177A045300770619 /* BillboardDrawable.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB2592A177A045300770619 /* BillboardDrawable.mm */; };
 		2BB2592E177A045300770619 /* SceneGraphManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB2592B177A045300770619 /* SceneGraphManager.mm */; };
 		2BB7A9681A250A5600E50DC5 /* GeometryManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB7A9671A250A5600E50DC5 /* GeometryManager.h */; };
@@ -848,11 +846,9 @@
 		2BB1F08613009AC3001F33CD /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Texture.h; sourceTree = "<group>"; };
 		2BB1F08813009B17001F33CD /* Texture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Texture.mm; sourceTree = "<group>"; };
 		2BB2591F177A041E00770619 /* ElevationChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevationChunk.h; sourceTree = "<group>"; };
-		2BB25921177A042F00770619 /* BillboardLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BillboardLayer.h; sourceTree = "<group>"; };
 		2BB25922177A042F00770619 /* BillboardDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BillboardDrawable.h; sourceTree = "<group>"; };
 		2BB25923177A042F00770619 /* SceneGraphManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneGraphManager.h; sourceTree = "<group>"; };
 		2BB25927177A044300770619 /* ElevationChunk.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ElevationChunk.mm; sourceTree = "<group>"; };
-		2BB25929177A045300770619 /* BillboardLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BillboardLayer.mm; sourceTree = "<group>"; };
 		2BB2592A177A045300770619 /* BillboardDrawable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BillboardDrawable.mm; sourceTree = "<group>"; };
 		2BB2592B177A045300770619 /* SceneGraphManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneGraphManager.mm; sourceTree = "<group>"; };
 		2BB7A9671A250A5600E50DC5 /* GeometryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryManager.h; sourceTree = "<group>"; };
@@ -1453,7 +1449,6 @@
 		2B951D9712F09EEC005003AE /* layers & loaders */ = {
 			isa = PBXGroup;
 			children = (
-				2BB25929177A045300770619 /* BillboardLayer.mm */,
 				2BB2592A177A045300770619 /* BillboardDrawable.mm */,
 				2BB2592B177A045300770619 /* SceneGraphManager.mm */,
 				2B308B12171F63B3006D7273 /* SelectionManager.mm */,
@@ -1497,7 +1492,6 @@
 				2B93C81514522DE600D768BA /* MarkerLayer.h */,
 				2B951D9812F09F31005003AE /* VectorLayer.h */,
 				2BCAB9A912F897E20049D73C /* DataLayer.h */,
-				2BB25921177A042F00770619 /* BillboardLayer.h */,
 				2B7EF5161603E01400D4079F /* MBTileQuadSource.h */,
 				2B7EF5171603E01400D4079F /* NetworkTileQuadSource.h */,
 				2BD1158C1615979300A4BF5D /* ShapeLayer.h */,
@@ -2041,7 +2035,6 @@
 				2B08059617EB955C0016C813 /* LoadedTile.h in Headers */,
 				2BA726DB1778EB11006C710B /* MaplyAnimateFlat.h in Headers */,
 				2BB25920177A041E00770619 /* ElevationChunk.h in Headers */,
-				2BB25924177A042F00770619 /* BillboardLayer.h in Headers */,
 				2BB25925177A042F00770619 /* BillboardDrawable.h in Headers */,
 				2BB25926177A042F00770619 /* SceneGraphManager.h in Headers */,
 				2BA2325617984F510063CC84 /* glues.h in Headers */,
@@ -2414,7 +2407,6 @@
 				2B4AE3FF1766610900850F3F /* libjson.cpp in Sources */,
 				2BA726DD1778EB20006C710B /* MaplyAnimateFlat.mm in Sources */,
 				2BB25928177A044300770619 /* ElevationChunk.mm in Sources */,
-				2BB2592C177A045300770619 /* BillboardLayer.mm in Sources */,
 				2BB2592D177A045300770619 /* BillboardDrawable.mm in Sources */,
 				2BB2592E177A045300770619 /* SceneGraphManager.mm in Sources */,
 				2BA2326317984F510063CC84 /* dict.c in Sources */,
