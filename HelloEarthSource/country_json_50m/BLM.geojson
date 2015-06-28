@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "France", "SOV_A3": "FR1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Dependency", "ADMIN": "Saint Barthelemy", "ADM0_A3": "BLM", "GEOU_DIF": 0.0, "GEOUNIT": "Saint Barthelemy", "GU_A3": "BLM", "SU_DIF": 0.0, "SUBUNIT": "Saint Barthelemy", "SU_A3": "BLM", "NAME": "St. Barthelemy", "ABBREV": "St. B.", "POSTAL": "BL", "NAME_FORMA": "", "TERR_": "Fr.", "NAME_SORT": "Saint Barthelemy", "MAP_COLOR": 11.0, "POP_EST": 7448.0, "GDP_MD_EST": 255.0, "FIPS_10_": "TB", "ISO_A2": "BL", "ISO_A3": "BLM", "ISO_N3": 652.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -62.831922, 17.87648 ], [ -62.846908, 17.875188 ], [ -62.858948, 17.883663 ], [ -62.869387, 17.898598 ], [ -62.875433, 17.913584 ], [ -62.874245, 17.922266 ], [ -62.86546, 17.918286 ], [ -62.799727, 17.908675 ], [ -62.807014, 17.897668 ], [ -62.818176, 17.885472 ], [ -62.831922, 17.87648 ] ] ] } }
+
+]
+}

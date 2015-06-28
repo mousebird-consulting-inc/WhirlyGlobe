@@ -46,3 +46,6 @@
 [submodule "third-party/protobuf"]
 	path = third-party/protobuf
 	url = https://github.com/mousebird/protobuf.git
+[submodule "HelloEarthSource/libs/WhirlyGlobeMaply"]
+	path = HelloEarthSource/libs/WhirlyGlobeMaply
+	url = https://github.com/mousebird/WhirlyGlobe.git
