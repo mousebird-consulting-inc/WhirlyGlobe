@@ -1733,7 +1733,7 @@ static const int NumMegaMarkers = 15000;
     {
         if (!stars)
         {
-            [self addStars:@"starcatalog_short"];
+   //         [self addStars:@"starcatalog_short"];
             [self addSun];
         }
     } else {
