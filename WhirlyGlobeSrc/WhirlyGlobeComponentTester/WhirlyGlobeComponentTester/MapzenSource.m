@@ -7,9 +7,6 @@
 //
 
 #import "MapzenSource.h"
-#import "MaplyMapnikVectorTiles.h"
-#import "MapboxVectorStyleSet.h"
-#import "MapboxVectorStyleBackground.h"
 
 @implementation MapzenSource
 {

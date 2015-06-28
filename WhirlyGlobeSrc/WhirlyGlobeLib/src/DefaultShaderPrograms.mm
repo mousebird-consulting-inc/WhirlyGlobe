@@ -442,13 +442,22 @@ void SetupDefaultShaders(Scene *scene)
         scene->addProgram(kToolkitDefaultTriangleNightDay, triShaderNightDay);
     }
 
-    // Billboard shader
-    OpenGLES2Program *billShader = BuildBillboardProgram();
-    if (!billShader)
+    // Billboard shader (ground)
+    OpenGLES2Program *billShaderGround = BuildBillboardGroundProgram();
+    if (!billShaderGround)
     {
-        NSLog(@"SetupDefaultShaders: Billboard shader didn't compile.");
+        NSLog(@"SetupDefaultShaders: Billboard ground shader didn't compile.");
     } else {
-        scene->addProgram(kToolkitDefaultBillboardProgram, billShader);
+        scene->addProgram(kToolkitDefaultBillboardGroundProgram, billShaderGround);
+    }
+
+    // Billboard shader (eye)
+    OpenGLES2Program *billShaderEye = BuildBillboardEyeProgram();
+    if (!billShaderEye)
+    {
+        NSLog(@"SetupDefaultShaders: Billboard eye shader didn't compile.");
+    } else {
+        scene->addProgram(kToolkitDefaultBillboardEyeProgram, billShaderEye);
     }
     
     // Widened vector shader

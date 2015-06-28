@@ -37,7 +37,8 @@ namespace WhirlyKit
 /// Line (and point) shader without backface culling
 #define kToolkitDefaultLineNoBackfaceProgram "Default Line;backface=no"
 /// Billboard shader
-#define kToolkitDefaultBillboardProgram "Default Billboard"
+#define kToolkitDefaultBillboardGroundProgram "Default Billboard ground"
+#define kToolkitDefaultBillboardEyeProgram "Default Billboard eye"
 /// Screen space shader
 #define kToolkitDefaultScreenSpaceProgram "Default Screenspace"
 /// Screen space shader w/ motion
