@@ -151,6 +151,7 @@
 		2BC989A817DA66BB0071DA9E /* WeatherShader.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989A717DA66BB0071DA9E /* WeatherShader.m */; };
 		2BC989E517DC289B0071DA9E /* world_web_mercator.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2BC989E417DC289B0071DA9E /* world_web_mercator.sqlite */; };
 		2BD5A8291B3F6D2700DDAEE3 /* SunImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD5A8281B3F6D2700DDAEE3 /* SunImage.png */; };
+		2BD5A83D1B419C3B00DDAEE3 /* MapzenSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1FB5361A1EC5FE0004B394 /* MapzenSource.m */; };
 		2BDB7DD01AD862F400C9DFCC /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BA13BF117EE1875000C43B7 /* libc++.dylib */; };
 		2BDC8A8D1937E33F00DFECF0 /* tl_2013_06075_roads.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 2BDC8A891937E33F00DFECF0 /* tl_2013_06075_roads.dbf */; };
 		2BDC8A8E1937E33F00DFECF0 /* tl_2013_06075_roads.prj in Resources */ = {isa = PBXBuildFile; fileRef = 2BDC8A8A1937E33F00DFECF0 /* tl_2013_06075_roads.prj */; };
@@ -1968,6 +1969,7 @@
 				2B62DD8716E7F3A2001F52FC /* ConfigViewController.m in Sources */,
 				2B62DD8A16E7F3A2001F52FC /* StartupViewController.m in Sources */,
 				2B62DD8B16E7F3A2001F52FC /* TestViewController.m in Sources */,
+				2BD5A83D1B419C3B00DDAEE3 /* MapzenSource.m in Sources */,
 				2BFF026217A9BA2D00007842 /* AnimationTest.m in Sources */,
 				2BC989A817DA66BB0071DA9E /* WeatherShader.m in Sources */,
 			);

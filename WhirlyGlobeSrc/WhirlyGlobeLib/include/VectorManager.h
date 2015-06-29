@@ -23,7 +23,7 @@
 #import <set>
 #import <map>
 #import <Foundation/Foundation.h>
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "DataLayer.h"
 #import "VectorData.h"
 #import "GlobeMath.h"

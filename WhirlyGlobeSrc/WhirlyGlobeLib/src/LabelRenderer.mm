@@ -18,7 +18,7 @@
  *
  */
 
-#import "LabelLayer.h"
+#import "LabelManager.h"
 #import "LabelRenderer.h"
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
