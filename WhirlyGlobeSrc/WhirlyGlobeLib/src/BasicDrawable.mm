@@ -1126,8 +1126,16 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
     prog->setUniform("u_mvpNormalMatrix", frameInfo.mvpNormalMat);
     prog->setUniform("u_pMatrix", frameInfo.projMat);
-    Matrix4f identMatrix = Matrix4f::Identity();
-    prog->setUniform("u_singleMatrix", identMatrix);
+    
+    // Fill the a_singleMatrix attribute with default values
+    const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
+    if (matAttr)
+    {
+        glVertexAttrib4f(matAttr->index,1.0,0.0,0.0,0.0);
+        glVertexAttrib4f(matAttr->index+1,0.0,1.0,0.0,0.0);
+        glVertexAttrib4f(matAttr->index+2,0.0,0.0,1.0,0.0);
+        glVertexAttrib4f(matAttr->index+3,0.0,0.0,0.0,1.0);
+    }
     
     // Fade is always mixed in
     prog->setUniform("u_fade", fade);

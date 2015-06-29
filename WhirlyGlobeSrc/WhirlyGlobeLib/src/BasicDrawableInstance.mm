@@ -31,7 +31,7 @@ namespace WhirlyKit
 {
 
 BasicDrawableInstance::BasicDrawableInstance(const std::string &name,SimpleIdentity masterID)
-: Drawable(name), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true), startEnable(0.0), endEnable(0.0)
+: Drawable(name), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true), startEnable(0.0), endEnable(0.0), instBuffer(0), numInstances(0)
 {
 }
 
@@ -89,11 +89,59 @@ void BasicDrawableInstance::addInstances(const std::vector<SingleInstance> &inst
     instances.insert(instances.end(), insts.begin(), insts.end());
 }
 
+void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager)
+{
+    if (instBuffer)
+        return;
+    
+    numInstances = instances.size();
+    
+    if (instances.empty())
+        return;
+
+    // Note: Doing matrices, but not color
+    
+    int instSize = sizeof(GLfloat)*16;
+    int bufferSize = instSize * instances.size();
+    
+    instBuffer = memManager->getBufferID(bufferSize,GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, instBuffer);
+    void *glMem = NULL;
+    EAGLContext *context = [EAGLContext currentContext];
+    if (context.API < kEAGLRenderingAPIOpenGLES3)
+        glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+    else
+        glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
+    unsigned char *basePtr = (unsigned char *)glMem;
+    for (unsigned int ii=0;ii<instances.size();ii++,basePtr+=instSize)
+    {
+        Matrix4f mat = Matrix4dToMatrix4f(instances[ii].mat);
+        memcpy(basePtr, (void *)mat.data(), instSize);
+    }
+    
+    if (context.API < kEAGLRenderingAPIOpenGLES3)
+        glUnmapBufferOES(GL_ARRAY_BUFFER);
+    else
+        glUnmapBuffer(GL_ARRAY_BUFFER);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+    
+void BasicDrawableInstance::teardownGL(OpenGLMemManager *memManage)
+{
+    if (instBuffer)
+    {
+        memManage->removeBufferID(instBuffer);
+        instBuffer = 0;
+    }
+}
+    
 // Used to pass in buffer offsets
 #define CALCBUFOFF(base,off) ((char *)((long)(base) + (off)))
 
 void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
+    EAGLContext *context = [EAGLContext currentContext];
     OpenGLES2Program *prog = frameInfo.program;
     
     // Pull default values
@@ -244,78 +292,142 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
     // Let a subclass bind anything additional
     basicDraw->bindAdditionalRenderObjects(frameInfo,scene);
 
-    // Note: Debugging
-    std::vector<Matrix4f> instMats;
-    if (instances.empty())
+    if (instBuffer)
     {
-        Matrix4f identMatrix = Matrix4f::Identity();
-        instMats.push_back(identMatrix);
-    } else {
-        for (unsigned int ii=0;ii<instances.size();ii++)
-            instMats.push_back(Matrix4dToMatrix4f(instances[ii].mat));
-    }
-
-    for (unsigned int ii=0;ii<instMats.size();ii++)
-    {
-        prog->setUniform("u_singleMatrix", instMats[ii]);
-        
-        // If we're using a vertex array object, bind it and draw
-        if (basicDraw->vertArrayObj)
+        glBindBuffer(GL_ARRAY_BUFFER,instBuffer);
+        const OpenGLESAttribute *thisAttr = prog->findAttribute("a_singleMatrix");
+        if (thisAttr)
         {
-            glBindVertexArrayOES(basicDraw->vertArrayObj);
-            switch (basicDraw->type)
+            for (unsigned int im=0;im<4;im++)
             {
-                case GL_TRIANGLES:
-                    glDrawElements(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(basicDraw->sharedBufferOffset,basicDraw->triBuffer));
-                    CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
-                    break;
-                case GL_POINTS:
-                case GL_LINES:
-                case GL_LINE_STRIP:
-                case GL_LINE_LOOP:
-                    [frameInfo.stateOpt setLineWidth:lineWidth];
-                    glDrawArrays(basicDraw->type, 0, basicDraw->numPoints);
-                    CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
-                    break;
-                case GL_TRIANGLE_STRIP:
-                    glDrawArrays(basicDraw->type, 0, basicDraw->numPoints);
-                    CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
-                    break;
+                glVertexAttribPointer(thisAttr->index+im, 4, GL_FLOAT, GL_FALSE, 16*sizeof(GLfloat), (const GLvoid *)(long)(im*(4*sizeof(GLfloat))));
+                CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
+                if (context.API < kEAGLRenderingAPIOpenGLES3)
+                    glVertexAttribDivisorEXT(thisAttr->index+im, 0);
+                else
+                    glVertexAttribDivisor(thisAttr->index+im, 0);
+                glEnableVertexAttribArray(thisAttr->index+im);
+                CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
             }
-            glBindVertexArrayOES(0);
-        } else {
-            // Draw without a VAO
-            switch (basicDraw->type)
-            {
-                case GL_TRIANGLES:
+        }
+        glBindBuffer(GL_ARRAY_BUFFER,0);
+    } else {
+        // Set the singleMatrix attribute to identity
+        const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
+        if (matAttr)
+        {
+            glVertexAttrib4f(matAttr->index,1.0,0.0,0.0,0.0);
+            glVertexAttrib4f(matAttr->index+1,0.0,1.0,0.0,0.0);
+            glVertexAttrib4f(matAttr->index+2,0.0,0.0,1.0,0.0);
+            glVertexAttrib4f(matAttr->index+3,0.0,0.0,0.0,1.0);
+        }
+    }
+    
+    // If we're using a vertex array object, bind it and draw
+    if (basicDraw->vertArrayObj)
+    {
+        glBindVertexArrayOES(basicDraw->vertArrayObj);
+        switch (basicDraw->type)
+        {
+            case GL_TRIANGLES:
+                if (instBuffer)
                 {
-                    if (basicDraw->triBuffer)
+                    if (context.API < kEAGLRenderingAPIOpenGLES3)
+                        glDrawElementsInstancedEXT(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(basicDraw->sharedBufferOffset,basicDraw->triBuffer), numInstances);
+                    else
+                        glDrawElementsInstanced(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(basicDraw->sharedBufferOffset,basicDraw->triBuffer), numInstances);
+                } else
+                    glDrawElements(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(basicDraw->sharedBufferOffset,basicDraw->triBuffer));
+                CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
+                break;
+            case GL_POINTS:
+            case GL_LINES:
+            case GL_LINE_STRIP:
+            case GL_LINE_LOOP:
+                [frameInfo.stateOpt setLineWidth:lineWidth];
+                if (instBuffer)
+                {
+                    if (context.API < kEAGLRenderingAPIOpenGLES3)
+                        glDrawArraysInstancedEXT(basicDraw->type, 0, basicDraw->numPoints, numInstances);
+                    else
+                        glDrawArraysInstanced(basicDraw->type, 0, basicDraw->numPoints, numInstances);
+                } else
+                    glDrawArrays(basicDraw->type, 0, basicDraw->numPoints);
+                CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+                break;
+            case GL_TRIANGLE_STRIP:
+                if (instBuffer)
+                {
+                    if (context.API < kEAGLRenderingAPIOpenGLES3)
+                        glDrawArraysInstancedEXT(basicDraw->type, 0, basicDraw->numPoints, numInstances);
+                    else
+                        glDrawArraysInstanced(basicDraw->type, 0, basicDraw->numPoints, numInstances);
+                } else
+                    glDrawArrays(basicDraw->type, 0, basicDraw->numPoints);
+                CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+                break;
+        }
+        glBindVertexArrayOES(0);
+    } else {
+        // Draw without a VAO
+        switch (basicDraw->type)
+        {
+            case GL_TRIANGLES:
+            {
+                if (basicDraw->triBuffer)
+                {
+                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, basicDraw->triBuffer);
+                    CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+                    if (instBuffer)
                     {
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, basicDraw->triBuffer);
-                        CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+                        if (context.API < kEAGLRenderingAPIOpenGLES3)
+                            glDrawElementsInstancedEXT(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, 0, numInstances);
+                        else
+                            glDrawElementsInstanced(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, 0, numInstances);
+                    } else
                         glDrawElements(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, 0);
-                        CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                    } else {
+                    CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
+                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                } else {
+                    if (instBuffer)
+                    {
+                        if (context.API < kEAGLRenderingAPIOpenGLES3)
+                            glDrawElementsInstancedEXT(GL_TRIANGLES, (GLsizei)basicDraw->tris.size()*3, GL_UNSIGNED_SHORT, &basicDraw->tris[0], numInstances);
+                        else
+                            glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)basicDraw->tris.size()*3, GL_UNSIGNED_SHORT, &basicDraw->tris[0], numInstances);
+                    } else
                         glDrawElements(GL_TRIANGLES, (GLsizei)basicDraw->tris.size()*3, GL_UNSIGNED_SHORT, &basicDraw->tris[0]);
-                        CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
-                    }
+                    CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
                 }
-                    break;
-                case GL_POINTS:
-                case GL_LINES:
-                case GL_LINE_STRIP:
-                case GL_LINE_LOOP:
-                    [frameInfo.stateOpt setLineWidth:lineWidth];
-                    CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
-                    glDrawArrays(basicDraw->type, 0, basicDraw->numPoints);
-                    CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
-                    break;
-                case GL_TRIANGLE_STRIP:
-                    glDrawArrays(basicDraw->type, 0, basicDraw->numPoints);
-                    CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
-                    break;
             }
+                break;
+            case GL_POINTS:
+            case GL_LINES:
+            case GL_LINE_STRIP:
+            case GL_LINE_LOOP:
+                [frameInfo.stateOpt setLineWidth:lineWidth];
+                CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
+                if (instBuffer)
+                {
+                    if (context.API < kEAGLRenderingAPIOpenGLES3)
+                        glDrawArraysInstancedEXT(basicDraw->type, 0, basicDraw->numPoints, numInstances);
+                    else
+                        glDrawArraysInstanced(basicDraw->type, 0, basicDraw->numPoints, numInstances);
+                } else
+                    glDrawArrays(basicDraw->type, 0, basicDraw->numPoints);
+                CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+                break;
+            case GL_TRIANGLE_STRIP:
+                if (instBuffer)
+                {
+                    if (context.API < kEAGLRenderingAPIOpenGLES3)
+                        glDrawArraysInstancedEXT(basicDraw->type, 0, basicDraw->numPoints, numInstances);
+                    else
+                        glDrawArraysInstanced(basicDraw->type, 0, basicDraw->numPoints, numInstances);
+                } else
+                    glDrawArrays(basicDraw->type, 0, basicDraw->numPoints);
+                CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+                break;
         }
     }
     
@@ -333,6 +445,17 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
     for (unsigned int ii=0;ii<basicDraw->vertexAttributes.size();ii++)
         if (progAttrs[ii])
             glDisableVertexAttribArray(progAttrs[ii]->index);
+    
+    if (instBuffer)
+    {
+        const OpenGLESAttribute *thisAttr = prog->findAttribute("a_singleMatrix");
+        if (thisAttr)
+        {
+            for (unsigned int im=0;im<4;im++)
+                glDisableVertexAttribArray(thisAttr->index+im);
+            CheckGLError("BasicDrawableInstance::draw() glDisableVertexAttribArray");
+        }
+    }
     
     // Let a subclass clean up any remaining state
     basicDraw->postDrawCallback(frameInfo,scene);
