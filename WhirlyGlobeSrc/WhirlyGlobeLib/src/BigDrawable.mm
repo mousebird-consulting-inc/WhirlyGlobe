@@ -23,6 +23,8 @@
 #import "SceneRendererES2.h"
 #import "GLUtils.h"
 
+using namespace Eigen;
+
 namespace WhirlyKit
 {
     
@@ -251,6 +253,8 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
     prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
     prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
+    Matrix4f identMatrix = Matrix4f::Identity();
+    prog->setUniform("u_singleMatrix", identMatrix);
     
     // Fade is always mixed in
     prog->setUniform("u_fade", fade);
