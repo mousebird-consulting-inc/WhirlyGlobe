@@ -22,7 +22,7 @@
 #import <set>
 #import <map>
 #import "Identifiable.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "BillboardDrawable.h"
 #import "Scene.h"
 #import "SelectionManager.h"

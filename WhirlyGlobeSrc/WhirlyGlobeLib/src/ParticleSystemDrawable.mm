@@ -20,7 +20,7 @@
 
 #import "ParticleSystemDrawable.h"
 #import "GLUtils.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "GlobeScene.h"
 #import "UIImage+Stuff.h"
 #import "SceneRendererES.h"
@@ -352,7 +352,6 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
 
     // Work through the batches
-    // Note: Consolidate!
     for (const BufferChunk &chunk : chunks)
     {
         // Bind the various attributes to their offsets

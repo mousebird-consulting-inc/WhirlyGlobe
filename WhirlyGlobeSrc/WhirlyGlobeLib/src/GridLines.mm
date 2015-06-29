@@ -18,6 +18,7 @@
  *
  */
 
+#import "BasicDrawable.h"
 #import "GridLines.h"
 #import "GlobeMath.h"
 #import "LayerThread.h"
