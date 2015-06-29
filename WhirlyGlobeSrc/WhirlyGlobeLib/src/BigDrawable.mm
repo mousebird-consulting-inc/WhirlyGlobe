@@ -253,8 +253,16 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
     prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
     prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
-    Matrix4f identMatrix = Matrix4f::Identity();
-    prog->setUniform("u_singleMatrix", identMatrix);
+
+    // Fill the a_singleMatrix attribute with default values
+    const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
+    if (matAttr)
+    {
+        glVertexAttrib4f(matAttr->index,1.0,0.0,0.0,0.0);
+        glVertexAttrib4f(matAttr->index+1,0.0,1.0,0.0,0.0);
+        glVertexAttrib4f(matAttr->index+2,0.0,0.0,1.0,0.0);
+        glVertexAttrib4f(matAttr->index+3,0.0,0.0,0.0,1.0);
+    }
     
     // Fade is always mixed in
     prog->setUniform("u_fade", fade);
