@@ -73,7 +73,7 @@ public:
     virtual GLuint singleVertexSize();
     
     /// Called render-thread side to set up a VAO
-    virtual void setupVAO(OpenGLES2Program *prog);
+    virtual GLuint setupVAO(OpenGLES2Program *prog);
     
     /// Fill this in to draw the basic drawable
     virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);

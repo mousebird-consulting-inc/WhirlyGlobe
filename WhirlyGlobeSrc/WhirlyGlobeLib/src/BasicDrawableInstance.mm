@@ -31,7 +31,7 @@ namespace WhirlyKit
 {
 
 BasicDrawableInstance::BasicDrawableInstance(const std::string &name,SimpleIdentity masterID)
-: Drawable(name), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true), startEnable(0.0), endEnable(0.0), instBuffer(0), numInstances(0)
+: Drawable(name), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true), startEnable(0.0), endEnable(0.0), instBuffer(0), numInstances(0), vertArrayObj(0)
 {
 }
 
@@ -134,6 +134,37 @@ void BasicDrawableInstance::teardownGL(OpenGLMemManager *memManage)
         memManage->removeBufferID(instBuffer);
         instBuffer = 0;
     }
+}
+    
+GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
+{
+    vertArrayObj = basicDraw->setupVAO(prog);
+    
+    EAGLContext *context = [EAGLContext currentContext];
+    
+    glBindVertexArrayOES(vertArrayObj);
+
+    glBindBuffer(GL_ARRAY_BUFFER,instBuffer);
+    const OpenGLESAttribute *thisAttr = prog->findAttribute("a_singleMatrix");
+    if (thisAttr)
+    {
+        for (unsigned int im=0;im<4;im++)
+        {
+            glVertexAttribPointer(thisAttr->index+im, 4, GL_FLOAT, GL_FALSE, 16*sizeof(GLfloat), (const GLvoid *)(long)(im*(4*sizeof(GLfloat))));
+            CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
+            if (context.API < kEAGLRenderingAPIOpenGLES3)
+                glVertexAttribDivisorEXT(thisAttr->index+im, 1);
+            else
+                glVertexAttribDivisor(thisAttr->index+im, 1);
+            glEnableVertexAttribArray(thisAttr->index+im);
+            CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
+        }
+    }
+    glBindVertexArrayOES(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+
+    return vertArrayObj;
 }
     
 // Used to pass in buffer offsets
@@ -241,8 +272,8 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
     }
     
     // If necessary, set up the VAO (once)
-    if (basicDraw->vertArrayObj == 0 && basicDraw->sharedBuffer != 0)
-        basicDraw->setupVAO(prog);
+    if (vertArrayObj == 0 && basicDraw->sharedBuffer !=0)
+        setupVAO(prog);
     
     // Figure out what we're using
     const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
@@ -291,27 +322,10 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
     
     // Let a subclass bind anything additional
     basicDraw->bindAdditionalRenderObjects(frameInfo,scene);
-
-    if (instBuffer)
+    
+    // If there are no instances, fill in the identity
+    if (!instBuffer)
     {
-        glBindBuffer(GL_ARRAY_BUFFER,instBuffer);
-        const OpenGLESAttribute *thisAttr = prog->findAttribute("a_singleMatrix");
-        if (thisAttr)
-        {
-            for (unsigned int im=0;im<4;im++)
-            {
-                glVertexAttribPointer(thisAttr->index+im, 4, GL_FLOAT, GL_FALSE, 16*sizeof(GLfloat), (const GLvoid *)(long)(im*(4*sizeof(GLfloat))));
-                CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
-                if (context.API < kEAGLRenderingAPIOpenGLES3)
-                    glVertexAttribDivisorEXT(thisAttr->index+im, 0);
-                else
-                    glVertexAttribDivisor(thisAttr->index+im, 0);
-                glEnableVertexAttribArray(thisAttr->index+im);
-                CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
-            }
-        }
-        glBindBuffer(GL_ARRAY_BUFFER,0);
-    } else {
         // Set the singleMatrix attribute to identity
         const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
         if (matAttr)
@@ -324,9 +338,10 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
     }
     
     // If we're using a vertex array object, bind it and draw
-    if (basicDraw->vertArrayObj)
+    if (vertArrayObj)
     {
-        glBindVertexArrayOES(basicDraw->vertArrayObj);
+        glBindVertexArrayOES(vertArrayObj);
+
         switch (basicDraw->type)
         {
             case GL_TRIANGLES:
@@ -367,6 +382,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                 CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                 break;
         }
+        
         glBindVertexArrayOES(0);
     } else {
         // Draw without a VAO
