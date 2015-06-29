@@ -993,12 +993,13 @@ void BasicDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 
 
 // Called once to set up a Vertex Array Object
-void BasicDrawable::setupVAO(OpenGLES2Program *prog)
+GLuint BasicDrawable::setupVAO(OpenGLES2Program *prog)
 {
+    GLuint theVertArrayObj;
     const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
     
-    glGenVertexArraysOES(1, &vertArrayObj);
-    glBindVertexArrayOES(vertArrayObj);
+    glGenVertexArraysOES(1, &theVertArrayObj);
+    glBindVertexArrayOES(theVertArrayObj);
     
     // We're using a single buffer for all of our vertex attributes
     if (sharedBuffer)
@@ -1041,7 +1042,7 @@ void BasicDrawable::setupVAO(OpenGLES2Program *prog)
     glBindVertexArrayOES(0);
     
     // Let a subclass set up their own VAO state
-    setupAdditionalVAO(prog,vertArrayObj);
+    setupAdditionalVAO(prog,theVertArrayObj);
     
     // Now tear down all that state
     if (vertAttr)
@@ -1053,6 +1054,8 @@ void BasicDrawable::setupVAO(OpenGLES2Program *prog)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     if (sharedBuffer)
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+    
+    return theVertArrayObj;
 }
 
 // Draw Vertex Buffer Objects, OpenGL 2.0
@@ -1172,7 +1175,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     
     // If necessary, set up the VAO (once)
     if (vertArrayObj == 0 && sharedBuffer != 0)
-        setupVAO(prog);
+        vertArrayObj = setupVAO(prog);
     
     // Figure out what we're using
     const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");

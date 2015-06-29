@@ -66,6 +66,9 @@ public:
     /// Clean up any OpenGL objects you may have (e.g. VBOs).
     virtual void teardownGL(OpenGLMemManager *memManage);
     
+    /// Set up the vertex array object
+    GLuint setupVAO(OpenGLES2Program *prog);
+    
     /// Return the type (or an approximation thereof).  We use this for sorting.
     virtual GLenum getType() const;
     
@@ -146,6 +149,7 @@ protected:
     float maxVis;
     int numInstances;
     GLuint instBuffer;
+    GLuint vertArrayObj;
     
     // If set, we'll instance this one multiple times
     std::vector<SingleInstance> instances;
