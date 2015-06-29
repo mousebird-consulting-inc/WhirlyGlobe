@@ -45,6 +45,7 @@ namespace WhirlyKit
 class BasicDrawable : public Drawable
 {
     friend class BigDrawableAtlas;
+    friend class BasicDrawableInstance;
 public:
     /// Construct empty
     BasicDrawable(const std::string &name);
