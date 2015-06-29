@@ -60,6 +60,12 @@ public:
     /// We're allowed to turn drawables off completely
     virtual bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const;
     
+    /// Do any OpenGL initialization you may want.
+    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
+    
+    /// Clean up any OpenGL objects you may have (e.g. VBOs).
+    virtual void teardownGL(OpenGLMemManager *memManage);
+    
     /// Return the type (or an approximation thereof).  We use this for sorting.
     virtual GLenum getType() const;
     
@@ -138,6 +144,8 @@ protected:
     float minVis;
     bool hasMaxVis;
     float maxVis;
+    int numInstances;
+    GLuint instBuffer;
     
     // If set, we'll instance this one multiple times
     std::vector<SingleInstance> instances;
