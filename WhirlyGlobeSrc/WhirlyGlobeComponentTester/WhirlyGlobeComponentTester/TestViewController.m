@@ -1432,13 +1432,13 @@ static const int NumMegaMarkers = 15000;
                 ovlLayers[layerName] = layer;
             } else if (![layerName compare:kMaplyTestMapboxStreets])
             {
-#if NOTPODSPECWG
+#ifdef NOTPODSPECWG
                 self.title = @"Mapbox Vector Streets";
                 // Note: Debugging
                 thisCacheDir = nil;
                 thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
                 // You need your own access token here
-                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-terrain-v2,mapbox.mapbox-streets-v6.json" accessToken:@"" style:[[NSBundle mainBundle] pathForResource:@"" ofType:@"xml"] styleType:MapnikXMLStyle cacheDir:thisCacheDir viewC:baseViewC
+                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-streets-v6.json" accessToken:@"pk.eyJ1IjoicGV0ZXJxbGl1IiwiYSI6ImpvZmV0UEEifQ._D4bRmVcGfJvo1wjuOpA1g" style:[[NSBundle mainBundle] pathForResource:@"" ofType:@"xml"] styleType:MapnikXMLStyle cacheDir:thisCacheDir viewC:baseViewC
                  success:
                  ^(MaplyMapnikVectorTiles *vecTiles)
                  {

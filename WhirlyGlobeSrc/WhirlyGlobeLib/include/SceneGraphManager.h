@@ -24,7 +24,7 @@
 #import <boost/pointer_cast.hpp>
 #import "WhirlyVector.h"
 #import "Identifiable.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "Generator.h"
 #import "LayerViewWatcher.h"
 #import "DynamicDrawableAtlas.h"

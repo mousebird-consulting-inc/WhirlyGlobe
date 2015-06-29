@@ -18,7 +18,7 @@
  *
  */
 
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "CoordSystem.h"
 
 namespace WhirlyKit

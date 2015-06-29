@@ -22,6 +22,7 @@
 #import "SphericalEarthLayer.h"
 #import "UIImage+Stuff.h"
 #import "GlobeMath.h"
+#import "BasicDrawable.h"
 
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;

@@ -22,6 +22,7 @@
 #import "SelectionManager.h"
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
+#import "BasicDrawableInstance.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
