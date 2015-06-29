@@ -318,7 +318,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
         }
     }
 
-    // Set up the rectangle buffer, which we'll use over and over
+    // Use the rectangle buffer for instancing
     if (rectBuffer)
     {
         glBindBuffer(GL_ARRAY_BUFFER,rectBuffer);

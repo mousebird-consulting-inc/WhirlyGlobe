@@ -45,7 +45,6 @@ static const char *vertexShaderTri =
 "};"
 ""
 "uniform mat4  u_mvpMatrix;"
-"uniform mat4  u_singleMatrix;"
 "uniform float u_fade;"
 "uniform int u_numLights;"
 "uniform directional_light light[8];"
@@ -55,6 +54,7 @@ static const char *vertexShaderTri =
 "attribute vec2 a_texCoord0;"
 "attribute vec4 a_color;"
 "attribute vec3 a_normal;"
+"attribute mat4 a_singleMatrix;"
 ""
 "varying vec2 v_texCoord;"
 "varying vec4 v_color;"
@@ -85,7 +85,7 @@ static const char *vertexShaderTri =
 "     v_color = a_color * u_fade;"
 "   }"
 ""
-"   gl_Position = u_mvpMatrix * (u_singleMatrix * vec4(a_position,1.0));"
+"   gl_Position = u_mvpMatrix * (a_singleMatrix * vec4(a_position,1.0));"
 "}"
 ;
 
