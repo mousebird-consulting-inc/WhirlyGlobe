@@ -134,6 +134,12 @@ void BasicDrawableInstance::teardownGL(OpenGLMemManager *memManage)
         memManage->removeBufferID(instBuffer);
         instBuffer = 0;
     }
+    
+    if (vertArrayObj)
+    {
+        glDeleteVertexArraysOES(1, &vertArrayObj);
+        vertArrayObj = 0;
+    }
 }
     
 GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
