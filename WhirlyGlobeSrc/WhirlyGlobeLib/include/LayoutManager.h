@@ -22,7 +22,7 @@
 #import <set>
 #import <map>
 #import "Identifiable.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "Scene.h"
 #import "SceneRendererES.h"
 #import "GlobeLayerViewWatcher.h"
