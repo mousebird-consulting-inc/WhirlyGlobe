@@ -110,6 +110,8 @@
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC
 {
     NSMutableArray *compObjs = [NSMutableArray array];
+    // Note: Temporary
+#if 0
     
     NSDictionary *desc = symbolDesc;
     if (_paint.textSizeFunc)
@@ -137,6 +139,8 @@
     MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:desc mode:MaplyThreadCurrent];
     if (compObjs)
         [compObjs addObject:compObj];
+    
+#endif
     
     return compObjs;
 }

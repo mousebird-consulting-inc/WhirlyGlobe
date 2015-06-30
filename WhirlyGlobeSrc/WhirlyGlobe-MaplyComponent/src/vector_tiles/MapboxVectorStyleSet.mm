@@ -163,21 +163,27 @@
     return [self doubleValue:thing defVal:defVal];
 }
 
-- (NSString *)stringValue:(NSString *)name dict:(NSDictionary *)dict defVal:(NSString *)defVal
+- (NSString *)stringValue:(NSString *)str defVal:(NSString *)defVal
 {
-    id thing = dict[name];
-    if (!thing)
-        return defVal;
-    
-    thing = [self constantSubstitution:thing forField:name];
+    id thing = [self constantSubstitution:str forField:@""];
     
     if ([thing isKindOfClass:[NSString class]])
         return thing;
     if ([thing respondsToSelector:@selector(stringValue)])
         return [thing stringValue];
     
-    NSLog(@"Expected string for %@ but got something else",name);
     return defVal;
+}
+
+- (NSString *)stringValue:(NSString *)name dict:(NSDictionary *)dict defVal:(NSString *)defVal
+{
+    id thing = dict[name];
+    if (!thing)
+        return defVal;
+
+//    NSLog(@"Expected string for %@ but got something else",name);
+
+    return [self stringValue:thing defVal:defVal];
 }
 
 - (NSArray *)arrayValue:(NSString *)name dict:(NSDictionary *)dict defVal:(NSArray *)defVal
@@ -195,33 +201,6 @@
     return defVal;
 }
 
-- (MaplyVectorFunctionStops *)stopsValue:(id)entry defVal:(id)defEntry
-{
-    entry = [self constantSubstitution:entry forField:nil];
-    
-    NSNumber *base = nil;
-    if ([entry isKindOfClass:[NSDictionary class]])
-    {
-        base = ((NSDictionary *)entry)[@"base"];
-        entry = ((NSDictionary *)entry)[@"stops"];
-    }
-    
-    if (!entry)
-    {
-        NSLog(@"Expecting key word 'stops' in entry %@",defEntry);
-        return defEntry;
-    }
-    
-    MaplyVectorFunctionStops *stops = [[MaplyVectorFunctionStops alloc] initWithArray:entry styleSet:self viewC:self.viewC];
-    if (stops)
-    {
-        if ([base isKindOfClass:[NSNumber class]])
-            stops.base = [base doubleValue];
-        return stops;
-    }
-    return defEntry;
-}
-
 - (UIColor *)color:(UIColor *)color withOpacity:(double)opacity
 {
     CGFloat red,green,blue,alpha;
@@ -229,13 +208,9 @@
     return [UIColor colorWithRed:red*opacity green:green*opacity blue:blue*opacity alpha:alpha*opacity];
 }
 
-- (UIColor *)colorValue:(NSString *)name dict:(NSDictionary *)dict defVal:(UIColor *)defVal
+- (UIColor *)colorValue:(NSString *)name defVal:(UIColor *)defVal
 {
-    id thing = dict[name];
-    if (!thing)
-        return defVal;
-    
-    thing = [self constantSubstitution:thing forField:name];
+    id thing = [self constantSubstitution:name forField:@""];
     
     if (![thing isKindOfClass:[NSString class]])
     {
@@ -261,7 +236,7 @@
             NSLog(@"Invalid hex value (%@) in color (%@)",str,name);
             return defVal;
         }
-
+        
         int red,green,blue;
         if ([str length] == 4)
         {
@@ -308,6 +283,15 @@
     
     NSLog(@"Didn't recognize format of color (%@)",name);
     return defVal;
+}
+
+- (UIColor *)colorValue:(NSString *)name dict:(NSDictionary *)dict defVal:(UIColor *)defVal
+{
+    id thing = dict[name];
+    if (!thing)
+        return defVal;
+ 
+    return [self colorValue:thing defVal:defVal];
 }
 
 - (NSUInteger)enumValue:(NSString *)name options:(NSArray *)options defVal:(NSUInteger)defVal
@@ -644,79 +628,216 @@
 
 @end
 
-@implementation MaplyVectorFunctionStop
+@implementation MaplyMapboxValue
+
+- (id)initWithValue:(id)value type:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
+{
+    self = [super init];
+
+    _type = dataType;
+    switch (dataType)
+    {
+        case MaplyMapboxValueTypeNumber:
+            _value = [NSNumber numberWithDouble:[styleSet doubleValue:value defVal:0.0]];
+            break;
+        case MaplyMapboxValueTypeColor:
+            _value = [styleSet colorValue:value defVal:nil];
+            break;
+        case MaplyMapboxValueTypeString:
+            _value = [styleSet stringValue:value defVal:nil];
+            break;
+    }
+    
+    if (!_value)
+        return nil;
+    
+    return self;
+}
+
++ (MaplyMapboxValue *)interpolateFrom:(MaplyMapboxValue *)a to:(MaplyMapboxValue *)b t:(double)t
+{
+    if (a.type != b.type)
+        return nil;
+    
+    switch (a.type)
+    {
+        case MaplyMapboxValueTypeNumber:
+        {
+            double aVal = [a.value doubleValue];
+            double bVal = [a.value doubleValue];
+            double res = (bVal-aVal)*t + aVal;
+            return [[MaplyMapboxValue alloc] initWithValue:[NSNumber numberWithDouble:res] type:MaplyMapboxValueTypeNumber];
+        }
+            break;
+        case MaplyMapboxValueTypeColor:
+        {
+            UIColor *aCol = a.value;
+            UIColor *bCol = b.value;
+            CGFloat a[4],b[4],res[4];
+            [aCol getRed:&a[0] green:&a[1] blue:&a[2] alpha:&a[3]];
+            [bCol getRed:&b[0] green:&b[1] blue:&b[2] alpha:&b[3]];
+            for (unsigned int ii=0;ii<4;ii++)
+                res[ii] = (b[ii]-a[ii])*t + a[ii];
+            UIColor *resColor = [UIColor colorWithRed:res[0] green:res[1] blue:res[2] alpha:res[3]];
+            return [[MaplyMapboxValue alloc] initWithValue:resColor type:MaplyMapboxValueTypeColor];
+        }
+            break;
+        case MaplyMapboxValueTypeString:
+            // Interpolation is weird here
+            return a.value;
+            break;
+    }
+    
+    return nil;
+}
+
 @end
 
-@implementation MaplyVectorFunctionStops
+@implementation MaplyMapboxVectorFunctionStop
+@end
 
-- (id)initWithArray:(NSArray *)dataArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
+@implementation MaplyMapboxVectorFunction
+
+- (id)initWithValueDict:(NSDictionary *)dict dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
 {
-    if (![dataArray isKindOfClass:[NSArray class]])
+    if (![dict isKindOfClass:[NSDictionary class]])
     {
-        NSLog(@"Expected JSON array for function stops.");
+        NSLog(@"Expected JSON object for function.");
         return nil;
     }
-    if ([dataArray count] < 2)
+    NSNumber *base = dict[@"base"];
+    NSArray *domain = dict[@"domain"];
+    NSArray *range = dict[@"range"];
+    NSString *type = dict[@"type"];
+
+    if (![domain isKindOfClass:[NSArray class]] || ![range isKindOfClass:[NSArray class]] ||
+        [domain count] != [range count])
     {
-        NSLog(@"Expecting at least two arguments for function stops.");
+        NSLog(@"Expected JSON arrays of same length for domain and range of function.");
+        return nil;
+    }
+    if (![base isKindOfClass:[NSNumber class]])
+    {
+        NSLog(@"Expected number for base of function.");
+        return nil;
+    }
+    if (![type isKindOfClass:[NSString class]])
+    {
+        NSLog(@"Expected string for type of function.");
         return nil;
     }
     
     NSMutableArray *stops = [NSMutableArray array];
-    for (NSArray *stop in dataArray)
+    int which = 0;
+    for (NSNumber *inVal in domain)
     {
-        if (![stop isKindOfClass:[NSArray class]] || [stop count] != 2)
+        id outVal = [range objectAtIndex:which];
+        
+        if (![inVal isKindOfClass:[NSNumber class]])
         {
-            NSLog(@"Expecting two arguments in each entry for a function stop.");
+            NSLog(@"Expecting numbers for domain of function.");
             return nil;
         }
         
-        MaplyVectorFunctionStop *fStop = [[MaplyVectorFunctionStop alloc] init];
-        fStop.zoom = [[stop objectAtIndex:0] doubleValue];
-        fStop.val = [[stop objectAtIndex:1] doubleValue];
+        MaplyMapboxVectorFunctionStop *fStop = [[MaplyMapboxVectorFunctionStop alloc] init];
+        fStop.inputVal = [inVal doubleValue];
+        fStop.outputVal = outVal;
         [stops addObject:fStop];
+        
+        which++;
     }
     
     self = [super init];
     if (!self)
         return nil;
     
-    _base = 1.0;
+    _dataType = dataType;
+    _base = [base doubleValue];
     _stops = stops;
     
     return self;
 }
 
-- (double)valueForZoom:(int)zoom
+- (MaplyMapboxValue *)valueForInput:(double)inputVal type:(MaplyMapboxValueType)dataType
 {
-    MaplyVectorFunctionStop *a = _stops[0],*b = nil;
-    if (zoom <= a.zoom)
-        return a.val;
+    if (dataType != _dataType)
+        return nil;
+    
+    MaplyMapboxVectorFunctionStop *a = _stops[0],*b = nil;
+    MaplyMapboxValue *aVal = [[MaplyMapboxValue alloc] initWithValue:a.outputVal type:dataType];
+    if (inputVal <= a.inputVal)
+        return [[MaplyMapboxValue alloc] initWithValue:a.outputVal type:dataType];
     for (int which = 1;which < _stops.count; which++)
     {
         b = _stops[which];
-        if (a.zoom <= zoom && zoom < b.zoom)
+        MaplyMapboxValue *bVal = [[MaplyMapboxValue alloc] initWithValue:b.outputVal type:dataType];
+        if (a.inputVal <= inputVal && inputVal < b.inputVal)
         {
-            double t = (zoom-a.zoom)/(b.zoom-a.zoom);
+            double t = (inputVal-a.inputVal)/(b.inputVal-a.inputVal);
             double scaleT = pow(t,_base);
-            return scaleT * (b.val-a.val) + a.val;
+
+            return [MaplyMapboxValue interpolateFrom:aVal to:bVal t:scaleT];
         }
         a = b;
+        aVal = bVal;
     }
     
-    return b.val;
+    return [[MaplyMapboxValue alloc] initWithValue:b.outputVal type:dataType];
 }
 
-- (double)minValue
+- (MaplyMapboxValue *)minValueOfType:(MaplyMapboxValueType)dataType
 {
-    MaplyVectorFunctionStop *a = _stops[0];
-    return a.val;
+    MaplyMapboxVectorFunctionStop *a = _stops[0];
+    return [[MaplyMapboxValue alloc] initWithValue:a.outputVal type:_dataType];
 }
 
-- (double)maxValue
+- (MaplyMapboxValue *)maxValueOfType:(MaplyMapboxValueType)dataType
 {
-    MaplyVectorFunctionStop *b = _stops[_stops.count-1];
-    return b.val;
+    MaplyMapboxVectorFunctionStop *b = _stops[_stops.count-1];
+    return [[MaplyMapboxValue alloc] initWithValue:b.outputVal type:_dataType];
+}
+
+@end
+
+@implementation MaplyMapboxVectorValueWrapper
+{
+    MaplyMapboxValue *val;
+    MaplyMapboxVectorFunction *func;
+}
+
+- (id)initWithValue:(id)value dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
+{
+    self = [super init];
+
+    id subValue = [styleSet constantSubstitution:value forField:@""];
+    if (!subValue)
+        return nil;
+    
+    _dataType = dataType;
+    if ([subValue isKindOfClass:[NSString class]])
+    {
+        if (dataType == MaplyMapboxValueTypeColor || dataType == MaplyMapboxValueTypeString)
+        {
+            val = [[MaplyMapboxValue alloc] initWithValue:subValue type:dataType];
+        } else {
+            NSLog(@"Expecting string for color or string type in value.");
+            return nil;
+        }
+    } else if ([subValue isKindOfClass:[NSNumber class]])
+    {
+        if (dataType == MaplyMapboxValueTypeNumber)
+        {
+            val = [[MaplyMapboxValue alloc] initWithValue:subValue type:MaplyMapboxValueTypeNumber];
+        } else {
+            NSLog(@"Expecting number for value.");
+            return nil;
+        }
+    } else if ([subValue isKindOfClass:[NSDictionary class]])
+    {
+        
+    }
+    
+    return self;
 }
 
 
