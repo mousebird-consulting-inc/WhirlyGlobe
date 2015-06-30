@@ -159,6 +159,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     pthread_mutex_t changeLock;
     ThreadChangeSet perThreadChanges;
+    pthread_mutex_t workLock;
+    pthread_cond_t workWait;
+    int numActiveWorkers;
 }
 
 - (id)initWithView:(WhirlyKitView *)inVisualView
@@ -171,6 +174,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     pthread_mutex_init(&imageLock, NULL);
     pthread_mutex_init(&changeLock,NULL);
     pthread_mutex_init(&tempContextLock,NULL);
+    pthread_mutex_init(&workLock,NULL);
+    numActiveWorkers = 0;
+    pthread_cond_init(&workWait, NULL);
     
     return self;
 }
@@ -181,6 +187,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     pthread_mutex_destroy(&imageLock);
     pthread_mutex_destroy(&changeLock);
     pthread_mutex_destroy(&tempContextLock);
+    pthread_mutex_destroy(&workLock);
+    pthread_cond_destroy(&workWait);
     
     for (ThreadChangeSet::iterator it = perThreadChanges.begin();
          it != perThreadChanges.end();++it)
@@ -211,6 +219,36 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     scene = NULL;
     imageTextures.clear();
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
+}
+
+- (void)lockingShutdown
+{
+    pthread_mutex_lock(&workLock);
+    isShuttingDown = true;
+    while (numActiveWorkers > 0)
+        pthread_cond_wait(&workWait, &workLock);
+    pthread_mutex_unlock(&workLock);
+}
+
+- (bool)startOfWork
+{
+    bool ret = true;
+    
+    pthread_mutex_lock(&workLock);
+    ret = !isShuttingDown;
+    if (ret)
+        numActiveWorkers++;
+    pthread_mutex_unlock(&workLock);
+    
+    return ret;
+}
+
+- (void)endOfWork
+{
+    pthread_mutex_lock(&workLock);
+    numActiveWorkers--;
+    pthread_cond_signal(&workWait);
+    pthread_mutex_unlock(&workLock);
 }
 
 - (Texture *)createTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
