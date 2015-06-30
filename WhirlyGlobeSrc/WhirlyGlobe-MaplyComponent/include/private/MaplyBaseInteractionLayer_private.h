@@ -57,6 +57,9 @@
     pthread_mutex_t tempContextLock;
     // We keep a set of temporary OpenGL ES contexts around for threads that don't have them
     std::set<EAGLContext *> tempContexts;
+    
+    // Set when we're trying to shut things down
+    bool isShuttingDown;
 }
 
 // Note: Not a great idea to be passing this in
@@ -164,5 +167,14 @@
 // Find the Maply object corresponding to the given ID (from the selection manager).
 // Thread-safe
 - (NSObject *)getSelectableObject:(WhirlyKit::SimpleIdentity)objId;
+
+// Called right before asking us to do some work
+- (bool)startOfWork;
+
+// Called right after asking for some work
+- (void)endOfWork;
+
+// Shutdown that waits for absolutely everything to end
+- (void)lockingShutdown;
 
 @end
