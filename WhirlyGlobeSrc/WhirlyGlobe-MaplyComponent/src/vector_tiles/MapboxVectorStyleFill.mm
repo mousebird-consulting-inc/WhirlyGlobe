@@ -27,12 +27,15 @@
     self = [super init];
     if (!self)
         return nil;
+    // Note: Temporary
+#if 0
     
     [styleSet unsupportedCheck:@"fill-antialias" in:@"paint_fill" styleEntry:styleEntry];
     [styleSet unsupportedCheck:@"fill-translate" in:@"paint_fill" styleEntry:styleEntry];
     [styleSet unsupportedCheck:@"fill-translate-anchor" in:@"paint_fill" styleEntry:styleEntry];
     [styleSet unsupportedCheck:@"fill-image" in:@"paint_fill" styleEntry:styleEntry];
 
+    // Fill opacity is color or function
     _opacityBase = 1.0;
     id fillEntry = styleEntry[@"fill-opacity"];
     if (fillEntry)
@@ -44,8 +47,20 @@
         }
     } else
         _opacity = 1.0;
+    
+    // Fill color is color or function
+    fillEntry = styleEntry[@"fill-color"];
+    if (fillEntry)
+    {
+        if ([fillEntry isKindOfClass:[NSNumber class]])
+            _color = [styleSet doubleValue:fillEntry defVal:1.0];
+        else {
+            _colorFunc = [styleSet stopsValue:fillEntry defVal:nil];
+        }
+    }
     _color = [styleSet colorValue:@"fill-color" dict:styleEntry defVal:[UIColor blackColor]];
     _outlineColor = [styleSet colorValue:@"fill-outline-color" dict:styleEntry defVal:nil];
+#endif
     
     return self;
 }
@@ -105,6 +120,8 @@
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC
 {
     NSMutableArray *compObjs = [NSMutableArray array];
+    // Note: Temporary
+#if 0
     
     // Filled polygons
     if (fillDesc)
@@ -166,6 +183,8 @@
                 [compObjs addObject:compObj];
         }
     }
+    
+#endif
     
     return compObjs;
 }

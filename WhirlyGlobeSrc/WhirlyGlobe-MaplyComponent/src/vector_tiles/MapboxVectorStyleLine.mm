@@ -129,6 +129,9 @@ static unsigned int NextPowOf2(unsigned int val)
     if (!self)
         return nil;
     
+    // Note: Temporary
+#if 0
+
     _layout = [[MapboxVectorLineLayout alloc] initWithStyleEntry:styleEntry[@"layout"] styleSet:styleSet viewC:viewC];
     _paint = [[MapboxVectorLinePaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
     
@@ -202,6 +205,7 @@ static unsigned int NextPowOf2(unsigned int val)
                   kMaplyEnable: @NO
                   }];
     }
+#endif
     
     return self;
 }
@@ -210,6 +214,9 @@ static unsigned int NextPowOf2(unsigned int val)
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID  viewC:(MaplyBaseViewController *)viewC
 {
     NSMutableArray *compObjs = [NSMutableArray array];
+    // Note: Temporary
+#if 0
+
     
     NSDictionary *desc = lineDesc;
     bool include = true;
@@ -244,6 +251,7 @@ static unsigned int NextPowOf2(unsigned int val)
         if (compObj)
             [compObjs addObject:compObj];
     }
+#endif
     
     return compObjs;
 }

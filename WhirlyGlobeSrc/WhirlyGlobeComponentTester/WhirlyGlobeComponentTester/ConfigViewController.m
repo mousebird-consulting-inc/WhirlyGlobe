@@ -93,7 +93,7 @@
                 @{kMaplyTestUSGSOrtho: @(NO),
                   kMaplyTestOWM: @(NO),
                   kMaplyTestForecastIO: @(NO),
-//                  kMaplyTestMapboxStreets: @(NO),
+                  kMaplyTestMapboxStreets: @(NO),
                   kMaplyMapzenVectors: @(NO)
                   }
                                        singleSelect:false],
@@ -131,7 +131,7 @@
             @{kMaplyTestUSGSOrtho: @(NO),
               kMaplyTestOWM: @(NO),
               kMaplyTestForecastIO: @(NO),
-//              kMaplyTestMapboxStreets: @(NO),
+              kMaplyTestMapboxStreets: @(NO),
               kMaplyMapzenVectors: @(NO)
               }
                                    singleSelect:false],
