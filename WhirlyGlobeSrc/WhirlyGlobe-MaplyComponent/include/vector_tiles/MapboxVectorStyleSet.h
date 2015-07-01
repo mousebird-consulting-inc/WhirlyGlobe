@@ -97,6 +97,9 @@
 /// @brief Check if the given thing is a constant and return its value if it is.  Otherwise just return it.
 - (id)constantSubstitution:(id)thing forField:(NSString *)field;
 
+/// @brief Figure out the background color
+- (UIColor *)backgroundColor;
+
 @end
 
 /** @brief Layer definition from the Style Sheet.
