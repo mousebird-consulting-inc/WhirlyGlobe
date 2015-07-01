@@ -723,7 +723,7 @@
         case MaplyMapboxValueTypeNumber:
         {
             double aVal = [a.value doubleValue];
-            double bVal = [a.value doubleValue];
+            double bVal = [b.value doubleValue];
             double res = (bVal-aVal)*t + aVal;
             return [[MaplyMapboxValue alloc] initWithValue:[NSNumber numberWithDouble:res] type:MaplyMapboxValueTypeNumber styleSet:nil];
         }
