@@ -215,6 +215,8 @@
 		2BD5A87F1B42087D00DDAEE3 /* stringpiece.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BD5A87E1B42087D00DDAEE3 /* stringpiece.cc */; };
 		2BD5A8811B4208A700DDAEE3 /* status.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BD5A8801B4208A700DDAEE3 /* status.cc */; };
 		2BD5A8881B43049800DDAEE3 /* any.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BD5A8871B43049800DDAEE3 /* any.cc */; };
+		2BD5A88C1B43332C00DDAEE3 /* MaplyAtmosphere.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD5A88B1B43332C00DDAEE3 /* MaplyAtmosphere.h */; };
+		2BD5A88F1B43333300DDAEE3 /* MaplyAtmosphere.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BD5A88E1B43333300DDAEE3 /* MaplyAtmosphere.mm */; };
 		2BDC8A16191D994F00DFECF0 /* AFHTTPRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC8A03191D994F00DFECF0 /* AFHTTPRequestOperation.h */; };
 		2BDC8A17191D994F00DFECF0 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDC8A04191D994F00DFECF0 /* AFHTTPRequestOperation.m */; };
 		2BDC8A18191D994F00DFECF0 /* AFHTTPRequestOperationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC8A05191D994F00DFECF0 /* AFHTTPRequestOperationManager.h */; };
@@ -511,6 +513,8 @@
 		2BD5A87E1B42087D00DDAEE3 /* stringpiece.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stringpiece.cc; sourceTree = "<group>"; };
 		2BD5A8801B4208A700DDAEE3 /* status.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = status.cc; sourceTree = "<group>"; };
 		2BD5A8871B43049800DDAEE3 /* any.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = any.cc; sourceTree = "<group>"; };
+		2BD5A88B1B43332C00DDAEE3 /* MaplyAtmosphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyAtmosphere.h; path = include/MaplyAtmosphere.h; sourceTree = "<group>"; };
+		2BD5A88E1B43333300DDAEE3 /* MaplyAtmosphere.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyAtmosphere.mm; path = src/MaplyAtmosphere.mm; sourceTree = "<group>"; };
 		2BDC8A03191D994F00DFECF0 /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFHTTPRequestOperation.h; path = "../../third-party/AFNetworking/AFNetworking/AFHTTPRequestOperation.h"; sourceTree = "<group>"; };
 		2BDC8A04191D994F00DFECF0 /* AFHTTPRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AFHTTPRequestOperation.m; path = "../../third-party/AFNetworking/AFNetworking/AFHTTPRequestOperation.m"; sourceTree = "<group>"; };
 		2BDC8A05191D994F00DFECF0 /* AFHTTPRequestOperationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFHTTPRequestOperationManager.h; path = "../../third-party/AFNetworking/AFNetworking/AFHTTPRequestOperationManager.h"; sourceTree = "<group>"; };
@@ -1124,6 +1128,8 @@
 				2B3CAAFE1B20E61000D0E796 /* MaplyStarsModel.mm */,
 				2B9BAD7A1B3B6EF900B95CC2 /* MaplySun.h */,
 				2B9BAD7D1B3B6F0D00B95CC2 /* MaplySun.mm */,
+				2BD5A88B1B43332C00DDAEE3 /* MaplyAtmosphere.h */,
+				2BD5A88E1B43333300DDAEE3 /* MaplyAtmosphere.mm */,
 				2B760C9D1881D68C006FE98B /* MaplyIconManager.h */,
 				2B760CA01881D696006FE98B /* MaplyIconManager.mm */,
 			);
@@ -1293,6 +1299,7 @@
 				881F66C118F20A8F00D17110 /* stl_util.h in Headers */,
 				2BB9E01715BF9EE300F1DDD8 /* MaplyLabel.h in Headers */,
 				2BEBABA51811F64D00A9419C /* MaplyImageTile.h in Headers */,
+				2BD5A88C1B43332C00DDAEE3 /* MaplyAtmosphere.h in Headers */,
 				2BB9E01815BF9EE300F1DDD8 /* MaplyMarker.h in Headers */,
 				881F66C818F20A8F00D17110 /* substitute.h in Headers */,
 				881F668D18F20A8F00D17110 /* extension_set.h in Headers */,
@@ -1606,6 +1613,7 @@
 				2B0D630717A2EDA300C3298D /* DDXMLDocument.m in Sources */,
 				2BD5A84E1B41FEB500DDAEE3 /* message.cc in Sources */,
 				2BD5A8441B41FEB500DDAEE3 /* arena.cc in Sources */,
+				2BD5A88F1B43333300DDAEE3 /* MaplyAtmosphere.mm in Sources */,
 				2BD5A8561B41FEB500DDAEE3 /* wire_format_lite.cc in Sources */,
 				2B0D630917A2EDA300C3298D /* DDXMLElement.m in Sources */,
 				2B0D630B17A2EDA300C3298D /* DDXMLNode.m in Sources */,

@@ -113,6 +113,7 @@ static const int BaseEarthPriority = 10;
     NSMutableDictionary *loftPolyDict;
     MaplyStarsModel *stars;
     MaplyComponentObject *sunObj;
+    MaplyAtmosphere *atmosObj;
 
     // A source of elevation data, if we're in that mode
     NSObject<MaplyElevationSourceDelegate> *elevSource;
@@ -962,6 +963,10 @@ static const float EarthRadius = 6371000;
         [bill.screenObj addImage:globeImage color:[UIColor whiteColor] size:CGSizeMake(1.0, 1.0)];
         sunObj = [globeViewC addBillboards:@[bill] desc:@{kMaplyBillboardOrient: kMaplyBillboardOrientEye} mode:MaplyThreadAny];
     }
+    
+    // And some atmosphere, because the iDevice fill rate is just too fast
+    atmosObj = [[MaplyAtmosphere alloc] initWithViewC:globeViewC];
+    [atmosObj setSunDirection:[sun getDirection]];
 }
 
 // Number of unique images to use for the mega markers
@@ -1438,7 +1443,7 @@ static const int NumMegaMarkers = 15000;
                 thisCacheDir = nil;
                 thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
                 // You need your own access token here
-                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-streets-v6.json" accessToken:@"pk.eyJ1IjoicGV0ZXJxbGl1IiwiYSI6ImpvZmV0UEEifQ._D4bRmVcGfJvo1wjuOpA1g" style:@"https://raw.githubusercontent.com/mapbox/mapbox-gl-styles/mb-pages/styles/emerald-v7.json" styleType:MapnikMapboxGLStyle cacheDir:thisCacheDir viewC:baseViewC
+                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-streets-v6.json" accessToken:@"pk.eyJ1IjoicGV0ZXJxbGl1IiwiYSI6ImpvZmV0UEEifQ._D4bRmVcGfJvo1wjuOpA1g" style:@"https://raw.githubusercontent.com/mapbox/mapbox-gl-styles/mb-pages/styles/emerald-v8.json" styleType:MapnikMapboxGLStyle cacheDir:thisCacheDir viewC:baseViewC
                  success:
                  ^(MaplyMapnikVectorTiles *vecTiles)
                  {
@@ -1737,8 +1742,10 @@ static const int NumMegaMarkers = 15000;
         {
             [stars removeFromViewC];
             [baseViewC removeObject:sunObj];
+            [atmosObj removeFromViewC];
             sunObj = nil;
             stars = nil;
+            atmosObj = nil;
         }
     }
 

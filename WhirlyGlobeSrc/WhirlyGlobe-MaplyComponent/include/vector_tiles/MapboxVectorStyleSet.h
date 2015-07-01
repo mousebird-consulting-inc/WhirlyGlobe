@@ -85,9 +85,6 @@
 /// @brief Return an array for the given name, taking the constants into account
 - (NSArray *)arrayValue:(NSString *)name dict:(NSDictionary *)dict defVal:(NSArray *)defVal;
 
-/// @brief Parse and return a set of stops.  Takes constants into account
-- (MaplyVectorFunctionStops *)stopsValue:(id)entry defVal:(id)defEntry;
-
 /// @brief Scale the color by the given opacity
 - (UIColor *)color:(UIColor *)color withOpacity:(double)opacity;
 
@@ -121,6 +118,9 @@
 
 /// @brief Min/max zoom levels
 @property (nonatomic) int minzoom,maxzoom;
+
+/// @brief Interactive means you can tap on it
+@property (nonatomic) bool interactive;
 
 /// @brief Filter this layer uses to match up to data
 @property (nonatomic) MapboxVectorFilter *filter;
@@ -187,7 +187,7 @@ typedef enum {MaplyMapboxValueTypeNumber, MaplyMapboxValueTypeColor, MaplyMapbox
 @property (nonatomic) id value;
 
 /// @brief Initialize with data and a type we're expecting
-- (id)initWithValue:(id)value type:(MaplyMapboxValueType)dataType;
+- (id)initWithValue:(id)value type:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
 
 /// @brief Returns a value interpolated between the two inputs
 + (MaplyMapboxValue *)interpolateFrom:(MaplyMapboxValue *)a to:(MaplyMapboxValue *)b t:(double)t;
@@ -227,7 +227,7 @@ typedef enum {MapboxVectorFunctionExponential,MapboxVectorFunctionInterval} Mapb
 - (id)initWithValueDict:(NSDictionary *)dict dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
 
 /// @brief Calculate a value given the input value.  Returns an NSNumber or UIColor
-- (MaplyMapboxValue *)valueForInput:(double)inputVal type:(MaplyMapboxValueType)dataType;
+- (MaplyMapboxValue *)valueForInput:(double)inputVal type:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
 
 /// @brief Returns the minimum value
 - (MaplyMapboxValue *)minValueOfType:(MaplyMapboxValueType)dataType;
@@ -238,10 +238,16 @@ typedef enum {MapboxVectorFunctionExponential,MapboxVectorFunctionInterval} Mapb
 @end
 
 /// @brief Represents either a value or a function to generate that value
-@interface MaplyMapboxVectorValueWrapper : NSObject
+@interface MaplyMapboxValueWrapper : NSObject
 
 /// @brief Initialize with a field that could be a single value or a function and the data we're expecting it to be
 - (id)initWithValue:(id)value dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
+
+/// @brief Initialize by reading the named field out of the dictionary and then parsing out either a value or a function
+- (id)initWithDict:(NSDictionary *)dict name:(NSString *)attrName dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
+
+/// @brief Initialize with a real value of type NSNumber, UIColor, or NSString
+- (id)initWithObject:(id)thing;
 
 /// @brief Defined data type for this value or function
 @property (nonatomic,readonly) MaplyMapboxValueType dataType;
@@ -250,12 +256,18 @@ typedef enum {MapboxVectorFunctionExponential,MapboxVectorFunctionInterval} Mapb
 @property (nonatomic,readonly) bool isValue;
 
 /// @brief Return a simple number
-- (double)getNumberForZoom:(int)zoom;
+- (double)numberForZoom:(int)zoom styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
+
+/// @brief Return the maximum possible number
+- (double)maxNumberWithStyleSet:(MaplyMapboxVectorStyleSet *)styleSet;
 
 /// @brief Return a color
-- (UIColor *)getColorForZoom:(int)zoom;
+- (UIColor *)colorForZoom:(int)zoom styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
+
+/// @brief Return the maximum possible color
+- (UIColor *)maxColorWithStyleSet:(MaplyMapboxVectorStyleSet *)styleSet;
 
 /// @brief Return a string
-- (NSString *)getStringForZoom:(int)zoom;
+- (NSString *)stringForZoom:(int)zoom styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
 
 @end
