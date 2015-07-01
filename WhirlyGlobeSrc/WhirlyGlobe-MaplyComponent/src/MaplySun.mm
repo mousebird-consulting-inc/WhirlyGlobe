@@ -18,8 +18,8 @@
  *
  */
 
-#import "MaplySun.h"
 #import <WhirlyGlobe.h>
+#import "MaplySun.h"
 
 @implementation MaplySun
 {

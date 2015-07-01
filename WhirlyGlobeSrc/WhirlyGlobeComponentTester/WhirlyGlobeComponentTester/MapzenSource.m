@@ -56,7 +56,7 @@
                     {
                         if ([backLayer isKindOfClass:[MapboxVectorLayerBackground class]])
                         {
-                            _backgroundColor = backLayer.paint.color;
+                            _backgroundColor = [backLayer.paint.color maxColorWithStyleSet:mapboxStyleSet];
                         }
                     }
                 }

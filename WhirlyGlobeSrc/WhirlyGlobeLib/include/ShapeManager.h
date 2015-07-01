@@ -90,6 +90,8 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 @property (nonatomic,assign) float height;
 /// Radius is in display units
 @property (nonatomic,assign) float radius;
+/// Samples in X and Y
+@property (nonatomic,assign) int sampleX,sampleY;
 
 @end
 

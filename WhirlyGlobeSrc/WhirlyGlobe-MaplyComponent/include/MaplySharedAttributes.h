@@ -95,6 +95,7 @@
 #define kMaplyShapeDrawPriorityDefault 80000
 #define kMaplyBillboardDrawPriorityDefault 90000
 #define kMaplyModelDrawPriorityDefault 100000
+#define kMaplyAtmosDrawPriorityDefault 110000
 
 #define kWGMarkerDrawPriorityDefault kMaplyMarkerDrawPriorityDefault
 #define kWGVectorDrawPriorityDefault kMaplyVectorDrawPriorityDefault
@@ -264,6 +265,13 @@
 #define kMaplyLoftedPolyOutlineDrawPriority @"outlineDrawPriority"
 /// If set and we're drawing an outline, this will create lines up the sides
 #define kMaplyLoftedPolyOutlineSide @"outlineSide"
+
+/// These are used for shapes
+
+/// Samples (x) to use when converting shape to polygons
+#define kMaplyShapeSampleX @"shapesamplex"
+/// Samples (y) to use when converting shape to polygons
+#define kMaplyShapeSampleY @"shapesampley"
 
 /// These are used by active vector objects
 #define kMaplyVecHeight @"height"
