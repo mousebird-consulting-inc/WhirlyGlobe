@@ -76,8 +76,8 @@ static const char *vertexShaderTri =
 "attribute vec3 a_position;\n"
 "\n"
 "varying vec3 v3Direction;"
-"varying vec4 v4RayleighColor;\n"
-"varying vec4 v4MieColor;\n"
+"varying vec3 v3RayleighColor;\n"
+"varying vec3 v3MieColor;\n"
 "\n"
 "float getNearIntersection(vec3 pos, vec3 ray, float fDist2, float fRad2)\n"
 "{\n"
@@ -127,8 +127,8 @@ static const char *vertexShaderTri =
 "     v3SamplePoint += v3SampleRay;\n"
 "   }\n"
 "\n"
-"   v4MieColor = vec4(v3FrontColor * fKmESun, 1.0);\n"
-"   v4RayleighColor = vec4(v3FrontColor * (v3InvWavelength * fKrESun), 1.0);\n"
+"   v3MieColor = v3FrontColor * fKmESun;\n"
+"   v3RayleighColor = v3FrontColor * (v3InvWavelength * fKrESun);\n"
 "   v3Direction = v3CameraPos - v3Pos;\n"
 "\n"
 "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);\n"
@@ -144,8 +144,8 @@ static const char *fragmentShaderTri =
 "uniform float fExposure;\n"
 "\n"
 "varying vec3 v3Direction;"
-"varying vec4 v4RayleighColor;\n"
-"varying vec4 v4MieColor;\n"
+"varying vec3 v3RayleighColor;\n"
+"varying vec3 v3MieColor;\n"
 "\n"
 "void main()\n"
 "{\n"
@@ -153,9 +153,9 @@ static const char *fragmentShaderTri =
 "  float fCos2 = fCos*fCos;\n"
 "  float rayPhase = 0.75 * (1.0 + fCos2);\n"
 "  float miePhase = 1.5 * ((1.0 - fg2) / (2.0 + fg2)) * (1.0 + fCos2) / pow(1.0 + fg2 - 2.0*fg*fCos, 1.5);\n"
-"  vec4 color = (rayPhase * v4RayleighColor) + (miePhase * v4MieColor);\n"
-"  color.a = color.b;\n"
-"  gl_FragColor = vec4(vec3(1.0) - exp(-fExposure * color.xyz),color.a);\n"
+"  vec3 color = (rayPhase * v3RayleighColor) + (miePhase * v3MieColor);\n"
+//"  gl_FragColor = vec4(vec3(1.0) - exp(-fExposure * color),color.b);\n"
+"  gl_FragColor = vec4(v3MieColor,1.0);\n"
 "}\n"
 ;
 
@@ -231,9 +231,10 @@ static const double AtmosphereHeight = 1.025;
         //    "uniform float fScale;"
         shader.program->setUniform(k_fScale, scale);
         //    "uniform float fScaleDepth;"
-        shader.program->setUniform(k_fScaleDepth, 0.25f);
+        float scaleDepth = 0.25;
+        shader.program->setUniform(k_fScaleDepth, scaleDepth);
         //    "uniform float fScaleOverScaleDepth;"
-        shader.program->setUniform(k_fScaleOverScaleDepth, scale / 0.5f);
+        shader.program->setUniform(k_fScaleOverScaleDepth, scale / scaleDepth);
         //    "uniform int nSamples;"
         shader.program->setUniform(k_nSamples, 2);
         //    "uniform float fSamples;"
@@ -250,12 +251,13 @@ static const double AtmosphereHeight = 1.025;
     //    "uniform vec3 v3CameraPos;"
     Vector3f cameraPos = frameInfo.eyeVec;
     cameraPos *= (1.0+frameInfo.heightAboveSurface);
+    cameraPos *= -1;
     shader.program->setUniform(k_v3CameraPos, cameraPos);
     
     //    "uniform vec3 v3LightPos;"
-    shader.program->setUniform(k_v3LightPos, (Vector3f)(Vector3f(sunDir.x,sunDir.y,sunDir.z)));
+    shader.program->setUniform(k_v3LightPos, Vector3f(sunDir.x,sunDir.y,sunDir.z));
     //    "uniform float fCameraHeight;"
-    float height = frameInfo.heightAboveSurface;
+    float height = frameInfo.heightAboveSurface+1.0;
     shader.program->setUniform(k_fCameraHeight, height);
     //    "uniform float fCameraHeight2;"
     shader.program->setUniform(k_fCameraHeight2, height*height);

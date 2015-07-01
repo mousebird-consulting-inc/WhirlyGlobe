@@ -152,7 +152,7 @@
                 [labels addObject:label];
         }
         MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:mutDesc mode:MaplyThreadCurrent];
-        if (compObjs)
+        if (compObj)
             [compObjs addObject:compObj];
     }
 
