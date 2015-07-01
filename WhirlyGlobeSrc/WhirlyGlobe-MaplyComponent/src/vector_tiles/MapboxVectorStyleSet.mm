@@ -130,6 +130,27 @@
     return thing;
 }
 
+- (UIColor *)backgroundColor
+{
+    // Look for the background layer
+    MapboxVectorLayerBackground *backLayer = nil;
+    for (id layer in _layers)
+        if ([layer isKindOfClass:[MapboxVectorLayerBackground class]])
+        {
+            backLayer = layer;
+            break;
+        }
+    
+    if (backLayer)
+    {
+        UIColor *color = [backLayer.paint.color maxColorWithStyleSet:self];
+        if (color)
+            return color;
+    }
+    
+    return nil;
+}
+
 - (int)intValue:(NSString *)name dict:(NSDictionary *)dict defVal:(int)defVal
 {
     id thing = dict[name];

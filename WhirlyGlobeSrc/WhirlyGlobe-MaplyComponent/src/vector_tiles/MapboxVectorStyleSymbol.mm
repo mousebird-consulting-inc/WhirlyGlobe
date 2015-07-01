@@ -109,6 +109,9 @@
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC
 {
+    if (tileID.level < self.minzoom || tileID.level > self.maxzoom)
+        return nil;
+    
     NSMutableArray *compObjs = [NSMutableArray array];
     
     NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:symbolDesc];
