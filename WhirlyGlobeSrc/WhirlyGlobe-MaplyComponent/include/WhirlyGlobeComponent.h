@@ -55,6 +55,7 @@
 #import <MaplyQuadTracker.h>
 #import <MaplyStarsModel.h>
 #import <MaplySun.h>
+#import <MaplyAtmosphere.h>
 
 // These are not pulled in by the podspec
 #ifdef NOTPODSPECWG

@@ -1548,6 +1548,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyShapeDrawPriorityDefault) toDict:inDesc];
+    [self applyDefaultName:kMaplyShapeSampleX value:@(10) toDict:inDesc];
+    [self applyDefaultName:kMaplyShapeSampleY value:@(10) toDict:inDesc];
 
     // Might be a custom shader on these
     [self resolveShader:inDesc defaultShader:nil];
@@ -1589,6 +1591,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             newSphere.loc.lat() = sphere.center.y;
             newSphere.radius = sphere.radius;
             newSphere.height = sphere.height;
+            newSphere.sampleX = [inDesc[kMaplyShapeSampleX] intValue];
+            newSphere.sampleY = [inDesc[kMaplyShapeSampleY] intValue];
             if (sphere.color)
             {
                 newSphere.useColor = true;

@@ -184,9 +184,8 @@ static const float sqrt2 = 1.4142135623;
 
 @implementation WhirlyKitSphere
 
-// Note: We could make these parameters
-static const float SphereTessX = 10;
-static const float SphereTessY = 10;
+//static const float SphereTessX = 10;
+//static const float SphereTessY = 10;
 
 - (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter
 {
@@ -213,13 +212,13 @@ static const float SphereTessY = 10;
     // It's lame, but we'll use lat/lon coordinates to tesselate the sphere
     // Note: Replace this with something less lame
     std::vector<Point3f> locs,norms;
-    locs.reserve((SphereTessX+1)*(SphereTessX+1));
-    norms.reserve((SphereTessX+1)*(SphereTessY+1));
+    locs.reserve((_sampleX+1)*(_sampleY+1));
+    norms.reserve((_sampleX+1)*(_sampleY+1));
     std::vector<RGBAColor> colors;
-    colors.reserve((SphereTessX+1)*(SphereTessX+1));
-    Point2f geoIncr(2*M_PI/SphereTessX,M_PI/SphereTessY);
-    for (unsigned int iy=0;iy<SphereTessY+1;iy++)
-        for (unsigned int ix=0;ix<SphereTessX+1;ix++)
+    colors.reserve((_sampleX+1)*(_sampleY+1));
+    Point2f geoIncr(2*M_PI/_sampleX,M_PI/_sampleY);
+    for (unsigned int iy=0;iy<_sampleY+1;iy++)
+        for (unsigned int ix=0;ix<_sampleX+1;ix++)
         {
             GeoCoord geoLoc(-M_PI+ix*geoIncr.x(),-M_PI/2.0 + iy*geoIncr.y());
 			if (geoLoc.x() < -M_PI)  geoLoc.x() = -M_PI;
@@ -237,17 +236,17 @@ static const float SphereTessY = 10;
     
     // Two triangles per cell
     std::vector<BasicDrawable::Triangle> tris;
-    tris.reserve(2*SphereTessX*SphereTessY);
-    for (unsigned int iy=0;iy<SphereTessY;iy++)
-        for (unsigned int ix=0;ix<SphereTessX;ix++)
+    tris.reserve(2*_sampleX*_sampleY);
+    for (unsigned int iy=0;iy<_sampleY;iy++)
+        for (unsigned int ix=0;ix<_sampleX;ix++)
         {
 			BasicDrawable::Triangle triA,triB;
-			triA.verts[0] = iy*(SphereTessX+1)+ix;
-			triA.verts[1] = iy*(SphereTessX+1)+(ix+1);
-			triA.verts[2] = (iy+1)*(SphereTessX+1)+(ix+1);
+			triA.verts[0] = iy*(_sampleX+1)+ix;
+			triA.verts[1] = iy*(_sampleX+1)+(ix+1);
+			triA.verts[2] = (iy+1)*(_sampleX+1)+(ix+1);
 			triB.verts[0] = triA.verts[0];
 			triB.verts[1] = triA.verts[2];
-			triB.verts[2] = (iy+1)*(SphereTessX+1)+ix;
+			triB.verts[2] = (iy+1)*(_sampleX+1)+ix;
             tris.push_back(triA);
             tris.push_back(triB);
         }
