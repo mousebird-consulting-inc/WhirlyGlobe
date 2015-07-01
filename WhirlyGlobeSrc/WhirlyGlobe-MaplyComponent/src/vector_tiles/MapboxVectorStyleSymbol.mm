@@ -140,6 +140,7 @@
             label.loc = [vecObj center];
             // Note: Should do name lookup here
             label.text = vecObj.attributes[@"name"];
+            label.layoutImportance = MAXFLOAT;
             if (!label.text)
                 label.text = vecObj.attributes[@"name_en"];
             if (!label)
