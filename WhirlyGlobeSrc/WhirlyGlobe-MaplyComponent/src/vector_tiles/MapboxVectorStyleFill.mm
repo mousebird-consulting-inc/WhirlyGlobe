@@ -93,6 +93,9 @@
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC
 {
+    if (tileID.level < self.minzoom || tileID.level > self.maxzoom)
+        return nil;
+
     NSMutableArray *compObjs = [NSMutableArray array];
     
     double opacity = [_paint.opacity numberForZoom:tileID.level styleSet:self.styleSet];

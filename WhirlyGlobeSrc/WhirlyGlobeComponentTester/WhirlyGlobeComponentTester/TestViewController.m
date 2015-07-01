@@ -1452,9 +1452,12 @@ static const int NumMegaMarkers = 15000;
                          vecTiles.minZoom = 5;
                      
                      // Note: These are set after the MapnikStyleSet has already been initialized
-                     MapnikStyleSet *styleSet = (MapnikStyleSet *)vecTiles.tileParser.styleDelegate;
+                     MaplyMapboxVectorStyleSet *styleSet = (MaplyMapboxVectorStyleSet *)vecTiles.tileParser.styleDelegate;
                      styleSet.tileStyleSettings.markerImportance = 10.0;
                      styleSet.tileStyleSettings.fontName = @"Gill Sans";
+                     UIColor *backColor = [styleSet backgroundColor];
+                     if (backColor)
+                         [baseViewC setClearColor:backColor];
                      
                      // Now for the paging layer itself
                      MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];

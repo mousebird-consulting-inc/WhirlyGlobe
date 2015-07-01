@@ -182,6 +182,7 @@ static unsigned int NextPowOf2(unsigned int val)
         // Simple filled line
         lineDesc = [NSMutableDictionary dictionaryWithDictionary:
                 @{kMaplyVecWidth: @(maxWidth),
+                  kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
                   kMaplyDrawPriority: @(self.drawPriority),
                   kMaplyFade: @0.0,
                   kMaplyVecCentered: @YES,
@@ -196,6 +197,9 @@ static unsigned int NextPowOf2(unsigned int val)
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID  viewC:(MaplyBaseViewController *)viewC
 {
+    if (tileID.level < self.minzoom || tileID.level > self.maxzoom)
+        return nil;
+
     NSMutableArray *compObjs = [NSMutableArray array];
     
     NSDictionary *desc = lineDesc;
@@ -203,11 +207,13 @@ static unsigned int NextPowOf2(unsigned int val)
     
     NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
     double width = [_paint.width numberForZoom:tileID.level styleSet:self.styleSet];
-    if (width <= 0.0)  include = false;
+    if (width <= 0.0)
+        include = false;
     // Note: Hack
     mutDesc[kMaplyVecWidth] = @(width);
     double opacity = [_paint.opacity numberForZoom:tileID.level styleSet:self.styleSet];
-    if (opacity <= 0.0) include = false;
+    if (opacity <= 0.0)
+        include = false;
     UIColor *color = [self.styleSet color:[_paint.color colorForZoom:tileID.level styleSet:self.styleSet] withOpacity:opacity];
     mutDesc[kMaplyColor] = color;
     
