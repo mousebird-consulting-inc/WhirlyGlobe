@@ -241,12 +241,19 @@ static const float sqrt2 = 1.4142135623;
         for (unsigned int ix=0;ix<_sampleX;ix++)
         {
 			BasicDrawable::Triangle triA,triB;
-			triA.verts[0] = iy*(_sampleX+1)+ix;
-			triA.verts[1] = iy*(_sampleX+1)+(ix+1);
-			triA.verts[2] = (iy+1)*(_sampleX+1)+(ix+1);
-			triB.verts[0] = triA.verts[0];
-			triB.verts[1] = triA.verts[2];
-			triB.verts[2] = (iy+1)*(_sampleX+1)+ix;
+            triA.verts[0] = iy*(_sampleX+1)+ix;
+            triA.verts[1] = iy*(_sampleX+1)+(ix+1);
+            triA.verts[2] = (iy+1)*(_sampleX+1)+(ix+1);
+            triB.verts[0] = triA.verts[0];
+            triB.verts[1] = triA.verts[2];
+            triB.verts[2] = (iy+1)*(_sampleX+1)+ix;
+            // Note: Flip the triangles
+//            triA.verts[0] = iy*(_sampleX+1)+ix;
+//            triA.verts[2] = iy*(_sampleX+1)+(ix+1);
+//            triA.verts[1] = (iy+1)*(_sampleX+1)+(ix+1);
+//            triB.verts[0] = triA.verts[0];
+//            triB.verts[2] = triA.verts[2];
+//            triB.verts[1] = (iy+1)*(_sampleX+1)+ix;
             tris.push_back(triA);
             tris.push_back(triB);
         }
