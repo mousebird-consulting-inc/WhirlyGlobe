@@ -55,11 +55,11 @@ static const char *vertexShaderTri =
 "uniform vec3 v3CameraPos;\n"
 "\n"
 "uniform vec3 v3LightPos;\n"
-"uniform float fCameraHeight;\n"
-"uniform float fCameraHeight2;\n"
+//"uniform float fCameraHeight;\n"
+//"uniform float fCameraHeight2;\n"
 "uniform float fInnerRadius;\n"
 "uniform float fOuterRadius;\n"
-"uniform float fOuterRadius2;\n"
+//"uniform float fOuterRadius2;\n"
 "\n"
 "const float pi = 3.14159265359;\n"
 "const float Kr = 0.0025;\n"
@@ -74,8 +74,8 @@ static const char *vertexShaderTri =
 "uniform float fScale;\n"
 "uniform float fScaleDepth;\n"
 "uniform float fScaleOverScaleDepth;\n"
-"uniform int nSamples;\n"
-"uniform float fSamples;\n"
+//"uniform int nSamples;\n"
+//"uniform float fSamples;\n"
 "\n"
 "attribute vec3 a_position;\n"
 "\n"
@@ -91,6 +91,12 @@ static const char *vertexShaderTri =
 "\n"
 "void main()\n"
 "{"
+"   float fCameraHeight = length(v3CameraPos);\n"
+"   float fCameraHeight2 = fCameraHeight*fCameraHeight;\n"
+"   float fOuterRadius2 = fOuterRadius*fOuterRadius;\n"
+"   float fSamples = 2.0;\n"
+"   int nSamples = 2;\n"
+"\n"
 "   vec3 v3Pos = a_position.xyz;\n"
 "   vec3 v3Ray = v3Pos - v3CameraPos;\n"
 "   float fFar = length(v3Ray);\n"
@@ -226,9 +232,9 @@ static const double AtmosphereHeight = 1.025;
         //    "uniform float fScaleOverScaleDepth;"
         shader.program->setUniform(k_fScaleOverScaleDepth, scale / scaleDepth);
         //    "uniform int nSamples;"
-        shader.program->setUniform(k_nSamples, 2);
+//        shader.program->setUniform(k_nSamples, 2);
         //    "uniform float fSamples;"
-        shader.program->setUniform(k_fSamples, 2.0f);
+//        shader.program->setUniform(k_fSamples, 2.0f);
     }
     
     //    "uniform vec3 v3CameraPos;"
@@ -240,10 +246,10 @@ static const double AtmosphereHeight = 1.025;
     //    "uniform vec3 v3LightPos;"
     shader.program->setUniform(k_v3LightPos, Vector3f(-sunDir.x,-sunDir.y,-sunDir.z));
     //    "uniform float fCameraHeight;"
-    float height = frameInfo.heightAboveSurface+1.0;
-    shader.program->setUniform(k_fCameraHeight, height);
+//    float height = frameInfo.heightAboveSurface+1.0;
+//    shader.program->setUniform(k_fCameraHeight, height);
     //    "uniform float fCameraHeight2;"
-    shader.program->setUniform(k_fCameraHeight2, height*height);
+//    shader.program->setUniform(k_fCameraHeight2, height*height);
     
     changed = false;
     started = true;
