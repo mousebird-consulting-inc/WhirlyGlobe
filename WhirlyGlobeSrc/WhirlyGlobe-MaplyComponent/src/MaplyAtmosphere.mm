@@ -55,17 +55,21 @@ static const char *vertexShaderTri =
 "uniform vec3 v3CameraPos;\n"
 "\n"
 "uniform vec3 v3LightPos;\n"
-"uniform vec3 v3InvWavelength;\n"
 "uniform float fCameraHeight;\n"
 "uniform float fCameraHeight2;\n"
 "uniform float fInnerRadius;\n"
 "uniform float fOuterRadius;\n"
 "uniform float fOuterRadius2;\n"
 "\n"
-"uniform float fKrESun;\n"
-"uniform float fKmESun;\n"
-"uniform float fKr4PI;\n"
-"uniform float fKm4PI;\n"
+"const float pi = 3.14159265359;\n"
+"const float Kr = 0.0025;\n"
+"const float fKr4PI = Kr * 4.0 * pi;\n"
+"const float Km = 0.0015;\n"
+"const float fKm4PI = Km * 4.0 * pi;\n"
+"const float ESun = 15.0;\n"
+"const float fKmESun = Km * ESun;\n"
+"const float fKrESun = Kr * ESun;\n"
+"const vec3 v3InvWavelength = vec3(1.0 / pow(0.650, 4.0),1.0 / pow(0.570, 4.0),1.0 / pow(0.475, 4.0));\n"
 "\n"
 "uniform float fScale;\n"
 "uniform float fScaleDepth;\n"
@@ -138,10 +142,10 @@ static const char *vertexShaderTri =
 static const char *fragmentShaderTri =
 "precision highp float;\n"
 "\n"
+"const float g = -0.95;\n"
+"const float g2 = g * g;\n"
+"const float fExposure = 2.0;\n"
 "uniform vec3 v3LightPos;\n"
-"uniform float fg;\n"
-"uniform float fg2;\n"
-"uniform float fExposure;\n"
 "\n"
 "varying vec3 v3Direction;"
 "varying vec3 v3RayleighColor;\n"
@@ -152,10 +156,9 @@ static const char *fragmentShaderTri =
 "  float fCos = dot(v3LightPos, v3Direction) / length(v3Direction);\n"
 "  float fCos2 = fCos*fCos;\n"
 "  float rayPhase = 0.75 * (1.0 + fCos2);\n"
-"  float miePhase = 1.5 * ((1.0 - fg2) / (2.0 + fg2)) * (1.0 + fCos2) / pow(1.0 + fg2 - 2.0*fg*fCos, 1.5);\n"
+"  float miePhase = 1.5 * ((1.0 - g2) / (2.0 + g2)) * (1.0 + fCos2) / pow(1.0 + g2 - 2.0*g*fCos, 1.5);\n"
 "  vec3 color = (rayPhase * v3RayleighColor) + (miePhase * v3MieColor);\n"
-//"  gl_FragColor = vec4(vec3(1.0) - exp(-fExposure * color),color.b);\n"
-"  gl_FragColor = vec4(v3MieColor,1.0);\n"
+"  gl_FragColor = vec4(vec3(1.0) - exp(-fExposure * color),color.b);\n"
 "}\n"
 ;
 
@@ -208,25 +211,15 @@ static const double AtmosphereHeight = 1.025;
     if (started)
     {
         //    "uniform vec3 v3InvWavelength;"
-        shader.program->setUniform(k_v3InvWavelength, Vector3f(1.0f / (float)pow(0.650f, 4),
-                                                               1.0f / (float)pow(0.570f, 4),
-                                                               1.0f / (float)pow(0.475f, 4)));
+//        shader.program->setUniform(k_v3InvWavelength, Vector3f(1.0f / (float)pow(0.650f, 4),
+//                                                               1.0f / (float)pow(0.570f, 4),
+//                                                               1.0f / (float)pow(0.475f, 4)));
         //    "uniform float fInnerRadius;"
         shader.program->setUniform(k_fInnerRadius, (float)1.0);
         //    "uniform float fOuterRadius;"
         shader.program->setUniform(k_fOuterRadius, (float)AtmosphereHeight);
         //    "uniform float fOuterRadius2;"
         shader.program->setUniform(k_fOuterRadius2, (float)(AtmosphereHeight*AtmosphereHeight));
-        //    "uniform float fKrESun;"
-        shader.program->setUniform(k_fKrESun, (float)(0.0000025f * 10));
-        //    "uniform float fKmESun;"
-        shader.program->setUniform(k_fKmESun, (float)(0.00015f * 10));
-        
-        //    "uniform float fKr4PI;"
-        shader.program->setUniform(k_fKr4PI, (float)(0.0025f * 4 * M_PI));
-        //    "uniform float fKm4PI;"
-        shader.program->setUniform(k_fKm4PI, (float)(0.0015f * 4 * M_PI));
-
         float scale = 1.0f / (AtmosphereHeight - 1.0);
         //    "uniform float fScale;"
         shader.program->setUniform(k_fScale, scale);
@@ -239,20 +232,13 @@ static const double AtmosphereHeight = 1.025;
         shader.program->setUniform(k_nSamples, 2);
         //    "uniform float fSamples;"
         shader.program->setUniform(k_fSamples, 2.0f);
-        
-        //    "uniform float fg;"
-        shader.program->setUniform(k_fg, (float)-0.90);
-        //    "uniform float fg2;"
-        shader.program->setUniform(k_fg2, (float)0.81f);
-        //    "uniform float fExposure;"
-        shader.program->setUniform(k_fExposure, (float)2.0);
     }
     
     //    "uniform vec3 v3CameraPos;"
-    Vector3f cameraPos = frameInfo.eyeVec;
-    cameraPos *= (1.0+frameInfo.heightAboveSurface);
-    cameraPos *= -1;
-    shader.program->setUniform(k_v3CameraPos, cameraPos);
+    Matrix4d invMat = frameInfo.viewAndModelMat4d.inverse();
+    Vector4d cameraPos = invMat * Vector4d(0,0,0,1.0);
+    cameraPos /= cameraPos.w();
+    shader.program->setUniform(k_v3CameraPos, Vector3f(cameraPos.x(),cameraPos.y(),cameraPos.z()));
     
     //    "uniform vec3 v3LightPos;"
     shader.program->setUniform(k_v3LightPos, Vector3f(sunDir.x,sunDir.y,sunDir.z));
@@ -300,6 +286,7 @@ static const double AtmosphereHeight = 1.025;
                                                 kMaplyZBufferWrite: @(NO),
                                                 kMaplyShapeSampleX: @(60),
                                                 kMaplyShapeSampleY: @(30),
+                                                kMaplyDrawPriority: @(0),
                                                 kMaplyShader: kAtmosphereShader}];
     
     sunUpdater = [[SunUpdater alloc] initWithShader:shader viewC:viewC];
