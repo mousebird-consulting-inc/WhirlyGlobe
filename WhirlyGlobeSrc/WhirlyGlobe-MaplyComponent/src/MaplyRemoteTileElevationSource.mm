@@ -429,7 +429,7 @@ using namespace WhirlyKit;
     if (self.timeOut != 0.0)
         [urlReq setTimeoutInterval:self.timeOut];
 
-	[urlReq setValue:@"application/vnd.quantized-mesh,application/octet-stream;q=0.9" forHTTPHeaderField:@"Accept"];
+	[urlReq setValue:@"application/vnd.quantized-mesh;extensions=octvertexnormals,application/octet-stream;q=0.9" forHTTPHeaderField:@"Accept"];
 	[urlReq setValue:@"gzip, deflate" forHTTPHeaderField:@"Accept-Encoding"];
 
     return urlReq;
