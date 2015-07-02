@@ -211,7 +211,7 @@ static const double AtmosphereHeight = 1.025;
     glUseProgram(shader.program->getProgram());
     
     // Set the parameters that never change
-    if (started)
+//    if (!started)
     {
         //    "uniform vec3 v3InvWavelength;"
 //        shader.program->setUniform(k_v3InvWavelength, Vector3f(1.0f / (float)pow(0.650f, 4),
@@ -222,7 +222,7 @@ static const double AtmosphereHeight = 1.025;
         //    "uniform float fOuterRadius;"
         shader.program->setUniform(k_fOuterRadius, (float)AtmosphereHeight);
         //    "uniform float fOuterRadius2;"
-        shader.program->setUniform(k_fOuterRadius2, (float)(AtmosphereHeight*AtmosphereHeight));
+//        shader.program->setUniform(k_fOuterRadius2, (float)(AtmosphereHeight*AtmosphereHeight));
         float scale = 1.0f / (AtmosphereHeight - 1.0);
         //    "uniform float fScale;"
         shader.program->setUniform(k_fScale, scale);
