@@ -69,7 +69,7 @@ static const char *vertexShaderTri =
 "const float ESun = 15.0;\n"
 "const float fKmESun = Km * ESun;\n"
 "const float fKrESun = Kr * ESun;\n"
-"const vec3 v3InvWavelength = vec3(1.0 / pow(0.650, 4.0),1.0 / pow(0.570, 4.0),1.0 / pow(0.475, 4.0));\n"
+"const vec3 v3InvWavelength = vec3(5.6020447463,9.4732844379,19.6438026201);\n"
 "\n"
 "uniform float fScale;\n"
 "uniform float fScaleDepth;\n"
@@ -79,17 +79,9 @@ static const char *vertexShaderTri =
 "\n"
 "attribute vec3 a_position;\n"
 "\n"
-"varying vec3 v3Direction;"
-"varying vec3 v3RayleighColor;\n"
-"varying vec3 v3MieColor;\n"
-"\n"
-"float getNearIntersection(vec3 pos, vec3 ray, float fDist2, float fRad2)\n"
-"{\n"
-"  float B = 2.0 * dot(pos, ray);\n"
-"  float C = fDist2 - fRad2;\n"
-"  float fDet = max(0.0, B*B - 4.0 * C);\n"
-"  return 0.5 * (-B - sqrt(fDet));\n"
-"}\n"
+"varying highp vec3 v3Direction;"
+"varying highp vec3 v3RayleighColor;\n"
+"varying highp vec3 v3MieColor;\n"
 "\n"
 "float scale(float fCos)\n"
 "{\n"
@@ -104,7 +96,10 @@ static const char *vertexShaderTri =
 "   float fFar = length(v3Ray);\n"
 "   v3Ray /= fFar;\n"
 "\n"
-"   float fNear = getNearIntersection(v3CameraPos, v3Ray, fCameraHeight2, fOuterRadius2);\n"
+"  float B = 2.0 * dot(v3CameraPos, v3Ray);\n"
+"  float C = fCameraHeight2 - fOuterRadius2;\n"
+"  float fDet = max(0.0, B*B - 4.0 * C);\n"
+"  float fNear = 0.5 * (-B - sqrt(fDet));\n"
 "\n"
 "   vec3 v3Start = v3CameraPos + v3Ray * fNear;\n"
 "   fFar -= fNear;\n"
@@ -116,9 +111,10 @@ static const char *vertexShaderTri =
 "   float fSampleLength = fFar / fSamples;\n"
 "   float fScaledLength = fSampleLength * fScale;\n"
 "   vec3 v3SampleRay = v3Ray * fSampleLength;\n"
-"   vec3 v3SamplePoint = v3Start + (v3SampleRay * 0.5);\n"
+"   vec3 v3SamplePoint = v3Start + v3SampleRay * 0.5;\n"
 "\n"
 "   vec3 v3FrontColor = vec3(0.0, 0.0, 0.0);\n"
+"   vec3 v3Attenuate;\n"
 "   for (int i=0; i<nSamples; i++)\n"
 "   {\n"
 "     float fHeight = length(v3SamplePoint);\n"
@@ -126,7 +122,7 @@ static const char *vertexShaderTri =
 "     float fLightAngle = dot(v3LightPos, v3SamplePoint) / fHeight;\n"
 "     float fCameraAngle = dot(v3Ray, v3SamplePoint) / fHeight;\n"
 "     float fScatter = (fStartOffset + fDepth *(scale(fLightAngle) - scale(fCameraAngle)));\n"
-"     vec3 v3Attenuate = exp(-fScatter * (v3InvWavelength * fKr4PI + fKm4PI));\n"
+"     v3Attenuate = exp(-fScatter * (v3InvWavelength * fKr4PI + fKm4PI));\n"
 "     v3FrontColor += v3Attenuate * (fDepth * fScaledLength);\n"
 "     v3SamplePoint += v3SampleRay;\n"
 "   }\n"
@@ -147,18 +143,19 @@ static const char *fragmentShaderTri =
 "const float fExposure = 2.0;\n"
 "uniform vec3 v3LightPos;\n"
 "\n"
-"varying vec3 v3Direction;"
-"varying vec3 v3RayleighColor;\n"
-"varying vec3 v3MieColor;\n"
+"varying highp vec3 v3Direction;"
+"varying highp vec3 v3RayleighColor;\n"
+"varying highp vec3 v3MieColor;\n"
 "\n"
 "void main()\n"
 "{\n"
 "  float fCos = dot(v3LightPos, v3Direction) / length(v3Direction);\n"
 "  float fCos2 = fCos*fCos;\n"
-"  float rayPhase = 0.75 * (1.0 + fCos2);\n"
+"  float rayPhase = 0.75 + 0.75*fCos2;\n"
 "  float miePhase = 1.5 * ((1.0 - g2) / (2.0 + g2)) * (1.0 + fCos2) / pow(1.0 + g2 - 2.0*g*fCos, 1.5);\n"
-"  vec3 color = (rayPhase * v3RayleighColor) + (miePhase * v3MieColor);\n"
-"  gl_FragColor = vec4(vec3(1.0) - exp(-fExposure * color),color.b);\n"
+"  vec3 color = rayPhase * v3RayleighColor + miePhase * v3MieColor;\n"
+"  color = 1.0 - exp(color * -fExposure);"
+"  gl_FragColor = vec4(color,color.b);\n"
 "}\n"
 ;
 
@@ -241,7 +238,7 @@ static const double AtmosphereHeight = 1.025;
     shader.program->setUniform(k_v3CameraPos, Vector3f(cameraPos.x(),cameraPos.y(),cameraPos.z()));
     
     //    "uniform vec3 v3LightPos;"
-    shader.program->setUniform(k_v3LightPos, Vector3f(sunDir.x,sunDir.y,sunDir.z));
+    shader.program->setUniform(k_v3LightPos, Vector3f(-sunDir.x,-sunDir.y,-sunDir.z));
     //    "uniform float fCameraHeight;"
     float height = frameInfo.heightAboveSurface+1.0;
     shader.program->setUniform(k_fCameraHeight, height);
@@ -284,8 +281,8 @@ static const double AtmosphereHeight = 1.025;
     sphere.radius = AtmosphereHeight;
     compObj = [viewC addShapes:@[sphere] desc:@{kMaplyZBufferRead: @(NO),
                                                 kMaplyZBufferWrite: @(NO),
-                                                kMaplyShapeSampleX: @(60),
-                                                kMaplyShapeSampleY: @(30),
+                                                kMaplyShapeSampleX: @(240),
+                                                kMaplyShapeSampleY: @(120),
                                                 kMaplyDrawPriority: @(0),
                                                 kMaplyShader: kAtmosphereShader}];
     
