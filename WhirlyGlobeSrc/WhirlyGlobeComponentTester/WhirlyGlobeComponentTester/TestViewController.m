@@ -112,7 +112,7 @@ static const int BaseEarthPriority = 10;
     MaplyActiveObject *animSphere;
     NSMutableDictionary *loftPolyDict;
     MaplyStarsModel *stars;
-    MaplyComponentObject *sunObj;
+    MaplyComponentObject *sunObj,*moonObj;
     MaplyAtmosphere *atmosObj;
 
     // A source of elevation data, if we're in that mode
@@ -964,6 +964,16 @@ static const float EarthRadius = 6371000;
         sunObj = [globeViewC addBillboards:@[bill] desc:@{kMaplyBillboardOrient: kMaplyBillboardOrientEye} mode:MaplyThreadAny];
     }
     
+    // Position for the moon
+    MaplyMoon *moon = [[MaplyMoon alloc] initWithDate:[NSDate date]];
+    MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
+    sphere.center = [moon asCoordinate];
+    sphere.radius = 0.2;
+    sphere.height = 4.0;
+    moonObj = [globeViewC addShapes:@[sphere] desc:
+               @{kMaplyColor: [UIColor grayColor],
+                 kMaplyShader: kMaplyShaderDefaultTriNoLighting}];
+    
     // And some atmosphere, because the iDevice fill rate is just too fast
     atmosObj = [[MaplyAtmosphere alloc] initWithViewC:globeViewC];
     [atmosObj setSunDirection:[sun getDirection]];
@@ -1750,8 +1760,10 @@ static const int NumMegaMarkers = 15000;
         {
             [stars removeFromViewC];
             [baseViewC removeObject:sunObj];
+            [baseViewC removeObject:moonObj];
             [atmosObj removeFromViewC];
             sunObj = nil;
+            moonObj = nil;
             stars = nil;
             atmosObj = nil;
         }
