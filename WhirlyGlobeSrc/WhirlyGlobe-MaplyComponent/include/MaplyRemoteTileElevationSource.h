@@ -45,7 +45,7 @@
 
 @property (nonatomic,strong) NSString *queryStr;
 
-//JM not needed yet?
+//TODO(JM) not needed yet?
 //- (void)addBoundingBox:(MaplyBoundingBox *)bbox;
 //- (void)addGeoBoundingBox:(MaplyBoundingBox *)bbox;
 //- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
@@ -75,7 +75,7 @@
 
 - (void) remoteTileElevationSource:(id)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *)error;
 
-//JM need enable/disable elevation?
+//TODO(JM) need enable/disable elevation?
 //- (void)remoteTileElevationSource:(id)tileSource tileDisabled:(MaplyTileID)tileID;
 //- (void)remoteTileElevationSource:(id)tileSource tileEnabled:(MaplyTileID)tileID;
 
@@ -113,7 +113,7 @@
 @property (nonatomic,strong) NSString *cacheDir;
 
 
-//JM needed?
+//TODO(JM) needed?
 //+ (void)setTrackConnections:(bool)track;
 //+ (int)numOutstandingConnections;
 
