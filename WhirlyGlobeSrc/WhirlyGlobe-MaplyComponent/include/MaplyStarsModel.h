@@ -30,6 +30,10 @@
 /// @brief Read stars from the given file
 - (id)initWithFileName:(NSString *)fileName;
 
+/// @brief Use the given image for each point.
+/// @details The given image will be sampled for individual points.
+- (void)setImage:(UIImage *)image;
+
 /** @brief Add stars to the given view controller
     @details Turn the star positions into geometry to display.  This object will track the resulting geometry objects.
     @param viewC The view controller to add the start geometry to.
