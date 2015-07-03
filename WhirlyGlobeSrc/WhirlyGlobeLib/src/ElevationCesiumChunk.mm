@@ -21,6 +21,7 @@
 #import "ElevationCesiumChunk.h"
 #import "ElevationCesiumFormat.h"
 #import "oct.h"
+#import "WhirlyOctEncoding.h"
 
 using namespace WhirlyKit;
 
@@ -242,7 +243,10 @@ static inline Point3f canonical_oct_decode(uint8_t x, uint8_t y)
 
 				for (int i = 0; i < vertexCount; )
 				{
-					Point3f n = canonical_oct_decode(normals[i], normals[i+1]);
+					//TODO(JM) official implementation produces different values than Cesium's one
+					// Which is the good one?
+					Point3f n = OctDecode(normals[i], normals[i+1]);
+					//Point3f n = canonical_oct_decode(normals[i], normals[i+1]);
 
 					NSLog(@"[%d, %d]%f, %f, %f", normals[i], normals[i+1], n.x(), n.y(), n.z());
 
