@@ -1037,7 +1037,7 @@ using namespace WhirlyKit;
 
 - (void)loadedElevation:(MaplyElevationChunk *)elevChunk forTile:(MaplyTileID)tileID frame:(int)frame
 {
-	//JM we need to set the elevation in the tile (loadTile.elevChunk = wkChunk)
+	//TODO(JM) we need to set the elevation in the tile (loadTile.elevChunk = wkChunk)
 	// and for that we need to get the MaplyImageTile (from the raw data)
 	// How???
 	//MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];

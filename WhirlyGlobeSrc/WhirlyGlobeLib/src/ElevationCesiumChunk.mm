@@ -20,6 +20,8 @@
 
 #import "ElevationCesiumChunk.h"
 #import "ElevationCesiumFormat.h"
+#import "oct.h"
+#import "WhirlyOctEncoding.h"
 
 using namespace WhirlyKit;
 
@@ -28,7 +30,7 @@ static inline int16_t decodeZigZag(uint16_t encodedValue)
     return (encodedValue >> 1) ^ (-(encodedValue & 1));
 }
 
-static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &decoded)
+static inline void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &decoded)
 {
 // Taken from
 // https://books.google.es/books?id=0bTMBQAAQBAJ&lpg=PA450&ots=bxAyZK_cSz&dq=high%20water%20mark%20encoding&pg=PA448#v=onepage&q&f=false
@@ -46,6 +48,26 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 	}
 }
 
+static inline void oct_normalize(float vec[3]) {
+	float len = sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
+	vec[0] /= len;
+	vec[1] /= len;
+	vec[2] /= len;
+}
+
+static inline Point3f canonical_oct_decode(uint8_t x, uint8_t y)
+{
+	Snorm<snormSize> projected[2];
+	projected[0] = Snorm<snormSize>::fromBits(x);
+	projected[1] = Snorm<snormSize>::fromBits(y);
+
+	float vec[3];
+
+	octDecode(projected, vec);
+	oct_normalize(vec);
+
+	return Point3f(vec[0], vec[1], vec[2]);
+}
 
 
 @implementation WhirlyKitElevationCesiumChunk
@@ -56,13 +78,13 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 		_sizeX = sizeX;
 		_sizeY = sizeY;
 
-		[self readData:(uint8_t *) [data bytes]];
+		[self readData:(uint8_t *) [data bytes] length:[data length]];
 	}
 
 	return self;
 }
 
-- (void)readData:(uint8_t *)data
+- (void)readData:(uint8_t *)data length:(size_t)length
 {
 	// This tool may be useful to compare values read with Cesium's JS code
 	// https://github.com/jmnavarro/cesium-quantized-mesh-terrain-format-logger
@@ -72,8 +94,8 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 
 	// QuantizedMeshHeader
 	// ====================
-	struct QuantizedMeshHeader header = *(struct QuantizedMeshHeader *)data;
-	data += sizeof(struct QuantizedMeshHeader);
+	CesiumQuantizedMeshHeader header = *(CesiumQuantizedMeshHeader *)data;
+	data += sizeof(CesiumQuantizedMeshHeader);
 
 	// VertexData
 	// ====================
@@ -204,8 +226,42 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 
 	// Extensions
 	// ===========
+	const static int kOctEncodedVertexNormals = 1;
 
-	//TODO do we need extensions?
+	while ((data - startData) < length) {
+		uint8_t extensionId = *(uint8_t *)data;
+		data += sizeof(uint8_t);
+		uint32_t extensionLength = CFSwapInt32LittleToHost(*(uint32_t *)data);
+		data += sizeof(uint32_t);
+
+		switch (extensionId) {
+			case kOctEncodedVertexNormals:
+			{
+				uint8_t *normals = (uint8_t *)data;
+
+				_normals.reserve(vertexCount);
+
+				for (int i = 0; i < vertexCount; )
+				{
+					//TODO(JM) official implementation produces different values than Cesium's one
+					// Which is the good one?
+					Point3f n = OctDecode(normals[i], normals[i+1]);
+					//Point3f n = canonical_oct_decode(normals[i], normals[i+1]);
+
+					NSLog(@"[%d, %d]%f, %f, %f", normals[i], normals[i+1], n.x(), n.y(), n.z());
+
+					_normals.push_back(n);
+
+					i += 2;
+				}
+				break;
+			}
+			default:
+				break;
+		}
+
+		data += extensionLength;
+	}
 }
 
 - (vector<uint32_t>)readVertexList:(Byte **)dataRef is32:(BOOL)is32
@@ -215,6 +271,7 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 
 	uint32_t vertexCount = CFSwapInt32LittleToHost(*(uint32_t *)data);
 	data += sizeof(uint32_t);
+	*dataRef += sizeof(uint32_t);
 
 	if (is32)
 	{
@@ -223,7 +280,7 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 		for (int i = 0; i < vertexCount; ++i)
 			list.push_back(CFSwapInt32LittleToHost(indices[i]));
 
-		*dataRef += sizeof(uint32_t) + (vertexCount * sizeof(uint32_t));
+		*dataRef += vertexCount * sizeof(uint32_t);
 	}
 	else
 	{
@@ -232,9 +289,8 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 		for (int i = 0; i < vertexCount; ++i)
 			list.push_back(CFSwapInt16LittleToHost(indices[i]));
 
-		*dataRef += sizeof(uint32_t) + (vertexCount * sizeof(uint16_t));
+		*dataRef += vertexCount * sizeof(uint16_t);
 	}
-
 
 	return list;
 }
