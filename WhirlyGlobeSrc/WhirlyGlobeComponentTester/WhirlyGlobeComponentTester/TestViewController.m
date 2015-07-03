@@ -925,6 +925,7 @@ static const int BaseEarthPriority = 10;
     if (fileName)
     {
         stars = [[MaplyStarsModel alloc] initWithFileName:fileName];
+        stars.image = [UIImage imageNamed:@"star_background"];
         [stars addToViewC:globeViewC desc:nil mode:MaplyThreadCurrent];
     }
 }
@@ -975,8 +976,9 @@ static const float EarthRadius = 6371000;
                  kMaplyShader: kMaplyShaderDefaultTriNoLighting}];
     
     // And some atmosphere, because the iDevice fill rate is just too fast
-    atmosObj = [[MaplyAtmosphere alloc] initWithViewC:globeViewC];
-    [atmosObj setSunDirection:[sun getDirection]];
+    // Note: Debugging
+//    atmosObj = [[MaplyAtmosphere alloc] initWithViewC:globeViewC];
+//    [atmosObj setSunDirection:[sun getDirection]];
 }
 
 // Number of unique images to use for the mega markers
