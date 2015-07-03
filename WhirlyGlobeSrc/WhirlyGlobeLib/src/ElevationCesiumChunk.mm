@@ -20,6 +20,7 @@
 
 #import "ElevationCesiumChunk.h"
 #import "ElevationCesiumFormat.h"
+#import "oct.h"
 
 using namespace WhirlyKit;
 
@@ -28,7 +29,7 @@ static inline int16_t decodeZigZag(uint16_t encodedValue)
     return (encodedValue >> 1) ^ (-(encodedValue & 1));
 }
 
-static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &decoded)
+static inline void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &decoded)
 {
 // Taken from
 // https://books.google.es/books?id=0bTMBQAAQBAJ&lpg=PA450&ots=bxAyZK_cSz&dq=high%20water%20mark%20encoding&pg=PA448#v=onepage&q&f=false
@@ -46,6 +47,26 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 	}
 }
 
+static inline void oct_normalize(float vec[3]) {
+	float len = sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
+	vec[0] /= len;
+	vec[1] /= len;
+	vec[2] /= len;
+}
+
+static inline Point3f canonical_oct_decode(uint8_t x, uint8_t y)
+{
+	Snorm<snormSize> projected[2];
+	projected[0] = Snorm<snormSize>::fromBits(x);
+	projected[1] = Snorm<snormSize>::fromBits(y);
+
+	float vec[3];
+
+	octDecode(projected, vec);
+	oct_normalize(vec);
+
+	return Point3f(vec[0], vec[1], vec[2]);
+}
 
 
 @implementation WhirlyKitElevationCesiumChunk
@@ -217,12 +238,15 @@ static void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t> &deco
 			{
 				uint8_t *normals = (uint8_t *)data;
 
-				_encodedNormals.reserve(vertexCount * 2);
+				_normals.reserve(vertexCount);
 
 				for (int i = 0; i < vertexCount; )
 				{
-					_encodedNormals.push_back(normals[i]);
-					_encodedNormals.push_back(normals[i+1]);
+					Point3f n = canonical_oct_decode(normals[i], normals[i+1]);
+
+					NSLog(@"[%d, %d]%f, %f, %f", normals[i], normals[i+1], n.x(), n.y(), n.z());
+
+					_normals.push_back(n);
 
 					i += 2;
 				}
