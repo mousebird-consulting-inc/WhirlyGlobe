@@ -248,7 +248,7 @@ static inline Point3f canonical_oct_decode(uint8_t x, uint8_t y)
 					Point3f n = OctDecode(normals[i], normals[i+1]);
 					//Point3f n = canonical_oct_decode(normals[i], normals[i+1]);
 
-					NSLog(@"[%d, %d]%f, %f, %f", normals[i], normals[i+1], n.x(), n.y(), n.z());
+//					NSLog(@"[%d, %d]%f, %f, %f", normals[i], normals[i+1], n.x(), n.y(), n.z());
 
 					_normals.push_back(n);
 
@@ -355,7 +355,6 @@ static inline Point3f canonical_oct_decode(uint8_t x, uint8_t y)
         // Convert the point to display space
         const Point3f &pt = _mesh->pts[ip];
         Point3d loc3d(chunkLL.x()+pt.x()/_sizeX * chunkSize.x(),chunkLL.y()+pt.y()/_sizeY * chunkSize.y(),pt.z()*100);
-        NSLog(@"z = %f",pt.z());
         Point3d disp3d = drawInfo->coordAdapter->localToDisplay(CoordSystemConvert3d(drawInfo->coordSys,sceneCoordSys,loc3d));
         
         // Texture runs across the tile [0,1]
