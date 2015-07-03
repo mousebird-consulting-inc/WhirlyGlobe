@@ -28,7 +28,7 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-//JM I got rid of all of them!!
+//TODO(JM) I got rid of all of them!!
 // If you want to avoid contention (I guess), why not using a NSOperationQueue?
 // Maybe AFNetworking is doing something similar internally
 //
@@ -255,7 +255,7 @@ using namespace WhirlyKit;
                     elevChunk = [_delegate remoteTileElevationSource:self modifyElevReturn:elevChunk forTile:tileID];
                 }
 
-				//JM is this return missing in MaplyRemoteTileElevationSource::imageForTile??
+				//TODO(JM) is this return missing in MaplyRemoteTileElevationSource::imageForTile??
 				return elevChunk;
             }
         }
@@ -284,7 +284,7 @@ using namespace WhirlyKit;
 
             elevChunk = [self decodeElevationData:tileData];
 
-            //JM what about to serialize & cache MaplyElevationChunk decoded data instead of raw server data?
+            //TODO(JM) what about to serialize & cache MaplyElevationChunk decoded data instead of raw server data?
             // We would save the decoding time when we hit the cache
 
             if ([_delegate respondsToSelector:@selector(remoteTileElevationSource:modifyTileReturn:forTile:)]) {
@@ -357,7 +357,7 @@ using namespace WhirlyKit;
                     
                     // Let's also write it back out for the cache
                     if (weakSelf.tileInfo.cacheDir)
-						//JM why not asynchronously?
+						//TODO(JM) is it worth to delegate this write to a different worker thread?
                         [elevData writeToFile:fileName atomically:YES];
 
 					MaplyElevationChunk *elevChunk = [self decodeElevationData:elevData];
