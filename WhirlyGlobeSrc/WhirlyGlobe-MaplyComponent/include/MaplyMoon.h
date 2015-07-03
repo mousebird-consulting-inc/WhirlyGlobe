@@ -33,6 +33,9 @@
   */
 - (id)initWithDate:(NSDate *)date;
 
+/// @brief Location on the globe where the moon would land if it fell straight down.  Ouch.
+- (MaplyCoordinate)asCoordinate;
+
 /// @brief Return the location above the globe in lon/lat/distance.  Yay geocentric!
 - (MaplyCoordinate3d)asPosition;
 
