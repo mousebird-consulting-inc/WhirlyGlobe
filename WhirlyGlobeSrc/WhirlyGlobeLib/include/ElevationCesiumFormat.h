@@ -21,7 +21,7 @@
 // Take from
 // http://cesiumjs.org/data-and-assets/terrain/formats/quantized-mesh-1.0.html
 
-struct QuantizedMeshHeader
+typedef struct _CesiumQuantizedMeshHeader
 {
     // The center of the tile in Earth-centered Fixed coordinates.
     double CenterX;
@@ -49,7 +49,8 @@ struct QuantizedMeshHeader
     double HorizonOcclusionPointX;
     double HorizonOcclusionPointY;
     double HorizonOcclusionPointZ;
-};
+} CesiumQuantizedMeshHeader;
+
 
 /*
 struct VertexData
@@ -100,5 +101,11 @@ struct EdgeIndices32
 
     uint32_t northVertexCount;
     uint32_t northIndices[northVertexCount];
+}
+
+struct CesiumExtensionHeader
+{
+    uint8_t extensionId;
+    uint32_t extensionLength;
 }
 */

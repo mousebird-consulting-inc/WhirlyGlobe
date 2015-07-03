@@ -44,4 +44,6 @@ using namespace std;
 @property (nonatomic, readonly) vector<unsigned int> &eastVertices;
 @property (nonatomic, readonly) vector<unsigned int> &northVertices;
 
+@property (nonatomic, readonly) vector<Point3f> normals;
+
 @end
