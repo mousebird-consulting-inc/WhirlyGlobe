@@ -57,6 +57,11 @@ typedef struct
     return self;
 }
 
+- (void)setImage:(UIImage *)inImage
+{
+    image = inImage;
+}
+
 static const char *vertexShaderTriPoint =
 "uniform mat4  u_mvpMatrix;"
 "uniform float u_radius;"
