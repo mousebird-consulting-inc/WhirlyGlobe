@@ -456,6 +456,8 @@
 		8813F5631B468555004E595F /* snorm.h in Headers */ = {isa = PBXBuildFile; fileRef = 8813F5591B468555004E595F /* snorm.h */; };
 		8813F5641B468555004E595F /* spherical.h in Headers */ = {isa = PBXBuildFile; fileRef = 8813F55A1B468555004E595F /* spherical.h */; };
 		8813F5651B468555004E595F /* stereo.h in Headers */ = {isa = PBXBuildFile; fileRef = 8813F55B1B468555004E595F /* stereo.h */; };
+		8813F5701B468AE5004E595F /* WhirlyOctEncoding.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8813F56F1B468AE5004E595F /* WhirlyOctEncoding.mm */; };
+		8813F5721B468B16004E595F /* WhirlyOctEncoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 8813F5711B468B16004E595F /* WhirlyOctEncoding.h */; };
 		884D4F6D1975812700F2D517 /* MaplyTouchCancelAnimationDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 884D4F6B1975812700F2D517 /* MaplyTouchCancelAnimationDelegate.mm */; };
 		884D4F6F1975818C00F2D517 /* MaplyTouchCancelAnimationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 884D4F6E1975818C00F2D517 /* MaplyTouchCancelAnimationDelegate.h */; };
 		E594E38C17E81434008D5741 /* MaplyRotateDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = E594E38B17E81434008D5741 /* MaplyRotateDelegate.mm */; };
@@ -958,6 +960,8 @@
 		8813F5591B468555004E595F /* snorm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = snorm.h; sourceTree = "<group>"; };
 		8813F55A1B468555004E595F /* spherical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spherical.h; sourceTree = "<group>"; };
 		8813F55B1B468555004E595F /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo.h; sourceTree = "<group>"; };
+		8813F56F1B468AE5004E595F /* WhirlyOctEncoding.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WhirlyOctEncoding.mm; path = src/WhirlyOctEncoding.mm; sourceTree = SOURCE_ROOT; };
+		8813F5711B468B16004E595F /* WhirlyOctEncoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyOctEncoding.h; sourceTree = "<group>"; };
 		884D4F6B1975812700F2D517 /* MaplyTouchCancelAnimationDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTouchCancelAnimationDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
 		884D4F6E1975818C00F2D517 /* MaplyTouchCancelAnimationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTouchCancelAnimationDelegate.h; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
@@ -1684,6 +1688,7 @@
 		2BCABA5912F8D6DD0049D73C /* geometry utils */ = {
 			isa = PBXGroup;
 			children = (
+				8813F5711B468B16004E595F /* WhirlyOctEncoding.h */,
 				2BC53FE112DE23BA00778431 /* WhirlyVector.h */,
 				2B3A36E412E63F9500698DA1 /* WhirlyGeometry.h */,
 				2BEFDE95149966D400C63326 /* GridClipper.h */,
@@ -1716,6 +1721,7 @@
 		2BCABA6612F8D9FC0049D73C /* geometry utils */ = {
 			isa = PBXGroup;
 			children = (
+				8813F56F1B468AE5004E595F /* WhirlyOctEncoding.mm */,
 				2B3A36E512E63F9500698DA1 /* WhirlyGeometry.mm */,
 				2B95192E12EF4417005003AE /* WhirlyVector.mm */,
 				2BEFDE99149966F300C63326 /* GridClipper.mm */,
@@ -2129,6 +2135,7 @@
 				2BA2326C17984F510063CC84 /* normal.h in Headers */,
 				2BA2326D17984F510063CC84 /* priorityq-heap.h in Headers */,
 				8813F5641B468555004E595F /* spherical.h in Headers */,
+				8813F5721B468B16004E595F /* WhirlyOctEncoding.h in Headers */,
 				2BA2326F17984F510063CC84 /* priorityq-sort.h in Headers */,
 				2BA2327117984F510063CC84 /* priorityq.h in Headers */,
 				8813F5631B468555004E595F /* snorm.h in Headers */,
@@ -2489,6 +2496,7 @@
 				2BB25928177A044300770619 /* ElevationChunk.mm in Sources */,
 				2BB2592C177A045300770619 /* BillboardLayer.mm in Sources */,
 				2BB2592D177A045300770619 /* BillboardDrawable.mm in Sources */,
+				8813F5701B468AE5004E595F /* WhirlyOctEncoding.mm in Sources */,
 				2BB2592E177A045300770619 /* SceneGraphManager.mm in Sources */,
 				2BA2326317984F510063CC84 /* dict.c in Sources */,
 				2B4BB0BA1B0EB5B400C9140E /* ParticleSystemLayer.mm in Sources */,
