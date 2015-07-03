@@ -37,6 +37,7 @@ Point3f OctDecode(uint8_t enc_x, uint8_t enc_y)
 		y = (1 - fabs(oldVX)) * (y     < 0.0 ? -1.0 : 1.0);
 	}
 
+	// normalize
 	double_t magnitude = sqrtf(x * x + y * y + z * z);
 
 	x /= magnitude;
