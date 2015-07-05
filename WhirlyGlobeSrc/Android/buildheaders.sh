@@ -4,9 +4,11 @@ for mod in AngleAxis AttrDictionary ChangeSet CoordSystem CoordSystemDisplayAdap
 do
 
 echo "Building header for $mod"
-javac -classpath /Users/sjg/android/adt-bundle-mac-x86_64-20130917/sdk/platforms/android-18/android.jar:.  com/mousebird/maply/$mod.java
-javah -classpath /Users/sjg/android/adt-bundle-mac-x86_64-20130917/sdk/platforms/android-18/android.jar:. -jni com.mousebird.maply.$mod
+javac -classpath ${1}/platforms/android-18/android.jar:.  com/mousebird/maply/$mod.java
+javah -classpath ${1}/platforms/android-18/android.jar:. -jni com.mousebird.maply.$mod
 mv com_mousebird_maply_$mod.h ../jni/
 mv com_mousebird_maply_$mod_*.h ../jni/
 
 done
+
+exit 0
