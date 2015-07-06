@@ -118,6 +118,7 @@ void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<Whi
         drawable->setDrawPriority(billInfo.drawPriority);
         drawable->setRequestZBuffer(true);
         drawable->setWriteZBuffer(true);
+        drawable->setOnOff(billInfo.enable);
         if (!vertAttrs.empty())
         {
             SingleVertexAttributeInfoSet vertInfoSet;

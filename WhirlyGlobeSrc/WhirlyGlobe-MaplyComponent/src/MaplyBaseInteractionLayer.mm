@@ -1548,6 +1548,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyShapeDrawPriorityDefault) toDict:inDesc];
+    [self applyDefaultName:kMaplyShapeInsideOut value:@(NO) toDict:inDesc];
     [self applyDefaultName:kMaplyShapeSampleX value:@(10) toDict:inDesc];
     [self applyDefaultName:kMaplyShapeSampleY value:@(10) toDict:inDesc];
 
@@ -1562,7 +1563,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         if ([shape isKindOfClass:[MaplyShapeCircle class]])
         {
             MaplyShapeCircle *circle = (MaplyShapeCircle *)shape;
-            WhirlyKitCircle *newCircle = [[WhirlyKitCircle alloc] init];
+            WhirlyKitCircle *newCircle = [[WhirlyKitCircle alloc] init];\
+
             newCircle.loc.lon() = circle.center.x;
             newCircle.loc.lat() = circle.center.y;
             newCircle.radius = circle.radius;
@@ -1745,7 +1747,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         }
         if ([specialShapes count] > 0)
         {
-            // If they haven't override the shader already, we need the non-backface one for these objects
+            // If they haven't overrided the shader already, we need the non-backface one for these objects
             NSMutableDictionary *newDesc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
             if (!newDesc[kMaplyShader])
             {

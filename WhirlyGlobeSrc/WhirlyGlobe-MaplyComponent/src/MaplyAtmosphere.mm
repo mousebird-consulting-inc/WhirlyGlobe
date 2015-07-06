@@ -289,6 +289,7 @@ static const double AtmosphereHeight = 1.025;
                                                 kMaplyZBufferWrite: @(NO),
                                                 kMaplyShapeSampleX: @(240),
                                                 kMaplyShapeSampleY: @(120),
+                                                kMaplyShapeInsideOut: @(YES),
                                                 kMaplyDrawPriority: @(0),
                                                 kMaplyShader: kAtmosphereShader}];
     
