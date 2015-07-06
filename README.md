@@ -7,18 +7,6 @@ This fork is for the Jekyll conversion of WhirlyGlobe-Maply documentation. Here'
 Perform a single-user installation of [RVM](http://rvm.io/rvm/install). Be sure that your installation passes the ```rvm
 is a function``` test.
 
-### Git Clone this repository
-
-```
-$ git clone git@github.com:erictheise/WhirlyGlobe.git
-Cloning into 'WhirlyGlobe'...
-remote: Counting objects: 111, done.
-remote: Total 111 (delta 0), reused 0 (delta 0)
-Receiving objects: 100% (111/111), 669.14 KiB | 216.00 KiB/s, done.
-Resolving deltas: 100% (33/33), done.
-Checking connectivity... done.
-$
-```
 ### Use Bundler to install Jekyll and Its Dependencies
 
 ```
