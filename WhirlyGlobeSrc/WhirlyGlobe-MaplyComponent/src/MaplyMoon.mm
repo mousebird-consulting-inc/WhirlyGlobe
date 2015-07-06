@@ -101,7 +101,7 @@ double frange(double x)
 
 - (MaplyCoordinate3d)asPosition
 {
-    return MaplyCoordinate3dMake(Lm/180*M_PI, Bm/180*M_PI, 6.0);
+    return MaplyCoordinate3dMake(Lm/180*M_PI, Bm/180*M_PI, 5.0);
 }
 
 @end
