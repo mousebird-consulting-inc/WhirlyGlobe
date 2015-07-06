@@ -977,8 +977,8 @@ static const float EarthRadius = 6371000;
     
     // And some atmosphere, because the iDevice fill rate is just too fast
     // Note: Debugging
-//    atmosObj = [[MaplyAtmosphere alloc] initWithViewC:globeViewC];
-//    [atmosObj setSunDirection:[sun getDirection]];
+    atmosObj = [[MaplyAtmosphere alloc] initWithViewC:globeViewC];
+    [atmosObj setSunDirection:[sun getDirection]];
 }
 
 // Number of unique images to use for the mega markers

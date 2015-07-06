@@ -67,6 +67,7 @@ static const int ShapeDrawPriority=1;
     _zBufferWrite = [desc floatForKey:@"zbufferwrite" default:true];
     _enable = [desc boolForKey:@"enable" default:true];
     _shaderID = [desc intForKey:@"shader" default:EmptyIdentity];
+    _insideOut = [desc boolForKey:@"shapeinsideout" default:NO];
 }
 
 @end

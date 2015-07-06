@@ -272,6 +272,8 @@
 #define kMaplyShapeSampleX @"shapesamplex"
 /// Samples (y) to use when converting shape to polygons
 #define kMaplyShapeSampleY @"shapesampley"
+/// If set to true, we'll tessellate a shape using the opposite vertex ordering
+#define kMaplyShapeInsideOut @"shapeinsideout"
 
 /// These are used by active vector objects
 #define kMaplyVecHeight @"height"
