@@ -381,6 +381,7 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyColor|UIColor|Color we'll use for the shape features.|
  |kMaplyShapeSampleX|NSNumber|Number of samples to use in one direction when converting to polygons.|
  |kMaplyShapeSampleY|NSNumber|Number of samples to use in the other direction when converting to polygons.|
+ |kMaplyShapeInsideOut|NSNumber boolean|If set to YES, we'll make the spheres inside out and such.  Set to NO by default.|
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The shapes will only be visible if the user is above this height.  Off by default.|
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The shapes will only be visible if the user is below this height.  Off by default.|
  |kMaplyFade|NSNumber|The number of seconds to fade a shape in when it appears and out when it disappears.|

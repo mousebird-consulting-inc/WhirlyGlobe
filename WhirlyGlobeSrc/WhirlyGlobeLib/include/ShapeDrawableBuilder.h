@@ -35,6 +35,7 @@
 @property (nonatomic,assign) float fade;
 @property (nonatomic,assign) float lineWidth;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity shapeId;
+@property (nonatomic,assign) bool insideOut;
 @property (nonatomic,assign) bool zBufferRead;
 @property (nonatomic,assign) bool zBufferWrite;
 @property (nonatomic,assign) bool enable;
@@ -71,7 +72,7 @@ public:
     
     WhirlyKitShapeInfo *getShapeInfo() { return shapeInfo; }
     
-protected:
+public:
     CoordSystemDisplayAdapter *coordAdapter;
     GLenum primType;
     WhirlyKitShapeInfo *shapeInfo;
