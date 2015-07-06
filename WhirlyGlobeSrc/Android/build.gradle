@@ -22,15 +22,11 @@ android {
 
     sourceSets {
         main {
-            sourceSets {
-                main {
-                    manifest.srcFile 'AndroidManifest.xml'
-                    jni.srcDirs = []
-                    jniLibs.srcDir 'libs'
-                    res.srcDirs = ['res']
-                    java.srcDirs = ['src']
-                }
-            }
+            manifest.srcFile 'AndroidManifest.xml'
+            jni.srcDirs = []
+            jniLibs.srcDir 'libs'
+            res.srcDirs = ['res']
+            java.srcDirs = ['src']
         }
     }
 
@@ -86,3 +82,19 @@ buildNative.dependsOn 'buildHeaders'
 tasks.withType(JavaCompile) {
     compileTask -> compileTask.dependsOn buildNative
 }
+
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+	ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+	classpath += files(ext.androidJar)
+    destinationDir = file("doc")
+    failOnError false
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+	classifier = 'javadoc'
+	from javadoc.destinationDir
+}
+
+
