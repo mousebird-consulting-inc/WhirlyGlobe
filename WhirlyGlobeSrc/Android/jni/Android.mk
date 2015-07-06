@@ -4,7 +4,7 @@ include $(CLEAR_VARS)
 
 BASE_DIR := ../../../
 SRC_DIR := $(BASE_DIR)/WhirlyGlobeSrc/WhirlyGlobeLib/src/
-INCLUDE_DIR := ../..//WhirlyGlobeSrc/WhirlyGlobeLib/include/
+INCLUDE_DIR := ../../WhirlyGlobeSrc/WhirlyGlobeLib/include/
 LOCAL_EXPORT_C_INCLUDES = $(BASE_DIR)/WhirlyGlobeSrc/WhirlyGlobeLib/include/
 
 THIRD_PARTY := $(BASE_DIR)third-party/

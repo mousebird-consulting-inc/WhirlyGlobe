@@ -1,0 +1,10 @@
+1) Download and install Android SDK: https://developer.android.com/sdk/index.html#Other
+
+2) Download and install NDK: https://developer.android.com/ndk/downloads/
+
+3) Create "local.properties" next to "build.gradle" with both SDK and NSK paths:
+	sdk.dir=/Absolute/path/to/Android/SDK/root
+	ndk.dir=/Absolute/path/to/Android/NDK/root
+
+4) Run gradle to build both native and Java code. This produces AAR files at build/outputs/aar directory
+	./gradlew assemble
