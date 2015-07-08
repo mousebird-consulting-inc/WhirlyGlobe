@@ -26,6 +26,8 @@
 #import "Scene.h"
 #import "SelectionManager.h"
 
+@class WhirlyKitGeomInfo;
+
 namespace WhirlyKit
 {
     
@@ -62,7 +64,7 @@ typedef std::set<GeomSceneRep *,IdentifiableSorter> GeomSceneRepSet;
 
 /// Types supported for raw geometry
 typedef enum {WhirlyKitGeometryNone,WhirlyKitGeometryLines,WhirlyKitGeometryTriangles} WhirlyKitGeometryRawType;
-
+    
 /// Raw Geometry object.  Fill it in and pass it to the layer.
 class GeometryRaw
 {
@@ -97,7 +99,7 @@ public:
     void calcBounds(Point3d &ll,Point3d &ur);
     
     // Build geometry into a drawable, using the given transform
-    void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride);
+    void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride,WhirlyKitGeomInfo *geomInfo);
 
 public:
     /// What sort of geometry this is

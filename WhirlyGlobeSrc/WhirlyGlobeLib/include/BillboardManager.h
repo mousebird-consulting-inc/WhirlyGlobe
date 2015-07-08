@@ -26,6 +26,7 @@
 #import "BillboardDrawable.h"
 #import "Scene.h"
 #import "SelectionManager.h"
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
@@ -50,15 +51,11 @@ public:
 }
 
 // Used to pass parameters around between threads
-@interface WhirlyKitBillboardInfo : NSObject
+@interface WhirlyKitBillboardInfo : WhirlyKitBaseInfo
 
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity billboardId;
 @property (nonatomic) NSArray *billboards;
 @property (nonatomic) UIColor *color;
-@property (nonatomic,assign) float fade;
-@property (nonatomic,assign) float minVis,maxVis;
-@property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) bool enable;
 
 - (id)initWithBillboards:(NSArray *)billboards desc:(NSDictionary *)desc;
 

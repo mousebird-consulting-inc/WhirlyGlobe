@@ -29,7 +29,6 @@
 #import "AnimateViewMomentum.h"
 #import "GlobeScene.h"
 #import "SphericalEarthLayer.h"
-#import "GridLines.h"
 #import "NSString+Stuff.h"
 #import "UIImage+Stuff.h"
 #import "TextureGroup.h"
