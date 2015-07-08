@@ -29,6 +29,7 @@
 #import "SelectionManager.h"
 #import "LayoutManager.h"
 #import "Scene.h"
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
@@ -58,7 +59,6 @@ public:
 
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs used for selection
-    SimpleIDSet markerIDs;  // IDs for markers sent to the generator
     SimpleIDSet screenShapeIDs;  // IDs for screen space objects
     bool useLayout;  // True if we used the layout manager (and thus need to delete)
     float fadeOut;   // Time to fade away for deletion
@@ -68,20 +68,12 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 }
 
 // Used to pass marker information between threads
-@interface WhirlyKitMarkerInfo : NSObject
+@interface WhirlyKitMarkerInfo : WhirlyKitBaseInfo
 
 @property (nonatomic) NSArray *markers;
 @property (nonatomic) UIColor *color;
-@property (nonatomic) int drawOffset;
-@property (nonatomic) float minVis,maxVis;
 @property (nonatomic) bool screenObject;
 @property (nonatomic) float width,height;
-@property (nonatomic) int drawPriority;
-@property (nonatomic) float fadeIn;
-@property (nonatomic) float fadeOut;
-@property (nonatomic) NSTimeInterval fadeOutTime;
-@property (nonatomic) bool enable;
-@property (nonatomic) NSTimeInterval startEnable,endEnable;
 @property (nonatomic) WhirlyKit::SimpleIdentity  markerId;
 @property (nonatomic) WhirlyKit::SimpleIdentity programId;
 

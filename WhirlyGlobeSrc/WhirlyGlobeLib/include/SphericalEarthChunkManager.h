@@ -27,6 +27,7 @@
 #import "Scene.h"
 #import "DynamicTextureAtlas.h"
 #import "DynamicDrawableAtlas.h"
+#import "BaseInfo.h"
 
 /** This defines a chunk of the globe to overlay with a single
  image.  In general you should use one of the quad layers
@@ -82,7 +83,7 @@
 @end
 
 // Used to pass chunks between main and layer threads
-@interface WhirlyKitSphericalChunkInfo : NSObject
+@interface WhirlyKitSphericalChunkInfo : WhirlyKitBaseInfo
 {
 @public
     bool enable;

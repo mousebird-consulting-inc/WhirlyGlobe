@@ -97,7 +97,10 @@ public:
     void setEnableTimeRange(NSTimeInterval inStartEnable,NSTimeInterval inEndEnable) { startEnable = inStartEnable;  endEnable = inEndEnable; }
     
     /// Set the min/max visible range
-    void setVisibleRange(float inMinVis,float inMaxVis) { hasMinVis = true;  minVis = inMinVis;  hasMaxVis = true;  maxVis = inMaxVis; }
+    void setVisibleRange(float inMinVis,float inMaxVis) { minVis = inMinVis;   maxVis = inMaxVis; }
+
+    /// Set the viewer based visibility
+    void setViewerVisibility(double inMinViewerDist,double inMaxViewerDist,const Point3d &inViewerCenter) { minViewerDist = inMinViewerDist; maxViewerDist = inMaxViewerDist; viewerCenter = inViewerCenter; }
     
     /// Set the color
     void setColor(RGBAColor inColor) { hasColor = true; color = inColor; }
@@ -143,10 +146,10 @@ protected:
     RGBAColor color;
     bool hasLineWidth;
     float lineWidth;
-    bool hasMinVis;
     float minVis;
-    bool hasMaxVis;
     float maxVis;
+    double minViewerDist,maxViewerDist;
+    Point3d viewerCenter;
     int numInstances;
     GLuint instBuffer;
     GLuint vertArrayObj;

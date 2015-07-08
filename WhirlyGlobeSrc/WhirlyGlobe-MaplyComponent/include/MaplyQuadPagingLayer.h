@@ -189,11 +189,27 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
   */
 - (void)boundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
 
+/** @brief Return the center of the tile in display coordinates.
+    @param tileID The ID for the tile we're interested in.
+    @return Return the center in display space for the given tile.
+  */
+- (MaplyCoordinate3d)displayCenterForTile:(MaplyTileID)tileID;
+
 /** @brief Maximum number of tiles to load in at once.
  @details This is the maximum number of tiles the pager will have loaded into memory at once.  The default is 256 and that's generally good enough.  However, if your tile size is small, you may want to load in more.
  @details Tile loading can get out of control when using elevation data.  The toolkit calculates potential sceen coverage for each tile so elevation data makes all tiles more important.  As a result the system will happily page in way more data than you may want.  The limit becomes important in elevation mode, so leave it at 128 unless you need to change it.
  */
 @property (nonatomic) int maxTiles;
+
+/** @brief Set the minimum tile height (0.0 by default).
+    @details When paging tiles containing 3D geometry it's helpful to know the min and max height.  This is the minimum height and defaults to 0.0.
+  */
+@property (nonatomic) float minTileHeight;
+
+/** @brief Set the maximum tile height (0.0 off by default)
+    @details When paging tiles containing 3D geometry it's helpful to know the min and max height.  This is the maximum height and it defaults to 0.0.  When min and max are the same, they are ignored.
+  */
+@property (nonatomic) float maxTileHeight;
 
 /** @brief Reload the paging layer contents.
     @details This asks the paging layer to clean out its current data and reload everything from scratch.

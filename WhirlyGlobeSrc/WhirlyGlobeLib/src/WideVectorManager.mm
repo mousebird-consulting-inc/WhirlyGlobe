@@ -31,11 +31,6 @@ using namespace Eigen;
 - (void)parseDesc:(NSDictionary *)desc
 {
     _color = [desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    _minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
-    _maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
-    _fade = [desc floatForKey:@"fade" default:0.0];
-    _drawPriority = [desc intForKey:@"drawPriority" default:0];
-    _enable = [desc boolForKey:@"enable" default:true];
     _shader = [desc intForKey:@"shader" default:EmptyIdentity];
     _width = [desc floatForKey:@"width" default:2.0];
     _coordType = (WhirlyKit::WideVectorCoordsType)[desc enumForKey:@"wideveccoordtype" values:@[@"real",@"screen"] default:WideVecCoordScreen];
@@ -721,10 +716,8 @@ public:
             }
 //            drawMbr.reset();
             drawable->setType(GL_TRIANGLES);
-            drawable->setOnOff(vecInfo.enable);
+            [vecInfo setupBasicDrawable:drawable];
             drawable->setColor([vecInfo.color asRGBAColor]);
-            drawable->setDrawPriority(vecInfo.drawPriority);
-            drawable->setVisibleRange(vecInfo.minVis,vecInfo.maxVis);
             if (vecInfo.texID != EmptyIdentity)
                 drawable->setTexId(0, vecInfo.texID);
             if (centerValid)

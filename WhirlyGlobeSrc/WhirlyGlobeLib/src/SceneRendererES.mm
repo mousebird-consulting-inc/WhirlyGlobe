@@ -73,6 +73,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     _currentTime = info.currentTime;
     _eyeVec = info.eyeVec;
     _fullEyeVec = info.fullEyeVec;
+    _eyePos = info.eyePos;
     _dispCenter = info.dispCenter;
     _heightAboveSurface = info.heightAboveSurface;
     _screenSizeInDisplayCoords = info.screenSizeInDisplayCoords;
