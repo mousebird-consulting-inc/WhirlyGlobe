@@ -4,6 +4,8 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.2.0+'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
+        classpath 'com.github.dcendents:android-maven-plugin:1.2'
     }
 }
 
@@ -13,8 +15,12 @@ allprojects {
     }
 }
 
+group = 'com.mousebirdconsulting.maply'
+version = '3.0'
 
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
 
 android {
     compileSdkVersion 18
@@ -22,15 +28,11 @@ android {
 
     sourceSets {
         main {
-            sourceSets {
-                main {
-                    manifest.srcFile 'AndroidManifest.xml'
-                    jni.srcDirs = []
-                    jniLibs.srcDir 'libs'
-                    res.srcDirs = ['res']
-                    java.srcDirs = ['src']
-                }
-            }
+            manifest.srcFile 'AndroidManifest.xml'
+            jni.srcDirs = []
+            jniLibs.srcDir 'libs'
+            res.srcDirs = ['res']
+            java.srcDirs = ['src']
         }
     }
 
@@ -85,4 +87,84 @@ buildNative.dependsOn 'buildHeaders'
 
 tasks.withType(JavaCompile) {
     compileTask -> compileTask.dependsOn buildNative
+}
+
+
+def siteUrl = 'http://mousebird.github.io/WhirlyGlobe/'
+def gitUrl = 'https://github.com/mousebird/WhirlyGlobe.git'
+
+install {
+	repositories.mavenInstaller {
+		pom {
+			project {
+				packaging 'aar'
+
+				name 'WhirlyGlobe-Maply is an open source toolkit for iOS and Android. You can use it to build an interactive 2D map (Maply) or a 3D globe (WhirlyGlobe)'
+//				artifactId = 'maply' It's just the folder name
+				url siteUrl
+
+				licenses {
+					license {
+						name 'The Apache Software License, Version 2.0'
+						url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+					}
+				}
+				developers {
+					developer {
+						id '1'
+						name 'Steve Gifford'
+						email 'sjg@mousebirdconsulting.com'
+					}
+				}
+				scm {
+					connection gitUrl
+					developerConnection gitUrl
+					url siteUrl
+
+				}
+			}
+		}
+	}
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+	ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+	classpath += files(ext.androidJar)
+    destinationDir = file("doc")
+    failOnError false
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+	classifier = 'javadoc'
+	from javadoc.destinationDir
+}
+
+task sourcesJar(type: Jar) {
+	from android.sourceSets.main.java.srcDirs
+	classifier = 'sources'
+}
+
+artifacts {
+	archives javadocJar
+	archives sourcesJar
+}
+
+bintray {
+	Properties properties = new Properties()
+	properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+	user = properties.getProperty("bintray.user")
+	key = properties.getProperty("bintray.apikey")
+
+	configurations = ['archives']
+	pkg {
+		userOrg = 'mousebirdconsulting'
+		repo = "WhirlyGlobe"
+		name = "Maply"
+		websiteUrl = siteUrl
+		vcsUrl = gitUrl
+		licenses = ["Apache-2.0"]
+		publish = true
+	}
 }
