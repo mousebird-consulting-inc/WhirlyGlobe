@@ -1732,7 +1732,7 @@
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "WhirlyGlobe-MaplyComponent";
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "../WhirlyGlobeLib/include/ ../../third-party/boost/ ../../third-party/eigen/ ../../third-party/proj-4/src/ ../../third-party/KissXML/KissXML/ ../../third-party/ /usr/include/libxml2/ ../../third-party/protobuf/src/ $(SRCROOT)/include/private/ $(SRCROOT)/include/vector_tiles/ $(SRCROOT)/include/ ../../third-party/SMCalloutView/ ../../third-party/KissXML/KissXML/Additions/ ../../third-party/KissXML/KissXML/Categories/ ../../third-party/KissXML/KissXML/Private ../../third-party/fmdb/src/fmdb/ ../../third-party/AFNetworking/AFNetworking/ ../../third-party/AFNetworking/UIKit+AFNetworking/";
+				USER_HEADER_SEARCH_PATHS = "../WhirlyGlobeLib/include/ ../../third-party/boost/ ../../third-party/eigen/ ../../third-party/proj-4/src/ ../../third-party/KissXML/KissXML/ ../../third-party/ ../../third-party/protobuf/src/ $(SRCROOT)/include/private/ $(SRCROOT)/include/vector_tiles/ $(SRCROOT)/include/ ../../third-party/SMCalloutView/ ../../third-party/KissXML/KissXML/Additions/ ../../third-party/KissXML/KissXML/Categories/ ../../third-party/KissXML/KissXML/Private ../../third-party/fmdb/src/fmdb/ ../../third-party/AFNetworking/AFNetworking/ ../../third-party/AFNetworking/UIKit+AFNetworking/ \"$(SDKROOT)/usr/include/libxml2\"";
 				USE_HEADERMAP = NO;
 				VALID_ARCHS = "armv7s armv7 arm64";
 			};
@@ -1762,7 +1762,7 @@
 				PRODUCT_NAME = "WhirlyGlobe-MaplyComponent";
 				SKIP_INSTALL = YES;
 				STRIP_STYLE = all;
-				USER_HEADER_SEARCH_PATHS = "../WhirlyGlobeLib/include/ ../../third-party/boost/ ../../third-party/eigen/ ../../third-party/proj-4/src/ ../../third-party/KissXML/KissXML/ ../../third-party/ /usr/include/libxml2/ ../../third-party/protobuf/src/ $(SRCROOT)/include/private/ $(SRCROOT)/include/vector_tiles/ $(SRCROOT)/include/ ../../third-party/SMCalloutView/ ../../third-party/KissXML/KissXML/Additions/ ../../third-party/KissXML/KissXML/Categories/ ../../third-party/KissXML/KissXML/Private ../../third-party/fmdb/src/fmdb/ ../../third-party/AFNetworking/AFNetworking/ ../../third-party/AFNetworking/UIKit+AFNetworking/";
+				USER_HEADER_SEARCH_PATHS = "../WhirlyGlobeLib/include/ ../../third-party/boost/ ../../third-party/eigen/ ../../third-party/proj-4/src/ ../../third-party/KissXML/KissXML/ ../../third-party/ ../../third-party/protobuf/src/ $(SRCROOT)/include/private/ $(SRCROOT)/include/vector_tiles/ $(SRCROOT)/include/ ../../third-party/SMCalloutView/ ../../third-party/KissXML/KissXML/Additions/ ../../third-party/KissXML/KissXML/Categories/ ../../third-party/KissXML/KissXML/Private ../../third-party/fmdb/src/fmdb/ ../../third-party/AFNetworking/AFNetworking/ ../../third-party/AFNetworking/UIKit+AFNetworking/ \"$(SDKROOT)/usr/include/libxml2\"";
 				USE_HEADERMAP = NO;
 				VALID_ARCHS = "armv7s armv7 arm64";
 			};
