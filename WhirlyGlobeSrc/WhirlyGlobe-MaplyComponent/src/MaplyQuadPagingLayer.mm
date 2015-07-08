@@ -210,6 +210,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     _singleLevelLoading = false;
     _groupChildrenWithParent = true;
     hasUnload = [tileSource respondsToSelector:@selector(tileDidUnload:)];
+    _minTileHeight = 0.0;
+    _maxTileHeight = 0.0;
     
     return self;
 }
@@ -319,6 +321,16 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     ll->y = mbr.ll().y();
     ur->x = mbr.ur().x();
     ur->y = mbr.ur().y();
+}
+
+- (MaplyCoordinate3d)displayCenterForTile:(MaplyTileID)tileID
+{
+    Mbr mbr = quadLayer.quadtree->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
+    Point2d pt((mbr.ll().x()+mbr.ur().x())/2.0,(mbr.ll().y()+mbr.ur().y())/2.0);
+    Point3d locCoord = CoordSystemConvert3d(quadLayer.coordSys, scene->getCoordAdapter()->getCoordSystem(), Point3d(pt.x(),pt.y(),0.0));
+    Point3d dispCoord = scene->getCoordAdapter()->localToDisplay(locCoord);
+    
+    return MaplyCoordinate3dMake(dispCoord.x(), dispCoord.y(), dispCoord.z());
 }
 
 #pragma mark - WhirlyKitQuadDataStructure protocol
@@ -469,10 +481,14 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         import *= self.importance;
     } else {
         // This is how much screen real estate we're covering for this tile
+        double div = 1.0;
         if (_groupChildrenWithParent)
-            import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), parentMbr, ident, attrs) / 4;
+            div = 4.0;
+        
+        if (_minTileHeight != _maxTileHeight)
+            import = ScreenImportance(viewState, frameSize, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), parentMbr, _minTileHeight, _maxTileHeight, ident, attrs) / div;
         else
-            import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+            import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), parentMbr, ident, attrs) / div;
     }
     
     // Just the importance of this tile.

@@ -27,6 +27,7 @@
 #import "Scene.h"
 #import "SelectionManager.h"
 #import "VectorData.h"
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
@@ -44,13 +45,9 @@ typedef enum {WideVecButtCap,WideVecRoundCap,WideVecSquareCap} WideVectorLineCap
 
 /** Used to pass parameters for the wide vectors around.
   */
-@interface WhirlyKitWideVectorInfo : NSObject
+@interface WhirlyKitWideVectorInfo : WhirlyKitBaseInfo
 
 @property (nonatomic) UIColor *color;
-@property (nonatomic,assign) float fade;
-@property (nonatomic,assign) float minVis,maxVis;
-@property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) bool enable;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity shader;
 @property (nonatomic,assign) float width;
 @property (nonatomic,assign) float repeatSize;

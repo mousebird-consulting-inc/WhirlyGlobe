@@ -31,7 +31,7 @@ namespace WhirlyKit
 {
 
 BasicDrawableInstance::BasicDrawableInstance(const std::string &name,SimpleIdentity masterID)
-: Drawable(name), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true), startEnable(0.0), endEnable(0.0), instBuffer(0), numInstances(0), vertArrayObj(0)
+: Drawable(name), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true), startEnable(0.0), endEnable(0.0), instBuffer(0), numInstances(0), vertArrayObj(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minViewerDist(DrawVisibleInvalid), maxViewerDist(DrawVisibleInvalid), viewerCenter(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid)
 {
 }
 
@@ -54,14 +54,36 @@ SimpleIdentity BasicDrawableInstance::getProgram() const
 
 bool BasicDrawableInstance::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
 {
-    if (minVis == DrawVisibleInvalid || !enable)
-        return enable;
+    if (startEnable != endEnable)
+    {
+        if (frameInfo.currentTime < startEnable ||
+            endEnable < frameInfo.currentTime)
+            return false;
+    }
+    
+    if (!enable)
+        return false;
     
     double visVal = [frameInfo.theView heightAboveSurface];
     
-    bool test = ((minVis <= visVal && visVal <= maxVis) ||
-                 (maxVis <= visVal && visVal <= minVis));
-    return test;
+    // Height based check
+    if (minVis != DrawVisibleInvalid && maxVis != DrawVisibleInvalid)
+    {
+        if (!((minVis <= visVal && visVal <= maxVis) ||
+              (maxVis <= visVal && visVal <= minVis)))
+            return false;
+    }
+    
+    // Viewer based check
+    if (minViewerDist != DrawVisibleInvalid && maxViewerDist != DrawVisibleInvalid &&
+        viewerCenter.x() != DrawVisibleInvalid)
+    {
+        double dist2 = (viewerCenter - frameInfo.eyePos).squaredNorm();
+        if (!(minViewerDist*minViewerDist < dist2 && dist2 <= maxViewerDist*maxViewerDist))
+            return false;
+    }
+    
+    return true;
 }
 
 GLenum BasicDrawableInstance::getType() const
@@ -183,8 +205,6 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
     
     // Pull default values
     RGBAColor thisColor = basicDraw->getColor();
-    float thisMinVis,thisMaxVis;
-    basicDraw->getVisibleRange(thisMinVis, thisMaxVis);
     float lineWidth = basicDraw->getLineWidth();
 
     // Look to overrides on this instance
@@ -192,11 +212,6 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         thisColor = color;
     if (hasLineWidth)
         lineWidth = lineWidth;
-    if (hasMinVis || hasMaxVis)
-    {
-        minVis = thisMinVis;
-        maxVis = thisMaxVis;
-    }
     
     // Figure out if we're fading in or out
     float fade = 1.0;
