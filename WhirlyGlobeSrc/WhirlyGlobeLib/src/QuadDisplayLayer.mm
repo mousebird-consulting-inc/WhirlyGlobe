@@ -71,6 +71,9 @@ using namespace WhirlyKit;
     
     // If we're loading frames, the frame loading status last time through the eval loop
     std::vector<FrameLoadStatus> frameLoadStats;
+    
+    // Used to reset evaluation at the end of a clean run
+    bool didFrameKick;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES *)inRenderer;
@@ -103,6 +106,7 @@ using namespace WhirlyKit;
         curFrameEntry = -1;
         _frameLoading = true;
         _enable = true;
+        didFrameKick = false;
     }
     
     return self;
@@ -264,6 +268,8 @@ using namespace WhirlyKit;
 // It's here that we evaluate what to load
 - (void)viewUpdate:(WhirlyKitViewState *)inViewState
 {
+    didFrameKick = false;
+    
     if (!_scene)
     {
         NSLog(@"GlobeQuadDisplayLayer: Called viewUpdate: after being shutdown.");
@@ -313,10 +319,11 @@ using namespace WhirlyKit;
     toPhantom.clear();
     _quadtree->reevaluateNodes();
     
+    std::vector<Quadtree::Identifier> newlyCoveredTiles;
     // Add everything at the minLevel back in
     for (int ix=0;ix<1<<minZoom;ix++)
         for (int iy=0;iy<1<<minZoom;iy++)
-            _quadtree->addTile(Quadtree::Identifier(ix,iy,minZoom),true,false);
+            _quadtree->addTile(Quadtree::Identifier(ix,iy,minZoom),true,false,newlyCoveredTiles);
 }
 
 // Dump out info about what we've got loaded in
@@ -400,7 +407,9 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             if (!nodeInfoValid)
                 break;
             
-//            NSLog(@"Evaluating: %d: (%d,%d)", nodeInfo.ident.level, nodeInfo.ident.x, nodeInfo.ident.y);
+#ifdef TILELOGGING
+            NSLog(@"Evaluating: %d: (%d,%d)", nodeInfo.ident.level, nodeInfo.ident.x, nodeInfo.ident.y);
+#endif
 
             // Various actions we'll take after evaluation
             bool makePhantom = false;
@@ -463,12 +472,21 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             // Evaluate children at some point soon
             if (addChildren)
             {
-//                NSLog(@"Adding children for tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
+#ifdef TILELOGGING
+                NSLog(@"Adding children for tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
+#endif
                 std::vector<Quadtree::Identifier> childNodes;
                 _quadtree->childrenForNode(nodeInfo.ident, childNodes);
+                std::vector<Quadtree::Identifier> newlyCoveredTiles;
                 for (unsigned int ic=0;ic<childNodes.size();ic++)
                     if (!_quadtree->didFail(childNodes[ic]))
-                        _quadtree->addTile(childNodes[ic], true, true);
+                        _quadtree->addTile(childNodes[ic], true, true, newlyCoveredTiles);
+                
+                // By adding a tile we may have realized it's actually off screen and we've got a new batch of tiles we can turn phantom
+                if (!_targetLevels.empty())
+                    for (const Quadtree::Identifier &ident : newlyCoveredTiles)
+                        if (!_quadtree->isPhantom(ident))
+                            toPhantom.insert(ident);
             }
             
             // Actually load a tile
@@ -479,7 +497,9 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 {
                     Quadtree::NodeInfo remNodeInfo;
                     _quadtree->leastImportantNode(remNodeInfo,true);
-//                    NSLog(@"Forcing unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
+#ifdef TILELOGGING
+                    NSLog(@"Forcing unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
+#endif
                     _quadtree->removeTile(remNodeInfo.ident);
                     
                     [_loader quadDisplayLayer:self unloadTile:&remNodeInfo];
@@ -496,10 +516,14 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 if (canLoadFrames)
                 {
                     int frameId = frameLoadingPriority[curFrameEntry];
-//                    NSLog(@"Loading tile: %d: (%d,%d), frame = %d",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y,frameId);
+#ifdef TILELOGGING
+                    NSLog(@"Loading tile: %d: (%d,%d), frame = %d",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y,frameId);
+#endif
                     [_loader quadDisplayLayer:self loadTile:&nodeInfo frame:frameId];
                 } else {
-//                    NSLog(@"Loading tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
+#ifdef TILELOGGING
+                    NSLog(@"Loading tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
+#endif
                     [_loader quadDisplayLayer:self loadTile:&nodeInfo];
                 }
             }
@@ -512,7 +536,9 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 QuadIdentSet::iterator it = toPhantom.find(nodeInfo.ident);
                 if (it != toPhantom.end())
                     toPhantom.erase(it);
-//                NSLog(@"Unload tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
+#ifdef TILELOGGING
+                NSLog(@"Unload tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
+#endif
                 [_loader quadDisplayLayer:self unloadTile:&nodeInfo];
             }
             
@@ -536,7 +562,9 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     Quadtree::NodeInfo remNodeInfo;
     while (_quadtree->leastImportantNode(remNodeInfo,false))
     {
-//        NSLog(@"Unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
+#ifdef TILELOGGING
+        NSLog(@"Unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
+#endif
         _quadtree->removeTile(remNodeInfo.ident);
         if (!remNodeInfo.phantom)
             [_loader quadDisplayLayer:self unloadTile:&remNodeInfo];
@@ -555,7 +583,9 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             
             if (!_quadtree->childrenEvaluating(ident) && !_quadtree->childrenLoading(ident))
             {
-//                NSLog(@"Flushing phantom tile: %d: (%d,%d)",ident.level,ident.x,ident.y);
+#ifdef TILELOGGING
+                NSLog(@"Flushing phantom tile: %d: (%d,%d)",ident.level,ident.x,ident.y);
+#endif
                 const Quadtree::NodeInfo *nodeInfo = _quadtree->getNodeInfo(ident);
                 if (nodeInfo)
                 {
@@ -643,6 +673,18 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             }
         }
     }
+    
+    // Note: Huge hack
+    // There's an internal logic problem... somewhere...
+    // If we do a clean evaluation it clears it up
+    if (!didSomething && !didFrameKick)
+    {
+        didFrameKick = true;
+        
+        [self resetEvaluation];
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
+        [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
+    }
 }
 
 - (void)getFrameLoadStatus:(std::vector<WhirlyKit::FrameLoadStatus> &)retFrameLoadStats
@@ -660,7 +702,9 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 // Once loaded we can try the children
 - (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidLoad:(WhirlyKit::Quadtree::Identifier)tileIdent frame:(int)frame
 {
-//    NSLog(@"Tile did load: %d: (%d,%d), %d",tileIdent.level,tileIdent.x,tileIdent.y,frame);
+#ifdef TILELOGGING
+    NSLog(@"Tile did load: %d: (%d,%d), %d",tileIdent.level,tileIdent.x,tileIdent.y,frame);
+#endif
     
     // Make sure we still want this one
     const Quadtree::NodeInfo *node = _quadtree->getNodeInfo(tileIdent);
@@ -675,15 +719,9 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     {
         std::vector<Quadtree::Identifier> tilesCovered,tilesUncovered;
         _quadtree->updateParentCoverage(tileIdent,tilesCovered,tilesUncovered);
-        for (unsigned int ii=0;ii<tilesCovered.size();ii++)
-        {
-            const Quadtree::Identifier &ident = tilesCovered[ii];
+        for (const Quadtree::Identifier &ident : tilesCovered)
             if (!_quadtree->isPhantom(ident))
-            {
-                //                NSLog(@"Adding to phantom due to coverage: %d: (%d,%d)",ident.level,ident.x,ident.y);
                 toPhantom.insert(ident);
-            }
-        }
     }
 
     // May want to consider the children next
@@ -700,12 +738,19 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                 for (unsigned int ic=0;ic<childNodes.size();ic++)
                     if (!_quadtree->didFail(childNodes[ic]))
                     {
-                        _quadtree->addTile(childNodes[ic], true, true);
+                        std::vector<Quadtree::Identifier> newlyCoveredTiles;
+                        _quadtree->addTile(childNodes[ic], true, true, newlyCoveredTiles);
 
                         // Take it out of the phantom list
                         QuadIdentSet::iterator it = toPhantom.find(childNodes[ic]);
                         if (it != toPhantom.end())
                             toPhantom.erase(it);
+                        
+                        // By adding a tile we may have realized it's actually off screen and we've got a new batch of tiles we can turn phantom
+                        if (!_targetLevels.empty())
+                            for (const Quadtree::Identifier &ident : newlyCoveredTiles)
+                                if (!_quadtree->isPhantom(ident))
+                                    toPhantom.insert(ident);
                     }
             }
         }
@@ -722,7 +767,9 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 // At the moment we don't care, but we won't look at the children
 - (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent frame:(int)frame
 {
-//    NSLog(@"Tile failed to load: %d: (%d,%d) %d",tileIdent.level,tileIdent.x,tileIdent.y,frame);
+#ifdef TILELOGGING
+    NSLog(@"Tile failed to load: %d: (%d,%d) %d",tileIdent.level,tileIdent.x,tileIdent.y,frame);
+#endif
 
     _quadtree->setLoading(tileIdent, frame, false);
     _quadtree->setPhantom(tileIdent, true);
@@ -732,12 +779,17 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     if (!_targetLevels.empty() && tileIdent.level > 0)
     {
         Quadtree::Identifier parentIdent(tileIdent.x/2,tileIdent.y/2,tileIdent.level-1);
-        _quadtree->addTile(parentIdent, true, true);
+        std::vector<Quadtree::Identifier> tilesCovered;
+        _quadtree->addTile(parentIdent, true, true, tilesCovered);
 
         // Take it out of the phantom list
         QuadIdentSet::iterator it = toPhantom.find(parentIdent);
         if (it != toPhantom.end())
             toPhantom.erase(it);
+        
+        for (const Quadtree::Identifier &ident : tilesCovered)
+            if (!_quadtree->isPhantom(ident))
+                toPhantom.insert(ident);
     }
 
     // Might get stuck here
@@ -777,9 +829,10 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     waitForLocalLoads = true;
     
     // Add everything at the minLevel back in
+    std::vector<Quadtree::Identifier> newlyCoveredTiles;
     for (int ix=0;ix<1<<minZoom;ix++)
         for (int iy=0;iy<1<<minZoom;iy++)
-            _quadtree->addTile(Quadtree::Identifier(ix,iy,minZoom), true, false);
+            _quadtree->addTile(Quadtree::Identifier(ix,iy,minZoom), true, false, newlyCoveredTiles);
     
     [_loader quadDisplayLayerStartUpdates:self];
 
@@ -851,7 +904,12 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 
 - (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(Mbr)theMbr tree:(WhirlyKit::Quadtree *)tree attrs:(NSMutableDictionary *)attrs
 {
-    return [_dataStructure importanceForTile:ident mbr:theMbr viewInfo:viewState frameSize:Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight) attrs:attrs];
+    double import = [_dataStructure importanceForTile:ident mbr:theMbr viewInfo:viewState frameSize:Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight) attrs:attrs];
+#ifdef TILELOGGING
+    NSLog(@"importance %d: (%d,%d) %lf",ident.level,ident.x,ident.y,import);
+#endif
+    
+    return import;
 }
 
 @end
