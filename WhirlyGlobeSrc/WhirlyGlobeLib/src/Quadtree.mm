@@ -82,7 +82,10 @@ Quadtree::Node::Node(Quadtree *tree)
 {
     parent = NULL;
     for (unsigned int ii=0;ii<4;ii++)
+    {
         children[ii] = NULL;
+        childOffscreen[ii] = false;
+    }
     identPos = tree->nodesByIdent.end();
     sizePos = tree->nodesBySize.end();
 }
@@ -95,19 +98,9 @@ void Quadtree::Node::addChild(Quadtree *tree,Node *child)
         tree->nodesBySize.erase(it);
     sizePos = tree->nodesBySize.end();
 
-    int which = -1;
-    for (unsigned int ii=0;ii<4;ii++)
-    {
-        if (children[ii] == child)
-            return;
-        if (!children[ii])
-        {
-            which = ii;
-            break;
-        }
-    }
-    if (which != -1)
-        children[which] = child;
+    int ix = child->nodeInfo.ident.x - nodeInfo.ident.x*2;
+    int iy = child->nodeInfo.ident.y - nodeInfo.ident.y*2;
+    children[iy*2+ix] = child;
 }
     
 void Quadtree::Node::removeChild(Quadtree *tree, Node *child)
@@ -254,7 +247,8 @@ bool Quadtree::Node::recalcCoverage()
         if (child)
             newChildCoverage &= child->nodeInfo.childCoverage || (!child->nodeInfo.phantom && !child->nodeInfo.isFrameLoading(-1));
         else
-            newChildCoverage = false;
+            if (!childOffscreen[ii])
+                newChildCoverage = false;
     }
     nodeInfo.childCoverage = newChildCoverage;
 
@@ -302,27 +296,22 @@ bool Quadtree::frameIsLoaded(int frame,int *tilesLoaded)
     
 void Quadtree::updateParentCoverage(const Identifier &ident,std::vector<Identifier> &coveredTiles,std::vector<Identifier> &unCoveredTiles)
 {
-    Node *node = getNode(ident);
-
-    if (node)
+    Node *p = getNode(Identifier(ident.x/2, ident.y/2, ident.level-1));
+    while (p)
     {
-        Node *p = node->parent;
-        while (p)
+        bool pOldChildCoverage = p->nodeInfo.childCoverage;
+        bool pNewChildCoverage = p->recalcCoverage();
+        if (pOldChildCoverage != pNewChildCoverage)
         {
-            bool pOldChildCoverage = p->nodeInfo.childCoverage;
-            bool pNewChildCoverage = p->recalcCoverage();
-            if (pOldChildCoverage == pNewChildCoverage)
+            if (pNewChildCoverage)
             {
-                break;
-            } else {
-                if (pNewChildCoverage)
-                    coveredTiles.push_back(p->nodeInfo.ident);
-                else
-                    unCoveredTiles.push_back(p->nodeInfo.ident);
-            }
-            
-            p = p->parent;
+//                NSLog(@"Tile recently covered: %d: (%d,%d)",p->nodeInfo.ident.level,p->nodeInfo.ident.x,p->nodeInfo.ident.y);
+                coveredTiles.push_back(p->nodeInfo.ident);
+            } else
+                unCoveredTiles.push_back(p->nodeInfo.ident);
         }
+        
+        p = p->parent;
     }
 }
     
@@ -364,7 +353,7 @@ void Quadtree::setPhantom(const Identifier &ident,bool newPhantom)
         if (newPhantom)
             numPhantomNodes++;
         
-        recalcCoverage(node);
+//        recalcCoverage(node);
     } else
         // Haven't heard of it
         return;
@@ -483,6 +472,8 @@ void Quadtree::setEvaluating(const Identifier &ident,bool newEval)
             while (parent)
             {
                 parent->nodeInfo.childrenEval--;
+                if (parent->nodeInfo.childrenEval < 0)
+                    parent->nodeInfo.childrenEval = 0;
                 parent = parent->parent;
             }
             
@@ -551,9 +542,8 @@ void Quadtree::clearEvals()
         Node *node = *it;
         node->evalPos = evalNodes.end();
         node->nodeInfo.eval = false;
-        node->nodeInfo.childrenEval = 0;
 //        node->nodeInfo.loading = false;
-        node->nodeInfo.childrenLoading = 0;
+//        node->nodeInfo.childrenLoading = 0;
         node->nodeInfo.childrenEval = 0;
         node->nodeInfo.failed = false;
     }
@@ -585,6 +575,8 @@ bool Quadtree::popLastEval(NodeInfo &retNodeInfo)
     while (parent)
     {
         parent->nodeInfo.childrenEval--;
+        if (parent->nodeInfo.childrenEval < 0)
+            parent->nodeInfo.childrenEval = 0;
         parent = parent->parent;
     }
     
@@ -628,6 +620,8 @@ void Quadtree::reevaluateNodes()
          it != nodesByIdent.end(); ++it)
     {
         Node *node = *it;
+        for (unsigned int ii=0;ii<4;ii++)
+            node->childOffscreen[ii] = false;
         node->nodeInfo.importance = [importDelegate importanceForTile:node->nodeInfo.ident mbr:node->nodeInfo.mbr tree:this attrs:node->nodeInfo.attrs];
         if (!node->hasChildren())
             node->sizePos = nodesBySize.insert(node).first;
@@ -635,7 +629,7 @@ void Quadtree::reevaluateNodes()
     }
 }
     
-const Quadtree::NodeInfo *Quadtree::addTile(const Identifier &ident,bool newEval,bool checkImportance)
+const Quadtree::NodeInfo *Quadtree::addTile(const Identifier &ident,bool newEval,bool checkImportance,std::vector<Identifier> &newlyCoveredTiles)
 {
     bool oldEval = false;
     bool oldLoading = false;
@@ -654,8 +648,19 @@ const Quadtree::NodeInfo *Quadtree::addTile(const Identifier &ident,bool newEval
         
         // Check that the importance is more than our minimum before adding the tile
         NodeInfo nodeInfo = generateNode(ident);
+        
         if (checkImportance && nodeInfo.importance < minImportance)
+        {
+            if (parent && nodeInfo.importance == 0.0)
+            {
+                int ix = nodeInfo.ident.x-parent->nodeInfo.ident.x*2;
+                int iy = nodeInfo.ident.y-parent->nodeInfo.ident.y*2;
+                parent->childOffscreen[iy*2+ix] = true;
+                std::vector<Identifier> unCoveredTiles;
+                updateParentCoverage(ident,newlyCoveredTiles,unCoveredTiles);
+            }
             return NULL;
+        }
         
         // Set up the node first, so we don't remove the parent
         node = new Node(this);
@@ -695,6 +700,8 @@ const Quadtree::NodeInfo *Quadtree::addTile(const Identifier &ident,bool newEval
         while (parent)
         {
             parent->nodeInfo.childrenEval--;
+            if (parent->nodeInfo.childrenEval < 0)
+                parent->nodeInfo.childrenEval = 0;
             parent = parent->parent;
         }
         NodesBySizeType::iterator it = evalNodes.find(node);
@@ -886,6 +893,8 @@ void Quadtree::removeNode(Node *node)
         while (parent)
         {
             parent->nodeInfo.childrenEval--;
+            if (parent->nodeInfo.childrenEval < 0)
+                parent->nodeInfo.childrenEval = 0;
             parent = parent->parent;
         }
     }
