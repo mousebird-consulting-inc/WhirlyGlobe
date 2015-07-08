@@ -22,23 +22,19 @@
 #import "WhirlyVector.h"
 #import "DataLayer.h"
 #import "layerThread.h"
+#import "BaseInfo.h"
 
 /// Used to pass shape info between the shape layer and the drawable builder
 ///  and within the threads of the shape layer
-@interface WhirlyKitShapeInfo : NSObject
+@interface WhirlyKitShapeInfo : WhirlyKitBaseInfo
 
 @property (nonatomic) NSArray *shapes;
 @property (nonatomic) UIColor *color;
-@property (nonatomic,assign) float drawOffset;
-@property (nonatomic,assign) float minVis,maxVis;
-@property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) float fade;
 @property (nonatomic,assign) float lineWidth;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity shapeId;
 @property (nonatomic,assign) bool insideOut;
 @property (nonatomic,assign) bool zBufferRead;
 @property (nonatomic,assign) bool zBufferWrite;
-@property (nonatomic,assign) bool enable;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity shaderID;
 
 - (id)initWithShapes:(NSArray *)shapes desc:(NSDictionary *)desc;

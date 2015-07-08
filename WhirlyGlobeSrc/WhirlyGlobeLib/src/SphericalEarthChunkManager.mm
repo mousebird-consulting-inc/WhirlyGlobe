@@ -407,7 +407,7 @@ SphericalChunkManager::~SphericalChunkManager()
 SimpleIdentity SphericalChunkManager::addChunk(WhirlyKitSphericalChunk *chunk,bool doEdgeMatching,bool enable,ChangeSet &changes)
 {
     SimpleIdentity chunkID = EmptyIdentity;
-    WhirlyKitSphericalChunkInfo *chunkInfo = [[WhirlyKitSphericalChunkInfo alloc] init];
+    WhirlyKitSphericalChunkInfo *chunkInfo = [[WhirlyKitSphericalChunkInfo alloc] initWithDesc:nil];
     chunkInfo->enable = enable;
     chunkInfo->chunk = chunk;
     chunkInfo->chunkId = Identifiable::genId();

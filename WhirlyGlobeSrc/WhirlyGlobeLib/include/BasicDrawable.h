@@ -147,6 +147,12 @@ public:
     
     /// Retrieve the visible range, including bands
     virtual void getVisibleRange(float &minVis,float &maxVis,float &minVisBand,float &maxVisBand);
+
+    /// Set the viewer based visibility
+    virtual void setViewerVisibility(double minViewerDist,double maxViewerDist,const Point3d &viewerCenter);
+    /// Retrieve the viewer based visibility
+    virtual void getViewerVisibility(double &minViewerDist,double &maxViewerDist,Point3d &viewerCenter);
+    
     /// Set the fade in and out
     virtual void setFade(NSTimeInterval inFadeDown,NSTimeInterval inFadeUp);
     
@@ -317,6 +323,8 @@ protected:
     RGBAColor color;
     float minVisible,maxVisible;
     float minVisibleFadeBand,maxVisibleFadeBand;
+    double minViewerDist,maxViewerDist;
+    Point3d viewerCenter;
     float lineWidth;
     // For zBufferOffDefault mode we'll sort this to the end
     bool requestZBuffer;

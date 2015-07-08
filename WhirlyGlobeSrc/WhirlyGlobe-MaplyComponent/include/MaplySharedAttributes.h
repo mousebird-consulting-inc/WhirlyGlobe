@@ -44,6 +44,16 @@
 /// Maximum point at which a feature is visible.  Takes an NSNumber float.  The radius of the globe is 1.0
 #define kMaplyMaxVis @"maxVis"
 #define kWGMaxVis kMaplyMaxVis
+/// Minimum distance from the viewer at which to display geometry.
+#define kMaplyViewerMinDist @"minviewerdist"
+/// Maximum distance from the viewer at which to display geometry.
+#define kMaplyViewerMaxDist @"maxviewerdist"
+/// Center to use when evaluating distance to viewable geometry (X)
+#define kMaplyViewableCenterX @"viewablecenterx"
+/// Center to use when evaluating distance to viewable geometry (Y)
+#define kMaplyViewableCenterY @"viewablecentery"
+/// Center to use when evaluating distance to viewable geometry (Z)
+#define kMaplyViewableCenterZ @"viewablecenterz"
 /// The amount of time for a feature to fade in or out.  Takes an NSNumber float for seconds.
 #define kMaplyFade @"fade"
 #define kWGFade kMaplyFade

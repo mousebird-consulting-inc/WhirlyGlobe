@@ -45,6 +45,8 @@ BasicDrawable::BasicDrawable(const std::string &name)
     type = 0;
     minVisible = maxVisible = DrawVisibleInvalid;
     minVisibleFadeBand = maxVisibleFadeBand = 0.0;
+    minViewerDist = maxViewerDist = DrawVisibleInvalid;
+    viewerCenter = Point3d(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid);
     
     fadeDown = fadeUp = 0.0;
     color.r = color.g = color.b = color.a = 255;
@@ -86,6 +88,8 @@ BasicDrawable::BasicDrawable(const std::string &name,unsigned int numVert,unsign
     drawPriority = 0;
     minVisible = maxVisible = DrawVisibleInvalid;
     minVisibleFadeBand = maxVisibleFadeBand = 0.0;
+    minViewerDist = maxViewerDist = DrawVisibleInvalid;
+    viewerCenter = Point3d(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid);
     requestZBuffer = false;
     writeZBuffer = true;
     
@@ -162,13 +166,29 @@ bool BasicDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
             return false;
     }
     
-    if (minVisible == DrawVisibleInvalid || !on)
-        return on;
+    if (!on)
+        return false;
     
     double visVal = [frameInfo.theView heightAboveSurface];
+
+    // Height based check
+    if (minVisible != DrawVisibleInvalid && maxVisible != DrawVisibleInvalid)
+    {
+        if (!((minVisible <= visVal && visVal <= maxVisible) ||
+                (maxVisible <= visVal && visVal <= minVisible)))
+            return false;
+    }
     
-    return ((minVisible <= visVal && visVal <= maxVisible) ||
-            (maxVisible <= visVal && visVal <= minVisible));
+    // Viewer based check
+    if (minViewerDist != DrawVisibleInvalid && maxViewerDist != DrawVisibleInvalid &&
+        viewerCenter.x() != DrawVisibleInvalid)
+    {
+        double dist2 = (viewerCenter - frameInfo.eyePos).squaredNorm();
+        if (!(minViewerDist*minViewerDist < dist2 && dist2 <= maxViewerDist*maxViewerDist))
+            return false;
+    }
+    
+    return true;
 }
 
 void BasicDrawable::setOnOff(bool onOff)
@@ -313,6 +333,20 @@ void BasicDrawable::getVisibleRange(float &minVis,float &maxVis)
 
 void BasicDrawable::getVisibleRange(float &minVis,float &maxVis,float &minVisBand,float &maxVisBand)
 { minVis = minVisible; maxVis = maxVisible;  minVisBand = minVisibleFadeBand; maxVisBand = maxVisibleFadeBand; }
+    
+void BasicDrawable::setViewerVisibility(double inMinViewerDist,double inMaxViewerDist,const Point3d &inViewerCenter)
+{
+    minViewerDist = inMinViewerDist;
+    maxViewerDist = inMaxViewerDist;
+    viewerCenter = inViewerCenter;
+}
+
+void BasicDrawable::getViewerVisibility(double &outMinViewerDist,double &outMaxViewerDist,Point3d &outViewerCenter)
+{
+    outMinViewerDist = minViewerDist;
+    outMaxViewerDist = maxViewerDist;
+    outViewerCenter = viewerCenter;
+}
 
 void BasicDrawable::setFade(NSTimeInterval inFadeDown,NSTimeInterval inFadeUp)
 { fadeUp = inFadeUp;  fadeDown = inFadeDown; }
