@@ -60,7 +60,7 @@ using namespace WhirlyKit;
 
 - (id)initWithShapes:(ShapeSet *)inShapes desc:(NSDictionary *)desc key:(NSString *)inKey
 {
-    if ((self = [super init]))
+    if ((self = [super initWithDesc:desc]))
     {
         if (inShapes)
             shapes = *inShapes;
