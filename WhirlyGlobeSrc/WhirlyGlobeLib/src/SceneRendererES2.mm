@@ -460,12 +460,12 @@ static const float ScreenOverlap = 0.1;
         Vector4f fullEyeVec4 = fullTransInv * Vector4f(0,0,1,0);
         Vector3f fullEyeVec3(fullEyeVec4.x(),fullEyeVec4.y(),fullEyeVec4.z());
         baseFrameInfo.fullEyeVec = -fullEyeVec3;
-        Vector4d eyeVec4d = modelAndViewMat4d.inverse() * Vector4d(0,0,1,1.0);
-        baseFrameInfo.eyePos = Vector3d(eyeVec4d.x(),eyeVec4d.y(),eyeVec4d.z());
+        Vector4d eyeVec4d = modelTrans4d.inverse() * Vector4d(0,0,1,0.0);
         baseFrameInfo.heightAboveSurface = 0.0;
         // Note: Should deal with map view as well
         if (globeView)
             baseFrameInfo.heightAboveSurface = globeView.heightAboveSurface;
+        baseFrameInfo.eyePos = Vector3d(eyeVec4d.x(),eyeVec4d.y(),eyeVec4d.z()) * (1.0+baseFrameInfo.heightAboveSurface);
 
         if (perfInterval > 0)
             perfTimer.startTiming("Scene processing");
