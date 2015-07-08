@@ -1271,12 +1271,13 @@ static const int NumMegaMarkers = 15000;
         layer.requireElev = requireElev;
         layer.maxTiles = 512;
         layer.handleEdges = true;
+        layer.color = [UIColor colorWithWhite:0.5 alpha:0.5];
         if (startupMapType == Maply2DMap)
         {
             // Note: Debugging
             layer.useTargetZoomLevel = true;
             layer.singleLevelLoading = true;
-//            layer.multiLevelLoads = @[@(-4), @(-2)];
+            layer.multiLevelLoads = @[@(-2)];
         }
         [baseViewC addLayer:layer];
         layer.drawPriority = BaseEarthPriority;
@@ -1316,6 +1317,8 @@ static const int NumMegaMarkers = 15000;
         // We'll cycle through at 1s per layer
         layer.animationPeriod = 4.0;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        if (startupMapType == Maply2DMap)
+            layer.multiLevelLoads = @[@(-2)];
         [baseViewC addLayer:layer];
         layer.drawPriority = BaseEarthPriority;
         baseLayer = layer;        
@@ -2058,7 +2061,7 @@ static const int NumMegaMarkers = 15000;
 {
     // Just clear the selection
     [baseViewC clearAnnotations];
-
+    
     if (globeViewC)
     {
 //        MaplyCoordinate geoCoord;
@@ -2114,6 +2117,15 @@ static const int NumMegaMarkers = 15000;
 
 - (void)maplyViewController:(MaplyViewController *)viewC didTapAt:(MaplyCoordinate)coord
 {
+    // Poke the map
+//    if (mapViewC)
+//    {
+//        MaplyCoordinate coord;
+//        float height;
+//        [mapViewC getPosition:&coord height:&height];
+//        [mapViewC setPosition:coord height:height];
+//    }
+
     // Just clear the selection
     [baseViewC clearAnnotations];
 //    if (selectedViewTrack)
