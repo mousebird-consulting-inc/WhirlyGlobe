@@ -70,7 +70,7 @@ typedef enum {TextureProjectionNone,TextureProjectionTanPlane} TextureProjection
 
 - (id)initWithDesc:(NSDictionary *)dict
 {
-    if ((self = [super init]))
+    if ((self = [super initWithDesc:dict]))
     {
         [self parseDict:dict];
     }
