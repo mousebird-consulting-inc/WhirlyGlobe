@@ -28,7 +28,7 @@ android {
 
     sourceSets {
         main {
-            manifest.srcFile 'AndroidManifest.xml'
+            manifest.srcFile 'GradleManifest.xml'
             jni.srcDirs = []
             jniLibs.srcDir 'libs'
             res.srcDirs = ['res']

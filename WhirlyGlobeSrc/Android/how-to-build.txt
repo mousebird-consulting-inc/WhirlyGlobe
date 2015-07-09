@@ -1,3 +1,6 @@
+Build instructions
+=====================
+
 1) Download and install Android SDK: https://developer.android.com/sdk/index.html#Other
 
 2) Download and install NDK: https://developer.android.com/ndk/downloads/
@@ -8,3 +11,39 @@
 
 4) Run gradle to build both native and Java code. This produces AAR files at build/outputs/aar directory
 	./gradlew assemble
+
+
+If you want to include Maply component in your app, just include the following dependency
+
+	dependencies {
+		...
+	    compile 'com.mousebirdconsulting.maply:Android:3.0.0@aar'
+	}
+
+
+Maply artifacts are deployed both to JCenter and Bintray (https://dl.bintray.com/mousebirdconsulting/WhirlyGlobe/) so make sure you have your repositories configured in gradle:
+
+	repositories {
+		jcenter()
+	}
+    
+optionally...
+    
+	repositories {
+		maven {
+        	url https://dl.bintray.com/mousebirdconsulting/WhirlyGlobe/
+        }
+		jcenter()
+	}
+
+Thoubleshooting
+=============
+
+- After first download, Maven artifacts are cached locally. To clean them and make sure a fresh library is downloaded run the following
+
+	find MAVEN_LOCAL_REPO | grep mouse | xargs rm -rf
+	
+Possible locations of your maven local repo:
+	- ~/.gradle/caches -> gradle local repo
+	- ~/.m2/repository -> maven2 local repo
+	- ANDROID_SDK/extras/android/m2repository -> SDK's local repo
