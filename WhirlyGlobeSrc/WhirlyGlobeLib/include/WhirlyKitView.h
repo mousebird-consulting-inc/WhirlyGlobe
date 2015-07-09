@@ -56,6 +56,9 @@ typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewW
 /// If set, we'll scale the near and far clipping planes as we get closer
 @property (nonatomic,assign) bool continuousZoom;
 
+/// Initialize as a copy
+- (id)initWithView:(WhirlyKitView *)inView;
+
 /// Calculate the viewing frustum (which is also the image plane)
 /// Need the framebuffer size in pixels as input
 - (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(WhirlyKit::Point2d &)ll ur:(WhirlyKit::Point2d &)ur near:(double &)near far:(double &)far;

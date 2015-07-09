@@ -1096,16 +1096,16 @@ using namespace WhirlyGlobe;
 
 - (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos
 {
+    WhirlyGlobeView *tempGlobe = [[WhirlyGlobeView alloc] initWithGlobeView:globeView];
+    
     float oldHeight = globeView.heightAboveGlobe;
-
-    Eigen::Quaterniond oldRotQuat = globeView.rotQuat;
-    Eigen::Quaterniond newRotQuat = [globeView makeRotationToGeoCoord:GeoCoord(pos.x,pos.y) keepNorthUp:YES];
-    [globeView setRotQuat:newRotQuat updateWatchers:false];
+    Eigen::Quaterniond newRotQuat = [tempGlobe makeRotationToGeoCoord:GeoCoord(pos.x,pos.y) keepNorthUp:YES];
+    [tempGlobe setRotQuat:newRotQuat updateWatchers:false];
 
     Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
     
-    float minHeight = globeView.minHeightAboveGlobe;
-    float maxHeight = globeView.maxHeightAboveGlobe;
+    float minHeight = tempGlobe.minHeightAboveGlobe;
+    float maxHeight = tempGlobe.maxHeightAboveGlobe;
     if (pinchDelegate)
     {
         minHeight = std::max(minHeight,pinchDelegate.minHeight);
@@ -1113,11 +1113,11 @@ using namespace WhirlyGlobe;
     }
 
     // Check that we can at least see it
-    bool minOnScreen = [self checkCoverage:mbr globeView:globeView height:minHeight];
-    bool maxOnScreen = [self checkCoverage:mbr globeView:globeView height:maxHeight];
+    bool minOnScreen = [self checkCoverage:mbr globeView:tempGlobe height:minHeight];
+    bool maxOnScreen = [self checkCoverage:mbr globeView:tempGlobe height:maxHeight];
     if (!minOnScreen && !maxOnScreen)
     {
-        [globeView setHeightAboveGlobe:oldHeight updateWatchers:false];
+        [tempGlobe setHeightAboveGlobe:oldHeight updateWatchers:false];
         return oldHeight;
     }
     
@@ -1127,7 +1127,7 @@ using namespace WhirlyGlobe;
     do
     {
         float midHeight = (minHeight + maxHeight)/2.0;
-        bool midOnScreen = [self checkCoverage:mbr globeView:globeView height:midHeight];
+        bool midOnScreen = [self checkCoverage:mbr globeView:tempGlobe height:midHeight];
         
         if (!minOnScreen && midOnScreen)
         {
@@ -1146,8 +1146,6 @@ using namespace WhirlyGlobe;
             break;
     } while (true);
     
-    [globeView setHeightAboveGlobe:oldHeight updateWatchers:false];
-    [globeView setRotQuat:oldRotQuat updateWatchers:false];
     return maxHeight;
 }
 

@@ -47,6 +47,18 @@ using namespace Eigen;
     return self;
 }
 
+- (id)initWithView:(WhirlyKitView *)inView
+{
+    self = [super init];
+    _fieldOfView = inView->_fieldOfView;
+    _nearPlane = inView->_nearPlane;
+    _imagePlaneSize = inView->_imagePlaneSize;
+    _farPlane = inView->_farPlane;
+    _lastChangedTime = inView->_lastChangedTime;
+    _continuousZoom = inView->_continuousZoom;
+    
+    return self;
+}
 
 - (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(Point2d &)ll ur:(Point2d &)ur near:(double &)near far:(double &)far
 {
