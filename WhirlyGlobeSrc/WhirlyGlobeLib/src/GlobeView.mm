@@ -60,6 +60,23 @@ using namespace Eigen;
 	return self;
 }
 
+- (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView
+{
+    self = [super initWithView:inGlobeView];
+    super.coordAdapter = &fakeGeoC;
+    absoluteMinHeight = inGlobeView->absoluteMinHeight;
+    heightInflection = inGlobeView->heightInflection;
+    defaultNearPlane = inGlobeView->defaultNearPlane;
+    absoluteMinNearPlane = inGlobeView->absoluteMinNearPlane;
+    defaultFarPlane = inGlobeView->defaultFarPlane;
+    absoluteMinFarPlane = inGlobeView->absoluteMinFarPlane;
+    _heightAboveGlobe = inGlobeView.heightAboveGlobe;
+    _rotQuat = inGlobeView.rotQuat;
+    _tilt = inGlobeView.tilt;
+    
+    return self;
+}
+
 - (void)dealloc
 {
     super.coordAdapter = nil;
