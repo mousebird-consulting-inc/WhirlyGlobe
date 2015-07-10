@@ -245,6 +245,23 @@ void DynamicTexture::setRegion(const Region &region, bool enable)
         }
 }
     
+void DynamicTexture::clearRegion(const Region &clearRegion)
+{
+    int startX = clearRegion.sx * cellSize;
+    int startY = clearRegion.sy * cellSize;
+    int width = (clearRegion.ex - clearRegion.sx + 1) * cellSize;
+    int height = (clearRegion.ey - clearRegion.sy + 1) * cellSize;
+    clearTextureData(startX,startY,width,height);
+}
+    
+void DynamicTexture::getReleasedRegions(std::vector<DynamicTexture::Region> &toClear)
+{
+    pthread_mutex_lock(&regionLock);
+    toClear = releasedRegions;
+    releasedRegions.clear();
+    pthread_mutex_unlock(&regionLock);
+}
+    
 bool DynamicTexture::findRegion(int sizeX,int sizeY,Region &region)
 {
     // First thing we need to do is clear any outstanding regions
@@ -255,15 +272,7 @@ bool DynamicTexture::findRegion(int sizeX,int sizeY,Region &region)
     releasedRegions.clear();
     pthread_mutex_unlock(&regionLock);
     for (unsigned int ii=0;ii<toClear.size();ii++)
-    {
-        Region &clearRegion = toClear[ii];
-        int startX = clearRegion.sx * cellSize;
-        int startY = clearRegion.sy * cellSize;
-        int width = (clearRegion.ex - clearRegion.sx + 1) * cellSize;
-        int height = (clearRegion.ey - clearRegion.sy + 1) * cellSize;
-        clearTextureData(startX,startY,width,height);
         setRegion(toClear[ii], false);
-    }
     
     // Now look for a region that'll fit
     // Look for a spot big enough
@@ -368,7 +377,22 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
     if (firstTex->getWidth() > texSize || firstTex->getHeight() > texSize)
         return false;
     
-    TextureRegion texRegion;    
+    TextureRegion texRegion;
+    
+    // Clear out any released regions
+    for (DynamicTextureSet::iterator it = textures.begin();it != textures.end(); ++it)
+    {
+        DynamicTextureVec *dynTexVec = *it;
+        DynamicTexture *firstDynTex = dynTexVec->at(0);
+        std::vector<DynamicTexture::Region> toClear;
+        firstDynTex->getReleasedRegions(toClear);
+        for (const DynamicTexture::Region &clearRegion : toClear)
+            for (unsigned int ii=0;ii<dynTexVec->size();ii++)
+            {
+                DynamicTexture *dynTex = dynTexVec->at(ii);
+                dynTex->clearRegion(clearRegion);
+            }
+    }
     
     // Now look for space
     DynamicTextureVec *dynTexVec = NULL;
