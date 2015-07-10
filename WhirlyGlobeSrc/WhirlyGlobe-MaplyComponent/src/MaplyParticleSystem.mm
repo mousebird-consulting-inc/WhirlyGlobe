@@ -62,7 +62,7 @@ int ParticleSystemAttribute::dataSize()
     _ident = WhirlyKit::EmptyIdentity;
     _name = name;
     _type = MaplyParticleSystemTypePoint;
-    _shader = kMaplyParticleSystemPointDefaultShader;
+    _shader = kMaplyShaderParticleSystemPointDefault;
     _lifetime = 5.0;
     _batchSize = 2000;
     _totalParticles = 100000;

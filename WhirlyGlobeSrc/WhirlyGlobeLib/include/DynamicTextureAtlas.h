@@ -62,6 +62,9 @@ public:
     /// Add the data at a given location in the texture
     void addTextureData(int startX,int startY,int width,int height,NSData *data);
     
+    /// Clear out the area given
+    void clearTextureData(int startX,int startY,int width,int height);
+    
     /// Set or clear a given region
     void setRegion(const Region &region,bool enable);
     
