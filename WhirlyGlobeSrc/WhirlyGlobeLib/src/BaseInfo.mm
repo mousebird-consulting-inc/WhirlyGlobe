@@ -52,6 +52,8 @@ using namespace Eigen;
     _enable = [desc boolForKey:@"enable" default:true];
     _startEnable = [desc doubleForKey:@"enablestart" default:0.0];
     _endEnable = [desc doubleForKey:@"enableend" default:0.0];
+    SimpleIdentity shaderID = [desc intForKey:@"shader" default:EmptyIdentity];
+    _programID = [desc intForKey:@"program" default:shaderID];
     
     return self;
 }

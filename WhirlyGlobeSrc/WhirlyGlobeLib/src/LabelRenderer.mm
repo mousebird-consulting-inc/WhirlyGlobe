@@ -60,7 +60,6 @@ namespace WhirlyKit
     _shadowSize = [desc floatForKey:@"shadowSize" default:0.0];
     _outlineSize = [desc floatForKey:@"outlineSize" default:0.0];
     _outlineColor = [desc objectForKey:@"outlineColor" checkType:[UIColor class] default:[UIColor blackColor]];
-    _shaderID = [desc intForKey:@"shader" default:EmptyIdentity];
     if (![justifyStr compare:@"middle"])
         _justify = WhirlyKitLabelMiddle;
     else {
@@ -71,7 +70,6 @@ namespace WhirlyKit
                 _justify = WhirlyKitLabelRight;
         }
     }
-    _programID = [desc intForKey:@"shader" default:EmptyIdentity];
 }
 
 // Initialize a label info with data from the description dictionary
@@ -644,7 +642,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     drawable = new BasicDrawable("Label Layer");
                     if (_labelInfo)
                         [_labelInfo setupBasicDrawable:drawable];
-                    drawable->setProgram(_labelInfo.shaderID);
+                    drawable->setProgram(_labelInfo.programID);
                     drawable->setType(GL_TRIANGLES);
                     drawable->setColor(RGBAColor(255,255,255,255));
                     drawable->addTriangle(BasicDrawable::Triangle(0,1,2));
@@ -905,7 +903,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     iconDrawable = new BasicDrawable("Label Layer");
                     if (_labelInfo)
                         [_labelInfo setupBasicDrawable:drawable];
-                    drawable->setProgram(_labelInfo.shaderID);
+                    drawable->setProgram(_labelInfo.programID);
                     iconDrawable->setType(GL_TRIANGLES);
                     iconDrawable->setColor(RGBAColor(255,255,255,255));
                     iconDrawable->setAlpha(true);  // Note: Don't know this

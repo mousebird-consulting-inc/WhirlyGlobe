@@ -84,9 +84,9 @@
   */
 @property (nonatomic,assign) bool selectable;
 
-/** @brief The layout importance compared to other features. MAXFLOAT (always) by default.
-    @details The toolkit has a simple layout engine that runs several times per second.  It controls the placement of all participating screen based features, such as MaplyScreenLabel and MaplyScreenMaker objects.  This value controls the relative importance of this particular label.  By default that importance is infinite (MAXFLOAT) and so the label will always appearing.  Setting this value to 1.0, for example, will mean that this label competes with other screen objects for space.
-  */
+/** @brief The layout importance compared to other features, 0 by default.
+ @details The toolkit has a simple layout engine that runs several times per second.  It controls the placement of all participating screen based features, such as MaplyScreenLabel and MaplyScreenMaker objects.  This value controls the relative importance of this particular object.  By default that importance is 0 so the object must compete with others.  Setting it to MAXFLOAT will bypass the layout engine entirely and the object will always appear.
+ */
 @property (nonatomic,assign) float layoutImportance;
 
 /** @brief The placement rules for the layout engine to follow.

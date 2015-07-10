@@ -28,6 +28,8 @@ namespace WhirlyKit
 #define kToolkitDefaultTriangleProgram "Default Triangle;lighting=yes"
 /// Triangle shader without lighting
 #define kToolkitDefaultTriangleNoLightingProgram "Default Triangle;lighting=no"
+/// Triangle shader, handles screen texture coordinates
+#define kToolkitDefaultTriangleScreenTex "Default Triangle;screentex=yes;lighting=yes"
 /// Triangle shader, takes two textures, with lighting
 #define kToolkitDefaultTriangleMultiTex "Default Triangle;multitex=yes;lighting=yes"
 /// Triangle shader, takes two textures, with lighting

@@ -1357,6 +1357,26 @@ void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,WhirlyKitRendererFram
     // Note: There has to be a better way
     frame.scene->addChangeRequest(NULL);
 }
+    
+BasicDrawableScreenTexTweaker::BasicDrawableScreenTexTweaker(const Point3d &centerPt,const Point2d &texScale)
+    : centerPt(centerPt), texScale(texScale)
+{
+}
+    
+void BasicDrawableScreenTexTweaker::tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frameInfo)
+{
+    if (frameInfo.program)
+    {
+        Vector4f screenPt = frameInfo.mvpMat * Vector4f(centerPt.x(),centerPt.y(),centerPt.z(),1.0);
+        screenPt /= screenPt.w();
+        
+        Point2f u_scale = Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight);
+        float u_max = std::max(u_scale.x(),u_scale.y());
+        frameInfo.program->setUniform("u_screenOrigin", Point2f(screenPt.x(),screenPt.y()));
+        frameInfo.program->setUniform("u_scale", Point2f(u_max,u_max));
+        frameInfo.program->setUniform("u_texScale", Point2f(texScale.x(),texScale.y()));
+    }
+}
 
 ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
 : DrawableChangeRequest(drawId)

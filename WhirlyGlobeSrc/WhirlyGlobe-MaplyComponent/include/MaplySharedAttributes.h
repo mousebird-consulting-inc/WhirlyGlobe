@@ -76,19 +76,6 @@
 
 /// Assign a shader program to a particular feature.  Use the shader program's name
 #define kMaplyShader @"shader"
-/// This is the shader we'll normally get by default on triangles
-#define kMaplyDefaultTriangleShader @"Default Triangle;lighting=yes"
-/// This shader turns off lighting explicitly (doesn't have the code for it)
-#define kMaplyNoLightTriangleShader @"Default Triangle;lighting=no"
-/// This is the line/point shader we'll normaly get by default
-#define kMaplyDefaultLineShader @"Default Line;backface=yes"
-/// This point/line shader turns off the backface logic for lines
-#define kMaplyNoBackfaceLineShader @"Default Line;backface=no"
-/// The default billboard shader
-#define kMaplyBillboardShaderGround @"Default Billboard ground"
-#define kMaplyBillboardShaderEye @"Default Billboard eye"
-/// The default particle system shader
-#define kMaplyParticleSystemPointDefaultShader @"Default Part Sys (Point)"
 
 /// Stars
 #define kMaplyStarsDrawPriorityDefault 0
@@ -171,7 +158,7 @@
 /// Tangent plane projection for texture coordinates
 #define kMaplyProjectionTangentPlane @"texprojectiontanplane"
 /// Screen space "projection" for texture coordinates
-#define kMaplyProjectionScreen @"screenprojection"
+#define kMaplyProjectionScreen @"texprojectionscreen"
 
 /// If set to true we'll centered any drawables we create for features
 /// This fixes the jittering problem when zoomed in close
@@ -299,9 +286,23 @@
 
 /// These are the various shader programs we set up by default
 #define kMaplyShaderDefaultTri @"Default Triangle;lighting=yes"
+#define kMaplyDefaultTriangleShader @"Default Triangle;lighting=yes"
+
 #define kMaplyShaderDefaultTriNoLighting @"Default Triangle;lighting=no"
+#define kMaplyNoLightTriangleShader @"Default Triangle;lighting=no"
+
+#define kMaplyShaderDefaultTriScreenTex @"Default Triangle;screentex=yes;lighting=yes"
+
 #define kMaplyShaderDefaultTriMultiTex @"Default Triangle;multitex=yes;lighting=yes"
 #define kMaplyShaderDefaultTriNightDay @"Default Triangle;nightday=yes;multitex=yes;lighting=yes"
-#define kMaplyShaderDefaultLine @"Default Line;backface=yes"
-#define kMaplyShaderDefaultLineNoBackface @"Default Line;backface=no"
 
+#define kMaplyShaderDefaultLine @"Default Line;backface=yes"
+#define kMaplyDefaultLineShader @"Default Line;backface=yes"
+
+#define kMaplyShaderDefaultLineNoBackface @"Default Line;backface=no"
+#define kMaplyNoBackfaceLineShader @"Default Line;backface=no"
+
+#define kMaplyShaderBillboardGround @"Default Billboard ground"
+#define kMaplyShaderBillboardEye @"Default Billboard eye"
+
+#define kMaplyShaderParticleSystemPointDefault @"Default Part Sys (Point)"
