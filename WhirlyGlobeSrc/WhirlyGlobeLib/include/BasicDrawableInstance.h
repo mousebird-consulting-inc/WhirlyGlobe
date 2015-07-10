@@ -153,6 +153,7 @@ protected:
     int numInstances;
     GLuint instBuffer;
     GLuint vertArrayObj;
+    int matSize,colorSize,instSize;
     
     // If set, we'll instance this one multiple times
     std::vector<SingleInstance> instances;
