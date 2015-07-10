@@ -300,7 +300,7 @@ static const int BaseEarthPriority = 10;
     [configViewC view];
     
     // Note: Testing
-//    [self performSelector:@selector(findHeightTest) withObject:nil afterDelay:0.0];
+    [self performSelector:@selector(findHeightTest) withObject:nil afterDelay:0.0];
 
     // Maximum number of objects for the layout engine to display
 //    [baseViewC setMaxLayoutObjects:1000];
@@ -318,15 +318,15 @@ static const int BaseEarthPriority = 10;
 
 - (void)findHeightTest
 {
-    if (mapViewC)
+    if (globeViewC)
     {
         MaplyBoundingBox bbox;
         bbox.ll = MaplyCoordinateMakeWithDegrees(7.05090689853, 47.7675500593);
         bbox.ur = MaplyCoordinateMakeWithDegrees(8.06813647023, 49.0562323851);
         MaplyCoordinate center = MaplyCoordinateMakeWithDegrees((7.05090689853+8.06813647023)/2, (47.7675500593+49.0562323851)/2);
-        double height = [mapViewC findHeightToViewBounds:&bbox pos:center];
+        double height = [globeViewC findHeightToViewBounds:&bbox pos:center];
         mapViewC.height = height;
-        [mapViewC animateToPosition:center time:1.0];
+        [globeViewC animateToPosition:center time:1.0];
         NSLog(@"height = %f",height);
     }    
 }
@@ -868,10 +868,19 @@ static const int BaseEarthPriority = 10;
                          NSData *jsonData = [NSData dataWithContentsOfFile:fileName];
                          if (jsonData)
                          {
+                             UIImage *smileImage = [UIImage imageNamed:@"Smiley_Face_Avatar_by_PixelTwist"];
+
                              MaplyVectorObject *wgVecObj = [MaplyVectorObject VectorObjectFromGeoJSON:jsonData];
                              NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
                              wgVecObj.userObject = vecName;
-                             MaplyComponentObject *compObj = [baseViewC addVectors:[NSArray arrayWithObject:wgVecObj] desc:vectorDesc];
+                             MaplyComponentObject *compObj = [baseViewC addVectors:[NSArray arrayWithObject:wgVecObj] desc:
+                                                              @{
+                                                                kMaplyFilled: @(YES),
+                                                                kMaplyVecTexture: smileImage,
+                                                                kMaplyVecTexScaleX: @(0.001),
+                                                                kMaplyVecTexScaleY: @(0.001),
+//                                                                kMaplyVecTextureProjection: kMaplyProjectionTangentPlane
+                                                                }];
                              MaplyScreenLabel *screenLabel = [[MaplyScreenLabel alloc] init];
                              // Add a label right in the middle
                              MaplyCoordinate center;

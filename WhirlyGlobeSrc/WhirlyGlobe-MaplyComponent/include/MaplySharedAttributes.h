@@ -161,13 +161,17 @@
 
 /// If set, the texture to apply to the feature
 #define kMaplyVecTexture @"texture"
+/// X scale for textures applied to vectors
 #define kMaplyVecTexScaleX @"texscalex"
+/// Y scale for textures applied to vectors
 #define kMaplyVecTexScaleY @"texscaley"
 
 /// The projection to use when generating texture coordinates
 #define kMaplyVecTextureProjection @"texprojection"
 /// Tangent plane projection for texture coordinates
 #define kMaplyProjectionTangentPlane @"texprojectiontanplane"
+/// Screen space "projection" for texture coordinates
+#define kMaplyProjectionScreen @"screenprojection"
 
 /// If set to true we'll centered any drawables we create for features
 /// This fixes the jittering problem when zoomed in close
