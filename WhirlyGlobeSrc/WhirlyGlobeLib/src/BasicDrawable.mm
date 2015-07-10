@@ -1370,7 +1370,7 @@ void BasicDrawableScreenTexTweaker::tweakForFrame(Drawable *draw,WhirlyKitRender
         Vector4f screenPt = frameInfo.mvpMat * Vector4f(centerPt.x(),centerPt.y(),centerPt.z(),1.0);
         screenPt /= screenPt.w();
         
-        Point2f u_scale = Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight);
+        Point2f u_scale = Point2f(frameInfo.sceneRenderer.framebufferWidth/2.f,frameInfo.sceneRenderer.framebufferHeight/2.f);
         float u_max = std::max(u_scale.x(),u_scale.y());
         frameInfo.program->setUniform("u_screenOrigin", Point2f(screenPt.x(),screenPt.y()));
         frameInfo.program->setUniform("u_scale", Point2f(u_max,u_max));
