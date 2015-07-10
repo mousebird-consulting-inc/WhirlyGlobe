@@ -300,7 +300,7 @@ static const int BaseEarthPriority = 10;
     [configViewC view];
     
     // Note: Testing
-    [self performSelector:@selector(findHeightTest) withObject:nil afterDelay:0.0];
+//    [self performSelector:@selector(findHeightTest) withObject:nil afterDelay:0.0];
 
     // Maximum number of objects for the layout engine to display
 //    [baseViewC setMaxLayoutObjects:1000];
@@ -848,9 +848,18 @@ static const int BaseEarthPriority = 10;
     stickersObj = [baseViewC addStickers:stickers desc:desc];
 }
 
+static const bool CountryTextures = true;
+
 // Add country outlines.  Pass in the names of the geoJSON files
 - (void)addCountries:(NSArray *)names stride:(int)stride
 {
+    MaplyTexture *smileTex = nil;
+    if (CountryTextures)
+    {
+        UIImage *smileImage = [UIImage imageNamed:@"Smiley_Face_Avatar_by_PixelTwist"];
+        smileTex = [baseViewC addTexture:smileImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapX|MaplyImageWrapY mode:MaplyThreadCurrent];
+    }
+
     // Parsing the JSON can take a while, so let's hand that over to another queue
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), 
          ^{
@@ -868,19 +877,20 @@ static const int BaseEarthPriority = 10;
                          NSData *jsonData = [NSData dataWithContentsOfFile:fileName];
                          if (jsonData)
                          {
-                             UIImage *smileImage = [UIImage imageNamed:@"Smiley_Face_Avatar_by_PixelTwist"];
-
                              MaplyVectorObject *wgVecObj = [MaplyVectorObject VectorObjectFromGeoJSON:jsonData];
                              NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
                              wgVecObj.userObject = vecName;
-                             MaplyComponentObject *compObj = [baseViewC addVectors:[NSArray arrayWithObject:wgVecObj] desc:
-                                                              @{
-                                                                kMaplyFilled: @(YES),
-                                                                kMaplyVecTexture: smileImage,
-                                                                kMaplyVecTexScaleX: @(0.001),
-                                                                kMaplyVecTexScaleY: @(0.001),
-//                                                                kMaplyVecTextureProjection: kMaplyProjectionTangentPlane
-                                                                }];
+                             NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:@{
+                                                                                                         kMaplyFilled: @(YES),
+                                                                                                         }];
+                             if (CountryTextures)
+                             {
+                                 desc[kMaplyVecTexture] = smileTex;
+                                 desc[kMaplyVecTexScaleX] = @(5000.0);
+                                 desc[kMaplyVecTexScaleY] = @(5000.0);
+                                 desc[kMaplyVecTextureProjection] = kMaplyProjectionScreen;
+                             }
+                             MaplyComponentObject *compObj = [baseViewC addVectors:[NSArray arrayWithObject:wgVecObj] desc:desc];
                              MaplyScreenLabel *screenLabel = [[MaplyScreenLabel alloc] init];
                              // Add a label right in the middle
                              MaplyCoordinate center;
@@ -908,16 +918,17 @@ static const int BaseEarthPriority = 10;
              dispatch_async(dispatch_get_main_queue(),
                             ^{
                                 // Toss in all the labels at once, more efficient
-                                MaplyComponentObject *autoLabelObj = [baseViewC addScreenLabels:locAutoLabels desc:
-                                                                      @{kMaplyTextColor: [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1.0],
-                                                                            kMaplyFont: [UIFont systemFontOfSize:24.0],
-                                                                         kMaplyTextOutlineColor: [UIColor blackColor],
-                                                                          kMaplyTextOutlineSize: @(1.0),
-//                                                                               kMaplyShadowSize: @(1.0)
-                                                                      } mode:MaplyThreadAny];
+                                // Note: Debugging
+//                                MaplyComponentObject *autoLabelObj = [baseViewC addScreenLabels:locAutoLabels desc:
+//                                                                      @{kMaplyTextColor: [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1.0],
+//                                                                            kMaplyFont: [UIFont systemFontOfSize:24.0],
+//                                                                         kMaplyTextOutlineColor: [UIColor blackColor],
+//                                                                          kMaplyTextOutlineSize: @(1.0),
+////                                                                               kMaplyShadowSize: @(1.0)
+//                                                                      } mode:MaplyThreadAny];
 
                                 vecObjects = locVecObjects;
-                                autoLabels = autoLabelObj;
+//                                autoLabels = autoLabelObj;
                             });
 
          }

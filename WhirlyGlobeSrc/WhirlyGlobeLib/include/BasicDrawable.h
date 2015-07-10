@@ -363,6 +363,21 @@ protected:
     double period;
 };
 
+/** Calculates important values for the screen space texture application and
+    sets the results in the shader.
+  */
+class BasicDrawableScreenTexTweaker : public DrawableTweaker
+{
+public:
+    BasicDrawableScreenTexTweaker(const Point3d &centerPt,const Point2d &texScale);
+    
+    /// Modify the active shader
+    void tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frame);
+protected:
+    Point3d centerPt;
+    Point2d texScale;
+};
+
 /// Reference counted version of BasicDrawable
 typedef boost::shared_ptr<BasicDrawable> BasicDrawableRef;
 

@@ -1174,7 +1174,10 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyVectorDrawPriorityDefault) toDict:inDesc];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:nil];
+    NSString *shaderName = kMaplyDefaultTriangleShader;
+    if ([inDesc[kMaplyVecTextureProjection] isEqualToString:kMaplyProjectionScreen])
+        shaderName = kMaplyShaderDefaultTriScreenTex;
+    [self resolveShader:inDesc defaultShader:shaderName];
     
     // Look for a texture and add it
     if (inDesc[kMaplyVecTexture])
@@ -2365,9 +2368,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     if (billShaderID == EmptyIdentity)
     {
         if ([inDesc[kMaplyBillboardOrient] isEqualToString:kMaplyBillboardOrientEye])
-            billShaderID = scene->getProgramIDBySceneName([kMaplyBillboardShaderEye cStringUsingEncoding:NSASCIIStringEncoding]);
+            billShaderID = scene->getProgramIDBySceneName([kMaplyShaderBillboardEye cStringUsingEncoding:NSASCIIStringEncoding]);
         else
-            billShaderID = scene->getProgramIDBySceneName([kMaplyBillboardShaderGround cStringUsingEncoding:NSASCIIStringEncoding]);
+            billShaderID = scene->getProgramIDBySceneName([kMaplyShaderBillboardGround cStringUsingEncoding:NSASCIIStringEncoding]);
     }
     
     ChangeSet changes;
@@ -2522,14 +2525,14 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self applyDefaultName:kMaplyPointSize value:@(kMaplyPointSizeDefault) toDict:inDesc];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:kMaplyParticleSystemPointDefaultShader];
+    [self resolveShader:inDesc defaultShader:kMaplyShaderParticleSystemPointDefault];
     
     // May need a temporary context
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
     
     SimpleIdentity partSysShaderID = [inDesc[kMaplyShader] intValue];
     if (partSysShaderID == EmptyIdentity)
-        partSysShaderID = scene->getProgramIDBySceneName([kMaplyParticleSystemPointDefaultShader cStringUsingEncoding:NSASCIIStringEncoding]);
+        partSysShaderID = scene->getProgramIDBySceneName([kMaplyShaderParticleSystemPointDefault cStringUsingEncoding:NSASCIIStringEncoding]);
     if (partSys.shader)
     {
         partSysShaderID = scene->getProgramIDBySceneName([partSys.shader cStringUsingEncoding:NSASCIIStringEncoding]);

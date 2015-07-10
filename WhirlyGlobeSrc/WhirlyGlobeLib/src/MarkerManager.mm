@@ -115,7 +115,6 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
     _screenObject = [desc boolForKey:@"screen" default:false];
     _width = [desc floatForKey:@"width" default:(_screenObject ? 16.0 : 0.001)];
     _height = [desc floatForKey:@"height" default:(_screenObject ? 16.0 : 0.001)];
-    _programId = [desc intForKey:@"shader" default:EmptyIdentity];
 }
 
 @end
@@ -213,7 +212,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             ScreenSpaceObject::ConvexGeometry smGeom;
             for (unsigned int ii=0;ii<subTexs.size();ii++)
                 smGeom.texIDs.push_back(subTexs[ii].texId);
-            smGeom.progID = markerInfo.programId;
+            smGeom.progID = markerInfo.programID;
             smGeom.color = [markerInfo.color asRGBAColor];
             if (marker.color)
                 smGeom.color = [marker.color asRGBAColor];
@@ -331,8 +330,8 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     [markerInfo setupBasicDrawable:draw];
                     draw->setColor([markerInfo.color asRGBAColor]);
                     draw->setTexId(0,subTexID);
-                    if (markerInfo.programId != EmptyIdentity)
-                        draw->setProgram(markerInfo.programId);
+                    if (markerInfo.programID != EmptyIdentity)
+                        draw->setProgram(markerInfo.programID);
                     drawables[subTexID] = draw;
                     markerRep->drawIDs.insert(draw->getId());
                 }

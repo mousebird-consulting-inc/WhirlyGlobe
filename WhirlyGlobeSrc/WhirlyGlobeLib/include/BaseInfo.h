@@ -45,6 +45,7 @@ class BasicDrawableInstance;
 @property (nonatomic) double fadeOut;
 @property (nonatomic) NSTimeInterval fadeOutTime;
 @property (nonatomic) NSTimeInterval startEnable,endEnable;
+@property (nonatomic) WhirlyKit::SimpleIdentity programID;
 
 /// Initialize with an NSDictionary
 - (id)initWithDesc:(NSDictionary *)desc;
