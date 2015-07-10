@@ -40,6 +40,9 @@
  */
 @interface WhirlyGlobeView : WhirlyKitView
 
+/// Initialize with an existing globe view
+- (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView;
+
 /// The globe has a radius of 1.0 so 1.0 + heightAboveGlobe is the offset from the middle of the globe
 @property (nonatomic,assign) double heightAboveGlobe;
 /// Quaternion used for rotation from origin state
