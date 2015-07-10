@@ -121,9 +121,11 @@ void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMan
     if (instances.empty())
         return;
 
-    // Note: Doing matrices, but not color
-    
-    int instSize = sizeof(GLfloat)*16;
+    // Always doing color and position matrix
+    // Note: Should allow for a list of optional attributes here
+    matSize = sizeof(GLfloat)*16;
+    colorSize = sizeof(GLubyte)*4;
+    instSize = matSize + colorSize;
     int bufferSize = instSize * instances.size();
     
     instBuffer = memManager->getBufferID(bufferSize,GL_STATIC_DRAW);
@@ -137,8 +139,11 @@ void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMan
     unsigned char *basePtr = (unsigned char *)glMem;
     for (unsigned int ii=0;ii<instances.size();ii++,basePtr+=instSize)
     {
-        Matrix4f mat = Matrix4dToMatrix4f(instances[ii].mat);
-        memcpy(basePtr, (void *)mat.data(), instSize);
+        const SingleInstance &inst = instances[ii];
+        Matrix4f mat = Matrix4dToMatrix4f(inst.mat);
+        RGBAColor locColor = inst.colorOverride ? inst.color : color;
+        memcpy(basePtr, (void *)mat.data(), matSize);
+        memcpy(basePtr+matSize, (void *)&locColor.r, colorSize);
     }
     
     if (context.API < kEAGLRenderingAPIOpenGLES3)
@@ -173,23 +178,35 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
     glBindVertexArrayOES(vertArrayObj);
 
     glBindBuffer(GL_ARRAY_BUFFER,instBuffer);
-    const OpenGLESAttribute *thisAttr = prog->findAttribute("a_singleMatrix");
-    if (thisAttr)
+    const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
+    if (matAttr)
     {
         for (unsigned int im=0;im<4;im++)
         {
-            glVertexAttribPointer(thisAttr->index+im, 4, GL_FLOAT, GL_FALSE, 16*sizeof(GLfloat), (const GLvoid *)(long)(im*(4*sizeof(GLfloat))));
+            glVertexAttribPointer(matAttr->index+im, 4, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(im*(4*sizeof(GLfloat))));
             CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
             if (context.API < kEAGLRenderingAPIOpenGLES3)
-                glVertexAttribDivisorEXT(thisAttr->index+im, 1);
+                glVertexAttribDivisorEXT(matAttr->index+im, 1);
             else
-                glVertexAttribDivisor(thisAttr->index+im, 1);
-            glEnableVertexAttribArray(thisAttr->index+im);
+                glVertexAttribDivisor(matAttr->index+im, 1);
+            glEnableVertexAttribArray(matAttr->index+im);
             CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
         }
     }
-    glBindVertexArrayOES(0);
+    const OpenGLESAttribute *colorAttr = prog->findAttribute("a_color");
+    if (colorAttr)
+    {
+        glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, instSize, (const GLvoid *)(long)(matSize));
+        CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
+        if (context.API < kEAGLRenderingAPIOpenGLES3)
+            glVertexAttribDivisorEXT(colorAttr->index, 1);
+        else
+            glVertexAttribDivisor(colorAttr->index, 1);
+        glEnableVertexAttribArray(colorAttr->index);
+        CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
+    }
 
+    glBindVertexArrayOES(0);
     glBindBuffer(GL_ARRAY_BUFFER,0);
 
     return vertArrayObj;
@@ -485,11 +502,17 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
     
     if (instBuffer)
     {
-        const OpenGLESAttribute *thisAttr = prog->findAttribute("a_singleMatrix");
-        if (thisAttr)
+        const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
+        if (matAttr)
         {
             for (unsigned int im=0;im<4;im++)
-                glDisableVertexAttribArray(thisAttr->index+im);
+                glDisableVertexAttribArray(matAttr->index+im);
+            CheckGLError("BasicDrawableInstance::draw() glDisableVertexAttribArray");
+        }
+        const OpenGLESAttribute *colorAttr = prog->findAttribute("a_color");
+        if (colorAttr)
+        {
+            glDisableVertexAttribArray(colorAttr->index);
             CheckGLError("BasicDrawableInstance::draw() glDisableVertexAttribArray");
         }
     }
