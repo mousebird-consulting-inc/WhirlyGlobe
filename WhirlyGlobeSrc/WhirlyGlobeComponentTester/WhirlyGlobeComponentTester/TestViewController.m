@@ -886,8 +886,8 @@ static const bool CountryTextures = true;
                              if (CountryTextures)
                              {
                                  desc[kMaplyVecTexture] = smileTex;
-                                 desc[kMaplyVecTexScaleX] = @(5000.0);
-                                 desc[kMaplyVecTexScaleY] = @(5000.0);
+                                 desc[kMaplyVecTexScaleX] = @(0.01);
+                                 desc[kMaplyVecTexScaleY] = @(0.01);
                                  desc[kMaplyVecTextureProjection] = kMaplyProjectionScreen;
                              }
                              MaplyComponentObject *compObj = [baseViewC addVectors:[NSArray arrayWithObject:wgVecObj] desc:desc];
