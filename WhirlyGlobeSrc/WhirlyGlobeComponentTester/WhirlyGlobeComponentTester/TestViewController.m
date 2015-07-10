@@ -857,7 +857,7 @@ static const bool CountryTextures = true;
     if (CountryTextures)
     {
         UIImage *smileImage = [UIImage imageNamed:@"Smiley_Face_Avatar_by_PixelTwist"];
-        smileTex = [baseViewC addTexture:smileImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapX|MaplyImageWrapY mode:MaplyThreadCurrent];
+        smileTex = [baseViewC addTexture:smileImage imageFormat:MaplyImageUShort5551 wrapFlags:MaplyImageWrapX|MaplyImageWrapY mode:MaplyThreadCurrent];
     }
 
     // Parsing the JSON can take a while, so let's hand that over to another queue
