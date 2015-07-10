@@ -144,6 +144,7 @@ typedef std::vector<ChangeRequest *> ChangeSet;
 class DrawableTweaker : public Identifiable
 {
 public:
+    virtual ~DrawableTweaker() { }
     /// Do your tweaking here
     virtual void tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frame) = 0;
 };

@@ -74,8 +74,6 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic,assign) float shadowSize;
 @property (nonatomic) UIColor *outlineColor;
 @property (nonatomic,assign) float outlineSize;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity shaderID;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity programID;
 
 - (id)initWithStrs:(NSArray *)inStrs desc:(NSDictionary *)desc;
 

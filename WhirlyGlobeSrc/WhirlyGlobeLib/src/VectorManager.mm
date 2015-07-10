@@ -29,7 +29,7 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-typedef enum {TextureProjectionNone,TextureProjectionTanPlane} TextureProjections;
+typedef enum {TextureProjectionNone,TextureProjectionTanPlane,TextureProjectionScreen} TextureProjections;
 
 // Used to describe the drawable we'll construct for a given vector
 @interface WhirlyKitVectorInfo : WhirlyKitBaseInfo
@@ -95,6 +95,8 @@ typedef enum {TextureProjectionNone,TextureProjectionTanPlane} TextureProjection
     texProj = TextureProjectionNone;
     if ([texProjStr isEqualToString:@"texprojectiontanplane"])
         texProj = TextureProjectionTanPlane;
+    else if ([texProjStr isEqualToString:@"texprojectionscreen"])
+        texProj = TextureProjectionScreen;
 }
 
 @end
@@ -341,10 +343,14 @@ public:
                 drawable->setColor([vecInfo.color asRGBAColor]);
                 if (vecInfo->texId != EmptyIdentity)
                     drawable->setTexId(0, vecInfo->texId);
+                if (vecInfo.programID != EmptyIdentity)
+                    drawable->setProgram(vecInfo.programID);
                 //                drawable->setForceZBufferOn(true);
             }
             int baseVert = drawable->getNumPoints();
             drawMbr.addPoints(pts);
+            
+            bool doTexCoords = vecInfo->texId != EmptyIdentity;
             
             // Need an origin for this type of texture coordinate projection
             Point3d planeOrg(0,0,0),planeUp(0,0,1),planeX(1,0,0),planeY(0,1,0);
@@ -357,11 +363,15 @@ public:
                 planeY = planeUp.cross(planeX);
                 planeX.normalize();
                 planeY.normalize();
+            } else if (vecInfo->texProj == TextureProjectionScreen)
+            {
+                // Don't need actual tex coordinates for screen space
+                doTexCoords = false;
             }
             
             // Generate the textures coordinates
             std::vector<TexCoord> texCoords;
-            if (vecInfo->texId != EmptyIdentity)
+            if (doTexCoords)
             {
                 texCoords.reserve(pts.size());
                 TexCoord minCoord(MAXFLOAT,MAXFLOAT);
@@ -420,7 +430,7 @@ public:
                 if (doColor)
                     drawable->addColor(baseColor);
                 drawable->addNormal(norm);
-                if (vecInfo->texId != EmptyIdentity)
+                if (doTexCoords)
                 {
                     drawable->addTexCoord(0, texCoords[jj]);
                 }
@@ -439,6 +449,16 @@ public:
         {            
             if (drawable->getNumPoints() > 0)
             {
+                // If we're doing screen coordinates, attach the tweaker
+                if (vecInfo->texProj == TextureProjectionScreen)
+                {
+                    Point2f midPt = drawMbr.mid();
+                    Point3d centerPt = scene->getCoordAdapter()->localToDisplay(Point3d(midPt.x(),midPt.y(),0.0));
+                    Point2d texScale(vecInfo->texScale.x(),vecInfo->texScale.y());
+                    BasicDrawableScreenTexTweaker *texTweaker = new BasicDrawableScreenTexTweaker(centerPt,texScale);
+                    drawable->addTweaker(DrawableTweakerRef(texTweaker));
+                }
+
                 drawable->setLocalMbr(drawMbr);
                 if (centerValid)
                 {
