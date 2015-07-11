@@ -122,3 +122,7 @@ using namespace Eigen;
 @implementation MaplyGeomModelInstance
 
 @end
+
+@implementation MaplyMovingGeomModelInstance
+
+@end
