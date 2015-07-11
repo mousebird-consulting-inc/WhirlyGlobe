@@ -1837,7 +1837,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyModelDrawPriorityDefault) toDict:inDesc];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:nil];
+    [self resolveShader:inDesc defaultShader:kMaplyShaderDefaultModelTri];
     
     GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
 
@@ -1909,17 +1909,17 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     shiftMat(0,0) = xAxis.x();
                     shiftMat(0,1) = yAxis.x();
                     shiftMat(0,2) = norm.x();
-                    shiftMat(0,3) = dispLoc.x();
+                    shiftMat(0,3) = 0.0;
                     
                     shiftMat(1,0) = xAxis.y();
                     shiftMat(1,1) = yAxis.y();
                     shiftMat(1,2) = norm.y();
-                    shiftMat(1,3) = dispLoc.y();
+                    shiftMat(1,3) = 0.0;
                     
                     shiftMat(2,0) = xAxis.z();
                     shiftMat(2,1) = yAxis.z();
                     shiftMat(2,2) = norm.z();
-                    shiftMat(2,3) = dispLoc.z();
+                    shiftMat(2,3) = 0.0;
                     
                     shiftMat(3,0) = 0.0;
                     shiftMat(3,1) = 0.0;
@@ -1928,7 +1928,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
                     localMat = shiftMat * localMat;
 
+                    // Basic geometry instance fields
                     GeometryInstance thisInst;
+                    thisInst.center = dispLoc;
                     thisInst.mat = localMat;
                     thisInst.colorOverride = modelInst.colorOverride != nil;
                     if (thisInst.colorOverride)
@@ -1941,6 +1943,21 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                         selectObjectSet.insert(SelectObject(thisInst.getId(),modelInst));
                         pthread_mutex_unlock(&selectLock);
                     }
+                    
+                    // Motion related fields
+                    if ([modelInst isKindOfClass:[MaplyMovingGeomModelInstance class]])
+                    {
+                        MaplyMovingGeomModelInstance *movingInst = (MaplyMovingGeomModelInstance *)modelInst;
+                        if (movingInst.duration > 0.0)
+                        {
+                            // Placement for the end point
+                            Point3d localPt = coordSys->geographicToLocal(Point2d(movingInst.endCenter.x,movingInst.endCenter.y));
+                            Point3d dispLoc = coordAdapter->localToDisplay(Point3d(localPt.x(),localPt.y(),movingInst.endCenter.z));
+                            thisInst.endCenter = dispLoc;
+                            thisInst.duration = movingInst.duration;
+                        }
+                    }
+                    
                     matInst.push_back(thisInst);
                 }
                 
