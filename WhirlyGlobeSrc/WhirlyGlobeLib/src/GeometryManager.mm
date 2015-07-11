@@ -402,6 +402,7 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw> &geom,C
 SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,NSDictionary *desc,ChangeSet &changes)
 {
     pthread_mutex_lock(&geomLock);
+    NSTimeInterval startTime = CFAbsoluteTimeGetCurrent();
 
     // Look for the scene rep we're basing this on
     GeomSceneRep *baseSceneRep = NULL;
@@ -420,6 +421,12 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     GeomSceneRep *sceneRep = new GeomSceneRep();
     WhirlyKitGeomInfo *geomInfo = [[WhirlyKitGeomInfo alloc] initWithDesc:desc];
     
+    // Check for moving models
+    bool hasMotion = false;
+    for (const GeometryInstance &inst : instances)
+        if (inst.duration > 0.0)
+            hasMotion = true;
+    
     // Work through the model instances
     std::vector<BasicDrawableInstance::SingleInstance> singleInsts;
     for (unsigned int ii=0;ii<instances.size();ii++)
@@ -436,14 +443,20 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
             singleInst.colorOverride = true;
             singleInst.color = inst.color;
         }
+        singleInst.center = inst.center;
         singleInst.mat = inst.mat;
+        if (hasMotion)
+        {
+            singleInst.endCenter = inst.endCenter;
+            singleInst.duration = inst.duration;
+        }
         singleInsts.push_back(singleInst);
         
         // Add a selection box for each instance
         if (inst.selectable)
         {
-            Vector4d ll = inst.mat * Vector4d(baseSceneRep->ll.x(),baseSceneRep->ll.y(),baseSceneRep->ll.z(),1.0);
-            Vector4d ur = inst.mat * Vector4d(baseSceneRep->ur.x(),baseSceneRep->ur.y(),baseSceneRep->ur.z(),1.0);
+            Vector4d ll = inst.mat * Vector4d(baseSceneRep->ll.x(),baseSceneRep->ll.y(),baseSceneRep->ll.z(),1.0) + Vector4d(singleInst.center.x(),singleInst.center.y(),singleInst.center.z(),0.0);
+            Vector4d ur = inst.mat * Vector4d(baseSceneRep->ur.x(),baseSceneRep->ur.y(),baseSceneRep->ur.z(),1.0) + Vector4d(singleInst.center.x(),singleInst.center.y(),singleInst.center.z(),0.0);
             selectManager->addPolytopeFromBox(inst.getId(), Point3d(ll.x(),ll.y(),ll.z()), Point3d(ur.x(),ur.y(),ur.z()), inst.mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
             sceneRep->selectIDs.insert(inst.getId());
         }
@@ -458,6 +471,13 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
         drawInst->setRequestZBuffer(true);
         drawInst->setWriteZBuffer(true);
         drawInst->addInstances(singleInsts);
+        if (geomInfo.programID != EmptyIdentity)
+            drawInst->setProgram(geomInfo.programID);
+        if (hasMotion)
+        {
+            drawInst->setStartTime(startTime);
+            drawInst->setIsMoving(true);
+        }
         
         sceneRep->drawIDs.insert(drawInst->getId());
         changes.push_back(new AddDrawableReq(drawInst));

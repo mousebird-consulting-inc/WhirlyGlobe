@@ -31,7 +31,7 @@ namespace WhirlyKit
 {
 
 BasicDrawableInstance::BasicDrawableInstance(const std::string &name,SimpleIdentity masterID)
-: Drawable(name), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true), startEnable(0.0), endEnable(0.0), instBuffer(0), numInstances(0), vertArrayObj(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minViewerDist(DrawVisibleInvalid), maxViewerDist(DrawVisibleInvalid), viewerCenter(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid)
+: Drawable(name), programID(EmptyIdentity), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true), startEnable(0.0), endEnable(0.0), instBuffer(0), numInstances(0), vertArrayObj(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minViewerDist(DrawVisibleInvalid), maxViewerDist(DrawVisibleInvalid), viewerCenter(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid), startTime(0), moving(false)
 {
 }
 
@@ -49,6 +49,9 @@ unsigned int BasicDrawableInstance::getDrawPriority() const
 
 SimpleIdentity BasicDrawableInstance::getProgram() const
 {
+    if (programID != EmptyIdentity)
+        return programID;
+
     return basicDraw->getProgram();
 }
 
@@ -98,6 +101,12 @@ bool BasicDrawableInstance::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) cons
 
 void BasicDrawableInstance::updateRenderer(WhirlyKitSceneRendererES *renderer)
 {
+    if (moving)
+    {
+        // Motion requires continuous rendering
+        [renderer addContinuousRenderRequest:getId()];
+    }
+    
     return basicDraw->updateRenderer(renderer);
 }
 
@@ -123,9 +132,16 @@ void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMan
 
     // Always doing color and position matrix
     // Note: Should allow for a list of optional attributes here
+    centerSize = sizeof(GLfloat)*3;
     matSize = sizeof(GLfloat)*16;
     colorSize = sizeof(GLubyte)*4;
-    instSize = matSize + colorSize;
+    if (moving)
+    {
+        modelDirSize = sizeof(GLfloat)*3;
+    } else {
+        modelDirSize = 0;
+    }
+    instSize = centerSize + matSize + colorSize + modelDirSize;
     int bufferSize = instSize * instances.size();
     
     instBuffer = memManager->getBufferID(bufferSize,GL_STATIC_DRAW);
@@ -140,10 +156,18 @@ void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMan
     for (unsigned int ii=0;ii<instances.size();ii++,basePtr+=instSize)
     {
         const SingleInstance &inst = instances[ii];
+        Point3f center3f(inst.center.x(),inst.center.y(),inst.center.z());
         Matrix4f mat = Matrix4dToMatrix4f(inst.mat);
         RGBAColor locColor = inst.colorOverride ? inst.color : color;
-        memcpy(basePtr, (void *)mat.data(), matSize);
-        memcpy(basePtr+matSize, (void *)&locColor.r, colorSize);
+        memcpy(basePtr, (void *)center3f.data(), centerSize);
+        memcpy(basePtr+centerSize, (void *)mat.data(), matSize);
+        memcpy(basePtr+centerSize+matSize, (void *)&locColor.r, colorSize);
+        if (moving)
+        {
+            Point3d modelDir = (inst.endCenter - inst.center)/inst.duration;
+            Point3f modelDir3f(modelDir.x(),modelDir.y(),modelDir.z());
+            memcpy(basePtr+centerSize+matSize+colorSize, (void *)modelDir3f.data(), modelDirSize);
+        }
     }
     
     if (context.API < kEAGLRenderingAPIOpenGLES3)
@@ -178,12 +202,24 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
     glBindVertexArrayOES(vertArrayObj);
 
     glBindBuffer(GL_ARRAY_BUFFER,instBuffer);
+    const OpenGLESAttribute *centerAttr = prog->findAttribute("a_modelCenter");
+    if (centerAttr)
+    {
+        glVertexAttribPointer(centerAttr->index, 3, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(0));
+        CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
+        if (context.API < kEAGLRenderingAPIOpenGLES3)
+            glVertexAttribDivisorEXT(centerAttr->index, 1);
+        else
+            glVertexAttribDivisor(centerAttr->index, 1);
+        glEnableVertexAttribArray(centerAttr->index);
+        CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
+    }
     const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
     if (matAttr)
     {
         for (unsigned int im=0;im<4;im++)
         {
-            glVertexAttribPointer(matAttr->index+im, 4, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(im*(4*sizeof(GLfloat))));
+            glVertexAttribPointer(matAttr->index+im, 4, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+im*(4*sizeof(GLfloat))));
             CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
             if (context.API < kEAGLRenderingAPIOpenGLES3)
                 glVertexAttribDivisorEXT(matAttr->index+im, 1);
@@ -196,13 +232,25 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
     const OpenGLESAttribute *colorAttr = prog->findAttribute("a_color");
     if (colorAttr)
     {
-        glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, instSize, (const GLvoid *)(long)(matSize));
+        glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, instSize, (const GLvoid *)(long)(centerSize+matSize));
         CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
         if (context.API < kEAGLRenderingAPIOpenGLES3)
             glVertexAttribDivisorEXT(colorAttr->index, 1);
         else
             glVertexAttribDivisor(colorAttr->index, 1);
         glEnableVertexAttribArray(colorAttr->index);
+        CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
+    }
+    const OpenGLESAttribute *dirAttr = prog->findAttribute("a_modelDir");
+    if (moving && dirAttr)
+    {
+        glVertexAttribPointer(dirAttr->index, 3, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+matSize+colorSize));
+        CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
+        if (context.API < kEAGLRenderingAPIOpenGLES3)
+            glVertexAttribDivisorEXT(dirAttr->index, 1);
+        else
+            glVertexAttribDivisor(dirAttr->index, 1);
+        glEnableVertexAttribArray(dirAttr->index);
         CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
     }
 
@@ -253,6 +301,10 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         
         fade = fade * factor;
     }
+    
+    // Time for motion
+    if (moving)
+        frameInfo.program->setUniform("u_time", (float)(frameInfo.currentTime - startTime));
     
     // GL Texture IDs
     bool anyTextures = false;
@@ -373,6 +425,13 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
             glVertexAttrib4f(matAttr->index+2,0.0,0.0,1.0,0.0);
             glVertexAttrib4f(matAttr->index+3,0.0,0.0,0.0,1.0);
         }
+    }
+    // No direction data, so provide an empty default
+    if (!instBuffer || modelDirSize == 0)
+    {
+        const OpenGLESAttribute *dirAttr = prog->findAttribute("a_modelDir");
+        if (dirAttr)
+            glVertexAttrib3f(dirAttr->index, 0.0, 0.0, 0.0);
     }
     
     // If we're using a vertex array object, bind it and draw
@@ -502,6 +561,12 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
     
     if (instBuffer)
     {
+        const OpenGLESAttribute *centerAttr = prog->findAttribute("a_modelCenter");
+        if (centerAttr)
+        {
+            glDisableVertexAttribArray(centerAttr->index);
+            CheckGLError("BasicDrawableInstance::draw() glDisableVertexAttribArray");
+        }
         const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
         if (matAttr)
         {
@@ -515,86 +580,16 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
             glDisableVertexAttribArray(colorAttr->index);
             CheckGLError("BasicDrawableInstance::draw() glDisableVertexAttribArray");
         }
+        const OpenGLESAttribute *dirAttr = prog->findAttribute("a_modelDir");
+        if (dirAttr)
+        {
+            glDisableVertexAttribArray(dirAttr->index);
+            CheckGLError("BasicDrawableInstance::draw() glDisableVertexAttribArray");
+        }
     }
     
     // Let a subclass clean up any remaining state
     basicDraw->postDrawCallback(frameInfo,scene);
-
-    
-#if 0
-    whichInstance = -1;
-    
-    int oldDrawPriority = basicDraw->getDrawPriority();
-    RGBAColor oldColor = basicDraw->getColor();
-    float oldLineWidth = basicDraw->getLineWidth();
-    float oldMinVis,oldMaxVis;
-    basicDraw->getVisibleRange(oldMinVis, oldMaxVis);
-    
-    // Change the drawable
-    if (hasDrawPriority)
-        basicDraw->setDrawPriority(drawPriority);
-    if (hasColor)
-        basicDraw->setColor(color);
-    if (hasLineWidth)
-        basicDraw->setLineWidth(lineWidth);
-    if (hasMinVis || hasMaxVis)
-        basicDraw->setVisibleRange(minVis, maxVis);
-    
-    Matrix4f oldMvpMat = frameInfo.mvpMat;
-    Matrix4f oldMvMat = frameInfo.viewAndModelMat;
-    Matrix4f oldMvNormalMat = frameInfo.viewModelNormalMat;
-    
-    // No matrices, so just one instance
-    if (instances.empty())
-        basicDraw->draw(frameInfo,scene);
-    else {
-        // Run through the list of instances
-        for (unsigned int ii=0;ii<instances.size();ii++)
-        {
-            // Change color
-            const SingleInstance &singleInst = instances[ii];
-            whichInstance = ii;
-            if (singleInst.colorOverride)
-                basicDraw->setColor(singleInst.color);
-            else {
-                if (hasColor)
-                    basicDraw->setColor(color);
-                else
-                    basicDraw->setColor(oldColor);
-            }
-            
-            // Note: Ignoring offsets, so won't work reliably in 2D
-            Eigen::Matrix4d newMvpMat = frameInfo.projMat4d * frameInfo.viewTrans4d * frameInfo.modelTrans4d * singleInst.mat;
-            Eigen::Matrix4d newMvMat = frameInfo.viewTrans4d * frameInfo.modelTrans4d * singleInst.mat;
-            Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
-            
-            // Inefficient, but effective
-            Matrix4f mvpMat4f = Matrix4dToMatrix4f(newMvpMat);
-            Matrix4f mvMat4f = Matrix4dToMatrix4f(newMvpMat);
-            Matrix4f mvNormalMat4f = Matrix4dToMatrix4f(newMvNormalMat);
-            frameInfo.mvpMat = mvpMat4f;
-            frameInfo.viewAndModelMat = mvMat4f;
-            frameInfo.viewModelNormalMat = mvNormalMat4f;
-            
-            basicDraw->draw(frameInfo,scene);
-        }
-    }
-    
-    frameInfo.mvpMat = oldMvpMat;
-    frameInfo.viewAndModelMat = oldMvMat;
-    frameInfo.viewModelNormalMat = oldMvNormalMat;
-    
-    // Set it back
-    if (hasDrawPriority)
-        basicDraw->setDrawPriority(oldDrawPriority);
-    if (hasColor)
-        basicDraw->setColor(oldColor);
-    if (hasLineWidth)
-        basicDraw->setLineWidth(oldLineWidth);
-    if (hasMinVis || hasMaxVis)
-        basicDraw->setVisibleRange(oldMinVis, oldMaxVis);
-    
-#endif
 }
     
 }

@@ -122,9 +122,15 @@ public:
 class GeometryInstance : public Identifiable
 {
 public:
-    GeometryInstance() : mat(mat.Identity()), colorOverride(false), selectable(false) { }
+    GeometryInstance() : mat(mat.Identity()), colorOverride(false), selectable(false), duration(0.0) { }
     
-    // Placement for the instance
+    // Center for the instance
+    Point3d center;
+    // End center for the instance
+    Point3d endCenter;
+    // Duration for the animation
+    NSTimeInterval duration;
+    // Rotation etc... for the instance
     Eigen::Matrix4d mat;
     // Set if we're forcing the colors in an instance
     bool colorOverride;

@@ -54,7 +54,6 @@ static const char *vertexShaderTri =
 "attribute vec2 a_texCoord0;"
 "attribute vec4 a_color;"
 "attribute vec3 a_normal;"
-"attribute mat4 a_singleMatrix;"
 ""
 "varying vec2 v_texCoord;"
 "varying vec4 v_color;"
@@ -85,7 +84,7 @@ static const char *vertexShaderTri =
 "     v_color = a_color * u_fade;"
 "   }"
 ""
-"   gl_Position = u_mvpMatrix * (a_singleMatrix * vec4(a_position,1.0));"
+"   gl_Position = u_mvpMatrix * vec4(a_position,1.0);"
 "}"
 ;
 
@@ -106,6 +105,73 @@ static const char *fragmentShaderTri =
 //"      discard;                                      \n"
 "  gl_FragColor = v_color * baseColor;  \n"
 "}                                                   \n"
+;
+
+static const char *vertexShaderModelTri =
+"struct directional_light {"
+"  vec3 direction;"
+"  vec3 halfplane;"
+"  vec4 ambient;"
+"  vec4 diffuse;"
+"  vec4 specular;"
+"  float viewdepend;"
+"};"
+""
+"struct material_properties {"
+"  vec4 ambient;"
+"  vec4 diffuse;"
+"  vec4 specular;"
+"  float specular_exponent;"
+"};"
+""
+"uniform mat4  u_mvpMatrix;"
+"uniform float u_fade;"
+"uniform float u_time;"
+"uniform int u_numLights;"
+"uniform directional_light light[8];"
+"uniform material_properties material;"
+""
+"attribute vec3 a_position;"
+"attribute vec2 a_texCoord0;"
+"attribute vec4 a_color;"
+"attribute vec3 a_normal;"
+"attribute mat4 a_singleMatrix;"
+"attribute vec3 a_modelCenter;"
+"attribute vec3 a_modelDir;"
+""
+"varying vec2 v_texCoord;"
+"varying vec4 v_color;"
+""
+"void main()"
+"{"
+"   v_texCoord = a_texCoord0;"
+"   v_color = vec4(0.0,0.0,0.0,0.0);"
+"   if (u_numLights > 0)"
+"   {"
+"     vec4 ambient = vec4(0.0,0.0,0.0,0.0);"
+"     vec4 diffuse = vec4(0.0,0.0,0.0,0.0);"
+"     for (int ii=0;ii<8;ii++)"
+"     {"
+"        if (ii>=u_numLights)"
+"           break;"
+"        vec3 adjNorm = light[ii].viewdepend > 0.0 ? normalize((u_mvpMatrix * vec4(a_normal.xyz, 0.0)).xyz) : a_normal.xzy;"
+"        float ndotl;"
+//"        float ndoth;\n"
+"        ndotl = max(0.0, dot(adjNorm, light[ii].direction));"
+//"        ndotl = pow(ndotl,0.5);\n"
+//"        ndoth = max(0.0, dot(adjNorm, light[ii].halfplane));\n"
+"        ambient += light[ii].ambient;"
+"        diffuse += ndotl * light[ii].diffuse;"
+"     }"
+"     v_color = vec4(ambient.xyz * material.ambient.xyz * a_color.xyz + diffuse.xyz * a_color.xyz,a_color.a) * u_fade;"
+"   } else {"
+"     v_color = a_color * u_fade;"
+"   }"
+"   vec3 center = a_modelDir * u_time + a_modelCenter;"
+"   vec3 vertPos = (a_singleMatrix *vec4(a_position,1.0)).xyz + center;"
+""
+"   gl_Position = u_mvpMatrix * vec4(vertPos,1.0);"
+"}"
 ;
 
 static const char *vertexShaderTriMultiTex =
@@ -492,7 +558,17 @@ void SetupDefaultShaders(Scene *scene)
     } else {
         scene->addProgram(kToolkitDefaultTriangleNoLightingProgram, triShaderNoLight);
     }
-    
+
+    // Triangle shader the model instancing
+    OpenGLES2Program *triShaderModel = new OpenGLES2Program("Triangle shader for models with lighting",vertexShaderModelTri,fragmentShaderTri);
+    if (!triShaderModel->isValid())
+    {
+        NSLog(@"SetupDefaultShaders: Triangle shader for model instancing and lighting didn't compile.");
+        delete triShaderModel;
+    } else {
+        scene->addProgram(kToolkitDefaultTriangleModel, triShaderModel);
+    }
+
     // Triangle shader that does screen space texture application
     OpenGLES2Program *triShaderScreenTex = new OpenGLES2Program("Triangle shader with screen texture and lighting",vertexShaderScreenTexTri,fragmentShaderTri);
     if (!triShaderScreenTex->isValid())
