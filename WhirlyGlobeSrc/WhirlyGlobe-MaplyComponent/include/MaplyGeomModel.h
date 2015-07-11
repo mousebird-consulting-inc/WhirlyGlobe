@@ -64,3 +64,17 @@
 @property (nonatomic) bool selectable;
 
 @end
+
+/** @brief A version of the geometry model instance that moves.
+    @details This version of the geometry model instance can move in a limited way over time.
+  */
+@interface MaplyMovingGeomModelInstance : MaplyGeomModelInstance
+
+/// @brief The end point for animation
+@property (nonatomic,assign) MaplyCoordinate3d endCenter;
+
+/// @brief How long it will take to get to the endCenter
+@property (nonatomic,assign) NSTimeInterval duration;
+
+@end
+

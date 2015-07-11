@@ -1003,5 +1003,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
         }
     }
     
+//    NSLog(@"Found %d selected objects",selObjs.size());
+    
     pthread_mutex_unlock(&mutex);
 }

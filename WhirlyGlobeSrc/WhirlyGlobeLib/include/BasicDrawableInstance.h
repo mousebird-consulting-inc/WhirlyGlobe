@@ -57,6 +57,9 @@ public:
     /// For OpenGLES2, this is the program to use to render this drawable.
     virtual SimpleIdentity getProgram() const;
     
+    /// Set the shader program
+    void setProgram(SimpleIdentity progID) { programID = progID; }
+    
     /// We're allowed to turn drawables off completely
     virtual bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const;
     
@@ -117,6 +120,17 @@ public:
     /// Set the drawable we're instancing
     void setMaster(BasicDrawableRef draw) { basicDraw = draw; }
     
+    /// Set this when we're representing moving geometry model instances
+    void setIsMoving(bool inMoving) { moving = inMoving; }
+    
+    /// Set if the geometry instance is moving over time
+    bool isMoving() const { return moving; }
+
+    // Time we start counting from for motion
+    void setStartTime(NSTimeInterval inStartTime) { startTime = inStartTime; }
+    // Time we start counting from for motion
+    NSTimeInterval getStartTime() { return startTime; }
+
     /// Return the translation matrix if there is one
     const Eigen::Matrix4d *getMatrix() const;
     
@@ -128,13 +142,19 @@ public:
         
         bool colorOverride;
         RGBAColor color;
+        Point3d center;
         Eigen::Matrix4d mat;
+        
+        // End center and duration for moving models
+        Point3d endCenter;
+        NSTimeInterval duration;
     };
     
     /// Add a instance to the stack of instances this instance represents (mmm, noun overload)
     void addInstances(const std::vector<SingleInstance> &insts);
     
 protected:
+    SimpleIdentity programID;
     bool requestZBuffer,writeZBuffer;
     SimpleIdentity masterID;
     BasicDrawableRef basicDraw;
@@ -153,12 +173,14 @@ protected:
     int numInstances;
     GLuint instBuffer;
     GLuint vertArrayObj;
-    int matSize,colorSize,instSize;
+    int centerSize,matSize,colorSize,instSize,modelDirSize;
+    NSTimeInterval startTime;
+    bool moving;
     
     // If set, we'll instance this one multiple times
     std::vector<SingleInstance> instances;
     // While rendering, which instance we're rendering
-    int whichInstance;
+//    int whichInstance;
 };
 
 /// Reference counted version of BasicDrawableInstance

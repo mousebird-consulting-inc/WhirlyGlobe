@@ -288,6 +288,8 @@
 #define kMaplyShaderDefaultTri @"Default Triangle;lighting=yes"
 #define kMaplyDefaultTriangleShader @"Default Triangle;lighting=yes"
 
+#define kMaplyShaderDefaultModelTri @"Default Triangle;model=yes;lighting=yes"
+
 #define kMaplyShaderDefaultTriNoLighting @"Default Triangle;lighting=no"
 #define kMaplyNoLightTriangleShader @"Default Triangle;lighting=no"
 
