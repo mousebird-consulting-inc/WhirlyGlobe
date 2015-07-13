@@ -21,6 +21,7 @@
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
 #import "MaplyMatrix.h"
+#import "MaplyShape.h"
 
 /** @brief Contains a big pile of geometry and textures (e.g. a model).
     @details The geometry model
@@ -31,6 +32,11 @@
     @details This creates a model from a Wavefront OBJ file, a standard, simple file format for models.  You can then instance and place this model where you might like.
   */
 - (id)initWithObj:(NSString *)fullPath;
+
+/** @brief Initialize with a shape.
+    @details The given shape will be turned into a geometry model so it can be instanced.
+  */
+- (id)initWithShape:(MaplyShape *)shape;
 
 @end
 
