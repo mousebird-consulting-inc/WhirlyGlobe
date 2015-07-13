@@ -105,6 +105,7 @@ static const int BaseEarthPriority = 10;
     MaplyComponentObject *stickersObj;
     MaplyComponentObject *latLonObj;
     NSArray *sfRoadsObjArray;
+    MaplyComponentObject *arcGisObj;
     NSArray *vecObjects;
     MaplyComponentObject *megaMarkersObj;
     NSArray *megaMarkersImages;
@@ -827,6 +828,27 @@ static const int BaseEarthPriority = 10;
             }
         }
     });
+}
+
+- (void)addArcGISQuery:(NSString *)url
+{
+    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]]];
+    operation.responseSerializer = [AFHTTPResponseSerializer serializer];
+    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
+     {
+         MaplyVectorObject *vecObj = [MaplyVectorObject VectorObjectFromGeoJSON:responseObject];
+         if (vecObj)
+         {
+             arcGisObj = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor]}];
+         }
+     }
+                                     failure:^(AFHTTPRequestOperation *operation, NSError *error)
+     {
+         NSLog(@"Unable to fetch ArcGIS layer:\n%@",error);
+     }
+     ];
+    
+    [operation start];
 }
 
 - (void)addStickers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc
@@ -1772,6 +1794,20 @@ static const int NumMegaMarkers = 15000;
         {
             [baseViewC removeObjects:sfRoadsObjArray];
             sfRoadsObjArray = nil;
+        }
+    }
+    
+    if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestArcGIS])
+    {
+        if (!arcGisObj)
+        {
+            [self addArcGISQuery:@"http://services.arcgis.com/OfH668nDRN7tbJh0/arcgis/rest/services/SandyNYCEvacMap/FeatureServer/0/query?WHERE=Neighbrhd=%27Rockaways%27&f=pgeojson&outSR=4326"];
+        }
+    } else {
+        if (arcGisObj)
+        {
+            [baseViewC removeObject:arcGisObj];
+            arcGisObj = nil;
         }
     }
     
