@@ -37,6 +37,7 @@
 #import "MaplyScreenObject_private.h"
 #import "MaplyVertexAttribute_private.h"
 #import "MaplyParticleSystem_private.h"
+#import "MaplyShape_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -1566,18 +1567,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         if ([shape isKindOfClass:[MaplyShapeCircle class]])
         {
             MaplyShapeCircle *circle = (MaplyShapeCircle *)shape;
-            WhirlyKitCircle *newCircle = [[WhirlyKitCircle alloc] init];\
-
-            newCircle.loc.lon() = circle.center.x;
-            newCircle.loc.lat() = circle.center.y;
-            newCircle.radius = circle.radius;
-            newCircle.height = circle.height;
-            if (circle.color)
-            {
-                newCircle.useColor = true;
-                RGBAColor color = [circle.color asRGBAColor];
-                newCircle.color = color;
-            }
+            WhirlyKitCircle *newCircle = [circle asWKShape:inDesc];
+            
             if (circle.selectable)
             {
                 newCircle.isSelectable = true;
@@ -1591,19 +1582,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         } else if ([shape isKindOfClass:[MaplyShapeSphere class]])
         {
             MaplyShapeSphere *sphere = (MaplyShapeSphere *)shape;
-            WhirlyKitSphere *newSphere = [[WhirlyKitSphere alloc] init];
-            newSphere.loc.lon() = sphere.center.x;
-            newSphere.loc.lat() = sphere.center.y;
-            newSphere.radius = sphere.radius;
-            newSphere.height = sphere.height;
-            newSphere.sampleX = [inDesc[kMaplyShapeSampleX] intValue];
-            newSphere.sampleY = [inDesc[kMaplyShapeSampleY] intValue];
-            if (sphere.color)
-            {
-                newSphere.useColor = true;
-                RGBAColor color = [sphere.color asRGBAColor];
-                newSphere.color = color;
-            }
+            WhirlyKitSphere *newSphere = [sphere asWKShape:inDesc];
+            
             if (sphere.selectable)
             {
                 newSphere.isSelectable = true;
@@ -1617,18 +1597,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         } else if ([shape isKindOfClass:[MaplyShapeCylinder class]])
         {
             MaplyShapeCylinder *cyl = (MaplyShapeCylinder *)shape;
-            WhirlyKitCylinder *newCyl = [[WhirlyKitCylinder alloc] init];
-            newCyl.loc.lon() = cyl.baseCenter.x;
-            newCyl.loc.lat() = cyl.baseCenter.y;
-            newCyl.baseHeight = cyl.baseHeight;
-            newCyl.radius = cyl.radius;
-            newCyl.height = cyl.height;
-            if (cyl.color)
-            {
-                newCyl.useColor = true;
-                RGBAColor color = [cyl.color asRGBAColor];
-                newCyl.color = color;
-            }
+            WhirlyKitCylinder *newCyl = [cyl asWKShape:inDesc];
+            
             if (cyl.selectable)
             {
                 newCyl.isSelectable = true;
@@ -1704,27 +1674,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         } else if ([shape isKindOfClass:[MaplyShapeExtruded class]])
         {
             MaplyShapeExtruded *ex = (MaplyShapeExtruded *)shape;
-            WhirlyKitShapeExtruded *newEx = [[WhirlyKitShapeExtruded alloc] init];
-            Point3d loc(ex.center.x,ex.center.y,ex.height*ex.scale);
-            newEx.loc = loc;
-            newEx.thickness = ex.thickness*ex.scale;
-            newEx.transform = ex.transform.mat;
-            int numCoords = ex.numCoordPairs;
-            double *coords = ex.coordData;
-            std::vector<Point2d> pts;
-            pts.resize(numCoords);
-            for (unsigned int ii=0;ii<numCoords;ii++)
-            {
-                Point2d pt(coords[2*ii]*ex.scale,coords[2*ii+1]*ex.scale);
-                pts[ii] = pt;
-            }
-            newEx.pts = pts;
-            if (ex.color)
-            {
-                newEx.useColor = true;
-                RGBAColor color = [ex.color asRGBAColor];
-                newEx.color = color;
-            }
+            WhirlyKitShapeExtruded *newEx = [ex asWKShape:inDesc];
+
             if (ex.selectable)
             {
                 newEx.isSelectable = true;

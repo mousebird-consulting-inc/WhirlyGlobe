@@ -24,6 +24,7 @@
 #import "ShapeDrawableBuilder.h"
 #import "SelectionManager.h"
 #import "Tesselator.h"
+#import "GeometryManager.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -164,7 +165,7 @@ static const float sqrt2 = 1.4142135623;
     triBuilder->addConvexOutline(samples,norm,theColor,shapeMbr);
 
     // Add a selection region
-    if (super.isSelectable)
+    if (super.isSelectable && selectManager && sceneRep)
     {
         Point3f pts[8];
         pts[0] = Point3f(bot.x(),bot.y(),bot.z());
@@ -265,7 +266,7 @@ static const float sqrt2 = 1.4142135623;
     triBuilder->addTriangles(locs,norms,colors,tris);
     
     // Add a selection region
-    if (super.isSelectable)
+    if (super.isSelectable && selectManager && sceneRep)
     {
         Point3f pts[8];
         float dist = _radius * sqrt2;
@@ -374,7 +375,7 @@ static std::vector<Point3f> circleSamples;
     circleSamples.clear();
     
     // Add a selection region
-    if (super.isSelectable)
+    if (super.isSelectable && selectManager && sceneRep)
     {
         Point3f pts[8];
         float dist1 = _radius * sqrt2;
@@ -546,7 +547,7 @@ static std::vector<Point3f> circleSamples;
     }
     
     // Add a selection region
-    if (super.isSelectable)
+    if (super.isSelectable && selectManager && sceneRep)
     {
         selectManager->addPolytope(super.selectID,polytope,triBuilder->getShapeInfo().minVis,triBuilder->getShapeInfo().maxVis,triBuilder->getShapeInfo().enable);
         sceneRep->selectIDs.insert(super.selectID);
@@ -568,6 +569,33 @@ ShapeManager::~ShapeManager()
     shapeReps.clear();
 
     pthread_mutex_destroy(&shapeLock);
+}
+
+/// Conver the shape to form that can be used by the geometry models
+void ShapeManager::convertShape(WhirlyKitShape *shape,std::vector<WhirlyKit::GeometryRaw> &rawGeom)
+{
+    WhirlyKitShapeInfo *shapeInfo = [[WhirlyKitShapeInfo alloc] initWithShapes:nil desc:nil];
+
+    Point3d center(0,0,0);
+    ShapeDrawableBuilderTri drawBuildTri(scene->getCoordAdapter(),shapeInfo,center);
+    ShapeDrawableBuilder drawBuildReg(scene->getCoordAdapter(),shapeInfo,true,center);
+    
+    [shape makeGeometryWithBuilder:&drawBuildReg triBuilder:&drawBuildTri scene:scene selectManager:nil sceneRep:nil];
+    
+    // Scrape out the triangles
+    drawBuildTri.flush();
+    rawGeom.resize(1);
+    GeometryRaw &outGeom = rawGeom.front();
+    outGeom.type = WhirlyKitGeometryTriangles;
+    outGeom.texId = EmptyIdentity;
+    for (BasicDrawable *draw : drawBuildTri.drawables)
+    {
+        int basePts = outGeom.pts.size();
+        for (const Point3f &pt : draw->points)
+            outGeom.pts.push_back(Point3d(pt.x(),pt.y(),pt.z()));
+        for (const BasicDrawable::Triangle &tri : draw->tris)
+            outGeom.triangles.push_back(GeometryRaw::RawTriangle(tri.verts[0]+basePts,tri.verts[1]+basePts,tri.verts[2]+basePts));
+    }
 }
 
 /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.

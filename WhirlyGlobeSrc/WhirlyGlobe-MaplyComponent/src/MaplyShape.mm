@@ -20,22 +20,84 @@
 
 #import "MaplyShape.h"
 #import "WhirlyGlobe.h"
+#import "MaplySharedAttributes.h"
+#import "MaplyMatrix_private.h"
 
 using namespace WhirlyKit;
 
 @implementation MaplyShape
 
+- (WhirlyKitShape *)asWKShape:(NSDictionary *)desc
+{
+    return nil;
+}
+
 @end
 
 @implementation MaplyShapeCircle
+
+- (WhirlyKitCircle *)asWKShape:(NSDictionary *)desc
+{
+    WhirlyKitCircle *newCircle = [[WhirlyKitCircle alloc] init];\
+    
+    newCircle.loc.lon() = _center.x;
+    newCircle.loc.lat() = _center.y;
+    newCircle.radius = _radius;
+    newCircle.height = _height;
+    if (self.color)
+    {
+        newCircle.useColor = true;
+        RGBAColor color = [self.color asRGBAColor];
+        newCircle.color = color;
+    }
+    
+    return newCircle;
+}
 
 @end
 
 @implementation MaplyShapeSphere
 
+- (WhirlyKitSphere *)asWKShape:(NSDictionary *)desc
+{
+    WhirlyKitSphere *newSphere = [[WhirlyKitSphere alloc] init];
+    newSphere.loc.lon() = _center.x;
+    newSphere.loc.lat() = _center.y;
+    newSphere.radius = _radius;
+    newSphere.height = _height;
+    newSphere.sampleX = [desc[kMaplyShapeSampleX] intValue];
+    newSphere.sampleY = [desc[kMaplyShapeSampleY] intValue];
+    if (self.color)
+    {
+        newSphere.useColor = true;
+        RGBAColor color = [self.color asRGBAColor];
+        newSphere.color = color;
+    }
+    
+    return newSphere;
+}
+
 @end
 
 @implementation MaplyShapeCylinder
+
+- (WhirlyKitCylinder *)asWKShape:(NSDictionary *)desc
+{
+    WhirlyKitCylinder *newCyl = [[WhirlyKitCylinder alloc] init];
+    newCyl.loc.lon() = _baseCenter.x;
+    newCyl.loc.lat() = _baseCenter.y;
+    newCyl.baseHeight = _baseHeight;
+    newCyl.radius = _radius;
+    newCyl.height = _height;
+    if (self.color)
+    {
+        newCyl.useColor = true;
+        RGBAColor color = [self.color asRGBAColor];
+        newCyl.color = color;
+    }
+    
+    return newCyl;
+}
 
 @end
 
@@ -130,6 +192,34 @@ using namespace WhirlyKit;
 - (double *)coordData
 {
     return (double *)[coords bytes];
+}
+
+- (WhirlyKitShapeExtruded *)asWKShape:(NSDictionary *)desc
+{
+    WhirlyKitShapeExtruded *newEx = [[WhirlyKitShapeExtruded alloc] init];
+    Point3d loc(self.center.x,self.center.y,self.height*self.scale);
+    newEx.loc = loc;
+    newEx.thickness = self.thickness*self.scale;
+    if (self.transform)
+        newEx.transform = self.transform.mat;
+    int theNumCoords = self.numCoordPairs;
+    double *theCoords = self.coordData;
+    std::vector<Point2d> pts;
+    pts.resize(theNumCoords);
+    for (unsigned int ii=0;ii<theNumCoords;ii++)
+    {
+        Point2d pt(theCoords[2*ii]*self.scale,theCoords[2*ii+1]*self.scale);
+        pts[ii] = pt;
+    }
+    newEx.pts = pts;
+    if (self.color)
+    {
+        newEx.useColor = true;
+        RGBAColor color = [self.color asRGBAColor];
+        newEx.color = color;
+    }
+    
+    return newEx;
 }
 
 @end

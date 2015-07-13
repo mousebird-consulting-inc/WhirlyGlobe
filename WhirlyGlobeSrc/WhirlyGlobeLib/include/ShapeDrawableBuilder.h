@@ -113,7 +113,7 @@ public:
     
     WhirlyKitShapeInfo *getShapeInfo() { return shapeInfo; }
 
-protected:
+public:
     // Creates a new local drawable with all the appropriate settings
     void setupNewDrawable();
 
