@@ -285,7 +285,7 @@ public:
     /// Return the vertex attributes for reference
     virtual const std::vector<VertexAttribute *> &getVertexAttributes();
     
-protected:
+public:
     /// Check for the given texture coordinate entry and add it if it's not there
     virtual void setupTexCoordEntry(int which,int numReserve);
     /// Draw routine for OpenGL 2.0
