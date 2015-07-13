@@ -35,7 +35,6 @@
 @property (nonatomic,assign) bool insideOut;
 @property (nonatomic,assign) bool zBufferRead;
 @property (nonatomic,assign) bool zBufferWrite;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity shaderID;
 
 - (id)initWithShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
 
