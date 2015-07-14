@@ -247,7 +247,7 @@ public:
     We don't know for sure what we'll get back, so you have to go
     looking through it.  Return false on parse failure.
  */
-bool VectorParseGeoJSON(ShapeSet &shapes,NSData *jsonData);
+bool VectorParseGeoJSON(ShapeSet &shapes,NSData *jsonData,NSString **crs);
  
 /** Helper routine to parse geoJSON into a collection of vectors.
     We don't know for sure what we'll get back, so you have to go

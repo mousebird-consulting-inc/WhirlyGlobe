@@ -67,7 +67,7 @@ public:
 
 typedef std::set<WhirlyKit::RectSelectable3D> RectSelectable3DSet;
 
-/** This is 3D rectangular solid.
+/** This is 3D solid.
   */
 class PolytopeSelectable : public Selectable
 {
@@ -78,10 +78,27 @@ public:
     bool operator < (const PolytopeSelectable &that) const;
     
     std::vector<std::vector<Point3f> > polys;
-    Point3f midPt;        // Point right in the middle of the polytope
+    Point3d centerPt;        // The polygons are offsets of this center
 };
 
 typedef std::set<WhirlyKit::PolytopeSelectable> PolytopeSelectableSet;
+    
+/** 3D solid that can move over time.
+  */
+class MovingPolytopeSelectable : public PolytopeSelectable
+{
+public:
+    MovingPolytopeSelectable() : PolytopeSelectable() { }
+    MovingPolytopeSelectable(SimpleIdentity theID) : PolytopeSelectable(theID) { }
+    // Comparison operator for sorting
+    bool operator < (const MovingPolytopeSelectable &that) const;
+    
+    Point3d endCenterPt;
+    NSTimeInterval startTime;
+    double duration;
+};
+    
+typedef std::set<WhirlyKit::MovingPolytopeSelectable> MovingPolytopeSelectableSet;
     
 /** This is a linear features with arbitrary 3D points.
   */
@@ -200,6 +217,12 @@ public:
 
     /// Add a polytope
     void addPolytopeFromBox(SimpleIdentity selectId,const Point3d &ll,const Point3d &ur,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
+    
+    /// Add a polytope that moves over time
+    void addMovingPolytope(SimpleIdentity selectId,const std::vector<std::vector<Point3d> > &surfaces,const Point3d &startCenter,const Point3d &endCenter,NSTimeInterval startTime,NSTimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
+    
+    /// Add a moving polytop from a box
+    void addMovingPolytopeFromBox(SimpleIdentity selectID,const Point3d &ll,const Point3d &ur,const Point3d &startCenter,const Point3d &endCenter,NSTimeInterval startTime,NSTimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
 
     /// Add a linear in 3-space for selection.
     void addSelectableLinear(SimpleIdentity selectId,const std::vector<Point3f> &pts,float minVis,float maxVis,bool enable);
@@ -257,6 +280,7 @@ protected:
     WhirlyKit::RectSelectable2DSet rect2Dselectables;
     WhirlyKit::MovingRectSelectable2DSet movingRect2Dselectables;
     WhirlyKit::PolytopeSelectableSet polytopeSelectables;
+    WhirlyKit::MovingPolytopeSelectableSet movingPolytopeSelectables;
     WhirlyKit::LinearSelectableSet linearSelectables;
     WhirlyKit::BillboardSelectableSet billboardSelectables;
 };
