@@ -258,7 +258,6 @@ void DynamicTexture::getReleasedRegions(std::vector<DynamicTexture::Region> &toC
 {
     pthread_mutex_lock(&regionLock);
     toClear = releasedRegions;
-    releasedRegions.clear();
     pthread_mutex_unlock(&regionLock);
 }
     
