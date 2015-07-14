@@ -18,7 +18,7 @@
  *
  */
 
-#import "LabelLayer.h"
+#import "LabelManager.h"
 #import "LabelRenderer.h"
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
@@ -55,24 +55,11 @@ namespace WhirlyKit
     _layoutImportance = [desc floatForKey:@"layoutImportance" default:0.0];
     _width = [desc floatForKey:@"width" default:0.0];
     _height = [desc floatForKey:@"height" default:(_screenObject ? 16.0 : 0.001)];
-    _drawOffset = [desc intForKey:@"drawOffset" default:0];
-    _minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
-    _maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
     NSString *justifyStr = [desc stringForKey:@"justify" default:@"middle"];
-    double fade = [desc floatForKey:@"fade" default:0.0];
-    _fadeIn = fade;
-    _fadeOut = fade;
-    _fadeIn = [desc floatForKey:@"fadein" default:_fadeIn];
-    _fadeOut = [desc floatForKey:@"fadeout" default:_fadeOut];
-    _fadeOutTime = [desc doubleForKey:@"fadeouttime" default:0.0];
     _shadowColor = [desc objectForKey:@"shadowColor"];
     _shadowSize = [desc floatForKey:@"shadowSize" default:0.0];
     _outlineSize = [desc floatForKey:@"outlineSize" default:0.0];
     _outlineColor = [desc objectForKey:@"outlineColor" checkType:[UIColor class] default:[UIColor blackColor]];
-    _shaderID = [desc intForKey:@"shader" default:EmptyIdentity];
-    _enable = [desc boolForKey:@"enable" default:true];
-    _startEnable = [desc doubleForKey:@"enablestart" default:0.0];
-    _endEnable = [desc doubleForKey:@"enableend" default:0.0];
     if (![justifyStr compare:@"middle"])
         _justify = WhirlyKitLabelMiddle;
     else {
@@ -83,14 +70,12 @@ namespace WhirlyKit
                 _justify = WhirlyKitLabelRight;
         }
     }
-    _drawPriority = [desc intForKey:@"drawPriority" default:LabelDrawPriority];
-    _programID = [desc intForKey:@"shader" default:EmptyIdentity];
 }
 
 // Initialize a label info with data from the description dictionary
 - (id)initWithStrs:(NSArray *)inStrs desc:(NSDictionary *)desc
 {
-    if ((self = [super init]))
+    if ((self = [super initWithDesc:desc]))
     {
         self.strs = inStrs;
         [self parseDesc:desc];
@@ -639,14 +624,11 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     {
                         // And a corresponding drawable
                         BasicDrawable *drawable = new BasicDrawable("Label Layer");
-                        drawable->setProgram(_labelInfo.shaderID);
-                        drawable->setDrawOffset(_labelInfo.drawOffset);
+                        if (_labelInfo)
+                            [_labelInfo setupBasicDrawable:drawable];
                         drawable->setType(GL_TRIANGLES);
                         drawable->setColor(RGBAColor(255,255,255,255));
-                        drawable->setDrawPriority(_labelInfo.drawPriority);
-                        drawable->setVisibleRange(_labelInfo.minVis,_labelInfo.maxVis);
                         drawable->setAlpha(true);
-                        drawable->setOnOff(_labelInfo.enable);
                         drawables.push_back(drawable);
                     }
                 }
@@ -658,15 +640,13 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 {
                     // Add a drawable for just the one label because it's too big
                     drawable = new BasicDrawable("Label Layer");
-                    drawable->setProgram(_labelInfo.shaderID);
-                    drawable->setDrawOffset(_labelInfo.drawOffset);
+                    if (_labelInfo)
+                        [_labelInfo setupBasicDrawable:drawable];
+                    drawable->setProgram(_labelInfo.programID);
                     drawable->setType(GL_TRIANGLES);
                     drawable->setColor(RGBAColor(255,255,255,255));
                     drawable->addTriangle(BasicDrawable::Triangle(0,1,2));
                     drawable->addTriangle(BasicDrawable::Triangle(2,3,0));
-                    drawable->setDrawPriority(_labelInfo.drawPriority);
-                    drawable->setVisibleRange(_labelInfo.minVis,_labelInfo.maxVis);
-                    drawable->setOnOff(_labelInfo.enable);
                     drawable->setAlpha(true);
                 }
             }
@@ -921,15 +901,13 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 {
                     // Create one
                     iconDrawable = new BasicDrawable("Label Layer");
-                    drawable->setProgram(_labelInfo.shaderID);
-                    iconDrawable->setDrawOffset(_labelInfo.drawOffset);
+                    if (_labelInfo)
+                        [_labelInfo setupBasicDrawable:drawable];
+                    drawable->setProgram(_labelInfo.programID);
                     iconDrawable->setType(GL_TRIANGLES);
                     iconDrawable->setColor(RGBAColor(255,255,255,255));
-                    iconDrawable->setDrawPriority(_labelInfo.drawPriority);
-                    iconDrawable->setVisibleRange(_labelInfo.minVis,_labelInfo.maxVis);
                     iconDrawable->setAlpha(true);  // Note: Don't know this
                     iconDrawable->setTexId(0,subTex.texId);
-                    iconDrawable->setOnOff(_labelInfo.enable);
                     iconDrawables[subTex.texId] = iconDrawable;
                 } else
                     iconDrawable = it->second;

@@ -31,7 +31,7 @@
 #import "WhirlyVector.h"
 #import "Texture.h"
 #import "Cullable.h"
-#import "Drawable.h"
+#import "BasicDrawableInstance.h"
 #import "Generator.h"
 #import "ActiveModel.h"
 #import "CoordSystem.h"

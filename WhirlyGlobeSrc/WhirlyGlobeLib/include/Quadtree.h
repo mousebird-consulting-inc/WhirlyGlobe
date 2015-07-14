@@ -185,7 +185,7 @@ public:
     const NodeInfo *getNodeInfo(const Identifier &ident);
     
     /// Add the given tile, without looking for any to remove.  This is probably a phantom.
-    const Quadtree::NodeInfo *addTile(const Identifier &ident,bool newEval,bool checkImportance);
+    const Quadtree::NodeInfo *addTile(const Identifier &ident,bool newEval,bool checkImportance,std::vector<Identifier> &newlyCoveredTiles);
     
     /// Explicitly remove a given tile
     void removeTile(const Identifier &which);
@@ -282,6 +282,7 @@ protected:
         NodesBySizeType::iterator evalPos;
         Node *parent;
         Node *children[4];
+        bool childOffscreen[4];
     };
         
     Node *getNode(const Identifier &ident);
@@ -314,7 +315,8 @@ protected:
 
 /// Fill in this protocol to return the importance value for a given tile.
 @protocol WhirlyKitQuadTreeImportanceDelegate
-/// Return a number signifying importance.  MAXFLOAT is very important, 0 is not at all
+/// Return a number signifying importance.  MAXFLOAT is very important, 0 is not at all.
+/// 0 also means the tile is off screen
 - (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr tree:(WhirlyKit::Quadtree *)tree attrs:(NSMutableDictionary *)attrs;
 @end
 

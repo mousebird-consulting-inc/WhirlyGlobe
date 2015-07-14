@@ -37,6 +37,7 @@
 #import "MaplyScreenObject_private.h"
 #import "MaplyVertexAttribute_private.h"
 #import "MaplyParticleSystem_private.h"
+#import "MaplyShape_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -159,6 +160,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     pthread_mutex_t changeLock;
     ThreadChangeSet perThreadChanges;
+    pthread_mutex_t workLock;
+    pthread_cond_t workWait;
+    int numActiveWorkers;
 }
 
 - (id)initWithView:(WhirlyKitView *)inVisualView
@@ -171,6 +175,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     pthread_mutex_init(&imageLock, NULL);
     pthread_mutex_init(&changeLock,NULL);
     pthread_mutex_init(&tempContextLock,NULL);
+    pthread_mutex_init(&workLock,NULL);
+    numActiveWorkers = 0;
+    pthread_cond_init(&workWait, NULL);
     
     return self;
 }
@@ -181,6 +188,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     pthread_mutex_destroy(&imageLock);
     pthread_mutex_destroy(&changeLock);
     pthread_mutex_destroy(&tempContextLock);
+    pthread_mutex_destroy(&workLock);
+    pthread_cond_destroy(&workWait);
     
     for (ThreadChangeSet::iterator it = perThreadChanges.begin();
          it != perThreadChanges.end();++it)
@@ -211,6 +220,36 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     scene = NULL;
     imageTextures.clear();
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
+}
+
+- (void)lockingShutdown
+{
+    pthread_mutex_lock(&workLock);
+    isShuttingDown = true;
+    while (numActiveWorkers > 0)
+        pthread_cond_wait(&workWait, &workLock);
+    pthread_mutex_unlock(&workLock);
+}
+
+- (bool)startOfWork
+{
+    bool ret = true;
+    
+    pthread_mutex_lock(&workLock);
+    ret = !isShuttingDown;
+    if (ret)
+        numActiveWorkers++;
+    pthread_mutex_unlock(&workLock);
+    
+    return ret;
+}
+
+- (void)endOfWork
+{
+    pthread_mutex_lock(&workLock);
+    numActiveWorkers--;
+    pthread_cond_signal(&workWait);
+    pthread_mutex_unlock(&workLock);
 }
 
 - (Texture *)createTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
@@ -1136,7 +1175,10 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyVectorDrawPriorityDefault) toDict:inDesc];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:nil];
+    NSString *shaderName = kMaplyDefaultTriangleShader;
+    if ([inDesc[kMaplyVecTextureProjection] isEqualToString:kMaplyProjectionScreen])
+        shaderName = kMaplyShaderDefaultTriScreenTex;
+    [self resolveShader:inDesc defaultShader:shaderName];
     
     // Look for a texture and add it
     if (inDesc[kMaplyVecTexture])
@@ -1510,6 +1552,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyShapeDrawPriorityDefault) toDict:inDesc];
+    [self applyDefaultName:kMaplyShapeInsideOut value:@(NO) toDict:inDesc];
+    [self applyDefaultName:kMaplyShapeSampleX value:@(10) toDict:inDesc];
+    [self applyDefaultName:kMaplyShapeSampleY value:@(10) toDict:inDesc];
 
     // Might be a custom shader on these
     [self resolveShader:inDesc defaultShader:nil];
@@ -1522,17 +1567,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         if ([shape isKindOfClass:[MaplyShapeCircle class]])
         {
             MaplyShapeCircle *circle = (MaplyShapeCircle *)shape;
-            WhirlyKitCircle *newCircle = [[WhirlyKitCircle alloc] init];
-            newCircle.loc.lon() = circle.center.x;
-            newCircle.loc.lat() = circle.center.y;
-            newCircle.radius = circle.radius;
-            newCircle.height = circle.height;
-            if (circle.color)
-            {
-                newCircle.useColor = true;
-                RGBAColor color = [circle.color asRGBAColor];
-                newCircle.color = color;
-            }
+            WhirlyKitCircle *newCircle = [circle asWKShape:inDesc];
+            
             if (circle.selectable)
             {
                 newCircle.isSelectable = true;
@@ -1546,17 +1582,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         } else if ([shape isKindOfClass:[MaplyShapeSphere class]])
         {
             MaplyShapeSphere *sphere = (MaplyShapeSphere *)shape;
-            WhirlyKitSphere *newSphere = [[WhirlyKitSphere alloc] init];
-            newSphere.loc.lon() = sphere.center.x;
-            newSphere.loc.lat() = sphere.center.y;
-            newSphere.radius = sphere.radius;
-            newSphere.height = sphere.height;
-            if (sphere.color)
-            {
-                newSphere.useColor = true;
-                RGBAColor color = [sphere.color asRGBAColor];
-                newSphere.color = color;
-            }
+            WhirlyKitSphere *newSphere = [sphere asWKShape:inDesc];
+            
             if (sphere.selectable)
             {
                 newSphere.isSelectable = true;
@@ -1570,18 +1597,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         } else if ([shape isKindOfClass:[MaplyShapeCylinder class]])
         {
             MaplyShapeCylinder *cyl = (MaplyShapeCylinder *)shape;
-            WhirlyKitCylinder *newCyl = [[WhirlyKitCylinder alloc] init];
-            newCyl.loc.lon() = cyl.baseCenter.x;
-            newCyl.loc.lat() = cyl.baseCenter.y;
-            newCyl.baseHeight = cyl.baseHeight;
-            newCyl.radius = cyl.radius;
-            newCyl.height = cyl.height;
-            if (cyl.color)
-            {
-                newCyl.useColor = true;
-                RGBAColor color = [cyl.color asRGBAColor];
-                newCyl.color = color;
-            }
+            WhirlyKitCylinder *newCyl = [cyl asWKShape:inDesc];
+            
             if (cyl.selectable)
             {
                 newCyl.isSelectable = true;
@@ -1657,27 +1674,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         } else if ([shape isKindOfClass:[MaplyShapeExtruded class]])
         {
             MaplyShapeExtruded *ex = (MaplyShapeExtruded *)shape;
-            WhirlyKitShapeExtruded *newEx = [[WhirlyKitShapeExtruded alloc] init];
-            Point3d loc(ex.center.x,ex.center.y,ex.height*ex.scale);
-            newEx.loc = loc;
-            newEx.thickness = ex.thickness*ex.scale;
-            newEx.transform = ex.transform.mat;
-            int numCoords = ex.numCoordPairs;
-            double *coords = ex.coordData;
-            std::vector<Point2d> pts;
-            pts.resize(numCoords);
-            for (unsigned int ii=0;ii<numCoords;ii++)
-            {
-                Point2d pt(coords[2*ii]*ex.scale,coords[2*ii+1]*ex.scale);
-                pts[ii] = pt;
-            }
-            newEx.pts = pts;
-            if (ex.color)
-            {
-                newEx.useColor = true;
-                RGBAColor color = [ex.color asRGBAColor];
-                newEx.color = color;
-            }
+            WhirlyKitShapeExtruded *newEx = [ex asWKShape:inDesc];
+
             if (ex.selectable)
             {
                 newEx.isSelectable = true;
@@ -1703,7 +1701,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         }
         if ([specialShapes count] > 0)
         {
-            // If they haven't override the shader already, we need the non-backface one for these objects
+            // If they haven't overrided the shader already, we need the non-backface one for these objects
             NSMutableDictionary *newDesc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
             if (!newDesc[kMaplyShader])
             {
@@ -1790,7 +1788,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyModelDrawPriorityDefault) toDict:inDesc];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:nil];
+    [self resolveShader:inDesc defaultShader:kMaplyShaderDefaultModelTri];
     
     GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
 
@@ -1862,17 +1860,17 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     shiftMat(0,0) = xAxis.x();
                     shiftMat(0,1) = yAxis.x();
                     shiftMat(0,2) = norm.x();
-                    shiftMat(0,3) = dispLoc.x();
+                    shiftMat(0,3) = 0.0;
                     
                     shiftMat(1,0) = xAxis.y();
                     shiftMat(1,1) = yAxis.y();
                     shiftMat(1,2) = norm.y();
-                    shiftMat(1,3) = dispLoc.y();
+                    shiftMat(1,3) = 0.0;
                     
                     shiftMat(2,0) = xAxis.z();
                     shiftMat(2,1) = yAxis.z();
                     shiftMat(2,2) = norm.z();
-                    shiftMat(2,3) = dispLoc.z();
+                    shiftMat(2,3) = 0.0;
                     
                     shiftMat(3,0) = 0.0;
                     shiftMat(3,1) = 0.0;
@@ -1881,7 +1879,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
                     localMat = shiftMat * localMat;
 
+                    // Basic geometry instance fields
                     GeometryInstance thisInst;
+                    thisInst.center = dispLoc;
                     thisInst.mat = localMat;
                     thisInst.colorOverride = modelInst.colorOverride != nil;
                     if (thisInst.colorOverride)
@@ -1894,6 +1894,21 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                         selectObjectSet.insert(SelectObject(thisInst.getId(),modelInst));
                         pthread_mutex_unlock(&selectLock);
                     }
+                    
+                    // Motion related fields
+                    if ([modelInst isKindOfClass:[MaplyMovingGeomModelInstance class]])
+                    {
+                        MaplyMovingGeomModelInstance *movingInst = (MaplyMovingGeomModelInstance *)modelInst;
+                        if (movingInst.duration > 0.0)
+                        {
+                            // Placement for the end point
+                            Point3d localPt = coordSys->geographicToLocal(Point2d(movingInst.endCenter.x,movingInst.endCenter.y));
+                            Point3d dispLoc = coordAdapter->localToDisplay(Point3d(localPt.x(),localPt.y(),movingInst.endCenter.z));
+                            thisInst.endCenter = dispLoc;
+                            thisInst.duration = movingInst.duration;
+                        }
+                    }
+                    
                     matInst.push_back(thisInst);
                 }
                 
@@ -2309,6 +2324,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     CoordSystem *coordSys = coordAdapter->getCoordSystem();
     
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyBillboardDrawPriorityDefault) toDict:inDesc];
+    [self applyDefaultName:kMaplyBillboardOrient value:kMaplyBillboardOrientGround toDict:inDesc];
 
     // Might be a custom shader on these
     [self resolveShader:inDesc defaultShader:nil];
@@ -2318,7 +2334,12 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     SimpleIdentity billShaderID = [inDesc[kMaplyShader] intValue];
     if (billShaderID == EmptyIdentity)
-        billShaderID = scene->getProgramIDBySceneName([kMaplyBillboardShader cStringUsingEncoding:NSASCIIStringEncoding]);
+    {
+        if ([inDesc[kMaplyBillboardOrient] isEqualToString:kMaplyBillboardOrientEye])
+            billShaderID = scene->getProgramIDBySceneName([kMaplyShaderBillboardEye cStringUsingEncoding:NSASCIIStringEncoding]);
+        else
+            billShaderID = scene->getProgramIDBySceneName([kMaplyShaderBillboardGround cStringUsingEncoding:NSASCIIStringEncoding]);
+    }
     
     ChangeSet changes;
     BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
@@ -2472,14 +2493,14 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self applyDefaultName:kMaplyPointSize value:@(kMaplyPointSizeDefault) toDict:inDesc];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:kMaplyParticleSystemPointDefaultShader];
+    [self resolveShader:inDesc defaultShader:kMaplyShaderParticleSystemPointDefault];
     
     // May need a temporary context
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
     
     SimpleIdentity partSysShaderID = [inDesc[kMaplyShader] intValue];
     if (partSysShaderID == EmptyIdentity)
-        partSysShaderID = scene->getProgramIDBySceneName([kMaplyParticleSystemPointDefaultShader cStringUsingEncoding:NSASCIIStringEncoding]);
+        partSysShaderID = scene->getProgramIDBySceneName([kMaplyShaderParticleSystemPointDefault cStringUsingEncoding:NSASCIIStringEncoding]);
     if (partSys.shader)
     {
         partSysShaderID = scene->getProgramIDBySceneName([partSys.shader cStringUsingEncoding:NSASCIIStringEncoding]);

@@ -23,6 +23,8 @@
 #import "SceneRendererES2.h"
 #import "GLUtils.h"
 
+using namespace Eigen;
+
 namespace WhirlyKit
 {
     
@@ -251,6 +253,16 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
     prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
     prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
+
+    // Fill the a_singleMatrix attribute with default values
+    const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
+    if (matAttr)
+    {
+        glVertexAttrib4f(matAttr->index,1.0,0.0,0.0,0.0);
+        glVertexAttrib4f(matAttr->index+1,0.0,1.0,0.0,0.0);
+        glVertexAttrib4f(matAttr->index+2,0.0,0.0,1.0,0.0);
+        glVertexAttrib4f(matAttr->index+3,0.0,0.0,0.0,1.0);
+    }
     
     // Fade is always mixed in
     prog->setUniform("u_fade", fade);
@@ -347,7 +359,8 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     
     // Draw it
     glBindVertexArrayOES(theBuffer.vertexArrayObj);
-    glDrawElements(GL_TRIANGLES, theBuffer.numElement, GL_UNSIGNED_SHORT, 0);
+    if (theBuffer.numElement != 0)
+        glDrawElements(GL_TRIANGLES, theBuffer.numElement, GL_UNSIGNED_SHORT, 0);
     glBindVertexArrayOES(0);
     
     // Unbind any texture

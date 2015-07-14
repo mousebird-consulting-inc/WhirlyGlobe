@@ -1,9 +1,9 @@
 /*
- *  GeometryLayer.h
- *  WhirlyGlobeLib
+ *  MaplyShape_private.h
+ *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 6/19/12.
- *  Copyright 2012 mousebird consulting
+ *  Created by Steve Gifford on 7/13/15.
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,12 +18,29 @@
  *
  */
 
-#import <math.h>
-#import <boost/shared_ptr.hpp>
-#import <boost/pointer_cast.hpp>
-#import "WhirlyVector.h"
-#import "TextureGroup.h"
-#import "GlobeScene.h"
-#import "DataLayer.h"
-#import "LayerThread.h"
+#import "MaplyShape.h"
+#import "WhirlyGlobe.h"
 
+@interface MaplyShapeCircle()
+
+- (WhirlyKitCircle *)asWKShape:(NSDictionary *)desc;
+
+@end
+
+@interface MaplyShapeSphere()
+
+- (WhirlyKitSphere *)asWKShape:(NSDictionary *)desc;
+
+@end
+
+@interface MaplyShapeCylinder()
+
+- (WhirlyKitCylinder *)asWKShape:(NSDictionary *)desc;
+
+@end
+
+@interface MaplyShapeExtruded()
+
+- (WhirlyKitShapeExtruded *)asWKShape:(NSDictionary *)desc;
+
+@end

@@ -24,12 +24,13 @@
 #import "UIColor+Stuff.h"
 #import "GridClipper.h"
 #import "Tesselator.h"
+#import "BaseInfo.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
 // Used to describe the drawables we want to construct for a given vector
-@interface WhirlyKitLoftedPolyInfo : NSObject
+@interface WhirlyKitLoftedPolyInfo : WhirlyKitBaseInfo
 {
 @public
     SimpleIdentity sceneRepId;
@@ -37,8 +38,7 @@ using namespace WhirlyKit;
     ShapeSet    shapes;
     float       height;
     float       base;
-    float       minVis,maxVis;
-    int         priority,outlineDrawPriority;
+    int outlineDrawPriority;
     bool        top,side;
     bool        layered;
     bool        outline,outlineSide,outlineBottom;
@@ -46,13 +46,11 @@ using namespace WhirlyKit;
     float       outlineWidth;
     bool        readZBuffer;
     bool        writeZBuffer;
-    bool        enable;
     NSObject<WhirlyKitLoftedPolyCache> *cache;
 }
 
 @property (nonatomic) UIColor *color;
 @property (nonatomic) NSString *key;
-@property (nonatomic,assign) float fade;
 
 - (void)parseDesc:(NSDictionary *)desc key:(NSString *)key;
 
@@ -62,7 +60,7 @@ using namespace WhirlyKit;
 
 - (id)initWithShapes:(ShapeSet *)inShapes desc:(NSDictionary *)desc key:(NSString *)inKey
 {
-    if ((self = [super init]))
+    if ((self = [super initWithDesc:desc]))
     {
         if (inShapes)
             shapes = *inShapes;
@@ -74,7 +72,7 @@ using namespace WhirlyKit;
 
 - (id)initWithSceneRepId:(SimpleIdentity)inId desc:(NSDictionary *)desc
 {
-    if ((self = [super init]))
+    if ((self = [super initWithDesc:desc]))
     {
         sceneRepId = inId;
         [self parseDesc:desc key:nil];
@@ -87,25 +85,19 @@ using namespace WhirlyKit;
 - (void)parseDesc:(NSDictionary *)dict key:(NSString *)inKey
 {
     self.color = [dict objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    priority = [dict intForKey:@"drawPriority" default:70000];
-    priority = [dict intForKey:@"priority" default:priority];
     height = [dict floatForKey:@"height" default:.01];
     base = [dict floatForKey:@"base" default:0.0];
-    minVis = [dict floatForKey:@"minVis" default:DrawVisibleInvalid];
-    maxVis = [dict floatForKey:@"maxVis" default:DrawVisibleInvalid];
-    _fade = [dict floatForKey:@"fade" default:0.0];
     top = [dict boolForKey:@"top" default:true];
     side = [dict boolForKey:@"side" default:true];
     layered = [dict boolForKey:@"layered" default:false];
     outline = [dict boolForKey:@"outline" default:false];
     outlineColor = [dict objectForKey:@"outlineColor" checkType:[UIColor class] default:[UIColor whiteColor]];
     outlineWidth = [dict floatForKey:@"outlineWidth" default:1.0];
-    outlineDrawPriority = [dict intForKey:@"outlineDrawPriority" default:priority+1];
+    outlineDrawPriority = [dict intForKey:@"outlineDrawPriority" default:self.drawPriority+1];
     outlineSide = [dict boolForKey:@"outlineSide" default:NO];
     outlineBottom = [dict boolForKey:@"outlineBottom" default:NO];
     readZBuffer = [dict boolForKey:@"zbufferread" default:YES];
     writeZBuffer = [dict boolForKey:@"zbufferwrite" default:NO];
-    enable = [dict boolForKey:@"enable" default:true];
     self.key = inKey;
 }
 
@@ -247,11 +239,10 @@ public:
             drawable->setColor([((primType == GL_TRIANGLES) ? polyInfo.color : polyInfo->outlineColor) asRGBAColor]);
             if (primType == GL_LINES)
                 drawable->setLineWidth(polyInfo->outlineWidth);
-            drawable->setOnOff(polyInfo->enable);
-            drawable->setDrawPriority(polyInfo->outlineDrawPriority);
+            if (polyInfo)
+                [polyInfo setupBasicDrawable:drawable];
             drawable->setRequestZBuffer(polyInfo->readZBuffer);
             drawable->setWriteZBuffer(polyInfo->writeZBuffer);
-            drawable->setVisibleRange(polyInfo->minVis,polyInfo->maxVis);
         }
     }
     

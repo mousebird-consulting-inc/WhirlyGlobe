@@ -51,12 +51,20 @@
 #import <MaplyPagingElevationTestTileSource.h>
 #import <MaplyElevationSource.h>
 #import <MaplyElevationDatabase.h>
-//#import <MaplyVectorTiles.h>
 #import <MaplyIconManager.h>
-//#import <MaplyMapnikVectorTiles.h>
-//#import <MapnikStyleSet.h>
 #import <MaplyGeomModel.h>
-//#import <MapboxMultiSourceTileInfo.h>
 #import <MaplyQuadTracker.h>
 #import <MaplyStarsModel.h>
 #import <MaplySun.h>
+#import <MaplyAtmosphere.h>
+#import <MaplyMoon.h>
+
+// These are not pulled in by the podspec
+#ifdef NOTPODSPECWG
+#import <vector_tiles/MaplyVectorTiles.h>
+#import <vector_tiles/MaplyMapnikVectorTiles.h>
+#import <vector_tiles/MapnikStyleSet.h>
+#import <vector_tiles/MapboxMultiSourceTileInfo.h>
+#import <vector_tiles/MapboxVectorStyleSet.h>
+#import <vector_tiles/MapboxVectorStyleBackground.h>
+#endif

@@ -28,9 +28,6 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-/// Default priority for shapes.
-static const int ShapeDrawPriority=1;
-
 /// Maximum number of triangles we'll stick in a drawable
 //static const int MaxShapeDrawableTris=1<<15/3;
 
@@ -40,7 +37,7 @@ static const int ShapeDrawPriority=1;
 // Initialize with an array of shapes and parse out parameters
 - (id)initWithShapes:(NSArray *)inShapes desc:(NSDictionary *)desc;
 {
-    self = [super init];
+    self = [super initWithDesc:desc];
     
     if (self)
     {
@@ -57,16 +54,10 @@ static const int ShapeDrawPriority=1;
 - (void)parseDesc:(NSDictionary *)desc
 {
     self.color = [desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    _drawOffset = [desc floatForKey:@"drawOffset" default:0];
-    _minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
-    _maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
-    _drawPriority = [desc intForKey:@"drawPriority" default:ShapeDrawPriority];
     _lineWidth = [desc floatForKey:@"width" default:1.0];
-    _fade = [desc floatForKey:@"fade" default:0.0];
     _zBufferRead = [desc floatForKey:@"zbufferread" default:true];
     _zBufferWrite = [desc floatForKey:@"zbufferwrite" default:true];
-    _enable = [desc boolForKey:@"enable" default:true];
-    _shaderID = [desc intForKey:@"shader" default:EmptyIdentity];
+    _insideOut = [desc boolForKey:@"shapeinsideout" default:NO];
 }
 
 @end
@@ -100,19 +91,16 @@ void ShapeDrawableBuilder::addPoints(std::vector<Point3f> &pts,RGBAColor color,M
         if (drawable)
             flush();
         
-        drawable = new BasicDrawable("Shape Layer");
+        drawable = new BasicDrawable("Shape Manager");
+        [shapeInfo setupBasicDrawable:drawable];
         drawMbr.reset();
         drawable->setType(primType);
         // Adjust according to the vector info
-        drawable->setDrawOffset(shapeInfo.drawOffset);
         //            drawable->setColor([shapeInfo.color asRGBAColor]);
         drawable->setLineWidth(lineWidth);
-        drawable->setDrawPriority(shapeInfo.drawPriority);
-        drawable->setVisibleRange(shapeInfo.minVis,shapeInfo.maxVis);
         drawable->setRequestZBuffer(shapeInfo.zBufferRead);
         drawable->setWriteZBuffer(shapeInfo.zBufferWrite);
-        drawable->setOnOff(shapeInfo.enable);
-        drawable->setProgram(shapeInfo.shaderID);
+        drawable->setProgram(shapeInfo.programID);
         if (center.x() != 0.0 || center.y() != 0.0 || center.z() != 0.0)
         {
             Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
@@ -213,17 +201,14 @@ ShapeDrawableBuilderTri::~ShapeDrawableBuilderTri()
 void ShapeDrawableBuilderTri::setupNewDrawable()
 {
     drawable = new BasicDrawable("Shape Layer");
+    [shapeInfo setupBasicDrawable:drawable];
     drawMbr.reset();
     drawable->setType(GL_TRIANGLES);
     // Adjust according to the vector info
-    drawable->setDrawOffset(shapeInfo.drawOffset);
     drawable->setColor([shapeInfo.color asRGBAColor]);
-    drawable->setDrawPriority(shapeInfo.drawPriority);
-    drawable->setVisibleRange(shapeInfo.minVis,shapeInfo.maxVis);
     drawable->setRequestZBuffer(shapeInfo.zBufferRead);
     drawable->setWriteZBuffer(shapeInfo.zBufferWrite);
-    drawable->setOnOff(shapeInfo.enable);
-    drawable->setProgram(shapeInfo.shaderID);
+    drawable->setProgram(shapeInfo.programID);
     if (center.x() != 0.0 || center.y() != 0.0 || center.z() != 0.0)
     {
         Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
