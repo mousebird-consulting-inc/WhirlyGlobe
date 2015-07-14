@@ -455,9 +455,10 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
         // Add a selection box for each instance
         if (inst.selectable)
         {
-            Vector4d ll = inst.mat * Vector4d(baseSceneRep->ll.x(),baseSceneRep->ll.y(),baseSceneRep->ll.z(),1.0) + Vector4d(singleInst.center.x(),singleInst.center.y(),singleInst.center.z(),0.0);
-            Vector4d ur = inst.mat * Vector4d(baseSceneRep->ur.x(),baseSceneRep->ur.y(),baseSceneRep->ur.z(),1.0) + Vector4d(singleInst.center.x(),singleInst.center.y(),singleInst.center.z(),0.0);
-            selectManager->addPolytopeFromBox(inst.getId(), Point3d(ll.x(),ll.y(),ll.z()), Point3d(ur.x(),ur.y(),ur.z()), inst.mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
+            if (hasMotion)
+                selectManager->addMovingPolytopeFromBox(inst.getId(), baseSceneRep->ll, baseSceneRep->ur, inst.center, inst.endCenter, startTime, inst.duration, inst.mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
+            else
+                selectManager->addPolytopeFromBox(inst.getId(), baseSceneRep->ll, baseSceneRep->ur, inst.mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
             sceneRep->selectIDs.insert(inst.getId());
         }
     }
