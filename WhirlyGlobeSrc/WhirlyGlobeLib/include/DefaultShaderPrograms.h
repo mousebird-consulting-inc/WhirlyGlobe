@@ -28,6 +28,10 @@ namespace WhirlyKit
 #define kToolkitDefaultTriangleProgram "Default Triangle;lighting=yes"
 /// Triangle shader without lighting
 #define kToolkitDefaultTriangleNoLightingProgram "Default Triangle;lighting=no"
+/// Triangle shader hanlding models with lighting
+#define kToolkitDefaultTriangleModel "Default Triangle;model=yes;lighting=yes"
+/// Triangle shader, handles screen texture coordinates
+#define kToolkitDefaultTriangleScreenTex "Default Triangle;screentex=yes;lighting=yes"
 /// Triangle shader, takes two textures, with lighting
 #define kToolkitDefaultTriangleMultiTex "Default Triangle;multitex=yes;lighting=yes"
 /// Triangle shader, takes two textures, with lighting
@@ -37,7 +41,8 @@ namespace WhirlyKit
 /// Line (and point) shader without backface culling
 #define kToolkitDefaultLineNoBackfaceProgram "Default Line;backface=no"
 /// Billboard shader
-#define kToolkitDefaultBillboardProgram "Default Billboard"
+#define kToolkitDefaultBillboardGroundProgram "Default Billboard ground"
+#define kToolkitDefaultBillboardEyeProgram "Default Billboard eye"
 /// Screen space shader
 #define kToolkitDefaultScreenSpaceProgram "Default Screenspace"
 /// Screen space shader w/ motion

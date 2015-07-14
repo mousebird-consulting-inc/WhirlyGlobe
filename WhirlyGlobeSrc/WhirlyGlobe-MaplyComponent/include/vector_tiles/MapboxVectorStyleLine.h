@@ -44,11 +44,9 @@ typedef enum {MBLineJoinBevel,MBLineJoinRound,MBLineJoinMiter} MapboxVectorLineJ
 
 @interface MapboxVectorLinePaint : NSObject
 
-@property (nonatomic) double opacity;
-@property (nonatomic) MaplyVectorFunctionStops *opacityFunc;
-@property (nonatomic) UIColor *color;
-@property (nonatomic) double width;
-@property (nonatomic) MaplyVectorFunctionStops *widthFunc;
+@property (nonatomic) MaplyMapboxValueWrapper *opacity;
+@property (nonatomic) MaplyMapboxValueWrapper *color;
+@property (nonatomic) MaplyMapboxValueWrapper *width;
 @property (nonatomic) MapboxVectorLineDashArray *lineDashArray;
 
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;

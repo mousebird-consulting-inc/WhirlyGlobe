@@ -82,3 +82,9 @@
 - (id)initWebStandard;
 
 @end
+
+/** @brief Generate the correct coordinate system from a standard EPSG.
+    @details This returns the correct coordinate system form a standard EPSG string.
+    @details The list of available coordinate systems is very short.
+  */
+MaplyCoordinateSystem *MaplyCoordinateSystemFromEPSG(NSString *crs);

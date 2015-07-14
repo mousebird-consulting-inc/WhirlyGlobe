@@ -22,7 +22,7 @@
 #import <map>
 #import <CoreText/CoreText.h>
 #import "Identifiable.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "DynamicTextureAtlas.h"

@@ -35,6 +35,7 @@ using namespace Eigen;
     double absoluteMinNearPlane;
     double defaultFarPlane;
     double absoluteMinFarPlane;
+    FakeGeocentricDisplayAdapter fakeGeoC;
 }
 @end
 
@@ -45,7 +46,7 @@ using namespace Eigen;
 	if ((self = [super init]))
 	{
 		_rotQuat = Eigen::AngleAxisd(0.0f,Vector3d(0.0f,0.0f,1.0f));
-       	super.coordAdapter = new FakeGeocentricDisplayAdapter();
+       	super.coordAdapter = &fakeGeoC;
        	defaultNearPlane = super.nearPlane;
        	defaultFarPlane = super.farPlane;
         absoluteMinNearPlane = 0.000001;
@@ -57,6 +58,23 @@ using namespace Eigen;
 	}
 	
 	return self;
+}
+
+- (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView
+{
+    self = [super initWithView:inGlobeView];
+    super.coordAdapter = &fakeGeoC;
+    absoluteMinHeight = inGlobeView->absoluteMinHeight;
+    heightInflection = inGlobeView->heightInflection;
+    defaultNearPlane = inGlobeView->defaultNearPlane;
+    absoluteMinNearPlane = inGlobeView->absoluteMinNearPlane;
+    defaultFarPlane = inGlobeView->defaultFarPlane;
+    absoluteMinFarPlane = inGlobeView->absoluteMinFarPlane;
+    _heightAboveGlobe = inGlobeView.heightAboveGlobe;
+    _rotQuat = inGlobeView.rotQuat;
+    _tilt = inGlobeView.tilt;
+    
+    return self;
 }
 
 - (void)dealloc

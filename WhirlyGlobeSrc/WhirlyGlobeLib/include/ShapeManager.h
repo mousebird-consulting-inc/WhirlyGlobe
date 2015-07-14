@@ -90,6 +90,8 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 @property (nonatomic,assign) float height;
 /// Radius is in display units
 @property (nonatomic,assign) float radius;
+/// Samples in X and Y
+@property (nonatomic,assign) int sampleX,sampleY;
 
 @end
 
@@ -145,6 +147,8 @@ namespace WhirlyKit
 {
     
 #define kWKShapeManager "WKShapeManager"
+    
+class GeometryRaw;
 
 /** The Shape Manager is used to create and destroy geometry for shapes like circles, cylinders,
     and so forth.  It's entirely thread safe (except for destruction).
@@ -154,6 +158,9 @@ class ShapeManager : public SceneManager
 public:
     ShapeManager();
     virtual ~ShapeManager();
+    
+    /// Convert shape to raw geometry
+    void convertShape(WhirlyKitShape *shape,std::vector<WhirlyKit::GeometryRaw> &rawGeom);
     
     /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.
     SimpleIdentity addShapes(NSArray *shapes,NSDictionary * desc,ChangeSet &changes);

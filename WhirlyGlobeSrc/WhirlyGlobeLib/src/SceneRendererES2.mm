@@ -449,7 +449,24 @@ static const float ScreenOverlap = 0.1;
         baseFrameInfo.screenSizeInDisplayCoords = screenSize;
         baseFrameInfo.lights = lights;
         baseFrameInfo.stateOpt = renderStateOptimizer;
-		
+
+        // We need a reverse of the eye vector in model space
+        // We'll use this to determine what's pointed away
+        Eigen::Matrix4f modelTransInv = modelTrans.inverse();
+        Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
+        Vector3f eyeVec3(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
+        baseFrameInfo.eyeVec = eyeVec3;
+        Eigen::Matrix4f fullTransInv = modelAndViewMat.inverse();
+        Vector4f fullEyeVec4 = fullTransInv * Vector4f(0,0,1,0);
+        Vector3f fullEyeVec3(fullEyeVec4.x(),fullEyeVec4.y(),fullEyeVec4.z());
+        baseFrameInfo.fullEyeVec = -fullEyeVec3;
+        Vector4d eyeVec4d = modelTrans4d.inverse() * Vector4d(0,0,1,0.0);
+        baseFrameInfo.heightAboveSurface = 0.0;
+        // Note: Should deal with map view as well
+        if (globeView)
+            baseFrameInfo.heightAboveSurface = globeView.heightAboveSurface;
+        baseFrameInfo.eyePos = Vector3d(eyeVec4d.x(),eyeVec4d.y(),eyeVec4d.z()) * (1.0+baseFrameInfo.heightAboveSurface);
+
         if (perfInterval > 0)
             perfTimer.startTiming("Scene processing");
         
@@ -470,21 +487,6 @@ static const float ScreenOverlap = 0.1;
         
         if (perfInterval > 0)
             perfTimer.startTiming("Culling");
-		
-		// We need a reverse of the eye vector in model space
-		// We'll use this to determine what's pointed away
-		Eigen::Matrix4f modelTransInv = modelTrans.inverse();
-		Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
-		Vector3f eyeVec3(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
-        baseFrameInfo.eyeVec = eyeVec3;
-        Eigen::Matrix4f fullTransInv = modelAndViewMat.inverse();
-        Vector4f fullEyeVec4 = fullTransInv * Vector4f(0,0,1,0);
-        Vector3f fullEyeVec3(fullEyeVec4.x(),fullEyeVec4.y(),fullEyeVec4.z());
-        baseFrameInfo.fullEyeVec = -fullEyeVec3;
-        baseFrameInfo.heightAboveSurface = 0.0;
-        // Note: Should deal with map view as well
-        if (globeView)
-            baseFrameInfo.heightAboveSurface = globeView.heightAboveSurface;
         
         // Calculate a good center point for the generated drawables
         CGPoint screenPt = CGPointMake(frameSize.x(), frameSize.y());

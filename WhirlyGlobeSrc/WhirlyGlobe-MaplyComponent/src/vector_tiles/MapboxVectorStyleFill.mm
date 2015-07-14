@@ -33,19 +33,13 @@
     [styleSet unsupportedCheck:@"fill-translate-anchor" in:@"paint_fill" styleEntry:styleEntry];
     [styleSet unsupportedCheck:@"fill-image" in:@"paint_fill" styleEntry:styleEntry];
 
-    _opacityBase = 1.0;
-    id fillEntry = styleEntry[@"fill-opacity"];
-    if (fillEntry)
-    {
-        if ([fillEntry isKindOfClass:[NSNumber class]])
-            _opacity = [styleSet doubleValue:fillEntry defVal:1.0];
-        else {
-            _opacityFunc = [styleSet stopsValue:fillEntry defVal:nil];
-        }
-    } else
-        _opacity = 1.0;
-    _color = [styleSet colorValue:@"fill-color" dict:styleEntry defVal:[UIColor blackColor]];
-    _outlineColor = [styleSet colorValue:@"fill-outline-color" dict:styleEntry defVal:nil];
+    _opacity = [[MaplyMapboxValueWrapper alloc] initWithDict:styleEntry name:@"fill-opacity" dataType:MaplyMapboxValueTypeNumber styleSet:styleSet];
+    if (!_opacity)
+        _opacity = [[MaplyMapboxValueWrapper alloc] initWithObject:@(1.0)];
+    _color = [[MaplyMapboxValueWrapper alloc] initWithDict:styleEntry name:@"fill-color" dataType:MaplyMapboxValueTypeColor styleSet:styleSet];
+    if (!_color)
+        _color = [[MaplyMapboxValueWrapper alloc] initWithObject:[UIColor whiteColor]];
+    _outlineColor = [[MaplyMapboxValueWrapper alloc] initWithDict:styleEntry name:@"fill-outline-color" dataType:MaplyMapboxValueTypeColor styleSet:styleSet];
     
     return self;
 }
@@ -75,17 +69,13 @@
         return nil;
     }
     
-    if (_paint.color)
-    {
-        fillDesc = [NSMutableDictionary dictionaryWithDictionary:
-                     @{kMaplyFilled: @(YES),
-                       kMaplyDrawPriority: @(self.drawPriority),
-                       kMaplyVecCentered: @(true),
-                       kMaplyColor: [styleSet color:_paint.color withOpacity:_paint.opacity],
-                       kMaplySelectable: @(false),
-                       kMaplyEnable: @(NO)
-                      }];
-    }
+    fillDesc = [NSMutableDictionary dictionaryWithDictionary:
+                 @{kMaplyFilled: @(YES),
+                   kMaplyDrawPriority: @(self.drawPriority),
+                   kMaplyVecCentered: @(true),
+                   kMaplySelectable: @(false),
+                   kMaplyEnable: @(NO)
+                  }];
     
     if (_paint.outlineColor)
     {
@@ -93,7 +83,6 @@
                     @{kMaplyFilled: @(NO),
                       kMaplyDrawPriority: @(self.drawPriority+1),
                       kMaplyVecCentered: @(true),
-                      kMaplyColor: [styleSet color:_paint.outlineColor withOpacity:_paint.opacity],
                       kMaplySelectable: @(false),
                       kMaplyEnable: @(NO)
                       }];
@@ -104,8 +93,13 @@
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC
 {
+    if (tileID.level < self.minzoom || tileID.level > self.maxzoom)
+        return nil;
+
     NSMutableArray *compObjs = [NSMutableArray array];
     
+    double opacity = [_paint.opacity numberForZoom:tileID.level styleSet:self.styleSet];
+
     // Filled polygons
     if (fillDesc)
     {
@@ -117,24 +111,16 @@
                 [tessVecObjs addObject:tessVecObj];
         }
         
-        NSDictionary *desc = fillDesc;
         bool include = true;
-        if (_paint.opacityFunc)
-        {
-            double opacity = [_paint.opacityFunc valueForZoom:tileID.level];
-            if (opacity > 0.0)
-            {
-                UIColor *color = [self.styleSet color:_paint.color withOpacity:opacity];
-                NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
-                mutDesc[kMaplyColor] = color;
-                desc = mutDesc;
-            } else
-                include = false;
-        }
+        if (opacity <= 0.0)
+            include = false;
         
         if (include)
         {
-            MaplyComponentObject *compObj = [viewC addVectors:tessVecObjs desc:desc mode:MaplyThreadCurrent];
+            NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:fillDesc];
+            mutDesc[kMaplyColor] = [self.styleSet color:[_paint.color colorForZoom:tileID.level styleSet:self.styleSet] withOpacity:opacity ];
+
+            MaplyComponentObject *compObj = [viewC addVectors:tessVecObjs desc:mutDesc mode:MaplyThreadCurrent];
             if (compObj)
                 [compObjs addObject:compObj];
         }
@@ -143,30 +129,22 @@
     // Outline
     if (outlineDesc)
     {
-        NSDictionary *desc = outlineDesc;
         bool include = true;
-        // Note: Does opacity apply here?
-        if (_paint.opacityFunc)
-        {
-            double opacity = [_paint.opacityFunc valueForZoom:tileID.level];
-            if (opacity > 0.0)
-            {
-                UIColor *color = [self.styleSet color:_paint.outlineColor withOpacity:opacity];
-                NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
-                mutDesc[kMaplyColor] = color;
-                desc = mutDesc;
-            } else
-                include = false;
-        }
-
+        
+        if (opacity <= 0.0)
+            include = false;
+        
         if (include)
         {
-            MaplyComponentObject *compObj = [viewC addVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
+            NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:outlineDesc];
+            mutDesc[kMaplyColor] = [self.styleSet color:[_paint.outlineColor colorForZoom:tileID.level styleSet:self.styleSet] withOpacity:opacity];
+            
+            MaplyComponentObject *compObj = [viewC addVectors:vecObjs desc:mutDesc mode:MaplyThreadCurrent];
             if (compObj)
                 [compObjs addObject:compObj];
         }
     }
-    
+        
     return compObjs;
 }
 

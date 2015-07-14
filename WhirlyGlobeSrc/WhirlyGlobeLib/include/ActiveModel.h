@@ -22,7 +22,7 @@
 #import <map>
 #import <list>
 #import "Texture.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "GlobeView.h"
 
 /** Fill in the active model protocol to provide an active model to

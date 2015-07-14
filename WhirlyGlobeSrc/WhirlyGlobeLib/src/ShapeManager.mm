@@ -24,6 +24,7 @@
 #import "ShapeDrawableBuilder.h"
 #import "SelectionManager.h"
 #import "Tesselator.h"
+#import "GeometryManager.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -164,7 +165,7 @@ static const float sqrt2 = 1.4142135623;
     triBuilder->addConvexOutline(samples,norm,theColor,shapeMbr);
 
     // Add a selection region
-    if (super.isSelectable)
+    if (super.isSelectable && selectManager && sceneRep)
     {
         Point3f pts[8];
         pts[0] = Point3f(bot.x(),bot.y(),bot.z());
@@ -184,9 +185,8 @@ static const float sqrt2 = 1.4142135623;
 
 @implementation WhirlyKitSphere
 
-// Note: We could make these parameters
-static const float SphereTessX = 10;
-static const float SphereTessY = 10;
+//static const float SphereTessX = 10;
+//static const float SphereTessY = 10;
 
 - (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter
 {
@@ -213,13 +213,13 @@ static const float SphereTessY = 10;
     // It's lame, but we'll use lat/lon coordinates to tesselate the sphere
     // Note: Replace this with something less lame
     std::vector<Point3f> locs,norms;
-    locs.reserve((SphereTessX+1)*(SphereTessX+1));
-    norms.reserve((SphereTessX+1)*(SphereTessY+1));
+    locs.reserve((_sampleX+1)*(_sampleY+1));
+    norms.reserve((_sampleX+1)*(_sampleY+1));
     std::vector<RGBAColor> colors;
-    colors.reserve((SphereTessX+1)*(SphereTessX+1));
-    Point2f geoIncr(2*M_PI/SphereTessX,M_PI/SphereTessY);
-    for (unsigned int iy=0;iy<SphereTessY+1;iy++)
-        for (unsigned int ix=0;ix<SphereTessX+1;ix++)
+    colors.reserve((_sampleX+1)*(_sampleY+1));
+    Point2f geoIncr(2*M_PI/_sampleX,M_PI/_sampleY);
+    for (unsigned int iy=0;iy<_sampleY+1;iy++)
+        for (unsigned int ix=0;ix<_sampleX+1;ix++)
         {
             GeoCoord geoLoc(-M_PI+ix*geoIncr.x(),-M_PI/2.0 + iy*geoIncr.y());
 			if (geoLoc.x() < -M_PI)  geoLoc.x() = -M_PI;
@@ -237,17 +237,28 @@ static const float SphereTessY = 10;
     
     // Two triangles per cell
     std::vector<BasicDrawable::Triangle> tris;
-    tris.reserve(2*SphereTessX*SphereTessY);
-    for (unsigned int iy=0;iy<SphereTessY;iy++)
-        for (unsigned int ix=0;ix<SphereTessX;ix++)
+    tris.reserve(2*_sampleX*_sampleY);
+    for (unsigned int iy=0;iy<_sampleY;iy++)
+        for (unsigned int ix=0;ix<_sampleX;ix++)
         {
 			BasicDrawable::Triangle triA,triB;
-			triA.verts[0] = iy*(SphereTessX+1)+ix;
-			triA.verts[1] = iy*(SphereTessX+1)+(ix+1);
-			triA.verts[2] = (iy+1)*(SphereTessX+1)+(ix+1);
-			triB.verts[0] = triA.verts[0];
-			triB.verts[1] = triA.verts[2];
-			triB.verts[2] = (iy+1)*(SphereTessX+1)+ix;
+            if (regBuilder->shapeInfo.insideOut)
+            {
+                // Flip the triangles
+                triA.verts[0] = iy*(_sampleX+1)+ix;
+                triA.verts[2] = iy*(_sampleX+1)+(ix+1);
+                triA.verts[1] = (iy+1)*(_sampleX+1)+(ix+1);
+                triB.verts[0] = triA.verts[0];
+                triB.verts[2] = triA.verts[2];
+                triB.verts[1] = (iy+1)*(_sampleX+1)+ix;
+            } else {
+                triA.verts[0] = iy*(_sampleX+1)+ix;
+                triA.verts[1] = iy*(_sampleX+1)+(ix+1);
+                triA.verts[2] = (iy+1)*(_sampleX+1)+(ix+1);
+                triB.verts[0] = triA.verts[0];
+                triB.verts[1] = triA.verts[2];
+                triB.verts[2] = (iy+1)*(_sampleX+1)+ix;
+            }
             tris.push_back(triA);
             tris.push_back(triB);
         }
@@ -255,7 +266,7 @@ static const float SphereTessY = 10;
     triBuilder->addTriangles(locs,norms,colors,tris);
     
     // Add a selection region
-    if (super.isSelectable)
+    if (super.isSelectable && selectManager && sceneRep)
     {
         Point3f pts[8];
         float dist = _radius * sqrt2;
@@ -364,7 +375,7 @@ static std::vector<Point3f> circleSamples;
     circleSamples.clear();
     
     // Add a selection region
-    if (super.isSelectable)
+    if (super.isSelectable && selectManager && sceneRep)
     {
         Point3f pts[8];
         float dist1 = _radius * sqrt2;
@@ -536,7 +547,7 @@ static std::vector<Point3f> circleSamples;
     }
     
     // Add a selection region
-    if (super.isSelectable)
+    if (super.isSelectable && selectManager && sceneRep)
     {
         selectManager->addPolytope(super.selectID,polytope,triBuilder->getShapeInfo().minVis,triBuilder->getShapeInfo().maxVis,triBuilder->getShapeInfo().enable);
         sceneRep->selectIDs.insert(super.selectID);
@@ -558,6 +569,33 @@ ShapeManager::~ShapeManager()
     shapeReps.clear();
 
     pthread_mutex_destroy(&shapeLock);
+}
+
+/// Conver the shape to form that can be used by the geometry models
+void ShapeManager::convertShape(WhirlyKitShape *shape,std::vector<WhirlyKit::GeometryRaw> &rawGeom)
+{
+    WhirlyKitShapeInfo *shapeInfo = [[WhirlyKitShapeInfo alloc] initWithShapes:nil desc:nil];
+
+    Point3d center(0,0,0);
+    ShapeDrawableBuilderTri drawBuildTri(scene->getCoordAdapter(),shapeInfo,center);
+    ShapeDrawableBuilder drawBuildReg(scene->getCoordAdapter(),shapeInfo,true,center);
+    
+    [shape makeGeometryWithBuilder:&drawBuildReg triBuilder:&drawBuildTri scene:scene selectManager:nil sceneRep:nil];
+    
+    // Scrape out the triangles
+    drawBuildTri.flush();
+    rawGeom.resize(1);
+    GeometryRaw &outGeom = rawGeom.front();
+    outGeom.type = WhirlyKitGeometryTriangles;
+    outGeom.texId = EmptyIdentity;
+    for (BasicDrawable *draw : drawBuildTri.drawables)
+    {
+        int basePts = outGeom.pts.size();
+        for (const Point3f &pt : draw->points)
+            outGeom.pts.push_back(Point3d(pt.x(),pt.y(),pt.z()));
+        for (const BasicDrawable::Triangle &tri : draw->tris)
+            outGeom.triangles.push_back(GeometryRaw::RawTriangle(tri.verts[0]+basePts,tri.verts[1]+basePts,tri.verts[2]+basePts));
+    }
 }
 
 /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.

@@ -147,6 +147,8 @@ public:
 @property (nonatomic,assign) Eigen::Vector3f eyeVec;
 /// Vector out from the eye point, including tilt
 @property (nonatomic,assign) Eigen::Vector3f fullEyeVec;
+/// Position of user
+@property (nonatomic,assign) Eigen::Vector3d eyePos;
 /// Location of the middle of the screen in display coordinates
 @property (nonatomic,assign) Eigen::Vector3d dispCenter;
 /// Height above surface, if that makes sense

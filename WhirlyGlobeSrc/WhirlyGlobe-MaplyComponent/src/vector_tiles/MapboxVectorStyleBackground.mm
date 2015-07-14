@@ -28,12 +28,19 @@
     if (!self)
         return nil;
     
-    _color = [styleSet colorValue:@"background-color" dict:styleEntry defVal:[UIColor blackColor]];
+    _color = [[MaplyMapboxValueWrapper alloc] initWithDict:styleEntry name:@"background-color" dataType:MaplyMapboxValueTypeColor styleSet:styleSet];
+    if (!_color)
+    {
+        NSLog(@"MapboxStyleSet: Expecting color in background layer.");
+        return nil;
+    }
     if (styleEntry[@"background-image"])
     {
         NSLog(@"MapboxStyleSet: Ignoring background image");
     }
-    _opacity = [styleSet doubleValue:@"background-opacity" dict:styleEntry defVal:1.0];
+    _opacity = [[MaplyMapboxValueWrapper alloc] initWithDict:styleEntry name:@"background-opacity" dataType:MaplyMapboxValueTypeNumber styleSet:styleSet];
+    if (!_opacity)
+        _opacity = [[MaplyMapboxValueWrapper alloc] initWithObject:@(1.0)];
     
     return self;
 }
