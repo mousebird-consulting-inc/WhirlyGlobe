@@ -61,6 +61,7 @@ using namespace Eigen;
 - (void)setupBasicDrawable:(BasicDrawable *)drawable
 {
     drawable->setOnOff(_enable);
+    drawable->setEnableTimeRange(_startEnable, _endEnable);
     drawable->setDrawPriority(_drawPriority);
     drawable->setVisibleRange(_minVis,_maxVis);
     drawable->setViewerVisibility(_minViewerDist,_maxViewerDist,_viewerCenter);
@@ -69,6 +70,7 @@ using namespace Eigen;
 - (void)setupBasicDrawableInstance:(WhirlyKit::BasicDrawableInstance *)drawInst
 {
     drawInst->setEnable(_enable);
+    drawInst->setEnableTimeRange(_startEnable, _endEnable);
     drawInst->setDrawPriority(_drawPriority);
     drawInst->setVisibleRange(_minVis,_maxVis);
     drawInst->setViewerVisibility(_minViewerDist,_maxViewerDist,_viewerCenter);

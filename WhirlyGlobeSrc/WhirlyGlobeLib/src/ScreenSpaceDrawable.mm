@@ -72,6 +72,9 @@ void ScreenSpaceDrawable::addRot(const Point3f &rotDir)
 
 void ScreenSpaceDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
 {
+    [renderer setRenderUntil:fadeUp];
+    [renderer setRenderUntil:fadeDown];
+
     if (motion)
     {
         // Motion requires continuous rendering

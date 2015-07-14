@@ -105,6 +105,7 @@ static const int BaseEarthPriority = 10;
     MaplyComponentObject *stickersObj;
     MaplyComponentObject *latLonObj;
     NSArray *sfRoadsObjArray;
+    MaplyComponentObject *arcGisObj;
     NSArray *vecObjects;
     MaplyComponentObject *megaMarkersObj;
     NSArray *megaMarkersImages;
@@ -631,26 +632,35 @@ static const int BaseEarthPriority = 10;
 // Add arrows
 - (void)addArrows:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc
 {
-    // Let's make this arrow about 100km big
-    double size = 100000;
+    // Start out the arrow at 1m
+    double size = 1;
     double arrowCoords[2*7] = {-0.25*size,-0.75*size, -0.25*size,0.25*size, -0.5*size,0.25*size, 0.0*size,1.0*size,  0.5*size,0.25*size, 0.25*size,0.25*size, 0.25*size,-0.75*size};
     
+    MaplyShapeExtruded *exShape = [[MaplyShapeExtruded alloc] initWithOutline:arrowCoords numCoordPairs:7];
+    exShape.thickness = size * 1.0;
+    exShape.height = 0.0;
+    exShape.color = [UIColor colorWithRed:0.8 green:0.25 blue:0.25 alpha:1.0];
+    // Each shape is about 10km
+//    exShape.transform = [[MaplyMatrix alloc] initWithScale:10000*1/EarthRadius];
+    exShape.scale = 1.0;
+    MaplyGeomModel *shapeModel = [[MaplyGeomModel alloc] initWithShape:exShape];
+
     NSMutableArray *arrows = [[NSMutableArray alloc] init];
     for (unsigned int ii=offset;ii<len;ii+=stride)
     {
         LocationInfo *loc = &locations[ii];
-        MaplyShapeExtruded *exShape = [[MaplyShapeExtruded alloc] initWithOutline:arrowCoords numCoordPairs:7];
-        exShape.center = MaplyCoordinateMakeWithDegrees(loc->lon, loc->lat);
-        exShape.selectable = true;
-        exShape.thickness = size * 1.0;
-        exShape.height = 0.0;
-        exShape.color = [UIColor colorWithRed:0.8 green:0.25 blue:0.25 alpha:1.0];
-        exShape.transform = [[MaplyMatrix alloc] initWithYaw:0.0 pitch:0.0 roll:45.0/180.0*M_PI];
+        MaplyGeomModelInstance *geomInst = [[MaplyGeomModelInstance alloc] init];
+        MaplyCoordinate coord = MaplyCoordinateMakeWithDegrees(loc->lon, loc->lat);
+        geomInst.center = MaplyCoordinate3dMake(coord.x, coord.y, 10000);
+        MaplyMatrix *orientMat = [[MaplyMatrix alloc] initWithYaw:0.0 pitch:0.0 roll:45.0/180.0*M_PI];
+        geomInst.transform = [[[MaplyMatrix alloc] initWithScale:10000*1/EarthRadius] multiplyWith:orientMat];
+        geomInst.selectable = true;
+        geomInst.model = shapeModel;
         
-        [arrows addObject:exShape];
+        [arrows addObject:geomInst];
     }
     
-    arrowsObj = [baseViewC addShapes:arrows desc:desc];
+    arrowsObj = [baseViewC addModelInstances:arrows desc:desc mode:MaplyThreadAny];
 }
 
 // Add models
@@ -827,6 +837,27 @@ static const int BaseEarthPriority = 10;
             }
         }
     });
+}
+
+- (void)addArcGISQuery:(NSString *)url
+{
+    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]]];
+    operation.responseSerializer = [AFHTTPResponseSerializer serializer];
+    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
+     {
+         MaplyVectorObject *vecObj = [MaplyVectorObject VectorObjectFromGeoJSON:responseObject];
+         if (vecObj)
+         {
+             arcGisObj = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor]}];
+         }
+     }
+                                     failure:^(AFHTTPRequestOperation *operation, NSError *error)
+     {
+         NSLog(@"Unable to fetch ArcGIS layer:\n%@",error);
+     }
+     ];
+    
+    [operation start];
 }
 
 - (void)addStickers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc
@@ -1772,6 +1803,20 @@ static const int NumMegaMarkers = 15000;
         {
             [baseViewC removeObjects:sfRoadsObjArray];
             sfRoadsObjArray = nil;
+        }
+    }
+    
+    if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestArcGIS])
+    {
+        if (!arcGisObj)
+        {
+            [self addArcGISQuery:@"http://services.arcgis.com/OfH668nDRN7tbJh0/arcgis/rest/services/SandyNYCEvacMap/FeatureServer/0/query?WHERE=Neighbrhd=%27Rockaways%27&f=pgeojson&outSR=4326"];
+        }
+    } else {
+        if (arcGisObj)
+        {
+            [baseViewC removeObject:arcGisObj];
+            arcGisObj = nil;
         }
     }
     

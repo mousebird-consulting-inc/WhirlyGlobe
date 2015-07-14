@@ -167,3 +167,16 @@ using namespace WhirlyKit;
 }
 
 @end
+
+MaplyCoordinateSystem *MaplyCoordinateSystemFromEPSG(NSString *crs)
+{
+    if ([crs isEqualToString:@"EPSG:3857"])
+    {
+        return [[MaplySphericalMercator alloc] initWebStandard];
+    } else if ([crs isEqualToString:@"EPSG:4326"])
+    {
+        return [[MaplyPlateCarree alloc] initFullCoverage];
+    }
+    
+    return nil;
+}
