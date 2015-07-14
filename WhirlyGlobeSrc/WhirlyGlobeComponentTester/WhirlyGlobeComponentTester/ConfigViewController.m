@@ -94,7 +94,7 @@
                 @{kMaplyTestUSGSOrtho: @(NO),
                   kMaplyTestOWM: @(NO),
                   kMaplyTestForecastIO: @(NO),
-//                  kMaplyTestMapboxStreets: @(NO),
+                  kMaplyTestMapboxStreets: @(NO),
                   kMaplyMapzenVectors: @(NO)
                   }
                                        singleSelect:false],
@@ -115,6 +115,7 @@
                   kMaplyTestMegaMarkers: @(NO),
                   kMaplyTestLatLon: @(NO),
                   kMaplyTestRoads: @(NO),
+                  kMaplyTestArcGIS: @(NO),
                   kMaplyTestStarsAndSun: @(NO),
                   }
                                        singleSelect:false],
@@ -132,7 +133,7 @@
             @{kMaplyTestUSGSOrtho: @(NO),
               kMaplyTestOWM: @(NO),
               kMaplyTestForecastIO: @(NO),
-//              kMaplyTestMapboxStreets: @(NO),
+              kMaplyTestMapboxStreets: @(NO),
               kMaplyMapzenVectors: @(NO)
               }
                                    singleSelect:false],
@@ -147,6 +148,7 @@
               kMaplyTestMegaMarkers: @(NO),
               kMaplyTestLatLon: @(NO),
               kMaplyTestRoads: @(NO),
+              kMaplyTestArcGIS: @(NO),
               kMaplyTestStarsAndSun: @(NO)
               }
                                    singleSelect:false]]];

@@ -31,7 +31,7 @@ using namespace WhirlyKit;
 {
     WhirlyKitGLSetupInfo *glSetupInfo;
     /// The various data layers we'll display
-    NSMutableArray<NSObject> *layers;
+    NSMutableArray *layers;
     
     /// Used to keep track of things to delete
     std::vector<WhirlyKit::DelayedDeletable *> thingsToDelete;

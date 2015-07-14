@@ -44,6 +44,16 @@
 /// Maximum point at which a feature is visible.  Takes an NSNumber float.  The radius of the globe is 1.0
 #define kMaplyMaxVis @"maxVis"
 #define kWGMaxVis kMaplyMaxVis
+/// Minimum distance from the viewer at which to display geometry.
+#define kMaplyViewerMinDist @"minviewerdist"
+/// Maximum distance from the viewer at which to display geometry.
+#define kMaplyViewerMaxDist @"maxviewerdist"
+/// Center to use when evaluating distance to viewable geometry (X)
+#define kMaplyViewableCenterX @"viewablecenterx"
+/// Center to use when evaluating distance to viewable geometry (Y)
+#define kMaplyViewableCenterY @"viewablecentery"
+/// Center to use when evaluating distance to viewable geometry (Z)
+#define kMaplyViewableCenterZ @"viewablecenterz"
 /// The amount of time for a feature to fade in or out.  Takes an NSNumber float for seconds.
 #define kMaplyFade @"fade"
 #define kWGFade kMaplyFade
@@ -66,18 +76,6 @@
 
 /// Assign a shader program to a particular feature.  Use the shader program's name
 #define kMaplyShader @"shader"
-/// This is the shader we'll normally get by default on triangles
-#define kMaplyDefaultTriangleShader @"Default Triangle;lighting=yes"
-/// This shader turns off lighting explicitly (doesn't have the code for it)
-#define kMaplyNoLightTriangleShader @"Default Triangle;lighting=no"
-/// This is the line/point shader we'll normaly get by default
-#define kMaplyDefaultLineShader @"Default Line;backface=yes"
-/// This point/line shader turns off the backface logic for lines
-#define kMaplyNoBackfaceLineShader @"Default Line;backface=no"
-/// The default billboard shader
-#define kMaplyBillboardShader @"Default Billboard"
-/// The default particle system shader
-#define kMaplyParticleSystemPointDefaultShader @"Default Part Sys (Point)"
 
 /// Stars
 #define kMaplyStarsDrawPriorityDefault 0
@@ -94,6 +92,7 @@
 #define kMaplyShapeDrawPriorityDefault 80000
 #define kMaplyBillboardDrawPriorityDefault 90000
 #define kMaplyModelDrawPriorityDefault 100000
+#define kMaplyAtmosDrawPriorityDefault 110000
 
 #define kWGMarkerDrawPriorityDefault kMaplyMarkerDrawPriorityDefault
 #define kWGVectorDrawPriorityDefault kMaplyVectorDrawPriorityDefault
@@ -149,13 +148,17 @@
 
 /// If set, the texture to apply to the feature
 #define kMaplyVecTexture @"texture"
+/// X scale for textures applied to vectors
 #define kMaplyVecTexScaleX @"texscalex"
+/// Y scale for textures applied to vectors
 #define kMaplyVecTexScaleY @"texscaley"
 
 /// The projection to use when generating texture coordinates
 #define kMaplyVecTextureProjection @"texprojection"
 /// Tangent plane projection for texture coordinates
 #define kMaplyProjectionTangentPlane @"texprojectiontanplane"
+/// Screen space "projection" for texture coordinates
+#define kMaplyProjectionScreen @"texprojectionscreen"
 
 /// If set to true we'll centered any drawables we create for features
 /// This fixes the jittering problem when zoomed in close
@@ -230,6 +233,15 @@
 /// Image format to use for the new images
 #define kMaplyStickerImageFormat @"imageformat"
 
+/// These are used for billboards
+
+/// Billboard orientation
+#define kMaplyBillboardOrient @"billboardorient"
+/// Billboards are oriented toward the eye, but rotate on the ground
+#define kMaplyBillboardOrientGround @"billboardorientground"
+/// Billboards are oriented only towards the eye
+#define kMaplyBillboardOrientEye @"billboardorienteye"
+
 /// These are used for lofted polygons
 
 /// Height above the ground
@@ -255,6 +267,15 @@
 /// If set and we're drawing an outline, this will create lines up the sides
 #define kMaplyLoftedPolyOutlineSide @"outlineSide"
 
+/// These are used for shapes
+
+/// Samples (x) to use when converting shape to polygons
+#define kMaplyShapeSampleX @"shapesamplex"
+/// Samples (y) to use when converting shape to polygons
+#define kMaplyShapeSampleY @"shapesampley"
+/// If set to true, we'll tessellate a shape using the opposite vertex ordering
+#define kMaplyShapeInsideOut @"shapeinsideout"
+
 /// These are used by active vector objects
 #define kMaplyVecHeight @"height"
 #define kMaplyVecMinSample @"minSample"
@@ -265,9 +286,25 @@
 
 /// These are the various shader programs we set up by default
 #define kMaplyShaderDefaultTri @"Default Triangle;lighting=yes"
+#define kMaplyDefaultTriangleShader @"Default Triangle;lighting=yes"
+
+#define kMaplyShaderDefaultModelTri @"Default Triangle;model=yes;lighting=yes"
+
 #define kMaplyShaderDefaultTriNoLighting @"Default Triangle;lighting=no"
+#define kMaplyNoLightTriangleShader @"Default Triangle;lighting=no"
+
+#define kMaplyShaderDefaultTriScreenTex @"Default Triangle;screentex=yes;lighting=yes"
+
 #define kMaplyShaderDefaultTriMultiTex @"Default Triangle;multitex=yes;lighting=yes"
 #define kMaplyShaderDefaultTriNightDay @"Default Triangle;nightday=yes;multitex=yes;lighting=yes"
-#define kMaplyShaderDefaultLine @"Default Line;backface=yes"
-#define kMaplyShaderDefaultLineNoBackface @"Default Line;backface=no"
 
+#define kMaplyShaderDefaultLine @"Default Line;backface=yes"
+#define kMaplyDefaultLineShader @"Default Line;backface=yes"
+
+#define kMaplyShaderDefaultLineNoBackface @"Default Line;backface=no"
+#define kMaplyNoBackfaceLineShader @"Default Line;backface=no"
+
+#define kMaplyShaderBillboardGround @"Default Billboard ground"
+#define kMaplyShaderBillboardEye @"Default Billboard eye"
+
+#define kMaplyShaderParticleSystemPointDefault @"Default Part Sys (Point)"

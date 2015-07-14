@@ -20,8 +20,10 @@
 
 #import "GeometryManager.h"
 #import "SelectionManager.h"
+#import "BaseInfo.h"
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
+#import "BasicDrawableInstance.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -29,22 +31,18 @@ using namespace WhirlyKit;
 typedef enum {GeometryBBoxSingle,GeometryBBoxTriangle,GeometryBBoxNone} GeometryBoundingBox;
 
 // Used to pass geometry around internally
-@interface GeomInfo : NSObject
+@interface WhirlyKitGeomInfo : WhirlyKitBaseInfo
 @property (nonatomic) UIColor *color;
-@property (nonatomic,assign) float fade;
-@property (nonatomic,assign) float minVis,maxVis;
-@property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) bool enable;
 @property (nonatomic,assign) int boundingBox;
 
 - (id)initWithDesc:(NSDictionary *)desc;
 @end
 
-@implementation GeomInfo
+@implementation WhirlyKitGeomInfo
 
 - (id)initWithDesc:(NSDictionary *)desc
 {
-    self = [super init];
+    self = [super initWithDesc:desc];
     if (!self)
         return nil;
     
@@ -55,12 +53,7 @@ typedef enum {GeometryBBoxSingle,GeometryBBoxTriangle,GeometryBBoxNone} Geometry
 
 - (void)parseDict:(NSDictionary *)dict
 {
-    _enable = [dict boolForKey:@"enable" default:YES];
-    _minVis = [dict floatForKey:@"minVis" default:DrawVisibleInvalid];
-    _maxVis = [dict floatForKey:@"maxVis" default:DrawVisibleInvalid];
     _color = [dict objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    _fade = [dict floatForKey:@"fade" default:0.0];
-    _drawPriority = [dict intForKey:@"drawPriority" default:0];
     _boundingBox = [dict enumForKey:@"boundingbox" values:@[@"single",@"triangle",@"none"] default:GeometryBBoxSingle];
 }
 
@@ -177,7 +170,7 @@ void GeometryRaw::calcBounds(Point3d &ll,Point3d &ur)
     }
 }
 
-void GeometryRaw::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride)
+void GeometryRaw::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride,WhirlyKitGeomInfo *geomInfo)
 {
     if (!isValid())
         return;
@@ -190,6 +183,8 @@ void GeometryRaw::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen
         if (!draw || draw->getNumPoints() + 3 > MaxDrawablePoints || draw->getNumTris() + 1 > MaxDrawableTriangles)
         {
             draw = new BasicDrawable("Raw Geometry");
+            if (geomInfo)
+                [geomInfo setupBasicDrawable:draw];
             if (colorOverride)
                 draw->setColor(*colorOverride);
             draw->setType(GL_TRIANGLES);
@@ -244,7 +239,7 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     GeomSceneRep *sceneRep = new GeomSceneRep();
     
-    GeomInfo *geomInfo = [[GeomInfo alloc] initWithDesc:desc];
+    WhirlyKitGeomInfo *geomInfo = [[WhirlyKitGeomInfo alloc] initWithDesc:desc];
 
     // Calculate the bounding box for the whole thing
     Point3d ll,ur;
@@ -294,7 +289,7 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const
             {
                 std::vector<BasicDrawable *> draws;
                 GeometryRaw *raw = sg[kk];
-                raw->buildDrawables(draws,instMat,(inst.colorOverride ? &inst.color : NULL));
+                raw->buildDrawables(draws,instMat,(inst.colorOverride ? &inst.color : NULL),geomInfo);
                 
                 // Set the various parameters and store the drawables created
                 for (unsigned int ll=0;ll<draws.size();ll++)
@@ -378,7 +373,7 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw> &geom,C
         {
             std::vector<BasicDrawable *> draws;
             GeometryRaw *raw = sg[kk];
-            raw->buildDrawables(draws,instMat,NULL);
+            raw->buildDrawables(draws,instMat,NULL,nil);
             
             // Set the various parameters and store the drawables created
             for (unsigned int ll=0;ll<draws.size();ll++)
@@ -407,6 +402,7 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw> &geom,C
 SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,NSDictionary *desc,ChangeSet &changes)
 {
     pthread_mutex_lock(&geomLock);
+    NSTimeInterval startTime = CFAbsoluteTimeGetCurrent();
 
     // Look for the scene rep we're basing this on
     GeomSceneRep *baseSceneRep = NULL;
@@ -423,7 +419,13 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     GeomSceneRep *sceneRep = new GeomSceneRep();
-    GeomInfo *geomInfo = [[GeomInfo alloc] initWithDesc:desc];
+    WhirlyKitGeomInfo *geomInfo = [[WhirlyKitGeomInfo alloc] initWithDesc:desc];
+    
+    // Check for moving models
+    bool hasMotion = false;
+    for (const GeometryInstance &inst : instances)
+        if (inst.duration > 0.0)
+            hasMotion = true;
     
     // Work through the model instances
     std::vector<BasicDrawableInstance::SingleInstance> singleInsts;
@@ -441,15 +443,22 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
             singleInst.colorOverride = true;
             singleInst.color = inst.color;
         }
+        singleInst.center = inst.center;
         singleInst.mat = inst.mat;
+        if (hasMotion)
+        {
+            singleInst.endCenter = inst.endCenter;
+            singleInst.duration = inst.duration;
+        }
         singleInsts.push_back(singleInst);
         
         // Add a selection box for each instance
         if (inst.selectable)
         {
-            Vector4d ll = inst.mat * Vector4d(baseSceneRep->ll.x(),baseSceneRep->ll.y(),baseSceneRep->ll.z(),1.0);
-            Vector4d ur = inst.mat * Vector4d(baseSceneRep->ur.x(),baseSceneRep->ur.y(),baseSceneRep->ur.z(),1.0);
-            selectManager->addPolytopeFromBox(inst.getId(), Point3d(ll.x(),ll.y(),ll.z()), Point3d(ur.x(),ur.y(),ur.z()), inst.mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
+            if (hasMotion)
+                selectManager->addMovingPolytopeFromBox(inst.getId(), baseSceneRep->ll, baseSceneRep->ur, inst.center, inst.endCenter, startTime, inst.duration, inst.mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
+            else
+                selectManager->addPolytopeFromBox(inst.getId(), baseSceneRep->ll, baseSceneRep->ur, inst.mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
             sceneRep->selectIDs.insert(inst.getId());
         }
     }
@@ -458,13 +467,18 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     for (SimpleIdentity baseDrawID : baseSceneRep->drawIDs)
     {
         BasicDrawableInstance *drawInst = new BasicDrawableInstance("GeometryManager",baseDrawID);
-        drawInst->setEnable(geomInfo.enable);
+        [geomInfo setupBasicDrawableInstance:drawInst];
         //                    draw->setColor([geomInfo.color asRGBAColor]);
         drawInst->setRequestZBuffer(true);
         drawInst->setWriteZBuffer(true);
-        drawInst->setVisibleRange(geomInfo.minVis, geomInfo.maxVis);
-        drawInst->setDrawPriority(geomInfo.drawPriority);
         drawInst->addInstances(singleInsts);
+        if (geomInfo.programID != EmptyIdentity)
+            drawInst->setProgram(geomInfo.programID);
+        if (hasMotion)
+        {
+            drawInst->setStartTime(startTime);
+            drawInst->setIsMoving(true);
+        }
         
         sceneRep->drawIDs.insert(drawInst->getId());
         changes.push_back(new AddDrawableReq(drawInst));

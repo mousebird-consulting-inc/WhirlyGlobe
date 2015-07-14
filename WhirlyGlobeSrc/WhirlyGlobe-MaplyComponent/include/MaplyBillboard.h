@@ -36,7 +36,6 @@
 /// @brief The 2D polygonal description of what the billboard should be
 @property (nonatomic,strong) MaplyScreenObject *screenObj;
 
-
 /** @brief Vertex attributes to apply to this billboard.
     @details MaplyVertexAttribute objects are passed all the way to the shader.  Read that page for details on what they do.
     @details The array of vertex attributes provided here will be copied onto all the vertices we create for the shader.  This means you can use these to do things for a single billboard in your shader.

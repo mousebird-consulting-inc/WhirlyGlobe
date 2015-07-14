@@ -116,6 +116,15 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
   */
 - (MaplyVectorObject *)deepCopy2;
 
+/** @brief Reproject from one coordinate system to another.
+    @details This reprojects every single point in the points, linears, and areals (and mesh) from the source coordinate system to the destionation.
+    @details Typically, you'll want Plate Carree for display, the destSystem is probably that.
+    @details For various reasons (e.g. scale), this will probably not work right for you.
+    @param srcSystem The source coordinate system.  The data is already in this sytem.
+    @param destSystem The destination coordinate system.  The data will be in this system on return.
+  */
+- (void)reprojectFrom:(MaplyCoordinateSystem *)srcSystem to:(MaplyCoordinateSystem *)destSystem;
+
 /** @brief Dump the feature(s) out as text
     @details This will write each feature out as text for debugging.
   */
