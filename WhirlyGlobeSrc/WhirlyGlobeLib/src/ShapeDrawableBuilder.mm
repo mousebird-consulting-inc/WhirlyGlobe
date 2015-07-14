@@ -57,7 +57,6 @@ using namespace WhirlyKit;
     _lineWidth = [desc floatForKey:@"width" default:1.0];
     _zBufferRead = [desc floatForKey:@"zbufferread" default:true];
     _zBufferWrite = [desc floatForKey:@"zbufferwrite" default:true];
-    _shaderID = [desc intForKey:@"shader" default:EmptyIdentity];
     _insideOut = [desc boolForKey:@"shapeinsideout" default:NO];
 }
 
@@ -92,7 +91,7 @@ void ShapeDrawableBuilder::addPoints(std::vector<Point3f> &pts,RGBAColor color,M
         if (drawable)
             flush();
         
-        drawable = new BasicDrawable("Shape Layer");
+        drawable = new BasicDrawable("Shape Manager");
         [shapeInfo setupBasicDrawable:drawable];
         drawMbr.reset();
         drawable->setType(primType);
@@ -101,7 +100,7 @@ void ShapeDrawableBuilder::addPoints(std::vector<Point3f> &pts,RGBAColor color,M
         drawable->setLineWidth(lineWidth);
         drawable->setRequestZBuffer(shapeInfo.zBufferRead);
         drawable->setWriteZBuffer(shapeInfo.zBufferWrite);
-        drawable->setProgram(shapeInfo.shaderID);
+        drawable->setProgram(shapeInfo.programID);
         if (center.x() != 0.0 || center.y() != 0.0 || center.z() != 0.0)
         {
             Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
@@ -209,7 +208,7 @@ void ShapeDrawableBuilderTri::setupNewDrawable()
     drawable->setColor([shapeInfo.color asRGBAColor]);
     drawable->setRequestZBuffer(shapeInfo.zBufferRead);
     drawable->setWriteZBuffer(shapeInfo.zBufferWrite);
-    drawable->setProgram(shapeInfo.shaderID);
+    drawable->setProgram(shapeInfo.programID);
     if (center.x() != 0.0 || center.y() != 0.0 || center.z() != 0.0)
     {
         Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
