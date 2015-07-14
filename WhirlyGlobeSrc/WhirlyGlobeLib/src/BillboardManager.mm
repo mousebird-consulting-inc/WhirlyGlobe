@@ -29,7 +29,7 @@ using namespace WhirlyKit;
 
 - (id)initWithBillboards:(NSArray *)billboards desc:(NSDictionary *)desc
 {
-    self = [super init];
+    self = [super initWithDesc:desc];
     if (!self)
         return nil;
     
@@ -44,11 +44,6 @@ using namespace WhirlyKit;
 - (void)parseDesc:(NSDictionary *)desc
 {
     _color = [desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    _minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
-    _maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
-    _fade = [desc floatForKey:@"fade" default:0.0];
-    _drawPriority = [desc intForKey:@"drawPriority" default:0];
-    _enable = [desc boolForKey:@"enable" default:true];
 }
 
 @end
@@ -112,10 +107,9 @@ void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<Whi
         drawable = new BillboardDrawable();
         //        drawMbr.reset();
         drawable->setType(GL_TRIANGLES);
-        drawable->setVisibleRange(billInfo.minVis,billInfo.maxVis);
+        [billInfo setupBasicDrawable:drawable];
         drawable->setProgram(billboardProgram);
         drawable->setTexId(0,texId);
-        drawable->setDrawPriority(billInfo.drawPriority);
         drawable->setRequestZBuffer(true);
         drawable->setWriteZBuffer(true);
         if (!vertAttrs.empty())

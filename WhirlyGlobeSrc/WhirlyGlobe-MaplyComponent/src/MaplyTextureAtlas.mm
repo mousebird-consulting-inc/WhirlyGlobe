@@ -67,6 +67,16 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
     return self;
 }
 
+- (void)dealloc
+{
+    for (DynamicTextureAtlasSet::iterator it = atlases.begin();
+         it != atlases.end(); ++it)
+    {
+        DynamicTextureAtlas *atlas = *it;
+        delete atlas;
+    }
+}
+
 - (void)setSize:(int)size
 {
     atlasSize = size;

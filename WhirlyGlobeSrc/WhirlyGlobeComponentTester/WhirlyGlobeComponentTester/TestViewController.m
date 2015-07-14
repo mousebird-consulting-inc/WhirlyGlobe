@@ -23,8 +23,10 @@
 #import "AFHTTPRequestOperation.h"
 #import "AnimationTest.h"
 #import "WeatherShader.h"
-//#import "MapzenSource.h"
 #import "MaplyRemoteTileElevationSource.h"
+#ifdef NOTPODSPECWG
+#import "MapzenSource.h"
+#endif
 
 // Simple representation of locations and name for testing
 typedef struct
@@ -104,6 +106,7 @@ static const int BaseEarthPriority = 10;
     MaplyComponentObject *stickersObj;
     MaplyComponentObject *latLonObj;
     NSArray *sfRoadsObjArray;
+    MaplyComponentObject *arcGisObj;
     NSArray *vecObjects;
     MaplyComponentObject *megaMarkersObj;
     NSArray *megaMarkersImages;
@@ -111,7 +114,8 @@ static const int BaseEarthPriority = 10;
     MaplyActiveObject *animSphere;
     NSMutableDictionary *loftPolyDict;
     MaplyStarsModel *stars;
-    MaplyComponentObject *sunObj;
+    MaplyComponentObject *sunObj,*moonObj;
+    MaplyAtmosphere *atmosObj;
 
     // A source of elevation data, if we're in that mode
     NSObject<MaplyElevationSourceDelegate> *elevSource;
@@ -317,15 +321,15 @@ static const int BaseEarthPriority = 10;
 
 - (void)findHeightTest
 {
-    if (mapViewC)
+    if (globeViewC)
     {
         MaplyBoundingBox bbox;
         bbox.ll = MaplyCoordinateMakeWithDegrees(7.05090689853, 47.7675500593);
         bbox.ur = MaplyCoordinateMakeWithDegrees(8.06813647023, 49.0562323851);
         MaplyCoordinate center = MaplyCoordinateMakeWithDegrees((7.05090689853+8.06813647023)/2, (47.7675500593+49.0562323851)/2);
-        double height = [mapViewC findHeightToViewBounds:&bbox pos:center];
+        double height = [globeViewC findHeightToViewBounds:&bbox pos:center];
         mapViewC.height = height;
-        [mapViewC animateToPosition:center time:1.0];
+        [globeViewC animateToPosition:center time:1.0];
         NSLog(@"height = %f",height);
     }    
 }
@@ -630,26 +634,35 @@ static const int BaseEarthPriority = 10;
 // Add arrows
 - (void)addArrows:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc
 {
-    // Let's make this arrow about 100km big
-    double size = 100000;
+    // Start out the arrow at 1m
+    double size = 1;
     double arrowCoords[2*7] = {-0.25*size,-0.75*size, -0.25*size,0.25*size, -0.5*size,0.25*size, 0.0*size,1.0*size,  0.5*size,0.25*size, 0.25*size,0.25*size, 0.25*size,-0.75*size};
     
+    MaplyShapeExtruded *exShape = [[MaplyShapeExtruded alloc] initWithOutline:arrowCoords numCoordPairs:7];
+    exShape.thickness = size * 1.0;
+    exShape.height = 0.0;
+    exShape.color = [UIColor colorWithRed:0.8 green:0.25 blue:0.25 alpha:1.0];
+    // Each shape is about 10km
+//    exShape.transform = [[MaplyMatrix alloc] initWithScale:10000*1/EarthRadius];
+    exShape.scale = 1.0;
+    MaplyGeomModel *shapeModel = [[MaplyGeomModel alloc] initWithShape:exShape];
+
     NSMutableArray *arrows = [[NSMutableArray alloc] init];
     for (unsigned int ii=offset;ii<len;ii+=stride)
     {
         LocationInfo *loc = &locations[ii];
-        MaplyShapeExtruded *exShape = [[MaplyShapeExtruded alloc] initWithOutline:arrowCoords numCoordPairs:7];
-        exShape.center = MaplyCoordinateMakeWithDegrees(loc->lon, loc->lat);
-        exShape.selectable = true;
-        exShape.thickness = size * 1.0;
-        exShape.height = 0.0;
-        exShape.color = [UIColor colorWithRed:0.8 green:0.25 blue:0.25 alpha:1.0];
-        exShape.transform = [[MaplyMatrix alloc] initWithYaw:0.0 pitch:0.0 roll:45.0/180.0*M_PI];
+        MaplyGeomModelInstance *geomInst = [[MaplyGeomModelInstance alloc] init];
+        MaplyCoordinate coord = MaplyCoordinateMakeWithDegrees(loc->lon, loc->lat);
+        geomInst.center = MaplyCoordinate3dMake(coord.x, coord.y, 10000);
+        MaplyMatrix *orientMat = [[MaplyMatrix alloc] initWithYaw:0.0 pitch:0.0 roll:45.0/180.0*M_PI];
+        geomInst.transform = [[[MaplyMatrix alloc] initWithScale:10000*1/EarthRadius] multiplyWith:orientMat];
+        geomInst.selectable = true;
+        geomInst.model = shapeModel;
         
-        [arrows addObject:exShape];
+        [arrows addObject:geomInst];
     }
     
-    arrowsObj = [baseViewC addShapes:arrows desc:desc];
+    arrowsObj = [baseViewC addModelInstances:arrows desc:desc mode:MaplyThreadAny];
 }
 
 // Add models
@@ -666,7 +679,7 @@ static const int BaseEarthPriority = 10;
     NSMutableArray *modelInstances = [NSMutableArray array];
     // We need to scale the models down to display space.  They start out in meters.
     // Note: Changes this to 1000.0/6371000.0 if you can't find the models
-    MaplyMatrix *scaleMat = [[MaplyMatrix alloc] initWithScale:1.0/6371000.0];
+    MaplyMatrix *scaleMat = [[MaplyMatrix alloc] initWithScale:1000.0/6371000.0];
     // Then we need to rotate around the X axis to get the model pointed up
     MaplyMatrix *rotMat = [[MaplyMatrix alloc] initWithAngle:M_PI/2.0 axisX:1.0 axisY:0.0 axisZ:0.0];
     // Combine the scale and rotation
@@ -674,12 +687,14 @@ static const int BaseEarthPriority = 10;
     for (unsigned int ii=offset;ii<len;ii+=stride)
     {
         LocationInfo *loc = &locations[ii];
-        MaplyGeomModelInstance *mInst = [[MaplyGeomModelInstance alloc] init];
+        MaplyMovingGeomModelInstance *mInst = [[MaplyMovingGeomModelInstance alloc] init];
         mInst.model = model;
         mInst.transform = localMat;
         MaplyCoordinate loc2d = MaplyCoordinateMakeWithDegrees(loc->lon, loc->lat);
         // Put it 1km above the earth
-        mInst.center = MaplyCoordinate3dMake(loc2d.x, loc2d.y, 1000);
+        mInst.center = MaplyCoordinate3dMake(loc2d.x, loc2d.y, 10000);
+        mInst.endCenter = MaplyCoordinate3dMake(loc2d.x+0.1, loc2d.y+0.1, 10000);
+        mInst.duration = 100.0;
         mInst.selectable = true;
         [modelInstances addObject:mInst];
     }
@@ -826,6 +841,27 @@ static const int BaseEarthPriority = 10;
     });
 }
 
+- (void)addArcGISQuery:(NSString *)url
+{
+    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]]];
+    operation.responseSerializer = [AFHTTPResponseSerializer serializer];
+    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
+     {
+         MaplyVectorObject *vecObj = [MaplyVectorObject VectorObjectFromGeoJSON:responseObject];
+         if (vecObj)
+         {
+             arcGisObj = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor]}];
+         }
+     }
+                                     failure:^(AFHTTPRequestOperation *operation, NSError *error)
+     {
+         NSLog(@"Unable to fetch ArcGIS layer:\n%@",error);
+     }
+     ];
+    
+    [operation start];
+}
+
 - (void)addStickers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc
 {
     UIImage *startImage = [UIImage imageNamed:@"Smiley_Face_Avatar_by_PixelTwist"];
@@ -847,9 +883,18 @@ static const int BaseEarthPriority = 10;
     stickersObj = [baseViewC addStickers:stickers desc:desc];
 }
 
+static const bool CountryTextures = true;
+
 // Add country outlines.  Pass in the names of the geoJSON files
 - (void)addCountries:(NSArray *)names stride:(int)stride
 {
+    MaplyTexture *smileTex = nil;
+    if (CountryTextures)
+    {
+        UIImage *smileImage = [UIImage imageNamed:@"Smiley_Face_Avatar_by_PixelTwist"];
+        smileTex = [baseViewC addTexture:smileImage imageFormat:MaplyImageUShort5551 wrapFlags:MaplyImageWrapX|MaplyImageWrapY mode:MaplyThreadCurrent];
+    }
+
     // Parsing the JSON can take a while, so let's hand that over to another queue
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), 
          ^{
@@ -870,7 +915,17 @@ static const int BaseEarthPriority = 10;
                              MaplyVectorObject *wgVecObj = [MaplyVectorObject VectorObjectFromGeoJSON:jsonData];
                              NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
                              wgVecObj.userObject = vecName;
-                             MaplyComponentObject *compObj = [baseViewC addVectors:[NSArray arrayWithObject:wgVecObj] desc:vectorDesc];
+                             NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:@{
+                                                                                                         kMaplyFilled: @(YES),
+                                                                                                         }];
+                             if (CountryTextures)
+                             {
+                                 desc[kMaplyVecTexture] = smileTex;
+                                 desc[kMaplyVecTexScaleX] = @(0.01);
+                                 desc[kMaplyVecTexScaleY] = @(0.01);
+                                 desc[kMaplyVecTextureProjection] = kMaplyProjectionScreen;
+                             }
+                             MaplyComponentObject *compObj = [baseViewC addVectors:[NSArray arrayWithObject:wgVecObj] desc:desc];
                              MaplyScreenLabel *screenLabel = [[MaplyScreenLabel alloc] init];
                              // Add a label right in the middle
                              MaplyCoordinate center;
@@ -898,16 +953,17 @@ static const int BaseEarthPriority = 10;
              dispatch_async(dispatch_get_main_queue(),
                             ^{
                                 // Toss in all the labels at once, more efficient
-                                MaplyComponentObject *autoLabelObj = [baseViewC addScreenLabels:locAutoLabels desc:
-                                                                      @{kMaplyTextColor: [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1.0],
-                                                                            kMaplyFont: [UIFont systemFontOfSize:24.0],
-                                                                         kMaplyTextOutlineColor: [UIColor blackColor],
-                                                                          kMaplyTextOutlineSize: @(1.0),
-//                                                                               kMaplyShadowSize: @(1.0)
-                                                                      } mode:MaplyThreadAny];
+                                // Note: Debugging
+//                                MaplyComponentObject *autoLabelObj = [baseViewC addScreenLabels:locAutoLabels desc:
+//                                                                      @{kMaplyTextColor: [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1.0],
+//                                                                            kMaplyFont: [UIFont systemFontOfSize:24.0],
+//                                                                         kMaplyTextOutlineColor: [UIColor blackColor],
+//                                                                          kMaplyTextOutlineSize: @(1.0),
+////                                                                               kMaplyShadowSize: @(1.0)
+//                                                                      } mode:MaplyThreadAny];
 
                                 vecObjects = locVecObjects;
-                                autoLabels = autoLabelObj;
+//                                autoLabels = autoLabelObj;
                             });
 
          }
@@ -924,9 +980,13 @@ static const int BaseEarthPriority = 10;
     if (fileName)
     {
         stars = [[MaplyStarsModel alloc] initWithFileName:fileName];
+        stars.image = [UIImage imageNamed:@"star_background"];
         [stars addToViewC:globeViewC desc:nil mode:MaplyThreadCurrent];
     }
 }
+
+static const bool UseSunSphere = false;
+static const float EarthRadius = 6371000;
 
 - (void)addSun
 {
@@ -940,13 +1000,40 @@ static const int BaseEarthPriority = 10;
     [baseViewC addLight:sunLight];
     
     // And a model, because why not
+    if (UseSunSphere)
+    {
+        MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
+        sphere.center = [sun asPosition];
+        sphere.radius = 0.2;
+        sphere.height = 4.0;
+        sunObj = [globeViewC addShapes:@[sphere] desc:
+                    @{kMaplyColor: [UIColor yellowColor],
+                      kMaplyShader: kMaplyShaderDefaultTriNoLighting}];
+    } else {
+        MaplyBillboard *bill = [[MaplyBillboard alloc] init];
+        MaplyCoordinate centerGeo = [sun asPosition];
+        bill.center = MaplyCoordinate3dMake(centerGeo.x, centerGeo.y, 4*EarthRadius);
+        bill.selectable = false;
+        bill.screenObj = [[MaplyScreenObject alloc] init];
+        UIImage *globeImage = [UIImage imageNamed:@"SunImage"];
+        [bill.screenObj addImage:globeImage color:[UIColor whiteColor] size:CGSizeMake(1.0, 1.0)];
+        sunObj = [globeViewC addBillboards:@[bill] desc:@{kMaplyBillboardOrient: kMaplyBillboardOrientEye} mode:MaplyThreadAny];
+    }
+    
+    // Position for the moon
+    MaplyMoon *moon = [[MaplyMoon alloc] initWithDate:[NSDate date]];
     MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
-    sphere.center = [sun asPosition];
+    sphere.center = [moon asCoordinate];
     sphere.radius = 0.2;
     sphere.height = 4.0;
-    sunObj = [globeViewC addShapes:@[sphere] desc:
-                @{kMaplyColor: [UIColor yellowColor],
-                  kMaplyShader: kMaplyShaderDefaultTriNoLighting}];
+    moonObj = [globeViewC addShapes:@[sphere] desc:
+               @{kMaplyColor: [UIColor grayColor],
+                 kMaplyShader: kMaplyShaderDefaultTriNoLighting}];
+    
+    // And some atmosphere, because the iDevice fill rate is just too fast
+    // Note: Debugging
+    atmosObj = [[MaplyAtmosphere alloc] initWithViewC:globeViewC];
+    [atmosObj setSunDirection:[sun getDirection]];
 }
 
 // Number of unique images to use for the mega markers
@@ -1239,12 +1326,13 @@ static const int NumMegaMarkers = 15000;
         layer.requireElev = requireElev;
         layer.maxTiles = 512;
         layer.handleEdges = true;
+        layer.color = [UIColor colorWithWhite:0.5 alpha:0.5];
         if (startupMapType == Maply2DMap)
         {
             // Note: Debugging
             layer.useTargetZoomLevel = true;
             layer.singleLevelLoading = true;
-//            layer.multiLevelLoads = @[@(-4), @(-2)];
+            layer.multiLevelLoads = @[@(-2)];
         }
         [baseViewC addLayer:layer];
         layer.drawPriority = BaseEarthPriority;
@@ -1308,6 +1396,8 @@ static const int NumMegaMarkers = 15000;
         // We'll cycle through at 1s per layer
         layer.animationPeriod = 4.0;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        if (startupMapType == Maply2DMap)
+            layer.multiLevelLoads = @[@(-2)];
         [baseViewC addLayer:layer];
         layer.drawPriority = BaseEarthPriority;
         baseLayer = layer;        
@@ -1441,13 +1531,18 @@ static const int NumMegaMarkers = 15000;
                 ovlLayers[layerName] = layer;
             } else if (![layerName compare:kMaplyTestMapboxStreets])
             {
-#if 0
+#ifdef NOTPODSPECWG
                 self.title = @"Mapbox Vector Streets";
                 // Note: Debugging
                 thisCacheDir = nil;
                 thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
-                // You need your own access token here
-                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-terrain-v2,mapbox.mapbox-streets-v6.json" accessToken:@"" style:[[NSBundle mainBundle] pathForResource:@"" ofType:@"xml"] styleType:MapnikXMLStyle cacheDir:thisCacheDir viewC:baseViewC
+                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-streets-v6.json"
+                    // Note: You need your own access token here
+                    accessToken:@"pk.eyJ1IjoicGV0ZXJxbGl1IiwiYSI6ImpvZmV0UEEifQ._D4bRmVcGfJvo1wjuOpA1g"
+                    style:@"https://raw.githubusercontent.com/mapbox/mapbox-gl-styles/mb-pages/styles/emerald-v8.json"
+                    styleType:MapnikMapboxGLStyle
+                    cacheDir:thisCacheDir
+                    viewC:baseViewC
                  success:
                  ^(MaplyMapnikVectorTiles *vecTiles)
                  {
@@ -1456,9 +1551,12 @@ static const int NumMegaMarkers = 15000;
                          vecTiles.minZoom = 5;
                      
                      // Note: These are set after the MapnikStyleSet has already been initialized
-                     MapnikStyleSet *styleSet = (MapnikStyleSet *)vecTiles.tileParser.styleDelegate;
+                     MaplyMapboxVectorStyleSet *styleSet = (MaplyMapboxVectorStyleSet *)vecTiles.tileParser.styleDelegate;
                      styleSet.tileStyleSettings.markerImportance = 10.0;
                      styleSet.tileStyleSettings.fontName = @"Gill Sans";
+                     UIColor *backColor = [styleSet backgroundColor];
+                     if (backColor)
+                         [baseViewC setClearColor:backColor];
                      
                      // Now for the paging layer itself
                      MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
@@ -1510,7 +1608,7 @@ static const int NumMegaMarkers = 15000;
 //                 ];
             } else if (![layerName compare:kMaplyMapzenVectors])
             {
-#if 0
+#ifdef NOTPODSPECWG
                 // Get the style file
                 NSData *styleData = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"MapzenGLStyle" ofType:@"json"]];
                 
@@ -1734,6 +1832,20 @@ static const int NumMegaMarkers = 15000;
         }
     }
     
+    if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestArcGIS])
+    {
+        if (!arcGisObj)
+        {
+            [self addArcGISQuery:@"http://services.arcgis.com/OfH668nDRN7tbJh0/arcgis/rest/services/SandyNYCEvacMap/FeatureServer/0/query?WHERE=Neighbrhd=%27Rockaways%27&f=pgeojson&outSR=4326"];
+        }
+    } else {
+        if (arcGisObj)
+        {
+            [baseViewC removeObject:arcGisObj];
+            arcGisObj = nil;
+        }
+    }
+    
     if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestStarsAndSun])
     {
         if (!stars)
@@ -1746,8 +1858,12 @@ static const int NumMegaMarkers = 15000;
         {
             [stars removeFromViewC];
             [baseViewC removeObject:sunObj];
+            [baseViewC removeObject:moonObj];
+            [atmosObj removeFromViewC];
             sunObj = nil;
+            moonObj = nil;
             stars = nil;
+            atmosObj = nil;
         }
     }
 
@@ -2038,7 +2154,7 @@ static const int NumMegaMarkers = 15000;
 {
     // Just clear the selection
     [baseViewC clearAnnotations];
-
+    
     if (globeViewC)
     {
 //        MaplyCoordinate geoCoord;
@@ -2094,6 +2210,15 @@ static const int NumMegaMarkers = 15000;
 
 - (void)maplyViewController:(MaplyViewController *)viewC didTapAt:(MaplyCoordinate)coord
 {
+    // Poke the map
+//    if (mapViewC)
+//    {
+//        MaplyCoordinate coord;
+//        float height;
+//        [mapViewC getPosition:&coord height:&height];
+//        [mapViewC setPosition:coord height:height];
+//    }
+
     // Just clear the selection
     [baseViewC clearAnnotations];
 //    if (selectedViewTrack)

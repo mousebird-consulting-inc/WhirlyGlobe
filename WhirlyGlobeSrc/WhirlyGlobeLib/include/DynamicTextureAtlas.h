@@ -62,11 +62,18 @@ public:
     /// Add the data at a given location in the texture
     void addTextureData(int startX,int startY,int width,int height,NSData *data);
     
+    /// Clear out the area given
+    void clearRegion(const Region &region);
+    void clearTextureData(int startX,int startY,int width,int height);
+    
     /// Set or clear a given region
     void setRegion(const Region &region,bool enable);
     
     /// Look for an open region of the given cell extents
     bool findRegion(int cellsX,int cellsY,Region &region);
+    
+    /// Return a list of released regions
+    void getReleasedRegions(std::vector<DynamicTexture::Region> &toClear);
     
     /// Add a region to the list of ones to be cleared.
     /// This is called by the renderer

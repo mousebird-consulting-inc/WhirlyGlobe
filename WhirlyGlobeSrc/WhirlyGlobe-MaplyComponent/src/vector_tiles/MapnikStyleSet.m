@@ -18,7 +18,7 @@
  *
  */
 
-#import "MapnikStyleSet.h"
+#import "vector_tiles/MapnikStyleSet.h"
 
 #import "MaplyRemoteTileSource.h"
 #import "MaplyVectorLineStyle.h"

@@ -7,9 +7,6 @@
 //
 
 #import "MapzenSource.h"
-#import "MaplyMapnikVectorTiles.h"
-#import "MapboxVectorStyleSet.h"
-#import "MapboxVectorStyleBackground.h"
 
 @implementation MapzenSource
 {
@@ -59,7 +56,7 @@
                     {
                         if ([backLayer isKindOfClass:[MapboxVectorLayerBackground class]])
                         {
-                            _backgroundColor = backLayer.paint.color;
+                            _backgroundColor = [backLayer.paint.color maxColorWithStyleSet:mapboxStyleSet];
                         }
                     }
                 }

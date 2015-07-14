@@ -22,8 +22,8 @@
 
 @interface MapboxVectorBackgroundPaint : NSObject
 
-@property (nonatomic) UIColor *color;
-@property (nonatomic) double opacity;
+@property (nonatomic) MaplyMapboxValueWrapper *color;
+@property (nonatomic) MaplyMapboxValueWrapper *opacity;
 
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
 

@@ -18,7 +18,7 @@
  *
  */
 
-#import "Drawable.h"
+#import "BasicDrawable.h"
 
 namespace WhirlyKit
 {
@@ -27,7 +27,8 @@ namespace WhirlyKit
 #define kBillboardShaderName "Billboard Shader"
     
 /// Construct and return the Billboard shader program
-OpenGLES2Program *BuildBillboardProgram();
+OpenGLES2Program *BuildBillboardGroundProgram();
+OpenGLES2Program *BuildBillboardEyeProgram();
 
 /** The drawable class for rendering billboards.
     Billboards contain extra information per vertex and

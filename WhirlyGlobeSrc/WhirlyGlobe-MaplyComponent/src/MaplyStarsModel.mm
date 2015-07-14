@@ -34,6 +34,7 @@ typedef struct
     MaplyComponentObject *partSysObj;
     WhirlyGlobeViewController *__weak viewC;
     MaplyThreadMode addedMode;
+    UIImage *image;
 }
 
 - (id)initWithFileName:(NSString *)fileName
@@ -54,6 +55,11 @@ typedef struct
     }
     
     return self;
+}
+
+- (void)setImage:(UIImage *)inImage
+{
+    image = inImage;
 }
 
 static const char *vertexShaderTriPoint =
@@ -84,6 +90,18 @@ static const char *fragmentShaderTriPoint =
 "}"
 ;
 
+static const char *fragmentShaderTexTriPoint =
+"precision lowp float;"
+""
+"uniform sampler2D s_baseMap0;"
+"varying vec4      v_color;"
+""
+"void main()"
+"{"
+"  gl_FragColor = v_color * texture2D(s_baseMap0, gl_PointCoord);"
+"}"
+;
+
 typedef struct
 {
     float x,y,z;
@@ -93,15 +111,19 @@ typedef struct
 {
     viewC = inViewC;
     addedMode = mode;
-
+    
     // Really simple shader
-    MaplyShader *shader = [[MaplyShader alloc] initWithName:@"Star Shader" vertex:[NSString stringWithFormat:@"%s",vertexShaderTriPoint] fragment:[NSString stringWithFormat:@"%s",fragmentShaderTriPoint] viewC:viewC];
+    MaplyShader *shader = [[MaplyShader alloc] initWithName:@"Star Shader" vertex:[NSString stringWithFormat:@"%s",vertexShaderTriPoint] fragment:[NSString stringWithFormat:@"%s",(image ? fragmentShaderTexTriPoint : fragmentShaderTriPoint)] viewC:viewC];
     [viewC addShaderProgram:shader sceneName:@"Star Shader"];
     [shader setUniformFloatNamed:@"u_radius" val:6.0];
     
     NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
     if (!desc[kMaplyDrawPriority])
         desc[kMaplyDrawPriority] = @(kMaplyStarsDrawPriorityDefault);
+    
+    MaplyTexture *starTex = nil;
+    if (image)
+        starTex = [viewC addTexture:image imageFormat:MaplyImageIntRGBA wrapFlags:0 mode:MaplyThreadCurrent];
 
     // Set up a simple particle system (that doesn't move)
     partSys = [[MaplyParticleSystem alloc] initWithName:@"Stars"];
@@ -110,6 +132,8 @@ typedef struct
     partSys.totalParticles = stars.size();
     partSys.batchSize = stars.size();
     partSys.shader = shader.name;
+    if (starTex)
+        [partSys addTexture:starTex];
     [partSys addAttribute:@"a_position" type:MaplyShaderAttrTypeFloat3];
     [partSys addAttribute:@"a_size" type:MaplyShaderAttrTypeFloat];
     partSysObj = [viewC addParticleSystem:partSys desc:desc mode:mode];

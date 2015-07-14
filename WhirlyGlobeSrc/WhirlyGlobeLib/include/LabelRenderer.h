@@ -22,13 +22,14 @@
 #import <set>
 #import <map>
 #import "Identifiable.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "TextureAtlas.h"
 #import "SelectionManager.h"
 #import "LayoutLayer.h"
 #import "FontTextureManager.h"
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
@@ -59,7 +60,7 @@ typedef std::set<LabelSceneRep *,IdentifiableSorter> LabelSceneRepSet;
 typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} WhirlyKitLabelJustify;
 
 // Label spec passed around between threads
-@interface WhirlyKitLabelInfo : NSObject
+@interface WhirlyKitLabelInfo : WhirlyKitBaseInfo
 
 @property (nonatomic) NSArray *strs;
 @property (nonatomic) UIColor *textColor,*backColor;
@@ -68,21 +69,11 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic,assign) bool layoutEngine;
 @property (nonatomic,assign) float layoutImportance;
 @property (nonatomic,assign) float width,height;
-@property (nonatomic,assign) int drawOffset;
-@property (nonatomic,assign) float minVis,maxVis;
 @property (nonatomic,assign) WhirlyKitLabelJustify justify;
-@property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) float fadeIn;
-@property (nonatomic,assign) float fadeOut;
-@property (nonatomic,assign) double fadeOutTime;
 @property (nonatomic,strong) UIColor *shadowColor;
 @property (nonatomic,assign) float shadowSize;
 @property (nonatomic) UIColor *outlineColor;
 @property (nonatomic,assign) float outlineSize;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity shaderID;
-@property (nonatomic,assign) bool enable;
-@property (nonatomic) NSTimeInterval startEnable,endEnable;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity programID;
 
 - (id)initWithStrs:(NSArray *)inStrs desc:(NSDictionary *)desc;
 

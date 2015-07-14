@@ -21,6 +21,7 @@
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
 #import "MaplyMatrix.h"
+#import "MaplyShape.h"
 
 /** @brief Contains a big pile of geometry and textures (e.g. a model).
     @details The geometry model
@@ -31,6 +32,11 @@
     @details This creates a model from a Wavefront OBJ file, a standard, simple file format for models.  You can then instance and place this model where you might like.
   */
 - (id)initWithObj:(NSString *)fullPath;
+
+/** @brief Initialize with a shape.
+    @details The given shape will be turned into a geometry model so it can be instanced.
+  */
+- (id)initWithShape:(MaplyShape *)shape;
 
 @end
 
@@ -64,3 +70,17 @@
 @property (nonatomic) bool selectable;
 
 @end
+
+/** @brief A version of the geometry model instance that moves.
+    @details This version of the geometry model instance can move in a limited way over time.
+  */
+@interface MaplyMovingGeomModelInstance : MaplyGeomModelInstance
+
+/// @brief The end point for animation
+@property (nonatomic,assign) MaplyCoordinate3d endCenter;
+
+/// @brief How long it will take to get to the endCenter
+@property (nonatomic,assign) NSTimeInterval duration;
+
+@end
+

@@ -309,6 +309,8 @@ using namespace WhirlyKit;
 
 - (void)shutdown
 {
+    [interactLayer lockingShutdown];
+    
     if (glView)
         [glView shutdown];
     
@@ -357,9 +359,16 @@ using namespace WhirlyKit;
 {
     [super didReceiveMemoryWarning];
     
-    // We may retain a bit of memory here.  Clear it up.
-    scene->getMemManager()->clearBufferIDs();
-    scene->getMemManager()->clearTextureIDs();
+    if (scene)
+    {
+        WhirlyKit::OpenGLMemManager *memManager = scene->getMemManager();
+        // We may retain a bit of memory here.  Clear it up.
+        if (memManager)
+        {
+            memManager->clearBufferIDs();
+            memManager->clearTextureIDs();
+        }
+    }
 }
 
 - (void)setFrameInterval:(int)frameInterval
@@ -507,7 +516,14 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 {
-    return [interactLayer addScreenMarkers:markers desc:desc mode:threadMode];
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer addScreenMarkers:markers desc:desc mode:threadMode];
+    
+    [interactLayer endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc
@@ -517,7 +533,14 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addMarkers:markers desc:desc mode:threadMode];
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer addMarkers:markers desc:desc mode:threadMode];
+    
+    [interactLayer endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc
@@ -527,7 +550,14 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addScreenLabels:labels desc:desc mode:threadMode];
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer addScreenLabels:labels desc:desc mode:threadMode];
+
+    [interactLayer endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc
@@ -537,7 +567,14 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addLabels:labels desc:desc mode:threadMode];
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer addLabels:labels desc:desc mode:threadMode];
+    
+    [interactLayer endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc
@@ -547,7 +584,14 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addVectors:vectors desc:desc mode:threadMode];
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer addVectors:vectors desc:desc mode:threadMode];
+    
+    [interactLayer endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc
@@ -557,12 +601,26 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)instanceVectors:(MaplyComponentObject *)baseObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer instanceVectors:baseObj desc:desc mode:threadMode];
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer instanceVectors:baseObj desc:desc mode:threadMode];
+    
+    [interactLayer endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addWideVectors:vectors desc:desc mode:threadMode];
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer addWideVectors:vectors desc:desc mode:threadMode];
+    
+    [interactLayer endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc
@@ -573,12 +631,26 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addBillboards:billboards desc:desc mode:threadMode];
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer addBillboards:billboards desc:desc mode:threadMode];
+    
+    [interactLayer endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *)addParticleSystem:(MaplyParticleSystem *)partSys desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addParticleSystem:partSys desc:desc mode:threadMode];
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer addParticleSystem:partSys desc:desc mode:threadMode];
+    
+    [interactLayer endOfWork];
+    
+    return compObj;
 }
 
 - (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode
@@ -586,17 +658,33 @@ static const float PerfOutputDelay = 15.0;
     if (![batch isValid])
         return;
     
-    return [interactLayer addParticleBatch:batch mode:threadMode];
+    if (![interactLayer startOfWork])
+        return;
+    
+    [interactLayer addParticleBatch:batch mode:threadMode];
+
+    [interactLayer endOfWork];
 }
 
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors
 {
-    return [interactLayer addSelectionVectors:vectors desc:nil];
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer addSelectionVectors:vectors desc:nil];
+    [interactLayer endOfWork];
+    
+    return compObj;
 }
 
 - (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    if (![interactLayer startOfWork])
+        return;
+    
     [interactLayer changeVectors:compObj desc:desc mode:threadMode];
+    
+    [interactLayer endOfWork];
 }
 
 - (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc
@@ -606,7 +694,14 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addShapes:shapes desc:desc mode:threadMode];
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer addShapes:shapes desc:desc mode:threadMode];
+
+    [interactLayer endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc
@@ -616,17 +711,38 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addModelInstances:(NSArray *)modelInstances desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addModelInstances:modelInstances desc:desc mode:threadMode];
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer addModelInstances:modelInstances desc:desc mode:threadMode];
+
+    [interactLayer endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *)addGeometry:(NSArray *)geom desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addGeometry:geom desc:desc mode:threadMode];
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer addGeometry:geom desc:desc mode:threadMode];
+
+    [interactLayer endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addStickers:stickers desc:desc mode:threadMode];
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer addStickers:stickers desc:desc mode:threadMode];
+
+    [interactLayer endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc
@@ -636,12 +752,23 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)changeSticker:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer changeSticker:compObj desc:desc mode:threadMode];
+    if (![interactLayer startOfWork])
+        return;
+    
+    [interactLayer changeSticker:compObj desc:desc mode:threadMode];
+
+    [interactLayer endOfWork];
 }
 
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addLoftedPolys:polys desc:desc key:key cache:cacheDb mode:threadMode];
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer addLoftedPolys:polys desc:desc key:key cache:cacheDb mode:threadMode];
+    [interactLayer endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc
@@ -819,20 +946,35 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
 {
+    if (![interactLayer startOfWork])
+        return nil;
+    
     MaplyTexture *maplyTex = [interactLayer addTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
     maplyTex.viewC = self;
+
+    [interactLayer endOfWork];
     
     return maplyTex;
 }
 
 - (void)removeTexture:(MaplyTexture *)texture mode:(MaplyThreadMode)threadMode
 {
+    if (![interactLayer startOfWork])
+        return;
+    
     [interactLayer removeTextures:@[texture] mode:threadMode];
+
+    [interactLayer endOfWork];
 }
 
 - (void)removeTextures:(NSArray *)textures mode:(MaplyThreadMode)threadMode
 {
+    if (![interactLayer startOfWork])
+        return;
+    
     [interactLayer removeTextures:textures mode:threadMode];
+
+    [interactLayer endOfWork];
 }
 
 - (MaplyTexture *)addTextureToAtlas:(UIImage *)image mode:(MaplyThreadMode)threadMode
@@ -846,7 +988,14 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyTexture *)addTextureToAtlas:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addTextureToAtlas:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    MaplyTexture *tex = [interactLayer addTextureToAtlas:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+
+    [interactLayer endOfWork];
+    
+    return tex;
 }
 
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects
@@ -869,7 +1018,12 @@ static const float PerfOutputDelay = 15.0;
     if (!theObjs)
         return;
 
+    if (![interactLayer startOfWork])
+        return;
+    
     [interactLayer removeObjects:[NSArray arrayWithArray:theObjs] mode:threadMode];
+
+    [interactLayer endOfWork];
 }
 
 - (void)removeObjects:(NSArray *)theObjs
@@ -885,7 +1039,12 @@ static const float PerfOutputDelay = 15.0;
     if (!theObjs)
         return;
 
+    if (![interactLayer startOfWork])
+        return;
+    
     [interactLayer disableObjects:theObjs mode:threadMode];
+
+    [interactLayer endOfWork];
 }
 
 - (void)enableObjects:(NSArray *)theObjs mode:(MaplyThreadMode)threadMode
@@ -893,17 +1052,32 @@ static const float PerfOutputDelay = 15.0;
     if (!theObjs)
         return;
 
+    if (![interactLayer startOfWork])
+        return;
+
     [interactLayer enableObjects:theObjs mode:threadMode];
+
+    [interactLayer endOfWork];
 }
 
 - (void)startChanges
 {
+    if (![interactLayer startOfWork])
+        return;
+
     [interactLayer startChanges];
+
+    [interactLayer endOfWork];
 }
 
 - (void)endChanges
 {
+    if (![interactLayer startOfWork])
+        return;
+
     [interactLayer endChanges];
+
+    [interactLayer endOfWork];
 }
 
 - (void)addActiveObject:(MaplyActiveObject *)theObj
@@ -1005,6 +1179,14 @@ static const float PerfOutputDelay = 15.0;
             [layerThreads removeObject:layerThread];
             [layerThread addThingToRelease:theLayer];
             [layerThread cancel];
+
+            // We also have to make sure it actually does finish
+            bool finished = true;
+            do {
+                finished = [layerThread isFinished];
+                if (!finished)
+                    [NSThread sleepForTimeInterval:0.0001];
+            } while (!finished);
         }
     }
 }

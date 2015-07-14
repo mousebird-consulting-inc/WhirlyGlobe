@@ -21,7 +21,6 @@
 #import "MarkerManager.h"
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
-#import "MarkerGenerator.h"
 #import "ScreenSpaceBuilder.h"
 #import "LayoutManager.h"
 
@@ -41,14 +40,6 @@ void MarkerSceneRep::enableContents(SelectionManager *selectManager,LayoutManage
     for (SimpleIDSet::iterator idIt = drawIDs.begin();
          idIt != drawIDs.end(); ++idIt)
         changes.push_back(new OnOffChangeRequest(*idIt,enable));
-    if (!markerIDs.empty())
-    {
-        std::vector<SimpleIdentity> markerIDVec;
-        for (SimpleIDSet::iterator idIt = markerIDs.begin();
-             idIt != markerIDs.end(); ++idIt)
-            markerIDVec.push_back(*idIt);
-        changes.push_back(new MarkerGeneratorEnableRequest(generatorId,markerIDVec,enable));
-    }
     
     if (selectManager && !selectIDs.empty())
         selectManager->enableSelectables(selectIDs, enable);
@@ -64,17 +55,7 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
          idIt != drawIDs.end(); ++idIt)
         changes.push_back(new RemDrawableReq(*idIt));
     drawIDs.clear();
-    
-    if (!markerIDs.empty())
-    {
-        std::vector<SimpleIdentity> markerIDVec;
-        for (SimpleIDSet::iterator idIt = markerIDs.begin();
-             idIt != markerIDs.end(); ++idIt)
-            markerIDVec.push_back(*idIt);
-        changes.push_back(new MarkerGeneratorRemRequest(generatorId,markerIDVec));
-    }
-    markerIDs.clear();
-    
+        
     if (selectManager && !selectIDs.empty())
         selectManager->removeSelectables(selectIDs);
     
@@ -115,7 +96,7 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
 // Initialize with an array of makers and parse out parameters
 - (id)initWithMarkers:(NSArray *)inMarkers desc:(NSDictionary *)desc
 {
-    self = [super init];
+    self = [super initWithDesc:desc];
     
     if (self)
     {
@@ -131,23 +112,9 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
 - (void)parseDesc:(NSDictionary *)desc
 {
     self.color = [desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    _drawOffset = [desc intForKey:@"drawOffset" default:0];
-    _minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
-    _maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
-    _drawPriority = [desc intForKey:@"drawPriority" default:MarkerDrawPriority];
     _screenObject = [desc boolForKey:@"screen" default:false];
     _width = [desc floatForKey:@"width" default:(_screenObject ? 16.0 : 0.001)];
     _height = [desc floatForKey:@"height" default:(_screenObject ? 16.0 : 0.001)];
-    double fade = [desc floatForKey:@"fade" default:0.0];
-    _fadeIn = fade;
-    _fadeOut = fade;
-    _fadeIn = [desc floatForKey:@"fadein" default:_fadeIn];
-    _fadeOut = [desc floatForKey:@"fadeout" default:_fadeOut];
-    _fadeOutTime = [desc doubleForKey:@"fadeouttime" default:0.0];
-    _enable = [desc boolForKey:@"enable" default:true];
-    _startEnable = [desc doubleForKey:@"enablestart" default:0.0];
-    _endEnable = [desc doubleForKey:@"enableend" default:0.0];
-    _programId = [desc intForKey:@"shader" default:EmptyIdentity];
 }
 
 @end
@@ -245,7 +212,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             ScreenSpaceObject::ConvexGeometry smGeom;
             for (unsigned int ii=0;ii<subTexs.size();ii++)
                 smGeom.texIDs.push_back(subTexs[ii].texId);
-            smGeom.progID = markerInfo.programId;
+            smGeom.progID = markerInfo.programID;
             smGeom.color = [markerInfo.color asRGBAColor];
             if (marker.color)
                 smGeom.color = [marker.color asRGBAColor];
@@ -360,14 +327,11 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                 else {
                     draw = new BasicDrawable("Marker Layer");
                     draw->setType(GL_TRIANGLES);
-                    draw->setDrawOffset(markerInfo.drawOffset);
+                    [markerInfo setupBasicDrawable:draw];
                     draw->setColor([markerInfo.color asRGBAColor]);
-                    draw->setDrawPriority(markerInfo.drawPriority);
-                    draw->setVisibleRange(markerInfo.minVis, markerInfo.maxVis);
                     draw->setTexId(0,subTexID);
-                    draw->setOnOff(markerInfo.enable);
-                    if (markerInfo.programId != EmptyIdentity)
-                        draw->setProgram(markerInfo.programId);
+                    if (markerInfo.programID != EmptyIdentity)
+                        draw->setProgram(markerInfo.programID);
                     drawables[subTexID] = draw;
                     markerRep->drawIDs.insert(draw->getId());
                 }
@@ -481,15 +445,6 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
                      idIt != markerRep->drawIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+markerRep->fadeOut));
                 
-                if (!markerRep->markerIDs.empty())
-                {
-                    std::vector<SimpleIdentity> markerIDs;
-                    for (SimpleIDSet::iterator idIt = markerRep->markerIDs.begin();
-                         idIt != markerRep->markerIDs.end(); ++idIt)
-                        markerIDs.push_back(*idIt);
-                    changes.push_back(new MarkerGeneratorFadeRequest(generatorId,markerIDs,curTime,curTime+markerRep->fadeOut));
-                }
-                
                 __block NSObject * __weak thisCanary = canary;
                 
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, markerRep->fadeOut * NSEC_PER_SEC),
@@ -524,9 +479,4 @@ void MarkerManager::setScene(Scene *inScene)
     SceneManager::setScene(inScene);
 
     screenGenId = scene->getScreenSpaceGeneratorID();
-    
-    // Set up the generator we'll pass markers to
-    MarkerGenerator *gen = new MarkerGenerator();
-    generatorId = gen->getId();
-    scene->addChangeRequest(new AddGeneratorReq(gen));
 }
