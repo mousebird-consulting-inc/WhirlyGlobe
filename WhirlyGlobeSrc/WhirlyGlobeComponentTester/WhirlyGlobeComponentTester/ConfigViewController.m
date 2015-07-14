@@ -114,6 +114,7 @@
                   kMaplyTestMegaMarkers: @(NO),
                   kMaplyTestLatLon: @(NO),
                   kMaplyTestRoads: @(NO),
+                  kMaplyTestArcGIS: @(NO),
                   kMaplyTestStarsAndSun: @(NO),
                   }
                                        singleSelect:false],
@@ -146,6 +147,7 @@
               kMaplyTestMegaMarkers: @(NO),
               kMaplyTestLatLon: @(NO),
               kMaplyTestRoads: @(NO),
+              kMaplyTestArcGIS: @(NO),
               kMaplyTestStarsAndSun: @(NO)
               }
                                    singleSelect:false]]];

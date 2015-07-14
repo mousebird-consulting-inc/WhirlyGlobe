@@ -63,6 +63,7 @@
 #define kMaplyTestMegaMarkers @"Mega Markers"
 #define kMaplyTestLatLon @"Lon/Lat lines"
 #define kMaplyTestRoads @"SF Roads"
+#define kMaplyTestArcGIS @"ArcGIS Vectors"
 #define kMaplyTestStarsAndSun @"Stars and Sun"
 
 // Animation

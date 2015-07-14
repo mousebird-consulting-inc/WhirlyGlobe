@@ -53,6 +53,11 @@ bool PolytopeSelectable::operator < (const PolytopeSelectable &that) const
     return selectID < that.selectID;
 }
 
+bool MovingPolytopeSelectable::operator < (const MovingPolytopeSelectable &that) const
+{
+    return selectID < that.selectID;
+}
+
 bool LinearSelectable::operator < (const LinearSelectable &that) const
 {
     return selectID < that.selectID;
@@ -166,16 +171,23 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *p
     newSelect.selectID = selectId;
     newSelect.minVis = minVis;
     newSelect.maxVis = maxVis;
-    newSelect.midPt = Point3f(0,0,0);
+    newSelect.centerPt = Point3d(0,0,0);
     newSelect.enable = enable;
     for (unsigned int ii=0;ii<8;ii++)
-        newSelect.midPt += pts[ii];
-    newSelect.midPt /= 8.0;
+    {
+        const Point3f &pt = pts[ii];
+        newSelect.centerPt += Point3d(pt.x(),pt.y(),pt.z());
+    }
+    newSelect.centerPt /= 8;
+    
     for (unsigned int ii=0;ii<6;ii++)
     {
         std::vector<Point3f> poly;
         for (unsigned int jj=0;jj<4;jj++)
-            poly.push_back(pts[corners[ii][jj]]);
+        {
+            Point3f pt = pts[corners[ii][jj]];
+            poly.push_back(Point3f(pt.x()-newSelect.centerPt.x(),pt.y()-newSelect.centerPt.y(),pt.z()-newSelect.centerPt.z()));
+        }
         newSelect.polys.push_back(poly);
     }
     
@@ -201,25 +213,28 @@ void SelectionManager::addPolytope(SimpleIdentity selectId,const std::vector<std
     newSelect.selectID = selectId;
     newSelect.minVis = minVis;
     newSelect.maxVis = maxVis;
-    newSelect.midPt = Point3f(0,0,0);
+    newSelect.centerPt = Point3d(0,0,0);
     newSelect.enable = enable;
     int numPts = 0;
-    for (unsigned int si=0;si<surfaces.size();si++)
+    for (const std::vector<Point3d> &surface : surfaces)
+        for (const Point3d &pt : surface)
+        {
+            newSelect.centerPt += pt;
+            numPts++;
+        }
+    newSelect.centerPt /= numPts;
+    
+    for (const std::vector<Point3d> &surface : surfaces)
     {
-        const std::vector<Point3d> &surface = surfaces[si];
         std::vector<Point3f> surface3f;
         surface3f.reserve(surface.size());
-        for (unsigned int pi=0;pi<surface.size();pi++)
+        for (const Point3d &pt : surface)
         {
-            const Point3d &pt = surface[pi];
-            Point3f pt3f(pt.x(),pt.y(),pt.z());
-            newSelect.midPt += pt3f;
+            Point3f pt3f(pt.x()-newSelect.centerPt.x(),pt.y()-newSelect.centerPt.y(),pt.z()-newSelect.centerPt.z());
             surface3f.push_back(pt3f);
         }
-        numPts += surfaces.size();
         newSelect.polys.push_back(surface3f);
     }
-    newSelect.midPt /= numPts;
     
     pthread_mutex_lock(&mutex);
     polytopeSelectables.insert(newSelect);
@@ -263,6 +278,77 @@ void SelectionManager::addPolytopeFromBox(SimpleIdentity selectId,const Point3d 
         }
     
     addPolytope(selectId, polys, minVis, maxVis, enable);
+}
+
+void SelectionManager::addMovingPolytope(SimpleIdentity selectId,const std::vector<std::vector<Point3d> > &surfaces,const Point3d &startCenter,const Point3d &endCenter,NSTimeInterval startTime, NSTimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable)
+{
+    if (selectId == EmptyIdentity)
+        return;
+    
+    MovingPolytopeSelectable newSelect;
+    newSelect.selectID = selectId;
+    newSelect.minVis = minVis;
+    newSelect.maxVis = maxVis;
+    newSelect.centerPt = startCenter;
+    newSelect.endCenterPt = endCenter;
+    newSelect.startTime = startTime;
+    newSelect.duration = duration;
+    newSelect.enable = enable;
+    
+    for (const std::vector<Point3d> &surface : surfaces)
+    {
+        std::vector<Point3f> surface3f;
+        surface3f.reserve(surface.size());
+        for (const Point3d &pt : surface)
+        {
+            Point3f pt3f(pt.x(),pt.y(),pt.z());
+            surface3f.push_back(pt3f);
+        }
+        newSelect.polys.push_back(surface3f);
+    }
+    
+    pthread_mutex_lock(&mutex);
+    movingPolytopeSelectables.insert(newSelect);
+    pthread_mutex_unlock(&mutex);
+}
+
+void SelectionManager::addMovingPolytopeFromBox(SimpleIdentity selectID, const Point3d &ll, const Point3d &ur, const Point3d &startCenter, const Point3d &endCenter,NSTimeInterval startTime,NSTimeInterval duration, const Eigen::Matrix4d &mat, float minVis, float maxVis, bool enable)
+{
+    // Corners of the box
+    Point3d pts[8];
+    pts[0] = Point3d(ll.x(),ll.y(),ll.z());
+    pts[1] = Point3d(ur.x(),ll.y(),ll.z());
+    pts[2] = Point3d(ur.x(),ur.y(),ll.z());
+    pts[3] = Point3d(ll.x(),ur.y(),ll.z());
+    pts[4] = Point3d(ll.x(),ll.y(),ur.z());
+    pts[5] = Point3d(ur.x(),ll.y(),ur.z());
+    pts[6] = Point3d(ur.x(),ur.y(),ur.z());
+    pts[7] = Point3d(ll.x(),ur.y(),ur.z());
+    
+    // Turn the box into a polytope
+    std::vector<std::vector<Point3d> > polys(6);
+    auto &bot = polys[0];  bot.resize(4);
+    auto &side0 = polys[1];  side0.resize(4);
+    auto &side1 = polys[2];  side1.resize(4);
+    auto &side2 = polys[3];  side2.resize(4);
+    auto &side3 = polys[4];  side3.resize(4);
+    auto &top = polys[5];  top.resize(4);
+    bot[0] = pts[0];  bot[1] = pts[1];  bot[2] = pts[2];  bot[3] = pts[3];
+    side0[0] = pts[0];  side0[1] = pts[1];  side0[2] = pts[5];  side0[3] = pts[4];
+    side1[0] = pts[1];  side1[1] = pts[2];  side1[2] = pts[6];  side1[3] = pts[5];
+    side2[0] = pts[2];  side2[1] = pts[3];  side2[2] = pts[7];  side2[3] = pts[6];
+    side3[0] = pts[3];  side3[1] = pts[6];  side3[2] = pts[4];  side3[3] = pts[7];
+    top[0] = pts[4];  top[1] = pts[5];  top[2] = pts[6];  top[3] = pts[7];
+    
+    // Run through the matrix
+    for (auto &side : polys)
+        for (auto &pt : side)
+        {
+            Vector4d newPt = mat * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+            pt = Point3d(newPt.x(),newPt.y(),newPt.z());
+        }
+    
+    addMovingPolytope(selectID, polys, startCenter, endCenter, startTime, duration, mat, minVis, maxVis, enable);
 }
 
 void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const std::vector<Point3f> &pts,float minVis,float maxVis,bool enable)
@@ -347,6 +433,15 @@ void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
         sel.enable = enable;
         polytopeSelectables.insert(sel);
     }
+
+    MovingPolytopeSelectableSet::iterator it3a = movingPolytopeSelectables.find(MovingPolytopeSelectable(selectID));
+    if (it3a != movingPolytopeSelectables.end())
+    {
+        MovingPolytopeSelectable sel = *it3a;
+        movingPolytopeSelectables.erase(it3a);
+        sel.enable = enable;
+        movingPolytopeSelectables.insert(sel);
+    }
     
     LinearSelectableSet::iterator it5 = linearSelectables.find(LinearSelectable(selectID));
     if (it5 != linearSelectables.end())
@@ -412,7 +507,16 @@ void SelectionManager::enableSelectables(const SimpleIDSet &selectIDs,bool enabl
             sel.enable = enable;
             polytopeSelectables.insert(sel);
         }
-        
+
+        MovingPolytopeSelectableSet::iterator it3a = movingPolytopeSelectables.find(MovingPolytopeSelectable(selectID));
+        if (it3a != movingPolytopeSelectables.end())
+        {
+            MovingPolytopeSelectable sel = *it3a;
+            movingPolytopeSelectables.erase(it3a);
+            sel.enable = enable;
+            movingPolytopeSelectables.insert(sel);
+        }
+
         LinearSelectableSet::iterator it5 = linearSelectables.find(LinearSelectable(selectID));
         if (it5 != linearSelectables.end())
         {
@@ -456,6 +560,10 @@ void SelectionManager::removeSelectable(SimpleIdentity selectID)
     PolytopeSelectableSet::iterator it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
     if (it3 != polytopeSelectables.end())
         polytopeSelectables.erase(it3);
+    
+    MovingPolytopeSelectableSet::iterator it3a = movingPolytopeSelectables.find(MovingPolytopeSelectable(selectID));
+    if (it3a != movingPolytopeSelectables.end())
+        movingPolytopeSelectables.erase(it3a);
     
     LinearSelectableSet::iterator it5 = linearSelectables.find(LinearSelectable(selectID));
     if (it5 != linearSelectables.end())
@@ -503,6 +611,13 @@ void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
         {
             found = true;
             polytopeSelectables.erase(it3);
+        }
+
+        MovingPolytopeSelectableSet::iterator it3a = movingPolytopeSelectables.find(MovingPolytopeSelectable(selectID));
+        if (it3a != movingPolytopeSelectables.end())
+        {
+            found = true;
+            movingPolytopeSelectables.erase(it3a);
         }
 
         LinearSelectableSet::iterator it5 = linearSelectables.find(LinearSelectable(selectID));
@@ -792,7 +907,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
                         for (unsigned int jj=0;jj<poly3f.size();jj++)
                         {
                             Point3f &pt = poly3f[jj];
-                            poly.push_back(Point3d(pt.x(),pt.y(),pt.z()));
+                            poly.push_back(Point3d(pt.x()+sel.centerPt.x(),pt.y()+sel.centerPt.y(),pt.z()+sel.centerPt.z()));
                         }
                         
                         std::vector<Point2f> screenPts;
@@ -818,7 +933,68 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
 
                     if (closeDist2 < maxDist2)
                     {
-                        float dist3d = (Point3d(sel.midPt.x(),sel.midPt.y(),sel.midPt.z()) - eyePos).norm();
+                        float dist3d = (sel.centerPt - eyePos).norm();
+                        SelectedObject selObj(sel.selectID,dist3d,sqrtf(closeDist2));
+                        selObjs.push_back(selObj);
+                    }
+                }
+            }
+        }
+    }
+    
+    if (!movingPolytopeSelectables.empty())
+    {
+        // Work through the axis aligned rectangular solids
+        for (MovingPolytopeSelectableSet::iterator it = movingPolytopeSelectables.begin();
+             it != movingPolytopeSelectables.end(); ++it)
+        {
+            MovingPolytopeSelectable sel = *it;
+            if (sel.selectID != EmptyIdentity && sel.enable)
+            {
+                if (sel.minVis == DrawVisibleInvalid ||
+                    (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
+                {
+                    // Current center
+                    double t = (now-sel.startTime)/sel.duration;
+                    Point3d centerPt = (sel.endCenterPt - sel.centerPt)*t + sel.centerPt;
+                    
+                    float closeDist2 = MAXFLOAT;
+                    // Project each plane to the screen, including clipping
+                    for (unsigned int ii=0;ii<sel.polys.size();ii++)
+                    {
+                        std::vector<Point3f> &poly3f = sel.polys[ii];
+                        std::vector<Point3d> poly;
+                        poly.reserve(poly3f.size());
+                        for (unsigned int jj=0;jj<poly3f.size();jj++)
+                        {
+                            Point3f &pt = poly3f[jj];
+                            poly.push_back(Point3d(pt.x()+centerPt.x(),pt.y()+centerPt.y(),pt.z()+centerPt.z()));
+                        }
+                        
+                        std::vector<Point2f> screenPts;
+                        ClipAndProjectPolygon(pInfo.viewAndModelMat,pInfo.projMat,pInfo.frameSizeScale,poly,screenPts);
+                        
+                        if (screenPts.size() > 3)
+                        {
+                            if (PointInPolygon(touchPt, screenPts))
+                            {
+                                closeDist2 = 0.0;
+                                break;
+                            }
+                            
+                            for (unsigned int jj=0;jj<screenPts.size();jj++)
+                            {
+                                float t;
+                                Point2f closePt = ClosestPointOnLineSegment(screenPts[jj],screenPts[(jj+1)%4],touchPt,t);
+                                float dist2 = (closePt-touchPt).squaredNorm();
+                                closeDist2 = std::min(dist2,closeDist2);
+                            }
+                        }
+                    }
+                    
+                    if (closeDist2 < maxDist2)
+                    {
+                        float dist3d = (centerPt - eyePos).norm();
                         SelectedObject selObj(sel.selectID,dist3d,sqrtf(closeDist2));
                         selObjs.push_back(selObj);
                     }

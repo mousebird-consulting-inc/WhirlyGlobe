@@ -21,12 +21,14 @@
 #import <set>
 #import "MaplyGeomModel_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
+#import "MaplyShape_private.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
 
 @implementation MaplyGeomModel
 {
+    MaplyShape *shape;
     __weak MaplyBaseInteractionLayer *layer;
     WhirlyKit::SimpleIdentity baseModelID;    
 }
@@ -46,6 +48,16 @@ using namespace Eigen;
         return nil;
     
     objModel.toRawGeometry(textures,rawGeom);
+    
+    return self;
+}
+
+- (id)initWithShape:(MaplyShape *)inShape;
+{
+    self = [super init];
+    
+    shape = inShape;
+    // Note: Not supporting the linears at the moment
     
     return self;
 }
@@ -85,31 +97,49 @@ using namespace Eigen;
         ChangeSet changes;
         layer = inLayer;
         
-        // Add the textures
-        std::vector<std::string> texFileNames;
-        [self getTextureFileNames:texFileNames];
-        std::vector<SimpleIdentity> texIDMap(texFileNames.size());
-        int whichTex = 0;
-        for (const std::string &texFileName : texFileNames)
+        if (shape)
         {
-            MaplyTexture *tex = [layer addImage:[UIImage imageNamed:[NSString stringWithFormat:@"%s",texFileName.c_str()]] imageFormat:MaplyImage4Layer8Bit mode:threadMode];
-            if (tex)
+            ShapeManager *shapeManager = (ShapeManager *)layer->scene->getManager(kWKShapeManager);
+
+            WhirlyKitShape *wkShape = nil;
+            if ([shape isKindOfClass:[MaplyShapeCircle class]])
+                wkShape = [(MaplyShapeCircle *)shape asWKShape:nil];
+            else if ([shape isKindOfClass:[MaplyShapeSphere class]])
+                wkShape = [(MaplyShapeSphere *)shape asWKShape:nil];
+            else if ([shape isKindOfClass:[MaplyShapeCylinder class]])
+                wkShape = [(MaplyShapeCylinder *)shape asWKShape:nil];
+            else if ([shape isKindOfClass:[MaplyShapeExtruded class]])
+                wkShape = [(MaplyShapeExtruded *)shape asWKShape:nil];
+            
+            if (wkShape)
+                shapeManager->convertShape(wkShape,rawGeom);
+        } else {
+            // Add the textures
+            std::vector<std::string> texFileNames;
+            [self getTextureFileNames:texFileNames];
+            std::vector<SimpleIdentity> texIDMap(texFileNames.size());
+            int whichTex = 0;
+            for (const std::string &texFileName : texFileNames)
             {
-                maplyTextures.insert(tex);
-                texIDMap[whichTex] = tex.texID;
-            } else {
-                texIDMap[whichTex] = EmptyIdentity;
+                MaplyTexture *tex = [layer addImage:[UIImage imageNamed:[NSString stringWithFormat:@"%s",texFileName.c_str()]] imageFormat:MaplyImage4Layer8Bit mode:threadMode];
+                if (tex)
+                {
+                    maplyTextures.insert(tex);
+                    texIDMap[whichTex] = tex.texID;
+                } else {
+                    texIDMap[whichTex] = EmptyIdentity;
+                }
+                whichTex++;
             }
-            whichTex++;
+            
+            // Convert the geometry and map the texture IDs
+            std::vector<WhirlyKit::GeometryRaw> theRawGeom;
+            [self asRawGeometry:theRawGeom withTexMapping:texIDMap];
         }
-        
-        // Convert the geometry and map the texture IDs
-        std::vector<WhirlyKit::GeometryRaw> theRawGeom;
-        [self asRawGeometry:theRawGeom withTexMapping:texIDMap];
         
         GeometryManager *geomManager = (GeometryManager *)layer->scene->getManager(kWKGeometryManager);
         baseModelID = geomManager->addBaseGeometry(rawGeom, changes);
-        
+
         // Need to flush these changes immediately
         layer->scene->addChangeRequests(changes);
         
