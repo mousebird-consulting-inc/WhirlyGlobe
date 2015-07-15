@@ -109,6 +109,11 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 - (void)clearLights;
 
+/** @brief Reset the lighting back to its default state at startup.
+    @details This clears out all the lights and adds in the default starting light source.
+ */
+- (void)resetLights;
+
 /** @brief Add the given light to the list of active lights.
     @details This method will add the given light to our active lights.  Most shaders will recognize these lights and do the calculations.  If you have a custom shader in place, it may or may not use these.
     @details Triangle shaders use the lights, but line shaders do not.
