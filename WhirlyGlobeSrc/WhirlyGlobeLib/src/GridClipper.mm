@@ -29,7 +29,7 @@ using namespace ClipperLib;
 static float PolyScale = 1e14;
 
 // Clip the given loop to the given MBR
-bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr, const bool closed,std::vector<VectorRing> &rets)
+bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr, bool closed,std::vector<VectorRing> &rets)
 {
     Path subject(ring.size());
     for (unsigned int ii=0;ii<ring.size();ii++)

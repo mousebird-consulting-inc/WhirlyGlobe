@@ -68,4 +68,7 @@ float PolygonArea(const std::vector<Point3f> &poly,const Point3f &norm);
 /// Return the area of the 3D polygon
 double PolygonArea(const std::vector<Point3d> &poly,const Point3d &norm);
     
+/// Return the Barycentric coordinates for the given point within the given triangle
+void BarycentricCoords(const Point2d &p,const Point2d &a,const Point2d &b,const Point2d &c,double &u,double &v,double &w);
+    
 }

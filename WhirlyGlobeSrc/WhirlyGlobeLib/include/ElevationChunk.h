@@ -30,6 +30,7 @@ using namespace WhirlyKit;
 /// Settings needed to turn elevation into drawables
 typedef struct
 {
+    Mbr parentMbr;
     Mbr theMbr;
     int xDim,yDim;
     bool coverPoles;

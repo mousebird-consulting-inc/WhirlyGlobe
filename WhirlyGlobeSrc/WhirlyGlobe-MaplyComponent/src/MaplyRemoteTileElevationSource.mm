@@ -417,11 +417,13 @@ using namespace WhirlyKit;
 
 - (NSURLRequest *)requestForTile:(MaplyTileID)tileID
 {
-    int y = ((int)(1<<tileID.level)-tileID.y)-1;
+//    int y = ((int)(1<<tileID.level)-tileID.y)-1;
+    int y = tileID.y;
     NSMutableURLRequest *urlReq = nil;
+    int level = tileID.level-1;
     
     // Fetch the traditional way
-    NSMutableString *fullURLStr = [NSMutableString stringWithFormat:@"%@%d/%d/%d.%@",self.baseURL,tileID.level,tileID.x,y,self.ext];
+    NSMutableString *fullURLStr = [NSMutableString stringWithFormat:@"%@%d/%d/%d.%@",self.baseURL,level,tileID.x,y,self.ext];
     if (self.queryStr)
         [fullURLStr appendFormat:@"?%@", self.queryStr];
 
@@ -431,8 +433,24 @@ using namespace WhirlyKit;
 
 	[urlReq setValue:@"application/vnd.quantized-mesh;extensions=octvertexnormals,application/octet-stream;q=0.9" forHTTPHeaderField:@"Accept"];
 	[urlReq setValue:@"gzip, deflate" forHTTPHeaderField:@"Accept-Encoding"];
-
+    
     return urlReq;
+}
+
+@end
+
+@implementation MaplyCesiumCoordSystem
+
+- (MaplyCesiumCoordSystem *)init
+{
+    MaplyBoundingBox bbox;
+    bbox.ll.x = -M_PI;
+    bbox.ll.y = -M_PI/2.0;
+    bbox.ur.x = M_PI;
+    bbox.ur.y = 3.0/2.0 * M_PI;
+    self = [super initWithBoundingBox:bbox];
+    
+    return self;
 }
 
 @end
