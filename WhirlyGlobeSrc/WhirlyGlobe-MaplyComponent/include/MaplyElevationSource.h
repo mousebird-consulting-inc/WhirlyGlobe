@@ -68,6 +68,9 @@
  */
 - (id)initWithCesiumData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY;
 
+/// @brief If set, this cales the elevation
+@property (nonatomic) float scale;
+
 @end
 
 /** @brief Elevation Source Delegate provides elevation data

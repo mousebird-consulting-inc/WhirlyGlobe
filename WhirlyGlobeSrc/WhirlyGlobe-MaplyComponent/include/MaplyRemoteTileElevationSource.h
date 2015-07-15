@@ -120,6 +120,10 @@
 
 
 @interface MaplyRemoteTileElevationCesiumSource : MaplyRemoteTileElevationSource
+
+/// @detail Multiply the Z values by this amount
+@property (nonatomic) float scale;
+
 @end
 
 @interface MaplyRemoteTileElevationCesiumInfo : MaplyRemoteTileElevationInfo
