@@ -68,12 +68,29 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     return [self imageForTile:tileID frame:-1];
 }
 
+// Make sure this tile exists in the real world
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+{
+    int numTiles = 1<<tileID.level;
+    double tileSizeX = (bbox->ur.x-bbox->ll.x)/numTiles;
+    double tileSizeY = (bbox->ur.y-bbox->ll.y)/numTiles;
+    double midX = tileSizeX*(tileID.x+0.5) + bbox->ll.x;
+    double midY = tileSizeY*(tileID.y+0.5) + bbox->ll.y;
+    
+    if (midX < -M_PI || midX > M_PI)
+        return false;
+    if (midY < -M_PI/2.0 || midY > M_PI/2.0)
+        return false;
+    
+    return true;
+}
+
 - (MaplyImageTile *)imageForTile:(MaplyTileID)tileID frame:(int)frame
 {
     NSMutableArray *images = [NSMutableArray array];
     
     // Slow down for testing
-    usleep(0.05);
+//    usleep(0.05);
     
 //    NSLog(@"Loading tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
     
@@ -97,8 +114,9 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
         {
             backColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
             fillColor = [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
-        } else
-            backColor = [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
+        } else {
+            backColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        }
         CGContextRef ctx = UIGraphicsGetCurrentContext();
 
         // Draw a rectangle around the edges for testing
