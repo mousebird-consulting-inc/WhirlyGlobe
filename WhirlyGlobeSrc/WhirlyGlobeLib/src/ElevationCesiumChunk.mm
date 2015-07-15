@@ -22,6 +22,8 @@
 #import "ElevationCesiumFormat.h"
 #import "oct.h"
 #import "WhirlyOctEncoding.h"
+#import "GridClipper.h"
+#import "Tesselator.h"
 
 using namespace WhirlyKit;
 
@@ -241,7 +243,7 @@ static inline Point3f canonical_oct_decode(uint8_t x, uint8_t y)
 
 				_normals.reserve(vertexCount);
 
-				for (int i = 0; i < vertexCount; )
+				for (int i = 0; i < 2*vertexCount; )
 				{
 					//TODO(JM) official implementation produces different values than Cesium's one
 					// Which is the good one?
@@ -310,11 +312,11 @@ static inline Point3f canonical_oct_decode(uint8_t x, uint8_t y)
 - (void)generateDrawables:(WhirlyKitElevationDrawInfo *)drawInfo chunk:(BasicDrawable **)draw skirts:(BasicDrawable **)skirtDraw
 {
     // Size of each chunk
-    Point2f chunkSize = drawInfo->theMbr.ur() - drawInfo->theMbr.ll();
+    Point2f chunkSize = drawInfo->parentMbr.ur() - drawInfo->parentMbr.ll();
     
     // We need the corners in geographic for the cullable
-    Point2d chunkLL(drawInfo->theMbr.ll().x(),drawInfo->theMbr.ll().y());
-    Point2d chunkUR(drawInfo->theMbr.ur().x(),drawInfo->theMbr.ur().y());
+    Point2d chunkLL(drawInfo->parentMbr.ll().x(),drawInfo->parentMbr.ll().y());
+    Point2d chunkUR(drawInfo->parentMbr.ur().x(),drawInfo->parentMbr.ur().y());
     //    Point2d chunkMid = (chunkLL+chunkUR)/2.0;
     CoordSystem *sceneCoordSys = drawInfo->coordAdapter->getCoordSystem();
     GeoCoord geoLL(drawInfo->coordSys->localToGeographic(Point3d(chunkLL.x(),chunkLL.y(),0.0)));
@@ -354,24 +356,125 @@ static inline Point3f canonical_oct_decode(uint8_t x, uint8_t y)
     {
         // Convert the point to display space
         const Point3f &pt = _mesh->pts[ip];
-        Point3d loc3d(chunkLL.x()+pt.x()/_sizeX * chunkSize.x(),chunkLL.y()+pt.y()/_sizeY * chunkSize.y(),pt.z()*100);
+        Point3d loc3d(chunkLL.x()+pt.x()/_sizeX * chunkSize.x(),chunkLL.y()+pt.y()/_sizeY * chunkSize.y(),pt.z());
         Point3d disp3d = drawInfo->coordAdapter->localToDisplay(CoordSystemConvert3d(drawInfo->coordSys,sceneCoordSys,loc3d));
+        Point3d normUp = drawInfo->coordAdapter->normalForLocal(loc3d);
+        
+        // Need some axes to reproject the normal
+        Point3d east = Point3d(0,0,1).cross(normUp);
+        Point3d north = normUp.cross(east);
         
         // Texture runs across the tile [0,1]
         TexCoord texCoord(texIncr.x()*pt.x()*drawInfo->texScale.x()+drawInfo->texOffset.x(),1.0-(texIncr.y()*pt.y()*drawInfo->texScale.y()+drawInfo->texOffset.y()));
         
         chunk->addPoint(disp3d);
+        if (ip < _normals.size())
+        {
+            const Point3f &inNorm = _normals[ip];
+            Point3d adjNorm = east * inNorm.x() + north * inNorm.y() + normUp * inNorm.z();
+            adjNorm.normalize();
+            chunk->addNormal(adjNorm);
+        }
         chunk->addTexCoord(-1, texCoord);
         if (elevEntry != 0)
             chunk->addAttributeValue(elevEntry, pt.z());
-        // Note: Do normal
     }
-    
-    // Work through the triangles
-    for (unsigned int it=0;it<_mesh->tris.size();it++)
+
+    // This is the parent tile, so all the triangles
+    if (drawInfo->texScale.x() == 1.0)
     {
-        auto &tri = _mesh->tris[it];
-        chunk->addTriangle(BasicDrawable::Triangle(tri.pts[0],tri.pts[1],tri.pts[2]));
+        for (unsigned int it=0;it<_mesh->tris.size();it++)
+        {
+            auto &tri = _mesh->tris[it];
+            chunk->addTriangle(BasicDrawable::Triangle(tri.pts[0],tri.pts[1],tri.pts[2]));
+        }
+    } else {
+        Mbr mbr;
+        mbr.ll().x() = _sizeX * drawInfo->texOffset.x();
+        mbr.ll().y() = _sizeY * drawInfo->texOffset.y();
+        mbr.ur().x() = mbr.ll().x() + drawInfo->texScale.x() * _sizeX;
+        mbr.ur().y() = mbr.ll().y() + drawInfo->texScale.y() * _sizeY;
+        
+        // Just include the triangles that overlap our section
+        for (unsigned int it=0;it<_mesh->tris.size();it++)
+        {
+            auto &tri = _mesh->tris[it];
+            Mbr triMbr;
+            
+            Point3f pts[3];
+            Point3f norms[3];
+            for (unsigned int ip=0;ip<3;ip++)
+            {
+                const Point3f &pt = _mesh->pts[tri.pts[ip]];
+                triMbr.addPoint(Point2f(pt.x(),pt.y()));
+                pts[ip] = pt;
+
+                norms[ip] = _normals[tri.pts[ip]];
+            }
+            
+            if (mbr.overlaps(triMbr))
+            {
+                // Just include the triangle as is
+                if (mbr.contained(triMbr))
+                    chunk->addTriangle(BasicDrawable::Triangle(tri.pts[0],tri.pts[1],tri.pts[2]));
+                else {
+                    // We need to clip it
+                    VectorRing inPts;
+                    std::vector<VectorRing> outLoops;
+                    for (unsigned int ip=0;ip<3;ip++)
+                    {
+                        const Point3f &pt = pts[ip];
+                        inPts.push_back(Point2f(pt.x(),pt.y()));
+                    }
+                    if (ClipLoopToMbr(inPts,mbr,true,outLoops))
+                    {
+                        // Work through the resulting loops
+                        for (const VectorRing &loop : outLoops)
+                        {
+                            VectorTrianglesRef tris = VectorTriangles::createTriangles();
+                            TesselateRing(loop,tris);
+                            
+                            int basePoint = chunk->getNumPoints();
+                            for (const Point3f &pt : tris->pts)
+                            {
+                                // Calculate z for the point
+                                double u,v,w;
+                                BarycentricCoords(Point2d(pt.x(),pt.y()), Point2d(pts[0].x(),pts[0].y()), Point2d(pts[1].x(),pts[1].y()), Point2d(pts[2].x(),pts[2].y()), u, v, w);
+                                double newZ = u*pts[0].z() + v*pts[1].z() + w*pts[2].z();
+                                
+                                // Reproject the point
+                                Point3d loc3d(chunkLL.x()+pt.x()/_sizeX * chunkSize.x(),chunkLL.y()+pt.y()/_sizeY * chunkSize.y(),newZ);
+                                Point3d disp3d = drawInfo->coordAdapter->localToDisplay(CoordSystemConvert3d(drawInfo->coordSys,sceneCoordSys,loc3d));
+                                Point3d normUp = drawInfo->coordAdapter->normalForLocal(loc3d);
+                                
+                                // Calculate a normal for the point
+                                Point3f iNorm = u*norms[0] + v*norms[1] + w*norms[2];
+
+                                // Need some axes to reproject the normal
+                                Point3d east = Point3d(0,0,1).cross(normUp);
+                                Point3d north = normUp.cross(east);
+                                Point3d adjNorm = east * iNorm.x() + north * iNorm.y() + normUp * iNorm.z();
+                                adjNorm.normalize();
+
+                                // Texture runs across the tile [0,1]
+                                TexCoord texCoord(texIncr.x()*pt.x()*drawInfo->texScale.x()+drawInfo->texOffset.x(),1.0-(texIncr.y()*pt.y()*drawInfo->texScale.y()+drawInfo->texOffset.y()));
+                                
+                                chunk->addPoint(disp3d);
+                                // Note: Should interpolate normal
+                                chunk->addNormal(adjNorm);
+                                chunk->addTexCoord(-1, texCoord);
+                                // Note: Need to interpolate Z
+                                //                            if (elevEntry != 0)
+                                //                                chunk->addAttributeValue(elevEntry, pt.z());
+                            }
+                            
+                            for (const VectorTriangles::Triangle &tri : tris->tris)
+                                chunk->addTriangle(BasicDrawable::Triangle(tri.pts[0]+basePoint,tri.pts[2]+basePoint,tri.pts[1]+basePoint));
+                        }
+                    }
+                }
+            }
+        }
     }
     
     *draw = chunk;

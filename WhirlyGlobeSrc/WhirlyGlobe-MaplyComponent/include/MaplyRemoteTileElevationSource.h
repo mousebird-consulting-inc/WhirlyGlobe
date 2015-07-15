@@ -104,8 +104,7 @@
 
 - (MaplyElevationChunk *)decodeElevationData:(NSData *)data;
 
-
-@property (nonatomic,readonly) MaplyRemoteTileElevationInfo *tileInfo;
+@property (nonatomic,strong) MaplyRemoteTileElevationInfo *tileInfo;
 
 @property (nonatomic,weak) NSObject<MaplyRemoteTileElevationSourceDelegate> *delegate;
 
@@ -125,4 +124,11 @@
 
 @interface MaplyRemoteTileElevationCesiumInfo : MaplyRemoteTileElevationInfo
 @end
+
+/** @details The Cesium terrain server uses an odd tiling system with two top level nodes.
+ */
+@interface MaplyCesiumCoordSystem : MaplyPlateCarree
+
+@end
+
 

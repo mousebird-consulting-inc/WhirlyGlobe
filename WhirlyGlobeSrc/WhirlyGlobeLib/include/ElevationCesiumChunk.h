@@ -24,7 +24,7 @@
 
 using namespace std;
 
-/** An elevation chunk that understands Cesium's terrainf format.
+/** @details An elevation chunk that understands Cesium's terrainf format.
     This converts Cesium data into a form we can interpolate or display.
   */
 @interface WhirlyKitElevationCesiumChunk : NSObject<WhirlyKitElevationChunk>
@@ -44,6 +44,6 @@ using namespace std;
 @property (nonatomic, readonly) vector<unsigned int> &eastVertices;
 @property (nonatomic, readonly) vector<unsigned int> &northVertices;
 
-@property (nonatomic, readonly) vector<Point3f> normals;
+@property (nonatomic, readonly) vector<Point3f> &normals;
 
 @end

@@ -70,6 +70,9 @@ typedef boost::shared_ptr<VectorTriangles> VectorTrianglesRef;
 
 /// Vector Ring is just a vector of 2D points
 typedef std::vector<Point2f> VectorRing;
+    
+/// Vector Ring of 3D doubles
+typedef std::vector<Point3d> VectorRing3d;
 
 /// Comparison function for the vector shape.
 /// This is here to ensure we don't put in the same pointer twice
