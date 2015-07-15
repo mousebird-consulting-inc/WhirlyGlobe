@@ -277,16 +277,21 @@ static const int BaseEarthPriority = 10;
         [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
     }
     
+    NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
+    
     // For elevation mode, we need to do some other stuff
     if (startupMapType == MaplyGlobeWithElevation)
     {
         // Tilt, so we can see it
         if (globeViewC)
-            [globeViewC setTiltMinHeight:0.001 maxHeight:0.04 minTilt:1.21771169 maxTilt:0.0];
+            [globeViewC setTiltMinHeight:0.001 maxHeight:0.04 minTilt:1.40 maxTilt:0.0];
         globeViewC.frameInterval = 2;  // 30fps
 
         // Cesium as an elevation source
-        elevSource = [[MaplyRemoteTileElevationCesiumSource alloc] initWithBaseURL:@"http://cesiumjs.org/stk-terrain/tilesets/world/tiles/" ext:@"terrain" minZoom:0 maxZoom:22];
+        MaplyRemoteTileElevationCesiumSource *cesiumElev = [[MaplyRemoteTileElevationCesiumSource alloc] initWithBaseURL:@"http://cesiumjs.org/stk-terrain/tilesets/world/tiles/" ext:@"terrain" minZoom:0 maxZoom:16];
+        elevSource = cesiumElev;
+        cesiumElev.cacheDir = [NSString stringWithFormat:@"%@/cesiumElev/",cacheDir];
+
         baseViewC.elevDelegate = elevSource;
         zoomLimit = 22;
         requireElev = true;
@@ -297,6 +302,26 @@ static const int BaseEarthPriority = 10;
         
         // Turn off most of the options for globe mode
         configViewC.configOptions = ConfigOptionsTerrain;
+        
+        // Set up their odd tiling system
+        MaplyCesiumCoordSystem *cesiumCoordSys = [[MaplyCesiumCoordSystem alloc] init];
+        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:cesiumCoordSys minZoom:1 maxZoom:16 depth:1];
+        tileSource.pixelsPerSide = 128;
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+        layer.requireElev = true;
+        layer.maxTiles = 256;
+        layer.handleEdges = true;
+        layer.numSimultaneousFetches = 16;
+        [baseViewC addLayer:layer];
+        layer.drawPriority = BaseEarthPriority;
+        baseLayer = layer;
+        
+//        // Start up over Everest
+//        mapViewC.height = 1.0;
+//        [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(86.925278, 27.988056) time:1.0];
+        
+        [self addSun];
+        [self addStars:@"starcatalog_short"];
     }
     
     // Force the view to load so we can get the default switch values
@@ -1032,8 +1057,8 @@ static const float EarthRadius = 6371000;
     
     // And some atmosphere, because the iDevice fill rate is just too fast
     // Note: Debugging
-    atmosObj = [[MaplyAtmosphere alloc] initWithViewC:globeViewC];
-    [atmosObj setSunDirection:[sun getDirection]];
+//    atmosObj = [[MaplyAtmosphere alloc] initWithViewC:globeViewC];
+//    [atmosObj setSunDirection:[sun getDirection]];
 }
 
 // Number of unique images to use for the mega markers
@@ -1107,6 +1132,10 @@ static const int NumMegaMarkers = 15000;
 // Also tear down an old one
 - (void)setupBaseLayer:(NSDictionary *)baseSettings
 {
+    // No fancy base layers for globe elevation
+    if (startupMapType == MaplyGlobeWithElevation)
+        return;
+    
     // Figure out which one we're supposed to display
     NSString *newBaseLayerName = nil;
     for (NSString *key in [baseSettings allKeys])
