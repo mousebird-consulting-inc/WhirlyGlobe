@@ -407,7 +407,11 @@ using namespace WhirlyKit;
 
 - (MaplyElevationChunk *)decodeElevationData:(NSData *)data
 {
-	return [[MaplyElevationCesiumChunk alloc] initWithCesiumData:data sizeX:self.tileInfo.pixelsPerSide sizeY:self.tileInfo.pixelsPerSide];
+	MaplyElevationCesiumChunk *elevChunk = [[MaplyElevationCesiumChunk alloc] initWithCesiumData:data sizeX:self.tileInfo.pixelsPerSide sizeY:self.tileInfo.pixelsPerSide];
+    if (_scale > 0.0 && elevChunk)
+        elevChunk.scale = _scale;
+    
+    return elevChunk;
 }
 
 @end

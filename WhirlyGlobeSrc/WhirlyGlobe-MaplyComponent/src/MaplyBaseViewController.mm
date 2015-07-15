@@ -143,26 +143,7 @@ using namespace WhirlyKit;
     if (![sceneRenderer isKindOfClass:[WhirlyKitSceneRendererES2 class]])
         return;
     
-    NSString *lightingType = hints[kWGRendererLightingMode];
-    int lightingRegular = true;
-    if ([lightingType respondsToSelector:@selector(compare:)])
-        lightingRegular = [lightingType compare:@"none"];
-    
-    // Regular lighting is on by default
-    if (!lightingRegular)
-    {
-        SimpleIdentity triNoLighting = scene->getProgramIDByName(kToolkitDefaultTriangleNoLightingProgram);
-        if (triNoLighting != EmptyIdentity)
-            scene->setSceneProgram(kSceneDefaultTriShader, triNoLighting);
-    } else {
-        // Add a default light
-        MaplyLight *light = [[MaplyLight alloc] init];
-        light.pos = MaplyCoordinate3dMake(0.75, 0.5, -1.0);
-        light.ambient = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
-        light.diffuse = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:1.0];
-        light.viewDependent = false;
-        [self addLight:light];
-    }
+    [self resetLights];
 }
 
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer
@@ -437,6 +418,32 @@ static const float PerfOutputDelay = 15.0;
 {
     lights = nil;
     [self updateLights];
+}
+
+- (void)resetLights
+{
+    [self clearLights];
+
+    NSString *lightingType = hints[kWGRendererLightingMode];
+    int lightingRegular = true;
+    if ([lightingType respondsToSelector:@selector(compare:)])
+        lightingRegular = [lightingType compare:@"none"];
+    
+    // Regular lighting is on by default
+    if (!lightingRegular)
+    {
+        SimpleIdentity triNoLighting = scene->getProgramIDByName(kToolkitDefaultTriangleNoLightingProgram);
+        if (triNoLighting != EmptyIdentity)
+            scene->setSceneProgram(kSceneDefaultTriShader, triNoLighting);
+    } else {
+        // Add a default light
+        MaplyLight *light = [[MaplyLight alloc] init];
+        light.pos = MaplyCoordinate3dMake(0.75, 0.5, -1.0);
+        light.ambient = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
+        light.diffuse = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:1.0];
+        light.viewDependent = false;
+        [self addLight:light];
+    }
 }
 
 - (void)addLight:(MaplyLight *)light
