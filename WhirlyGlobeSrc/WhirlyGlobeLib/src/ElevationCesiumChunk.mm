@@ -81,9 +81,15 @@ static inline Point3f canonical_oct_decode(uint8_t x, uint8_t y)
 		_sizeY = sizeY;
 
 		[self readData:(uint8_t *) [data bytes] length:[data length]];
+        _scale = 1.0;
 	}
 
 	return self;
+}
+
+- (void)setScale:(float)scale
+{
+    _scale = scale;
 }
 
 - (void)readData:(uint8_t *)data length:(size_t)length
@@ -356,7 +362,7 @@ static inline Point3f canonical_oct_decode(uint8_t x, uint8_t y)
     {
         // Convert the point to display space
         const Point3f &pt = _mesh->pts[ip];
-        Point3d loc3d(chunkLL.x()+pt.x()/_sizeX * chunkSize.x(),chunkLL.y()+pt.y()/_sizeY * chunkSize.y(),pt.z());
+        Point3d loc3d(chunkLL.x()+pt.x()/_sizeX * chunkSize.x(),chunkLL.y()+pt.y()/_sizeY * chunkSize.y(),pt.z()*_scale);
         Point3d disp3d = drawInfo->coordAdapter->localToDisplay(CoordSystemConvert3d(drawInfo->coordSys,sceneCoordSys,loc3d));
         Point3d normUp = drawInfo->coordAdapter->normalForLocal(loc3d);
         
@@ -443,7 +449,7 @@ static inline Point3f canonical_oct_decode(uint8_t x, uint8_t y)
                                 double newZ = u*pts[0].z() + v*pts[1].z() + w*pts[2].z();
                                 
                                 // Reproject the point
-                                Point3d loc3d(chunkLL.x()+pt.x()/_sizeX * chunkSize.x(),chunkLL.y()+pt.y()/_sizeY * chunkSize.y(),newZ);
+                                Point3d loc3d(chunkLL.x()+pt.x()/_sizeX * chunkSize.x(),chunkLL.y()+pt.y()/_sizeY * chunkSize.y(),newZ*_scale);
                                 Point3d disp3d = drawInfo->coordAdapter->localToDisplay(CoordSystemConvert3d(drawInfo->coordSys,sceneCoordSys,loc3d));
                                 Point3d normUp = drawInfo->coordAdapter->normalForLocal(loc3d);
                                 

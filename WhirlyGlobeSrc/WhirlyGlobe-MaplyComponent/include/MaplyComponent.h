@@ -38,6 +38,7 @@
 #import <MaplyUpdateLayer.h>
 #import <MaplyQuadImageTilesLayer.h>
 #import <MaplyQuadImageOfflineLayer.h>
+#import <MaplyBlankTileSource.h>
 #import <MaplyTileSource.h>
 #import <MaplyWMSTileSource.h>
 #import <MaplyMBTileSource.h>
@@ -57,6 +58,7 @@
 #import <MaplySun.h>
 #import <MaplyAtmosphere.h>
 #import <MaplyMoon.h>
+#import <MaplyRemoteTileElevationSource.h>
 
 // These are not pulled in by the podspec
 #ifdef NOTPODSPECWG

@@ -49,6 +49,13 @@
     return self;
 }
 
+- (void)setScale:(float)scale
+{
+    _scale = scale;
+    if ([self.chunkImpl respondsToSelector:@selector(setScale:)])
+        [(WhirlyKitElevationCesiumChunk *)self.chunkImpl setScale:scale];
+}
+
 @end
 
 @implementation MaplyElevationSourceTester

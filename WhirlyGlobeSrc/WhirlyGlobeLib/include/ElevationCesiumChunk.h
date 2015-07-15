@@ -37,6 +37,9 @@ using namespace std;
 /// Tile size in Y
 @property (nonatomic,readonly) int sizeY;
 
+/// Amount ot scale Z by
+@property (nonatomic) float scale;
+
 @property (nonatomic, readonly) VectorTrianglesRef mesh;
 
 @property (nonatomic, readonly) vector<unsigned int> &westVertices;

@@ -47,6 +47,8 @@
 		2B1B32061B0A6FDD00A37285 /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1B31FB1B0A6FDD00A37285 /* FMResultSet.m */; };
 		2B2E2FF816C4885800CAD143 /* MaplyShader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2E2FF616C4885800CAD143 /* MaplyShader.h */; };
 		2B2E2FFC16C4886800CAD143 /* MaplyShader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E2FFB16C4886800CAD143 /* MaplyShader.mm */; };
+		2B2FEBB41B571DAA00A332BF /* MaplyBlankTileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2FEBB31B571DAA00A332BF /* MaplyBlankTileSource.h */; };
+		2B2FEBB71B571DB500A332BF /* MaplyBlankTileSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B2FEBB61B571DB500A332BF /* MaplyBlankTileSource.m */; };
 		2B37059916B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B37059716B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup.h */; };
 		2B37059A16B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B37059816B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup_private.h */; };
 		2B37059E16B1E6110096C970 /* MaplySphericalQuadEarthWithTexGroup.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B37059D16B1E6110096C970 /* MaplySphericalQuadEarthWithTexGroup.mm */; };
@@ -376,6 +378,8 @@
 		2B1B31FB1B0A6FDD00A37285 /* FMResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FMResultSet.m; path = "../../third-party/fmdb/src/fmdb/FMResultSet.m"; sourceTree = "<group>"; };
 		2B2E2FF616C4885800CAD143 /* MaplyShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyShader.h; path = include/MaplyShader.h; sourceTree = SOURCE_ROOT; };
 		2B2E2FFB16C4886800CAD143 /* MaplyShader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyShader.mm; path = src/MaplyShader.mm; sourceTree = SOURCE_ROOT; };
+		2B2FEBB31B571DAA00A332BF /* MaplyBlankTileSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyBlankTileSource.h; path = include/MaplyBlankTileSource.h; sourceTree = SOURCE_ROOT; };
+		2B2FEBB61B571DB500A332BF /* MaplyBlankTileSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MaplyBlankTileSource.m; path = src/MaplyBlankTileSource.m; sourceTree = SOURCE_ROOT; };
 		2B37059716B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplySphericalQuadEarthWithTexGroup.h; path = include/MaplySphericalQuadEarthWithTexGroup.h; sourceTree = SOURCE_ROOT; };
 		2B37059816B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplySphericalQuadEarthWithTexGroup_private.h; path = include/private/MaplySphericalQuadEarthWithTexGroup_private.h; sourceTree = SOURCE_ROOT; };
 		2B37059D16B1E6110096C970 /* MaplySphericalQuadEarthWithTexGroup.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplySphericalQuadEarthWithTexGroup.mm; path = src/MaplySphericalQuadEarthWithTexGroup.mm; sourceTree = SOURCE_ROOT; };
@@ -1065,6 +1069,8 @@
 		2BC988E117D791040071DA9E /* Tile Sources */ = {
 			isa = PBXGroup;
 			children = (
+				2B2FEBB31B571DAA00A332BF /* MaplyBlankTileSource.h */,
+				2B2FEBB61B571DB500A332BF /* MaplyBlankTileSource.m */,
 				2BEE7EEC1B3C743200B6E0B1 /* MaplyPagingElevationTestTileSource.h */,
 				2BEE7EEA1B3C73C900B6E0B1 /* MaplyPagingElevationTestTileSource.mm */,
 				2B7827EA19536937004E92EE /* MaplyPagingVectorTestTileSource.mm */,
@@ -1338,6 +1344,7 @@
 				881F66B218F20A8F00D17110 /* atomicops_internals_atomicword_compat.h in Headers */,
 				881F66B718F20A8F00D17110 /* atomicops_internals_x86_gcc.h in Headers */,
 				881F669518F20A8F00D17110 /* coded_stream.h in Headers */,
+				2B2FEBB41B571DAA00A332BF /* MaplyBlankTileSource.h in Headers */,
 				C765E3B4190ACA2900931775 /* NSDictionary+StyleRules.h in Headers */,
 				881F669918F20A8F00D17110 /* package_info.h in Headers */,
 				2BBEB83515CB2A2D00E363E7 /* MaplyVectorObject_private.h in Headers */,
@@ -1655,6 +1662,7 @@
 				2BD5A85D1B41FEC100DDAEE3 /* zero_copy_stream.cc in Sources */,
 				2BD5A8761B41FEF800DDAEE3 /* MaplyMapnikVectorTiles.mm in Sources */,
 				2BDC8A20191D994F00DFECF0 /* AFSecurityPolicy.m in Sources */,
+				2B2FEBB71B571DB500A332BF /* MaplyBlankTileSource.m in Sources */,
 				2BD5A8671B41FECF00DDAEE3 /* substitute.cc in Sources */,
 				2BC988ED17D794010071DA9E /* MaplyRemoteTileSource.mm in Sources */,
 				2BC988EE17D794010071DA9E /* MaplyMBTileSource.mm in Sources */,
