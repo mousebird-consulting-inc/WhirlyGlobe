@@ -278,6 +278,7 @@ TileBuilder::TileBuilder(CoordSystem *coordSys,Mbr mbr,WhirlyKit::Quadtree *quad
     lineMode(false),
     activeTextures(-1),
     enabled(true),
+    fade(1.0),
     texAtlas(NULL),
     newDrawables(false),
     singleLevel(false),
@@ -1326,6 +1327,23 @@ void LoadedTile::setEnable(TileBuilder *tileBuilder, bool enable, ChangeSet &the
         if (childSkirtDrawIds[ii] != EmptyIdentity)
             theChanges.push_back(new OnOffChangeRequest(childSkirtDrawIds[ii],enable));
     }
+}
+
+// Note: This does nothing
+void LoadedTile::setFade(TileBuilder *tileBuilder, float fade, ChangeSet &theChanges)
+{
+//    if (drawId != EmptyIdentity)
+//        theChanges.push_back(new FadeChangeRequest(drawId,fade));
+//    if (skirtDrawId != EmptyIdentity)
+//        theChanges.push_back(new FadeChangeRequest(skirtDrawId,fade));
+//    
+//    for (unsigned int ii=0;ii<4;ii++)
+//    {
+//        if (childDrawIds[ii] != EmptyIdentity)
+//            theChanges.push_back(new FadeChangeRequest(childDrawIds[ii],fade));
+//        if (childSkirtDrawIds[ii] != EmptyIdentity)
+//            theChanges.push_back(new FadeChangeRequest(childSkirtDrawIds[ii],fade));
+//    }
 }
 
 void LoadedTile::Print(TileBuilder *tileBuilder)

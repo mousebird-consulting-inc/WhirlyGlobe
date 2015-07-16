@@ -47,6 +47,9 @@ public:
     /// Enable/disable all the big drawables we're using
     void setEnableAllDrawables(bool enabled,ChangeSet &changes);
     
+    /// Change the fade for all big drawables
+    void setFadeAllDrawables(float newFade,ChangeSet &changes);
+    
     /// Change the draw priority of all the drawables we're using
     void setDrawPriorityAllDrawables(int drawPriority,ChangeSet &changes);
     
@@ -113,6 +116,7 @@ protected:
 
     bool hasChanges;
     bool enable;
+    float fade;
     BigDrawable *(*newBigDrawable)(BasicDrawable *draw,int singleElementSize,int numVertexBytes,int numElementBytes);
     SimpleIdentity shaderId;
     OpenGLMemManager *memManager;

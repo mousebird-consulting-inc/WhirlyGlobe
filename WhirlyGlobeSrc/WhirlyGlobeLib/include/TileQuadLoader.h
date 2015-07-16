@@ -186,4 +186,7 @@
 /// By default we're on, but we can be turned off
 - (void)setEnable:(bool)enable;
 
+/// By default this is 1.0, but it can be set interactively
+- (void)setFade:(float)fade;
+
 @end
