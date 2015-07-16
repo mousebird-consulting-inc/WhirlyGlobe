@@ -40,7 +40,7 @@ BigDrawable::Buffer::Buffer()
 
 BigDrawable::BigDrawable(const std::string &name,int singleVertexSize,const std::vector<VertexAttribute> &templateAttributes,int singleElementSize,int numVertexBytes,int numElementBytes)
     : Drawable(name), singleVertexSize(singleVertexSize), vertexAttributes(templateAttributes), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), drawPriority(0), requestZBuffer(false),
-    waitingOnSwap(false), programId(0), elementChunkSize(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minVisibleFadeBand(0.0), maxVisibleFadeBand(0.0), enable(true), center(0,0,0)
+    waitingOnSwap(false), programId(0), elementChunkSize(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minVisibleFadeBand(0.0), maxVisibleFadeBand(0.0), enable(true), center(0,0,0), fade(1.0)
 {
     activeBuffer = -1;
     
@@ -227,7 +227,7 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     if (!prog)
         return;
 
-    float fade = 1.0;
+    float theFade = fade;
 
     // Only range based fade on the big drawables
     if (frameInfo.heightAboveSurface > 0.0)
@@ -246,8 +246,12 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
                 factor = b;
         }
         
-        fade = fade * factor;
+        theFade = theFade * factor;
     }
+    
+    // If it's totally faded out, don't waste the rendering
+    if (theFade <= 0.0)
+        return;
 
     // Model/View/Projection matrix
     prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
@@ -265,7 +269,7 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     }
     
     // Fade is always mixed in
-    prog->setUniform("u_fade", fade);
+    prog->setUniform("u_fade", theFade);
     
     // Let the shaders know if we even have a texture
     prog->setUniform("u_hasTexture", !glTexIDs.empty());
@@ -756,6 +760,14 @@ void BigDrawableDrawPriorityChangeRequest::execute(Scene *scene,WhirlyKitSceneRe
     BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
     if (bigDraw)
         bigDraw->setDrawPriority(drawPriority);
+}
+    
+void BigDrawableFadeChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    DrawableRef draw = scene->getDrawable(drawID);
+    BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+    if (bigDraw)
+        bigDraw->setFade(fade);
 }
 
 void BigDrawableProgramIDChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
