@@ -330,6 +330,7 @@ void TileBuilder::initAtlases(WhirlyKitTileImageType imageType,int numImages,int
         imageDepth = numImages;
         texAtlas = new DynamicTextureAtlas(textureAtlasSize,texSortSize,glFormat,numImages);
         drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);
+        drawAtlas->setFade(fade);
         newDrawables = true;
     }
 }

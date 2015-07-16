@@ -38,6 +38,9 @@ public:
     /// Returns true on success.  Reference the drawable by its ID.
     bool addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled=true,std::vector<SimpleIdentity> *destTexIDs=NULL,bool *addedBigDrawable=NULL,const Point3d *center=NULL,double drawSize=0.0);
     
+    /// Set the fade (but not on the drawables)
+    void setFade(float inFade) { fade = inFade; }
+    
     /// Remove the data for a drawable by ID
     bool removeDrawable(SimpleIdentity drawId,ChangeSet &changes);
     
