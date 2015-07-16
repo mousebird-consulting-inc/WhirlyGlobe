@@ -61,6 +61,7 @@ public:
     /// Draw priority for ordering
     unsigned int getDrawPriority() const { return drawPriority; }
     void setDrawPriority(int newPriority) { drawPriority = newPriority; }
+    void setFade(float newFade) { fade = newFade; }
     
     /// Set all the texture info at once
     void setTexInfo(const std::vector<BasicDrawable::TexInfo> &newTexInfo) { texInfo = newTexInfo; }
@@ -147,6 +148,7 @@ protected:
     int drawPriority;
     bool requestZBuffer,writeZBuffer;
     Point3d center;
+    float fade;
     Eigen::Matrix4d transMat;
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
     
@@ -330,6 +332,20 @@ public:
 protected:
     SimpleIdentity drawId;
     int drawPriority;
+};
+    
+/// Change the fade on a big drawable
+class BigDrawableFadeChangeRequest : public ChangeRequest
+{
+public:
+    BigDrawableFadeChangeRequest(SimpleIdentity drawID,float fade) : drawID(drawID), fade(fade) { }
+
+    /// Run the command.  The renderer calls this
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+
+protected:
+    SimpleIdentity drawID;
+    float fade;
 };
 
 /// Change the draw priority of a big drawable
