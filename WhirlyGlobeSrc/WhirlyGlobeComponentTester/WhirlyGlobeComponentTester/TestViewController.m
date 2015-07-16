@@ -1503,6 +1503,17 @@ static const int NumMegaMarkers = 15000;
     }
 }
 
+// Fade testing
+- (void)quadImageFadeTest:(MaplyQuadImageTilesLayer *)layer
+{
+    if (layer)
+    {
+        layer.fade = drand48();
+        
+        [self performSelector:@selector(quadImageFadeTest:) withObject:layer afterDelay:2.0];
+    }
+}
+
 // Run through the overlays the user wants turned on
 - (void)setupOverlays:(NSDictionary *)baseSettings
 {
@@ -1555,6 +1566,8 @@ static const int NumMegaMarkers = 15000;
                 precipLayer.handleEdges = false;
                 precipLayer.coverPoles = false;
                 precipLayer.shaderProgramName = [WeatherShader setupWeatherShader:baseViewC];
+                // Note: Debugging
+                [self quadImageFadeTest:precipLayer];
                 [baseViewC addLayer:precipLayer];
                 layer = precipLayer;
                 ovlLayers[layerName] = layer;

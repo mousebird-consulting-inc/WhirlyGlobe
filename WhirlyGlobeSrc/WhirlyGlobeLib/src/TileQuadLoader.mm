@@ -38,6 +38,7 @@ using namespace WhirlyKit;
     TileBuilder *tileBuilder;
     int defaultTessX,defaultTessY;
     bool _enable;
+    float _fade;
     bool canLoadFrames;
 }
 
@@ -98,6 +99,7 @@ using namespace WhirlyKit;
         _activeTextures = -1;
         _borderTexel = 1;
         _enable = true;
+        _fade = 1.0;
         _useTileCenters = true;
         defaultTessX = defaultTessY = 10;
         canLoadFrames = [inDataSource respondsToSelector:@selector(quadTileLoader:startFetchForLevel:col:row:frame:attrs:)];
@@ -922,6 +924,57 @@ using namespace WhirlyKit;
         [self performSelector:@selector(runSetEnable:) onThread:_quadLayer.layerThread withObject:@(enable) waitUntilDone:NO];
     } else {
         [self runSetEnable:@(enable)];
+    }
+}
+
+- (void)runSetFade:(NSNumber *)newFade
+{
+    float fadeVal = [newFade floatValue];
+    if (fadeVal == _fade)
+        return;
+    
+    _fade = fadeVal;
+    
+    if (!_quadLayer)
+        return;
+    
+    ChangeSet theChanges;
+    if (_useDynamicAtlas)
+    {
+        if (tileBuilder)
+        {
+            tileBuilder->fade = _fade;
+            if (tileBuilder->drawAtlas)
+                tileBuilder->drawAtlas->setFadeAllDrawables(_fade, theChanges);
+        }
+    } else {
+        // We'll look through the tiles and change them all accordingly
+        pthread_mutex_lock(&tileLock);
+        
+        // No atlases, so changes tiles individually
+        for (LoadedTileSet::iterator it = tileSet.begin();
+             it != tileSet.end(); ++it)
+            (*it)->setFade(tileBuilder, _fade, theChanges);
+        
+        pthread_mutex_unlock(&tileLock);
+    }
+    
+    [_quadLayer.layerThread addChangeRequests:theChanges];
+}
+
+- (void)setFade:(float)fade
+{
+    if (!_quadLayer)
+    {
+        _fade = fade;
+        return;
+    }
+
+    if ([NSThread currentThread] != _quadLayer.layerThread)
+    {
+        [self performSelector:@selector(runSetFade:) onThread:_quadLayer.layerThread withObject:@(fade) waitUntilDone:NO];
+    } else {
+        [self runSetFade:@(fade)];
     }
 }
 

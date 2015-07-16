@@ -26,7 +26,7 @@ namespace WhirlyKit
     
 DynamicDrawableAtlas::DynamicDrawableAtlas(const std::string &name,int singleElementSize,int numVertexBytes,int numElementBytes,OpenGLMemManager *memManager,BigDrawable *(*newBigDrawable)(BasicDrawable *draw,int singleElementSize,int numVertexBytes,int numElementBytes),
                                            SimpleIdentity shaderId)
-    : name(name), singleVertexSize(0), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager), newBigDrawable(newBigDrawable), shaderId(shaderId), enable(true), hasChanges(false)
+    : name(name), singleVertexSize(0), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager), newBigDrawable(newBigDrawable), shaderId(shaderId), enable(true), hasChanges(false), fade(1.0)
 {
 }
     
@@ -134,6 +134,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
             newBigDraw->setCenter(*center);
         newBigDraw->setOnOff(this->enable);
         newBigDraw->setProgram(shaderId);
+        newBigDraw->setFade(fade);
 
         newBigDraw->setModes(draw);
         newBigDraw->setupGL(NULL, memManager);
@@ -210,13 +211,22 @@ void DynamicDrawableAtlas::setEnableAllDrawables(bool newEnable,ChangeSet &chang
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
         changes.push_back(new BigDrawableOnOffChangeRequest(it->bigDraw->getId(),enable));
 }
-    
-void DynamicDrawableAtlas::setDrawPriorityAllDrawables(int drawPriority,ChangeSet &changes)
+
+void DynamicDrawableAtlas::setDrawPriorityAllDrawables(int newDrawPriority, ChangeSet &changes)
 {
+    hasChanges = true;
+    
+    for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
+        changes.push_back(new BigDrawableDrawPriorityChangeRequest(it->bigDraw->getId(),newDrawPriority));
+}
+
+void DynamicDrawableAtlas::setFadeAllDrawables(float newFade,ChangeSet &changes)
+{
+    fade = newFade;
     hasChanges = true;
 
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
-        changes.push_back(new BigDrawableDrawPriorityChangeRequest(it->bigDraw->getId(),drawPriority));
+        changes.push_back(new BigDrawableFadeChangeRequest(it->bigDraw->getId(),newFade));
 }
     
 void DynamicDrawableAtlas::setProgramIDAllDrawables(SimpleIdentity programID,ChangeSet &changes)

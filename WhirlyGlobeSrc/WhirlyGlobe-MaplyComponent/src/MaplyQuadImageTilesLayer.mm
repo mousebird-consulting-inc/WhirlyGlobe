@@ -128,6 +128,7 @@ using namespace WhirlyKit;
     _singleLevelLoading = false;
     _viewUpdatePeriod = 0.1;
     _enable = true;
+    _fade = 1.0;
     _animationWrap = true;
     _maxCurrentImage = -1;
     _useElevAsZ = true;
@@ -264,6 +265,7 @@ using namespace WhirlyKit;
     tileLoader.useElevAsZ = (_viewC.elevDelegate != nil) && _useElevAsZ;
     tileLoader.textureAtlasSize = _texturAtlasSize;
     tileLoader.enable = _enable;
+    tileLoader.fade = _fade;
     tileLoader.borderTexel = _borderTexel;
     // Note: Still having problems with this
     tileLoader.useTileCenters = false;
@@ -519,6 +521,12 @@ using namespace WhirlyKit;
 {
     _enable = enable;
     tileLoader.enable = _enable;
+}
+
+- (void)setFade:(float)fade
+{
+    _fade = fade;
+    tileLoader.fade = _fade;
 }
 
 - (void)setHandleEdges:(bool)handleEdges

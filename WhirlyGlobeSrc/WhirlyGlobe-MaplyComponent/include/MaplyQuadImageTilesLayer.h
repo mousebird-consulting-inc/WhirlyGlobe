@@ -67,6 +67,11 @@ typedef enum {MaplyImageIntRGBA,
   */
 @property (nonatomic,assign) bool enable;
 
+/** @brief Set the fade for the whole layer.
+    @details By default this is 1.0.  The fade values can be changed while the layer is running.  It will blend the layer with the fade value when rendering.  A value of 0.0 will stop rendering the layer.
+  */
+@property (nonatomic,assign) float fade;
+
 /** @brief The number of simultaneous fetches the layer will attempt at once.
     @details The toolkit loves its dispatch queues and threads.  By default this number is set to 8 or 16, but if you need to constrain it, you can set it lower (or higher!).  If your tile source can't handle multi-thread access, set this to 1.
   */
