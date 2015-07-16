@@ -528,6 +528,7 @@ using namespace WhirlyKit;
         tileBuilder->borderTexel = _borderTexel;
         tileBuilder->singleLevel = !_quadLayer.targetLevels.empty();
         tileBuilder->enabled = _enable;
+        tileBuilder->fade = _fade;
 
         // If we haven't decided how many active textures we'll have, do that
         if (_activeTextures == -1)

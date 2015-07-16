@@ -1566,8 +1566,8 @@ static const int NumMegaMarkers = 15000;
                 precipLayer.handleEdges = false;
                 precipLayer.coverPoles = false;
                 precipLayer.shaderProgramName = [WeatherShader setupWeatherShader:baseViewC];
-                // Note: Debugging
-                [self quadImageFadeTest:precipLayer];
+                precipLayer.fade = 0.5;
+//                [self quadImageFadeTest:precipLayer];
                 [baseViewC addLayer:precipLayer];
                 layer = precipLayer;
                 ovlLayers[layerName] = layer;
