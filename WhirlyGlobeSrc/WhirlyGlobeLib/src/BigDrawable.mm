@@ -306,15 +306,18 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     {
         glGenVertexArraysOES(1,&theBuffer.vertexArrayObj);
         glBindVertexArrayOES(theBuffer.vertexArrayObj);
+        CheckGLError("BasicDrawable::drawVBO2() glBindVertexArrayOES");
 
         glBindBuffer(GL_ARRAY_BUFFER,theBuffer.vertexBufferId);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBuffer.elementBufferId);
+        CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
 
         // Vertex array
         if (vertAttr)
         {
             glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, singleVertexSize, 0);
             glEnableVertexAttribArray ( vertAttr->index );
+            CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
         }
         
         const OpenGLESAttribute *progAttrs[vertexAttributes.size()];
@@ -332,11 +335,13 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
                     progAttrs[ii] = progAttr;
                     glVertexAttribPointer(progAttr->index, attr.glEntryComponents(), attr.glType(), attr.glNormalize(), singleVertexSize, CALCBUFOFF(0, attr.buffer));
                     glEnableVertexAttribArray(progAttr->index);
+                    CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
                 }
             }
         }
         
         glBindVertexArrayOES(0);
+        CheckGLError("BasicDrawable::drawVBO2() glBindVertexArrayOES(0)");
         
         // Let a subclass set up their own VAO state
         setupAdditionalVAO(prog,theBuffer.vertexArrayObj);
@@ -350,6 +355,7 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
     }
     
     // For the program attributes that we're not filling in, we need to provide defaults
@@ -363,6 +369,7 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     
     // Draw it
     glBindVertexArrayOES(theBuffer.vertexArrayObj);
+    CheckGLError("BasicDrawable::drawVBO2() glBindVertexArrayOES");
     if (theBuffer.numElement != 0)
         glDrawElements(GL_TRIANGLES, theBuffer.numElement, GL_UNSIGNED_SHORT, 0);
     glBindVertexArrayOES(0);
