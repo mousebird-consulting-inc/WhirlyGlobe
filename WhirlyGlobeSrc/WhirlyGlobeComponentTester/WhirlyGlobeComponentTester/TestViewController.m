@@ -914,9 +914,10 @@ static const bool CountryTextures = true;
 - (void)addCountries:(NSArray *)names stride:(int)stride
 {
     MaplyTexture *smileTex = nil;
+    UIImage *smileImage = nil;
     if (CountryTextures)
     {
-        UIImage *smileImage = [UIImage imageNamed:@"Smiley_Face_Avatar_by_PixelTwist"];
+        smileImage = [UIImage imageNamed:@"Smiley_Face_Avatar_by_PixelTwist"];
         smileTex = [baseViewC addTexture:smileImage imageFormat:MaplyImageUShort5551 wrapFlags:MaplyImageWrapX|MaplyImageWrapY mode:MaplyThreadCurrent];
     }
 
@@ -934,6 +935,7 @@ static const bool CountryTextures = true;
                      NSString *fileName = [[NSBundle mainBundle] pathForResource:name ofType:@"geojson"];
                      if (fileName)
                      {
+                         
                          NSData *jsonData = [NSData dataWithContentsOfFile:fileName];
                          if (jsonData)
                          {
@@ -946,9 +948,9 @@ static const bool CountryTextures = true;
                              if (CountryTextures)
                              {
                                  desc[kMaplyVecTexture] = smileTex;
-                                 desc[kMaplyVecTexScaleX] = @(0.01);
-                                 desc[kMaplyVecTexScaleY] = @(0.01);
                                  desc[kMaplyVecTextureProjection] = kMaplyProjectionScreen;
+                                 desc[kMaplyVecTexScaleX] = @(1.0/smileImage.size.width);
+                                 desc[kMaplyVecTexScaleY] = @(1.0/smileImage.size.height);
                              }
                              MaplyComponentObject *compObj = [baseViewC addVectors:[NSArray arrayWithObject:wgVecObj] desc:desc];
                              MaplyScreenLabel *screenLabel = [[MaplyScreenLabel alloc] init];
@@ -1006,7 +1008,7 @@ static const bool CountryTextures = true;
     {
         stars = [[MaplyStarsModel alloc] initWithFileName:fileName];
         stars.image = [UIImage imageNamed:@"star_background"];
-        [stars addToViewC:globeViewC desc:nil mode:MaplyThreadCurrent];
+        [stars addToViewC:globeViewC date:[NSDate date] desc:nil mode:MaplyThreadCurrent];
     }
 }
 
@@ -1892,7 +1894,7 @@ static const int NumMegaMarkers = 15000;
     {
         if (!stars)
         {
-            [self addStars:@"starcatalog_short"];
+            [self addStars:@"starcatalog_orig"];
             [self addSun];
         }
     } else {

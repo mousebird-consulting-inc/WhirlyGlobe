@@ -321,7 +321,7 @@ static const char *vertexShaderScreenTexTri =
 ""
 "   vec4 screenPt = (u_mvpMatrix * vec4(a_position,1.0));"
 "   screenPt /= screenPt.w;"
-"   v_texCoord = vec2((screenPt.x-u_screenOrigin.x)*u_scale.x*u_texScale.x,(screenPt.y-u_screenOrigin.y)*u_scale.y*u_texScale.y);"
+"   v_texCoord = vec2((screenPt.x+u_screenOrigin.x)*u_scale.x*u_texScale.x,(screenPt.y+u_screenOrigin.y)*u_scale.y*u_texScale.y);"
 ""
 "   gl_Position = u_mvpMatrix * (a_singleMatrix * vec4(a_position,1.0));"
 "}"
