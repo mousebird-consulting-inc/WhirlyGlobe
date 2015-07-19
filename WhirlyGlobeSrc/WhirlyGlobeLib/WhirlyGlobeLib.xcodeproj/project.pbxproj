@@ -2017,7 +2017,6 @@
 				2B3A0D5C133405780085EF43 /* SphericalEarthLayer.h in Headers */,
 				2B95F91718A5AB1F00D72645 /* GlobeTwoFingerTapDelegate.h in Headers */,
 				880BD9081B30CF6F0097F285 /* ElevationCesiumChunk.h in Headers */,
-				2B3A0D60133405780085EF43 /* LabelLayer.h in Headers */,
 				2B3A0D41133405700085EF43 /* shapefil.h in Headers */,
 				2BDC8A811937B56300DFECF0 /* WideVectorManager.h in Headers */,
 				2B44187913A2D9BA00514EDE /* RotateDelegate.h in Headers */,
@@ -2591,6 +2590,7 @@
 					"../../third-party/clipper/",
 					"../../third-party/proj-4/src/",
 					"../../third-party/glues/include/",
+					../local_libs/octencoding/,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "";
@@ -2635,6 +2635,7 @@
 					"../../third-party/clipper/",
 					"../../third-party/proj-4/src/",
 					"../../third-party/glues/include/",
+					../local_libs/octencoding/,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "";
