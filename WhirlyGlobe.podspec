@@ -53,6 +53,10 @@ Pod::Spec.new do |s|
     aa.source_files = 'WhirlyGlobeSrc/local_libs/aaplus/**/*.{h,cpp}'
   end
 
+  s.subspec 'octencoding' do |oe|
+    oe.source_files = 'WhirlyGlobeSrc/local_libs/octencoding/**/*.h'
+  end
+
   s.subspec 'Lib-Headers' do |lh|
     lh.source_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
     lh.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
@@ -94,6 +98,7 @@ Pod::Spec.new do |s|
     mc.dependency 'WhirlyGlobe/shapefile'
     mc.dependency 'WhirlyGlobe/kissxml'
     mc.dependency 'WhirlyGlobe/aaplus'
+    mc.dependency 'WhirlyGlobe/octencoding'
     mc.dependency 'WhirlyGlobe/Lib'
     mc.dependency 'WhirlyGlobe/MaplyComponent-Headers'
     mc.dependency 'AFNetworking'
