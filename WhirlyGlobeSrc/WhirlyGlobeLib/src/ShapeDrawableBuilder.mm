@@ -58,6 +58,14 @@ using namespace WhirlyKit;
     _zBufferRead = [desc floatForKey:@"zbufferread" default:true];
     _zBufferWrite = [desc floatForKey:@"zbufferwrite" default:true];
     _insideOut = [desc boolForKey:@"shapeinsideout" default:NO];
+    _hasCenter = false;
+    if (desc[@"shapecenterx"] || desc[@"shapecentery"] || desc[@"shapecenterz"])
+    {
+        _hasCenter = true;
+        _center.x() = [desc doubleForKey:@"shapecenterx" default:0.0];
+        _center.y() = [desc doubleForKey:@"shapecentery" default:0.0];
+        _center.z() = [desc doubleForKey:@"shapecenterz" default:0.0];
+    }
 }
 
 @end

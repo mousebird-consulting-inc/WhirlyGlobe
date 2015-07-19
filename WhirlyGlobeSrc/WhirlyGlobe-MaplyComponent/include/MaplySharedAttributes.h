@@ -275,6 +275,10 @@
 #define kMaplyShapeSampleY @"shapesampley"
 /// If set to true, we'll tessellate a shape using the opposite vertex ordering
 #define kMaplyShapeInsideOut @"shapeinsideout"
+/// Center for the shape geometry
+#define kMaplyShapeCenterX @"shapecenterx"
+#define kMaplyShapeCenterY @"shapecentery"
+#define kMaplyShapeCenterZ @"shapecenterz"
 
 /// These are used by active vector objects
 #define kMaplyVecHeight @"height"

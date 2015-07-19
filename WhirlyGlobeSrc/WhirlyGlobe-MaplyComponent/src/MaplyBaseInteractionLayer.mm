@@ -1192,7 +1192,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         if (tex.texID)
             inDesc[kMaplyVecTexture] = @(tex.texID);
         else
-            [inDesc removeObjectForKey:kMaplyVecTexture];
+            [inDesc removeObjectForKey:kMaplyVecTexture];        
     }
 
     ShapeSet shapes;
@@ -1222,7 +1222,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             shapes.insert(newVecObj.shapes.begin(),newVecObj.shapes.end());
         } else
             // We'll just reference it
-        shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
+            shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
     }
     
     if (makeVisible)
