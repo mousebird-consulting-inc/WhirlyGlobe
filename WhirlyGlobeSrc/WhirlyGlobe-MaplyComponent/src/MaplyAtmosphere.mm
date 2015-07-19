@@ -214,7 +214,7 @@ static const double AtmosphereHeight = 1.05;
     Vector3d cameraPos = frameInfo.eyePos;
     Vector4d sunDir4d = Vector4d(sunPos.x,sunPos.y,sunPos.z,1.0);
     sunDir4d /= sunDir4d.w();
-    Vector3d sunDir3d(-sunDir4d.x(),-sunDir4d.y(),-sunDir4d.z());
+    Vector3d sunDir3d(sunDir4d.x(),sunDir4d.y(),sunDir4d.z());
     sunDir3d.normalize();
 
     shader.program->setUniform(k_v3CameraPos, Vector3f(cameraPos.x(),cameraPos.y(),cameraPos.z()));
