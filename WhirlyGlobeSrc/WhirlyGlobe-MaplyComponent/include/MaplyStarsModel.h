@@ -37,10 +37,11 @@
 /** @brief Add stars to the given view controller
     @details Turn the star positions into geometry to display.  This object will track the resulting geometry objects.
     @param viewC The view controller to add the start geometry to.
+    @param date The date for the 
     @param desc Additional parameters that may related to the geometry.
     @param mode Thread mode to use when adding the geometry.
   */
-- (void)addToViewC:(WhirlyGlobeViewController *)viewC desc:(NSDictionary *)desc mode:(MaplyThreadMode)mode;
+- (void)addToViewC:(WhirlyGlobeViewController *)viewC date:(NSDate *)date desc:(NSDictionary *)desc mode:(MaplyThreadMode)mode;
 
 /** @brief Remove star geometry from the registered view controller.
     @details Removes any objects created for the star geometry.

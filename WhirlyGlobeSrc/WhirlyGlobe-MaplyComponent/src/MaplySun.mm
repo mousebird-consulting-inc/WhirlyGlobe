@@ -20,11 +20,11 @@
 
 #import <WhirlyGlobe.h>
 #import "MaplySun.h"
+#import <AA+.h>
 
 @implementation MaplySun
 {
     NSDate *date;
-    double phi,omega,decl;
     double sunLon,sunLat;
 }
 
@@ -43,55 +43,45 @@
 // Calculation from: http://www.esrl.noaa.gov/gmd/grad/solcalc/solareqns.PDF
 - (void)runCalculation
 {
+    // It all starts with the Julian date
     NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-    NSUInteger dayOfYear = [calendar ordinalityOfUnit:NSDayCalendarUnit
-                                               inUnit:NSYearCalendarUnit forDate:date];
-    NSDateComponents *components = [calendar components:(NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:date];
-    NSTimeZone *timeZone = [NSTimeZone localTimeZone];
-    double hour = components.hour + -timeZone.secondsFromGMT / (60*60);
-    double minute = components.minute;
-    double second = components.second;
+    calendar.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
+    NSDateComponents *components = [calendar components:(NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:date];
+    CAADate aaDate(components.year,components.month,components.day,components.hour,components.minute,components.second,true);
+    double jd = aaDate.Julian();
+    double jdSun = CAADynamicalTime::UTC2TT(aaDate.Julian());
     
-    double gamma = 2 * M_PI / 365.0 * (dayOfYear - 1 + ((hour) - 12)/24.0);
-    double eqtime = 229.18 * (0.000075 + 0.001868 * cos(gamma) - 0.032077 * sin(gamma)
-                             - 0.014615 * cos(2 * gamma) - 0.040849 * sin ( 2 * gamma));
-    decl = 0.006918 - 0.399912 * cos (gamma)  + 0.070257 * sin (gamma)  - 0.006758 * cos ( 2 * gamma)
-    + 0.000907 * sin (2 * gamma) - 0.002697 * cos( 3 * gamma) + 0.00148 * sin (3 * gamma);
-    // longitude = 0, timezone = 0
-    double time_offset = eqtime;
-    double tst = hour * 60 + minute + second / 60.0 + time_offset;
-    // Solar angle hour in radians
-    double ha = ((tst / 4.0) - 180)/180.0 * M_PI;
-    // Solar zenith angle (radians)
-    double cosOfPhi = 1.0 * cos(decl) * cos(ha);
-    phi = acos(cosOfPhi);
-    // Solar azimuth (clockwise from north)
-    omega = M_PI-acos(-sin(decl)/sin(phi));
-    if (hour >= 12)
-        omega += M_PI;
+    // Position of the sun in equatorial
+    double sunEclipticLong = CAASun::ApparentEclipticLongitude(jdSun);
+    double sunEclipticLat = CAASun::ApparentEclipticLatitude(jdSun);
+    double obliquity = CAANutation::TrueObliquityOfEcliptic(jdSun);
+    CAA3DCoordinate sunEquRect = CAASun::EquatorialRectangularCoordinatesMeanEquinox(jdSun);
+    CAA2DCoordinate sunEquatorial = CAACoordinateTransformation::Ecliptic2Equatorial(sunEclipticLong,sunEclipticLat,obliquity);
     
-    // The latitude is just the declination
-    sunLat = decl;
-    // And the longitude is related to the solar angle hour (duh)
-    sunLon = -ha;
-    if (sunLon < -M_PI)
-        sunLon += 2*M_PI;
-    if (sunLon > M_PI)
-        sunLon -= 2*M_PI;
+    sunLon = CAACoordinateTransformation::DegreesToRadians(15*sunEquatorial.X);
+    sunLat = CAACoordinateTransformation::DegreesToRadians(sunEquatorial.Y);
+    
+    // Note: Debugging
+    sunLon = M_PI;
+    sunLat = 0.0;
 }
 
 - (MaplyCoordinate3d)getDirection
 {
-    WhirlyKit::Point3d pt(cos(sunLon),sin(sunLat),sin(sunLon));
-    pt.normalize();
-    
+//    WhirlyKit::Point3d pt(cos(sunLon),sin(sunLat),sin(sunLon));
+
+    double z = sin(sunLat);
+    double rad = sqrt(1.0-z*z);
+    Point3d pt(rad*cos(sunLon),rad*sin(sunLon),z);
+
     return MaplyCoordinate3dMake(pt.x(), pt.y(), pt.z());
 }
 
 - (MaplyLight *)makeLight
 {
     MaplyLight *sunLight = [[MaplyLight alloc] init];
-    sunLight.pos = [self getDirection];
+    MaplyCoordinate3d dir = [self getDirection];
+    sunLight.pos = MaplyCoordinate3dMake(dir.x, dir.z, dir.y);
     sunLight.ambient = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
     sunLight.diffuse = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
     sunLight.viewDependent = true;

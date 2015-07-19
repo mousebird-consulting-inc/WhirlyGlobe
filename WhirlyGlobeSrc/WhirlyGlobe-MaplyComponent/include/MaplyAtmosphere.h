@@ -31,8 +31,8 @@
 /// @brief Initialize the view controller.  Will place objects in that view controller.
 - (id)initWithViewC:(WhirlyGlobeViewController *)viewC;
 
-/// @brief Set the sun's direction from the earth.  This is what comes out of MaplySun.
-- (void)setSunDirection:(MaplyCoordinate3d)sunDir;
+/// @brief Set the sun's position relative to the earth.  This is what comes out of MaplySun.
+- (void)setSunPosition:(MaplyCoordinate3d)sunDir;
 
 /// @brief Remove objects from the view controller we set it up in.
 - (void)removeFromViewC;
