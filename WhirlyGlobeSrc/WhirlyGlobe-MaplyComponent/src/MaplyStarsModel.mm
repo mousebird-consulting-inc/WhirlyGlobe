@@ -20,11 +20,15 @@
 
 #import <vector>
 #import "MaplyStarsModel.h"
+#import <WhirlyGlobe.h>
+#import <AA+.h>
+
+using namespace WhirlyKit;
 
 typedef struct
 {
     float mag;
-    MaplyCoordinate3d loc;
+    float ra,dec;
 } SingleStar;
 
 @implementation MaplyStarsModel
@@ -51,7 +55,7 @@ typedef struct
     {
         stars.resize(stars.size()+1);
         SingleStar &star = stars.back();
-        sscanf(line, "%f %f %f %f", &star.mag, &star.loc.x, &star.loc.y, &star.loc.z);
+        sscanf(line, "%f %f %f",&star.ra, &star.dec, &star.mag);
     }
     
     return self;
@@ -107,11 +111,24 @@ typedef struct
     float x,y,z;
 } SimpleVec3;
 
-- (void)addToViewC:(WhirlyGlobeViewController *)inViewC desc:(NSDictionary *)inDesc mode:(MaplyThreadMode)mode
+- (void)addToViewC:(WhirlyGlobeViewController *)inViewC date:(NSDate *)date desc:(NSDictionary *)inDesc mode:(MaplyThreadMode)mode
 {
     viewC = inViewC;
     addedMode = mode;
-    
+
+    // Julian date for position calculation
+    NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    calendar.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
+    NSDateComponents *components = [calendar components:(NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:date];
+    CAADate aaDate(components.year,components.month,components.day,components.hour,components.minute,components.second,true);
+    double jd = aaDate.Julian();
+
+    // Position of the earth in equatorial
+    double earthEclipticLong = CAAEarth::EclipticLongitude(jd);
+    double earthEclipticLat = CAAEarth::EclipticLatitude(jd);
+    double obliquity = CAANutation::MeanObliquityOfEcliptic(jd);
+    CAA2DCoordinate earthEquatorial = CAACoordinateTransformation::Ecliptic2Equatorial(earthEclipticLong,earthEclipticLat,obliquity);
+
     // Really simple shader
     MaplyShader *shader = [[MaplyShader alloc] initWithName:@"Star Shader" vertex:[NSString stringWithFormat:@"%s",vertexShaderTriPoint] fragment:[NSString stringWithFormat:@"%s",(image ? fragmentShaderTexTriPoint : fragmentShaderTriPoint)] viewC:viewC];
     [viewC addShaderProgram:shader sceneName:@"Star Shader"];
@@ -148,10 +165,23 @@ typedef struct
     for (unsigned int ii=0;ii<stars.size();ii++)
     {
         SingleStar *star = &stars[ii];
+
+        // Convert the start from equatorial to a useable lon/lat
+        double starLon = CAACoordinateTransformation::DegreesToRadians(star->ra-earthEquatorial.X+23);
+        double starLat = CAACoordinateTransformation::DegreesToRadians(star->dec);
         
-        posPtr->x = star->loc.x;
-        posPtr->y = star->loc.y;
-        posPtr->z = star->loc.z;
+//        NSLog(@"star lon, lat = (%f,%f)",starLon*180/M_PI,starLat*180/M_PI);
+
+//        Point3f pt;
+        double z = sin(starLat);
+        double rad = sqrt(1.0-z*z);
+        Point3d pt(rad*cos(starLon),rad*sin(starLon),z);
+        
+//        pt.x() = cos(starLon);
+//        pt.y() = sin(starLon);
+//        pt.z() = sin(starLat);
+//        pt.normalize();
+        posPtr->x = pt.x();  posPtr->y = pt.y();  posPtr->z = pt.z();
         float mag = 6.0-star->mag;
         if (mag < 0.0)
             mag = 0.0;

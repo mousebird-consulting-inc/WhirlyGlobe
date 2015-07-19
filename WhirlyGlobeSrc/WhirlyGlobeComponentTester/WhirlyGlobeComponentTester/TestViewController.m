@@ -1056,11 +1056,10 @@ static const float EarthRadius = 6371000;
     moonObj = [globeViewC addShapes:@[sphere] desc:
                @{kMaplyColor: [UIColor grayColor],
                  kMaplyShader: kMaplyShaderDefaultTriNoLighting}];
-    
+        
     // And some atmosphere, because the iDevice fill rate is just too fast
-    // Note: Debugging
-//    atmosObj = [[MaplyAtmosphere alloc] initWithViewC:globeViewC];
-//    [atmosObj setSunDirection:[sun getDirection]];
+    atmosObj = [[MaplyAtmosphere alloc] initWithViewC:globeViewC];
+    [atmosObj setSunPosition:[sun getDirection]];
 }
 
 // Number of unique images to use for the mega markers

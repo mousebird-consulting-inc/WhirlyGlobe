@@ -81,7 +81,7 @@ void ShapeSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &cha
 @implementation WhirlyKitShape
 
 // Return the center of this object in display space.  Used for offsetting drawables.
-- (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter
+- (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter shapeInfo:(WhirlyKitShapeInfo *)shapeInfo
 {
     return Point3d(0,0,0);
 }
@@ -101,8 +101,11 @@ static const float sqrt2 = 1.4142135623;
 
 @implementation WhirlyKitCircle
 
-- (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter
+- (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter shapeInfo:(WhirlyKitShapeInfo *)shapeInfo
 {
+    if (shapeInfo.hasCenter)
+        return shapeInfo.center;
+
     Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(_loc);
     Point3d dispPt = coordAdapter->localToDisplay(localPt);
     
@@ -188,8 +191,11 @@ static const float sqrt2 = 1.4142135623;
 //static const float SphereTessX = 10;
 //static const float SphereTessY = 10;
 
-- (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter
+- (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter shapeInfo:(WhirlyKitShapeInfo *)shapeInfo
 {
+    if (shapeInfo.hasCenter)
+        return shapeInfo.center;
+    
     Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(_loc);
     Point3d dispPt = coordAdapter->localToDisplay(localPt);
     
@@ -249,7 +255,7 @@ static const float sqrt2 = 1.4142135623;
                 triA.verts[2] = iy*(_sampleX+1)+(ix+1);
                 triA.verts[1] = (iy+1)*(_sampleX+1)+(ix+1);
                 triB.verts[0] = triA.verts[0];
-                triB.verts[2] = triA.verts[2];
+                triB.verts[2] = triA.verts[1];
                 triB.verts[1] = (iy+1)*(_sampleX+1)+ix;
             } else {
                 triA.verts[0] = iy*(_sampleX+1)+ix;
@@ -287,8 +293,11 @@ static const float sqrt2 = 1.4142135623;
 
 @implementation WhirlyKitCylinder
 
-- (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter
+- (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter shapeInfo:(WhirlyKitShapeInfo *)shapeInfo
 {
+    if (shapeInfo.hasCenter)
+        return shapeInfo.center;
+
     Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(_loc);
     Point3d dispPt = coordAdapter->localToDisplay(localPt);
     
@@ -396,8 +405,11 @@ static std::vector<Point3f> circleSamples;
 
 @implementation WhirlyKitShapeLinear
 
-- (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter
+- (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter shapeInfo:(WhirlyKitShapeInfo *)shapeInfo
 {
+    if (shapeInfo.hasCenter)
+        return shapeInfo.center;
+
     if (!_pts.empty())
     {
         const Point3f &pt = _pts[_pts.size()/2];
@@ -432,8 +444,11 @@ static std::vector<Point3f> circleSamples;
     return self;
 }
 
-- (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter
+- (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter shapeInfo:(WhirlyKitShapeInfo *)shapeInfo
 {
+    if (shapeInfo.hasCenter)
+        return shapeInfo.center;
+
     Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(_loc.x(),_loc.y()));
     Point3d dispPt = coordAdapter->localToDisplay(localPt);
     
@@ -612,7 +627,7 @@ SimpleIdentity ShapeManager::addShapes(NSArray *shapes,NSDictionary * desc,Chang
     int numObjects = 0;
     for (WhirlyKitShape *shape in shapeInfo.shapes)
     {
-        center += [shape displayCenter:scene->getCoordAdapter()];
+        center += [shape displayCenter:scene->getCoordAdapter() shapeInfo:shapeInfo];
         numObjects++;
     }
     if (numObjects > 0)

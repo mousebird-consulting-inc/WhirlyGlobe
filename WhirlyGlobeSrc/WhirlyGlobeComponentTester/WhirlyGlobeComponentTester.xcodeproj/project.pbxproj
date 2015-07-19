@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2B2EB66518C901AD008C5320 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB516E7F505001F52FC /* OpenGLES.framework */; };
+		2B2FECB31B5878EC00A332BF /* starcatalog_orig.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2B2FECB21B5878EC00A332BF /* starcatalog_orig.txt */; };
 		2B62DD6816E7F0BC001F52FC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B62DD6616E7F0BC001F52FC /* InfoPlist.strings */; };
 		2B62DD6A16E7F0BC001F52FC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD6916E7F0BC001F52FC /* main.m */; };
 		2B62DD8616E7F3A2001F52FC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD7B16E7F3A2001F52FC /* AppDelegate.m */; };
@@ -18,7 +19,6 @@
 		2B8570B11A5DE4D200705AA7 /* vp.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 2B8570B01A5DE4D200705AA7 /* vp.mtl */; };
 		2B8571531A6DC43F00705AA7 /* cube.obj in Resources */ = {isa = PBXBuildFile; fileRef = 2B8571521A6DC43F00705AA7 /* cube.obj */; };
 		2B8D1E9B1AB0BC8900996F19 /* MapzenGLStyle.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B8D1E9A1AB0BC8900996F19 /* MapzenGLStyle.json */; };
-		2B9BAD721B3B2BA100B95CC2 /* starcatalog_short.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2B9BAD711B3B2BA100B95CC2 /* starcatalog_short.txt */; };
 		2BA13BFF17F10D9A000C43B7 /* libWhirlyGlobe-MaplyComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DD9216E7F3D3001F52FC /* libWhirlyGlobe-MaplyComponent.a */; };
 		2BA13C0117F10E49000C43B7 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BA13C0017F10E49000C43B7 /* CFNetwork.framework */; };
 		2BA13C0317F10E64000C43B7 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B0D630D17A2EE0400C3298D /* libxml2.dylib */; };
@@ -438,6 +438,7 @@
 		2B0D630D17A2EE0400C3298D /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		2B1FB5351A1EC5FE0004B394 /* MapzenSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapzenSource.h; sourceTree = "<group>"; };
 		2B1FB5361A1EC5FE0004B394 /* MapzenSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapzenSource.m; sourceTree = "<group>"; };
+		2B2FECB21B5878EC00A332BF /* starcatalog_orig.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = starcatalog_orig.txt; path = ../../../resources/stars/starcatalog_orig.txt; sourceTree = "<group>"; };
 		2B62DD5A16E7F0BC001F52FC /* WhirlyGlobeComponentTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhirlyGlobeComponentTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B62DD5D16E7F0BC001F52FC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		2B62DD5F16E7F0BC001F52FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -466,7 +467,6 @@
 		2B8570B01A5DE4D200705AA7 /* vp.mtl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vp.mtl; sourceTree = "<group>"; };
 		2B8571521A6DC43F00705AA7 /* cube.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cube.obj; path = resources/cube.obj; sourceTree = SOURCE_ROOT; };
 		2B8D1E9A1AB0BC8900996F19 /* MapzenGLStyle.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = MapzenGLStyle.json; sourceTree = "<group>"; };
-		2B9BAD711B3B2BA100B95CC2 /* starcatalog_short.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = starcatalog_short.txt; path = ../../../resources/stars/starcatalog_short.txt; sourceTree = "<group>"; };
 		2BA13BF117EE1875000C43B7 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		2BA13BF317EE1884000C43B7 /* libc++abi.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++abi.dylib"; path = "usr/lib/libc++abi.dylib"; sourceTree = SDKROOT; };
 		2BA13C0017F10E49000C43B7 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -1017,9 +1017,9 @@
 		2B9BAD6F1B3B2B6D00B95CC2 /* stars */ = {
 			isa = PBXGroup;
 			children = (
+				2B2FECB21B5878EC00A332BF /* starcatalog_orig.txt */,
 				2BE684ED1B47449A00A5C04C /* star_background.png */,
 				2BD5A8281B3F6D2700DDAEE3 /* SunImage.png */,
-				2B9BAD711B3B2BA100B95CC2 /* starcatalog_short.txt */,
 			);
 			name = stars;
 			sourceTree = "<group>";
@@ -1580,7 +1580,6 @@
 				2BFD25F2170B932000127EF5 /* lowres_wtb_2x0.pvrtc in Resources */,
 				2BFD25F3170B932000127EF5 /* lowres_wtb_2x1.pvrtc in Resources */,
 				2BFD25F4170B932000127EF5 /* lowres_wtb_3x0.pvrtc in Resources */,
-				2B9BAD721B3B2BA100B95CC2 /* starcatalog_short.txt in Resources */,
 				2BFD25F5170B932000127EF5 /* lowres_wtb_3x1.pvrtc in Resources */,
 				2BFD25F6170B932000127EF5 /* lowres_wtb_4x0.pvrtc in Resources */,
 				2BC0FB491964D3580043E1FD /* polling-place-24@2x.png in Resources */,
@@ -1691,6 +1690,7 @@
 				2BFD2735170B933C00127EF5 /* EGY.geojson in Resources */,
 				2BC0FB5E1964D3580043E1FD /* suitcase-24@2x.png in Resources */,
 				2BFD2736170B933C00127EF5 /* ERI.geojson in Resources */,
+				2B2FECB31B5878EC00A332BF /* starcatalog_orig.txt in Resources */,
 				2BFD2737170B933C00127EF5 /* ESH.geojson in Resources */,
 				2BFD2738170B933C00127EF5 /* ESP.geojson in Resources */,
 				2BFD2739170B933C00127EF5 /* EST.geojson in Resources */,
