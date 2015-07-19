@@ -635,8 +635,8 @@ void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
         }
     }
     
-    if (!found)
-        NSLog(@"Tried to delete selectable that doesn't exist.");
+//    if (!found)
+//        NSLog(@"Tried to delete selectable that doesn't exist.");
     
     pthread_mutex_unlock(&mutex);
 }

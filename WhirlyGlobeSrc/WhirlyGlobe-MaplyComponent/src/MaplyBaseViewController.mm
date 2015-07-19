@@ -344,10 +344,16 @@ using namespace WhirlyKit;
     {
         WhirlyKit::OpenGLMemManager *memManager = scene->getMemManager();
         // We may retain a bit of memory here.  Clear it up.
-        if (memManager)
+        if (memManager && sceneRenderer)
         {
+            EAGLContext *oldContext = [EAGLContext currentContext];
+            [sceneRenderer useContext];
+
             memManager->clearBufferIDs();
             memManager->clearTextureIDs();
+            
+            if (oldContext)
+                [EAGLContext setCurrentContext:oldContext];
         }
     }
 }
