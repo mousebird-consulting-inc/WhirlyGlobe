@@ -1013,6 +1013,7 @@ static const bool CountryTextures = true;
 }
 
 static const bool UseSunSphere = false;
+static const bool UseMoonSphere = false;
 static const float EarthRadius = 6371000;
 
 - (void)addSun
@@ -1039,24 +1040,36 @@ static const float EarthRadius = 6371000;
     } else {
         MaplyBillboard *bill = [[MaplyBillboard alloc] init];
         MaplyCoordinate centerGeo = [sun asPosition];
-        bill.center = MaplyCoordinate3dMake(centerGeo.x, centerGeo.y, 4*EarthRadius);
+        bill.center = MaplyCoordinate3dMake(centerGeo.x, centerGeo.y, 6*EarthRadius);
         bill.selectable = false;
         bill.screenObj = [[MaplyScreenObject alloc] init];
         UIImage *globeImage = [UIImage imageNamed:@"SunImage"];
-        [bill.screenObj addImage:globeImage color:[UIColor whiteColor] size:CGSizeMake(1.0, 1.0)];
+        [bill.screenObj addImage:globeImage color:[UIColor whiteColor] size:CGSizeMake(0.75, 0.75)];
         sunObj = [globeViewC addBillboards:@[bill] desc:@{kMaplyBillboardOrient: kMaplyBillboardOrientEye} mode:MaplyThreadAny];
     }
     
     // Position for the moon
     MaplyMoon *moon = [[MaplyMoon alloc] initWithDate:[NSDate date]];
-    MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
-    sphere.center = [moon asCoordinate];
-    sphere.radius = 0.2;
-    sphere.height = 4.0;
-    moonObj = [globeViewC addShapes:@[sphere] desc:
-               @{kMaplyColor: [UIColor grayColor],
-                 kMaplyShader: kMaplyShaderDefaultTriNoLighting}];
-        
+    if (UseMoonSphere)
+    {
+        MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
+        sphere.center = [moon asCoordinate];
+        sphere.radius = 0.2;
+        sphere.height = 4.0;
+        moonObj = [globeViewC addShapes:@[sphere] desc:
+                   @{kMaplyColor: [UIColor grayColor],
+                     kMaplyShader: kMaplyShaderDefaultTriNoLighting}];
+    } else {
+        MaplyBillboard *bill = [[MaplyBillboard alloc] init];
+        MaplyCoordinate3d centerGeo = [moon asPosition];
+        bill.center = MaplyCoordinate3dMake(centerGeo.x, centerGeo.y, 6*EarthRadius);
+        bill.selectable = false;
+        bill.screenObj = [[MaplyScreenObject alloc] init];
+        UIImage *moonImage = [UIImage imageNamed:@"moon"];
+        [bill.screenObj addImage:moonImage color:[UIColor whiteColor] size:CGSizeMake(0.75, 0.75)];
+        moonObj = [globeViewC addBillboards:@[bill] desc:@{kMaplyBillboardOrient: kMaplyBillboardOrientEye} mode:MaplyThreadAny];
+    }
+    
     // And some atmosphere, because the iDevice fill rate is just too fast
     atmosObj = [[MaplyAtmosphere alloc] initWithViewC:globeViewC];
     [atmosObj setSunPosition:[sun getDirection]];
