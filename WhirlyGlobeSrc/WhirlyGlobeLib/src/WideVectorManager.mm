@@ -28,10 +28,17 @@ using namespace Eigen;
 
 @implementation WhirlyKitWideVectorInfo
 
+- (id)initWithDesc:(NSDictionary *)desc
+{
+    self = [super initWithDesc:desc];
+    [self parseDesc:desc];
+    
+    return self;
+}
+
 - (void)parseDesc:(NSDictionary *)desc
 {
     _color = [desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    _shader = [desc intForKey:@"shader" default:EmptyIdentity];
     _width = [desc floatForKey:@"width" default:2.0];
     _coordType = (WhirlyKit::WideVectorCoordsType)[desc enumForKey:@"wideveccoordtype" values:@[@"real",@"screen"] default:WideVecCoordScreen];
     _joinType = (WhirlyKit::WideVectorLineJoinType)[desc enumForKey:@"wideveclinejointype" values:@[@"miter",@"round",@"bevel"] default:WideVecMiterJoin];
@@ -710,7 +717,7 @@ public:
             } else {
                 WideVectorDrawable *wideDrawable = new WideVectorDrawable();
                 drawable = wideDrawable;
-                drawable->setProgram(vecInfo.shader);
+                drawable->setProgram(vecInfo.programID);
                 wideDrawable->setTexRepeat(vecInfo.repeatSize);
                 wideDrawable->setLineWidth(vecInfo.width);
             }
@@ -852,8 +859,7 @@ WideVectorManager::~WideVectorManager()
     
 SimpleIdentity WideVectorManager::addVectors(ShapeSet *shapes,NSDictionary *desc,ChangeSet &changes)
 {
-    WhirlyKitWideVectorInfo *vecInfo = [[WhirlyKitWideVectorInfo alloc] init];
-    [vecInfo parseDesc:desc];
+    WhirlyKitWideVectorInfo *vecInfo = [[WhirlyKitWideVectorInfo alloc] initWithDesc:desc];
     
     WideVectorDrawableBuilder builder(scene,vecInfo);
     
