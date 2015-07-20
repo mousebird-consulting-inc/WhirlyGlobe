@@ -39,4 +39,7 @@
 /// @brief Return the location above the globe in lon/lat/distance.  Yay geocentric!
 - (MaplyCoordinate3d)asPosition;
 
+/// @brief Illuminated fraction of the moon
+@property (readonly) double illuminatedFraction;
+
 @end

@@ -1040,7 +1040,7 @@ static const float EarthRadius = 6371000;
     } else {
         MaplyBillboard *bill = [[MaplyBillboard alloc] init];
         MaplyCoordinate centerGeo = [sun asPosition];
-        bill.center = MaplyCoordinate3dMake(centerGeo.x, centerGeo.y, 6*EarthRadius);
+        bill.center = MaplyCoordinate3dMake(centerGeo.x, centerGeo.y, 5.5*EarthRadius);
         bill.selectable = false;
         bill.screenObj = [[MaplyScreenObject alloc] init];
         UIImage *globeImage = [UIImage imageNamed:@"SunImage"];
@@ -1062,11 +1062,11 @@ static const float EarthRadius = 6371000;
     } else {
         MaplyBillboard *bill = [[MaplyBillboard alloc] init];
         MaplyCoordinate3d centerGeo = [moon asPosition];
-        bill.center = MaplyCoordinate3dMake(centerGeo.x, centerGeo.y, 6*EarthRadius);
+        bill.center = MaplyCoordinate3dMake(centerGeo.x, centerGeo.y, 5.5*EarthRadius);
         bill.selectable = false;
         bill.screenObj = [[MaplyScreenObject alloc] init];
         UIImage *moonImage = [UIImage imageNamed:@"moon"];
-        [bill.screenObj addImage:moonImage color:[UIColor whiteColor] size:CGSizeMake(0.75, 0.75)];
+        [bill.screenObj addImage:moonImage color:[UIColor colorWithWhite:moon.illuminatedFraction alpha:1.0] size:CGSizeMake(0.75, 0.75)];
         moonObj = [globeViewC addBillboards:@[bill] desc:@{kMaplyBillboardOrient: kMaplyBillboardOrientEye} mode:MaplyThreadAny];
     }
     

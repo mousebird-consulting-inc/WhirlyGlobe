@@ -51,6 +51,17 @@
 
     moonLon = CAACoordinateTransformation::DegreesToRadians(15*(moonEquatorial.X-siderealTime));
     moonLat = CAACoordinateTransformation::DegreesToRadians(moonEquatorial.Y);
+    
+    // Need the sun too for the next bit
+    double sunEclipticLong = CAASun::ApparentEclipticLongitude(jd);
+    double sunEclipticLat = CAASun::ApparentEclipticLatitude(jd);
+    CAA2DCoordinate sunEquatorial = CAACoordinateTransformation::Ecliptic2Equatorial(sunEclipticLong,sunEclipticLat,obliquity);
+    
+    // Now for the illuminated fraction
+    double geo_elongation = CAAMoonIlluminatedFraction::GeocentricElongation(moonEquatorial.X, moonEquatorial.Y, sunEquatorial.X, sunEquatorial.Y);
+    
+    double phase_angle = CAAMoonIlluminatedFraction::PhaseAngle(geo_elongation, 368410.0, 149971520.0);
+    _illuminatedFraction = CAAMoonIlluminatedFraction::IlluminatedFraction(phase_angle);
 
     return self;
 }
