@@ -122,12 +122,7 @@ typedef struct
     NSDateComponents *components = [calendar components:(NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:date];
     CAADate aaDate(components.year,components.month,components.day,components.hour,components.minute,components.second,true);
     double jd = aaDate.Julian();
-
-    // Position of the earth in equatorial
-    double earthEclipticLong = CAAEarth::EclipticLongitude(jd);
-    double earthEclipticLat = CAAEarth::EclipticLatitude(jd);
-    double obliquity = CAANutation::MeanObliquityOfEcliptic(jd);
-    CAA2DCoordinate earthEquatorial = CAACoordinateTransformation::Ecliptic2Equatorial(earthEclipticLong,earthEclipticLat,obliquity);
+    double siderealTime = CAASidereal::MeanGreenwichSiderealTime(jd);
 
     // Really simple shader
     MaplyShader *shader = [[MaplyShader alloc] initWithName:@"Star Shader" vertex:[NSString stringWithFormat:@"%s",vertexShaderTriPoint] fragment:[NSString stringWithFormat:@"%s",(image ? fragmentShaderTexTriPoint : fragmentShaderTriPoint)] viewC:viewC];
@@ -155,9 +150,6 @@ typedef struct
     [partSys addAttribute:@"a_size" type:MaplyShaderAttrTypeFloat];
     partSysObj = [viewC addParticleSystem:partSys desc:desc mode:mode];
 
-    // Sidereal time
-    double siderealTime = CAASidereal::MeanGreenwichSiderealTime(jd);
-
     // Data arrays for particles
     // We'll clear them out in case we don't fill them out completely
     NSMutableData *posData = [[NSMutableData alloc] initWithLength:stars.size()*sizeof(SimpleVec3)];
@@ -170,7 +162,7 @@ typedef struct
         SingleStar *star = &stars[ii];
 
         // Convert the start from equatorial to a useable lon/lat
-        double starLon = CAACoordinateTransformation::DegreesToRadians(star->ra-earthEquatorial.X+15*siderealTime);
+        double starLon = CAACoordinateTransformation::DegreesToRadians(star->ra+15*siderealTime);
         double starLat = CAACoordinateTransformation::DegreesToRadians(star->dec);
         
 //        NSLog(@"star lon, lat = (%f,%f)",starLon*180/M_PI,starLat*180/M_PI);
