@@ -33,7 +33,7 @@ using namespace WhirlyKit;
         super.fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
 		super.nearPlane = 0.00001;
 		super.imagePlaneSize = super.nearPlane * tanf(super.fieldOfView / 2.0);
-		super.farPlane = 5.0;
+		super.farPlane = 10.0;
         super.lastChangedTime = CFAbsoluteTimeGetCurrent();
         super.continuousZoom = false;
         _loc = Point3d(0,0,4);
