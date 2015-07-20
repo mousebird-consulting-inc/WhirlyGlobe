@@ -876,7 +876,10 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
         }
         
         if (!multi && !selObjs.empty())
+        {
+            pthread_mutex_unlock(&mutex);
             return;
+        }
     }
 
     Point3d eyePos;
