@@ -20,6 +20,7 @@
 
 #import "MaplyAnnotation_private.h"
 #import "WhirlyGlobe.h"
+#import "SMCalloutView.h"
 
 @implementation MaplyAnnotation
 
