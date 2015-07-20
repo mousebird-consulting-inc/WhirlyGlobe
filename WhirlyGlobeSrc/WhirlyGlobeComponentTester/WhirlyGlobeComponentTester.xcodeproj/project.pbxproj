@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B1012A01B5C8EF70014D243 /* moon.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B10129F1B5C8EF70014D243 /* moon.png */; };
 		2B2EB66518C901AD008C5320 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB516E7F505001F52FC /* OpenGLES.framework */; };
 		2B2FECB31B5878EC00A332BF /* starcatalog_orig.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2B2FECB21B5878EC00A332BF /* starcatalog_orig.txt */; };
 		2B62DD6816E7F0BC001F52FC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B62DD6616E7F0BC001F52FC /* InfoPlist.strings */; };
@@ -436,6 +437,7 @@
 
 /* Begin PBXFileReference section */
 		2B0D630D17A2EE0400C3298D /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
+		2B10129F1B5C8EF70014D243 /* moon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = moon.png; sourceTree = "<group>"; };
 		2B1FB5351A1EC5FE0004B394 /* MapzenSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapzenSource.h; sourceTree = "<group>"; };
 		2B1FB5361A1EC5FE0004B394 /* MapzenSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapzenSource.m; sourceTree = "<group>"; };
 		2B2FECB21B5878EC00A332BF /* starcatalog_orig.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = starcatalog_orig.txt; path = ../../../resources/stars/starcatalog_orig.txt; sourceTree = "<group>"; };
@@ -1027,6 +1029,7 @@
 		2BB94D771A26A94B0076B1B4 /* models */ = {
 			isa = PBXGroup;
 			children = (
+				2B10129F1B5C8EF70014D243 /* moon.png */,
 				2B8571521A6DC43F00705AA7 /* cube.obj */,
 				2B8570B01A5DE4D200705AA7 /* vp.mtl */,
 				2BB94D7A1A26A94B0076B1B4 /* cessna.obj */,
@@ -1910,6 +1913,7 @@
 				2BFD27D4170B933C00127EF5 /* TUN.geojson in Resources */,
 				2BC0FB551964D3580043E1FD /* school-24@2x.png in Resources */,
 				2BB94D7E1A26A94B0076B1B4 /* cessna.obj in Resources */,
+				2B1012A01B5C8EF70014D243 /* moon.png in Resources */,
 				2BFD27D5170B933C00127EF5 /* TUR.geojson in Resources */,
 				2B8D1E9B1AB0BC8900996F19 /* MapzenGLStyle.json in Resources */,
 				2BC0FB361964D3580043E1FD /* lodging-24@2x.png in Resources */,

@@ -48,22 +48,18 @@
     calendar.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
     NSDateComponents *components = [calendar components:(NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:date];
     CAADate aaDate(components.year,components.month,components.day,components.hour,components.minute,components.second,true);
-    double jd = aaDate.Julian();
     double jdSun = CAADynamicalTime::UTC2TT(aaDate.Julian());
     
     // Position of the sun in equatorial
     double sunEclipticLong = CAASun::ApparentEclipticLongitude(jdSun);
     double sunEclipticLat = CAASun::ApparentEclipticLatitude(jdSun);
     double obliquity = CAANutation::TrueObliquityOfEcliptic(jdSun);
-    CAA3DCoordinate sunEquRect = CAASun::EquatorialRectangularCoordinatesMeanEquinox(jdSun);
     CAA2DCoordinate sunEquatorial = CAACoordinateTransformation::Ecliptic2Equatorial(sunEclipticLong,sunEclipticLat,obliquity);
     
-    sunLon = CAACoordinateTransformation::DegreesToRadians(15*sunEquatorial.X);
-    sunLat = CAACoordinateTransformation::DegreesToRadians(sunEquatorial.Y);
+    double siderealTime = CAASidereal::MeanGreenwichSiderealTime(jdSun);
     
-    // Note: Debugging
-    sunLon = M_PI;
-    sunLat = 0.0;
+    sunLon = CAACoordinateTransformation::DegreesToRadians(15*(sunEquatorial.X-siderealTime));
+    sunLat = CAACoordinateTransformation::DegreesToRadians(sunEquatorial.Y);
 }
 
 - (MaplyCoordinate3d)getDirection

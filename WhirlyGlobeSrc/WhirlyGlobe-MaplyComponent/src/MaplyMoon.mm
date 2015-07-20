@@ -46,14 +46,11 @@
     double moonEclipticLat = CAAMoon::EclipticLatitude(jd);
     double obliquity = CAANutation::MeanObliquityOfEcliptic(jd);
     CAA2DCoordinate moonEquatorial = CAACoordinateTransformation::Ecliptic2Equatorial(moonEclipticLong,moonEclipticLat,obliquity);
-    
-    // Position of the earth in equatorial
-    double earthEclipticLong = CAAEarth::EclipticLongitude(jd);
-    double earthEclipticLat = CAAEarth::EclipticLatitude(jd);
-    CAA2DCoordinate earthEquatorial = CAACoordinateTransformation::Ecliptic2Equatorial(earthEclipticLong,earthEclipticLat,obliquity);
-    
-    moonLon = CAACoordinateTransformation::DegreesToRadians(15*(moonEquatorial.X-earthEquatorial.X)+23);
-    moonLat = CAACoordinateTransformation::DegreesToRadians(moonEquatorial.Y-earthEquatorial.Y);
+
+    double siderealTime = CAASidereal::MeanGreenwichSiderealTime(jd);
+
+    moonLon = CAACoordinateTransformation::DegreesToRadians(15*(moonEquatorial.X-siderealTime));
+    moonLat = CAACoordinateTransformation::DegreesToRadians(moonEquatorial.Y);
 
     return self;
 }
