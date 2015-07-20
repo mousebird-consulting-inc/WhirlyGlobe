@@ -77,8 +77,11 @@
 /// Assign a shader program to a particular feature.  Use the shader program's name
 #define kMaplyShader @"shader"
 
-/// Stars
+/// Stars, moon, stars, atmosphere
 #define kMaplyStarsDrawPriorityDefault 0
+#define kMaplySunDrawPriorityDefault 2
+#define kMaplyMoonDrawPriorityDefault 3
+#define kMaplyAtmosphereDrawPriorityDefault 10
 /// Where we start image layer draw priorities
 #define kMaplyImageLayerDrawPriorityDefault 100
 /// We'll start filling in features right around here
@@ -92,7 +95,6 @@
 #define kMaplyShapeDrawPriorityDefault 80000
 #define kMaplyBillboardDrawPriorityDefault 90000
 #define kMaplyModelDrawPriorityDefault 100000
-#define kMaplyAtmosDrawPriorityDefault 110000
 
 #define kWGMarkerDrawPriorityDefault kMaplyMarkerDrawPriorityDefault
 #define kWGVectorDrawPriorityDefault kMaplyVectorDrawPriorityDefault

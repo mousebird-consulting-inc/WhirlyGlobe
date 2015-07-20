@@ -76,7 +76,7 @@ LocationInfo locations[NumLocations] =
 typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 
 // Lowest priority for base layers
-static const int BaseEarthPriority = 10;
+static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 
 // Local interface for TestViewController
 // We'll hide a few things here
@@ -1040,12 +1040,12 @@ static const float EarthRadius = 6371000;
     } else {
         MaplyBillboard *bill = [[MaplyBillboard alloc] init];
         MaplyCoordinate centerGeo = [sun asPosition];
-        bill.center = MaplyCoordinate3dMake(centerGeo.x, centerGeo.y, 5.5*EarthRadius);
+        bill.center = MaplyCoordinate3dMake(centerGeo.x, centerGeo.y, 5.4*EarthRadius);
         bill.selectable = false;
         bill.screenObj = [[MaplyScreenObject alloc] init];
         UIImage *globeImage = [UIImage imageNamed:@"SunImage"];
-        [bill.screenObj addImage:globeImage color:[UIColor whiteColor] size:CGSizeMake(0.75, 0.75)];
-        sunObj = [globeViewC addBillboards:@[bill] desc:@{kMaplyBillboardOrient: kMaplyBillboardOrientEye} mode:MaplyThreadAny];
+        [bill.screenObj addImage:globeImage color:[UIColor whiteColor] size:CGSizeMake(0.9, 0.9)];
+        sunObj = [globeViewC addBillboards:@[bill] desc:@{kMaplyBillboardOrient: kMaplyBillboardOrientEye,kMaplyDrawPriority: @(kMaplySunDrawPriorityDefault)} mode:MaplyThreadAny];
     }
     
     // Position for the moon
@@ -1062,12 +1062,12 @@ static const float EarthRadius = 6371000;
     } else {
         MaplyBillboard *bill = [[MaplyBillboard alloc] init];
         MaplyCoordinate3d centerGeo = [moon asPosition];
-        bill.center = MaplyCoordinate3dMake(centerGeo.x, centerGeo.y, 5.5*EarthRadius);
+        bill.center = MaplyCoordinate3dMake(centerGeo.x, centerGeo.y, 5.4*EarthRadius);
         bill.selectable = false;
         bill.screenObj = [[MaplyScreenObject alloc] init];
         UIImage *moonImage = [UIImage imageNamed:@"moon"];
         [bill.screenObj addImage:moonImage color:[UIColor colorWithWhite:moon.illuminatedFraction alpha:1.0] size:CGSizeMake(0.75, 0.75)];
-        moonObj = [globeViewC addBillboards:@[bill] desc:@{kMaplyBillboardOrient: kMaplyBillboardOrientEye} mode:MaplyThreadAny];
+        moonObj = [globeViewC addBillboards:@[bill] desc:@{kMaplyBillboardOrient: kMaplyBillboardOrientEye, kMaplyDrawPriority: @(kMaplyMoonDrawPriorityDefault)} mode:MaplyThreadAny];
     }
     
     // And some atmosphere, because the iDevice fill rate is just too fast

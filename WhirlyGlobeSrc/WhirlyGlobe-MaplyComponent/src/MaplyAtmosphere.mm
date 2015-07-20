@@ -272,7 +272,7 @@ static const double AtmosphereHeight = 1.05;
                                                 kMaplyShapeCenterX: @(0.0),
                                                 kMaplyShapeCenterY: @(0.0),
                                                 kMaplyShapeCenterZ: @(0.0),
-                                                kMaplyDrawPriority: @(0),
+                                                kMaplyDrawPriority: @(kMaplyAtmosphereDrawPriorityDefault),
                                                 kMaplyShader: kAtmosphereShader}];
     
     sunUpdater = [[SunUpdater alloc] initWithShader:shader viewC:viewC];
