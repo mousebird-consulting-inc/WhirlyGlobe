@@ -223,6 +223,14 @@
   */
 - (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
 
+/** @brief Animate the given position and height to the screen position over time.
+ @details This is similar to animateToPosition:time: but it also takes a height paramater
+ @param newPos The geographic position (lon/lat in radians) to move to.
+ @param height  the view point height above the map.
+ @param howLong How long in seconds to take getting there.
+ */
+- (void)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight time:(NSTimeInterval)howLong;
+
 /** @brief Set the center of the screen to the given position immediately.
     @param newPos The geographic position (lon/lat in radians) to move to.
   */
