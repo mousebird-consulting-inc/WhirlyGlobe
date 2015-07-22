@@ -1369,7 +1369,7 @@ static const int NumMegaMarkers = 15000;
         layer.requireElev = requireElev;
         layer.maxTiles = 512;
         layer.handleEdges = true;
-        layer.color = [UIColor colorWithWhite:0.5 alpha:0.5];
+//        layer.color = [UIColor colorWithWhite:0.5 alpha:0.5];
         if (startupMapType == Maply2DMap)
         {
             // Note: Debugging
