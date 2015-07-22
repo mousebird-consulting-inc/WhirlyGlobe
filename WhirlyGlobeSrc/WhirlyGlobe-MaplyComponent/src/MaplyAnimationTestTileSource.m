@@ -71,15 +71,18 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 // Make sure this tile exists in the real world
 - (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
 {
+    MaplyCoordinate ll,ur;
+    [_coordSys getBoundsLL:&ll ur:&ur];
+    
     int numTiles = 1<<tileID.level;
     double tileSizeX = (bbox->ur.x-bbox->ll.x)/numTiles;
     double tileSizeY = (bbox->ur.y-bbox->ll.y)/numTiles;
     double midX = tileSizeX*(tileID.x+0.5) + bbox->ll.x;
     double midY = tileSizeY*(tileID.y+0.5) + bbox->ll.y;
     
-    if (midX < -M_PI || midX > M_PI)
+    if (midX < ll.x || midX > ur.x)
         return false;
-    if (midY < -M_PI/2.0 || midY > M_PI/2.0)
+    if (midY < ll.y || midY > ur.y)
         return false;
     
     return true;
@@ -109,10 +112,11 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
         UIColor *fillColor = [UIColor whiteColor];
         if (_transparentMode)
         {
-            backColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
-            fillColor = [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
+            backColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.5];
+            fillColor = [UIColor colorWithRed:red green:green blue:blue alpha:0.5];
         } else {
             backColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+            fillColor = [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
         }
         CGContextRef ctx = UIGraphicsGetCurrentContext();
 
@@ -135,8 +139,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
             textStr = [NSString stringWithFormat:@"%d: (%d,%d)",tileID.level,tileID.x,tileID.y];
         else
             textStr = [NSString stringWithFormat:@"%d: (%d,%d); %d",tileID.level,tileID.x,tileID.y,frame];
-        // Note: Debugging
-//        [textStr drawInRect:CGRectMake(0,0,size.width,size.height) withFont:[UIFont systemFontOfSize:24.0]];
+        [textStr drawInRect:CGRectMake(0,0,size.width,size.height) withFont:[UIFont systemFontOfSize:24.0]];
         
         // Grab the image and shut things down
         UIImage *retImage = UIGraphicsGetImageFromCurrentImageContext();
