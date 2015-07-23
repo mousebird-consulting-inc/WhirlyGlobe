@@ -25,6 +25,5 @@
 @interface MaplyAnnotation()
 
 @property (nonatomic) SMCalloutView *calloutView;
-@property (nonatomic) MaplyCoordinate loc;
 
 @end
