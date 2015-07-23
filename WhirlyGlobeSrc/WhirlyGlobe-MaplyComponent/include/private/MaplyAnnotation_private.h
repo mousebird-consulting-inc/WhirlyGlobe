@@ -26,4 +26,6 @@
 
 @property (nonatomic) SMCalloutView *calloutView;
 
+- (void)setLoc:(MaplyCoordinate)newLoc;
+
 @end
