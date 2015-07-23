@@ -19,6 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <MaplyCoordinate.h>
 
 /** @brief This object displays an annotation at a particular point and will track that point as the map or globe moves.
     @details An annotation is used to point out some feature on the globe or map, typically that the user has tapped on.  It's a multi-part beast that may contain titles, subtitles, images, background views and such.
@@ -55,6 +56,9 @@
 
 /// @brief If set, a custom content view.  Title, subtitle and views are ignored.
 @property (nonatomic,strong) UIView *contentView;
+
+/// @brief The location of the annotation
+@property (nonatomic,readonly) MaplyCoordinate loc;
 
 /// @brief If set, we'll reposition the globe or map to make the annotation visible.
 /// @details If the annotation would be off screen we would normally reposition the globe or map to make it visible.  If this is et to false, we won't.
