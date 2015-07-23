@@ -104,4 +104,9 @@
     return _calloutView.contentView;
 }
 
+- (void)setLoc:(MaplyCoordinate)newLoc
+{
+    _loc = newLoc;
+}
+
 @end
