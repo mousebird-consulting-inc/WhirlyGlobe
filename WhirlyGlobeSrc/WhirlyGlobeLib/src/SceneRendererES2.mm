@@ -473,8 +473,11 @@ static const float ScreenOverlap = 0.1;
         // Let the active models to their thing
         // That thing had better not take too long
         for (NSObject<WhirlyKitActiveModel> *activeModel in scene->activeModels)
+        {
             [activeModel updateForFrame:baseFrameInfo];
-        
+            // Sometimes this gets reset
+            [EAGLContext setCurrentContext:context];
+        }
         if (perfInterval > 0)
             perfTimer.addCount("Scene changes", (int)scene->changeRequests.size());
         
