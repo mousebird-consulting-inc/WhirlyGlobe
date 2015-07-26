@@ -118,11 +118,19 @@ Point3f ScreenSpaceBuilder::DrawableWrap::calcRotationVec(CoordSystemDisplayAdap
     // Switch from counter-clockwise to clockwise
     rot = 2*M_PI-rot;
     
-    Point3f upVec = coordAdapter->isFlat() ? Point3f(0,0,1) : worldLoc.normalized();
-    // Vector pointing north
-    Point3f northVec = Point3f(-worldLoc.x(),-worldLoc.y(),1.0-worldLoc.z());
-    Point3f eastVec = northVec.cross(upVec);
-    northVec = upVec.cross(eastVec);
+    Point3f upVec,northVec,eastVec;
+    if (coordAdapter->isFlat())
+    {
+        upVec = Point3f(0,0,1);
+        northVec = Point3f(0,1,0);
+        eastVec = Point3f(1,0,0);
+    } else {
+        upVec = worldLoc.normalized();
+        // Vector pointing north
+        northVec = Point3f(-worldLoc.x(),-worldLoc.y(),1.0-worldLoc.z());
+        eastVec = northVec.cross(upVec);
+        northVec = upVec.cross(eastVec);
+    }
     
     Point3f rotVec = eastVec * sinf(rot) + northVec * cosf(rot);
     
