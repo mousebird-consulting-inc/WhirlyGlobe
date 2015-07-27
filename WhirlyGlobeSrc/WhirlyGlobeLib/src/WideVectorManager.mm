@@ -944,7 +944,7 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,NSDiction
              idIt != sceneRep->drawIDs.end(); ++idIt)
         {
             // Make up a BasicDrawableInstance
-            BasicDrawableInstance *drawInst = new BasicDrawableInstance("WideVectorManager",*idIt);
+            BasicDrawableInstance *drawInst = new BasicDrawableInstance("WideVectorManager",*idIt,BasicDrawableInstance::ReuseStyle);
             
             // Changed color
             if ([desc objectForKey:@"color"]) {
