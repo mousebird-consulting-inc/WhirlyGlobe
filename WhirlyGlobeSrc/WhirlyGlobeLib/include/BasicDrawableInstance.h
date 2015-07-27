@@ -45,8 +45,11 @@ namespace WhirlyKit
 class BasicDrawableInstance : public Drawable
 {
 public:
-    /// Construct emtpy
-    BasicDrawableInstance(const std::string &name,SimpleIdentity masterID);
+    /// Either the old style where we reuse drawables or the new style, largely for models
+    typedef enum {ReuseStyle,LocalStyle} Style;
+    
+    /// Construct empty
+    BasicDrawableInstance(const std::string &name,SimpleIdentity masterID,Style instanceStyle);
     
     /// Return the local MBR, if we're working in a non-geo coordinate system
     virtual Mbr getLocalMbr() const;
@@ -154,6 +157,7 @@ public:
     void addInstances(const std::vector<SingleInstance> &insts);
     
 protected:
+    Style instanceStyle;
     SimpleIdentity programID;
     bool requestZBuffer,writeZBuffer;
     SimpleIdentity masterID;

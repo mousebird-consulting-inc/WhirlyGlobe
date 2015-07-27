@@ -466,7 +466,7 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     // Instance each of the drawables in the base
     for (SimpleIdentity baseDrawID : baseSceneRep->drawIDs)
     {
-        BasicDrawableInstance *drawInst = new BasicDrawableInstance("GeometryManager",baseDrawID);
+        BasicDrawableInstance *drawInst = new BasicDrawableInstance("GeometryManager",baseDrawID,BasicDrawableInstance::LocalStyle);
         [geomInfo setupBasicDrawableInstance:drawInst];
         //                    draw->setColor([geomInfo.color asRGBAColor]);
         drawInst->setRequestZBuffer(true);
