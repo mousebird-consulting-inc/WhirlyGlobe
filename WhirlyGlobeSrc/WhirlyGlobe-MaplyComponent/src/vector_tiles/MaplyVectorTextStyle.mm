@@ -205,6 +205,10 @@ typedef enum {
                         label.loc = middle;
                         label.layoutPlacement = kMaplyLayoutCenter;
                         label.rotation = -1 * rot+M_PI/2.0;
+                        if(label.rotation > M_PI_2 || label.rotation < -M_PI_2) {
+                            label.rotation += M_PI;
+                        }
+
                         label.keepUpright = true;
                     } else {
                         label = nil;
