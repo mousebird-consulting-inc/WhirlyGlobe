@@ -81,6 +81,18 @@ Click + and add the following path.
 "$(SRCROOT)/libs/WhirlyGlobeMaply/WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/"
 {% endhighlight %}
 
+### Bridging header for Swift
+
+Maybe you're a lucky guy and you're doing your iOS project using Swift. In such case, you need one final step. Go to Build Settings and look for "Objective-C Bridging Header".
+
+![Adding the Objective-C bridging header]({{ site.baseurl }}/images/tutorial/source_dist_4.png)
+
+Type there the following path:
+
+{% highlight bash %}
+$(SRCROOT)/libs/WhirlyGlobeMaply/WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/MaplyBridge.h
+{% endhighlight %}
+
 At this point, your project should be set up properly and you’ll be linked to the github repo for updates.
 
 Next up, let’s look at something!
