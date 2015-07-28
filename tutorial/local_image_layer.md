@@ -11,7 +11,7 @@ You'll need to have done the [globe](your_first_globe.html) or [map](your_first_
 
 ![Xcode ViewController.m]({{ site.baseurl }}/images/tutorial/local_image_layer_1.png)
 
-If you haven't got one here is a suitable [ViewController.m]({{ site.baseurl }}/tutorial/code/ViewController_globe_and_map.m) file to start with.  This version handles both a globe and a map and makes a nice starting point.
+If you haven't got one here is a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_globe_and_map.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_globe_and_map.swift)) file to start with.  This version handles both a globe and a map and makes a nice starting point.
                                            
 ### Geography Class MBTiles
 
@@ -33,9 +33,10 @@ There are a few steps to displaying an MBTiles file on your globe or map.
 - Spin up a MaplyQuadImageTilesLayer to display it.
 - Start in a useful position on the globe
 
-If you worked through the globe or the map example, you'll need to add this little bit of code to your viewDidLoad method.  This will make the examples work with either globe or map.  If you're using the ViewController.m from above, you don't need it.
+If you worked through the globe or the map example, you'll need to add this little bit of code to your viewDidLoad method.  This will make the examples work with either globe or map.  If you're using the ViewController file from above, you don't need it.
 
-{% highlight objc %}
+{% multiple_code %}
+  {% highlight objc %}
 // this logic makes it work for either globe or map
 WhirlyGlobeViewController *globeViewC = nil;
 MaplyViewController *mapViewC = nil;
@@ -43,11 +44,20 @@ if ([theViewC isKindOfClass:[WhirlyGlobeViewController class]])
     globeViewC = (WhirlyGlobeViewController *)theViewC;
 else
     mapViewC = (MaplyViewController *)theViewC;
-{% endhighlight %}
+  {% endhighlight %}
+
+  {----}
+
+  {% highlight swift %}
+let globeViewC = theViewC as? WhirlyGlobeViewController
+let mapViewC = theViewC as? MaplyViewController
+  {% endhighlight %}
+{% endmultiple_code %}
 
 Here's how you open the MBTiles database, create the layer and add it to the globe or map.  These changes go in the viewDidLoad method.
 
-{% highlight objc %}
+{% multiple_code %}
+  {% highlight objc %}
 // we want a black background for a globe, a white background for a map.
 theViewC.clearColor = (globeViewC != nil) ? [UIColor blackColor] : [UIColor whiteColor];
 
@@ -71,17 +81,52 @@ layer.singleLevelLoading = false;
 [theViewC addLayer:layer];
 
 // start up over San Francisco, center of the universe
-if (globeViewC != nil)
-{
-  globeViewC.height = 0.8;
+if (globeViewC != nil) {
+    globeViewC.height = 0.8;
     [globeViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192,37.7793)
                 time:1.0];
 } else {
-  mapViewC.height = 1.0;
-  [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192,37.7793)
+    mapViewC.height = 1.0;
+    [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192,37.7793)
             time:1.0];
 }
-{% endhighlight %}
+  {% endhighlight %}
+
+  {----}
+
+  {% highlight swift %}
+// we want a black background for a globe, a white background for a map.
+theViewC!.clearColor = (globeViewC != nil) ? UIColor.blackColor() : UIColor.whiteColor()
+
+// and thirty fps if we can get it ­ change this to 3 if you find your app is struggling
+theViewC!.frameInterval = 2
+
+// set up the data source
+let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres")
+
+// set up the layer
+let layer = MaplyQuadImageTilesLayer(coordSystem: tileSource.coordSys, tileSource: tileSource)
+
+layer.handleEdges = (globeViewC != nil)
+layer.coverPoles = (globeViewC != nil)
+layer.requireElev = false
+layer.waitLoad = false
+layer.drawPriority = 0
+layer.singleLevelLoading = false
+theViewC!.addLayer(layer)
+
+// start up over Madrid, center of the old-world
+if let globeViewC = globeViewC {
+    globeViewC.height = 0.8
+    globeViewC.animateToPosition(MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
+}
+else if let mapViewC = mapViewC {
+    mapViewC.height = 1.0
+    mapViewC.animateToPosition(MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
+}
+  {% endhighlight %}
+{% endmultiple_code %}
+
 
 Now, when you run HelloEarth, you should see a colorful set of countries looking back at you.
 
