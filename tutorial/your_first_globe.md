@@ -20,14 +20,30 @@ Next, we'll need to import the headers. Open ViewController.h and and this to th
 
 Now let's actually add a WhirlyGlobeViewController. We're going to keep it very simple at first – we just want to verify the project setup before getting much further along.
 
-Open ViewController.m, and find the @implementation line.  Modify it like so.
+For Objective-C, open ViewController.m, and find the @implementation line.  For Swift, open your ViewController.swift file. Modify it like so.
 
-{% highlight objc %}
-@implementation ViewController
-{
-  WhirlyGlobeViewController *theViewC;
-}
-{% endhighlight %}
+
+{% multiple_code %}
+
+  {% highlight objc %}
+  @implementation ViewController
+  {
+    WhirlyGlobeViewController *theViewC;
+  }
+  {% endhighlight %}
+
+  {----}
+
+  {% highlight Swift %}
+  class ViewController : UIViewController {
+    var theViewC: WhirlyGlobeViewController?
+    
+    ...
+  }
+  {% endhighlight %}
+
+{% endmultiple_code %}
+
 
 Now we've got a private WhirlyGlobeViewController. Let's set it up but leave it empty, and add it to our view. Modify the viewDidLoad method to read as follows.
 
