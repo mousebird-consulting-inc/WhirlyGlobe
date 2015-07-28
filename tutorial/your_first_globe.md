@@ -12,7 +12,7 @@ Open HelloEarth in Xcode.  The template we used earlier should have ViewControll
 
 ![Xcode HelloEarth]({{ site.baseurl }}/images/tutorial/globe_snap_1.png)
 
-Next, we'll need to import the headers. Open ViewController.h and and this to the list of imports.
+If you're using Objective-C, we'll need to import the headers. Open ViewController.h and and this to the list of imports.
 
 {% highlight objc %}
 #import <WhirlyGlobeComponent.h>
@@ -24,30 +24,29 @@ For Objective-C, open ViewController.m, and find the @implementation line.  For 
 
 
 {% multiple_code %}
-
   {% highlight objc %}
-  @implementation ViewController
-  {
-    WhirlyGlobeViewController *theViewC;
-  }
-  {% endhighlight %}
+@implementation ViewController
+{
+  WhirlyGlobeViewController *theViewC;
+}
+{% endhighlight %}
 
   {----}
 
-  {% highlight Swift %}
+  {% highlight swift %}
   class ViewController : UIViewController {
-    var theViewC: WhirlyGlobeViewController?
+      private var theViewC: WhirlyGlobeViewController?
     
     ...
   }
   {% endhighlight %}
-
 {% endmultiple_code %}
 
 
 Now we've got a private WhirlyGlobeViewController. Let's set it up but leave it empty, and add it to our view. Modify the viewDidLoad method to read as follows.
 
-{% highlight objc %}
+{% multiple_code %}
+  {% highlight objc %}
 (void)viewDidLoad
 {
   [super viewDidLoad];
@@ -58,7 +57,23 @@ Now we've got a private WhirlyGlobeViewController. Let's set it up but leave it 
   theViewC.view.frame = self.view.bounds;
   [self addChildViewController:theViewC];
 }
-{% endhighlight %}
+  {% endhighlight %}
+
+  {----}
+
+  {% highlight swift %}
+override func viewDidLoad() {
+  super.viewDidLoad()
+      
+  // Create an empty globe and add it to the view
+  theViewC = WhirlyGlobeViewController()
+  self.view.addSubview(theViewC!.view)
+  theViewC!.view.frame = self.view.bounds
+  addChildViewController(theViewC!)
+}
+  {% endhighlight %}
+{% endmultiple_code %}
+
 
 That's it! Pick a real or virtual iOS device and run the app. If you get a blank screen (and no build errors), you win. At this point you can be certain that your project setup is correct, and you can proceed to add WhirlyGlobe­-Maply features with confidence.
 
