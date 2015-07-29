@@ -440,15 +440,6 @@
 		88115B7618A068F6008D702C /* MaplyDoubleTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88115B7418A068F6008D702C /* MaplyDoubleTapDelegate.mm */; };
 		88115B7A18A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88115B7818A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm */; };
 		88115B7F18A14EAF008D702C /* MaplyZoomGestureDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88115B7E18A14EAF008D702C /* MaplyZoomGestureDelegate.mm */; };
-		8813F55C1B468555004E595F /* common.h in Headers */ = {isa = PBXBuildFile; fileRef = 8813F5521B468555004E595F /* common.h */; };
-		8813F55D1B468555004E595F /* eqarea.h in Headers */ = {isa = PBXBuildFile; fileRef = 8813F5531B468555004E595F /* eqarea.h */; };
-		8813F55E1B468555004E595F /* eqdist.h in Headers */ = {isa = PBXBuildFile; fileRef = 8813F5541B468555004E595F /* eqdist.h */; };
-		8813F55F1B468555004E595F /* fixed.h in Headers */ = {isa = PBXBuildFile; fileRef = 8813F5551B468555004E595F /* fixed.h */; };
-		8813F5601B468555004E595F /* LatLongD.h in Headers */ = {isa = PBXBuildFile; fileRef = 8813F5561B468555004E595F /* LatLongD.h */; };
-		8813F5611B468555004E595F /* oct.h in Headers */ = {isa = PBXBuildFile; fileRef = 8813F5571B468555004E595F /* oct.h */; };
-		8813F5631B468555004E595F /* snorm.h in Headers */ = {isa = PBXBuildFile; fileRef = 8813F5591B468555004E595F /* snorm.h */; };
-		8813F5641B468555004E595F /* spherical.h in Headers */ = {isa = PBXBuildFile; fileRef = 8813F55A1B468555004E595F /* spherical.h */; };
-		8813F5651B468555004E595F /* stereo.h in Headers */ = {isa = PBXBuildFile; fileRef = 8813F55B1B468555004E595F /* stereo.h */; };
 		8813F5701B468AE5004E595F /* WhirlyOctEncoding.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8813F56F1B468AE5004E595F /* WhirlyOctEncoding.mm */; };
 		8813F5721B468B16004E595F /* WhirlyOctEncoding.h in Headers */ = {isa = PBXBuildFile; fileRef = 8813F5711B468B16004E595F /* WhirlyOctEncoding.h */; };
 		884D4F6D1975812700F2D517 /* MaplyTouchCancelAnimationDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 884D4F6B1975812700F2D517 /* MaplyTouchCancelAnimationDelegate.mm */; };
@@ -934,15 +925,6 @@
 		88115B7D18A14E6A008D702C /* MaplyZoomGestureDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyZoomGestureDelegate.h; sourceTree = "<group>"; };
 		88115B7E18A14EAF008D702C /* MaplyZoomGestureDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyZoomGestureDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
 		88115B8018A153DC008D702C /* MaplyZoomGestureDelegate_private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyZoomGestureDelegate_private.h; sourceTree = "<group>"; };
-		8813F5521B468555004E595F /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
-		8813F5531B468555004E595F /* eqarea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eqarea.h; sourceTree = "<group>"; };
-		8813F5541B468555004E595F /* eqdist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eqdist.h; sourceTree = "<group>"; };
-		8813F5551B468555004E595F /* fixed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fixed.h; sourceTree = "<group>"; };
-		8813F5561B468555004E595F /* LatLongD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LatLongD.h; sourceTree = "<group>"; };
-		8813F5571B468555004E595F /* oct.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = oct.h; sourceTree = "<group>"; };
-		8813F5591B468555004E595F /* snorm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = snorm.h; sourceTree = "<group>"; };
-		8813F55A1B468555004E595F /* spherical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spherical.h; sourceTree = "<group>"; };
-		8813F55B1B468555004E595F /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo.h; sourceTree = "<group>"; };
 		8813F56F1B468AE5004E595F /* WhirlyOctEncoding.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WhirlyOctEncoding.mm; path = src/WhirlyOctEncoding.mm; sourceTree = SOURCE_ROOT; };
 		8813F5711B468B16004E595F /* WhirlyOctEncoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyOctEncoding.h; sourceTree = "<group>"; };
 		884D4F6B1975812700F2D517 /* MaplyTouchCancelAnimationDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTouchCancelAnimationDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
@@ -1000,7 +982,6 @@
 		08FB77AEFE84172EC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				8813F5511B468555004E595F /* octencoding */,
 				2BA2322A17984F1A0063CC84 /* glu */,
 				2B4AE3B117662D4700850F3F /* libjson */,
 				2B951D8A12F09E09005003AE /* shapelib-1.3.0b2 */,
@@ -1950,23 +1931,6 @@
 			name = elevation;
 			sourceTree = "<group>";
 		};
-		8813F5511B468555004E595F /* octencoding */ = {
-			isa = PBXGroup;
-			children = (
-				8813F5521B468555004E595F /* common.h */,
-				8813F5531B468555004E595F /* eqarea.h */,
-				8813F5541B468555004E595F /* eqdist.h */,
-				8813F5551B468555004E595F /* fixed.h */,
-				8813F5561B468555004E595F /* LatLongD.h */,
-				8813F5571B468555004E595F /* oct.h */,
-				8813F5591B468555004E595F /* snorm.h */,
-				8813F55A1B468555004E595F /* spherical.h */,
-				8813F55B1B468555004E595F /* stereo.h */,
-			);
-			name = octencoding;
-			path = "../../third-party/octencoding";
-			sourceTree = "<group>";
-		};
 		8853E7AD1B3050420039C38C /* elevation */ = {
 			isa = PBXGroup;
 			children = (
@@ -1983,7 +1947,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8813F5651B468555004E595F /* stereo.h in Headers */,
 				2B3A0D42133405780085EF43 /* WhirlyGlobe.h in Headers */,
 				2B3A0D43133405780085EF43 /* WhirlyVector.h in Headers */,
 				2B3A0D44133405780085EF43 /* WhirlyGeometry.h in Headers */,
@@ -1998,7 +1961,6 @@
 				2B3A0D4E133405780085EF43 /* PanDelegate.h in Headers */,
 				2B3A0D4F133405780085EF43 /* TapMessage.h in Headers */,
 				2B3A0D50133405780085EF43 /* TapDelegate.h in Headers */,
-				8813F55F1B468555004E595F /* fixed.h in Headers */,
 				2B3A0D51133405780085EF43 /* VectorData.h in Headers */,
 				2B3A0D52133405780085EF43 /* ShapeReader.h in Headers */,
 				2B3A0D53133405780085EF43 /* Identifiable.h in Headers */,
@@ -2007,7 +1969,6 @@
 				2BB7A9681A250A5600E50DC5 /* GeometryManager.h in Headers */,
 				2B3A0D55133405780085EF43 /* Drawable.h in Headers */,
 				2B3A0D56133405780085EF43 /* Cullable.h in Headers */,
-				8813F55D1B468555004E595F /* eqarea.h in Headers */,
 				2B3A0D57133405780085EF43 /* Scene.h in Headers */,
 				2B3A0D58133405780085EF43 /* GlobeView.h in Headers */,
 				2B95F90F18A594D800D72645 /* MaplyDoubleTapDragDelegate.h in Headers */,
@@ -2081,7 +2042,6 @@
 				2B4AE3F91766610900850F3F /* JSONStream.h in Headers */,
 				2B4AE3FB1766610900850F3F /* JSONValidator.h in Headers */,
 				2B4AE3FD1766610900850F3F /* JSONWorker.h in Headers */,
-				8813F5611B468555004E595F /* oct.h in Headers */,
 				2B4AE4001766610900850F3F /* NumberToString.h in Headers */,
 				2B08059617EB955C0016C813 /* LoadedTile.h in Headers */,
 				2BA726DB1778EB11006C710B /* MaplyAnimateFlat.h in Headers */,
@@ -2100,17 +2060,14 @@
 				2B4AFB881803152300C3F948 /* TileQuadOfflineRenderer.h in Headers */,
 				884D4F6F1975818C00F2D517 /* MaplyTouchCancelAnimationDelegate.h in Headers */,
 				2BA2326617984F510063CC84 /* geom.h in Headers */,
-				8813F5601B468555004E595F /* LatLongD.h in Headers */,
 				2BADF96919A7D85000C40CAA /* ScreenSpaceDrawable.h in Headers */,
 				2BA2326817984F510063CC84 /* memalloc.h in Headers */,
 				2BA2326A17984F510063CC84 /* mesh.h in Headers */,
 				2BA2326C17984F510063CC84 /* normal.h in Headers */,
 				2BA2326D17984F510063CC84 /* priorityq-heap.h in Headers */,
-				8813F5641B468555004E595F /* spherical.h in Headers */,
 				8813F5721B468B16004E595F /* WhirlyOctEncoding.h in Headers */,
 				2BA2326F17984F510063CC84 /* priorityq-sort.h in Headers */,
 				2BA2327117984F510063CC84 /* priorityq.h in Headers */,
-				8813F5631B468555004E595F /* snorm.h in Headers */,
 				2BA2327317984F510063CC84 /* render.h in Headers */,
 				2BA2327517984F510063CC84 /* sweep.h in Headers */,
 				2B4BB0B81B0EB5A800C9140E /* ParticleSystemLayer.h in Headers */,
@@ -2120,7 +2077,6 @@
 				2BA2328B17986ACA0063CC84 /* LabelManager.h in Headers */,
 				2BA2328C17986ACA0063CC84 /* LayoutManager.h in Headers */,
 				2BA2328D17986ACA0063CC84 /* MarkerManager.h in Headers */,
-				8813F55C1B468555004E595F /* common.h in Headers */,
 				2BA2328E17986ACA0063CC84 /* ShapeManager.h in Headers */,
 				2B95F91618A5AB1F00D72645 /* GlobeDoubleTapDragDelegate.h in Headers */,
 				2BA2328F17986ACA0063CC84 /* VectorManager.h in Headers */,
@@ -2128,7 +2084,6 @@
 				2BB1786C17A6C6C400AD0614 /* DefaultShaderPrograms.h in Headers */,
 				2BB1787417A8313E00AD0614 /* BillboardManager.h in Headers */,
 				2BB1787517A8313E00AD0614 /* ParticleSystemManager.h in Headers */,
-				8813F55E1B468555004E595F /* eqdist.h in Headers */,
 				2BB1787617A8313E00AD0614 /* LoftManager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
