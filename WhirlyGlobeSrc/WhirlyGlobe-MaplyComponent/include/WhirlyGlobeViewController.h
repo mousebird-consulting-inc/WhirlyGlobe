@@ -92,6 +92,9 @@
   */
 @interface WhirlyGlobeViewControllerSimpleAnimationDelegate : NSObject <WhirlyGlobeViewControllerAnimationDelegate>
 
+/// @brief Initialize with an animation state to copy
+- (id)initWithState:(WhirlyGlobeViewControllerAnimationState *)endState;
+
 /// @brief Location at the end of the animation
 @property (nonatomic) MaplyCoordinate loc;
 
@@ -353,6 +356,22 @@
     @details This returns the current view parameters in a single WhirlyGlobeViewControllerAnimationState.
   */
 - (WhirlyGlobeViewControllerAnimationState *)getViewState;
+
+/** @brief Return a view state looking at the given location.
+    @details Creates a view state that looks at the given location, taking tilt and heading into account.
+    @param coord The location the user will be looking at.
+    @param tilt Tilt off of vertical.
+    @param heading Heading calculated from due north.
+    @param alt Altitude of the point the user will be looking at (0, is a good value).
+    @param range How far the user will be from the location they're looking at.
+    @return The view state encapsulating the user location.  Will be nil if the parameters weren't valid.
+  */
+- (WhirlyGlobeViewControllerAnimationState *)viewStateForLookAt:(MaplyCoordinate)coord tilt:(float)tilt heading:(float)heading altitude:(float)alt range:(float)range;
+
+/** @brief Apply viewing constraints to the given view state.
+    @details This applies active viewing constraints, such as min and max height and calculated tilt, if it's on to the given view state. This is particularly useful when controlled tilt is on.
+  */
+- (void)applyConstraintsToViewState:(WhirlyGlobeViewControllerAnimationState *)viewState;
 
 /** @brief Find a selectable object at or near the given location.
     @details This runs immediately and looks for a Maply object at the given location.  It differs from the WhirlyGlobeViewControllerDelegate in that it doesn't require user interaction.
