@@ -1004,11 +1004,13 @@ static const float PerfOutputDelay = 15.0;
     if (![interactLayer startOfWork])
         return nil;
     
-    MaplyTexture *tex = [interactLayer addTextureToAtlas:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+    MaplyTexture *maplyTex = [interactLayer addTextureToAtlas:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+    if (maplyTex)
+        maplyTex.viewC = self;
 
     [interactLayer endOfWork];
     
-    return tex;
+    return maplyTex;
 }
 
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects
