@@ -67,14 +67,25 @@ using namespace WhirlyGlobe;
     NSTimeInterval startTime,endTime;
 }
 
+- (id)initWithState:(WhirlyGlobeViewControllerAnimationState *)inEndState
+{
+    self = [super init];
+    endState = inEndState;
+    
+    return self;
+}
+
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC startState:(WhirlyGlobeViewControllerAnimationState *)inStartState startTime:(NSTimeInterval)inStartTime endTime:(NSTimeInterval)inEndTime
 {
     startState = inStartState;
-    endState = [[WhirlyGlobeViewControllerAnimationState alloc] init];
-    endState.heading = _heading;
-    endState.height = _height;
-    endState.tilt = _tilt;
-    endState.pos = _loc;
+    if (!endState)
+    {
+        endState = [[WhirlyGlobeViewControllerAnimationState alloc] init];
+        endState.heading = _heading;
+        endState.height = _height;
+        endState.tilt = _tilt;
+        endState.pos = _loc;
+    }
     startTime = inStartTime;
     endTime = inEndTime;
 }
@@ -1346,6 +1357,59 @@ using namespace WhirlyGlobe;
     state.height = height;
     
     return state;
+}
+
+- (WhirlyGlobeViewControllerAnimationState *)viewStateForLookAt:(MaplyCoordinate)coord tilt:(float)tilt heading:(float)heading altitude:(float)alt range:(float)range
+{
+    Vector3f north(0,0,1);
+    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter = globeView.coordAdapter;
+    WhirlyKit::CoordSystem *coordSys = coordAdapter->getCoordSystem();
+    Vector3f p0norm = coordAdapter->localToDisplay(coordSys->geographicToLocal(WhirlyKit::GeoCoord(coord.x,coord.y)));
+    // Position we're looking at in display coords
+    Vector3f p0 = p0norm * (1.0 + alt);
+    
+    Vector3f right = north.cross(p0norm);
+    // This will happen near the poles
+    if (right.squaredNorm() < 1e-5)
+        right = Vector3f(1,0,0);
+    Eigen::Affine3f tiltRot(Eigen::AngleAxisf(tilt,right));
+    Vector3f p0normRange = p0norm * (range);
+    Vector4f rVec4 = tiltRot.matrix() * Vector4f(p0normRange.x(), p0normRange.y(), p0normRange.z(),1.0);
+    Vector3f rVec(rVec4.x(),rVec4.y(),rVec4.z());
+    Vector3f p1 = p0 + rVec;
+    Vector3f p1norm = p1.normalized();
+    
+    float dot = (-p1.normalized()).dot((p0-p1).normalized());
+    
+    WhirlyGlobeViewControllerAnimationState *state = [[WhirlyGlobeViewControllerAnimationState alloc] init];
+    
+    WhirlyKit::GeoCoord outGeoCoord = coordSys->localToGeographic(coordAdapter->displayToLocal(p1norm));
+    state.pos = MaplyCoordinateMake(outGeoCoord.lon(), outGeoCoord.lat());
+    state.tilt = acosf(dot);
+    
+    if(isnan(state.tilt) || isnan(state.pos.x) || isnan(state.pos.y))
+        return nil;
+    
+    state.height = sqrtf(p1.dot(p1)) - 1.0;
+    state.heading = heading;
+    
+    return state;
+}
+
+- (void)applyConstraintsToViewState:(WhirlyGlobeViewControllerAnimationState *)viewState
+{
+    if (pinchDelegate)
+    {
+        if (viewState.height < pinchDelegate.minHeight)
+            viewState.height = pinchDelegate.minHeight;
+        if (viewState.height > pinchDelegate.maxHeight)
+            viewState.height = pinchDelegate.maxHeight;
+    }
+
+    if (tiltControlDelegate)
+    {
+        viewState.tilt = [tiltControlDelegate tiltFromHeight:viewState.height];
+    }
 }
 
 - (bool) getCurrentExtents:(MaplyBoundingBox *)bbox
