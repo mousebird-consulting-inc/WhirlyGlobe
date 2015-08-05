@@ -184,21 +184,24 @@
 
 /// Widened vectors are joined with miters
 #define kMaplyWideVecMiterJoin @"miter"
+// Note: Not yet implemented
 /// Widened vectors are joined with a curve
-#define kMaplyWideVecRoundJoin @"round"
+//#define kMaplyWideVecRoundJoin @"round"
 /// Widened vectors are joined with a bevel
 #define kMaplyWideVecBevelJoin @"bevel"
 
 /// For wide vectors we can control the ends
 /// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
-#define kMaplyWideVecLineCapType @"wideveclinecaptype"
+//#define kMaplyWideVecLineCapType @"wideveclinecaptype"
+
+// Note: These are not currently implemented
 
 /// Widened vector ends are flush
-#define kMaplyWideVecButtCap @"butt"
+//#define kMaplyWideVecButtCap @"butt"
 /// Widened vector ends are round (e.g. hot dog roads)
-#define kMaplyWideVecRoundCap @"round"
+//#define kMaplyWideVecRoundCap @"round"
 /// Widened vector ends are extended a bit and then flush
-#define kMaplyWideVecSquareCap @"square"
+//#define kMaplyWideVecSquareCap @"square"
 
 /// This number defines a limit past which the wide vector will switch from miters to bevels
 #define kMaplyWideVecMiterLimit @"miterLimit"
