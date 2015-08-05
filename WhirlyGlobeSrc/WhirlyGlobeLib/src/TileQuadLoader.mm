@@ -586,7 +586,7 @@ using namespace WhirlyKit;
     }
     
     bool loadingSuccess = true;
-    if (!isPlaceholder && (_numImages != loadImages.size() && (frame != -1 && loadImages.size() != 1)))
+    if (!isPlaceholder && (loadImages.empty() || (_numImages != loadImages.size() && (frame != -1 && loadImages.size() != 1))))
     {
         // Only print out a message if they bothered to hand in something.  If not, they meant
         //  to tell us it was empty.
