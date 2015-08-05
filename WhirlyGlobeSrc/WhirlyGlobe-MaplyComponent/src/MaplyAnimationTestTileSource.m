@@ -19,6 +19,7 @@
  */
 
 #import "MaplyAnimationTestTileSource.h"
+#import "MaplyQuadImageTilesLayer.h"
 
 @implementation MaplyAnimationTestTileSource
 {
@@ -63,11 +64,6 @@
 static const int MaxDebugColors = 10;
 static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x4F256F, 0xD89CDE, 0x773B28, 0x333D99, 0x862D52, 0xC2C653, 0xB8583D};
 
-- (MaplyImageTile *)imageForTile:(MaplyTileID)tileID
-{
-    return [self imageForTile:tileID frame:-1];
-}
-
 // Make sure this tile exists in the real world
 - (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
 {
@@ -88,67 +84,88 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     return true;
 }
 
-- (MaplyImageTile *)imageForTile:(MaplyTileID)tileID frame:(int)frame
+- (NSData *)imgDataForTile:(MaplyTileID)tileID frame:(int)frame
 {
-    NSMutableArray *images = [NSMutableArray array];
+    CGSize size;  size = CGSizeMake(128,128);
+    UIGraphicsBeginImageContext(size);
     
-//    NSLog(@"Loading tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-    
-    // One for each layer we're
-    for (unsigned int ii=0;ii<_depth;ii++)
+    // Draw into the image context
+    int hexColor = debugColors[tileID.level % MaxDebugColors];
+    float red = (((hexColor) >> 16) & 0xFF)/255.0;
+    float green = (((hexColor) >> 8) & 0xFF)/255.0;
+    float blue = (((hexColor) >> 0) & 0xFF)/255.0;
+    UIColor *backColor = nil;
+    UIColor *fillColor = [UIColor whiteColor];
+    if (_transparentMode)
     {
-        // Random delay
-        usleep(drand48()* 0.215 * 1e6);
-
-        CGSize size;  size = CGSizeMake(128,128);
-        UIGraphicsBeginImageContext(size);
-        
-        // Draw into the image context
-        int hexColor = debugColors[tileID.level % MaxDebugColors];
-        float red = (((hexColor) >> 16) & 0xFF)/255.0;
-        float green = (((hexColor) >> 8) & 0xFF)/255.0;
-        float blue = (((hexColor) >> 0) & 0xFF)/255.0;
-        UIColor *backColor = nil;
-        UIColor *fillColor = [UIColor whiteColor];
-        if (_transparentMode)
-        {
-            backColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.5];
-            fillColor = [UIColor colorWithRed:red green:green blue:blue alpha:0.5];
-        } else {
-            backColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
-            fillColor = [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
-        }
-        CGContextRef ctx = UIGraphicsGetCurrentContext();
-
-        // Draw a rectangle around the edges for testing
-        [backColor setFill];
-        if (_transparentMode)
-        {
-            CGContextFillRect(ctx, CGRectMake(0, 0, size.width, size.height));
-            [fillColor setStroke];
-            CGContextStrokeRect(ctx, CGRectMake(0, 0, size.width-1, size.height-1));
-        } else {
-            CGContextFillRect(ctx, CGRectMake(0,0,size.width,size.height));
-        }
-        
+        backColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.5];
+        fillColor = [UIColor colorWithRed:red green:green blue:blue alpha:0.5];
+    } else {
+        backColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        fillColor = [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
+    }
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    
+    // Draw a rectangle around the edges for testing
+    [backColor setFill];
+    if (_transparentMode)
+    {
+        CGContextFillRect(ctx, CGRectMake(0, 0, size.width, size.height));
         [fillColor setStroke];
-        [fillColor setFill];
-        CGContextSetTextDrawingMode(ctx, kCGTextFill);
-        NSString *textStr = nil;
-        if (_depth == 1)
-            textStr = [NSString stringWithFormat:@"%d: (%d,%d)",tileID.level,tileID.x,tileID.y];
-        else
-            textStr = [NSString stringWithFormat:@"%d: (%d,%d); %d",tileID.level,tileID.x,tileID.y,frame];
-        [textStr drawInRect:CGRectMake(0,0,size.width,size.height) withFont:[UIFont systemFontOfSize:24.0]];
-        
-        // Grab the image and shut things down
-        UIImage *retImage = UIGraphicsGetImageFromCurrentImageContext();
-        NSData *imgData = UIImagePNGRepresentation(retImage);
-        UIGraphicsEndImageContext();
-        [images addObject:imgData];
+        CGContextStrokeRect(ctx, CGRectMake(0, 0, size.width-1, size.height-1));
+    } else {
+        CGContextFillRect(ctx, CGRectMake(0,0,size.width,size.height));
     }
     
-    return [[MaplyImageTile alloc] initWithPNGorJPEGDataArray:images];
+    [fillColor setStroke];
+    [fillColor setFill];
+    CGContextSetTextDrawingMode(ctx, kCGTextFill);
+    NSString *textStr = nil;
+    if (_depth == 1)
+        textStr = [NSString stringWithFormat:@"%d: (%d,%d)",tileID.level,tileID.x,tileID.y];
+    else
+        textStr = [NSString stringWithFormat:@"%d: (%d,%d); %d",tileID.level,tileID.x,tileID.y,frame];
+    [textStr drawInRect:CGRectMake(0,0,size.width,size.height) withFont:[UIFont systemFontOfSize:24.0]];
+    
+    // Grab the image and shut things down
+    UIImage *retImage = UIGraphicsGetImageFromCurrentImageContext();
+    NSData *imgData = UIImagePNGRepresentation(retImage);
+    UIGraphicsEndImageContext();
+
+    return imgData;
+}
+
+- (void)startFetchLayer:(MaplyQuadImageTilesLayer *)layer tile:(MaplyTileID)tileID
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+                   ^{
+                       // Random delay
+                       usleep(drand48()* 0.115 * 1e6);
+
+                       NSMutableArray *images = [NSMutableArray array];
+                       for (unsigned int ii=0;ii<layer.imageDepth;ii++)
+                       {
+                           NSData *imgData = [self imgDataForTile:tileID frame:ii];
+                           [images addObject:imgData];
+                       }
+                       
+                       [layer loadedImages:[[MaplyImageTile alloc] initWithPNGorJPEGDataArray:images] forTile:tileID];
+                   }
+                   );
+}
+
+- (void)startFetchLayer:(MaplyQuadImageTilesLayer *)layer tile:(MaplyTileID)tileID frame:(int)frame
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+                   ^{
+                       // Random delay
+                       usleep(drand48()* 0.115 * 1e6);
+
+                       NSData *imgData = [self imgDataForTile:tileID frame:frame];
+                       
+                       [layer loadedImages:[[MaplyImageTile alloc] initWithPNGorJPEGData:imgData] forTile:tileID frame:frame];
+                   }
+                   );
 }
 
 @end
