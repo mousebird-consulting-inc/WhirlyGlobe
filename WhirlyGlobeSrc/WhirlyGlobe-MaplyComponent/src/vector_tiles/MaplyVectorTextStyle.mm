@@ -204,7 +204,11 @@ typedef enum {
                         //TODO: rotation calculation is not ideal, it is between 2 points, but it needs to be avergared over a longer distance
                         label.loc = middle;
                         label.layoutPlacement = kMaplyLayoutCenter;
-                        label.rotation = rot+M_PI/2.0;
+                        label.rotation = -1 * rot+M_PI/2.0;
+                        if(label.rotation > M_PI_2 || label.rotation < -M_PI_2) {
+                            label.rotation += M_PI;
+                        }
+
                         label.keepUpright = true;
                     } else {
                         label = nil;

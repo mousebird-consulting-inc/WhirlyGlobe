@@ -434,23 +434,23 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                         {
                                 //center
                             case 0:
-                                objOffset = Point2d(-layoutSpan.x()/2.0,0.0);
+                                objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y()/2.0);
                                 break;
                                 // Right
                             case 1:
-                                objOffset = Point2d(0.0,0.0);
+                                objOffset = Point2d(0.0,layoutSpan.y()/2.0);
                                 break;
                                 // Left
                             case 2:
-                                objOffset = Point2d(-(layoutSpan.x()),0.0);
+                                objOffset = Point2d(-(layoutSpan.x()),layoutSpan.y()/2.0);
                                 break;
                                 // Above
                             case 3:
-                                objOffset = Point2d(-layoutSpan.x()/2.0,-(layoutSpan.y())/2.0);
+                                objOffset = Point2d(-layoutSpan.x()/2.0,0);
                                 break;
                                 // Below
                             case 4:
-                                objOffset = Point2d(-layoutSpan.x()/2.0,(layoutSpan.y())/2.0);
+                                objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y());
                                 break;
                         }
                         
