@@ -37,6 +37,5 @@
   files:
     - filename: cartodb_layer.html
     - filename: component_tester.html
-    - filename: remote_ArcGIS_image_layers.html
 
 
