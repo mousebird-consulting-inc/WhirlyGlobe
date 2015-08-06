@@ -16,6 +16,7 @@
   files: 
     - filename: local_image_layer.html
     - filename: remote_image_layer.html
+    - filename: remote_NASA_image_layers.html
 
 - section: Overlays
   files:
@@ -36,4 +37,6 @@
   files:
     - filename: cartodb_layer.html
     - filename: component_tester.html
+    - filename: remote_ArcGIS_image_layers.html
+
 

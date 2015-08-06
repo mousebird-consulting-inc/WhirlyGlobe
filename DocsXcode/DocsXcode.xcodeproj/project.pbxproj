@@ -140,6 +140,16 @@
 		2B76A04E1A1D2AD300C60136 /* CartoDBLayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CartoDBLayer.h; sourceTree = "<group>"; };
 		2B76A04F1A1D2B0B00C60136 /* cartodb_results.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cartodb_results.png; sourceTree = "<group>"; };
 		2B76A0501A1D2C7100C60136 /* globezoomnumbers.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = globezoomnumbers.gif; sourceTree = "<group>"; };
+		2B96DB6A1B7402B1005FF148 /* remote_ArcGIS_image_layers.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = remote_ArcGIS_image_layers.md; sourceTree = "<group>"; };
+		2B96DB6B1B7402B1005FF148 /* remote_NASA_image_layers.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = remote_NASA_image_layers.md; sourceTree = "<group>"; };
+		2B96DB6C1B7402BE005FF148 /* ViewController_ArcGIS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController_ArcGIS.m; sourceTree = "<group>"; };
+		2B96DB6D1B7402BE005FF148 /* ViewController_NASA_GIBS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController_NASA_GIBS.m; sourceTree = "<group>"; };
+		2B96DB6E1B7402DC005FF148 /* ArcGIS_Header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ArcGIS_Header.png; sourceTree = "<group>"; };
+		2B96DB6F1B7402DC005FF148 /* ArcGISProgression.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ArcGISProgression.png; sourceTree = "<group>"; };
+		2B96DB701B7402DC005FF148 /* NASA_GIBS_Header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_GIBS_Header.png; sourceTree = "<group>"; };
+		2B96DB711B7402DC005FF148 /* NASA_layers_header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_layers_header.png; sourceTree = "<group>"; };
+		2B96DB721B7402DC005FF148 /* NASA_NightTime_Layer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_NightTime_Layer.png; sourceTree = "<group>"; };
+		2B96DB731B7402DC005FF148 /* NASA_SeaTemp_Overlay.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_SeaTemp_Overlay.png; sourceTree = "<group>"; };
 		2BB94D8B1A2CEDCE0076B1B4 /* deforestation.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = deforestation.png; sourceTree = "<group>"; };
 		2BB94D9D1A2FBCAA0076B1B4 /* tutorial.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = tutorial.js; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -276,6 +286,8 @@
 				2B769FD01A17D21D00C60136 /* selection_everything.md */,
 				2B769FD11A17D26A00C60136 /* screen_marker_selection.md */,
 				2B76A0481A1C67ED00C60136 /* cartodb_layer.md */,
+				2B96DB6A1B7402B1005FF148 /* remote_ArcGIS_image_layers.md */,
+				2B96DB6B1B7402B1005FF148 /* remote_NASA_image_layers.md */,
 			);
 			name = tutorial;
 			path = ../tutorial;
@@ -330,6 +342,12 @@
 		2B4E06CC1A153FB100ADA318 /* tutorial */ = {
 			isa = PBXGroup;
 			children = (
+				2B96DB6E1B7402DC005FF148 /* ArcGIS_Header.png */,
+				2B96DB6F1B7402DC005FF148 /* ArcGISProgression.png */,
+				2B96DB701B7402DC005FF148 /* NASA_GIBS_Header.png */,
+				2B96DB711B7402DC005FF148 /* NASA_layers_header.png */,
+				2B96DB721B7402DC005FF148 /* NASA_NightTime_Layer.png */,
+				2B96DB731B7402DC005FF148 /* NASA_SeaTemp_Overlay.png */,
 				2B76A0501A1D2C7100C60136 /* globezoomnumbers.gif */,
 				2B76A04F1A1D2B0B00C60136 /* cartodb_results.png */,
 				2B76A04A1A1D202C00C60136 /* cartodb_layer_2.png */,
@@ -378,6 +396,8 @@
 		2B4E06DB1A15429400ADA318 /* code */ = {
 			isa = PBXGroup;
 			children = (
+				2B96DB6C1B7402BE005FF148 /* ViewController_ArcGIS.m */,
+				2B96DB6D1B7402BE005FF148 /* ViewController_NASA_GIBS.m */,
 				2B76A04C1A1D2AD300C60136 /* ViewController_cartodb.m */,
 				2B76A04D1A1D2AD300C60136 /* CartoDBLayer.m */,
 				2B76A04E1A1D2AD300C60136 /* CartoDBLayer.h */,
