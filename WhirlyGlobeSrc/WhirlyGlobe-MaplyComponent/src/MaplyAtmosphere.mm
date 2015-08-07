@@ -36,6 +36,19 @@
 #define k_fScale "u_fScale"
 #define k_fScaleDepth "u_fScaleDepth"
 #define k_fScaleOverScaleDepth "u_fScaleOverScaleDepth"
+#define k_Kr "u_Kr"
+#define k_Kr4PI "u_Kr4PI"
+#define k_Km "u_Km"
+#define k_Km4PI "u_Km4PI"
+#define k_ESun "u_ESun"
+#define k_KmESun "u_KmESun"
+#define k_KrESun "u_KrESun"
+#define k_v3InvWavelength "u_v3InvWavelength"
+#define k_fSamples "u_fSamples"
+#define k_nSamples "u_nSamples"
+#define k_g "g"
+#define k_g2 "g2"
+#define k_fExposure "fExposure"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -45,29 +58,27 @@ static const char *vertexShaderTri =
 "\n"
 "uniform mat4  u_mvpMatrix;\n"
 "uniform vec3 u_v3CameraPos;\n"
-"uniform vec3 u_v3LightPos;\n"
 "uniform float u_fCameraHeight2;\n"
+"uniform vec3 u_v3LightPos;\n"
+"\n"
 "uniform float u_fInnerRadius;\n"
 "uniform float u_fInnerRadius2;\n"
 "uniform float u_fOuterRadius;\n"
 "uniform float u_fOuterRadius2;\n"
-"\n"
-"const float pi = 3.14159265359;\n"
-"const float Kr = 0.0025;\n"
-"const float fKr4PI = Kr * 4.0 * pi;\n"
-"const float Km = 0.0010;\n"
-"const float fKm4PI = Km * 4.0 * pi;\n"
-"const float ESun = 20.0;\n"
-"const float fKmESun = Km * ESun;\n"
-"const float fKrESun = Kr * ESun;\n"
-"const vec3 v3InvWavelength = vec3(5.6020447463,9.4732844379,19.6438026201);\n"
-"const float fSamples = 3.0;\n"
-"const int nSamples = 3;\n"
-"\n"
 "uniform float u_fScale;\n"
 "uniform float u_fScaleDepth;\n"
 "uniform float u_fScaleOverScaleDepth;\n"
-"const float fScaleDepth = 0.25;\n"
+"\n"
+"uniform float u_Kr;\n"
+"uniform float u_Kr4PI;\n"
+"uniform float u_Km;\n"
+"uniform float u_Km4PI;\n"
+"uniform float u_ESun;\n"
+"uniform float u_KmESun;\n"
+"uniform float u_KrESun;\n"
+"uniform vec3 u_v3InvWavelength ;\n"
+"uniform float u_fSamples;\n"
+"uniform int u_nSamples;\n"
 "\n"
 "attribute vec3 a_position;\n"
 "\n"
@@ -100,27 +111,27 @@ static const char *vertexShaderTri =
 "   float fStartDepth = exp(-1.0/u_fScaleDepth);\n"
 "   float fStartOffset = fStartDepth * scale(fStartAngle);\n"
 "\n"
-"   float fSampleLength = fFar / fSamples;\n"
+"   float fSampleLength = fFar / u_fSamples;\n"
 "   float fScaledLength = fSampleLength * u_fScale;\n"
 "   vec3 v3SampleRay = v3Ray * fSampleLength;\n"
 "   vec3 v3SamplePoint = v3Start + v3SampleRay * 0.5;\n"
 "\n"
 "   vec3 v3FrontColor = vec3(0.0, 0.0, 0.0);\n"
 "   vec3 v3Attenuate;\n"
-"   for (int i=0; i<nSamples; i++)\n"
+"   for (int i=0; i<u_nSamples; i++)\n"
 "   {\n"
 "     float fHeight = length(v3SamplePoint);\n"
 "     float fDepth = exp(u_fScaleOverScaleDepth * (u_fInnerRadius - fHeight));\n"
 "     float fLightAngle = dot(u_v3LightPos, v3SamplePoint) / fHeight;\n"
 "     float fCameraAngle = dot(v3Ray, v3SamplePoint) / fHeight;\n"
 "     float fScatter = (fStartOffset + fDepth *(scale(fLightAngle) - scale(fCameraAngle)));\n"
-"     v3Attenuate = exp(-fScatter * (v3InvWavelength * fKr4PI + fKm4PI));\n"
+"     v3Attenuate = exp(-fScatter * (u_v3InvWavelength * u_Kr4PI + u_Km4PI));\n"
 "     v3FrontColor += v3Attenuate * (fDepth * fScaledLength);\n"
 "     v3SamplePoint += v3SampleRay;\n"
 "   }\n"
 "\n"
-"   v3MieColor = v3FrontColor * fKmESun;\n"
-"   v3RayleighColor = v3FrontColor * (v3InvWavelength * fKrESun);\n"
+"   v3MieColor = v3FrontColor * u_KmESun;\n"
+"   v3RayleighColor = v3FrontColor * (u_v3InvWavelength * u_KrESun);\n"
 "   v3Direction = u_v3CameraPos - v3Pos;\n"
 "\n"
 "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);\n"
@@ -131,9 +142,9 @@ static const char *vertexShaderTri =
 static const char *fragmentShaderTri =
 "precision highp float;\n"
 "\n"
-"const float g = -0.95;\n"
-"const float g2 = g * g;\n"
-"const float fExposure = 2.0;\n"
+"uniform float g;\n"
+"uniform float g2;\n"
+"uniform float fExposure;\n"
 "uniform vec3 u_v3LightPos;\n"
 "\n"
 "varying highp vec3 v3Direction;"
@@ -152,7 +163,6 @@ static const char *fragmentShaderTri =
 "}\n"
 ;
 
-static const double AtmosphereHeight = 1.05;
 #define kAtmosphereShader @"Atmosphere Shader"
 
 @interface SunUpdater : MaplyActiveObject
@@ -164,14 +174,16 @@ static const double AtmosphereHeight = 1.05;
     bool started;
     MaplyCoordinate3d sunPos;
     MaplyShader *shader;
+    MaplyAtmosphere * __weak atm;
 }
 
-- (id)initWithShader:(MaplyShader *)inShader viewC:(MaplyBaseViewController *)viewC
+- (id)initWithShader:(MaplyShader *)inShader atm:(MaplyAtmosphere *)inAtm viewC:(MaplyBaseViewController *)viewC
 {
     self = [super initWithViewController:viewC];
     changed = true;
     started = false;
     shader = inShader;
+    atm = inAtm;
     
     return self;
 }
@@ -197,31 +209,46 @@ static const double AtmosphereHeight = 1.05;
     [frameInfo.sceneRenderer forceDrawNextFrame];
     glUseProgram(shader.program->getProgram());
     
-    // Set the parameters that never change
-    if (!started)
-    {
-        shader.program->setUniform(k_fInnerRadius, (float)1.0);
-        shader.program->setUniform(k_fInnerRadius2, (float)1.0);
-        shader.program->setUniform(k_fOuterRadius, (float)AtmosphereHeight);
-        shader.program->setUniform(k_fOuterRadius2, (float)(AtmosphereHeight*AtmosphereHeight));
-        float scale = 1.0f / (AtmosphereHeight - 1.0);
-        shader.program->setUniform(k_fScale, scale);
-        float scaleDepth = 0.25;
-        shader.program->setUniform(k_fScaleDepth, scaleDepth);
-        shader.program->setUniform(k_fScaleOverScaleDepth, scale / scaleDepth);
-    }
-    
     Vector3d cameraPos = frameInfo.eyePos;
     Vector4d sunDir4d = Vector4d(sunPos.x,sunPos.y,sunPos.z,1.0);
     sunDir4d /= sunDir4d.w();
     Vector3d sunDir3d(sunDir4d.x(),sunDir4d.y(),sunDir4d.z());
     sunDir3d.normalize();
-
+    
     shader.program->setUniform(k_v3CameraPos, Vector3f(cameraPos.x(),cameraPos.y(),cameraPos.z()));
     double cameraHeight = cameraPos.norm();
     shader.program->setUniform(k_fCameraHeight, (float)cameraHeight);
     shader.program->setUniform(k_fCameraHeight2, (float)(cameraHeight*cameraHeight));
     shader.program->setUniform(k_v3LightPos, Vector3f(sunDir3d.x(),sunDir3d.y(),sunDir3d.z()));
+
+    shader.program->setUniform(k_fInnerRadius, 1.f);
+    shader.program->setUniform(k_fInnerRadius2, 1.f);
+    shader.program->setUniform(k_fOuterRadius, atm.outerRadius);
+    shader.program->setUniform(k_fOuterRadius2, atm.outerRadius*atm.outerRadius);
+    float scale = 1.0f / (atm.outerRadius - 1.f);
+    shader.program->setUniform(k_fScale, scale);
+    float scaleDepth = 0.25;
+    shader.program->setUniform(k_fScaleDepth, scaleDepth);
+    shader.program->setUniform(k_fScaleOverScaleDepth, scale / scaleDepth);
+    
+    shader.program->setUniform(k_Kr, atm.Kr);
+    shader.program->setUniform(k_Kr4PI, (float)(atm.Kr * 4.0 * M_PI));
+    shader.program->setUniform(k_Km, atm.Km);
+    shader.program->setUniform(k_Km4PI, (float)(atm.Km * 4.0 * M_PI));
+    shader.program->setUniform(k_ESun, atm.ESun);
+    shader.program->setUniform(k_KmESun, atm.Km * atm.ESun);
+    shader.program->setUniform(k_KrESun, atm.Kr * atm.ESun);
+    float wavelength[3];
+    [atm getWavelength:wavelength];
+    for (unsigned int ii=0;ii<3;ii++)
+        wavelength[ii] = (float)(1.0/pow(wavelength[ii],4.0));
+    shader.program->setUniform(k_v3InvWavelength, Vector3f(wavelength[0],wavelength[1],wavelength[2]));
+    shader.program->setUniform(k_fSamples, (float)atm.numSamples);
+    shader.program->setUniform(k_nSamples, atm.numSamples);
+    
+    shader.program->setUniform(k_g, atm.g);
+    shader.program->setUniform(k_g2, atm.g * atm.g);
+    shader.program->setUniform(k_fExposure, atm.exposure);
     
     changed = false;
     started = true;
@@ -238,6 +265,7 @@ static const double AtmosphereHeight = 1.05;
     MaplyComponentObject *compObj;
     MaplyShader *shader;
     SunUpdater *sunUpdater;
+    float wavelength[3];
 }
 
 - (id)initWithViewC:(WhirlyGlobeViewController *)inViewC
@@ -245,6 +273,17 @@ static const double AtmosphereHeight = 1.05;
     self = [super init];
     
     viewC = inViewC;
+    
+    _Kr = 0.0025;
+    _Km = 0.0010;
+    _ESun = 20.0;
+    _numSamples = 3;
+    _outerRadius = 1.05;
+    _g = -0.95;
+    _exposure = 2.0;
+    wavelength[0] = 0.650;
+    wavelength[1] = 0.570;
+    wavelength[2] = 0.475;
 
     // Atmosphere shader
     shader = [self setupShader];
@@ -257,13 +296,27 @@ static const double AtmosphereHeight = 1.05;
     return self;
 }
 
+- (void)setWavelength:(float *)inVals
+{
+    wavelength[0] = inVals[0];
+    wavelength[1] = inVals[1];
+    wavelength[2] = inVals[2];
+}
+
+- (void)getWavelength:(float *)retVals
+{
+    retVals[0] = wavelength[0];
+    retVals[1] = wavelength[1];
+    retVals[2] = wavelength[2];
+}
+
 - (void)complexAtmosphere
 {
     // Make a sphere for the outer atmosphere
     MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
     sphere.center = MaplyCoordinateMake(0, 0);
     sphere.height = -1.0;
-    sphere.radius = AtmosphereHeight;
+    sphere.radius = _outerRadius;
     compObj = [viewC addShapes:@[sphere] desc:@{kMaplyZBufferRead: @(NO),
                                                 kMaplyZBufferWrite: @(NO),
                                                 kMaplyShapeSampleX: @(120),
@@ -275,7 +328,7 @@ static const double AtmosphereHeight = 1.05;
                                                 kMaplyDrawPriority: @(kMaplyAtmosphereDrawPriorityDefault),
                                                 kMaplyShader: kAtmosphereShader}];
     
-    sunUpdater = [[SunUpdater alloc] initWithShader:shader viewC:viewC];
+    sunUpdater = [[SunUpdater alloc] initWithShader:shader atm:self viewC:viewC];
     [viewC addActiveObject:sunUpdater];
 }
 

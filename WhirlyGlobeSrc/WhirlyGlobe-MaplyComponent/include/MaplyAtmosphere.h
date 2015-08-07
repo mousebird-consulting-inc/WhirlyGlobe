@@ -31,6 +31,33 @@
 /// @brief Initialize the view controller.  Will place objects in that view controller.
 - (id)initWithViewC:(WhirlyGlobeViewController *)viewC;
 
+/// @brief Rayleigh scattering constant (0.0025 by default)
+@property (nonatomic) float Kr;
+
+/// @brief Mie scattering constant (0.0010 by default)
+@property (nonatomic) float Km;
+
+/// @brief Brightness of the sun (20.0 by default)
+@property (nonatomic) float ESun;
+
+/// @brief Number of samples for the ray through the atmosphere (3 by default)
+@property (nonatomic) int numSamples;
+
+/// @brief Outer radius of the atmosphere (1.05 by default).  Earth is radius 1.0.
+@property (nonatomic) float outerRadius;
+
+/// @brief Constant used in the fragment shader.  Default is -0.95.
+@property (nonatomic) float g;
+
+/// @brief Exposure constant in fragment shader.  Default is 2.0.
+@property (nonatomic) float exposure;
+
+/// @brief Wavelengths of the light (RGB).  Three floats, defaults are: 0.650, 0.570, 0.475
+- (void)setWavelength:(float *)wavelength;
+
+/// @brief Return the current wavelength settings (RGB)
+- (void)getWavelength:(float *)wavelength;
+
 /// @brief Set the sun's position relative to the earth.  This is what comes out of MaplySun.
 - (void)setSunPosition:(MaplyCoordinate3d)sunDir;
 
