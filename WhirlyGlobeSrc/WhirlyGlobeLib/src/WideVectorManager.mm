@@ -350,13 +350,13 @@ public:
             {
                 corners[2] = pbLocal + norm0;
                 corners[3] = pbLocal + revNorm0;
-                next_e0 = corners[3];
-                next_e1 = corners[2];
+                next_e0 = corners[2];
+                next_e1 = corners[3];
             } else {
                 corners[2] = pbLocal + norm0 * calcScale;
                 corners[3] = pbLocal + revNorm0 * calcScale;
-                next_e0 = corners[3];
-                next_e1 = corners[2];
+                next_e0 = corners[2];
+                next_e1 = corners[3];
             }
         }
         
@@ -484,7 +484,7 @@ public:
                     {
                         // lPt1 is a point in the middle of the prospective bevel
                         Point3d lNorm = (lPt-pbLocal).normalized();
-                        Point3d lPt1 = rPt + lNorm * vecInfo.miterLimit * calcScale * (vecInfo.coordType == WideVecCoordReal ? vecInfo.width : 1.0);
+                        Point3d lPt1 = rPt + lNorm * calcScale * (vecInfo.coordType == WideVecCoordReal ? vecInfo.width : 1.0);
                         Point3d iNorm = up.cross(lNorm);
                         pbLocalAdj = (rPt+lPt1)/2.0;
                         
@@ -549,7 +549,7 @@ public:
                         // Bending left
                         // rPt1 is a point in the middle of the prospective bevel
                         Point3d rNorm = (rPt-pbLocal).normalized();
-                        Point3d rPt1 = lPt + rNorm * vecInfo.miterLimit * calcScale * (vecInfo.coordType == WideVecCoordReal ? vecInfo.width : 1.0);
+                        Point3d rPt1 = lPt + rNorm * calcScale * (vecInfo.coordType == WideVecCoordReal ? vecInfo.width : 1.0);
                         Point3d iNorm = rNorm.cross(up);
                         pbLocalAdj = (lPt+rPt1)/2.0;
                         
