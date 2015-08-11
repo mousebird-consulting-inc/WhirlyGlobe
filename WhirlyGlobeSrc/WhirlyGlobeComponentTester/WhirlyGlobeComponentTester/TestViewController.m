@@ -256,9 +256,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     
     // Set the background color for the globe
     if (globeViewC)
-        // Note: Debugging
-//        baseViewC.clearColor = [UIColor colorWithWhite:0.8 alpha:1.0];
-    baseViewC.clearColor = [UIColor blackColor];
+        baseViewC.clearColor = [UIColor colorWithWhite:0.8 alpha:1.0];
     else
         baseViewC.clearColor = [UIColor whiteColor];
         
@@ -282,20 +280,22 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     // For elevation mode, we need to do some other stuff
     if (startupMapType == MaplyGlobeWithElevation)
     {
+        self.title = @"Cesium Terrain";
+        
         // Tilt, so we can see it
         if (globeViewC)
             [globeViewC setTiltMinHeight:0.001 maxHeight:0.04 minTilt:1.40 maxTilt:0.0];
         globeViewC.frameInterval = 2;  // 30fps
 
+        baseViewC.clearColor = [UIColor colorWithWhite:0.5 alpha:1.0];
+
         // Cesium as an elevation source
-        // Note: Debugging
-//        MaplyRemoteTileElevationCesiumSource *cesiumElev = [[MaplyRemoteTileElevationCesiumSource alloc] initWithBaseURL:@"http://cesiumjs.org/stk-terrain/tilesets/world/tiles/" ext:@"terrain" minZoom:0 maxZoom:16];
-        MaplyRemoteTileElevationCesiumSource *cesiumElev = [[MaplyRemoteTileElevationCesiumSource alloc] initWithBaseURL:@"http://cesiumjs.org/stk-terrain/tilesets/world/tiles/" ext:@"terrain" minZoom:0 maxZoom:22];
+        MaplyRemoteTileElevationCesiumSource *cesiumElev = [[MaplyRemoteTileElevationCesiumSource alloc] initWithBaseURL:@"http://cesiumjs.org/stk-terrain/tilesets/world/tiles/" ext:@"terrain" minZoom:0 maxZoom:16];
         elevSource = cesiumElev;
         cesiumElev.cacheDir = [NSString stringWithFormat:@"%@/cesiumElev/",cacheDir];
 
         baseViewC.elevDelegate = elevSource;
-        zoomLimit = 22;
+        zoomLimit = 16;
         requireElev = true;
         baseViewC.elevDelegate = elevSource;
         
@@ -315,7 +315,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         layer.requireElev = true;
         layer.maxTiles = 256;
         layer.handleEdges = true;
-        layer.numSimultaneousFetches = 16;
+        layer.numSimultaneousFetches = 8;
         [baseViewC addLayer:layer];
         layer.drawPriority = BaseEarthPriority;
         baseLayer = layer;
