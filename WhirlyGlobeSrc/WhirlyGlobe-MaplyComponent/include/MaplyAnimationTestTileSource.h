@@ -36,6 +36,9 @@
 /// How big the images we generate are
 @property (nonatomic) int pixelsPerSide;
 
+/// If set, we'll throw in a random delay
+@property (nonatomic) bool useDelay;
+
 /// If set, we'll keep it mostly transparent for testing edges
 @property (nonatomic) bool transparentMode;
 
