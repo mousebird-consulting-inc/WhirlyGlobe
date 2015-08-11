@@ -37,6 +37,7 @@
     _maxZoom = maxZoom;
     _depth = depth;
     _pixelsPerSide = 256;
+    _useDelay = true;
     
     return self;
 }
@@ -139,8 +140,11 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
-                       // Random delay
-                       usleep(drand48()* 3.0 * 1e6);
+                       if (_useDelay)
+                       {
+                           // Random delay
+                           usleep(drand48()* 3.0 * 1e6);
+                       }
 
                        NSMutableArray *images = [NSMutableArray array];
                        for (unsigned int ii=0;ii<layer.imageDepth;ii++)
@@ -158,8 +162,11 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
-                       // Random delay
-                       usleep(drand48()* 0.115 * 1e6);
+                       if (_useDelay)
+                       {
+                           // Random delay
+                           usleep(drand48()* 0.115 * 1e6);
+                       }
 
                        NSData *imgData = [self imgDataForTile:tileID frame:frame];
                        
