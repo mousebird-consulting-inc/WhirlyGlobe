@@ -41,23 +41,16 @@ using namespace WhirlyKit;
 {
     if (_viewC && _viewC->scene && _texID != EmptyIdentity)
     {
-        if (_isSubTex)
-        {
-            if (_viewC->interactLayer)
+        if (_viewC->interactLayer)
+            [_viewC->interactLayer clearTexture:self];
+        else {
+            if (!_isSubTex)
             {
-                ChangeSet changes;
-                [_viewC->interactLayer->atlasGroup removeTexture:_texID changes:changes];
                 if (_viewC->scene)
-                {
-                    _viewC->scene->addChangeRequests(changes);
-                    _viewC->scene->removeSubTexture(_texID);
-                }
+                    _viewC->scene->addChangeRequest(new RemTextureReq(_texID));
+                _viewC = nil;
+                _texID = EmptyIdentity;
             }
-        } else {
-            if (_viewC->scene)
-                _viewC->scene->addChangeRequest(new RemTextureReq(_texID));
-            _viewC = nil;
-            _texID = EmptyIdentity;
         }
     }
 }
