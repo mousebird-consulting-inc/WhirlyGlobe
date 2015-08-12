@@ -293,6 +293,16 @@
 #define kMaplyPointSize @"pointSize"
 #define kMaplyPointSizeDefault 4.0
 
+/// These are used by the texture
+#define kMaplyTexFormat @"texformat"
+#define kMaplyTexMinFilter @"texminfilter"
+#define kMaplyTexMagFilter @"texmagfilter"
+#define kMaplyMinFilterNearest @"texfilternearest"
+#define kMaplyMinFilterLinear @"texfilterlinear"
+#define kMaplyTexAtlas @"texatlas"
+#define kMaplyTexWrapX @"texwrapx"
+#define kMaplyTexWrapY @"texwrapy"
+
 /// These are the various shader programs we set up by default
 #define kMaplyShaderDefaultTri @"Default Triangle;lighting=yes"
 #define kMaplyDefaultTriangleShader @"Default Triangle;lighting=yes"
