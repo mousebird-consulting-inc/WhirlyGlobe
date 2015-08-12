@@ -959,12 +959,20 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
 {
+    return [self addTexture:image desc:@{kMaplyTexFormat: @(imageFormat),
+                                         kMaplyTexWrapX: @(wrapFlags & MaplyImageWrapX),
+                                         kMaplyTexWrapY: @(wrapFlags & MaplyImageWrapY)}
+                                         mode:threadMode];
+}
+
+- (MaplyTexture *)addTexture:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
     if (![interactLayer startOfWork])
         return nil;
     
-    MaplyTexture *maplyTex = [interactLayer addTexture:image imageFormat:imageFormat wrapFlags:wrapFlags interpType:GL_LINEAR mode:threadMode];
+    MaplyTexture *maplyTex = [interactLayer addTexture:image desc:desc mode:threadMode];
     maplyTex.viewC = self;
-
+    
     [interactLayer endOfWork];
     
     return maplyTex;
@@ -1001,16 +1009,10 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyTexture *)addTextureToAtlas:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
 {
-    if (![interactLayer startOfWork])
-        return nil;
-    
-    MaplyTexture *maplyTex = [interactLayer addTextureToAtlas:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
-    if (maplyTex)
-        maplyTex.viewC = self;
-
-    [interactLayer endOfWork];
-    
-    return maplyTex;
+    return [self addTexture:image desc:@{kMaplyTexFormat: @(imageFormat),
+                                         kMaplyTexWrapX: @(wrapFlags & MaplyImageWrapX),
+                                         kMaplyTexWrapY: @(wrapFlags & MaplyImageWrapY),
+                                         kMaplyTexAtlas: @(YES)} mode:threadMode];
 }
 
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects
