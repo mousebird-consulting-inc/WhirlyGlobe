@@ -113,6 +113,9 @@ public:
     void setFormat(GLenum inFormat) { format = inFormat; }
     /// Return the format
     GLenum getFormat() { return format; }
+    /// Set the interpolation type used for min and mag
+    void setInterpType(GLenum inType) { interpType = inType; }
+    GLenum getInterpType() { return interpType; }
     /// If we're converting to a single byte, set the source
     void setSingleByteSource(WKSingleByteSource source) { byteSource = source; }
 
@@ -141,6 +144,7 @@ protected:
 	unsigned int width,height;
     bool usesMipmaps;
     bool wrapU,wrapV;
+    GLenum interpType;
 };
 	
 }

@@ -252,7 +252,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     pthread_mutex_unlock(&workLock);
 }
 
-- (Texture *)createTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
+- (Texture *)createTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags interpType:(GLenum)interpType mode:(MaplyThreadMode)threadMode
 {
     int imgWidth = image.size.width;
     int imgHeight = image.size.height;
@@ -262,6 +262,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     // Add it and download it
     Texture *tex = new Texture("MaplyBaseInteraction",image,imgWidth,imgHeight);
     tex->setWrap(wrapFlags & MaplyImageWrapX, wrapFlags & MaplyImageWrapY);
+    tex->setUsesMipmaps(false);
+    tex->setInterpType(interpType);
     switch (imageFormat)
     {
         case MaplyImageIntRGBA:
@@ -304,7 +306,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 }
 
 // Explicitly add a texture
-- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
+- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags interpType:(GLenum)interpType mode:(MaplyThreadMode)threadMode
 {
     pthread_mutex_lock(&imageLock);
     
@@ -327,7 +329,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     {
         MaplyTexture *maplyTex = [[MaplyTexture alloc] init];
         
-        Texture *tex = [self createTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+        Texture *tex = [self createTexture:image imageFormat:imageFormat wrapFlags:wrapFlags interpType:interpType mode:threadMode];
         maplyTex.texID = tex->getId();
         
         changes.push_back(new AddTextureReq(tex));
@@ -344,7 +346,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     return maplyImageTex.maplyTex;
 }
 
-- (MaplyTexture *)addTextureToAtlas:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
+- (MaplyTexture *)addTextureToAtlas:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags interpType:(GLenum)interpType mode:(MaplyThreadMode)threadMode
 {
     ChangeSet changes;
 
@@ -352,7 +354,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
 
     // Convert to a texture
-    Texture *tex = [self createTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+    Texture *tex = [self createTexture:image imageFormat:imageFormat wrapFlags:wrapFlags interpType:interpType mode:threadMode];
     if (!tex)
         return nil;
     
@@ -416,14 +418,14 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 
 - (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
 {
-    return [self addImage:image imageFormat:imageFormat wrapFlags:MaplyImageWrapNone mode:threadMode];
+    return [self addImage:image imageFormat:imageFormat wrapFlags:MaplyImageWrapNone interpType:GL_LINEAR mode:threadMode];
 }
 
 // Add an image to the cache, or find an existing one
 // Called in the layer thread
-- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
+- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags interpType:(GLenum)interpType mode:(MaplyThreadMode)threadMode
 {
-    MaplyTexture *maplyTex = [self addTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+    MaplyTexture *maplyTex = [self addTexture:image imageFormat:imageFormat wrapFlags:wrapFlags interpType:interpType mode:threadMode];
     
     return maplyTex;
 }
@@ -630,7 +632,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         {
             if ([marker.image isKindOfClass:[UIImage class]])
             {
-                texs.push_back([self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode]);
+                texs.push_back([self addImage:marker.image imageFormat:MaplyImageIntRGBA wrapFlags:0 interpType:GL_NEAREST mode:threadMode]);
             } else if ([marker.image isKindOfClass:[MaplyTexture class]])
             {
                 texs.push_back((MaplyTexture *)marker.image);
@@ -640,7 +642,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             for (id image in marker.images)
             {
                 if ([image isKindOfClass:[UIImage class]])
-                    texs.push_back([self addImage:image imageFormat:MaplyImageIntRGBA mode:threadMode]);
+                    texs.push_back([self addImage:image imageFormat:MaplyImageIntRGBA wrapFlags:0 interpType:GL_NEAREST mode:threadMode]);
                 else if ([image isKindOfClass:[MaplyTexture class]])
                     texs.push_back((MaplyTexture *)image);
             }

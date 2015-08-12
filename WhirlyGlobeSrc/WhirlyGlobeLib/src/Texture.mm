@@ -131,19 +131,19 @@ namespace WhirlyKit
 {
 	
 Texture::Texture(const std::string &name)
-	: TextureBase(name), texData(NULL), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
+	: TextureBase(name), texData(NULL), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR)
 {
 }
 	
 // Construct with raw texture data
 Texture::Texture(const std::string &name,NSData *texData,bool isPVRTC)
-	: TextureBase(name), texData(texData), isPVRTC(isPVRTC), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
+	: TextureBase(name), texData(texData), isPVRTC(isPVRTC), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR)
 { 
 }
 
 // Set up the texture from a filename
 Texture::Texture(const std::string &name,NSString *baseName,NSString *ext)
-    : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
+    : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR)
 {	
 	if (![ext compare:@"pvrtc"])
 	{
@@ -176,13 +176,13 @@ Texture::Texture(const std::string &name,NSString *baseName,NSString *ext)
 
 // Construct with a UIImage
 Texture::Texture(const std::string &name,UIImage *inImage,bool roundUp)
-    : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
+    : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR)
 {
 	texData = [inImage rawDataRetWidth:&width height:&height roundUp:roundUp];
 }
 
 Texture::Texture(const std::string &name,UIImage *inImage,int inWidth,int inHeight)
-    : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
+    : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR)
 {
     texData = [inImage rawDataScaleWidth:inWidth height:inHeight border:0];
     width = inWidth;  height = inHeight;
@@ -318,8 +318,8 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
     if (usesMipmaps)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
     else
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interpType);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interpType);
 
     CheckGLError("Texture::createInGL() glTexParameteri()");
 	
