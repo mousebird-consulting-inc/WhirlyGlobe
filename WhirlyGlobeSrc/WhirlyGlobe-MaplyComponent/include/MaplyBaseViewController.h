@@ -663,6 +663,25 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  */
 - (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
 
+/** @brief Represent an image as a MaplyTexture.
+    @details This version of addTexture: allows more precise control over how the texture is represented.  It replaces the other addTexture: and addTextureToAtlas calls.
+    @param image The UIImage to add as a texture.
+    @param desc A description dictionary controlling how the image is converted to a texture and represented in the system.
+
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyTexFormat|NSNumber|The texture format to use for the image.  Consult addTexture:imageFormat:wrapFlags:mode: for a list.  Default is MaplyImageIntRGBA.|
+ |kMaplyTexMinFilter|NSNumber|Filter to use for minification.  This can be kMaplyMinFilterNearest or kMaplyMinFilterLinear. Default is kMaplyMinFilterLinear.|
+ |kMaplyTexMagFilter|NSNumber|Filter to use for magnification.  This can be kMaplyMinFilterNearest or kMaplyMinFilterLinear. Default is kMaplyMinFilterLinear.|
+ |kMaplyTexWrapX|NSNumber boolean|Texture wraps in x direction.  Off by default.|
+ |kMaplyTexWrapY|NSNumber boolean|Texture wraps in y direction.  Off by default.|
+ |kMaplyTexAtlas|NSNumber boolean|If set, the texture goes into an appropriate atlas.  If not set, it's a standalone texture (default).|
+ 
+    @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred.
+  */
+- (MaplyTexture *)addTexture:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+
 /** @brief Add an image as a texture, but put it in a texture atlas.  Return a
  @details Texture atlases consolidate a number of compatible textures, speeding up rendering of any geometry they're used on.  If you know you're going to be using a UIImage with a lot of other images in, say, a group of markers, it's wise to add it here first.
  @details The entry in a texture atlas will be released when the MaplyTexture is released.  So keep a copy of it around if you're going to use it.
