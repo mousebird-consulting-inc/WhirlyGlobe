@@ -254,8 +254,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 
 - (Texture *)createTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags interpType:(GLenum)interpType mode:(MaplyThreadMode)threadMode
 {
-    int imgWidth = image.size.width;
-    int imgHeight = image.size.height;
+    int imgWidth = image.size.width * image.scale;
+    int imgHeight = image.size.height * image.scale;
     imgWidth = NextPowOf2(imgWidth);
     imgHeight = NextPowOf2(imgHeight);
     
