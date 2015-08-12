@@ -962,7 +962,7 @@ static const float PerfOutputDelay = 15.0;
     if (![interactLayer startOfWork])
         return nil;
     
-    MaplyTexture *maplyTex = [interactLayer addTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+    MaplyTexture *maplyTex = [interactLayer addTexture:image imageFormat:imageFormat wrapFlags:wrapFlags interpType:GL_LINEAR mode:threadMode];
     maplyTex.viewC = self;
 
     [interactLayer endOfWork];
