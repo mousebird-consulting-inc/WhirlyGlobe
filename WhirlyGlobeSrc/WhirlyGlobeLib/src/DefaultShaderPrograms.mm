@@ -329,8 +329,6 @@ static const char *vertexShaderScreenTexTri =
 
     
 static const char *vertexShaderTriNightDay =
-"precision highp float;"
-"\n"
 "struct directional_light {\n"
 "  vec3 direction;\n"
 "  vec3 halfplane;\n"
@@ -380,8 +378,7 @@ static const char *vertexShaderTriNightDay =
 ;
 
 static const char *fragmentShaderTriNightDay =
-"precision highp float;"
-"uniform float u_fade;\n"
+"precision mediump float;"
 "\n"
 "uniform sampler2D s_baseMap0;\n"
 "uniform sampler2D s_baseMap1;\n"
