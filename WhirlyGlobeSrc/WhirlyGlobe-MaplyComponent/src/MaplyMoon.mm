@@ -60,8 +60,8 @@
     // Now for the illuminated fraction
     double geo_elongation = CAAMoonIlluminatedFraction::GeocentricElongation(moonEquatorial.X, moonEquatorial.Y, sunEquatorial.X, sunEquatorial.Y);
     
-    double phase_angle = CAAMoonIlluminatedFraction::PhaseAngle(geo_elongation, 368410.0, 149971520.0);
-    _illuminatedFraction = CAAMoonIlluminatedFraction::IlluminatedFraction(phase_angle);
+    _phaseAngle = CAAMoonIlluminatedFraction::PhaseAngle(geo_elongation, 368410.0, 149971520.0);
+    _illuminatedFraction = CAAMoonIlluminatedFraction::IlluminatedFraction(_phaseAngle);
 
     return self;
 }
