@@ -159,7 +159,7 @@ a:hover.bb-source, a:hover.bb-binary, a:hover.bb-documentation, a:hover.bb-cocoa
   }
   a {
     color:             $grey-color;
-    text-decoration:   none;
+    text-decoration:   underline;
 
     &:visited {
       color:           silver;
@@ -207,7 +207,7 @@ ul.docs-and-resources {
   padding-top:     68px; // Clear out room for the fixed header
   a {
     color: $text-color;
-    text-decoration: none;
+    text-decoration: underline;
 
     &:visited {
       color: darken($text-color, 15%);
