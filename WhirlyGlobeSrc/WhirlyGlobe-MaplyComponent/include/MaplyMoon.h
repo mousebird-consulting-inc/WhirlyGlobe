@@ -42,4 +42,7 @@
 /// @brief Illuminated fraction of the moon
 @property (readonly) double illuminatedFraction;
 
+/// @brief Phase angle fo the moon in degrees.
+@property (readonly) double phaseAngle;
+
 @end
