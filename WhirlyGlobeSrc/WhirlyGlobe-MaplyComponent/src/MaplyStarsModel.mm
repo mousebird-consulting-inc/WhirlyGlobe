@@ -162,7 +162,8 @@ typedef struct
         SingleStar *star = &stars[ii];
 
         // Convert the start from equatorial to a useable lon/lat
-        double starLon = CAACoordinateTransformation::DegreesToRadians(star->ra+15*siderealTime);
+        // Note: Should check this math
+        double starLon = CAACoordinateTransformation::DegreesToRadians(star->ra-15*siderealTime);
         double starLat = CAACoordinateTransformation::DegreesToRadians(star->dec);
         
 //        NSLog(@"star lon, lat = (%f,%f)",starLon*180/M_PI,starLat*180/M_PI);
