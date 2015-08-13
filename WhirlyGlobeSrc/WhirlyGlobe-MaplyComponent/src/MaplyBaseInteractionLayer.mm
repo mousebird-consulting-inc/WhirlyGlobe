@@ -424,6 +424,26 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         [texture clear];
 }
 
+// Called by the texture dealloc
+- (void)clearTexture:(MaplyTexture *)tex
+{
+    ChangeSet changes;
+
+    if (tex.isSubTex)
+    {
+        if (atlasGroup)
+        {
+            [atlasGroup removeTexture:tex.texID changes:changes];
+            scene->removeSubTexture(tex.texID);
+        }
+    } else {
+        if (scene)
+            changes.push_back(new RemTextureReq(tex.texID));
+    }
+
+    [self flushChanges:changes mode:MaplyThreadCurrent];
+}
+
 - (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
 {
     return [self addImage:image imageFormat:imageFormat wrapFlags:MaplyImageWrapNone interpType:GL_NEAREST mode:threadMode];
