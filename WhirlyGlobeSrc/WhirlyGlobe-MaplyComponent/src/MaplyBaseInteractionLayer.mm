@@ -2611,6 +2611,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         
         SimpleIdentity partSysID = partSysManager->addParticleSystem(wkPartSys, changes);
         partSys.ident = partSysID;
+        compObj.partSysIDs.insert(partSysID);
     }
     
     [self flushChanges:changes mode:threadMode];
@@ -2722,6 +2723,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
     GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
     WhirlyKitFontTextureManager *fontTexManager = scene->getFontTextureManager();
+    ParticleSystemManager *partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
 
     ChangeSet changes;
         
@@ -2763,6 +2765,11 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 if (fontTexManager && !userObj.drawStringIDs.empty())
                     for (SimpleIdentity dStrID : userObj.drawStringIDs)
                         [fontTexManager removeString:dStrID changes:changes];
+                if (partSysManager && !userObj.partSysIDs.empty())
+                {
+                    for (SimpleIdentity partSysID : userObj.partSysIDs)
+                        partSysManager->removeParticleSystem(partSysID, changes);
+                }
                 
                 // And associated textures
                 for (std::set<MaplyTexture *>::iterator it = userObj.textures.begin();
