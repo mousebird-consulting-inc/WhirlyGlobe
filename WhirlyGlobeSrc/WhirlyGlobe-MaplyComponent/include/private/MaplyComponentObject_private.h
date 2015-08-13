@@ -39,6 +39,7 @@
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &loftIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &billIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &geomIDs;
+@property (nonatomic,assign) WhirlyKit::SimpleIDSet &partSysIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &selectIDs;
 @property (nonatomic,assign) std::set<MaplyTexture *> &textures;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &drawStringIDs;
