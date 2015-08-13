@@ -177,4 +177,7 @@
 // Shutdown that waits for absolutely everything to end
 - (void)lockingShutdown;
 
+// Clean up a given texture
+- (void)clearTexture:(MaplyTexture *)tex;
+
 @end
