@@ -1025,6 +1025,8 @@ static const float EarthRadius = 6371000;
     if (!globeViewC)
         return;
     
+    [globeViewC setClearColor:[UIColor blackColor]];
+    
     // Lighting for the sun
     MaplySun *sun = [[MaplySun alloc] initWithDate:[NSDate date]];
     MaplyLight *sunLight = [sun makeLight];

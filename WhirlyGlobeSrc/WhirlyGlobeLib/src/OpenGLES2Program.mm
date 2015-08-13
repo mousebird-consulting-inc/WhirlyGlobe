@@ -246,7 +246,6 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
     // Now link it
     GLint status;
     glLinkProgram(program);
-    glValidateProgram(program);
     
     glGetProgramiv(program, GL_LINK_STATUS, &status);
     if (status == GL_FALSE)
@@ -263,7 +262,7 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
         cleanUp();
         return;
     }
-    
+
     if (vertShader)
     {
         glDeleteShader(vertShader);
