@@ -61,7 +61,7 @@
     double geo_elongation = CAAMoonIlluminatedFraction::GeocentricElongation(moonEquatorial.X, moonEquatorial.Y, sunEquatorial.X, sunEquatorial.Y);
 
     double phaseAngle = CAAMoonIlluminatedFraction::PhaseAngle(geo_elongation, 368410.0, 149971520.0);
-    double positionAngle = CAAMoonIlluminatedFraction::PositionAngle(sunEclipticLong, sunEclipticLat, moonEclipticLong, moonEclipticLat);
+    double positionAngle = CAAMoonIlluminatedFraction::PositionAngle(moonEquatorial.X, moonEquatorial.Y, sunEquatorial.X, sunEquatorial.Y);
     _illuminatedFraction = CAAMoonIlluminatedFraction::IlluminatedFraction(phaseAngle);
 
     _phase = (positionAngle < 180 ? phaseAngle + 180 : 180 - phaseAngle);
