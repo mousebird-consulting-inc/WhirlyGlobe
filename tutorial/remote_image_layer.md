@@ -13,13 +13,14 @@ You'll need to have done the [Local Image Layer](local_image_tiles.html) tutoria
 
 ![Xcode ViewController.m]({{ site.baseurl }}/images/tutorial/local_image_layer_1.png)
 
-If you haven't got one here is a suitable [ViewController.m]({{ site.baseurl }}/tutorial/code/ViewController_remote_image_layer.m) file to start with.  This version handles both a globe and a map and makes a nice starting point.
+If you haven't got one here is a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_remote_image_layer.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_remote_image_layer.swift)) file to start with.  This version handles both a globe and a map and makes a nice starting point.
 
 ### Remote Tile Source
 
 We'll set this up to use either the local or remote tiles. Look for the following lines in your source code.
 
-{% highlight objc %}
+{% multiple_code %}
+  {% highlight objc %}
 // Set up the layer
 MaplyMBTileSource *tileSource = 
     [[MaplyMBTileSource alloc] initWithMBTiles:@"geography-­class_medres"];
@@ -27,11 +28,24 @@ MaplyMBTileSource *tileSource =
 MaplyQuadImageTilesLayer *layer = 
     [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys 
                                       tileSource:tileSource];
-{% endhighlight %}
+  {% endhighlight %}
+
+  {----}
+
+  {% highlight swift %}
+// set up the data source
+let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres")
+
+// set up the layer
+let layer = MaplyQuadImageTilesLayer(coordSystem: tileSource.coordSys, tileSource: tileSource)
+  {% endhighlight %}
+{% endmultiple_code %}
+
 
 Now replace that with these lines instead.  This will let you use either local or remote data.
 
-{% highlight objc %}
+{% multiple_code %}
+  {% highlight objc %}
 // add the capability to use the local tiles or remote tiles
 bool useLocalTiles = false;
 
@@ -63,7 +77,37 @@ if (useLocalTiles)
   layer = [[MaplyQuadImageTilesLayer alloc] 
             initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
 }
-{% endhighlight %}
+  {% endhighlight %}
+
+  {----}
+
+  {% highlight swift %}
+// add the capability to use the local tiles or remote tiles
+let useLocalTiles = false
+
+// we'll need this layer in a second
+let layer: MaplyQuadImageTilesLayer
+
+if useLocalTiles {
+    let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres")
+    layer = MaplyQuadImageTilesLayer(coordSystem: tileSource.coordSys, tileSource: tileSource)
+}
+else {
+    // Because this is a remote tile set, we'll want a cache directory
+    let baseCacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as! String
+    let aerialTilesCacheDir = "\(baseCacheDir)/osmtiles/"
+    let maxZoom = Int32(18)
+
+    // MapQuest Open Aerial Tiles, Courtesy Of Mapquest
+    // Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
+    let tileSource = MaplyRemoteTileSource(
+            baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
+            ext: "png",
+            minZoom: 0, maxZoom: maxZoom)
+    layer = MaplyQuadImageTilesLayer(coordSystem: tileSource.coordSys, tileSource: tileSource)
+}
+  {% endhighlight %}
+{% endmultiple_code %}
 
 Don't forget the call to addLayer below this.  We're just creating a slightly different data source, we still need to add the layer to the globe or map.
 

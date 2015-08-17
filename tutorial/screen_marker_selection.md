@@ -5,7 +5,7 @@ layout: tutorial
 
 Screen marker selection works just like vector selection.  WhirlyGlobe-Maply is doing very different thing to make them happen, but on the user side it's all the same.
 
-We'll need an XCode project here, so if you haven't done the [Screen Markers](screen_markers.html) tutorial go do that.  If you haven't got one yet, here's a suitable [ViewController.m]({{ site.baseurl }}/tutorial/code/ViewController_screen_marker_selection.m).
+We'll need an XCode project here, so if you haven't done the [Screen Markers](screen_markers.html) tutorial go do that.  If you haven't got one yet, here's a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_screen_marker_selection.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_screen_marker_selection.swift))
 
 ![Xcode HelloEarth]({{ site.baseurl }}/images/tutorial/screen_marker_selection_1.png)
 
@@ -13,7 +13,8 @@ We'll need an XCode project here, so if you haven't done the [Screen Markers](sc
 
 If you've got screen markers displaying, selecting them is pretty simple.  Change your handleSelection method as follows.
 
-{% highlight objc %}
+{% multiple_code %}
+  {% highlight objc %}
 // Unified method to handle the selection
 - (void) handleSelection:(MaplyBaseViewController *)viewC
          selected:(NSObject *)selectedObj
@@ -40,7 +41,31 @@ If you've got screen markers displaying, selecting them is pretty simple.  Chang
         [self addAnnotation:title withSubtitle:subtitle at:theMarker.loc];
     }
 }
-­{% endhighlight %}
+­  {% endhighlight %}
+
+  {----}
+
+  {% highlight swift %}
+// Unified method to handle the selection
+private func handleSelection(selectedObject: NSObject) {
+    if let selectedObject = selectedObject as? MaplyVectorObject {
+        var loc = UnsafeMutablePointer<MaplyCoordinate>.alloc(1)
+        if selectedObject.centroid(loc) {
+            let title = "Selected:"
+            let subtitle = selectedObject.userObject as! String
+            addAnnotationWithTitle(title, subtitle: subtitle, loc: loc.memory)
+        }
+        loc.dealloc(1)
+    }
+    else if let selectedObject = selectedObject as? MaplyScreenMarker {
+        let title = "Selected:"
+        let subtitle = "Screen Marker"
+        addAnnotationWithTitle(title, subtitle: subtitle, loc: selectedObject.loc)
+    }
+}
+  {% endhighlight %}
+{% endmultiple_code %}
+
 
 That's all there is to it.  We're just handed a MaplyScreenMarker back if that's what the user selected.  We pop up a little annotation over the marker like so.
 

@@ -5,7 +5,7 @@ layout: tutorial
 
 Screen labels are 2D labels that follow a location on the globe or map.  As the user moves, they move, but don't get any bigger or smaller.  You have a lot of control over how they look and interact, but they're simple to use.
 
-We're going to make use of country outlines from the [Vector Data](adding_vector_data.html) tutorial if you have not yet.  If you don't have a project, build one with the [Hello Earth](hello_earth.html) tutorial and you can use this [ViewController.m]({{ site.baseurl }}/tutorial/code/ViewController_screen_labels.m).  You'll also need the source data from that tutorial.
+We're going to make use of country outlines from the [Vector Data](adding_vector_data.html) tutorial if you have not yet.  If you don't have a project, build one with the [Hello Earth](hello_earth.html) tutorial and you can use this ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_screen_labels.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_screen_labels.swift)).  You'll also need the source data from that tutorial.
 
 ![Xcode HelloEarth]({{ site.baseurl }}/images/tutorial/screen_labels_1.png)
 
@@ -13,8 +13,9 @@ We're going to make use of country outlines from the [Vector Data](adding_vector
 
 Let's take a quick look at our project from before.  There's a method in there called _addCountries_ that we'll be expanding.
 
-{% highlight objc %}
-­- (void)addCountries
+{% multiple_code %}
+  {% highlight objc %}
+- (void)addCountries
 {
     // handle this in another thread
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0),
@@ -39,7 +40,38 @@ Let's take a quick look at our project from before.  There's a method in there c
         }
     });
 }
-{% endhighlight %}
+  {% endhighlight %}
+
+  {----}
+
+  {% highlight swift %}
+private func addCountries() {
+    // handle this in another thread
+    let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
+    dispatch_async(queue) {
+        let allOutlines = NSBundle.mainBundle().pathsForResourcesOfType("geojson", inDirectory: nil) as! [String]
+
+        for outline in allOutlines {
+            if let jsonData = NSData(contentsOfFile: outline) {
+                let wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData)
+                // the admin tag from the country outline geojson has the country name ­ save
+                if let attrs = wgVecObj.attributes,
+                       vecName = attrs.objectForKey("ADMIN") as? NSObject {
+
+                    wgVecObj.userObject = vecName
+                }
+
+                // add the outline to our view
+                let compObj = self.theViewC?.addVectors([wgVecObj], desc: self.vectorDict)
+
+                // If you ever intend to remove these, keep track of the MaplyComponentObjects above.
+            }
+        }
+    }
+}
+  {% endhighlight %}
+{% endmultiple_code %}
+
 
 As a reminder, that routine is doing the following.
 
@@ -57,10 +89,14 @@ We'll be adding code right after the line where it says the following.
 ­// If you ever intend to remove these, keep track of the MaplyComponentObjects above.
 {% endhighlight %}
 
+For Swift, we'll do it after the line where we assign vecName to userObject attribute.
+
 Here's the plan.  We'll create a MaplyScreenLabel, give it a location and some text and then add it.  Adding it involves a little styling, but we'll keep it simple.
 
-{% highlight objc %}
-­// Add a screen label per country
+
+{% multiple_code %}
+  {% highlight objc %}
+// Add a screen label per country
 if ([vecName length] > 0)
 {
     MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
@@ -75,7 +111,26 @@ if ([vecName length] > 0)
             kMaplyColor: [UIColor whiteColor]
         }];
 }
-{% endhighlight %}
+  {% endhighlight %}
+
+  {----}
+
+  {% highlight swift %}
+if count(vecName.description) > 0 {
+    let label = MaplyScreenLabel()
+    label.text = vecName.description
+    label.loc = wgVecObj.center()
+    label.selectable = true
+    self.theViewC?.addScreenLabels([label],
+        desc: [
+            kMaplyFont: UIFont.boldSystemFontOfSize(24.0),
+            kMaplyTextOutlineColor: UIColor.blackColor(),
+            kMaplyTextOutlineSize: 2.0,
+            kMaplyColor: UIColor.whiteColor()])
+}
+  {% endhighlight %}
+{% endmultiple_code %}
+
 
 ![Xcode HelloEarth]({{ site.baseurl }}/images/tutorial/screen_labels_3.png)
 
@@ -97,9 +152,18 @@ But there's one problem.  Those labels are all on top of each other.  Can we do 
 
 WhirlyGlobe-Maply has an interactive label and marker layout engine.  All you have to do is use it.  Right when you create the MaplyScreenLabel do this.
 
-{% highlight objc %}
+{% multiple_code %}
+  {% highlight objc %}
 label.layoutImportance = 10.0;
-­{% endhighlight %}
+­  {% endhighlight %}
+
+  {----}
+
+  {% highlight swift %}
+label.layoutImportance = 10.0
+­  {% endhighlight %}
+{% endmultiple_code %}
+
 
 Now it looks like this.
 
