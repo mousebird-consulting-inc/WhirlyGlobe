@@ -381,6 +381,9 @@ using namespace WhirlyGlobe;
             pinchDelegate.northUp = panDelegate.northUp;
             pinchDelegate.rotateDelegate = rotateDelegate;
             tiltDelegate.pinchDelegate = pinchDelegate;
+            
+            if (twoFingerTapDelegate)
+                [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
         }
     } else {
         if (pinchDelegate)
