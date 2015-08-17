@@ -27,6 +27,9 @@
 #import "VectorData.h"
 #import "SceneRendererES2.h"
 
+// Note: Debugging
+//#define TILELOGGING 1
+
 using namespace Eigen;
 using namespace WhirlyKit;
 
@@ -677,14 +680,14 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     // Note: Huge hack
     // There's an internal logic problem... somewhere...
     // If we do a clean evaluation it clears it up
-    if (!didSomething && !didFrameKick)
-    {
-        didFrameKick = true;
-        
-        [self resetEvaluation];
-        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
-        [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
-    }
+//    if (!didSomething && !didFrameKick)
+//    {
+//        didFrameKick = true;
+//        
+//        [self resetEvaluation];
+//        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
+//        [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
+//    }
 }
 
 - (void)getFrameLoadStatus:(std::vector<WhirlyKit::FrameLoadStatus> &)retFrameLoadStats
@@ -721,7 +724,12 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
         _quadtree->updateParentCoverage(tileIdent,tilesCovered,tilesUncovered);
         for (const Quadtree::Identifier &ident : tilesCovered)
             if (!_quadtree->isPhantom(ident))
+            {
+#ifdef TILELOGGING
+                NSLog(@"Adding to the phantom list: %d: (%d,%d)",ident.level,ident.x,ident.y);
+#endif
                 toPhantom.insert(ident);
+            }
     }
 
     // May want to consider the children next
