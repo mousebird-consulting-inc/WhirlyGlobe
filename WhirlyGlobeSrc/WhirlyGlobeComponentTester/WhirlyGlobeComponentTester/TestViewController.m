@@ -1152,18 +1152,18 @@ static const int NumMegaMarkers = 15000;
                    ^{
                        [mapViewC setHeight:mapViewC.height/2.0];
                    });
-//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((2.0+2.0) * NSEC_PER_SEC)), dispatch_get_main_queue(),
-//                   ^{
-//                       [mapViewC setHeight:mapViewC.height/2.0];
-//                   });
-//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((2.0+3.0) * NSEC_PER_SEC)), dispatch_get_main_queue(),
-//                   ^{
-//                       [mapViewC setHeight:mapViewC.height/2.0];
-//                   });
-//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((2.0+4.0) * NSEC_PER_SEC)), dispatch_get_main_queue(),
-//                   ^{
-//                       [mapViewC setHeight:mapViewC.height*2.0];
-//                   });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((2.0+1.0) * NSEC_PER_SEC)), dispatch_get_main_queue(),
+                   ^{
+                       [mapViewC setHeight:mapViewC.height/2.0];
+                   });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((2.0+2.0) * NSEC_PER_SEC)), dispatch_get_main_queue(),
+                   ^{
+                       [mapViewC setHeight:mapViewC.height/2.0];
+                   });
+    //    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((2.0+3.0) * NSEC_PER_SEC)), dispatch_get_main_queue(),
+    //                   ^{
+    //                       [mapViewC setHeight:mapViewC.height*2.0];
+    //                   });
 }
 
 // Set this to reload the base layer ever so often.  Purely for testing
@@ -1406,7 +1406,9 @@ static const int NumMegaMarkers = 15000;
         }
         [baseViewC addLayer:layer];
         layer.drawPriority = BaseEarthPriority;
-        baseLayer = layer;        
+        baseLayer = layer;
+        
+        [self zoomTest];
     } else if (![baseLayerName compare:kMaplyTestQuadVectorTest])
     {
         self.title = @"Quad Paging Test Layer";

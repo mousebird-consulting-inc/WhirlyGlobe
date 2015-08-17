@@ -352,8 +352,6 @@ void Quadtree::setPhantom(const Identifier &ident,bool newPhantom)
             numPhantomNodes--;
         if (newPhantom)
             numPhantomNodes++;
-        
-//        recalcCoverage(node);
     } else
         // Haven't heard of it
         return;
