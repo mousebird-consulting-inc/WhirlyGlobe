@@ -1145,6 +1145,27 @@ static const int NumMegaMarkers = 15000;
     [baseViewC addActiveObject:animSphere];
 }
 
+// Test sequence for zoom
+- (void)zoomTest
+{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((2.0) * NSEC_PER_SEC)), dispatch_get_main_queue(),
+                   ^{
+                       [mapViewC setHeight:mapViewC.height/2.0];
+                   });
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((2.0+2.0) * NSEC_PER_SEC)), dispatch_get_main_queue(),
+//                   ^{
+//                       [mapViewC setHeight:mapViewC.height/2.0];
+//                   });
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((2.0+3.0) * NSEC_PER_SEC)), dispatch_get_main_queue(),
+//                   ^{
+//                       [mapViewC setHeight:mapViewC.height/2.0];
+//                   });
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((2.0+4.0) * NSEC_PER_SEC)), dispatch_get_main_queue(),
+//                   ^{
+//                       [mapViewC setHeight:mapViewC.height*2.0];
+//                   });
+}
+
 // Set this to reload the base layer ever so often.  Purely for testing
 //#define RELOADTEST 1
 
@@ -1368,7 +1389,7 @@ static const int NumMegaMarkers = 15000;
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
         MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:21 depth:1];
-        tileSource.pixelsPerSide = 128;
+        tileSource.pixelsPerSide = 256;
         tileSource.transparentMode = true;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.waitLoad = imageWaitLoad;
@@ -1385,7 +1406,7 @@ static const int NumMegaMarkers = 15000;
         }
         [baseViewC addLayer:layer];
         layer.drawPriority = BaseEarthPriority;
-        baseLayer = layer;
+        baseLayer = layer;        
     } else if (![baseLayerName compare:kMaplyTestQuadVectorTest])
     {
         self.title = @"Quad Paging Test Layer";
