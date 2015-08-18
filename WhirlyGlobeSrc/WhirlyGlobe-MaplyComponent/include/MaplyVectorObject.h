@@ -26,7 +26,14 @@
 @class MaplyBaseViewController;
 
 /// Data type for the vector.  Multi means it contains multiple types
-typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,MaplyVectorArealType,MaplyVectorMultiType} MaplyVectorObjectType;
+typedef NS_ENUM(NSUInteger, MaplyVectorObjectType) {
+	MaplyVectorNoneType,
+	MaplyVectorPointType,
+	MaplyVectorLinearType,
+	MaplyVectorArealType,
+	MaplyVectorMultiType,
+};
+
 
 /** @brief Maply Vector Object represents zero or more vector features.
     @details The Vector Object can hold several vector features of the same or different types.  It's meant to be a fairly opaque structure, often read from GeoJSON or Shapefiles.  It's less opaque than originally planned, however, and sports a number of specific methods.
