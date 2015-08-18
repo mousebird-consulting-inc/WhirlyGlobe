@@ -97,6 +97,13 @@ using namespace WhirlyKit;
     std::vector<int> framePriorities;
 }
 
+- (id)initWithTileSource:(NSObject<MaplyTileSource> *)tileSource
+{
+	self = [self initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+
+	return self;
+}
+
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
 {
     if (!inTileSource)
