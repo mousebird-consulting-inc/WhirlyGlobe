@@ -41,41 +41,32 @@ using namespace Maply;
     bool isPanning,isZooming,isAnimating;
 }
 
-- (id)init
+- (id)initWithMapType:(MaplyMapType)mapType
 {
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    _autoMoveToTap = true;
-    _rotateGesture = true;
-    _doubleTapDragGesture = true;
-    _twoFingerTapGesture = true;
-    _doubleTapZoomGesture = true;
+	self = [super init];
+	if (!self)
+		return nil;
 
-    return self;
-}
+	if (mapType == MaplyMapType3D) {
+		_autoMoveToTap = true;
+	}
+	else {
+		// Turn off lighting
+		[self setHints:@{kMaplyRendererLightingMode: @"none"}];
+		_flatMode = true;
+	}
 
-- (id)initAsFlatMap
-{
-    self = [super init];
-    if (!self)
-        return nil;
+	_rotateGesture = true;
+	_doubleTapDragGesture = true;
+	_twoFingerTapGesture = true;
+	_doubleTapZoomGesture = true;
 
-    // Turn off lighting
-    [self setHints:@{kMaplyRendererLightingMode: @"none"}];
-    _flatMode = true;
-    _rotateGesture = true;
-    _doubleTapDragGesture = true;
-    _twoFingerTapGesture = true;
-    _doubleTapZoomGesture = true;
-
-    return self;
+	return self;
 }
 
 - (id)initAsTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView
 {
-    self = [self initAsFlatMap];
+	self = [self initWithMapType:MaplyMapTypeFlat];
     if (!self)
         return nil;
     

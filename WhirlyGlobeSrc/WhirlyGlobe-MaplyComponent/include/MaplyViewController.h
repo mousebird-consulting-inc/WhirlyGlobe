@@ -82,6 +82,12 @@
 
 @end
 
+
+typedef NS_ENUM(NSUInteger, MaplyMapType) {
+	MaplyMapType3D,
+	MaplyMapTypeFlat,
+};
+
 /** @brief This view controller implements a map.
     @details This is the main entry point for displaying a 2D or 3D map.  Create one of these, fill it with data and let your users mess around with it.
     @details You can display a variety of features on the map, including tile base maps (MaplyQuadImageTilesLayer), vectors (MaplyVectorObject), shapes (MaplyShape), and others.  Check out the add calls in the MaplyBaseViewController for details.
@@ -91,11 +97,8 @@
   */
 @interface MaplyViewController : MaplyBaseViewController
 
-/// @brief Initialize as a 3D map.
-- (id)init;
-
-/// @brief Initialize as a 2D map.
-- (id)initAsFlatMap;
+/// @brief Initialize as a flat or 3D map.
+- (id)initWithMapType:(MaplyMapType)mapType;
 
 /** @brief Initialize as a 2D map tied to a UIScrollView.
     @details In this mode we disable all the the gestures.
