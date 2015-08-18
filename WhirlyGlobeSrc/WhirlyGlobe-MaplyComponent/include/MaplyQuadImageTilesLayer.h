@@ -49,6 +49,12 @@ typedef enum {MaplyImageIntRGBA,
   */
 @interface MaplyQuadImageTilesLayer : MaplyViewControllerLayer
 
+/** @brief Initialize with a the tile source object.
+ @details The initialize expects a tile source.  The tile source can be one of the standard ones listed above, or it can be one of your own that conforms to the MaplyTileSource protocol. The tile source's coordinate system will be used.
+ @param tileSource This is an object conforming to the MaplyTileSource protocol.  There are several you can pass in, or you can write your own.
+ */
+- (id)initWithTileSource:(NSObject<MaplyTileSource> *)tileSource;
+
 /** @brief Initialize with a coordinate system for the image pyramid and the tile source object.  
     @details The initialize expects a coordinate system (probably MaplySphericalMercator) and a tile source.  The tile source can be one of the standard ones listed above, or it can be one of your own that conforms to the MaplyTileSource protocol.
     @param coordSys The coordinate system. This must match what your
