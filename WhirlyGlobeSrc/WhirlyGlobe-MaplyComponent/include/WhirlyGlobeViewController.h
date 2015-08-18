@@ -50,7 +50,7 @@
 /** @brief Interpolate a new state between the given states A and B.
     @details This does a simple interpolation (lat/lon, not great circle) between the two animation states.
   */
-+ (WhirlyGlobeViewControllerAnimationState *)Interpolate:(double)t from:(WhirlyGlobeViewControllerAnimationState *)stateA to:(WhirlyGlobeViewControllerAnimationState *)stateB;
++ (WhirlyGlobeViewControllerAnimationState * __nonnull)Interpolate:(double)t from:(WhirlyGlobeViewControllerAnimationState * __nonnull)stateA to:(WhirlyGlobeViewControllerAnimationState * __nonnull)stateB;
 
 @end
 
@@ -67,7 +67,7 @@
     @param startTime When the animation starts (e.g. now)
     @param endTime When the animation ends.  This is an absolute value.
   */
-- (void)globeViewController:(WhirlyGlobeViewController *)viewC startState:(WhirlyGlobeViewControllerAnimationState *)startState startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime;
+- (void)globeViewController:(WhirlyGlobeViewController * __nonnull)viewC startState:(WhirlyGlobeViewControllerAnimationState * __nonnull)startState startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime;
 
 /** @brief This method is called at the beginning of every frame draw to position the viewer.
     @details This is the method that does all the work.  You need to fill out the returned WhirlyGlobeViewControllerAnimationState according to whatever interpolation your'e doing based on the currentTime.
@@ -75,7 +75,7 @@
     @param currentTime The time for this frame.  Use this rather than calculating the time yourself.
     @return The WhirlyGlobeViewControllerAnimationState expressing where you want the viewer to be and where they are looking.
   */
-- (WhirlyGlobeViewControllerAnimationState *)globeViewController:(WhirlyGlobeViewController *)viewC stateForTime:(NSTimeInterval)currentTime;
+- (WhirlyGlobeViewControllerAnimationState * __nonnull)globeViewController:(WhirlyGlobeViewController * __nonnull)viewC stateForTime:(NSTimeInterval)currentTime;
 
 @optional
 
@@ -83,7 +83,7 @@
     @details The globe view controller calls this method when the animation is finished.  Do your cleanup here if need be.
     @param viewC The globe view controller.
   */
-- (void)globeViewControllerDidFinishAnimation:(WhirlyGlobeViewController *)viewC;
+- (void)globeViewControllerDidFinishAnimation:(WhirlyGlobeViewController * __nonnull)viewC;
 
 @end
 
@@ -93,7 +93,7 @@
 @interface WhirlyGlobeViewControllerSimpleAnimationDelegate : NSObject <WhirlyGlobeViewControllerAnimationDelegate>
 
 /// @brief Initialize with an animation state to copy
-- (id)initWithState:(WhirlyGlobeViewControllerAnimationState *)endState;
+- (id __nonnull)initWithState:(WhirlyGlobeViewControllerAnimationState * __nonnull)endState;
 
 /// @brief Location at the end of the animation
 @property (nonatomic) MaplyCoordinate loc;
@@ -120,7 +120,7 @@
     @param viewC The view controller where the user selected something.
     @param selectedObj The Maply object they selected.
   */
-- (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj;
+- (void)globeViewController:(WhirlyGlobeViewController * __nonnull)viewC didSelect:(NSObject * __nonnull)selectedObj;
 
 /** @brief Called when the user taps on or near an object.
     @details This will call back with the closest object it finds near (or on) where the user tapped.
@@ -131,7 +131,7 @@
     @param coord The location (geographic lon/lat in radians) where the user tapped.
     @param screenPt The location on screen where the user tapped.
   */
-- (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj atLoc:(MaplyCoordinate)coord onScreen:(CGPoint)screenPt;
+- (void)globeViewController:(WhirlyGlobeViewController * __nonnull)viewC didSelect:(NSObject * __nonnull)selectedObj atLoc:(MaplyCoordinate)coord onScreen:(CGPoint)screenPt;
 
 /** @brief Called when the user taps on or near one or more objects.  Returns them all.
     @details This method is called when the
@@ -140,29 +140,29 @@
     @param coord The location (geographic lon/lat in radians) where the user tapped.
     @param screenPt The location on screen where the user tapped.
   */
-- (void)globeViewController:(WhirlyGlobeViewController *)viewC allSelect:(NSArray *)selectedObjs atLoc:(MaplyCoordinate)coord onScreen:(CGPoint)screenPt;
+- (void)globeViewController:(WhirlyGlobeViewController * __nonnull)viewC allSelect:(NSArray * __nonnull)selectedObjs atLoc:(MaplyCoordinate)coord onScreen:(CGPoint)screenPt;
 
 /** @brief Called when the user taps outside the globe.
   */
-- (void)globeViewControllerDidTapOutside:(WhirlyGlobeViewController *)viewC;
+- (void)globeViewControllerDidTapOutside:(WhirlyGlobeViewController * __nonnull)viewC;
 
 /** @brief Called when the user taps the globe but doesn't select anything.
     @param viewC The view controller where the user selected something.
     @param coord The location (geographic lon/lat in radians) where the user tapped.
   */
-- (void)globeViewController:(WhirlyGlobeViewController *)viewC didTapAt:(WGCoordinate)coord;
+- (void)globeViewController:(WhirlyGlobeViewController * __nonnull)viewC didTapAt:(WGCoordinate)coord;
 
 /** @brief This is an older method called when some layers load.
     @details Certain image layers call this method when they finish loading.  More modern layers don't, so don't rely on this.
   */
-- (void)globeViewController:(WhirlyGlobeViewController *)viewC layerDidLoad:(WGViewControllerLayer *)layer;
+- (void)globeViewController:(WhirlyGlobeViewController * __nonnull)viewC layerDidLoad:(WGViewControllerLayer * __nonnull)layer;
 
 /** @brief Called when the globe starts moving.
     @param viewC The globe view controller.
     @param userMotion Set if this is motion being caused by the user, rather than a call to set location.
     @details This is called when something (probably the user) starts moving the globe.
   */
-- (void)globeViewControllerDidStartMoving:(WhirlyGlobeViewController *)viewC userMotion:(bool)userMotion;
+- (void)globeViewControllerDidStartMoving:(WhirlyGlobeViewController * __nonnull)viewC userMotion:(bool)userMotion;
 
 /** @brief Called when the globe stops moving.
     @details This is called when the globe stops moving.  It passes in the corners of the current viewspace.
@@ -170,7 +170,7 @@
     @param userMotion Set if this is motion being caused by the user, rather than a call to set location.
     @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.
   */
-- (void)globeViewController:(WhirlyGlobeViewController *)viewC didStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion;
+- (void)globeViewController:(WhirlyGlobeViewController * __nonnull)viewC didStopMoving:(MaplyCoordinate * __nonnull)corners userMotion:(bool)userMotion;
 
 /** @brief Called when an animation that knows where it's going to stop start ups.
     @details This is called when we know where the globe will stop.  It passes in the corners of that future viewspace.
@@ -178,7 +178,7 @@
     @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.
     @param userMotion Set if this is motion being caused by the user, rather than a call to set location.
  */
-- (void)globeViewController:(WhirlyGlobeViewController *)viewC willStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion;
+- (void)globeViewController:(WhirlyGlobeViewController * __nonnull)viewC willStopMoving:(MaplyCoordinate * __nonnull)corners userMotion:(bool)userMotion;
 
 /** @brief Called whenever the viewpoint moves.
     @details This is called whenever the viewpoint moves.  That includes user motion as well as animations.
@@ -186,7 +186,7 @@
     @param viewC The globe view controller.
     @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.
   */
-- (void)globeViewController:(WhirlyGlobeViewController *)viewC didMove:(MaplyCoordinate *)corners;
+- (void)globeViewController:(WhirlyGlobeViewController * __nonnull)viewC didMove:(MaplyCoordinate * __nonnull)corners;
 
 @end
 
@@ -242,7 +242,7 @@
 /** @brief Delegate for the selection and tap events.
     @details Fill in the WhirlyGlobeViewControllerDelegate protocol, assign the object here and you'll get selection and tap events.
   */
-@property(nonatomic,weak) NSObject<WhirlyGlobeViewControllerDelegate> *delegate;
+@property(nonatomic,weak) NSObject<WhirlyGlobeViewControllerDelegate> * __nullable delegate;
 
 /** @brief Current viewer height above terrain.
     @details This is the height from with the viewer is viewing the globe.  Values range from minHeight to maxHeight.  Smaller is closer.  See getZoomLimitsMin:max: for values.  The display units are based on a globe with a radius of 1.0.
@@ -262,7 +262,7 @@
     @param minHeight The closest a viewer is allowed to get to the globe surface.
     @param maxHeight The farthest away a viewer is allowed to get from the globe surface.
  */
-- (void)getZoomLimitsMin:(float *)minHeight max:(float *)maxHeight;
+- (void)getZoomLimitsMin:(float * __nonnull)minHeight max:(float * __nonnull)maxHeight;
 
 /** @brief Set the zoom limits for the globe.
     @param minHeight The closest a viewer is allowed to get to the globe surface.
@@ -328,7 +328,7 @@
     @param animationDelegate The objects that implements the WhirlyGlobeViewControllerAnimationDelegate protocol.
     @param howLong How long the animation will run from the present time.
   */
-- (void)animateWithDelegate:(NSObject<WhirlyGlobeViewControllerAnimationDelegate> *)animationDelegate time:(NSTimeInterval)howLong;
+- (void)animateWithDelegate:(NSObject<WhirlyGlobeViewControllerAnimationDelegate> * __nonnull)animationDelegate time:(NSTimeInterval)howLong;
 
 /** @brief Set the center of the screen to the given position immediately.
     @param newPos The geographic position (lon/lat in radians) to move to.
@@ -345,17 +345,17 @@
     @param pos The center of the screen in geographic (lon/lat in radians).
     @param height The current view point's height above the globe.
  */
-- (void)getPosition:(MaplyCoordinate *)pos height:(float *)height;
+- (void)getPosition:(MaplyCoordinate * __nonnull)pos height:(float * __nonnull)height;
 
 /** @brief Set the viewing state all at once
     @details This sets the position, tilt, height, screen position and heading all at once.
   */
-- (void)setViewState:(WhirlyGlobeViewControllerAnimationState *)viewState;
+- (void)setViewState:(WhirlyGlobeViewControllerAnimationState * __nonnull)viewState;
 
 /** @brief Make a WhirlyGlobeViewControllerAnimationState object from the current view state.
     @details This returns the current view parameters in a single WhirlyGlobeViewControllerAnimationState.
   */
-- (WhirlyGlobeViewControllerAnimationState *)getViewState;
+- (WhirlyGlobeViewControllerAnimationState * __nullable)getViewState;
 
 /** @brief Return a view state looking at the given location.
     @details Creates a view state that looks at the given location, taking tilt and heading into account.
@@ -366,52 +366,52 @@
     @param range How far the user will be from the location they're looking at.
     @return The view state encapsulating the user location.  Will be nil if the parameters weren't valid.
   */
-- (WhirlyGlobeViewControllerAnimationState *)viewStateForLookAt:(MaplyCoordinate)coord tilt:(float)tilt heading:(float)heading altitude:(float)alt range:(float)range;
+- (WhirlyGlobeViewControllerAnimationState * __nullable)viewStateForLookAt:(MaplyCoordinate)coord tilt:(float)tilt heading:(float)heading altitude:(float)alt range:(float)range;
 
 /** @brief Apply viewing constraints to the given view state.
     @details This applies active viewing constraints, such as min and max height and calculated tilt, if it's on to the given view state. This is particularly useful when controlled tilt is on.
   */
-- (void)applyConstraintsToViewState:(WhirlyGlobeViewControllerAnimationState *)viewState;
+- (void)applyConstraintsToViewState:(WhirlyGlobeViewControllerAnimationState * __nonnull)viewState;
 
 /** @brief Find a selectable object at or near the given location.
     @details This runs immediately and looks for a Maply object at the given location.  It differs from the WhirlyGlobeViewControllerDelegate in that it doesn't require user interaction.
     @param screenPt The location on screen where we're looking for an object.
     @return Returns a Maply object such as MaplyScreenLabel or MaplyShape or nil if it failed to find anything.
   */
-- (id)findObjectAtLocation:(CGPoint)screenPt;
+- (id __nullable)findObjectAtLocation:(CGPoint)screenPt;
 
 /** @brief An old style method to add a spherical earth layer.
     @details Image sets and this layer have been superceeded by MaplyQuadImageTilesLayer.  This is here for backwards compatibility.
   */
-- (WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name;
+- (WGViewControllerLayer * __nonnull)addSphericalEarthLayerWithImageSet:(NSString * __nonnull)name;
 
 /** @brief Return a location on the screen for a given geographic coordinate or false if it's not on the screen.
     @param geoCoord Point on the earth in lat/lon radians you want a screen position for.
     @param screenPt Location on the screen.
     @return True if the geo coord was on the screen, false otherwise.
   */
-- (bool)screenPointFromGeo:(MaplyCoordinate)geoCoord screenPt:(CGPoint *)screenPt;
+- (bool)screenPointFromGeo:(MaplyCoordinate)geoCoord screenPt:(CGPoint * __nonnull)screenPt;
 
 /** @brief Calculate a geo coordinate from a point on the screen.
     @param screenPt Location on the screen.
     @param geoCoord Point on the earth in lat/lon radians.
     @return True if the point was on the globe, false otherwise.
   */
-- (bool)geoPointFromScreen:(CGPoint)screenPt geoCoord:(MaplyCoordinate *)geoCoord;
+- (bool)geoPointFromScreen:(CGPoint)screenPt geoCoord:(MaplyCoordinate * __nonnull)geoCoord;
 
 /** @brief Calculate a geocentric coordinate from a point on the screen.
     @param screenPt Location on the screen.
     @param retCoords An array of 3 doubles.  The geocentric coordinate will be returned here.
     @return True if the point was on the globe, false otherwise.
  */
-- (bool)geocPointFromScreen:(CGPoint)screenPt geocCoord:(double *)retCoords;
+- (bool)geocPointFromScreen:(CGPoint)screenPt geocCoord:(double * __nonnull)retCoords;
 
 /** @brief Find a height that shows the given bounding box.
     @details This method will search for a height that shows the given bounding box within the view.  The search is inefficient, so don't call this a lot.
     @param bbox The bounding box (in radians) we're trying to view.
     @param pos The position the viewer will be at.
  */
-- (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos;
+- (float)findHeightToViewBounds:(MaplyBoundingBox * __nonnull)bbox pos:(MaplyCoordinate)pos;
 
 /**
  @brief Return the extents of the current view.
@@ -419,7 +419,7 @@
  @param bbox. The bbox will be returned here.
  @return Returns true if exists a bounding bbox for the current view, otherwise returns false
  */
-- (bool) getCurrentExtents:(MaplyBoundingBox *)bbox;
+- (bool) getCurrentExtents:(MaplyBoundingBox * __nonnull)bbox;
 
 /**
   @brief From the current view figure out a usable geo bounding box.
@@ -427,6 +427,6 @@
  @param bboxes The bounding boxes to fill in.  Pass in two.
  @param visualBoxes If set, we'll build bounding boxes you can display.  If not set, we'll build a single bounding box usable for math.
   */
-- (int)getUsableGeoBoundsForView:(MaplyBoundingBox *)bboxes visual:(bool)visualBoxes;
+- (int)getUsableGeoBoundsForView:(MaplyBoundingBox * __nonnull)bboxes visual:(bool)visualBoxes;
 
 @end
