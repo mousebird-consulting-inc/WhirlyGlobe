@@ -58,12 +58,6 @@ typedef NS_ENUM(NSUInteger, MaplyVectorObjectType) {
   */
 @property (nonatomic,readonly) NSMutableDictionary *attributes;
 
-/** @brief Parse vector data from geoJSON.  
-    @details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses the faster JSON parser.
-    @details We assume the geoJSON is all in decimal degrees in WGS84.
-  */
-+ (MaplyVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON;
-
 /** @brief Parse vector data from geoJSON.
     @details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses slower JSON parser.
     @details We assume the geoJSON is all in decimal degrees in WGS84.
@@ -109,6 +103,39 @@ typedef NS_ENUM(NSUInteger, MaplyVectorObjectType) {
     @details This version takes an array of coordinates, the size of that array and the attribution.  With this it will make a single area feature with one (exterior) loop.  To add loops, call addHole:numCoords:
   */
 - (id)initWithAreal:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr;
+
+/** @brief Initializes with vectors parsed from geoJSON.
+	@details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses the faster JSON parser.
+    @details We assume the geoJSON is all in decimal degrees in WGS84.
+ */
+- (instancetype)initWithGeoJSON:(NSData *)geoJSON;
+
+/** @brief Initializes with vector parsed from geoJSON.
+	@details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses slower JSON parser.
+	@details We assume the geoJSON is all in decimal degrees in WGS84.
+ */
+- (instancetype)initWithGeoJSONApple:(NSData *)geoJSON;
+
+/** @brief Initializes with vector parsed from geoJSON.
+	@details Returns one object to represent the whole thing, which might include multiple different vectors.  This version parses its data from an NSDictionary, which had to be parsed from JSON at some point.  Probably the slower path.
+	@details We assume the geoJSON is all in decimal degrees in WGS84.
+ */
+- (instancetype)initWithGeoJSONDictionary:(NSDictionary *)geoJSON;
+
+/** @brief Initializes with vectors read from the given cache file.
+	@details MaplyVectorObject's can be written and read from a binary file.  We use this for caching data locally on the device.
+	@param fileName Name of the binary vector file.
+	@return The vector object(s) read from the file or nil on failure.
+ */
+- (instancetype)initWithFile:(NSString *)fileName;
+
+/** @brief Initializes with vectors read from the given shapefile.
+	@details This will read all the shapes in the given shapefile into memory and return them as one MaplyVectorObject.
+	@param fileName The basename of the shape file.  Don't include the extension.
+	@return The vector object(s) read from the file or nil on failure.
+ */
+- (instancetype)initWithShapeFile:(NSString *)fileName;
+
 
 /** @brief Write the vector object to the given file on the device.
     @details We support a binary format for caching vector data.  Typically you write these files on the device or in the simulator and then put them in a place you can easily find them when needed.

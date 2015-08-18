@@ -101,35 +101,6 @@ public:
 
 @implementation MaplyVectorObject
 
-+ (WGVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON
-{
-    if ([geoJSON length] > 0)
-    {
-        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
-        
-        NSString *crs = nil;
-        if (!VectorParseGeoJSON(vecObj->_shapes, geoJSON, &crs))
-            return nil;
-        
-        // Reproject to a destination system
-        // Note: Not working
-//        if (crs)
-//        {
-//            MaplyCoordinateSystem *srcSys = MaplyCoordinateSystemFromEPSG(crs);
-//            MaplyCoordinateSystem *destSys = [[MaplyPlateCarree alloc] initFullCoverage];
-//            if (srcSys && destSys)
-//            {
-//                [vecObj reprojectFrom:srcSys to:destSys];
-//            } else
-//                NSLog(@"VectorObjectFromGeoJSON: Unable to reproject to CRS (%@)",crs);
-//        }
-        
-        return vecObj;
-    }
-    
-    return nil;
-}
-
 + (NSDictionary *)VectorObjectsFromGeoJSONAssembly:(NSData *)geoJSON
 {
     if ([geoJSON length] > 0)
@@ -161,69 +132,22 @@ public:
 //   the whole thing, which might include multiple different vectors.
 + (WGVectorObject *)VectorObjectFromGeoJSONApple:(NSData *)geoJSON
 {
-    if([geoJSON length] > 0)
-    {
-        NSError *error = nil;
-        NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:geoJSON options:NULL error:&error];
-        if (error || ![jsonDict isKindOfClass:[NSDictionary class]])
-            return nil;
-        
-        WGVectorObject *vecObj = [[WGVectorObject alloc] init];
-
-        if (!VectorParseGeoJSON(vecObj->_shapes,jsonDict))
-            return nil;
-
-      return vecObj;
-    }
-    
-    return nil;
+	return [[WGVectorObject alloc] initWithGeoJSONApple:geoJSON];
 }
 
 + (MaplyVectorObject *)VectorObjectFromGeoJSONDictionary:(NSDictionary *)jsonDict
 {
-    if (![jsonDict isKindOfClass:[NSDictionary class]])
-        return nil;
-    
-    WGVectorObject *vecObj = [[WGVectorObject alloc] init];
-    
-    if (!VectorParseGeoJSON(vecObj->_shapes,jsonDict))
-        return nil;
-    
-    return vecObj;
+	return [[MaplyVectorObject alloc] initWithGeoJSONDictionary:jsonDict];
 }
 
 + (MaplyVectorObject *)VectorObjectFromShapeFile:(NSString *)fileName
 {
-    if (![[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@.shp",fileName]])
-    {
-        fileName = [[NSBundle mainBundle] pathForResource:fileName ofType:@"shp"];
-    }
-    if (!fileName)
-        return nil;
-    
-    ShapeReader shapeReader(fileName);
-    if (!shapeReader.isValid())
-        return NULL;
-    
-    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
-    int numObj = shapeReader.getNumObjects();
-    for (unsigned int ii=0;ii<numObj;ii++)
-    {
-        VectorShapeRef shape = shapeReader.getObjectByIndex(ii, nil);
-        vecObj.shapes.insert(shape);
-    }
-    
-    return vecObj;
+	return [[MaplyVectorObject alloc] initWithShapeFile:fileName];
 }
 
 + (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName
 {
-    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
-    
-    if (!VectorReadFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], vecObj.shapes))
-        return nil;
-    
-    return vecObj;
+	return [[MaplyVectorObject alloc] initWithFile:fileName];
 }
 
 - (bool)writeToFile:(NSString *)fileName
@@ -318,6 +242,99 @@ public:
     
     return self;
 }
+
+/// Construct from GeoJSON
+- (instancetype)initWithGeoJSON:(NSData *)geoJSON
+{
+	if ([geoJSON length] == 0)
+		return nil;
+
+	self = [super init];
+
+	NSString *crs = nil;
+	if (!VectorParseGeoJSON(_shapes, geoJSON, &crs))
+		return nil;
+
+	// Reproject to a destination system
+	// Note: Not working
+	//        if (crs)
+	//        {
+	//            MaplyCoordinateSystem *srcSys = MaplyCoordinateSystemFromEPSG(crs);
+	//            MaplyCoordinateSystem *destSys = [[MaplyPlateCarree alloc] initFullCoverage];
+	//            if (srcSys && destSys)
+	//            {
+	//                [vecObj reprojectFrom:srcSys to:destSys];
+	//            } else
+	//                NSLog(@"VectorObjectFromGeoJSON: Unable to reproject to CRS (%@)",crs);
+	//        }
+
+	return self;
+}
+
+- (instancetype)initWithGeoJSONApple:(NSData *)geoJSON
+{
+	if([geoJSON length] == 0)
+		return nil;
+
+	NSError *error = nil;
+	NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:geoJSON options:NULL error:&error];
+	if (error || ![jsonDict isKindOfClass:[NSDictionary class]])
+		return nil;
+
+	if (self = [super init]) {
+		if (!VectorParseGeoJSON(_shapes, jsonDict))
+			return nil;
+	}
+
+	return self;
+}
+
+- (instancetype)initWithGeoJSONDictionary:(NSDictionary *)geoJSON
+{
+	if (![geoJSON isKindOfClass:[NSDictionary class]])
+		return nil;
+
+	if (self = [super init]) {
+		if (!VectorParseGeoJSON(_shapes, geoJSON))
+			return nil;
+	}
+
+	return self;
+}
+
+- (instancetype)initWithFile:(NSString *)fileName
+{
+	if (self = [super init]) {
+		if (!VectorReadFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], _shapes))
+			return nil;
+	}
+
+	return self;
+}
+
+- (instancetype)initWithShapeFile:(NSString *)fileName
+{
+	if (![[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@.shp",fileName]]) {
+		fileName = [[NSBundle mainBundle] pathForResource:fileName ofType:@"shp"];
+	}
+	if (!fileName)
+		return nil;
+
+	ShapeReader shapeReader(fileName);
+	if (!shapeReader.isValid())
+		return nil;
+
+	if (self = [super init]) {
+		int numObj = shapeReader.getNumObjects();
+		for (unsigned int ii=0;ii<numObj;ii++) {
+			VectorShapeRef shape = shapeReader.getObjectByIndex(ii, nil);
+			_shapes.insert(shape);
+		}
+	}
+
+	return self;
+}
+
 
 - (void)mergeVectorsFrom:(MaplyVectorObject *)otherVec
 {
