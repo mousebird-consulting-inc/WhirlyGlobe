@@ -647,7 +647,8 @@ void Quadtree::reevaluateNodes()
     --it;
     do {
         (*it)->recalcCoverage();
-        --it;
+        if (it != nodesByIdent.begin())
+            --it;
     } while (it != nodesByIdent.begin());
 }
     
