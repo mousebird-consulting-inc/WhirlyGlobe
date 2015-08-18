@@ -61,6 +61,7 @@
 #define kMaplyTestModels @"Models"
 #define kMaplyTestCountry @"Countries"
 #define kMaplyTestLoftedPoly @"Lofted Polygons"
+#define kMaplyTestQuadMarkers @"Quad Paging Markers"
 #define kMaplyTestMegaMarkers @"Mega Markers"
 #define kMaplyTestLatLon @"Lon/Lat lines"
 #define kMaplyTestRoads @"SF Roads"

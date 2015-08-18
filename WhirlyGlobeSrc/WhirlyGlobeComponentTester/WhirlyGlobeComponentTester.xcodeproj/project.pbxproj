@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2B1012A01B5C8EF70014D243 /* moon.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B10129F1B5C8EF70014D243 /* moon.png */; };
+		2B14BFC11B82A42600CE29A4 /* PagingTestDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B14BFC01B82A42600CE29A4 /* PagingTestDelegate.m */; };
 		2B2EB66518C901AD008C5320 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB516E7F505001F52FC /* OpenGLES.framework */; };
 		2B2FECB31B5878EC00A332BF /* starcatalog_orig.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2B2FECB21B5878EC00A332BF /* starcatalog_orig.txt */; };
 		2B62DD6816E7F0BC001F52FC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B62DD6616E7F0BC001F52FC /* InfoPlist.strings */; };
@@ -438,6 +439,8 @@
 /* Begin PBXFileReference section */
 		2B0D630D17A2EE0400C3298D /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		2B10129F1B5C8EF70014D243 /* moon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = moon.png; sourceTree = "<group>"; };
+		2B14BFBF1B82A42600CE29A4 /* PagingTestDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagingTestDelegate.h; sourceTree = "<group>"; };
+		2B14BFC01B82A42600CE29A4 /* PagingTestDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PagingTestDelegate.m; sourceTree = "<group>"; };
 		2B1FB5351A1EC5FE0004B394 /* MapzenSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapzenSource.h; sourceTree = "<group>"; };
 		2B1FB5361A1EC5FE0004B394 /* MapzenSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapzenSource.m; sourceTree = "<group>"; };
 		2B2FECB21B5878EC00A332BF /* starcatalog_orig.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = starcatalog_orig.txt; path = ../../../resources/stars/starcatalog_orig.txt; sourceTree = "<group>"; };
@@ -968,6 +971,8 @@
 				2B62DD8316E7F3A2001F52FC /* StartupViewController.m */,
 				2BFF026017A9BA2C00007842 /* AnimationTest.h */,
 				2BFF026117A9BA2D00007842 /* AnimationTest.m */,
+				2B14BFBF1B82A42600CE29A4 /* PagingTestDelegate.h */,
+				2B14BFC01B82A42600CE29A4 /* PagingTestDelegate.m */,
 				2B1FB5351A1EC5FE0004B394 /* MapzenSource.h */,
 				2B1FB5361A1EC5FE0004B394 /* MapzenSource.m */,
 				2BC989A617DA66BB0071DA9E /* WeatherShader.h */,
@@ -1985,6 +1990,7 @@
 				2BD5A83D1B419C3B00DDAEE3 /* MapzenSource.m in Sources */,
 				2BFF026217A9BA2D00007842 /* AnimationTest.m in Sources */,
 				2BC989A817DA66BB0071DA9E /* WeatherShader.m in Sources */,
+				2B14BFC11B82A42600CE29A4 /* PagingTestDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

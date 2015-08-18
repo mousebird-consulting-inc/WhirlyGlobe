@@ -24,6 +24,7 @@
 #import "AnimationTest.h"
 #import "WeatherShader.h"
 #import "MaplyRemoteTileElevationSource.h"
+#import "PagingTestDelegate.h"
 #ifdef NOTPODSPECWG
 #import "MapzenSource.h"
 #endif
@@ -116,6 +117,10 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     MaplyStarsModel *stars;
     MaplyComponentObject *sunObj,*moonObj;
     MaplyAtmosphere *atmosObj;
+    
+    // Paging marker test
+    MaplyQuadPagingLayer *markerLayer;
+    PagingTestDelegate *markerDelegate;
 
     // A source of elevation data, if we're in that mode
     NSObject<MaplyElevationSourceDelegate> *elevSource;
@@ -1138,6 +1143,23 @@ static const int NumMegaMarkers = 15000;
     );
 }
 
+- (void)addMarkerPagingTest
+{
+    markerDelegate = [[PagingTestDelegate alloc] init];
+    markerLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:markerDelegate.coordSys delegate:markerDelegate];
+    [baseViewC addLayer:markerLayer];
+    
+    [self markerSpamRefresh];
+}
+
+- (void)markerSpamRefresh
+{
+    [markerLayer reload];
+
+    if (markerLayer)
+        [self performSelector:@selector(markerSpamRefresh) withObject:nil afterDelay:4.0];
+}
+
 // Create an animated sphere
 - (void)addAnimatedSphere
 {
@@ -1408,7 +1430,7 @@ static const int NumMegaMarkers = 15000;
         layer.drawPriority = BaseEarthPriority;
         baseLayer = layer;
         
-        [self zoomTest];
+//        [self zoomTest];
     } else if (![baseLayerName compare:kMaplyTestQuadVectorTest])
     {
         self.title = @"Quad Paging Test Layer";
@@ -2013,7 +2035,20 @@ static const int NumMegaMarkers = 15000;
             megaMarkersObj = nil;
         }
     }
-    
+
+    if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestQuadMarkers])
+    {
+        if (!markerLayer)
+            [self addMarkerPagingTest];
+    } else {
+        if (markerLayer)
+        {
+            [baseViewC removeLayer:markerLayer];
+            markerLayer = nil;
+            markerDelegate = nil;
+        }
+    }
+
     if ([configViewC valueForSection:kMaplyTestCategoryAnimation row:kMaplyTestAnimateSphere])
     {
         if (!animSphere)
