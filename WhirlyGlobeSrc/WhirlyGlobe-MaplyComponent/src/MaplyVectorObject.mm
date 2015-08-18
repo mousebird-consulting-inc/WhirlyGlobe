@@ -101,35 +101,6 @@ public:
 
 @implementation MaplyVectorObject
 
-+ (WGVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON
-{
-    if ([geoJSON length] > 0)
-    {
-        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
-        
-        NSString *crs = nil;
-        if (!VectorParseGeoJSON(vecObj->_shapes, geoJSON, &crs))
-            return nil;
-        
-        // Reproject to a destination system
-        // Note: Not working
-//        if (crs)
-//        {
-//            MaplyCoordinateSystem *srcSys = MaplyCoordinateSystemFromEPSG(crs);
-//            MaplyCoordinateSystem *destSys = [[MaplyPlateCarree alloc] initFullCoverage];
-//            if (srcSys && destSys)
-//            {
-//                [vecObj reprojectFrom:srcSys to:destSys];
-//            } else
-//                NSLog(@"VectorObjectFromGeoJSON: Unable to reproject to CRS (%@)",crs);
-//        }
-        
-        return vecObj;
-    }
-    
-    return nil;
-}
-
 + (NSDictionary *)VectorObjectsFromGeoJSONAssembly:(NSData *)geoJSON
 {
     if ([geoJSON length] > 0)
@@ -318,6 +289,35 @@ public:
     
     return self;
 }
+
+/// Construct from GeoJSON
+- (instancetype)initWithGeoJSON:(NSData *)geoJSON
+{
+	if ([geoJSON length] == 0)
+		return nil;
+
+	self = [super init];
+
+	NSString *crs = nil;
+	if (!VectorParseGeoJSON(_shapes, geoJSON, &crs))
+		return nil;
+
+	// Reproject to a destination system
+	// Note: Not working
+	//        if (crs)
+	//        {
+	//            MaplyCoordinateSystem *srcSys = MaplyCoordinateSystemFromEPSG(crs);
+	//            MaplyCoordinateSystem *destSys = [[MaplyPlateCarree alloc] initFullCoverage];
+	//            if (srcSys && destSys)
+	//            {
+	//                [vecObj reprojectFrom:srcSys to:destSys];
+	//            } else
+	//                NSLog(@"VectorObjectFromGeoJSON: Unable to reproject to CRS (%@)",crs);
+	//        }
+
+	return self;
+}
+
 
 - (void)mergeVectorsFrom:(MaplyVectorObject *)otherVec
 {
