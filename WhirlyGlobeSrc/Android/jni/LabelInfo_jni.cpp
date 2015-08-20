@@ -39,7 +39,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_initialise
 {
 	try
 	{
-		LabelInfoAndroid *info = new LabelInfoAndroid();
+		Dictionary dict;
+		LabelInfoAndroid *info = new LabelInfoAndroid(dict);
 		// Note: Porting
 		info->screenObject = true;
 		LabelInfoClassInfo::getClassInfo()->setHandle(env,obj,info);

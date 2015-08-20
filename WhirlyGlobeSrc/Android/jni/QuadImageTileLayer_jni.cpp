@@ -49,6 +49,12 @@ public:
     	return tex;
     }
 
+    /// Data type for image
+    virtual LoadedImageType getType()
+    {
+    	return WKLoadedImageNSDataRawData;
+    }
+
     /// This means there's nothing to display, but the children are valid
     virtual bool isPlaceholder()
     {

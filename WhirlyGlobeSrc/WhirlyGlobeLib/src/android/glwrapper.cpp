@@ -25,6 +25,7 @@
 
 bool hasVertexArraySupport = false;
 bool hasMapBufferSupport = false;
+bool hasInstanceSupport = false;
 
 // Note: Porting
 PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayEXT = NULL;
@@ -32,6 +33,9 @@ PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysEXT = NULL;
 PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysEXT = NULL;
 PFNGLMAPBUFFEROESPROC glMapBufferEXT = NULL;
 PFNGLUNMAPBUFFEROESPROC glUnmapBufferEXT = NULL;
+//PFNGLVERTEXATTRIBDIVISOREXTPROC glVertexAttribDivisorEXT = NULL;
+//PFNGLDRAWELEMENTSINSTANCEDEXTPROC glDrawElementsInstancedEXT = NULL;
+//PFNGLDRAWARRAYSINSTANCEDEXTPROC glDrawArraysInstancedEXT = NULL;
 
 // Wire up the various function pointers for extensions
 bool SetupGLESExtensions()
@@ -127,6 +131,28 @@ void* glMapBuffer (GLenum target, GLenum access)
 GLboolean glUnmapBuffer (GLenum target)
 {
     return (*glUnmapBufferEXT)(target);
+}
+
+void glVertexAttribDivisor (GLuint index, GLuint divisor)
+{
+//    glVertexAttribDivisorEXT(index,divisor);
+}
+
+void glDrawElementsInstanced(	GLenum mode,
+                             GLsizei count,
+                             GLenum type,
+                             const void * indices,
+                             GLsizei primcount)
+{
+//    return (*glDrawElementsInstancedEXT)(mode,count,type,indices,primcount);
+}
+
+void glDrawArraysInstanced(	GLenum mode,
+                           GLint first,
+                           GLsizei count,
+                           GLsizei primcount)
+{
+//    return (*glDrawArraysInstancedEXT)(mode,first,count,primcount);
 }
 
 #else

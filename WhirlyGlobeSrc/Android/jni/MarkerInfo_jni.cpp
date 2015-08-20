@@ -36,7 +36,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_initialise
 {
 	try
 	{
-		MarkerInfo *info = new MarkerInfo();
+		Dictionary dict;
+		MarkerInfo *info = new MarkerInfo(dict);
 		// Note: Porting
 		info->screenObject = true;
 		MarkerInfoClassInfo::getClassInfo()->setHandle(env,obj,info);

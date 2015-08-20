@@ -32,7 +32,7 @@ namespace WhirlyKit
 class LabelInfoAndroid : public LabelInfo
 {
 public:
-	LabelInfoAndroid();
+	LabelInfoAndroid(const Dictionary &dict);
 
 	// Clear any global refs we may be holding
 	void clearRefs(JNIEnv *env);

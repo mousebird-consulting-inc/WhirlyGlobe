@@ -42,7 +42,7 @@ namespace WhirlyKit
  Placeholder - This is an empty image (so no visual representation)
  that is nonetheless "valid" so its children will be paged.
  */
-typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDataRawData,WKLoadedImagePVRTC4,WKLoadedImageNSDataPKM,WKLoadedImagePlaceholder,WKLoadedImageMax} WhirlyKitLoadedImageType;
+typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDataRawData,WKLoadedImagePVRTC4,WKLoadedImageNSDataPKM,WKLoadedImagePlaceholder,WKLoadedImageMax} LoadedImageType;
 
 /// Used to specify the image type for the textures we create
 typedef enum {WKTileIntRGBA,
@@ -54,10 +54,10 @@ typedef enum {WKTileIntRGBA,
     WKTilePVRTC4,
     WKTileETC2_RGB8,WKTileETC2_RGBA8,WKTileETC2_RGB8_PunchAlpha,
     WKTileEAC_R11,WKTileEAC_R11_Signed,WKTileEAC_RG11,WKTileEAC_RG11_Signed,
-} WhirlyKitTileImageType;
+} TileImageType;
 
 /// How we'll scale the tiles up or down to the nearest power of 2 (square) or not at all
-typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} WhirlyKitTileScaleType;
+typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} TileScaleType;
 
 /** The Loaded Image is handed back to the Tile Loader when an image
  is finished.  It can either be loaded or empty, or something of that sort.
@@ -76,7 +76,7 @@ public:
     virtual bool isPlaceholder() = 0;
     
     /// The data we're passing back
-    virtual WhirlyKitLoadedImageType getType() = 0;
+    virtual LoadedImageType getType() = 0;
     
     /// Return image width
     virtual int getWidth() = 0;
@@ -126,7 +126,7 @@ public:
     void textureSize(int width, int height,int *destWidth,int *destHeight);
     
     // Initialize texture and drawable atlases (only once)
-    void initAtlases(WhirlyKitTileImageType imageType,int numImages,int textureAtlasSize,int sampleSizeX,int sampleSizeY);
+    void initAtlases(TileImageType imageType,int numImages,int textureAtlasSize,int sampleSizeX,int sampleSizeY);
     
     // Build the edge matching skirt
     void buildSkirt(BasicDrawable *draw,Point3dVector &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev,const Point3d &theCenter);
@@ -166,7 +166,7 @@ public:
     CoordSystem *coordSys;
     
     // How we scale tile images (if we do)
-    WhirlyKitTileScaleType tileScale;
+    TileScaleType tileScale;
     int fixedTileSize;
     
     // The drawables are created with these values

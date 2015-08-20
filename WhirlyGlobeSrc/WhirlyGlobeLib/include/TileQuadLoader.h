@@ -200,16 +200,16 @@ public:
     bool getCoverPoles() { return coverPoles; }
     
     /// The data type of GL textures we'll be creating.  RGBA by default.
-    void setImageType(WhirlyKitTileImageType inType) { imageType = inType; }
-    WhirlyKitTileImageType getImageType() { return imageType; }
+    void setImageType(TileImageType inType) { imageType = inType; }
+    TileImageType getImageType() { return imageType; }
     
     /// If set (before we start) we'll use dynamic texture and drawable atlases
     void setUseDynamicAtlas(bool inVal) { useDynamicAtlas = inVal; }
     bool getUseDynamicAtlas() { return useDynamicAtlas; }
     
     /// If set we'll scale the input images to the nearest square power of two
-    void setTileScale(WhirlyKitTileScaleType inScale) { tileScale = inScale; }
-    WhirlyKitTileScaleType getTileScale() { return tileScale; }
+    void setTileScale(TileScaleType inScale) { tileScale = inScale; }
+    TileScaleType getTileScale() { return tileScale; }
     
     /// If the tile scale is fixed, this is the size it's fixed to (256 by default)
     void setFixedTileSize(int inVal) { fixedTileSize = inVal; }
@@ -266,9 +266,9 @@ protected:
     bool ignoreEdgeMatching;
     bool coverPoles;
     
-    WhirlyKitTileImageType imageType;
+    TileImageType imageType;
     bool useDynamicAtlas;
-    WhirlyKitTileScaleType tileScale;
+    TileScaleType tileScale;
     int fixedTileSize;
     int textureAtlasSize;
     int borderTexel;

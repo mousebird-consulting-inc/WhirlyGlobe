@@ -67,13 +67,13 @@ TESS_SRC_FILES = dict.c geom.c memalloc.c mesh.c normal.c priorityq.c render.c s
 TESS_SRC_DIR = $(THIRD_PARTY)/glues/source/libtess
 LOCAL_SRC_FILES += $(TESS_SRC_FILES:%=$(TESS_SRC_DIR)/%)
 
-MAPLY_CORE_SRC_FILES := BigDrawable.cpp CoordSystem.cpp Cullable.cpp DefaultShaderPrograms.cpp Dictionary.cpp \
+MAPLY_CORE_SRC_FILES := BaseInfo.cpp BasicDrawable.cpp BasicDrawableInstance.cpp BigDrawable.cpp CoordSystem.cpp Cullable.cpp DefaultShaderPrograms.cpp Dictionary.cpp \
 					Drawable.cpp DynamicDrawableAtlas.cpp DynamicTextureAtlas.cpp FlatMath.cpp FontTextureManager.cpp GLUtils.cpp \
 					Generator.cpp GlobeMath.cpp GlobeScene.cpp GlobeView.cpp GlobeViewState.cpp GridClipper.cpp Identifiable.cpp \
 					LabelManager.cpp LabelRenderer.cpp LayoutManager.cpp LoadedTile.cpp MaplyFlatView.cpp MaplyScene.cpp \
-					MaplyView.cpp MaplyViewState.cpp MarkerGenerator.cpp MarkerManager.cpp OpenGLES2Program.cpp \
+					MaplyView.cpp MaplyViewState.cpp MarkerManager.cpp OpenGLES2Program.cpp \
 					PerformanceTimer.cpp QuadDisplayController.cpp Quadtree.cpp RawData.cpp Scene.cpp SceneRendererES.cpp \
-					SceneRendererES2.cpp ScreenImportance.cpp ScreenSpaceBuilder.cpp ScreenSpaceDrawable.cpp ScreenSpaceGenerator.cpp \
+					SceneRendererES2.cpp ScreenImportance.cpp ScreenSpaceBuilder.cpp ScreenSpaceDrawable.cpp \
 					SelectionManager.cpp ShapeReader.cpp SphericalMercator.cpp Tesselator.cpp Texture.cpp TextureAtlas.cpp TileQuadLoader.cpp \
 					VectorData.cpp VectorManager.cpp VectorObject.cpp ViewState.cpp WhirlyGeometry.cpp WhirlyKitView.cpp WhirlyVector.cpp
 		

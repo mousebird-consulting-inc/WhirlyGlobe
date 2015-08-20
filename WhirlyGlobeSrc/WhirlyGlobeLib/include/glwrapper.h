@@ -34,12 +34,22 @@
 /// Returns false if it can't find all the extensions it needs
 extern bool SetupGLESExtensions();
 
-// Note: Here for compatibility.  We're not using them
+// Note: Here for compatibility.
 void glBindVertexArray (GLuint array);
 void glDeleteVertexArrays (GLsizei n, const GLuint *arrays);
 void glGenVertexArrays (GLsizei n, GLuint *arrays);
 void* glMapBuffer (GLenum target, GLenum access);
 GLboolean glUnmapBuffer (GLenum target);
+void glVertexAttribDivisor (GLuint index, GLuint divisor);
+void glDrawElementsInstanced(	GLenum mode,
+                             GLsizei count,
+                             GLenum type,
+                             const void * indices,
+                             GLsizei primcount);
+void glDrawArraysInstanced(	GLenum mode,
+                           GLint first,
+                           GLsizei count,
+                           GLsizei primcount);
 
 #else
 

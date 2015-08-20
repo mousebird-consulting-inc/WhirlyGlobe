@@ -586,7 +586,7 @@ bool QuadTileLoader::shouldUpdate(ViewState *viewState,bool isInitial)
 #pragma mark - QuadTileLoaderSupport methods
     
 // Convert from our image type to a GL enum
-static GLenum glEnumFromOurFormat(WhirlyKitTileImageType imageType)
+static GLenum glEnumFromOurFormat(TileImageType imageType)
 {
     switch (imageType)
     {
@@ -642,7 +642,7 @@ static GLenum glEnumFromOurFormat(WhirlyKitTileImageType imageType)
 }
 
 // If we're doing single byte conversion, where from?
-static WKSingleByteSource singleByteSourceFromOurFormat(WhirlyKitTileImageType imageType)
+static WKSingleByteSource singleByteSourceFromOurFormat(TileImageType imageType)
 {
     switch (imageType)
     {

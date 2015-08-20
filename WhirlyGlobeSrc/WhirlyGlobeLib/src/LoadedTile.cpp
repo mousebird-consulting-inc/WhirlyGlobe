@@ -130,7 +130,7 @@ TileBuilder::~TileBuilder()
 static const int SingleVertexSize = 3*sizeof(float) + 2*sizeof(float) +  4*sizeof(unsigned char) + 3*sizeof(float);
 static const int SingleElementSize = sizeof(GLushort);
     
-void TileBuilder::initAtlases(WhirlyKitTileImageType imageType,int numImages,int textureAtlasSize,int sampleSizeX,int sampleSizeY)
+void TileBuilder::initAtlases(TileImageType imageType,int numImages,int textureAtlasSize,int sampleSizeX,int sampleSizeY)
 {
     // Note: Trouble with PVRTC sub texture loading
     if (imageType != WKTilePVRTC4)

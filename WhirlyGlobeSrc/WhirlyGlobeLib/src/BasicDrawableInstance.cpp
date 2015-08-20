@@ -198,7 +198,7 @@ void BasicDrawableInstance::teardownGL(OpenGLMemManager *memManage)
     
     if (vertArrayObj)
     {
-        glDeleteVertexArraysOES(1, &vertArrayObj);
+        glDeleteVertexArrays(1, &vertArrayObj);
         vertArrayObj = 0;
     }
 }
@@ -209,7 +209,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
     
 //    EAGLContext *context = [EAGLContext currentContext];
     
-    glBindVertexArrayOES(vertArrayObj);
+    glBindVertexArray(vertArrayObj);
 
     glBindBuffer(GL_ARRAY_BUFFER,instBuffer);
     const OpenGLESAttribute *centerAttr = prog->findAttribute("a_modelCenter");
@@ -268,7 +268,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
         CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
     }
 
-    glBindVertexArrayOES(0);
+    glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER,0);
 
     return vertArrayObj;
@@ -514,7 +514,7 @@ void BasicDrawableInstance::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *
         // If we're using a vertex array object, bind it and draw
         if (vertArrayObj)
         {
-            glBindVertexArrayOES(vertArrayObj);
+            glBindVertexArray(vertArrayObj);
             
             switch (basicDraw->type)
             {
@@ -560,7 +560,7 @@ void BasicDrawableInstance::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *
                     break;
             }
             
-            glBindVertexArrayOES(0);
+            glBindVertexArray(0);
         } else {
             // Draw without a VAO
             switch (basicDraw->type)

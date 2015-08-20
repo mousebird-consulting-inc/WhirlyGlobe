@@ -23,8 +23,8 @@
 namespace WhirlyKit
 {
 
-LabelInfoAndroid::LabelInfoAndroid()
-: typefaceObj(NULL), env(NULL), labelInfoObj(NULL)
+LabelInfoAndroid::LabelInfoAndroid(const Dictionary &dict)
+: LabelInfo(dict), typefaceObj(NULL), env(NULL), labelInfoObj(NULL)
 {
 }
 

@@ -1034,8 +1034,8 @@ GLuint BasicDrawable::setupVAO(OpenGLES2Program *prog)
     GLuint theVertArrayObj;
     const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
     
-    glGenVertexArraysOES(1, &theVertArrayObj);
-    glBindVertexArrayOES(theVertArrayObj);
+    glGenVertexArrays(1, &theVertArrayObj);
+    glBindVertexArray(theVertArrayObj);
     
     // We're using a single buffer for all of our vertex attributes
     if (sharedBuffer)

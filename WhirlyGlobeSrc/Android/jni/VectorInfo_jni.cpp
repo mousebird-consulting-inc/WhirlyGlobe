@@ -36,7 +36,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_initialise
 {
 	try
 	{
-		VectorInfo *vecInfo = new VectorInfo();
+		Dictionary dict;
+		VectorInfo *vecInfo = new VectorInfo(dict);
 		VectorInfoClassInfo::getClassInfo()->setHandle(env,obj,vecInfo);
 	}
 	catch (...)
@@ -107,7 +108,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setDrawPriority
 		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
-		vecInfo->priority = val;
+		vecInfo->drawPriority = val;
 	}
 	catch (...)
 	{
