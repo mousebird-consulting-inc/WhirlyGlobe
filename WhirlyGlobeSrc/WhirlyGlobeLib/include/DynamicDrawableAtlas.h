@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/6/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -38,6 +38,9 @@ public:
     /// Returns true on success.  Reference the drawable by its ID.
     bool addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled=true,std::vector<SimpleIdentity> *destTexIDs=NULL,bool *addedBigDrawable=NULL,const Point3d *center=NULL,double drawSize=0.0);
     
+    /// Set the fade (but not on the drawables)
+    void setFade(float inFade) { fade = inFade; }
+    
     /// Remove the data for a drawable by ID
     bool removeDrawable(SimpleIdentity drawId,ChangeSet &changes);
     
@@ -46,6 +49,9 @@ public:
     
     /// Enable/disable all the big drawables we're using
     void setEnableAllDrawables(bool enabled,ChangeSet &changes);
+    
+    /// Change the fade for all big drawables
+    void setFadeAllDrawables(float newFade,ChangeSet &changes);
     
     /// Change the draw priority of all the drawables we're using
     void setDrawPriorityAllDrawables(int drawPriority,ChangeSet &changes);
@@ -71,6 +77,10 @@ public:
         
     /// Check if there are any active updates in any of the drawable buffers
     bool hasUpdates();
+    
+    /// Clear the top level update flag.  This is for additions and deletions
+    ///  of dynamic drawables.  The drawables themselves may still have changes.
+    void clearUpdateFlag();
     
     /// Flush out any outstanding changes and swap the drawables
     /// Pass in a target and selector to pass through to the main thread.
@@ -109,6 +119,7 @@ protected:
 
     bool hasChanges;
     bool enable;
+    float fade;
     BigDrawable *(*newBigDrawable)(BasicDrawable *draw,int singleElementSize,int numVertexBytes,int numElementBytes);
     SimpleIdentity shaderId;
     OpenGLMemManager *memManager;

@@ -41,14 +41,14 @@ QuadTileImageDataSource::~QuadTileImageDataSource()
 
 QuadTileLoader::QuadTileLoader(const std::string &name,QuadTileImageDataSource *imageSource,int numFrames)
     : imageSource(imageSource), name(name),
-    enable(true), drawOffset(0), drawPriority(0),
+    enable(true), fade(1.0), drawOffset(0), drawPriority(0),
     minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minPageVis(DrawVisibleInvalid), maxPageVis(DrawVisibleInvalid),
     programId(EmptyIdentity), includeElev(false), useElevAsZ(true),
     numImages(1), activeTextures(-1), color(255,255,255,255), hasAlpha(false),
     ignoreEdgeMatching(false), coverPoles(false),
     imageType(WKTileIntRGBA), useDynamicAtlas(true), tileScale(WKTileScaleNone), fixedTileSize(256), textureAtlasSize(2048), borderTexel(1),
     tileBuilder(NULL), doingUpdate(false), defaultTessX(10), defaultTessY(10),
-    currentImage0(0), currentImage1(0), texAtlasPixelFudge(0.0), numLoadingFrames(numFrames)
+    currentImage0(0), currentImage1(0), texAtlasPixelFudge(0.0), numLoadingFrames(numFrames), useTileCenters(true)
 {
     pthread_mutex_init(&tileLock, NULL);
     #pragma fail  Figure out if data source an load frames right here
@@ -188,6 +188,14 @@ void QuadTileLoader::updateTexAtlasMapping()
 // This may be called on any thread
 void QuadTileLoader::setCurrentImage(int newImage,ChangeSet &changes)
 {
+    // Note: Porting
+//    if (!quadLayer)
+//    {
+//        currentImage0 = newImage;
+//        currentImage1 = 0;
+//        return;
+//    }
+    
     if (currentImage0 != newImage || currentImage1 != 0)
     {
         // Note: Might be a race condition with updating these guys
@@ -276,6 +284,14 @@ void QuadTileLoader::runSetCurrentImage(ChangeSet &changes)
 
 void QuadTileLoader::setCurrentImageStart(int startImage,int endImage,ChangeSet &changes)
 {
+    // Note: Porting
+//    if (!quadLayer)
+//    {
+//        currentImage0 = startImage;
+//        currentImage1 = endImage;
+//        return;
+//    }
+    
     if (currentImage0 != startImage || currentImage1 != endImage)
     {
         currentImage0 = startImage;
@@ -461,7 +477,7 @@ bool QuadTileLoader::canLoadChildrenOfTile(const Quadtree::NodeInfo &tileInfo)
 //        WhirlyKitLoadedImage *loadImage = (WhirlyKitLoadedImage *)loadTile;
 //        return loadImage.type == WKLoadedImagePlaceholder;
 //    }
-//    else if ([loadTile isKindOfClass:[WhirlyKitElevationChunk class]])
+//    else if ([loadTile conformsToProtocol:@protocol(WhirlyKitElevationChunk)])
 //        return false;
 //    else if ([loadTile isKindOfClass:[WhirlyKitLoadedTile class]])
 //    {
@@ -672,6 +688,7 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
         tileBuilder->useElevAsZ = useElevAsZ;
         tileBuilder->ignoreEdgeMatching = ignoreEdgeMatching;
         tileBuilder->coverPoles = coverPoles;
+        tileBuilder->useTileCenters = useTileCenters;
         tileBuilder->glFormat = glEnumFromOurFormat(imageType);
         tileBuilder->singleByteSource = singleByteSourceFromOurFormat(imageType);
         tileBuilder->defaultSphereTessX = defaultTessX;
@@ -682,6 +699,7 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
         tileBuilder->borderTexel = borderTexel;
         tileBuilder->singleLevel = !control->getTargetLevels().empty();
         tileBuilder->texAtlasPixelFudge = texAtlasPixelFudge;
+        tileBuilder->fade = fade;
         
         // If we haven't decided how many active textures we'll have, do that
         if (activeTextures == -1)
@@ -729,7 +747,7 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
 //    WhirlyKitElevationChunk *loadElev = nil;
 //    if ([loadTile isKindOfClass:[WhirlyKitLoadedImage class]])
 //        loadImages.push_back(loadTile);
-//        else if ([loadTile isKindOfClass:[WhirlyKitElevationChunk class]])
+//            else if ([loadTile conformsToProtocol:@protocol(WhirlyKitElevationChunk)])
 //            loadElev = loadTile;
 //            else if ([loadTile isKindOfClass:[WhirlyKitLoadedTile class]])
 //            {
@@ -743,7 +761,7 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
         loadImages.push_back(loadImage);
     
     bool loadingSuccess = true;
-    if (!isPlaceholder && numImages != loadImages.size())
+    if (!isPlaceholder && (loadImages.empty() || (numImages != loadImages.size() && (frame != -1 && loadImages.size() != 1))))
     {
         // Only print out a message if they bothered to hand in something.  If not, they meant
         //  to tell us it was empty.
@@ -756,11 +774,13 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
     bool createdAtlases = false;
     if (!isPlaceholder && loadingSuccess && useDynamicAtlas && !tileBuilder->texAtlas && !loadImages.empty())
     {
-        int estTexX = tileBuilder->defaultSphereTessX, estTexY = tileBuilder->defaultSphereTessY;
-//        if (loadElev)
+        int estTexX = tileBuilder->defaultSphereTessX;
+        int estTexY = tileBuilder->defaultSphereTessY;
+//        if ([loadElev isKindOfClass:[WhirlyKitElevationGridChunk class]])
 //        {
-//            estTexX = std::max(loadElev.numX-1,estTexX);
-//            estTexY = std::max(loadElev.numY-1,estTexY);
+//            WhirlyKitElevationGridChunk *gridElev = (WhirlyKitElevationGridChunk *)loadElev;
+//            estTexX = std::max(gridElev.sizeX-1, estTexX);
+//            estTexY = std::max(gridElev.sizeY-1, estTexY);
 //        }
         tileBuilder->initAtlases(imageType,numImages,textureAtlasSize,estTexX,estTexY);
         
@@ -814,6 +834,56 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
 }
     
     // Note: Porting
+//    - (void)runSetFade:(NSNumber *)newFade
+//    {
+//        float fadeVal = [newFade floatValue];
+//        if (fadeVal == _fade)
+//            return;
+//        
+//        _fade = fadeVal;
+//        
+//        if (!_quadLayer)
+//            return;
+//        
+//        ChangeSet theChanges;
+//        if (_useDynamicAtlas)
+//        {
+//            if (tileBuilder)
+//            {
+//                tileBuilder->fade = _fade;
+//                if (tileBuilder->drawAtlas)
+//                    tileBuilder->drawAtlas->setFadeAllDrawables(_fade, theChanges);
+//                    }
+//        } else {
+//            // We'll look through the tiles and change them all accordingly
+//            pthread_mutex_lock(&tileLock);
+//            
+//            // No atlases, so changes tiles individually
+//            for (LoadedTileSet::iterator it = tileSet.begin();
+//                 it != tileSet.end(); ++it)
+//                (*it)->setFade(tileBuilder, _fade, theChanges);
+//                
+//                pthread_mutex_unlock(&tileLock);
+//                }
+//        
+//        [_quadLayer.layerThread addChangeRequests:theChanges];
+//    }
+//    
+//    - (void)setFade:(float)fade
+//    {
+//        if (!_quadLayer)
+//        {
+//            _fade = fade;
+//            return;
+//        }
+//        
+//        if ([NSThread currentThread] != _quadLayer.layerThread)
+//        {
+//            [self performSelector:@selector(runSetFade:) onThread:_quadLayer.layerThread withObject:@(fade) waitUntilDone:NO];
+//        } else {
+//            [self runSetFade:@(fade)];
+//        }
+//    }
 //    - (void)runSetDrawPriority:(NSNumber *)newDrawPriorityObj
 //    {
 //        int newDrawPriority = (int)[newDrawPriorityObj integerValue];

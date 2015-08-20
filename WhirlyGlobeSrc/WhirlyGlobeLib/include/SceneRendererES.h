@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/13/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -129,6 +129,9 @@ public:
     Eigen::Matrix4d modelTrans4d,viewTrans4d;
     /// Current projection matrix
     Eigen::Matrix4f projMat;
+    Eigen::Matrix4d projMat4d;
+    /// Normal matrix for MVP
+    Eigen::Matrix4f mvpNormalMat;
     /// What's currently in the GL model matrix.
     /// We combine view and model together
     Eigen::Matrix4f viewAndModelMat;
@@ -137,6 +140,9 @@ public:
     Eigen::Matrix4f mvpMat;
     /// Model, and view matrix but for normal transformation
     Eigen::Matrix4f viewModelNormalMat;
+    /// Projection, view, and offset matrices rolled together
+    Eigen::Matrix4d pvMat4d;
+    Eigen::Matrix4f pvMat;
     /// If the visual view supports wrapping, these are the available offset matrices
     std::vector<Eigen::Matrix4d> offsetMatrices;
     /// Scene itself.  Don't mess with this
@@ -149,6 +155,8 @@ public:
     Eigen::Vector3f eyeVec;
     /// Vector out from the eye point, including tilt
     Eigen::Vector3f fullEyeVec;
+    /// Position of user
+    Eigen::Vector3d eyePos;
     /// Location of the middle of the screen in display coordinates
     Eigen::Vector3d dispCenter;
     /// Height above surface, if that makes sense
@@ -186,6 +194,12 @@ public:
     /// Set the render until time.  This is used by things like fade to keep
     ///  the rendering optimization from cutting off animation.
     void setRenderUntil(TimeInterval newTime);
+    
+    /// A drawable wants continuous rendering (bleah!)
+    void addContinuousRenderRequest(SimpleIdentity drawID);
+    
+    /// Drawable is done with continuous rendering
+    void removeContinuousRenderRequest(SimpleIdentity drawID);
     
     /// Call this to force a draw on the next frame.
     /// This turns off the draw optimization, but just for one frame.
@@ -289,6 +303,9 @@ protected:
     
     /// Something wants to make sure we render until at least this point.
     TimeInterval renderUntil;
+    
+    // The drawables that want continuous rendering on
+    WhirlyKit::SimpleIDSet contRenderRequests;
     
     WhirlyKit::RGBAColor clearColor;
 

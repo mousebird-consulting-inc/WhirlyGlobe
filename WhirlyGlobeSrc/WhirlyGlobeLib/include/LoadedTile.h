@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/19/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,21 +26,38 @@
 #import "SceneRendererES.h"
 #import "QuadDisplayController.h"
 #import "TextureAtlas.h"
-// Note: Porting
-//#import "ElevationChunk.h"
+#import "ElevationChunk.h"
 #import "DynamicDrawableAtlas.h"
 #import "DynamicTextureAtlas.h"
 
 namespace WhirlyKit
 {
 
+/** Type of the image being passed to the tile loader.
+ UIImage - A UIImage object.
+ NSDataAsImage - An NSData object containing PNG or JPEG data.
+ WKLoadedImageNSDataRawData - An NSData object containing raw RGBA values.
+ PVRTC4 - Compressed PVRTC, 4 bit, no alpha
+ PKM - ETC2 and EAC textures
+ Placeholder - This is an empty image (so no visual representation)
+ that is nonetheless "valid" so its children will be paged.
+ */
+typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDataRawData,WKLoadedImagePVRTC4,WKLoadedImageNSDataPKM,WKLoadedImagePlaceholder,WKLoadedImageMax} WhirlyKitLoadedImageType;
+
 /// Used to specify the image type for the textures we create
-typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WKTileUByteRed,WKTileUByteGreen,WKTileUByteBlue,WKTileUByteAlpha,WKTileUByteRGB,WKTilePVRTC4,WKTileETC2_RGB8,
-    WKTileETC2_RGBA8,WKTileETC2_RGB8_PunchAlpha,WKTileEAC_R11,WKTileEAC_R11_Signed,WKTileEAC_RG11,WKTileEAC_RG11_Signed} WhirlyKitTileImageType;
+typedef enum {WKTileIntRGBA,
+    WKTileUShort565,
+    WKTileUShort4444,
+    WKTileUShort5551,
+    WKTileUByteRed,WKTileUByteGreen,WKTileUByteBlue,WKTileUByteAlpha,
+    WKTileUByteRGB,
+    WKTilePVRTC4,
+    WKTileETC2_RGB8,WKTileETC2_RGBA8,WKTileETC2_RGB8_PunchAlpha,
+    WKTileEAC_R11,WKTileEAC_R11_Signed,WKTileEAC_RG11,WKTileEAC_RG11_Signed,
+} WhirlyKitTileImageType;
 
 /// How we'll scale the tiles up or down to the nearest power of 2 (square) or not at all
 typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} WhirlyKitTileScaleType;
-
 
 /** The Loaded Image is handed back to the Tile Loader when an image
  is finished.  It can either be loaded or empty, or something of that sort.
@@ -57,6 +74,9 @@ public:
     
     /// This means there's nothing to display, but the children are valid
     virtual bool isPlaceholder() = 0;
+    
+    /// The data we're passing back
+    virtual WhirlyKitLoadedImageType getType() = 0;
     
     /// Return image width
     virtual int getWidth() = 0;
@@ -77,7 +97,7 @@ protected:
 //public:
 //    std::vector<LoadedImage *> images;
 //    // Note: Porting
-//    //@property (nonatomic) WhirlyKitElevationChunk *elevChunk;
+//    //@property (nonatomic) NSObject<WhirlyKitElevationChunk> *elevChunk;
 //};
 
 // Note: Porting
@@ -87,7 +107,7 @@ protected:
 // */
 //@protocol WhirlyKitElevationHelper
 ///// Return the elevation data for the given tile or nil if there is none
-//- (WhirlyKitElevationChunk *)elevForLevel:(int)level col:(int)col row:(int)row;
+//- (NSObject<WhirlyKitElevationChunk> *)elevForLevel:(int)level col:(int)col row:(int)row;
 //@end
 
 /** The Tile Builder stores data needed to build individual tiles.
@@ -109,14 +129,17 @@ public:
     void initAtlases(WhirlyKitTileImageType imageType,int numImages,int textureAtlasSize,int sampleSizeX,int sampleSizeY);
     
     // Build the edge matching skirt
-    void buildSkirt(BasicDrawable *draw,Point3fVector &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev);
+    void buildSkirt(BasicDrawable *draw,Point3dVector &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev,const Point3d &theCenter);
     
+        // Generate drawables for a no-elevation tile
+    void generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,BasicDrawable **draw,BasicDrawable **skirtDraw);
+
     // Build a given tile
     // Note: Porting
 //    bool buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,std::vector<Texture *> *texs,
 //                   Point2f texScale,Point2f texOffset,std::vector<WhirlyKitLoadedImage *> *loadImages,WhirlyKitElevationChunk *elevData);
     bool buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,std::vector<Texture *> *texs,
-                   Point2f texScale,Point2f texOffset,std::vector<LoadedImage *> *loadImages);
+                   Point2f texScale,Point2f texOffset,std::vector<LoadedImage *> *loadImages,const Point3d &theCenter,Quadtree::NodeInfo *parentNodeInfo);
     
     // Build the texture for a tile
     Texture *buildTexture(LoadedImage *loadImage);
@@ -165,12 +188,18 @@ public:
     // Set if we want pole geometry
     bool coverPoles;
     
+    // Set if we'll use tile centers when generating drawables
+    bool useTileCenters;
+    
     // Image format for textures
     GLenum glFormat;
     WKSingleByteSource singleByteSource;
     
     // Whether we start new drawables enabled or disabled
     bool enabled;
+
+    // Fade for drawables
+    float fade;
 
     // Number of samples to use for tiles
     int defaultSphereTessX,defaultSphereTessY;
@@ -245,6 +274,10 @@ public:
     /// Turn drawables on/off
     void setEnable(TileBuilder *tileBuilder, bool enable, ChangeSet &theChanges);
     
+    /// Change the fade on drawables
+    // Note: This does nothing for the the non-bigdrawable case
+    void setFade(TileBuilder *tileBuilder, float fade, ChangeSet &theChanges);
+
     /// Dump out to the log
     void Print(TileBuilder *tileBuilder);
     

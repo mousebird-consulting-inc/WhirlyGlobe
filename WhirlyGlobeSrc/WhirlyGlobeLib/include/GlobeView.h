@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/14/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 
 #import "WhirlyKitView.h"
+#import "GlobeMath.h"
 
 //namespace WhirlyGlobe
 //{
@@ -150,6 +151,7 @@ protected:
     Eigen::Quaterniond rotQuat;
     /// The view can have a tilt.  0 is straight down.  PI/2 is looking to the horizon.
     double tilt;
+    WhirlyKit::FakeGeocentricDisplayAdapter fakeGeoC;
 };
 
 }

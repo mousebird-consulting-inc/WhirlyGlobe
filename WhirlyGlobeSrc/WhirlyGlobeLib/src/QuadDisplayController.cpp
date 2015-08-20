@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/17/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,6 +23,9 @@
 #import "FlatMath.h"
 #import "VectorData.h"
 
+// Note: Debugging
+//#define TILELOGGING 1
+
 using namespace Eigen;
 
 namespace WhirlyKit
@@ -32,8 +35,8 @@ QuadDisplayController::QuadDisplayController(QuadDataStructure *dataStructure,Qu
 : adapter(adapter), dataStructure(dataStructure), loader(loader), quadtree(NULL),
     scene(NULL), renderer(NULL), coordSys(dataStructure->getCoordSystem()), mbr(dataStructure->getValidExtents()),
     minImportance(1.0), maxTiles(128), minZoom(dataStructure->getMinZoom()), maxZoom(dataStructure->getMaxZoom()),
-    greedyMode(false), meteredMode(true), waitForLocalLoads(false),fullLoad(false), fullLoadTimeout(4.0), viewUpdatePeriod(0.1),
-    minUpdateDist(0.0), lineMode(false), debugMode(false), lastFlush(0.0), somethingHappened(false), firstUpdate(true), numFrames(1), canLoadFrames(false), curFrameEntry(-1), enable(true)
+    greedyMode(false), meteredMode(true), waitForLocalLoads(false),fullLoad(false), fullLoadTimeout(4.0), frameLoading(true), viewUpdatePeriod(0.1),
+    minUpdateDist(0.0), lineMode(false), debugMode(false), lastFlush(0.0), somethingHappened(false), firstUpdate(true), numFrames(1), canLoadFrames(false), curFrameEntry(-1), enable(true), didFrameKick(false)
 {
     // Note: Debugging
     greedyMode = true;
@@ -58,7 +61,7 @@ void QuadDisplayController::init(Scene *inScene,SceneRendererES *inRenderer)
 
     canLoadFrames = loader->canLoadFrames();
     numFrames = loader->numFrames();
-    if (numFrames == 1)
+    if (numFrames == 1 || !frameLoading)
         canLoadFrames = false;
 
     if (canLoadFrames)
@@ -131,6 +134,8 @@ void QuadDisplayController::frameEnd(ChangeSet &changes)
     
 void QuadDisplayController::viewUpdate(ViewState *inViewState)
 {
+    didFrameKick = false;
+    
     // We'll just ignore changes
     if (!enable)
     {
@@ -166,10 +171,11 @@ void QuadDisplayController::resetEvaluation()
     toPhantom.clear();
     quadtree->reevaluateNodes();
     
+    std::vector<Quadtree::Identifier> newlyCoveredTiles;
     // Add everything at the minLevel back in
     for (int ix=0;ix<1<<minZoom;ix++)
         for (int iy=0;iy<1<<minZoom;iy++)
-            quadtree->addTile(Quadtree::Identifier(ix,iy,minZoom),true,false);
+            quadtree->addTile(Quadtree::Identifier(ix,iy,minZoom),true,false,newlyCoveredTiles);
 }
 
 // Dump out info about what we've got loaded in
@@ -290,7 +296,7 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
                         {
                             addChildren = true;
                             if (nodeInfo.childCoverage || singleTargetLevel)
-                                makePhantom = true;
+                                makePhantom = !quadtree->childrenEvaluating(nodeInfo.ident) && !quadtree->childrenLoading(nodeInfo.ident);
                             else
                                 shouldLoad = shouldLoadFrame && !nodeInfo.isFrameLoading(curFrame);
                         }
@@ -304,9 +310,17 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
                 //                NSLog(@"Adding children for tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
                 std::vector<Quadtree::Identifier> childNodes;
                 quadtree->childrenForNode(nodeInfo.ident, childNodes);
+                std::vector<Quadtree::Identifier> newlyCoveredTiles;
                 for (unsigned int ic=0;ic<childNodes.size();ic++)
                     if (!quadtree->didFail(childNodes[ic]))
-                        quadtree->addTile(childNodes[ic], true, true);
+                        quadtree->addTile(childNodes[ic], true, true, newlyCoveredTiles);
+                
+                
+                // By adding a tile we may have realized it's actually off screen and we've got a new batch of tiles we can turn phantom
+                if (!targetLevels.empty())
+                    for (const Quadtree::Identifier &ident : newlyCoveredTiles)
+                        if (!quadtree->isPhantom(ident))
+                            toPhantom.insert(ident);
             }
             
             // Actually load a tile
@@ -391,7 +405,6 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
         {
             Quadtree::Identifier ident = *it;
             
-            if (!quadtree->childrenEvaluating(ident) && !quadtree->childrenLoading(ident))
             {
                 //                NSLog(@"Flushing phantom tile: %d: (%d,%d)",ident.level,ident.x,ident.y);
                 const Quadtree::NodeInfo *nodeInfo = quadtree->getNodeInfo(ident);
@@ -402,13 +415,10 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
                     quadtree->setLoading(ident, -1, false);
                     didSomething = true;
                 }
-            } else {
-                toKeep.insert(ident);
-                //                NSLog(@"Children loading");
             }
         }
         
-        toPhantom = toKeep;
+        toPhantom.clear();
     }
     
     // Let the loader know we're done with this eval step
@@ -458,7 +468,7 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
     // If we're in metered mode, make sure we've got a flush here
 //    if (_meteredMode)
 //    {
-//        NSTimeInterval howLong = frameEndTime-CFAbsoluteTimeGetCurrent();
+//        TimeInterval howLong = frameEndTime-CFAbsoluteTimeGetCurrent();
 //        if (howLong < 0.0)
 //            howLong = 0.0;
 //        [self performSelector:@selector(frameEndThread) withObject:nil afterDelay:howLong];
@@ -484,6 +494,18 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
         pthread_mutex_unlock(&frameLoadingLock);
     }
     
+// Note: Huge hack
+// There's an internal logic problem... somewhere...
+// If we do a clean evaluation it clears it up
+//    if (!didSomething && !didFrameKick)
+//    {
+//        didFrameKick = true;
+//
+//        [self resetEvaluation];
+//        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
+//        [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
+//    }
+
     return somethingHappened;
 }
 
@@ -529,12 +551,20 @@ void QuadDisplayController::tileDidLoad(const WhirlyKit::Quadtree::Identifier &t
                 for (unsigned int ic=0;ic<childNodes.size();ic++)
                     if (!quadtree->didFail(childNodes[ic]))
                     {
-                        quadtree->addTile(childNodes[ic], true, true);
+                        std::vector<Quadtree::Identifier> newlyCoveredTiles;
+                        quadtree->addTile(childNodes[ic], true, true, newlyCoveredTiles);
                         
                         // Take it out of the phantom list
                         QuadIdentSet::iterator it = toPhantom.find(childNodes[ic]);
                         if (it != toPhantom.end())
                             toPhantom.erase(it);
+
+                        
+                        // By adding a tile we may have realized it's actually off screen and we've got a new batch of tiles we can turn phantom
+                        if (!targetLevels.empty())
+                            for (const Quadtree::Identifier &ident : newlyCoveredTiles)
+                                if (!quadtree->isPhantom(ident))
+                                    toPhantom.insert(ident);
                     }
             }
         }
@@ -559,12 +589,17 @@ void QuadDisplayController::tileDidNotLoad(const Quadtree::Identifier &tileIdent
     if (!targetLevels.empty() && tileIdent.level > 0)
     {
         Quadtree::Identifier parentIdent(tileIdent.x/2,tileIdent.y/2,tileIdent.level-1);
-        quadtree->addTile(parentIdent, true, true);
+        std::vector<Quadtree::Identifier> tilesCovered;
+        quadtree->addTile(parentIdent, true, true, tilesCovered);
         
         // Take it out of the phantom list
         QuadIdentSet::iterator it = toPhantom.find(parentIdent);
         if (it != toPhantom.end())
             toPhantom.erase(it);
+        
+        for (const Quadtree::Identifier &ident : tilesCovered)
+            if (!quadtree->isPhantom(ident))
+                toPhantom.insert(ident);
     }
 
     // Porting: Reset the evalStep() on level up
@@ -594,9 +629,10 @@ void QuadDisplayController::refresh(ChangeSet &changes)
     waitForLocalLoads = true;
     
     // Add everything at the minLevel back in
+    std::vector<Quadtree::Identifier> newlyCoveredTiles;
     for (int ix=0;ix<1<<minZoom;ix++)
         for (int iy=0;iy<1<<minZoom;iy++)
-            quadtree->addTile(Quadtree::Identifier(ix,iy,minZoom), true, false);
+            quadtree->addTile(Quadtree::Identifier(ix,iy,minZoom), true, false, newlyCoveredTiles);
     
     loader->startUpdates(changes);
 
@@ -648,7 +684,9 @@ void QuadDisplayController::wakeUp()
 // Importance callback for quad tree
 double QuadDisplayController::importanceForTile(const Quadtree::Identifier &ident,const Mbr &theMbr,Quadtree *tree,Dictionary *attrs)
 {
-    return dataStructure->importanceForTile(ident,theMbr,&viewState,renderer->getFramebufferSize(),attrs);
+    double import = dataStructure->importanceForTile(ident,theMbr,&viewState,renderer->getFramebufferSize(),attrs);
+    
+    return import;
 }
 
 }

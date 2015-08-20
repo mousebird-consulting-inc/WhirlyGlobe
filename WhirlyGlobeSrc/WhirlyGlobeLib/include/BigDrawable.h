@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/6/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  */
 
 #import "RawData.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "CoordSystem.h"
 
 namespace WhirlyKit
@@ -62,6 +62,7 @@ public:
     /// Draw priority for ordering
     unsigned int getDrawPriority() const { return drawPriority; }
     void setDrawPriority(int newPriority) { drawPriority = newPriority; }
+    void setFade(float newFade) { fade = newFade; }
     
     /// Set all the texture info at once
     void setTexInfo(const std::vector<BasicDrawable::TexInfo> &newTexInfo) { texInfo = newTexInfo; }
@@ -143,6 +144,7 @@ public:
     
 protected:
     bool enable;
+    float fade;
     GLuint programId;
     std::vector<BasicDrawable::TexInfo> texInfo;
     int drawPriority;
@@ -334,6 +336,20 @@ public:
 protected:
     SimpleIdentity drawId;
     int drawPriority;
+};
+
+/// Change the fade on a big drawable
+class BigDrawableFadeChangeRequest : public ChangeRequest
+{
+public:
+    BigDrawableFadeChangeRequest(SimpleIdentity drawID,float fade) : drawID(drawID), fade(fade) { }
+
+    /// Run the command.  The renderer calls this
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+
+protected:
+    SimpleIdentity drawID;
+    float fade;
 };
 
 /// Change the draw priority of a big drawable

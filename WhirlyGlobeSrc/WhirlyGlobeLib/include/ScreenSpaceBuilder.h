@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/21/14.
- *  Copyright 2011-2014 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2015 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #import <set>
 #import <map>
 #import "Identifiable.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "TextureAtlas.h"
 #import "ScreenSpaceDrawable.h"
 #import "Scene.h"
@@ -56,8 +56,14 @@ public:
         double period;
         SimpleIdentity progID;
         TimeInterval fadeUp,fadeDown;
+        bool enable;
+        TimeInterval startEnable,endEnable;
         int drawPriority;
         float minVis,maxVis;
+        bool motion;
+        bool rotation;
+        bool keepUpright;
+        SingleVertexAttributeInfoSet vertexAttrs;
     };
     
     /// Draw priorities can mix and match with other objects, but we probably don't want that
@@ -75,6 +81,10 @@ public:
     void setDrawPriority(int drawPriority);
     /// Set the visibility range
     void setVisibility(float minVis,float maxVis);
+    /// Set the start enable
+    void setEnable(bool enable);
+    /// Set the enable time range
+    void setEnableRange(TimeInterval inStartEnable,TimeInterval inEndEnable);
 
     /// Add a single rectangle with no rotation
     void addRectangle(const Point3d &worldLoc,const Point2d *coords,const TexCoord *texCoords,const RGBAColor &color);
@@ -105,12 +115,16 @@ protected:
         // Comparison operator for set
         bool operator < (const DrawableWrap &that) const;
         
-        void addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color);
+        void addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color,const SingleVertexAttributeSet *vertAttrs);
+        void addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,const Point3f &dir,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color,const SingleVertexAttributeSet *vertAttrs);
         void addTri(int v0,int v1,int v2);
         
         Point3d center;
         DrawableState state;
         ScreenSpaceDrawable *draw;
+        
+    protected:
+        Point3f calcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3f &worldLoc,float rot);        
     };
 
     // Comparitor for drawable wrapper set
@@ -160,6 +174,8 @@ public:
         SimpleIdentity progID;
         /// Color for the geometry
         RGBAColor color;
+        /// Vertex attributes applied to this piece of geometry
+        SingleVertexAttributeSet vertexAttrs;
         
         Point2dVector coords;
         std::vector<TexCoord> texCoords;
@@ -168,8 +184,14 @@ public:
     /// Center of the object in world coordinates
     void setWorldLoc(const Point3d &worldLoc);
     Point3d getWorldLoc();
+    Point3d getEndWorldLoc();
+    TimeInterval getStartTime(),getEndTime();
+    
+    /// Set up the end location and timing
+    void setMovingLoc(const Point3d &worldLoc,TimeInterval startTime,TimeInterval endTime);
     
     void setEnable(bool enable);
+    void setEnableTime(TimeInterval startEnable,TimeInterval endEnable);
     void setVisibility(float minVis,float maxVis);
     void setDrawPriority(int drawPriority);
     void setKeepUpright(bool keepUpright);
@@ -182,10 +204,11 @@ public:
     
 protected:
     bool enable;
-    Point3d worldLoc;
+    TimeInterval startEnable,endEnable;
+    Point3d worldLoc,endWorldLoc;
+    TimeInterval startTime,endTime;
     Point2d offset;
     double rotation;
-    bool useRotation;
     bool keepUpright;
     ScreenSpaceBuilder::DrawableState state;
     std::vector<ConvexGeometry> geometry;

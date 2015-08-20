@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -62,9 +62,11 @@ public:
     /// Convert from the local coordinate system to lat/lon
     GeoCoord localToGeographic(Point3f);
     GeoCoord localToGeographic(Point3d);
+    Point2d localToGeographicD(Point3d);
     /// Convert from lat/lon t the local coordinate system
     Point3f geographicToLocal(GeoCoord);
     Point3d geographicToLocal3d(GeoCoord);
+    Point3d geographicToLocal(Point2d);
     
     /// Convert from local coordinates to WGS84 geocentric
     Point3f localToGeocentric(Point3f);

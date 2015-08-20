@@ -29,7 +29,8 @@ VectorObject::VectorObject()
     
 bool VectorObject::fromGeoJSON(const std::string &json)
 {
-    return VectorParseGeoJSON(shapes,json);
+    std::string crs;
+    return VectorParseGeoJSON(shapes,json,crs);
 }
     
 bool VectorObject::FromGeoJSONAssembly(const std::string &json,std::map<std::string,VectorObject *> &vecData)

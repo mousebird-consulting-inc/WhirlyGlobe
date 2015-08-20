@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/27/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -171,6 +171,14 @@ public:
     /// Number of active textures we'll have in drawables.  Informational only.
     int getActiveTextures() { return activeTextures; }
     
+    /// Offset geometry with the tile centers
+    void setUseTileCenters(bool inVal) { useTileCenters = inVal; }
+    bool getUseTileCenters() { return useTileCenters; }
+    
+    /// Fade for geometry
+    void setFade(float inVal) { fade = inVal; }
+    float getFade() { return fade; }
+    
     /// Base color for the drawables created by the layer
     void setColor(RGBAColor inColor) { color = inColor; }
     RGBAColor getColor() { return color; }
@@ -250,6 +258,8 @@ protected:
     
     unsigned int numImages;
     int activeTextures;
+    bool useTileCenters;
+    float fade;
     WhirlyKit::RGBAColor color;
     bool hasAlpha;
     

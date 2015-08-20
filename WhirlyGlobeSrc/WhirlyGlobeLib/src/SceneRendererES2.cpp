@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/23/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -187,6 +187,14 @@ void SceneRendererES2::setClearColor(const RGBAColor &color)
     renderSetup = false;
 }
 
+void SceneRendererES2::processScene()
+{
+    if (!scene)
+        return;
+    
+    scene->processChanges(theView,this);
+}
+
 // Make the screen a bit bigger for testing
 static const float ScreenOverlap = 0.1;
 
@@ -252,7 +260,9 @@ void SceneRendererES2::render()
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
+    Eigen::Matrix4d pvMat = projMat4d * viewTrans4d;
     Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
+    Eigen::Matrix4f mvpNormalMat4f = mvpMat.inverse().transpose();
     Eigen::Matrix4d modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
     Eigen::Matrix4f modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
 
@@ -323,7 +333,9 @@ void SceneRendererES2::render()
 //        frameInfo.frameLen = duration;
         baseFrameInfo.currentTime = TimeGetCurrent();
         baseFrameInfo.projMat = projMat;
+        baseFrameInfo.projMat4d = projMat4d;
         baseFrameInfo.mvpMat = mvpMat;
+        baseFrameInfo.mvpNormalMat = mvpNormalMat4f;
         baseFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
         baseFrameInfo.viewAndModelMat = modelAndViewMat;
         baseFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
@@ -334,6 +346,23 @@ void SceneRendererES2::render()
 //        frameInfo.lights = lights;
         baseFrameInfo.stateOpt = renderStateOptimizer;
 		
+        // We need a reverse of the eye vector in model space
+        // We'll use this to determine what's pointed away
+        Eigen::Matrix4f modelTransInv = modelTrans.inverse();
+        Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
+        Vector3f eyeVec3(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
+        baseFrameInfo.eyeVec = eyeVec3;
+        Eigen::Matrix4f fullTransInv = modelAndViewMat.inverse();
+        Vector4f fullEyeVec4 = fullTransInv * Vector4f(0,0,1,0);
+        Vector3f fullEyeVec3(fullEyeVec4.x(),fullEyeVec4.y(),fullEyeVec4.z());
+        baseFrameInfo.fullEyeVec = -fullEyeVec3;
+        Vector4d eyeVec4d = modelTrans4d.inverse() * Vector4d(0,0,1,0.0);
+        baseFrameInfo.heightAboveSurface = 0.0;
+        // Note: Should deal with map view as well
+        if (globeView)
+            baseFrameInfo.heightAboveSurface = globeView->heightAboveSurface();
+        baseFrameInfo.eyePos = Vector3d(eyeVec4d.x(),eyeVec4d.y(),eyeVec4d.z()) * (1.0+baseFrameInfo.heightAboveSurface);
+
         if (perfInterval > 0)
             perfTimer.startTiming("Scene processing");
         
@@ -341,7 +370,11 @@ void SceneRendererES2::render()
         // Let the active models to their thing
         // That thing had better not take too long
 //        for (NSObject<WhirlyKitActiveModel> *activeModel in scene->activeModels)
-//            [activeModel updateForFrame:&frameInfo];
+//        {
+//            [activeModel updateForFrame:baseFrameInfo];
+//            // Sometimes this gets reset
+//            [EAGLContext setCurrentContext:context];
+//        }
         
         if (perfInterval > 0)
             perfTimer.addCount("Scene changes", (int)scene->changeRequests.size());
@@ -356,17 +389,6 @@ void SceneRendererES2::render()
         if (perfInterval > 0)
             perfTimer.startTiming("Culling");
 		
-		// We need a reverse of the eye vector in model space
-		// We'll use this to determine what's pointed away
-		Eigen::Matrix4f modelTransInv = modelTrans.inverse();
-		Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
-		Vector3f eyeVec3(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
-        baseFrameInfo.eyeVec = eyeVec3;
-        Eigen::Matrix4f fullTransInv = modelAndViewMat.inverse();
-        Vector4f fullEyeVec4 = fullTransInv * Vector4f(0,0,1,0);
-        Vector3f fullEyeVec3(fullEyeVec4.x(),fullEyeVec4.y(),fullEyeVec4.z());
-        baseFrameInfo.fullEyeVec = -fullEyeVec3;
-        baseFrameInfo.heightAboveSurface = 0.0;
         // Note: Should deal with map view as well
         if (globeView)
             baseFrameInfo.heightAboveSurface = globeView->heightAboveSurface();
@@ -404,6 +426,7 @@ void SceneRendererES2::render()
             WhirlyKit::RendererFrameInfo offFrameInfo(baseFrameInfo);
             // Tweak with the appropriate offset matrix
             modelAndViewMat4d = viewTrans4d * offsetMats[off] * modelTrans4d;
+            pvMat = projMat4d * viewTrans4d * offsetMats[off];
             modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
             mvpMats[off] = projMat4d * modelAndViewMat4d;
             mvpMats4f[off] = Matrix4dToMatrix4f(mvpMats[off]);
@@ -411,9 +434,14 @@ void SceneRendererES2::render()
             modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
             Matrix4d &thisMvpMat = mvpMats[off];
             offFrameInfo.mvpMat = mvpMats4f[off];
+            mvpNormalMat4f = Matrix4dToMatrix4f(mvpMats[off].inverse().transpose());
+            offFrameInfo.mvpNormalMat = mvpNormalMat4f;
             offFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
             offFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
             offFrameInfo.viewAndModelMat = modelAndViewMat;
+            Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat);
+            offFrameInfo.pvMat = pvMat4f;
+            offFrameInfo.pvMat4d = pvMat;
             
             // If we're looking at a globe, run the culling
             int drawablesConsidered = 0;

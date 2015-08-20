@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/3/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 #import "WhirlyVector.h"
 #import "Texture.h"
 #import "Cullable.h"
-#import "Drawable.h"
+#import "BasicDrawableInstance.h"
 #import "Generator.h"
 #import "FontTextureManager.h"
 // Note: Porting

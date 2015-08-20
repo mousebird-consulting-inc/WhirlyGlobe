@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/26/11.
- *  Copyright 2011-2013 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2015 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public:
 
 typedef std::set<WhirlyKit::RectSelectable3D> RectSelectable3DSet;
 
-/** This is 3D rectangular solid.
+/** This is 3D solid.
   */
 class PolytopeSelectable : public Selectable
 {
@@ -76,11 +76,28 @@ public:
     bool operator < (const PolytopeSelectable &that) const;
     
     std::vector<Point3fVector> polys;
-    Point3f midPt;        // Point right in the middle of the polytope
+    Point3d centerPt;        // The polygons are offsets of this center
 };
 
 typedef std::set<WhirlyKit::PolytopeSelectable> PolytopeSelectableSet;
 
+/** 3D solid that can move over time.
+  */
+class MovingPolytopeSelectable : public PolytopeSelectable
+{
+public:
+    MovingPolytopeSelectable() : PolytopeSelectable() { }
+    MovingPolytopeSelectable(SimpleIdentity theID) : PolytopeSelectable(theID) { }
+    // Comparison operator for sorting
+    bool operator < (const MovingPolytopeSelectable &that) const;
+    
+    Point3d endCenterPt;
+    TimeInterval startTime;
+    double duration;
+};
+    
+typedef std::set<WhirlyKit::MovingPolytopeSelectable> MovingPolytopeSelectableSet;
+    
 /** This is a linear features with arbitrary 3D points.
   */
 class LinearSelectable : public Selectable
@@ -112,6 +129,23 @@ public:
 
 typedef std::set<WhirlyKit::RectSelectable2D> RectSelectable2DSet;
 
+/** Rectangle selectable that moves over time.
+  */
+class MovingRectSelectable2D : public RectSelectable2D
+{
+public:
+    MovingRectSelectable2D() : RectSelectable2D() { }
+    MovingRectSelectable2D(SimpleIdentity theID) : RectSelectable2D(theID) { }
+    
+    // Calculate the center based on the time
+    Point3d centerForTime(TimeInterval now) const;
+    
+    Point3d endCenter;                  // Location at the end of the time period
+    TimeInterval startTime,endTime;   // Start and end time
+};
+
+typedef std::set<WhirlyKit::MovingRectSelectable2D> MovingRectSelectable2DSet;
+
 /// Billboard selectable (3D object that turns towards the viewer)
 class BillboardSelectable : public Selectable
 {
@@ -121,9 +155,9 @@ public:
     // Comparison operator for sorting
     bool operator < (const BillboardSelectable &that) const;
     
-    Point3f center;  // Location of the middle of the base in display space
-    Point3f normal;  // The billboard points up in this direction
-    Point2f size;    // Size of the billboard in display space
+    Point3d center;  // Location of the middle of the base in display space
+    Point3d normal;  // The billboard points up in this direction
+    Point2d size;    // Size of the billboard in display space
 };
   
 typedef std::set<WhirlyKit::BillboardSelectable> BillboardSelectableSet;
@@ -167,6 +201,9 @@ public:
     /// Add a screen space rectangle (2D) for selection, between the given visibilities
     void addSelectableScreenRect(SimpleIdentity selectId,const Point3d &center,Point2f *pts,float minVis,float maxVis,bool enable);
     
+    /// Add a screen space rectangle (2D) for selection, between the given visibilities, and it's moving
+    void addSelectableMovingScreenRect(SimpleIdentity selectId,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime,TimeInterval endTime,Point2f *pts,float minVis,float maxVis,bool enable);
+    
     /// Add a rectangular solid for selection.  Pass in 8 points (bottom four + top four)
     void addSelectableRectSolid(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable);
     
@@ -176,11 +213,20 @@ public:
     /// Add a polytope, represented by a set of surfaces
     void addPolytope(SimpleIdentity selectId,const std::vector<Point3dVector > &surfaces,float minVis,float maxVis,bool enable);
 
+    /// Add a polytope
+    void addPolytopeFromBox(SimpleIdentity selectId,const Point3d &ll,const Point3d &ur,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
+
+    /// Add a polytope that moves over time
+    void addMovingPolytope(SimpleIdentity selectId,const std::vector<Point3dVector > &surfaces,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime,TimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
+    
+    /// Add a moving polytop from a box
+    void addMovingPolytopeFromBox(SimpleIdentity selectID,const Point3d &ll,const Point3d &ur,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime,TimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
+
     /// Add a linear in 3-space for selection.
     void addSelectableLinear(SimpleIdentity selectId,const Point3fVector &pts,float minVis,float maxVis,bool enable);
 
     /// Add a billboard for selection.  Pass in the middle of the base and size
-    void addSelectableBillboard(SimpleIdentity selectId,Point3f center,Point3f norm,Point2f size,float minVis,float maxVis,bool enable);
+    void addSelectableBillboard(SimpleIdentity selectId,const Point3d &center,const Point3d &norm,const Point2d &size,float minVis,float maxVis,bool enable);
     
     /// Remove the given selectable from consideration
     void removeSelectable(SimpleIdentity selectId);
@@ -220,7 +266,7 @@ protected:
     // Projects a world coordinate to one or more points on the screen (wrapping)
     void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,Point2dVector &screenPts,float scale);
     // Convert rect selectables into more generic screen space objects
-    void getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenObjs);
+    void getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenObjs,TimeInterval now);
     // Internal object picking method
     void pickObjects(Point2f touchPt,float maxDist,View *theView,bool multi,std::vector<SelectedObject> &selObjs);
 
@@ -231,7 +277,9 @@ protected:
     /// The selectable objects themselves
     WhirlyKit::RectSelectable3DSet rect3Dselectables;
     WhirlyKit::RectSelectable2DSet rect2Dselectables;
+    WhirlyKit::MovingRectSelectable2DSet movingRect2Dselectables;
     WhirlyKit::PolytopeSelectableSet polytopeSelectables;
+    WhirlyKit::MovingPolytopeSelectableSet movingPolytopeSelectables;
     WhirlyKit::LinearSelectableSet linearSelectables;
     WhirlyKit::BillboardSelectableSet billboardSelectables;
 };

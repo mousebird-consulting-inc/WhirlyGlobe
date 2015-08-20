@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/22/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,11 +22,12 @@
 #import <vector>
 #import <set>
 #import <map>
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "VectorData.h"
 #import "GlobeMath.h"
 #import "Dictionary.h"
 #import "Scene.h"
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
@@ -54,19 +55,14 @@ public:
 };
 typedef std::set<VectorSceneRep *,IdentifiableSorter> VectorSceneRepSet;
 
-typedef enum {TextureProjectionNone,TextureProjectionTanPlane} TextureProjections;
+typedef enum {TextureProjectionNone,TextureProjectionTanPlane,TextureProjectionScreen} TextureProjections;
 
 // Used to describe the drawable we'll construct for a given vector
-class VectorInfo
+class VectorInfo : public BaseInfo
 {
 public:
-    VectorInfo();
-    void parseDict(const Dictionary &dict);
+    VectorInfo(const Dictionary &dict);
     
-    bool                        enable;
-    float                       drawOffset;
-    int                         priority;
-    float                       minVis,maxVis;
     bool                        filled;
     float                       sample;
     SimpleIdentity              texId;
@@ -75,7 +71,6 @@ public:
     bool                        gridSubdiv;
     TextureProjections          texProj;
     RGBAColor                   color;
-    float                       fade;
     float                       lineWidth;
     bool                        centered;
     bool                        vecCenterSet;

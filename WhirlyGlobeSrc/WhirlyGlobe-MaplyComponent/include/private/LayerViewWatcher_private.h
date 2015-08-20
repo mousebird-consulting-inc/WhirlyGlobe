@@ -37,7 +37,7 @@
 
 /// Add the given target/selector combo as a watcher.
 /// Will get called at most the given frequency.
-- (void)addWatcherTarget:(NSObject<WhirlyKitLayer> *)target minTime:(NSTimeInterval)minTime minDist:(float)minDist maxLagTime:(NSTimeInterval)maxLagTime;
+- (void)addWatcherTarget:(NSObject<WhirlyKitLayer> *)target minTime:(TimeInterval)minTime minDist:(float)minDist maxLagTime:(TimeInterval)maxLagTime;
 
 /// Remove the given target/selector combo
 - (void)removeWatcherTarget:(id)target selector:(SEL)selector;

@@ -62,7 +62,7 @@ public:
 {
     SceneRendererES *renderer;
     QuadLayerAdapter adapter;
-    NSTimeInterval frameStart,frameInterval;
+    TimeInterval frameStart,frameInterval;
 }
 
 - (id)initWithDataSource:(WhirlyKit::QuadDataStructure *)dataSource loader:(WhirlyKit::QuadLoader *)loader renderer:(WhirlyKit::SceneRendererES *)inRenderer
@@ -143,7 +143,7 @@ static const TimeInterval AvailableFrame = 4.0/5.0;
 
 - (void)frameStartThread
 {
-    NSTimeInterval howLong = CFAbsoluteTimeGetCurrent()-frameStart+AvailableFrame*frameInterval;
+    TimeInterval howLong = CFAbsoluteTimeGetCurrent()-frameStart+AvailableFrame*frameInterval;
     if (howLong > 0.0)
     {
         ChangeSet changes;

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/26/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,25 +32,12 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
     
-VectorInfo::VectorInfo() :
-    enable(true), drawOffset(0.0), priority(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
+VectorInfo::VectorInfo(const Dictionary &dict) :
+    BaseInfo(dict),
     filled(false), sample(0.0), texId(EmptyIdentity), texScale(1.0,1.0), subdivEps(1.0), gridSubdiv(false),
-    texProj(TextureProjectionNone), color(255,255,255,255), fade(0.0), lineWidth(1.0), centered(false),
-    vecCenterSet(false), vecCenter(0,0)
+    texProj(TextureProjectionNone), color(255,255,255,255), lineWidth(1.0)
 {
-}
-
-void VectorInfo::parseDict(const Dictionary &dict)
-{
-    enable = dict.getBool(MaplyEnable,true);
-    drawOffset = dict.getDouble(MaplyDrawOffset,0);
     color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
-    priority = dict.getInt(MaplyDrawPriority,0);
-    // This looks like an old bug
-    priority = dict.getInt(MaplyDrawPriority,priority);
-    minVis = dict.getDouble(MaplyMinVis,DrawVisibleInvalid);
-    maxVis = dict.getDouble(MaplyMaxVis,DrawVisibleInvalid);
-    fade = dict.getDouble(MaplyFade,0.0);
     lineWidth = dict.getDouble(MaplyVecWidth,1.0);
     filled = dict.getBool(MaplyFilled,false);
     sample = dict.getBool("sample",false);
@@ -62,9 +49,11 @@ void VectorInfo::parseDict(const Dictionary &dict)
     gridSubdiv = !subdivType.compare(MaplySubdivGrid);
     std::string texProjStr = dict.getString(MaplyVecTextureProjection,"");
     texProj = TextureProjectionNone;
-    centered = dict.getBool(MaplyVecCentered,true);
     if (!texProjStr.compare(MaplyProjectionTangentPlane))
         texProj = TextureProjectionTanPlane;
+    else if (!texProjStr.compare("texprojectionscreen"))
+        texProj = TextureProjectionScreen;
+    centered = dict.getBool(MaplyVecCentered,true);
     if (dict.hasField("veccenterx") && dict.hasField("veccentery"))
     {
         vecCenterSet = true;
@@ -122,13 +111,10 @@ public:
             drawable = new BasicDrawable("Vector Layer");
             drawMbr.reset();
             drawable->setType(primType);
+            vecInfo->setupBasicDrawable(drawable);
             // Adjust according to the vector info
-            drawable->setOnOff(vecInfo->enable);
-            drawable->setDrawOffset(vecInfo->drawOffset);
             drawable->setColor(ringColor);
             drawable->setLineWidth(vecInfo->lineWidth);
-            drawable->setDrawPriority(vecInfo->priority);
-            drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
         }
         drawMbr.addPoints(pts);
         
@@ -303,18 +289,17 @@ public:
                 drawable = new BasicDrawable("Vector Layer");
                 drawMbr.reset();
                 drawable->setType(GL_TRIANGLES);
-                // Adjust according to the vector info
-                drawable->setOnOff(vecInfo->enable);
-                drawable->setDrawOffset(vecInfo->drawOffset);
+                vecInfo->setupBasicDrawable(drawable);
                 drawable->setColor(ringColor);
-                drawable->setDrawPriority(vecInfo->priority);
-                drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
                 if (vecInfo->texId != EmptyIdentity)
                     drawable->setTexId(0, vecInfo->texId);
-                //                drawable->setForceZBufferOn(true);
+                if (vecInfo->programID != EmptyIdentity)
+                    drawable->setProgram(vecInfo->programID);
             }
             int baseVert = drawable->getNumPoints();
             drawMbr.addPoints(pts);
+            
+            bool doTexCoords = vecInfo->texId != EmptyIdentity;
             
             // Need an origin for this type of texture coordinate projection
             Point3d planeOrg(0,0,0),planeUp(0,0,1),planeX(1,0,0),planeY(0,1,0);
@@ -327,11 +312,15 @@ public:
                 planeY = planeUp.cross(planeX);
                 planeX.normalize();
                 planeY.normalize();
+            } else if (vecInfo->texProj == TextureProjectionScreen)
+            {
+                // Don't need actual tex coordinates for screen space
+                doTexCoords = false;
             }
             
             // Generate the textures coordinates
             std::vector<TexCoord> texCoords;
-            if (vecInfo->texId != EmptyIdentity)
+            if (doTexCoords)
             {
                 texCoords.reserve(pts.size());
                 TexCoord minCoord(MAXFLOAT,MAXFLOAT);
@@ -390,7 +379,7 @@ public:
                 if (doColor)
                     drawable->addColor(ringColor);
                 drawable->addNormal(norm);
-                if (vecInfo->texId != EmptyIdentity)
+                if (doTexCoords)
                 {
                     drawable->addTexCoord(0, texCoords[jj]);
                 }
@@ -409,6 +398,16 @@ public:
         {            
             if (drawable->getNumPoints() > 0)
             {
+                // If we're doing screen coordinates, attach the tweaker
+                if (vecInfo->texProj == TextureProjectionScreen)
+                {
+                    Point2f midPt = drawMbr.mid();
+                    Point3d centerPt = scene->getCoordAdapter()->localToDisplay(Point3d(midPt.x(),midPt.y(),0.0));
+                    Point2d texScale(vecInfo->texScale.x(),vecInfo->texScale.y());
+                    BasicDrawableScreenTexTweaker *texTweaker = new BasicDrawableScreenTexTweaker(centerPt,texScale);
+                    drawable->addTweaker(DrawableTweakerRef(texTweaker));
+                }
+
                 drawable->setLocalMbr(drawMbr);
                 if (centerValid)
                 {
@@ -620,7 +619,7 @@ SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const Diction
              idIt != sceneRep->drawIDs.end(); ++idIt)
         {
             // Make up a BasicDrawableInstance
-            BasicDrawableInstance *drawInst = new BasicDrawableInstance("VectorManager",*idIt);
+            BasicDrawableInstance *drawInst = new BasicDrawableInstance("VectorManager",*idIt,BasicDrawableInstance::ReuseStyle);
             
             // Changed color
             DictionaryType type = desc->getType(MaplyColor);
@@ -733,7 +732,7 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
         VectorSceneRep dummyRep(*vit);
         VectorSceneRepSet::iterator it = vectorReps.find(&dummyRep);
         
-//        NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+//        TimeInterval curTime = CFAbsoluteTimeGetCurrent();
         if (it != vectorReps.end())
         {
             VectorSceneRep *sceneRep = *it;

@@ -3,7 +3,7 @@
 *  WhirlyGlobeLib
 *
 *  Created by Steve Gifford on 9/19/13.
-*  Copyright 2011-2013 mousebird consulting
+*  Copyright 2011-2015 mousebird consulting
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@
 #import <boost/math/special_functions/fpclassify.hpp>
 #import "DynamicTextureAtlas.h"
 #import "DynamicDrawableAtlas.h"
+
+using namespace Eigen;
 
 namespace WhirlyKit
 {
@@ -95,10 +97,12 @@ TileBuilder::TileBuilder(CoordSystem *coordSys,Mbr mbr,WhirlyKit::Quadtree *quad
     lineMode(false),
     activeTextures(-1),
     enabled(true),
+    fade(1.0),
     texAtlas(NULL),
     newDrawables(false),
     singleLevel(false),
-    texAtlasPixelFudge(0.0)
+    texAtlasPixelFudge(0.0),
+    useTileCenters(true)
 {
     pthread_mutex_init(&texAtlasMappingLock, NULL);
 }
@@ -147,6 +151,7 @@ void TileBuilder::initAtlases(WhirlyKitTileImageType imageType,int numImages,int
         texAtlas = new DynamicTextureAtlas(textureAtlasSize,texSortSize,glFormat,numImages);
         texAtlas->setPixelFudgeFactor(texAtlasPixelFudge);
         drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);
+        drawAtlas->setFade(fade);
         newDrawables = true;
     }
 }
@@ -173,11 +178,11 @@ void TileBuilder::clearAtlases(ChangeSet &theChangeRequests)
 }
 
 // Helper routine for constructing the skirt around a tile
-void TileBuilder::buildSkirt(BasicDrawable *draw,Point3fVector &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev)
+void TileBuilder::buildSkirt(BasicDrawable *draw,Point3dVector &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev,const Point3d &theCenter)
 {
     for (unsigned int ii=0;ii<pts.size()-1;ii++)
     {
-        Point3f corners[4];
+        Point3d corners[4];
         TexCoord cornerTex[4];
         corners[0] = pts[ii];
         cornerTex[0] = texCoords[ii];
@@ -198,8 +203,8 @@ void TileBuilder::buildSkirt(BasicDrawable *draw,Point3fVector &pts,std::vector<
                         int base = draw->getNumPoints();
                         for (unsigned int jj=0;jj<4;jj++)
                         {
-                            draw->addPoint(corners[jj]);
-                            Point3f norm = (pts[ii]+pts[ii+1])/2.f;
+                            draw->addPoint(Point3d(corners[jj]-theCenter));
+                            Point3d norm = (pts[ii]+pts[ii+1])/2.f;
                             draw->addNormal(norm);
                             TexCoord texCoord = cornerTex[jj];
                             draw->addTexCoord(-1,texCoord);
@@ -211,9 +216,295 @@ void TileBuilder::buildSkirt(BasicDrawable *draw,Point3fVector &pts,std::vector<
     }
 }
 
+void TileBuilder::generateDrawables(ElevationDrawInfo *drawInfo,BasicDrawable **draw,BasicDrawable **skirtDraw)
+{
+    // Size of each chunk
+    Point2f chunkSize = drawInfo->theMbr.ur() - drawInfo->theMbr.ll();
     
+    int sphereTessX = defaultSphereTessX,sphereTessY = defaultSphereTessY;
+    
+    // For single level mode it's not worth getting fancy
+    // Note: The level check is kind of a hack.  We're avoiding a resolution problem at high levels
+    if (singleLevel || drawInfo->ident.level > 17)
+    {
+        sphereTessX = 1;
+        sphereTessY = 1;
+    }
+    
+    // Unit size of each tesselation in spherical mercator
+    Point2d incr(chunkSize.x()/sphereTessX,chunkSize.y()/sphereTessY);
+    
+    // Texture increment for each tesselation
+    TexCoord texIncr(1.0/(float)sphereTessX,1.0/(float)sphereTessY);
+    
+    // We're viewing this as a parameterization from ([0->1.0],[0->1.0]) so we'll
+    //  break up these coordinates accordingly
+    Point2f paramSize(1.0/(drawInfo->xDim*sphereTessX),1.0/(drawInfo->yDim*sphereTessY));
+    
+    // We need the corners in geographic for the cullable
+    Point2d chunkLL(drawInfo->theMbr.ll().x(),drawInfo->theMbr.ll().y());
+    Point2d chunkUR(drawInfo->theMbr.ur().x(),drawInfo->theMbr.ur().y());
+    //    Point2d chunkMid = (chunkLL+chunkUR)/2.0;
+    CoordSystem *sceneCoordSys = drawInfo->coordAdapter->getCoordSystem();
+    GeoCoord geoLL(coordSys->localToGeographic(Point3d(chunkLL.x(),chunkLL.y(),0.0)));
+    GeoCoord geoUR(coordSys->localToGeographic(Point3d(chunkUR.x(),chunkUR.y(),0.0)));
+    
+    BasicDrawable *chunk = new BasicDrawable("Tile Quad Loader",(sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
+    if (useTileCenters)
+        chunk->setMatrix(&drawInfo->transMat);
+    
+    if (activeTextures > 0)
+        chunk->setTexId(activeTextures-1, EmptyIdentity);
+    chunk->setDrawOffset(drawOffset);
+    chunk->setDrawPriority(drawInfo->drawPriority);
+    chunk->setVisibleRange(minVis, maxVis);
+    chunk->setAlpha(hasAlpha);
+    chunk->setColor(color);
+    chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
+    chunk->setProgram(programId);
+    
+    // We're in line mode or the texture didn't load
+    if (lineMode || (drawInfo->texs && !(drawInfo->texs)->empty() && !((*(drawInfo->texs))[0])))
+    {
+        chunk->setType(GL_LINES);
+        
+        // Two lines per cell
+        for (unsigned int iy=0;iy<sphereTessY;iy++)
+            for (unsigned int ix=0;ix<sphereTessX;ix++)
+            {
+                Point3d org3D = drawInfo->coordAdapter->localToDisplay(CoordSystemConvert3d(coordSys,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
+                Point3d ptA_3D = drawInfo->coordAdapter->localToDisplay(CoordSystemConvert3d(coordSys,sceneCoordSys,Point3d(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
+                Point3d ptB_3D = drawInfo->coordAdapter->localToDisplay(CoordSystemConvert3d(coordSys,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0)));
+                
+                TexCoord texCoord(ix*texIncr.x()*drawInfo->texScale.x()+drawInfo->texOffset.x(),1.0-(iy*texIncr.y()*drawInfo->texScale.y()+drawInfo->texOffset.y()));
+                
+                chunk->addPoint(Point3d(org3D-drawInfo->chunkMidDisp));
+                chunk->addNormal(org3D);
+                chunk->addTexCoord(-1,texCoord);
+                chunk->addPoint(Point3d(ptA_3D-drawInfo->chunkMidDisp));
+                chunk->addNormal(ptA_3D);
+                chunk->addTexCoord(-1,texCoord);
+                
+                chunk->addPoint(Point3d(org3D-drawInfo->chunkMidDisp));
+                chunk->addNormal(org3D);
+                chunk->addTexCoord(-1,texCoord);
+                chunk->addPoint(Point3d(ptB_3D-drawInfo->chunkMidDisp));
+                chunk->addNormal(ptB_3D);
+                chunk->addTexCoord(-1,texCoord);
+            }
+    } else {
+        chunk->setType(GL_TRIANGLES);
+        // Generate point, texture coords, and normals
+        std::vector<Point3d> locs((sphereTessX+1)*(sphereTessY+1));
+        std::vector<float> elevs;
+        if (includeElev || useElevAsZ)
+            elevs.resize((sphereTessX+1)*(sphereTessY+1));
+        std::vector<TexCoord> texCoords((sphereTessX+1)*(sphereTessY+1));
+        for (unsigned int iy=0;iy<sphereTessY+1;iy++)
+        {
+            for (unsigned int ix=0;ix<sphereTessX+1;ix++)
+            {
+                float locZ = 0.0;
+                Point3d loc3D = drawInfo->coordAdapter->localToDisplay(CoordSystemConvert3d(coordSys,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),locZ)));
+                if (drawInfo->coordAdapter->isFlat())
+                    loc3D.z() = locZ;
+                
+                // Use Z priority to sort the levels
+                //                    if (singleLevel != -1)
+                //                        loc3D.z() = (drawPriority + nodeInfo->ident.level * 0.01)/10000;
+                
+                locs[iy*(sphereTessX+1)+ix] = loc3D;
+                
+                // Do the texture coordinate seperately
+                TexCoord texCoord(ix*texIncr.x()*drawInfo->texScale.x()+drawInfo->texOffset.x(),1.0-(iy*texIncr.y()*drawInfo->texScale.y()+drawInfo->texOffset.y()));
+                texCoords[iy*(sphereTessX+1)+ix] = texCoord;
+            }
+        }
+        
+        // Without elevation data we can share the vertices
+        for (unsigned int iy=0;iy<sphereTessY+1;iy++)
+        {
+            for (unsigned int ix=0;ix<sphereTessX+1;ix++)
+            {
+                Point3d &loc3D = locs[iy*(sphereTessX+1)+ix];
+                
+                // And the normal
+                Point3d norm3D;
+                if (drawInfo->coordAdapter->isFlat())
+                    norm3D = drawInfo->coordAdapter->normalForLocal(loc3D);
+                else
+                    norm3D = loc3D;
+                
+                TexCoord &texCoord = texCoords[iy*(sphereTessX+1)+ix];
+                
+                chunk->addPoint(Point3d(loc3D-drawInfo->chunkMidDisp));
+                chunk->addNormal(norm3D);
+                chunk->addTexCoord(-1,texCoord);
+            }
+        }
+        
+        // Two triangles per cell
+        for (unsigned int iy=0;iy<sphereTessY;iy++)
+        {
+            for (unsigned int ix=0;ix<sphereTessX;ix++)
+            {
+                BasicDrawable::Triangle triA,triB;
+                triA.verts[0] = (iy+1)*(sphereTessX+1)+ix;
+                triA.verts[1] = iy*(sphereTessX+1)+ix;
+                triA.verts[2] = (iy+1)*(sphereTessX+1)+(ix+1);
+                triB.verts[0] = triA.verts[2];
+                triB.verts[1] = triA.verts[1];
+                triB.verts[2] = iy*(sphereTessX+1)+(ix+1);
+                chunk->addTriangle(triA);
+                chunk->addTriangle(triB);
+            }
+        }
+        
+        if (!drawInfo->ignoreEdgeMatching && !drawInfo->coordAdapter->isFlat() && skirtDraw)
+        {
+            // We'll set up and fill in the drawable
+            BasicDrawable *skirtChunk = new BasicDrawable("Tile Quad Loader Skirt");
+            if (useTileCenters)
+                skirtChunk->setMatrix(&drawInfo->transMat);
+            if (activeTextures > 0)
+                skirtChunk->setTexId(activeTextures-1, EmptyIdentity);
+            skirtChunk->setDrawOffset(drawOffset);
+            skirtChunk->setDrawPriority(0);
+            skirtChunk->setVisibleRange(minVis, maxVis);
+            skirtChunk->setAlpha(hasAlpha);
+            skirtChunk->setColor(color);
+            skirtChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
+            skirtChunk->setType(GL_TRIANGLES);
+            // We need the skirts rendered with the z buffer on, even if we're doing (mostly) pure sorting
+            skirtChunk->setRequestZBuffer(true);
+            skirtChunk->setProgram(programId);
+            
+            // We'll vary the skirt size a bit.  Otherwise the fill gets ridiculous when we're looking
+            //  at the very highest levels.  On the other hand, this doesn't fix a really big large/small
+            //  disparity
+            float skirtFactor = 1.0 - 0.2 / (1<<drawInfo->ident.level);
+            
+            // Bottom skirt
+            Point3dVector skirtLocs;
+            std::vector<TexCoord> skirtTexCoords;
+            for (unsigned int ix=0;ix<=sphereTessX;ix++)
+            {
+                skirtLocs.push_back(locs[ix]);
+                skirtTexCoords.push_back(texCoords[ix]);
+            }
+            buildSkirt(skirtChunk,skirtLocs,skirtTexCoords,skirtFactor,false,drawInfo->chunkMidDisp);
+            // Top skirt
+            skirtLocs.clear();
+            skirtTexCoords.clear();
+            for (int ix=sphereTessX;ix>=0;ix--)
+            {
+                skirtLocs.push_back(locs[(sphereTessY)*(sphereTessX+1)+ix]);
+                skirtTexCoords.push_back(texCoords[(sphereTessY)*(sphereTessX+1)+ix]);
+            }
+            buildSkirt(skirtChunk,skirtLocs,skirtTexCoords,skirtFactor,false,drawInfo->chunkMidDisp);
+            // Left skirt
+            skirtLocs.clear();
+            skirtTexCoords.clear();
+            for (int iy=sphereTessY;iy>=0;iy--)
+            {
+                skirtLocs.push_back(locs[(sphereTessX+1)*iy+0]);
+                skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+0]);
+            }
+            buildSkirt(skirtChunk,skirtLocs,skirtTexCoords,skirtFactor,false,drawInfo->chunkMidDisp);
+            // right skirt
+            skirtLocs.clear();
+            skirtTexCoords.clear();
+            for (int iy=0;iy<=sphereTessY;iy++)
+            {
+                skirtLocs.push_back(locs[(sphereTessX+1)*iy+(sphereTessX)]);
+                skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+(sphereTessX)]);
+            }
+            buildSkirt(skirtChunk,skirtLocs,skirtTexCoords,skirtFactor,false,drawInfo->chunkMidDisp);
+            
+            if (drawInfo->texs && !(drawInfo->texs)->empty() && !((*(drawInfo->texs))[0]))
+                skirtChunk->setTexId(0,(*(drawInfo->texs))[0]->getId());
+            *skirtDraw = skirtChunk;
+        }
+        
+        if (coverPoles && !drawInfo->coordAdapter->isFlat())
+        {
+            // If we're at the top, toss in a few more triangles to represent that
+            int maxY = 1 << drawInfo->ident.level;
+            if (drawInfo->ident.y == maxY-1)
+            {
+                TexCoord singleTexCoord(0.5,0.0);
+                // One point for the north pole
+                Point3d northPt(0,0,1.0);
+                chunk->addPoint(Point3d(northPt-drawInfo->chunkMidDisp));
+                chunk->addTexCoord(-1,singleTexCoord);
+                chunk->addNormal(Point3d(0,0,1.0));
+                int northVert = chunk->getNumPoints()-1;
+                
+                // A line of points for the outer ring, but we can copy them
+                int startOfLine = chunk->getNumPoints();
+                int iy = sphereTessY;
+                for (unsigned int ix=0;ix<sphereTessX+1;ix++)
+                {
+                    Point3d pt = locs[(iy*(sphereTessX+1)+ix)];
+                    chunk->addPoint(Point3d(pt-drawInfo->chunkMidDisp));
+                    chunk->addNormal(Point3d(0,0,1.0));
+                    chunk->addTexCoord(-1,singleTexCoord);
+                }
+                
+                // And define the triangles
+                for (unsigned int ix=0;ix<sphereTessX;ix++)
+                {
+                    BasicDrawable::Triangle tri;
+                    tri.verts[0] = startOfLine+ix;
+                    tri.verts[1] = startOfLine+ix+1;
+                    tri.verts[2] = northVert;
+                    chunk->addTriangle(tri);
+                }
+            }
+            
+            if (drawInfo->ident.y == 0)
+            {
+                TexCoord singleTexCoord(0.5,1.0);
+                // One point for the south pole
+                Point3d southPt(0,0,-1.0);
+                chunk->addPoint(Point3d(southPt-drawInfo->chunkMidDisp));
+                chunk->addTexCoord(-1,singleTexCoord);
+                chunk->addNormal(Point3d(0,0,-1.0));
+                int southVert = chunk->getNumPoints()-1;
+                
+                // A line of points for the outside ring, which we can copy
+                int startOfLine = chunk->getNumPoints();
+                int iy = 0;
+                for (unsigned int ix=0;ix<sphereTessX+1;ix++)
+                {
+                    Point3d pt = locs[(iy*(sphereTessX+1)+ix)];
+                    chunk->addPoint(Point3d(pt-drawInfo->chunkMidDisp));
+                    chunk->addNormal(Point3d(0,0,-1.0));
+                    chunk->addTexCoord(-1,singleTexCoord);
+                }
+                
+                // And define the triangles
+                for (unsigned int ix=0;ix<sphereTessX;ix++)
+                {
+                    BasicDrawable::Triangle tri;
+                    tri.verts[0] = southVert;
+                    tri.verts[1] = startOfLine+ix+1;
+                    tri.verts[2] = startOfLine+ix;
+                    chunk->addTriangle(tri);
+                }
+            }
+        }
+        
+        if (drawInfo->texs && !(drawInfo->texs)->empty() && (*(drawInfo->texs))[0])
+            chunk->setTexId(0,(*(drawInfo->texs))[0]->getId());
+    }
+    
+    *draw = chunk;
+}
+
+
 bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,std::vector<Texture *> *texs,
-                            Point2f texScale,Point2f texOffset,std::vector<LoadedImage *> *loadImages)
+                            Point2f texScale,Point2f texOffset,std::vector<LoadedImage *> *loadImages,const Point3d &dispCenter,Quadtree::NodeInfo *parentNodeInfo)
 {
     Mbr theMbr = nodeInfo->mbr;
     
@@ -239,46 +530,17 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
     
     //    NSLog(@"Chunk ll = (%.4f,%.4f)  ur = (%.4f,%.4f)",mbr.ll().x(),mbr.ll().y(),mbr.ur().x(),mbr.ur().y());
     
-    // Size of each chunk
-    Point2f chunkSize = theMbr.ur() - theMbr.ll();
-    
-    int sphereTessX = defaultSphereTessX,sphereTessY = defaultSphereTessY;
-//    if (elevData)
-//    {
-//        sphereTessX = elevData.numX-1;
-//        sphereTessY = elevData.numY-1;
-//    }
-
-    // For single level mode it's not worth getting fancy
-    if (singleLevel)
-    {
-        sphereTessX = 1;
-        sphereTessY = 1;
-    }
-
-    // Unit size of each tesselation in spherical mercator
-    Point2f incr(chunkSize.x()/sphereTessX,chunkSize.y()/sphereTessY);
-    
-    // Texture increment for each tesselation
-    TexCoord texIncr(1.0/(float)sphereTessX,1.0/(float)sphereTessY);
-    
-    // We're viewing this as a parameterization from ([0->1.0],[0->1.0]) so we'll
-    //  break up these coordinates accordingly
-    Point2f paramSize(1.0/(xDim*sphereTessX),1.0/(yDim*sphereTessY));
-    
-    // We need the corners in geographic for the cullable
-    Point2f chunkLL = theMbr.ll();
-    Point2f chunkUR = theMbr.ur();
-    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-    CoordSystem *sceneCoordSys = coordAdapter->getCoordSystem();
-    GeoCoord geoLL(coordSys->localToGeographic(Point3f(chunkLL.x(),chunkLL.y(),0.0)));
-    GeoCoord geoUR(coordSys->localToGeographic(Point3f(chunkUR.x(),chunkUR.y(),0.0)));
+    // Translation for the middle.  The drawable stores floats which isn't high res enough zoomed way in
+    Point3d chunkMidDisp = (useTileCenters ? dispCenter : Point3d(0,0,0));
+    //    NSLog(@"mid = (%f,%f,%f)",chunkMidDisp.x(),chunkMidDisp.y(),chunkMidDisp.z());
+    Eigen::Affine3d trans(Eigen::Translation3d(chunkMidDisp.x(),chunkMidDisp.y(),chunkMidDisp.z()));
+    Matrix4d transMat = trans.matrix();
     
     // Get textures (locally)
     if (texs)
     {
         bool texturesClean = true;
-        if (loadImages && !(*loadImages)[0]->isPlaceholder())
+        if (loadImages && (*loadImages)[0]->getType() != WKLoadedImagePlaceholder)
         {
             // They'll all be the same width
             LoadedImage *loadImage = (*loadImages)[0];
@@ -321,381 +583,52 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
     
     if (draw)
     {
-        // We'll set up and fill in the drawable
-        BasicDrawable *chunk = new BasicDrawable("Tile Quad Loader",(sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
-        if (activeTextures > 0)
-            chunk->setTexId(activeTextures-1, EmptyIdentity);
-        chunk->setDrawOffset(drawOffset);
-        int thisDrawPriority = drawPriority;
+        ElevationDrawInfo drawInfo;
+        drawInfo.theMbr = theMbr;
+        if (parentNodeInfo)
+            drawInfo.parentMbr = parentNodeInfo->mbr;
+        else
+            drawInfo.parentMbr = theMbr;
+        drawInfo.xDim = xDim;        drawInfo.yDim = yDim;
+        drawInfo.coverPoles = coverPoles;
+        drawInfo.useTileCenters = useTileCenters;
+        drawInfo.texScale = texScale;
+        drawInfo.texOffset = texOffset;
+        drawInfo.dispCenter = dispCenter;
+        drawInfo.transMat = transMat;
+        drawInfo.drawPriority = drawPriority;
         if (singleLevel)
-            thisDrawPriority += nodeInfo->ident.level;
-        chunk->setDrawPriority(thisDrawPriority);
-        chunk->setDrawPriority(drawPriority);
-        chunk->setVisibleRange(minVis, maxVis);
-        chunk->setAlpha(hasAlpha);
-        chunk->setColor(color);
-        chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
-        chunk->setProgram(programId);
-        int elevEntry = 0;
-        if (includeElev)
-            elevEntry = chunk->addAttribute(BDFloatType, "a_elev");
-        // Single level mode uses Z to sort out priority
-//        if (singleLevel != -1)
-//        {
-//            chunk->setRequestZBuffer(true);
-//            chunk->setWriteZBuffer(true);
-//        }
-        
-        // We're in line mode or the texture didn't load
-        if (lineMode || (texs && !texs->empty() && !((*texs)[0])))
-        {
-            chunk->setType(GL_LINES);
-            
-            // Two lines per cell
-            for (unsigned int iy=0;iy<sphereTessY;iy++)
-                for (unsigned int ix=0;ix<sphereTessX;ix++)
-                {
-                    Point3f org3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
-                    Point3f ptA_3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
-                    Point3f ptB_3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0)));
-                    
-                    TexCoord texCoord(ix*texIncr.x()*texScale.x()+texOffset.x(),1.0-(iy*texIncr.y()*texScale.y()+texOffset.y()));
-                    
-                    chunk->addPoint(org3D);
-                    chunk->addNormal(org3D);
-                    chunk->addTexCoord(-1,texCoord);
-                    chunk->addPoint(ptA_3D);
-                    chunk->addNormal(ptA_3D);
-                    chunk->addTexCoord(-1,texCoord);
-                    
-                    chunk->addPoint(org3D);
-                    chunk->addNormal(org3D);
-                    chunk->addTexCoord(-1,texCoord);
-                    chunk->addPoint(ptB_3D);
-                    chunk->addNormal(ptB_3D);
-                    chunk->addTexCoord(-1,texCoord);
-                }
-        } else {
-            chunk->setType(GL_TRIANGLES);
-            // Generate point, texture coords, and normals
-            Point3fVector locs((sphereTessX+1)*(sphereTessY+1));
-//            std::vector<float> elevs;
-//            if (includeElev || useElevAsZ)
-//                elevs.resize((sphereTessX+1)*(sphereTessY+1));
-            std::vector<TexCoord> texCoords((sphereTessX+1)*(sphereTessY+1));
-            for (unsigned int iy=0;iy<sphereTessY+1;iy++)
-                for (unsigned int ix=0;ix<sphereTessX+1;ix++)
-                {
-                    float locZ = 0.0;
-//                    if (!elevs.empty())
-//                    {
-//                        if (elevData)
-//                        {
-//                            float whereX = ix*texScale.x() + (elevData.numX-1)*texOffset.x();
-//                            float whereY = iy*texScale.y() + (elevData.numY-1)*texOffset.y();
-//                            locZ = [elevData interpolateElevationAtX:whereX y:whereY];
-//                        }
-//                        elevs[iy*(sphereTessX+1)+ix] = locZ;
-//                    }
-                    // We don't want real elevations in the mesh, just off in another attribute
-                    if (!useElevAsZ)
-                        locZ = 0.0;
-                    Point3f loc3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),locZ)));
-                    if (coordAdapter->isFlat())
-                        loc3D.z() = locZ;
+            drawInfo.drawPriority += nodeInfo->ident.level;
+        drawInfo.texs = texs;
+        drawInfo.coordAdapter = scene->getCoordAdapter();
+        drawInfo.coordSys = coordSys;
+        drawInfo.chunkMidDisp = chunkMidDisp;
+        drawInfo.ignoreEdgeMatching = ignoreEdgeMatching;
+        drawInfo.ident = nodeInfo->ident;
+        drawInfo.activeTextures = activeTextures;
+        drawInfo.drawOffset = drawOffset;
+        drawInfo.minVis = minVis;
+        drawInfo.maxVis = maxVis;
+        drawInfo.hasAlpha = hasAlpha;
+        drawInfo.color = color;
+        drawInfo.programId = programId;
+        drawInfo.includeElev = includeElev;
+        drawInfo.useElevAsZ = useElevAsZ;
+        drawInfo.lineMode = lineMode;
 
-                    // Use Z priority to sort the levels
-//                    if (singleLevel != -1)
-//                        loc3D.z() = (drawPriority + nodeInfo->ident.level * 0.01)/10000;
-                    
-                    locs[iy*(sphereTessX+1)+ix] = loc3D;
-                    
-                    // Do the texture coordinate seperately
-                    TexCoord texCoord(ix*texIncr.x()*texScale.x()+texOffset.x(),1.0-(iy*texIncr.y()*texScale.y()+texOffset.y()));
-                    texCoords[iy*(sphereTessX+1)+ix] = texCoord;
-                }
-            
-            // If there's elevation data, we need per triangle normals, which means more vertices
-#if 0
-            if (!elevs.empty())
-            {
-                // Two triangles per cell
-                for (unsigned int iy=0;iy<sphereTessY;iy++)
-                {
-                    for (unsigned int ix=0;ix<sphereTessX;ix++)
-                    {
-                        int startPt = chunk->getNumPoints();
-                        int idx0 = (iy+1)*(sphereTessX+1)+ix;
-                        Point3f ptA_0 = locs[idx0];
-                        int idx1 = iy*(sphereTessX+1)+ix;
-                        Point3f ptA_1 = locs[idx1];
-                        int idx2 = (iy+1)*(sphereTessX+1)+(ix+1);
-                        Point3f ptA_2 = locs[idx2];
-                        Point3f normA = (ptA_2-ptA_1).cross(ptA_0-ptA_1);
-                        normA.normalize();
-                        chunk->addPoint(ptA_0);
-                        chunk->addTexCoord(-1,texCoords[idx0]);
-                        chunk->addNormal(normA);
-                        if (elevEntry != 0)
-                            chunk->addAttributeValue(elevEntry, elevs[idx0]);
-                        
-                        chunk->addPoint(ptA_1);
-                        chunk->addTexCoord(-1,texCoords[idx1]);
-                        chunk->addNormal(normA);
-                        if (elevEntry != 0)
-                            chunk->addAttributeValue(elevEntry, elevs[idx1]);
-                        
-                        chunk->addPoint(ptA_2);
-                        chunk->addTexCoord(-1,texCoords[idx2]);
-                        chunk->addNormal(normA);
-                        if (elevEntry != 0)
-                            chunk->addAttributeValue(elevEntry, elevs[idx2]);
-                        
-                        BasicDrawable::Triangle triA,triB;
-                        triA.verts[0] = startPt;
-                        triA.verts[1] = startPt+1;
-                        triA.verts[2] = startPt+2;
-                        chunk->addTriangle(triA);
-                        
-                        startPt = chunk->getNumPoints();
-                        idx0 = idx2;
-                        Point3f ptB_0 = ptA_2;
-                        idx1 = idx1;
-                        Point3f ptB_1 = ptA_1;
-                        idx2 = iy*(sphereTessX+1)+(ix+1);
-                        Point3f ptB_2 = locs[idx2];
-                        Point3f normB = (ptB_0-ptB_2).cross(ptB_1-ptB_2);
-                        normB.normalize();
-                        chunk->addPoint(ptB_0);
-                        chunk->addTexCoord(-1,texCoords[idx0]);
-                        chunk->addNormal(normB);
-                        if (elevEntry != 0)
-                            chunk->addAttributeValue(elevEntry, elevs[idx0]);
-                        
-                        chunk->addPoint(ptB_1);
-                        chunk->addTexCoord(-1,texCoords[idx1]);
-                        chunk->addNormal(normB);
-                        if (elevEntry != 0)
-                            chunk->addAttributeValue(elevEntry, elevs[idx1]);
-                        
-                        chunk->addPoint(ptB_2);
-                        chunk->addTexCoord(-1,texCoords[idx2]);
-                        chunk->addNormal(normB);
-                        if (elevEntry != 0)
-                            chunk->addAttributeValue(elevEntry, elevs[idx2]);
-                        
-                        triB.verts[0] = startPt;
-                        triB.verts[1] = startPt+1;
-                        triB.verts[2] = startPt+2;
-                        chunk->addTriangle(triB);
-                    }
-                }
-                
-                
-            } else {
-#endif
-            {
-                // Without elevation data we can share the vertices
-                for (unsigned int iy=0;iy<sphereTessY+1;iy++)
-                    for (unsigned int ix=0;ix<sphereTessX+1;ix++)
-                    {
-                        Point3f &loc3D = locs[iy*(sphereTessX+1)+ix];
-                        
-                        // And the normal
-                        Point3f norm3D;
-                        if (coordAdapter->isFlat())
-                            norm3D = coordAdapter->normalForLocal(loc3D);
-                        else
-                            norm3D = loc3D;
-                        
-                        TexCoord &texCoord = texCoords[iy*(sphereTessX+1)+ix];
-                        
-                        chunk->addPoint(loc3D);
-                        chunk->addNormal(norm3D);
-                        chunk->addTexCoord(-1,texCoord);
-                    }
-                
-                // Two triangles per cell
-                for (unsigned int iy=0;iy<sphereTessY;iy++)
-                {
-                    for (unsigned int ix=0;ix<sphereTessX;ix++)
-                    {
-                        BasicDrawable::Triangle triA,triB;
-                        triA.verts[0] = (iy+1)*(sphereTessX+1)+ix;
-                        triA.verts[1] = iy*(sphereTessX+1)+ix;
-                        triA.verts[2] = (iy+1)*(sphereTessX+1)+(ix+1);
-                        triB.verts[0] = triA.verts[2];
-                        triB.verts[1] = triA.verts[1];
-                        triB.verts[2] = iy*(sphereTessX+1)+(ix+1);
-                        chunk->addTriangle(triA);
-                        chunk->addTriangle(triB);
-                    }
-                }
-            }
-            
-            if (!ignoreEdgeMatching && !coordAdapter->isFlat() && skirtDraw)
-            {
-                // We'll set up and fill in the drawable
-                BasicDrawable *skirtChunk = new BasicDrawable("Tile Quad Loader Skirt");
-                if (activeTextures > 0)
-                    skirtChunk->setTexId(activeTextures-1, EmptyIdentity);
-                skirtChunk->setDrawOffset(drawOffset);
-                skirtChunk->setDrawPriority(0);
-                skirtChunk->setVisibleRange(minVis, maxVis);
-                skirtChunk->setAlpha(hasAlpha);
-                skirtChunk->setColor(color);
-                skirtChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
-                skirtChunk->setType(GL_TRIANGLES);
-                // We need the skirts rendered with the z buffer on, even if we're doing (mostly) pure sorting
-                skirtChunk->setRequestZBuffer(true);
-                skirtChunk->setProgram(programId);
-                
-                // We'll vary the skirt size a bit.  Otherwise the fill gets ridiculous when we're looking
-                //  at the very highest levels.  On the other hand, this doesn't fix a really big large/small
-                //  disparity
-                float skirtFactor = 0.95;
-                // Note: Porting
-//                bool haveElev = elevData && useElevAsZ;
-                bool haveElev = false;
-                // Leave the big skirts in place if we're doing real elevation
-//                if (!elevData || !useElevAsZ)
-                    skirtFactor = 1.0 - 0.2 / (1<<nodeInfo->ident.level);
-                
-                // Bottom skirt
-                Point3fVector skirtLocs;
-                std::vector<TexCoord> skirtTexCoords;
-                for (unsigned int ix=0;ix<=sphereTessX;ix++)
-                {
-                    skirtLocs.push_back(locs[ix]);
-                    skirtTexCoords.push_back(texCoords[ix]);
-                }
-                buildSkirt(skirtChunk,skirtLocs,skirtTexCoords,skirtFactor,haveElev);
-                // Top skirt
-                skirtLocs.clear();
-                skirtTexCoords.clear();
-                for (int ix=sphereTessX;ix>=0;ix--)
-                {
-                    skirtLocs.push_back(locs[(sphereTessY)*(sphereTessX+1)+ix]);
-                    skirtTexCoords.push_back(texCoords[(sphereTessY)*(sphereTessX+1)+ix]);
-                }
-                buildSkirt(skirtChunk,skirtLocs,skirtTexCoords,skirtFactor,haveElev);
-                // Left skirt
-                skirtLocs.clear();
-                skirtTexCoords.clear();
-                for (int iy=sphereTessY;iy>=0;iy--)
-                {
-                    skirtLocs.push_back(locs[(sphereTessX+1)*iy+0]);
-                    skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+0]);
-                }
-                buildSkirt(skirtChunk,skirtLocs,skirtTexCoords,skirtFactor,haveElev);
-                // right skirt
-                skirtLocs.clear();
-                skirtTexCoords.clear();
-                for (int iy=0;iy<=sphereTessY;iy++)
-                {
-                    skirtLocs.push_back(locs[(sphereTessX+1)*iy+(sphereTessX)]);
-                    skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+(sphereTessX)]);
-                }
-                buildSkirt(skirtChunk,skirtLocs,skirtTexCoords,skirtFactor,haveElev);
-                
-                if (texs && !texs->empty() && !((*texs)[0]))
-                    skirtChunk->setTexId(0,(*texs)[0]->getId());
-                *skirtDraw = skirtChunk;
-            }
-            
-            if (coverPoles && !coordAdapter->isFlat())
-            {
-                // If we're at the top, toss in a few more triangles to represent that
-                int maxY = 1 << nodeInfo->ident.level;
-                if (nodeInfo->ident.y == maxY-1)
-                {
-                    TexCoord singleTexCoord(0.5,0.0);
-                    // One point for the north pole
-                    Point3f northPt(0,0,1.0);
-                    chunk->addPoint(northPt);
-                    chunk->addTexCoord(-1,singleTexCoord);
-                    chunk->addNormal(Point3f(0,0,1.0));
-                    if (elevEntry != 0)
-                        chunk->addAttributeValue(elevEntry, 0.0);
-                    int northVert = chunk->getNumPoints()-1;
-                    
-                    // A line of points for the outer ring, but we can copy them
-                    int startOfLine = chunk->getNumPoints();
-                    int iy = sphereTessY;
-                    for (unsigned int ix=0;ix<sphereTessX+1;ix++)
-                    {
-                        Point3f pt = locs[(iy*(sphereTessX+1)+ix)];
-                        float elev = 0.0;
-//                        if (!elevs.empty())
-//                            elev = elevs[(iy*(sphereTessX+1)+ix)];
-                        chunk->addPoint(pt);
-                        chunk->addNormal(Point3f(0,0,1.0));
-                        chunk->addTexCoord(-1,singleTexCoord);
-                        if (elevEntry != 0)
-                            chunk->addAttributeValue(elevEntry, elev);
-                    }
-                    
-                    // And define the triangles
-                    for (unsigned int ix=0;ix<sphereTessX;ix++)
-                    {
-                        BasicDrawable::Triangle tri;
-                        tri.verts[0] = startOfLine+ix;
-                        tri.verts[1] = startOfLine+ix+1;
-                        tri.verts[2] = northVert;
-                        chunk->addTriangle(tri);
-                    }
-                }
-                
-                if (nodeInfo->ident.y == 0)
-                {
-                    TexCoord singleTexCoord(0.5,1.0);
-                    // One point for the south pole
-                    Point3f southPt(0,0,-1.0);
-                    chunk->addPoint(southPt);
-                    chunk->addTexCoord(-1,singleTexCoord);
-                    chunk->addNormal(Point3f(0,0,-1.0));
-                    if (elevEntry != 0)
-                        chunk->addAttributeValue(elevEntry, 0.0);
-                    int southVert = chunk->getNumPoints()-1;
-                    
-                    // A line of points for the outside ring, which we can copy
-                    int startOfLine = chunk->getNumPoints();
-                    int iy = 0;
-                    for (unsigned int ix=0;ix<sphereTessX+1;ix++)
-                    {
-                        Point3f pt = locs[(iy*(sphereTessX+1)+ix)];
-                        float elev = 0.0;
-//                        if (!elevs.empty())
-//                            elev = elevs[(iy*(sphereTessX+1)+ix)];
-                        chunk->addPoint(pt);
-                        chunk->addNormal(Point3f(0,0,-1.0));
-                        chunk->addTexCoord(-1,singleTexCoord);
-                        if (elevEntry != 0)
-                            chunk->addAttributeValue(elevEntry, elev);
-                    }
-                    
-                    // And define the triangles
-                    for (unsigned int ix=0;ix<sphereTessX;ix++)
-                    {
-                        BasicDrawable::Triangle tri;
-                        tri.verts[0] = southVert;
-                        tri.verts[1] = startOfLine+ix+1;
-                        tri.verts[2] = startOfLine+ix;
-                        chunk->addTriangle(tri);
-                    }
-                }
-            }
-            
-            if (texs && !texs->empty() && (*texs)[0])
-                chunk->setTexId(0,(*texs)[0]->getId());
-        }
-        
-        *draw = chunk;
+        // Note: Porting
+        // Have the elevation provider generate the drawables
+//        if (elevData)
+//            [elevData generateDrawables:&drawInfo chunk:draw skirts:skirtDraw];
+//        else {
+            // No elevation provider, so we'll do it ourselves
+            generateDrawables(&drawInfo,draw,skirtDraw);
+//        }
     }
     
     return true;
 }
-
+    
 Texture *TileBuilder::buildTexture(LoadedImage *loadImage)
 {
     // They'll all be the same width
@@ -848,7 +781,7 @@ bool InternalLoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<LoadedI
     std::vector<Texture *> texs(loadImages.size(),NULL);
     if (tileBuilder->texAtlas)
         subTexs.resize(loadImages.size());
-    if (!tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, (!loadImages.empty() ? &texs : NULL), Point2f(1.0,1.0), Point2f(0.0,0.0), &loadImages))
+    if (!tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, (!loadImages.empty() ? &texs : NULL), Point2f(1.0,1.0), Point2f(0.0,0.0), &loadImages,dispCenter,NULL))
         return false;
     drawId = draw->getId();
     skirtDrawId = (skirtDraw ? skirtDraw->getId() : EmptyIdentity);
@@ -1042,7 +975,7 @@ void InternalLoadedTile::updateContents(TileBuilder *tileBuilder,InternalLoadedT
                     {
                         BasicDrawable *childDraw = NULL;
                         BasicDrawable *childSkirtDraw = NULL;
-                        tileBuilder->buildTile(&childInfo,&childDraw,&childSkirtDraw,NULL,Point2f(0.5,0.5),Point2f(0.5*ix,0.5*iy),NULL);
+                        tileBuilder->buildTile(&childInfo,&childDraw,&childSkirtDraw,NULL,Point2f(0.5,0.5),Point2f(0.5*ix,0.5*iy),NULL,dispCenter,&this->nodeInfo);
                         // Set this to change the color of child drawables.  Helpfull for debugging
                         //                        childDraw->setColor(RGBAColor(64,64,64,255));
                         childDrawIds[whichChild] = childDraw->getId();
@@ -1092,7 +1025,7 @@ void InternalLoadedTile::updateContents(TileBuilder *tileBuilder,InternalLoadedT
         {
             BasicDrawable *draw = NULL;
             BasicDrawable *skirtDraw = NULL;
-            tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, NULL, Point2f(1.0,1.0), Point2f(0.0,0.0), NULL);
+            tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, NULL, Point2f(1.0,1.0), Point2f(0.0,0.0), NULL, dispCenter, NULL);
             drawId = draw->getId();
             if (!texIds.empty())
                 draw->setTexId(0,texIds[0]);
@@ -1215,6 +1148,23 @@ void InternalLoadedTile::setEnable(TileBuilder *tileBuilder, bool enable, Change
         if (childSkirtDrawIds[ii] != EmptyIdentity)
             theChanges.push_back(new OnOffChangeRequest(childSkirtDrawIds[ii],enable));
     }
+}
+    
+// Note: This does nothing
+void InternalLoadedTile::setFade(TileBuilder *tileBuilder, float fade, ChangeSet &theChanges)
+{
+    //    if (drawId != EmptyIdentity)
+    //        theChanges.push_back(new FadeChangeRequest(drawId,fade));
+    //    if (skirtDrawId != EmptyIdentity)
+    //        theChanges.push_back(new FadeChangeRequest(skirtDrawId,fade));
+    //
+    //    for (unsigned int ii=0;ii<4;ii++)
+    //    {
+    //        if (childDrawIds[ii] != EmptyIdentity)
+    //            theChanges.push_back(new FadeChangeRequest(childDrawIds[ii],fade));
+    //        if (childSkirtDrawIds[ii] != EmptyIdentity)
+    //            theChanges.push_back(new FadeChangeRequest(childSkirtDrawIds[ii],fade));
+    //    }
 }
 
 void InternalLoadedTile::Print(TileBuilder *tileBuilder)

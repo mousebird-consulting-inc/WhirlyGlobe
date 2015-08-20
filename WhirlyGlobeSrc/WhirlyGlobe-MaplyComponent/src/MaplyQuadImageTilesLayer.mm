@@ -181,7 +181,7 @@ public:
 //// The period over which we'll switch them all
 //@property float period;
 //// Start time, for offset purposes
-//@property NSTimeInterval startTime;
+//@property TimeInterval startTime;
 //// The program ID, so we can change the interpolation
 //@property SimpleIdentity programId;
 //@end
@@ -198,7 +198,7 @@ public:
 //    if (!_tileLayer)
 //        return;
 //    
-//    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+//    TimeInterval now = CFAbsoluteTimeGetCurrent();
 //    float where = fmodf(now-_startTime,_period)/_period * (_maxCurrentImage-1);
 //    
 //    [_tileLayer setCurrentImage:where cancelUpdater:false];

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/16/13.
- *  Copyright 2011-2013 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2015 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,12 +22,13 @@
 #import <set>
 #import <map>
 #import "Identifiable.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "SelectionManager.h"
 #import "LayoutManager.h"
 #import "Scene.h"
 #import "Dictionary.h"
 #import "Platform.h"
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
@@ -53,29 +54,21 @@ public:
 
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs used for selection
-    SimpleIDSet markerIDs;  // IDs for markers sent to the generator
     SimpleIDSet screenShapeIDs;  // IDs for screen space objects
     bool useLayout;  // True if we used the layout manager (and thus need to delete)
-    float fade;   // Time to fade away for deletion
+    float fadeOut;   // Time to fade away for deletion
 };
 typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 
 // Used to pass marker information between threads
-class MarkerInfo
+class MarkerInfo : public BaseInfo
 {
 public:
-    MarkerInfo();
-    void parseDict(const Dictionary &dict);
+    MarkerInfo(const Dictionary &dict);
 
     RGBAColor color;
-    int drawOffset;
-    float minVis,maxVis;
     bool screenObject;
     float width,height;
-    int drawPriority;
-    float fade;
-    bool enable;
-    SimpleIdentity programId;
     SimpleIdentity markerId;
 };
 
@@ -96,6 +89,12 @@ public:
     WhirlyKit::SimpleIdentity selectID;
     /// The location for the center of the marker.
     WhirlyKit::GeoCoord loc;
+    /// Set if this marker is moving
+    bool hasMotion;
+    /// End location if it's moving
+    WhirlyKit::GeoCoord endLoc;
+    /// Timing for animation, if present
+    TimeInterval startTime,endTime;
     /// Color for this marker
     bool colorSet;
     RGBAColor color;
@@ -126,7 +125,9 @@ public:
     /// Value to use for the layout engine.  Set to MAXFLOAT by
     ///  default, which will always display.
     float layoutImportance;
-    
+    /// A list of vertex attributes to apply to the marker
+    SingleVertexAttributeSet vertexAttrs;
+
     /// Add a texture ID to be displayed
     void addTexID(SimpleIdentity texID);
 };

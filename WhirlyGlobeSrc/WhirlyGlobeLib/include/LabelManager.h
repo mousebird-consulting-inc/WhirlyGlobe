@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/22/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #import <set>
 #import <map>
 #import "Identifiable.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "TextureAtlas.h"
 #import "SelectionManager.h"
 #import "LayoutManager.h"
@@ -56,6 +56,12 @@ public:
     /// A geolocation for the middle, left or right of the label
     ///  depending on the justification
     GeoCoord loc;
+    /// Set if we're moving these over time (screen only)
+    bool hasMotion;
+    /// Set for animation over time
+    GeoCoord endLoc;
+    /// Timing for animation, if present
+    TimeInterval startTime,endTime;
     /// Rotation around the origin
     float rotation;
     /// Keep a label oriented upright on the screen

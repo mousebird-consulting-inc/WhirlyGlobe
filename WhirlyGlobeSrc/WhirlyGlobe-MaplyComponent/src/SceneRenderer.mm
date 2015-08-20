@@ -126,7 +126,7 @@ void MaplySceneRendererES2::setScene(WhirlyKit::Scene *inScene)
         [EAGLContext setCurrentContext:oldContext];
 }
 
-void MaplySceneRendererES2::render(NSTimeInterval duration)
+void MaplySceneRendererES2::render(TimeInterval duration)
 {
     // Let anyone who cares know the frame draw is starting
     WhirlyKitFrameMessage *frameMsg = [[WhirlyKitFrameMessage alloc] init];

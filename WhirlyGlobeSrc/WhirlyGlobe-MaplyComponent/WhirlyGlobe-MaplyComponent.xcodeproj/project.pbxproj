@@ -61,6 +61,7 @@
 		2B13BAC418BE6873007DA1A3 /* sqlhelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B13BAC318BE6873007DA1A3 /* sqlhelpers.mm */; };
 		2B13BAC818BEAE3D007DA1A3 /* MaplyRawDataWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B13BAC718BEAE3D007DA1A3 /* MaplyRawDataWrapper.mm */; };
 		2B13BACA18BEAF24007DA1A3 /* MaplyRawDataWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BAC918BEAF24007DA1A3 /* MaplyRawDataWrapper.h */; };
+		2B14BFDB1B855F6F00CE29A4 /* ElevationChunk.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B14BFDA1B855F6F00CE29A4 /* ElevationChunk.h */; };
 		2B2E2FF816C4885800CAD143 /* MaplyShader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2E2FF616C4885800CAD143 /* MaplyShader.h */; };
 		2B2E2FFC16C4886800CAD143 /* MaplyShader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E2FFB16C4886800CAD143 /* MaplyShader.mm */; };
 		2B604125179901B0008BA2F6 /* libstdc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B604124179901B0008BA2F6 /* libstdc++.dylib */; };
@@ -176,6 +177,7 @@
 		2B13BAC318BE6873007DA1A3 /* sqlhelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = sqlhelpers.mm; path = src/sqlhelpers.mm; sourceTree = "<group>"; };
 		2B13BAC718BEAE3D007DA1A3 /* MaplyRawDataWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyRawDataWrapper.mm; path = src/MaplyRawDataWrapper.mm; sourceTree = "<group>"; };
 		2B13BAC918BEAF24007DA1A3 /* MaplyRawDataWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyRawDataWrapper.h; path = include/private/MaplyRawDataWrapper.h; sourceTree = "<group>"; };
+		2B14BFDA1B855F6F00CE29A4 /* ElevationChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ElevationChunk.h; path = ../WhirlyGlobeLib/include/ElevationChunk.h; sourceTree = "<group>"; };
 		2B2E2FF616C4885800CAD143 /* MaplyShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyShader.h; path = include/MaplyShader.h; sourceTree = SOURCE_ROOT; };
 		2B2E2FFB16C4886800CAD143 /* MaplyShader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyShader.mm; path = src/MaplyShader.mm; sourceTree = SOURCE_ROOT; };
 		2B37059716B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplySphericalQuadEarthWithTexGroup.h; path = include/MaplySphericalQuadEarthWithTexGroup.h; sourceTree = SOURCE_ROOT; };
@@ -607,6 +609,7 @@
 		2BC989BE17DC1EC40071DA9E /* elevation */ = {
 			isa = PBXGroup;
 			children = (
+				2B14BFDA1B855F6F00CE29A4 /* ElevationChunk.h */,
 				2BB54EE917CFABDF0065451F /* MaplyElevationSource.h */,
 				2BB54EEE17CFB8030065451F /* MaplyElevationSource_private.h */,
 				2BB54EEC17CFABEA0065451F /* MaplyElevationSource.mm */,
@@ -678,6 +681,7 @@
 				2B009C9B185FA786001E2EE8 /* MaplyBaseViewController_private.h in Headers */,
 				2B009C9C185FA786001E2EE8 /* MaplyBaseInteractionLayer_private.h in Headers */,
 				2B897A7115BB5A2F00250F23 /* MaplyCoordinate.h in Headers */,
+				2B14BFDB1B855F6F00CE29A4 /* ElevationChunk.h in Headers */,
 				2B009CB4185FC306001E2EE8 /* UIColor+Stuff.h in Headers */,
 				2BBEB82B15CB06A100E363E7 /* MaplyVectorObject.h in Headers */,
 				2B61D7AE16078A3B007888CF /* MaplyComponent.h in Headers */,

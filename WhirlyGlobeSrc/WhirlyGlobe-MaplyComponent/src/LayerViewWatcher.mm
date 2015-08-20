@@ -50,10 +50,10 @@ public:
 {
 @public
     NSObject<WhirlyKitLayer> *target;
-    NSTimeInterval minTime,maxLagTime;
+    TimeInterval minTime,maxLagTime;
     Point3d lastEyePos;
     float minDist;
-    NSTimeInterval lastUpdated;
+    TimeInterval lastUpdated;
 }
 @end
 
@@ -70,7 +70,7 @@ public:
     NSMutableArray *watchers;
 
     /// When the last update was run
-    NSTimeInterval lastUpdate;
+    TimeInterval lastUpdate;
 
     /// You should know the type here.  A globe or a map view state.
     WhirlyKit::ViewState *lastViewState;
@@ -113,7 +113,7 @@ public:
     newViewState = theViewState;
 }
 
-- (void)addWatcherTarget:(NSObject<WhirlyKitLayer> *)target minTime:(NSTimeInterval)minTime minDist:(float)minDist maxLagTime:(NSTimeInterval)maxLagTime
+- (void)addWatcherTarget:(NSObject<WhirlyKitLayer> *)target minTime:(TimeInterval)minTime minDist:(float)minDist maxLagTime:(TimeInterval)maxLagTime
 {
     LocalWatcher *watch = [[LocalWatcher alloc] init];
     watch->target = target;
@@ -242,9 +242,9 @@ class LayerPriorityOrder
 {
 public:
     bool operator < (const LayerPriorityOrder &that) const { return sinceLastUpdate > that.sinceLastUpdate; }
-    LayerPriorityOrder(NSTimeInterval sinceLastUpdate,LocalWatcher *watch) : sinceLastUpdate(sinceLastUpdate), watch(watch) { }
+    LayerPriorityOrder(TimeInterval sinceLastUpdate,LocalWatcher *watch) : sinceLastUpdate(sinceLastUpdate), watch(watch) { }
     LayerPriorityOrder(const LayerPriorityOrder &that) : sinceLastUpdate(that.sinceLastUpdate), watch(that.watch) { }
-    NSTimeInterval sinceLastUpdate;
+    TimeInterval sinceLastUpdate;
     LocalWatcher *watch;
 };
 
@@ -252,15 +252,15 @@ public:
 // We can dispatch things from here
 - (void)viewUpdateLayerThread:(WhirlyKit::ViewState *)viewState
 {
-    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+    TimeInterval curTime = CFAbsoluteTimeGetCurrent();
 
     // Look for anything that hasn't been updated in a while
     std::set<LayerPriorityOrder> orderedLayers;
-    NSTimeInterval minNextUpdate = 100;
-    NSTimeInterval maxLayerDelay = 0.0;
+    TimeInterval minNextUpdate = 100;
+    TimeInterval maxLayerDelay = 0.0;
     for (LocalWatcher *watch in watchers)
     {
-        NSTimeInterval minTest = curTime - watch->lastUpdated;
+        TimeInterval minTest = curTime - watch->lastUpdated;
         if (minTest > watch->minTime)
         {
             bool runUpdate = false;

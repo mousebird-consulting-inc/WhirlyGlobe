@@ -50,6 +50,12 @@
 		2B009D13186102E4001E2EE8 /* libjson.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009CEB186102E4001E2EE8 /* libjson.h */; };
 		2B009D171861093A001E2EE8 /* clipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B009D151861093A001E2EE8 /* clipper.cpp */; };
 		2B009D181861093A001E2EE8 /* clipper.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B009D161861093A001E2EE8 /* clipper.hpp */; };
+		2B14BFC51B83F3F500CE29A4 /* BasicDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B14BFC41B83F3F500CE29A4 /* BasicDrawable.h */; };
+		2B14BFC71B83F3FF00CE29A4 /* BasicDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B14BFC61B83F3FF00CE29A4 /* BasicDrawable.cpp */; };
+		2B14BFCD1B83FD4500CE29A4 /* BaseInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B14BFCC1B83FD4500CE29A4 /* BaseInfo.h */; };
+		2B14BFCF1B83FE1A00CE29A4 /* BaseInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B14BFCE1B83FE1A00CE29A4 /* BaseInfo.cpp */; };
+		2B14BFD51B852C5100CE29A4 /* BasicDrawableInstance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B14BFD41B852C5100CE29A4 /* BasicDrawableInstance.h */; };
+		2B14BFD71B852C5E00CE29A4 /* BasicDrawableInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B14BFD61B852C5E00CE29A4 /* BasicDrawableInstance.cpp */; };
 		2B35674318D762A700EF8DB1 /* BigDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671118D762A700EF8DB1 /* BigDrawable.cpp */; };
 		2B35674418D762A700EF8DB1 /* CoordSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671218D762A700EF8DB1 /* CoordSystem.cpp */; };
 		2B35674518D762A700EF8DB1 /* Cullable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671318D762A700EF8DB1 /* Cullable.cpp */; };
@@ -73,7 +79,6 @@
 		2B35675718D762A700EF8DB1 /* MaplyScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672518D762A700EF8DB1 /* MaplyScene.cpp */; };
 		2B35675818D762A700EF8DB1 /* MaplyView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672618D762A700EF8DB1 /* MaplyView.cpp */; };
 		2B35675918D762A700EF8DB1 /* MaplyViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672718D762A700EF8DB1 /* MaplyViewState.cpp */; };
-		2B35675A18D762A700EF8DB1 /* MarkerGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672818D762A700EF8DB1 /* MarkerGenerator.cpp */; };
 		2B35675B18D762A700EF8DB1 /* MarkerManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672918D762A700EF8DB1 /* MarkerManager.cpp */; };
 		2B35675C18D762A700EF8DB1 /* OpenGLES2Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672A18D762A700EF8DB1 /* OpenGLES2Program.cpp */; };
 		2B35675D18D762A700EF8DB1 /* PerformanceTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672B18D762A700EF8DB1 /* PerformanceTimer.cpp */; };
@@ -123,7 +128,6 @@
 		2B35682018D762BF00EF8DB1 /* MaplyScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567BB18D762BF00EF8DB1 /* MaplyScene.h */; };
 		2B35682118D762BF00EF8DB1 /* MaplyView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567BC18D762BF00EF8DB1 /* MaplyView.h */; };
 		2B35682218D762BF00EF8DB1 /* MaplyViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567BD18D762BF00EF8DB1 /* MaplyViewState.h */; };
-		2B35682318D762BF00EF8DB1 /* MarkerGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567BE18D762BF00EF8DB1 /* MarkerGenerator.h */; };
 		2B35682418D762BF00EF8DB1 /* MarkerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567BF18D762BF00EF8DB1 /* MarkerManager.h */; };
 		2B35682518D762BF00EF8DB1 /* OpenGLES2Program.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567C018D762BF00EF8DB1 /* OpenGLES2Program.h */; };
 		2B35682618D762BF00EF8DB1 /* PerformanceTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567C118D762BF00EF8DB1 /* PerformanceTimer.h */; };
@@ -409,6 +413,12 @@
 		2B009CEB186102E4001E2EE8 /* libjson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libjson.h; path = "../../third-party/libjson/libjson.h"; sourceTree = "<group>"; };
 		2B009D151861093A001E2EE8 /* clipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = clipper.cpp; path = "../../third-party/clipper/cpp/clipper.cpp"; sourceTree = "<group>"; };
 		2B009D161861093A001E2EE8 /* clipper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = clipper.hpp; path = "../../third-party/clipper/cpp/clipper.hpp"; sourceTree = "<group>"; };
+		2B14BFC41B83F3F500CE29A4 /* BasicDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasicDrawable.h; sourceTree = "<group>"; };
+		2B14BFC61B83F3FF00CE29A4 /* BasicDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BasicDrawable.cpp; sourceTree = "<group>"; };
+		2B14BFCC1B83FD4500CE29A4 /* BaseInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseInfo.h; sourceTree = "<group>"; };
+		2B14BFCE1B83FE1A00CE29A4 /* BaseInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BaseInfo.cpp; sourceTree = "<group>"; };
+		2B14BFD41B852C5100CE29A4 /* BasicDrawableInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasicDrawableInstance.h; sourceTree = "<group>"; };
+		2B14BFD61B852C5E00CE29A4 /* BasicDrawableInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BasicDrawableInstance.cpp; sourceTree = "<group>"; };
 		2B35671118D762A700EF8DB1 /* BigDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BigDrawable.cpp; sourceTree = "<group>"; };
 		2B35671218D762A700EF8DB1 /* CoordSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CoordSystem.cpp; sourceTree = "<group>"; };
 		2B35671318D762A700EF8DB1 /* Cullable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cullable.cpp; sourceTree = "<group>"; };
@@ -432,7 +442,6 @@
 		2B35672518D762A700EF8DB1 /* MaplyScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MaplyScene.cpp; sourceTree = "<group>"; };
 		2B35672618D762A700EF8DB1 /* MaplyView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MaplyView.cpp; sourceTree = "<group>"; };
 		2B35672718D762A700EF8DB1 /* MaplyViewState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MaplyViewState.cpp; sourceTree = "<group>"; };
-		2B35672818D762A700EF8DB1 /* MarkerGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MarkerGenerator.cpp; sourceTree = "<group>"; };
 		2B35672918D762A700EF8DB1 /* MarkerManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MarkerManager.cpp; sourceTree = "<group>"; };
 		2B35672A18D762A700EF8DB1 /* OpenGLES2Program.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenGLES2Program.cpp; sourceTree = "<group>"; };
 		2B35672B18D762A700EF8DB1 /* PerformanceTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PerformanceTimer.cpp; sourceTree = "<group>"; };
@@ -482,7 +491,6 @@
 		2B3567BB18D762BF00EF8DB1 /* MaplyScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyScene.h; sourceTree = "<group>"; };
 		2B3567BC18D762BF00EF8DB1 /* MaplyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyView.h; sourceTree = "<group>"; };
 		2B3567BD18D762BF00EF8DB1 /* MaplyViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyViewState.h; sourceTree = "<group>"; };
-		2B3567BE18D762BF00EF8DB1 /* MarkerGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerGenerator.h; sourceTree = "<group>"; };
 		2B3567BF18D762BF00EF8DB1 /* MarkerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerManager.h; sourceTree = "<group>"; };
 		2B3567C018D762BF00EF8DB1 /* OpenGLES2Program.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLES2Program.h; sourceTree = "<group>"; };
 		2B3567C118D762BF00EF8DB1 /* PerformanceTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerformanceTimer.h; sourceTree = "<group>"; };
@@ -1147,6 +1155,10 @@
 		2BC53FA412DE217E00778431 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2B14BFCC1B83FD4500CE29A4 /* BaseInfo.h */,
+				2B35677A18D762BF00EF8DB1 /* Drawable.h */,
+				2B14BFC41B83F3F500CE29A4 /* BasicDrawable.h */,
+				2B14BFD41B852C5100CE29A4 /* BasicDrawableInstance.h */,
 				2B5F18A51A7B05BF004A8723 /* ScreenSpaceBuilder.h */,
 				2B5F18A61A7B05BF004A8723 /* ScreenSpaceDrawable.h */,
 				2BDC8A6C192C08F600DFECF0 /* LabelManager.h */,
@@ -1158,7 +1170,6 @@
 				2B35677718D762BF00EF8DB1 /* Cullable.h */,
 				2B35677818D762BF00EF8DB1 /* DefaultShaderPrograms.h */,
 				2B35677918D762BF00EF8DB1 /* Dictionary.h */,
-				2B35677A18D762BF00EF8DB1 /* Drawable.h */,
 				2B35677B18D762BF00EF8DB1 /* DynamicDrawableAtlas.h */,
 				2B35677C18D762BF00EF8DB1 /* DynamicTextureAtlas.h */,
 				2B35677D18D762BF00EF8DB1 /* FlatMath.h */,
@@ -1176,7 +1187,6 @@
 				2B3567BB18D762BF00EF8DB1 /* MaplyScene.h */,
 				2B3567BC18D762BF00EF8DB1 /* MaplyView.h */,
 				2B3567BD18D762BF00EF8DB1 /* MaplyViewState.h */,
-				2B3567BE18D762BF00EF8DB1 /* MarkerGenerator.h */,
 				2B3567BF18D762BF00EF8DB1 /* MarkerManager.h */,
 				2B3567C018D762BF00EF8DB1 /* OpenGLES2Program.h */,
 				2B3567C118D762BF00EF8DB1 /* PerformanceTimer.h */,
@@ -1214,6 +1224,9 @@
 		2BC53FA512DE218300778431 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2B14BFCE1B83FE1A00CE29A4 /* BaseInfo.cpp */,
+				2B14BFC61B83F3FF00CE29A4 /* BasicDrawable.cpp */,
+				2B14BFD61B852C5E00CE29A4 /* BasicDrawableInstance.cpp */,
 				2B5F18A11A7B05B4004A8723 /* ScreenSpaceBuilder.cpp */,
 				2B5F18A21A7B05B4004A8723 /* ScreenSpaceDrawable.cpp */,
 				2BDC8A70192C090400DFECF0 /* LabelManager.cpp */,
@@ -1242,7 +1255,6 @@
 				2B35672518D762A700EF8DB1 /* MaplyScene.cpp */,
 				2B35672618D762A700EF8DB1 /* MaplyView.cpp */,
 				2B35672718D762A700EF8DB1 /* MaplyViewState.cpp */,
-				2B35672818D762A700EF8DB1 /* MarkerGenerator.cpp */,
 				2B35672918D762A700EF8DB1 /* MarkerManager.cpp */,
 				2B35672A18D762A700EF8DB1 /* OpenGLES2Program.cpp */,
 				2B35672B18D762A700EF8DB1 /* PerformanceTimer.cpp */,
@@ -1382,10 +1394,12 @@
 				2B35683018D762BF00EF8DB1 /* SelectionManager.h in Headers */,
 				2BA2325C17984F510063CC84 /* glues_project.h in Headers */,
 				2B009D07186102E4001E2EE8 /* JSONSingleton.h in Headers */,
+				2B14BFC51B83F3F500CE29A4 /* BasicDrawable.h in Headers */,
 				2BA2325E17984F510063CC84 /* glues_quad.h in Headers */,
 				2B3567E418D762BF00EF8DB1 /* Generator.h in Headers */,
 				2B009D02186102E4001E2EE8 /* JSONNode.h in Headers */,
 				2BA2326017984F510063CC84 /* glues_registry.h in Headers */,
+				2B14BFD51B852C5100CE29A4 /* BasicDrawableInstance.h in Headers */,
 				2B35683318D762BF00EF8DB1 /* SphericalMercator.h in Headers */,
 				2B3567E718D762BF00EF8DB1 /* GlobeView.h in Headers */,
 				2B3567E018D762BF00EF8DB1 /* Drawable.h in Headers */,
@@ -1399,7 +1413,6 @@
 				2BA2326417984F510063CC84 /* dict.h in Headers */,
 				2B35682518D762BF00EF8DB1 /* OpenGLES2Program.h in Headers */,
 				2B5F18A71A7B05BF004A8723 /* ScreenSpaceBuilder.h in Headers */,
-				2B35682318D762BF00EF8DB1 /* MarkerGenerator.h in Headers */,
 				2B3567E818D762BF00EF8DB1 /* GlobeViewState.h in Headers */,
 				2B35682B18D762BF00EF8DB1 /* Scene.h in Headers */,
 				2BA2326617984F510063CC84 /* geom.h in Headers */,
@@ -1442,6 +1455,7 @@
 				2B3567EA18D762BF00EF8DB1 /* GridClipper.h in Headers */,
 				2B009CF4186102E4001E2EE8 /* JSONChildren.h in Headers */,
 				2B35683118D762BF00EF8DB1 /* ShapeReader.h in Headers */,
+				2B14BFCD1B83FD4500CE29A4 /* BaseInfo.h in Headers */,
 				2B35682E18D762BF00EF8DB1 /* ScreenImportance.h in Headers */,
 				2B009CFB186102E4001E2EE8 /* JSONDefs.h in Headers */,
 				2BDC8A6F192C08F600DFECF0 /* LabelRenderer.h in Headers */,
@@ -1529,6 +1543,7 @@
 				2B35675D18D762A700EF8DB1 /* PerformanceTimer.cpp in Sources */,
 				2B7EF43116025D8C00D4079F /* geod_for.c in Sources */,
 				2B7EF43216025D8C00D4079F /* geod_inv.c in Sources */,
+				2B14BFD71B852C5E00CE29A4 /* BasicDrawableInstance.cpp in Sources */,
 				2B7EF43316025D8C00D4079F /* geod_set.c in Sources */,
 				2B7EF43716025D8C00D4079F /* mk_cheby.c in Sources */,
 				2B7EF43916025D8C00D4079F /* nad_cvt.c in Sources */,
@@ -1546,6 +1561,7 @@
 				2B7EF44616025D8C00D4079F /* pj_auth.c in Sources */,
 				2B7EF44716025D8C00D4079F /* PJ_bacon.c in Sources */,
 				2B009D171861093A001E2EE8 /* clipper.cpp in Sources */,
+				2B14BFCF1B83FE1A00CE29A4 /* BaseInfo.cpp in Sources */,
 				2B7EF44816025D8C00D4079F /* PJ_bipc.c in Sources */,
 				2B35677118D762A700EF8DB1 /* ViewState.cpp in Sources */,
 				2B7EF44916025D8C00D4079F /* PJ_boggs.c in Sources */,
@@ -1570,7 +1586,6 @@
 				2B35677218D762A700EF8DB1 /* WhirlyGeometry.cpp in Sources */,
 				2B009CF1186102E4001E2EE8 /* JSONAllocator.cpp in Sources */,
 				2B7EF45816025D8C00D4079F /* PJ_eck3.c in Sources */,
-				2B35675A18D762A700EF8DB1 /* MarkerGenerator.cpp in Sources */,
 				2B7EF45916025D8C00D4079F /* PJ_eck4.c in Sources */,
 				2B7EF45A16025D8C00D4079F /* PJ_eck5.c in Sources */,
 				2B7EF45B16025D8C00D4079F /* pj_ell_set.c in Sources */,
@@ -1654,6 +1669,7 @@
 				2B7EF49316025D8C00D4079F /* PJ_nell.c in Sources */,
 				2B35676518D762A700EF8DB1 /* ScreenImportance.cpp in Sources */,
 				2B7EF49416025D8C00D4079F /* PJ_nocol.c in Sources */,
+				2B14BFC71B83F3FF00CE29A4 /* BasicDrawable.cpp in Sources */,
 				2B7EF49516025D8C00D4079F /* PJ_nsper.c in Sources */,
 				2B7EF49616025D8C00D4079F /* PJ_nzmg.c in Sources */,
 				2B7EF49716025D8C00D4079F /* PJ_ob_tran.c in Sources */,

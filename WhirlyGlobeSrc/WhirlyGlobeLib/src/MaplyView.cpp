@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -103,7 +103,7 @@ Eigen::Matrix4d MapView::calcViewMatrix()
 void MapView::getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize)
 {
     Point3f ll,ur;
-    if (wrap && coordAdapter->getBounds(ll, ur))
+    if (wrap && coordAdapter && coordAdapter->getBounds(ll, ur))
     {
         // Figure out where we are, first off
         GeoCoord geoLL = coordAdapter->getCoordSystem()->localToGeographic(ll);

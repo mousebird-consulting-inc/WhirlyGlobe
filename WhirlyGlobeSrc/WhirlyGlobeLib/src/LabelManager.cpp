@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -214,7 +214,10 @@ SimpleIdentity LabelManager::addLabels(std::vector<SingleLabel *> &labels,const 
 
     // Set up the representation (but then hand it off)
     LabelSceneRep *labelRep = new LabelSceneRep();
-    labelRep->fade = labelInfo.fade;
+    if (labelInfo.fadeOut > 0.0 && labelInfo.fadeOutTime != 0.0)
+        labelRep->fadeOut = labelInfo.fadeOut;
+    else
+        labelRep->fadeOut = 0.0;
 
     FontTextureManager *fontTexManager = scene->getFontTextureManager();
     
@@ -259,6 +262,13 @@ SimpleIdentity LabelManager::addLabels(std::vector<SingleLabel *> &labels,const 
             std::vector<WhirlyKit::RectSelectable2D> &selectables2D = labelRenderer.selectables2D;
             RectSelectable2D &sel = selectables2D[ii];
             selectManager->addSelectableScreenRect(sel.selectID,sel.center,sel.pts,sel.minVis,sel.maxVis,sel.enable);
+            labelRep->selectIDs.insert(sel.selectID);
+        }
+        for (unsigned int ii=0;ii<labelRenderer.movingSelectables2D.size();ii++)
+        {
+            std::vector<WhirlyKit::MovingRectSelectable2D> &movingSelectables2D = labelRenderer.movingSelectables2D;
+            MovingRectSelectable2D &sel = movingSelectables2D[ii];
+            selectManager->addSelectableMovingScreenRect(sel.selectID,sel.center,sel.endCenter,sel.startTime,sel.endTime,sel.pts,sel.minVis,sel.maxVis,sel.enable);
             labelRep->selectIDs.insert(sel.selectID);
         }
         for (unsigned int ii=0;ii<labelRenderer.selectables3D.size();ii++)

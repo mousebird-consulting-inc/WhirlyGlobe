@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/28/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -61,11 +61,18 @@ public:
     /// Add the data at a given location in the texture
     void addTextureData(int startX,int startY,int width,int height,RawDataRef data);
     
+    /// Clear out the area given
+    void clearRegion(const Region &region);
+    void clearTextureData(int startX,int startY,int width,int height);
+
     /// Set or clear a given region
     void setRegion(const Region &region,bool enable);
     
     /// Look for an open region of the given cell extents
     bool findRegion(int cellsX,int cellsY,Region &region);
+    
+    /// Return a list of released regions
+    void getReleasedRegions(std::vector<DynamicTexture::Region> &toClear);
     
     /// Add a region to the list of ones to be cleared.
     /// This is called by the renderer

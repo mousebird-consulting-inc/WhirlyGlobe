@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/28/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -198,6 +198,28 @@ void DynamicTexture::addTextureData(int startX,int startY,int width,int height,R
         glBindTexture(GL_TEXTURE_2D, 0);
     }    
 }
+    
+void DynamicTexture::clearTextureData(int startX,int startY,int width,int height)
+{
+    glBindTexture(GL_TEXTURE_2D, glId);
+    
+    if (compressed)
+    {
+        // Note: Can't do this for PKM currently
+        //        int pkmType;
+        //        int size,thisWidth,thisHeight;
+        //        unsigned char *pixData = Texture::ResolvePKM(data,pkmType, size, thisWidth, thisHeight);
+        //        if (!pixData || pkmType != type || thisWidth != width || thisHeight != height)
+        //            NSLog(@"Compressed texture doesn't match atlas.");
+        //        else
+        //            glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, thisWidth, thisHeight, pkmType, (GLsizei)size, pixData);
+    } else {
+        std::vector<unsigned char> emptyPixels(width*height*4,0);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, emptyPixels.data());
+    }
+    
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
 
 void DynamicTexture::setRegion(const Region &region, bool enable)
 {
@@ -209,6 +231,22 @@ void DynamicTexture::setRegion(const Region &region, bool enable)
         {
             layoutGrid[iy*numCell+ix] = enable;
         }
+}
+    
+void DynamicTexture::clearRegion(const Region &clearRegion)
+{
+    int startX = clearRegion.sx * cellSize;
+    int startY = clearRegion.sy * cellSize;
+    int width = (clearRegion.ex - clearRegion.sx + 1) * cellSize;
+    int height = (clearRegion.ey - clearRegion.sy + 1) * cellSize;
+    clearTextureData(startX,startY,width,height);
+}
+
+void DynamicTexture::getReleasedRegions(std::vector<DynamicTexture::Region> &toClear)
+{
+    pthread_mutex_lock(&regionLock);
+    toClear = releasedRegions;
+    pthread_mutex_unlock(&regionLock);
 }
     
 bool DynamicTexture::findRegion(int sizeX,int sizeY,Region &region)
@@ -332,6 +370,22 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
         return false;
     
     TextureRegion texRegion;    
+
+    // Clear out any released regions
+    for (DynamicTextureSet::iterator it = textures.begin();it != textures.end(); ++it)
+    {
+        DynamicTextureVec *dynTexVec = *it;
+        DynamicTexture *firstDynTex = dynTexVec->at(0);
+        std::vector<DynamicTexture::Region> toClear;
+        firstDynTex->getReleasedRegions(toClear);
+        for (const DynamicTexture::Region &clearRegion : toClear)
+            for (unsigned int ii=0;ii<dynTexVec->size();ii++)
+            {
+                DynamicTexture *dynTex = dynTexVec->at(ii);
+                dynTex->clearRegion(clearRegion);
+            }
+    }
+    
     
     // Now look for space
     DynamicTextureVec *dynTexVec = NULL;

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/14/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,13 +34,13 @@ GlobeView::GlobeView(WhirlyKit::CoordSystemDisplayAdapter *inCoordAdapter)
 {
     coordAdapter = inCoordAdapter;
     rotQuat = Eigen::AngleAxisd(0.0f,Vector3d(0.0f,0.0f,1.0f));
-    coordAdapter = new FakeGeocentricDisplayAdapter();
+    coordAdapter = &fakeGeoC;
     defaultNearPlane = nearPlane;
     defaultFarPlane = farPlane;
     // This will get you down to r17 in the usual tile sets
-    absoluteMinNearPlane = 0.00001;
+    absoluteMinNearPlane = 0.000001;
     absoluteMinFarPlane = 0.001;
-    absoluteMinHeight = 0.00005;
+    absoluteMinHeight = 0.000002;
     heightInflection = 0.011;
     heightAboveGlobe = 1.1;
     tilt = 0.0;
@@ -146,10 +146,10 @@ void GlobeView::setHeightAboveGlobeNoLimits(double newH,bool updateWatchers)
         {
             double t = 1.0 - (heightInflection - heightAboveGlobe) / (heightInflection - absoluteMinHeight);
             nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
-            //            farPlane = t * (defaultFarPlane-absoluteMinFarPlane) + absoluteMinFarPlane;
+            farPlane = t * (defaultFarPlane-absoluteMinFarPlane) + absoluteMinFarPlane;
         } else {
             nearPlane = defaultNearPlane;
-            //            farPlane = defaultFarPlane;
+            farPlane = defaultFarPlane;
         }
 		imagePlaneSize = nearPlane * tan(fieldOfView / 2.0);
     }
@@ -194,7 +194,9 @@ void GlobeView::privateSetHeightAboveGlobe(double newH,bool updateWatchers)
 	
 Eigen::Matrix4d GlobeView::calcModelMatrix()
 {
-	Eigen::Affine3d trans(Eigen::Translation3d(0,0,-calcEarthZOffset()));
+    // Note: Porting.  Have a lock in the iOS version
+
+    Eigen::Affine3d trans(Eigen::Translation3d(0,0,-calcEarthZOffset()));
 	Eigen::Affine3d rot(rotQuat);
 	
 	return (trans * rot).matrix();
@@ -202,6 +204,8 @@ Eigen::Matrix4d GlobeView::calcModelMatrix()
 
 Eigen::Matrix4d GlobeView::calcViewMatrix()
 {
+    // Note: Porting.  Have a lock in the iOS version
+
     Eigen::Quaterniond selfRotPitch(AngleAxisd(-tilt, Vector3d::UnitX()));
     
     return ((Affine3d)selfRotPitch).matrix();

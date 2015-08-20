@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/29/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,69 +22,71 @@
 // Note: Porting
 //#import "BillboardDrawable.h"
 #import "ScreenSpaceDrawable.h"
+// Note: Porting
+//#import "ParticleSystemDrawable.h"
 
 namespace WhirlyKit
 {
 
 static const char *vertexShaderTri =
-"struct directional_light {\n"
-"  vec3 direction;\n"
-"  vec3 halfplane;\n"
-"  vec4 ambient;\n"
-"  vec4 diffuse;\n"
-"  vec4 specular;\n"
-"  float viewdepend;\n"
-"};\n"
-"\n"
-"struct material_properties {\n"
-"  vec4 ambient;\n"
-"  vec4 diffuse;\n"
-"  vec4 specular;\n"
-"  float specular_exponent;\n"
-"};\n"
-"\n"
-"uniform mat4  u_mvpMatrix;                   \n"
-"uniform float u_fade;                        \n"
-"uniform int u_numLights;                      \n"
-"uniform directional_light light[8];                     \n"
-"uniform material_properties material;       \n"
-"\n"
-"attribute vec3 a_position;                  \n"
-"attribute vec2 a_texCoord0;                  \n"
-"attribute vec4 a_color;                     \n"
-"attribute vec3 a_normal;                    \n"
-"\n"
-"varying vec2 v_texCoord;                    \n"
-"varying vec4 v_color;                       \n"
-"\n"
-"void main()                                 \n"
-"{                                           \n"
-"   v_texCoord = a_texCoord0;                 \n"
-"   v_color = vec4(0.0,0.0,0.0,0.0);         \n"
-"   if (u_numLights > 0)                     \n"
-"   {\n"
-"     vec4 ambient = vec4(0.0,0.0,0.0,0.0);         \n"
-"     vec4 diffuse = vec4(0.0,0.0,0.0,0.0);         \n"
-"     for (int ii=0;ii<8;ii++)                 \n"
-"     {\n"
-"        if (ii>=u_numLights)                  \n"
-"           break;                             \n"
-"        vec3 adjNorm = light[ii].viewdepend > 0.0 ? normalize((u_mvpMatrix * vec4(a_normal.xyz, 0.0)).xyz) : a_normal.xzy;\n"
-"        float ndotl;\n"
+"struct directional_light {"
+"  vec3 direction;"
+"  vec3 halfplane;"
+"  vec4 ambient;"
+"  vec4 diffuse;"
+"  vec4 specular;"
+"  float viewdepend;"
+"};"
+""
+"struct material_properties {"
+"  vec4 ambient;"
+"  vec4 diffuse;"
+"  vec4 specular;"
+"  float specular_exponent;"
+"};"
+""
+"uniform mat4  u_mvpMatrix;"
+"uniform float u_fade;"
+"uniform int u_numLights;"
+"uniform directional_light light[8];"
+"uniform material_properties material;"
+""
+"attribute vec3 a_position;"
+"attribute vec2 a_texCoord0;"
+"attribute vec4 a_color;"
+"attribute vec3 a_normal;"
+""
+"varying vec2 v_texCoord;"
+"varying vec4 v_color;"
+""
+"void main()"
+"{"
+"   v_texCoord = a_texCoord0;"
+"   v_color = vec4(0.0,0.0,0.0,0.0);"
+"   if (u_numLights > 0)"
+"   {"
+"     vec4 ambient = vec4(0.0,0.0,0.0,0.0);"
+"     vec4 diffuse = vec4(0.0,0.0,0.0,0.0);"
+"     for (int ii=0;ii<8;ii++)"
+"     {"
+"        if (ii>=u_numLights)"
+"           break;"
+"        vec3 adjNorm = light[ii].viewdepend > 0.0 ? normalize((u_mvpMatrix * vec4(a_normal.xyz, 0.0)).xyz) : a_normal.xzy;"
+"        float ndotl;"
 //"        float ndoth;\n"
-"        ndotl = max(0.0, dot(adjNorm, light[ii].direction));\n"
+"        ndotl = max(0.0, dot(adjNorm, light[ii].direction));"
 //"        ndotl = pow(ndotl,0.5);\n"
 //"        ndoth = max(0.0, dot(adjNorm, light[ii].halfplane));\n"
-"        ambient += light[ii].ambient;\n"
-"        diffuse += ndotl * light[ii].diffuse;\n"
-"     }\n"
-"     v_color = vec4(ambient.xyz * material.ambient.xyz * a_color.xyz + diffuse.xyz * a_color.xyz,a_color.a) * u_fade;\n"
-"   } else {\n"
-"     v_color = a_color * u_fade;\n"
-"   }\n"
-"\n"
-"   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
-"}                                           \n"
+"        ambient += light[ii].ambient;"
+"        diffuse += ndotl * light[ii].diffuse;"
+"     }"
+"     v_color = vec4(ambient.xyz * material.ambient.xyz * a_color.xyz + diffuse.xyz * a_color.xyz,a_color.a) * u_fade;"
+"   } else {"
+"     v_color = a_color * u_fade;"
+"   }"
+""
+"   gl_Position = u_mvpMatrix * vec4(a_position,1.0);"
+"}"
 ;
 
 static const char *fragmentShaderTri =
@@ -104,6 +106,73 @@ static const char *fragmentShaderTri =
 //"      discard;                                      \n"
 "  gl_FragColor = v_color * baseColor;  \n"
 "}                                                   \n"
+;
+
+static const char *vertexShaderModelTri =
+"struct directional_light {"
+"  vec3 direction;"
+"  vec3 halfplane;"
+"  vec4 ambient;"
+"  vec4 diffuse;"
+"  vec4 specular;"
+"  float viewdepend;"
+"};"
+""
+"struct material_properties {"
+"  vec4 ambient;"
+"  vec4 diffuse;"
+"  vec4 specular;"
+"  float specular_exponent;"
+"};"
+""
+"uniform mat4  u_mvpMatrix;"
+"uniform float u_fade;"
+"uniform float u_time;"
+"uniform int u_numLights;"
+"uniform directional_light light[8];"
+"uniform material_properties material;"
+""
+"attribute vec3 a_position;"
+"attribute vec2 a_texCoord0;"
+"attribute vec4 a_color;"
+"attribute vec3 a_normal;"
+"attribute mat4 a_singleMatrix;"
+"attribute vec3 a_modelCenter;"
+"attribute vec3 a_modelDir;"
+""
+"varying vec2 v_texCoord;"
+"varying vec4 v_color;"
+""
+"void main()"
+"{"
+"   v_texCoord = a_texCoord0;"
+"   v_color = vec4(0.0,0.0,0.0,0.0);"
+"   if (u_numLights > 0)"
+"   {"
+"     vec4 ambient = vec4(0.0,0.0,0.0,0.0);"
+"     vec4 diffuse = vec4(0.0,0.0,0.0,0.0);"
+"     for (int ii=0;ii<8;ii++)"
+"     {"
+"        if (ii>=u_numLights)"
+"           break;"
+"        vec3 adjNorm = light[ii].viewdepend > 0.0 ? normalize((u_mvpMatrix * vec4(a_normal.xyz, 0.0)).xyz) : a_normal.xzy;"
+"        float ndotl;"
+//"        float ndoth;\n"
+"        ndotl = max(0.0, dot(adjNorm, light[ii].direction));"
+//"        ndotl = pow(ndotl,0.5);\n"
+//"        ndoth = max(0.0, dot(adjNorm, light[ii].halfplane));\n"
+"        ambient += light[ii].ambient;"
+"        diffuse += ndotl * light[ii].diffuse;"
+"     }"
+"     v_color = vec4(ambient.xyz * material.ambient.xyz * a_color.xyz + diffuse.xyz * a_color.xyz,a_color.a) * u_fade;"
+"   } else {"
+"     v_color = a_color * u_fade;"
+"   }"
+"   vec3 center = a_modelDir * u_time + a_modelCenter;"
+"   vec3 vertPos = (a_singleMatrix *vec4(a_position,1.0)).xyz + center;"
+""
+"   gl_Position = u_mvpMatrix * vec4(vertPos,1.0);"
+"}"
 ;
 
 static const char *vertexShaderTriMultiTex =
@@ -189,7 +258,151 @@ static const char *fragmentShaderTriMultiTex =
 "  gl_FragColor = v_color * mix(baseColor0,baseColor1,u_interp);"
 "}"
 ;
-    
+
+static const char *vertexShaderScreenTexTri =
+"struct directional_light {"
+"  vec3 direction;"
+"  vec3 halfplane;"
+"  vec4 ambient;"
+"  vec4 diffuse;"
+"  vec4 specular;"
+"  float viewdepend;"
+"};"
+""
+"struct material_properties {"
+"  vec4 ambient;"
+"  vec4 diffuse;"
+"  vec4 specular;"
+"  float specular_exponent;"
+"};"
+""
+"uniform mat4  u_mvpMatrix;"
+"uniform float u_fade;"
+"uniform vec2  u_scale;"
+"uniform vec2  u_texScale;"
+"uniform vec2  u_screenOrigin;"
+"uniform int u_numLights;"
+"uniform directional_light light[8];"
+"uniform material_properties material;"
+""
+"attribute vec3 a_position;"
+"attribute vec2 a_texCoord0;"
+"attribute vec4 a_color;"
+"attribute vec3 a_normal;"
+"attribute mat4 a_singleMatrix;"
+""
+"varying vec2 v_texCoord;"
+"varying vec4 v_color;"
+""
+"void main()"
+"{"
+"   v_texCoord = a_texCoord0;"
+"   v_color = vec4(0.0,0.0,0.0,0.0);"
+"   if (u_numLights > 0)"
+"   {"
+"     vec4 ambient = vec4(0.0,0.0,0.0,0.0);"
+"     vec4 diffuse = vec4(0.0,0.0,0.0,0.0);"
+"     for (int ii=0;ii<8;ii++)"
+"     {"
+"        if (ii>=u_numLights)"
+"           break;"
+"        vec3 adjNorm = light[ii].viewdepend > 0.0 ? normalize((u_mvpMatrix * vec4(a_normal.xyz, 0.0)).xyz) : a_normal.xzy;"
+"        float ndotl;"
+//"        float ndoth;\n"
+"        ndotl = max(0.0, dot(adjNorm, light[ii].direction));"
+//"        ndotl = pow(ndotl,0.5);\n"
+//"        ndoth = max(0.0, dot(adjNorm, light[ii].halfplane));\n"
+"        ambient += light[ii].ambient;"
+"        diffuse += ndotl * light[ii].diffuse;"
+"     }"
+"     v_color = vec4(ambient.xyz * material.ambient.xyz * a_color.xyz + diffuse.xyz * a_color.xyz,a_color.a) * u_fade;"
+"   } else {"
+"     v_color = a_color * u_fade;"
+"   }"
+""
+"   vec4 screenPt = (u_mvpMatrix * vec4(a_position,1.0));"
+"   screenPt /= screenPt.w;"
+"   v_texCoord = vec2((screenPt.x+u_screenOrigin.x)*u_scale.x*u_texScale.x,(screenPt.y+u_screenOrigin.y)*u_scale.y*u_texScale.y);"
+""
+"   gl_Position = u_mvpMatrix * (a_singleMatrix * vec4(a_position,1.0));"
+"}"
+;
+
+
+static const char *vertexShaderTriNightDay =
+"struct directional_light {\n"
+"  vec3 direction;\n"
+"  vec3 halfplane;\n"
+"  vec4 ambient;\n"
+"  vec4 diffuse;\n"
+"  vec4 specular;\n"
+"  float viewdepend;\n"
+"};\n"
+"\n"
+"struct material_properties {\n"
+"  vec4 ambient;\n"
+"  vec4 diffuse;\n"
+"  vec4 specular;\n"
+"  float specular_exponent;\n"
+"};\n"
+"\n"
+"uniform mat4  u_mvpMatrix;                   \n"
+"uniform float u_fade;                        \n"
+"uniform int u_numLights;                      \n"
+"uniform directional_light light[1];                     \n"
+"uniform material_properties material;       \n"
+"uniform float u_interp;"
+"\n"
+"attribute vec3 a_position;                  \n"
+"attribute vec2 a_texCoord0;                  \n"
+"attribute vec2 a_texCoord1;                  \n"
+"attribute vec4 a_color;                     \n"
+"attribute vec3 a_normal;                    \n"
+"\n"
+"varying mediump vec2 v_texCoord0;                    \n"
+"varying mediump vec2 v_texCoord1;                    \n"
+"varying mediump vec4 v_color;\n"
+"varying mediump vec3 v_adjNorm;\n"
+"varying mediump vec3 v_lightDir;\n"
+"\n"
+"void main()                                 \n"
+"{                                           \n"
+"   v_texCoord0 = a_texCoord0;                 \n"
+"   v_texCoord1 = a_texCoord1;                 \n"
+"   v_color = a_color;\n"
+"   v_adjNorm = light[0].viewdepend > 0.0 ? normalize((u_mvpMatrix * vec4(a_normal.xyz, 0.0)).xyz) : a_normal.xzy;\n"
+"   v_lightDir = (u_numLights > 0) ? light[0].direction : vec3(1,0,0);\n"
+"   v_color = vec4(light[0].ambient.xyz * material.ambient.xyz * a_color.xyz + light[0].diffuse.xyz * a_color.xyz,a_color.a) * u_fade;\n"
+"\n"
+"   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
+"}                                           \n"
+;
+
+static const char *fragmentShaderTriNightDay =
+"precision mediump float;"
+"\n"
+"uniform sampler2D s_baseMap0;\n"
+"uniform sampler2D s_baseMap1;\n"
+"\n"
+"varying vec2      v_texCoord0;\n"
+"varying vec2      v_texCoord1;\n"
+"varying vec4      v_color;\n"
+"varying vec3      v_adjNorm;\n"
+"varying vec3      v_lightDir;\n"
+"\n"
+"void main()\n"
+"{\n"
+"   float ndotl = max(0.0, dot(v_adjNorm, v_lightDir));\n"
+"   ndotl = pow(ndotl,0.5);\n"
+"\n"
+// Note: Put the color back
+"  vec4 baseColor0 = texture2D(s_baseMap0, v_texCoord0);\n"
+"  vec4 baseColor1 = texture2D(s_baseMap1, v_texCoord1);\n"
+"  gl_FragColor = mix(baseColor0,baseColor1,1.0-ndotl);\n"
+"}\n"
+;
+
+
 static const char *vertexShaderLine =
 "uniform mat4  u_mvpMatrix;"
 "uniform mat4  u_mvMatrix;"
@@ -225,7 +438,7 @@ static const char *fragmentShaderLine =
 "  gl_FragColor = (v_dot > 0.0 ? v_color : vec4(0.0,0.0,0.0,0.0));"
 "}"
 ;
-    
+
 static const char *vertexShaderLineNoBack =
 "uniform mat4  u_mvpMatrix;"
 "uniform mat4  u_mvMatrix;"
@@ -255,7 +468,7 @@ static const char *fragmentShaderLineNoBack =
 "  gl_FragColor = v_color;"
 "}"
 ;
-    
+
 static const char *vertexShaderNoLightTri =
 "uniform mat4  u_mvpMatrix;                   \n"
 "uniform float u_fade;                        \n"
@@ -271,6 +484,7 @@ static const char *vertexShaderNoLightTri =
 "{                                           \n"
 "   v_texCoord = a_texCoord0;                 \n"
 "   v_color = a_color * u_fade;\n"
+"\n"
 "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
 "}                                           \n"
 ;
@@ -290,56 +504,10 @@ static const char *fragmentShaderNoLightTri =
 "  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
 //"  if (baseColor.a < 0.1)                            \n"
 //"      discard;                                      \n"
-// Note: Porting  Having some trouble with random colors showing up
-"  gl_FragColor = vec4(1.0,1.0,1.0,1.0) * baseColor;"
-//"  gl_FragColor = v_color * baseColor;  \n"
+"  gl_FragColor = v_color * baseColor;  \n"
 "}                                                   \n"
 ;
-
-/** The vertex shader for screen space drawables
-    a_position: Position in 3-space for the center
-    a_offset:   Offset from the location
-  */
-//static const char *vertexShaderScreenSpace =
-//"uniform mat4  u_mvMatrix;"
-//"uniform mat4  u_mvpMatrix;"
-//"uniform mat4  u_mvNormalMatrix;"
-//"uniform float u_fade;"
-//"attribute vec3 a_position;"
-//"attribute vec2 a_offset;"
-//"attribute vec3 a_normal;"
-//"attribute vec2 a_texCoord0;"
-//"attribute vec4 a_color;"
-//""
-//"varying vec2 v_texCoord0;"
-//"varying vec4 v_color;"
-//""
-//"void main()"
-//"{"
-//"   v_texCoord0 = a_texCoord0;"
-//"   v_color = a_color * u_fade;"
-//"   vec4 testPt = u_mvMatrix * vec4(a_position,1.0);"
-//"   vec4 testDir = u_mvNormalMatrix * vec4(a_normal,0.0);"
-//"   float res = dot(vec3(-testPt.x/testPt.w,-testPt.y/testPt.w,-testPt.z/testPt.w),vec3(testDir.x,testDir.y,testDir.z));"
-//"   gl_Position = (u_mvpMatrix * vec4(a_position,1.0) + vec4(a_offset,0.0,0.0)) * step(0.0,res);"
-//"}"
-//;
-
-//static const char *fragmentShaderScreenSpace =
-//"precision mediump float;"
-//""
-//"uniform sampler2D s_baseMap0;"
-//""
-//"varying vec2      v_texCoord0;"
-//"varying vec4      v_color;"
-//""
-//"void main()"
-//"{"
-//"  vec4 baseColor0 = texture2D(s_baseMap0, v_texCoord0);"
-//"  gl_FragColor = v_color * baseColor0;"
-//"}"
-//;
-
+    
 void SetupDefaultShaders(Scene *scene)
 {
     // Default triangle and line (point) shaders
@@ -379,6 +547,26 @@ void SetupDefaultShaders(Scene *scene)
         scene->addProgram(kToolkitDefaultTriangleNoLightingProgram, triShaderNoLight);
     }
     
+    // Triangle shader the model instancing
+    OpenGLES2Program *triShaderModel = new OpenGLES2Program("Triangle shader for models with lighting",vertexShaderModelTri,fragmentShaderTri);
+    if (!triShaderModel->isValid())
+    {
+        fprintf(stderr,"SetupDefaultShaders: Triangle shader for model instancing and lighting didn't compile.");
+        delete triShaderModel;
+    } else {
+        scene->addProgram(kToolkitDefaultTriangleModel, triShaderModel);
+    }
+    
+    // Triangle shader that does screen space texture application
+    OpenGLES2Program *triShaderScreenTex = new OpenGLES2Program("Triangle shader with screen texture and lighting",vertexShaderScreenTexTri,fragmentShaderTri);
+    if (!triShaderScreenTex->isValid())
+    {
+        fprintf(stderr,"SetupDefaultShaders: Triangle shader with screen texture and lighting didn't compile.");
+        delete triShaderScreenTex;
+    } else {
+        scene->addProgram(kToolkitDefaultTriangleScreenTex, triShaderScreenTex);
+    }
+    
     // Triangle shader that handles multiple textures
     OpenGLES2Program *triShaderMultiTex = new OpenGLES2Program("Triangle shader with multitex and lighting",vertexShaderTriMultiTex,fragmentShaderTriMultiTex);
     if (!triShaderMultiTex->isValid())
@@ -388,37 +576,69 @@ void SetupDefaultShaders(Scene *scene)
     } else {
         scene->addProgram(kToolkitDefaultTriangleMultiTex, triShaderMultiTex);
     }
+    // Triangle shader that does night/day shading with multiple textures
+    OpenGLES2Program *triShaderNightDay = new OpenGLES2Program("Triangle shader with multitex, lighting, and night/day support",vertexShaderTriNightDay,fragmentShaderTriNightDay);
+    if (!triShaderNightDay->isValid())
+    {
+        fprintf(stderr,"SetupDefaultShaders: Triangle shader with night/day support didn't compile.");
+        delete triShaderNightDay;
+    } else {
+        scene->addProgram(kToolkitDefaultTriangleNightDay, triShaderNightDay);
+    }
     
-    // Shader for screen space objects
-//    OpenGLES2Program *screenShader = new OpenGLES2Program("Triangle shader for screen space objects",vertexShaderScreenSpace,fragmentShaderScreenSpace);
-//    if (!screenShader->isValid())
+    // Billboard shader (ground)
+//    OpenGLES2Program *billShaderGround = BuildBillboardGroundProgram();
+//    if (!billShaderGround)
 //    {
-//        fprintf(stderr,"SetupDefaultShaders: Triangle shader for screen space objects didn't compile.");
-//        delete screenShader;
+//        fprintf(stderr,"SetupDefaultShaders: Billboard ground shader didn't compile.");
 //    } else {
-//        scene->addProgram(kToolkitDefaultScreenSpaceProgram, screenShader);
+//        scene->addProgram(kToolkitDefaultBillboardGroundProgram, billShaderGround);
 //    }
-
     
-    // Note: Porting
-//    OpenGLES2Program *billShader = BuildBillboardProgram();
-//    if (!billShader)
+    // Billboard shader (eye)
+//    OpenGLES2Program *billShaderEye = BuildBillboardEyeProgram();
+//    if (!billShaderEye)
 //    {
-//        fprintf(stderr,"SetupDefaultShaders: Billboard shader didn't compiled.");
+//        fprintf(stderr,"SetupDefaultShaders: Billboard eye shader didn't compile.");
 //    } else {
-//        scene->addProgram(kToolkitDefaultBillboardProgram, billShader);
+//        scene->addProgram(kToolkitDefaultBillboardEyeProgram, billShaderEye);
 //    }
-
+    
+    // Widened vector shader
+//    OpenGLES2Program *wideVecShader = BuildWideVectorProgram();
+//    if (!wideVecShader)
+//    {
+//        fprintf(stderr,"SetupDefaultShaders: Wide Vector shader didn't compile.");
+//    } else {
+//        scene->addProgram(kToolkitDefaultWideVectorProgram, wideVecShader);
+//    }
+    
     // Screen space shader
     OpenGLES2Program *screenSpaceShader = BuildScreenSpaceProgram();
     if (!screenSpaceShader)
     {
-        fprintf(stderr,"SetupDefaultShaders: Screen Space shader didn't compile.\n");
-        delete screenSpaceShader;
+        fprintf(stderr,"SetupDefaultShaders: Screen Space shader didn't compile.");
     } else {
         scene->addProgram(kToolkitDefaultScreenSpaceProgram, screenSpaceShader);
     }
-
+    
+    // Screen space shader w/ Motion
+    OpenGLES2Program *screenSpaceMotionShader = BuildScreenSpaceMotionProgram();
+    if (!screenSpaceMotionShader)
+    {
+        fprintf(stderr,"SetupDefaultShaders: Screen Space Motion shader didn't compile.");
+    } else {
+        scene->addProgram(kToolkitDefaultScreenSpaceMotionProgram, screenSpaceMotionShader);
+    }
+    
+    // Particle System program
+//    OpenGLES2Program *particleSystemShader = BuildParticleSystemProgram();
+//    if (!particleSystemShader)
+//    {
+//        fprintf(stderr,"SetupDefaultShaders: Particle System Shader didn't compile.");
+//    } else {
+//        scene->addProgram(kToolkitDefaultParticleSystemProgram, particleSystemShader);
+//    }
 }
 
 }

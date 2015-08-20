@@ -347,7 +347,7 @@ using namespace Maply;
 }
 
 // Internal animation handler
-- (void)animateToPoint:(Point3f)newLoc time:(NSTimeInterval)howLong
+- (void)animateToPoint:(Point3f)newLoc time:(TimeInterval)howLong
 {
     if (_tetheredMode)
         return;
@@ -361,7 +361,7 @@ using namespace Maply;
 }
 
 // External facing version of rotateToPoint
-- (void)animateToPosition:(MaplyCoordinate)newPos time:(NSTimeInterval)howLong
+- (void)animateToPosition:(MaplyCoordinate)newPos time:(TimeInterval)howLong
 {
     if (_tetheredMode)
         return;
@@ -379,7 +379,7 @@ using namespace Maply;
 }
 
 // Note: This may not work with a tilt
-- (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)screenLoc time:(NSTimeInterval)howLong
+- (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)screenLoc time:(TimeInterval)howLong
 {
     if (_tetheredMode)
         return;
@@ -402,7 +402,7 @@ using namespace Maply;
 }
 
 // This version takes a height as well
-- (void)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight time:(NSTimeInterval)howLong
+- (void)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight time:(TimeInterval)howLong
 {
     if (_tetheredMode)
         return;
@@ -429,7 +429,7 @@ using namespace Maply;
 }
 
 // Only used for a flat view
-- (void)animateToExtentsWindowSize:(CGSize)windowSize contentOffset:(CGPoint)contentOffset time:(NSTimeInterval)howLong
+- (void)animateToExtentsWindowSize:(CGSize)windowSize contentOffset:(CGPoint)contentOffset time:(TimeInterval)howLong
 {
     if (!flatView)
         return;

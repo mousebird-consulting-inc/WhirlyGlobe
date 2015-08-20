@@ -91,7 +91,7 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
     @details Paging layers watch the viewer to see what it's up to.  When the viewer moves, the layer updates its contents accordingly.  However, the viewer can be moving constantly so we need a way to keep things under control.
     @details This value (in seconds) specifies the minimum time between updates.  In other words, we won't recalculate things more often than this.  Default value is 1/10s.
   */
-@property (nonatomic,assign) NSTimeInterval viewUpdatePeriod;
+@property (nonatomic,assign) TimeInterval viewUpdatePeriod;
 
 /** @brief Set the minimum movement for an update based on the viewer's location.
     @details This is useful for throttling layer updates based on how far a viewer moves.  This will only kick off a view update if the viewer moves the given distance (in display coordinates).
@@ -109,7 +109,7 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
 /** @brief The timeout for wait loads.  We can't wait longer than this for local updates to come back.
     @details If waitLoad is on, this is the maximum time we'll wait for local tile fetches to complete.  There's a limit to the volume of scene changes we can let build up int he queue before we have to flush them.
   */
-@property (nonatomic,assign) NSTimeInterval waitLoadTimeout;
+@property (nonatomic,assign) TimeInterval waitLoadTimeout;
 
 /** @brief The number of images we're expecting to get per tile.
     @details This is the number of images the layer will ask for per tile.  The default is 1, which is the normal case.  If this is greater than one that typically means we're going to animate between them.

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/18/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -67,5 +67,8 @@ float PolygonArea(const Point3fVector &poly,const Point3f &norm);
 
 /// Return the area of the 3D polygon
 double PolygonArea(const Point3dVector &poly,const Point3d &norm);
+    
+/// Return the Barycentric coordinates for the given point within the given triangle
+void BarycentricCoords(const Point2d &p,const Point2d &a,const Point2d &b,const Point2d &c,double &u,double &v,double &w);
     
 }

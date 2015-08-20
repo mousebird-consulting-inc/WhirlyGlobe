@@ -153,7 +153,7 @@
     @param newPos A coordinate in geographic (lon/lat radians)
     @param howLong A time in seconds.
   */
-- (void)animateToPosition:(MaplyCoordinate)newPos time:(NSTimeInterval)howLong;
+- (void)animateToPosition:(MaplyCoordinate)newPos time:(TimeInterval)howLong;
 
 /** @brief Animate to new window extents over time.
     @details This method is similar to animateToPosition:time: but only works in 2D flat map mode.
@@ -161,7 +161,7 @@
     @param contentOffset The contentOffset from the UIScrollView.
     @param howLong The length of time to take getting there.
   */
-- (void)animateToExtentsWindowSize:(CGSize)windowSize contentOffset:(CGPoint)contentOffset time:(NSTimeInterval)howLong;
+- (void)animateToExtentsWindowSize:(CGSize)windowSize contentOffset:(CGPoint)contentOffset time:(TimeInterval)howLong;
 
 /** @brief Animate the given position to the screen position over time.
     @details This is similar to animateToPosition:time: except that it will attempt to match up the screen position and the geographic position.  This is how you offset the location you're looking at.
@@ -170,7 +170,7 @@
     @param loc The location on the screen where we'd like it to go.
     @param howLong How long in seconds to take getting there.
   */
-- (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
+- (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(TimeInterval)howLong;
 
 /** @brief Set the center of the screen to the given position immediately.
     @param newPos The geographic position (lon/lat in radians) to move to.

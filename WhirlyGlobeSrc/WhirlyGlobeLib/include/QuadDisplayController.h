@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/17/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -234,6 +234,9 @@ public:
     /// If fullLoad is on, we need a timeout.  Otherwise changes just pile up until we run out of memory
     TimeInterval getFullLoadTimeout() { return fullLoadTimeout; }
     void setFullLoadTimeout(TimeInterval newTimeout) { fullLoadTimeout = newTimeout; }
+    /// If set (by default) we'll try to load individual frames when we have them
+    bool getFrameLoading() { return frameLoading; }
+    void setFrameLoading(bool newVal) { frameLoading = newVal; }
     /// How often this layer gets notified of view changes.  1s by default.
     TimeInterval getViewUpdatePeriod() { return viewUpdatePeriod; }
     void setViewUpdatePeriod(TimeInterval newPeriod) { viewUpdatePeriod = newPeriod; }
@@ -339,6 +342,7 @@ protected:
     bool waitForLocalLoads;
     bool fullLoad;
     TimeInterval fullLoadTimeout;
+    bool frameLoading;
     TimeInterval viewUpdatePeriod;
     float minUpdateDist;
     std::set<int> targetLevels;
@@ -377,6 +381,9 @@ protected:
     bool somethingHappened;
 
     bool firstUpdate;
+
+    // Used to reset evaluation at the end of a clean run
+    bool didFrameKick;
 };
     
 }

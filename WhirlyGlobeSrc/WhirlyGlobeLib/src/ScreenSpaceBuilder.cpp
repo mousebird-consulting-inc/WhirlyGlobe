@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/21/14.
- *  Copyright 2011-2014 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2015 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,7 +29,8 @@ namespace WhirlyKit
 
 ScreenSpaceBuilder::DrawableState::DrawableState()
     : period(0.0), progID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0),
-    drawPriority(ScreenSpaceDrawPriorityOffset), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid)
+    drawPriority(ScreenSpaceDrawPriorityOffset), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), motion(false), rotation(false), keepUpright(false),
+    enable(true), startEnable(0.0), endEnable(0.0)
 {
 }
     
@@ -51,6 +52,20 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
         return fadeUp < that.fadeUp;
     if (fadeDown != that.fadeDown)
         return fadeDown < that.fadeDown;
+    if (enable != that.enable)
+        return enable < that.enable;
+    if (startEnable != that.startEnable)
+        return startEnable < that.startEnable;
+    if (endEnable != that.endEnable)
+        return endEnable < that.endEnable;
+    if (motion != that.motion)
+        return motion < that.motion;
+    if (rotation != that.rotation)
+        return rotation < that.rotation;
+    if (keepUpright != that.keepUpright)
+        return keepUpright < that.keepUpright;
+    if (vertexAttrs != that.vertexAttrs)
+        return vertexAttrs < that.vertexAttrs;
     
     return false;
 }
@@ -69,7 +84,7 @@ ScreenSpaceBuilder::DrawableWrap::~DrawableWrap()
 ScreenSpaceBuilder::DrawableWrap::DrawableWrap(const DrawableState &state)
     : state(state), center(0,0,0)
 {
-    draw = new ScreenSpaceDrawable();
+    draw = new ScreenSpaceDrawable(state.motion,state.rotation);
     draw->setType(GL_TRIANGLES);
     // A max of two textures per
     for (unsigned int ii=0;ii<state.texIDs.size() && ii<2;ii++)
@@ -80,6 +95,9 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(const DrawableState &state)
     draw->setVisibleRange(state.minVis, state.maxVis);
     draw->setRequestZBuffer(false);
     draw->setWriteZBuffer(false);
+    draw->setVertexAttributes(state.vertexAttrs);
+    draw->setOnOff(state.enable);
+    draw->setEnableTimeRange(state.startEnable, state.endEnable);
     
     // If we've got more than one texture ID and a period, we need a tweaker
     if (state.texIDs.size() > 1 && state.period != 0.0)
@@ -94,8 +112,47 @@ bool ScreenSpaceBuilder::DrawableWrap::operator < (const DrawableWrap &that) con
 {
     return state < that.state;
 }
+   
+Point3f ScreenSpaceBuilder::DrawableWrap::calcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3f &worldLoc,float rot)
+{
+    // Switch from counter-clockwise to clockwise
+    rot = 2*M_PI-rot;
     
-void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color)
+    Point3f upVec,northVec,eastVec;
+    if (coordAdapter->isFlat())
+    {
+        upVec = Point3f(0,0,1);
+        northVec = Point3f(0,1,0);
+        eastVec = Point3f(1,0,0);
+    } else {
+        upVec = worldLoc.normalized();
+        // Vector pointing north
+        northVec = Point3f(-worldLoc.x(),-worldLoc.y(),1.0-worldLoc.z());
+        eastVec = northVec.cross(upVec);
+        northVec = upVec.cross(eastVec);
+    }
+    
+    Point3f rotVec = eastVec * sinf(rot) + northVec * cosf(rot);
+    
+    return rotVec;
+}
+     
+void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color,const SingleVertexAttributeSet *vertAttrs)
+{
+    draw->addPoint(Point3d(worldLoc.x()-center.x(),worldLoc.y()-center.y(),worldLoc.z()-center.z()));
+    Point3f norm = coordAdapter->isFlat() ? Point3f(0,0,1) : worldLoc.normalized();
+    draw->addNormal(norm);
+    Point2f vert = inVert * scale;
+    draw->addOffset(vert);
+    draw->addTexCoord(0, texCoord);
+    draw->addColor(color);
+    if (vertAttrs && !vertAttrs->empty())
+        draw->addVertexAttributes(*vertAttrs);
+    if (state.rotation)
+        draw->addRot(calcRotationVec(coordAdapter,worldLoc,rot));
+}
+
+void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,const Point3f &dir,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color,const SingleVertexAttributeSet *vertAttrs)
 {
     draw->addPoint(Point3d(worldLoc.x()-center.x(),worldLoc.y()-center.y(),worldLoc.z()-center.z()));
     Point3f norm = coordAdapter->isFlat() ? Point3f(0,0,1) : worldLoc.normalized();
@@ -105,6 +162,11 @@ void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coor
     draw->addOffset(vert);
     draw->addTexCoord(0, texCoord);
     draw->addColor(color);
+    draw->addDir(dir);
+    if (vertAttrs && !vertAttrs->empty())
+        draw->addVertexAttributes(*vertAttrs);
+    if (state.rotation)
+        draw->addRot(calcRotationVec(coordAdapter,worldLoc,rot));
 }
     
 void ScreenSpaceBuilder::DrawableWrap::addTri(int v0, int v1, int v2)
@@ -160,6 +222,17 @@ void ScreenSpaceBuilder::setVisibility(float minVis,float maxVis)
     curState.maxVis = maxVis;
 }
 
+void ScreenSpaceBuilder::setEnable(bool inEnable)
+{
+    curState.enable = inEnable;
+}
+
+void ScreenSpaceBuilder::setEnableRange(TimeInterval inStartEnable,TimeInterval inEndEnable)
+{
+    curState.startEnable = inStartEnable;
+    curState.endEnable = inEndEnable;
+}
+
 ScreenSpaceBuilder::DrawableWrap *ScreenSpaceBuilder::findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTri,const Point3d &center)
 {
     // Look for an existing drawable
@@ -174,6 +247,8 @@ ScreenSpaceBuilder::DrawableWrap *ScreenSpaceBuilder::findOrAddDrawWrap(const Dr
         Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
         Eigen::Matrix4d transMat = trans.matrix();
         drawWrap->draw->setMatrix(&transMat);
+        if (state.motion)
+            drawWrap->draw->setStartTime(TimeGetCurrent());
         drawables.insert(drawWrap);
     } else {
         drawWrap = *it;
@@ -200,7 +275,7 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,const Point2d *coo
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point2f coord(coords[ii].x(),coords[ii].y());
-        drawWrap->addVertex(coordAdapter,scale,Point3f(worldLoc.x(),worldLoc.y(),worldLoc.z()), 0.0, coord, texCoords[ii], color);
+        drawWrap->addVertex(coordAdapter,scale,Point3f(worldLoc.x(),worldLoc.y(),worldLoc.z()), 0.0, coord, texCoords[ii], color, NULL);
     }
     drawWrap->addTri(0+baseVert,1+baseVert,2+baseVert);
     drawWrap->addTri(0+baseVert,2+baseVert,3+baseVert);
@@ -215,7 +290,7 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,double rotation,bo
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point2f coord(coords[ii].x(),coords[ii].y());
-        drawWrap->addVertex(coordAdapter,scale,Point3f(worldLoc.x(),worldLoc.y(),worldLoc.z()), rotation, coord, texCoords[ii], color);
+        drawWrap->addVertex(coordAdapter,scale,Point3f(worldLoc.x(),worldLoc.y(),worldLoc.z()), rotation, coord, texCoords[ii], color, NULL);
     }
     drawWrap->addTri(0+baseVert,1+baseVert,2+baseVert);
     drawWrap->addTri(0+baseVert,2+baseVert,3+baseVert);
@@ -239,13 +314,34 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
         DrawableState state = ssObj.state;
         state.texIDs = geom.texIDs;
         state.progID = geom.progID;
+        state.enable = ssObj.enable;
+        state.startEnable = ssObj.startEnable;
+        state.endEnable = ssObj.endEnable;
+        VertexAttributeSetConvert(geom.vertexAttrs,state.vertexAttrs);
         DrawableWrap *drawWrap = findOrAddDrawWrap(state,geom.coords.size(),geom.coords.size()-2,ssObj.worldLoc);
         
+        // May need to adjust things based on time
+        Point3d startLoc3d = ssObj.worldLoc;
+        Point3f dir(0,0,0);
+        if (state.motion)
+        {
+            double dur = ssObj.endTime - ssObj.startTime;
+            Point3d dir3d = (ssObj.endWorldLoc - ssObj.worldLoc)/dur;
+            // May need to knock the start back a bit
+            double dt = drawWrap->draw->getStartTime() - ssObj.startTime;
+            startLoc3d = dir3d * dt + startLoc3d;
+            dir = Point3f(dir3d.x(),dir3d.y(),dir3d.z());
+        }
+        Point3f startLoc(startLoc3d.x(),startLoc3d.y(),startLoc3d.z());
+
         int baseVert = drawWrap->draw->getNumPoints();
         for (unsigned int jj=0;jj<geom.coords.size();jj++)
         {
             Point2d coord = geom.coords[jj] + ssObj.offset;
-            drawWrap->addVertex(coordAdapter,scale,Point3f(ssObj.worldLoc.x(),ssObj.worldLoc.y(),ssObj.worldLoc.z()), ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], geom.color);
+            if (state.motion)
+                drawWrap->addVertex(coordAdapter,scale,startLoc, dir, ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], geom.color, &geom.vertexAttrs);
+            else
+                drawWrap->addVertex(coordAdapter,scale,startLoc, ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], geom.color, &geom.vertexAttrs);
         }
         for (unsigned int jj=0;jj<geom.coords.size()-2;jj++)
             drawWrap->addTri(0+baseVert, jj+1+baseVert, jj+2+baseVert);
@@ -292,12 +388,12 @@ ScreenSpaceObject::ScreenSpaceObject::ConvexGeometry::ConvexGeometry()
 }
     
 ScreenSpaceObject::ScreenSpaceObject()
-    : enable(true), worldLoc(0,0,0), offset(0,0), rotation(0), useRotation(false), keepUpright(false)
+    : enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), offset(0,0), rotation(0), keepUpright(false)
 {
 }
 
 ScreenSpaceObject::ScreenSpaceObject(SimpleIdentity theID)
-: Identifiable(theID), enable(true), worldLoc(0,0,0), offset(0,0), rotation(0), useRotation(false), keepUpright(false)
+: Identifiable(theID), enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), offset(0,0), rotation(0), keepUpright(false)
 {
 }
 
@@ -305,19 +401,48 @@ ScreenSpaceObject::~ScreenSpaceObject()
 {
 }
     
+void ScreenSpaceObject::setEnable(bool inEnable)
+{
+    enable = inEnable;
+}
+    
+void ScreenSpaceObject::setEnableTime(TimeInterval inStartEnable,TimeInterval inEndEnable)
+{
+    startEnable = inStartEnable;
+    endEnable = inEndEnable;
+}
+    
 void ScreenSpaceObject::setWorldLoc(const Point3d &inWorldLoc)
 {
     worldLoc = inWorldLoc;
 }
     
+void ScreenSpaceObject::setMovingLoc(const Point3d &worldLoc,TimeInterval inStartTime,TimeInterval inEndTime)
+{
+    state.motion = true;
+    endWorldLoc = worldLoc;
+    startTime = inStartTime;
+    endTime = inEndTime;
+}
+
+Point3d ScreenSpaceObject::getEndWorldLoc()
+{
+    return endWorldLoc;
+}
+
+TimeInterval ScreenSpaceObject::getStartTime()
+{
+    return startTime;
+}
+
+TimeInterval ScreenSpaceObject::getEndTime()
+{
+    return endTime;
+}
+
 Point3d ScreenSpaceObject::getWorldLoc()
 {
     return worldLoc;
-}
-
-void ScreenSpaceObject::setEnable(bool inEnable)
-{
-    enable = inEnable;
 }
     
 void ScreenSpaceObject::setVisibility(float minVis,float maxVis)
@@ -338,7 +463,7 @@ void ScreenSpaceObject::setKeepUpright(bool inKeepUpright)
 
 void ScreenSpaceObject::setRotation(double inRot)
 {
-    useRotation = true;
+    state.rotation = true;
     rotation = inRot;
 }
 

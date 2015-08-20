@@ -31,10 +31,10 @@
 @interface WhirlyKitFrameMessage : NSObject
 
 /// When the message is sent, basically
-@property (nonatomic) NSTimeInterval frameStart;
+@property (nonatomic) TimeInterval frameStart;
 
 /// The interval between frames
-@property (nonatomic) NSTimeInterval frameInterval;
+@property (nonatomic) TimeInterval frameInterval;
 
 /// The message is coming from this renderer
 @property (nonatomic) WhirlyKit::SceneRendererES2 *renderer;

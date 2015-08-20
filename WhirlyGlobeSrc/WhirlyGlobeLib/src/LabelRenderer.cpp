@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/11/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
  *
  */
 
+#import "LabelManager.h"
 #import "LabelRenderer.h"
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
@@ -39,35 +40,24 @@ LabelSceneRep::LabelSceneRep()
 // Don't want to give them their own separate drawable, obviously
 typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
     
-LabelInfo::LabelInfo()
-    : textColor(255,255,255,255), outlineColor(0,0,0,0), backColor(0,0,0,0), screenObject(true), layoutEngine(true),
-    layoutImportance(1.0), width(0), height(0), drawOffset(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), justify(WhirlyKitLabelRight), drawPriority(0), fade(0.0),
-    shadowColor(0,0,0,0), shadowSize(0), outlineSize(0), shaderID(EmptyIdentity), enable(true)
-{
-}
-
-// Parse label info out of a description
-void LabelInfo::parseDict(const Dictionary &dict)
+LabelInfo::LabelInfo(const Dictionary &dict)
+    : BaseInfo(dict), textColor(255,255,255,255), outlineColor(0,0,0,0), backColor(0,0,0,0), screenObject(true), layoutEngine(true),
+    layoutImportance(1.0), width(0), height(0), justify(WhirlyKitLabelRight),
+    shadowColor(0,0,0,0), shadowSize(0), outlineSize(0)
 {
     textColor = dict.getColor(MaplyTextColor, RGBAColor(255,255,255,255));
     backColor = dict.getColor(MaplyBackgroundColor, RGBAColor(0,0,0,0));
-//    self.font = [desc objectForKey:@"font" checkType:[UIFont class] default:[UIFont systemFontOfSize:32.0]];
+    //    self.font = [desc objectForKey:@"font" checkType:[UIFont class] default:[UIFont systemFontOfSize:32.0]];
     screenObject = dict.getBool("screen",false);
     layoutEngine = dict.getBool("layout",false);
     layoutImportance = dict.getDouble("layoutImportance",0.0);
     width = dict.getDouble(MaplyLabelWidth,0.0);
     height = dict.getDouble(MaplyLabelHeight,screenObject ? 16.0 : 0.001);
-    drawOffset = dict.getDouble(MaplyDrawOffset,0);
-    minVis = dict.getDouble(MaplyMinVis,DrawVisibleInvalid);
-    maxVis = dict.getDouble(MaplyMaxVis,DrawVisibleInvalid);
     std::string justifyStr = dict.getString(MaplyJustify);
-    fade = dict.getDouble(MaplyFade,0.0);
     shadowColor = dict.getColor(MaplyShadowColor, RGBAColor(0,0,0,255));
     shadowSize = dict.getDouble(MaplyShadowSize, 0.0);
     outlineSize = dict.getDouble(MaplyTextOutlineSize,0.0);
     outlineColor = dict.getColor(MaplyShadowColor, RGBAColor(0,0,0,255));
-    shaderID = dict.getInt(MaplyShaderString,EmptyIdentity);
-    enable = dict.getBool(MaplyEnable,true);
     if (!justifyStr.compare("middle"))
         justify = WhirlyKitLabelMiddle;
     else {
@@ -78,7 +68,6 @@ void LabelInfo::parseDict(const Dictionary &dict)
                 justify = WhirlyKitLabelRight;
         }
     }
-    drawPriority = dict.getInt(MaplyDrawPriority,LabelDrawPriority);
 }
 
 LabelRenderer::LabelRenderer(Scene *scene,FontTextureManager *fontTexManager,const LabelInfo *labelInfo)
@@ -170,8 +159,10 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                 screenShape->setKeepUpright(label->keepUpright);
                 if (label->rotation != 0.0)
                     screenShape->setRotation(label->rotation);
-                if (labelInfo->fade > 0.0)
-                    screenShape->setFade(curTime+labelInfo->fade, curTime);
+                if (labelInfo->fadeIn > 0.0)
+                    screenShape->setFade(curTime+labelInfo->fadeIn, curTime);
+                else if (labelInfo->fadeOutTime != 0.0)
+                    screenShape->setFade(labelInfo->fadeOutTime, labelInfo->fadeOutTime+labelInfo->fadeOut);
                 if (label->isSelectable && label->selectID != EmptyIdentity)
                     screenShape->setId(label->selectID);
                 screenShape->setWorldLoc(coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(label->loc)));
@@ -268,9 +259,13 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                     
                     // The shape starts out disabled
                     screenShape->setEnable(labelInfo->enable);
+                    if (labelInfo->startEnable != labelInfo->endEnable)
+                        screenShape->setEnableTime(labelInfo->startEnable, labelInfo->endEnable);
                     screenShape->setOffset(Point2d(MAXFLOAT,MAXFLOAT));
                 } else {
                     screenShape->setEnable(labelInfo->enable);
+                    if (labelInfo->startEnable != labelInfo->endEnable)
+                        screenShape->setEnableTime(labelInfo->startEnable, labelInfo->endEnable);
                 }
                 
                 // Deal with the icon here becaue we need its geometry
@@ -343,7 +338,17 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                     select2d.selectID = label->selectID;
                     select2d.minVis = labelInfo->minVis;
                     select2d.maxVis = labelInfo->maxVis;
-                    selectables2D.push_back(select2d);
+                    
+                    if (label->hasMotion)
+                    {
+                        MovingRectSelectable2D movingSelect2d;
+                        (RectSelectable2D &)movingSelect2d = select2d;
+                        movingSelect2d.endCenter = screenShape->getEndWorldLoc();
+                        movingSelect2d.startTime = screenShape->getStartTime();
+                        movingSelect2d.endTime = screenShape->getEndTime();
+                        movingSelectables2D.push_back(movingSelect2d);
+                    } else
+                        selectables2D.push_back(select2d);
                 }
                 
                 if (layoutObject)
@@ -366,10 +371,10 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
     {
         BasicDrawable *iconDrawable = it->second;
         
-        if (labelInfo->fade > 0.0)
+        if (labelInfo->fadeIn > 0.0)
         {
             TimeInterval curTime = TimeGetCurrent();
-            iconDrawable->setFade(curTime,curTime+labelInfo->fade);
+            iconDrawable->setFade(curTime,curTime+labelInfo->fadeIn);
         }
         changes.push_back(new AddDrawableReq(iconDrawable));
         labelRep->drawIDs.insert(iconDrawable->getId());
