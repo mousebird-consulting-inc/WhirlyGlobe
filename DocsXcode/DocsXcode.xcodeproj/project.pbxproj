@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		2B14BFDD1B86446700CE29A4 /* flightwise.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = flightwise.png; sourceTree = "<group>"; };
+		2B14BFDE1B86446700CE29A4 /* aeroicon.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = aeroicon.jpeg; sourceTree = "<group>"; };
+		2B14BFDF1B86446700CE29A4 /* flyqefb.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = flyqefb.png; sourceTree = "<group>"; };
+		2B14BFE01B86446700CE29A4 /* flytab.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = flytab.jpeg; sourceTree = "<group>"; };
+		2B14BFE11B86446700CE29A4 /* smartplates.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = smartplates.png; sourceTree = "<group>"; };
+		2B14BFE21B86446700CE29A4 /* worldatlas.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = worldatlas.png; sourceTree = "<group>"; };
 		2B19B10B1AB7F4AE00862BCD /* epicenter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epicenter.png; sourceTree = "<group>"; };
 		2B4E068B1A152FAF00ADA318 /* _config.yml */ = {isa = PBXFileReference; lastKnownFileType = text; name = _config.yml; path = ../_config.yml; sourceTree = "<group>"; };
 		2B4E068D1A152FB500ADA318 /* tutorial.yaml */ = {isa = PBXFileReference; lastKnownFileType = text; path = tutorial.yaml; sourceTree = "<group>"; };
@@ -315,6 +321,12 @@
 		2B4E06B81A153FB100ADA318 /* apps */ = {
 			isa = PBXGroup;
 			children = (
+				2B14BFDD1B86446700CE29A4 /* flightwise.png */,
+				2B14BFDE1B86446700CE29A4 /* aeroicon.jpeg */,
+				2B14BFDF1B86446700CE29A4 /* flyqefb.png */,
+				2B14BFE01B86446700CE29A4 /* flytab.jpeg */,
+				2B14BFE11B86446700CE29A4 /* smartplates.png */,
+				2B14BFE21B86446700CE29A4 /* worldatlas.png */,
 				2B19B10B1AB7F4AE00862BCD /* epicenter.png */,
 				2BB94D8B1A2CEDCE0076B1B4 /* deforestation.png */,
 				2B4E06B91A153FB100ADA318 /* darksky.jpeg */,

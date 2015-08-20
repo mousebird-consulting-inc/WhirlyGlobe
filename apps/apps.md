@@ -17,6 +17,8 @@ A toolkit is only as good as the apps that use it.  Here are some of our favorit
 
 {% include app_entry.html name="flyTab" image="flytab.jpeg" body="FlyTab Cockpit is an avionics test environment and simulator for the flyTab avionics platform." link="https://itunes.apple.com/us/app/flytab-cockpit/id614642457?mt=8" %}
 
+{% include app_entry.html name="Flightwise Flight Tracker" image="flightwise.png" body="This is a flight tracker for individual commercial flights." link="https://itunes.apple.com/us/app/flightwise-flight-tracker/id329517941?mt=8" %}
+
 {% include app_entry.html name="AeroTab EFB" image="aeroicon.jpeg" body="AeroTab EFB is an Electronic Flight Bag app specialising in the Russian and the CIS Region." link="https://itunes.apple.com/us/app/aerotab-efb-electronic-flight/id622199134?mt=8" %}
 
 {% include app_entry.html name="WhirlyViz" image="whirlyviz.jpeg" body="WhirlyViz is a data visualization engine for iPad and iPhone.  It uses Javascript modules to let users play with big, complex data sets." link="https://itunes.apple.com/us/app/whirlyviz/id752701884?mt=8" %}
