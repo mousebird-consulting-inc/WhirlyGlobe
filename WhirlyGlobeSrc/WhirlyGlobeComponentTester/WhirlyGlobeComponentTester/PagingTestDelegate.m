@@ -33,6 +33,7 @@
 }
 
 static int NumMarkers = 200;
+static const float MaxDelay = 1.0;
 
 - (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer
 {
@@ -41,6 +42,9 @@ static int NumMarkers = 200;
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
+                       // Random delay
+                       usleep(drand48()* MaxDelay * 1e6);
+                       
                        NSMutableArray *markers = [NSMutableArray array];
                        for (unsigned int ii=0;ii<NumMarkers;ii++)
                        {
@@ -52,7 +56,7 @@ static int NumMarkers = 200;
                            [markers addObject:marker];
                        }
 
-                       MaplyComponentObject *compObj = [layer.viewC addScreenMarkers:markers desc:nil mode:MaplyThreadCurrent];
+                       MaplyComponentObject *compObj = [layer.viewC addScreenMarkers:markers desc:@{kMaplyEnable: @(NO)} mode:MaplyThreadCurrent];
                        [layer addData:@[compObj] forTile:tileID];
                        [layer tileDidLoad:tileID];
                    });

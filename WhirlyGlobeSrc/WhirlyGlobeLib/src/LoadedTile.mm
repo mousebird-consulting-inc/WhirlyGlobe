@@ -395,7 +395,7 @@ void TileBuilder::buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std::
     }
 }
     
-void TileBuilder::generateDrawables(WhirlyKitElevationDrawInfo *drawInfo,BasicDrawable **draw,BasicDrawable **skirtDraw)
+void TileBuilder::generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,BasicDrawable **draw,BasicDrawable **skirtDraw)
 {
     // Size of each chunk
     Point2f chunkSize = drawInfo->theMbr.ur() - drawInfo->theMbr.ll();
@@ -762,7 +762,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
     
     if (draw)
     {
-        WhirlyKitElevationDrawInfo drawInfo;
+        WhirlyKit::ElevationDrawInfo drawInfo;
         drawInfo.theMbr = theMbr;
         if (parentNodeInfo)
             drawInfo.parentMbr = parentNodeInfo->mbr;

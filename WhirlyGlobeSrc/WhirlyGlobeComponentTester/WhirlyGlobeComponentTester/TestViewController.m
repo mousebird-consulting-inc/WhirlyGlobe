@@ -1649,7 +1649,7 @@ static const int NumMegaMarkers = 15000;
                 [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-streets-v6.json"
                     // Note: You need your own access token here
                     accessToken:@"pk.eyJ1IjoicGV0ZXJxbGl1IiwiYSI6ImpvZmV0UEEifQ._D4bRmVcGfJvo1wjuOpA1g"
-                    style:@"https://raw.githubusercontent.com/mapbox/mapbox-gl-styles/mb-pages/styles/emerald-v8.json"
+                    style:@"https://raw.githubusercontent.com/mapbox/mapbox-gl-styles/master/styles/emerald-v8.json"
                     styleType:MapnikMapboxGLStyle
                     cacheDir:thisCacheDir
                     viewC:baseViewC

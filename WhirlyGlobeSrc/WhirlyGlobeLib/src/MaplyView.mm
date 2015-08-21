@@ -93,7 +93,7 @@ using namespace WhirlyKit;
 - (void) getOffsetMatrices:(std::vector<Eigen::Matrix4d> &)offsetMatrices frameBuffer:(WhirlyKit::Point2f)frameBufferSize
 {
     Point3f ll,ur;
-    if (_wrap && super.coordAdapter->getBounds(ll, ur) && super.coordAdapter)
+    if (_wrap && super.coordAdapter && super.coordAdapter->getBounds(ll, ur))
     {
         // Figure out where we are, first off
         GeoCoord geoLL = super.coordAdapter->getCoordSystem()->localToGeographic(ll);

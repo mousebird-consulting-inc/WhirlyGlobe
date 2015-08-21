@@ -21,12 +21,12 @@
 #import <math.h>
 #import "WhirlyVector.h"
 #import "GlobeMath.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "Texture.h"
 #import "Quadtree.h"
 
-using namespace WhirlyKit;
-
+namespace WhirlyKit
+{
 /// Settings needed to turn elevation into drawables
 typedef struct
 {
@@ -53,7 +53,9 @@ typedef struct
     SimpleIdentity programId;
     bool includeElev,useElevAsZ;
     bool lineMode;
-} WhirlyKitElevationDrawInfo;
+} ElevationDrawInfo;
+    
+}
 
 /** A protocol for handling elevation data chunks.
     The data itself can be a grid or triangle mesh or what have you.
@@ -68,7 +70,7 @@ typedef struct
 - (float)interpolateElevationAtX:(float)x y:(float)y;
 
 /// Generate the drawables to represent the elevation
-- (void)generateDrawables:(WhirlyKitElevationDrawInfo *)drawInfo chunk:(BasicDrawable **)draw skirts:(BasicDrawable **)skirtDraw;
+- (void)generateDrawables:(WhirlyKit::ElevationDrawInfo *)drawInfo chunk:(WhirlyKit::BasicDrawable **)draw skirts:(WhirlyKit::BasicDrawable **)skirtDraw;
 
 @end
 
