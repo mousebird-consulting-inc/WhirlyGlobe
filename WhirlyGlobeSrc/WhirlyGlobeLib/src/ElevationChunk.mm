@@ -165,7 +165,7 @@ typedef enum {WhirlyKitElevationFloats,WhirlyKitElevationShorts} WhirlyKitElevat
     }
 }
 
-- (void)generateDrawables:(WhirlyKitElevationDrawInfo *)drawInfo chunk:(BasicDrawable **)draw skirts:(BasicDrawable **)skirtDraw;
+- (void)generateDrawables:(WhirlyKit::ElevationDrawInfo *)drawInfo chunk:(BasicDrawable **)draw skirts:(BasicDrawable **)skirtDraw;
 {
     // Size of each chunk
     Point2f chunkSize = drawInfo->theMbr.ur() - drawInfo->theMbr.ll();
