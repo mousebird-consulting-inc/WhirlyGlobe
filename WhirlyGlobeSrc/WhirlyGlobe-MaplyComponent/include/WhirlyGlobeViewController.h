@@ -411,7 +411,7 @@
     @param bbox The bounding box (in radians) we're trying to view.
     @param pos The position the viewer will be at.
  */
-- (float)findHeightToViewBounds:(MaplyBoundingBox * __nonnull)bbox pos:(MaplyCoordinate)pos;
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos;
 
 /**
  @brief Return the extents of the current view.

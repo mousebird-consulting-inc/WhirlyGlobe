@@ -162,7 +162,7 @@
  @param bbox The bounding box of the tile we're asking about, for convenience.
  @return True if the tile is loadable, false if not.
  */
-- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox;
 
 @end
 
