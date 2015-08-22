@@ -90,9 +90,14 @@ typedef NS_ENUM(NSUInteger, MaplyVectorObjectType) {
 + (NSDictionary *)VectorObjectsFromGeoJSONAssembly:(NSData *)geoJSON;
 
 /** @brief Initialize with a single data point and attribution.
+ @details This version takes a single coordinate and the attributes to go with it.
+ */
+- (id)initWithPoint:(MaplyCoordinate)coord attributes:(NSDictionary *)attr;
+
+/** @brief Initialize with a single data point and attribution.
     @details This version takes a single coordinate and the attributes to go with it.
   */
-- (id)initWithPoint:(MaplyCoordinate *)coord attributes:(NSDictionary *)attr;
+- (id)initWithPointRef:(MaplyCoordinate *)coord attributes:(NSDictionary *)attr;
 
 /** @brief Initialize with a linear feature.
     @details This version takes an array of coordinates, the size of that array and the attribution.  With this it will make a linear feature.
@@ -236,6 +241,11 @@ typedef NS_ENUM(NSUInteger, MaplyVectorObjectType) {
     @return Returns false if there was no loop (probably wasn't an areal).
   */
 - (bool)centroid:(MaplyCoordinate *)centroid;
+
+/** @brief Calculate the bounding box of all the features in this vector object.
+ @return kMaplyNullBoundingBox in case of error
+ */
+- (MaplyBoundingBox)boundingBox;
 
 /** @brief Calculate the bounding box of all the features in this vector object.
   */

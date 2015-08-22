@@ -80,6 +80,11 @@ typedef struct
     MaplyCoordinate ur;
 } MaplyBoundingBox;
 
+static const MaplyBoundingBox kMaplyNullBoundingBox = {
+	.ll = {.x = FLT_MIN, .y = FLT_MIN},
+	.ur = {.x = FLT_MIN, .y = FLT_MIN}
+};
+
 #if __cplusplus
 extern "C" {
 #endif
