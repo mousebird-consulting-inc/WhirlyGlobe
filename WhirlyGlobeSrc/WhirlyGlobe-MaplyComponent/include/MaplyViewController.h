@@ -278,7 +278,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
     @param The bounding box (in radians) we're trying to view.
     @param pos Where the view will be looking.
   */
-- (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos;
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos;
 
 /**
  @brief Return the extents of the current view

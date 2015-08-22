@@ -119,7 +119,7 @@ static bool trackConnections = false;
     mbrs.push_back(mbr);
 }
 
-- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox
 {
     if(tileID.level > _maxZoom)
       return false;
@@ -127,7 +127,7 @@ static bool trackConnections = false;
     if (mbrs.empty())
         return true;
     
-    Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
+    Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y),Point2f(bbox.ur.x,bbox.ur.y));
     for (unsigned int ii=0;ii<mbrs.size();ii++)
         if (mbr.overlaps(mbrs[ii]))
             return true;
@@ -348,7 +348,7 @@ static bool trackConnections = false;
     return [_tileInfo tileIsLocal:tileID frame:frame];
 }
 
-- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox
 {
     return [_tileInfo validTile:tileID bbox:bbox];
 }

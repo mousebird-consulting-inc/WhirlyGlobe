@@ -192,7 +192,7 @@ using namespace WhirlyKit;
 }
 
 
-- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox
 {
     @synchronized(self)
     {
