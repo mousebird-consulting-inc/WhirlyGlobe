@@ -208,6 +208,11 @@ typedef NS_ENUM(NSUInteger, MaplyVectorObjectType) {
 
 - (bool)linearMiddle:(MaplyCoordinate *)middle rot:(double *)rot displayCoordSys:(MaplyCoordinateSystem *)coordSys;
 
+/** @brief return the middle coordinate in a line feature
+    @return kMaplyNullCoordinate in case of error
+ */
+- (MaplyCoordinate)middleCoordinate;
+
 /** @brief return the middle coordinate in a line feature.
  */
 - (bool)middleCoordinate:(MaplyCoordinate *)middle;
@@ -219,6 +224,12 @@ typedef NS_ENUM(NSUInteger, MaplyVectorObjectType) {
     @return Returns false if there was no loop (i.e. probably isn't an areal)
   */
 - (bool)largestLoopCenter:(MaplyCoordinate *)center mbrLL:(MaplyCoordinate *)ll mbrUR:(MaplyCoordinate *)ur;
+
+/** @brief Calculate the centroid of the largest loop in the areal feature.
+ @details The centroid is a better center for label placement than the middle of the largest loop as calculated by largestLoopCenter:mbrLL:mbrUR:
+ @return Returns the centroid structure. If there was no loop (i.e. probably isn't an areal), the result will be kMaplyNullCoordinate
+ */
+- (MaplyCoordinate)centroid;
 
 /** @brief Calculate the centroid of the largest loop in the areal feature.
     @details The centroid is a better center for label placement than the middle of the largest loop as calculated by largestLoopCenter:mbrLL:mbrUR:
