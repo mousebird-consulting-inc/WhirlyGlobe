@@ -59,6 +59,12 @@ typedef NS_ENUM(NSUInteger, MaplyVectorObjectType) {
 @property (nonatomic,readonly) NSMutableDictionary *attributes;
 
 /** @brief Parse vector data from geoJSON.
+    @details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses the faster JSON parser.
+    @details We assume the geoJSON is all in decimal degrees in WGS84.
+  */
++ (MaplyVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON;
+
+/** @brief Parse vector data from geoJSON.
     @details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses slower JSON parser.
     @details We assume the geoJSON is all in decimal degrees in WGS84.
  */
