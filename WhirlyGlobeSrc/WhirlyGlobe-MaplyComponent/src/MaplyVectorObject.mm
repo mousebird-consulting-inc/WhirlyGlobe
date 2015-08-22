@@ -137,7 +137,7 @@ public:
 //   the whole thing, which might include multiple different vectors.
 + (MaplyVectorObject *)VectorObjectFromGeoJSONApple:(NSData *)geoJSON
 {
-	return [[WGVectorObject alloc] initWithGeoJSONApple:geoJSON];
+	return [[MaplyVectorObject alloc] initWithGeoJSONApple:geoJSON];
 }
 
 + (MaplyVectorObject *)VectorObjectFromGeoJSONDictionary:(NSDictionary *)jsonDict
