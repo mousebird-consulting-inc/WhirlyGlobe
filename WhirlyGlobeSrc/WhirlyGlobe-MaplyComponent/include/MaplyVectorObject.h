@@ -26,7 +26,7 @@
 @class MaplyBaseViewController;
 
 /// Data type for the vector.  Multi means it contains multiple types
-typedef NS_ENUM(NSUInteger, MaplyVectorObjectType) {
+typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
 	MaplyVectorNoneType,
 	MaplyVectorPointType,
 	MaplyVectorLinearType,

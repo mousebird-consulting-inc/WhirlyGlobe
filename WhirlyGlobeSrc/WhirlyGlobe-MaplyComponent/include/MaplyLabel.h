@@ -21,7 +21,11 @@
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
 
-typedef enum {MaplyLabelJustifyLeft,MaplyLabelJustifyMiddle,MaplyLabelJustifyRight} MaplyLabelJustify;
+typedef NS_ENUM(NSInteger, MaplyLabelJustify) {
+	MaplyLabelJustifyLeft,
+	MaplyLabelJustifyMiddle,
+	MaplyLabelJustifyRight
+};
 
 /** @brief This is a 3D label.
     @details The Maply Label is a 3D object that sits on top of the globe (or map) at a specified location.  If you want a 2D label that sits on top of everything else, you want the MaplyScreenLabel.  Seriously, you probably want that.

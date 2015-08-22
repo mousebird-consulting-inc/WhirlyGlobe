@@ -143,10 +143,27 @@
 @end
 
 /// @brief Mapbox filter operator types
-typedef enum {MBFilterEqual,MBFilterNotEqual,MBFilterGreaterThan,MBFilterGreaterThanEqual,MBFilterLessThan,MBFilterLessThanEqual,MBFilterIn,MBFilterNotIn,MBFilterAll,MBFilterAny,MBFilterNone} MapboxVectorFilterType;
+typedef NS_ENUM(NSInteger, MapboxVectorFilterType) {
+	MBFilterEqual,
+	MBFilterNotEqual,
+	MBFilterGreaterThan,
+	MBFilterGreaterThanEqual,
+	MBFilterLessThan,
+	MBFilterLessThanEqual,
+	MBFilterIn,
+	MBFilterNotIn,
+	MBFilterAll,
+	MBFilterAny,
+	MBFilterNone
+};
 
 /// @brief Mapbox geometry types
-typedef enum {MBGeomPoint,MBGeomLineString,MBGeomPolygon,MBGeomNone} MapboxVectorGeometryType;
+typedef NS_ENUM(NSInteger, MapboxVectorGeometryType) {
+	MBGeomPoint,
+	MBGeomLineString,
+	MBGeomPolygon,
+	MBGeomNone
+};
 
 /// @brief Filter is used to match data in a layer to styles
 @interface MapboxVectorFilter : NSObject
@@ -178,7 +195,11 @@ typedef enum {MBGeomPoint,MBGeomLineString,MBGeomPolygon,MBGeomNone} MapboxVecto
 @end
 
 /// @brief Types for the value object
-typedef enum {MaplyMapboxValueTypeNumber, MaplyMapboxValueTypeColor, MaplyMapboxValueTypeString} MaplyMapboxValueType;
+typedef NS_ENUM(NSInteger, MaplyMapboxValueType) {
+	MaplyMapboxValueTypeNumber,
+	MaplyMapboxValueTypeColor,
+	MaplyMapboxValueTypeString
+};
 
 /// @brief
 @interface MaplyMapboxValue : NSObject
@@ -209,7 +230,10 @@ typedef enum {MaplyMapboxValueTypeNumber, MaplyMapboxValueTypeColor, MaplyMapbox
 @end
 
 /// @brief Type of the mapbox vector function
-typedef enum {MapboxVectorFunctionExponential,MapboxVectorFunctionInterval} MapboxVectorFunctionType;
+typedef NS_ENUM(NSInteger, MapboxVectorFunctionType) {
+	MapboxVectorFunctionExponential,
+	MapboxVectorFunctionInterval
+};
 
 /// @brief Functions color a data value based on a property (probably zoom)
 @interface MaplyMapboxVectorFunction : NSObject
