@@ -32,6 +32,10 @@ typedef struct
     float x,y;
 } MaplyCoordinate;
 
+
+static const MaplyCoordinate kMaplyNullCoordinate = {.x = FLT_MIN, .y = FLT_MIN};
+
+
 /** @typedef struct MaplyCoordinateD
     @brief Double precision version of 2D coordinate.
     @details This works the same was as the MaplyCoordinate, but has
