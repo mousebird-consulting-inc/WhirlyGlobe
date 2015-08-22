@@ -62,10 +62,28 @@ using namespace WhirlyKit;
     return false;
 }
 
+- (void)setBounds:(MaplyBoundingBox)bounds
+{
+	[self setBoundsLL:&bounds.ll ur:&bounds.ur];
+}
+
 - (void)setBoundsLL:(MaplyCoordinate *)inLL ur:(MaplyCoordinate *)inUR
 {
     ll.x = inLL->x;    ll.y = inLL->y;
     ur.x = inUR->x;    ur.y = inUR->y;
+}
+
+- (MaplyBoundingBox)getBounds
+{
+	MaplyBoundingBox box;
+
+	box.ll.x = ll.x;
+	box.ll.y = ll.y;
+
+	box.ur.x = ur.x;
+	box.ur.y = ur.y;
+
+	return box;
 }
 
 - (void)getBoundsLL:(MaplyCoordinate *)ret_ll ur:(MaplyCoordinate *)ret_ur
@@ -106,6 +124,11 @@ using namespace WhirlyKit;
 
 @implementation MaplyPlateCarree
 
+- (id)init
+{
+	return [self initFullCoverage];
+}
+
 - (id)initWithBoundingBox:(MaplyBoundingBox)bbox
 {
     PlateCarreeCoordSystem *coordSys = new PlateCarreeCoordSystem();
@@ -143,6 +166,11 @@ using namespace WhirlyKit;
 @end
 
 @implementation MaplySphericalMercator
+
+- (id)init
+{
+	return [self initWebStandard];
+}
 
 - (id)initWebStandard
 {
