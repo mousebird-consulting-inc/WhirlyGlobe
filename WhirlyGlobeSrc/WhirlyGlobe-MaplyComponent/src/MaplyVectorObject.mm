@@ -101,6 +101,11 @@ public:
 
 @implementation MaplyVectorObject
 
++ (MaplyVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON
+{
+	return [[MaplyVectorObject alloc] initWithGeoJSON:geoJSON];
+}
+
 + (NSDictionary *)VectorObjectsFromGeoJSONAssembly:(NSData *)geoJSON
 {
     if ([geoJSON length] > 0)
@@ -130,7 +135,7 @@ public:
 
 /// Parse vector data from geoJSON.  Returns one object to represent
 //   the whole thing, which might include multiple different vectors.
-+ (WGVectorObject *)VectorObjectFromGeoJSONApple:(NSData *)geoJSON
++ (MaplyVectorObject *)VectorObjectFromGeoJSONApple:(NSData *)geoJSON
 {
 	return [[WGVectorObject alloc] initWithGeoJSONApple:geoJSON];
 }
