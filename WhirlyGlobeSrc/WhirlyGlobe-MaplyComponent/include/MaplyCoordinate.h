@@ -46,6 +46,9 @@ typedef struct
     double x,y;
 } MaplyCoordinateD;
 
+static const MaplyCoordinateD kMaplyNullCoordinateD = {.x = DBL_MIN, .y = DBL_MIN};
+
+
 /** @typedef struct MaplyCoordinate3d
     @brief A 3D coordinate representation.
     @details The 3D version of the Maply Coordinate adds a z values, often
@@ -83,6 +86,21 @@ typedef struct
 static const MaplyBoundingBox kMaplyNullBoundingBox = {
 	.ll = {.x = FLT_MIN, .y = FLT_MIN},
 	.ur = {.x = FLT_MIN, .y = FLT_MIN}
+};
+
+/** @typedef struct MaplyBoundingBox
+ @brief Represents a bounding box in a particular coordinate system.
+ @details ll is the lower left and ur is the upper right.
+ */
+typedef struct
+{
+	MaplyCoordinateD ll;
+	MaplyCoordinateD ur;
+} MaplyBoundingBoxD;
+
+static const MaplyBoundingBoxD kMaplyNullBoundingBoxD = {
+	.ll = {.x = DBL_MIN, .y = DBL_MIN},
+	.ur = {.x = DBL_MIN, .y = DBL_MIN}
 };
 
 #if __cplusplus
