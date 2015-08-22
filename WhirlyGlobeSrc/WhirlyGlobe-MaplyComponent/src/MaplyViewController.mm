@@ -793,13 +793,13 @@ using namespace Maply;
     return std::abs(lrScreen.x - ulScreen.x) < frame.size.width && std::abs(lrScreen.y - ulScreen.y) < frame.size.height;
 }
 
-- (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos
 {
     Point3d oldLoc = mapView.loc;
     Point3d newLoc = Point3d(pos.x,pos.y,oldLoc.z());
     [mapView setLoc:newLoc runUpdates:false];
     
-    Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
+    Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y),Point2f(bbox.ur.x,bbox.ur.y));
     
     float minHeight = mapView.minHeightAboveSurface;
     float maxHeight = mapView.maxHeightAboveSurface;

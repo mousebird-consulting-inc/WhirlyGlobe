@@ -48,7 +48,7 @@
 //TODO(JM) not needed yet?
 //- (void)addBoundingBox:(MaplyBoundingBox *)bbox;
 //- (void)addGeoBoundingBox:(MaplyBoundingBox *)bbox;
-//- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
+//- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox;
 
 - (NSURLRequest *)requestForTile:(MaplyTileID)tileID;
 

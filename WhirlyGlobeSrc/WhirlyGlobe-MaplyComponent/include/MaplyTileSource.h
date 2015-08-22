@@ -101,7 +101,7 @@ NSString *MaplyTileIDString(MaplyTileID tileID);
     @details bbox The bounding box of the tile we're asking about, for convenience.
     @return True if the tile is loadable, false if not.
   */
-- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox;
 
 /** @brief For tiles of variable sizes, return the pixel size we'll use to evaluate this particular tile.
     @details If you have tiles with variable sizes... first of all why?  Seriously, why are you doing that?  Stop it.

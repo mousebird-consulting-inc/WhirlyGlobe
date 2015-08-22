@@ -1108,7 +1108,7 @@ using namespace WhirlyGlobe;
     return true;
 }
 
-- (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos
 {
     WhirlyGlobeView *tempGlobe = [[WhirlyGlobeView alloc] initWithGlobeView:globeView];
     
@@ -1116,7 +1116,7 @@ using namespace WhirlyGlobe;
     Eigen::Quaterniond newRotQuat = [tempGlobe makeRotationToGeoCoord:GeoCoord(pos.x,pos.y) keepNorthUp:YES];
     [tempGlobe setRotQuat:newRotQuat updateWatchers:false];
 
-    Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
+    Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y),Point2f(bbox.ur.x,bbox.ur.y));
     
     float minHeight = tempGlobe.minHeightAboveGlobe;
     float maxHeight = tempGlobe.maxHeightAboveGlobe;
