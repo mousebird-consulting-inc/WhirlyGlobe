@@ -22,7 +22,10 @@
 #import "MaplyCoordinate.h"
 #import "MaplyShader.h"
 
-typedef enum {MaplyParticleSystemTypePoint,MaplyParticleSystemTypeRectangle} MaplyParticleSystemType;
+typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
+	MaplyParticleSystemTypePoint,
+	MaplyParticleSystemTypeRectangle,
+};
 
 /** @brief A particle system is used to spawn large numbers of small moving objects.
     @details The particle system defines what the objects are and how they're controlled.  Actual data is handled through the MaplyParticleBatch.

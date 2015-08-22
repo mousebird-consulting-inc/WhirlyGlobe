@@ -24,7 +24,13 @@
 
 /** @brief The various types of attributes that can be passed in to shaders.
   */
-typedef enum {MaplyShaderAttrTypeInt,MaplyShaderAttrTypeFloat,MaplyShaderAttrTypeFloat2,MaplyShaderAttrTypeFloat3,MaplyShaderAttrTypeFloat4} MaplyShaderAttrType;
+typedef NS_ENUM(NSInteger, MaplyShaderAttrType){
+	MaplyShaderAttrTypeInt,
+	MaplyShaderAttrTypeFloat,
+	MaplyShaderAttrTypeFloat2,
+	MaplyShaderAttrTypeFloat3,
+	MaplyShaderAttrTypeFloat4,
+};
 
 /** @brief The shader is a direct interface to OpenGL ES 2.0 shader language.
     @details You can set your own shader programs in the toolkit!  Yeah, that's as complex as it sounds.

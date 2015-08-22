@@ -48,8 +48,10 @@
   */
 @interface MaplyWMSStyle : NSObject
 
-/// Name and title as returned
-@property (nonatomic,strong) NSString *name,*title;
+/// The name as returned by the service
+@property (nonatomic,strong) NSString *name;
+/// The title as returned by the service
+@property (nonatomic,strong) NSString *title;
 
 @end
 

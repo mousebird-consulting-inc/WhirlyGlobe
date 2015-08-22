@@ -54,7 +54,10 @@
 
 /// Where we'd like an add to be executed.  If you need immediate feedback,
 ///  then be on the main thread and use MaplyThreadCurrent.  Any is the default. 
-typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
+typedef NS_ENUM(NSInteger, MaplyThreadMode) {
+	MaplyThreadCurrent,
+	MaplyThreadAny,
+};
 
 /** @brief Base class for the Maply and WhirlyGlobe view controllers.
     @details The Maply Base View Controller is where most of the functionality lives.  For the most part Maply and WhirlyGlobe share methods and data structures.  This view controller sets up the rendering, the threading, basically everything that makes WhirlyGlobe-Maply work.
