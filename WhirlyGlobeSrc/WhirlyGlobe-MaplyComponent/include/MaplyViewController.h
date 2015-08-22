@@ -83,7 +83,7 @@
 @end
 
 
-typedef NS_ENUM(NSUInteger, MaplyMapType) {
+typedef NS_ENUM(NSInteger, MaplyMapType) {
 	MaplyMapType3D,
 	MaplyMapTypeFlat,
 };

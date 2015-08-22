@@ -61,7 +61,7 @@
 
 @end
 
-typedef NS_ENUM(NSUInteger, MaplyQuadPagingDataStyle) {
+typedef NS_ENUM(NSInteger, MaplyQuadPagingDataStyle) {
 	MaplyDataStyleAdd,
 	MaplyDataStyleReplace,
 };

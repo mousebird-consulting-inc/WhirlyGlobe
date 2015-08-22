@@ -27,19 +27,19 @@
 /** @brief Geometry type for data found within PBF files.
     @details These are the geometry types supported within Mapnik PBF files.
   */
-typedef enum  {
+typedef NS_ENUM(NSInteger, MapnikGeometryType) {
   GeomTypeUnknown = 0,
   GeomTypePoint = 1,
   GeomTypeLineString = 2,
   GeomTypePolygon = 3
-} MapnikGeometryType;
+};
 
-typedef enum {
+typedef NS_ENUM(NSInteger, MapnikCommandType) {
   SEG_END    = 0,
   SEG_MOVETO = 1,
   SEG_LINETO = 2,
   SEG_CLOSE = (0x40 | 0x0f)
-} MapnikCommandType;
+};
 
 @class MaplyVectorTileStyle;
 @class MaplyMBTileSource;
@@ -102,7 +102,10 @@ typedef enum {
 @end
 
 /// @brief The various types of style that will work with Mapnik vector tiles
-typedef enum {MapnikXMLStyle,MapnikMapboxGLStyle} MapnikStyleType;
+typedef NS_ENUM(NSInteger, MapnikStyleType) {
+	MapnikXMLStyle,
+	MapnikMapboxGLStyle
+};
 
 /** @brief Provides on demand creation for Mapnik style vector tiles.
     @details Create one of these to read Mapnik PBF style tiles from a remote
