@@ -183,7 +183,13 @@ public:
 }
 
 /// Construct with a single point
-- (id)initWithPoint:(MaplyCoordinate *)coord attributes:(NSDictionary *)attr
+- (id)initWithPoint:(MaplyCoordinate)coord attributes:(NSDictionary *)attr
+{
+	return [self initWithPointRef:&coord attributes:attr];
+}
+
+/// Construct with a single point ref
+- (id)initWithPointRef:(MaplyCoordinate *)coord attributes:(NSDictionary *)attr
 {
     self = [super init];
     
@@ -888,6 +894,18 @@ public:
     
     return true;
 }
+
+- (MaplyBoundingBox)boundingBox
+{
+	MaplyBoundingBox bounds;
+
+	if (![self boundingBoxLL:&bounds.ll ur:&bounds.ur]) {
+		return kMaplyNullBoundingBox;
+	}
+
+	return bounds;
+}
+
 
 - (bool)boundingBoxLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
 {
