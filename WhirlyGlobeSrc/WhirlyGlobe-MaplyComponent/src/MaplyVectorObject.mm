@@ -751,6 +751,16 @@ public:
     return true;
 }
 
+- (MaplyCoordinate)middleCoordinate {
+	MaplyCoordinate middle;
+
+	if (![self middleCoordinate:&middle]) {
+		return kMaplyNullCoordinate;
+	}
+
+	return middle;
+}
+
 - (bool)middleCoordinate:(MaplyCoordinate *)middle {
   if (_shapes.empty())
     return false;
@@ -812,6 +822,17 @@ public:
     }
 
     return true;
+}
+
+- (MaplyCoordinate)centroid
+{
+	MaplyCoordinate centroidCoord;
+
+	if (![self centroid:&centroidCoord]) {
+		return kMaplyNullCoordinate;
+	}
+
+	return centroidCoord;
 }
 
 - (bool)centroid:(MaplyCoordinate *)centroid
