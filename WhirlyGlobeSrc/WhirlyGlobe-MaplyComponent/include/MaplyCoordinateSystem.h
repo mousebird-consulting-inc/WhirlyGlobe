@@ -29,9 +29,19 @@
 @interface MaplyCoordinateSystem : NSObject
 
 /** @brief Set the bounding box in the local coordinate system.
+ @details This is the bounding box, for things like display coordinates.  If the extents would normally be in degrees, use radians.  Otherwise, the values are in the local system.
+ */
+- (void)setBounds:(MaplyBoundingBox)bounds;
+
+/** @brief Set the bounding box in the local coordinate system.
     @details This is the bounding box, for things like display coordinates.  If the extents would normally be in degrees, use radians.  Otherwise, the values are in the local system.
   */
 - (void)setBoundsLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ll;
+
+/** @brief Return the bounding box in local coordinates.
+ @details This is the bounding box in local coordinates, or if the extents would normally be expressed in degrees, it's radians.
+ */
+- (MaplyBoundingBox)getBounds;
 
 /** @brief Return the bounding box in local coordinates.
     @details This is the bounding box in local coordinates, or if the extents would normally be expressed in degrees, it's radians.
@@ -65,6 +75,9 @@
 @interface MaplyPlateCarree : MaplyCoordinateSystem
 
 /// @brief Initialize with Plate Carree covering the whole globe.
+- (id)init;
+
+/// @brief Initialize with Plate Carree covering the whole globe.
 - (id)initFullCoverage;
 
 /// @brief Initialize with the given bounding box (in radians)
@@ -77,6 +90,9 @@
     @details The drawback with Spherical Mercator is that it doesn't cover the poles and it distorts (and how) its north and south extents.  Web Standard refers to the extents you'll find in most online maps.  This is probably want you want.
   */
 @interface MaplySphericalMercator : MaplyCoordinateSystem
+
+/// @brief Initialize with the -85...,+85... extents to match most commonly used online maps
+- (id)init;
 
 /// @brief Initialize with the -85...,+85... extents to match most commonly used online maps
 - (id)initWebStandard;
