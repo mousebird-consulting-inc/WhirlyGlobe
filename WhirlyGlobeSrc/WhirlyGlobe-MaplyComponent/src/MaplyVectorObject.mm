@@ -694,8 +694,7 @@ public:
     
     middle->x = pts.back().x();
     middle->y = pts.back().y();
-    if (rot)
-        *rot = 0.0;
+	*rot = 0.0;
     
     return true;
 }
@@ -718,8 +717,7 @@ public:
     {
         middle->x = pts[0].x();
         middle->y = pts[0].y();
-        if (rot)
-            *rot = 0.0;
+        *rot = 0.0;
         return true;
     }
     

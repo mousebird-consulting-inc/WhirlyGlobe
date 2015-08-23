@@ -36,7 +36,7 @@
 /** @brief Set the bounding box in the local coordinate system.
     @details This is the bounding box, for things like display coordinates.  If the extents would normally be in degrees, use radians.  Otherwise, the values are in the local system.
   */
-- (void)setBoundsLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ll;
+- (void)setBoundsLL:(MaplyCoordinate * __nonnull)ll ur:(MaplyCoordinate * __nonnull)ll;
 
 /** @brief Return the bounding box in local coordinates.
  @details This is the bounding box in local coordinates, or if the extents would normally be expressed in degrees, it's radians.
@@ -46,7 +46,7 @@
 /** @brief Return the bounding box in local coordinates.
     @details This is the bounding box in local coordinates, or if the extents would normally be expressed in degrees, it's radians.
   */
-- (void)getBoundsLL:(MaplyCoordinate *)ret_ll ur:(MaplyCoordinate *)ret_ur;
+- (void)getBoundsLL:(MaplyCoordinate * __nonnull)ret_ll ur:(MaplyCoordinate * __nonnull)ret_ur;
 
 /** @brief Convert a coordinate from geographic to the local coordinate system.
     @details Take a geo coordinate (lon/lat in radians) and convert to the local space.
@@ -60,7 +60,7 @@
 
 /** @brief Express the coordinate system in an SRS compatible string.
   */
-- (NSString *)getSRS;
+- (NSString * __nonnull)getSRS;
 
 /** @brief Can this coordinate system be expressed in degrees?
     @details This is set for coordinate systems that express their extents in degrees.  This is useful for cases where we need to construct some metadata to go along with the system and you'd normally expect it to be in degrees rather than radians.
@@ -75,13 +75,13 @@
 @interface MaplyPlateCarree : MaplyCoordinateSystem
 
 /// @brief Initialize with Plate Carree covering the whole globe.
-- (id)init;
+- (nullable instancetype)init;
 
 /// @brief Initialize with Plate Carree covering the whole globe.
-- (id)initFullCoverage;
+- (nullable instancetype)initFullCoverage;
 
 /// @brief Initialize with the given bounding box (in radians)
-- (id)initWithBoundingBox:(MaplyBoundingBox)bbox;
+- (nullable instancetype)initWithBoundingBox:(MaplyBoundingBox)bbox;
 
 @end
 
@@ -92,10 +92,10 @@
 @interface MaplySphericalMercator : MaplyCoordinateSystem
 
 /// @brief Initialize with the -85...,+85... extents to match most commonly used online maps
-- (id)init;
+- (nullable instancetype)init;
 
 /// @brief Initialize with the -85...,+85... extents to match most commonly used online maps
-- (id)initWebStandard;
+- (nullable instancetype)initWebStandard;
 
 @end
 
@@ -103,4 +103,4 @@
     @details This returns the correct coordinate system form a standard EPSG string.
     @details The list of available coordinate systems is very short.
   */
-MaplyCoordinateSystem *MaplyCoordinateSystemFromEPSG(NSString *crs);
+MaplyCoordinateSystem * __nullable MaplyCoordinateSystemFromEPSG(NSString * __nonnull crs);
