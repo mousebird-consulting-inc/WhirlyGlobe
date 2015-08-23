@@ -1344,26 +1344,24 @@ public:
     NSString *baseName;
 }
 
-- (instancetype)initWithVectorDatabase:(VectorDatabase *)inVectorDb
+- (instancetype)initWithShape:(NSString *)shapeName
 {
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    vectorDb = inVectorDb;
-    
-    return self;
+	if (self = [super init]) {
+		NSString *fileName = [[NSBundle mainBundle] pathForResource:shapeName ofType:@"shp"];
+		VectorDatabase *vecDb = new VectorDatabase([[NSBundle mainBundle] resourcePath],[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject],shapeName,new ShapeReader(fileName),NULL);
+
+		vectorDb = vecDb;
+		baseName = shapeName;
+	}
+
+	return self;
 }
+
 
 /// Construct from a shapefile in the bundle
 + (MaplyVectorDatabase *) vectorDatabaseWithShape:(NSString *)shapeName
 {
-    NSString *fileName = [[NSBundle mainBundle] pathForResource:shapeName ofType:@"shp"];
-    VectorDatabase *vecDb = new VectorDatabase([[NSBundle mainBundle] resourcePath],[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject],shapeName,new ShapeReader(fileName),NULL);
-    
-    MaplyVectorDatabase *mVecDb = [[MaplyVectorDatabase alloc] initWithVectorDatabase:vecDb];
-    mVecDb->baseName = shapeName;
-    return mVecDb;
+    return [[MaplyVectorDatabase alloc] initWithShape:shapeName];
 }
 
 /// Return vectors that match the given SQL query
