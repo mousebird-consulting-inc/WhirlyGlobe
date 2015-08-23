@@ -430,7 +430,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
         }
     } else {
         NSString *fileName = [NSString stringWithFormat:@"%@/%d/%d/%d%@",_tilesDir,tileID.level,tileID.y,tileID.x,layerName];
-        vecObj = [MaplyVectorObject VectorObjectFromShapeFile:fileName];
+        vecObj = [[MaplyVectorObject alloc] initWithShapeFile:fileName];
     }
 
 //    if (vecObj)
