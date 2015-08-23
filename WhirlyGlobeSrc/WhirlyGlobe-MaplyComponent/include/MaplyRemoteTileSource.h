@@ -37,7 +37,7 @@
  @param maxZoom The maximum zoom level to fetch.
  @return The MaplyRemoteTileSource object or nil on failure.
  */
-- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
+- (instancetype)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
 
 /** @brief Initialize from a remote tile spec.
  @details This version of the initializer takes an NSDictionary parsed
@@ -49,7 +49,7 @@
  be trusted.
  @param jsonSpec An NSDictionary parsed from the JSON tile spec.
  */
-- (id)initWithTilespec:(NSDictionary *)jsonSpec;
+- (instancetype)initWithTilespec:(NSDictionary *)jsonSpec;
 
 /** @brief The base URL we're fetching from.
  @details This is typically the top of the pyramid and we'll
@@ -232,7 +232,7 @@
     @param maxZoom The maximum zoom level to fetch.
     @return The MaplyRemoteTileSource object or nil on failure.
   */
-- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
+- (instancetype)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
 
 /** @brief Initialize from a remote tile spec.
     @details This version of the initializer takes an NSDictionary parsed
@@ -244,7 +244,7 @@
     be trusted.
     @param jsonSpec An NSDictionary parsed from the JSON tile spec.
   */
-- (id)initWithTilespec:(NSDictionary *)jsonSpec;
+- (instancetype)initWithTilespec:(NSDictionary *)jsonSpec;
 
 /** @brief Read the image, but only if it's in the cache.
     @details MaplyRemoteTileSource uses asynchronous fetching.  This method is inherently
@@ -260,7 +260,7 @@
     in and then call this initializaer.
     @param info The MaplyRemoteTileInfo describing where to fetch the tiles.
   */
-- (id)initWithInfo:(MaplyRemoteTileInfo *)info;
+- (instancetype)initWithInfo:(MaplyRemoteTileInfo *)info;
 
 /** @brief Description of where we fetch the tiles from and where to cache them.
   */

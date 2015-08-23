@@ -48,7 +48,7 @@
     @details It looks for the full path first and then will try to find the name in the bundle with an extension of @"sqlite" if that failes.
     @return Returns a valid elevation database object or nil on failure.
   */
-- (id)initWithName:(NSString *)name;
+- (instancetype)initWithName:(NSString *)name;
 
 /// @brief Minimum zoom level (e.g. 0) as read from the file
 - (int)minZoom;

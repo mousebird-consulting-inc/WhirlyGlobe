@@ -103,22 +103,22 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
 /** @brief Initialize with a single data point and attribution.
  @details This version takes a single coordinate and the attributes to go with it.
  */
-- (id)initWithPoint:(MaplyCoordinate)coord attributes:(NSDictionary *)attr;
+- (instancetype)initWithPoint:(MaplyCoordinate)coord attributes:(NSDictionary *)attr;
 
 /** @brief Initialize with a single data point and attribution.
     @details This version takes a single coordinate and the attributes to go with it.
   */
-- (id)initWithPointRef:(MaplyCoordinate *)coord attributes:(NSDictionary *)attr;
+- (instancetype)initWithPointRef:(MaplyCoordinate *)coord attributes:(NSDictionary *)attr;
 
 /** @brief Initialize with a linear feature.
     @details This version takes an array of coordinates, the size of that array and the attribution.  With this it will make a linear feature.
   */
-- (id)initWithLineString:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr;
+- (instancetype)initWithLineString:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr;
 
 /** @brief Inintialize as an areal feature.
     @details This version takes an array of coordinates, the size of that array and the attribution.  With this it will make a single area feature with one (exterior) loop.  To add loops, call addHole:numCoords:
   */
-- (id)initWithAreal:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr;
+- (instancetype)initWithAreal:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr;
 
 /** @brief Initializes with vectors parsed from geoJSON.
 	@details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses the faster JSON parser.

@@ -69,7 +69,7 @@
 @property (nonatomic,assign) int screenObjectDrawPriorityOffset;
 
 // Initialize with the view we'll be using
-- (id)initWithView:(WhirlyKitView *)visualView;
+- (instancetype)initWithView:(WhirlyKitView *)visualView;
 
 // Add screen space (2D) markers
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;

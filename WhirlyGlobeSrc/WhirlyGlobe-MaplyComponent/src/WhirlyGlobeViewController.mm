@@ -28,7 +28,7 @@ using namespace WhirlyGlobe;
 
 @implementation WhirlyGlobeViewControllerAnimationState
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     _heading = MAXFLOAT;
@@ -67,7 +67,7 @@ using namespace WhirlyGlobe;
     NSTimeInterval startTime,endTime;
 }
 
-- (id)initWithState:(WhirlyGlobeViewControllerAnimationState *)inEndState
+- (instancetype)initWithState:(WhirlyGlobeViewControllerAnimationState *)inEndState
 {
     self = [super init];
     endState = inEndState;

@@ -28,7 +28,7 @@
 @interface MaplyStarsModel : NSObject
 
 /// @brief Read stars from the given file
-- (id)initWithFileName:(NSString *)fileName;
+- (instancetype)initWithFileName:(NSString *)fileName;
 
 /// @brief Use the given image for each point.
 /// @details The given image will be sampled for individual points.

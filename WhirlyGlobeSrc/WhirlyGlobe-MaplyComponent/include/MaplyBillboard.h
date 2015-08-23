@@ -53,6 +53,6 @@
     @param color Color for the polygon that makes up the billboard.
     @param size Size of the billboard in display space.
   */
-- (id)initWithImage:(id)texture color:(UIColor *)color size:(CGSize)size;
+- (instancetype)initWithImage:(id)texture color:(UIColor *)color size:(CGSize)size;
 
 @end

@@ -176,7 +176,7 @@ public:
         (*it)->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attributes]);
 }
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     if (!self)
@@ -188,13 +188,13 @@ public:
 }
 
 /// Construct with a single point
-- (id)initWithPoint:(MaplyCoordinate)coord attributes:(NSDictionary *)attr
+- (instancetype)initWithPoint:(MaplyCoordinate)coord attributes:(NSDictionary *)attr
 {
 	return [self initWithPointRef:&coord attributes:attr];
 }
 
 /// Construct with a single point ref
-- (id)initWithPointRef:(MaplyCoordinate *)coord attributes:(NSDictionary *)attr
+- (instancetype)initWithPointRef:(MaplyCoordinate *)coord attributes:(NSDictionary *)attr
 {
     self = [super init];
     
@@ -213,7 +213,7 @@ public:
 }
 
 /// Construct with a linear feature (e.g. line string)
-- (id)initWithLineString:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr
+- (instancetype)initWithLineString:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr
 {
     self = [super init];
     
@@ -233,7 +233,7 @@ public:
 }
 
 /// Construct as an areal with an exterior
-- (id)initWithAreal:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr
+- (instancetype)initWithAreal:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr
 {
     self = [super init];
     
@@ -1344,7 +1344,7 @@ public:
     NSString *baseName;
 }
 
-- (id)initWithVectorDatabase:(VectorDatabase *)inVectorDb
+- (instancetype)initWithVectorDatabase:(VectorDatabase *)inVectorDb
 {
     self = [super init];
     if (!self)

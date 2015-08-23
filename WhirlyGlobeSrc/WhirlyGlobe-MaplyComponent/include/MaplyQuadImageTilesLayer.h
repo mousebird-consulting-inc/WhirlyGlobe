@@ -55,7 +55,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
  @details The initialize expects a tile source.  The tile source can be one of the standard ones listed above, or it can be one of your own that conforms to the MaplyTileSource protocol. The tile source's coordinate system will be used.
  @param tileSource This is an object conforming to the MaplyTileSource protocol.  There are several you can pass in, or you can write your own.
  */
-- (id)initWithTileSource:(NSObject<MaplyTileSource> *)tileSource;
+- (instancetype)initWithTileSource:(NSObject<MaplyTileSource> *)tileSource;
 
 /** @brief Initialize with a coordinate system for the image pyramid and the tile source object.  
     @details The initialize expects a coordinate system (probably MaplySphericalMercator) and a tile source.  The tile source can be one of the standard ones listed above, or it can be one of your own that conforms to the MaplyTileSource protocol.
@@ -63,7 +63,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
             image pyramid is in, or it will look weird.  Very weird.
     @param tileSource This is an object conforming to the MaplyTileSource protocol.  There are several you can pass in, or you can write your own.
   */
-- (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
+- (instancetype)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
 
 /** @brief Set the active tile source.
     @details If you change this, it will force a reload of all loaded tiles and start fetching from the new tile source.

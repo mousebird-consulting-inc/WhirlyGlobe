@@ -43,7 +43,7 @@
      part of the name.  I'll tack on the sqlite extension.
     @return Returns a new MaplyMBTileSource object on success, nil on failure.
   */
-- (id)initWithMBTiles:(NSString *)fileName;
+- (instancetype)initWithMBTiles:(NSString *)fileName;
 
 /** @brief The maximum zoom level in the MBTiles archive.
     @details This is initially the max zoom level read out

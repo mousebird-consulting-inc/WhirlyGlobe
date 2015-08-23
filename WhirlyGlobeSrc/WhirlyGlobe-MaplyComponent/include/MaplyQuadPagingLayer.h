@@ -104,7 +104,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadPagingDataStyle) {
     @param tileSource The tile source that will fetch data and create visible objects.
     @return Returns a MaplyViewControllerLayer that can be added to the MaplyBaseViewController.
   */
-- (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys delegate:(NSObject<MaplyPagingDelegate> *)tileSource;
+- (instancetype)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys delegate:(NSObject<MaplyPagingDelegate> *)tileSource;
 
 /** @brief Use the target zoom level shortcut when possible.
     @details This turns on the target zoom level shortcut as described in targetZoomLevel.  When on we'll calculate tile importance that way, that is based on a target zoom level rather than the more complex screen space calculations.

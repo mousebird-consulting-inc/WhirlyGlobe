@@ -24,7 +24,7 @@
 
 @implementation MaplyWMSLayerBoundingBox
 
-- (id)initWithXML:(DDXMLElement *)el
+- (instancetype)initWithXML:(DDXMLElement *)el
 {
     self = [super init];
     _crs = [[el attributeForName:@"CRS"] stringValue];
@@ -65,7 +65,7 @@
 
 @implementation MaplyWMSStyle
 
-- (id)initWithXML:(DDXMLElement *)el
+- (instancetype)initWithXML:(DDXMLElement *)el
 {
     self = [super init];
     
@@ -79,7 +79,7 @@
 
 @implementation MaplyWMSLayer
 
-- (id)initWithXML:(DDXMLElement *)el parent:(MaplyWMSLayer *)parent
+- (instancetype)initWithXML:(DDXMLElement *)el parent:(MaplyWMSLayer *)parent
 {
     self = [super init];
     
@@ -200,7 +200,7 @@
     return [NSString stringWithFormat:@"%@?Service=WMS&Request=GetCapabilities&Version=1.1.1",baseURL];
 }
 
-- (id)initWithXML:(DDXMLDocument *)xmlDoc
+- (instancetype)initWithXML:(DDXMLDocument *)xmlDoc
 {
     self = [super init];
     
@@ -276,7 +276,7 @@
     bool cacheInit;
 }
 
-- (id)initWithBaseURL:(NSString *)baseURL capabilities:(MaplyWMSCapabilities *)cap layer:(MaplyWMSLayer *)layer style:(MaplyWMSStyle *)style coordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom tileSize:(int)tileSize
+- (instancetype)initWithBaseURL:(NSString *)baseURL capabilities:(MaplyWMSCapabilities *)cap layer:(MaplyWMSLayer *)layer style:(MaplyWMSStyle *)style coordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom tileSize:(int)tileSize
 {
     self = [super init];
     

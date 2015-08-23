@@ -54,7 +54,7 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
     int atlasSize;
 }
 
-- (id)initWithScene:(WhirlyKit::Scene *)inScene
+- (instancetype)initWithScene:(WhirlyKit::Scene *)inScene
 {
     self = [super init];
     if (!self)

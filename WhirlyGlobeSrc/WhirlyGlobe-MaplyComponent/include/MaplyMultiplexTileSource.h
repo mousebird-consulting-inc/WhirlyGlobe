@@ -40,7 +40,7 @@
     @details A simple example would be taking 6 MaplyRemoteTileInfo objects pointing to MBTiles archives, sticking them in an array and passing them in here.  Each of them might represent a frame of animation in a video you want to show over the whole earth.  Because wow, man.  The whole earth.
     @return Returns a working MaplyMultiplexTileSource or nil if it can't.  That might happen if the input tile sources don't match up to each other.
   */
-- (id)initWithSources:(NSArray *)tileSources;
+- (instancetype)initWithSources:(NSArray *)tileSources;
 
 /** @brief Coordinate system for the tile source.
     @details The coordinate system is derived from the first tile source passed in.  They'd better all agree or the results will be odd.

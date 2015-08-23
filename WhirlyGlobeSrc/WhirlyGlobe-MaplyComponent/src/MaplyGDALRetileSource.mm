@@ -30,7 +30,7 @@
     bool cacheInit;
 }
 
-- (id)initWithURL:(NSString *)baseURL baseName:(NSString *)baseName ext:(NSString *)ext coordSys:(MaplyCoordinateSystem *)coordSys levels:(int)numLevels
+- (instancetype)initWithURL:(NSString *)baseURL baseName:(NSString *)baseName ext:(NSString *)ext coordSys:(MaplyCoordinateSystem *)coordSys levels:(int)numLevels
 {
     self = [super init];
 

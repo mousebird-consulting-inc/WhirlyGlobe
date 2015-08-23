@@ -156,7 +156,7 @@ static bool trackConnections = false;
     Maply::SortedTileSet sortedTiles;
 }
 
-- (id)initWithSources:(NSArray *)tileSources
+- (instancetype)initWithSources:(NSArray *)tileSources
 {
     self = [super init];
     

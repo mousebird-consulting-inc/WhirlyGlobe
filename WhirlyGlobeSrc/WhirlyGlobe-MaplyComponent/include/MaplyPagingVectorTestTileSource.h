@@ -27,7 +27,7 @@
 @interface MaplyPagingVectorTestTileSource : NSObject<MaplyPagingDelegate>
 
 /// Initialize with the coordinate system, min and max zoom levels, and the number of images to return
-- (id)initWithCoordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom;
+- (instancetype)initWithCoordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom;
 
 /// Coordinate system we're pretending to be in
 @property (nonatomic,readonly) MaplyCoordinateSystem *coordSys;
