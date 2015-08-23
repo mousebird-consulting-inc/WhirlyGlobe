@@ -22,7 +22,7 @@
 
 @implementation MaplyViewTracker
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     // Note: This should be DrawVisibleInvalid

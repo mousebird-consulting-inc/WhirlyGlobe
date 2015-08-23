@@ -77,7 +77,7 @@
     @param coordSys The coordinate system the offline layer will render in.
     @param tileSource The tile source that needs to provide at least one and possibly more images per tile.
   */
-- (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
+- (instancetype)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
 
 /** @brief Set the active tile source.
     @details If you change this, it will force a reload of all loaded tiles and start fetching from the new tile source.

@@ -66,7 +66,7 @@ typedef struct
 @interface MaplyCoordinate3dWrapper : NSObject
 
 /// @brief Initialize with a 3D coordinate
-- (id)initWithCoord:(MaplyCoordinate3d)coord;
+- (instancetype)initWithCoord:(MaplyCoordinate3d)coord;
 
 /// @brief 3D coordinate
 @property (nonatomic,readonly) MaplyCoordinate3d coord;

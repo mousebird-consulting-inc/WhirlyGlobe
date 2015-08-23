@@ -25,7 +25,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyCoordinateSystem
 
-- (id)initWithCoordSystem:(WhirlyKit::CoordSystem *)newCoordSystem
+- (instancetype)initWithCoordSystem:(WhirlyKit::CoordSystem *)newCoordSystem
 {
     self = [super init];
     if (!self)
@@ -124,12 +124,12 @@ using namespace WhirlyKit;
 
 @implementation MaplyPlateCarree
 
-- (id)init
+- (instancetype)init
 {
 	return [self initFullCoverage];
 }
 
-- (id)initWithBoundingBox:(MaplyBoundingBox)bbox
+- (instancetype)initWithBoundingBox:(MaplyBoundingBox)bbox
 {
     PlateCarreeCoordSystem *coordSys = new PlateCarreeCoordSystem();
     self = [super initWithCoordSystem:coordSys];
@@ -141,7 +141,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (id)initFullCoverage
+- (instancetype)initFullCoverage
 {
     PlateCarreeCoordSystem *coordSys = new PlateCarreeCoordSystem();
     self = [super initWithCoordSystem:coordSys];
@@ -167,12 +167,12 @@ using namespace WhirlyKit;
 
 @implementation MaplySphericalMercator
 
-- (id)init
+- (instancetype)init
 {
 	return [self initWebStandard];
 }
 
-- (id)initWebStandard
+- (instancetype)initWebStandard
 {
     SphericalMercatorCoordSystem *coordSys = new SphericalMercatorCoordSystem();
     self = [super initWithCoordSystem:coordSys];

@@ -165,7 +165,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     int numActiveWorkers;
 }
 
-- (id)initWithView:(WhirlyKitView *)inVisualView
+- (instancetype)initWithView:(WhirlyKitView *)inVisualView
 {
     self = [super init];
     if (!self)

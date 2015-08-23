@@ -103,7 +103,7 @@ These are the per vertex attributes provided to each vertex shader.
     @param baseViewC The view controller where we'll register the new shader.
     @return Returns a shader program if it succeeded.  It may not work, however, so call valid first.
   */
-- (id)initWithName:(NSString *)name vertexFile:(NSString *)vertexFileName fragmentFile:(NSString *)fragFileName viewC:(MaplyBaseViewController *)baseViewC;
+- (instancetype)initWithName:(NSString *)name vertexFile:(NSString *)vertexFileName fragmentFile:(NSString *)fragFileName viewC:(MaplyBaseViewController *)baseViewC;
 
 /** @brief Initialize with the shader programs tied to a particular view controller.
     @details This initializer will parse the given shader program, link it and return a MaplyShader if it succeeded.  It will tie that shader in to the given view controller (and really, it's renderer).  You can only use that shader in that view controller.
@@ -113,7 +113,7 @@ These are the per vertex attributes provided to each vertex shader.
     @param baseViewC The view controller where we'll register the new shader.
     @return Returns a shader program if it succeeded.  IT may not work, however, so call valid first.
  */
-- (id)initWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg viewC:(MaplyBaseViewController *)baseViewC;
+- (instancetype)initWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg viewC:(MaplyBaseViewController *)baseViewC;
 
 /** @brief Name of the shader program.
     @details This is the name passed in to the init call.  You can search by this name in some circumstances.

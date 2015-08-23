@@ -98,20 +98,20 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 @interface MaplyViewController : MaplyBaseViewController
 
 /// @brief Initialize as a flat or 3D map.
-- (id)initWithMapType:(MaplyMapType)mapType;
+- (instancetype)initWithMapType:(MaplyMapType)mapType;
 
 /// @brief Initialize as a 3D map.
-- (id)init __deprecated;
+- (instancetype)init __deprecated;
 
 /// @brief Initialize as a 2D map.
-- (id)initAsFlatMap __deprecated;
+- (instancetype)initAsFlatMap __deprecated;
 
 /** @brief Initialize as a 2D map tied to a UIScrollView.
     @details In this mode we disable all the the gestures.
     @param scrollView The UIScrollView to track.
     @param tetherView If set, we assume the scroll view is manipulating a blank UIView which we'll watch.
   */
-- (id)initAsTetheredFlatMap:(UIScrollView *)scrollView tetherView:(UIView *)tetherView;
+- (instancetype)initAsTetheredFlatMap:(UIScrollView *)scrollView tetherView:(UIView *)tetherView;
 
 /** @brief Reset the UIScrollView for tethered mode.
     @details Occasionally we need to reset the UIScrollView and tether view.  This will do that.

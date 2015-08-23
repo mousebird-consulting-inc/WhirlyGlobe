@@ -55,7 +55,7 @@ using namespace WhirlyKit;
     std::vector<int> framePriorities;
 }
 
-- (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
+- (instancetype)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
 {
     self = [super init];
     
