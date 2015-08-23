@@ -99,11 +99,12 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 
 /// @brief Initialize as a flat or 3D map.
 - (id)initWithMapType:(MaplyMapType)mapType;
+
 /// @brief Initialize as a 3D map.
-- (id)init;
+- (id)init __deprecated;
 
 /// @brief Initialize as a 2D map.
-- (id)initAsFlatMap;
+- (id)initAsFlatMap __deprecated;
 
 /** @brief Initialize as a 2D map tied to a UIScrollView.
     @details In this mode we disable all the the gestures.
