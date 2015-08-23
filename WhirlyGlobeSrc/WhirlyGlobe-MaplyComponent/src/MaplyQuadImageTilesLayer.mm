@@ -333,6 +333,19 @@ using namespace WhirlyKit;
         tileLoader.color = [_color asRGBAColor];
 }
 
+- (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID
+{
+	if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+		return kMaplyNullBoundingBox;
+
+	MaplyBoundingBox box;
+
+	[self geoBoundsForTile:tileID bbox:&box];
+
+	return box;
+}
+
+
 - (void)geoBoundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
 {
     if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
@@ -357,6 +370,18 @@ using namespace WhirlyKit;
     bbox->ll.y = geoMbr.ll().y();
     bbox->ur.x = geoMbr.ur().x();
     bbox->ur.y = geoMbr.ur().y();
+}
+
+- (MaplyBoundingBox)boundsForTile:(MaplyTileID)tileID
+{
+	if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+		return kMaplyNullBoundingBox;
+
+	MaplyBoundingBox box;
+
+	[self geoBoundsForTile:tileID bbox:&box];
+
+	return box;
 }
 
 - (void)boundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
@@ -724,7 +749,7 @@ using namespace WhirlyKit;
         MaplyBoundingBox bbox;
         bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();
         bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
-        if (![_tileSource validTile:tileID bbox:&bbox])
+        if (![_tileSource validTile:tileID bbox:bbox])
             return 0.0;
     }
 
