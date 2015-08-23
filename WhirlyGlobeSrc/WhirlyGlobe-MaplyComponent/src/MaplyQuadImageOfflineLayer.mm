@@ -372,7 +372,7 @@ using namespace WhirlyKit;
         MaplyBoundingBox bbox;
         bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();
         bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
-        if (![_tileSource validTile:tileID bbox:&bbox])
+        if (![_tileSource validTile:tileID bbox:bbox])
             return 0.0;
     }
  

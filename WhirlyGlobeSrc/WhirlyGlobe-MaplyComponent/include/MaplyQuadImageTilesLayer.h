@@ -329,9 +329,19 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
 - (NSArray *)loadedFrames;
 
 /** @brief Return the bounding box for a given tile.
+ @details This calculates the bounding box (in geographic) for the given tile.
+ */
+- (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID;
+
+/** @brief Return the bounding box for a given tile.
     @details This calculates the bounding box (in geographic) for the given tile.
   */
 - (void)geoBoundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
+
+/** @brief Return the bounding box for a given tile.
+ @details This calculate the bounding box in local coordinates for the given tile.
+ */
+- (MaplyBoundingBox)boundsForTile:(MaplyTileID)tileID;
 
 /** @brief Return the bounding box for a given tile.
     @details This calculate the bounding box in local coordinates for the given tile.
