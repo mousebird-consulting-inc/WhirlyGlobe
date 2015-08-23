@@ -40,7 +40,7 @@
 /** @brief Called when the user taps on or near an object.
     @details You're given the object you passed in originally, such as a MaplyScreenMarker.  You can set a userObject on most of these to put your own data in there for tracking.
   */
-- (void)maplyViewController:(MaplyViewController *)viewC didSelect:(NSObject *)selectedObj;
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didSelect:(NSObject *__nonnull)selectedObj;
 
 /** @brief User selected a given object and tapped at a given location.
     @details This is called when the user selects an object.  It differs from maplyViewController:didSelect: in that it passes on the location (in the local coordinate system) and the position on screen.
@@ -49,19 +49,19 @@
     @param coord Location in the local coordinate system where the user tapped.
     @param screenPt Location on screen where the user tapped.
  */
-- (void)maplyViewController:(MaplyViewController *)viewC didSelect:(NSObject *)selectedObj atLoc:(WGCoordinate)coord onScreen:(CGPoint)screenPt;
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didSelect:(NSObject *__nonnull)selectedObj atLoc:(WGCoordinate)coord onScreen:(CGPoint)screenPt;
 
 /** @brief User tapped at a given location.
     @details This is a tap at a specific location on the map.  This won't be called if they tapped and selected, just for taps.
   */
-- (void)maplyViewController:(MaplyViewController *)viewC didTapAt:(MaplyCoordinate)coord;
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didTapAt:(MaplyCoordinate)coord;
 
 /** @brief Called when the map starts moving.
  @param viewC The map view controller.
  @param userMotion Set if this is motion being caused by the user, rather than a call to set location.
  @details This is called when something (probably the user) starts moving the map.
  */
-- (void)maplyViewControllerDidStartMoving:(MaplyViewController *)viewC userMotion:(bool)userMotion;
+- (void)maplyViewControllerDidStartMoving:(MaplyViewController *__nonnull)viewC userMotion:(bool)userMotion;
 
 /** @brief Called when the map stops moving.
  @details This is called when the map stops moving.  It passes in the corners of the current viewspace.
@@ -69,16 +69,16 @@
  @param userMotion Set if this is motion being caused by the user, rather than a call to set location.
  @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the map (think zoomed out), its values are set to MAXFLOAT.
  */
-- (void)maplyViewController:(MaplyViewController *)viewC didStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion;
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didStopMoving:(MaplyCoordinate *__nonnull)corners userMotion:(bool)userMotion;
 
 /** @brief Called when the user taps on one of your annotations.
     @details This is called when the user taps on an annotation.
     @param annotation Which annotation they tapped on.
   */
-- (void)maplyViewController:(MaplyViewController *)viewC didTapAnnotation:(MaplyAnnotation*)annotation;
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didTapAnnotation:(MaplyAnnotation*__nonnull)annotation;
 
 /// Old version for compatibility.  Use tap instead.
-- (void)maplyViewController:(MaplyViewController *)viewC didClickAnnotation:(MaplyAnnotation*)annotation __deprecated;
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didClickAnnotation:(MaplyAnnotation*__nonnull)annotation __deprecated;
 
 @end
 
@@ -98,33 +98,33 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 @interface MaplyViewController : MaplyBaseViewController
 
 /// @brief Initialize as a flat or 3D map.
-- (instancetype)initWithMapType:(MaplyMapType)mapType;
+- (nonnull instancetype)initWithMapType:(MaplyMapType)mapType;
 
 /// @brief Initialize as a 3D map.
-- (instancetype)init __deprecated;
+- (nonnull instancetype)init __deprecated;
 
 /// @brief Initialize as a 2D map.
-- (instancetype)initAsFlatMap __deprecated;
+- (nonnull instancetype)initAsFlatMap __deprecated;
 
 /** @brief Initialize as a 2D map tied to a UIScrollView.
     @details In this mode we disable all the the gestures.
     @param scrollView The UIScrollView to track.
     @param tetherView If set, we assume the scroll view is manipulating a blank UIView which we'll watch.
   */
-- (instancetype)initAsTetheredFlatMap:(UIScrollView *)scrollView tetherView:(UIView *)tetherView;
+- (nonnull instancetype)initAsTetheredFlatMap:(UIScrollView *__nonnull)scrollView tetherView:(UIView *__nullable)tetherView;
 
 /** @brief Reset the UIScrollView for tethered mode.
     @details Occasionally we need to reset the UIScrollView and tether view.  This will do that.
     @param scrollView The UIScrollView to track.
     @param tetherView If set, we assume the scroll view is manipulating a blank UIView which we'll watch.
   */
-- (void)resetTetheredFlatMap:(UIScrollView *)scrollView tetherView:(UIView *)tetherView;
+- (void)resetTetheredFlatMap:(UIScrollView *__nonnull)scrollView tetherView:(UIView *__nullable)tetherView;
 
 /// @brief Set if we're in 2D mode.
 @property (nonatomic,readonly) bool flatMode;
 
 /// @brief If we're in tethered flat map mode, this is the view we're monitoring for size and offset changes.
-@property(nonatomic,weak) UIView *tetherView;
+@property(nonatomic,weak) UIView *__nullable tetherView;
 
 /// @brief If set before startup (after init), we'll turn off all gestures and work only in tethered mode.
 @property(nonatomic,assign) bool tetheredMode;
@@ -132,7 +132,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 /// @brief Set the coordinate system to use in display.
 /// @details The coordinate system needs to be valid in flat mode.  The extents, if present, will be used to define the coordinate system origin.
 /// @details nil is the default and will result in a full web style Spherical Mercator.
-@property(nonatomic,strong) MaplyCoordinateSystem *coordSys;
+@property(nonatomic,strong) MaplyCoordinateSystem *__nullable coordSys;
 
 /** @brief Set the center of the display coordinate system.
     @details This is (0,0,0) by default.  If you set it to something else all display coordinates will be offset from that origin.
@@ -187,7 +187,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 /** @brief Delegate for selection and location tapping.
     @details Fill in the MaplyViewControllerDelegate and assign it here to get callbacks for object selection and tapping.
   */
-@property(nonatomic,weak) NSObject<MaplyViewControllerDelegate> *delegate;
+@property(nonatomic,weak) NSObject<MaplyViewControllerDelegate> *__nullable delegate;
 
 /** @brief Current height above terrain.
     @details In 3D map mode this is the height from which the user is viewing the map.  Maps are usually -PI to +PI along their horizontal edges.
@@ -207,7 +207,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 /** @brief The box the view point can be in.
     @details This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box.  Coordinates are in geographic (radians).
   */
-- (void)getViewExtentsLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
+- (void)getViewExtentsLL:(MaplyCoordinate *__nonnull)ll ur:(MaplyCoordinate *__nonnull)ur;
 
 /** @brief The box the view point can be in.
  @details This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box. Coordinates are in geographic (radians).
@@ -275,7 +275,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
     @param pos The center of the screen in geographic (lon/lat in radians).
     @param height The current view point's height above the map.
   */
-- (void)getPosition:(MaplyCoordinate *)pos height:(float *)height;
+- (void)getPosition:(MaplyCoordinate *__nonnull)pos height:(float *__nonnull)height;
 
 /** @brief Return the closest a viewer is allowed to get to the map surface.
  @return FLT_MIN if there's no pitchDelegate set
@@ -291,7 +291,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
     @param minHeight The closest a viewer is allowed to get to the map surface.
     @param maxHeight The farthest away a viewer is allowed to get from the map surface.
   */
-- (void)getZoomLimitsMin:(float *)minHeight max:(float *)maxHeight;
+- (void)getZoomLimitsMin:(float *__nonnull)minHeight max:(float *__nonnull)maxHeight;
 
 /** @brief Set the zoom limits for 3D map mode.
     @param minHeight The closest a viewer is allowed to get to the map surface.
@@ -315,6 +315,6 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
  @brief Return the extents of the current view
  @return Returns the Bounding Box (in radians) corresponding to the current view
  */
-- (MaplyBoundingBox) getCurrentExtents;
+- (MaplyBoundingBox)getCurrentExtents;
 
 @end

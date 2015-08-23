@@ -28,18 +28,18 @@
 @interface MaplyVertexAttribute : NSObject
 
 /// Construct a vertex attribute as a single float
-- (id)initWithName:(NSString *)name float:(float)val;
+- (nonnull instancetype)initWithName:(NSString * __nonnull)name float:(float)val;
 
 /// Construct a vertex attribute as two floats
-- (id)initWithName:(NSString *)name floatX:(float)x y:(float)y;
+- (nonnull instancetype)initWithName:(NSString * __nonnull)name floatX:(float)x y:(float)y;
 
 /// Construct a vertex attribute as three flaots
-- (id)initWithName:(NSString *)name floatX:(float)x y:(float)y z:(float)z;
+- (nonnull instancetype)initWithName:(NSString * __nonnull)name floatX:(float)x y:(float)y z:(float)z;
 
 /// Construct a vertex attribute as an RGBA value
-- (id)initWithName:(NSString *)name color:(UIColor *)color;
+- (nonnull instancetype)initWithName:(NSString * __nonnull)name color:(UIColor * __nonnull)color;
 
 /// Construct a vertex attribute as an int
-- (id)initWithName:(NSString *)name int:(int)val;
+- (nonnull instancetype)initWithName:(NSString * __nonnull)name int:(int)val;
 
 @end

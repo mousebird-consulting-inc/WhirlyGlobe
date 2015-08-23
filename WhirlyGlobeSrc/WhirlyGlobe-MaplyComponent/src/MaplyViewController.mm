@@ -96,7 +96,7 @@ using namespace Maply;
     return self;
 }
 
-- (instancetype)initAsTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView
+- (nonnull instancetype)initAsTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView
 {
 	self = [self initWithMapType:MaplyMapTypeFlat];
     if (!self)

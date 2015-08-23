@@ -25,7 +25,7 @@
 @interface MaplyComponentObject : NSObject
 
 /// @brief Construct with a description.  Uses the kMaplyEnable.
-- (instancetype)initWithDesc:(NSDictionary *)desc;
+- (nonnull instancetype)initWithDesc:(NSDictionary *__nonnull)desc;
 
 @end
 

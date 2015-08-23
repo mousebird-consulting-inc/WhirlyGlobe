@@ -330,9 +330,10 @@ using namespace WhirlyKit;
         NSURLRequest *urlReq = [_tileInfo requestForTile:tileID];
         if(!urlReq)
         {
-            [layer loadError:nil forTile:tileID];
+			NSError *error = [NSError errorWithDomain:@"maply" code:1 userInfo:@{}];
+            [layer loadError:error forTile:tileID];
             if (self.delegate && [self.delegate respondsToSelector:@selector(remoteTileElevationSource:tileDidNotLoad:error:)])
-                [self.delegate remoteTileElevationSource:self tileDidNotLoad:tileID error:nil];
+                [self.delegate remoteTileElevationSource:self tileDidNotLoad:tileID error:error];
             [self clearTile:tileID];
             
             return;
