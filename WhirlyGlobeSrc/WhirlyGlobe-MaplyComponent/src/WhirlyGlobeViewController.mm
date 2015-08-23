@@ -473,6 +473,16 @@ using namespace WhirlyGlobe;
     globeView.heightAboveGlobe = height;
 }
 
+- (float)getMinZoom
+{
+	return pinchDelegate ? pinchDelegate.minHeight : FLT_MIN;
+}
+
+- (float)getMaxZoom
+{
+	return pinchDelegate ? pinchDelegate.maxHeight : FLT_MIN;
+}
+
 - (void)getZoomLimitsMin:(float *)minHeight max:(float *)maxHeight
 {
     if (pinchDelegate)
@@ -812,6 +822,18 @@ using namespace WhirlyGlobe;
     return retHeading;
 }
 
+- (MaplyCoordinate)getPosition
+{
+	GeoCoord geoCoord = globeView.coordAdapter->getCoordSystem()->localToGeographic(globeView.coordAdapter->displayToLocal([globeView currentUp]));
+
+	return {.x = geoCoord.lon(), .y = geoCoord.lat()};
+}
+
+- (float)getHeight
+{
+	return globeView.heightAboveGlobe;
+}
+
 - (void)getPosition:(WGCoordinate *)pos height:(float *)height
 {
     *height = globeView.heightAboveGlobe;
@@ -1100,7 +1122,7 @@ using namespace WhirlyGlobe;
         Point2f pt = pts[ii];
         MaplyCoordinate geoCoord;
         geoCoord.x = pt.x();  geoCoord.y = pt.y();
-        CGPoint screenPt = [self screenPointFromGeo:geoCoord];
+        CGPoint screenPt = [self pointOnScreenFromGeo:geoCoord];
         if (screenPt.x < 0 || screenPt.y < 0 || screenPt.x > frame.size.width || screenPt.y > frame.size.height)
             return false;
     }
@@ -1163,12 +1185,23 @@ using namespace WhirlyGlobe;
     return maxHeight;
 }
 
-- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
+- (CGPoint)pointOnScreenFromGeo:(MaplyCoordinate)geoCoord
 {
     Point3d pt = visualView.coordAdapter->localToDisplay(visualView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
     
     Eigen::Matrix4d modelTrans = [visualView calcFullMatrix];
     return [globeView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+}
+
+- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
+{
+	CGPoint p;
+
+	if (![self screenPointFromGeo:geoCoord screenPt:&p]) {
+		return CGPointZero;
+	}
+
+	return p;
 }
 
 - (bool)screenPointFromGeo:(MaplyCoordinate)geoCoord screenPt:(CGPoint *)screenPt
@@ -1207,6 +1240,18 @@ using namespace WhirlyGlobe;
 	} else
         return false;
 }
+
+- (NSArray *)geocPointFromScreen:(CGPoint)screenPt
+{
+	double coords[3];
+
+	if (![self geocPointFromScreen:screenPt geocCoord:coords]) {
+		return nil;
+	}
+
+	return @[@(coords[0]), @(coords[1]), @(coords[2])];
+}
+
 
 - (bool)geocPointFromScreen:(CGPoint)screenPt geocCoord:(double *)retCoords
 {
@@ -1413,6 +1458,17 @@ using namespace WhirlyGlobe;
     {
         viewState.tilt = [tiltControlDelegate tiltFromHeight:viewState.height];
     }
+}
+
+- (MaplyBoundingBox)getCurrentExtents
+{
+	MaplyBoundingBox box;
+
+	if (![self getCurrentExtents:&box]) {
+		return kMaplyNullBoundingBox;
+	}
+
+	return box;
 }
 
 - (bool) getCurrentExtents:(MaplyBoundingBox *)bbox
