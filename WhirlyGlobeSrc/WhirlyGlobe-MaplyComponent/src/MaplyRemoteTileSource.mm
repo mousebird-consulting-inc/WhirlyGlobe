@@ -497,9 +497,10 @@ static bool trackConnections = false;
         NSURLRequest *urlReq = [_tileInfo requestForTile:tileID];
         if(!urlReq)
         {
-            [layer loadError:nil forTile:tileID];
+			NSError *error = [NSError errorWithDomain:@"maply" code:1 userInfo:@{}];
+			[layer loadError:error forTile:tileID];
             if (self.delegate && [self.delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
-                [self.delegate remoteTileSource:self tileDidNotLoad:tileID error:nil];
+                [self.delegate remoteTileSource:self tileDidNotLoad:tileID error:error];
             [self clearTile:tileID];
             if (trackConnections)
                 @synchronized([MaplyRemoteTileSource class])
