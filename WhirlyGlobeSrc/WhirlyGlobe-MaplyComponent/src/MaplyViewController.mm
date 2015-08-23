@@ -542,6 +542,17 @@ using namespace Maply;
 #pragma mark - Interaction
 
 /// Return the view extents.  This is the box the view point is allowed to be within.
+- (MaplyBoundingBox)getViewExtents
+{
+	MaplyBoundingBox box;
+
+	box.ll = boundLL;
+	box.ur = boundUR;
+
+	return box;
+}
+
+/// Return the view extents.  This is the box the view point is allowed to be within.
 - (void)getViewExtentsLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
 {
     *ll = boundLL;
@@ -557,6 +568,12 @@ using namespace Maply;
 {
     mapView.loc.z() = height;
     [mapView runViewUpdates];
+}
+
+/// Set the view extents.  This is the box the view point is allowed to be within.
+- (void)setViewExtents:(MaplyBoundingBox)box
+{
+	[self setViewExtentsLL:box.ll ur:box.ur];
 }
 
 /// Set the view extents.  This is the box the view point is allowed to be within.
@@ -719,6 +736,18 @@ using namespace Maply;
     [self handleStopMoving:NO];
 }
 
+- (MaplyCoordinate)getPosition
+{
+	GeoCoord geoCoord = mapView.coordAdapter->getCoordSystem()->localToGeographic(mapView.coordAdapter->displayToLocal(mapView.loc));
+
+	return {.x = geoCoord.x(), .y = geoCoord.x()};
+}
+
+- (float)getHeight
+{
+	return mapView.loc.z();
+}
+
 - (void)getPosition:(WGCoordinate *)pos height:(float *)height
 {
     Point3d loc = mapView.loc;
@@ -735,6 +764,22 @@ using namespace Maply;
 - (float)heading
 {
     return mapView.rotAngle;
+}
+
+- (float)getMinZoom
+{
+	if (pinchDelegate)
+		return pinchDelegate.minZoom;
+
+	return FLT_MIN;
+}
+
+- (float)getMaxZoom
+{
+	if (pinchDelegate)
+		return pinchDelegate.maxZoom;
+
+	return FLT_MIN;
 }
 
 /// Return the min and max heights above the globe for zooming

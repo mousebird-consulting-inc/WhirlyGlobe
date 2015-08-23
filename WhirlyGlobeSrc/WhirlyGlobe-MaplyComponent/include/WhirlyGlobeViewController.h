@@ -258,6 +258,16 @@
   */
 @property(nonatomic,assign) float heading;
 
+/** @brief Returns the closest a viewer is allowed to get to the map surface.
+ @return FLT_MIN if there's no pitchDelegate set
+ */
+- (float)getMinZoom;
+
+/** @brief Returns the farthest away a viewer is allowed to get from the map surface
+ @return FLT_MIN if there's no pitchDelegate set
+ */
+- (float)getMaxZoom;
+
 /** @brief Return the zoom limits for the globe.
     @param minHeight The closest a viewer is allowed to get to the globe surface.
     @param maxHeight The farthest away a viewer is allowed to get from the globe surface.
@@ -341,6 +351,14 @@
  */
 - (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
 
+/** @brief Returns the center of the screen in geographic (lon/lat in radians).
+ */
+- (MaplyCoordinate)getPosition;
+
+/** @brief Returns the current view point's height above the globe.
+ */
+- (float)getHeight;
+
 /** @brief Return the current center position and height.
     @param pos The center of the screen in geographic (lon/lat in radians).
     @param height The current view point's height above the globe.
@@ -385,6 +403,12 @@
   */
 - (WGViewControllerLayer * __nonnull)addSphericalEarthLayerWithImageSet:(NSString * __nonnull)name;
 
+/** @brief Return a location on the screen for a given geographic coordinate or CGPointZero if it's not on the screen.
+ @param geoCoord Point on the earth in lat/lon radians you want a screen position for.
+ @return the point or CGPointZero
+ */
+- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
+
 /** @brief Return a location on the screen for a given geographic coordinate or false if it's not on the screen.
     @param geoCoord Point on the earth in lat/lon radians you want a screen position for.
     @param screenPt Location on the screen.
@@ -400,6 +424,12 @@
 - (bool)geoPointFromScreen:(CGPoint)screenPt geoCoord:(MaplyCoordinate * __nonnull)geoCoord;
 
 /** @brief Calculate a geocentric coordinate from a point on the screen.
+ @param screenPt Location on the screen.
+ @return An array of 3 NSNumber (with doubles). If the point wasn't on the globe, returns nil
+ */
+- (NSArray * __nullable)geocPointFromScreen:(CGPoint)screenPt;
+
+/** @brief Calculate a geocentric coordinate from a point on the screen.
     @param screenPt Location on the screen.
     @param retCoords An array of 3 doubles.  The geocentric coordinate will be returned here.
     @return True if the point was on the globe, false otherwise.
@@ -412,6 +442,13 @@
     @param pos The position the viewer will be at.
  */
 - (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos;
+
+/**
+ @brief Return the extents of the current view.
+ @details When we're dealing with a globe the corners could be outside of the globe, in this case kMaplyNullBoundingBox is returned.
+ @return Returns the bounding box if exists a bounding bbox for the current view, otherwise returns kMaplyNullBoundingBox.
+ */
+- (MaplyBoundingBox)getCurrentExtents;
 
 /**
  @brief Return the extents of the current view.

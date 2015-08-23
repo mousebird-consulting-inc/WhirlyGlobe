@@ -199,9 +199,19 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 @property (nonatomic,assign) bool viewWrap;
 
 /** @brief The box the view point can be in.
+ @details This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box.  Coordinates are in geographic (radians).
+ */
+- (MaplyBoundingBox)getViewExtents;
+
+/** @brief The box the view point can be in.
     @details This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box.  Coordinates are in geographic (radians).
   */
 - (void)getViewExtentsLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
+
+/** @brief The box the view point can be in.
+ @details This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box. Coordinates are in geographic (radians).
+ */
+- (void)setViewExtents:(MaplyBoundingBox)box;
 
 /** @brief The box the view point can be in.
     @details This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box. Coordinates are in geographic (radians).
@@ -250,11 +260,31 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
   */
 - (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
 
+/** @brief Return the current center position
+ @param pos The center of the screen in geographic (lon/lat in radians).
+ */
+- (MaplyCoordinate)getPosition;
+
+/** @brief Return the current view point's height above the map.
+ @param height The current view point's height above the map.
+ */
+- (float)getHeight;
+
 /** @brief Return the current center position and height.
     @param pos The center of the screen in geographic (lon/lat in radians).
     @param height The current view point's height above the map.
   */
 - (void)getPosition:(MaplyCoordinate *)pos height:(float *)height;
+
+/** @brief Return the closest a viewer is allowed to get to the map surface.
+ @return FLT_MIN if there's no pitchDelegate set
+ */
+- (float)getMinZoom;
+
+/** @brief Return the farthest away a viewer is allowed to get from the map surface
+ @return FLT_MIN if there's no pitchDelegate set
+ */
+- (float)getMaxZoom;
 
 /** @brief Return the zoom limits for 3D map mode.
     @param minHeight The closest a viewer is allowed to get to the map surface.
