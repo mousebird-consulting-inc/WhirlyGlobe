@@ -27,7 +27,7 @@
 @interface MaplyTextureAtlasGroup : NSObject
 
 // Construct with the OpenGL memory manager
-- (id)initWithScene:(WhirlyKit::Scene *)scene;
+- (instancetype)initWithScene:(WhirlyKit::Scene *)scene;
 
 // Size of the texture atlases we'll create
 - (void)setSize:(int)size;

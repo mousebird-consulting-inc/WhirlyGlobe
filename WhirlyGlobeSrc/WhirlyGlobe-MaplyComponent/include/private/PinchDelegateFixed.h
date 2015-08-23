@@ -34,7 +34,7 @@
 @interface WGStandardTiltDelegate : NSObject<WGTiltCalculatorDelegate>
 
 // Initialize with a globe view
-- (id)initWithGlobeView:(WhirlyGlobeView *)globeView;
+- (instancetype)initWithGlobeView:(WhirlyGlobeView *)globeView;
 
 @end
 

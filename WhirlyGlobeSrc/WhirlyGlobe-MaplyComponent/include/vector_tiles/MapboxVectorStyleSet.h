@@ -59,7 +59,7 @@
 
 /// @brief Initialize with the style JSON and the view controller
 /// @details We'll parse the style JSON passed in and return nil on failure.
-- (id)initWithJSON:(NSData *)styleJSON viewC:(MaplyBaseViewController *)viewC;
+- (instancetype)initWithJSON:(NSData *)styleJSON viewC:(MaplyBaseViewController *)viewC;
 
 /// @brief Return an integer value for the given name, taking the constants into account.
 - (int)intValue:(NSString *)name dict:(NSDictionary *)dict defVal:(int)defVal;
@@ -135,7 +135,7 @@
 + (id)VectorStyleLayer:(MaplyMapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority;
 
 /// @brief Base class initialization.  Copies data out of the refLayer
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC;
+- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC;
 
 /// @brief Construct objects related to this style based on the input data.
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC;
@@ -187,7 +187,7 @@ typedef NS_ENUM(NSInteger, MapboxVectorGeometryType) {
 @property (nonatomic) NSArray *subFilters;
 
 /// @brief Parse the filter info out of the style entry
-- (id)initWithArray:(NSArray *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
+- (instancetype)initWithArray:(NSArray *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
 
 /// @brief Test a feature's attributes against the filter
 - (bool)testFeature:(NSDictionary *)attrs tile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC;
@@ -211,7 +211,7 @@ typedef NS_ENUM(NSInteger, MaplyMapboxValueType) {
 @property (nonatomic) id value;
 
 /// @brief Initialize with data and a type we're expecting
-- (id)initWithValue:(id)value type:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
+- (instancetype)initWithValue:(id)value type:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
 
 /// @brief Returns a value interpolated between the two inputs
 + (MaplyMapboxValue *)interpolateFrom:(MaplyMapboxValue *)a to:(MaplyMapboxValue *)b t:(double)t;
@@ -251,7 +251,7 @@ typedef NS_ENUM(NSInteger, MapboxVectorFunctionType) {
 @property (nonatomic,assign) double base;
 
 /// @brief Parse out of a JSON object
-- (id)initWithValueDict:(NSDictionary *)dict dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
+- (instancetype)initWithValueDict:(NSDictionary *)dict dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
 
 /// @brief Calculate a value given the input value.  Returns an NSNumber or UIColor
 - (MaplyMapboxValue *)valueForInput:(double)inputVal type:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
@@ -268,13 +268,13 @@ typedef NS_ENUM(NSInteger, MapboxVectorFunctionType) {
 @interface MaplyMapboxValueWrapper : NSObject
 
 /// @brief Initialize with a field that could be a single value or a function and the data we're expecting it to be
-- (id)initWithValue:(id)value dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
+- (instancetype)initWithValue:(id)value dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
 
 /// @brief Initialize by reading the named field out of the dictionary and then parsing out either a value or a function
-- (id)initWithDict:(NSDictionary *)dict name:(NSString *)attrName dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
+- (instancetype)initWithDict:(NSDictionary *)dict name:(NSString *)attrName dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
 
 /// @brief Initialize with a real value of type NSNumber, UIColor, or NSString
-- (id)initWithObject:(id)thing;
+- (instancetype)initWithObject:(id)thing;
 
 /// @brief Defined data type for this value or function
 @property (nonatomic,readonly) MaplyMapboxValueType dataType;

@@ -51,7 +51,7 @@ typedef struct
 /** @brief Init with a globe view controller
     @details Initialize with a globe view controller.  Only valid for globe at the moment.
   */
-- (id)initWithViewC:(WhirlyGlobeViewController *)viewC;
+- (instancetype)initWithViewC:(WhirlyGlobeViewController *)viewC;
 
 /** @brief Query the quad tracker for tiles and locations within them for a group of points.
     @details This is a bulk query for points within the tiles being tracked.

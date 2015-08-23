@@ -29,7 +29,7 @@
 @interface MaplyAtmosphere : NSObject
 
 /// @brief Initialize the view controller.  Will place objects in that view controller.
-- (id)initWithViewC:(WhirlyGlobeViewController *)viewC;
+- (instancetype)initWithViewC:(WhirlyGlobeViewController *)viewC;
 
 /// @brief Rayleigh scattering constant (0.0025 by default)
 @property (nonatomic) float Kr;

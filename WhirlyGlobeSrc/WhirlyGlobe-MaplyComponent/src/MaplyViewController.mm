@@ -41,7 +41,7 @@ using namespace Maply;
     bool isPanning,isZooming,isAnimating;
 }
 
-- (id)initWithMapType:(MaplyMapType)mapType
+- (instancetype)initWithMapType:(MaplyMapType)mapType
 {
 	self = [super init];
 	if (!self)
@@ -64,7 +64,7 @@ using namespace Maply;
 	return self;
 }
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     if (!self)
@@ -79,7 +79,7 @@ using namespace Maply;
     return self;
 }
 
-- (id)initAsFlatMap
+- (instancetype)initAsFlatMap
 {
     self = [super init];
     if (!self)
@@ -96,7 +96,7 @@ using namespace Maply;
     return self;
 }
 
-- (id)initAsTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView
+- (instancetype)initAsTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView
 {
 	self = [self initWithMapType:MaplyMapTypeFlat];
     if (!self)

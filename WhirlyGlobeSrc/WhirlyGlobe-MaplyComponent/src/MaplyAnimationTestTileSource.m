@@ -26,7 +26,7 @@
     int _minZoom,_maxZoom,_depth;
 }
 
-- (id)initWithCoordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom depth:(int)depth
+- (instancetype)initWithCoordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom depth:(int)depth
 {
     self = [super init];
     if (!self)

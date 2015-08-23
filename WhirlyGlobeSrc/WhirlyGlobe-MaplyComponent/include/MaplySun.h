@@ -31,7 +31,7 @@
 /** @brief Initialize with a date.
     @details Initialize with the given date.  The sun position will correspond to that.
   */
-- (id)initWithDate:(NSDate *)date;
+- (instancetype)initWithDate:(NSDate *)date;
 
 /// @brief Return the vector corresponding to the sun location from the earth.
 - (MaplyCoordinate3d)getDirection;

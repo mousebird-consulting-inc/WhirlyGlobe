@@ -28,7 +28,7 @@
 
 /** @brief Initialze the multi source tile info object.  Fill in everything else later.
   */
-- (id)initWithViewC:(MaplyBaseViewController *)viewC;
+- (instancetype)initWithViewC:(MaplyBaseViewController *)viewC;
 
 /** @brief The object needs this if you're parsing vector tiles.
   */
