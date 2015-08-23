@@ -30,7 +30,7 @@
     NSMutableDictionary *layersByUUID;
 }
 
-- (id)initWithJSON:(NSData *)styleJSON viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithJSON:(NSData *)styleJSON viewC:(MaplyBaseViewController *)viewC
 {
     self = [super init];
     if (!self)
@@ -440,7 +440,7 @@
     return layer;
 }
 
-- (id)initWithStyleEntry:(NSDictionary *)layerDict parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleEntry:(NSDictionary *)layerDict parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC
 {
     self = [super init];
     if (!self)
@@ -471,7 +471,7 @@
 
 @implementation MapboxVectorFilter
 
-- (id)initWithArray:(NSArray *)filterArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithArray:(NSArray *)filterArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
 {
     if (![filterArray isKindOfClass:[NSArray class]])
     {
@@ -681,7 +681,7 @@
 
 @implementation MaplyMapboxValue
 
-- (id)initWithValue:(id)value type:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
+- (instancetype)initWithValue:(id)value type:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
 {
     self = [super init];
 
@@ -778,7 +778,7 @@
 
 @implementation MaplyMapboxVectorFunction
 
-- (id)initWithValueDict:(NSDictionary *)dict dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithValueDict:(NSDictionary *)dict dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
 {
     if (![dict isKindOfClass:[NSDictionary class]])
     {
@@ -885,7 +885,7 @@
     MaplyMapboxVectorFunction *func;
 }
 
-- (id)initWithValue:(id)inValue dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
+- (instancetype)initWithValue:(id)inValue dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
 {
     self = [super init];
 
@@ -963,7 +963,7 @@
     return self;
 }
 
-- (id)initWithDict:(NSDictionary *)dict name:(NSString *)attrName dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
+- (instancetype)initWithDict:(NSDictionary *)dict name:(NSString *)attrName dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
 {
     id thing = dict[attrName];
     if (!thing)
@@ -974,7 +974,7 @@
     return [self initWithValue:thing dataType:dataType styleSet:styleSet];
 }
 
-- (id)initWithObject:(id)thing
+- (instancetype)initWithObject:(id)thing
 {
     self = [super init];
     if ([thing isKindOfClass:[UIColor class]])

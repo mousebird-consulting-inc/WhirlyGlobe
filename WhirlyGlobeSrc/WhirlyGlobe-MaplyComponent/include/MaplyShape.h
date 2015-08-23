@@ -178,7 +178,7 @@ typedef MaplyShapeCylinder WGShapeCylinder;
 /** @brief Construct with the coordinates for the outline to extrude.
     @details Pass in pairs of doubles that correspond to the
   */
-- (id)initWithOutline:(double *)coords numCoordPairs:(int)numCoordPairs;
+- (instancetype)initWithOutline:(double *)coords numCoordPairs:(int)numCoordPairs;
 
 /** @brief Number of coordinate pairs in this shape.
   */

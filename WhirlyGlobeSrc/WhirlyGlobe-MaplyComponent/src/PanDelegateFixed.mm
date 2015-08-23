@@ -50,7 +50,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     bool runEndMomentum;
 }
 
-- (id)initWithGlobeView:(WhirlyGlobeView *)inView
+- (instancetype)initWithGlobeView:(WhirlyGlobeView *)inView
 {
 	if ((self = [super init]))
 	{

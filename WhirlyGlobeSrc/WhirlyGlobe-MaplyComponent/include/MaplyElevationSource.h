@@ -50,7 +50,7 @@
  @param sizeX Number of samples in X.
  @param sizeY Number of samples in Y.
  */
-- (id)initWithGridData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY;
+- (instancetype)initWithGridData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY;
 
 @end
 
@@ -66,7 +66,7 @@
  @param sizeX tile size in X.
  @param sizeY tile size in Y.
  */
-- (id)initWithCesiumData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY;
+- (instancetype)initWithCesiumData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY;
 
 /// @brief If set, this cales the elevation
 @property (nonatomic) float scale;

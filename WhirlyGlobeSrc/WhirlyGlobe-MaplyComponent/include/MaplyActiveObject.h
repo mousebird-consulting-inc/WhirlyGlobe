@@ -41,7 +41,7 @@
 /** @brief Initialize with a view controller
     @details The default initializer just takes a view controller.  If you replace this with your own, be sure to pass in what you need.
   */
-- (id)initWithViewController:(MaplyBaseViewController *)viewC;
+- (instancetype)initWithViewController:(MaplyBaseViewController *)viewC;
 
 /// @brief The view controller this active object is associated with
 @property (nonatomic,weak,readonly) MaplyBaseViewController *viewC;

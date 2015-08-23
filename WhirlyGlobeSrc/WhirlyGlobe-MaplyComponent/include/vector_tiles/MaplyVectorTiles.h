@@ -47,7 +47,7 @@
     @details This will start up a maply vector tiles object reading from the given database and building objects in the given view controller.
     @details The vector database will respond to the MaplyPagingDelegate and pull in tiles as needed for display.
   */
-- (id)initWithDatabase:(NSString *)tilesDB viewC:(MaplyBaseViewController *)viewC;
+- (instancetype)initWithDatabase:(NSString *)tilesDB viewC:(MaplyBaseViewController *)viewC;
 
 /** @brief Initialize with a JSON tile spec, which specifies where the tiles come from and other values.
     @details Initialize a tile database with a JSON tile spec, which gives us remote tile locations, min and max levels and other useful values.
@@ -55,7 +55,7 @@
     @param styles The styles dictionary.  Presumably we just fetched this remotely.
     @param viewC The view controller we'll use to create objects.
   */
-- (id)initWithTileSpec:(NSDictionary *)jsonSpec styles:(NSDictionary *)styles viewC:(MaplyBaseViewController *)viewC;
+- (instancetype)initWithTileSpec:(NSDictionary *)jsonSpec styles:(NSDictionary *)styles viewC:(MaplyBaseViewController *)viewC;
 
 /// @brief The minimum level this database covers
 @property (nonatomic,assign) int minLevel;

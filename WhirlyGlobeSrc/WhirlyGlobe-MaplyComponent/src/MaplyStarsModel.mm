@@ -41,7 +41,7 @@ typedef struct
     UIImage *image;
 }
 
-- (id)initWithFileName:(NSString *)fileName
+- (instancetype)initWithFileName:(NSString *)fileName
 {
     self = [super init];
     

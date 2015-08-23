@@ -71,7 +71,7 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
 /** @brief Initialize a particle system with a name.
     @details The particle system needs the name for performance and debugging.  The rest of the values can left to their defaults.
   */
-- (id)initWithName:(NSString *)name;
+- (instancetype)initWithName:(NSString *)name;
 
 /** @brief Add an attribute we'll be expecting in each batch.
     @details Adds an attribute name and type which will be present in each batch.

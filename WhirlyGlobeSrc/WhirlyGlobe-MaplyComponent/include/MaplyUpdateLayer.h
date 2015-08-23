@@ -76,6 +76,6 @@
     @param moveDist The minimum distance that will trigger a delegate call.  Distance is in display units (radius of the earth = 1.0).
     @param minTime The delegate will be called no more often than this amount (in seconds).
   */
-- (id)initWithDelegate:(NSObject<MaplyUpdateDelegate> *)delegate moveDist:(double)moveDist minTime:(double)minTime;
+- (instancetype)initWithDelegate:(NSObject<MaplyUpdateDelegate> *)delegate moveDist:(double)moveDist minTime:(double)minTime;
 
 @end

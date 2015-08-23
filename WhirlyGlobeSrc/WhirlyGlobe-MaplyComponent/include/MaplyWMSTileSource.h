@@ -113,7 +113,7 @@
 
 /// This constructor will initialize with an XML document that
 ///  we've fetched from the server, presumably.
-- (id)initWithXML:(DDXMLDocument *)xmlDoc;
+- (instancetype)initWithXML:(DDXMLDocument *)xmlDoc;
 
 /// Look for a layer with the given name.
 - (MaplyWMSLayer *)findLayer:(NSString *)name;
@@ -172,7 +172,7 @@
             asks for based on the overall extents and the zoom levels.
     @param maxZoom The max zoom level we'll query.
   */
-- (id)initWithBaseURL:(NSString *)baseURL capabilities:(MaplyWMSCapabilities *)cap layer:(MaplyWMSLayer *)layer style:(MaplyWMSStyle *)style coordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom tileSize:(int)tileSize;
+- (instancetype)initWithBaseURL:(NSString *)baseURL capabilities:(MaplyWMSCapabilities *)cap layer:(MaplyWMSLayer *)layer style:(MaplyWMSStyle *)style coordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom tileSize:(int)tileSize;
 
 @end
 

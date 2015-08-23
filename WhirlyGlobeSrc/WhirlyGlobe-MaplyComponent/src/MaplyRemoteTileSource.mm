@@ -44,7 +44,7 @@ static bool trackConnections = false;
     std::vector<Mbr> mbrs;
 }
 
-- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
+- (instancetype)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
 {
     self = [super init];
     if (!self)
@@ -62,7 +62,7 @@ static bool trackConnections = false;
     return self;
 }
 
-- (id)initWithTilespec:(NSDictionary *)jsonDict
+- (instancetype)initWithTilespec:(NSDictionary *)jsonDict
 {
     self = [super init];
     if (!self)
@@ -245,7 +245,7 @@ static bool trackConnections = false;
     Maply::TileFetchOpSet tileSet;
 }
 
-- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
+- (instancetype)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
 {
     self = [super init];
     if (!self)
@@ -258,7 +258,7 @@ static bool trackConnections = false;
     return self;
 }
 
-- (id)initWithTilespec:(NSDictionary *)jsonDict
+- (instancetype)initWithTilespec:(NSDictionary *)jsonDict
 {
     self = [super init];
     if (!self)
@@ -271,7 +271,7 @@ static bool trackConnections = false;
     return self;
 }
 
-- (id)initWithInfo:(MaplyRemoteTileInfo *)info
+- (instancetype)initWithInfo:(MaplyRemoteTileInfo *)info
 {
     self = [super init];
     if (!self)

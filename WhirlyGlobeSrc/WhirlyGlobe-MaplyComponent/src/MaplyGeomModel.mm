@@ -33,7 +33,7 @@ using namespace Eigen;
     WhirlyKit::SimpleIdentity baseModelID;    
 }
 
-- (id)initWithObj:(NSString *)fullPath
+- (instancetype)initWithObj:(NSString *)fullPath
 {
     self = [super init];
     
@@ -52,7 +52,7 @@ using namespace Eigen;
     return self;
 }
 
-- (id)initWithShape:(MaplyShape *)inShape;
+- (instancetype)initWithShape:(MaplyShape *)inShape;
 {
     self = [super init];
     

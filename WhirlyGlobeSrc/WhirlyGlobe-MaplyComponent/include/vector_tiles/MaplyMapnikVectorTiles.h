@@ -84,7 +84,7 @@ typedef NS_ENUM(NSInteger, MapnikCommandType) {
 @interface MaplyMapnikVectorTileParser : NSObject
 
 /// @brief Initialize with the style delegate
-- (id)initWithStyle:(NSObject<MaplyVectorStyleDelegate> *)styleDelegate viewC:(MaplyBaseViewController *)viewC;
+- (instancetype)initWithStyle:(NSObject<MaplyVectorStyleDelegate> *)styleDelegate viewC:(MaplyBaseViewController *)viewC;
 
 /// @brief The styling delegate turns vector data into visible objects in the toolkit
 @property (nonatomic, strong) NSObject<MaplyVectorStyleDelegate> *styleDelegate;

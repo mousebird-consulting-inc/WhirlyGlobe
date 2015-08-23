@@ -24,7 +24,7 @@
 
 @interface MaplyRemoteTileElevationInfo : NSObject
 
-- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
+- (instancetype)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
 
 @property (nonatomic,readonly) NSString *baseURL;
 
@@ -86,9 +86,9 @@
 
 @interface MaplyRemoteTileElevationSource : NSObject<MaplyElevationSourceDelegate>
 
-- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
+- (instancetype)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
 
-- (id)initWithInfo:(MaplyRemoteTileElevationInfo *)info;
+- (instancetype)initWithInfo:(MaplyRemoteTileElevationInfo *)info;
 
 
 // Inherited from MaplyElevationSourceDelegate
