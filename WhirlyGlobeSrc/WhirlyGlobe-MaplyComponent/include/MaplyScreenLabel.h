@@ -56,13 +56,13 @@
 /** @brief The actual text to display.
     @details This is a simple NSString for the text.  Things like font are set in the NSDictionary passed in to the add call in the view controller.
   */
-@property (nonatomic,strong) NSString *text;
+@property (nonatomic,strong) NSString * __nullable text;
 
 /** @brief Text can be accompanied by an optional icon image.
     @details If set, we'll put this image to the left of the text in the screen label.  The UIImage will be tracked by the view controller and reused as needed or disposed of when no longer needed.
     @details The name had to change because Apple's private selector search is somewhat weak.
   */
-@property (nonatomic,strong) UIImage *iconImage2;
+@property (nonatomic,strong) UIImage * __nullable iconImage2;
 
 /** @brief Icon size in points.
     @details If there is an icon image, this is how big it is.
@@ -77,7 +77,7 @@
 /** @brief An option color override.
     @details If set, this color will override the color passed in with the NSDictionary in the view controller's add method.
   */
-@property (nonatomic,strong) UIColor *color;
+@property (nonatomic,strong) UIColor * __nullable color;
 
 /** @brief Label selectability.  On by default
     @details If set, this label can be selected by the user.  If not set, this screen label will never appear in selection results.
@@ -104,7 +104,7 @@
 /** @brief User data object for selection
     @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the screen label means to them.
   */
-@property (nonatomic,strong) id userObject;
+@property (nonatomic,strong) id  __nullable userObject;
 
 @end
 

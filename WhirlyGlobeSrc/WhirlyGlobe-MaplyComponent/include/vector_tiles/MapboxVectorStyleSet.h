@@ -31,74 +31,74 @@
 @interface MaplyMapboxVectorStyleSet : NSObject <MaplyVectorStyleDelegate>
 
 /// @brief Default settings and scale factor for Mapnik vector geometry.
-@property (nonatomic, strong) MaplyVectorTileStyleSettings *tileStyleSettings;
+@property (nonatomic, strong, nullable) MaplyVectorTileStyleSettings *tileStyleSettings;
 
 /// @brief The view controller everything will be added to
-@property (nonatomic, weak) MaplyBaseViewController *viewC;
+@property (nonatomic, weak, nonnull) MaplyBaseViewController *viewC;
 
 /// @brief Style name
-@property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong, nullable) NSString *name;
 
 /// @brief Version number from the style
 @property (nonatomic) NSUInteger version;
 
 /// @brief Constants from the Style sheet
-@property (nonatomic, strong) NSDictionary *constants;
+@property (nonatomic, strong, nullable) NSDictionary *constants;
 
 /// @brief Where we can fetch the sprites
-@property (nonatomic, strong) NSString *spriteURL;
+@property (nonatomic, strong, nullable) NSString *spriteURL;
 
 /// @brief Layers parsed from the style sheet
-@property (nonatomic, strong) NSArray *layers;
+@property (nonatomic, strong, nullable) NSArray *layers;
 
 /// @brief Layers sorted by their ID
-@property (nonatomic, strong) NSDictionary *layersByName;
+@property (nonatomic, strong, nullable) NSDictionary *layersByName;
 
 /// @brief Layers sorted by source layer name
-@property (nonatomic, strong) NSDictionary *layersBySource;
+@property (nonatomic, strong, nullable) NSDictionary *layersBySource;
 
 /// @brief Initialize with the style JSON and the view controller
 /// @details We'll parse the style JSON passed in and return nil on failure.
-- (instancetype)initWithJSON:(NSData *)styleJSON viewC:(MaplyBaseViewController *)viewC;
+- (nullable instancetype)initWithJSON:(NSData *__nonnull)styleJSON viewC:(MaplyBaseViewController *__nonnull)viewC;
 
 /// @brief Return an integer value for the given name, taking the constants into account.
-- (int)intValue:(NSString *)name dict:(NSDictionary *)dict defVal:(int)defVal;
+- (int)intValue:(NSString *__nonnull)name dict:(NSDictionary *__nonnull)dict defVal:(int)defVal;
 
 /// @brief Return a double value for the given name, taking the constants into account
-- (double)doubleValue:(NSString *)name dict:(NSDictionary *)dict defVal:(double)devVal;
+- (double)doubleValue:(NSString *__nonnull)name dict:(NSDictionary *__nonnull)dict defVal:(double)devVal;
 
 /// @brief Return a double value for the given name, taking the constants into account
-- (double)doubleValue:(id)entry defVal:(double)defVal;
+- (double)doubleValue:(id __nonnull)entry defVal:(double)defVal;
 
 /// @brief Return a string for the given name, taking the constants into account
-- (NSString *)stringValue:(NSString *)name defVal:(NSString *)defVal;
+- (NSString *__nullable)stringValue:(NSString *__nonnull)name defVal:(NSString *__nullable)defVal;
 
 /// @brief Return a string for the given name, taking the constants into account
-- (NSString *)stringValue:(NSString *)name dict:(NSDictionary *)dict defVal:(NSString *)defVal;
+- (NSString *__nullable)stringValue:(NSString *__nonnull)name dict:(NSDictionary *__nonnull)dict defVal:(NSString *__nullable)defVal;
 
 /// @brief Return a color, taking constants into account
-- (UIColor *)colorValue:(NSString *)name defVal:(UIColor *)defVal;
+- (UIColor *__nullable)colorValue:(NSString *__nonnull)name defVal:(UIColor *__nullable)defVal;
 
 /// @brief Return a color for the given name, taking the constants into account
-- (UIColor *)colorValue:(NSString *)name dict:(NSDictionary *)dict defVal:(UIColor *)defVal;
+- (UIColor *__nullable)colorValue:(NSString *__nonnull)name dict:(NSDictionary *__nonnull)dict defVal:(UIColor *__nullable)defVal;
 
 /// @brief Return an array for the given name, taking the constants into account
-- (NSArray *)arrayValue:(NSString *)name dict:(NSDictionary *)dict defVal:(NSArray *)defVal;
+- (NSArray *__nullable)arrayValue:(NSString *__nonnull)name dict:(NSDictionary *__nonnull)dict defVal:(NSArray *__nullable)defVal;
 
 /// @brief Scale the color by the given opacity
-- (UIColor *)color:(UIColor *)color withOpacity:(double)opacity;
+- (UIColor *__nonnull)color:(UIColor *__nonnull)color withOpacity:(double)opacity;
 
 /// @brief Return the integer corresponding to the name.  Basically parse the enumerated type.
-- (NSUInteger)enumValue:(NSString *)name options:(NSArray *)options defVal:(NSUInteger)defVal;
+- (NSUInteger)enumValue:(NSString *__nonnull)name options:(NSArray *__nonnull)options defVal:(NSUInteger)defVal;
 
 /// @brief Check for and report an unsupported field
-- (void)unsupportedCheck:(NSString *)field in:(NSString *)what styleEntry:(NSDictionary *)styleEntry;
+- (void)unsupportedCheck:(NSString *__nonnull)field in:(NSString *__nonnull)what styleEntry:(NSDictionary *__nonnull)styleEntry;
 
 /// @brief Check if the given thing is a constant and return its value if it is.  Otherwise just return it.
-- (id)constantSubstitution:(id)thing forField:(NSString *)field;
+- (id __nonnull)constantSubstitution:(id __nonnull)thing forField:(NSString *__nullable)field;
 
 /// @brief Figure out the background color
-- (UIColor *)backgroundColor;
+- (UIColor *__nullable)backgroundColor;
 
 @end
 
@@ -108,16 +108,16 @@
 @interface MaplyMapboxVectorStyleLayer : MaplyVectorTileStyle
 // Note: Need a better base class than MaplyVectorTileStyle
 
-@property (nonatomic,weak) MaplyMapboxVectorStyleSet *styleSet;
+@property (nonatomic,weak, nullable) MaplyMapboxVectorStyleSet *styleSet;
 
 /// @brief ID on the layer style entry
-@property (nonatomic) NSString *ident;
+@property (nonatomic, nullable) NSString *ident;
 
 /// @brief Source from layer defn
-@property (nonatomic) NSString *source;
+@property (nonatomic, nullable) NSString *source;
 
 /// @brief Source layer from layer defn
-@property (nonatomic) NSString *sourceLayer;
+@property (nonatomic, nullable) NSString *sourceLayer;
 
 /// @brief Min/max zoom levels
 @property (nonatomic) int minzoom,maxzoom;
@@ -126,21 +126,21 @@
 @property (nonatomic) bool interactive;
 
 /// @brief Filter this layer uses to match up to data
-@property (nonatomic) MapboxVectorFilter *filter;
+@property (nonatomic, nullable) MapboxVectorFilter *filter;
 
 /// @brief DrawPriority based on location in the style sheet
 @property (nonatomic) int drawPriority;
 
 /// @brief Initialize with the style sheet and the entry for this layer
-+ (instancetype)VectorStyleLayer:(MaplyMapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority __deprecated;
++ (nullable instancetype)VectorStyleLayer:(MaplyMapboxVectorStyleSet *__nonnull)styleSet JSON:(NSDictionary *__nonnull)layerDict drawPriority:(int)drawPriority __deprecated;
 
-- (instancetype)initWithStyleSet:(MaplyMapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority;
+- (nullable instancetype)initWithStyleSet:(MaplyMapboxVectorStyleSet *__nonnull)styleSet JSON:(NSDictionary *__nonnull)layerDict drawPriority:(int)drawPriority;
 
 /// @brief Base class initialization.  Copies data out of the refLayer
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC;
+- (nullable instancetype)initWithStyleEntry:(NSDictionary *__nonnull)styleEntry parent:(MaplyMapboxVectorStyleLayer *__nonnull)refLayer styleSet:(MaplyMapboxVectorStyleSet *__nonnull)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *__nonnull)viewC;
 
 /// @brief Construct objects related to this style based on the input data.
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC;
+- (nullable NSArray *)buildObjects:(NSArray *__nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *__nonnull)viewC;
 
 @end
 
@@ -174,25 +174,25 @@ typedef NS_ENUM(NSInteger, MapboxVectorGeometryType) {
 @property (nonatomic) MapboxVectorFilterType filterType;
 
 /// @brief Attribute name for all the types that take two arguments
-@property (nonatomic) NSString *attrName;
+@property (nonatomic, nullable) NSString *attrName;
 
 /// @brief Set if we're comparing geometry type instead of an attribute
 @property (nonatomic) MapboxVectorGeometryType geomType;
 
 /// @brief Attribute value to compare for all the type that take two arguments
-@property (nonatomic) id attrVal;
+@property (nonatomic, nullable) id attrVal;
 
 /// @brief Attribute values for the in and !in operators
-@property (nonatomic) NSArray *attrVals;
+@property (nonatomic, nullable) NSArray *attrVals;
 
 /// @brief For All and Any these are the MapboxVectorFilters to evaluate
-@property (nonatomic) NSArray *subFilters;
+@property (nonatomic, nullable) NSArray *subFilters;
 
 /// @brief Parse the filter info out of the style entry
-- (instancetype)initWithArray:(NSArray *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
+- (nullable instancetype)initWithArray:(NSArray *__nonnull)styleEntry styleSet:(MaplyMapboxVectorStyleSet *__nonnull)styleSet viewC:(MaplyBaseViewController *__nonnull)viewC;
 
 /// @brief Test a feature's attributes against the filter
-- (bool)testFeature:(NSDictionary *)attrs tile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC;
+- (bool)testFeature:(NSDictionary *__nonnull)attrs tile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *__nonnull)viewC;
 
 @end
 
@@ -210,13 +210,13 @@ typedef NS_ENUM(NSInteger, MaplyMapboxValueType) {
 @property (nonatomic) MaplyMapboxValueType type;
 
 /// @brief NSNumber or UIColor at present
-@property (nonatomic) id value;
+@property (nonatomic, nullable) id value;
 
 /// @brief Initialize with data and a type we're expecting
-- (instancetype)initWithValue:(id)value type:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
+- (nullable instancetype)initWithValue:(id __nonnull)value type:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *__nullable)styleSet;
 
 /// @brief Returns a value interpolated between the two inputs
-+ (MaplyMapboxValue *)interpolateFrom:(MaplyMapboxValue *)a to:(MaplyMapboxValue *)b t:(double)t;
++ (MaplyMapboxValue *__nonnull)interpolateFrom:(MaplyMapboxValue *__nonnull)a to:(MaplyMapboxValue *__nonnull)b t:(double)t;
 
 @end
 
@@ -227,7 +227,7 @@ typedef NS_ENUM(NSInteger, MaplyMapboxValueType) {
 @property (nonatomic) double inputVal;
 
 /// @brief Output data value.  Might be an NSNumber, UIColor, or
-@property (nonatomic) id outputVal;
+@property (nonatomic, nullable) id outputVal;
 
 @end
 
@@ -247,22 +247,22 @@ typedef NS_ENUM(NSInteger, MapboxVectorFunctionType) {
 @property (nonatomic,readonly) MaplyMapboxValueType dataType;
 
 /// @brief Array of function stops as they apply to value.  These are MaplyVectorFunctionStop objects.
-@property (nonatomic,strong) NSArray *stops;
+@property (nonatomic,strong, nullable) NSArray *stops;
 
 /// @brief Used in exponential calculation
 @property (nonatomic,assign) double base;
 
 /// @brief Parse out of a JSON object
-- (instancetype)initWithValueDict:(NSDictionary *)dict dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
+- (nullable instancetype)initWithValueDict:(NSDictionary *__nonnull)dict dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *__nonnull)styleSet viewC:(MaplyBaseViewController *__nullable)viewC;
 
 /// @brief Calculate a value given the input value.  Returns an NSNumber or UIColor
-- (MaplyMapboxValue *)valueForInput:(double)inputVal type:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
+- (nullable MaplyMapboxValue *)valueForInput:(double)inputVal type:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *__nonnull)styleSet;
 
 /// @brief Returns the minimum value
-- (MaplyMapboxValue *)minValueOfType:(MaplyMapboxValueType)dataType;
+- (nullable MaplyMapboxValue *)minValueOfType:(MaplyMapboxValueType)dataType;
 
 /// @brief Returns the maximum value
-- (MaplyMapboxValue *)maxValueOfType:(MaplyMapboxValueType)dataType;
+- (nullable MaplyMapboxValue *)maxValueOfType:(MaplyMapboxValueType)dataType;
 
 @end
 
@@ -270,13 +270,13 @@ typedef NS_ENUM(NSInteger, MapboxVectorFunctionType) {
 @interface MaplyMapboxValueWrapper : NSObject
 
 /// @brief Initialize with a field that could be a single value or a function and the data we're expecting it to be
-- (instancetype)initWithValue:(id)value dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
+- (nullable instancetype)initWithValue:(id __nonnull)value dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *__nonnull)styleSet;
 
 /// @brief Initialize by reading the named field out of the dictionary and then parsing out either a value or a function
-- (instancetype)initWithDict:(NSDictionary *)dict name:(NSString *)attrName dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
+- (nullable instancetype)initWithDict:(NSDictionary *__nonnull)dict name:(NSString *__nonnull)attrName dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *__nonnull)styleSet;
 
 /// @brief Initialize with a real value of type NSNumber, UIColor, or NSString
-- (instancetype)initWithObject:(id)thing;
+- (nullable instancetype)initWithObject:(id __nonnull)thing;
 
 /// @brief Defined data type for this value or function
 @property (nonatomic,readonly) MaplyMapboxValueType dataType;
@@ -285,18 +285,18 @@ typedef NS_ENUM(NSInteger, MapboxVectorFunctionType) {
 @property (nonatomic,readonly) bool isValue;
 
 /// @brief Return a simple number
-- (double)numberForZoom:(int)zoom styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
+- (double)numberForZoom:(int)zoom styleSet:(MaplyMapboxVectorStyleSet *__nonnull)styleSet;
 
 /// @brief Return the maximum possible number
-- (double)maxNumberWithStyleSet:(MaplyMapboxVectorStyleSet *)styleSet;
+- (double)maxNumberWithStyleSet:(MaplyMapboxVectorStyleSet *__nonnull)styleSet;
 
 /// @brief Return a color
-- (UIColor *)colorForZoom:(int)zoom styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
+- (nullable UIColor *)colorForZoom:(int)zoom styleSet:(MaplyMapboxVectorStyleSet *__nonnull)styleSet;
 
 /// @brief Return the maximum possible color
-- (UIColor *)maxColorWithStyleSet:(MaplyMapboxVectorStyleSet *)styleSet;
+- (nullable UIColor *)maxColorWithStyleSet:(MaplyMapboxVectorStyleSet *__nonnull)styleSet;
 
 /// @brief Return a string
-- (NSString *)stringForZoom:(int)zoom styleSet:(MaplyMapboxVectorStyleSet *)styleSet;
+- (nullable NSString *)stringForZoom:(int)zoom styleSet:(MaplyMapboxVectorStyleSet *__nonnull)styleSet;
 
 @end
