@@ -33,7 +33,7 @@ typedef enum {MaplyOpacityFlat,MaplyOpacityLinear,MaplyOpacitySin1,MaplyOpacityS
 /** @brief Construct with a target size.
     @details It's best if the target size lines up with the element sizes, but that's not required.
   */
-- (id)initWithSize:(CGSize)size;
+- (instancetype)initWithSize:(CGSize)size;
 
 /** @brief Set the pattern of dots and empty spaces.
     @details This is an array of NSNumbers (treated as integers) that specify how big an element in the given pattern is.  The first element is on, the next off and so forth.

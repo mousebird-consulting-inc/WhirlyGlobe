@@ -29,7 +29,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyVectorTileStyleSettings
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     _lineScale = 1.0;
@@ -84,7 +84,7 @@ using namespace WhirlyKit;
     return tileStyle;
 }
 
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry viewC:(MaplyBaseViewController *)viewC
 {
     self = [super init];
     _viewC = viewC;

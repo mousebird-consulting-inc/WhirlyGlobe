@@ -177,7 +177,7 @@ static const char *fragmentShaderTri =
     MaplyAtmosphere * __weak atm;
 }
 
-- (id)initWithShader:(MaplyShader *)inShader atm:(MaplyAtmosphere *)inAtm viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithShader:(MaplyShader *)inShader atm:(MaplyAtmosphere *)inAtm viewC:(MaplyBaseViewController *)viewC
 {
     self = [super initWithViewController:viewC];
     changed = true;
@@ -268,7 +268,7 @@ static const char *fragmentShaderTri =
     float wavelength[3];
 }
 
-- (id)initWithViewC:(WhirlyGlobeViewController *)inViewC
+- (instancetype)initWithViewC:(WhirlyGlobeViewController *)inViewC
 {
     self = [super init];
     

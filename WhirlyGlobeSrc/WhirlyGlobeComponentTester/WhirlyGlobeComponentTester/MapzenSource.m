@@ -139,7 +139,7 @@
                      if (!connectionError)
                      {
                          // Expecting GeoJSON
-                         MaplyVectorObject *vecObj = [MaplyVectorObject VectorObjectFromGeoJSON:data];
+                         MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithGeoJSON:data];
                          
                          if (vecObj)
                          {

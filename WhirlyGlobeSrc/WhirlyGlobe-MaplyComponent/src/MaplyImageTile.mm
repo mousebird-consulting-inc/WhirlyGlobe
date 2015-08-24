@@ -30,7 +30,7 @@
     NSArray *stuff;
 }
 
-- (id)initAsPlaceholder
+- (instancetype)initAsPlaceholder
 {
     self = [super init];
     _type = MaplyImgTypePlaceholder;
@@ -38,7 +38,7 @@
     return self;
 }
 
-- (id)initWithRawImage:(NSData *)data width:(int)width height:(int)height
+- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height
 {
     if (![data isKindOfClass:[NSData class]])
         return nil;
@@ -55,7 +55,7 @@
     return self;
 }
 
-- (id)initWithRawImageArray:(NSArray *)dataArray width:(int)width height:(int)height
+- (instancetype)initWithRawImageArray:(NSArray *)dataArray width:(int)width height:(int)height
 {
     for (NSData *data in dataArray)
     {
@@ -74,7 +74,7 @@
     return self;
 }
 
-- (id)initWithImage:(UIImage *)image
+- (instancetype)initWithImage:(UIImage *)image
 {
     if (![image isKindOfClass:[UIImage class]])
         return nil;
@@ -87,7 +87,7 @@
     return self;
 }
 
-- (id)initWithImageArray:(NSArray *)images
+- (instancetype)initWithImageArray:(NSArray *)images
 {
     for (UIImage *image in images)
         if (![image isKindOfClass:[UIImage class]])
@@ -101,7 +101,7 @@
     return self;
 }
 
-- (id)initWithPNGorJPEGData:(NSData *)data
+- (instancetype)initWithPNGorJPEGData:(NSData *)data
 {
     if (![data isKindOfClass:[NSData class]])
         return nil;
@@ -114,7 +114,7 @@
     return self;
 }
 
-- (id)initWithPNGorJPEGDataArray:(NSArray *)dataArray
+- (instancetype)initWithPNGorJPEGDataArray:(NSArray *)dataArray
 {
     for (NSData *data in dataArray)
     {
@@ -141,7 +141,7 @@
     return CGSizeMake(_targetWidth, _targetHeight);
 }
 
-- (id)initWithRandomData:(id)theObj
+- (instancetype)initWithRandomData:(id)theObj
 {
     self = nil;
     

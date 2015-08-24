@@ -29,7 +29,7 @@
 
 /// @brief Initialize as a placeholder image.
 /// @details Placeholder images are blank, but they allow the pager to keep loading their children.
-- (id)initAsPlaceholder;
+- (instancetype)initAsPlaceholder;
 
 /** @brief Initialize with an NSData object containing 32 bit pixels.
     @details This sets up the tile with an NSData object containing raw pixels.  The pixels are 32 bit RGBA even if you're targeting a smaller pixel format.
@@ -37,7 +37,7 @@
     @param width The width of the raw image contained in the data object.
     @param height The height of the raw image contained in the data object.
  */
-- (id)initWithRawImage:(NSData *)data width:(int)width height:(int)height;
+- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height;
 
 /** @brief Initialize with an array of NSData objects containing 32 bit pixels.
     @details This does the same thng as initWithRawData:width:height: but for tiles that contain multiple return images.
@@ -46,32 +46,32 @@
     @param height The height of the raw image contained in the data object.
     @see initWithRawData:width:height:
  */
-- (id)initWithRawImageArray:(NSArray *)data width:(int)width height:(int)height;
+- (instancetype)initWithRawImageArray:(NSArray *)data width:(int)width height:(int)height;
 
 /** @brief Initialize with a single UIImage for the tile.
     @details This sets up the given UIImage as the return for the given tile.  You can then set targetSize and such.
  */
-- (id)initWithImage:(UIImage *)image;
+- (instancetype)initWithImage:(UIImage *)image;
 
 /** @brief Initialize with an NSArray of UIImage objects for a tile that requires multiple return images.
  */
-- (id)initWithImageArray:(NSArray *)images;
+- (instancetype)initWithImageArray:(NSArray *)images;
 
 /** @brief Initialize with an NSData object containing PNG or JPEG data that can be interpreted by UIImage.
     @details We're expecting PNG, JPEG or another self identified format (e.g. PKM).  These we can interpret ourselves.
  */
-- (id)initWithPNGorJPEGData:(NSData *)data;
+- (instancetype)initWithPNGorJPEGData:(NSData *)data;
 
 /** @brief Initialize with an NSArray of NSData objects containing PNG or JPEG data that can be interpreted by UIImage
     @details This is for tiles that require multiple images.
     @details We're expecting PNG, JPEG or another self identified format (e.g. PKM).  These we can interpret ourselves.
  */
-- (id)initWithPNGorJPEGDataArray:(NSArray *)data;
+- (instancetype)initWithPNGorJPEGDataArray:(NSArray *)data;
 
 /** @brief Initialize with an NSObject.  We'll try to figure out what it is from the type.
     @details We'll look at the data type and try to figure out what you're passing in.  In general, it's better to call one of the specific init routines.
   */
-- (id)initWithRandomData:(id)theObj;
+- (instancetype)initWithRandomData:(id)theObj;
 
 /** @brief Optional elevation dataq provided with the image tile.
     @details This is an optional set of elevation data that goes with this image tile.

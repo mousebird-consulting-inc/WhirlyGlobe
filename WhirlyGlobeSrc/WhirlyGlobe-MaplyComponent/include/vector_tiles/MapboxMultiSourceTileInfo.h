@@ -28,11 +28,11 @@
 
 /** @brief Initialze the multi source tile info object.  Fill in everything else later.
   */
-- (id)initWithViewC:(MaplyBaseViewController *)viewC;
+- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nonnull)viewC;
 
 /** @brief The object needs this if you're parsing vector tiles.
   */
-@property (nonatomic,weak) MaplyQuadImageTilesLayer *imageLayer;
+@property (nonatomic,weak, nullable) MaplyQuadImageTilesLayer *imageLayer;
 
 /** @brief The cache directory where we'll store combo tiles.
     @details If set, we'll store the cached returns for image and/or vector tiles.  If not set, we won't cache.
@@ -41,27 +41,27 @@
 
 /** @brief If set, we'll use an access key to get map data.
   */
-@property (nonatomic,strong) NSString *accessToken;
+@property (nonatomic,strong, nullable) NSString *accessToken;
 
 /** @brief Add an image based map covering the given levels.
     @details This adds an image based map of the given type (e.g. jpg or png) at the given levels.
   */
-- (bool)addImageMap:(NSString *)map minZoom:(int)minZoom maxZoom:(int)maxZoom type:(NSString *)imageType;
+- (bool)addImageMap:(NSString *__nonnull)map minZoom:(int)minZoom maxZoom:(int)maxZoom type:(NSString *__nonnull)imageType;
 
 /** @brief Add a vector map at the given levels.
     @details This adds a vector map for the given levels
   */
-- (bool)addVectorMap:(NSString *)map style:(NSData *)styleSheet styleType:(MapnikStyleType)styleType minZoom:(int)minZoom maxZoom:(int)maxZoom;
+- (bool)addVectorMap:(NSString *__nonnull)map style:(NSData *__nonnull)styleSheet styleType:(MapnikStyleType)styleType minZoom:(int)minZoom maxZoom:(int)maxZoom;
 
 /** @brief Add a vector or image map, depending on the tile spec.
     @details This version parses a tile spec and figures out what we're loading from there.
   */
-- (bool)addTileSpec:(NSDictionary *)tileSpec;
+- (bool)addTileSpec:(NSDictionary *__nonnull)tileSpec;
 
 /** @brief Add a vector or image map, depending on the tile spec.
     @details This version parses a tile spec and figures out what we're loading from there.
     @details You can also override which zoom levels to use.
  */
-- (bool)addTileSpec:(NSDictionary *)tileSpec minZoom:(int)minZoom maxZoom:(int)maxZoom;
+- (bool)addTileSpec:(NSDictionary *__nonnull)tileSpec minZoom:(int)minZoom maxZoom:(int)maxZoom;
 
 @end

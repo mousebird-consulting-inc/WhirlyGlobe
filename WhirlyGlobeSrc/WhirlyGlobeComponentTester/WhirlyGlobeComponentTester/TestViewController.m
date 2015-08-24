@@ -215,7 +215,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
             maxLayerTiles = 128;
             break;
         case Maply3DMap:
-            mapViewC = [[MaplyViewController alloc] init];
+            mapViewC = [[MaplyViewController alloc] initWithMapType:MaplyMapType3D];
             mapViewC.doubleTapZoomGesture = true;
             mapViewC.twoFingerTapGesture = true;
             mapViewC.viewWrap = true;
@@ -223,7 +223,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
             baseViewC = mapViewC;
             break;
         case Maply2DMap:
-            mapViewC = [[MaplyViewController alloc] initAsFlatMap];
+            mapViewC = [[MaplyViewController alloc] initWithMapType:MaplyMapTypeFlat];
             mapViewC.viewWrap = true;
             mapViewC.doubleTapZoomGesture = true;
             mapViewC.twoFingerTapGesture = true;
@@ -361,7 +361,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         bbox.ll = MaplyCoordinateMakeWithDegrees(7.05090689853, 47.7675500593);
         bbox.ur = MaplyCoordinateMakeWithDegrees(8.06813647023, 49.0562323851);
         MaplyCoordinate center = MaplyCoordinateMakeWithDegrees((7.05090689853+8.06813647023)/2, (47.7675500593+49.0562323851)/2);
-        double height = [globeViewC findHeightToViewBounds:&bbox pos:center];
+        double height = [globeViewC findHeightToViewBounds:bbox pos:center];
         mapViewC.height = height;
         [globeViewC animateToPosition:center time:1.0];
         NSLog(@"height = %f",height);
@@ -863,7 +863,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
     ^{
         // Add the vectors at three different levels
-        MaplyVectorDatabase *vecDb = [MaplyVectorDatabase vectorDatabaseWithShape:shapeFileName];
+
+        MaplyVectorDatabase *vecDb = [[MaplyVectorDatabase alloc] initWithShape:shapeFileName];
         if (vecDb)
         {
             MaplyVectorObject *vecObj = [vecDb fetchAllVectors];
@@ -881,7 +882,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     operation.responseSerializer = [AFHTTPResponseSerializer serializer];
     [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
      {
-         MaplyVectorObject *vecObj = [MaplyVectorObject VectorObjectFromGeoJSON:responseObject];
+         MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithGeoJSON:responseObject];
          if (vecObj)
          {
              arcGisObj = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor]}];
@@ -948,7 +949,7 @@ static const bool CountryTextures = true;
                          NSData *jsonData = [NSData dataWithContentsOfFile:fileName];
                          if (jsonData)
                          {
-                             MaplyVectorObject *wgVecObj = [MaplyVectorObject VectorObjectFromGeoJSON:jsonData];
+                             MaplyVectorObject *wgVecObj = [[MaplyVectorObject alloc] initWithGeoJSON:jsonData];
                              NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
                              wgVecObj.userObject = vecName;
                              NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:@{

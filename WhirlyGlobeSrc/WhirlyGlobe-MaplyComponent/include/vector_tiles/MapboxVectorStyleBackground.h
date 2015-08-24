@@ -22,10 +22,10 @@
 
 @interface MapboxVectorBackgroundPaint : NSObject
 
-@property (nonatomic) MaplyMapboxValueWrapper *color;
-@property (nonatomic) MaplyMapboxValueWrapper *opacity;
+@property (nonatomic, nullable) MaplyMapboxValueWrapper *color;
+@property (nonatomic, nullable) MaplyMapboxValueWrapper *opacity;
 
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
+- (nullable instancetype)initWithStyleEntry:(NSDictionary *__nonnull)styleEntry styleSet:(MaplyMapboxVectorStyleSet *__nonnull)styleSet viewC:(MaplyBaseViewController *__nonnull)viewC;
 
 @end
 
@@ -33,10 +33,10 @@
 @interface MapboxVectorLayerBackground : MaplyMapboxVectorStyleLayer
 
 //@property (nonatomic) MapboxVectorLayoutBackground *layout;
-@property (nonatomic) MapboxVectorBackgroundPaint *paint;
+@property (nonatomic, nullable) MapboxVectorBackgroundPaint *paint;
 
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC;
+- (nullable instancetype)initWithStyleEntry:(NSDictionary *__nonnull)styleEntry parent:(MaplyMapboxVectorStyleLayer *__nonnull)refLayer styleSet:(MaplyMapboxVectorStyleSet *__nonnull)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *__nonnull)viewC;
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC;
+- (nullable NSArray *)buildObjects:(NSArray *__nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *__nonnull)viewC;
 
 @end

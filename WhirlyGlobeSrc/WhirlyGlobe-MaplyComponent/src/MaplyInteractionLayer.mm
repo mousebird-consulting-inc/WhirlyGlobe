@@ -37,7 +37,7 @@ using namespace WhirlyGlobe;
     MaplyView *mapView;
 }
 
-- (id)initWithMapView:(MaplyView *)inMapView
+- (instancetype)initWithMapView:(MaplyView *)inMapView
 {
     self = [super initWithView:inMapView];
     if (!self)

@@ -52,7 +52,7 @@ static double MAX_EXTENT = 20037508.342789244;
 
 @implementation MaplyMapnikVectorTileParser
 
-- (id)initWithStyle:(NSObject<MaplyVectorStyleDelegate> *)styleDelegate viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyle:(NSObject<MaplyVectorStyleDelegate> *)styleDelegate viewC:(MaplyBaseViewController *)viewC
 {
     self = [super init];
     if (!self)

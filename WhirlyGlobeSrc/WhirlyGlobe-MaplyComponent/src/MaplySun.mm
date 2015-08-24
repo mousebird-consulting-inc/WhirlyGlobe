@@ -30,7 +30,7 @@ using namespace WhirlyKit;
     double sunLon,sunLat;
 }
 
-- (id)initWithDate:(NSDate *)inDate
+- (instancetype)initWithDate:(NSDate *)inDate
 {
     self = [super init];
     date = inDate;
