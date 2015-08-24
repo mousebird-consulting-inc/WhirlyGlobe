@@ -229,7 +229,7 @@ public:
 			control->setMinImportance(1.0);
 		} else {
 			shortCircuitImportance = 0.0;
-			control->setMinImportance(256*256);
+			control->setMinImportance(1.0);
 		}
 
 	    if (imageDepth > 1)
@@ -372,12 +372,12 @@ public:
 //            {
 //                import = ScreenImportance(viewState, frameSize, thisTileSize, coordSys, scene->getCoordAdapter(), mbr, _minElev, _maxElev, ident, attrs);
 //            } else {
-//                import = ScreenImportance(viewState, frameSize, viewState.eyeVec, thisTileSize, coordSys, scene->getCoordAdapter(), mbr, ident, attrs);
+        	    import = ScreenImportance(viewState, frameSize, viewState->eyeVec, thisTileSize, coordSys, scene->getCoordAdapter(), mbr, ident, attrs);
 //            }
-//            import *= _importanceScale;
+            import *= importanceScale;
         }
 
-    //    NSLog(@"Tiles = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
+//		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
 
         return import;
     }
