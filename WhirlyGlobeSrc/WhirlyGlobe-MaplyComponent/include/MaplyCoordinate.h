@@ -32,6 +32,10 @@ typedef struct
     float x,y;
 } MaplyCoordinate;
 
+
+static const MaplyCoordinate kMaplyNullCoordinate = {.x = FLT_MIN, .y = FLT_MIN};
+
+
 /** @typedef struct MaplyCoordinateD
     @brief Double precision version of 2D coordinate.
     @details This works the same was as the MaplyCoordinate, but has
@@ -41,6 +45,9 @@ typedef struct
 {
     double x,y;
 } MaplyCoordinateD;
+
+static const MaplyCoordinateD kMaplyNullCoordinateD = {.x = DBL_MIN, .y = DBL_MIN};
+
 
 /** @typedef struct MaplyCoordinate3d
     @brief A 3D coordinate representation.
@@ -59,7 +66,7 @@ typedef struct
 @interface MaplyCoordinate3dWrapper : NSObject
 
 /// @brief Initialize with a 3D coordinate
-- (id)initWithCoord:(MaplyCoordinate3d)coord;
+- (instancetype)initWithCoord:(MaplyCoordinate3d)coord;
 
 /// @brief 3D coordinate
 @property (nonatomic,readonly) MaplyCoordinate3d coord;
@@ -75,6 +82,26 @@ typedef struct
     MaplyCoordinate ll;
     MaplyCoordinate ur;
 } MaplyBoundingBox;
+
+static const MaplyBoundingBox kMaplyNullBoundingBox = {
+	.ll = {.x = FLT_MIN, .y = FLT_MIN},
+	.ur = {.x = FLT_MIN, .y = FLT_MIN}
+};
+
+/** @typedef struct MaplyBoundingBox
+ @brief Represents a bounding box in a particular coordinate system.
+ @details ll is the lower left and ur is the upper right.
+ */
+typedef struct
+{
+	MaplyCoordinateD ll;
+	MaplyCoordinateD ur;
+} MaplyBoundingBoxD;
+
+static const MaplyBoundingBoxD kMaplyNullBoundingBoxD = {
+	.ll = {.x = DBL_MIN, .y = DBL_MIN},
+	.ur = {.x = DBL_MIN, .y = DBL_MIN}
+};
 
 #if __cplusplus
 extern "C" {

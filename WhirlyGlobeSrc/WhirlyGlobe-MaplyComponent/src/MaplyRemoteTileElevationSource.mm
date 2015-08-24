@@ -45,7 +45,7 @@ using namespace WhirlyKit;
     int _minZoom,_maxZoom;
 }
 
-- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
+- (instancetype)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
 {
     self = [super init];
     if (!self)
@@ -135,7 +135,7 @@ using namespace WhirlyKit;
     Maply::TileFetchOpSet tileSet;
 }
 
-- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
+- (instancetype)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
 {
     self = [super init];
     if (!self)
@@ -148,7 +148,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (id)initWithInfo:(MaplyRemoteTileElevationInfo *)info
+- (instancetype)initWithInfo:(MaplyRemoteTileElevationInfo *)info
 {
     self = [super init];
     if (!self)
@@ -330,9 +330,10 @@ using namespace WhirlyKit;
         NSURLRequest *urlReq = [_tileInfo requestForTile:tileID];
         if(!urlReq)
         {
-            [layer loadError:nil forTile:tileID];
+			NSError *error = [NSError errorWithDomain:@"maply" code:1 userInfo:@{}];
+            [layer loadError:error forTile:tileID];
             if (self.delegate && [self.delegate respondsToSelector:@selector(remoteTileElevationSource:tileDidNotLoad:error:)])
-                [self.delegate remoteTileElevationSource:self tileDidNotLoad:tileID error:nil];
+                [self.delegate remoteTileElevationSource:self tileDidNotLoad:tileID error:error];
             [self clearTile:tileID];
             
             return;
@@ -398,7 +399,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyRemoteTileElevationCesiumSource
 
-- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
+- (instancetype)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
 {
 	MaplyRemoteTileElevationInfo *info = [[MaplyRemoteTileElevationCesiumInfo alloc] initWithBaseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom];
 

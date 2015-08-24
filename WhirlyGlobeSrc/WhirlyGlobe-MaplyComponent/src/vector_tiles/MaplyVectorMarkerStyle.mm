@@ -47,7 +47,7 @@
     NSMutableArray *subStyles;
 }
 
-- (id)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorTileStyleSettings *)inSettings viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorTileStyleSettings *)inSettings viewC:(MaplyBaseViewController *)viewC
 {
     self = [super initWithStyleEntry:styles viewC:viewC];
     settings = inSettings;

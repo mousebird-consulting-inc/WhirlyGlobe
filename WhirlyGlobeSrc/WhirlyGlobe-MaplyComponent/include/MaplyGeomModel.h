@@ -31,12 +31,12 @@
 /** @brief Initialize with the full path to a Wavefront OBJ model file.
     @details This creates a model from a Wavefront OBJ file, a standard, simple file format for models.  You can then instance and place this model where you might like.
   */
-- (id)initWithObj:(NSString *)fullPath;
+- (nullable instancetype)initWithObj:(NSString *__nonnull)fullPath;
 
 /** @brief Initialize with a shape.
     @details The given shape will be turned into a geometry model so it can be instanced.
   */
-- (id)initWithShape:(MaplyShape *)shape;
+- (nonnull instancetype)initWithShape:(MaplyShape *__nonnull)shape;
 
 @end
 
@@ -49,10 +49,10 @@
 /** @brief User data object for selection
  @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the model instance means to them.
  */
-@property (nonatomic,strong) id userObject;
+@property (nonatomic,strong,nullable) id userObject;
 
 /// @brief The model to instance
-@property (nonatomic,strong) MaplyGeomModel *model;
+@property (nonatomic,strong,nullable) MaplyGeomModel *model;
 
 /** @brief Where we'd like to place the instanced model.
     @details This is the center of the object in geographic radians.
@@ -60,11 +60,11 @@
 @property (nonatomic) MaplyCoordinate3d center;
 
 /// @brief Transform used to oriented the model instance
-@property (nonatomic,strong) MaplyMatrix *transform;
+@property (nonatomic,strong,nullable) MaplyMatrix *transform;
 
 /// @brief Color to force all polygons to use.
 /// @details If set, this will force all polygons to use this color.  nil by default.
-@property (nonatomic,strong) UIColor *colorOverride;
+@property (nonatomic,strong,nullable) UIColor *colorOverride;
 
 /// @brief Set if you want to select these
 @property (nonatomic) bool selectable;

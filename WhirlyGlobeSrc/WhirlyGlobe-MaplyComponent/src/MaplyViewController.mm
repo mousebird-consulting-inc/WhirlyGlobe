@@ -41,12 +41,35 @@ using namespace Maply;
     bool isPanning,isZooming,isAnimating;
 }
 
-- (id)init
+- (instancetype)initWithMapType:(MaplyMapType)mapType
+{
+	self = [super init];
+	if (!self)
+		return nil;
+
+	if (mapType == MaplyMapType3D) {
+		_autoMoveToTap = true;
+	}
+	else {
+		// Turn off lighting
+		[self setHints:@{kMaplyRendererLightingMode: @"none"}];
+		_flatMode = true;
+	}
+
+	_rotateGesture = true;
+	_doubleTapDragGesture = true;
+	_twoFingerTapGesture = true;
+	_doubleTapZoomGesture = true;
+
+	return self;
+}
+
+- (instancetype)init
 {
     self = [super init];
     if (!self)
         return nil;
-    
+
     _autoMoveToTap = true;
     _rotateGesture = true;
     _doubleTapDragGesture = true;
@@ -56,7 +79,7 @@ using namespace Maply;
     return self;
 }
 
-- (id)initAsFlatMap
+- (instancetype)initAsFlatMap
 {
     self = [super init];
     if (!self)
@@ -73,9 +96,9 @@ using namespace Maply;
     return self;
 }
 
-- (id)initAsTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView
+- (nonnull instancetype)initAsTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView
 {
-    self = [self initAsFlatMap];
+	self = [self initWithMapType:MaplyMapTypeFlat];
     if (!self)
         return nil;
     
@@ -519,6 +542,17 @@ using namespace Maply;
 #pragma mark - Interaction
 
 /// Return the view extents.  This is the box the view point is allowed to be within.
+- (MaplyBoundingBox)getViewExtents
+{
+	MaplyBoundingBox box;
+
+	box.ll = boundLL;
+	box.ur = boundUR;
+
+	return box;
+}
+
+/// Return the view extents.  This is the box the view point is allowed to be within.
 - (void)getViewExtentsLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
 {
     *ll = boundLL;
@@ -534,6 +568,12 @@ using namespace Maply;
 {
     mapView.loc.z() = height;
     [mapView runViewUpdates];
+}
+
+/// Set the view extents.  This is the box the view point is allowed to be within.
+- (void)setViewExtents:(MaplyBoundingBox)box
+{
+	[self setViewExtentsLL:box.ll ur:box.ur];
 }
 
 /// Set the view extents.  This is the box the view point is allowed to be within.
@@ -696,6 +736,18 @@ using namespace Maply;
     [self handleStopMoving:NO];
 }
 
+- (MaplyCoordinate)getPosition
+{
+	GeoCoord geoCoord = mapView.coordAdapter->getCoordSystem()->localToGeographic(mapView.coordAdapter->displayToLocal(mapView.loc));
+
+	return {.x = geoCoord.x(), .y = geoCoord.x()};
+}
+
+- (float)getHeight
+{
+	return mapView.loc.z();
+}
+
 - (void)getPosition:(WGCoordinate *)pos height:(float *)height
 {
     Point3d loc = mapView.loc;
@@ -712,6 +764,22 @@ using namespace Maply;
 - (float)heading
 {
     return mapView.rotAngle;
+}
+
+- (float)getMinZoom
+{
+	if (pinchDelegate)
+		return pinchDelegate.minZoom;
+
+	return FLT_MIN;
+}
+
+- (float)getMaxZoom
+{
+	if (pinchDelegate)
+		return pinchDelegate.maxZoom;
+
+	return FLT_MIN;
 }
 
 /// Return the min and max heights above the globe for zooming
@@ -770,13 +838,13 @@ using namespace Maply;
     return std::abs(lrScreen.x - ulScreen.x) < frame.size.width && std::abs(lrScreen.y - ulScreen.y) < frame.size.height;
 }
 
-- (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos
 {
     Point3d oldLoc = mapView.loc;
     Point3d newLoc = Point3d(pos.x,pos.y,oldLoc.z());
     [mapView setLoc:newLoc runUpdates:false];
     
-    Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
+    Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y),Point2f(bbox.ur.x,bbox.ur.y));
     
     float minHeight = mapView.minHeightAboveSurface;
     float maxHeight = mapView.maxHeightAboveSurface;

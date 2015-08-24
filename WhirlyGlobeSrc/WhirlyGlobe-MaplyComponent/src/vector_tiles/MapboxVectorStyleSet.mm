@@ -30,7 +30,7 @@
     NSMutableDictionary *layersByUUID;
 }
 
-- (id)initWithJSON:(NSData *)styleJSON viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithJSON:(NSData *)styleJSON viewC:(MaplyBaseViewController *)viewC
 {
     self = [super init];
     if (!self)
@@ -53,7 +53,7 @@
     int which = 0;
     for (NSDictionary *layerStyle in layerStyles)
     {
-        MaplyMapboxVectorStyleLayer *layer = [MaplyMapboxVectorStyleLayer VectorStyleLayer:self JSON:layerStyle drawPriority:(10*which + kMaplyVectorDrawPriorityDefault)];
+		MaplyMapboxVectorStyleLayer *layer = [[MaplyMapboxVectorStyleLayer alloc] initWithStyleSet:self JSON:layerStyle drawPriority:(10*which + kMaplyVectorDrawPriorityDefault)];
         if (layer)
         {
             [layers addObject:layer];
@@ -374,73 +374,79 @@
 
 @implementation MaplyMapboxVectorStyleLayer
 
-+ (id)VectorStyleLayer:(MaplyMapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority
++ (instancetype)VectorStyleLayer:(MaplyMapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority
 {
-    MaplyMapboxVectorStyleLayer *layer = nil;
-    MaplyMapboxVectorStyleLayer *refLayer = nil;
-    
-    // Look for the layer with that name
-    NSString *refLayerName = layerDict[@"ref"];
-    if (refLayer)
-    {
-        if (![refLayerName isKindOfClass:[NSString class]])
-        {
-            NSLog(@"Was expecting string for ref in layer");
-            return nil;
-        }
-        
-        refLayer = styleSet.layersByName[refLayerName];
-        if (!refLayer)
-        {
-            NSLog(@"Didn't find layer named (%@)",refLayerName);
-            return nil;
-        }
-    }
-
-    NSString *type = layerDict[@"type"];
-    if (type && ![type isKindOfClass:[NSString class]])
-    {
-        NSLog(@"Expecting string type for layer");
-        return nil;
-    }
-    if ([type isEqualToString:@"fill"])
-    {
-        MapboxVectorLayerFill *fillLayer = [[MapboxVectorLayerFill alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-        layer = fillLayer;
-    } else if ([type isEqualToString:@"line"])
-    {
-        MapboxVectorLayerLine *lineLayer = [[MapboxVectorLayerLine alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-        layer = lineLayer;
-    } else if ([type isEqualToString:@"symbol"])
-    {
-        MapboxVectorLayerSymbol *symbolLayer = [[MapboxVectorLayerSymbol alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-        layer = symbolLayer;
-    } else if ([type isEqualToString:@"raster"])
-    {
-        MapboxVectorLayerRaster *rasterLayer = [[MapboxVectorLayerRaster alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-        layer = rasterLayer;
-    } else if ([type isEqualToString:@"background"])
-    {
-        MapboxVectorLayerBackground *backLayer = [[MapboxVectorLayerBackground alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-        layer = backLayer;
-    }
-    if (layerDict[@"interactive"])
-    {
-        layer.interactive = [layerDict[@"interactive"] boolValue];
-    }
-    if (layerDict[@"filter"])
-    {
-        layer.filter = [[MapboxVectorFilter alloc] initWithArray:[styleSet arrayValue:@"filter" dict:layerDict defVal:nil] styleSet:styleSet viewC:styleSet.viewC];
-        if (!layer.filter)
-        {
-            NSLog(@"MapboxStyleSet: Failed to parse filter for layer %@",layer.ident);
-        }
-    }
-    
-    return layer;
+	return [[MaplyMapboxVectorStyleLayer alloc] initWithStyleSet:styleSet JSON:layerDict drawPriority:drawPriority];
 }
 
-- (id)initWithStyleEntry:(NSDictionary *)layerDict parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleSet:(MaplyMapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority
+{
+	MaplyMapboxVectorStyleLayer *layer = nil;
+	MaplyMapboxVectorStyleLayer *refLayer = nil;
+
+	// Look for the layer with that name
+	NSString *refLayerName = layerDict[@"ref"];
+	if (refLayer)
+	{
+		if (![refLayerName isKindOfClass:[NSString class]])
+		{
+			NSLog(@"Was expecting string for ref in layer");
+			return nil;
+		}
+
+		refLayer = styleSet.layersByName[refLayerName];
+		if (!refLayer)
+		{
+			NSLog(@"Didn't find layer named (%@)",refLayerName);
+			return nil;
+		}
+	}
+
+	NSString *type = layerDict[@"type"];
+	if (type && ![type isKindOfClass:[NSString class]])
+	{
+		NSLog(@"Expecting string type for layer");
+		return nil;
+	}
+	if ([type isEqualToString:@"fill"])
+	{
+		MapboxVectorLayerFill *fillLayer = [[MapboxVectorLayerFill alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
+		layer = fillLayer;
+	} else if ([type isEqualToString:@"line"])
+	{
+		MapboxVectorLayerLine *lineLayer = [[MapboxVectorLayerLine alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
+		layer = lineLayer;
+	} else if ([type isEqualToString:@"symbol"])
+	{
+		MapboxVectorLayerSymbol *symbolLayer = [[MapboxVectorLayerSymbol alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
+		layer = symbolLayer;
+	} else if ([type isEqualToString:@"raster"])
+	{
+		MapboxVectorLayerRaster *rasterLayer = [[MapboxVectorLayerRaster alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
+		layer = rasterLayer;
+	} else if ([type isEqualToString:@"background"])
+	{
+		MapboxVectorLayerBackground *backLayer = [[MapboxVectorLayerBackground alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
+		layer = backLayer;
+	}
+	if (layerDict[@"interactive"])
+	{
+		layer.interactive = [layerDict[@"interactive"] boolValue];
+	}
+	if (layerDict[@"filter"])
+	{
+		layer.filter = [[MapboxVectorFilter alloc] initWithArray:[styleSet arrayValue:@"filter" dict:layerDict defVal:nil] styleSet:styleSet viewC:styleSet.viewC];
+		if (!layer.filter)
+		{
+			NSLog(@"MapboxStyleSet: Failed to parse filter for layer %@",layer.ident);
+		}
+	}
+
+	return layer;
+}
+
+
+- (instancetype)initWithStyleEntry:(NSDictionary *)layerDict parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC
 {
     self = [super init];
     if (!self)
@@ -471,7 +477,7 @@
 
 @implementation MapboxVectorFilter
 
-- (id)initWithArray:(NSArray *)filterArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithArray:(NSArray *)filterArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
 {
     if (![filterArray isKindOfClass:[NSArray class]])
     {
@@ -681,7 +687,7 @@
 
 @implementation MaplyMapboxValue
 
-- (id)initWithValue:(id)value type:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
+- (instancetype)initWithValue:(id)value type:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
 {
     self = [super init];
 
@@ -778,7 +784,7 @@
 
 @implementation MaplyMapboxVectorFunction
 
-- (id)initWithValueDict:(NSDictionary *)dict dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithValueDict:(NSDictionary *)dict dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
 {
     if (![dict isKindOfClass:[NSDictionary class]])
     {
@@ -885,7 +891,7 @@
     MaplyMapboxVectorFunction *func;
 }
 
-- (id)initWithValue:(id)inValue dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
+- (instancetype)initWithValue:(id)inValue dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
 {
     self = [super init];
 
@@ -963,7 +969,7 @@
     return self;
 }
 
-- (id)initWithDict:(NSDictionary *)dict name:(NSString *)attrName dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
+- (instancetype)initWithDict:(NSDictionary *)dict name:(NSString *)attrName dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
 {
     id thing = dict[attrName];
     if (!thing)
@@ -974,7 +980,7 @@
     return [self initWithValue:thing dataType:dataType styleSet:styleSet];
 }
 
-- (id)initWithObject:(id)thing
+- (instancetype)initWithObject:(id)thing
 {
     self = [super init];
     if ([thing isKindOfClass:[UIColor class]])
