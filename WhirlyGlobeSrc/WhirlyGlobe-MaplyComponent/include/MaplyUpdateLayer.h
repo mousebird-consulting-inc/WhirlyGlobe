@@ -46,17 +46,17 @@
 /** @brief Called when the MaplyUpdateLayer is initialized.
     @details This is called after things are set up.  You'll be on the layer thread here.
   */
-- (void)start:(MaplyUpdateLayer *)layer;
+- (void)start:(MaplyUpdateLayer *__nonnull)layer;
 
 /** @brief Called when the viewer moves.
     @details You'll be called on the layer thread when the viewer moves more than your moveDist, subject to calls no more frequent than the minTime.
   */
-- (void)viewerMovedTo:(MaplyViewerState *)viewState layer:(MaplyUpdateLayer *)layer;
+- (void)viewerMovedTo:(MaplyViewerState *__nonnull)viewState layer:(MaplyUpdateLayer *__nonnull)layer;
 
 /** @brief Called when the update layer is shutting down.
     @details Clean up your own data here.
   */
-- (void)shutdown:(MaplyUpdateLayer *)layer;
+- (void)shutdown:(MaplyUpdateLayer *__nonnull)layer;
 
 @end
 
@@ -76,6 +76,6 @@
     @param moveDist The minimum distance that will trigger a delegate call.  Distance is in display units (radius of the earth = 1.0).
     @param minTime The delegate will be called no more often than this amount (in seconds).
   */
-- (id)initWithDelegate:(NSObject<MaplyUpdateDelegate> *)delegate moveDist:(double)moveDist minTime:(double)minTime;
+- (nonnull instancetype)initWithDelegate:(NSObject<MaplyUpdateDelegate> *__nullable)delegate moveDist:(double)moveDist minTime:(double)minTime;
 
 @end
