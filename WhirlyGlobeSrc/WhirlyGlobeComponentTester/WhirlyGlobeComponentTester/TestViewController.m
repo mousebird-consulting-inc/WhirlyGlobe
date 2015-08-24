@@ -863,7 +863,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
     ^{
         // Add the vectors at three different levels
-        MaplyVectorDatabase *vecDb = [MaplyVectorDatabase vectorDatabaseWithShape:shapeFileName];
+
+        MaplyVectorDatabase *vecDb = [[MaplyVectorDatabase alloc] initWithShape:shapeFileName];
         if (vecDb)
         {
             MaplyVectorObject *vecObj = [vecDb fetchAllVectors];
