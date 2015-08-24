@@ -139,7 +139,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
 - (void)setHints:(NSDictionary *__nonnull)hintsDict;
 
 /// @brief This calls addScreenMarkers:desc:mode: with mode set to MaplyThreadAny
-- (MaplyComponentObject *__nullable)addScreenMarkers:(NSArray *__nonnull)markers desc:(NSDictionary *__nonnull)desc;
+- (MaplyComponentObject *__nullable)addScreenMarkers:(NSArray *__nonnull)markers desc:(NSDictionary *__nullable)desc;
 
 /** @brief Add one or more screen markers to the current scene.
     @details This method will add the given MaplyScreenMaker objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
@@ -169,10 +169,10 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  
     @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
   */
-- (MaplyComponentObject *__nullable)addScreenMarkers:(NSArray *__nonnull)markers desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addScreenMarkers:(NSArray *__nonnull)markers desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /// @brief This calls addMarkers:desc:mode: with mode set to MaplyThreadAny
-- (MaplyComponentObject *__nullable)addMarkers:(NSArray *__nonnull)markers desc:(NSDictionary *__nonnull)desc;
+- (MaplyComponentObject *__nullable)addMarkers:(NSArray *__nonnull)markers desc:(NSDictionary *__nullable)desc;
 
 /** @brief Add one or more 3D markers to the current scene.
     @details This method will add the given MaplyMarker objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
@@ -202,10 +202,10 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
  */
-- (MaplyComponentObject *__nullable)addMarkers:(NSArray *__nonnull)markers desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addMarkers:(NSArray *__nonnull)markers desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /// @brief This calls addScreenLabels:desc:mode: with mode set to MaplyThreadAny
-- (MaplyComponentObject *__nullable)addScreenLabels:(NSArray *__nonnull)labels desc:(NSDictionary *__nonnull)desc;
+- (MaplyComponentObject *__nullable)addScreenLabels:(NSArray *__nonnull)labels desc:(NSDictionary *__nullable)desc;
 
 /** @brief Add one or more screen labels to the current scene.
     @details This method will add the given MaplyScreenLabel objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
@@ -240,10 +240,10 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  
     @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
  */
-- (MaplyComponentObject *__nullable)addScreenLabels:(NSArray *__nonnull)labels desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addScreenLabels:(NSArray *__nonnull)labels desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /// @brief This calls addLabels:desc:mode: with mode set to MaplyThreadAny
-- (MaplyComponentObject *__nullable)addLabels:(NSArray *__nonnull)labels desc:(NSDictionary *__nonnull)desc;
+- (MaplyComponentObject *__nullable)addLabels:(NSArray *__nonnull)labels desc:(NSDictionary *__nullable)desc;
 
 /** @brief Add one or more 3D labels to the current scene.
     @details This method will add the given MaplyLabel objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
@@ -277,10 +277,10 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
  */
-- (MaplyComponentObject *__nullable)addLabels:(NSArray *__nonnull)labels desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addLabels:(NSArray *__nonnull)labels desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /// @brief This calls addVectors:desc:mode: with mode set to MaplyThreadAny
-- (MaplyComponentObject *__nullable)addVectors:(NSArray *__nonnull)vectors desc:(NSDictionary *__nonnull)desc;
+- (MaplyComponentObject *__nullable)addVectors:(NSArray *__nonnull)vectors desc:(NSDictionary *__nullable)desc;
 
 /** @brief Add one or more vectors to the current scene.
    @details This method will add the given MaplyVectorObject objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
@@ -316,7 +316,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
  */
-- (MaplyComponentObject *__nullable)addVectors:(NSArray *__nonnull)vectors desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addVectors:(NSArray *__nonnull)vectors desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /** @brief Make a copy of the base object and apply the attributes given for the new version.
  @details This call makes a cheap copy of the vectors in the given MaplyComponentObject and applies the given description to them.  You can use this to make a wider or thinner version of a set of vectors, or change their color, while continuing to draw the originals.  Or not, as the case may be.
@@ -343,7 +343,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
  */
-- (MaplyComponentObject *__nullable)instanceVectors:(MaplyComponentObject *__nonnull)baseObj desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)instanceVectors:(MaplyComponentObject *__nonnull)baseObj desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /** @brief Add one or more widened vectors to the current scene.
     @details Build widened vectors
@@ -373,14 +373,14 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
  */
-- (MaplyComponentObject *__nullable)addWideVectors:(NSArray *__nonnull)vectors desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addWideVectors:(NSArray *__nonnull)vectors desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /// @brief This calls addWideVectors:desc:mode: with mode set to MaplyThreadAny
-- (MaplyComponentObject *__nullable)addWideVectors:(NSArray *__nonnull)vectors desc:(NSDictionary *__nonnull)desc;
+- (MaplyComponentObject *__nullable)addWideVectors:(NSArray *__nonnull)vectors desc:(NSDictionary *__nullable)desc;
 
 
 /// @brief This calls addShapes:desc:mode: with mode set to MaplyThreadAny
-- (MaplyComponentObject *__nullable)addShapes:(NSArray *__nonnull)shapes desc:(NSDictionary *__nonnull)desc;
+- (MaplyComponentObject *__nullable)addShapes:(NSArray *__nonnull)shapes desc:(NSDictionary *__nullable)desc;
 
 /** @brief Add one or more model instances.
     @details Each MaplyGeomInstance points to a MaplyGeomModel.  All those passed in here will be grouped and processed together.
@@ -396,7 +396,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
   */
-- (MaplyComponentObject *__nullable)addModelInstances:(NSArray *__nonnull)modelInstances desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addModelInstances:(NSArray *__nonnull)modelInstances desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /** @brief Add one or raw geometry mdoels.
     @details Each MaplyGeometryModel holds points and triangles in display space.  These are relatively "raw" geometry and are passed to the geometry manager as is.
@@ -412,7 +412,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
  */
-- (MaplyComponentObject *__nullable)addGeometry:(NSArray *__nonnull)geom desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addGeometry:(NSArray *__nonnull)geom desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /** @brief Add one or more MaplyShape children to the current scene.
     @details This method will add the given MaplyShape derived objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
@@ -442,10 +442,10 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
  */
-- (MaplyComponentObject *__nullable)addShapes:(NSArray *__nonnull)shapes desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addShapes:(NSArray *__nonnull)shapes desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /// @brief This calls addStickers:desc:mode: with mode set to MaplyThreadAny
-- (MaplyComponentObject *__nullable)addStickers:(NSArray *__nonnull)stickers desc:(NSDictionary *__nonnull)desc;
+- (MaplyComponentObject *__nullable)addStickers:(NSArray *__nonnull)stickers desc:(NSDictionary *__nullable)desc;
 
 /** @brief Add one or more MaplySticker objects to the current scene.
     @details This method will add the given MaplySticker objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
@@ -475,7 +475,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
  */
-- (MaplyComponentObject *__nullable)addStickers:(NSArray *__nonnull)stickers desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addStickers:(NSArray *__nonnull)stickers desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /** @brief Modify an existing sticker.  This only supports changing the active textures.
     @details This method will change attributes of a sticker that's currently in use.  At present that's just the images it's displaying.  
@@ -486,7 +486,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  |:--|:---|:----------|
  |kMaplyStickerImages|NSARray|The array of images to apply to the sticker.  You can reuse old ones or introduce new ones.|
   */
-- (void)changeSticker:(MaplyComponentObject *__nonnull)compObj desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (void)changeSticker:(MaplyComponentObject *__nonnull)compObj desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /** @brief Add one or more MaplyBillboard objects to the current scene.
     @details This method will add the given MaplyBillboard objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
@@ -508,7 +508,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
 
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
   */
-- (MaplyComponentObject *__nullable)addBillboards:(NSArray *__nonnull)billboards desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addBillboards:(NSArray *__nonnull)billboards desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /** @brief Add a particle system to the scene.
     @details This adds a particle system to the scene, but does not kick off any particles.
@@ -516,7 +516,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
     @param desc Any additional standard parameters (none at present).
     @param threadMode MaplyThreadAny will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.  For particles, it's best to make a separate thread and use MaplyThreadCurrent.
   */
-- (MaplyComponentObject *__nullable)addParticleSystem:(MaplyParticleSystem *__nonnull)partSys desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addParticleSystem:(MaplyParticleSystem *__nonnull)partSys desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /** @brief Add a batch of particles to the current scene.
     @details Particles are short term objects, typically very small.  We create them in large groups for efficience.
@@ -536,14 +536,14 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
     @details This will change how any vector features represented by the compObj look.
     @details You can change kMaplyColor, kMaplyMinVis, kMaplyMaxVis, and kMaplyDrawPriority.
   */
-- (void)changeVector:(MaplyComponentObject *__nonnull)compObj desc:(NSDictionary *__nonnull)desc;
+- (void)changeVector:(MaplyComponentObject *__nonnull)compObj desc:(NSDictionary *__nullable)desc;
 
 /** @brief Change the representation of the given vector features.
  @details This will change how any vector features represented by the compObj look.
  @details You can change kMaplyColor, kMaplyMinVis, kMaplyMaxVis, and kMaplyDrawPriority.
  @details This version takes a thread mode.
  */
-- (void)changeVector:(MaplyComponentObject *__nonnull)compObj desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (void)changeVector:(MaplyComponentObject *__nonnull)compObj desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /** @brief Adds the MaplyVectorObject's passed in as lofted polygons.
     @details Lofted polygons are filled polygons draped on top of the globe with height.  By using a transparent color, these can be used to represent selection or relative values on the globe (or map).
@@ -583,7 +583,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
   
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
   */
-- (MaplyComponentObject *__nullable)addLoftedPolys:(NSArray *__nonnull)polys key:(NSString *__nonnull)key cache:(MaplyVectorDatabase *__nonnull)cacheDb desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addLoftedPolys:(NSArray *__nonnull)polys key:(NSString *__nullable)key cache:(MaplyVectorDatabase *__nullable)cacheDb desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /// @brief Add a view tracker to move a UIView around based on a geographic location.
 - (void)addViewTracker:(MaplyViewTracker *__nonnull)viewTrack;
@@ -682,7 +682,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  
     @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred.
   */
-- (MaplyTexture *__nullable)addTexture:(UIImage *__nonnull)image desc:(NSDictionary *__nonnull)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyTexture *__nullable)addTexture:(UIImage *__nonnull)image desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 
 /** @brief Add an image as a texture, but put it in a texture atlas.  Return a
