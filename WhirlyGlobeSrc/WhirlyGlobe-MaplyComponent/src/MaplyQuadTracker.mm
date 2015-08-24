@@ -56,7 +56,7 @@ public:
     std::set<TileWrapper> tiles;
 }
 
-- (id)initWithViewC:(WhirlyGlobeViewController *)viewC
+- (instancetype)initWithViewC:(WhirlyGlobeViewController *)viewC
 {
     self = [super init];
     if (!self)

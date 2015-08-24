@@ -1,9 +1,9 @@
 /*
- *  WGLabel.m
- *  WhirlyGlobeComponent
+ *  MaplyBridge.h
+ *  MaplyBridge
  *
- *  Created by Steve Gifford on 7/24/12.
- *  Copyright 2011-2015 mousebird consulting
+ *  Created by jmnavarro on 7/19/15.
+ *  Copyright 2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,20 +18,8 @@
  *
  */
 
-#import "MaplyLabel.h"
+#import <MaplyComponent.h>
 
-@implementation MaplyLabel
-
-- (instancetype)init
-{
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    _selectable = true;
-    _justify = MaplyLabelJustifyMiddle;
-    
-    return self;
-}
-
-@end
+#import <MaplyBaseViewController.h>
+#import <WhirlyGlobeViewController.h>
+#import <MaplyViewController.h>

@@ -50,7 +50,7 @@
  @param sizeX Number of samples in X.
  @param sizeY Number of samples in Y.
  */
-- (id)initWithGridData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY;
+- (nonnull instancetype)initWithGridData:(NSData *__nonnull)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY;
 
 @end
 
@@ -66,7 +66,7 @@
  @param sizeX tile size in X.
  @param sizeY tile size in Y.
  */
-- (id)initWithCesiumData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY;
+- (nonnull instancetype)initWithCesiumData:(NSData *__nonnull)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY;
 
 /// @brief If set, this cales the elevation
 @property (nonatomic) float scale;
@@ -84,7 +84,7 @@
     @details The coordinate system used by the elevation source delegate should match any associated MaplyTileSource objects.  The toolkit won't check that, so it's up to you.
     @details The coordinate system is probably MaplySphericalMercator.
   */
-- (MaplyCoordinateSystem *)getCoordSystem;
+- (nullable MaplyCoordinateSystem *)getCoordSystem;
 
 /** @brief The minimum zoom level this delegate can provide.
     @details The min zoom level should probably be 0 or at least match your MaplyTileSource objects.
@@ -100,7 +100,7 @@
 /** @brief Return the elevation samples for a given tile.
     @details Your delegate can return elevation data for the given tile or nil if no data was available.  Elevation is in meters and data values are 32 bit floats.
   */
-- (MaplyElevationChunk *)elevForTile:(MaplyTileID)tileID;
+- (nullable MaplyElevationChunk *)elevForTile:(MaplyTileID)tileID;
 
 /** @brief Return true if the data is local to the device.
     @details Let us know if the data is local or remote.  This is a hint to the pager and will be called before elevForTile:.  If you don't know, just return false.
