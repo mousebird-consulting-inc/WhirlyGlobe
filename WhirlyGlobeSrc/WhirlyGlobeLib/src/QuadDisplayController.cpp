@@ -91,6 +91,11 @@ void QuadDisplayController::setFrameLoadingPriorities(const std::vector<int> &pr
     resetEvaluation();
 }
     
+void QuadDisplayController::getFrameLoadStatus(std::vector<WhirlyKit::FrameLoadStatus> &retFrameLoadStats)
+{
+    retFrameLoadStats = frameLoadStats;
+}
+    
 void QuadDisplayController::setEnable(bool newEnable)
 {
     // Note: Porting  Needs some thread logic above this level

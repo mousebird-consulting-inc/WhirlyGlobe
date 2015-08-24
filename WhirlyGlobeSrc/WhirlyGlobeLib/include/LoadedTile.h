@@ -246,6 +246,8 @@ public:
 class InternalLoadedTile
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     InternalLoadedTile();
     InternalLoadedTile(const WhirlyKit::Quadtree::Identifier &);
     ~InternalLoadedTile() { }

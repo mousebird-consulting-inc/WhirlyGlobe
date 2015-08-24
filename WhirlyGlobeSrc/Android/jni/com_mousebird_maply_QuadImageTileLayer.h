@@ -9,10 +9,170 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
- * Method:    nativeShutdown
+ * Method:    setEnable
+ * Signature: (ZLcom/mousebird/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setEnable
+  (JNIEnv *, jobject, jboolean, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setImageDepth
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setImageDepth
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    getImageDepth
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getImageDepth
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    getCurrentImage
+ * Signature: ()F
+ */
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getCurrentImage
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setCurrentImage
+ * Signature: (FLcom/mousebird/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setCurrentImage
+  (JNIEnv *, jobject, jfloat, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setMaxCurrentImage
+ * Signature: (F)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setMaxCurrentImage
+  (JNIEnv *, jobject, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setAnimationPeriodNative
+ * Signature: (F)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setAnimationPeriodNative
+  (JNIEnv *, jobject, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setAnimationWrap
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setAnimationWrap
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setAllowFrameLoading
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setAllowFrameLoading
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setFrameLoadingPriority
+ * Signature: ([ILcom/mousebird/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setFrameLoadingPriority
+  (JNIEnv *, jobject, jintArray, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    getLoadedFrames
+ * Signature: (I[Z[Z[I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getLoadedFrames
+  (JNIEnv *, jobject, jint, jbooleanArray, jbooleanArray, jintArray);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setColor
+ * Signature: (FFFFLcom/mousebird/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setColor
+  (JNIEnv *, jobject, jfloat, jfloat, jfloat, jfloat, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setMaxTiles
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setMaxTiles
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setImportanceScale
+ * Signature: (F)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setImportanceScale
+  (JNIEnv *, jobject, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setTextureAtlasSize
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setTextureAtlasSize
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setImageFormat
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setImageFormat
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    getBorderTexel
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getBorderTexel
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setBorderTexel
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setBorderTexel
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setMultiLevelLoads
+ * Signature: ([I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setMultiLevelLoads
+  (JNIEnv *, jobject, jintArray);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    getTargetZoomLevel
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getTargetZoomLevel
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    reload
  * Signature: (Lcom/mousebird/maply/ChangeSet;)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeShutdown
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_reload
   (JNIEnv *, jobject, jobject);
 
 /*
@@ -62,6 +222,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setCoverPoles
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setVisibility
   (JNIEnv *, jobject, jdouble, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    nativeShutdown
+ * Signature: (Lcom/mousebird/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeShutdown
+  (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer

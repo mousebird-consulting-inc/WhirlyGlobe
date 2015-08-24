@@ -19,6 +19,8 @@
  */
 package com.mousebird.maply;
 
+import java.util.ArrayList;
+
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
@@ -77,6 +79,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	public MaplyBaseController maplyControl = null;
 	public CoordSystem coordSys = null;
 	TileSource tileSource = null;
+	boolean flipY = true;
 	
 	/**
 	 * Construct a quad image tile layer.  You'll pass it over to the MaplyController to
@@ -262,6 +265,10 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		if (!valid)
 			return;
 
+	    // If we're not going OSM style addressing, we need to flip the Y back to TMS
+	    if (!flipY)
+	        y = (1<<level)-y-1;
+
 		MaplyTileID tileID = new MaplyTileID(x,y,level);
 		tileSource.startFetchForTile(this, tileID);
 	}
@@ -281,6 +288,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	{
 		if (!valid)
 			return;
+
+	    if (!flipY)
+	    	tileID.y = (1<<tileID.level)-tileID.y-1;
 
 		if (Looper.myLooper() != layerThread.getLooper())
 		{
@@ -303,9 +313,264 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 			nativeTileDidNotLoad(tileID.x,tileID.y,tileID.level,changes);
 		layerThread.addChanges(changes);
 	}
+		
+	/** Enable/Disable the whole layer.
+     *	By default this is on.  If you turn it off, there may be a slight delay before the whole layer disappears.  The layer will keep working, but any geometry will be invisible until you turn it back on.
+	 */
+	public void setEnable(boolean enable)
+	{
+		ChangeSet changes = new ChangeSet();
+		setEnable(enable,changes);
+		layerThread.addChanges(changes);
+	}
 	
-	native void nativeShutdown(ChangeSet changes);
+	native void setEnable(boolean enable,ChangeSet changes);
 	
+	/** Enable/Disable the whole layer.
+     *  By default this is on.  If you turn it off, there may be a slight delay before the whole layer disappears.  The layer will keep working, but any geometry will be invisible until you turn it back on.
+	 */
+//	public native void setFade(float fade);
+	
+	/** The number of images we're expecting to get per tile.
+     * This is the number of images the layer will ask for per tile.  The default is 1, which is the normal case.  If this is greater than one that typically means we're going to animate between them.
+     * the MaplyTileSource delegate is always expected to provide this many imates.
+     */
+	public native void setImageDepth(int imageDepth);
+	
+	/**
+	 * The number of images expected per tile. These are often used as animation frames.
+	 */
+	public native int getImageDepth();
+	
+	/**
+	 * Get the current image being displayed.  Only really makes sense for animated layers.
+	 * @return The current image index (or between) being displayed.
+	 */
+	public native float getCurrentImage();
+	
+	/** Set the current image we're displaying.
+      * This sets the current image being displayed, and interpolates between it and the next image.  If set to an integer value, you'll get just that image.  If set to a value between integers, you'll get a blend of the two.
+      * This is incompatible with setting an animationPeriod.  Do just one or the other.
+     */
+	public void setCurrentImage(float current)
+	{
+		ChangeSet changes = new ChangeSet();
+		setCurrentImage(current,changes);
+		layerThread.addChanges(changes);		
+	}
+	
+	native void setCurrentImage(float current,ChangeSet changes);
+	
+	/** If set, we'll use this as the maximum current image value when animating.
+      * By default this is off (-1).  When it's on, we'll consider this the last valid value for currentImage.  This means, when animating, we'll run from 0 to maxCurrentImage.
+      * This is helpful when you have an animation you want to taper off at the end past the last frame.
+      */
+	public native void setMaxCurrentImage(float maxCurrent);
+	
+	/** The length of time we'll take to switch through all available images (per tile).
+      * If set to non-zero right after layer creation we'll run through all the available images (in each tile) over the given period.  This only makes sense if you've got more than one image per tile.
+      * If you want tighter control use the currentImage property and set your own timer.
+      */
+	public void setAnimationPeriod(float period)
+	{
+//	    if (_viewC)
+//	    {
+//	        if (imageUpdater)
+//	        {
+//	            if (_animationPeriod > 0.0)
+//	            {
+//	                imageUpdater.period = _animationPeriod;
+//	            } else {
+//	                [_viewC removeActiveObject:imageUpdater];
+//	                imageUpdater = nil;
+//	            }
+//	        } else {
+//	            if (_animationPeriod > 0.0)
+//	            {
+//	                imageUpdater = [[ActiveImageUpdater alloc] init];
+//	                imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
+//	                if (_maxCurrentImage > 1)
+//	                    imageUpdater.startTime = imageUpdater.startTime-_currentImage/(_maxCurrentImage-1)*_animationPeriod;
+//	                imageUpdater.tileLayer = self;
+//	                imageUpdater.period = _animationPeriod;
+//	                imageUpdater.maxCurrentImage = _maxCurrentImage;
+//	                imageUpdater.programId = _customShader;
+//	                tileLoader.programId = _customShader;
+//	                [_viewC addActiveObject:imageUpdater];
+//	            }
+//	        }
+//	    }				
+	}
+	
+	native void setAnimationPeriodNative(float period);
+	
+	/** If set to true, we'll consider the list of images for each tile to be circular when we animate.
+      * When set we'll loop back to the first image when we go past the last.  This is the default.
+      * When not set, we'll run from 0 to maxCurrentImage and then restart.
+      */
+	public native void setAnimationWrap(boolean wrap);
+	
+	/** If set, we'll try to fetch frames individually.
+      * When fetching from a data source that has multiple frames we'll fetch each frame individually and allow them to display as we go.
+      * If this is false, we'll force all the frames to load for a given tile before we move on to the next tile.
+      */
+	public native void setAllowFrameLoading(boolean frameLoading);
+	
+	/** For the case where we're loading individual frames, this sets the order to load them in.
+      * When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.
+      */
+	public void setFrameLoadingPriority(int[] priorites)
+	{
+		ChangeSet changes = new ChangeSet();
+		setFrameLoadingPriority(priorites,changes);
+		layerThread.addChanges(changes);				
+	}
+	
+	native void setFrameLoadingPriority(int[] priorites,ChangeSet changes);
+	
+	/**
+	 * Information about the status of individual frames, if you have frame loading turned on.
+	 */
+	class FrameLoadStatus
+	{
+	    /// True if this one is fully loaded
+	    boolean complete = false;
+	    /// True if this frame is currently being worked on
+	    boolean currentFrame = false;
+	    /// Number of tiles currently loaded
+	    int numTilesLoaded = 0;		
+	}
+	
+	/** Status structures describing which frames are loaded.
+     * Query this to find out which frames are completely loaded into memory and which are not.
+     * This queries the underlying control logic and there is no delegate.  It's polling only.
+     */
+	public ArrayList<FrameLoadStatus> getLoadedFrames()
+	{
+		int numFrames = getImageDepth();
+		ArrayList<FrameLoadStatus> frames = new ArrayList<FrameLoadStatus>();
+		if (numFrames > 0)
+		{		
+			boolean[] complete = new boolean[numFrames];
+			boolean[] currentFrame = new boolean[numFrames];
+			int[] numTilesLoaded = new int[numFrames];
+			getLoadedFrames(numFrames,complete,currentFrame,numTilesLoaded);
+			
+			for (int ii = 0; ii < numFrames; ii++)
+			{
+				FrameLoadStatus status = new FrameLoadStatus();
+				status.complete = complete[ii];
+				status.currentFrame = complete[ii];
+				status.numTilesLoaded = numTilesLoaded[ii];
+				frames.add(status);
+			}
+		}
+		
+		return frames;
+	}
+	
+	private native void getLoadedFrames(int numFrames,boolean[] complete,boolean[] currentFrame,int[] numTilesLoaded);
+	
+	/** Color for the tile geometry.
+     * The geometry we create for tiles has an RGBA color.  It's white/full alpha by default, but you can set it here.  You might want to do this if you'd like a semi-transparent layer, sort of a shader of course, where you can do whatever you like.
+     */
+	public void setColor(float r,float g,float b,float a)
+	{
+		ChangeSet changes = new ChangeSet();
+		setColor(r,g,b,a,changes);
+		layerThread.addChanges(changes);						
+	}
+	
+	native void setColor(float r,float g,float b,float a,ChangeSet changes);
+	
+	/** Maximum number of tiles to load in at once.
+      * This is the maximum number of tiles the pager will have loaded into memory at once.  The default is 128 and that's generally good enough.  However, if your tile size is small, you may want to load in more.
+      * Tile loading can get out of control when using elevation data.  The toolkit calculates potential screen coverage for each tile so elevation data makes all tiles more important.  As a result the system will happily page in way more data than you may want.  The limit becomes important in elevation mode, so leave it at 128 unless you need to change it.
+      */
+	public native void setMaxTiles(int maxTiles);
+	
+	/** Tinker with the importance for tiles.  This will cause more or fewer tiles to load
+      * The system calculates an importance for each tile based on its size and location on the screen.  You can mess with those values here.
+      * Any value less than 1.0 will make the tiles less important.  Any value greater than 1.0 will make tiles more important.
+      */
+	public native void setImportanceScale(float scale);
+
+	/** Set the (power of two) size of texture atlases the layer will create.
+      * The system makes extensive use of texture atlases for rendering tiles.  Typically we'll only have one or two gigantic textures will all our imagery and a handfull of drawables.  This is what makes the system fast.  Very fast.
+      * This option controls the size of those texture atlases.  It's set to 2048 by default (2048x2048 texels).  If you're going to change it, set it to 1024, but don't go any lower unless you know something we don't.  It must always be a power of 2.
+      */
+	public native void setTextureAtlasSize(int size);
+	
+	/**
+	 * Enumerated values for image types.
+	 */
+	public enum ImageFormat {MaplyImageIntRGBA,
+        MaplyImageUShort565,
+        MaplyImageUShort4444,
+        MaplyImageUShort5551,
+        MaplyImageUByteRed,MaplyImageUByteGreen,MaplyImageUByteBlue,MaplyImageUByteAlpha,
+        MaplyImageUByteRGB,
+        MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
+        MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
+        MaplyImage4Layer8Bit};
+        
+    /** Set the image format for the texture atlases (thus the imagery).
+      * OpenGL ES offers us several image formats that are more efficient than 32 bit RGBA, but they're not always appropriate.  This property lets you choose one of them.  The 16 or 8 bit ones can save a huge amount of space and will work well for some imagery, most maps, and a lot of weather overlays.
+      * Be sure to set this at layer creation, it won't do anything later on.
+     */
+    public void setImageFormat(ImageFormat format)
+    {
+    	setImageFormat(format.ordinal());
+    }
+    
+    native void setImageFormat(int format);
+    
+    /**
+     * Returns the number of border texels used around images.
+     */
+    public native int getBorderTexel();
+    
+    /** Number of border texels to set up around image tiles.
+        For matching image tiles along borders in 3D (probably the globe) we resample the image slightly smaller than we get and make up a boundary around the outside.  This number controls that border size.
+        By default this is 1.  It's safe to set it to 0 for 2D maps and some overalys.
+    */
+    public native void setBorderTexel(int borderTexel);
+    
+    /** Control how tiles are indexed, either from the lower left or the upper left.
+      * If set, we'll use the OSM approach (also Google Maps) to y indexing.  That's that default and it's normally what you're run into.
+      * Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you're tile source looks odd, try setting this to false.
+      * Default value is true.
+      */
+    public void setFlipY(boolean inFlipY)
+    {
+    	flipY = inFlipY;
+    }
+  
+    /** Detail the levels you want loaded in target level mode.
+      * The image display can work in one of two modes, quad tree where it loads everything starting from the min level or a target level mode where it just tries to load one or more target levels.  This is the array that controls which levels it will try to load.
+      * We do this so that the user doesn't have to wait for the target level to load.  This can be distracting on large displays with small tiles.  If you use this mode, the layer will load lower levels first, filling in quicker and then load the target level.  This looks much better, but doesn't take as long as the full quad tree based loading.
+      * The layer calculates the optimal target level (for 2D maps, if you're in that mode).  The entries in this array are relative to that level or absolute.  For example [0,-4,-2] means the layer will always try to load levels 0, targetLevel-4 and targetLevel-2, but only the latter two if they make sense.
+      */
+    public native void setMultiLevelLoads(int[] levels);
+
+    /**
+     * Calculate the current target zoom level and return it.
+     */
+    public native int getTargetZoomLevel();
+    
+    /** Force a full reload of all tiles.
+     * This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it's taking too long, you'll see these page in from the low to the high level.
+     * This is good for tile sources, like weather, that need to be refreshed every so often.
+    */
+    public void reload()
+    {
+		ChangeSet changes = new ChangeSet();
+		reload(changes);
+		layerThread.addChanges(changes);    	
+    }
+    
+    native void reload(ChangeSet changes);
+    
 	/**
 	 * We can only have a certain number of fetches going at once.
 	 * We'll create this number of threads (in some cases) based
@@ -345,6 +610,8 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	 * Something implausibly large by default.
 	 */
 	public native void setVisibility(double minVis,double maxVis);
+
+	native void nativeShutdown(ChangeSet changes);
 
 	static
 	{

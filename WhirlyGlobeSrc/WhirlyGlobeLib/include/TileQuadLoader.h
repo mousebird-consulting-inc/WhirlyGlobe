@@ -243,7 +243,6 @@ protected:
     std::string name;
 
     bool enable;
-    int numLoadingFrames;
     float drawOffset;
     int drawPriority;
     

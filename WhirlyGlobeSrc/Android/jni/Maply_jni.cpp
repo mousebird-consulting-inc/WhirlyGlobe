@@ -52,3 +52,13 @@ template<> MarkerInfoClassInfo *MarkerInfoClassInfo::classInfoObj = NULL;
 template<> ViewStateClassInfo *ViewStateClassInfo::classInfoObj = NULL;
 template<> MapViewStateClassInfo *MapViewStateClassInfo::classInfoObj = NULL;
 template<> GlobeViewStateClassInfo *GlobeViewStateClassInfo::classInfoObj = NULL;
+
+void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
+{
+	int *ints = env->GetIntArrayElements(intArray, NULL);
+	int len = env->GetArrayLength(intArray);
+	intVec.resize(len);
+	for (int ii=0;ii<len;ii++)
+		intVec[ii] = ints[ii];
+	env->ReleaseIntArrayElements(intArray,ints, 0);
+}

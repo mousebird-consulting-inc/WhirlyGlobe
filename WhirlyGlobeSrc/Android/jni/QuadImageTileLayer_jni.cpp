@@ -18,64 +18,15 @@
  *
  */
 
+#import <math.h>
 #import <jni.h>
 #import <android/bitmap.h>
 #import "Maply_jni.h"
 #import "com_mousebird_maply_QuadImageTileLayer.h"
 #import "WhirlyGlobe.h"
+#import "ImageWrapper.h"
 
 using namespace WhirlyKit;
-
-// Interfaces between our image and what the toolkit is expecting
-class ImageWrapper : public LoadedImage
-{
-public:
-	ImageWrapper(RawDataRef rawData,int width,int height)
-		: rawData(rawData), width(width), height(height)
-	{
-	}
-
-	// Construct the texture
-	// Note: Need to handle borderSize
-    virtual Texture *buildTexture(int borderSize,int width,int height)
-    {
-    	// Test code.  Off by default, obviously
-//    	for (unsigned int ii=0;ii<width*height;ii++)
-//    		((unsigned int *)rawData->getRawData())[ii] = 0xff0000ff;
-
-    	Texture *tex = new Texture("Tile Quad Loader",rawData,false);
-    	tex->setWidth(width);
-    	tex->setHeight(height);
-    	return tex;
-    }
-
-    /// Data type for image
-    virtual LoadedImageType getType()
-    {
-    	return WKLoadedImageNSDataRawData;
-    }
-
-    /// This means there's nothing to display, but the children are valid
-    virtual bool isPlaceholder()
-    {
-        return false;
-    }
-
-    /// Return image width
-    virtual int getWidth()
-    {
-    	return width;
-    }
-
-    /// Return image height
-    virtual int getHeight()
-    {
-    	return height;
-    }
-
-    int width,height;
-    RawDataRef rawData;
-};
 
 class QuadImageLayerAdapter : public QuadDataStructure, public QuadTileImageDataSource, public QuadDisplayControllerAdapter
 {
@@ -96,6 +47,28 @@ public:
 	double minVis, maxVis;
 	bool handleEdges, coverPoles;
 	Point2d ll,ur;
+	float shortCircuitImportance;
+	QuadTileLoader *tileLoader;
+	QuadDisplayController *control;
+	int drawPriority;
+	int imageDepth;
+	int borderTexel;
+	int textureAtlasSize;
+	bool enable;
+	float fade;
+	RGBAColor color;
+	int imageFormat;
+	float currentImage;
+	bool animationWrap;
+	int maxCurrentImage;
+	bool allowFrameLoading;
+	std::vector<int> framePriorities;
+	float animationPeriod;
+	int maxTiles;
+	float importanceScale;
+	int tileSize;
+	std::vector<int> levelLoads;
+	ViewState *lastViewState;
 
 	// Methods for Java quad image layer
 	jmethodID startFetchJava,scheduleEvalStepJava;
@@ -103,7 +76,10 @@ public:
 	QuadImageLayerAdapter(CoordSystem *coordSys)
 		: env(NULL), javaObj(NULL), renderer(NULL), coordSys(coordSys),
 		  simultaneousFetches(1), tileLoader(NULL), minVis(0.0), maxVis(10.0),
-		  handleEdges(true),coverPoles(false)
+		  handleEdges(true),coverPoles(false), drawPriority(0),imageDepth(1),
+		  borderTexel(0),textureAtlasSize(2048),enable(true),fade(1.0),color(255,255,255,255),imageFormat(0),
+		  currentImage(0.0), animationWrap(true), maxCurrentImage(-1), allowFrameLoading(true), animationPeriod(10.0),
+		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL)
 	{
 		useTargetZoomLevel = true;
         canShortCircuitImportance = false;
@@ -117,14 +93,9 @@ public:
 			delete coordSys;
 	}
 
-	float shortCircuitImportance;
-	QuadTileLoader *tileLoader;
-	QuadDisplayController *control;
-
 	// Get Java methods for a particular instance
 	void setJavaRefs(JNIEnv *env,jobject obj)
 	{
-		// Note: Should release this somewhere
 		javaObj = (jobject)env->NewGlobalRef(obj);
 		jclass theClass = env->GetObjectClass(javaObj);
 		startFetchJava = env->GetMethodID(theClass,"startFetch","(III)V");
@@ -137,6 +108,100 @@ public:
 			env->DeleteGlobalRef(javaObj);
 	}
 
+	// Set up the tile loading
+	QuadTileLoader *setupTileLoader()
+	{
+		// Set up the tile loader
+		tileLoader = new QuadTileLoader("Image Layer",this,-1);
+	    tileLoader->setIgnoreEdgeMatching(!handleEdges);
+	    tileLoader->setCoverPoles(coverPoles);
+	    tileLoader->setMinVis(minVis);
+	    tileLoader->setMaxVis(maxVis);
+	    tileLoader->setDrawPriority(drawPriority);
+	    tileLoader->setNumImages(imageDepth);
+	    tileLoader->setIncludeElev(false);
+	    tileLoader->setBorderTexel(borderTexel);
+	    tileLoader->setBorderPixelFudge(0.5);
+	    tileLoader->setTextureAtlasSize(textureAtlasSize);
+	    ChangeSet changes;
+	    tileLoader->setEnable(enable,changes);
+//	    tileLoader->setFade(fade,changes);
+	    tileLoader->setUseTileCenters(false);
+	    switch (imageFormat)
+	    {
+//        case MaplyImageIntRGBA:
+//        case MaplyImage4Layer8Bit:
+	    case 0:
+	    case 16:
+        default:
+            tileLoader->setImageType(WKTileIntRGBA);
+            break;
+//        case MaplyImageUShort565:
+        case 1:
+            tileLoader->setImageType(WKTileUShort565);
+            break;
+//        case MaplyImageUShort4444:
+        case 2:
+            tileLoader->setImageType(WKTileUShort4444);
+            break;
+//        case MaplyImageUShort5551:
+        case 3:
+            tileLoader->setImageType(WKTileUShort5551);
+            break;
+//        case MaplyImageUByteRed:
+        case 4:
+            tileLoader->setImageType(WKTileUByteRed);
+            break;
+//        case MaplyImageUByteGreen:
+        case 5:
+            tileLoader->setImageType(WKTileUByteGreen);
+            break;
+//        case MaplyImageUByteBlue:
+        case 6:
+            tileLoader->setImageType(WKTileUByteBlue);
+            break;
+//        case MaplyImageUByteAlpha:
+        case 7:
+            tileLoader->setImageType(WKTileUByteAlpha);
+            break;
+//        case MaplyImageUByteRGB:
+        case 8:
+            tileLoader->setImageType(WKTileUByteRGB);
+            break;
+//        case MaplyImageETC2RGB8:
+        case 9:
+            tileLoader->setImageType(WKTileETC2_RGB8);
+            break;
+//        case MaplyImageETC2RGBA8:
+        case 10:
+            tileLoader->setImageType(WKTileETC2_RGBA8);
+            break;
+//        case MaplyImageETC2RGBPA8:
+        case 11:
+            tileLoader->setImageType(WKTileETC2_RGB8_PunchAlpha);
+            break;
+//        case MaplyImageEACR11:
+        case 12:
+            tileLoader->setImageType(WKTileEAC_R11);
+            break;
+//        case MaplyImageEACR11S:
+        case 13:
+            tileLoader->setImageType(WKTileEAC_R11_Signed);
+            break;
+//        case MaplyImageEACRG11:
+        case 14:
+            tileLoader->setImageType(WKTileEAC_RG11);
+            break;
+//        case MaplyImageEACRG11S:
+        case 15:
+            tileLoader->setImageType(WKTileEAC_RG11_Signed);
+            break;
+	    }
+	    tileLoader->setColor(color);
+
+	    return tileLoader;
+	}
+
 	// Called to start the layer
 	void start(Scene *inScene,SceneRendererES *inRenderer,const Point2d &inLL,const Point2d &inUR,int inMinZoom,int inMaxZoom)
 	{
@@ -144,31 +209,20 @@ public:
 		renderer = inRenderer;
 		ll = inLL;  ur = inUR;  minZoom = inMinZoom;  maxZoom = inMaxZoom;
 
-		// Set up the tile loader
-		tileLoader = new QuadTileLoader("Image Layer",this,-1);
-	    tileLoader->setIgnoreEdgeMatching(!handleEdges);
-	    tileLoader->setCoverPoles(coverPoles);
-	    tileLoader->setMinVis(minVis);
-	    tileLoader->setMaxVis(maxVis);
-	    tileLoader->setDrawPriority(0);
-	    tileLoader->setNumImages(1);
-	    tileLoader->setIncludeElev(false);
-	    tileLoader->setBorderTexel(0);
-	    tileLoader->setBorderPixelFudge(0.5);
-	    // Note: Should check this
-	    tileLoader->setTextureAtlasSize(2048);
-//	    ChangeSet changes;
-//	    tileLoader->setEnable(_enable,changes);
+		tileLoader = setupTileLoader();
 
 		// Set up the display controller
 		control = new QuadDisplayController(this,tileLoader,this);
-		control->setMaxTiles(256);
+		// Note: Porting  Should turn this back on
 		control->setMeteredMode(false);
 		control->init(scene,renderer);
+		control->setMaxTiles(maxTiles);
+		if (!framePriorities.empty())
+			control->setFrameLoadingPriorities(framePriorities);
 
-		// Note: Porting
-		// Note: Explicitly setting the min importance for a 128*128 tile
-//		getController()->setMinImportance(128*128);
+		// Note: Porting  Set up the shader
+
+		// Note: Porting  Move this everywhere
 		if (this->useTargetZoomLevel)
 		{
 			shortCircuitImportance = 256*256;
@@ -177,6 +231,66 @@ public:
 			shortCircuitImportance = 0.0;
 			control->setMinImportance(256*256);
 		}
+
+	    if (imageDepth > 1)
+	    {
+	        if (animationWrap && maxCurrentImage == -1)
+	            maxCurrentImage = imageDepth;
+
+	        // Note: Porting.  Put this back
+//	        if (!customShader)
+//	            customShader = scene->getProgramIDByName(kToolkitDefaultTriangleMultiTex);
+//
+//	        if (animationPeriod > 0.0)
+//	        	setAnimationPeriod(animationPeriod);
+	    }
+	}
+
+	void setAnimationPeriod(float newAnimationPeriod)
+	{
+	    animationPeriod = newAnimationPeriod;
+	}
+
+	// Change which image is displayed (or interpolation thereof)
+	void setCurrentImage(float newCurrentImage,ChangeSet &changes)
+	{
+		currentImage = newCurrentImage;
+
+	    unsigned int image0 = floorf(currentImage);
+	    unsigned int image1 = ceilf(currentImage);
+	    if (animationWrap)
+	    {
+	        if (image1 == imageDepth)
+	            image1 = 0;
+	    }
+	    if (image0 >= imageDepth)
+	        image0 = imageDepth-1;
+	    if (image1 >= imageDepth)
+	        image1 = -1;
+	    float t = currentImage-image0;
+
+	//    NSLog(@"currentImage = %d->%d -> %f",image0,image1,t);
+
+	    // Change the images to give us start and finish
+	    tileLoader->setCurrentImageStart(image0,image1,changes);
+
+	    // Note: Porting
+#if 0
+	    // Set the interpolation in the program
+	    OpenGLES2Program *prog = scene->getProgram(_customShader);
+	    if (prog)
+	    {
+	        EAGLContext *oldContext = [EAGLContext currentContext];
+	        [_viewC useGLContext];
+
+	        glUseProgram(prog->getProgram());
+	        prog->setUniform("u_interp", t);
+	        [_renderer forceDrawNextFrame];
+
+	        if (oldContext)
+	            [EAGLContext setCurrentContext:oldContext];
+	    }
+#endif
 	}
 
 	/** QuadDataStructure Calls **/
@@ -215,23 +329,55 @@ public:
     /// Return an importance value for the given tile
     virtual double importanceForTile(const Quadtree::Identifier &ident,const Mbr &mbr,ViewState *viewState,const Point2f &frameSize,Dictionary *attrs)
     {
-        if (ident.level < 1)
+        if (ident.level == 0)
             return MAXFLOAT;
 
-        double import = 0;
+        Quadtree::Identifier tileID;
+        tileID.level = ident.level;
+        tileID.x = ident.x;
+        tileID.y = ident.y;
+
+        // Note: Porting.  Valid tile support.
+//        if (canDoValidTiles && ident.level >= minZoom)
+//        {
+//            MaplyBoundingBox bbox;
+//            bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();
+//            bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
+//            if (![_tileSource validTile:tileID bbox:&bbox])
+//                return 0.0;
+//        }
+
+        // Note: Porting.  Variable size tiles.
+        int thisTileSize = tileSize;
+//        if (variableSizeTiles)
+//        {
+//            thisTileSize = [_tileSource tileSizeForTile:tileID];
+//            if (thisTileSize <= 0)
+//                thisTileSize = [_tileSource tileSize];
+//        }
+
+        double import = 0.0;
         if (canShortCircuitImportance && maxShortCircuitLevel != -1)
         {
             if (TileIsOnScreen(viewState, frameSize, coordSys, scene->getCoordAdapter(), mbr, ident, attrs))
             {
                 import = 1.0/(ident.level+10);
                 if (ident.level <= maxShortCircuitLevel)
-                	import += 1.0;
+                    import += 1.0;
             }
+            import *= importanceScale;
         } else {
-			// This is how much screen real estate we're covering for this tile
-			import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, coordSys, scene->getCoordAdapter(), mbr, ident, attrs) / 4;
+        	// Note: Porting
+//            if (elevDelegate)
+//            {
+//                import = ScreenImportance(viewState, frameSize, thisTileSize, coordSys, scene->getCoordAdapter(), mbr, _minElev, _maxElev, ident, attrs);
+//            } else {
+//                import = ScreenImportance(viewState, frameSize, viewState.eyeVec, thisTileSize, coordSys, scene->getCoordAdapter(), mbr, ident, attrs);
+//            }
+//            import *= _importanceScale;
         }
-//		__android_log_print(ANDROID_LOG_VERBOSE, "importanceForTile", "tile %d: (%d,%d) import = %f",ident.level,ident.x,ident.y,import);
+
+    //    NSLog(@"Tiles = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
 
         return import;
     }
@@ -275,6 +421,8 @@ public:
     /// Called when the view state changes.  If you're caching info, do it here.
     virtual void newViewState(ViewState *viewState)
     {
+    	lastViewState = viewState;
+
     	if (!useTargetZoomLevel)
     	{
     		canShortCircuitImportance = false;
@@ -312,6 +460,13 @@ public:
             {
             	std::set<int> targetLevels;
             	targetLevels.insert(maxShortCircuitLevel);
+                for (int whichLevel : levelLoads)
+                {
+					if (whichLevel < 0)
+						whichLevel = maxShortCircuitLevel+whichLevel;
+					if (whichLevel >= 0 && whichLevel < maxShortCircuitLevel)
+						targetLevels.insert(whichLevel);
+                }
             	control->setTargetLevels(targetLevels);
             }
 
@@ -375,26 +530,6 @@ public:
     void tileWasUnloaded(int level,int col,int row)
     {
 
-    }
-
-    // Bro, do you even load frames?
-    virtual bool canLoadFrames()
-    {
-    	return false;
-    }
-
-    // Number of frames we can load
-    virtual int numFrames()
-    {
-    	// Note: Porting  Take frame into account
-    	return 1;
-    }
-
-    // Current active frame
-    virtual int currentFrame()
-    {
-    	// Note: Porting  Take frame into account
-    	return 0;
     }
 
     // QuadDisplayControllerAdapter related methods
@@ -473,6 +608,376 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_dispose
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::dispose()");
+	}
+}
+
+/** Start of new methods **/
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setEnable
+  (JNIEnv *env, jobject obj, jboolean enable, jobject changeSetObj)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		if (!adapter || !changeSet)
+			return;
+		ChangeSet changes;
+		adapter->tileLoader->setEnable(enable,*changeSet);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setEnable()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setImageDepth
+  (JNIEnv *env, jobject obj, jint imageDepth)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		adapter->imageDepth = imageDepth;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setImageDepth()");
+	}
+}
+
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getCurrentImage
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return 0.0;
+
+		return adapter->currentImage;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::getCurrentImage()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setCurrentImage
+  (JNIEnv *env, jobject obj, jfloat currentImage, jobject changeSetObj)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		if (!adapter || !changeSet)
+			return;
+
+		adapter->setCurrentImage(currentImage,*changeSet);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setCurrentImage()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setMaxCurrentImage
+  (JNIEnv *env, jobject obj, jfloat maxCurrentImage)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		adapter->maxCurrentImage = maxCurrentImage;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setMaxCurrentImage()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setAnimationPeriod
+  (JNIEnv *env, jobject obj, jfloat period)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		adapter->setAnimationPeriod(period);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setAnimationPeriod()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setAnimationWrap
+  (JNIEnv *env, jobject obj, jboolean animationWrap)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		adapter->animationWrap = animationWrap;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setAnimationWrap()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setAllowFrameLoading
+  (JNIEnv *env, jobject obj, jboolean frameLoading)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		adapter->allowFrameLoading = frameLoading;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setAllowFrameLoading()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setFrameLoadingPriority
+  (JNIEnv *env, jobject obj, jintArray frameLoadingArr, jobject changeSetObj)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		if (!adapter || !changeSet)
+			return;
+		adapter->framePriorities.clear();
+
+		ConvertIntArray(env,frameLoadingArr,adapter->framePriorities);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setFrameLoadingPriority()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setColor
+  (JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a, jobject changeSetObj)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		if (!adapter || !changeSet)
+			return;
+		adapter->tileLoader->setColor(RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0));
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setColor()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setMaxTiles
+  (JNIEnv *env, jobject obj, jint maxTiles)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		adapter->maxTiles = maxTiles;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setMaxTiles()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setImportanceScale
+  (JNIEnv *env, jobject obj, jfloat scale)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		adapter->importanceScale = scale;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setImportanceScale()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setTextureAtlasSize
+  (JNIEnv *env, jobject obj, jint atlasSize)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		adapter->textureAtlasSize = atlasSize;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setTextureAtlasSize()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setImageFormat
+  (JNIEnv *env, jobject obj, jint imageFormat)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		adapter->imageFormat = imageFormat;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setImageFormat()");
+	}
+}
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getBorderTexel
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return 0;
+		return adapter->borderTexel;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::getBorderTexel()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setBorderTexel
+  (JNIEnv *env, jobject obj, jint borderTexel)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		adapter->borderTexel = borderTexel;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setBorderTexel()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setMultiLevelLoads
+  (JNIEnv *env, jobject obj, jintArray levelLoadsArr)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+
+		ConvertIntArray(env,levelLoadsArr,adapter->levelLoads);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setMultiLevelLoads()");
+	}
+}
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getTargetZoomLevel
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter || !adapter->lastViewState)
+			return 0;
+
+		return adapter->targetZoomLevel(adapter->lastViewState);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::getTargetZoomLevel()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_reload
+  (JNIEnv *env, jobject obj, jobject changeSetObj)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		if (!adapter || !changeSet)
+			return;
+
+		// Note: Porting. This doesn't handle the case where we change parameters and then reload
+		adapter->control->refresh(*changeSet);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::reload()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getLoadedFrames
+  (JNIEnv *env, jobject obj, jint numFrames, jbooleanArray completeArr, jbooleanArray currentFrameArr, jintArray numTilesLoadedArr)
+{
+	try
+	{
+		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+		if (!adapter)
+			return;
+		std::vector<FrameLoadStatus> frameLoadStats;
+		adapter->control->getFrameLoadStatus(frameLoadStats);
+		if (numFrames != frameLoadStats.size())
+			return;
+
+		// Pull the data out into the arrays
+		for (unsigned int ii=0;ii<numFrames;ii++)
+		{
+			FrameLoadStatus &status = frameLoadStats[ii];
+			jboolean completeJbool = status.complete;
+			jboolean currentFrameJBool = status.currentFrame;
+			env->SetBooleanArrayRegion(completeArr, (jsize)ii, (jsize)1, &completeJbool);
+			env->SetBooleanArrayRegion(currentFrameArr, (jsize)ii, (jsize)1, &currentFrameJBool);
+			env->SetIntArrayRegion(numTilesLoadedArr, (jsize)ii, (jsize)1, &status.numTilesLoaded);
+		}
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::getLoadedFrames()");
 	}
 }
 

@@ -338,5 +338,7 @@ typedef JavaClassInfo<WhirlyKit::SingleLabelAndroid> LabelClassInfo;
 // The shared JNIEnv set in the ::render call
 extern JNIEnv *maplyCurrentEnv;
 
+// Convert a Java int array into a std::vector of ints
+void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec);
 
 #endif /* Maply_JNI_h_ */

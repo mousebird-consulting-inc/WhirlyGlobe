@@ -44,14 +44,14 @@ QuadTileLoader::QuadTileLoader(const std::string &name,QuadTileImageDataSource *
     enable(true), fade(1.0), drawOffset(0), drawPriority(0),
     minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minPageVis(DrawVisibleInvalid), maxPageVis(DrawVisibleInvalid),
     programId(EmptyIdentity), includeElev(false), useElevAsZ(true),
-    numImages(1), activeTextures(-1), color(255,255,255,255), hasAlpha(false),
+    numImages(numFrames), activeTextures(-1), color(255,255,255,255), hasAlpha(false),
     ignoreEdgeMatching(false), coverPoles(false),
     imageType(WKTileIntRGBA), useDynamicAtlas(true), tileScale(WKTileScaleNone), fixedTileSize(256), textureAtlasSize(2048), borderTexel(1),
     tileBuilder(NULL), doingUpdate(false), defaultTessX(10), defaultTessY(10),
-    currentImage0(0), currentImage1(0), texAtlasPixelFudge(0.0), numLoadingFrames(numFrames), useTileCenters(true)
+    currentImage0(0), currentImage1(0), texAtlasPixelFudge(0.0), useTileCenters(true)
 {
     pthread_mutex_init(&tileLock, NULL);
-    #pragma fail  Figure out if data source an load frames right here
+    #pragma fail  Figure out if data source can load frames right here
 }
     
 void QuadTileLoader::clear()
@@ -411,18 +411,20 @@ int QuadTileLoader::numLocalFetches()
     
 int QuadTileLoader::numFrames()
 {
-    return numLoadingFrames;
+    return numImages;
 }
     
 int QuadTileLoader::currentFrame()
 {
-    // Note: Porting
-    return -1;
+    if (numImages <= 1)
+        return -1;
+    else
+        return currentImage0;
 }
     
 bool QuadTileLoader::canLoadFrames()
 {
-    return numLoadingFrames != -1;
+    return numImages != -1;
 }
 
 // Ask the data source to start loading the image for this tile
