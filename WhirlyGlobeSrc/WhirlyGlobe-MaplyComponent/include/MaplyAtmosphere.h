@@ -29,7 +29,7 @@
 @interface MaplyAtmosphere : NSObject
 
 /// @brief Initialize the view controller.  Will place objects in that view controller.
-- (id)initWithViewC:(WhirlyGlobeViewController *)viewC;
+- (nullable instancetype)initWithViewC:(WhirlyGlobeViewController *__nonnull)viewC;
 
 /// @brief Rayleigh scattering constant (0.0025 by default)
 @property (nonatomic) float Kr;
@@ -53,10 +53,10 @@
 @property (nonatomic) float exposure;
 
 /// @brief Wavelengths of the light (RGB).  Three floats, defaults are: 0.650, 0.570, 0.475
-- (void)setWavelength:(float *)wavelength;
+- (void)setWavelength:(float *__nonnull)wavelength;
 
 /// @brief Return the current wavelength settings (RGB)
-- (void)getWavelength:(float *)wavelength;
+- (void)getWavelength:(float *__nonnull)wavelength;
 
 /// @brief Set the sun's position relative to the earth.  This is what comes out of MaplySun.
 - (void)setSunPosition:(MaplyCoordinate3d)sunDir;

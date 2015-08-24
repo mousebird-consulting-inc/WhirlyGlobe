@@ -23,15 +23,17 @@
 #import "MaplyTileSource.h"
 
 /// The various image formats we support.  RGBA is the default, and most expensive.
-typedef enum {MaplyImageIntRGBA,
-        MaplyImageUShort565,
-        MaplyImageUShort4444,
-        MaplyImageUShort5551,
-        MaplyImageUByteRed,MaplyImageUByteGreen,MaplyImageUByteBlue,MaplyImageUByteAlpha,
+typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
+	MaplyImageIntRGBA,
+	MaplyImageUShort565,
+	MaplyImageUShort4444,
+	MaplyImageUShort5551,
+	MaplyImageUByteRed,MaplyImageUByteGreen,MaplyImageUByteBlue,MaplyImageUByteAlpha,
         MaplyImageUByteRGB,
-        MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
-        MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
-        MaplyImage4Layer8Bit} MaplyQuadImageFormat;
+	MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
+	MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
+	MaplyImage4Layer8Bit
+};
 
 /// Wrap values for certain types of textures
 #define MaplyImageWrapNone (0)
@@ -49,18 +51,24 @@ typedef enum {MaplyImageIntRGBA,
   */
 @interface MaplyQuadImageTilesLayer : MaplyViewControllerLayer
 
+/** @brief Initialize with a the tile source object.
+ @details The initialize expects a tile source.  The tile source can be one of the standard ones listed above, or it can be one of your own that conforms to the MaplyTileSource protocol. The tile source's coordinate system will be used.
+ @param tileSource This is an object conforming to the MaplyTileSource protocol.  There are several you can pass in, or you can write your own.
+ */
+- (nullable instancetype)initWithTileSource:(NSObject<MaplyTileSource> *__nonnull)tileSource;
+
 /** @brief Initialize with a coordinate system for the image pyramid and the tile source object.  
     @details The initialize expects a coordinate system (probably MaplySphericalMercator) and a tile source.  The tile source can be one of the standard ones listed above, or it can be one of your own that conforms to the MaplyTileSource protocol.
     @param coordSys The coordinate system. This must match what your
             image pyramid is in, or it will look weird.  Very weird.
     @param tileSource This is an object conforming to the MaplyTileSource protocol.  There are several you can pass in, or you can write your own.
   */
-- (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
+- (nullable instancetype)initWithCoordSystem:(MaplyCoordinateSystem *__nonnull)coordSys tileSource:(NSObject<MaplyTileSource> *__nonnull)tileSource;
 
 /** @brief Set the active tile source.
     @details If you change this, it will force a reload of all loaded tiles and start fetching from the new tile source.
   */
-@property (nonatomic,strong) NSObject<MaplyTileSource> *tileSource;
+@property (nonatomic,strong,nonnull) NSObject<MaplyTileSource> *tileSource;
 
 /** @brief Enable/Disable the whole layer.
     @details By default this is on.  If you turn it off, there may be a slight delay before the whole layer disappears.  The layer will keep working, but any geometry will be invisible until you turn it back on.
@@ -168,7 +176,7 @@ typedef enum {MaplyImageIntRGBA,
 /** @brief For the case where we're loading individual frames, this sets the order to load them in.
     @details When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.
   */
-- (void)setFrameLoadingPriority:(NSArray *)priorities;
+- (void)setFrameLoadingPriority:(NSArray *__nonnull)priorities;
 
 /** @brief Include the original z values in the tile geometry for a custom shader.
     @details When generating tiles for the globe we project the coordinates from their local system (probably MaplySphericalMercator) into a display system.  If you wanted the original z values, to say, write a custom shader that maps color to elevation, that data is now missing.
@@ -192,7 +200,7 @@ typedef enum {MaplyImageIntRGBA,
 /** @brief Color for the tile geometry.
     @details The geometry we create for tiles has an RGBA color.  It's white/full alpha by default, but you can set it here.  You might want to do this if you'd like a semi-transparent layer, sort of a shader of course, where you can do whatever you like.
   */
-@property (nonatomic,strong) UIColor *color;
+@property (nonatomic,strong,nullable) UIColor *color;
 
 /** @brief Maximum number of tiles to load in at once.
     @details This is the maximum number of tiles the pager will have loaded into memory at once.  The default is 128 and that's generally good enough.  However, if your tile size is small, you may want to load in more.
@@ -210,7 +218,7 @@ typedef enum {MaplyImageIntRGBA,
     @details Shader programs are accessed by name.  When you create a shader and tie it into the scene, you'll have the name.  Use that name here to ensure that all tiles are rendered with that MaplyShader.
     @details Be sure to set this immediately after layer creation.  It can't be changed in the middle.
   */
-@property (nonatomic,strong) NSString *shaderProgramName;
+@property (nonatomic,strong,nullable) NSString *shaderProgramName;
 
 /** @brief Set the (power of two) size of texture atlases the layer will create.
     @details The system makes extensive use of texture atlases for rendering tiles.  Typically we'll only have one or two gigantic textures will all our imagery and a handfull of drawables.  This is what makes the system fast.  Very fast.
@@ -267,7 +275,7 @@ typedef enum {MaplyImageIntRGBA,
     @details We do this so that the user doesn't have to wait for the target level to load.  This can be distracting on large displays with small tiles.  If you use this mode, the layer will load lower levels first, filling in quicker and then load the target level.  This looks much better, but doesn't take as long as the full quad tree based loading.
     @details The layer calculates the optimal target level (for 2D maps, if you're in that mode).  The entries in this array are relative to that level or absolute.  For example [0,-4,-2] means the layer will always try to load levels 0, targetLevel-4 and targetLevel-2, but only the latter two if they make sense.
   */
-@property (nonatomic,strong) NSArray *multiLevelLoads;
+@property (nonatomic,strong,nullable) NSArray *multiLevelLoads;
 
 /** @brief The target zoom level for this layer given the current view settings.
     @details Calculates the target zoom level for the middle of the screen.
@@ -288,7 +296,7 @@ typedef enum {MaplyImageIntRGBA,
     @param images Either one of UIImage or MaplyPlaceholderImage.
     @param tileID The tile we've loaded.
  */
-- (void)loadedImages:(id)images forTile:(MaplyTileID)tileID;
+- (void)loadedImages:(id __nonnull)images forTile:(MaplyTileID)tileID;
 
 /** @brief Pass back the loaded image(s) for a given tile.
     @details If the tile source implements startFetchForTile: then we'll expect it to do the asynchronous loading.  When it's done loading an image, it calls this.
@@ -297,38 +305,48 @@ typedef enum {MaplyImageIntRGBA,
     @param tileID The tile we've loaded.
     @param frame If we're loading an animation frame by frame, this is the frame ID.
   */
-- (void)loadedImages:(id)images forTile:(MaplyTileID)tileID frame:(int)frame;
+- (void)loadedImages:(id __nonnull)images forTile:(MaplyTileID)tileID frame:(int)frame;
 
-- (void)loadedElevation:(MaplyElevationChunk *)elevChunk forTile:(MaplyTileID)tileID;
-- (void)loadedElevation:(MaplyElevationChunk *)elevChunk forTile:(MaplyTileID)tileID frame:(int)frame;
+- (void)loadedElevation:(MaplyElevationChunk *__nonnull)elevChunk forTile:(MaplyTileID)tileID;
+- (void)loadedElevation:(MaplyElevationChunk *__nonnull)elevChunk forTile:(MaplyTileID)tileID frame:(int)frame;
 
 /** @brief Pass back an error for a given tile.
     @details If the tile source implements startFetchForTile: then this is how it tells us about a specific failure.
     @details It can also just call loadedImages:forTile: with nil, but this is more helpful.
   */
-- (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID;
+- (void)loadError:(NSError *__nonnull)error forTile:(MaplyTileID)tileID;
 
 /** @brief Pass back an error for a given tile and frame (if we're loading animations).
     @details If the tile source implements startFetchForTile: then this is how it tells us about a specific failure.
     @details It can also just call loadedImages:forTile: with nil, but this is more helpful.
  */
-- (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID frame:(int)frame;
+- (void)loadError:(NSError *__nonnull)error forTile:(MaplyTileID)tileID frame:(int)frame;
 
 /** @brief Status structures describing which frames are loaded.
     @details Query this to find out which frames are completely loaded into memory and which are not.
     @details This queries the underlying control logic and there is no delegate.  It's polling only.
  */
-- (NSArray *)loadedFrames;
+- (nullable NSArray *)loadedFrames;
+
+/** @brief Return the bounding box for a given tile.
+ @details This calculates the bounding box (in geographic) for the given tile.
+ */
+- (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID;
 
 /** @brief Return the bounding box for a given tile.
     @details This calculates the bounding box (in geographic) for the given tile.
   */
-- (void)geoBoundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
+- (void)geoBoundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *__nonnull)bbox;
+
+/** @brief Return the bounding box for a given tile.
+ @details This calculate the bounding box in local coordinates for the given tile.
+ */
+- (MaplyBoundingBox)boundsForTile:(MaplyTileID)tileID;
 
 /** @brief Return the bounding box for a given tile.
     @details This calculate the bounding box in local coordinates for the given tile.
   */
-- (void)boundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
+- (void)boundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *__nonnull)bbox;
 
 /** @brief Do a hard reset of the layer.
     @details This will clean out all the layers resources and force it to start loading again.

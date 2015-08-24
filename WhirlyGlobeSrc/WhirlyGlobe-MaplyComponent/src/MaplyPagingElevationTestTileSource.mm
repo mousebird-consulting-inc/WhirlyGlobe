@@ -38,7 +38,7 @@ static UIColor* colorForElevatedSide(int zoomLevel, float darkFactor)
 
 @implementation MaplyPagingElevationTestTileSource
 
-- (id)initWithCoordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom elevSource:(id<MaplyElevationSourceDelegate>) elevSource
+- (instancetype)initWithCoordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom elevSource:(id<MaplyElevationSourceDelegate>) elevSource
 {
     self = [super init];
     if (!self)

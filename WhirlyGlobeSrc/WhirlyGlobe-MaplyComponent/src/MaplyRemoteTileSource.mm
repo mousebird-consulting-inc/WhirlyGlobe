@@ -44,7 +44,7 @@ static bool trackConnections = false;
     std::vector<Mbr> mbrs;
 }
 
-- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
+- (instancetype)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
 {
     self = [super init];
     if (!self)
@@ -62,7 +62,7 @@ static bool trackConnections = false;
     return self;
 }
 
-- (id)initWithTilespec:(NSDictionary *)jsonDict
+- (instancetype)initWithTilespec:(NSDictionary *)jsonDict
 {
     self = [super init];
     if (!self)
@@ -119,7 +119,7 @@ static bool trackConnections = false;
     mbrs.push_back(mbr);
 }
 
-- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox
 {
     if(tileID.level > _maxZoom)
       return false;
@@ -127,7 +127,7 @@ static bool trackConnections = false;
     if (mbrs.empty())
         return true;
     
-    Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
+    Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y),Point2f(bbox.ur.x,bbox.ur.y));
     for (unsigned int ii=0;ii<mbrs.size();ii++)
         if (mbr.overlaps(mbrs[ii]))
             return true;
@@ -245,7 +245,7 @@ static bool trackConnections = false;
     Maply::TileFetchOpSet tileSet;
 }
 
-- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
+- (instancetype)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
 {
     self = [super init];
     if (!self)
@@ -258,7 +258,7 @@ static bool trackConnections = false;
     return self;
 }
 
-- (id)initWithTilespec:(NSDictionary *)jsonDict
+- (instancetype)initWithTilespec:(NSDictionary *)jsonDict
 {
     self = [super init];
     if (!self)
@@ -271,7 +271,7 @@ static bool trackConnections = false;
     return self;
 }
 
-- (id)initWithInfo:(MaplyRemoteTileInfo *)info
+- (instancetype)initWithInfo:(MaplyRemoteTileInfo *)info
 {
     self = [super init];
     if (!self)
@@ -348,7 +348,7 @@ static bool trackConnections = false;
     return [_tileInfo tileIsLocal:tileID frame:frame];
 }
 
-- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox
 {
     return [_tileInfo validTile:tileID bbox:bbox];
 }
@@ -497,9 +497,10 @@ static bool trackConnections = false;
         NSURLRequest *urlReq = [_tileInfo requestForTile:tileID];
         if(!urlReq)
         {
-            [layer loadError:nil forTile:tileID];
+			NSError *error = [NSError errorWithDomain:@"maply" code:1 userInfo:@{}];
+			[layer loadError:error forTile:tileID];
             if (self.delegate && [self.delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
-                [self.delegate remoteTileSource:self tileDidNotLoad:tileID error:nil];
+                [self.delegate remoteTileSource:self tileDidNotLoad:tileID error:error];
             [self clearTile:tileID];
             if (trackConnections)
                 @synchronized([MaplyRemoteTileSource class])

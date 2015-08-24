@@ -35,7 +35,7 @@ using namespace WhirlyKit;
     float minTilt,maxTilt,minTiltHeight,maxTiltHeight;
 }
 
-- (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView
+- (instancetype)initWithGlobeView:(WhirlyGlobeView *)inGlobeView
 {
     self = [super init];
     globeView = inGlobeView;
@@ -120,7 +120,7 @@ using namespace WhirlyKit;
     bool sentRotStartMsg;
 }
 
-- (id)initWithGlobeView:(WhirlyGlobeView *)inView
+- (instancetype)initWithGlobeView:(WhirlyGlobeView *)inView
 {
 	if ((self = [super init]))
 	{
