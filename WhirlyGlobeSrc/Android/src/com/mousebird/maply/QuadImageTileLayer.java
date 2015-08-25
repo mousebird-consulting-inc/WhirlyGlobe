@@ -72,8 +72,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		 * 
 		 * @param layer The layer asking for the fetch.
 		 * @param tileID The tile ID to fetch.
+		 * @param frame If the source support multiple frames, this is the frame.  Otherwise -1.
 		 */
-		public void startFetchForTile(QuadImageTileLayer layer,MaplyTileID tileID);
+		public void startFetchForTile(QuadImageTileLayer layer,MaplyTileID tileID,int frame);
 	}
 	
 	public MaplyBaseController maplyControl = null;
@@ -260,7 +261,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	/* Called by the JNI side.  We need to start fetching
 	 * the given tile.
 	 */
-	void startFetch(int level,int x,int y)
+	void startFetch(int level,int x,int y,int frame)
 	{
 		if (!valid)
 			return;
@@ -270,7 +271,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	        y = (1<<level)-y-1;
 
 		MaplyTileID tileID = new MaplyTileID(x,y,level);
-		tileSource.startFetchForTile(this, tileID);
+		tileSource.startFetchForTile(this, tileID, frame);
 	}
 	
 	/*
@@ -284,7 +285,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	 * 
 	 * @param imageTile The image tile we've just loaded.  Pass in null on failure.
 	 */
-	public void loadedTile(final MaplyTileID tileID,final MaplyImageTile imageTile)
+	public void loadedTile(final MaplyTileID tileID,final int frame,final MaplyImageTile imageTile)
 	{
 		if (!valid)
 			return;
@@ -299,7 +300,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 				@Override
 				public void run()
 				{
-					loadedTile(tileID,imageTile);
+					loadedTile(tileID,frame,imageTile);
 //					Log.d("Maply","Responding to load for tile: " + tileID.level + ": (" + tileID.x + "," + tileID.y);
 				}
 			});
@@ -308,9 +309,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		
 		ChangeSet changes = new ChangeSet();
 		if (imageTile != null)
-			nativeTileDidLoad(tileID.x,tileID.y,tileID.level,imageTile.bitmap,changes);
+			nativeTileDidLoad(tileID.x,tileID.y,tileID.level,frame,imageTile.bitmap,changes);
 		else
-			nativeTileDidNotLoad(tileID.x,tileID.y,tileID.level,changes);
+			nativeTileDidNotLoad(tileID.x,tileID.y,tileID.level,frame,changes);
 		layerThread.addChanges(changes);
 	}
 		
@@ -626,6 +627,6 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	native void nativeViewUpdate(ViewState viewState);	
 	native boolean nativeEvalStep(ChangeSet changes);
 	native boolean nativeRefresh(ChangeSet changes);
-	native void nativeTileDidLoad(int x,int y,int level,Bitmap bitmap,ChangeSet changes);
-	native void nativeTileDidNotLoad(int x,int y,int level,ChangeSet changes);
+	native void nativeTileDidLoad(int x,int y,int level,int frame,Bitmap bitmap,ChangeSet changes);
+	native void nativeTileDidNotLoad(int x,int y,int level,int frame,ChangeSet changes);
 }

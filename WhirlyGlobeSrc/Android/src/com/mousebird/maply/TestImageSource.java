@@ -63,8 +63,10 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 	static int debugColors[] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x4F256F, 0xD89CDE, 0x773B28, 0x333D99, 0x862D52, 0xC2C653, 0xB8583D};
 
 	@Override
-	public void startFetchForTile(final QuadImageTileLayer layer, final MaplyTileID tileID) 
+	public void startFetchForTile(final QuadImageTileLayer layer, final MaplyTileID tileID, int frame) 
 	{
+		// Note: Porting.  Do something with the frame
+		
 		Handler handler = new Handler(mainLooper);
 		handler.post(new Runnable()
 		{
@@ -97,7 +99,7 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 	
 //			Log.d("Maply","Loaded fake tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
 
-			layer.loadedTile(tileID, new MaplyImageTile(bitmap));			
+			layer.loadedTile(tileID, -1, new MaplyImageTile(bitmap));			
 		}
 		});
 	}

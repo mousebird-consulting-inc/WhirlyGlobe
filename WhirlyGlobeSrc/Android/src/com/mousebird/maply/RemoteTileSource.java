@@ -44,7 +44,7 @@ import android.util.Log;
  * on request.  It needs basic information about the remote tile source to do this,
  * such as base URL, file extension and min and max zoom level.
  * 
- * This object works on conjuction with a QuadImageTileLayer.
+ * This object works on conjunction with a QuadImageTileLayer.
  *
  */
 public class RemoteTileSource implements QuadImageTileLayer.TileSource
@@ -233,11 +233,11 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 		    		MaplyImageTile imageTile = new MaplyImageTile(bm);
 		    		if (tileSource.delegate != null)
 		    			tileSource.delegate.tileDidLoad(tileSource,tileID);
-		    		layer.loadedTile(tileID, imageTile);
+		    		layer.loadedTile(tileID, -1, imageTile);
 		    	} else {
 		    		if (tileSource.delegate != null)
 		    			tileSource.delegate.tileDidNotLoad(tileSource,tileID);
-		    		layer.loadedTile(tileID, null);
+		    		layer.loadedTile(tileID, -1, null);
 		    	}
 		    	
 		    	return null;
@@ -264,7 +264,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	 * This is called by the quad image tile layer.  Don't call this yourself.
 	 */
 	@Override
-	public void startFetchForTile(QuadImageTileLayer layer, MaplyTileID tileID) 
+	public void startFetchForTile(QuadImageTileLayer layer, MaplyTileID tileID, int frame) 
 	{
 //		Log.d("Maply","Starting fetch for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
 		

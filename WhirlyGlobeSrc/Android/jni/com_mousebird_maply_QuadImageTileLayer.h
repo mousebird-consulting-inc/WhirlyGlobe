@@ -290,18 +290,18 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeRef
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    nativeTileDidLoad
- * Signature: (IIILandroid/graphics/Bitmap;Lcom/mousebird/maply/ChangeSet;)V
+ * Signature: (IIIILandroid/graphics/Bitmap;Lcom/mousebird/maply/ChangeSet;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDidLoad
-  (JNIEnv *, jobject, jint, jint, jint, jobject, jobject);
+  (JNIEnv *, jobject, jint, jint, jint, jint, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    nativeTileDidNotLoad
- * Signature: (IIILcom/mousebird/maply/ChangeSet;)V
+ * Signature: (IIIILcom/mousebird/maply/ChangeSet;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDidNotLoad
-  (JNIEnv *, jobject, jint, jint, jint, jobject);
+  (JNIEnv *, jobject, jint, jint, jint, jint, jobject);
 
 #ifdef __cplusplus
 }

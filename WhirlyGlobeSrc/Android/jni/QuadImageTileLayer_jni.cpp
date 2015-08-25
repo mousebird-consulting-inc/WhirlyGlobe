@@ -98,7 +98,7 @@ public:
 	{
 		javaObj = (jobject)env->NewGlobalRef(obj);
 		jclass theClass = env->GetObjectClass(javaObj);
-		startFetchJava = env->GetMethodID(theClass,"startFetch","(III)V");
+		startFetchJava = env->GetMethodID(theClass,"startFetch","(IIII)V");
 		scheduleEvalStepJava = env->GetMethodID(theClass,"scheduleEvalStep","()V");
 	}
 
@@ -508,18 +508,18 @@ public:
     {
 //   		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Asking for tile: %d : (%d,%d)",level,col,row);
 
-    	env->CallVoidMethod(javaObj, startFetchJava, level, col, row);
+    	env->CallVoidMethod(javaObj, startFetchJava, level, col, row, frame);
     }
 
     /// The tile loaded correctly (or didn't if it's null)
-    void tileLoaded(int level,int col,int row,RawDataRef imgData,int width,int height,ChangeSet &changes)
+    void tileLoaded(int level,int col,int row,int frame,RawDataRef imgData,int width,int height,ChangeSet &changes)
     {
     	if (imgData)
     	{
     		ImageWrapper tileWrapper(imgData,width,height);
-    		tileLoader->loadedImage(this, &tileWrapper, level, col, row, -1, changes);
+    		tileLoader->loadedImage(this, &tileWrapper, level, col, row, frame, changes);
     	} else {
-    		tileLoader->loadedImage(this, NULL, level, col, row, -1, changes);
+    		tileLoader->loadedImage(this, NULL, level, col, row, frame, changes);
     	}
     }
 
@@ -1175,7 +1175,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeRef
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDidLoad
-  (JNIEnv *env, jobject obj, jint x, jint y, jint level, jobject bitmapObj, jobject changesObj)
+  (JNIEnv *env, jobject obj, jint x, jint y, jint level, jint frame, jobject bitmapObj, jobject changesObj)
 {
 	try
 	{
@@ -1204,7 +1204,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 		uint32_t* src = (uint32_t*) bitmapPixels;
 		RawDataRef rawDataRef(new MutableRawData(bitmapPixels,info.height*info.width*4));
 
-		adapter->tileLoaded(level,x,y,rawDataRef,info.width,info.height,*changes);
+		adapter->tileLoaded(level,x,y,frame,rawDataRef,info.width,info.height,*changes);
 		AndroidBitmap_unlockPixels(env, bitmapObj);
 	}
 	catch (...)
@@ -1214,7 +1214,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDidNotLoad
-  (JNIEnv *env, jobject obj, jint x, jint y, jint level, jobject changesObj)
+  (JNIEnv *env, jobject obj, jint x, jint y, jint level, jint frame, jobject changesObj)
 {
 	try
 	{
@@ -1223,7 +1223,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 		if (!adapter || !changes)
 			return;
 
-		adapter->tileLoaded(level,x,y,RawDataRef(),-1,1,*changes);
+		adapter->tileLoaded(level,x,y,frame,RawDataRef(),1,1,*changes);
 	}
 	catch (...)
 	{
