@@ -49,10 +49,7 @@ import android.util.Log;
  */
 public class RemoteTileSource implements QuadImageTileLayer.TileSource
 {
-	ArrayList<String> baseURLs = new ArrayList<String>();
-	String ext = null;
-	int minZoom = 0;
-	int maxZoom = 0;
+	RemoteTileInfo tileInfo = null;
 	public CoordSystem coordSys = new SphericalMercatorCoordSystem();
 	OkHttpClient client = new OkHttpClient();
 	
@@ -84,48 +81,14 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	 * Set this delegate to get callbacks when tiles load or fail to load.
 	 */
 	public TileSourceDelegate delegate = null;
-
-	/**
-	 * Construct a remote tile source that fetches from a single URL.  You provide
-	 * the base URL and the extension as well as min and max zoom levels.
-	 * 
-	 * @param inBase The base URL we'll fetching tiles from
-	 * @param inExt
-	 * @param inMinZoom
-	 * @param inMaxZoom
-	 */
-	public RemoteTileSource(String inBase,String inExt,int inMinZoom,int inMaxZoom)
-	{
-		baseURLs.add(inBase);
-		ext = inExt;
-		minZoom = inMinZoom;
-		maxZoom = inMaxZoom;
-	}
 	
 	/**
-	 * Construct a remote tile source based on a JSON spec.  This includes multiple
-	 * paths to fetch from, min and max zoom and other information.
 	 * 
-	 * @param json The parsed JSON object to tease our information from.
+	 * @param inTileInfo
 	 */
-	public RemoteTileSource(JSONObject json)
+	public RemoteTileSource(RemoteTileInfo inTileInfo)
 	{
-		try
-		{
-			JSONArray tileSources = json.getJSONArray("tiles");
-			for (int ii=0;ii<tileSources.length();ii++)
-			{
-				String tileURL = tileSources.getString(ii);
-				baseURLs.add(tileURL);
-			}
-			minZoom = json.getInt("minzoom");
-			maxZoom = json.getInt("maxzoom");
-			ext = "png";
-		}
-		catch (JSONException e)
-		{
-			// Note: Do something useful here
-		}
+		tileInfo = inTileInfo;
 	}
 
 	File cacheDir = null;
@@ -146,13 +109,13 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	@Override
 	public int minZoom() 
 	{
-		return minZoom;
+		return tileInfo.minZoom;
 	}
 
 	@Override
 	public int maxZoom() 
 	{
-		return maxZoom;
+		return tileInfo.maxZoom;
 	}
 	
 	// Connection task fetches the image
@@ -271,11 +234,11 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 		// Form the tile URL
 		int maxY = 1<<tileID.level;
 		int remoteY = maxY - tileID.y - 1;
-		final String tileURL = baseURLs.get(tileID.x % baseURLs.size()) + tileID.level + "/" + tileID.x + "/" + remoteY + "." + ext;
-
+		final String tileURL = tileInfo.buildURL(tileID.x,remoteY,tileID.level);
+		
 		String cacheFile = null;
 		if (cacheDir != null)
-			cacheFile = cacheDir.getAbsolutePath() + "/" + tileID.level + "_" + tileID.x + "_" + tileID.y + "."  + ext;
+			cacheFile = cacheDir.getAbsolutePath() + tileInfo.buildCacheName(tileID.x, tileID.y, tileID.level);
 		ConnectionTask task = new ConnectionTask(layer,this,tileID,tileURL,cacheFile);
 		String[] params = new String[1];
 		params[0] = tileURL;

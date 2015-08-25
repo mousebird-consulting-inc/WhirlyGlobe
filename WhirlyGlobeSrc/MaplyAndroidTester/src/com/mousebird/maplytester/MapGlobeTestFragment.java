@@ -7,6 +7,7 @@ import com.mousebird.maply.MapController;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.QuadImageTileLayer;
 import com.mousebird.maply.QuadPagingLayer;
+import com.mousebird.maply.RemoteTileInfo;
 import com.mousebird.maply.RemoteTileSource;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
 import com.mousebird.maply.TestImageSource;
@@ -165,15 +166,15 @@ public class MapGlobeTestFragment extends Fragment implements ConfigViewListener
 					break;
 				case MapboxSatellite:
 					cacheDirName = "mapbox_satellite";
-					remoteTileSource = new RemoteTileSource("http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2/","png",0,22);
+					remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2/","png",0,22));
 					break;
 				case OSMMapquest:
 					cacheDirName = "osm_mapquest";
-					remoteTileSource = new RemoteTileSource("http://otile1.mqcdn.com/tiles/1.0.0/osm/","png",0,18);
+					remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://otile1.mqcdn.com/tiles/1.0.0/osm/","png",0,18));
 					break;
 				case StamenWatercolor:
 					cacheDirName = "stamen_watercolor";
-					remoteTileSource = new RemoteTileSource("http://tile.stamen.com/watercolor/","png",0,18);
+					remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://tile.stamen.com/watercolor/","png",0,18));
 					break;
 				case QuadTest:
 					tileSource = new TestImageSource(getActivity().getMainLooper(),0,22);
