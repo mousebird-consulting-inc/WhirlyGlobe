@@ -169,7 +169,7 @@ public:
 			// This is how much screen real estate we're covering for this tile
 			import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, coordSys, scene->getCoordAdapter(), parentMbr, ident, attrs) / 4;
         }
-//		__android_log_print(ANDROID_LOG_VERBOSE, "importanceForTile", "tile %d: (%d,%d) import = %f",ident.level,ident.x,ident.y,import);
+//		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "tile %d: (%d,%d) import = %f",ident.level,ident.x,ident.y,import);
 
         return import;
     }
@@ -254,7 +254,7 @@ public:
             	control->setTargetLevels(targetLevels);
             }
 
-//    		__android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
+//    		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Short circuiting to level %d",maxShortCircuitLevel);
 
         } else {
             // Note: Can't short circuit in this case.  Something wrong with the math

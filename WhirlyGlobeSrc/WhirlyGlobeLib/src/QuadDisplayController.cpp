@@ -433,6 +433,9 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
     } else
         loader->endUpdates(changes);
     
+    if (!meteredMode)
+        loader->endUpdates(changes);
+    
 //    if (_debugMode)
 //        [self dumpInfo];
     

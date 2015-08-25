@@ -6,6 +6,6 @@ APP_CFLAGS += -D__USE_SDL_GLES__
 APP_STL := gnustl_static
 APP_ABI := x86
 # APP_ABI := all
-APP_CPPFLAGS += -g -O0
-NDK_DEBUG := 1
+# APP_CPPFLAGS += -g -O0
+# NDK_DEBUG := 1
 

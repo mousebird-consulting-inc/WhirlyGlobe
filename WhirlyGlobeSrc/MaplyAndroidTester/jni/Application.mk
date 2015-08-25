@@ -4,5 +4,5 @@ APP_CPPFLAGS += -frtti
 APP_CPPFLAGS += -fexceptions
 APP_STL := gnustl_static
 APP_ABI := x86
-APP_CPPFLAGS += -g
-NDK_DEBUG := 1
+# APP_CPPFLAGS += -g
+# NDK_DEBUG := 1

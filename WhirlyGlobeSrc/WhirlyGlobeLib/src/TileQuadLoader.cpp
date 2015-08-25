@@ -25,6 +25,8 @@
 #import "TileQuadLoader.h"
 #import "DynamicTextureAtlas.h"
 #import "DynamicDrawableAtlas.h"
+#import "GlobeViewState.h"
+#import "MaplyViewState.h"
 
 using namespace Eigen;
 
@@ -573,13 +575,17 @@ bool QuadTileLoader::shouldUpdate(ViewState *viewState,bool isInitial)
     }
 
     // Test against the visibility range
+    // Note: Not support flat map here
     if ((minVis != DrawVisibleInvalid && maxVis != DrawVisibleInvalid) || (minPageVis != DrawVisibleInvalid && maxPageVis != DrawVisibleInvalid))
     {
-        // Note: Porting.  Won't work for globe
-        if (((minVis != DrawVisibleInvalid && maxVis != DrawVisibleInvalid) && (viewState->eyePos.z() < minVis || viewState->eyePos.z() > maxVis)))
+        WhirlyGlobe::GlobeViewState *globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState);
+        if (globeViewState)
+        {
+            if (((minVis != DrawVisibleInvalid && maxVis != DrawVisibleInvalid) && (globeViewState->heightAboveGlobe < minVis || globeViewState->heightAboveGlobe > maxVis)))
                 doUpdate = false;
-        if ((minPageVis != DrawVisibleInvalid && maxPageVis != DrawVisibleInvalid) && (viewState->eyePos.z() < minPageVis || viewState->eyePos.z() > maxPageVis))
+            if ((minPageVis != DrawVisibleInvalid && maxPageVis != DrawVisibleInvalid) && (globeViewState->heightAboveGlobe < minPageVis || globeViewState->heightAboveGlobe > maxPageVis))
                 doUpdate = false;
+        }
     }
     
     return doUpdate;

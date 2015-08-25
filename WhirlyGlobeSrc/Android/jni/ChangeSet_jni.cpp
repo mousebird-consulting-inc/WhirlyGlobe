@@ -126,6 +126,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
 	        glFlush();
 	    }
 
+	    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Processed %d changes",changesToAdd.size());
+
 	    scene->addChangeRequests(changesToAdd);
 	    changes->clear();
 	}

@@ -421,6 +421,8 @@ public:
     /// Called when the view state changes.  If you're caching info, do it here.
     virtual void newViewState(ViewState *viewState)
     {
+//    	__android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Got new view state");
+
     	lastViewState = viewState;
 
     	if (!useTargetZoomLevel)
@@ -504,6 +506,8 @@ public:
     /// We'll call the loader back with the image when it's ready.
     virtual void startFetch(QuadTileLoaderSupport *quadLoader,int level,int col,int row,int frame,Dictionary *attrs)
     {
+//   		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Asking for tile: %d : (%d,%d)",level,col,row);
+
     	env->CallVoidMethod(javaObj, startFetchJava, level, col, row);
     }
 
@@ -1118,6 +1122,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeViewUpd
 
 		adapter->env = env;
 
+//		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "QuadImageTileLayer::nativeViewUpdate() called");
 		adapter->control->viewUpdate(viewState);
 	}
 	catch (...)
