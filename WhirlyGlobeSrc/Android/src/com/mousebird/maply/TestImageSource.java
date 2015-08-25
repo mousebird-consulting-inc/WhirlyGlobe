@@ -95,7 +95,7 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 			c.drawRect(0,0,sizeX,sizeY, p2);
 			c.drawText(text, (sizeX-textLen)/2.f, sizeY/2.f, p);
 	
-			Log.d("Maply","Loaded fake tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+//			Log.d("Maply","Loaded fake tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
 
 			layer.loadedTile(tileID, new MaplyImageTile(bitmap));			
 		}

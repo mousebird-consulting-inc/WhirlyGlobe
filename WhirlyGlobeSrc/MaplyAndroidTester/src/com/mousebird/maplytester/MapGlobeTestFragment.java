@@ -99,6 +99,39 @@ public class MapGlobeTestFragment extends Fragment implements ConfigViewListener
 	}
 	
 	QuadImageTileLayer baseLayer = null;
+	QuadImageTileLayer forecastIOLayer = null;
+	
+	// Set up a simple image layer
+	QuadImageTileLayer setupImageLayer(QuadImageTileLayer.TileSource tileSource,RemoteTileSource remoteTileSource,String cacheDirName)
+	{
+		// Set up the layer
+		SphericalMercatorCoordSystem coordSys = new SphericalMercatorCoordSystem();
+		baseLayer = new QuadImageTileLayer(baseControl,coordSys,tileSource);
+		baseLayer.setSimultaneousFetches(8);
+		
+		if (mapControl != null)
+		{
+			baseLayer.setSingleLevelLoading(true);
+			baseLayer.setUseTargetZoomLevel(true);
+			baseLayer.setCoverPoles(false);
+			baseLayer.setHandleEdges(false);
+		} else {
+			baseLayer.setSingleLevelLoading(false);
+			baseLayer.setUseTargetZoomLevel(false);
+			baseLayer.setCoverPoles(true);
+			baseLayer.setHandleEdges(true);
+		}
+
+		// Cache directory for tiles
+		if (remoteTileSource != null && cacheDirName != null)
+		{
+			File cacheDir = new File(getActivity().getCacheDir(),cacheDirName);
+			cacheDir.mkdir();
+			remoteTileSource.setCacheDir(cacheDir);
+		}
+		
+		return baseLayer;
+	}
 
 	// Called when the user changes what is selected
 	@Override
@@ -110,11 +143,12 @@ public class MapGlobeTestFragment extends Fragment implements ConfigViewListener
 		
 		// Get rid of the existing base layer
 		if (baseLayer != null)
-		{
 			baseControl.removeLayer(baseLayer);
-		}
 		
-		for (ConfigView.ConfigEntry entry : config.sections.get(0).entries)
+		baseControl.setPerfInterval(0);
+
+		// Base layers
+		for (ConfigView.ConfigEntry entry : config.sections.get(ConfigView.Sections.BaseSection.ordinal()).entries)
 		{
 			if (entry.status)
 			{
@@ -132,10 +166,6 @@ public class MapGlobeTestFragment extends Fragment implements ConfigViewListener
 				case MapboxSatellite:
 					cacheDirName = "mapbox_satellite";
 					remoteTileSource = new RemoteTileSource("http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2/","png",0,22);
-					break;
-				case MapboxTerrain:
-//					cacheDirName = "mapbox_terrain";
-//					tileSource = new RemoteTileSource("http://a.tiles.mapbox.com/v3/examples.map-zq0f1vuc/","png",0,22);
 					break;
 				case OSMMapquest:
 					cacheDirName = "osm_mapquest";
@@ -161,47 +191,43 @@ public class MapGlobeTestFragment extends Fragment implements ConfigViewListener
 					pagingLayer.setUseTargetZoomLevel(true);
 					mapControl.addLayer(pagingLayer);
 				}
+				break;
+				default:
 					break;
 				}
 			}
 		}
-
-		// Note: Need to change the config overlay to let us turn things on and off
-		baseControl.setPerfInterval(300);
-
+		
 		// New base layer
 		if (remoteTileSource != null)
 			tileSource = remoteTileSource;
 
 		if (tileSource != null)
 		{
-			// Set up the layer
-			SphericalMercatorCoordSystem coordSys = new SphericalMercatorCoordSystem();
-			baseLayer = new QuadImageTileLayer(baseControl,coordSys,tileSource);
-			baseLayer.setSimultaneousFetches(8);
-			
-			if (mapControl != null)
-			{
-				baseLayer.setSingleLevelLoading(true);
-				baseLayer.setUseTargetZoomLevel(true);
-				baseLayer.setCoverPoles(false);
-				baseLayer.setHandleEdges(false);
-			} else {
-				baseLayer.setSingleLevelLoading(false);
-				baseLayer.setUseTargetZoomLevel(false);
-				baseLayer.setCoverPoles(true);
-				baseLayer.setHandleEdges(true);
-			}
-
-			// Cache directory for tiles
-			if (remoteTileSource != null && cacheDirName != null)
-			{
-				File cacheDir = new File(getActivity().getCacheDir(),cacheDirName);
-				cacheDir.mkdir();
-				remoteTileSource.setCacheDir(cacheDir);
-			}
-				
+			baseLayer = setupImageLayer(tileSource,remoteTileSource,cacheDirName);				
 			baseControl.addLayer(baseLayer);		
+		}
+			
+		// Overlay layers
+		for (ConfigView.ConfigEntry entry : config.sections.get(ConfigView.Sections.OverlaySection.ordinal()).entries)
+		{
+			switch (entry.optionIdent)
+			{
+			case ForecastIO:
+				if (entry.status)
+				{
+					if (forecastIOLayer == null)
+					{
+						
+					}
+				} else {
+					if (forecastIOLayer != null)
+						baseControl.removeLayer(forecastIOLayer);
+				}
+				break;
+			default:
+				break;
+			}
 		}
 	}
 	

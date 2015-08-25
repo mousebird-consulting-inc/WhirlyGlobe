@@ -79,8 +79,8 @@ public class MainActivity extends Activity
 		public LocalListFragment()
 		{
 			optionsList.add(createEntry("entry", "Globe (3D)"));
-			optionsList.add(createEntry("entry", "Globe w/ Elevation (3D)"));
-			optionsList.add(createEntry("entry", "Map (3D)"));		
+//			optionsList.add(createEntry("entry", "Globe w/ Elevation (3D)"));
+//			optionsList.add(createEntry("entry", "Map (3D)"));		
 			optionsList.add(createEntry("entry", "Map (2D)"));
 		}
 	

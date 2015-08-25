@@ -5,10 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 /**
  * This fragment handles configuration, letting the user turn features on and off.
@@ -25,7 +28,13 @@ public class ConfigView extends ListView
 	// Identifiers for base layers
 	public enum OptionIdent
 	{
-		BlankLayer,GeographyClass,MapboxRegular,MapboxSatellite,MapboxTerrain,OSMMapquest,StamenWatercolor,QuadTest,QuadTestAnimate,QuadVectorTest,PerfOutput
+		BlankLayer,GeographyClass,MapboxRegular,MapboxSatellite,OSMMapquest,StamenWatercolor,QuadTest,QuadTestAnimate,QuadVectorTest,ForecastIO,PerfOutput
+	};
+	
+	// Order of sections
+	public enum Sections
+	{
+		BaseSection,OverlaySection,InternalSection
 	};
 			
 	// Single entry for 
@@ -86,20 +95,21 @@ public class ConfigView extends ListView
 	// Converts the entries into display-able stuff
 	private class ConfigArrayAdapter extends ArrayAdapter<ConfigEntry>
 	{
-		HashMap<ConfigEntry, Integer> mIdMap = new HashMap<ConfigEntry, Integer>();
+		ArrayList<ConfigSection> sections;
 		
-		public ConfigArrayAdapter(Context context, int textViewResourceId,List<ConfigEntry> entries)
+		public ConfigArrayAdapter(Context context, int textViewResourceId, ArrayList<ConfigSection> inSections)
 		{
-			super(context, textViewResourceId, entries);
-			for (int ii=0;ii<entries.size();ii++)
-				mIdMap.put(entries.get(ii), ii);
+			super(context, textViewResourceId);
+			sections = inSections;
 		}
-		
+				
 		@Override
-		public long getItemId(int position)
+		public int getCount()
 		{
-			ConfigEntry entry = getItem(position);
-			return mIdMap.get(entry);
+			int num = 0;
+			for (ConfigSection section : sections)
+				num += section.entries.size() + 1;
+			return num;
 		}
 		
 		@Override
@@ -107,31 +117,97 @@ public class ConfigView extends ListView
 		{
 			return true;
 		}
+
+		// Return from a position query
+		class ConfigReturn
+		{
+			public String header = null;
+			public ConfigSection section = null;
+			public ConfigEntry entry = null;
+		}
+		
+		public ConfigReturn getEntry(int position)
+		{
+			ConfigSection section = null;
+			ConfigEntry entry = null;
+			String header = null;
+			int num = position;
+			for (ConfigSection theSection : sections)
+			{
+				section = theSection;
+				if (num == 0)
+				{
+					header = theSection.title;
+					break;
+				} else {
+					if (num > theSection.entries.size())
+						num -= theSection.entries.size()+1;
+					else {
+						entry = theSection.entries.get(num-1);
+						break;
+					}
+				}
+			}
+			
+			ConfigReturn configEntry = new ConfigReturn();
+			configEntry.entry = entry;
+			configEntry.section = section;
+			configEntry.header = header;
+
+			return configEntry;
+		}
+				
+		@Override
+		public View getView (int position, View convertView, ViewGroup parent)
+		{
+			ConfigReturn configEntry = getEntry(position);
+			
+			TextView textView = new TextView(parent.getContext());
+			textView.setTextSize(24);
+			textView.setHeight(64);
+			if (configEntry.header != null)
+			{
+				textView.setText(configEntry.header);
+				textView.setTextColor(Color.BLACK);
+			} else {
+				if (configEntry.entry.status)
+					textView.setBackgroundColor(Color.LTGRAY);
+				textView.setTextColor(Color.DKGRAY);
+				textView.setText(configEntry.entry.toString());
+			}
+
+			return textView;
+		}
 	}
 	
 	// Set up the sections and entries
 	public ConfigView(Context ctx)
 	{
 		super(ctx);
-		setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+		setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 		setDividerHeight(1);
 		setBackgroundColor(0xFFFFFFFF);
 		
 		ConfigSection baseSection = new ConfigSection("Base Layers",true);
 		baseSection.entries.add(new ConfigEntry("Blank",OptionIdent.BlankLayer,Available.All));
 //		baseSection.entries.add(new ConfigEntry("Geography Class (local)",OptionIdent.GeographyClass,Available.None));
-//		baseSection.entries.add(new ConfigEntry("Mapbox Regular (remote)",OptionIdent.MapboxRegular,Available.All));
 		ConfigEntry mapboxSat = new ConfigEntry("Mapbox Satellite (remote)",OptionIdent.MapboxSatellite,Available.All);
 		mapboxSat.status = true;
 		baseSection.entries.add(mapboxSat);
-//		baseSection.entries.add(new ConfigEntry("Mapbox Terrain (remote)",OptionIdent.MapboxTerrain,Available.All));
 		baseSection.entries.add(new ConfigEntry("OpenStreetMap - Mapquest (remote)",OptionIdent.OSMMapquest,Available.None));
 		baseSection.entries.add(new ConfigEntry("Stamen Watercolor (remote)",OptionIdent.StamenWatercolor,Available.None));
 		baseSection.entries.add(new ConfigEntry("Quad Test Layer",OptionIdent.QuadTest,Available.All));
 //		baseSection.entries.add(new ConfigEntry("Quad Test Layer - Animated (remote)",OptionIdent.QuadTestAnimate,Available.None));
 		baseSection.entries.add(new ConfigEntry("Quad Vector Test Layer",OptionIdent.QuadVectorTest,Available.All));
-		baseSection.entries.add(new ConfigEntry("Performance Output",OptionIdent.PerfOutput,Available.All));
 		sections.add(baseSection);
+		
+		ConfigSection overlaySection = new ConfigSection("Overlay Layers",false);
+		overlaySection.entries.add(new ConfigEntry("Forecast.IO Weather",OptionIdent.ForecastIO,Available.All));
+		sections.add(overlaySection);
+		
+		ConfigSection intSection = new ConfigSection("Internal", false);
+		intSection.entries.add(new ConfigEntry("Performance Output",OptionIdent.PerfOutput,Available.All));
+		sections.add(intSection);
 		
 //		ConfigSection objectSection = new ConfigSection("Maply Objects",false);
 //		objectSection.entries.add(new ConfigEntry("Countries",Available.All));
@@ -147,12 +223,12 @@ public class ConfigView extends ListView
 //		objectSection.entries.add(new ConfigEntry("Shapes: Arrows",Available.None));
 //		objectSection.entries.add(new ConfigEntry("Shapes: Cylinders",Available.None));
 //		objectSection.entries.add(new ConfigEntry("Shapes: Great Circles",Available.None));
-//		objectSection.entries.add(new ConfigEntry("Shapes: Sphers",Available.None));
+//		objectSection.entries.add(new ConfigEntry("Shapes: Spheres",Available.None));
 //		objectSection.entries.add(new ConfigEntry("Stickers",Available.None));
 //		sections.add(objectSection);
 		
 		// Note: Just showing the first list for now
-		ConfigArrayAdapter adapter = new ConfigArrayAdapter(ctx,android.R.layout.simple_list_item_1,sections.get(0).entries);
+		final ConfigArrayAdapter adapter = new ConfigArrayAdapter(ctx,android.R.layout.simple_list_item_1,sections);
 		setAdapter(adapter);
 		final ConfigView theConfigView = this;
 		setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
@@ -160,18 +236,23 @@ public class ConfigView extends ListView
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position,
 					long arg3) 
 			{
-				// Note: Just doing the first section for now
-				ConfigSection section = sections.get(0);
-				if (section.single)
+				ConfigArrayAdapter.ConfigReturn configEntry = adapter.getEntry(position);
+				if (configEntry.entry != null)
 				{
-					for (ConfigEntry entry: section.entries)
-						entry.status = false;
+					if (configEntry.section.single)
+					{
+						for (ConfigEntry entry: configEntry.section.entries)
+							entry.status = false;						
+						configEntry.entry.status = true;
+					} else {
+						configEntry.entry.status = !configEntry.entry.status;
+					}
 				}
-				ConfigEntry entry = section.entries.get(position);
-				entry.status = true;
 				
 				if (configListen != null)
-					configListen.userChangedSelections(theConfigView);				
+					configListen.userChangedSelections(theConfigView);		
+				
+				adapter.notifyDataSetChanged();
 			}
 		});	
 	}		
