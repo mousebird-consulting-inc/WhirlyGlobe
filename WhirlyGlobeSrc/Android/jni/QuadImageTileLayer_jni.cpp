@@ -198,6 +198,7 @@ public:
             break;
 	    }
 	    tileLoader->setColor(color);
+	    setCurrentImage(currentImage,changes);
 
 	    return tileLoader;
 	}
@@ -272,7 +273,8 @@ public:
 	//    NSLog(@"currentImage = %d->%d -> %f",image0,image1,t);
 
 	    // Change the images to give us start and finish
-	    tileLoader->setCurrentImageStart(image0,image1,changes);
+	    if (tileLoader)
+	    	tileLoader->setCurrentImageStart(image0,image1,changes);
 
 	    // Note: Porting
 #if 0

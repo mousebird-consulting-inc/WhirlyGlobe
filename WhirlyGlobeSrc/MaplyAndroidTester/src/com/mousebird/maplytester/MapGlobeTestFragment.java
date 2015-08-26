@@ -231,6 +231,7 @@ public class MapGlobeTestFragment extends Fragment implements ConfigViewListener
 						forecastIOLayer.setSimultaneousFetches(1);
 						forecastIOLayer.setDrawPriority(MaplyBaseController.ImageLayerDrawPriorityDefault+100);
 						forecastIOLayer.setBorderTexel(0);
+						forecastIOLayer.setCurrentImage(2.5f);
 						
 						if (mapControl != null)
 						{

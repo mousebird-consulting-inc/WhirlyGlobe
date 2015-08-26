@@ -363,7 +363,8 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	{
 		ChangeSet changes = new ChangeSet();
 		setCurrentImage(current,changes);
-		layerThread.addChanges(changes);		
+		if (layerThread != null)
+			layerThread.addChanges(changes);		
 	}
 	
 	native void setCurrentImage(float current,ChangeSet changes);
