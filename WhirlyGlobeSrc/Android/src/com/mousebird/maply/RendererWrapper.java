@@ -24,7 +24,6 @@ import javax.microedition.khronos.egl.*;
 import javax.microedition.khronos.opengles.*;
 
 import android.opengl.GLSurfaceView.*;
-import android.os.Looper;
 
 /**
  * This is an internal class used to talk to the OpenGL ES surface.

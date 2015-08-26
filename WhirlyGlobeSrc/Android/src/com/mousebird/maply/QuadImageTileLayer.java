@@ -99,6 +99,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		initialise(coordSys,changes);
 		maplyControl.layerThread.addChanges(changes);
 		setSimultaneousFetches(8);
+		setDrawPriority(MaplyBaseController.ImageLayerDrawPriorityDefault);
 	}
 	
 	public void finalize()
@@ -326,6 +327,11 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	}
 	
 	native void setEnable(boolean enable,ChangeSet changes);
+	
+	/**
+	 * Set the draw priority for the whole quad image layer.
+	 */
+	public native void setDrawPriority(int drawPriority);
 	
 	/** Enable/Disable the whole layer.
      *  By default this is on.  If you turn it off, there may be a slight delay before the whole layer disappears.  The layer will keep working, but any geometry will be invisible until you turn it back on.

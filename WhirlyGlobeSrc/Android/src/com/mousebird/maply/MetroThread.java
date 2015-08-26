@@ -19,12 +19,8 @@
  */
 package com.mousebird.maply;
 
-import javax.microedition.khronos.egl.EGL10;
-import javax.microedition.khronos.egl.EGLContext;
-
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.util.Log;
 import android.view.Choreographer;
 
 public class MetroThread extends HandlerThread implements Choreographer.FrameCallback

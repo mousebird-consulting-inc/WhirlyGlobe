@@ -17,6 +17,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setEnable
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setDrawPriority
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setDrawPriority
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    setImageDepth
  * Signature: (I)V
  */

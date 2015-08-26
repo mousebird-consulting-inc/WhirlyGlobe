@@ -20,7 +20,6 @@
 
 package com.mousebird.maply;
 
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -177,7 +176,7 @@ public class GlobeGestureHandler
 		@Override
 		public boolean onDown(MotionEvent e) 
 		{
-			Log.d("Maply","onDown");
+//			Log.d("Maply","onDown");
 
 			// Starting state for pan
 			startScreenPos = new Point2d(e.getX(),e.getY());

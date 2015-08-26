@@ -26,9 +26,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.ArrayList;
-
-import org.json.*;
 
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -68,13 +65,13 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 		 * @param tileSource Tile source that just loaded the tile.
 		 * @param tileID Tile ID
 		 */
-		public void tileDidLoad(RemoteTileSource tileSource,MaplyTileID tileID);
+		public void tileDidLoad(Object tileSource,MaplyTileID tileID,int frame);
 		/**
 		 * Tile failed to load.
 		 * @param tileSource Tile source that failed to load the tile.
 		 * @param tileID Tile ID.
 		 */
-		public void tileDidNotLoad(RemoteTileSource tileSource,MaplyTileID tileID);
+		public void tileDidNotLoad(Object tileSource,MaplyTileID tileID,int frame);
 	}
 	
 	/**
@@ -195,11 +192,11 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 		    	{
 		    		MaplyImageTile imageTile = new MaplyImageTile(bm);
 		    		if (tileSource.delegate != null)
-		    			tileSource.delegate.tileDidLoad(tileSource,tileID);
+		    			tileSource.delegate.tileDidLoad(tileSource,tileID,-1);
 		    		layer.loadedTile(tileID, -1, imageTile);
 		    	} else {
 		    		if (tileSource.delegate != null)
-		    			tileSource.delegate.tileDidNotLoad(tileSource,tileID);
+		    			tileSource.delegate.tileDidNotLoad(tileSource,tileID,-1);
 		    		layer.loadedTile(tileID, -1, null);
 		    	}
 		    	

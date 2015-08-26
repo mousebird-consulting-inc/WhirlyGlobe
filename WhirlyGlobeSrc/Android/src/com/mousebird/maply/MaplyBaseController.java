@@ -36,6 +36,12 @@ public class MaplyBaseController
 	// Represents an ID that doesn't have data associated with it
 	public static long EmptyIdentity = 0;
 	
+	// Draw priority defaults
+	public static final int ImageLayerDrawPriorityDefault = 100;
+	public static final int FeatureDrawPriorityBase = 20000;
+	public static final int MarkerDrawPriorityDefault = 40000;
+	public static final int LabelDrawPriorityDefault = 60000;
+	
 	/**
 	 * This is how often we'll kick off a render when the frame sync comes in.
 	 * We get a notification when the render for a given frame starts, this is

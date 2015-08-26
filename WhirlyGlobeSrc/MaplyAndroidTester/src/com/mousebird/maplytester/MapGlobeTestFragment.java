@@ -5,6 +5,7 @@ import java.io.File;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.GlobeController;
+import com.mousebird.maply.MultiplexTileSource;
 import com.mousebird.maply.QuadImageTileLayer;
 import com.mousebird.maply.QuadPagingLayer;
 import com.mousebird.maply.RemoteTileInfo;
@@ -219,7 +220,39 @@ public class MapGlobeTestFragment extends Fragment implements ConfigViewListener
 				{
 					if (forecastIOLayer == null)
 					{
+						RemoteTileInfo[] sources = new RemoteTileInfo[5];
+						for (int ii=0;ii<5;ii++)
+							sources[ii] = new RemoteTileInfo("http://a.tiles.mapbox.com/v3/mousebird.precip-example-layer" + ii + "/","png",0,6);
+						cacheDirName = "forecastio";
+						SphericalMercatorCoordSystem coordSys = new SphericalMercatorCoordSystem();
+						MultiplexTileSource multiTileSource = new MultiplexTileSource(sources,coordSys);
+
+						forecastIOLayer = new QuadImageTileLayer(baseControl,coordSys,multiTileSource);
+						forecastIOLayer.setSimultaneousFetches(1);
+						forecastIOLayer.setDrawPriority(MaplyBaseController.ImageLayerDrawPriorityDefault+100);
+						forecastIOLayer.setBorderTexel(0);
 						
+						if (mapControl != null)
+						{
+							forecastIOLayer.setSingleLevelLoading(true);
+							forecastIOLayer.setUseTargetZoomLevel(true);
+							forecastIOLayer.setCoverPoles(false);
+							forecastIOLayer.setHandleEdges(false);
+						} else {
+							forecastIOLayer.setSingleLevelLoading(false);
+							forecastIOLayer.setUseTargetZoomLevel(false);
+							forecastIOLayer.setCoverPoles(true);
+							forecastIOLayer.setHandleEdges(true);
+						}
+
+						// Cache directory for tiles
+						if (cacheDirName != null)
+						{
+							File cacheDir = new File(getActivity().getCacheDir(),cacheDirName);
+							cacheDir.mkdir();
+							multiTileSource.setCacheDir(cacheDir);
+						}
+						baseControl.addLayer(forecastIOLayer);
 					}
 				} else {
 					if (forecastIOLayer != null)
