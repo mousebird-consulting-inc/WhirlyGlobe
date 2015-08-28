@@ -192,7 +192,7 @@ public class ConfigView extends ListView
 		baseSection.entries.add(new ConfigEntry("Blank",OptionIdent.BlankLayer,Available.All));
 //		baseSection.entries.add(new ConfigEntry("Geography Class (local)",OptionIdent.GeographyClass,Available.None));
 		ConfigEntry mapboxSat = new ConfigEntry("Mapbox Satellite (remote)",OptionIdent.MapboxSatellite,Available.All);
-		mapboxSat.status = true;
+//		mapboxSat.status = true;
 		baseSection.entries.add(mapboxSat);
 		baseSection.entries.add(new ConfigEntry("OpenStreetMap - Mapquest (remote)",OptionIdent.OSMMapquest,Available.None));
 		baseSection.entries.add(new ConfigEntry("Stamen Watercolor (remote)",OptionIdent.StamenWatercolor,Available.None));
