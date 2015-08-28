@@ -85,7 +85,7 @@ MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp ChangeSet_jni.cpp CoordS
 					MaplyRenderer_jni.cpp MapScene_jni.cpp MapView_jni.cpp ImageWrapper.cpp \
 					Matrix4d_jni.cpp Point2d_jni.cpp Point3d_jni.cpp VectorInfo_jni.cpp VectorIterator_jni.cpp VectorManager_jni.cpp VectorObject_jni.cpp \
 					InternalLabel_jni.cpp InternalMarker_jni.cpp MarkerInfo_jni.cpp MarkerManager_jni.cpp Texture_jni.cpp QuadPagingLayer_jni.cpp QuadImageTileLayer_jni.cpp \
-					SelectionManager_jni.cpp SingleLabelAndroid.cpp CoordSystem_jni.cpp SphericalMercatorCoordSystem_jni.cpp PlateCarreeCoordSystem_jni.cpp ViewState_jni.cpp \
+					SelectionManager_jni.cpp Shader_jni.cpp SingleLabelAndroid.cpp CoordSystem_jni.cpp SphericalMercatorCoordSystem_jni.cpp PlateCarreeCoordSystem_jni.cpp ViewState_jni.cpp \
 					Scene_jni.cpp View_jni.cpp MapViewState_jni.cpp GlobeScene_jni.cpp GlobeView_jni.cpp GlobeViewState_jni.cpp FakeGeocentricDisplayAdapter_jni.cpp \
 					GeoCoordSystem_jni.cpp Quaternion_jni.cpp AngleAxis_jni.cpp Point4d_jni.cpp
 LOCAL_SRC_FILES += $(MAPLY_JNI_FILES)

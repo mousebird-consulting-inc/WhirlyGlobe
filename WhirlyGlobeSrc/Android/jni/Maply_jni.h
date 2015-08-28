@@ -334,6 +334,7 @@ typedef JavaClassInfo<Maply::MapViewState> MapViewStateClassInfo;
 typedef JavaClassInfo<WhirlyGlobe::GlobeViewState> GlobeViewStateClassInfo;
 typedef JavaClassInfo<WhirlyKit::Marker> MarkerClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleLabelAndroid> LabelClassInfo;
+typedef JavaClassInfo<WhirlyKit::OpenGLES2Program> OpenGLES2ProgramClassInfo;
 
 // The shared JNIEnv set in the ::render call
 extern JNIEnv *maplyCurrentEnv;

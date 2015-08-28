@@ -52,6 +52,7 @@ template<> MarkerInfoClassInfo *MarkerInfoClassInfo::classInfoObj = NULL;
 template<> ViewStateClassInfo *ViewStateClassInfo::classInfoObj = NULL;
 template<> MapViewStateClassInfo *MapViewStateClassInfo::classInfoObj = NULL;
 template<> GlobeViewStateClassInfo *GlobeViewStateClassInfo::classInfoObj = NULL;
+template<> OpenGLES2ProgramClassInfo *OpenGLES2ProgramClassInfo::classInfoObj = NULL;
 
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 {

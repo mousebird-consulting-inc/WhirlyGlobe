@@ -31,5 +31,4 @@ class SelectionManager
 	native void dispose();
 	private long nativeHandle;
 	private long nativeSceneHandle;
-
 }
