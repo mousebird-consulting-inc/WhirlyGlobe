@@ -516,7 +516,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     if (changes.empty())
         return;
-    
+
+    // This means we beat the layer thread setup, so we'll put this in orbit
+    if (!scene)
+        threadMode = MaplyThreadAny;
+
     switch (threadMode)
     {
         case MaplyThreadCurrent:
