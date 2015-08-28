@@ -66,10 +66,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_nativeInit
 /*
  * Class:     com_mousebird_maply_Shader
  * Method:    initialise
- * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/mousebird/maply/MaplyBaseController;)V
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_initialise
-  (JNIEnv *, jobject, jstring, jstring, jstring, jobject);
+  (JNIEnv *, jobject, jstring, jstring, jstring);
 
 /*
  * Class:     com_mousebird_maply_Shader
