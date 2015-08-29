@@ -128,7 +128,7 @@ install {
 }
 
 task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
+    source = fileTree(dir: ".", include: "**/*.java")
     ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
     classpath += files(ext.androidJar)
     destinationDir = file("doc")
