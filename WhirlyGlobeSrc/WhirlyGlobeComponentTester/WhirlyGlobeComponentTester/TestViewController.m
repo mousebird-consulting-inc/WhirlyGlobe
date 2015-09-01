@@ -1083,6 +1083,15 @@ static const float EarthRadius = 6371000;
     
     // And some atmosphere, because the iDevice fill rate is just too fast
     atmosObj = [[MaplyAtmosphere alloc] initWithViewC:globeViewC];
+    // Very red
+//    float wavelength[3] = {0.350f,0.970f,0.975f};
+    // Blueish atmosphere
+//    float wavelength[3] = {0.650f,0.570f,0.475f};
+    float wavelength[3] = {0.650f,0.570f,0.475f};
+//    atmosObj.outerRadius = 1.1;
+//    atmosObj.Kr = atmosObj.Kr * 2;
+//    atmosObj.Km = atmosObj.Km * 2;
+    [atmosObj setWavelength:wavelength];
     [atmosObj setSunPosition:[sun getDirection]];
 }
 
