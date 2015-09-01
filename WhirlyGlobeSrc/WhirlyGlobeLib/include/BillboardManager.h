@@ -56,10 +56,9 @@ public:
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity billboardId;
 @property (nonatomic) NSArray *billboards;
 @property (nonatomic) UIColor *color;
+@property (nonatomic) bool zBufferRead,zBufferWrite;
 
 - (id)initWithBillboards:(NSArray *)billboards desc:(NSDictionary *)desc;
-
-- (void)parseDesc:(NSDictionary *)desc;
 
 @end
 
