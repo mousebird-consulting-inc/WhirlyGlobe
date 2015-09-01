@@ -34,16 +34,13 @@ using namespace WhirlyKit;
         return nil;
     
     _billboards = billboards;
-    [self parseDesc:desc];
     
+    _color = [desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
     _billboardId = Identifiable::genId();
+    _zBufferRead = [desc floatForKey:@"zbufferread" default:true];
+    _zBufferWrite = [desc floatForKey:@"zbufferwrite" default:true];
     
     return self;
-}
-
-- (void)parseDesc:(NSDictionary *)desc
-{
-    _color = [desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
 }
 
 @end
@@ -110,8 +107,8 @@ void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<Whi
         [billInfo setupBasicDrawable:drawable];
         drawable->setProgram(billboardProgram);
         drawable->setTexId(0,texId);
-        drawable->setRequestZBuffer(true);
-        drawable->setWriteZBuffer(true);
+        drawable->setRequestZBuffer(billInfo.zBufferRead);
+        drawable->setWriteZBuffer(billInfo.zBufferWrite);
         if (!vertAttrs.empty())
         {
             SingleVertexAttributeInfoSet vertInfoSet;
