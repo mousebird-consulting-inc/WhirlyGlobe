@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 1, "LabelRank": 1, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Palau", "SOV_A3": "PLW", "ADM0_DIF": 0.0, "LEVEL": 2.0, "TYPE": "Sovereign country", "ADMIN": "Palau", "ADM0_A3": "PLW", "GEOU_DIF": 0.0, "GEOUNIT": "Palau", "GU_A3": "PLW", "SU_DIF": 0.0, "SUBUNIT": "Palau", "SU_A3": "PLW", "NAME": "Palau", "ABBREV": "Palau", "POSTAL": "PW", "NAME_FORMA": "Republic of Palau", "TERR_": "", "NAME_SORT": "Palau", "MAP_COLOR": 12.0, "POP_EST": 20796.0, "GDP_MD_EST": 164.0, "FIPS_10_": "PS", "ISO_A2": "PW", "ISO_A3": "PLW", "ISO_N3": 585.0 }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ 131.17239, 3.026224 ], [ 131.149649, 3.021883 ], [ 131.134921, 3.025242 ], [ 131.13673, 3.039427 ], [ 131.151613, 3.054077 ], [ 131.17239, 3.060589 ], [ 131.187941, 3.055628 ], [ 131.186339, 3.042114 ], [ 131.17239, 3.026224 ] ] ], [ [ [ 134.595433, 7.38203 ], [ 134.534662, 7.360636 ], [ 134.50624, 7.437117 ], [ 134.515748, 7.525794 ], [ 134.55595, 7.593955 ], [ 134.599671, 7.615763 ], [ 134.608663, 7.623566 ], [ 134.651141, 7.712088 ], [ 134.659616, 7.663305 ], [ 134.632744, 7.5013 ], [ 134.59822, 7.438306 ], [ 134.595433, 7.38203 ] ] ] ] } }
-
-]
-}

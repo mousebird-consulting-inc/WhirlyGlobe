@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 1, "LabelRank": 1, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "United Kingdom", "SOV_A3": "GB1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Dependency", "ADMIN": "Anguilla", "ADM0_A3": "AIA", "GEOU_DIF": 0.0, "GEOUNIT": "Anguilla", "GU_A3": "AIA", "SU_DIF": 0.0, "SUBUNIT": "Anguilla", "SU_A3": "AIA", "NAME": "Anguilla", "ABBREV": "Ang.", "POSTAL": "AI", "NAME_FORMA": "", "TERR_": "U.K.", "NAME_SORT": "Anguilla", "MAP_COLOR": 3.0, "POP_EST": 14436.0, "GDP_MD_EST": 108.9, "FIPS_10_": "AV", "ISO_A2": "AI", "ISO_A3": "AIA", "ISO_N3": 660.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -63.001214, 18.221782 ], [ -63.160015, 18.171398 ], [ -63.153349, 18.200285 ], [ -63.026018, 18.269738 ], [ -62.979561, 18.264777 ], [ -63.001214, 18.221782 ] ] ] } }
-
-]
-}

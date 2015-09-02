@@ -1,0 +1,45 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context=".MapActivity">
+    <item android:id="@+id/map_type" android:title="Map Type"
+        android:orderInCategory="100" app:showAsAction="never">
+        <menu>
+            <group android:checkableBehavior="single" app:showAsAction="never">
+                <item android:id="@+id/flatmap" android:title="Flat Map" />
+                <item android:id="@+id/globe" android:title="Globe" />
+            </group>
+        </menu>
+    </item>
+    <item android:id="@+id/base_layers" android:title="Base Layers"
+        android:orderInCategory="100" app:showAsAction="never">
+        <menu>
+            <group android:checkableBehavior="single" app:showAsAction="never">
+                <item android:id="@+id/blank_layer" android:title="Blank" />
+                <item android:id="@+id/geography_layer" android:title="Geography Class" />
+                <item android:id="@+id/mapboxRegular_layer" android:title="Mapbox Regular" />
+                <item android:id="@+id/mapboxSatellite_layer" android:title="Mapbox Satellite" />
+                <item android:id="@+id/osmmapquest_layer" android:title="OSM Mapquest" />
+                <item android:id="@+id/stamen_layer" android:title="Stamen Watercolor" />
+                <item android:id="@+id/quadtest_layer" android:title="Quad Test" />
+                <item android:id="@+id/quadtestanimate_layer" android:title="Quad Test Animated" />
+                <item android:id="@+id/quadvectortest_layer" android:title="Quad Vector Test" />
+            </group>
+        </menu>
+    </item>
+    <item android:id="@+id/overlay_layers" android:title="Overlay Layers"
+        android:orderInCategory="200" app:showAsAction="never">
+        <menu>
+        <group app:showAsAction="never">
+            <item android:id="@+id/forecastio_layer" android:title="Forecast IO Weather" />
+        </group>
+        </menu>
+    </item>
+    <item android:id="@+id/utils" android:title="Utility"
+        android:orderInCategory="300" app:showAsAction="never">
+        <menu>
+        <group app:showAsAction="never">
+            <item android:id="@+id/perfOutput" android:title="Performance Output" />
+        </group>
+        </menu>
+    </item>
+</menu>

@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 1, "LabelRank": 1, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Barbados", "SOV_A3": "BRB", "ADM0_DIF": 0.0, "LEVEL": 2.0, "TYPE": "Sovereign country", "ADMIN": "Barbados", "ADM0_A3": "BRB", "GEOU_DIF": 0.0, "GEOUNIT": "Barbados", "GU_A3": "BRB", "SU_DIF": 0.0, "SUBUNIT": "Barbados", "SU_A3": "BRB", "NAME": "Barbados", "ABBREV": "Barb.", "POSTAL": "BB", "NAME_FORMA": "", "TERR_": "", "NAME_SORT": "Barbados", "MAP_COLOR": 3.0, "POP_EST": 284589.0, "GDP_MD_EST": 5425.0, "FIPS_10_": "BB", "ISO_A2": "BB", "ISO_A3": "BRB", "ISO_N3": 52.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -59.493314, 13.081967 ], [ -59.521865, 13.0622 ], [ -59.611343, 13.102095 ], [ -59.642788, 13.150309 ], [ -59.64669, 13.303116 ], [ -59.591603, 13.317689 ], [ -59.487888, 13.196818 ], [ -59.427633, 13.152789 ], [ -59.493314, 13.081967 ] ] ] } }
-
-]
-}

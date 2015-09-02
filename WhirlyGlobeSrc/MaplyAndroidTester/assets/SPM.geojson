@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "France", "SOV_A3": "FR1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Dependency", "ADMIN": "Saint Pierre and Miquelon", "ADM0_A3": "SPM", "GEOU_DIF": 0.0, "GEOUNIT": "Saint Pierre and Miquelon", "GU_A3": "SPM", "SU_DIF": 0.0, "SUBUNIT": "Saint Pierre and Miquelon", "SU_A3": "SPM", "NAME": "St. Pierre and Miquelon", "ABBREV": "St. P.M.", "POSTAL": "PM", "NAME_FORMA": "Territorial Collectivity of Saint Pierre and Miquelon", "TERR_": "Fr.", "NAME_SORT": "Saint Pierre and Miquelon", "MAP_COLOR": 11.0, "POP_EST": 7051.0, "GDP_MD_EST": 48.3, "FIPS_10_": "SB", "ISO_A2": "PM", "ISO_A3": "SPM", "ISO_N3": 666.0 }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -56.150727, 46.762417 ], [ -56.171708, 46.752857 ], [ -56.24328, 46.767197 ], [ -56.209173, 46.798229 ], [ -56.185066, 46.807272 ], [ -56.152613, 46.811097 ], [ -56.137343, 46.801562 ], [ -56.139255, 46.778644 ], [ -56.150727, 46.762417 ] ] ], [ [ [ -56.267103, 46.838485 ], [ -56.354229, 46.795335 ], [ -56.38477, 46.819416 ], [ -56.377225, 46.847632 ], [ -56.332551, 46.915948 ], [ -56.333946, 46.935637 ], [ -56.386889, 47.06798 ], [ -56.377949, 47.089555 ], [ -56.364642, 47.098986 ], [ -56.28736, 47.070977 ], [ -56.278368, 47.03501 ], [ -56.314903, 46.953878 ], [ -56.289789, 46.899877 ], [ -56.255475, 46.860964 ], [ -56.267103, 46.838485 ] ] ] ] } }
-
-]
-}

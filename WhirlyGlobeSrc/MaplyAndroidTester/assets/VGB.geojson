@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "United Kingdom", "SOV_A3": "GB1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Dependency", "ADMIN": "British Virgin Islands", "ADM0_A3": "VGB", "GEOU_DIF": 0.0, "GEOUNIT": "British Virgin Islands", "GU_A3": "VGB", "SU_DIF": 0.0, "SUBUNIT": "British Virgin Islands", "SU_A3": "VGB", "NAME": "British Virgin Is.", "ABBREV": "V.I. (Br.)", "POSTAL": "VG", "NAME_FORMA": "", "TERR_": "U.K.", "NAME_SORT": "British Virgin Islands", "MAP_COLOR": 3.0, "POP_EST": 24491.0, "GDP_MD_EST": 853.4, "FIPS_10_": "VI", "ISO_A2": "VG", "ISO_A3": "VGB", "ISO_N3": 92.0 }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -64.593674, 18.402856 ], [ -64.671809, 18.399136 ], [ -64.695089, 18.411667 ], [ -64.650984, 18.442544 ], [ -64.569128, 18.446265 ], [ -64.54515, 18.438126 ], [ -64.593674, 18.402856 ] ] ], [ [ [ -64.395237, 18.464584 ], [ -64.421127, 18.457427 ], [ -64.438025, 18.459003 ], [ -64.443735, 18.473395 ], [ -64.426088, 18.513082 ], [ -64.324673, 18.517501 ], [ -64.395237, 18.464584 ] ] ], [ [ [ -64.287879, 18.740562 ], [ -64.273591, 18.707127 ], [ -64.28235, 18.707696 ], [ -64.339426, 18.730692 ], [ -64.383403, 18.732604 ], [ -64.40149, 18.738598 ], [ -64.411412, 18.751156 ], [ -64.323097, 18.752706 ], [ -64.287879, 18.740562 ] ] ] ] } }
-
-]
-}

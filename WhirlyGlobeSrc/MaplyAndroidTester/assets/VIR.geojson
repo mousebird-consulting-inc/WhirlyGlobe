@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "United States of America", "SOV_A3": "US1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Dependency", "ADMIN": "United States Virgin Islands", "ADM0_A3": "VIR", "GEOU_DIF": 0.0, "GEOUNIT": "United States Virgin Islands", "GU_A3": "VIR", "SU_DIF": 0.0, "SUBUNIT": "United States Virgin Islands", "SU_A3": "VIR", "NAME": "U.S. Virgin Is.", "ABBREV": "V.I. (U.S.)", "POSTAL": "VI", "NAME_FORMA": "Virgin Islands of the United States", "TERR_": "U.S.A.", "NAME_SORT": "United States Virgin Islands", "MAP_COLOR": 1.0, "POP_EST": 109825.0, "GDP_MD_EST": 1577.0, "FIPS_10_": "VQ", "ISO_A2": "VI", "ISO_A3": "VIR", "ISO_N3": 850.0 }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -64.765654, 17.794315 ], [ -64.68186, 17.750209 ], [ -64.580445, 17.750209 ], [ -64.686279, 17.706103 ], [ -64.889109, 17.701711 ], [ -64.884716, 17.772249 ], [ -64.765654, 17.794315 ] ] ], [ [ [ -64.65982, 18.354332 ], [ -64.725966, 18.327874 ], [ -64.770615, 18.331595 ], [ -64.787694, 18.341103 ], [ -64.752424, 18.37198 ], [ -64.65982, 18.354332 ] ] ], [ [ [ -64.845029, 18.330096 ], [ -64.919985, 18.321285 ], [ -65.023622, 18.367587 ], [ -64.942025, 18.385209 ], [ -64.889109, 18.374202 ], [ -64.845029, 18.330096 ] ] ] ] } }
-
-]
-}

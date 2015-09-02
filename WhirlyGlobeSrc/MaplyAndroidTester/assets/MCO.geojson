@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 6, "LabelRank": 6, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Monaco", "SOV_A3": "MCO", "ADM0_DIF": 0.0, "LEVEL": 2.0, "TYPE": "Sovereign country", "ADMIN": "Monaco", "ADM0_A3": "MCO", "GEOU_DIF": 0.0, "GEOUNIT": "Monaco", "GU_A3": "MCO", "SU_DIF": 0.0, "SUBUNIT": "Monaco", "SU_A3": "MCO", "NAME": "Monaco", "ABBREV": "Mco.", "POSTAL": "MC", "NAME_FORMA": "Principality of Monaco", "TERR_": "", "NAME_SORT": "Monaco", "MAP_COLOR": 12.0, "POP_EST": 32965.0, "GDP_MD_EST": 976.3, "FIPS_10_": "MN", "ISO_A2": "MC", "ISO_A3": "MCO", "ISO_N3": 492.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 7.438699, 43.750456 ], [ 7.377721, 43.73175 ], [ 7.380098, 43.753247 ], [ 7.394981, 43.765339 ], [ 7.414411, 43.77092 ], [ 7.436942, 43.761464 ], [ 7.438699, 43.750456 ] ] ] } }
-
-]
-}

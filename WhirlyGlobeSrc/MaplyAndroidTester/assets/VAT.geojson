@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 6, "LabelRank": 6, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Vatican", "SOV_A3": "VAT", "ADM0_DIF": 0.0, "LEVEL": 2.0, "TYPE": "Sovereign country", "ADMIN": "Vatican", "ADM0_A3": "VAT", "GEOU_DIF": 0.0, "GEOUNIT": "Vatican", "GU_A3": "VAT", "SU_DIF": 0.0, "SUBUNIT": "Vatican", "SU_A3": "VAT", "NAME": "Vatican", "ABBREV": "Vat.", "POSTAL": "V", "NAME_FORMA": "State of the Vatican City", "TERR_": "", "NAME_SORT": "Vatican (Holy Sea)", "MAP_COLOR": 2.0, "POP_EST": 826.0, "GDP_MD_EST": -99.0, "FIPS_10_": "VT", "ISO_A2": "VA", "ISO_A3": "VAT", "ISO_N3": 336.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 12.439169, 41.898373 ], [ 12.43059, 41.897572 ], [ 12.42749, 41.900724 ], [ 12.43059, 41.905453 ], [ 12.438342, 41.906202 ], [ 12.439169, 41.898373 ] ] ] } }
-
-]
-}

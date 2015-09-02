@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 1, "LabelRank": 1, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Saint Kitts and Nevis", "SOV_A3": "KNA", "ADM0_DIF": 0.0, "LEVEL": 2.0, "TYPE": "Sovereign country", "ADMIN": "Saint Kitts and Nevis", "ADM0_A3": "KNA", "GEOU_DIF": 0.0, "GEOUNIT": "Saint Kitts and Nevis", "GU_A3": "KNA", "SU_DIF": 0.0, "SUBUNIT": "Saint Kitts and Nevis", "SU_A3": "KNA", "NAME": "St. Kitts and Nevis", "ABBREV": "St.K.N.", "POSTAL": "KN", "NAME_FORMA": "Federation of Saint Kitts and Nevis", "TERR_": "", "NAME_SORT": "Saint Kitts and Nevis", "MAP_COLOR": 8.0, "POP_EST": 40131.0, "GDP_MD_EST": 777.7, "FIPS_10_": "SC", "ISO_A2": "KN", "ISO_A3": "KNA", "ISO_N3": 659.0 }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -62.532224, 17.121849 ], [ -62.582428, 17.10061 ], [ -62.624932, 17.129575 ], [ -62.615268, 17.199106 ], [ -62.574702, 17.201043 ], [ -62.534162, 17.170141 ], [ -62.532224, 17.121849 ] ] ], [ [ [ -62.630694, 17.239982 ], [ -62.65648, 17.224427 ], [ -62.702007, 17.286025 ], [ -62.775543, 17.30282 ], [ -62.838898, 17.339252 ], [ -62.840474, 17.347055 ], [ -62.839415, 17.365323 ], [ -62.827038, 17.386407 ], [ -62.794611, 17.402607 ], [ -62.713738, 17.353256 ], [ -62.675807, 17.290935 ], [ -62.640512, 17.26228 ], [ -62.630694, 17.239982 ] ] ] ] } }
-
-]
-}

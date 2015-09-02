@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Andorra", "SOV_A3": "AND", "ADM0_DIF": 0.0, "LEVEL": 2.0, "TYPE": "Sovereign country", "ADMIN": "Andorra", "ADM0_A3": "AND", "GEOU_DIF": 0.0, "GEOUNIT": "Andorra", "GU_A3": "AND", "SU_DIF": 0.0, "SUBUNIT": "Andorra", "SU_A3": "AND", "NAME": "Andorra", "ABBREV": "And.", "POSTAL": "AND", "NAME_FORMA": "Principality of Andorra", "TERR_": "", "NAME_SORT": "Andorra", "MAP_COLOR": 8.0, "POP_EST": 83888.0, "GDP_MD_EST": 3660.0, "FIPS_10_": "AN", "ISO_A2": "AD", "ISO_A3": "AND", "ISO_N3": 20.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 1.706025, 42.503297 ], [ 1.678482, 42.496657 ], [ 1.586394, 42.455962 ], [ 1.534046, 42.441699 ], [ 1.486194, 42.434464 ], [ 1.448832, 42.437436 ], [ 1.428161, 42.46131 ], [ 1.43028, 42.497871 ], [ 1.42196, 42.530815 ], [ 1.414829, 42.548411 ], [ 1.428316, 42.595902 ], [ 1.458857, 42.621688 ], [ 1.501335, 42.64272 ], [ 1.568153, 42.634995 ], [ 1.709901, 42.604428 ], [ 1.73946, 42.575929 ], [ 1.740184, 42.556731 ], [ 1.713932, 42.525622 ], [ 1.706025, 42.503297 ] ] ] } }
-
-]
-}

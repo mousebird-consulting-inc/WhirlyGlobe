@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 1, "LabelRank": 1, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Dominica", "SOV_A3": "DMA", "ADM0_DIF": 0.0, "LEVEL": 2.0, "TYPE": "Sovereign country", "ADMIN": "Dominica", "ADM0_A3": "DMA", "GEOU_DIF": 0.0, "GEOUNIT": "Dominica", "GU_A3": "DMA", "SU_DIF": 0.0, "SUBUNIT": "Dominica", "SU_A3": "DMA", "NAME": "Dominica", "ABBREV": "D'inca", "POSTAL": "DM", "NAME_FORMA": "Commonwealth of Dominica", "TERR_": "", "NAME_SORT": "Dominica", "MAP_COLOR": 12.0, "POP_EST": 72660.0, "GDP_MD_EST": 719.6, "FIPS_10_": "DO", "ISO_A2": "DM", "ISO_A3": "DMA", "ISO_N3": 212.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -61.281706, 15.249044 ], [ -61.37537, 15.227288 ], [ -61.415729, 15.399836 ], [ -61.481151, 15.525151 ], [ -61.469938, 15.603466 ], [ -61.458129, 15.633103 ], [ -61.320024, 15.585044 ], [ -61.277262, 15.526701 ], [ -61.251062, 15.37317 ], [ -61.281706, 15.249044 ] ] ] } }
-
-]
-}

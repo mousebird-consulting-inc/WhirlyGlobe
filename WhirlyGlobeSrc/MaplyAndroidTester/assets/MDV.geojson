@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Maldives", "SOV_A3": "MDV", "ADM0_DIF": 0.0, "LEVEL": 2.0, "TYPE": "Sovereign country", "ADMIN": "Maldives", "ADM0_A3": "MDV", "GEOU_DIF": 0.0, "GEOUNIT": "Maldives", "GU_A3": "MDV", "SU_DIF": 0.0, "SUBUNIT": "Maldives", "SU_A3": "MDV", "NAME": "Maldives", "ABBREV": "Mald.", "POSTAL": "MV", "NAME_FORMA": "Republic of Maldives", "TERR_": "", "NAME_SORT": "Maldives", "MAP_COLOR": 7.0, "POP_EST": 396334.0, "GDP_MD_EST": 1716.0, "FIPS_10_": "MV", "ISO_A2": "MV", "ISO_A3": "MDV", "ISO_N3": 462.0 }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ 73.416584, 3.231224 ], [ 73.395293, 3.229416 ], [ 73.382064, 3.246495 ], [ 73.384906, 3.271403 ], [ 73.401546, 3.288792 ], [ 73.427746, 3.289825 ], [ 73.442732, 3.274297 ], [ 73.434981, 3.250164 ], [ 73.416584, 3.231224 ] ] ], [ [ [ 73.512237, 4.164526 ], [ 73.494822, 4.155199 ], [ 73.478647, 4.15892 ], [ 73.473066, 4.170728 ], [ 73.481128, 4.188117 ], [ 73.49477, 4.210441 ], [ 73.504124, 4.234626 ], [ 73.517818, 4.247648 ], [ 73.52836, 4.243307 ], [ 73.52712, 4.229665 ], [ 73.522159, 4.211061 ], [ 73.519058, 4.186877 ], [ 73.512237, 4.164526 ] ] ] ] } }
-
-]
-}
