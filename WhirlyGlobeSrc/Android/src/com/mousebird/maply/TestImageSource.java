@@ -62,7 +62,7 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 	static int debugColors[] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x4F256F, 0xD89CDE, 0x773B28, 0x333D99, 0x862D52, 0xC2C653, 0xB8583D};
 
 	@Override
-	public void startFetchForTile(final QuadImageTileLayer layer, final MaplyTileID tileID, int frame) 
+	public void startFetchForTile(final QuadImageTileLayer layer, final MaplyTileID tileID, final int frame)
 	{
 		// Note: Porting.  Do something with the frame
 		
@@ -73,7 +73,11 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 		public void run()
 		{		
 			// Render the tile ID into a bitmap
-			String text = tileID.toString();
+			String text = null;
+			if (frame == -1)
+				text = tileID.toString();
+			else
+				text = tileID.toString() + " " + frame;
 			Paint p = new Paint();
 			p.setTextSize(24.f);
 			p.setColor(Color.BLACK);
