@@ -68,10 +68,12 @@ task buildHeaders(type: Exec, description: 'Build headers to be used on native b
 
 task buildNative(type: Exec, description: 'Compile native code using NDK') {
     def ndkDir = plugins.getPlugin('com.android.library').sdkHandler.getNdkFolder()
+
     commandLine "$ndkDir/ndk-build",
             '-C', file('.').absolutePath,
             '-j', Runtime.runtime.availableProcessors(),
-            'all'
+            'all',
+             'APP_ABI=' + (project.hasProperty('architecture') ? architecture : 'all')
 //           ,'NDK_DEBUG=1'
 }
 
