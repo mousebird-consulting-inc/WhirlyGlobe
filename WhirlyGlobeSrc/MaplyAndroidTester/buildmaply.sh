@@ -1,7 +1,7 @@
 rm app/libs/Maply.aar
 
 pushd ../Android/
-./gradlew assemble
+./gradlew assembleRelease
 popd
 
 # Note: This is the debug version
