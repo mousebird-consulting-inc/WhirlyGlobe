@@ -52,6 +52,9 @@
 /// @brief Exposure constant in fragment shader.  Default is 2.0.
 @property (nonatomic) float exposure;
 
+/// @brief The ground shader we set up.  You need to apply it yourself.
+@property (nonatomic) MaplyShader *groundShader;
+
 /// @brief Wavelengths of the light (RGB).  Three floats, defaults are: 0.650, 0.570, 0.475
 - (void)setWavelength:(float *)wavelength;
 
