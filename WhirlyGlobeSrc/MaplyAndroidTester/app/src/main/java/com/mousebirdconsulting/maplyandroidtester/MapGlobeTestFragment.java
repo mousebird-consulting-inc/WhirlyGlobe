@@ -89,8 +89,10 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
         baseLayer.setImageDepth(imageDepth);
 
         // Note: Debugging
-        if (imageDepth > 2)
+        if (imageDepth > 2) {
             baseLayer.setCurrentImage(1.5f);
+            baseLayer.setImageFormat(QuadImageTileLayer.ImageFormat.MaplyImageUShort565);
+        }
 		
 		if (mapControl != null)
 		{
