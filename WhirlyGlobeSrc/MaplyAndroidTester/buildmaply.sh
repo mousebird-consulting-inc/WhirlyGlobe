@@ -4,7 +4,7 @@ rm app/libs/Maply.aar
 if [ -n "$1" ]; then
     arch=${1}
 else
-    arch="x86,armeabi,armeabi-v7a,mips"
+    arch="x86,x86_64,armeabi,armeabi-v7a,arm64-v8a,mips"
 fi
 
 pushd ../Android/
