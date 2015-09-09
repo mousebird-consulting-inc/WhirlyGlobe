@@ -80,12 +80,13 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
 	QuadImageTileLayer forecastIOLayer = null;
 	
 	// Set up a simple image layer
-	QuadImageTileLayer setupImageLayer(QuadImageTileLayer.TileSource tileSource,RemoteTileSource remoteTileSource,String cacheDirName)
+	QuadImageTileLayer setupImageLayer(QuadImageTileLayer.TileSource tileSource,RemoteTileSource remoteTileSource,String cacheDirName,int imageDepth)
 	{
 		// Set up the layer
 		SphericalMercatorCoordSystem coordSys = new SphericalMercatorCoordSystem();
 		baseLayer = new QuadImageTileLayer(baseControl,coordSys,tileSource);
-		baseLayer.setSimultaneousFetches(8);
+		baseLayer.setSimultaneousFetches(1);
+        baseLayer.setImageDepth(imageDepth);
 		
 		if (mapControl != null)
 		{
@@ -117,6 +118,7 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
 		String cacheDirName = null;
 		QuadImageTileLayer.TileSource tileSource = null;
 		RemoteTileSource remoteTileSource = null;
+        int imageDepth = 1;
 		
 		// Get rid of the existing base layer
 		if (baseLayer != null)
@@ -152,6 +154,8 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
                 tileSource = new TestImageSource(getActivity().getMainLooper(),0,22);
                 break;
             case QuadTestAnimate:
+                tileSource = new TestImageSource(getActivity().getMainLooper(),0,4);
+                imageDepth = 8;
                 break;
             case QuadVectorTest:
             {
@@ -173,7 +177,7 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
 
 		if (tileSource != null)
 		{
-			baseLayer = setupImageLayer(tileSource,remoteTileSource,cacheDirName);				
+			baseLayer = setupImageLayer(tileSource,remoteTileSource,cacheDirName,imageDepth);
 			baseControl.addLayer(baseLayer);		
 		}
 			

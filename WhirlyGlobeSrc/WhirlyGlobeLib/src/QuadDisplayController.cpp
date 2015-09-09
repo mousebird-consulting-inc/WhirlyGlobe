@@ -438,7 +438,7 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
     
 //    if (_debugMode)
 //        [self dumpInfo];
-    
+
     // See if we can move on to the next frame (if we're frame loading
     if (!didSomething && !frameLoadingPriority.empty() && quadtree->frameIsLoaded(frameLoadingPriority[curFrameEntry],NULL))
     {

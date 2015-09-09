@@ -113,7 +113,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 				{
 					EGL10 egl = (EGL10) EGLContext.getEGL();
 					if (!egl.eglMakeCurrent(renderer.display, surface, surface, context))
-						Log.i("Maply","Failed to make current context in layer thread.");
+					    Log.i("Maply","Failed to make current context in layer thread.");
 				}
 				catch (Exception e)
 				{

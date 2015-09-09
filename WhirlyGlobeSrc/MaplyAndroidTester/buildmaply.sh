@@ -4,11 +4,11 @@ rm app/libs/Maply.aar
 if [ -n "$1" ]; then
     arch=${1}
 else
-    arch="x86"
+    arch="x86,armeabi,armeabi-v7a,mips"
 fi
 
 pushd ../Android/
-./gradlew assembleRelease -Parchitecture=$arch
+./gradlew assembleDebug -Parchitecture=$arch
 popd
 
 # Note: This is the debug version

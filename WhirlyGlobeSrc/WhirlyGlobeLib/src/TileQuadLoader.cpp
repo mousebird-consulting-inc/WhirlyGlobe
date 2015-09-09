@@ -733,21 +733,20 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
     std::set<WhirlyKit::Quadtree::Identifier>::iterator nit = networkFetches.find(tileIdent);
     if (nit != networkFetches.end())
         networkFetches.erase(nit);
-        nit = localFetches.find(tileIdent);
-        if (nit != localFetches.end())
-            localFetches.erase(nit);
-            
-            // Look for the tile
-            // If it's not here, just drop this on the floor
-            pthread_mutex_lock(&tileLock);
-            InternalLoadedTile dummyTile(tileIdent);
-            LoadedTileSet::iterator it = tileSet.find(&dummyTile);
-            if (it == tileSet.end())
-            {
-                pthread_mutex_unlock(&tileLock);
-                return;
-            }
+    nit = localFetches.find(tileIdent);
+    if (nit != localFetches.end())
+        localFetches.erase(nit);
     
+    // Look for the tile
+    // If it's not here, just drop this on the floor
+    pthread_mutex_lock(&tileLock);
+    InternalLoadedTile dummyTile(tileIdent);
+    LoadedTileSet::iterator it = tileSet.find(&dummyTile);
+    if (it == tileSet.end())
+    {
+        pthread_mutex_unlock(&tileLock);
+        return;
+    }
     
     std::vector<LoadedImage *> loadImages;
     // Note: Porting
@@ -791,25 +790,35 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
 //            estTexY = std::max(gridElev.sizeY-1, estTexY);
 //        }
         tileBuilder->initAtlases(imageType,numImages,textureAtlasSize,estTexX,estTexY);
+        if (!enable)
+            tileBuilder->drawAtlas->setEnableAllDrawables(false, changes);
         
         createdAtlases = true;
     }
     
     InternalLoadedTile *tile = *it;
     tile->isLoading = false;
+    bool parentUpdate = false;
     if (loadingSuccess && (isPlaceholder || !loadImages.empty() || loadElev))
     {
 //        tile->elevData = loadElev;
-        if (tile->addToScene(tileBuilder,loadImages,frame,currentImage0,currentImage1,/* loadElev, */changeRequests))
+        if (!tile->isInitialized)
         {
-            // If we have more than one image to dispay, make sure we're doing the right one
-            if (!isPlaceholder && numImages > 1 && tileBuilder->texAtlas)
+            parentUpdate = true;
+            if (tile->addToScene(tileBuilder,loadImages,frame,currentImage0,currentImage1,/* loadElev, */changeRequests))
             {
-                tile->setCurrentImages(tileBuilder, currentImage0, currentImage1, changeRequests);
-            }
-        } else
-            loadingSuccess = false;
-            }
+                // If we have more than one image to dispay, make sure we're doing the right one
+                if (!isPlaceholder && numImages > 1 && tileBuilder->texAtlas)
+                {
+                    tile->setCurrentImages(tileBuilder, currentImage0, currentImage1, changeRequests);
+                }
+            } else
+                loadingSuccess = false;
+        } else {
+            parentUpdate = false;
+            tile->updateTexture(tileBuilder, loadImages[0], frame, changeRequests);
+        }
+    }
     
     if (loadingSuccess)
         control->tileDidLoad(tile->nodeInfo.ident,frame);
@@ -824,15 +833,15 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
     //    NSLog(@"Loaded image for tile (%d,%d,%d)",col,row,level);
     
     // Various child state changed so let's update the parents
-    if (level > 0 && control->getTargetLevels().empty())
+    if (parentUpdate && level > 0 && control->getTargetLevels().empty())
         parents.insert(Quadtree::Identifier(col/2,row/2,level-1));
         
     if (!doingUpdate)
     {
         flushUpdates(changes);
     }
-    
-    if (!isPlaceholder)
+
+    if (!isPlaceholder && parentUpdate)
         updateTexAtlasMapping();
     
     // They might have set the current image already
