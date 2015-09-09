@@ -45,6 +45,7 @@ public:
     class Region
     {
     public:
+        Region();
         int sx,sy,ex,ey;
     };
     
@@ -165,6 +166,7 @@ public:
     class TextureRegion
     {
     public:
+        TextureRegion();
         bool operator < (const TextureRegion &that) const { return subTex.getId() < that.subTex.getId(); }
         
         SubTexture subTex;

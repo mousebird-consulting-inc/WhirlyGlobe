@@ -87,6 +87,10 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
 		baseLayer = new QuadImageTileLayer(baseControl,coordSys,tileSource);
 		baseLayer.setSimultaneousFetches(1);
         baseLayer.setImageDepth(imageDepth);
+
+        // Note: Debugging
+//        if (imageDepth > 2)
+//            baseLayer.setCurrentImage(1.0f);
 		
 		if (mapControl != null)
 		{
@@ -154,8 +158,8 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
                 tileSource = new TestImageSource(getActivity().getMainLooper(),0,22);
                 break;
             case QuadTestAnimate:
-                tileSource = new TestImageSource(getActivity().getMainLooper(),0,4);
-                imageDepth = 8;
+                tileSource = new TestImageSource(getActivity().getMainLooper(),0,22);
+                imageDepth = 4;
                 break;
             case QuadVectorTest:
             {

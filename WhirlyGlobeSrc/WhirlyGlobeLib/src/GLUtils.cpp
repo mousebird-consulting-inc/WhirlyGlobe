@@ -35,7 +35,8 @@ bool CheckGLError(const char *msg)
     if (theError != GL_NO_ERROR)
     {
         // Note: Porting
-        fprintf(stderr,"GL Error: %d - %s",theError,msg);
+      //        fprintf(stderr,"GL Error: %d - %s",theError,msg);
+      __android_log_print(ANDROID_LOG_ERROR, "Maply", "GL Error: %d - %s",theError,msg);
 //        NSLog(@"GL Error: %d - %s",theError,msg);
         return false;
     }

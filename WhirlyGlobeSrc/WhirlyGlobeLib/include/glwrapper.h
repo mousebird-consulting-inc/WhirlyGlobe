@@ -20,6 +20,9 @@
 
 #ifdef __ANDROID__ 
 
+#import <jni.h>
+#import <android/log.h>
+
 #define GL_GLEXT_PROTOTYPES
 //#define __USE_SDL_GLES__
 #include <GLES2/gl2platform.h>

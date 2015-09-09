@@ -26,6 +26,11 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
+
+DynamicTexture::Region::Region()
+  : sx(0), sy(0), ex(0), ey(0)
+{
+}
  
 DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum inFormat)
     : TextureBase(name), texSize(texSize), cellSize(cellSize), numCell(0), numRegions(0), compressed(false), layoutGrid(NULL)
@@ -149,6 +154,8 @@ bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
         glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, type, NULL);
     }
     CheckGLError("DynamicTexture::createInGL() glTexImage2D()");
+    // Note: Debugging
+    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Allocated dynamic texture for atlas.");
     
     glBindTexture(GL_TEXTURE_2D, 0);
     
@@ -334,6 +341,11 @@ void DynamicTextureAddRegion::execute(Scene *scene,WhirlyKit::SceneRendererES *r
     {
         dynTex->addTextureData(startX, startY, width, height, data);
     }    
+}
+
+DynamicTextureAtlas::TextureRegion::TextureRegion()
+  : dynTexId(EmptyIdentity)
+{
 }
     
 DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth,bool mainThreadMerge)

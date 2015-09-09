@@ -88,7 +88,7 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 //			int textHeight = -bounds.top;
 	
 			// Draw into a bitmap
-			int sizeX = 256,sizeY = 256;
+			int sizeX = 128,sizeY = 128;
 			Bitmap bitmap = Bitmap.createBitmap(sizeX, sizeY, Bitmap.Config.ARGB_8888);
 			Canvas c = new Canvas(bitmap);
 			Paint p2 = new Paint();
