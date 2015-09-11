@@ -16,6 +16,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+        <service android:enabled="true" android:name="com.mousebirdconsulting.maplyandroidtester.GdbServerService"
+            android:label="@string/app_name" android:icon="@mipmap/ic_launcher">
+            <intent-filter >
+                <action android:name="com.mousebirdconsulting.maplyandroidtester.GdbServerService" />
+            </intent-filter>
+        </service>
+
+    </application>
 </manifest>

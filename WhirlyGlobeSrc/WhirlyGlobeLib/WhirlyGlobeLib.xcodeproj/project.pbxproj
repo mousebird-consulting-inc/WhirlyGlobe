@@ -159,6 +159,109 @@
 		2B3836A9186244DC00467ABD /* glwrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3836A8186244DC00467ABD /* glwrapper.h */; };
 		2B3836AB18625C9200467ABD /* glwrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3836AA18625C9200467ABD /* glwrapper.cpp */; };
 		2B3A0D41133405700085EF43 /* shapefil.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951D8E12F09E7A005003AE /* shapefil.h */; };
+		2B4B19631BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B192B1BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h */; };
+		2B4B19641BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B192C1BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h */; };
+		2B4B19651BA38AD90091A743 /* com_mousebird_maply_ChangeSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B192D1BA38AD90091A743 /* com_mousebird_maply_ChangeSet.h */; };
+		2B4B19661BA38AD90091A743 /* com_mousebird_maply_CoordSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B192E1BA38AD90091A743 /* com_mousebird_maply_CoordSystem.h */; };
+		2B4B19671BA38AD90091A743 /* com_mousebird_maply_CoordSystemDisplayAdapter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B192F1BA38AD90091A743 /* com_mousebird_maply_CoordSystemDisplayAdapter.h */; };
+		2B4B19681BA38AD90091A743 /* com_mousebird_maply_FakeGeocentricDisplayAdapter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19301BA38AD90091A743 /* com_mousebird_maply_FakeGeocentricDisplayAdapter.h */; };
+		2B4B19691BA38AD90091A743 /* com_mousebird_maply_GeoCoordSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19311BA38AD90091A743 /* com_mousebird_maply_GeoCoordSystem.h */; };
+		2B4B196A1BA38AD90091A743 /* com_mousebird_maply_GlobeScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19321BA38AD90091A743 /* com_mousebird_maply_GlobeScene.h */; };
+		2B4B196B1BA38AD90091A743 /* com_mousebird_maply_GlobeView_AnimationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19331BA38AD90091A743 /* com_mousebird_maply_GlobeView_AnimationDelegate.h */; };
+		2B4B196C1BA38AD90091A743 /* com_mousebird_maply_GlobeView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19341BA38AD90091A743 /* com_mousebird_maply_GlobeView.h */; };
+		2B4B196D1BA38AD90091A743 /* com_mousebird_maply_GlobeViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19351BA38AD90091A743 /* com_mousebird_maply_GlobeViewState.h */; };
+		2B4B196E1BA38AD90091A743 /* com_mousebird_maply_Identifiable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19361BA38AD90091A743 /* com_mousebird_maply_Identifiable.h */; };
+		2B4B196F1BA38AD90091A743 /* com_mousebird_maply_InternalLabel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19371BA38AD90091A743 /* com_mousebird_maply_InternalLabel.h */; };
+		2B4B19701BA38AD90091A743 /* com_mousebird_maply_InternalMarker.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19381BA38AD90091A743 /* com_mousebird_maply_InternalMarker.h */; };
+		2B4B19711BA38AD90091A743 /* com_mousebird_maply_LabelInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19391BA38AD90091A743 /* com_mousebird_maply_LabelInfo.h */; };
+		2B4B19721BA38AD90091A743 /* com_mousebird_maply_LabelManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B193A1BA38AD90091A743 /* com_mousebird_maply_LabelManager.h */; };
+		2B4B19731BA38AD90091A743 /* com_mousebird_maply_LayoutManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B193B1BA38AD90091A743 /* com_mousebird_maply_LayoutManager.h */; };
+		2B4B19741BA38AD90091A743 /* com_mousebird_maply_MaplyRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B193C1BA38AD90091A743 /* com_mousebird_maply_MaplyRenderer.h */; };
+		2B4B19751BA38AD90091A743 /* com_mousebird_maply_MapScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B193D1BA38AD90091A743 /* com_mousebird_maply_MapScene.h */; };
+		2B4B19761BA38AD90091A743 /* com_mousebird_maply_MapView_AnimationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B193E1BA38AD90091A743 /* com_mousebird_maply_MapView_AnimationDelegate.h */; };
+		2B4B19771BA38AD90091A743 /* com_mousebird_maply_MapView_ViewWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B193F1BA38AD90091A743 /* com_mousebird_maply_MapView_ViewWatcher.h */; };
+		2B4B19781BA38AD90091A743 /* com_mousebird_maply_MapView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19401BA38AD90091A743 /* com_mousebird_maply_MapView.h */; };
+		2B4B19791BA38AD90091A743 /* com_mousebird_maply_MapViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19411BA38AD90091A743 /* com_mousebird_maply_MapViewState.h */; };
+		2B4B197A1BA38AD90091A743 /* com_mousebird_maply_MarkerInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19421BA38AD90091A743 /* com_mousebird_maply_MarkerInfo.h */; };
+		2B4B197B1BA38AD90091A743 /* com_mousebird_maply_MarkerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19431BA38AD90091A743 /* com_mousebird_maply_MarkerManager.h */; };
+		2B4B197C1BA38AD90091A743 /* com_mousebird_maply_Matrix4d.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19441BA38AD90091A743 /* com_mousebird_maply_Matrix4d.h */; };
+		2B4B197D1BA38AD90091A743 /* com_mousebird_maply_PlateCarreeCoordSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19451BA38AD90091A743 /* com_mousebird_maply_PlateCarreeCoordSystem.h */; };
+		2B4B197E1BA38AD90091A743 /* com_mousebird_maply_Point2d.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19461BA38AD90091A743 /* com_mousebird_maply_Point2d.h */; };
+		2B4B197F1BA38AD90091A743 /* com_mousebird_maply_Point3d.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19471BA38AD90091A743 /* com_mousebird_maply_Point3d.h */; };
+		2B4B19801BA38AD90091A743 /* com_mousebird_maply_Point4d.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19481BA38AD90091A743 /* com_mousebird_maply_Point4d.h */; };
+		2B4B19811BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_FrameLoadStatus.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19491BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_FrameLoadStatus.h */; };
+		2B4B19821BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_ImageFormat.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B194A1BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_ImageFormat.h */; };
+		2B4B19831BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_TileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B194B1BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_TileSource.h */; };
+		2B4B19841BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B194C1BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer.h */; };
+		2B4B19851BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer_LoadedTile.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B194D1BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer_LoadedTile.h */; };
+		2B4B19861BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer_PagingInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B194E1BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer_PagingInterface.h */; };
+		2B4B19871BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B194F1BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer.h */; };
+		2B4B19881BA38AD90091A743 /* com_mousebird_maply_Quaternion.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19501BA38AD90091A743 /* com_mousebird_maply_Quaternion.h */; };
+		2B4B19891BA38AD90091A743 /* com_mousebird_maply_Scene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19511BA38AD90091A743 /* com_mousebird_maply_Scene.h */; };
+		2B4B198A1BA38AD90091A743 /* com_mousebird_maply_SelectionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19521BA38AD90091A743 /* com_mousebird_maply_SelectionManager.h */; };
+		2B4B198B1BA38AD90091A743 /* com_mousebird_maply_Shader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19531BA38AD90091A743 /* com_mousebird_maply_Shader.h */; };
+		2B4B198C1BA38AD90091A743 /* com_mousebird_maply_SphericalMercatorCoordSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19541BA38AD90091A743 /* com_mousebird_maply_SphericalMercatorCoordSystem.h */; };
+		2B4B198D1BA38AD90091A743 /* com_mousebird_maply_Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19551BA38AD90091A743 /* com_mousebird_maply_Texture.h */; };
+		2B4B198E1BA38AD90091A743 /* com_mousebird_maply_VectorInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19561BA38AD90091A743 /* com_mousebird_maply_VectorInfo.h */; };
+		2B4B198F1BA38AD90091A743 /* com_mousebird_maply_VectorIterator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19571BA38AD90091A743 /* com_mousebird_maply_VectorIterator.h */; };
+		2B4B19901BA38AD90091A743 /* com_mousebird_maply_VectorManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19581BA38AD90091A743 /* com_mousebird_maply_VectorManager.h */; };
+		2B4B19911BA38AD90091A743 /* com_mousebird_maply_VectorObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19591BA38AD90091A743 /* com_mousebird_maply_VectorObject.h */; };
+		2B4B19921BA38AD90091A743 /* com_mousebird_maply_View_ViewWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B195A1BA38AD90091A743 /* com_mousebird_maply_View_ViewWatcher.h */; };
+		2B4B19931BA38AD90091A743 /* com_mousebird_maply_View.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B195B1BA38AD90091A743 /* com_mousebird_maply_View.h */; };
+		2B4B19941BA38AD90091A743 /* com_mousebird_maply_ViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B195C1BA38AD90091A743 /* com_mousebird_maply_ViewState.h */; };
+		2B4B19951BA38AD90091A743 /* FontTextureManagerAndroid.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B195D1BA38AD90091A743 /* FontTextureManagerAndroid.h */; };
+		2B4B19961BA38AD90091A743 /* ImageWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B195E1BA38AD90091A743 /* ImageWrapper.h */; };
+		2B4B19971BA38AD90091A743 /* LabelInfoAndroid.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B195F1BA38AD90091A743 /* LabelInfoAndroid.h */; };
+		2B4B19981BA38AD90091A743 /* Maply_jni.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19601BA38AD90091A743 /* Maply_jni.h */; };
+		2B4B19991BA38AD90091A743 /* Maply_utils_jni.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19611BA38AD90091A743 /* Maply_utils_jni.h */; };
+		2B4B199A1BA38AD90091A743 /* SingleLabelAndroid.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19621BA38AD90091A743 /* SingleLabelAndroid.h */; };
+		2B4B19CA1BA38AFB0091A743 /* AngleAxis_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B199B1BA38AFB0091A743 /* AngleAxis_jni.cpp */; };
+		2B4B19CB1BA38AFB0091A743 /* AttrDictionary_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B199C1BA38AFB0091A743 /* AttrDictionary_jni.cpp */; };
+		2B4B19CC1BA38AFB0091A743 /* ChangeSet_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B199D1BA38AFB0091A743 /* ChangeSet_jni.cpp */; };
+		2B4B19CD1BA38AFB0091A743 /* CoordSystem_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B199E1BA38AFB0091A743 /* CoordSystem_jni.cpp */; };
+		2B4B19CE1BA38AFB0091A743 /* CoordSystemDisplayAdapter_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B199F1BA38AFB0091A743 /* CoordSystemDisplayAdapter_jni.cpp */; };
+		2B4B19CF1BA38AFB0091A743 /* FakeGeocentricDisplayAdapter_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A01BA38AFB0091A743 /* FakeGeocentricDisplayAdapter_jni.cpp */; };
+		2B4B19D01BA38AFB0091A743 /* FontTextureManagerAndroid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A11BA38AFB0091A743 /* FontTextureManagerAndroid.cpp */; };
+		2B4B19D11BA38AFB0091A743 /* GeoCoordSystem_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A21BA38AFB0091A743 /* GeoCoordSystem_jni.cpp */; };
+		2B4B19D21BA38AFB0091A743 /* GlobeScene_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A31BA38AFB0091A743 /* GlobeScene_jni.cpp */; };
+		2B4B19D31BA38AFB0091A743 /* GlobeView_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A41BA38AFB0091A743 /* GlobeView_jni.cpp */; };
+		2B4B19D41BA38AFB0091A743 /* GlobeViewState_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A51BA38AFB0091A743 /* GlobeViewState_jni.cpp */; };
+		2B4B19D51BA38AFB0091A743 /* Identifiable_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A61BA38AFB0091A743 /* Identifiable_jni.cpp */; };
+		2B4B19D61BA38AFB0091A743 /* ImageWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A71BA38AFB0091A743 /* ImageWrapper.cpp */; };
+		2B4B19D71BA38AFB0091A743 /* InternalLabel_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A81BA38AFB0091A743 /* InternalLabel_jni.cpp */; };
+		2B4B19D81BA38AFB0091A743 /* InternalMarker_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A91BA38AFB0091A743 /* InternalMarker_jni.cpp */; };
+		2B4B19D91BA38AFB0091A743 /* LabelInfo_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19AA1BA38AFB0091A743 /* LabelInfo_jni.cpp */; };
+		2B4B19DA1BA38AFB0091A743 /* LabelInfoAndroid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19AB1BA38AFB0091A743 /* LabelInfoAndroid.cpp */; };
+		2B4B19DB1BA38AFB0091A743 /* LabelManager_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19AC1BA38AFB0091A743 /* LabelManager_jni.cpp */; };
+		2B4B19DC1BA38AFB0091A743 /* LayoutManager_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19AD1BA38AFB0091A743 /* LayoutManager_jni.cpp */; };
+		2B4B19DD1BA38AFB0091A743 /* Maply_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19AE1BA38AFB0091A743 /* Maply_jni.cpp */; };
+		2B4B19DE1BA38AFB0091A743 /* maply.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19AF1BA38AFB0091A743 /* maply.cpp */; };
+		2B4B19DF1BA38AFB0091A743 /* MaplyRenderer_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B01BA38AFB0091A743 /* MaplyRenderer_jni.cpp */; };
+		2B4B19E01BA38AFB0091A743 /* MapScene_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B11BA38AFB0091A743 /* MapScene_jni.cpp */; };
+		2B4B19E11BA38AFB0091A743 /* MapView_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B21BA38AFB0091A743 /* MapView_jni.cpp */; };
+		2B4B19E21BA38AFB0091A743 /* MapViewState_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B31BA38AFB0091A743 /* MapViewState_jni.cpp */; };
+		2B4B19E31BA38AFB0091A743 /* MarkerInfo_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B41BA38AFB0091A743 /* MarkerInfo_jni.cpp */; };
+		2B4B19E41BA38AFB0091A743 /* MarkerManager_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B51BA38AFB0091A743 /* MarkerManager_jni.cpp */; };
+		2B4B19E51BA38AFB0091A743 /* Matrix4d_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B61BA38AFB0091A743 /* Matrix4d_jni.cpp */; };
+		2B4B19E61BA38AFB0091A743 /* PlateCarreeCoordSystem_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B71BA38AFB0091A743 /* PlateCarreeCoordSystem_jni.cpp */; };
+		2B4B19E71BA38AFB0091A743 /* Point2d_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B81BA38AFB0091A743 /* Point2d_jni.cpp */; };
+		2B4B19E81BA38AFB0091A743 /* Point3d_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B91BA38AFB0091A743 /* Point3d_jni.cpp */; };
+		2B4B19E91BA38AFB0091A743 /* Point4d_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19BA1BA38AFB0091A743 /* Point4d_jni.cpp */; };
+		2B4B19EA1BA38AFB0091A743 /* QuadImageTileLayer_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19BB1BA38AFB0091A743 /* QuadImageTileLayer_jni.cpp */; };
+		2B4B19EB1BA38AFB0091A743 /* QuadPagingLayer_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19BC1BA38AFB0091A743 /* QuadPagingLayer_jni.cpp */; };
+		2B4B19EC1BA38AFB0091A743 /* Quaternion_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19BD1BA38AFB0091A743 /* Quaternion_jni.cpp */; };
+		2B4B19ED1BA38AFB0091A743 /* Scene_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19BE1BA38AFB0091A743 /* Scene_jni.cpp */; };
+		2B4B19EE1BA38AFB0091A743 /* SelectionManager_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19BF1BA38AFB0091A743 /* SelectionManager_jni.cpp */; };
+		2B4B19EF1BA38AFB0091A743 /* Shader_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C01BA38AFB0091A743 /* Shader_jni.cpp */; };
+		2B4B19F01BA38AFB0091A743 /* SingleLabelAndroid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C11BA38AFB0091A743 /* SingleLabelAndroid.cpp */; };
+		2B4B19F11BA38AFB0091A743 /* SphericalMercatorCoordSystem_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C21BA38AFB0091A743 /* SphericalMercatorCoordSystem_jni.cpp */; };
+		2B4B19F21BA38AFB0091A743 /* Texture_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C31BA38AFB0091A743 /* Texture_jni.cpp */; };
+		2B4B19F31BA38AFB0091A743 /* VectorInfo_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C41BA38AFB0091A743 /* VectorInfo_jni.cpp */; };
+		2B4B19F41BA38AFB0091A743 /* VectorIterator_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C51BA38AFB0091A743 /* VectorIterator_jni.cpp */; };
+		2B4B19F51BA38AFB0091A743 /* VectorManager_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C61BA38AFB0091A743 /* VectorManager_jni.cpp */; };
+		2B4B19F61BA38AFB0091A743 /* VectorObject_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C71BA38AFB0091A743 /* VectorObject_jni.cpp */; };
+		2B4B19F71BA38AFB0091A743 /* View_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C81BA38AFB0091A743 /* View_jni.cpp */; };
+		2B4B19F81BA38AFB0091A743 /* ViewState_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C91BA38AFB0091A743 /* ViewState_jni.cpp */; };
 		2B5F18A31A7B05B4004A8723 /* ScreenSpaceBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B5F18A11A7B05B4004A8723 /* ScreenSpaceBuilder.cpp */; };
 		2B5F18A41A7B05B4004A8723 /* ScreenSpaceDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B5F18A21A7B05B4004A8723 /* ScreenSpaceDrawable.cpp */; };
 		2B5F18A71A7B05BF004A8723 /* ScreenSpaceBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B5F18A51A7B05BF004A8723 /* ScreenSpaceBuilder.h */; };
@@ -523,6 +626,109 @@
 		2B3836AA18625C9200467ABD /* glwrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glwrapper.cpp; path = android/glwrapper.cpp; sourceTree = "<group>"; };
 		2B3AF66D13EEDDA8004A781D /* framework_info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = framework_info.plist; sourceTree = "<group>"; };
 		2B3C82791333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesimulator-Prefix.pch"; sourceTree = "<group>"; };
+		2B4B192B1BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_AngleAxis.h; path = ../Android/jni/com_mousebird_maply_AngleAxis.h; sourceTree = "<group>"; };
+		2B4B192C1BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_AttrDictionary.h; path = ../Android/jni/com_mousebird_maply_AttrDictionary.h; sourceTree = "<group>"; };
+		2B4B192D1BA38AD90091A743 /* com_mousebird_maply_ChangeSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ChangeSet.h; path = ../Android/jni/com_mousebird_maply_ChangeSet.h; sourceTree = "<group>"; };
+		2B4B192E1BA38AD90091A743 /* com_mousebird_maply_CoordSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_CoordSystem.h; path = ../Android/jni/com_mousebird_maply_CoordSystem.h; sourceTree = "<group>"; };
+		2B4B192F1BA38AD90091A743 /* com_mousebird_maply_CoordSystemDisplayAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_CoordSystemDisplayAdapter.h; path = ../Android/jni/com_mousebird_maply_CoordSystemDisplayAdapter.h; sourceTree = "<group>"; };
+		2B4B19301BA38AD90091A743 /* com_mousebird_maply_FakeGeocentricDisplayAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_FakeGeocentricDisplayAdapter.h; path = ../Android/jni/com_mousebird_maply_FakeGeocentricDisplayAdapter.h; sourceTree = "<group>"; };
+		2B4B19311BA38AD90091A743 /* com_mousebird_maply_GeoCoordSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_GeoCoordSystem.h; path = ../Android/jni/com_mousebird_maply_GeoCoordSystem.h; sourceTree = "<group>"; };
+		2B4B19321BA38AD90091A743 /* com_mousebird_maply_GlobeScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_GlobeScene.h; path = ../Android/jni/com_mousebird_maply_GlobeScene.h; sourceTree = "<group>"; };
+		2B4B19331BA38AD90091A743 /* com_mousebird_maply_GlobeView_AnimationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_GlobeView_AnimationDelegate.h; path = ../Android/jni/com_mousebird_maply_GlobeView_AnimationDelegate.h; sourceTree = "<group>"; };
+		2B4B19341BA38AD90091A743 /* com_mousebird_maply_GlobeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_GlobeView.h; path = ../Android/jni/com_mousebird_maply_GlobeView.h; sourceTree = "<group>"; };
+		2B4B19351BA38AD90091A743 /* com_mousebird_maply_GlobeViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_GlobeViewState.h; path = ../Android/jni/com_mousebird_maply_GlobeViewState.h; sourceTree = "<group>"; };
+		2B4B19361BA38AD90091A743 /* com_mousebird_maply_Identifiable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Identifiable.h; path = ../Android/jni/com_mousebird_maply_Identifiable.h; sourceTree = "<group>"; };
+		2B4B19371BA38AD90091A743 /* com_mousebird_maply_InternalLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_InternalLabel.h; path = ../Android/jni/com_mousebird_maply_InternalLabel.h; sourceTree = "<group>"; };
+		2B4B19381BA38AD90091A743 /* com_mousebird_maply_InternalMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_InternalMarker.h; path = ../Android/jni/com_mousebird_maply_InternalMarker.h; sourceTree = "<group>"; };
+		2B4B19391BA38AD90091A743 /* com_mousebird_maply_LabelInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_LabelInfo.h; path = ../Android/jni/com_mousebird_maply_LabelInfo.h; sourceTree = "<group>"; };
+		2B4B193A1BA38AD90091A743 /* com_mousebird_maply_LabelManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_LabelManager.h; path = ../Android/jni/com_mousebird_maply_LabelManager.h; sourceTree = "<group>"; };
+		2B4B193B1BA38AD90091A743 /* com_mousebird_maply_LayoutManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_LayoutManager.h; path = ../Android/jni/com_mousebird_maply_LayoutManager.h; sourceTree = "<group>"; };
+		2B4B193C1BA38AD90091A743 /* com_mousebird_maply_MaplyRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_MaplyRenderer.h; path = ../Android/jni/com_mousebird_maply_MaplyRenderer.h; sourceTree = "<group>"; };
+		2B4B193D1BA38AD90091A743 /* com_mousebird_maply_MapScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_MapScene.h; path = ../Android/jni/com_mousebird_maply_MapScene.h; sourceTree = "<group>"; };
+		2B4B193E1BA38AD90091A743 /* com_mousebird_maply_MapView_AnimationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_MapView_AnimationDelegate.h; path = ../Android/jni/com_mousebird_maply_MapView_AnimationDelegate.h; sourceTree = "<group>"; };
+		2B4B193F1BA38AD90091A743 /* com_mousebird_maply_MapView_ViewWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_MapView_ViewWatcher.h; path = ../Android/jni/com_mousebird_maply_MapView_ViewWatcher.h; sourceTree = "<group>"; };
+		2B4B19401BA38AD90091A743 /* com_mousebird_maply_MapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_MapView.h; path = ../Android/jni/com_mousebird_maply_MapView.h; sourceTree = "<group>"; };
+		2B4B19411BA38AD90091A743 /* com_mousebird_maply_MapViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_MapViewState.h; path = ../Android/jni/com_mousebird_maply_MapViewState.h; sourceTree = "<group>"; };
+		2B4B19421BA38AD90091A743 /* com_mousebird_maply_MarkerInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_MarkerInfo.h; path = ../Android/jni/com_mousebird_maply_MarkerInfo.h; sourceTree = "<group>"; };
+		2B4B19431BA38AD90091A743 /* com_mousebird_maply_MarkerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_MarkerManager.h; path = ../Android/jni/com_mousebird_maply_MarkerManager.h; sourceTree = "<group>"; };
+		2B4B19441BA38AD90091A743 /* com_mousebird_maply_Matrix4d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Matrix4d.h; path = ../Android/jni/com_mousebird_maply_Matrix4d.h; sourceTree = "<group>"; };
+		2B4B19451BA38AD90091A743 /* com_mousebird_maply_PlateCarreeCoordSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_PlateCarreeCoordSystem.h; path = ../Android/jni/com_mousebird_maply_PlateCarreeCoordSystem.h; sourceTree = "<group>"; };
+		2B4B19461BA38AD90091A743 /* com_mousebird_maply_Point2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Point2d.h; path = ../Android/jni/com_mousebird_maply_Point2d.h; sourceTree = "<group>"; };
+		2B4B19471BA38AD90091A743 /* com_mousebird_maply_Point3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Point3d.h; path = ../Android/jni/com_mousebird_maply_Point3d.h; sourceTree = "<group>"; };
+		2B4B19481BA38AD90091A743 /* com_mousebird_maply_Point4d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Point4d.h; path = ../Android/jni/com_mousebird_maply_Point4d.h; sourceTree = "<group>"; };
+		2B4B19491BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_FrameLoadStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_QuadImageTileLayer_FrameLoadStatus.h; path = ../Android/jni/com_mousebird_maply_QuadImageTileLayer_FrameLoadStatus.h; sourceTree = "<group>"; };
+		2B4B194A1BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_ImageFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_QuadImageTileLayer_ImageFormat.h; path = ../Android/jni/com_mousebird_maply_QuadImageTileLayer_ImageFormat.h; sourceTree = "<group>"; };
+		2B4B194B1BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_TileSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_QuadImageTileLayer_TileSource.h; path = ../Android/jni/com_mousebird_maply_QuadImageTileLayer_TileSource.h; sourceTree = "<group>"; };
+		2B4B194C1BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_QuadImageTileLayer.h; path = ../Android/jni/com_mousebird_maply_QuadImageTileLayer.h; sourceTree = "<group>"; };
+		2B4B194D1BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer_LoadedTile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_QuadPagingLayer_LoadedTile.h; path = ../Android/jni/com_mousebird_maply_QuadPagingLayer_LoadedTile.h; sourceTree = "<group>"; };
+		2B4B194E1BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer_PagingInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_QuadPagingLayer_PagingInterface.h; path = ../Android/jni/com_mousebird_maply_QuadPagingLayer_PagingInterface.h; sourceTree = "<group>"; };
+		2B4B194F1BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_QuadPagingLayer.h; path = ../Android/jni/com_mousebird_maply_QuadPagingLayer.h; sourceTree = "<group>"; };
+		2B4B19501BA38AD90091A743 /* com_mousebird_maply_Quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Quaternion.h; path = ../Android/jni/com_mousebird_maply_Quaternion.h; sourceTree = "<group>"; };
+		2B4B19511BA38AD90091A743 /* com_mousebird_maply_Scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Scene.h; path = ../Android/jni/com_mousebird_maply_Scene.h; sourceTree = "<group>"; };
+		2B4B19521BA38AD90091A743 /* com_mousebird_maply_SelectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_SelectionManager.h; path = ../Android/jni/com_mousebird_maply_SelectionManager.h; sourceTree = "<group>"; };
+		2B4B19531BA38AD90091A743 /* com_mousebird_maply_Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Shader.h; path = ../Android/jni/com_mousebird_maply_Shader.h; sourceTree = "<group>"; };
+		2B4B19541BA38AD90091A743 /* com_mousebird_maply_SphericalMercatorCoordSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_SphericalMercatorCoordSystem.h; path = ../Android/jni/com_mousebird_maply_SphericalMercatorCoordSystem.h; sourceTree = "<group>"; };
+		2B4B19551BA38AD90091A743 /* com_mousebird_maply_Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Texture.h; path = ../Android/jni/com_mousebird_maply_Texture.h; sourceTree = "<group>"; };
+		2B4B19561BA38AD90091A743 /* com_mousebird_maply_VectorInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_VectorInfo.h; path = ../Android/jni/com_mousebird_maply_VectorInfo.h; sourceTree = "<group>"; };
+		2B4B19571BA38AD90091A743 /* com_mousebird_maply_VectorIterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_VectorIterator.h; path = ../Android/jni/com_mousebird_maply_VectorIterator.h; sourceTree = "<group>"; };
+		2B4B19581BA38AD90091A743 /* com_mousebird_maply_VectorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_VectorManager.h; path = ../Android/jni/com_mousebird_maply_VectorManager.h; sourceTree = "<group>"; };
+		2B4B19591BA38AD90091A743 /* com_mousebird_maply_VectorObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_VectorObject.h; path = ../Android/jni/com_mousebird_maply_VectorObject.h; sourceTree = "<group>"; };
+		2B4B195A1BA38AD90091A743 /* com_mousebird_maply_View_ViewWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_View_ViewWatcher.h; path = ../Android/jni/com_mousebird_maply_View_ViewWatcher.h; sourceTree = "<group>"; };
+		2B4B195B1BA38AD90091A743 /* com_mousebird_maply_View.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_View.h; path = ../Android/jni/com_mousebird_maply_View.h; sourceTree = "<group>"; };
+		2B4B195C1BA38AD90091A743 /* com_mousebird_maply_ViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ViewState.h; path = ../Android/jni/com_mousebird_maply_ViewState.h; sourceTree = "<group>"; };
+		2B4B195D1BA38AD90091A743 /* FontTextureManagerAndroid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FontTextureManagerAndroid.h; path = ../Android/jni/FontTextureManagerAndroid.h; sourceTree = "<group>"; };
+		2B4B195E1BA38AD90091A743 /* ImageWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ImageWrapper.h; path = ../Android/jni/ImageWrapper.h; sourceTree = "<group>"; };
+		2B4B195F1BA38AD90091A743 /* LabelInfoAndroid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LabelInfoAndroid.h; path = ../Android/jni/LabelInfoAndroid.h; sourceTree = "<group>"; };
+		2B4B19601BA38AD90091A743 /* Maply_jni.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Maply_jni.h; path = ../Android/jni/Maply_jni.h; sourceTree = "<group>"; };
+		2B4B19611BA38AD90091A743 /* Maply_utils_jni.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Maply_utils_jni.h; path = ../Android/jni/Maply_utils_jni.h; sourceTree = "<group>"; };
+		2B4B19621BA38AD90091A743 /* SingleLabelAndroid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SingleLabelAndroid.h; path = ../Android/jni/SingleLabelAndroid.h; sourceTree = "<group>"; };
+		2B4B199B1BA38AFB0091A743 /* AngleAxis_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AngleAxis_jni.cpp; path = ../Android/jni/AngleAxis_jni.cpp; sourceTree = "<group>"; };
+		2B4B199C1BA38AFB0091A743 /* AttrDictionary_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AttrDictionary_jni.cpp; path = ../Android/jni/AttrDictionary_jni.cpp; sourceTree = "<group>"; };
+		2B4B199D1BA38AFB0091A743 /* ChangeSet_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChangeSet_jni.cpp; path = ../Android/jni/ChangeSet_jni.cpp; sourceTree = "<group>"; };
+		2B4B199E1BA38AFB0091A743 /* CoordSystem_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CoordSystem_jni.cpp; path = ../Android/jni/CoordSystem_jni.cpp; sourceTree = "<group>"; };
+		2B4B199F1BA38AFB0091A743 /* CoordSystemDisplayAdapter_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CoordSystemDisplayAdapter_jni.cpp; path = ../Android/jni/CoordSystemDisplayAdapter_jni.cpp; sourceTree = "<group>"; };
+		2B4B19A01BA38AFB0091A743 /* FakeGeocentricDisplayAdapter_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FakeGeocentricDisplayAdapter_jni.cpp; path = ../Android/jni/FakeGeocentricDisplayAdapter_jni.cpp; sourceTree = "<group>"; };
+		2B4B19A11BA38AFB0091A743 /* FontTextureManagerAndroid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FontTextureManagerAndroid.cpp; path = ../Android/jni/FontTextureManagerAndroid.cpp; sourceTree = "<group>"; };
+		2B4B19A21BA38AFB0091A743 /* GeoCoordSystem_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeoCoordSystem_jni.cpp; path = ../Android/jni/GeoCoordSystem_jni.cpp; sourceTree = "<group>"; };
+		2B4B19A31BA38AFB0091A743 /* GlobeScene_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlobeScene_jni.cpp; path = ../Android/jni/GlobeScene_jni.cpp; sourceTree = "<group>"; };
+		2B4B19A41BA38AFB0091A743 /* GlobeView_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlobeView_jni.cpp; path = ../Android/jni/GlobeView_jni.cpp; sourceTree = "<group>"; };
+		2B4B19A51BA38AFB0091A743 /* GlobeViewState_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlobeViewState_jni.cpp; path = ../Android/jni/GlobeViewState_jni.cpp; sourceTree = "<group>"; };
+		2B4B19A61BA38AFB0091A743 /* Identifiable_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Identifiable_jni.cpp; path = ../Android/jni/Identifiable_jni.cpp; sourceTree = "<group>"; };
+		2B4B19A71BA38AFB0091A743 /* ImageWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ImageWrapper.cpp; path = ../Android/jni/ImageWrapper.cpp; sourceTree = "<group>"; };
+		2B4B19A81BA38AFB0091A743 /* InternalLabel_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InternalLabel_jni.cpp; path = ../Android/jni/InternalLabel_jni.cpp; sourceTree = "<group>"; };
+		2B4B19A91BA38AFB0091A743 /* InternalMarker_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InternalMarker_jni.cpp; path = ../Android/jni/InternalMarker_jni.cpp; sourceTree = "<group>"; };
+		2B4B19AA1BA38AFB0091A743 /* LabelInfo_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LabelInfo_jni.cpp; path = ../Android/jni/LabelInfo_jni.cpp; sourceTree = "<group>"; };
+		2B4B19AB1BA38AFB0091A743 /* LabelInfoAndroid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LabelInfoAndroid.cpp; path = ../Android/jni/LabelInfoAndroid.cpp; sourceTree = "<group>"; };
+		2B4B19AC1BA38AFB0091A743 /* LabelManager_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LabelManager_jni.cpp; path = ../Android/jni/LabelManager_jni.cpp; sourceTree = "<group>"; };
+		2B4B19AD1BA38AFB0091A743 /* LayoutManager_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LayoutManager_jni.cpp; path = ../Android/jni/LayoutManager_jni.cpp; sourceTree = "<group>"; };
+		2B4B19AE1BA38AFB0091A743 /* Maply_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Maply_jni.cpp; path = ../Android/jni/Maply_jni.cpp; sourceTree = "<group>"; };
+		2B4B19AF1BA38AFB0091A743 /* maply.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = maply.cpp; path = ../Android/jni/maply.cpp; sourceTree = "<group>"; };
+		2B4B19B01BA38AFB0091A743 /* MaplyRenderer_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaplyRenderer_jni.cpp; path = ../Android/jni/MaplyRenderer_jni.cpp; sourceTree = "<group>"; };
+		2B4B19B11BA38AFB0091A743 /* MapScene_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapScene_jni.cpp; path = ../Android/jni/MapScene_jni.cpp; sourceTree = "<group>"; };
+		2B4B19B21BA38AFB0091A743 /* MapView_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapView_jni.cpp; path = ../Android/jni/MapView_jni.cpp; sourceTree = "<group>"; };
+		2B4B19B31BA38AFB0091A743 /* MapViewState_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapViewState_jni.cpp; path = ../Android/jni/MapViewState_jni.cpp; sourceTree = "<group>"; };
+		2B4B19B41BA38AFB0091A743 /* MarkerInfo_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MarkerInfo_jni.cpp; path = ../Android/jni/MarkerInfo_jni.cpp; sourceTree = "<group>"; };
+		2B4B19B51BA38AFB0091A743 /* MarkerManager_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MarkerManager_jni.cpp; path = ../Android/jni/MarkerManager_jni.cpp; sourceTree = "<group>"; };
+		2B4B19B61BA38AFB0091A743 /* Matrix4d_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Matrix4d_jni.cpp; path = ../Android/jni/Matrix4d_jni.cpp; sourceTree = "<group>"; };
+		2B4B19B71BA38AFB0091A743 /* PlateCarreeCoordSystem_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlateCarreeCoordSystem_jni.cpp; path = ../Android/jni/PlateCarreeCoordSystem_jni.cpp; sourceTree = "<group>"; };
+		2B4B19B81BA38AFB0091A743 /* Point2d_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Point2d_jni.cpp; path = ../Android/jni/Point2d_jni.cpp; sourceTree = "<group>"; };
+		2B4B19B91BA38AFB0091A743 /* Point3d_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Point3d_jni.cpp; path = ../Android/jni/Point3d_jni.cpp; sourceTree = "<group>"; };
+		2B4B19BA1BA38AFB0091A743 /* Point4d_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Point4d_jni.cpp; path = ../Android/jni/Point4d_jni.cpp; sourceTree = "<group>"; };
+		2B4B19BB1BA38AFB0091A743 /* QuadImageTileLayer_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadImageTileLayer_jni.cpp; path = ../Android/jni/QuadImageTileLayer_jni.cpp; sourceTree = "<group>"; };
+		2B4B19BC1BA38AFB0091A743 /* QuadPagingLayer_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadPagingLayer_jni.cpp; path = ../Android/jni/QuadPagingLayer_jni.cpp; sourceTree = "<group>"; };
+		2B4B19BD1BA38AFB0091A743 /* Quaternion_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Quaternion_jni.cpp; path = ../Android/jni/Quaternion_jni.cpp; sourceTree = "<group>"; };
+		2B4B19BE1BA38AFB0091A743 /* Scene_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Scene_jni.cpp; path = ../Android/jni/Scene_jni.cpp; sourceTree = "<group>"; };
+		2B4B19BF1BA38AFB0091A743 /* SelectionManager_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SelectionManager_jni.cpp; path = ../Android/jni/SelectionManager_jni.cpp; sourceTree = "<group>"; };
+		2B4B19C01BA38AFB0091A743 /* Shader_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Shader_jni.cpp; path = ../Android/jni/Shader_jni.cpp; sourceTree = "<group>"; };
+		2B4B19C11BA38AFB0091A743 /* SingleLabelAndroid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SingleLabelAndroid.cpp; path = ../Android/jni/SingleLabelAndroid.cpp; sourceTree = "<group>"; };
+		2B4B19C21BA38AFB0091A743 /* SphericalMercatorCoordSystem_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SphericalMercatorCoordSystem_jni.cpp; path = ../Android/jni/SphericalMercatorCoordSystem_jni.cpp; sourceTree = "<group>"; };
+		2B4B19C31BA38AFB0091A743 /* Texture_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Texture_jni.cpp; path = ../Android/jni/Texture_jni.cpp; sourceTree = "<group>"; };
+		2B4B19C41BA38AFB0091A743 /* VectorInfo_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VectorInfo_jni.cpp; path = ../Android/jni/VectorInfo_jni.cpp; sourceTree = "<group>"; };
+		2B4B19C51BA38AFB0091A743 /* VectorIterator_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VectorIterator_jni.cpp; path = ../Android/jni/VectorIterator_jni.cpp; sourceTree = "<group>"; };
+		2B4B19C61BA38AFB0091A743 /* VectorManager_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VectorManager_jni.cpp; path = ../Android/jni/VectorManager_jni.cpp; sourceTree = "<group>"; };
+		2B4B19C71BA38AFB0091A743 /* VectorObject_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VectorObject_jni.cpp; path = ../Android/jni/VectorObject_jni.cpp; sourceTree = "<group>"; };
+		2B4B19C81BA38AFB0091A743 /* View_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = View_jni.cpp; path = ../Android/jni/View_jni.cpp; sourceTree = "<group>"; };
+		2B4B19C91BA38AFB0091A743 /* ViewState_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ViewState_jni.cpp; path = ../Android/jni/ViewState_jni.cpp; sourceTree = "<group>"; };
 		2B5F18A11A7B05B4004A8723 /* ScreenSpaceBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScreenSpaceBuilder.cpp; sourceTree = "<group>"; };
 		2B5F18A21A7B05B4004A8723 /* ScreenSpaceDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScreenSpaceDrawable.cpp; sourceTree = "<group>"; };
 		2B5F18A51A7B05BF004A8723 /* ScreenSpaceBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceBuilder.h; sourceTree = "<group>"; };
@@ -793,6 +999,7 @@
 				2BA2322A17984F1A0063CC84 /* glu */,
 				2B951D8A12F09E09005003AE /* shapelib-1.3.0b2 */,
 				2B7EF37916025D3500D4079F /* proj4 */,
+				2B4B19281BA38A8C0091A743 /* jni */,
 				2BC53FA412DE217E00778431 /* include */,
 				2BC53FA512DE218300778431 /* src */,
 			);
@@ -919,6 +1126,132 @@
 				2B3C82791333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator-Prefix.pch */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		2B4B19281BA38A8C0091A743 /* jni */ = {
+			isa = PBXGroup;
+			children = (
+				2B4B19291BA38A940091A743 /* include */,
+				2B4B192A1BA38A9A0091A743 /* src */,
+			);
+			name = jni;
+			sourceTree = "<group>";
+		};
+		2B4B19291BA38A940091A743 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				2B4B192B1BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h */,
+				2B4B192C1BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h */,
+				2B4B192D1BA38AD90091A743 /* com_mousebird_maply_ChangeSet.h */,
+				2B4B192E1BA38AD90091A743 /* com_mousebird_maply_CoordSystem.h */,
+				2B4B192F1BA38AD90091A743 /* com_mousebird_maply_CoordSystemDisplayAdapter.h */,
+				2B4B19301BA38AD90091A743 /* com_mousebird_maply_FakeGeocentricDisplayAdapter.h */,
+				2B4B19311BA38AD90091A743 /* com_mousebird_maply_GeoCoordSystem.h */,
+				2B4B19321BA38AD90091A743 /* com_mousebird_maply_GlobeScene.h */,
+				2B4B19331BA38AD90091A743 /* com_mousebird_maply_GlobeView_AnimationDelegate.h */,
+				2B4B19341BA38AD90091A743 /* com_mousebird_maply_GlobeView.h */,
+				2B4B19351BA38AD90091A743 /* com_mousebird_maply_GlobeViewState.h */,
+				2B4B19361BA38AD90091A743 /* com_mousebird_maply_Identifiable.h */,
+				2B4B19371BA38AD90091A743 /* com_mousebird_maply_InternalLabel.h */,
+				2B4B19381BA38AD90091A743 /* com_mousebird_maply_InternalMarker.h */,
+				2B4B19391BA38AD90091A743 /* com_mousebird_maply_LabelInfo.h */,
+				2B4B193A1BA38AD90091A743 /* com_mousebird_maply_LabelManager.h */,
+				2B4B193B1BA38AD90091A743 /* com_mousebird_maply_LayoutManager.h */,
+				2B4B193C1BA38AD90091A743 /* com_mousebird_maply_MaplyRenderer.h */,
+				2B4B193D1BA38AD90091A743 /* com_mousebird_maply_MapScene.h */,
+				2B4B193E1BA38AD90091A743 /* com_mousebird_maply_MapView_AnimationDelegate.h */,
+				2B4B193F1BA38AD90091A743 /* com_mousebird_maply_MapView_ViewWatcher.h */,
+				2B4B19401BA38AD90091A743 /* com_mousebird_maply_MapView.h */,
+				2B4B19411BA38AD90091A743 /* com_mousebird_maply_MapViewState.h */,
+				2B4B19421BA38AD90091A743 /* com_mousebird_maply_MarkerInfo.h */,
+				2B4B19431BA38AD90091A743 /* com_mousebird_maply_MarkerManager.h */,
+				2B4B19441BA38AD90091A743 /* com_mousebird_maply_Matrix4d.h */,
+				2B4B19451BA38AD90091A743 /* com_mousebird_maply_PlateCarreeCoordSystem.h */,
+				2B4B19461BA38AD90091A743 /* com_mousebird_maply_Point2d.h */,
+				2B4B19471BA38AD90091A743 /* com_mousebird_maply_Point3d.h */,
+				2B4B19481BA38AD90091A743 /* com_mousebird_maply_Point4d.h */,
+				2B4B19491BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_FrameLoadStatus.h */,
+				2B4B194A1BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_ImageFormat.h */,
+				2B4B194B1BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_TileSource.h */,
+				2B4B194C1BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer.h */,
+				2B4B194D1BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer_LoadedTile.h */,
+				2B4B194E1BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer_PagingInterface.h */,
+				2B4B194F1BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer.h */,
+				2B4B19501BA38AD90091A743 /* com_mousebird_maply_Quaternion.h */,
+				2B4B19511BA38AD90091A743 /* com_mousebird_maply_Scene.h */,
+				2B4B19521BA38AD90091A743 /* com_mousebird_maply_SelectionManager.h */,
+				2B4B19531BA38AD90091A743 /* com_mousebird_maply_Shader.h */,
+				2B4B19541BA38AD90091A743 /* com_mousebird_maply_SphericalMercatorCoordSystem.h */,
+				2B4B19551BA38AD90091A743 /* com_mousebird_maply_Texture.h */,
+				2B4B19561BA38AD90091A743 /* com_mousebird_maply_VectorInfo.h */,
+				2B4B19571BA38AD90091A743 /* com_mousebird_maply_VectorIterator.h */,
+				2B4B19581BA38AD90091A743 /* com_mousebird_maply_VectorManager.h */,
+				2B4B19591BA38AD90091A743 /* com_mousebird_maply_VectorObject.h */,
+				2B4B195A1BA38AD90091A743 /* com_mousebird_maply_View_ViewWatcher.h */,
+				2B4B195B1BA38AD90091A743 /* com_mousebird_maply_View.h */,
+				2B4B195C1BA38AD90091A743 /* com_mousebird_maply_ViewState.h */,
+				2B4B195D1BA38AD90091A743 /* FontTextureManagerAndroid.h */,
+				2B4B195E1BA38AD90091A743 /* ImageWrapper.h */,
+				2B4B195F1BA38AD90091A743 /* LabelInfoAndroid.h */,
+				2B4B19601BA38AD90091A743 /* Maply_jni.h */,
+				2B4B19611BA38AD90091A743 /* Maply_utils_jni.h */,
+				2B4B19621BA38AD90091A743 /* SingleLabelAndroid.h */,
+			);
+			name = include;
+			sourceTree = "<group>";
+		};
+		2B4B192A1BA38A9A0091A743 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				2B4B199B1BA38AFB0091A743 /* AngleAxis_jni.cpp */,
+				2B4B199C1BA38AFB0091A743 /* AttrDictionary_jni.cpp */,
+				2B4B199D1BA38AFB0091A743 /* ChangeSet_jni.cpp */,
+				2B4B199E1BA38AFB0091A743 /* CoordSystem_jni.cpp */,
+				2B4B199F1BA38AFB0091A743 /* CoordSystemDisplayAdapter_jni.cpp */,
+				2B4B19A01BA38AFB0091A743 /* FakeGeocentricDisplayAdapter_jni.cpp */,
+				2B4B19A11BA38AFB0091A743 /* FontTextureManagerAndroid.cpp */,
+				2B4B19A21BA38AFB0091A743 /* GeoCoordSystem_jni.cpp */,
+				2B4B19A31BA38AFB0091A743 /* GlobeScene_jni.cpp */,
+				2B4B19A41BA38AFB0091A743 /* GlobeView_jni.cpp */,
+				2B4B19A51BA38AFB0091A743 /* GlobeViewState_jni.cpp */,
+				2B4B19A61BA38AFB0091A743 /* Identifiable_jni.cpp */,
+				2B4B19A71BA38AFB0091A743 /* ImageWrapper.cpp */,
+				2B4B19A81BA38AFB0091A743 /* InternalLabel_jni.cpp */,
+				2B4B19A91BA38AFB0091A743 /* InternalMarker_jni.cpp */,
+				2B4B19AA1BA38AFB0091A743 /* LabelInfo_jni.cpp */,
+				2B4B19AB1BA38AFB0091A743 /* LabelInfoAndroid.cpp */,
+				2B4B19AC1BA38AFB0091A743 /* LabelManager_jni.cpp */,
+				2B4B19AD1BA38AFB0091A743 /* LayoutManager_jni.cpp */,
+				2B4B19AE1BA38AFB0091A743 /* Maply_jni.cpp */,
+				2B4B19AF1BA38AFB0091A743 /* maply.cpp */,
+				2B4B19B01BA38AFB0091A743 /* MaplyRenderer_jni.cpp */,
+				2B4B19B11BA38AFB0091A743 /* MapScene_jni.cpp */,
+				2B4B19B21BA38AFB0091A743 /* MapView_jni.cpp */,
+				2B4B19B31BA38AFB0091A743 /* MapViewState_jni.cpp */,
+				2B4B19B41BA38AFB0091A743 /* MarkerInfo_jni.cpp */,
+				2B4B19B51BA38AFB0091A743 /* MarkerManager_jni.cpp */,
+				2B4B19B61BA38AFB0091A743 /* Matrix4d_jni.cpp */,
+				2B4B19B71BA38AFB0091A743 /* PlateCarreeCoordSystem_jni.cpp */,
+				2B4B19B81BA38AFB0091A743 /* Point2d_jni.cpp */,
+				2B4B19B91BA38AFB0091A743 /* Point3d_jni.cpp */,
+				2B4B19BA1BA38AFB0091A743 /* Point4d_jni.cpp */,
+				2B4B19BB1BA38AFB0091A743 /* QuadImageTileLayer_jni.cpp */,
+				2B4B19BC1BA38AFB0091A743 /* QuadPagingLayer_jni.cpp */,
+				2B4B19BD1BA38AFB0091A743 /* Quaternion_jni.cpp */,
+				2B4B19BE1BA38AFB0091A743 /* Scene_jni.cpp */,
+				2B4B19BF1BA38AFB0091A743 /* SelectionManager_jni.cpp */,
+				2B4B19C01BA38AFB0091A743 /* Shader_jni.cpp */,
+				2B4B19C11BA38AFB0091A743 /* SingleLabelAndroid.cpp */,
+				2B4B19C21BA38AFB0091A743 /* SphericalMercatorCoordSystem_jni.cpp */,
+				2B4B19C31BA38AFB0091A743 /* Texture_jni.cpp */,
+				2B4B19C41BA38AFB0091A743 /* VectorInfo_jni.cpp */,
+				2B4B19C51BA38AFB0091A743 /* VectorIterator_jni.cpp */,
+				2B4B19C61BA38AFB0091A743 /* VectorManager_jni.cpp */,
+				2B4B19C71BA38AFB0091A743 /* VectorObject_jni.cpp */,
+				2B4B19C81BA38AFB0091A743 /* View_jni.cpp */,
+				2B4B19C91BA38AFB0091A743 /* ViewState_jni.cpp */,
+			);
+			name = src;
 			sourceTree = "<group>";
 		};
 		2B7EF37916025D3500D4079F /* proj4 */ = {
@@ -1350,58 +1683,90 @@
 			buildActionMask = 2147483647;
 			files = (
 				2B3567E518D762BF00EF8DB1 /* GlobeMath.h in Headers */,
+				2B4B19671BA38AD90091A743 /* com_mousebird_maply_CoordSystemDisplayAdapter.h in Headers */,
 				2B3567DD18D762BF00EF8DB1 /* Cullable.h in Headers */,
 				2B3836A9186244DC00467ABD /* glwrapper.h in Headers */,
 				2B3A0D41133405700085EF43 /* shapefil.h in Headers */,
 				2B7EF42D16025D8C00D4079F /* emess.h in Headers */,
 				2B35683F18D762BF00EF8DB1 /* WhirlyVector.h in Headers */,
 				2B35683B18D762BF00EF8DB1 /* ViewState.h in Headers */,
+				2B4B199A1BA38AD90091A743 /* SingleLabelAndroid.h in Headers */,
+				2B4B19881BA38AD90091A743 /* com_mousebird_maply_Quaternion.h in Headers */,
+				2B4B196D1BA38AD90091A743 /* com_mousebird_maply_GlobeViewState.h in Headers */,
 				2B35682F18D762BF00EF8DB1 /* ScreenSpaceGenerator.h in Headers */,
 				2B009D0E186102E4001E2EE8 /* JSONWorker.h in Headers */,
 				2B7EF43016025D8C00D4079F /* geocent.h in Headers */,
 				2B7EF43516025D8C00D4079F /* geodesic.h in Headers */,
+				2B4B19741BA38AD90091A743 /* com_mousebird_maply_MaplyRenderer.h in Headers */,
 				2B35682618D762BF00EF8DB1 /* PerformanceTimer.h in Headers */,
 				2B35683518D762BF00EF8DB1 /* Texture.h in Headers */,
 				2B009D0A186102E4001E2EE8 /* JSONStream.h in Headers */,
+				2B4B19761BA38AD90091A743 /* com_mousebird_maply_MapView_AnimationDelegate.h in Headers */,
 				2B35683A18D762BF00EF8DB1 /* VectorObject.h in Headers */,
+				2B4B19931BA38AD90091A743 /* com_mousebird_maply_View.h in Headers */,
+				2B4B19851BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer_LoadedTile.h in Headers */,
+				2B4B19681BA38AD90091A743 /* com_mousebird_maply_FakeGeocentricDisplayAdapter.h in Headers */,
+				2B4B19711BA38AD90091A743 /* com_mousebird_maply_LabelInfo.h in Headers */,
+				2B4B197A1BA38AD90091A743 /* com_mousebird_maply_MarkerInfo.h in Headers */,
 				2B3567E618D762BF00EF8DB1 /* GlobeScene.h in Headers */,
 				2B35683918D762BF00EF8DB1 /* VectorManager.h in Headers */,
 				2B3567E118D762BF00EF8DB1 /* DynamicDrawableAtlas.h in Headers */,
 				2B7EF43D16025D8C00D4079F /* org_proj4_Projections.h in Headers */,
+				2B4B197E1BA38AD90091A743 /* com_mousebird_maply_Point2d.h in Headers */,
 				2B7EF48216025D8C00D4079F /* pj_list.h in Headers */,
 				2B7EF4C316025D8C00D4079F /* proj_api.h in Headers */,
 				2B7EF4C816025D8C00D4079F /* projects.h in Headers */,
 				2B3567E218D762BF00EF8DB1 /* DynamicTextureAtlas.h in Headers */,
 				2B009CED186102E4001E2EE8 /* mempool.h in Headers */,
 				2B35683818D762BF00EF8DB1 /* VectorData.h in Headers */,
+				2B4B19791BA38AD90091A743 /* com_mousebird_maply_MapViewState.h in Headers */,
 				2B009CF8186102E4001E2EE8 /* Strings_Defs.h in Headers */,
+				2B4B19871BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer.h in Headers */,
+				2B4B196B1BA38AD90091A743 /* com_mousebird_maply_GlobeView_AnimationDelegate.h in Headers */,
 				2BA2325617984F510063CC84 /* glues.h in Headers */,
+				2B4B19751BA38AD90091A743 /* com_mousebird_maply_MapScene.h in Headers */,
+				2B4B197C1BA38AD90091A743 /* com_mousebird_maply_Matrix4d.h in Headers */,
 				2B35683E18D762BF00EF8DB1 /* WhirlyTypes.h in Headers */,
+				2B4B19691BA38AD90091A743 /* com_mousebird_maply_GeoCoordSystem.h in Headers */,
 				2B009CF2186102E4001E2EE8 /* JSONAllocator.h in Headers */,
 				2BDC89CB191C2ADE00DFECF0 /* SceneRendererES3.h in Headers */,
 				2B35682418D762BF00EF8DB1 /* MarkerManager.h in Headers */,
 				2BDC8A6E192C08F600DFECF0 /* LabelManager.h in Headers */,
 				2B009D05186102E4001E2EE8 /* JSONPreparse.h in Headers */,
 				2B3567ED18D762BF00EF8DB1 /* LoadedTile.h in Headers */,
+				2B4B196F1BA38AD90091A743 /* com_mousebird_maply_InternalLabel.h in Headers */,
 				2BA2325817984F510063CC84 /* glues_error.h in Headers */,
 				2B35682C18D762BF00EF8DB1 /* SceneRendererES.h in Headers */,
+				2B4B19921BA38AD90091A743 /* com_mousebird_maply_View_ViewWatcher.h in Headers */,
 				2BA2325A17984F510063CC84 /* glues_mipmap.h in Headers */,
+				2B4B19841BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer.h in Headers */,
 				2B35683C18D762BF00EF8DB1 /* WhirlyGeometry.h in Headers */,
 				2B009CFC186102E4001E2EE8 /* JSONGlobals.h in Headers */,
 				2B35682218D762BF00EF8DB1 /* MaplyViewState.h in Headers */,
 				2B35682018D762BF00EF8DB1 /* MaplyScene.h in Headers */,
+				2B4B19951BA38AD90091A743 /* FontTextureManagerAndroid.h in Headers */,
 				2B3567DF18D762BF00EF8DB1 /* Dictionary.h in Headers */,
+				2B4B19941BA38AD90091A743 /* com_mousebird_maply_ViewState.h in Headers */,
+				2B4B19661BA38AD90091A743 /* com_mousebird_maply_CoordSystem.h in Headers */,
 				2B35683018D762BF00EF8DB1 /* SelectionManager.h in Headers */,
+				2B4B196A1BA38AD90091A743 /* com_mousebird_maply_GlobeScene.h in Headers */,
 				2BA2325C17984F510063CC84 /* glues_project.h in Headers */,
 				2B009D07186102E4001E2EE8 /* JSONSingleton.h in Headers */,
+				2B4B197F1BA38AD90091A743 /* com_mousebird_maply_Point3d.h in Headers */,
+				2B4B197B1BA38AD90091A743 /* com_mousebird_maply_MarkerManager.h in Headers */,
 				2B14BFC51B83F3F500CE29A4 /* BasicDrawable.h in Headers */,
+				2B4B198C1BA38AD90091A743 /* com_mousebird_maply_SphericalMercatorCoordSystem.h in Headers */,
 				2BA2325E17984F510063CC84 /* glues_quad.h in Headers */,
+				2B4B19821BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_ImageFormat.h in Headers */,
+				2B4B19771BA38AD90091A743 /* com_mousebird_maply_MapView_ViewWatcher.h in Headers */,
 				2B3567E418D762BF00EF8DB1 /* Generator.h in Headers */,
 				2B009D02186102E4001E2EE8 /* JSONNode.h in Headers */,
 				2BA2326017984F510063CC84 /* glues_registry.h in Headers */,
 				2B14BFD51B852C5100CE29A4 /* BasicDrawableInstance.h in Headers */,
 				2B35683318D762BF00EF8DB1 /* SphericalMercator.h in Headers */,
+				2B4B198D1BA38AD90091A743 /* com_mousebird_maply_Texture.h in Headers */,
 				2B3567E718D762BF00EF8DB1 /* GlobeView.h in Headers */,
+				2B4B198A1BA38AD90091A743 /* com_mousebird_maply_SelectionManager.h in Headers */,
 				2B3567E018D762BF00EF8DB1 /* Drawable.h in Headers */,
 				2BA2326217984F510063CC84 /* dict-list.h in Headers */,
 				2B009D181861093A001E2EE8 /* clipper.hpp in Headers */,
@@ -1411,22 +1776,36 @@
 				2B009CF6186102E4001E2EE8 /* JSONDebug.h in Headers */,
 				2B009D06186102E4001E2EE8 /* JSONSharedString.h in Headers */,
 				2BA2326417984F510063CC84 /* dict.h in Headers */,
+				2B4B19981BA38AD90091A743 /* Maply_jni.h in Headers */,
+				2B4B19631BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h in Headers */,
+				2B4B198F1BA38AD90091A743 /* com_mousebird_maply_VectorIterator.h in Headers */,
 				2B35682518D762BF00EF8DB1 /* OpenGLES2Program.h in Headers */,
+				2B4B19651BA38AD90091A743 /* com_mousebird_maply_ChangeSet.h in Headers */,
+				2B4B198E1BA38AD90091A743 /* com_mousebird_maply_VectorInfo.h in Headers */,
 				2B5F18A71A7B05BF004A8723 /* ScreenSpaceBuilder.h in Headers */,
 				2B3567E818D762BF00EF8DB1 /* GlobeViewState.h in Headers */,
+				2B4B19831BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_TileSource.h in Headers */,
 				2B35682B18D762BF00EF8DB1 /* Scene.h in Headers */,
 				2BA2326617984F510063CC84 /* geom.h in Headers */,
 				2BA2326817984F510063CC84 /* memalloc.h in Headers */,
 				2B3567EC18D762BF00EF8DB1 /* LayoutManager.h in Headers */,
+				2B4B19721BA38AD90091A743 /* com_mousebird_maply_LabelManager.h in Headers */,
 				2BA2326A17984F510063CC84 /* mesh.h in Headers */,
 				2B35683718D762BF00EF8DB1 /* TileQuadLoader.h in Headers */,
+				2B4B19731BA38AD90091A743 /* com_mousebird_maply_LayoutManager.h in Headers */,
 				2B009D08186102E4001E2EE8 /* JSONStats.h in Headers */,
+				2B4B19961BA38AD90091A743 /* ImageWrapper.h in Headers */,
 				2B35682A18D762BF00EF8DB1 /* RawData.h in Headers */,
 				2B009D00186102E4001E2EE8 /* JSONMemoryPool.h in Headers */,
+				2B4B19971BA38AD90091A743 /* LabelInfoAndroid.h in Headers */,
+				2B4B197D1BA38AD90091A743 /* com_mousebird_maply_PlateCarreeCoordSystem.h in Headers */,
+				2B4B19891BA38AD90091A743 /* com_mousebird_maply_Scene.h in Headers */,
 				2B5F18A81A7B05BF004A8723 /* ScreenSpaceDrawable.h in Headers */,
 				2B009D11186102E4001E2EE8 /* NumberToString.h in Headers */,
+				2B4B19801BA38AD90091A743 /* com_mousebird_maply_Point4d.h in Headers */,
 				2B009D12186102E4001E2EE8 /* JSONOptions.h in Headers */,
 				2B009CF7186102E4001E2EE8 /* GNU_C.h in Headers */,
+				2B4B19781BA38AD90091A743 /* com_mousebird_maply_MapView.h in Headers */,
 				2B35683418D762BF00EF8DB1 /* Tesselator.h in Headers */,
 				2B009CEF186102E4001E2EE8 /* internalJSONNode.h in Headers */,
 				2B009CFA186102E4001E2EE8 /* Visual_C.h in Headers */,
@@ -1434,17 +1813,22 @@
 				2B35682918D762BF00EF8DB1 /* Quadtree.h in Headers */,
 				2BA2326C17984F510063CC84 /* normal.h in Headers */,
 				2B3567E918D762BF00EF8DB1 /* GLUtils.h in Headers */,
+				2B4B19991BA38AD90091A743 /* Maply_utils_jni.h in Headers */,
 				2B35682718D762BF00EF8DB1 /* Platform.h in Headers */,
 				2BA2326D17984F510063CC84 /* priorityq-heap.h in Headers */,
 				2B009CF9186102E4001E2EE8 /* Unknown_C.h in Headers */,
 				2BA2326F17984F510063CC84 /* priorityq-sort.h in Headers */,
 				2BA2327117984F510063CC84 /* priorityq.h in Headers */,
 				2B009C98185FA2CD001E2EE8 /* WhirlyGlobe.h in Headers */,
+				2B4B19861BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer_PagingInterface.h in Headers */,
+				2B4B19901BA38AD90091A743 /* com_mousebird_maply_VectorManager.h in Headers */,
 				2B009CF0186102E4001E2EE8 /* JSON_Base64.h in Headers */,
 				2B35683218D762BF00EF8DB1 /* SharedAttributes.h in Headers */,
 				2B3567DE18D762BF00EF8DB1 /* DefaultShaderPrograms.h in Headers */,
 				2BA2327317984F510063CC84 /* render.h in Headers */,
 				2B009CEC186102E4001E2EE8 /* libbase64++.h in Headers */,
+				2B4B19641BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h in Headers */,
+				2B4B198B1BA38AD90091A743 /* com_mousebird_maply_Shader.h in Headers */,
 				2B35683618D762BF00EF8DB1 /* TextureAtlas.h in Headers */,
 				2B35682818D762BF00EF8DB1 /* QuadDisplayController.h in Headers */,
 				2B009D13186102E4001E2EE8 /* libjson.h in Headers */,
@@ -1453,18 +1837,23 @@
 				2BA2327717984F510063CC84 /* tess.h in Headers */,
 				2BA2327917984F510063CC84 /* tessmono.h in Headers */,
 				2B3567EA18D762BF00EF8DB1 /* GridClipper.h in Headers */,
+				2B4B19701BA38AD90091A743 /* com_mousebird_maply_InternalMarker.h in Headers */,
 				2B009CF4186102E4001E2EE8 /* JSONChildren.h in Headers */,
 				2B35683118D762BF00EF8DB1 /* ShapeReader.h in Headers */,
 				2B14BFCD1B83FD4500CE29A4 /* BaseInfo.h in Headers */,
+				2B4B196C1BA38AD90091A743 /* com_mousebird_maply_GlobeView.h in Headers */,
 				2B35682E18D762BF00EF8DB1 /* ScreenImportance.h in Headers */,
 				2B009CFB186102E4001E2EE8 /* JSONDefs.h in Headers */,
+				2B4B19811BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_FrameLoadStatus.h in Headers */,
 				2BDC8A6F192C08F600DFECF0 /* LabelRenderer.h in Headers */,
 				2BA2327B179859F30063CC84 /* SDL_opengles.h in Headers */,
 				2B3567EB18D762BF00EF8DB1 /* Identifiable.h in Headers */,
 				2B009D0C186102E4001E2EE8 /* JSONValidator.h in Headers */,
 				2BDC8A60192A9E1700DFECF0 /* FontTextureManager.h in Headers */,
+				2B4B19911BA38AD90091A743 /* com_mousebird_maply_VectorObject.h in Headers */,
 				2B009CFF186102E4001E2EE8 /* JSONMemory.h in Headers */,
 				2B3567DB18D762BF00EF8DB1 /* BigDrawable.h in Headers */,
+				2B4B196E1BA38AD90091A743 /* com_mousebird_maply_Identifiable.h in Headers */,
 				2B35683D18D762BF00EF8DB1 /* WhirlyKitView.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1528,7 +1917,9 @@
 				2B35675718D762A700EF8DB1 /* MaplyScene.cpp in Sources */,
 				2B35676818D762A700EF8DB1 /* ShapeReader.cpp in Sources */,
 				2BDC4AC4133404C600E25283 /* shpopen.c in Sources */,
+				2B4B19D81BA38AFB0091A743 /* InternalMarker_jni.cpp in Sources */,
 				2B7EF42516025D8C00D4079F /* aasincos.c in Sources */,
+				2B4B19D91BA38AFB0091A743 /* LabelInfo_jni.cpp in Sources */,
 				2B7EF42616025D8C00D4079F /* adjlon.c in Sources */,
 				2B7EF42716025D8C00D4079F /* bch2bps.c in Sources */,
 				2B009D0B186102E4001E2EE8 /* JSONValidator.cpp in Sources */,
@@ -1542,6 +1933,7 @@
 				2B7EF42F16025D8C00D4079F /* geocent.c in Sources */,
 				2B35675D18D762A700EF8DB1 /* PerformanceTimer.cpp in Sources */,
 				2B7EF43116025D8C00D4079F /* geod_for.c in Sources */,
+				2B4B19EF1BA38AFB0091A743 /* Shader_jni.cpp in Sources */,
 				2B7EF43216025D8C00D4079F /* geod_inv.c in Sources */,
 				2B14BFD71B852C5E00CE29A4 /* BasicDrawableInstance.cpp in Sources */,
 				2B7EF43316025D8C00D4079F /* geod_set.c in Sources */,
@@ -1549,6 +1941,7 @@
 				2B7EF43916025D8C00D4079F /* nad_cvt.c in Sources */,
 				2B7EF43A16025D8C00D4079F /* nad_init.c in Sources */,
 				2B7EF43B16025D8C00D4079F /* nad_intr.c in Sources */,
+				2B4B19D61BA38AFB0091A743 /* ImageWrapper.cpp in Sources */,
 				2B35674918D762A700EF8DB1 /* DynamicDrawableAtlas.cpp in Sources */,
 				2B7EF43F16025D8C00D4079F /* PJ_aea.c in Sources */,
 				2B7EF44016025D8C00D4079F /* PJ_aeqd.c in Sources */,
@@ -1563,6 +1956,7 @@
 				2B009D171861093A001E2EE8 /* clipper.cpp in Sources */,
 				2B14BFCF1B83FE1A00CE29A4 /* BaseInfo.cpp in Sources */,
 				2B7EF44816025D8C00D4079F /* PJ_bipc.c in Sources */,
+				2B4B19DA1BA38AFB0091A743 /* LabelInfoAndroid.cpp in Sources */,
 				2B35677118D762A700EF8DB1 /* ViewState.cpp in Sources */,
 				2B7EF44916025D8C00D4079F /* PJ_boggs.c in Sources */,
 				2B7EF44A16025D8C00D4079F /* PJ_bonne.c in Sources */,
@@ -1571,9 +1965,12 @@
 				2B35677318D762A700EF8DB1 /* WhirlyKitView.cpp in Sources */,
 				2B7EF44D16025D8C00D4079F /* PJ_cea.c in Sources */,
 				2B7EF44E16025D8C00D4079F /* PJ_chamb.c in Sources */,
+				2B4B19E21BA38AFB0091A743 /* MapViewState_jni.cpp in Sources */,
 				2B7EF44F16025D8C00D4079F /* PJ_collg.c in Sources */,
+				2B4B19D31BA38AFB0091A743 /* GlobeView_jni.cpp in Sources */,
 				2B7EF45016025D8C00D4079F /* PJ_crast.c in Sources */,
 				2B7EF45116025D8C00D4079F /* pj_ctx.c in Sources */,
+				2B4B19F11BA38AFB0091A743 /* SphericalMercatorCoordSystem_jni.cpp in Sources */,
 				2B35676F18D762A700EF8DB1 /* VectorManager.cpp in Sources */,
 				2B35677418D762A700EF8DB1 /* WhirlyVector.cpp in Sources */,
 				2B7EF45216025D8C00D4079F /* pj_datum_set.c in Sources */,
@@ -1587,6 +1984,8 @@
 				2B009CF1186102E4001E2EE8 /* JSONAllocator.cpp in Sources */,
 				2B7EF45816025D8C00D4079F /* PJ_eck3.c in Sources */,
 				2B7EF45916025D8C00D4079F /* PJ_eck4.c in Sources */,
+				2B4B19D71BA38AFB0091A743 /* InternalLabel_jni.cpp in Sources */,
+				2B4B19DD1BA38AFB0091A743 /* Maply_jni.cpp in Sources */,
 				2B7EF45A16025D8C00D4079F /* PJ_eck5.c in Sources */,
 				2B7EF45B16025D8C00D4079F /* pj_ell_set.c in Sources */,
 				2B35675F18D762A700EF8DB1 /* QuadDisplayController.cpp in Sources */,
@@ -1607,9 +2006,15 @@
 				2B7EF46516025D8C00D4079F /* pj_gauss.c in Sources */,
 				2B35676718D762A700EF8DB1 /* SelectionManager.cpp in Sources */,
 				2B35674F18D762A700EF8DB1 /* GlobeView.cpp in Sources */,
+				2B4B19E41BA38AFB0091A743 /* MarkerManager_jni.cpp in Sources */,
 				2B7EF46616025D8C00D4079F /* pj_geocent.c in Sources */,
+				2B4B19CD1BA38AFB0091A743 /* CoordSystem_jni.cpp in Sources */,
+				2B4B19E71BA38AFB0091A743 /* Point2d_jni.cpp in Sources */,
+				2B4B19CA1BA38AFB0091A743 /* AngleAxis_jni.cpp in Sources */,
 				2B35675C18D762A700EF8DB1 /* OpenGLES2Program.cpp in Sources */,
+				2B4B19CB1BA38AFB0091A743 /* AttrDictionary_jni.cpp in Sources */,
 				2B7EF46716025D8C00D4079F /* PJ_geos.c in Sources */,
+				2B4B19EC1BA38AFB0091A743 /* Quaternion_jni.cpp in Sources */,
 				2B7EF46816025D8C00D4079F /* PJ_gins8.c in Sources */,
 				2B35674B18D762A700EF8DB1 /* FlatMath.cpp in Sources */,
 				2B7EF46916025D8C00D4079F /* PJ_gn_sinu.c in Sources */,
@@ -1625,11 +2030,14 @@
 				2B7EF47016025D8C00D4079F /* PJ_hatano.c in Sources */,
 				2B35676B18D762A700EF8DB1 /* Texture.cpp in Sources */,
 				2B35675518D762A700EF8DB1 /* LoadedTile.cpp in Sources */,
+				2B4B19D51BA38AFB0091A743 /* Identifiable_jni.cpp in Sources */,
 				2B7EF47116025D8C00D4079F /* PJ_healpix.c in Sources */,
+				2B4B19E81BA38AFB0091A743 /* Point3d_jni.cpp in Sources */,
 				2B35675B18D762A700EF8DB1 /* MarkerManager.cpp in Sources */,
 				2B7EF47216025D8C00D4079F /* PJ_igh.c in Sources */,
 				2B7EF47316025D8C00D4079F /* PJ_imw_p.c in Sources */,
 				2B35674C18D762A700EF8DB1 /* Generator.cpp in Sources */,
+				2B4B19F01BA38AFB0091A743 /* SingleLabelAndroid.cpp in Sources */,
 				2BDC8A62192A9E3800DFECF0 /* FontTextureManager.cpp in Sources */,
 				2B7EF47416025D8C00D4079F /* pj_init.c in Sources */,
 				2B7EF47516025D8C00D4079F /* pj_initcache.c in Sources */,
@@ -1638,6 +2046,7 @@
 				2B7EF47816025D8C00D4079F /* PJ_krovak.c in Sources */,
 				2B7EF47916025D8C00D4079F /* PJ_labrd.c in Sources */,
 				2B7EF47A16025D8C00D4079F /* PJ_laea.c in Sources */,
+				2B4B19D21BA38AFB0091A743 /* GlobeScene_jni.cpp in Sources */,
 				2B7EF47B16025D8C00D4079F /* PJ_lagrng.c in Sources */,
 				2B7EF47C16025D8C00D4079F /* PJ_larr.c in Sources */,
 				2B7EF47D16025D8C00D4079F /* PJ_lask.c in Sources */,
@@ -1645,6 +2054,7 @@
 				2B7EF47F16025D8C00D4079F /* PJ_lcc.c in Sources */,
 				2B7EF48016025D8C00D4079F /* PJ_lcca.c in Sources */,
 				2B7EF48116025D8C00D4079F /* pj_list.c in Sources */,
+				2B4B19DC1BA38AFB0091A743 /* LayoutManager_jni.cpp in Sources */,
 				2B7EF48316025D8C00D4079F /* pj_log.c in Sources */,
 				2B7EF48416025D8C00D4079F /* PJ_loxim.c in Sources */,
 				2B35674718D762A700EF8DB1 /* Dictionary.cpp in Sources */,
@@ -1653,29 +2063,38 @@
 				2B35675118D762A700EF8DB1 /* GLUtils.cpp in Sources */,
 				2B7EF48716025D8C00D4079F /* PJ_mbt_fps.c in Sources */,
 				2B7EF48816025D8C00D4079F /* PJ_mbtfpp.c in Sources */,
+				2B4B19F71BA38AFB0091A743 /* View_jni.cpp in Sources */,
 				2B7EF48916025D8C00D4079F /* PJ_mbtfpq.c in Sources */,
 				2B3836AB18625C9200467ABD /* glwrapper.cpp in Sources */,
+				2B4B19DB1BA38AFB0091A743 /* LabelManager_jni.cpp in Sources */,
 				2B7EF48A16025D8C00D4079F /* PJ_merc.c in Sources */,
 				2B35675318D762A700EF8DB1 /* Identifiable.cpp in Sources */,
 				2B7EF48B16025D8C00D4079F /* PJ_mill.c in Sources */,
 				2B7EF48C16025D8C00D4079F /* pj_mlfn.c in Sources */,
 				2B7EF48D16025D8C00D4079F /* PJ_mod_ster.c in Sources */,
+				2B4B19DF1BA38AFB0091A743 /* MaplyRenderer_jni.cpp in Sources */,
 				2B7EF48E16025D8C00D4079F /* PJ_moll.c in Sources */,
 				2B7EF48F16025D8C00D4079F /* pj_msfn.c in Sources */,
+				2B4B19CE1BA38AFB0091A743 /* CoordSystemDisplayAdapter_jni.cpp in Sources */,
 				2B35675018D762A700EF8DB1 /* GlobeViewState.cpp in Sources */,
+				2B4B19DE1BA38AFB0091A743 /* maply.cpp in Sources */,
 				2B7EF49016025D8C00D4079F /* pj_mutex.c in Sources */,
 				2B7EF49116025D8C00D4079F /* PJ_natearth.c in Sources */,
 				2B7EF49216025D8C00D4079F /* PJ_nell_h.c in Sources */,
 				2B7EF49316025D8C00D4079F /* PJ_nell.c in Sources */,
+				2B4B19CC1BA38AFB0091A743 /* ChangeSet_jni.cpp in Sources */,
 				2B35676518D762A700EF8DB1 /* ScreenImportance.cpp in Sources */,
 				2B7EF49416025D8C00D4079F /* PJ_nocol.c in Sources */,
 				2B14BFC71B83F3FF00CE29A4 /* BasicDrawable.cpp in Sources */,
 				2B7EF49516025D8C00D4079F /* PJ_nsper.c in Sources */,
 				2B7EF49616025D8C00D4079F /* PJ_nzmg.c in Sources */,
+				2B4B19F51BA38AFB0091A743 /* VectorManager_jni.cpp in Sources */,
 				2B7EF49716025D8C00D4079F /* PJ_ob_tran.c in Sources */,
 				2B009D03186102E4001E2EE8 /* JSONNode_Mutex.cpp in Sources */,
 				2B7EF49816025D8C00D4079F /* PJ_ocea.c in Sources */,
+				2B4B19CF1BA38AFB0091A743 /* FakeGeocentricDisplayAdapter_jni.cpp in Sources */,
 				2B7EF49916025D8C00D4079F /* PJ_oea.c in Sources */,
+				2B4B19ED1BA38AFB0091A743 /* Scene_jni.cpp in Sources */,
 				2B7EF49A16025D8C00D4079F /* PJ_omerc.c in Sources */,
 				2B7EF49B16025D8C00D4079F /* pj_open_lib.c in Sources */,
 				2B7EF49C16025D8C00D4079F /* PJ_ortho.c in Sources */,
@@ -1688,6 +2107,7 @@
 				2B35675418D762A700EF8DB1 /* LayoutManager.cpp in Sources */,
 				2B35676218D762A700EF8DB1 /* Scene.cpp in Sources */,
 				2B7EF4A116025D8C00D4079F /* PJ_putp2.c in Sources */,
+				2B4B19F31BA38AFB0091A743 /* VectorInfo_jni.cpp in Sources */,
 				2B35675218D762A700EF8DB1 /* GridClipper.cpp in Sources */,
 				2B7EF4A216025D8C00D4079F /* PJ_putp3.c in Sources */,
 				2B7EF4A316025D8C00D4079F /* PJ_putp4p.c in Sources */,
@@ -1702,6 +2122,8 @@
 				2B5F18A31A7B05B4004A8723 /* ScreenSpaceBuilder.cpp in Sources */,
 				2B7EF4AA16025D8C00D4079F /* PJ_sconics.c in Sources */,
 				2B009D0D186102E4001E2EE8 /* JSONWorker.cpp in Sources */,
+				2B4B19EE1BA38AFB0091A743 /* SelectionManager_jni.cpp in Sources */,
+				2B4B19D41BA38AFB0091A743 /* GlobeViewState_jni.cpp in Sources */,
 				2B7EF4AB16025D8C00D4079F /* PJ_somerc.c in Sources */,
 				2B7EF4AC16025D8C00D4079F /* PJ_stere.c in Sources */,
 				2B009D01186102E4001E2EE8 /* JSONNode.cpp in Sources */,
@@ -1710,23 +2132,32 @@
 				2B35676618D762A700EF8DB1 /* ScreenSpaceGenerator.cpp in Sources */,
 				2BDC8A73192C090400DFECF0 /* LabelRenderer.cpp in Sources */,
 				2B009CF5186102E4001E2EE8 /* JSONDebug.cpp in Sources */,
+				2B4B19E91BA38AFB0091A743 /* Point4d_jni.cpp in Sources */,
 				2B7EF4AE16025D8C00D4079F /* pj_strerrno.c in Sources */,
 				2B35675618D762A700EF8DB1 /* MaplyFlatView.cpp in Sources */,
+				2B4B19D11BA38AFB0091A743 /* GeoCoordSystem_jni.cpp in Sources */,
 				2B35676D18D762A700EF8DB1 /* TileQuadLoader.cpp in Sources */,
+				2B4B19E31BA38AFB0091A743 /* MarkerInfo_jni.cpp in Sources */,
+				2B4B19E01BA38AFB0091A743 /* MapScene_jni.cpp in Sources */,
 				2B009CEE186102E4001E2EE8 /* internalJSONNode.cpp in Sources */,
 				2B7EF4AF16025D8C00D4079F /* PJ_sts.c in Sources */,
 				2B7EF4B016025D8C00D4079F /* PJ_tcc.c in Sources */,
 				2B7EF4B116025D8C00D4079F /* PJ_tcea.c in Sources */,
 				2B7EF4B216025D8C00D4079F /* PJ_tmerc.c in Sources */,
+				2B4B19F81BA38AFB0091A743 /* ViewState_jni.cpp in Sources */,
 				2B7EF4B316025D8C00D4079F /* PJ_tpeqd.c in Sources */,
+				2B4B19E11BA38AFB0091A743 /* MapView_jni.cpp in Sources */,
 				2B7EF4B416025D8C00D4079F /* pj_transform.c in Sources */,
+				2B4B19E51BA38AFB0091A743 /* Matrix4d_jni.cpp in Sources */,
 				2B7EF4B516025D8C00D4079F /* pj_tsfn.c in Sources */,
 				2B7EF4B616025D8C00D4079F /* pj_units.c in Sources */,
 				2B7EF4B716025D8C00D4079F /* PJ_urm5.c in Sources */,
+				2B4B19F21BA38AFB0091A743 /* Texture_jni.cpp in Sources */,
 				2B7EF4B816025D8C00D4079F /* PJ_urmfps.c in Sources */,
 				2B7EF4B916025D8C00D4079F /* pj_utils.c in Sources */,
 				2B7EF4BA16025D8C00D4079F /* PJ_vandg.c in Sources */,
 				2B35674818D762A700EF8DB1 /* Drawable.cpp in Sources */,
+				2B4B19F41BA38AFB0091A743 /* VectorIterator_jni.cpp in Sources */,
 				2B7EF4BB16025D8C00D4079F /* PJ_vandg2.c in Sources */,
 				2B7EF4BC16025D8C00D4079F /* PJ_vandg4.c in Sources */,
 				2B7EF4BD16025D8C00D4079F /* PJ_wag2.c in Sources */,
@@ -1739,6 +2170,7 @@
 				2B009CFD186102E4001E2EE8 /* JSONIterators.cpp in Sources */,
 				2B35674D18D762A700EF8DB1 /* GlobeMath.cpp in Sources */,
 				2B7EF4C416025D8C00D4079F /* proj_etmerc.c in Sources */,
+				2B4B19F61BA38AFB0091A743 /* VectorObject_jni.cpp in Sources */,
 				2B7EF4C516025D8C00D4079F /* proj_mdist.c in Sources */,
 				2B7EF4C616025D8C00D4079F /* proj_rouss.c in Sources */,
 				2B7EF4C916025D8C00D4079F /* rtodms.c in Sources */,
@@ -1748,7 +2180,9 @@
 				2BA2325B17984F510063CC84 /* glues_project.c in Sources */,
 				2BA2325D17984F510063CC84 /* glues_quad.c in Sources */,
 				2BA2325F17984F510063CC84 /* glues_registry.c in Sources */,
+				2B4B19D01BA38AFB0091A743 /* FontTextureManagerAndroid.cpp in Sources */,
 				2BA2326317984F510063CC84 /* dict.c in Sources */,
+				2B4B19EB1BA38AFB0091A743 /* QuadPagingLayer_jni.cpp in Sources */,
 				2B009CF3186102E4001E2EE8 /* JSONChildren.cpp in Sources */,
 				2B35676A18D762A700EF8DB1 /* Tesselator.cpp in Sources */,
 				2B35674E18D762A700EF8DB1 /* GlobeScene.cpp in Sources */,
@@ -1761,7 +2195,9 @@
 				2B009D04186102E4001E2EE8 /* JSONPreparse.cpp in Sources */,
 				2BA2327017984F510063CC84 /* priorityq.c in Sources */,
 				2BA2327217984F510063CC84 /* render.c in Sources */,
+				2B4B19EA1BA38AFB0091A743 /* QuadImageTileLayer_jni.cpp in Sources */,
 				2BA2327417984F510063CC84 /* sweep.c in Sources */,
+				2B4B19E61BA38AFB0091A743 /* PlateCarreeCoordSystem_jni.cpp in Sources */,
 				2BA2327617984F510063CC84 /* tess.c in Sources */,
 				2BA2327817984F510063CC84 /* tessmono.c in Sources */,
 			);
