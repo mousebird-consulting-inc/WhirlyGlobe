@@ -646,7 +646,9 @@ using namespace WhirlyKit;
     if (loadingSuccess)
         [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident frame:frame];
     else {
-        // Shouldn't have a visual representation, so just lose it
+        // Clear out the visuals for this tile
+        if (tile->isInitialized)
+            tile->clearContents(tileBuilder, changeRequests);
         [_quadLayer loader:self tileDidNotLoad:tile->nodeInfo.ident frame:frame];
         tileSet.erase(it);
         delete tile;
