@@ -89,6 +89,22 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_valid
 	}
 }
 
+JNIEXPORT jstring JNICALL Java_com_mousebird_maply_Shader_getName
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        OpenGLES2ProgramClassInfo *classInfo = OpenGLES2ProgramClassInfo::getClassInfo();
+        OpenGLES2Program *inst = classInfo->getObject(env,obj);
+        return env->NewStringUTF(inst->getName().c_str());
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::getName()");
+    }
+}
+
+
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lang_String_2D
   (JNIEnv *env, jobject obj, jstring nameStr, jdouble uni)
 {

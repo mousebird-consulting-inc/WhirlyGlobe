@@ -17,6 +17,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_valid
 
 /*
  * Class:     com_mousebird_maply_Shader
+ * Method:    getName
+ * Signature: ()Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_mousebird_maply_Shader_getName
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_Shader
  * Method:    setUniform
  * Signature: (Ljava/lang/String;D)Z
  */

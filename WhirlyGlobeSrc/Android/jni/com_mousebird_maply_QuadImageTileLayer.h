@@ -177,6 +177,14 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getTargetZoom
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setShaderName
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setShaderName
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    reload
  * Signature: (Lcom/mousebird/maply/ChangeSet;)V
  */

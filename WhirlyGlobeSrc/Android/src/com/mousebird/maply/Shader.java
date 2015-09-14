@@ -46,12 +46,21 @@ public class Shader
 		// We're using the current EGL context here, but we should be use one specially from the main thread
 		initialise(name,vertexSrc,fragSrc);
 	}
+
+    private Shader()
+    {
+    }
 	
 	/** Check if the shader is valid.
 	 * <p>
      * The shader setup can fail in a number of ways.  Check this after creating the shader to see if it succeeded.  If not, look to getError to see why.
 	 */
 	public native boolean valid();
+
+    /**
+     * Returns the shader's name.
+     */
+	public native String getName();
 	
 	/** Set a float uniform in the shader with the given name.
 	 * <p>

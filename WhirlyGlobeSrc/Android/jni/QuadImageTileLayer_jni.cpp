@@ -69,6 +69,7 @@ public:
 	int tileSize;
 	std::vector<int> levelLoads;
 	ViewState *lastViewState;
+    SimpleIdentity customShader;
 
 	// Methods for Java quad image layer
 	jmethodID startFetchJava,scheduleEvalStepJava;
@@ -79,7 +80,7 @@ public:
 		  handleEdges(true),coverPoles(false), drawPriority(0),imageDepth(1),
 		  borderTexel(0),textureAtlasSize(2048),enable(true),fade(1.0),color(255,255,255,255),imageFormat(0),
 		  currentImage(0.0), animationWrap(true), maxCurrentImage(-1), allowFrameLoading(true), animationPeriod(10.0),
-		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL)
+		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), customShader(EmptyIdentity)
 	{
 		useTargetZoomLevel = true;
         canShortCircuitImportance = false;
@@ -239,9 +240,9 @@ public:
 	            maxCurrentImage = imageDepth;
 
 	        // Note: Porting.  Put this back
-//	        if (!customShader)
-//	            customShader = scene->getProgramIDByName(kToolkitDefaultTriangleMultiTex);
-//
+	        if (customShader == EmptyIdentity)
+	            customShader = scene->getProgramIDByName(kToolkitDefaultTriangleMultiTex);
+
 //	        if (animationPeriod > 0.0)
 //	        	setAnimationPeriod(animationPeriod);
 	    }
@@ -953,6 +954,30 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getTargetZoom
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::getTargetZoomLevel()");
 	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setShaderName
+(JNIEnv *env, jobject obj, jstring shaderName)
+{
+    try
+    {
+        QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+        QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+        if (!adapter)
+            return;
+        
+        const char *cName = env->GetStringUTFChars(shaderName,0);
+        std::string name = cName;
+
+        SimpleIdentity customerShader = adapter->scene->getProgramIDBySceneName(cName);
+        adapter->tileLoader->setProgramId(customerShader);
+
+        env->ReleaseStringUTFChars(shaderName, cName);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setShaderName()");
+    }
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_reload
