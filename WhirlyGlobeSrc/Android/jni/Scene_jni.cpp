@@ -47,3 +47,30 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addChangesNative
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::addChanges()");
 	}
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram
+(JNIEnv *env, jobject obj, jobject shaderObj, jstring sceneNameStr)
+{
+    try
+    {
+        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
+        Scene *scene = classInfo->getObject(env,obj);
+        OpenGLES2ProgramClassInfo *shaderClassInfo = OpenGLES2ProgramClassInfo::getClassInfo();
+        OpenGLES2Program *shader = shaderClassInfo->getObject(env,shaderObj);
+        
+        if (!scene || !shader)
+            return;
+        
+        const char *cName = env->GetStringUTFChars(sceneNameStr,0);
+        std::string name = cName;
+        
+        scene->addProgram(name,shader);
+        scene->setSceneProgram(name,shader->getId());
+        
+        env->ReleaseStringUTFChars(sceneNameStr, cName);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::addShaderProgram()");
+    }
+}

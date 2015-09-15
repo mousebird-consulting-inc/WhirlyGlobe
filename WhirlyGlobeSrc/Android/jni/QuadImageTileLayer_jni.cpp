@@ -69,7 +69,8 @@ public:
 	int tileSize;
 	std::vector<int> levelLoads;
 	ViewState *lastViewState;
-    SimpleIdentity customShader;
+        std::string shaderName;
+        SimpleIdentity shaderID;
 
 	// Methods for Java quad image layer
 	jmethodID startFetchJava,scheduleEvalStepJava;
@@ -80,7 +81,7 @@ public:
 		  handleEdges(true),coverPoles(false), drawPriority(0),imageDepth(1),
 		  borderTexel(0),textureAtlasSize(2048),enable(true),fade(1.0),color(255,255,255,255),imageFormat(0),
 		  currentImage(0.0), animationWrap(true), maxCurrentImage(-1), allowFrameLoading(true), animationPeriod(10.0),
-		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), customShader(EmptyIdentity)
+		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), shaderID(EmptyIdentity)
 	{
 		useTargetZoomLevel = true;
         canShortCircuitImportance = false;
@@ -201,6 +202,10 @@ public:
 	    tileLoader->setColor(color);
 	    setCurrentImage(currentImage,changes);
 
+	    // This will force the shader setup
+	    if (!shaderName.empty())
+	      setShaderName(shaderName);
+
 	    return tileLoader;
 	}
 
@@ -239,9 +244,8 @@ public:
 	        if (animationWrap && maxCurrentImage == -1)
 	            maxCurrentImage = imageDepth;
 
-	        // Note: Porting.  Put this back
-	        if (customShader == EmptyIdentity)
-	            customShader = scene->getProgramIDByName(kToolkitDefaultTriangleMultiTex);
+	        if (shaderID == EmptyIdentity)
+	            shaderID = scene->getProgramIDByName(kToolkitDefaultTriangleMultiTex);
 
 //	        if (animationPeriod > 0.0)
 //	        	setAnimationPeriod(animationPeriod);
@@ -252,6 +256,16 @@ public:
 	{
 	    animationPeriod = newAnimationPeriod;
 	}
+
+        void setShaderName(const std::string &newName)
+        {
+	  shaderName = newName;
+	  if (scene && tileLoader)
+	  {
+	      shaderID = scene->getProgramIDBySceneName(shaderName.c_str());
+	      tileLoader->setProgramId(shaderID);
+	  }
+        }    
 
 	// Change which image is displayed (or interpolation thereof)
 	void setCurrentImage(float newCurrentImage,ChangeSet &changes)
@@ -969,8 +983,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setShaderName
         const char *cName = env->GetStringUTFChars(shaderName,0);
         std::string name = cName;
 
-        SimpleIdentity customerShader = adapter->scene->getProgramIDBySceneName(cName);
-        adapter->tileLoader->setProgramId(customerShader);
+	adapter->setShaderName(cName);
 
         env->ReleaseStringUTFChars(shaderName, cName);
     }

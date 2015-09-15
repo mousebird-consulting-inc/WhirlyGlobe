@@ -19,7 +19,14 @@ public class Scene
 	public void addChanges(ChangeSet changes)
 	{
 	}
-	
+
+	/**
+	 * Associate a shader with the given scene name.  These names let us override existing shaders, as well as adding our own.
+	 * @param shader The shader to add.
+	 * @param sceneName The scene name to associate it with.
+	 */
+	public native void addShaderProgram(Shader shader,String sceneName);
+
 	static
 	{
 		nativeInit();

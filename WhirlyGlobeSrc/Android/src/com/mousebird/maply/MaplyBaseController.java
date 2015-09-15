@@ -13,8 +13,11 @@ import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
+import javax.microedition.khronos.egl.*;
 
 /**
  * The base controller is a base class for both Maply and WhirlyGlobe controllers.
@@ -180,8 +183,13 @@ public class MaplyBaseController
 	
 	// Metronome thread used to time the renderer
 	MetroThread metroThread;
-	
-	// Called by the render wrapper when the surface is created.
+
+    // Note: Why isn't this in EGL10?
+    private static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
+    EGLContext eglContext = null;
+    EGLSurface eglSurface = null;
+
+    // Called by the render wrapper when the surface is created.
 	// Can't start doing anything until that happens
 	void surfaceCreated(RendererWrapper wrap)
 	{
@@ -206,7 +214,42 @@ public class MaplyBaseController
     	glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     	// Note: 3fps
     	metroThread = new MetroThread("Metronome Thread",this,2);
+
+        // Make our own context that we can use on the main thread
+        EGL10 egl = (EGL10) EGLContext.getEGL();
+        int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
+        eglContext = egl.eglCreateContext(renderWrapper.maplyRender.display,renderWrapper.maplyRender.config,renderWrapper.maplyRender.context, attrib_list);
+        int[] surface_attrs =
+                {
+                        EGL10.EGL_WIDTH, 32,
+                        EGL10.EGL_HEIGHT, 32,
+//			    EGL10.EGL_COLORSPACE, GL10.GL_RGB,
+//			    EGL10.EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGB,
+//			    EGL10.EGL_TEXTURE_TARGET, EGL_TEXTURE_2D,
+//			    EGL10.EGL_LARGEST_PBUFFER, GL10.GL_TRUE,
+                        EGL10.EGL_NONE
+                };
+        eglSurface = egl.eglCreatePbufferSurface(renderWrapper.maplyRender.display, renderWrapper.maplyRender.config, surface_attrs);
 	}
+
+    /**
+     * Set the EGL Context we created for the main thread, if we can.
+     */
+    boolean setEGLContext()
+    {
+        if (eglContext != null)
+        {
+            EGL10 egl = (EGL10) EGLContext.getEGL();
+            if (!egl.eglMakeCurrent(renderWrapper.maplyRender.display, eglSurface, eglSurface, eglContext)) {
+                Log.i("Maply", "Failed to make current context in main thread.");
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
 	
 	/**
 	 * It takes a little time to set up the OpenGL ES drawable.  Add a runnable
@@ -347,7 +390,7 @@ public class MaplyBaseController
 			}
 		};
 		
-		addTask(run,mode);
+		addTask(run, mode);
 				
 		return compObj;
 	}
@@ -509,12 +552,22 @@ public class MaplyBaseController
 			}
 		};
 		
-		addTask(run,mode);
+		addTask(run, mode);
 		
 		return compObj;
 	}
 
-	/**
+    /**
+     * Associate a shader with the given scene name.  These names let us override existing shaders, as well as adding our own.
+     * @param shader The shader to add.
+     * @param sceneName The scene name to associate it with.
+     */
+    public void addShaderProgram(Shader shader,String sceneName)
+    {
+        scene.addShaderProgram(shader,sceneName);
+    }
+
+    /**
 	 * Disable the given objects. These were the objects returned by the various
 	 * add calls.  Once called, the objects will be invisible, but can be made
 	 * visible once again with enableObjects()

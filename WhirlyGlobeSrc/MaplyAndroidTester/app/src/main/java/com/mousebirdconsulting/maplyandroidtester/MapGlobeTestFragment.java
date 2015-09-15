@@ -92,6 +92,7 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
         if (imageDepth > 2) {
             baseLayer.setCurrentImage(1.5f);
             baseLayer.setImageFormat(QuadImageTileLayer.ImageFormat.MaplyImageUShort565);
+            baseLayer.setShaderName(multiTexShader.getName());
         }
 		
 		if (mapControl != null)
@@ -118,6 +119,9 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
 		return baseLayer;
 	}
 
+    // Test shader
+    TestShader multiTexShader = null;
+
 	// Called when the user changes what is selected
 	public void userChangedSelections(ConfigOptions config)
 	{
@@ -125,7 +129,7 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
 		QuadImageTileLayer.TileSource tileSource = null;
 		RemoteTileSource remoteTileSource = null;
         int imageDepth = 1;
-		
+
 		// Get rid of the existing base layer
 		if (baseLayer != null)
 			baseControl.removeLayer(baseLayer);
@@ -162,6 +166,10 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
             case QuadTestAnimate:
                 tileSource = new TestImageSource(getActivity().getMainLooper(),0,22);
                 imageDepth = 4;
+                if (multiTexShader == null) {
+                    multiTexShader = new TestShader(baseControl);
+                    baseControl.addShaderProgram(multiTexShader, multiTexShader.getName());
+                }
                 break;
             case QuadVectorTest:
             {
@@ -186,8 +194,8 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
 			baseLayer = setupImageLayer(tileSource,remoteTileSource,cacheDirName,imageDepth);
 			baseControl.addLayer(baseLayer);		
 		}
-			
-		// Overlay layers
+
+        // Overlay layers
         if (config.overlays[0])
         {
             if (forecastIOLayer == null)

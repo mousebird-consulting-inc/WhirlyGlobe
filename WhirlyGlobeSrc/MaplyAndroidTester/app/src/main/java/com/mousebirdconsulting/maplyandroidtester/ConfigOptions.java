@@ -32,7 +32,7 @@ public class ConfigOptions
     // Map type
     public MapType mapType = MapType.GlobeMap;
     // Base layer section selection
-    public BaseOptions baseSection = BaseOptions.QuadTestAnimate;
+    public BaseOptions baseSection = BaseOptions.BlankLayer;
     // Which overlays are on
     public boolean overlays[] = new boolean[OverlayOptions.MaxOverlayOptions.ordinal()];
     // Which utility options are on

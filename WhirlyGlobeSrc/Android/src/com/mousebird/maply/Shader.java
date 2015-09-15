@@ -20,6 +20,8 @@
 
 package com.mousebird.maply;
 
+import android.util.Log;
+
 /**
  * The shader is a direct interface to OpenGL ES 2.0 shader language.
  * <p>
@@ -42,9 +44,10 @@ public class Shader
      */
 	public Shader(String name,String vertexSrc, String fragSrc,MaplyBaseController control)
 	{
-		// Note: Porting
-		// We're using the current EGL context here, but we should be use one specially from the main thread
-		initialise(name,vertexSrc,fragSrc);
+		if (control.setEGLContext())
+			initialise(name,vertexSrc,fragSrc);
+		else
+			Log.i("Maply","Shader was set up before context was created.  Shader won't work.");
 	}
 
     private Shader()
