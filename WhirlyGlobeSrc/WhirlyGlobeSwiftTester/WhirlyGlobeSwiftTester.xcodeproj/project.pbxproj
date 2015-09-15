@@ -1,0 +1,403 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		88019FAE1B8F7D6D00674B00 /* libWhirlyGlobe-MaplyComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 88019FAD1B8F7AB800674B00 /* libWhirlyGlobe-MaplyComponent.a */; };
+		88231C791BA784BC00A95F2B /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88231C781BA784BC00A95F2B /* ConfigViewController.xib */; };
+		886FCCBB1BA73AFC00494BB0 /* geography-class_medres.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 886FCCBA1BA73AFC00494BB0 /* geography-class_medres.mbtiles */; };
+		886FCCC31BA73C1D00494BB0 /* StartupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */; };
+		886FCCCA1BA73D2D00494BB0 /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886FCCC91BA73D2D00494BB0 /* TestViewController.swift */; };
+		886FCCCD1BA74D1200494BB0 /* ConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886FCCCC1BA74D1200494BB0 /* ConfigViewController.swift */; };
+		88E4B8C51B83B6AB0050D21B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E4B8C41B83B6AB0050D21B /* AppDelegate.swift */; };
+		88E4B8C71B83B6AB0050D21B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E4B8C61B83B6AB0050D21B /* ViewController.swift */; };
+		88E4B8CA1B83B6AB0050D21B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8C81B83B6AB0050D21B /* Main.storyboard */; };
+		88E4B8CC1B83B6AB0050D21B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CB1B83B6AB0050D21B /* Images.xcassets */; };
+		88E4B8CF1B83B6AB0050D21B /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */; };
+		88E4B8ED1B83B9610050D21B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8EC1B83B9610050D21B /* CoreLocation.framework */; };
+		88E4B8EF1B83B96A0050D21B /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8EE1B83B96A0050D21B /* libc++.dylib */; };
+		88E4B8F11B83B9760050D21B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8F01B83B9750050D21B /* libz.dylib */; };
+		88E4B8F31B83B97D0050D21B /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8F21B83B97D0050D21B /* libxml2.dylib */; };
+		88E4B8F51B83B9850050D21B /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8F41B83B9850050D21B /* libsqlite3.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		88019FAC1B8F7AB800674B00 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 88019FA71B8F7AB800674B00 /* WhirlyGlobe-MaplyComponent.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2B11E0DB15B4C030007AAE3F;
+			remoteInfo = "WhirlyGlobe-MaplyComponent";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		88019FA71B8F7AB800674B00 /* WhirlyGlobe-MaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "WhirlyGlobe-MaplyComponent.xcodeproj"; path = "../WhirlyGlobe-MaplyComponent/WhirlyGlobe-MaplyComponent.xcodeproj"; sourceTree = "<group>"; };
+		88231C781BA784BC00A95F2B /* ConfigViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConfigViewController.xib; sourceTree = "<group>"; };
+		886FCCBA1BA73AFC00494BB0 /* geography-class_medres.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; path = "geography-class_medres.mbtiles"; sourceTree = "<group>"; };
+		886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StartupViewController.swift; sourceTree = "<group>"; };
+		886FCCC91BA73D2D00494BB0 /* TestViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestViewController.swift; sourceTree = "<group>"; };
+		886FCCCC1BA74D1200494BB0 /* ConfigViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigViewController.swift; sourceTree = "<group>"; };
+		88E4B8BF1B83B6AB0050D21B /* WhirlyGlobeSwiftTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhirlyGlobeSwiftTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		88E4B8C31B83B6AB0050D21B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		88E4B8C41B83B6AB0050D21B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		88E4B8C61B83B6AB0050D21B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		88E4B8C91B83B6AB0050D21B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		88E4B8CB1B83B6AB0050D21B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		88E4B8CE1B83B6AB0050D21B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		88E4B8EC1B83B9610050D21B /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		88E4B8EE1B83B96A0050D21B /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
+		88E4B8F01B83B9750050D21B /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		88E4B8F21B83B97D0050D21B /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
+		88E4B8F41B83B9850050D21B /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		88E4B8BC1B83B6AB0050D21B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88019FAE1B8F7D6D00674B00 /* libWhirlyGlobe-MaplyComponent.a in Frameworks */,
+				88E4B8F51B83B9850050D21B /* libsqlite3.dylib in Frameworks */,
+				88E4B8F31B83B97D0050D21B /* libxml2.dylib in Frameworks */,
+				88E4B8F11B83B9760050D21B /* libz.dylib in Frameworks */,
+				88E4B8EF1B83B96A0050D21B /* libc++.dylib in Frameworks */,
+				88E4B8ED1B83B9610050D21B /* CoreLocation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		88019FA81B8F7AB800674B00 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				88019FAD1B8F7AB800674B00 /* libWhirlyGlobe-MaplyComponent.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		886FCCB91BA73AFC00494BB0 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				886FCCBA1BA73AFC00494BB0 /* geography-class_medres.mbtiles */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		886FCCBC1BA73B1400494BB0 /* Fameworks */ = {
+			isa = PBXGroup;
+			children = (
+				88E4B8EC1B83B9610050D21B /* CoreLocation.framework */,
+				88E4B8F41B83B9850050D21B /* libsqlite3.dylib */,
+				88E4B8F21B83B97D0050D21B /* libxml2.dylib */,
+				88E4B8F01B83B9750050D21B /* libz.dylib */,
+				88E4B8EE1B83B96A0050D21B /* libc++.dylib */,
+			);
+			name = Fameworks;
+			sourceTree = "<group>";
+		};
+		88E4B8B61B83B6AB0050D21B = {
+			isa = PBXGroup;
+			children = (
+				88E4B8C11B83B6AB0050D21B /* WhirlyGlobeSwiftTester */,
+				886FCCB91BA73AFC00494BB0 /* Resources */,
+				886FCCBC1BA73B1400494BB0 /* Fameworks */,
+				88E4B8C01B83B6AB0050D21B /* Products */,
+				88019FA71B8F7AB800674B00 /* WhirlyGlobe-MaplyComponent.xcodeproj */,
+			);
+			sourceTree = "<group>";
+		};
+		88E4B8C01B83B6AB0050D21B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				88E4B8BF1B83B6AB0050D21B /* WhirlyGlobeSwiftTester.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		88E4B8C11B83B6AB0050D21B /* WhirlyGlobeSwiftTester */ = {
+			isa = PBXGroup;
+			children = (
+				88E4B8C41B83B6AB0050D21B /* AppDelegate.swift */,
+				88E4B8C61B83B6AB0050D21B /* ViewController.swift */,
+				88E4B8C81B83B6AB0050D21B /* Main.storyboard */,
+				88E4B8CB1B83B6AB0050D21B /* Images.xcassets */,
+				88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */,
+				88E4B8C21B83B6AB0050D21B /* Supporting Files */,
+				886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */,
+				886FCCC91BA73D2D00494BB0 /* TestViewController.swift */,
+				886FCCCC1BA74D1200494BB0 /* ConfigViewController.swift */,
+				88231C781BA784BC00A95F2B /* ConfigViewController.xib */,
+			);
+			path = WhirlyGlobeSwiftTester;
+			sourceTree = "<group>";
+		};
+		88E4B8C21B83B6AB0050D21B /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				88E4B8C31B83B6AB0050D21B /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		88E4B8BE1B83B6AB0050D21B /* WhirlyGlobeSwiftTester */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 88E4B8DE1B83B6AC0050D21B /* Build configuration list for PBXNativeTarget "WhirlyGlobeSwiftTester" */;
+			buildPhases = (
+				88E4B8BB1B83B6AB0050D21B /* Sources */,
+				88E4B8BC1B83B6AB0050D21B /* Frameworks */,
+				88E4B8BD1B83B6AB0050D21B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WhirlyGlobeSwiftTester;
+			productName = HelloEarthSwift;
+			productReference = 88E4B8BF1B83B6AB0050D21B /* WhirlyGlobeSwiftTester.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		88E4B8B71B83B6AB0050D21B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0640;
+				ORGANIZATIONNAME = Liferay;
+				TargetAttributes = {
+					88E4B8BE1B83B6AB0050D21B = {
+						CreatedOnToolsVersion = 6.4;
+					};
+				};
+			};
+			buildConfigurationList = 88E4B8BA1B83B6AB0050D21B /* Build configuration list for PBXProject "WhirlyGlobeSwiftTester" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 88E4B8B61B83B6AB0050D21B;
+			productRefGroup = 88E4B8C01B83B6AB0050D21B /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 88019FA81B8F7AB800674B00 /* Products */;
+					ProjectRef = 88019FA71B8F7AB800674B00 /* WhirlyGlobe-MaplyComponent.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				88E4B8BE1B83B6AB0050D21B /* WhirlyGlobeSwiftTester */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		88019FAD1B8F7AB800674B00 /* libWhirlyGlobe-MaplyComponent.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libWhirlyGlobe-MaplyComponent.a";
+			remoteRef = 88019FAC1B8F7AB800674B00 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		88E4B8BD1B83B6AB0050D21B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				886FCCBB1BA73AFC00494BB0 /* geography-class_medres.mbtiles in Resources */,
+				88E4B8CA1B83B6AB0050D21B /* Main.storyboard in Resources */,
+				88E4B8CF1B83B6AB0050D21B /* LaunchScreen.xib in Resources */,
+				88E4B8CC1B83B6AB0050D21B /* Images.xcassets in Resources */,
+				88231C791BA784BC00A95F2B /* ConfigViewController.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		88E4B8BB1B83B6AB0050D21B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88E4B8C71B83B6AB0050D21B /* ViewController.swift in Sources */,
+				886FCCC31BA73C1D00494BB0 /* StartupViewController.swift in Sources */,
+				886FCCCA1BA73D2D00494BB0 /* TestViewController.swift in Sources */,
+				886FCCCD1BA74D1200494BB0 /* ConfigViewController.swift in Sources */,
+				88E4B8C51B83B6AB0050D21B /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		88E4B8C81B83B6AB0050D21B /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				88E4B8C91B83B6AB0050D21B /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				88E4B8CE1B83B6AB0050D21B /* Base */,
+			);
+			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		88E4B8DC1B83B6AC0050D21B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		88E4B8DD1B83B6AC0050D21B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		88E4B8DF1B83B6AC0050D21B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"\"$(SRCROOT)/../WhirlyGlobe-MaplyComponent/include/\"",
+				);
+				INFOPLIST_FILE = WhirlyGlobeSwiftTester/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = WhirlyGlobeSwiftTester;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/../WhirlyGlobe-MaplyComponent/include/MaplyBridge.h";
+			};
+			name = Debug;
+		};
+		88E4B8E01B83B6AC0050D21B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"\"$(SRCROOT)/../WhirlyGlobe-MaplyComponent/include/\"",
+				);
+				INFOPLIST_FILE = WhirlyGlobeSwiftTester/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = WhirlyGlobeSwiftTester;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/../WhirlyGlobe-MaplyComponent/include/MaplyBridge.h";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		88E4B8BA1B83B6AB0050D21B /* Build configuration list for PBXProject "WhirlyGlobeSwiftTester" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				88E4B8DC1B83B6AC0050D21B /* Debug */,
+				88E4B8DD1B83B6AC0050D21B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		88E4B8DE1B83B6AC0050D21B /* Build configuration list for PBXNativeTarget "WhirlyGlobeSwiftTester" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				88E4B8DF1B83B6AC0050D21B /* Debug */,
+				88E4B8E01B83B6AC0050D21B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 88E4B8B71B83B6AB0050D21B /* Project object */;
+}
