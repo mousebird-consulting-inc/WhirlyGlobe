@@ -81,7 +81,7 @@ public:
 		  handleEdges(true),coverPoles(false), drawPriority(0),imageDepth(1),
 		  borderTexel(0),textureAtlasSize(2048),enable(true),fade(1.0),color(255,255,255,255),imageFormat(0),
 		  currentImage(0.0), animationWrap(true), maxCurrentImage(-1), allowFrameLoading(true), animationPeriod(10.0),
-		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), shaderID(EmptyIdentity)
+		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), shaderID(EmptyIdentity), scene(NULL)
 	{
 		useTargetZoomLevel = true;
         canShortCircuitImportance = false;
@@ -200,11 +200,11 @@ public:
             break;
 	    }
 	    tileLoader->setColor(color);
-	    setCurrentImage(currentImage,changes);
 
 	    // This will force the shader setup
 	    if (!shaderName.empty())
 	      setShaderName(shaderName);
+	    setCurrentImage(currentImage,changes);
 
 	    return tileLoader;
 	}
@@ -291,23 +291,17 @@ public:
 	    if (tileLoader)
 	    	tileLoader->setCurrentImageStart(image0,image1,changes);
 
-	    // Note: Porting
-#if 0
 	    // Set the interpolation in the program
-	    OpenGLES2Program *prog = scene->getProgram(_customShader);
-	    if (prog)
-	    {
-	        EAGLContext *oldContext = [EAGLContext currentContext];
-	        [_viewC useGLContext];
-
-	        glUseProgram(prog->getProgram());
-	        prog->setUniform("u_interp", t);
-	        [_renderer forceDrawNextFrame];
-
-	        if (oldContext)
-	            [EAGLContext setCurrentContext:oldContext];
-	    }
-#endif
+	    if (scene)
+	      {
+		OpenGLES2Program *prog = scene->getProgram(shaderID);
+		if (prog)
+		  {
+		    glUseProgram(prog->getProgram());
+		    prog->setUniform("u_interp", t);
+		    renderer->forceDrawNextFrame();
+		  }
+              }
 	}
 
 	/** QuadDataStructure Calls **/
