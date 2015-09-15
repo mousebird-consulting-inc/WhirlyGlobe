@@ -261,12 +261,12 @@
 /** @brief Returns the closest a viewer is allowed to get to the map surface.
  @return FLT_MIN if there's no pitchDelegate set
  */
-- (float)getMinZoom;
+- (float)getZoomLimitsMin;
 
 /** @brief Returns the farthest away a viewer is allowed to get from the map surface
  @return FLT_MIN if there's no pitchDelegate set
  */
-- (float)getMaxZoom;
+- (float)getZoomLimitsMax;
 
 /** @brief Return the zoom limits for the globe.
     @param minHeight The closest a viewer is allowed to get to the globe surface.

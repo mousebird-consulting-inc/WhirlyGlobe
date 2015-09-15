@@ -473,12 +473,12 @@ using namespace WhirlyGlobe;
     globeView.heightAboveGlobe = height;
 }
 
-- (float)getMinZoom
+- (float)getZoomLimitsMin
 {
 	return pinchDelegate ? pinchDelegate.minHeight : FLT_MIN;
 }
 
-- (float)getMaxZoom
+- (float)getZoomLimitsMax
 {
 	return pinchDelegate ? pinchDelegate.maxHeight : FLT_MIN;
 }
