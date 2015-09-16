@@ -92,7 +92,7 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
         if (imageDepth >= 2) {
             baseLayer.setImageFormat(QuadImageTileLayer.ImageFormat.MaplyImageUShort565);
             baseLayer.setShaderName(multiTexShader.getName());
-            baseLayer.setCurrentImage(0.9f);
+            baseLayer.setAnimationPeriod(4.0f);
         }
 		
 		if (mapControl != null)
@@ -164,7 +164,7 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
                 tileSource = new TestImageSource(getActivity().getMainLooper(),0,22);
                 break;
             case QuadTestAnimate:
-                tileSource = new TestImageSource(getActivity().getMainLooper(),0,22);
+                tileSource = new TestImageSource(getActivity().getMainLooper(),0,4);
                 imageDepth = 4;
                 if (multiTexShader == null) {
                     multiTexShader = new TestShader(baseControl);

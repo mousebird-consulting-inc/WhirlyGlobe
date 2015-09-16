@@ -22,6 +22,7 @@ package com.mousebird.maply;
 import java.util.ArrayList;
 
 import android.graphics.Bitmap;
+import android.media.Image;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -132,7 +133,8 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		Point2d ll = new Point2d(coordSys.ll.getX(),coordSys.ll.getY());
 		Point2d ur = new Point2d(coordSys.ur.getX(),coordSys.ur.getY());
 		nativeStartLayer(layerThread.scene,layerThread.renderer,ll,ur,0,tileSource.maxZoom());
-		valid = true;
+
+        valid = true;
 	}
 
 	/**
@@ -374,50 +376,65 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
       * This is helpful when you have an animation you want to taper off at the end past the last frame.
       */
 	public native void setMaxCurrentImage(float maxCurrent);
+
+    // Called periodically to update
+    class ImageUpdater implements ActiveObject
+    {
+        QuadImageTileLayer imageLayer = null;
+        int imageDepth = 0;
+        double startTime,period;
+
+        ImageUpdater(QuadImageTileLayer inImageLayer,double inPeriod)
+        {
+            imageLayer = inImageLayer;
+            imageDepth = imageLayer.getImageDepth();
+            period = inPeriod;
+            startTime = System.currentTimeMillis()/1000.0;
+        }
+
+        // Change the current image based on the time
+        public void activeUpdate()
+        {
+            double now = System.currentTimeMillis()/1000.0;
+            double where = ((now-startTime) % period)/period * (imageLayer.getImageDepth()-1);
+
+            ChangeSet changes = new ChangeSet();
+            setCurrentImage((float)where, changes);
+            maplyControl.scene.addChanges(changes);
+        }
+    }
+    ImageUpdater imageUpdater = null;
 	
 	/** The length of time we'll take to switch through all available images (per tile).
       * If set to non-zero right after layer creation we'll run through all the available images (in each tile) over the given period.  This only makes sense if you've got more than one image per tile.
       * If you want tighter control use the currentImage property and set your own timer.
       */
-	public void setAnimationPeriod(float period)
-	{
-//	    if (_viewC)
-//	    {
-//	        if (imageUpdater)
-//	        {
-//	            if (_animationPeriod > 0.0)
-//	            {
-//	                imageUpdater.period = _animationPeriod;
-//	            } else {
-//	                [_viewC removeActiveObject:imageUpdater];
-//	                imageUpdater = nil;
-//	            }
-//	        } else {
-//	            if (_animationPeriod > 0.0)
-//	            {
-//	                imageUpdater = [[ActiveImageUpdater alloc] init];
-//	                imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
-//	                if (_maxCurrentImage > 1)
-//	                    imageUpdater.startTime = imageUpdater.startTime-_currentImage/(_maxCurrentImage-1)*_animationPeriod;
-//	                imageUpdater.tileLayer = self;
-//	                imageUpdater.period = _animationPeriod;
-//	                imageUpdater.maxCurrentImage = _maxCurrentImage;
-//	                imageUpdater.programId = _customShader;
-//	                tileLoader.programId = _customShader;
-//	                [_viewC addActiveObject:imageUpdater];
-//	            }
-//	        }
-//	    }				
+	public void setAnimationPeriod(float period) {
+        if (maplyControl == null)
+            return;
+
+        if (imageUpdater != null) {
+            maplyControl.removeActiveObject(imageUpdater);
+            imageUpdater = null;
+        }
+
+        if (period > 0.0) {
+            imageUpdater = new ImageUpdater(this,period);
+            maplyControl.addActiveObject(imageUpdater);
+        }
 	}
-	
-	native void setAnimationPeriodNative(float period);
-	
+
+    boolean animationWrap = false;
+
 	/** If set to true, we'll consider the list of images for each tile to be circular when we animate.
       * When set we'll loop back to the first image when we go past the last.  This is the default.
       * When not set, we'll run from 0 to maxCurrentImage and then restart.
       */
-	public native void setAnimationWrap(boolean wrap);
-	
+	public void setAnimationWrap(boolean wrap)
+    {
+        animationWrap = wrap;
+    }
+
 	/** If set, we'll try to fetch frames individually.
       * When fetching from a data source that has multiple frames we'll fetch each frame individually and allow them to display as we go.
       * If this is false, we'll force all the frames to load for a given tile before we move on to the next tile.

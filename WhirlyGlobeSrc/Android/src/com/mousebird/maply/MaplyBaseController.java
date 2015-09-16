@@ -564,10 +564,26 @@ public class MaplyBaseController
      */
     public void addShaderProgram(Shader shader,String sceneName)
     {
-        scene.addShaderProgram(shader,sceneName);
+        scene.addShaderProgram(shader, sceneName);
     }
 
-    /**
+	/**
+	 * Add an active object that will be called right before the render (on the render thread).
+	 */
+	void addActiveObject(ActiveObject activeObject)
+	{
+		renderWrapper.maplyRender.addActiveObject(activeObject);
+	}
+
+	/**
+	 * Remove an active object added earlier.
+	 */
+	void removeActiveObject(ActiveObject activeObject)
+	{
+		renderWrapper.maplyRender.removeActiveObject(activeObject);
+	}
+
+	/**
 	 * Disable the given objects. These were the objects returned by the various
 	 * add calls.  Once called, the objects will be invisible, but can be made
 	 * visible once again with enableObjects()

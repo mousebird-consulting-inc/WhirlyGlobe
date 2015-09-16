@@ -20,6 +20,8 @@
 
 package com.mousebird.maply;
 
+import java.util.ArrayList;
+
 import javax.microedition.khronos.egl.*;
 
 /**
@@ -61,12 +63,40 @@ class MaplyRenderer
 		view = inView;
 		setViewNative(inView);
 	}
-	
-	public void doRender()
+
+    ArrayList<ActiveObject> activeObjects = new ArrayList<ActiveObject>();
+
+    /**
+     * Add an active object that will be called right before the render (on the render thread).
+     */
+    void addActiveObject(ActiveObject activeObject)
+    {
+        synchronized (activeObjects) {
+            activeObjects.add(activeObject);
+        }
+    }
+
+    /**
+     * Remove an active object added earlier.
+     */
+    void removeActiveObject(ActiveObject activeObject)
+    {
+        synchronized (activeObjects) {
+            activeObjects.remove(activeObject);
+        }
+    }
+
+    public void doRender()
 	{
 		if (view != null)
 			view.animate();
-		
+
+        // Run anyone who wants updates
+        synchronized (activeObjects) {
+            for (ActiveObject activeObject : activeObjects)
+                activeObject.activeUpdate();
+        }
+
 		render();
 	}
 	

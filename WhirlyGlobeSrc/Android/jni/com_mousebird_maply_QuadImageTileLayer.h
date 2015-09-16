@@ -65,22 +65,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setMaxCurrent
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
- * Method:    setAnimationPeriodNative
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setAnimationPeriodNative
-  (JNIEnv *, jobject, jfloat);
-
-/*
- * Class:     com_mousebird_maply_QuadImageTileLayer
- * Method:    setAnimationWrap
- * Signature: (Z)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setAnimationWrap
-  (JNIEnv *, jobject, jboolean);
-
-/*
- * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    setAllowFrameLoading
  * Signature: (Z)V
  */

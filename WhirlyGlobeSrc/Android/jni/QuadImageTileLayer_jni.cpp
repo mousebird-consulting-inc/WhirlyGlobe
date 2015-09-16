@@ -683,6 +683,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setImageDepth
 	}
 }
 
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getImageDepth
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+        QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+        if (!adapter)
+            return 1;
+        return adapter->imageDepth;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::getImageDepth()");
+    }
+}
+
 JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getCurrentImage
   (JNIEnv *env, jobject obj)
 {
