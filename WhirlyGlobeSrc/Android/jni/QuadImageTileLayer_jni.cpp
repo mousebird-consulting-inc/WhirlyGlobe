@@ -545,6 +545,7 @@ public:
     void tileWasUnloaded(int level,int col,int row)
     {
       __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did unload: %d: (%d,%d)",level,col,row);
+        scheduleEvalStep();
     }
 
     // QuadDisplayControllerAdapter related methods

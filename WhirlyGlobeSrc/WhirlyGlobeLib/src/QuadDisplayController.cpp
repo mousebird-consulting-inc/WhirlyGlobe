@@ -579,8 +579,8 @@ void QuadDisplayController::tileDidLoad(const WhirlyKit::Quadtree::Identifier &t
     }
     
     somethingHappened = true;
-    
-    // Porting: Reschedule evalStep()
+
+    adapter->adapterTileDidLoad(tileIdent);
 }
     
 // Tile failed to load.
@@ -610,9 +610,9 @@ void QuadDisplayController::tileDidNotLoad(const Quadtree::Identifier &tileIdent
                 toPhantom.insert(ident);
     }
 
-    // Porting: Reset the evalStep() on level up
-    
     somethingHappened = true;
+
+    adapter->adapterTileDidNotLoad(tileIdent);
 }
     
 // Clear out all the existing tiles and start over
