@@ -134,6 +134,8 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		Point2d ur = new Point2d(coordSys.ur.getX(),coordSys.ur.getY());
 		nativeStartLayer(layerThread.scene,layerThread.renderer,ll,ur,0,tileSource.maxZoom());
 
+        scheduleEvalStep();
+
         valid = true;
 	}
 

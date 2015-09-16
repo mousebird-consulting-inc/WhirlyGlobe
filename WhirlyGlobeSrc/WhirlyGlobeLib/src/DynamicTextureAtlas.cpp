@@ -154,8 +154,8 @@ bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
         glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, type, NULL);
     }
     CheckGLError("DynamicTexture::createInGL() glTexImage2D()");
-    // Note: Debugging
-    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Allocated dynamic texture for atlas.");
+
+//    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Allocated dynamic texture for atlas.");
     
     glBindTexture(GL_TEXTURE_2D, 0);
     
