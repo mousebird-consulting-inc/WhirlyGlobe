@@ -544,7 +544,7 @@ public:
     // Callback letting us know a tile was removed
     void tileWasUnloaded(int level,int col,int row)
     {
-      __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did unload: %d: (%d,%d)",level,col,row);
+//      __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did unload: %d: (%d,%d)",level,col,row);
         scheduleEvalStep();
     }
 
@@ -1277,7 +1277,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 
 		adapter->tileLoaded(level,x,y,frame,rawDataRef,info.width,info.height,*changes);
 		AndroidBitmap_unlockPixels(env, bitmapObj);
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did load: %d: (%d,%d)",level,x,y);	}
+//		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did load: %d: (%d,%d)",level,x,y);
+    }
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::nativeTileDidLoad()");

@@ -1,15 +1,22 @@
 rm app/libs/Maply.aar
 
-# You can use several architectures here, like x86,mips64
+#  Debug vs. Release
 if [ -n "$1" ]; then
-    arch=${1}
+    vers=${1}
+else
+    vers="debug"
+fi
+
+# You can use several architectures here, like x86,mips64
+if [ -n "$2" ]; then
+    arch=${2}
 else
     arch="x86,x86_64,armeabi,armeabi-v7a,arm64-v8a,mips"
 fi
 
 pushd ../Android/
-./gradlew assembleDebug -Parchitecture=$arch
+./gradlew assemble$vers -Parchitecture=$arch
 popd
 
 # Note: This is the debug version
-cp ../Android/build/outputs/aar/Android-debug.aar app/libs/Maply.aar
+cp ../Android/build/outputs/aar/Android-$vers.aar app/libs/Maply.aar

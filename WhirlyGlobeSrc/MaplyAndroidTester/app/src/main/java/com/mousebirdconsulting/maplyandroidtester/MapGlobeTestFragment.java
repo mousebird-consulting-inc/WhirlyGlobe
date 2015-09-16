@@ -164,8 +164,8 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
                 tileSource = new TestImageSource(getActivity().getMainLooper(),0,22);
                 break;
             case QuadTestAnimate:
-                tileSource = new TestImageSource(getActivity().getMainLooper(),0,4);
-                imageDepth = 4;
+                tileSource = new TestImageSource(getActivity().getMainLooper(),0,22);
+                imageDepth = 8;
                 if (multiTexShader == null) {
                     multiTexShader = new TestShader(baseControl);
                     baseControl.addShaderProgram(multiTexShader, multiTexShader.getName());
