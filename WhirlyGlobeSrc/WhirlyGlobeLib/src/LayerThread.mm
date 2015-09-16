@@ -51,6 +51,9 @@ using namespace WhirlyKit;
     /// We lock this in the main loop.  If anyone else can lock it, that means we're gone.
     /// Yes, I'm certain there's a better way to do this.
     pthread_mutex_t existenceLock;
+
+    NSCondition *pauseLock;
+    BOOL paused;
 }
 
 - (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)inRenderer mainLayerThread:(bool)mainLayerThread
@@ -80,6 +83,7 @@ using namespace WhirlyKit;
         
         pthread_mutex_init(&changeLock,NULL);
         pthread_mutex_init(&existenceLock,NULL);
+      pauseLock = [[NSCondition alloc] init];
 	}
 	
 	return self;
@@ -246,14 +250,19 @@ using namespace WhirlyKit;
             NSObject<WhirlyKitLayer> *layer = [layers objectAtIndex:ii];
             [layer startWithThread:self scene:_scene];
         }
-        
+      
         // Process the run loop until we're cancelled
         // We'll check every 10th of a second
         while (![self isCancelled])
         {
-            @autoreleasepool {
+          [pauseLock lock];
+          while(paused) {
+            [pauseLock wait];
+          }
+          @autoreleasepool {
                 [_runLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
             }
+          [pauseLock unlock];
         }
         
         [NSObject cancelPreviousPerformRequestsWithTarget:self];
@@ -329,6 +338,16 @@ using namespace WhirlyKit;
         [thingsToRelease removeObject:[thingsToRelease objectAtIndex:0]];
     
     _glContext = nil;
+}
+
+
+- (void)pause {
+  paused = true;
+}
+
+- (void)unpause {
+  paused = false;
+  [pauseLock signal];
 }
 
 @end
