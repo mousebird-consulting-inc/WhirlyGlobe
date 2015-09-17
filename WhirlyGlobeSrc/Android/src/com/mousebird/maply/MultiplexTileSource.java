@@ -66,12 +66,13 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 		URL url = null;
 		String locFile = null;
 		
-		ConnectionTask(QuadImageTileLayer inLayer,MultiplexTileSource inTileSource, MaplyTileID inTileID, int frame,String inURL,String inFile)
+		ConnectionTask(QuadImageTileLayer inLayer,MultiplexTileSource inTileSource, MaplyTileID inTileID, int inFrame,String inURL,String inFile)
 		{
 			tileSource = inTileSource;
 			layer = inLayer;
 			tileID = inTileID;
 			locFile = inFile;
+			frame = inFrame;
 			try
 			{
 				url = new URL(inURL);
@@ -135,11 +136,11 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 		    		MaplyImageTile imageTile = new MaplyImageTile(bm);
 		    		if (tileSource.delegate != null)
 		    			tileSource.delegate.tileDidLoad(tileSource,tileID,frame);
-		    		layer.loadedTile(tileID, -1, imageTile);
+		    		layer.loadedTile(tileID, frame, imageTile);
 		    	} else {
 		    		if (tileSource.delegate != null)
 		    			tileSource.delegate.tileDidNotLoad(tileSource,tileID,frame);
-		    		layer.loadedTile(tileID, -1, null);
+		    		layer.loadedTile(tileID, frame, null);
 		    	}
 		    	
 		    	return null;
@@ -312,7 +313,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	@Override
 	public void startFetchForTile(QuadImageTileLayer layer, MaplyTileID tileID, int frame) 
 	{		
-		Log.d("Maply","Multiplex Load: " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+		Log.d("Maply","Multiplex Load: " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
 		
 		// Form the tile URL
 		int maxY = 1<<tileID.level;
@@ -345,7 +346,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 					RemoteTileInfo tileInfo = sources[which];
 					final String tileURL = tileInfo.buildURL(tileID.x,remoteY,tileID.level);
 					if (cacheDir != null)
-						cacheFile = cacheDir.getAbsolutePath() + tileInfo.buildCacheName(tileID.x, tileID.y, tileID.level);
+						cacheFile = cacheDir.getAbsolutePath() + tileInfo.buildCacheName(tileID.x, tileID.y, tileID.level,frame);
 					ConnectionTask task = new ConnectionTask(layer,this,tileID,frame,tileURL,cacheFile);
 					tile.fetches[which] = task;
 					String[] params = new String[1];

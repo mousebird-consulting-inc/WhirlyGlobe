@@ -85,13 +85,13 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
 		// Set up the layer
 		SphericalMercatorCoordSystem coordSys = new SphericalMercatorCoordSystem();
 		baseLayer = new QuadImageTileLayer(baseControl,coordSys,tileSource);
+        // Note: Fix this
 		baseLayer.setSimultaneousFetches(1);
         baseLayer.setImageDepth(imageDepth);
 
         // Note: Debugging
         if (imageDepth >= 2) {
             baseLayer.setImageFormat(QuadImageTileLayer.ImageFormat.MaplyImageUShort565);
-            baseLayer.setShaderName(multiTexShader.getName());
             baseLayer.setAnimationPeriod(4.0f);
         }
 		
@@ -120,7 +120,7 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
 	}
 
     // Test shader
-    TestShader multiTexShader = null;
+    WeatherShader weatherShader = null;
 
 	// Called when the user changes what is selected
 	public void userChangedSelections(ConfigOptions config)
@@ -166,10 +166,6 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
             case QuadTestAnimate:
                 tileSource = new TestImageSource(getActivity().getMainLooper(),0,22);
                 imageDepth = 8;
-                if (multiTexShader == null) {
-                    multiTexShader = new TestShader(baseControl);
-                    baseControl.addShaderProgram(multiTexShader, multiTexShader.getName());
-                }
                 break;
             case QuadVectorTest:
             {
@@ -200,6 +196,11 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
         {
             if (forecastIOLayer == null)
             {
+                if (weatherShader == null) {
+                    weatherShader = new WeatherShader(baseControl);
+                    baseControl.addShaderProgram(weatherShader, weatherShader.getName());
+                }
+
                 RemoteTileInfo[] sources = new RemoteTileInfo[5];
                 for (int ii=0;ii<5;ii++)
                     sources[ii] = new RemoteTileInfo("http://a.tiles.mapbox.com/v3/mousebird.precip-example-layer" + ii + "/","png",0,6);
@@ -209,9 +210,13 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
 
                 forecastIOLayer = new QuadImageTileLayer(baseControl,coordSys,multiTileSource);
                 forecastIOLayer.setSimultaneousFetches(1);
-                forecastIOLayer.setDrawPriority(MaplyBaseController.ImageLayerDrawPriorityDefault+100);
+                forecastIOLayer.setDrawPriority(MaplyBaseController.ImageLayerDrawPriorityDefault + 100);
                 forecastIOLayer.setBorderTexel(0);
-                forecastIOLayer.setCurrentImage(2.5f);
+                forecastIOLayer.setImageDepth(sources.length);
+                forecastIOLayer.setCurrentImage(1.5f);
+                forecastIOLayer.setAnimationPeriod(6.0f);
+                forecastIOLayer.setShaderName(weatherShader.getName());
+
 //						forecastIOLayer.setImageFormat(QuadImageTileLayer.ImageFormat.MaplyImageUByteRed);
 
                 if (mapControl != null)

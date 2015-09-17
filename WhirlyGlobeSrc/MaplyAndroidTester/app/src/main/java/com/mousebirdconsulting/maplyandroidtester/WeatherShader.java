@@ -7,7 +7,7 @@ import com.mousebird.maply.Shader;
  * A simple fragment shader.  All we're testing here is that we can set one up.
  * This is just the multi-tex fragment shader from the toolkit.
  */
-public class TestShader extends Shader
+public class WeatherShader extends Shader
 {
     MaplyBaseController controller = null;
 
@@ -88,14 +88,14 @@ public class TestShader extends Shader
         "{" +
         "  vec4 baseColor0 = texture2D(s_baseMap0, v_texCoord0);" +
         "  vec4 baseColor1 = texture2D(s_baseMap1, v_texCoord1);" +
-        "  gl_FragColor = v_color * mix(baseColor0,baseColor1,u_interp);" +
+        "  gl_FragColor = v_color * mix(vec4(baseColor0.r,baseColor0.r,baseColor0.r,baseColor0.r),vec4(baseColor1.r,baseColor1.r,baseColor1.r,baseColor1.r),u_interp);" +
         "}"
     ;
 
 
-    TestShader(MaplyBaseController inController)
+    WeatherShader(MaplyBaseController inController)
     {
-        super("Test Shader",vertexShaderTriMultiTex,fragmentShaderTriMultiTex,inController);
+        super("Weather Shader",vertexShaderTriMultiTex,fragmentShaderTriMultiTex,inController);
         controller = inController;
     }
 }

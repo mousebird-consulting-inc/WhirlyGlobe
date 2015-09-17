@@ -76,4 +76,11 @@ public class RemoteTileInfo
 	{
 		return "/" + level + "_" + x + "_" + y + "."  + ext;
 	}
+
+	public String buildCacheName(int x,int y,int level,int frame)
+	{
+		if (frame == -1)
+			return buildCacheName(x,y,level);
+		return "/" + level + "_" + x + "_" + y + "_" + frame + "."  + ext;
+	}
 }
