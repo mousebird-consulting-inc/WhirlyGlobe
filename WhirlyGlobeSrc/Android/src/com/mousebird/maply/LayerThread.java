@@ -442,6 +442,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	// Called when the view updates its information
 	public void viewUpdated(View view)
 	{
+		if (view == null || renderer == null)
+			return;
+
 		final ViewState viewState = view.makeViewState(renderer);
 
 		long now = System.currentTimeMillis();

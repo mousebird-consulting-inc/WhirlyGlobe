@@ -1193,7 +1193,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeViewUpd
 
 		adapter->env = env;
 
-//		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "QuadImageTileLayer::nativeViewUpdate() called");
 		adapter->control->viewUpdate(viewState);
 	}
 	catch (...)

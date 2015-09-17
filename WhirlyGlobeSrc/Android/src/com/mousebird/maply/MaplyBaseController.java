@@ -230,6 +230,8 @@ public class MaplyBaseController
                         EGL10.EGL_NONE
                 };
         eglSurface = egl.eglCreatePbufferSurface(renderWrapper.maplyRender.display, renderWrapper.maplyRender.config, surface_attrs);
+
+        layerThread.viewUpdated(view);
 	}
 
     /**
