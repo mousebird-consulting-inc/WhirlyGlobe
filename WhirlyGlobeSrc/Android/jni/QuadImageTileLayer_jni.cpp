@@ -1276,7 +1276,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 
 		adapter->tileLoaded(level,x,y,frame,rawDataRef,info.width,info.height,*changes);
 		AndroidBitmap_unlockPixels(env, bitmapObj);
-//		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did load: %d: (%d,%d)",level,x,y);
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did load: %d: (%d,%d) frame",level,x,y,frame);
     }
 	catch (...)
 	{
@@ -1294,6 +1294,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 		if (!adapter || !changes)
 			return;
 
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did not load: %d: (%d,%d) %d",level,x,y,frame);
 		adapter->tileLoaded(level,x,y,frame,RawDataRef(),1,1,*changes);
 	}
 	catch (...)
