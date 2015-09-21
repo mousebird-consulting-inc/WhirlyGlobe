@@ -137,6 +137,9 @@ using namespace WhirlyKit;
 // This is called in the main thread
 - (void)viewUpdated:(WhirlyKitView *)inView
 {
+    if (layerThread.renderer == nil)
+        return;
+    
     // The view has to be valid first
     if (layerThread.renderer.framebufferWidth <= 0.0)
     {
