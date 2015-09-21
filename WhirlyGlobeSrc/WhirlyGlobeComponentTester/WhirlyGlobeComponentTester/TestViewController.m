@@ -117,6 +117,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     MaplyStarsModel *stars;
     MaplyComponentObject *sunObj,*moonObj;
     MaplyAtmosphere *atmosObj;
+    NSDictionary *tessValues;
     
     // Paging marker test
     MaplyQuadPagingLayer *markerLayer;
@@ -213,6 +214,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
             globeViewC.delegate = self;
             baseViewC = globeViewC;
             maxLayerTiles = 128;
+            // Per level tesselation control
+            tessValues = @{@(-1) : @10, @0 : @20, @1 : @16};
             break;
         case Maply3DMap:
             mapViewC = [[MaplyViewController alloc] init];
@@ -1312,6 +1315,7 @@ static const int NumMegaMarkers = 15000;
         layer.waitLoad = imageWaitLoad;
         layer.drawPriority = BaseEarthPriority;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        [layer setTesselationValues:tessValues];
         [baseViewC addLayer:layer];
         
         labelColor = [UIColor blackColor];
@@ -1351,6 +1355,7 @@ static const int NumMegaMarkers = 15000;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.handleEdges = true;
         layer.requireElev = requireElev;
+        [layer setTesselationValues:tessValues];
         [baseViewC addLayer:layer];
         layer.drawPriority = BaseEarthPriority;
         layer.waitLoad = imageWaitLoad;
@@ -1379,6 +1384,7 @@ static const int NumMegaMarkers = 15000;
         layer.waitLoad = imageWaitLoad;
         layer.maxTiles = maxLayerTiles;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        [layer setTesselationValues:tessValues];
         [baseViewC addLayer:layer];
         layer.drawPriority = BaseEarthPriority;
         baseLayer = layer;
@@ -1444,6 +1450,7 @@ static const int NumMegaMarkers = 15000;
         layer.currentImage = 0.5;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
         layer.shaderProgramName = kMaplyShaderDefaultTriNightDay;
+        [layer setTesselationValues:tessValues];
         if (atmosObj)
             layer.shaderProgramName = atmosObj.groundShader.name;
         [baseViewC addLayer:layer];
@@ -1480,6 +1487,7 @@ static const int NumMegaMarkers = 15000;
             layer.singleLevelLoading = true;
             layer.multiLevelLoads = @[@(-2)];
         }
+        [layer setTesselationValues:tessValues];
         [baseViewC addLayer:layer];
         layer.drawPriority = BaseEarthPriority;
         baseLayer = layer;
@@ -1549,6 +1557,7 @@ static const int NumMegaMarkers = 15000;
         layer.useTargetZoomLevel = true;
         layer.singleLevelLoading = true;
         layer.multiLevelLoads = @[@(-3)];
+        [layer setTesselationValues:tessValues];
         [baseViewC addLayer:layer];
         layer.drawPriority = BaseEarthPriority;
         baseLayer = layer;        
@@ -1578,6 +1587,7 @@ static const int NumMegaMarkers = 15000;
                  layer.singleLevelLoading = true;
                  layer.multiLevelLoads = @[@(-4), @(-2)];
              }
+             [layer setTesselationValues:tessValues];
              [baseViewC addLayer:layer];
              layer.drawPriority = BaseEarthPriority;
              baseLayer = layer;
