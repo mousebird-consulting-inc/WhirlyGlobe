@@ -83,7 +83,7 @@ using namespace WhirlyKit;
         
         pthread_mutex_init(&changeLock,NULL);
         pthread_mutex_init(&existenceLock,NULL);
-      pauseLock = [[NSCondition alloc] init];
+        pauseLock = [[NSCondition alloc] init];
 	}
 	
 	return self;
@@ -255,14 +255,15 @@ using namespace WhirlyKit;
         // We'll check every 10th of a second
         while (![self isCancelled])
         {
-          [pauseLock lock];
-          while(paused) {
-            [pauseLock wait];
-          }
-          @autoreleasepool {
+            [pauseLock lock];
+            while(paused)
+            {
+                [pauseLock wait];
+            }
+            @autoreleasepool {
                 [_runLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
             }
-          [pauseLock unlock];
+            [pauseLock unlock];
         }
         
         [NSObject cancelPreviousPerformRequestsWithTarget:self];
@@ -341,13 +342,15 @@ using namespace WhirlyKit;
 }
 
 
-- (void)pause {
-  paused = true;
+- (void)pause
+{
+    paused = true;
 }
 
-- (void)unpause {
-  paused = false;
-  [pauseLock signal];
+- (void)unpause
+{
+    paused = false;
+    [pauseLock signal];
 }
 
 @end
