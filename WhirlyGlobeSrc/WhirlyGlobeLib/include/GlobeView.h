@@ -51,6 +51,8 @@
 @property (nonatomic,weak) NSObject<WhirlyGlobeAnimationDelegate> *delegate;
 /// The view can have a tilt.  0 is straight down.  PI/2 is looking to the horizon.
 @property (nonatomic,assign) double tilt;
+/// Set the far clipping plane (be careful)
+- (void)setFarClippingPlane:(double)farClip;
 
 /// Return min/max valid heights above globe
 - (double)minHeightAboveGlobe;

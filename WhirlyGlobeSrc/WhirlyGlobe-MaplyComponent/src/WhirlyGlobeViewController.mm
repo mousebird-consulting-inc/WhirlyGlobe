@@ -532,6 +532,11 @@ using namespace WhirlyGlobe;
         twoFingerTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
 }
 
+- (void)setFarClipPlane:(double)farClipPlane
+{
+    [globeView setFarClippingPlane:farClipPlane];
+}
+
 - (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt
 {
     tiltControlDelegate = [[WGStandardTiltDelegate alloc] initWithGlobeView:globeView];

@@ -242,7 +242,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     [self.view addSubview:baseViewC.view];
     baseViewC.view.frame = self.view.bounds;
     [self addChildViewController:baseViewC];
-
+    
     // Note: Debugging
 //    if (globeViewC)
 //        [globeViewC setTiltMinHeight:0.001 maxHeight:0.01 minTilt:1.21771169 maxTilt:0.0];
@@ -282,6 +282,16 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         mapViewC.height = 1.0;
         [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
     }
+    
+    // Note: Debugging
+//    if (globeViewC)
+//    {
+//        [globeViewC setFarClipPlane:10.0];
+//        float minZoom,maxZoom;
+//        [globeViewC getZoomLimitsMin:&minZoom max:&maxZoom];
+//        [globeViewC setZoomLimitsMin:minZoom max:8.0];
+//    }
+
     
     NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
     
