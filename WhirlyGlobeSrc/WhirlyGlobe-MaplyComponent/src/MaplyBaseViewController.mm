@@ -306,14 +306,16 @@ using namespace WhirlyKit;
         if (wasAnimating)
             [self stopAnimation];
     }
-    for(WhirlyKitLayerThread *t in layerThreads) {
+    for(WhirlyKitLayerThread *t in layerThreads)
+    {
         [t pause];
     }
 }
 
 - (void)appForeground:(NSNotification *)note
 {
-    for(WhirlyKitLayerThread *t in layerThreads) {
+    for(WhirlyKitLayerThread *t in layerThreads)
+    {
         [t unpause];
     }
     if (wasAnimating)
