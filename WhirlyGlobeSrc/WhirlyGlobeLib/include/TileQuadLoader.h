@@ -160,6 +160,9 @@
 ///  sampling you're going to pass in.  If you don't set this, you may lose tiles.
 - (void)setTesselationSizeX:(int)x y:(int)y;
 
+/// Set the sampling sizes per
+- (void)setTesselationSizePerLevel:(const std::vector<int> &)tessSizes;
+
 /// Called when the layer shuts down
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene;
 
