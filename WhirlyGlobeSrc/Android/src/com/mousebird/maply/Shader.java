@@ -22,6 +22,8 @@ package com.mousebird.maply;
 
 import android.util.Log;
 
+import java.util.ArrayList;
+
 /**
  * The shader is a direct interface to OpenGL ES 2.0 shader language.
  * <p>
@@ -33,6 +35,8 @@ import android.util.Log;
  */
 public class Shader 
 {
+	MaplyBaseController control = null;
+
 	/** Initialize with the file names for the shader program.
 	 * <p>
      * See initWithName:vertex:fragment:viewC: for more details on how this works.
@@ -42,8 +46,9 @@ public class Shader
      * @param control The controller where we'll register the new shader.
      * @return Returns a shader program if it succeeded.  It may not work, however, so call valid first.
      */
-	public Shader(String name,String vertexSrc, String fragSrc,MaplyBaseController control)
+	public Shader(String name,String vertexSrc, String fragSrc,MaplyBaseController inControl)
 	{
+        control = inControl;
 		if (control.setEGLContext())
 			initialise(name,vertexSrc,fragSrc);
 		else
@@ -64,6 +69,23 @@ public class Shader
      * Returns the shader's name.
      */
 	public native String getName();
+
+	// Textures attached to this shader
+	ArrayList<MaplyTexture> textures = new ArrayList<MaplyTexture>();
+
+	/**
+	 * Add a texture for use in the shader.
+	 * @param name Name to be used in the shader.
+	 * @param bitmap Bitmap to pass into the shader.
+	 */
+	public void addTexture(String name,MaplyTexture texture)
+	{
+		textures.add(texture);
+
+		addTextureNative(control.getScene(),name,texture.texID);
+	}
+
+	native void addTextureNative(Scene scene,String name,long texID);
 	
 	/** Set a float uniform in the shader with the given name.
 	 * <p>

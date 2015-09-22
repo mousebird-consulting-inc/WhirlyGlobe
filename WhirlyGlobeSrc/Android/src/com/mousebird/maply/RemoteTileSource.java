@@ -114,6 +114,9 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	{
 		return tileInfo.maxZoom;
 	}
+
+	@Override
+	public int pixelsPerSide() { return tileInfo.pixelsPerSide; }
 	
 	// Connection task fetches the image
 	private class ConnectionTask extends AsyncTask<String, Void, Bitmap>

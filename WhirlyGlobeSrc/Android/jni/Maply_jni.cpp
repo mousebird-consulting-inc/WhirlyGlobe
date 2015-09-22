@@ -63,3 +63,14 @@ void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 		intVec[ii] = ints[ii];
 	env->ReleaseIntArrayElements(intArray,ints, 0);
 }
+
+JavaString::JavaString(JNIEnv *env,jstring &str)
+: str(str), env(env)
+{
+    cStr = env->GetStringUTFChars(str,0);
+}
+
+JavaString::~JavaString()
+{
+    env->ReleaseStringUTFChars(str, cStr);
+}

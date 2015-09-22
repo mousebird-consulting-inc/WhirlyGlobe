@@ -1,10 +1,10 @@
 package com.mousebird.maply;
 
-import java.util.ArrayList;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 /**
  * The RemoteTileInfo class holds the contact info associated with a remote tile source.
@@ -17,6 +17,7 @@ public class RemoteTileInfo
 	String ext = null;
 	int minZoom = 0;
 	int maxZoom = 0;
+	int pixelsPerSide = 256;
 
 	/**
 	 * Construct a remote tile source that fetches from a single URL.  You provide

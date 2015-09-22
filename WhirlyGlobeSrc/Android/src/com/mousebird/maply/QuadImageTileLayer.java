@@ -65,6 +65,10 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		 * The maximum zoom level you'll be called about to create a tile for.
 		 */
 		public int maxZoom();
+		/**
+		 * The number of pixels square for each tile.
+		 */
+		public int pixelsPerSide();
 
 		/**
 		 * This tells you when to start fetching a given tile. When you've fetched
@@ -132,7 +136,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		layerThread.addWatcher(this);
 		Point2d ll = new Point2d(coordSys.ll.getX(),coordSys.ll.getY());
 		Point2d ur = new Point2d(coordSys.ur.getX(),coordSys.ur.getY());
-		nativeStartLayer(layerThread.scene,layerThread.renderer,ll,ur,0,tileSource.maxZoom());
+		nativeStartLayer(layerThread.scene,layerThread.renderer,ll,ur,tileSource.minZoom(),tileSource.maxZoom(),tileSource.pixelsPerSide());
 
         scheduleEvalStep();
 
@@ -295,8 +299,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		if (!valid)
 			return;
 
+        int y = tileID.y;
 	    if (!flipY)
-	    	tileID.y = (1<<tileID.level)-tileID.y-1;
+	    	y =  (1<<tileID.level)-tileID.y-1;
 
 		if (Looper.myLooper() != layerThread.getLooper())
 		{
@@ -314,9 +319,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		
 		ChangeSet changes = new ChangeSet();
 		if (imageTile != null)
-			nativeTileDidLoad(tileID.x,tileID.y,tileID.level,frame,imageTile.bitmap,changes);
+			nativeTileDidLoad(tileID.x,y,tileID.level,frame,imageTile.bitmap,changes);
 		else
-			nativeTileDidNotLoad(tileID.x,tileID.y,tileID.level,frame,changes);
+			nativeTileDidNotLoad(tileID.x,y,tileID.level,frame,changes);
 		layerThread.addChanges(changes);
 	}
 		
@@ -505,7 +510,8 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	{
 		ChangeSet changes = new ChangeSet();
 		setColor(r,g,b,a,changes);
-		layerThread.addChanges(changes);						
+		if (layerThread != null)
+			layerThread.addChanges(changes);
 	}
 	
 	native void setColor(float r,float g,float b,float a,ChangeSet changes);
@@ -654,7 +660,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	native void dispose();
 	private long nativeHandle;
 
-	native void nativeStartLayer(Scene scene,MaplyRenderer renderer,Point2d ll,Point2d ur,int minZoom,int maxZoom);
+	native void nativeStartLayer(Scene scene,MaplyRenderer renderer,Point2d ll,Point2d ur,int minZoom,int maxZoom,int pixelsPerSide);
 	native void nativeViewUpdate(ViewState viewState);	
 	native boolean nativeEvalStep(ChangeSet changes);
 	native boolean nativeRefresh(ChangeSet changes);

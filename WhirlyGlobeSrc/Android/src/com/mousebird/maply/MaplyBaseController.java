@@ -1,14 +1,10 @@
 package com.mousebird.maply;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
+import android.graphics.Bitmap;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Handler;
@@ -17,7 +13,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import javax.microedition.khronos.egl.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.microedition.khronos.egl.EGL10;
+import javax.microedition.khronos.egl.EGLContext;
+import javax.microedition.khronos.egl.EGLSurface;
 
 /**
  * The base controller is a base class for both Maply and WhirlyGlobe controllers.
@@ -64,6 +67,14 @@ public class MaplyBaseController
 	
 	// Scene stores the objects
 	protected Scene scene = null;
+
+    /**
+     * Return the current scene.  Only for sure within the library.
+     */
+    public Scene getScene()
+    {
+        return scene;
+    }
 	
 	// MapView defines how we're looking at the data
 	protected com.mousebird.maply.View view = null;
@@ -301,7 +312,7 @@ public class MaplyBaseController
 	/**
 	 * Report performance stats in the console ever few frames.
 	 * Setting this to zero turns it off.
-	 * @param perfInterval
+	 * @param inPerfInterval
 	 */
 	public void setPerfInterval(int inPerfInterval)
 	{
@@ -350,9 +361,11 @@ public class MaplyBaseController
 		if (!running)
 			return;
 		
-		if (Looper.myLooper() == layerThread.getLooper() || (mode == ThreadMode.ThreadCurrent))
-			run.run();
-		else
+		if (Looper.myLooper() == layerThread.getLooper() || (mode == ThreadMode.ThreadCurrent)) {
+            setEGLContext();
+
+            run.run();
+        } else
 			layerThread.addTask(run,true);
 	}
 
@@ -558,6 +571,55 @@ public class MaplyBaseController
 		
 		return compObj;
 	}
+
+    /**
+     * Texture settings for adding textures to the system.
+     */
+    static public class TextureSettings
+    {
+        public TextureSettings()
+        {
+        }
+
+        /**
+         * Image format to use when creating textures.
+         */
+        QuadImageTileLayer.ImageFormat imageFormat = QuadImageTileLayer.ImageFormat.MaplyImageIntRGBA;
+    }
+
+    /**
+     * Add texture to the system with the given settings.
+     * @param image Image to add.
+     * @param settings Settings to use.
+     * @param mode Add on the current thread or elsewhere.
+     */
+	public MaplyTexture addTexture(final Bitmap image,TextureSettings settings,ThreadMode mode)
+    {
+        final MaplyTexture texture = new MaplyTexture();
+
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ChangeSet changes = new ChangeSet();
+
+                        Texture rawTex = new Texture();
+                        rawTex.setBitmap(image);
+                        texture.texID = rawTex.getID();
+                        changes.addTexture(rawTex);
+
+                        // Flush the text changes
+                        scene.addChanges(changes);
+                    }
+                };
+
+        addTask(run, mode);
+
+        return texture;
+    }
 
     /**
      * Associate a shader with the given scene name.  These names let us override existing shaders, as well as adding our own.

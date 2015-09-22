@@ -104,6 +104,33 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_Shader_getName
     }
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
+(JNIEnv *env, jobject obj, jobject sceneObj, jstring nameStr, jlong texID)
+{
+    try
+    {
+        OpenGLES2ProgramClassInfo *classInfo = OpenGLES2ProgramClassInfo::getClassInfo();
+        OpenGLES2Program *inst = classInfo->getObject(env,obj);
+	Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+        if (!inst || !scene)
+            return;
+        
+        glUseProgram(inst->getProgram());
+
+        JavaString name(env,nameStr);
+
+	TextureBase *tex = scene->getTexture(texID);
+	if (tex && tex->getGLId() != 0)
+	{
+	  inst->setTexture(name.cStr,tex->getGLId());
+	}
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::addTextureNative()");
+    }
+}
+
 
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lang_String_2D
   (JNIEnv *env, jobject obj, jstring nameStr, jdouble uni)
@@ -114,7 +141,10 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lan
 		OpenGLES2Program *inst = classInfo->getObject(env,obj);
 		if (!inst)
 			return false;
-		const char *cName = env->GetStringUTFChars(nameStr,0);
+        
+        glUseProgram(inst->getProgram());
+
+        const char *cName = env->GetStringUTFChars(nameStr,0);
 		std::string name = cName;
 		env->ReleaseStringUTFChars(nameStr, cName);
 
@@ -136,7 +166,10 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lan
 		OpenGLES2Program *inst = classInfo->getObject(env,obj);
 		if (!inst)
 			return false;
-		const char *cName = env->GetStringUTFChars(nameStr,0);
+        
+        glUseProgram(inst->getProgram());
+
+        const char *cName = env->GetStringUTFChars(nameStr,0);
 		std::string name = cName;
 		env->ReleaseStringUTFChars(nameStr, cName);
 
@@ -158,7 +191,10 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lan
 		OpenGLES2Program *inst = classInfo->getObject(env,obj);
 		if (!inst)
 			return false;
-		const char *cName = env->GetStringUTFChars(nameStr,0);
+
+        glUseProgram(inst->getProgram());
+		
+        const char *cName = env->GetStringUTFChars(nameStr,0);
 		std::string name = cName;
 		env->ReleaseStringUTFChars(nameStr, cName);
 
@@ -180,7 +216,10 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lan
 		OpenGLES2Program *inst = classInfo->getObject(env,obj);
 		if (!inst)
 			return false;
-		const char *cName = env->GetStringUTFChars(nameStr,0);
+        
+        glUseProgram(inst->getProgram());
+
+        const char *cName = env->GetStringUTFChars(nameStr,0);
 		std::string name = cName;
 		env->ReleaseStringUTFChars(nameStr, cName);
 
@@ -202,7 +241,10 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lan
 		OpenGLES2Program *inst = classInfo->getObject(env,obj);
 		if (!inst)
 			return false;
-		const char *cName = env->GetStringUTFChars(nameStr,0);
+        
+        glUseProgram(inst->getProgram());
+
+        const char *cName = env->GetStringUTFChars(nameStr,0);
 		std::string name = cName;
 		env->ReleaseStringUTFChars(nameStr, cName);
 

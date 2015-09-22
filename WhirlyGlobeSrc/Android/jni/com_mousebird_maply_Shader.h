@@ -25,6 +25,14 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_Shader_getName
 
 /*
  * Class:     com_mousebird_maply_Shader
+ * Method:    addTextureNative
+ * Signature: (Lcom/mousebird/maply/Scene;Ljava/lang/String;J)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
+  (JNIEnv *, jobject, jobject, jstring, jlong);
+
+/*
+ * Class:     com_mousebird_maply_Shader
  * Method:    setUniform
  * Signature: (Ljava/lang/String;D)Z
  */

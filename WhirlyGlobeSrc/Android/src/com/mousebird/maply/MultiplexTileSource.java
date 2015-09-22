@@ -20,6 +20,15 @@
 
 package com.mousebird.maply;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.util.Log;
+
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,15 +37,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.HashMap;
-
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.util.Log;
 
 /**
  * The multiplex tile source takes a list of remote tile info objects for the
@@ -49,6 +49,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	RemoteTileInfo[] sources = null;
 	int minZoom = 0;
 	int maxZoom = 0;
+	int pixelsPerSide = 256;
 	OkHttpClient client = new OkHttpClient();
 	
 	/**
@@ -98,7 +99,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 					{
 						BufferedInputStream aBufferedInputStream = new BufferedInputStream(new FileInputStream(cacheFile));
 			    		bm = BitmapFactory.decodeStream(aBufferedInputStream);				
-//			    		Log.d("Maply","Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+			    		Log.d("Maply","Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
 					}
 				}
 				
@@ -113,7 +114,10 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 				    {
 				    	Response response = client.newCall(request).execute();
 				    	rawImage = response.body().bytes();
-				    	bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length);				
+						BitmapFactory.Options options = new  BitmapFactory.Options();
+						options.inScaled = false;
+						options.inPremultiplied = false;
+						bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length,options);
 				    }
 				    catch (Exception e)
 				    {
@@ -127,7 +131,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 		    			fOut.write(rawImage);
 		    			fOut.close();
 		    		}
-//		    		Log.d("Maply","Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+		    		Log.d("Maply","Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
 				}
 	    		
 				// Let the layer and delegate know what happened with it
@@ -309,6 +313,9 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	public int maxZoom() {
 		return maxZoom;
 	}
+
+	@Override
+	public int pixelsPerSide() { return pixelsPerSide; }
 
 	@Override
 	public void startFetchForTile(QuadImageTileLayer layer, MaplyTileID tileID, int frame) 

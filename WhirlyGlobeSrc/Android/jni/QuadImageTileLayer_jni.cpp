@@ -210,11 +210,11 @@ public:
 	}
 
 	// Called to start the layer
-	void start(Scene *inScene,SceneRendererES *inRenderer,const Point2d &inLL,const Point2d &inUR,int inMinZoom,int inMaxZoom)
+	void start(Scene *inScene,SceneRendererES *inRenderer,const Point2d &inLL,const Point2d &inUR,int inMinZoom,int inMaxZoom,int inPixelsPerSide)
 	{
 		scene = inScene;
 		renderer = inRenderer;
-		ll = inLL;  ur = inUR;  minZoom = inMinZoom;  maxZoom = inMaxZoom;
+        ll = inLL;  ur = inUR;  minZoom = inMinZoom;  maxZoom = inMaxZoom; tileSize = inPixelsPerSide;
 
 		tileLoader = setupTileLoader();
 
@@ -303,6 +303,11 @@ public:
 		  }
               }
 	}
+    
+    void setColor(const RGBAColor &newColor)
+    {
+        color = newColor;
+    }
 
 	/** QuadDataStructure Calls **/
 
@@ -836,7 +841,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setColor
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!adapter || !changeSet)
 			return;
-		adapter->tileLoader->setColor(RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0));
+		adapter->setColor(RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0));
 	}
 	catch (...)
 	{
@@ -1139,7 +1144,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setVisibility
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeStartLayer
-  (JNIEnv *env, jobject obj, jobject sceneObj, jobject rendererObj, jobject llObj, jobject urObj, jint minZoom, jint maxZoom)
+  (JNIEnv *env, jobject obj, jobject sceneObj, jobject rendererObj, jobject llObj, jobject urObj, jint minZoom, jint maxZoom, jint pixelsPerSide)
 {
 	try
 	{
@@ -1154,7 +1159,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeStartLa
 
 		adapter->env = env;
 
-		adapter->start(scene,renderer,*ll,*ur,minZoom,maxZoom);
+		adapter->start(scene,renderer,*ll,*ur,minZoom,maxZoom,pixelsPerSide);
 	}
 	catch (...)
 	{
