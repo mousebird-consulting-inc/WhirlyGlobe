@@ -543,23 +543,43 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 // Add screen (2D) markers at all our locations
 - (void)addScreenMarkers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
 {
-    CGSize size = CGSizeMake(40, 40);
-    UIImage *pinImage = [UIImage imageNamed:@"map_pin"];
+    CGSize redSize = CGSizeMake(40, 40);
+    CGSize blueSize = CGSizeMake(4, 4);
+//    UIImage *pinImage = [UIImage imageNamed:@"map_pin"];
+    UIImage *redSquare = [UIImage imageNamed:@"redsquare"];
+    UIImage *blueSquare = [UIImage imageNamed:@"bluesquare"];
     
-    NSMutableArray *markers = [NSMutableArray array];
+    NSMutableArray *redMarkers = [NSMutableArray array];
+    NSMutableArray *blueMarkers = [NSMutableArray array];
     for (unsigned int ii=offset;ii<len;ii+=stride)
     {
         LocationInfo *location = &locations[ii];
-        MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
-        marker.image = pinImage;
-        marker.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
-        marker.size = size;
-        marker.userObject = [NSString stringWithFormat:@"%s",location->name];
-        marker.layoutImportance = MAXFLOAT;
-        [markers addObject:marker];
+        
+        {
+            MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
+            marker.image = redSquare;
+            marker.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
+            marker.size = redSize;
+            marker.userObject = [NSString stringWithFormat:@"%s",location->name];
+            marker.layoutImportance = 2.0;
+            marker.offset = CGPointMake(23,0.0);
+            [redMarkers addObject:marker];
+        }
+
+        {
+            MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
+            marker.image = blueSquare;
+            marker.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
+            marker.size = blueSize;
+            marker.userObject = [NSString stringWithFormat:@"%s",location->name];
+            marker.layoutImportance = 3.0;
+            marker.offset = CGPointMake(0.0,0.0);
+            [blueMarkers addObject:marker];
+        }
     }
     
-    screenMarkersObj = [baseViewC addScreenMarkers:markers desc:@{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(1.0), kMaplyDrawPriority: @(100)}];
+    screenMarkersObj = [baseViewC addScreenMarkers:redMarkers desc:@{kMaplyDrawPriority: @(100)}];
+    screenMarkersObj = [baseViewC addScreenMarkers:blueMarkers desc:@{kMaplyDrawPriority: @(101)}];
 }
 
 // Add 3D markers
@@ -1876,7 +1896,7 @@ static const int NumMegaMarkers = 15000;
     if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestMarker2D])
     {
         if (!screenMarkersObj)
-            [self addScreenMarkers:locations len:NumLocations stride:4 offset:2];
+            [self addScreenMarkers:locations len:NumLocations stride:1 offset:0];
     } else {
         if (screenMarkersObj)
         {
