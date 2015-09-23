@@ -745,7 +745,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 layoutObject->selectPts = layoutObject->layoutPts;
                 layoutObject->importance = layoutImportance;
                 // Note: Should parse out acceptable placements as well
-                layoutObject->acceptablePlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow;
+                layoutObject->acceptablePlacement = WhirlyKitLayoutPlacementCenter | WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow;
                 
                 // The shape starts out disabled
                 screenShape->setEnable(_labelInfo.enable);
