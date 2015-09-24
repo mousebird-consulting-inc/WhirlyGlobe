@@ -132,7 +132,7 @@
             UIImage *lineImage = [lineTexBuilder makeImage];
             MaplyTexture *filledLineTex = [viewC addTexture:lineImage
                                                 imageFormat:MaplyImageIntRGBA
-                                                  wrapFlags:MaplyImageWrapY
+                                                  wrapFlags:MaplyImageWrapY | MaplyImageWrapX
                                                        mode:MaplyThreadCurrent];
             desc[kMaplyVecTexture] = filledLineTex;
             desc[kMaplyWideVecCoordType] = kMaplyWideVecCoordTypeScreen;
