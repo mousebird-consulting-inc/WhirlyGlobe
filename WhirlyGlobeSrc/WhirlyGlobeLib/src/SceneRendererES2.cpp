@@ -720,8 +720,8 @@ void SceneRendererES2::render()
 //    if (perfInterval > 0)
 //        perfTimer.startTiming("glFinish");
     
-//    glFlush();
-//    glFinish();
+    glFlush();
+    glFinish();
     
 //    if (perfInterval > 0)
 //        perfTimer.stopTiming("glFinish");
