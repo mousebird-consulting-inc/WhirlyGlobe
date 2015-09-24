@@ -299,6 +299,22 @@ protected:
 	jmethodID literMethodID,hasNextID,nextID;
 };
 
+// Wrapper for Java string.  Destructor releases.
+class JavaString
+{
+public:
+    // Construct with the string we want to wrap
+    // Only allocate these on the heap.
+    JavaString(JNIEnv *env,jstring &str);
+    
+    // This cleans up the reference.
+    ~JavaString();
+    
+    JNIEnv *env;
+    jstring &str;
+    const char *cStr;
+};
+
 namespace WhirlyKit
 {
 typedef Eigen::Vector4d Point4d;

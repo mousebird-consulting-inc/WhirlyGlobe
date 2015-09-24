@@ -37,6 +37,7 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 {
 	int minZoom = 0;
 	int maxZoom = 16;
+	int pixelsPerSide = 128;
 	Looper mainLooper = null;
 	
 	public TestImageSource(Looper inMainLooper,int inMinZoom,int inMaxZoom)
@@ -57,6 +58,9 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 	{
 		return maxZoom;
 	}
+
+	@Override
+	public int pixelsPerSide() { return pixelsPerSide; }
 	
 	static int MaxDebugColors = 10;
 	static int debugColors[] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x4F256F, 0xD89CDE, 0x773B28, 0x333D99, 0x862D52, 0xC2C653, 0xB8583D};
@@ -87,7 +91,7 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 //			int textHeight = -bounds.top;
 	
 			// Draw into a bitmap
-			int sizeX = 128,sizeY = 128;
+			int sizeX = pixelsPerSide,sizeY = pixelsPerSide;
 			Bitmap bitmap = Bitmap.createBitmap(sizeX, sizeY, Bitmap.Config.ARGB_8888);
 			Canvas c = new Canvas(bitmap);
 			Paint p2 = new Paint();
