@@ -390,16 +390,16 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                             // Note: Ignoring the desired size in favor of the font size
                             ScreenSpaceObject::ConvexGeometry smGeom;
                             smGeom.progID = _labelInfo.programID;
-                            smGeom.coords.push_back(Point2d(poly.pts[1].x()+label.screenOffset.width,poly.pts[0].y()-label.screenOffset.height) + soff + iconOff + justifyOff);
+                            smGeom.coords.push_back(Point2d(poly.pts[1].x()+label.screenOffset.width,poly.pts[0].y()+label.screenOffset.height) + soff + iconOff + justifyOff);
                             smGeom.texCoords.push_back(TexCoord(poly.texCoords[1].u(),poly.texCoords[0].v()));
 
-                            smGeom.coords.push_back(Point2d(poly.pts[1].x()+label.screenOffset.width,poly.pts[1].y()-label.screenOffset.height) + soff + iconOff + justifyOff);
+                            smGeom.coords.push_back(Point2d(poly.pts[1].x()+label.screenOffset.width,poly.pts[1].y()+label.screenOffset.height) + soff + iconOff + justifyOff);
                             smGeom.texCoords.push_back(TexCoord(poly.texCoords[1].u(),poly.texCoords[1].v()));
 
-                            smGeom.coords.push_back(Point2d(poly.pts[0].x()+label.screenOffset.width,poly.pts[1].y()-label.screenOffset.height) + soff + iconOff + justifyOff);
+                            smGeom.coords.push_back(Point2d(poly.pts[0].x()+label.screenOffset.width,poly.pts[1].y()+label.screenOffset.height) + soff + iconOff + justifyOff);
                             smGeom.texCoords.push_back(TexCoord(poly.texCoords[0].u(),poly.texCoords[1].y()));
                             
-                            smGeom.coords.push_back(Point2d(poly.pts[0].x()+label.screenOffset.width,poly.pts[0].y()-label.screenOffset.height) + soff + iconOff + justifyOff);
+                            smGeom.coords.push_back(Point2d(poly.pts[0].x()+label.screenOffset.width,poly.pts[0].y()+label.screenOffset.height) + soff + iconOff + justifyOff);
                             smGeom.texCoords.push_back(TexCoord(poly.texCoords[0].u(),poly.texCoords[0].v()));
 
                             smGeom.texIDs.push_back(poly.subTex.texId);
@@ -417,7 +417,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         
                         // Put together the layout info
                         layoutObject->hint = label.text;
-                        drawStr->mbr.asPoints(layoutObject->layoutPts);
                         layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ll().x()+label.screenOffset.width,drawStr->mbr.ll().y()+label.screenOffset.height)+iconOff+justifyOff);
                         layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ur().x()+label.screenOffset.width,drawStr->mbr.ll().y()+label.screenOffset.height)+iconOff+justifyOff);
                         layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ur().x()+label.screenOffset.width,drawStr->mbr.ur().y()+label.screenOffset.height)+iconOff+justifyOff);
