@@ -22,6 +22,8 @@ import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLSurface;
 
+import com.squareup.okhttp.OkHttpClient;
+
 /**
  * The base controller is a base class for both Maply and WhirlyGlobe controllers.
  * <p>
@@ -35,7 +37,8 @@ public class MaplyBaseController
 {
 	public GLSurfaceView glSurfaceView;
 	Activity activity = null;
-	
+    OkHttpClient httpClient = new OkHttpClient();
+
 	// When adding features we can run on the current thread or delay the work till layter
 	public enum ThreadMode {ThreadCurrent,ThreadAny};
 	
@@ -75,6 +78,11 @@ public class MaplyBaseController
     {
         return scene;
     }
+
+    /**
+     * Return an HTTP Client for use in fetching data, probably tiles.
+     */
+    OkHttpClient getHttpClient() { return httpClient; }
 	
 	// MapView defines how we're looking at the data
 	protected com.mousebird.maply.View view = null;

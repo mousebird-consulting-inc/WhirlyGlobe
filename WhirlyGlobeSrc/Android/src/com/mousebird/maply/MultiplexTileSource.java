@@ -22,7 +22,6 @@ package com.mousebird.maply;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import com.squareup.okhttp.OkHttpClient;
@@ -45,12 +44,13 @@ import java.util.HashMap;
  */
 public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 {
+    MaplyBaseController controller = null;
 	CoordSystem coordSys = null;
 	RemoteTileInfo[] sources = null;
 	int minZoom = 0;
 	int maxZoom = 0;
 	int pixelsPerSide = 256;
-	OkHttpClient client = new OkHttpClient();
+	OkHttpClient client = null;
 	
 	/**
 	 * Set this delegate to get callbacks when tiles load or fail to load.
@@ -58,121 +58,138 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	public RemoteTileSource.TileSourceDelegate delegate = null;
 	
 	// Connection task fetches a single image
-	private class ConnectionTask extends AsyncTask<String, Void, Bitmap>
-	{
-		MultiplexTileSource tileSource = null;
-		QuadImageTileLayer layer = null;
-		MaplyTileID tileID = null;
-		int frame = -1;
-		URL url = null;
-		String locFile = null;
-		
-		ConnectionTask(QuadImageTileLayer inLayer,MultiplexTileSource inTileSource, MaplyTileID inTileID, int inFrame,String inURL,String inFile)
-		{
-			tileSource = inTileSource;
-			layer = inLayer;
-			tileID = inTileID;
-			locFile = inFile;
-			frame = inFrame;
-			try
-			{
-				url = new URL(inURL);
-			}
-			catch (IOException e)
-			{
-				
-			}
-		}
-		
-		@Override
-		protected Bitmap doInBackground(String... urls)
-		{
-			try
-			{
-				// See if it's here locally
-				File cacheFile = null;
-				Bitmap bm = null;
-				if (locFile != null)
-				{
-					cacheFile = new File(locFile);
-					if (cacheFile.exists())
-					{
-						BufferedInputStream aBufferedInputStream = new BufferedInputStream(new FileInputStream(cacheFile));
-			    		bm = BitmapFactory.decodeStream(aBufferedInputStream);				
-			    		Log.d("Maply","Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
-					}
-				}
-				
-				// Wasn't cached
-				if (bm == null)
-				{
-					// Load the data from that URL
-				    Request request = new Request.Builder().url(url).build();
+	private class ConnectionTask implements com.squareup.okhttp.Callback {
+        MultiplexTileSource tileSource = null;
+        QuadImageTileLayer layer = null;
+        MaplyTileID tileID = null;
+        int frame = -1;
+        URL url = null;
+        String locFile = null;
+        com.squareup.okhttp.Call call;
+        Bitmap bm = null;
+        File cacheFile = null;
+        boolean isCanceled = false;
 
-				    byte[] rawImage = null;
-				    try
-				    {
-				    	Response response = client.newCall(request).execute();
-				    	rawImage = response.body().bytes();
-						BitmapFactory.Options options = new  BitmapFactory.Options();
-						options.inScaled = false;
-						options.inPremultiplied = false;
-						bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length,options);
-				    }
-				    catch (Exception e)
-				    {
-				    }
-		    		
-		    		// Save to cache
-		    		if (cacheFile != null && rawImage != null)
-		    		{
-		    			OutputStream fOut;
-		    			fOut = new FileOutputStream(cacheFile);
-		    			fOut.write(rawImage);
-		    			fOut.close();
-		    		}
-		    		Log.d("Maply","Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
-				}
-	    		
-				// Let the layer and delegate know what happened with it
-		    	if (bm != null)
-		    	{
-		    		MaplyImageTile imageTile = new MaplyImageTile(bm);
-		    		if (tileSource.delegate != null)
-		    			tileSource.delegate.tileDidLoad(tileSource,tileID,frame);
-		    		layer.loadedTile(tileID, frame, imageTile);
-		    	} else {
-		    		if (tileSource.delegate != null)
-		    			tileSource.delegate.tileDidNotLoad(tileSource,tileID,frame);
-		    		layer.loadedTile(tileID, frame, null);
-		    	}
-		    	
-		    	return null;
-			}
-			catch (IOException e)
-			{
-				return null;
-			}
-			catch (Exception e)
-			{
-				Log.d("Maply","Remote tile error: " + e);
-				return null;
-			}
-		}
+        ConnectionTask(QuadImageTileLayer inLayer, MultiplexTileSource inTileSource, MaplyTileID inTileID, int inFrame, String inURL, String inFile) {
+            tileSource = inTileSource;
+            layer = inLayer;
+            tileID = inTileID;
+            locFile = inFile;
+            frame = inFrame;
+            try {
+                url = new URL(inURL);
+            } catch (IOException e) {
 
-	    @Override
-	    protected void onPostExecute(Bitmap bm) 
-	    {
-	    }		
-	}
-	
+            }
+        }
+
+        // Either fetch the tile from the local cache or fetch it remotely
+        protected void fetchTile() {
+            try {
+                // See if it's here locally
+                if (locFile != null) {
+                    cacheFile = new File(locFile);
+                    if (cacheFile.exists()) {
+                        BufferedInputStream aBufferedInputStream = new BufferedInputStream(new FileInputStream(cacheFile));
+                        bm = BitmapFactory.decodeStream(aBufferedInputStream);
+                        Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+                    }
+                }
+
+                if (bm != null) {
+                    reportTile();
+                    return;
+                }
+
+                // Load the data from that URL
+                Request request = new Request.Builder().url(url).build();
+
+                call = client.newCall(request);
+                call.enqueue(this);
+            } catch (Exception e) {
+            }
+        }
+
+        // Callback from OK HTTP on tile loading failure
+        public void onFailure(Request request, IOException e) {
+            Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
+        }
+
+        // Callback from OK HTTP on success
+        public void onResponse(Response response) {
+            if (isCanceled)
+                return;
+
+            byte[] rawImage = null;
+            try {
+                rawImage = response.body().bytes();
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inScaled = false;
+                options.inPremultiplied = false;
+                bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, options);
+
+                // Save to cache
+                if (cacheFile != null && rawImage != null) {
+                    OutputStream fOut;
+                    fOut = new FileOutputStream(cacheFile);
+                    fOut.write(rawImage);
+                    fOut.close();
+                }
+
+                Log.d("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+            }
+            catch (Exception e)
+            {
+                Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
+            }
+
+            reportTile();
+        }
+
+        // Let the system know we've got a tile
+        protected void reportTile() {
+            layer.layerThread.addTask(new Runnable() {
+                @Override
+                public void run() {
+                    // Let the layer and delegate know what happened with it
+                    if (bm != null) {
+                        MaplyImageTile imageTile = new MaplyImageTile(bm);
+                        if (tileSource.delegate != null)
+                            tileSource.delegate.tileDidLoad(tileSource, tileID, frame);
+                        layer.loadedTile(tileID, frame, imageTile);
+                    } else {
+                        if (tileSource.delegate != null)
+                            tileSource.delegate.tileDidNotLoad(tileSource, tileID, frame);
+                        layer.loadedTile(tileID, frame, null);
+                    }
+
+                    // Tile was fetched, clean up
+                    SortedTile tile = null;
+                    synchronized (tileSource.tiles) {
+                        tile = tileSource.tiles.get(tileID);
+                    }
+                    if (tile != null) {
+                        tile.finish(frame);
+                    }
+                }
+            });
+        }
+
+        // Cancel an outstanding request
+        protected void cancel() {
+            isCanceled = true;
+            if (call != null)
+                call.cancel();
+        }
+    }
+
 	// Used to track tiles we're in the process of loading
 	class SortedTile implements Comparable<SortedTile>
 	{
 		MaplyTileID ident = null;
 		int depth;
 		Bitmap[] tileData = null;
-		ConnectionTask[] fetches = null;
+        ConnectionTask[] fetches = null;
 		
 		public SortedTile(MaplyTileID inTileID,int inDepth)
 		{
@@ -199,7 +216,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 			for (int ii=0;ii<depth;ii++)
 			{
 				if (fetches[ii] != null)
-					fetches[ii].cancel(true);
+					fetches[ii].cancel();
 				fetches[ii] = null;
 				tileData[ii] = null;
 			}
@@ -221,10 +238,18 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 			
 	        if (fetches[which] != null)
 	        {
-				fetches[which].cancel(true);
+				fetches[which].cancel();
 				fetches[which] = null;
 	        }	        
 		}
+
+        // Clear out for a successful fetch
+        void finish(int frame)
+        {
+            int which = (frame == -1 ? 0 : frame);
+            if (fetches[which] != null)
+                fetches[which] = null;
+        }
 		
 	    // Number of active fetches
 		int numActiveFetches()
@@ -245,9 +270,12 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	 * Construct with a list of tile sources.  One source per frame and each source
 	 * needs to be identical in size and min/max zoom levels.
 	 */
-	public MultiplexTileSource(RemoteTileInfo[] inSources,CoordSystem inCoordSys)
+	public MultiplexTileSource(MaplyBaseController inController,RemoteTileInfo[] inSources,CoordSystem inCoordSys)
 	{
+        controller = inController;
 		sources = inSources;
+
+        client = controller.getHttpClient();
 		
 		if (sources.length == 0)
 			return;
@@ -327,7 +355,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 		int remoteY = maxY - tileID.y - 1;
 
 		// Look for an existing tile
-		synchronized(this)
+		synchronized(tiles)
 		{
 			SortedTile tile = tiles.get(tileID);
 			if (tile == null)
@@ -356,9 +384,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 						cacheFile = cacheDir.getAbsolutePath() + tileInfo.buildCacheName(tileID.x, tileID.y, tileID.level,frame);
 					ConnectionTask task = new ConnectionTask(layer,this,tileID,frame,tileURL,cacheFile);
 					tile.fetches[which] = task;
-					String[] params = new String[1];
-					params[0] = tileURL;
-					task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,params);
+                    task.fetchTile();
 				}
 			}
 		}
