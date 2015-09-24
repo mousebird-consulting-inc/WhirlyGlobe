@@ -719,9 +719,10 @@ void SceneRendererES2::render()
     
 //    if (perfInterval > 0)
 //        perfTimer.startTiming("glFinish");
-    
-    glFlush();
-    glFinish();
+
+    // Note: Porting.  This seems to bother Android
+//    glFlush();
+//    glFinish();
     
 //    if (perfInterval > 0)
 //        perfTimer.stopTiming("glFinish");
