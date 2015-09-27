@@ -131,8 +131,11 @@
             lineTexBuilder.opacityFunc = MaplyOpacitySin3;
             UIImage *lineImage = [lineTexBuilder makeImage];
             MaplyTexture *filledLineTex = [viewC addTexture:lineImage
-                                                imageFormat:MaplyImageIntRGBA
-                                                  wrapFlags:MaplyImageWrapY | MaplyImageWrapX
+                                                       desc:@{kMaplyTexMinFilter: kMaplyMinFilterLinear,
+                                                              kMaplyTexMagFilter: kMaplyMinFilterLinear,
+                                                              kMaplyTexWrapX: @true,
+                                                              kMaplyTexWrapY: @true,
+                                                              kMaplyTexFormat: @(MaplyImageIntRGBA)}
                                                        mode:MaplyThreadCurrent];
             desc[kMaplyVecTexture] = filledLineTex;
             desc[kMaplyWideVecCoordType] = kMaplyWideVecCoordTypeScreen;
