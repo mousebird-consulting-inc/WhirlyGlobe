@@ -924,19 +924,31 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     // Make the dashed line if it isn't already there
     if (!dashedLineTex)
     {
-        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(4,8)];
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,8)];
         [lineTexBuilder setPattern:@[@(4),@(4)]];
         lineTexBuilder.opacityFunc = MaplyOpacitySin2;
         UIImage *dashedLineImage = [lineTexBuilder makeImage];
-        dashedLineTex = [baseViewC addTexture:dashedLineImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapY mode:MaplyThreadAny];
+        dashedLineTex = [baseViewC addTexture:dashedLineImage
+                                         desc:@{kMaplyTexMinFilter: kMaplyMinFilterLinear,
+                                                kMaplyTexMagFilter: kMaplyMinFilterLinear,
+                                                kMaplyTexWrapX: @true,
+                                                kMaplyTexWrapY: @true,
+                                                kMaplyTexFormat: @(MaplyImageIntRGBA)}
+                                         mode:MaplyThreadCurrent];
     }
     if (!filledLineTex)
     {
-        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(3,32)];
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,32)];
         [lineTexBuilder setPattern:@[@(32)]];
         lineTexBuilder.opacityFunc = MaplyOpacitySin2;
         UIImage *lineImage = [lineTexBuilder makeImage];
-        filledLineTex = [baseViewC addTexture:lineImage imageFormat:MaplyImageIntRGBA wrapFlags:MaplyImageWrapY mode:MaplyThreadAny];
+        filledLineTex = [baseViewC addTexture:lineImage
+                                                   desc:@{kMaplyTexMinFilter: kMaplyMinFilterLinear,
+                                                          kMaplyTexMagFilter: kMaplyMinFilterLinear,
+                                                          kMaplyTexWrapX: @true,
+                                                          kMaplyTexWrapY: @true,
+                                                          kMaplyTexFormat: @(MaplyImageIntRGBA)}
+                                                   mode:MaplyThreadCurrent];
     }
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
@@ -2064,13 +2076,6 @@ static const int NumMegaMarkers = 15000;
         if (!sfRoadsObjArray)
         {
             [self addShapeFile:@"tl_2013_06075_roads"];
-            MaplyCoordinate coords[5];
-            coords[0] = MaplyCoordinateMakeWithDegrees(-122.3, 37.7);
-            coords[1] = MaplyCoordinateMakeWithDegrees(-122.3, 37.783333);
-            coords[2] = MaplyCoordinateMakeWithDegrees(-122.3, 37.783333);
-            coords[3] = MaplyCoordinateMakeWithDegrees(-122.416667, 37.8333);
-            MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:4 attributes:nil];
-            sfRoadsObjArray = [self addWideVectors:vecObj];
         }
     } else {
         if (sfRoadsObjArray)
