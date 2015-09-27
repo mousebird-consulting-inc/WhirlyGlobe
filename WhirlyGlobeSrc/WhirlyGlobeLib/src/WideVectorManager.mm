@@ -169,6 +169,7 @@ public:
             if (vecInfo.texID != EmptyIdentity)
                 drawable->addTexCoord(0, texCoords[vi]);
             drawable->addNormal(up);
+            drawable->addMaxLen(0.0);
 //            drawable->addColor(thisColor);
         }
         
@@ -194,7 +195,7 @@ public:
     }
     
     // Add a triangle to the wide drawable
-    void addWideTri(WideVectorDrawable *drawable,Point3d *corners,const Point3d &org,TexCoord *texCoords,const Point3d &up,const RGBAColor &thisColor)
+    void addWideTri(WideVectorDrawable *drawable,Point3d *corners,const Point3d &org,TexCoord *texCoords,float len,const Point3d &up,const RGBAColor &thisColor)
     {
         int startPt = drawable->getNumPoints();
 
@@ -202,6 +203,7 @@ public:
         {
             drawable->addPoint(org);
             drawable->addDir(corners[vi]);
+            drawable->addMaxLen(len);
             
             if (vecInfo.texID != EmptyIdentity)
                 drawable->addTexCoord(0, texCoords[vi]);
@@ -289,6 +291,8 @@ public:
         Point3d rPt,lPt;
         Point3d pcLocal = (pc ? *pc-dispCenter: Point3d(0,0,0));
         Point3d dirA = (paLocal-pbLocal).normalized();
+        double lenA = (paLocal-pbLocal).norm();
+        double lenB = 0.0;
         Point3d dirB;
         
         // Figure out which way the bend goes and calculation intersection points
@@ -299,6 +303,7 @@ public:
             // Compare the angle between the two segments.
             // We want to catch when the data folds back on itself.
             dirB = (pcLocal-pbLocal).normalized();
+            lenB = (pcLocal-pbLocal).norm();
             double dot = dirA.dot(dirB);
             if (dot > -0.99999998476 && dot < 0.99999998476)
                 if (intersectWideLines(paLocal,pbLocal,pcLocal,norm0*calcScale,norm1*calcScale,rPt,t0r,t1r) &&
@@ -380,17 +385,21 @@ public:
         texCoords[2] = TexCoord(1.0,texOffset+texLen);
         texCoords[3] = TexCoord(0.0,texOffset+texLen);
         
+        double minSegLen = 0.0;
+        if (vecInfo.coordType == WideVecCoordScreen)
+            minSegLen = std::max(lenA,lenB);
+        
         // Make an explicit join
         Point3d triVerts[3];
         TexCoord triTex[3];
         if (iPtsValid)
         {
+            double len = 0.0;
             WideVectorLineJoinType joinType = vecInfo.joinType;
             
             // We may need to switch to a bevel join if miter is too extreme
             if (joinType == WideVecMiterJoin)
             {
-                double len = 0.0;
                 // Bending right
                 if (t0l > 1.0)
                 {
@@ -434,7 +443,7 @@ public:
                             triVerts[0] = (corners[3]-pbLocal)/calcScale;
                             triVerts[1] = (rPt-pbLocal)/calcScale;
                             triVerts[2] = (lPt-pbLocal)/calcScale;
-                            addWideTri(wideDrawable,triVerts,pbLocal,triTex,up,thisColor);
+                            addWideTri(wideDrawable,triVerts,pbLocal,triTex,minSegLen,up,thisColor);
                         }
                         texJoinLens[1] = (next_e0-lPt).norm()/2.0;
                         triTex[0] = TexCoord(0.0,texOffset+texLen+texJoinLens[0]);
@@ -450,7 +459,7 @@ public:
                             triVerts[0] = (lPt-pbLocal)/calcScale;
                             triVerts[1] = (rPt-pbLocal)/calcScale;
                             triVerts[2] = (next_e0-pbLocal)/calcScale;
-                            addWideTri(wideDrawable,triVerts,pbLocal,triTex,up,thisColor);
+                            addWideTri(wideDrawable,triVerts,pbLocal,triTex,minSegLen,up,thisColor);
                         }
                         texJoinLen = texJoinLens[0] + texJoinLens[1];
                     } else {
@@ -470,7 +479,7 @@ public:
                             triVerts[0] = (lPt-pbLocal)/calcScale;
                             triVerts[1] = (corners[2]-pbLocal)/calcScale;
                             triVerts[2] = (rPt-pbLocal)/calcScale;
-                            addWideTri(wideDrawable,triVerts,pbLocal,triTex,up,thisColor);
+                            addWideTri(wideDrawable,triVerts,pbLocal,triTex,minSegLen,up,thisColor);
                         }
                         texJoinLens[1] = (next_e1-rPt).norm()/2.0;
                         triTex[0] = TexCoord(0.0,texOffset+texLen+texJoinLens[0]);
@@ -486,7 +495,7 @@ public:
                             triVerts[0] = (lPt-pbLocal)/calcScale;
                             triVerts[1] = (rPt-pbLocal)/calcScale;
                             triVerts[2] = (next_e1-pbLocal)/calcScale;
-                            addWideTri(wideDrawable,triVerts,pbLocal,triTex,up,thisColor);
+                            addWideTri(wideDrawable,triVerts,pbLocal,triTex,minSegLen,up,thisColor);
                         }
                         texJoinLen = texJoinLens[0] + texJoinLens[1];
                     }
@@ -525,7 +534,7 @@ public:
                                 triVerts[0] = (corners[3]-pbLocalAdj)/calcScale;
                                 triVerts[1] = (rPt-pbLocalAdj)/calcScale;
                                 triVerts[2] = (li0-pbLocalAdj)/calcScale;
-                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,up,thisColor);
+                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,minSegLen,up,thisColor);
                             }
                             texLens[1] = (li1-li0).norm()/2.0;
                             triTex[0] = TexCoord(0.0,texOffset+texLen+texLens[0]);
@@ -541,7 +550,7 @@ public:
                                 triVerts[0] = (li0-pbLocalAdj)/calcScale;
                                 triVerts[1] = (rPt-pbLocalAdj)/calcScale;
                                 triVerts[2] = (li1-pbLocalAdj)/calcScale;
-                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,up,thisColor);
+                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,minSegLen,up,thisColor);
                             }
                             texLens[2] = (next_e0-li1).norm()/2.0;
                             triTex[0] = TexCoord(0.0,texOffset+texLen+texLens[0]+texLens[1]);
@@ -557,7 +566,7 @@ public:
                                 triVerts[0] = (li1-pbLocalAdj)/calcScale;
                                 triVerts[1] = (rPt-pbLocalAdj)/calcScale;
                                 triVerts[2] = (next_e0-pbLocalAdj)/calcScale;
-                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,up,thisColor);
+                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,minSegLen,up,thisColor);
                             }
                             texJoinLen = texLens[0] + texLens[1] + texLens[2];
                         }
@@ -591,7 +600,7 @@ public:
                                 triVerts[0] = (lPt-pbLocalAdj)/calcScale;
                                 triVerts[1] = (corners[2]-pbLocalAdj)/calcScale;
                                 triVerts[2] = (ri0-pbLocalAdj)/calcScale;
-                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,up,thisColor);
+                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,minSegLen,up,thisColor);
                             }
                             texLens[1] = (ri1-ri0).norm()/2.0;
                             triTex[0] = TexCoord(0.0,texOffset+texLen+texLens[0]);
@@ -607,7 +616,7 @@ public:
                                 triVerts[0] = (lPt-pbLocalAdj)/calcScale;
                                 triVerts[1] = (ri0-pbLocalAdj)/calcScale;
                                 triVerts[2] = (ri1-pbLocalAdj)/calcScale;
-                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,up,thisColor);
+                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,minSegLen,up,thisColor);
                             }
                             texLens[2] = (next_e1-ri1).norm()/2.0;
                             triTex[0] = TexCoord(0.0,texOffset+texLen+texLens[0]+texLens[1]);
@@ -623,7 +632,7 @@ public:
                                 triVerts[0] = (lPt-pbLocalAdj)/calcScale;
                                 triVerts[1] = (ri1-pbLocalAdj)/calcScale;
                                 triVerts[2] = (next_e1-pbLocalAdj)/calcScale;
-                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,up,thisColor);
+                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,minSegLen,up,thisColor);
                             }
                             texJoinLen = texLens[0] + texLens[1] + texLens[2];
                         }
