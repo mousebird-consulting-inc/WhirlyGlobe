@@ -64,6 +64,6 @@
      is always web mercator with the web extents.  This is
      known as web mercator and it makes cartographers cry.
   */
-@property (nonatomic,readonly,nullable) MaplyCoordinateSystem *coordSys;
+@property (nonatomic,readonly,nonnull) MaplyCoordinateSystem *coordSys;
 
 @end
