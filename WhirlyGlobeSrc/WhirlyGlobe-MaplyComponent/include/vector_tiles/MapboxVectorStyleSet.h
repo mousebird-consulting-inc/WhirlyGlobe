@@ -34,7 +34,7 @@
 @property (nonatomic, strong, nullable) MaplyVectorTileStyleSettings *tileStyleSettings;
 
 /// @brief The view controller everything will be added to
-@property (nonatomic, weak, nonnull) MaplyBaseViewController *viewC;
+@property (nonatomic, weak, nullable) MaplyBaseViewController *viewC;
 
 /// @brief Style name
 @property (nonatomic, strong, nullable) NSString *name;

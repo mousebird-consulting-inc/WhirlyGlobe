@@ -22,15 +22,15 @@
 #import "MaplyCoordinate.h"
 
 /// Okay to place centered on point
-#define kMaplyLayoutCenter  (1<<0)
+#define kMaplyLayoutCenter  (1<<1)
 /// Okay to place to the right of a point
-#define kMaplyLayoutRight  (1<<1)
+#define kMaplyLayoutRight  (1<<2)
 /// Okay to place it to the left of a point
-#define kMaplyLayoutLeft   (1<<2)
+#define kMaplyLayoutLeft   (1<<3)
 /// Okay to place on top of a point
-#define kMaplyLayoutAbove  (1<<3)
+#define kMaplyLayoutAbove  (1<<4)
 /// Okay to place below a point
-#define kMaplyLayoutBelow  (1<<4)
+#define kMaplyLayoutBelow  (1<<5)
 
 /** @brief The Screen Label is a 2D label that tracks a given geographic location.
     @details This screen label will track the given geographic position.  If it's behind the globe it will disappear.  The label is rendered in a fixed size and will always appear on top of other geometry.

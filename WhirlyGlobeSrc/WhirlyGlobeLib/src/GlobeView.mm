@@ -77,6 +77,11 @@ using namespace Eigen;
     return self;
 }
 
+- (void)setFarClippingPlane:(double)farClip
+{
+    super.farPlane = farClip;
+}
+
 - (void)dealloc
 {
     super.coordAdapter = nil;

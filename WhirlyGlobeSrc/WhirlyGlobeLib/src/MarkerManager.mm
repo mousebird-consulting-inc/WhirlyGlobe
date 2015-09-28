@@ -207,6 +207,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                 shape = layoutObj;
             } else
                 shape = new ScreenSpaceObject();
+            
             shape->setPeriod(marker.period);
             
             ScreenSpaceObject::ConvexGeometry smGeom;
@@ -265,8 +266,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     layoutObj->layoutPts = layoutObj->selectPts;
                 }
                 layoutObj->importance = marker.layoutImportance;
-                // No moving it around
-                layoutObj->acceptablePlacement = 1;
+                layoutObj->acceptablePlacement = WhirlyKitLayoutPlacementNone;
                 
                 // Start out off, let the layout layer handle the rest
                 shape->setEnable(markerInfo.enable);
