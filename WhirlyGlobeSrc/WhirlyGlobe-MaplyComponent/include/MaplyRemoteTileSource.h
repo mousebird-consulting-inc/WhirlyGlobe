@@ -272,7 +272,7 @@
 @property (nonatomic,weak,nullable) NSObject<MaplyRemoteTileSourceDelegate> *delegate;
 
 /// @brief Passes through the coord system from the MaplyRemoteTileInfo
-@property (nonatomic,strong,nullable) MaplyCoordinateSystem *coordSys;
+@property (nonatomic,strong,nonnull) MaplyCoordinateSystem *coordSys;
 
 /// @brief Passes through the cacheDir from the MaplyRemoteTileInfo
 @property (nonatomic,strong,nullable) NSString *cacheDir;

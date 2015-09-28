@@ -28,7 +28,7 @@
 
 @property (nonatomic, strong, nullable) MaplyVectorTileStyleSettings *tileStyleSettings;
 @property (nonatomic, strong, nullable) NSMutableDictionary *styleDictionary;
-@property (nonatomic, weak, nonnull) MaplyBaseViewController *viewC;
+@property (nonatomic, weak, nullable) MaplyBaseViewController *viewC;
 @property (nonatomic, readonly) BOOL parsing;
 @property (nonatomic, strong, nullable) UIColor *backgroundColor;
 @property (nonatomic, assign) NSInteger tileMaxZoom;

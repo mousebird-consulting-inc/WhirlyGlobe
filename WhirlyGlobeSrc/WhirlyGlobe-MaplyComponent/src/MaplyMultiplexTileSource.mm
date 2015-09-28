@@ -79,7 +79,7 @@ public:
             [it->op cancel];
         }
 
-        fetches.erase(it);
+        fetches.clear();
         tileData.clear();
     }
 

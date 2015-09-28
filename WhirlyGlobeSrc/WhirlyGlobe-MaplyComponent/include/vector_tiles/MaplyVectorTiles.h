@@ -64,7 +64,7 @@
 @property (nonatomic,assign) int maxLevel;
 
 /// @brief The view controller the vector database paging builds its objects in
-@property (nonatomic,weak,nonnull) MaplyBaseViewController *viewC;
+@property (nonatomic,weak,nullable) MaplyBaseViewController *viewC;
 
 /// @brief Settings that control how objects are built with relation to tiles
 @property (nonatomic,strong,nullable) MaplyVectorTileStyleSettings *settings;

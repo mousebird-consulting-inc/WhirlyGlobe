@@ -23,6 +23,8 @@
 #import "SceneRendererES.h"
 #import "FlatMath.h"
 
+using namespace Eigen;
+
 namespace WhirlyKit
 {
     
@@ -30,6 +32,7 @@ WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), texRepea
 {
     lineWidth = 10.0/1024.0;
     offsetIndex = addAttribute(BDFloat3Type, "a_dir");
+    lenIndex = addAttribute(BDFloatType, "a_maxlen");
 }
     
 void WideVectorDrawable::addDir(const Point3f &dir)
@@ -40,47 +43,88 @@ void WideVectorDrawable::addDir(const Point3f &dir)
 void WideVectorDrawable::addDir(const Point3d &dir)
 {
     addAttributeValue(offsetIndex, Point3f(dir.x(),dir.y(),dir.z()));
+
+//    // Note: Debugging
+//    dirs.push_back(Point3d(dir.x(),dir.y(),dir.z()));
+}
+
+void WideVectorDrawable::addMaxLen(double len)
+{
+    addAttributeValue(lenIndex, len);
+    
+//    // Note: Debugging
+//    lens.push_back(len);
 }
     
 void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scene)
 {
+//    double u_length = 0.0;
+//    double u_scale = 1.0;
+//    double u_pixDispSize = 0.0;
+    
     if (frameInfo.program)
     {
-        float scale = frameInfo.sceneRenderer.framebufferWidth;
+        float scale = std::max(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight);
         float screenSize = frameInfo.screenSizeInDisplayCoords.x();
+        float pixDispSize = std::min(frameInfo.screenSizeInDisplayCoords.x(),frameInfo.screenSizeInDisplayCoords.y()) / scale;
+        frameInfo.program->setUniform("u_scale", 1.f/scale);
         frameInfo.program->setUniform("u_length", lineWidth/scale);
+        frameInfo.program->setUniform("u_pixDispSize", pixDispSize);
+        frameInfo.program->setUniform("u_lineWidth", lineWidth);
         float texScale = scale/(screenSize*texRepeat);
         frameInfo.program->setUniform("u_texScale", texScale);
+        
+        // Note: Debugging
+//        u_length = lineWidth/scale;
+//        u_scale = scale;
+//        u_pixDispSize = pixDispSize;
     }
     
     BasicDrawable::draw(frameInfo,scene);
+    
+    // Note: Debugging
+//    for (unsigned int ii=0;ii<dirs.size();ii++)
+//    {
+//        double len = lens[ii];
+//        Point3d dir = dirs[ii];
+//        if (u_pixDispSize * dir.norm() * lineWidth > len)
+//        {
+//            NSLog(@"Dropping one");
+//        }
+//    }
 }
 
 static const char *vertexShaderTri =
-"uniform mat4  u_mvpMatrix;"
-"uniform mat4  u_mvMatrix;"
-"uniform mat4  u_pMatrix;"
-"uniform float u_fade;"
-"uniform float u_length;"
-"uniform float u_texScale;"
-""
-"attribute vec3 a_position;"
-"attribute vec2 a_texCoord0;"
-"attribute vec4 a_color;"
-"attribute vec3 a_dir;"
-""
-"varying vec2 v_texCoord;"
-"varying vec4 v_color;"
-""
-"void main()"
-"{"
-"   v_texCoord = vec2(a_texCoord0.x, a_texCoord0.y * u_texScale);"
-    "   v_color = a_color;"
-    " vec4 vertPos = u_mvpMatrix * vec4(a_position,1.0);"
-    " vertPos /= vertPos.w;"
-    " vec2 screenDir = (u_mvpMatrix * vec4(a_dir,0.0)).xy;"
-    " gl_Position = vertPos + vec4(screenDir * u_length,0,0);"
-"}"
+"uniform mat4  u_mvpMatrix;\n"
+"uniform mat4  u_mvMatrix;\n"
+"uniform mat4  u_pMatrix;\n"
+"uniform float u_fade;\n"
+"uniform float u_length;\n"
+"uniform float u_texScale;\n"
+"uniform float u_pixDispSize;\n"
+"uniform float u_lineWidth;\n"
+"\n"
+"attribute vec3 a_position;\n"
+"attribute vec2 a_texCoord0;\n"
+"attribute vec4 a_color;\n"
+"attribute vec3 a_dir;\n"
+"attribute float a_maxlen;\n"
+"\n"
+"varying vec2 v_texCoord;\n"
+"varying vec4 v_color;\n"
+"\n"
+"void main()\n"
+"{\n"
+"   v_texCoord = vec2(a_texCoord0.x, a_texCoord0.y * u_texScale);\n"
+"   v_color = a_color;\n"
+"   vec4 vertPos = u_mvpMatrix * vec4(a_position,1.0);\n"
+"   vertPos /= vertPos.w;\n"
+"   vec2 screenDir = (u_mvpMatrix * vec4(a_dir,0.0)).xy;\n"
+"   vec2 calcOff = screenDir * u_length;\n"
+"   if (u_pixDispSize * length(a_dir) * u_lineWidth > a_maxlen && a_maxlen > 0.0)\n"
+"      calcOff = vec2(0,0);\n"
+"   gl_Position = vertPos + vec4(calcOff,0,0);\n"
+"}\n"
 ;
 
 static const char *fragmentShaderTri =
