@@ -45,7 +45,7 @@
 /** @brief Coordinate system for the tile source.
     @details The coordinate system is derived from the first tile source passed in.  They'd better all agree or the results will be odd.
   */
-@property (nonatomic,readonly,nullable) MaplyCoordinateSystem *coordSys;
+@property (nonatomic,readonly,nonnull) MaplyCoordinateSystem *coordSys;
 
 /** @brief A delegate for tile loads and failures.
     @details If set, you'll get callbacks when the various tiles load (or don't). You get called in all sorts of threads.  Act accordingly.

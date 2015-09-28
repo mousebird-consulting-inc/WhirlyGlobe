@@ -433,6 +433,8 @@
 		2BEFDEA214997C0400C63326 /* clipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDEA114997C0400C63326 /* clipper.cpp */; };
 		2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */; };
 		2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */; };
+		2BF55A641BB9DDB900984C54 /* OverlapHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF55A631BB9DDB900984C54 /* OverlapHelper.h */; settings = {ASSET_TAGS = (); }; };
+		2BF55A661BB9DDC200984C54 /* OverlapHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF55A651BB9DDC200984C54 /* OverlapHelper.mm */; settings = {ASSET_TAGS = (); }; };
 		2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */; };
 		880BD9051B30CF1D0097F285 /* ElevationCesiumChunk.mm in Sources */ = {isa = PBXBuildFile; fileRef = 880BD9041B30CF1D0097F285 /* ElevationCesiumChunk.mm */; };
 		880BD9081B30CF6F0097F285 /* ElevationCesiumChunk.h in Headers */ = {isa = PBXBuildFile; fileRef = 880BD9071B30CF6F0097F285 /* ElevationCesiumChunk.h */; };
@@ -922,6 +924,8 @@
 		2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewPlacementGenerator.mm; sourceTree = "<group>"; };
 		2BF401BE15C0B49500B5BFD9 /* UpdateDisplayLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UpdateDisplayLayer.h; sourceTree = "<group>"; };
 		2BF401BF15C0B49500B5BFD9 /* ViewPlacementGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewPlacementGenerator.h; sourceTree = "<group>"; };
+		2BF55A631BB9DDB900984C54 /* OverlapHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverlapHelper.h; sourceTree = "<group>"; };
+		2BF55A651BB9DDC200984C54 /* OverlapHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OverlapHelper.mm; sourceTree = "<group>"; };
 		2BF74358155D7C4C000499DD /* NSString+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Stuff.h"; sourceTree = "<group>"; };
 		2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
 		880BD9041B30CF1D0097F285 /* ElevationCesiumChunk.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ElevationCesiumChunk.mm; sourceTree = "<group>"; };
@@ -1559,6 +1563,7 @@
 		2BA2328517986A9F0063CC84 /* managers */ = {
 			isa = PBXGroup;
 			children = (
+				2BF55A631BB9DDB900984C54 /* OverlapHelper.h */,
 				2BE685011B4B510100A5C04C /* BaseInfo.h */,
 				2BA2328617986ACA0063CC84 /* LabelManager.h */,
 				2BA2328717986ACA0063CC84 /* LayoutManager.h */,
@@ -1587,6 +1592,7 @@
 		2BA2329017986AD40063CC84 /* managers */ = {
 			isa = PBXGroup;
 			children = (
+				2BF55A651BB9DDC200984C54 /* OverlapHelper.mm */,
 				2BE684FF1B4B50E100A5C04C /* BaseInfo.mm */,
 				2BA2329117986AE90063CC84 /* LabelManager.mm */,
 				2BA2329217986AE90063CC84 /* LayoutManager.mm */,
@@ -1988,6 +1994,7 @@
 				2B3A0D43133405780085EF43 /* WhirlyVector.h in Headers */,
 				2B3A0D44133405780085EF43 /* WhirlyGeometry.h in Headers */,
 				2B3A0D45133405780085EF43 /* GlobeMath.h in Headers */,
+				2BF55A641BB9DDB900984C54 /* OverlapHelper.h in Headers */,
 				2B3A0D46133405780085EF43 /* UIImage+Stuff.h in Headers */,
 				2B3A0D47133405780085EF43 /* NSDictionary+Stuff.h in Headers */,
 				2B95F91518A5AB1F00D72645 /* GlobeDoubleTapDelegate.h in Headers */,
@@ -2394,6 +2401,7 @@
 				2B7EF4AF16025D8C00D4079F /* PJ_sts.c in Sources */,
 				2B7EF4B016025D8C00D4079F /* PJ_tcc.c in Sources */,
 				2B7EF4B116025D8C00D4079F /* PJ_tcea.c in Sources */,
+				2BF55A661BB9DDC200984C54 /* OverlapHelper.mm in Sources */,
 				2B7EF4B216025D8C00D4079F /* PJ_tmerc.c in Sources */,
 				2B7EF4B316025D8C00D4079F /* PJ_tpeqd.c in Sources */,
 				2B7EF4B416025D8C00D4079F /* pj_transform.c in Sources */,
@@ -2514,7 +2522,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_MASTER_OBJECT_FILE = NO;
 				HEADER_SEARCH_PATHS = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
 				OTHER_LDFLAGS = "";
@@ -2546,7 +2554,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_MASTER_OBJECT_FILE = NO;
 				HEADER_SEARCH_PATHS = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
 				OTHER_LDFLAGS = "";
