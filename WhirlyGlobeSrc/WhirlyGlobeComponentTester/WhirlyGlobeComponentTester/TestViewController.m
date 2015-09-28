@@ -366,7 +366,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 //    if (globeViewC)
 //        [self performSelector:@selector(viewAnimationTest) withObject:nil afterDelay:2.0];
     
-//    [self performSelector:@selector(labelMarkerTest:) withObject:@(0.1) afterDelay:0.1];
+    [self performSelector:@selector(labelMarkerTest:) withObject:@(0.1) afterDelay:0.1];
 }
 
 - (void)labelMarkerTest:(NSNumber *)time
@@ -412,20 +412,32 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     }
     
     {
-        MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
-        label.loc = coord;
-        label.text = @"Test Label";
-        label.layoutPlacement = kMaplyLayoutCenter|kMaplyLayoutAbove;
-        label.layoutImportance = 1.0;
-        label.offset = CGPointMake(0, 20.0);
-        label.selectable = true;
-        label.userObject = @"Test Label";
-        [labels addObject:label];
-    }
+        MaplyScreenLabel *label1 = [[MaplyScreenLabel alloc] init];
+        label1.loc = coord;
+        label1.text = @"Test Label 1";
+        label1.layoutPlacement = kMaplyLayoutCenter;
+        label1.layoutImportance = MAXFLOAT;
+//        label1.offset = CGPointMake(0, 20.0);
+        label1.selectable = true;
+        label1.userObject = @"Test Label 1";
+        label1.rotation = M_PI/2;
+        [labels addObject:label1];
+
+        MaplyScreenLabel *label2 = [[MaplyScreenLabel alloc] init];
+        label2.loc = coord;
+        label2.text = @"Test Label 2";
+        label2.layoutPlacement = kMaplyLayoutRight;
+        label2.layoutImportance = 2.0;
+//        label2.offset = CGPointMake(0, 20.0);
+        label2.selectable = true;
+        label2.userObject = @"Test Label 2";
+        //        label1.rotation = M_PI/2;
+        [labels addObject:label2];
+}
     
     NSMutableArray *newObjs = [NSMutableArray array];
 //    [newObjs addObject:[baseViewC addScreenMarkers:redMarkers desc:@{kMaplyDrawPriority: @(100)} mode:MaplyThreadCurrent]];
-    [newObjs addObject:[baseViewC addScreenMarkers:blueMarkers desc:@{kMaplyDrawPriority: @(101)} mode:MaplyThreadCurrent]];
+//    [newObjs addObject:[baseViewC addScreenMarkers:blueMarkers desc:@{kMaplyDrawPriority: @(101)} mode:MaplyThreadCurrent]];
     [newObjs addObject:[baseViewC addScreenLabels:labels desc:@{kMaplyDrawPriority: @(102), kMaplyFont: [UIFont systemFontOfSize:30.0]} mode:MaplyThreadCurrent]];
     
 //    [self performSelector:@selector(labelMarkerTest:) withObject:time afterDelay:[time floatValue]];
