@@ -3015,5 +3015,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     return ret;
 }
 
+- (NSObject*)selectedObjectForScreenPoint:(CGPoint)screenPoint {
+  return nil;
+}
 
 @end

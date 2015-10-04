@@ -438,6 +438,8 @@
 		881F66D318F20A8F00D17110 /* wire_format_lite_inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 881F668218F20A8F00D17110 /* wire_format_lite_inl.h */; };
 		88C082031B28AF7600927B2C /* (null) in Sources */ = {isa = PBXBuildFile; };
 		88C082061B28AF8F00927B2C /* (null) in Headers */ = {isa = PBXBuildFile; };
+		88F4CEE71BC195DB007DEF8B /* Maply3dTouchPreviewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F4CEE61BC195DB007DEF8B /* Maply3dTouchPreviewDelegate.h */; settings = {ASSET_TAGS = (); }; };
+		88F4CEE91BC195E9007DEF8B /* Maply3dTouchPreviewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88F4CEE81BC195E9007DEF8B /* Maply3dTouchPreviewDelegate.mm */; settings = {ASSET_TAGS = (); }; };
 		C765E3B4190ACA2900931775 /* NSDictionary+StyleRules.h in Headers */ = {isa = PBXBuildFile; fileRef = C765E3B3190ACA2900931775 /* NSDictionary+StyleRules.h */; };
 /* End PBXBuildFile section */
 
@@ -907,6 +909,8 @@
 		8894574A18F20D4200FE60E7 /* MapnikStyleRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapnikStyleRule.h; path = include/vector_tiles/MapnikStyleRule.h; sourceTree = "<group>"; };
 		8894574B18F20D4200FE60E7 /* MapnikStyleSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapnikStyleSet.h; path = include/vector_tiles/MapnikStyleSet.h; sourceTree = "<group>"; };
 		8894574C18F20D4200FE60E7 /* vector_tile.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vector_tile.pb.h; path = include/vector_tiles/vector_tile.pb.h; sourceTree = "<group>"; };
+		88F4CEE61BC195DB007DEF8B /* Maply3dTouchPreviewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Maply3dTouchPreviewDelegate.h; path = include/Maply3dTouchPreviewDelegate.h; sourceTree = "<group>"; };
+		88F4CEE81BC195E9007DEF8B /* Maply3dTouchPreviewDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Maply3dTouchPreviewDelegate.mm; path = src/Maply3dTouchPreviewDelegate.mm; sourceTree = "<group>"; };
 		C765E3B3190ACA2900931775 /* NSDictionary+StyleRules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSDictionary+StyleRules.h"; path = "include/NSDictionary+StyleRules.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1490,6 +1494,8 @@
 		2BE88490160A59DE00E92A0A /* utility */ = {
 			isa = PBXGroup;
 			children = (
+				88F4CEE61BC195DB007DEF8B /* Maply3dTouchPreviewDelegate.h */,
+				88F4CEE81BC195E9007DEF8B /* Maply3dTouchPreviewDelegate.mm */,
 				2B897A7015BB5A2F00250F23 /* MaplyCoordinate.h */,
 				2B897A8815BC664A00250F23 /* MaplyCoordinate.mm */,
 				2B73BD4019F07B7600CDB242 /* MaplyMatrix.h */,
@@ -1828,6 +1834,7 @@
 				2B9BAD7B1B3B6EF900B95CC2 /* MaplySun.h in Headers */,
 				2BEA1E60171E0EBD0039F1A4 /* MaplyActiveObject_private.h in Headers */,
 				2BCA689217416A7000696BA8 /* MaplyViewControllerLayer.h in Headers */,
+				88F4CEE71BC195DB007DEF8B /* Maply3dTouchPreviewDelegate.h in Headers */,
 				881F66B918F20A8F00D17110 /* atomicops_internals_x86_msvc.h in Headers */,
 				2B1B32001B0A6FDD00A37285 /* FMDatabasePool.h in Headers */,
 				2BCA689D1741913200696BA8 /* MaplyTileSource.h in Headers */,
@@ -2037,6 +2044,7 @@
 				2BD5A8631B41FECF00DDAEE3 /* once.cc in Sources */,
 				2BEB21F918441B020048DDE3 /* MaplyTexture.mm in Sources */,
 				2B2FECA51B572BD400A332BF /* AASidereal.cpp in Sources */,
+				88F4CEE91BC195E9007DEF8B /* Maply3dTouchPreviewDelegate.mm in Sources */,
 				2BD5A86F1B41FEF100DDAEE3 /* MaplyVectorLineStyle.mm in Sources */,
 				2BD5A84B1B41FEB500DDAEE3 /* extension_set_heavy.cc in Sources */,
 				2B7827EB19536937004E92EE /* MaplyPagingVectorTestTileSource.mm in Sources */,
