@@ -833,7 +833,9 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 - (void)addLinesLon:(float)lonDelta lat:(float)latDelta color:(UIColor *)color
 {
     NSMutableArray *vectors = [[NSMutableArray alloc] init];
-    NSDictionary *desc = @{kMaplyColor: color, kMaplySubdivType: kMaplySubdivSimple, kMaplySubdivEpsilon: @(0.001), kMaplyVecWidth: @(4.0)};
+    NSDictionary *desc = @{kMaplyColor: color,
+                           kMaplySelectable: @YES,
+                           kMaplySubdivType: kMaplySubdivSimple, kMaplySubdivEpsilon: @(0.001), kMaplyVecWidth: @(4.0)};
     // Longitude lines
     for (float lon = -180;lon < 180;lon += lonDelta)
     {
@@ -1103,6 +1105,7 @@ static const bool CountryTextures = true;
                              wgVecObj.userObject = vecName;
                              NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:@{
                                                                                                          kMaplyFilled: @(YES),
+                                                                                                         kMaplySelectable: @YES
                                                                                                          }];
                              if (CountryTextures)
                              {
