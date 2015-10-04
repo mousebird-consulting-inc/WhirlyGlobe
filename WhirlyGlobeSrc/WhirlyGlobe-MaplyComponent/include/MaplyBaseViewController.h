@@ -880,7 +880,7 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 - (MaplyCoordinate3d)displayCoord:(MaplyCoordinate3d)localCoord fromSystem:(MaplyCoordinateSystem *)coordSys;
 
 - (BOOL)enable3dTouchSelection:(NSObject/*<Maply3dTouchPreviewDatasource> */*)selectablePreviewDelegate;
-- (void)diasble3dTouchSelection;
+- (void)disable3dTouchSelection;
 
 /// @brief Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;

@@ -1327,7 +1327,7 @@ static const float PerfOutputDelay = 15.0;
 {
     if(previewingContext)
     {
-        [self diasble3dTouchSelection];
+        [self disable3dTouchSelection];
     }
     
     if([self respondsToSelector:@selector(traitCollection)] &&
@@ -1344,7 +1344,7 @@ static const float PerfOutputDelay = 15.0;
     return NO;
 }
 
-- (void)diasble3dTouchSelection {
+- (void)disable3dTouchSelection {
     if(previewingContext)
     {
         [self unregisterForPreviewingWithContext:previewingContext];
