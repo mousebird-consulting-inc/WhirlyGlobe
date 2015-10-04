@@ -17,6 +17,7 @@
 
 @property (nonatomic, strong) NSObject<Maply3dTouchPreviewDatasource> * _Nonnull datasource;
 
+/// Create and configure new Maply3dTouchPreviewDelegate, but it is not activated.
 + (Maply3dTouchPreviewDelegate * _Nonnull)touchDelegate:(MaplyBaseViewController * _Nonnull)maplyViewC
                                   interactLayer:( MaplyBaseInteractionLayer* _Nonnull)interactLayer
                              datasource:(NSObject<Maply3dTouchPreviewDatasource>* _Nonnull)datasource;

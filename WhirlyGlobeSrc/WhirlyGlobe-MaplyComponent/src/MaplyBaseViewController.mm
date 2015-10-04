@@ -1323,7 +1323,7 @@ static const float PerfOutputDelay = 15.0;
     return ret;
 }
 
-- (BOOL)enable3dTouchSelection:(NSObject<Maply3dTouchPreviewDatasource>*)selectablePreviewDelegate
+- (BOOL)enable3dTouchSelection:(NSObject<Maply3dTouchPreviewDatasource>*)previewDataSource
 {
     if(previewingContext)
     {
@@ -1336,7 +1336,7 @@ static const float PerfOutputDelay = 15.0;
     {
         previewTouchDelegate = [Maply3dTouchPreviewDelegate touchDelegate:self
                                                             interactLayer:interactLayer
-                                                               datasource:selectablePreviewDelegate];
+                                                               datasource:previewDataSource];
         previewingContext = [self registerForPreviewingWithDelegate:previewTouchDelegate
                                                          sourceView:self.view];
         return YES;
