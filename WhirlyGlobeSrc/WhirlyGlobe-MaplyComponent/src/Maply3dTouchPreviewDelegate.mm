@@ -33,7 +33,7 @@
 - (UIViewController * _Nullable)previewingContext:(id<UIViewControllerPreviewing> _Nonnull)previewingContext
                         viewControllerForLocation:(CGPoint)location
 {
-  NSObject *selectedObject = [interactLayer selectedObjectForScreenPoint:location];
+  NSObject *selectedObject = [interactLayer selectLabelsAndMarkerForScreenPoint:location];
 //  if(!selectedObject) {
 //    selectedObject = [interactLayer findVectorsInPoint:<#(id)#>]
 //  }

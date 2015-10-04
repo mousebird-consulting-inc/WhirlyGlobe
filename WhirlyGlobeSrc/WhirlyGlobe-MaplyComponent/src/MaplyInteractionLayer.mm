@@ -73,7 +73,7 @@ using namespace WhirlyGlobe;
 - (void) userDidTapLayerThread:(MaplyTapMessage *)msg
 {
     // First, we'll look for labels and markers
-    NSObject *selObj = [self selectedObjectForScreenPoint:msg.touchLoc];
+    NSObject *selObj = [self selectLabelsAndMarkerForScreenPoint:msg.touchLoc];
     if(!selObj) {
         // Next, try the vectors
         // Note: Ignoring everything but the first return
@@ -90,7 +90,7 @@ using namespace WhirlyGlobe;
                    );
 }
 
-- (NSObject*)selectedObjectForScreenPoint:(CGPoint)screenPoint
+- (NSObject*)selectLabelsAndMarkerForScreenPoint:(CGPoint)screenPoint
 {
     SimpleIdentity selID = ((SelectionManager *)scene->getManager(kWKSelectionManager))->pickObject(Point2f(screenPoint.x, screenPoint.y),10.0,mapView);
     
