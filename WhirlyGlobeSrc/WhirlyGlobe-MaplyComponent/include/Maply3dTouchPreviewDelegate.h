@@ -8,20 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "Maply3DTouchPreviewDatasource.h"
 
 @class MaplyBaseInteractionLayer;
 @class MaplyBaseViewController;
-
-@protocol Maply3dTouchPreviewDatasource <NSObject>
-
-@required
-- (UIViewController * _Nullable)maplyViewController:(MaplyBaseViewController * _Nonnull)viewC
-                  previewViewControllerForSelection:(NSObject * _Nonnull)selectedObj;
-
-- (void)maplyViewController:(MaplyBaseViewController * _Nonnull)viewC
-                          showPreviewViewController:(UIViewController * _Nonnull)previewViewC;
-
-@end
 
 @interface Maply3dTouchPreviewDelegate : NSObject <UIViewControllerPreviewingDelegate>
 
