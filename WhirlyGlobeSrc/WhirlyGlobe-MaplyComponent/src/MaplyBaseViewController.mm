@@ -971,7 +971,6 @@ static const float PerfOutputDelay = 15.0;
         return nil;
     
     MaplyTexture *maplyTex = [interactLayer addTexture:image desc:desc mode:threadMode];
-    maplyTex.viewC = self;
     
     [interactLayer endOfWork];
     
@@ -1001,8 +1000,6 @@ static const float PerfOutputDelay = 15.0;
 - (MaplyTexture *)addTextureToAtlas:(UIImage *)image mode:(MaplyThreadMode)threadMode
 {
     MaplyTexture *maplyTex = [self addTextureToAtlas:image imageFormat:MaplyImageIntRGBA wrapFlags:0 mode:threadMode];
-    if (maplyTex)
-        maplyTex.viewC = self;
     
     return maplyTex;
 }

@@ -46,7 +46,7 @@
     
     pthread_mutex_t imageLock;
     // Used to track textures
-    MaplyImageTextureSet imageTextures;
+    MaplyImageTextureList imageTextures;
 
     // Component objects created for the user
     NSMutableSet *userObjects;

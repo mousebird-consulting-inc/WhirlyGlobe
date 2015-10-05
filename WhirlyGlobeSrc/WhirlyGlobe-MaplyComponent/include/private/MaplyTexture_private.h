@@ -23,10 +23,15 @@
 #import "MaplyBaseViewController.h"
 #import "WhirlyGlobe.h"
 
+@class MaplyBaseInteractionLayer;
+
 @interface MaplyTexture()
 
 // The view controller the texture is nominally associated with
-@property (nonatomic,weak) MaplyBaseViewController *viewC;
+@property (nonatomic,weak) MaplyBaseInteractionLayer *interactLayer;
+
+// If this came from a UIImage, the UIImage it came from
+@property (nonatomic,weak) UIImage *image;
 
 // Set if this is a sub texture reference
 @property (nonatomic) bool isSubTex;
