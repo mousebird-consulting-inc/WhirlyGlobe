@@ -394,6 +394,8 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Lay
 
     if (clusterGen)
     {
+        clusterGen->startLayoutObjects();
+        
         // Lay out the clusters in order
         for (ClusteredObjectsSet::iterator it = clusterObjs.begin(); it != clusterObjs.end(); ++it)
         {
@@ -485,6 +487,8 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Lay
         for (ClusteredObjectsSet::iterator it = clusterObjs.begin(); it != clusterObjs.end(); ++it)
             delete *it;
         clusterObjs.clear();
+        
+        clusterGen->endLayoutObjects();
     }
     
 //    NSLog(@"----Starting Layout----");

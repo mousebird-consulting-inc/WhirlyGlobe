@@ -159,7 +159,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 typedef std::map<int,NSObject <MaplyClusterGenerator> *> ClusterGenSet;
 
 @interface MaplyBaseInteractionLayer()
+- (void) startLayoutObjects;
 - (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObject *> &)layoutObjects retObj:(LayoutObject &)retObj;
+- (void) endLayoutObjects;
 @end
 
 // Interface between the layout manager and the cluster generators
@@ -168,10 +170,22 @@ class OurClusterGenerator : public ClusterGenerator
 public:
     MaplyBaseInteractionLayer *layer;
     
+    // Called right before we start generating layout objects
+    void startLayoutObjects()
+    {
+        [layer startLayoutObjects];
+    }
+
     // Figure out
     void makeLayoutObject(int clusterID,const std::vector<LayoutObject *> &layoutObjects,LayoutObject &retObj)
     {
         [layer makeLayoutObject:clusterID layoutObjects:layoutObjects retObj:retObj];
+    }
+
+    // Called right after all the layout objects are generated
+    virtual void endLayoutObjects()
+    {
+        [layer endLayoutObjects];
     }
 };
 
@@ -184,8 +198,8 @@ public:
     int numActiveWorkers;
     ClusterGenSet clusterGens;
     OurClusterGenerator ourClusterGen;
-    // Note: Temporary
-    std::vector<MaplyTexture *> clusterTextures;
+    // Last frame (layout frame, not screen frame)
+    std::vector<MaplyTexture *> currentClusterTex,oldClusterTex;
 }
 
 - (instancetype)initWithView:(WhirlyKitView *)inVisualView
@@ -541,6 +555,11 @@ public:
     // Holding the object until there delays the deletion
 }
 
+- (void)delayedRemoveTextures:(NSArray *)texs
+{
+    // Holding the objects until there delays the deletion
+}
+
 // We flush out changes in different ways depending on the thread mode
 - (void)flushChanges:(ChangeSet &)changes mode:(MaplyThreadMode)threadMode
 {
@@ -833,6 +852,13 @@ public:
     }
 }
 
+- (void) startLayoutObjects
+{
+    // Started cluster generation, so keep track of the old textures
+    oldClusterTex = currentClusterTex;
+    currentClusterTex.clear();
+}
+
 - (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObject *> &)layoutObjects retObj:(LayoutObject &)retObj
 {
     // Find the right cluster generator
@@ -879,15 +905,27 @@ public:
     // Create the texture
     // Note: Keep this around
     MaplyTexture *maplyTex = [self addTexture:group.image desc:@{kMaplyTexFormat: @(MaplyImageIntRGBA),
-//                                                                 kMaplyTexAtlas: @(true),
+                                                                 kMaplyTexAtlas: @(true),
                                                                  kMaplyTexMagFilter: kMaplyMinFilterNearest}
                                          mode:MaplyThreadCurrent];
-    clusterTextures.push_back(maplyTex);
+    currentClusterTex.push_back(maplyTex);
     smGeom.texIDs.push_back(maplyTex.texID);
 
-    // Note: Pull this from the input
     retObj.setDrawPriority(drawPriority);
     retObj.addGeometry(smGeom);
+}
+
+- (void)endLayoutObjects
+{
+    // Layout of new objects is over, so schedule the old textures for removal
+    if (!oldClusterTex.empty())
+    {
+        NSMutableArray *texArr = [NSMutableArray array];
+        for (auto tex : oldClusterTex)
+            [texArr addObject:tex];
+        [self performSelector:@selector(delayedRemoveTextures:) withObject:texArr afterDelay:2.0];
+        oldClusterTex.clear();
+    }
 }
 
 // Actually add the markers.
