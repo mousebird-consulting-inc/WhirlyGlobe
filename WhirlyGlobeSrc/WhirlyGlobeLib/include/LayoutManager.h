@@ -114,9 +114,15 @@ class ClusterGenerator
 {
 public:
     virtual ~ClusterGenerator() { }
-
+    
+    // Called right before we start generating layout objects
+    virtual void startLayoutObjects() = 0;
+    
     // Generate a layout object (with screen space object and such) for the cluster
     virtual void makeLayoutObject(int clusterID,const std::vector<LayoutObject *> &layoutObjects,LayoutObject &newObj) = 0;
+
+    // Called right after all the layout objects are generated
+    virtual void endLayoutObjects() = 0;
 };
     
 #define kWKLayoutManager "WKLayoutManager"
