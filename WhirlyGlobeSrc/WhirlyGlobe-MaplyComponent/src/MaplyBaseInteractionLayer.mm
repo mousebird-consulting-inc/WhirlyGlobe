@@ -156,7 +156,7 @@ public:
 };
 typedef std::set<ThreadChanges> ThreadChangeSet;
 
-typedef std::map<int,NSObject <MaplyClusterGenerator> *> ClusterGenSet;
+typedef std::map<int,NSObject <MaplyClusterGenerator> *> ClusterGenMap;
 
 @interface MaplyBaseInteractionLayer()
 - (void) startLayoutObjects;
@@ -196,7 +196,7 @@ public:
     pthread_mutex_t workLock;
     pthread_cond_t workWait;
     int numActiveWorkers;
-    ClusterGenSet clusterGens;
+    ClusterGenMap clusterGens;
     OurClusterGenerator ourClusterGen;
     // Last frame (layout frame, not screen frame)
     std::vector<MaplyTexture *> currentClusterTex,oldClusterTex;
@@ -860,6 +860,10 @@ public:
     // Started cluster generation, so keep track of the old textures
     oldClusterTex = currentClusterTex;
     currentClusterTex.clear();
+    
+    for (ClusterGenMap::iterator it = clusterGens.begin();
+         it != clusterGens.end(); ++it)
+        [it->second startClusterGroup];
 }
 
 - (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObject *> &)layoutObjects retObj:(LayoutObject &)retObj
@@ -935,6 +939,10 @@ public:
         [self performSelector:@selector(delayedRemoveTextures:) withObject:texArr afterDelay:2.0];
         oldClusterTex.clear();
     }
+    
+    for (ClusterGenMap::iterator it = clusterGens.begin();
+         it != clusterGens.end(); ++it)
+        [it->second endClusterGroup];
 }
 
 // Actually add the markers.
