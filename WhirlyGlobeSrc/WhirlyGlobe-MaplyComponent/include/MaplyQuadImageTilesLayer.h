@@ -276,6 +276,13 @@ typedef enum {MaplyImageIntRGBA,
   */
 - (int)targetZoomLevel;
 
+/** @brief Set the number of samples for each tile per level.
+    @details When sampling the globe without an elevation input, we'll divide each tile into a given number of samples.  By default this is 10x10.  Setting this dictionary will let you control that sampling per level.
+    @details Each entry in the dictionary is an NSNumber for the level (-1 for default).  The corresponding value is an NSNumber for the sampling (e.g. 10).
+    @details Call this immediately after setting up the layer or it won't take effect.
+  */
+- (void)setTesselationValues:(NSDictionary *)tessDict;
+
 /** @brief Force a full reload of all tiles.
  @details This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it's taking too long, you'll see these page in from the low to the high level.
  @details This is good for tile sources, like weather, that need to be refreshed every so often.

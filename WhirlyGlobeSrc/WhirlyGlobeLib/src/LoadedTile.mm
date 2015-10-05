@@ -395,12 +395,12 @@ void TileBuilder::buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std::
     }
 }
     
-void TileBuilder::generateDrawables(WhirlyKitElevationDrawInfo *drawInfo,BasicDrawable **draw,BasicDrawable **skirtDraw)
+void TileBuilder::generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,BasicDrawable **draw,BasicDrawable **skirtDraw)
 {
     // Size of each chunk
     Point2f chunkSize = drawInfo->theMbr.ur() - drawInfo->theMbr.ll();
     
-    int sphereTessX = defaultSphereTessX,sphereTessY = defaultSphereTessY;
+    int sphereTessX = drawInfo->samplingX,sphereTessY = drawInfo->samplingY;
     
     // For single level mode it's not worth getting fancy
     // Note: The level check is kind of a hack.  We're avoiding a resolution problem at high levels
@@ -683,7 +683,7 @@ void TileBuilder::generateDrawables(WhirlyKitElevationDrawInfo *drawInfo,BasicDr
 
 
 bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,std::vector<Texture *> *texs,
-                            Point2f texScale,Point2f texOffset,std::vector<WhirlyKitLoadedImage *> *loadImages,NSObject<WhirlyKitElevationChunk> *elevData,const Point3d &dispCenter,Quadtree::NodeInfo *parentNodeInfo)
+                            Point2f texScale,Point2f texOffset,int samplingX,int samplingY,std::vector<WhirlyKitLoadedImage *> *loadImages,NSObject<WhirlyKitElevationChunk> *elevData,const Point3d &dispCenter,Quadtree::NodeInfo *parentNodeInfo)
 {
     Mbr theMbr = nodeInfo->mbr;
     
@@ -762,7 +762,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
     
     if (draw)
     {
-        WhirlyKitElevationDrawInfo drawInfo;
+        WhirlyKit::ElevationDrawInfo drawInfo;
         drawInfo.theMbr = theMbr;
         if (parentNodeInfo)
             drawInfo.parentMbr = parentNodeInfo->mbr;
@@ -794,6 +794,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
         drawInfo.includeElev = includeElev;
         drawInfo.useElevAsZ = useElevAsZ;
         drawInfo.lineMode = lineMode;
+        drawInfo.samplingX = samplingX;  drawInfo.samplingY = samplingY;
         
         // Have the elevation provider generate the drawables
         if (elevData)
@@ -957,7 +958,7 @@ bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoaded
     std::vector<Texture *> texs(loadImages.size(),NULL);
     if (tileBuilder->texAtlas)
         subTexs.resize(loadImages.size());
-    if (!tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, (!loadImages.empty() ? &texs : NULL), Point2f(1.0,1.0), Point2f(0.0,0.0), &loadImages, loadElev, dispCenter,NULL))
+    if (!tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, (!loadImages.empty() ? &texs : NULL), Point2f(1.0,1.0), Point2f(0.0,0.0), samplingX, samplingY, &loadImages, loadElev, dispCenter,NULL))
         return false;
     drawId = draw->getId();
     skirtDrawId = (skirtDraw ? skirtDraw->getId() : EmptyIdentity);
@@ -1151,7 +1152,7 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
                     {
                         BasicDrawable *childDraw = NULL;
                         BasicDrawable *childSkirtDraw = NULL;
-                        tileBuilder->buildTile(&childInfo,&childDraw,&childSkirtDraw,NULL,Point2f(0.5,0.5),Point2f(0.5*ix,0.5*iy),nil,elevData,dispCenter,&this->nodeInfo);
+                        tileBuilder->buildTile(&childInfo,&childDraw,&childSkirtDraw,NULL,Point2f(0.5,0.5),Point2f(0.5*ix,0.5*iy),samplingX, samplingY,nil,elevData,dispCenter,&this->nodeInfo);
                         // Set this to change the color of child drawables.  Helpfull for debugging
                         //                        childDraw->setColor(RGBAColor(64,64,64,255));
                         childDrawIds[whichChild] = childDraw->getId();
@@ -1201,7 +1202,7 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
         {
             BasicDrawable *draw = NULL;
             BasicDrawable *skirtDraw = NULL;
-            tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, NULL, Point2f(1.0,1.0), Point2f(0.0,0.0), nil, elevData, dispCenter, NULL);
+            tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, NULL, Point2f(1.0,1.0), Point2f(0.0,0.0), samplingX, samplingY,nil, elevData, dispCenter, NULL);
             drawId = draw->getId();
             if (!texIds.empty())
                 draw->setTexId(0,texIds[0]);

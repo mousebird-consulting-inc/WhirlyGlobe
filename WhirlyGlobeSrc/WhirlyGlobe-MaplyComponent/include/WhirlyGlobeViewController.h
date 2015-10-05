@@ -280,6 +280,12 @@
   */
 @property (nonatomic) float zoomTapAnimationDuration;
 
+/** @brief Reset the far clipping plane.
+    @details This is advanced functionality.  Make sure you actually need to do this before you do it.
+    @details The far clipping plane is usually set to something like 4.0.
+  */
+- (void)setFarClipPlane:(double)farClipPlane;
+
 /** @brief Set the simplified tilt mode.  We'll tilt toward the horizon as the user gets closer to the ground.
     @details This implements a simplified mode for tilting.  As the user gets closer to the ground we tilt more toward the horizon.
     @param minHeight The minimum height corresponding to minTilt.

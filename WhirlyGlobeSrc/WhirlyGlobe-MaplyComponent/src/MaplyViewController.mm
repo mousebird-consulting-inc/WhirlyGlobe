@@ -533,6 +533,7 @@ using namespace Maply;
 - (void)setHeight:(float)height
 {
     mapView.loc.z() = height;
+    [mapView runViewUpdates];
 }
 
 /// Set the view extents.  This is the box the view point is allowed to be within.

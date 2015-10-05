@@ -22,6 +22,8 @@
 #import "MaplySun.h"
 #import <AA+.h>
 
+using namespace WhirlyKit;
+
 @implementation MaplySun
 {
     NSDate *date;
