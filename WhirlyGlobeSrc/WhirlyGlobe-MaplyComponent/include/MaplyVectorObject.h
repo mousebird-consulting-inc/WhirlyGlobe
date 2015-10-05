@@ -111,6 +111,11 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
 - (nonnull instancetype)initWithPointRef:(MaplyCoordinate *__nonnull)coord attributes:(NSDictionary *__nonnull)attr;
 
 /** @brief Initialize with a linear feature.
+ @details This version takes an array of coordinate pairs (as NSNumber) and the attribution.  With this it will make a linear feature.
+ */
+- (nonnull instancetype)initWithLineString:(NSArray *__nonnull)coords attributes:(NSDictionary *__nullable)attr;
+
+/** @brief Initialize with a linear feature.
     @details This version takes an array of coordinates, the size of that array and the attribution.  With this it will make a linear feature.
   */
 - (nonnull instancetype)initWithLineString:(MaplyCoordinate *__nonnull)coords numCoords:(int)numCoords attributes:(NSDictionary *__nullable)attr;
@@ -222,7 +227,22 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
   */
 - (bool)linearMiddle:(MaplyCoordinate *__nonnull)middle rot:(double *__nonnull)rot;
 
-- (bool)linearMiddle:(MaplyCoordinate *__nonnull)middle rot:(double *__nonnull)rot displayCoordSys:(MaplyCoordinateSystem *__nonnull)coordSys;
+- (bool)linearMiddle:(MaplyCoordinate *__nullable)middle rot:(double *__nullable)rot displayCoordSys:(MaplyCoordinateSystem *__nonnull)coordSys;
+
+/** @brief For a linear feature, calculate the mid point.
+ @details This is a convenience method to be called without pointers (Swift)
+ @details If you need both the mid point and the rotation, this method is less efficient than the method with pointers.
+ @return kMaplyNullCoordinate in case of error
+
+ */
+- (MaplyCoordinate)linearMiddle:(MaplyCoordinateSystem *__nonnull)coordSys;
+
+/** @brief For a linear feature, calculate the mid point and returns the rotation at that point.
+ @details This is a convenience method to be called without pointers (Swift)
+ @details If you need both the mid point and the rotation, this method is less efficient than the method with pointers.
+ @return DBL_MIN in case of error
+ */
+- (double)linearMiddleRotation:(MaplyCoordinateSystem *__nonnull)coordSys;
 
 /** @brief return the middle coordinate in a line feature
     @return kMaplyNullCoordinate in case of error
