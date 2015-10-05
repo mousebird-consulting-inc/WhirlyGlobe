@@ -2,8 +2,8 @@
 //  StartupViewController.swift
 //  WhirlyGlobeSwiftTester
 //
-//  Created by jmWork on 14/09/15.
-//  Copyright (c) 2015 Liferay. All rights reserved.
+//  Created by jmnavarro on 14/09/15.
+//  Copyright (c) 2015 Mousebird. All rights reserved.
 //
 
 import UIKit
