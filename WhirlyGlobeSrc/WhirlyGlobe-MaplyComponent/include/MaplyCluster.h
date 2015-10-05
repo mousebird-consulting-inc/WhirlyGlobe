@@ -50,10 +50,20 @@
   */
 @protocol MaplyClusterGenerator <NSObject>
 
+/** @brief Called at the start of clustering.
+    @details Called right before we start generating clusters.  Do you setup here if need be.
+  */
+- (void) startClusterGroup;
+
 /** @brief Generate a cluster group for a given collection of markers.
     @details Generate an image and size to represent the number of marker/labels we're consolidating.
   */
 - (MaplyClusterGroup *__nonnull) makeClusterGroup:(MaplyClusterInfo *__nonnull)clusterInfo;
+
+/** @brief Called at the end of clustering.
+    @details If you were doing optimization (for image reuse, say) clean it up here.
+  */
+- (void) endClusterGroup;
 
 /// @brief Return the cluster number we're covering
 - (int) clusterNumber;
