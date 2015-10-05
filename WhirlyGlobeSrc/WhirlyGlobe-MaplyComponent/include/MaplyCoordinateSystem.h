@@ -92,10 +92,10 @@
 @interface MaplySphericalMercator : MaplyCoordinateSystem
 
 /// @brief Initialize with the -85...,+85... extents to match most commonly used online maps
-- (nullable instancetype)init;
+- (nonnull instancetype)init;
 
 /// @brief Initialize with the -85...,+85... extents to match most commonly used online maps
-- (nullable instancetype)initWebStandard;
+- (nonnull instancetype)initWebStandard;
 
 @end
 

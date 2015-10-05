@@ -176,6 +176,11 @@ typedef MaplyShapeCylinder WGShapeCylinder;
 @interface MaplyShapeExtruded : MaplyShape
 
 /** @brief Construct with the coordinates for the outline to extrude.
+ @details Pass in pairs of doubles that correspond to the
+ */
+- (nonnull instancetype)initWithOutline:(NSArray * __nonnull)coords;
+
+/** @brief Construct with the coordinates for the outline to extrude.
     @details Pass in pairs of doubles that correspond to the
   */
 - (nonnull instancetype)initWithOutline:(double * __nonnull)coords numCoordPairs:(int)numCoordPairs;

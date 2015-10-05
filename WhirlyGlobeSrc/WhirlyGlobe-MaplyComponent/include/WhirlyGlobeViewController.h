@@ -261,12 +261,12 @@
 /** @brief Returns the closest a viewer is allowed to get to the map surface.
  @return FLT_MIN if there's no pitchDelegate set
  */
-- (float)getMinZoom;
+- (float)getZoomLimitsMin;
 
 /** @brief Returns the farthest away a viewer is allowed to get from the map surface
  @return FLT_MIN if there's no pitchDelegate set
  */
-- (float)getMaxZoom;
+- (float)getZoomLimitsMax;
 
 /** @brief Return the zoom limits for the globe.
     @param minHeight The closest a viewer is allowed to get to the globe surface.
@@ -407,7 +407,7 @@
 /** @brief An old style method to add a spherical earth layer.
     @details Image sets and this layer have been superceeded by MaplyQuadImageTilesLayer.  This is here for backwards compatibility.
   */
-- (nonnull WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *__nonnull)name;
+- (nullable MaplyViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString * __nonnull)name;
 
 /** @brief Return a location on the screen for a given geographic coordinate or CGPointZero if it's not on the screen.
  @param geoCoord Point on the earth in lat/lon radians you want a screen position for.
