@@ -90,8 +90,8 @@ ClusterHelper::ClusterObject::ClusterObject()
     
 }
 
-ClusterHelper::ClusterHelper(const Mbr &mbr,int sizeX,int sizeY,const Point2d &clusterMarkerSize)
-: mbr(mbr), sizeX(sizeX), sizeY(sizeY), clusterMarkerSize(clusterMarkerSize)
+ClusterHelper::ClusterHelper(const Mbr &mbr,int sizeX,int sizeY,float resScale,const Point2d &clusterMarkerSize)
+: mbr(mbr), sizeX(sizeX), sizeY(sizeY), resScale(resScale), clusterMarkerSize(clusterMarkerSize)
 {
     grid.resize(sizeX*sizeY);
     cellSize = Point2d((mbr.ur().x()-mbr.ll().x())/sizeX,(mbr.ur().y()-mbr.ll().y())/sizeY);
@@ -217,10 +217,10 @@ void ClusterHelper::addObject(LayoutObjectEntry *objEntry,const std::vector<Poin
 
             newObj.parentObject = clusterID;
             clusterObj->pts.reserve(4);
-            clusterObj->pts.push_back(clusterObj->center + Point2d(-clusterMarkerSize.x()/2.0,-clusterMarkerSize.y()/2.0));
-            clusterObj->pts.push_back(clusterObj->center + Point2d(clusterMarkerSize.x()/2.0,-clusterMarkerSize.y()/2.0));
-            clusterObj->pts.push_back(clusterObj->center + Point2d(clusterMarkerSize.x()/2.0,clusterMarkerSize.y()/2.0));
-            clusterObj->pts.push_back(clusterObj->center + Point2d(-clusterMarkerSize.x()/2.0,clusterMarkerSize.y()/2.0));
+            clusterObj->pts.push_back(clusterObj->center + Point2d(-clusterMarkerSize.x()*resScale/2.0,-clusterMarkerSize.y()*resScale/2.0));
+            clusterObj->pts.push_back(clusterObj->center + Point2d(clusterMarkerSize.x()*resScale/2.0,-clusterMarkerSize.y()*resScale/2.0));
+            clusterObj->pts.push_back(clusterObj->center + Point2d(clusterMarkerSize.x()*resScale/2.0,clusterMarkerSize.y()*resScale/2.0));
+            clusterObj->pts.push_back(clusterObj->center + Point2d(-clusterMarkerSize.x()*resScale/2.0,clusterMarkerSize.y()*resScale/2.0));
             Mbr clusterMbr;  clusterMbr.addPoints(clusterObj->pts);
             addToCells(clusterMbr,-(clusterID+1));
             
@@ -236,7 +236,7 @@ void ClusterHelper::addObject(LayoutObjectEntry *objEntry,const std::vector<Poin
 
 void ClusterHelper::resolveClusters()
 {
-    // Look single objects that overlap existing clusters.
+    // Find single objects that overlap existing clusters.
     // We won't move the clusters here to keep it simpler
     for (int so=0;so<simpleObjects.size();so++)
     {
