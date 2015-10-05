@@ -352,8 +352,6 @@ void Quadtree::setPhantom(const Identifier &ident,bool newPhantom)
             numPhantomNodes--;
         if (newPhantom)
             numPhantomNodes++;
-        
-//        recalcCoverage(node);
     } else
         // Haven't heard of it
         return;
@@ -616,6 +614,9 @@ void Quadtree::reevaluateNodes()
     nodesBySize.clear();
     evalNodes.clear();
     
+    if (nodesByIdent.empty())
+        return;
+    
     for (NodesByIdentType::iterator it = nodesByIdent.begin();
          it != nodesByIdent.end(); ++it)
     {
@@ -623,10 +624,32 @@ void Quadtree::reevaluateNodes()
         for (unsigned int ii=0;ii<4;ii++)
             node->childOffscreen[ii] = false;
         node->nodeInfo.importance = [importDelegate importanceForTile:node->nodeInfo.ident mbr:node->nodeInfo.mbr tree:this attrs:node->nodeInfo.attrs];
+        // Let the parent know this node is offscreen
+        if (node->nodeInfo.importance == 0)
+        {
+            Node *parent = getNode(Identifier(node->nodeInfo.ident.x / 2, node->nodeInfo.ident.y / 2, node->nodeInfo.ident.level - 1));
+
+            if (parent)
+            {
+                int ix = node->nodeInfo.ident.x-parent->nodeInfo.ident.x*2;
+                int iy = node->nodeInfo.ident.y-parent->nodeInfo.ident.y*2;
+                parent->childOffscreen[iy*2+ix] = true;
+//                NSLog(@"Reevaluating Child offscreen for: %d: (%d,%d)",parent->nodeInfo.ident.level,parent->nodeInfo.ident.x,parent->nodeInfo.ident.y);
+            }
+        }
         if (!node->hasChildren())
             node->sizePos = nodesBySize.insert(node).first;
         node->evalPos = evalNodes.insert(node).first;
     }
+    
+    // Recalculate the coverage for children
+    NodesByIdentType::iterator it = nodesByIdent.end();
+    --it;
+    do {
+        (*it)->recalcCoverage();
+        if (it != nodesByIdent.begin())
+            --it;
+    } while (it != nodesByIdent.begin());
 }
     
 const Quadtree::NodeInfo *Quadtree::addTile(const Identifier &ident,bool newEval,bool checkImportance,std::vector<Identifier> &newlyCoveredTiles)
@@ -656,6 +679,7 @@ const Quadtree::NodeInfo *Quadtree::addTile(const Identifier &ident,bool newEval
                 int ix = nodeInfo.ident.x-parent->nodeInfo.ident.x*2;
                 int iy = nodeInfo.ident.y-parent->nodeInfo.ident.y*2;
                 parent->childOffscreen[iy*2+ix] = true;
+//                NSLog(@"Child offscreen for: %d: (%d,%d)",parent->nodeInfo.ident.level,parent->nodeInfo.ident.x,parent->nodeInfo.ident.y);
                 std::vector<Identifier> unCoveredTiles;
                 updateParentCoverage(ident,newlyCoveredTiles,unCoveredTiles);
             }

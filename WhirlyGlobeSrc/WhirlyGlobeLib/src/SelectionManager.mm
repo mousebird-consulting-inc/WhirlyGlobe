@@ -846,7 +846,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
                 for (unsigned int kk=0;kk<4;kk++)
                 {
                     const Point2d &screenObjPt = screenObj.pts[kk];
-                    Point2d theScreenPt = Point2d(screenObjPt.x(),-screenObjPt.y()) + projPt + screenObj.offset;
+                    Point2d theScreenPt = Point2d(screenObjPt.x(),-screenObjPt.y()) + projPt + Point2d(screenObj.offset.x(),-screenObj.offset.y());
                     screenPts.push_back(Point2f(theScreenPt.x(),theScreenPt.y()));
                 }
 

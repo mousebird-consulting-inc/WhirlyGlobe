@@ -417,7 +417,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                 if (!layoutObj->obj.layoutPts.empty())
                 {
                     bool validOrient = false;
-                    for (unsigned int orient=0;orient<5;orient++)
+                    for (unsigned int orient=0;orient<6;orient++)
                     {
                         // May only want to be placed certain ways.  Fair enough.
                         if (!(layoutObj->obj.acceptablePlacement & (1<<orient)))
@@ -427,46 +427,50 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                         for (unsigned int li=0;li<layoutPts.size();li++)
                             layoutMbr.addPoint(layoutPts[li]);
                         Point2f layoutSpan(layoutMbr.ur().x()-layoutMbr.ll().x(),layoutMbr.ur().y()-layoutMbr.ll().y());
+                        Point2d layoutOrg(layoutMbr.ll().x(),layoutMbr.ll().y());
                         
                         // Set up the offset for this orientation
-                        // Note: This is all wrong for markers now
                         switch (orient)
                         {
-                                //center
+                            // Don't move at all
                             case 0:
-                                objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y()/2.0);
+                                objOffset = Point2d(0,0);
                                 break;
-                                // Right
+                            // Center
                             case 1:
-                                objOffset = Point2d(0.0,layoutSpan.y()/2.0);
+                                objOffset = Point2d(-layoutSpan.x()/2.0,-layoutSpan.y()/2.0);
                                 break;
-                                // Left
+                            // Right
                             case 2:
-                                objOffset = Point2d(-(layoutSpan.x()),layoutSpan.y()/2.0);
+                                objOffset = Point2d(0.0,-layoutSpan.y()/2.0);
                                 break;
-                                // Above
+                            // Left
                             case 3:
+                                objOffset = Point2d(-(layoutSpan.x()),-layoutSpan.y()/2.0);
+                                break;
+                            // Above
+                            case 4:
                                 objOffset = Point2d(-layoutSpan.x()/2.0,0);
                                 break;
-                                // Below
-                            case 4:
-                                objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y());
+                            // Below
+                            case 5:
+                                objOffset = Point2d(-layoutSpan.x()/2.0,-layoutSpan.y());
                                 break;
                         }
                         
                         // Rotate the rectangle
                         if (screenRot == 0.0)
                         {
-                            objPts[0] = Point2d(objPt.x,objPt.y) + objOffset*resScale;
+                            objPts[0] = Point2d(objPt.x,objPt.y) + (objOffset + layoutOrg)*resScale;
                             objPts[1] = objPts[0] + Point2d(layoutSpan.x()*resScale,0.0);
                             objPts[2] = objPts[0] + Point2d(layoutSpan.x()*resScale,layoutSpan.y()*resScale);
                             objPts[3] = objPts[0] + Point2d(0.0,layoutSpan.y()*resScale);
                         } else {
                             Point2d center(objPt.x,objPt.y);
-                            objPts[0] = objOffset;
-                            objPts[1] = objOffset + Point2d(layoutSpan.x(),0.0);
-                            objPts[2] = objOffset + Point2d(layoutSpan.x(),layoutSpan.y());
-                            objPts[3] = objOffset + Point2d(0.0,layoutSpan.y());
+                            objPts[0] = objOffset + layoutOrg;
+                            objPts[1] = objOffset + layoutOrg + Point2d(layoutSpan.x(),0.0);
+                            objPts[2] = objOffset + layoutOrg + Point2d(layoutSpan.x(),layoutSpan.y());
+                            objPts[3] = objOffset + layoutOrg + Point2d(0.0,layoutSpan.y());
                             for (unsigned int oi=0;oi<4;oi++)
                             {
                                 Point2d &thisObjPt = objPts[oi];
@@ -540,7 +544,7 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
         {
             LayoutObjectEntry *layoutObj = *it;
 
-            layoutObj->obj.offset = Point2d(layoutObj->offset.x(),-layoutObj->offset.y());
+            layoutObj->obj.offset = Point2d(layoutObj->offset.x(),layoutObj->offset.y());
             if (!layoutObj->currentEnable)
             {
                 layoutObj->obj.state.fadeDown = curTime;

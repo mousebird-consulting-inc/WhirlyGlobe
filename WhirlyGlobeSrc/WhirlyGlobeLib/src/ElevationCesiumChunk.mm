@@ -315,7 +315,7 @@ static inline Point3f canonical_oct_decode(uint8_t x, uint8_t y)
 	return -1;
 }
 
-- (void)generateDrawables:(WhirlyKitElevationDrawInfo *)drawInfo chunk:(BasicDrawable **)draw skirts:(BasicDrawable **)skirtDraw
+- (void)generateDrawables:(WhirlyKit::ElevationDrawInfo *)drawInfo chunk:(BasicDrawable **)draw skirts:(BasicDrawable **)skirtDraw
 {
     // Size of each chunk
     Point2f chunkSize = drawInfo->parentMbr.ur() - drawInfo->parentMbr.ll();

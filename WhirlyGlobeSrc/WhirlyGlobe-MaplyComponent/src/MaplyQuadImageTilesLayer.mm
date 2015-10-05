@@ -95,6 +95,7 @@ using namespace WhirlyKit;
     bool canFetchFrames;
     bool wantsUnload,wantsEnabled,wantsDisabled;
     std::vector<int> framePriorities;
+    NSDictionary *tessDict;
 }
 
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
@@ -136,6 +137,7 @@ using namespace WhirlyKit;
     _borderTexel = 1;
     _allowFrameLoading = true;
     canFetchFrames = false;
+    tessDict = nil;
     
     // See if we're letting the source do the async calls or what
     sourceWantsAsync = [_tileSource respondsToSelector:@selector(startFetchLayer:tile:)];
@@ -324,6 +326,22 @@ using namespace WhirlyKit;
     }
     if (_color)
         tileLoader.color = [_color asRGBAColor];
+    
+    // Tesselation per level
+    if (tessDict)
+    {
+        int defTess = 10;
+        if (tessDict[@(-1)])
+            defTess = [tessDict[@(-1)] intValue];
+        std::vector<int> tessVals(maxZoom,defTess);
+        for (unsigned int ii=0;ii<maxZoom;ii++)
+        {
+            if (tessDict[@(ii)])
+                tessVals[ii] = [tessDict[@(ii)] intValue];
+        }
+        
+        [tileLoader setTesselationSizePerLevel:tessVals];
+    }
 }
 
 - (void)geoBoundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
@@ -573,6 +591,11 @@ using namespace WhirlyKit;
 - (WhirlyKit::CoordSystem *)coordSystem
 {
     return [coordSys getCoordSystem];
+}
+
+- (void)setTesselationValues:(NSDictionary *)inTessDict
+{
+    tessDict = inTessDict;
 }
 
 - (int)targetZoomLevel

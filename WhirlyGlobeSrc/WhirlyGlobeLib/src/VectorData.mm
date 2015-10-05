@@ -610,7 +610,7 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
 // Parse a single coordinate out of an array
 bool VectorParseCoord(Point2f &coord,NSArray *coords)
 {
-    if (![coords isKindOfClass:[NSArray class]] || ([coords count] != 2 && [coords count] != 3))
+    if (![coords isKindOfClass:[NSArray class]] || [coords count] < 2)
         return false;
     coord.x() = DegToRad([[coords objectAtIndex:0] floatValue]);
     coord.y() = DegToRad([[coords objectAtIndex:1] floatValue]);
