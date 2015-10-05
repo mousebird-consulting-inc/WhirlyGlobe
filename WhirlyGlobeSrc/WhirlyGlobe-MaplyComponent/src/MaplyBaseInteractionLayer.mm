@@ -313,37 +313,46 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Explicitly add a texture
 - (MaplyTexture *)addTexture:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if ([desc boolForKey:kMaplyTexAtlas default:false])
-        return [self addTextureToAtlas:image desc:desc mode:threadMode];
-    
     pthread_mutex_lock(&imageLock);
     
-    // Look for an existing one
-    MaplyImageTexture maplyImageTex;
-    MaplyImageTextureSet::iterator it = imageTextures.find(MaplyImageTexture(image));
-    if (it != imageTextures.end())
+    // Look for an image texture that's already representing our UIImage
+    MaplyTexture *maplyTex = nil;
+    std::vector<MaplyImageTextureList::iterator> toRemove;
+    for (MaplyImageTextureList::iterator theImageTex = imageTextures.begin();
+         theImageTex != imageTextures.end(); ++theImageTex)
     {
-        // Increment the reference count
-        MaplyImageTexture copyTex(*it);
-        copyTex.refCount++;
-        imageTextures.erase(it);
-        imageTextures.insert(copyTex);
-        
-        maplyImageTex = copyTex;
+        if (*theImageTex)
+        {
+            if ((*theImageTex).image == image)
+            {
+                maplyTex = *theImageTex;
+                break;
+            }
+        } else
+            toRemove.push_back(theImageTex);
+    }
+    for (auto rem : toRemove)
+        imageTextures.erase(rem);
+
+    // Takes the altas path instead
+    if (!maplyTex && [desc boolForKey:kMaplyTexAtlas default:false])
+    {
+        pthread_mutex_unlock(&imageLock);
+        return [self addTextureToAtlas:image desc:desc mode:threadMode];
     }
     
     ChangeSet changes;
-    if (!maplyImageTex.maplyTex)
+    if (!maplyTex)
     {
-        MaplyTexture *maplyTex = [[MaplyTexture alloc] init];
+        maplyTex = [[MaplyTexture alloc] init];
         
         Texture *tex = [self createTexture:image desc:desc mode:threadMode];
         maplyTex.texID = tex->getId();
+        maplyTex.interactLayer = self;
+        maplyTex.image = image;
         
         changes.push_back(new AddTextureReq(tex));
-        maplyImageTex = MaplyImageTexture(image, maplyTex);
-        maplyImageTex.refCount = 1;
-        imageTextures.insert(maplyImageTex);
+        imageTextures.push_back(maplyTex);
     }
     
     pthread_mutex_unlock(&imageLock);
@@ -351,7 +360,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     if (!changes.empty())
         [self flushChanges:changes mode:threadMode];
 
-    return maplyImageTex.maplyTex;
+    return maplyTex;
 }
 
 - (MaplyTexture *)addTextureToAtlas:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
@@ -372,8 +381,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     if ([atlasGroup addTexture:tex subTex:subTex changes:changes])
     {
         maplyTex = [[MaplyTexture alloc] init];
+        maplyTex.image = image;
         maplyTex.texID = subTex.getId();
         maplyTex.isSubTex = true;
+        maplyTex.interactLayer = self;
+        imageTextures.push_back(maplyTex);
     }
     delete tex;
 
@@ -467,37 +479,28 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     pthread_mutex_lock(&imageLock);
     
+    // Clear up any textures that may have vanished
+    std::vector<MaplyImageTextureList::iterator> toRemove;
+    for (MaplyImageTextureList::iterator it = imageTextures.begin();
+         it != imageTextures.end(); ++it)
+        if (!(*it).image)
+            toRemove.push_back(it);
+    for (auto rem : toRemove)
+        imageTextures.erase(rem);
+    
     // Atlas textures take care of themselves via the MaplyTexture dealloc
     
-    // Look for an existing one
-    MaplyImageTextureSet::iterator it;
-    for (it = imageTextures.begin();it!=imageTextures.end();++it)
-        if (it->maplyTex == tex)
-            break;
-    if (it != imageTextures.end())
-    {
-        // Decrement the reference count
-        if (it->refCount > 1)
+    // If it's associated with the view controller, it exists outside us, so we just let it clean itself up
+    //  when it gets dealloc'ed.
+    // Note: This time is a hack.  Should look at the fade out.
+    if (tex.interactLayer)
+        [self performSelector:@selector(delayedRemoveTexture:) withObject:tex afterDelay:2.0];
+    else {
+        // If we created it in this object, we'll clean it up
+        if (tex.texID != EmptyIdentity)
         {
-            MaplyImageTexture copyTex(*it);
-            imageTextures.erase(*it);
-            copyTex.refCount--;
-            imageTextures.insert(copyTex);
-        } else {
-            // If it's associated with the view controller, it exists outside us, so we just let it clean itself up
-            //  when it gets dealloc'ed.
-            // Note: This time is a hack.  Should look at the fade out.
-            if (it->maplyTex.viewC)
-                [self performSelector:@selector(delayedRemoveTexture:) withObject:it->maplyTex afterDelay:2.0];
-            else {
-                // If we created it in this object, we'll clean it up
-                if (tex.texID != EmptyIdentity)
-                {
-                    changes.push_back(new RemTextureReq(tex.texID));
-                    tex.texID = EmptyIdentity;
-                }
-                imageTextures.erase(it);
-            }
+            changes.push_back(new RemTextureReq(tex.texID));
+            tex.texID = EmptyIdentity;
         }
     }
     
