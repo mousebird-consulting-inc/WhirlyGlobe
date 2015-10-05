@@ -2,8 +2,8 @@
 //  ConfigViewController.swift
 //  WhirlyGlobeSwiftTester
 //
-//  Created by jmWork on 14/09/15.
-//  Copyright (c) 2015 Liferay. All rights reserved.
+//  Created by jmnavarro on 14/09/15.
+//  Copyright (c) 2015 Mousebird. All rights reserved.
 //
 
 import UIKit
@@ -31,6 +31,16 @@ class ConfigSection {
 			rows[k] = select
 		}
 	}
+
+	class func firstSelected(section: [String:Bool]) -> String? {
+		for (k,v) in section {
+			if v {
+				return k
+			}
+		}
+
+		return nil
+	}
 }
 
 
@@ -52,12 +62,14 @@ class ConfigViewController: UIViewController, UITableViewDataSource, UITableView
 	// Return the configuration value for a section/row
 	func valueForSection(section: String, row: String) -> Bool {
 		return values
-			.filter{ $0.sectionName == section }.first!
+			.filter{
+				$0.sectionName == section
+			}.first?
 			.rows[row] ?? false
 	}
 
 
-	override func viewWillAppear(animated: Bool) {
+	func loadValues() {
 		values.removeAll(keepCapacity: true)
 
 		let baseLayersSection = ConfigSection(
@@ -257,7 +269,7 @@ class ConfigViewController: UIViewController, UITableViewDataSource, UITableView
 		else {
 			section.rows[key] = !selected
 		}
-		tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+		tableView.reloadData()
 	}
 
 }
