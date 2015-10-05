@@ -212,6 +212,24 @@ public:
     return self;
 }
 
+- (instancetype)initWithLineString:(NSArray *)inCoords attributes:(NSDictionary *)attr
+{
+	MaplyCoordinate *coords = (MaplyCoordinate *) malloc(sizeof(int) * [inCoords count]/2);
+
+	for (int i = 0; i < [inCoords count]/2; i += 2) {
+		float x = [inCoords[i] floatValue];
+		float y = [inCoords[i+1] floatValue];
+
+		coords[i / 2] = MaplyCoordinateMakeWithDegrees(x, y);
+	}
+
+	self = [self initWithLineString:coords numCoords:[inCoords count]/2 attributes:attr];
+
+	free(coords);
+
+	return self;
+}
+
 /// Construct with a linear feature (e.g. line string)
 - (instancetype)initWithLineString:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr
 {
@@ -715,9 +733,13 @@ public:
     
     if (pts.size() == 1)
     {
-        middle->x = pts[0].x();
-        middle->y = pts[0].y();
-        *rot = 0.0;
+		if (middle) {
+	        middle->x = pts[0].x();
+    	    middle->y = pts[0].y();
+		}
+		if (rot) {
+	        *rot = 0.0;
+		}
         return true;
     }
     
@@ -740,25 +762,55 @@ public:
         double len = (pt1-pt0).norm();
         if (halfLen <= lenSoFar+len)
         {
-            double t = (halfLen-lenSoFar)/len;
-            Point3d thePt = (pt1-pt0)*t + pt0;
-            GeoCoord middleGeo = coordSys->localToGeographic(thePt);
-            middle->x = middleGeo.x();
-            middle->y = middleGeo.y();
-            *rot = M_PI/2.0-atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
+			if (middle) {
+				double t = (halfLen-lenSoFar)/len;
+				Point3d thePt = (pt1-pt0)*t + pt0;
+				GeoCoord middleGeo = coordSys->localToGeographic(thePt);
+				middle->x = middleGeo.x();
+				middle->y = middleGeo.y();
+			}
+			if (rot) {
+	            *rot = M_PI/2.0-atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
+			}
             return true;
         }
         
         lenSoFar += len;
     }
-    
-    middle->x = pts.back().x();
-    middle->y = pts.back().y();
-    if (rot)
+
+	if (middle){
+		middle->x = pts.back().x();
+		middle->y = pts.back().y();
+	}
+	if (rot) {
         *rot = 0.0;
-    
+	}
+
     return true;
 }
+
+- (MaplyCoordinate)linearMiddle:(MaplyCoordinateSystem *)coordSys
+{
+	MaplyCoordinate coord;
+
+	if (![self linearMiddle:&coord rot:nil displayCoordSys:coordSys]) {
+		return kMaplyNullCoordinate;
+	}
+
+	return coord;
+}
+
+- (double)linearMiddleRotation:(MaplyCoordinateSystem *)coordSys
+{
+	double rot;
+
+	if (![self linearMiddle:nil rot:&rot displayCoordSys:coordSys]) {
+		return DBL_MIN;
+	}
+
+	return rot;
+}
+
 
 - (MaplyCoordinate)middleCoordinate {
 	MaplyCoordinate middle;
