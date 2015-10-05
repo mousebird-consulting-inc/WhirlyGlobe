@@ -98,7 +98,7 @@
 @interface MaplyWMSCapabilities : NSObject
 
 /// We can fetch the capabilities from this URL
-+ (nullable NSString *)CapabilitiesURLFor:(NSString *__nonnull)baseURL;
++ (nonnull NSString *)CapabilitiesURLFor:(NSString *__nonnull)baseURL;
 
 /// The name as returned by the service
 @property (nonatomic,strong,nullable) NSString *name;
