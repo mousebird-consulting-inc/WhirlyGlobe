@@ -70,6 +70,9 @@ public:
 
     /// This is used to sort objects for layout.  Bigger is more important.
     float importance;
+    /// If set, this is clustering group to sort into
+    int clusterGroup;
+
     /// Options for where to place this object:  WhirlyKitLayoutPlacementLeft, WhirlyKitLayoutPlacementRight,
     ///  WhirlyKitLayoutPlacementAbove, WhirlyKitLayoutPlacementBelow
     int acceptablePlacement;
@@ -103,6 +106,18 @@ public:
 };
 
 typedef std::set<LayoutObjectEntry *,IdentifiableSorter> LayoutEntrySet;
+
+/**  The cluster generator is a callback used to make the images (or whatever)
+     for a group of objects.
+  */
+class ClusterGenerator
+{
+public:
+    virtual ~ClusterGenerator() { }
+
+    // Generate a layout object (with screen space object and such) for the cluster
+    virtual void makeLayoutObject(int clusterID,const std::vector<LayoutObject *> &layoutObjects,LayoutObject &newObj) = 0;
+};
     
 #define kWKLayoutManager "WKLayoutManager"
 
@@ -112,7 +127,7 @@ typedef std::set<LayoutObjectEntry *,IdentifiableSorter> LayoutEntrySet;
  
     This manager is entirely thread safe except for destruction.
   */
-class LayoutManager: public SceneManager
+class LayoutManager : public SceneManager
 {
 public:
     LayoutManager();
@@ -142,8 +157,13 @@ public:
     /// Return the active objects in a form the selection manager can handle
     void getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs);
     
+    /// Add a generator for cluster images
+    void addClusterGenerator(ClusterGenerator *clusterGen);
+    
 protected:
-    bool runLayoutRules(WhirlyKitViewState *viewState);
+    bool calcScreenPt(CGPoint &objPt,LayoutObjectEntry *layoutObj,WhirlyKitViewState *viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
+    Eigen::Matrix2d calcScreenRot(float &screenRot,WhirlyKitViewState *viewState,WhirlyGlobeViewState *globeViewState,LayoutObjectEntry *layoutObj,const CGPoint &objPt,const Eigen::Matrix4d &modelTrans,const Point2f &frameBufferSize);
+    bool runLayoutRules(WhirlyKitViewState *viewState,std::vector<LayoutObject> &newClusterObjects);
     
     pthread_mutex_t layoutLock;
     /// If non-zero the maximum number of objects we'll display at once
@@ -154,6 +174,8 @@ protected:
     LayoutEntrySet layoutObjects;
     /// Drawables created on the last round
     SimpleIDSet drawIDs;
+    /// Cluster generators
+    ClusterGenerator *clusterGen;
 };
 
 }

@@ -195,6 +195,7 @@ public:
     void setEnableTime(NSTimeInterval startEnable,NSTimeInterval endEnable);
     void setVisibility(float minVis,float maxVis);
     void setDrawPriority(int drawPriority);
+    int getDrawPriority() { return state.drawPriority; }
     void setKeepUpright(bool keepUpright);
     void setRotation(double rotation);
     void setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown);
@@ -202,6 +203,9 @@ public:
     void setPeriod(NSTimeInterval period);
     
     void addGeometry(const ConvexGeometry &geom);
+    
+    // Get a program ID either from the drawable state or geometry
+    SimpleIdentity getTypicalProgramID();
     
 protected:
     bool enable;

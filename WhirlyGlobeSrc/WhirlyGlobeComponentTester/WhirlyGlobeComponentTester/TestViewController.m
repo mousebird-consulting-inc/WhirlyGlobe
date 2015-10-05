@@ -367,9 +367,37 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 //        [self performSelector:@selector(viewAnimationTest) withObject:nil afterDelay:2.0];
     
 //    [self performSelector:@selector(labelMarkerTest:) withObject:@(0.1) afterDelay:0.1];
+
+//    [self markerOverlapTest];
     
-    // Note: Debugging
     [self addMegaMarkers];
+}
+
+- (void)markerOverlapTest
+{
+    int numTestMarkers = 3;
+    
+    // Make up a few markers
+    NSMutableArray *markerImages = [NSMutableArray array];
+    for (unsigned int ii=0;ii<numTestMarkers;ii++)
+    {
+        UIImage *image = [self randomImage];
+        MaplyTexture *tex = [baseViewC addTextureToAtlas:image mode:MaplyThreadCurrent];
+        [markerImages addObject:tex];
+    }
+    
+    NSMutableArray *markers = [NSMutableArray array];
+    for (unsigned int ii=0;ii<3;ii++)
+    {
+        MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
+        marker.image = [markerImages objectAtIndex:random()%numTestMarkers];
+        marker.size = CGSizeMake(16,16);
+        marker.loc = MaplyCoordinateMakeWithDegrees(0.0,0.0);
+        marker.layoutImportance = 1.0;
+        [markers addObject:marker];
+    }
+    
+    [baseViewC addScreenMarkers:markers desc:@{kMaplyClusterGroup: @(0)} mode:MaplyThreadCurrent];
 }
 
 - (void)labelMarkerTest:(NSNumber *)time
@@ -1297,7 +1325,7 @@ static const int NumMegaMarkers = 15000;
                [markers addObject:marker];
            }
 
-           megaMarkersObj = [baseViewC addScreenMarkers:markers desc:nil mode:MaplyThreadCurrent];
+           megaMarkersObj = [baseViewC addScreenMarkers:markers desc:@{kMaplyClusterGroup: @(0)} mode:MaplyThreadCurrent];
            megaMarkersImages = markerImages;
        }
     );

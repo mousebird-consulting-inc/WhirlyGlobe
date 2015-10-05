@@ -156,6 +156,25 @@ public:
 };
 typedef std::set<ThreadChanges> ThreadChangeSet;
 
+typedef std::map<int,NSObject <MaplyClusterGenerator> *> ClusterGenSet;
+
+@interface MaplyBaseInteractionLayer()
+- (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObject *> &)layoutObjects retObj:(LayoutObject &)retObj;
+@end
+
+// Interface between the layout manager and the cluster generators
+class OurClusterGenerator : public ClusterGenerator
+{
+public:
+    MaplyBaseInteractionLayer *layer;
+    
+    // Figure out
+    void makeLayoutObject(int clusterID,const std::vector<LayoutObject *> &layoutObjects,LayoutObject &retObj)
+    {
+        [layer makeLayoutObject:clusterID layoutObjects:layoutObjects retObj:retObj];
+    }
+};
+
 @implementation MaplyBaseInteractionLayer
 {
     pthread_mutex_t changeLock;
@@ -163,6 +182,10 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     pthread_mutex_t workLock;
     pthread_cond_t workWait;
     int numActiveWorkers;
+    ClusterGenSet clusterGens;
+    OurClusterGenerator ourClusterGen;
+    // Note: Temporary
+    std::vector<MaplyTexture *> clusterTextures;
 }
 
 - (instancetype)initWithView:(WhirlyKitView *)inVisualView
@@ -212,6 +235,13 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     
     glSetupInfo = [[WhirlyKitGLSetupInfo alloc] init];
     glSetupInfo->minZres = [visualView calcZbufferRes];
+    
+    LayoutManager *layoutManager =(LayoutManager *)scene->getManager(kWKLayoutManager);
+    if (layoutManager)
+    {
+        ourClusterGen.layer = self;
+        layoutManager->addClusterGenerator(&ourClusterGen);
+    }
 }
 
 - (void)shutdown
@@ -793,6 +823,71 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     }
     
     return compObj;
+}
+
+- (void)addClusterGenerator:(NSObject <MaplyClusterGenerator> *)clusterGen
+{
+    @synchronized(self)
+    {
+        clusterGens[clusterGen.clusterNumber] = clusterGen;
+    }
+}
+
+- (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObject *> &)layoutObjects retObj:(LayoutObject &)retObj
+{
+    // Find the right cluster generator
+    NSObject <MaplyClusterGenerator> *clusterGen = nil;
+    @synchronized(self)
+    {
+        clusterGen = clusterGens[clusterID];
+    }
+    
+    if (!clusterGen)
+        return;
+    
+    // Pick a representive screen object
+    int drawPriority = -1;
+    LayoutObject *sampleObj = NULL;
+    for (auto obj : layoutObjects)
+    {
+        if (obj->getDrawPriority() > drawPriority)
+        {
+            drawPriority = obj->getDrawPriority();
+            sampleObj = obj;
+        }
+    }
+    SimpleIdentity progID = sampleObj->getTypicalProgramID();
+    
+    // Ask for a cluster image
+    MaplyClusterInfo *clusterInfo = [[MaplyClusterInfo alloc] init];
+    clusterInfo.numObjects = layoutObjects.size();
+    MaplyClusterGroup *group = [clusterGen makeClusterGroup:clusterInfo];
+
+    // Geometry for the new cluster object
+    ScreenSpaceObject::ConvexGeometry smGeom;
+    smGeom.progID = progID;
+    smGeom.coords.push_back(Point2d(-group.size.width/2.0,-group.size.height/2.0));
+    smGeom.texCoords.push_back(TexCoord(0,1));
+    smGeom.coords.push_back(Point2d(group.size.width/2.0,-group.size.height/2.0));
+    smGeom.texCoords.push_back(TexCoord(1,1));
+    smGeom.coords.push_back(Point2d(group.size.width/2.0,group.size.height/2.0));
+    smGeom.texCoords.push_back(TexCoord(1,0));
+    smGeom.coords.push_back(Point2d(-group.size.width/2.0,group.size.height/2.0));
+    smGeom.texCoords.push_back(TexCoord(0,0));
+    smGeom.color = RGBAColor(255,255,255,255);
+    
+    // Create the texture
+    // Note: Keep this around
+    MaplyTexture *maplyTex = [self addTexture:group.image desc:@{kMaplyTexFormat: @(MaplyImageIntRGBA),
+//                                                                 kMaplyTexAtlas: @(true),
+                                                                 kMaplyTexMagFilter: kMaplyMinFilterNearest}
+                                         mode:MaplyThreadCurrent];
+    clusterTextures.push_back(maplyTex);
+    smGeom.texIDs.push_back(maplyTex.texID);
+
+    // Note: Pull this from the input
+    retObj.setDrawPriority(drawPriority);
+    retObj.addGeometry(smGeom);
 }
 
 // Actually add the markers.
