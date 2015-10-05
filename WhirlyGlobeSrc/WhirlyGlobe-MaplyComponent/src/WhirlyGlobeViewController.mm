@@ -318,7 +318,7 @@ using namespace WhirlyGlobe;
 }
 
 /// Add a spherical earth layer with the given set of base images
-- (WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name
+- (MaplyViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name
 {
     WGViewControllerLayer *newLayer = [[WGSphericalEarthWithTexGroup alloc] initWithWithLayerThread:baseLayerThread scene:globeScene texGroup:name];
     newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
@@ -473,12 +473,12 @@ using namespace WhirlyGlobe;
     globeView.heightAboveGlobe = height;
 }
 
-- (float)getMinZoom
+- (float)getZoomLimitsMin
 {
 	return pinchDelegate ? pinchDelegate.minHeight : FLT_MIN;
 }
 
-- (float)getMaxZoom
+- (float)getZoomLimitsMax
 {
 	return pinchDelegate ? pinchDelegate.maxHeight : FLT_MIN;
 }
