@@ -40,6 +40,7 @@ using namespace WhirlyKit;
     bool _enable;
     float _fade;
     bool canLoadFrames;
+    std::vector<int> tessSizes;
 }
 
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
@@ -185,6 +186,11 @@ using namespace WhirlyKit;
 {
     defaultTessX = x;
     defaultTessY = y;
+}
+
+- (void)setTesselationSizePerLevel:(const std::vector<int> &)inTessSizes
+{
+    tessSizes = inTessSizes;
 }
 
 // Convert from our image type to a GL enum
@@ -423,6 +429,14 @@ using namespace WhirlyKit;
         theTile->nodeInfo = *tileInfo;
         theTile->calculateSize(layer.quadtree, layer.scene->getCoordAdapter(), layer.coordSys);
 
+        theTile->samplingX = defaultTessX;
+        theTile->samplingY = defaultTessY;
+        if (tileInfo->ident.level < tessSizes.size())
+        {
+            theTile->samplingX = tessSizes[tileInfo->ident.level];
+            theTile->samplingY = tessSizes[tileInfo->ident.level];
+        }
+
         pthread_mutex_lock(&tileLock);
         tileSet.insert(theTile);
         pthread_mutex_unlock(&tileLock);        
@@ -601,7 +615,7 @@ using namespace WhirlyKit;
     {
         int estTexX = tileBuilder->defaultSphereTessX;
         int estTexY = tileBuilder->defaultSphereTessY;
-
+        
         if ([loadElev isKindOfClass:[WhirlyKitElevationGridChunk class]])
         {
             WhirlyKitElevationGridChunk *gridElev = (WhirlyKitElevationGridChunk *)loadElev;
@@ -646,7 +660,9 @@ using namespace WhirlyKit;
     if (loadingSuccess)
         [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident frame:frame];
     else {
-        // Shouldn't have a visual representation, so just lose it
+        // Clear out the visuals for this tile
+        if (tile->isInitialized)
+            tile->clearContents(tileBuilder, changeRequests);
         [_quadLayer loader:self tileDidNotLoad:tile->nodeInfo.ident frame:frame];
         tileSet.erase(it);
         delete tile;

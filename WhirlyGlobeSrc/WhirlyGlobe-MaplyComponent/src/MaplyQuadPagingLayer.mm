@@ -564,6 +564,10 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         isThere = true;
         isRefresh = (*it)->refreshing;
         isLoading = (*it)->isLoading;
+        
+        if (isLoading)
+            NSLog(@"Quad Paging Layer: Got tile that's already loading.");
+        
         // Note: What if it's loading?
         if (!isRefresh && doRefresh)
         {

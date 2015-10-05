@@ -145,11 +145,11 @@ public:
     void buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev,const Point3d &theCenter);
     
     // Generate drawables for a no-elevation tile
-    void generateDrawables(WhirlyKitElevationDrawInfo *drawInfo,BasicDrawable **draw,BasicDrawable **skirtDraw);
+    void generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,BasicDrawable **draw,BasicDrawable **skirtDraw);
     
     // Build a given tile
     bool buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,std::vector<Texture *> *texs,
-              Point2f texScale,Point2f texOffset,std::vector<WhirlyKitLoadedImage *> *loadImages,NSObject<WhirlyKitElevationChunk> *elevData,const Point3d &theCenter,Quadtree::NodeInfo *parentNodeInfo);
+              Point2f texScale,Point2f texOffset,int samplingX,int samplingY,std::vector<WhirlyKitLoadedImage *> *loadImages,NSObject<WhirlyKitElevationChunk> *elevData,const Point3d &theCenter,Quadtree::NodeInfo *parentNodeInfo);
     
     // Build the texture for a tile
     Texture *buildTexture(WhirlyKitLoadedImage *loadImage);
@@ -313,6 +313,8 @@ public:
     double tileSize;
     /// Where the textures live in the dynamic texture(s)
     DynamicTextureAtlas::TextureRegion texRegion;
+    /// Sampling for surface in X,Y if we're not doing elevation tiles
+    int samplingX,samplingY;
     
     // IDs for the various fake child geometry
     WhirlyKit::SimpleIdentity childDrawIds[4];
