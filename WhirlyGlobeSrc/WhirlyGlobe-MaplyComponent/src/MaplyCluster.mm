@@ -32,6 +32,7 @@
     CGSize size;
     UIFont *font;
     float scale;
+    NSMutableDictionary *imagesByNumber;
 }
 
 - (nonnull instancetype)initWithColors:(NSArray *__nonnull)inColors clusterNumber:(int)clusterNumber size:(CGSize)markerSize
@@ -53,39 +54,56 @@
     return self;
 }
 
+- (void)startClusterGroup
+{
+    imagesByNumber = [NSMutableDictionary dictionary];
+}
+
 - (MaplyClusterGroup *__nonnull) makeClusterGroup:(MaplyClusterInfo *__nonnull)clusterInfo
 {
     MaplyClusterGroup *group = [[MaplyClusterGroup alloc] init];
     
-    // Note: Pick the color based on number of markers
-    UIColor *color = [colors objectAtIndex:0];
-    
-    CGSize scaleSize = CGSizeMake(size.width * scale, size.height * scale);
-    UIGraphicsBeginImageContext(scaleSize);
-    
-    // Clear out the background
-    [[UIColor clearColor] setFill];
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    CGContextFillRect(ctx, CGRectMake(0,0,scaleSize.width,scaleSize.height));
+    UIImage *image = imagesByNumber[@(clusterInfo.numObjects)];
+    if (!image)
+    {
+        // Note: Pick the color based on number of markers
+        UIColor *color = [colors objectAtIndex:0];
+        
+        CGSize scaleSize = CGSizeMake(size.width * scale, size.height * scale);
+        UIGraphicsBeginImageContext(scaleSize);
+        
+        // Clear out the background
+        [[UIColor clearColor] setFill];
+        CGContextRef ctx = UIGraphicsGetCurrentContext();
+        CGContextFillRect(ctx, CGRectMake(0,0,scaleSize.width,scaleSize.height));
 
-    CGContextBeginPath(ctx);
-    [color setFill];
-    [[UIColor whiteColor] setStroke];
-    CGContextAddEllipseInRect(ctx, CGRectMake(1, 1, scaleSize.width-2, scaleSize.height-2));
-    CGContextDrawPath(ctx, kCGPathFillStroke);
+        CGContextBeginPath(ctx);
+        [color setFill];
+        [[UIColor whiteColor] setStroke];
+        CGContextAddEllipseInRect(ctx, CGRectMake(1, 1, scaleSize.width-2, scaleSize.height-2));
+        CGContextDrawPath(ctx, kCGPathFillStroke);
+        
+        [[UIColor whiteColor] setFill];
+        [[UIColor whiteColor] setStroke];
+        NSString *numStr = [NSString stringWithFormat:@"%d",clusterInfo.numObjects];
+        CGSize textSize = [numStr sizeWithAttributes:@{NSFontAttributeName: font}];
+        [numStr drawAtPoint:CGPointMake((scaleSize.width-textSize.width)/2.0,(scaleSize.height-textSize.height)/2.0) withFont:font];
     
-    [[UIColor whiteColor] setFill];
-    [[UIColor whiteColor] setStroke];
-    NSString *numStr = [NSString stringWithFormat:@"%d",clusterInfo.numObjects];
-    CGSize textSize = [numStr sizeWithAttributes:@{NSFontAttributeName: font}];
-    [numStr drawAtPoint:CGPointMake((scaleSize.width-textSize.width)/2.0,(scaleSize.height-textSize.height)/2.0) withFont:font];
-    
-    group.image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
+        image = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        
+        imagesByNumber[@(clusterInfo.numObjects)] = image;
+    }
 
+    group.image = image;
     group.size = size;
     
     return group;
+}
+
+- (void)endClusterGroup
+{
+    imagesByNumber = nil;
 }
 
 @end
