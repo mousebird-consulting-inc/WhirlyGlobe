@@ -137,8 +137,9 @@ using namespace WhirlyKit;
 // This is called in the main thread
 - (void)viewUpdated:(WhirlyKitView *)inView
 {
-    WhirlyKitViewState *viewState = [[_viewStateClass alloc] initWithView:inView renderer:layerThread.renderer];
-
+    if (layerThread.renderer == nil)
+        return;
+    
     // The view has to be valid first
     if (layerThread.renderer.framebufferWidth <= 0.0)
     {
@@ -147,6 +148,8 @@ using namespace WhirlyKit;
         [self performSelector:@selector(viewUpdated:) withObject:inView afterDelay:0.1];
         return;
     }
+
+    WhirlyKitViewState *viewState = [[_viewStateClass alloc] initWithView:inView renderer:layerThread.renderer];
     
 //    lastViewState = viewState;
     @synchronized(self)

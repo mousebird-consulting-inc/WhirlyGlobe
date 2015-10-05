@@ -27,6 +27,9 @@
 #import "VectorData.h"
 #import "SceneRendererES2.h"
 
+// Note: Debugging
+//#define TILELOGGING 1
+
 using namespace Eigen;
 using namespace WhirlyKit;
 
@@ -461,7 +464,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                         {
                             addChildren = true;
                             if (nodeInfo.childCoverage || singleTargetLevel)
-                                makePhantom = true;
+                                makePhantom = !_quadtree->childrenEvaluating(nodeInfo.ident) && !_quadtree->childrenLoading(nodeInfo.ident);
                             else
                                 shouldLoad = shouldLoadFrame && !nodeInfo.isFrameLoading(curFrame);
                         }
@@ -575,13 +578,11 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     // Deal with outstanding phantom nodes
     if (!toPhantom.empty())
     {
-        std::set<Quadtree::Identifier> toKeep;
-        
         for (std::set<Quadtree::Identifier>::iterator it = toPhantom.begin();it != toPhantom.end(); ++it)
         {
             Quadtree::Identifier ident = *it;
             
-            if (!_quadtree->childrenEvaluating(ident) && !_quadtree->childrenLoading(ident))
+//            if (!_quadtree->childrenEvaluating(ident) && !_quadtree->childrenLoading(ident))
             {
 #ifdef TILELOGGING
                 NSLog(@"Flushing phantom tile: %d: (%d,%d)",ident.level,ident.x,ident.y);
@@ -594,13 +595,10 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
                     _quadtree->setLoading(ident, -1, false);
                     didSomething = true;
                 }
-            } else {
-                toKeep.insert(ident);
-                //                NSLog(@"Children loading");
             }
         }
         
-        toPhantom = toKeep;
+        toPhantom.clear();
     }
     
     // Let the loader know we're done with this eval step
@@ -677,14 +675,14 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     // Note: Huge hack
     // There's an internal logic problem... somewhere...
     // If we do a clean evaluation it clears it up
-    if (!didSomething && !didFrameKick)
-    {
-        didFrameKick = true;
-        
-        [self resetEvaluation];
-        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
-        [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
-    }
+//    if (!didSomething && !didFrameKick)
+//    {
+//        didFrameKick = true;
+//        
+//        [self resetEvaluation];
+//        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
+//        [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
+//    }
 }
 
 - (void)getFrameLoadStatus:(std::vector<WhirlyKit::FrameLoadStatus> &)retFrameLoadStats
@@ -721,7 +719,12 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
         _quadtree->updateParentCoverage(tileIdent,tilesCovered,tilesUncovered);
         for (const Quadtree::Identifier &ident : tilesCovered)
             if (!_quadtree->isPhantom(ident))
+            {
+#ifdef TILELOGGING
+                NSLog(@"Adding to the phantom list: %d: (%d,%d)",ident.level,ident.x,ident.y);
+#endif
                 toPhantom.insert(ident);
+            }
     }
 
     // May want to consider the children next

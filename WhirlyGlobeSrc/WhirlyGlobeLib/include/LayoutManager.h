@@ -32,14 +32,18 @@
 namespace WhirlyKit
 {
 
+/// Don't modify it at all
+#define WhirlyKitLayoutPlacementNone (1<<0)
+/// Okay to center
+#define WhirlyKitLayoutPlacementCenter (1<<1)
 /// Okay to place to the right of a point
-#define WhirlyKitLayoutPlacementRight  (1<<0)
+#define WhirlyKitLayoutPlacementRight  (1<<2)
 /// Okay to place it to the left of a point
-#define WhirlyKitLayoutPlacementLeft   (1<<1)
+#define WhirlyKitLayoutPlacementLeft   (1<<3)
 /// Okay to place on top of a point
-#define WhirlyKitLayoutPlacementAbove  (1<<2)
+#define WhirlyKitLayoutPlacementAbove  (1<<4)
 /// Okay to place below a point
-#define WhirlyKitLayoutPlacementBelow  (1<<3)
+#define WhirlyKitLayoutPlacementBelow  (1<<5)
 
 /** This represents an object in the screen space generator to be laid out
  by the layout engine.  We'll manipulate its offset and enable/disable it

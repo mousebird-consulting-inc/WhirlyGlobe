@@ -40,13 +40,13 @@ using namespace std;
 /// Amount ot scale Z by
 @property (nonatomic) float scale;
 
-@property (nonatomic, readonly) VectorTrianglesRef mesh;
+@property (nonatomic, readonly) WhirlyKit::VectorTrianglesRef mesh;
 
 @property (nonatomic, readonly) vector<unsigned int> &westVertices;
 @property (nonatomic, readonly) vector<unsigned int> &southVertices;
 @property (nonatomic, readonly) vector<unsigned int> &eastVertices;
 @property (nonatomic, readonly) vector<unsigned int> &northVertices;
 
-@property (nonatomic, readonly) vector<Point3f> &normals;
+@property (nonatomic, readonly) vector<WhirlyKit::Point3f> &normals;
 
 @end

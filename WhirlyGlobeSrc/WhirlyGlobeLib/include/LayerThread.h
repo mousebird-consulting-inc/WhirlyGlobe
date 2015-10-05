@@ -93,4 +93,7 @@
 /// We're overriding the main entry point
 - (void)main;
 
+- (void)pause;
+- (void)unpause;
+
 @end

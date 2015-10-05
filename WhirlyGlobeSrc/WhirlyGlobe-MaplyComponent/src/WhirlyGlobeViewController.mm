@@ -381,6 +381,9 @@ using namespace WhirlyGlobe;
             pinchDelegate.northUp = panDelegate.northUp;
             pinchDelegate.rotateDelegate = rotateDelegate;
             tiltDelegate.pinchDelegate = pinchDelegate;
+            
+            if (twoFingerTapDelegate)
+                [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
         }
     } else {
         if (pinchDelegate)
@@ -527,6 +530,11 @@ using namespace WhirlyGlobe;
         doubleTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
     if (twoFingerTapDelegate)
         twoFingerTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+}
+
+- (void)setFarClipPlane:(double)farClipPlane
+{
+    [globeView setFarClippingPlane:farClipPlane];
 }
 
 - (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt
@@ -832,7 +840,26 @@ using namespace WhirlyGlobe;
         if ([_delegate respondsToSelector:@selector(globeViewController:allSelect:atLoc:onScreen:)])
             [_delegate globeViewController:self allSelect:selectedObjs atLoc:coord onScreen:msg.touchLoc];
         else {
-            MaplySelectedObject *selObj = [selectedObjs objectAtIndex:0];
+            MaplySelectedObject *selectVecObj = nil;
+            MaplySelectedObject *selObj = nil;
+            // If the selected objects are vectors, use the draw priority
+            for (MaplySelectedObject *whichObj in selectedObjs)
+            {
+                if ([whichObj.selectedObj isKindOfClass:[MaplyVectorObject class]])
+                {
+                    MaplyVectorObject *vecObj0 = selectVecObj.selectedObj;
+                    MaplyVectorObject *vecObj1 = whichObj.selectedObj;
+                    if (!vecObj0 || ([vecObj1.attributes[kMaplyDrawPriority] intValue] > [vecObj0.attributes[kMaplyDrawPriority] intValue]))
+                        selectVecObj = whichObj;
+                } else {
+                    // If there's a non-vector object just pick it
+                    selectVecObj = nil;
+                    selObj = whichObj;
+                    break;
+                }
+            }
+            if (selectVecObj)
+                selObj = selectVecObj;
             
             if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:atLoc:onScreen:)])
                 [_delegate globeViewController:self didSelect:selObj.selectedObj atLoc:coord onScreen:msg.touchLoc];
