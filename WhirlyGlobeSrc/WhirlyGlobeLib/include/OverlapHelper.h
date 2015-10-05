@@ -63,7 +63,7 @@ protected:
 class ClusterHelper
 {
 public:
-    ClusterHelper(const Mbr &mbr,int sizeX, int sizeY, const Point2d &clusterMarkerSize);
+    ClusterHelper(const Mbr &mbr,int sizeX, int sizeY, float resScale, const Point2d &clusterMarkerSize);
     
     // Add an object, possibly forming a group
     void addObject(LayoutObjectEntry *objEntry,const std::vector<Point2d> &pts);
@@ -119,6 +119,7 @@ public:
 
     // Grid we're sorting into for fast lookup
     int sizeX,sizeY;
+    float resScale;
     Point2d cellSize;
     std::vector<std::set<int> > grid;
 };

@@ -1282,7 +1282,9 @@ static const int NumMegaMarkers = 15000;
 // Generate a random image for testing
 - (UIImage *)randomImage
 {
-    CGSize size = CGSizeMake(16, 16);
+    float scale = [UIScreen mainScreen].scale;
+    
+    CGSize size = CGSizeMake(16*scale, 16*scale);
     UIGraphicsBeginImageContext(size);
     CGContextRef ctx = UIGraphicsGetCurrentContext();
     

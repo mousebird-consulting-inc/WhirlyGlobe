@@ -398,7 +398,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Lay
         for (ClusteredObjectsSet::iterator it = clusterObjs.begin(); it != clusterObjs.end(); ++it)
         {
             // Note: Need to pass in the cluster size
-            ClusterHelper clusterHelper(screenMbr,OverlapSampleX,OverlapSampleY,Point2d(32,32));
+            ClusterHelper clusterHelper(screenMbr,OverlapSampleX,OverlapSampleY,resScale,Point2d(32,32));
             ClusteredObjects *cluster = *it;
             
             // Add all the various objects to the cluster and figure out overlaps
