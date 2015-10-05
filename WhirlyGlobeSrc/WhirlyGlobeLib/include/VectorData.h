@@ -93,6 +93,10 @@ float CalcLoopArea(const VectorRing &);
 double CalcLoopArea(const std::vector<Point2d> &);
 /// Calculate the centroid of a loop
 Point2f CalcLoopCentroid(const VectorRing &loop);
+/// Calculate the centroid of a bunch of points
+Point2d CalcLoopCentroid(const std::vector<Point2d> &loop);
+/// Calculate the center of mass of the points
+Point2d CalcCenterOfMass(const std::vector<Point2d> &loop);
     
 /// Collection of triangles forming a mesh
 class VectorTriangles : public VectorShape

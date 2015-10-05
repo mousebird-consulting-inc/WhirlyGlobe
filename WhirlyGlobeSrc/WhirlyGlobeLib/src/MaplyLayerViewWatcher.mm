@@ -22,6 +22,7 @@
 #import "LayerThread.h"
 
 using namespace WhirlyKit;
+using namespace Eigen;
 
 @implementation MaplyViewState
 
@@ -29,7 +30,39 @@ using namespace WhirlyKit;
 {
     self = [super initWithView:mapView renderer:renderer];
     
+    if (self)
+    {
+        _heightAboveSurface = mapView.loc.z();
+    }
+    
     return self;
+}
+
+- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize hit:(Point3d *)hit clip:(bool)clip
+{
+    // Back Project the screen point into model space
+    Point3d screenPt = [super pointUnproject:Point2d(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:clip];
+    
+    // Run the screen point and the eye point (origin) back through
+    //  the model matrix to get a direction and origin in model space
+    Eigen::Matrix4d modelTrans = *transform;
+    Matrix4d invModelMat = modelTrans.inverse();
+    Point3d eyePt(0,0,0);
+    Vector4d modelEye = invModelMat * Vector4d(eyePt.x(),eyePt.y(),eyePt.z(),1.0);
+    Vector4d modelScreenPt = invModelMat * Vector4d(screenPt.x(),screenPt.y(),screenPt.z(),1.0);
+    
+    // Now intersect with the plane at (0,0)
+    // Okay, this is kind of overkill
+    Vector4d dir4 = modelScreenPt - modelEye;
+    Vector3d dir(dir4.x(),dir4.y(),dir4.z());
+    
+    if (dir.z() == 0.0)
+        return false;
+    dir.normalize();
+    double t = - modelEye.z() / dir.z();
+    *hit = Point3d(modelEye.x(),modelEye.y(),modelEye.z()) + dir * t;
+    
+    return true;
 }
 
 @end

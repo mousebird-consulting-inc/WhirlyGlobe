@@ -31,6 +31,9 @@
 
 namespace WhirlyKit
 {
+class LayoutObjectEntry;
+class LayoutObject;
+    
 // We use this to avoid overlapping labels
 class OverlapHelper
 {
@@ -54,6 +57,70 @@ protected:
     int sizeX,sizeY;
     Point2f cellSize;
     std::vector<std::vector<int> > grid;
+};
+
+// Used to figure out what clusters
+class ClusterHelper
+{
+public:
+    ClusterHelper(const Mbr &mbr,int sizeX, int sizeY, const Point2d &clusterMarkerSize);
+    
+    // Add an object, possibly forming a group
+    void addObject(LayoutObjectEntry *objEntry,const std::vector<Point2d> &pts);
+
+    // Deal with cluster to cluster overlap
+    void resolveClusters();
+    
+    // Single object with its bounds
+    class ObjectWithBounds
+    {
+    public:
+        ObjectWithBounds();
+        std::vector<Point2d> pts;
+        Point2d center;
+    };
+    
+    // Simple object we're trying to cluster
+    class SimpleObject : public ObjectWithBounds
+    {
+    public:
+        SimpleObject();
+        LayoutObjectEntry *objEntry;
+        int parentObject;
+    };
+    
+    // Object we create when there are overlaps
+    class ClusterObject : public ObjectWithBounds
+    {
+    public:
+        ClusterObject();
+        std::vector<int> children;
+    };
+    
+    // List of objects for this cluster
+    void objectsForCluster(ClusterObject &cluster,std::vector<LayoutObject *> &layoutObjs);
+
+    // Add the given index to the cells it covers
+    void addToCells(const Mbr &mbr,int index);
+    
+    // Remove the given index from the cells it covers
+    void removeFromCells(const Mbr &mbr,int index);
+    
+    // Return all the objects within the overlap
+    void findObjectsWithin(const Mbr &mbr,std::set<int> &objSet);
+    
+    void calcCells(const Mbr &mbr,int &sx,int &sy,int &ex,int &ey);
+
+    Point2d clusterMarkerSize;
+    
+    Mbr mbr;
+    std::vector<SimpleObject> simpleObjects;
+    std::vector<ClusterObject> clusterObjects;
+
+    // Grid we're sorting into for fast lookup
+    int sizeX,sizeY;
+    Point2d cellSize;
+    std::vector<std::set<int> > grid;
 };
     
 }

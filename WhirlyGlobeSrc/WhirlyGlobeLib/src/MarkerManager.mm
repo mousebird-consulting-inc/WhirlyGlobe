@@ -115,6 +115,7 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
     _screenObject = [desc boolForKey:@"screen" default:false];
     _width = [desc floatForKey:@"width" default:(_screenObject ? 16.0 : 0.001)];
     _height = [desc floatForKey:@"height" default:(_screenObject ? 16.0 : 0.001)];
+    _clusterGroup = [desc intForKey:@"clusterGroup" default:-1];
 }
 
 @end
@@ -265,6 +266,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     layoutObj->selectPts.push_back(Point2d(-width2+marker.offset.x(),height2+marker.offset.y()));
                     layoutObj->layoutPts = layoutObj->selectPts;
                 }
+                layoutObj->clusterGroup = markerInfo.clusterGroup;
                 layoutObj->importance = marker.layoutImportance;
                 layoutObj->acceptablePlacement = WhirlyKitLayoutPlacementNone;
                 
