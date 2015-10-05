@@ -569,9 +569,10 @@ using namespace WhirlyKit;
         offlineImage.bbox = bbox;
         
         // Convert the textures into MaplyTextures
+        // Note: Does the lack of interact layer break things?
         MaplyTexture *maplyTex = [[MaplyTexture alloc] init];
         maplyTex.texID = inImage.texture;
-        maplyTex.viewC = _viewC;
+        maplyTex.interactLayer = NULL;
         
         offlineImage.tex = maplyTex;
         offlineImage.centerSize = inImage.centerSize;
