@@ -29,8 +29,8 @@ namespace WhirlyKit
 
 ScreenSpaceBuilder::DrawableState::DrawableState()
     : period(0.0), progID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0),
-    drawPriority(ScreenSpaceDrawPriorityOffset), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), motion(false), rotation(false), keepUpright(false),
-    enable(true), startEnable(0.0), endEnable(0.0)
+    enable(true), startEnable(0.0), endEnable(0.0),
+    drawPriority(ScreenSpaceDrawPriorityOffset), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), motion(false), rotation(false), keepUpright(false)
 {
 }
     
@@ -388,7 +388,7 @@ ScreenSpaceObject::ScreenSpaceObject::ConvexGeometry::ConvexGeometry()
 }
     
 ScreenSpaceObject::ScreenSpaceObject()
-    : enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), offset(0,0), rotation(0), keepUpright(false)
+    : enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), endWorldLoc(0,0,0), startTime(0.0), endTime(0.0), offset(0,0), rotation(0), keepUpright(false)
 {
 }
 
@@ -486,6 +486,17 @@ void ScreenSpaceObject::setPeriod(NSTimeInterval period)
 void ScreenSpaceObject::addGeometry(const ConvexGeometry &geom)
 {
     geometry.push_back(geom);
+}
+    
+SimpleIdentity ScreenSpaceObject::getTypicalProgramID()
+{
+    for (auto geom : geometry)
+    {
+        if (geom.progID != EmptyIdentity)
+            return geom.progID;
+    }
+    
+    return state.progID;
 }
     
 ScreenSpaceObjectLocation::ScreenSpaceObjectLocation()

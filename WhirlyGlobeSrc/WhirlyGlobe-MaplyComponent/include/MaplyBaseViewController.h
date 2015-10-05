@@ -34,6 +34,7 @@
 #import "MaplyTexture.h"
 #import "MaplyAnnotation.h"
 #import "MaplyParticleSystem.h"
+#import "MaplyCluster.h"
 
 /** @brief When selecting multiple objects, one or more of these is returned.
     @details When you implement one of the selection delegates that takes multiple objects, you'll get an NSArray of these things.
@@ -164,12 +165,19 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
  |kMaplyEnableStart|NSNumber|If set, this controls when the resulting objects will be activated.|
  |kMaplyEnableEnd|NSNumber|If set, this controls when the resulting objects will be deactivated.|
+ |kMaplyClusterGroup|NSNumber|If set, the screen markers will be clustered together according to the given group ID.  Off by default, but 0 is the default cluster.|
 
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
     @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
   */
 - (MaplyComponentObject *__nullable)addScreenMarkers:(NSArray *__nonnull)markers desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
+
+/** @brief Add a cluster generator for making clustered marker images on demand.
+    @details When the layout system clusters a bunch of markers or labels together, it needs new images to represent the cluster.
+    @details You can provide a custom image for each group of markers by filling in one of these generates and passing it in.
+  */
+- (void)addClusterGenerator:(NSObject <MaplyClusterGenerator> *__nonnull)clusterGen;
 
 /// @brief This calls addMarkers:desc:mode: with mode set to MaplyThreadAny
 - (MaplyComponentObject *__nullable)addMarkers:(NSArray *__nonnull)markers desc:(NSDictionary *__nullable)desc;
