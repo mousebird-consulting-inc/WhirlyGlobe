@@ -912,7 +912,13 @@ public:
                                                                  kMaplyTexMagFilter: kMaplyMinFilterNearest}
                                          mode:MaplyThreadCurrent];
     currentClusterTex.push_back(maplyTex);
-    smGeom.texIDs.push_back(maplyTex.texID);
+    if (maplyTex.isSubTex)
+    {
+        SubTexture subTex = scene->getSubTexture(maplyTex.texID);
+        subTex.processTexCoords(smGeom.texCoords);
+        smGeom.texIDs.push_back(subTex.texId);
+    } else
+        smGeom.texIDs.push_back(maplyTex.texID);
 
     retObj.setDrawPriority(drawPriority);
     retObj.addGeometry(smGeom);
