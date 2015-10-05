@@ -27,6 +27,7 @@
 #import "MaplyBaseViewController.h"
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyTextureAtlas_private.h"
+#import "ClusterGenInterface_private.h"
 
 @interface MaplyBaseInteractionLayer : NSObject<WhirlyKitLayer>
 {
@@ -73,6 +74,9 @@
 
 // Add screen space (2D) markers
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+// Add a marker cluster generator
+- (void)addClusterGenerator:(NSObject <MaplyClusterGenerator> *)clusterGen;
 
 // Add 3D markers
 - (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;

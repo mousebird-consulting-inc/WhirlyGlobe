@@ -275,13 +275,7 @@ void ClipAndProjectPolygon(Eigen::Matrix4d &modelMat,Eigen::Matrix4d &projMat,Po
         screenPoly.push_back(screenPt);
     }    
 }
-    
-// Note: Maybe finish implementing this
-bool RectSolidRayIntersect(const Ray3f &ray,const Point3f *pts,float &dist2)
-{
-    return false;
-}
-    
+
 // Inspired by: http://geomalgorithms.com/a01-_area.html
 double PolygonArea(const std::vector<Point3d> &poly,const Point3d &norm)
 {

@@ -56,6 +56,8 @@ using namespace WhirlyKit;
     if (!scene)
         return;
     
+    defaultClusterGenerator = nil;
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
@@ -235,6 +237,10 @@ using namespace WhirlyKit;
 	// Kick off the layer thread
 	// This will start loading things
 	[baseLayerThread start];
+    
+    // Default cluster generator
+    defaultClusterGenerator = [[MaplyBasicClusterGenerator alloc] initWithColors:@[[UIColor orangeColor]] clusterNumber:0 size:CGSizeMake(32,32)];
+    [self addClusterGenerator:defaultClusterGenerator];
     
     // Set up defaults for the hints
     NSDictionary *newHints = [NSDictionary dictionary];
@@ -551,6 +557,12 @@ static const float PerfOutputDelay = 15.0;
 {
     return [self addScreenMarkers:markers desc:desc mode:MaplyThreadAny];
 }
+
+- (void)addClusterGenerator:(NSObject <MaplyClusterGenerator> *)clusterGen
+{
+    [interactLayer addClusterGenerator:clusterGen];
+}
+
 
 - (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
