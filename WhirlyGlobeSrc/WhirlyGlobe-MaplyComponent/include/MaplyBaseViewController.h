@@ -894,7 +894,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  @param previewDataSource Data source to provide 3d touch preview view controllers.
  @return true if 3d touch could be enabled
  */
-- (BOOL)enable3dTouchSelection:(NSObject<Maply3dTouchPreviewDatasource> *)previewDataSource;
+- (BOOL)enable3dTouchSelection:(NSObject<Maply3dTouchPreviewDatasource> *__nonnull)previewDataSource;
 
 /** @brief Disable 3dtouch object selection
  */
