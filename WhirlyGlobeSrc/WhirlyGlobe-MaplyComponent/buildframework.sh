@@ -1,10 +1,13 @@
 # Most of this borrowed from http://www.cocoanetics.com/2010/04/making-your-own-iphone-frameworks/
 
 #!/bin/bash
+# xcodebuild -target WhirlyGlobe-MaplyComponent -scheme WhirlyGlobe-MaplyComponent -configuration Release -sdk iphonesimulator9.0 clean
+# xcodebuild -target WhirlyGlobe-MaplyComponent -scheme WhirlyGlobe-MaplyComponent -configuration Release -sdk iphoneos9.0 clean
 # xcodebuild -target WhirlyGlobe-MaplyComponent -configuration Debug -sdk iphonesimulator
-xcodebuild -target WhirlyGlobe-MaplyComponent -configuration Release -sdk iphonesimulator
+
+xcodebuild -target WhirlyGlobe-MaplyComponent -scheme WhirlyGlobe-MaplyComponent -configuration Release -sdk iphonesimulator9.0
 # xcodebuild -target WhirlyGlobe-MaplyComponent -configuration Debug -sdk iphoneos
-xcodebuild -target WhirlyGlobe-MaplyComponent -configuration Release -sdk iphoneos
+xcodebuild -target WhirlyGlobe-MaplyComponent -scheme WhirlyGlobe-MaplyComponent -configuration Release -sdk iphoneos9.0 -DONLY_ACTIVE_ARCH=NO
 
 # name and build location
 PROJECT_NAME=WhirlyGlobeMaplyComponent
@@ -41,7 +44,7 @@ ln -s Versions/Current/lib${FRAMEWORK_NAME}.a $FRAMEWORK_DIR/${FRAMEWORK_NAME}
 # combine lib files for various platforms into one
 echo "Framework: Creating library..."
 # lipo -create build/Debug-iphoneos/libWhirlyGlobeLib.a build/Debug-iphonesimulator/libWhirlyGlobeLib.a -output "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
-lipo -create build/Release-iphoneos/libWhirlyGlobe-MaplyComponent.a build/Release-iphonesimulator/libWhirlyGlobe-MaplyComponent.a -output "$FRAMEWORK_DIR/Versions/Current/lib${FRAMEWORK_NAME}.a"
+lipo -create build/Products/Release-iphoneos/libWhirlyGlobe-MaplyComponent.a build/Products/Release-iphonesimulator/libWhirlyGlobe-MaplyComponent.a -output "$FRAMEWORK_DIR/Versions/Current/lib${FRAMEWORK_NAME}.a"
 
 # lipo -create "${PROJECT_DIR}/build/${BUILD_STYLE}-iphoneos/lib${PROJECT_NAME}.a" "${PROJECT_DIR}/build/${BUILD_STYLE}-iphonesimulator/lib${PROJECT_NAME}.a" -o "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
 
