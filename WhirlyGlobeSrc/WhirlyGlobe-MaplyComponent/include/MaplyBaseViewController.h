@@ -35,6 +35,7 @@
 #import "MaplyAnnotation.h"
 #import "MaplyParticleSystem.h"
 #import "MaplyCluster.h"
+#import "Maply3DTouchPreviewDatasource.h"
 
 /** @brief When selecting multiple objects, one or more of these is returned.
     @details When you implement one of the selection delegates that takes multiple objects, you'll get an NSArray of these things.
@@ -888,6 +889,16 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
     @details This converts from a coordinate (3d) in the given coordinate system to the view controller's display space.  For the globe, display space is based on a radius of 1.0.
   */
 - (MaplyCoordinate3d)displayCoord:(MaplyCoordinate3d)localCoord fromSystem:(MaplyCoordinateSystem *__nonnull)coordSys;
+
+/** @brief enable 3d touch object selection.
+ @param previewDataSource Data source to provide 3d touch preview view controllers.
+ @return true if 3d touch could be enabled
+ */
+- (BOOL)enable3dTouchSelection:(NSObject<Maply3dTouchPreviewDatasource> *)previewDataSource;
+
+/** @brief Disable 3dtouch object selection
+ */
+- (void)disable3dTouchSelection;
 
 /// @brief Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;
