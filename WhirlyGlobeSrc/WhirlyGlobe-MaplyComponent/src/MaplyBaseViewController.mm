@@ -26,6 +26,7 @@
 #import "NSDictionary+StyleRules.h"
 #import "DDXMLElementAdditions.h"
 #import "NSString+DDXML.h"
+#import "Maply3dTouchPreviewDelegate.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -1317,6 +1318,35 @@ static const float PerfOutputDelay = 15.0;
     MaplyCoordinate3d ret;
     ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
     return ret;
+}
+
+- (BOOL)enable3dTouchSelection:(NSObject<Maply3dTouchPreviewDatasource>*)previewDataSource
+{
+    if(previewingContext)
+    {
+        [self disable3dTouchSelection];
+    }
+    
+    if([self respondsToSelector:@selector(traitCollection)] &&
+       [self.traitCollection respondsToSelector:@selector(forceTouchCapability)] &&
+       self.traitCollection.forceTouchCapability == UIForceTouchCapabilityAvailable)
+    {
+        previewTouchDelegate = [Maply3dTouchPreviewDelegate touchDelegate:self
+                                                            interactLayer:interactLayer
+                                                               datasource:previewDataSource];
+        previewingContext = [self registerForPreviewingWithDelegate:previewTouchDelegate
+                                                         sourceView:self.view];
+        return YES;
+    }
+    return NO;
+}
+
+- (void)disable3dTouchSelection {
+    if(previewingContext)
+    {
+        [self unregisterForPreviewingWithContext:previewingContext];
+        previewingContext = nil;
+    }
 }
 
 @end

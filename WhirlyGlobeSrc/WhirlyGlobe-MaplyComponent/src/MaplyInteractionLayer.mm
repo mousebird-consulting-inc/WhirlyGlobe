@@ -73,18 +73,8 @@ using namespace WhirlyGlobe;
 - (void) userDidTapLayerThread:(MaplyTapMessage *)msg
 {
     // First, we'll look for labels and markers
-    SimpleIdentity selID = ((SelectionManager *)scene->getManager(kWKSelectionManager))->pickObject(Point2f(msg.touchLoc.x,msg.touchLoc.y),10.0,mapView);
-
-    NSObject *selObj;
-    if (selID != EmptyIdentity)
-    {       
-        // Found something.  Now find the associated object
-        SelectObjectSet::iterator it = selectObjectSet.find(SelectObject(selID));
-        if (it != selectObjectSet.end())
-        {
-            selObj = it->obj;
-        }
-    } else {
+    NSObject *selObj = [self selectLabelsAndMarkerForScreenPoint:msg.touchLoc];
+    if(!selObj) {
         // Next, try the vectors
         // Note: Ignoring everything but the first return
         NSArray *vecObjs = [self findVectorsInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y()) inView:(MaplyBaseViewController*)self.viewController multi:false];
@@ -99,6 +89,24 @@ using namespace WhirlyGlobe;
                    }
                    );
 }
+
+- (NSObject*)selectLabelsAndMarkerForScreenPoint:(CGPoint)screenPoint
+{
+    SimpleIdentity selID = ((SelectionManager *)scene->getManager(kWKSelectionManager))->pickObject(Point2f(screenPoint.x, screenPoint.y),10.0,mapView);
+    
+    NSObject *selObj;
+    if (selID != EmptyIdentity)
+    {
+        // Found something.  Now find the associated object
+        SelectObjectSet::iterator it = selectObjectSet.find(SelectObject(selID));
+        if (it != selectObjectSet.end())
+        {
+            selObj = it->obj;
+        }
+    }
+    return selObj;
+}
+
 
 // Check for a selection
 - (void) userDidTap:(MaplyTapMessage *)msg

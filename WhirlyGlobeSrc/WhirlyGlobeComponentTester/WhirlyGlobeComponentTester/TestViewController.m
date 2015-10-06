@@ -81,7 +81,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 
 // Local interface for TestViewController
 // We'll hide a few things here
-@interface TestViewController ()
+@interface TestViewController ()//<Maply3dTouchPreviewDatasource>
 {
     // The configuration view comes up when the user taps outside the globe
     ConfigViewController *configViewC;
@@ -146,6 +146,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     MaplyTexture *dashedLineTex,*filledLineTex;
     
     PerformanceMode perfMode;
+  id <UIViewControllerPreviewing> previewingContext;
 }
 
 // Change what we're showing based on the Configuration
@@ -367,6 +368,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 //        [self performSelector:@selector(viewAnimationTest) withObject:nil afterDelay:2.0];
     
     [self performSelector:@selector(labelMarkerTest:) withObject:@(0.1) afterDelay:0.1];
+  
+    [baseViewC enable3dTouchSelection:self];
 }
 
 - (void)labelMarkerTest:(NSNumber *)time
@@ -830,7 +833,9 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 - (void)addLinesLon:(float)lonDelta lat:(float)latDelta color:(UIColor *)color
 {
     NSMutableArray *vectors = [[NSMutableArray alloc] init];
-    NSDictionary *desc = @{kMaplyColor: color, kMaplySubdivType: kMaplySubdivSimple, kMaplySubdivEpsilon: @(0.001), kMaplyVecWidth: @(4.0)};
+    NSDictionary *desc = @{kMaplyColor: color,
+                           kMaplySelectable: @YES,
+                           kMaplySubdivType: kMaplySubdivSimple, kMaplySubdivEpsilon: @(0.001), kMaplyVecWidth: @(4.0)};
     // Longitude lines
     for (float lon = -180;lon < 180;lon += lonDelta)
     {
@@ -1100,6 +1105,7 @@ static const bool CountryTextures = true;
                              wgVecObj.userObject = vecName;
                              NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:@{
                                                                                                          kMaplyFilled: @(YES),
+                                                                                                         kMaplySelectable: @YES
                                                                                                          }];
                              if (CountryTextures)
                              {
@@ -2522,5 +2528,21 @@ static const int NumMegaMarkers = 15000;
 {
     [self changeMapContents];
 }
+
+
+#pragma mark -
+- (UIViewController * _Nullable)maplyViewController:(MaplyBaseViewController *)viewC
+                  previewViewControllerForSelection:(NSObject *)selectedObj
+{
+  return [[UIViewController alloc] init];
+}
+
+
+- (void)maplyViewController:(MaplyBaseViewController *)viewC
+  showPreviewViewController:(UIViewController *)previewViewC
+{
+  [self showViewController:previewViewC sender:self];
+}
+
 
 @end
