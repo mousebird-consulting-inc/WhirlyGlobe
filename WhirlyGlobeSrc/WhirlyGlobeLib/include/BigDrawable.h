@@ -145,7 +145,7 @@ public:
 protected:
     bool enable;
     float fade;
-    GLuint programId;
+    SimpleIdentity programId;
     std::vector<BasicDrawable::TexInfo> texInfo;
     int drawPriority;
     bool requestZBuffer,writeZBuffer;

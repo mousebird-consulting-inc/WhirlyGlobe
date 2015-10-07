@@ -447,7 +447,44 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
       * If this is false, we'll force all the frames to load for a given tile before we move on to the next tile.
       */
 	public native void setAllowFrameLoading(boolean frameLoading);
-	
+
+    /**
+     * Information about the frame status
+     */
+    public class FrameStatus
+    {
+        FrameStatus(int depth)
+        {
+            complete = new boolean[depth];
+            tilesLoaded = new int[depth];
+        }
+        public int currentFrame;
+        public boolean complete[];
+        public int tilesLoaded[];
+    };
+
+    /**
+     * Query the status for active frames.  This asks the quad image layer what the state of
+     * frame loading is at this instant.  All arrays are imageDepth in size.
+     * @param complete For each frame, whether or not it's completely loaded.
+     * @param tilesLoaded For each frame, how many tiles are loaded.
+     * @return The frame currently beng loaded.  Returns -1 if the call was invalid.
+     */
+    public FrameStatus getFrameStatus()
+    {
+        if (getImageDepth() <= 1)
+            return null;
+
+        FrameStatus status = new FrameStatus(getImageDepth());
+        status.currentFrame = getFrameStatusNative(status.complete,status.tilesLoaded);
+        if (status.currentFrame == -1)
+            return null;
+
+        return status;
+    }
+
+    native int getFrameStatusNative(boolean complete[],int tilesLoaded[]);
+
 	/** For the case where we're loading individual frames, this sets the order to load them in.
       * When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.
       */

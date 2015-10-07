@@ -73,6 +73,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setAllowFrame
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    getFrameStatusNative
+ * Signature: ([Z[I)I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getFrameStatusNative
+  (JNIEnv *, jobject, jbooleanArray, jintArray);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    setFrameLoadingPriority
  * Signature: ([ILcom/mousebird/maply/ChangeSet;)V
  */

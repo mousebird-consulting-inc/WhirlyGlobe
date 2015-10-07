@@ -37,10 +37,11 @@ BigDrawable::Buffer::Buffer()
 }
 
 BigDrawable::BigDrawable(const std::string &name,int singleVertexSize,const std::vector<VertexAttribute> &templateAttributes,int singleElementSize,int numVertexBytes,int numElementBytes)
-    : Drawable(name), singleVertexSize(singleVertexSize), vertexAttributes(templateAttributes), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), drawPriority(0), requestZBuffer(false),
+    : Drawable(name), singleVertexSize(singleVertexSize), vertexAttributes(templateAttributes), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), drawPriority(0), requestZBuffer(false), writeZBuffer(true),
     waitingOnSwap(false), programId(0), elementChunkSize(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minVisibleFadeBand(0.0), maxVisibleFadeBand(0.0), enable(true), center(0,0,0), fade(1.0)
 {
     activeBuffer = -1;
+    transMat = transMat.Identity();
     
     pthread_mutex_init(&useMutex, NULL);
     pthread_cond_init(&useCondition, NULL);
@@ -673,6 +674,9 @@ void BigDrawable::swap(ChangeSet &changes,BigDrawableSwap *swapRequest)
     // If we're waiting on a swap, no flushing
     if (isWaitingOnSwap())
     {
+#ifdef __ANDROID__
+//        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "BigDrawable::swap() called while waiting on something.");
+#endif
 //        NSLog(@"Uh oh, tried to swap while we're waiting on something.");
         return;
     }
@@ -751,8 +755,14 @@ void BigDrawableSwap::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,
 
         DrawableRef draw = scene->getDrawable(swap.drawId);
         BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
-        if (bigDraw)
+        if (bigDraw) {
             bigDraw->swapBuffers(swap.whichBuffer);
+//            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "BigDrawableSwap swapping to buffer %d.",swap.whichBuffer);
+        } else {
+#ifdef __ANDROID__
+            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "BigDrawableSwap called with missing big drawable.");
+#endif
+        }
     }
     
     // And let the target know we're done

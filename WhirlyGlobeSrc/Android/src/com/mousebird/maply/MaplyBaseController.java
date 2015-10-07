@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.squareup.okhttp.OkHttpClient;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,8 +23,6 @@ import java.util.Map;
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLSurface;
-
-import com.squareup.okhttp.OkHttpClient;
 
 /**
  * The base controller is a base class for both Maply and WhirlyGlobe controllers.
@@ -208,6 +208,19 @@ public class MaplyBaseController
     EGLContext eglContext = null;
     EGLSurface eglSurface = null;
 
+    ArrayList<Runnable> postSurfaceRunnables = new ArrayList<Runnable>();
+
+    /**
+     * Add a runnable to be executed after the OpenGL surface is created.
+     */
+    public void addPostSurfaceRunnable(Runnable run)
+    {
+        if (layoutLayer != null)
+            activity.runOnUiThread(run);
+        else
+            postSurfaceRunnables.add(run);
+    }
+
     // Called by the render wrapper when the surface is created.
 	// Can't start doing anything until that happens
 	void surfaceCreated(RendererWrapper wrap)
@@ -251,6 +264,11 @@ public class MaplyBaseController
         eglSurface = egl.eglCreatePbufferSurface(renderWrapper.maplyRender.display, renderWrapper.maplyRender.config, surface_attrs);
 
         layerThread.viewUpdated(view);
+
+        // Call the post surface setup callbacks
+        for (Runnable run : postSurfaceRunnables)
+            activity.runOnUiThread(run);
+        postSurfaceRunnables.clear();
 	}
 
     /**

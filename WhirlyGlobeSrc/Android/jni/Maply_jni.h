@@ -315,6 +315,30 @@ public:
     const char *cStr;
 };
 
+// Wrapper for Java boolean array.  Destructor cleans up.
+class JavaBooleanArray
+{
+public:
+    JavaBooleanArray(JNIEnv *env,jbooleanArray &array);
+    ~JavaBooleanArray();
+    
+    JNIEnv *env;
+    jbooleanArray &array;
+    jboolean *rawBool;
+};
+
+// Wrapper for Java int array.  Destructor cleans up.
+class JavaIntArray
+{
+public:
+    JavaIntArray(JNIEnv *env,jintArray &array);
+    ~JavaIntArray();
+    
+    JNIEnv *env;
+    jintArray &array;
+    jint *rawInt;
+};
+
 namespace WhirlyKit
 {
 typedef Eigen::Vector4d Point4d;

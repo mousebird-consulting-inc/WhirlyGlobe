@@ -81,7 +81,7 @@ public:
 		  handleEdges(true),coverPoles(false), drawPriority(0),imageDepth(1),
 		  borderTexel(0),textureAtlasSize(2048),enable(true),fade(1.0),color(255,255,255,255),imageFormat(0),
 		  currentImage(0.0), animationWrap(true), maxCurrentImage(-1), allowFrameLoading(true), animationPeriod(10.0),
-		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), shaderID(EmptyIdentity), scene(NULL)
+		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), shaderID(EmptyIdentity), scene(NULL), control(NULL)
 	{
 		useTargetZoomLevel = true;
         canShortCircuitImportance = false;
@@ -811,6 +811,44 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setAllowFrame
 	}
 }
 
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getFrameStatusNative
+(JNIEnv *env, jobject obj, jbooleanArray completeArray, jintArray tilesLoadedArray)
+{
+    try
+    {
+        QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+        QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+        if (!adapter || !adapter->control)
+            return -1;
+        
+        std::vector<WhirlyKit::FrameLoadStatus> frameLoadStatus;
+        adapter->control->getFrameLoadStatus(frameLoadStatus);
+        
+        if (frameLoadStatus.size() != adapter->imageDepth)
+            return -1;
+        
+        JavaBooleanArray complete(env,completeArray);
+        JavaIntArray tilesLoaded(env,tilesLoadedArray);
+        int whichFrame = -1;
+        int ii = 0;
+        for (const FrameLoadStatus &frameStatus : frameLoadStatus)
+        {
+            complete.rawBool[ii] = frameStatus.complete;
+            tilesLoaded.rawInt[ii] = frameStatus.numTilesLoaded;
+            if (frameStatus.currentFrame)
+                whichFrame = ii;
+            ii++;
+        }
+        
+        return whichFrame;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::getFrameStatus()");
+    }
+}
+
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setFrameLoadingPriority
   (JNIEnv *env, jobject obj, jintArray frameLoadingArr, jobject changeSetObj)
 {
@@ -1257,7 +1295,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 		QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
 		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
 		if (!adapter || !changes)
+		  {
+		    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "nativeTileDidLoad got bad adapter or changes.");
 			return;
+		  }
 
 		AndroidBitmapInfo info;
 		if (AndroidBitmap_getInfo(env, bitmapObj, &info) < 0)
@@ -1281,7 +1322,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 
 		adapter->tileLoaded(level,x,y,frame,rawDataRef,info.width,info.height,*changes);
 		AndroidBitmap_unlockPixels(env, bitmapObj);
-//		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did load: %d: (%d,%d) %d",level,x,y,frame);
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did load: %d: (%d,%d) %d",level,x,y,frame);
     }
 	catch (...)
 	{

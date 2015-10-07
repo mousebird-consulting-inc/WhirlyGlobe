@@ -74,3 +74,25 @@ JavaString::~JavaString()
 {
     env->ReleaseStringUTFChars(str, cStr);
 }
+
+JavaBooleanArray::JavaBooleanArray(JNIEnv *env,jbooleanArray &array)
+: array(array), env(env)
+{
+    rawBool = env->GetBooleanArrayElements(array, NULL);
+}
+
+JavaBooleanArray::~JavaBooleanArray()
+{
+    env->ReleaseBooleanArrayElements(array,rawBool, 0);
+}
+
+JavaIntArray::JavaIntArray(JNIEnv *env,jintArray &array)
+: array(array), env(env)
+{
+    rawInt = env->GetIntArrayElements(array, NULL);
+}
+
+JavaIntArray::~JavaIntArray()
+{
+    env->ReleaseIntArrayElements(array,rawInt, 0);
+}
