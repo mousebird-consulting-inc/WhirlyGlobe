@@ -20,6 +20,8 @@
 
 #import "Identifiable.h"
 
+static dispatch_once_t onceToken;
+
 namespace WhirlyKit
 {
 	
@@ -28,8 +30,10 @@ static pthread_mutex_t curIdMut;
 
 Identifiable::Identifiable()
 {
-    if (curId == 0)
-        pthread_mutex_init(&curIdMut, NULL);
+    dispatch_once(&onceToken,
+                  ^{
+                      pthread_mutex_init(&curIdMut, NULL);
+                  });
     
     pthread_mutex_lock(&curIdMut);
 	myId = ++curId;
@@ -38,8 +42,10 @@ Identifiable::Identifiable()
 	
 SimpleIdentity Identifiable::genId()
 {
-    if (curId == 0)
-        pthread_mutex_init(&curIdMut, NULL);
+    dispatch_once(&onceToken,
+                  ^{
+                      pthread_mutex_init(&curIdMut, NULL);
+                  });
 
     pthread_mutex_lock(&curIdMut);
     SimpleIdentity retId = ++curId;
