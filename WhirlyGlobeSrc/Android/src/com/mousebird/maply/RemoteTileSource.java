@@ -187,8 +187,8 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
             try {
                 rawImage = response.body().bytes();
                 BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inScaled = false;
-                options.inPremultiplied = false;
+//                options.inScaled = false;
+//                options.inPremultiplied = false;
                 bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, options);
 
                 // Save to cache
