@@ -228,6 +228,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     isShuttingDown = true;
     while (numActiveWorkers > 0)
         pthread_cond_wait(&workWait, &workLock);
+
+    [self shutdown];
+    
     pthread_mutex_unlock(&workLock);
 }
 
@@ -439,7 +442,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Called by the texture dealloc
 - (void)clearTexture:(MaplyTexture *)tex
 {
-    if (!layerThread)
+    if (!layerThread || isShuttingDown)
         return;
     
     ChangeSet changes;
@@ -644,6 +647,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Called in an unknown thread
 - (void)addScreenMarkersRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     NSArray *markers = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
@@ -806,6 +812,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Called in an unknown thread.
 - (void)addMarkersRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     NSArray *markers = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
@@ -960,6 +969,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Called in an unknown thread.
 - (void)addScreenLabelsRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     NSArray *labels = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
@@ -1095,6 +1107,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Called in an unknown thread.
 - (void)addLabelsRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     NSArray *labels = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
@@ -1214,6 +1229,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Called in an unknown thread
 - (void)addVectorsRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     NSArray *vectors = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
@@ -1342,6 +1360,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Called in an unknown thread
 - (void)addWideVectorsRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     NSArray *vectors = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
@@ -1431,6 +1452,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Called in an unknown thread
 - (void)instanceVectorsRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     MaplyComponentObject *baseObj = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     compObj.vectors = baseObj.vectors;
@@ -1537,6 +1561,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Actually do the vector change
 - (void)changeVectorRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     MaplyComponentObject *vecObj = [argArray objectAtIndex:0];
     NSDictionary *desc = [argArray objectAtIndex:1];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
@@ -1593,6 +1620,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Called in the layer thread
 - (void)addShapesRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     NSArray *shapes = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
@@ -1983,6 +2013,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Called in the layer thread
 - (void)addGeometryRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     NSArray *geom = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
     NSMutableDictionary *inDesc = argArray[2];
@@ -2084,6 +2117,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Called in the layer thread
 - (void)addStickersRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     NSArray *stickers = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
     NSMutableDictionary *inDesc = argArray[2];
@@ -2202,6 +2238,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Actually do the sticker change
 - (void)changeStickerRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     MaplyComponentObject *stickerObj = [argArray objectAtIndex:0];
     NSDictionary *desc = [argArray objectAtIndex:1];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
@@ -2290,6 +2329,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Actually add the lofted polys.
 - (void)addLoftedPolysRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     NSArray *vectors = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     compObj.vectors = vectors;
@@ -2363,6 +2405,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Actually add the billboards.
 - (void)addBillboardsRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     NSArray *bills = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
     NSMutableDictionary *inDesc = argArray[2];
@@ -2531,6 +2576,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (void)addParticleSystemRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     MaplyParticleSystem *partSys = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
     NSMutableDictionary *inDesc = argArray[2];
@@ -2656,6 +2704,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (void)addParticleSystemBatchRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     MaplyParticleBatch *batch = argArray[0];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:1] intValue];
     
@@ -2720,6 +2771,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Remove the object, but do it on the layer thread
 - (void)removeObjectRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+    
     NSArray *inUserObjs = argArray[0];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:1] intValue];
     
@@ -2848,6 +2902,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (void)enableObjectsRun:(NSArray *)argArray
 {
+    if (isShuttingDown || !layerThread)
+        return;
+
     NSArray *theObjs = argArray[0];
     bool enable = [argArray[1] boolValue];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
