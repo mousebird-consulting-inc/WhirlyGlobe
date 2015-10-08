@@ -439,6 +439,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Called by the texture dealloc
 - (void)clearTexture:(MaplyTexture *)tex
 {
+    if (!layerThread)
+        return;
+    
     ChangeSet changes;
 
     if (tex.isSubTex)
