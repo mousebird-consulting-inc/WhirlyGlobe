@@ -169,7 +169,17 @@ void QuadTileLoader::flushUpdates(ChangeSet &changes)
     
     if (!changeRequests.empty())
     {
-        changes.insert(changes.end(), changeRequests.begin(),changeRequests.end());
+        // Let's move any erases to the end.  Sometimes they outrun the swap
+        ChangeSet eraseChanges;
+        for (ChangeRequest *req : changeRequests)
+        {
+            if (dynamic_cast<DynamicTextureClearRegion *>(req))
+                eraseChanges.push_back(req);
+            else
+                changes.push_back(req);
+        }
+        
+        changes.insert(changes.end(), eraseChanges.begin(),eraseChanges.end());
         changeRequests.clear();
     }
 }

@@ -251,7 +251,7 @@ typedef boost::shared_ptr<BigDrawable> BigDrawableRef;
 class BigDrawableSwap : public ChangeRequest
 {
 public:
-    // Called when the bid drawable has swapped (on the rendering thread)
+    // Called when the big drawable has swapped (on the rendering thread)
     typedef void (SwapCallback)(BigDrawableSwap *swap,void *data);
 
     /// Construct with the big drawable ID and the buffer to switch to

@@ -72,6 +72,8 @@ protected:
     TimeInterval lightsLastUpdated;
     // Note: Porting
 //    WhirlyKitMaterial *defaultMat;
+    
+    bool extraFrameDrawn;
 };
         
 }

@@ -98,7 +98,7 @@ public:
 SceneRendererES2::SceneRendererES2()
 //: SceneRendererES(kEAGLRenderingAPIOpenGLES2), renderStateOptimizer(NULL), renderSetup(false)
 // Note: Porting
-: SceneRendererES(2), renderStateOptimizer(NULL), renderSetup(false)
+: SceneRendererES(2), renderStateOptimizer(NULL), renderSetup(false), extraFrameDrawn(false)
 {
     // Note: Porting
 //    lights = [NSMutableArray array];
@@ -214,10 +214,16 @@ void SceneRendererES2::render()
 	theView->animate();
 
     // Decide if we even need to draw
-	// Note: Porting
 //    if (!scene->hasChanges() && !viewDidChange())
-//        return;
-        
+//    {
+//        if (!extraFrameMode)
+//            return;
+//        if (extraFrameDrawn)
+//            return;
+//        extraFrameDrawn = true;
+//    } else
+//        extraFrameDrawn = false;
+    
     lastDraw = TimeGetCurrent();
         
     if (perfInterval > 0)

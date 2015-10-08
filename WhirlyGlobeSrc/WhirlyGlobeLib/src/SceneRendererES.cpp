@@ -159,6 +159,8 @@ SceneRendererES::SceneRendererES(int apiVersion)
     
     // Off by default.  Because duh.
     depthBufferOffForAlpha = false;
+    
+    extraFrameMode = false;
 }
     
 void SceneRendererES::setup()

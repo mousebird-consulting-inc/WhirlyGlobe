@@ -35,6 +35,7 @@ public:
 	MaplySceneRenderer()
 		:context(0)
 	{
+        extraFrameMode = true;
 	}
 
 	// Called when the window changes size (or on startup)

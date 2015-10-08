@@ -243,6 +243,9 @@ public:
     
     /// Current view (opengl view) we're tied to
     virtual void setView(WhirlyKit::View *newView) { theView = newView; }
+    
+    /// If set, we'll draw one more frame than needed after updates stop
+    virtual void setExtraFrameMode(bool newMode) { extraFrameMode = newMode; }
 
 protected:
     Mbr calcCurvedMBR(Point3f *corners,WhirlyGlobe::GlobeView *globeView,Eigen::Matrix4d *modelTrans,Point2f frameSize);
@@ -311,6 +314,9 @@ protected:
 
     // View state from the last render, for comparison
     Eigen::Matrix4d modelMat,viewMat,projMat;
+    
+    // If set we draw one extra frame after updates stop
+    bool extraFrameMode;
 };
 
 }

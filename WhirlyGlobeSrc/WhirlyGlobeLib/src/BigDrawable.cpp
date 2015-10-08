@@ -199,6 +199,10 @@ void BigDrawable::setOnOff(bool onOff)
 
 void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
 {
+#ifdef __ANDROID__
+//    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "BigDrawable::draw() Drawing buffer %d for bigDraw %lx.",activeBuffer,(long)this);
+#endif
+  
     if (frameInfo->oglVersion < 2)
         return;
     
@@ -587,6 +591,11 @@ void BigDrawable::getUtilization(int &vertSize,int &elSize)
 void BigDrawable::executeFlush(int whichBuffer)
 {    
     Buffer &theBuffer = buffers[whichBuffer];
+    
+#ifdef __ANDROID__
+//    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "BigDrawable::executeFlush() Executing flush %d for bigDraw %lx.",whichBuffer,(long)this);
+#endif
+
     
     if (!theBuffer.changes.empty())
     {
