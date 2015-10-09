@@ -114,7 +114,12 @@ using namespace WhirlyKit;
 
 - (void)removeLayer:(NSObject<WhirlyKitLayer> *)layer
 {
+    bool wasPaused = paused;
+    if (paused)
+        [self unpause];
     [self performSelector: @selector(removeLayerThread:) onThread: self withObject:layer waitUntilDone:YES];
+    if (wasPaused)
+        [self pause];
 }
 
 // This runs in the layer thread
