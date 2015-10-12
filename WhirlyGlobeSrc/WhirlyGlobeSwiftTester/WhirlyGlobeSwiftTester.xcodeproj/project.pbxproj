@@ -1437,7 +1437,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 0710;
 				LastUpgradeCheck = 0640;
-				ORGANIZATIONNAME = Liferay;
+				ORGANIZATIONNAME = mousebird;
 				TargetAttributes = {
 					88E4B8BE1B83B6AB0050D21B = {
 						CreatedOnToolsVersion = 6.4;
