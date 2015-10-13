@@ -12,7 +12,13 @@
 		886FCCC31BA73C1D00494BB0 /* StartupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */; };
 		886FCCCD1BA74D1200494BB0 /* ConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886FCCCC1BA74D1200494BB0 /* ConfigViewController.swift */; };
 		88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11481BCD3DA40002205E /* MaplyTestCase.m */; };
-		88BF114C1BCD3FBA0002205E /* GeographyClassTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF114B1BCD3FBA0002205E /* GeographyClassTestCase.m */; };
+		88BF11521BCD9BF70002205E /* MaplyTestResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11511BCD9BF70002205E /* MaplyTestResult.m */; };
+		88BF11551BCDA0CF0002205E /* GeographyClassTestCase.png in Resources */ = {isa = PBXBuildFile; fileRef = 88BF11541BCDA0CF0002205E /* GeographyClassTestCase.png */; };
+		88BF11571BCDA1BB0002205E /* ResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11561BCDA1BB0002205E /* ResultsViewController.swift */; };
+		88BF11591BCDA3960002205E /* ResultCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11581BCDA3960002205E /* ResultCell.swift */; };
+		88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF115C1BCDA9530002205E /* GeographyClassTestCase.m */; };
+		88BF115F1BCDA9730002205E /* StamenWatercolorRemote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88BF115E1BCDA9730002205E /* StamenWatercolorRemote.swift */; };
+		88BF11611BCDB2680002205E /* AutoTester.StamenWatercolorRemote.png in Resources */ = {isa = PBXBuildFile; fileRef = 88BF11601BCDB2680002205E /* AutoTester.StamenWatercolorRemote.png */; };
 		88E4B8C51B83B6AB0050D21B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E4B8C41B83B6AB0050D21B /* AppDelegate.swift */; };
 		88E4B8CA1B83B6AB0050D21B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8C81B83B6AB0050D21B /* Main.storyboard */; };
 		88E4B8CC1B83B6AB0050D21B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CB1B83B6AB0050D21B /* Images.xcassets */; };
@@ -431,8 +437,15 @@
 		886FCCCC1BA74D1200494BB0 /* ConfigViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigViewController.swift; sourceTree = "<group>"; };
 		88BF11471BCD3DA40002205E /* MaplyTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTestCase.h; sourceTree = "<group>"; };
 		88BF11481BCD3DA40002205E /* MaplyTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaplyTestCase.m; sourceTree = "<group>"; };
-		88BF114A1BCD3FBA0002205E /* GeographyClassTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeographyClassTestCase.h; sourceTree = "<group>"; };
-		88BF114B1BCD3FBA0002205E /* GeographyClassTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeographyClassTestCase.m; sourceTree = "<group>"; };
+		88BF11501BCD9BF70002205E /* MaplyTestResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTestResult.h; sourceTree = "<group>"; };
+		88BF11511BCD9BF70002205E /* MaplyTestResult.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaplyTestResult.m; sourceTree = "<group>"; };
+		88BF11541BCDA0CF0002205E /* GeographyClassTestCase.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GeographyClassTestCase.png; sourceTree = "<group>"; };
+		88BF11561BCDA1BB0002205E /* ResultsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultsViewController.swift; sourceTree = "<group>"; };
+		88BF11581BCDA3960002205E /* ResultCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultCell.swift; sourceTree = "<group>"; };
+		88BF115B1BCDA9530002205E /* GeographyClassTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeographyClassTestCase.h; sourceTree = "<group>"; };
+		88BF115C1BCDA9530002205E /* GeographyClassTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeographyClassTestCase.m; sourceTree = "<group>"; };
+		88BF115E1BCDA9730002205E /* StamenWatercolorRemote.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StamenWatercolorRemote.swift; sourceTree = "<group>"; };
+		88BF11601BCDB2680002205E /* AutoTester.StamenWatercolorRemote.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AutoTester.StamenWatercolorRemote.png; sourceTree = "<group>"; };
 		88E4B8BF1B83B6AB0050D21B /* AutoTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AutoTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		88E4B8C31B83B6AB0050D21B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		88E4B8C41B83B6AB0050D21B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -872,6 +885,26 @@
 			name = Fameworks;
 			sourceTree = "<group>";
 		};
+		88BF11531BCDA0CF0002205E /* baselines */ = {
+			isa = PBXGroup;
+			children = (
+				88BF11601BCDB2680002205E /* AutoTester.StamenWatercolorRemote.png */,
+				88BF11541BCDA0CF0002205E /* GeographyClassTestCase.png */,
+			);
+			name = baselines;
+			path = AutoTester/baselines;
+			sourceTree = "<group>";
+		};
+		88BF115A1BCDA9530002205E /* testCases */ = {
+			isa = PBXGroup;
+			children = (
+				88BF115B1BCDA9530002205E /* GeographyClassTestCase.h */,
+				88BF115C1BCDA9530002205E /* GeographyClassTestCase.m */,
+				88BF115E1BCDA9730002205E /* StamenWatercolorRemote.swift */,
+			);
+			path = testCases;
+			sourceTree = "<group>";
+		};
 		88E4B8B61B83B6AB0050D21B = {
 			isa = PBXGroup;
 			children = (
@@ -895,15 +928,17 @@
 			isa = PBXGroup;
 			children = (
 				88E4B8C81B83B6AB0050D21B /* Main.storyboard */,
-				88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */,
 				88E4B8C21B83B6AB0050D21B /* Supporting Files */,
 				886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */,
 				886FCCCC1BA74D1200494BB0 /* ConfigViewController.swift */,
 				88231C781BA784BC00A95F2B /* ConfigViewController.xib */,
 				88BF11471BCD3DA40002205E /* MaplyTestCase.h */,
 				88BF11481BCD3DA40002205E /* MaplyTestCase.m */,
-				88BF114A1BCD3FBA0002205E /* GeographyClassTestCase.h */,
-				88BF114B1BCD3FBA0002205E /* GeographyClassTestCase.m */,
+				88BF11501BCD9BF70002205E /* MaplyTestResult.h */,
+				88BF11511BCD9BF70002205E /* MaplyTestResult.m */,
+				88BF11561BCDA1BB0002205E /* ResultsViewController.swift */,
+				88BF11581BCDA3960002205E /* ResultCell.swift */,
+				88BF115A1BCDA9530002205E /* testCases */,
 			);
 			path = AutoTester;
 			sourceTree = "<group>";
@@ -911,6 +946,7 @@
 		88E4B8C21B83B6AB0050D21B /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */,
 				88E4B8C41B83B6AB0050D21B /* AppDelegate.swift */,
 				88E4B8CB1B83B6AB0050D21B /* Images.xcassets */,
 				8810B2D11BA9D45F00446CE3 /* MaplyTesterBridge.h */,
@@ -922,6 +958,7 @@
 		88FF5BDF1BC31D3C002F15CE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				88BF11531BCDA0CF0002205E /* baselines */,
 				88FF5CF41BC31D94002F15CE /* country_json_50m */,
 				88FF5DEE1BC31D95002F15CE /* sf_roads */,
 				88FF5BEC1BC31D6D002F15CE /* base_maps */,
@@ -1602,6 +1639,7 @@
 				88FF5EE51BC31D95002F15CE /* VIR.geojson in Resources */,
 				88FF5E5A1BC31D95002F15CE /* HUN.geojson in Resources */,
 				88FF5EDE1BC31D95002F15CE /* URY.geojson in Resources */,
+				88BF11611BCDB2680002205E /* AutoTester.StamenWatercolorRemote.png in Resources */,
 				88FF5E491BC31D95002F15CE /* GIN.geojson in Resources */,
 				88FF5EA81BC31D95002F15CE /* POL.geojson in Resources */,
 				88FF5E651BC31D95002F15CE /* JAM.geojson in Resources */,
@@ -1631,6 +1669,7 @@
 				88FF5DFF1BC31D95002F15CE /* ASM.geojson in Resources */,
 				88FF5E3C1BC31D95002F15CE /* ETH.geojson in Resources */,
 				88FF5E291BC31D95002F15CE /* CRI.geojson in Resources */,
+				88BF11551BCDA0CF0002205E /* GeographyClassTestCase.png in Resources */,
 				88FF5E631BC31D95002F15CE /* ISR.geojson in Resources */,
 				88FF5EEF1BC31D95002F15CE /* tl_2013_06075_roads.mbr in Resources */,
 				88FF5CA11BC31D6D002F15CE /* embassy-24@2x.png in Resources */,
@@ -1881,10 +1920,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				88BF11521BCD9BF70002205E /* MaplyTestResult.m in Sources */,
 				88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */,
+				88BF11591BCDA3960002205E /* ResultCell.swift in Sources */,
 				886FCCC31BA73C1D00494BB0 /* StartupViewController.swift in Sources */,
+				88BF11571BCDA1BB0002205E /* ResultsViewController.swift in Sources */,
+				88BF115F1BCDA9730002205E /* StamenWatercolorRemote.swift in Sources */,
 				886FCCCD1BA74D1200494BB0 /* ConfigViewController.swift in Sources */,
-				88BF114C1BCD3FBA0002205E /* GeographyClassTestCase.m in Sources */,
+				88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */,
 				88E4B8C51B83B6AB0050D21B /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

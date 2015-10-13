@@ -11,8 +11,10 @@ import UIKit
 class StartupViewController: UITableViewController, UIPopoverControllerDelegate {
 
 	private var log = [String]()
+	private var results = [String:MaplyTestResult]()
 
 	@IBOutlet weak var logTable: UITableView!
+	var testView: UIView?
 
 	private var configViewC: ConfigViewController?
 	private var popControl: UIPopoverController?
@@ -43,6 +45,17 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		return cell
 	}
 
+	override func tableView(tableView: UITableView,
+		didSelectRowAtIndexPath indexPath: NSIndexPath) {
+
+		self.performSegueWithIdentifier("results", sender: self)
+	}
+
+	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+		let destination = segue.destinationViewController as! ResultsViewController
+
+		destination.results = [MaplyTestResult](self.results.values)
+	}
 
 	private dynamic func showConfig() {
 		if UI_USER_INTERFACE_IDIOM() == .Pad {
@@ -62,15 +75,49 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Stop, target: self, action: "stopTests")
 		showLog("Start run...")
 
-		let test = GeographyClassTestCase()
-		showLog("Testing \(test.name)...")
-		test.resultBlock = {
-			self.showLog("\(test.name) \($0 ? "failed!" : "passed.")")
+		let tests = [
+			GeographyClassTestCase(),
+			StamenWatercolorRemote(),
+		]
 
-			self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: "runTests")
+		let testView = UIView(frame: self.view.bounds)
+		testView.hidden = true;
+		self.view.addSubview(testView)
+
+		startTests(tests, inView: testView, passed: 0, failed: 0)
+	}
+
+	private func startTests(tests: [MaplyTestCase], inView testView: UIView, passed: Int, failed: Int) {
+		if let head = tests.first {
+			let tail = Array(tests.dropFirst())
+
+			head.resultBlock = { test in
+				self.showLog("\(test.name) \(test.result.passed ? "passed." : "failed!")")
+				print("\(test.result.actualImageFile)")
+				self.results[test.name] = test.result
+
+				self.startTests(tail,
+					inView: testView,
+					passed: passed + (test.result.passed ? 1 : 0),
+					failed: failed + (test.result.passed ? 0 : 1))
+			}
+
+			showLog("Testing \(head.name)...")
+			head.testView = testView;
+			head.start()
 		}
-		test.runTest()
+		else {
+			self.finishTestsInView(testView, passed: passed, failed: failed)
+		}
+	}
 
+	private func finishTestsInView(testView: UIView, passed: Int, failed: Int) {
+		testView.removeFromSuperview()
+
+		showLog("Completed. \(passed) passed. \(failed) failed.")
+		showLog("See results")
+
+		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: "runTests")
 	}
 
 	private dynamic func stopTests() {
