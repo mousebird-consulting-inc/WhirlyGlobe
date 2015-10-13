@@ -12,6 +12,7 @@
 #import "MaplyBridge.h"
 
 #import "MaplyTestCase.h"
+#import "MaplyTestResult.h"
 #import "GeographyClassTestCase.h"
 
 
