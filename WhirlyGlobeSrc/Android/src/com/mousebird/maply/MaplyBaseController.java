@@ -660,7 +660,7 @@ public class MaplyBaseController
 	/**
 	 * Add an active object that will be called right before the render (on the render thread).
 	 */
-	void addActiveObject(ActiveObject activeObject)
+	public void addActiveObject(ActiveObject activeObject)
 	{
 		renderWrapper.maplyRender.addActiveObject(activeObject);
 	}
@@ -668,7 +668,7 @@ public class MaplyBaseController
 	/**
 	 * Remove an active object added earlier.
 	 */
-	void removeActiveObject(ActiveObject activeObject)
+	public void removeActiveObject(ActiveObject activeObject)
 	{
 		renderWrapper.maplyRender.removeActiveObject(activeObject);
 	}
