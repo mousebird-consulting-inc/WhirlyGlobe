@@ -239,6 +239,9 @@ class TestViewController: UIViewController, UIPopoverControllerDelegate, WhirlyG
 		configViewC!.options = .All
 
 		createMap()
+
+		// Settings panel
+		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: "showConfig")
 	}
 
 
@@ -311,10 +314,6 @@ class TestViewController: UIViewController, UIPopoverControllerDelegate, WhirlyG
 
 		// Bring up things based on what's turned on
 		self.changeMapContents()
-
-		// Settings panel
-		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: "showConfig")
-
 	}
 
 	private func cleanUp() {
@@ -537,7 +536,7 @@ class TestViewController: UIViewController, UIPopoverControllerDelegate, WhirlyG
 
 
 	// Add screen (2D) labels
-	private func addScreenLabels(#stride: Int, offset: Int) {
+	private func addScreenLabels(stride stride: Int, offset: Int) {
 		var labels = [MaplyScreenLabel]()
 
 		for var i = offset; i < locations.count; i += stride {
@@ -553,7 +552,7 @@ class TestViewController: UIViewController, UIPopoverControllerDelegate, WhirlyG
 	}
 
 	// Add 3D labels
-	private func addLabels(#stride: Int, offset: Int) {
+	private func addLabels(stride stride: Int, offset: Int) {
 		let size = CGSizeMake(0, 0.05)
 		var labels = [MaplyLabel]()
 
@@ -937,7 +936,7 @@ class TestViewController: UIViewController, UIPopoverControllerDelegate, WhirlyG
 		}, failure: {
 			(operation, error) -> Void in
 
-			println("Unable to fetch ArcGIS layer: \(error)")
+			print("Unable to fetch ArcGIS layer: \(error)\n")
 
 		})
 
@@ -1600,11 +1599,9 @@ class TestViewController: UIViewController, UIPopoverControllerDelegate, WhirlyG
 
 		// Fill out the cache dir if there is one
 		if let thisCacheDir = thisCacheDir {
-			var error: NSError?
-			NSFileManager.defaultManager().createDirectoryAtPath(thisCacheDir,
+			try! NSFileManager.defaultManager().createDirectoryAtPath(thisCacheDir,
 				withIntermediateDirectories: true,
-				attributes: nil,
-				error: &error)
+				attributes: nil)
 		}
 	}
 
@@ -1710,15 +1707,15 @@ class TestViewController: UIViewController, UIPopoverControllerDelegate, WhirlyG
 		let style = layer?.findStyle(styleName ?? "")
 
 		if layer == nil {
-			println("Couldn't find layer \(layerName) in WMS response.")
+			print("Couldn't find layer \(layerName) in WMS response.")
 			return false
 		}
 		else if coordSys == nil {
-			println("No coordinate system we recognize in WMS response.")
+			print("No coordinate system we recognize in WMS response.")
 			return false
 		}
 		else if styleName != nil && style == nil {
-			println("No style named \(styleName) in WMS response.")
+			print("No style named \(styleName) in WMS response.")
 			return false
 		}
 

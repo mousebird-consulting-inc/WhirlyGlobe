@@ -12,7 +12,7 @@ class WeatherShader {
 
 	class func setupWeatherShader(viewC: MaplyBaseViewController) -> String? {
 		let shaderName = "Weather Shader"
-		if let shader = viewC.getShaderByName(shaderName) {
+		if viewC.getShaderByName(shaderName) != nil {
 			return shaderName
 		}
 
@@ -22,12 +22,12 @@ class WeatherShader {
 			fragment: fragmentShaderTriMultiTex,
 			viewC: viewC)
 
-		if shader?.valid() ?? false {
+		if (shader != nil) && shader!.valid() {
 			viewC.addShaderProgram(shader!, sceneName: shaderName)
 			return shaderName
 		}
 
-		println("Shader failed to compile: \(shader?.getError())")
+		print("Shader failed to compile: \(shader?.getError())\n")
 		return nil
 	}
 
