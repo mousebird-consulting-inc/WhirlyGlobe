@@ -61,39 +61,34 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
 /** @brief Parse vector data from geoJSON.
     @details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses the faster JSON parser.
     @details We assume the geoJSON is all in decimal degrees in WGS84.
-    @deprecated Use corresponding init instead
   */
-+ (MaplyVectorObject *__nullable)VectorObjectFromGeoJSON:(NSData *__nonnull)geoJSON __deprecated;
++ (MaplyVectorObject *__nullable)VectorObjectFromGeoJSON:(NSData *__nonnull)geoJSON;
 
 /** @brief Parse vector data from geoJSON.
     @details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses slower JSON parser.
     @details We assume the geoJSON is all in decimal degrees in WGS84.
-    @deprecated Use corresponding init instead
 */
-+ (MaplyVectorObject *__nullable)VectorObjectFromGeoJSONApple:(NSData *__nonnull)geoJSON __deprecated;
++ (MaplyVectorObject *__nullable)VectorObjectFromGeoJSONApple:(NSData *__nonnull)geoJSON;
 
 /** @brief Parse vector data from geoJSON.
     @details Returns one object to represent the whole thing, which might include multiple different vectors.  This version parses its data from an NSDictionary, which had to be parsed from JSON at some point.  Probably the slower path.
     @details We assume the geoJSON is all in decimal degrees in WGS84.
-    @deprecated Use corresponding init instead
  */
-+ (MaplyVectorObject *__nullable)VectorObjectFromGeoJSONDictionary:(NSDictionary *__nonnull)geoJSON __deprecated;
++ (MaplyVectorObject *__nullable)VectorObjectFromGeoJSONDictionary:(NSDictionary *__nonnull)geoJSON;
 
 /** @brief Read vector objects from the given cache file.
     @details MaplyVectorObject's can be written and read from a binary file.  We use this for caching data locally on the device.
     @param fileName Name of the binary vector file.
     @return The vector object(s) read from the file or nil on failure.
-    @deprecated Use corresponding init instead
   */
-+ (MaplyVectorObject *__nullable)VectorObjectFromFile:(NSString *__nonnull)fileName __deprecated;
++ (MaplyVectorObject *__nullable)VectorObjectFromFile:(NSString *__nonnull)fileName;
 
 /** @brief Read vector objects from the given shapefile.
     @details This will read all the shapes in the given shapefile into memory and return them as one MaplyVectorObject.
     @param fileName The basename of the shape file.  Don't include the extension.
     @return The vector object(s) read from the file or nil on failure.
-    @deprecated Use corresponding init instead
   */
-+ (MaplyVectorObject *__nullable)VectorObjectFromShapeFile:(NSString *__nonnull)fileName __deprecated;
++ (MaplyVectorObject *__nullable)VectorObjectFromShapeFile:(NSString *__nonnull)fileName;
 
 /** @brief Parse vector objects from a JSON assembly.
     @details This version can deal with non-compliant assemblies returned by the experimental OSM server
