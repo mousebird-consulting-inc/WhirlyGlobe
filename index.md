@@ -1,11 +1,11 @@
 ---
-title: WhirlyGlobe-Maply
+title: WhirlyGlobe-Maply SDK
 layout: home
 ---
 
-## WhirlyGlobe-Maply for iOS and Android
+## WhirlyGlobe-Maply: Globe and map SDK for iOS and Android
 
-Based on OpenGL ES and focused on mobile first, WhirlyGlobe-Maply is used in a wide variety of altas, weather, visualization, and map apps.  The toolkit is both a 3D interactive globe for iOS and a 2D flat (or slippy) map for iOS and Android.  It's all open source.
+Based on OpenGL ES and focused on mobile first, WhirlyGlobe-Maply is used in a wide variety of altas, weather, visualization, and map apps.  The SDK is both a 3D interactive globe for iOS and a 2D flat (or slippy) map for iOS and Android.  It's all open source.
 The feature list is pretty long, but here are a few things you can display with the toolkit.
 
 <div class="row" style="margin-bottom:10pt">
@@ -78,7 +78,7 @@ The iOS version, for iPhone and Android is the most mature.  Android is coming a
 
 ## Videos
 
-Check out what the toolkit can do.  Here are a couple of short videos showing off the globe and the map, respectively.
+Check out what the SDK can do.  Here are a couple of short videos showing off the globe and the map, respectively.
 
 <div class="row">
   <div class="col-sm-6">
