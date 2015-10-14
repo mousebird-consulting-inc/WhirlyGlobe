@@ -224,6 +224,16 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 
 - (void)lockingShutdown
 {
+    // This shouldn't happen
+    if (isShuttingDown || !layerThread)
+        return;
+    
+    if ([NSThread currentThread] != layerThread)
+    {
+        [self performSelector:@selector(lockingShutdown) onThread:layerThread withObject:nil waitUntilDone:NO];
+        return;
+    }
+    
     pthread_mutex_lock(&workLock);
     isShuttingDown = true;
     while (numActiveWorkers > 0)
