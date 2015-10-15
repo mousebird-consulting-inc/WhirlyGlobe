@@ -160,8 +160,9 @@ typedef std::map<int,NSObject <MaplyClusterGenerator> *> ClusterGenMap;
 
 @interface MaplyBaseInteractionLayer()
 - (void) startLayoutObjects;
-- (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObject *> &)layoutObjects retObj:(LayoutObject &)retObj;
+- (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObjectEntry *> &)layoutObjects retObj:(LayoutObject &)retObj;
 - (void) endLayoutObjects;
+- (SimpleIdentity) motionShaderForCluster:(int)clusterID;
 @end
 
 // Interface between the layout manager and the cluster generators
@@ -177,7 +178,7 @@ public:
     }
 
     // Figure out
-    void makeLayoutObject(int clusterID,const std::vector<LayoutObject *> &layoutObjects,LayoutObject &retObj)
+    void makeLayoutObject(int clusterID,const std::vector<LayoutObjectEntry *> &layoutObjects,LayoutObject &retObj)
     {
         [layer makeLayoutObject:clusterID layoutObjects:layoutObjects retObj:retObj];
     }
@@ -186,6 +187,11 @@ public:
     virtual void endLayoutObjects()
     {
         [layer endLayoutObjects];
+    }
+    
+    SimpleIdentity motionShaderForCluster(int clusterID)
+    {
+        return [layer motionShaderForCluster:clusterID];
     }
 };
 
@@ -861,12 +867,14 @@ public:
     oldClusterTex = currentClusterTex;
     currentClusterTex.clear();
     
-    for (ClusterGenMap::iterator it = clusterGens.begin();
-         it != clusterGens.end(); ++it)
-        [it->second startClusterGroup];
+    @synchronized(self) {
+        for (ClusterGenMap::iterator it = clusterGens.begin();
+             it != clusterGens.end(); ++it)
+            [it->second startClusterGroup];
+    }
 }
 
-- (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObject *> &)layoutObjects retObj:(LayoutObject &)retObj
+- (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObjectEntry *> &)layoutObjects retObj:(LayoutObject &)retObj
 {
     // Find the right cluster generator
     NSObject <MaplyClusterGenerator> *clusterGen = nil;
@@ -883,10 +891,10 @@ public:
     LayoutObject *sampleObj = NULL;
     for (auto obj : layoutObjects)
     {
-        if (obj->getDrawPriority() > drawPriority)
+        if (obj->obj.getDrawPriority() > drawPriority)
         {
-            drawPriority = obj->getDrawPriority();
-            sampleObj = obj;
+            drawPriority = obj->obj.getDrawPriority();
+            sampleObj = &obj->obj;
         }
     }
     SimpleIdentity progID = sampleObj->getTypicalProgramID();
@@ -940,9 +948,31 @@ public:
         oldClusterTex.clear();
     }
     
-    for (ClusterGenMap::iterator it = clusterGens.begin();
-         it != clusterGens.end(); ++it)
-        [it->second endClusterGroup];
+    @synchronized(self) {
+        for (ClusterGenMap::iterator it = clusterGens.begin();
+             it != clusterGens.end(); ++it)
+            [it->second endClusterGroup];
+    }
+}
+
+- (SimpleIdentity) motionShaderForCluster:(int)clusterID
+{
+    NSObject <MaplyClusterGenerator> *clusterGen = nil;
+    @synchronized(self)
+    {
+        clusterGen = clusterGens[clusterID];
+    }
+    
+    MaplyShader *shader = [clusterGen motionShader];
+    if (shader)
+        return shader.program->getId();
+    else {
+        OpenGLES2Program *program = scene->getProgramBySceneName(kToolkitDefaultScreenSpaceMotionProgram);
+        if (program)
+            return program->getId();
+    }
+    
+    return EmptyIdentity;
 }
 
 // Actually add the markers.

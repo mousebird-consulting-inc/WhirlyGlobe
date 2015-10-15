@@ -313,7 +313,8 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
         const ScreenSpaceObject::ConvexGeometry &geom = ssObj.geometry[ii];
         DrawableState state = ssObj.state;
         state.texIDs = geom.texIDs;
-        state.progID = geom.progID;
+        if (geom.progID != EmptyIdentity)
+            state.progID = geom.progID;
         state.enable = ssObj.enable;
         state.startEnable = ssObj.startEnable;
         state.endEnable = ssObj.endEnable;
