@@ -27,7 +27,7 @@ namespace WhirlyKit
 class ClusterGenInterface : public ClusterGenerator
 {
 public:
-    void makeLayoutObject(const std::vector<LayoutObject *> &layoutObjects,LayoutObject &);
+    void makeLayoutObject(const std::vector<LayoutObjectEntry *> &layoutObjects,LayoutObject &);
 };
 
 }
