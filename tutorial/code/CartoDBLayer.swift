@@ -40,46 +40,39 @@ class CartoDBLayer: NSObject, MaplyPagingDelegate {
 		_maxZoom = value
 	}
 
-	func startFetchForTile(tileID: MaplyTileID, forLayer layer: MaplyQuadPagingLayer!) {
+	func startFetchForTile(tileID: MaplyTileID, forLayer layer: MaplyQuadPagingLayer) {
 		// bounding box for tile
-		let ll = UnsafeMutablePointer<MaplyCoordinate>.alloc(1)
-		let ur = UnsafeMutablePointer<MaplyCoordinate>.alloc(1)
-
-		layer.geoBoundsforTile(tileID, ll: ll, ur: ur)
-
-		let bbox = MaplyBoundingBox(ll: ll.memory, ur: ur.memory)
-
+		let bbox = layer.boundsforTile(tileID)
 		let urlReq = constructRequest(bbox)
-
-		ll.dealloc(1)
-		ur.dealloc(1)
 
 		NSURLConnection.sendAsynchronousRequest(urlReq, queue: opQueue)
 		{ (response, data, error) -> Void in
 			// parse the resulting GeoJSON
-			let vecObj = MaplyVectorObject(fromGeoJSON: data)
+			if let vecObj = MaplyVectorObject(fromGeoJSON: data) {
+				// display a transparent filled polygon
+				let filledObj = layer.viewC.addVectors([vecObj],
+					desc: [
+						kMaplyColor: UIColor(red: 0.25, green: 0.0, blue: 0.0, alpha: 0.25),
+						kMaplyFilled: true,
+						kMaplyEnable: false
+					],
+					mode: .Current)
 
-			// display a transparent filled polygon
-			let filledObj = layer.viewC.addVectors([vecObj],
-				desc: [
-					kMaplyColor: UIColor(red: 0.25, green: 0.0, blue: 0.0, alpha: 0.25),
-					kMaplyFilled: true,
-					kMaplyEnable: false],
-				mode: MaplyThreadCurrent)
+				// display a line around the lot
+				let outlineObj = layer.viewC.addVectors([vecObj],
+					desc: [
+						kMaplyColor: UIColor.redColor(),
+						kMaplyFilled: false,
+						kMaplyEnable: false
+					],
+					mode: .Current)
 
-			// display a line around the lot
-			let outlineObj = layer.viewC.addVectors([vecObj],
-				desc: [
-					kMaplyColor: UIColor.redColor(),
-					kMaplyFilled: false,
-					kMaplyEnable: false],
-				mode: MaplyThreadCurrent)
+				// keep track of it in the layer
+				layer.addData([filledObj, outlineObj], forTile: tileID)
 
-			// keep track of it in the layer
-			layer.addData([filledObj, outlineObj], forTile: tileID)
-
-			// let the layer know the tile is done
-			layer.tileDidLoad(tileID)
+				// let the layer know the tile is done
+				layer.tileDidLoad(tileID)
+			}
 		}
 	}
 
@@ -90,9 +83,8 @@ class CartoDBLayer: NSObject, MaplyPagingDelegate {
 		let range = Range<String.Index>(start: encodeQuery!.startIndex, end: encodeQuery!.endIndex)
 		 encodeQuery = encodeQuery!.stringByReplacingOccurrencesOfString("&", withString: "%26", options: NSStringCompareOptions.allZeros, range: range)
 		let fullUrl = NSString(format: "https://pluto.cartodb.com/api/v2/sql?format=GeoJSON&q=%@", encodeQuery!) as String
-		let urlReq = NSURLRequest(URL: NSURL(string: fullUrl)!)
 
-		return urlReq
+		return NSURLRequest(URL: NSURL(string: fullUrl)!)
 	}
 
 }

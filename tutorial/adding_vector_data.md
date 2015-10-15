@@ -144,11 +144,11 @@ private func addCountries() {
    let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
    dispatch_async(queue) {	
       let bundle = NSBundle.mainBundle()
-      let allOutlines = bundle.pathsForResourcesOfType("geojson", inDirectory: nil) as! [String]
+      let allOutlines = bundle.pathsForResourcesOfType("geojson", inDirectory: "country_json_50m")
 
       for outline in allOutlines {
-         if let jsonData = NSData(contentsOfFile: outline) {
-            let wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData)
+         if let jsonData = NSData(contentsOfFile: outline), 
+                wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData) {
             // the admin tag from the country outline geojson has the country name ­ save
             if let attrs = wgVecObj.attributes,
                    vecName = attrs.objectForKey("ADMIN") as? NSObject {

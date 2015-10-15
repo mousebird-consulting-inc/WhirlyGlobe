@@ -40,18 +40,17 @@ class ViewController: UIViewController {
 		theViewC!.frameInterval = 2
 
 		// set up the data source
-		let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres")
+		if let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres"),
+				layer = MaplyQuadImageTilesLayer(tileSource: tileSource) {
 
-		// set up the layer
-		let layer = MaplyQuadImageTilesLayer(coordSystem: tileSource.coordSys, tileSource: tileSource)
-
-		layer.handleEdges = (globeViewC != nil)
-		layer.coverPoles = (globeViewC != nil)
-		layer.requireElev = false
-		layer.waitLoad = false
-		layer.drawPriority = 0
-		layer.singleLevelLoading = false
-		theViewC!.addLayer(layer)
+			layer.handleEdges = (globeViewC != nil)
+			layer.coverPoles = (globeViewC != nil)
+			layer.requireElev = false
+			layer.waitLoad = false
+			layer.drawPriority = 0
+			layer.singleLevelLoading = false
+			theViewC!.addLayer(layer)
+		}
 
 		// start up over Madrid, center of the old-world
 		if let globeViewC = globeViewC {

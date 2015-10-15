@@ -34,10 +34,11 @@ MaplyQuadImageTilesLayer *layer =
 
   {% highlight swift %}
 // set up the data source
-let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres")
+if let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres"),
+        // set up the layer
+        layer = MaplyQuadImageTilesLayer(tileSource: tileSource) {
 
-// set up the layer
-let layer = MaplyQuadImageTilesLayer(coordSystem: tileSource.coordSys, tileSource: tileSource)
+}
   {% endhighlight %}
 {% endmultiple_code %}
 
@@ -89,22 +90,25 @@ let useLocalTiles = false
 let layer: MaplyQuadImageTilesLayer
 
 if useLocalTiles {
-    let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres")
-    layer = MaplyQuadImageTilesLayer(coordSystem: tileSource.coordSys, tileSource: tileSource)
+    if let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres"),
+           layer = MaplyQuadImageTilesLayer(tileSource: tileSource) {
+    }
 }
 else {
     // Because this is a remote tile set, we'll want a cache directory
-    let baseCacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as! String
+    let baseCacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
     let aerialTilesCacheDir = "\(baseCacheDir)/osmtiles/"
     let maxZoom = Int32(18)
 
     // MapQuest Open Aerial Tiles, Courtesy Of Mapquest
     // Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
-    let tileSource = MaplyRemoteTileSource(
+    if let tileSource = MaplyRemoteTileSource(
             baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
             ext: "png",
-            minZoom: 0, maxZoom: maxZoom)
-    layer = MaplyQuadImageTilesLayer(coordSystem: tileSource.coordSys, tileSource: tileSource)
+            minZoom: 0, 
+            maxZoom: maxZoom) {
+        layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
+    }
 }
   {% endhighlight %}
 {% endmultiple_code %}

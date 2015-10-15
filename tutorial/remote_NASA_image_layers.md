@@ -130,14 +130,19 @@ if (DoOverlay)
   {% highlight swift %}
 if DoOverlay {
    // For network paging layers, where we'll store temp files
-   let cacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as! String
-   let tileSource = MaplyRemoteTileSource(baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/Sea_Surface_Temp_Blended/default/2015-06-25/GoogleMapsCompatible_Level7/{z}/{y}/{x}", ext: "png", minZoom: 0, maxZoom: 9)
-   tileSource.cacheDir = "\(cacheDir)/sea_temperature/"
-   tileSource.tileInfo.cachedFileLifetime = 60*60*24 // invalidate OWM data after 24 hours
-   let temperatureLayer = MaplyQuadImageTilesLayer(coordSystem: tileSource.coordSys, tileSource: tileSource)
-   temperatureLayer.coverPoles = false
-   temperatureLayer.handleEdges = false
-   globeViewC?.addLayer(temperatureLayer)
+   let cacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
+   if let tileSource = MaplyRemoteTileSource(baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/Sea_Surface_Temp_Blended/default/2015-06-25/GoogleMapsCompatible_Level7/{z}/{y}/{x}", 
+         ext: "png", 
+         minZoom: 0, 
+         maxZoom: 9) {
+      tileSource.cacheDir = "\(cacheDir)/sea_temperature/"
+      tileSource.tileInfo.cachedFileLifetime = 60*60*24 // invalidate OWM data after 24 hours
+      if let temperatureLayer = MaplyQuadImageTilesLayer(tileSource: tileSource) {
+         temperatureLayer.coverPoles = false
+         temperatureLayer.handleEdges = false
+         globeViewC?.addLayer(temperatureLayer)
+      }
+   }
 }
   {% endhighlight %}
 {% endmultiple_code %}

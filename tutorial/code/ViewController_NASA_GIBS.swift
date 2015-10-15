@@ -39,12 +39,13 @@ MaplyViewControllerDelegate {
 		let layer: MaplyQuadImageTilesLayer
 
 		if useLocalTiles {
-			let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres")
-			layer = MaplyQuadImageTilesLayer(coordSystem: tileSource.coordSys, tileSource: tileSource)
+			if let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres") {
+				layer = MaplyQuadImageTilesLayer(tileSource: tileSource)
+			}
 		}
 		else {
 			// Because this is a remote tile set, we'll want a cache directory
-			let baseCacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as! String
+			let baseCacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
 			let aerialTilesCacheDir = "\(baseCacheDir)/osmtiles/"
 
 			// A set of various base layers to select from. Remember to adjust the maxZoom factor appropriately
@@ -57,13 +58,14 @@ MaplyViewControllerDelegate {
 			// MapQuest Open Aerial Tiles, Courtesy Of Mapquest
 			// Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
 
-
-			let tileSource = MaplyRemoteTileSource(
-				baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
-				ext: "jpg",
-				minZoom: 0, maxZoom: maxZoom)
-			tileSource.cacheDir = aerialTilesCacheDir
-			layer = MaplyQuadImageTilesLayer(coordSystem: tileSource.coordSys, tileSource: tileSource)
+			if let tileSource = MaplyRemoteTileSource(
+					baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
+					ext: "jpg",
+					minZoom: 0,
+					maxZoom: maxZoom) {
+				tileSource.cacheDir = aerialTilesCacheDir
+				layer = MaplyQuadImageTilesLayer(tileSource: tileSource)
+			}
 		}
 
 
@@ -84,21 +86,27 @@ MaplyViewControllerDelegate {
 		// Setup a remote overlay from NASA GIBS
 		if DoOverlay {
 			// For network paging layers, where we'll store temp files
-			let cacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as! String
+			let cacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
 
-			let tileSource = MaplyRemoteTileSource(baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/Sea_Surface_Temp_Blended/default/2013-06-07/GoogleMapsCompatible_Level7/", ext: "png", minZoom: 1, maxZoom: 7)
-			tileSource.cacheDir = "\(cacheDir)/sea_temperature/"
-			tileSource.tileInfo.cachedFileLifetime = 3 // invalidate OWM data after 3 secs
-			let temperatureLayer = MaplyQuadImageTilesLayer(coordSystem: tileSource.coordSys, tileSource: tileSource)
-			temperatureLayer.coverPoles = false
-			temperatureLayer.handleEdges = false
-			theViewC!.addLayer(temperatureLayer)
+			if let tileSource = MaplyRemoteTileSource(baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/Sea_Surface_Temp_Blended/default/2013-06-07/GoogleMapsCompatible_Level7/",
+					ext: "png",
+					minZoom: 1,
+					maxZoom: 7) {
+				tileSource.cacheDir = "\(cacheDir)/sea_temperature/"
+				tileSource.tileInfo.cachedFileLifetime = 3 // invalidate OWM data after 3 secs
+				if let temperatureLayer = MaplyQuadImageTilesLayer(tileSource: tileSource) {
+					temperatureLayer.coverPoles = false
+					temperatureLayer.handleEdges = false
+					theViewC!.addLayer(temperatureLayer)
+				}
+			}
 		}
 
 		vectorDict = [
 			kMaplyColor: UIColor.whiteColor(),
 			kMaplySelectable: true,
-			kMaplyVecWidth: 4.0]
+			kMaplyVecWidth: 4.0
+		]
 
 		// add the countries
 		addCountries()
@@ -109,30 +117,30 @@ MaplyViewControllerDelegate {
 		// handle this in another thread
 		let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
 		dispatch_async(queue) {
-			let allOutlines = NSBundle.mainBundle().pathsForResourcesOfType("geojson", inDirectory: nil) as! [String]
+			let allOutlines = NSBundle.mainBundle().pathsForResourcesOfType("geojson", inDirectory: nil)
 
 			for outline in allOutlines {
-				if let jsonData = NSData(contentsOfFile: outline) {
-					let wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData)
+				if let jsonData = NSData(contentsOfFile: outline),
+						wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData) {
 					// the admin tag from the country outline geojson has the country name ­ save
 					if let attrs = wgVecObj.attributes,
-						vecName = attrs.objectForKey("ADMIN") as? NSObject {
+							vecName = attrs.objectForKey("ADMIN") as? NSObject {
 
-							wgVecObj.userObject = vecName
-							/*
-							if count(vecName.description) > 0 {
+						wgVecObj.userObject = vecName
+
+						if count(vecName.description) > 0 {
 							let label = MaplyScreenLabel()
 							label.text = vecName.description
 							label.loc = wgVecObj.center()
 							label.selectable = true
 							self.theViewC?.addScreenLabels([label],
-							desc: [
-							kMaplyFont: UIFont.boldSystemFontOfSize(24.0),
-							kMaplyTextOutlineColor: UIColor.blackColor(),
-							kMaplyTextOutlineSize: 2.0,
-							kMaplyColor: UIColor.whiteColor()])
-							}
-							*/
+								desc: [
+									kMaplyFont: UIFont.boldSystemFontOfSize(24.0),
+									kMaplyTextOutlineColor: UIColor.blackColor(),
+									kMaplyTextOutlineSize: 2.0,
+									kMaplyColor: UIColor.whiteColor()
+								])
+						}
 					}
 
 					// add the outline to our view

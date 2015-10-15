@@ -85,7 +85,7 @@ class CartoDBLayer: NSObject, MaplyPagingDelegate {
    func setMinZoom(value: Int32) { _minZoom = value }
    func setMaxZoom(value: Int32) { _maxZoom = value }
 
-   func startFetchForTile(tileID: MaplyTileID, forLayer layer: MaplyQuadPagingLayer!) {
+   func startFetchForTile(tileID: MaplyTileID, forLayer layer: MaplyQuadPagingLayer) {
       // TODO
    }
 }
@@ -194,8 +194,9 @@ Put the new _addBuildings_ method near the end of your ViewController.
       cartoLayer.setMinZoom(15);
       cartoLayer.setMaxZoom(15);
       let coordSys = MaplySphericalMercator(webStandard: ())
-      let quadLayer = MaplyQuadPagingLayer(coordSystem: coordSys, delegate: cartoLayer)
-      theViewC?.addLayer(quadLayer)
+      if let quadLayer = MaplyQuadPagingLayer(coordSystem: coordSys, delegate: cartoLayer) {
+          theViewC?.addLayer(quadLayer)
+      }
    }
   {% endhighlight %}
 {% endmultiple_code %}
@@ -300,46 +301,39 @@ The most important method in the MaplyPagingDelegate is _startFetchForTile_.  Th
   {----}
 
   {% highlight swift %}
-func startFetchForTile(tileID: MaplyTileID, forLayer layer: MaplyQuadPagingLayer!) {
+func startFetchForTile(tileID: MaplyTileID, forLayer layer: MaplyQuadPagingLayer) {
    // bounding box for tile
-   let ll = UnsafeMutablePointer<MaplyCoordinate>.alloc(1)
-   let ur = UnsafeMutablePointer<MaplyCoordinate>.alloc(1)
-
-   layer.geoBoundsforTile(tileID, ll: ll, ur: ur)
-
-   let bbox = MaplyBoundingBox(ll: ll.memory, ur: ur.memory)
-
-   ll.dealloc(1)
-   ur.dealloc(1)
-
+   let bbox = layer.boundsForTile(tileID)
    let urlReq = constructRequest(bbox)
 
-   NSURLConnection.sendAsynchronousRequest(urlReq, queue: opQueue)
+   NSURLConnection.sendAsynchronousRequest(urlReq, queue: opQueue!)
    { (response, data, error) -> Void in
       // parse the resulting GeoJSON
-      let vecObj = MaplyVectorObject(fromGeoJSON: data)
-
-      // display a transparent filled polygon
-      let filledObj = layer.viewC.addVectors([vecObj],
+      if let vecObj = MaplyVectorObject(fromGeoJSON: data) {
+         // display a transparent filled polygon
+         let filledObj = layer.viewC!.addVectors([vecObj],
             desc: [
                kMaplyColor: UIColor(red: 0.25, green: 0.0, blue: 0.0, alpha: 0.25),
                kMaplyFilled: true,
-               kMaplyEnable: false],
-            mode: MaplyThreadCurrent)
+               kMaplyEnable: false
+            ],
+            mode: .Current)
 
-      // display a line around the lot
-      let outlineObj = layer.viewC.addVectors([vecObj],
+         // display a line around the lot
+         let outlineObj = layer.viewC!.addVectors([vecObj],
             desc: [
                kMaplyColor: UIColor.redColor(),
                kMaplyFilled: false,
-               kMaplyEnable: false],
-            mode: MaplyThreadCurrent)
+               kMaplyEnable: false
+            ],
+            mode: .Current)
 
-      // keep track of it in the layer
-      layer.addData([filledObj, outlineObj], forTile: tileID)
+         // keep track of it in the layer
+         layer.addData([filledObj, outlineObj], forTile: tileID)
 
-      // let the layer know the tile is done
-      layer.tileDidLoad(tileID)
+         // let the layer know the tile is done
+         layer.tileDidLoad(tileID)
+      }
    }
 }
   {% endhighlight %}

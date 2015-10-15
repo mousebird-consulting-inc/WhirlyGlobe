@@ -9,8 +9,7 @@
 import UIKit
 
 class ViewController: UIViewController,
-	WhirlyGlobeViewControllerDelegate,
-MaplyViewControllerDelegate {
+	WhirlyGlobeViewControllerDelegate, MaplyViewControllerDelegate {
 
 	private var theViewC: MaplyBaseViewController?
 	private var globeViewC: WhirlyGlobeViewController?
@@ -52,8 +51,9 @@ MaplyViewControllerDelegate {
 		let layer: MaplyQuadImageTilesLayer
 
 		if useLocalTiles {
-			let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres")
-			layer = MaplyQuadImageTilesLayer(coordSystem: tileSource.coordSys, tileSource: tileSource)
+			if let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres") {
+				layer = MaplyQuadImageTilesLayer(tileSource: tileSource)
+			}
 		}
 		else {
 			// Because this is a remote tile set, we'll want a cache directory
@@ -64,11 +64,13 @@ MaplyViewControllerDelegate {
 			// MapQuest Open Aerial Tiles, Courtesy Of Mapquest
 			// Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
 
-			let tileSource = MaplyRemoteTileSource(
-				baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
-				ext: "png",
-				minZoom: 0, maxZoom: maxZoom)
-			layer = MaplyQuadImageTilesLayer(coordSystem: tileSource.coordSys, tileSource: tileSource)
+			if let tileSource = MaplyRemoteTileSource(
+					baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
+					ext: "png",
+					minZoom: 0,
+					maxZoom: maxZoom) {
+				layer = MaplyQuadImageTilesLayer(tileSource: tileSource)
+			}
 		}
 
 		layer.handleEdges = (globeViewC != nil)
@@ -89,18 +91,18 @@ MaplyViewControllerDelegate {
 			mapViewC.animateToPosition(MaplyCoordinateMakeWithDegrees(-73.99, 40.75), time: 1.0)
 		}
 
-
 		vectorDict = [
 			kMaplyColor: UIColor.whiteColor(),
 			kMaplySelectable: true,
-			kMaplyVecWidth: 4.0]
+			kMaplyVecWidth: 4.0
+		]
 
 		// add buildings
 		addBuildings()
 	}
 
 
-	private func addAnnotationWithTitle(title: String, subtitle: String, loc:MaplyCoordinate) {
+	private func addAnnotationWithTitle(title: String, subtitle: String, loc: MaplyCoordinate) {
 		theViewC?.clearAnnotations()
 
 		let a = MaplyAnnotation()
@@ -116,42 +118,45 @@ MaplyViewControllerDelegate {
 		let cartoLayer = CartoDBLayer(search: search)
 		cartoLayer.setMinZoom(15);
 		cartoLayer.setMaxZoom(15);
-		let coordSys = MaplySphericalMercator(webStandard: ())
+		let coordSys = MaplySphericalMercator()
 		let quadLayer = MaplyQuadPagingLayer(coordSystem: coordSys, delegate: cartoLayer)
 		theViewC?.addLayer(quadLayer)
 	}
 
 	private func handleSelection(selectedObject: NSObject) {
 		if let selectedObject = selectedObject as? MaplyVectorObject {
-			var loc = UnsafeMutablePointer<MaplyCoordinate>.alloc(1)
-			if selectedObject.centroid(loc) {
-				addAnnotationWithTitle("selected", subtitle: selectedObject.userObject as! String, loc: loc.memory)
+			var loc = selectedObject.centroid()
+			if loc.x != kMaplyNullCoordinate {
+				addAnnotationWithTitle("selected",
+					subtitle: selectedObject.userObject as! String,
+					loc: loc)
 			}
-			loc.dealloc(1)
 		}
 		else if let selectedObject = selectedObject as? MaplyScreenMarker {
-			addAnnotationWithTitle("selected", subtitle: "marker", loc: selectedObject.loc)
+			addAnnotationWithTitle("selected",
+				subtitle: "marker",
+				loc: selectedObject.loc)
 		}
 	}
 
 
 	// These are the versions for the map
-	func maplyViewController(viewC: MaplyViewController!, didTapAt coord: MaplyCoordinate) {
+	func maplyViewController(viewC: MaplyViewController, didTapAt coord: MaplyCoordinate) {
 		let subtitle = NSString(format: "(%.2fN, %.2fE)", coord.y*57.296,coord.x*57.296) as! String
 		addAnnotationWithTitle("Tap!", subtitle: subtitle, loc: coord)
 	}
 
-	func maplyViewController(viewC: MaplyViewController!, didSelect selectedObj: NSObject!) {
+	func maplyViewController(viewC: MaplyViewController, didSelect selectedObj: NSObject) {
 		handleSelection(selectedObj)
 	}
 
 	// These are the versions for the globe
-	func globeViewController(viewC: WhirlyGlobeViewController!, didTapAt coord: MaplyCoordinate) {
+	func globeViewController(viewC: WhirlyGlobeViewController, didTapAt coord: MaplyCoordinate) {
 		let subtitle = NSString(format: "(%.2fN, %.2fE)", coord.y*57.296,coord.x*57.296) as! String
 		addAnnotationWithTitle("Tap!", subtitle: subtitle, loc: coord)
 	}
 
-	func globeViewController(viewC: WhirlyGlobeViewController!, didSelect selectedObj: NSObject!) {
+	func globeViewController(viewC: WhirlyGlobeViewController, didSelect selectedObj: NSObject) {
 		handleSelection(selectedObj)
 	}
 	

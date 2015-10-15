@@ -49,13 +49,12 @@ If you've got screen markers displaying, selecting them is pretty simple.  Chang
 // Unified method to handle the selection
 private func handleSelection(selectedObject: NSObject) {
     if let selectedObject = selectedObject as? MaplyVectorObject {
-        var loc = UnsafeMutablePointer<MaplyCoordinate>.alloc(1)
-        if selectedObject.centroid(loc) {
+        let loc = selectedObject.centroid()
+        if loc.x != kMaplyNullCoordinate {
             let title = "Selected:"
             let subtitle = selectedObject.userObject as! String
-            addAnnotationWithTitle(title, subtitle: subtitle, loc: loc.memory)
+            addAnnotationWithTitle(title, subtitle: subtitle, loc: loc)
         }
-        loc.dealloc(1)
     }
     else if let selectedObject = selectedObject as? MaplyScreenMarker {
         let title = "Selected:"
@@ -65,7 +64,6 @@ private func handleSelection(selectedObject: NSObject) {
 }
   {% endhighlight %}
 {% endmultiple_code %}
-
 
 That's all there is to it.  We're just handed a MaplyScreenMarker back if that's what the user selected.  We pop up a little annotation over the marker like so.
 

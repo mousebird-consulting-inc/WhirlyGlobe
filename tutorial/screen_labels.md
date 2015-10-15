@@ -52,8 +52,8 @@ private func addCountries() {
         let allOutlines = NSBundle.mainBundle().pathsForResourcesOfType("geojson", inDirectory: nil) as! [String]
 
         for outline in allOutlines {
-            if let jsonData = NSData(contentsOfFile: outline) {
-                let wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData)
+            if let jsonData = NSData(contentsOfFile: outline),
+                   wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData) {
                 // the admin tag from the country outline geojson has the country name ­ save
                 if let attrs = wgVecObj.attributes,
                        vecName = attrs.objectForKey("ADMIN") as? NSObject {
@@ -116,7 +116,7 @@ if ([vecName length] > 0)
   {----}
 
   {% highlight swift %}
-if count(vecName.description) > 0 {
+if vecName.description.characters.count > 0 {
     let label = MaplyScreenLabel()
     label.text = vecName.description
     label.loc = wgVecObj.center()
@@ -126,7 +126,8 @@ if count(vecName.description) > 0 {
             kMaplyFont: UIFont.boldSystemFontOfSize(24.0),
             kMaplyTextOutlineColor: UIColor.blackColor(),
             kMaplyTextOutlineSize: 2.0,
-            kMaplyColor: UIColor.whiteColor()])
+            kMaplyColor: UIColor.whiteColor()
+        ])
 }
   {% endhighlight %}
 {% endmultiple_code %}
@@ -160,10 +161,9 @@ label.layoutImportance = 10.0;
   {----}
 
   {% highlight swift %}
-label.layoutImportance = 10.0
+label.layoutImportance = 10
 ­  {% endhighlight %}
 {% endmultiple_code %}
-
 
 Now it looks like this.
 

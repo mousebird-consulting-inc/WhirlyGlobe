@@ -8,7 +8,8 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController,
+		WhirlyGlobeViewControllerDelegate, MaplyViewControllerDelegate {
 
 	private var theViewC: MaplyBaseViewController?
 	private var globeViewC: WhirlyGlobeViewController?
@@ -50,23 +51,26 @@ class ViewController: UIViewController {
 		let layer: MaplyQuadImageTilesLayer
 
 		if useLocalTiles {
-			let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres")
-			layer = MaplyQuadImageTilesLayer(coordSystem: tileSource.coordSys, tileSource: tileSource)
+			if let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres") {
+				layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
+			}
 		}
 		else {
 			// Because this is a remote tile set, we'll want a cache directory
-			let baseCacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as! String
+			let baseCacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as String
 			let aerialTilesCacheDir = "\(baseCacheDir)/osmtiles/"
 			let maxZoom = Int32(18)
 
 			// MapQuest Open Aerial Tiles, Courtesy Of Mapquest
 			// Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
 
-			let tileSource = MaplyRemoteTileSource(
-				baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
-				ext: "png",
-				minZoom: 0, maxZoom: maxZoom)
-			layer = MaplyQuadImageTilesLayer(coordSystem: tileSource.coordSys, tileSource: tileSource)
+			if let tileSource = MaplyRemoteTileSource(
+					baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
+					ext: "png",
+					minZoom: 0,
+					maxZoom: maxZoom) {
+				layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
+			}
 		}
 
 		layer.handleEdges = (globeViewC != nil)
@@ -90,7 +94,8 @@ class ViewController: UIViewController {
 		vectorDict = [
 			kMaplyColor: UIColor.whiteColor(),
 			kMaplySelectable: true,
-			kMaplyVecWidth: 4.0]
+			kMaplyVecWidth: 4.0
+		]
 
 		// add the countries
 		addCountries()
@@ -101,16 +106,16 @@ class ViewController: UIViewController {
 		// handle this in another thread
 		let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
 		dispatch_async(queue) {
-			let allOutlines = NSBundle.mainBundle().pathsForResourcesOfType("geojson", inDirectory: nil) as! [String]
+			let allOutlines = NSBundle.mainBundle().pathsForResourcesOfType("geojson", inDirectory: nil)
 
 			for outline in allOutlines {
-				if let jsonData = NSData(contentsOfFile: outline) {
-					let wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData)
+				if let jsonData = NSData(contentsOfFile: outline),
+						wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData) {
 					// the admin tag from the country outline geojson has the country name ­ save
 					if let attrs = wgVecObj.attributes,
-						vecName = attrs.objectForKey("ADMIN") as? NSObject {
+							vecName = attrs.objectForKey("ADMIN") as? NSObject {
 
-							wgVecObj.userObject = vecName
+						wgVecObj.userObject = vecName
 					}
 
 					// add the outline to our view
@@ -123,22 +128,22 @@ class ViewController: UIViewController {
 	}
 
 	// These are the versions for the map
-	func maplyViewController(viewC: MaplyViewController!, didTapAt coord: MaplyCoordinate) {
-		let subtitle = NSString(format: "(%.2fN, %.2fE)", coord.y*57.296,coord.x*57.296) as! String
+	func maplyViewController(viewC: MaplyViewController, didTapAt coord: MaplyCoordinate) {
+		let subtitle = NSString(format: "(%.2fN, %.2fE)", coord.y*57.296,coord.x*57.296) as String
 		addAnnotationWithTitle("Tap!", subtitle: subtitle, loc: coord)
 	}
 
-	func maplyViewController(viewC: MaplyViewController!, didSelect selectedObj: NSObject!) {
+	func maplyViewController(viewC: MaplyViewController, didSelect selectedObj: NSObject) {
 		handleSelection(selectedObj)
 	}
 
 	// These are the versions for the globe
-	func globeViewController(viewC: WhirlyGlobeViewController!, didTapAt coord: MaplyCoordinate) {
-		let subtitle = NSString(format: "(%.2fN, %.2fE)", coord.y*57.296,coord.x*57.296) as! String
+	func globeViewController(viewC: WhirlyGlobeViewController, didTapAt coord: MaplyCoordinate) {
+		let subtitle = NSString(format: "(%.2fN, %.2fE)", coord.y*57.296,coord.x*57.296) as String
 		addAnnotationWithTitle("Tap!", subtitle: subtitle, loc: coord)
 	}
 
-	func globeViewController(viewC: WhirlyGlobeViewController!, didSelect selectedObj: NSObject!) {
+	func globeViewController(viewC: WhirlyGlobeViewController, didSelect selectedObj: NSObject) {
 		handleSelection(selectedObj)
 	}
 
@@ -154,14 +159,17 @@ class ViewController: UIViewController {
 
 	private func handleSelection(selectedObject: NSObject) {
 		if let selectedObject = selectedObject as? MaplyVectorObject {
-			var loc = UnsafeMutablePointer<MaplyCoordinate>.alloc(1)
-			if selectedObject.centroid(loc) {
-				addAnnotationWithTitle("selected", subtitle: selectedObject.userObject as! String, loc: loc.memory)
+			let loc = selectedObject.centroid()
+			if loc.x != kMaplyNullCoordinate {
+				addAnnotationWithTitle("selected",
+					subtitle: selectedObject.userObject as! String,
+					loc: loc)
 			}
-			loc.dealloc(1)
 		}
 		else if let selectedObject = selectedObject as? MaplyScreenMarker {
-			addAnnotationWithTitle("selected", subtitle: "marker", loc: selectedObject.loc)
+			addAnnotationWithTitle("selected",
+				subtitle: "marker",
+				loc: selectedObject.loc)
 		}
 	}
 	
