@@ -290,10 +290,10 @@ void ClusterHelper::resolveClusters()
     }
 }
     
-void ClusterHelper::objectsForCluster(ClusterObject &cluster,std::vector<LayoutObject *> &layoutObjs)
+void ClusterHelper::objectsForCluster(ClusterObject &cluster,std::vector<LayoutObjectEntry *> &layoutObjs)
 {
     for (int child : cluster.children)
-        layoutObjs.push_back(&simpleObjects[child].objEntry->obj);
+        layoutObjs.push_back(simpleObjects[child].objEntry);
 }
     
 }

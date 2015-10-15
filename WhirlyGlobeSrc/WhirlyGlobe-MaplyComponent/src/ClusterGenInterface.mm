@@ -25,7 +25,7 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-void ClusterGenInterface::makeLayoutObject(const std::vector<LayoutObject *> &layoutObjects,LayoutObject &newObj)
+void ClusterGenInterface::makeLayoutObject(const std::vector<LayoutObjectEntry *> &layoutObjects,LayoutObject &newObj)
 {
     
 }
