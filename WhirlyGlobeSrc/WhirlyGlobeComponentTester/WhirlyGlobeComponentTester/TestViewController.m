@@ -27,6 +27,7 @@
 #import "PagingTestDelegate.h"
 #ifdef NOTPODSPECWG
 #import "MapzenSource.h"
+#import <DDXMLDocument.h>
 #endif
 
 // Simple representation of locations and name for testing
@@ -558,7 +559,11 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:capabilitiesURL]]];
     operation.responseSerializer = [AFXMLParserResponseSerializer serializer];
     [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        [self startWMSLayerBaseURL:baseURL xml:responseObject layer:layerName style:styleName cacheDir:thisCacheDir ovlName:ovlName];
+        NSError *error;
+        DDXMLDocument *doc = [[DDXMLDocument alloc] initWithData:operation.responseData options:0 error:&error];
+        
+        
+        [self startWMSLayerBaseURL:baseURL xml:doc layer:layerName style:styleName cacheDir:thisCacheDir ovlName:ovlName];
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         // Sometimes this works anyway
 //        if (![self startWMSLayerBaseURL:baseURL xml:XMLDocument layer:layerName style:styleName cacheDir:thisCacheDir ovlName:ovlName])
@@ -1803,7 +1808,7 @@ static const int NumMegaMarkers = 15000;
             if (![layerName compare:kMaplyTestUSGSOrtho])
             {
                 thisCacheDir = [NSString stringWithFormat:@"%@/usgs_naip/",cacheDir];
-                [self fetchWMSLayer:@"http://raster.nationalmap.gov/ArcGIS/services/Orthoimagery/USGS_EDC_Ortho_NAIP/ImageServer/WMSServer" layer:@"0" style:nil cacheDir:thisCacheDir ovlName:layerName];
+                [self fetchWMSLayer:@"http://raster.nationalmap.gov/arcgis/services/Orthoimagery/USGS_EROS_Ortho_NAIP/ImageServer/WMSServer" layer:@"0" style:nil cacheDir:thisCacheDir ovlName:layerName];
             } else if (![layerName compare:kMaplyTestOWM])
             {
                 MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.openweathermap.org/map/precipitation/" ext:@"png" minZoom:0 maxZoom:6];
