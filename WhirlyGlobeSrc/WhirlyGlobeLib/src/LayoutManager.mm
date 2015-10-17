@@ -381,6 +381,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Lay
                         thisClusterObj->layoutObjects.insert(layoutObj);
                         
                         obj->newEnable = false;
+                        obj->newCluster = -1;
                     } else {
                         // Not a cluster
                         layoutObjs.insert(layoutObj);
@@ -647,6 +648,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Lay
         }
         hadChanges |= layoutObj->changed;
         layoutObj->newEnable = isActive;
+        layoutObj->newCluster = -1;
         layoutObj->offset = objOffset;
     }
     
