@@ -124,8 +124,18 @@ public:
     // Called right after all the layout objects are generated
     virtual void endLayoutObjects() = 0;
     
+    // Parameters for a particular cluster class needed to make animations and such
+    class ClusterClassParams
+    {
+    public:
+        SimpleIdentity motionShaderID;
+        bool selectable;
+        double markerAnimationTime;
+        Point2d clusterSize;
+    };
+    
     // Return the shader used when moving objects into and out of clusters
-    virtual SimpleIdentity motionShaderForCluster(int clusterID) = 0;
+    virtual void paramsForClusterClass(int clusterID,ClusterClassParams &clusterParams) = 0;
 };
     
 #define kWKLayoutManager "WKLayoutManager"
@@ -139,7 +149,8 @@ public:
     LayoutObject layoutObj;
     // Object IDs for all the objects clustered together
     std::vector<SimpleIdentity> objectIDs;
-    SimpleIdentity motionShaderID;
+    // Pointer into cluster parameters
+    int clusterParamID;
 };
 
 /** The layout manager handles 2D text and marker layout.  We feed it objects
@@ -184,7 +195,7 @@ public:
 protected:
     bool calcScreenPt(CGPoint &objPt,LayoutObjectEntry *layoutObj,WhirlyKitViewState *viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
     Eigen::Matrix2d calcScreenRot(float &screenRot,WhirlyKitViewState *viewState,WhirlyGlobeViewState *globeViewState,LayoutObjectEntry *layoutObj,const CGPoint &objPt,const Eigen::Matrix4d &modelTrans,const Point2f &frameBufferSize);
-    bool runLayoutRules(WhirlyKitViewState *viewState,std::vector<ClusterEntry> &clusterEntries);
+    bool runLayoutRules(WhirlyKitViewState *viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams);
     
     pthread_mutex_t layoutLock;
     /// If non-zero the maximum number of objects we'll display at once
@@ -197,6 +208,8 @@ protected:
     SimpleIDSet drawIDs;
     /// Clusters on the current round
     std::vector<ClusterEntry> clusters;
+    /// Display parameter for the clusters
+    std::vector<ClusterGenerator::ClusterClassParams> clusterParams;
     /// Cluster generators
     ClusterGenerator *clusterGen;
 };

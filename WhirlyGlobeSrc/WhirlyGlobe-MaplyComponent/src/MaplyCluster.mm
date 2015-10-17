@@ -51,6 +51,8 @@
         if ([colors count] == 0)
             return nil;
         self.clusterLayoutSize = markerSize;
+        self.selectable = true;
+        self.markerAnimationTime = 0.2;
         viewC = inViewC;
     }
     
