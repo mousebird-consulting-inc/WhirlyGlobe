@@ -162,7 +162,7 @@ typedef std::map<int,NSObject <MaplyClusterGenerator> *> ClusterGenMap;
 - (void) startLayoutObjects;
 - (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObjectEntry *> &)layoutObjects retObj:(LayoutObject &)retObj;
 - (void) endLayoutObjects;
-- (SimpleIdentity) motionShaderForCluster:(int)clusterID;
+- (void) clusterID:(SimpleIdentity)clusterID params:(ClusterGenerator::ClusterClassParams &)params;
 @end
 
 // Interface between the layout manager and the cluster generators
@@ -189,9 +189,9 @@ public:
         [layer endLayoutObjects];
     }
     
-    SimpleIdentity motionShaderForCluster(int clusterID)
+    void paramsForClusterClass(int clusterID,ClusterClassParams &clusterParams)
     {
-        return [layer motionShaderForCluster:clusterID];
+        return [layer clusterID:clusterID params:clusterParams];
     }
 };
 
@@ -958,24 +958,31 @@ public:
     }
 }
 
-- (SimpleIdentity) motionShaderForCluster:(int)clusterID
+- (void) clusterID:(SimpleIdentity)clusterID params:(ClusterGenerator::ClusterClassParams &)params
 {
     NSObject <MaplyClusterGenerator> *clusterGen = nil;
     @synchronized(self)
     {
         clusterGen = clusterGens[clusterID];
     }
-    
+
+    // Ask for the shader for moving objects
+    params.motionShaderID = EmptyIdentity;
     MaplyShader *shader = [clusterGen motionShader];
     if (shader)
-        return shader.program->getId();
+        params.motionShaderID = shader.program->getId();
     else {
         OpenGLES2Program *program = scene->getProgramBySceneName(kToolkitDefaultScreenSpaceMotionProgram);
         if (program)
-            return program->getId();
+            params.motionShaderID = program->getId();
     }
     
-    return EmptyIdentity;
+    CGSize size = clusterGen.clusterLayoutSize;
+    params.clusterSize = Point2d(size.width,size.height);
+    
+    params.selectable = clusterGen.selectable;
+    
+    params.markerAnimationTime = clusterGen.markerAnimationTime;
 }
 
 // Actually add the markers.

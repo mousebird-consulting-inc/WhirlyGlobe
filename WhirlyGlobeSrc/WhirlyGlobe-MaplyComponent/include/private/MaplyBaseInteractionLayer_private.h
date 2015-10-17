@@ -27,7 +27,6 @@
 #import "MaplyBaseViewController.h"
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyTextureAtlas_private.h"
-#import "ClusterGenInterface_private.h"
 
 @interface MaplyBaseInteractionLayer : NSObject<WhirlyKitLayer>
 {
