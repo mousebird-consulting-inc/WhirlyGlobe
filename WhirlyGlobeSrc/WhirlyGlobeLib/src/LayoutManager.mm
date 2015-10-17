@@ -723,13 +723,19 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
             } else if (!layoutObj->currentEnable && layoutObj->newEnable && layoutObj->currentCluster > -1 && layoutObj->newCluster == -1)
             {
                 // Just moved out of a cluster
-                ClusterEntry &oldCluster = oldClusters[layoutObj->currentCluster];
-                ClusterGenerator::ClusterClassParams &params = oldClusterParams[oldCluster.clusterParamID];
+                ClusterEntry *oldCluster = NULL;
+                if (layoutObj->currentCluster < oldClusters.size())
+                    oldCluster = &oldClusters[layoutObj->currentCluster];
+                else {
+                    NSLog(@"Cluster ID mismatch");
+                    continue;
+                }
+                ClusterGenerator::ClusterClassParams &params = oldClusterParams[oldCluster->clusterParamID];
                 
                 // Animate from the old cluster position to the new real position
                 ScreenSpaceObject animObj = layoutObj->obj;
                 animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+params.markerAnimationTime);
-                animObj.worldLoc = oldCluster.layoutObj.worldLoc;
+                animObj.worldLoc = oldCluster->layoutObj.worldLoc;
                 animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
                 animObj.state.progID = params.motionShaderID;
                 for (auto &geom : animObj.geometry)
