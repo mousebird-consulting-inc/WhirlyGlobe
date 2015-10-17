@@ -135,7 +135,10 @@ public:
 class ClusterEntry
 {
 public:
-    Point3d worldLoc;
+    // The layout object for the cluster itself
+    LayoutObject layoutObj;
+    // Object IDs for all the objects clustered together
+    std::vector<SimpleIdentity> objectIDs;
     SimpleIdentity motionShaderID;
 };
 
@@ -181,7 +184,7 @@ public:
 protected:
     bool calcScreenPt(CGPoint &objPt,LayoutObjectEntry *layoutObj,WhirlyKitViewState *viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
     Eigen::Matrix2d calcScreenRot(float &screenRot,WhirlyKitViewState *viewState,WhirlyGlobeViewState *globeViewState,LayoutObjectEntry *layoutObj,const CGPoint &objPt,const Eigen::Matrix4d &modelTrans,const Point2f &frameBufferSize);
-    bool runLayoutRules(WhirlyKitViewState *viewState,std::vector<LayoutObject> &newClusterObjects,std::vector<ClusterEntry> &clusterEntries);
+    bool runLayoutRules(WhirlyKitViewState *viewState,std::vector<ClusterEntry> &clusterEntries);
     
     pthread_mutex_t layoutLock;
     /// If non-zero the maximum number of objects we'll display at once
@@ -192,7 +195,7 @@ protected:
     LayoutEntrySet layoutObjects;
     /// Drawables created on the last round
     SimpleIDSet drawIDs;
-    /// Clusters on the curret round
+    /// Clusters on the current round
     std::vector<ClusterEntry> clusters;
     /// Cluster generators
     ClusterGenerator *clusterGen;

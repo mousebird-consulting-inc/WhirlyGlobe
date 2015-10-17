@@ -2331,7 +2331,7 @@ static const int NumMegaMarkers = 15000;
     return topView;
 }
 
-- (void)handleSelection:(NSObject *)selectedObj
+- (void)handleSelection:(id)selectedObjs
 {
     // If we've currently got a selected view, get rid of it
 //    if (selectedViewTrack)
@@ -2341,101 +2341,135 @@ static const int NumMegaMarkers = 15000;
 //    }
     [baseViewC clearAnnotations];
     
-    MaplyCoordinate loc;
+    bool isMultiple = [selectedObjs isKindOfClass:[NSArray class]] && [(NSArray *)selectedObjs count] > 1;
+    
     NSString *title = nil,*subTitle = nil;
     CGPoint offset = CGPointZero;
-    
-    if ([selectedObj isKindOfClass:[MaplyMarker class]])
+    MaplyCoordinate loc;
+    if (isMultiple)
     {
-        MaplyMarker *marker = (MaplyMarker *)selectedObj;
-        loc = marker.loc;
-        title = (NSString *)marker.userObject;
-        subTitle = @"Marker";
-    } else if ([selectedObj isKindOfClass:[MaplyScreenMarker class]])
-    {
-        MaplyScreenMarker *screenMarker = (MaplyScreenMarker *)selectedObj;
-        loc = screenMarker.loc;
-        title = (NSString *)screenMarker.userObject;
-        subTitle = @"Screen Marker";
-        offset = CGPointMake(0.0, -8.0);
-    } else if ([selectedObj isKindOfClass:[MaplyLabel class]])
-    {
-        MaplyLabel *label = (MaplyLabel *)selectedObj;
-        loc = label.loc;
-        title = (NSString *)label.userObject;
-        subTitle = @"Label";
-    } else if ([selectedObj isKindOfClass:[MaplyScreenLabel class]])
-    {
-        MaplyScreenLabel *screenLabel = (MaplyScreenLabel *)selectedObj;
-        loc = screenLabel.loc;
-        title = (NSString *)screenLabel.userObject;
-        subTitle = @"Screen Label";
-        offset = CGPointMake(0.0, -6.0);
-    } else if ([selectedObj isKindOfClass:[MaplyVectorObject class]])
-    {
-        MaplyVectorObject *vecObj = (MaplyVectorObject *)selectedObj;
-        if ([vecObj centroid:&loc])
+        NSArray *selArr = selectedObjs;
+        if ([selArr count] == 0)
+            return;
+        
+        MaplySelectedObject *firstObj = [selArr objectAtIndex:0];
+        // Only screen objects will be clustered
+        if ([firstObj.selectedObj isKindOfClass:[MaplyScreenMarker class]])
         {
-            NSString *name = (NSString *)vecObj.userObject;
-            title = (NSString *)vecObj.userObject;
-            subTitle = @"Vector";
-            if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestLoftedPoly])
+            MaplyScreenMarker *marker = firstObj.selectedObj;
+            loc = marker.loc;
+        } else if ([firstObj.selectedObj isKindOfClass:[MaplyScreenLabel class]])
+        {
+            MaplyScreenLabel *label = firstObj.selectedObj;
+            loc = label.loc;
+        } else
+            return;
+        
+        title = @"Cluster";
+        subTitle = [NSString stringWithFormat:@"%d objects",[selArr count]];
+    } else {
+        id selectedObj = nil;
+        if ([selectedObjs isKindOfClass:[NSArray class]])
+        {
+            NSArray *selArr = selectedObjs;
+            if ([selArr count] == 0)
+                return;
+            selectedObj = [(MaplySelectedObject *)[selArr objectAtIndex:0] selectedObj];
+        } else
+            selectedObj = selectedObjs;
+        
+        if ([selectedObj isKindOfClass:[MaplyMarker class]])
+        {
+            MaplyMarker *marker = (MaplyMarker *)selectedObj;
+            loc = marker.loc;
+            title = (NSString *)marker.userObject;
+            subTitle = @"Marker";
+        } else if ([selectedObj isKindOfClass:[MaplyScreenMarker class]])
+        {
+            MaplyScreenMarker *screenMarker = (MaplyScreenMarker *)selectedObj;
+            loc = screenMarker.loc;
+            title = (NSString *)screenMarker.userObject;
+            subTitle = @"Screen Marker";
+            offset = CGPointMake(0.0, -8.0);
+        } else if ([selectedObj isKindOfClass:[MaplyLabel class]])
+        {
+            MaplyLabel *label = (MaplyLabel *)selectedObj;
+            loc = label.loc;
+            title = (NSString *)label.userObject;
+            subTitle = @"Label";
+        } else if ([selectedObj isKindOfClass:[MaplyScreenLabel class]])
+        {
+            MaplyScreenLabel *screenLabel = (MaplyScreenLabel *)selectedObj;
+            loc = screenLabel.loc;
+            title = (NSString *)screenLabel.userObject;
+            subTitle = @"Screen Label";
+            offset = CGPointMake(0.0, -6.0);
+        } else if ([selectedObj isKindOfClass:[MaplyVectorObject class]])
+        {
+            MaplyVectorObject *vecObj = (MaplyVectorObject *)selectedObj;
+            if ([vecObj centroid:&loc])
             {
-                // See if there already is one
-                if (!loftPolyDict[name])
+                NSString *name = (NSString *)vecObj.userObject;
+                title = (NSString *)vecObj.userObject;
+                subTitle = @"Vector";
+                if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestLoftedPoly])
                 {
-                    MaplyComponentObject *compObj = [baseViewC addLoftedPolys:@[vecObj] key:nil cache:nil desc:
-                                                        @{kMaplyColor: [UIColor colorWithRed:0.25 green:0.0 blue:0.0 alpha:0.25], kMaplyLoftedPolyHeight: @(0.05),
-                                                          kMaplyFade: @(0.5),
-                                                          kMaplyDrawPriority: @(kMaplyLoftedPolysDrawPriorityDefault),
-//                                                          kMaplyLoftedPolyOutline: @(YES),
-//                                                          kMaplyLoftedPolyOutlineBottom: @(YES),
-//                                                          kMaplyLoftedPolyOutlineColor: [UIColor whiteColor],
-//                                                          kMaplyLoftedPolyOutlineWidth: @(4),
-//                                                          kMaplyLoftedPolyOutlineDrawPriority: @(kMaplyLoftedPolysDrawPriorityDefault+1),
-//                                                          kMaplyLoftedPolyOutlineSide: @(YES)
-                                                          }
-                                                                         mode:MaplyThreadAny];
-                    if (compObj)
+                    // See if there already is one
+                    if (!loftPolyDict[name])
                     {
-                        loftPolyDict[name] = compObj;
+                        MaplyComponentObject *compObj = [baseViewC addLoftedPolys:@[vecObj] key:nil cache:nil desc:
+                                                            @{kMaplyColor: [UIColor colorWithRed:0.25 green:0.0 blue:0.0 alpha:0.25], kMaplyLoftedPolyHeight: @(0.05),
+                                                              kMaplyFade: @(0.5),
+                                                              kMaplyDrawPriority: @(kMaplyLoftedPolysDrawPriorityDefault),
+    //                                                          kMaplyLoftedPolyOutline: @(YES),
+    //                                                          kMaplyLoftedPolyOutlineBottom: @(YES),
+    //                                                          kMaplyLoftedPolyOutlineColor: [UIColor whiteColor],
+    //                                                          kMaplyLoftedPolyOutlineWidth: @(4),
+    //                                                          kMaplyLoftedPolyOutlineDrawPriority: @(kMaplyLoftedPolysDrawPriorityDefault+1),
+    //                                                          kMaplyLoftedPolyOutlineSide: @(YES)
+                                                              }
+                                                                             mode:MaplyThreadAny];
+                        if (compObj)
+                        {
+                            loftPolyDict[name] = compObj;
+                        }
                     }
                 }
             }
+        } else if ([selectedObj isKindOfClass:[MaplyShapeSphere class]])
+        {
+            MaplyShapeSphere *sphere = (MaplyShapeSphere *)selectedObj;
+            loc = sphere.center;
+            title = @"Shape";
+            subTitle = @"Sphere";
+        } else if ([selectedObj isKindOfClass:[MaplyShapeCylinder class]])
+        {
+            MaplyShapeCylinder *cyl = (MaplyShapeCylinder *)selectedObj;
+            loc = cyl.baseCenter;
+            title = @"Shape";
+            subTitle = @"Cylinder";
+        } else if ([selectedObj isKindOfClass:[MaplyShapeGreatCircle class]])
+        {
+            MaplyShapeGreatCircle *gc = (MaplyShapeGreatCircle *)selectedObj;
+            loc = gc.startPt;
+            title = @"Shape";
+            subTitle = @"Great Circle";
+        } else if ([selectedObj isKindOfClass:[MaplyShapeExtruded class]])
+        {
+            MaplyShapeExtruded *ex = (MaplyShapeExtruded *)selectedObj;
+            loc = ex.center;
+            title = @"Shape";
+            subTitle = @"Extruded";
+        } else if ([selectedObj isKindOfClass:[MaplyGeomModelInstance class]]) {
+            MaplyGeomModelInstance *modelInst = (MaplyGeomModelInstance *)selectedObj;
+            loc = MaplyCoordinateMake(modelInst.center.x,modelInst.center.y);
+            title = @"Model";
+            subTitle = @"Instance";
+        } else
+        {
+            // Don't know what it is
+            return;
         }
-    } else if ([selectedObj isKindOfClass:[MaplyShapeSphere class]])
-    {
-        MaplyShapeSphere *sphere = (MaplyShapeSphere *)selectedObj;
-        loc = sphere.center;
-        title = @"Shape";
-        subTitle = @"Sphere";
-    } else if ([selectedObj isKindOfClass:[MaplyShapeCylinder class]])
-    {
-        MaplyShapeCylinder *cyl = (MaplyShapeCylinder *)selectedObj;
-        loc = cyl.baseCenter;
-        title = @"Shape";
-        subTitle = @"Cylinder";
-    } else if ([selectedObj isKindOfClass:[MaplyShapeGreatCircle class]])
-    {
-        MaplyShapeGreatCircle *gc = (MaplyShapeGreatCircle *)selectedObj;
-        loc = gc.startPt;
-        title = @"Shape";
-        subTitle = @"Great Circle";
-    } else if ([selectedObj isKindOfClass:[MaplyShapeExtruded class]])
-    {
-        MaplyShapeExtruded *ex = (MaplyShapeExtruded *)selectedObj;
-        loc = ex.center;
-        title = @"Shape";
-        subTitle = @"Extruded";
-    } else if ([selectedObj isKindOfClass:[MaplyGeomModelInstance class]]) {
-        MaplyGeomModelInstance *modelInst = (MaplyGeomModelInstance *)selectedObj;
-        loc = MaplyCoordinateMake(modelInst.center.x,modelInst.center.y);
-        title = @"Model";
-        subTitle = @"Instance";
-    } else
-    {
-        // Don't know what it is
-        return;
     }
     
     // Build the selection view and hand it over to the globe to track
@@ -2465,6 +2499,11 @@ static const int NumMegaMarkers = 15000;
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj
 {
     [self handleSelection:selectedObj];
+}
+
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC allSelect:(NSArray *)selectedObjs atLoc:(MaplyCoordinate)coord onScreen:(CGPoint)screenPt
+{
+    [self handleSelection:selectedObjs];
 }
 
 // User didn't select anything, but did tap

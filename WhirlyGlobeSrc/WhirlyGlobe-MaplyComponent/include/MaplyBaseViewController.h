@@ -52,6 +52,9 @@
 /// @brief Distance from the user's viewpoint to the center of the object in 3-space.  Use this for sorting.
 @property double zDist;
 
+/// @brief Set if this was part of a cluster
+@property bool cluster;
+
 @end
 
 /// Where we'd like an add to be executed.  If you need immediate feedback,
