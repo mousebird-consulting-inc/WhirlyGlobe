@@ -190,12 +190,13 @@ typedef struct
     }
 } LayoutEntrySorter;
 typedef std::set<LayoutObjectEntry *,LayoutEntrySorter> LayoutSortingSet;
-    
+
 // Return the screen space objects in a form the selection manager can understand
 void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs)
 {
     pthread_mutex_lock(&layoutLock);
     
+    // First the regular screen space objects
     for (LayoutEntrySet::iterator it = layoutObjects.begin();
          it != layoutObjects.end(); ++it)
     {
@@ -203,15 +204,28 @@ void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo 
         if (entry->currentEnable)
         {
             ScreenSpaceObjectLocation ssObj;
-            ssObj.shapeID = entry->obj.getId();
+            ssObj.shapeIDs.push_back(entry->obj.getId());
             ssObj.dispLoc = entry->obj.worldLoc;
             ssObj.offset = entry->offset;
             ssObj.pts = entry->obj.selectPts;
-            for (unsigned int ii=0;ii<entry->obj.selectPts.size();ii++)
-                ssObj.mbr.addPoint(entry->obj.selectPts[ii]);
-            
+            ssObj.mbr.addPoints(entry->obj.selectPts);
+
             screenSpaceObjs.push_back(ssObj);
         }
+    }
+    
+    // Then the clusters
+    for (auto &cluster : clusters)
+    {
+        ScreenSpaceObjectLocation ssObj;
+        ssObj.shapeIDs = cluster.objectIDs;
+        ssObj.dispLoc = cluster.layoutObj.worldLoc;
+        ssObj.offset = cluster.layoutObj.offset;
+        ssObj.pts = cluster.layoutObj.selectPts;
+        ssObj.mbr.addPoints(cluster.layoutObj.selectPts);
+        ssObj.isCluster = true;
+
+        screenSpaceObjs.push_back(ssObj);
     }
     
     pthread_mutex_unlock(&layoutLock);
@@ -311,7 +325,7 @@ Matrix2d LayoutManager::calcScreenRot(float &screenRot,WhirlyKitViewState *viewS
 }
     
 // Do the actual layout logic.  We'll modify the offset and on value in place.
-bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<LayoutObject> &newClusterObjects,std::vector<ClusterEntry> &clusterEntries)
+bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<ClusterEntry> &clusterEntries)
 {
     if (layoutObjects.empty())
         return false;
@@ -477,10 +491,8 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Lay
                 
                 if (!objsForCluster.empty())
                 {
-                    int clusterEntryID = newClusterObjects.size();
-                    newClusterObjects.resize(clusterEntryID+1);
+                    int clusterEntryID = clusterEntries.size();
                     clusterEntries.resize(clusterEntryID+1);
-                    LayoutObject &newClusterObj = newClusterObjects[clusterEntryID];
                     ClusterEntry &clusterEntry = clusterEntries[clusterEntryID];
 
                     // Project the cluster back into a geolocation so we can place it.
@@ -496,10 +508,11 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Lay
                     // Note: What happens if the display point isn't valid?
                     if (dispPtValid)
                     {
-                        newClusterObj.worldLoc = dispPt;
-                        clusterGen->makeLayoutObject(cluster->clusterID, objsForCluster, newClusterObj);
+                        clusterEntry.layoutObj.worldLoc = dispPt;
+                        for (auto thisObj : objsForCluster)
+                            clusterEntry.objectIDs.push_back(thisObj->obj.getId());
+                        clusterGen->makeLayoutObject(cluster->clusterID, objsForCluster, clusterEntry.layoutObj);
                     }
-                    clusterEntry.worldLoc = dispPt;
                     clusterEntry.motionShaderID = motionShaderID;
                     
                     for (auto obj : objsForCluster)
@@ -674,8 +687,7 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
     
     // This will recalculate the offsets and enables
     // If there were any changes, we need to regenerate
-    std::vector<LayoutObject> newClusterObjects;
-    bool layoutChanges = runLayoutRules(viewState,newClusterObjects,clusters);
+    bool layoutChanges = runLayoutRules(viewState,clusters);
     
     if (hasUpdates || layoutChanges)
     {
@@ -713,7 +725,7 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
                 // Animate from the old cluster position to the new real position
                 ScreenSpaceObject animObj = layoutObj->obj;
                 animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+AnimTime);
-                animObj.worldLoc = oldCluster.worldLoc;
+                animObj.worldLoc = oldCluster.layoutObj.worldLoc;
                 animObj.setEnableTime(curTime, curTime+AnimTime);
                 animObj.state.progID = oldCluster.motionShaderID;
                 for (auto &geom : animObj.geometry)
@@ -738,12 +750,12 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
         
         
         // Add in the clusters
-        for (auto &cluster : newClusterObjects)
+        for (auto &cluster : clusters)
         {
             // Note: Read from the cluster
 //            double FadeTime = 0.2;
 //            cluster.setFade(curTime+FadeTime, curTime);
-            ssBuild.addScreenObject(cluster);
+            ssBuild.addScreenObject(cluster.layoutObj);
         }
         
         ssBuild.flushChanges(changes, drawIDs);
