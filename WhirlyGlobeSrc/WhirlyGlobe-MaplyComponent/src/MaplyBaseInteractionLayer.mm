@@ -917,6 +917,9 @@ public:
     smGeom.texCoords.push_back(TexCoord(0,0));
     smGeom.color = RGBAColor(255,255,255,255);
     
+    retObj.layoutPts = smGeom.coords;
+    retObj.selectPts = smGeom.coords;
+    
     // Create the texture
     // Note: Keep this around
     MaplyTexture *maplyTex = [self addTexture:group.image desc:@{kMaplyTexFormat: @(MaplyImageIntRGBA),
