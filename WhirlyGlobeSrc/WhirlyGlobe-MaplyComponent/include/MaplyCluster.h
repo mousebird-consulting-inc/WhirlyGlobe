@@ -75,6 +75,12 @@
 /// @details This is the biggest cluster you're likely to create.  We use it to figure overlaps between clusters.
 - (CGSize) clusterLayoutSize;
 
+/// @brief Set this if you want cluster to be user selectable.  On by default.
+- (bool) selectable;
+
+/// @brief How long to animate markers the join and leave a cluster
+- (double) markerAnimationTime;
+
 /// @brief The shader to use for moving objects around
 /// @details If you're doing animation from point to cluster you need to provide a suitable shader.
 - (MaplyShader *__nullable) motionShader;
@@ -97,6 +103,12 @@
 /// @brief The size of the cluster that will be created.
 /// @details This is the biggest cluster you're likely to create.  We use it to figure overlaps between clusters.
 @property (nonatomic) CGSize clusterLayoutSize;
+
+/// @brief Set this if you want cluster to be user selectable.  On by default.
+@property (nonatomic) bool selectable;
+
+/// @brief How long to animate markers the join and leave a cluster
+@property (nonatomic) double markerAnimationTime;
 
 /// @brief The shader to use when moving objects around
 /// @details When warping objects to their new locations we use a motion shader.  Set this if you want to override the default.
