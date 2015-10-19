@@ -132,7 +132,7 @@ let NumMegaMarkerImages = 1000
 let NumMegaMarkers = 15000
 
 
-class TestViewController: UIViewController, UIPopoverControllerDelegate {
+class TestViewController: UIViewController, UIPopoverControllerDelegate, WhirlyGlobeViewControllerDelegate, MaplyViewControllerDelegate {
 
 	enum PerformanceMode {
 		case High
@@ -239,6 +239,9 @@ class TestViewController: UIViewController, UIPopoverControllerDelegate {
 		configViewC!.options = .All
 
 		createMap()
+
+		// Settings panel
+		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: "showConfig")
 	}
 
 
@@ -311,10 +314,6 @@ class TestViewController: UIViewController, UIPopoverControllerDelegate {
 
 		// Bring up things based on what's turned on
 		self.changeMapContents()
-
-		// Settings panel
-		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: "showConfig")
-
 	}
 
 	private func cleanUp() {
@@ -349,7 +348,7 @@ class TestViewController: UIViewController, UIPopoverControllerDelegate {
 	}
 
 	private func changeMapContents() {
-		let imageWaitLoad = configViewC!.valueForSection(kMaplyTestCategoryInternal, row: kMaplyTestWaitLoad)
+		imageWaitLoad = configViewC!.valueForSection(kMaplyTestCategoryInternal, row: kMaplyTestWaitLoad)
 
 		setupBaseLayer(configViewC!.values[0].rows)
 		if configViewC!.values.count > 1 {
@@ -537,7 +536,7 @@ class TestViewController: UIViewController, UIPopoverControllerDelegate {
 
 
 	// Add screen (2D) labels
-	private func addScreenLabels(#stride: Int, offset: Int) {
+	private func addScreenLabels(stride stride: Int, offset: Int) {
 		var labels = [MaplyScreenLabel]()
 
 		for var i = offset; i < locations.count; i += stride {
@@ -553,7 +552,7 @@ class TestViewController: UIViewController, UIPopoverControllerDelegate {
 	}
 
 	// Add 3D labels
-	private func addLabels(#stride: Int, offset: Int) {
+	private func addLabels(stride stride: Int, offset: Int) {
 		let size = CGSizeMake(0, 0.05)
 		var labels = [MaplyLabel]()
 
@@ -937,7 +936,7 @@ class TestViewController: UIViewController, UIPopoverControllerDelegate {
 		}, failure: {
 			(operation, error) -> Void in
 
-			println("Unable to fetch ArcGIS layer: \(error)")
+			print("Unable to fetch ArcGIS layer: \(error)\n")
 
 		})
 
@@ -1033,9 +1032,87 @@ class TestViewController: UIViewController, UIPopoverControllerDelegate {
 
 	// Add country outlines.  Pass in the names of the geoJSON files
 	private func addCountries(names: [String], stride: Int) {
+		let smileImage: UIImage?
+		let smileTex: MaplyTexture?
+
 		if CountryTextures {
-			let smileImage = UIImage(named: "Smiley_Face_Avatar_by_PixelTwist")
+			smileImage = UIImage(named: "Smiley_Face_Avatar_by_PixelTwist")
+
+			smileTex = baseViewC?.addTexture(smileImage!,
+				imageFormat: .ImageUShort5551,
+				wrapFlags: MaplyImageWrapX, mode: .Current)
 		}
+		else {
+			smileImage = nil
+			smileTex = nil
+		}
+
+		// Parsing the JSON can take a while, so let's hand that over to another queue
+		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+			var locVecObjects = [MaplyComponentObject]()
+			var locAutoLabels = [MaplyScreenLabel]()
+
+			for (i,name) in names.enumerate() {
+				if i % stride == 0 {
+					let fileName = NSBundle.mainBundle().pathForResource(name, ofType: "geojson")
+					if let fileName = fileName {
+						let jsonData = try! NSData(contentsOfFile: fileName, options: [])
+						let wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData)!
+						let vecName = wgVecObj.attributes?["ADMIN"] as? String
+						wgVecObj.userObject = vecName
+						var desc = [String:AnyObject]()
+						desc[kMaplyFilled] = true
+						desc[kMaplySelectable] = true
+
+						if CountryTextures {
+							desc[kMaplyVecTexture] = smileTex
+							desc[kMaplyVecTextureProjection] = kMaplyProjectionScreen
+							desc[kMaplyVecTexScaleX] = NSNumber(double: Double(1.0/smileImage!.size.width))
+							desc[kMaplyVecTexScaleY] = NSNumber(double: Double(1.0/smileImage!.size.height))
+						}
+
+						let compObj = self.baseViewC?.addVectors([wgVecObj], desc: desc)
+						let screenLabel = MaplyScreenLabel()
+						// Add a label right in the middle
+						let center = wgVecObj.centroid()
+						if center.x != kMaplyNullCoordinate.x {
+							screenLabel.loc = center
+							screenLabel.layoutImportance = 1.0
+							screenLabel.text = vecName
+							screenLabel.userObject = screenLabel.text
+							screenLabel.layoutPlacement = kMaplyLayoutRight | kMaplyLayoutAbove | kMaplyLayoutLeft | kMaplyLayoutBelow
+							screenLabel.selectable = true;
+							if screenLabel.text != nil {
+								locAutoLabels.append(screenLabel)
+							}
+						}
+
+						if let compObj = compObj {
+							locVecObjects.append(compObj)
+						}
+					}
+				}
+			}
+
+			// Keep track of the created objects
+			// Note: You could lose track of the objects if you turn the countries on/off quickly
+			dispatch_async(dispatch_get_main_queue()) {
+				// Toss in all the labels at once, more efficient
+				// Note: Debugging
+				// MaplyComponentObject *autoLabelObj = [baseViewC addScreenLabels:locAutoLabels desc:
+				//         @{kMaplyTextColor: [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1.0],
+				//           kMaplyFont: [UIFont systemFontOfSize:24.0],
+				//           kMaplyTextOutlineColor: [UIColor blackColor],
+				//           kMaplyTextOutlineSize: @(1.0),
+				////         kMaplyShadowSize: @(1.0)
+				//          } mode:MaplyThreadAny];
+
+				self.vecObjects = locVecObjects
+				// autoLabels = autoLabelObj;
+			}
+
+		}
+
 	}
 
 	// Make up a large number of markers and add them
@@ -1522,11 +1599,9 @@ class TestViewController: UIViewController, UIPopoverControllerDelegate {
 
 		// Fill out the cache dir if there is one
 		if let thisCacheDir = thisCacheDir {
-			var error: NSError?
-			NSFileManager.defaultManager().createDirectoryAtPath(thisCacheDir,
+			try! NSFileManager.defaultManager().createDirectoryAtPath(thisCacheDir,
 				withIntermediateDirectories: true,
-				attributes: nil,
-				error: &error)
+				attributes: nil)
 		}
 	}
 
@@ -1632,15 +1707,15 @@ class TestViewController: UIViewController, UIPopoverControllerDelegate {
 		let style = layer?.findStyle(styleName ?? "")
 
 		if layer == nil {
-			println("Couldn't find layer \(layerName) in WMS response.")
+			print("Couldn't find layer \(layerName) in WMS response.")
 			return false
 		}
 		else if coordSys == nil {
-			println("No coordinate system we recognize in WMS response.")
+			print("No coordinate system we recognize in WMS response.")
 			return false
 		}
 		else if styleName != nil && style == nil {
-			println("No style named \(styleName) in WMS response.")
+			print("No style named \(styleName) in WMS response.")
 			return false
 		}
 
