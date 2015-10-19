@@ -44,7 +44,7 @@ class PagingTestDelegate: NSObject, MaplyPagingDelegate {
 
 			var markers = [MaplyScreenMarker]()
 
-			for i in 0..<NumMarkers {
+			for _ in 0..<NumMarkers {
 				let marker = MaplyScreenMarker()
 				marker.layoutImportance = MAXFLOAT
 				marker.image = self.image

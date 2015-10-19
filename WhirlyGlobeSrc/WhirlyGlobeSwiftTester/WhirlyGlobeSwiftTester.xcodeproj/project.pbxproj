@@ -16,7 +16,6 @@
 		886FCCCD1BA74D1200494BB0 /* ConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886FCCCC1BA74D1200494BB0 /* ConfigViewController.swift */; };
 		88B247021BB342CC0071B5FC /* WeatherShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88B247011BB342CC0071B5FC /* WeatherShader.swift */; };
 		88E4B8C51B83B6AB0050D21B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E4B8C41B83B6AB0050D21B /* AppDelegate.swift */; };
-		88E4B8C71B83B6AB0050D21B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E4B8C61B83B6AB0050D21B /* ViewController.swift */; };
 		88E4B8CA1B83B6AB0050D21B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8C81B83B6AB0050D21B /* Main.storyboard */; };
 		88E4B8CC1B83B6AB0050D21B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CB1B83B6AB0050D21B /* Images.xcassets */; };
 		88E4B8CF1B83B6AB0050D21B /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */; };
@@ -439,7 +438,6 @@
 		88E4B8BF1B83B6AB0050D21B /* WhirlyGlobeSwiftTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhirlyGlobeSwiftTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		88E4B8C31B83B6AB0050D21B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		88E4B8C41B83B6AB0050D21B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		88E4B8C61B83B6AB0050D21B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		88E4B8C91B83B6AB0050D21B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		88E4B8CB1B83B6AB0050D21B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		88E4B8CE1B83B6AB0050D21B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
@@ -898,7 +896,6 @@
 		88E4B8C11B83B6AB0050D21B /* WhirlyGlobeSwiftTester */ = {
 			isa = PBXGroup;
 			children = (
-				88E4B8C61B83B6AB0050D21B /* ViewController.swift */,
 				88E4B8C81B83B6AB0050D21B /* Main.storyboard */,
 				88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */,
 				88E4B8C21B83B6AB0050D21B /* Supporting Files */,
@@ -1436,8 +1433,8 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0710;
-				LastUpgradeCheck = 0640;
-				ORGANIZATIONNAME = Liferay;
+				LastUpgradeCheck = 0710;
+				ORGANIZATIONNAME = mousebird;
 				TargetAttributes = {
 					88E4B8BE1B83B6AB0050D21B = {
 						CreatedOnToolsVersion = 6.4;
@@ -1886,7 +1883,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				88E4B8C71B83B6AB0050D21B /* ViewController.swift in Sources */,
 				8801BDC61BB5727D00AE9AA9 /* PagingTestDelegate.swift in Sources */,
 				88B247021BB342CC0071B5FC /* WeatherShader.swift in Sources */,
 				886FCCC31BA73C1D00494BB0 /* StartupViewController.swift in Sources */,
@@ -1940,6 +1936,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -2014,6 +2011,7 @@
 				);
 				INFOPLIST_FILE = WhirlyGlobeSwiftTester/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.mousebird.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = WhirlyGlobeSwiftTester;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/WhirlyGlobeSwiftTester/MaplyTesterBridge.h";
 			};
@@ -2033,6 +2031,7 @@
 				);
 				INFOPLIST_FILE = WhirlyGlobeSwiftTester/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.mousebird.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = WhirlyGlobeSwiftTester;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/WhirlyGlobeSwiftTester/MaplyTesterBridge.h";
 			};
