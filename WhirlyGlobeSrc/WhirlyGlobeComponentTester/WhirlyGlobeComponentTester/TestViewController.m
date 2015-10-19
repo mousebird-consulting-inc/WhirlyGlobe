@@ -371,7 +371,9 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 
 //    [self markerOverlapTest];
     
-    [self addMegaMarkers];
+//    [self addMegaMarkers];
+    
+    [self markerTest2];
   
     [baseViewC enable3dTouchSelection:self];
 }
@@ -401,6 +403,21 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     }
     
     [baseViewC addScreenMarkers:markers desc:@{kMaplyClusterGroup: @(0)} mode:MaplyThreadCurrent];
+}
+
+- (void)markerTest2
+{
+    MaplyScreenMarker *marker1 = [[MaplyScreenMarker alloc] init];
+    marker1.image = [UIImage imageNamed:@"map_pin"];
+    marker1.loc = MaplyCoordinateMakeWithDegrees(12.454041, 55.643532);
+    marker1.size = CGSizeMake(40, 40);
+    [baseViewC addScreenMarkers:@[marker1] desc:@{kMaplyClusterGroup: @(0)} mode:MaplyThreadAny];
+
+    MaplyScreenMarker *marker2 = [[MaplyScreenMarker alloc] init];
+    marker2.image = [UIImage imageNamed:@"map_pin"];
+    marker2.loc = MaplyCoordinateMakeWithDegrees(12.485252, 55.723499);
+    marker2.size = CGSizeMake(40, 40);
+    [baseViewC addScreenMarkers:@[marker2] desc:@{kMaplyClusterGroup: @(0)} mode:MaplyThreadAny];
 }
 
 - (void)labelMarkerTest:(NSNumber *)time
@@ -664,14 +681,14 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
             MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
             marker.image = pinImage;
             marker.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
-            marker.size = CGSizeMake(20,20);
+            marker.size = CGSizeMake(32,32);
             marker.userObject = [NSString stringWithFormat:@"%s",location->name];
             marker.layoutImportance = 2.0;
             [markers addObject:marker];
         }
     }
     
-    screenMarkersObj = [baseViewC addScreenMarkers:markers desc:@{kMaplyDrawPriority: @(100)}];
+    screenMarkersObj = [baseViewC addScreenMarkers:markers desc:@{kMaplyDrawPriority: @(100), kMaplyClusterGroup: @(0)}];
 }
 
 // Add 3D markers

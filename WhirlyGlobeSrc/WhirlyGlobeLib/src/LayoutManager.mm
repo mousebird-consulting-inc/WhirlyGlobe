@@ -389,6 +389,8 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
                             // Create a new cluster object
                             thisClusterObj = new ClusteredObjects(obj->obj.clusterGroup);
                             clusterObjs.insert(thisClusterObj);
+
+                            hadChanges = true;
                         } else
                             thisClusterObj = *cit;
                         
@@ -716,6 +718,10 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
     // This will recalculate the offsets and enables
     // If there were any changes, we need to regenerate
     bool layoutChanges = runLayoutRules(viewState,clusters,clusterParams);
+    
+    // Compare old and new clusters
+    if (!layoutChanges && clusters.size() != oldClusters.size())
+        layoutChanges = true;
     
     if (hasUpdates || layoutChanges)
     {
