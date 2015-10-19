@@ -184,7 +184,6 @@ void ClusterHelper::addObject(LayoutObjectEntry *objEntry,const std::vector<Poin
             testObj = clusterObj;
         }
         
-        // Note: This will result in testing the same thing multiple times
         if (ConvexPolyIntersect(testObj->pts,newObj.pts))
         {
             int clusterID;
