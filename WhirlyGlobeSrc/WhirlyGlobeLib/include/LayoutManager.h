@@ -149,6 +149,8 @@ public:
     LayoutObject layoutObj;
     // Object IDs for all the objects clustered together
     std::vector<SimpleIdentity> objectIDs;
+    // If set, the cluster is a child of this older one
+    int childOfCluster;
     // Pointer into cluster parameters
     int clusterParamID;
 };
