@@ -10,11 +10,16 @@ import UIKit
 
 class StartupViewController: UITableViewController, UIPopoverControllerDelegate {
 
-	private var log = [String]()
+	let tests = [
+		GeographyClassTestCase(),
+		StamenWatercolorRemote(),
+	]
+
+	@IBOutlet weak var testsTable: UITableView!
+
 	private var results = [String:MaplyTestResult]()
 
-	@IBOutlet weak var logTable: UITableView!
-	var testView: UIView?
+	private var testView: UIView?
 
 	private var configViewC: ConfigViewController?
 	private var popControl: UIPopoverController?
@@ -29,26 +34,44 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	}
 
 
-	override func tableView(tableView: UITableView,
+	override func tableView(
+		tableView: UITableView,
 		numberOfRowsInSection section: Int) -> Int {
 
-		return log.count
+		return tests.count
 	}
 
-	override func tableView(tableView: UITableView,
+	override func tableView(
+		tableView: UITableView,
 		cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 
-		let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath) 
+		let cell = tableView.dequeueReusableCellWithIdentifier("cell",
+			forIndexPath: indexPath)
 
-		cell.textLabel?.text = log[indexPath.row]
+		cell.textLabel?.text = tests[indexPath.row].name
+		cell.selectionStyle = .None
+
+		if tests[indexPath.row].running {
+			cell.accessoryType = .DisclosureIndicator
+		}
+		else {
+			cell.accessoryType = tests[indexPath.row].selected
+				? .Checkmark
+				: .None
+		}
 
 		return cell
 	}
 
-	override func tableView(tableView: UITableView,
-		didSelectRowAtIndexPath indexPath: NSIndexPath) {
+	override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
 
-		self.performSegueWithIdentifier("results", sender: self)
+		tests[indexPath.row].selected = !tests[indexPath.row].selected
+
+		let cell = tableView.cellForRowAtIndexPath(indexPath)
+
+		cell?.accessoryType = tests[indexPath.row].selected
+			? .Checkmark
+			: .None
 	}
 
 	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -73,12 +96,6 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 	private dynamic func runTests() {
 		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Stop, target: self, action: "stopTests")
-		showLog("Start run...")
-
-		let tests = [
-			GeographyClassTestCase(),
-			StamenWatercolorRemote(),
-		]
 
 		let testView = UIView(frame: self.view.bounds)
 		testView.hidden = true;
@@ -88,12 +105,10 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	}
 
 	private func startTests(tests: [MaplyTestCase], inView testView: UIView, passed: Int, failed: Int) {
-		if let head = tests.first {
+		if let head = tests.first where head.selected {
 			let tail = Array(tests.dropFirst())
 
 			head.resultBlock = { test in
-				self.showLog("\(test.name) \(test.result.passed ? "passed." : "failed!")")
-				print("\(test.result.actualImageFile)")
 				self.results[test.name] = test.result
 
 				self.startTests(tail,
@@ -102,9 +117,9 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 					failed: failed + (test.result.passed ? 0 : 1))
 			}
 
-			showLog("Testing \(head.name)...")
 			head.testView = testView;
 			head.start()
+			tableView.reloadData()
 		}
 		else {
 			self.finishTestsInView(testView, passed: passed, failed: failed)
@@ -113,11 +128,11 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 	private func finishTestsInView(testView: UIView, passed: Int, failed: Int) {
 		testView.removeFromSuperview()
-
-		showLog("Completed. \(passed) passed. \(failed) failed.")
-		showLog("See results")
+		tableView.reloadData()
 
 		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: "runTests")
+
+		self.performSegueWithIdentifier("results", sender: self)
 	}
 
 	private dynamic func stopTests() {
@@ -126,13 +141,26 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 	private dynamic func editDone() {
 		self.navigationController?.popToViewController(self, animated: true)
+
+		let select: Bool?
+
+		if configViewC!.valueForSection(.Actions, row: .SelectAll) {
+			select = true
+		}
+		else if configViewC!.valueForSection(.Actions, row: .SelectNone) {
+			select = false
+		}
+		else {
+			select = nil
+		}
+
+		if let select = select {
+			tests.forEach { $0.selected = select }
+			tableView.reloadData()
+
+			configViewC!.selectAll(.Actions, select: false)
+		}
+
 	}
-
-	private func showLog(value: String) {
-		log.append(value);
-
-		self.logTable.reloadData()
-	}
-
 
 }

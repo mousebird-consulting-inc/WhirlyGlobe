@@ -11,17 +11,31 @@ import UIKit
 // Section in the configuration panel
 class ConfigSection {
 
+	enum Section : String {
+		case Options = "Options"
+		case Actions = "Actions"
+	}
+
+	enum Row : String {
+		case RunGlobe = "Run on globe"
+		case RunMap = "Run on map"
+
+		case SelectAll = "Select all"
+		case SelectNone = "Select none"
+	}
+
+
 	// Section name (as dispalyed to user)
-	var sectionName: String
+	var section: Section
 
 	// Entries (name,boolean) within the section
-	var rows: [String:Bool]
+	var rows: [Row:Bool]
 
 	// If set, user can only select one of the options
 	var singleSelect: Bool
 
-	init(sectionName: String, rows: [String:Bool], singleSelect: Bool) {
-		self.sectionName = sectionName
+	init(section: Section, rows: [Row:Bool], singleSelect: Bool) {
+		self.section = section
 		self.rows = rows
 		self.singleSelect = singleSelect
 	}
@@ -47,30 +61,51 @@ class ConfigSection {
 // Configuration view lets the user decide what to turn on and off
 class ConfigViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
+	@IBOutlet weak var tableView: UITableView?
+
 	// Dictionary reflecting the current values from the table
 	var values = [ConfigSection]()
 
 	// Return the configuration value for a section/row
-	func valueForSection(section: String, row: String) -> Bool {
+	func valueForSection(section: ConfigSection.Section, row: ConfigSection.Row) -> Bool {
 		return values
-			.filter{ $0.sectionName == section }
+			.filter{ $0.section == section }
 			.first?
 			.rows[row] ?? false
+	}
+
+	func selectAll(section: ConfigSection.Section, select: Bool) {
+		values
+			.filter { $0.section == section }
+			.first?
+			.selectAll(select)
+
+		tableView?.reloadData()
 	}
 
 
 	func loadValues() {
 		values.removeAll(keepCapacity: true)
 
-		let baseLayersSection = ConfigSection(
-			sectionName: kMaplyTestCategoryFeatures,
+		let optionsSection = ConfigSection(
+			section: .Options,
 			rows: [
-				kMaplyTestGeographyClass: false,
+				.RunGlobe: true,
+				.RunMap: true,
 			],
 			singleSelect: false)
 
-		values.append(baseLayersSection)
+		let actionsSection = ConfigSection(
+			section: .Actions,
+			rows: [
+				.SelectAll: false,
+				.SelectNone: false,
+			],
+			singleSelect: true)
 
+
+		values.append(optionsSection)
+		values.append(actionsSection)
 	}
 
 	func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -82,7 +117,7 @@ class ConfigViewController: UIViewController, UITableViewDataSource, UITableView
 			return nil
 		}
 
-		return values[section].sectionName
+		return self.values[section].section.rawValue
 	}
 
 	func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -123,7 +158,7 @@ class ConfigViewController: UIViewController, UITableViewDataSource, UITableView
 		let items = Array(section.rows.keys)
 		let key = items[indexPath.row]
 		let cell = UITableViewCell(style: .Default, reuseIdentifier: "cell")
-		cell.textLabel?.text = key
+		cell.textLabel?.text = key.rawValue
 
 		return cell
 	}
@@ -158,69 +193,3 @@ class ConfigViewController: UIViewController, UITableViewDataSource, UITableView
 
 }
 
-
-public let kMaplyTestCategoryFeatures = "Features"
-
-public let kMaplyTestBlank = "Blank"
-public let kMaplyTestGeographyClass = "Geography Class - Local"
-public let kMaplyTestBlueMarble = "NASA Blue Marble - Local"
-public let kMaplyTestStamenWatercolor = "Stamen Watercolor - Remote"
-public let kMaplyTestOSM = "OpenStreetMap (Mapquest) - Remote"
-public let kMaplyTestMapBoxSat = "MapBox Satellite - Remote"
-public let kMaplyTestMapBoxTerrain = "MapBox Terrain - Remote"
-public let kMaplyTestMapBoxRegular = "MapBox Regular - Remote"
-public let kMaplyTestNightAndDay = "Night/Day Images - Remote"
-public let kMaplyTestQuadTest = "Quad Test Layer"
-public let kMaplyTestQuadTestAnimate = "Quad Test Layer - Animated"
-public let kMaplyTestQuadVectorTest = "Quad Vector Test Layer"
-public let kMaplyTestElevation = "Cesium Elevation Test Layer"
-
-
-// Overlay image layers
-public let kMaplyTestCategoryOverlayLayers = "Overlay layers"
-
-public let kMaplyTestUSGSOrtho = "USGS Ortho (WMS) - Remote"
-public let kMaplyTestOWM = "OpenWeatherMap - Remote"
-public let kMaplyTestForecastIO = "Forecast.IO Snapshot - Remote"
-public let kMaplyTestMapboxStreets = "MapBox Streets Vectors - Remote"
-public let kMaplyMapzenVectors = "Mapzen Vectors - Remote"
-
-// Objects we can display
-public let kMaplyTestCategoryObjects = "Maply Objects"
-
-public let kMaplyTestLabel2D = "Labels - 2D"
-public let kMaplyTestLabel3D = "Labels - 3D"
-public let kMaplyTestMarker2D = "Markers - 2D"
-public let kMaplyTestMarker3D = "Markers - 3D"
-public let kMaplyTestSticker = "Stickers"
-public let kMaplyTestShapeCylinder = "Shapes: Cylinders"
-public let kMaplyTestShapeSphere = "Shapes: Spheres"
-public let kMaplyTestShapeGreatCircle = "Shapes: Great Circles"
-public let kMaplyTestShapeArrows = "Shapes: Arrows"
-public let kMaplyTestModels = "Models"
-public let kMaplyTestCountry = "Countries"
-public let kMaplyTestLoftedPoly = "Lofted Polygons"
-public let kMaplyTestQuadMarkers = "Quad Paging Markers"
-public let kMaplyTestMegaMarkers = "Mega Markers"
-public let kMaplyTestLatLon = "Lon/Lat lines"
-public let kMaplyTestRoads = "SF Roads"
-public let kMaplyTestArcGIS = "ArcGIS Vectors"
-public let kMaplyTestStarsAndSun = "Stars and Sun"
-
-// Animation
-public let kMaplyTestCategoryAnimation = "Animation"
-
-public let kMaplyTestAnimateSphere = "Animated Sphere"
-
-// Gestures
-public let kMaplyTestCategoryGestures = "Gestures"
-
-public let kMaplyTestNorthUp = "Keep North Up"
-public let kMaplyTestPinch = "Pinch Gesture"
-public let kMaplyTestRotate = "Rotate Gesture"
-
-// Low level
-public let kMaplyTestCategoryInternal = "Internals"
-public let kMaplyTestCulling = "Culling Optimization"
-public let kMaplyTestPerf = "Performance Output"
-public let kMaplyTestWaitLoad = "Image waitLoad"
