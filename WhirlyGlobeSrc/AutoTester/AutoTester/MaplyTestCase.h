@@ -28,6 +28,9 @@ typedef void (^TestCaseResult)(MaplyTestCase *testCase);
 @property (nonatomic, copy) TestCaseResult resultBlock;
 @property (nonatomic) NSInteger captureDelay;
 
+@property (nonatomic) BOOL selected;
+@property (nonatomic) BOOL running;
+
 @property (nonatomic, strong) WhirlyGlobeViewController *globeViewController;
 @property (nonatomic, strong) MaplyViewController *mapViewController;
 
