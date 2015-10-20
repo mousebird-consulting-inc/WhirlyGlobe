@@ -10,7 +10,7 @@
         <scene sceneID="lDs-dQ-OUj">
             <objects>
                 <tableViewController title="Tests" id="5uJ-67-qOs" customClass="StartupViewController" customModule="AutoTester" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="BxL-Pd-kqi">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" showsSelectionImmediatelyOnTouchBegin="NO" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="BxL-Pd-kqi">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -33,7 +33,7 @@
                         <barButtonItem key="backBarButtonItem" title="Back" id="iN4-BK-zpN"/>
                     </navigationItem>
                     <connections>
-                        <outlet property="logTable" destination="BxL-Pd-kqi" id="6Uq-Qy-44F"/>
+                        <outlet property="testsTable" destination="BxL-Pd-kqi" id="NPX-de-fAe"/>
                         <segue destination="FMY-WW-czh" kind="show" identifier="results" id="2TY-ky-mpr"/>
                     </connections>
                 </tableViewController>
