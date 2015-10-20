@@ -77,7 +77,12 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
 		let destination = segue.destinationViewController as! ResultsViewController
 
-		destination.results = [MaplyTestResult](self.results.values)
+		let sortedKeys = self.results.keys.sort { $0 < $1 }
+
+		destination.titles = sortedKeys
+		destination.results = [MaplyTestResult]()
+		sortedKeys.forEach{ destination.results.append(self.results[$0]!) }
+
 	}
 
 	private dynamic func showConfig() {
@@ -97,37 +102,50 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	private dynamic func runTests() {
 		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Stop, target: self, action: "stopTests")
 
-		let testView = UIView(frame: self.view.bounds)
-		testView.hidden = true;
-		self.view.addSubview(testView)
+		self.testView = UIView(frame: self.view.bounds)
+		self.testView!.hidden = true;
+		self.view.addSubview(self.testView!)
 
-		startTests(tests, inView: testView, passed: 0, failed: 0)
+		startTests(tests)
 	}
 
-	private func startTests(tests: [MaplyTestCase], inView testView: UIView, passed: Int, failed: Int) {
+	private func startTests(tests: [MaplyTestCase]) {
 		if let head = tests.first where head.selected {
 			let tail = Array(tests.dropFirst())
 
-			head.resultBlock = { test in
-				self.results[test.name] = test.result
+			head.options = MaplyTestCaseOptions.None
 
-				self.startTests(tail,
-					inView: testView,
-					passed: passed + (test.result.passed ? 1 : 0),
-					failed: failed + (test.result.passed ? 0 : 1))
+			if configViewC!.valueForSection(.Options, row: .RunGlobe) {
+				head.options.insert(.Globe)
 			}
 
-			head.testView = testView;
+			if configViewC!.valueForSection(.Options, row: .RunMap) {
+				head.options.insert(.Map)
+			}
+
+			head.resultBlock = { test in
+				if let mapResult = test.mapResult {
+					self.results["\(test.name) - Map"] = mapResult
+				}
+
+				if let globeResult = test.globeResult {
+					self.results["\(test.name) - Globe"] = globeResult
+				}
+
+				self.startTests(tail)
+			}
+
+			head.testView = self.testView;
 			head.start()
 			tableView.reloadData()
 		}
 		else {
-			self.finishTestsInView(testView, passed: passed, failed: failed)
+			self.finishTests()
 		}
 	}
 
-	private func finishTestsInView(testView: UIView, passed: Int, failed: Int) {
-		testView.removeFromSuperview()
+	private func finishTests() {
+		self.testView?.removeFromSuperview()
 		tableView.reloadData()
 
 		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: "runTests")

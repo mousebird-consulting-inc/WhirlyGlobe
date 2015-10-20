@@ -2,7 +2,7 @@
 //  MaplyTestCase.m
 //  AutoTester
 //
-//  Created by jmWork on 13/10/15.
+//  Created by jmnavarro on 13/10/15.
 //  Copyright © 2015 mousebird consulting. All rights reserved.
 //
 
@@ -10,10 +10,6 @@
 #import "WhirlyGlobeComponent.h"
 #import "MaplyComponent.h"
 
-@interface MaplyTestCase()
-
-
-@end
 
 @implementation MaplyTestCase
 
@@ -29,78 +25,185 @@
 {
 	self.running = YES;
 
-	[self setUp];
-	[self runTestWithBlock: ^(BOOL passed) {
-		if (!passed || self.captureDelay == -1) {
-			_result = [[MaplyTestResult alloc] init];
-			_result.testName = self.name;
-			_result.actualImageFile = nil;
-			_result.baselineImageFile = [self baselineImageFile];
-			_result.passed = passed;
+	dispatch_group_t lock = dispatch_group_create();
 
-			[self finishTest];
+	if (self.options & MaplyTestCaseOptionGlobe) {
+		dispatch_group_enter(lock);
+
+		[self runGlobeTestWithLock:lock];
+	}
+
+	if (self.options & MaplyTestCaseOptionMap) {
+		dispatch_group_enter(lock);
+
+		[self runMapTestWithLock:lock];
+	}
+
+	dispatch_group_notify(lock,dispatch_get_main_queue(),^{
+		self.running = NO;
+
+		if (self.resultBlock) {
+			self.resultBlock(self);
+		}
+	});
+
+}
+
+- (void)runGlobeTestWithLock:(dispatch_group_t)lock
+{
+	// create and prepare the controller
+	self.globeViewController = [[WhirlyGlobeViewController alloc] init];
+	[self.testView addSubview:self.globeViewController.view];
+	self.globeViewController.view.frame = self.testView.bounds;
+	self.globeViewController.clearColor = [UIColor blackColor];
+	self.globeViewController.frameInterval = 2;
+
+	// setup test case specifics
+	if (![self setUpWithGlobe:self.globeViewController]) {
+		[self tearDownWithGlobe:self.globeViewController];
+
+		[self.globeViewController.view removeFromSuperview];
+		self.globeViewController = nil;
+
+		dispatch_group_leave(lock);
+
+		return;
+	}
+
+	[self runTestWithGlobe:self.globeViewController result: ^(BOOL passed) {
+		if (!passed || self.captureDelay == -1) {
+			[self finishGlobeTestWithActualImage:nil passed:passed];
+			dispatch_group_leave(lock);
 		}
 		else {
+			__weak MaplyTestCase *weak_self = self;
+
 			// TODO don't use main queue. The capture is blocking!
 			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, self.captureDelay * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
 
-				_result = [[MaplyTestResult alloc] init];
-				_result.testName = self.name;
-				_result.actualImageFile = [self captureScreen];
-				_result.baselineImageFile = [self baselineImageFile];
-				_result.passed = passed && (_result.actualImageFile != nil);
+				NSString *snapshot = [weak_self captureScreenFromVC:self.globeViewController];
 
-				[self finishTest];
+				[weak_self finishGlobeTestWithActualImage:snapshot
+												   passed:passed && (_globeResult.actualImageFile != nil)];
+				dispatch_group_leave(lock);
 			});
 		}
 	}];
 }
 
-- (void)finishTest
+- (void)runMapTestWithLock:(dispatch_group_t)lock
 {
+	// create and prepare the controller
+	self.mapViewController = [[MaplyViewController alloc] initWithMapType:MaplyMapTypeFlat];
+	[self.testView addSubview:self.mapViewController.view];
+	self.mapViewController.view.frame = self.testView.bounds;
+	self.mapViewController.clearColor = [UIColor blackColor];
+	self.mapViewController.frameInterval = 2;
+
+	// setup test case specifics
+	if (![self setUpWithMap:self.mapViewController]) {
+		[self tearDownWithMap:self.mapViewController];
+
+		[self.mapViewController.view removeFromSuperview];
+		self.mapViewController = nil;
+
+		dispatch_group_leave(lock);
+
+		return;
+	}
+
+	[self runTestWithMap:self.mapViewController result: ^(BOOL passed) {
+		if (!passed || self.captureDelay == -1) {
+			[self finishMapTestWithActualImage:nil passed:passed];
+			dispatch_group_leave(lock);
+		}
+		else {
+			__weak MaplyTestCase *weak_self = self;
+
+			// TODO don't use main queue. The capture is blocking!
+			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, self.captureDelay * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+
+				NSString *snapshot = [weak_self captureScreenFromVC:self.mapViewController];
+
+				[weak_self finishMapTestWithActualImage:snapshot
+												 passed:passed && (_mapResult.actualImageFile != nil)];
+				dispatch_group_leave(lock);
+			});
+		}
+	}];
+}
+
+
+- (void)finishGlobeTestWithActualImage:(NSString *)actualImage passed:(BOOL)passed
+{
+	_globeResult = [[MaplyTestResult alloc] initWithTestName:self.name
+													baseline:[self baselineGlobeImageFile]
+													  actual:actualImage
+													  passed:passed];
+
+	[self tearDownWithGlobe:self.globeViewController];
+
 	[self.globeViewController.view removeFromSuperview];
 	self.globeViewController = nil;
+}
+
+
+- (void)finishMapTestWithActualImage:(NSString *)actualImage passed:(BOOL)passed
+{
+	_mapResult = [[MaplyTestResult alloc] initWithTestName:self.name
+												  baseline:[self baselineMapImageFile]
+													actual:actualImage
+													passed:passed];
+
+	[self tearDownWithMap:self.mapViewController];
 
 	[self.mapViewController.view removeFromSuperview];
 	self.mapViewController = nil;
-
-	[self tearDown];
-
-	self.running = NO;
-
-	if (self.resultBlock) {
-		self.resultBlock(self);
-	}
 }
 
-- (void)setUp
+- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+{
+	return NO;
+}
+
+- (BOOL)setUpWithMap:(MaplyViewController *)mapVC
+{
+	return NO;
+}
+
+- (void)tearDownWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
 }
 
-- (void)tearDown
+- (void)tearDownWithMap:(MaplyViewController *)mapVC
 {
 }
 
-- (NSString *)baselineImageFile
+- (NSString *)baselineGlobeImageFile
 {
-	return [[NSBundle mainBundle] pathForResource:NSStringFromClass(self.class) ofType:@"png"];
+	NSString *name = [NSString stringWithFormat:@"%@-globe", NSStringFromClass(self.class)];
+	return [[NSBundle mainBundle] pathForResource:name ofType:@"png"];
 }
 
-- (void)runTestWithBlock:(void (^)(BOOL passed))block
+- (NSString *)baselineMapImageFile
+{
+	NSString *name = [NSString stringWithFormat:@"%@-map", NSStringFromClass(self.class)];
+	return [[NSBundle mainBundle] pathForResource:name ofType:@"png"];
+}
+
+- (void)runTestWithGlobe:(WhirlyGlobeViewController *)globeVC result:(void (^)(BOOL passed))block
 {
 	block(YES);
 }
 
-- (NSString *)captureScreen
+- (void)runTestWithMap:(MaplyViewController *)globeVC result:(void (^)(BOOL passed))block
 {
-	UIImage *screenshot;
+	block(YES);
+}
 
-	if (self.globeViewController) {
-		screenshot = self.globeViewController.snapshot;
-	}
-	else {
-		screenshot = self.mapViewController.snapshot;
-	}
+- (NSString *)captureScreenFromVC:(MaplyBaseViewController *)vc
+{
+	UIImage *screenshot = vc.snapshot;
 
 	if (screenshot) {
 		NSString *dir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)  objectAtIndex:0];

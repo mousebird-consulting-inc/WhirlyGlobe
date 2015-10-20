@@ -10,4 +10,19 @@
 
 @implementation MaplyTestResult
 
+- (instancetype)initWithTestName:(NSString *)testName
+						baseline:(NSString *)baseline
+						  actual:(NSString *)actual
+						  passed:(BOOL)passed
+{
+	if (self = [super init]) {
+		_testName = testName;
+		_baselineImageFile = baseline;
+		_actualImageFile = actual;
+		_passed = passed;
+	}
+	return self;
+}
+
+
 @end

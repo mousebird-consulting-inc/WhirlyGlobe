@@ -17,15 +17,7 @@ class StamenWatercolorRemote: MaplyTestCase {
 		self.captureDelay = 2
 	}
 
-	override func setUp() {
-		self.globeViewController = WhirlyGlobeViewController()
-		self.testView.addSubview(self.globeViewController.view)
-		self.globeViewController.view.frame = self.testView.bounds
-
-		self.globeViewController.clearColor = UIColor.blackColor()
-
-		self.globeViewController.frameInterval = 2
-
+	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
 		let cacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
 
 		let thisCacheDir = "\(cacheDir)/stamentiles/"
@@ -41,10 +33,11 @@ class StamenWatercolorRemote: MaplyTestCase {
 //		layer!.waitLoad = imageWaitLoad
 		layer!.singleLevelLoading = false
 
-		self.globeViewController.heading = 0.0
+		globeVC.heading = 0.0
+		globeVC.addLayer(layer!)
+		globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
 
-		self.globeViewController.addLayer(layer!)
-		self.globeViewController.animateToPosition(MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
+		return true
 	}
 
 }
