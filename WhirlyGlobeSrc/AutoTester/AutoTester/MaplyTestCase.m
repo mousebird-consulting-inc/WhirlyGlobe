@@ -17,8 +17,18 @@
 
 @implementation MaplyTestCase
 
+- (instancetype)init
+{
+	if (self = [super init]) {
+		self.selected = YES;
+	}
+	return self;
+}
+
 - (void)start
 {
+	self.running = YES;
+
 	[self setUp];
 	[self runTestWithBlock: ^(BOOL passed) {
 		if (!passed || self.captureDelay == -1) {
@@ -55,6 +65,8 @@
 	self.mapViewController = nil;
 
 	[self tearDown];
+
+	self.running = NO;
 
 	if (self.resultBlock) {
 		self.resultBlock(self);
