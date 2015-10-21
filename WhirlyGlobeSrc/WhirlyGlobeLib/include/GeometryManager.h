@@ -138,6 +138,18 @@ public:
     // True if this is selectable
     bool selectable;
 };
+    
+/// An optimized version of raw geometry for points only
+class GeometryRawPoints
+{
+public:
+    GeometryRawPoints();
+    GeometryRawPoints(const GeometryRawPoints &that);
+    
+public:
+    
+};
+
 
 #define kWKGeometryManager "WKGeometryManager"
     
