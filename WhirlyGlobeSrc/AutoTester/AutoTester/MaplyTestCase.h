@@ -28,14 +28,14 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseOptions) {
 
 // these prototypes are necessary for Swift
 - (BOOL)setUpWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC;
-- (BOOL)setUpWithMap:(MaplyViewController * _Nonnull)mapVC;
 - (void)tearDownWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC;
+
+- (BOOL)setUpWithMap:(MaplyViewController * _Nonnull)mapVC;
 - (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC;
 
 @property (nonatomic, strong) UIView * _Nullable testView;
 @property (nonatomic, strong) NSString * _Nonnull name;
-@property (nonatomic, copy) TestCaseResult _Nullable
-resultBlock;
+@property (nonatomic, copy) TestCaseResult _Nullable resultBlock;
 @property (nonatomic) NSInteger captureDelay;
 
 @property (nonatomic) MaplyTestCaseOptions options;

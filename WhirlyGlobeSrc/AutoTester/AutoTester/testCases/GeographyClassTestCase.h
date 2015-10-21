@@ -2,7 +2,7 @@
 //  GeographyClassTestCase.h
 //  AutoTester
 //
-//  Created by jmWork on 13/10/15.
+//  Created by jmnavarro on 13/10/15.
 //  Copyright © 2015 mousebird consulting. All rights reserved.
 //
 
