@@ -34,6 +34,7 @@
 #import "MaplyTexture.h"
 #import "MaplyAnnotation.h"
 #import "MaplyParticleSystem.h"
+#import "MaplyPoints.h"
 #import "MaplyCluster.h"
 #import "Maply3DTouchPreviewDatasource.h"
 
@@ -596,6 +597,33 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
   */
 - (MaplyComponentObject *__nullable)addLoftedPolys:(NSArray *__nonnull)polys key:(NSString *__nullable)key cache:(MaplyVectorDatabase *__nullable)cacheDb desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
+
+/** @brief Add a group of points to the display.
+    @details Adds a group of points all at once.  We're assuming you want to draw a lot of points, so you have to group them together into a MaplyPoints.
+
+    @param points The points to add to the scene.
+    @param desc The desciption dictionary which controls how the lofted polys will look.  It takes the following entries.
+    @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyColor|UIColor|Color we'll use for the lofted polygons.  A bit of alpha looks good.|
+ |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The lofted polys will only be visible if the user is above this height.  Off by default.|
+ |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The lofted polys will only be visible if the user is below this height.  Off by default.|
+ |kMaplyMinViewerDist|NSNumber|Minimum distance from the viewer at which to display object(s).|
+ |kMaplyMaxViewerDist|NSNumber|Maximum distance from the viewer at which to display object(s).|
+ |kMaplyViewableCenterX|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center X coordinate.|
+ |kMaplyViewableCenterY|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Y coordinate.|
+ |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
+ |kMaplyFade|NSNumber|The number of seconds to fade a lofted poly in when it appears and out when it disappears.|
+ |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyLoftedPolysShapePriorityDefault.|
+ |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's on by default, meaning that it can be occluded by geometry coming before it.|
+ |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
+ |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ 
+ @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
+  */
+//- (MaplyComponentObject *__nullable)addPoints:(MaplyPoints * __nonnull)points desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /// @brief Add a view tracker to move a UIView around based on a geographic location.
 - (void)addViewTracker:(MaplyViewTracker *__nonnull)viewTrack;
