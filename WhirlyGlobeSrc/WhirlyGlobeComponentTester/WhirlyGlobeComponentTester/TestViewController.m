@@ -25,6 +25,7 @@
 #import "WeatherShader.h"
 #import "MaplyRemoteTileElevationSource.h"
 #import "PagingTestDelegate.h"
+#import "ParticleTest.h"
 #ifdef NOTPODSPECWG
 #import "MapzenSource.h"
 #endif
@@ -373,7 +374,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     
 //    [self addMegaMarkers];
     
-    [self markerTest2];
+//    [self markerTest2];
   
     [baseViewC enable3dTouchSelection:self];
 }
@@ -1970,8 +1971,17 @@ static const int NumMegaMarkers = 15000;
                 } else
                     NSLog(@"Failed to load style sheet for Mapzen.");
 #endif
+            } else if (![layerName compare:kMaplyWindTest])
+            {
+                ParticleTileDelegate *partDelegate = [[ParticleTileDelegate alloc] initWithURL:@"http://tilesets.s3-website-us-east-1.amazonaws.com/wind_test/{dir}_tiles/{z}/{x}/{y}" minZoom:2 maxZoom:5 viewC:baseViewC];
+                MaplyQuadPagingLayer *layer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:partDelegate.coordSys delegate:partDelegate];
+                layer.flipY = false;
+
+                [baseViewC addLayer:layer];
+                ovlLayers[layerName] = layer;
             }
-        } else if (!isOn && layer)
+        }
+        else if (!isOn && layer)
         {
             // Get rid of the layer
             [baseViewC removeLayer:layer];
