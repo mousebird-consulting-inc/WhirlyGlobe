@@ -45,6 +45,7 @@
 #define kMaplyTestForecastIO @"Forecast.IO Snapshot - Remote"
 #define kMaplyTestMapboxStreets @"MapBox Streets Vectors - Remote"
 #define kMaplyMapzenVectors @"Mapzen Vectors - Remote"
+#define kMaplyWindTest @"Wind Particles - Remote"
 
 // Objects we can display
 #define kMaplyTestCategoryObjects @"Maply Objects"
