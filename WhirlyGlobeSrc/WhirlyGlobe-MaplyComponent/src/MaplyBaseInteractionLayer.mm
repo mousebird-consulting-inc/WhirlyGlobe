@@ -38,6 +38,7 @@
 #import "MaplyVertexAttribute_private.h"
 #import "MaplyParticleSystem_private.h"
 #import "MaplyShape_private.h"
+#import "MaplyPoints_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -2898,6 +2899,52 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             [self performSelector:@selector(addParticleSystemBatchRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
             break;
     }
+}
+
+- (void)addPointsRun:(NSArray *)argArray
+{
+    MaplyPoints *points = argArray[0];
+    NSDictionary *desc = argArray[1];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
+    
+    // May need a temporary context
+    EAGLContext *tmpContext = [self setupTempContext:threadMode];
+
+    GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
+    
+    ChangeSet changes;
+    if (geomManager)
+    {
+        // Note: Move GeometryRaw into the points object
+//        std::vector<GeometryRaw> geoms(1);
+//        std::vector<GeometryInstance> insts(1);
+//        [points convertToGeom:geoms[0]];
+        
+//        geomManager->addGeometry(geoms,insts,desc,changes);
+    }
+    
+    [self flushChanges:changes mode:threadMode];
+    
+    [self clearTempContext:tmpContext];
+}
+
+- (MaplyComponentObject *)addPoints:(MaplyPoints *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
+    compObj.underConstruction = true;
+    
+    NSArray *argArray = @[points, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addPointsRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addPointsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
+    
+    return compObj;
 }
 
 // Remove the object, but do it on the layer thread

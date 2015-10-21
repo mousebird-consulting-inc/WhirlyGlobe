@@ -810,6 +810,17 @@ static const float PerfOutputDelay = 15.0;
     return [self addLoftedPolys:polys key:key cache:cacheDb desc:desc mode:MaplyThreadAny];
 }
 
+- (MaplyComponentObject *)addPoints:(MaplyPoints *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    if (![interactLayer startOfWork])
+        return nil;
+
+    MaplyComponentObject *compObj = [self addPoints:points desc:desc mode:threadMode];
+    [interactLayer endOfWork];
+    
+    return compObj;
+}
+
 /// Add a view to track to a particular location
 - (void)addViewTracker:(WGViewTracker *)viewTrack
 {
