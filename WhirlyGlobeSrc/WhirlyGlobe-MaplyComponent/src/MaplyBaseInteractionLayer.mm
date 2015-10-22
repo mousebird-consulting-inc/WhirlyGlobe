@@ -2905,8 +2905,14 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 {
     NSArray *pointsArray = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
-    NSDictionary *desc = argArray[2];
+    NSMutableDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+
+    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyParticleSystemDrawPriorityDefault) toDict:inDesc];
+    [self applyDefaultName:kMaplyPointSize value:@(kMaplyPointSizeDefault) toDict:inDesc];
+    
+    // Might be a custom shader on these
+    [self resolveShader:inDesc defaultShader:kMaplyShaderParticleSystemPointDefault];
 
     compObj.isSelectable = false;
 
@@ -2925,7 +2931,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             {
                 mat = points.transform.mat;
             }
-            SimpleIdentity geomID = geomManager->addGeometryPoints(points->points, mat, desc, changes);
+            SimpleIdentity geomID = geomManager->addGeometryPoints(points->points, mat, inDesc, changes);
             if (geomID != EmptyIdentity)
                 compObj.geomIDs.insert(geomID);
         }
