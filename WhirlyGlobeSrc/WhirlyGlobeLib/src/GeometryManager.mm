@@ -34,7 +34,9 @@ typedef enum {GeometryBBoxSingle,GeometryBBoxTriangle,GeometryBBoxNone} Geometry
 @interface WhirlyKitGeomInfo : WhirlyKitBaseInfo
 @property (nonatomic) UIColor *color;
 @property (nonatomic,assign) int boundingBox;
-
+@property (nonatomic) float pointSize;
+@property (nonatomic) bool zBufferRead;
+@property (nonatomic) bool zBufferWrite;
 - (id)initWithDesc:(NSDictionary *)desc;
 @end
 
@@ -55,6 +57,9 @@ typedef enum {GeometryBBoxSingle,GeometryBBoxTriangle,GeometryBBoxNone} Geometry
 {
     _color = [dict objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
     _boundingBox = [dict enumForKey:@"boundingbox" values:@[@"single",@"triangle",@"none"] default:GeometryBBoxSingle];
+    _pointSize = [dict floatForKey:@"pointSize" default:4.0];
+    _zBufferRead = [dict floatForKey:@"zbufferread" default:true];
+    _zBufferWrite = [dict floatForKey:@"zbufferwrite" default:true];
 }
 
 @end
@@ -284,6 +289,11 @@ void GeometryRawPoints::addPoint(int idx,const Point3d &pt)
     GeomPointAttrDataPoint3d *d3Attrs = dynamic_cast<GeomPointAttrDataPoint3d *> (attrs);
     if (d3Attrs)
         d3Attrs->vals.push_back(pt);
+    else {
+        GeomPointAttrDataPoint3f *f3Attrs = dynamic_cast<GeomPointAttrDataPoint3f *>(attrs);
+        if (f3Attrs)
+            f3Attrs->vals.push_back(Point3f(pt.x(),pt.y(),pt.z()));
+    }
 }
     
 void GeometryRawPoints::addPoint(int idx,const Eigen::Vector4f &pt)
@@ -423,9 +433,10 @@ void GeometryRawPoints::buildDrawables(std::vector<BasicDrawable *> &draws,const
         if (!draw || draw->getNumPoints() + 3 > MaxDrawablePoints)
         {
             draw = new BasicDrawable("Raw Geometry");
-            if (geomInfo)
+            if (geomInfo) {
                 [geomInfo setupBasicDrawable:draw];
-            draw->setType(GL_TRIANGLES);
+            }
+            draw->setType(GL_POINTS);
             draws.push_back(draw);
             
             // Add the various attributes
@@ -830,8 +841,8 @@ SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomP
         draw->setColor([geomInfo.color asRGBAColor]);
         draw->setVisibleRange(geomInfo.minVis, geomInfo.maxVis);
         draw->setDrawPriority(geomInfo.drawPriority);
-        draw->setRequestZBuffer(true);
-        draw->setWriteZBuffer(true);
+        draw->setRequestZBuffer(geomInfo.zBufferRead);
+        draw->setRequestZBuffer(geomInfo.zBufferWrite);
 //        Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
 //        Matrix4d transMat = trans.matrix();
 //        draw->setMatrix(&transMat);
