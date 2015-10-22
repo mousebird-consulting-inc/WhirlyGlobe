@@ -129,7 +129,7 @@
 - (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode;
 
 // Add a group of points
-- (MaplyComponentObject *)addPoints:(MaplyPoints *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *)addPoints:(NSArray *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Remove objects associated with the user objects
 - (void)removeObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode;

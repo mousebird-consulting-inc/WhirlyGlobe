@@ -34,13 +34,6 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (void)dealloc
-{
-    for (PointAttrData *attrs : attrData)
-        delete attrs;
-    attrData.clear();
-}
-
 - (void)addGeoCoordLon:(float)x lat:(float)y z:(float)z
 {
     coordsAreGeo = true;
@@ -83,123 +76,60 @@ using namespace WhirlyKit;
 {
     std::string name = [attrName cStringUsingEncoding:NSASCIIStringEncoding];
     
-    // Make sure we don't already have it
-    for (PointAttrData *data : attrData)
-        if (name == data->name)
-            return -1;
-    
-    int idx = -1;
+    GeomRawDataType dataType = GeomRawTypeMax;
     switch (type)
     {
         case MaplyShaderAttrTypeInt:
-        {
-            PointAttrDataInt *attrs = new PointAttrDataInt();
-            attrs->name = name;
-            idx = attrData.size();
-            attrData.push_back(attrs);
-        }
+            dataType = GeomRawIntType;
             break;
         case MaplyShaderAttrTypeFloat:
-        {
-            PointAttrDataFloat *attrs = new PointAttrDataFloat();
-            attrs->name = name;
-            idx = attrData.size();
-            attrData.push_back(attrs);
-        }
+            dataType = GeomRawFloatType;
             break;
         case MaplyShaderAttrTypeFloat2:
-        {
-            PointAttrDataPoint2f *attrs = new PointAttrDataPoint2f();
-            attrs->name = name;
-            idx = attrData.size();
-            attrData.push_back(attrs);
-        }
+            dataType = GeomRawFloat2Type;
             break;
         case MaplyShaderAttrTypeFloat3:
-        {
-            PointAttrDataPoint3f *attrs = new PointAttrDataPoint3f();
-            attrs->name = name;
-            idx = attrData.size();
-            attrData.push_back(attrs);
-        }
+            dataType = GeomRawFloat3Type;
             break;
         case MaplyShaderAttrTypeFloat4:
-        {
-            PointAttrDataPoint4f *attrs = new PointAttrDataPoint4f();
-            attrs->name = name;
-            idx = attrData.size();
-            attrData.push_back(attrs);
-        }
+            dataType = GeomRawFloat4Type;
             break;
     }
     
-    return idx;
+    if (dataType == GeomRawTypeMax)
+        return -1;
+    
+    return points.addAttribute(name, dataType);
 }
 
 - (void)addAttribute:(int)whichAttr iVal:(int)val
 {
-    if (whichAttr >= attrData.size())
-        return;
-    
-    PointAttrData *attrs = attrData[whichAttr];
-    PointAttrDataInt *intAttrs = dynamic_cast<PointAttrDataInt *> (attrs);
-    if (intAttrs)
-        intAttrs->vals.push_back(val);
+    points.addValue(whichAttr,val);
 }
 
 - (void)addAttribute:(int)whichAttr fVal:(float)val
 {
-    if (whichAttr >= attrData.size())
-        return;
-    
-    PointAttrData *attrs = attrData[whichAttr];
-    PointAttrDataFloat *fAttrs = dynamic_cast<PointAttrDataFloat *> (attrs);
-    if (fAttrs)
-        fAttrs->vals.push_back(val);
+    points.addValue(whichAttr,val);
 }
 
 - (void)addAttribute:(int)whichAttr fValX:(float)valX fValY:(float)valY
 {
-    if (whichAttr >= attrData.size())
-        return;
-    
-    PointAttrData *attrs = attrData[whichAttr];
-    PointAttrDataPoint2f *f2Attrs = dynamic_cast<PointAttrDataPoint2f *> (attrs);
-    if (f2Attrs)
-        f2Attrs->vals.push_back(Point2f(valX,valY));
+    points.addPoint(whichAttr,Point2f(valX,valY));
 }
 
 - (void)addAttribute:(int)whichAttr fValX:(float)valX fValY:(float)valY fValZ:(float)valZ
 {
-    if (whichAttr >= attrData.size())
-        return;
-    
-    PointAttrData *attrs = attrData[whichAttr];
-    PointAttrDataPoint3f *f3Attrs = dynamic_cast<PointAttrDataPoint3f *> (attrs);
-    if (f3Attrs)
-        f3Attrs->vals.push_back(Point3f(valX,valY,valZ));
+    points.addPoint(whichAttr,Point3f(valX,valY,valZ));
 }
 
 - (void)addAttribute:(int)whichAttr valX:(double)valX valY:(double)valY valZ:(double)valZ
 {
-    if (whichAttr >= attrData.size())
-        return;
-    
-    PointAttrData *attrs = attrData[whichAttr];
-    PointAttrDataPoint3d *d3Attrs = dynamic_cast<PointAttrDataPoint3d *> (attrs);
-    if (d3Attrs)
-        d3Attrs->vals.push_back(Point3d(valX,valY,valZ));
+    points.addPoint(whichAttr,Point3d(valX,valY,valZ));
 }
 
 - (void)addAttribute:(int)whichAttr fValX:(float)valX fValY:(float)valY fValZ:(float)valZ fValW:(float)valW
 {
-    if (whichAttr >= attrData.size())
-        return;
-    
-    PointAttrData *attrs = attrData[whichAttr];
-    PointAttrDataPoint4f *f4Attrs = dynamic_cast<PointAttrDataPoint4f *> (attrs);
-    if (f4Attrs)
-        f4Attrs->vals.push_back(Eigen::Vector4f(valX,valY,valZ,valW));
+    points.addPoint(whichAttr,Eigen::Vector4f(valX,valY,valZ,valW));
 }
 
 @end
