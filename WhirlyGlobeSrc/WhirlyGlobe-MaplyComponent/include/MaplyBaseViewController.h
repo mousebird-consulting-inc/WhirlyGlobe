@@ -623,7 +623,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
   */
-//- (MaplyComponentObject *__nullable)addPoints:(MaplyPoints * __nonnull)points desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addPoints:(NSArray * __nonnull)points desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /// @brief Add a view tracker to move a UIView around based on a geographic location.
 - (void)addViewTracker:(MaplyViewTracker *__nonnull)viewTrack;

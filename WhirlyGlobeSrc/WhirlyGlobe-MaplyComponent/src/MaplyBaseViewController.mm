@@ -810,7 +810,7 @@ static const float PerfOutputDelay = 15.0;
     return [self addLoftedPolys:polys key:key cache:cacheDb desc:desc mode:MaplyThreadAny];
 }
 
-- (MaplyComponentObject *)addPoints:(MaplyPoints *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+- (MaplyComponentObject *)addPoints:(NSArray *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     if (![interactLayer startOfWork])
         return nil;

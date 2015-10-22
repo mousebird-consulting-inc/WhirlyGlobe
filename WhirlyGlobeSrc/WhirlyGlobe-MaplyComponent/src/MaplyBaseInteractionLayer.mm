@@ -2903,10 +2903,13 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (void)addPointsRun:(NSArray *)argArray
 {
-    MaplyPoints *points = argArray[0];
-    NSDictionary *desc = argArray[1];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
-    
+    NSArray *pointsArray = argArray[0];
+    MaplyComponentObject *compObj = argArray[1];
+    NSDictionary *desc = argArray[2];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+
+    compObj.isSelectable = false;
+
     // May need a temporary context
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
 
@@ -2915,20 +2918,31 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     ChangeSet changes;
     if (geomManager)
     {
-        // Note: Move GeometryRaw into the points object
-//        std::vector<GeometryRaw> geoms(1);
-//        std::vector<GeometryInstance> insts(1);
-//        [points convertToGeom:geoms[0]];
-        
-//        geomManager->addGeometry(geoms,insts,desc,changes);
+        for (MaplyPoints *points : pointsArray)
+        {
+            Matrix4d mat = Matrix4d::Identity();
+            if (points.transform)
+            {
+                mat = points.transform.mat;
+            }
+            SimpleIdentity geomID = geomManager->addGeometryPoints(points->points, mat, desc, changes);
+            if (geomID != EmptyIdentity)
+                compObj.geomIDs.insert(geomID);
+        }
     }
     
     [self flushChanges:changes mode:threadMode];
     
+    @synchronized(userObjects)
+    {
+        [userObjects addObject:compObj];
+        compObj.underConstruction = false;
+    }
+    
     [self clearTempContext:tmpContext];
 }
 
-- (MaplyComponentObject *)addPoints:(MaplyPoints *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+- (MaplyComponentObject *)addPoints:(NSArray *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
