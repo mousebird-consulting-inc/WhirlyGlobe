@@ -38,6 +38,7 @@
 #import "MaplyVertexAttribute_private.h"
 #import "MaplyParticleSystem_private.h"
 #import "MaplyShape_private.h"
+#import "MaplyPoints_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -160,8 +161,9 @@ typedef std::map<int,NSObject <MaplyClusterGenerator> *> ClusterGenMap;
 
 @interface MaplyBaseInteractionLayer()
 - (void) startLayoutObjects;
-- (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObject *> &)layoutObjects retObj:(LayoutObject &)retObj;
+- (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObjectEntry *> &)layoutObjects retObj:(LayoutObject &)retObj;
 - (void) endLayoutObjects;
+- (void) clusterID:(SimpleIdentity)clusterID params:(ClusterGenerator::ClusterClassParams &)params;
 @end
 
 // Interface between the layout manager and the cluster generators
@@ -177,7 +179,7 @@ public:
     }
 
     // Figure out
-    void makeLayoutObject(int clusterID,const std::vector<LayoutObject *> &layoutObjects,LayoutObject &retObj)
+    void makeLayoutObject(int clusterID,const std::vector<LayoutObjectEntry *> &layoutObjects,LayoutObject &retObj)
     {
         [layer makeLayoutObject:clusterID layoutObjects:layoutObjects retObj:retObj];
     }
@@ -186,6 +188,11 @@ public:
     virtual void endLayoutObjects()
     {
         [layer endLayoutObjects];
+    }
+    
+    void paramsForClusterClass(int clusterID,ClusterClassParams &clusterParams)
+    {
+        return [layer clusterID:clusterID params:clusterParams];
     }
 };
 
@@ -861,12 +868,14 @@ public:
     oldClusterTex = currentClusterTex;
     currentClusterTex.clear();
     
-    for (ClusterGenMap::iterator it = clusterGens.begin();
-         it != clusterGens.end(); ++it)
-        [it->second startClusterGroup];
+    @synchronized(self) {
+        for (ClusterGenMap::iterator it = clusterGens.begin();
+             it != clusterGens.end(); ++it)
+            [it->second startClusterGroup];
+    }
 }
 
-- (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObject *> &)layoutObjects retObj:(LayoutObject &)retObj
+- (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObjectEntry *> &)layoutObjects retObj:(LayoutObject &)retObj
 {
     // Find the right cluster generator
     NSObject <MaplyClusterGenerator> *clusterGen = nil;
@@ -883,10 +892,10 @@ public:
     LayoutObject *sampleObj = NULL;
     for (auto obj : layoutObjects)
     {
-        if (obj->getDrawPriority() > drawPriority)
+        if (obj->obj.getDrawPriority() > drawPriority)
         {
-            drawPriority = obj->getDrawPriority();
-            sampleObj = obj;
+            drawPriority = obj->obj.getDrawPriority();
+            sampleObj = &obj->obj;
         }
     }
     SimpleIdentity progID = sampleObj->getTypicalProgramID();
@@ -908,6 +917,9 @@ public:
     smGeom.coords.push_back(Point2d(-group.size.width/2.0,group.size.height/2.0));
     smGeom.texCoords.push_back(TexCoord(0,0));
     smGeom.color = RGBAColor(255,255,255,255);
+    
+    retObj.layoutPts = smGeom.coords;
+    retObj.selectPts = smGeom.coords;
     
     // Create the texture
     // Note: Keep this around
@@ -940,9 +952,38 @@ public:
         oldClusterTex.clear();
     }
     
-    for (ClusterGenMap::iterator it = clusterGens.begin();
-         it != clusterGens.end(); ++it)
-        [it->second endClusterGroup];
+    @synchronized(self) {
+        for (ClusterGenMap::iterator it = clusterGens.begin();
+             it != clusterGens.end(); ++it)
+            [it->second endClusterGroup];
+    }
+}
+
+- (void) clusterID:(SimpleIdentity)clusterID params:(ClusterGenerator::ClusterClassParams &)params
+{
+    NSObject <MaplyClusterGenerator> *clusterGen = nil;
+    @synchronized(self)
+    {
+        clusterGen = clusterGens[clusterID];
+    }
+
+    // Ask for the shader for moving objects
+    params.motionShaderID = EmptyIdentity;
+    MaplyShader *shader = [clusterGen motionShader];
+    if (shader)
+        params.motionShaderID = shader.program->getId();
+    else {
+        OpenGLES2Program *program = scene->getProgramBySceneName(kToolkitDefaultScreenSpaceMotionProgram);
+        if (program)
+            params.motionShaderID = program->getId();
+    }
+    
+    CGSize size = clusterGen.clusterLayoutSize;
+    params.clusterSize = Point2d(size.width,size.height);
+    
+    params.selectable = clusterGen.selectable;
+    
+    params.markerAnimationTime = clusterGen.markerAnimationTime;
 }
 
 // Actually add the markers.
@@ -2858,6 +2899,72 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             [self performSelector:@selector(addParticleSystemBatchRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
             break;
     }
+}
+
+- (void)addPointsRun:(NSArray *)argArray
+{
+    NSArray *pointsArray = argArray[0];
+    MaplyComponentObject *compObj = argArray[1];
+    NSMutableDictionary *inDesc = argArray[2];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+
+    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyParticleSystemDrawPriorityDefault) toDict:inDesc];
+    [self applyDefaultName:kMaplyPointSize value:@(kMaplyPointSizeDefault) toDict:inDesc];
+    
+    // Might be a custom shader on these
+    [self resolveShader:inDesc defaultShader:kMaplyShaderParticleSystemPointDefault];
+
+    compObj.isSelectable = false;
+
+    // May need a temporary context
+    EAGLContext *tmpContext = [self setupTempContext:threadMode];
+
+    GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
+    
+    ChangeSet changes;
+    if (geomManager)
+    {
+        for (MaplyPoints *points : pointsArray)
+        {
+            Matrix4d mat = Matrix4d::Identity();
+            if (points.transform)
+            {
+                mat = points.transform.mat;
+            }
+            SimpleIdentity geomID = geomManager->addGeometryPoints(points->points, mat, inDesc, changes);
+            if (geomID != EmptyIdentity)
+                compObj.geomIDs.insert(geomID);
+        }
+    }
+    
+    [self flushChanges:changes mode:threadMode];
+    
+    @synchronized(userObjects)
+    {
+        [userObjects addObject:compObj];
+        compObj.underConstruction = false;
+    }
+    
+    [self clearTempContext:tmpContext];
+}
+
+- (MaplyComponentObject *)addPoints:(NSArray *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
+    compObj.underConstruction = true;
+    
+    NSArray *argArray = @[points, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addPointsRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addPointsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
+    
+    return compObj;
 }
 
 // Remove the object, but do it on the layer thread

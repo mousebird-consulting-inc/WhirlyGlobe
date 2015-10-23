@@ -34,7 +34,9 @@ typedef enum {GeometryBBoxSingle,GeometryBBoxTriangle,GeometryBBoxNone} Geometry
 @interface WhirlyKitGeomInfo : WhirlyKitBaseInfo
 @property (nonatomic) UIColor *color;
 @property (nonatomic,assign) int boundingBox;
-
+@property (nonatomic) float pointSize;
+@property (nonatomic) bool zBufferRead;
+@property (nonatomic) bool zBufferWrite;
 - (id)initWithDesc:(NSDictionary *)desc;
 @end
 
@@ -55,6 +57,9 @@ typedef enum {GeometryBBoxSingle,GeometryBBoxTriangle,GeometryBBoxNone} Geometry
 {
     _color = [dict objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
     _boundingBox = [dict enumForKey:@"boundingbox" values:@[@"single",@"triangle",@"none"] default:GeometryBBoxSingle];
+    _pointSize = [dict floatForKey:@"pointSize" default:4.0];
+    _zBufferRead = [dict floatForKey:@"zbufferread" default:true];
+    _zBufferWrite = [dict floatForKey:@"zbufferwrite" default:true];
 }
 
 @end
@@ -219,6 +224,329 @@ void GeometryRaw::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen
         draw->addTriangle(BasicDrawable::Triangle(baseVert,baseVert+1,baseVert+2));
     }
 }
+    
+GeometryRawPoints::GeometryRawPoints()
+{
+}
+
+GeometryRawPoints::~GeometryRawPoints()
+{
+    for (GeomPointAttrData *attrs : attrData)
+        delete attrs;
+    attrData.clear();
+}
+    
+void GeometryRawPoints::addValue(int idx,int val)
+{
+    if (idx >= attrData.size())
+        return;
+
+    GeomPointAttrData *attrs = attrData[idx];
+    GeomPointAttrDataInt *intAttrs = dynamic_cast<GeomPointAttrDataInt *> (attrs);
+    if (intAttrs)
+        intAttrs->vals.push_back(val);
+}
+    
+void GeometryRawPoints::addValue(int idx,float val)
+{
+    if (idx >= attrData.size())
+        return;
+    
+    GeomPointAttrData *attrs = attrData[idx];
+    GeomPointAttrDataFloat *fAttrs = dynamic_cast<GeomPointAttrDataFloat *> (attrs);
+    if (fAttrs)
+        fAttrs->vals.push_back(val);
+}
+    
+void GeometryRawPoints::addPoint(int idx,const Point2f &pt)
+{
+    if (idx >= attrData.size())
+        return;
+    
+    GeomPointAttrData *attrs = attrData[idx];
+    GeomPointAttrDataPoint2f *f2Attrs = dynamic_cast<GeomPointAttrDataPoint2f *> (attrs);
+    if (f2Attrs)
+        f2Attrs->vals.push_back(pt);
+}
+    
+void GeometryRawPoints::addPoint(int idx,const Point3f &pt)
+{
+    if (idx >= attrData.size())
+        return;
+    
+    GeomPointAttrData *attrs = attrData[idx];
+    GeomPointAttrDataPoint3f *f3Attrs = dynamic_cast<GeomPointAttrDataPoint3f *> (attrs);
+    if (f3Attrs)
+        f3Attrs->vals.push_back(pt);
+}
+    
+void GeometryRawPoints::addPoint(int idx,const Point3d &pt)
+{
+    if (idx >= attrData.size())
+        return;
+    
+    GeomPointAttrData *attrs = attrData[idx];
+    GeomPointAttrDataPoint3d *d3Attrs = dynamic_cast<GeomPointAttrDataPoint3d *> (attrs);
+    if (d3Attrs)
+        d3Attrs->vals.push_back(pt);
+    else {
+        GeomPointAttrDataPoint3f *f3Attrs = dynamic_cast<GeomPointAttrDataPoint3f *>(attrs);
+        if (f3Attrs)
+            f3Attrs->vals.push_back(Point3f(pt.x(),pt.y(),pt.z()));
+    }
+}
+    
+void GeometryRawPoints::addPoint(int idx,const Eigen::Vector4f &pt)
+{
+    if (idx >= attrData.size())
+        return;
+    
+    GeomPointAttrData *attrs = attrData[idx];
+    GeomPointAttrDataPoint4f *f4Attrs = dynamic_cast<GeomPointAttrDataPoint4f *> (attrs);
+    if (f4Attrs)
+        f4Attrs->vals.push_back(pt);
+}
+
+int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType dataType)
+{
+    // Make sure we don't already have it
+    for (GeomPointAttrData *data : attrData)
+        if (name == data->name)
+            return -1;
+    
+    int idx = -1;
+    switch (dataType)
+    {
+        case GeomRawIntType:
+        {
+            GeomPointAttrDataInt *attrs = new GeomPointAttrDataInt();
+            attrs->name = name;
+            idx = attrData.size();
+            attrData.push_back(attrs);
+        }
+            break;
+        case GeomRawFloatType:
+        {
+            GeomPointAttrDataFloat *attrs = new GeomPointAttrDataFloat();
+            attrs->name = name;
+            idx = attrData.size();
+            attrData.push_back(attrs);
+        }
+            break;
+        case GeomRawFloat2Type:
+        {
+            GeomPointAttrDataPoint2f *attrs = new GeomPointAttrDataPoint2f();
+            attrs->name = name;
+            idx = attrData.size();
+            attrData.push_back(attrs);
+        }
+            break;
+        case GeomRawFloat3Type:
+        {
+            GeomPointAttrDataPoint3f *attrs = new GeomPointAttrDataPoint3f();
+            attrs->name = name;
+            idx = attrData.size();
+            attrData.push_back(attrs);
+        }
+            break;
+        case GeomRawFloat4Type:
+        {
+            GeomPointAttrDataPoint4f *attrs = new GeomPointAttrDataPoint4f();
+            attrs->name = name;
+            idx = attrData.size();
+            attrData.push_back(attrs);
+        }
+            break;
+        case GeomRawDouble2Type:
+        {
+            GeomPointAttrDataPoint2d *attrs = new GeomPointAttrDataPoint2d();
+            attrs->name = name;
+            idx = attrData.size();
+            attrData.push_back(attrs);
+        }
+            break;
+        case GeomRawDouble3Type:
+        {
+            GeomPointAttrDataPoint3d *attrs = new GeomPointAttrDataPoint3d();
+            attrs->name = name;
+            idx = attrData.size();
+            attrData.push_back(attrs);
+        }
+            break;
+        default:
+            return -1;
+            break;
+    }
+    
+    return idx;
+}
+    
+int GeometryRawPoints::findAttribute(const std::string &name) const
+{
+    int which = 0;
+    for (auto attr : attrData)
+    {
+        if (attr->name == name)
+            return which;
+        which++;
+    }
+    
+    return -1;
+}
+    
+bool GeometryRawPoints::valid() const
+{
+    int numVals = -1;
+    bool hasPosition = false;
+    for (auto attrs : attrData)
+    {
+        if (attrs->name == "a_position")
+            hasPosition = true;
+        if (numVals == -1)
+            numVals = attrs->getNumVals();
+        else {
+            if (numVals != attrs->getNumVals())
+                return false;
+        }
+    }
+    
+    return hasPosition;
+}
+    
+void GeometryRawPoints::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,WhirlyKitGeomInfo *geomInfo) const
+{
+    if (!valid())
+        return;
+    
+    BasicDrawable *draw = NULL;
+    
+    int posIdx = findAttribute("a_position");
+    int colorIdx = findAttribute("a_color");
+
+    int numVals = attrData[posIdx]->getNumVals();
+    
+    std::vector<int> attrIdxs(attrData.size());
+    
+    for (unsigned int vert=0;vert<numVals;vert++)
+    {
+        // See if we need a new drawable
+        if (!draw || draw->getNumPoints() + 3 > MaxDrawablePoints)
+        {
+            draw = new BasicDrawable("Raw Geometry");
+            if (geomInfo) {
+                [geomInfo setupBasicDrawable:draw];
+            }
+            draw->setType(GL_POINTS);
+            draws.push_back(draw);
+            
+            // Add the various attributes
+            int which = 0;
+            for (auto attrs : attrData)
+            {
+                BDAttributeDataType dataType = BDDataTypeMax;
+                switch (attrs->dataType)
+                {
+                    case GeomRawIntType:
+                        dataType = BDIntType;
+                        break;
+                    case GeomRawFloatType:
+                        dataType = BDFloatType;
+                        break;
+                    case GeomRawFloat2Type:
+                        dataType = BDFloat2Type;
+                        break;
+                    case GeomRawFloat3Type:
+                        dataType = BDFloat3Type;
+                        break;
+                    case GeomRawFloat4Type:
+                        dataType = BDFloat4Type;
+                        break;
+                    case GeomRawDouble2Type:
+                        dataType = BDFloat2Type;
+                        break;
+                    case GeomRawDouble3Type:
+                        dataType = BDFloat3Type;
+                        break;
+                    default:
+                        break;
+                }
+                attrIdxs[which] = draw->addAttribute(dataType, attrs->name);
+                which++;
+            }
+        }
+
+        // Note: Should copy these in more directly
+        int which = 0;
+        for (auto attrs : attrData)
+        {
+            int attrIdx = attrIdxs[which];
+            switch (attrs->dataType)
+            {
+                case GeomRawIntType:
+                {
+                    GeomPointAttrDataInt *attrsInt = dynamic_cast<GeomPointAttrDataInt *>(attrs);
+                    draw->addAttributeValue(attrIdx, attrsInt->vals[vert]);
+                }
+                    break;
+                case GeomRawFloatType:
+                {
+                    GeomPointAttrDataFloat *attrsFloat = dynamic_cast<GeomPointAttrDataFloat *>(attrs);
+                    draw->addAttributeValue(attrIdx, attrsFloat->vals[vert]);
+                }
+                    break;
+                case GeomRawFloat2Type:
+                {
+                    GeomPointAttrDataPoint2f *attrsFloat2 = dynamic_cast<GeomPointAttrDataPoint2f *>(attrs);
+                    draw->addAttributeValue(attrIdx, attrsFloat2->vals[vert]);
+                }
+                    break;
+                case GeomRawFloat3Type:
+                {
+                    GeomPointAttrDataPoint3f *attrsFloat3 = dynamic_cast<GeomPointAttrDataPoint3f *>(attrs);
+                    const Point3f &pt = attrsFloat3->vals[vert];
+                    if (which == posIdx)
+                        draw->addPoint(pt);
+                    else
+                        draw->addAttributeValue(attrIdx, pt);
+                }
+                    break;
+                case GeomRawFloat4Type:
+                {
+                    GeomPointAttrDataPoint4f *attrsFloat4 = dynamic_cast<GeomPointAttrDataPoint4f *>(attrs);
+                    const Vector4f &pt = attrsFloat4->vals[vert];
+                    if (which == colorIdx)
+                    {
+                        RGBAColor color(pt.x()*255,pt.y()*255,pt.z()*255,pt.w()*255);
+                        draw->addColor(color);
+                    } else
+                        draw->addAttributeValue(attrIdx, pt);
+                }
+                    break;
+                case GeomRawDouble2Type:
+                {
+                    GeomPointAttrDataPoint2d *attrsDouble2 = dynamic_cast<GeomPointAttrDataPoint2d *>(attrs);
+                    const Point2d &pt = attrsDouble2->vals[vert];
+                    draw->addAttributeValue(attrIdx, Point2f(pt.x(),pt.y()));
+                }
+                    break;
+                case GeomRawDouble3Type:
+                {
+                    GeomPointAttrDataPoint3d *attrsDouble3 = dynamic_cast<GeomPointAttrDataPoint3d *>(attrs);
+                    const Point3d &pt = attrsDouble3->vals[vert];
+                    if (which == posIdx)
+                        draw->addPoint(pt);
+                    else
+                        draw->addAttributeValue(attrIdx, Point3f(pt.x(),pt.y(),pt.z()));
+                }
+                    break;
+                default:
+                    break;
+            }
+            which++;
+        }
+    }
+}
+
     
 GeometryManager::GeometryManager()
 {
@@ -486,6 +814,45 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
 
     SimpleIdentity geomID = sceneRep->getId();
     
+    sceneReps.insert(sceneRep);
+    pthread_mutex_unlock(&geomLock);
+    
+    return geomID;
+}
+    
+SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomPoints,const Eigen::Matrix4d &mat,NSDictionary *desc,ChangeSet &changes)
+{
+    GeomSceneRep *sceneRep = new GeomSceneRep();
+    
+    WhirlyKitGeomInfo *geomInfo = [[WhirlyKitGeomInfo alloc] initWithDesc:desc];
+    
+    // Calculate the bounding box for the whole thing
+    Point3d ll,ur;
+
+    std::vector<BasicDrawable *> draws;
+    geomPoints.buildDrawables(draws,mat,geomInfo);
+    
+    // Set the various parameters and store the drawables created
+    for (unsigned int ll=0;ll<draws.size();ll++)
+    {
+        BasicDrawable *draw = draws[ll];
+        draw->setType(GL_POINTS);
+        draw->setOnOff(geomInfo.enable);
+        draw->setColor([geomInfo.color asRGBAColor]);
+        draw->setVisibleRange(geomInfo.minVis, geomInfo.maxVis);
+        draw->setDrawPriority(geomInfo.drawPriority);
+        draw->setRequestZBuffer(geomInfo.zBufferRead);
+        draw->setRequestZBuffer(geomInfo.zBufferWrite);
+//        Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
+//        Matrix4d transMat = trans.matrix();
+//        draw->setMatrix(&transMat);
+        sceneRep->drawIDs.insert(draw->getId());
+        changes.push_back(new AddDrawableReq(draw));
+    }
+    
+    SimpleIdentity geomID = sceneRep->getId();
+    
+    pthread_mutex_lock(&geomLock);
     sceneReps.insert(sceneRep);
     pthread_mutex_unlock(&geomLock);
     

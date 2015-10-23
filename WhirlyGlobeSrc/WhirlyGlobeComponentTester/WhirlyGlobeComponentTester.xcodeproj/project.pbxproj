@@ -11,6 +11,7 @@
 		2B0B8DD41BB330E70060C70D /* bluesquare.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B0B8DD21BB330E70060C70D /* bluesquare.png */; settings = {ASSET_TAGS = (); }; };
 		2B1012A01B5C8EF70014D243 /* moon.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B10129F1B5C8EF70014D243 /* moon.png */; };
 		2B14BFC11B82A42600CE29A4 /* PagingTestDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B14BFC01B82A42600CE29A4 /* PagingTestDelegate.m */; };
+		2B162DD21BD8068B0001E17B /* ParticleTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B162DD11BD8068B0001E17B /* ParticleTest.m */; settings = {ASSET_TAGS = (); }; };
 		2B2EB66518C901AD008C5320 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB516E7F505001F52FC /* OpenGLES.framework */; };
 		2B2FECB31B5878EC00A332BF /* starcatalog_orig.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2B2FECB21B5878EC00A332BF /* starcatalog_orig.txt */; };
 		2B4B6C011BB1BC450080036E /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B4B6C001BB1BC450080036E /* libc++.tbd */; };
@@ -445,6 +446,8 @@
 		2B10129F1B5C8EF70014D243 /* moon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = moon.png; sourceTree = "<group>"; };
 		2B14BFBF1B82A42600CE29A4 /* PagingTestDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagingTestDelegate.h; sourceTree = "<group>"; };
 		2B14BFC01B82A42600CE29A4 /* PagingTestDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PagingTestDelegate.m; sourceTree = "<group>"; };
+		2B162DD01BD8068B0001E17B /* ParticleTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleTest.h; sourceTree = "<group>"; };
+		2B162DD11BD8068B0001E17B /* ParticleTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ParticleTest.m; sourceTree = "<group>"; };
 		2B1FB5351A1EC5FE0004B394 /* MapzenSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapzenSource.h; sourceTree = "<group>"; };
 		2B1FB5361A1EC5FE0004B394 /* MapzenSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapzenSource.m; sourceTree = "<group>"; };
 		2B2FECB21B5878EC00A332BF /* starcatalog_orig.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = starcatalog_orig.txt; path = ../../../resources/stars/starcatalog_orig.txt; sourceTree = "<group>"; };
@@ -985,6 +988,8 @@
 				2B62DD8316E7F3A2001F52FC /* StartupViewController.m */,
 				2BFF026017A9BA2C00007842 /* AnimationTest.h */,
 				2BFF026117A9BA2D00007842 /* AnimationTest.m */,
+				2B162DD01BD8068B0001E17B /* ParticleTest.h */,
+				2B162DD11BD8068B0001E17B /* ParticleTest.m */,
 				2B14BFBF1B82A42600CE29A4 /* PagingTestDelegate.h */,
 				2B14BFC01B82A42600CE29A4 /* PagingTestDelegate.m */,
 				2B1FB5351A1EC5FE0004B394 /* MapzenSource.h */,
@@ -2001,6 +2006,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2B62DD6A16E7F0BC001F52FC /* main.m in Sources */,
+				2B162DD21BD8068B0001E17B /* ParticleTest.m in Sources */,
 				2B62DD8616E7F3A2001F52FC /* AppDelegate.m in Sources */,
 				2B62DD8716E7F3A2001F52FC /* ConfigViewController.m in Sources */,
 				2B62DD8A16E7F3A2001F52FC /* StartupViewController.m in Sources */,
