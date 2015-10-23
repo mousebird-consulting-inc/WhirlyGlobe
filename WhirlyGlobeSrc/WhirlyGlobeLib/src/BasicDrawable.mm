@@ -516,6 +516,8 @@ void BasicDrawable::addVertexAttributes(const SingleVertexAttributeSet &attrs)
             case BDIntType:
                 addAttributeValue(attrId, it->data.intVal);
                 break;
+            case BDDataTypeMax:
+                break;
         }
     }
 }

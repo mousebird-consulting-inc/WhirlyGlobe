@@ -1,8 +1,8 @@
 /*
- *  ClusterGenInterface.h
- *  WhirlyGlobe-MaplyComponent
+ *  MaplyPoints_private.h
+ *  WhirlyGlobeComponent
  *
- *  Created by Steve Gifford on 9/29/15.
+ *  Created by Steve Gifford on 10/21/15
  *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,16 +18,18 @@
  *
  */
 
-#import "LayoutManager.h"
+#import "MaplyPoints.h"
+#import "MaplyParticleSystem_private.h"
+#import <vector>
 
-namespace WhirlyKit
+@interface MaplyPoints()
 {
-
-// Interface between the cluster generation requests
-class ClusterGenInterface : public ClusterGenerator
-{
-public:
-    void makeLayoutObject(const std::vector<LayoutObject *> &layoutObjects,LayoutObject &);
-};
-
+@public
+    bool coordsAreGeo;
+    int coordIdx;
+    int colorIdx;
+    
+    WhirlyKit::GeometryRawPoints points;
 }
+
+@end
