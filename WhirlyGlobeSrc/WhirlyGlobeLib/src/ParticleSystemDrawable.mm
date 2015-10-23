@@ -199,19 +199,19 @@ void ParticleSystemDrawable::updateBatches(NSTimeInterval now)
     // Check the batches to see if any have gone off
     for (int bi=startBatch;bi!=endBatch;)
     {
-        Batch &batch = batches[bi];
+        Batch &batch = batches[bi % batches.size()];
         if (batch.active)
         {
             if (batch.startTime + lifetime < now)
             {
                 batch.active = false;
                 chunksDirty = true;
-                startBatch = (startBatch+1)%batches.size();
+                startBatch++;
             }
         } else
             break;
         
-        bi = (bi+1)%batches.size();
+        bi++;
     }
     pthread_mutex_unlock(&batchLock);
     
@@ -225,21 +225,24 @@ void ParticleSystemDrawable::updateChunks()
     
     pthread_mutex_lock(&batchLock);
     
+    if (endBatch >= batches.size())
+        NSLog(@"Got one");
+    
     chunksDirty = false;
     chunks.clear();
-    if (batches[startBatch].active)
+    if (batches[startBatch % batches.size()].active)
     {
         int start = startBatch;
         do {
             int end = start;
-            for (;end < batches.size()-1 && batches[end].active;end++);
+            for (;batches[end % batches.size()].active;end++);
             BufferChunk chunk;
-            chunk.bufferStart = start * batchSize * vertexSize;
+            chunk.bufferStart = (start % batches.size()) * batchSize * vertexSize;
             chunk.numVertices = (end-start+1) * batchSize;
             chunks.push_back(chunk);
             
-            start = (end+1)%batches.size();
-        } while (start != endBatch && batches[start].active);
+            start = end+1;
+        } while (start < endBatch && batches[start % batches.size()].active);
     }
     
     pthread_mutex_unlock(&batchLock);
@@ -250,11 +253,14 @@ bool ParticleSystemDrawable::findEmptyBatch(Batch &retBatch)
     bool ret = false;
     
     pthread_mutex_lock(&batchLock);
-    if (!batches[endBatch].active)
+    if (!batches[endBatch % batches.size()].active)
     {
         ret = true;
-        retBatch = batches[endBatch];
-        endBatch = (endBatch+1)%batches.size();
+        retBatch = batches[endBatch % batches.size()];
+        endBatch++;
+        
+        if (startBatch == endBatch)
+            NSLog(@"Got one");
     }
     pthread_mutex_unlock(&batchLock);
     
