@@ -98,7 +98,7 @@ public:
     };
     
     // List of objects for this cluster
-    void objectsForCluster(ClusterObject &cluster,std::vector<LayoutObject *> &layoutObjs);
+    void objectsForCluster(ClusterObject &cluster,std::vector<LayoutObjectEntry *> &layoutObjs);
 
     // Add the given index to the cells it covers
     void addToCells(const Mbr &mbr,int index);

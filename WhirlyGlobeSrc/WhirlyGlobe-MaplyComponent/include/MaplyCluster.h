@@ -21,6 +21,9 @@
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
 #import "MaplyScreenMarker.h"
+#import "MaplyShader.h"
+
+@class MaplyBaseViewController;
 
 /** @brief Information about the group of objects to cluster.
     @details This object is passed in when the developer needs to make an image for a group of objects.
@@ -72,6 +75,16 @@
 /// @details This is the biggest cluster you're likely to create.  We use it to figure overlaps between clusters.
 - (CGSize) clusterLayoutSize;
 
+/// @brief Set this if you want cluster to be user selectable.  On by default.
+- (bool) selectable;
+
+/// @brief How long to animate markers the join and leave a cluster
+- (double) markerAnimationTime;
+
+/// @brief The shader to use for moving objects around
+/// @details If you're doing animation from point to cluster you need to provide a suitable shader.
+- (MaplyShader *__nullable) motionShader;
+
 @end
 
 /** @brief The basic cluster generator installed by default.
@@ -82,7 +95,7 @@
 /** @brief Initialize with a list of colors.
     @details Initialize with a list of colors.  Each order of magnitude will use another color.  Must provide at least 1.
   */
-- (nonnull instancetype)initWithColors:(NSArray *__nonnull)colors clusterNumber:(int)clusterNumber size:(CGSize)markerSize;
+- (nonnull instancetype)initWithColors:(NSArray *__nonnull)colors clusterNumber:(int)clusterNumber size:(CGSize)markerSize viewC:(MaplyBaseViewController *__nonnull)viewC;
 
 /// @brief The ID number corresponding to the cluster.  Every marker/label with this cluster ID will be grouped together.
 @property (nonatomic,assign) int clusterNumber;
@@ -90,5 +103,15 @@
 /// @brief The size of the cluster that will be created.
 /// @details This is the biggest cluster you're likely to create.  We use it to figure overlaps between clusters.
 @property (nonatomic) CGSize clusterLayoutSize;
+
+/// @brief Set this if you want cluster to be user selectable.  On by default.
+@property (nonatomic) bool selectable;
+
+/// @brief How long to animate markers the join and leave a cluster
+@property (nonatomic) double markerAnimationTime;
+
+/// @brief The shader to use when moving objects around
+/// @details When warping objects to their new locations we use a motion shader.  Set this if you want to override the default.
+@property (nonatomic) MaplyShader * __nullable motionShader;
 
 @end

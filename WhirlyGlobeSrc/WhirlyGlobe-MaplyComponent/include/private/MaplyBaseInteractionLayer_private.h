@@ -27,7 +27,6 @@
 #import "MaplyBaseViewController.h"
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyTextureAtlas_private.h"
-#import "ClusterGenInterface_private.h"
 
 @interface MaplyBaseInteractionLayer : NSObject<WhirlyKitLayer>
 {
@@ -128,6 +127,9 @@
 
 // Add a particle system batch
 - (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode;
+
+// Add a group of points
+- (MaplyComponentObject *)addPoints:(NSArray *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Remove objects associated with the user objects
 - (void)removeObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode;

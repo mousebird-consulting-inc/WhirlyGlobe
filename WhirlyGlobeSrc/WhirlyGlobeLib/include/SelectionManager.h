@@ -188,8 +188,10 @@ public:
     class SelectedObject
     {
     public:
-        SelectedObject(SimpleIdentity selectID,double distIn3D,double screenDist) : selectID(selectID), distIn3D(distIn3D), screenDist(screenDist) { }
-        SimpleIdentity selectID;    // What we selected
+        SelectedObject(SimpleIdentity selectID,double distIn3D,double screenDist) : distIn3D(distIn3D), screenDist(screenDist) { selectIDs.push_back(selectID); }
+        SelectedObject(const std::vector<SimpleIdentity> &selectIDs,double distIn3D,double screenDist) : selectIDs(selectIDs), distIn3D(distIn3D), screenDist(screenDist) { }
+        bool isCluster;             // Set if this is a cluster
+        std::vector<SimpleIdentity> selectIDs;    // What we selected.  If it was a cluster, could be more than one
         double distIn3D;            // 3D distance from eye
         double screenDist;          // 2D distance in screen space
     };
