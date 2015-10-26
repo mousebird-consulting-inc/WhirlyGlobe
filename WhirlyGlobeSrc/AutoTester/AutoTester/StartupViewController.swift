@@ -13,7 +13,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	let tests = [
 		GeographyClassTestCase(),
 		StamenWatercolorRemote(),
-		MapBoxSatelliteTestCase()
+		MapBoxSatelliteTestCase(),
+		CesiumElevationTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
