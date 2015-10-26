@@ -15,6 +15,6 @@
 #import "MaplyTestResult.h"
 #import "GeographyClassTestCase.h"
 #import "AFNetworking.h"
-
+#import "CesiumElevationTestCase.h"
 
 #endif
