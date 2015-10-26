@@ -13,6 +13,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	let tests = [
 		GeographyClassTestCase(),
 		StamenWatercolorRemote(),
+		MapBoxSatelliteTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
@@ -105,39 +106,44 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		self.testView = UIView(frame: self.view.bounds)
 		self.testView!.hidden = true;
 		self.view.addSubview(self.testView!)
-
+		self.results.removeAll()
 		startTests(tests)
 	}
 
 	private func startTests(tests: [MaplyTestCase]) {
-		if let head = tests.first where head.selected {
+		if let head = tests.first {
 			let tail = Array(tests.dropFirst())
 
-			head.options = MaplyTestCaseOptions.None
-
-			if configViewC!.valueForSection(.Options, row: .RunGlobe) {
-				head.options.insert(.Globe)
-			}
-
-			if configViewC!.valueForSection(.Options, row: .RunMap) {
-				head.options.insert(.Map)
-			}
-
-			head.resultBlock = { test in
-				if let mapResult = test.mapResult {
-					self.results["\(test.name) - Map"] = mapResult
+			if (head.selected) {
+				head.options = .None
+                
+				if configViewC!.valueForSection(.Options, row: .RunGlobe) {
+					head.options.insert(.Globe)
 				}
 
-				if let globeResult = test.globeResult {
-					self.results["\(test.name) - Globe"] = globeResult
+				if configViewC!.valueForSection(.Options, row: .RunMap) {
+					head.options.insert(.Map)
 				}
+                
+				head.resultBlock = { test in
+					if let mapResult = test.mapResult {
+						self.results["\(test.name) - Map"] = mapResult
+					}
+                    
+					if let globeResult = test.globeResult {
+						self.results["\(test.name) - Globe"] = globeResult
+					}
 
-				self.startTests(tail)
+					self.startTests(tail)
+				}
+                
+				head.testView = self.testView;
+				head.start()
+				tableView.reloadData()
 			}
-
-			head.testView = self.testView;
-			head.start()
-			tableView.reloadData()
+			else {
+				self.startTests(tail);
+			}
 		}
 		else {
 			self.finishTests()
