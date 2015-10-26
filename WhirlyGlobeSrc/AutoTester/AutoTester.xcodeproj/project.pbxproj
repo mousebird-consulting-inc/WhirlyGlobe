@@ -423,6 +423,9 @@
 		D8DCCCA61BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D8DCCCA41BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-globe.png */; };
 		D8DCCCA71BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D8DCCCA51BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-map.png */; };
 		D8DCCCAC1BDC1A1200BA3866 /* CesiumElevationTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */; };
+		D8E12ECD1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */; };
+		D8E12ED01BDEA2E400BB7BC7 /* WheatherShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ECF1BDEA2E400BB7BC7 /* WheatherShader.swift */; };
+		D8E12ED41BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ED31BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -859,6 +862,10 @@
 		D8DCCCA51BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.MapBoxSatelliteTestCase-map.png"; sourceTree = "<group>"; };
 		D8DCCCAA1BDC1A1200BA3866 /* CesiumElevationTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CesiumElevationTestCase.h; sourceTree = "<group>"; };
 		D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CesiumElevationTestCase.m; sourceTree = "<group>"; };
+		D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatedBasemapTestCase.swift; sourceTree = "<group>"; };
+		D8E12ECF1BDEA2E400BB7BC7 /* WheatherShader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WheatherShader.swift; sourceTree = "<group>"; };
+		D8E12ED21BDEAC5900BB7BC7 /* MapBoxVectorTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapBoxVectorTestCase.h; sourceTree = "<group>"; };
+		D8E12ED31BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapBoxVectorTestCase.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -920,6 +927,9 @@
 				D8DCCCA21BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift */,
 				D8DCCCAA1BDC1A1200BA3866 /* CesiumElevationTestCase.h */,
 				D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */,
+				D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */,
+				D8E12ED21BDEAC5900BB7BC7 /* MapBoxVectorTestCase.h */,
+				D8E12ED31BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -959,6 +969,7 @@
 				88BF11581BCDA3960002205E /* ResultCell.swift */,
 				88BF115A1BCDA9530002205E /* testCases */,
 				D8DCCC9E1BDB89A900BA3866 /* FullScreenViewController.swift */,
+				D8E12ECF1BDEA2E400BB7BC7 /* WheatherShader.swift */,
 			);
 			path = AutoTester;
 			sourceTree = "<group>";
@@ -1943,11 +1954,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8E12ED01BDEA2E400BB7BC7 /* WheatherShader.swift in Sources */,
 				88BF11521BCD9BF70002205E /* MaplyTestResult.m in Sources */,
 				D8DCCCAC1BDC1A1200BA3866 /* CesiumElevationTestCase.m in Sources */,
 				88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */,
 				88BF11591BCDA3960002205E /* ResultCell.swift in Sources */,
 				D8DCCCA31BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift in Sources */,
+				D8E12ECD1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift in Sources */,
 				886FCCC31BA73C1D00494BB0 /* StartupViewController.swift in Sources */,
 				88BF11571BCDA1BB0002205E /* ResultsViewController.swift in Sources */,
 				D8DCCC9F1BDB89A900BA3866 /* FullScreenViewController.swift in Sources */,
@@ -1955,6 +1968,7 @@
 				886FCCCD1BA74D1200494BB0 /* ConfigViewController.swift in Sources */,
 				88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */,
 				88E4B8C51B83B6AB0050D21B /* AppDelegate.swift in Sources */,
+				D8E12ED41BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
