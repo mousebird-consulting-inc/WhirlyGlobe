@@ -418,6 +418,7 @@
 		88FF5EF11BC31D95002F15CE /* tl_2013_06075_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF21BC31D95002F15CE /* tl_2013_06075_roads.shp */; };
 		88FF5EF21BC31D95002F15CE /* tl_2013_06075_roads.shx in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF31BC31D95002F15CE /* tl_2013_06075_roads.shx */; };
 		88FF5EF31BC31D95002F15CE /* tl_2013_06075_roads.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */; };
+		D8DCCC9F1BDB89A900BA3866 /* FullScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCC9E1BDB89A900BA3866 /* FullScreenViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -848,6 +849,7 @@
 		88FF5DF21BC31D95002F15CE /* tl_2013_06075_roads.shp */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.shp; sourceTree = "<group>"; };
 		88FF5DF31BC31D95002F15CE /* tl_2013_06075_roads.shx */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.shx; sourceTree = "<group>"; };
 		88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.sqlite; sourceTree = "<group>"; };
+		D8DCCC9E1BDB89A900BA3866 /* FullScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FullScreenViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -942,6 +944,7 @@
 				88BF11561BCDA1BB0002205E /* ResultsViewController.swift */,
 				88BF11581BCDA3960002205E /* ResultCell.swift */,
 				88BF115A1BCDA9530002205E /* testCases */,
+				D8DCCC9E1BDB89A900BA3866 /* FullScreenViewController.swift */,
 			);
 			path = AutoTester;
 			sourceTree = "<group>";
@@ -1929,6 +1932,7 @@
 				88BF11591BCDA3960002205E /* ResultCell.swift in Sources */,
 				886FCCC31BA73C1D00494BB0 /* StartupViewController.swift in Sources */,
 				88BF11571BCDA1BB0002205E /* ResultsViewController.swift in Sources */,
+				D8DCCC9F1BDB89A900BA3866 /* FullScreenViewController.swift in Sources */,
 				88BF115F1BCDA9730002205E /* StamenWatercolorRemote.swift in Sources */,
 				886FCCCD1BA74D1200494BB0 /* ConfigViewController.swift in Sources */,
 				88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */,
