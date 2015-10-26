@@ -11,14 +11,20 @@ import UIKit
 
 class FullScreenViewController : UIViewController {
     
-    @IBOutlet weak var imageResult: UIImageView!
-    
-    var image = UIImage()
-    
-    override func viewDidLoad() {
-        dispatch_async(dispatch_get_main_queue()){
-            self.imageResult?.image = self.image
-        }
-    }
-    
+	@IBOutlet weak var actualImageView: UIImageView!
+	@IBOutlet weak var baselineImageView: UIImageView!
+
+	var actualImageResult: UIImage?
+	var baselineImageResult: UIImage?
+
+	override func viewWillAppear(animated: Bool) {
+		actualImageView.image = actualImageResult
+		baselineImageView.image = baselineImageResult
+	}
+
+	@IBAction func sliderChanged(sender: AnyObject) {
+		let slider = sender as! UISlider
+
+		actualImageView.alpha = CGFloat(slider.value)
+	}
 }
