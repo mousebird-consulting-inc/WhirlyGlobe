@@ -14,7 +14,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		GeographyClassTestCase(),
 		StamenWatercolorRemote(),
 		MapBoxSatelliteTestCase(),
-		CesiumElevationTestCase()
+		CesiumElevationTestCase(),
+		AnimatedBasemapTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
