@@ -15,19 +15,6 @@ class ResultsViewController: UITableViewController {
 
 	var images = [String:(UIImage?,UIImage?)]()
 
-	enum ImageType: Int {
-		case Expected = 1
-		case Actual = 2
-
-		var message: String {
-			switch self {
-			case .Expected:
-				return "Expected"
-			case .Actual:
-				return "Actual"
-			}
-		}
-	}
 
 	override func tableView(tableView: UITableView,
 		numberOfRowsInSection section: Int) -> Int {
@@ -69,33 +56,25 @@ class ResultsViewController: UITableViewController {
 			}
 		}
 
-		for img in [cell.actualImage!, cell.baselineImage!] {
-			let tap = UITapGestureRecognizer(target: self, action: "tappedImage:")
-			tap.numberOfTapsRequired = 1
-			tap.numberOfTouchesRequired = 1
-
-			img.addGestureRecognizer(tap)
-			img.restorationIdentifier = cell.nameLabel?.text
-		}
-
-		cell.baselineImage?.tag = ImageType.Expected.rawValue
-		cell.actualImage?.tag = ImageType.Actual.rawValue
-
 		return cell
 	}
 
+	override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+
+		let cell = tableView.cellForRowAtIndexPath(indexPath)
+
+		self.performSegueWithIdentifier("showFullScreen", sender: cell)
+	}
+
+
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
 		let destination = segue.destinationViewController as! FullScreenViewController
-		if let imageView = sender as? UIImageView,
-				image = imageView.image,
-				imageType = ImageType(rawValue: imageView.tag) {
-			destination.title = "\(imageView.restorationIdentifier!) - \(imageType.message)"
-			destination.image = image
-		}
-    }
 
-	func tappedImage(sender: UITapGestureRecognizer) {
-		self.performSegueWithIdentifier("showFullScreen", sender: sender.view)
+		if let cell = sender as? ResultCell {
+			destination.title = cell.nameLabel?.text
+			destination.actualImageResult = cell.actualImage?.image
+			destination.baselineImageResult = cell.baselineImage?.image
+		}
     }
 
 	override func didReceiveMemoryWarning() {
