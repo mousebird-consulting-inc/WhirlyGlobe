@@ -14,7 +14,7 @@ class StamenWatercolorRemote: MaplyTestCase {
 		super.init()
 
 		self.name = "Stamen Watercolor Remote"
-		self.captureDelay = 2
+		self.captureDelay = 4
 	}
 
 	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {

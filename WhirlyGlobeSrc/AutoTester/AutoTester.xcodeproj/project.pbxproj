@@ -419,6 +419,10 @@
 		88FF5EF21BC31D95002F15CE /* tl_2013_06075_roads.shx in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF31BC31D95002F15CE /* tl_2013_06075_roads.shx */; };
 		88FF5EF31BC31D95002F15CE /* tl_2013_06075_roads.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */; };
 		D8DCCC9F1BDB89A900BA3866 /* FullScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCC9E1BDB89A900BA3866 /* FullScreenViewController.swift */; };
+		D8DCCCA31BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCCA21BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift */; };
+		D8DCCCA61BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D8DCCCA41BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-globe.png */; };
+		D8DCCCA71BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D8DCCCA51BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-map.png */; };
+		D8DCCCAC1BDC1A1200BA3866 /* CesiumElevationTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -850,6 +854,11 @@
 		88FF5DF31BC31D95002F15CE /* tl_2013_06075_roads.shx */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.shx; sourceTree = "<group>"; };
 		88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.sqlite; sourceTree = "<group>"; };
 		D8DCCC9E1BDB89A900BA3866 /* FullScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FullScreenViewController.swift; sourceTree = "<group>"; };
+		D8DCCCA21BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapBoxSatelliteTestCase.swift; sourceTree = "<group>"; };
+		D8DCCCA41BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.MapBoxSatelliteTestCase-globe.png"; sourceTree = "<group>"; };
+		D8DCCCA51BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.MapBoxSatelliteTestCase-map.png"; sourceTree = "<group>"; };
+		D8DCCCAA1BDC1A1200BA3866 /* CesiumElevationTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CesiumElevationTestCase.h; sourceTree = "<group>"; };
+		D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CesiumElevationTestCase.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -892,6 +901,8 @@
 		888943331BD6EE1A00C39A66 /* baselines */ = {
 			isa = PBXGroup;
 			children = (
+				D8DCCCA41BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-globe.png */,
+				D8DCCCA51BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-map.png */,
 				888943381BD6F48C00C39A66 /* GeographyClassTestCase-map.png */,
 				888943341BD6EE1A00C39A66 /* AutoTester.StamenWatercolorRemote-globe.png */,
 				888943351BD6EE1A00C39A66 /* GeographyClassTestCase-globe.png */,
@@ -906,6 +917,9 @@
 				88BF115B1BCDA9530002205E /* GeographyClassTestCase.h */,
 				88BF115C1BCDA9530002205E /* GeographyClassTestCase.m */,
 				88BF115E1BCDA9730002205E /* StamenWatercolorRemote.swift */,
+				D8DCCCA21BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift */,
+				D8DCCCAA1BDC1A1200BA3866 /* CesiumElevationTestCase.h */,
+				D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -1607,6 +1621,7 @@
 				88FF5BEA1BC31D53002F15CE /* Star.png in Resources */,
 				88FF5CDC1BC31D6D002F15CE /* swimming-24@2x.png in Resources */,
 				88FF5DFD1BC31D95002F15CE /* ARG.geojson in Resources */,
+				D8DCCCA61BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-globe.png in Resources */,
 				88FF5ECD1BC31D95002F15CE /* TCD.geojson in Resources */,
 				88FF5E351BC31D95002F15CE /* DZA.geojson in Resources */,
 				88FF5C8E1BC31D6D002F15CE /* bus-24@2x.png in Resources */,
@@ -1878,6 +1893,7 @@
 				88FF5E3B1BC31D95002F15CE /* EST.geojson in Resources */,
 				88FF5CAE1BC31D6D002F15CE /* industrial-24@2x.png in Resources */,
 				88FF5CF11BC31D6D002F15CE /* vp.mtl in Resources */,
+				D8DCCCA71BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-map.png in Resources */,
 				88FF5E1A1BC31D95002F15CE /* BWA.geojson in Resources */,
 				88FF5CE91BC31D6D002F15CE /* wetland-24@2x.png in Resources */,
 				88FF5C9D1BC31D6D002F15CE /* dam-24@2x.png in Resources */,
@@ -1928,8 +1944,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				88BF11521BCD9BF70002205E /* MaplyTestResult.m in Sources */,
+				D8DCCCAC1BDC1A1200BA3866 /* CesiumElevationTestCase.m in Sources */,
 				88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */,
 				88BF11591BCDA3960002205E /* ResultCell.swift in Sources */,
+				D8DCCCA31BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift in Sources */,
 				886FCCC31BA73C1D00494BB0 /* StartupViewController.swift in Sources */,
 				88BF11571BCDA1BB0002205E /* ResultsViewController.swift in Sources */,
 				D8DCCC9F1BDB89A900BA3866 /* FullScreenViewController.swift in Sources */,
