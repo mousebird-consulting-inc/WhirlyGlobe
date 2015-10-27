@@ -815,7 +815,7 @@ static const float PerfOutputDelay = 15.0;
     if (![interactLayer startOfWork])
         return nil;
 
-    MaplyComponentObject *compObj = [self addPoints:points desc:desc mode:threadMode];
+    MaplyComponentObject *compObj = [interactLayer addPoints:points desc:desc mode:threadMode];
     [interactLayer endOfWork];
     
     return compObj;
