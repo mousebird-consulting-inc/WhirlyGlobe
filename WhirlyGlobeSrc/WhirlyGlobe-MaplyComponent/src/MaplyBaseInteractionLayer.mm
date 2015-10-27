@@ -1428,7 +1428,7 @@ public:
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyVectorDrawPriorityDefault) toDict:inDesc];
     
     // Might be a custom shader on these
-    NSString *shaderName = kMaplyDefaultTriangleShader;
+    NSString *shaderName = (![inDesc[kMaplyFilled] boolValue]) ? kMaplyShaderDefaultLine : kMaplyDefaultTriangleShader;
     if ([inDesc[kMaplyVecTextureProjection] isEqualToString:kMaplyProjectionScreen])
         shaderName = kMaplyShaderDefaultTriScreenTex;
     [self resolveShader:inDesc defaultShader:shaderName];
