@@ -1218,17 +1218,16 @@ static const bool SubdivisionTest = false;
              dispatch_async(dispatch_get_main_queue(),
                             ^{
                                 // Toss in all the labels at once, more efficient
-                                // Note: Debugging
-//                                MaplyComponentObject *autoLabelObj = [baseViewC addScreenLabels:locAutoLabels desc:
-//                                                                      @{kMaplyTextColor: [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1.0],
-//                                                                            kMaplyFont: [UIFont systemFontOfSize:24.0],
-//                                                                         kMaplyTextOutlineColor: [UIColor blackColor],
-//                                                                          kMaplyTextOutlineSize: @(1.0),
-////                                                                               kMaplyShadowSize: @(1.0)
-//                                                                      } mode:MaplyThreadAny];
+                                MaplyComponentObject *autoLabelObj = [baseViewC addScreenLabels:locAutoLabels desc:
+                                                                      @{kMaplyTextColor: [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1.0],
+                                                                            kMaplyFont: [UIFont systemFontOfSize:24.0],
+                                                                         kMaplyTextOutlineColor: [UIColor blackColor],
+                                                                          kMaplyTextOutlineSize: @(1.0),
+//                                                                               kMaplyShadowSize: @(1.0)
+                                                                      } mode:MaplyThreadAny];
 
                                 vecObjects = locVecObjects;
-//                                autoLabels = autoLabelObj;
+                                autoLabels = autoLabelObj;
                             });
 
          }
