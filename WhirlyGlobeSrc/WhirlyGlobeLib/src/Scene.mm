@@ -646,7 +646,8 @@ void RemDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
         (*it)->teardownGL(scene->getMemManager());
 
         scene->remDrawable(*it);        
-    }
+    } else
+        NSLog(@"Missing drawable for RemDrawableReq: %d", drawable);
 }
 
 void AddGeneratorReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
