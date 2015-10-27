@@ -375,8 +375,23 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 //    [self addMegaMarkers];
     
 //    [self markerTest2];
+    
+//    [self billboardTest];
   
     [baseViewC enable3dTouchSelection:self];
+}
+
+- (void)billboardTest
+{
+    float size = 2.4;
+    MaplyScreenObject *screenObj = [[MaplyScreenObject alloc] init];
+    [screenObj addImage:[UIImage imageNamed:@"veins_diffuse.png"] color:[UIColor whiteColor] size:CGSizeMake(size, size)];
+    [screenObj translateX:-size/2.0 y:-size/2.0];
+    MaplyBillboard *bboard = [[MaplyBillboard alloc] init];
+    bboard.screenObj = screenObj;
+    bboard.center = MaplyCoordinate3dMake(0, 0, -EarthRadius);
+    
+    [baseViewC addBillboards:@[bboard] desc:@{kMaplyBillboardOrient:kMaplyBillboardOrientEye}  mode:MaplyThreadCurrent];
 }
 
 - (void)markerOverlapTest
@@ -1119,7 +1134,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     stickersObj = [baseViewC addStickers:stickers desc:desc];
 }
 
-static const bool CountryTextures = true;
+static const bool CountryTextures = false;
+static const bool SubdivisionTest = false;
 
 // Add country outlines.  Pass in the names of the geoJSON files
 - (void)addCountries:(NSArray *)names stride:(int)stride
@@ -1154,7 +1170,6 @@ static const bool CountryTextures = true;
                              NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
                              wgVecObj.userObject = vecName;
                              NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:@{
-                                                                                                         kMaplyFilled: @(YES),
                                                                                                          kMaplySelectable: @YES
                                                                                                          }];
                              if (CountryTextures)
@@ -1163,7 +1178,18 @@ static const bool CountryTextures = true;
                                  desc[kMaplyVecTextureProjection] = kMaplyProjectionScreen;
                                  desc[kMaplyVecTexScaleX] = @(1.0/smileImage.size.width);
                                  desc[kMaplyVecTexScaleY] = @(1.0/smileImage.size.height);
+                                 desc[kMaplyFilled] = @(YES);
                              }
+                             
+                             // Note: Subdivision test
+                             if (SubdivisionTest)
+                             {
+                                 desc[kMaplyFilled] = @(YES);
+                                 desc[kMaplySubdivType] = kMaplySubdivGrid;
+                                 desc[kMaplySubdivEpsilon] = @(0.05);
+                                 desc[kMaplyColor] = [UIColor redColor];
+                             }
+                             
                              MaplyComponentObject *compObj = [baseViewC addVectors:[NSArray arrayWithObject:wgVecObj] desc:desc];
                              MaplyScreenLabel *screenLabel = [[MaplyScreenLabel alloc] init];
                              // Add a label right in the middle
