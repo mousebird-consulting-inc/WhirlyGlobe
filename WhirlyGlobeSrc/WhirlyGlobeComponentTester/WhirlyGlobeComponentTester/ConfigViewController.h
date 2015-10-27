@@ -40,7 +40,7 @@
 // Overlay image layers
 #define kMaplyTestCategoryOverlayLayers @"Overlay layers"
 
-#define kMaplyTestUSGSOrtho @"USGS Ortho (WMS) - Remote"
+#define kMaplyTestUSGSOrtho @"USGS_EROS_Ortho_NAIP"
 #define kMaplyTestOWM @"OpenWeatherMap - Remote"
 #define kMaplyTestForecastIO @"Forecast.IO Snapshot - Remote"
 #define kMaplyTestMapboxStreets @"MapBox Streets Vectors - Remote"
