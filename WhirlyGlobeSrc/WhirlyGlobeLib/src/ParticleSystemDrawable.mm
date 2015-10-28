@@ -30,7 +30,7 @@ namespace WhirlyKit
 {
 
 ParticleSystemDrawable::ParticleSystemDrawable(const std::string &name,const std::vector<SingleVertexAttributeInfo> &inVertAttrs,int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing)
-    : Drawable(name), enable(true), numTotalPoints(numTotalPoints), batchSize(batchSize), vertexSize(0), programId(0), drawPriority(0), pointBuffer(0), rectBuffer(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0), useRectangles(useRectangles), useInstancing(useInstancing), baseTime(0.0), startBatch(0), endBatch(0), chunksDirty(true)
+    : Drawable(name), enable(true), numTotalPoints(numTotalPoints), batchSize(batchSize), vertexSize(0), programId(0), drawPriority(0), pointBuffer(0), rectBuffer(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0), useRectangles(useRectangles), useInstancing(useInstancing), baseTime(0.0), startb(0), endb(0), chunksDirty(true)
 {
     pthread_mutex_init(&batchLock, NULL);
     
@@ -197,7 +197,7 @@ void ParticleSystemDrawable::updateBatches(NSTimeInterval now)
 {
     pthread_mutex_lock(&batchLock);
     // Check the batches to see if any have gone off
-    for (int bi=startBatch;bi!=endBatch;)
+    for (int bi=startb;bi<endb;)
     {
         Batch &batch = batches[bi % batches.size()];
         if (batch.active)
@@ -206,7 +206,7 @@ void ParticleSystemDrawable::updateBatches(NSTimeInterval now)
             {
                 batch.active = false;
                 chunksDirty = true;
-                startBatch++;
+                startb++;
             }
         } else
             break;
@@ -225,24 +225,30 @@ void ParticleSystemDrawable::updateChunks()
     
     pthread_mutex_lock(&batchLock);
     
-    if (endBatch >= batches.size())
-        NSLog(@"Got one");
-    
     chunksDirty = false;
     chunks.clear();
-    if (batches[startBatch % batches.size()].active)
+    if (startb != endb)
     {
-        int start = startBatch;
+        int start = 0;
         do {
+            // Skip empty batches at the beginning
+            for (;!batches[start].active && start < batches.size();start++);
+
             int end = start;
-            for (;batches[end % batches.size()].active;end++);
-            BufferChunk chunk;
-            chunk.bufferStart = (start % batches.size()) * batchSize * vertexSize;
-            chunk.numVertices = (end-start+1) * batchSize;
-            chunks.push_back(chunk);
+            if (start < batches.size())
+            {
+                for (;batches[end].active && end < batches.size();end++);
+                if (start != end)
+                {
+                    BufferChunk chunk;
+                    chunk.bufferStart = (start % batches.size()) * batchSize * vertexSize;
+                    chunk.numVertices = (end-start) * batchSize;
+                    chunks.push_back(chunk);
+                }
+            }
             
-            start = end+1;
-        } while (start < endBatch && batches[start % batches.size()].active);
+            start = end;
+        } while (start < batches.size());
     }
     
     pthread_mutex_unlock(&batchLock);
@@ -253,14 +259,11 @@ bool ParticleSystemDrawable::findEmptyBatch(Batch &retBatch)
     bool ret = false;
     
     pthread_mutex_lock(&batchLock);
-    if (!batches[endBatch % batches.size()].active)
+    if (!batches[endb % batches.size()].active)
     {
         ret = true;
-        retBatch = batches[endBatch % batches.size()];
-        endBatch++;
-        
-        if (startBatch == endBatch)
-            NSLog(@"Got one");
+        retBatch = batches[endb % batches.size()];
+        endb++;
     }
     pthread_mutex_unlock(&batchLock);
     
