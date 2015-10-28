@@ -5,11 +5,11 @@ layout: default
 
 A toolkit is only as good as the apps that use it.  Here are some of our favorites. If you'd like to be included, just send an image, a short description and a link.
 
-{% include app_entry.html name="Dark Sky" image="darksky.jpeg" body="Dark Sky is one of the Apple app store's favorite weather apps.  Not only will it tell when it's going to rain it'll show you beautiful animated weather and temperature data." link="https://itunes.apple.com/us/app/dark-sky-weather-radar-hyperlocal/id517329357?mt=8" %}
-
 {% include app_entry.html name="AeroTab EFB" image="aeroicon.jpeg" body="AeroTab EFB is an Electronic Flight Bag app specialising in the Russian and the CIS Region." link="https://itunes.apple.com/us/app/aerotab-efb-electronic-flight/id622199134?mt=8" %}
 
 {% include app_entry.html name="AerovieReports" image="aeroviereports.jpeg" body="An electronic flight bag (EFB) app with TAWS, EDR, and terrain support.  Made by Bryan Heitman." link="https://itunes.apple.com/us/app/aeroviereports-electronic/id819848629?mt=8" %}
+
+{% include app_entry.html name="Dark Sky" image="darksky.jpeg" body="Dark Sky is one of the Apple app store's favorite weather apps.  Not only will it tell when it's going to rain it'll show you beautiful animated weather and temperature data." link="https://itunes.apple.com/us/app/dark-sky-weather-radar-hyperlocal/id517329357?mt=8" %}
 
 {% include app_entry.html name="Deforestation Visualization" image="deforestation.png" body="A visualization by José Manuel Navarro made for Vizzuality. It shows deforestation in Indonesia over time.  Colored vectors are used to denote intensity." link="https://www.youtube.com/watch?v=-eiiL19stw0" %}
 
