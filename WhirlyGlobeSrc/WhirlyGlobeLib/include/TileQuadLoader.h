@@ -137,6 +137,8 @@
 @property (nonatomic,assign) bool ignoreEdgeMatching;
 /// If set, we'll fill in the poles for a projection that doesn't go all the way up or down
 @property (nonatomic,assign) bool coverPoles;
+/// If set, the colors for the various poles
+@property (nonatomic) UIColor *northPoleColor,*southPoleColor;
 /// The data type of GL textures we'll be creating.  RGBA by default.
 @property (nonatomic,assign) WhirlyKitTileImageType imageType;
 /// If set (before we start) we'll use dynamic texture and drawable atlases

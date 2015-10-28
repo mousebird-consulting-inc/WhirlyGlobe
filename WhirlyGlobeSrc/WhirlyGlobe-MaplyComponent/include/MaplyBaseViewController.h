@@ -411,7 +411,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
   */
 - (MaplyComponentObject *__nullable)addModelInstances:(NSArray *__nonnull)modelInstances desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
-/** @brief Add one or raw geometry mdoels.
+/** @brief Add one or raw geometry models.
     @details Each MaplyGeometryModel holds points and triangles in display space.  These are relatively "raw" geometry and are passed to the geometry manager as is.
  
  @param desc The description dictionary which controls how the geometry is displayed, selected, and so forth.
