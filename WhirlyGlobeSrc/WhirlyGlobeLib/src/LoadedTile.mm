@@ -269,10 +269,13 @@ TileBuilder::TileBuilder(CoordSystem *coordSys,Mbr mbr,WhirlyKit::Quadtree *quad
     includeElev(false), useElevAsZ(true),
     ignoreEdgeMatching(false),
     coverPoles(true),
+    useNorthPoleColor(false),
+    useSouthPoleColor(false),
     glFormat(WKTileIntRGBA), singleByteSource(WKSingleRGB),
     defaultSphereTessX(10), defaultSphereTessY(10),
     texelBinSize(64),
     drawAtlas(NULL),
+    poleDrawAtlas(NULL),
     borderTexel(0),
     scene(NULL),
     lineMode(false),
@@ -304,6 +307,11 @@ TileBuilder::~TileBuilder()
         delete drawAtlas;
         drawAtlas = NULL;
     }
+    if (poleDrawAtlas)
+    {
+        delete poleDrawAtlas;
+        poleDrawAtlas = NULL;
+    }
 }
     
 // The vertex size is just used for buffer size estimates
@@ -331,6 +339,8 @@ void TileBuilder::initAtlases(WhirlyKitTileImageType imageType,int numImages,int
         texAtlas = new DynamicTextureAtlas(textureAtlasSize,texSortSize,glFormat,numImages);
         drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);
         drawAtlas->setFade(fade);
+        poleDrawAtlas = new DynamicDrawableAtlas("Tile Quad Loader Ples",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);
+        poleDrawAtlas->setFade(fade);
         newDrawables = true;
     }
 }
@@ -353,6 +363,13 @@ void TileBuilder::clearAtlases(ChangeSet &theChangeRequests)
         drawAtlas->shutdown(theChangeRequests);
         delete drawAtlas;
         drawAtlas = NULL;
+    }
+
+    if (poleDrawAtlas)
+    {
+        poleDrawAtlas->shutdown(theChangeRequests);
+        delete poleDrawAtlas;
+        poleDrawAtlas = NULL;
     }
 }
 
@@ -395,7 +412,7 @@ void TileBuilder::buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std::
     }
 }
     
-void TileBuilder::generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,BasicDrawable **draw,BasicDrawable **skirtDraw)
+void TileBuilder::generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,BasicDrawable **poleDraw)
 {
     // Size of each chunk
     Point2f chunkSize = drawInfo->theMbr.ur() - drawInfo->theMbr.ll();
@@ -441,6 +458,28 @@ void TileBuilder::generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,Basic
     chunk->setColor(color);
     chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
     chunk->setProgram(programId);
+    
+    // Might need another drawable for poles
+    bool separatePoleChunk = false;
+    BasicDrawable *poleChunk = NULL;
+    if (coverPoles && (useNorthPoleColor || useSouthPoleColor))
+    {
+        poleChunk = new BasicDrawable("Tile Quad Loader Poles");
+        if (useTileCenters)
+            poleChunk->setMatrix(&drawInfo->transMat);
+        poleChunk->setType(GL_TRIANGLES);
+        poleChunk->setDrawOffset(drawOffset);
+        poleChunk->setDrawPriority(drawInfo->drawPriority);
+        poleChunk->setVisibleRange(minVis, maxVis);
+        poleChunk->setAlpha(hasAlpha);
+        poleChunk->setColor(color);
+        poleChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
+        poleChunk->setProgram(programId);
+        separatePoleChunk = true;
+        
+        *poleDraw = poleChunk;
+    } else
+        poleChunk = chunk;
     
     // We're in line mode or the texture didn't load
     if (lineMode || (drawInfo->texs && !(drawInfo->texs)->empty() && !((*(drawInfo->texs))[0])))
@@ -614,20 +653,26 @@ void TileBuilder::generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,Basic
                 TexCoord singleTexCoord(0.5,0.0);
                 // One point for the north pole
                 Point3d northPt(0,0,1.0);
-                chunk->addPoint(Point3d(northPt-drawInfo->chunkMidDisp));
-                chunk->addTexCoord(-1,singleTexCoord);
-                chunk->addNormal(Point3d(0,0,1.0));
-                int northVert = chunk->getNumPoints()-1;
+                poleChunk->addPoint(Point3d(northPt-drawInfo->chunkMidDisp));
+                if (separatePoleChunk)
+                    poleChunk->addColor(northPoleColor);
+                else
+                    poleChunk->addTexCoord(-1,singleTexCoord);
+                poleChunk->addNormal(Point3d(0,0,1.0));
+                int northVert = poleChunk->getNumPoints()-1;
                 
                 // A line of points for the outer ring, but we can copy them
-                int startOfLine = chunk->getNumPoints();
+                int startOfLine = poleChunk->getNumPoints();
                 int iy = sphereTessY;
                 for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                 {
                     Point3d pt = locs[(iy*(sphereTessX+1)+ix)];
-                    chunk->addPoint(Point3d(pt-drawInfo->chunkMidDisp));
-                    chunk->addNormal(Point3d(0,0,1.0));
-                    chunk->addTexCoord(-1,singleTexCoord);
+                    poleChunk->addPoint(Point3d(pt-drawInfo->chunkMidDisp));
+                    poleChunk->addNormal(Point3d(0,0,1.0));
+                    if (separatePoleChunk)
+                        poleChunk->addColor(northPoleColor);
+                    else
+                        poleChunk->addTexCoord(-1,singleTexCoord);
                 }
                 
                 // And define the triangles
@@ -637,7 +682,7 @@ void TileBuilder::generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,Basic
                     tri.verts[0] = startOfLine+ix;
                     tri.verts[1] = startOfLine+ix+1;
                     tri.verts[2] = northVert;
-                    chunk->addTriangle(tri);
+                    poleChunk->addTriangle(tri);
                 }
             }
             
@@ -646,20 +691,26 @@ void TileBuilder::generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,Basic
                 TexCoord singleTexCoord(0.5,1.0);
                 // One point for the south pole
                 Point3d southPt(0,0,-1.0);
-                chunk->addPoint(Point3d(southPt-drawInfo->chunkMidDisp));
-                chunk->addTexCoord(-1,singleTexCoord);
-                chunk->addNormal(Point3d(0,0,-1.0));
-                int southVert = chunk->getNumPoints()-1;
+                poleChunk->addPoint(Point3d(southPt-drawInfo->chunkMidDisp));
+                if (separatePoleChunk)
+                    poleChunk->addColor(southPoleColor);
+                else
+                    poleChunk->addTexCoord(-1,singleTexCoord);
+                poleChunk->addNormal(Point3d(0,0,-1.0));
+                int southVert = poleChunk->getNumPoints()-1;
                 
                 // A line of points for the outside ring, which we can copy
-                int startOfLine = chunk->getNumPoints();
+                int startOfLine = poleChunk->getNumPoints();
                 int iy = 0;
                 for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                 {
                     Point3d pt = locs[(iy*(sphereTessX+1)+ix)];
-                    chunk->addPoint(Point3d(pt-drawInfo->chunkMidDisp));
-                    chunk->addNormal(Point3d(0,0,-1.0));
-                    chunk->addTexCoord(-1,singleTexCoord);
+                    poleChunk->addPoint(Point3d(pt-drawInfo->chunkMidDisp));
+                    poleChunk->addNormal(Point3d(0,0,-1.0));
+                    if (separatePoleChunk)
+                        poleChunk->addColor(southPoleColor);
+                    else
+                        poleChunk->addTexCoord(-1,singleTexCoord);
                 }
                 
                 // And define the triangles
@@ -669,7 +720,7 @@ void TileBuilder::generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,Basic
                     tri.verts[0] = southVert;
                     tri.verts[1] = startOfLine+ix+1;
                     tri.verts[2] = startOfLine+ix;
-                    chunk->addTriangle(tri);
+                    poleChunk->addTriangle(tri);
                 }
             }
         }
@@ -678,11 +729,18 @@ void TileBuilder::generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,Basic
             chunk->setTexId(0,(*(drawInfo->texs))[0]->getId());
     }
     
+    // We don't always have pole points
+    if (poleDraw && *poleDraw && (*poleDraw)->getNumPoints() == 0)
+    {
+        delete *poleDraw;
+        *poleDraw = NULL;
+    }
+    
     *draw = chunk;
 }
 
 
-bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,std::vector<Texture *> *texs,
+bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,BasicDrawable **poleDraw,std::vector<Texture *> *texs,
                             Point2f texScale,Point2f texOffset,int samplingX,int samplingY,std::vector<WhirlyKitLoadedImage *> *loadImages,NSObject<WhirlyKitElevationChunk> *elevData,const Point3d &dispCenter,Quadtree::NodeInfo *parentNodeInfo)
 {
     Mbr theMbr = nodeInfo->mbr;
@@ -801,7 +859,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
             [elevData generateDrawables:&drawInfo chunk:draw skirts:skirtDraw];
         else {
             // No elevation provider, so we'll do it ourselves
-            generateDrawables(&drawInfo,draw,skirtDraw);
+            generateDrawables(&drawInfo,draw,skirtDraw,poleDraw);
         }
     }
         
@@ -870,6 +928,8 @@ void TileBuilder::log(NSString *name)
     NSLog(@"++ Quad Tile Loader %@ ++",(name ? name : @"Unknown"));
     if (drawAtlas)
         drawAtlas->log();
+    if (poleDrawAtlas)
+        poleDrawAtlas->log();
     if (texAtlas)
         texAtlas->log();
     NSLog(@"++ ++ ++");
@@ -882,12 +942,14 @@ LoadedTile::LoadedTile()
     placeholder = false;
     drawId = EmptyIdentity;
     skirtDrawId = EmptyIdentity;
+    poleDrawId = EmptyIdentity;
     dispCenter = Point3d(0,0,0);
     tileSize = 0.0;
     for (unsigned int ii=0;ii<4;ii++)
     {
         childDrawIds[ii] = EmptyIdentity;
         childSkirtDrawIds[ii] = EmptyIdentity;
+        childPoleDrawIds[ii] = EmptyIdentity;
     }
 }
 
@@ -899,6 +961,7 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
     placeholder = false;
     drawId = EmptyIdentity;
     skirtDrawId = EmptyIdentity;
+    poleDrawId = EmptyIdentity;
     elevData = nil;
     dispCenter = Point3d(0,0,0);
     tileSize = 0.0;
@@ -906,6 +969,7 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
     {
         childDrawIds[ii] = EmptyIdentity;
         childSkirtDrawIds[ii] = EmptyIdentity;
+        childPoleDrawIds[ii] = EmptyIdentity;
     }
 }
     
@@ -955,13 +1019,15 @@ bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoaded
     
     BasicDrawable *draw = NULL;
     BasicDrawable *skirtDraw = NULL;
+    BasicDrawable *poleDraw = NULL;
     std::vector<Texture *> texs(loadImages.size(),NULL);
     if (tileBuilder->texAtlas)
         subTexs.resize(loadImages.size());
-    if (!tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, (!loadImages.empty() ? &texs : NULL), Point2f(1.0,1.0), Point2f(0.0,0.0), samplingX, samplingY, &loadImages, loadElev, dispCenter,NULL))
+    if (!tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, &poleDraw, (!loadImages.empty() ? &texs : NULL), Point2f(1.0,1.0), Point2f(0.0,0.0), samplingX, samplingY, &loadImages, loadElev, dispCenter,NULL))
         return false;
     drawId = draw->getId();
     skirtDrawId = (skirtDraw ? skirtDraw->getId() : EmptyIdentity);
+    poleDrawId = (poleDraw ? poleDraw->getId() : EmptyIdentity);
 
     if (tileBuilder->texAtlas)
     {
@@ -981,7 +1047,9 @@ bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoaded
                         draw->applySubTexture(-1,subTexs[0]);
                     if (skirtDraw)
                         skirtDraw->applySubTexture(-1,subTexs[0]);
-                }                
+                    if (poleDraw)
+                        poleDraw->applySubTexture(-1,subTexs[0]);
+                }
                 
                 delete tex;
             } else {
@@ -1017,10 +1085,18 @@ bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoaded
             tileBuilder->newDrawables |= addedBigDraw;
             delete skirtDraw;
         }
+        if (poleDraw)
+        {
+            tileBuilder->poleDrawAtlas->addDrawable(poleDraw,changeRequests,true,NULL,&addedBigDraw,&dispCenter,tileSize);
+            tileBuilder->newDrawables |= addedBigDraw;
+            delete poleDraw;
+        }
     } else {
         changeRequests.push_back(new AddDrawableReq(draw));
         if (skirtDraw)
             changeRequests.push_back(new AddDrawableReq(skirtDraw));
+        if (poleDraw)
+            changeRequests.push_back(new AddDrawableReq(poleDraw));
     }
     
     // Just in case, we don't have any child drawables here
@@ -1028,6 +1104,7 @@ bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoaded
     {
         childDrawIds[ii] = EmptyIdentity;
         childSkirtDrawIds[ii] = EmptyIdentity;
+        childPoleDrawIds[ii] = EmptyIdentity;
     }
     
     return true;
@@ -1051,6 +1128,14 @@ void LoadedTile::clearContents(TileBuilder *tileBuilder,ChangeSet &changeRequest
         else
             changeRequests.push_back(new RemDrawableReq(skirtDrawId));
         skirtDrawId = EmptyIdentity;
+    }
+    if (poleDrawId != EmptyIdentity)
+    {
+        if (tileBuilder->poleDrawAtlas)
+            tileBuilder->poleDrawAtlas->removeDrawable(poleDrawId, changeRequests);
+        else
+            changeRequests.push_back(new RemDrawableReq(poleDrawId));
+        poleDrawId = EmptyIdentity;
     }
     if (tileBuilder)
     {
@@ -1079,6 +1164,13 @@ void LoadedTile::clearContents(TileBuilder *tileBuilder,ChangeSet &changeRequest
                 tileBuilder->drawAtlas->removeDrawable(childSkirtDrawIds[ii], changeRequests);
             else
                 changeRequests.push_back(new RemDrawableReq(childSkirtDrawIds[ii]));
+        }
+        if (childPoleDrawIds[ii] != EmptyIdentity)
+        {
+            if (tileBuilder->poleDrawAtlas)
+                tileBuilder->poleDrawAtlas->removeDrawable(childPoleDrawIds[ii], changeRequests);
+            else
+                changeRequests.push_back(new RemDrawableReq(childPoleDrawIds[ii]));
         }
     }
 }
@@ -1132,13 +1224,18 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
                         tileBuilder->drawAtlas->removeDrawable(childDrawIds[whichChild], changeRequests);
                         if (childSkirtDrawIds[whichChild])
                             tileBuilder->drawAtlas->removeDrawable(childSkirtDrawIds[whichChild], changeRequests);
+                        if (childPoleDrawIds[whichChild])
+                            tileBuilder->poleDrawAtlas->removeDrawable(childPoleDrawIds[whichChild], changeRequests);
                     } else {
                         changeRequests.push_back(new RemDrawableReq(childDrawIds[whichChild]));
                         if (childSkirtDrawIds[whichChild])
                             changeRequests.push_back(new RemDrawableReq(childSkirtDrawIds[whichChild]));
+                        if (childPoleDrawIds[whichChild])
+                            changeRequests.push_back(new RemDrawableReq(childPoleDrawIds[whichChild]));
                     }
                     childDrawIds[whichChild] = EmptyIdentity;
                     childSkirtDrawIds[whichChild] = EmptyIdentity;
+                    childPoleDrawIds[whichChild] = EmptyIdentity;
                 }
                 
                 childrenExist = true;
@@ -1152,17 +1249,22 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
                     {
                         BasicDrawable *childDraw = NULL;
                         BasicDrawable *childSkirtDraw = NULL;
-                        tileBuilder->buildTile(&childInfo,&childDraw,&childSkirtDraw,NULL,Point2f(0.5,0.5),Point2f(0.5*ix,0.5*iy),samplingX, samplingY,nil,elevData,dispCenter,&this->nodeInfo);
+                        BasicDrawable *childPoleDraw = NULL;
+                        tileBuilder->buildTile(&childInfo,&childDraw,&childSkirtDraw,&childPoleDraw,NULL,Point2f(0.5,0.5),Point2f(0.5*ix,0.5*iy),samplingX, samplingY,nil,elevData,dispCenter,&this->nodeInfo);
                         // Set this to change the color of child drawables.  Helpfull for debugging
                         //                        childDraw->setColor(RGBAColor(64,64,64,255));
                         childDrawIds[whichChild] = childDraw->getId();
                         if (childSkirtDraw)
                             childSkirtDrawIds[whichChild] = childSkirtDraw->getId();
+                        if (childPoleDraw)
+                            childPoleDrawIds[whichChild] = childPoleDraw->getId();
                         if (!tileBuilder->lineMode && !texIds.empty())
                         {
                             childDraw->setTexId(0,texIds[0]);
                             if (childSkirtDraw)
                                 childSkirtDraw->setTexId(0,texIds[0]);
+                            if (childPoleDraw)
+                                childPoleDraw->setTexId(0,texIds[0]);
                         }
                         if (tileBuilder->texAtlas)
                         {
@@ -1170,6 +1272,8 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
                                 childDraw->applySubTexture(-1,subTexs[0]);
                             if (childSkirtDraw && !subTexs.empty())
                                 childSkirtDraw->applySubTexture(-1,subTexs[0]);
+                            if (childPoleDraw && !subTexs.empty())
+                                childPoleDraw->applySubTexture(-1,subTexs[0]);
                         }
                         if (tileBuilder->drawAtlas)
                         {
@@ -1183,10 +1287,18 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
                                 tileBuilder->newDrawables |= addedBigDrawable;
                                 delete childSkirtDraw;
                             }
+                            if (childPoleDraw)
+                            {
+                                tileBuilder->poleDrawAtlas->addDrawable(childPoleDraw, changeRequests,true,NULL,&addedBigDrawable,&dispCenter,tileSize);
+                                tileBuilder->newDrawables |= addedBigDrawable;
+                                delete childPoleDraw;
+                            }
                         } else {
                             changeRequests.push_back(new AddDrawableReq(childDraw));
                             if (childSkirtDraw)
                                 changeRequests.push_back(new AddDrawableReq(childSkirtDraw));
+                            if (childPoleDraw)
+                                changeRequests.push_back(new AddDrawableReq(childPoleDraw));
                         }
                     }
                 }
@@ -1202,7 +1314,8 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
         {
             BasicDrawable *draw = NULL;
             BasicDrawable *skirtDraw = NULL;
-            tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, NULL, Point2f(1.0,1.0), Point2f(0.0,0.0), samplingX, samplingY,nil, elevData, dispCenter, NULL);
+            BasicDrawable *poleDraw = NULL;
+            tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, &poleDraw, NULL, Point2f(1.0,1.0), Point2f(0.0,0.0), samplingX, samplingY,nil, elevData, dispCenter, NULL);
             drawId = draw->getId();
             if (!texIds.empty())
                 draw->setTexId(0,texIds[0]);
@@ -1211,6 +1324,12 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
                 skirtDrawId = skirtDraw->getId();
                 if (!texIds.empty())
                     skirtDraw->setTexId(0,texIds[0]);
+            }
+            if (poleDraw)
+            {
+                poleDrawId = poleDraw->getId();
+                if (!texIds.empty())
+                    poleDraw->setTexId(0,texIds[0]);
             }
             if (tileBuilder->texAtlas)
             {
@@ -1230,10 +1349,18 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
                     tileBuilder->newDrawables |= addedBigDrawable;
                     delete skirtDraw;
                 }
+                if (poleDraw)
+                {
+                    tileBuilder->poleDrawAtlas->addDrawable(poleDraw, changeRequests,true,NULL,&addedBigDrawable,&dispCenter,tileSize);
+                    tileBuilder->newDrawables |= addedBigDrawable;
+                    delete poleDraw;
+                }
             } else {
                 changeRequests.push_back(new AddDrawableReq(draw));
                 if (skirtDraw)
                     changeRequests.push_back(new AddDrawableReq(skirtDraw));
+                if (poleDraw)
+                    changeRequests.push_back(new AddDrawableReq(poleDraw));
             }
 
             nodesEnabled.push_back(nodeInfo.ident);
@@ -1249,13 +1376,18 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
                     tileBuilder->drawAtlas->removeDrawable(childDrawIds[ii], changeRequests);
                     if (childSkirtDrawIds[ii] != EmptyIdentity)
                         tileBuilder->drawAtlas->removeDrawable(childSkirtDrawIds[ii], changeRequests);
+                    if (childPoleDrawIds[ii] != EmptyIdentity)
+                        tileBuilder->poleDrawAtlas->removeDrawable(childPoleDrawIds[ii], changeRequests);
                 } else {
                     changeRequests.push_back(new RemDrawableReq(childDrawIds[ii]));
                     if (childSkirtDrawIds[ii] != EmptyIdentity)
                         changeRequests.push_back(new RemDrawableReq(childSkirtDrawIds[ii]));
+                    if (childPoleDrawIds[ii] != EmptyIdentity)
+                        changeRequests.push_back(new RemDrawableReq(childPoleDrawIds[ii]));
                 }
                 childDrawIds[ii] = EmptyIdentity;
                 childSkirtDrawIds[ii] = EmptyIdentity;
+                childPoleDrawIds[ii] = EmptyIdentity;
             }
         }
     } else {
@@ -1267,13 +1399,18 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
                 tileBuilder->drawAtlas->removeDrawable(drawId, changeRequests);
                 if (skirtDrawId != EmptyIdentity)
                     tileBuilder->drawAtlas->removeDrawable(skirtDrawId, changeRequests);
+                if (poleDrawId != EmptyIdentity)
+                    tileBuilder->poleDrawAtlas->removeDrawable(poleDrawId, changeRequests);
             } else {
                 changeRequests.push_back(new RemDrawableReq(drawId));
                 if (skirtDrawId != EmptyIdentity)
                     changeRequests.push_back(new RemDrawableReq(skirtDrawId));
+                if (poleDrawId != EmptyIdentity)
+                    changeRequests.push_back(new RemDrawableReq(poleDrawId));
             }
             drawId = EmptyIdentity;
             skirtDrawId = EmptyIdentity;
+            poleDrawId = EmptyIdentity;
             
             nodesDisabled.push_back(nodeInfo.ident);
         }
@@ -1321,6 +1458,8 @@ void LoadedTile::setEnable(TileBuilder *tileBuilder, bool enable, ChangeSet &the
         theChanges.push_back(new OnOffChangeRequest(drawId,enable));
     if (skirtDrawId != EmptyIdentity)
         theChanges.push_back(new OnOffChangeRequest(skirtDrawId,enable));
+    if (poleDrawId != EmptyIdentity)
+        theChanges.push_back(new OnOffChangeRequest(poleDrawId,enable));
 
     for (unsigned int ii=0;ii<4;ii++)
     {
@@ -1328,6 +1467,8 @@ void LoadedTile::setEnable(TileBuilder *tileBuilder, bool enable, ChangeSet &the
             theChanges.push_back(new OnOffChangeRequest(childDrawIds[ii],enable));
         if (childSkirtDrawIds[ii] != EmptyIdentity)
             theChanges.push_back(new OnOffChangeRequest(childSkirtDrawIds[ii],enable));
+        if (childPoleDrawIds[ii] != EmptyIdentity)
+            theChanges.push_back(new OnOffChangeRequest(childPoleDrawIds[ii],enable));
     }
 }
 
