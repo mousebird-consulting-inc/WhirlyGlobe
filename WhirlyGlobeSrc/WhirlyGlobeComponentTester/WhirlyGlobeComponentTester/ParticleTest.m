@@ -86,6 +86,7 @@ typedef struct
     if (!partSysObj)
     {
         partSys.lifetime = _particleLifetime;
+        partSys.totalParticles = _numParticles;
         partSys.batchSize = (_numParticles / (_particleLifetime/_updateInterval));
         partSysObj = [viewC addParticleSystem:partSys desc:@{kMaplyPointSize: @(4.0), kMaplyDrawPriority: @(kMaplyModelDrawPriorityDefault+1000)} mode:MaplyThreadCurrent];
     }
@@ -116,7 +117,7 @@ typedef struct
         
         // Random direction
         dir->x = drand48()*2-1;  dir->y = drand48()*2-1;  dir->z = drand48()*2-1;
-        sum = sqrtf(dir->x*dir->x + dir->y*dir->y + dir->z*dir->z)/100.0;
+        sum = sqrtf(dir->x*dir->x + dir->y*dir->y + dir->z*dir->z)/10.0;
         dir->x /= sum;  dir->y /= sum;  dir->z /= sum;
 
         color->r = 1.0;  color->g = 1.0;  color->b = 1.0;  color->a = 1.0;
