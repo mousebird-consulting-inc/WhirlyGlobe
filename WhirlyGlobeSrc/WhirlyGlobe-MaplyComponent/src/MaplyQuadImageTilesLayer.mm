@@ -276,6 +276,8 @@ using namespace WhirlyKit;
     tileLoader.enable = _enable;
     tileLoader.fade = _fade;
     tileLoader.borderTexel = _borderTexel;
+    tileLoader.northPoleColor = _northPoleColor;
+    tileLoader.southPoleColor = _southPoleColor;
     // Note: Still having problems with this
     tileLoader.useTileCenters = false;
     switch (_imageFormat)

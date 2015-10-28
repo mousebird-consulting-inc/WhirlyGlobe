@@ -647,7 +647,7 @@ void RemDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
 
         scene->remDrawable(*it);        
     } else
-        NSLog(@"Missing drawable for RemDrawableReq: %d", drawable);
+        NSLog(@"Missing drawable for RemDrawableReq: %llu", drawable);
 }
 
 void AddGeneratorReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
