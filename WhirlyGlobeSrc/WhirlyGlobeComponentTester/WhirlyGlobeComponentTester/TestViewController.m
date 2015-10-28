@@ -1504,6 +1504,8 @@ static const int NumMegaMarkers = 15000;
         layer.waitLoad = imageWaitLoad;
         layer.drawPriority = BaseEarthPriority;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
+//        layer.northPoleColor = [UIColor redColor];
+//        layer.southPoleColor = [UIColor greenColor];
         [layer setTesselationValues:tessValues];
         [baseViewC addLayer:layer];
         
