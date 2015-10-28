@@ -366,7 +366,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 //    if (globeViewC)
 //        [self performSelector:@selector(viewAnimationTest) withObject:nil afterDelay:2.0];
     
-    [self performSelector:@selector(labelMarkerTest:) withObject:@(0.1) afterDelay:0.1];
+//    [self performSelector:@selector(labelMarkerTest:) withObject:@(0.1) afterDelay:0.1];
 }
 
 - (void)labelMarkerTest:(NSNumber *)time
@@ -978,16 +978,35 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     });
 }
 
+- (void)addTestGeoJSONFiles {
+  for(NSString *file in @[
+                          @"track.geojson",
+                          @"spiral.geojson",
+                          @"sawtooth.geojson",
+                          @"mowing-lawn.geojson",
+                          @"square.geojson",
+                          ]) {
+    [self addGeoJson:file];
+  }
+}
+
 - (void)addGeoJson:(NSString*)name {
-    CGSize size = CGSizeMake(8 * [UIScreen mainScreen].scale, 32);
+    BOOL drawRegularVectorOnTop = YES;
+    
+    CGFloat width = 12;
+    
+    CGSize size = CGSizeMake(width * [UIScreen mainScreen].scale, 32);
     MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:size];
     [lineTexBuilder setPattern:@[@(size.height)]];
     lineTexBuilder.opacityFunc = MaplyOpacitySin3;
     UIImage *lineImage = [lineTexBuilder makeImage];
     MaplyTexture *lineTexture = [baseViewC addTexture:lineImage
-                                          imageFormat:MaplyImageIntRGBA
-                                            wrapFlags:MaplyImageWrapY
-                                                 mode:MaplyThreadCurrent];
+                                           desc:@{kMaplyTexMinFilter: kMaplyMinFilterLinear,
+                                                  kMaplyTexMagFilter: kMaplyMinFilterLinear,
+                                                  kMaplyTexWrapX: @YES,
+                                                  kMaplyTexWrapY: @YES,
+                                                  kMaplyTexFormat: @(MaplyImageIntRGBA)}
+                                           mode:MaplyThreadCurrent];
     
     NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:nil];
     if(path) {
@@ -996,28 +1015,29 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
                                                                        options:0 error:nil];
         MaplyVectorObject *vecObj = [MaplyVectorObject VectorObjectFromGeoJSONDictionary:jsonDictionary];
         if(vecObj) {
-            [baseViewC addWideVectors:@[vecObj]
-                                 desc: @{kMaplyColor: [UIColor colorWithRed:1 green:0 blue:0 alpha:0.5],
+            if(drawRegularVectorOnTop) {
+                [baseViewC addVectors:@[vecObj]
+                                 desc: @{kMaplyColor: [UIColor redColor],
                                          kMaplyFilled: @NO,
                                          kMaplyEnable: @YES,
                                          kMaplyFade: @0,
                                          kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 1),
                                          kMaplyVecCentered: @YES,
+                                         kMaplyVecWidth: @(1)}
+                                 mode:MaplyThreadCurrent];
+            }
+            [baseViewC addWideVectors:@[vecObj]
+                                 desc: @{kMaplyColor: [UIColor blackColor],
+                                         kMaplyFilled: @NO,
+                                         kMaplyEnable: @YES,
+                                         kMaplyFade: @0,
+                                         kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault),
+                                         kMaplyVecCentered: @YES,
                                          kMaplyVecTexture: lineTexture,
                                          kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                          kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
-                                         kMaplyVecWidth: @(8)}
+                                         kMaplyVecWidth: @(width)}
                                  mode:MaplyThreadCurrent];
-            [baseViewC addVectors:@[vecObj]
-                             desc: @{kMaplyColor: [UIColor blackColor],
-                                     kMaplyFilled: @NO,
-                                     kMaplyEnable: @YES,
-                                     kMaplyFade: @0,
-                                     kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault),
-                                     kMaplyVecCentered: @YES,
-                                     kMaplyVecWidth: @(1)}
-                             mode:MaplyThreadCurrent];
-            sfRoadsObjArray = @[vecObj];
         }
     }
 }
@@ -1719,7 +1739,8 @@ static const int NumMegaMarkers = 15000;
                    kMaplyVecWidth: @(vecWidth),
                    kMaplyFade: @(1.0),
                    kMaplySelectable: @(true)};
-    
+ 
+//  [self addTestGeoJSONFiles];
 }
 
 // Reload testing

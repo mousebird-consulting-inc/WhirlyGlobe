@@ -664,35 +664,6 @@ public:
     }
     
     
-    // Add a point to the widened linear we're building
-    void addPoint(const Point3d &inPt,const Point3d &up,BasicDrawable *drawable)
-    {
-        // Compare with the last point, if it's the same, toss it
-        if (!pts.empty() && pts.back() == inPt)
-            return;
-        
-        pts.push_back(inPt);
-        if (pts.size() >= 3)
-        {
-            const Point3d &pa = pts[pts.size()-3];
-            const Point3d &pb = pts[pts.size()-2];
-            const Point3d &pc = pts[pts.size()-1];
-            buildPolys(&pa,&pb,&pc,up,drawable);
-        }
-        lastUp = up;
-    }
-    
-    // Flush out any outstanding points
-    void flush(BasicDrawable *drawable)
-    {
-        if (pts.size() >= 2)
-        {
-            const Point3d &pa = pts[pts.size()-2];
-            const Point3d &pb = pts[pts.size()-1];
-            buildPolys(&pa, &pb, NULL, lastUp, drawable);
-        }
-    }
-
     WhirlyKitWideVectorInfo *vecInfo;
     CoordSystemDisplayAdapter *coordAdapter;
     RGBAColor color;
@@ -700,9 +671,6 @@ public:
     double angleCutoff;
     
     double texOffset;
-
-    std::vector<Point3d> pts;
-    Point3d lastUp;
     
     bool edgePointsValid;
     Point3d e0,e1,centerAdj;
@@ -766,30 +734,74 @@ public:
     // Add the points for a linear
     void addLinear(VectorRing &pts,const Point3d &up)
     {
+        //remove duplicate points from end of line
+        unsigned int len = pts.size();
+        while(len > 2 && pts[len - 1] == pts[len - 2]) {
+            len--;
+        }
+        
+        if(len < 2)
+        { //A line must have at least 2 vertices
+            return;
+        }
+        
+        const BOOL closed = pts.front() == pts[len - 1];
+        
+        if(len == 2 && closed)
+        { //A closed ring with 2 points is not valid
+            return;
+        }
+        
+        //convert points to display space
+        VectorRing3d vertices;
+        for (unsigned int ii=0;ii< len;ii++)
+        {
+            // Compare with the last point, if it's the same, toss it
+            if (ii > 0 && pts[ii - 1] == pts[ii])
+            {
+                continue;
+            }
+            Point2f geoA = pts[ii];
+            drawMbr.addPoint(geoA);
+            Point3d dispPa = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y())));
+            vertices.push_back(dispPa);
+        }
+        
         RGBAColor color = [vecInfo.color asRGBAColor];
-//        color.r = random()%256;
-//        color.g = random()%256;
-//        color.b = random()%256;
-//        color.a = 255;
         WideVectorBuilder vecBuilder(vecInfo,localCenter,dispCenter,color,coordAdapter);
         
-        // Work through the segments
-        for (unsigned int ii=0;ii<pts.size();ii++)
+        Point3d *prevVertex = NULL;
+        Point3d *currentVertex = NULL;
+        Point3d *nextVertex = NULL;
+        
+        len = vertices.size();
+        
+        for (unsigned int ii=0; ii < len; ii++)
         {
-            // Get the points in display space
-            Point2f geoA = pts[ii];
-            Point3d dispPa = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y())));
+            if (closed && ii == len - 1) { //Last vertex of closed path, so grab thhe next vertex to make a join
+                nextVertex = &vertices[1];
+            } else if (ii + 1 < len) {
+                nextVertex = &vertices[ii + 1];
+            } else { //end of line
+                nextVertex = NULL;
+            }
             
-            // Get a drawable ready
-            int ptCount = 5;
-            int triCount = 4;
-            BasicDrawable *thisDrawable = getDrawable(ptCount,triCount);
-            drawMbr.addPoint(geoA);
+            if (currentVertex)
+            {
+                prevVertex = currentVertex;
+            }
             
-            vecBuilder.addPoint(dispPa,up,thisDrawable);
+            currentVertex = &vertices[ii];
+            
+            if(prevVertex)
+            {
+                // Get a drawable ready
+                int ptCount = 5;
+                int triCount = 4;
+                BasicDrawable *thisDrawable = getDrawable(ptCount,triCount);
+                vecBuilder.buildPolys(prevVertex,currentVertex,nextVertex,up,thisDrawable);
+            }
         }
-
-        vecBuilder.flush(drawable);
     }
 
     // Flush out the drawables
