@@ -636,9 +636,15 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         tileSource.transparent = true;
         MaplyQuadImageTilesLayer *imageLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:coordSys tileSource:tileSource];
         imageLayer.coverPoles = false;
-        imageLayer.handleEdges = true;
+        imageLayer.handleEdges = false;
         imageLayer.requireElev = requireElev;
         imageLayer.waitLoad = imageWaitLoad;
+        imageLayer.drawPriority = BaseEarthPriority + 1000;
+        if (startupMapType == Maply2DMap)
+        {
+            imageLayer.singleLevelLoading = true;
+            imageLayer.multiLevelLoads = @[@(-2)];
+        }
         [baseViewC addLayer:imageLayer];
         
         if (ovlName)
