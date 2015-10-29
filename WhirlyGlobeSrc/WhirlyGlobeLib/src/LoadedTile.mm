@@ -668,7 +668,10 @@ void TileBuilder::generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,Basic
                 {
                     Point3d pt = locs[(iy*(sphereTessX+1)+ix)];
                     poleChunk->addPoint(Point3d(pt-drawInfo->chunkMidDisp));
-                    poleChunk->addNormal(Point3d(0,0,1.0));
+                    if (drawInfo->coordAdapter->isFlat())
+                        poleChunk->addNormal(Point3d(0,0,1.0));
+                    else
+                        poleChunk->addNormal(pt);
                     if (separatePoleChunk)
                         poleChunk->addColor(northPoleColor);
                     else
@@ -706,7 +709,10 @@ void TileBuilder::generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,Basic
                 {
                     Point3d pt = locs[(iy*(sphereTessX+1)+ix)];
                     poleChunk->addPoint(Point3d(pt-drawInfo->chunkMidDisp));
-                    poleChunk->addNormal(Point3d(0,0,-1.0));
+                    if (drawInfo->coordAdapter->isFlat())
+                        poleChunk->addNormal(Point3d(0,0,1.0));
+                    else
+                        poleChunk->addNormal(pt);
                     if (separatePoleChunk)
                         poleChunk->addColor(southPoleColor);
                     else
