@@ -2006,7 +2006,7 @@ static const int NumMegaMarkers = 15000;
 #endif
             } else if (![layerName compare:kMaplyWindTest])
             {
-                ParticleTileDelegate *partDelegate = [[ParticleTileDelegate alloc] initWithURL:@"http://tilesets.s3-website-us-east-1.amazonaws.com/wind_test/{dir}_tiles/{z}/{x}/{y}" minZoom:2 maxZoom:5 viewC:baseViewC];
+                ParticleTileDelegate *partDelegate = [[ParticleTileDelegate alloc] initWithURL:@"http://tilesets.s3-website-us-east-1.amazonaws.com/wind_test/{dir}_tiles/{z}/{x}/{y}.png" minZoom:2 maxZoom:5 viewC:baseViewC];
                 MaplyQuadPagingLayer *layer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:partDelegate.coordSys delegate:partDelegate];
                 layer.flipY = false;
 

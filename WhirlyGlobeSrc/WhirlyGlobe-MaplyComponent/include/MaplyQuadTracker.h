@@ -53,6 +53,11 @@ typedef struct
   */
 - (nonnull instancetype)initWithViewC:(WhirlyGlobeViewController *__nonnull)viewC;
 
+/** @brief The minimum level to consider.
+    @details Set this if you're starting loading at a level higher than 0.  0 is the default.
+  */
+@property (nonatomic,assign) int minLevel;
+
 /** @brief Query the quad tracker for tiles and locations within them for a group of points.
     @details This is a bulk query for points within the tiles being tracked.
     @param tilesInfo This is both an input and output parameter.  Fill in the screenU and screenV values and you'll get back tileID and tileU and tileV.  tileID.level will be -1 if there was no hit for that point.
