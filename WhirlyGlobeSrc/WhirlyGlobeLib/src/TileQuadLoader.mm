@@ -348,7 +348,6 @@ using namespace WhirlyKit;
         if (tileBuilder->poleDrawAtlas && tileBuilder->poleDrawAtlas->hasUpdates() && !tileBuilder->poleDrawAtlas->waitingOnSwap())
         {
             tileBuilder->poleDrawAtlas->swap(changeRequests,_quadLayer,@selector(wakeUp));
-            tileBuilder->texAtlas->cleanup(changeRequests);
             tileBuilder->poleDrawAtlas->clearUpdateFlag();
         }
     }
