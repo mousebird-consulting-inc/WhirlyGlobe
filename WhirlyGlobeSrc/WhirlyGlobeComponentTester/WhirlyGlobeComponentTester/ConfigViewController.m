@@ -136,8 +136,7 @@
               kMaplyTestOWM: @(NO),
               kMaplyTestForecastIO: @(NO),
               kMaplyTestMapboxStreets: @(NO),
-              kMaplyMapzenVectors: @(NO),
-              kMaplyWindTest: @(NO)
+              kMaplyMapzenVectors: @(NO)
               }
                                    singleSelect:false],
            [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects

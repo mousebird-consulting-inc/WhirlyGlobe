@@ -122,7 +122,8 @@ typedef struct
     NSMutableDictionary *cachedTiles;
     MaplyQuadTracker *tileTrack;
     float velocityScale;
-    SimpleColor velocityColors[2];
+    int numVelocityColors;
+    SimpleColor velocityColors[3];
 }
 
 - (id)initWithURL:(NSString *)inURL minZoom:(int)inMinZoom maxZoom:(int)inMaxZoom viewC:(MaplyBaseViewController *)inViewC
@@ -141,8 +142,10 @@ typedef struct
     velocityScale = 0.01f;
     
     // Colors we'll use
-    velocityColors[0].r = 0.4f;  velocityColors[0].g = 0.4f;  velocityColors[0].b = 1.f;  velocityColors[0].a = 1.f;
-    velocityColors[1].r = 1.f;  velocityColors[1].g = 0.4f;  velocityColors[1].b = 0.4f;  velocityColors[1].a = 1.f;
+    numVelocityColors = 3;
+    velocityColors[0].r = 0.6f;  velocityColors[0].g = 1.0f;  velocityColors[0].b = 0.6f;  velocityColors[0].a = 1.f;
+    velocityColors[1].r = 0.6f;  velocityColors[1].g = 0.6f;  velocityColors[1].b = 1.f;  velocityColors[1].a = 1.f;
+    velocityColors[2].r = 1.f;  velocityColors[2].g = 0.6f;  velocityColors[2].b = 0.6f;  velocityColors[2].a = 1.f;
     
     // Set up the particle system we'll feed with particles
     partSys = [[MaplyParticleSystem alloc] initWithName:@"Particle Wind Test"];
@@ -285,10 +288,20 @@ static const float sqrt2 = 1.41421356237;
     vel = MAX(0.f,vel);
     vel = MIN(1.f,vel);
     
-    color->r = (velocityColors[1].r - velocityColors[0].r)*vel + velocityColors[0].r;
-    color->g = (velocityColors[1].g - velocityColors[0].g)*vel + velocityColors[0].g;
-    color->b = (velocityColors[1].b - velocityColors[0].b)*vel + velocityColors[0].b;
-    color->a = (velocityColors[1].a - velocityColors[0].a)*vel + velocityColors[0].a;
+    SimpleColor *c0,*c1;
+    if (vel < 0.5)
+    {
+        c0 = &velocityColors[0];
+        c1 = &velocityColors[1];
+    } else {
+        c0 = &velocityColors[1];
+        c1 = &velocityColors[2];
+    }
+    
+    color->r = (c1->r - c0->r)*vel + c0->r;
+    color->g = (c1->g - c0->g)*vel + c0->g;
+    color->b = (c1->b - c0->b)*vel + c0->b;
+    color->a = (c1->a - c0->a)*vel + c0->a;
 }
 
 - (void)generateParticles
@@ -299,7 +312,7 @@ static const float sqrt2 = 1.41421356237;
         partSys.lifetime = _particleLifetime;
         partSys.totalParticles = _numParticles;
         partSys.batchSize = (_numParticles / (_particleLifetime/_updateInterval));
-        partSysObj = [viewC addParticleSystem:partSys desc:@{kMaplyPointSize: @(2.0), kMaplyDrawPriority: @(kMaplyModelDrawPriorityDefault+1000)} mode:MaplyThreadCurrent];
+        partSysObj = [viewC addParticleSystem:partSys desc:@{kMaplyPointSize: @(4.0), kMaplyDrawPriority: @(kMaplyModelDrawPriorityDefault+1000)} mode:MaplyThreadCurrent];
     }
     
     NSTimeInterval now = CFAbsoluteTimeGetCurrent();
@@ -383,7 +396,7 @@ static const float sqrt2 = 1.41421356237;
                 {
                     velU = (u-127.0)/128.0;
                     velV = (v-127.0)/128.0;
-                    float vel = sqrtf(velU*velU+velV*velV)/sqrt2 * 6;
+                    float vel = sqrtf(velU*velU+velV*velV)/sqrt2 * 3;
                     
                     MaplyCoordinate3d coordB;
                     coordB.x = coordA.x + velU * velocityScale;
