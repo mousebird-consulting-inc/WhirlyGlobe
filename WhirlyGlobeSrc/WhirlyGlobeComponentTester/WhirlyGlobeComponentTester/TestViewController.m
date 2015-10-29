@@ -1504,7 +1504,7 @@ static const int NumMegaMarkers = 15000;
         layer.waitLoad = imageWaitLoad;
         layer.drawPriority = BaseEarthPriority;
         layer.singleLevelLoading = (startupMapType == Maply2DMap);
-//        layer.northPoleColor = [UIColor redColor];
+//        layer.northPoleColor = [UIColor whiteColor];
 //        layer.southPoleColor = [UIColor greenColor];
         [layer setTesselationValues:tessValues];
         [baseViewC addLayer:layer];
@@ -1550,7 +1550,11 @@ static const int NumMegaMarkers = 15000;
         [baseViewC addLayer:layer];
         layer.drawPriority = BaseEarthPriority;
         layer.waitLoad = imageWaitLoad;
-        layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        if (startupMapType == Maply2DMap)
+        {
+            layer.singleLevelLoading = true;
+            layer.multiLevelLoads = @[@(-4), @(-2)];
+        }
         baseLayer = layer;
         screenLabelColor = [UIColor whiteColor];
         screenLabelBackColor = [UIColor whiteColor];
@@ -1574,7 +1578,11 @@ static const int NumMegaMarkers = 15000;
         layer.requireElev = requireElev;
         layer.waitLoad = imageWaitLoad;
         layer.maxTiles = maxLayerTiles;
-        layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        if (startupMapType == Maply2DMap)
+        {
+            layer.singleLevelLoading = true;
+            layer.multiLevelLoads = @[@(-4), @(-2)];
+        }
         [layer setTesselationValues:tessValues];
         [baseViewC addLayer:layer];
         layer.drawPriority = BaseEarthPriority;
