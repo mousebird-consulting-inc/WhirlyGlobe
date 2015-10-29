@@ -64,6 +64,7 @@
 #define kMaplyTestLoftedPoly @"Lofted Polygons"
 #define kMaplyTestQuadMarkers @"Quad Paging Markers"
 #define kMaplyTestMegaMarkers @"Mega Markers"
+#define kMaplyTestMarkerCluster @"Marker Clustering"
 #define kMaplyTestLatLon @"Lon/Lat lines"
 #define kMaplyTestRoads @"SF Roads"
 #define kMaplyTestArcGIS @"ArcGIS Vectors"
