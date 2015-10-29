@@ -717,7 +717,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         }
     }
     
-    screenMarkersObj = [baseViewC addScreenMarkers:markers desc:@{kMaplyDrawPriority: @(100), kMaplyClusterGroup: @(0)}];
+    screenMarkersObj = [baseViewC addScreenMarkers:markers desc:@{kMaplyDrawPriority: @(100)}];
 }
 
 // Add 3D markers
