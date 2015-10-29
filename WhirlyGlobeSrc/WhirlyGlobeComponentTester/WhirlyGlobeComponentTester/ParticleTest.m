@@ -306,16 +306,16 @@ static const float sqrt2 = 1.41421356237;
 
     // Data arrays for particles
     // These have to be raw data, rather than objects for speed
+    int batchSize = partSys.batchSize;
     if (!locs)
     {
-        int batchSize = partSys.batchSize;
         locs = malloc(sizeof(SimpleLoc)*batchSize);
-        memset(locs, 0, batchSize*sizeof(SimpleLoc));
         dirs = malloc(sizeof(SimpleLoc)*batchSize);
         colors = malloc(sizeof(SimpleColor)*batchSize);
         times = malloc(sizeof(float)*batchSize);
-        memset(times, 0, batchSize*sizeof(float));
     }
+    memset(locs, 0, batchSize*sizeof(SimpleLoc));
+    memset(times, 0, batchSize*sizeof(float));
 
     // Make up some random particles
 #if 0
