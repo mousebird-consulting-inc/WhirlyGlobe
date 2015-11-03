@@ -11,6 +11,7 @@
 #import "MaplyRemoteTileElevationSource.h"
 #import "MaplyCoordinateSystem.h"
 #import "WhirlyGlobeComponent.h"
+#import "GeographyClassTestCase.h"
 
 
 
@@ -23,13 +24,16 @@
 		self.name = @"Celsium Elevation";
 		self.captureDelay = 5;
 	}
-    
+
 	return self;
 }
 
 
 - (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
+	GeographyClassTestCase *gctc = [[GeographyClassTestCase alloc] init];
+	[gctc setUpWithGlobe:globeVC];
+
 	[globeVC setTiltMinHeight:0.001 maxHeight:0.04 minTilt:1.40 maxTilt:0.0];
 	globeVC.frameInterval = 2;  // 30fps
 
@@ -55,11 +59,17 @@
 	tileSource.pixelsPerSide = 128;
 	MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
 	layer.requireElev = true;
-	layer.maxTiles = 256;
+	layer.maxTiles = 128;
 	layer.handleEdges = true;
 	layer.numSimultaneousFetches = 8;
 	[globeVC addLayer:layer];
 	layer.drawPriority = 0;//BaseEarthPriority;
+
+	//Animate slowly into position
+	[globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056) time:5.0];
+
+	//Animate to another position
+	[globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(151.211111, -33.859972) time:1.0];
 
 	return true;
 }
