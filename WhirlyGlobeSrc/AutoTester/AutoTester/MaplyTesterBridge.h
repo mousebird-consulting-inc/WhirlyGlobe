@@ -17,5 +17,11 @@
 #import "AFNetworking.h"
 #import "CesiumElevationTestCase.h"
 #import "MapBoxVectorTestCase.h"
+#import "MaplyMapnikVectorTiles.h"
+#import "VectorsTestCase.h"
+#import "ScreenMarkersTestCase.h"
+
+
+
 
 #endif
