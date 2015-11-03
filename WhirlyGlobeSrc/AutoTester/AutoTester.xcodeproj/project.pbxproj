@@ -442,6 +442,7 @@
 		D8E12ED01BDEA2E400BB7BC7 /* WheatherShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ECF1BDEA2E400BB7BC7 /* WheatherShader.swift */; };
 		D8E12ED41BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ED31BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m */; };
 		D8F2FE231BE7B1B40058A310 /* MapzenSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE221BE7B1B40058A310 /* MapzenSource.m */; };
+		D8F2FE271BE7BD630058A310 /* LabelsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE261BE7BD630058A310 /* LabelsTestCase.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -902,6 +903,8 @@
 		D8E12ED31BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapBoxVectorTestCase.m; sourceTree = "<group>"; };
 		D8F2FE211BE7B1B40058A310 /* MapzenSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapzenSource.h; sourceTree = "<group>"; };
 		D8F2FE221BE7B1B40058A310 /* MapzenSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapzenSource.m; sourceTree = "<group>"; };
+		D8F2FE251BE7BD630058A310 /* LabelsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelsTestCase.h; sourceTree = "<group>"; };
+		D8F2FE261BE7BD630058A310 /* LabelsTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelsTestCase.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -984,6 +987,8 @@
 				D8228AA41BE785E1001D6914 /* MovingScreenMarkers.h */,
 				D8228AA51BE785E1001D6914 /* MovingScreenMarkers.m */,
 				D8228AA71BE786BE001D6914 /* ClusteredMarkersTestCase.swift */,
+				D8F2FE251BE7BD630058A310 /* LabelsTestCase.h */,
+				D8F2FE261BE7BD630058A310 /* LabelsTestCase.m */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2036,6 +2041,7 @@
 				88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */,
 				88E4B8C51B83B6AB0050D21B /* AppDelegate.swift in Sources */,
 				D8228AA81BE786BE001D6914 /* ClusteredMarkersTestCase.swift in Sources */,
+				D8F2FE271BE7BD630058A310 /* LabelsTestCase.m in Sources */,
 				D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */,
 				D8341A761BE2E89E00411A46 /* ScreenMarkersTestCase.m in Sources */,
 				D8E12ED41BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m in Sources */,
