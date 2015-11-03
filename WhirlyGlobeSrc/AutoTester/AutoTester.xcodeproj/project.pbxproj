@@ -443,6 +443,7 @@
 		D8E12ED41BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ED31BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m */; };
 		D8F2FE231BE7B1B40058A310 /* MapzenSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE221BE7B1B40058A310 /* MapzenSource.m */; };
 		D8F2FE271BE7BD630058A310 /* LabelsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE261BE7BD630058A310 /* LabelsTestCase.m */; };
+		D8F2FE291BE7C2000058A310 /* MarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE281BE7C2000058A310 /* MarkersTestCase.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -905,6 +906,7 @@
 		D8F2FE221BE7B1B40058A310 /* MapzenSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapzenSource.m; sourceTree = "<group>"; };
 		D8F2FE251BE7BD630058A310 /* LabelsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelsTestCase.h; sourceTree = "<group>"; };
 		D8F2FE261BE7BD630058A310 /* LabelsTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelsTestCase.m; sourceTree = "<group>"; };
+		D8F2FE281BE7C2000058A310 /* MarkersTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkersTestCase.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -989,6 +991,7 @@
 				D8228AA71BE786BE001D6914 /* ClusteredMarkersTestCase.swift */,
 				D8F2FE251BE7BD630058A310 /* LabelsTestCase.h */,
 				D8F2FE261BE7BD630058A310 /* LabelsTestCase.m */,
+				D8F2FE281BE7C2000058A310 /* MarkersTestCase.swift */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2046,6 +2049,7 @@
 				D8341A761BE2E89E00411A46 /* ScreenMarkersTestCase.m in Sources */,
 				D8E12ED41BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m in Sources */,
 				D8341A631BE299BF00411A46 /* MapzenVectorTestCase.swift in Sources */,
+				D8F2FE291BE7C2000058A310 /* MarkersTestCase.swift in Sources */,
 				D8F2FE231BE7B1B40058A310 /* MapzenSource.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

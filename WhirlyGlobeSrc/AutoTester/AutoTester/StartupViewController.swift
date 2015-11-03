@@ -22,7 +22,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
         ScreenLabelsTestCase(),
         ScreenMarkersTestCase(),
         ClusteredMarkersTestCase(),
-        LabelsTestCase()
+        LabelsTestCase(),
+        MarkersTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
