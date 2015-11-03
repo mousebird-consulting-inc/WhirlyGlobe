@@ -34,7 +34,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
 		}
 	}
 
-	func createLayer(baseView: MaplyBaseViewController) -> (MaplyQuadImageTilesLayer){
+	func createLayer(baseView: MaplyBaseViewController) -> (MaplyQuadImageTilesLayer) {
 		let precipTileSource = MaplyMultiplexTileSource(sources: tileSources)
 		// Create a precipitation layer that animates
 		let precipLayer = MaplyQuadImageTilesLayer(tileSource: precipTileSource!)

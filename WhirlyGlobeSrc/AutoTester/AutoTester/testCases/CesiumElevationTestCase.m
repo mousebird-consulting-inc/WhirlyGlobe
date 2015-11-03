@@ -51,17 +51,10 @@
 	// Don't forget to turn on the z buffer permanently
 	[globeVC setHints:@{kMaplyRenderHintZBuffer: @(YES)}];
 
-	// Set up their odd tiling system
-	MaplyCesiumCoordSystem *cesiumCoordSys = [[MaplyCesiumCoordSystem alloc] init];
-	MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:cesiumCoordSys minZoom:1 maxZoom:16 depth:1];
-	tileSource.useDelay = false;
-	tileSource.transparentMode = false;
-	tileSource.pixelsPerSide = 128;
-	MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
-	layer.requireElev = true;
-	layer.maxTiles = 128;
-	layer.handleEdges = true;
-	layer.numSimultaneousFetches = 8;
+	MaplyPagingElevationTestTileSource *tileSource  =[[MaplyPagingElevationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc]initWebStandard] minZoom:0 maxZoom:10 elevSource:cesiumElev];
+	MaplyQuadPagingLayer *layer = [[MaplyQuadPagingLayer alloc]initWithCoordSystem:tileSource.coordSys delegate:tileSource];
+	layer.importance  = 128*128;
+	layer.singleLevelLoading = false;
 	[globeVC addLayer:layer];
 	layer.drawPriority = 0;//BaseEarthPriority;
 
