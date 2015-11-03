@@ -20,6 +20,7 @@
 #import "MaplyMapnikVectorTiles.h"
 #import "VectorsTestCase.h"
 #import "ScreenMarkersTestCase.h"
+#import "MapzenSource.h"
 
 
 

@@ -59,7 +59,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
 					}
 				}
 				else {
-					//Some whit text outline
+					//Some with text outline
 					if let comp = theViewC.addScreenLabels([label], desc: [
 							kMaplyFont: UIFont.boldSystemFontOfSize(24.0),
 							kMaplyTextOutlineColor: UIColor.blackColor(),

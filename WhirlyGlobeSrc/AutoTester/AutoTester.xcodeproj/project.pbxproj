@@ -418,6 +418,17 @@
 		88FF5EF11BC31D95002F15CE /* tl_2013_06075_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF21BC31D95002F15CE /* tl_2013_06075_roads.shp */; };
 		88FF5EF21BC31D95002F15CE /* tl_2013_06075_roads.shx in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF31BC31D95002F15CE /* tl_2013_06075_roads.shx */; };
 		88FF5EF31BC31D95002F15CE /* tl_2013_06075_roads.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */; };
+		D8228A921BE77816001D6914 /* MovingScreenLabelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8228A911BE77816001D6914 /* MovingScreenLabelsTestCase.swift */; };
+		D8228A961BE77C8F001D6914 /* CesiumElevationTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A941BE77C8F001D6914 /* CesiumElevationTestCase-globe.png */; };
+		D8228A971BE77C8F001D6914 /* CesiumElevationTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A951BE77C8F001D6914 /* CesiumElevationTestCase-map.png */; };
+		D8228A9E1BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A981BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-globe.png */; };
+		D8228A9F1BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A991BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-map.png */; };
+		D8228AA01BE780FD001D6914 /* AutoTester.MapzenVectorTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A9A1BE780FD001D6914 /* AutoTester.MapzenVectorTestCase-map.png */; };
+		D8228AA11BE780FD001D6914 /* MapBoxVectorTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A9B1BE780FD001D6914 /* MapBoxVectorTestCase-map.png */; };
+		D8228AA21BE780FD001D6914 /* VectorsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A9C1BE780FD001D6914 /* VectorsTestCase-globe.png */; };
+		D8228AA31BE780FD001D6914 /* VectorsTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A9D1BE780FD001D6914 /* VectorsTestCase-map.png */; };
+		D8228AA61BE785E1001D6914 /* MovingScreenMarkers.m in Sources */ = {isa = PBXBuildFile; fileRef = D8228AA51BE785E1001D6914 /* MovingScreenMarkers.m */; };
+		D8228AA81BE786BE001D6914 /* ClusteredMarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8228AA71BE786BE001D6914 /* ClusteredMarkersTestCase.swift */; };
 		D8341A631BE299BF00411A46 /* MapzenVectorTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8341A621BE299BF00411A46 /* MapzenVectorTestCase.swift */; };
 		D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8341A701BE2C8D200411A46 /* VectorsTestCase.m */; };
 		D8341A731BE2DFE100411A46 /* ScreenLabelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8341A721BE2DFE100411A46 /* ScreenLabelsTestCase.swift */; };
@@ -430,6 +441,7 @@
 		D8E12ECD1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */; };
 		D8E12ED01BDEA2E400BB7BC7 /* WheatherShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ECF1BDEA2E400BB7BC7 /* WheatherShader.swift */; };
 		D8E12ED41BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ED31BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m */; };
+		D8F2FE231BE7B1B40058A310 /* MapzenSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE221BE7B1B40058A310 /* MapzenSource.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -860,6 +872,18 @@
 		88FF5DF21BC31D95002F15CE /* tl_2013_06075_roads.shp */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.shp; sourceTree = "<group>"; };
 		88FF5DF31BC31D95002F15CE /* tl_2013_06075_roads.shx */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.shx; sourceTree = "<group>"; };
 		88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.sqlite; sourceTree = "<group>"; };
+		D8228A911BE77816001D6914 /* MovingScreenLabelsTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovingScreenLabelsTestCase.swift; sourceTree = "<group>"; };
+		D8228A941BE77C8F001D6914 /* CesiumElevationTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CesiumElevationTestCase-globe.png"; sourceTree = "<group>"; };
+		D8228A951BE77C8F001D6914 /* CesiumElevationTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CesiumElevationTestCase-map.png"; sourceTree = "<group>"; };
+		D8228A981BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.AnimatedBasemapTestCase-globe.png"; sourceTree = "<group>"; };
+		D8228A991BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.AnimatedBasemapTestCase-map.png"; sourceTree = "<group>"; };
+		D8228A9A1BE780FD001D6914 /* AutoTester.MapzenVectorTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.MapzenVectorTestCase-map.png"; sourceTree = "<group>"; };
+		D8228A9B1BE780FD001D6914 /* MapBoxVectorTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MapBoxVectorTestCase-map.png"; sourceTree = "<group>"; };
+		D8228A9C1BE780FD001D6914 /* VectorsTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "VectorsTestCase-globe.png"; sourceTree = "<group>"; };
+		D8228A9D1BE780FD001D6914 /* VectorsTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "VectorsTestCase-map.png"; sourceTree = "<group>"; };
+		D8228AA41BE785E1001D6914 /* MovingScreenMarkers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MovingScreenMarkers.h; sourceTree = "<group>"; };
+		D8228AA51BE785E1001D6914 /* MovingScreenMarkers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MovingScreenMarkers.m; sourceTree = "<group>"; };
+		D8228AA71BE786BE001D6914 /* ClusteredMarkersTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClusteredMarkersTestCase.swift; sourceTree = "<group>"; };
 		D8341A621BE299BF00411A46 /* MapzenVectorTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapzenVectorTestCase.swift; sourceTree = "<group>"; };
 		D8341A6F1BE2C8D200411A46 /* VectorsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorsTestCase.h; sourceTree = "<group>"; };
 		D8341A701BE2C8D200411A46 /* VectorsTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorsTestCase.m; sourceTree = "<group>"; };
@@ -876,6 +900,8 @@
 		D8E12ECF1BDEA2E400BB7BC7 /* WheatherShader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WheatherShader.swift; sourceTree = "<group>"; };
 		D8E12ED21BDEAC5900BB7BC7 /* MapBoxVectorTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapBoxVectorTestCase.h; sourceTree = "<group>"; };
 		D8E12ED31BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapBoxVectorTestCase.m; sourceTree = "<group>"; };
+		D8F2FE211BE7B1B40058A310 /* MapzenSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapzenSource.h; sourceTree = "<group>"; };
+		D8F2FE221BE7B1B40058A310 /* MapzenSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapzenSource.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -918,6 +944,14 @@
 		888943331BD6EE1A00C39A66 /* baselines */ = {
 			isa = PBXGroup;
 			children = (
+				D8228A981BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-globe.png */,
+				D8228A991BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-map.png */,
+				D8228A9A1BE780FD001D6914 /* AutoTester.MapzenVectorTestCase-map.png */,
+				D8228A9B1BE780FD001D6914 /* MapBoxVectorTestCase-map.png */,
+				D8228A9C1BE780FD001D6914 /* VectorsTestCase-globe.png */,
+				D8228A9D1BE780FD001D6914 /* VectorsTestCase-map.png */,
+				D8228A941BE77C8F001D6914 /* CesiumElevationTestCase-globe.png */,
+				D8228A951BE77C8F001D6914 /* CesiumElevationTestCase-map.png */,
 				D8DCCCA41BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-globe.png */,
 				D8DCCCA51BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-map.png */,
 				888943381BD6F48C00C39A66 /* GeographyClassTestCase-map.png */,
@@ -946,6 +980,10 @@
 				D8341A721BE2DFE100411A46 /* ScreenLabelsTestCase.swift */,
 				D8341A741BE2E89E00411A46 /* ScreenMarkersTestCase.h */,
 				D8341A751BE2E89E00411A46 /* ScreenMarkersTestCase.m */,
+				D8228A911BE77816001D6914 /* MovingScreenLabelsTestCase.swift */,
+				D8228AA41BE785E1001D6914 /* MovingScreenMarkers.h */,
+				D8228AA51BE785E1001D6914 /* MovingScreenMarkers.m */,
+				D8228AA71BE786BE001D6914 /* ClusteredMarkersTestCase.swift */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -972,6 +1010,8 @@
 		88E4B8C11B83B6AB0050D21B /* AutoTester */ = {
 			isa = PBXGroup;
 			children = (
+				D8F2FE211BE7B1B40058A310 /* MapzenSource.h */,
+				D8F2FE221BE7B1B40058A310 /* MapzenSource.m */,
 				88E4B8C81B83B6AB0050D21B /* Main.storyboard */,
 				88E4B8C21B83B6AB0050D21B /* Supporting Files */,
 				886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */,
@@ -1576,6 +1616,7 @@
 				88FF5C831BC31D6D002F15CE /* alcohol-shop-24@2x.png in Resources */,
 				88FF5BEB1BC31D53002F15CE /* SunImage.png in Resources */,
 				88FF5CBE1BC31D6D002F15CE /* park2-24@2x.png in Resources */,
+				D8228A9E1BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-globe.png in Resources */,
 				88FF5E6A1BC31D95002F15CE /* KEN.geojson in Resources */,
 				88FF5E531BC31D95002F15CE /* GUM.geojson in Resources */,
 				88FF5C871BC31D6D002F15CE /* bank-24@2x.png in Resources */,
@@ -1593,6 +1634,7 @@
 				88FF5E9C1BC31D95002F15CE /* NOR.geojson in Resources */,
 				88FF5CCB1BC31D6D002F15CE /* rail-underground-24@2x.png in Resources */,
 				88FF5CB01BC31D6D002F15CE /* laundry-24@2x.png in Resources */,
+				D8228A961BE77C8F001D6914 /* CesiumElevationTestCase-globe.png in Resources */,
 				88FF5E141BC31D95002F15CE /* BOL.geojson in Resources */,
 				88FF5E461BC31D95002F15CE /* GGY.geojson in Resources */,
 				88FF5E5C1BC31D95002F15CE /* IMN.geojson in Resources */,
@@ -1650,6 +1692,7 @@
 				88FF5DFD1BC31D95002F15CE /* ARG.geojson in Resources */,
 				D8DCCCA61BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-globe.png in Resources */,
 				88FF5ECD1BC31D95002F15CE /* TCD.geojson in Resources */,
+				D8228A9F1BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-map.png in Resources */,
 				88FF5E351BC31D95002F15CE /* DZA.geojson in Resources */,
 				88FF5C8E1BC31D6D002F15CE /* bus-24@2x.png in Resources */,
 				88FF5E691BC31D95002F15CE /* KAZ.geojson in Resources */,
@@ -1680,6 +1723,7 @@
 				88FF5EA11BC31D95002F15CE /* PAK.geojson in Resources */,
 				88FF5CB11BC31D6D002F15CE /* library-24@2x.png in Resources */,
 				88FF5E281BC31D95002F15CE /* CPV.geojson in Resources */,
+				D8228AA31BE780FD001D6914 /* VectorsTestCase-map.png in Resources */,
 				88FF5E831BC31D95002F15CE /* MEX.geojson in Resources */,
 				88FF5EEC1BC31D95002F15CE /* ZMB.geojson in Resources */,
 				88FF5CA61BC31D6D002F15CE /* fire-station-24@2x.png in Resources */,
@@ -1703,6 +1747,7 @@
 				88FF5EBD1BC31D95002F15CE /* SLV.geojson in Resources */,
 				88FF5CC01BC31D6D002F15CE /* parking-garage-24@2x.png in Resources */,
 				88FF5EE31BC31D95002F15CE /* VEN.geojson in Resources */,
+				D8228AA11BE780FD001D6914 /* MapBoxVectorTestCase-map.png in Resources */,
 				88FF5CE21BC31D6D002F15CE /* town-hall-24@2x.png in Resources */,
 				88FF5CF21BC31D6D002F15CE /* starcatalog_orig.txt in Resources */,
 				88FF5ECA1BC31D95002F15CE /* SYC.geojson in Resources */,
@@ -1740,6 +1785,7 @@
 				88FF5E451BC31D95002F15CE /* GEO.geojson in Resources */,
 				88FF5E571BC31D95002F15CE /* HND.geojson in Resources */,
 				88FF5C941BC31D6D002F15CE /* cinema-24@2x.png in Resources */,
+				D8228AA21BE780FD001D6914 /* VectorsTestCase-globe.png in Resources */,
 				88FF5E411BC31D95002F15CE /* FRO.geojson in Resources */,
 				88FF5CF31BC31D6D002F15CE /* starcatalog_short.txt in Resources */,
 				88FF5E3F1BC31D95002F15CE /* FLK.geojson in Resources */,
@@ -1855,6 +1901,7 @@
 				88FF5E8E1BC31D95002F15CE /* MSR.geojson in Resources */,
 				88FF5CBC1BC31D6D002F15CE /* oil-well-24@2x.png in Resources */,
 				88FF5E8C1BC31D95002F15CE /* MOZ.geojson in Resources */,
+				D8228A971BE77C8F001D6914 /* CesiumElevationTestCase-map.png in Resources */,
 				88FF5E2A1BC31D95002F15CE /* CUB.geojson in Resources */,
 				88FF5EB41BC31D95002F15CE /* SAU.geojson in Resources */,
 				88FF5E901BC31D95002F15CE /* MUS.geojson in Resources */,
@@ -1874,6 +1921,7 @@
 				88FF5CAD1BC31D6D002F15CE /* hospital-24@2x.png in Resources */,
 				88FF5C921BC31D6D002F15CE /* car-24@2x.png in Resources */,
 				88FF5E1F1BC31D95002F15CE /* CHL.geojson in Resources */,
+				D8228AA01BE780FD001D6914 /* AutoTester.MapzenVectorTestCase-map.png in Resources */,
 				88FF5E741BC31D95002F15CE /* LBY.geojson in Resources */,
 				88FF5CB21BC31D6D002F15CE /* lighthouse-24@2x.png in Resources */,
 				88FF5E221BC31D95002F15CE /* CMR.geojson in Resources */,
@@ -1970,8 +2018,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8228A921BE77816001D6914 /* MovingScreenLabelsTestCase.swift in Sources */,
 				D8E12ED01BDEA2E400BB7BC7 /* WheatherShader.swift in Sources */,
 				88BF11521BCD9BF70002205E /* MaplyTestResult.m in Sources */,
+				D8228AA61BE785E1001D6914 /* MovingScreenMarkers.m in Sources */,
 				D8DCCCAC1BDC1A1200BA3866 /* CesiumElevationTestCase.m in Sources */,
 				88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */,
 				88BF11591BCDA3960002205E /* ResultCell.swift in Sources */,
@@ -1985,10 +2035,12 @@
 				886FCCCD1BA74D1200494BB0 /* ConfigViewController.swift in Sources */,
 				88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */,
 				88E4B8C51B83B6AB0050D21B /* AppDelegate.swift in Sources */,
+				D8228AA81BE786BE001D6914 /* ClusteredMarkersTestCase.swift in Sources */,
 				D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */,
 				D8341A761BE2E89E00411A46 /* ScreenMarkersTestCase.m in Sources */,
 				D8E12ED41BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m in Sources */,
 				D8341A631BE299BF00411A46 /* MapzenVectorTestCase.swift in Sources */,
+				D8F2FE231BE7B1B40058A310 /* MapzenSource.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
