@@ -28,8 +28,8 @@
 - (void) insertLabels: (NSMutableArray*) arrayComp theView: (MaplyBaseViewController*) theView {
 	
 	CGSize size = CGSizeMake(0, 0.05);
-	NSMutableArray *labels = [NSMutableArray array];
-	for (MaplyVectorObject* object in arrayComp){
+	for (int i=0; i < arrayComp.count; i++){
+		MaplyVectorObject* object = arrayComp[i];
 		MaplyLabel *label = [[MaplyLabel alloc] init];
 		label.loc = object.center;
 		label.size = size;
@@ -41,14 +41,25 @@
 			label.text = object.userObject;
 			label.userObject = object.userObject;
 		}
-		
-		[labels addObject:label];
+		if (i % 2 == 0) {
+			[theView addLabels:@[label]
+						  desc:@{
+							kMaplyFont: [UIFont boldSystemFontOfSize:24.0],
+							kMaplyTextOutlineColor: [UIColor whiteColor],
+							kMaplyTextOutlineSize: @2.0,
+							kMaplyColor: [UIColor whiteColor]
+						}];
+		}
+		else {
+			[theView addLabels:@[label]
+						  desc:@{
+							kMaplyFont: [UIFont boldSystemFontOfSize:24.0],
+							kMaplyShadowColor: [UIColor whiteColor],
+							kMaplyShadowSize: @2.0,
+							kMaplyColor: [UIColor whiteColor]
+						}];
+		}
 	}
-	NSDictionary *labelDesc = @{
-		kMaplyTextColor: [UIColor whiteColor],
-		kMaplyBackgroundColor: [UIColor clearColor],
-		kMaplyFade: @(1.0)};
-	[theView addLabels:labels desc:labelDesc];
 }
 
 - (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC {
