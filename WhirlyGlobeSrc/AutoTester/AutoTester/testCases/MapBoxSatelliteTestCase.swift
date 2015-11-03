@@ -10,27 +10,28 @@ import UIKit
 
 class MapBoxSatelliteTestCase: MaplyTestCase {
 
+	let jsonTileSpec = "http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2.json"
+	let cacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
+	let zoomLimit = Int32(0)
+	let manager = AFHTTPRequestOperationManager()
+
 	override init() {
 		super.init()
-        
+
 		self.name = "MapBox Satellite"
 		self.captureDelay = 4
 	}
-    
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
-		let jsonTileSpec = "http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2.json"
-		let cacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
-		let thisCacheDir = "\(cacheDir)/stamentiles/"
-		let zoomLimit = Int32(0)
 
-		let manager = AFHTTPRequestOperationManager()
+	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
+		let thisCacheDir = "\(cacheDir)/stamentiles/"
+
 		manager.GET(jsonTileSpec,
 			parameters: nil,
 			success: {(_, response) in
 				let tileSource = MaplyRemoteTileSource(tilespec: response as! [NSObject : AnyObject])
 				tileSource!.cacheDir = thisCacheDir
-				if zoomLimit != 0 && zoomLimit < tileSource!.maxZoom() {
-					tileSource!.tileInfo.maxZoom = zoomLimit
+				if self.zoomLimit != 0 && self.zoomLimit < tileSource!.maxZoom() {
+					tileSource!.tileInfo.maxZoom = self.zoomLimit
 				}
 				let layer = MaplyQuadImageTilesLayer(tileSource: tileSource!)
 				layer!.handleEdges = true
@@ -50,22 +51,18 @@ class MapBoxSatelliteTestCase: MaplyTestCase {
 			failure: nil)
 
 		return true
-    }
-    
-    override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
-		let jsonTileSpec = "http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2.json"
-		let cacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
-		let thisCacheDir = "\(cacheDir)/stamentiles/"
-		let zoomLimit = Int32(0)
+	}
+	
+	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
 
-		let manager = AFHTTPRequestOperationManager()
+		let thisCacheDir = "\(cacheDir)/stamentiles/"
 		manager.GET(jsonTileSpec,
 			parameters: nil,
 			success: {(_, response) in
 				let tileSource = MaplyRemoteTileSource(tilespec: response as! [NSObject : AnyObject])
 				tileSource!.cacheDir = thisCacheDir
-				if zoomLimit != 0 && zoomLimit < tileSource!.maxZoom() {
-					tileSource!.tileInfo.maxZoom = zoomLimit
+				if self.zoomLimit != 0 && self.zoomLimit < tileSource!.maxZoom() {
+					tileSource!.tileInfo.maxZoom = self.zoomLimit
 				}
 				let layer = MaplyQuadImageTilesLayer(tileSource: tileSource!)
 				layer!.handleEdges = true
@@ -85,5 +82,5 @@ class MapBoxSatelliteTestCase: MaplyTestCase {
 			failure: nil)
 
 		return true
-    }
+	}
 }
