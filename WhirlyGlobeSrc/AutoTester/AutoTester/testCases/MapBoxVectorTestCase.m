@@ -10,6 +10,8 @@
 #import "MaplyMapnikVectorTiles.h"
 #import "MaplyViewController.h"
 #import "GeographyClassTestCase.h"
+#import "MapboxVectorStyleSet.h"
+
 @implementation MapBoxVectorTestCase
 
 
@@ -34,13 +36,21 @@
 
 	NSString *token = @"sk.eyJ1IjoiZG1hcnRpbnciLCJhIjoiY2lnYmViYmhiMDZmbWFha25kbHB3MWlkNyJ9.5VsRqKZvrTQ9ygnyI7fLoA";
 
-	[MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"http://a.tiles.mapbox.com/v4/mapbox.mapbox-streets-v4.json"
+	[MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-streets-v6.json"
 		accessToken:token
-		style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"]
+		style:@"https://raw.githubusercontent.com/mapbox/mapbox-gl-styles/master/styles/streets-v8.json"
 		styleType:MapnikMapboxGLStyle
 		cacheDir:thisCacheDir
 		viewC:(MaplyBaseViewController*)mapVC
 		success:^(MaplyMapnikVectorTiles * _Nonnull vecTiles) {
+			MaplyMapboxVectorStyleSet *styleSet = (MaplyMapboxVectorStyleSet *) vecTiles.tileParser.styleDelegate;
+			styleSet.tileStyleSettings.markerImportance = 10.0;
+			styleSet.tileStyleSettings.fontName = @"Gill Sans";
+			UIColor *backColor = [styleSet backgroundColor];
+			if (backColor){
+				[mapVC setClearColor:backColor];
+			}
+
 			// Now for the paging layer itself
 			MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
 			pageLayer.numSimultaneousFetches = 6;
@@ -49,10 +59,9 @@
 			pageLayer.useTargetZoomLevel = true;
 			pageLayer.singleLevelLoading = true;
 			[mapVC addLayer:pageLayer];
-			[mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.50230) height:0.07 time:1.0];
+			[mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.50230) height:0.03 time:1.0];
 		} failure:^(NSError * _Nonnull error) {
 			NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
-
 		}];
 
 	return true;
