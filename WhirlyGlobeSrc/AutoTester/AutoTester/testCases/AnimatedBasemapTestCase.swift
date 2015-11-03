@@ -39,7 +39,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
 		// Create a precipitation layer that animates
 		let precipLayer = MaplyQuadImageTilesLayer(tileSource: precipTileSource!)
 		precipLayer?.imageDepth = UInt32(tileSources.count)
-		precipLayer?.animationPeriod = 6.0
+		precipLayer?.animationPeriod = 1.0
 		precipLayer?.imageFormat = MaplyQuadImageFormat.ImageUByteRed
 		precipLayer?.numSimultaneousFetches = 4
 		precipLayer?.handleEdges = false
