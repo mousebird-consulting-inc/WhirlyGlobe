@@ -8,7 +8,8 @@
 
 #import "MapBoxVectorTestCase.h"
 #import "MaplyMapnikVectorTiles.h"
-
+#import "MaplyViewController.h"
+#import "GeographyClassTestCase.h"
 @implementation MapBoxVectorTestCase
 
 
@@ -24,38 +25,35 @@
 
 - (BOOL)setUpWithMap:(MaplyViewController *)mapVC
 {
+	GeographyClassTestCase *gctc = [[GeographyClassTestCase alloc]init];
+	[gctc setUpWithMap:mapVC];
 	// For network paging layers, where we'll store temp files
 	NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
 	NSString *thisCacheDir = nil;
 	thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
-	[MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"http://a.tiles.mapbox.com/v3/mapbox.mapbox-streets-v4.json"
-			   style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"]
-			cacheDir:thisCacheDir
-			   viewC:baseViewC
-			 success: ^(MaplyMapnikVectorTiles *vecTiles) {
-				// Don't load the lowest levels for the globe
-				if (globeViewC)
-				 vecTiles.minZoom = 5;
 
-				// Note: These are set after the MapnikStyleSet has already been initialized
-				MapnikStyleSet *styleSet = (MapnikStyleSet *)vecTiles.styleDelegate;
-				styleSet.tileStyleSettings.markerImportance = 10.0;
-				styleSet.tileStyleSettings.fontName = @"Gill Sans";
+	NSString *token = @"sk.eyJ1IjoiZG1hcnRpbnciLCJhIjoiY2lnYmViYmhiMDZmbWFha25kbHB3MWlkNyJ9.5VsRqKZvrTQ9ygnyI7fLoA";
 
-				// Now for the paging layer itself
-				MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
-				pageLayer.numSimultaneousFetches = 6;
-				pageLayer.flipY = false;
-				pageLayer.importance = 1024*1024*2;
-				pageLayer.useTargetZoomLevel = true;
-				pageLayer.singleLevelLoading = true;
-				[baseViewC addLayer:pageLayer];
-				ovlLayers[layerName] = pageLayer;
-			}
-			failure: ^(NSError *error) {
-				NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
-			}
-	];
+	[MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"http://a.tiles.mapbox.com/v4/mapbox.mapbox-streets-v4.json"
+		accessToken:token
+		style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"]
+		styleType:MapnikMapboxGLStyle
+		cacheDir:thisCacheDir
+		viewC:(MaplyBaseViewController*)mapVC
+		success:^(MaplyMapnikVectorTiles * _Nonnull vecTiles) {
+			// Now for the paging layer itself
+			MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
+			pageLayer.numSimultaneousFetches = 6;
+			pageLayer.flipY = false;
+			pageLayer.importance = 1024*1024*2;
+			pageLayer.useTargetZoomLevel = true;
+			pageLayer.singleLevelLoading = true;
+			[mapVC addLayer:pageLayer];
+			[mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.50230) height:0.07 time:1.0];
+		} failure:^(NSError * _Nonnull error) {
+			NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
+
+		}];
 
 	return true;
 }
