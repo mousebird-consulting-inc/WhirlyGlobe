@@ -21,8 +21,6 @@
 #import "VectorsTestCase.h"
 #import "ScreenMarkersTestCase.h"
 #import "MapzenSource.h"
-
-
-
+#import "LabelsTestCase.h"
 
 #endif
