@@ -445,6 +445,7 @@
 		D8F2FE271BE7BD630058A310 /* LabelsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE261BE7BD630058A310 /* LabelsTestCase.m */; };
 		D8F2FE291BE7C2000058A310 /* MarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE281BE7C2000058A310 /* MarkersTestCase.swift */; };
 		D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE2B1BE7CAD30058A310 /* MegaMarkersTestCase.m */; };
+		D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE2D1BE7CF310058A310 /* ModelsTestCase.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -910,6 +911,7 @@
 		D8F2FE281BE7C2000058A310 /* MarkersTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkersTestCase.swift; sourceTree = "<group>"; };
 		D8F2FE2A1BE7CAD30058A310 /* MegaMarkersTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MegaMarkersTestCase.h; sourceTree = "<group>"; };
 		D8F2FE2B1BE7CAD30058A310 /* MegaMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MegaMarkersTestCase.m; sourceTree = "<group>"; };
+		D8F2FE2D1BE7CF310058A310 /* ModelsTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModelsTestCase.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -997,6 +999,7 @@
 				D8F2FE281BE7C2000058A310 /* MarkersTestCase.swift */,
 				D8F2FE2A1BE7CAD30058A310 /* MegaMarkersTestCase.h */,
 				D8F2FE2B1BE7CAD30058A310 /* MegaMarkersTestCase.m */,
+				D8F2FE2D1BE7CF310058A310 /* ModelsTestCase.swift */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2048,6 +2051,7 @@
 				886FCCCD1BA74D1200494BB0 /* ConfigViewController.swift in Sources */,
 				88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */,
 				88E4B8C51B83B6AB0050D21B /* AppDelegate.swift in Sources */,
+				D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */,
 				D8228AA81BE786BE001D6914 /* ClusteredMarkersTestCase.swift in Sources */,
 				D8F2FE271BE7BD630058A310 /* LabelsTestCase.m in Sources */,
 				D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */,
