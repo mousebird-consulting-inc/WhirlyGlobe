@@ -33,8 +33,8 @@
 }
 
 
-- (void) overlayCountries: (MaplyBaseViewController*) baseVC{
-	
+- (void) overlayCountries: (MaplyBaseViewController*) baseVC
+{
 	NSDictionary *vectorDict = @{
 			kMaplyColor: [UIColor whiteColor],
 			kMaplySelectable: @(true),
@@ -58,8 +58,8 @@
 		}
 }
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC{
-	
+- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+{
 	GeographyClassTestCase *baseView = [[GeographyClassTestCase alloc]init];
 	[baseView setUpWithGlobe:globeVC];
 	//Overlay Countries
@@ -68,8 +68,8 @@
 }
 
 
-- (BOOL)setUpWithMap:(MaplyViewController *)mapVC{
-	
+- (BOOL)setUpWithMap:(MaplyViewController *)mapVC
+{	
 	GeographyClassTestCase *baseView = [[GeographyClassTestCase alloc]init];
 	[baseView setUpWithMap:mapVC];
 	[self overlayCountries:(MaplyBaseViewController*)mapVC];

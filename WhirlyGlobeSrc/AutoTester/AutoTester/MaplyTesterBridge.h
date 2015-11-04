@@ -22,5 +22,7 @@
 #import "ScreenMarkersTestCase.h"
 #import "MapzenSource.h"
 #import "LabelsTestCase.h"
+#import "MegaMarkersTestCase.h"
+
 
 #endif
