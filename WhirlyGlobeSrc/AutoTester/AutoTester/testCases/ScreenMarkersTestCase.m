@@ -25,8 +25,8 @@
 }
 
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC{
-	
+- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+{
 	VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
 	[baseView setUpWithGlobe:globeVC];
 	[self insertMarker:baseView.compList theView:(MaplyBaseViewController*)globeVC];
@@ -35,7 +35,8 @@
 	return true;
 }
 
-- (BOOL)setUpWithMap:(MaplyViewController *)mapVC{
+- (BOOL)setUpWithMap:(MaplyViewController *)mapVC
+{
 	VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
 	[baseView setUpWithMap:mapVC];
 	[self insertMarker:baseView.compList theView:(MaplyBaseViewController*)mapVC];
@@ -44,7 +45,8 @@
 	return true;
 }
 
-- (void) insertMarker:(NSMutableArray*) arrayComp theView: (MaplyBaseViewController*) theView {
+- (void) insertMarker:(NSMutableArray*) arrayComp theView: (MaplyBaseViewController*) theView
+{
 	CGSize size = CGSizeMake(0.05, 0.05);
 	UIImage *alcohol = [UIImage imageNamed:@"alcohol-shop-24@2x"];
 	NSMutableArray *markers = [NSMutableArray array];
@@ -58,4 +60,5 @@
 	}
 	self.markersObj = [theView addMarkers:markers desc:nil];
 }
+
 @end
