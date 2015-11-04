@@ -426,11 +426,23 @@ static const char *fragmentShaderGroundTri =
     wavelength[2] = inVals[2];
 }
 
+- (void)setWavelengthRed:(float) redWavelength green:(float)greenWavelength blue:(float)blueWavelength
+{
+    wavelength[0] = redWavelength;
+    wavelength[1] = greenWavelength;
+    wavelength[2] = blueWavelength;
+}
+
 - (void)getWavelength:(float *)retVals
 {
     retVals[0] = wavelength[0];
     retVals[1] = wavelength[1];
     retVals[2] = wavelength[2];
+}
+
+- (float)getWavelengthForComponent:(short)component
+{
+    return wavelength[component];
 }
 
 - (void)complexAtmosphere
