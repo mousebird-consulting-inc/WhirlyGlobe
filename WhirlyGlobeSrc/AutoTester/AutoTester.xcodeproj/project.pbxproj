@@ -420,6 +420,7 @@
 		88FF5EF31BC31D95002F15CE /* tl_2013_06075_roads.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */; };
 		D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */; };
 		D8200C981BE93E6E00B22CF5 /* StarsSunTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8200C971BE93E6E00B22CF5 /* StarsSunTestCase.swift */; };
+		D8200C9F1BE9516300B22CF5 /* ShapesTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200C9E1BE9516300B22CF5 /* ShapesTestCase.m */; };
 		D8228A921BE77816001D6914 /* MovingScreenLabelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8228A911BE77816001D6914 /* MovingScreenLabelsTestCase.swift */; };
 		D8228A961BE77C8F001D6914 /* CesiumElevationTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A941BE77C8F001D6914 /* CesiumElevationTestCase-globe.png */; };
 		D8228A971BE77C8F001D6914 /* CesiumElevationTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A951BE77C8F001D6914 /* CesiumElevationTestCase-map.png */; };
@@ -881,6 +882,8 @@
 		D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorsTestCase.h; sourceTree = "<group>"; };
 		D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WideVectorsTestCase.m; sourceTree = "<group>"; };
 		D8200C971BE93E6E00B22CF5 /* StarsSunTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StarsSunTestCase.swift; sourceTree = "<group>"; };
+		D8200C9D1BE9516300B22CF5 /* ShapesTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapesTestCase.h; sourceTree = "<group>"; };
+		D8200C9E1BE9516300B22CF5 /* ShapesTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShapesTestCase.m; sourceTree = "<group>"; };
 		D8228A911BE77816001D6914 /* MovingScreenLabelsTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovingScreenLabelsTestCase.swift; sourceTree = "<group>"; };
 		D8228A941BE77C8F001D6914 /* CesiumElevationTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CesiumElevationTestCase-globe.png"; sourceTree = "<group>"; };
 		D8228A951BE77C8F001D6914 /* CesiumElevationTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CesiumElevationTestCase-map.png"; sourceTree = "<group>"; };
@@ -1008,6 +1011,8 @@
 				D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */,
 				D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */,
 				D8200C971BE93E6E00B22CF5 /* StarsSunTestCase.swift */,
+				D8200C9D1BE9516300B22CF5 /* ShapesTestCase.h */,
+				D8200C9E1BE9516300B22CF5 /* ShapesTestCase.m */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2065,6 +2070,7 @@
 				D8F2FE271BE7BD630058A310 /* LabelsTestCase.m in Sources */,
 				D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */,
 				D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */,
+				D8200C9F1BE9516300B22CF5 /* ShapesTestCase.m in Sources */,
 				D8341A761BE2E89E00411A46 /* ScreenMarkersTestCase.m in Sources */,
 				D8E12ED41BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m in Sources */,
 				D8200C981BE93E6E00B22CF5 /* StarsSunTestCase.swift in Sources */,
