@@ -11,5 +11,4 @@
 @interface VectorsTestCase : MaplyTestCase
 
 @property (nonatomic, strong) NSMutableArray * compList;
-
 @end
