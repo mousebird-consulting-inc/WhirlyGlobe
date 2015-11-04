@@ -28,7 +28,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
         ModelsTestCase(),
         WideVectorsTestCase(),
         StarsSunTestCase(),
-        ShapesTestCase()
+        ShapesTestCase(),
+        StickersTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
