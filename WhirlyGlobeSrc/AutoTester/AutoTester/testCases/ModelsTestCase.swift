@@ -42,11 +42,11 @@ class ModelsTestCase: MaplyTestCase {
 		
 		let fullPath = NSBundle.mainBundle().pathForResource("cessna", ofType: "obj")
 		if let fullPath = fullPath {
-			let model = MaplyGeomModel.init(obj: fullPath)
+			let model = MaplyGeomModel(obj: fullPath)
 			if let model = model {
 				var modelInstances = [MaplyMovingGeomModelInstance]()
-				let scaletMat = MaplyMatrix.init(scale: 1000.0/6371000.0)
-				let rotMat = MaplyMatrix.init(angle: M_PI/2.0, axisX: 1.0, axisY: 0.0, axisZ: 0.0)
+				let scaletMat = MaplyMatrix(scale: 1000.0/6371000.0)
+				let rotMat = MaplyMatrix(angle: M_PI/2.0, axisX: 1.0, axisY: 0.0, axisZ: 0.0)
 				let localMat = rotMat.multiplyWith(scaletMat)
 				for loc in locations {
 					let mInst = MaplyMovingGeomModelInstance()
