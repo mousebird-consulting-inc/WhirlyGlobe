@@ -23,6 +23,9 @@
 #import "MapzenSource.h"
 #import "LabelsTestCase.h"
 #import "MegaMarkersTestCase.h"
+#import "WideVectorsTestCase.h"
+#import "MaplyStarsModel.h"
+#import "MaplyAtmosphere.h"
 
 
 #endif
