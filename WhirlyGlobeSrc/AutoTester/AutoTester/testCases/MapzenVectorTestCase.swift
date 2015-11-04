@@ -21,17 +21,17 @@ class MapzenVectorTestCase: MaplyTestCase, MaplyViewControllerDelegate {
 		let baseLayer = GeographyClassTestCase()
 		baseLayer.setUpWithMap(mapVC)
 		let mainBundle = NSBundle.mainBundle()
-		let styleData = NSData.init(contentsOfFile: mainBundle.pathForResource("MapzenGLStyle", ofType: "json")!)
+		let styleData = NSData(contentsOfFile: mainBundle.pathForResource("MapzenGLStyle", ofType: "json")!)
 		let cacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
 
 		let thisCacheDir = "\(cacheDir)/mapzen-vectiles/"
 		
-		let mzSource = MapzenSource.init(base: "http://vector.mapzen.com/osm", layers: ["all"], apiKey: "vector-tiles-ejNTZ28", sourceType: MapzenSourcePBF, styleData: styleData, styleType: MapnikStyleType.MapboxGLStyle, viewC: mapVC)
+		let mzSource = MapzenSource(base: "http://vector.mapzen.com/osm", layers: ["all"], apiKey: "vector-tiles-ejNTZ28", sourceType: MapzenSourcePBF, styleData: styleData, styleType: MapnikStyleType.MapboxGLStyle, viewC: mapVC)
 		
 		mzSource.minZoom = Int32(0)
 		mzSource.maxZoom = Int32(24)
 		
-		let pageLayer = MaplyQuadPagingLayer.init(coordSystem: MaplySphericalMercator.init(webStandard: ()), delegate: mzSource)
+		let pageLayer = MaplyQuadPagingLayer(coordSystem: MaplySphericalMercator(webStandard: ()), delegate: mzSource)
 		
 		pageLayer?.numSimultaneousFetches = Int32(8)
 		pageLayer?.flipY = false

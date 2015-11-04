@@ -19,7 +19,7 @@ class MarkersTestCase: MaplyTestCase {
 
 	func insertMarkers (arrayComp: NSArray, theViewC: MaplyBaseViewController) {
 		let size = CGSizeMake(0.05, 0.05);
-		let startImage = UIImage.init(named: "airfield-24@2x")
+		let startImage = UIImage(named: "airfield-24@2x")
 		var markers = [MaplyMarker]()
 		for var i=0; i < arrayComp.count; ++i{
 			let object = arrayComp[i]
