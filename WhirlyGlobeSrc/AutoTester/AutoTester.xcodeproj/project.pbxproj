@@ -42,6 +42,7 @@
 		881DD7811BEB6A7D00FA8509 /* WideVectorsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7601BEB6A7D00FA8509 /* WideVectorsTestCase-globe.png */; };
 		881DD7821BEB6A7D00FA8509 /* WideVectorsTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7611BEB6A7D00FA8509 /* WideVectorsTestCase-map.png */; };
 		88231C791BA784BC00A95F2B /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88231C781BA784BC00A95F2B /* ConfigViewController.xib */; };
+		884568011BEBB2670070DC12 /* MegaMarkersTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 884568001BEBB2670070DC12 /* MegaMarkersTestCase-map.png */; };
 		886FCCC31BA73C1D00494BB0 /* StartupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */; };
 		886FCCCD1BA74D1200494BB0 /* ConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886FCCCC1BA74D1200494BB0 /* ConfigViewController.swift */; };
 		88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11481BCD3DA40002205E /* MaplyTestCase.m */; };
@@ -520,6 +521,7 @@
 		881DD7601BEB6A7D00FA8509 /* WideVectorsTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "WideVectorsTestCase-globe.png"; sourceTree = "<group>"; };
 		881DD7611BEB6A7D00FA8509 /* WideVectorsTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "WideVectorsTestCase-map.png"; sourceTree = "<group>"; };
 		88231C781BA784BC00A95F2B /* ConfigViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConfigViewController.xib; sourceTree = "<group>"; };
+		884568001BEBB2670070DC12 /* MegaMarkersTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MegaMarkersTestCase-map.png"; sourceTree = "<group>"; };
 		886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StartupViewController.swift; sourceTree = "<group>"; };
 		886FCCCC1BA74D1200494BB0 /* ConfigViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigViewController.swift; sourceTree = "<group>"; };
 		88BF11471BCD3DA40002205E /* MaplyTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTestCase.h; sourceTree = "<group>"; };
@@ -1025,6 +1027,7 @@
 				881DD7501BEB6A7D00FA8509 /* MarkersTestCase-globe.png */,
 				881DD7511BEB6A7D00FA8509 /* MarkersTestCase-map.png */,
 				881DD7521BEB6A7D00FA8509 /* MegaMarkersTestCase-globe.png */,
+				884568001BEBB2670070DC12 /* MegaMarkersTestCase-map.png */,
 				881DD7531BEB6A7D00FA8509 /* ModelsTestCase-globe.png */,
 				881DD7541BEB6A7D00FA8509 /* ScreenLabelsTestCase-globe.png */,
 				881DD7551BEB6A7D00FA8509 /* ScreenLabelsTestCase-map.png */,
@@ -1861,6 +1864,7 @@
 				88FF5E0A1BC31D95002F15CE /* BFA.geojson in Resources */,
 				88FF5E5D1BC31D95002F15CE /* IND.geojson in Resources */,
 				88FF5DFF1BC31D95002F15CE /* ASM.geojson in Resources */,
+				884568011BEBB2670070DC12 /* MegaMarkersTestCase-map.png in Resources */,
 				881DD7721BEB6A7D00FA8509 /* MarkersTestCase-map.png in Resources */,
 				881DD7811BEB6A7D00FA8509 /* WideVectorsTestCase-globe.png in Resources */,
 				88FF5E3C1BC31D95002F15CE /* ETH.geojson in Resources */,

@@ -217,6 +217,7 @@
 
 	if (screenshot) {
 		NSString *dir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
+		//NSLog(@"------>%@", dir);
 		NSData *imgData = UIImagePNGRepresentation(screenshot);
 
 		NSString *guid = [[NSProcessInfo processInfo] globallyUniqueString] ;
