@@ -181,14 +181,24 @@
 
 - (NSString *)baselineGlobeImageFile
 {
-	NSString *name = [NSString stringWithFormat:@"%@-globe", NSStringFromClass(self.class)];
+	NSString *name = [NSString stringWithFormat:@"%@-globe", [self testClassName]];
 	return [[NSBundle mainBundle] pathForResource:name ofType:@"png"];
 }
 
 - (NSString *)baselineMapImageFile
 {
-	NSString *name = [NSString stringWithFormat:@"%@-map", NSStringFromClass(self.class)];
+	NSString *name = [NSString stringWithFormat:@"%@-map", [self testClassName]];
 	return [[NSBundle mainBundle] pathForResource:name ofType:@"png"];
+}
+
+- (NSString *)testClassName
+{
+	NSString *className = NSStringFromClass(self.class);
+	if ([className hasPrefix:@"AutoTester."]) {
+		className = [className componentsSeparatedByString:@"."][1];
+	}
+
+	return className;
 }
 
 - (void)runTestWithGlobe:(WhirlyGlobeViewController *)globeVC result:(void (^)(BOOL passed))block

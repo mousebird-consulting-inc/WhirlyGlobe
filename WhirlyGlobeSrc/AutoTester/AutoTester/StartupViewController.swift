@@ -42,6 +42,19 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	private var configViewC: ConfigViewController?
 	private var popControl: UIPopoverController?
 
+	override func viewWillAppear(animated: Bool) {
+		results.forEach { result in
+			if let actual = result.1.actualImageFile {
+				do {
+					try NSFileManager.defaultManager().removeItemAtPath(actual)
+				}
+				catch {
+				}
+			}
+		}
+
+		results.removeAll(keepCapacity: true)
+	}
 
 	override func viewDidLoad() {
 		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: "showConfig")
@@ -99,8 +112,9 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 		destination.titles = sortedKeys
 		destination.results = [MaplyTestResult]()
-		sortedKeys.forEach{ destination.results.append(self.results[$0]!) }
-
+		sortedKeys.forEach{
+			destination.results.append(self.results[$0]!)
+		}
 	}
 
 	private dynamic func showConfig() {
@@ -120,7 +134,10 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	private dynamic func runTests() {
 		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Stop, target: self, action: "stopTests")
 
-		self.testView = UIView(frame: self.view.bounds)
+		self.title = "Running tests..."
+
+		// use same aspect ratio as results view
+		self.testView = UIView(frame: CGRectMake(0, 0, 468, 672))
 		self.testView!.hidden = true;
 		self.view.addSubview(self.testView!)
 		self.results.removeAll()
@@ -172,6 +189,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		tableView.reloadData()
 
 		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: "runTests")
+
+		self.title = "Tests"
 
 		self.performSegueWithIdentifier("results", sender: self)
 	}
