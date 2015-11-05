@@ -8,7 +8,7 @@
 
 import UIKit
 
-class MapBoxSatelliteTestCase: MaplyTestCase {
+@objc class MapBoxSatelliteTestCase: MaplyTestCase {
 
 	let jsonTileSpec = "http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2.json"
 	let cacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
