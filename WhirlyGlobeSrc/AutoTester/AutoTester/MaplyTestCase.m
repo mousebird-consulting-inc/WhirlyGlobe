@@ -216,13 +216,12 @@
 	UIImage *screenshot = vc.snapshot;
 
 	if (screenshot) {
-		NSString *dir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
+		NSString *dir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
 		NSData *imgData = UIImagePNGRepresentation(screenshot);
 
 		NSString *guid = [[NSProcessInfo processInfo] globallyUniqueString] ;
-		NSString *className = NSStringFromClass(self.class);
-
-		NSString *fileName = [NSString stringWithFormat:@"%@-%@", className, guid];
+		NSString *fileName = [NSString stringWithFormat:@"%@-%@", [self testClassName], guid];
+		dir = [dir stringByAppendingPathComponent:@"results"];
 		fileName = [dir stringByAppendingPathComponent:fileName];
 
 		[imgData writeToFile:fileName atomically:YES];
