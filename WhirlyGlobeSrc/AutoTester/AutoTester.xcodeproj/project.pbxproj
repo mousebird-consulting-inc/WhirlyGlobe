@@ -8,12 +8,42 @@
 
 /* Begin PBXBuildFile section */
 		88019FAE1B8F7D6D00674B00 /* libWhirlyGlobe-MaplyComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 88019FAD1B8F7AB800674B00 /* libWhirlyGlobe-MaplyComponent.a */; };
+		881DD7621BEB6A7D00FA8509 /* AnimatedBasemapTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7411BEB6A7D00FA8509 /* AnimatedBasemapTestCase-globe.png */; };
+		881DD7631BEB6A7D00FA8509 /* AnimatedBasemapTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7421BEB6A7D00FA8509 /* AnimatedBasemapTestCase-map.png */; };
+		881DD7641BEB6A7D00FA8509 /* CesiumElevationTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7431BEB6A7D00FA8509 /* CesiumElevationTestCase-globe.png */; };
+		881DD7651BEB6A7D00FA8509 /* CesiumElevationTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7441BEB6A7D00FA8509 /* CesiumElevationTestCase-map.png */; };
+		881DD7661BEB6A7D00FA8509 /* ClusteredMarkersTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7451BEB6A7D00FA8509 /* ClusteredMarkersTestCase-globe.png */; };
+		881DD7671BEB6A7D00FA8509 /* ClusteredMarkersTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7461BEB6A7D00FA8509 /* ClusteredMarkersTestCase-map.png */; };
+		881DD7681BEB6A7D00FA8509 /* GeographyClassTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7471BEB6A7D00FA8509 /* GeographyClassTestCase-globe.png */; };
+		881DD7691BEB6A7D00FA8509 /* GeographyClassTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7481BEB6A7D00FA8509 /* GeographyClassTestCase-map.png */; };
+		881DD76A1BEB6A7D00FA8509 /* LabelsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7491BEB6A7D00FA8509 /* LabelsTestCase-globe.png */; };
+		881DD76B1BEB6A7D00FA8509 /* LabelsTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD74A1BEB6A7D00FA8509 /* LabelsTestCase-map.png */; };
+		881DD76C1BEB6A7D00FA8509 /* LoftedPolysTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD74B1BEB6A7D00FA8509 /* LoftedPolysTestCase-globe.png */; };
+		881DD76D1BEB6A7D00FA8509 /* MapBoxSatelliteTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD74C1BEB6A7D00FA8509 /* MapBoxSatelliteTestCase-globe.png */; };
+		881DD76E1BEB6A7D00FA8509 /* MapBoxSatelliteTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD74D1BEB6A7D00FA8509 /* MapBoxSatelliteTestCase-map.png */; };
+		881DD76F1BEB6A7D00FA8509 /* MapBoxVectorTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD74E1BEB6A7D00FA8509 /* MapBoxVectorTestCase-map.png */; };
+		881DD7701BEB6A7D00FA8509 /* MapzenVectorTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD74F1BEB6A7D00FA8509 /* MapzenVectorTestCase-map.png */; };
+		881DD7711BEB6A7D00FA8509 /* MarkersTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7501BEB6A7D00FA8509 /* MarkersTestCase-globe.png */; };
+		881DD7721BEB6A7D00FA8509 /* MarkersTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7511BEB6A7D00FA8509 /* MarkersTestCase-map.png */; };
+		881DD7731BEB6A7D00FA8509 /* MegaMarkersTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7521BEB6A7D00FA8509 /* MegaMarkersTestCase-globe.png */; };
+		881DD7741BEB6A7D00FA8509 /* ModelsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7531BEB6A7D00FA8509 /* ModelsTestCase-globe.png */; };
+		881DD7751BEB6A7D00FA8509 /* ScreenLabelsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7541BEB6A7D00FA8509 /* ScreenLabelsTestCase-globe.png */; };
+		881DD7761BEB6A7D00FA8509 /* ScreenLabelsTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7551BEB6A7D00FA8509 /* ScreenLabelsTestCase-map.png */; };
+		881DD7771BEB6A7D00FA8509 /* ScreenMarkersTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7561BEB6A7D00FA8509 /* ScreenMarkersTestCase-globe.png */; };
+		881DD7781BEB6A7D00FA8509 /* ScreenMarkersTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7571BEB6A7D00FA8509 /* ScreenMarkersTestCase-map.png */; };
+		881DD7791BEB6A7D00FA8509 /* ShapesTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7581BEB6A7D00FA8509 /* ShapesTestCase-globe.png */; };
+		881DD77A1BEB6A7D00FA8509 /* ShapesTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7591BEB6A7D00FA8509 /* ShapesTestCase-map.png */; };
+		881DD77B1BEB6A7D00FA8509 /* StamenWatercolorRemote-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD75A1BEB6A7D00FA8509 /* StamenWatercolorRemote-globe.png */; };
+		881DD77C1BEB6A7D00FA8509 /* StarsSunTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD75B1BEB6A7D00FA8509 /* StarsSunTestCase-globe.png */; };
+		881DD77D1BEB6A7D00FA8509 /* StickersTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD75C1BEB6A7D00FA8509 /* StickersTestCase-globe.png */; };
+		881DD77E1BEB6A7D00FA8509 /* StickersTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD75D1BEB6A7D00FA8509 /* StickersTestCase-map.png */; };
+		881DD77F1BEB6A7D00FA8509 /* VectorsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD75E1BEB6A7D00FA8509 /* VectorsTestCase-globe.png */; };
+		881DD7801BEB6A7D00FA8509 /* VectorsTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD75F1BEB6A7D00FA8509 /* VectorsTestCase-map.png */; };
+		881DD7811BEB6A7D00FA8509 /* WideVectorsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7601BEB6A7D00FA8509 /* WideVectorsTestCase-globe.png */; };
+		881DD7821BEB6A7D00FA8509 /* WideVectorsTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 881DD7611BEB6A7D00FA8509 /* WideVectorsTestCase-map.png */; };
 		88231C791BA784BC00A95F2B /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88231C781BA784BC00A95F2B /* ConfigViewController.xib */; };
 		886FCCC31BA73C1D00494BB0 /* StartupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */; };
 		886FCCCD1BA74D1200494BB0 /* ConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886FCCCC1BA74D1200494BB0 /* ConfigViewController.swift */; };
-		888943361BD6EE1A00C39A66 /* AutoTester.StamenWatercolorRemote-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 888943341BD6EE1A00C39A66 /* AutoTester.StamenWatercolorRemote-globe.png */; };
-		888943371BD6EE1A00C39A66 /* GeographyClassTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 888943351BD6EE1A00C39A66 /* GeographyClassTestCase-globe.png */; };
-		888943391BD6F48C00C39A66 /* GeographyClassTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 888943381BD6F48C00C39A66 /* GeographyClassTestCase-map.png */; };
 		88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11481BCD3DA40002205E /* MaplyTestCase.m */; };
 		88BF11521BCD9BF70002205E /* MaplyTestResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11511BCD9BF70002205E /* MaplyTestResult.m */; };
 		88BF11571BCDA1BB0002205E /* ResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11561BCDA1BB0002205E /* ResultsViewController.swift */; };
@@ -424,44 +454,14 @@
 		D8200CA11BE9563F00B22CF5 /* StickersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8200CA01BE9563F00B22CF5 /* StickersTestCase.swift */; };
 		D8200CA41BE9624300B22CF5 /* LoftedPolysTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200CA31BE9624300B22CF5 /* LoftedPolysTestCase.m */; };
 		D8228A921BE77816001D6914 /* MovingScreenLabelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8228A911BE77816001D6914 /* MovingScreenLabelsTestCase.swift */; };
-		D8228A961BE77C8F001D6914 /* CesiumElevationTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A941BE77C8F001D6914 /* CesiumElevationTestCase-globe.png */; };
-		D8228A971BE77C8F001D6914 /* CesiumElevationTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A951BE77C8F001D6914 /* CesiumElevationTestCase-map.png */; };
-		D8228A9E1BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A981BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-globe.png */; };
-		D8228A9F1BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A991BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-map.png */; };
-		D8228AA01BE780FD001D6914 /* AutoTester.MapzenVectorTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A9A1BE780FD001D6914 /* AutoTester.MapzenVectorTestCase-map.png */; };
-		D8228AA11BE780FD001D6914 /* MapBoxVectorTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A9B1BE780FD001D6914 /* MapBoxVectorTestCase-map.png */; };
-		D8228AA21BE780FD001D6914 /* VectorsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A9C1BE780FD001D6914 /* VectorsTestCase-globe.png */; };
-		D8228AA31BE780FD001D6914 /* VectorsTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D8228A9D1BE780FD001D6914 /* VectorsTestCase-map.png */; };
 		D8228AA61BE785E1001D6914 /* MovingScreenMarkers.m in Sources */ = {isa = PBXBuildFile; fileRef = D8228AA51BE785E1001D6914 /* MovingScreenMarkers.m */; };
 		D8228AA81BE786BE001D6914 /* ClusteredMarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8228AA71BE786BE001D6914 /* ClusteredMarkersTestCase.swift */; };
 		D8341A631BE299BF00411A46 /* MapzenVectorTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8341A621BE299BF00411A46 /* MapzenVectorTestCase.swift */; };
 		D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8341A701BE2C8D200411A46 /* VectorsTestCase.m */; };
 		D8341A731BE2DFE100411A46 /* ScreenLabelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8341A721BE2DFE100411A46 /* ScreenLabelsTestCase.swift */; };
 		D8341A761BE2E89E00411A46 /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8341A751BE2E89E00411A46 /* ScreenMarkersTestCase.m */; };
-		D86333EC1BE9731100FEDCA2 /* AutoTester.ClusteredMarkersTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333D81BE9731100FEDCA2 /* AutoTester.ClusteredMarkersTestCase-globe.png */; };
-		D86333ED1BE9731100FEDCA2 /* AutoTester.ClusteredMarkersTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333D91BE9731100FEDCA2 /* AutoTester.ClusteredMarkersTestCase-map.png */; };
-		D86333EE1BE9731100FEDCA2 /* AutoTester.MarkersTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333DA1BE9731100FEDCA2 /* AutoTester.MarkersTestCase-globe.png */; };
-		D86333EF1BE9731100FEDCA2 /* AutoTester.MarkersTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333DB1BE9731100FEDCA2 /* AutoTester.MarkersTestCase-map.png */; };
-		D86333F01BE9731100FEDCA2 /* AutoTester.ModelsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333DC1BE9731100FEDCA2 /* AutoTester.ModelsTestCase-globe.png */; };
-		D86333F11BE9731100FEDCA2 /* AutoTester.ScreenLabelsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333DD1BE9731100FEDCA2 /* AutoTester.ScreenLabelsTestCase-globe.png */; };
-		D86333F21BE9731100FEDCA2 /* AutoTester.ScreenLabelsTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333DE1BE9731100FEDCA2 /* AutoTester.ScreenLabelsTestCase-map.png */; };
-		D86333F31BE9731100FEDCA2 /* AutoTester.StarsSunTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333DF1BE9731100FEDCA2 /* AutoTester.StarsSunTestCase-globe.png */; };
-		D86333F41BE9731100FEDCA2 /* AutoTester.StickersTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333E01BE9731100FEDCA2 /* AutoTester.StickersTestCase-globe.png */; };
-		D86333F51BE9731100FEDCA2 /* AutoTester.StickersTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333E11BE9731100FEDCA2 /* AutoTester.StickersTestCase-map.png */; };
-		D86333F61BE9731100FEDCA2 /* LabelsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333E21BE9731100FEDCA2 /* LabelsTestCase-globe.png */; };
-		D86333F71BE9731100FEDCA2 /* LabelsTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333E31BE9731100FEDCA2 /* LabelsTestCase-map.png */; };
-		D86333F81BE9731100FEDCA2 /* LoftedPolysTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333E41BE9731100FEDCA2 /* LoftedPolysTestCase-globe.png */; };
-		D86333F91BE9731100FEDCA2 /* MegaMarkersTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333E51BE9731100FEDCA2 /* MegaMarkersTestCase-globe.png */; };
-		D86333FA1BE9731100FEDCA2 /* ScreenMarkersTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333E61BE9731100FEDCA2 /* ScreenMarkersTestCase-globe.png */; };
-		D86333FB1BE9731100FEDCA2 /* ScreenMarkersTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333E71BE9731100FEDCA2 /* ScreenMarkersTestCase-map.png */; };
-		D86333FC1BE9731100FEDCA2 /* ShapesTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333E81BE9731100FEDCA2 /* ShapesTestCase-globe.png */; };
-		D86333FD1BE9731100FEDCA2 /* ShapesTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333E91BE9731100FEDCA2 /* ShapesTestCase-map.png */; };
-		D86333FE1BE9731100FEDCA2 /* WideVectorsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333EA1BE9731100FEDCA2 /* WideVectorsTestCase-globe.png */; };
-		D86333FF1BE9731100FEDCA2 /* WideVectorsTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D86333EB1BE9731100FEDCA2 /* WideVectorsTestCase-map.png */; };
 		D8DCCC9F1BDB89A900BA3866 /* FullScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCC9E1BDB89A900BA3866 /* FullScreenViewController.swift */; };
 		D8DCCCA31BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCCA21BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift */; };
-		D8DCCCA61BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = D8DCCCA41BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-globe.png */; };
-		D8DCCCA71BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = D8DCCCA51BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-map.png */; };
 		D8DCCCAC1BDC1A1200BA3866 /* CesiumElevationTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */; };
 		D8E12ECD1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */; };
 		D8E12ED01BDEA2E400BB7BC7 /* WheatherShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ECF1BDEA2E400BB7BC7 /* WheatherShader.swift */; };
@@ -486,12 +486,42 @@
 /* Begin PBXFileReference section */
 		88019FA71B8F7AB800674B00 /* WhirlyGlobe-MaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "WhirlyGlobe-MaplyComponent.xcodeproj"; path = "../WhirlyGlobe-MaplyComponent/WhirlyGlobe-MaplyComponent.xcodeproj"; sourceTree = "<group>"; };
 		8810B2D11BA9D45F00446CE3 /* MaplyTesterBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyTesterBridge.h; sourceTree = "<group>"; };
+		881DD7411BEB6A7D00FA8509 /* AnimatedBasemapTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AnimatedBasemapTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD7421BEB6A7D00FA8509 /* AnimatedBasemapTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AnimatedBasemapTestCase-map.png"; sourceTree = "<group>"; };
+		881DD7431BEB6A7D00FA8509 /* CesiumElevationTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CesiumElevationTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD7441BEB6A7D00FA8509 /* CesiumElevationTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CesiumElevationTestCase-map.png"; sourceTree = "<group>"; };
+		881DD7451BEB6A7D00FA8509 /* ClusteredMarkersTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ClusteredMarkersTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD7461BEB6A7D00FA8509 /* ClusteredMarkersTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ClusteredMarkersTestCase-map.png"; sourceTree = "<group>"; };
+		881DD7471BEB6A7D00FA8509 /* GeographyClassTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "GeographyClassTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD7481BEB6A7D00FA8509 /* GeographyClassTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "GeographyClassTestCase-map.png"; sourceTree = "<group>"; };
+		881DD7491BEB6A7D00FA8509 /* LabelsTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "LabelsTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD74A1BEB6A7D00FA8509 /* LabelsTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "LabelsTestCase-map.png"; sourceTree = "<group>"; };
+		881DD74B1BEB6A7D00FA8509 /* LoftedPolysTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "LoftedPolysTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD74C1BEB6A7D00FA8509 /* MapBoxSatelliteTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MapBoxSatelliteTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD74D1BEB6A7D00FA8509 /* MapBoxSatelliteTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MapBoxSatelliteTestCase-map.png"; sourceTree = "<group>"; };
+		881DD74E1BEB6A7D00FA8509 /* MapBoxVectorTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MapBoxVectorTestCase-map.png"; sourceTree = "<group>"; };
+		881DD74F1BEB6A7D00FA8509 /* MapzenVectorTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MapzenVectorTestCase-map.png"; sourceTree = "<group>"; };
+		881DD7501BEB6A7D00FA8509 /* MarkersTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MarkersTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD7511BEB6A7D00FA8509 /* MarkersTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MarkersTestCase-map.png"; sourceTree = "<group>"; };
+		881DD7521BEB6A7D00FA8509 /* MegaMarkersTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MegaMarkersTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD7531BEB6A7D00FA8509 /* ModelsTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ModelsTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD7541BEB6A7D00FA8509 /* ScreenLabelsTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ScreenLabelsTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD7551BEB6A7D00FA8509 /* ScreenLabelsTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ScreenLabelsTestCase-map.png"; sourceTree = "<group>"; };
+		881DD7561BEB6A7D00FA8509 /* ScreenMarkersTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ScreenMarkersTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD7571BEB6A7D00FA8509 /* ScreenMarkersTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ScreenMarkersTestCase-map.png"; sourceTree = "<group>"; };
+		881DD7581BEB6A7D00FA8509 /* ShapesTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ShapesTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD7591BEB6A7D00FA8509 /* ShapesTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ShapesTestCase-map.png"; sourceTree = "<group>"; };
+		881DD75A1BEB6A7D00FA8509 /* StamenWatercolorRemote-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "StamenWatercolorRemote-globe.png"; sourceTree = "<group>"; };
+		881DD75B1BEB6A7D00FA8509 /* StarsSunTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "StarsSunTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD75C1BEB6A7D00FA8509 /* StickersTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "StickersTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD75D1BEB6A7D00FA8509 /* StickersTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "StickersTestCase-map.png"; sourceTree = "<group>"; };
+		881DD75E1BEB6A7D00FA8509 /* VectorsTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "VectorsTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD75F1BEB6A7D00FA8509 /* VectorsTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "VectorsTestCase-map.png"; sourceTree = "<group>"; };
+		881DD7601BEB6A7D00FA8509 /* WideVectorsTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "WideVectorsTestCase-globe.png"; sourceTree = "<group>"; };
+		881DD7611BEB6A7D00FA8509 /* WideVectorsTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "WideVectorsTestCase-map.png"; sourceTree = "<group>"; };
 		88231C781BA784BC00A95F2B /* ConfigViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConfigViewController.xib; sourceTree = "<group>"; };
 		886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StartupViewController.swift; sourceTree = "<group>"; };
 		886FCCCC1BA74D1200494BB0 /* ConfigViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigViewController.swift; sourceTree = "<group>"; };
-		888943341BD6EE1A00C39A66 /* AutoTester.StamenWatercolorRemote-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.StamenWatercolorRemote-globe.png"; sourceTree = "<group>"; };
-		888943351BD6EE1A00C39A66 /* GeographyClassTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "GeographyClassTestCase-globe.png"; sourceTree = "<group>"; };
-		888943381BD6F48C00C39A66 /* GeographyClassTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "GeographyClassTestCase-map.png"; sourceTree = "<group>"; };
 		88BF11471BCD3DA40002205E /* MaplyTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTestCase.h; sourceTree = "<group>"; };
 		88BF11481BCD3DA40002205E /* MaplyTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaplyTestCase.m; sourceTree = "<group>"; };
 		88BF11501BCD9BF70002205E /* MaplyTestResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTestResult.h; sourceTree = "<group>"; };
@@ -910,14 +940,6 @@
 		D8200CA21BE9624300B22CF5 /* LoftedPolysTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoftedPolysTestCase.h; sourceTree = "<group>"; };
 		D8200CA31BE9624300B22CF5 /* LoftedPolysTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoftedPolysTestCase.m; sourceTree = "<group>"; };
 		D8228A911BE77816001D6914 /* MovingScreenLabelsTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovingScreenLabelsTestCase.swift; sourceTree = "<group>"; };
-		D8228A941BE77C8F001D6914 /* CesiumElevationTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CesiumElevationTestCase-globe.png"; sourceTree = "<group>"; };
-		D8228A951BE77C8F001D6914 /* CesiumElevationTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CesiumElevationTestCase-map.png"; sourceTree = "<group>"; };
-		D8228A981BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.AnimatedBasemapTestCase-globe.png"; sourceTree = "<group>"; };
-		D8228A991BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.AnimatedBasemapTestCase-map.png"; sourceTree = "<group>"; };
-		D8228A9A1BE780FD001D6914 /* AutoTester.MapzenVectorTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.MapzenVectorTestCase-map.png"; sourceTree = "<group>"; };
-		D8228A9B1BE780FD001D6914 /* MapBoxVectorTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MapBoxVectorTestCase-map.png"; sourceTree = "<group>"; };
-		D8228A9C1BE780FD001D6914 /* VectorsTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "VectorsTestCase-globe.png"; sourceTree = "<group>"; };
-		D8228A9D1BE780FD001D6914 /* VectorsTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "VectorsTestCase-map.png"; sourceTree = "<group>"; };
 		D8228AA41BE785E1001D6914 /* MovingScreenMarkers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MovingScreenMarkers.h; sourceTree = "<group>"; };
 		D8228AA51BE785E1001D6914 /* MovingScreenMarkers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MovingScreenMarkers.m; sourceTree = "<group>"; };
 		D8228AA71BE786BE001D6914 /* ClusteredMarkersTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClusteredMarkersTestCase.swift; sourceTree = "<group>"; };
@@ -927,30 +949,8 @@
 		D8341A721BE2DFE100411A46 /* ScreenLabelsTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScreenLabelsTestCase.swift; sourceTree = "<group>"; };
 		D8341A741BE2E89E00411A46 /* ScreenMarkersTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenMarkersTestCase.h; sourceTree = "<group>"; };
 		D8341A751BE2E89E00411A46 /* ScreenMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenMarkersTestCase.m; sourceTree = "<group>"; };
-		D86333D81BE9731100FEDCA2 /* AutoTester.ClusteredMarkersTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.ClusteredMarkersTestCase-globe.png"; sourceTree = "<group>"; };
-		D86333D91BE9731100FEDCA2 /* AutoTester.ClusteredMarkersTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.ClusteredMarkersTestCase-map.png"; sourceTree = "<group>"; };
-		D86333DA1BE9731100FEDCA2 /* AutoTester.MarkersTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.MarkersTestCase-globe.png"; sourceTree = "<group>"; };
-		D86333DB1BE9731100FEDCA2 /* AutoTester.MarkersTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.MarkersTestCase-map.png"; sourceTree = "<group>"; };
-		D86333DC1BE9731100FEDCA2 /* AutoTester.ModelsTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.ModelsTestCase-globe.png"; sourceTree = "<group>"; };
-		D86333DD1BE9731100FEDCA2 /* AutoTester.ScreenLabelsTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.ScreenLabelsTestCase-globe.png"; sourceTree = "<group>"; };
-		D86333DE1BE9731100FEDCA2 /* AutoTester.ScreenLabelsTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.ScreenLabelsTestCase-map.png"; sourceTree = "<group>"; };
-		D86333DF1BE9731100FEDCA2 /* AutoTester.StarsSunTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.StarsSunTestCase-globe.png"; sourceTree = "<group>"; };
-		D86333E01BE9731100FEDCA2 /* AutoTester.StickersTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.StickersTestCase-globe.png"; sourceTree = "<group>"; };
-		D86333E11BE9731100FEDCA2 /* AutoTester.StickersTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.StickersTestCase-map.png"; sourceTree = "<group>"; };
-		D86333E21BE9731100FEDCA2 /* LabelsTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "LabelsTestCase-globe.png"; sourceTree = "<group>"; };
-		D86333E31BE9731100FEDCA2 /* LabelsTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "LabelsTestCase-map.png"; sourceTree = "<group>"; };
-		D86333E41BE9731100FEDCA2 /* LoftedPolysTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "LoftedPolysTestCase-globe.png"; sourceTree = "<group>"; };
-		D86333E51BE9731100FEDCA2 /* MegaMarkersTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "MegaMarkersTestCase-globe.png"; sourceTree = "<group>"; };
-		D86333E61BE9731100FEDCA2 /* ScreenMarkersTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ScreenMarkersTestCase-globe.png"; sourceTree = "<group>"; };
-		D86333E71BE9731100FEDCA2 /* ScreenMarkersTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ScreenMarkersTestCase-map.png"; sourceTree = "<group>"; };
-		D86333E81BE9731100FEDCA2 /* ShapesTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ShapesTestCase-globe.png"; sourceTree = "<group>"; };
-		D86333E91BE9731100FEDCA2 /* ShapesTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ShapesTestCase-map.png"; sourceTree = "<group>"; };
-		D86333EA1BE9731100FEDCA2 /* WideVectorsTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "WideVectorsTestCase-globe.png"; sourceTree = "<group>"; };
-		D86333EB1BE9731100FEDCA2 /* WideVectorsTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "WideVectorsTestCase-map.png"; sourceTree = "<group>"; };
 		D8DCCC9E1BDB89A900BA3866 /* FullScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FullScreenViewController.swift; sourceTree = "<group>"; };
 		D8DCCCA21BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapBoxSatelliteTestCase.swift; sourceTree = "<group>"; };
-		D8DCCCA41BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.MapBoxSatelliteTestCase-globe.png"; sourceTree = "<group>"; };
-		D8DCCCA51BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AutoTester.MapBoxSatelliteTestCase-map.png"; sourceTree = "<group>"; };
 		D8DCCCAA1BDC1A1200BA3866 /* CesiumElevationTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CesiumElevationTestCase.h; sourceTree = "<group>"; };
 		D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CesiumElevationTestCase.m; sourceTree = "<group>"; };
 		D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatedBasemapTestCase.swift; sourceTree = "<group>"; };
@@ -1007,39 +1007,39 @@
 		888943331BD6EE1A00C39A66 /* baselines */ = {
 			isa = PBXGroup;
 			children = (
-				D86333D81BE9731100FEDCA2 /* AutoTester.ClusteredMarkersTestCase-globe.png */,
-				D86333D91BE9731100FEDCA2 /* AutoTester.ClusteredMarkersTestCase-map.png */,
-				D86333DA1BE9731100FEDCA2 /* AutoTester.MarkersTestCase-globe.png */,
-				D86333DB1BE9731100FEDCA2 /* AutoTester.MarkersTestCase-map.png */,
-				D86333DC1BE9731100FEDCA2 /* AutoTester.ModelsTestCase-globe.png */,
-				D86333DD1BE9731100FEDCA2 /* AutoTester.ScreenLabelsTestCase-globe.png */,
-				D86333DE1BE9731100FEDCA2 /* AutoTester.ScreenLabelsTestCase-map.png */,
-				D86333DF1BE9731100FEDCA2 /* AutoTester.StarsSunTestCase-globe.png */,
-				D86333E01BE9731100FEDCA2 /* AutoTester.StickersTestCase-globe.png */,
-				D86333E11BE9731100FEDCA2 /* AutoTester.StickersTestCase-map.png */,
-				D86333E21BE9731100FEDCA2 /* LabelsTestCase-globe.png */,
-				D86333E31BE9731100FEDCA2 /* LabelsTestCase-map.png */,
-				D86333E41BE9731100FEDCA2 /* LoftedPolysTestCase-globe.png */,
-				D86333E51BE9731100FEDCA2 /* MegaMarkersTestCase-globe.png */,
-				D86333E61BE9731100FEDCA2 /* ScreenMarkersTestCase-globe.png */,
-				D86333E71BE9731100FEDCA2 /* ScreenMarkersTestCase-map.png */,
-				D86333E81BE9731100FEDCA2 /* ShapesTestCase-globe.png */,
-				D86333E91BE9731100FEDCA2 /* ShapesTestCase-map.png */,
-				D86333EA1BE9731100FEDCA2 /* WideVectorsTestCase-globe.png */,
-				D86333EB1BE9731100FEDCA2 /* WideVectorsTestCase-map.png */,
-				D8228A981BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-globe.png */,
-				D8228A991BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-map.png */,
-				D8228A9A1BE780FD001D6914 /* AutoTester.MapzenVectorTestCase-map.png */,
-				D8228A9B1BE780FD001D6914 /* MapBoxVectorTestCase-map.png */,
-				D8228A9C1BE780FD001D6914 /* VectorsTestCase-globe.png */,
-				D8228A9D1BE780FD001D6914 /* VectorsTestCase-map.png */,
-				D8228A941BE77C8F001D6914 /* CesiumElevationTestCase-globe.png */,
-				D8228A951BE77C8F001D6914 /* CesiumElevationTestCase-map.png */,
-				D8DCCCA41BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-globe.png */,
-				D8DCCCA51BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-map.png */,
-				888943381BD6F48C00C39A66 /* GeographyClassTestCase-map.png */,
-				888943341BD6EE1A00C39A66 /* AutoTester.StamenWatercolorRemote-globe.png */,
-				888943351BD6EE1A00C39A66 /* GeographyClassTestCase-globe.png */,
+				881DD7411BEB6A7D00FA8509 /* AnimatedBasemapTestCase-globe.png */,
+				881DD7421BEB6A7D00FA8509 /* AnimatedBasemapTestCase-map.png */,
+				881DD7431BEB6A7D00FA8509 /* CesiumElevationTestCase-globe.png */,
+				881DD7441BEB6A7D00FA8509 /* CesiumElevationTestCase-map.png */,
+				881DD7451BEB6A7D00FA8509 /* ClusteredMarkersTestCase-globe.png */,
+				881DD7461BEB6A7D00FA8509 /* ClusteredMarkersTestCase-map.png */,
+				881DD7471BEB6A7D00FA8509 /* GeographyClassTestCase-globe.png */,
+				881DD7481BEB6A7D00FA8509 /* GeographyClassTestCase-map.png */,
+				881DD7491BEB6A7D00FA8509 /* LabelsTestCase-globe.png */,
+				881DD74A1BEB6A7D00FA8509 /* LabelsTestCase-map.png */,
+				881DD74B1BEB6A7D00FA8509 /* LoftedPolysTestCase-globe.png */,
+				881DD74C1BEB6A7D00FA8509 /* MapBoxSatelliteTestCase-globe.png */,
+				881DD74D1BEB6A7D00FA8509 /* MapBoxSatelliteTestCase-map.png */,
+				881DD74E1BEB6A7D00FA8509 /* MapBoxVectorTestCase-map.png */,
+				881DD74F1BEB6A7D00FA8509 /* MapzenVectorTestCase-map.png */,
+				881DD7501BEB6A7D00FA8509 /* MarkersTestCase-globe.png */,
+				881DD7511BEB6A7D00FA8509 /* MarkersTestCase-map.png */,
+				881DD7521BEB6A7D00FA8509 /* MegaMarkersTestCase-globe.png */,
+				881DD7531BEB6A7D00FA8509 /* ModelsTestCase-globe.png */,
+				881DD7541BEB6A7D00FA8509 /* ScreenLabelsTestCase-globe.png */,
+				881DD7551BEB6A7D00FA8509 /* ScreenLabelsTestCase-map.png */,
+				881DD7561BEB6A7D00FA8509 /* ScreenMarkersTestCase-globe.png */,
+				881DD7571BEB6A7D00FA8509 /* ScreenMarkersTestCase-map.png */,
+				881DD7581BEB6A7D00FA8509 /* ShapesTestCase-globe.png */,
+				881DD7591BEB6A7D00FA8509 /* ShapesTestCase-map.png */,
+				881DD75A1BEB6A7D00FA8509 /* StamenWatercolorRemote-globe.png */,
+				881DD75B1BEB6A7D00FA8509 /* StarsSunTestCase-globe.png */,
+				881DD75C1BEB6A7D00FA8509 /* StickersTestCase-globe.png */,
+				881DD75D1BEB6A7D00FA8509 /* StickersTestCase-map.png */,
+				881DD75E1BEB6A7D00FA8509 /* VectorsTestCase-globe.png */,
+				881DD75F1BEB6A7D00FA8509 /* VectorsTestCase-map.png */,
+				881DD7601BEB6A7D00FA8509 /* WideVectorsTestCase-globe.png */,
+				881DD7611BEB6A7D00FA8509 /* WideVectorsTestCase-map.png */,
 			);
 			name = baselines;
 			path = AutoTester/baselines;
@@ -1048,39 +1048,39 @@
 		88BF115A1BCDA9530002205E /* testCases */ = {
 			isa = PBXGroup;
 			children = (
-				88BF115B1BCDA9530002205E /* GeographyClassTestCase.h */,
-				88BF115C1BCDA9530002205E /* GeographyClassTestCase.m */,
-				88BF115E1BCDA9730002205E /* StamenWatercolorRemote.swift */,
-				D8DCCCA21BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift */,
+				D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */,
 				D8DCCCAA1BDC1A1200BA3866 /* CesiumElevationTestCase.h */,
 				D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */,
-				D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */,
+				D8228AA71BE786BE001D6914 /* ClusteredMarkersTestCase.swift */,
+				88BF115B1BCDA9530002205E /* GeographyClassTestCase.h */,
+				88BF115C1BCDA9530002205E /* GeographyClassTestCase.m */,
+				D8F2FE251BE7BD630058A310 /* LabelsTestCase.h */,
+				D8F2FE261BE7BD630058A310 /* LabelsTestCase.m */,
+				D8200CA21BE9624300B22CF5 /* LoftedPolysTestCase.h */,
+				D8200CA31BE9624300B22CF5 /* LoftedPolysTestCase.m */,
+				D8DCCCA21BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift */,
 				D8E12ED21BDEAC5900BB7BC7 /* MapBoxVectorTestCase.h */,
 				D8E12ED31BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m */,
 				D8341A621BE299BF00411A46 /* MapzenVectorTestCase.swift */,
-				D8341A6F1BE2C8D200411A46 /* VectorsTestCase.h */,
-				D8341A701BE2C8D200411A46 /* VectorsTestCase.m */,
-				D8341A721BE2DFE100411A46 /* ScreenLabelsTestCase.swift */,
-				D8341A741BE2E89E00411A46 /* ScreenMarkersTestCase.h */,
-				D8341A751BE2E89E00411A46 /* ScreenMarkersTestCase.m */,
-				D8228A911BE77816001D6914 /* MovingScreenLabelsTestCase.swift */,
-				D8228AA41BE785E1001D6914 /* MovingScreenMarkers.h */,
-				D8228AA51BE785E1001D6914 /* MovingScreenMarkers.m */,
-				D8228AA71BE786BE001D6914 /* ClusteredMarkersTestCase.swift */,
-				D8F2FE251BE7BD630058A310 /* LabelsTestCase.h */,
-				D8F2FE261BE7BD630058A310 /* LabelsTestCase.m */,
 				D8F2FE281BE7C2000058A310 /* MarkersTestCase.swift */,
 				D8F2FE2A1BE7CAD30058A310 /* MegaMarkersTestCase.h */,
 				D8F2FE2B1BE7CAD30058A310 /* MegaMarkersTestCase.m */,
 				D8F2FE2D1BE7CF310058A310 /* ModelsTestCase.swift */,
-				D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */,
-				D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */,
-				D8200C971BE93E6E00B22CF5 /* StarsSunTestCase.swift */,
+				D8228A911BE77816001D6914 /* MovingScreenLabelsTestCase.swift */,
+				D8228AA41BE785E1001D6914 /* MovingScreenMarkers.h */,
+				D8228AA51BE785E1001D6914 /* MovingScreenMarkers.m */,
+				D8341A721BE2DFE100411A46 /* ScreenLabelsTestCase.swift */,
+				D8341A741BE2E89E00411A46 /* ScreenMarkersTestCase.h */,
+				D8341A751BE2E89E00411A46 /* ScreenMarkersTestCase.m */,
 				D8200C9D1BE9516300B22CF5 /* ShapesTestCase.h */,
 				D8200C9E1BE9516300B22CF5 /* ShapesTestCase.m */,
+				88BF115E1BCDA9730002205E /* StamenWatercolorRemote.swift */,
+				D8200C971BE93E6E00B22CF5 /* StarsSunTestCase.swift */,
 				D8200CA01BE9563F00B22CF5 /* StickersTestCase.swift */,
-				D8200CA21BE9624300B22CF5 /* LoftedPolysTestCase.h */,
-				D8200CA31BE9624300B22CF5 /* LoftedPolysTestCase.m */,
+				D8341A6F1BE2C8D200411A46 /* VectorsTestCase.h */,
+				D8341A701BE2C8D200411A46 /* VectorsTestCase.m */,
+				D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */,
+				D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -1699,6 +1699,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				881DD7771BEB6A7D00FA8509 /* ScreenMarkersTestCase-globe.png in Resources */,
 				88FF5E521BC31D95002F15CE /* GUF.geojson in Resources */,
 				88FF5E211BC31D95002F15CE /* CIV.geojson in Resources */,
 				88FF5CEC1BC31D6D002F15CE /* MapzenGLStyle.json in Resources */,
@@ -1712,8 +1713,8 @@
 				88FF5C851BC31D6D002F15CE /* art-gallery-24@2x.png in Resources */,
 				88FF5C831BC31D6D002F15CE /* alcohol-shop-24@2x.png in Resources */,
 				88FF5BEB1BC31D53002F15CE /* SunImage.png in Resources */,
+				881DD7641BEB6A7D00FA8509 /* CesiumElevationTestCase-globe.png in Resources */,
 				88FF5CBE1BC31D6D002F15CE /* park2-24@2x.png in Resources */,
-				D8228A9E1BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-globe.png in Resources */,
 				88FF5E6A1BC31D95002F15CE /* KEN.geojson in Resources */,
 				88FF5E531BC31D95002F15CE /* GUM.geojson in Resources */,
 				88FF5C871BC31D6D002F15CE /* bank-24@2x.png in Resources */,
@@ -1731,13 +1732,13 @@
 				88FF5E9C1BC31D95002F15CE /* NOR.geojson in Resources */,
 				88FF5CCB1BC31D6D002F15CE /* rail-underground-24@2x.png in Resources */,
 				88FF5CB01BC31D6D002F15CE /* laundry-24@2x.png in Resources */,
-				D8228A961BE77C8F001D6914 /* CesiumElevationTestCase-globe.png in Resources */,
 				88FF5E141BC31D95002F15CE /* BOL.geojson in Resources */,
 				88FF5E461BC31D95002F15CE /* GGY.geojson in Resources */,
 				88FF5E5C1BC31D95002F15CE /* IMN.geojson in Resources */,
 				88FF5E721BC31D95002F15CE /* LBN.geojson in Resources */,
 				88FF5E431BC31D95002F15CE /* GAB.geojson in Resources */,
 				88FF5E781BC31D95002F15CE /* LSO.geojson in Resources */,
+				881DD7801BEB6A7D00FA8509 /* VectorsTestCase-map.png in Resources */,
 				88FF5EC21BC31D95002F15CE /* SSD.geojson in Resources */,
 				88FF5E6F1BC31D95002F15CE /* KOR.geojson in Resources */,
 				88FF5E341BC31D95002F15CE /* DOM.geojson in Resources */,
@@ -1745,6 +1746,7 @@
 				88FF5E2F1BC31D95002F15CE /* CZE.geojson in Resources */,
 				88FF5CA21BC31D6D002F15CE /* emergency-telephone-24@2x.png in Resources */,
 				88FF5EE91BC31D95002F15CE /* WSM.geojson in Resources */,
+				881DD77E1BEB6A7D00FA8509 /* StickersTestCase-map.png in Resources */,
 				88FF5E6D1BC31D95002F15CE /* KIR.geojson in Resources */,
 				88FF5DF71BC31D95002F15CE /* AGO.geojson in Resources */,
 				88FF5CEE1BC31D6D002F15CE /* cessna.obj in Resources */,
@@ -1762,7 +1764,6 @@
 				88FF5EDD1BC31D95002F15CE /* UMI.geojson in Resources */,
 				88FF5E771BC31D95002F15CE /* LKA.geojson in Resources */,
 				88FF5E7B1BC31D95002F15CE /* LVA.geojson in Resources */,
-				888943371BD6EE1A00C39A66 /* GeographyClassTestCase-globe.png in Resources */,
 				88FF5E1B1BC31D95002F15CE /* CAF.geojson in Resources */,
 				88FF5EF21BC31D95002F15CE /* tl_2013_06075_roads.shx in Resources */,
 				88FF5EB01BC31D95002F15CE /* REU.geojson in Resources */,
@@ -1772,7 +1773,6 @@
 				88FF5CE31BC31D6D002F15CE /* triangle-24@2x.png in Resources */,
 				88FF5E471BC31D95002F15CE /* GHA.geojson in Resources */,
 				88FF5E081BC31D95002F15CE /* BEN.geojson in Resources */,
-				D86333F81BE9731100FEDCA2 /* LoftedPolysTestCase-globe.png in Resources */,
 				88FF5DFC1BC31D95002F15CE /* ARE.geojson in Resources */,
 				88FF5E4B1BC31D95002F15CE /* GMB.geojson in Resources */,
 				88FF5EA21BC31D95002F15CE /* PAN.geojson in Resources */,
@@ -1788,9 +1788,9 @@
 				88FF5BEA1BC31D53002F15CE /* Star.png in Resources */,
 				88FF5CDC1BC31D6D002F15CE /* swimming-24@2x.png in Resources */,
 				88FF5DFD1BC31D95002F15CE /* ARG.geojson in Resources */,
-				D8DCCCA61BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-globe.png in Resources */,
 				88FF5ECD1BC31D95002F15CE /* TCD.geojson in Resources */,
-				D8228A9F1BE780FD001D6914 /* AutoTester.AnimatedBasemapTestCase-map.png in Resources */,
+				881DD7631BEB6A7D00FA8509 /* AnimatedBasemapTestCase-map.png in Resources */,
+				881DD76F1BEB6A7D00FA8509 /* MapBoxVectorTestCase-map.png in Resources */,
 				88FF5E351BC31D95002F15CE /* DZA.geojson in Resources */,
 				88FF5C8E1BC31D6D002F15CE /* bus-24@2x.png in Resources */,
 				88FF5E691BC31D95002F15CE /* KAZ.geojson in Resources */,
@@ -1799,9 +1799,7 @@
 				88FF5E961BC31D95002F15CE /* NER.geojson in Resources */,
 				88FF5EC51BC31D95002F15CE /* SVK.geojson in Resources */,
 				88FF5E861BC31D95002F15CE /* MLI.geojson in Resources */,
-				D86333FA1BE9731100FEDCA2 /* ScreenMarkersTestCase-globe.png in Resources */,
 				88FF5EAB1BC31D95002F15CE /* PRT.geojson in Resources */,
-				D86333F91BE9731100FEDCA2 /* MegaMarkersTestCase-globe.png in Resources */,
 				88FF5EE21BC31D95002F15CE /* VCT.geojson in Resources */,
 				88FF5E011BC31D95002F15CE /* ATF.geojson in Resources */,
 				88FF5EBB1BC31D95002F15CE /* SLB.geojson in Resources */,
@@ -1823,15 +1821,13 @@
 				88FF5EA11BC31D95002F15CE /* PAK.geojson in Resources */,
 				88FF5CB11BC31D6D002F15CE /* library-24@2x.png in Resources */,
 				88FF5E281BC31D95002F15CE /* CPV.geojson in Resources */,
-				D8228AA31BE780FD001D6914 /* VectorsTestCase-map.png in Resources */,
 				88FF5E831BC31D95002F15CE /* MEX.geojson in Resources */,
 				88FF5EEC1BC31D95002F15CE /* ZMB.geojson in Resources */,
 				88FF5CA61BC31D6D002F15CE /* fire-station-24@2x.png in Resources */,
 				88FF5CA01BC31D6D002F15CE /* dog-park-24@2x.png in Resources */,
 				88FF5E001BC31D95002F15CE /* ATA.geojson in Resources */,
+				881DD7701BEB6A7D00FA8509 /* MapzenVectorTestCase-map.png in Resources */,
 				88FF5EE51BC31D95002F15CE /* VIR.geojson in Resources */,
-				D86333F21BE9731100FEDCA2 /* AutoTester.ScreenLabelsTestCase-map.png in Resources */,
-				D86333FD1BE9731100FEDCA2 /* ShapesTestCase-map.png in Resources */,
 				88FF5E5A1BC31D95002F15CE /* HUN.geojson in Resources */,
 				88FF5EDE1BC31D95002F15CE /* URY.geojson in Resources */,
 				88FF5E491BC31D95002F15CE /* GIN.geojson in Resources */,
@@ -1844,31 +1840,37 @@
 				88FF5CC61BC31D6D002F15CE /* polling-place-24@2x.png in Resources */,
 				88FF5E181BC31D95002F15CE /* BTN.geojson in Resources */,
 				88FF5EB31BC31D95002F15CE /* RWA.geojson in Resources */,
+				881DD7691BEB6A7D00FA8509 /* GeographyClassTestCase-map.png in Resources */,
 				88FF5EAC1BC31D95002F15CE /* PRY.geojson in Resources */,
+				881DD76A1BEB6A7D00FA8509 /* LabelsTestCase-globe.png in Resources */,
 				88FF5EBF1BC31D95002F15CE /* SOM.geojson in Resources */,
 				88FF5EBD1BC31D95002F15CE /* SLV.geojson in Resources */,
 				88FF5CC01BC31D6D002F15CE /* parking-garage-24@2x.png in Resources */,
 				88FF5EE31BC31D95002F15CE /* VEN.geojson in Resources */,
-				D8228AA11BE780FD001D6914 /* MapBoxVectorTestCase-map.png in Resources */,
 				88FF5CE21BC31D6D002F15CE /* town-hall-24@2x.png in Resources */,
 				88FF5CF21BC31D6D002F15CE /* starcatalog_orig.txt in Resources */,
 				88FF5ECA1BC31D95002F15CE /* SYC.geojson in Resources */,
 				88FF5EE81BC31D95002F15CE /* WLF.geojson in Resources */,
 				88FF5EB51BC31D95002F15CE /* SDN.geojson in Resources */,
+				881DD7791BEB6A7D00FA8509 /* ShapesTestCase-globe.png in Resources */,
 				88FF5C931BC31D6D002F15CE /* cemetery-24@2x.png in Resources */,
+				881DD7661BEB6A7D00FA8509 /* ClusteredMarkersTestCase-globe.png in Resources */,
 				88FF5E041BC31D95002F15CE /* AUT.geojson in Resources */,
 				88FF5CA51BC31D6D002F15CE /* ferry-24@2x.png in Resources */,
 				88FF5CC41BC31D6D002F15CE /* playground-24@2x.png in Resources */,
 				88FF5E0A1BC31D95002F15CE /* BFA.geojson in Resources */,
 				88FF5E5D1BC31D95002F15CE /* IND.geojson in Resources */,
 				88FF5DFF1BC31D95002F15CE /* ASM.geojson in Resources */,
-				D86333FE1BE9731100FEDCA2 /* WideVectorsTestCase-globe.png in Resources */,
+				881DD7721BEB6A7D00FA8509 /* MarkersTestCase-map.png in Resources */,
+				881DD7811BEB6A7D00FA8509 /* WideVectorsTestCase-globe.png in Resources */,
 				88FF5E3C1BC31D95002F15CE /* ETH.geojson in Resources */,
+				881DD7711BEB6A7D00FA8509 /* MarkersTestCase-globe.png in Resources */,
 				88FF5E291BC31D95002F15CE /* CRI.geojson in Resources */,
 				88FF5E631BC31D95002F15CE /* ISR.geojson in Resources */,
 				88FF5EEF1BC31D95002F15CE /* tl_2013_06075_roads.mbr in Resources */,
 				88FF5CA11BC31D6D002F15CE /* embassy-24@2x.png in Resources */,
 				88FF5E621BC31D95002F15CE /* ISL.geojson in Resources */,
+				881DD76B1BEB6A7D00FA8509 /* LabelsTestCase-map.png in Resources */,
 				88FF5E391BC31D95002F15CE /* ESH.geojson in Resources */,
 				88FF5CCE1BC31D6D002F15CE /* religious-muslim-24@2x.png in Resources */,
 				88E4B8CA1B83B6AB0050D21B /* Main.storyboard in Resources */,
@@ -1882,22 +1884,20 @@
 				88FF5C8F1BC31D6D002F15CE /* cafe-24@2x.png in Resources */,
 				88FF5E131BC31D95002F15CE /* BMU.geojson in Resources */,
 				88FF5CE51BC31D6D002F15CE /* village-24@2x.png in Resources */,
+				881DD7671BEB6A7D00FA8509 /* ClusteredMarkersTestCase-map.png in Resources */,
 				88FF5BE71BC31D53002F15CE /* map_pin.png in Resources */,
-				888943391BD6F48C00C39A66 /* GeographyClassTestCase-map.png in Resources */,
 				88FF5E1E1BC31D95002F15CE /* CHE.geojson in Resources */,
 				88FF5E451BC31D95002F15CE /* GEO.geojson in Resources */,
 				88FF5E571BC31D95002F15CE /* HND.geojson in Resources */,
 				88FF5C941BC31D6D002F15CE /* cinema-24@2x.png in Resources */,
-				D8228AA21BE780FD001D6914 /* VectorsTestCase-globe.png in Resources */,
 				88FF5E411BC31D95002F15CE /* FRO.geojson in Resources */,
 				88FF5CF31BC31D6D002F15CE /* starcatalog_short.txt in Resources */,
-				D86333F51BE9731100FEDCA2 /* AutoTester.StickersTestCase-map.png in Resources */,
+				881DD77D1BEB6A7D00FA8509 /* StickersTestCase-globe.png in Resources */,
 				88FF5E3F1BC31D95002F15CE /* FLK.geojson in Resources */,
 				88FF5EBA1BC31D95002F15CE /* SJM.geojson in Resources */,
 				88FF5CF01BC31D6D002F15CE /* moon.png in Resources */,
 				88FF5E361BC31D95002F15CE /* ECU.geojson in Resources */,
 				88E4B8CF1B83B6AB0050D21B /* LaunchScreen.xib in Resources */,
-				D86333F11BE9731100FEDCA2 /* AutoTester.ScreenLabelsTestCase-globe.png in Resources */,
 				88FF5ED31BC31D95002F15CE /* TLS.geojson in Resources */,
 				88FF5E821BC31D95002F15CE /* MDV.geojson in Resources */,
 				88FF5E021BC31D95002F15CE /* ATG.geojson in Resources */,
@@ -1918,9 +1918,9 @@
 				88FF5C8A1BC31D6D002F15CE /* basketball-24@2x.png in Resources */,
 				88FF5ED41BC31D95002F15CE /* TON.geojson in Resources */,
 				88FF5CA71BC31D6D002F15CE /* fuel-24@2x.png in Resources */,
+				881DD7621BEB6A7D00FA8509 /* AnimatedBasemapTestCase-globe.png in Resources */,
 				88FF5ED11BC31D95002F15CE /* TKL.geojson in Resources */,
 				88FF5DF81BC31D95002F15CE /* AIA.geojson in Resources */,
-				D86333F31BE9731100FEDCA2 /* AutoTester.StarsSunTestCase-globe.png in Resources */,
 				88FF5E761BC31D95002F15CE /* LIE.geojson in Resources */,
 				88FF5C9B1BC31D6D002F15CE /* cricket-24@2x.png in Resources */,
 				88FF5CAA1BC31D6D002F15CE /* grocery-24@2x.png in Resources */,
@@ -1942,13 +1942,11 @@
 				88FF5EAD1BC31D95002F15CE /* PSE.geojson in Resources */,
 				88FF5EEB1BC31D95002F15CE /* ZAF.geojson in Resources */,
 				88FF5EE11BC31D95002F15CE /* VAT.geojson in Resources */,
-				D86333FC1BE9731100FEDCA2 /* ShapesTestCase-globe.png in Resources */,
 				88FF5C751BC31D6D002F15CE /* lowres_wtb_0x0.pvrtc in Resources */,
 				88FF5E031BC31D95002F15CE /* AUS.geojson in Resources */,
 				88FF5E0D1BC31D95002F15CE /* BHR.geojson in Resources */,
 				88FF5CAC1BC31D6D002F15CE /* heliport-24@2x.png in Resources */,
 				88FF5E0F1BC31D95002F15CE /* BIH.geojson in Resources */,
-				D86333F71BE9731100FEDCA2 /* LabelsTestCase-map.png in Resources */,
 				88FF5C991BC31D6D002F15CE /* college-24@2x.png in Resources */,
 				88FF5CE41BC31D6D002F15CE /* triangle-stroked-24@2x.png in Resources */,
 				88FF5EB91BC31D95002F15CE /* SHN.geojson in Resources */,
@@ -1961,7 +1959,7 @@
 				88FF5CED1BC31D6D002F15CE /* MapzenStyles.json in Resources */,
 				88FF5EDA1BC31D95002F15CE /* TZA.geojson in Resources */,
 				88FF5EBC1BC31D95002F15CE /* SLE.geojson in Resources */,
-				888943361BD6EE1A00C39A66 /* AutoTester.StamenWatercolorRemote-globe.png in Resources */,
+				881DD7731BEB6A7D00FA8509 /* MegaMarkersTestCase-globe.png in Resources */,
 				88FF5E811BC31D95002F15CE /* MDG.geojson in Resources */,
 				88FF5E371BC31D95002F15CE /* EGY.geojson in Resources */,
 				88FF5E9F1BC31D95002F15CE /* NZL.geojson in Resources */,
@@ -1975,18 +1973,21 @@
 				88FF5E101BC31D95002F15CE /* BLM.geojson in Resources */,
 				88FF5C911BC31D6D002F15CE /* campsite-24@2x.png in Resources */,
 				88FF5EA51BC31D95002F15CE /* PHL.geojson in Resources */,
+				881DD76D1BEB6A7D00FA8509 /* MapBoxSatelliteTestCase-globe.png in Resources */,
 				88FF5E7C1BC31D95002F15CE /* MAC.geojson in Resources */,
 				88FF5CE81BC31D6D002F15CE /* water-24@2x.png in Resources */,
 				88FF5E4A1BC31D95002F15CE /* GLP.geojson in Resources */,
 				88FF5E611BC31D95002F15CE /* IRQ.geojson in Resources */,
-				D86333FF1BE9731100FEDCA2 /* WideVectorsTestCase-map.png in Resources */,
 				88FF5E7D1BC31D95002F15CE /* MAF.geojson in Resources */,
+				881DD7821BEB6A7D00FA8509 /* WideVectorsTestCase-map.png in Resources */,
 				88FF5CD71BC31D6D002F15CE /* square-24@2x.png in Resources */,
 				88FF5E9A1BC31D95002F15CE /* NIU.geojson in Resources */,
 				88FF5E0E1BC31D95002F15CE /* BHS.geojson in Resources */,
 				88FF5CBA1BC31D6D002F15CE /* museum-24@2x.png in Resources */,
 				88FF5CDB1BC31D6D002F15CE /* suitcase-24@2x.png in Resources */,
 				88FF5DF91BC31D95002F15CE /* ALA.geojson in Resources */,
+				881DD76E1BEB6A7D00FA8509 /* MapBoxSatelliteTestCase-map.png in Resources */,
+				881DD7761BEB6A7D00FA8509 /* ScreenLabelsTestCase-map.png in Resources */,
 				88FF5E191BC31D95002F15CE /* BVT.geojson in Resources */,
 				88FF5E711BC31D95002F15CE /* LAO.geojson in Resources */,
 				88FF5E2B1BC31D95002F15CE /* CUW.geojson in Resources */,
@@ -1994,14 +1995,14 @@
 				88FF5CAB1BC31D6D002F15CE /* harbor-24@2x.png in Resources */,
 				88231C791BA784BC00A95F2B /* ConfigViewController.xib in Resources */,
 				88FF5CBD1BC31D6D002F15CE /* park-24@2x.png in Resources */,
-				D86333F01BE9731100FEDCA2 /* AutoTester.ModelsTestCase-globe.png in Resources */,
 				88FF5E991BC31D95002F15CE /* NIC.geojson in Resources */,
 				88FF5C741BC31D6D002F15CE /* geography-class_medres.mbtiles in Resources */,
-				D86333EC1BE9731100FEDCA2 /* AutoTester.ClusteredMarkersTestCase-globe.png in Resources */,
 				88FF5EAE1BC31D95002F15CE /* PYF.geojson in Resources */,
+				881DD77A1BEB6A7D00FA8509 /* ShapesTestCase-map.png in Resources */,
 				88FF5E881BC31D95002F15CE /* MMR.geojson in Resources */,
 				88FF5E301BC31D95002F15CE /* DEU.geojson in Resources */,
 				88FF5CA41BC31D6D002F15CE /* fast-food-24@2x.png in Resources */,
+				881DD77B1BEB6A7D00FA8509 /* StamenWatercolorRemote-globe.png in Resources */,
 				88FF5E8A1BC31D95002F15CE /* MNG.geojson in Resources */,
 				88FF5EE01BC31D95002F15CE /* UZB.geojson in Resources */,
 				88FF5E581BC31D95002F15CE /* HRV.geojson in Resources */,
@@ -2012,32 +2013,33 @@
 				88FF5E8E1BC31D95002F15CE /* MSR.geojson in Resources */,
 				88FF5CBC1BC31D6D002F15CE /* oil-well-24@2x.png in Resources */,
 				88FF5E8C1BC31D95002F15CE /* MOZ.geojson in Resources */,
-				D8228A971BE77C8F001D6914 /* CesiumElevationTestCase-map.png in Resources */,
 				88FF5E2A1BC31D95002F15CE /* CUB.geojson in Resources */,
 				88FF5EB41BC31D95002F15CE /* SAU.geojson in Resources */,
 				88FF5E901BC31D95002F15CE /* MUS.geojson in Resources */,
 				88FF5E1D1BC31D95002F15CE /* CCK.geojson in Resources */,
 				88FF5EBE1BC31D95002F15CE /* SMR.geojson in Resources */,
 				88FF5CD81BC31D6D002F15CE /* square-stroked-24@2x.png in Resources */,
+				881DD77F1BEB6A7D00FA8509 /* VectorsTestCase-globe.png in Resources */,
 				88FF5DFB1BC31D95002F15CE /* AND.geojson in Resources */,
 				88FF5ECE1BC31D95002F15CE /* TGO.geojson in Resources */,
 				88FF5CC91BC31D6D002F15CE /* rail-24@2x.png in Resources */,
 				88FF5CE61BC31D6D002F15CE /* warehouse-24@2x.png in Resources */,
 				88FF5CB71BC31D6D002F15CE /* marker-stroked-24@2x.png in Resources */,
 				88FF5C8C1BC31D6D002F15CE /* bicycle-24@2x.png in Resources */,
+				881DD7681BEB6A7D00FA8509 /* GeographyClassTestCase-globe.png in Resources */,
 				88FF5CD01BC31D6D002F15CE /* roadblock-24@2x.png in Resources */,
 				88FF5CCF1BC31D6D002F15CE /* restaurant-24@2x.png in Resources */,
 				88FF5E671BC31D95002F15CE /* JOR.geojson in Resources */,
+				881DD7651BEB6A7D00FA8509 /* CesiumElevationTestCase-map.png in Resources */,
 				88FF5CBB1BC31D6D002F15CE /* music-24@2x.png in Resources */,
-				D86333EF1BE9731100FEDCA2 /* AutoTester.MarkersTestCase-map.png in Resources */,
 				88FF5CAD1BC31D6D002F15CE /* hospital-24@2x.png in Resources */,
 				88FF5C921BC31D6D002F15CE /* car-24@2x.png in Resources */,
 				88FF5E1F1BC31D95002F15CE /* CHL.geojson in Resources */,
-				D8228AA01BE780FD001D6914 /* AutoTester.MapzenVectorTestCase-map.png in Resources */,
 				88FF5E741BC31D95002F15CE /* LBY.geojson in Resources */,
 				88FF5CB21BC31D6D002F15CE /* lighthouse-24@2x.png in Resources */,
 				88FF5E221BC31D95002F15CE /* CMR.geojson in Resources */,
 				88FF5CDD1BC31D6D002F15CE /* telephone-24@2x.png in Resources */,
+				881DD7741BEB6A7D00FA8509 /* ModelsTestCase-globe.png in Resources */,
 				88FF5E231BC31D95002F15CE /* COD.geojson in Resources */,
 				88FF5CC11BC31D6D002F15CE /* pharmacy-24@2x.png in Resources */,
 				88FF5EA31BC31D95002F15CE /* PCN.geojson in Resources */,
@@ -2049,11 +2051,9 @@
 				88FF5BE91BC31D53002F15CE /* star_background.png in Resources */,
 				88FF5E6C1BC31D95002F15CE /* KHM.geojson in Resources */,
 				88FF5C7D1BC31D6D002F15CE /* lowres_wtb_4x0.pvrtc in Resources */,
-				D86333F61BE9731100FEDCA2 /* LabelsTestCase-globe.png in Resources */,
 				88FF5EC81BC31D95002F15CE /* SWZ.geojson in Resources */,
 				88FF5EF01BC31D95002F15CE /* tl_2013_06075_roads.prj in Resources */,
 				88FF5ED91BC31D95002F15CE /* TWN.geojson in Resources */,
-				D86333ED1BE9731100FEDCA2 /* AutoTester.ClusteredMarkersTestCase-map.png in Resources */,
 				88FF5CEA1BC31D6D002F15CE /* zoo-24@2x.png in Resources */,
 				88FF5E661BC31D95002F15CE /* JEY.geojson in Resources */,
 				88FF5EA01BC31D95002F15CE /* OMN.geojson in Resources */,
@@ -2061,7 +2061,6 @@
 				88FF5EA41BC31D95002F15CE /* PER.geojson in Resources */,
 				88FF5E791BC31D95002F15CE /* LTU.geojson in Resources */,
 				88FF5CD41BC31D6D002F15CE /* skiing-24@2x.png in Resources */,
-				D86333F41BE9731100FEDCA2 /* AutoTester.StickersTestCase-globe.png in Resources */,
 				88FF5EB21BC31D95002F15CE /* RUS.geojson in Resources */,
 				88FF5EF31BC31D95002F15CE /* tl_2013_06075_roads.sqlite in Resources */,
 				88FF5EB11BC31D95002F15CE /* ROU.geojson in Resources */,
@@ -2083,11 +2082,11 @@
 				88FF5E3B1BC31D95002F15CE /* EST.geojson in Resources */,
 				88FF5CAE1BC31D6D002F15CE /* industrial-24@2x.png in Resources */,
 				88FF5CF11BC31D6D002F15CE /* vp.mtl in Resources */,
-				D8DCCCA71BDC186500BA3866 /* AutoTester.MapBoxSatelliteTestCase-map.png in Resources */,
 				88FF5E1A1BC31D95002F15CE /* BWA.geojson in Resources */,
+				881DD77C1BEB6A7D00FA8509 /* StarsSunTestCase-globe.png in Resources */,
 				88FF5CE91BC31D6D002F15CE /* wetland-24@2x.png in Resources */,
 				88FF5C9D1BC31D6D002F15CE /* dam-24@2x.png in Resources */,
-				D86333EE1BE9731100FEDCA2 /* AutoTester.MarkersTestCase-globe.png in Resources */,
+				881DD7751BEB6A7D00FA8509 /* ScreenLabelsTestCase-globe.png in Resources */,
 				88FF5E091BC31D95002F15CE /* BES.geojson in Resources */,
 				88FF5CB51BC31D6D002F15CE /* london-underground-24@2x.png in Resources */,
 				88FF5CCA1BC31D6D002F15CE /* rail-above-24@2x.png in Resources */,
@@ -2104,8 +2103,9 @@
 				88FF5E751BC31D95002F15CE /* LCA.geojson in Resources */,
 				88FF5EF11BC31D95002F15CE /* tl_2013_06075_roads.shp in Resources */,
 				88FF5CDF1BC31D6D002F15CE /* theatre-24@2x.png in Resources */,
+				881DD76C1BEB6A7D00FA8509 /* LoftedPolysTestCase-globe.png in Resources */,
 				88FF5CC21BC31D6D002F15CE /* pitch-24@2x.png in Resources */,
-				D86333FB1BE9731100FEDCA2 /* ScreenMarkersTestCase-map.png in Resources */,
+				881DD7781BEB6A7D00FA8509 /* ScreenMarkersTestCase-map.png in Resources */,
 				88FF5E5F1BC31D95002F15CE /* IRL.geojson in Resources */,
 				88FF5ECC1BC31D95002F15CE /* TCA.geojson in Resources */,
 				88FF5E051BC31D95002F15CE /* AZE.geojson in Resources */,
