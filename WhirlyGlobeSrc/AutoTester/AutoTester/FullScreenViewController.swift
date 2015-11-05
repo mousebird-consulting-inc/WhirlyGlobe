@@ -17,6 +17,11 @@ class FullScreenViewController : UIViewController {
 	var actualImageResult: UIImage?
 	var baselineImageResult: UIImage?
 
+	override func viewDidLoad() {
+		// disable swipe back gesture
+		self.navigationController?.interactivePopGestureRecognizer?.enabled = false
+	}
+
 	override func viewWillAppear(animated: Bool) {
 		actualImageView.image = actualImageResult
 		baselineImageView.image = baselineImageResult
