@@ -9,12 +9,16 @@
 import UIKit
 
 class StarsSunTestCase: MaplyTestCase {
+
+	let renderDate: NSDate
 	
 	override init() {
+		self.renderDate = NSDate()
+
 		super.init()
-		
+
 		self.name = "Stars/Sun"
-		self.captureDelay = 4
+		self.captureDelay = 10
 	}
 	
 	func addStars(globeVC: WhirlyGlobeViewController) {
@@ -22,14 +26,14 @@ class StarsSunTestCase: MaplyTestCase {
 				ofType: "txt") {
 			let stars = MaplyStarsModel(fileName: fileName)
 			stars?.setImage(UIImage(named: "star_background")!)
-			stars?.addToViewC(globeVC, date: NSDate(), desc: nil, mode: MaplyThreadMode.Current)
+			stars?.addToViewC(globeVC, date: renderDate, desc: nil, mode: MaplyThreadMode.Current)
 		}
 	}
 	
 	func addSun(globeVC: WhirlyGlobeViewController) {
 		globeVC.clearColor = UIColor.blackColor()
 
-		let sun = MaplySun(date: NSDate())
+		let sun = MaplySun(date: renderDate)
 		let sunLight = sun.makeLight()
 		
 		globeVC.clearLights()
@@ -46,11 +50,16 @@ class StarsSunTestCase: MaplyTestCase {
 		
 		bill.screenObj?.addImage(globeImage, color: UIColor.whiteColor(), size: CGSizeMake(0.9, 0.9))
 		
-		globeVC.addBillboards([bill], desc: [kMaplyBillboardOrient: kMaplyBillboardOrientEye, kMaplyDrawPriority: NSNumber(int: kMaplySunDrawPriorityDefault)], mode: MaplyThreadMode.Any)
+		globeVC.addBillboards([bill],
+			desc: [
+				kMaplyBillboardOrient: kMaplyBillboardOrientEye,
+				kMaplyDrawPriority: NSNumber(int: kMaplySunDrawPriorityDefault)
+			],
+			mode: MaplyThreadMode.Any)
 		
 		//Position for the moon
 		
-		let moon = MaplyMoon(date: NSDate())
+		let moon = MaplyMoon(date: renderDate)
 		
 		let billMoon = MaplyBillboard()
 		
@@ -60,14 +69,22 @@ class StarsSunTestCase: MaplyTestCase {
 		billMoon.selectable = false
 		billMoon.screenObj = MaplyScreenObject()
 		let moonImage = UIImage(named: "moon")
-		billMoon.screenObj?.addImage(moonImage, color: UIColor(white: CGFloat(moon.illuminatedFraction), alpha: 1.0), size: CGSizeMake(0.75, 0.75))
-		globeVC.addBillboards([billMoon], desc: [kMaplyBillboardOrient: kMaplyBillboardOrientEye, kMaplyDrawPriority: NSNumber(int: kMaplyMoonDrawPriorityDefault)], mode: MaplyThreadMode.Any)
+		billMoon.screenObj?.addImage(moonImage,
+			color: UIColor(white: CGFloat(moon.illuminatedFraction), alpha: 1.0),
+			size: CGSizeMake(0.75, 0.75))
+		globeVC.addBillboards([billMoon],
+			desc: [
+				kMaplyBillboardOrient: kMaplyBillboardOrientEye,
+				kMaplyDrawPriority: NSNumber(int: kMaplyMoonDrawPriorityDefault)
+			],
+			mode: MaplyThreadMode.Any)
 		
 		// And some atmosphere, because the iDevice fill rate is just too fast
 		let atmosObj = MaplyAtmosphere(viewC: globeVC)
 
 		atmosObj?.setWavelengthRed(0.650, green: 0.570, blue: 0.47)
-		atmosObj?.setSunPosition(sun .getDirection())
+		atmosObj?.setSunPosition(sun.getDirection())
+
 		turnOnNightDay(globeVC, atmosObj: atmosObj!)
 	}
 	
@@ -96,7 +113,6 @@ class StarsSunTestCase: MaplyTestCase {
 		layer?.shaderProgramName = atmosObj.groundShader!.name
 		globeVC.addLayer(layer!)
 		layer?.drawPriority = kMaplyImageLayerDrawPriorityDefault
-		
 	}
 	
 	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
