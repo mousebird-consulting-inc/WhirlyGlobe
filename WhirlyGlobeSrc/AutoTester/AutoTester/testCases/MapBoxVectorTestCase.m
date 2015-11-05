@@ -9,7 +9,7 @@
 #import "MapBoxVectorTestCase.h"
 #import "MaplyMapnikVectorTiles.h"
 #import "MaplyViewController.h"
-#import "GeographyClassTestCase.h"
+#import "AutoTester-Swift.h"
 #import "MapboxVectorStyleSet.h"
 
 @implementation MapBoxVectorTestCase
@@ -27,18 +27,18 @@
 
 - (BOOL)setUpWithMap:(MaplyViewController *)mapVC
 {
-	GeographyClassTestCase *gctc = [[GeographyClassTestCase alloc]init];
+	MapBoxSatelliteTestCase *gctc = [[MapBoxSatelliteTestCase alloc]init];
 	[gctc setUpWithMap:mapVC];
+
 	// For network paging layers, where we'll store temp files
 	NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
-	NSString *thisCacheDir = nil;
-	thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
+	NSString *thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
 
 	NSString *token = @"sk.eyJ1IjoiZG1hcnRpbnciLCJhIjoiY2lnYmViYmhiMDZmbWFha25kbHB3MWlkNyJ9.5VsRqKZvrTQ9ygnyI7fLoA";
 
 	[MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-streets-v6.json"
 		accessToken:token
-		style:@"https://raw.githubusercontent.com/mapbox/mapbox-gl-styles/master/styles/streets-v8.json"
+		style:@"https://raw.githubusercontent.com/mapbox/mapbox-gl-styles/master/styles/emerald-v8.json"
 		styleType:MapnikMapboxGLStyle
 		cacheDir:thisCacheDir
 		viewC:(MaplyBaseViewController*)mapVC
@@ -59,7 +59,8 @@
 			pageLayer.useTargetZoomLevel = true;
 			pageLayer.singleLevelLoading = true;
 			[mapVC addLayer:pageLayer];
-			[mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.50230) height:0.03 time:1.0];
+
+			[mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.290,37.7793) height:0.0005 time:0.1];
 		} failure:^(NSError * _Nonnull error) {
 			NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
 		}];
