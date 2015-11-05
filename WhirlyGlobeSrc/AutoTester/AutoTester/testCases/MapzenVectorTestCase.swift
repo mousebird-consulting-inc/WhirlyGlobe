@@ -18,20 +18,26 @@ class MapzenVectorTestCase: MaplyTestCase, MaplyViewControllerDelegate {
 	}
 	
 	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
-		let baseLayer = GeographyClassTestCase()
+		let baseLayer = MapBoxSatelliteTestCase()
 		baseLayer.setUpWithMap(mapVC)
-		let mainBundle = NSBundle.mainBundle()
-		let styleData = NSData(contentsOfFile: mainBundle.pathForResource("MapzenGLStyle", ofType: "json")!)
-		let cacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
 
-		let thisCacheDir = "\(cacheDir)/mapzen-vectiles/"
-		
-		let mzSource = MapzenSource(base: "http://vector.mapzen.com/osm", layers: ["all"], apiKey: "vector-tiles-ejNTZ28", sourceType: MapzenSourcePBF, styleData: styleData, styleType: MapnikStyleType.MapboxGLStyle, viewC: mapVC)
+		let styleData = NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("MapzenGLStyle", ofType: "json")!)
+
+		let mzSource = MapzenSource(
+			base: "http://vector.mapzen.com/osm",
+			layers: ["all"],
+			apiKey: "vector-tiles-ejNTZ28",
+			sourceType: MapzenSourcePBF,
+			styleData: styleData,
+			styleType: .MapboxGLStyle,
+			viewC: mapVC)
 		
 		mzSource.minZoom = Int32(0)
 		mzSource.maxZoom = Int32(24)
-		
-		let pageLayer = MaplyQuadPagingLayer(coordSystem: MaplySphericalMercator(webStandard: ()), delegate: mzSource)
+
+		let pageLayer = MaplyQuadPagingLayer(
+			coordSystem: MaplySphericalMercator(),
+			delegate: mzSource)
 		
 		pageLayer?.numSimultaneousFetches = Int32(8)
 		pageLayer?.flipY = false
@@ -39,7 +45,7 @@ class MapzenVectorTestCase: MaplyTestCase, MaplyViewControllerDelegate {
 		pageLayer?.useTargetZoomLevel = true
 		pageLayer?.singleLevelLoading = true
 		mapVC.addLayer(pageLayer!)
-		mapVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-3.6704803, 40.50230), height: 0.03, time: 1)
+		mapVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-122.290,37.7793), height: 0.0005, time: 0.1)
 
 		return true
 	}
