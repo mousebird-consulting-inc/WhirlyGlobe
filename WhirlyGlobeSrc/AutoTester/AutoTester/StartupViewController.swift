@@ -43,15 +43,16 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	private var popControl: UIPopoverController?
 
 	override func viewWillAppear(animated: Bool) {
-		results.forEach { result in
-			if let actual = result.1.actualImageFile {
-				do {
-					try NSFileManager.defaultManager().removeItemAtPath(actual)
-				}
-				catch {
-				}
-			}
+		let caches = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as NSString
+		let dir = caches.stringByAppendingPathComponent("results")
+
+		if NSFileManager.defaultManager().fileExistsAtPath(dir) {
+			try! NSFileManager.defaultManager().removeItemAtPath(dir)
 		}
+
+		try! NSFileManager.defaultManager().createDirectoryAtPath(dir,
+			withIntermediateDirectories: true,
+			attributes: nil)
 
 		results.removeAll(keepCapacity: true)
 	}
