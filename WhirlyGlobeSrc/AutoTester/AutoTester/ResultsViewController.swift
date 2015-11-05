@@ -13,8 +13,14 @@ class ResultsViewController: UITableViewController {
 	var titles = [String]()
 	var results = [MaplyTestResult]()
 
-	var images = [String:(UIImage?,UIImage?)]()
+	let queue = { () -> NSOperationQueue in
+		let queue = NSOperationQueue()
 
+		queue.maxConcurrentOperationCount = 1
+		queue.qualityOfService = .Utility
+
+		return queue
+	}()
 
 	override func tableView(tableView: UITableView,
 		numberOfRowsInSection section: Int) -> Int {
@@ -30,29 +36,21 @@ class ResultsViewController: UITableViewController {
 		let title = titles[indexPath.row]
 		cell.nameLabel?.text = title
 
-		if let images = images[title] {
-			cell.baselineImage?.image = images.0
-			cell.actualImage?.image = images.1
-		}
-		else {
-			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-				let baselineImage = UIImage(contentsOfFile: self.results[indexPath.row].baselineImageFile)
+		queue.addOperationWithBlock {
+			let baselineImage = UIImage(contentsOfFile: self.results[indexPath.row].baselineImageFile)
 
-				let actualImage: UIImage?
+			let actualImage: UIImage?
 
-				if let actualImageFile = self.results[indexPath.row].actualImageFile {
-					actualImage = UIImage(contentsOfFile: actualImageFile)
-				}
-				else {
-					actualImage = nil
-				}
+			if let actualImageFile = self.results[indexPath.row].actualImageFile {
+				actualImage = UIImage(contentsOfFile: actualImageFile)
+			}
+			else {
+				actualImage = nil
+			}
 
-				self.images[title] = (baselineImage, actualImage)
-
-				dispatch_async(dispatch_get_main_queue()) {
-					cell.baselineImage?.image = baselineImage
-					cell.actualImage?.image = actualImage
-				}
+			dispatch_async(dispatch_get_main_queue()) {
+				cell.baselineImage?.image = baselineImage
+				cell.actualImage?.image = actualImage
 			}
 		}
 
@@ -66,7 +64,6 @@ class ResultsViewController: UITableViewController {
 		self.performSegueWithIdentifier("showFullScreen", sender: cell)
 	}
 
-
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
 		let destination = segue.destinationViewController as! FullScreenViewController
 
@@ -76,9 +73,5 @@ class ResultsViewController: UITableViewController {
 			destination.baselineImageResult = cell.baselineImage?.image
 		}
     }
-
-	override func didReceiveMemoryWarning() {
-		self.images.removeAll()
-	}
 
 }
