@@ -16,21 +16,21 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		MapBoxSatelliteTestCase(),
 		CesiumElevationTestCase(),
 		AnimatedBasemapTestCase(),
-        MapBoxVectorTestCase(),
-        MapzenVectorTestCase(),
-        VectorsTestCase(),
-        ScreenLabelsTestCase(),
-        ScreenMarkersTestCase(),
-        ClusteredMarkersTestCase(),
-        LabelsTestCase(),
-        MarkersTestCase(),
-        MegaMarkersTestCase(),
-        ModelsTestCase(),
-        WideVectorsTestCase(),
-        StarsSunTestCase(),
-        ShapesTestCase(),
-        StickersTestCase(),
-        LoftedPolysTestCase()
+		MapBoxVectorTestCase(),
+		MapzenVectorTestCase(),
+		VectorsTestCase(),
+		ScreenLabelsTestCase(),
+		ScreenMarkersTestCase(),
+		ClusteredMarkersTestCase(),
+		LabelsTestCase(),
+		MarkersTestCase(),
+		MegaMarkersTestCase(),
+		ModelsTestCase(),
+		WideVectorsTestCase(),
+		StarsSunTestCase(),
+		ShapesTestCase(),
+		StickersTestCase(),
+		LoftedPolysTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
@@ -151,7 +151,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 			if (head.selected) {
 				head.options = .None
-                
+
 				if configViewC!.valueForSection(.Options, row: .RunGlobe) {
 					head.options.insert(.Globe)
 				}
@@ -159,19 +159,19 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 				if configViewC!.valueForSection(.Options, row: .RunMap) {
 					head.options.insert(.Map)
 				}
-                
+
 				head.resultBlock = { test in
 					if let mapResult = test.mapResult {
 						self.results["\(test.name) - Map"] = mapResult
 					}
-                    
+
 					if let globeResult = test.globeResult {
 						self.results["\(test.name) - Globe"] = globeResult
 					}
 
 					self.startTests(tail)
 				}
-                
+
 				head.testView = self.testView;
 				head.start()
 				tableView.reloadData()

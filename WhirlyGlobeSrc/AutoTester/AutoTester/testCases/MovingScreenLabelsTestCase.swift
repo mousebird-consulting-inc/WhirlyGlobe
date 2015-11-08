@@ -12,7 +12,7 @@ class MovingScreenLabelsTestCase: MaplyTestCase {
 
 	override init() {
 		super.init()
-		
+
 		self.name = "Moving Screen Labels"
 		self.captureDelay = 3
 	}
