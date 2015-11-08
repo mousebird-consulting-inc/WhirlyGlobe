@@ -9,7 +9,7 @@
 import UIKit
 
 class WeatherShader {
-    
+
 	class func setupWeatherShader(viewC: MaplyBaseViewController) -> String? {
 		let shaderName = "Weather Shader"
 		if viewC.getShaderByName(shaderName) != nil {

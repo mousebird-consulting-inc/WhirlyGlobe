@@ -12,11 +12,11 @@ class MapzenVectorTestCase: MaplyTestCase, MaplyViewControllerDelegate {
 
 	override init() {
 		super.init()
-		
+
 		self.name = "Mapzen Vectors"
 		self.captureDelay = 5
 	}
-	
+
 	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
 		let baseLayer = MapBoxSatelliteTestCase()
 		baseLayer.setUpWithMap(mapVC)
@@ -31,14 +31,14 @@ class MapzenVectorTestCase: MaplyTestCase, MaplyViewControllerDelegate {
 			styleData: styleData,
 			styleType: .MapboxGLStyle,
 			viewC: mapVC)
-		
+
 		mzSource.minZoom = Int32(0)
 		mzSource.maxZoom = Int32(24)
 
 		let pageLayer = MaplyQuadPagingLayer(
 			coordSystem: MaplySphericalMercator(),
 			delegate: mzSource)
-		
+
 		pageLayer?.numSimultaneousFetches = Int32(8)
 		pageLayer?.flipY = false
 		pageLayer?.importance = 512*512
