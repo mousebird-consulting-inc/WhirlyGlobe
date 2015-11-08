@@ -54,7 +54,7 @@
 	GeographyClassTestCase *baseLayer = [[GeographyClassTestCase alloc]init];
 	[baseLayer setUpWithGlobe:globeVC];
 	[self addLoftedPolysSpain:globeVC];
-	
+
 	return true;
 }
 
