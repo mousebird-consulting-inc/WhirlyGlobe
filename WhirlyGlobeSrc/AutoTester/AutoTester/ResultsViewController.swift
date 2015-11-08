@@ -64,7 +64,7 @@ class ResultsViewController: UITableViewController {
 		self.performSegueWithIdentifier("showFullScreen", sender: cell)
 	}
 
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
 		let destination = segue.destinationViewController as! FullScreenViewController
 
 		if let cell = sender as? ResultCell {
@@ -72,6 +72,6 @@ class ResultsViewController: UITableViewController {
 			destination.actualImageResult = cell.actualImage?.image
 			destination.baselineImageResult = cell.baselineImage?.image
 		}
-    }
+	}
 
 }

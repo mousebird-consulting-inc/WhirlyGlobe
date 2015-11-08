@@ -27,7 +27,7 @@
 {
 	int numMegaMarkerImages = 1500;
 	int numMegaMarkers = 1000;
-	
+
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
 	^{
 		// Make up a few markers
@@ -57,21 +57,21 @@
 - (UIImage *)randomImage
 {
 	float scale = [UIScreen mainScreen].scale;
-	
+
 	CGSize size = CGSizeMake(16*scale, 16*scale);
 	UIGraphicsBeginImageContext(size);
 	CGContextRef ctx = UIGraphicsGetCurrentContext();
-	
+
 	CGRect rect = CGRectMake(1, 1, size.width-2, size.height-2);
 	CGContextAddEllipseInRect(ctx, rect);
 	[[UIColor whiteColor] setStroke];
 	CGContextStrokePath(ctx);
 	[[UIColor colorWithRed:drand48() green:drand48() blue:drand48() alpha:1.0] setFill];
 	CGContextFillEllipseInRect(ctx, rect);
-	
+
 	UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
 	UIGraphicsEndImageContext();
-	
+
 	return image;
 }
 
@@ -84,7 +84,7 @@
 }
 
 -(BOOL)setUpWithMap:(MaplyViewController *)mapVC
-{	
+{
 	VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
 	[baseView setUpWithMap: mapVC];
 	[self insertMegaMarkers: (MaplyBaseViewController*)mapVC];

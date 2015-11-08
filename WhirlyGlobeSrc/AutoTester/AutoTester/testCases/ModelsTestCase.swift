@@ -35,11 +35,11 @@ class ModelsTestCase: MaplyTestCase {
 		self.name = "Models"
 		self.captureDelay = 4
 	}
-	
+
 	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
 		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithGlobe(globeVC)
-		
+
 		let fullPath = NSBundle.mainBundle().pathForResource("cessna", ofType: "obj")
 		if let fullPath = fullPath {
 			let model = MaplyGeomModel(obj: fullPath)
@@ -58,7 +58,7 @@ class ModelsTestCase: MaplyTestCase {
 					mInst.duration = 100.0
 					mInst.selectable = true
 					modelInstances.append(mInst)
-					
+
 				}
 				globeVC.addModelInstances(modelInstances, desc: [:], mode: MaplyThreadMode.Current)
 				globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-94.58, 39.1) ,time: 1.0)
@@ -67,5 +67,5 @@ class ModelsTestCase: MaplyTestCase {
 		}
 		return true
 	}
-	
+
 }

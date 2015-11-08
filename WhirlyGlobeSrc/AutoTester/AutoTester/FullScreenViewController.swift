@@ -10,7 +10,7 @@ import UIKit
 
 
 class FullScreenViewController : UIViewController {
-    
+
 	@IBOutlet weak var actualImageView: UIImageView!
 	@IBOutlet weak var baselineImageView: UIImageView!
 

@@ -12,7 +12,7 @@ class ClusteredMarkersTestCase: MaplyTestCase {
 
 	override init() {
 		super.init()
-		
+
 		self.name = "Clustered Markers"
 		self.captureDelay = 3
 	}
@@ -26,17 +26,15 @@ class ClusteredMarkersTestCase: MaplyTestCase {
 	}
 	
 	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
-		
 		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithMap(mapVC)
 		insertClusteredMarkers(baseLayer.compList!, theBaseView: mapVC)
 		mapVC.animateToPosition(MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
-		
+
 		return true
 	}
 
 	func insertClusteredMarkers(compB : NSArray, theBaseView: MaplyBaseViewController) {
-		
 		let size = CGSizeMake(32, 32)
 		let image = UIImage (named: "alcohol-shop-24@2x")
 		var markers = [MaplyScreenMarker]()
