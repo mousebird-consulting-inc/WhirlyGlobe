@@ -10,6 +10,8 @@
 		2B03701914C9FDDE00A51AC4 /* MaplyAnimateTranslateMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B03701714C9FDDE00A51AC4 /* MaplyAnimateTranslateMomentum.mm */; };
 		2B03701A14C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B03701814C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm */; };
 		2B03702014CA01C600A51AC4 /* MaplyTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B03701F14CA01C600A51AC4 /* MaplyTapDelegate.mm */; };
+		2B05BA3F1BF1F65B00CF857A /* Proj4CoordSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B05BA3E1BF1F65B00CF857A /* Proj4CoordSystem.h */; };
+		2B05BA411BF1F68200CF857A /* Proj4CoordSystem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B05BA401BF1F68200CF857A /* Proj4CoordSystem.mm */; };
 		2B076B35133952C6009D931D /* LongPressDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B076B33133952C5009D931D /* LongPressDelegate.mm */; };
 		2B08059617EB955C0016C813 /* LoadedTile.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B08059517EB955C0016C813 /* LoadedTile.h */; };
 		2B08059817EB95A40016C813 /* LoadedTile.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B08059717EB95A40016C813 /* LoadedTile.mm */; };
@@ -433,8 +435,8 @@
 		2BEFDEA214997C0400C63326 /* clipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDEA114997C0400C63326 /* clipper.cpp */; };
 		2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */; };
 		2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */; };
-		2BF55A641BB9DDB900984C54 /* OverlapHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF55A631BB9DDB900984C54 /* OverlapHelper.h */; settings = {ASSET_TAGS = (); }; };
-		2BF55A661BB9DDC200984C54 /* OverlapHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF55A651BB9DDC200984C54 /* OverlapHelper.mm */; settings = {ASSET_TAGS = (); }; };
+		2BF55A641BB9DDB900984C54 /* OverlapHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF55A631BB9DDB900984C54 /* OverlapHelper.h */; };
+		2BF55A661BB9DDC200984C54 /* OverlapHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF55A651BB9DDC200984C54 /* OverlapHelper.mm */; };
 		2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */; };
 		880BD9051B30CF1D0097F285 /* ElevationCesiumChunk.mm in Sources */ = {isa = PBXBuildFile; fileRef = 880BD9041B30CF1D0097F285 /* ElevationCesiumChunk.mm */; };
 		880BD9081B30CF6F0097F285 /* ElevationCesiumChunk.h in Headers */ = {isa = PBXBuildFile; fileRef = 880BD9071B30CF6F0097F285 /* ElevationCesiumChunk.h */; };
@@ -465,6 +467,8 @@
 		2B03701814C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = MaplyAnimateTranslation.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B03701F14CA01C600A51AC4 /* MaplyTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyTapDelegate.mm; path = src/MaplyTapDelegate.mm; sourceTree = SOURCE_ROOT; };
 		2B03702114CA02A900A51AC4 /* MaplyTapDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTapDelegate.h; sourceTree = "<group>"; };
+		2B05BA3E1BF1F65B00CF857A /* Proj4CoordSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Proj4CoordSystem.h; sourceTree = "<group>"; };
+		2B05BA401BF1F68200CF857A /* Proj4CoordSystem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Proj4CoordSystem.mm; sourceTree = "<group>"; };
 		2B076B31133951DE009D931D /* LongPressDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LongPressDelegate.h; sourceTree = "<group>"; };
 		2B076B33133952C5009D931D /* LongPressDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = LongPressDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B08059517EB955C0016C813 /* LoadedTile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoadedTile.h; sourceTree = "<group>"; };
@@ -1618,6 +1622,7 @@
 				2BCABB9812FA14300049D73C /* GlobeMath.h */,
 				2B4504B314BBBC6600C99306 /* FlatMath.h */,
 				2BA8FFDC1540E21500AEA53C /* SphericalMercator.h */,
+				2B05BA3E1BF1F65B00CF857A /* Proj4CoordSystem.h */,
 			);
 			name = "coordinate systems";
 			sourceTree = "<group>";
@@ -1629,6 +1634,7 @@
 				2BCABB9A12FA14660049D73C /* GlobeMath.mm */,
 				2B4504B814BCC29D00C99306 /* FlatMath.mm */,
 				2BA8FFDF1540E60800AEA53C /* SphericalMercator.mm */,
+				2B05BA401BF1F68200CF857A /* Proj4CoordSystem.mm */,
 			);
 			name = "coordinate systems";
 			sourceTree = "<group>";
@@ -2128,6 +2134,7 @@
 				2BA2328D17986ACA0063CC84 /* MarkerManager.h in Headers */,
 				8813F55C1B468555004E595F /* common.h in Headers */,
 				2BA2328E17986ACA0063CC84 /* ShapeManager.h in Headers */,
+				2B05BA3F1BF1F65B00CF857A /* Proj4CoordSystem.h in Headers */,
 				2B95F91618A5AB1F00D72645 /* GlobeDoubleTapDragDelegate.h in Headers */,
 				2BA2328F17986ACA0063CC84 /* VectorManager.h in Headers */,
 				2B665469179F271200FB4427 /* SphericalEarthChunkManager.h in Headers */,
@@ -2476,6 +2483,7 @@
 				2B4BB0BA1B0EB5B400C9140E /* ParticleSystemLayer.mm in Sources */,
 				2BA2326517984F510063CC84 /* geom.c in Sources */,
 				2BA2326717984F510063CC84 /* memalloc.c in Sources */,
+				2B05BA411BF1F68200CF857A /* Proj4CoordSystem.mm in Sources */,
 				2BA2326917984F510063CC84 /* mesh.c in Sources */,
 				2BA2326B17984F510063CC84 /* normal.c in Sources */,
 				2BA2327017984F510063CC84 /* priorityq.c in Sources */,
