@@ -805,7 +805,7 @@ using namespace WhirlyKit;
         import *= _importanceScale;
     }
 
-//    NSLog(@"Tiles = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
+//    NSLog(@"Tile = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
     
     return import;
 }
