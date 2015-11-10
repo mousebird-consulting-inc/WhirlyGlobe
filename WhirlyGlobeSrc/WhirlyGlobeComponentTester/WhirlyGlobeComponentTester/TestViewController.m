@@ -315,11 +315,13 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         marker.image = [UIImage imageNamed:@"map_pin"];
         marker.loc = MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222);
         marker.size = CGSizeMake(40, 40);
+        marker.selectable = true;
+        marker.userObject = @"London";
         [baseViewC addScreenMarkers:@[marker] desc:nil mode:MaplyThreadAny];
         
         MaplyCoordinate localLondon = [mapViewC.coordSys geoToLocal:MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222)];
         
-        [mapViewC setPosition:localLondon height:1.0];
+        [mapViewC setPosition:localLondon height:4.0];
     }
     
     // Note: Debugging
@@ -1750,7 +1752,9 @@ static const float MarkerSpread = 2.0;
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
-        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:22 depth:1];
+        // Note: Debugging BNG
+        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:6 depth:1];
+//        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:22 depth:1];
         tileSource.pixelsPerSide = 256;
         tileSource.transparentMode = true;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
@@ -1758,6 +1762,8 @@ static const float MarkerSpread = 2.0;
         layer.requireElev = requireElev;
         layer.maxTiles = 512;
         layer.handleEdges = true;
+        layer.flipY = true;
+        
 //        layer.color = [UIColor colorWithWhite:0.5 alpha:0.5];
         if (startupMapType == Maply2DMap)
         {
@@ -1855,6 +1861,7 @@ static const float MarkerSpread = 2.0;
              tileSource.cacheDir = thisCacheDir;
              if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
                  tileSource.tileInfo.maxZoom = zoomLimit;
+
              MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
              layer.handleEdges = true;
              layer.waitLoad = imageWaitLoad;
