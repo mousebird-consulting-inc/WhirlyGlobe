@@ -46,6 +46,7 @@
 #define kMaplyTestMapboxStreets @"MapBox Streets Vectors - Remote"
 #define kMaplyMapzenVectors @"Mapzen Vectors - Remote"
 #define kMaplyWindTest @"Wind Particles - Remote"
+#define kMaplyOrdnanceSurveyTest @"Ordnance Survey - Remote"
 
 // Objects we can display
 #define kMaplyTestCategoryObjects @"Maply Objects"

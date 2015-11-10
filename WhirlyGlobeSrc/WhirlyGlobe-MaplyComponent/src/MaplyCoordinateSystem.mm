@@ -196,6 +196,44 @@ using namespace WhirlyKit;
 
 @end
 
+@implementation MaplyProj4CoordSystem
+{
+    Proj4CoordSystem *coordSys;
+}
+
+- (nonnull instancetype)initWithString:(NSString * __nonnull)proj4Str
+{
+    self = [super init];
+    std::string str = [proj4Str cStringUsingEncoding:NSASCIIStringEncoding];
+    coordSys = new Proj4CoordSystem(str);
+    coordSystem = coordSys;
+    
+    MaplyBoundingBox bbox;
+    bbox.ll.x = 1393.0196;    bbox.ll.y = 13494.9764;
+    bbox.ur.x = 671196.3657;    bbox.ur.y = 1230275.0454;
+    [self setBounds:bbox];
+    
+    return self;
+}
+
+- (void)dealloc
+{
+    if (coordSys)
+        delete coordSys;
+}
+
+- (bool)valid
+{
+    return coordSys != nil && coordSys->isValid();
+}
+
+- (WhirlyKit::CoordSystem *)getCoordSystem
+{
+    return coordSys;
+}
+
+@end
+
 MaplyCoordinateSystem *MaplyCoordinateSystemFromEPSG(NSString *crs)
 {
     if ([crs isEqualToString:@"EPSG:3857"])
