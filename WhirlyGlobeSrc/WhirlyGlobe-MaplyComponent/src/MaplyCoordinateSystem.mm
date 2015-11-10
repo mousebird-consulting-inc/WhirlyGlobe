@@ -198,15 +198,15 @@ using namespace WhirlyKit;
 
 @implementation MaplyProj4CoordSystem
 {
-    Proj4CoordSystem *coordSys;
+    Proj4CoordSystem *p4CoordSys;
 }
 
 - (nonnull instancetype)initWithString:(NSString * __nonnull)proj4Str
 {
     self = [super init];
     std::string str = [proj4Str cStringUsingEncoding:NSASCIIStringEncoding];
-    coordSys = new Proj4CoordSystem(str);
-    coordSystem = coordSys;
+    p4CoordSys = new Proj4CoordSystem(str);
+    coordSystem = p4CoordSys;
     
     MaplyBoundingBox bbox;
     bbox.ll.x = 1393.0196;    bbox.ll.y = 13494.9764;
@@ -216,20 +216,9 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (void)dealloc
-{
-    if (coordSys)
-        delete coordSys;
-}
-
 - (bool)valid
 {
-    return coordSys != nil && coordSys->isValid();
-}
-
-- (WhirlyKit::CoordSystem *)getCoordSystem
-{
-    return coordSys;
+    return p4CoordSys != nil && p4CoordSys->isValid();
 }
 
 @end
