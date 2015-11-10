@@ -244,7 +244,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
             break;
         case Maply2DBNG:
             mapViewC = [[MaplyViewController alloc] initWithMapType:MaplyMapTypeFlat];
-            mapViewC.coordSys = [self buildBritishNationalGrid];
+            mapViewC.coordSys = [self buildBritishNationalGrid:true];
             mapViewC.viewWrap = false;
             mapViewC.doubleTapZoomGesture = true;
             mapViewC.twoFingerTapGesture = true;
@@ -321,7 +321,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         
         MaplyCoordinate localLondon = [mapViewC.coordSys geoToLocal:MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222)];
         
-        [mapViewC setPosition:localLondon height:4.0];
+        [mapViewC setPosition:localLondon height:2.0];
     }
     
     // Note: Debugging
@@ -426,10 +426,32 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     [baseViewC addBillboards:@[bboard] desc:@{kMaplyBillboardOrient:kMaplyBillboardOrientEye}  mode:MaplyThreadCurrent];
 }
 
-- (MaplyCoordinateSystem *)buildBritishNationalGrid
+
+/* Build two different versions of BNG.  One can go out larger than the other.
+    If display is set, we'll allow a bigger bounding box.
+ */
+- (MaplyCoordinateSystem *)buildBritishNationalGrid:(bool)display
 {
+    // Set up the proj4 string including the local grid file
     NSString *proj4Str = [NSString stringWithFormat:@"+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +nadgrids=%@ +units=m +no_defs",[[NSBundle mainBundle] pathForResource:@"OSTN02_NTv2" ofType:@"gsb"]];
     MaplyProj4CoordSystem *coordSys = [[MaplyProj4CoordSystem alloc] initWithString:proj4Str];
+    
+    // Set the bounding box for validity.  It assumes it can go everywhere by default
+    MaplyBoundingBox bbox;
+    bbox.ll.x = 1393.0196;    bbox.ll.y = 13494.9764;
+    bbox.ur.x = 671196.3657;    bbox.ur.y = 1230275.0454;
+    
+    // Now expand it out so we can see the whole of the UK
+    if (display)
+    {
+        double spanX = bbox.ur.x - bbox.ll.x;
+        double spanY = bbox.ur.y - bbox.ur.x;
+        double extra = 1.0;
+        bbox.ll.x -= extra*spanX;  bbox.ll.y -= extra*spanY;
+        bbox.ur.x += extra*spanX;  bbox.ur.y += extra*spanY;
+    }
+    
+    [coordSys setBounds:bbox];
     
     return coordSys;
 }
@@ -2107,7 +2129,7 @@ static const float MarkerSpread = 2.0;
                 ovlLayers[layerName] = layer;
             } else if (![layerName compare:kMaplyOrdnanceSurveyTest])
             {
-                MaplyCoordinateSystem *bngCoordSys = [self buildBritishNationalGrid];
+                MaplyCoordinateSystem *bngCoordSys = [self buildBritishNationalGrid:false];
                 MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:bngCoordSys minZoom:0 maxZoom:22 depth:1];
                 //        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:22 depth:1];
                 tileSource.pixelsPerSide = 128;

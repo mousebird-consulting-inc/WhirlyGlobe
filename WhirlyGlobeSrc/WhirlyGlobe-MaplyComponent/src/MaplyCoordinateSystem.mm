@@ -207,12 +207,7 @@ using namespace WhirlyKit;
     std::string str = [proj4Str cStringUsingEncoding:NSASCIIStringEncoding];
     p4CoordSys = new Proj4CoordSystem(str);
     coordSystem = p4CoordSys;
-    
-    MaplyBoundingBox bbox;
-    bbox.ll.x = 1393.0196;    bbox.ll.y = 13494.9764;
-    bbox.ur.x = 671196.3657;    bbox.ur.y = 1230275.0454;
-    [self setBounds:bbox];
-    
+        
     return self;
 }
 
