@@ -23,7 +23,7 @@
 #import "ConfigViewController.h"
 
 // Map or globe or startup
-typedef enum {MaplyGlobe,MaplyGlobeWithElevation,Maply3DMap,Maply2DMap,MaplyNumTypes} MapType;
+typedef enum {MaplyGlobe,MaplyGlobeWithElevation,Maply3DMap,Maply2DMap,Maply2DBNG,MaplyNumTypes} MapType;
 
 /** The Test View Controller brings up the WhirlyGlobe Component
     and allows the user to test various functionality.

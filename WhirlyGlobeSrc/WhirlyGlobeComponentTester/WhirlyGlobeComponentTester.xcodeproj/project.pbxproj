@@ -7,11 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2B0B8DD31BB330E70060C70D /* redsquare.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B0B8DD11BB330E70060C70D /* redsquare.png */; settings = {ASSET_TAGS = (); }; };
-		2B0B8DD41BB330E70060C70D /* bluesquare.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B0B8DD21BB330E70060C70D /* bluesquare.png */; settings = {ASSET_TAGS = (); }; };
+		2B05BA2B1BE43AA100CF857A /* sawtooth.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B05BA2A1BE43AA100CF857A /* sawtooth.geojson */; };
+		2B05BA441BF218C000CF857A /* OSTN02_NTv2.gsb in Resources */ = {isa = PBXBuildFile; fileRef = 2B05BA421BF2187C00CF857A /* OSTN02_NTv2.gsb */; };
+		2B0B8DD31BB330E70060C70D /* redsquare.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B0B8DD11BB330E70060C70D /* redsquare.png */; };
+		2B0B8DD41BB330E70060C70D /* bluesquare.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B0B8DD21BB330E70060C70D /* bluesquare.png */; };
 		2B1012A01B5C8EF70014D243 /* moon.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B10129F1B5C8EF70014D243 /* moon.png */; };
 		2B14BFC11B82A42600CE29A4 /* PagingTestDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B14BFC01B82A42600CE29A4 /* PagingTestDelegate.m */; };
-		2B162DD21BD8068B0001E17B /* ParticleTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B162DD11BD8068B0001E17B /* ParticleTest.m */; settings = {ASSET_TAGS = (); }; };
+		2B162DD21BD8068B0001E17B /* ParticleTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B162DD11BD8068B0001E17B /* ParticleTest.m */; };
 		2B2EB66518C901AD008C5320 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB516E7F505001F52FC /* OpenGLES.framework */; };
 		2B2FECB31B5878EC00A332BF /* starcatalog_orig.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2B2FECB21B5878EC00A332BF /* starcatalog_orig.txt */; };
 		2B4B6C011BB1BC450080036E /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B4B6C001BB1BC450080036E /* libc++.tbd */; };
@@ -440,6 +442,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2B05BA2A1BE43AA100CF857A /* sawtooth.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = sawtooth.geojson; path = resources/sawtooth.geojson; sourceTree = SOURCE_ROOT; };
+		2B05BA421BF2187C00CF857A /* OSTN02_NTv2.gsb */ = {isa = PBXFileReference; lastKnownFileType = file; name = OSTN02_NTv2.gsb; path = ../../../resources/bng/OSTN02_NTv2.gsb; sourceTree = "<group>"; };
 		2B0B8DD11BB330E70060C70D /* redsquare.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = redsquare.png; path = resources/redsquare.png; sourceTree = SOURCE_ROOT; };
 		2B0B8DD21BB330E70060C70D /* bluesquare.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bluesquare.png; path = resources/bluesquare.png; sourceTree = SOURCE_ROOT; };
 		2B0D630D17A2EE0400C3298D /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
@@ -1228,6 +1232,8 @@
 		2BFD25D8170B929E00127EF5 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				2B05BA421BF2187C00CF857A /* OSTN02_NTv2.gsb */,
+				2B05BA2A1BE43AA100CF857A /* sawtooth.geojson */,
 				2B0B8DD11BB330E70060C70D /* redsquare.png */,
 				2B0B8DD21BB330E70060C70D /* bluesquare.png */,
 				2B9BAD6F1B3B2B6D00B95CC2 /* stars */,
@@ -1803,6 +1809,7 @@
 				2BFD2771170B933C00127EF5 /* LBR.geojson in Resources */,
 				2BFD2772170B933C00127EF5 /* LBY.geojson in Resources */,
 				2BFD2773170B933C00127EF5 /* LCA.geojson in Resources */,
+				2B05BA2B1BE43AA100CF857A /* sawtooth.geojson in Resources */,
 				2BFD2774170B933C00127EF5 /* LIE.geojson in Resources */,
 				2BFD2775170B933C00127EF5 /* LKA.geojson in Resources */,
 				2BC0FB201964D3580043E1FD /* dam-24@2x.png in Resources */,
@@ -1880,6 +1887,7 @@
 				2BC0FB2A1964D3580043E1FD /* fuel-24@2x.png in Resources */,
 				2BFD27A7170B933C00127EF5 /* PRI.geojson in Resources */,
 				2BC0FB0C1964D3580043E1FD /* baseball-24@2x.png in Resources */,
+				2B05BA441BF218C000CF857A /* OSTN02_NTv2.gsb in Resources */,
 				2BFD27A8170B933C00127EF5 /* PRK.geojson in Resources */,
 				2BFD27A9170B933C00127EF5 /* PRT.geojson in Resources */,
 				2BFD27AA170B933C00127EF5 /* PRY.geojson in Resources */,
