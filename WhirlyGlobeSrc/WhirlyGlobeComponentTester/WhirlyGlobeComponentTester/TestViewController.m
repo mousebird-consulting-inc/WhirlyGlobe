@@ -1752,8 +1752,7 @@ static const float MarkerSpread = 2.0;
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
-        // Note: Debugging BNG
-        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:6 depth:1];
+        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:22 depth:1];
 //        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:22 depth:1];
         tileSource.pixelsPerSide = 256;
         tileSource.transparentMode = true;
@@ -2108,15 +2107,27 @@ static const float MarkerSpread = 2.0;
                 ovlLayers[layerName] = layer;
             } else if (![layerName compare:kMaplyOrdnanceSurveyTest])
             {
-//                MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"https://openspace.ordnancesurvey.co.uk/osmapapi/ts?FORMAT=image%2Fpng&KEY=6694613F8B469C97E0405F0AF160360A&URL=https%3A%2F%2Fopenspacewmb.ordnancesurvey.co.uk%2Fosmapapi%2Fmapbuilder&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&LAYERS=100&PRODUCT=MS&SRS=EPSG%3A27700&BBOX=480000,260000,500000,280000&WIDTH=200&HEIGHT=200" ext:@"png" minZoom:0 maxZoom:6];
-//                tileSource.cacheDir = [NSString stringWithFormat:@"%@/openweathermap_precipitation/",cacheDir];
-//                tileSource.tileInfo.cachedFileLifetime = 3 * 60 * 60; // invalidate OWM data after three hours
-//                MaplyQuadImageTilesLayer *weatherLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
-//                weatherLayer.coverPoles = false;
-//                layer = weatherLayer;
-//                weatherLayer.handleEdges = false;
-//                [baseViewC addLayer:weatherLayer];
-//                ovlLayers[layerName] = layer;
+                MaplyCoordinateSystem *bngCoordSys = [self buildBritishNationalGrid];
+                MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:bngCoordSys minZoom:0 maxZoom:22 depth:1];
+                //        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:22 depth:1];
+                tileSource.pixelsPerSide = 256;
+                tileSource.transparentMode = true;
+                MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+                layer.maxTiles = 256;
+                layer.handleEdges = false;
+                layer.flipY = true;
+                layer.coverPoles = false;
+                
+                //        layer.color = [UIColor colorWithWhite:0.5 alpha:0.5];
+                if (startupMapType == Maply2DMap)
+                {
+                    layer.useTargetZoomLevel = true;
+                    layer.singleLevelLoading = true;
+                    layer.multiLevelLoads = @[@(-2)];
+                }
+                [baseViewC addLayer:layer];
+                layer.drawPriority = BaseEarthPriority+100;
+                ovlLayers[layerName] = layer;
             }
         }
         else if (!isOn && layer)
