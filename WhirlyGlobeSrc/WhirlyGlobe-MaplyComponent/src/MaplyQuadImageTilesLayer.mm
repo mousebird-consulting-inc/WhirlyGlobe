@@ -638,7 +638,8 @@ using namespace WhirlyKit;
         return minZoom;
     
     int zoomLevel = 0;
-    WhirlyKit::Point2f center = Point2f(lastViewState.eyePos.x(),lastViewState.eyePos.y());
+    WhirlyKit::Point3d center3d = scene->getCoordAdapter()->displayToLocal(Point3d(lastViewState.eyePos.x(),lastViewState.eyePos.y(),0.0));
+    Point2f center(center3d.x(),center3d.y());
     // The coordinate adapter might have its own center
     Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
     center.x() += adaptCenter.x();
@@ -805,7 +806,7 @@ using namespace WhirlyKit;
         import *= _importanceScale;
     }
 
-//    NSLog(@"Tile = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
+    NSLog(@"Tile = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
     
     return import;
 }
