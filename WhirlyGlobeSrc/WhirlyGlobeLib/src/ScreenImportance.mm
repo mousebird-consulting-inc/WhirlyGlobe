@@ -59,12 +59,26 @@ static float const BoundsEps = 10.0 / EarthRadius;
     
     // Figure out where the bounds drop in display space
     std::vector<Point3d> dispBounds;
+    std::vector<Point3d> localBounds;
+    std::vector<Point2d> geoBounds;
     dispBounds.reserve(srcBounds.size());
+    localBounds.reserve(srcBounds.size());
+    geoBounds.reserve(srcBounds.size());
     std::vector<Point3d> srcPts;
     srcPts.reserve(srcBounds.size());
+    Point2d geoLL,geoUR;
+    bool hasValidArea = coordAdapter->getGeoBounds(geoLL,geoUR);
     for (unsigned int ii=0;ii<srcBounds.size();ii++)
     {
-        Point3d localPt = CoordSystemConvert3d(srcSystem, displaySystem, srcBounds[ii]);
+        Point3d srcPt = srcBounds[ii];
+        Point3d localPt;
+        // For display systems that don't work everywhere, we have to go through geo coordinates to check
+        if (hasValidArea)
+        {
+            Point2d geoPt = srcSystem->localToGeographicD(srcPt);
+            geoBounds.push_back(geoPt);
+        }
+        localPt = CoordSystemConvert3d(srcSystem, displaySystem, srcPt);
         Point3d dispPt = coordAdapter->localToDisplay(localPt);
         Point3d dispNorm = coordAdapter->normalForLocal(localPt);
         dispSolid.surfNormals.push_back(dispNorm);
@@ -76,13 +90,28 @@ static float const BoundsEps = 10.0 / EarthRadius;
             {
                 dispBounds.push_back(dispPt);
                 srcPts.push_back(srcBounds[ii]);
+                localBounds.push_back(localPt);
             }
         } else {
             dispBounds.push_back(dispPt);
             srcPts.push_back(srcBounds[ii]);
+            localBounds.push_back(localPt);
         }
     }
     
+    // If there's a lon/lat boundary, make sure we at least overlap it
+    if (hasValidArea)
+    {
+        if (geoBounds.empty())
+            return nil;
+        Mbr geoValidMbr,geoMbr;
+        geoMbr.addPoints(geoBounds);
+        geoValidMbr.addPoint(geoLL);
+        geoValidMbr.addPoint(geoUR);
+        if (!geoValidMbr.overlaps(geoMbr))
+            return nil;
+    }
+        
     // If we didn't get enough boundary points, this is degenerate
     if (dispBounds.size() < 3)
         return nil;
@@ -431,10 +460,9 @@ double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSi
     if (!dispSolid)
     {
         dispSolid = [WhirlyKitDisplaySolid displaySolidWithNodeIdent:nodeIdent mbr:nodeMbr minZ:0.0 maxZ:0.0 srcSystem:srcSystem adapter:coordAdapter];
-        if (dispSolid)
-            attrs[@"DisplaySolid"] = dispSolid;
-        else
-            attrs[@"DisplaySolid"] = [NSNull null];
+        if (!dispSolid)
+            dispSolid = (WhirlyKitDisplaySolid *)[NSNull null];
+        attrs[@"DisplaySolid"] = dispSolid;
     }
     
     // This means the tile is degenerate (as far as we're concerned)

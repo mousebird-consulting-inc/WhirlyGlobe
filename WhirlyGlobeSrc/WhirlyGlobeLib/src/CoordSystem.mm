@@ -49,10 +49,14 @@ Point3d CoordSystemConvert3d(CoordSystem *inSystem,CoordSystem *outSystem,Point3
     return outPt;
 }
     
-GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,Point3d ll,Point3d ur,Point3d inCenter)
-    : CoordSystemDisplayAdapter(coordSys,center), ll(ll), ur(ur), scale(1.0,1.0,1.0), coordSys(coordSys)
+GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &ll,const Point3d &ur,const Point3d &inCenter,const Point3d &scale)
+    : CoordSystemDisplayAdapter(coordSys,inCenter), ll(ll), ur(ur), scale(scale), coordSys(coordSys)
 {
     center = inCenter;
+    dispLL = localToDisplay(ll);
+    dispUR = localToDisplay(ur);
+    geoLL = coordSys->localToGeographicD(ll);
+    geoUR = coordSys->localToGeographicD(ur);
 }
 
 GeneralCoordSystemDisplayAdapter::~GeneralCoordSystemDisplayAdapter()
@@ -63,6 +67,20 @@ bool GeneralCoordSystemDisplayAdapter::getBounds(Point3f &outLL,Point3f &outUR)
 {
     outLL = Point3f(ll.x(),ll.y(),ll.z());
     outUR = Point3f(ur.x(),ur.y(),ur.z());
+    return true;
+}
+    
+bool GeneralCoordSystemDisplayAdapter::getDisplayBounds(Point3d &ll,Point3d &ur)
+{
+    ll = dispLL;
+    ur = dispUR;
+    return true;
+}
+    
+bool GeneralCoordSystemDisplayAdapter::getGeoBounds(Point2d &ll,Point2d &ur)
+{
+    ll = geoLL;
+    ur = geoUR;
     return true;
 }
     
