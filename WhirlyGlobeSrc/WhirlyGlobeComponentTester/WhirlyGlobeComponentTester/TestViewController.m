@@ -206,6 +206,9 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     // Configuration controller for turning features on and off
     configViewC = [[ConfigViewController alloc] initWithNibName:@"ConfigViewController" bundle:nil];
     configViewC.configOptions = ConfigOptionsAll;
+    
+    // Note: Debugging British National Grid
+    bool bngTest = true;
 
     // Create an empty globe or map controller
     zoomLimit = 0;
@@ -238,6 +241,19 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
             mapViewC.delegate = self;
             baseViewC = mapViewC;
             configViewC.configOptions = ConfigOptionsFlat;
+            break;
+        case Maply2DBNG:
+            mapViewC = [[MaplyViewController alloc] initWithMapType:MaplyMapTypeFlat];
+            mapViewC.coordSys = [self buildBritishNationalGrid];
+            mapViewC.viewWrap = false;
+            mapViewC.doubleTapZoomGesture = true;
+            mapViewC.twoFingerTapGesture = true;
+            mapViewC.delegate = self;
+            baseViewC = mapViewC;
+            configViewC.configOptions = ConfigOptionsFlat;
+            
+            startupMapType = Maply2DMap;
+            bngTest = true;
             break;
 //        case MaplyScrollViewMap:
 //            break;
@@ -286,6 +302,24 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     } else {
         mapViewC.height = 1.0;
         [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
+    }
+    
+    // Note: Debugging British National Grid
+    if (bngTest)
+    {
+        // We have to tweak the extents or we end up locked into place when we zoom out.
+//        [mapViewC setViewExtentsLL:MaplyCoordinateMake(-1000000, -1000000) ur:MaplyCoordinateMake(2000000, -2000000)];
+
+        // Add a marker near London
+        MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
+        marker.image = [UIImage imageNamed:@"map_pin"];
+        marker.loc = MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222);
+        marker.size = CGSizeMake(40, 40);
+        [baseViewC addScreenMarkers:@[marker] desc:nil mode:MaplyThreadAny];
+        
+        MaplyCoordinate localLondon = [mapViewC.coordSys geoToLocal:MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222)];
+        
+        [mapViewC setPosition:localLondon height:1.0];
     }
     
     // Note: Debugging
@@ -372,13 +406,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     
 //    [self performSelector:@selector(labelMarkerTest:) withObject:@(0.1) afterDelay:0.1];
 
-//    [self markerOverlapTest];
-    
-//    [self addMegaMarkers];
-    
-//    [self markerTest2];
-    
-//    [self billboardTest];
+    [self addGeoJson:@"sawtooth.geojson"];
   
     [baseViewC enable3dTouchSelection:self];
 }
@@ -394,6 +422,14 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     bboard.center = MaplyCoordinate3dMake(0, 0, -EarthRadius);
     
     [baseViewC addBillboards:@[bboard] desc:@{kMaplyBillboardOrient:kMaplyBillboardOrientEye}  mode:MaplyThreadCurrent];
+}
+
+- (MaplyCoordinateSystem *)buildBritishNationalGrid
+{
+    NSString *proj4Str = [NSString stringWithFormat:@"+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +nadgrids=%@ +units=m +no_defs",[[NSBundle mainBundle] pathForResource:@"OSTN02_NTv2" ofType:@"gsb"]];
+    MaplyProj4CoordSystem *coordSys = [[MaplyProj4CoordSystem alloc] initWithString:proj4Str];
+    
+    return coordSys;
 }
 
 - (void)markerOverlapTest
@@ -2063,6 +2099,17 @@ static const float MarkerSpread = 2.0;
 
                 [baseViewC addLayer:layer];
                 ovlLayers[layerName] = layer;
+            } else if (![layerName compare:kMaplyOrdnanceSurveyTest])
+            {
+//                MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"https://openspace.ordnancesurvey.co.uk/osmapapi/ts?FORMAT=image%2Fpng&KEY=6694613F8B469C97E0405F0AF160360A&URL=https%3A%2F%2Fopenspacewmb.ordnancesurvey.co.uk%2Fosmapapi%2Fmapbuilder&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&LAYERS=100&PRODUCT=MS&SRS=EPSG%3A27700&BBOX=480000,260000,500000,280000&WIDTH=200&HEIGHT=200" ext:@"png" minZoom:0 maxZoom:6];
+//                tileSource.cacheDir = [NSString stringWithFormat:@"%@/openweathermap_precipitation/",cacheDir];
+//                tileSource.tileInfo.cachedFileLifetime = 3 * 60 * 60; // invalidate OWM data after three hours
+//                MaplyQuadImageTilesLayer *weatherLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+//                weatherLayer.coverPoles = false;
+//                layer = weatherLayer;
+//                weatherLayer.handleEdges = false;
+//                [baseViewC addLayer:weatherLayer];
+//                ovlLayers[layerName] = layer;
             }
         }
         else if (!isOn && layer)

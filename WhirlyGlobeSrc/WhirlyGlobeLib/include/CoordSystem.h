@@ -151,8 +151,15 @@ public:
     /// False for others, like geographic.
     bool isFlat() { return true; }
     
+    /// Set the scale for coordinates going to/from display space
+    void setScale(const Point3d &scale);
+    
+    /// Return the display space scale
+    Point3d getScale();
+    
 protected:
     Point3d ll,ur;
+    Point3d scale;
     CoordSystem *coordSys;
 };
 
