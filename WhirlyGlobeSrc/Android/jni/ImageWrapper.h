@@ -18,9 +18,11 @@
  *
  */
 
+#ifdef __ANDROID__
 #import <jni.h>
 #import <android/bitmap.h>
 #import "Maply_jni.h"
+#endif
 #import "WhirlyGlobe.h"
 
 namespace WhirlyKit

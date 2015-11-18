@@ -46,6 +46,7 @@ public:
 //    void setupBasicDrawableInstance(BasicDrawableInstance *drawable);
     
     double minVis,maxVis;
+    double minVisBand,maxVisBand;
     double minViewerDist,maxViewerDist;
     Point3d viewerCenter;
     double drawOffset;

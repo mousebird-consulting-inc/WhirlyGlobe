@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -46,9 +46,12 @@ template<> MapViewClassInfo *MapViewClassInfo::classInfoObj = NULL;
 template<> GlobeViewClassInfo *GlobeViewClassInfo::classInfoObj = NULL;
 template<> SceneClassInfo *SceneClassInfo::classInfoObj = NULL;
 template<> ViewClassInfo *ViewClassInfo::classInfoObj = NULL;
+template<> BaseInfoClassInfo *BaseInfoClassInfo::classInfoObj = NULL;
 template<> VectorInfoClassInfo *VectorInfoClassInfo::classInfoObj = NULL;
 template<> VectorObjectClassInfo *VectorObjectClassInfo::classInfoObj = NULL;
 template<> MarkerInfoClassInfo *MarkerInfoClassInfo::classInfoObj = NULL;
+template<> SphericalChunkInfoClassInfo *SphericalChunkInfoClassInfo::classInfoObj = NULL;
+template<> SphericalChunkClassInfo *SphericalChunkClassInfo::classInfoObj = NULL;
 template<> ViewStateClassInfo *ViewStateClassInfo::classInfoObj = NULL;
 template<> MapViewStateClassInfo *MapViewStateClassInfo::classInfoObj = NULL;
 template<> GlobeViewStateClassInfo *GlobeViewStateClassInfo::classInfoObj = NULL;
@@ -79,6 +82,7 @@ JavaBooleanArray::JavaBooleanArray(JNIEnv *env,jbooleanArray &array)
 : array(array), env(env)
 {
     rawBool = env->GetBooleanArrayElements(array, NULL);
+    len = env->GetArrayLength(array);
 }
 
 JavaBooleanArray::~JavaBooleanArray()
@@ -90,9 +94,22 @@ JavaIntArray::JavaIntArray(JNIEnv *env,jintArray &array)
 : array(array), env(env)
 {
     rawInt = env->GetIntArrayElements(array, NULL);
+    len = env->GetArrayLength(array);
 }
 
 JavaIntArray::~JavaIntArray()
 {
     env->ReleaseIntArrayElements(array,rawInt, 0);
+}
+
+JavaLongArray::JavaLongArray(JNIEnv *env,jlongArray &array)
+: array(array), env(env)
+{
+    rawLong = env->GetLongArrayElements(array, NULL);
+    len = env->GetArrayLength(array);
+}
+
+JavaLongArray::~JavaLongArray()
+{
+    env->ReleaseLongArrayElements(array,rawLong, 0);
 }

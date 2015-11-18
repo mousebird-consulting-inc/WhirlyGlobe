@@ -9,46 +9,6 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_VectorInfo
- * Method:    setEnable
- * Signature: (Z)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setEnable
-  (JNIEnv *, jobject, jboolean);
-
-/*
- * Class:     com_mousebird_maply_VectorInfo
- * Method:    setDrawOffset
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setDrawOffset
-  (JNIEnv *, jobject, jfloat);
-
-/*
- * Class:     com_mousebird_maply_VectorInfo
- * Method:    setDrawPriority
- * Signature: (I)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setDrawPriority
-  (JNIEnv *, jobject, jint);
-
-/*
- * Class:     com_mousebird_maply_VectorInfo
- * Method:    setMinVis
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setMinVis
-  (JNIEnv *, jobject, jfloat);
-
-/*
- * Class:     com_mousebird_maply_VectorInfo
- * Method:    setMaxVis
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setMaxVis
-  (JNIEnv *, jobject, jfloat);
-
-/*
- * Class:     com_mousebird_maply_VectorInfo
  * Method:    setFilled
  * Signature: (Z)V
  */
@@ -62,14 +22,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setFilled
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setColor
   (JNIEnv *, jobject, jfloat, jfloat, jfloat, jfloat);
-
-/*
- * Class:     com_mousebird_maply_VectorInfo
- * Method:    setFade
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setFade
-  (JNIEnv *, jobject, jfloat);
 
 /*
  * Class:     com_mousebird_maply_VectorInfo

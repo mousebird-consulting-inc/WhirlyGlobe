@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -71,91 +71,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_dispose
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setEnable
-  (JNIEnv *env, jobject obj, jboolean enable)
-{
-	try
-	{
-		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfo *info = classInfo->getObject(env,obj);
-		if (!info)
-			return;
-		info->enable = enable;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::dispose()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setDrawOffset
-  (JNIEnv *env, jobject obj, jfloat drawOffset)
-{
-	try
-	{
-		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfo *info = classInfo->getObject(env,obj);
-		if (!info)
-			return;
-		info->drawOffset = drawOffset;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setDrawOffset()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setDrawPriority
-  (JNIEnv *env, jobject obj, jint drawPriority)
-{
-	try
-	{
-		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfo *info = classInfo->getObject(env,obj);
-		if (!info)
-			return;
-		info->drawPriority = drawPriority;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setDrawPriority()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setMinVis
-  (JNIEnv *env, jobject obj, jfloat minVis)
-{
-	try
-	{
-		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfo *info = classInfo->getObject(env,obj);
-		if (!info)
-			return;
-		info->minVis = minVis;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setMinViz()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setMaxVis
-  (JNIEnv *env, jobject obj, jfloat maxVis)
-{
-	try
-	{
-		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfo *info = classInfo->getObject(env,obj);
-		if (!info)
-			return;
-		info->maxVis = maxVis;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setMaxVis()");
-	}
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTextColor
   (JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
 {
@@ -187,23 +102,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setBackgroundColor
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setColor()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFade
-  (JNIEnv *env, jobject obj, jfloat fade)
-{
-	try
-	{
-		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfo *info = classInfo->getObject(env,obj);
-		if (!info)
-			return;
-		info->fade = fade;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setFade()");
 	}
 }
 

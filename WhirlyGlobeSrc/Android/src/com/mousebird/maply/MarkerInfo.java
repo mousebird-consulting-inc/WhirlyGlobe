@@ -31,7 +31,7 @@ package com.mousebird.maply;
  * @author sjg
  *
  */
-public class MarkerInfo 
+public class MarkerInfo extends BaseInfo
 {
 	public MarkerInfo()
 	{
@@ -42,37 +42,7 @@ public class MarkerInfo
 	{
 		dispose();
 	}
-	
-	/**
-	 * Create markers enabled or disabled.  The enable can be changed later.
-	 */
-	public native void setEnable(boolean enable);
-	
-	/**
-	 * Set the drawOffset for a marker.  This is rarely used.
-	 */
-	public native void setDrawOffset(float drawOffset);
-	
-	/**
-	 * Set the drawPriority for a marker.  Draw priority controls the order
-	 * in which features are drawn.  For screen markers, drawPriority controls
-	 * what order markers are drawn with respect to other screen objects, like labels,
-	 * but not 3D objects like stickers or vectors.
-	 */
-	public native void setDrawPriority(int drawPriority);
 
-	/**
-	 * Set the minimum cutoff for visibility of the markers.  This is the closest height the
-	 * markers will be visible from.  Defaults to 0.0 (always visible).
-	 */
-	public native void setMinVis(float minVis);
-	
-	/**
-	 * Set the maximum cutoff for visibility of the markers.  This is the biggest height the
-	 * markers will be visible from.  Defaults to off.
-	 */
-	public native void setMaxVis(float maxVis);
-	
 	/**
 	 * Set the background color for the markers.  If the marker has a texture, this will
 	 * be multiplied with the texture.
@@ -84,12 +54,6 @@ public class MarkerInfo
 	 * @param a alpha
 	 */
 	public native void setColor(float r,float g,float b,float a);
-	
-	/**
-	 * The amount of time (in seconds) it takes for new geometry
-	 * to fade in and fade out.  By default, fade is off.
-	 */
-	public native void setFade(float fade);
 
 	static
 	{
@@ -98,5 +62,4 @@ public class MarkerInfo
 	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
-	private long nativeHandle;
 }

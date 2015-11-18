@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -67,91 +67,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_dispose
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setEnable
-  (JNIEnv *env, jobject obj, jboolean enable)
-{
-	try
-	{
-		MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
-		MarkerInfo *info = classInfo->getObject(env,obj);
-		if (!info)
-			return;
-		info->enable = enable;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MarkerInfo::dispose()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setDrawOffset
-  (JNIEnv *env, jobject obj, jfloat drawOffset)
-{
-	try
-	{
-		MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
-		MarkerInfo *info = classInfo->getObject(env,obj);
-		if (!info)
-			return;
-		info->drawOffset = drawOffset;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MarkerInfo::setDrawOffset()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setDrawPriority
-  (JNIEnv *env, jobject obj, jint drawPriority)
-{
-	try
-	{
-		MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
-		MarkerInfo *info = classInfo->getObject(env,obj);
-		if (!info)
-			return;
-		info->drawPriority = drawPriority;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MarkerInfo::setDrawPriority()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setMinVis
-  (JNIEnv *env, jobject obj, jfloat minVis)
-{
-	try
-	{
-		MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
-		MarkerInfo *info = classInfo->getObject(env,obj);
-		if (!info)
-			return;
-		info->minVis = minVis;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MarkerInfo::setMinViz()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setMaxVis
-  (JNIEnv *env, jobject obj, jfloat maxVis)
-{
-	try
-	{
-		MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
-		MarkerInfo *info = classInfo->getObject(env,obj);
-		if (!info)
-			return;
-		info->maxVis = maxVis;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MarkerInfo::setMaxVis()");
-	}
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setColor
   (JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
 {
@@ -166,22 +81,5 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setColor
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MarkerInfo::setColor()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setFade
-  (JNIEnv *env, jobject obj, jfloat fade)
-{
-	try
-	{
-		MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
-		MarkerInfo *info = classInfo->getObject(env,obj);
-		if (!info)
-			return;
-		info->fade = fade;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MarkerInfo::setFade()");
 	}
 }
