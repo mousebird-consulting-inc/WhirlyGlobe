@@ -504,7 +504,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  
  |Key|Type|Description|
  |:--|:---|:----------|
- |kMaplyColor|UIColor|Color we'll use for the stickers.|
+ |kMaplyColor|UIColor|Color we'll use for the billboards.|
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The billboards will only be visible if the user is above this height.  Off by default.|
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The billboards will only be visible if the user is below this height.  Off by default.|
  |kMaplyMinViewerDist|NSNumber|Minimum distance from the viewer at which to display object(s).|
