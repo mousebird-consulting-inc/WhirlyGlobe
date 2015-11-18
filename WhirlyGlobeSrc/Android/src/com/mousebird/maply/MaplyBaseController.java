@@ -90,6 +90,7 @@ public class MaplyBaseController
 	// Managers are thread safe objects for handling adding and removing types of data
 	VectorManager vecManager;
 	MarkerManager markerManager;
+    StickerManager stickerManager;
 	LabelManager labelManager;
 	SelectionManager selectionManager;
 	LayoutManager layoutManager;
@@ -133,6 +134,7 @@ public class MaplyBaseController
 		// Fire up the managers.  Can't do anything without these.
 		vecManager = new VectorManager(scene);
 		markerManager = new MarkerManager(scene);
+        stickerManager = new StickerManager(scene);
 		labelManager = new LabelManager(scene);
 		layoutManager = new LayoutManager(scene);
 		selectionManager = new SelectionManager(scene);
@@ -507,7 +509,49 @@ public class MaplyBaseController
 			}
 		};
 		
-		addTask(run,mode);
+		addTask(run, mode);
+
+		return compObj;
+	}
+
+	/**
+	 * Add stickers on top of the globe or map.  Stickers are 2D objects that drape over a defined
+	 * area.
+	 *
+	 * @param stickers The list of stickers to apply.
+	 * @param stickerInfo Parameters that cover all the stickers in question.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+	 * @return This represents the stickers for later modification or deletion.
+	 */
+	public ComponentObject addStickers(final List<Sticker> stickers,final StickerInfo stickerInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		final ComponentObject compObj = new ComponentObject();
+
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+
+                        // Stickers are added one at a time for some reason
+                        for (Sticker sticker : stickers) {
+                            long stickerID = stickerManager.addSticker(sticker, stickerInfo, changes);
+                            scene.addChanges(changes);
+
+                            if (stickerID != EmptyIdentity) {
+                                compObj.addStickerID(stickerID);
+                            }
+                        }
+					}
+				};
+
+		addTask(run, mode);
 
 		return compObj;
 	}

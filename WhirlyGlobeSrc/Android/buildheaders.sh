@@ -1,6 +1,6 @@
 cd src
 
-for mod in AngleAxis AttrDictionary BaseInfo ChangeSet CoordSystem CoordSystemDisplayAdapter FakeGeocentricDisplayAdapter GeoCoordSystem GlobeView GlobeViewState GlobeScene Identifiable InternalLabel InternalMarker LabelInfo LabelManager LayoutManager MapScene MapView MapViewState MarkerInfo MarkerManager MaplyRenderer Matrix4d PlateCarreeCoordSystem Point2d Point3d Point4d QuadPagingLayer QuadImageTileLayer Quaternion Scene SelectionManager Shader SphericalMercatorCoordSystem Sticker StickerInfo Texture VectorIterator VectorInfo VectorManager VectorObject View ViewState
+for mod in AngleAxis AttrDictionary BaseInfo ChangeSet CoordSystem CoordSystemDisplayAdapter FakeGeocentricDisplayAdapter GeoCoordSystem GlobeView GlobeViewState GlobeScene Identifiable InternalLabel InternalMarker LabelInfo LabelManager LayoutManager MapScene MapView MapViewState MarkerInfo MarkerManager MaplyRenderer Matrix4d PlateCarreeCoordSystem Point2d Point3d Point4d QuadPagingLayer QuadImageTileLayer Quaternion Scene SelectionManager Shader SphericalMercatorCoordSystem Sticker StickerInfo StickerManager Texture VectorIterator VectorInfo VectorManager VectorObject View ViewState
 do
     if [ com/mousebird/maply/$mod.class -ot com/mousebird/maply/$mod.java ]; then
         echo "Compiling java for $mod"

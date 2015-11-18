@@ -72,6 +72,14 @@ public class ComponentObject
 		markerIDs.add(id);
 	}
 
+	// Track the given sticker ID as associated with us
+	void addStickerID(long id)
+	{
+		if (stickerIDs == null)
+			stickerIDs = new ArrayList<Long>();
+		stickerIDs.add(id);
+	}
+
 	// Track the given vector ID as associated with us
 	void addVectorID(long id)
 	{
@@ -95,6 +103,8 @@ public class ComponentObject
 			control.vecManager.enableVectors(convertIDs(vectorIDs), enable, changes);
 		if (markerIDs != null && markerIDs.size() > 0)
 			control.markerManager.enableMarkers(convertIDs(markerIDs), enable, changes);
+		if (stickerIDs != null && stickerIDs.size() > 0)
+			control.stickerManager.enableStickers(convertIDs(stickerIDs), enable, changes);
 		if (labelIDs != null && labelIDs.size() > 0)
 			control.labelManager.enableLabels(convertIDs(labelIDs), enable, changes);
 	}
@@ -111,6 +121,11 @@ public class ComponentObject
 		{
 			control.markerManager.removeMarkers(convertIDs(markerIDs), changes);
 			markerIDs.clear();
+		}
+		if (stickerIDs != null && stickerIDs.size() > 0)
+		{
+			control.stickerManager.removeStickers(convertIDs(stickerIDs), changes);
+			stickerIDs.clear();
 		}
 		if (labelIDs != null && labelIDs.size() > 0)
 		{
@@ -130,6 +145,7 @@ public class ComponentObject
 
 	// Various render-side object types we're representing
 	private ArrayList<Long> markerIDs = null;
+	private ArrayList<Long> stickerIDs = null;
 	private ArrayList<Long> vectorIDs = null;
 	private ArrayList<Long> labelIDs = null;
 }

@@ -387,6 +387,8 @@
 		2B923FCC1BFBDED200C879DB /* com_mousebird_maply_QuadImageTileLayer_ImageUpdater.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B923FC71BFBDED200C879DB /* com_mousebird_maply_QuadImageTileLayer_ImageUpdater.h */; };
 		2B923FCD1BFBDED200C879DB /* com_mousebird_maply_Sticker.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B923FC81BFBDED200C879DB /* com_mousebird_maply_Sticker.h */; };
 		2B923FCE1BFBDED200C879DB /* com_mousebird_maply_StickerInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B923FC91BFBDED200C879DB /* com_mousebird_maply_StickerInfo.h */; };
+		2B923FD01BFD047A00C879DB /* StickerManager_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B923FCF1BFD047A00C879DB /* StickerManager_jni.cpp */; };
+		2B923FD21BFD04AE00C879DB /* com_mousebird_maply_StickerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B923FD11BFD04AE00C879DB /* com_mousebird_maply_StickerManager.h */; };
 		2BA2325617984F510063CC84 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2322F17984F510063CC84 /* glues.h */; };
 		2BA2325717984F510063CC84 /* glues_error.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323017984F510063CC84 /* glues_error.c */; };
 		2BA2325817984F510063CC84 /* glues_error.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323117984F510063CC84 /* glues_error.h */; };
@@ -864,6 +866,8 @@
 		2B923FC71BFBDED200C879DB /* com_mousebird_maply_QuadImageTileLayer_ImageUpdater.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_QuadImageTileLayer_ImageUpdater.h; path = ../Android/jni/com_mousebird_maply_QuadImageTileLayer_ImageUpdater.h; sourceTree = "<group>"; };
 		2B923FC81BFBDED200C879DB /* com_mousebird_maply_Sticker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Sticker.h; path = ../Android/jni/com_mousebird_maply_Sticker.h; sourceTree = "<group>"; };
 		2B923FC91BFBDED200C879DB /* com_mousebird_maply_StickerInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_StickerInfo.h; path = ../Android/jni/com_mousebird_maply_StickerInfo.h; sourceTree = "<group>"; };
+		2B923FCF1BFD047A00C879DB /* StickerManager_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StickerManager_jni.cpp; path = ../Android/jni/StickerManager_jni.cpp; sourceTree = "<group>"; };
+		2B923FD11BFD04AE00C879DB /* com_mousebird_maply_StickerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_StickerManager.h; path = ../Android/jni/com_mousebird_maply_StickerManager.h; sourceTree = "<group>"; };
 		2B951D8E12F09E7A005003AE /* shapefil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shapefil.h; sourceTree = "<group>"; };
 		2B951D9012F09E91005003AE /* shpopen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shpopen.c; sourceTree = "<group>"; };
 		2B951D9212F09EA0005003AE /* dbfopen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dbfopen.c; sourceTree = "<group>"; };
@@ -1113,6 +1117,7 @@
 		2B4B19291BA38A940091A743 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2B923FD11BFD04AE00C879DB /* com_mousebird_maply_StickerManager.h */,
 				2B923FC51BFBDED200C879DB /* com_mousebird_maply_BaseInfo.h */,
 				2B923FC61BFBDED200C879DB /* com_mousebird_maply_QuadImageTileLayer_FrameStatus.h */,
 				2B923FC71BFBDED200C879DB /* com_mousebird_maply_QuadImageTileLayer_ImageUpdater.h */,
@@ -1224,6 +1229,7 @@
 				2B4B19C21BA38AFB0091A743 /* SphericalMercatorCoordSystem_jni.cpp */,
 				2B923FC31BFBD6D200C879DB /* Sticker_jni.cpp */,
 				2B923FB81BFA9B5E00C879DB /* StickerInfo_jni.cpp */,
+				2B923FCF1BFD047A00C879DB /* StickerManager_jni.cpp */,
 				2B4B19C31BA38AFB0091A743 /* Texture_jni.cpp */,
 				2B4B19C41BA38AFB0091A743 /* VectorInfo_jni.cpp */,
 				2B4B19C51BA38AFB0091A743 /* VectorIterator_jni.cpp */,
@@ -1712,6 +1718,7 @@
 				2BA2325617984F510063CC84 /* glues.h in Headers */,
 				2B4B19751BA38AD90091A743 /* com_mousebird_maply_MapScene.h in Headers */,
 				2B4B197C1BA38AD90091A743 /* com_mousebird_maply_Matrix4d.h in Headers */,
+				2B923FD21BFD04AE00C879DB /* com_mousebird_maply_StickerManager.h in Headers */,
 				2B35683E18D762BF00EF8DB1 /* WhirlyTypes.h in Headers */,
 				2B4B19691BA38AD90091A743 /* com_mousebird_maply_GeoCoordSystem.h in Headers */,
 				2B009CF2186102E4001E2EE8 /* JSONAllocator.h in Headers */,
@@ -2026,6 +2033,7 @@
 				2B7EF48016025D8C00D4079F /* PJ_lcca.c in Sources */,
 				2B7EF48116025D8C00D4079F /* pj_list.c in Sources */,
 				2B7EF48316025D8C00D4079F /* pj_log.c in Sources */,
+				2B923FD01BFD047A00C879DB /* StickerManager_jni.cpp in Sources */,
 				2B7EF48416025D8C00D4079F /* PJ_loxim.c in Sources */,
 				2B35674718D762A700EF8DB1 /* Dictionary.cpp in Sources */,
 				2B7EF48516025D8C00D4079F /* PJ_lsat.c in Sources */,
