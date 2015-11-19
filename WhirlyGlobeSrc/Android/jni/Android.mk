@@ -80,7 +80,7 @@ MAPLY_CORE_SRC_FILES := BaseInfo.cpp BasicDrawable.cpp BasicDrawableInstance.cpp
 MAPLY_CORE_SRC_DIR := $(SRC_DIR)
 LOCAL_SRC_FILES += $(MAPLY_CORE_SRC_FILES:%=$(MAPLY_CORE_SRC_DIR)/%)
 
-MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp ChangeSet_jni.cpp CoordSystemDisplayAdapter_jni.cpp \
+MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp BaseInfo_jni.cpp ChangeSet_jni.cpp CoordSystemDisplayAdapter_jni.cpp \
 					FontTextureManagerAndroid.cpp Identifiable_jni.cpp LabelInfoAndroid.cpp LabelInfo_jni.cpp LabelManager_jni.cpp LayoutManager_jni.cpp \
 					MaplyRenderer_jni.cpp MapScene_jni.cpp MapView_jni.cpp ImageWrapper.cpp \
 					Matrix4d_jni.cpp Point2d_jni.cpp Point3d_jni.cpp VectorInfo_jni.cpp VectorIterator_jni.cpp VectorManager_jni.cpp VectorObject_jni.cpp \

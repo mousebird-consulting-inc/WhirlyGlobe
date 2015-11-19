@@ -26,6 +26,24 @@ public class Sticker
      * Set the lower left corner of the sticker.
      * This is in the given coordinate system.
      */
+    public void setLowerLeft(Point2d pt)
+    {
+        setLowerLeft(pt.getX(),pt.getY());
+    }
+
+    /**
+     * Set the upper right corner of the sticker.
+     * This is in the given coordinate system.
+     */
+    public void setUpperRight(Point2d pt)
+    {
+        setUpperRight(pt.getX(),pt.getY());
+    }
+
+    /**
+     * Set the lower left corner of the sticker.
+     * This is in the given coordinate system.
+     */
     public native void setLowerLeft(double x,double y);
 
     /**

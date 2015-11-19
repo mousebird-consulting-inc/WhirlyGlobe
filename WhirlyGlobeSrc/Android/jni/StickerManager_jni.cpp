@@ -82,6 +82,9 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addSticker
         }
         
         SimpleIdentity chunkId = chunkManager->addChunk(chunk,*chunkInfo,*changeSet);
+
+	// We hand over the chunk's memory to the manager at that point
+	SphericalChunkClassInfo::getClassInfo()->clearHandle(env,stickerObj);
         
         return chunkId;
     }
