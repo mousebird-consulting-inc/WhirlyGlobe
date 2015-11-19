@@ -36,12 +36,14 @@ class WideVectorDrawable : public BasicDrawable
 public:
     WideVectorDrawable();
     
-    /// Each vertex has an offset in 3-space
-    void addDir(const Point3f &dir);
-    void addDir(const Point3d &dir);
-
-    /// Each vertex has a maximum length from the center vertex
-    void addMaxLen(double len);
+    // Vector for p1 - p0
+    void add_P01(const Point3f &vec);
+    // Limit for t value (1.0 by default)
+    void add_t0_limit(float tMin,float tMax);
+    // Vector for 90 deg from line
+    void add_n0(const Point3f &vec);
+    // Complex constant we multiply by width for t
+    void add_c0(float c);
     
     /// How often the texture repeats
     void setTexRepeat(float inTexRepeat) { texRepeat = inTexRepeat; }
@@ -52,8 +54,10 @@ public:
 protected:
     bool snapTex;
     float texRepeat;
-    int offsetIndex;
-    int lenIndex;
+    int p01_index;
+    int t0_limit_index;
+    int n0_index;
+    int c0_index;
     
     // Note: Debugging
 //    std::vector<Point3d> dirs;
