@@ -505,6 +505,18 @@ static const float PerfOutputDelay = 15.0;
     return nil;
 }
 
+- (void)removeShaderProgram:(MaplyShader*)shader
+{
+    if (!shader)
+        return;
+  
+    if ([shaders containsObject:shader])
+        [shaders removeObject:shader];
+  
+    scene->removeProgram([shader getShaderID]);
+}
+
+
 #pragma mark - Defaults and descriptions
 
 // Merge the two dictionaries, add taking precidence, and then look for NSNulls
