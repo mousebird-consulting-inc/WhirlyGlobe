@@ -157,6 +157,8 @@ public:
         drawable->addTriangle(BasicDrawable::Triangle(startPt+1,startPt+2,startPt+3));
     }
     
+    void addWideRect(WideVectorDrawable *drawable,const Point3d &pa,const Point3d &pb,
+    
     // Add a rectangle to the wide drawable
     void addWideRect(WideVectorDrawable *drawable,Point3d *corners,const Point3d &pa,const Point3d &pb,TexCoord *texCoords,const Point3d &up,const RGBAColor &thisColor)
     {
