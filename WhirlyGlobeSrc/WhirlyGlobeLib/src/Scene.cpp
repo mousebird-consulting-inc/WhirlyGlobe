@@ -353,6 +353,13 @@ TextureBase *Scene::getTexture(SimpleIdentity texId)
     
     return retTex;
 }
+    
+void Scene::addTexture(TextureBase *tex)
+{
+    pthread_mutex_lock(&textureLock);
+    textures.insert(tex);
+    pthread_mutex_unlock(&textureLock);
+}
 
 const DrawableRefSet &Scene::getDrawables()
 {
@@ -589,12 +596,13 @@ void AddTextureReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,Wh
 {
     if (!tex->getGLId())
         tex->createInGL(scene->getMemManager());
-    scene->textures.insert(tex);
+    scene->addTexture(tex);
     tex = NULL;
 }
 
 void RemTextureReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
 {
+    pthread_mutex_lock(&scene->textureLock);
     TextureBase dumbTex(texture);
     Scene::TextureSet::iterator it = scene->textures.find(&dumbTex);
     if (it != scene->textures.end())
@@ -604,6 +612,7 @@ void RemTextureReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,Wh
         scene->textures.erase(it);
         delete tex;
     }
+    pthread_mutex_unlock(&scene->textureLock);
 }
 
 void AddDrawableReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)

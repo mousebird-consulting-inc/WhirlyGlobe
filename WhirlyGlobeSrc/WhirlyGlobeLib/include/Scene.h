@@ -384,6 +384,9 @@ public:
 	/// Look for a Texture by ID
 	TextureBase *getTexture(SimpleIdentity texId);
     
+    /// Add a texture to the scene
+    void addTexture(TextureBase *tex);
+    
     /// All the active models
     // Note: Porting
 //    NSMutableArray *activeModels;

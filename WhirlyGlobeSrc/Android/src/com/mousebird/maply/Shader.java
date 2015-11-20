@@ -80,7 +80,11 @@ public class Shader
 	 */
 	public void addTexture(String name,MaplyTexture texture)
 	{
+		control.setEGLContext();
+
 		textures.add(texture);
+
+        Log.d("Maply","addTexture texID " + texture.texID);
 
 		addTextureNative(control.getScene(),name,texture.texID);
 	}
@@ -91,13 +95,27 @@ public class Shader
 	 * <p>
      * @return Returns true if there was such a uniform, false otherwise.
 	 */
-	public native boolean setUniform(String name,double uni);
+	public boolean setUniform(String name,double uni)
+	{
+		control.setEGLContext();
+
+		return setUniformNative(name,uni);
+	}
+
+	public native boolean setUniformNative(String name,double uni);
 
 	/** Set an int uniform in the shader with the given name.
 	 * <p>
      * @return Returns true if there was such a uniform, false otherwise.
 	 */
-	public native boolean setUniform(String name,int uni);
+	public boolean setUniform(String name,int uni)
+	{
+		control.setEGLContext();
+
+		return setUniformNative(name,uni);
+	}
+
+	public native boolean setUniformNative(String name,int uni);
 
 	/**
 	 * Set a pair of doubles in the shader with the given name.
@@ -107,7 +125,7 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point2d pt)
 	{
-		return setUniform(name,pt.getX(),pt.getY());
+		return setUniformNative(name,pt.getX(),pt.getY());
 	}
 
 	/**
@@ -118,7 +136,7 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point3d pt)
 	{
-		return setUniform(name,pt.getX(),pt.getY(),pt.getZ());
+		return setUniformNative(name, pt.getX(), pt.getY(), pt.getZ());
 	}
 
 	/**
@@ -129,12 +147,12 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point4d pt)
 	{
-		return setUniform(name,pt.getX(),pt.getY(),pt.getZ(),pt.getW());
+		return setUniformNative(name, pt.getX(), pt.getY(), pt.getZ(), pt.getW());
 	}
 
-	native boolean setUniform(String name,double uniX,double uniY);
-	native boolean setUniform(String name,double uniX,double uniY,double uniZ);
-	native boolean setUniform(String name,double uniX,double uniY,double uniZ,double uniW);
+	native boolean setUniformNative(String name,double uniX,double uniY);
+	native boolean setUniformNative(String name,double uniX,double uniY,double uniZ);
+	native boolean setUniformNative(String name,double uniX,double uniY,double uniZ,double uniW);
 	
 	static
 	{

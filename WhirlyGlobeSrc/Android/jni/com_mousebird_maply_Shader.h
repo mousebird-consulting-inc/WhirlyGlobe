@@ -33,42 +33,42 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
 
 /*
  * Class:     com_mousebird_maply_Shader
- * Method:    setUniform
+ * Method:    setUniformNative
  * Signature: (Ljava/lang/String;D)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lang_String_2D
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2D
   (JNIEnv *, jobject, jstring, jdouble);
 
 /*
  * Class:     com_mousebird_maply_Shader
- * Method:    setUniform
+ * Method:    setUniformNative
  * Signature: (Ljava/lang/String;I)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lang_String_2I
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2I
   (JNIEnv *, jobject, jstring, jint);
 
 /*
  * Class:     com_mousebird_maply_Shader
- * Method:    setUniform
+ * Method:    setUniformNative
  * Signature: (Ljava/lang/String;DD)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lang_String_2DD
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2DD
   (JNIEnv *, jobject, jstring, jdouble, jdouble);
 
 /*
  * Class:     com_mousebird_maply_Shader
- * Method:    setUniform
+ * Method:    setUniformNative
  * Signature: (Ljava/lang/String;DDD)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lang_String_2DDD
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2DDD
   (JNIEnv *, jobject, jstring, jdouble, jdouble, jdouble);
 
 /*
  * Class:     com_mousebird_maply_Shader
- * Method:    setUniform
+ * Method:    setUniformNative
  * Signature: (Ljava/lang/String;DDDD)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lang_String_2DDDD
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2DDDD
   (JNIEnv *, jobject, jstring, jdouble, jdouble, jdouble, jdouble);
 
 /*

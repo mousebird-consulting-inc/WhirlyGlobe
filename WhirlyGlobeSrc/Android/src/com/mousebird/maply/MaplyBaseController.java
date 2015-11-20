@@ -425,8 +425,8 @@ public class MaplyBaseController
 				// Vectors are simple enough to just add
 				ChangeSet changes = new ChangeSet();
 				long vecId = vecManager.addVectors(vecs,vecInfo,changes);
-				scene.addChanges(changes);
-	
+				changes.process(scene);
+
 				// Track the vector ID for later use
 				if (vecId != EmptyIdentity)
 					compObj.addVectorID(vecId);
@@ -485,7 +485,7 @@ public class MaplyBaseController
 					// Map the bitmap to a texture ID
 					long texID = EmptyIdentity;
 					if (marker.image != null)
-						texID = texManager.addTexture(marker.image, changes);
+						texID = texManager.addTexture(marker.image, scene, changes);
 					if (texID != EmptyIdentity)
 						intMarker.addTexID(texID);
 					
@@ -500,8 +500,8 @@ public class MaplyBaseController
 
 				// Add the markers and flush the changes
 				long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
-				scene.addChanges(changes);
-				
+				changes.process(scene);
+
 				if (markerId != EmptyIdentity)
 				{
 					compObj.addMarkerID(markerId);
@@ -542,12 +542,13 @@ public class MaplyBaseController
                         // Stickers are added one at a time for some reason
                         for (Sticker sticker : stickers) {
                             long stickerID = stickerManager.addSticker(sticker, stickerInfo, changes);
-                            scene.addChanges(changes);
 
                             if (stickerID != EmptyIdentity) {
                                 compObj.addStickerID(stickerID);
                             }
                         }
+
+						changes.process(scene);
 					}
 				};
 
@@ -633,7 +634,7 @@ public class MaplyBaseController
 					compObj.addLabelID(labelId);
 		
 				// Flush the text changes
-				scene.addChanges(changes);
+				changes.process(scene);
 			}
 		};
 		
@@ -679,10 +680,10 @@ public class MaplyBaseController
                         Texture rawTex = new Texture();
                         rawTex.setBitmap(image);
                         texture.texID = rawTex.getID();
-                        changes.addTexture(rawTex);
+                        changes.addTexture(rawTex,scene);
 
-                        // Flush the text changes
-                        scene.addChanges(changes);
+                        // Flush the texture changes
+						changes.process(scene);
                     }
                 };
 
@@ -742,7 +743,7 @@ public class MaplyBaseController
 				ChangeSet changes = new ChangeSet();
 				for (ComponentObject compObj : compObjs)
 					compObj.enable(control, false, changes);
-				scene.addChanges(changes);
+				changes.process(scene);
 			}
 		};
 		
@@ -774,7 +775,7 @@ public class MaplyBaseController
 				ChangeSet changes = new ChangeSet();
 				for (ComponentObject compObj : compObjs)
 					compObj.enable(control, true, changes);
-				scene.addChanges(changes);
+				changes.process(scene);
 			}
 		};
 		
@@ -825,7 +826,7 @@ public class MaplyBaseController
 					compObj.clear(control, changes);
 					removeSelectableObjects(compObj);
 				}
-				scene.addChanges(changes);
+				changes.process(scene);
 			}
 		};
 		
