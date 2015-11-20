@@ -170,5 +170,5 @@ protected:
     // Attributes sorted for fast lookup
     std::set<OpenGLESAttribute *,AttributeNameSortStruct> attrs;
 };
-
+    
 }

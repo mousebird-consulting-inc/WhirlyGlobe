@@ -723,4 +723,13 @@ void RemProgramReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,Wh
 //                   });
 //}
     
+void SetProgramValueReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
+{
+    OpenGLES2Program *prog = scene->getProgram(progID);
+    if (prog)
+    {
+        prog->setUniform(u_name, u_val);
+    }
+}
+
 }

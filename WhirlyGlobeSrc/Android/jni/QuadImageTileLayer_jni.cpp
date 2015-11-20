@@ -290,18 +290,8 @@ public:
 	    // Change the images to give us start and finish
 	    if (tileLoader)
 	    	tileLoader->setCurrentImageStart(image0,image1,changes);
-
-	    // Set the interpolation in the program
-	    if (scene)
-	      {
-		OpenGLES2Program *prog = scene->getProgram(shaderID);
-		if (prog)
-		  {
-		    glUseProgram(prog->getProgram());
-		    prog->setUniform("u_interp", t);
-		    renderer->forceDrawNextFrame();
-		  }
-              }
+        
+        changes.push_back(new SetProgramValueReq(shaderID,"u_interp",t));
 	}
     
     void setColor(const RGBAColor &newColor)

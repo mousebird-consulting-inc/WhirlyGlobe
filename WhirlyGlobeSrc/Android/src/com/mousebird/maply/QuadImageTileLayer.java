@@ -368,12 +368,13 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
       * This sets the current image being displayed, and interpolates between it and the next image.  If set to an integer value, you'll get just that image.  If set to a value between integers, you'll get a blend of the two.
       * This is incompatible with setting an animationPeriod.  Do just one or the other.
      */
-	public void setCurrentImage(float current)
+	public void setCurrentImage(final float current)
 	{
-		ChangeSet changes = new ChangeSet();
-		setCurrentImage(current,changes);
-		if (layerThread != null)
-			layerThread.addChanges(changes);		
+        if (layerThread != null) {
+            ChangeSet changes = new ChangeSet();
+            setCurrentImage(current, changes);
+            changes.process(layerThread.scene);
+        }
 	}
 	
 	native void setCurrentImage(float current,ChangeSet changes);
