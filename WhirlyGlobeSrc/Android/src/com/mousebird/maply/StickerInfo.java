@@ -16,6 +16,16 @@ public class StickerInfo extends BaseInfo
                 initialise();
         }
 
+        /**
+         * Set the color used by the geometry.  Color values range from 0 to 1.0.
+         * You must specify all four values.  Alpha controls transparency.
+         * @param r Red component.
+         * @param g Green component.
+         * @param b Blue component.
+         * @param a Alpha component.
+         */
+        public native void setColor(float r,float g,float b,float a);
+
         public void finalize() {
                 dispose();
         }

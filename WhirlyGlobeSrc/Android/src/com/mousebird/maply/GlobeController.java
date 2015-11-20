@@ -380,9 +380,17 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
         Matrix4d modelMat = globeView.calcModelViewMatrix();
 
         Point3d retCorners[] = new Point3d[4];
+        CoordSystemDisplayAdapter coordAdapter = globeView.getCoordAdapter();
+        if (coordAdapter == null)
+            return retCorners;
+        CoordSystem coordSys = coordAdapter.getCoordSystem();
+        if (coordSys == null)
+            return retCorners;
         for (int ii=0;ii<4;ii++)
         {
-            retCorners[ii] = globeView.pointOnSphereFromScreen(screenCorners[0],modelMat,frameSize,false);
+            Point3d globePt = globeView.pointOnSphereFromScreen(screenCorners[ii],modelMat,frameSize,false);
+            if (globePt != null)
+                retCorners[ii] = coordSys.localToGeographic(coordAdapter.displayToLocal(globePt));
         }
 
         return retCorners;

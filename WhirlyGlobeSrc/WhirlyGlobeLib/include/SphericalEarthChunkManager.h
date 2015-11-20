@@ -36,6 +36,7 @@ class SphericalChunkInfo : public BaseInfo
 public:
     SphericalChunkInfo(const Dictionary &dict);
     
+    RGBAColor color;
     bool readZBuffer,writeZBuffer;
     bool doEdgeMatching;
 };
@@ -103,7 +104,7 @@ class ChunkRequest
 {
 public:
     ChunkRequest(ChunkRequestType type,const SphericalChunkInfo &chunkInfo,SphericalChunk *chunk) :
-    type(type), chunkId(EmptyIdentity), chunkInfo(chunkInfo), chunk(chunk) { }
+  type(type), chunkId(EmptyIdentity), chunkInfo(chunkInfo), chunk(chunk) { chunkId = chunk->getId(); }
     ChunkRequest(ChunkRequestType type,const SphericalChunkInfo &chunkInfo,SimpleIdentity chunkId) :
     type(type), chunkId(chunkId), chunk(NULL), chunkInfo(chunkInfo), doEdgeMatching(false) { }
     ~ChunkRequest() { if (chunk)  delete chunk; }

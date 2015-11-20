@@ -122,6 +122,7 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
 //    drawable->setLocalMbr(_mbr);
     drawable->setDrawPriority(chunkInfo.drawPriority);
     drawable->setDrawOffset(chunkInfo.drawOffset);
+    drawable->setColor(chunkInfo.color);
     drawable->setTexIDs(texIDs);
     drawable->setOnOff(enable);
     drawable->setVisibleRange(chunkInfo.minVis, chunkInfo.maxVis, chunkInfo.minVisBand, chunkInfo.maxVisBand);
@@ -307,6 +308,7 @@ SphericalChunkInfo::SphericalChunkInfo(const Dictionary &dict)
     readZBuffer = dict.getBool("zbufferread",false);
     writeZBuffer = dict.getBool("zbufferwrite",false);
     doEdgeMatching = dict.getBool("edgematch",false);
+    color = dict.getColor("color", RGBAColor(255,255,255,255));
 }
 
 // Used to track scene data associated with a chunk
@@ -616,8 +618,10 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
             ChunkRepSet::iterator it = chunkReps.find(dummyRef);
             if (it != chunkReps.end())
+	      {
                 (*it)->clear(scene,texAtlas,drawAtlas,changes);
-            chunkReps.erase(it);
+		chunkReps.erase(it);
+	      }
             pthread_mutex_unlock(&repLock);
         }
             break;

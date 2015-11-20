@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_StickerInfo
+ * Method:    setColor
+ * Signature: (FFFF)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerInfo_setColor
+  (JNIEnv *, jobject, jfloat, jfloat, jfloat, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_StickerInfo
  * Method:    nativeInit
  * Signature: ()V
  */
