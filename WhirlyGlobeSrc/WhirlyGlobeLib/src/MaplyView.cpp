@@ -88,7 +88,8 @@ float MapView::calcZbufferRes()
 
 Eigen::Matrix4d MapView::calcModelMatrix()
 {
-    Eigen::Affine3d trans(Eigen::Translation3d(-loc.x(),-loc.y(),-loc.z()));
+    Point3d scale = coordAdapter->getScale();
+    Eigen::Affine3d trans(Eigen::Translation3d(-loc.x()*scale.x(),-loc.y()*scale.y(),-loc.z()*scale.z()));
 //    Eigen::Affine3d rot(Eigen::AngleAxisd(-_rotAngle, Vector3d::UnitZ()).toRotationMatrix());
 //    return (rot * trans).matrix();
     return trans.matrix();
@@ -102,6 +103,8 @@ Eigen::Matrix4d MapView::calcViewMatrix()
 
 void MapView::getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize)
 {
+    Point3d scale = coordAdapter->getScale();
+    
     Point3f ll,ur;
     if (wrap && coordAdapter && coordAdapter->getBounds(ll, ur))
     {
@@ -109,7 +112,7 @@ void MapView::getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,con
         GeoCoord geoLL = coordAdapter->getCoordSystem()->localToGeographic(ll);
         GeoCoord geoUR = coordAdapter->getCoordSystem()->localToGeographic(ur);
         float spanX = geoUR.x()-geoLL.x();
-        float offX = loc.x()-geoLL.x();
+        float offX = loc.x()*scale.x()-geoLL.x();
         int num = floorf(offX/spanX);
         std::vector<int> nums;
         nums.push_back(num);

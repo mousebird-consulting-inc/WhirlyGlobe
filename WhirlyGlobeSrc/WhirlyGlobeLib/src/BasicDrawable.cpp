@@ -1465,12 +1465,12 @@ ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
 
 void ColorChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
     {
         basicDrawable->setColor(color);
     } else {
-        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
             basicDrawInst->setColor(RGBAColor(color[0],color[1],color[2],color[3]));
     }
@@ -1484,11 +1484,11 @@ OnOffChangeRequest::OnOffChangeRequest(SimpleIdentity drawId,bool OnOff)
 
 void OnOffChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
         basicDrawable->setOnOff(newOnOff);
     else {
-        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
             basicDrawInst->setEnable(newOnOff);
     }
@@ -1501,11 +1501,11 @@ VisibilityChangeRequest::VisibilityChangeRequest(SimpleIdentity drawId,float min
 
 void VisibilityChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
         basicDrawable->setVisibleRange(minVis,maxVis);
     else {
-        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         basicDrawInst->setVisibleRange(minVis, maxVis);
     }
 }
@@ -1519,7 +1519,7 @@ FadeChangeRequest::FadeChangeRequest(SimpleIdentity drawId,TimeInterval fadeUp,T
 void FadeChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
     // Fade it out, then remove it
-    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
     {
         basicDrawable->setFade(fadeDown, fadeUp);
@@ -1537,7 +1537,7 @@ DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,unsigned int wh
 
 void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
         basicDrawable->setTexId(which,newTexId);
 }
@@ -1549,7 +1549,7 @@ DrawTexturesChangeRequest::DrawTexturesChangeRequest(SimpleIdentity drawId,const
 
 void DrawTexturesChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
         basicDrawable->setTexIDs(newTexIDs);
 }
@@ -1561,7 +1561,7 @@ TransformChangeRequest::TransformChangeRequest(SimpleIdentity drawId,const Matri
 
 void TransformChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDraw = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDraw = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDraw.get())
         basicDraw->setMatrix(&newMat);
 }
@@ -1573,11 +1573,11 @@ DrawPriorityChangeRequest::DrawPriorityChangeRequest(SimpleIdentity drawId,int d
 
 void DrawPriorityChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
         basicDrawable->setDrawPriority(drawPriority);
     else {
-        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
             basicDrawInst->setDrawPriority(drawPriority);
     }
@@ -1590,11 +1590,11 @@ LineWidthChangeRequest::LineWidthChangeRequest(SimpleIdentity drawId,float lineW
 
 void LineWidthChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
         basicDrawable->setLineWidth(lineWidth);
     else {
-        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
             basicDrawInst->setLineWidth(lineWidth);
     }

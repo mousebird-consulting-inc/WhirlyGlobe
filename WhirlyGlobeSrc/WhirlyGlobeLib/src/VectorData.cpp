@@ -373,10 +373,10 @@ bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes)
                 if (fwrite(dictData.getRawData(),dataLen,1,fp) != 1)
                     throw 1;
             
-            VectorPointsRef pts = boost::dynamic_pointer_cast<VectorPoints>(shape);
-            VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(shape);
-            VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(shape);
-            VectorTrianglesRef mesh = boost::dynamic_pointer_cast<VectorTriangles>(shape);
+            VectorPointsRef pts = std::dynamic_pointer_cast<VectorPoints>(shape);
+            VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(shape);
+            VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(shape);
+            VectorTrianglesRef mesh = std::dynamic_pointer_cast<VectorTriangles>(shape);
             if (pts.get())
             {
                 unsigned short dataType = FileVecPoints;

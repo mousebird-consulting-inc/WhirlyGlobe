@@ -20,7 +20,6 @@
 
 #import "Platform.h"
 #import <math.h>
-#import <boost/shared_ptr.hpp>
 #import "WhirlyVector.h"
 #import "Scene.h"
 #import "GlobeMath.h"
@@ -71,6 +70,6 @@ public:
     std::vector<Eigen::Vector3d> surfNormals;
 };
     
-typedef boost::shared_ptr<DisplaySolid> DisplaySolidRef;
+typedef std::shared_ptr<DisplaySolid> DisplaySolidRef;
 
 }

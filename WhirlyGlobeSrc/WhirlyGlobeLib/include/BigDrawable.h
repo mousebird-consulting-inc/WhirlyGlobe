@@ -178,7 +178,7 @@ protected:
         // For a clear, amount of data to clear
         int clearLen;
     };
-    typedef boost::shared_ptr<Change> ChangeRef;
+    typedef std::shared_ptr<Change> ChangeRef;
     
     /// Used to represent a single buffer we can draw
     class Buffer
@@ -245,7 +245,7 @@ protected:
     ElementChunkSet elementChunks;
 };
             
-typedef boost::shared_ptr<BigDrawable> BigDrawableRef;
+typedef std::shared_ptr<BigDrawable> BigDrawableRef;
 
 /// Tell the renderer to swap buffers in a big drawable
 class BigDrawableSwap : public ChangeRequest

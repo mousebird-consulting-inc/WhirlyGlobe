@@ -18,7 +18,6 @@
  *
  */
 
-#import <boost/shared_ptr.hpp>
 #import "WhirlyGeometry.h"
 
 namespace WhirlyKit
@@ -40,7 +39,7 @@ public:
     virtual ~DelayedDeletable() { }
 };
     
-typedef boost::shared_ptr<DelayedDeletable> DelayedDeletableRef;
+typedef std::shared_ptr<DelayedDeletable> DelayedDeletableRef;
 
 /// Base class for the various coordinate systems
 ///  we use in the toolkits.
@@ -82,7 +81,7 @@ Point3d CoordSystemConvert3d(CoordSystem *inSystem,CoordSystem *outSystem,Point3
 class CoordSystemDisplayAdapter : public DelayedDeletable
 {
 public:
-    CoordSystemDisplayAdapter(CoordSystem *coordSys,Point3d center) : coordSys(coordSys), center(0.0,0.0,0.0) { }
+    CoordSystemDisplayAdapter(CoordSystem *coordSys,Point3d center) : coordSys(coordSys), center(0.0,0.0,0.0), scale(1.0,1.0,1.0) { }
     virtual ~CoordSystemDisplayAdapter() { }
     
     /// If the subclass can support a bounding box, this returns true
@@ -105,6 +104,9 @@ public:
     /// Get a reference to the coordinate system
     virtual CoordSystem *getCoordSystem() = 0;
     
+    /// Return the current scale to display space
+    Point3d getScale() { return scale; }
+    
     /// Return the current center
     Point3d getCenter() { return center; }
 
@@ -114,6 +116,7 @@ public:
     
 protected:
     Point3d center;
+    Point3d scale;
     CoordSystem *coordSys;
 };
     
@@ -128,6 +131,12 @@ public:
 
     /// Bounding box where the coordinate system is valid
     bool getBounds(Point3f &ll,Point3f &ur);
+    
+    /// Coordinates from the local are scaled to the display and vice versa
+    void setScale(const Point3d newScale);
+    
+    /// Return the current scale
+    Point3d getScale();
     
     /// Convert from the system's local coordinates to display coordinates
     WhirlyKit::Point3f localToDisplay(WhirlyKit::Point3f);

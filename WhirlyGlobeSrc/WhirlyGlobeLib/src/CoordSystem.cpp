@@ -58,6 +58,16 @@ GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *
 GeneralCoordSystemDisplayAdapter::~GeneralCoordSystemDisplayAdapter()
 {
 }
+    
+void GeneralCoordSystemDisplayAdapter::setScale(const Point3d newScale)
+{
+    scale = newScale;
+}
+    
+Point3d GeneralCoordSystemDisplayAdapter::getScale()
+{
+    return scale;
+}
 
 bool GeneralCoordSystemDisplayAdapter::getBounds(Point3f &outLL,Point3f &outUR)
 {
@@ -69,24 +79,25 @@ bool GeneralCoordSystemDisplayAdapter::getBounds(Point3f &outLL,Point3f &outUR)
 WhirlyKit::Point3f GeneralCoordSystemDisplayAdapter::localToDisplay(WhirlyKit::Point3f localPt)
 {
     Point3f dispPt = localPt-Point3f(center.x(),center.y(),center.z());
-    return dispPt;
+    return Point3f(dispPt.x()*scale.x(),dispPt.y()*scale.y(),dispPt.z()*scale.z());
 }
 
 WhirlyKit::Point3d GeneralCoordSystemDisplayAdapter::localToDisplay(WhirlyKit::Point3d localPt)
 {
-    Point3d dispPt = localPt-center;
-    return dispPt;
+    Point3d dispPt = (localPt-center);
+    return Point3d(dispPt.x()*scale.x(),dispPt.y()*scale.y(),dispPt.z()*scale.z());
 }
     
 WhirlyKit::Point3f GeneralCoordSystemDisplayAdapter::displayToLocal(WhirlyKit::Point3f dispPt)
 {
-    Point3f localPt = dispPt+Point3f(center.x(),center.y(),center.z());
+    Point3f localPt = Point3f(dispPt.x()/scale.x(),dispPt.y()/scale.y(),dispPt.z()/scale.z());
+    localPt += Point3f(center.x(),center.y(),center.z());
     return localPt;
 }
 
 WhirlyKit::Point3d GeneralCoordSystemDisplayAdapter::displayToLocal(WhirlyKit::Point3d dispPt)
 {
-    Point3d localPt = dispPt+center;
+    Point3d localPt = Point3d(dispPt.x()/scale.x(),dispPt.y()/scale.y(),dispPt.z()/scale.z())+center;
     return localPt;
 }
 

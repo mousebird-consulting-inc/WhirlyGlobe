@@ -22,8 +22,6 @@
 #import <vector>
 #import <set>
 #import <map>
-#import <boost/shared_ptr.hpp>
-#import <boost/pointer_cast.hpp>
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
@@ -59,15 +57,15 @@ class VectorPoints;
 class VectorTriangles;
 
 /// Reference counted version of the base vector shape
-typedef boost::shared_ptr<VectorShape> VectorShapeRef;
+typedef std::shared_ptr<VectorShape> VectorShapeRef;
 /// Reference counted Areal
-typedef boost::shared_ptr<VectorAreal> VectorArealRef;
+typedef std::shared_ptr<VectorAreal> VectorArealRef;
 /// Reference counted Linear
-typedef boost::shared_ptr<VectorLinear> VectorLinearRef;
+typedef std::shared_ptr<VectorLinear> VectorLinearRef;
 /// Reference counted Points
-typedef boost::shared_ptr<VectorPoints> VectorPointsRef;
+typedef std::shared_ptr<VectorPoints> VectorPointsRef;
 /// Reference counted triangle mesh
-typedef boost::shared_ptr<VectorTriangles> VectorTrianglesRef;
+typedef std::shared_ptr<VectorTriangles> VectorTrianglesRef;
 
 /// Vector Ring is just a vector of 2D points
 typedef Point2fVector VectorRing;

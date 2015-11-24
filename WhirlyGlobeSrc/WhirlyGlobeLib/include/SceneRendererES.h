@@ -214,6 +214,9 @@ public:
     /// Return the attached Scene
     Scene *getScene() { return scene; }
     
+    /// Return the map view
+    View *getView() { return theView; }
+    
     /// Return the device scale (e.g. retina vs. not)
     float getScale() { return scale; }
     
@@ -247,7 +250,8 @@ public:
     /// If set, we'll draw one more frame than needed after updates stop
     virtual void setExtraFrameMode(bool newMode) { extraFrameMode = newMode; }
 
-protected:
+// Note: Fix this
+public:
     Mbr calcCurvedMBR(Point3f *corners,WhirlyGlobe::GlobeView *globeView,Eigen::Matrix4d *modelTrans,Point2f frameSize);
     void mergeDrawableSet(const std::set<DrawableRef,IdentifiableRefSorter> &newDrawables,WhirlyGlobe::GlobeView *globeView,Point2f frameSize,Eigen::Matrix4d *modelTrans,WhirlyKit::RendererFrameInfo *frameInfo,Mbr screenMbr,std::set<DrawableRef> *toDraw,int *drawablesConsidered);
     

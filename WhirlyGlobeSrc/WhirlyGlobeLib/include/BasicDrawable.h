@@ -22,8 +22,6 @@
 #import <vector>
 #import <set>
 #import <map>
-#import <boost/shared_ptr.hpp>
-#import <boost/pointer_cast.hpp>
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "GlobeView.h"
@@ -373,7 +371,7 @@ protected:
 };
 
 /// Reference counted version of BasicDrawable
-typedef boost::shared_ptr<BasicDrawable> BasicDrawableRef;
+typedef std::shared_ptr<BasicDrawable> BasicDrawableRef;
 
 /// Ask the renderer to change a drawable's color
 class ColorChangeRequest : public DrawableChangeRequest

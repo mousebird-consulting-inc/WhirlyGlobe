@@ -21,7 +21,6 @@
 #import <ctime>
 #import <vector>
 #import <string>
-#import <boost/shared_ptr.hpp>
 #import "WhirlyTypes.h"
 
 namespace WhirlyKit
@@ -42,7 +41,7 @@ public:
 protected:
 };
     
-typedef boost::shared_ptr<RawData> RawDataRef;
+typedef std::shared_ptr<RawData> RawDataRef;
 
 // Read only version that wraps a random collection of bytes
 class RawDataWrapper : public RawData
@@ -113,6 +112,6 @@ protected:
     std::vector<unsigned char> data;
 };
     
-typedef boost::shared_ptr<MutableRawData> MutableRawDataRef;
+typedef std::shared_ptr<MutableRawData> MutableRawDataRef;
 
 }

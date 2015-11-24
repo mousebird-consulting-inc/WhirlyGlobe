@@ -76,7 +76,7 @@ bool VectorObject::centroid(Point2f &center)
     const VectorRing *bigLoop = NULL;
     for (ShapeSet::iterator it = shapes.begin();it != shapes.end();++it)
     {
-        VectorArealRef areal = boost::dynamic_pointer_cast<VectorAreal>(*it);
+        VectorArealRef areal = std::dynamic_pointer_cast<VectorAreal>(*it);
         if (areal && areal->loops.size() > 0)
         {
             for (unsigned int ii=0;ii<areal->loops.size();ii++)
@@ -112,7 +112,7 @@ bool VectorObject::largestLoopCenter(Point2f &center,Point2f &ll,Point2f &ur)
     const VectorRing *bigLoop = NULL;
     for (ShapeSet::iterator it = shapes.begin();it != shapes.end();++it)
     {
-        VectorArealRef areal = boost::dynamic_pointer_cast<VectorAreal>(*it);
+        VectorArealRef areal = std::dynamic_pointer_cast<VectorAreal>(*it);
         if (areal && areal->loops.size() > 0)
         {
             for (unsigned int ii=0;ii<areal->loops.size();ii++)
@@ -151,7 +151,7 @@ bool VectorObject::linearMiddle(Point2f &middle,float &rot)
     if (shapes.empty())
         return false;
     
-    VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*(shapes.begin()));
+    VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*(shapes.begin()));
     if (!lin)
         return false;
     

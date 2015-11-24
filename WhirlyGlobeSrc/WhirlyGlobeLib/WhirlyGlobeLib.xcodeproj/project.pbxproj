@@ -215,53 +215,6 @@
 		2B4B19981BA38AD90091A743 /* Maply_jni.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19601BA38AD90091A743 /* Maply_jni.h */; };
 		2B4B19991BA38AD90091A743 /* Maply_utils_jni.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19611BA38AD90091A743 /* Maply_utils_jni.h */; };
 		2B4B199A1BA38AD90091A743 /* SingleLabelAndroid.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B19621BA38AD90091A743 /* SingleLabelAndroid.h */; };
-		2B4B19CA1BA38AFB0091A743 /* AngleAxis_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B199B1BA38AFB0091A743 /* AngleAxis_jni.cpp */; };
-		2B4B19CB1BA38AFB0091A743 /* AttrDictionary_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B199C1BA38AFB0091A743 /* AttrDictionary_jni.cpp */; };
-		2B4B19CC1BA38AFB0091A743 /* ChangeSet_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B199D1BA38AFB0091A743 /* ChangeSet_jni.cpp */; };
-		2B4B19CD1BA38AFB0091A743 /* CoordSystem_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B199E1BA38AFB0091A743 /* CoordSystem_jni.cpp */; };
-		2B4B19CE1BA38AFB0091A743 /* CoordSystemDisplayAdapter_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B199F1BA38AFB0091A743 /* CoordSystemDisplayAdapter_jni.cpp */; };
-		2B4B19CF1BA38AFB0091A743 /* FakeGeocentricDisplayAdapter_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A01BA38AFB0091A743 /* FakeGeocentricDisplayAdapter_jni.cpp */; };
-		2B4B19D01BA38AFB0091A743 /* FontTextureManagerAndroid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A11BA38AFB0091A743 /* FontTextureManagerAndroid.cpp */; };
-		2B4B19D11BA38AFB0091A743 /* GeoCoordSystem_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A21BA38AFB0091A743 /* GeoCoordSystem_jni.cpp */; };
-		2B4B19D21BA38AFB0091A743 /* GlobeScene_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A31BA38AFB0091A743 /* GlobeScene_jni.cpp */; };
-		2B4B19D31BA38AFB0091A743 /* GlobeView_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A41BA38AFB0091A743 /* GlobeView_jni.cpp */; };
-		2B4B19D41BA38AFB0091A743 /* GlobeViewState_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A51BA38AFB0091A743 /* GlobeViewState_jni.cpp */; };
-		2B4B19D51BA38AFB0091A743 /* Identifiable_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A61BA38AFB0091A743 /* Identifiable_jni.cpp */; };
-		2B4B19D61BA38AFB0091A743 /* ImageWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A71BA38AFB0091A743 /* ImageWrapper.cpp */; };
-		2B4B19D71BA38AFB0091A743 /* InternalLabel_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A81BA38AFB0091A743 /* InternalLabel_jni.cpp */; };
-		2B4B19D81BA38AFB0091A743 /* InternalMarker_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19A91BA38AFB0091A743 /* InternalMarker_jni.cpp */; };
-		2B4B19D91BA38AFB0091A743 /* LabelInfo_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19AA1BA38AFB0091A743 /* LabelInfo_jni.cpp */; };
-		2B4B19DA1BA38AFB0091A743 /* LabelInfoAndroid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19AB1BA38AFB0091A743 /* LabelInfoAndroid.cpp */; };
-		2B4B19DB1BA38AFB0091A743 /* LabelManager_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19AC1BA38AFB0091A743 /* LabelManager_jni.cpp */; };
-		2B4B19DC1BA38AFB0091A743 /* LayoutManager_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19AD1BA38AFB0091A743 /* LayoutManager_jni.cpp */; };
-		2B4B19DD1BA38AFB0091A743 /* Maply_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19AE1BA38AFB0091A743 /* Maply_jni.cpp */; };
-		2B4B19DE1BA38AFB0091A743 /* maply.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19AF1BA38AFB0091A743 /* maply.cpp */; };
-		2B4B19DF1BA38AFB0091A743 /* MaplyRenderer_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B01BA38AFB0091A743 /* MaplyRenderer_jni.cpp */; };
-		2B4B19E01BA38AFB0091A743 /* MapScene_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B11BA38AFB0091A743 /* MapScene_jni.cpp */; };
-		2B4B19E11BA38AFB0091A743 /* MapView_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B21BA38AFB0091A743 /* MapView_jni.cpp */; };
-		2B4B19E21BA38AFB0091A743 /* MapViewState_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B31BA38AFB0091A743 /* MapViewState_jni.cpp */; };
-		2B4B19E31BA38AFB0091A743 /* MarkerInfo_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B41BA38AFB0091A743 /* MarkerInfo_jni.cpp */; };
-		2B4B19E41BA38AFB0091A743 /* MarkerManager_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B51BA38AFB0091A743 /* MarkerManager_jni.cpp */; };
-		2B4B19E51BA38AFB0091A743 /* Matrix4d_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B61BA38AFB0091A743 /* Matrix4d_jni.cpp */; };
-		2B4B19E61BA38AFB0091A743 /* PlateCarreeCoordSystem_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B71BA38AFB0091A743 /* PlateCarreeCoordSystem_jni.cpp */; };
-		2B4B19E71BA38AFB0091A743 /* Point2d_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B81BA38AFB0091A743 /* Point2d_jni.cpp */; };
-		2B4B19E81BA38AFB0091A743 /* Point3d_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19B91BA38AFB0091A743 /* Point3d_jni.cpp */; };
-		2B4B19E91BA38AFB0091A743 /* Point4d_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19BA1BA38AFB0091A743 /* Point4d_jni.cpp */; };
-		2B4B19EA1BA38AFB0091A743 /* QuadImageTileLayer_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19BB1BA38AFB0091A743 /* QuadImageTileLayer_jni.cpp */; };
-		2B4B19EB1BA38AFB0091A743 /* QuadPagingLayer_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19BC1BA38AFB0091A743 /* QuadPagingLayer_jni.cpp */; };
-		2B4B19EC1BA38AFB0091A743 /* Quaternion_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19BD1BA38AFB0091A743 /* Quaternion_jni.cpp */; };
-		2B4B19ED1BA38AFB0091A743 /* Scene_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19BE1BA38AFB0091A743 /* Scene_jni.cpp */; };
-		2B4B19EE1BA38AFB0091A743 /* SelectionManager_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19BF1BA38AFB0091A743 /* SelectionManager_jni.cpp */; };
-		2B4B19EF1BA38AFB0091A743 /* Shader_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C01BA38AFB0091A743 /* Shader_jni.cpp */; };
-		2B4B19F01BA38AFB0091A743 /* SingleLabelAndroid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C11BA38AFB0091A743 /* SingleLabelAndroid.cpp */; };
-		2B4B19F11BA38AFB0091A743 /* SphericalMercatorCoordSystem_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C21BA38AFB0091A743 /* SphericalMercatorCoordSystem_jni.cpp */; };
-		2B4B19F21BA38AFB0091A743 /* Texture_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C31BA38AFB0091A743 /* Texture_jni.cpp */; };
-		2B4B19F31BA38AFB0091A743 /* VectorInfo_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C41BA38AFB0091A743 /* VectorInfo_jni.cpp */; };
-		2B4B19F41BA38AFB0091A743 /* VectorIterator_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C51BA38AFB0091A743 /* VectorIterator_jni.cpp */; };
-		2B4B19F51BA38AFB0091A743 /* VectorManager_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C61BA38AFB0091A743 /* VectorManager_jni.cpp */; };
-		2B4B19F61BA38AFB0091A743 /* VectorObject_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C71BA38AFB0091A743 /* VectorObject_jni.cpp */; };
-		2B4B19F71BA38AFB0091A743 /* View_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C81BA38AFB0091A743 /* View_jni.cpp */; };
-		2B4B19F81BA38AFB0091A743 /* ViewState_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B19C91BA38AFB0091A743 /* ViewState_jni.cpp */; };
 		2B5F18A31A7B05B4004A8723 /* ScreenSpaceBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B5F18A11A7B05B4004A8723 /* ScreenSpaceBuilder.cpp */; };
 		2B5F18A41A7B05B4004A8723 /* ScreenSpaceDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B5F18A21A7B05B4004A8723 /* ScreenSpaceDrawable.cpp */; };
 		2B5F18A71A7B05BF004A8723 /* ScreenSpaceBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B5F18A51A7B05BF004A8723 /* ScreenSpaceBuilder.h */; };
@@ -1917,9 +1870,7 @@
 				2B35675718D762A700EF8DB1 /* MaplyScene.cpp in Sources */,
 				2B35676818D762A700EF8DB1 /* ShapeReader.cpp in Sources */,
 				2BDC4AC4133404C600E25283 /* shpopen.c in Sources */,
-				2B4B19D81BA38AFB0091A743 /* InternalMarker_jni.cpp in Sources */,
 				2B7EF42516025D8C00D4079F /* aasincos.c in Sources */,
-				2B4B19D91BA38AFB0091A743 /* LabelInfo_jni.cpp in Sources */,
 				2B7EF42616025D8C00D4079F /* adjlon.c in Sources */,
 				2B7EF42716025D8C00D4079F /* bch2bps.c in Sources */,
 				2B009D0B186102E4001E2EE8 /* JSONValidator.cpp in Sources */,
@@ -1933,7 +1884,6 @@
 				2B7EF42F16025D8C00D4079F /* geocent.c in Sources */,
 				2B35675D18D762A700EF8DB1 /* PerformanceTimer.cpp in Sources */,
 				2B7EF43116025D8C00D4079F /* geod_for.c in Sources */,
-				2B4B19EF1BA38AFB0091A743 /* Shader_jni.cpp in Sources */,
 				2B7EF43216025D8C00D4079F /* geod_inv.c in Sources */,
 				2B14BFD71B852C5E00CE29A4 /* BasicDrawableInstance.cpp in Sources */,
 				2B7EF43316025D8C00D4079F /* geod_set.c in Sources */,
@@ -1941,7 +1891,6 @@
 				2B7EF43916025D8C00D4079F /* nad_cvt.c in Sources */,
 				2B7EF43A16025D8C00D4079F /* nad_init.c in Sources */,
 				2B7EF43B16025D8C00D4079F /* nad_intr.c in Sources */,
-				2B4B19D61BA38AFB0091A743 /* ImageWrapper.cpp in Sources */,
 				2B35674918D762A700EF8DB1 /* DynamicDrawableAtlas.cpp in Sources */,
 				2B7EF43F16025D8C00D4079F /* PJ_aea.c in Sources */,
 				2B7EF44016025D8C00D4079F /* PJ_aeqd.c in Sources */,
@@ -1956,7 +1905,6 @@
 				2B009D171861093A001E2EE8 /* clipper.cpp in Sources */,
 				2B14BFCF1B83FE1A00CE29A4 /* BaseInfo.cpp in Sources */,
 				2B7EF44816025D8C00D4079F /* PJ_bipc.c in Sources */,
-				2B4B19DA1BA38AFB0091A743 /* LabelInfoAndroid.cpp in Sources */,
 				2B35677118D762A700EF8DB1 /* ViewState.cpp in Sources */,
 				2B7EF44916025D8C00D4079F /* PJ_boggs.c in Sources */,
 				2B7EF44A16025D8C00D4079F /* PJ_bonne.c in Sources */,
@@ -1965,12 +1913,9 @@
 				2B35677318D762A700EF8DB1 /* WhirlyKitView.cpp in Sources */,
 				2B7EF44D16025D8C00D4079F /* PJ_cea.c in Sources */,
 				2B7EF44E16025D8C00D4079F /* PJ_chamb.c in Sources */,
-				2B4B19E21BA38AFB0091A743 /* MapViewState_jni.cpp in Sources */,
 				2B7EF44F16025D8C00D4079F /* PJ_collg.c in Sources */,
-				2B4B19D31BA38AFB0091A743 /* GlobeView_jni.cpp in Sources */,
 				2B7EF45016025D8C00D4079F /* PJ_crast.c in Sources */,
 				2B7EF45116025D8C00D4079F /* pj_ctx.c in Sources */,
-				2B4B19F11BA38AFB0091A743 /* SphericalMercatorCoordSystem_jni.cpp in Sources */,
 				2B35676F18D762A700EF8DB1 /* VectorManager.cpp in Sources */,
 				2B35677418D762A700EF8DB1 /* WhirlyVector.cpp in Sources */,
 				2B7EF45216025D8C00D4079F /* pj_datum_set.c in Sources */,
@@ -1984,8 +1929,6 @@
 				2B009CF1186102E4001E2EE8 /* JSONAllocator.cpp in Sources */,
 				2B7EF45816025D8C00D4079F /* PJ_eck3.c in Sources */,
 				2B7EF45916025D8C00D4079F /* PJ_eck4.c in Sources */,
-				2B4B19D71BA38AFB0091A743 /* InternalLabel_jni.cpp in Sources */,
-				2B4B19DD1BA38AFB0091A743 /* Maply_jni.cpp in Sources */,
 				2B7EF45A16025D8C00D4079F /* PJ_eck5.c in Sources */,
 				2B7EF45B16025D8C00D4079F /* pj_ell_set.c in Sources */,
 				2B35675F18D762A700EF8DB1 /* QuadDisplayController.cpp in Sources */,
@@ -2006,15 +1949,9 @@
 				2B7EF46516025D8C00D4079F /* pj_gauss.c in Sources */,
 				2B35676718D762A700EF8DB1 /* SelectionManager.cpp in Sources */,
 				2B35674F18D762A700EF8DB1 /* GlobeView.cpp in Sources */,
-				2B4B19E41BA38AFB0091A743 /* MarkerManager_jni.cpp in Sources */,
 				2B7EF46616025D8C00D4079F /* pj_geocent.c in Sources */,
-				2B4B19CD1BA38AFB0091A743 /* CoordSystem_jni.cpp in Sources */,
-				2B4B19E71BA38AFB0091A743 /* Point2d_jni.cpp in Sources */,
-				2B4B19CA1BA38AFB0091A743 /* AngleAxis_jni.cpp in Sources */,
 				2B35675C18D762A700EF8DB1 /* OpenGLES2Program.cpp in Sources */,
-				2B4B19CB1BA38AFB0091A743 /* AttrDictionary_jni.cpp in Sources */,
 				2B7EF46716025D8C00D4079F /* PJ_geos.c in Sources */,
-				2B4B19EC1BA38AFB0091A743 /* Quaternion_jni.cpp in Sources */,
 				2B7EF46816025D8C00D4079F /* PJ_gins8.c in Sources */,
 				2B35674B18D762A700EF8DB1 /* FlatMath.cpp in Sources */,
 				2B7EF46916025D8C00D4079F /* PJ_gn_sinu.c in Sources */,
@@ -2030,14 +1967,11 @@
 				2B7EF47016025D8C00D4079F /* PJ_hatano.c in Sources */,
 				2B35676B18D762A700EF8DB1 /* Texture.cpp in Sources */,
 				2B35675518D762A700EF8DB1 /* LoadedTile.cpp in Sources */,
-				2B4B19D51BA38AFB0091A743 /* Identifiable_jni.cpp in Sources */,
 				2B7EF47116025D8C00D4079F /* PJ_healpix.c in Sources */,
-				2B4B19E81BA38AFB0091A743 /* Point3d_jni.cpp in Sources */,
 				2B35675B18D762A700EF8DB1 /* MarkerManager.cpp in Sources */,
 				2B7EF47216025D8C00D4079F /* PJ_igh.c in Sources */,
 				2B7EF47316025D8C00D4079F /* PJ_imw_p.c in Sources */,
 				2B35674C18D762A700EF8DB1 /* Generator.cpp in Sources */,
-				2B4B19F01BA38AFB0091A743 /* SingleLabelAndroid.cpp in Sources */,
 				2BDC8A62192A9E3800DFECF0 /* FontTextureManager.cpp in Sources */,
 				2B7EF47416025D8C00D4079F /* pj_init.c in Sources */,
 				2B7EF47516025D8C00D4079F /* pj_initcache.c in Sources */,
@@ -2046,7 +1980,6 @@
 				2B7EF47816025D8C00D4079F /* PJ_krovak.c in Sources */,
 				2B7EF47916025D8C00D4079F /* PJ_labrd.c in Sources */,
 				2B7EF47A16025D8C00D4079F /* PJ_laea.c in Sources */,
-				2B4B19D21BA38AFB0091A743 /* GlobeScene_jni.cpp in Sources */,
 				2B7EF47B16025D8C00D4079F /* PJ_lagrng.c in Sources */,
 				2B7EF47C16025D8C00D4079F /* PJ_larr.c in Sources */,
 				2B7EF47D16025D8C00D4079F /* PJ_lask.c in Sources */,
@@ -2054,7 +1987,6 @@
 				2B7EF47F16025D8C00D4079F /* PJ_lcc.c in Sources */,
 				2B7EF48016025D8C00D4079F /* PJ_lcca.c in Sources */,
 				2B7EF48116025D8C00D4079F /* pj_list.c in Sources */,
-				2B4B19DC1BA38AFB0091A743 /* LayoutManager_jni.cpp in Sources */,
 				2B7EF48316025D8C00D4079F /* pj_log.c in Sources */,
 				2B7EF48416025D8C00D4079F /* PJ_loxim.c in Sources */,
 				2B35674718D762A700EF8DB1 /* Dictionary.cpp in Sources */,
@@ -2063,38 +1995,29 @@
 				2B35675118D762A700EF8DB1 /* GLUtils.cpp in Sources */,
 				2B7EF48716025D8C00D4079F /* PJ_mbt_fps.c in Sources */,
 				2B7EF48816025D8C00D4079F /* PJ_mbtfpp.c in Sources */,
-				2B4B19F71BA38AFB0091A743 /* View_jni.cpp in Sources */,
 				2B7EF48916025D8C00D4079F /* PJ_mbtfpq.c in Sources */,
 				2B3836AB18625C9200467ABD /* glwrapper.cpp in Sources */,
-				2B4B19DB1BA38AFB0091A743 /* LabelManager_jni.cpp in Sources */,
 				2B7EF48A16025D8C00D4079F /* PJ_merc.c in Sources */,
 				2B35675318D762A700EF8DB1 /* Identifiable.cpp in Sources */,
 				2B7EF48B16025D8C00D4079F /* PJ_mill.c in Sources */,
 				2B7EF48C16025D8C00D4079F /* pj_mlfn.c in Sources */,
 				2B7EF48D16025D8C00D4079F /* PJ_mod_ster.c in Sources */,
-				2B4B19DF1BA38AFB0091A743 /* MaplyRenderer_jni.cpp in Sources */,
 				2B7EF48E16025D8C00D4079F /* PJ_moll.c in Sources */,
 				2B7EF48F16025D8C00D4079F /* pj_msfn.c in Sources */,
-				2B4B19CE1BA38AFB0091A743 /* CoordSystemDisplayAdapter_jni.cpp in Sources */,
 				2B35675018D762A700EF8DB1 /* GlobeViewState.cpp in Sources */,
-				2B4B19DE1BA38AFB0091A743 /* maply.cpp in Sources */,
 				2B7EF49016025D8C00D4079F /* pj_mutex.c in Sources */,
 				2B7EF49116025D8C00D4079F /* PJ_natearth.c in Sources */,
 				2B7EF49216025D8C00D4079F /* PJ_nell_h.c in Sources */,
 				2B7EF49316025D8C00D4079F /* PJ_nell.c in Sources */,
-				2B4B19CC1BA38AFB0091A743 /* ChangeSet_jni.cpp in Sources */,
 				2B35676518D762A700EF8DB1 /* ScreenImportance.cpp in Sources */,
 				2B7EF49416025D8C00D4079F /* PJ_nocol.c in Sources */,
 				2B14BFC71B83F3FF00CE29A4 /* BasicDrawable.cpp in Sources */,
 				2B7EF49516025D8C00D4079F /* PJ_nsper.c in Sources */,
 				2B7EF49616025D8C00D4079F /* PJ_nzmg.c in Sources */,
-				2B4B19F51BA38AFB0091A743 /* VectorManager_jni.cpp in Sources */,
 				2B7EF49716025D8C00D4079F /* PJ_ob_tran.c in Sources */,
 				2B009D03186102E4001E2EE8 /* JSONNode_Mutex.cpp in Sources */,
 				2B7EF49816025D8C00D4079F /* PJ_ocea.c in Sources */,
-				2B4B19CF1BA38AFB0091A743 /* FakeGeocentricDisplayAdapter_jni.cpp in Sources */,
 				2B7EF49916025D8C00D4079F /* PJ_oea.c in Sources */,
-				2B4B19ED1BA38AFB0091A743 /* Scene_jni.cpp in Sources */,
 				2B7EF49A16025D8C00D4079F /* PJ_omerc.c in Sources */,
 				2B7EF49B16025D8C00D4079F /* pj_open_lib.c in Sources */,
 				2B7EF49C16025D8C00D4079F /* PJ_ortho.c in Sources */,
@@ -2107,7 +2030,6 @@
 				2B35675418D762A700EF8DB1 /* LayoutManager.cpp in Sources */,
 				2B35676218D762A700EF8DB1 /* Scene.cpp in Sources */,
 				2B7EF4A116025D8C00D4079F /* PJ_putp2.c in Sources */,
-				2B4B19F31BA38AFB0091A743 /* VectorInfo_jni.cpp in Sources */,
 				2B35675218D762A700EF8DB1 /* GridClipper.cpp in Sources */,
 				2B7EF4A216025D8C00D4079F /* PJ_putp3.c in Sources */,
 				2B7EF4A316025D8C00D4079F /* PJ_putp4p.c in Sources */,
@@ -2122,8 +2044,6 @@
 				2B5F18A31A7B05B4004A8723 /* ScreenSpaceBuilder.cpp in Sources */,
 				2B7EF4AA16025D8C00D4079F /* PJ_sconics.c in Sources */,
 				2B009D0D186102E4001E2EE8 /* JSONWorker.cpp in Sources */,
-				2B4B19EE1BA38AFB0091A743 /* SelectionManager_jni.cpp in Sources */,
-				2B4B19D41BA38AFB0091A743 /* GlobeViewState_jni.cpp in Sources */,
 				2B7EF4AB16025D8C00D4079F /* PJ_somerc.c in Sources */,
 				2B7EF4AC16025D8C00D4079F /* PJ_stere.c in Sources */,
 				2B009D01186102E4001E2EE8 /* JSONNode.cpp in Sources */,
@@ -2132,32 +2052,23 @@
 				2B35676618D762A700EF8DB1 /* ScreenSpaceGenerator.cpp in Sources */,
 				2BDC8A73192C090400DFECF0 /* LabelRenderer.cpp in Sources */,
 				2B009CF5186102E4001E2EE8 /* JSONDebug.cpp in Sources */,
-				2B4B19E91BA38AFB0091A743 /* Point4d_jni.cpp in Sources */,
 				2B7EF4AE16025D8C00D4079F /* pj_strerrno.c in Sources */,
 				2B35675618D762A700EF8DB1 /* MaplyFlatView.cpp in Sources */,
-				2B4B19D11BA38AFB0091A743 /* GeoCoordSystem_jni.cpp in Sources */,
 				2B35676D18D762A700EF8DB1 /* TileQuadLoader.cpp in Sources */,
-				2B4B19E31BA38AFB0091A743 /* MarkerInfo_jni.cpp in Sources */,
-				2B4B19E01BA38AFB0091A743 /* MapScene_jni.cpp in Sources */,
 				2B009CEE186102E4001E2EE8 /* internalJSONNode.cpp in Sources */,
 				2B7EF4AF16025D8C00D4079F /* PJ_sts.c in Sources */,
 				2B7EF4B016025D8C00D4079F /* PJ_tcc.c in Sources */,
 				2B7EF4B116025D8C00D4079F /* PJ_tcea.c in Sources */,
 				2B7EF4B216025D8C00D4079F /* PJ_tmerc.c in Sources */,
-				2B4B19F81BA38AFB0091A743 /* ViewState_jni.cpp in Sources */,
 				2B7EF4B316025D8C00D4079F /* PJ_tpeqd.c in Sources */,
-				2B4B19E11BA38AFB0091A743 /* MapView_jni.cpp in Sources */,
 				2B7EF4B416025D8C00D4079F /* pj_transform.c in Sources */,
-				2B4B19E51BA38AFB0091A743 /* Matrix4d_jni.cpp in Sources */,
 				2B7EF4B516025D8C00D4079F /* pj_tsfn.c in Sources */,
 				2B7EF4B616025D8C00D4079F /* pj_units.c in Sources */,
 				2B7EF4B716025D8C00D4079F /* PJ_urm5.c in Sources */,
-				2B4B19F21BA38AFB0091A743 /* Texture_jni.cpp in Sources */,
 				2B7EF4B816025D8C00D4079F /* PJ_urmfps.c in Sources */,
 				2B7EF4B916025D8C00D4079F /* pj_utils.c in Sources */,
 				2B7EF4BA16025D8C00D4079F /* PJ_vandg.c in Sources */,
 				2B35674818D762A700EF8DB1 /* Drawable.cpp in Sources */,
-				2B4B19F41BA38AFB0091A743 /* VectorIterator_jni.cpp in Sources */,
 				2B7EF4BB16025D8C00D4079F /* PJ_vandg2.c in Sources */,
 				2B7EF4BC16025D8C00D4079F /* PJ_vandg4.c in Sources */,
 				2B7EF4BD16025D8C00D4079F /* PJ_wag2.c in Sources */,
@@ -2170,7 +2081,6 @@
 				2B009CFD186102E4001E2EE8 /* JSONIterators.cpp in Sources */,
 				2B35674D18D762A700EF8DB1 /* GlobeMath.cpp in Sources */,
 				2B7EF4C416025D8C00D4079F /* proj_etmerc.c in Sources */,
-				2B4B19F61BA38AFB0091A743 /* VectorObject_jni.cpp in Sources */,
 				2B7EF4C516025D8C00D4079F /* proj_mdist.c in Sources */,
 				2B7EF4C616025D8C00D4079F /* proj_rouss.c in Sources */,
 				2B7EF4C916025D8C00D4079F /* rtodms.c in Sources */,
@@ -2180,9 +2090,7 @@
 				2BA2325B17984F510063CC84 /* glues_project.c in Sources */,
 				2BA2325D17984F510063CC84 /* glues_quad.c in Sources */,
 				2BA2325F17984F510063CC84 /* glues_registry.c in Sources */,
-				2B4B19D01BA38AFB0091A743 /* FontTextureManagerAndroid.cpp in Sources */,
 				2BA2326317984F510063CC84 /* dict.c in Sources */,
-				2B4B19EB1BA38AFB0091A743 /* QuadPagingLayer_jni.cpp in Sources */,
 				2B009CF3186102E4001E2EE8 /* JSONChildren.cpp in Sources */,
 				2B35676A18D762A700EF8DB1 /* Tesselator.cpp in Sources */,
 				2B35674E18D762A700EF8DB1 /* GlobeScene.cpp in Sources */,
@@ -2195,9 +2103,7 @@
 				2B009D04186102E4001E2EE8 /* JSONPreparse.cpp in Sources */,
 				2BA2327017984F510063CC84 /* priorityq.c in Sources */,
 				2BA2327217984F510063CC84 /* render.c in Sources */,
-				2B4B19EA1BA38AFB0091A743 /* QuadImageTileLayer_jni.cpp in Sources */,
 				2BA2327417984F510063CC84 /* sweep.c in Sources */,
-				2B4B19E61BA38AFB0091A743 /* PlateCarreeCoordSystem_jni.cpp in Sources */,
 				2BA2327617984F510063CC84 /* tess.c in Sources */,
 				2BA2327817984F510063CC84 /* tessmono.c in Sources */,
 			);
@@ -2284,7 +2190,6 @@
 				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = YES;
 				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				HEADER_SEARCH_PATHS = (
-					"../../third-party/boost/",
 					"../../third-party/eigen/",
 					"../../third-party/clipper/",
 					"../../third-party/proj-4/src/",
@@ -2322,7 +2227,6 @@
 				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = YES;
 				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				HEADER_SEARCH_PATHS = (
-					"../../third-party/boost/",
 					"../../third-party/eigen/",
 					"../../third-party/clipper/",
 					"../../third-party/proj-4/src/",

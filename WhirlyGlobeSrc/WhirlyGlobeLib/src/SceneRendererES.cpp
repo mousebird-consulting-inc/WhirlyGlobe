@@ -165,25 +165,10 @@ SceneRendererES::SceneRendererES(int apiVersion)
     
 void SceneRendererES::setup()
 {
-    // Create default framebuffer object.
-    glGenFramebuffers(1, &defaultFramebuffer);
-    CheckGLError("SceneRendererES: glGenFramebuffers");
-    glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
-    CheckGLError("SceneRendererES: glBindFramebuffer");
-    
-    // Create color render buffer and allocate backing store.
-    glGenRenderbuffers(1, &colorRenderbuffer);
-    CheckGLError("SceneRendererES: glGenRenderbuffers");
-    glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
-    CheckGLError("SceneRendererES: glBindRenderbuffer");
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorRenderbuffer);
-    CheckGLError("SceneRendererES: glFramebufferRenderbuffer");
-    
-    // Allocate depth buffer
-    glGenRenderbuffers(1, &depthRenderbuffer);
-    CheckGLError("SceneRendererES: glGenRenderbuffers");
-    glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
-    CheckGLError("SceneRendererES: glBindRenderbuffer");
+    lastDraw = 0;
+
+//    if (view)
+//        view->runViewUpdates();
 }
 
 SceneRendererES::~SceneRendererES()

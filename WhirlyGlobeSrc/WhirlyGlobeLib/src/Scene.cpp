@@ -613,7 +613,7 @@ void AddDrawableReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,W
     if (drawInst)
     {
         DrawableRef theDraw = scene->getDrawable(drawInst->getMasterID());
-        BasicDrawableRef baseDraw = boost::dynamic_pointer_cast<BasicDrawable>(theDraw);
+        BasicDrawableRef baseDraw = std::dynamic_pointer_cast<BasicDrawable>(theDraw);
         if (baseDraw)
             drawInst->setMaster(baseDraw);
         else {

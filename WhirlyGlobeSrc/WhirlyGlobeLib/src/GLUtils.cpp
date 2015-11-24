@@ -34,9 +34,12 @@ bool CheckGLError(const char *msg)
     GLenum theError = glGetError();
     if (theError != GL_NO_ERROR)
     {
-        // Note: Porting
-      //        fprintf(stderr,"GL Error: %d - %s",theError,msg);
+#ifdef __ANDROID__
       __android_log_print(ANDROID_LOG_ERROR, "Maply", "GL Error: %d - %s",theError,msg);
+#else
+        fprintf(stderr,"GL Error: %d - %s",theError,msg);
+#endif
+        // Note: Porting
 //        NSLog(@"GL Error: %d - %s",theError,msg);
         return false;
     }

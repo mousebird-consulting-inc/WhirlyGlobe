@@ -24,9 +24,6 @@
 #import "VectorData.h"
 #import "FlatMath.h"
 #import "ViewState.h"
-// Note: This works around an Android boost problem
-#define _LITTLE_ENDIAN
-#import <boost/math/special_functions/fpclassify.hpp>
 
 using namespace Eigen;
 
@@ -282,7 +279,7 @@ double PolyImportance(const Point3dVector &poly,const Point3d &norm,WhirlyKit::V
     
         double screenArea = CalcLoopArea(screenPts);
         screenArea = std::abs(screenArea);
-        if (boost::math::isnan(screenArea))
+        if (std::isnan(screenArea))
             screenArea = 0.0;
     
         // Now project the screen points back into model space
@@ -400,7 +397,7 @@ bool DisplaySolid::isOnScreenForViewState(ViewState *viewState,const Point2f &fr
 bool TileIsOnScreen(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr,const WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs)
 {
     DelayedDeletableRef objRef = attrs->getObject("DisplaySolid");
-    DisplaySolidRef dispSolid = boost::dynamic_pointer_cast<DisplaySolid>(objRef);
+    DisplaySolidRef dispSolid = std::dynamic_pointer_cast<DisplaySolid>(objRef);
     if (!dispSolid)
     {
         dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter));
@@ -419,7 +416,7 @@ bool TileIsOnScreen(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &fr
 double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const Mbr &nodeMbr,const WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs)
 {
     DelayedDeletableRef objRef = attrs->getObject("DisplaySolid");
-    DisplaySolidRef dispSolid = boost::dynamic_pointer_cast<DisplaySolid>(objRef);
+    DisplaySolidRef dispSolid = std::dynamic_pointer_cast<DisplaySolid>(objRef);
     if (!dispSolid)
     {
         dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter));
@@ -443,7 +440,7 @@ double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f
 double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const Mbr &nodeMbr,double minZ,double maxZ,const WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs)
 {
     DelayedDeletableRef objRef = attrs->getObject("DisplaySolid");
-    DisplaySolidRef dispSolid = boost::dynamic_pointer_cast<DisplaySolid>(objRef);
+    DisplaySolidRef dispSolid = std::dynamic_pointer_cast<DisplaySolid>(objRef);
     if (!dispSolid)
     {
         dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,minZ,maxZ,srcSystem,coordAdapter));

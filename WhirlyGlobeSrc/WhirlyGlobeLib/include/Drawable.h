@@ -22,8 +22,6 @@
 #import <vector>
 #import <set>
 #import <map>
-#import <boost/shared_ptr.hpp>
-#import <boost/pointer_cast.hpp>
 #import "RawData.h"
 #import "Identifiable.h"
 #import "WhirlyVector.h"
@@ -138,7 +136,7 @@ public:
     virtual void tweakForFrame(Drawable *draw,RendererFrameInfo *frame) = 0;
 };
     
-typedef boost::shared_ptr<DrawableTweaker> DrawableTweakerRef;
+typedef std::shared_ptr<DrawableTweaker> DrawableTweakerRef;
 typedef std::set<DrawableTweakerRef> DrawableTweakerRefSet;
 
 /** The Drawable base class.  Inherit from this and fill in the virtual
@@ -207,7 +205,7 @@ protected:
 };
 
 /// Reference counted Drawable pointer
-typedef boost::shared_ptr<Drawable> DrawableRef;
+typedef std::shared_ptr<Drawable> DrawableRef;
     
 /** Drawable Change Request is a subclass of the change request
     for drawables.  This is, itself, subclassed for specific
