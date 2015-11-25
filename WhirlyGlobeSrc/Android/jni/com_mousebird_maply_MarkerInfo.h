@@ -9,59 +9,11 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_MarkerInfo
- * Method:    setEnable
- * Signature: (Z)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setEnable
-  (JNIEnv *, jobject, jboolean);
-
-/*
- * Class:     com_mousebird_maply_MarkerInfo
- * Method:    setDrawOffset
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setDrawOffset
-  (JNIEnv *, jobject, jfloat);
-
-/*
- * Class:     com_mousebird_maply_MarkerInfo
- * Method:    setDrawPriority
- * Signature: (I)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setDrawPriority
-  (JNIEnv *, jobject, jint);
-
-/*
- * Class:     com_mousebird_maply_MarkerInfo
- * Method:    setMinVis
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setMinVis
-  (JNIEnv *, jobject, jfloat);
-
-/*
- * Class:     com_mousebird_maply_MarkerInfo
- * Method:    setMaxVis
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setMaxVis
-  (JNIEnv *, jobject, jfloat);
-
-/*
- * Class:     com_mousebird_maply_MarkerInfo
  * Method:    setColor
  * Signature: (FFFF)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setColor
   (JNIEnv *, jobject, jfloat, jfloat, jfloat, jfloat);
-
-/*
- * Class:     com_mousebird_maply_MarkerInfo
- * Method:    setFade
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setFade
-  (JNIEnv *, jobject, jfloat);
 
 /*
  * Class:     com_mousebird_maply_MarkerInfo

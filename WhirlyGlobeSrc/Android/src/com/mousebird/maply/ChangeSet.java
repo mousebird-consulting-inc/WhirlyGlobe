@@ -35,7 +35,7 @@ class ChangeSet
 	}
 	
 	// Add a texture to the list of changes to the scene
-	public native void addTexture(Texture texture);
+	public native void addTexture(Texture texture,Scene scene);
 	
 	// Remove a texture from the scene by ID
 	public native void removeTexture(long texID);

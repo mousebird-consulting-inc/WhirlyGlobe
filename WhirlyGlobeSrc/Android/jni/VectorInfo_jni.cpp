@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -62,91 +62,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_dispose
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::dispose()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setEnable
-  (JNIEnv *env, jobject obj, jboolean bVal)
-{
-	try
-	{
-		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-		VectorInfo *vecInfo = classInfo->getObject(env,obj);
-		if (!vecInfo)
-			return;
-		vecInfo->enable = bVal;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setEnable()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setDrawOffset
-  (JNIEnv *env, jobject obj, jfloat fVal)
-{
-	try
-	{
-		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-		VectorInfo *vecInfo = classInfo->getObject(env,obj);
-		if (!vecInfo)
-			return;
-		vecInfo->drawOffset = fVal;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setDrawOffset()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setDrawPriority
-  (JNIEnv *env, jobject obj, jint val)
-{
-	try
-	{
-		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-		VectorInfo *vecInfo = classInfo->getObject(env,obj);
-		if (!vecInfo)
-			return;
-		vecInfo->drawPriority = val;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setDrawPriority()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setMinVis
-  (JNIEnv *env, jobject obj, jfloat fVal)
-{
-	try
-	{
-		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-		VectorInfo *vecInfo = classInfo->getObject(env,obj);
-		if (!vecInfo)
-			return;
-		vecInfo->minVis = fVal;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setMinVis()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setMaxVis
-  (JNIEnv *env, jobject obj, jfloat fVal)
-{
-	try
-	{
-		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-		VectorInfo *vecInfo = classInfo->getObject(env,obj);
-		if (!vecInfo)
-			return;
-		vecInfo->maxVis = fVal;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setMaxVis()");
 	}
 }
 
@@ -250,23 +165,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setColor
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setColor()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setFade
-  (JNIEnv *env, jobject obj, jfloat val)
-{
-	try
-	{
-		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-		VectorInfo *vecInfo = classInfo->getObject(env,obj);
-		if (!vecInfo)
-			return;
-		vecInfo->fade = val;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setFade()");
 	}
 }
 

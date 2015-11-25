@@ -64,30 +64,7 @@ public class GlobeGestureHandler
 	 */
 	public static boolean withinBounds(GlobeView globeView,Point2d frameSize,Point3d newPos)
 	{
-//		if (bounds == null)
-			return true;
-		
-//		// We make a copy of the map view so we can mess with it
-//		// Note: This is horribly inefficient
-//		MapView thisMapView = mapView.clone();
-//		thisMapView.setLoc(newPos);
-//		
-//	    Matrix4d fullMatrix = thisMapView.calcModelViewMatrix();
-//
-//	    // The corners of the view should be within the bounds
-//	    Point2d corners[] = new Point2d[4];
-//	    corners[0] = new Point2d(0,0);
-//	    corners[1] = new Point2d(frameSize.getX(), 0.0);
-//	    corners[2] = new Point2d(frameSize.getX(), frameSize.getY());
-//	    corners[3] = new Point2d(0.0, frameSize.getY());
-//	    for (int ii=0;ii<4;ii++)
-//	    {
-//	    	Point3d hit = thisMapView.pointOnPlaneFromScreen(corners[ii], fullMatrix, frameSize, false);
-//	    	if (!GeometryUtils.PointInPolygon(new Point2d(hit.getX(),hit.getY()), bounds))
-//	    		return false;
-//	    }
-//	    
-//	    return true;
+		return true;
 	}
 	
 	
@@ -124,6 +101,7 @@ public class GlobeGestureHandler
 			if (gl != null)
 				gl.isActive = false;
 			isActive = true;
+
 			return true;
 		}
 		
@@ -189,8 +167,15 @@ public class GlobeGestureHandler
 				isActive = true;
 			} else
 				isActive = false;
+
 			return true;
 		}
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e)
+        {
+            return true;
+        }
 
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
@@ -235,7 +220,7 @@ public class GlobeGestureHandler
 				
 //				Log.d("Maply","New globe rotation");
 			}
-			
+
 			return true;
 		}
 		
@@ -303,7 +288,7 @@ public class GlobeGestureHandler
 			}
 					
 			isActive = false;
-			
+
 			return true;
 		}
 		
@@ -317,13 +302,6 @@ public class GlobeGestureHandler
 		public void onShowPress(MotionEvent e) 
 		{
 //			Log.d("Maply","ShowPress");
-		}
-
-		@Override
-		public boolean onSingleTapUp(MotionEvent e) 
-		{
-//			Log.d("Maply","Single Tap Up");
-			return false;
 		}
 
 		@Override
@@ -374,13 +352,16 @@ public class GlobeGestureHandler
 	
 	// Where we receive events from the gl view
 	public boolean onTouch(View v, MotionEvent event) 
-	{		
+	{
+        boolean slWasActive = sl.isActive;
+        boolean glWasActive = gl.isActive;
+
 		// If they're using two fingers, cancel any outstanding pan
-		if (event.getPointerCount() == 2)
-			gl.isActive = false;
+		if (event.getPointerCount() == 2) {
+            gl.isActive = false;
+        }
 		
 		// Try for a pinch or another gesture
-		boolean slWasActive = sl.isActive;
 		if (sl.isActive || event.getPointerCount() == 2)
 		{
 			sgd.onTouchEvent(event);
@@ -399,9 +380,20 @@ public class GlobeGestureHandler
 
 				sl.isActive = false;
 				gl.isActive = false;
-				return true;			
+
+				return true;
 			}
 		}
+
+        if (!glWasActive && gl.isActive)
+            globeControl.panDidStart(true);
+        if (glWasActive && !gl.isActive)
+            globeControl.panDidEnd(true);
+
+        if (!slWasActive && sl.isActive)
+            globeControl.zoomDidStart(true);
+        if (slWasActive && !sl.isActive)
+            globeControl.zoomDidEnd(true);
 
 		return true;
 	}      

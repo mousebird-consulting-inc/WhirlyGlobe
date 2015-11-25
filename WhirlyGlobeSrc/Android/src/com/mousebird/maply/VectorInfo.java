@@ -26,7 +26,7 @@ package com.mousebird.maply;
  * override these, however.
  *
  */
-public class VectorInfo 
+public class VectorInfo extends BaseInfo
 {
 	/**
 	 * Construct the vector info empty with default values.  At the very least
@@ -35,8 +35,6 @@ public class VectorInfo
 	public VectorInfo()
 	{
 		initialise();
-		setMinVis((float)1e10);
-		setMaxVis((float)1e10);
 	}
 	
 	public void finalize()
@@ -44,39 +42,6 @@ public class VectorInfo
 		dispose();
 	}
 
-	/**
-	 * Turn on and off the enable.  If set the true, the vectors will be visible.
-	 * If set to false, the vectors will not be visible, but may be turned visible
-	 * later on.
-	 */
-	public native void setEnable(boolean enable);
-	
-	/**
-	 * Set the draw offset, which is a Z offset used for sorting.
-	 * This has been largely replaced by the draw priority.
-	 */
-	public native void setDrawOffset(float drawOffset);
-	
-	/**
-	 * The draw priority is used for sorting geometry displayed by Maply.
-	 * Before drawing each frame, we sort base don this number.
-	 */
-	public native void setDrawPriority(int drawPriority);
-	
-	/**
-	 * Geometry can be visible all the time or just within a height
-	 * range.  This is the minimum viewer height at which the geometry will
-	 * be visible.
-	 */
-	public native void setMinVis(float minVis);
-	
-	/**
-	 * Geometry can be visible all the time or just within a height
-	 * range.  This is the maximum viewer height at which the geometry will
-	 * be visible.
-	 */
-	public native void setMaxVis(float maxVis);
-	
 	/**
 	 * Set whether or not areal features are tesselated and draw as filled.
 	 * Default is fault.
@@ -97,13 +62,7 @@ public class VectorInfo
 	 * @param a Alpha component.
 	 */
 	public native void setColor(float r,float g,float b,float a);
-	
-	/**
-	 * Geometry can be made to fade in over time when added or out over time
-	 * when removed.  This is how long that process takes.  By default this is 0s.
-	 */
-	public native void setFade(float fade);
-	
+
 	/**
 	 * This is the line width for vector features.  By default this is 1.0.
 	 */
@@ -116,5 +75,4 @@ public class VectorInfo
 	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
-	private long nativeHandle;
 }

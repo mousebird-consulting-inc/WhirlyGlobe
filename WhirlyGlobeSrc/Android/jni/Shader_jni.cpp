@@ -123,6 +123,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
 	if (tex && tex->getGLId() != 0)
 	{
 	  inst->setTexture(name.cStr,tex->getGLId());
+	} else {
+          __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Missing texture or GL ID in Shader::addTextureNative(), texID = %d, numTextures = %d",(int)texID,scene->textures.size());
+	  if (tex)
+	    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Missing GL ID in Shader::addTextureNative()");	    
 	}
     }
     catch (...)
@@ -132,7 +136,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
 }
 
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lang_String_2D
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2D
   (JNIEnv *env, jobject obj, jstring nameStr, jdouble uni)
 {
 	try
@@ -157,7 +161,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lan
 	}
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lang_String_2I
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2I
   (JNIEnv *env, jobject obj, jstring nameStr, jint uni)
 {
 	try
@@ -182,7 +186,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lan
 	}
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lang_String_2DD
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2DD
   (JNIEnv *env, jobject obj, jstring nameStr, jdouble x, jdouble y)
 {
 	try
@@ -207,7 +211,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lan
 	}
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lang_String_2DDD
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2DDD
   (JNIEnv *env, jobject obj, jstring nameStr, jdouble x, jdouble y, jdouble z)
 {
 	try
@@ -232,7 +236,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lan
 	}
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniform__Ljava_lang_String_2DDDD
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2DDDD
   (JNIEnv *env, jobject obj, jstring nameStr, jdouble x, jdouble y, jdouble z, jdouble w)
 {
 	try

@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_mousebird_maply_ChangeSet
  * Method:    addTexture
- * Signature: (Lcom/mousebird/maply/Texture;)V
+ * Signature: (Lcom/mousebird/maply/Texture;Lcom/mousebird/maply/Scene;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_addTexture
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_ChangeSet

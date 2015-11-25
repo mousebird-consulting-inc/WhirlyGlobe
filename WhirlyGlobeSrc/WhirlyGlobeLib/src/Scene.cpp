@@ -31,7 +31,7 @@
 #import "MarkerManager.h"
 #import "LabelManager.h"
 #import "VectorManager.h"
-//#import "SphericalEarthChunkManager.h"
+#import "SphericalEarthChunkManager.h"
 //#import "LoftManager.h"
 //#import "ParticleSystemManager.h"
 //#import "BillboardManager.h"
@@ -78,8 +78,8 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     addManager(kWKLabelManager, new LabelManager());
     // Vector manager handes vector features
     addManager(kWKVectorManager, new VectorManager());
-//    // Chunk manager handles geographic chunks that cover a large chunk of the globe
-//    addManager(kWKSphericalChunkManager, new SphericalChunkManager());
+    // Chunk manager handles geographic chunks that cover a large chunk of the globe
+    addManager(kWKSphericalChunkManager, new SphericalChunkManager());
 //    // Loft manager handles lofted polygon geometry
 //    addManager(kWKLoftedPolyManager, new LoftManager());
 //    // Particle system manager
@@ -353,6 +353,13 @@ TextureBase *Scene::getTexture(SimpleIdentity texId)
     
     return retTex;
 }
+    
+void Scene::addTexture(TextureBase *tex)
+{
+    pthread_mutex_lock(&textureLock);
+    textures.insert(tex);
+    pthread_mutex_unlock(&textureLock);
+}
 
 const DrawableRefSet &Scene::getDrawables()
 {
@@ -589,12 +596,13 @@ void AddTextureReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,Wh
 {
     if (!tex->getGLId())
         tex->createInGL(scene->getMemManager());
-    scene->textures.insert(tex);
+    scene->addTexture(tex);
     tex = NULL;
 }
 
 void RemTextureReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
 {
+    pthread_mutex_lock(&scene->textureLock);
     TextureBase dumbTex(texture);
     Scene::TextureSet::iterator it = scene->textures.find(&dumbTex);
     if (it != scene->textures.end())
@@ -604,6 +612,7 @@ void RemTextureReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,Wh
         scene->textures.erase(it);
         delete tex;
     }
+    pthread_mutex_unlock(&scene->textureLock);
 }
 
 void AddDrawableReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
@@ -714,4 +723,13 @@ void RemProgramReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,Wh
 //                   });
 //}
     
+void SetProgramValueReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
+{
+    OpenGLES2Program *prog = scene->getProgram(progID);
+    if (prog)
+    {
+        prog->setUniform(u_name, u_val);
+    }
+}
+
 }

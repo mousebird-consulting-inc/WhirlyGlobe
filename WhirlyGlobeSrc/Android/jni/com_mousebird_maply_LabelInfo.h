@@ -9,46 +9,6 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_LabelInfo
- * Method:    setEnable
- * Signature: (Z)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setEnable
-  (JNIEnv *, jobject, jboolean);
-
-/*
- * Class:     com_mousebird_maply_LabelInfo
- * Method:    setDrawOffset
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setDrawOffset
-  (JNIEnv *, jobject, jfloat);
-
-/*
- * Class:     com_mousebird_maply_LabelInfo
- * Method:    setDrawPriority
- * Signature: (I)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setDrawPriority
-  (JNIEnv *, jobject, jint);
-
-/*
- * Class:     com_mousebird_maply_LabelInfo
- * Method:    setMinVis
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setMinVis
-  (JNIEnv *, jobject, jfloat);
-
-/*
- * Class:     com_mousebird_maply_LabelInfo
- * Method:    setMaxVis
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setMaxVis
-  (JNIEnv *, jobject, jfloat);
-
-/*
- * Class:     com_mousebird_maply_LabelInfo
  * Method:    setTextColor
  * Signature: (FFFF)V
  */
@@ -110,14 +70,6 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getTextColor
  */
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getBackColor
   (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebird_maply_LabelInfo
- * Method:    setFade
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFade
-  (JNIEnv *, jobject, jfloat);
 
 /*
  * Class:     com_mousebird_maply_LabelInfo

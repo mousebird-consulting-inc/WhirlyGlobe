@@ -59,7 +59,7 @@ class TextureManager
 	 * @param changes
 	 * @return
 	 */
-	long addTexture(NamedBitmap theBitmap, ChangeSet changes)
+	long addTexture(NamedBitmap theBitmap, Scene scene, ChangeSet changes)
 	{
 		// Find an existing one
 		TextureWrapper testWrapper = new TextureWrapper(theBitmap);
@@ -78,7 +78,7 @@ class TextureManager
 		testWrapper.texID = texture.getID();
 		
 		// After we call addTexture it's no longer ours to play with
-		changes.addTexture(texture);
+		changes.addTexture(texture,scene);
 		textures.add(testWrapper);
 				
 		return testWrapper.texID;

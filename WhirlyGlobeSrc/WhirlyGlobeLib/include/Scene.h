@@ -190,6 +190,22 @@ protected:
     SimpleIdentity programId;
 };
     
+/// Ask the renderer to remove the drawable from the scene
+class SetProgramValueReq : public ChangeRequest
+{
+public:
+    /// Construct with the drawable ID and an optional fade interval
+    SetProgramValueReq(SimpleIdentity progID,const std::string &name,float u_val) : progID(progID), u_name(name), u_val(u_val) { }
+    
+    /// Remove the drawable.  Never call this
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+    
+protected:
+    SimpleIdentity progID;
+    std::string u_name;
+    float u_val;
+};
+    
 // Note: Porting
 ///// Remove a GL buffer ID, presumably because we needed other things cleaned up first
 //class RemBufferReq : public ChangeRequest
@@ -383,6 +399,9 @@ public:
 	
 	/// Look for a Texture by ID
 	TextureBase *getTexture(SimpleIdentity texId);
+    
+    /// Add a texture to the scene
+    void addTexture(TextureBase *tex);
     
     /// All the active models
     // Note: Porting

@@ -10,7 +10,7 @@ extern "C" {
 /*
  * Class:     com_mousebird_maply_SelectionManager
  * Method:    pickObject
- * Signature: (Lcom/mousebird/maply/MapView;Lcom/mousebird/maply/Point2d;)J
+ * Signature: (Lcom/mousebird/maply/View;Lcom/mousebird/maply/Point2d;)J
  */
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectionManager_pickObject
   (JNIEnv *, jobject, jobject, jobject);

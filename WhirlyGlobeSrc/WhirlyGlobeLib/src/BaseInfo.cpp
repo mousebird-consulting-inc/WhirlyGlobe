@@ -33,6 +33,8 @@ BaseInfo::BaseInfo(const Dictionary &dict)
 {
     minVis = dict.getDouble("minVis",DrawVisibleInvalid);
     maxVis = dict.getDouble("maxVis",DrawVisibleInvalid);
+    minVisBand = dict.getDouble("minVisBand",DrawVisibleInvalid);
+    maxVisBand = dict.getDouble("maxVisBand",DrawVisibleInvalid);
     minViewerDist = dict.getDouble("minviewerdist",DrawVisibleInvalid);
     maxViewerDist = dict.getDouble("maxviewerdist",DrawVisibleInvalid);
     viewerCenter.x() = dict.getDouble("viewablecenterx",DrawVisibleInvalid);

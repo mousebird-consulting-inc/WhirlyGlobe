@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -138,18 +138,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_addTexture
-  (JNIEnv *env, jobject obj, jobject texObj)
+  (JNIEnv *env, jobject obj, jobject texObj, jobject sceneObj)
 {
 	try
 	{
 		ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo();
 		ChangeSet *changeSet = classInfo->getObject(env,obj);
 		Texture *texture = TextureClassInfo::getClassInfo()->getObject(env,texObj);
-		if (!changeSet || !texture)
+        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+		if (!changeSet || !texture || !scene)
 			return;
 
-		// We take control of the Texture * as soon as it goes into the change set
-		TextureClassInfo::getClassInfo()->clearHandle(env,texObj);
+        // We take control of the Texture * as soon as it goes into the change set
+        TextureClassInfo::getClassInfo()->clearHandle(env,texObj);
+
+        // Add it to the scene now so we can use it immediately
+        scene->addTexture(texture);
 		changeSet->push_back(new AddTextureReq(texture));
 	}
 	catch (...)

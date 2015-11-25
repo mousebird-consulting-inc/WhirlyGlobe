@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -290,18 +290,8 @@ public:
 	    // Change the images to give us start and finish
 	    if (tileLoader)
 	    	tileLoader->setCurrentImageStart(image0,image1,changes);
-
-	    // Set the interpolation in the program
-	    if (scene)
-	      {
-		OpenGLES2Program *prog = scene->getProgram(shaderID);
-		if (prog)
-		  {
-		    glUseProgram(prog->getProgram());
-		    prog->setUniform("u_interp", t);
-		    renderer->forceDrawNextFrame();
-		  }
-              }
+        
+        changes.push_back(new SetProgramValueReq(shaderID,"u_interp",t));
 	}
     
     void setColor(const RGBAColor &newColor)

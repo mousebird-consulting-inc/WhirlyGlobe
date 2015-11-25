@@ -31,7 +31,7 @@ import android.graphics.Typeface;
  * @author sjg
  *
  */
-public class LabelInfo 
+public class LabelInfo extends BaseInfo
 {
 	public LabelInfo()
 	{
@@ -46,38 +46,6 @@ public class LabelInfo
 	{
 		dispose();
 	}
-	
-	/**
-	 * Controls whether or not the geometry will be visible.  By
-	 * default this is true.
-	 * @param newEnable New value for the enable.
-	 */
-	public native void setEnable(boolean enable);
-
-	/**
-	 * Set the drawOffset for a label.  This is rarely used.
-	 */
-	public native void setDrawOffset(float drawOffset);
-
-	/**
-	 * Set the drawPriority for a label.  Draw priority controls the order
-	 * in which features are drawn.  For screen labels, drawPriority controls
-	 * what order labels are drawn with respect to other screen objects, like markers,
-	 * but not 3D objects like stickers or vectors.
-	 */
-	public native void setDrawPriority(int drawPriority);
-	
-	/**
-	 * Set the minimum cutoff for visibility of the labels.  This is the closest height the
-	 * labels will be visible from.  Defaults to 0.0 (always visible).
-	 */
-	public native void setMinVis(float minVis);
-
-	/**
-	 * Set the maximum cutoff for visibility of the labels.  This is the biggest height the
-	 * labels will be visible from.  Defaults to off.
-	 */
-	public native void setMaxVis(float maxVis);
 
 	/**
 	 * Set the text color as float values from 0.0 to 1.0
@@ -135,12 +103,6 @@ public class LabelInfo
 	 */
 	public native int getBackColor();
 
-	/**
-	 * The amount of time (in seconds) it takes for new geometry
-	 * to fade in and fade out.  By default, fade is off.
-	 */
-	public native void setFade(float fade);
-	
 	static
 	{
 		nativeInit();

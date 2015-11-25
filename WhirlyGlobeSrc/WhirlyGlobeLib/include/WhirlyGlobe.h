@@ -80,6 +80,7 @@
 #import "ScreenSpaceGenerator.h"
 //#import "SceneGraphManager.h"
 //#import "SphericalEarthChunkLayer.h"
+#import "SphericalEarthChunkManager.h"
 //#import "SphericalEarthQuadLayer.h"
 //#import "UpdateDisplayLayer.h"
 //#import "GeometryLayer.h"

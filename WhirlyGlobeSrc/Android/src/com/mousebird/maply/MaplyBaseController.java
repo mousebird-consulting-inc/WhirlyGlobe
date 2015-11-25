@@ -90,6 +90,7 @@ public class MaplyBaseController
 	// Managers are thread safe objects for handling adding and removing types of data
 	VectorManager vecManager;
 	MarkerManager markerManager;
+    StickerManager stickerManager;
 	LabelManager labelManager;
 	SelectionManager selectionManager;
 	LayoutManager layoutManager;
@@ -133,6 +134,7 @@ public class MaplyBaseController
 		// Fire up the managers.  Can't do anything without these.
 		vecManager = new VectorManager(scene);
 		markerManager = new MarkerManager(scene);
+        stickerManager = new StickerManager(scene);
 		labelManager = new LabelManager(scene);
 		layoutManager = new LayoutManager(scene);
 		selectionManager = new SelectionManager(scene);
@@ -423,8 +425,8 @@ public class MaplyBaseController
 				// Vectors are simple enough to just add
 				ChangeSet changes = new ChangeSet();
 				long vecId = vecManager.addVectors(vecs,vecInfo,changes);
-				scene.addChanges(changes);
-	
+				changes.process(scene);
+
 				// Track the vector ID for later use
 				if (vecId != EmptyIdentity)
 					compObj.addVectorID(vecId);
@@ -483,7 +485,7 @@ public class MaplyBaseController
 					// Map the bitmap to a texture ID
 					long texID = EmptyIdentity;
 					if (marker.image != null)
-						texID = texManager.addTexture(marker.image, changes);
+						texID = texManager.addTexture(marker.image, scene, changes);
 					if (texID != EmptyIdentity)
 						intMarker.addTexID(texID);
 					
@@ -498,8 +500,8 @@ public class MaplyBaseController
 
 				// Add the markers and flush the changes
 				long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
-				scene.addChanges(changes);
-				
+				changes.process(scene);
+
 				if (markerId != EmptyIdentity)
 				{
 					compObj.addMarkerID(markerId);
@@ -507,7 +509,50 @@ public class MaplyBaseController
 			}
 		};
 		
-		addTask(run,mode);
+		addTask(run, mode);
+
+		return compObj;
+	}
+
+	/**
+	 * Add stickers on top of the globe or map.  Stickers are 2D objects that drape over a defined
+	 * area.
+	 *
+	 * @param stickers The list of stickers to apply.
+	 * @param stickerInfo Parameters that cover all the stickers in question.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+	 * @return This represents the stickers for later modification or deletion.
+	 */
+	public ComponentObject addStickers(final List<Sticker> stickers,final StickerInfo stickerInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		final ComponentObject compObj = new ComponentObject();
+
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+
+                        // Stickers are added one at a time for some reason
+                        for (Sticker sticker : stickers) {
+                            long stickerID = stickerManager.addSticker(sticker, stickerInfo, changes);
+
+                            if (stickerID != EmptyIdentity) {
+                                compObj.addStickerID(stickerID);
+                            }
+                        }
+
+						changes.process(scene);
+					}
+				};
+
+		addTask(run, mode);
 
 		return compObj;
 	}
@@ -589,7 +634,7 @@ public class MaplyBaseController
 					compObj.addLabelID(labelId);
 		
 				// Flush the text changes
-				scene.addChanges(changes);
+				changes.process(scene);
 			}
 		};
 		
@@ -635,10 +680,10 @@ public class MaplyBaseController
                         Texture rawTex = new Texture();
                         rawTex.setBitmap(image);
                         texture.texID = rawTex.getID();
-                        changes.addTexture(rawTex);
+                        changes.addTexture(rawTex,scene);
 
-                        // Flush the text changes
-                        scene.addChanges(changes);
+                        // Flush the texture changes
+						changes.process(scene);
                     }
                 };
 
@@ -698,7 +743,7 @@ public class MaplyBaseController
 				ChangeSet changes = new ChangeSet();
 				for (ComponentObject compObj : compObjs)
 					compObj.enable(control, false, changes);
-				scene.addChanges(changes);
+				changes.process(scene);
 			}
 		};
 		
@@ -730,7 +775,7 @@ public class MaplyBaseController
 				ChangeSet changes = new ChangeSet();
 				for (ComponentObject compObj : compObjs)
 					compObj.enable(control, true, changes);
-				scene.addChanges(changes);
+				changes.process(scene);
 			}
 		};
 		
@@ -781,7 +826,7 @@ public class MaplyBaseController
 					compObj.clear(control, changes);
 					removeSelectableObjects(compObj);
 				}
-				scene.addChanges(changes);
+				changes.process(scene);
 			}
 		};
 		

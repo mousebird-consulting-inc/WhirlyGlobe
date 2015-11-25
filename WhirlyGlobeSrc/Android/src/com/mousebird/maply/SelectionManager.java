@@ -20,7 +20,7 @@ class SelectionManager
 	}
 
 	// Look for an object that the selection manager is handling
-	public native long pickObject(MapView mapView,Point2d screenLoc);
+	public native long pickObject(View view,Point2d screenLoc);
 	
 	static
 	{

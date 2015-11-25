@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@
 #define Maply_JNI_h_
 
 #include <stdlib.h>
+#ifdef __ANDROID__
 #include <android/log.h>
+#endif
 #include <WhirlyGlobe.h>
 #import "SingleLabelAndroid.h"
 
@@ -324,6 +326,7 @@ public:
     
     JNIEnv *env;
     jbooleanArray &array;
+    int len;
     jboolean *rawBool;
 };
 
@@ -336,8 +339,23 @@ public:
     
     JNIEnv *env;
     jintArray &array;
+    int len;
     jint *rawInt;
 };
+
+// Wrapper for Java long array.  Destructor cleans up.
+class JavaLongArray
+{
+public:
+    JavaLongArray(JNIEnv *env,jlongArray &array);
+    ~JavaLongArray();
+    
+    JNIEnv *env;
+    jlongArray &array;
+    int len;
+    jlong *rawLong;
+};
+
 
 namespace WhirlyKit
 {
@@ -365,10 +383,13 @@ typedef JavaClassInfo<WhirlyGlobe::GlobeScene> GlobeSceneClassInfo;
 typedef JavaClassInfo<Maply::MapView> MapViewClassInfo;
 typedef JavaClassInfo<WhirlyGlobe::GlobeView> GlobeViewClassInfo;
 typedef JavaClassInfo<WhirlyKit::View> ViewClassInfo;
+typedef JavaClassInfo<WhirlyKit::BaseInfo> BaseInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorInfo> VectorInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorObject> VectorObjectClassInfo;
 typedef JavaClassInfo<WhirlyKit::MarkerInfo> MarkerInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::LabelInfo> LabelInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::SphericalChunkInfo> SphericalChunkInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::SphericalChunk> SphericalChunkClassInfo;
 typedef JavaClassInfo<WhirlyKit::ViewState> ViewStateClassInfo;
 typedef JavaClassInfo<Maply::MapViewState> MapViewStateClassInfo;
 typedef JavaClassInfo<WhirlyGlobe::GlobeViewState> GlobeViewStateClassInfo;
