@@ -1,0 +1,5 @@
+platform :ios, '8.0'
+use_frameworks!
+
+pod 'SwiftyDropbox', :git => 'https://github.com/dropbox/SwiftyDropbox', :tag => '0.7.1'
+pod 'MBProgressHUD', '~> 0.9.1'

@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SwiftyDropbox
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -15,8 +16,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-		// Override point for customization after application launch.
+
+		let path = NSBundle.mainBundle().pathForResource("Info", ofType: "plist")
+		if let path = path {
+			let dictionary = NSDictionary.init(contentsOfFile: path)
+			if let dictionary = dictionary {
+				let key = dictionary.valueForKey("Dropbox Key")
+				if let key = key {
+					Dropbox.setupWithAppKey(key as! String)
+				}
+			}
+		}
+
 		return true
+	}
+
+	func application(app: UIApplication, openURL url: NSURL, options: [String : AnyObject]) -> Bool {
+
+		if let authResult = Dropbox.handleRedirectURL(url) {
+			switch authResult {
+			case .Success(let token):
+				print("Success! User is logged into Dropbox with token: \(token)")
+			case .Error(let error, let description):
+				print("Error \(error): \(description)")
+			}
+		}
+
+		return false
 	}
 
 	func applicationWillResignActive(application: UIApplication) {
@@ -40,7 +66,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func applicationWillTerminate(application: UIApplication) {
 		// Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 	}
-
 
 }
 
