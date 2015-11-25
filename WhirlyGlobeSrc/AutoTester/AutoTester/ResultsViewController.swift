@@ -7,11 +7,37 @@
 //
 
 import UIKit
+import SwiftyDropbox
 
-class ResultsViewController: UITableViewController {
+
+class ResultsViewController: UITableViewController, UIPopoverControllerDelegate {
 
 	var titles = [String]()
 	var results = [MaplyTestResult]()
+	private var dropboxView : DropboxViewController?
+	private var popControl: UIPopoverController?
+
+
+
+	override func viewDidLoad() {
+		dropboxView = DropboxViewController(nibName: "DropboxViewController", bundle: nil)
+	}
+
+	@IBAction func uploadToDropbox(sender: AnyObject) {
+		dropboxView!.results = self.results
+		dropboxView!.titles = self.titles
+		if UI_USER_INTERFACE_IDIOM() == .Pad {
+			popControl = UIPopoverController(contentViewController: dropboxView!)
+			popControl?.delegate = self
+			popControl?.setPopoverContentSize(CGSizeMake(400, 4.0/5.0*self.view.bounds.size.height), animated: true)
+			popControl?.presentPopoverFromRect(CGRectMake(0, 0, 10, 10), inView: self.view, permittedArrowDirections: .Up, animated: true)
+		}
+		else {
+			dropboxView!.navigationItem.hidesBackButton = true
+			dropboxView!.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Done, target: self, action: "editDone")
+			self.navigationController?.pushViewController(dropboxView!, animated: true)
+		}
+	}
 
 	let queue = { () -> NSOperationQueue in
 		let queue = NSOperationQueue()
@@ -65,13 +91,17 @@ class ResultsViewController: UITableViewController {
 	}
 
 	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-		let destination = segue.destinationViewController as! FullScreenViewController
 
 		if let cell = sender as? ResultCell {
+			let destination = segue.destinationViewController as! FullScreenViewController
 			destination.title = cell.nameLabel?.text
 			destination.actualImageResult = cell.actualImage?.image
 			destination.baselineImageResult = cell.baselineImage?.image
 		}
+	}
+
+	private dynamic func editDone() {
+		self.navigationController?.popToViewController(self, animated: true)
 	}
 
 }
