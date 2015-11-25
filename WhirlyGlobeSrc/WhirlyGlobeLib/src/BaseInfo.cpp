@@ -61,6 +61,7 @@ void BaseInfo::setupBasicDrawable(BasicDrawable *drawable) const
     drawable->setDrawPriority(drawPriority);
     drawable->setVisibleRange(minVis,maxVis);
     drawable->setViewerVisibility(minViewerDist,maxViewerDist,viewerCenter);
+    drawable->setProgram(programID);
 }
 
 //void BaseInfo::setupBasicDrawableInstance(BasicDrawableInstance *drawable)

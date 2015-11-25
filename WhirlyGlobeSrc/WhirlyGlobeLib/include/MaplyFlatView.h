@@ -51,34 +51,14 @@ public:
 
     /// Maximum valid height above plane.  Always returns 0.
     double maxHeightAboveSurface();
-    
-    /// Return the window size
-    WhirlyKit::Point2f getWindowSize() { return windowSize; }
-
-    /// Return the content offset
-    WhirlyKit::Point2f getContentOffset() { return contentOffset; }
-
-    /// Set where the middle of the displayed region is.  Current disabled.
-    void setLoc(WhirlyKit::Point3d newLoc);
-    
-    /// Set the extents
-    void setExtents(WhirlyKit::Mbr inExtents);
-
+        
     /// Sets the total window size and the region we're looking at within it.
     /// This just gets converted to model and projection matrix parameters
-    void setWindowSize(WhirlyKit::Point2f inWindowSize,WhirlyKit::Point2f inContentOffset);
+    void setWindow(const WhirlyKit::Point2d &ll,const WhirlyKit::Point2d &ur);
     
 protected:
-    WhirlyKit::Point3d loc;
-
-    /// This view tries to display the given extents in display space
-    WhirlyKit::Mbr extents;
-    
-    /// Size of the overall window we're simulating
-    WhirlyKit::Point2f windowSize;
-    
-    /// Content offset within the overall window
-    WhirlyKit::Point2f contentOffset;
+    /// Window into the content
+    WhirlyKit::Point2d ll,ur;
 };
 
 }
