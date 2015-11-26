@@ -19,6 +19,7 @@
  */
 
 #import <set>
+#import <memory>
 
 namespace WhirlyKit
 {

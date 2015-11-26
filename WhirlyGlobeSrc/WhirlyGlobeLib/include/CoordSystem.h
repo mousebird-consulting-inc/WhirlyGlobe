@@ -18,6 +18,7 @@
  *
  */
 
+#import <memory>
 #import "WhirlyGeometry.h"
 
 namespace WhirlyKit

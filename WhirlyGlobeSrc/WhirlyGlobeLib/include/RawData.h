@@ -21,6 +21,7 @@
 #import <ctime>
 #import <vector>
 #import <string>
+#import <memory>
 #import "WhirlyTypes.h"
 
 namespace WhirlyKit
