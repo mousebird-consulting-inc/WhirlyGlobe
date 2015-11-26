@@ -85,6 +85,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_inverse
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix4d::inverse()");
 	}
+    
+    return NULL;
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_multiply
@@ -107,6 +109,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_multiply
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix4d::multiply()");
 	}
+    
+    return NULL;
 }
 
 jobject MakeMatrix4d(JNIEnv *env,const Eigen::Matrix4d &mat)

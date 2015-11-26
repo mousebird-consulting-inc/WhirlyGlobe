@@ -116,6 +116,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_dis
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystemDisplayAdapter::displayToLocal()");
 	}
+    
+    return NULL;
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_localToDisplay
@@ -138,4 +140,6 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_loc
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystemDisplayAdapter::localToDisplay()");
 	}
+    
+    return NULL;
 }

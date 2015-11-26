@@ -1,4 +1,4 @@
-NDK_TOOLCHAIN_VERSION := clang3.6
+# NDK_TOOLCHAIN_VERSION := clang3.6
 
 APP_CPPFLAGS += -Wno-deprecated 
 APP_CPPFLAGS += -std=c++11

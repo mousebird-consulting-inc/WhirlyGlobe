@@ -120,4 +120,6 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_LayoutManager_hasChanges
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LayoutManager::hasChanges()");
 	}
+    
+    return false;
 }

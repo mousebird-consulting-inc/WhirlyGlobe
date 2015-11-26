@@ -124,6 +124,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorManager::addVectors()");
 	}
+    
+    return EmptyIdentity;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_removeVectors

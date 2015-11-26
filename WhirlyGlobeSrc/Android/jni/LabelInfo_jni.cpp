@@ -138,6 +138,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_LabelInfo_getTypeface
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getTypeface()");
 	}
+    
+    return NULL;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFontSize
@@ -175,6 +177,8 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getTextColor
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getTextColor()");
 	}
+    
+    return 0;
 }
 
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getBackColor
@@ -194,6 +198,8 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getBackColor
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getBackColor()");
 	}
+    
+    return 0;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLayoutImportance

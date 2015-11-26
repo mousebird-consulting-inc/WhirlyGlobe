@@ -114,6 +114,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_multiply__Lcom_mou
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Quaternion::multiply()");
 	}
+    
+    return NULL;
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_multiply__Lcom_mousebird_maply_Point3d_2
@@ -136,6 +138,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_multiply__Lcom_mou
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Quaternion::multiply()");
 	}
+    
+    return NULL;
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_multiply__Lcom_mousebird_maply_AngleAxis_2
@@ -158,6 +162,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_multiply__Lcom_mou
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Quaternion::multiply()");
 	}
+    
+    return NULL;
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_slerp
@@ -179,5 +185,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_slerp
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Quaternion::slerp()");
 	}
+    
+    return NULL;
 }
 

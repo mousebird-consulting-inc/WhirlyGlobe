@@ -1025,7 +1025,7 @@ void BasicDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
 }
 
 // Used to pass in buffer offsets
-#define CALCBUFOFF(base,off) ((char *)(base) + (off))
+#define CALCBUFOFF(base,off) ((char *)((uintptr_t)(base)) + (off))
 
 
 // Called once to set up a Vertex Array Object
@@ -1348,7 +1348,7 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
                     if (!boundElements)
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
                     CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
-                    glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, (void *)triBuffer);
+                    glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, (void *)((uintptr_t)triBuffer));
                     CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
                     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                 } else {

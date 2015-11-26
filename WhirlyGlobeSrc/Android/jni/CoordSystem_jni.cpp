@@ -83,6 +83,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_geographicToLocal
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystem::geographicToLocal()");
 	}
+    
+    return NULL;
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_localToGeographic
@@ -102,4 +104,6 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_localToGeographic
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystem::localToGeographic()");
 	}
+    
+    return NULL;
 }

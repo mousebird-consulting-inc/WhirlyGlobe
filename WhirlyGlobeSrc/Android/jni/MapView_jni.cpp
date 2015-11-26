@@ -139,6 +139,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_MapView_minHeightAboveSurface
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::minHeightAboveSurface()");
 	}
+    
+    return 0.0;
 }
 
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_MapView_maxHeightAboveSurface
@@ -157,6 +159,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_MapView_maxHeightAboveSurface
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::maxHeightAboveSurface()");
 	}
+
+    return 0.0;
 }
 
 
@@ -195,6 +199,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_MapView_getRot
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::getRot()");
 	}
+
+    return 0.0;
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapView_pointOnPlaneFromScreen
@@ -223,6 +229,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapView_pointOnPlaneFromScree
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::pointOnPlaneFromScreen()");
 	}
+    
+    return NULL;
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapView_pointOnScreenFromPlane
@@ -248,5 +256,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapView_pointOnScreenFromPlan
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::pointOnPlaneFromScreen()");
 	}
+    
+    return NULL;
 }
 

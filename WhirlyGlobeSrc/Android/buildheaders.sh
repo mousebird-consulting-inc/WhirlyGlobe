@@ -5,7 +5,7 @@ do
     if [ com/mousebird/maply/$mod.class -ot com/mousebird/maply/$mod.java ]; then
         echo "Compiling java for $mod"
 
-        javac -classpath "${1}"/platforms/android-18/android.jar:.  com/mousebird/maply/$mod.java
+        javac -classpath "${1}"/platforms/android-23/android.jar:../../libs/WhirlyGlobe-Maply/WhirlyGlobeSrc/Android/libs/okhttp-2.0.0-RC1.jar:.  com/mousebird/maply/$mod.java
     else
         echo "Skipped compile for $mod"
     fi
@@ -13,7 +13,7 @@ do
     if [ ../jni/com_mousebird_maply_$mod.h -ot com/mousebird/maply/$mod.java ]; then
         echo "Building header for $mod"
 
-        javah -classpath "${1}"/platforms/android-18/android.jar:. -jni com.mousebird.maply.$mod
+        javah -classpath "${1}"/platforms/android-23/android.jar:../../libs/WhirlyGlobe-Maply/WhirlyGlobeSrc/Android/libs/okhttp-2.0.0-RC1.jar:. -jni com.mousebird.maply.$mod
         mv com_mousebird_maply_$mod.h ../jni/
         mv com_mousebird_maply_$mod_*.h ../jni/
     else

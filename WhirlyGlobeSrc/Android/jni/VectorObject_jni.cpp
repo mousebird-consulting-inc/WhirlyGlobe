@@ -179,6 +179,8 @@ jboolean Java_com_mousebird_maply_VectorObject_fromGeoJSON
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::fromGeoJSON()");
 	}
+    
+    return false;
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_FromGeoJSONAssembly
@@ -236,6 +238,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_getAttributes
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::getAttributes()");
 	}
+    
+    return NULL;
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_centroid
@@ -259,6 +263,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_centroid
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::centroid()");
 	}
+
+    return NULL;
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_largestLoopCenter
@@ -287,6 +293,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_largestLoopCente
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::largestLoopCenter()");
 	}
+
+    return NULL;
 }
 
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorObject_linearMiddle
@@ -314,6 +322,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorObject_linearMiddle
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::linearMiddle()");
 	}
+    
+    return 0.0;
 }
 
 
@@ -338,6 +348,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_readFromFile
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::readFromFile()");
 	}
+    
+    return false;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_writeToFile
@@ -361,4 +373,6 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_writeToFile
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::writeToFile()");
 	}
+    
+    return false;
 }

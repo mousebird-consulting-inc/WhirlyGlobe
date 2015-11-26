@@ -88,6 +88,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point2d_getX
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Point2d::getX()");
 	}
+    
+    return 0.0;
 }
 
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point2d_getY
@@ -106,6 +108,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point2d_getY
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Point2d::getY()");
 	}
+    
+    return 0.0;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Point2d_setValue

@@ -87,6 +87,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_valid
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::valid()");
 	}
+    
+    return false;
 }
 
 JNIEXPORT jstring JNICALL Java_com_mousebird_maply_Shader_getName
@@ -102,6 +104,8 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_Shader_getName
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::getName()");
     }
+    
+    return NULL;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
@@ -159,6 +163,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::setUniform()");
 	}
+    
+    return false;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2I
@@ -184,6 +190,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::setUniform()");
 	}
+    
+    return false;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2DD
@@ -209,6 +217,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::setUniform()");
 	}
+    
+    return false;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2DDD
@@ -234,6 +244,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::setUniform()");
 	}
+    
+    return false;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2DDDD
@@ -259,4 +271,6 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::setUniform()");
 	}
+    
+    return false;
 }

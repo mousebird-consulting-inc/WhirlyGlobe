@@ -694,6 +694,8 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getImageDepth
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::getImageDepth()");
     }
+    
+    return 1;
 }
 
 JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getCurrentImage
@@ -712,6 +714,8 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getCurrentI
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::getCurrentImage()");
 	}
+    
+    return 0.0;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setCurrentImage
@@ -836,6 +840,8 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getFrameStatu
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::getFrameStatus()");
     }
+    
+    return -1;
 }
 
 
@@ -960,6 +966,8 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getBorderTexe
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::getBorderTexel()");
 	}
+    
+    return 0;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setBorderTexel
@@ -1013,6 +1021,8 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getTargetZoom
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::getTargetZoomLevel()");
 	}
+    
+    return 0;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setShaderName
@@ -1253,6 +1263,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeEva
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::nativeEvalStep()");
 	}
+    
+    return false;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeRefresh
@@ -1275,6 +1287,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeRef
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::nativeRefresh()");
 	}
+    
+    return false;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDidLoad

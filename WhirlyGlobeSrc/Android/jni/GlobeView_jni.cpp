@@ -166,6 +166,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_GlobeView_minHeightAboveSurfa
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::minHeightAboveSurface()");
 	}
+    
+    return 0.0;
 }
 
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_GlobeView_maxHeightAboveSurface
@@ -184,6 +186,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_GlobeView_maxHeightAboveSurfa
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::maxHeightAboveSurface()");
 	}
+    
+    return 0.0;
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointOnSphereFromScreen
@@ -212,6 +216,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointOnSphereFromSc
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::pointOnPlaneFromScreen()");
 	}
+    
+    return NULL;
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointOnScreenFromSphere
@@ -237,6 +243,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointOnScreenFromSp
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::pointOnPlaneFromScreen()");
 	}
+    
+    return NULL;
 }
 
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_GlobeView_getHeight
@@ -255,6 +263,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_GlobeView_getHeight
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::getHeight()");
 	}
+    
+    return 0.0;
 }
 
 
@@ -294,6 +304,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_makeRotationToGeoCo
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::makeRotationToGeoCoord()");
 	}
+    
+    return NULL;
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_prospectiveUp
@@ -316,6 +328,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_prospectiveUp
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::prospectiveUp()");
 	}
+    
+    return NULL;
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointUnproject
@@ -338,4 +352,6 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointUnproject
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::pointUnproject()");
 	}
+    
+    return NULL;
 }
