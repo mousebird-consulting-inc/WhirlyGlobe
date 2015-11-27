@@ -1,0 +1,16 @@
+PODS:
+  - Alamofire (2.0.2)
+  - MBProgressHUD (0.9.1)
+  - SwiftyDropbox (1.0.1):
+    - Alamofire (~> 2.0.2)
+
+DEPENDENCIES:
+  - MBProgressHUD (~> 0.9.1)
+  - SwiftyDropbox (~> 1.0.1)
+
+SPEC CHECKSUMS:
+  Alamofire: 8edbab00802a752bb5240cc2abe70e7e881488ad
+  MBProgressHUD: c47f2c166c126cf2ce36498d80f33e754d4e93ad
+  SwiftyDropbox: 142f8404d4f74b84c7ea4220ea78faff132c0c8d
+
+COCOAPODS: 0.39.0
