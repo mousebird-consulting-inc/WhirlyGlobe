@@ -34,7 +34,7 @@ class DropboxSection {
 		if section == .Login {
 			self.rows = [isLogin ? .LogoutUser : .LoginUser]
 		}
-		else{
+		else {
 			self.rows = isLogin ? [.Upload] : []
             self.rows.append(.Back)
 		}
@@ -147,11 +147,17 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 	
 	override func viewWillAppear(animated: Bool) {
 		if processLogin {
-			if Dropbox.authorizedClient != nil {
-				self.loadValues()
-				tableView?.reloadData()
-			}
-			processLogin = false
+			// Quick & dirty hack. Instead of add delay, we should
+			// wait for dropbox notification
+            let delay = 2 * Double(NSEC_PER_SEC)
+            let time = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
+            dispatch_after(time, dispatch_get_main_queue()) {
+                if Dropbox.authorizedClient != nil {
+                    self.loadValues()
+                }
+                self.tableView?.reloadData()
+                self.processLogin = false
+            }
 		}
 	}
 	
@@ -174,7 +180,7 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 			if response != nil {
 				self.uploadImages(client, loadingNotification: loadingNotification)
 			}
-			else{
+			else {
 				print(error!)
 				loadingNotification?.hide(true)
 			}
@@ -194,7 +200,7 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 					if let file = response {
 						print("Uploaded file name:\(file.name)")
 					}
-					else{
+					else {
 						print(error!)
 					}
 					uploads--
@@ -226,7 +232,7 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 					if  let file = response {
 						print("Uploaded json file name:\(file.name)")
 					}
-					else{
+					else {
 						print("Error creating json file")
 					}
 					self.createHTMLTestResult(client, loadingNotification: loadingNotification)
@@ -278,13 +284,13 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 				if let file = response{
 					print("Uploaded css file name:\(file.name)")
 				}
-				else{
+				else {
 					print("Error uploadling css file")
 				}
 				loadingNotification?.hide(true)
 			})
 		}
-		else{
+		else {
 			print("Error uploading css file")
 			loadingNotification?.hide(true)
 		}
