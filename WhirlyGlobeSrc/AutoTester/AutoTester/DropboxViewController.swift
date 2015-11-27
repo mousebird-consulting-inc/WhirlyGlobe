@@ -176,7 +176,7 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 	
 	func createFolderAndUploadImages (client: DropboxClient, loadingNotification: MBProgressHUD?) -> (Void){
 		loadingNotification?.labelText = "Creating folder"
-		client.filesCreateFolder(path: "/\(self.folder!)").response { (response, error) -> Void in
+		client.files.createFolder(path: "/\(self.folder!)").response { (response, error) -> Void in
 			if response != nil {
 				self.uploadImages(client, loadingNotification: loadingNotification)
 			}
@@ -196,7 +196,7 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 			if  let image = result.actualImageFile {
 				let data = NSData.init(contentsOfFile: image)
 				let imageName = title.stringByReplacingOccurrencesOfString(" ", withString: "")
-				client.filesUpload(path: "/\(self.folder!)/images/\(imageName).png", body: data!).response({ (response, error) -> Void in
+				client.files.upload(path: "/\(self.folder!)/images/\(imageName)-actual.png", body: data!).response({ (response, error) -> Void in
 					if let file = response {
 						print("Uploaded file name:\(file.name)")
 					}
@@ -228,7 +228,7 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		if valid {
 			do {
 				let data :NSData? = try NSJSONSerialization.dataWithJSONObject(jsonObject, options: .PrettyPrinted)
-				client.filesUpload(path:"/\(self.folder!)/data.json", body: data!).response({ (response, error) -> Void in
+				client.files.upload(path:"/\(self.folder!)/data.json", body: data!).response({ (response, error) -> Void in
 					if  let file = response {
 						print("Uploaded json file name:\(file.name)")
 					}
@@ -259,11 +259,11 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 			let result = self.results[i]
 			let compImgName = result.baselineImageFile.componentsSeparatedByString("/")
 			let baselineImage = compImgName[compImgName.count-1]
-			htmlString = htmlString! + "<div id=\"tests\"><h2>TEST \(result.testName)</h2><div id=\"expected\"><h3>Expected</h3><img src=\"images/\(baselineImage)\"></div><div id=\"actual\"><h3>Actual</h3><img src=\"images/\(self.titles[i].stringByReplacingOccurrencesOfString(" ", withString: "")).png\"></div></div>"
+			htmlString = htmlString! + "<div id=\"tests\"><h2>TEST \(result.testName)</h2><div id=\"expected\"><h3>Expected</h3><img src=\"images/\(baselineImage)\"></div><div id=\"actual\"><h3>Actual</h3><img src=\"images/\(self.titles[i].stringByReplacingOccurrencesOfString(" ", withString: ""))-actual.png\"></div></div>"
 		}
 		htmlString = htmlString! + "</body></html>"
 		let data = htmlString?.dataUsingEncoding(NSUTF8StringEncoding)
-		client.filesUpload(path: "/\(self.folder!)/index.html", body: data!).response { (response, error) -> Void in
+		client.files.upload(path: "/\(self.folder!)/index.html", body: data!).response { (response, error) -> Void in
 			if let file = response{
 				print("Uploaded html file name:\(file.name)")
 				self.uploadCSSFile(client, loadingNotification: loadingNotification)
@@ -280,7 +280,7 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		let path = NSBundle.mainBundle().pathForResource("styles", ofType: "css")
 		if let path = path {
 			let data = NSData(contentsOfFile: path)
-			client.filesUpload(path: "/\(self.folder!)/css/styles.css", body: data!).response({ (response, error) -> Void in
+			client.files.upload(path: "/\(self.folder!)/css/styles.css", body: data!).response({ (response, error) -> Void in
 				if let file = response{
 					print("Uploaded css file name:\(file.name)")
 				}
