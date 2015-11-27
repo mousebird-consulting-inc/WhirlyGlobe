@@ -463,6 +463,7 @@
 		D8341A761BE2E89E00411A46 /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8341A751BE2E89E00411A46 /* ScreenMarkersTestCase.m */; };
 		D880112F1BFD16A900606EC6 /* DropboxViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D880112D1BFD16A900606EC6 /* DropboxViewController.swift */; };
 		D88011301BFD16A900606EC6 /* DropboxViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D880112E1BFD16A900606EC6 /* DropboxViewController.xib */; };
+		D882B8361C07BA2500649BE9 /* styles.css in Resources */ = {isa = PBXBuildFile; fileRef = D882B8351C07BA2500649BE9 /* styles.css */; };
 		D8DCCC9F1BDB89A900BA3866 /* FullScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCC9E1BDB89A900BA3866 /* FullScreenViewController.swift */; };
 		D8DCCCA31BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCCA21BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift */; };
 		D8DCCCAC1BDC1A1200BA3866 /* CesiumElevationTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */; };
@@ -959,6 +960,7 @@
 		D8341A751BE2E89E00411A46 /* ScreenMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenMarkersTestCase.m; sourceTree = "<group>"; };
 		D880112D1BFD16A900606EC6 /* DropboxViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DropboxViewController.swift; sourceTree = "<group>"; };
 		D880112E1BFD16A900606EC6 /* DropboxViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DropboxViewController.xib; sourceTree = "<group>"; };
+		D882B8351C07BA2500649BE9 /* styles.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; name = styles.css; path = AutoTester/styles.css; sourceTree = "<group>"; };
 		D8DCCC9E1BDB89A900BA3866 /* FullScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FullScreenViewController.swift; sourceTree = "<group>"; };
 		D8DCCCA21BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapBoxSatelliteTestCase.swift; sourceTree = "<group>"; };
 		D8DCCCAA1BDC1A1200BA3866 /* CesiumElevationTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CesiumElevationTestCase.h; sourceTree = "<group>"; };
@@ -1653,6 +1655,7 @@
 		D8F53BD61C0275A1004854D6 /* Dropbox Files */ = {
 			isa = PBXGroup;
 			children = (
+				D882B8351C07BA2500649BE9 /* styles.css */,
 			);
 			name = "Dropbox Files";
 			sourceTree = "<group>";
@@ -1773,6 +1776,7 @@
 				88FF5EEA1BC31D95002F15CE /* YEM.geojson in Resources */,
 				88FF5E111BC31D95002F15CE /* BLR.geojson in Resources */,
 				88FF5ED61BC31D95002F15CE /* TUN.geojson in Resources */,
+				D882B8361C07BA2500649BE9 /* styles.css in Resources */,
 				88FF5E9C1BC31D95002F15CE /* NOR.geojson in Resources */,
 				88FF5CCB1BC31D6D002F15CE /* rail-underground-24@2x.png in Resources */,
 				88FF5CB01BC31D6D002F15CE /* laundry-24@2x.png in Resources */,
