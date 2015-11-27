@@ -1,0 +1,86 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "2E886417438041B07C57F4D680E7E83E5EF0B23B",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "DB33CBD4D80E1B1AD982034BCF4CA065484EA96E" : 0,
+    "3417D484EE489964993A77F8A0AAAE31FFC8EA92" : 0,
+    "2E886417438041B07C57F4D680E7E83E5EF0B23B" : 0,
+    "D1BB63D501E0048981F00509C5A268D4AF5FEE4C" : 0,
+    "6EE8C3CD1205674099D0F29D1E5116B4056D84DF" : 0,
+    "DBA6F8B12B84878540F44342C4772AC004D85ABD" : 0,
+    "542E08E1407FCC2DB0FF89E003D671D027C039F1" : 0,
+    "9FF210C40B5F6FF575BA5DCEA5467BFAAB7EB8B0" : 0,
+    "DD20A1A48C66B5213E0FEBB87A95EF51D6C6F3E8" : 0,
+    "04101981B66E318109934C9516F88D824BB96459" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "AF2DBE7D-42A0-4FA7-B4A3-B9B0A4FDA584",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "DB33CBD4D80E1B1AD982034BCF4CA065484EA96E" : "WhirlyGlobe\/third-party\/libjson\/",
+    "3417D484EE489964993A77F8A0AAAE31FFC8EA92" : "WhirlyGlobe\/third-party\/proj-4\/",
+    "2E886417438041B07C57F4D680E7E83E5EF0B23B" : "WhirlyGlobe\/",
+    "D1BB63D501E0048981F00509C5A268D4AF5FEE4C" : "WhirlyGlobe\/third-party\/SMCalloutView\/",
+    "6EE8C3CD1205674099D0F29D1E5116B4056D84DF" : "WhirlyGlobe\/third-party\/clipper\/",
+    "DBA6F8B12B84878540F44342C4772AC004D85ABD" : "WhirlyGlobe\/third-party\/protobuf\/",
+    "542E08E1407FCC2DB0FF89E003D671D027C039F1" : "WhirlyGlobe\/resources\/",
+    "9FF210C40B5F6FF575BA5DCEA5467BFAAB7EB8B0" : "WhirlyGlobe\/third-party\/glues\/",
+    "DD20A1A48C66B5213E0FEBB87A95EF51D6C6F3E8" : "WhirlyGlobe\/third-party\/AFNetworking\/",
+    "04101981B66E318109934C9516F88D824BB96459" : "WhirlyGlobe\/third-party\/fmdb\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "AutoTester",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "WhirlyGlobeSrc\/AutoTester\/AutoTester.xcworkspace",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/ccgus\/fmdb.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "04101981B66E318109934C9516F88D824BB96459"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:jmnavarro\/WhirlyGlobe.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "2E886417438041B07C57F4D680E7E83E5EF0B23B"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/mousebird\/proj-4.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "3417D484EE489964993A77F8A0AAAE31FFC8EA92"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/mousebird\/wg-resources-new.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "542E08E1407FCC2DB0FF89E003D671D027C039F1"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/mousebird\/clipper",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "6EE8C3CD1205674099D0F29D1E5116B4056D84DF"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/mousebird\/glues.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "9FF210C40B5F6FF575BA5DCEA5467BFAAB7EB8B0"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/nfarina\/calloutview.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "D1BB63D501E0048981F00509C5A268D4AF5FEE4C"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/mousebird\/libjson.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "DB33CBD4D80E1B1AD982034BCF4CA065484EA96E"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/mousebird\/protobuf.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "DBA6F8B12B84878540F44342C4772AC004D85ABD"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/AFNetworking\/AFNetworking",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "DD20A1A48C66B5213E0FEBB87A95EF51D6C6F3E8"
+    }
+  ]
+}
