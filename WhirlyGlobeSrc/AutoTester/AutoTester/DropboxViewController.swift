@@ -22,6 +22,7 @@ class DropboxSection {
 		case LogoutUser = "Logout"
 		
 		case Upload = "Upload Tests"
+        case Back = "Back"
 	}
 	
 	var section : Section
@@ -35,6 +36,7 @@ class DropboxSection {
 		}
 		else{
 			self.rows = isLogin ? [.Upload] : []
+            self.rows.append(.Back)
 		}
 	}
 
@@ -128,7 +130,11 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 				case .Upload:
 					uploadToDropbox()
 					break;
+                case .Back:
+                    self.navigationController?.popViewControllerAnimated(true)
+                    break;
 			}
+            tableView.deselectRowAtIndexPath(indexPath, animated: false)
 			
 	}
 
