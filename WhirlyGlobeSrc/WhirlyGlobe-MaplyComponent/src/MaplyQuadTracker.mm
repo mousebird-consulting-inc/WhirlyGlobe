@@ -160,7 +160,7 @@ public:
                     
                     // See if this tile is here
                     TileWrapper testTile(nextTile);
-                    if (tiles.find(testTile) == tiles.end())
+                    if (trackInfo->tileID.level >= _minLevel && tiles.find(testTile) == tiles.end())
                         break;
                     trackInfo->tileID = nextTile;
                     trackInfo->tileU = 2.0*trackInfo->tileU - childX*1.0;

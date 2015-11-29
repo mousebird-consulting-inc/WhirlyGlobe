@@ -37,7 +37,7 @@
  @param maxZoom The maximum zoom level to fetch.
  @return The MaplyRemoteTileSource object or nil on failure.
  */
-- (nonnull instancetype)initWithBaseURL:(NSString *__nonnull)baseURL ext:(NSString *__nonnull)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
+- (nonnull instancetype)initWithBaseURL:(NSString *__nonnull)baseURL ext:(NSString *__nullable)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
 
 /** @brief Initialize from a remote tile spec.
  @details This version of the initializer takes an NSDictionary parsed
@@ -232,7 +232,7 @@
     @param maxZoom The maximum zoom level to fetch.
     @return The MaplyRemoteTileSource object or nil on failure.
   */
-- (nullable instancetype)initWithBaseURL:(NSString *__nonnull)baseURL ext:(NSString *__nonnull)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
+- (nullable instancetype)initWithBaseURL:(NSString *__nonnull)baseURL ext:(NSString *__nullable)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
 
 /** @brief Initialize from a remote tile spec.
     @details This version of the initializer takes an NSDictionary parsed
