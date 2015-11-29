@@ -366,7 +366,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 //    if (globeViewC)
 //        [self performSelector:@selector(viewAnimationTest) withObject:nil afterDelay:2.0];
     
-    [self performSelector:@selector(labelMarkerTest:) withObject:@(0.1) afterDelay:0.1];
+//    [self performSelector:@selector(labelMarkerTest:) withObject:@(0.1) afterDelay:0.1];
 }
 
 - (void)labelMarkerTest:(NSNumber *)time
@@ -433,12 +433,16 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         label2.userObject = @"Test Label 2";
         //        label1.rotation = M_PI/2;
         [labels addObject:label2];
-}
+    }
     
     NSMutableArray *newObjs = [NSMutableArray array];
 //    [newObjs addObject:[baseViewC addScreenMarkers:redMarkers desc:@{kMaplyDrawPriority: @(100)} mode:MaplyThreadCurrent]];
 //    [newObjs addObject:[baseViewC addScreenMarkers:blueMarkers desc:@{kMaplyDrawPriority: @(101)} mode:MaplyThreadCurrent]];
-    [newObjs addObject:[baseViewC addScreenLabels:labels desc:@{kMaplyDrawPriority: @(102), kMaplyFont: [UIFont systemFontOfSize:30.0]} mode:MaplyThreadCurrent]];
+    [newObjs addObject:[baseViewC addScreenLabels:labels desc:
+                        @{kMaplyDrawPriority: @(102),
+                          kMaplyFont: [UIFont systemFontOfSize:30.0],
+                          kMaplyBackgroundColor: [UIColor blueColor]
+                          } mode:MaplyThreadCurrent]];
     
 //    [self performSelector:@selector(labelMarkerTest:) withObject:time afterDelay:[time floatValue]];
 }
