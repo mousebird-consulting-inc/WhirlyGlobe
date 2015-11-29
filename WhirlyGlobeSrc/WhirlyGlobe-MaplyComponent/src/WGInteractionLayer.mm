@@ -170,15 +170,19 @@ using namespace WhirlyGlobe;
             SelectionManager::SelectedObject &theSelObj = selectedObjs[ii];
             MaplySelectedObject *selObj = [[MaplySelectedObject alloc] init];
             
-            SelectObjectSet::iterator it = selectObjectSet.find(SelectObject(theSelObj.selectID));
-            if (it != selectObjectSet.end())
-                selObj.selectedObj = it->obj;
-            
-            selObj.screenDist = theSelObj.screenDist;
-            selObj.zDist = theSelObj.distIn3D;
-            
-            if (selObj.selectedObj)
-                [retSelectArr addObject:selObj];
+            for (auto selectID : theSelObj.selectIDs)
+            {
+                SelectObjectSet::iterator it = selectObjectSet.find(SelectObject(selectID));
+                if (it != selectObjectSet.end())
+                    selObj.selectedObj = it->obj;
+                
+                selObj.screenDist = theSelObj.screenDist;
+                selObj.cluster = theSelObj.isCluster;
+                selObj.zDist = theSelObj.distIn3D;
+                
+                if (selObj.selectedObj)
+                    [retSelectArr addObject:selObj];
+            }
         }
     }
     
