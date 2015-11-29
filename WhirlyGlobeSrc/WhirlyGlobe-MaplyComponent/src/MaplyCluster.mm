@@ -19,6 +19,7 @@
  */
 
 #import "MaplyCluster.h"
+#import "MaplyBaseViewController.h"
 
 @implementation MaplyClusterInfo
 @end
@@ -33,9 +34,10 @@
     UIFont *font;
     float scale;
     NSMutableDictionary *imagesByNumber;
+    MaplyBaseViewController * __weak viewC;
 }
 
-- (nonnull instancetype)initWithColors:(NSArray *__nonnull)inColors clusterNumber:(int)clusterNumber size:(CGSize)markerSize
+- (nonnull instancetype)initWithColors:(NSArray *__nonnull)inColors clusterNumber:(int)clusterNumber size:(CGSize)markerSize viewC:(MaplyBaseViewController *)inViewC;
 {
     self = [super init];
 
@@ -49,6 +51,9 @@
         if ([colors count] == 0)
             return nil;
         self.clusterLayoutSize = markerSize;
+        self.selectable = true;
+        self.markerAnimationTime = 0.2;
+        viewC = inViewC;
     }
     
     return self;
@@ -56,7 +61,7 @@
 
 - (void)startClusterGroup
 {
-    imagesByNumber = [NSMutableDictionary dictionary];
+    imagesByNumber = [NSMutableDictionary dictionary];    
 }
 
 - (MaplyClusterGroup *__nonnull) makeClusterGroup:(MaplyClusterInfo *__nonnull)clusterInfo

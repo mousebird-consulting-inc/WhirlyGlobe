@@ -138,6 +138,130 @@ public:
     // True if this is selectable
     bool selectable;
 };
+    
+// Data types for geometry attributes
+typedef enum {GeomRawIntType,GeomRawFloatType,GeomRawFloat2Type,GeomRawFloat3Type,GeomRawFloat4Type,GeomRawDouble2Type,GeomRawDouble3Type,GeomRawTypeMax} GeomRawDataType;
+
+// Geometry attribute base class
+class GeomPointAttrData
+{
+public:
+    GeomPointAttrData(GeomRawDataType dataType) : dataType(dataType) { }
+    std::string name;
+    GeomRawDataType dataType;
+    virtual int getNumVals() = 0;
+    virtual ~GeomPointAttrData() { }
+};
+
+// Int geometry attribute
+class GeomPointAttrDataInt : public GeomPointAttrData
+{
+public:
+    GeomPointAttrDataInt() : GeomPointAttrData(GeomRawIntType) { }
+    int getNumVals() { return vals.size(); }
+    virtual ~GeomPointAttrDataInt() { }
+    std::vector<int> vals;
+};
+
+// Float geometry attribute
+class GeomPointAttrDataFloat : public GeomPointAttrData
+{
+public:
+    GeomPointAttrDataFloat() : GeomPointAttrData(GeomRawFloatType) { }
+    int getNumVals() { return vals.size(); }
+    virtual ~GeomPointAttrDataFloat() { }
+    std::vector<float> vals;
+};
+
+// Float2 geometry attribute
+class GeomPointAttrDataPoint2f : public GeomPointAttrData
+{
+public:
+    GeomPointAttrDataPoint2f() : GeomPointAttrData(GeomRawFloat2Type) { }
+    int getNumVals() { return vals.size(); }
+    virtual ~GeomPointAttrDataPoint2f() { }
+    std::vector<Point2f> vals;
+};
+
+// Double2 geometry attribute
+class GeomPointAttrDataPoint2d : public GeomPointAttrData
+{
+public:
+    GeomPointAttrDataPoint2d() : GeomPointAttrData(GeomRawDouble2Type) { }
+    int getNumVals() { return vals.size(); }
+    virtual ~GeomPointAttrDataPoint2d() { }
+    std::vector<Point2d> vals;
+};
+
+// Float3 geometry attribute
+class GeomPointAttrDataPoint3f : public GeomPointAttrData
+{
+public:
+    GeomPointAttrDataPoint3f() : GeomPointAttrData(GeomRawFloat3Type) { }
+    int getNumVals() { return vals.size(); }
+    virtual ~GeomPointAttrDataPoint3f() { }
+    std::vector<Point3f> vals;
+};
+
+// Double3 geometry attribute
+class GeomPointAttrDataPoint3d : public GeomPointAttrData
+{
+public:
+    GeomPointAttrDataPoint3d() : GeomPointAttrData(GeomRawDouble3Type) { }
+    int getNumVals() { return vals.size(); }
+    virtual ~GeomPointAttrDataPoint3d() { }
+    std::vector<Point3d> vals;
+};
+
+// Double4 geometry attribute
+class GeomPointAttrDataPoint4f : public GeomPointAttrData
+{
+public:
+    GeomPointAttrDataPoint4f() : GeomPointAttrData(GeomRawFloat4Type) { }
+    int getNumVals() { return vals.size(); }
+    virtual ~GeomPointAttrDataPoint4f() { }
+    std::vector<Eigen::Vector4f> vals;
+};
+    
+/// An optimized version of raw geometry for points only
+class GeometryRawPoints
+{
+public:
+    GeometryRawPoints();
+    ~GeometryRawPoints();
+    
+    // Check if we've got a consistent set of attributes
+    bool valid() const;
+    
+    // Add an integer to the list of attributes
+    void addValue(int idx,int val);
+    
+    // Add a single float to a list of attributes
+    void addValue(int idx,float val);
+    
+    // Add two floats to a list of attributes
+    void addPoint(int idx,const Point2f &pt);
+    
+    // Add three floats to a list of attributes
+    void addPoint(int idx,const Point3f &pt);
+    
+    // Add three doubles to a list of attributes
+    void addPoint(int idx,const Point3d &pt);
+    
+    // Add four floats to a list of attributes
+    void addPoint(int idx,const Eigen::Vector4f &pt);
+    
+    // Add an attribute type to the point geometry
+    int addAttribute(const std::string &name,GeomRawDataType dataType);
+    
+    // Find an attribute by name
+    int findAttribute(const std::string &name) const;
+    
+public:
+    void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,WhirlyKitGeomInfo *geomInfo) const;
+    
+    std::vector<WhirlyKit::GeomPointAttrData *> attrData;
+};
 
 #define kWKGeometryManager "WKGeometryManager"
     
@@ -158,6 +282,9 @@ public:
     
     /// Add instances that reuse base geometry
     SimpleIdentity addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,NSDictionary *desc,ChangeSet &changes);
+    
+    /// Add raw geometry points.
+    SimpleIdentity addGeometryPoints(const GeometryRawPoints &geomPoints,const Eigen::Matrix4d &mat,NSDictionary *desc,ChangeSet &changes);
 
     /// Enable/disable active billboards
     void enableGeometry(SimpleIDSet &billIDs,bool enable,ChangeSet &changes);
