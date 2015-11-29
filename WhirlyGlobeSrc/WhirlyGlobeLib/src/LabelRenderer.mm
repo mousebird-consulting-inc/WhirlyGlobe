@@ -284,6 +284,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
         }
         Point2d iconOff(0,0);
         ScreenSpaceObject *screenShape = NULL;
+        ScreenSpaceObject *backScreenShape = NULL;
         LayoutObject *layoutObject = NULL;
         if (attrStr && strLen > 0)
         {
@@ -322,7 +323,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     if (layoutEngine)
                         justifyOff = Point2d(0,0);
                     
-                    screenShape->setDrawPriority(_labelInfo.drawPriority);
+                    screenShape->setDrawPriority(_labelInfo.drawPriority*100+1);
                     screenShape->setVisibility(_labelInfo.minVis, _labelInfo.maxVis);
                     screenShape->setKeepUpright(label.keepUpright);
                     
@@ -352,19 +353,14 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         // Note: This is an arbitrary border around the text
                         float backBorder = 4.0;
                         ScreenSpaceObject::ConvexGeometry smGeom;
+                        smGeom.progID = _labelInfo.programID;
                         Point2d ll = Point2d(drawStr->mbr.ll().x(),drawStr->mbr.ll().y())+iconOff+Point2d(-backBorder,-backBorder), ur = Point2d(drawStr->mbr.ur().x(),drawStr->mbr.ur().y())+iconOff+Point2d(backBorder,backBorder);
-                        smGeom.coords.push_back(Point2d(ll.x()+label.screenOffset.width,-ll.y()+label.screenOffset.height)+justifyOff);
-                        smGeom.texCoords.push_back(TexCoord(0,1));
-                       
-                        smGeom.coords.push_back(Point2d(ll.x()+label.screenOffset.width,-ur.y()+label.screenOffset.height)+justifyOff);
-                        smGeom.texCoords.push_back(TexCoord(1,1));
+                        smGeom.coords.push_back(Point2d(ur.x()+label.screenOffset.width,ll.y()+label.screenOffset.height)+ iconOff + justifyOff);
+                        smGeom.coords.push_back(Point2d(ur.x()+label.screenOffset.width,ur.y()+label.screenOffset.height)+ iconOff + justifyOff);
+                        smGeom.coords.push_back(Point2d(ll.x()+label.screenOffset.width,ur.y()+label.screenOffset.height)+ iconOff + justifyOff);
+                        smGeom.coords.push_back(Point2d(ll.x()+label.screenOffset.width,ll.y()+label.screenOffset.height)+ iconOff + justifyOff);
 
-                        smGeom.coords.push_back(Point2d(ur.x()+label.screenOffset.width,-ur.y()+label.screenOffset.height)+justifyOff);
-                        smGeom.texCoords.push_back(TexCoord(1,0));
-
-                        smGeom.coords.push_back(Point2d(ur.x()+label.screenOffset.width,-ll.y()+label.screenOffset.height)+justifyOff);
-                        smGeom.texCoords.push_back(TexCoord(0,0));
-
+                        smGeom.drawPriority = _labelInfo.drawPriority*100;
                         smGeom.color = backColor;
                         // Note: This would be a great place for a texture
                         screenShape->addGeometry(smGeom);
