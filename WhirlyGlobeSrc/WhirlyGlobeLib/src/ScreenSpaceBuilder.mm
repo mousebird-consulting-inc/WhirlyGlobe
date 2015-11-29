@@ -113,56 +113,43 @@ bool ScreenSpaceBuilder::DrawableWrap::operator < (const DrawableWrap &that) con
     return state < that.state;
 }
 
-Point3f ScreenSpaceBuilder::DrawableWrap::calcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3f &worldLoc,float rot)
+Point3d ScreenSpaceBuilder::DrawableWrap::calcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3d &worldLoc,float rot)
 {
     // Switch from counter-clockwise to clockwise
     rot = 2*M_PI-rot;
     
-    Point3f upVec,northVec,eastVec;
+    Point3d upVec,northVec,eastVec;
     if (coordAdapter->isFlat())
     {
-        upVec = Point3f(0,0,1);
-        northVec = Point3f(0,1,0);
-        eastVec = Point3f(1,0,0);
+        upVec = Point3d(0,0,1);
+        northVec = Point3d(0,1,0);
+        eastVec = Point3d(1,0,0);
     } else {
         upVec = worldLoc.normalized();
         // Vector pointing north
-        northVec = Point3f(-worldLoc.x(),-worldLoc.y(),1.0-worldLoc.z());
+        northVec = Point3d(-worldLoc.x(),-worldLoc.y(),1.0-worldLoc.z());
         eastVec = northVec.cross(upVec);
         northVec = upVec.cross(eastVec);
     }
     
-    Point3f rotVec = eastVec * sinf(rot) + northVec * cosf(rot);
+    Point3d rotVec = eastVec * sin(rot) + northVec * cos(rot);
     
     return rotVec;
 }
 
-void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color,const SingleVertexAttributeSet *vertAttrs)
+void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3d &worldLoc,const Point3f *dir,float rot,const Point2d &inVert,const TexCoord *texCoord,const RGBAColor *color,const SingleVertexAttributeSet *vertAttrs)
 {
     draw->addPoint(Point3d(worldLoc.x()-center.x(),worldLoc.y()-center.y(),worldLoc.z()-center.z()));
-    Point3f norm = coordAdapter->isFlat() ? Point3f(0,0,1) : worldLoc.normalized();
+    Point3d norm = coordAdapter->isFlat() ? Point3d(0,0,1) : worldLoc.normalized();
     draw->addNormal(norm);
-    Point2f vert = inVert * scale;
+    Point2d vert = inVert * scale;
     draw->addOffset(vert);
-    draw->addTexCoord(0, texCoord);
-    draw->addColor(color);
-    if (vertAttrs && !vertAttrs->empty())
-        draw->addVertexAttributes(*vertAttrs);
-    if (state.rotation)
-        draw->addRot(calcRotationVec(coordAdapter,worldLoc,rot));
-}
-
-void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,const Point3f &dir,float rot,const Point2f &inVert,const TexCoord &texCoord,const RGBAColor &color,const SingleVertexAttributeSet *vertAttrs)
-{
-    draw->addPoint(Point3d(worldLoc.x()-center.x(),worldLoc.y()-center.y(),worldLoc.z()-center.z()));
-    Point3f norm = coordAdapter->isFlat() ? Point3f(0,0,1) : worldLoc.normalized();
-    draw->addNormal(norm);
-    // Note: Rotation
-    Point2f vert = inVert * scale;
-    draw->addOffset(vert);
-    draw->addTexCoord(0, texCoord);
-    draw->addColor(color);
-    draw->addDir(dir);
+    if (texCoord)
+        draw->addTexCoord(0, *texCoord);
+    if (color)
+        draw->addColor(*color);
+    if (dir)
+        draw->addDir(*dir);
     if (vertAttrs && !vertAttrs->empty())
         draw->addVertexAttributes(*vertAttrs);
     if (state.rotation)
@@ -274,8 +261,9 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,const Point2d *coo
     int baseVert = drawWrap->draw->getNumPoints();
     for (unsigned int ii=0;ii<4;ii++)
     {
-        Point2f coord(coords[ii].x(),coords[ii].y());
-        drawWrap->addVertex(coordAdapter,scale,Point3f(worldLoc.x(),worldLoc.y(),worldLoc.z()), 0.0, coord, texCoords[ii], color, NULL);
+        Point2d coord(coords[ii].x(),coords[ii].y());
+        const TexCoord *texCoord = (texCoords ? &texCoords[ii] : NULL);
+        drawWrap->addVertex(coordAdapter,scale,worldLoc, NULL, 0.0, coord, texCoord, &color, NULL);
     }
     drawWrap->addTri(0+baseVert,1+baseVert,2+baseVert);
     drawWrap->addTri(0+baseVert,2+baseVert,3+baseVert);
@@ -289,8 +277,9 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,double rotation,bo
     int baseVert = drawWrap->draw->getNumPoints();
     for (unsigned int ii=0;ii<4;ii++)
     {
-        Point2f coord(coords[ii].x(),coords[ii].y());
-        drawWrap->addVertex(coordAdapter,scale,Point3f(worldLoc.x(),worldLoc.y(),worldLoc.z()), rotation, coord, texCoords[ii], color, NULL);
+        Point2d coord(coords[ii].x(),coords[ii].y());
+        const TexCoord *texCoord = (texCoords ? &texCoords[ii] : NULL);
+        drawWrap->addVertex(coordAdapter,scale,worldLoc, NULL, rotation, coord, texCoord, &color, NULL);
     }
     drawWrap->addTri(0+baseVert,1+baseVert,2+baseVert);
     drawWrap->addTri(0+baseVert,2+baseVert,3+baseVert);
@@ -315,6 +304,8 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
         state.texIDs = geom.texIDs;
         if (geom.progID != EmptyIdentity)
             state.progID = geom.progID;
+        if (geom.drawPriority > -1)
+            state.drawPriority = geom.drawPriority;
         state.enable = ssObj.enable;
         state.startEnable = ssObj.startEnable;
         state.endEnable = ssObj.endEnable;
@@ -333,16 +324,15 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
             startLoc3d = dir3d * dt + startLoc3d;
             dir = Point3f(dir3d.x(),dir3d.y(),dir3d.z());
         }
-        Point3f startLoc(startLoc3d.x(),startLoc3d.y(),startLoc3d.z());
+        Point3d startLoc(startLoc3d.x(),startLoc3d.y(),startLoc3d.z());
 
         int baseVert = drawWrap->draw->getNumPoints();
         for (unsigned int jj=0;jj<geom.coords.size();jj++)
         {
             Point2d coord = geom.coords[jj] + ssObj.offset;
-            if (state.motion)
-                drawWrap->addVertex(coordAdapter,scale,startLoc, dir, ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], geom.color, &geom.vertexAttrs);
-            else
-                drawWrap->addVertex(coordAdapter,scale,startLoc, ssObj.rotation, Point2f(coord.x(),coord.y()), geom.texCoords[jj], geom.color, &geom.vertexAttrs);
+            Point3f *dir3f = (state.motion ? &dir : NULL);
+            const TexCoord *texCoord = geom.texCoords.size() > jj ? &geom.texCoords[jj] : NULL;
+            drawWrap->addVertex(coordAdapter,scale,startLoc, dir3f, ssObj.rotation, Point2d(coord.x(),coord.y()), texCoord, &geom.color, &geom.vertexAttrs);
         }
         for (unsigned int jj=0;jj<geom.coords.size()-2;jj++)
             drawWrap->addTri(0+baseVert, jj+1+baseVert, jj+2+baseVert);
@@ -384,7 +374,7 @@ void ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
 }
     
 ScreenSpaceObject::ScreenSpaceObject::ConvexGeometry::ConvexGeometry()
-    : progID(EmptyIdentity), color(255,255,255,255)
+    : progID(EmptyIdentity), color(255,255,255,255), drawPriority(-1)
 {
 }
     
@@ -394,7 +384,7 @@ ScreenSpaceObject::ScreenSpaceObject()
 }
 
 ScreenSpaceObject::ScreenSpaceObject(SimpleIdentity theID)
-: Identifiable(theID), enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), offset(0,0), rotation(0), keepUpright(false)
+: Identifiable(theID), enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), endWorldLoc(0,0,0), startTime(0), endTime(0), offset(0,0), rotation(0), keepUpright(false)
 {
 }
 
