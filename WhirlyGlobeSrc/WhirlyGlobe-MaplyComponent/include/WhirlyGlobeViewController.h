@@ -378,6 +378,12 @@
  */
 - (void)getPosition:(MaplyCoordinate *__nonnull)pos height:(float *__nonnull)height;
 
+/** @brief Return the current center position and height in doubles.
+    @param pos The center of the screen in geographic (lon/lat in radians).
+    @param height The current view point's height above the globe.
+ */
+- (void)getPositionD:(MaplyCoordinateD *)pos height:(double *)height;
+
 /** @brief Set the viewing state all at once
     @details This sets the position, tilt, height, screen position and heading all at once.
   */
