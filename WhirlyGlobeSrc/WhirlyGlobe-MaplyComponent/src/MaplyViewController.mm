@@ -342,6 +342,8 @@ using namespace Maply;
         boundUR.x = MAXFLOAT;
     }
     [self setViewExtentsLL:boundLL ur:boundUR];
+    
+    mapView.wrap = _viewWrap;
 }
 
 - (void)viewWillAppear:(BOOL)animated
