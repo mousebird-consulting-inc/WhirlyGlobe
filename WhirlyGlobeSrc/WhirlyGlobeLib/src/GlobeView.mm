@@ -355,9 +355,9 @@ using namespace Eigen;
 
 // Construct a rotation to the given location
 //  and return it.  Doesn't actually do anything yet.
-- (Eigen::Quaterniond) makeRotationToGeoCoord:(const GeoCoord &)worldCoord keepNorthUp:(BOOL)northUp
+- (Eigen::Quaterniond) makeRotationToGeoCoordD:(const WhirlyKit::Point2d &)worldCoord keepNorthUp:(BOOL)northUp
 {
-    Point3d worldLoc = super.coordAdapter->localToDisplay(super.coordAdapter->getCoordSystem()->geographicToLocal3d(worldCoord));
+    Point3d worldLoc = super.coordAdapter->localToDisplay(super.coordAdapter->getCoordSystem()->geographicToLocal(worldCoord));
     
     // Let's rotate to where they tapped over a 1sec period
     Vector3d curUp = [self currentUp];
@@ -388,6 +388,12 @@ using namespace Eigen;
     }
     
     return newRotQuat;
+}
+
+- (Eigen::Quaterniond) makeRotationToGeoCoord:(const GeoCoord &)worldCoord keepNorthUp:(BOOL)northUp
+{
+    Point2d coord(worldCoord.x(),worldCoord.y());
+    return [self makeRotationToGeoCoordD:coord keepNorthUp:northUp];
 }
 
 // Construct a rotation to the given location, including a heading
