@@ -877,6 +877,14 @@ using namespace WhirlyGlobe;
     pos->x = geoCoord.lon();  pos->y = geoCoord.lat();
 }
 
+- (void)getPositionD:(MaplyCoordinateD *)pos height:(double *)height
+{
+    *height = globeView.heightAboveGlobe;
+    Point3d localPt = [globeView currentUp];
+    Point2d geoCoord = globeView.coordAdapter->getCoordSystem()->localToGeographicD(globeView.coordAdapter->displayToLocal(localPt));
+    pos->x = geoCoord.x();  pos->y = geoCoord.y();
+}
+
 // Called back on the main thread after the interaction thread does the selection
 - (void)handleSelection:(WhirlyGlobeTapMessage *)msg didSelect:(NSArray *)selectedObjs
 {
