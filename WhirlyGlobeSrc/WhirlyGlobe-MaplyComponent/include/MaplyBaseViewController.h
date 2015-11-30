@@ -162,6 +162,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  |kMaplyViewableCenterX|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center X coordinate.|
  |kMaplyViewableCenterY|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Y coordinate.|
  |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
+ |kMaplyDrawPriority|NSNumber|If set, the markers are sorted by this number.  Larger numbers will be sorted later.|
  |kMaplyFade|NSNumber|The number of seconds to fade a marker in when it appears and out when it disappears.|
  |kMaplyFadeIn|NSNumber|The number of seconds to fade a marker in when it appears.  This overrides kMaplyFade.|
  |kMaplyFadeOut|NSNumber|The number of seconds to fade a marker out when it disappears.  This override kMaplyFade.|
@@ -244,6 +245,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  |kMaplyViewableCenterX|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center X coordinate.|
  |kMaplyViewableCenterY|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Y coordinate.|
  |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
+ |kMaplyDrawPriority|NSNumber|If set, the labels are sorted by this number.  Larger numbers will be sorted later.|
  |kMaplyFade|NSNumber|The number of seconds to fade a screen label in when it appears and out when it disappears.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
  |kMaplyEnableStart|NSNumber|If set, this controls when the resulting objects will be activated.|
