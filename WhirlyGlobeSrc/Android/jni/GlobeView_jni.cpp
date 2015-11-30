@@ -322,7 +322,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_prospectiveUp
 
 		Vector3d newUp = view->prospectiveUp(*quat);
 
-		MakePoint3d(env,Point3d(newUp.x(),newUp.y(),newUp.z()));
+		return MakePoint3d(env,Point3d(newUp.x(),newUp.y(),newUp.z()));
 	}
 	catch (...)
 	{
