@@ -32,7 +32,12 @@
 - (instancetype)initWithGridData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY
 {
     if (self = [super init])
-        self.chunkImpl = [[WhirlyKitElevationGridChunk alloc] initWithShortData:data sizeX:sizeX sizeY:sizeY];
+    {
+        if (sizeX*sizeY*2 == [data length])
+            self.chunkImpl = [[WhirlyKitElevationGridChunk alloc] initWithShortData:data sizeX:sizeX sizeY:sizeY];
+        else
+            self.chunkImpl = [[WhirlyKitElevationGridChunk alloc] initWithFloatData:data sizeX:sizeX sizeY:sizeY];
+    }
     
     return self;
 }
