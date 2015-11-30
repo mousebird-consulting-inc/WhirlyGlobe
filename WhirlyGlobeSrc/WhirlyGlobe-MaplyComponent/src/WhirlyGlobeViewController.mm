@@ -662,6 +662,20 @@ using namespace WhirlyGlobe;
     globeView.delegate = animateRotation;        
 }
 
+- (void)rotateToPointD:(Point2d)whereGeo time:(NSTimeInterval)howLong
+{
+    // If we were rotating from one point to another, stop
+    [globeView cancelAnimation];
+    
+    // Construct a quaternion to rotate from where we are to where
+    //  the user tapped
+    Eigen::Quaterniond newRotQuat = [globeView makeRotationToGeoCoordD:whereGeo keepNorthUp:panDelegate.northUp];
+    
+    // Rotate to the given position over time
+    animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
+    globeView.delegate = animateRotation;
+}
+
 // External facing version of rotateToPoint
 - (void)animateToPosition:(WGCoordinate)newPos time:(NSTimeInterval)howLong
 {
@@ -772,6 +786,22 @@ using namespace WhirlyGlobe;
 
     [self setPosition:newPos];
     globeView.heightAboveGlobe = height;
+}
+
+- (void)setPositionD:(MaplyCoordinateD)newPos height:(double)height
+{
+    if (isnan(newPos.x) || isnan(newPos.y) || isnan(height))
+    {
+        NSLog(@"WhirlyGlobeViewController: Invalid location passed to setPosition:");
+        return;
+    }
+    
+    // Note: This might conceivably be a problem, though I'm not sure how.
+    [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:0.0];
+    globeView.heightAboveGlobe = height;
+    // If there's a pinch delegate, ask it to calculate the height.
+    if (tiltControlDelegate)
+        self.tilt = [tiltControlDelegate tiltFromHeight:globeView.heightAboveGlobe];
 }
 
 - (void)setHeading:(float)heading
