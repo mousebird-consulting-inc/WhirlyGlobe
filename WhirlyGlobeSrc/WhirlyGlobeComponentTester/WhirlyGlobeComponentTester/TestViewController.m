@@ -309,7 +309,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         baseViewC.clearColor = [UIColor colorWithWhite:0.5 alpha:1.0];
 
         // Cesium as an elevation source
-        MaplyRemoteTileElevationCesiumSource *cesiumElev = [[MaplyRemoteTileElevationCesiumSource alloc] initWithBaseURL:@"http://cesiumjs.org/stk-terrain/tilesets/world/tiles/" ext:@"terrain" minZoom:0 maxZoom:16];
+        MaplyRemoteTileElevationCesiumSource *cesiumElev = [[MaplyRemoteTileElevationCesiumSource alloc] initWithBaseURL:@"http://assets.agi.com/stk-terrain/tilesets/world/tiles/" ext:@"terrain" minZoom:0 maxZoom:16];
         elevSource = cesiumElev;
         cesiumElev.cacheDir = [NSString stringWithFormat:@"%@/cesiumElev/",cacheDir];
 
@@ -343,8 +343,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 //        mapViewC.height = 1.0;
 //        [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(86.925278, 27.988056) time:1.0];
         
-        [self addSun];
-        [self addStars:@"starcatalog_short"];
+//        [self addSun];
+//        [self addStars:@"starcatalog_short"];
     }
     
     // Force the view to load so we can get the default switch values
