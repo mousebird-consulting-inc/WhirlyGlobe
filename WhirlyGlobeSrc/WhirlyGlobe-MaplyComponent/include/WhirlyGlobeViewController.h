@@ -347,6 +347,13 @@
  */
 - (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
 
+/** @brief Set the center of the screen and the height offset immediately.
+    @details Set the center and height using double.s
+    @param newPos The geographic position (lon/lat in radians) to move to.
+    @param height Height the view point above the globe.
+ */
+- (void)setPositionD:(MaplyCoordinateD)newPos height:(double)height;
+
 /** @brief Return the current center position and height.
     @param pos The center of the screen in geographic (lon/lat in radians).
     @param height The current view point's height above the globe.

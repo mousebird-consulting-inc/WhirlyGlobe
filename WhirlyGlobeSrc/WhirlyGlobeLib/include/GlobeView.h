@@ -98,6 +98,8 @@
  */
 - (Eigen::Quaterniond) makeRotationToGeoCoord:(const WhirlyKit::GeoCoord &)worldLoc keepNorthUp:(BOOL)northUp;
 
+- (Eigen::Quaterniond) makeRotationToGeoCoordD:(const WhirlyKit::Point2d &)worldLoc keepNorthUp:(BOOL)northUp;
+
 // Construct a rotation to given location and heading
 - (Eigen::Quaterniond) makeRotationToGeoCoord:(const WhirlyKit::GeoCoord &)worldCoord heading:(double)heading;
 
