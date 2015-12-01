@@ -189,7 +189,6 @@ using namespace WhirlyKit;
     if (_shaderProgramName)
     {
         _customShader = scene->getProgramIDBySceneName([_shaderProgramName cStringUsingEncoding:NSASCIIStringEncoding]);
-        tileLoader.programId = _customShader;
     } else
         _customShader = EmptyIdentity;
     
@@ -215,6 +214,7 @@ using namespace WhirlyKit;
         }
     }
     
+    tileLoader.programId = _customShader;
     elevDelegate = _viewC.elevDelegate;
     
     [super.layerThread addLayer:quadLayer];
