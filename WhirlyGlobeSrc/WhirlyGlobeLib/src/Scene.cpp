@@ -728,6 +728,7 @@ void SetProgramValueReq::execute(Scene *scene,WhirlyKit::SceneRendererES *render
     OpenGLES2Program *prog = scene->getProgram(progID);
     if (prog)
     {
+        glUseProgram(prog->getProgram());
         prog->setUniform(u_name, u_val);
     }
 }
