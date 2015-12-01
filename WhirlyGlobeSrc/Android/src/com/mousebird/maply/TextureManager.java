@@ -20,6 +20,8 @@
 
 package com.mousebird.maply;
 
+import android.graphics.Bitmap;
+
 import java.util.TreeSet;
 
 /**
@@ -31,13 +33,13 @@ class TextureManager
 {
 	class TextureWrapper implements Comparable<TextureWrapper>
 	{
-		TextureWrapper(NamedBitmap inBitmap)
+		TextureWrapper(Bitmap inBitmap)
 		{
 			bitmap = inBitmap;
 		}
 				
-		// The bitmap with its unique name
-		NamedBitmap bitmap = null;
+		// The bitmap
+		Bitmap bitmap = null;
 		// Texture ID in the rendering engine
 		long texID = 0;
 		// Number of things using it
@@ -46,7 +48,12 @@ class TextureManager
 		@Override
 		public int compareTo(TextureWrapper that) 
 		{
-			return bitmap.name.compareTo(that.bitmap.name);
+			int hash1 = bitmap.hashCode();  int hash2 = that.bitmap.hashCode();
+			if (hash1 == hash2)
+				return 0;
+			if (hash1 < hash2)
+				return -1;
+			return 1;
 		}		
 	};
 	
@@ -59,7 +66,7 @@ class TextureManager
 	 * @param changes
 	 * @return
 	 */
-	long addTexture(NamedBitmap theBitmap, Scene scene, ChangeSet changes)
+	long addTexture(Bitmap theBitmap, Scene scene, ChangeSet changes)
 	{
 		// Find an existing one
 		TextureWrapper testWrapper = new TextureWrapper(theBitmap);
@@ -72,7 +79,7 @@ class TextureManager
 		
 		// Need to create it
 		Texture texture = new Texture();
-		if (!texture.setBitmap(theBitmap.bitmap))
+		if (!texture.setBitmap(theBitmap))
 			return MaplyBaseController.EmptyIdentity;
 		testWrapper.refs = 1;
 		testWrapper.texID = texture.getID();

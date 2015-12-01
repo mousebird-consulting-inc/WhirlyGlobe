@@ -20,6 +20,8 @@
 
 package com.mousebird.maply;
 
+import android.graphics.Bitmap;
+
 /**
  * The screen marker is a 2D rectangle that tracks a certain position in
  * geographic (lon/lat in radians).  Specific information set within
@@ -51,11 +53,9 @@ public class ScreenMarker
 	public double rotation = 0.0;
 
 	/**
-	 * If set, this is the image we'll use for this marker.  You'll need to
-	 * set up the NamedBitmap, but the MaplyController will track the rest,
-	 * including information about reuse.
+	 * If set, this is the image we'll use for this marker.
 	 */
-	public NamedBitmap image = null;
+	public Bitmap image = null;
 
 	/**
 	 * Background color for a marker can be overridden at this level.

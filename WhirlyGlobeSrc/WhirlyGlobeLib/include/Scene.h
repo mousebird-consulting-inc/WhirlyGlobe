@@ -266,6 +266,9 @@ public:
     /// Set the scene we're part of
     virtual void setScene(Scene *inScene) { scene = inScene; }
     
+    /// Return the scene this is part of
+    Scene *getScene() { return scene; }
+    
 protected:
     Scene *scene;
     SceneRendererES *renderer;

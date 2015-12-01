@@ -66,9 +66,10 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
 }
 
 Marker::Marker()
-    : isSelectable(false), selectID(EmptyIdentity), loc(0,0), color(255,255,255,255), colorSet(false),
-    lockRotation(false), height(0), width(0), rotation(0), offset(0,0), period(0),
-    timeOffset(0), layoutImportance(MAXFLOAT), startTime(0.0), endTime(0.0)
+    : isSelectable(false), selectID(EmptyIdentity), loc(0,0), hasMotion(false), endLoc(0,0), startTime(0), endTime(0),
+    color(255,255,255,255), colorSet(false),
+    lockRotation(false), height(0), width(0), layoutHeight(0), layoutWidth(0), rotation(0), offset(0,0), period(0),
+    timeOffset(0), layoutImportance(MAXFLOAT)
 {
 }
 

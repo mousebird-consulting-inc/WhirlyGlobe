@@ -86,7 +86,8 @@ void ScreenSpaceDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *sc
 {
     if (frameInfo->program)
     {
-        frameInfo->program->setUniform("u_scale", (Point2f)(frameInfo->sceneRenderer->getFramebufferSize()/2.f));
+      Point2f fbSize = frameInfo->sceneRenderer->getFramebufferSize();
+      frameInfo->program->setUniform("u_scale", Point2f(2.f/fbSize.x(),2.f/fbSize.y()));
         frameInfo->program->setUniform("u_upright", keepUpright);
         if (motion)
             frameInfo->program->setUniform("u_time", (float)(frameInfo->currentTime - startTime));
