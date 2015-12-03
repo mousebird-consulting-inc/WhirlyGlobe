@@ -219,6 +219,8 @@
 		2B5F18A41A7B05B4004A8723 /* ScreenSpaceDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B5F18A21A7B05B4004A8723 /* ScreenSpaceDrawable.cpp */; };
 		2B5F18A71A7B05BF004A8723 /* ScreenSpaceBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B5F18A51A7B05BF004A8723 /* ScreenSpaceBuilder.h */; };
 		2B5F18A81A7B05BF004A8723 /* ScreenSpaceDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B5F18A61A7B05BF004A8723 /* ScreenSpaceDrawable.h */; };
+		2B76C5DB1C10C4770081F395 /* TileQuadOfflineRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B76C5DA1C10C4770081F395 /* TileQuadOfflineRenderer.h */; };
+		2B76C5DD1C10C48A0081F395 /* TileQuadOfflineRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B76C5DC1C10C48A0081F395 /* TileQuadOfflineRenderer.cpp */; };
 		2B7EF42516025D8C00D4079F /* aasincos.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37A16025D8C00D4079F /* aasincos.c */; };
 		2B7EF42616025D8C00D4079F /* adjlon.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37B16025D8C00D4079F /* adjlon.c */; };
 		2B7EF42716025D8C00D4079F /* bch2bps.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37C16025D8C00D4079F /* bch2bps.c */; };
@@ -694,6 +696,8 @@
 		2B5F18A21A7B05B4004A8723 /* ScreenSpaceDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScreenSpaceDrawable.cpp; sourceTree = "<group>"; };
 		2B5F18A51A7B05BF004A8723 /* ScreenSpaceBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceBuilder.h; sourceTree = "<group>"; };
 		2B5F18A61A7B05BF004A8723 /* ScreenSpaceDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceDrawable.h; sourceTree = "<group>"; };
+		2B76C5DA1C10C4770081F395 /* TileQuadOfflineRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileQuadOfflineRenderer.h; sourceTree = "<group>"; };
+		2B76C5DC1C10C48A0081F395 /* TileQuadOfflineRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TileQuadOfflineRenderer.cpp; sourceTree = "<group>"; };
 		2B7EF37A16025D8C00D4079F /* aasincos.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aasincos.c; sourceTree = "<group>"; };
 		2B7EF37B16025D8C00D4079F /* adjlon.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = adjlon.c; sourceTree = "<group>"; };
 		2B7EF37C16025D8C00D4079F /* bch2bps.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bch2bps.c; sourceTree = "<group>"; };
@@ -1471,6 +1475,7 @@
 		2BC53FA412DE217E00778431 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2B76C5DA1C10C4770081F395 /* TileQuadOfflineRenderer.h */,
 				2B14BFCC1B83FD4500CE29A4 /* BaseInfo.h */,
 				2B35677A18D762BF00EF8DB1 /* Drawable.h */,
 				2B14BFC41B83F3F500CE29A4 /* BasicDrawable.h */,
@@ -1541,6 +1546,7 @@
 		2BC53FA512DE218300778431 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2B76C5DC1C10C48A0081F395 /* TileQuadOfflineRenderer.cpp */,
 				2B14BFCE1B83FE1A00CE29A4 /* BaseInfo.cpp */,
 				2B14BFC61B83F3FF00CE29A4 /* BasicDrawable.cpp */,
 				2B14BFD61B852C5E00CE29A4 /* BasicDrawableInstance.cpp */,
@@ -1745,6 +1751,7 @@
 				2B4B197B1BA38AD90091A743 /* com_mousebird_maply_MarkerManager.h in Headers */,
 				2B14BFC51B83F3F500CE29A4 /* BasicDrawable.h in Headers */,
 				2B923FCB1BFBDED200C879DB /* com_mousebird_maply_QuadImageTileLayer_FrameStatus.h in Headers */,
+				2B76C5DB1C10C4770081F395 /* TileQuadOfflineRenderer.h in Headers */,
 				2B4B198C1BA38AD90091A743 /* com_mousebird_maply_SphericalMercatorCoordSystem.h in Headers */,
 				2BA2325E17984F510063CC84 /* glues_quad.h in Headers */,
 				2B4B19821BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_ImageFormat.h in Headers */,
@@ -2102,6 +2109,7 @@
 				2B7EF4B216025D8C00D4079F /* PJ_tmerc.c in Sources */,
 				2B7EF4B316025D8C00D4079F /* PJ_tpeqd.c in Sources */,
 				2B7EF4B416025D8C00D4079F /* pj_transform.c in Sources */,
+				2B76C5DD1C10C48A0081F395 /* TileQuadOfflineRenderer.cpp in Sources */,
 				2B7EF4B516025D8C00D4079F /* pj_tsfn.c in Sources */,
 				2B7EF4B616025D8C00D4079F /* pj_units.c in Sources */,
 				2B7EF4B716025D8C00D4079F /* PJ_urm5.c in Sources */,
