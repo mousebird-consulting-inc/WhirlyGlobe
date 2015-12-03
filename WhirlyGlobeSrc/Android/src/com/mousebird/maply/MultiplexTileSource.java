@@ -60,7 +60,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	// Connection task fetches a single image
 	private class ConnectionTask implements com.squareup.okhttp.Callback {
         MultiplexTileSource tileSource = null;
-        QuadImageTileLayer layer = null;
+        QuadImageTileLayerInterface layer = null;
         MaplyTileID tileID = null;
         int frame = -1;
         URL url = null;
@@ -70,7 +70,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
         File cacheFile = null;
         boolean isCanceled = false;
 
-        ConnectionTask(QuadImageTileLayer inLayer, MultiplexTileSource inTileSource, MaplyTileID inTileID, int inFrame, String inURL, String inFile) {
+        ConnectionTask(QuadImageTileLayerInterface inLayer, MultiplexTileSource inTileSource, MaplyTileID inTileID, int inFrame, String inURL, String inFile) {
             tileSource = inTileSource;
             layer = inLayer;
             tileID = inTileID;
@@ -148,7 +148,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 
         // Let the system know we've got a tile
         protected void reportTile() {
-            layer.layerThread.addTask(new Runnable() {
+            layer.getLayerThread().addTask(new Runnable() {
                 @Override
                 public void run() {
                     // Let the layer and delegate know what happened with it
@@ -346,7 +346,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	public int pixelsPerSide() { return pixelsPerSide; }
 
 	@Override
-	public void startFetchForTile(QuadImageTileLayer layer, MaplyTileID tileID, int frame) 
+	public void startFetchForTile(QuadImageTileLayerInterface layer, MaplyTileID tileID, int frame)
 	{		
 //		Log.d("Maply","Multiplex Load: " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
 		

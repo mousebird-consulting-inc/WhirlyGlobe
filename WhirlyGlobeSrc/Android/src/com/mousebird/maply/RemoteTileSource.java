@@ -121,7 +121,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	private class ConnectionTask implements com.squareup.okhttp.Callback
 	{
 		RemoteTileSource tileSource = null;
-		QuadImageTileLayer layer = null;
+		QuadImageTileLayerInterface layer = null;
 		MaplyTileID tileID = null;
 		URL url = null;
 		String locFile = null;
@@ -130,7 +130,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
         File cacheFile = null;
         boolean isCanceled = false;
 		
-		ConnectionTask(QuadImageTileLayer inLayer,RemoteTileSource inTileSource, MaplyTileID inTileID,String inURL,String inFile)
+		ConnectionTask(QuadImageTileLayerInterface inLayer,RemoteTileSource inTileSource, MaplyTileID inTileID,String inURL,String inFile)
 		{
 			tileSource = inTileSource;
 			layer = inLayer;
@@ -211,7 +211,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 
         // Let the system know we've got a tile
         protected void reportTile() {
-            layer.layerThread.addTask(new Runnable() {
+            layer.getLayerThread().addTask(new Runnable() {
                 @Override
                 public void run() {
                     // Let the layer and delegate know what happened with it
@@ -241,7 +241,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	 * This is called by the quad image tile layer.  Don't call this yourself.
 	 */
 	@Override
-	public void startFetchForTile(QuadImageTileLayer layer, MaplyTileID tileID, int frame) 
+	public void startFetchForTile(QuadImageTileLayerInterface layer, MaplyTileID tileID, int frame)
 	{
 //		Log.d("Maply","Starting fetch for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
 		

@@ -22,7 +22,6 @@ package com.mousebird.maply;
 import java.util.ArrayList;
 
 import android.graphics.Bitmap;
-import android.media.Image;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -39,7 +38,7 @@ import android.os.Looper;
  * @author sjg
  *
  */
-public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcherInterface
+public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcherInterface, QuadImageTileLayerInterface
 {
 	// Set when the layer is active.
 	boolean valid = false;
@@ -79,7 +78,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		 * @param tileID The tile ID to fetch.
 		 * @param frame If the source support multiple frames, this is the frame.  Otherwise -1.
 		 */
-		public void startFetchForTile(QuadImageTileLayer layer,MaplyTileID tileID,int frame);
+		public void startFetchForTile(QuadImageTileLayerInterface layer,MaplyTileID tileID,int frame);
 	}
 	
 	public MaplyBaseController maplyControl = null;
@@ -324,7 +323,12 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 			nativeTileDidNotLoad(tileID.x,y,tileID.level,frame,changes);
 		layerThread.addChanges(changes);
 	}
-		
+
+	public LayerThread getLayerThread()
+	{
+		return layerThread;
+	}
+
 	/** Enable/Disable the whole layer.
      *	By default this is on.  If you turn it off, there may be a slight delay before the whole layer disappears.  The layer will keep working, but any geometry will be invisible until you turn it back on.
 	 */
@@ -342,9 +346,6 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	 */
 	public native void setDrawPriority(int drawPriority);
 	
-	/** Enable/Disable the whole layer.
-     *  By default this is on.  If you turn it off, there may be a slight delay before the whole layer disappears.  The layer will keep working, but any geometry will be invisible until you turn it back on.
-	 */
 //	public native void setFade(float fade);
 	
 	/** The number of images we're expecting to get per tile.
@@ -452,7 +453,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     /**
      * Information about the frame status
      */
-    public class FrameStatus
+    static public class FrameStatus
     {
         FrameStatus(int depth)
         {
@@ -501,7 +502,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	/**
 	 * Information about the status of individual frames, if you have frame loading turned on.
 	 */
-	class FrameLoadStatus
+	static public class FrameLoadStatus
 	{
 	    /// True if this one is fully loaded
 	    boolean complete = false;
