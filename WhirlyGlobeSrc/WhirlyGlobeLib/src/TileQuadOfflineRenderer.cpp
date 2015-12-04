@@ -58,7 +58,7 @@ void OfflineTile::GetTileSize(int &numX,int &numY)
 
 QuadTileOfflineLoader::QuadTileOfflineLoader(const std::string &name,QuadTileImageDataSource *imageSource)
     : name(name), imageSource(imageSource), on(true), numImages(1), sizeX(1024), sizeY(1024), autoRes(true),
-    period(10.0), previewLevels(-1), outputDelegate(NULL), quadControl(NULL), numFetches(0), renderScheduled(false),
+    period(10.0), previewLevels(-1), outputDelegate(NULL), numFetches(0), renderScheduled(false),
     immediateScheduled(false), lastRender(0), somethingChanged(true), currentMbr(-1)
 {
     theMbr.addPoint(Point2f(0,0));
@@ -95,7 +95,7 @@ void QuadTileOfflineLoader::clear()
 
 void QuadTileOfflineLoader::setMbr(Mbr newMbr)
 {
-    if (!quadControl)
+    if (!control)
         return;
 
     if (newMbr.ll().x() < 0 && newMbr.ur().x() > 0 && (newMbr.ur().x() - newMbr.ll().x() > M_PI))
@@ -194,7 +194,7 @@ Point2d QuadTileOfflineLoader::calculateSize()
                 continue;
             // Scale the extents to the output image
             Mbr tileMbr[2];
-            tileMbr[0] = quadControl->getQuadtree()->generateMbrForNode(tile->ident);
+            tileMbr[0] = control->getQuadtree()->generateMbrForNode(tile->ident);
             bool overlaps = tileMbr[0].overlaps(testMbrs[0]);
             if (testMbrs.size() > 1 && !overlaps)
             {
@@ -287,7 +287,7 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep)
                 
                 // Scale the extents to the output image
                 Mbr tileMbr[2];
-                tileMbr[0] = quadControl->getQuadtree()->generateMbrForNode(tile->ident);
+                tileMbr[0] = control->getQuadtree()->generateMbrForNode(tile->ident);
                 bool overlaps = tileMbr[0].overlaps(testMbrs[0]);
                 if (testMbrs.size() > 1 && !overlaps)
                 {
@@ -379,7 +379,7 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep)
             for (unsigned int ii=0;ii<changes.size();ii++)
             {
                 AddTextureReq *texReq = (AddTextureReq *)changes[ii];
-                texReq->getTex()->destroyInGL(quadControl->getScene()->getMemManager());
+                texReq->getTex()->destroyInGL(control->getScene()->getMemManager());
                 delete changes[ii];
             }
             changes.clear();
@@ -420,9 +420,9 @@ Point2d QuadTileOfflineLoader::pixelSizeForMbr(const Mbr &theMbr,const Point2d &
     l[2] = theMbr.ll() + Point2f(texel.x()*texelSize.x(),(texel.y()+1)*texelSize.y());
     
     // Project the points into display space
-    CoordSystemDisplayAdapter *coordAdapter = quadControl->getScene()->getCoordAdapter();
+    CoordSystemDisplayAdapter *coordAdapter = control->getScene()->getCoordAdapter();
     CoordSystem *localCoordSys = coordAdapter->getCoordSystem();
-    CoordSystem *srcCoordSys = quadControl->getCoordSys();
+    CoordSystem *srcCoordSys = control->getCoordSys();
     Point3d d[3];
     for (unsigned int ii=0;ii<3;ii++)
         d[ii] = coordAdapter->localToDisplay(localCoordSys->geocentricToLocal(srcCoordSys->localToGeocentric(Point3d(l[ii].x(),l[ii].y(),0.0))));
@@ -468,8 +468,7 @@ void QuadTileOfflineLoader::loadTile(const Quadtree::NodeInfo &tileInfo,int fram
     
     tiles.insert(newTile);
     
-    // Note: Porting
-//    [_imageSource quadTileLoader:self startFetchForLevel:tileInfo.ident.level col:tileInfo.ident.x row:tileInfo.ident.y attrs:tileInfo.attrs];
+    imageSource->startFetch(this, tileInfo.ident.level, tileInfo.ident.x, tileInfo.ident.y, frame, const_cast<Dictionary *>(&tileInfo.attrs));
     numFetches++;
     somethingChanged = true;
 }
@@ -530,7 +529,7 @@ void QuadTileOfflineLoader::loadedImage(QuadTileImageDataSource *dataSource,Load
     tile->images = loadImages;
 
 //    NSLog(@"Loaded tile %d: (%d,%d)",level,col,row);
-    quadControl->tileDidLoad(tileIdent, frame);
+    control->tileDidLoad(tileIdent, frame);
     somethingChanged = true;
 }
 

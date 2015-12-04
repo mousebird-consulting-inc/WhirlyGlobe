@@ -66,7 +66,8 @@ public:
     QuadImageOfflineLayerAdapter(CoordSystem *coordSys)
     : env(NULL), javaObj(NULL), renderer(NULL), coordSys(coordSys),
 		  simultaneousFetches(1), tileLoader(NULL),imageDepth(1),enable(true), allowFrameLoading(true),
-		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), scene(NULL), control(NULL)
+		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), scene(NULL), control(NULL), fade(1.0),
+    color(RGBAColor(255,255,255,255))
     {
         useTargetZoomLevel = true;
         canShortCircuitImportance = false;
@@ -282,11 +283,7 @@ public:
         if (center.x() == 0.0 && center.y() == 0.0 && center.z() == 0.0)
         {
             canShortCircuitImportance = true;
-            if (!coordAdapter->isFlat())
-            {
-                canShortCircuitImportance = false;
-                return;
-            }
+
             // We happen to store tilt in the view matrix.
             // Note: Porting
             //            if (!viewState->viewMatrix.isIdentity())
@@ -295,11 +292,6 @@ public:
             //                return;
             //            }
             // The tile source coordinate system must be the same as the display's system
-            if (!coordSys->isSameAs(coordAdapter->getCoordSystem()))
-            {
-                canShortCircuitImportance = false;
-                return;
-            }
             
             // We need to feel our way down to the appropriate level
             maxShortCircuitLevel = targetZoomLevel(viewState);
@@ -351,7 +343,7 @@ public:
     /// We'll call the loader back with the image when it's ready.
     virtual void startFetch(QuadTileLoaderSupport *quadLoader,int level,int col,int row,int frame,Dictionary *attrs)
     {
-        //   		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Asking for tile: %d : (%d,%d)",level,col,row);
+   		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Asking for tile: %d : (%d,%d)",level,col,row);
         
         env->CallVoidMethod(javaObj, startFetchJava, level, col, row, frame);
     }
@@ -378,7 +370,7 @@ public:
     // Callback letting us know a tile was removed
     void tileWasUnloaded(int level,int col,int row)
     {
-        //      __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did unload: %d: (%d,%d)",level,col,row);
+      __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did unload: %d: (%d,%d)",level,col,row);
         scheduleEvalStep();
     }
     
@@ -415,13 +407,13 @@ public:
 typedef JavaClassInfo<QuadImageOfflineLayerAdapter> QILAdapterClassInfo;
 template<> QILAdapterClassInfo *QILAdapterClassInfo::classInfoObj = NULL;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_nativeInit
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_nativeInit
 (JNIEnv *env, jclass cls)
 {
     QILAdapterClassInfo::getClassInfo(env,cls);
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_initialise
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_initialise
 (JNIEnv *env, jobject obj, jobject coordSysObj, jobject changesObj)
 {
     try
@@ -437,11 +429,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_initia
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::initialise()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::initialise()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_dispose
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_dispose
 (JNIEnv *env, jobject obj)
 {
     try
@@ -457,11 +449,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_dispos
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::dispose()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::dispose()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setEnable
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setEnable
 (JNIEnv *env, jobject obj, jboolean enable, jobject changeSetObj)
 {
     try
@@ -480,7 +472,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setEna
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setImageDepth
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setImageDepth
 (JNIEnv *env, jobject obj, jint imageDepth)
 {
     try
@@ -493,11 +485,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setIma
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::setImageDepth()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::setImageDepth()");
     }
 }
 
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_getImageDepth
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_getImageDepth
 (JNIEnv *env, jobject obj)
 {
     try
@@ -510,13 +502,13 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_getIma
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::getImageDepth()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::getImageDepth()");
     }
     
     return 1;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setAllowFrameLoading
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setAllowFrameLoading
 (JNIEnv *env, jobject obj, jboolean frameLoading)
 {
     try
@@ -529,11 +521,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setAll
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::setAllowFrameLoading()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::setAllowFrameLoading()");
     }
 }
 
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_getFrameStatusNative
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_getFrameStatusNative
 (JNIEnv *env, jobject obj, jbooleanArray completeArray, jintArray tilesLoadedArray)
 {
     try
@@ -566,14 +558,14 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_getFra
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::getFrameStatus()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::getFrameStatus()");
     }
     
     return -1;
 }
 
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setFrameLoadingPriority
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setFrameLoadingPriority
 (JNIEnv *env, jobject obj, jintArray frameLoadingArr, jobject changeSetObj)
 {
     try
@@ -589,11 +581,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setFra
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::setFrameLoadingPriority()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::setFrameLoadingPriority()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setMaxTiles
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setMaxTiles
 (JNIEnv *env, jobject obj, jint maxTiles)
 {
     try
@@ -606,11 +598,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setMax
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::setMaxTiles()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::setMaxTiles()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setImportanceScale
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setImportanceScale
 (JNIEnv *env, jobject obj, jfloat scale)
 {
     try
@@ -623,11 +615,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setImp
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::setImportanceScale()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::setImportanceScale()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setMultiLevelLoads
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setMultiLevelLoads
 (JNIEnv *env, jobject obj, jintArray levelLoadsArr)
 {
     try
@@ -641,11 +633,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setMul
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::setMultiLevelLoads()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::setMultiLevelLoads()");
     }
 }
 
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_getTargetZoomLevel
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_getTargetZoomLevel
 (JNIEnv *env, jobject obj)
 {
     try
@@ -659,7 +651,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_getTar
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::getTargetZoomLevel()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::getTargetZoomLevel()");
     }
     
     return 0;
@@ -681,11 +673,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_OfflineTileLayer_reload
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::reload()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::reload()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_getLoadedFrames
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_getLoadedFrames
 (JNIEnv *env, jobject obj, jint numFrames, jbooleanArray completeArr, jbooleanArray currentFrameArr, jintArray numTilesLoadedArr)
 {
     try
@@ -712,11 +704,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_getLoa
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::getLoadedFrames()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::getLoadedFrames()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setSimultaneousFetches
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setSimultaneousFetches
 (JNIEnv *env, jobject obj, jint numFetches)
 {
     try
@@ -729,11 +721,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setSim
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::setSimultaneousFetches()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::setSimultaneousFetches()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setUseTargetZoomLevel
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setUseTargetZoomLevel
 (JNIEnv *env, jobject obj, jboolean newVal)
 {
     try
@@ -746,11 +738,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setUse
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::setUseTargetZoomLevel()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::setUseTargetZoomLevel()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setSingleLevelLoading
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setSingleLevelLoading
 (JNIEnv *env, jobject obj, jboolean newVal)
 {
     try
@@ -763,11 +755,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setSin
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::setSingleLevelLoading()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::setSingleLevelLoading()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_nativeStartLayer
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_nativeStartLayer
 (JNIEnv *env, jobject obj, jobject sceneObj, jobject rendererObj, jobject llObj, jobject urObj, jint minZoom, jint maxZoom, jint pixelsPerSide)
 {
     try
@@ -787,11 +779,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_native
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::nativeStartLayer()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::nativeStartLayer()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_nativeShutdown
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_nativeShutdown
 (JNIEnv *env, jobject obj, jobject changesObj)
 {
     try
@@ -806,11 +798,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_native
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::nativeShutdown()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::nativeShutdown()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_nativeViewUpdate
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_nativeViewUpdate
 (JNIEnv *env, jobject obj, jobject viewStateObj)
 {
     try
@@ -826,11 +818,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_native
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::nativeViewUpdate()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::nativeViewUpdate()");
     }
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_nativeEvalStep
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_nativeEvalStep
 (JNIEnv *env, jobject obj, jobject changesObj)
 {
     try
@@ -847,13 +839,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_na
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::nativeEvalStep()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::nativeEvalStep()");
     }
     
     return false;
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_nativeRefresh
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_nativeRefresh
 (JNIEnv *env, jobject obj, jobject changesObj)
 {
     try
@@ -871,13 +863,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_na
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::nativeRefresh()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::nativeRefresh()");
     }
     
     return false;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_nativeTileDidLoad
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_nativeTileDidLoad
 (JNIEnv *env, jobject obj, jint x, jint y, jint level, jint frame, jobject bitmapObj, jobject changesObj)
 {
     try
@@ -896,7 +888,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_native
         }
         if (info.format != ANDROID_BITMAP_FORMAT_RGBA_8888)
         {
-            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Only dealing with 8888 bitmaps in QuadImageOfflineTileLayer");
+            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Only dealing with 8888 bitmaps in QuadImageOfflineLayer");
             return;
         }
         // Copy the raw data over to the texture
@@ -915,11 +907,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_native
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::nativeTileDidLoad()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::nativeTileDidLoad()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_nativeTileDidNotLoad
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_nativeTileDidNotLoad
 (JNIEnv *env, jobject obj, jint x, jint y, jint level, jint frame, jobject changesObj)
 {
     try
@@ -934,6 +926,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_native
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineTileLayer::nativeTileDidLoad()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::nativeTileDidLoad()");
     }
 }

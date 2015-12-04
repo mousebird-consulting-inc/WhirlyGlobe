@@ -203,7 +203,6 @@ protected:
     int previewLevels;
     QuadTileOfflineDelegate *outputDelegate;
     
-    QuadDisplayController *quadControl;
     OfflineTileSet tiles;
     int numFetches;
     bool renderScheduled,immediateScheduled;
