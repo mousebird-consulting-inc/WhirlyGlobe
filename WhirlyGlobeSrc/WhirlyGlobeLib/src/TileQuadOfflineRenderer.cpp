@@ -106,12 +106,12 @@ void QuadTileOfflineLoader::setMbr(Mbr newMbr)
         newMbr.ur().x() += 2*M_PI;
     }
 
-    // Note: Porting
-//    @synchronized(self)
-//    {
+    {
+        std::lock_guard<std::mutex> lock(mut);
         theMbr = newMbr;
         currentMbr++;
-//    }
+    }
+
     somethingChanged = true;
     
     // Note: Porting
@@ -170,12 +170,11 @@ Point2d QuadTileOfflineLoader::calculateSize()
         Point2f imageRes(MAXFLOAT,MAXFLOAT);
         
         Mbr mbr;
-        // Note: Porting
-//        @synchronized(self)
-//        {
+        {
+            std::lock_guard<std::mutex> lock(mut);
             mbr = theMbr;
-//        }
-
+        }
+        
         // Note: Assuming geographic or spherical mercator
         GeoMbr geoMbr(GeoCoord(mbr.ll().x(), mbr.ll().y()),GeoCoord(mbr.ur().x(),mbr.ur().y()));
         std::vector<Mbr> testMbrs;
@@ -243,13 +242,12 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep)
         int whichMbr;
         
         Mbr mbr;
-        // Note: Porting
-//        @synchronized(self)
-//        {
+        {
+            std::lock_guard<std::mutex> lock(mut);
             mbr = theMbr;
             whichMbr = currentMbr;
-//        }
-
+        }
+        
         // Note: Assuming geographic or spherical mercator
         GeoMbr geoMbr(GeoCoord(mbr.ll().x(), mbr.ll().y()),GeoCoord(mbr.ur().x(),mbr.ur().y()));
         std::vector<Mbr> testMbrs;
@@ -438,6 +436,11 @@ Point2d QuadTileOfflineLoader::pixelSizeForMbr(const Mbr &theMbr,const Point2d &
 #pragma mark - WhirlyKitQuadLoader
 
 void QuadTileOfflineLoader::shutdownLayer(ChangeSet &changes)
+{
+    clear();
+}
+    
+void QuadTileOfflineLoader::reset(ChangeSet &changes)
 {
     clear();
 }

@@ -18,6 +18,7 @@
  *
  */
 
+#import <mutex>
 #import <math.h>
 #import "WhirlyVector.h"
 #import "Scene.h"
@@ -147,42 +148,44 @@ public:
     /// The quad tree wants to load the given tile.
     /// Call the layer back when the tile is loaded.
     /// This is in the layer thread.
-    virtual void loadTile(const Quadtree::NodeInfo &tileInfo,int frame) = 0;
+    virtual void loadTile(const Quadtree::NodeInfo &tileInfo,int frame);
     
     /// Quad tree wants to unload the given tile immediately.
     /// This is in the layer thread.
-    virtual void unloadTile(const Quadtree::NodeInfo &tileInfo) = 0;
+    virtual void unloadTile(const Quadtree::NodeInfo &tileInfo);
     
     /// The layer is checking to see if it's allowed to traverse below the given tile.
     /// If the loader is still trying to load that given tile (or has some other information about it),
     ///  then return false.  If the tile is loaded and the children may be valid, return true.
-    virtual bool canLoadChildrenOfTile(const Quadtree::NodeInfo &tileInfo) = 0;
+    virtual bool canLoadChildrenOfTile(const Quadtree::NodeInfo &tileInfo);
     
     /// Called when the layer is about to shut down.  Clear out any drawables and caches.
-    virtual void shutdownLayer(ChangeSet &changes) = 0;
+    virtual void shutdownLayer(ChangeSet &changes);
     
     /// Number of frames of animation per tile (if we're doing animation)
-    virtual int numFrames() = 0;
+    virtual int numFrames() { return numImages; }
     
     /// If we're doing animation, currently active frame.
     /// If numFrames = 1, this should be -1.  If numFrames > 1, -1 means load all frames at once
-    virtual int currentFrame() = 0;
+    virtual int currentFrame() { return 0; }
     
     /// Set if the loader can handle individual frame loading
-    virtual bool canLoadFrames() = 0;
+    virtual bool canLoadFrames() { return true; }
     
     /// Called right before the view update to determine if we should even be paging
     /// You can use this to temporarily suspend paging.
     /// isInitial is set if this is the first time through
-    virtual bool shouldUpdate(ViewState *viewState,bool isInitial) = 0;
+    virtual bool shouldUpdate(ViewState *viewState,bool isInitial) { return on; }
     
     /// If this is filled in, we can do a hard reset while the layer is running.
     /// This is pretty much identical to shutdownLayer:scene: but we expect to run again afterwards.
-    virtual void reset(ChangeSet &changes) = 0;
+    virtual void reset(ChangeSet &changes);
     
     void loadedImage(QuadTileImageDataSource *dataSource,LoadedImage *loadImage,int level,int col,int row,int frame,ChangeSet &changes);
     
 protected:
+    std::mutex mut;
+    
     void imageRenderToLevel(int deep);
     Point2d calculateSize();
     Point2d pixelSizeForMbr(const Mbr &theMbr,const Point2d &texSize,const Point2d &texel);

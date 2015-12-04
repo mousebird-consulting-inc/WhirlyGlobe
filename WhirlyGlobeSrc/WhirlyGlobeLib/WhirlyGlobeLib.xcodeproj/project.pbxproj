@@ -221,8 +221,8 @@
 		2B5F18A81A7B05BF004A8723 /* ScreenSpaceDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B5F18A61A7B05BF004A8723 /* ScreenSpaceDrawable.h */; };
 		2B76C5DB1C10C4770081F395 /* TileQuadOfflineRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B76C5DA1C10C4770081F395 /* TileQuadOfflineRenderer.h */; };
 		2B76C5DD1C10C48A0081F395 /* TileQuadOfflineRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B76C5DC1C10C48A0081F395 /* TileQuadOfflineRenderer.cpp */; };
-		2B76C5E31C1102500081F395 /* com_mousebird_maply_QuadImageOfflineLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B76C5E21C1102500081F395 /* com_mousebird_maply_QuadImageOfflineLayer.h */; };
-		2B76C5E51C1102850081F395 /* QuadImageOfflineLayer_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B76C5E41C1102850081F395 /* QuadImageOfflineLayer_jni.cpp */; };
+		2B76C5EE1C12237D0081F395 /* QuadImageOfflineLayer_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B76C5ED1C12237D0081F395 /* QuadImageOfflineLayer_jni.cpp */; };
+		2B76C5F01C1223A90081F395 /* com_mousebird_maply_QuadImageOfflineLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B76C5EF1C1223A90081F395 /* com_mousebird_maply_QuadImageOfflineLayer.h */; };
 		2B7EF42516025D8C00D4079F /* aasincos.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37A16025D8C00D4079F /* aasincos.c */; };
 		2B7EF42616025D8C00D4079F /* adjlon.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37B16025D8C00D4079F /* adjlon.c */; };
 		2B7EF42716025D8C00D4079F /* bch2bps.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37C16025D8C00D4079F /* bch2bps.c */; };
@@ -700,8 +700,8 @@
 		2B5F18A61A7B05BF004A8723 /* ScreenSpaceDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceDrawable.h; sourceTree = "<group>"; };
 		2B76C5DA1C10C4770081F395 /* TileQuadOfflineRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileQuadOfflineRenderer.h; sourceTree = "<group>"; };
 		2B76C5DC1C10C48A0081F395 /* TileQuadOfflineRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TileQuadOfflineRenderer.cpp; sourceTree = "<group>"; };
-		2B76C5E21C1102500081F395 /* com_mousebird_maply_QuadImageOfflineLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = com_mousebird_maply_QuadImageOfflineLayer.h; sourceTree = "<group>"; };
-		2B76C5E41C1102850081F395 /* QuadImageOfflineLayer_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuadImageOfflineLayer_jni.cpp; sourceTree = "<group>"; };
+		2B76C5ED1C12237D0081F395 /* QuadImageOfflineLayer_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadImageOfflineLayer_jni.cpp; path = ../Android/jni/QuadImageOfflineLayer_jni.cpp; sourceTree = "<group>"; };
+		2B76C5EF1C1223A90081F395 /* com_mousebird_maply_QuadImageOfflineLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_QuadImageOfflineLayer.h; path = ../Android/jni/com_mousebird_maply_QuadImageOfflineLayer.h; sourceTree = "<group>"; };
 		2B7EF37A16025D8C00D4079F /* aasincos.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aasincos.c; sourceTree = "<group>"; };
 		2B7EF37B16025D8C00D4079F /* adjlon.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = adjlon.c; sourceTree = "<group>"; };
 		2B7EF37C16025D8C00D4079F /* bch2bps.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bch2bps.c; sourceTree = "<group>"; };
@@ -1121,7 +1121,6 @@
 		2B4B19291BA38A940091A743 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				2B76C5E21C1102500081F395 /* com_mousebird_maply_QuadImageOfflineLayer.h */,
 				2B923FD11BFD04AE00C879DB /* com_mousebird_maply_StickerManager.h */,
 				2B923FC51BFBDED200C879DB /* com_mousebird_maply_BaseInfo.h */,
 				2B923FC61BFBDED200C879DB /* com_mousebird_maply_QuadImageTileLayer_FrameStatus.h */,
@@ -1162,6 +1161,7 @@
 				2B4B194A1BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_ImageFormat.h */,
 				2B4B194B1BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_TileSource.h */,
 				2B4B194C1BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer.h */,
+				2B76C5EF1C1223A90081F395 /* com_mousebird_maply_QuadImageOfflineLayer.h */,
 				2B4B194D1BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer_LoadedTile.h */,
 				2B4B194E1BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer_PagingInterface.h */,
 				2B4B194F1BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer.h */,
@@ -1225,7 +1225,7 @@
 				2B4B19B91BA38AFB0091A743 /* Point3d_jni.cpp */,
 				2B4B19BA1BA38AFB0091A743 /* Point4d_jni.cpp */,
 				2B4B19BB1BA38AFB0091A743 /* QuadImageTileLayer_jni.cpp */,
-				2B76C5E41C1102850081F395 /* QuadImageOfflineLayer_jni.cpp */,
+				2B76C5ED1C12237D0081F395 /* QuadImageOfflineLayer_jni.cpp */,
 				2B4B19BC1BA38AFB0091A743 /* QuadPagingLayer_jni.cpp */,
 				2B4B19BD1BA38AFB0091A743 /* Quaternion_jni.cpp */,
 				2B4B19BE1BA38AFB0091A743 /* Scene_jni.cpp */,
@@ -1685,7 +1685,7 @@
 				2B3836A9186244DC00467ABD /* glwrapper.h in Headers */,
 				2B3A0D41133405700085EF43 /* shapefil.h in Headers */,
 				2B7EF42D16025D8C00D4079F /* emess.h in Headers */,
-				2B76C5E31C1102500081F395 /* com_mousebird_maply_QuadImageOfflineLayer.h in Headers */,
+				2B76C5F01C1223A90081F395 /* com_mousebird_maply_QuadImageOfflineLayer.h in Headers */,
 				2B35683F18D762BF00EF8DB1 /* WhirlyVector.h in Headers */,
 				2B35683B18D762BF00EF8DB1 /* ViewState.h in Headers */,
 				2B4B199A1BA38AD90091A743 /* SingleLabelAndroid.h in Headers */,
@@ -1990,7 +1990,7 @@
 				2B35674618D762A700EF8DB1 /* DefaultShaderPrograms.cpp in Sources */,
 				2B7EF45C16025D8C00D4079F /* pj_ellps.c in Sources */,
 				2B009D0F186102E4001E2EE8 /* JSONWriter.cpp in Sources */,
-				2B76C5E51C1102850081F395 /* QuadImageOfflineLayer_jni.cpp in Sources */,
+				2B76C5EE1C12237D0081F395 /* QuadImageOfflineLayer_jni.cpp in Sources */,
 				2B7EF45D16025D8C00D4079F /* PJ_eqc.c in Sources */,
 				2B7EF45E16025D8C00D4079F /* PJ_eqdc.c in Sources */,
 				2B7EF45F16025D8C00D4079F /* pj_errno.c in Sources */,

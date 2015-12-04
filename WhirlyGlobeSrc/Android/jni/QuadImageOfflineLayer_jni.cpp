@@ -22,13 +22,13 @@
 #import <jni.h>
 #import <android/bitmap.h>
 #import "Maply_jni.h"
-#import "com_mousebird_maply_QuadImageOfflineTileLayer.h"
+#import "com_mousebird_maply_QuadImageOfflineLayer.h"
 #import "WhirlyGlobe.h"
 #import "ImageWrapper.h"
 
 using namespace WhirlyKit;
 
-class QuadImageOfflineOfflineLayerAdapter : public QuadDataStructure, public QuadTileImageDataSource, public QuadDisplayControllerAdapter
+class QuadImageOfflineLayerAdapter : public QuadDataStructure, public QuadTileImageDataSource, public QuadDisplayControllerAdapter
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -66,7 +66,7 @@ public:
     QuadImageOfflineLayerAdapter(CoordSystem *coordSys)
     : env(NULL), javaObj(NULL), renderer(NULL), coordSys(coordSys),
 		  simultaneousFetches(1), tileLoader(NULL),imageDepth(1),enable(true), allowFrameLoading(true),
-		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), shaderID(EmptyIdentity), scene(NULL), control(NULL)
+		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), scene(NULL), control(NULL)
     {
         useTargetZoomLevel = true;
         canShortCircuitImportance = false;
@@ -96,15 +96,13 @@ public:
     }
     
     // Set up the tile loading
-    QuadTileLoader *setupTileLoader()
+    QuadTileOfflineLoader *setupTileLoader()
     {
         // Set up the tile loader
         tileLoader = new QuadTileOfflineLoader("Image Layer",this);
         tileLoader->setNumImages(imageDepth);
         ChangeSet changes;
-        tileLoader->setEnable(enable,changes);
-        //	    tileLoader->setFade(fade,changes);
-        tileLoader->setUseTileCenters(false);
+        tileLoader->setOn(enable);
         
         return tileLoader;
     }
@@ -137,18 +135,6 @@ public:
         } else {
             shortCircuitImportance = 0.0;
             control->setMinImportance(1.0);
-        }
-        
-        if (imageDepth > 1)
-        {
-            if (animationWrap && maxCurrentImage == -1)
-                maxCurrentImage = imageDepth;
-            
-            if (shaderID == EmptyIdentity)
-                shaderID = scene->getProgramIDByName(kToolkitDefaultTriangleMultiTex);
-            
-            //	        if (animationPeriod > 0.0)
-            //	        	setAnimationPeriod(animationPeriod);
         }
     }
     
@@ -475,10 +461,26 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_dispos
     }
 }
 
-/** Start of new methods **/
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setEnable
+(JNIEnv *env, jobject obj, jboolean enable, jobject changeSetObj)
+{
+    try
+    {
+        QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+        QuadImageOfflineLayerAdapter *adapter = classInfo->getObject(env,obj);
+        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        if (!adapter || !changeSet)
+            return;
+        ChangeSet changes;
+        adapter->tileLoader->setOn(enable);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setEnable()");
+    }
+}
 
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineOfflineTileLayer_setImageDepth
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setImageDepth
 (JNIEnv *env, jobject obj, jint imageDepth)
 {
     try
@@ -514,7 +516,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_getIma
     return 1;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineOfflineTileLayer_setAllowFrameLoading
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setAllowFrameLoading
 (JNIEnv *env, jobject obj, jboolean frameLoading)
 {
     try
@@ -591,7 +593,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setFra
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineOfflineTileLayer_setMaxTiles
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_setMaxTiles
 (JNIEnv *env, jobject obj, jint maxTiles)
 {
     try
@@ -663,7 +665,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageOfflineTileLayer_getTar
     return 0;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_OfflineOfflineTileLayer_reload
+JNIEXPORT void JNICALL Java_com_mousebird_maply_OfflineTileLayer_reload
 (JNIEnv *env, jobject obj, jobject changeSetObj)
 {
     try

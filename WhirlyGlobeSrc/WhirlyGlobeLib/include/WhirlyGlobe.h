@@ -75,7 +75,7 @@
 #import "QuadDisplayController.h"
 #import "TileQuadLoader.h"
 //#import "MBTileQuadSource.h"
-//#import "TileQuadOfflineRenderer.h"
+#import "TileQuadOfflineRenderer.h"
 //#import "NetworkTileQuadSource.h"
 #import "ScreenSpaceGenerator.h"
 //#import "SceneGraphManager.h"

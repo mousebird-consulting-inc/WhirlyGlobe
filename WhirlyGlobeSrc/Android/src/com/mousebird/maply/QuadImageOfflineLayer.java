@@ -256,6 +256,18 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
         return layerThread;
     }
 
+    /** Enable/Disable the whole layer.
+     *	By default this is on.  If you turn it off, it'll stop renering offline data.
+     */
+    public void setEnable(boolean enable)
+    {
+        ChangeSet changes = new ChangeSet();
+        setEnable(enable,changes);
+        layerThread.addChanges(changes);
+    }
+
+    native void setEnable(boolean enable,ChangeSet changes);
+
     /** The number of images we're expecting to get per tile.
      * This is the number of images the layer will ask for per tile.  The default is 1, which is the normal case.  If this is greater than one that typically means we're going to animate between them.
      * the MaplyTileSource delegate is always expected to provide this many imates.

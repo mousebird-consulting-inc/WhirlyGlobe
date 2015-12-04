@@ -237,6 +237,16 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		Point3d geoCoord = globeView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
 		globeView.setLoc(new Point3d(geoCoord.getX(),geoCoord.getY(),z));
 	}
+
+	/**
+	 * Returns the position in on the globe in terms of longitude and latitude in radians and height.
+	 * Height is
+	 * @return
+     */
+	public Point3d getPosition()
+	{
+		return globeView.getLoc();
+	}
 	
 	/**
 	 * Animate to a new view position

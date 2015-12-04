@@ -622,8 +622,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_dispose
 	}
 }
 
-/** Start of new methods **/
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setEnable
   (JNIEnv *env, jobject obj, jboolean enable, jobject changeSetObj)
 {
