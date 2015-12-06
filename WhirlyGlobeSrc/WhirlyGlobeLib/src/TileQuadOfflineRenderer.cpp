@@ -20,6 +20,9 @@
 
 #import "TileQuadOfflineRenderer.h"
 #import "FlatMath.h"
+#if defined(__ANDROID__)
+#import <android/log.h>
+#endif
 
 using namespace Eigen;
 
@@ -27,39 +30,59 @@ namespace WhirlyKit
 {
     
 OfflineTile::OfflineTile()
- : isLoading(false), placeholder(false)
+ : numLoading(0), placeholder(false)
 {
 };
 
 OfflineTile::OfflineTile(const WhirlyKit::Quadtree::Identifier &ident)
-: ident(ident), isLoading(false), placeholder(false)
+: ident(ident), numLoading(0), placeholder(false)
 {
 }
-
-OfflineTile::OfflineTile(std::vector<LoadedImage *>loadImages)
-: isLoading(false), placeholder(false)
+    
+OfflineTile::OfflineTile(const WhirlyKit::Quadtree::Identifier &ident,int numImages)
+    : ident(ident), numLoading(0), placeholder(false)
 {
+    images.resize(numImages);
 }
 
 OfflineTile::~OfflineTile()
 {
+    for (LoadedImage *image : images)
+        delete image;
+    images.clear();
 }
 
 void OfflineTile::GetTileSize(int &numX,int &numY)
 {
     numX = numY = 0;
-    if (images.size() > 0)
+    LoadedImage *exampleImage = NULL;
+    for (unsigned int ii=0;ii<images.size();ii++)
+        if (images[ii])
+        {
+            exampleImage = images[ii];
+            break;
+        }
+    if (exampleImage)
     {
-        numX = images[0]->getWidth();
-        numY = images[0]->getHeight();
+        numX = exampleImage->getWidth();
+        numY = exampleImage->getHeight();
     }
 }
-
+    
+// Return the number of loaded frames
+int OfflineTile::getNumLoaded()
+{
+    int numLoad = 0;
+    for (unsigned int ii=0;ii<images.size();ii++)
+        if (images[ii])
+            numLoad++;
+    
+    return numLoad;
+}
 
 QuadTileOfflineLoader::QuadTileOfflineLoader(const std::string &name,QuadTileImageDataSource *imageSource)
     : name(name), imageSource(imageSource), on(true), numImages(1), sizeX(1024), sizeY(1024), autoRes(true),
-    period(10.0), previewLevels(-1), outputDelegate(NULL), numFetches(0), renderScheduled(false),
-    immediateScheduled(false), lastRender(0), somethingChanged(true), currentMbr(-1)
+    period(10.0), previewLevels(-1), outputDelegate(NULL), numFetches(0), lastRender(0), somethingChanged(true), currentMbr(-1)
 {
     theMbr.addPoint(Point2f(0,0));
     theMbr.addPoint(Point2f(1.0*M_PI/180.0, 1.0*M_PI/180.0));
@@ -77,21 +100,18 @@ void QuadTileOfflineLoader::clear()
     tiles.clear();
     somethingChanged = true;
 }
-
-    // Note: Porting  Needs to go on Java side
-//void QuadTileOfflineLoader::setPeriod(TimeInterval newPeriod)
-//{
-//    period = newPeriod;
-//    
-//    if (!quadControl)
-//        return;
-//    
-//    if (period > 0.0 && !renderScheduled)
-//    {
-//        renderScheduled = true;
-//        [self performSelector:@selector(imageRenderPeriodic) withObject:nil afterDelay:_period];
-//    }
-//}
+    
+int QuadTileOfflineLoader::numFrames()
+{
+    // Note: Why are we doing this here?
+    {
+        std::lock_guard<std::mutex> lock(mut);
+        for (unsigned int ii=0;ii<numImages;ii++)
+            updatedFrames.insert(ii);
+    }
+    
+    return numImages;
+}
 
 void QuadTileOfflineLoader::setMbr(Mbr newMbr)
 {
@@ -110,58 +130,13 @@ void QuadTileOfflineLoader::setMbr(Mbr newMbr)
         std::lock_guard<std::mutex> lock(mut);
         theMbr = newMbr;
         currentMbr++;
+        updatedFrames.clear();
+        for (unsigned int ii=0;ii<numImages;ii++)
+            updatedFrames.insert(ii);
     }
 
     somethingChanged = true;
-    
-    // Note: Porting
-//    if (!immediateScheduled)
-//    {
-//        [self performSelector:@selector(imageRenderImmediate) onThread:_quadLayer.layerThread withObject:nil waitUntilDone:NO];
-//        immediateScheduled = true;
-//    }
 }
-
-// Note: Porting
-//void QuadTileOfflineLoader::imageRenderImmediate()
-//{
-////    NSLog(@"Render:: Immediate");
-//    immediateScheduled = false;
-//    
-//    if (_on)
-//    {
-//        [self imageRenderToLevel:_previewLevels];
-//        if (_previewLevels > 0)
-//        {
-//            lastRender = 0;
-//            if (!renderScheduled)
-//            {
-//                [self performSelector:@selector(imageRenderPeriodic)];
-//                renderScheduled = true;
-//            }
-//        }
-//    }
-//}
-
-    // Note: Porting
-//- (void)imageRenderPeriodic
-//{
-//    renderScheduled = false;
-//
-//    if (_on && somethingChanged)
-//    {
-////        NSLog(@"Render:: Periodic");
-//        CFTimeInterval now = CFAbsoluteTimeGetCurrent();
-//        if (now - lastRender >= _period)
-//            [self imageRenderToLevel:-1];
-//    }
-//    
-//    if (_period > 0.0 && !renderScheduled)
-//    {
-//        renderScheduled = true;
-//        [self performSelector:@selector(imageRenderPeriodic) withObject:nil afterDelay:_period];
-//    }
-//}
 
 Point2d QuadTileOfflineLoader::calculateSize()
 {
@@ -190,8 +165,6 @@ Point2d QuadTileOfflineLoader::calculateSize()
         for (OfflineTileSet::iterator it = tiles.begin(); it != tiles.end(); ++it)
         {
             OfflineTile *tile = *it;
-            if (tile->isLoading)
-                continue;
             // Scale the extents to the output image
             Mbr tileMbr[2];
             tileMbr[0] = control->getQuadtree()->generateMbrForNode(tile->ident);
@@ -234,19 +207,25 @@ Point2d QuadTileOfflineLoader::calculateSize()
         return Point2d(sizeX, sizeY);
 }
 
-void QuadTileOfflineLoader::imageRenderToLevel(int deep)
+void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
 {
-    if (outputDelegate)
+    if (!outputDelegate)
+        return;
+    
+    std::set<int> framesToRender;
+    int whichMbr;
+    Mbr mbr;
+    {
+        std::lock_guard<std::mutex> lock(mut);
+        framesToRender = updatedFrames;
+        updatedFrames.clear();
+        mbr = theMbr;
+        whichMbr = currentMbr;
+    }
+    
+    if (!framesToRender.empty())
     {
         lastRender = TimeGetCurrent();
-        int whichMbr;
-        
-        Mbr mbr;
-        {
-            std::lock_guard<std::mutex> lock(mut);
-            mbr = theMbr;
-            whichMbr = currentMbr;
-        }
         
         // Note: Assuming geographic or spherical mercator
         GeoMbr geoMbr(GeoCoord(mbr.ll().x(), mbr.ll().y()),GeoCoord(mbr.ur().x(),mbr.ur().y()));
@@ -258,29 +237,40 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep)
         } else {
             testMbrs.push_back(Mbr(geoMbr.ll(),geoMbr.ur()));
         }
-
-        // Note: Porting
-//        NSMutableArray *images = [NSMutableArray array];
         
         Point2d texSize = calculateSize();
-//        NSLog(@"Tex Size = (%f,%f)",texSize.width,texSize.height);
+        //        NSLog(@"Tex Size = (%f,%f)",texSize.width,texSize.height);
         
         // Draw each entry in the image stack individually
-        // Note: Porting
 //        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
 //        CGContextRef theContext = CGBitmapContextCreate(NULL, texSize.width, texSize.height, 8, texSize.width * 4, colorSpace, kCGImageAlphaPremultipliedLast);
         int numRenderedTiles = 0;
-        for (unsigned int ii=0;ii<numImages;ii++)
+        
+        // We'll just re-render the frames that were updated
+        for (std::set<int>::iterator it = framesToRender.begin(); it != framesToRender.end(); ++it)
         {
-            // Note: Debugging
-            // Note: Porting
-//            CGContextSetRGBFillColor(theContext, 1, 0, 0, 1);
-//            CGContextFillRect(theContext, CGRectMake(0, 0, texSize.width, texSize.height));
+            if (whichMbr != currentMbr)
+                break;
+            
+            int whichFrame = *it;
+            
+            // Note: This draws the background in red.  Useful for seeing what doesn't get filled
+            //            CGContextSetRGBFillColor(theContext, 1, 0, 0, 1);
+            //            CGContextFillRect(theContext, CGRectMake(0, 0, texSize.width, texSize.height));
             // Work through the tiles, drawing as we go
             for (OfflineTileSet::iterator it = tiles.begin(); it != tiles.end(); ++it)
             {
+                // If this happens, they've changed the MBR while we were working on this one.  Punt.
+                if (whichMbr != currentMbr)
+                {
+//                    CGContextRelease(theContext);
+//                    CGColorSpaceRelease(colorSpace);
+                    //                    NSLog(@"Aborted render");
+                    return;
+                }
+                
                 OfflineTile *tile = *it;
-                if (tile->isLoading)
+                if (tile->images[whichFrame] == NULL)
                     continue;
                 if (deep > 0 && tile->ident.level > deep)
                     continue;
@@ -313,92 +303,73 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep)
                     span.y() = texSize.y() * (tileMbr[jj].ur().y()-tileMbr[jj].ll().y()) / (mbr.ur().y()-mbr.ll().y());
                     
                     // Find the right input image
-                    // Note: Porting
 //                    UIImage *imageToDraw = nil;
-                    if (ii < tile->images.size())
+                    void *imageToDraw = NULL;
+                    if (whichFrame < tile->images.size())
                     {
-                        // Note: Porting
-//                        imageToDraw = (UIImage *)tile->images[ii].imageData;
+//                        imageToDraw = (UIImage *)tile->images[whichFrame].imageData;
 //                        if ([imageToDraw isKindOfClass:[NSData class]])
 //                            imageToDraw = [UIImage imageWithData:(NSData *)imageToDraw];
 //                        if (![imageToDraw isKindOfClass:[UIImage class]])
+//                        {
+//                            // Note: Debugging.  Should put this back
+//                            //                            NSLog(@"Found bad image in offline renderer.");
 //                            imageToDraw = nil;
+//                        }
                     }
-
-                    // Note: Porting
-//                    if (imageToDraw)
+                    
+                    if (imageToDraw)
+                    {
+                        // Note: This draws a green square for debugging
+                        //                        CGContextBeginPath(theContext);
+                        //                        CGContextAddRect(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()));
+                        //                        CGFloat green[4] = {0,1,0,1};
+                        //                        CGContextSetStrokeColor(theContext, green);
+                        //                        CGContextDrawPath(theContext, kCGPathStroke);
 //                        CGContextDrawImage(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()), imageToDraw.CGImage);
+                    }
                 }
                 numRenderedTiles++;
-                
-                // If this happens, they've changed the MBR while we were working on this one.  Punt.
-                if (whichMbr != currentMbr)
-                {
-                    // Note: Porting
-//                    CGContextRelease(theContext);
-//                    CGColorSpaceRelease(colorSpace);
-//                    NSLog(@"Aborted render");
-                    return;
-                }
             }
             
-            // Note: Porting
 //            CGImageRef imageRef = CGBitmapContextCreateImage(theContext);
 //            UIImage *image = [UIImage imageWithCGImage:imageRef];
 //            CGImageRelease(imageRef);
-//            if (image)
-//                [images addObject:image];
+            
+            //            NSLog(@"Offline: Rendered frame %d, Tex Size = (%f,%f)",whichFrame,texSize.width,texSize.height);
+            
+            // Convert the images into OpenGL ES textures
+            ChangeSet changes;
+            SimpleIdentity texID = EmptyIdentity;
+//            Texture *tex = new Texture("TileQuadOfflineRenderer",image,true);
+//            SimpleIdentity texID = tex->getId();
+//            tex->createInGL(_quadLayer.scene->getMemManager());
+//            changes.push_back(new AddTextureReq(tex));
+            
+//            [_quadLayer.layerThread addChangeRequests:changes];
+//            [_quadLayer.layerThread flushChangeRequests];
+            
+            QuadTileOfflineImage offImage;
+            offImage.texture = texID;
+            offImage.frame = whichFrame;
+            offImage.mbr = mbr;
+            offImage.texSize = texSize;
+            offImage.centerSize = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x()/2.0, texSize.y()/2.0));
+            offImage.cornerSizes[0] = pixelSizeForMbr(mbr,texSize,Point2d(0.0, 0.0));
+            offImage.cornerSizes[1] = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x(), 0.0));
+            offImage.cornerSizes[2] = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x(), texSize.y()));
+            offImage.cornerSizes[3] = pixelSizeForMbr(mbr,texSize,Point2d(0.0, texSize.y()));
+            
+            if (outputDelegate)
+                outputDelegate->offlineRender(this, &offImage);
         }
-        // Note: Porting
 //        CGContextRelease(theContext);
 //        CGColorSpaceRelease(colorSpace);
         
-//        NSLog(@"Rendered %d tiles of %d",numRenderedTiles,(int)tiles.size());
+        //        NSLog(@"Rendered %d tiles of %d, depth = %d",numRenderedTiles,(int)tiles.size(),deep);
         
-        // Convert the images into OpenGL ES textures
-        bool aborted = false;
-        ChangeSet changes;
-        std::vector<WhirlyKit::SimpleIdentity> texIDs;
-        // Note: Porting
-//        for (UIImage *image in images)
-//        {
-//            Texture *tex = new Texture("TileQuadOfflineRenderer",image,true);
-//            texIDs.push_back(tex->getId());
-//            tex->createInGL(_quadLayer.scene->getMemManager());
-//            changes.push_back(new AddTextureReq(tex));
-//            if (whichMbr != currentMbr)
-//            {
-//                aborted = true;
-//                break;
-//            }
-//        }
         
-        // The texture setup can take a while, so let's be ready to abort here
-        if (aborted)
-        {
-            for (unsigned int ii=0;ii<changes.size();ii++)
-            {
-                AddTextureReq *texReq = (AddTextureReq *)changes[ii];
-                texReq->getTex()->destroyInGL(control->getScene()->getMemManager());
-                delete changes[ii];
-            }
-            changes.clear();
-            return;
-        }
-
-        // Note: Porting
-//        [_quadLayer.layerThread addChangeRequests:changes];
-//        [_quadLayer.layerThread flushChangeRequests];
-        
-        QuadTileOfflineImage *image = new QuadTileOfflineImage();
-        image->textures = texIDs;
-        image->mbr = mbr;
-        image->centerSize = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x()/2.0, texSize.y()/2.0));
-        image->cornerSizes[0] = pixelSizeForMbr(mbr,texSize,Point2d(0.0, 0.0));
-        image->cornerSizes[1] = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x(), 0.0));
-        image->cornerSizes[2] = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x(), texSize.y()));
-        image->cornerSizes[3] = pixelSizeForMbr(mbr,texSize,Point2d(0.0, texSize.y()));
-        outputDelegate->offlineRender(this, image);
+        //        NSLog(@"CenterSize = (%f,%f), texSize = (%d,%d)",image.centerSize.width,image.centerSize.height,(int)texSize.width,(int)texSize.height);
     }
     
     // If we did a quick render, we need to go back again
@@ -463,14 +434,25 @@ bool QuadTileOfflineLoader::isReady()
 
 void QuadTileOfflineLoader::loadTile(const Quadtree::NodeInfo &tileInfo,int frame)
 {
+    OfflineTile *theTile = getTile(tileInfo.ident);
+    if (!theTile)
+    {
+        theTile = new OfflineTile(tileInfo.ident,numImages);
+        tiles.insert(theTile);
+    }
+    theTile->numLoading++;
+
+    numFetches++;
+    imageSource->startFetch(this, tileInfo.ident.level, tileInfo.ident.x, tileInfo.ident.y, frame, const_cast<Dictionary *>(&tileInfo.attrs));
+    
     OfflineTile *newTile = new OfflineTile(tileInfo.ident);
-    newTile->isLoading = true;
     
     tiles.insert(newTile);
-    
-    imageSource->startFetch(this, tileInfo.ident.level, tileInfo.ident.x, tileInfo.ident.y, frame, const_cast<Dictionary *>(&tileInfo.attrs));
-    numFetches++;
     somethingChanged = true;
+    
+#if defined(__ANDROID__)
+    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline loadTile() %d: (%d,%d) %d", tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y,frame);
+#endif
 }
 
 OfflineTile *QuadTileOfflineLoader::getTile(const WhirlyKit::Quadtree::Identifier &ident)
@@ -490,47 +472,65 @@ void QuadTileOfflineLoader::unloadTile(const Quadtree::NodeInfo &tileInfo)
     if (it != tiles.end())
     {
         OfflineTile *theTile = *it;
+        numFetches -= theTile->numLoading;
         delete theTile;
         tiles.erase(it);
     }
     somethingChanged = true;
+    
+#if defined(__ANDROID__)
+    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline unloadTile() %d: (%d,%d)", tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y);
+#endif
 }
 
 bool QuadTileOfflineLoader::canLoadChildrenOfTile(const Quadtree::NodeInfo &tileInfo)
 {
-    OfflineTile *tile = getTile(tileInfo.ident);
-    if (!tile)
-        return false;
-    
-    return !tile->isLoading;
+    return true;
 }
 
 void QuadTileOfflineLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage *loadImage,int level,int col,int row,int frame,ChangeSet &changes)
 {
+#if defined(__ANDROID__)
+    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline loadedImage() %d: (%d,%d) %d", level,col,row,frame);
+#endif
+    
     numFetches--;
     Quadtree::Identifier tileIdent(col,row,level);
     OfflineTile *tile = getTile(tileIdent);
     if (!tile)
         return;
-
-    tile->isLoading = false;
+    
+    if (tile->numLoading > 0)
+    {
+        numFetches--;
+        tile->numLoading--;
+    }
 
     // Assemble the images
     std::vector<LoadedImage *> loadImages;
     loadImages.push_back(loadImage);
-    // Note: Porting
-//    if (_numImages != loadImages.size())
-//    {
-//        if (loadTile)
-//            NSLog(@"TileQuadLoader: Got %ld images in callback, but was expecting %d.  Punting tile.",loadImages.size(),_numImages);
-//        [_quadLayer loader:self tileDidNotLoad:tileIdent];
-//        return;
-//    }
-    tile->images = loadImages;
 
-//    NSLog(@"Loaded tile %d: (%d,%d)",level,col,row);
+    if ((frame == -1 && numImages != loadImages.size()) || (frame != -1 && loadImages.size() != 1))
+    {
+        control->tileDidNotLoad(tileIdent, frame);
+        return;
+    }
+    if (frame == -1)
+    {
+        tile->images = loadImages;
+    } else {
+        tile->images[frame] = loadImages[0];
+    }
+    
+    //    NSLog(@"Loaded tile %d: (%d,%d), frame = %d",level,col,row,frame);
     control->tileDidLoad(tileIdent, frame);
-    somethingChanged = true;
+
+    // We'll need to update this frame
+    {
+        std::lock_guard<std::mutex> lock(mut);
+        updatedFrames.insert(frame);
+        somethingChanged = true;
+    }
 }
 
 }

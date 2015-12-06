@@ -245,10 +245,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			}
 		}
 	}
-	
-	// Run through each of the changes, creating things within our own context
-	native void processChanges(ChangeSet changes);
-	
+
 	/**
 	 * Add a Runnable to our queue.  This will be executed at some point in the future.
 	 * 
@@ -264,7 +261,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 * Add a Runnable to the queue, but only execute after the given amount of time.
 	 * 
 	 * @param run Runnable to add to the queue
-	 * @time time Number of seconds to wait before running.
+	 * @time time Number of milliseconds to wait before running.
 	 * @return The Handler if you want to cancel this at some point in the future.
 	 */
 	Handler addDelayedTask(Runnable run,long time)

@@ -27,7 +27,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 /**
  * Test Maply's image paging by creating an image per tile with the tile
@@ -105,7 +104,7 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 			c.drawRect(0, 0, sizeX, sizeY, p2);
 			c.drawText(text, (sizeX - textLen) / 2.f, sizeY / 2.f, p);
 
-			Log.d("Maply", "Loaded fake tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
+//			Log.d("Maply", "Loaded fake tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
 
 			layer.loadedTile(tileID, frame, new MaplyImageTile(bitmap));
 		}

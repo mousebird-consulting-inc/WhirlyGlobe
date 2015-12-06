@@ -28,7 +28,7 @@
 
 using namespace WhirlyKit;
 
-class QuadImageOfflineLayerAdapter : public QuadDataStructure, public QuadTileImageDataSource, public QuadDisplayControllerAdapter
+class QuadImageOfflineLayerAdapter : public QuadDataStructure, public QuadTileImageDataSource, public QuadDisplayControllerAdapter, public QuadTileOfflineDelegate
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -61,7 +61,7 @@ public:
     ViewState *lastViewState;
     
     // Methods for Java quad image layer
-    jmethodID startFetchJava,scheduleEvalStepJava;
+    jmethodID startFetchJava,scheduleEvalStepJava,imageRenderCallbackJava;
     
     QuadImageOfflineLayerAdapter(CoordSystem *coordSys)
     : env(NULL), javaObj(NULL), renderer(NULL), coordSys(coordSys),
@@ -88,6 +88,7 @@ public:
         jclass theClass = env->GetObjectClass(javaObj);
         startFetchJava = env->GetMethodID(theClass,"startFetch","(IIII)V");
         scheduleEvalStepJava = env->GetMethodID(theClass,"scheduleEvalStep","()V");
+        imageRenderCallbackJava = env->GetMethodID(theClass,"imageRenderCallback","(JDDI)V");
     }
     
     void clearJavaRefs()
@@ -104,6 +105,7 @@ public:
         tileLoader->setNumImages(imageDepth);
         ChangeSet changes;
         tileLoader->setOn(enable);
+        tileLoader->setOutputDelegate(this);
         
         return tileLoader;
     }
@@ -343,7 +345,7 @@ public:
     /// We'll call the loader back with the image when it's ready.
     virtual void startFetch(QuadTileLoaderSupport *quadLoader,int level,int col,int row,int frame,Dictionary *attrs)
     {
-   		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Asking for tile: %d : (%d,%d)",level,col,row);
+//   		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Asking for tile: %d : (%d,%d)",level,col,row);
         
         env->CallVoidMethod(javaObj, startFetchJava, level, col, row, frame);
     }
@@ -353,8 +355,8 @@ public:
     {
         if (imgData)
         {
-            ImageWrapper tileWrapper(imgData,width,height);
-            tileLoader->loadedImage(this, &tileWrapper, level, col, row, frame, changes);
+            ImageWrapper *tileWrapper = new ImageWrapper(imgData,width,height);
+            tileLoader->loadedImage(this, tileWrapper, level, col, row, frame, changes);
         } else {
             tileLoader->loadedImage(this, NULL, level, col, row, frame, changes);
         }
@@ -401,6 +403,12 @@ public:
     {
         if (maplyCurrentEnv)
             maplyCurrentEnv->CallVoidMethod(javaObj, scheduleEvalStepJava);
+    }
+    
+    // Called by the offline renderer to update images
+    virtual void offlineRender(QuadTileOfflineLoader *loader,QuadTileOfflineImage *image)
+    {
+        env->CallVoidMethod(javaObj, imageRenderCallbackJava, image->texture, image->centerSize.x(), image->centerSize.y(), image->frame);
     }
 };
 
@@ -927,5 +935,81 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_nativeTile
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::nativeTileDidLoad()");
+    }
+}
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_getEnable
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        QuadImageOfflineLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        if (!adapter)
+            return false;
+        
+        return adapter->tileLoader->getOn();
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::getEnable()");
+    }
+    
+    return false;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setMbrNative
+(JNIEnv *env, jobject obj, jdouble sx, jdouble sy, jdouble ex, jdouble ey)
+{
+    try
+    {
+        QuadImageOfflineLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        if (!adapter)
+            return;
+        
+        Mbr mbr;
+        mbr.addPoint(Point2f(sx,sy));
+        mbr.addPoint(Point2f(ex,ey));
+        adapter->tileLoader->setMbr(mbr);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::setMbrNative()");
+    }
+}
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_getSomethingChanged
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        QuadImageOfflineLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        if (!adapter)
+            return false;
+        
+        return adapter->tileLoader->getSomethingChanged();
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::getSomethingChanged()");
+    }
+    
+    return false;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_imageRenderToLevel
+(JNIEnv *env, jobject obj, jint level, jobject changesObj)
+{
+    try
+    {
+        QuadImageOfflineLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
+        if (!adapter || !changes)
+            return;
+
+        adapter->tileLoader->imageRenderToLevel(level,*changes);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::imageRenderToLevel()");
     }
 }

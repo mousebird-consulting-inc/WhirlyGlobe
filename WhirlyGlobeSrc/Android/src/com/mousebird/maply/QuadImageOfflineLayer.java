@@ -20,10 +20,19 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
     {
     }
 
+    /**
+     * Fill in this interface to get the rendered images back as they're ready.
+     */
+    public interface RenderedImageDelegate
+    {
+        public void renderedImage(QuadImageOfflineLayer layer,long texID,Point2d centerSize,int frame);
+    }
+
     public MaplyBaseController maplyControl = null;
     public CoordSystem coordSys = null;
     QuadImageTileLayer.TileSource tileSource = null;
     boolean flipY = true;
+    RenderedImageDelegate imageDelegate = null;
 
     public QuadImageOfflineLayer(MaplyBaseController inMaplyControl,CoordSystem inCoordSys,QuadImageTileLayer.TileSource inTileSource)
     {
@@ -34,6 +43,11 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
         initialise(coordSys,changes);
         maplyControl.layerThread.addChanges(changes);
         setSimultaneousFetches(8);
+    }
+
+    public void setImageDelegate(RenderedImageDelegate inImageDelegate)
+    {
+        imageDelegate = inImageDelegate;
     }
 
     public void finalize() { dispose(); }
@@ -268,6 +282,8 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
 
     native void setEnable(boolean enable,ChangeSet changes);
 
+    public native boolean getEnable();
+
     /** The number of images we're expecting to get per tile.
      * This is the number of images the layer will ask for per tile.  The default is 1, which is the normal case.  If this is greater than one that typically means we're going to animate between them.
      * the MaplyTileSource delegate is always expected to provide this many imates.
@@ -404,6 +420,63 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
      * the current target zoom level.
      */
     public native void setSingleLevelLoading(boolean newVal);
+
+    float renderPeriod = 0.f;
+    /**
+     * How often the offline render will run.
+     */
+    public void setRenderPeriod(float period)
+    {
+        renderPeriod = period;
+
+        if (period > 0.0)
+            imageRenderPeriodic();
+    }
+
+    /**
+     * Set (or change) the bounding box of the area we're rendering to.
+     */
+    public void setMbr(Mbr mbr)
+    {
+        setMbrNative(mbr.ll.getX(),mbr.ll.getY(),mbr.ur.getX(),mbr.ur.getY());
+
+        imageRenderPeriodic();
+    }
+    native void setMbrNative(double sx,double sy,double ex,double ey);
+
+    // Returns true if something changed (i.e. MBR or got a frame)
+    native boolean getSomethingChanged();
+
+    // Periodically render
+    void imageRenderPeriodic()
+    {
+        layerThread.addDelayedTask(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if (getEnable() && getSomethingChanged())
+                {
+                    ChangeSet changes = new ChangeSet();
+                    imageRenderToLevel(-1,changes);
+                    changes.process(layerThread.scene);
+                }
+
+                // Kick off another render in a few seconds
+                if (getEnable() && renderPeriod > 0.0)
+                    imageRenderPeriodic();
+            }
+        }, (long)(renderPeriod*100));
+    }
+
+    native void imageRenderToLevel(int level,ChangeSet changes);
+
+    // Called by the JNI side to hand us back rendered image data
+    void imageRenderCallback(long texID,double centerSizeX,double centerSizeY,int frame)
+    {
+        if (imageDelegate != null)
+            imageDelegate.renderedImage(this,texID,new Point2d(centerSizeX,centerSizeY),frame);
+    }
 
     native void nativeShutdown(ChangeSet changes);
 

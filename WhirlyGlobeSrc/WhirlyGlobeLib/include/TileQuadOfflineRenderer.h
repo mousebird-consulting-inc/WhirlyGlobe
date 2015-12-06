@@ -40,11 +40,17 @@ public:
     /// Bounding box for the rendered area
     Mbr mbr;
     
+    /// Which frame this is
+    int frame;
+    
     /// Textures produced by the offline renderer.  Delegate is responsible for cleanup
-    std::vector<WhirlyKit::SimpleIdentity> textures;
+    WhirlyKit::SimpleIdentity texture;
     
     /// Size of the center pixel in meters
     Point2d centerSize;
+    
+    /// Textures size of the images being produced
+    Point2d texSize;
 };
     
 class QuadTileOfflineLoader;
@@ -55,19 +61,22 @@ class OfflineTile
 public:
     OfflineTile();
     OfflineTile(const WhirlyKit::Quadtree::Identifier &ident);
-    OfflineTile(std::vector<LoadedImage *>loadImages);
+    OfflineTile(const WhirlyKit::Quadtree::Identifier &ident,int numImages);
     ~OfflineTile();
     
     // Return the size of this tile
     void GetTileSize(int &numX,int &numY);
-    
+
+    // Return the number of loaded frames
+    int getNumLoaded();
+
     // Details of which node we're representing
     WhirlyKit::Quadtree::Identifier ident;
     
     /// Set if this is just a placeholder (no geometry)
     bool placeholder;
     /// Set if this tile is in the process of loading
-    bool isLoading;
+    int numLoading;
     
     std::vector<LoadedImage *> images;
 };
@@ -92,7 +101,7 @@ class QuadTileOfflineDelegate
 public:
     virtual ~QuadTileOfflineDelegate() { }
     /// Here's the generated image.  Query the loader for extents.
-    virtual void offlineRender(QuadTileOfflineLoader *loader,QuadTileOfflineImage *image);
+    virtual void offlineRender(QuadTileOfflineLoader *loader,QuadTileOfflineImage *image) = 0;
 };
     
 /** This version of the quad tile loader requests and tracks images the same
@@ -110,6 +119,7 @@ public:
     
     /// Set if we're doing any rendering.  On by default.
     void setOn(bool newOn) { on = newOn; }
+    bool getOn() { return on; }
 
     /// Depth of the image stack per tile
     void setNumImages(int newNumImages) { numImages = newNumImages; }
@@ -163,7 +173,7 @@ public:
     virtual void shutdownLayer(ChangeSet &changes);
     
     /// Number of frames of animation per tile (if we're doing animation)
-    virtual int numFrames() { return numImages; }
+    virtual int numFrames();
     
     /// If we're doing animation, currently active frame.
     /// If numFrames = 1, this should be -1.  If numFrames > 1, -1 means load all frames at once
@@ -182,11 +192,16 @@ public:
     virtual void reset(ChangeSet &changes);
     
     void loadedImage(QuadTileImageDataSource *dataSource,LoadedImage *loadImage,int level,int col,int row,int frame,ChangeSet &changes);
+
+    // Render any changed images to the given depth and flush out new textures
+    void imageRenderToLevel(int deep,ChangeSet &changes);
     
+    // Return the value of the somethingChanged flag
+    bool getSomethingChanged() { return somethingChanged; }
+
 protected:
     std::mutex mut;
     
-    void imageRenderToLevel(int deep);
     Point2d calculateSize();
     Point2d pixelSizeForMbr(const Mbr &theMbr,const Point2d &texSize,const Point2d &texel);
     OfflineTile *getTile(const WhirlyKit::Quadtree::Identifier &ident);
@@ -205,10 +220,11 @@ protected:
     
     OfflineTileSet tiles;
     int numFetches;
-    bool renderScheduled,immediateScheduled;
     TimeInterval lastRender;
     bool somethingChanged;
     int currentMbr;
+    // Frames that have gotten new tiles
+    std::set<int> updatedFrames;
 };
     
 }
