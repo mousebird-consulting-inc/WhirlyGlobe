@@ -224,32 +224,56 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
         whichMbr = currentMbr;
     }
     
-    if (!framesToRender.empty())
+    if (framesToRender.empty())
+        return;
+    
+    lastRender = TimeGetCurrent();
+    
+    // Note: Assuming geographic or spherical mercator
+    GeoMbr geoMbr(GeoCoord(mbr.ll().x(), mbr.ll().y()),GeoCoord(mbr.ur().x(),mbr.ur().y()));
+    std::vector<Mbr> testMbrs;
+    if (geoMbr.ur().x() > M_PI)
     {
-        lastRender = TimeGetCurrent();
+        testMbrs.push_back(Mbr(geoMbr.ll(),Point2f((float)M_PI,geoMbr.ur().y())));
+        testMbrs.push_back(Mbr(Point2f((float)(M_PI),geoMbr.ll().y()),geoMbr.ur()));
+    } else {
+        testMbrs.push_back(Mbr(geoMbr.ll(),geoMbr.ur()));
+    }
+    
+    Point2d texSize = calculateSize();
+    int outSizeX = texSize.x(), outSizeY = texSize.y();
+    if (outSizeX == 0 || outSizeY == 0)
+        return;
+    
+    // Set up an OpenGL render buffer to draw to
+    GLuint frameBuf;
+    glGenFramebuffers(1, &frameBuf);
+    CheckGLError("Offline glGenFramebuffers");
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBuf);
+    CheckGLError("Offline glBindFramebuffer");
+    
+    // Color renderbuffer and backing store
+    GLuint colorBuffer;
+    glGenRenderbuffers(1, &colorBuffer);
+    CheckGLError("Offline glGenRenderbuffers");
+    glBindRenderbuffer(GL_RENDERBUFFER, colorBuffer);
+    CheckGLError("Offline glBindRenderbuffer");
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8_OES, outSizeX, outSizeY);
+    CheckGLError("Offline glRenderbufferStorage");
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorBuffer);
+    CheckGLError("Offline glFramebufferRenderbuffer");
+    
+    //        NSLog(@"Tex Size = (%f,%f)",texSize.width,texSize.height);
+    
+    int numRenderedTiles = 0;
+    
+    // We'll just re-render the frames that were updated
+    for (std::set<int>::iterator it = framesToRender.begin(); it != framesToRender.end(); ++it)
+    {
+        if (whichMbr != currentMbr)
+            break;
         
-        // Note: Assuming geographic or spherical mercator
-        GeoMbr geoMbr(GeoCoord(mbr.ll().x(), mbr.ll().y()),GeoCoord(mbr.ur().x(),mbr.ur().y()));
-        std::vector<Mbr> testMbrs;
-        if (geoMbr.ur().x() > M_PI)
-        {
-            testMbrs.push_back(Mbr(geoMbr.ll(),Point2f((float)M_PI,geoMbr.ur().y())));
-            testMbrs.push_back(Mbr(Point2f((float)(M_PI),geoMbr.ll().y()),geoMbr.ur()));
-        } else {
-            testMbrs.push_back(Mbr(geoMbr.ll(),geoMbr.ur()));
-        }
-        
-        Point2d texSize = calculateSize();
-        int outSizeX = texSize.x(), outSizeY = texSize.y();
-        if (outSizeX == 0 || outSizeY == 0)
-            return;
-        
-        // Set up an OpenGL render buffer to draw to
-        GLuint frameBuf;
-        glGenFramebuffers(1, &frameBuf);
-        CheckGLError("Offline glGenFramebuffers");
-        glBindFramebuffer(GL_FRAMEBUFFER, frameBuf);
-        CheckGLError("Offline glBindFramebuffer");
+        int whichFrame = *it;
         
         // And a texture to render to
         GLuint renderTex;
@@ -261,94 +285,65 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, outSizeX, outSizeY, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
         CheckGLError("Offline glTexImage2D");
 
-        // Color renderbuffer and backing store
-        GLuint colorBuffer;
-        glGenRenderbuffers(1, &colorBuffer);
-        CheckGLError("Offline glGenRenderbuffers");
-        glBindRenderbuffer(GL_RENDERBUFFER, colorBuffer);
-        CheckGLError("Offline glBindRenderbuffer");
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8_OES, outSizeX, outSizeY);
-        CheckGLError("Offline glRenderbufferStorage");
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorBuffer);
-        CheckGLError("Offline glFramebufferRenderbuffer");
-        
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTex, 0);
         CheckGLError("Offline glFramebufferTexture2D");
-        
-        // Note: Test color
-        glClearColor(0.0, 1.0, 0.0, 1.0);
-        CheckGLError("Offline glClearColor");
-        glClear(GL_COLOR_BUFFER_BIT);
-        CheckGLError("Offline glClear");
-        
-        //        NSLog(@"Tex Size = (%f,%f)",texSize.width,texSize.height);
-        
-        // Draw each entry in the image stack individually
-//        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-//        CGContextRef theContext = CGBitmapContextCreate(NULL, texSize.width, texSize.height, 8, texSize.width * 4, colorSpace, kCGImageAlphaPremultipliedLast);
-        int numRenderedTiles = 0;
-        
-        // We'll just re-render the frames that were updated
-        for (std::set<int>::iterator it = framesToRender.begin(); it != framesToRender.end(); ++it)
+
+        // Work through the tiles, drawing as we go
+        for (OfflineTileSet::iterator it = tiles.begin(); it != tiles.end(); ++it)
         {
+            // If this happens, they've changed the MBR while we were working on this one.  Punt.
             if (whichMbr != currentMbr)
-                break;
-            
-            int whichFrame = *it;
-            
-            // Note: This draws the background in red.  Useful for seeing what doesn't get filled
-            //            CGContextSetRGBFillColor(theContext, 1, 0, 0, 1);
-            //            CGContextFillRect(theContext, CGRectMake(0, 0, texSize.width, texSize.height));
-            // Work through the tiles, drawing as we go
-            for (OfflineTileSet::iterator it = tiles.begin(); it != tiles.end(); ++it)
             {
-                // If this happens, they've changed the MBR while we were working on this one.  Punt.
-                if (whichMbr != currentMbr)
-                {
-//                    CGContextRelease(theContext);
-//                    CGColorSpaceRelease(colorSpace);
-                    //                    NSLog(@"Aborted render");
-                    return;
-                }
+                glDeleteTextures(1, &renderTex);
                 
-                OfflineTile *tile = *it;
-                if (tile->images[whichFrame] == NULL)
-                    continue;
-                if (deep > 0 && tile->ident.level > deep)
+                break;
+            }
+
+            // Clear output texture
+            // Note: Test color
+            glClearColor(0.0, 1.0, 0.0, 1.0);
+            CheckGLError("Offline glClearColor");
+            glClear(GL_COLOR_BUFFER_BIT);
+            CheckGLError("Offline glClear");
+
+            OfflineTile *tile = *it;
+            if (tile->images[whichFrame] == NULL)
+                continue;
+            if (deep > 0 && tile->ident.level > deep)
+                continue;
+            
+            // Scale the extents to the output image
+            Mbr tileMbr[2];
+            tileMbr[0] = control->getQuadtree()->generateMbrForNode(tile->ident);
+            bool overlaps = tileMbr[0].overlaps(testMbrs[0]);
+            if (testMbrs.size() > 1 && !overlaps)
+            {
+                tileMbr[1] = tileMbr[0];
+                tileMbr[1].ll().x() += 2*M_PI;
+                tileMbr[1].ur().x() += 2*M_PI;
+                overlaps = tileMbr[1].overlaps(testMbrs[1]);
+            }
+            if (!overlaps)
+                continue;
+            
+            for (unsigned int jj=0;jj<testMbrs.size();jj++)
+            {
+                Mbr &testMbr = testMbrs[jj];
+                if (!tileMbr[jj].overlaps(testMbr))
                     continue;
                 
-                // Scale the extents to the output image
-                Mbr tileMbr[2];
-                tileMbr[0] = control->getQuadtree()->generateMbrForNode(tile->ident);
-                bool overlaps = tileMbr[0].overlaps(testMbrs[0]);
-                if (testMbrs.size() > 1 && !overlaps)
-                {
-                    tileMbr[1] = tileMbr[0];
-                    tileMbr[1].ll().x() += 2*M_PI;
-                    tileMbr[1].ur().x() += 2*M_PI;
-                    overlaps = tileMbr[1].overlaps(testMbrs[1]);
-                }
-                if (!overlaps)
-                    continue;
+                Point2f org;
+                org.x() = texSize.x() * (tileMbr[jj].ll().x() - mbr.ll().x()) / (mbr.ur().x()-mbr.ll().x());
+                org.y() = texSize.y() * (tileMbr[jj].ll().y() - mbr.ll().y()) / (mbr.ur().y()-mbr.ll().y());
+                Point2f span;
+                span.x() = texSize.x() * (tileMbr[jj].ur().x()-tileMbr[jj].ll().x()) / (mbr.ur().x()-mbr.ll().x());
+                span.y() = texSize.y() * (tileMbr[jj].ur().y()-tileMbr[jj].ll().y()) / (mbr.ur().y()-mbr.ll().y());
                 
-                for (unsigned int jj=0;jj<testMbrs.size();jj++)
-                {
-                    Mbr &testMbr = testMbrs[jj];
-                    if (!tileMbr[jj].overlaps(testMbr))
-                        continue;
-                    
-                    Point2f org;
-                    org.x() = texSize.x() * (tileMbr[jj].ll().x() - mbr.ll().x()) / (mbr.ur().x()-mbr.ll().x());
-                    org.y() = texSize.y() * (tileMbr[jj].ll().y() - mbr.ll().y()) / (mbr.ur().y()-mbr.ll().y());
-                    Point2f span;
-                    span.x() = texSize.x() * (tileMbr[jj].ur().x()-tileMbr[jj].ll().x()) / (mbr.ur().x()-mbr.ll().x());
-                    span.y() = texSize.y() * (tileMbr[jj].ur().y()-tileMbr[jj].ll().y()) / (mbr.ur().y()-mbr.ll().y());
-                    
-                    // Find the right input image
+                // Find the right input image
 //                    UIImage *imageToDraw = nil;
-                    void *imageToDraw = NULL;
-                    if (whichFrame < tile->images.size())
-                    {
+                void *imageToDraw = NULL;
+                if (whichFrame < tile->images.size())
+                {
 //                        imageToDraw = (UIImage *)tile->images[whichFrame].imageData;
 //                        if ([imageToDraw isKindOfClass:[NSData class]])
 //                            imageToDraw = [UIImage imageWithData:(NSData *)imageToDraw];
@@ -358,70 +353,69 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
 //                            //                            NSLog(@"Found bad image in offline renderer.");
 //                            imageToDraw = nil;
 //                        }
-                    }
-                    
-                    if (imageToDraw)
-                    {
-                        // Note: This draws a green square for debugging
-                        //                        CGContextBeginPath(theContext);
-                        //                        CGContextAddRect(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()));
-                        //                        CGFloat green[4] = {0,1,0,1};
-                        //                        CGContextSetStrokeColor(theContext, green);
-                        //                        CGContextDrawPath(theContext, kCGPathStroke);
-//                        CGContextDrawImage(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()), imageToDraw.CGImage);
-                    }
                 }
-                numRenderedTiles++;
+                
+                if (imageToDraw)
+                {
+                    // Note: This draws a green square for debugging
+                    //                        CGContextBeginPath(theContext);
+                    //                        CGContextAddRect(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()));
+                    //                        CGFloat green[4] = {0,1,0,1};
+                    //                        CGContextSetStrokeColor(theContext, green);
+                    //                        CGContextDrawPath(theContext, kCGPathStroke);
+//                        CGContextDrawImage(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()), imageToDraw.CGImage);
+                }
             }
-            
+            numRenderedTiles++;
+        }
+        
 //            CGImageRef imageRef = CGBitmapContextCreateImage(theContext);
 //            UIImage *image = [UIImage imageWithCGImage:imageRef];
 //            CGImageRelease(imageRef);
-            
-            //            NSLog(@"Offline: Rendered frame %d, Tex Size = (%f,%f)",whichFrame,texSize.width,texSize.height);
-            
-            // Register the texture we've already created
-            TextureWrapper *tex = new TextureWrapper("TileQuadOfflineRenderer",renderTex);
-            SimpleIdentity texID = tex->getId();
-            scene->addTexture(tex);
-            
+        
+        //            NSLog(@"Offline: Rendered frame %d, Tex Size = (%f,%f)",whichFrame,texSize.width,texSize.height);
+        
+        // Register the texture we've already created
+        TextureWrapper *tex = new TextureWrapper("TileQuadOfflineRenderer",renderTex);
+        SimpleIdentity texID = tex->getId();
+        scene->addTexture(tex);
+        
 //            [_quadLayer.layerThread addChangeRequests:changes];
 //            [_quadLayer.layerThread flushChangeRequests];
-            
-            QuadTileOfflineImage offImage;
-            offImage.texture = texID;
-            offImage.frame = whichFrame;
-            offImage.mbr = mbr;
-            offImage.texSize = texSize;
-            offImage.centerSize = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x()/2.0, texSize.y()/2.0));
-            offImage.cornerSizes[0] = pixelSizeForMbr(mbr,texSize,Point2d(0.0, 0.0));
-            offImage.cornerSizes[1] = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x(), 0.0));
-            offImage.cornerSizes[2] = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x(), texSize.y()));
-            offImage.cornerSizes[3] = pixelSizeForMbr(mbr,texSize,Point2d(0.0, texSize.y()));
-            
-            if (outputDelegate)
-                outputDelegate->offlineRender(this, &offImage);
-        }
+        
+        QuadTileOfflineImage offImage;
+        offImage.texture = texID;
+        offImage.frame = whichFrame;
+        offImage.mbr = mbr;
+        offImage.texSize = texSize;
+        offImage.centerSize = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x()/2.0, texSize.y()/2.0));
+        offImage.cornerSizes[0] = pixelSizeForMbr(mbr,texSize,Point2d(0.0, 0.0));
+        offImage.cornerSizes[1] = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x(), 0.0));
+        offImage.cornerSizes[2] = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x(), texSize.y()));
+        offImage.cornerSizes[3] = pixelSizeForMbr(mbr,texSize,Point2d(0.0, texSize.y()));
+        
+        if (outputDelegate)
+            outputDelegate->offlineRender(this, &offImage);
+    }
 //        CGContextRelease(theContext);
 //        CGColorSpaceRelease(colorSpace);
-        
-        //        NSLog(@"Rendered %d tiles of %d, depth = %d",numRenderedTiles,(int)tiles.size(),deep);
-        
-        
-        //        NSLog(@"CenterSize = (%f,%f), texSize = (%d,%d)",image.centerSize.width,image.centerSize.height,(int)texSize.width,(int)texSize.height);
-        
-        // Shut down state we used for rendering, except the texture
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        CheckGLError("Offline glBindFramebuffer clear");
-        glBindTexture(GL_TEXTURE_2D, 0);
-        CheckGLError("Offline glBindTexture clear");
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
-        CheckGLError("Offline glBindRenderbuffer clear");
-        glDeleteRenderbuffers(1, &colorBuffer);
-        CheckGLError("Offline glDeleteRenderbuffers");
-        glDeleteFramebuffers(1, &frameBuf);
-        CheckGLError("Offline glDeleteFramebuffers");
-    }
+    
+    //        NSLog(@"Rendered %d tiles of %d, depth = %d",numRenderedTiles,(int)tiles.size(),deep);
+    
+    
+    //        NSLog(@"CenterSize = (%f,%f), texSize = (%d,%d)",image.centerSize.width,image.centerSize.height,(int)texSize.width,(int)texSize.height);
+    
+    // Shut down state we used for rendering, except the texture
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    CheckGLError("Offline glBindFramebuffer clear");
+    glBindTexture(GL_TEXTURE_2D, 0);
+    CheckGLError("Offline glBindTexture clear");
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    CheckGLError("Offline glBindRenderbuffer clear");
+    glDeleteRenderbuffers(1, &colorBuffer);
+    CheckGLError("Offline glDeleteRenderbuffers");
+    glDeleteFramebuffers(1, &frameBuf);
+    CheckGLError("Offline glDeleteFramebuffers");
     
     // If we did a quick render, we need to go back again
     if (deep > 0)
