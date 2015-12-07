@@ -58,6 +58,21 @@ protected:
     std::string name;
 };
     
+/** Used to wrap a GL texture ID that we created somewhere else.
+  */
+class TextureWrapper : public TextureBase
+{
+public:
+    // Comparison constructor
+    TextureWrapper(SimpleIdentity thisID) : TextureBase(thisID) { }
+    TextureWrapper(const std::string &name,GLuint inId) : TextureBase(name) { glId = inId; }
+
+    virtual ~TextureWrapper() { };
+
+    // Clean up the texture created elsewhere
+    virtual void destroyInGL(OpenGLMemManager *memManager);
+};
+    
 /// For single byte pixels, what's the source, R G B or A?
 typedef enum {WKSingleRed,WKSingleGreen,WKSingleBlue,WKSingleRGB,WKSingleAlpha} WKSingleByteSource;
 

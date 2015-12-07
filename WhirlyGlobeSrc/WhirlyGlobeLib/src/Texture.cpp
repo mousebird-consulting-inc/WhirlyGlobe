@@ -349,4 +349,10 @@ void Texture::destroyInGL(OpenGLMemManager *memManager)
         memManager->removeTexID(glId);
 }
 
+void TextureWrapper::destroyInGL(OpenGLMemManager *memManager)
+{
+    if (glId)
+        memManager->removeTexID(glId);
+}
+    
 }

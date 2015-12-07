@@ -23,6 +23,7 @@
 #if defined(__ANDROID__)
 #import <android/log.h>
 #endif
+#import "GLUtils.h"
 
 using namespace Eigen;
 
@@ -239,6 +240,47 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
         }
         
         Point2d texSize = calculateSize();
+        int outSizeX = texSize.x(), outSizeY = texSize.y();
+        if (outSizeX == 0 || outSizeY == 0)
+            return;
+        
+        // Set up an OpenGL render buffer to draw to
+        GLuint frameBuf;
+        glGenFramebuffers(1, &frameBuf);
+        CheckGLError("Offline glGenFramebuffers");
+        glBindFramebuffer(GL_FRAMEBUFFER, frameBuf);
+        CheckGLError("Offline glBindFramebuffer");
+        
+        // And a texture to render to
+        GLuint renderTex;
+        glGenTextures(1, &renderTex);
+        CheckGLError("Offline glGenTextures");
+        glBindTexture(GL_TEXTURE_2D, renderTex);
+        CheckGLError("Offline glBindTexture");
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, outSizeX, outSizeY, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        CheckGLError("Offline glTexImage2D");
+
+        // Color renderbuffer and backing store
+        GLuint colorBuffer;
+        glGenRenderbuffers(1, &colorBuffer);
+        CheckGLError("Offline glGenRenderbuffers");
+        glBindRenderbuffer(GL_RENDERBUFFER, colorBuffer);
+        CheckGLError("Offline glBindRenderbuffer");
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8_OES, outSizeX, outSizeY);
+        CheckGLError("Offline glRenderbufferStorage");
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorBuffer);
+        CheckGLError("Offline glFramebufferRenderbuffer");
+        
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTex, 0);
+        CheckGLError("Offline glFramebufferTexture2D");
+        
+        // Note: Test color
+        glClearColor(0.0, 1.0, 0.0, 1.0);
+        CheckGLError("Offline glClearColor");
+        glClear(GL_COLOR_BUFFER_BIT);
+        CheckGLError("Offline glClear");
+        
         //        NSLog(@"Tex Size = (%f,%f)",texSize.width,texSize.height);
         
         // Draw each entry in the image stack individually
@@ -338,13 +380,10 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
             
             //            NSLog(@"Offline: Rendered frame %d, Tex Size = (%f,%f)",whichFrame,texSize.width,texSize.height);
             
-            // Convert the images into OpenGL ES textures
-            ChangeSet changes;
-            SimpleIdentity texID = EmptyIdentity;
-//            Texture *tex = new Texture("TileQuadOfflineRenderer",image,true);
-//            SimpleIdentity texID = tex->getId();
-//            tex->createInGL(_quadLayer.scene->getMemManager());
-//            changes.push_back(new AddTextureReq(tex));
+            // Register the texture we've already created
+            TextureWrapper *tex = new TextureWrapper("TileQuadOfflineRenderer",renderTex);
+            SimpleIdentity texID = tex->getId();
+            scene->addTexture(tex);
             
 //            [_quadLayer.layerThread addChangeRequests:changes];
 //            [_quadLayer.layerThread flushChangeRequests];
@@ -370,6 +409,18 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
         
         
         //        NSLog(@"CenterSize = (%f,%f), texSize = (%d,%d)",image.centerSize.width,image.centerSize.height,(int)texSize.width,(int)texSize.height);
+        
+        // Shut down state we used for rendering, except the texture
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        CheckGLError("Offline glBindFramebuffer clear");
+        glBindTexture(GL_TEXTURE_2D, 0);
+        CheckGLError("Offline glBindTexture clear");
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+        CheckGLError("Offline glBindRenderbuffer clear");
+        glDeleteRenderbuffers(1, &colorBuffer);
+        CheckGLError("Offline glDeleteRenderbuffers");
+        glDeleteFramebuffers(1, &frameBuf);
+        CheckGLError("Offline glDeleteFramebuffers");
     }
     
     // If we did a quick render, we need to go back again
