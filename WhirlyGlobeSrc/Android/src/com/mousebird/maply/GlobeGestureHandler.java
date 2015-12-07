@@ -28,7 +28,7 @@ import android.view.View;
 /**
  * Implements the various gestures we need and handles conflict between them.
  * <p>
- * This is used by the MaplyController to deal with gestures on Android.  If
+ * This is used by the GlobeController to deal with gestures on Android.  If
  * you want to mess with this, be sure to subclass the MaplyController and
  * create your own subclass of this. 
  *
@@ -366,24 +366,29 @@ public class GlobeGestureHandler
 		{
 			sgd.onTouchEvent(event);
 		}
-		if (!sl.isActive && event.getPointerCount() == 1)
-			gd.onTouchEvent(event);
-		
-		if (!sl.isActive && !gl.isActive && !slWasActive)
-		{
-			if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP))
+		if (!sl.isActive || gl.isActive) {
+			if (event.getAction() == MotionEvent.ACTION_UP)
 			{
-				double newHeight = globeView.getHeight()*2.0;
-
-				// Now kick off the animation
-				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender, globeView.getRotQuat(), newHeight, 0.5));
-
-				sl.isActive = false;
 				gl.isActive = false;
-
-				return true;
-			}
+			} else
+				gd.onTouchEvent(event);
 		}
+		
+//		if (!sl.isActive && !gl.isActive && !slWasActive)
+//		{
+//			if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP))
+//			{
+//				double newHeight = globeView.getHeight()*2.0;
+//
+//				// Now kick off the animation
+//				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender, globeView.getRotQuat(), newHeight, 0.5));
+//
+//				sl.isActive = false;
+//				gl.isActive = false;
+//
+//				return true;
+//			}
+//		}
 
         if (!glWasActive && gl.isActive)
             globeControl.panDidStart(true);
