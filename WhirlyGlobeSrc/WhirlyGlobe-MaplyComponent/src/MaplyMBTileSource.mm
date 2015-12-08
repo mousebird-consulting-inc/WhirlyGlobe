@@ -36,7 +36,7 @@ using namespace WhirlyKit;
     sqlite3 *_sqlDb;
 }
 
-- (id)initWithMBTiles:(NSString *)mbTilesName
+- (instancetype)initWithMBTiles:(NSString *)mbTilesName
 {
     self = [super init];
     if (!self)
@@ -192,7 +192,7 @@ using namespace WhirlyKit;
 }
 
 
-- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox
 {
     @synchronized(self)
     {

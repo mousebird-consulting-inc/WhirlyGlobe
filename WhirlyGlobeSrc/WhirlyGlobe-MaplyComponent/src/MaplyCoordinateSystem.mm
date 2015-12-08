@@ -25,7 +25,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyCoordinateSystem
 
-- (id)initWithCoordSystem:(WhirlyKit::CoordSystem *)newCoordSystem
+- (instancetype)initWithCoordSystem:(WhirlyKit::CoordSystem *)newCoordSystem
 {
     self = [super init];
     if (!self)
@@ -62,10 +62,28 @@ using namespace WhirlyKit;
     return false;
 }
 
+- (void)setBounds:(MaplyBoundingBox)bounds
+{
+	[self setBoundsLL:&bounds.ll ur:&bounds.ur];
+}
+
 - (void)setBoundsLL:(MaplyCoordinate *)inLL ur:(MaplyCoordinate *)inUR
 {
     ll.x = inLL->x;    ll.y = inLL->y;
     ur.x = inUR->x;    ur.y = inUR->y;
+}
+
+- (MaplyBoundingBox)getBounds
+{
+	MaplyBoundingBox box;
+
+	box.ll.x = ll.x;
+	box.ll.y = ll.y;
+
+	box.ur.x = ur.x;
+	box.ur.y = ur.y;
+
+	return box;
 }
 
 - (void)getBoundsLL:(MaplyCoordinate *)ret_ll ur:(MaplyCoordinate *)ret_ur
@@ -106,7 +124,12 @@ using namespace WhirlyKit;
 
 @implementation MaplyPlateCarree
 
-- (id)initWithBoundingBox:(MaplyBoundingBox)bbox
+- (instancetype)init
+{
+	return [self initFullCoverage];
+}
+
+- (instancetype)initWithBoundingBox:(MaplyBoundingBox)bbox
 {
     PlateCarreeCoordSystem *coordSys = new PlateCarreeCoordSystem();
     self = [super initWithCoordSystem:coordSys];
@@ -118,7 +141,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (id)initFullCoverage
+- (instancetype)initFullCoverage
 {
     PlateCarreeCoordSystem *coordSys = new PlateCarreeCoordSystem();
     self = [super initWithCoordSystem:coordSys];
@@ -144,7 +167,12 @@ using namespace WhirlyKit;
 
 @implementation MaplySphericalMercator
 
-- (id)initWebStandard
+- (instancetype)init
+{
+	return [self initWebStandard];
+}
+
+- (instancetype)initWebStandard
 {
     SphericalMercatorCoordSystem *coordSys = new SphericalMercatorCoordSystem();
     self = [super initWithCoordSystem:coordSys];
@@ -164,6 +192,28 @@ using namespace WhirlyKit;
 - (bool)canBeDegrees
 {
     return true;
+}
+
+@end
+
+@implementation MaplyProj4CoordSystem
+{
+    Proj4CoordSystem *p4CoordSys;
+}
+
+- (nonnull instancetype)initWithString:(NSString * __nonnull)proj4Str
+{
+    self = [super init];
+    std::string str = [proj4Str cStringUsingEncoding:NSASCIIStringEncoding];
+    p4CoordSys = new Proj4CoordSystem(str);
+    coordSystem = p4CoordSys;
+        
+    return self;
+}
+
+- (bool)valid
+{
+    return p4CoordSys != nil && p4CoordSys->isValid();
 }
 
 @end

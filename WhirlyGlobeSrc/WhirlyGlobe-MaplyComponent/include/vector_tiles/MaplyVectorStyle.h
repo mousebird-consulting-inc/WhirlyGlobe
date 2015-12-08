@@ -78,7 +78,7 @@
 @property (nonatomic) bool geomAdditive;
 
 /// @brief Construct a style entry from an NSDictionary
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry viewC:(MaplyBaseViewController *)viewC;
+- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry viewC:(MaplyBaseViewController *)viewC;
 
 /// Turn the min/maxscaledenom into height ranges for minVis/maxVis
 - (void)resolveVisibility:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings desc:(NSMutableDictionary *)desc;

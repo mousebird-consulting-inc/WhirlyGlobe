@@ -23,7 +23,7 @@
 
 @implementation MaplyAnnotation
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     _calloutView = [[SMCalloutView alloc] init];

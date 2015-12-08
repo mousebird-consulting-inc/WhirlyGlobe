@@ -1,10 +1,10 @@
 # Most of this borrowed from http://www.cocoanetics.com/2010/04/making-your-own-iphone-frameworks/
 
 #!/bin/bash
-xcodebuild -target WhirlyGlobeLib -configuration Debug -sdk iphonesimulator
-xcodebuild -target WhirlyGlobeLib -configuration Release -sdk iphonesimulator
-xcodebuild -target WhirlyGlobeLib -configuration Debug -sdk iphoneos
-xcodebuild -target WhirlyGlobeLib -configuration Release -sdk iphoneos
+#xcodebuild -target WhirlyGlobeLib -configuration Debug -sdk iphonesimulator9.0
+xcodebuild -target WhirlyGlobeLib -scheme WhirlyGlobeLib -configuration Release -sdk iphonesimulator9.0
+#xcodebuild -target WhirlyGlobeLib -configuration Debug -sdk iphoneos9.0
+xcodebuild -target WhirlyGlobeLib -scheme WhirlyGlobeLib -configuration Release -sdk iphoneos9.0 -DONLY_ACTIVE_ARCH=NO
 
 # name and build location
 PROJECT_NAME=WhirlyGlobe

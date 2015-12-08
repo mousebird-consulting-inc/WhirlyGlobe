@@ -28,7 +28,7 @@
     std::vector<int> elements;
 }
 
-- (id)initWithSize:(CGSize)inSize
+- (instancetype)initWithSize:(CGSize)inSize
 {
     self = [super init];
     if (!self)

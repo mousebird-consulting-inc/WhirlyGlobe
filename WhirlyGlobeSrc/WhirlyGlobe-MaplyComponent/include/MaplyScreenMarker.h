@@ -45,12 +45,12 @@
 /** @brief Image or texture to use for the marker.
     @details If set we'll stretch this UIImage (or MaplyTexture) out over the marker rectangle.  If not set, the marker will just be a colored rectange.  The view controller tracks this object and will reuse its texture and dispose of it as needed.
   */
-@property (nonatomic,strong) id image;
+@property (nonatomic,strong) id  __nullable image;
 
 /** @brief Images to display on the sticker.
     @details If this is set rather than image, we will cycle through these images on the screen marker.  It will take period time to cycle through them all.
   */
-@property (nonatomic,strong) NSArray *images;
+@property (nonatomic,strong) NSArray * __nullable images;
 
 /** @brief The time we'll take to cycle through all the images for the marker.
     @details If images are passed in, this is the time it will take to cycle through them all.  By default this is 5s.
@@ -61,7 +61,7 @@
     @details If set, this the color we'll use for the marker or how we'll tint the image.
     @details This overrides the color set in the description dictionary.
   */
-@property (nonatomic,strong) UIColor *color;
+@property (nonatomic,strong) UIColor * __nullable color;
 
 /** @brief The layout importance compared to other features, 0 by default.
     @details The toolkit has a simple layout engine that runs several times per second.  It controls the placement of all participating screen based features, such as MaplyScreenLabel and MaplyScreenMaker objects.  This value controls the relative importance of this particular object.  By default that importance is 0 so the object must compete with others.  Setting it to MAXFLOAT will bypass the layout engine entirely and the object will always appear.
@@ -82,7 +82,7 @@
     @details MaplyVertexAttribute objects are passed all the way to the shader.  Read that page for details on what they do.
     @details The array of vertex attributes provided here will be copied onto all the vertices we create for the shader.  This means you can use these to do things for a single billboard in your shader.
  */
-@property (nonatomic,strong) NSArray *vertexAttributes;
+@property (nonatomic,strong) NSArray * __nullable vertexAttributes;
 
 /** @brief Screen marker selectability.  On by default
     @details If set, this marker can be selected by the user.  If not set, this screen marker will never appear in selection results.
@@ -92,7 +92,7 @@
 /** @brief User data object for selection
  @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the screen marker means to them.
  */
-@property (nonatomic,strong) id userObject;
+@property (nonatomic,strong) id  __nullable userObject;
 
 @end
 

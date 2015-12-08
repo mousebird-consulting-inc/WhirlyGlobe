@@ -48,7 +48,7 @@
     @details It looks for the full path first and then will try to find the name in the bundle with an extension of @"sqlite" if that failes.
     @return Returns a valid elevation database object or nil on failure.
   */
-- (id)initWithName:(NSString *)name;
+- (nullable instancetype)initWithName:(NSString *__nonnull)name;
 
 /// @brief Minimum zoom level (e.g. 0) as read from the file
 - (int)minZoom;
@@ -60,6 +60,6 @@
     @details This will return elevation samples for the given tile in meters.  The size of the tile is determined by the file (and static).  Data will come from the file in 16 bit signed values, but then converted into 32 bit floating point values.
     @return Returns the elevation chunk corresonding to the given tile.
   */
-- (MaplyElevationChunk *)elevForTile:(MaplyTileID)tileID;
+- (nullable MaplyElevationChunk *)elevForTile:(MaplyTileID)tileID;
 
 @end

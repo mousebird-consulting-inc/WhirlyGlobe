@@ -190,7 +190,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     bool hasUnload;
 }
 
-- (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys delegate:(NSObject<MaplyPagingDelegate> *)inTileSource
+- (instancetype)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys delegate:(NSObject<MaplyPagingDelegate> *)inTileSource
 {
     self = [super init];
 
@@ -264,6 +264,19 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     pthread_mutex_unlock(&tileSetLock);
 }
 
+- (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID
+{
+	if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+		return kMaplyNullBoundingBox;
+
+	MaplyBoundingBox bounds;
+
+	[self geoBoundsforTile:tileID ll:&bounds.ll ur:&bounds.ur];
+
+	return bounds;
+}
+
+
 - (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
 {
     if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
@@ -282,6 +295,18 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     ll->y = geoMbr.ll().y();
     ur->x = geoMbr.ur().x();
     ur->y = geoMbr.ur().y();
+}
+
+- (MaplyBoundingBoxD)geoBoundsForTileD:(MaplyTileID)tileID
+{
+	if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+		return kMaplyNullBoundingBoxD;
+
+	MaplyBoundingBoxD bounds;
+
+	[self geoBoundsForTileD:tileID ll:&bounds.ll ur:&bounds.ur];
+
+	return bounds;
 }
 
 - (void)geoBoundsForTileD:(MaplyTileID)tileID ll:(MaplyCoordinateD *)ll ur:(MaplyCoordinateD *)ur
@@ -311,6 +336,15 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     ll->y = minPt.y();
     ur->x = maxPt.x();
     ur->y = maxPt.y();
+}
+
+- (MaplyBoundingBox)boundsForTile:(MaplyTileID)tileID
+{
+	MaplyBoundingBox bounds;
+
+	[self boundsforTile:tileID ll:&bounds.ll ur:&bounds.ur];
+
+	return bounds;
 }
 
 - (void)boundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur

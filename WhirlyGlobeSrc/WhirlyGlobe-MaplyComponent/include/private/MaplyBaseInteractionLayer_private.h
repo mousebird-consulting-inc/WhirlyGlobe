@@ -69,10 +69,13 @@
 @property (nonatomic,assign) int screenObjectDrawPriorityOffset;
 
 // Initialize with the view we'll be using
-- (id)initWithView:(WhirlyKitView *)visualView;
+- (instancetype)initWithView:(WhirlyKitView *)visualView;
 
 // Add screen space (2D) markers
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+// Add a marker cluster generator
+- (void)addClusterGenerator:(NSObject <MaplyClusterGenerator> *)clusterGen;
 
 // Add 3D markers
 - (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
@@ -125,6 +128,9 @@
 // Add a particle system batch
 - (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode;
 
+// Add a group of points
+- (MaplyComponentObject *)addPoints:(NSArray *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
 // Remove objects associated with the user objects
 - (void)removeObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode;
 
@@ -163,6 +169,8 @@
 // Do a point in poly check for vectors we're representing
 - (NSArray *)findVectorsInPoint:(WhirlyKit::Point2f)pt;
 - (NSArray *)findVectorsInPoint:(WhirlyKit::Point2f)pt inView:(MaplyBaseViewController*)vc multi:(bool)multi;
+
+- (NSObject*)selectLabelsAndMarkerForScreenPoint:(CGPoint)screenPoint;
 
 // Find the Maply object corresponding to the given ID (from the selection manager).
 // Thread-safe

@@ -24,7 +24,7 @@ using namespace Eigen;
 
 @implementation MaplyMatrix
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     _mat = _mat.Identity();
@@ -32,7 +32,7 @@ using namespace Eigen;
     return self;
 }
 
-- (id)initWithYaw:(double)alpha pitch:(double)gamma roll:(double)beta
+- (instancetype)initWithYaw:(double)alpha pitch:(double)gamma roll:(double)beta
 {
     self = [super init];
     _mat = _mat.Identity();
@@ -67,7 +67,7 @@ using namespace Eigen;
     return self;
 }
 
-- (id)initWithScale:(double)scale
+- (instancetype)initWithScale:(double)scale
 {
     self = [super init];
     _mat = _mat.Identity();
@@ -79,7 +79,7 @@ using namespace Eigen;
     return self;
 }
 
-- (id)initWithAngle:(double)ang axisX:(double)x axisY:(double)y axisZ:(double)z
+- (instancetype)initWithAngle:(double)ang axisX:(double)x axisY:(double)y axisZ:(double)z
 {
     self = [super init];
     Affine3d rotMat(AngleAxisd(ang,Vector3d(x,y,z)));

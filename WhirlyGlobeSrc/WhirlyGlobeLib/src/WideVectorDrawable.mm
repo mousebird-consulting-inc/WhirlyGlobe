@@ -97,13 +97,9 @@ void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scen
 
 static const char *vertexShaderTri =
 "uniform mat4  u_mvpMatrix;\n"
-//"uniform mat4  u_mvMatrix;\n"
-//"uniform mat4  u_pMatrix;\n"
 "uniform float u_fade;\n"
 "uniform float u_w2;\n"
 "uniform float u_texScale;\n"
-//"uniform float u_pixDispSize;\n"
-//"uniform float u_lineWidth;\n"
 "\n"
 "attribute vec3 a_position;\n"
 "attribute vec2 a_texCoord0;\n"
@@ -126,25 +122,25 @@ static const char *vertexShaderTri =
 "   vec2 screen_n0 = (u_mvpMatrix * vec4(a_n0,0.0)).xy;\n"
 "   float t0 = a_c0 * u_w2;\n"
 "   t0 = clamp(t0,a_t0_limit.x,a_t0_limit.y);\n"
-"   vec2 calcOff = screen_p01 * t0 + screen_n0 * a_w2;\n"
+"   vec2 calcOff = screen_p01 * t0 + screen_n0 * u_w2;\n"
 "   gl_Position = vertPos + vec4(calcOff,0,0);\n"
 "}\n"
 ;
 
 static const char *fragmentShaderTri =
-"precision mediump float;                            \n"
+"precision mediump float;\n"
 "\n"
-"uniform sampler2D s_baseMap0;                        \n"
-"uniform bool  u_hasTexture;                         \n"
+"uniform sampler2D s_baseMap0;\n"
+"uniform bool  u_hasTexture;\n"
 "\n"
-"varying vec2      v_texCoord;                       \n"
-"varying vec4      v_color;                          \n"
+"varying vec2      v_texCoord;\n"
+"varying vec4      v_color;\n"
 "\n"
-"void main()                                         \n"
-"{                                                   \n"
-"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
-"  gl_FragColor = v_color * baseColor;  \n"
-"}                                                   \n"
+"void main()\n"
+"{\n"
+"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0);\n"
+"  gl_FragColor = v_color * baseColor;\n"
+"}\n"
 ;
 
 WhirlyKit::OpenGLES2Program *BuildWideVectorProgram()
