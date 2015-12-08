@@ -26,8 +26,6 @@
 #import "WideVectorsTestCase.h"
 #import "ShapesTestCase.h"
 #import "LoftedPolysTestCase.h"
-
-
-
+#import "CartoDBTestCase.h"
 
 #endif
