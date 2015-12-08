@@ -31,8 +31,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		ShapesTestCase(),
 		StickersTestCase(),
 		LoftedPolysTestCase(),
-        NASAGIBSTestCase(),
-        CartoDBTestCase()
+		NASAGIBSTestCase(),
+		CartoDBTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
@@ -115,12 +115,13 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 		destination.titles = sortedKeys
 		destination.results = [MaplyTestResult]()
-		sortedKeys.forEach{
+		sortedKeys.forEach {
 			destination.results.append(self.results[$0]!)
 		}
 	}
 
 	private dynamic func showConfig() {
+		
 		if UI_USER_INTERFACE_IDIOM() == .Pad {
 			popControl = UIPopoverController(contentViewController: configViewC!)
 			popControl?.delegate = self
@@ -141,7 +142,9 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 		// use same aspect ratio as results view
 		self.testView = UIView(frame: CGRectMake(0, 0, 468, 672))
-		self.testView!.hidden = true;
+
+		self.testView?.hidden = !configViewC!.valueForSection(.Options, row: .ViewTest)
+		self.testView?.backgroundColor = UIColor.blackColor()
 		self.view.addSubview(self.testView!)
 		self.results.removeAll()
 		startTests(tests)
@@ -153,7 +156,6 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 			if (head.selected) {
 				head.options = .None
-
 				if configViewC!.valueForSection(.Options, row: .RunGlobe) {
 					head.options.insert(.Globe)
 				}
@@ -173,7 +175,9 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 					self.startTests(tail)
 				}
-
+				if configViewC!.valueForSection(.Options, row: .ViewTest) {
+					self.title = "Running tests... \(head.name)"
+				}
 				head.testView = self.testView;
 				head.start()
 				tableView.reloadData()
