@@ -46,19 +46,24 @@ typedef struct
 @interface MaplyQuadTracker : NSObject
 
 /// @brief Coordinate system for the quad tiles we're tracking
-@property (nonatomic,strong) MaplyCoordinateSystem *coordSys;
+@property (nonatomic,strong,nullable) MaplyCoordinateSystem *coordSys;
 
 /** @brief Init with a globe view controller
     @details Initialize with a globe view controller.  Only valid for globe at the moment.
   */
-- (id)initWithViewC:(WhirlyGlobeViewController *)viewC;
+- (nonnull instancetype)initWithViewC:(WhirlyGlobeViewController *__nonnull)viewC;
+
+/** @brief The minimum level to consider.
+    @details Set this if you're starting loading at a level higher than 0.  0 is the default.
+  */
+@property (nonatomic,assign) int minLevel;
 
 /** @brief Query the quad tracker for tiles and locations within them for a group of points.
     @details This is a bulk query for points within the tiles being tracked.
     @param tilesInfo This is both an input and output parameter.  Fill in the screenU and screenV values and you'll get back tileID and tileU and tileV.  tileID.level will be -1 if there was no hit for that point.
     @param numPts The number of points in the tilesInfo array.
   */
-- (void)tiles:(MaplyQuadTrackerPointReturn *)tilesInfo forPoints:(int)numPts;
+- (void)tiles:(MaplyQuadTrackerPointReturn *__nonnull)tilesInfo forPoints:(int)numPts;
 
 /** @brief Add a tile to track.
   */

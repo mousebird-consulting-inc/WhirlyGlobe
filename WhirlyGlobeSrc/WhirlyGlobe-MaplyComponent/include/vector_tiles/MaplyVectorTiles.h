@@ -31,8 +31,8 @@
 
 /** @brief Parse a color in #rrggbbaa format out of a string.
   */
-+ (UIColor *)ParseColor:(NSString *)colorStr;
-+ (UIColor *) ParseColor:(NSString *)colorStr alpha:(CGFloat)alpha;
++ (nonnull UIColor *)ParseColor:(NSString *__nonnull)colorStr;
++ (nonnull UIColor *)ParseColor:(NSString *__nonnull)colorStr alpha:(CGFloat)alpha;
 
 /** @brief Kick off a maply vector tiles database from a remote URL.
     @details Creating a vector tiles database from a remote URL is a multi-stage process.  It requires a couple of network fetches first before we can safely start the db.  This runs through that process, creating the tile source and then calling the block when it's done.  It's up to the caller to provide a block that creates the paging layer and adds it to the view controller.
@@ -41,13 +41,13 @@
     @param viewC The view controller to create the objects in.
     @param callbackBlock The block that gets called (on the main thread) when the construction succeeds or fails.
   */
-+ (void)StartRemoteVectorTiles:(NSString *)jsonURL cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC block:(void (^)(MaplyVectorTiles *vecTiles))callbackBlock;
++ (void)StartRemoteVectorTiles:(NSString *__nonnull)jsonURL cacheDir:(NSString *__nonnull)cacheDir viewC:(MaplyBaseViewController *__nonnull)viewC block:(void (^__nonnull)(MaplyVectorTiles *__nullable vecTiles))callbackBlock;
 
 /** @brief Initialize with a local tiles database and a view controller to display to.
     @details This will start up a maply vector tiles object reading from the given database and building objects in the given view controller.
     @details The vector database will respond to the MaplyPagingDelegate and pull in tiles as needed for display.
   */
-- (id)initWithDatabase:(NSString *)tilesDB viewC:(MaplyBaseViewController *)viewC;
+- (nullable instancetype)initWithDatabase:(NSString *__nonnull)tilesDB viewC:(MaplyBaseViewController *__nonnull)viewC;
 
 /** @brief Initialize with a JSON tile spec, which specifies where the tiles come from and other values.
     @details Initialize a tile database with a JSON tile spec, which gives us remote tile locations, min and max levels and other useful values.
@@ -55,7 +55,7 @@
     @param styles The styles dictionary.  Presumably we just fetched this remotely.
     @param viewC The view controller we'll use to create objects.
   */
-- (id)initWithTileSpec:(NSDictionary *)jsonSpec styles:(NSDictionary *)styles viewC:(MaplyBaseViewController *)viewC;
+- (nullable instancetype)initWithTileSpec:(NSDictionary *__nonnull)jsonSpec styles:(NSDictionary *__nonnull)styles viewC:(MaplyBaseViewController *__nonnull)viewC;
 
 /// @brief The minimum level this database covers
 @property (nonatomic,assign) int minLevel;
@@ -64,21 +64,21 @@
 @property (nonatomic,assign) int maxLevel;
 
 /// @brief The view controller the vector database paging builds its objects in
-@property (nonatomic,weak) MaplyBaseViewController *viewC;
+@property (nonatomic,weak,nullable) MaplyBaseViewController *viewC;
 
 /// @brief Settings that control how objects are built with relation to tiles
-@property (nonatomic,strong) MaplyVectorTileStyleSettings *settings;
+@property (nonatomic,strong,nullable) MaplyVectorTileStyleSettings *settings;
 
 /// @brief Individual layers parsed out of the vector tiles database
-@property (nonatomic,readonly) NSArray *layerNames;
+@property (nonatomic,readonly,nullable) NSArray *layerNames;
 
 /// @brief An array of the style dictionaries.
 /// @details Style dictionaries are used internally to style the vector data.
-@property (nonatomic,readonly) NSArray *styles;
+@property (nonatomic,readonly,nonnull) NSArray *styles;
 
 /// @brief Set the cache dir for network fetched tiles.
 /// @details If we're fetching tiles over the network we'll look here first.  Set it to nil to turn off caching.
-@property (nonatomic,strong) NSString *cacheDir;
+@property (nonatomic,strong,nullable) NSString *cacheDir;
 
 /// @brief If set, all vectors created are selectable.
 /// @details Keeping track of vectors for selection can be expensive.  If you're not going to ever select them, there's no need to keep them around.

@@ -29,7 +29,7 @@ using namespace WhirlyGlobe;
     WhirlyKitTextureGroup *texGroup;
 }
 
-- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene texGroup:(NSString *)texGroupName
+- (instancetype)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene texGroup:(NSString *)texGroupName
 {
     self = [super init];
     super.layerThread = layerThread;

@@ -25,7 +25,7 @@
     int _minZoom,_maxZoom,_depth;
 }
 
-- (id)initWithCoordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom
+- (instancetype)initWithCoordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom
 {
     self = [super init];
     if (!self)
@@ -66,13 +66,13 @@
 }
 
 // Make sure this tile exists in the real world
-- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox
 {
     int numTiles = 1<<tileID.level;
-    double tileSizeX = (bbox->ur.x-bbox->ll.x)/numTiles;
-    double tileSizeY = (bbox->ur.y-bbox->ll.y)/numTiles;
-    double midX = tileSizeX*(tileID.x+0.5) + bbox->ll.x;
-    double midY = tileSizeY*(tileID.y+0.5) + bbox->ll.y;
+    double tileSizeX = (bbox.ur.x-bbox.ll.x)/numTiles;
+    double tileSizeY = (bbox.ur.y-bbox.ll.y)/numTiles;
+    double midX = tileSizeX*(tileID.x+0.5) + bbox.ll.x;
+    double midY = tileSizeY*(tileID.y+0.5) + bbox.ll.y;
     
     if (midX < -M_PI || midX > M_PI)
         return false;

@@ -93,6 +93,12 @@ public:
     /// If the subclass can't support bounds (e.g. a globe), you get false back.
     virtual bool getBounds(Point3f &ll,Point3f &ur) = 0;
     
+    /// Return the bounds in display
+    virtual bool getDisplayBounds(Point3d &ll,Point3d &ur) { return false; }
+    
+    /// Return the bounds of the display in geo coordinates
+    virtual bool getGeoBounds(Point2d &ll,Point2d &ur) { return false; }
+
     /// Return the current center
     Point3d getCenter() { return center; }
 
@@ -126,12 +132,18 @@ protected:
 class GeneralCoordSystemDisplayAdapter : public CoordSystemDisplayAdapter
 {
 public:
-    GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,Point3d ll,Point3d ur,Point3d center);
+    GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &ll,const Point3d &ur,const Point3d &center,const Point3d &scale);
     ~GeneralCoordSystemDisplayAdapter();
 
     /// Bounding box where the coordinate system is valid
     bool getBounds(Point3f &ll,Point3f &ur);
+
+    /// Return the valid area of the source coordinate system in display coordinates
+    bool getDisplayBounds(Point3d &ll,Point3d &ur);
     
+    /// Return the valid area of the coordinate system in lon/lat radians
+    bool getGeoBounds(Point2d &ll,Point2d &ur);
+
     /// Convert from the system's local coordinates to display coordinates
     WhirlyKit::Point3f localToDisplay(WhirlyKit::Point3f);
     WhirlyKit::Point3d localToDisplay(WhirlyKit::Point3d);
@@ -151,8 +163,17 @@ public:
     /// False for others, like geographic.
     bool isFlat() { return true; }
     
+    /// Set the scale for coordinates going to/from display space
+    void setScale(const Point3d &scale);
+    
+    /// Return the display space scale
+    Point3d getScale();
+    
 protected:
     Point3d ll,ur;
+    Point3d dispLL,dispUR;
+    Point2d geoLL,geoUR;
+    Point3d scale;
     CoordSystem *coordSys;
 };
 

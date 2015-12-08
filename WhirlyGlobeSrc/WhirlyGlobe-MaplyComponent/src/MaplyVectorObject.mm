@@ -101,33 +101,9 @@ public:
 
 @implementation MaplyVectorObject
 
-+ (WGVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON
++ (MaplyVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON
 {
-    if ([geoJSON length] > 0)
-    {
-        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
-        
-        NSString *crs = nil;
-        if (!VectorParseGeoJSON(vecObj->_shapes, geoJSON, &crs))
-            return nil;
-        
-        // Reproject to a destination system
-        // Note: Not working
-//        if (crs)
-//        {
-//            MaplyCoordinateSystem *srcSys = MaplyCoordinateSystemFromEPSG(crs);
-//            MaplyCoordinateSystem *destSys = [[MaplyPlateCarree alloc] initFullCoverage];
-//            if (srcSys && destSys)
-//            {
-//                [vecObj reprojectFrom:srcSys to:destSys];
-//            } else
-//                NSLog(@"VectorObjectFromGeoJSON: Unable to reproject to CRS (%@)",crs);
-//        }
-        
-        return vecObj;
-    }
-    
-    return nil;
+	return [[MaplyVectorObject alloc] initWithGeoJSON:geoJSON];
 }
 
 + (NSDictionary *)VectorObjectsFromGeoJSONAssembly:(NSData *)geoJSON
@@ -159,71 +135,24 @@ public:
 
 /// Parse vector data from geoJSON.  Returns one object to represent
 //   the whole thing, which might include multiple different vectors.
-+ (WGVectorObject *)VectorObjectFromGeoJSONApple:(NSData *)geoJSON
++ (MaplyVectorObject *)VectorObjectFromGeoJSONApple:(NSData *)geoJSON
 {
-    if([geoJSON length] > 0)
-    {
-        NSError *error = nil;
-        NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:geoJSON options:NULL error:&error];
-        if (error || ![jsonDict isKindOfClass:[NSDictionary class]])
-            return nil;
-        
-        WGVectorObject *vecObj = [[WGVectorObject alloc] init];
-
-        if (!VectorParseGeoJSON(vecObj->_shapes,jsonDict))
-            return nil;
-
-      return vecObj;
-    }
-    
-    return nil;
+	return [[MaplyVectorObject alloc] initWithGeoJSONApple:geoJSON];
 }
 
 + (MaplyVectorObject *)VectorObjectFromGeoJSONDictionary:(NSDictionary *)jsonDict
 {
-    if (![jsonDict isKindOfClass:[NSDictionary class]])
-        return nil;
-    
-    WGVectorObject *vecObj = [[WGVectorObject alloc] init];
-    
-    if (!VectorParseGeoJSON(vecObj->_shapes,jsonDict))
-        return nil;
-    
-    return vecObj;
+	return [[MaplyVectorObject alloc] initWithGeoJSONDictionary:jsonDict];
 }
 
 + (MaplyVectorObject *)VectorObjectFromShapeFile:(NSString *)fileName
 {
-    if (![[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@.shp",fileName]])
-    {
-        fileName = [[NSBundle mainBundle] pathForResource:fileName ofType:@"shp"];
-    }
-    if (!fileName)
-        return nil;
-    
-    ShapeReader shapeReader(fileName);
-    if (!shapeReader.isValid())
-        return NULL;
-    
-    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
-    int numObj = shapeReader.getNumObjects();
-    for (unsigned int ii=0;ii<numObj;ii++)
-    {
-        VectorShapeRef shape = shapeReader.getObjectByIndex(ii, nil);
-        vecObj.shapes.insert(shape);
-    }
-    
-    return vecObj;
+	return [[MaplyVectorObject alloc] initWithShapeFile:fileName];
 }
 
 + (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName
 {
-    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
-    
-    if (!VectorReadFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], vecObj.shapes))
-        return nil;
-    
-    return vecObj;
+	return [[MaplyVectorObject alloc] initWithFile:fileName];
 }
 
 - (bool)writeToFile:(NSString *)fileName
@@ -247,7 +176,7 @@ public:
         (*it)->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attributes]);
 }
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     if (!self)
@@ -259,7 +188,13 @@ public:
 }
 
 /// Construct with a single point
-- (id)initWithPoint:(MaplyCoordinate *)coord attributes:(NSDictionary *)attr
+- (instancetype)initWithPoint:(MaplyCoordinate)coord attributes:(NSDictionary *)attr
+{
+	return [self initWithPointRef:&coord attributes:attr];
+}
+
+/// Construct with a single point ref
+- (instancetype)initWithPointRef:(MaplyCoordinate *)coord attributes:(NSDictionary *)attr
 {
     self = [super init];
     
@@ -277,8 +212,26 @@ public:
     return self;
 }
 
+- (instancetype)initWithLineString:(NSArray *)inCoords attributes:(NSDictionary *)attr
+{
+	MaplyCoordinate *coords = (MaplyCoordinate *) malloc(sizeof(int) * [inCoords count]/2);
+
+	for (int i = 0; i < [inCoords count]/2; i += 2) {
+		float x = [inCoords[i] floatValue];
+		float y = [inCoords[i+1] floatValue];
+
+		coords[i / 2] = MaplyCoordinateMakeWithDegrees(x, y);
+	}
+
+	self = [self initWithLineString:coords numCoords:[inCoords count]/2 attributes:attr];
+
+	free(coords);
+
+	return self;
+}
+
 /// Construct with a linear feature (e.g. line string)
-- (id)initWithLineString:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr
+- (instancetype)initWithLineString:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr
 {
     self = [super init];
     
@@ -298,7 +251,7 @@ public:
 }
 
 /// Construct as an areal with an exterior
-- (id)initWithAreal:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr
+- (instancetype)initWithAreal:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr
 {
     self = [super init];
     
@@ -318,6 +271,99 @@ public:
     
     return self;
 }
+
+/// Construct from GeoJSON
+- (instancetype)initWithGeoJSON:(NSData *)geoJSON
+{
+	if ([geoJSON length] == 0)
+		return nil;
+
+	self = [super init];
+
+	NSString *crs = nil;
+	if (!VectorParseGeoJSON(_shapes, geoJSON, &crs))
+		return nil;
+
+	// Reproject to a destination system
+	// Note: Not working
+	//        if (crs)
+	//        {
+	//            MaplyCoordinateSystem *srcSys = MaplyCoordinateSystemFromEPSG(crs);
+	//            MaplyCoordinateSystem *destSys = [[MaplyPlateCarree alloc] initFullCoverage];
+	//            if (srcSys && destSys)
+	//            {
+	//                [vecObj reprojectFrom:srcSys to:destSys];
+	//            } else
+	//                NSLog(@"VectorObjectFromGeoJSON: Unable to reproject to CRS (%@)",crs);
+	//        }
+
+	return self;
+}
+
+- (instancetype)initWithGeoJSONApple:(NSData *)geoJSON
+{
+	if([geoJSON length] == 0)
+		return nil;
+
+	NSError *error = nil;
+	NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:geoJSON options:NULL error:&error];
+	if (error || ![jsonDict isKindOfClass:[NSDictionary class]])
+		return nil;
+
+	if (self = [super init]) {
+		if (!VectorParseGeoJSON(_shapes, jsonDict))
+			return nil;
+	}
+
+	return self;
+}
+
+- (instancetype)initWithGeoJSONDictionary:(NSDictionary *)geoJSON
+{
+	if (![geoJSON isKindOfClass:[NSDictionary class]])
+		return nil;
+
+	if (self = [super init]) {
+		if (!VectorParseGeoJSON(_shapes, geoJSON))
+			return nil;
+	}
+
+	return self;
+}
+
+- (instancetype)initWithFile:(NSString *)fileName
+{
+	if (self = [super init]) {
+		if (!VectorReadFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], _shapes))
+			return nil;
+	}
+
+	return self;
+}
+
+- (instancetype)initWithShapeFile:(NSString *)fileName
+{
+	if (![[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@.shp",fileName]]) {
+		fileName = [[NSBundle mainBundle] pathForResource:fileName ofType:@"shp"];
+	}
+	if (!fileName)
+		return nil;
+
+	ShapeReader shapeReader(fileName);
+	if (!shapeReader.isValid())
+		return nil;
+
+	if (self = [super init]) {
+		int numObj = shapeReader.getNumObjects();
+		for (unsigned int ii=0;ii<numObj;ii++) {
+			VectorShapeRef shape = shapeReader.getObjectByIndex(ii, nil);
+			_shapes.insert(shape);
+		}
+	}
+
+	return self;
+}
+
 
 - (void)mergeVectorsFrom:(MaplyVectorObject *)otherVec
 {
@@ -666,8 +712,7 @@ public:
     
     middle->x = pts.back().x();
     middle->y = pts.back().y();
-    if (rot)
-        *rot = 0.0;
+	*rot = 0.0;
     
     return true;
 }
@@ -688,10 +733,13 @@ public:
     
     if (pts.size() == 1)
     {
-        middle->x = pts[0].x();
-        middle->y = pts[0].y();
-        if (rot)
-            *rot = 0.0;
+		if (middle) {
+	        middle->x = pts[0].x();
+    	    middle->y = pts[0].y();
+		}
+		if (rot) {
+	        *rot = 0.0;
+		}
         return true;
     }
     
@@ -714,24 +762,64 @@ public:
         double len = (pt1-pt0).norm();
         if (halfLen <= lenSoFar+len)
         {
-            double t = (halfLen-lenSoFar)/len;
-            Point3d thePt = (pt1-pt0)*t + pt0;
-            GeoCoord middleGeo = coordSys->localToGeographic(thePt);
-            middle->x = middleGeo.x();
-            middle->y = middleGeo.y();
-            *rot = M_PI/2.0-atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
+			if (middle) {
+				double t = (halfLen-lenSoFar)/len;
+				Point3d thePt = (pt1-pt0)*t + pt0;
+				GeoCoord middleGeo = coordSys->localToGeographic(thePt);
+				middle->x = middleGeo.x();
+				middle->y = middleGeo.y();
+			}
+			if (rot) {
+	            *rot = M_PI/2.0-atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
+			}
             return true;
         }
         
         lenSoFar += len;
     }
-    
-    middle->x = pts.back().x();
-    middle->y = pts.back().y();
-    if (rot)
+
+	if (middle){
+		middle->x = pts.back().x();
+		middle->y = pts.back().y();
+	}
+	if (rot) {
         *rot = 0.0;
-    
+	}
+
     return true;
+}
+
+- (MaplyCoordinate)linearMiddle:(MaplyCoordinateSystem *)coordSys
+{
+	MaplyCoordinate coord;
+
+	if (![self linearMiddle:&coord rot:nil displayCoordSys:coordSys]) {
+		return kMaplyNullCoordinate;
+	}
+
+	return coord;
+}
+
+- (double)linearMiddleRotation:(MaplyCoordinateSystem *)coordSys
+{
+	double rot;
+
+	if (![self linearMiddle:nil rot:&rot displayCoordSys:coordSys]) {
+		return DBL_MIN;
+	}
+
+	return rot;
+}
+
+
+- (MaplyCoordinate)middleCoordinate {
+	MaplyCoordinate middle;
+
+	if (![self middleCoordinate:&middle]) {
+		return kMaplyNullCoordinate;
+	}
+
+	return middle;
 }
 
 - (bool)middleCoordinate:(MaplyCoordinate *)middle {
@@ -797,6 +885,17 @@ public:
     return true;
 }
 
+- (MaplyCoordinate)centroid
+{
+	MaplyCoordinate centroidCoord;
+
+	if (![self centroid:&centroidCoord]) {
+		return kMaplyNullCoordinate;
+	}
+
+	return centroidCoord;
+}
+
 - (bool)centroid:(MaplyCoordinate *)centroid
 {
     // Find the loop with the largest area
@@ -850,6 +949,18 @@ public:
     
     return true;
 }
+
+- (MaplyBoundingBox)boundingBox
+{
+	MaplyBoundingBox bounds;
+
+	if (![self boundingBoxLL:&bounds.ll ur:&bounds.ur]) {
+		return kMaplyNullBoundingBox;
+	}
+
+	return bounds;
+}
+
 
 - (bool)boundingBoxLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
 {
@@ -1283,26 +1394,24 @@ public:
     NSString *baseName;
 }
 
-- (id)initWithVectorDatabase:(VectorDatabase *)inVectorDb
+- (instancetype)initWithShape:(NSString *)shapeName
 {
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    vectorDb = inVectorDb;
-    
-    return self;
+	if (self = [super init]) {
+		NSString *fileName = [[NSBundle mainBundle] pathForResource:shapeName ofType:@"shp"];
+		VectorDatabase *vecDb = new VectorDatabase([[NSBundle mainBundle] resourcePath],[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject],shapeName,new ShapeReader(fileName),NULL);
+
+		vectorDb = vecDb;
+		baseName = shapeName;
+	}
+
+	return self;
 }
+
 
 /// Construct from a shapefile in the bundle
 + (MaplyVectorDatabase *) vectorDatabaseWithShape:(NSString *)shapeName
 {
-    NSString *fileName = [[NSBundle mainBundle] pathForResource:shapeName ofType:@"shp"];
-    VectorDatabase *vecDb = new VectorDatabase([[NSBundle mainBundle] resourcePath],[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject],shapeName,new ShapeReader(fileName),NULL);
-    
-    MaplyVectorDatabase *mVecDb = [[MaplyVectorDatabase alloc] initWithVectorDatabase:vecDb];
-    mVecDb->baseName = shapeName;
-    return mVecDb;
+    return [[MaplyVectorDatabase alloc] initWithShape:shapeName];
 }
 
 /// Return vectors that match the given SQL query

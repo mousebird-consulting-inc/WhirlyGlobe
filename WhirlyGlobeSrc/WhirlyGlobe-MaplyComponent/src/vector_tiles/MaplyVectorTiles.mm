@@ -160,7 +160,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     return [UIColor colorWithWhite:1.0 alpha:alpha];
 }
 
-- (id)initWithDirectory:(NSString *)tilesDir viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithDirectory:(NSString *)tilesDir viewC:(MaplyBaseViewController *)viewC
 {
     self = [super init];
     _viewC = viewC;
@@ -201,7 +201,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     return self;
 }
 
-- (id)initWithDatabase:(NSString *)name viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithDatabase:(NSString *)name viewC:(MaplyBaseViewController *)viewC
 {
     self = [super init];
     _viewC = viewC;
@@ -269,7 +269,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     return self;
 }
 
-- (id)initWithTileSpec:(NSDictionary *)jsonSpec styles:(NSDictionary *)styleDict viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithTileSpec:(NSDictionary *)jsonSpec styles:(NSDictionary *)styleDict viewC:(MaplyBaseViewController *)viewC
 {
     self = [super init];
     _viewC = viewC;
@@ -430,7 +430,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
         }
     } else {
         NSString *fileName = [NSString stringWithFormat:@"%@/%d/%d/%d%@",_tilesDir,tileID.level,tileID.y,tileID.x,layerName];
-        vecObj = [MaplyVectorObject VectorObjectFromShapeFile:fileName];
+        vecObj = [[MaplyVectorObject alloc] initWithShapeFile:fileName];
     }
 
 //    if (vecObj)

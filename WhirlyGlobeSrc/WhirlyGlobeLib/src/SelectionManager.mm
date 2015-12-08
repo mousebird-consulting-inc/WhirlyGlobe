@@ -653,7 +653,7 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
                 (sel.minVis < pInfo.heightAboveSurface && pInfo.heightAboveSurface < sel.maxVis))
             {
                 ScreenSpaceObjectLocation objLoc;
-                objLoc.shapeID = sel.selectID;
+                objLoc.shapeIDs.push_back(sel.selectID);
                 objLoc.dispLoc = sel.center;
                 objLoc.offset = Point2d(0,0);
                 for (unsigned int ii=0;ii<4;ii++)
@@ -677,7 +677,7 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
                 (sel.minVis < pInfo.heightAboveSurface && pInfo.heightAboveSurface < sel.maxVis))
             {
                 ScreenSpaceObjectLocation objLoc;
-                objLoc.shapeID = sel.selectID;
+                objLoc.shapeIDs.push_back(sel.selectID);
                 objLoc.dispLoc = sel.centerForTime(now);
                 objLoc.offset = Point2d(0,0);
                 for (unsigned int ii=0;ii<4;ii++)
@@ -763,7 +763,11 @@ struct selectedsorter
     bool operator() (const SelectionManager::SelectedObject &a,const SelectionManager::SelectedObject &b) const
     {
         if (a.screenDist == b.screenDist)
-            return a.distIn3D < b.distIn3D;
+        {
+            if (a.isCluster == b.isCluster)
+                return a.distIn3D < b.distIn3D;
+            return a.isCluster < b.isCluster;
+        }
         return a.screenDist < b.screenDist;
     }
 } SelectedSorter;
@@ -786,7 +790,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
     
     if (selObjs.empty())
         return EmptyIdentity;
-    return selObjs[0].selectID;
+    return selObjs[0].selectIDs[0];
 }
 
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
@@ -840,10 +844,10 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
             if (!pInfo.frameMbr.overlaps(objMbr))
                 continue;
             
-            if (screenObj.shapeID != EmptyIdentity)
+            if (!screenObj.shapeIDs.empty())
             {
                 std::vector<Point2f> screenPts;
-                for (unsigned int kk=0;kk<4;kk++)
+                for (unsigned int kk=0;kk<screenObj.pts.size();kk++)
                 {
                     const Point2d &screenObjPt = screenObj.pts[kk];
                     Point2d theScreenPt = Point2d(screenObjPt.x(),-screenObjPt.y()) + projPt + Point2d(screenObj.offset.x(),-screenObj.offset.y());
@@ -853,13 +857,17 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
                 // See if we fall within that polygon
                 if (PointInPolygon(touchPt, screenPts))
                 {
-                    SelectedObject selObj(screenObj.shapeID,0.0,0.0);
-                    selObjs.push_back(selObj);
+                    for (auto shapeID : screenObj.shapeIDs)
+                    {
+                        SelectedObject selObj(shapeID,0.0,0.0);
+                        selObj.isCluster = screenObj.isCluster;
+                        selObjs.push_back(selObj);
+                    }
                     break;
                 }
                 
                 // Now for a proximity check around the edges
-                for (unsigned int ii=0;ii<4;ii++)
+                for (unsigned int ii=0;ii<screenObj.pts.size();ii++)
                 {
                     float t;
                     Point2f closePt = ClosestPointOnLineSegment(screenPts[ii],screenPts[(ii+1)%4],touchPt,t);
@@ -871,8 +879,12 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
         // Got close enough to this object to select it
         if (closeDist2 < maxDist2)
         {
-            SelectedObject selObj(screenObj.shapeID,0.0,sqrtf(closeDist2));
-            selObjs.push_back(selObj);
+            for (auto shapeID : screenObj.shapeIDs)
+            {
+                SelectedObject selObj(shapeID,0.0,sqrtf(closeDist2));
+                selObj.isCluster = screenObj.isCluster;
+                selObjs.push_back(selObj);
+            }
         }
         
         if (!multi && !selObjs.empty())

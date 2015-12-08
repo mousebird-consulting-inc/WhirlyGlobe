@@ -98,7 +98,14 @@ using namespace WhirlyKit;
     NSDictionary *tessDict;
 }
 
-- (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
+- (instancetype)initWithTileSource:(NSObject<MaplyTileSource> *)tileSource
+{
+	self = [self initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+
+	return self;
+}
+
+- (instancetype)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
 {
     if (!inTileSource)
         return nil;
@@ -189,7 +196,6 @@ using namespace WhirlyKit;
     if (_shaderProgramName)
     {
         _customShader = scene->getProgramIDBySceneName([_shaderProgramName cStringUsingEncoding:NSASCIIStringEncoding]);
-        tileLoader.programId = _customShader;
     } else
         _customShader = EmptyIdentity;
     
@@ -215,6 +221,7 @@ using namespace WhirlyKit;
         }
     }
     
+    tileLoader.programId = _customShader;
     elevDelegate = _viewC.elevDelegate;
     
     [super.layerThread addLayer:quadLayer];
@@ -269,6 +276,8 @@ using namespace WhirlyKit;
     tileLoader.enable = _enable;
     tileLoader.fade = _fade;
     tileLoader.borderTexel = _borderTexel;
+    tileLoader.northPoleColor = _northPoleColor;
+    tileLoader.southPoleColor = _southPoleColor;
     // Note: Still having problems with this
     tileLoader.useTileCenters = false;
     switch (_imageFormat)
@@ -344,6 +353,19 @@ using namespace WhirlyKit;
     }
 }
 
+- (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID
+{
+	if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+		return kMaplyNullBoundingBox;
+
+	MaplyBoundingBox box;
+
+	[self geoBoundsForTile:tileID bbox:&box];
+
+	return box;
+}
+
+
 - (void)geoBoundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
 {
     if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
@@ -368,6 +390,18 @@ using namespace WhirlyKit;
     bbox->ll.y = geoMbr.ll().y();
     bbox->ur.x = geoMbr.ur().x();
     bbox->ur.y = geoMbr.ur().y();
+}
+
+- (MaplyBoundingBox)boundsForTile:(MaplyTileID)tileID
+{
+	if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+		return kMaplyNullBoundingBox;
+
+	MaplyBoundingBox box;
+
+	[self geoBoundsForTile:tileID bbox:&box];
+
+	return box;
 }
 
 - (void)boundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
@@ -604,7 +638,8 @@ using namespace WhirlyKit;
         return minZoom;
     
     int zoomLevel = 0;
-    WhirlyKit::Point2f center = Point2f(lastViewState.eyePos.x(),lastViewState.eyePos.y());
+    WhirlyKit::Point3d center3d = scene->getCoordAdapter()->displayToLocal(Point3d(lastViewState.eyePos.x(),lastViewState.eyePos.y(),0.0));
+    Point2f center(center3d.x(),center3d.y());
     // The coordinate adapter might have its own center
     Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
     center.x() += adaptCenter.x();
@@ -740,7 +775,7 @@ using namespace WhirlyKit;
         MaplyBoundingBox bbox;
         bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();
         bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
-        if (![_tileSource validTile:tileID bbox:&bbox])
+        if (![_tileSource validTile:tileID bbox:bbox])
             return 0.0;
     }
 
@@ -771,7 +806,7 @@ using namespace WhirlyKit;
         import *= _importanceScale;
     }
 
-//    NSLog(@"Tiles = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
+//    NSLog(@"Tile = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
     
     return import;
 }

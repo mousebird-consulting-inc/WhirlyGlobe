@@ -21,7 +21,13 @@
 #import <UIKit/UIKit.h>
 
 /// The opacity function we'll apply to each row of the texture.  This lets us blend.
-typedef enum {MaplyOpacityFlat,MaplyOpacityLinear,MaplyOpacitySin1,MaplyOpacitySin2,MaplyOpacitySin3} MaplyLinearTextureOpacity;
+typedef NS_ENUM(NSInteger, MaplyLinearTextureOpacity) {
+	MaplyOpacityFlat,
+	MaplyOpacityLinear,
+	MaplyOpacitySin1,
+	MaplyOpacitySin2,
+	MaplyOpacitySin3
+};
 
 /** @brief The Maply Linear Texture Builder is used to construct linear textures
     for use on widened vectors.
@@ -33,7 +39,7 @@ typedef enum {MaplyOpacityFlat,MaplyOpacityLinear,MaplyOpacitySin1,MaplyOpacityS
 /** @brief Construct with a target size.
     @details It's best if the target size lines up with the element sizes, but that's not required.
   */
-- (id)initWithSize:(CGSize)size;
+- (instancetype)initWithSize:(CGSize)size;
 
 /** @brief Set the pattern of dots and empty spaces.
     @details This is an array of NSNumbers (treated as integers) that specify how big an element in the given pattern is.  The first element is on, the next off and so forth.
