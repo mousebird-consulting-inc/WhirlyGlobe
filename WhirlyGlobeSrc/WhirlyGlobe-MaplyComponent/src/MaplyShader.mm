@@ -36,7 +36,7 @@ using namespace WhirlyKit;
     SimpleIDSet texIDs;
 }
 
-- (id)initWithName:(NSString *)name vertexFile:(NSString *)vertexFileName fragmentFile:(NSString *)fragFileName viewC:(MaplyBaseViewController *)baseViewC
+- (instancetype)initWithName:(NSString *)name vertexFile:(NSString *)vertexFileName fragmentFile:(NSString *)fragFileName viewC:(MaplyBaseViewController *)baseViewC
 {
     NSError *error = nil;
     _name = name;
@@ -67,7 +67,7 @@ using namespace WhirlyKit;
     return [self initWithName:name vertex:vertexShader fragment:fragShader viewC:baseViewC];
 }
 
-- (id)initWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg viewC:(MaplyBaseViewController *)baseViewC
+- (instancetype)initWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg viewC:(MaplyBaseViewController *)baseViewC
 {
     if (!vertexProg || !fragProg)
     {

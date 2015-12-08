@@ -60,6 +60,7 @@
 #import "BigDrawable.h"
 #import "FlatMath.h"
 #import "SphericalMercator.h"
+#import "Proj4CoordSystem.h"
 #import "MaplyView.h"
 #import "MaplyFlatView.h"
 #import "MaplyAnimateFlat.h"

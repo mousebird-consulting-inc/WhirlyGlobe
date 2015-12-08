@@ -75,6 +75,7 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 @property (nonatomic) bool screenObject;
 @property (nonatomic) float width,height;
 @property (nonatomic) WhirlyKit::SimpleIdentity  markerId;
+@property (nonatomic) int clusterGroup;
 
 - (id)initWithMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
 

@@ -41,12 +41,35 @@ using namespace Maply;
     bool isPanning,isZooming,isAnimating;
 }
 
-- (id)init
+- (instancetype)initWithMapType:(MaplyMapType)mapType
+{
+	self = [super init];
+	if (!self)
+		return nil;
+
+	if (mapType == MaplyMapType3D) {
+		_autoMoveToTap = true;
+	}
+	else {
+		// Turn off lighting
+		[self setHints:@{kMaplyRendererLightingMode: @"none"}];
+		_flatMode = true;
+	}
+
+	_rotateGesture = true;
+	_doubleTapDragGesture = true;
+	_twoFingerTapGesture = true;
+	_doubleTapZoomGesture = true;
+
+	return self;
+}
+
+- (instancetype)init
 {
     self = [super init];
     if (!self)
         return nil;
-    
+
     _autoMoveToTap = true;
     _rotateGesture = true;
     _doubleTapDragGesture = true;
@@ -56,7 +79,7 @@ using namespace Maply;
     return self;
 }
 
-- (id)initAsFlatMap
+- (instancetype)initAsFlatMap
 {
     self = [super init];
     if (!self)
@@ -73,9 +96,9 @@ using namespace Maply;
     return self;
 }
 
-- (id)initAsTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView
+- (nonnull instancetype)initAsTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView
 {
-    self = [self initAsFlatMap];
+	self = [self initWithMapType:MaplyMapTypeFlat];
     if (!self)
         return nil;
     
@@ -213,8 +236,16 @@ using namespace Maply;
         MaplyCoordinate ll,ur;
         [_coordSys getBoundsLL:&ll ur:&ur];
         Point3d ll3d(ll.x,ll.y,0.0),ur3d(ur.x,ur.y,0.0);
+        // May need to scale this to the space we're expecting
+        double scaleFactor = 1.0;
+        if (std::abs(ur.x-ll.x) > 10.0 || std::abs(ur.y-ll.y) > 10.0)
+        {
+            Point3d diff = ur3d - ll3d;
+            scaleFactor = 4.0/std::max(diff.x(),diff.y());
+        }
         Point3d center3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
-        coordAdapter = new GeneralCoordSystemDisplayAdapter([_coordSys getCoordSystem],ll3d,ur3d,center3d);
+        GeneralCoordSystemDisplayAdapter *genCoordAdapter = new GeneralCoordSystemDisplayAdapter([_coordSys getCoordSystem],ll3d,ur3d,center3d,Point3d(scaleFactor,scaleFactor,scaleFactor));
+        coordAdapter = genCoordAdapter;
     } else {
         coordAdapter = new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0));
     }
@@ -342,6 +373,8 @@ using namespace Maply;
         boundUR.x = MAXFLOAT;
     }
     [self setViewExtentsLL:boundLL ur:boundUR];
+    
+    mapView.wrap = _viewWrap;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -519,6 +552,17 @@ using namespace Maply;
 #pragma mark - Interaction
 
 /// Return the view extents.  This is the box the view point is allowed to be within.
+- (MaplyBoundingBox)getViewExtents
+{
+	MaplyBoundingBox box;
+
+	box.ll = boundLL;
+	box.ur = boundUR;
+
+	return box;
+}
+
+/// Return the view extents.  This is the box the view point is allowed to be within.
 - (void)getViewExtentsLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
 {
     *ll = boundLL;
@@ -534,6 +578,12 @@ using namespace Maply;
 {
     mapView.loc.z() = height;
     [mapView runViewUpdates];
+}
+
+/// Set the view extents.  This is the box the view point is allowed to be within.
+- (void)setViewExtents:(MaplyBoundingBox)box
+{
+	[self setViewExtentsLL:box.ll ur:box.ur];
 }
 
 /// Set the view extents.  This is the box the view point is allowed to be within.
@@ -696,6 +746,18 @@ using namespace Maply;
     [self handleStopMoving:NO];
 }
 
+- (MaplyCoordinate)getPosition
+{
+	GeoCoord geoCoord = mapView.coordAdapter->getCoordSystem()->localToGeographic(mapView.coordAdapter->displayToLocal(mapView.loc));
+
+	return {.x = geoCoord.x(), .y = geoCoord.x()};
+}
+
+- (float)getHeight
+{
+	return mapView.loc.z();
+}
+
 - (void)getPosition:(WGCoordinate *)pos height:(float *)height
 {
     Point3d loc = mapView.loc;
@@ -712,6 +774,22 @@ using namespace Maply;
 - (float)heading
 {
     return mapView.rotAngle;
+}
+
+- (float)getMinZoom
+{
+	if (pinchDelegate)
+		return pinchDelegate.minZoom;
+
+	return FLT_MIN;
+}
+
+- (float)getMaxZoom
+{
+	if (pinchDelegate)
+		return pinchDelegate.maxZoom;
+
+	return FLT_MIN;
 }
 
 /// Return the min and max heights above the globe for zooming
@@ -770,13 +848,13 @@ using namespace Maply;
     return std::abs(lrScreen.x - ulScreen.x) < frame.size.width && std::abs(lrScreen.y - ulScreen.y) < frame.size.height;
 }
 
-- (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos
 {
     Point3d oldLoc = mapView.loc;
     Point3d newLoc = Point3d(pos.x,pos.y,oldLoc.z());
     [mapView setLoc:newLoc runUpdates:false];
     
-    Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
+    Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y),Point2f(bbox.ur.x,bbox.ur.y));
     
     float minHeight = mapView.minHeightAboveSurface;
     float maxHeight = mapView.maxHeightAboveSurface;
@@ -1031,7 +1109,6 @@ using namespace Maply;
         }
     }
 }
-
 
 
 @end

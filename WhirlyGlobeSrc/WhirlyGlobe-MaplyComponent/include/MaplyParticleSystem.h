@@ -22,7 +22,10 @@
 #import "MaplyCoordinate.h"
 #import "MaplyShader.h"
 
-typedef enum {MaplyParticleSystemTypePoint,MaplyParticleSystemTypeRectangle} MaplyParticleSystemType;
+typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
+	MaplyParticleSystemTypePoint,
+	MaplyParticleSystemTypeRectangle,
+};
 
 /** @brief A particle system is used to spawn large numbers of small moving objects.
     @details The particle system defines what the objects are and how they're controlled.  Actual data is handled through the MaplyParticleBatch.
@@ -33,7 +36,7 @@ typedef enum {MaplyParticleSystemTypePoint,MaplyParticleSystemTypeRectangle} Map
 /** @brief Name of the particle system.
     @details The particle system name is used for performance debugging.
   */
-@property (nonatomic,strong) NSString *name;
+@property (nonatomic,strong) NSString * __nullable name;
 
 /** @brief The type of the particle system.
     @details At present particle systems are just point geometry.
@@ -43,7 +46,7 @@ typedef enum {MaplyParticleSystemTypePoint,MaplyParticleSystemTypeRectangle} Map
 /** @brief Name of the shader to use for the particles.
     @details This should be a shader already registered with the toolkit.
   */
-@property (nonatomic,strong) NSString *shader;
+@property (nonatomic,strong) NSString * __nullable shader;
 
 /** @brief Individual particle lifetime.
     @details The created particles will last only a certain amount of time.
@@ -68,17 +71,17 @@ typedef enum {MaplyParticleSystemTypePoint,MaplyParticleSystemTypeRectangle} Map
 /** @brief Initialize a particle system with a name.
     @details The particle system needs the name for performance and debugging.  The rest of the values can left to their defaults.
   */
-- (id)initWithName:(NSString *)name;
+- (nonnull instancetype)initWithName:(NSString *__nonnull)name;
 
 /** @brief Add an attribute we'll be expecting in each batch.
     @details Adds an attribute name and type which will be present in each batch.
   */
-- (void)addAttribute:(NSString *)attrName type:(MaplyShaderAttrType)type;
+- (void)addAttribute:(NSString *__nonnull)attrName type:(MaplyShaderAttrType)type;
 
 /** @brief Add a texture to the particle system.
     @details All the textures will be handed over to the shader.
   */
-- (void)addTexture:(id)image;
+- (void)addTexture:(id __nonnull)image;
 
 @end
 
@@ -90,7 +93,7 @@ typedef enum {MaplyParticleSystemTypePoint,MaplyParticleSystemTypeRectangle} Map
 
 /** @brief The particle system this batch belongs to.
   */
-@property (nonatomic,weak) MaplyParticleSystem *partSys;
+@property (nonatomic,weak) MaplyParticleSystem * __nullable partSys;
 
 /** @brief The current time.
     @details This will be set by default.  However, you can control what the time basis for a particle batch is.
@@ -100,13 +103,13 @@ typedef enum {MaplyParticleSystemTypePoint,MaplyParticleSystemTypeRectangle} Map
 /** @brief Initialize with the particle system.
     @details The batch is initialized with its particle system.  You must then call addAttribute:values: repeatedly with attribute arrays.
   */
-- (id) initWithParticleSystem:(MaplyParticleSystem *)partSys;
+- (nonnull instancetype)initWithParticleSystem:(MaplyParticleSystem *__nonnull)partSys;
 
 /** @brief Add an attribute array of the given name.
     @details Each attribute in the MaplyParticleSystem must be filled in here.  The name must correspond and the length of the data must match.
     @return Returns true if the attribute array was valid, false otherwise.
   */
-- (bool) addAttribute:(NSString *)attrName values:(NSData *)data;
+- (bool) addAttribute:(NSString *__nonnull)attrName values:(NSData *__nonnull)data;
 
 /** @brief Tests if the batch is valid.
     @details This checks if all the attribute arrays are present and valid.

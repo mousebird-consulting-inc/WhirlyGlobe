@@ -26,7 +26,7 @@
     int _minZoom,_maxZoom,_depth;
 }
 
-- (id)initWithCoordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom depth:(int)depth
+- (instancetype)initWithCoordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom depth:(int)depth
 {
     self = [super init];
     if (!self)
@@ -66,16 +66,16 @@ static const int MaxDebugColors = 10;
 static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x4F256F, 0xD89CDE, 0x773B28, 0x333D99, 0x862D52, 0xC2C653, 0xB8583D};
 
 // Make sure this tile exists in the real world
-- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox
 {
     MaplyCoordinate ll,ur;
     [_coordSys getBoundsLL:&ll ur:&ur];
     
     int numTiles = 1<<tileID.level;
-    double tileSizeX = (bbox->ur.x-bbox->ll.x)/numTiles;
-    double tileSizeY = (bbox->ur.y-bbox->ll.y)/numTiles;
-    double midX = tileSizeX*(tileID.x+0.5) + bbox->ll.x;
-    double midY = tileSizeY*(tileID.y+0.5) + bbox->ll.y;
+    double tileSizeX = (bbox.ur.x-bbox.ll.x)/numTiles;
+    double tileSizeY = (bbox.ur.y-bbox.ll.y)/numTiles;
+    double midX = tileSizeX*(tileID.x+0.5) + bbox.ll.x;
+    double midY = tileSizeY*(tileID.y+0.5) + bbox.ll.y;
     
     if (midX < ll.x || midX > ur.x)
         return false;
@@ -87,6 +87,8 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 
 - (NSData *)imgDataForTile:(MaplyTileID)tileID frame:(int)frame
 {
+//    NSLog(@"Fetched tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+
     CGSize size;  size = CGSizeMake(128,128);
     UIGraphicsBeginImageContext(size);
     
@@ -122,8 +124,9 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     [fillColor setFill];
     CGContextSetTextDrawingMode(ctx, kCGTextFill);
     NSString *textStr = nil;
-    if (_depth == 1)
+    if (_depth == 1) {
         textStr = [NSString stringWithFormat:@"%d: (%d,%d)",tileID.level,tileID.x,tileID.y];
+    }
     else
         textStr = [NSString stringWithFormat:@"%d: (%d,%d); %d",tileID.level,tileID.x,tileID.y,frame];
     [textStr drawInRect:CGRectMake(0,0,size.width,size.height) withFont:[UIFont systemFontOfSize:24.0]];

@@ -31,13 +31,13 @@
 /** @brief Initialize with a date.
     @details Initialize with the given date.  The sun position will correspond to that.
   */
-- (id)initWithDate:(NSDate *)date;
+- (nonnull instancetype)initWithDate:(NSDate *__nonnull)date;
 
 /// @brief Return the vector corresponding to the sun location from the earth.
 - (MaplyCoordinate3d)getDirection;
 
 /// @brief Makes up a light that corresponds to the sun's location at a given time
-- (MaplyLight *)makeLight;
+- (nonnull MaplyLight *)makeLight;
 
 /// @brief Returns the location above the globe in lon/lat.  Yay geocentrism!
 - (MaplyCoordinate)asPosition;

@@ -21,7 +21,11 @@
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
 
-typedef enum {MaplyLabelJustifyLeft,MaplyLabelJustifyMiddle,MaplyLabelJustifyRight} MaplyLabelJustify;
+typedef NS_ENUM(NSInteger, MaplyLabelJustify) {
+	MaplyLabelJustifyLeft,
+	MaplyLabelJustifyMiddle,
+	MaplyLabelJustifyRight
+};
 
 /** @brief This is a 3D label.
     @details The Maply Label is a 3D object that sits on top of the globe (or map) at a specified location.  If you want a 2D label that sits on top of everything else, you want the MaplyScreenLabel.  Seriously, you probably want that.
@@ -40,18 +44,18 @@ typedef enum {MaplyLabelJustifyLeft,MaplyLabelJustifyMiddle,MaplyLabelJustifyRig
 @property (nonatomic,assign) CGSize size;
 
 /// @brief The text to display on the globe or map at the given location.
-@property (nonatomic,strong) NSString *text;
+@property (nonatomic,strong) NSString * __nullable text;
 
 /** @brief Text can be accompanied by an optional icon image.
     @details If set, we'll put this image to the left of the text in the label.  The UIImage (or MaplyTexture) will be tracked by the view controller and reused as needed or disposed of when no longer needed.
     @details The name had to change because Apple's private selector search is somewhat weak.
  */
-@property (nonatomic,strong) id iconImage2;
+@property (nonatomic,strong) id __nullable iconImage2;
 
 /** @brief An option color override.
     @details If set, this color will override the color passed in with the NSDictionary in the view controller's add method.
  */
-@property (nonatomic,strong) UIColor *color;
+@property (nonatomic,strong) UIColor * __nullable color;
 
 /** @brief Label selectability.  On by default
     @details If set, this label can be selected by the user.  If not set, this label will never appear in selection results.
@@ -72,7 +76,7 @@ typedef enum {MaplyLabelJustifyLeft,MaplyLabelJustifyMiddle,MaplyLabelJustifyRig
 /** @brief User data object for selection
     @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the label means to them.
  */
-@property (nonatomic,strong) id userObject;
+@property (nonatomic,strong) id __nullable userObject;
 
 @end
 

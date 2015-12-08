@@ -26,15 +26,15 @@
 @interface MaplyBlankTileSource : NSObject<MaplyTileSource>
 
 /// Initialize with the coordinate system, min and max zoom levels, and the number of images to return
-- (id)initWithCoordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom;
+- (nonnull instancetype)initWithCoordSys:(MaplyCoordinateSystem *__nonnull)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom;
 
 /// Coordinate system we're pretending to be in
-@property (nonatomic,readonly) MaplyCoordinateSystem *coordSys;
+@property (nonatomic,readonly,nonnull) MaplyCoordinateSystem *coordSys;
 
 /// How big the images we generate are
 @property (nonatomic) int pixelsPerSide;
 
 /// Color for the generated tiles
-@property (nonatomic,strong) UIColor *color;
+@property (nonatomic,strong,nullable) UIColor *color;
 
 @end

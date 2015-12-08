@@ -30,7 +30,7 @@ namespace WhirlyKit
 {
 
 ParticleSystemDrawable::ParticleSystemDrawable(const std::string &name,const std::vector<SingleVertexAttributeInfo> &inVertAttrs,int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing)
-    : Drawable(name), enable(true), numTotalPoints(numTotalPoints), batchSize(batchSize), vertexSize(0), programId(0), drawPriority(0), pointBuffer(0), rectBuffer(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0), useRectangles(useRectangles), useInstancing(useInstancing), baseTime(0.0), startBatch(0), endBatch(0), chunksDirty(true)
+    : Drawable(name), enable(true), numTotalPoints(numTotalPoints), batchSize(batchSize), vertexSize(0), programId(0), drawPriority(0), pointBuffer(0), rectBuffer(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0), useRectangles(useRectangles), useInstancing(useInstancing), baseTime(0.0), startb(0), endb(0), chunksDirty(true)
 {
     pthread_mutex_init(&batchLock, NULL);
     
@@ -197,21 +197,21 @@ void ParticleSystemDrawable::updateBatches(NSTimeInterval now)
 {
     pthread_mutex_lock(&batchLock);
     // Check the batches to see if any have gone off
-    for (int bi=startBatch;bi!=endBatch;)
+    for (int bi=startb;bi<endb;)
     {
-        Batch &batch = batches[bi];
+        Batch &batch = batches[bi % batches.size()];
         if (batch.active)
         {
             if (batch.startTime + lifetime < now)
             {
                 batch.active = false;
                 chunksDirty = true;
-                startBatch = (startBatch+1)%batches.size();
+                startb++;
             }
         } else
             break;
         
-        bi = (bi+1)%batches.size();
+        bi++;
     }
     pthread_mutex_unlock(&batchLock);
     
@@ -227,19 +227,28 @@ void ParticleSystemDrawable::updateChunks()
     
     chunksDirty = false;
     chunks.clear();
-    if (batches[startBatch].active)
+    if (startb != endb)
     {
-        int start = startBatch;
+        int start = 0;
         do {
+            // Skip empty batches at the beginning
+            for (;!batches[start].active && start < batches.size();start++);
+
             int end = start;
-            for (;end < batches.size()-1 && batches[end].active;end++);
-            BufferChunk chunk;
-            chunk.bufferStart = start * batchSize * vertexSize;
-            chunk.numVertices = (end-start+1) * batchSize;
-            chunks.push_back(chunk);
+            if (start < batches.size())
+            {
+                for (;batches[end].active && end < batches.size();end++);
+                if (start != end)
+                {
+                    BufferChunk chunk;
+                    chunk.bufferStart = (start % batches.size()) * batchSize * vertexSize;
+                    chunk.numVertices = (end-start) * batchSize;
+                    chunks.push_back(chunk);
+                }
+            }
             
-            start = (end+1)%batches.size();
-        } while (start != endBatch && batches[start].active);
+            start = end;
+        } while (start < batches.size());
     }
     
     pthread_mutex_unlock(&batchLock);
@@ -250,11 +259,11 @@ bool ParticleSystemDrawable::findEmptyBatch(Batch &retBatch)
     bool ret = false;
     
     pthread_mutex_lock(&batchLock);
-    if (!batches[endBatch].active)
+    if (!batches[endb % batches.size()].active)
     {
         ret = true;
-        retBatch = batches[endBatch];
-        endBatch = (endBatch+1)%batches.size();
+        retBatch = batches[endb % batches.size()];
+        endb++;
     }
     pthread_mutex_unlock(&batchLock);
     
@@ -437,13 +446,14 @@ static const char *vertexShaderTri =
 "attribute vec3 a_position;"
 "attribute vec4 a_color;"
 "attribute vec3 a_dir;"
+"attribute float a_startTime;"
 ""
 "varying vec4 v_color;"
 ""
 "void main()"
 "{"
 "   v_color = a_color;"
-"   vec3 thePos = normalize(a_position + u_time*a_dir);"
+"   vec3 thePos = normalize(a_position + (u_time-a_startTime)*a_dir);"
 // Convert from model space into display space
 "   vec4 pt = u_mvMatrix * vec4(thePos,1.0);"
 "   pt /= pt.w;"

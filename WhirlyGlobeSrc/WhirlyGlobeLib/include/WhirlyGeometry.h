@@ -57,11 +57,7 @@ void ClipHomogeneousPolygon(const std::vector<Eigen::Vector4d> &pts,std::vector<
 	
 /// Project and clip a given polygon to screen space.  Clips in homogeneous coordinates.
 void ClipAndProjectPolygon(Eigen::Matrix4d &modelMat,Eigen::Matrix4d &projMat,Point2f frameSize,std::vector<Point3d> &poly,std::vector<Point2f> &screenPoly);
-    
-/// Look for a ray/rectangular solid intersection.
-/// Return true if we found one and the distance^2 from the ray origin to the intersection
-bool RectSolidRayIntersect(const Ray3f &ray,const Point3f *pts,float &dist2);
-    
+        
 /// Return the area of the 3D polygon
 float PolygonArea(const std::vector<Point3f> &poly,const Point3f &norm);
 
