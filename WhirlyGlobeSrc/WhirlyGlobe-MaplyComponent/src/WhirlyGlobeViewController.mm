@@ -864,7 +864,14 @@ using namespace WhirlyGlobe;
 	return {.x = geoCoord.lon(), .y = geoCoord.lat()};
 }
 
-- (float)getHeight
+- (MaplyCoordinateD)getPositionD
+{
+	Point2d geoCoord = globeView.coordAdapter->getCoordSystem()->localToGeographicD(globeView.coordAdapter->displayToLocal([globeView currentUp]));
+
+	return {.x = geoCoord.x(), .y = geoCoord.y()};
+}
+
+- (double)getHeight
 {
 	return globeView.heightAboveGlobe;
 }
