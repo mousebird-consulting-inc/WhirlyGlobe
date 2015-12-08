@@ -26,8 +26,8 @@ using namespace Eigen;
 namespace WhirlyKit
 {
  
-DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum inFormat)
-    : TextureBase(name), texSize(texSize), cellSize(cellSize), numCell(0), numRegions(0), compressed(false), layoutGrid(NULL)
+DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum inFormat,bool clearTextures)
+    : TextureBase(name), texSize(texSize), cellSize(cellSize), numCell(0), numRegions(0), compressed(false), layoutGrid(NULL), clearTextures(clearTextures)
 {
     if (texSize <= 0 || cellSize <= 0)
         return;
@@ -225,7 +225,7 @@ void DynamicTexture::clearTextureData(int startX,int startY,int width,int height
 //            NSLog(@"Compressed texture doesn't match atlas.");
 //        else
 //            glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, thisWidth, thisHeight, pkmType, (GLsizei)size, pixData);
-    } else {
+    } else if (clearTextures) {
         std::vector<unsigned char> emptyPixels(width*height*4,0);
         glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, emptyPixels.data());
     }
@@ -349,7 +349,7 @@ void DynamicTextureAddRegion::execute(Scene *scene,WhirlyKitSceneRendererES *ren
 }
     
 DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth)
-    : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth)
+    : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth), clearTextures(imageDepth>1)
 {
 }
     
@@ -420,7 +420,7 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
         dynTexVec = new std::vector<DynamicTexture *>();
         for (unsigned int ii=0;ii<imageDepth;ii++)
         {
-            DynamicTexture *dynTex = new DynamicTexture("Dynamic Texture Atlas",texSize,cellSize,format);
+            DynamicTexture *dynTex = new DynamicTexture("Dynamic Texture Atlas",texSize,cellSize,format,clearTextures);
             dynTexVec->push_back(dynTex);
             dynTex->createInGL(memManager);
         }

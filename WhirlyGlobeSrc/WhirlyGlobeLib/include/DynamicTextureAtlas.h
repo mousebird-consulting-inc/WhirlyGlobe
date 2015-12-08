@@ -39,7 +39,7 @@ public:
     /// Constructor for sorting
     DynamicTexture(SimpleIdentity myId) : TextureBase(myId), layoutGrid(NULL) { }
     /// Construct with a name, square texture size, cell size (in texels), and the memory format
-    DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum format);
+    DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum format,bool clearTextures);
     ~DynamicTexture();
     
     /// Represents a region in the texture
@@ -112,6 +112,9 @@ protected:
     
     /// Number of active regions (as far as the texture is concerned)
     int numRegions;
+
+    /// If set, overwrite texture data with empty pixels
+    bool clearTextures;
 };
 
 typedef std::vector<DynamicTexture *> DynamicTextureVec;
@@ -213,6 +216,9 @@ protected:
     int texSize;
     int cellSize;
     GLenum format;
+    
+    /// If set, overwrite texture data with empty pixels
+    bool clearTextures;
     
     typedef std::set<TextureRegion> TextureRegionSet;
     TextureRegionSet regions;
