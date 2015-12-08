@@ -57,7 +57,6 @@
 	self.globeViewController.view.frame = self.testView.bounds;
 	self.globeViewController.clearColor = [UIColor blackColor];
 	self.globeViewController.frameInterval = 2;
-
 	// setup test case specifics
 	if (![self setUpWithGlobe:self.globeViewController]) {
 		[self tearDownWithGlobe:self.globeViewController];
