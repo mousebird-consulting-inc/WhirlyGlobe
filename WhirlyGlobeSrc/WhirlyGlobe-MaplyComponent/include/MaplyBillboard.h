@@ -34,18 +34,18 @@
 @property (nonatomic) bool selectable;
 
 /// @brief The 2D polygonal description of what the billboard should be
-@property (nonatomic,strong) MaplyScreenObject *screenObj;
+@property (nonatomic,strong) MaplyScreenObject * __nullable screenObj;
 
 /** @brief Vertex attributes to apply to this billboard.
     @details MaplyVertexAttribute objects are passed all the way to the shader.  Read that page for details on what they do.
     @details The array of vertex attributes provided here will be copied onto all the vertices we create for the shader.  This means you can use these to do things for a single billboard in your shader.
  */
-@property (nonatomic,strong) NSArray *vertexAttributes;
+@property (nonatomic,strong) NSArray * __nullable vertexAttributes;
 
 /** @brief User data object for selection
     @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the screen label means to them.
  */
-@property (nonatomic,strong) id userObject;
+@property (nonatomic,strong) id __nullable userObject;
 
 /** @brief Initialize with a single image, a given background and a size.
     @details This will create a simple billboard with a single image pasted on it.
@@ -53,6 +53,6 @@
     @param color Color for the polygon that makes up the billboard.
     @param size Size of the billboard in display space.
   */
-- (id)initWithImage:(id)texture color:(UIColor *)color size:(CGSize)size;
+- (nullable instancetype)initWithImage:(id __nonnull)texture color:(UIColor * __nonnull)color size:(CGSize)size;
 
 @end

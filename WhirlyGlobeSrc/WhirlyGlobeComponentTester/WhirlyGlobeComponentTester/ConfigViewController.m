@@ -95,7 +95,9 @@
                   kMaplyTestOWM: @(NO),
                   kMaplyTestForecastIO: @(NO),
                   kMaplyTestMapboxStreets: @(NO),
-                  kMaplyMapzenVectors: @(NO)
+                  kMaplyMapzenVectors: @(NO),
+                  kMaplyWindTest: @(NO),
+                  kMaplyOrdnanceSurveyTest: @(NO)
                   }
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
@@ -114,6 +116,7 @@
                   kMaplyTestLoftedPoly: @(NO),
                   kMaplyTestQuadMarkers: @(NO),
                   kMaplyTestMegaMarkers: @(NO),
+                  kMaplyTestMarkerCluster: @(NO),
                   kMaplyTestLatLon: @(NO),
                   kMaplyTestRoads: @(NO),
                   kMaplyTestArcGIS: @(NO),
@@ -135,7 +138,8 @@
               kMaplyTestOWM: @(NO),
               kMaplyTestForecastIO: @(NO),
               kMaplyTestMapboxStreets: @(NO),
-              kMaplyMapzenVectors: @(NO)
+              kMaplyMapzenVectors: @(NO),
+              kMaplyOrdnanceSurveyTest: @(NO)
               }
                                    singleSelect:false],
            [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
@@ -148,6 +152,7 @@
               kMaplyTestCountry: @(NO),
               kMaplyTestQuadMarkers: @(NO),
               kMaplyTestMegaMarkers: @(NO),
+              kMaplyTestMarkerCluster: @(NO),
               kMaplyTestLatLon: @(NO),
               kMaplyTestRoads: @(NO),
               kMaplyTestArcGIS: @(NO),

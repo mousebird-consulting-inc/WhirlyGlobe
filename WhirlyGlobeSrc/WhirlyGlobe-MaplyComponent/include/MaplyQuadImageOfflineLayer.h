@@ -40,7 +40,7 @@
 @property (nonatomic,assign) int frame;
 
 /// Image updated by the renderer
-@property (nonatomic,strong) MaplyTexture *tex;
+@property (nonatomic,strong,nullable) MaplyTexture *tex;
 
 /// Size of the center pixel in meters
 @property (nonatomic) CGSize centerSize;
@@ -62,7 +62,7 @@
     @param images One or more images rendered by the offline layer.  The size of the array will correspond to the depth of the tile source provided to the offline layer.
     @param bbox The bounding box of the images in the coordinate system of the offline layer.
   */
-- (void)offlineLayer:(MaplyQuadImageOfflineLayer *)layer image:(MaplyOfflineImage *)offlineImage;
+- (void)offlineLayer:(MaplyQuadImageOfflineLayer *__nonnull)layer image:(MaplyOfflineImage *__nonnull)offlineImage;
 
 @end
 
@@ -77,12 +77,12 @@
     @param coordSys The coordinate system the offline layer will render in.
     @param tileSource The tile source that needs to provide at least one and possibly more images per tile.
   */
-- (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
+- (nullable instancetype)initWithCoordSystem:(MaplyCoordinateSystem *__nonnull)coordSys tileSource:(NSObject<MaplyTileSource> *__nonnull)tileSource;
 
 /** @brief Set the active tile source.
     @details If you change this, it will force a reload of all loaded tiles and start fetching from the new tile source.
  */
-@property (nonatomic,strong) NSObject<MaplyTileSource> *tileSource;
+@property (nonatomic,strong,nonnull) NSObject<MaplyTileSource> *tileSource;
 
 /** @brief Enable/Disable the whole layer.
     @details By default this is on.  When off, the layer will stop working and calling its delegate.
@@ -152,7 +152,7 @@
     @details We do this so that the user doesn't have to wait for the target level to load.  This can be distracting on large displays with small tiles.  If you use this mode, the layer will load lower levels first, filling in quicker and then load the target level.  This looks much better, but doesn't take as long as the full quad tree based loading.
     @details The layer calculates the optimal target level (for 2D maps, if you're in that mode).  The entries in this array are relative to that level or absolute.  For example [0,-4,-2] means the layer will always try to load levels 0, targetLevel-4 and targetLevel-2, but only the latter two if they make sense.
  */
-@property (nonatomic,strong) NSArray *multiLevelLoads;
+@property (nonatomic,strong,nullable) NSArray *multiLevelLoads;
 
 /** @brief The bounding box for the images produced by the offline layer.
     @details This bounding box should be in the layer's coordinate system.
@@ -162,18 +162,18 @@
 /** @brief For the case where we're loading individual frames, this sets the order to load them in.
     @details When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.
  */
-- (void)setFrameLoadingPriority:(NSArray *)priorities;
+- (void)setFrameLoadingPriority:(NSArray *__nonnull)priorities;
 
 /** @brief The delegate called with the image stack produced at irregular intervals.
     @details Set this delegate to get the images out of the offline rendering layer.
   */
-@property (nonatomic,weak) NSObject<MaplyQuadImageOfflineDelegate> *delegate;
+@property (nonatomic,weak,nullable) NSObject<MaplyQuadImageOfflineDelegate> *delegate;
 
 /** @brief Status objects describing the state of each frame.
     @details Query this to find out which frames are completely loaded into memory and which are not.
     @details This queries the underlying control logic and there is no delegate.  It's polling only.
  */
-- (NSArray *)loadedFrames;
+- (nullable NSArray *)loadedFrames;
 
 /// @brief Force the layer to reload its tiles and rerender.
 - (void)reload;

@@ -31,7 +31,7 @@
     std::vector<bool> wideVecs;
 }
 
-- (id)initWithStyleEntry:(NSDictionary *)style settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleEntry:(NSDictionary *)style settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
 {
     self = [super initWithStyleEntry:style viewC:viewC];
     

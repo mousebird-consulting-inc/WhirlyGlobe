@@ -81,7 +81,49 @@ Point2f CalcLoopCentroid(const VectorRing &loop)
     
     return centroid;
 }
-        
+
+Point2d CalcLoopCentroid(const std::vector<Point2d> &loop)
+{
+    Point2d centroid(0,0);
+    
+    double area = 0.0;
+    for (unsigned int ii=0;ii<loop.size()-1;ii++)
+    {
+        const Point2d p0 = loop[ii];
+        const Point2d p1 = loop[(ii+1)%loop.size()];
+        area += (p0.x()*p1.y()-p1.x()*p0.y());
+    }
+    area /= 2.0;
+    
+    Point2d sum(0,0);
+    for (unsigned int ii=0;ii<loop.size()-1;ii++)
+    {
+        const Point2d p0 = loop[ii];
+        const Point2d p1 = loop[(ii+1)%loop.size()];
+        double b = (p0.x()*p1.y()-p1.x()*p0.y());
+        sum.x() += (p0.x()+p1.x())*b;
+        sum.y() += (p0.y()+p1.y())*b;
+    }
+    centroid.x() = sum.x()/(6*area);
+    centroid.y() = sum.y()/(6*area);
+    
+    return centroid;
+}
+    
+Point2d CalcCenterOfMass(const std::vector<Point2d> &loop)
+{
+    Point2d center(0,0);
+    
+    if (loop.empty())
+        return center;
+    
+    for (auto &pt : loop)
+        center += pt;
+    center /= loop.size();
+    
+    return center;
+}
+    
 // Break any edge longer than the given length
 // Returns true if it broke anything.  If it didn't, doesn't fill in outPts
 void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float maxLen)

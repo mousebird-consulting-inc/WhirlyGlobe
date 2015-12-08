@@ -39,7 +39,7 @@
     return iInst;
 }
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     imageCache = [[NSCache alloc] init];

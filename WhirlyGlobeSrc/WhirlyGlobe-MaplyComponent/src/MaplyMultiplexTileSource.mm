@@ -156,7 +156,7 @@ static bool trackConnections = false;
     Maply::SortedTileSet sortedTiles;
 }
 
-- (id)initWithSources:(NSArray *)tileSources
+- (instancetype)initWithSources:(NSArray *)tileSources
 {
     self = [super init];
     
@@ -221,7 +221,7 @@ static bool trackConnections = false;
     return [((NSObject<MaplyTileSource> *)_tileSources[0]) tileSize];
 }
 
-- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox
 {
     if (!canDoValidTiles)
         return true;

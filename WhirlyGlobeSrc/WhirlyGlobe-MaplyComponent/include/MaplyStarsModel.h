@@ -28,11 +28,11 @@
 @interface MaplyStarsModel : NSObject
 
 /// @brief Read stars from the given file
-- (id)initWithFileName:(NSString *)fileName;
+- (nullable instancetype)initWithFileName:(NSString *__nonnull)fileName;
 
 /// @brief Use the given image for each point.
 /// @details The given image will be sampled for individual points.
-- (void)setImage:(UIImage *)image;
+- (void)setImage:(UIImage *__nonnull)image;
 
 /** @brief Add stars to the given view controller
     @details Turn the star positions into geometry to display.  This object will track the resulting geometry objects.
@@ -41,7 +41,7 @@
     @param desc Additional parameters that may related to the geometry.
     @param mode Thread mode to use when adding the geometry.
   */
-- (void)addToViewC:(WhirlyGlobeViewController *)viewC date:(NSDate *)date desc:(NSDictionary *)desc mode:(MaplyThreadMode)mode;
+- (void)addToViewC:(WhirlyGlobeViewController *__nonnull)viewC date:(NSDate *__nonnull)date desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)mode;
 
 /** @brief Remove star geometry from the registered view controller.
     @details Removes any objects created for the star geometry.

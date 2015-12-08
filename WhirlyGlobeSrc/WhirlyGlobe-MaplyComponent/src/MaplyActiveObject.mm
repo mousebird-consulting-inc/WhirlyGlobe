@@ -24,7 +24,7 @@
 
 
 /// Default initialization.  Updates will happen on the main queue.
-- (id)initWithViewController:(MaplyBaseViewController *)inViewC
+- (instancetype)initWithViewController:(MaplyBaseViewController *)inViewC
 {
     self = [super init];
     _viewC = inViewC;

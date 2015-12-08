@@ -30,7 +30,7 @@
 /** @brief The color of the shape.
     @details We can set object color in the NSDictionary passed in with the add method.  We can also override that here.
  */
-@property (nonatomic,strong) UIColor *color;
+@property (nonatomic,strong) UIColor * __nullable color;
 
 /** @brief If set, the object is selectable
  @details The object is selectable if this is set when the object is passed in to an add call.  If not set, you'll never see it in selection.
@@ -40,7 +40,7 @@
 /** @brief User data object for selection
  @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the shape means to them.
  */
-@property (nonatomic,strong) id userObject;
+@property (nonatomic,strong) id  __nullable userObject;
 
 @end
 
@@ -161,12 +161,12 @@ typedef MaplyShapeCylinder WGShapeCylinder;
 /** @brief Initialize with coordinates and coordinate array size
     @details This initializer will make a copy of the coordinates and use them to draw the lines.  The x and y values are in geographic.  The z values are offsets from the globe (or map) and are in display units.  For the globe display units are based on a radius of 1.0.
   */
-- (id)initWithCoords:(MaplyCoordinate3d *)coords numCoords:(int)numCoords;
+- (nullable instancetype)initWithCoords:(MaplyCoordinate3d * __nonnull)coords numCoords:(int)numCoords;
 
 /** @brief Return the coordinates for this linear feature.
     @return Returns the number of coordinates and a pointer to the coordinate array.
   */
-- (int)getCoords:(MaplyCoordinate3d **)retCoords;
+- (int)getCoords:(MaplyCoordinate3d *__nullable *__nonnull)retCoords;
 
 @end
 
@@ -176,9 +176,14 @@ typedef MaplyShapeCylinder WGShapeCylinder;
 @interface MaplyShapeExtruded : MaplyShape
 
 /** @brief Construct with the coordinates for the outline to extrude.
+ @details Pass in pairs of doubles that correspond to the
+ */
+- (nonnull instancetype)initWithOutline:(NSArray * __nonnull)coords;
+
+/** @brief Construct with the coordinates for the outline to extrude.
     @details Pass in pairs of doubles that correspond to the
   */
-- (id)initWithOutline:(double *)coords numCoordPairs:(int)numCoordPairs;
+- (nonnull instancetype)initWithOutline:(double * __nonnull)coords numCoordPairs:(int)numCoordPairs;
 
 /** @brief Number of coordinate pairs in this shape.
   */
@@ -186,7 +191,7 @@ typedef MaplyShapeCylinder WGShapeCylinder;
 
 /** @brief Array of coordinate values.
   */
-@property (nonatomic,readonly) double *coordData;
+@property (nonatomic,readonly) double * __nullable coordData;
 
 /** @brief Where we'd like to place the extruded shape.
     @details This is the center of the object in geographic radians.
@@ -211,6 +216,6 @@ typedef MaplyShapeCylinder WGShapeCylinder;
 /** @brief The transform to apply to this shape.
     @details If set, this transform is applied before placing the feature.  You can set a transform matrix up with roll, pitch, and yaw.
   */
-@property (nonatomic,strong) MaplyMatrix *transform;
+@property (nonatomic,strong) MaplyMatrix * __nullable transform;
 
 @end
