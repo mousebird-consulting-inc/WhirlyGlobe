@@ -213,7 +213,6 @@ public:
                 if (ident.level <= maxShortCircuitLevel)
                     import += 1.0;
             }
-            import *= importanceScale;
         } else {
             // Note: Porting
             //            if (elevDelegate)
@@ -225,7 +224,7 @@ public:
             import *= importanceScale;
         }
         
-        //		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
+//        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
         
         return import;
     }
@@ -233,29 +232,44 @@ public:
     // Calculate a target zoom level for display
     int targetZoomLevel(ViewState *viewState)
     {
-        if (!viewState)
+        if (!viewState || !renderer || !scene)
             return minZoom;
         Point2f frameSize = renderer->getFramebufferSize();
         
-        int zoomLevel = 0;
-        WhirlyKit::Point2f center = Point2f(viewState->eyePos.x(),viewState->eyePos.y());
-        // The coordinate adapter might have its own center
-        Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
-        center.x() += adaptCenter.x();
-        center.y() += adaptCenter.y();
+        CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         
-        while (zoomLevel < maxZoom)
+        int zoomLevel = 0;
+        Point3d local3d = coordAdapter->displayToLocal(viewState->eyePos);
+        if (std::isnan(local3d.x()) || std::isnan(local3d.y()) || std::isnan(local3d.z()))
+            return minZoom;
+        Point3d center3d = CoordSystemConvert3d(coordAdapter->getCoordSystem(),coordSys,coordAdapter->displayToLocal(viewState->eyePos));
+        Point2f centerLocal(center3d.x(),center3d.y());
+        
+        // Bounding box in local coordinate system
+        Point3d ll,ur;
+        ll = coordSys->geographicToLocal3d(GeoCoord(-M_PI,-M_PI/2.0));
+        ur = coordSys->geographicToLocal3d(GeoCoord(M_PI,M_PI/2));
+        
+        // The coordinate adapter might have its own center
+        Point3d adaptCenter = coordAdapter->getCenter();
+        centerLocal += Point2f(adaptCenter.x(),adaptCenter.y());
+        while (zoomLevel <= maxZoom)
         {
             WhirlyKit::Quadtree::Identifier ident;
-            ident.x = 0;  ident.y = 0;  ident.level = zoomLevel;
+            Point2d thisTileSize((ur.x()-ll.x())/(1<<zoomLevel),(ur.y()-ll.y())/(1<<zoomLevel));
+            ident.x = (centerLocal.x()-ll.x())/thisTileSize.x();
+            ident.y = (centerLocal.y()-ll.y())/thisTileSize.y();
+            ident.level = zoomLevel;
+            
             // Make an MBR right in the middle of where we're looking
             Mbr mbr = control->getQuadtree()->generateMbrForNode(ident);
             Point2f span = mbr.ur()-mbr.ll();
-            mbr.ll() = center - span/2.0;
-            mbr.ur() = center + span/2.0;
+            mbr.ll() = centerLocal - span/2.0;
+            mbr.ur() = centerLocal + span/2.0;
             Dictionary attrs;
-            float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, coordSys, scene->getCoordAdapter(), mbr, ident, &attrs);
-            if (import <= shortCircuitImportance)
+            float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, tileSize, coordSys, coordAdapter, mbr, ident, &attrs);
+            import *= importanceScale;
+            if (import <= control->getMinImportance())
             {
                 zoomLevel--;
                 break;
@@ -263,7 +277,7 @@ public:
             zoomLevel++;
         }
         
-        return zoomLevel;
+        return std::max(std::min(zoomLevel,maxZoom),0);
     }
     
     /// Called when the view state changes.  If you're caching info, do it here.
@@ -311,7 +325,7 @@ public:
                 control->setTargetLevels(targetLevels);
             }
             
-            //    		__android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
+    		__android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
             
         } else {
             // Note: Can't short circuit in this case.  Something wrong with the math

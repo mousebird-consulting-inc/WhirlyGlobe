@@ -390,7 +390,10 @@ public class MaplyBaseController
 			return;
 		
 		if (Looper.myLooper() == layerThread.getLooper() || (mode == ThreadMode.ThreadCurrent)) {
-            setEGLContext();
+
+			// Only do this on the main thread
+			if (Looper.myLooper() == Looper.getMainLooper())
+	            setEGLContext();
 
             run.run();
         } else

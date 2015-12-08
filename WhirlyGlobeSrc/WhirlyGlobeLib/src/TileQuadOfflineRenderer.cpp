@@ -89,13 +89,17 @@ static const char *vertexShaderImage =
 "attribute vec2 a_position;\n"
 "attribute vec2 a_texCoord0;\n"
 "\n"
+"uniform vec2 u_vertOrg;\n"
+"uniform vec2 u_vertSize;\n"
+"\n"
 "varying vec2 v_texCoord;\n"
 "\n"
 "void main()\n"
 "{\n"
 "   v_texCoord = a_texCoord0;\n"
+"   vec2 vert = u_vertOrg + vec2(u_vertSize.x*a_position.x,u_vertSize.y*a_position.y);\n"
 "\n"
-"   gl_Position = vec4(a_position,0.0,1.0);\n"
+"   gl_Position = vec4(vert,0.0,1.0);\n"
 "}\n"
 ;
 
@@ -107,7 +111,9 @@ static const char *fragmentShaderImage =
 "\n"
 "void main()\n"
 "{\n"
-"  gl_FragColor = texture2D(s_baseMap0, v_texCoord);\n"
+"  vec4 pixel = texture2D(s_baseMap0, v_texCoord);\n"
+//    "  gl_FragColor = vec4(pixel.a,pixel.b,pixel.g,pixel.r);\n"
+    "  gl_FragColor = vec4(pixel.r,pixel.g,pixel.b,pixel.a);\n"
 "}\n"
 ;
 
@@ -263,7 +269,7 @@ static const GLfloat imageTexCoords[] =
     1.f,0.f,
     1.f,1.f,
     0.f,0.f,
-    1.f,0.f,
+    1.f,1.f,
     0.f,1.f
 };
 
@@ -304,6 +310,9 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
     int outSizeX = texSize.x(), outSizeY = texSize.y();
     if (outSizeX == 0 || outSizeY == 0)
         return;
+    
+    // Note: Debugging
+    outSizeX = 512;  outSizeY = 512;
     
     // Set up an OpenGL render buffer to draw to
     GLuint frameBuf;
@@ -377,7 +386,7 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
 
         // Clear output texture
         // Note: Test color
-        glClearColor(drand48(), drand48(), drand48(), 1.0);
+        glClearColor(0, 0, 0, 0);
         CheckGLError("Offline glClearColor");
         glClear(GL_COLOR_BUFFER_BIT);
         CheckGLError("Offline glClear");
@@ -420,28 +429,29 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
                     continue;
                 
                 Point2f org;
-                org.x() = texSize.x() * (tileMbr[jj].ll().x() - mbr.ll().x()) / (mbr.ur().x()-mbr.ll().x());
-                org.y() = texSize.y() * (tileMbr[jj].ll().y() - mbr.ll().y()) / (mbr.ur().y()-mbr.ll().y());
+                org.x() = 2 * (tileMbr[jj].ll().x() - mbr.ll().x()) / (mbr.ur().x()-mbr.ll().x()) - 1;
+                org.y() = 2 * (tileMbr[jj].ll().y() - mbr.ll().y()) / (mbr.ur().y()-mbr.ll().y()) - 1;
                 Point2f span;
-                span.x() = texSize.x() * (tileMbr[jj].ur().x()-tileMbr[jj].ll().x()) / (mbr.ur().x()-mbr.ll().x());
-                span.y() = texSize.y() * (tileMbr[jj].ur().y()-tileMbr[jj].ll().y()) / (mbr.ur().y()-mbr.ll().y());
+                span.x() = 2 * (tileMbr[jj].ur().x()-tileMbr[jj].ll().x()) / (mbr.ur().x()-mbr.ll().x());
+                span.y() = 2 * (tileMbr[jj].ur().y()-tileMbr[jj].ll().y()) / (mbr.ur().y()-mbr.ll().y());
                 
                 // Find the right input image
-//                    UIImage *imageToDraw = nil;
                 Texture *texToDraw = NULL;
                 if (whichFrame < tile->textures.size())
                     texToDraw = tile->textures[whichFrame];
                 
                 if (texToDraw)
                 {
-//                    glActiveTexture(GL_TEXTURE0);
-//                    glBindTexture(GL_TEXTURE_2D, texToDraw->getGLId());
-//                    CheckGLError("Offline glBindTexture");
-                    // Note: Debugging
-//                    glDrawArrays(GL_TRIANGLES, 0, 6);
-//                    CheckGLError("Offline glDrawArrays");
-//                    glBindTexture(GL_TEXTURE_2D, 0);
-//                    CheckGLError("Offline glBindTexture clear");
+                    prog->setUniform("u_vertOrg", org);
+                    prog->setUniform("u_vertSize", span);
+                    
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(GL_TEXTURE_2D, texToDraw->getGLId());
+                    CheckGLError("Offline glBindTexture");
+                    glDrawArrays(GL_TRIANGLES, 0, 6);
+                    CheckGLError("Offline glDrawArrays");
+                    glBindTexture(GL_TEXTURE_2D, 0);
+                    CheckGLError("Offline glBindTexture clear");
                 }
             }
             numRenderedTiles++;
@@ -479,7 +489,7 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
     //        NSLog(@"Rendered %d tiles of %d, depth = %d",numRenderedTiles,(int)tiles.size(),deep);
     
 #if defined(__ANDROID__)
-    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline rendered %d tiles of %d", numRenderedTiles,(int)tiles.size());
+//    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline rendered %d tiles of %d", numRenderedTiles,(int)tiles.size());
 #endif
     
     //        NSLog(@"CenterSize = (%f,%f), texSize = (%d,%d)",image.centerSize.width,image.centerSize.height,(int)texSize.width,(int)texSize.height);
@@ -580,7 +590,7 @@ void QuadTileOfflineLoader::loadTile(const Quadtree::NodeInfo &tileInfo,int fram
     somethingChanged = true;
     
 #if defined(__ANDROID__)
-    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline loadTile() %d: (%d,%d) %d", tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y,frame);
+//    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline loadTile() %d: (%d,%d) %d", tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y,frame);
 #endif
 }
 
@@ -609,7 +619,7 @@ void QuadTileOfflineLoader::unloadTile(const Quadtree::NodeInfo &tileInfo)
     somethingChanged = true;
     
 #if defined(__ANDROID__)
-    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline unloadTile() %d: (%d,%d)", tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y);
+//    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline unloadTile() %d: (%d,%d)", tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y);
 #endif
 }
 
@@ -621,7 +631,7 @@ bool QuadTileOfflineLoader::canLoadChildrenOfTile(const Quadtree::NodeInfo &tile
 void QuadTileOfflineLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage *loadImage,int level,int col,int row,int frame,ChangeSet &changes)
 {
 #if defined(__ANDROID__)
-    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline loadedImage() %d: (%d,%d) %d", level,col,row,frame);
+//    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline loadedImage() %d: (%d,%d) %d", level,col,row,frame);
 #endif
     
     numFetches--;

@@ -20,6 +20,7 @@
 
 package com.mousebird.maply;
 
+import android.os.Looper;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -49,7 +50,11 @@ public class Shader
 	public Shader(String name,String vertexSrc, String fragSrc,MaplyBaseController inControl)
 	{
         control = inControl;
-		if (control.setEGLContext())
+		boolean okay = true;
+		if (Looper.myLooper() == Looper.getMainLooper())
+			okay = control.setEGLContext();
+
+		if (okay)
 			initialise(name,vertexSrc,fragSrc);
 		else
 			Log.i("Maply","Shader was set up before context was created.  Shader won't work.");
@@ -80,7 +85,8 @@ public class Shader
 	 */
 	public void addTexture(String name,MaplyTexture texture)
 	{
-		control.setEGLContext();
+		if (Looper.myLooper() == Looper.getMainLooper())
+			control.setEGLContext();
 
 		textures.add(texture);
 
@@ -97,7 +103,8 @@ public class Shader
 	 */
 	public boolean setUniform(String name,double uni)
 	{
-		control.setEGLContext();
+		if (Looper.myLooper() == Looper.getMainLooper())
+			control.setEGLContext();
 
 		return setUniformNative(name,uni);
 	}
@@ -110,7 +117,8 @@ public class Shader
 	 */
 	public boolean setUniform(String name,int uni)
 	{
-		control.setEGLContext();
+		if (Looper.myLooper() == Looper.getMainLooper())
+			control.setEGLContext();
 
 		return setUniformNative(name,uni);
 	}

@@ -80,6 +80,9 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
 
         scheduleEvalStep();
 
+        if (renderPeriod > 0.0)
+            imageRenderPeriodic();
+
         valid = true;
     }
 
@@ -440,7 +443,7 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
     {
         setMbrNative(mbr.ll.getX(),mbr.ll.getY(),mbr.ur.getX(),mbr.ur.getY());
 
-        imageRenderPeriodic();
+//        imageRenderPeriodic();
     }
     native void setMbrNative(double sx,double sy,double ex,double ey);
 
@@ -450,6 +453,9 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
     // Periodically render
     void imageRenderPeriodic()
     {
+        if (layerThread == null)
+            return;
+
         layerThread.addDelayedTask(new Runnable()
         {
             @Override
@@ -463,7 +469,7 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
                 }
 
                 // Kick off another render in a few seconds
-                if (getEnable() && renderPeriod > 0.0)
+                if (renderPeriod > 0.0)
                     imageRenderPeriodic();
             }
         }, (long)(renderPeriod*100));

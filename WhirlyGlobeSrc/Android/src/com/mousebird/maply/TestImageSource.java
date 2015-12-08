@@ -37,7 +37,7 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 {
 	int minZoom = 0;
 	int maxZoom = 16;
-	int pixelsPerSide = 128;
+	int pixelsPerSide = 256;
 	Looper mainLooper = null;
 	
 	public TestImageSource(Looper inMainLooper,int inMinZoom,int inMaxZoom)
@@ -84,7 +84,7 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 				text = tileID.toString() + " " + frame;
 			Paint p = new Paint();
 			p.setTextSize(24.f);
-			p.setColor(Color.BLACK);
+			p.setColor(Color.WHITE);
 			Rect bounds = new Rect();
 			p.getTextBounds(text, 0, text.length(), bounds);
 			int textLen = bounds.right;
