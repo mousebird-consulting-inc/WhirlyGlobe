@@ -556,7 +556,46 @@ public class MaplyBaseController
 
 		return compObj;
 	}
-	
+
+	/**
+	 * Change the visual representation for the given sticker.
+	 *
+	 * @param sticker The sticker to change.
+	 * @param stickerInfo Parameters to change.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+	 * @return This represents the stickers for later modification or deletion.
+	 */
+	public ComponentObject changeSticker(final ComponentObject stickerObj,final StickerInfo stickerInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		final ComponentObject compObj = new ComponentObject();
+
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+
+						long[] stickerIDs = stickerObj.getStickerIDs();
+						if (stickerIDs != null && stickerIDs.length > 0) {
+							long stickerID = stickerIDs[0];
+							stickerManager.changeSticker(stickerID, stickerInfo, changes);
+						}
+
+						changes.process(scene);
+					}
+				};
+
+		addTask(run, mode);
+
+		return compObj;
+	}
+
 	Map<Long, Object> selectionMap = new HashMap<Long, Object>();
 	
 	// Add selectable objects to the list
@@ -668,7 +707,7 @@ public class MaplyBaseController
     {
         final MaplyTexture texture = new MaplyTexture();
 
-        // Do the actual work on the layer thread
+        // Possibly do the work somewhere else
         Runnable run =
                 new Runnable()
                 {
@@ -691,6 +730,32 @@ public class MaplyBaseController
 
         return texture;
     }
+
+	/**
+	 * Remove a texture from the scene with the given settings.
+	 * @param tex Texture to remove.
+	 * @param mode Remove immediately (current thread) or elsewhere.
+     */
+	public void removeTexture(final MaplyTexture tex,ThreadMode mode)
+	{
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+
+						changes.removeTexture(tex.texID);
+
+						// Flush the texture changes
+						changes.process(scene);
+					}
+				};
+
+		addTask(run, mode);
+	}
 
     /**
      * Associate a shader with the given scene name.  These names let us override existing shaders, as well as adding our own.
@@ -751,11 +816,28 @@ public class MaplyBaseController
 	}
 
 	/**
+	 * Disable the display for the given object.
+	 *
+	 * @param compObj Object to disable
+	 * @param mode Where to execute the enable.  Choose ThreadAny by default.
+	 */
+	public void disableObject(ComponentObject compObj,ThreadMode mode)
+	{
+		if (!running)
+			return;
+
+		ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
+		compObjs.add(compObj);
+
+		disableObjects(compObjs,mode);
+	}
+
+	/**
 	 * Enable the display for the given objects.  These objects were returned
 	 * by the various add calls.  To disable the display, call disableObjects().
 	 *
-	 * @param compObjs Objects to disable.
-	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+	 * @param compObjs Objects to enable disable.
+	 * @param mode Where to execute the enable.  Choose ThreadAny by default.
 	 */
 	public void enableObjects(final List<ComponentObject> compObjs,ThreadMode mode)
 	{
@@ -780,6 +862,23 @@ public class MaplyBaseController
 		};
 		
 		addTask(run,mode);
+	}
+
+	/**
+	 * Enable the display for the given object.
+	 *
+	 * @param compObj Object to enable.
+	 * @param mode Where to execute the enable.  Choose ThreadAny by default.
+     */
+	public void enableObject(ComponentObject compObj,ThreadMode mode)
+	{
+		if (!running)
+			return;
+
+		ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
+		compObjs.add(compObj);
+
+		enableObjects(compObjs,mode);
 	}
 
 	/**

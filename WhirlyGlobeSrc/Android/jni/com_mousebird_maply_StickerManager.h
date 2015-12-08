@@ -18,10 +18,10 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addSticker
 /*
  * Class:     com_mousebird_maply_StickerManager
  * Method:    modifyChunkTextures
- * Signature: (J[JLcom/mousebird/maply/ChangeSet;)Z
+ * Signature: (JLcom/mousebird/maply/StickerInfo;Lcom/mousebird/maply/ChangeSet;)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyChunkTextures
-  (JNIEnv *, jobject, jlong, jlongArray, jobject);
+  (JNIEnv *, jobject, jlong, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_StickerManager

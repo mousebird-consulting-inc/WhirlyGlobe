@@ -1036,7 +1036,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setShaderName
         const char *cName = env->GetStringUTFChars(shaderName,0);
         std::string name = cName;
 
-	adapter->setShaderName(cName);
+        adapter->setShaderName(cName);
 
         env->ReleaseStringUTFChars(shaderName, cName);
     }

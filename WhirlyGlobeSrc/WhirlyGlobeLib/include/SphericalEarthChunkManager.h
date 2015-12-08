@@ -39,6 +39,7 @@ public:
     RGBAColor color;
     bool readZBuffer,writeZBuffer;
     bool doEdgeMatching;
+    std::vector<SimpleIdentity> texIDs;
 };
 
 /** This defines a chunk of the globe to overlay with a single

@@ -43,30 +43,34 @@ OfflineTile::OfflineTile(const WhirlyKit::Quadtree::Identifier &ident)
 OfflineTile::OfflineTile(const WhirlyKit::Quadtree::Identifier &ident,int numImages)
     : ident(ident), numLoading(0), placeholder(false)
 {
-    images.resize(numImages);
+    textures.resize(numImages,0);
 }
 
 OfflineTile::~OfflineTile()
 {
-    for (LoadedImage *image : images)
-        delete image;
-    images.clear();
+}
+    
+void OfflineTile::clearTextures(Scene *scene)
+{
+    for (Texture *tex : textures)
+        if (tex)
+            tex->destroyInGL(scene->getMemManager());
 }
 
 void OfflineTile::GetTileSize(int &numX,int &numY)
 {
     numX = numY = 0;
-    LoadedImage *exampleImage = NULL;
-    for (unsigned int ii=0;ii<images.size();ii++)
-        if (images[ii])
+    Texture *exampleTexture = NULL;
+    for (unsigned int ii=0;ii<textures.size();ii++)
+        if (textures[ii])
         {
-            exampleImage = images[ii];
+            exampleTexture = textures[ii];
             break;
         }
-    if (exampleImage)
+    if (exampleTexture)
     {
-        numX = exampleImage->getWidth();
-        numY = exampleImage->getHeight();
+        numX = exampleTexture->getWidth();
+        numY = exampleTexture->getHeight();
     }
 }
     
@@ -74,19 +78,55 @@ void OfflineTile::GetTileSize(int &numX,int &numY)
 int OfflineTile::getNumLoaded()
 {
     int numLoad = 0;
-    for (unsigned int ii=0;ii<images.size();ii++)
-        if (images[ii])
+    for (unsigned int ii=0;ii<textures.size();ii++)
+        if (textures[ii])
             numLoad++;
     
     return numLoad;
 }
+    
+static const char *vertexShaderImage =
+"attribute vec2 a_position;\n"
+"attribute vec2 a_texCoord0;\n"
+"\n"
+"varying vec2 v_texCoord;\n"
+"\n"
+"void main()\n"
+"{\n"
+"   v_texCoord = a_texCoord0;\n"
+"\n"
+"   gl_Position = vec4(a_position,0.0,1.0);\n"
+"}\n"
+;
+
+static const char *fragmentShaderImage =
+"precision mediump float;\n"
+"\n"
+"uniform sampler2D s_baseMap0;\n"
+"varying vec2      v_texCoord;\n"
+"\n"
+"void main()\n"
+"{\n"
+"  gl_FragColor = texture2D(s_baseMap0, v_texCoord);\n"
+"}\n"
+;
+
 
 QuadTileOfflineLoader::QuadTileOfflineLoader(const std::string &name,QuadTileImageDataSource *imageSource)
     : name(name), imageSource(imageSource), on(true), numImages(1), sizeX(1024), sizeY(1024), autoRes(true),
-    period(10.0), previewLevels(-1), outputDelegate(NULL), numFetches(0), lastRender(0), somethingChanged(true), currentMbr(-1)
+    period(10.0), previewLevels(-1), outputDelegate(NULL), numFetches(0), lastRender(0), somethingChanged(true), currentMbr(-1),
+    prog(NULL)
 {
     theMbr.addPoint(Point2f(0,0));
     theMbr.addPoint(Point2f(1.0*M_PI/180.0, 1.0*M_PI/180.0));
+
+    // Set up a shader
+    prog = new OpenGLES2Program("OfflineShader",vertexShaderImage,fragmentShaderImage);
+    if (!prog->isValid())
+    {
+        delete prog;
+        prog = NULL;
+    }
 }
     
 QuadTileOfflineLoader::~QuadTileOfflineLoader()
@@ -207,6 +247,26 @@ Point2d QuadTileOfflineLoader::calculateSize()
     } else
         return Point2d(sizeX, sizeY);
 }
+    
+static const GLfloat imageVerts[] = {
+    -1.f,-1.f,
+    1.f,-1.f,
+    1.f,1.f,
+    -1.f,-1.f,
+    1.f,1.f,
+    -1.f,1.f
+};
+
+static const GLfloat imageTexCoords[] =
+{
+    0.f,0.f,
+    1.f,0.f,
+    1.f,1.f,
+    0.f,0.f,
+    1.f,0.f,
+    0.f,1.f
+};
+
 
 void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
 {
@@ -263,6 +323,29 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorBuffer);
     CheckGLError("Offline glFramebufferRenderbuffer");
     
+    glDisable(GL_CULL_FACE);
+    
+    // We're rendering the same rectangle with a different texture
+    glUseProgram(prog->getProgram());
+    CheckGLError("Offline glUseProgram");
+    const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
+    const OpenGLESAttribute *texAttr = prog->findAttribute("a_texCoord0");
+    if (vertAttr)
+    {
+        glVertexAttribPointer(vertAttr->index, 2, GL_FLOAT, GL_FALSE, 0, &imageVerts[0]);
+        CheckGLError("Offline glVertexAttribPointer");
+        glEnableVertexAttribArray(vertAttr->index);
+        CheckGLError("Offline glEnableVertexAttribArray");
+    }
+    if (texAttr)
+    {
+        glVertexAttribPointer(texAttr->index, 2, GL_FLOAT, GL_FALSE, 0, &imageTexCoords[0]);
+        CheckGLError("Offline glVertexAttribPointer");
+        glEnableVertexAttribArray(texAttr->index);
+        CheckGLError("Offline glEnableVertexAttribArray");
+    }
+    prog->setUniform("a_baseMap0", 0);
+    
     //        NSLog(@"Tex Size = (%f,%f)",texSize.width,texSize.height);
     
     int numRenderedTiles = 0;
@@ -287,6 +370,17 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
 
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTex, 0);
         CheckGLError("Offline glFramebufferTexture2D");
+        glViewport(0, 0, outSizeX, outSizeY);
+        CheckGLError("Offline glViewport");
+        
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        // Clear output texture
+        // Note: Test color
+        glClearColor(drand48(), drand48(), drand48(), 1.0);
+        CheckGLError("Offline glClearColor");
+        glClear(GL_COLOR_BUFFER_BIT);
+        CheckGLError("Offline glClear");
 
         // Work through the tiles, drawing as we go
         for (OfflineTileSet::iterator it = tiles.begin(); it != tiles.end(); ++it)
@@ -298,16 +392,9 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
                 
                 break;
             }
-
-            // Clear output texture
-            // Note: Test color
-            glClearColor(0.0, 1.0, 0.0, 1.0);
-            CheckGLError("Offline glClearColor");
-            glClear(GL_COLOR_BUFFER_BIT);
-            CheckGLError("Offline glClear");
-
+        
             OfflineTile *tile = *it;
-            if (tile->images[whichFrame] == NULL)
+            if (tile->textures[whichFrame] == NULL)
                 continue;
             if (deep > 0 && tile->ident.level > deep)
                 continue;
@@ -341,37 +428,26 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
                 
                 // Find the right input image
 //                    UIImage *imageToDraw = nil;
-                void *imageToDraw = NULL;
-                if (whichFrame < tile->images.size())
-                {
-//                        imageToDraw = (UIImage *)tile->images[whichFrame].imageData;
-//                        if ([imageToDraw isKindOfClass:[NSData class]])
-//                            imageToDraw = [UIImage imageWithData:(NSData *)imageToDraw];
-//                        if (![imageToDraw isKindOfClass:[UIImage class]])
-//                        {
-//                            // Note: Debugging.  Should put this back
-//                            //                            NSLog(@"Found bad image in offline renderer.");
-//                            imageToDraw = nil;
-//                        }
-                }
+                Texture *texToDraw = NULL;
+                if (whichFrame < tile->textures.size())
+                    texToDraw = tile->textures[whichFrame];
                 
-                if (imageToDraw)
+                if (texToDraw)
                 {
-                    // Note: This draws a green square for debugging
-                    //                        CGContextBeginPath(theContext);
-                    //                        CGContextAddRect(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()));
-                    //                        CGFloat green[4] = {0,1,0,1};
-                    //                        CGContextSetStrokeColor(theContext, green);
-                    //                        CGContextDrawPath(theContext, kCGPathStroke);
-//                        CGContextDrawImage(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()), imageToDraw.CGImage);
+//                    glActiveTexture(GL_TEXTURE0);
+//                    glBindTexture(GL_TEXTURE_2D, texToDraw->getGLId());
+//                    CheckGLError("Offline glBindTexture");
+                    // Note: Debugging
+//                    glDrawArrays(GL_TRIANGLES, 0, 6);
+//                    CheckGLError("Offline glDrawArrays");
+//                    glBindTexture(GL_TEXTURE_2D, 0);
+//                    CheckGLError("Offline glBindTexture clear");
                 }
             }
             numRenderedTiles++;
         }
         
-//            CGImageRef imageRef = CGBitmapContextCreateImage(theContext);
-//            UIImage *image = [UIImage imageWithCGImage:imageRef];
-//            CGImageRelease(imageRef);
+        glFlush();
         
         //            NSLog(@"Offline: Rendered frame %d, Tex Size = (%f,%f)",whichFrame,texSize.width,texSize.height);
         
@@ -402,10 +478,18 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
     
     //        NSLog(@"Rendered %d tiles of %d, depth = %d",numRenderedTiles,(int)tiles.size(),deep);
     
+#if defined(__ANDROID__)
+    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline rendered %d tiles of %d", numRenderedTiles,(int)tiles.size());
+#endif
     
     //        NSLog(@"CenterSize = (%f,%f), texSize = (%d,%d)",image.centerSize.width,image.centerSize.height,(int)texSize.width,(int)texSize.height);
     
     // Shut down state we used for rendering, except the texture
+    if (vertAttr)
+        glDisableVertexAttribArray(vertAttr->index);
+    if (texAttr)
+        glDisableVertexAttribArray(texAttr->index);
+    glUseProgram(0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     CheckGLError("Offline glBindFramebuffer clear");
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -517,6 +601,7 @@ void QuadTileOfflineLoader::unloadTile(const Quadtree::NodeInfo &tileInfo)
     if (it != tiles.end())
     {
         OfflineTile *theTile = *it;
+        theTile->clearTextures(scene);
         numFetches -= theTile->numLoading;
         delete theTile;
         tiles.erase(it);
@@ -552,19 +637,16 @@ void QuadTileOfflineLoader::loadedImage(QuadTileImageDataSource *dataSource,Load
     }
 
     // Assemble the images
-    std::vector<LoadedImage *> loadImages;
-    loadImages.push_back(loadImage);
+    Texture *loadTex = loadImage->buildTexture(0, loadImage->getWidth(), loadImage->getHeight());
+    if (loadTex)
+        loadTex->createInGL(scene->getMemManager());
 
-    if ((frame == -1 && numImages != loadImages.size()) || (frame != -1 && loadImages.size() != 1))
-    {
-        control->tileDidNotLoad(tileIdent, frame);
-        return;
-    }
     if (frame == -1)
     {
-        tile->images = loadImages;
+        tile->textures.resize(1);
+        tile->textures[0] = loadTex;
     } else {
-        tile->images[frame] = loadImages[0];
+        tile->textures[frame] = loadTex;
     }
     
     //    NSLog(@"Loaded tile %d: (%d,%d), frame = %d",level,col,row,frame);

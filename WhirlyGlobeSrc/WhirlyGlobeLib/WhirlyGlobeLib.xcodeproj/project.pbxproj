@@ -221,7 +221,6 @@
 		2B5F18A81A7B05BF004A8723 /* ScreenSpaceDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B5F18A61A7B05BF004A8723 /* ScreenSpaceDrawable.h */; };
 		2B76C5DB1C10C4770081F395 /* TileQuadOfflineRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B76C5DA1C10C4770081F395 /* TileQuadOfflineRenderer.h */; };
 		2B76C5DD1C10C48A0081F395 /* TileQuadOfflineRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B76C5DC1C10C48A0081F395 /* TileQuadOfflineRenderer.cpp */; };
-		2B76C5EE1C12237D0081F395 /* QuadImageOfflineLayer_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B76C5ED1C12237D0081F395 /* QuadImageOfflineLayer_jni.cpp */; };
 		2B76C5F01C1223A90081F395 /* com_mousebird_maply_QuadImageOfflineLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B76C5EF1C1223A90081F395 /* com_mousebird_maply_QuadImageOfflineLayer.h */; };
 		2B7EF42516025D8C00D4079F /* aasincos.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37A16025D8C00D4079F /* aasincos.c */; };
 		2B7EF42616025D8C00D4079F /* adjlon.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37B16025D8C00D4079F /* adjlon.c */; };
@@ -1990,7 +1989,6 @@
 				2B35674618D762A700EF8DB1 /* DefaultShaderPrograms.cpp in Sources */,
 				2B7EF45C16025D8C00D4079F /* pj_ellps.c in Sources */,
 				2B009D0F186102E4001E2EE8 /* JSONWriter.cpp in Sources */,
-				2B76C5EE1C12237D0081F395 /* QuadImageOfflineLayer_jni.cpp in Sources */,
 				2B7EF45D16025D8C00D4079F /* PJ_eqc.c in Sources */,
 				2B7EF45E16025D8C00D4079F /* PJ_eqdc.c in Sources */,
 				2B7EF45F16025D8C00D4079F /* pj_errno.c in Sources */,

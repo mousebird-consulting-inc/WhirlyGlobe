@@ -69,6 +69,9 @@ public:
 
     // Return the number of loaded frames
     int getNumLoaded();
+    
+    // Clear out the OpenGL textures
+    void clearTextures(Scene *scene);
 
     // Details of which node we're representing
     WhirlyKit::Quadtree::Identifier ident;
@@ -78,7 +81,7 @@ public:
     /// Set if this tile is in the process of loading
     int numLoading;
     
-    std::vector<LoadedImage *> images;
+    std::vector<Texture *> textures;
 };
 
 typedef struct
@@ -225,6 +228,8 @@ protected:
     int currentMbr;
     // Frames that have gotten new tiles
     std::set<int> updatedFrames;
+    
+    OpenGLES2Program *prog;
 };
     
 }

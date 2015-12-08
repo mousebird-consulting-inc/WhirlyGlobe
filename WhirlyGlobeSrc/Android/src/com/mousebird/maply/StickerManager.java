@@ -13,11 +13,17 @@ public class StickerManager
 
     public void finalize() { dispose(); }
 
+    // Only supporting texture changes at the moment
+    public void changeSticker(long stickerID,StickerInfo stickerInfo,ChangeSet changes)
+    {
+        modifyChunkTextures(stickerID,stickerInfo,changes);
+    }
+
     // Add a single sticker to the scene and return an ID for tracker
     public native long addSticker(Sticker sticker,StickerInfo stickerInfo,ChangeSet changes);
 
     // Modify the given chunk with new texture IDs
-    public native boolean modifyChunkTextures(long id,long texIDs[],ChangeSet changes);
+    public native boolean modifyChunkTextures(long stickerID,StickerInfo stickerInfo,ChangeSet changes);
 
     // Enable/disable stickers by ID
     public native void enableStickers(long ids[],boolean enable,ChangeSet changes);

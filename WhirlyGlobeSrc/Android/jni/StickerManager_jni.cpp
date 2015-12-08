@@ -143,22 +143,18 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_enableStickers
 }
 
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyChunkTextures
-(JNIEnv *env, jobject obj, jlong chunkID, jlongArray texIDsObj, jobject changeSetObj)
+(JNIEnv *env, jobject obj, jlong stickerID, jobject stickerInfoObj, jobject changeSetObj)
 {
     try
     {
         StickerManagerClassInfo *classInfo = StickerManagerClassInfo::getClassInfo();
         SphericalChunkManager *chunkManager = classInfo->getObject(env,obj);
+        SphericalChunkInfo *chunkInfo = (SphericalChunkInfo *)SphericalChunkInfoClassInfo::getClassInfo()->getObject(env,stickerInfoObj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        if (!chunkManager || !changeSet)
+        if (!chunkManager || !chunkInfo || !changeSet)
             return false;
         
-        JavaLongArray idArray(env,texIDsObj);
-        std::vector<SimpleIdentity> texIDs;
-        for (int ii=0;ii<idArray.len;ii++)
-            texIDs.push_back(idArray.rawLong[ii]);
-        
-        chunkManager->modifyChunkTextures(chunkID,texIDs,*changeSet);
+        chunkManager->modifyChunkTextures(stickerID,chunkInfo->texIDs,*changeSet);
         
         return true;
     }

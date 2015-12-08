@@ -82,3 +82,46 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerInfo_dispose
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunkInfo::dispose()");
     }
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerInfo_setImagesNative
+(JNIEnv *env, jobject obj, jlongArray texArrayObj)
+{
+    try
+    {
+        SphericalChunkInfoClassInfo *classInfo = SphericalChunkInfoClassInfo::getClassInfo();
+        SphericalChunkInfo *chunkInfo = classInfo->getObject(env,obj);
+        if (!chunkInfo)
+            return;
+        
+        chunkInfo->texIDs.clear();
+        
+        JavaLongArray texArray(env,texArrayObj);
+        for (int ii=0;ii<texArray.len;ii++)
+            chunkInfo->texIDs.push_back(texArray.rawLong[ii]);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunk::setImages()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerInfo_setShaderName
+(JNIEnv *env, jobject obj, jobject sceneObj, jstring shaderName)
+{
+    try
+    {
+        SphericalChunkInfoClassInfo *classInfo = SphericalChunkInfoClassInfo::getClassInfo();
+        SphericalChunkInfo *chunkInfo = classInfo->getObject(env,obj);
+        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+        if (!chunkInfo || !scene)
+            return;
+
+        JavaString jstr(env,shaderName);
+        chunkInfo->programID = scene->getProgramIDBySceneName(jstr.cStr);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunk::setShaderName()");
+    }
+}
+

@@ -80,6 +80,19 @@ public class ComponentObject
 		stickerIDs.add(id);
 	}
 
+	long[] getStickerIDs()
+	{
+		if (stickerIDs == null)
+			return null;
+		long[] retIDs = new long[stickerIDs.size()];
+		int which = 0;
+		for (Long id : stickerIDs) {
+			retIDs[which++] = id;
+		}
+
+		return retIDs;
+	}
+
 	// Track the given vector ID as associated with us
 	void addVectorID(long id)
 	{

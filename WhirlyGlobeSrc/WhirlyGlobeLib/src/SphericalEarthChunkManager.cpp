@@ -421,7 +421,7 @@ SimpleIdentity SphericalChunkManager::addChunk(SphericalChunk *chunk,const Spher
 bool SphericalChunkManager::modifyChunkTextures(SimpleIdentity chunkID,const std::vector<SimpleIdentity> &texIDs,ChangeSet &changes)
 {
     SimpleIDSet drawIDs;
-//    SimpleIDSet oldTexIDs;
+    SimpleIDSet oldTexIDs;
     
     pthread_mutex_lock(&repLock);
     ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkID));
@@ -429,13 +429,13 @@ bool SphericalChunkManager::modifyChunkTextures(SimpleIdentity chunkID,const std
     if (it != chunkReps.end())
     {
         drawIDs = (*it)->drawIDs;
-//        oldTexIDs = (*it)->texIDs;
+        oldTexIDs = (*it)->texIDs;
     }
     pthread_mutex_unlock(&repLock);
 
     // Make sure we have the same number of textures
-//    if (oldTexIDs.size() != texIDs.size())
-//        return false;
+    //    if (oldTexIDs.size() != texIDs.size())
+    //        return false;
     
     for (SimpleIDSet::iterator it = drawIDs.begin(); it != drawIDs.end(); ++it)
         changes.push_back(new DrawTexturesChangeRequest(*it,texIDs));

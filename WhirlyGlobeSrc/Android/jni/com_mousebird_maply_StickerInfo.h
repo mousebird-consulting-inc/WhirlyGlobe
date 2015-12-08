@@ -17,6 +17,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerInfo_setColor
 
 /*
  * Class:     com_mousebird_maply_StickerInfo
+ * Method:    setImagesNative
+ * Signature: ([J)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerInfo_setImagesNative
+  (JNIEnv *, jobject, jlongArray);
+
+/*
+ * Class:     com_mousebird_maply_StickerInfo
+ * Method:    setShaderName
+ * Signature: (Lcom/mousebird/maply/Scene;Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerInfo_setShaderName
+  (JNIEnv *, jobject, jobject, jstring);
+
+/*
+ * Class:     com_mousebird_maply_StickerInfo
  * Method:    nativeInit
  * Signature: ()V
  */
