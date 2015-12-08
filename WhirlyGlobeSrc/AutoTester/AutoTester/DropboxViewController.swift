@@ -27,7 +27,7 @@ class DropboxSection {
 	
 	var rows : [Row]
 	
-	init (section: Section, isLogin:Bool){
+	init (section: Section, isLogin:Bool) {
 		self.section = section
 		if section == .Login {
 			self.rows = [isLogin ? .LogoutUser : .LoginUser]
@@ -355,7 +355,7 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 						if let response = response {
 							print("Uploaded file: \(response.name)")
 						}
-						else{
+						else {
 							print("Error uploading \(imageName): \(error)")
 						}
 

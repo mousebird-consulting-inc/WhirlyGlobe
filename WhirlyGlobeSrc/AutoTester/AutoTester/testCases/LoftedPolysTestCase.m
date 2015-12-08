@@ -29,9 +29,9 @@
 -(void) addLoftedPolysSpain: (WhirlyGlobeViewController*) globeVC
 {
 	NSString *path = [[NSBundle mainBundle] pathForResource:@"ESP" ofType:@"geojson" inDirectory:nil];
-	if (path){
+	if (path) {
 		NSData *jsonData = [NSData dataWithContentsOfFile:path];
-		if (jsonData){
+		if (jsonData) {
 			MaplyVectorObject *wgVecObj = [MaplyVectorObject VectorObjectFromGeoJSON:jsonData];
 			NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
 			wgVecObj.userObject = vecName;
