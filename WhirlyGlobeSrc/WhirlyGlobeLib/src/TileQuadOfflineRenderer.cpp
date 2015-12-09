@@ -113,7 +113,8 @@ static const char *fragmentShaderImage =
 "{\n"
 "  vec4 pixel = texture2D(s_baseMap0, v_texCoord);\n"
 //    "  gl_FragColor = vec4(pixel.a,pixel.b,pixel.g,pixel.r);\n"
-    "  gl_FragColor = vec4(pixel.r,pixel.g,pixel.b,pixel.a);\n"
+//    "  gl_FragColor = vec4(pixel.r,pixel.g,pixel.b,pixel.a);\n"
+    "  gl_FragColor = vec4(pixel.r,pixel.g,pixel.b,1.0);\n"
 "}\n"
 ;
 
@@ -265,12 +266,12 @@ static const GLfloat imageVerts[] = {
 
 static const GLfloat imageTexCoords[] =
 {
-    0.f,0.f,
+    0.f,1.f,
+    1.f,1.f,
     1.f,0.f,
-    1.f,1.f,
-    0.f,0.f,
-    1.f,1.f,
-    0.f,1.f
+    0.f,1.f,
+    1.f,0.f,
+    0.f,0.f
 };
 
 
@@ -432,8 +433,8 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
                 org.x() = 2 * (tileMbr[jj].ll().x() - mbr.ll().x()) / (mbr.ur().x()-mbr.ll().x()) - 1;
                 org.y() = 2 * (tileMbr[jj].ll().y() - mbr.ll().y()) / (mbr.ur().y()-mbr.ll().y()) - 1;
                 Point2f span;
-                span.x() = 2 * (tileMbr[jj].ur().x()-tileMbr[jj].ll().x()) / (mbr.ur().x()-mbr.ll().x());
-                span.y() = 2 * (tileMbr[jj].ur().y()-tileMbr[jj].ll().y()) / (mbr.ur().y()-mbr.ll().y());
+                span.x() = (tileMbr[jj].ur().x()-tileMbr[jj].ll().x()) / (mbr.ur().x()-mbr.ll().x());
+                span.y() = (tileMbr[jj].ur().y()-tileMbr[jj].ll().y()) / (mbr.ur().y()-mbr.ll().y());
                 
                 // Find the right input image
                 Texture *texToDraw = NULL;
@@ -489,7 +490,7 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
     //        NSLog(@"Rendered %d tiles of %d, depth = %d",numRenderedTiles,(int)tiles.size(),deep);
     
 #if defined(__ANDROID__)
-//    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline rendered %d tiles of %d", numRenderedTiles,(int)tiles.size());
+    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline rendered %d tiles of %d", numRenderedTiles,(int)tiles.size());
 #endif
     
     //        NSLog(@"CenterSize = (%f,%f), texSize = (%d,%d)",image.centerSize.width,image.centerSize.height,(int)texSize.width,(int)texSize.height);
@@ -630,10 +631,6 @@ bool QuadTileOfflineLoader::canLoadChildrenOfTile(const Quadtree::NodeInfo &tile
 
 void QuadTileOfflineLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage *loadImage,int level,int col,int row,int frame,ChangeSet &changes)
 {
-#if defined(__ANDROID__)
-//    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline loadedImage() %d: (%d,%d) %d", level,col,row,frame);
-#endif
-    
     numFetches--;
     Quadtree::Identifier tileIdent(col,row,level);
     OfflineTile *tile = getTile(tileIdent);
@@ -645,6 +642,16 @@ void QuadTileOfflineLoader::loadedImage(QuadTileImageDataSource *dataSource,Load
         numFetches--;
         tile->numLoading--;
     }
+
+    if (!loadImage)
+    {
+        control->tileDidNotLoad(tileIdent, frame);
+        return;
+    }
+
+#if defined(__ANDROID__)
+    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline loadedImage() %d: (%d,%d) %d", level,col,row,frame);
+#endif
 
     // Assemble the images
     Texture *loadTex = loadImage->buildTexture(0, loadImage->getWidth(), loadImage->getHeight());

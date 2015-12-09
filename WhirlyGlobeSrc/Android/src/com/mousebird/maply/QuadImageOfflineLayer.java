@@ -50,6 +50,14 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
         imageDelegate = inImageDelegate;
     }
 
+    /**
+     * Return the coordinate system in use by the offline layer.
+     */
+    public CoordSystem getCoordSystem()
+    {
+        return coordSys;
+    }
+
     public void finalize() { dispose(); }
 
     @Override

@@ -26,6 +26,11 @@ package com.mousebird.maply;
  */
 public class MaplyTexture
 {
+    public MaplyTexture()
+    {
+        controller = null;
+        texID = 0;
+    }
     MaplyBaseController controller;
     long texID;
 }

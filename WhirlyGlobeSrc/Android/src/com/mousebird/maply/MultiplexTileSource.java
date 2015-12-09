@@ -51,6 +51,15 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	int maxZoom = 0;
 	int pixelsPerSide = 256;
 	OkHttpClient client = null;
+
+	/**
+	 * Return the number of individual sources and/or frames.
+     */
+	public int getDepth() {
+		if (sources == null)
+			return 0;
+		return sources.length;
+	}
 	
 	/**
 	 * Set this delegate to get callbacks when tiles load or fail to load.
@@ -120,28 +129,30 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
             if (isCanceled)
                 return;
 
-            byte[] rawImage = null;
-            try {
-                rawImage = response.body().bytes();
-                BitmapFactory.Options options = new BitmapFactory.Options();
-//                options.inScaled = false;
-//                options.inPremultiplied = false;
-                bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, options);
+			if (response.code() != 404) {
+				byte[] rawImage = null;
+				try {
+					rawImage = response.body().bytes();
+					BitmapFactory.Options options = new BitmapFactory.Options();
+					//                options.inScaled = false;
+					//                options.inPremultiplied = false;
+					options.inScaled = false;
+					options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+					bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, options);
 
-                // Save to cache
-                if (cacheFile != null && rawImage != null) {
-                    OutputStream fOut;
-                    fOut = new FileOutputStream(cacheFile);
-                    fOut.write(rawImage);
-                    fOut.close();
-                }
+					// Save to cache
+					if (cacheFile != null && rawImage != null) {
+						OutputStream fOut;
+						fOut = new FileOutputStream(cacheFile);
+						fOut.write(rawImage);
+						fOut.close();
+					}
 
-//                Log.d("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
-            }
-            catch (Exception e)
-            {
-                Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
-            }
+					//                Log.d("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+				} catch (Exception e) {
+					Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
+				}
+			}
 
             reportTile();
         }
