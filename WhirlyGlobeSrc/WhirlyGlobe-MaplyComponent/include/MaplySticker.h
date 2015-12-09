@@ -19,8 +19,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <MaplyCoordinate.h>
-#import <MaplyQuadImageTilesLayer.h>
+#import "MaplyCoordinate.h"
+#import "MaplyQuadImageTilesLayer.h"
 
 /** @brief Stickers are rectangles placed on the globe with an image.
     @details The Maply Sticker will stretch a rectangle (in geographic) over the given extents and tack the given image on top of it.  Stickers differ from MaplyMarker objects in that they're big.  They can stretch over a larger are and need to be subdivided as such.

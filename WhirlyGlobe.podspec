@@ -9,7 +9,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "WhirlyGlobe"
-  s.version          = "2.4"
+  s.version          = "2.4.1"
   s.summary          = "WhirlyGlobe-Maply: Geospatial visualization for iOS and Android."
   s.description      = <<-DESC
                         WhirlyGlobe-Maply is a high performance geospatial display toolkit for iOS and Android.
@@ -28,38 +28,43 @@ Pod::Spec.new do |s|
   s.source = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :tag => 'v2.4_beta1' }
 
   s.compiler_flags = '-D__USE_SDL_GLES__', '-D__IPHONEOS__'
-  s.xcconfig = { "HEADER_SEARCH_PATHS" => "\"${PODS_ROOT}/boost\" \"${PODS_ROOT}/eigen\" \"${PODS_ROOT}/clipper\" \"$(SDKROOT)/usr/include/libxml2\"" }
+  s.xcconfig = { "HEADER_SEARCH_PATHS" => "\"${PODS_ROOT}/boost\" \"${PODS_ROOT}/eigen\" \"${PODS_ROOT}/clipper\" \"$(SDKROOT)/usr/include/libxml2\"",
+		'ALWAYS_SEARCH_USER_PATHS' => 'YES'
+   }
 
   s.default_subspec = 'MaplyComponent'
 
   s.subspec 'glues-wg' do |gl|
     gl.source_files = 'WhirlyGlobeSrc/local_libs/glues/**/*.{c,h}'
-    gl.resources = 'WhirlyGlobeSrc/local_libs/glues/**/*.{i}'
-#    gl.private_header_files = 'WhirlyGlobeSrc/local_libs/glues/**/*.i'
-#    gl.public_header_files = 'WhirlyGlobeSrc/local_libs/glues/include/**/*.h'
+    gl.preserve_paths = 'WhirlyGlobeSrc/local_libs/glues/**/*.i'
+    gl.private_header_files = 'WhirlyGlobeSrc/local_libs/glues/**/*.h'
     gl.header_mappings_dir = 'include/'
     gl.header_mappings_dir = 'SDL'
   end
 
   s.subspec 'shapefile' do |shp|
     shp.source_files = 'WhirlyGlobeSrc/local_libs/shapefile/**/*.{c,h}'
+    shp.private_header_files = 'WhirlyGlobeSrc/local_libs/shapefile/**/*.h'
   end
 
   s.subspec 'kissxml' do |kss|
     kss.source_files = 'WhirlyGlobeSrc/local_libs/KissXML/**/*.{h,m}'
+    kss.private_header_files = 'WhirlyGlobeSrc/local_libs/KissXML/**/*.h'
   end
 
   s.subspec 'aaplus' do |aa|
     aa.source_files = 'WhirlyGlobeSrc/local_libs/aaplus/**/*.{h,cpp}'
+    aa.private_header_files = 'WhirlyGlobeSrc/local_libs/aaplus/**/*.h'
   end
 
   s.subspec 'octencoding' do |oe|
     oe.source_files = 'WhirlyGlobeSrc/local_libs/octencoding/**/*.h'
+    oe.private_header_files = 'WhirlyGlobeSrc/local_libs/octencoding/**/*.h'
   end
 
   s.subspec 'Lib-Headers' do |lh|
     lh.source_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
-    lh.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
+    lh.private_header_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
     lh.dependency 'boost/string_algorithms-includes', '<= 1.51.0'
     lh.dependency 'boost/shared_ptr-includes', '<= 1.51.0'
     lh.dependency 'boost/pointer_cast-includes', '<= 1.51.0'
@@ -85,6 +90,7 @@ Pod::Spec.new do |s|
     mch.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/**/*.h'
 #    mch.private_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h'
 #    mch.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/*.h'
+    mch.private_header_files =  "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/**/{MaplyComponent,WhirlyGlobeComponent,MaplyBridge,vector_tile.pb}.h", "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h"
     mch.dependency 'WhirlyGlobe/Lib-Headers'
   end
 
