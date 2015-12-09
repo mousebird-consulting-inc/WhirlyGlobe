@@ -102,6 +102,10 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 	        int blue = (((hexColor) >> 0) & 0xFF);
 			p2.setARGB(255, red, green, blue);
 			c.drawRect(0, 0, sizeX, sizeY, p2);
+			Paint p3 = new Paint();
+			p3.setStyle(Paint.Style.STROKE);
+			p3.setColor(Color.WHITE);
+			c.drawRect(2,2,sizeX-2,sizeY-2,p3);
 			c.drawText(text, (sizeX - textLen) / 2.f, sizeY / 2.f, p);
 
 //			Log.d("Maply", "Loaded fake tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);

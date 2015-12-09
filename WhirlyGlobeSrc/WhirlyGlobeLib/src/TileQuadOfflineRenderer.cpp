@@ -97,7 +97,8 @@ static const char *vertexShaderImage =
 "void main()\n"
 "{\n"
 "   v_texCoord = a_texCoord0;\n"
-"   vec2 vert = u_vertOrg + vec2(u_vertSize.x*a_position.x,u_vertSize.y*a_position.y);\n"
+"   vec2 vert = 2.0*(u_vertOrg + vec2(u_vertSize.x*a_position.x,u_vertSize.y*a_position.y)) - vec2(1.0,1.0);\n"
+"   vert.y *= -1.0;\n"
 "\n"
 "   gl_Position = vec4(vert,0.0,1.0);\n"
 "}\n"
@@ -256,12 +257,12 @@ Point2d QuadTileOfflineLoader::calculateSize()
 }
     
 static const GLfloat imageVerts[] = {
-    -1.f,-1.f,
-    1.f,-1.f,
+    0.f,0.f,
+    1.f,0.f,
     1.f,1.f,
-    -1.f,-1.f,
+    0.f,0.f,
     1.f,1.f,
-    -1.f,1.f
+    0.f,1.f
 };
 
 static const GLfloat imageTexCoords[] =
@@ -430,8 +431,8 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
                     continue;
                 
                 Point2f org;
-                org.x() = 2 * (tileMbr[jj].ll().x() - mbr.ll().x()) / (mbr.ur().x()-mbr.ll().x()) - 1;
-                org.y() = 2 * (tileMbr[jj].ll().y() - mbr.ll().y()) / (mbr.ur().y()-mbr.ll().y()) - 1;
+                org.x() = (tileMbr[jj].ll().x() - mbr.ll().x()) / (mbr.ur().x()-mbr.ll().x());
+                org.y() = (tileMbr[jj].ll().y() - mbr.ll().y()) / (mbr.ur().y()-mbr.ll().y());
                 Point2f span;
                 span.x() = (tileMbr[jj].ur().x()-tileMbr[jj].ll().x()) / (mbr.ur().x()-mbr.ll().x());
                 span.y() = (tileMbr[jj].ur().y()-tileMbr[jj].ll().y()) / (mbr.ur().y()-mbr.ll().y());
