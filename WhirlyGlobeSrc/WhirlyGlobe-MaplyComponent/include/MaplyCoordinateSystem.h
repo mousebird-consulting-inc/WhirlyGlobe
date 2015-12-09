@@ -99,8 +99,24 @@
 
 @end
 
+/** @brief A generic coordinate system wrapper around proj4.
+    @details You create one of these with a proj4 string.  It'll act like a normal MaplyCoordinateSysterm after that.
+    @details Be sure to check that the system is valid.  The proj4 string could be wrong.
+  */
+@interface MaplyProj4CoordSystem : MaplyCoordinateSystem
+
+/** @brief Initialize with a proj4 compatible string
+    @details Since this is just a proj.4 wrapper, we need an initialization string that it can parse.
+  */
+- (nonnull instancetype)initWithString:(NSString * __nonnull)proj4Str;
+
+/// @brief True if the proj.4 string was valid and the coordinate system can work.
+- (bool)valid;
+
+@end
+
 /** @brief Generate the correct coordinate system from a standard EPSG.
-    @details This returns the correct coordinate system form a standard EPSG string.
+    @details This returns the correct coordinate system from a standard EPSG string.
     @details The list of available coordinate systems is very short.
   */
 MaplyCoordinateSystem * __nullable MaplyCoordinateSystemFromEPSG(NSString * __nonnull crs);

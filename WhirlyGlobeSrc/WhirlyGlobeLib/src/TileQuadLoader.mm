@@ -345,6 +345,11 @@ using namespace WhirlyKit;
             tileBuilder->texAtlas->cleanup(changeRequests);
             tileBuilder->drawAtlas->clearUpdateFlag();
         }
+        if (tileBuilder->poleDrawAtlas && tileBuilder->poleDrawAtlas->hasUpdates() && !tileBuilder->poleDrawAtlas->waitingOnSwap())
+        {
+            tileBuilder->poleDrawAtlas->swap(changeRequests,_quadLayer,@selector(wakeUp));
+            tileBuilder->poleDrawAtlas->clearUpdateFlag();
+        }
     }
 
     // Note: Shouldn't need to do this anymore
@@ -531,6 +536,16 @@ using namespace WhirlyKit;
         tileBuilder->useElevAsZ = _useElevAsZ;
         tileBuilder->ignoreEdgeMatching = _ignoreEdgeMatching;
         tileBuilder->coverPoles = _coverPoles;
+        if (_northPoleColor)
+        {
+            tileBuilder->useNorthPoleColor = true;
+            tileBuilder->northPoleColor = [_northPoleColor asRGBAColor];
+        }
+        if (_southPoleColor)
+        {
+            tileBuilder->useSouthPoleColor = true;
+            tileBuilder->southPoleColor = [_southPoleColor asRGBAColor];
+        }
         tileBuilder->useTileCenters = _useTileCenters;
         tileBuilder->glFormat = [self glFormat];
         tileBuilder->singleByteSource = [self singleByteSource];
@@ -624,7 +639,11 @@ using namespace WhirlyKit;
         }
         tileBuilder->initAtlases(_imageType,_numImages,_textureAtlasSize,estTexX,estTexY);
         if (!_enable)
+        {
             tileBuilder->drawAtlas->setEnableAllDrawables(false, changeRequests);
+            if (tileBuilder->poleDrawAtlas)
+                tileBuilder->poleDrawAtlas->setEnableAllDrawables(false, changeRequests);
+        }
 
         createdAtlases = true;
     }
@@ -912,6 +931,8 @@ using namespace WhirlyKit;
             tileBuilder->enabled = _enable;
             if (tileBuilder->drawAtlas)
                 tileBuilder->drawAtlas->setEnableAllDrawables(_enable, theChanges);
+            if (tileBuilder->poleDrawAtlas)
+                tileBuilder->poleDrawAtlas->setEnableAllDrawables(_enable, theChanges);
         }
     } else {
         // We'll look through the tiles and change them all accordingly
@@ -963,6 +984,8 @@ using namespace WhirlyKit;
             tileBuilder->fade = _fade;
             if (tileBuilder->drawAtlas)
                 tileBuilder->drawAtlas->setFadeAllDrawables(_fade, theChanges);
+            if (tileBuilder->poleDrawAtlas)
+                tileBuilder->poleDrawAtlas->setFadeAllDrawables(_fade, theChanges);
         }
     } else {
         // We'll look through the tiles and change them all accordingly
@@ -1014,6 +1037,8 @@ using namespace WhirlyKit;
             tileBuilder->drawPriority = _drawPriority;
             if (tileBuilder->drawAtlas)
                 tileBuilder->drawAtlas->setDrawPriorityAllDrawables(_drawPriority, theChanges);
+            if (tileBuilder->poleDrawAtlas)
+                tileBuilder->poleDrawAtlas->setDrawPriorityAllDrawables(_drawPriority, theChanges);
         }
     }
 
@@ -1095,6 +1120,8 @@ using namespace WhirlyKit;
             tileBuilder->programId = _programId;
             if (tileBuilder->drawAtlas)
                 tileBuilder->drawAtlas->setProgramIDAllDrawables(_programId, theChanges);
+            if (tileBuilder->poleDrawAtlas)
+                tileBuilder->poleDrawAtlas->setProgramIDAllDrawables(_programId, theChanges);
         }
     }
     [_quadLayer.layerThread addChangeRequests:theChanges];

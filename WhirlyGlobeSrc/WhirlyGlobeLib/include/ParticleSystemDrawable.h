@@ -156,7 +156,7 @@ protected:
     
     // Chunks we use for rendering
     pthread_mutex_t batchLock;
-    int startBatch,endBatch;
+    int startb,endb;
     std::vector<Batch> batches;
     bool chunksDirty;
     std::vector<BufferChunk> chunks;
