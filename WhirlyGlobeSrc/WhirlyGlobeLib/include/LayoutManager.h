@@ -84,13 +84,7 @@ public:
 class LayoutObjectEntry : public Identifiable
 {
 public:
-    LayoutObjectEntry(SimpleIdentity theId)
-    : Identifiable(theId)
-    {
-        currentEnable = newEnable = false;
-        offset = Point2d(MAXFLOAT,MAXFLOAT);
-        changed = true;
-    }
+    LayoutObjectEntry(SimpleIdentity theId);
     
     // The layout objects as passed in by the original caller
     LayoutObject obj;
@@ -99,6 +93,12 @@ public:
     bool currentEnable;
     // Set if it's going to be on
     bool newEnable;
+
+    // Set if the object is part of an existing cluster
+    int currentCluster;
+    // Set if the object is going into a new cluster
+    int newCluster;
+
     // The offset, as calculated
     WhirlyKit::Point2d offset;
     // Set if we changed something during evaluation
@@ -119,13 +119,41 @@ public:
     virtual void startLayoutObjects() = 0;
     
     // Generate a layout object (with screen space object and such) for the cluster
-    virtual void makeLayoutObject(int clusterID,const std::vector<LayoutObject *> &layoutObjects,LayoutObject &newObj) = 0;
+    virtual void makeLayoutObject(int clusterID,const std::vector<LayoutObjectEntry *> &layoutObjects,LayoutObject &newObj) = 0;
 
     // Called right after all the layout objects are generated
     virtual void endLayoutObjects() = 0;
+    
+    // Parameters for a particular cluster class needed to make animations and such
+    class ClusterClassParams
+    {
+    public:
+        SimpleIdentity motionShaderID;
+        bool selectable;
+        double markerAnimationTime;
+        Point2d clusterSize;
+    };
+    
+    // Return the shader used when moving objects into and out of clusters
+    virtual void paramsForClusterClass(int clusterID,ClusterClassParams &clusterParams) = 0;
 };
     
 #define kWKLayoutManager "WKLayoutManager"
+ 
+/** A bookkeeping entry for a single cluster to track its location.
+  */
+class ClusterEntry
+{
+public:
+    // The layout object for the cluster itself
+    LayoutObject layoutObj;
+    // Object IDs for all the objects clustered together
+    std::vector<SimpleIdentity> objectIDs;
+    // If set, the cluster is a child of this older one
+    int childOfCluster;
+    // Pointer into cluster parameters
+    int clusterParamID;
+};
 
 /** The layout manager handles 2D text and marker layout.  We feed it objects
     we want to be drawn and it will figure out which ones should be visible
@@ -169,7 +197,7 @@ public:
 protected:
     bool calcScreenPt(CGPoint &objPt,LayoutObjectEntry *layoutObj,WhirlyKitViewState *viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
     Eigen::Matrix2d calcScreenRot(float &screenRot,WhirlyKitViewState *viewState,WhirlyGlobeViewState *globeViewState,LayoutObjectEntry *layoutObj,const CGPoint &objPt,const Eigen::Matrix4d &modelTrans,const Point2f &frameBufferSize);
-    bool runLayoutRules(WhirlyKitViewState *viewState,std::vector<LayoutObject> &newClusterObjects);
+    bool runLayoutRules(WhirlyKitViewState *viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams);
     
     pthread_mutex_t layoutLock;
     /// If non-zero the maximum number of objects we'll display at once
@@ -180,6 +208,10 @@ protected:
     LayoutEntrySet layoutObjects;
     /// Drawables created on the last round
     SimpleIDSet drawIDs;
+    /// Clusters on the current round
+    std::vector<ClusterEntry> clusters;
+    /// Display parameter for the clusters
+    std::vector<ClusterGenerator::ClusterClassParams> clusterParams;
     /// Cluster generators
     ClusterGenerator *clusterGen;
 };

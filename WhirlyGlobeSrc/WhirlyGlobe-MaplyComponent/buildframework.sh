@@ -5,9 +5,9 @@
 # xcodebuild -target WhirlyGlobe-MaplyComponent -scheme WhirlyGlobe-MaplyComponent -configuration Release -sdk iphoneos9.0 clean
 # xcodebuild -target WhirlyGlobe-MaplyComponent -configuration Debug -sdk iphonesimulator
 
-xcodebuild -target WhirlyGlobe-MaplyComponent -scheme WhirlyGlobe-MaplyComponent -configuration Release -sdk iphonesimulator9.0
+xcodebuild -target WhirlyGlobe-MaplyComponent -scheme WhirlyGlobe-MaplyComponent -configuration Release -sdk iphonesimulator9.1
 # xcodebuild -target WhirlyGlobe-MaplyComponent -configuration Debug -sdk iphoneos
-xcodebuild -target WhirlyGlobe-MaplyComponent -scheme WhirlyGlobe-MaplyComponent -configuration Release -sdk iphoneos9.0 -DONLY_ACTIVE_ARCH=NO
+xcodebuild -target WhirlyGlobe-MaplyComponent -scheme WhirlyGlobe-MaplyComponent -configuration Release -sdk iphoneos9.1 -DONLY_ACTIVE_ARCH=NO
 
 # name and build location
 PROJECT_NAME=WhirlyGlobeMaplyComponent

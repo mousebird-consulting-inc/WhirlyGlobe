@@ -240,7 +240,7 @@ using namespace WhirlyKit;
 	[baseLayerThread start];
     
     // Default cluster generator
-    defaultClusterGenerator = [[MaplyBasicClusterGenerator alloc] initWithColors:@[[UIColor orangeColor]] clusterNumber:0 size:CGSizeMake(32,32)];
+    defaultClusterGenerator = [[MaplyBasicClusterGenerator alloc] initWithColors:@[[UIColor orangeColor]] clusterNumber:0 size:CGSizeMake(32,32) viewC:self];
     [self addClusterGenerator:defaultClusterGenerator];
     
     // Set up defaults for the hints
@@ -808,6 +808,17 @@ static const float PerfOutputDelay = 15.0;
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc
 {
     return [self addLoftedPolys:polys key:key cache:cacheDb desc:desc mode:MaplyThreadAny];
+}
+
+- (MaplyComponentObject *)addPoints:(NSArray *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    if (![interactLayer startOfWork])
+        return nil;
+
+    MaplyComponentObject *compObj = [interactLayer addPoints:points desc:desc mode:threadMode];
+    [interactLayer endOfWork];
+    
+    return compObj;
 }
 
 /// Add a view to track to a particular location

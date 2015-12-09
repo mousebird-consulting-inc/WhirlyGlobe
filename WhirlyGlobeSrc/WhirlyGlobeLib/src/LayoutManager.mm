@@ -62,6 +62,15 @@ void LayoutObject::setSelectSize(const Point2d &selectSize,const Point2d &offset
     selectPts.push_back(Point2d(0.0,selectSize.y())+offset);
 }
     
+LayoutObjectEntry::LayoutObjectEntry(SimpleIdentity theId)
+: Identifiable(theId)
+{
+    currentEnable = newEnable = false;
+    currentCluster = newCluster = -1;
+    offset = Point2d(MAXFLOAT,MAXFLOAT);
+    changed = true;
+}
+    
 LayoutManager::LayoutManager()
     : maxDisplayObjects(0), hasUpdates(false), clusterGen(NULL)
 {
@@ -181,12 +190,13 @@ typedef struct
     }
 } LayoutEntrySorter;
 typedef std::set<LayoutObjectEntry *,LayoutEntrySorter> LayoutSortingSet;
-    
+
 // Return the screen space objects in a form the selection manager can understand
 void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs)
 {
     pthread_mutex_lock(&layoutLock);
     
+    // First the regular screen space objects
     for (LayoutEntrySet::iterator it = layoutObjects.begin();
          it != layoutObjects.end(); ++it)
     {
@@ -194,15 +204,28 @@ void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo 
         if (entry->currentEnable)
         {
             ScreenSpaceObjectLocation ssObj;
-            ssObj.shapeID = entry->obj.getId();
+            ssObj.shapeIDs.push_back(entry->obj.getId());
             ssObj.dispLoc = entry->obj.worldLoc;
             ssObj.offset = entry->offset;
             ssObj.pts = entry->obj.selectPts;
-            for (unsigned int ii=0;ii<entry->obj.selectPts.size();ii++)
-                ssObj.mbr.addPoint(entry->obj.selectPts[ii]);
-            
+            ssObj.mbr.addPoints(entry->obj.selectPts);
+
             screenSpaceObjs.push_back(ssObj);
         }
+    }
+    
+    // Then the clusters
+    for (auto &cluster : clusters)
+    {
+        ScreenSpaceObjectLocation ssObj;
+        ssObj.shapeIDs = cluster.objectIDs;
+        ssObj.dispLoc = cluster.layoutObj.worldLoc;
+        ssObj.offset = cluster.layoutObj.offset;
+        ssObj.pts = cluster.layoutObj.selectPts;
+        ssObj.mbr.addPoints(cluster.layoutObj.selectPts);
+        ssObj.isCluster = true;
+
+        screenSpaceObjs.push_back(ssObj);
     }
     
     pthread_mutex_unlock(&layoutLock);
@@ -302,7 +325,7 @@ Matrix2d LayoutManager::calcScreenRot(float &screenRot,WhirlyKitViewState *viewS
 }
     
 // Do the actual layout logic.  We'll modify the offset and on value in place.
-bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<LayoutObject> &newClusterObjects)
+bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams)
 {
     if (layoutObjects.empty())
         return false;
@@ -354,6 +377,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Lay
 
                 if (use)
                 {
+                    obj->newCluster = -1;
                     if (obj->obj.clusterGroup > -1)
                     {
                         // Put the entry in the right cluster
@@ -365,17 +389,26 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Lay
                             // Create a new cluster object
                             thisClusterObj = new ClusteredObjects(obj->obj.clusterGroup);
                             clusterObjs.insert(thisClusterObj);
+
+                            hadChanges = true;
                         } else
                             thisClusterObj = *cit;
                         
                         thisClusterObj->layoutObjects.insert(layoutObj);
                         
                         obj->newEnable = false;
+                        obj->newCluster = -1;
                     } else {
                         // Not a cluster
                         layoutObjs.insert(layoutObj);
                     }
+                } else {
+                    obj->newEnable = false;
+                    obj->newCluster = -1;
                 }
+            } else {
+                obj->newEnable = false;
+                obj->newCluster = -1;
             }
             // Note: Update this for clusters
             if ((use && !obj->currentEnable) || (!use && obj->currentEnable))
@@ -399,9 +432,12 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Lay
         // Lay out the clusters in order
         for (ClusteredObjectsSet::iterator it = clusterObjs.begin(); it != clusterObjs.end(); ++it)
         {
-            // Note: Need to pass in the cluster size
-            ClusterHelper clusterHelper(screenMbr,OverlapSampleX,OverlapSampleY,resScale,Point2d(32,32));
             ClusteredObjects *cluster = *it;
+            clusterParams.resize(clusterParams.size()+1);
+            ClusterGenerator::ClusterClassParams &params = clusterParams.back();
+            clusterGen->paramsForClusterClass(cluster->clusterID,params);
+
+            ClusterHelper clusterHelper(screenMbr,OverlapSampleX,OverlapSampleY,resScale,params.clusterSize);
             
             // Add all the various objects to the cluster and figure out overlaps
             for (LayoutSortingSet::iterator sit = cluster->layoutObjects.begin(); sit != cluster->layoutObjects.end(); ++sit)
@@ -451,18 +487,23 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Lay
             // Toss the unaffected layout objects into the mix
             for (auto obj : clusterHelper.simpleObjects)
                 if (obj.parentObject < 0)
+                {
                     layoutObjs.insert(obj.objEntry);
+                    obj.objEntry->newEnable = true;
+                    obj.objEntry->newCluster = -1;
+                }
             
             // Create new objects for the clusters
             for (auto clusterObj : clusterHelper.clusterObjects)
             {
-                std::vector<LayoutObject *> objsForCluster;
+                std::vector<LayoutObjectEntry *> objsForCluster;
                 clusterHelper.objectsForCluster(clusterObj,objsForCluster);
                 
                 if (!objsForCluster.empty())
                 {
-                    newClusterObjects.resize(newClusterObjects.size()+1);
-                    LayoutObject &newClusterObj = newClusterObjects[newClusterObjects.size()-1];
+                    int clusterEntryID = clusterEntries.size();
+                    clusterEntries.resize(clusterEntryID+1);
+                    ClusterEntry &clusterEntry = clusterEntries[clusterEntryID];
 
                     // Project the cluster back into a geolocation so we can place it.
                     Point3d dispPt;
@@ -473,12 +514,38 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Lay
                     } else {
                         dispPtValid = [mapViewState pointOnPlaneFromScreen:CGPointMake(clusterObj.center.x(),clusterObj.center.y()) transform:&modelTrans frameSize:frameBufferSize hit:&dispPt clip:false];
                     }
-                    
+
+                    // Note: What happens if the display point isn't valid?
                     if (dispPtValid)
                     {
-                        newClusterObj.worldLoc = dispPt;
-                        clusterGen->makeLayoutObject(cluster->clusterID, objsForCluster, newClusterObj);
+                        clusterEntry.layoutObj.worldLoc = dispPt;
+                        for (auto thisObj : objsForCluster)
+                            clusterEntry.objectIDs.push_back(thisObj->obj.getId());
+                        clusterGen->makeLayoutObject(cluster->clusterID, objsForCluster, clusterEntry.layoutObj);
+                        if (!params.selectable)
+                            clusterEntry.layoutObj.selectPts.clear();
                     }
+                    clusterEntry.clusterParamID = clusterParams.size()-1;
+
+                    // Figure out if all the objects in this new cluster come from the same old cluster
+                    //  and assign the new cluster ID
+                    int whichOldCluster = -1;
+                    for (auto obj : objsForCluster)
+                    {
+                        if (obj->currentCluster > -1 && whichOldCluster != -2)
+                        {
+                            if (whichOldCluster == -1)
+                                whichOldCluster = obj->currentCluster;
+                            else {
+                                if (whichOldCluster != obj->currentCluster)
+                                    whichOldCluster = -2;
+                            }
+                        }
+                        obj->newCluster = clusterEntryID;
+                    }
+                    
+                    // If the children all agree about the old cluster, let's reflect that
+                    clusterEntry.childOfCluster = (whichOldCluster == -2) ? -1 : whichOldCluster;
                 }
             }
         }
@@ -622,6 +689,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Lay
         }
         hadChanges |= layoutObj->changed;
         layoutObj->newEnable = isActive;
+        layoutObj->newCluster = -1;
         layoutObj->offset = objOffset;
     }
     
@@ -642,10 +710,19 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
 
     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
     
+    std::vector<ClusterEntry> oldClusters = clusters;
+    clusters.clear();
+    std::vector<ClusterGenerator::ClusterClassParams> oldClusterParams = clusterParams;
+    clusterParams.clear();
+    
     // This will recalculate the offsets and enables
     // If there were any changes, we need to regenerate
-    std::vector<LayoutObject> newClusterObjects;
-    bool layoutChanges = runLayoutRules(viewState,newClusterObjects);
+    bool layoutChanges = runLayoutRules(viewState,clusters,clusterParams);
+    
+    // Compare old and new clusters
+    if (!layoutChanges && clusters.size() != oldClusters.size())
+        layoutChanges = true;
+    
     if (hasUpdates || layoutChanges)
     {
         // Get rid of the last set of drawables
@@ -666,18 +743,94 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
                 layoutObj->obj.state.fadeDown = curTime;
                 layoutObj->obj.state.fadeUp = curTime+DisappearFade;
             }
+            
+            // Note: The animation below doesn't handle offsets
+            
+            // Just moved into a cluster
+            if (layoutObj->currentEnable && !layoutObj->newEnable && layoutObj->newCluster > -1)
+            {
+//                ClusterEntry *cluster = &clusters[layoutObj->newCluster];
+//                ClusterGenerator::ClusterClassParams &params = oldClusterParams[cluster->clusterParamID];
+//                
+//                // Animate from the old position to the new cluster position
+//                ScreenSpaceObject animObj = layoutObj->obj;
+//                animObj.setMovingLoc(cluster->layoutObj.worldLoc, curTime, curTime+params.markerAnimationTime);
+//                animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
+//                animObj.state.progID = params.motionShaderID;
+//                for (auto &geom : animObj.geometry)
+//                    geom.progID = params.motionShaderID;
+//                ssBuild.addScreenObject(animObj);
+            } else if (!layoutObj->currentEnable && layoutObj->newEnable && layoutObj->currentCluster > -1 && layoutObj->newCluster == -1)
+            {
+                // Just moved out of a cluster
+                ClusterEntry *oldCluster = NULL;
+                if (layoutObj->currentCluster < oldClusters.size())
+                    oldCluster = &oldClusters[layoutObj->currentCluster];
+                else {
+                    NSLog(@"Cluster ID mismatch");
+                    continue;
+                }
+                ClusterGenerator::ClusterClassParams &params = oldClusterParams[oldCluster->clusterParamID];
+                
+                // Animate from the old cluster position to the new real position
+                ScreenSpaceObject animObj = layoutObj->obj;
+                animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+params.markerAnimationTime);
+                animObj.worldLoc = oldCluster->layoutObj.worldLoc;
+                animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
+                animObj.state.progID = params.motionShaderID;
+                for (auto &geom : animObj.geometry)
+                    geom.progID = params.motionShaderID;
+                ssBuild.addScreenObject(animObj);
+                
+                // And hold off on adding it
+                ScreenSpaceObject shortObj = layoutObj->obj;
+                shortObj.setEnableTime(curTime+params.markerAnimationTime, curTime+1e10);
+                ssBuild.addScreenObject(shortObj);
+            } else {
+                // It's boring, just add it
+                if (layoutObj->newEnable)
+                    ssBuild.addScreenObject(layoutObj->obj);
+            }
+
             layoutObj->currentEnable = layoutObj->newEnable;
+            layoutObj->currentCluster = layoutObj->newCluster;
             
             layoutObj->changed = false;
-
-            if (layoutObj->currentEnable)
-                ssBuild.addScreenObject(layoutObj->obj);
         }
         
+        
         // Add in the clusters
-        for (auto &cluster : newClusterObjects)
+        for (auto &cluster : clusters)
         {
-            ssBuild.addScreenObject(cluster);
+            // Animate from the old cluster if there is one
+            if (cluster.childOfCluster > -1)
+            {
+                ClusterEntry *oldCluster = NULL;
+                if (cluster.childOfCluster < oldClusters.size())
+                    oldCluster = &oldClusters[cluster.childOfCluster];
+                else {
+                    NSLog(@"Cluster ID mismatch");
+                    continue;
+                }
+                ClusterGenerator::ClusterClassParams &params = oldClusterParams[oldCluster->clusterParamID];
+
+                // Animate from the old cluster to the new one
+                ScreenSpaceObject animObj = cluster.layoutObj;
+                animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+params.markerAnimationTime);
+                animObj.worldLoc = oldCluster->layoutObj.worldLoc;
+                animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
+                animObj.state.progID = params.motionShaderID;
+                for (auto &geom : animObj.geometry)
+                    geom.progID = params.motionShaderID;
+                ssBuild.addScreenObject(animObj);
+
+                // Hold off on adding the new one
+                ScreenSpaceObject shortObj = cluster.layoutObj;
+                shortObj.setEnableTime(curTime+params.markerAnimationTime, curTime+1e10);
+                ssBuild.addScreenObject(shortObj);
+                
+            } else
+                ssBuild.addScreenObject(cluster.layoutObj);
         }
         
         ssBuild.flushChanges(changes, drawIDs);

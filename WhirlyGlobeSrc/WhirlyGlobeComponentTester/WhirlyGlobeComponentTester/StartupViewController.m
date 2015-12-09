@@ -104,6 +104,9 @@
         case Maply2DMap:
             cell.textLabel.text = @"Map (2D)";
             break;
+        case Maply2DBNG:
+            cell.textLabel.text = @"Map (2D) British National Grid";
+            break;
         case Maply3DMap:
             cell.textLabel.text = @"Map (3D)";
             break;

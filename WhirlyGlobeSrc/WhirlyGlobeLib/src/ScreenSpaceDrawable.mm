@@ -77,8 +77,13 @@ void ScreenSpaceDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
 
     if (motion)
     {
-        // Motion requires continuous rendering
-        [renderer addContinuousRenderRequest:getId()];
+        if (startEnable != endEnable)
+        {
+            // Note: This still means we'll render until startEnable
+            [renderer setRenderUntil:endEnable];
+        } else
+            // Motion requires continuous rendering
+            [renderer addContinuousRenderRequest:getId()];
     }
 }
 
