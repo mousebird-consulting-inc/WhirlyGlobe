@@ -98,6 +98,16 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
   */
 @property (nonatomic,assign) bool coverPoles;
 
+/** @brief Color for polygons that make up the north pole.
+    @details If coverPoles is set to true, then this will be the color of the polygons.  If this is not set, we'll pull that color from the textures.
+  */
+@property (nonatomic,nullable) UIColor *northPoleColor;
+
+/** @brief Color for polygons that make up the south pole.
+ @details If coverPoles is set to true, then this will be the color of the polygons.  If this is not set, we'll pull that color from the textures.
+ */
+@property (nonatomic,nullable) UIColor *southPoleColor;
+
 /** @brief Set the minimum viewer height the layer will be visible at.
     @details This is off by default.  When on the layer will not be visible unless the viewer is above this height.
   */

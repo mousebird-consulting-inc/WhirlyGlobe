@@ -196,6 +196,28 @@ using namespace WhirlyKit;
 
 @end
 
+@implementation MaplyProj4CoordSystem
+{
+    Proj4CoordSystem *p4CoordSys;
+}
+
+- (nonnull instancetype)initWithString:(NSString * __nonnull)proj4Str
+{
+    self = [super init];
+    std::string str = [proj4Str cStringUsingEncoding:NSASCIIStringEncoding];
+    p4CoordSys = new Proj4CoordSystem(str);
+    coordSystem = p4CoordSys;
+        
+    return self;
+}
+
+- (bool)valid
+{
+    return p4CoordSys != nil && p4CoordSys->isValid();
+}
+
+@end
+
 MaplyCoordinateSystem *MaplyCoordinateSystemFromEPSG(NSString *crs)
 {
     if ([crs isEqualToString:@"EPSG:3857"])

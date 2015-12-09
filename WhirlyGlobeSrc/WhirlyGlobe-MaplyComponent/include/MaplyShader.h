@@ -29,7 +29,7 @@ typedef NS_ENUM(NSInteger, MaplyShaderAttrType){
 	MaplyShaderAttrTypeFloat,
 	MaplyShaderAttrTypeFloat2,
 	MaplyShaderAttrTypeFloat3,
-	MaplyShaderAttrTypeFloat4,
+	MaplyShaderAttrTypeFloat4
 };
 
 /** @brief The shader is a direct interface to OpenGL ES 2.0 shader language.

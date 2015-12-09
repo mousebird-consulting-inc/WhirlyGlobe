@@ -65,6 +65,7 @@ using namespace Eigen;
     drawable->setDrawPriority(_drawPriority);
     drawable->setVisibleRange(_minVis,_maxVis);
     drawable->setViewerVisibility(_minViewerDist,_maxViewerDist,_viewerCenter);
+    drawable->setProgram(_programID);
 }
 
 - (void)setupBasicDrawableInstance:(WhirlyKit::BasicDrawableInstance *)drawInst
