@@ -236,8 +236,16 @@ using namespace Maply;
         MaplyCoordinate ll,ur;
         [_coordSys getBoundsLL:&ll ur:&ur];
         Point3d ll3d(ll.x,ll.y,0.0),ur3d(ur.x,ur.y,0.0);
+        // May need to scale this to the space we're expecting
+        double scaleFactor = 1.0;
+        if (std::abs(ur.x-ll.x) > 10.0 || std::abs(ur.y-ll.y) > 10.0)
+        {
+            Point3d diff = ur3d - ll3d;
+            scaleFactor = 4.0/std::max(diff.x(),diff.y());
+        }
         Point3d center3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
-        coordAdapter = new GeneralCoordSystemDisplayAdapter([_coordSys getCoordSystem],ll3d,ur3d,center3d);
+        GeneralCoordSystemDisplayAdapter *genCoordAdapter = new GeneralCoordSystemDisplayAdapter([_coordSys getCoordSystem],ll3d,ur3d,center3d,Point3d(scaleFactor,scaleFactor,scaleFactor));
+        coordAdapter = genCoordAdapter;
     } else {
         coordAdapter = new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0));
     }

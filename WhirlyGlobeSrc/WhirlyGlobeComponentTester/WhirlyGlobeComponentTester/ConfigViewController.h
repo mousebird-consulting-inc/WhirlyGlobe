@@ -40,11 +40,13 @@
 // Overlay image layers
 #define kMaplyTestCategoryOverlayLayers @"Overlay layers"
 
-#define kMaplyTestUSGSOrtho @"USGS Ortho (WMS) - Remote"
+#define kMaplyTestUSGSOrtho @"USGS_EROS_Ortho_NAIP"
 #define kMaplyTestOWM @"OpenWeatherMap - Remote"
 #define kMaplyTestForecastIO @"Forecast.IO Snapshot - Remote"
 #define kMaplyTestMapboxStreets @"MapBox Streets Vectors - Remote"
 #define kMaplyMapzenVectors @"Mapzen Vectors - Remote"
+#define kMaplyWindTest @"Wind Particles - Remote"
+#define kMaplyOrdnanceSurveyTest @"British National Grid Test - Local"
 
 // Objects we can display
 #define kMaplyTestCategoryObjects @"Maply Objects"
@@ -63,6 +65,7 @@
 #define kMaplyTestLoftedPoly @"Lofted Polygons"
 #define kMaplyTestQuadMarkers @"Quad Paging Markers"
 #define kMaplyTestMegaMarkers @"Mega Markers"
+#define kMaplyTestMarkerCluster @"Marker Clustering"
 #define kMaplyTestLatLon @"Lon/Lat lines"
 #define kMaplyTestRoads @"SF Roads"
 #define kMaplyTestArcGIS @"ArcGIS Vectors"

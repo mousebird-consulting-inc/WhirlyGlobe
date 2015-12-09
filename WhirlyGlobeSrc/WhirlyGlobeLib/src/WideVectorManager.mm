@@ -295,7 +295,7 @@ public:
         double lenB = 0.0;
         Point3d dirB;
         
-        // Figure out which way the bend goes and calculation intersection points
+        // Figure out which way the bend goes and calculate intersection points
         double t0l,t1l,t0r,t1r;
         bool iPtsValid = false;
         if (pc)
