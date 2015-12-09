@@ -40,9 +40,14 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	private var results = [String:MaplyTestResult]()
 
 	private var testView: UIView?
+	private var testViewBlack: UIView?
 
 	private var configViewC: ConfigViewController?
 	private var popControl: UIPopoverController?
+
+	private var timer = NSTimer()
+	private var seconds = 0
+	private var cancelled = false
 
 	override func viewWillAppear(animated: Bool) {
 		let caches = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as NSString
@@ -62,6 +67,13 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	override func viewDidLoad() {
 		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: "showConfig")
 		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: "runTests")
+
+		let rect = UIScreen.mainScreen().applicationFrame
+		testViewBlack = UIView(frame: CGRectMake(0, 0, rect.width, rect.height))
+		testViewBlack?.backgroundColor = UIColor.blackColor()
+		testViewBlack?.hidden = true
+
+		self.view.addSubview(testViewBlack!)
 
 		configViewC = ConfigViewController(nibName: "ConfigViewController", bundle: nil)
 		configViewC!.loadValues()
@@ -121,7 +133,6 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	}
 
 	private dynamic func showConfig() {
-		
 		if UI_USER_INTERFACE_IDIOM() == .Pad {
 			popControl = UIPopoverController(contentViewController: configViewC!)
 			popControl?.delegate = self
@@ -141,12 +152,19 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		self.title = "Running tests..."
 
 		// use same aspect ratio as results view
+		let rect = UIScreen.mainScreen().applicationFrame
+		self.testViewBlack?.frame = CGRectMake(0, 0, rect.width, rect.height)
+		self.testViewBlack?.hidden = !configViewC!.valueForSection(.Options, row: .ViewTest)
 		self.testView = UIView(frame: CGRectMake(0, 0, 468, 672))
-
+		self.testView?.center = CGPointMake(self.testViewBlack!.frame.size.width  / 2,
+			self.testViewBlack!.frame.size.height / 2)
 		self.testView?.hidden = !configViewC!.valueForSection(.Options, row: .ViewTest)
 		self.testView?.backgroundColor = UIColor.blackColor()
-		self.view.addSubview(self.testView!)
+		self.testViewBlack?.addSubview(self.testView!)
 		self.results.removeAll()
+
+		cancelled = false
+
 		startTests(tests)
 	}
 
@@ -165,22 +183,36 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 				}
 
 				head.resultBlock = { test in
-					if let mapResult = test.mapResult {
-						self.results["\(test.name) - Map"] = mapResult
+					if self.cancelled {
+						self.finishTests()
+					}
+					else {
+						if let mapResult = test.mapResult {
+							self.results["\(test.name) - Map"] = mapResult
+						}
+
+						if let globeResult = test.globeResult {
+							self.results["\(test.name) - Globe"] = globeResult
+						}
+
+						self.startTests(tail)
 					}
 
-					if let globeResult = test.globeResult {
-						self.results["\(test.name) - Globe"] = globeResult
-					}
-
-					self.startTests(tail)
 				}
-				if configViewC!.valueForSection(.Options, row: .ViewTest) {
-					self.title = "Running tests... \(head.name)"
+				if configViewC!.valueForSection(.Options, row: .ViewTest){
+					self.seconds = head.captureDelay
+					self.title = "\(head.name) (\(self.seconds))"
+					self.timer = NSTimer.scheduledTimerWithTimeInterval(1,
+						target: self,
+						selector: "updateTitle:",
+						userInfo: head.name,
+						repeats: true)
+				}
+				else {
+					tableView.reloadData()
 				}
 				head.testView = self.testView;
 				head.start()
-				tableView.reloadData()
 			}
 			else {
 				self.startTests(tail);
@@ -191,19 +223,31 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 	}
 
+	func updateTitle(timer: NSTimer){
+		self.seconds--
+		self.title = "\(timer.userInfo!) (\(self.seconds))"
+		if self.seconds == 0 {
+			self.timer.invalidate()
+		}
+	}
+
 	private func finishTests() {
-		self.testView?.removeFromSuperview()
+		self.testViewBlack?.hidden = true
 		tableView.reloadData()
 
 		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: "runTests")
 
 		self.title = "Tests"
 
-		self.performSegueWithIdentifier("results", sender: self)
+		if !cancelled {
+			self.performSegueWithIdentifier("results", sender: self)
+		}
 	}
 
 	private dynamic func stopTests() {
-		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: "runTests")
+		self.timer.invalidate()
+		self.title = "Cancelling..."
+		cancelled = true
 	}
 
 	private dynamic func editDone() {
@@ -227,7 +271,27 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 			configViewC!.selectAll(.Actions, select: false)
 		}
+	}
 
+	func popoverControllerDidDismissPopover(popoverController: UIPopoverController) {
+		let select: Bool?
+
+		if configViewC!.valueForSection(.Actions, row: .SelectAll) {
+			select = true
+		}
+		else if configViewC!.valueForSection(.Actions, row: .SelectNone) {
+			select = false
+		}
+		else {
+			select = nil
+		}
+
+		if let select = select {
+			tests.forEach { $0.selected = select }
+			tableView.reloadData()
+
+			configViewC!.selectAll(.Actions, select: false)
+		}
 	}
 
 }
