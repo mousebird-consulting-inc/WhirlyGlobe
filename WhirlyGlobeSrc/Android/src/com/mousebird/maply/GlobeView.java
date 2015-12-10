@@ -83,7 +83,14 @@ public class GlobeView extends View
 	{
 		animationDelegate = null;
 
-		control.handleStopMoving(false);
+		control.activity.runOnUiThread(
+				new Runnable() {
+					@Override
+					public void run() {
+						control.handleStopMoving(false);
+					}
+				}
+		);
 	}
 	
 	// Called on the rendering thread right before we render
