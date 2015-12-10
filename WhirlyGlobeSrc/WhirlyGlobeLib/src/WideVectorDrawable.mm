@@ -37,24 +37,34 @@ WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), texRepea
     c0_index = addAttribute(BDFloatType, "a_c0");
 }
     
+unsigned int WideVectorDrawable::addPoint(const Point3f &pt)
+{
+    locPts.push_back(pt);
+    return BasicDrawable::addPoint(pt);
+}
+    
 void WideVectorDrawable::add_P01(const Point3f &dir)
 {
     addAttributeValue(p01_index, dir);
+    p01.push_back(dir);
 }
 
 void WideVectorDrawable::add_n0(const Point3f &dir)
 {
     addAttributeValue(n0_index, dir);
+    n0.push_back(dir);
 }
 
 void WideVectorDrawable::add_t0_limit(float minVal,float maxVal)
 {
     addAttributeValue(t0_limit_index, Point2f(minVal,maxVal));
+    t0_limits.push_back(Point2f(minVal,maxVal));
 }
 
 void WideVectorDrawable::add_c0(float val)
 {
     addAttributeValue(c0_index, val);
+    c0.push_back(val);
 }
 
 void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scene)
@@ -69,16 +79,35 @@ void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scen
         float screenSize = frameInfo.screenSizeInDisplayCoords.x();
 //        float pixDispSize = std::min(frameInfo.screenSizeInDisplayCoords.x(),frameInfo.screenSizeInDisplayCoords.y()) / scale;
 //        frameInfo.program->setUniform("u_scale", 1.f/scale);
-        frameInfo.program->setUniform("u_w2", lineWidth/(2.f*scale));
+        frameInfo.program->setUniform("u_w2", lineWidth/(scale));
 //        frameInfo.program->setUniform("u_pixDispSize", pixDispSize);
 //        frameInfo.program->setUniform("u_lineWidth", lineWidth);
         float texScale = scale/(screenSize*texRepeat);
         frameInfo.program->setUniform("u_texScale", texScale);
         
         // Note: Debugging
-//        u_length = lineWidth/scale;
-//        u_scale = scale;
-//        u_pixDispSize = pixDispSize;
+        // Redo the calculation for debugging
+//        NSLog(@"\n");
+//        for (unsigned int ii=0;ii<locPts.size();ii++)
+//        {
+//            float u_w2 = lineWidth/(2.f*scale);
+//            Point3f a_position = locPts[ii];
+//            Point3f a_p01 = p01[ii];
+//            Point2f a_t0_limit = t0_limits[ii];
+//            Point3f a_n0 = n0[ii];
+//            float a_c0 = c0[ii];
+//            
+//            Vector4f vertPos = frameInfo.mvpMat * Vector4f(a_position.x(),a_position.y(),a_position.z(),1.0);
+//            vertPos /= vertPos.w();
+//            Point2f vertPos2f(vertPos.x(),vertPos.y());
+//            Vector4f screen_p01 = frameInfo.mvpMat * Vector4f(a_p01.x(),a_p01.y(),a_p01.z(),0.0);
+//            Vector4f screen_n0 = frameInfo.mvpMat * Vector4f(a_n0.x(),a_n0.y(),a_n0.z(),0.0);
+//            float t0 = a_c0 * u_w2;
+//            Vector4f calcOff = screen_p01 * t0 + screen_n0 * u_w2;
+//            Point2f finalPos2f = vertPos2f + Point2f(calcOff.x(),calcOff.y());
+//            
+//            NSLog(@"finalPos = (%f,%f)",finalPos2f.x(),finalPos2f.y());
+//        }
     }
     
     BasicDrawable::draw(frameInfo,scene);
@@ -123,7 +152,7 @@ static const char *vertexShaderTri =
 "   float t0 = a_c0 * u_w2;\n"
 "   t0 = clamp(t0,a_t0_limit.x,a_t0_limit.y);\n"
 "   vec2 calcOff = screen_p01 * t0 + screen_n0 * u_w2;\n"
-"   gl_Position = vertPos + vec4(calcOff,0,0);\n"
+"   gl_Position = vertPos + vec4(vertPos.x+calcOff.x,vertPos.y+calcOff.y,0,1.0);\n"
 "}\n"
 ;
 

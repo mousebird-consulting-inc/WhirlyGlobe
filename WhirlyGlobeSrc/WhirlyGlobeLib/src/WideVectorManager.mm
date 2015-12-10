@@ -281,7 +281,7 @@ public:
         for (unsigned int vi=0;vi<3;vi++)
         {
             InterPoint &vert = verts[vi];
-            drawable->addPoint(vert.org);
+            drawable->addPoint(Vector3dToVector3f(vert.org));
             drawable->addNormal(up);
             drawable->add_P01(Vector3dToVector3f(vert.dir));
             // Note: Need these
@@ -429,7 +429,7 @@ public:
                 next_e1 = lPt1.flipped();
             }
         } else {
-            InterPoint endPt(paLocal,pbLocal,norm0);
+            InterPoint endPt(pbLocal,paLocal,norm0);
             corners[2] = endPt;
             corners[3] = endPt.flipped();
         }
@@ -853,7 +853,8 @@ public:
     {
         centerValid = true;
         localCenter = newLocalCenter;
-        dispCenter = newDispCenter;
+        // Note: Debugging
+//        dispCenter = newDispCenter;
     }
     
     // Build or return a suitable drawable (depending on the mode)
