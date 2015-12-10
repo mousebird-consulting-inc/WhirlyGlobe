@@ -286,6 +286,9 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
      */
     public void setEnable(boolean enable)
     {
+        if (layerThread == null)
+            return;
+
         ChangeSet changes = new ChangeSet();
         setEnable(enable,changes);
         layerThread.addChanges(changes);

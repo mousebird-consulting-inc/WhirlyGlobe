@@ -31,9 +31,12 @@ public class GlobeView extends View
 	private GlobeView()
 	{
 	}
-	
-	GlobeView(CoordSystemDisplayAdapter inCoordAdapter)
+
+	GlobeController control = null;
+
+	GlobeView(GlobeController inControl,CoordSystemDisplayAdapter inCoordAdapter)
 	{
+		control = inControl;
 		coordAdapter = inCoordAdapter;
 		initialise(coordAdapter);
 	}
@@ -44,7 +47,7 @@ public class GlobeView extends View
 	 */
 	protected GlobeView clone()
 	{
-		GlobeView that = new GlobeView(coordAdapter);
+		GlobeView that = new GlobeView(control,coordAdapter);
 		nativeClone(that);
 		return that;
 	}
@@ -79,6 +82,8 @@ public class GlobeView extends View
 	@Override public void cancelAnimation() 
 	{
 		animationDelegate = null;
+
+		control.handleStopMoving(false);
 	}
 	
 	// Called on the rendering thread right before we render

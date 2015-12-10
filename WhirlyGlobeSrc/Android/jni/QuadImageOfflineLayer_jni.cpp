@@ -483,7 +483,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setEnable
         QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
         QuadImageOfflineLayerAdapter *adapter = classInfo->getObject(env,obj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        if (!adapter || !changeSet)
+        if (!adapter || !changeSet || !adapter->tileLoader)
             return;
         ChangeSet changes;
         adapter->tileLoader->setOn(enable);
@@ -1019,7 +1019,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_imageRende
         ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
         if (!adapter || !changes)
             return;
-
         adapter->tileLoader->imageRenderToLevel(level,*changes);
     }
     catch (...)

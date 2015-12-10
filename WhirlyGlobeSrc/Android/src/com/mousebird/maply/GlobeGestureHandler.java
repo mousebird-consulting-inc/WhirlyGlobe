@@ -351,49 +351,47 @@ public class GlobeGestureHandler
 	}
 	
 	// Where we receive events from the gl view
-	public boolean onTouch(View v, MotionEvent event) 
-	{
-        boolean slWasActive = sl.isActive;
-        boolean glWasActive = gl.isActive;
+	public boolean onTouch(View v, MotionEvent event) {
+		boolean slWasActive = sl.isActive;
+		boolean glWasActive = gl.isActive;
 
 		// If they're using two fingers, cancel any outstanding pan
 		if (event.getPointerCount() == 2) {
-            gl.isActive = false;
-        }
-		
+			gl.isActive = false;
+		}
+
 		// Try for a pinch or another gesture
-		if (sl.isActive || event.getPointerCount() == 2)
-		{
+		if (sl.isActive || event.getPointerCount() == 2) {
 			sgd.onTouchEvent(event);
 		}
 		if (!sl.isActive || gl.isActive) {
-			if (event.getAction() == MotionEvent.ACTION_UP)
-			{
+			gd.onTouchEvent(event);
+			if (event.getAction() == MotionEvent.ACTION_UP) {
 				gl.isActive = false;
-			} else
-				gd.onTouchEvent(event);
+			}
 		}
-		
-//		if (!sl.isActive && !gl.isActive && !slWasActive)
-//		{
-//			if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP))
-//			{
-//				double newHeight = globeView.getHeight()*2.0;
-//
-//				// Now kick off the animation
-//				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender, globeView.getRotQuat(), newHeight, 0.5));
-//
-//				sl.isActive = false;
-//				gl.isActive = false;
-//
-//				return true;
-//			}
-//		}
 
-        if (!glWasActive && gl.isActive)
-            globeControl.panDidStart(true);
-        if (glWasActive && !gl.isActive)
-            globeControl.panDidEnd(true);
+		if (!sl.isActive && !gl.isActive && !slWasActive)
+		{
+			if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP))
+			{
+				double newHeight = globeView.getHeight()*2.0;
+
+				// Now kick off the animation
+				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender, globeView.getRotQuat(), newHeight, 0.5));
+
+				sl.isActive = false;
+				gl.isActive = false;
+
+				return true;
+			}
+		}
+
+		if (!glWasActive && gl.isActive)
+			globeControl.panDidStart(true);
+		if (glWasActive && !gl.isActive) {
+			globeControl.panDidEnd(true);
+		}
 
         if (!slWasActive && sl.isActive)
             globeControl.zoomDidStart(true);

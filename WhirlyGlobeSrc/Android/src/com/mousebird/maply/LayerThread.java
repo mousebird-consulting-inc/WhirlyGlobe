@@ -225,6 +225,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 */
 	void addChanges(ChangeSet newChanges)
 	{
+		if (changes == null || newChanges == null)
+			return;
+
 		synchronized(changes)
 		{
 			changes.merge(newChanges);

@@ -491,7 +491,7 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
     //        NSLog(@"Rendered %d tiles of %d, depth = %d",numRenderedTiles,(int)tiles.size(),deep);
     
 #if defined(__ANDROID__)
-    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline rendered %d tiles of %d", numRenderedTiles,(int)tiles.size());
+//    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline rendered %d tiles of %d", numRenderedTiles,(int)tiles.size());
 #endif
     
     //        NSLog(@"CenterSize = (%f,%f), texSize = (%d,%d)",image.centerSize.width,image.centerSize.height,(int)texSize.width,(int)texSize.height);
@@ -651,7 +651,7 @@ void QuadTileOfflineLoader::loadedImage(QuadTileImageDataSource *dataSource,Load
     }
 
 #if defined(__ANDROID__)
-    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline loadedImage() %d: (%d,%d) %d", level,col,row,frame);
+//    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline loadedImage() %d: (%d,%d) %d", level,col,row,frame);
 #endif
 
     // Assemble the images

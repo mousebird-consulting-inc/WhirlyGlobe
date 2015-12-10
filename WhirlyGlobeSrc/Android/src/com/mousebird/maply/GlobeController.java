@@ -54,7 +54,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		// Note: Expose the cull tree depth
 		globeScene = new GlobeScene(coordAdapter,1);
 		scene = globeScene;
-		globeView = new GlobeView(coordAdapter);		
+		globeView = new GlobeView(this,coordAdapter);
 		view = globeView;
 		
 		super.Init();
