@@ -334,6 +334,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	 */
 	public void setEnable(boolean enable)
 	{
+		if (layerThread == null)
+			return;
+
 		ChangeSet changes = new ChangeSet();
 		setEnable(enable,changes);
 		layerThread.addChanges(changes);
@@ -521,7 +524,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		int numFrames = getImageDepth();
 		ArrayList<FrameLoadStatus> frames = new ArrayList<FrameLoadStatus>();
 		if (numFrames > 0)
-		{		
+		{
 			boolean[] complete = new boolean[numFrames];
 			boolean[] currentFrame = new boolean[numFrames];
 			int[] numTilesLoaded = new int[numFrames];

@@ -630,7 +630,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setEnable
 		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
 		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-		if (!adapter || !changeSet)
+		if (!adapter || !changeSet || !adapter->tileLoader)
 			return;
 		ChangeSet changes;
 		adapter->tileLoader->setEnable(enable,*changeSet);
