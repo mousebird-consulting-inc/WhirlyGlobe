@@ -313,9 +313,9 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
     if (outSizeX == 0 || outSizeY == 0)
         return;
     
-    // Note: Debugging
-    outSizeX = 512;  outSizeY = 512;
-    
+    outSizeX = NextPowOf2(outSizeX);
+    outSizeY = outSizeX;
+
     // Set up an OpenGL render buffer to draw to
     GLuint frameBuf;
     glGenFramebuffers(1, &frameBuf);
