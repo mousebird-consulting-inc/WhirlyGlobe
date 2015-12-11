@@ -237,7 +237,7 @@ public:
         for (unsigned int vi=0;vi<4;vi++)
         {
             InterPoint &vert = verts[vi];
-            drawable->addPoint(Vector3dToVector3f(vert.org-dispCenter));
+            drawable->addPoint(Vector3dToVector3f(vert.org));
             drawable->addNormal(up);
             drawable->add_P01(Vector3dToVector3f(vert.dir));
             drawable->add_t0_limit(0.0, 1.0);
@@ -853,8 +853,7 @@ public:
     {
         centerValid = true;
         localCenter = newLocalCenter;
-        // Note: Debugging
-//        dispCenter = newDispCenter;
+        dispCenter = newDispCenter;
     }
     
     // Build or return a suitable drawable (depending on the mode)
