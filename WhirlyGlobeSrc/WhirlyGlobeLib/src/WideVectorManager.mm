@@ -392,9 +392,6 @@ public:
                 if (intersectWideLines(paLocal, pbLocal, pcLocal, norm0, norm1, rPt0, rPt1) &&
                     intersectWideLines(paLocal, pbLocal, pcLocal, revNorm0, revNorm1, lPt0, lPt1))
                     iPtsValid = true;
-            
-            // Note: Debugging
-            iPtsValid = false;
         }
         
         // Note: Test
@@ -411,7 +408,14 @@ public:
         corners[0] = e0;
         corners[1] = e1;
         InterPoint next_e0,next_e1;
+        
+        // End points of the segments
+        InterPoint endPt0(pbLocal,paLocal,norm0);
+        InterPoint endPt1;
+        if (pc)
+            endPt1 = InterPoint(pbLocal,pcLocal,norm1);
 
+        // Set up the segment points
         if (iPtsValid)
         {
             // Bending right
@@ -429,9 +433,8 @@ public:
                 next_e1 = lPt1.flipped();
             }
         } else {
-            InterPoint endPt(pbLocal,paLocal,norm0);
-            corners[2] = endPt;
-            corners[3] = endPt.flipped();
+            corners[2] = endPt0;
+            corners[3] = endPt0.flipped();
         }
         
         texCoords[0] = TexCoord(0.0,texOffset);
@@ -442,6 +445,28 @@ public:
         // Add the rectangles
         // Note: Do real world coordinates
         addWideRect(wideDrawable, corners, texCoords, up);
+        
+        // Do the join polygons if we can
+        // Note: Always doing bevel case (sort of)
+        if (iPtsValid)
+        {
+            // Bending right
+            if (rPt0.c > 0.0)
+            {
+                
+            } else {
+                // Bending left
+                InterPoint triVerts[3];
+                triVerts[0] = lPt0;
+                triVerts[1] = lPt0.flipped();
+                triVerts[2] = endPt0;
+                TexCoord triTex[3];
+                triTex[0] = TexCoord(0.0,0.0);
+                triTex[1] = TexCoord(1.0,0.0);
+                triTex[2] = TexCoord(1.0,1.0);
+                addWideTri(wideDrawable,triVerts,triTex,up);
+            }
+        }
         
         e0 = next_e0;
         e1 = next_e1;
