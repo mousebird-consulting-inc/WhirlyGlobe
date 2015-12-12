@@ -464,6 +464,10 @@
 		D84433E71C14A46200A52117 /* NASAGIBSTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84433E61C14A46100A52117 /* NASAGIBSTestCase.swift */; };
 		D84433EB1C14E4E700A52117 /* CartoDBTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D84433EA1C14E4E700A52117 /* CartoDBTestCase.m */; };
 		D84433EE1C14E4FE00A52117 /* CartoDBLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D84433ED1C14E4FE00A52117 /* CartoDBLayer.m */; };
+		D84AA5941C1A1C9700413B76 /* BNGCustomMapTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84AA5931C1A1C9700413B76 /* BNGCustomMapTestCase.swift */; };
+		D84AA5971C1A26C100413B76 /* OSTN02_NTv2.gsb in Resources */ = {isa = PBXBuildFile; fileRef = D84AA5961C1A26C100413B76 /* OSTN02_NTv2.gsb */; };
+		D84AA5991C1A2B9800413B76 /* BNGTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84AA5981C1A2B9800413B76 /* BNGTestCase.swift */; };
+		D84AA59C1C1A2E9900413B76 /* ElevationLocalDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = D84AA59B1C1A2E9900413B76 /* ElevationLocalDatabase.m */; };
 		D880112F1BFD16A900606EC6 /* DropboxViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D880112D1BFD16A900606EC6 /* DropboxViewController.swift */; };
 		D88011301BFD16A900606EC6 /* DropboxViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D880112E1BFD16A900606EC6 /* DropboxViewController.xib */; };
 		D882B8361C07BA2500649BE9 /* styles.css in Resources */ = {isa = PBXBuildFile; fileRef = D882B8351C07BA2500649BE9 /* styles.css */; };
@@ -966,6 +970,11 @@
 		D84433EA1C14E4E700A52117 /* CartoDBTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CartoDBTestCase.m; sourceTree = "<group>"; };
 		D84433EC1C14E4FE00A52117 /* CartoDBLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CartoDBLayer.h; sourceTree = "<group>"; };
 		D84433ED1C14E4FE00A52117 /* CartoDBLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CartoDBLayer.m; sourceTree = "<group>"; };
+		D84AA5931C1A1C9700413B76 /* BNGCustomMapTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BNGCustomMapTestCase.swift; sourceTree = "<group>"; };
+		D84AA5961C1A26C100413B76 /* OSTN02_NTv2.gsb */ = {isa = PBXFileReference; lastKnownFileType = file; name = OSTN02_NTv2.gsb; path = AutoTester/OSTN02_NTv2.gsb; sourceTree = "<group>"; };
+		D84AA5981C1A2B9800413B76 /* BNGTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BNGTestCase.swift; sourceTree = "<group>"; };
+		D84AA59A1C1A2E9900413B76 /* ElevationLocalDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevationLocalDatabase.h; sourceTree = "<group>"; };
+		D84AA59B1C1A2E9900413B76 /* ElevationLocalDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ElevationLocalDatabase.m; sourceTree = "<group>"; };
 		D880112D1BFD16A900606EC6 /* DropboxViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DropboxViewController.swift; sourceTree = "<group>"; };
 		D880112E1BFD16A900606EC6 /* DropboxViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DropboxViewController.xib; sourceTree = "<group>"; };
 		D882B8351C07BA2500649BE9 /* styles.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; name = styles.css; path = AutoTester/styles.css; sourceTree = "<group>"; };
@@ -1079,9 +1088,15 @@
 			isa = PBXGroup;
 			children = (
 				D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */,
+				D84AA5931C1A1C9700413B76 /* BNGCustomMapTestCase.swift */,
+				D84AA5981C1A2B9800413B76 /* BNGTestCase.swift */,
+				D84433E91C14E4E700A52117 /* CartoDBTestCase.h */,
+				D84433EA1C14E4E700A52117 /* CartoDBTestCase.m */,
 				D8DCCCAA1BDC1A1200BA3866 /* CesiumElevationTestCase.h */,
 				D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */,
 				D8228AA71BE786BE001D6914 /* ClusteredMarkersTestCase.swift */,
+				D84AA59A1C1A2E9900413B76 /* ElevationLocalDatabase.h */,
+				D84AA59B1C1A2E9900413B76 /* ElevationLocalDatabase.m */,
 				88BF115B1BCDA9530002205E /* GeographyClassTestCase.h */,
 				88BF115C1BCDA9530002205E /* GeographyClassTestCase.m */,
 				D8F2FE251BE7BD630058A310 /* LabelsTestCase.h */,
@@ -1099,6 +1114,7 @@
 				D8228A911BE77816001D6914 /* MovingScreenLabelsTestCase.swift */,
 				D8228AA41BE785E1001D6914 /* MovingScreenMarkers.h */,
 				D8228AA51BE785E1001D6914 /* MovingScreenMarkers.m */,
+				D84433E61C14A46100A52117 /* NASAGIBSTestCase.swift */,
 				D8341A721BE2DFE100411A46 /* ScreenLabelsTestCase.swift */,
 				D8341A741BE2E89E00411A46 /* ScreenMarkersTestCase.h */,
 				D8341A751BE2E89E00411A46 /* ScreenMarkersTestCase.m */,
@@ -1111,9 +1127,6 @@
 				D8341A701BE2C8D200411A46 /* VectorsTestCase.m */,
 				D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */,
 				D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */,
-				D84433E61C14A46100A52117 /* NASAGIBSTestCase.swift */,
-				D84433E91C14E4E700A52117 /* CartoDBTestCase.h */,
-				D84433EA1C14E4E700A52117 /* CartoDBTestCase.m */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -1181,6 +1194,7 @@
 		88FF5BDF1BC31D3C002F15CE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				D84AA5961C1A26C100413B76 /* OSTN02_NTv2.gsb */,
 				D8F53BD61C0275A1004854D6 /* Dropbox Files */,
 				888943331BD6EE1A00C39A66 /* baselines */,
 				88FF5CF41BC31D94002F15CE /* country_json_50m */,
@@ -2103,6 +2117,7 @@
 				88FF5CDD1BC31D6D002F15CE /* telephone-24@2x.png in Resources */,
 				881DD7741BEB6A7D00FA8509 /* ModelsTestCase-globe.png in Resources */,
 				88FF5E231BC31D95002F15CE /* COD.geojson in Resources */,
+				D84AA5971C1A26C100413B76 /* OSTN02_NTv2.gsb in Resources */,
 				88FF5CC11BC31D6D002F15CE /* pharmacy-24@2x.png in Resources */,
 				88FF5EA31BC31D95002F15CE /* PCN.geojson in Resources */,
 				88FF5ED21BC31D95002F15CE /* TKM.geojson in Resources */,
@@ -2261,12 +2276,15 @@
 				D8E12ECD1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift in Sources */,
 				D84433EE1C14E4FE00A52117 /* CartoDBLayer.m in Sources */,
 				886FCCC31BA73C1D00494BB0 /* StartupViewController.swift in Sources */,
+				D84AA5941C1A1C9700413B76 /* BNGCustomMapTestCase.swift in Sources */,
 				88BF11571BCDA1BB0002205E /* ResultsViewController.swift in Sources */,
+				D84AA5991C1A2B9800413B76 /* BNGTestCase.swift in Sources */,
 				D8DCCC9F1BDB89A900BA3866 /* FullScreenViewController.swift in Sources */,
 				88BF115F1BCDA9730002205E /* StamenWatercolorRemote.swift in Sources */,
 				886FCCCD1BA74D1200494BB0 /* ConfigViewController.swift in Sources */,
 				D84433E71C14A46200A52117 /* NASAGIBSTestCase.swift in Sources */,
 				D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.m in Sources */,
+				D84AA59C1C1A2E9900413B76 /* ElevationLocalDatabase.m in Sources */,
 				D8200CA11BE9563F00B22CF5 /* StickersTestCase.swift in Sources */,
 				88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */,
 				88E4B8C51B83B6AB0050D21B /* AppDelegate.swift in Sources */,

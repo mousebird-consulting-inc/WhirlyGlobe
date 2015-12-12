@@ -18,18 +18,17 @@
 - (instancetype)init
 {
 	if (self = [super init]) {
-		self.captureDelay = 8;
+		self.captureDelay = 7;
 		self.name = @"CartoDB";
 	}
 	return self;
 }
 
-
 - (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-	[self setupBaseLayer:(MaplyBaseViewController *) globeVC];
-	[self setupCartoDBLayer:(MaplyBaseViewController *) globeVC];
-	globeVC.height = 0.0002;
+	[self setupBaseLayer: globeVC];
+	[self setupCartoDBLayer: globeVC];
+	globeVC.height = 0.0001;
 	[globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-73.99,40.75)
 							 time:1.0];
 
@@ -39,8 +38,8 @@
 
 - (BOOL)setUpWithMap:(MaplyViewController *)mapVC
 {
-	[self setupBaseLayer:(MaplyBaseViewController *) mapVC];
-	[self setupCartoDBLayer:(MaplyBaseViewController *) mapVC];
+	[self setupBaseLayer: mapVC];
+	[self setupCartoDBLayer: mapVC];
 	mapVC.height = 0.0002;
 	[mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-73.99,40.75)
 						  time:1.0];
