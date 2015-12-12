@@ -87,13 +87,18 @@ class ConfigViewController: UIViewController, UITableViewDataSource, UITableView
 
 	func loadValues() {
 		values.removeAll(keepCapacity: true)
+		let ud = NSUserDefaults.standardUserDefaults()
+
+		let runGlobeValue = (ud.stringForKey(ConfigSection.Row.RunGlobe.rawValue) ?? "y") == "y"
+		let runMapValue = (ud.stringForKey(ConfigSection.Row.RunMap.rawValue) ?? "y") == "y"
+		let viewTestValue = (ud.stringForKey(ConfigSection.Row.ViewTest.rawValue) ?? "y") == "y"
 
 		let optionsSection = ConfigSection(
 			section: .Options,
 			rows: [
-				.RunGlobe: true,
-				.RunMap: true,
-				.ViewTest: false
+				.RunGlobe: runGlobeValue,
+				.RunMap: runMapValue,
+				.ViewTest: viewTestValue
 			],
 			singleSelect: false)
 
@@ -193,7 +198,9 @@ class ConfigViewController: UIViewController, UITableViewDataSource, UITableView
 			section.rows[key] = true
 		}
 		else {
-			section.rows[key] = !selected
+			let newState = !selected
+			section.rows[key] = newState
+			NSUserDefaults.standardUserDefaults().setObject(newState ? "y" : "n", forKey: key.rawValue)
 		}
 		tableView.reloadData()
 	}
