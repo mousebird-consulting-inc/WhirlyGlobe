@@ -32,7 +32,10 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		StickersTestCase(),
 		LoftedPolysTestCase(),
 		NASAGIBSTestCase(),
-		CartoDBTestCase()
+		CartoDBTestCase(),
+		BNGCustomMapTestCase(),
+		BNGTestCase(),
+		ElevationLocalDatabase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
