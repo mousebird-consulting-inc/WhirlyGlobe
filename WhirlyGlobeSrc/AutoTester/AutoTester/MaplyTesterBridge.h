@@ -27,5 +27,7 @@
 #import "ShapesTestCase.h"
 #import "LoftedPolysTestCase.h"
 #import "CartoDBTestCase.h"
+#import "ElevationLocalDatabase.h"
+
 
 #endif
