@@ -255,28 +255,14 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 	private dynamic func editDone() {
 		self.navigationController?.popToViewController(self, animated: true)
-
-		let select: Bool?
-
-		if configViewC!.valueForSection(.Actions, row: .SelectAll) {
-			select = true
-		}
-		else if configViewC!.valueForSection(.Actions, row: .SelectNone) {
-			select = false
-		}
-		else {
-			select = nil
-		}
-
-		if let select = select {
-			tests.forEach { $0.selected = select }
-			tableView.reloadData()
-
-			configViewC!.selectAll(.Actions, select: false)
-		}
+		changeSettings()
 	}
 
 	func popoverControllerDidDismissPopover(popoverController: UIPopoverController) {
+		changeSettings()
+	}
+
+	func changeSettings() {
 		let select: Bool?
 
 		if configViewC!.valueForSection(.Actions, row: .SelectAll) {
@@ -290,7 +276,9 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 
 		if let select = select {
-			tests.forEach { $0.selected = select }
+			tests.forEach {
+				$0.selected = select
+			}
 			tableView.reloadData()
 
 			configViewC!.selectAll(.Actions, select: false)
