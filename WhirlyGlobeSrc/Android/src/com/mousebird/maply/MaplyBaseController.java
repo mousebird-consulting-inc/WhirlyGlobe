@@ -5,6 +5,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Handler;
@@ -314,6 +315,17 @@ public class MaplyBaseController
 		vecManager = null;
 				
 		renderWrapper = null;
+	}
+
+	/**
+	 * Set the color for the OpenGL ES background.
+     */
+	public void setClearColor(int color)
+	{
+		if (renderWrapper == null)
+			return;
+
+		renderWrapper.maplyRender.setClearColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
 	}
 
 	/**
