@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <MaplyCoordinate.h>
+#import "MaplyCoordinate.h"
 #import "MaplyScreenMarker.h"
 #import "MaplyVectorObject.h"
 #import "MaplyViewTracker.h"
