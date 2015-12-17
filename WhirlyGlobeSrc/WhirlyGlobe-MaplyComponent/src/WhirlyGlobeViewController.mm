@@ -213,13 +213,14 @@ using namespace WhirlyGlobe;
     [super loadSetup];
     
     // Wire up the gesture recognizers
-    panDelegate = [PanDelegateFixed panDelegateForView:glView globeView:globeView];
+    panDelegate = [PanDelegateFixed panDelegateForView:glView globeView:globeView useCustomPanRecognizer:self.inScrollView];
     tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:glView globeView:globeView];
     // These will activate the appropriate gesture
+    self.panGesture = true;
     self.pinchGesture = true;
     self.rotateGesture = true;
     self.tiltGesture = false;
-        
+
     self.selection = true;
     
     if(_doubleTapZoomGesture)
@@ -368,6 +369,18 @@ using namespace WhirlyGlobe;
 {
     return panDelegate.northUp;
 }
+
+- (bool)panGesture
+{
+    return panDelegate.gestureRecognizer.enabled;
+}
+
+
+- (void)setPanGesture:(bool)enabled
+{
+    panDelegate.gestureRecognizer.enabled = enabled;
+}
+
 
 - (void)setPinchGesture:(bool)pinchGesture
 {
@@ -1355,6 +1368,12 @@ using namespace WhirlyGlobe;
     
     return nil;
 }
+
+- (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *)other {
+    if (panDelegate && panDelegate.gestureRecognizer)
+        [other requireGestureRecognizerToFail:panDelegate.gestureRecognizer];
+}
+
 
 #pragma mark - WhirlyGlobeAnimationDelegate
 

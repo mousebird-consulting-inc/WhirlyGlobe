@@ -150,6 +150,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     
     PerformanceMode perfMode;
   id <UIViewControllerPreviewing> previewingContext;
+
+    UIScrollView *scrollView;
 }
 
 // Change what we're showing based on the Configuration
@@ -218,8 +220,10 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     {
         case MaplyGlobe:
         case MaplyGlobeWithElevation:
+        case MaplyGlobeScrollView:
             globeViewC = [[WhirlyGlobeViewController alloc] init];
             globeViewC.delegate = self;
+            globeViewC.inScrollView = (startupMapType == MaplyGlobeScrollView);
             baseViewC = globeViewC;
             maxLayerTiles = 128;
             // Per level tesselation control
@@ -260,8 +264,36 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         default:
             break;
     }
-    [self.view addSubview:baseViewC.view];
-    baseViewC.view.frame = self.view.bounds;
+
+    if (startupMapType != MaplyGlobeScrollView) {
+        [self.view addSubview:baseViewC.view];
+        baseViewC.view.frame = self.view.bounds;
+    } else {
+        float visHeight = self.view.frame.size.height;
+
+        scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, visHeight)];
+
+        scrollView.scrollEnabled = NO;
+        scrollView.clipsToBounds = YES;
+        scrollView.pagingEnabled = YES;
+        scrollView.showsHorizontalScrollIndicator = NO;
+        scrollView.showsVerticalScrollIndicator = NO;
+        scrollView.delaysContentTouches = YES;
+        scrollView.canCancelContentTouches = NO;
+
+        [scrollView addSubview:baseViewC.view];
+
+        UIView *secondView = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width, 0, self.view.frame.size.width, visHeight)];
+        secondView.backgroundColor = [UIColor redColor];
+
+        [scrollView addSubview:secondView];
+
+        scrollView.contentSize = CGSizeMake(self.view.frame.size.width*2, visHeight);
+
+        [self.view addSubview:scrollView];
+        baseViewC.view.frame = CGRectMake(0, 0, self.view.frame.size.width, visHeight);
+    }
+
     [self addChildViewController:baseViewC];
     
     // Note: Debugging
@@ -413,6 +445,17 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     [self addGeoJson:@"sawtooth.geojson"];
   
     [baseViewC enable3dTouchSelection:self];
+
+    if (startupMapType == MaplyGlobeScrollView) {
+        for (NSNumber *dirNum in @[@(UISwipeGestureRecognizerDirectionLeft), @(UISwipeGestureRecognizerDirectionRight)]) {
+
+            UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(didSwipeScreen:)];
+            swipe.direction = dirNum.intValue;
+            swipe.delaysTouchesBegan = TRUE;
+            [scrollView addGestureRecognizer:swipe];
+            [globeViewC requirePanGestureRecognizerToFailForGesture:swipe];
+        }
+    }
 }
 
 - (void)billboardTest
@@ -731,7 +774,10 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         [baseViewC.view removeFromSuperview];
         [baseViewC removeFromParentViewController];
         baseViewC = nil;
+        mapViewC = nil;
+        globeViewC = nil;
     }
+
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -2477,12 +2523,14 @@ static const float MarkerSpread = 2.0;
     if (globeViewC)
     {
         globeViewC.keepNorthUp = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestNorthUp];
+        globeViewC.panGesture = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestPan];
         globeViewC.pinchGesture = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestPinch];
         globeViewC.rotateGesture = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestRotate];
     } else {
         if([configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestNorthUp]) {
             mapViewC.heading = 0;
         }
+        mapViewC.panGesture = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestPan];
         mapViewC.pinchGesture = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestPinch];
         mapViewC.rotateGesture = [configViewC valueForSection:kMaplyTestCategoryGestures row:kMaplyTestRotate];
     }
@@ -2833,5 +2881,18 @@ static const float MarkerSpread = 2.0;
   [self showViewController:previewViewC sender:self];
 }
 
+- (void)didSwipeScreen:(UISwipeGestureRecognizer *)gesture
+{
+    if (gesture.direction == UISwipeGestureRecognizerDirectionUp || gesture.direction == UISwipeGestureRecognizerDirectionDown)
+        return;
+
+    CGRect frame = scrollView.frame;
+    if (gesture.direction == UISwipeGestureRecognizerDirectionLeft)
+        frame.origin.x = frame.size.width;
+    else
+        frame.origin.x = 0.0;
+    frame.origin.y = 0;
+    [scrollView scrollRectToVisible:frame animated:YES];
+}
 
 @end
