@@ -19,6 +19,7 @@
  */
 
 #import "PanDelegateFixed.h"
+#import <UIKit/UIGestureRecognizerSubclass.h>
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -26,6 +27,26 @@ using namespace WhirlyGlobe;
 
 // Kind of panning we're in the middle of
 typedef enum {PanNone,PanFree,PanSuspended} PanningType;
+
+@implementation MinDelayPanGestureRecognizer
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    startTime = CFAbsoluteTimeGetCurrent();
+    [super touchesBegan:touches withEvent:event];
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (CFAbsoluteTimeGetCurrent() - startTime >= kPanDelegateMinTime)
+        [super touchesEnded:touches withEvent:event];
+    else
+        self.state = UIGestureRecognizerStateFailed;
+}
+
+- (void)forceEnd {
+    self.state = UIGestureRecognizerStateEnded;
+}
+
+@end
 
 @implementation PanDelegateFixed
 {
@@ -63,10 +84,14 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 }
 
 
-+ (PanDelegateFixed *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
++ (PanDelegateFixed *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView useCustomPanRecognizer:(bool)useCustomPanRecognizer
 {
 	PanDelegateFixed *panDelegate = [[PanDelegateFixed alloc] initWithGlobeView:globeView];
-    UIPanGestureRecognizer *panRecog = [[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
+    UIPanGestureRecognizer *panRecog;
+    if (useCustomPanRecognizer)
+        panRecog = [[MinDelayPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
+    else
+        panRecog = [[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
     panRecog.delegate = panDelegate;
     panDelegate.gestureRecognizer = panRecog;
 	[view addGestureRecognizer:panRecog];
@@ -130,13 +155,22 @@ static const float MomentumAnimLen = 1.0;
         return;
     }
 
-    // Cancel for more than one finger
+    // End for more than one finger
     if ([pan numberOfTouches] > 1)
     {
         panType = PanSuspended;
         runEndMomentum = false;
-        _gestureRecognizer.enabled = false;
-        _gestureRecognizer.enabled = true;
+
+        if ([_gestureRecognizer isKindOfClass:[MinDelayPanGestureRecognizer class]]) {
+            // Don't cancel if interoperating with a scroll view.  (Otherwise
+            // the globe view would be paged away.)
+            MinDelayPanGestureRecognizer *minDelayPanGestureRecognizer = (MinDelayPanGestureRecognizer *)_gestureRecognizer;
+            [minDelayPanGestureRecognizer forceEnd];
+        } else {
+            // Cancel gesture
+            _gestureRecognizer.enabled = false;
+            _gestureRecognizer.enabled = true;
+        }
         return;
     }
 	    
@@ -148,6 +182,15 @@ static const float MomentumAnimLen = 1.0;
             runEndMomentum = true;
             
             [self startRotateManipulation:pan sceneRender:sceneRender glView:glView];
+
+            // Cancel gesture if touched within globe view but outside of the globe itself.
+            // When interoperating with a scroll view, this allows a horizontal pan gesture
+            // to be interpreted as a swipe, and thus trigger paging the scroll view.
+            if (panType == PanNone) {
+                self.gestureRecognizer.enabled = NO;
+                self.gestureRecognizer.enabled = YES;
+                return;
+            }
             [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidStart object:view];
 		}
 			break;

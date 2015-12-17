@@ -80,6 +80,7 @@
 #define kMaplyTestCategoryGestures @"Gestures"
 
 #define kMaplyTestNorthUp @"Keep North Up"
+#define kMaplyTestPan @"Pan Gesture"
 #define kMaplyTestPinch @"Pinch Gesture"
 #define kMaplyTestRotate @"Rotate Gesture"
 
