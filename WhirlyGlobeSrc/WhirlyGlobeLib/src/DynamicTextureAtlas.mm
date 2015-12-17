@@ -213,6 +213,9 @@ void DynamicTexture::addTextureData(int startX,int startY,int width,int height,N
     
 void DynamicTexture::clearTextureData(int startX,int startY,int width,int height)
 {
+    if (!clearTextures)
+        return;
+    
     glBindTexture(GL_TEXTURE_2D, glId);
     
     if (compressed)
@@ -225,7 +228,7 @@ void DynamicTexture::clearTextureData(int startX,int startY,int width,int height
 //            NSLog(@"Compressed texture doesn't match atlas.");
 //        else
 //            glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, thisWidth, thisHeight, pkmType, (GLsizei)size, pixData);
-    } else if (clearTextures) {
+    } else {
         std::vector<unsigned char> emptyPixels(width*height*4,0);
         glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, emptyPixels.data());
     }
