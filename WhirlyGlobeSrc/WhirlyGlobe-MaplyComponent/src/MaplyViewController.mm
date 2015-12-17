@@ -815,6 +815,21 @@ using namespace Maply;
         if (mapView.heightAboveSurface > maxHeight)
             mapView.loc = Point3d(loc.x(),loc.y(),maxHeight);
     }
+    if(twoFingerTapDelegate)
+    {
+        twoFingerTapDelegate.minZoom = minHeight;
+        twoFingerTapDelegate.maxZoom = maxHeight;
+    }
+    if(doubleTapDelegate)
+    {
+        doubleTapDelegate.minZoom = minHeight;
+        doubleTapDelegate.maxZoom = maxHeight;
+    }
+    if(doubleTapDragDelegate)
+    {
+        doubleTapDragDelegate.minZoom = minHeight;
+        doubleTapDragDelegate.maxZoom = maxHeight;
+    }
 }
 
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
