@@ -203,6 +203,11 @@
   */
 @property(nonatomic,assign) bool keepNorthUp;
 
+/** @brief Turn the pan gesture recognizer on and off
+ @details On by default.
+ */
+@property(nonatomic,assign) bool panGesture;
+
 /** @brief Turn the pinch (zoom) gesture recognizer on and off
     @details On by default.
  */
@@ -232,6 +237,16 @@
  @details On by default.
  */
 @property(nonatomic,assign) bool doubleTapDragGesture;
+
+/** @brief If set, we use a modified pan gesture recognizer to play nice
+        with the scroll view.  For the UIScrollView object, set clipsToBounds,
+        pagingEnabled, and delaysContentTouches to YES, and set scrollEnabled
+        and canCancelContentTouches to NO.  Add swipe gesture recognizers
+        to the scroll view to control paging, and call
+        requirePanGestureRecognizerToFailForGesture: for each.
+ @details Off by default.
+ */
+@property(nonatomic,assign) bool inScrollView;
 
 
 /** @brief If set, we'll automatically move to wherever the user tapped.
@@ -488,5 +503,15 @@
  @param visualBoxes If set, we'll build bounding boxes you can display.  If not set, we'll build a single bounding box usable for math.
   */
 - (int)getUsableGeoBoundsForView:(MaplyBoundingBox *__nonnull)bboxes visual:(bool)visualBoxes;
+
+/**
+ @brief Make a gesture recognizer's success depend on the pan gesture
+      recognizer's failure.
+ @details When using the globe view within a scroll view, add swipe gesture
+      recognizers to the scroll view to control paging, and call this method
+      for each.  See also the inScrollView property and its comment.
+ @param other The other, subordinate gesture recognizer.
+ */
+- (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *__nullable)other;
 
 @end

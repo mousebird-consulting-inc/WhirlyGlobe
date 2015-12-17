@@ -26,13 +26,26 @@
 // Sent out when the pan delegate finished (but hands off to momentum)
 #define kPanDelegateDidEnd @"WKPanDelegateEnded"
 
+#define kPanDelegateMinTime 0.1
+
+// Custom pan gesture recognizer that plays well with scroll views.
+@interface MinDelayPanGestureRecognizer : UIPanGestureRecognizer {
+    // time of start of gesture
+    CFTimeInterval startTime;
+}
+
+- (void)forceEnd;
+
+@end
+
+
 // Version of pan delegate specific to this app
 // The pan delegate handles panning and rotates the globe accordingly
 @interface PanDelegateFixed : NSObject<UIGestureRecognizerDelegate> 
 
 @property(nonatomic,assign) bool northUp;
 
-+ (PanDelegateFixed *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
++ (PanDelegateFixed *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView useCustomPanRecognizer:(bool)useCustomPanRecognizer;
 
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 
