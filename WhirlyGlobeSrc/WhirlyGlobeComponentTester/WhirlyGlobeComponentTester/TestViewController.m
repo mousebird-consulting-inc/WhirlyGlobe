@@ -209,8 +209,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     configViewC = [[ConfigViewController alloc] initWithNibName:@"ConfigViewController" bundle:nil];
     configViewC.configOptions = ConfigOptionsAll;
     
-    // Note: Debugging British National Grid
-    bool bngTest = true;
+    bool bngTest = false;
 
     // Create an empty globe or map controller
     zoomLimit = 0;
@@ -2024,13 +2023,32 @@ static const float MarkerSpread = 2.0;
                 [self fetchWMSLayer:@"http://raster.nationalmap.gov/arcgis/services/Orthoimagery/USGS_EROS_Ortho_NAIP/ImageServer/WMSServer" layer:@"0" style:nil cacheDir:thisCacheDir ovlName:layerName];
             } else if (![layerName compare:kMaplyTestOWM])
             {
-                MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.openweathermap.org/map/precipitation/" ext:@"png" minZoom:0 maxZoom:6];
-                tileSource.cacheDir = [NSString stringWithFormat:@"%@/openweathermap_precipitation/",cacheDir];
+                NSString *weatherDataType = @"surface_pressure";
+
+                // Spherical mercator tile sets
+//                NSString *coordSysStr = @"mercator";
+//                MaplyCoordinateSystem *coordSys = [[MaplySphericalMercator alloc] initWebStandard];
+//                NSString *baseURL = @"http://weather.openportguide.de/demo";
+
+                // Plate Carree tile sets
+                NSString *coordSysStr = @"geo";
+                MaplyBoundingBox geobbox;
+                geobbox.ll = MaplyCoordinateMakeWithDegrees(-180, -180);
+                geobbox.ur = MaplyCoordinateMakeWithDegrees(180, 90);
+                MaplyCoordinateSystem *coordSys = [[MaplyPlateCarree alloc] initWithBoundingBox:geobbox];
+                NSString *baseURL = @"http://weather.openportguide.com/tiles/actual/";
+
+                NSString *urlStr = [NSString stringWithFormat:@"%@/%@/5/{z}/{x}/{y}",baseURL,weatherDataType];
+                MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:urlStr ext:@"png" minZoom:1 maxZoom:7];
+                tileSource.coordSys = coordSys;
+                tileSource.cacheDir = [NSString stringWithFormat:@"%@/%@_%@/",cacheDir,weatherDataType,coordSysStr];
                 tileSource.tileInfo.cachedFileLifetime = 3 * 60 * 60; // invalidate OWM data after three hours
                 MaplyQuadImageTilesLayer *weatherLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
                 weatherLayer.coverPoles = false;
+                weatherLayer.drawPriority = BaseEarthPriority+200;
                 layer = weatherLayer;
                 weatherLayer.handleEdges = false;
+                weatherLayer.flipY = true;
                 [baseViewC addLayer:weatherLayer];
                 ovlLayers[layerName] = layer;
             } else if (![layerName compare:kMaplyTestForecastIO])
