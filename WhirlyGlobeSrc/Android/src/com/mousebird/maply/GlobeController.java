@@ -326,6 +326,8 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		{
 			Matrix4d globeTransform = globeView.calcModelViewMatrix();
 			Point3d loc = globeView.pointOnSphereFromScreen(screenLoc, globeTransform, renderWrapper.maplyRender.frameSize, false);
+			if (loc == null)
+				return;
 
 			// Look for a selection first
 			long selectID = selectionManager.pickObject(globeView, screenLoc);

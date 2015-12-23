@@ -48,13 +48,12 @@ class InternalMarker
 		setRotation(marker.rotation);
 		setWidth(marker.size.getX());
 		setHeight(marker.size.getY());
-		setOffset(marker.offset);
 		setLayoutImportance(marker.layoutImportance);
 		setSelectable(marker.selectable);
 		if (marker.offset == null)
-			setOffset(new Point2d(0,0));
+			setOffset(0,0);
 		else
-			setOffset(marker.offset);
+			setOffset(marker.offset.getX(),marker.offset.getY());
 		if (marker.selectable)
 			setSelectID(marker.ident);
 	}
@@ -73,7 +72,7 @@ class InternalMarker
 	public native void setHeight(double height);
 	public native void setWidth(double width);
 	public native void setRotation(double rot);
-	public native void setOffset(Point2d offset);
+	public native void setOffset(double offX,double offY);
 	public native void setLayoutImportance(double layoutImp);
 	
 	static
