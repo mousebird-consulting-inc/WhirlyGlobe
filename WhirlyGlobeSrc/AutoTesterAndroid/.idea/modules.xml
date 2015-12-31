@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AutoTesterAndroid.iml" filepath="$PROJECT_DIR$/AutoTesterAndroid.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Maply-release/Maply-release.iml" filepath="$PROJECT_DIR$/Maply-release/Maply-release.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Maply/Maply.iml" filepath="$PROJECT_DIR$/Maply/Maply.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

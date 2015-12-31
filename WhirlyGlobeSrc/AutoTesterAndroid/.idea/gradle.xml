@@ -10,7 +10,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/Maply-release" />
+            <option value="$PROJECT_DIR$/Maply" />
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
