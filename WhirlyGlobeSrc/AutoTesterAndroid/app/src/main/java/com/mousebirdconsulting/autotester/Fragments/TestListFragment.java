@@ -17,7 +17,11 @@ import com.mousebirdconsulting.autotester.MainActivity;
 import com.mousebirdconsulting.autotester.R;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MapBoxSatelliteTestCase;
+import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
+import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StamenRemoteTestCase;
+import com.mousebirdconsulting.autotester.TestCases.StickersTestCase;
+import com.mousebirdconsulting.autotester.TestCases.VectorsTestCase;
 
 import java.util.ArrayList;
 
@@ -69,6 +73,10 @@ public class TestListFragment extends Fragment {
 			testCases.add(new StamenRemoteTestCase(getActivity()));
 			testCases.add(new MapBoxSatelliteTestCase(getActivity()));
 			testCases.add(new AnimatedBaseMapTestCase(getActivity()));
+			testCases.add(new VectorsTestCase(getActivity()));
+			testCases.add(new ScreenLabelsTestCase(getActivity()));
+			testCases.add(new ScreenMarkersTestCase(getActivity()));
+			testCases.add(new StickersTestCase(getActivity()));
 		}
 
 		@Override
@@ -90,6 +98,7 @@ public class TestListFragment extends Fragment {
 		public void changeItemsState(boolean selected) {
 			for (MaplyTestCase testCase : testCases) {
 				testCase.setSelected(selected);
+				ConfigOptions.setSelectedTest(getContext(), testCase.getTestName(), selected);
 			}
 			notifyDataSetChanged();
 		}

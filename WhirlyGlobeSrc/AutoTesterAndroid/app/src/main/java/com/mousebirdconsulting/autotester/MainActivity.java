@@ -204,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 		playButton.setIcon(getResources().getDrawable(R.drawable.ic_play_action));
 		getSupportActionBar().setTitle(R.string.app_name);
 		executing = false;
+		this.viewTest = new ViewTestFragment();
 		if (!cancelled) {
 			Intent intent = new Intent(this, ResultActivity.class);
 			Bundle bundle = new Bundle();

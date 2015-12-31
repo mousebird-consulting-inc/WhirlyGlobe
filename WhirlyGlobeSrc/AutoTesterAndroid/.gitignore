@@ -5,6 +5,7 @@ local.properties
 .idea/workspace.xml
 .idea/libraries
 AutoTester/.idea/libraries
+AutoTester/.idea
 Maply/*.aar
 .DS_Store
 build
