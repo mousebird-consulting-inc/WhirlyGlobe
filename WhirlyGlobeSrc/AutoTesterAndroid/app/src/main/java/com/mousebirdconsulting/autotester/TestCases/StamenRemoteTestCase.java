@@ -19,8 +19,9 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 	public StamenRemoteTestCase(Activity activity) {
 		super(activity);
 
-		this.setTestName("Stamen Remote Test");
-		this.setSelected(ConfigOptions.getSelectedTest(activity, getTestName()));
+		setTestName("Stamen Remote Test");
+		setSelected(ConfigOptions.getSelectedTest(activity, getTestName()));
+		setDelay(2);
 	}
 
 	private QuadImageTileLayer setupImageLayer(MaplyBaseController baseController) throws Exception {

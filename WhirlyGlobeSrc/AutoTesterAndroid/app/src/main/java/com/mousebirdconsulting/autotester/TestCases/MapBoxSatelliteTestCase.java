@@ -22,8 +22,9 @@ public class MapBoxSatelliteTestCase extends MaplyTestCase {
 	public MapBoxSatelliteTestCase(Activity activity) {
 		super(activity);
 
-		this.setTestName("MapBox Satellite Test");
-		this.setSelected(ConfigOptions.getSelectedTest(activity, getTestName()));
+		setTestName("MapBox Satellite Test");
+		setSelected(ConfigOptions.getSelectedTest(activity, getTestName()));
+		setDelay(2);
 	}
 
 	private QuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) throws Exception {
