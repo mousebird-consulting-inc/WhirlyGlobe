@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.MainActivity;
+import com.mousebirdconsulting.autotester.R;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MapBoxSatelliteTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StamenRemoteTestCase;
@@ -22,7 +23,6 @@ import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.mousebirdconsulting.autotester.R;
 
 
 public class TestListFragment extends Fragment {

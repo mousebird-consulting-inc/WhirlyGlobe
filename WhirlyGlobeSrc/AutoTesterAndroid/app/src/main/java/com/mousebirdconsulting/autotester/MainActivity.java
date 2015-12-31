@@ -22,7 +22,6 @@ import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.mousebirdconsulting.autotester.R;
 
 public class MainActivity extends AppCompatActivity implements NavigationDrawer.Listener {
 

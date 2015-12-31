@@ -12,10 +12,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mousebirdconsulting.autotester.ConfigOptions;
+import com.mousebirdconsulting.autotester.R;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import com.mousebirdconsulting.autotester.R;
 
 
 public class NavigationDrawer extends LinearLayout {

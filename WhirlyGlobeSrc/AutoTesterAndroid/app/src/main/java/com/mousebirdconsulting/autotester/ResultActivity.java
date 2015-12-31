@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mousebirdconsulting.autotester.Framework.MaplyTestResult;
 
@@ -19,7 +20,6 @@ import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.mousebirdconsulting.autotester.R;
 
 
 public class ResultActivity extends AppCompatActivity {
@@ -106,15 +106,28 @@ public class ResultActivity extends AppCompatActivity {
 
 		private class ResultsTestHolder extends RecyclerView.ViewHolder {
 			private TextView label;
+			private MaplyTestResult result;
 
 			public ResultsTestHolder(View itemView) {
 				super(itemView);
 				label = (TextView) itemView.findViewById(R.id.testNameLabel);
 			}
 
-			public void bindViewHolder(MaplyTestResult result) {
+			public void bindViewHolder(final MaplyTestResult result) {
+
 				label.setText(result.getTestName());
+				this.result = result;
+				itemView.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						if (!result.isPassed()) {
+							Toast.makeText(getApplicationContext(), result.getException().getMessage(), Toast.LENGTH_LONG).show();
+						}
+					}
+				});
 			}
+
+
 		}
 	}
 }

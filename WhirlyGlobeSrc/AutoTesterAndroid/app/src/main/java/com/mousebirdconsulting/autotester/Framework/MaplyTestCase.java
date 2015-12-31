@@ -8,13 +8,13 @@ import android.view.View;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
 import com.mousebirdconsulting.autotester.ConfigOptions;
-
 import com.mousebirdconsulting.autotester.R;
 
 public class MaplyTestCase extends AsyncTask<Void, Void, Void> {
 
 	public interface MaplyTestCaseListener {
 		void onFinish(MaplyTestResult resultMap, MaplyTestResult resultGlobe);
+
 		void onExecute(View view);
 	}
 
@@ -29,8 +29,6 @@ public class MaplyTestCase extends AsyncTask<Void, Void, Void> {
 	private MaplyTestResult globeResult;
 	private MaplyTestResult mapResult;
 	private MaplyTestCaseListener listener;
-
-
 	public MaplyTestCase(Activity activity) {
 		super();
 
@@ -82,10 +80,10 @@ public class MaplyTestCase extends AsyncTask<Void, Void, Void> {
 				if (ConfigOptions.getViewSetting(activity.getApplicationContext()) == ConfigOptions.ViewMapOption.ViewMap) {
 					wait(delay * 1000);
 				}
-				globeResult = new MaplyTestResult(true, testName + " Globe Test");
+				globeResult = new MaplyTestResult(testName + " Globe Test");
 			}
 		} catch (Exception ex) {
-			globeResult = new MaplyTestResult(false, testName + " Globe Test");
+			globeResult = new MaplyTestResult(testName + " Globe Test", ex);
 		} finally {
 			tearDownWithGlobe(globeController);
 		}
@@ -106,10 +104,10 @@ public class MaplyTestCase extends AsyncTask<Void, Void, Void> {
 				if (ConfigOptions.getViewSetting(activity.getApplicationContext()) == ConfigOptions.ViewMapOption.ViewMap) {
 					wait(delay * 1000);
 				}
-				mapResult = new MaplyTestResult(true, testName + " Map Test");
+				mapResult = new MaplyTestResult(testName + " Map Test");
 			}
 		} catch (Exception ex) {
-			mapResult = new MaplyTestResult(false, testName + " Map Test");
+			mapResult = new MaplyTestResult(testName + " Map Test", ex);
 		} finally {
 			tearDownWithMap(mapController);
 		}
@@ -137,28 +135,28 @@ public class MaplyTestCase extends AsyncTask<Void, Void, Void> {
 		return selected;
 	}
 
-	public void setOptions(ConfigOptions.TestType value) {
-		options = value;
+	public void setSelected(boolean value) {
+		selected = value;
 	}
 
-	public void setIcon(int value) {
-		icon = value;
+	public void setOptions(ConfigOptions.TestType value) {
+		options = value;
 	}
 
 	public int getIcon() {
 		return icon;
 	}
 
-	public void setActivity(Activity value) {
-		activity = value;
+	public void setIcon(int value) {
+		icon = value;
 	}
 
 	public Activity getActivity() {
 		return activity;
 	}
 
-	public void setSelected(boolean value) {
-		selected = value;
+	public void setActivity(Activity value) {
+		activity = value;
 	}
 
 	public String getTestName() {

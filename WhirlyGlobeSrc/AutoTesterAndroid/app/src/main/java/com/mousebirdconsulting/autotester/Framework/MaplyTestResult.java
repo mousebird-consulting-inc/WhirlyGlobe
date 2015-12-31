@@ -5,19 +5,31 @@ import java.io.Serializable;
 
 public class MaplyTestResult implements Serializable {
 
-	private boolean passed;
 	private String testName;
+	private Throwable exception;
 
-	MaplyTestResult(boolean passed, String testName) {
-		this.passed = passed;
+	MaplyTestResult(String testName, Throwable exception) {
+		super();
+
+		this.testName = testName;
+		this.exception = exception;
+	}
+
+	MaplyTestResult(String testName) {
+		super();
+
 		this.testName = testName;
 	}
 
 	public boolean isPassed() {
-		return passed;
+		return (exception == null);
 	}
 
 	public String getTestName() {
 		return testName;
+	}
+
+	public Throwable getException() {
+		return exception;
 	}
 }
