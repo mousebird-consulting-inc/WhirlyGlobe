@@ -113,6 +113,9 @@
         case MaplyGlobeScrollView:
             cell.textLabel.text = @"Globe - UIScrollView (3D)";
             break;
+        case Maply2DScrollView:
+            cell.textLabel.text = @"Map - UIScrollView (2D)";
+            break;
         default:
             break;
     }
