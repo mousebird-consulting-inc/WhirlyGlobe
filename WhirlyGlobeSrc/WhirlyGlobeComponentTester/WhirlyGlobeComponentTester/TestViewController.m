@@ -272,7 +272,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 
         scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, visHeight)];
 
-        scrollView.scrollEnabled = NO;
+        scrollView.scrollEnabled = YES;
         scrollView.clipsToBounds = YES;
         scrollView.pagingEnabled = YES;
         scrollView.showsHorizontalScrollIndicator = NO;
@@ -454,6 +454,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
             [scrollView addGestureRecognizer:swipe];
             [globeViewC requirePanGestureRecognizerToFailForGesture:swipe];
         }
+        if (globeViewC.panGesture)
+            [globeViewC requirePanGestureRecognizerToFailForGesture:scrollView.panGestureRecognizer];
     }
 }
 
