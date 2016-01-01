@@ -309,7 +309,7 @@ using namespace Maply;
     {
         // Wire up the gesture recognizers
         tapDelegate = [MaplyTapDelegate tapDelegateForView:glView mapView:mapView];
-        panDelegate = [MaplyPanDelegate panDelegateForView:glView mapView:mapView];
+        panDelegate = [MaplyPanDelegate panDelegateForView:glView mapView:mapView useCustomPanRecognizer:self.inScrollView];
         pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:glView mapView:mapView];
         pinchDelegate.minZoom = [mapView minHeightAboveSurface];
         pinchDelegate.maxZoom = [mapView maxHeightAboveSurface];
@@ -1123,6 +1123,11 @@ using namespace Maply;
             }
         }
     }
+}
+
+- (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *)other {
+    if (panDelegate && panDelegate.gestureRecognizer)
+        [other requireGestureRecognizerToFail:panDelegate.gestureRecognizer];
 }
 
 
