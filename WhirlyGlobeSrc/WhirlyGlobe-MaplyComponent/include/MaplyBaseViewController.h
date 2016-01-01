@@ -936,4 +936,8 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
 /// @brief Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;
 
+/** @brief See derived class method.
+ */
+- (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *__nullable)other;
+
 @end

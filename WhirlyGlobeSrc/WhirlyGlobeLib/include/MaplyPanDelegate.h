@@ -27,10 +27,22 @@
 // Sent out when the pan delegate finished (but hands off to momentum)
 #define kPanDelegateDidEnd @"WKPanDelegateEnded"
 
+#define kPanDelegateMinTime 0.1
+
+// Custom pan gesture recognizer that plays well with scroll views.
+@interface MinDelay2DPanGestureRecognizer : UIPanGestureRecognizer {
+    // time of start of gesture
+    CFTimeInterval startTime;
+}
+
+- (void)forceEnd;
+
+@end
+
 @interface MaplyPanDelegate : NSObject <UIGestureRecognizerDelegate>
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
-+ (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
++ (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(MaplyView *)mapView useCustomPanRecognizer:(bool)useCustomPanRecognizer;
 
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 

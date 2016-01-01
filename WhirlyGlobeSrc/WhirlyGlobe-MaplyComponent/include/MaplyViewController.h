@@ -170,6 +170,16 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
   */
 @property(nonatomic,assign) bool doubleTapDragGesture;
 
+/** @brief If set, we use a modified pan gesture recognizer to play nice
+ with the scroll view.  For the UIScrollView object, set clipsToBounds,
+ pagingEnabled, and delaysContentTouches to YES, and set scrollEnabled
+ and canCancelContentTouches to NO.  Add swipe gesture recognizers
+ to the scroll view to control paging, and call
+ requirePanGestureRecognizerToFailForGesture: for each.
+ @details Off by default.
+ */
+@property(nonatomic,assign) bool inScrollView;
+
 /** @brief turn the touch to cancel animation gesture on and off
     @details off by default
  */
@@ -316,5 +326,15 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
  @return Returns the Bounding Box (in radians) corresponding to the current view
  */
 - (MaplyBoundingBox)getCurrentExtents;
+
+/**
+ @brief Make a gesture recognizer's success depend on the pan gesture
+ recognizer's failure.
+ @details When using the map view within a scroll view, add swipe gesture
+ recognizers to the scroll view to control paging, and call this method
+ for each.  See also the inScrollView property and its comment.
+ @param other The other, subordinate gesture recognizer.
+ */
+- (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *__nullable)other;
 
 @end
