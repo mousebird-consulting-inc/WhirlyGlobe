@@ -237,11 +237,13 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
             baseViewC = mapViewC;
             break;
         case Maply2DMap:
+        case Maply2DScrollView:
             mapViewC = [[MaplyViewController alloc] initWithMapType:MaplyMapTypeFlat];
             mapViewC.viewWrap = true;
             mapViewC.doubleTapZoomGesture = true;
             mapViewC.twoFingerTapGesture = true;
             mapViewC.delegate = self;
+            mapViewC.inScrollView = (startupMapType == Maply2DScrollView);
             baseViewC = mapViewC;
             configViewC.configOptions = ConfigOptionsFlat;
             break;
@@ -264,13 +266,11 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
             break;
     }
 
-    if (startupMapType != MaplyGlobeScrollView) {
+    if (startupMapType != MaplyGlobeScrollView && startupMapType != Maply2DScrollView) {
         [self.view addSubview:baseViewC.view];
         baseViewC.view.frame = self.view.bounds;
     } else {
-        float visHeight = self.view.frame.size.height;
-
-        scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, visHeight)];
+        scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
 
         scrollView.scrollEnabled = YES;
         scrollView.clipsToBounds = YES;
@@ -282,15 +282,15 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 
         [scrollView addSubview:baseViewC.view];
 
-        UIView *secondView = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width, 0, self.view.frame.size.width, visHeight)];
+        UIView *secondView = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width, 0, self.view.frame.size.width, self.view.frame.size.height)];
         secondView.backgroundColor = [UIColor redColor];
 
         [scrollView addSubview:secondView];
 
-        scrollView.contentSize = CGSizeMake(self.view.frame.size.width*2, visHeight);
+        scrollView.contentSize = CGSizeMake(self.view.frame.size.width*2, self.view.frame.size.height);
 
         [self.view addSubview:scrollView];
-        baseViewC.view.frame = CGRectMake(0, 0, self.view.frame.size.width, visHeight);
+        baseViewC.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
     }
 
     [self addChildViewController:baseViewC];
@@ -445,17 +445,18 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
   
     [baseViewC enable3dTouchSelection:self];
 
-    if (startupMapType == MaplyGlobeScrollView) {
+    if (startupMapType == MaplyGlobeScrollView || startupMapType == Maply2DScrollView) {
         for (NSNumber *dirNum in @[@(UISwipeGestureRecognizerDirectionLeft), @(UISwipeGestureRecognizerDirectionRight)]) {
 
             UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(didSwipeScreen:)];
             swipe.direction = dirNum.intValue;
             swipe.delaysTouchesBegan = TRUE;
             [scrollView addGestureRecognizer:swipe];
-            [globeViewC requirePanGestureRecognizerToFailForGesture:swipe];
+            [baseViewC requirePanGestureRecognizerToFailForGesture:swipe];
         }
-        if (globeViewC.panGesture)
-            [globeViewC requirePanGestureRecognizerToFailForGesture:scrollView.panGestureRecognizer];
+        bool panGesture = (startupMapType == MaplyGlobeScrollView && globeViewC.panGesture) || (startupMapType == Maply2DScrollView && mapViewC.panGesture);
+        if (panGesture)
+            [baseViewC requirePanGestureRecognizerToFailForGesture:scrollView.panGestureRecognizer];
     }
 }
 
