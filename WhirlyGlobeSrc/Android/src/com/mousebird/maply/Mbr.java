@@ -58,6 +58,22 @@ public class Mbr
 		ll = new Point2d(inLL);
 		ur = new Point2d(inUR);
 	}
+
+	/**
+	 * Compare coordinate values.
+     */
+	@Override public boolean equals(Object thatObj)
+	{
+		Mbr that = (Mbr)thatObj;
+
+		if (ll == null || ur == null || that.ll == null || that.ur == null)
+			return false;
+
+		boolean testA = ll.getX() == that.ll.getX() && ll.getY() == that.ll.getY();
+		boolean testB = ur.getX() == that.ur.getX() && ur.getY() == that.ur.getY();
+
+		return testA && testB;
+	}
 	
 	/**
 	 * Add a point to the bounding box, expanding the extents.
