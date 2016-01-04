@@ -25,11 +25,15 @@ namespace WhirlyKit
     
 // Shader name
 #define kScreenSpaceShaderName "Screen Space Shader"
+#define kScreenSpaceShader2DName "Screen Space Shader 2D"
 #define kScreenSpaceShaderMotionName "Screen Space Shader Motion"
+#define kScreenSpaceShader2DMotionName "Screen Space Shader 2D Motion"
     
 /// Construct and return the Screen Space shader program
 OpenGLES2Program *BuildScreenSpaceProgram();
 OpenGLES2Program *BuildScreenSpaceMotionProgram();
+OpenGLES2Program *BuildScreenSpace2DProgram();
+OpenGLES2Program *BuildScreenSpaceMotion2DProgram();
 
 /// Wrapper for building screen space drawables
 class ScreenSpaceDrawable : public BasicDrawable

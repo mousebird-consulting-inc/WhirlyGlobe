@@ -134,10 +134,50 @@ static const char *vertexShaderTri =
 "   vec2 rotY = normalize(projRot.xy);"
 "   vec2 rotX = vec2(rotY.y,-rotY.x);"
 "   vec2 screenOffset = (u_activerot ? a_offset.x*rotX + a_offset.y*rotY : a_offset);"
-"   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(screenOffset.x*u_scale.x,screenOffset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);"
+// Note: Debugging
+//    "   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(screenOffset.x*u_scale.x,screenOffset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);"
+    "   gl_Position = vec4(screenPt.xy + vec2(screenOffset.x*u_scale.x,screenOffset.y*u_scale.y),0.0,1.0);"
 "}"
 ;
-    
+
+static const char *vertexShaderTri2d =
+"uniform mat4  u_mvpMatrix;"
+"uniform mat4  u_mvMatrix;"
+"uniform mat4  u_mvNormalMatrix;"
+"uniform float u_fade;"
+"uniform vec2  u_scale;"
+"uniform bool  u_activerot;"
+""
+"attribute vec3 a_position;"
+"attribute vec3 a_normal;"
+"attribute vec2 a_texCoord0;"
+"attribute vec4 a_color;"
+"attribute vec2 a_offset;"
+"attribute vec3 a_rot;"
+""
+"varying vec2 v_texCoord;"
+"varying vec4 v_color;"
+""
+"void main()"
+"{"
+"   v_texCoord = a_texCoord0;"
+"   v_color = a_color * u_fade;"
+""
+// Convert from model space into display space
+"   vec4 pt = u_mvMatrix * vec4(a_position,1.0);"
+"   pt /= pt.w;"
+// Project the point all the way to screen space
+"   vec4 screenPt = (u_mvpMatrix * vec4(a_position,1.0));"
+"   screenPt /= screenPt.w;"
+// Project the rotation into display space and drop the Z
+"   vec4 projRot = u_mvNormalMatrix * vec4(a_rot,0.0);"
+"   vec2 rotY = normalize(projRot.xy);"
+"   vec2 rotX = vec2(rotY.y,-rotY.x);"
+"   vec2 screenOffset = (u_activerot ? a_offset.x*rotX + a_offset.y*rotY : a_offset);"
+"   gl_Position = vec4(screenPt.xy + vec2(screenOffset.x*u_scale.x,screenOffset.y*u_scale.y),0.0,1.0);"
+"}"
+;
+
 static const char *vertexShaderMotionTri =
 "uniform mat4  u_mvpMatrix;"
 "uniform mat4  u_mvMatrix;"
@@ -183,6 +223,48 @@ static const char *vertexShaderMotionTri =
 "}"
 ;
 
+static const char *vertexShader2dMotionTri =
+"uniform mat4  u_mvpMatrix;"
+"uniform mat4  u_mvMatrix;"
+"uniform mat4  u_mvNormalMatrix;"
+"uniform float u_fade;"
+"uniform vec2  u_scale;"
+"uniform float u_time;"
+"uniform bool  u_activerot;"
+""
+"attribute vec3 a_position;"
+"attribute vec3 a_dir;"
+"attribute vec3 a_normal;"
+"attribute vec2 a_texCoord0;"
+"attribute vec4 a_color;"
+"attribute vec2 a_offset;"
+"attribute vec3 a_rot;"
+""
+"varying vec2 v_texCoord;"
+"varying vec4 v_color;"
+""
+"void main()"
+"{"
+"   v_texCoord = a_texCoord0;"
+"   v_color = a_color * u_fade;"
+""
+// Position can be modified over time
+"   vec3 thePos = a_position + u_time * a_dir;"
+// Convert from model space into display space
+"   vec4 pt = u_mvMatrix * vec4(thePos,1.0);"
+"   pt /= pt.w;"
+// Project the point all the way to screen space
+"   vec4 screenPt = (u_mvpMatrix * vec4(thePos,1.0));"
+"   screenPt /= screenPt.w;"
+// Project the rotation into display space and drop the Z
+"   vec4 projRot = u_mvNormalMatrix * vec4(a_rot,0.0);"
+"   vec2 rotY = normalize(projRot.xy);"
+"   vec2 rotX = vec2(rotY.y,-rotY.x);"
+"   vec2 screenOffset = (u_activerot ? a_offset.x*rotX + a_offset.y*rotY : a_offset);"
+"   gl_Position = vec4(screenPt.xy + vec2(screenOffset.x*u_scale.x,screenOffset.y*u_scale.y),0.0,1.0);"
+"}"
+;
+    
 static const char *fragmentShaderTri =
 "precision lowp float;"
 ""
@@ -212,7 +294,22 @@ WhirlyKit::OpenGLES2Program *BuildScreenSpaceProgram()
     
     return shader;
 }
+
+WhirlyKit::OpenGLES2Program *BuildScreenSpace2DProgram()
+{
+    OpenGLES2Program *shader = new OpenGLES2Program(kScreenSpaceShader2DName,vertexShaderTri2d,fragmentShaderTri);
+    if (!shader->isValid())
+    {
+        delete shader;
+        shader = NULL;
+    }
     
+    if (shader)
+        glUseProgram(shader->getProgram());
+    
+    return shader;
+}
+
 WhirlyKit::OpenGLES2Program *BuildScreenSpaceMotionProgram()
 {
     OpenGLES2Program *shader = new OpenGLES2Program(kScreenSpaceShaderMotionName,vertexShaderMotionTri,fragmentShaderTri);
@@ -227,5 +324,20 @@ WhirlyKit::OpenGLES2Program *BuildScreenSpaceMotionProgram()
     
     return shader;
 }
+
+WhirlyKit::OpenGLES2Program *BuildScreenSpaceMotion2DProgram()
+{
+    OpenGLES2Program *shader = new OpenGLES2Program(kScreenSpaceShader2DMotionName,vertexShader2dMotionTri,fragmentShaderTri);
+    if (!shader->isValid())
+    {
+        delete shader;
+        shader = NULL;
+    }
     
+    if (shader)
+        glUseProgram(shader->getProgram());
+    
+    return shader;
+}
+
 }

@@ -24,6 +24,7 @@
 #import "ScreenSpaceDrawable.h"
 // Note: Porting
 //#import "ParticleSystemDrawable.h"
+#import "GlobeScene.h"
 
 namespace WhirlyKit
 {
@@ -613,22 +614,45 @@ void SetupDefaultShaders(Scene *scene)
 //        scene->addProgram(kToolkitDefaultWideVectorProgram, wideVecShader);
 //    }
     
-    // Screen space shader
-    OpenGLES2Program *screenSpaceShader = BuildScreenSpaceProgram();
-    if (!screenSpaceShader)
+    if (dynamic_cast<WhirlyGlobe::GlobeScene *>(scene))
     {
-        fprintf(stderr,"SetupDefaultShaders: Screen Space shader didn't compile.");
+        // Screen space shader
+        OpenGLES2Program *screenSpaceShader = BuildScreenSpaceProgram();
+        if (!screenSpaceShader)
+        {
+            fprintf(stderr,"SetupDefaultShaders: Screen Space shader didn't compile.");
+        } else {
+            scene->addProgram(kToolkitDefaultScreenSpaceProgram, screenSpaceShader);
+        }
+
+        // Screen space shader w/ Motion
+        OpenGLES2Program *screenSpaceMotionShader = BuildScreenSpaceMotionProgram();
+        if (!screenSpaceMotionShader)
+        {
+            fprintf(stderr,"SetupDefaultShaders: Screen Space Motion shader didn't compile.");
+        } else {
+            scene->addProgram(kToolkitDefaultScreenSpaceMotionProgram, screenSpaceMotionShader);
+        }
     } else {
-        scene->addProgram(kToolkitDefaultScreenSpaceProgram, screenSpaceShader);
-    }
-    
-    // Screen space shader w/ Motion
-    OpenGLES2Program *screenSpaceMotionShader = BuildScreenSpaceMotionProgram();
-    if (!screenSpaceMotionShader)
-    {
-        fprintf(stderr,"SetupDefaultShaders: Screen Space Motion shader didn't compile.");
-    } else {
-        scene->addProgram(kToolkitDefaultScreenSpaceMotionProgram, screenSpaceMotionShader);
+        // Use the 2D versions, which don't do backface checking
+
+        // Screen space shader
+        OpenGLES2Program *screenSpaceShader = BuildScreenSpace2DProgram();
+        if (!screenSpaceShader)
+        {
+            fprintf(stderr,"SetupDefaultShaders: Screen Space shader didn't compile.");
+        } else {
+            scene->addProgram(kToolkitDefaultScreenSpaceProgram, screenSpaceShader);
+        }
+        
+        // Screen space shader w/ Motion
+        OpenGLES2Program *screenSpaceMotionShader = BuildScreenSpaceMotion2DProgram();
+        if (!screenSpaceMotionShader)
+        {
+            fprintf(stderr,"SetupDefaultShaders: Screen Space Motion shader didn't compile.");
+        } else {
+            scene->addProgram(kToolkitDefaultScreenSpaceMotionProgram, screenSpaceMotionShader);
+        }
     }
     
     // Particle System program
