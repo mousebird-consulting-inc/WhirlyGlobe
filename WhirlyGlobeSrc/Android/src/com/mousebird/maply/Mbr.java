@@ -106,6 +106,39 @@ public class Mbr
 		ll.setValue(ll.getX()-spanViewMbr.getX()*bufferZone, ll.getY()-spanViewMbr.getY()*bufferZone);
 		ur.setValue(ur.getX()+spanViewMbr.getX()*bufferZone, ur.getY()+spanViewMbr.getY()*bufferZone);		
 	}
+
+	/**
+	 * Check if the given point lies inside the bounding box or one of the edges.
+     */
+	public boolean insideOrOnEdge(Point2d pt)
+	{
+		return ((ll.getX() <= pt.getX()) && (ll.getY() <= pt.getY()) && (pt.getX() <= ur.getX()) && (pt.getY() <= ur.getY()));
+	}
+
+	/**
+	 * Check if the given bounding boxes overlap.
+     */
+	public boolean overlaps(Mbr that)
+	{
+		// Basic inclusion cases
+		if ((that.insideOrOnEdge(ll) || that.insideOrOnEdge(ur) || that.insideOrOnEdge(new Point2d(ll.getX(),ur.getY())) || that.insideOrOnEdge(new Point2d(ur.getX(),ll.getY()))) ||
+				(insideOrOnEdge(that.ll) || insideOrOnEdge(that.ur) || insideOrOnEdge(new Point2d(that.ll.getX(),that.ur.getY())) || insideOrOnEdge(new Point2d(that.ur.getX(),that.ll.getY()))))
+			return true;
+
+		// Now for the skinny overlap cases
+		if ((that.ll.getX() <= ll.getX() && ur.getX() <= that.ur.getX() &&
+				ll.getY() <= that.ll.getY() && that.ur.getY() <= ur.getY()) ||
+				(ll.getX() <= that.ll.getX() && that.ur.getX() <= ur.getX() &&
+						that.ll.getY() <= ll.getY() && ur.getY() <= that.ur.getY()))
+			return true;
+		if ((ll.getX() <= that.ll.getX() && that.ur.getX() <= ur.getX() &&
+				that.ll.getY() <= ll.getY() && ur.getY() <= that.ur.getY()) ||
+				(that.ll.getX() <= ll.getX() && ur.getX() <= that.ur.getX() &&
+						ll.getY() <= that.ll.getY() && that.ur.getY() <= ur.getY()))
+			return true;
+
+		return false;
+	}
 	
 	/**
 	 * Return a list of points corresponding to the corners of the MBR.
