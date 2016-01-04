@@ -131,7 +131,7 @@ public:
     void setImageSize(int newSizeX,int newSizeY) { sizeX = newSizeX;  sizeY = newSizeY; }
     
     /// If set, the output size is a maximum.  We'll try to track input resolution
-    bool setAutoRes(bool newAutoRes) { autoRes = newAutoRes; }
+    bool setAutoRes(bool newAutoRes) { autoRes = newAutoRes; return true; }
     
     /// The bounding box for the image we're trying to build
     void setMbr(Mbr newMbr);

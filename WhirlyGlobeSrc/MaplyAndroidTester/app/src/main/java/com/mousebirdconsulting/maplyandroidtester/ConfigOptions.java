@@ -5,24 +5,28 @@ import android.view.MenuItem;
 /**
  * Created by sjg on 8/31/15.
  */
-public class ConfigOptions
-{
+public class ConfigOptions {
     // 2D map or 3D globe
-    public enum MapType
-    {
-        FlatMap,GlobeMap
+    public enum MapType {
+        FlatMap, GlobeMap
     }
 
     // Identifiers for base layers
-    public enum BaseOptions
-    {
-        BlankLayer,GeographyClass,MapboxRegular,MapboxSatellite,OSMMapquest,StamenWatercolor,QuadTest,QuadTestAnimate,QuadVectorTest
+    public enum BaseOptions {
+        BlankLayer, GeographyClass, MapboxRegular, MapboxSatellite, OSMMapquest, StamenWatercolor, QuadTest, QuadTestAnimate, QuadVectorTest
     }
+
     // Identifiers for overlay options
-    public enum OverlayOptions
-    {
-        ForecastIO,MaxOverlayOptions
+    public enum OverlayOptions {
+        ForecastIO, MaxOverlayOptions
     }
+
+    // Identifiers for objects to add to the mix
+    public enum ObjectOptions
+    {
+        ScreenMarkers,ScreenLabels, MaxObjectOptions
+    }
+
     // Identifiers for utility options
     public enum UtilOptions
     {
@@ -35,6 +39,8 @@ public class ConfigOptions
     public BaseOptions baseSection = BaseOptions.BlankLayer;
     // Which overlays are on
     public boolean overlays[] = new boolean[OverlayOptions.MaxOverlayOptions.ordinal()];
+    // Which objects are on
+    public boolean objects[] = new boolean[ObjectOptions.MaxObjectOptions.ordinal()];
     // Which utility options are on
     public boolean utils[] = new boolean[UtilOptions.MaxUtilOptions.ordinal()];
 
@@ -107,6 +113,9 @@ public class ConfigOptions
                     break;
                 case R.id.forecastio_layer:
                     overlays[0] = !overlays[0];
+                    break;
+                case R.id.screen_markers:
+                    objects[0] = !objects[0];
                     break;
                 case R.id.perfOutput:
                     utils[0] = !utils[0];
