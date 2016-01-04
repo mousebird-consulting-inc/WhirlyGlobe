@@ -82,10 +82,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setRotation
 /*
  * Class:     com_mousebird_maply_InternalMarker
  * Method:    setOffset
- * Signature: (Lcom/mousebird/maply/Point2d;)V
+ * Signature: (DD)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setOffset
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jdouble, jdouble);
 
 /*
  * Class:     com_mousebird_maply_InternalMarker

@@ -1,0 +1,15 @@
+WhirlyGlobeSrc/Android/.idea
+WhirlyGlobeSrc/Android/.gradle
+buildheaders.out
+WhirlyGlobeSrc/Android/build
+libMaply.so
+WhirlyGlobeSrc/Android/obj
+*.class
+WhirlyGlobeSrc/Android/doc
+WhirlyGlobeSrc/MaplyAndroidTester/.gradle
+WhirlyGlobeSrc/MaplyAndroidTester/.idea
+WhirlyGlobeSrc/MaplyAndroidTester/app/build
+WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/Build
+WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/WhirlyGlobe-MaplyComponent.xcodeproj/project.xcworkspace
+WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/WhirlyGlobe-MaplyComponent.xcodeproj/xcuserdata
+WhirlyGlobeSrc/WhirlyGlobeLib/WhirlyGlobeLib.xcodeproj/xcuserdata

@@ -958,7 +958,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_getEna
     try
     {
         QuadImageOfflineLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
-        if (!adapter)
+        if (!adapter || !adapter->tileLoader)
             return false;
         
         return adapter->tileLoader->getOn();
@@ -977,7 +977,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setMbrNati
     try
     {
         QuadImageOfflineLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
-        if (!adapter)
+        if (!adapter || !adapter->tileLoader)
             return;
         
         Mbr mbr;
@@ -997,7 +997,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_getSom
     try
     {
         QuadImageOfflineLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
-        if (!adapter)
+        if (!adapter || !adapter->tileLoader)
             return false;
         
         return adapter->tileLoader->getSomethingChanged();
@@ -1017,7 +1017,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_imageRende
     {
         QuadImageOfflineLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
         ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
-        if (!adapter || !changes)
+        if (!adapter || !changes || !adapter->tileLoader)
             return;
         adapter->tileLoader->imageRenderToLevel(level,*changes);
     }

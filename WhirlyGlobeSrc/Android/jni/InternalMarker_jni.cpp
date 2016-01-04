@@ -231,18 +231,17 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setRotation
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setOffset
-  (JNIEnv *env, jobject obj, jobject ptObj)
+(JNIEnv *env, jobject obj, jdouble offX,jdouble offY)
 {
 	try
 	{
 		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
 		Marker *marker = classInfo->getObject(env,obj);
-		Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,obj);
-		if (!marker || !pt)
+		if (!marker)
 			return;
 
-		marker->offset.x() = pt->x();
-		marker->offset.y() = pt->y();
+		marker->offset.x() = offX;
+		marker->offset.y() = offY;
 	}
 	catch (...)
 	{
