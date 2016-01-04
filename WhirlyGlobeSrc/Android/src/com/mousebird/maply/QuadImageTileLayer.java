@@ -463,6 +463,22 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
             complete = new boolean[depth];
             tilesLoaded = new int[depth];
         }
+
+		@Override public boolean equals(Object thatObj)
+		{
+			FrameStatus that = (FrameStatus)thatObj;
+			if (currentFrame != that.currentFrame)
+				return false;
+			for (int ii=0;ii<complete.length;ii++)
+				if (complete[ii] != that.complete[ii])
+					return false;
+			for (int ii=0;ii<tilesLoaded.length;ii++)
+				if (tilesLoaded[ii] != that.tilesLoaded[ii])
+					return false;
+
+			return true;
+		}
+
         public int currentFrame;
         public boolean complete[];
         public int tilesLoaded[];
