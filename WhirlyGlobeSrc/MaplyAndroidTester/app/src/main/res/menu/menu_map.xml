@@ -29,13 +29,21 @@
     <item android:id="@+id/overlay_layers" android:title="Overlay Layers"
         android:orderInCategory="200" app:showAsAction="never">
         <menu>
-        <group app:showAsAction="never">
-            <item android:id="@+id/forecastio_layer" android:title="Forecast IO Weather" />
-        </group>
+            <group app:showAsAction="never">
+                <item android:id="@+id/forecastio_layer" android:title="Forecast IO Weather" />
+            </group>
+        </menu>
+    </item>
+    <item android:id="@+id/objects" android:title="Objects"
+        android:orderInCategory="300" app:showAsAction="never">
+        <menu>
+            <group app:showAsAction="never">
+                <item android:id="@+id/screen_markers" android:title="Screen Markers" />
+            </group>
         </menu>
     </item>
     <item android:id="@+id/utils" android:title="Utility"
-        android:orderInCategory="300" app:showAsAction="never">
+        android:orderInCategory="400" app:showAsAction="never">
         <menu>
         <group app:showAsAction="never">
             <item android:id="@+id/perfOutput" android:title="Performance Output" />

@@ -1,6 +1,7 @@
 package com.mousebirdconsulting.maplyandroidtester;
 
 import android.app.Fragment;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,11 +10,14 @@ import android.view.ViewGroup;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.MultiplexTileSource;
+import com.mousebird.maply.Point2d;
 import com.mousebird.maply.QuadImageTileLayer;
 import com.mousebird.maply.QuadPagingLayer;
 import com.mousebird.maply.RemoteTileInfo;
 import com.mousebird.maply.RemoteTileSource;
+import com.mousebird.maply.ScreenMarker;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
 import com.mousebird.maply.TestImageSource;
 import com.mousebird.maply.TestQuadPager;
@@ -206,7 +210,7 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
                     sources[ii] = new RemoteTileInfo("http://a.tiles.mapbox.com/v3/mousebird.precip-example-layer" + ii + "/","png",0,6);
                 cacheDirName = "forecastio";
                 SphericalMercatorCoordSystem coordSys = new SphericalMercatorCoordSystem();
-                MultiplexTileSource multiTileSource = new MultiplexTileSource(sources,coordSys);
+                MultiplexTileSource multiTileSource = new MultiplexTileSource(baseControl,sources,coordSys);
 
                 forecastIOLayer = new QuadImageTileLayer(baseControl,coordSys,multiTileSource);
                 forecastIOLayer.setSimultaneousFetches(1);
@@ -244,6 +248,18 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
         } else {
             if (forecastIOLayer != null)
                 baseControl.removeLayer(forecastIOLayer);
+        }
+
+        // Random objects to add
+        if (config.objects[0])
+        {
+            MarkerInfo markerInfo = new MarkerInfo();
+            markerInfo.setColor(1.0f,0.0f,0.0f,1.0f);
+            ScreenMarker marker = new ScreenMarker();
+            marker.loc = Point2d.FromDegrees(-94.58,39.1);
+            marker.image = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.star);
+
+            baseControl.addScreenMarker(marker,markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
         }
     }
 }
