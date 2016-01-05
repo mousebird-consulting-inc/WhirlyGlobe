@@ -166,6 +166,7 @@
      [ConfigSection ConfigSectionWithName:kMaplyTestCategoryGestures
                                      rows:
       @{kMaplyTestNorthUp: @(NO),
+                            kMaplyTestPan: @(YES),
                           kMaplyTestPinch: @(YES),
                          kMaplyTestRotate: @(YES)}
                              singleSelect:false]];

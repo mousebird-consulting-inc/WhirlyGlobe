@@ -420,6 +420,9 @@ static bool trackConnections = false;
                     tileData = [_delegate remoteTileSource:self modifyTileReturn:tileData forTile:tileID];
                 }
             }
+            
+            if (tileData)
+                return tileData;
         }
         
     }

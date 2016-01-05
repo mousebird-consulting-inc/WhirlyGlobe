@@ -22,8 +22,29 @@
 #import "SceneRendererES.h"
 #import "MaplyPanDelegate.h"
 #import "MaplyAnimateTranslateMomentum.h"
+#import <UIKit/UIGestureRecognizerSubclass.h>
 
 using namespace WhirlyKit;
+
+@implementation MinDelay2DPanGestureRecognizer
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    startTime = CFAbsoluteTimeGetCurrent();
+    [super touchesBegan:touches withEvent:event];
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (CFAbsoluteTimeGetCurrent() - startTime >= kPanDelegateMinTime)
+        [super touchesEnded:touches withEvent:event];
+    else
+        self.state = UIGestureRecognizerStateFailed;
+}
+
+- (void)forceEnd {
+    self.state = UIGestureRecognizerStateEnded;
+}
+
+@end
 
 @interface MaplyPanDelegate()
 {
@@ -56,10 +77,14 @@ using namespace WhirlyKit;
 	return self;
 }
 
-+ (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
++ (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(MaplyView *)mapView useCustomPanRecognizer:(bool)useCustomPanRecognizer
 {
 	MaplyPanDelegate *panDelegate = [[MaplyPanDelegate alloc] initWithMapView:mapView];
-  	UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
+    UIPanGestureRecognizer *panRecognizer;
+    if (useCustomPanRecognizer)
+        panRecognizer = [[MinDelay2DPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
+    else
+        panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
   	panRecognizer.delegate = panDelegate;
     panDelegate.gestureRecognizer = panRecognizer;
 	[view addGestureRecognizer:panRecognizer];

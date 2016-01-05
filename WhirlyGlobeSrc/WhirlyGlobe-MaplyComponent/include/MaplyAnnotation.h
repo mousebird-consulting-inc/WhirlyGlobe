@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <MaplyCoordinate.h>
+#import "MaplyCoordinate.h"
 
 /** @brief This object displays an annotation at a particular point and will track that point as the map or globe moves.
     @details An annotation is used to point out some feature on the globe or map, typically that the user has tapped on.  It's a multi-part beast that may contain titles, subtitles, images, background views and such.
