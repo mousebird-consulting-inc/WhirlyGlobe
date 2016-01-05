@@ -1372,4 +1372,8 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 
+- (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *__nullable)other {
+    // Implement in derived class.
+}
+
 @end
