@@ -4,3 +4,11 @@ xcuserdata
 project.xcworkspace
 
 *.orig
+WhirlyGlobeSrc/WhirlyGlobeLib/WhirlyGlobe.framework
+_site
+WhirlyGlobeSrc/AutoTester/Build
+WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/build
+WhirlyGlobeSrc/WhirlyGlobeComponentTester/Build
+WhirlyGlobeSrc/WhirlyGlobeLib/build
+.sass-cache
+WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.framework
