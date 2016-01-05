@@ -274,6 +274,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 
         scrollView.scrollEnabled = YES;
         scrollView.clipsToBounds = YES;
+        scrollView.bounces = NO;
         scrollView.pagingEnabled = YES;
         scrollView.showsHorizontalScrollIndicator = NO;
         scrollView.showsVerticalScrollIndicator = NO;
@@ -449,13 +450,14 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         for (NSNumber *dirNum in @[@(UISwipeGestureRecognizerDirectionLeft), @(UISwipeGestureRecognizerDirectionRight)]) {
 
             UISwipeGestureRecognizer *swipe = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(didSwipeScreen:)];
+            swipe.delegate = self;
             swipe.direction = dirNum.intValue;
             swipe.delaysTouchesBegan = TRUE;
             [scrollView addGestureRecognizer:swipe];
             [baseViewC requirePanGestureRecognizerToFailForGesture:swipe];
         }
         bool panGesture = (startupMapType == MaplyGlobeScrollView && globeViewC.panGesture) || (startupMapType == Maply2DScrollView && mapViewC.panGesture);
-        if (panGesture)
+        if (panGesture && scrollView.scrollEnabled)
             [baseViewC requirePanGestureRecognizerToFailForGesture:scrollView.panGestureRecognizer];
     }
 }
@@ -2914,6 +2916,20 @@ static const float MarkerSpread = 2.0;
         frame.origin.x = 0.0;
     frame.origin.y = 0;
     [scrollView scrollRectToVisible:frame animated:YES];
+}
+
+#pragma mark - Gesture Recognizer Delegate
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+
+    if (gestureRecognizer == scrollView.panGestureRecognizer) {
+        if ([otherGestureRecognizer isKindOfClass:[UISwipeGestureRecognizer class]])
+            return YES;
+    } else if (otherGestureRecognizer == scrollView.panGestureRecognizer) {
+        if ([gestureRecognizer isKindOfClass:[UISwipeGestureRecognizer class]])
+            return YES;
+    }
+    return NO;
 }
 
 @end
