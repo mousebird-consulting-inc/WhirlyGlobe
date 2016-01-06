@@ -126,7 +126,7 @@ public:
             iPt1.dir = p2 - p1;
             iPt1.n = n1;
             iPt1.org = p1;
-            iPt1.dest = p0;
+            iPt1.dest = p2;
             Point3d n10 = n1 - n0;
             Point3d p21 = p2 - p1;
             Point3d p01 = p0 - p1;
@@ -354,8 +354,7 @@ public:
         {
             e0 = InterPoint(paLocal,pbLocal,revNorm0);
             e1 = InterPoint(paLocal,pbLocal,norm0);
-            // Note: Debugging
-//            edgePointsValid = true;
+            edgePointsValid = true;
         }
 
         Point3d e0pt = e0.calcInterPt(0.1);
