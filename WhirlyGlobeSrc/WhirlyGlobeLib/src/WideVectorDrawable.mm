@@ -31,7 +31,7 @@ namespace WhirlyKit
 WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), texRepeat(1.0)
 {
     lineWidth = 10.0/1024.0;
-    p01_index = addAttribute(BDFloat3Type, "a_p01");
+    p1_index = addAttribute(BDFloat3Type, "a_p1");
     t0_limit_index = addAttribute(BDFloatType, "a_t0_limit");
     n0_index = addAttribute(BDFloat3Type, "a_n0");
     c0_index = addAttribute(BDFloatType, "a_c0");
@@ -43,10 +43,12 @@ unsigned int WideVectorDrawable::addPoint(const Point3f &pt)
     return BasicDrawable::addPoint(pt);
 }
     
-void WideVectorDrawable::add_P01(const Point3f &dir)
+void WideVectorDrawable::add_p1(const Point3f &pt)
 {
-    addAttributeValue(p01_index, dir);
-    p01.push_back(dir);
+    NSLog(@"p1 = (%f,%f,%f)",pt.x(),pt.y(),pt.z());
+    
+    addAttributeValue(p1_index, pt);
+    p1.push_back(pt);
 }
 
 void WideVectorDrawable::add_n0(const Point3f &dir)
@@ -77,9 +79,11 @@ void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scen
     {
         float scale = std::max(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight);
         float screenSize = frameInfo.screenSizeInDisplayCoords.x();
+        float pixDispSize = std::min(frameInfo.screenSizeInDisplayCoords.x(),frameInfo.screenSizeInDisplayCoords.y()) / scale;
 //        float pixDispSize = std::min(frameInfo.screenSizeInDisplayCoords.x(),frameInfo.screenSizeInDisplayCoords.y()) / scale;
 //        frameInfo.program->setUniform("u_scale", 1.f/scale);
         frameInfo.program->setUniform("u_w2", lineWidth/(scale));
+        frameInfo.program->setUniform("u_real_w2", pixDispSize * lineWidth);
 //        frameInfo.program->setUniform("u_pixDispSize", pixDispSize);
 //        frameInfo.program->setUniform("u_lineWidth", lineWidth);
         float texScale = scale/(screenSize*texRepeat);
@@ -87,27 +91,34 @@ void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scen
         
         // Note: Debugging
         // Redo the calculation for debugging
-//        NSLog(@"\n");
-//        for (unsigned int ii=0;ii<locPts.size();ii++)
-//        {
-//            float u_w2 = lineWidth/(2.f*scale);
-//            Point3f a_position = locPts[ii];
-//            Point3f a_p01 = p01[ii];
-//            Point2f a_t0_limit = t0_limits[ii];
-//            Point3f a_n0 = n0[ii];
-//            float a_c0 = c0[ii];
-//            
-//            Vector4f vertPos = frameInfo.mvpMat * Vector4f(a_position.x(),a_position.y(),a_position.z(),1.0);
-//            vertPos /= vertPos.w();
-//            Point2f vertPos2f(vertPos.x(),vertPos.y());
-//            Vector4f screen_p01 = frameInfo.mvpMat * Vector4f(a_p01.x(),a_p01.y(),a_p01.z(),0.0);
-//            Vector4f screen_n0 = frameInfo.mvpMat * Vector4f(a_n0.x(),a_n0.y(),a_n0.z(),0.0);
-//            float t0 = a_c0 * u_w2;
-//            Vector4f calcOff = screen_p01 * t0 + screen_n0 * u_w2;
-//            Point2f finalPos2f = vertPos2f + Point2f(calcOff.x(),calcOff.y());
-//            
-//            NSLog(@"finalPos = (%f,%f)",finalPos2f.x(),finalPos2f.y());
-//        }
+        NSLog(@"\n");
+        for (unsigned int ii=0;ii<locPts.size();ii++)
+        {
+            float u_w2 = lineWidth/(2.f*scale);
+            float u_real_w2 = pixDispSize * lineWidth;
+            Point3f a_p0 = locPts[ii];
+            Point3f a_p1 = p1[ii];
+            Point2f a_t0_limit = t0_limits[ii];
+            Point3f a_n0 = n0[ii];
+            float a_c0 = c0[ii];
+            
+            Vector4f screen_p0 = frameInfo.mvpMat * Vector4f(a_p0.x(),a_p0.y(),a_p0.z(),1.0);
+            screen_p0 /= screen_p0.w();
+            Vector4f screen_p1 = frameInfo.mvpMat * Vector4f(a_p1.x(),a_p1.y(),a_p1.z(),1.0);
+            screen_p1 /= screen_p1.w();
+            Point2f loc_p0(screen_p0.x(),screen_p0.y());
+            Point2f loc_p1(screen_p1.x(),screen_p1.y());
+            
+            Vector4f screen_n0 = frameInfo.mvpMat * Vector4f(a_n0.x(),a_n0.y(),a_n0.z(),0.0);
+            Point2f loc_n0(screen_n0.x(),screen_n0.y());
+
+            float t0 = a_c0 * u_real_w2;
+            Vector2f calcOff = (loc_p1-loc_p0) * t0 + loc_n0 * u_w2;
+            Point2f finalPos2f = loc_p0 + calcOff;
+            
+            NSLog(@"t0 = %f",t0);
+            NSLog(@"finalPos = (%f,%f)",finalPos2f.x(),finalPos2f.y());
+        }
     }
     
     BasicDrawable::draw(frameInfo,scene);
@@ -128,12 +139,13 @@ static const char *vertexShaderTri =
 "uniform mat4  u_mvpMatrix;\n"
 "uniform float u_fade;\n"
 "uniform float u_w2;\n"
+"uniform float u_real_w2;\n"
 "uniform float u_texScale;\n"
 "\n"
 "attribute vec3 a_position;\n"
 "attribute vec2 a_texCoord0;\n"
 "attribute vec4 a_color;\n"
-"attribute vec3 a_p01;\n"
+"attribute vec3 a_p1;\n"
 "attribute vec2 a_t0_limit;\n"
 "attribute vec3 a_n0;\n"
 "attribute float a_c0;\n"
@@ -145,14 +157,16 @@ static const char *vertexShaderTri =
 "{\n"
 "   v_texCoord = vec2(a_texCoord0.x, a_texCoord0.y * u_texScale);\n"
 "   v_color = a_color;\n"
-"   vec4 vertPos = u_mvpMatrix * vec4(a_position,1.0);\n"
-"   vertPos /= vertPos.w;\n"
-"   vec2 screen_p01 = (u_mvpMatrix * vec4(a_p01,0.0)).xy;\n"
+"   vec4 screen_p0 = u_mvpMatrix * vec4(a_position,1.0);\n"
+"   screen_p0 /= screen_p0.w;\n"
+"   vec4 screen_p1 = u_mvpMatrix * vec4(a_p1,1.0);\n"
+"   screen_p1 /= screen_p1.w;\n"
 "   vec2 screen_n0 = (u_mvpMatrix * vec4(a_n0,0.0)).xy;\n"
-"   float t0 = a_c0 * u_w2;\n"
+"   float t0 = a_c0 * u_real_w2;\n"
 "   t0 = clamp(t0,a_t0_limit.x,a_t0_limit.y);\n"
-"   vec2 calcOff = screen_p01 * t0 + screen_n0 * u_w2;\n"
-"   gl_Position = vertPos + vec4(vertPos.x+calcOff.x,vertPos.y+calcOff.y,0,1.0);\n"
+//"   t0 = clamp(t0,0.0,1.0);\n"
+"   vec2 calcOff = (screen_p1.xy - screen_p0.xy) * t0 + screen_n0 * u_w2;\n"
+"   gl_Position = vec4(screen_p0.xy + calcOff,0,1.0);\n"
 "}\n"
 ;
 
