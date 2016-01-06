@@ -45,8 +45,6 @@ unsigned int WideVectorDrawable::addPoint(const Point3f &pt)
     
 void WideVectorDrawable::add_p1(const Point3f &pt)
 {
-    NSLog(@"p1 = (%f,%f,%f)",pt.x(),pt.y(),pt.z());
-    
     addAttributeValue(p1_index, pt);
     p1.push_back(pt);
 }
@@ -90,35 +88,36 @@ void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scen
         frameInfo.program->setUniform("u_texScale", texScale);
         
         // Note: Debugging
+        // Note: This calculation is out of date with respect to the shader
         // Redo the calculation for debugging
-        NSLog(@"\n");
-        for (unsigned int ii=0;ii<locPts.size();ii++)
-        {
-            float u_w2 = lineWidth/(2.f*scale);
-            float u_real_w2 = pixDispSize * lineWidth;
-            Point3f a_p0 = locPts[ii];
-            Point3f a_p1 = p1[ii];
-            Point2f a_t0_limit = t0_limits[ii];
-            Point3f a_n0 = n0[ii];
-            float a_c0 = c0[ii];
-            
-            Vector4f screen_p0 = frameInfo.mvpMat * Vector4f(a_p0.x(),a_p0.y(),a_p0.z(),1.0);
-            screen_p0 /= screen_p0.w();
-            Vector4f screen_p1 = frameInfo.mvpMat * Vector4f(a_p1.x(),a_p1.y(),a_p1.z(),1.0);
-            screen_p1 /= screen_p1.w();
-            Point2f loc_p0(screen_p0.x(),screen_p0.y());
-            Point2f loc_p1(screen_p1.x(),screen_p1.y());
-            
-            Vector4f screen_n0 = frameInfo.mvpMat * Vector4f(a_n0.x(),a_n0.y(),a_n0.z(),0.0);
-            Point2f loc_n0(screen_n0.x(),screen_n0.y());
-
-            float t0 = a_c0 * u_real_w2;
-            Vector2f calcOff = (loc_p1-loc_p0) * t0 + loc_n0 * u_w2;
-            Point2f finalPos2f = loc_p0 + calcOff;
-            
-            NSLog(@"t0 = %f",t0);
-            NSLog(@"finalPos = (%f,%f)",finalPos2f.x(),finalPos2f.y());
-        }
+//        NSLog(@"\n");
+//        for (unsigned int ii=0;ii<locPts.size();ii++)
+//        {
+//            float u_w2 = lineWidth/(2.f*scale);
+//            float u_real_w2 = pixDispSize * lineWidth;
+//            Point3f a_p0 = locPts[ii];
+//            Point3f a_p1 = p1[ii];
+//            Point2f a_t0_limit = t0_limits[ii];
+//            Point3f a_n0 = n0[ii];
+//            float a_c0 = c0[ii];
+//            
+//            Vector4f screen_p0 = frameInfo.mvpMat * Vector4f(a_p0.x(),a_p0.y(),a_p0.z(),1.0);
+//            screen_p0 /= screen_p0.w();
+//            Vector4f screen_p1 = frameInfo.mvpMat * Vector4f(a_p1.x(),a_p1.y(),a_p1.z(),1.0);
+//            screen_p1 /= screen_p1.w();
+//            Point2f loc_p0(screen_p0.x(),screen_p0.y());
+//            Point2f loc_p1(screen_p1.x(),screen_p1.y());
+//            
+//            Vector4f screen_n0 = frameInfo.mvpMat * Vector4f(a_n0.x(),a_n0.y(),a_n0.z(),0.0);
+//            Point2f loc_n0(screen_n0.x(),screen_n0.y());
+//
+//            float t0 = a_c0 * u_real_w2;
+//            Vector2f calcOff = (loc_p1-loc_p0) * t0 + loc_n0 * u_w2;
+//            Point2f finalPos2f = loc_p0 + calcOff;
+//            
+//            NSLog(@"t0 = %f",t0);
+//            NSLog(@"finalPos = (%f,%f)",finalPos2f.x(),finalPos2f.y());
+//        }
     }
     
     BasicDrawable::draw(frameInfo,scene);

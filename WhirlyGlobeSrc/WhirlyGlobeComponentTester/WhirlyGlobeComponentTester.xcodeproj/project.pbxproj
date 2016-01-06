@@ -36,6 +36,15 @@
 		2BA13C0617F10EC1000C43B7 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDBD16E7F54B001F52FC /* MobileCoreServices.framework */; };
 		2BA13C0717F10ECA000C43B7 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B8218CC176FCB7C0012322A /* CoreLocation.framework */; };
 		2BADF95B19A6AB4E00C40CAA /* tl_2013_06075_roads.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2BADF95919A6AB4800C40CAA /* tl_2013_06075_roads.sqlite */; };
+		2BB32C831C3DCB3100EF13DE /* leftbend.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BB32C801C3DCB3100EF13DE /* leftbend.geojson */; };
+		2BB32C841C3DCB3100EF13DE /* leftv.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BB32C811C3DCB3100EF13DE /* leftv.geojson */; };
+		2BB32C851C3DCB3100EF13DE /* rightbend.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BB32C821C3DCB3100EF13DE /* rightbend.geojson */; };
+		2BB32C881C3DCFC700EF13DE /* rightv.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BB32C871C3DCFC700EF13DE /* rightv.geojson */; };
+		2BB32C8A1C3DD0CB00EF13DE /* track.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BB32C891C3DD0CB00EF13DE /* track.geojson */; };
+		2BB32C8E1C3DD2C600EF13DE /* mowing-lawn.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BB32C8B1C3DD2C600EF13DE /* mowing-lawn.geojson */; };
+		2BB32C8F1C3DD2C600EF13DE /* spiral.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BB32C8C1C3DD2C600EF13DE /* spiral.geojson */; };
+		2BB32C901C3DD2C600EF13DE /* square.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BB32C8D1C3DD2C600EF13DE /* square.geojson */; };
+		2BB32C921C3DD36600EF13DE /* sawtoothbegin.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BB32C911C3DD36600EF13DE /* sawtoothbegin.geojson */; };
 		2BB54ECC17CEB8330065451F /* icon-iPhone.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54ECB17CEB8330065451F /* icon-iPhone.png */; };
 		2BB54ECF17CEB8380065451F /* icon-iPhone@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54ECE17CEB8370065451F /* icon-iPhone@2x.png */; };
 		2BB54ED117CEB83E0065451F /* icon-iPad.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54ED017CEB83E0065451F /* icon-iPad.png */; };
@@ -492,6 +501,15 @@
 		2BA13BF317EE1884000C43B7 /* libc++abi.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++abi.dylib"; path = "usr/lib/libc++abi.dylib"; sourceTree = SDKROOT; };
 		2BA13C0017F10E49000C43B7 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		2BADF95919A6AB4800C40CAA /* tl_2013_06075_roads.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.sqlite; sourceTree = "<group>"; };
+		2BB32C801C3DCB3100EF13DE /* leftbend.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = leftbend.geojson; path = resources/leftbend.geojson; sourceTree = SOURCE_ROOT; };
+		2BB32C811C3DCB3100EF13DE /* leftv.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = leftv.geojson; path = resources/leftv.geojson; sourceTree = SOURCE_ROOT; };
+		2BB32C821C3DCB3100EF13DE /* rightbend.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = rightbend.geojson; path = resources/rightbend.geojson; sourceTree = SOURCE_ROOT; };
+		2BB32C871C3DCFC700EF13DE /* rightv.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = rightv.geojson; path = resources/rightv.geojson; sourceTree = SOURCE_ROOT; };
+		2BB32C891C3DD0CB00EF13DE /* track.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = track.geojson; path = resources/track.geojson; sourceTree = SOURCE_ROOT; };
+		2BB32C8B1C3DD2C600EF13DE /* mowing-lawn.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "mowing-lawn.geojson"; path = "resources/mowing-lawn.geojson"; sourceTree = SOURCE_ROOT; };
+		2BB32C8C1C3DD2C600EF13DE /* spiral.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = spiral.geojson; path = resources/spiral.geojson; sourceTree = SOURCE_ROOT; };
+		2BB32C8D1C3DD2C600EF13DE /* square.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = square.geojson; path = resources/square.geojson; sourceTree = SOURCE_ROOT; };
+		2BB32C911C3DD36600EF13DE /* sawtoothbegin.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = sawtoothbegin.geojson; path = resources/sawtoothbegin.geojson; sourceTree = SOURCE_ROOT; };
 		2BB54ECB17CEB8330065451F /* icon-iPhone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-iPhone.png"; sourceTree = "<group>"; };
 		2BB54ECE17CEB8370065451F /* icon-iPhone@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-iPhone@2x.png"; sourceTree = "<group>"; };
 		2BB54ED017CEB83E0065451F /* icon-iPad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-iPad.png"; sourceTree = "<group>"; };
@@ -1232,6 +1250,15 @@
 		2BFD25D8170B929E00127EF5 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				2BB32C911C3DD36600EF13DE /* sawtoothbegin.geojson */,
+				2BB32C8B1C3DD2C600EF13DE /* mowing-lawn.geojson */,
+				2BB32C8C1C3DD2C600EF13DE /* spiral.geojson */,
+				2BB32C8D1C3DD2C600EF13DE /* square.geojson */,
+				2BB32C891C3DD0CB00EF13DE /* track.geojson */,
+				2BB32C871C3DCFC700EF13DE /* rightv.geojson */,
+				2BB32C801C3DCB3100EF13DE /* leftbend.geojson */,
+				2BB32C811C3DCB3100EF13DE /* leftv.geojson */,
+				2BB32C821C3DCB3100EF13DE /* rightbend.geojson */,
 				2B05BA421BF2187C00CF857A /* OSTN02_NTv2.gsb */,
 				2B05BA2A1BE43AA100CF857A /* sawtooth.geojson */,
 				2B0B8DD11BB330E70060C70D /* redsquare.png */,
@@ -1623,6 +1650,7 @@
 				2BFD26F3170B933C00127EF5 /* ABW.geojson in Resources */,
 				2BFD26F4170B933C00127EF5 /* AFG.geojson in Resources */,
 				2BFD26F5170B933C00127EF5 /* AGO.geojson in Resources */,
+				2BB32C8E1C3DD2C600EF13DE /* mowing-lawn.geojson in Resources */,
 				2BFD26F6170B933C00127EF5 /* AIA.geojson in Resources */,
 				2BDC8A8E1937E33F00DFECF0 /* tl_2013_06075_roads.prj in Resources */,
 				2BFD26F7170B933C00127EF5 /* ALA.geojson in Resources */,
@@ -1652,6 +1680,7 @@
 				2B8570B11A5DE4D200705AA7 /* vp.mtl in Resources */,
 				2BFD2705170B933C00127EF5 /* BEL.geojson in Resources */,
 				2BC0FB341964D3580043E1FD /* library-24@2x.png in Resources */,
+				2BB32C851C3DCB3100EF13DE /* rightbend.geojson in Resources */,
 				2BC0FB6D1964D3580043E1FD /* zoo-24@2x.png in Resources */,
 				2BC0FB591964D3580043E1FD /* soccer-24@2x.png in Resources */,
 				2BFD2706170B933C00127EF5 /* BEN.geojson in Resources */,
@@ -1719,6 +1748,7 @@
 				2BFD2730170B933C00127EF5 /* DMA.geojson in Resources */,
 				2BFD2731170B933C00127EF5 /* DNK.geojson in Resources */,
 				2BFD2732170B933C00127EF5 /* DOM.geojson in Resources */,
+				2BB32C901C3DD2C600EF13DE /* square.geojson in Resources */,
 				2BC0FB0D1964D3580043E1FD /* basketball-24@2x.png in Resources */,
 				2BFD2733170B933C00127EF5 /* DZA.geojson in Resources */,
 				2BFD2734170B933C00127EF5 /* ECU.geojson in Resources */,
@@ -1760,8 +1790,10 @@
 				2BFD274E170B933C00127EF5 /* GRL.geojson in Resources */,
 				2BFD274F170B933C00127EF5 /* GTM.geojson in Resources */,
 				2BC0FB461964D3580043E1FD /* place-of-worship-24@2x.png in Resources */,
+				2BB32C8F1C3DD2C600EF13DE /* spiral.geojson in Resources */,
 				2BFD2750170B933C00127EF5 /* GUF.geojson in Resources */,
 				2BFD2751170B933C00127EF5 /* GUM.geojson in Resources */,
+				2BB32C831C3DCB3100EF13DE /* leftbend.geojson in Resources */,
 				2BFD2752170B933C00127EF5 /* GUY.geojson in Resources */,
 				2BFD2753170B933C00127EF5 /* HKG.geojson in Resources */,
 				2BC0FB261964D3580043E1FD /* farm-24@2x.png in Resources */,
@@ -1778,6 +1810,7 @@
 				2BFD275D170B933C00127EF5 /* IRL.geojson in Resources */,
 				2BFD275E170B933C00127EF5 /* IRN.geojson in Resources */,
 				2BFD275F170B933C00127EF5 /* IRQ.geojson in Resources */,
+				2BB32C921C3DD36600EF13DE /* sawtoothbegin.geojson in Resources */,
 				2BFD2760170B933C00127EF5 /* ISL.geojson in Resources */,
 				2BFD2761170B933C00127EF5 /* ISR.geojson in Resources */,
 				2BC0FB5F1964D3580043E1FD /* swimming-24@2x.png in Resources */,
@@ -1812,6 +1845,7 @@
 				2B05BA2B1BE43AA100CF857A /* sawtooth.geojson in Resources */,
 				2BFD2774170B933C00127EF5 /* LIE.geojson in Resources */,
 				2BFD2775170B933C00127EF5 /* LKA.geojson in Resources */,
+				2BB32C8A1C3DD0CB00EF13DE /* track.geojson in Resources */,
 				2BC0FB201964D3580043E1FD /* dam-24@2x.png in Resources */,
 				2BFD2776170B933C00127EF5 /* LSO.geojson in Resources */,
 				2BC0FB071964D3580043E1FD /* america-football-24@2x.png in Resources */,
@@ -1864,6 +1898,7 @@
 				2BFD2794170B933C00127EF5 /* NER.geojson in Resources */,
 				2BFD2795170B933C00127EF5 /* NFK.geojson in Resources */,
 				2BFD2796170B933C00127EF5 /* NGA.geojson in Resources */,
+				2BB32C881C3DCFC700EF13DE /* rightv.geojson in Resources */,
 				2BFD2797170B933C00127EF5 /* NIC.geojson in Resources */,
 				2BFD2798170B933C00127EF5 /* NIU.geojson in Resources */,
 				2BFD2799170B933C00127EF5 /* NLD.geojson in Resources */,
@@ -2001,6 +2036,7 @@
 				2BB54EDB17CEB85D0065451F /* Default-Portrait@2x~ipad.png in Resources */,
 				2BB54EDF17CEB88F0065451F /* Default-568h@2x.png in Resources */,
 				2BB54EE017CEB8950065451F /* Default.png in Resources */,
+				2BB32C841C3DCB3100EF13DE /* leftv.geojson in Resources */,
 				2BB54EE217CEB8A20065451F /* Default@2x.png in Resources */,
 				2BC989E517DC289B0071DA9E /* world_web_mercator.sqlite in Resources */,
 			);
