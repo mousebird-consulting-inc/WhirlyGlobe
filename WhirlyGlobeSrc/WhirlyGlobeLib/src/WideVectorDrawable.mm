@@ -157,16 +157,14 @@ static const char *vertexShaderTri =
 "{\n"
 "   v_texCoord = vec2(a_texCoord0.x, a_texCoord0.y * u_texScale);\n"
 "   v_color = a_color;\n"
-"   vec4 screen_p0 = u_mvpMatrix * vec4(a_position,1.0);\n"
-"   screen_p0 /= screen_p0.w;\n"
-"   vec4 screen_p1 = u_mvpMatrix * vec4(a_p1,1.0);\n"
-"   screen_p1 /= screen_p1.w;\n"
-"   vec2 screen_n0 = (u_mvpMatrix * vec4(a_n0,0.0)).xy;\n"
+//  Position along the line
 "   float t0 = a_c0 * u_real_w2;\n"
 //"   t0 = clamp(t0,a_t0_limit.x,a_t0_limit.y);\n"
 "   t0 = clamp(t0,0.0,1.0);\n"
-"   vec2 calcOff = (screen_p1.xy - screen_p0.xy) * t0 + screen_n0 * u_w2;\n"
-"   gl_Position = vec4(screen_p0.xy + calcOff,0,1.0);\n"
+"   vec3 realPos = (a_p1 - a_position) * t0 + a_n0 * u_real_w2 + a_position;\n"
+"   vec4 screenPos = u_mvpMatrix * vec4(realPos,1.0);\n"
+"   screenPos /= screenPos.w;\n"
+"   gl_Position = vec4(screenPos.xy,0,1.0);\n"
 "}\n"
 ;
 
