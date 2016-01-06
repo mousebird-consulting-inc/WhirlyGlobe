@@ -442,7 +442,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     
 //    [self performSelector:@selector(labelMarkerTest:) withObject:@(0.1) afterDelay:0.1];
 
-//    [self addGeoJson:@"sawtooth.geojson"];
+    [self addGeoJson:@"sawtooth.geojson"];
   
     [baseViewC enable3dTouchSelection:self];
 
