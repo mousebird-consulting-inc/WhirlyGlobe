@@ -38,7 +38,7 @@ public:
     
     virtual unsigned int addPoint(const Point3f &pt);
     // Vector for p1 - p0
-    void add_P01(const Point3f &vec);
+    void add_p1(const Point3f &vec);
     // Limit for t value (1.0 by default)
     void add_t0_limit(float tMin,float tMax);
     // Vector for 90 deg from line
@@ -55,14 +55,14 @@ public:
 protected:
     bool snapTex;
     float texRepeat;
-    int p01_index;
+    int p1_index;
     int t0_limit_index;
     int n0_index;
     int c0_index;
     
     // Note: Debugging
     std::vector<Point3f> locPts;
-    std::vector<Point3f> p01;
+    std::vector<Point3f> p1;
     std::vector<Point2f> t0_limits;
     std::vector<Point3f> n0;
     std::vector<float> c0;

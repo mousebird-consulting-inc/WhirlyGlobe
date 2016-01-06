@@ -77,6 +77,7 @@ public:
             dir = p1 - p0;
             n = n0;
             org = p0;
+            dest = p1;
         }
         
         // Return a version of the point flipped around its main axis
@@ -100,7 +101,7 @@ public:
         double c;
         Point3d dir;
         Point3d n;
-        Point3d org;
+        Point3d org,dest;
     };
     
     // Intersect the wide lines, but return an equation to calculate the point
@@ -110,6 +111,7 @@ public:
             iPt0.dir = p0 - p1;
             iPt0.n = n0;
             iPt0.org = p1;
+            iPt0.dest = p0;
             Point3d p01 = p0 - p1;
             Point3d n01 = n0 - n1;
             Point3d p21 = p2 - p1;
@@ -124,6 +126,7 @@ public:
             iPt1.dir = p2 - p1;
             iPt1.n = n1;
             iPt1.org = p1;
+            iPt1.dest = p0;
             Point3d n10 = n1 - n0;
             Point3d p21 = p2 - p1;
             Point3d p01 = p0 - p1;
@@ -239,7 +242,7 @@ public:
             InterPoint &vert = verts[vi];
             drawable->addPoint(Vector3dToVector3f(vert.org));
             drawable->addNormal(up);
-            drawable->add_P01(Vector3dToVector3f(vert.dir));
+            drawable->add_p1(Vector3dToVector3f(vert.dest));
             drawable->add_t0_limit(0.0, 1.0);
 //            drawable->add_t0_limit(vert.t0limit.x(), vert.t0limit.y());
             drawable->add_n0(Vector3dToVector3f(vert.n));
@@ -283,7 +286,7 @@ public:
             InterPoint &vert = verts[vi];
             drawable->addPoint(Vector3dToVector3f(vert.org));
             drawable->addNormal(up);
-            drawable->add_P01(Vector3dToVector3f(vert.dir));
+            drawable->add_p1(Vector3dToVector3f(vert.dest));
             // Note: Need these
             drawable->add_t0_limit(-1.0, 2.0);
 //            drawable->add_t0_limit(vert.t0limit.x(), vert.t0limit.y());
@@ -429,7 +432,7 @@ public:
                 // Bending left
                 corners[2] = lPt0.flipped();
                 corners[3] = lPt0;
-                next_e0 = lPt0;
+                next_e0 = lPt1;
                 next_e1 = lPt1.flipped();
             }
         } else {
@@ -464,7 +467,8 @@ public:
                 triTex[0] = TexCoord(0.0,0.0);
                 triTex[1] = TexCoord(1.0,0.0);
                 triTex[2] = TexCoord(1.0,1.0);
-                addWideTri(wideDrawable,triVerts,triTex,up);
+                // Note: Debugging
+//                addWideTri(wideDrawable,triVerts,triTex,up);
             }
         }
         
