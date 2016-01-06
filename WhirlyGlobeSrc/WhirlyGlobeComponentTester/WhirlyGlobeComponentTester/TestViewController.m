@@ -442,7 +442,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     
 //    [self performSelector:@selector(labelMarkerTest:) withObject:@(0.1) afterDelay:0.1];
 
-    [self addGeoJson:@"sawtooth.geojson"];
+    [self wideLineTest];
   
     [baseViewC enable3dTouchSelection:self];
 
@@ -473,6 +473,18 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     bboard.center = MaplyCoordinate3dMake(0, 0, -EarthRadius);
     
     [baseViewC addBillboards:@[bboard] desc:@{kMaplyBillboardOrient:kMaplyBillboardOrientEye}  mode:MaplyThreadCurrent];
+}
+
+- (void)wideLineTest
+{
+    [self addGeoJson:@"sawtooth.geojson"];
+    [self addGeoJson:@"moving-lawn.geojson"];
+    [self addGeoJson:@"spiral.geojson"];
+    [self addGeoJson:@"square.geojson"];
+    [self addGeoJson:@"track.geojson"];
+
+    if (mapViewC)
+        [mapViewC setPosition:MaplyCoordinateMakeWithDegrees(-100, 30) height:0.0046618999913334846];
 }
 
 
