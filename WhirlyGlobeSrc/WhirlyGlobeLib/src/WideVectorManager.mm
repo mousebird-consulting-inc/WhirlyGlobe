@@ -419,6 +419,8 @@ public:
         } else {
             corners[2] = endPt0;
             corners[3] = endPt0.flipped();
+            next_e0 = endPt0.flipped();
+            next_e1 = endPt0;
         }
         
         texCoords[0] = TexCoord(0.0,texOffset);
