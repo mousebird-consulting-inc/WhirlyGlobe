@@ -24,11 +24,28 @@
 @implementation NSData(zlib)
 - (BOOL)isCompressed
 {
-  	return self.length > 2 &&
-      (uint8_t)((const char*)self.bytes)[0] == 0x78 &&
-      (uint8_t)((const char*)self.bytes)[1] == 0x9C;
+    // Update courtesy: Tim Sylvester
+    uint32_t const smallest_zlib_output = 8;    // gzip is 23
+    if (self.length >= smallest_zlib_output)
+    {
+        const uint8_t* const bytes = (const uint8_t*)self.bytes;
+        switch (bytes[0])
+        {
+            case 0x1f:
+                return (bytes[1] == 0x8b);  // gzip
+            case 0x78:
+                switch (bytes[1])
+            {
+                case 0x01:  // Compression levels 0-1 (none,fast)
+                case 0x5e:  // Compression levels 2-5
+                case 0x9c:  // Compression level  6   (default)
+                case 0xda:  // Compression levels 7-9 (best)
+                    return true;
+            }
+        }
+    }
+    return false;
 }
-
 
 - (NSData *) compressData
 {
