@@ -469,9 +469,13 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 			FrameStatus that = (FrameStatus)thatObj;
 			if (currentFrame != that.currentFrame)
 				return false;
+			if (complete.length != that.complete.length)
+				return false;
 			for (int ii=0;ii<complete.length;ii++)
 				if (complete[ii] != that.complete[ii])
 					return false;
+			if (tilesLoaded.length != that.tilesLoaded.length)
+				return false;
 			for (int ii=0;ii<tilesLoaded.length;ii++)
 				if (tilesLoaded[ii] != that.tilesLoaded[ii])
 					return false;
