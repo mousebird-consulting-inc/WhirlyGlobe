@@ -21,7 +21,7 @@
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "DataLayer.h"
-#import "layerThread.h"
+#import "LayerThread.h"
 #import "BaseInfo.h"
 
 /// Used to pass shape info between the shape layer and the drawable builder
