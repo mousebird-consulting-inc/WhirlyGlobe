@@ -25,7 +25,7 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
      */
     public interface RenderedImageDelegate
     {
-        public void renderedImage(QuadImageOfflineLayer layer,MaplyTexture tex,Point2d centerSize,int frame);
+        public void renderedImage(QuadImageOfflineLayer layer,MaplyTexture tex,int texSizeX,int texSizeY,Point2d centerSize,int frame);
     }
 
     public MaplyBaseController maplyControl = null;
@@ -489,13 +489,13 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
     native void imageRenderToLevel(int level,ChangeSet changes);
 
     // Called by the JNI side to hand us back rendered image data
-    void imageRenderCallback(long texID,double centerSizeX,double centerSizeY,int frame)
+    void imageRenderCallback(long texID,double centerSizeX,double centerSizeY,int texSizeX,int texSizeY,int frame)
     {
         if (imageDelegate != null) {
             MaplyTexture tex = new MaplyTexture();
             tex.controller = maplyControl;
             tex.texID = texID;
-            imageDelegate.renderedImage(this, tex, new Point2d(centerSizeX, centerSizeY), frame);
+            imageDelegate.renderedImage(this, tex, texSizeX, texSizeY, new Point2d(centerSizeX, centerSizeY), frame);
         }
     }
 
