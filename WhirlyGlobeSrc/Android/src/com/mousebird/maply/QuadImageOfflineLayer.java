@@ -340,11 +340,18 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
     /** For the case where we're loading individual frames, this sets the order to load them in.
      * When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.
      */
-    public void setFrameLoadingPriority(int[] priorites)
+    public void setFrameLoadingPriority(final int[] priorites)
     {
-        ChangeSet changes = new ChangeSet();
-        setFrameLoadingPriority(priorites,changes);
-        layerThread.addChanges(changes);
+        layerThread.addTask(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                ChangeSet changes = new ChangeSet();
+                setFrameLoadingPriority(priorites,changes);
+                layerThread.addChanges(changes);
+            }
+        });
     }
 
     native void setFrameLoadingPriority(int[] priorites,ChangeSet changes);

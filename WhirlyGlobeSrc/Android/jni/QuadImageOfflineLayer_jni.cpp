@@ -600,6 +600,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setFrameLo
         adapter->framePriorities.clear();
         
         ConvertIntArray(env,frameLoadingArr,adapter->framePriorities);
+        if (adapter->control)
+            adapter->control->setFrameLoadingPriorities(adapter->framePriorities);
     }
     catch (...)
     {
