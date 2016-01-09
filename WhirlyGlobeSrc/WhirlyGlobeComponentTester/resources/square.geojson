@@ -2,8 +2,9 @@
       "type": "Feature",
       "properties": {},
       "geometry": {
-        "type": "LineString",
+        "type": "Polygon",
         "coordinates": [
+                        [
             [
               -109.248046875,
               35.67514743608467
@@ -24,6 +25,7 @@
               -109.248046875,
               35.67514743608467
             ]
+          ]
         ]
       }
     }
