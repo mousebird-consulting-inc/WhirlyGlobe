@@ -4,3 +4,7 @@ xcuserdata
 project.xcworkspace
 
 *.orig
+.sass-cache
+_site
+WhirlyGlobeSrc/WhirlyGlobeLib/WhirlyGlobe.framework
+WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.framework
