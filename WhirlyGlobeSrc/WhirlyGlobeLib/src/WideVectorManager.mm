@@ -296,7 +296,7 @@ public:
     }
     
     // Build the polygons for a widened line segment
-    void buildPolys(const Point3d *pa,const Point3d *pb,const Point3d *pc,const Point3d &up,BasicDrawable *drawable)
+    void buildPolys(const Point3d *pa,const Point3d *pb,const Point3d *pc,const Point3d &up,BasicDrawable *drawable,bool buildSegment,bool buildJunction)
     {
         WideVectorDrawable *wideDrawable = dynamic_cast<WideVectorDrawable *>(drawable);
         
@@ -430,11 +430,12 @@ public:
 
         // Add the rectangles
         // Note: Do real world coordinates
-        addWideRect(wideDrawable, corners, texCoords, up);
+        if (buildSegment)
+            addWideRect(wideDrawable, corners, texCoords, up);
         
         // Do the join polygons if we can
         // Note: Always doing bevel case (sort of)
-        if (iPtsValid)
+        if (iPtsValid && buildJunction)
         {
             // Three triangles make up the bend
 
@@ -504,10 +505,10 @@ public:
     
     
     // Add a point to the widened linear we're building
-    void addPoint(const Point3d &inPt,const Point3d &up,BasicDrawable *drawable)
+    void addPoint(const Point3d &inPt,const Point3d &up,BasicDrawable *drawable,bool closed,bool buildSegment,bool buildJunction)
     {
         // Compare with the last point, if it's the same, toss it
-        if (!pts.empty() && pts.back() == inPt)
+        if (!pts.empty() && pts.back() == inPt && !closed)
             return;
         
         pts.push_back(inPt);
@@ -516,19 +517,19 @@ public:
             const Point3d &pa = pts[pts.size()-3];
             const Point3d &pb = pts[pts.size()-2];
             const Point3d &pc = pts[pts.size()-1];
-            buildPolys(&pa,&pb,&pc,up,drawable);
+            buildPolys(&pa,&pb,&pc,up,drawable,buildSegment,buildJunction);
         }
         lastUp = up;
     }
     
     // Flush out any outstanding points
-    void flush(BasicDrawable *drawable)
+    void flush(BasicDrawable *drawable,bool buildLastSegment, bool buildLastJunction)
     {
         if (pts.size() >= 2)
         {
             const Point3d &pa = pts[pts.size()-2];
             const Point3d &pb = pts[pts.size()-1];
-            buildPolys(&pa, &pb, NULL, lastUp, drawable);
+            buildPolys(&pa, &pb, NULL, lastUp, drawable, buildLastSegment, buildLastJunction);
         }
     }
 
@@ -604,7 +605,7 @@ public:
     }
     
     // Add the points for a linear
-    void addLinear(VectorRing &pts,const Point3d &up)
+    void addLinear(const VectorRing &pts,const Point3d &up,bool closed)
     {
         RGBAColor color = [vecInfo.color asRGBAColor];
 //        color.r = random()%256;
@@ -613,11 +614,34 @@ public:
 //        color.a = 255;
         WideVectorBuilder vecBuilder(vecInfo,localCenter,dispCenter,color,coordAdapter);
         
+        // We'll add one on the beginning and two on the end
+        //  if we're doing a closed loop.  This gets us
+        //  valid junctions that match up.
+        int startPoint = 0;
+        if (closed)
+        {
+            if (pts.size() > 2)
+            {
+                if (pts.front() == pts.back())
+                {
+                    startPoint = -3;
+                } else {
+                    startPoint = -2;
+                }
+            }
+        }
+        
         // Work through the segments
-        for (unsigned int ii=0;ii<pts.size();ii++)
+        Point2f lastPt;
+        bool validLastPt = false;
+        for (int ii=startPoint;ii<(int)pts.size();ii++)
         {
             // Get the points in display space
-            Point2f geoA = pts[ii];
+            Point2f geoA = pts[(ii+pts.size())%pts.size()];
+            
+            if (validLastPt && geoA == lastPt)
+                continue;
+
             Point3d dispPa = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y())));
             
             // Get a drawable ready
@@ -626,10 +650,17 @@ public:
             BasicDrawable *thisDrawable = getDrawable(ptCount,triCount);
             drawMbr.addPoint(geoA);
             
-            vecBuilder.addPoint(dispPa,up,thisDrawable);
+            bool doSegment = !closed || (ii > 0);
+            bool doJunction = !closed || (ii >= 0);
+            vecBuilder.addPoint(dispPa,up,thisDrawable,closed,doSegment,doJunction);
+            
+//            NSLog(@"Pt = (%f,%f), doSegment = %d, doJunction = %d",geoA.x(),geoA.y(),(int)doSegment,(int)doJunction);
+            
+            lastPt = geoA;
+            validLastPt = true;
         }
 
-        vecBuilder.flush(drawable);
+        vecBuilder.flush(drawable,!closed,true);
     }
     
     // Note: Debug verson of add linear
@@ -648,6 +679,7 @@ public:
         {
             // Get the points in display space
             Point2f geoA = pts[ii];
+            
             Point3d dispPa(geoA.x(),geoA.y(),0.0);
 
             // Get a drawable ready
@@ -656,10 +688,10 @@ public:
             BasicDrawable *thisDrawable = getDrawable(ptCount,triCount);
             drawMbr.addPoint(geoA);
 
-            vecBuilder.addPoint(dispPa,up,thisDrawable);
+            vecBuilder.addPoint(dispPa,up,thisDrawable,false,true,true);
         }
         
-        vecBuilder.flush(drawable);
+        vecBuilder.flush(drawable,true,true);
     }
 
     // Flush out the drawables
@@ -784,7 +816,16 @@ SimpleIdentity WideVectorManager::addVectors(ShapeSet *shapes,NSDictionary *desc
         VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
         if (lin)
         {
-            builder.addLinear(lin->pts,centerUp);
+            builder.addLinear(lin->pts,centerUp,false);
+        } else {
+            VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+            if (ar)
+            {
+                for (const auto &loop : ar->loops)
+                {
+                    builder.addLinear(loop, centerUp, true);
+                }
+            }
         }
     }
 //    builder.addLinearDebug();
