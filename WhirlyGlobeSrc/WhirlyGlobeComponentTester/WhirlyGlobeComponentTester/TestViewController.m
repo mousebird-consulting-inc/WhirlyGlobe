@@ -1221,7 +1221,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
                                          kMaplyVecTexture: lineTexture,
                                          kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                          kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
-                                         kMaplyVecWidth: @(6)}
+                                         kMaplyVecWidth: @(40)}
                                  mode:MaplyThreadCurrent];
             [baseViewC addVectors:@[vecObj]
                              desc: @{kMaplyColor: [UIColor blackColor],
