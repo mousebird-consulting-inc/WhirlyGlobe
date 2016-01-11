@@ -28,7 +28,7 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), texRepeat(1.0)
+WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), texRepeat(1.0), edgeSize(1.0)
 {
     lineWidth = 10.0/1024.0;
     p1_index = addAttribute(BDFloat3Type, "a_p1");
@@ -39,32 +39,42 @@ WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), texRepea
     
 unsigned int WideVectorDrawable::addPoint(const Point3f &pt)
 {
+#ifdef WIDEVECDEBUG
     locPts.push_back(pt);
+#endif
     return BasicDrawable::addPoint(pt);
 }
     
 void WideVectorDrawable::add_p1(const Point3f &pt)
 {
     addAttributeValue(p1_index, pt);
+#ifdef WIDEVECDEBUG
     p1.push_back(pt);
+#endif
 }
 
 void WideVectorDrawable::add_n0(const Point3f &dir)
 {
     addAttributeValue(n0_index, dir);
+#ifdef WIDEVECDEBUG
     n0.push_back(dir);
+#endif
 }
 
 void WideVectorDrawable::add_t0_limit(float minVal,float maxVal)
 {
     addAttributeValue(t0_limit_index, Point2f(minVal,maxVal));
+#ifdef WIDEVECDEBUG
     t0_limits.push_back(Point2f(minVal,maxVal));
+#endif
 }
 
 void WideVectorDrawable::add_c0(float val)
 {
     addAttributeValue(c0_index, val);
+#ifdef WIDEVECDEBUG
     c0.push_back(val);
+#endif
 }
 
 void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scene)
@@ -80,8 +90,11 @@ void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scen
         float pixDispSize = std::min(frameInfo.screenSizeInDisplayCoords.x(),frameInfo.screenSizeInDisplayCoords.y()) / scale;
 //        float pixDispSize = std::min(frameInfo.screenSizeInDisplayCoords.x(),frameInfo.screenSizeInDisplayCoords.y()) / scale;
 //        frameInfo.program->setUniform("u_scale", 1.f/scale);
-        frameInfo.program->setUniform("u_w2", lineWidth/(scale));
+        frameInfo.program->setUniform("u_w2", lineWidth);
         frameInfo.program->setUniform("u_real_w2", pixDispSize * lineWidth);
+        // Note: Debugging
+        frameInfo.program->setUniform("u_edge", edgeSize);
+//        frameInfo.program->setUniform("u_edge", edgeSize);
 //        frameInfo.program->setUniform("u_pixDispSize", pixDispSize);
 //        frameInfo.program->setUniform("u_lineWidth", lineWidth);
         float texScale = scale/(screenSize*texRepeat);
@@ -183,9 +196,33 @@ static const char *fragmentShaderTri =
 "}\n"
 ;
 
+static const char *fragmentShaderTriAlias =
+"precision mediump float;\n"
+"\n"
+"uniform sampler2D s_baseMap0;\n"
+"uniform bool  u_hasTexture;\n"
+"uniform float u_w2;\n"
+"uniform float u_edge;\n"
+"\n"
+"varying vec2      v_texCoord;\n"
+"varying vec4      v_color;\n"
+"\n"
+"void main()\n"
+"{\n"
+"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0);\n"
+"  float alpha = 1.0;\n"
+"  float across = v_texCoord.x * u_w2;\n"
+"  if (across < u_edge)\n"
+"    alpha = across/u_edge;\n"
+"  if (across > u_w2-u_edge)\n"
+"    alpha = (u_w2-across)/u_edge;\n"
+"  gl_FragColor = v_color * baseColor * alpha;\n"
+"}\n"
+;
+
 WhirlyKit::OpenGLES2Program *BuildWideVectorProgram()
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(kWideVectorShaderName,vertexShaderTri,fragmentShaderTri);
+    OpenGLES2Program *shader = new OpenGLES2Program(kWideVectorShaderName,vertexShaderTri,fragmentShaderTriAlias);
     if (!shader->isValid())
     {
         delete shader;

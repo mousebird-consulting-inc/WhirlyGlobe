@@ -191,6 +191,9 @@
 /// Widened vectors are joined with a bevel
 #define kMaplyWideVecBevelJoin @"bevel"
 
+/// Number of pixels to use in blending the edges of the wide vectors
+#define kMaplyWideVecEdgeFalloff @"edgefalloff"
+
 /// For wide vectors we can control the ends
 /// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
 //#define kMaplyWideVecLineCapType @"wideveclinecaptype"

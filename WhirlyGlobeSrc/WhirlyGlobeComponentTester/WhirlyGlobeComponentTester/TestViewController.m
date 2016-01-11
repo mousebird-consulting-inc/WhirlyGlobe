@@ -442,7 +442,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     
 //    [self performSelector:@selector(labelMarkerTest:) withObject:@(0.1) afterDelay:0.1];
 
-    [self wideLineTest];
+//    [self wideLineTest];
   
     [baseViewC enable3dTouchSelection:self];
 
@@ -1074,16 +1074,19 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     UIColor *color = [UIColor blueColor];
     float fade = 0.25;
 //    MaplyComponentObject *lines = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: color,
-//                                                                         kMaplyVecWidth: @(4.0),
+//                                                                         kMaplyVecWidth: @(1.0),
 //                                                                         kMaplyFade: @(fade),
 //                                                                         kMaplyVecCentered: @(true),
 //                                                                         kMaplyMaxVis: @(10.0),
 //                                                                         kMaplyMinVis: @(0.00032424763776361942)
 //                                                                         }];
     
+    
     MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor colorWithRed:0.5 green:0.0 blue:0.0 alpha:0.5],
-                                                                                   kMaplyFade: @(fade),
-                                                                                   kMaplyVecWidth: @(3.0),
+                                                                                   kMaplyFade: @(0),
+                                                                                   kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 1),
+                                                                                   kMaplyVecWidth: @(6.0),
+                                                                                   kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
 //                                                                                   kMaplyVecTexture: filledLineTex,
                                                                                    kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
 //                                                                                   kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
@@ -1212,7 +1215,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithGeoJSONDictionary:jsonDictionary];
         if(vecObj) {
             [baseViewC addWideVectors:@[vecObj]
-                                 desc: @{kMaplyColor: [UIColor colorWithRed:1 green:0 blue:0 alpha:0.5],
+                                 desc: @{kMaplyColor: [UIColor colorWithRed:1 green:0 blue:0 alpha:1.0],
                                          kMaplyFilled: @NO,
                                          kMaplyEnable: @YES,
                                          kMaplyFade: @0,
