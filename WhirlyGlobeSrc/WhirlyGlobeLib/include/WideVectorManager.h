@@ -50,6 +50,7 @@ typedef enum {WideVecButtCap,WideVecRoundCap,WideVecSquareCap} WideVectorLineCap
 @property (nonatomic) UIColor *color;
 @property (nonatomic,assign) float width;
 @property (nonatomic,assign) float repeatSize;
+@property (nonatomic,assign) float edgeSize;
 @property (nonatomic,assign) WhirlyKit::WideVectorCoordsType coordType;
 @property (nonatomic,assign) WhirlyKit::WideVectorLineJoinType joinType;
 @property (nonatomic,assign) WhirlyKit::WideVectorLineCapType capType;

@@ -45,6 +45,7 @@ using namespace Eigen;
     _capType = (WhirlyKit::WideVectorLineCapType)[desc enumForKey:@"wideveclinecaptype" values:@[@"butt",@"round",@"square"] default:WideVecButtCap];
     _texID = [desc intForKey:@"texture" default:EmptyIdentity];
     _repeatSize = [desc floatForKey:@"repeatSize" default:(_coordType == WideVecCoordScreen ? 32 : 6371000.0 / 20)];
+    _edgeSize = [desc floatForKey:@"edgefalloff" default:1.0];
     _miterLimit = [desc floatForKey:@"miterLimit" default:2.0];
     _texSnap = [desc boolForKey:@"texsnap" default:false];
 }
@@ -247,8 +248,7 @@ public:
 //            drawable->add_t0_limit(vert.t0limit.x(), vert.t0limit.y());
             drawable->add_n0(Vector3dToVector3f(vert.n));
             drawable->add_c0(vert.c);
-            if (vecInfo.texID != EmptyIdentity)
-                drawable->addTexCoord(0, texCoords[vi]);
+            drawable->addTexCoord(0, texCoords[vi]);
         }
 
         drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+3));
@@ -263,8 +263,7 @@ public:
         for (unsigned int vi=0;vi<3;vi++)
         {
             drawable->addPoint(corners[vi]);
-            if (vecInfo.texID != EmptyIdentity)
-                drawable->addTexCoord(0, texCoords[vi]);
+            drawable->addTexCoord(0, texCoords[vi]);
             drawable->addNormal(up);
 //            drawable->addColor(thisColor);
         }
@@ -288,8 +287,7 @@ public:
 //            drawable->add_t0_limit(vert.t0limit.x(), vert.t0limit.y());
             drawable->add_n0(Vector3dToVector3f(vert.n));
             drawable->add_c0(vert.c);
-            if (vecInfo.texID != EmptyIdentity)
-                drawable->addTexCoord(0, texCoords[vi]);
+            drawable->addTexCoord(0, texCoords[vi]);
         }
         
         drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+2));
@@ -447,25 +445,25 @@ public:
                 triVerts[1] = endPt0.flipped();
                 triVerts[2] = rPt0.flipped();
                 TexCoord triTex[3];
-                triTex[0] = TexCoord(0.0,0.0);
-                triTex[1] = TexCoord(1.0,0.0);
-                triTex[2] = TexCoord(1.0,1.0);
+                triTex[0] = TexCoord(1.0,0.0);
+                triTex[1] = TexCoord(0.0,0.0);
+                triTex[2] = TexCoord(0.0,1.0);
                 addWideTri(wideDrawable,triVerts,triTex,up);
                 
                 triVerts[0] = rPt0;
                 triVerts[1] = endPt1.flipped();
                 triVerts[2] = endPt0.flipped();
-                triTex[0] = TexCoord(0.0,0.0);
-                triTex[1] = TexCoord(1.0,0.0);
-                triTex[2] = TexCoord(1.0,1.0);
+                triTex[0] = TexCoord(1.0,0.0);
+                triTex[1] = TexCoord(0.0,0.0);
+                triTex[2] = TexCoord(0.0,1.0);
                 addWideTri(wideDrawable,triVerts,triTex,up);
                 
                 triVerts[0] = rPt1;
                 triVerts[1] = rPt1.flipped();
                 triVerts[2] = endPt1.flipped();
-                triTex[0] = TexCoord(0.0,0.0);
-                triTex[1] = TexCoord(1.0,0.0);
-                triTex[2] = TexCoord(1.0,1.0);
+                triTex[0] = TexCoord(1.0,0.0);
+                triTex[1] = TexCoord(0.0,0.0);
+                triTex[2] = TexCoord(0.0,1.0);
                 addWideTri(wideDrawable,triVerts,triTex,up);
             } else {
                 // Bending left
@@ -500,7 +498,7 @@ public:
         e0 = next_e0;
         e1 = next_e1;
 
-//        texOffset += texLen+texJoinLen;
+        texOffset += texLen;
     }
     
     
@@ -585,6 +583,7 @@ public:
                 drawable = wideDrawable;
                 drawable->setProgram(vecInfo.programID);
                 wideDrawable->setTexRepeat(vecInfo.repeatSize);
+                wideDrawable->setEdgeSize(vecInfo.edgeSize);
                 wideDrawable->setLineWidth(vecInfo.width);
             }
 //            drawMbr.reset();
