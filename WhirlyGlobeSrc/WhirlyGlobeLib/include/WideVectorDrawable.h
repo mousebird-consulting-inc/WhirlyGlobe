@@ -28,6 +28,9 @@ namespace WhirlyKit
     
 /// Construct and return the Billboard shader program
 OpenGLES2Program *BuildWideVectorProgram();
+    
+// Used to debug the wide vectors
+//#define WIDEVECDEBUG 1
 
 /** This drawable adds convenience functions for wide vectors.
   */
@@ -49,23 +52,29 @@ public:
     /// How often the texture repeats
     void setTexRepeat(float inTexRepeat) { texRepeat = inTexRepeat; }
     
+    /// Number of pixels to interpolate at the edges
+    void setEdgeSize(float inEdgeSize) { edgeSize = inEdgeSize; }
+    
     /// We override draw so we can set our own values
     virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
     
 protected:
     bool snapTex;
     float texRepeat;
+    float edgeSize;
     int p1_index;
     int t0_limit_index;
     int n0_index;
     int c0_index;
     
+#ifdef WIDEVECDEBUG
     // Note: Debugging
     std::vector<Point3f> locPts;
     std::vector<Point3f> p1;
     std::vector<Point2f> t0_limits;
     std::vector<Point3f> n0;
     std::vector<float> c0;
+#endif
 };
     
 }
