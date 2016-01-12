@@ -1093,11 +1093,11 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 //                                                                                   kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
 //                                                                                   kMaplyWideVecMiterLimit: @(1.01),
 //                                                                                   kMaplyWideVecTexRepeatLen: @(8),
-//                                                                                   kMaplyMaxVis: @(0.00032424763776361942),
+                                                                                   kMaplyMaxVis: @(0.00032424763776361942),
 //                                                                                   kMaplyMinVis: @(0.00011049506429117173)
                                                                                    }];
-    
-    // Note: Put this back
+
+    // Note: Real world width doesn't quite work
 //    MaplyComponentObject *realLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: color,
 //                                                                                 kMaplyFade: @(fade),
 //                                                                                 kMaplyVecTexture: dashedLineTex,
