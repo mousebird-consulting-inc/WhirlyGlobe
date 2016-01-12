@@ -78,18 +78,21 @@ void WideVectorDrawable::add_c0(float val)
 
 void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scene)
 {
-//    double u_length = 0.0;
-//    double u_scale = 1.0;
-//    double u_pixDispSize = 0.0;
-    
     if (frameInfo.program)
     {
         float scale = std::max(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight);
         float screenSize = frameInfo.screenSizeInDisplayCoords.x();
         float pixDispSize = std::min(frameInfo.screenSizeInDisplayCoords.x(),frameInfo.screenSizeInDisplayCoords.y()) / scale;
-        frameInfo.program->setUniform("u_w2", lineWidth);
-        frameInfo.program->setUniform("u_real_w2", pixDispSize * lineWidth);
-        frameInfo.program->setUniform("u_edge", edgeSize);
+        if (realWidthSet)
+        {
+            frameInfo.program->setUniform("u_w2", (float)(realWidth / pixDispSize));
+            frameInfo.program->setUniform("u_real_w2", (float)realWidth);
+            frameInfo.program->setUniform("u_edge", edgeSize);
+        } else {
+            frameInfo.program->setUniform("u_w2", lineWidth);
+            frameInfo.program->setUniform("u_real_w2", pixDispSize * lineWidth);
+            frameInfo.program->setUniform("u_edge", edgeSize);
+        }
         float texScale = scale/(screenSize*texRepeat);
         frameInfo.program->setUniform("u_texScale", texScale);
         
