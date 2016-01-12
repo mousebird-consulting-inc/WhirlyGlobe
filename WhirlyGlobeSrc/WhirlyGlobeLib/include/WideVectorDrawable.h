@@ -55,10 +55,15 @@ public:
     /// Number of pixels to interpolate at the edges
     void setEdgeSize(float inEdgeSize) { edgeSize = inEdgeSize; }
     
+    /// Fix the width to a real world value, rather than letting it change
+    void setRealWorldWidth(double width) { realWidthSet = true;  realWidth = width; }
+    
     /// We override draw so we can set our own values
     virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
     
 protected:
+    bool realWidthSet;
+    double realWidth;
     bool snapTex;
     float texRepeat;
     float edgeSize;
