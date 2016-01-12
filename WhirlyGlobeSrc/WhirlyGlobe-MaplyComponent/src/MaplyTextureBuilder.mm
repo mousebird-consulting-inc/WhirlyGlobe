@@ -24,18 +24,15 @@
 
 @implementation MaplyLinearTextureBuilder
 {
-    CGSize size;
+    int size;
     std::vector<int> elements;
 }
 
-- (instancetype)initWithSize:(CGSize)inSize
+- (id)init
 {
     self = [super init];
-    if (!self)
-        return nil;
     
-    size = inSize;
-    _opacityFunc = MaplyOpacitySin3;
+    size = 0;
     
     return self;
 }
@@ -57,53 +54,20 @@
     int eleSum = 0;
     for (unsigned int ii=0;ii<elements.size();ii++)
         eleSum += elements[ii];
+    size = eleSum;
     
-    if (eleSum == 0)
+    if (size == 0)
         return nil;
     
-    UIGraphicsBeginImageContext(size);
+    int width = 16;
+    CGSize imgSize = CGSizeMake(width, size);
+    UIGraphicsBeginImageContext(imgSize);
     CGContextRef ctx = UIGraphicsGetCurrentContext();
     
-    CGContextClearRect(ctx, CGRectMake(0, 0, size.width, size.height));
+    // Note: Debugging
+    CGContextClearRect(ctx, CGRectMake(0, 0, imgSize.width, imgSize.height));
     [[UIColor whiteColor] setFill];
     [[UIColor whiteColor] setStroke];
-    
-    // Precalculate the opacity values since they're the same for every row
-    std::vector<float> opacityVals;
-    opacityVals.resize((int)size.width);
-    for (unsigned int ii=0;ii<opacityVals.size();ii++)
-    {
-        float opacityVal = 0.0;
-        float t = ii/(float)(size.width-1);
-        switch (_opacityFunc)
-        {
-            case MaplyOpacityFlat:
-                opacityVal = 1.0;
-                break;
-            case MaplyOpacityLinear:
-                opacityVal = (t < 0.5 ? 2*t : (1.0-t)*2);
-                break;
-            case MaplyOpacitySin1:
-            {
-                float sinVal = sinf((ii/(float)(size.width-1))*M_PI);
-                opacityVal = (sinVal > 0.0 ? sinVal : 0.0);
-            }
-                break;
-            case MaplyOpacitySin2:
-            {
-                float sinVal = sinf((ii/(float)(size.width-1))*M_PI);
-                opacityVal = (sinVal > 0.0 ? powf(sinVal,0.5) : 0.0);
-            }
-                break;
-            case MaplyOpacitySin3:
-            {
-                float sinVal = sinf((ii/(float)(size.width-1))*M_PI);
-                opacityVal = (sinVal > 0.0 ? powf(sinVal,0.33) : 0.0);
-            }
-                break;
-        }
-        opacityVals[ii] = opacityVal;
-    }
     
     // Work our way through the elements
     int curY = 0;
@@ -114,14 +78,7 @@
         if (onOrOff)
             for (unsigned int jj=0;jj<eleLen;jj++)
             {
-                for (unsigned int xx=0;xx<size.width;xx++)
-                {
-                    float opacity = opacityVals[xx];
-                    // Do a gradiant across the image
-                    [[UIColor colorWithWhite:1.0 alpha:opacity] setFill];
-                    [[UIColor colorWithWhite:1.0 alpha:opacity] setStroke];
-                    CGContextFillRect(ctx, CGRectMake(xx, (curY+jj)/(float)eleSum * size.height, 1, 1));
-                }
+                CGContextFillRect(ctx, CGRectMake(0.0, (curY+jj)/(float)eleSum * imgSize.height, width, 1));
             }
         onOrOff = !onOrOff;
         curY += eleLen;

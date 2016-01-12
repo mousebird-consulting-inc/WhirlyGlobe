@@ -126,9 +126,8 @@
             else
                 texWidth = 32;
                 
-            MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(texWidth,patternLength)];
+            MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
             [lineTexBuilder setPattern:dashComponents];
-            lineTexBuilder.opacityFunc = MaplyOpacitySin3;
             UIImage *lineImage = [lineTexBuilder makeImage];
             MaplyTexture *filledLineTex = [viewC addTexture:lineImage
                                                        desc:@{kMaplyTexMinFilter: kMaplyMinFilterLinear,
