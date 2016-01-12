@@ -40,10 +40,10 @@ public:
     WideVectorDrawable();
     
     virtual unsigned int addPoint(const Point3f &pt);
-    // Vector for p1 - p0
+    // Next point, for calculating p1 - p0
     void add_p1(const Point3f &vec);
-    // Limit for t value (1.0 by default)
-    void add_t0_limit(float tMin,float tMax);
+    // Texture calculation parameters
+    void add_texInfo(float texX,float texYmin,float texYmax);
     // Vector for 90 deg from line
     void add_n0(const Point3f &vec);
     // Complex constant we multiply by width for t
@@ -63,9 +63,9 @@ protected:
     float texRepeat;
     float edgeSize;
     int p1_index;
-    int t0_limit_index;
     int n0_index;
     int c0_index;
+    int tex_index;
     
 #ifdef WIDEVECDEBUG
     // Note: Debugging
