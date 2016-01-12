@@ -431,17 +431,15 @@ public:
         {
             flush();
           
+            WideVectorDrawable *wideDrawable = new WideVectorDrawable();
+            drawable = wideDrawable;
+            drawable->setProgram(vecInfo.programID);
+            wideDrawable->setTexRepeat(vecInfo.repeatSize);
+            wideDrawable->setEdgeSize(vecInfo.edgeSize);
+            wideDrawable->setLineWidth(vecInfo.width);
             if (vecInfo.coordType == WideVecCoordReal)
-            {
-                drawable = new BasicDrawable("WideVector");
-            } else {
-                WideVectorDrawable *wideDrawable = new WideVectorDrawable();
-                drawable = wideDrawable;
-                drawable->setProgram(vecInfo.programID);
-                wideDrawable->setTexRepeat(vecInfo.repeatSize);
-                wideDrawable->setEdgeSize(vecInfo.edgeSize);
-                wideDrawable->setLineWidth(vecInfo.width);
-            }
+                wideDrawable->setRealWorldWidth(vecInfo.width);
+            
 //            drawMbr.reset();
             drawable->setType(GL_TRIANGLES);
             [vecInfo setupBasicDrawable:drawable];
