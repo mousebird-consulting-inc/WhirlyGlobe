@@ -320,7 +320,7 @@ public:
 {
     int imageFormat = [desc intForKey:kMaplyTexFormat default:MaplyImageIntRGBA];
     bool wrapX = [desc boolForKey:kMaplyTexWrapX default:false];
-    bool wrapY = [desc boolForKey:kMaplyTexWrapX default:false];
+    bool wrapY = [desc boolForKey:kMaplyTexWrapY default:false];
     int magFilter = [desc enumForKey:kMaplyTexMagFilter values:@[kMaplyMinFilterNearest,kMaplyMinFilterLinear] default:0];
     
     int imgWidth = image.size.width * image.scale;
@@ -1583,9 +1583,10 @@ public:
             tex = [self addImage:theImage imageFormat:MaplyImage4Layer8Bit mode:threadMode];
         else if ([theImage isKindOfClass:[MaplyTexture class]])
             tex = (MaplyTexture *)theImage;
-        if (tex.texID)
+        if (tex.texID) {
             inDesc[kMaplyVecTexture] = @(tex.texID);
-        else
+            compObj.textures.insert(tex);
+        } else
             [inDesc removeObjectForKey:kMaplyVecTexture];
     }
     
