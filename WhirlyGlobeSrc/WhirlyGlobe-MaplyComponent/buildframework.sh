@@ -5,6 +5,10 @@
 # xcodebuild -target WhirlyGlobe-MaplyComponent -scheme WhirlyGlobe-MaplyComponent -configuration Release -sdk iphoneos9.0 clean
 # xcodebuild -target WhirlyGlobe-MaplyComponent -configuration Debug -sdk iphonesimulator
 
+# Locations for build products
+BUILT_PRODUCTS_SIMULATOR=`xcodebuild -target WhirlyGlobe-MaplyComponent -scheme WhirlyGlobe-MaplyComponent -configuration Release -sdk iphonesimulator -showBuildSettings | grep -m 1 "BUILT_PRODUCTS_DIR" | grep -oEi "\/.*"`
+BUILT_PRODUCTS_IPHONEOS=`xcodebuild -target WhirlyGlobe-MaplyComponent -scheme WhirlyGlobe-MaplyComponent -configuration Release -sdk iphoneos -showBuildSettings | grep -m 1 "BUILT_PRODUCTS_DIR" | grep -oEi "\/.*"`
+
 xcodebuild -target WhirlyGlobe-MaplyComponent -scheme WhirlyGlobe-MaplyComponent -configuration Release -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPad 2' clean build
 # xcodebuild -target WhirlyGlobe-MaplyComponent -configuration Debug -sdk iphoneos
 xcodebuild -target WhirlyGlobe-MaplyComponent -scheme WhirlyGlobe-MaplyComponent -configuration Release -sdk iphoneos -DONLY_ACTIVE_ARCH=NO
@@ -44,7 +48,7 @@ ln -s Versions/Current/lib${FRAMEWORK_NAME}.a $FRAMEWORK_DIR/${FRAMEWORK_NAME}
 # combine lib files for various platforms into one
 echo "Framework: Creating library..."
 # lipo -create build/Debug-iphoneos/libWhirlyGlobeLib.a build/Debug-iphonesimulator/libWhirlyGlobeLib.a -output "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
-lipo -create build/Products/Release-iphoneos/libWhirlyGlobe-MaplyComponent.a build/Products/Release-iphonesimulator/libWhirlyGlobe-MaplyComponent.a -output "$FRAMEWORK_DIR/Versions/Current/lib${FRAMEWORK_NAME}.a"
+lipo -create $BUILT_PRODUCTS_IPHONEOS/libWhirlyGlobe-MaplyComponent.a $BUILT_PRODUCTS_SIMULATOR/libWhirlyGlobe-MaplyComponent.a -output "$FRAMEWORK_DIR/Versions/Current/lib${FRAMEWORK_NAME}.a"
 
 # lipo -create "${PROJECT_DIR}/build/${BUILD_STYLE}-iphoneos/lib${PROJECT_NAME}.a" "${PROJECT_DIR}/build/${BUILD_STYLE}-iphonesimulator/lib${PROJECT_NAME}.a" -o "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
 
