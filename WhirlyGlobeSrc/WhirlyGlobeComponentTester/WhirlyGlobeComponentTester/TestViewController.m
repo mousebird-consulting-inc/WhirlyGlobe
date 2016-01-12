@@ -1083,20 +1083,35 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 //                                                                         }];
     
     
-    MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor colorWithRed:0.5 green:0.0 blue:0.0 alpha:0.5],
+    MaplyComponentObject *screenLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:1.0],
                                                                                    kMaplyFade: @(0),
                                                                                    kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 1),
-                                                                                   kMaplyVecWidth: @(6.0),
+                                                                                   kMaplyVecWidth: @(8.0),
                                                                                    kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
 //                                                                                   kMaplyVecTexture: filledLineTex,
                                                                                    kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
 //                                                                                   kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
 //                                                                                   kMaplyWideVecMiterLimit: @(1.01),
 //                                                                                   kMaplyWideVecTexRepeatLen: @(8),
-                                                                                   kMaplyMaxVis: @(0.00032424763776361942),
+//                                                                                   kMaplyMaxVis: @(0.00032424763776361942),
 //                                                                                   kMaplyMinVis: @(0.00011049506429117173)
                                                                                    }];
+    
+    MaplyComponentObject *screenLines2 = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0],
+                                                                                   kMaplyFade: @(0),
+                                                                                   kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 2),
+                                                                                   kMaplyVecWidth: @(6.0),
+                                                                                   kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
+                                                                                   //                                                                                   kMaplyVecTexture: filledLineTex,
+                                                                                   kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+                                                                                   //                                                                                   kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
+                                                                                   //                                                                                   kMaplyWideVecMiterLimit: @(1.01),
+                                                                                   //                                                                                   kMaplyWideVecTexRepeatLen: @(8),
+                                                                                   //                                                                                   kMaplyMaxVis: @(0.00032424763776361942),
+                                                                                   //                                                                                   kMaplyMinVis: @(0.00011049506429117173)
+                                                                                   }];
 
+    
     // Note: Real world width doesn't quite work
 //    MaplyComponentObject *realLines = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: color,
 //                                                                                 kMaplyFade: @(fade),
@@ -1146,7 +1161,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
                   }];
     
 //    return @[lines,screenLines,realLines,labelObj];
-    return @[screenLines,labelObj];
+    return @[screenLines,screenLines2,labelObj];
 }
 
 - (void)addShapeFile:(NSString *)shapeFileName
