@@ -72,13 +72,16 @@ public:
     public:
         InterPoint() { }
         // Construct with a single line
-        InterPoint(const Point3d &p0,const Point3d &p1,const Point3d &n0)
+        InterPoint(const Point3d &p0,const Point3d &p1,const Point3d &n0,double inTexX,double inTexYmin,double inTexYmax)
         {
             c = 0;
             dir = p1 - p0;
             n = n0;
             org = p0;
             dest = p1;
+            texX = inTexX;
+            texYmin = inTexYmin;
+            texYmax = inTexYmax;
         }
         
         // Return a version of the point flipped around its main axis
@@ -86,6 +89,7 @@ public:
         {
             InterPoint iPt = *this;
             iPt.n *= -1;
+            iPt.texX = 1.0 - texX;
             
             return iPt;
         }
@@ -103,16 +107,21 @@ public:
         Point3d dir;
         Point3d n;
         Point3d org,dest;
+        double texX;
+        double texYmin,texYmax;
     };
     
     // Intersect the wide lines, but return an equation to calculate the point
-    bool intersectWideLines(const Point3d &p0,const Point3d &p1,const Point3d &p2,const Point3d &n0,const Point3d &n1,InterPoint &iPt0,InterPoint &iPt1)
+    bool intersectWideLines(const Point3d &p0,const Point3d &p1,const Point3d &p2,const Point3d &n0,const Point3d &n1,InterPoint &iPt0,InterPoint &iPt1,double texX,double texY0,double texY1,double texY2)
     {
         {
+            iPt0.texX = texX;
             iPt0.dir = p0 - p1;
             iPt0.n = n0;
             iPt0.org = p1;
+            iPt0.texYmin = texY1;
             iPt0.dest = p0;
+            iPt0.texYmax = texY0;
             Point3d p01 = p0 - p1;
             Point3d n01 = n0 - n1;
             Point3d p21 = p2 - p1;
@@ -124,10 +133,13 @@ public:
         }
 
         {
+            iPt1.texX = texX;
             iPt1.dir = p2 - p1;
             iPt1.n = n1;
             iPt1.org = p1;
+            iPt1.texYmin = texY1;
             iPt1.dest = p2;
+            iPt1.texYmax = texY2;
             Point3d n10 = n1 - n0;
             Point3d p21 = p2 - p1;
             Point3d p01 = p0 - p1;
@@ -140,101 +152,8 @@ public:
         return true;
     }
 
-    // Intersect widened lines for the miter case
-//    bool intersectWideLines(const Point3d &p0,const Point3d &p1,const Point3d &p2,const Point3d &n0,const Point3d &n1,Point3d &iPt,double &t0,double &t1)
-//    {
-//        Point2d p10(p1.x()-p0.x(),p1.y()-p0.y());
-//        Point2d p21(p2.x()-p1.x(),p2.y()-p1.y());
-//        Point2d pn0(p0.x()+n0.x(),p0.y()+n0.y());
-//        Point2d pn1(p1.x()+n1.x(),p1.y()+n1.y());
-//        
-//        // Choose the form of the equation based on the size of this denominator
-//        double num, denom;
-//        if (std::abs(p10.x()) > std::abs(p10.y()))
-//        {
-//            double termA = p10.y()/p10.x();
-//            denom = p21.y() - p21.x() * termA;
-//            num = (pn1.x() - pn0.x())*termA + pn0.y()-pn1.y();
-//        } else {
-//            double termA = p10.x()/p10.y();
-//            denom = p21.y()*termA-p21.x();
-//            num = pn1.x() - pn0.x() + (pn0.y() - pn1.y())*termA;
-//        }
-//        if (denom == 0.0)
-//            return false;
-//        
-//        t1 = num/denom;
-//        iPt = (p2-p1) * t1 + p1 + n1;
-//        
-//        if (std::abs(p10.x()) > std::abs(p10.y()))
-//            t0 = (p21.x() * t1 + pn1.x() - pn0.x())/p10.x();
-//        else
-//            t0 = (p21.y() * t1 + pn1.y() - pn0.y())/p10.y();
-//                
-//        return true;
-//    }
-    
-    // Straight up 2D line intersection.  Z is ignored until the end.
-//    bool intersectLinesIn2D(const Point3d &p1,const Point3d &p2,const Point3d &p3,const Point3d &p4,Point3d *iPt)
-//    {
-//        float denom = (p1.x()-p2.x())*(p3.y()-p4.y()) - (p1.y() - p2.y())*(p3.x() - p4.x());
-//        if (denom == 0.0)
-//            return false;
-//        
-//        float termA = (p1.x()*p2.y() - p1.y()*p2.x());
-//        float termB = (p3.x() * p4.y() - p3.y() * p4.x());
-//        iPt->x() = ( termA * (p3.x() - p4.x()) - (p1.x() - p2.x()) * termB)/denom;
-//        iPt->y() = ( termA * (p3.y() - p4.y()) - (p1.y() - p2.y()) * termB)/denom;
-//        iPt->z() = 0.0;
-//        
-//        return true;
-//    }
-    
-    // Intersect lines using the origin,direction form. Just a 2D intersection
-//    bool intersectLinesDir(const Point3d &aOrg,const Point3d &aDir,const Point3d &bOrg,const Point3d &bDir,Point3d &iPt)
-//    {
-//        // Choose the form of the equation based on the size of this denominator
-//        double num, denom;
-//        if (std::abs(aDir.x()) > std::abs(aDir.y()))
-//        {
-//            double termA = aDir.y()/aDir.x();
-//            denom = bDir.y() - bDir.x() * termA;
-//            num = (bOrg.x() - aOrg.x())*termA + aOrg.y()-bOrg.y();
-//        } else {
-//            double termA = aDir.x()/aDir.y();
-//            denom = bDir.y()*termA-bDir.x();
-//            num = bOrg.x() - aOrg.x() + (aOrg.y() - bOrg.y())*termA;
-//        }
-//        if (denom == 0.0)
-//            return false;
-//        
-//        double t1 = num/denom;
-//        iPt = bDir * t1 + bOrg;
-//        
-//        return true;
-//    }
-    
-    // Add a rectangle to the drawable
-//    void addRect(BasicDrawable *drawable,Point3d *corners,TexCoord *texCoords,const Point3d &up,const RGBAColor &thisColor)
-//    {
-//        int startPt = drawable->getNumPoints();
-//
-//        for (unsigned int vi=0;vi<4;vi++)
-//        {
-//            Point3d dispPt = corners[vi];
-//            drawable->addPoint(dispPt);
-//            if (vecInfo.texID != EmptyIdentity)
-//                drawable->addTexCoord(0, texCoords[vi]);
-//            drawable->addNormal(up);
-////            drawable->addColor(thisColor);
-//        }
-//        
-//        drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+3));
-//        drawable->addTriangle(BasicDrawable::Triangle(startPt+1,startPt+2,startPt+3));
-//    }
-
     // Add a rectangle to the wide drawable
-    void addWideRect(WideVectorDrawable *drawable,InterPoint *verts,TexCoord *texCoords,const Point3d &up)
+    void addWideRect(WideVectorDrawable *drawable,InterPoint *verts,const Point3d &up)
     {
         int startPt = drawable->getNumPoints();
 
@@ -244,35 +163,17 @@ public:
             drawable->addPoint(Vector3dToVector3f(vert.org));
             drawable->addNormal(up);
             drawable->add_p1(Vector3dToVector3f(vert.dest));
-            drawable->add_t0_limit(0.0, 1.0);
-//            drawable->add_t0_limit(vert.t0limit.x(), vert.t0limit.y());
             drawable->add_n0(Vector3dToVector3f(vert.n));
             drawable->add_c0(vert.c);
-            drawable->addTexCoord(0, texCoords[vi]);
+            drawable->add_texInfo(vert.texX,vert.texYmin,vert.texYmax);
         }
 
         drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+3));
         drawable->addTriangle(BasicDrawable::Triangle(startPt+1,startPt+2,startPt+3));
     }
     
-    // Add a triangle to the drawable
-    void addTri(BasicDrawable *drawable,Point3d *corners,TexCoord *texCoords,const Point3d &up,const RGBAColor &thisColor)
-    {
-        int startPt = drawable->getNumPoints();
-        
-        for (unsigned int vi=0;vi<3;vi++)
-        {
-            drawable->addPoint(corners[vi]);
-            drawable->addTexCoord(0, texCoords[vi]);
-            drawable->addNormal(up);
-//            drawable->addColor(thisColor);
-        }
-        
-        drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+2));
-    }
-    
     // Add a triangle to the wide drawable
-    void addWideTri(WideVectorDrawable *drawable,InterPoint *verts,TexCoord *texCoords,const Point3d &up)
+    void addWideTri(WideVectorDrawable *drawable,InterPoint *verts,const Point3d &up)
     {
         int startPt = drawable->getNumPoints();
 
@@ -282,12 +183,9 @@ public:
             drawable->addPoint(Vector3dToVector3f(vert.org));
             drawable->addNormal(up);
             drawable->add_p1(Vector3dToVector3f(vert.dest));
-            // Note: Need these
-            drawable->add_t0_limit(-1.0, 2.0);
-//            drawable->add_t0_limit(vert.t0limit.x(), vert.t0limit.y());
             drawable->add_n0(Vector3dToVector3f(vert.n));
             drawable->add_c0(vert.c);
-            drawable->addTexCoord(0, texCoords[vi]);
+            drawable->add_texInfo(vert.texX,vert.texYmin,vert.texYmax);
         }
         
         drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+2));
@@ -299,12 +197,10 @@ public:
         WideVectorDrawable *wideDrawable = dynamic_cast<WideVectorDrawable *>(drawable);
         
         double texLen = (*pb-*pa).norm();
-        double texJoinLen = 0;
+        double texLen2 = 0.0;
         // Degenerate segment
         if (texLen == 0.0)
             return;
-        if (vecInfo.coordType == WideVecCoordReal)
-            texLen /= vecInfo.repeatSize;
         
         // Next segment is degenerate
         if (pc)
@@ -313,13 +209,9 @@ public:
                 pc = NULL;
         }
 
-//        double calcScale = (vecInfo.coordType == WideVecCoordReal ? 1.0 : 1/EarthRadius);
-
         // We need the normal (with respect to the line), and its inverse
-        // These are half, for half the width
         Point3d norm0 = (*pb-*pa).cross(up);
         norm0.normalize();
-//        norm0 /= 2.0;
         Point3d revNorm0 = norm0 * -1.0;
         
         Point3d norm1(0,0,0),revNorm1(0,0,0);
@@ -327,50 +219,29 @@ public:
         {
             norm1 = (*pc-*pb).cross(up);
             norm1.normalize();
-//            norm1 /= 2.0;
             revNorm1 = norm1 * -1.0;
+            texLen2 = (*pc-*pa).norm();
         }
         
-//        if (vecInfo.coordType == WideVecCoordReal)
-//        {
-//            norm0 *= vecInfo.width;
-//            norm1 *= vecInfo.width;
-//            revNorm0 *= vecInfo.width;
-//            revNorm1 *= vecInfo.width;
-//        }
-
         Point3d paLocal = *pa-dispCenter;
         Point3d pbLocal = *pb-dispCenter;
-//        Point3d pbLocalAdj = pbLocal;
 
         // Look for valid starting points.  If they're not there, make some simple ones
         if (!edgePointsValid)
         {
-            e0 = InterPoint(paLocal,pbLocal,revNorm0);
-            e1 = InterPoint(paLocal,pbLocal,norm0);
+            e0 = InterPoint(paLocal,pbLocal,revNorm0,1.0,texOffset,texOffset+texLen);
+            e1 = InterPoint(paLocal,pbLocal,norm0,0.0,texOffset,texOffset+texLen);
             edgePointsValid = true;
         }
 
-        RGBAColor thisColor = color;
-//        float scale = drand48() / 2 + 0.5;
-//        thisColor.r *= scale;
-//        thisColor.g *= scale;
-//        thisColor.b *= scale;
-        
         // Calculate points for the expanded linear
         InterPoint corners[4];
-        TexCoord texCoords[4];
         
-//        Point3d rPt,lPt;
         InterPoint rPt0,lPt0,rPt1,lPt1;
         Point3d pcLocal = (pc ? *pc-dispCenter: Point3d(0,0,0));
         Point3d dirA = (paLocal-pbLocal).normalized();
-//        double lenA = (paLocal-pbLocal).norm();
-//        double lenB = 0.0;
-//        Point3d dirB;
         
         // Figure out which way the bend goes and calculate intersection points
-//        double t0l,t1l,t0r,t1r;
         bool iPtsValid = false;
         double dot;
         if (pc)
@@ -378,11 +249,10 @@ public:
             // Compare the angle between the two segments.
             // We want to catch when the data folds back on itself.
             Point3d dirB = (pcLocal-pbLocal).normalized();
-//            lenB = (pcLocal-pbLocal).norm();
             dot = dirA.dot(dirB);
             if (dot > -0.99999998476 && dot < 0.99999998476)
-                if (intersectWideLines(paLocal, pbLocal, pcLocal, norm0, norm1, rPt0, rPt1) &&
-                    intersectWideLines(paLocal, pbLocal, pcLocal, revNorm0, revNorm1, lPt0, lPt1))
+                if (intersectWideLines(paLocal, pbLocal, pcLocal, norm0, norm1, rPt0, rPt1, 0.0, texOffset, texOffset+texLen, texOffset+texLen+texLen2) &&
+                    intersectWideLines(paLocal, pbLocal, pcLocal, revNorm0, revNorm1, lPt0, lPt1, 1.0, texOffset, texOffset+texLen, texOffset+texLen+texLen2))
                     iPtsValid = true;
         }
                 
@@ -392,10 +262,10 @@ public:
         InterPoint next_e0,next_e1;
         
         // End points of the segments
-        InterPoint endPt0(pbLocal,paLocal,norm0);
+        InterPoint endPt0(pbLocal,paLocal,norm0,0.0,texOffset+texLen,texOffset);
         InterPoint endPt1;
         if (pc)
-            endPt1 = InterPoint(pbLocal,pcLocal,norm1);
+            endPt1 = InterPoint(pbLocal,pcLocal,norm1,0.0,texOffset+texLen,texOffset+texLen+texLen2);
 
         // Set up the segment points
         if (iPtsValid)
@@ -421,15 +291,9 @@ public:
             next_e1 = endPt0;
         }
         
-        texCoords[0] = TexCoord(0.0,texOffset);
-        texCoords[1] = TexCoord(1.0,texOffset);
-        texCoords[2] = TexCoord(1.0,texOffset+texLen);
-        texCoords[3] = TexCoord(0.0,texOffset+texLen);
-
         // Add the rectangles
-        // Note: Do real world coordinates
         if (buildSegment)
-            addWideRect(wideDrawable, corners, texCoords, up);
+            addWideRect(wideDrawable, corners, up);
         
         // Do the join polygons if we can
         // Note: Always doing bevel case (sort of)
@@ -444,54 +308,46 @@ public:
                 triVerts[0] = rPt0;
                 triVerts[1] = endPt0.flipped();
                 triVerts[2] = rPt0.flipped();
-                TexCoord triTex[3];
-                triTex[0] = TexCoord(1.0,0.0);
-                triTex[1] = TexCoord(0.0,0.0);
-                triTex[2] = TexCoord(0.0,1.0);
-                addWideTri(wideDrawable,triVerts,triTex,up);
+                addWideTri(wideDrawable,triVerts,up);
                 
                 triVerts[0] = rPt0;
+                triVerts[0].texYmin = texOffset+texLen;
+                triVerts[0].texYmax = texOffset+texLen;
                 triVerts[1] = endPt1.flipped();
+                triVerts[1].texYmin = texOffset+texLen;
+                triVerts[1].texYmax = texOffset+texLen;
                 triVerts[2] = endPt0.flipped();
-                triTex[0] = TexCoord(1.0,0.0);
-                triTex[1] = TexCoord(0.0,0.0);
-                triTex[2] = TexCoord(0.0,1.0);
-                addWideTri(wideDrawable,triVerts,triTex,up);
+                triVerts[2].texYmin = texOffset+texLen;
+                triVerts[2].texYmax = texOffset+texLen;
+                addWideTri(wideDrawable,triVerts,up);
                 
                 triVerts[0] = rPt1;
                 triVerts[1] = rPt1.flipped();
                 triVerts[2] = endPt1.flipped();
-                triTex[0] = TexCoord(1.0,0.0);
-                triTex[1] = TexCoord(0.0,0.0);
-                triTex[2] = TexCoord(0.0,1.0);
-                addWideTri(wideDrawable,triVerts,triTex,up);
+                addWideTri(wideDrawable,triVerts,up);
             } else {
                 // Bending left
                 InterPoint triVerts[3];
                 triVerts[0] = lPt0;
                 triVerts[1] = lPt0.flipped();
                 triVerts[2] = endPt0;
-                TexCoord triTex[3];
-                triTex[0] = TexCoord(0.0,0.0);
-                triTex[1] = TexCoord(1.0,0.0);
-                triTex[2] = TexCoord(1.0,1.0);
-                addWideTri(wideDrawable,triVerts,triTex,up);
+                addWideTri(wideDrawable,triVerts,up);
 
                 triVerts[0] = lPt0;
+                triVerts[0].texYmin = texOffset+texLen;
+                triVerts[0].texYmax = texOffset+texLen;
                 triVerts[1] = endPt0;
+                triVerts[1].texYmin = texOffset+texLen;
+                triVerts[1].texYmax = texOffset+texLen;
                 triVerts[2] = endPt1;
-                triTex[0] = TexCoord(0.0,0.0);
-                triTex[1] = TexCoord(1.0,0.0);
-                triTex[2] = TexCoord(1.0,1.0);
-                addWideTri(wideDrawable,triVerts,triTex,up);
+                triVerts[2].texYmin = texOffset+texLen;
+                triVerts[2].texYmax = texOffset+texLen;
+                addWideTri(wideDrawable,triVerts,up);
 
                 triVerts[0] = lPt1;
                 triVerts[1] = endPt1;
                 triVerts[2] = lPt1.flipped();
-                triTex[0] = TexCoord(0.0,0.0);
-                triTex[1] = TexCoord(1.0,0.0);
-                triTex[2] = TexCoord(1.0,1.0);
-                addWideTri(wideDrawable,triVerts,triTex,up);
+                addWideTri(wideDrawable,triVerts,up);
             }
         }
         
@@ -662,7 +518,7 @@ public:
         vecBuilder.flush(drawable,!closed,true);
     }
     
-    // Note: Debug verson of add linear
+    // Debug verson of add linear
     void addLinearDebug()
     {
         Point3d up(0,0,1);
