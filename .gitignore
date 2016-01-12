@@ -12,3 +12,7 @@ WhirlyGlobeSrc/WhirlyGlobeComponentTester/Build
 WhirlyGlobeSrc/WhirlyGlobeLib/build
 .sass-cache
 WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.framework
+docs
+.ruby-gemset
+.ruby-version
+WhirlyGlobeMaplyComponent.framework.zip
