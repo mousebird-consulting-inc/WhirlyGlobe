@@ -32,7 +32,7 @@ WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), texRepea
 {
     lineWidth = 10.0/1024.0;
     p1_index = addAttribute(BDFloat3Type, "a_p1");
-    t0_limit_index = addAttribute(BDFloatType, "a_t0_limit");
+    tex_index = addAttribute(BDFloat3Type, "a_texinfo");
     n0_index = addAttribute(BDFloat3Type, "a_n0");
     c0_index = addAttribute(BDFloatType, "a_c0");
 }
@@ -53,19 +53,18 @@ void WideVectorDrawable::add_p1(const Point3f &pt)
 #endif
 }
 
+void WideVectorDrawable::add_texInfo(float texX,float texYmin,float texYmax)
+{
+    addAttributeValue(tex_index, Point3f(texX,texYmin,texYmax));
+#ifdef WIDEVECDEBUG
+#endif
+}
+
 void WideVectorDrawable::add_n0(const Point3f &dir)
 {
     addAttributeValue(n0_index, dir);
 #ifdef WIDEVECDEBUG
     n0.push_back(dir);
-#endif
-}
-
-void WideVectorDrawable::add_t0_limit(float minVal,float maxVal)
-{
-    addAttributeValue(t0_limit_index, Point2f(minVal,maxVal));
-#ifdef WIDEVECDEBUG
-    t0_limits.push_back(Point2f(minVal,maxVal));
 #endif
 }
 
@@ -88,15 +87,9 @@ void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scen
         float scale = std::max(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight);
         float screenSize = frameInfo.screenSizeInDisplayCoords.x();
         float pixDispSize = std::min(frameInfo.screenSizeInDisplayCoords.x(),frameInfo.screenSizeInDisplayCoords.y()) / scale;
-//        float pixDispSize = std::min(frameInfo.screenSizeInDisplayCoords.x(),frameInfo.screenSizeInDisplayCoords.y()) / scale;
-//        frameInfo.program->setUniform("u_scale", 1.f/scale);
         frameInfo.program->setUniform("u_w2", lineWidth);
         frameInfo.program->setUniform("u_real_w2", pixDispSize * lineWidth);
-        // Note: Debugging
         frameInfo.program->setUniform("u_edge", edgeSize);
-//        frameInfo.program->setUniform("u_edge", edgeSize);
-//        frameInfo.program->setUniform("u_pixDispSize", pixDispSize);
-//        frameInfo.program->setUniform("u_lineWidth", lineWidth);
         float texScale = scale/(screenSize*texRepeat);
         frameInfo.program->setUniform("u_texScale", texScale);
         
@@ -155,10 +148,9 @@ static const char *vertexShaderTri =
 "uniform float u_texScale;\n"
 "\n"
 "attribute vec3 a_position;\n"
-"attribute vec2 a_texCoord0;\n"
+"attribute vec3 a_texinfo;\n"
 "attribute vec4 a_color;\n"
 "attribute vec3 a_p1;\n"
-"attribute vec2 a_t0_limit;\n"
 "attribute vec3 a_n0;\n"
 "attribute float a_c0;\n"
 "\n"
@@ -167,32 +159,15 @@ static const char *vertexShaderTri =
 "\n"
 "void main()\n"
 "{\n"
-"   v_texCoord = vec2(a_texCoord0.x, a_texCoord0.y * u_texScale);\n"
 "   v_color = a_color;\n"
 //  Position along the line
 "   float t0 = a_c0 * u_real_w2;\n"
-//"   t0 = clamp(t0,a_t0_limit.x,a_t0_limit.y);\n"
 "   t0 = clamp(t0,0.0,1.0);\n"
 "   vec3 realPos = (a_p1 - a_position) * t0 + a_n0 * u_real_w2 + a_position;\n"
+"   v_texCoord = vec2(a_texinfo.x, ((a_texinfo.z - a_texinfo.y) * t0 + a_texinfo.y) * u_texScale);\n"
 "   vec4 screenPos = u_mvpMatrix * vec4(realPos,1.0);\n"
 "   screenPos /= screenPos.w;\n"
 "   gl_Position = vec4(screenPos.xy,0,1.0);\n"
-"}\n"
-;
-
-static const char *fragmentShaderTri =
-"precision mediump float;\n"
-"\n"
-"uniform sampler2D s_baseMap0;\n"
-"uniform bool  u_hasTexture;\n"
-"\n"
-"varying vec2      v_texCoord;\n"
-"varying vec4      v_color;\n"
-"\n"
-"void main()\n"
-"{\n"
-"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0);\n"
-"  gl_FragColor = v_color * baseColor;\n"
 "}\n"
 ;
 
@@ -209,14 +184,14 @@ static const char *fragmentShaderTriAlias =
 "\n"
 "void main()\n"
 "{\n"
-"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0);\n"
+"  float patternVal = u_hasTexture ? texture2D(s_baseMap0, vec2(0.5,v_texCoord.y)).a : 1.0;\n"
 "  float alpha = 1.0;\n"
 "  float across = v_texCoord.x * u_w2;\n"
 "  if (across < u_edge)\n"
 "    alpha = across/u_edge;\n"
 "  if (across > u_w2-u_edge)\n"
 "    alpha = (u_w2-across)/u_edge;\n"
-"  gl_FragColor = v_color * baseColor * alpha;\n"
+"  gl_FragColor = v_color * alpha * patternVal;\n"
 "}\n"
 ;
 

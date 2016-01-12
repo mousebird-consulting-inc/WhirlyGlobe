@@ -442,7 +442,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     
 //    [self performSelector:@selector(labelMarkerTest:) withObject:@(0.1) afterDelay:0.1];
 
-//    [self wideLineTest];
+    [self wideLineTest];
   
     [baseViewC enable3dTouchSelection:self];
 
@@ -482,6 +482,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     [self addGeoJson:@"spiral.geojson"];
     [self addGeoJson:@"square.geojson"];
     [self addGeoJson:@"track.geojson"];
+
 //    [self addGeoJson:@"straight.geojson"];
 //    [self addGeoJson:@"uturn.geojson"];
 
@@ -1153,9 +1154,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     // Make the dashed line if it isn't already there
     if (!dashedLineTex)
     {
-        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,8)];
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
         [lineTexBuilder setPattern:@[@(4),@(4)]];
-        lineTexBuilder.opacityFunc = MaplyOpacitySin2;
         UIImage *dashedLineImage = [lineTexBuilder makeImage];
         dashedLineTex = [baseViewC addTexture:dashedLineImage
                                          desc:@{kMaplyTexMinFilter: kMaplyMinFilterLinear,
@@ -1167,9 +1167,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     }
     if (!filledLineTex)
     {
-        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,32)];
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
         [lineTexBuilder setPattern:@[@(32)]];
-        lineTexBuilder.opacityFunc = MaplyOpacitySin2;
         UIImage *lineImage = [lineTexBuilder makeImage];
         filledLineTex = [baseViewC addTexture:lineImage
                                                    desc:@{kMaplyTexMinFilter: kMaplyMinFilterLinear,
@@ -1197,10 +1196,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 }
 
 - (void)addGeoJson:(NSString*)name {
-    CGSize size = CGSizeMake(8 * [UIScreen mainScreen].scale, 32);
-    MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:size];
-    [lineTexBuilder setPattern:@[@(size.height)]];
-    lineTexBuilder.opacityFunc = MaplyOpacitySin3;
+    MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
+    [lineTexBuilder setPattern:@[@8,@8]];
     UIImage *lineImage = [lineTexBuilder makeImage];
     MaplyTexture *lineTexture = [baseViewC addTexture:lineImage
                                           imageFormat:MaplyImageIntRGBA
@@ -1222,9 +1219,10 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
                                          kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 1),
                                          kMaplyVecCentered: @YES,
                                          kMaplyVecTexture: lineTexture,
+                                         kMaplyWideVecEdgeFalloff: @(1.0),
                                          kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                          kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
-                                         kMaplyVecWidth: @(40)}
+                                         kMaplyVecWidth: @(4)}
                                  mode:MaplyThreadCurrent];
             [baseViewC addVectors:@[vecObj]
                              desc: @{kMaplyColor: [UIColor blackColor],
