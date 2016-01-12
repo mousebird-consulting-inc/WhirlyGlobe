@@ -440,6 +440,7 @@
 		2BFD27EA170B933C00127EF5 /* ZMB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD26F1170B933C00127EF5 /* ZMB.geojson */; };
 		2BFD27EB170B933C00127EF5 /* ZWE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD26F2170B933C00127EF5 /* ZWE.geojson */; };
 		2BFF026217A9BA2D00007842 /* AnimationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFF026117A9BA2D00007842 /* AnimationTest.m */; };
+		88C970C91C4561B0000E8FCE /* uturn2.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88C970C81C4561B0000E8FCE /* uturn2.geojson */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -921,6 +922,7 @@
 		2BFD26F2170B933C00127EF5 /* ZWE.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ZWE.geojson; sourceTree = "<group>"; };
 		2BFF026017A9BA2C00007842 /* AnimationTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimationTest.h; sourceTree = "<group>"; };
 		2BFF026117A9BA2D00007842 /* AnimationTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnimationTest.m; sourceTree = "<group>"; };
+		88C970C81C4561B0000E8FCE /* uturn2.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = uturn2.geojson; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1254,6 +1256,7 @@
 		2BFD25D8170B929E00127EF5 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				88C970C81C4561B0000E8FCE /* uturn2.geojson */,
 				2BB32C951C3DDE3500EF13DE /* uturn.geojson */,
 				2BB32C931C3DDD9100EF13DE /* straight.geojson */,
 				2BB32C911C3DD36600EF13DE /* sawtoothbegin.geojson */,
@@ -1821,6 +1824,7 @@
 				2BFD2761170B933C00127EF5 /* ISR.geojson in Resources */,
 				2BC0FB5F1964D3580043E1FD /* swimming-24@2x.png in Resources */,
 				2BFD2762170B933C00127EF5 /* ITA.geojson in Resources */,
+				88C970C91C4561B0000E8FCE /* uturn2.geojson in Resources */,
 				2BFD2763170B933C00127EF5 /* JAM.geojson in Resources */,
 				2BC0FB1F1964D3580043E1FD /* cross-24@2x.png in Resources */,
 				2BC0FB291964D3580043E1FD /* fire-station-24@2x.png in Resources */,
