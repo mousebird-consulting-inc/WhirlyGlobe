@@ -28,7 +28,7 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), texRepeat(1.0), edgeSize(1.0)
+WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), texRepeat(1.0), edgeSize(1.0), realWidthSet(false)
 {
     lineWidth = 10.0/1024.0;
     p1_index = addAttribute(BDFloat3Type, "a_p1");
