@@ -125,7 +125,10 @@ using namespace WhirlyKit;
 
     // Note: Atan2 is the correct way, but it's not working right here
 //    return atan2f(dot, mag);
-    return acosf(dot);
+    float ret = acosf(dot);
+    if (std::isnan(ret))
+        ret = 0.f;
+    return ret;
 }
 
 @end
