@@ -137,6 +137,8 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 					//                options.inScaled = false;
 					//                options.inPremultiplied = false;
 					options.inScaled = false;
+					options.inDither = false;
+					options.inPreferQualityOverSpeed = true;
 					options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 					bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, options);
 

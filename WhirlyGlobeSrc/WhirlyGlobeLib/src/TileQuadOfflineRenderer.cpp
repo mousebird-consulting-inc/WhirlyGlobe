@@ -376,6 +376,7 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
         glBindTexture(GL_TEXTURE_2D, renderTex);
         CheckGLError("Offline glBindTexture");
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, outSizeX, outSizeY, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
         CheckGLError("Offline glTexImage2D");
 
@@ -475,7 +476,7 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
         offImage.texture = texID;
         offImage.frame = whichFrame;
         offImage.mbr = mbr;
-        offImage.texSize = texSize;
+        offImage.texSize = Point2d(outSizeX,outSizeY);
         offImage.centerSize = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x()/2.0, texSize.y()/2.0));
         offImage.cornerSizes[0] = pixelSizeForMbr(mbr,texSize,Point2d(0.0, 0.0));
         offImage.cornerSizes[1] = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x(), 0.0));

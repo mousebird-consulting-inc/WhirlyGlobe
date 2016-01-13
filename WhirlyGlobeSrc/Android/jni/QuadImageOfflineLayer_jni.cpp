@@ -88,7 +88,7 @@ public:
         jclass theClass = env->GetObjectClass(javaObj);
         startFetchJava = env->GetMethodID(theClass,"startFetch","(IIII)V");
         scheduleEvalStepJava = env->GetMethodID(theClass,"scheduleEvalStep","()V");
-        imageRenderCallbackJava = env->GetMethodID(theClass,"imageRenderCallback","(JDDI)V");
+        imageRenderCallbackJava = env->GetMethodID(theClass,"imageRenderCallback","(JDDIII)V");
     }
     
     void clearJavaRefs()
@@ -422,7 +422,7 @@ public:
     // Called by the offline renderer to update images
     virtual void offlineRender(QuadTileOfflineLoader *loader,QuadTileOfflineImage *image)
     {
-        env->CallVoidMethod(javaObj, imageRenderCallbackJava, image->texture, image->centerSize.x(), image->centerSize.y(), image->frame);
+        env->CallVoidMethod(javaObj, imageRenderCallbackJava, image->texture, image->centerSize.x(), image->centerSize.y(), (int)image->texSize.x(), (int)image->texSize.y(), image->frame);
     }
 };
 
@@ -600,6 +600,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setFrameLo
         adapter->framePriorities.clear();
         
         ConvertIntArray(env,frameLoadingArr,adapter->framePriorities);
+        if (adapter->control)
+            adapter->control->setFrameLoadingPriorities(adapter->framePriorities);
     }
     catch (...)
     {
