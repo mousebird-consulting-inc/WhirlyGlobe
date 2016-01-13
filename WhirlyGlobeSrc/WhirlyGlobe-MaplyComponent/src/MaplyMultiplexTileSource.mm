@@ -298,6 +298,10 @@ static bool trackConnections = false;
 {
 //    NSLog(@"Got tile: %d: (%d,%d), %d",tileID.level,tileID.x,tileID.y,which);
     
+    if (tileData)
+        if ([_delegate respondsToSelector:@selector(remoteTileSource:modifyTileReturn:forTile:)])
+            tileData = [_delegate remoteTileSource:self modifyTileReturn:tileData forTile:tileID];
+
     // Look for it in the bit list
     bool done = false;
     bool shouldNotify = false;
