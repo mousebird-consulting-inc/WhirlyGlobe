@@ -64,7 +64,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'Lib-Headers' do |lh|
     lh.source_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
-    lh.private_header_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
+    lh.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
     lh.dependency 'boost/string_algorithms-includes', '<= 1.51.0'
     lh.dependency 'boost/shared_ptr-includes', '<= 1.51.0'
     lh.dependency 'boost/pointer_cast-includes', '<= 1.51.0'
