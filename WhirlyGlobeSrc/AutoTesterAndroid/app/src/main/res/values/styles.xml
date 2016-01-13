@@ -1,0 +1,35 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <!-- Estilo para los elementos del navigation drawer -->
+    <style name="NavigationDrawer">
+        <item name="android:padding">8dp</item>
+        <item name="android:drawablePadding">16dp</item>
+        <item name="android:gravity">left|center_vertical</item>
+    </style>
+    <style name="NavigationDrawerItem" parent="NavigationDrawer">
+        <item name="android:clickable">true</item>
+        <item name="android:background">?android:selectableItemBackground</item>
+    </style>
+    <style name="NavigationDrawerSection" parent="NavigationDrawer">
+        <item name="android:clickable">false</item>
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:textColor">@color/colorWhite</item>
+    </style>
+
+</resources>

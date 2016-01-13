@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "France", "SOV_A3": "FR1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Dependency", "ADMIN": "Saint Martin", "ADM0_A3": "MAF", "GEOU_DIF": 0.0, "GEOUNIT": "Saint Martin", "GU_A3": "MAF", "SU_DIF": 0.0, "SUBUNIT": "Saint Martin", "SU_A3": "MAF", "NAME": "St. Martin", "ABBREV": "St. M.", "POSTAL": "MF", "NAME_FORMA": "", "TERR_": "Fr.", "NAME_SORT": "Saint Martin", "MAP_COLOR": 11.0, "POP_EST": 29820.0, "GDP_MD_EST": 0.0, "FIPS_10_": "RN", "ISO_A2": "MF", "ISO_A3": "MAF", "ISO_N3": 663.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -63.011168, 18.068942 ], [ -63.123019, 18.068942 ], [ -63.115005, 18.090705 ], [ -63.06307, 18.115355 ], [ -63.024778, 18.113107 ], [ -63.00943, 18.104322 ], [ -63.011168, 18.068942 ] ] ] } }
+
+]
+}

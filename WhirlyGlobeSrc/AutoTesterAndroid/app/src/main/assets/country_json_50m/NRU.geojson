@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Nauru", "SOV_A3": "NRU", "ADM0_DIF": 0.0, "LEVEL": 2.0, "TYPE": "Sovereign country", "ADMIN": "Nauru", "ADM0_A3": "NRU", "GEOU_DIF": 0.0, "GEOUNIT": "Nauru", "GU_A3": "NRU", "SU_DIF": 0.0, "SUBUNIT": "Nauru", "SU_A3": "NRU", "NAME": "Nauru", "ABBREV": "Nauru", "POSTAL": "NR", "NAME_FORMA": "Republic of Nauru", "TERR_": "", "NAME_SORT": "Nauru", "MAP_COLOR": 9.0, "POP_EST": 14019.0, "GDP_MD_EST": 60.0, "FIPS_10_": "NR", "ISO_A2": "NR", "ISO_A3": "NRU", "ISO_N3": 520.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 166.958419, -0.516609 ], [ 166.938989, -0.550819 ], [ 166.916458, -0.546478 ], [ 166.907053, -0.52374 ], [ 166.913564, -0.499142 ], [ 166.938989, -0.489376 ], [ 166.95563, -0.496972 ], [ 166.958419, -0.516609 ] ] ] } }
+
+]
+}

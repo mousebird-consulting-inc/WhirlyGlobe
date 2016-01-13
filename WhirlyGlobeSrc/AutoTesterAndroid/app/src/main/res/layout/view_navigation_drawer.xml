@@ -1,0 +1,96 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <ImageView
+            android:layout_width="150dp"
+            android:layout_height="75dp"
+            android:src="@drawable/logo"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:layout_marginTop="5dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/description_APP"/>
+    </LinearLayout>
+    <View
+        android:background="#99333333"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"/>
+    <TextView
+        style="@style/NavigationDrawerSection"
+        android:id="@+id/optionsSection"
+        android:text="@string/ic_action_options"
+        android:drawableLeft="@drawable/ic_options_action"
+        android:layout_width="match_parent"
+        android:layout_height="?android:listPreferredItemHeightSmall"/>
+    <TextView
+        style="@style/NavigationDrawerItem"
+        android:id="@+id/runGlobe"
+        android:text="@string/option_run_globe"
+        android:drawableLeft="@drawable/ic_globe"
+        android:layout_width="match_parent"
+        android:layout_height="?android:listPreferredItemHeightSmall"
+        />
+    <TextView
+        style="@style/NavigationDrawerItem"
+        android:id="@+id/runMap"
+        android:text="@string/option_run_map"
+        android:drawableLeft="@drawable/ic_map_icon"
+        android:layout_width="match_parent"
+        android:layout_height="?android:listPreferredItemHeightSmall"/>
+    <TextView
+        style="@style/NavigationDrawerItem"
+        android:id="@+id/runBoth"
+        android:text="@string/run_both"
+        android:drawableLeft="@drawable/ic_map"
+        android:layout_width="match_parent"
+        android:layout_height="?android:listPreferredItemHeightSmall"
+        />
+    <TextView
+        style="@style/NavigationDrawerItem"
+        android:id="@+id/seeView"
+        android:text="See test execution on View"
+        android:drawableLeft="@drawable/ic_view"
+        android:layout_width="match_parent"
+        android:layout_height="?android:listPreferredItemHeightSmall"/>
+    <View
+        android:background="#99333333"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"/>
+    <TextView
+        style="@style/NavigationDrawerSection"
+        android:id="@+id/actionsSection"
+        android:text="@string/actionsSection"
+        android:drawableLeft="@drawable/ic_actions"
+        android:layout_width="match_parent"
+        android:layout_height="?android:listPreferredItemHeightSmall"
+        />
+    <TextView
+        style="@style/NavigationDrawerItem"
+        android:id="@+id/selectAll"
+        android:text="@string/selectAllAction"
+        android:drawableLeft="@drawable/ic_action_selectall"
+        android:layout_width="match_parent"
+        android:layout_height="?android:listPreferredItemHeightSmall"
+        />
+    <TextView
+        style="@style/NavigationDrawerItem"
+        android:id="@+id/deselectAll"
+        android:text="@string/DeselectAllAction"
+        android:drawableLeft="@drawable/ic_action_deselectall"
+        android:layout_width="match_parent"
+        android:layout_height="?android:listPreferredItemHeightSmall"/>
+
+
+</merge>

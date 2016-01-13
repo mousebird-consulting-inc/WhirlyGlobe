@@ -1,0 +1,10 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 1, "LabelRank": 1, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Antigua and Barbuda", "SOV_A3": "ATG", "ADM0_DIF": 0.0, "LEVEL": 3.0, "TYPE": "Geo unit", "ADMIN": "Antigua and Barbuda", "ADM0_A3": "ATG", "GEOU_DIF": 1.0, "GEOUNIT": "Antigua", "GU_A3": "ACA", "SU_DIF": 0.0, "SUBUNIT": "Antigua", "SU_A3": "ACA", "NAME": "Antigua", "ABBREV": "Ant.", "POSTAL": "AT", "NAME_FORMA": "", "TERR_": "", "NAME_SORT": "Antigua", "MAP_COLOR": 5.0, "POP_EST": 85632.0, "GDP_MD_EST": -99.0, "FIPS_10_": "-99", "ISO_A2": "-99", "ISO_A3": "-99", "ISO_N3": -99.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -61.716072, 17.036997 ], [ -61.748163, 16.997154 ], [ -61.859655, 17.013329 ], [ -61.882057, 17.063145 ], [ -61.887121, 17.09813 ], [ -61.817255, 17.168926 ], [ -61.738577, 17.138489 ], [ -61.708218, 17.105054 ], [ -61.686048, 17.09844 ], [ -61.686488, 17.069811 ], [ -61.694988, 17.048934 ], [ -61.716072, 17.036997 ] ] ] } }
+,
+{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Antigua and Barbuda", "SOV_A3": "ATG", "ADM0_DIF": 0.0, "LEVEL": 3.0, "TYPE": "Geo unit", "ADMIN": "Antigua and Barbuda", "ADM0_A3": "ATG", "GEOU_DIF": 1.0, "GEOUNIT": "Barbuda", "GU_A3": "ACB", "SU_DIF": 0.0, "SUBUNIT": "Barbuda", "SU_A3": "ACB", "NAME": "Barbuda", "ABBREV": "Barb.", "POSTAL": "BS", "NAME_FORMA": "", "TERR_": "", "NAME_SORT": "Barbuda", "MAP_COLOR": 5.0, "POP_EST": 1370.0, "GDP_MD_EST": -99.0, "FIPS_10_": "-99", "ISO_A2": "-99", "ISO_A3": "-99", "ISO_N3": -99.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -61.747104, 17.574948 ], [ -61.762013, 17.548697 ], [ -61.843816, 17.596136 ], [ -61.86875, 17.685432 ], [ -61.866167, 17.70432 ], [ -61.852446, 17.714061 ], [ -61.819916, 17.696853 ], [ -61.77674, 17.690497 ], [ -61.749585, 17.661351 ], [ -61.747104, 17.574948 ] ] ] } }
+
+]
+}
