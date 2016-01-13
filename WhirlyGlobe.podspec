@@ -89,7 +89,7 @@ Pod::Spec.new do |s|
   s.subspec 'MaplyComponent-Headers' do |mch|
     mch.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/**/*.h'
 #    mch.private_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h'
-    mch.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/*.h'
+    mch.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/*.h', "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h"
     mch.private_header_files =  "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/**/{MaplyBridge,vector_tile.pb}.h"
     mch.dependency 'WhirlyGlobe/Lib-Headers'
   end
