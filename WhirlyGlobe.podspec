@@ -107,7 +107,7 @@ Pod::Spec.new do |s|
     mc.dependency 'WhirlyGlobe/octencoding'
     mc.dependency 'WhirlyGlobe/Lib'
     mc.dependency 'WhirlyGlobe/MaplyComponent-Headers'
-    mc.dependency 'AFNetworking', '~> 2.4.1'
+    mc.dependency 'AFNetworking', '~> 2.5'
 #    mc.dependency 'KissXML'
     mc.dependency 'SMCalloutView', '~> 2.0.3'
     mc.dependency 'FMDB', '~> 2.4'
