@@ -24,6 +24,7 @@
 
 @implementation MaplyImageTile
 {
+@public
     int _width,_height;
     int _targetWidth,_targetHeight;
     
@@ -55,19 +56,27 @@
     return self;
 }
 
-- (instancetype)initWithRawImageArray:(NSArray *)dataArray width:(int)width height:(int)height
+- (instancetype)initWithRawImageArray:(NSArray *)inDataArray width:(int)width height:(int)height
 {
-    for (NSData *data in dataArray)
+    NSMutableArray *outArray = [NSMutableArray array];
+    for (NSData *theData in inDataArray)
     {
+        NSData *data = theData;
+        if ([data isKindOfClass:[MaplyImageTile class]])
+        {
+            MaplyImageTile *otherTile = (MaplyImageTile *)data;
+            data = [otherTile->stuff objectAtIndex:0];
+        }
         if (![data isKindOfClass:[NSData class]])
             return nil;
         if ([data length] != width*height*4)
             return nil;
+        [outArray addObject:data];
     }
     
     self = [super init];
     _type = MaplyImgTypeRawImage;
-    stuff = dataArray;
+    stuff = outArray;
     _width = width;
     _height = height;
     
@@ -168,6 +177,11 @@
                     self = [[MaplyImageTile alloc] initWithImageArray:arr];
                 else if ([firstObj isKindOfClass:[NSData class]])
                     self = [[MaplyImageTile alloc] initWithPNGorJPEGDataArray:arr];
+                else if ([firstObj isKindOfClass:[MaplyImageTile class]])
+                {
+                    MaplyImageTile *otherTile = firstObj;
+                    self = [[MaplyImageTile alloc] initWithRawImageArray:arr width:otherTile->_width height:otherTile->_height];
+                }
             }
         }
     }
