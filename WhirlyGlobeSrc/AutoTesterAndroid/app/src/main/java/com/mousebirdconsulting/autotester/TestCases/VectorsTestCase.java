@@ -3,6 +3,7 @@ package com.mousebirdconsulting.autotester.TestCases;
 import android.app.Activity;
 import android.content.res.AssetManager;
 
+import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
@@ -32,6 +33,9 @@ public class VectorsTestCase extends MaplyTestCase {
 
 	private void overlayCountries(MaplyBaseController baseVC) throws Exception {
 		VectorInfo vectorInfo = new VectorInfo();
+		vectorInfo.setColor(1,0,0,1);
+		vectorInfo.setLineWidth(4.f);
+		vectorInfo.setDrawPriority(100000);
 
 		AssetManager assetMgr = getActivity().getAssets();
 		String[] paths = assetMgr.list("country_json_50m");
@@ -50,7 +54,14 @@ public class VectorsTestCase extends MaplyTestCase {
 				}
 			}
 		}
-		baseVC.addVectors(vectors, vectorInfo, MaplyBaseController.ThreadMode.ThreadAny);
+		// Add as red
+		ComponentObject compObj = baseVC.addVectors(vectors, vectorInfo, MaplyBaseController.ThreadMode.ThreadAny);
+		// Then change to green
+		VectorInfo newVectorInfo = new VectorInfo();
+		newVectorInfo.setColor(0,1,0,1);
+		newVectorInfo.setLineWidth(4.f);
+		newVectorInfo.setDrawPriority(100000);
+		baseVC.changeVectors(compObj,newVectorInfo,MaplyBaseController.ThreadMode.ThreadAny);
 	}
 
 	@Override
