@@ -39,6 +39,7 @@
         <menu>
             <group app:showAsAction="never">
                 <item android:id="@+id/screen_markers" android:title="Screen Markers" />
+                <item android:id="@+id/screen_labels" android:title="Screen Labels" />
             </group>
         </menu>
     </item>
