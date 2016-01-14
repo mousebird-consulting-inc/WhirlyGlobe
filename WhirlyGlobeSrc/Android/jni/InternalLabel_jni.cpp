@@ -154,8 +154,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setSelectable
 	{
 		LabelClassInfo *classInfo = LabelClassInfo::getClassInfo();
 		SingleLabel *label = classInfo->getObject(env,obj);
-		Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,obj);
-		if (!label || !pt)
+		if (!label)
 			return;
 
 		label->isSelectable = selectable;
