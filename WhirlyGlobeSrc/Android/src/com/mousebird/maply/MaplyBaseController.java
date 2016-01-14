@@ -453,6 +453,30 @@ public class MaplyBaseController
 		return compObj;
 	}
 
+	public void changeVectors(final ComponentObject vecObj,final VectorInfo vecInfo,ThreadMode mode)
+	{
+		if (!running)
+			return;
+
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						// Vectors are simple enough to just add
+						ChangeSet changes = new ChangeSet();
+						long[] vecIDs = vecObj.getVectorIDs();
+						if (vecIDs != null) {
+							vecManager.changeVectors(vecIDs, vecInfo, changes);
+							changes.process(scene);
+						}
+					}
+				};
+		addTask(run,mode);
+	}
+
 	/**
 	 * Add a single screen marker.  See addScreenMarkers() for details.
 	 */

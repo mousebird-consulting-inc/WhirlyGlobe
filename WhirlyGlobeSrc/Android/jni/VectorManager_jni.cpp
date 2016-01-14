@@ -94,7 +94,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
 		if (!wrap || !vecInfo || !changeSet)
 			return EmptyIdentity;
 
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "VectorInfo: (min,max) = (%f, %f), color = (%d,%d,%d,%d)",vecInfo->minVis,vecInfo->maxVis,(int)vecInfo->color.r,(int)vecInfo->color.g,(int)vecInfo->color.b,(int)vecInfo->color.a);
+//        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "VectorInfo: (min,max) = (%f, %f), color = (%d,%d,%d,%d)",vecInfo->minVis,vecInfo->maxVis,(int)vecInfo->color.r,(int)vecInfo->color.g,(int)vecInfo->color.b,(int)vecInfo->color.a);
 
 		// Get the iterator
 		// Note: Look these up once
@@ -126,6 +126,30 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
 	}
     
     return EmptyIdentity;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_changeVectors
+(JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject vecInfoObj, jobject changeSetObj)
+{
+    try {
+        VectorManagerWrapperClassInfo *classInfo = VectorManagerWrapperClassInfo::getClassInfo();
+        VecManagerWrapper *wrap = classInfo->getObject(env,obj);
+        VectorInfo *vecInfo = VectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
+        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        if (!wrap || !vecInfo || !changeSet)
+            return;
+        
+        JavaLongArray ids(env,idArrayObj);
+        SimpleIDSet idSet;
+        for (unsigned int ii=0;ii<ids.len;ii++)
+        {
+            wrap->vecManager->changeVectors(ids.rawLong[ii],*vecInfo,*changeSet);
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorManager::changeVectors()");
+    }
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_removeVectors

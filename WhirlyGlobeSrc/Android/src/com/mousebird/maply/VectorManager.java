@@ -51,6 +51,9 @@ class VectorManager
 	
 	// Enable/disable vectors by ID
 	public native void enableVectors(long ids[],boolean enable,ChangeSet changes);
+
+	// Change the display of vectors
+	public native void changeVectors(long ids[],VectorInfo vecInfo,ChangeSet changes);
 	
 	static
 	{

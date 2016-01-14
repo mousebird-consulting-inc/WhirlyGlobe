@@ -92,10 +92,10 @@ public:
     SimpleIdentity addVectors(ShapeSet *shapes,const VectorInfo &desc,ChangeSet &changes);
     
     /// Change the vector(s) represented by the given ID
-    void changeVectors(SimpleIdentity vecID,const Dictionary *desc,ChangeSet &changes);
+    void changeVectors(SimpleIdentity vecID,const VectorInfo &vecInfo,ChangeSet &changes);
     
-    /// Make an instance of the give vectors with the given attributes and return an ID to identify them.
-    SimpleIdentity instanceVectors(SimpleIdentity vecID,const Dictionary *desc,ChangeSet &changes);
+    /// Make an instance of the given vectors with the given attributes and return an ID to identify them.
+    SimpleIdentity instanceVectors(SimpleIdentity vecID,const VectorInfo &vecInfo,ChangeSet &changes);
 
     /// Remove a group of vectors associated with the given ID
     void removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes);

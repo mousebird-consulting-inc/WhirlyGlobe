@@ -602,7 +602,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
     return vecID;
 }
 
-SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const Dictionary *desc,ChangeSet &changes)
+SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const VectorInfo &vecInfo,ChangeSet &changes)
 {
     SimpleIdentity newId = EmptyIdentity;
     
@@ -622,37 +622,17 @@ SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const Diction
             BasicDrawableInstance *drawInst = new BasicDrawableInstance("VectorManager",*idIt,BasicDrawableInstance::ReuseStyle);
             
             // Changed color
-            DictionaryType type = desc->getType(MaplyColor);
-            if (type == DictTypeInt || type == DictTypeString)
-            {
-                RGBAColor newColor = desc->getColor(MaplyColor, RGBAColor(255,255,255,255));
-                changes.push_back(new ColorChangeRequest(*idIt, newColor));
-            }
+            drawInst->setColor(vecInfo.color);
+
             // Changed visibility
-            if (desc->hasField(MaplyMinVis) || desc->hasField(MaplyMaxVis))
-            {
-                float minVis = desc->getDouble(MaplyMinVis, DrawVisibleInvalid);
-                float maxVis = desc->getDouble(MaplyMaxVis, DrawVisibleInvalid);
-                changes.push_back(new VisibilityChangeRequest(*idIt, minVis, maxVis));
-            }
+            drawInst->setVisibleRange(vecInfo.minVis, vecInfo.maxVis);
             
             // Changed line width
-            if (desc->hasField(MaplyVecWidth))
-            {
-                float lineWidth = desc->getDouble(MaplyVecWidth,1.0);
-                changes.push_back(new LineWidthChangeRequest(*idIt, lineWidth));
-            }
+            drawInst->setLineWidth(vecInfo.lineWidth);
             
             // Changed draw priority
-            if (desc->hasField(MaplyDrawPriority) || desc->hasField("priority"))
-            {
-                int priority = desc->getInt(MaplyDrawPriority,0);
-                // This looks like an old bug
-                priority = desc->getInt("priority",priority);
-                changes.push_back(new DrawPriorityChangeRequest(*idIt, priority));
-            }
+            drawInst->setDrawPriority(vecInfo.drawPriority);
 
-            // Note: Should set fade
             newSceneRep->instIDs.insert(drawInst->getId());
             changes.push_back(new AddDrawableReq(drawInst));
         }
@@ -666,7 +646,7 @@ SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const Diction
     return newId;
 }
 
-void VectorManager::changeVectors(SimpleIdentity vecID,const Dictionary *desc,ChangeSet &changes)
+void VectorManager::changeVectors(SimpleIdentity vecID,const VectorInfo &vecInfo,ChangeSet &changes)
 {
     pthread_mutex_lock(&vectorLock);
     
@@ -682,41 +662,17 @@ void VectorManager::changeVectors(SimpleIdentity vecID,const Dictionary *desc,Ch
 
         for (SimpleIDSet::iterator idIt = allIDs.begin();idIt != allIDs.end(); ++idIt)
         {
-            // Turned it on or off
-            if (desc->hasField(MaplyEnable))
-                changes.push_back(new OnOffChangeRequest(*idIt, desc->getBool(MaplyEnable)));
-            
             // Changed color
-            DictionaryType type = desc->getType(MaplyColor);
-            if (type == DictTypeInt || type == DictTypeString)
-            {
-                RGBAColor newColor = desc->getColor(MaplyColor, RGBAColor(255,255,255,255));
-                changes.push_back(new ColorChangeRequest(*idIt, newColor));
-            }
+            changes.push_back(new ColorChangeRequest(*idIt, vecInfo.color));
             
             // Changed visibility
-            if (desc->hasField(MaplyMinVis) || desc->hasField(MaplyMaxVis))
-            {
-                float minVis = desc->getDouble(MaplyMinVis, DrawVisibleInvalid);
-                float maxVis = desc->getDouble(MaplyMaxVis, DrawVisibleInvalid);
-                changes.push_back(new VisibilityChangeRequest(*idIt, minVis, maxVis));
-            }
+            changes.push_back(new VisibilityChangeRequest(*idIt, vecInfo.minVis, vecInfo.maxVis));
             
             // Changed line width
-            if (desc->hasField(MaplyVecWidth))
-            {
-                float lineWidth = desc->getDouble(MaplyVecWidth,1.0);
-                changes.push_back(new LineWidthChangeRequest(*idIt, lineWidth));
-            }
+            changes.push_back(new LineWidthChangeRequest(*idIt, vecInfo.lineWidth));
             
             // Changed draw priority
-            if (desc->hasField(MaplyDrawPriority) || desc->hasField("priority"))
-            {
-                int priority = desc->getInt(MaplyDrawPriority,0);
-                // This looks like an old bug
-                priority = desc->getInt("priority",priority);
-                changes.push_back(new DrawPriorityChangeRequest(*idIt, priority));
-            }
+            changes.push_back(new DrawPriorityChangeRequest(*idIt, vecInfo.drawPriority));
         }
     }
     

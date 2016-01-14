@@ -33,6 +33,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_enableVectors
 
 /*
  * Class:     com_mousebird_maply_VectorManager
+ * Method:    changeVectors
+ * Signature: ([JLcom/mousebird/maply/VectorInfo;Lcom/mousebird/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_changeVectors
+  (JNIEnv *, jobject, jlongArray, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_VectorManager
  * Method:    nativeInit
  * Signature: ()V
  */

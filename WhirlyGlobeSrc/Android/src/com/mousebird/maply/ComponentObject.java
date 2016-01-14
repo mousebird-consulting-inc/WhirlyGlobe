@@ -100,7 +100,20 @@ public class ComponentObject
 			vectorIDs = new ArrayList<Long>();
 		vectorIDs.add(id);
 	}
-	
+
+	long[] getVectorIDs()
+	{
+		if (vectorIDs == null)
+			return null;
+		long[] retIDs = new long[vectorIDs.size()];
+		int which = 0;
+		for (Long id : vectorIDs) {
+			retIDs[which++] = id;
+		}
+
+		return retIDs;
+	}
+
 	// Track the given label ID as associated with us
 	void addLabelID(long id)
 	{
