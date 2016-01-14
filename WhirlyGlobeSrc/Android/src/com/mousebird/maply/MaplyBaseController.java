@@ -846,7 +846,8 @@ public class MaplyBaseController
 			{
 				ChangeSet changes = new ChangeSet();
 				for (ComponentObject compObj : compObjs)
-					compObj.enable(control, false, changes);
+					if (compObj != null)
+						compObj.enable(control, false, changes);
 				changes.process(scene);
 			}
 		};
@@ -895,7 +896,8 @@ public class MaplyBaseController
 			{
 				ChangeSet changes = new ChangeSet();
 				for (ComponentObject compObj : compObjs)
-					compObj.enable(control, true, changes);
+					if (compObj != null)
+						compObj.enable(control, true, changes);
 				changes.process(scene);
 			}
 		};

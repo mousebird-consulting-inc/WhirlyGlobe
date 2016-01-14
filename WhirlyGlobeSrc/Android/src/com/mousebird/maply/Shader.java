@@ -90,7 +90,7 @@ public class Shader
 
 		textures.add(texture);
 
-        Log.d("Maply","addTexture texID " + texture.texID);
+//        Log.d("Maply","addTexture texID " + texture.texID);
 
 		addTextureNative(control.getScene(),name,texture.texID);
 	}

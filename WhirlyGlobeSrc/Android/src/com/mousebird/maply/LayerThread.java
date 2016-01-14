@@ -21,6 +21,7 @@
 package com.mousebird.maply;
 
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.microedition.khronos.egl.*;
@@ -162,19 +163,46 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	// Called on the main thread *after* the thread has quit safely
 	void shutdown()
 	{
-		for (Layer layer : layers)
+		// Run the shutdowns on the thread itself
+		addTask(new Runnable()
 		{
-			layer.shutdown();
+			@Override
+			public void run()
+			{
+				for (final Layer layer : layers)
+				{
+					layer.shutdown();
+				}
+			}
+		},true);
+
+		final Semaphore endLock = new Semaphore(0,true);
+		addTask(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				try
+				{
+					quit();
+				}
+				catch (Exception e)
+				{
+
+				}
+				endLock.release();
+			}
+		},true);
+
+		// Block until the queue drains
+		try {
+			endLock.acquire();
 		}
+		catch( Exception e)
+		{
+		}
+
 		// Note: Is this blocking?
-		try
-		{
-			quit();
-		}
-		catch (Exception e)
-		{
-			
-		}
 		layers = null;
 		view = null;
 		scene = null;
