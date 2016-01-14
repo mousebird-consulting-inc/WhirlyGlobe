@@ -13,16 +13,12 @@ class ConfigSection {
 
 	enum Section : String {
 		case Options = "Options"
-		case Actions = "Actions"
 	}
 
 	enum Row : String {
 		case RunGlobe = "Run on globe"
 		case RunMap = "Run on map"
 		case ViewTest = "See test execution on View"
-
-		case SelectAll = "Select all"
-		case SelectNone = "Select none"
 	}
 
 
@@ -102,16 +98,7 @@ class ConfigViewController: UIViewController, UITableViewDataSource, UITableView
 			],
 			singleSelect: false)
 
-		let actionsSection = ConfigSection(
-			section: .Actions,
-			rows: [
-				.SelectAll: false,
-				.SelectNone: false,
-			],
-			singleSelect: true)
-
 		values.append(optionsSection)
-		values.append(actionsSection)
 	}
 
 	func numberOfSectionsInTableView(tableView: UITableView) -> Int {
