@@ -117,6 +117,9 @@ public class ConfigOptions {
                 case R.id.screen_markers:
                     objects[0] = !objects[0];
                     break;
+                case R.id.screen_labels:
+                    objects[1] = !objects[1];
+                    break;
                 case R.id.perfOutput:
                     utils[0] = !utils[0];
                     break;

@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.mousebird.maply.GlobeController;
+import com.mousebird.maply.LabelInfo;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.MarkerInfo;
@@ -17,6 +18,7 @@ import com.mousebird.maply.QuadImageTileLayer;
 import com.mousebird.maply.QuadPagingLayer;
 import com.mousebird.maply.RemoteTileInfo;
 import com.mousebird.maply.RemoteTileSource;
+import com.mousebird.maply.ScreenLabel;
 import com.mousebird.maply.ScreenMarker;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
 import com.mousebird.maply.TestImageSource;
@@ -127,22 +129,20 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
     WeatherShader weatherShader = null;
 
 	// Called when the user changes what is selected
-	public void userChangedSelections(ConfigOptions config)
-	{
-		String cacheDirName = null;
-		QuadImageTileLayer.TileSource tileSource = null;
-		RemoteTileSource remoteTileSource = null;
+	public void userChangedSelections(ConfigOptions config) {
+        String cacheDirName = null;
+        QuadImageTileLayer.TileSource tileSource = null;
+        RemoteTileSource remoteTileSource = null;
         int imageDepth = 1;
 
-		// Get rid of the existing base layer
-		if (baseLayer != null)
-			baseControl.removeLayer(baseLayer);
-		
-		baseControl.setPerfInterval(0);
+        // Get rid of the existing base layer
+        if (baseLayer != null)
+            baseControl.removeLayer(baseLayer);
 
-		// Base layers
-        switch (config.baseSection)
-        {
+        baseControl.setPerfInterval(0);
+
+        // Base layers
+        switch (config.baseSection) {
             case BlankLayer:
                 break;
             case GeographyClass:
@@ -154,65 +154,61 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
                 break;
             case MapboxSatellite:
                 cacheDirName = "mapbox_satellite";
-                remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2/","png",0,22));
+                remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2/", "png", 0, 22));
                 break;
             case OSMMapquest:
                 cacheDirName = "osm_mapquest";
-                remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://otile1.mqcdn.com/tiles/1.0.0/osm/","png",0,18));
+                remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://otile1.mqcdn.com/tiles/1.0.0/osm/", "png", 0, 18));
                 break;
             case StamenWatercolor:
                 cacheDirName = "stamen_watercolor";
-                remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://tile.stamen.com/watercolor/","png",0,18));
+                remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://tile.stamen.com/watercolor/", "png", 0, 18));
                 break;
             case QuadTest:
-                tileSource = new TestImageSource(getActivity().getMainLooper(),0,22);
+                tileSource = new TestImageSource(getActivity().getMainLooper(), 0, 22);
                 break;
             case QuadTestAnimate:
-                tileSource = new TestImageSource(getActivity().getMainLooper(),0,22);
+                tileSource = new TestImageSource(getActivity().getMainLooper(), 0, 22);
                 imageDepth = 8;
                 break;
-            case QuadVectorTest:
-            {
-                TestQuadPager testPager = new TestQuadPager(0,22);
+            case QuadVectorTest: {
+                TestQuadPager testPager = new TestQuadPager(0, 22);
                 SphericalMercatorCoordSystem coordSys = new SphericalMercatorCoordSystem();
-                QuadPagingLayer pagingLayer = new QuadPagingLayer(mapControl,coordSys,testPager);
+                QuadPagingLayer pagingLayer = new QuadPagingLayer(mapControl, coordSys, testPager);
                 pagingLayer.setSimultaneousFetches(6);
-                pagingLayer.setImportance(256*256);
+                pagingLayer.setImportance(256 * 256);
                 pagingLayer.setSingleLevelLoading(true);
                 pagingLayer.setUseTargetZoomLevel(true);
                 mapControl.addLayer(pagingLayer);
             }
-                break;
+            break;
         }
 
-		// New base layer
-		if (remoteTileSource != null)
-			tileSource = remoteTileSource;
+        // New base layer
+        if (remoteTileSource != null)
+            tileSource = remoteTileSource;
 
-		if (tileSource != null)
-		{
-			baseLayer = setupImageLayer(tileSource,remoteTileSource,cacheDirName,imageDepth);
-			baseControl.addLayer(baseLayer);		
-		}
+        if (tileSource != null) {
+            baseLayer = setupImageLayer(tileSource, remoteTileSource, cacheDirName, imageDepth);
+            baseControl.addLayer(baseLayer);
+        }
 
         // Overlay layers
-        if (config.overlays[0])
-        {
-            if (forecastIOLayer == null)
-            {
+        if (config.overlays[0]) {
+            if (forecastIOLayer == null) {
                 if (weatherShader == null) {
                     weatherShader = new WeatherShader(baseControl);
                     baseControl.addShaderProgram(weatherShader, weatherShader.getName());
                 }
 
                 RemoteTileInfo[] sources = new RemoteTileInfo[5];
-                for (int ii=0;ii<5;ii++)
-                    sources[ii] = new RemoteTileInfo("http://a.tiles.mapbox.com/v3/mousebird.precip-example-layer" + ii + "/","png",0,6);
+                for (int ii = 0; ii < 5; ii++)
+                    sources[ii] = new RemoteTileInfo("http://a.tiles.mapbox.com/v3/mousebird.precip-example-layer" + ii + "/", "png", 0, 6);
                 cacheDirName = "forecastio";
                 SphericalMercatorCoordSystem coordSys = new SphericalMercatorCoordSystem();
-                MultiplexTileSource multiTileSource = new MultiplexTileSource(baseControl,sources,coordSys);
+                MultiplexTileSource multiTileSource = new MultiplexTileSource(baseControl, sources, coordSys);
 
-                forecastIOLayer = new QuadImageTileLayer(baseControl,coordSys,multiTileSource);
+                forecastIOLayer = new QuadImageTileLayer(baseControl, coordSys, multiTileSource);
                 forecastIOLayer.setSimultaneousFetches(1);
                 forecastIOLayer.setDrawPriority(MaplyBaseController.ImageLayerDrawPriorityDefault + 100);
                 forecastIOLayer.setBorderTexel(0);
@@ -223,8 +219,7 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
 
 //						forecastIOLayer.setImageFormat(QuadImageTileLayer.ImageFormat.MaplyImageUByteRed);
 
-                if (mapControl != null)
-                {
+                if (mapControl != null) {
                     forecastIOLayer.setSingleLevelLoading(true);
                     forecastIOLayer.setUseTargetZoomLevel(true);
                     forecastIOLayer.setCoverPoles(false);
@@ -237,9 +232,8 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
                 }
 
                 // Cache directory for tiles
-                if (cacheDirName != null)
-                {
-                    File cacheDir = new File(getActivity().getCacheDir(),cacheDirName);
+                if (cacheDirName != null) {
+                    File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);
                     cacheDir.mkdir();
                     multiTileSource.setCacheDir(cacheDir);
                 }
@@ -251,15 +245,25 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
         }
 
         // Random objects to add
-        if (config.objects[0])
-        {
+        if (config.objects[0]) {
             MarkerInfo markerInfo = new MarkerInfo();
-            markerInfo.setColor(1.0f,0.0f,0.0f,1.0f);
+            markerInfo.setColor(1.0f, 0.0f, 0.0f, 1.0f);
             ScreenMarker marker = new ScreenMarker();
-            marker.loc = Point2d.FromDegrees(-94.58,39.1);
+            marker.size = new Point2d(64,64);
+            marker.loc = Point2d.FromDegrees(-94.58, 39.1);
             marker.image = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.star);
+            baseControl.addScreenMarker(marker, markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
+        }
 
-            baseControl.addScreenMarker(marker,markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
+        if (config.objects[1]) {
+            LabelInfo labelInfo = new LabelInfo();
+            labelInfo.setFontSize(128);
+            labelInfo.setTextColor(1,0,0,1);
+            labelInfo.setDrawPriority(1000000);
+            ScreenLabel label = new ScreenLabel();
+            label.loc = Point2d.FromDegrees(0, 0);
+            label.text = "Test Label";
+            baseControl.addScreenLabel(label, labelInfo, MaplyBaseController.ThreadMode.ThreadAny);
         }
     }
 }

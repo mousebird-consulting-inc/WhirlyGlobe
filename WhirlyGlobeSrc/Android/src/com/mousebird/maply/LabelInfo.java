@@ -110,6 +110,4 @@ public class LabelInfo extends BaseInfo
 	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
-	private long nativeHandle;
-
 }

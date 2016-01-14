@@ -393,7 +393,7 @@ ScreenSpaceObject::ScreenSpaceObject()
 }
 
 ScreenSpaceObject::ScreenSpaceObject(SimpleIdentity theID)
-: Identifiable(theID), enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), offset(0,0), rotation(0), keepUpright(false)
+  : Identifiable(theID), enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), endWorldLoc(0,0,0), startTime(0), endTime(0), offset(0,0), rotation(0), keepUpright(false)
 {
 }
 

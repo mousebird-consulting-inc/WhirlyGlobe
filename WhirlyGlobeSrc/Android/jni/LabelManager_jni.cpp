@@ -100,6 +100,12 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
 		}
 		env->DeleteLocalRef(iterObj);
 
+		// Resolve a missing program
+		if (labelInfo->programID == EmptyIdentity)
+	        {
+                  // Note: Doesn't handle motion
+                  labelInfo->programID = labelManager->getScene()->getProgramIDBySceneName(kToolkitDefaultScreenSpaceProgram);
+                }
 		SimpleIdentity labelId = labelManager->addLabels(labels,*labelInfo,*changeSet);
 
 		labelInfo->env = NULL;

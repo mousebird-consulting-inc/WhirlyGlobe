@@ -21,7 +21,7 @@ cat nohup.out
 echo 
 
 # echo "~/Android/android-ndk-r10e/toolchains/x86-4.9/prebuilt/darwin-x86_64/bin/i686-linux-android-gdb ~/$device/app_process -i=mi -ex \"target remote :5039;\" -ex \"set solib-search-path ~/$device/:~/$device/system_lib:~/$device/vendor_lib:~/$device/vendor_lib/egl:~/iPhone/DarkSkyAndroid/lib/WhirlyGlobe-Maply/WhirlyGlobeSrc/Android/obj/local/$arch/\""
-echo "~/Android/android-ndk-r10e/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-gdb  ~/$device/app_process -i=mi -ex \"target remote :5039;\" -ex \"set solib-search-path ~/$device/:~/$device/system_lib:~/$device/vendor_lib:~/$device/vendor_lib/egl:~/iPhone/DarkSkyAndroid/libs/WhirlyGlobe-Maply/WhirlyGlobeSrc/Android/obj/local/$arch/\""
+echo "~/Android/android-ndk-r10e/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-gdb  ~/$device/app_process -i=mi -ex \"target remote :5039;\" -ex \"set solib-search-path ~/$device/:~/$device/system_lib:~/$device/vendor_lib:~/$device/vendor_lib/egl:~/iPhone/WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/obj/local/$arch/\""
 
 
 
