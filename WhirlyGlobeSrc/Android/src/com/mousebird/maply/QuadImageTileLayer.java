@@ -152,7 +152,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		cancelEvalStep();
 		ChangeSet changes = new ChangeSet();
 		nativeShutdown(changes);
-		layerThread.addChanges(changes);
+		changes.process(layerThread.scene);
 		super.shutdown();
 	}
 

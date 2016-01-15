@@ -104,7 +104,7 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
         cancelEvalStep();
         ChangeSet changes = new ChangeSet();
         nativeShutdown(changes);
-        layerThread.addChanges(changes);
+        changes.process(layerThread.scene);
         super.shutdown();
     }
 
