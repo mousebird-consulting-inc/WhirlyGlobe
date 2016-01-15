@@ -16,8 +16,8 @@
 - (instancetype)init
 {
 	if (self = [super init]) {
-		self.selected = YES;
 	}
+
 	return self;
 }
 
@@ -57,7 +57,6 @@
 	self.globeViewController.view.frame = self.testView.bounds;
 	self.globeViewController.clearColor = [UIColor blackColor];
 	self.globeViewController.frameInterval = 2;
-
 	// setup test case specifics
 	if (![self setUpWithGlobe:self.globeViewController]) {
 		[self tearDownWithGlobe:self.globeViewController];
@@ -232,6 +231,18 @@
 
 	NSLog(@"An error happened capturing the screen");
 	return nil;
+}
+
+- (void)setSelected:(BOOL)selected
+{
+	_selected = selected;
+	[[NSUserDefaults standardUserDefaults] setBool:_selected forKey:_name];
+}
+
+- (void)setName:(NSString *)name
+{
+	_name = name;
+	_selected = [[NSUserDefaults standardUserDefaults] boolForKey:_name];
 }
 
 
