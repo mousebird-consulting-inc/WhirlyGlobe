@@ -17,15 +17,12 @@ class ResultsViewController: UITableViewController, UIPopoverControllerDelegate 
 	private var dropboxView : DropboxViewController?
 	private var popControl: UIPopoverController?
 
-
-
 	override func viewDidLoad() {
 		dropboxView = DropboxViewController(nibName: "DropboxViewController", bundle: nil)
 	}
 
 	@IBAction func uploadToDropbox(sender: AnyObject) {
-		dropboxView!.results = self.results
-		dropboxView!.titles = self.titles
+	
 		if UI_USER_INTERFACE_IDIOM() == .Pad {
 			popControl = UIPopoverController(contentViewController: dropboxView!)
 			popControl?.delegate = self
@@ -81,6 +78,10 @@ class ResultsViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 
 		return cell
+	}
+
+	override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+		return (UI_USER_INTERFACE_IDIOM() == .Pad) ? 500 : 344
 	}
 
 	override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {

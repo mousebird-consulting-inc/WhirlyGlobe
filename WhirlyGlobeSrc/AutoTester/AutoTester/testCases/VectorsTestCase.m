@@ -47,7 +47,7 @@
 				NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
 				wgVecObj.userObject = vecName;
 				[self.compList addObject:wgVecObj];
-				MaplyComponentObject *compObj = [baseVC addVectors:[NSArray arrayWithObject:wgVecObj] desc:vectorDict];
+				[baseVC addVectors:[NSArray arrayWithObject:wgVecObj] desc:vectorDict];
 				if ([vecName isEqualToString:@"Spain"]) {
 					self.selectedCountry = wgVecObj;
 				}
