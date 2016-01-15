@@ -1317,11 +1317,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 	    {
 		    return;
 	    }
+        
+        if (info.height > 0 && info.width > 0)
+        {
+            uint32_t* src = (uint32_t*) bitmapPixels;
+            RawDataRef rawDataRef(new MutableRawData(bitmapPixels,info.height*info.width*4));
 
-		uint32_t* src = (uint32_t*) bitmapPixels;
-		RawDataRef rawDataRef(new MutableRawData(bitmapPixels,info.height*info.width*4));
-
-		adapter->tileLoaded(level,x,y,frame,rawDataRef,info.width,info.height,*changes);
+            adapter->tileLoaded(level,x,y,frame,rawDataRef,info.width,info.height,*changes);
+        }
+        
 		AndroidBitmap_unlockPixels(env, bitmapObj);
 //		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did load: %d: (%d,%d) %d",level,x,y,frame);
     }
