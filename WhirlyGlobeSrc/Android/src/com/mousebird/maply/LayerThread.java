@@ -43,6 +43,7 @@ import android.util.Log;
  */
 public class LayerThread extends HandlerThread implements View.ViewWatcher
 {
+	boolean valid = true;
 	View view = null;
 	Scene scene = null;
 	MaplyRenderer renderer = null;
@@ -184,6 +185,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			{
 				try
 				{
+					valid = false;
 					quit();
 				}
 				catch (Exception e)
@@ -314,6 +316,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 */
 	Handler addTask(Runnable run,boolean wait)
 	{
+		if (!valid)
+			return null;
+
 		if (!wait && Looper.myLooper() == getLooper())
 			run.run();
 		else {

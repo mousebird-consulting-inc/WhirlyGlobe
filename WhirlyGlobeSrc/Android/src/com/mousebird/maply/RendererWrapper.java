@@ -20,10 +20,12 @@
 
 package com.mousebird.maply;
 
-import javax.microedition.khronos.egl.*;
-import javax.microedition.khronos.opengles.*;
+import android.opengl.GLSurfaceView.Renderer;
 
-import android.opengl.GLSurfaceView.*;
+import java.util.concurrent.Semaphore;
+
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
 
 /**
  * This is an internal class used to talk to the OpenGL ES surface.
@@ -31,6 +33,7 @@ import android.opengl.GLSurfaceView.*;
  */
 class RendererWrapper implements Renderer
 {
+	boolean valid = true;
 	public MaplyRenderer maplyRender = null;
 	public Scene scene = null;
 	public View view = null;
@@ -54,15 +57,56 @@ class RendererWrapper implements Renderer
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height)
 	{
-		maplyRender.surfaceChanged(width,height);
-		maplyRender.doRender();
+		try {
+			renderLock.acquire();
+		}
+		catch (Exception e)
+		{
+			return;
+		}
+
+		if (valid) {
+			maplyRender.surfaceChanged(width, height);
+			maplyRender.doRender();
+		}
+
+		renderLock.release();
 	}
 
 	int frameCount = 0;
+	Semaphore renderLock = new Semaphore(1,true);
 	
 	@Override
 	public void onDrawFrame(GL10 gl)
 	{
-		maplyRender.doRender();		
+		try {
+			renderLock.acquire();
+		}
+		catch (Exception e)
+		{
+			return;
+		}
+
+		if (valid)
+			maplyRender.doRender();
+
+		renderLock.release();
 	}
+
+	/**
+	 * Blocks until the rendering is over, then no more rendering.
+	 */
+	public void stopRendering()
+	{
+		try {
+			renderLock.acquire();
+		}
+		catch (Exception e)
+		{
+			return;
+		}
+		valid = false;
+		renderLock.release();
+	}
+
 }

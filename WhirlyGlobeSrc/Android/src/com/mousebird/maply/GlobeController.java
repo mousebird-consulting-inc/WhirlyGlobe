@@ -68,6 +68,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	
 	@Override public void shutdown()
 	{
+		globeView.cancelAnimation();
 		super.shutdown();
 		globeView = null;
 		globeScene = null;

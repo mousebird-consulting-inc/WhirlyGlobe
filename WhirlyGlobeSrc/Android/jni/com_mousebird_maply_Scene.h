@@ -17,6 +17,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram
 
 /*
  * Class:     com_mousebird_maply_Scene
+ * Method:    teardownGL
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_teardownGL
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_Scene
  * Method:    nativeInit
  * Signature: ()V
  */

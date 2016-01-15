@@ -74,3 +74,21 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::addShaderProgram()");
     }
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_teardownGL
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
+        Scene *scene = classInfo->getObject(env,obj);
+        if (!scene)
+            return;
+        
+        scene->teardownGL();
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::teardownGL()");
+    }
+}

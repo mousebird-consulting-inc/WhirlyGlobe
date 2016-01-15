@@ -27,6 +27,11 @@ public class Scene
 	 */
 	public native void addShaderProgram(Shader shader,String sceneName);
 
+	/**
+	 * Tear down the OpenGL resources.  Context needs to be set first.
+	 */
+	public native void teardownGL();
+
 	static
 	{
 		nativeInit();

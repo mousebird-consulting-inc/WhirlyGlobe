@@ -185,11 +185,21 @@ public class MaplyBaseController
 	 */
 	public void shutdown()
 	{
+		Log.d("Maply","Shutting down base controller");
+		renderWrapper.stopRendering();
+
 		running = false;
 //		Choreographer.getInstance().removeFrameCallback(this);
 		layerThread.shutdown();
 		metroThread.shutdown();
-		
+
+		// Clean up OpenGL ES resources
+		setEGLContext();
+		scene.teardownGL();
+
+		// Do a little dance to shut down rendering
+		glSurfaceView.onPause();
+
 		glSurfaceView = null;
 		renderWrapper = null;
 		coordAdapter = null;
