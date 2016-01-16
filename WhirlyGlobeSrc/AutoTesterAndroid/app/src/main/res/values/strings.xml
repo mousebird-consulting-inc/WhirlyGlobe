@@ -6,8 +6,4 @@
     <string name="option_run_globe">Run on globe</string>
     <string name="option_run_map">Run on map</string>
     <string name="run_both">Run Both</string>
-    <string name="actionsSection">Actions</string>
-    <string name="selectAllAction">Select all</string>
-    <string name="DeselectAllAction">Select none</string>
-    <string name="playTestActions">Play Tests</string>
 </resources>

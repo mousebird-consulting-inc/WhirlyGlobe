@@ -52,18 +52,6 @@ public class TestListFragment extends Fragment {
 		return new LinearLayoutManager(getActivity().getApplicationContext());
 	}
 
-	public void changeItemsState(boolean selected) {
-		adapter.changeItemsState(selected);
-	}
-
-	public void notifyIconChanged(int index) {
-		this.adapter.notifyItemChanged(index);
-	}
-
-	public ArrayList<MaplyTestCase> getTests() {
-		return adapter.getTestCases();
-	}
-
 	private class TestListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 		private ArrayList<MaplyTestCase> testCases;
@@ -95,53 +83,32 @@ public class TestListFragment extends Fragment {
 			return testCases.size();
 		}
 
-		public void changeItemsState(boolean selected) {
-			for (MaplyTestCase testCase : testCases) {
-				testCase.setSelected(selected);
-				ConfigOptions.setSelectedTest(getContext(), testCase.getTestName(), selected);
-			}
-			notifyDataSetChanged();
-		}
-
-		public ArrayList<MaplyTestCase> getTestCases() {
-			return testCases;
-		}
-
 		private class TestViewHolder extends RecyclerView.ViewHolder {
 
 			private TextView label;
-			private ImageView selected;
 			private View self;
 			private MaplyTestCase testCase;
 
 			public TestViewHolder(View itemView) {
 				super(itemView);
 				label = (TextView) itemView.findViewById(R.id.testNameLabel);
-				selected = (ImageView) itemView.findViewById(R.id.itemSelected);
 				self = itemView;
 			}
 
-			public void bindViewHolder(MaplyTestCase testCase) {
+			public void bindViewHolder(final MaplyTestCase testCase) {
 				this.testCase = testCase;
-				this.selected.setImageDrawable(getResources().getDrawable(testCase.getIcon()));
-				changeItemState(testCase.isSelected());
 				this.label.setText(this.testCase.getTestName());
 
 				self.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						if (!((MainActivity) getActivity()).isExecuting()) {
-							TestViewHolder.this.testCase.setSelected(!TestViewHolder.this.testCase.isSelected());
-							TestViewHolder.this.changeItemState(TestViewHolder.this.testCase.isSelected());
-							ConfigOptions.setSelectedTest(getContext(), TestViewHolder.this.testCase.getTestName(), TestViewHolder.this.testCase.isSelected());
+						MainActivity activity = (MainActivity) getActivity();
+						if (!activity.isExecuting()) {
+							activity.prepareTest();
+							activity.runTest(testCase);
 						}
 					}
 				});
-			}
-
-			public void changeItemState(boolean setSelected) {
-				this.selected.setVisibility(
-					setSelected ? View.VISIBLE : View.INVISIBLE);
 			}
 		}
 	}

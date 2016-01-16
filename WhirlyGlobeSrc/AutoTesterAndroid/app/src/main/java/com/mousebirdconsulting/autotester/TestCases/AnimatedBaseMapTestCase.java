@@ -20,9 +20,7 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 
 	public AnimatedBaseMapTestCase(Activity activity) {
 		super(activity);
-
 		setTestName("Animated BaseMap Test");
-		setSelected(ConfigOptions.getSelectedTest(activity, getTestName()));
 		setDelay(2);
 	}
 

@@ -28,7 +28,6 @@ public class ScreenMarkersTestCase extends MaplyTestCase {
 	public ScreenMarkersTestCase(Activity activity) {
 		super(activity);
 		setTestName("Screen Markers Test");
-		setSelected(ConfigOptions.getSelectedTest(activity, getTestName()));
 	}
 
 	public ArrayList<ComponentObject> getComponentObjects() {

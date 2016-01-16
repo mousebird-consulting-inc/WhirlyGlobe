@@ -23,7 +23,6 @@ public class MapBoxSatelliteTestCase extends MaplyTestCase {
 		super(activity);
 
 		setTestName("MapBox Satellite Test");
-		setSelected(ConfigOptions.getSelectedTest(activity, getTestName()));
 		setDelay(2);
 	}
 
