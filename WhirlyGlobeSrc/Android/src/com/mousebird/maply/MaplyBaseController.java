@@ -185,7 +185,6 @@ public class MaplyBaseController
 	 */
 	public void shutdown()
 	{
-		Log.d("Maply","Shutting down base controller");
 		renderWrapper.stopRendering();
 
 		running = false;

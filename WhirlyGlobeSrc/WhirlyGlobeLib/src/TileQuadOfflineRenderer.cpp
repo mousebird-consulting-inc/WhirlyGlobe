@@ -48,13 +48,26 @@ OfflineTile::OfflineTile(const WhirlyKit::Quadtree::Identifier &ident,int numIma
 
 OfflineTile::~OfflineTile()
 {
+    for (int ii=0;ii<textures.size();ii++)
+    {
+        Texture *tex = textures[ii];
+        if (tex)
+            delete tex;
+    }
 }
     
 void OfflineTile::clearTextures(Scene *scene)
 {
-    for (Texture *tex : textures)
+    for (int ii=0;ii<textures.size();ii++)
+    {
+        Texture *tex = textures[ii];
         if (tex)
+        {
             tex->destroyInGL(scene->getMemManager());
+            delete tex;
+        }
+        textures[ii] = NULL;
+    }
 }
 
 void OfflineTile::GetTileSize(int &numX,int &numY)
@@ -139,13 +152,17 @@ QuadTileOfflineLoader::QuadTileOfflineLoader(const std::string &name,QuadTileIma
     
 QuadTileOfflineLoader::~QuadTileOfflineLoader()
 {
-    clear();
+    clear(false);
 }
 
-void QuadTileOfflineLoader::clear()
+void QuadTileOfflineLoader::clear(bool clearTextures)
 {
     for (OfflineTileSet::iterator it = tiles.begin();it != tiles.end();++it)
+    {
+        if (clearTextures)
+            (*it)->clearTextures(scene);
         delete *it;
+    }
     tiles.clear();
     somethingChanged = true;
 }
@@ -388,7 +405,6 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
         glBindTexture(GL_TEXTURE_2D, 0);
 
         // Clear output texture
-        // Note: Test color
         glClearColor(0, 0, 0, 0);
         CheckGLError("Offline glClearColor");
         glClear(GL_COLOR_BUFFER_BIT);
@@ -550,12 +566,12 @@ Point2d QuadTileOfflineLoader::pixelSizeForMbr(const Mbr &theMbr,const Point2d &
 
 void QuadTileOfflineLoader::shutdownLayer(ChangeSet &changes)
 {
-    clear();
+    clear(true);
 }
     
 void QuadTileOfflineLoader::reset(ChangeSet &changes)
 {
-    clear();
+    clear(true);
 }
 
 bool QuadTileOfflineLoader::isReady()
@@ -665,6 +681,10 @@ void QuadTileOfflineLoader::loadedImage(QuadTileImageDataSource *dataSource,Load
         tile->textures.resize(1);
         tile->textures[0] = loadTex;
     } else {
+        Texture *oldTex = tile->textures[frame];
+        if (oldTex)
+            oldTex->destroyInGL(scene->getMemManager());
+        delete oldTex;
         tile->textures[frame] = loadTex;
     }
     

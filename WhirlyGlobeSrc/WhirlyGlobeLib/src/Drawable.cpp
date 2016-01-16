@@ -81,7 +81,7 @@ GLuint OpenGLMemManager::getBufferID(unsigned int size,GLenum drawType)
 }
 
 // If set, we'll reuse buffers rather than allocating new ones
-static const bool ReuseBuffers = true;
+static const bool ReuseBuffers = false;
 
 void OpenGLMemManager::removeBufferID(GLuint bufID)
 {

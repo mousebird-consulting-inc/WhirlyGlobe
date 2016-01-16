@@ -369,8 +369,8 @@ public:
     {
         if (imgData)
         {
-            ImageWrapper *tileWrapper = new ImageWrapper(imgData,width,height);
-            tileLoader->loadedImage(this, tileWrapper, level, col, row, frame, changes);
+            ImageWrapper tileWrapper(imgData,width,height);
+            tileLoader->loadedImage(this, &tileWrapper, level, col, row, frame, changes);
         } else {
             tileLoader->loadedImage(this, NULL, level, col, row, frame, changes);
         }

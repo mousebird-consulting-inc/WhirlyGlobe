@@ -118,7 +118,7 @@ public:
     /// Set this up with an object that'll return an image per tile and a name (for debugging)
     QuadTileOfflineLoader(const std::string &name,QuadTileImageDataSource *imageSource);
     ~QuadTileOfflineLoader();
-    void clear();
+    void clear(bool clearTextures);
     
     /// Set if we're doing any rendering.  On by default.
     void setOn(bool newOn) { on = newOn; }
