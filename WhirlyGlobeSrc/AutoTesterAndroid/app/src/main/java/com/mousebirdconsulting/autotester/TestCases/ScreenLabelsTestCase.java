@@ -22,7 +22,6 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 	public ScreenLabelsTestCase(Activity activity) {
 		super(activity);
 		this.setTestName("Screen Labels Test");
-		this.setSelected(ConfigOptions.getSelectedTest(activity, getTestName()));
 	}
 
 	@Override

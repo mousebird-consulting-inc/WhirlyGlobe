@@ -40,7 +40,7 @@ public class NavigationDrawer extends LinearLayout {
 		ButterKnife.inject(this);
 	}
 
-	@OnClick({R.id.deselectAll, R.id.selectAll, R.id.runMap, R.id.runGlobe, R.id.runBoth, R.id.seeView})
+	@OnClick({R.id.runMap, R.id.runGlobe, R.id.runBoth, R.id.seeView})
 	void onItemClick(View view) {
 		if (getContext() instanceof Listener) {
 			((Listener) getContext()).onItemClick(view.getId());

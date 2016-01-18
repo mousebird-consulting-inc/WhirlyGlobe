@@ -40,19 +40,6 @@ public class ConfigOptions {
 		return ViewMapOption.valueOf(viewSetting);
 	}
 
-	public static final void setSelectedTest(Context context, String testName, boolean selected) {
-		SharedPreferences preferences = context.getSharedPreferences(ConfigOptions.preferences, Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = preferences.edit();
-		editor.putBoolean(testName, selected);
-		editor.commit();
-	}
-
-	public static final boolean getSelectedTest(Context context, String testName) {
-		SharedPreferences preferences = context.getSharedPreferences(ConfigOptions.preferences, Context.MODE_PRIVATE);
-		boolean defaultValue = false;
-		return preferences.getBoolean(testName, defaultValue);
-	}
-
 	public enum TestType {
 		MapTest, GlobeTest, BothTest
 	}

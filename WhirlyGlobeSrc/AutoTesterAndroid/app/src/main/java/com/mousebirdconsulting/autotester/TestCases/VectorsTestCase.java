@@ -28,7 +28,6 @@ public class VectorsTestCase extends MaplyTestCase {
 		super(activity);
 
 		setTestName("Vectors Test");
-		setSelected(ConfigOptions.getSelectedTest(activity, getTestName()));
 	}
 
 	private void overlayCountries(MaplyBaseController baseVC) throws Exception {

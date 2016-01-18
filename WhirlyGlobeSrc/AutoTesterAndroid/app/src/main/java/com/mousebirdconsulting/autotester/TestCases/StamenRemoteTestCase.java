@@ -20,7 +20,6 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		super(activity);
 
 		setTestName("Stamen Remote Test");
-		setSelected(ConfigOptions.getSelectedTest(activity, getTestName()));
 		setDelay(2);
 	}
 

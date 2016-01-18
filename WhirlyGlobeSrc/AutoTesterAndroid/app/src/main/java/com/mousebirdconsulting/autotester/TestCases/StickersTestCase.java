@@ -26,7 +26,6 @@ public class StickersTestCase extends MaplyTestCase {
 	public StickersTestCase(Activity activity) {
 		super(activity);
 		setTestName("Stickers Test");
-		setSelected(ConfigOptions.getSelectedTest(activity, getTestName()));
 	}
 
 	@Override

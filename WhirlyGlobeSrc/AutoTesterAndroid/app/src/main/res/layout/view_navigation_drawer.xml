@@ -68,29 +68,5 @@
         android:background="#99333333"
         android:layout_width="match_parent"
         android:layout_height="0.5dp"/>
-    <TextView
-        style="@style/NavigationDrawerSection"
-        android:id="@+id/actionsSection"
-        android:text="@string/actionsSection"
-        android:drawableLeft="@drawable/ic_actions"
-        android:layout_width="match_parent"
-        android:layout_height="?android:listPreferredItemHeightSmall"
-        />
-    <TextView
-        style="@style/NavigationDrawerItem"
-        android:id="@+id/selectAll"
-        android:text="@string/selectAllAction"
-        android:drawableLeft="@drawable/ic_action_selectall"
-        android:layout_width="match_parent"
-        android:layout_height="?android:listPreferredItemHeightSmall"
-        />
-    <TextView
-        style="@style/NavigationDrawerItem"
-        android:id="@+id/deselectAll"
-        android:text="@string/DeselectAllAction"
-        android:drawableLeft="@drawable/ic_action_deselectall"
-        android:layout_width="match_parent"
-        android:layout_height="?android:listPreferredItemHeightSmall"/>
-
 
 </merge>
