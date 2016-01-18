@@ -77,6 +77,15 @@ public class Point2d
 	{
 		return new Point2d(lon/180.0 * Math.PI,lat/180 * Math.PI);
 	}
+
+	/**
+	 * Points are normally stored as radians, if they're positions on the globe or map.
+	 * This converts and returns degrees.
+     */
+	public Point2d toDegrees()
+	{
+		return new Point2d(getX()/Math.PI * 180,getY()/Math.PI * 180);
+	}
 	
 	public void finalize()
 	{
