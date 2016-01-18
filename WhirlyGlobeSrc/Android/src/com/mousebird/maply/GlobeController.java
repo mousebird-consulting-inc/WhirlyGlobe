@@ -118,6 +118,8 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		Point3d localPt = coordAdapter.displayToLocal(dispPt);
 		Point3d geoCoord = coordSys.localToGeographic(localPt);
 
+		if (geoCoord == null)
+			return null;
 		return new Point2d(geoCoord.getX(),geoCoord.getY());
 	}
 	
