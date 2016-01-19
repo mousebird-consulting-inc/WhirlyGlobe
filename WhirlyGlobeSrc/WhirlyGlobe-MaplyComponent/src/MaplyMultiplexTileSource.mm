@@ -294,10 +294,15 @@ static bool trackConnections = false;
 }
 
 // Got tile data back, figure out what to do with it
-- (void)gotTile:(MaplyTileID)tileID which:(int)which data:(id)tileData layer:(MaplyQuadImageTilesLayer *)layer
+- (void)gotTile:(MaplyTileID)tileID which:(int)which data:(id)originalTileData layer:(MaplyQuadImageTilesLayer *)layer fromCache:(bool)wasFromCache
 {
 //    NSLog(@"Got tile: %d: (%d,%d), %d",tileID.level,tileID.x,tileID.y,which);
     
+    id tileData = originalTileData;
+    if (originalTileData)
+        if ([_delegate respondsToSelector:@selector(remoteTileSource:modifyTileReturn:forTile:)])
+            tileData = [_delegate remoteTileSource:self modifyTileReturn:tileData forTile:tileID];
+
     // Look for it in the bit list
     bool done = false;
     bool shouldNotify = false;
@@ -337,13 +342,16 @@ static bool trackConnections = false;
             sortedTiles.insert(theTile);
     }
     
-    // Let's write it back out for the cache
-    MaplyRemoteTileInfo *tileSource = _tileSources[which];
-    NSString *fileName = [tileSource fileNameForTile:tileID];
-    if (fileName && [tileData isKindOfClass:[NSData class]])
+    if (!wasFromCache)
     {
-        NSData *imgData = tileData;
-        [imgData writeToFile:fileName atomically:YES];
+        // Let's write it back out for the cache
+        MaplyRemoteTileInfo *tileSource = _tileSources[which];
+        NSString *fileName = [tileSource fileNameForTile:tileID];
+        if (fileName && [originalTileData isKindOfClass:[NSData class]])
+        {
+            NSData *imgData = originalTileData;
+            [imgData writeToFile:fileName atomically:YES];
+        }
     }
 
     // We're done, so let everyone know
@@ -441,7 +449,7 @@ static bool trackConnections = false;
                 if (!imgData)
                     [self failedToGetTile:tileID frame:frame error:nil layer:layer];
                 else
-                    [self gotTile:tileID which:which data:imgData layer:layer];
+                    [self gotTile:tileID which:which data:imgData layer:layer fromCache:true];
 
                 if (trackConnections)
                     @synchronized([MaplyMultiplexTileSource class])
@@ -472,7 +480,7 @@ static bool trackConnections = false;
                  ^(AFHTTPRequestOperation *operation, id responseObject)
                  {
                      if (weakSelf)
-                         [self gotTile:tileID which:which data:responseObject layer:layer];
+                         [self gotTile:tileID which:which data:responseObject layer:layer fromCache:false];
                      
                      if (trackConnections)
                          @synchronized([MaplyMultiplexTileSource class])
@@ -486,7 +494,7 @@ static bool trackConnections = false;
                      if (weakSelf)
                      {
                          if (weakSelf.acceptFailures)
-                             [self gotTile:tileID which:which data:error layer:layer];
+                             [self gotTile:tileID which:which data:error layer:layer fromCache:false];
                          else
                              [self failedToGetTile:tileID frame:frame error:error layer:layer];
                      }
