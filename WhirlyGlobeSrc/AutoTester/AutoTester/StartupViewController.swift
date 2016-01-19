@@ -30,7 +30,12 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		StarsSunTestCase(),
 		ShapesTestCase(),
 		StickersTestCase(),
-		LoftedPolysTestCase()
+		LoftedPolysTestCase(),
+		NASAGIBSTestCase(),
+		CartoDBTestCase(),
+		BNGCustomMapTestCase(),
+		BNGTestCase(),
+		ElevationLocalDatabase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
@@ -38,9 +43,14 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	private var results = [String:MaplyTestResult]()
 
 	private var testView: UIView?
+	private var testViewBlack: UIView?
 
 	private var configViewC: ConfigViewController?
 	private var popControl: UIPopoverController?
+
+	private var timer = NSTimer()
+	private var seconds = 0
+	private var cancelled = false
 
 	override func viewWillAppear(animated: Bool) {
 		let caches = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as NSString
@@ -59,12 +69,20 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 	override func viewDidLoad() {
 		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: "showConfig")
-		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: "runTests")
+
+		let rect = UIScreen.mainScreen().applicationFrame
+		testViewBlack = UIView(frame: CGRectMake(0, 0, rect.width, rect.height))
+		testViewBlack?.backgroundColor = UIColor.blackColor()
+		testViewBlack?.hidden = true
+
+		self.view.addSubview(testViewBlack!)
 
 		configViewC = ConfigViewController(nibName: "ConfigViewController", bundle: nil)
 		configViewC!.loadValues()
-	}
 
+		let pos = NSUserDefaults.standardUserDefaults().integerForKey("scrollPos")
+		testsTable.scrollToRowAtIndexPath(NSIndexPath(forRow: pos, inSection: 0), atScrollPosition: UITableViewScrollPosition.Top, animated: false)
+	}
 
 	override func tableView(
 		tableView: UITableView,
@@ -97,13 +115,9 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 	override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
 
-		tests[indexPath.row].selected = !tests[indexPath.row].selected
+		NSUserDefaults.standardUserDefaults().setInteger(indexPath.row, forKey: "scrollPos")
 
-		let cell = tableView.cellForRowAtIndexPath(indexPath)
-
-		cell?.accessoryType = tests[indexPath.row].selected
-			? .Checkmark
-			: .None
+		runTest(self.tests[indexPath.row])
 	}
 
 	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -113,7 +127,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 		destination.titles = sortedKeys
 		destination.results = [MaplyTestResult]()
-		sortedKeys.forEach{
+		sortedKeys.forEach {
 			destination.results.append(self.results[$0]!)
 		}
 	}
@@ -132,96 +146,74 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 	}
 
-	private dynamic func runTests() {
-		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Stop, target: self, action: "stopTests")
-
-		self.title = "Running tests..."
+	private func runTest(test: MaplyTestCase) {
+		self.title = "Running test..."
 
 		// use same aspect ratio as results view
-		self.testView = UIView(frame: CGRectMake(0, 0, 468, 672))
-		self.testView!.hidden = true;
-		self.view.addSubview(self.testView!)
+		let rect = UIScreen.mainScreen().applicationFrame
+		self.testViewBlack?.frame = CGRectMake(0, 0, rect.width, rect.height)
+		self.testViewBlack?.hidden = !configViewC!.valueForSection(.Options, row: .ViewTest)
+		self.testView = UIView(frame: CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height))
+		self.testView?.center = CGPointMake(self.testViewBlack!.frame.size.width  / 2,
+			self.testViewBlack!.frame.size.height / 2)
+		self.testView?.hidden = !configViewC!.valueForSection(.Options, row: .ViewTest)
+		self.testView?.backgroundColor = UIColor.blackColor()
+		self.testViewBlack?.addSubview(self.testView!)
 		self.results.removeAll()
-		startTests(tests)
+
+		test.options = .None
+		if configViewC!.valueForSection(.Options, row: .RunGlobe) {
+			test.options.insert(.Globe)
+		}
+
+		if configViewC!.valueForSection(.Options, row: .RunMap) {
+			test.options.insert(.Map)
+		}
+
+		test.resultBlock = { test in
+			if let mapResult = test.mapResult {
+				self.results["\(test.name) - Map"] = mapResult
+			}
+
+			if let globeResult = test.globeResult {
+				self.results["\(test.name) - Globe"] = globeResult
+			}
+			self.finishTests()
+		}
+
+		if configViewC!.valueForSection(.Options, row: .ViewTest){
+			self.seconds = test.captureDelay
+			self.title = "\(test.name) (\(self.seconds))"
+			self.timer = NSTimer.scheduledTimerWithTimeInterval(1,
+				target: self,
+				selector: "updateTitle:",
+				userInfo: test.name,
+				repeats: true)
+		}
+		test.testView = self.testView
+		test.start()
 	}
 
-	private func startTests(tests: [MaplyTestCase]) {
-		if let head = tests.first {
-			let tail = Array(tests.dropFirst())
-
-			if (head.selected) {
-				head.options = .None
-
-				if configViewC!.valueForSection(.Options, row: .RunGlobe) {
-					head.options.insert(.Globe)
-				}
-
-				if configViewC!.valueForSection(.Options, row: .RunMap) {
-					head.options.insert(.Map)
-				}
-
-				head.resultBlock = { test in
-					if let mapResult = test.mapResult {
-						self.results["\(test.name) - Map"] = mapResult
-					}
-
-					if let globeResult = test.globeResult {
-						self.results["\(test.name) - Globe"] = globeResult
-					}
-
-					self.startTests(tail)
-				}
-
-				head.testView = self.testView;
-				head.start()
-				tableView.reloadData()
-			}
-			else {
-				self.startTests(tail);
-			}
-		}
-		else {
-			self.finishTests()
+	func updateTitle(timer: NSTimer){
+		self.seconds--
+		self.title = "\(timer.userInfo!) (\(self.seconds))"
+		if self.seconds == 0 {
+			self.timer.invalidate()
 		}
 	}
 
 	private func finishTests() {
-		self.testView?.removeFromSuperview()
+		self.testViewBlack?.hidden = true
 		tableView.reloadData()
-
-		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: "runTests")
 
 		self.title = "Tests"
 
-		self.performSegueWithIdentifier("results", sender: self)
-	}
-
-	private dynamic func stopTests() {
-		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: "runTests")
+		if !cancelled {
+			self.performSegueWithIdentifier("results", sender: self)
+		}
 	}
 
 	private dynamic func editDone() {
 		self.navigationController?.popToViewController(self, animated: true)
-
-		let select: Bool?
-
-		if configViewC!.valueForSection(.Actions, row: .SelectAll) {
-			select = true
-		}
-		else if configViewC!.valueForSection(.Actions, row: .SelectNone) {
-			select = false
-		}
-		else {
-			select = nil
-		}
-
-		if let select = select {
-			tests.forEach { $0.selected = select }
-			tableView.reloadData()
-
-			configViewC!.selectAll(.Actions, select: false)
-		}
-
 	}
-
 }

@@ -13,15 +13,12 @@ class ConfigSection {
 
 	enum Section : String {
 		case Options = "Options"
-		case Actions = "Actions"
 	}
 
 	enum Row : String {
 		case RunGlobe = "Run on globe"
 		case RunMap = "Run on map"
-
-		case SelectAll = "Select all"
-		case SelectNone = "Select none"
+		case ViewTest = "See test execution on View"
 	}
 
 
@@ -86,26 +83,22 @@ class ConfigViewController: UIViewController, UITableViewDataSource, UITableView
 
 	func loadValues() {
 		values.removeAll(keepCapacity: true)
+		let ud = NSUserDefaults.standardUserDefaults()
+
+		let runGlobeValue = (ud.stringForKey(ConfigSection.Row.RunGlobe.rawValue) ?? "y") == "y"
+		let runMapValue = (ud.stringForKey(ConfigSection.Row.RunMap.rawValue) ?? "y") == "y"
+		let viewTestValue = (ud.stringForKey(ConfigSection.Row.ViewTest.rawValue) ?? "y") == "y"
 
 		let optionsSection = ConfigSection(
 			section: .Options,
 			rows: [
-				.RunGlobe: true,
-				.RunMap: true,
+				.RunGlobe: runGlobeValue,
+				.RunMap: runMapValue,
+				.ViewTest: viewTestValue
 			],
 			singleSelect: false)
 
-		let actionsSection = ConfigSection(
-			section: .Actions,
-			rows: [
-				.SelectAll: false,
-				.SelectNone: false,
-			],
-			singleSelect: true)
-
-
 		values.append(optionsSection)
-		values.append(actionsSection)
 	}
 
 	func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -142,7 +135,9 @@ class ConfigViewController: UIViewController, UITableViewDataSource, UITableView
 			return
 		}
 
-		let items = Array(section.rows.keys)
+		let items = Array(section.rows.keys).sort {
+			return $0.rawValue < $1.rawValue
+		}
 		let key = items[indexPath.row]
 		let selected = section.rows[key]
 
@@ -155,7 +150,9 @@ class ConfigViewController: UIViewController, UITableViewDataSource, UITableView
 		cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 
 		let section = values[indexPath.section]
-		let items = Array(section.rows.keys)
+		let items = Array(section.rows.keys).sort {
+			return $0.rawValue < $1.rawValue
+		}
 		let key = items[indexPath.row]
 		let cell = UITableViewCell(style: .Default, reuseIdentifier: "cell")
 		cell.textLabel?.text = key.rawValue
@@ -176,7 +173,9 @@ class ConfigViewController: UIViewController, UITableViewDataSource, UITableView
 			return
 		}
 
-		let items = Array(section.rows.keys)
+		let items = Array(section.rows.keys).sort {
+			return $0.rawValue < $1.rawValue
+		}
 		let key = items[indexPath.row]
 		let selected = section.rows[key] ?? false
 
@@ -186,7 +185,9 @@ class ConfigViewController: UIViewController, UITableViewDataSource, UITableView
 			section.rows[key] = true
 		}
 		else {
-			section.rows[key] = !selected
+			let newState = !selected
+			section.rows[key] = newState
+			NSUserDefaults.standardUserDefaults().setObject(newState ? "y" : "n", forKey: key.rawValue)
 		}
 		tableView.reloadData()
 	}
