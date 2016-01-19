@@ -22,6 +22,7 @@ package com.mousebird.maply;
 import java.util.ArrayList;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -564,7 +565,16 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	}
 	
 	private native void getLoadedFrames(int numFrames,boolean[] complete,boolean[] currentFrame,int[] numTilesLoaded);
-	
+
+	/**
+	 * Set the Color for the tile geometry from a standard Android Color value.
+	 * @param color Color value, including alpha.
+	 */
+	public void setColor(int color)
+	{
+		setColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+	}
+
 	/** Color for the tile geometry.
      * The geometry we create for tiles has an RGBA color.  It's white/full alpha by default, but you can set it here.  You might want to do this if you'd like a semi-transparent layer, sort of a shader of course, where you can do whatever you like.
      */

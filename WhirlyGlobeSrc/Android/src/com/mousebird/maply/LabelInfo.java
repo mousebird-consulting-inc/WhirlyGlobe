@@ -20,6 +20,7 @@
 
 package com.mousebird.maply;
 
+import android.graphics.Color;
 import android.graphics.Typeface;
 
 /**
@@ -48,6 +49,15 @@ public class LabelInfo extends BaseInfo
 	}
 
 	/**
+	 * Set the text color from a standard Android Color value.
+	 * @param color Color value, including alpha.
+     */
+	public void setTextcolor(int color)
+	{
+		setTextColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+	}
+
+	/**
 	 * Set the text color as float values from 0.0 to 1.0
 	 * 
 	 * @param r red
@@ -56,7 +66,16 @@ public class LabelInfo extends BaseInfo
 	 * @param a alpha
 	 */
 	public native void setTextColor(float r,float g,float b,float a);
-	
+
+	/**
+	 * Set the background color from a standard Android Color value.
+	 * @param color Color value, including alpha.
+	 */
+	public void setBackgroundColor(int color)
+	{
+		setBackgroundColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+	}
+
 	/**
 	 * Set the background color of text.  This is what appears in the rectangles behind the text.
 	 * Color components range from 0.0 to 1.0.

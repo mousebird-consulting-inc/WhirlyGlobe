@@ -1,5 +1,7 @@
 package com.mousebird.maply;
 
+import android.graphics.Color;
+
 import java.util.ArrayList;
 
 /**
@@ -16,6 +18,15 @@ public class StickerInfo extends BaseInfo
 {
         public StickerInfo() {
                 initialise();
+        }
+
+        /**
+         * Set the color used by the geometry.
+         * @param color Color, including alpha.
+         */
+        public void setColor(int color)
+        {
+                setColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
         }
 
         /**

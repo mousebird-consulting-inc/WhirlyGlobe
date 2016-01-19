@@ -20,6 +20,8 @@
 
 package com.mousebird.maply;
 
+import android.graphics.Color;
+
 /**
  * This class holds the visual information for a set of 2D or 3D markers.
  * Rather than have each of those represent their own visual information,
@@ -41,6 +43,15 @@ public class MarkerInfo extends BaseInfo
 	public void finalize()
 	{
 		dispose();
+	}
+
+	/**
+	 * Set the color from a standard Android Color value.
+	 * @param color Color value, including alpha.
+	 */
+	public void setColor(int color)
+	{
+		setColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
 	}
 
 	/**

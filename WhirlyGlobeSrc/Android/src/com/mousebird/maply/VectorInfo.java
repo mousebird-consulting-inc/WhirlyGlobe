@@ -19,6 +19,8 @@
  */
 package com.mousebird.maply;
 
+import android.graphics.Color;
+
 /**
  * The Vector Info class holds visual information related to groups of vectors.
  * For efficiency's sake we put visual info in this class, rather than on
@@ -52,7 +54,16 @@ public class VectorInfo extends BaseInfo
 //	public native void setTexScale(float s,float t);
 //	public native void subdivEps(float eps);
 //	public native void setGridSubdiv(boolean gridSubdiv);
-	
+
+	/**
+	 * Set the color used by the geometry.
+	 * @param color Color in Android format, including alpha.
+     */
+	public void setColor(int color)
+	{
+		setColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+	}
+
 	/**
 	 * Set the color used by the geometry.  Color values range from 0 to 1.0.
 	 * You must specify all four values.  Alpha controls transparency.
