@@ -21,7 +21,7 @@
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "DataLayer.h"
-#import "layerThread.h"
+#import "LayerThread.h"
 #import "SelectionManager.h"
 #import "Scene.h"
 
