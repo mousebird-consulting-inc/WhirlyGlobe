@@ -153,7 +153,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		let rect = UIScreen.mainScreen().applicationFrame
 		self.testViewBlack?.frame = CGRectMake(0, 0, rect.width, rect.height)
 		self.testViewBlack?.hidden = !configViewC!.valueForSection(.Options, row: .ViewTest)
-		self.testView = UIView(frame: CGRectMake(0, 0, 468, 672))
+		self.testView = UIView(frame: CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height))
 		self.testView?.center = CGPointMake(self.testViewBlack!.frame.size.width  / 2,
 			self.testViewBlack!.frame.size.height / 2)
 		self.testView?.hidden = !configViewC!.valueForSection(.Options, row: .ViewTest)
