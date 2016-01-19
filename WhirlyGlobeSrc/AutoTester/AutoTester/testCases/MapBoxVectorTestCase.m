@@ -47,7 +47,7 @@
 			styleSet.tileStyleSettings.markerImportance = 10.0;
 			styleSet.tileStyleSettings.fontName = @"Gill Sans";
 			UIColor *backColor = [styleSet backgroundColor];
-			if (backColor){
+			if (backColor) {
 				[mapVC setClearColor:backColor];
 			}
 

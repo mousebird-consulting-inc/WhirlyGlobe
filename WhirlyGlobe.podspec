@@ -64,7 +64,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'Lib-Headers' do |lh|
     lh.source_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
-    lh.private_header_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
+    lh.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
     lh.dependency 'boost/string_algorithms-includes', '<= 1.51.0'
     lh.dependency 'boost/shared_ptr-includes', '<= 1.51.0'
     lh.dependency 'boost/pointer_cast-includes', '<= 1.51.0'
@@ -89,8 +89,8 @@ Pod::Spec.new do |s|
   s.subspec 'MaplyComponent-Headers' do |mch|
     mch.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/**/*.h'
 #    mch.private_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h'
-#    mch.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/*.h'
-    mch.private_header_files =  "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/**/{MaplyComponent,WhirlyGlobeComponent,MaplyBridge,vector_tile.pb}.h", "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h"
+    mch.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/*.h', "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h"
+    mch.private_header_files =  "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/**/{MaplyBridge,vector_tile.pb}.h"
     mch.dependency 'WhirlyGlobe/Lib-Headers'
   end
 
@@ -107,7 +107,7 @@ Pod::Spec.new do |s|
     mc.dependency 'WhirlyGlobe/octencoding'
     mc.dependency 'WhirlyGlobe/Lib'
     mc.dependency 'WhirlyGlobe/MaplyComponent-Headers'
-    mc.dependency 'AFNetworking', '~> 2.4.1'
+    mc.dependency 'AFNetworking', '~> 2.5'
 #    mc.dependency 'KissXML'
     mc.dependency 'SMCalloutView', '~> 2.0.3'
     mc.dependency 'FMDB', '~> 2.4'

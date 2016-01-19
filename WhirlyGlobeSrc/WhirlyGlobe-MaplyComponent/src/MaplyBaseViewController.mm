@@ -64,6 +64,7 @@ using namespace WhirlyKit;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
 
     [glView stopAnimation];
+    [glView shutdown];
     
     EAGLContext *oldContext = [EAGLContext currentContext];
     [sceneRenderer useContext];

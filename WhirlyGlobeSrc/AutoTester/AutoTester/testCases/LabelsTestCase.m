@@ -28,7 +28,7 @@
 - (void) insertLabels: (NSMutableArray*) arrayComp theView: (MaplyBaseViewController*) theView {
 	
 	CGSize size = CGSizeMake(0, 0.05);
-	for (int i=0; i < arrayComp.count; i++){
+	for (int i=0; i < arrayComp.count; i++) {
 		MaplyVectorObject* object = arrayComp[i];
 		MaplyLabel *label = [[MaplyLabel alloc] init];
 		label.loc = object.center;
