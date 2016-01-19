@@ -95,6 +95,14 @@ using namespace Eigen;
 // Set the new rotation, but also keep track of when we did it
 - (void)setRotQuat:(Eigen::Quaterniond)newRotQuat updateWatchers:(bool)updateWatchers
 {
+    double w, x, y, z;
+    w = newRotQuat.coeffs().w();
+    x = newRotQuat.coeffs().x();
+    y = newRotQuat.coeffs().y();
+    z = newRotQuat.coeffs().z();
+    if (isnan(w) || isnan(x) || isnan(y) || isnan(z))
+        return;
+
     super.lastChangedTime = CFAbsoluteTimeGetCurrent();
     _rotQuat = newRotQuat;
     if (updateWatchers)
@@ -103,6 +111,9 @@ using namespace Eigen;
 
 - (void)setTilt:(double)newTilt
 {
+    if (isnan(newTilt))
+        return;
+
     _tilt = newTilt;
 }
 	
@@ -178,6 +189,9 @@ using namespace Eigen;
 // Also keep track of when we did it
 - (void)privateSetHeightAboveGlobe:(double)newH updateWatchers:(bool)updateWatchers;
 {
+    if (isnan(newH))
+        return;
+
 	double minH = [self minHeightAboveGlobe];
 	_heightAboveGlobe = std::max(newH,minH);
     
