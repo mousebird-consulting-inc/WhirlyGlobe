@@ -55,6 +55,9 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
+// Turn this on for smaller texture lengths
+//#define TEXTURE_RESET 1
+
 class WideVectorBuilder
 {
 public:
@@ -232,10 +235,11 @@ public:
         double texNext = texOffset+texLen;
         double texNext2 = texOffset+texLen+texLen2;
         
-        // Note: Debugging
-//        texBase = 0.0;
-//        texNext = texLen;
-//        texNext2 = texLen+texLen2;
+#ifdef TEXTURE_RESET
+        texBase = 0.0;
+        texNext = texLen;
+        texNext2 = texLen+texLen2;
+#endif
 
         // Look for valid starting points.  If they're not there, make some simple ones
         if (!edgePointsValid)
@@ -382,12 +386,13 @@ public:
         
         e0 = next_e0;
         e1 = next_e1;
-        
-        // Note: debugging
-//        e0.texYmin -= texLen;
-//        e0.texYmax -= texLen;
-//        e1.texYmin -= texLen;
-//        e1.texYmax -= texLen;
+
+#ifdef TEXTURE_RESET
+        e0.texYmin -= texLen;
+        e0.texYmax -= texLen;
+        e1.texYmin -= texLen;
+        e1.texYmax -= texLen;
+#endif
 
         texOffset += texLen;
     }
