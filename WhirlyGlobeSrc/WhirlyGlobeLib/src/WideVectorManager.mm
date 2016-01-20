@@ -227,11 +227,21 @@ public:
         Point3d paLocal = *pa-dispCenter;
         Point3d pbLocal = *pb-dispCenter;
 
+        // Lengths we use to calculate texture coordinates
+        double texBase = texOffset;
+        double texNext = texOffset+texLen;
+        double texNext2 = texOffset+texLen+texLen2;
+        
+        // Note: Debugging
+//        texBase = 0.0;
+//        texNext = texLen;
+//        texNext2 = texLen+texLen2;
+
         // Look for valid starting points.  If they're not there, make some simple ones
         if (!edgePointsValid)
         {
-            e0 = InterPoint(paLocal,pbLocal,revNorm0,1.0,texOffset,texOffset+texLen,0.0);
-            e1 = InterPoint(paLocal,pbLocal,norm0,0.0,texOffset,texOffset+texLen,0.0);
+            e0 = InterPoint(paLocal,pbLocal,revNorm0,1.0,texBase,texNext,0.0);
+            e1 = InterPoint(paLocal,pbLocal,norm0,0.0,texBase,texNext,0.0);
             edgePointsValid = true;
         }
 
@@ -253,8 +263,8 @@ public:
             Point3d dirB = (pcLocal-pbLocal).normalized();
             dot = dirA.dot(dirB);
             if (dot > -0.99999998476 && dot < 0.99999998476)
-                if (intersectWideLines(paLocal, pbLocal, pcLocal, norm0, norm1, rPt0, rPt1, 0.0, texOffset, texOffset+texLen, texOffset+texLen+texLen2) &&
-                    intersectWideLines(paLocal, pbLocal, pcLocal, revNorm0, revNorm1, lPt0, lPt1, 1.0, texOffset, texOffset+texLen, texOffset+texLen+texLen2))
+                if (intersectWideLines(paLocal, pbLocal, pcLocal, norm0, norm1, rPt0, rPt1, 0.0, texBase, texNext, texNext2) &&
+                    intersectWideLines(paLocal, pbLocal, pcLocal, revNorm0, revNorm1, lPt0, lPt1, 1.0, texBase, texNext, texNext2))
                 {
                     iPtsValid = true;
                     angleBetween = acos(dot);
@@ -265,12 +275,19 @@ public:
         corners[0] = e0;
         corners[1] = e1;
         InterPoint next_e0,next_e1;
-        
+
+        // Really acute angles tend to break things
+        if (angleBetween < 4.0 / 180.0 * M_PI)
+        {
+            iPtsValid = false;
+            edgePointsValid = false;
+        }
+
         // End points of the segments
-        InterPoint endPt0(pbLocal,paLocal,norm0,0.0,texOffset+texLen,texOffset,0.0);
+        InterPoint endPt0(pbLocal,paLocal,norm0,0.0,texNext,texBase,0.0);
         InterPoint endPt1;
         if (pc)
-            endPt1 = InterPoint(pbLocal,pcLocal,norm1,0.0,texOffset+texLen,texOffset+texLen+texLen2,0.0);
+            endPt1 = InterPoint(pbLocal,pcLocal,norm1,0.0,texNext,texNext2,0.0);
 
         // Set up the segment points
         if (iPtsValid)
@@ -319,15 +336,15 @@ public:
                 addWideTri(wideDrawable,triVerts,up);
                 
                 triVerts[0] = rPt0;
-                triVerts[0].texYmin = texOffset+texLen;
-                triVerts[0].texYmax = texOffset+texLen;
+                triVerts[0].texYmin = texNext;
+                triVerts[0].texYmax = texNext;
                 triVerts[1] = endPt1.flipped();
-                triVerts[1].texYmin = texOffset+texLen;
-                triVerts[1].texYmax = texOffset+texLen;
+                triVerts[1].texYmin = texNext;
+                triVerts[1].texYmax = texNext;
                 triVerts[1].texOffset = texAdjust;
                 triVerts[2] = endPt0.flipped();
-                triVerts[2].texYmin = texOffset+texLen;
-                triVerts[2].texYmax = texOffset+texLen;
+                triVerts[2].texYmin = texNext;
+                triVerts[2].texYmax = texNext;
                 triVerts[2].texOffset = -texAdjust;
                 addWideTri(wideDrawable,triVerts,up);
                 
@@ -344,15 +361,15 @@ public:
                 addWideTri(wideDrawable,triVerts,up);
 
                 triVerts[0] = lPt0;
-                triVerts[0].texYmin = texOffset+texLen;
-                triVerts[0].texYmax = texOffset+texLen;
+                triVerts[0].texYmin = texNext;
+                triVerts[0].texYmax = texNext;
                 triVerts[1] = endPt0;
-                triVerts[1].texYmin = texOffset+texLen;
-                triVerts[1].texYmax = texOffset+texLen;
+                triVerts[1].texYmin = texNext;
+                triVerts[1].texYmax = texNext;
                 triVerts[1].texOffset = -texAdjust;
                 triVerts[2] = endPt1;
-                triVerts[2].texYmin = texOffset+texLen;
-                triVerts[2].texYmax = texOffset+texLen;
+                triVerts[2].texYmin = texNext;
+                triVerts[2].texYmax = texNext;
                 triVerts[2].texOffset = texAdjust;
                 addWideTri(wideDrawable,triVerts,up);
 
@@ -365,6 +382,12 @@ public:
         
         e0 = next_e0;
         e1 = next_e1;
+        
+        // Note: debugging
+//        e0.texYmin -= texLen;
+//        e0.texYmax -= texLen;
+//        e1.texYmin -= texLen;
+//        e1.texYmax -= texLen;
 
         texOffset += texLen;
     }
