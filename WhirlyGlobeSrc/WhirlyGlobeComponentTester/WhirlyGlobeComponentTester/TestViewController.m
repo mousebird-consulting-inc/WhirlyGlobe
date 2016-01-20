@@ -482,7 +482,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     [self addGeoJson:@"spiral.geojson"];
     [self addGeoJson:@"square.geojson"];
     [self addGeoJson:@"track.geojson"];
-    [self addGeoJson:@"uturn2.geojson" dashPattern:@[@16, @16] width:8];
+    [self addGeoJson:@"uturn2.geojson" dashPattern:@[@16, @16] width:40];
   
 //    [self addGeoJson:@"straight.geojson"];
 //    [self addGeoJson:@"uturn.geojson"];
