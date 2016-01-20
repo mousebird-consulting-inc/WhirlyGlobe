@@ -43,7 +43,7 @@ public:
     // Next point, for calculating p1 - p0
     void add_p1(const Point3f &vec);
     // Texture calculation parameters
-    void add_texInfo(float texX,float texYmin,float texYmax);
+    void add_texInfo(float texX,float texYmin,float texYmax,float texOffset);
     // Vector for 90 deg from line
     void add_n0(const Point3f &vec);
     // Complex constant we multiply by width for t
