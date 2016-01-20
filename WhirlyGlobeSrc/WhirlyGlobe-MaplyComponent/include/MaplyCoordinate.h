@@ -73,6 +73,13 @@ typedef struct
 
 @end
 
+typedef struct
+{
+    double x,y,z;
+} MaplyCoordinate3dD;
+
+static const MaplyCoordinate3dD kMaplyNullCoordinate3dD = {.x = DBL_MIN, .y = DBL_MIN, .z = DBL_MIN};
+
 /** @typedef struct MaplyBoundingBox
     @brief Represents a bounding box in a particular coordinate system.
     @details ll is the lower left and ur is the upper right.
