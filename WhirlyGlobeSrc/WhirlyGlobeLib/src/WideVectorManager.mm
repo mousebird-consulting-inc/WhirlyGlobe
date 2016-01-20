@@ -70,9 +70,9 @@ public:
     class InterPoint
     {
     public:
-        InterPoint() { }
+        InterPoint() : texX(0.0),texYmin(0.0),texYmax(0.0),texOffset(0.0) { }
         // Construct with a single line
-        InterPoint(const Point3d &p0,const Point3d &p1,const Point3d &n0,double inTexX,double inTexYmin,double inTexYmax)
+        InterPoint(const Point3d &p0,const Point3d &p1,const Point3d &n0,double inTexX,double inTexYmin,double inTexYmax,double inTexOffset)
         {
             c = 0;
             dir = p1 - p0;
@@ -82,6 +82,7 @@ public:
             texX = inTexX;
             texYmin = inTexYmin;
             texYmax = inTexYmax;
+            texOffset = inTexOffset;
         }
         
         // Return a version of the point flipped around its main axis
@@ -108,7 +109,7 @@ public:
         Point3d n;
         Point3d org,dest;
         double texX;
-        double texYmin,texYmax;
+        double texYmin,texYmax,texOffset;
     };
     
     // Intersect the wide lines, but return an equation to calculate the point
@@ -165,7 +166,7 @@ public:
             drawable->add_p1(Vector3dToVector3f(vert.dest));
             drawable->add_n0(Vector3dToVector3f(vert.n));
             drawable->add_c0(vert.c);
-            drawable->add_texInfo(vert.texX,vert.texYmin,vert.texYmax);
+            drawable->add_texInfo(vert.texX,vert.texYmin,vert.texYmax,vert.texOffset);
         }
 
         drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+3));
@@ -185,7 +186,7 @@ public:
             drawable->add_p1(Vector3dToVector3f(vert.dest));
             drawable->add_n0(Vector3dToVector3f(vert.n));
             drawable->add_c0(vert.c);
-            drawable->add_texInfo(vert.texX,vert.texYmin,vert.texYmax);
+            drawable->add_texInfo(vert.texX,vert.texYmin,vert.texYmax,vert.texOffset);
         }
         
         drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+2));
@@ -229,8 +230,8 @@ public:
         // Look for valid starting points.  If they're not there, make some simple ones
         if (!edgePointsValid)
         {
-            e0 = InterPoint(paLocal,pbLocal,revNorm0,1.0,texOffset,texOffset+texLen);
-            e1 = InterPoint(paLocal,pbLocal,norm0,0.0,texOffset,texOffset+texLen);
+            e0 = InterPoint(paLocal,pbLocal,revNorm0,1.0,texOffset,texOffset+texLen,0.0);
+            e1 = InterPoint(paLocal,pbLocal,norm0,0.0,texOffset,texOffset+texLen,0.0);
             edgePointsValid = true;
         }
 
@@ -244,6 +245,7 @@ public:
         // Figure out which way the bend goes and calculate intersection points
         bool iPtsValid = false;
         double dot;
+        double angleBetween = M_PI;
         if (pc)
         {
             // Compare the angle between the two segments.
@@ -253,19 +255,22 @@ public:
             if (dot > -0.99999998476 && dot < 0.99999998476)
                 if (intersectWideLines(paLocal, pbLocal, pcLocal, norm0, norm1, rPt0, rPt1, 0.0, texOffset, texOffset+texLen, texOffset+texLen+texLen2) &&
                     intersectWideLines(paLocal, pbLocal, pcLocal, revNorm0, revNorm1, lPt0, lPt1, 1.0, texOffset, texOffset+texLen, texOffset+texLen+texLen2))
+                {
                     iPtsValid = true;
+                    angleBetween = acos(dot);
+                }
         }
-                
+        
         // Points from the last round
         corners[0] = e0;
         corners[1] = e1;
         InterPoint next_e0,next_e1;
         
         // End points of the segments
-        InterPoint endPt0(pbLocal,paLocal,norm0,0.0,texOffset+texLen,texOffset);
+        InterPoint endPt0(pbLocal,paLocal,norm0,0.0,texOffset+texLen,texOffset,0.0);
         InterPoint endPt1;
         if (pc)
-            endPt1 = InterPoint(pbLocal,pcLocal,norm1,0.0,texOffset+texLen,texOffset+texLen+texLen2);
+            endPt1 = InterPoint(pbLocal,pcLocal,norm1,0.0,texOffset+texLen,texOffset+texLen+texLen2,0.0);
 
         // Set up the segment points
         if (iPtsValid)
@@ -299,6 +304,9 @@ public:
         // Note: Always doing bevel case (sort of)
         if (iPtsValid && buildJunction)
         {
+            // An offset that makes the texture coordinates work
+            double texAdjust = cos(angleBetween/2.0);
+            
             // Three triangles make up the bend
 
             // Bending right
@@ -316,9 +324,11 @@ public:
                 triVerts[1] = endPt1.flipped();
                 triVerts[1].texYmin = texOffset+texLen;
                 triVerts[1].texYmax = texOffset+texLen;
+                triVerts[1].texOffset = texAdjust;
                 triVerts[2] = endPt0.flipped();
                 triVerts[2].texYmin = texOffset+texLen;
                 triVerts[2].texYmax = texOffset+texLen;
+                triVerts[2].texOffset = -texAdjust;
                 addWideTri(wideDrawable,triVerts,up);
                 
                 triVerts[0] = rPt1;
@@ -339,9 +349,11 @@ public:
                 triVerts[1] = endPt0;
                 triVerts[1].texYmin = texOffset+texLen;
                 triVerts[1].texYmax = texOffset+texLen;
+                triVerts[1].texOffset = -texAdjust;
                 triVerts[2] = endPt1;
                 triVerts[2].texYmin = texOffset+texLen;
                 triVerts[2].texYmax = texOffset+texLen;
+                triVerts[2].texOffset = texAdjust;
                 addWideTri(wideDrawable,triVerts,up);
 
                 triVerts[0] = lPt1;
