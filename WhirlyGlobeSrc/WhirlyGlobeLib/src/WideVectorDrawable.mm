@@ -32,7 +32,7 @@ WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), texRepea
 {
     lineWidth = 10.0/1024.0;
     p1_index = addAttribute(BDFloat3Type, "a_p1");
-    tex_index = addAttribute(BDFloat3Type, "a_texinfo");
+    tex_index = addAttribute(BDFloat4Type, "a_texinfo");
     n0_index = addAttribute(BDFloat3Type, "a_n0");
     c0_index = addAttribute(BDFloatType, "a_c0");
 }
@@ -53,9 +53,9 @@ void WideVectorDrawable::add_p1(const Point3f &pt)
 #endif
 }
 
-void WideVectorDrawable::add_texInfo(float texX,float texYmin,float texYmax)
+void WideVectorDrawable::add_texInfo(float texX,float texYmin,float texYmax,float texOffset)
 {
-    addAttributeValue(tex_index, Point3f(texX,texYmin,texYmax));
+    addAttributeValue(tex_index, Vector4f(texX,texYmin,texYmax,texOffset));
 #ifdef WIDEVECDEBUG
 #endif
 }
@@ -151,7 +151,7 @@ static const char *vertexShaderTri =
 "uniform float u_texScale;\n"
 "\n"
 "attribute vec3 a_position;\n"
-"attribute vec3 a_texinfo;\n"
+"attribute vec4 a_texinfo;\n"
 "attribute vec4 a_color;\n"
 "attribute vec3 a_p1;\n"
 "attribute vec3 a_n0;\n"
@@ -167,7 +167,8 @@ static const char *vertexShaderTri =
 "   float t0 = a_c0 * u_real_w2;\n"
 "   t0 = clamp(t0,0.0,1.0);\n"
 "   vec3 realPos = (a_p1 - a_position) * t0 + a_n0 * u_real_w2 + a_position;\n"
-"   v_texCoord = vec2(a_texinfo.x, ((a_texinfo.z - a_texinfo.y) * t0 + a_texinfo.y) * u_texScale);\n"
+"   highp float texPos = ((a_texinfo.z - a_texinfo.y) * t0 + a_texinfo.y + a_texinfo.w * u_real_w2);\n"
+"   v_texCoord = vec2(a_texinfo.x, texPos * u_texScale);\n"
 "   vec4 screenPos = u_mvpMatrix * vec4(realPos,1.0);\n"
 "   screenPos /= screenPos.w;\n"
 "   gl_Position = vec4(screenPos.xy,0,1.0);\n"
