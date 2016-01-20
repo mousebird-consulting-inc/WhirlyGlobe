@@ -482,7 +482,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     [self addGeoJson:@"spiral.geojson"];
     [self addGeoJson:@"square.geojson"];
     [self addGeoJson:@"track.geojson"];
-
+    [self addGeoJson:@"uturn2.geojson" dashPattern:@[@16, @16] width:8];
+  
 //    [self addGeoJson:@"straight.geojson"];
 //    [self addGeoJson:@"uturn.geojson"];
 
@@ -1211,8 +1212,12 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 }
 
 - (void)addGeoJson:(NSString*)name {
+    [self addGeoJson:name dashPattern:@[@8, @8] width:4];
+}
+
+- (void)addGeoJson:(NSString*)name dashPattern:(NSArray*)dashPattern width:(CGFloat)width {
     MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
-    [lineTexBuilder setPattern:@[@8,@8]];
+    [lineTexBuilder setPattern:dashPattern];
     UIImage *lineImage = [lineTexBuilder makeImage];
     MaplyTexture *lineTexture = [baseViewC addTexture:lineImage
                                           imageFormat:MaplyImageIntRGBA
@@ -1237,7 +1242,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
                                          kMaplyWideVecEdgeFalloff: @(1.0),
                                          kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                          kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
-                                         kMaplyVecWidth: @(4)}
+                                         kMaplyVecWidth: @(width)}
                                  mode:MaplyThreadCurrent];
             [baseViewC addVectors:@[vecObj]
                              desc: @{kMaplyColor: [UIColor blackColor],
