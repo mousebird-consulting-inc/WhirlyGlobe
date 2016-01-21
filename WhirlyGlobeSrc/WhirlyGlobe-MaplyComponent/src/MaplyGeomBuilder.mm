@@ -42,8 +42,13 @@ using namespace WhirlyKit;
     tex[1] = {1.0,0.0};
     tex[2] = {1.0,1.0};
     tex[3] = {0.0,1.0};
+    MaplyCoordinate3dD norms[4];
+    norms[0] = {0,0,1};
+    norms[1] = {0,0,1};
+    norms[2] = {0,0,1};
+    norms[3] = {0,0,1};
     
-    [self addPolygonWithPts:pts tex:tex numPts:4 state:state];
+    [self addPolygonWithPts:pts tex:tex norms:norms numPts:4 state:state];
 }
 
 - (void)addString:(NSString *)str font:(UIFont *)font state:(MaplyGeomState *)state
@@ -190,7 +195,66 @@ using namespace WhirlyKit;
 - (void)addGeomFromBuilder:(MaplyGeomBuilder *)modelBuilder transform:(MaplyMatrix *)matrix
 {
     // Work through the new geometry
-//    for (
+    for (auto &geom : modelBuilder->rawGeom)
+    {
+        MaplyGeomState *tmpState = [[MaplyGeomState alloc] init];
+        if (geom.texId >= 0)
+        {
+            tmpState.texture = modelBuilder->textures[geom.texId];
+        }
+        GeometryRaw *dest = [self findMatchingGeom:tmpState hasNorms:!geom.norms.empty() hasTexCoords:!geom.texCoords.empty() hasColors:!geom.colors.empty()];
+        
+        // Copy over to the destination, with transform
+        dest->pts.reserve(dest->pts.size()+geom.pts.size());
+        dest->norms.reserve(dest->norms.size()+geom.norms.size());
+        dest->texCoords.reserve(dest->texCoords.size()+geom.texCoords.size());
+        dest->colors.reserve(dest->colors.size()+geom.colors.size());
+        int basePt = dest->pts.size();
+        for (int ii=0;ii<geom.pts.size();ii++)
+        {
+            // Vertex
+            Vector3d pt = geom.pts[ii];
+            if (matrix)
+            {
+                Vector4d pt4 = matrix.mat * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+                pt = Vector3d(pt4.x(),pt4.y(),pt4.z());
+            }
+            dest->pts.push_back(pt);
+            // Normal
+            if (!geom.norms.empty())
+            {
+                Vector3d norm = geom.norms[ii];
+                if (matrix)
+                {
+                    Vector4d pt4 = matrix.mat * Vector4d(norm.x(),norm.y(),norm.z(),0.0);
+                    norm = Vector3d(pt4.x(),pt4.y(),pt4.z());
+                }
+                dest->norms.push_back(norm);
+            }
+            // Texture coordinates
+            if (!geom.texCoords.empty())
+            {
+                const TexCoord &texCoord = geom.texCoords[ii];
+                dest->texCoords.push_back(texCoord);
+            }
+            // Colors
+            if (!geom.colors.empty())
+            {
+                const RGBAColor &color = geom.colors[ii];
+                dest->colors.push_back(color);
+            }
+        }
+        // Now the triangles
+        dest->triangles.reserve(dest->triangles.size()+geom.triangles.size());
+        for (auto tri : geom.triangles)
+        {
+            for (auto &idx : tri.verts)
+                idx += basePt;
+            dest->triangles.push_back(tri);
+        }
+    }
+        
+    // And the strings
 }
 
 - (bool)getSizeLL:(MaplyCoordinate3dD *)ll ur:(MaplyCoordinate3dD *)ur
