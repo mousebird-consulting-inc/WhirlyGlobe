@@ -113,6 +113,7 @@ using namespace WhirlyKit;
 {
     GeometryRaw *geom = [self findMatchingGeom:state hasNorms:(norms != NULL) hasTexCoords:(tex != NULL) hasColors:NULL];
     
+    // Add the points
     int basePt = geom->pts.size();
     geom->pts.reserve(geom->pts.size()+numPts);
     if (tex)
@@ -133,6 +134,16 @@ using namespace WhirlyKit;
             MaplyCoordinate3dD &norm = norms[ii];
             geom->norms.push_back(Point3d(norm.x,norm.y,norm.z));
         }
+    }
+    
+    // Tesselate into triangles
+    for (int ii=2;ii<numPts;ii++)
+    {
+        GeometryRaw::RawTriangle tri;
+        tri.verts[0] = 0+basePt;
+        tri.verts[1] = ii-1+basePt;
+        tri.verts[2] = ii+basePt;
+        geom->triangles.push_back(tri);
     }
 }
 
@@ -178,7 +189,8 @@ using namespace WhirlyKit;
 
 - (void)addGeomFromBuilder:(MaplyGeomBuilder *)modelBuilder transform:(MaplyMatrix *)matrix
 {
-    
+    // Work through the new geometry
+//    for (
 }
 
 - (bool)getSizeLL:(MaplyCoordinate3dD *)ll ur:(MaplyCoordinate3dD *)ur
