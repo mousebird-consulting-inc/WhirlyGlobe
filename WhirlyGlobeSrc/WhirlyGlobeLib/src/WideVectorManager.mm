@@ -505,10 +505,6 @@ public:
     void addLinear(const VectorRing &pts,const Point3d &up,bool closed)
     {
         RGBAColor color = [vecInfo.color asRGBAColor];
-//        color.r = random()%256;
-//        color.g = random()%256;
-//        color.b = random()%256;
-//        color.a = 255;
         WideVectorBuilder vecBuilder(vecInfo,localCenter,dispCenter,color,coordAdapter);
         
         // We'll add one on the beginning and two on the end
