@@ -46,6 +46,11 @@ class BasicDrawable : public Drawable
 {
     friend class BigDrawableAtlas;
     friend class BasicDrawableInstance;
+
+protected:
+    // Used by subclasses
+    BasicDrawable() { }
+    
 public:
     /// Construct empty
     BasicDrawable(const std::string &name);
@@ -238,8 +243,8 @@ public:
     
     /// Add a new vertex related attribute.  Need a data type and the name the shader refers to
     ///  it by.  The index returned is how you will access it.
-    virtual int addAttribute(BDAttributeDataType dataType,const std::string &name);
-    
+    virtual int addAttribute(BDAttributeDataType dataType,const std::string &name,int numThings = -1);
+        
     /// Return the number of points added so far
     virtual unsigned int getNumPoints() const;
     
@@ -286,6 +291,8 @@ public:
     virtual const std::vector<VertexAttribute *> &getVertexAttributes();
     
 public:
+    // Used by subclasses to do the standard init
+    void basicDrawableInit();
     /// Check for the given texture coordinate entry and add it if it's not there
     virtual void setupTexCoordEntry(int which,int numReserve);
     /// Draw routine for OpenGL 2.0
@@ -307,7 +314,7 @@ public:
     // Entries for the standard attributes we create on startup
     int colorEntry,normalEntry;
     // Set up the standard vertex attributes we use
-    void setupStandardAttributes(int numReserve=0);
+    virtual void setupStandardAttributes(int numReserve=0);
     
     bool on;  // If set, draw.  If not, not
     NSTimeInterval startEnable,endEnable;
