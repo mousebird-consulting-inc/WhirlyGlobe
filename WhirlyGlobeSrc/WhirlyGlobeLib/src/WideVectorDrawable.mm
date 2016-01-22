@@ -28,13 +28,24 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), texRepeat(1.0), edgeSize(1.0), realWidthSet(false)
+WideVectorDrawable::WideVectorDrawable(const std::string &inName,unsigned int numVert,unsigned int numTri)
+ : BasicDrawable(), texRepeat(1.0), edgeSize(1.0), realWidthSet(false)
 {
+    name = inName;
+    basicDrawableInit();
+    
+    points.reserve(numVert);
+    tris.reserve(numTri);
     lineWidth = 10.0/1024.0;
-    p1_index = addAttribute(BDFloat3Type, "a_p1");
-    tex_index = addAttribute(BDFloat4Type, "a_texinfo");
-    n0_index = addAttribute(BDFloat3Type, "a_n0");
-    c0_index = addAttribute(BDFloatType, "a_c0");
+    p1_index = addAttribute(BDFloat3Type, "a_p1",numVert);
+    tex_index = addAttribute(BDFloat4Type, "a_texinfo",numVert);
+    n0_index = addAttribute(BDFloat3Type, "a_n0",numVert);
+    c0_index = addAttribute(BDFloatType, "a_c0",numVert);
+}
+ 
+// Not.  Do not want standard attributes.
+void WideVectorDrawable::setupStandardAttributes(int numReserve)
+{
 }
     
 unsigned int WideVectorDrawable::addPoint(const Point3f &pt)
@@ -95,6 +106,7 @@ void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scen
         }
         float texScale = scale/(screenSize*texRepeat);
         frameInfo.program->setUniform("u_texScale", texScale);
+        frameInfo.program->setUniform("u_color", Vector4f(color.r/255.0,color.g/255.0,color.b/255.0,color.a/255.0));
         
         // Note: Debugging
         // Note: This calculation is out of date with respect to the shader
@@ -149,20 +161,21 @@ static const char *vertexShaderTri =
 "uniform float u_w2;\n"
 "uniform float u_real_w2;\n"
 "uniform float u_texScale;\n"
+"uniform vec4 u_color;\n"
 "\n"
 "attribute vec3 a_position;\n"
 "attribute vec4 a_texinfo;\n"
-"attribute vec4 a_color;\n"
+//"attribute vec4 a_color;\n"
 "attribute vec3 a_p1;\n"
 "attribute vec3 a_n0;\n"
 "attribute float a_c0;\n"
 "\n"
 "varying vec2 v_texCoord;\n"
-"varying vec4 v_color;\n"
+//"varying vec4 v_color;\n"
 "\n"
 "void main()\n"
 "{\n"
-"   v_color = a_color;\n"
+//"   v_color = a_color;\n"
 //  Position along the line
 "   float t0 = a_c0 * u_real_w2;\n"
 "   t0 = clamp(t0,0.0,1.0);\n"
@@ -182,9 +195,10 @@ static const char *fragmentShaderTriAlias =
 "uniform bool  u_hasTexture;\n"
 "uniform float u_w2;\n"
 "uniform float u_edge;\n"
+"uniform vec4 u_color;\n"
 "\n"
 "varying vec2      v_texCoord;\n"
-"varying vec4      v_color;\n"
+//"varying vec4      v_color;\n"
 "\n"
 "void main()\n"
 "{\n"
@@ -195,7 +209,7 @@ static const char *fragmentShaderTriAlias =
 "    alpha = across/u_edge;\n"
 "  if (across > u_w2-u_edge)\n"
 "    alpha = (u_w2-across)/u_edge;\n"
-"  gl_FragColor = v_color * alpha * patternVal;\n"
+"  gl_FragColor = u_color * alpha * patternVal;\n"
 "}\n"
 ;
 

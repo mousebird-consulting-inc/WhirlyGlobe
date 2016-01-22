@@ -165,7 +165,7 @@ public:
         {
             InterPoint &vert = verts[vi];
             drawable->addPoint(Vector3dToVector3f(vert.org));
-            drawable->addNormal(up);
+//            drawable->addNormal(up);
             drawable->add_p1(Vector3dToVector3f(vert.dest));
             drawable->add_n0(Vector3dToVector3f(vert.n));
             drawable->add_c0(vert.c);
@@ -185,7 +185,7 @@ public:
         {
             InterPoint &vert = verts[vi];
             drawable->addPoint(Vector3dToVector3f(vert.org));
-            drawable->addNormal(up);
+//            drawable->addNormal(up);
             drawable->add_p1(Vector3dToVector3f(vert.dest));
             drawable->add_n0(Vector3dToVector3f(vert.n));
             drawable->add_c0(vert.c);
@@ -465,13 +465,17 @@ public:
     // Build or return a suitable drawable (depending on the mode)
     BasicDrawable *getDrawable(int ptCount,int triCount)
     {
+        int ptGuess = std::min(std::max(ptCount,0),(int)MaxDrawablePoints);
+        int triGuess = std::min(std::max(triCount,0),(int)MaxDrawableTriangles);
+
         if (!drawable ||
-            (drawable->getNumPoints()+ptCount > MaxDrawablePoints) ||
-            (drawable->getNumTris()+triCount > MaxDrawableTriangles))
+            (drawable->getNumPoints()+ptGuess > MaxDrawablePoints) ||
+            (drawable->getNumTris()+triGuess > MaxDrawableTriangles))
         {
             flush();
-          
-            WideVectorDrawable *wideDrawable = new WideVectorDrawable();
+            
+//            NSLog(@"Pts = %d, tris = %d",ptGuess,triGuess);
+            WideVectorDrawable *wideDrawable = new WideVectorDrawable("Widen Vector",ptGuess,triGuess);
             drawable = wideDrawable;
             drawable->setProgram(vecInfo.programID);
             wideDrawable->setTexRepeat(vecInfo.repeatSize);
@@ -524,6 +528,12 @@ public:
             }
         }
         
+        // Guess at how many points and triangles we'll need
+        int totalTriCount = 5*pts.size();
+        int totalPtCount = totalTriCount * 3;
+        if (totalTriCount < 0)  totalTriCount = 0;
+        if (totalPtCount < 0)  totalPtCount = 0;
+        
         // Work through the segments
         Point2f lastPt;
         bool validLastPt = false;
@@ -538,9 +548,11 @@ public:
             Point3d dispPa = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y())));
             
             // Get a drawable ready
-            int ptCount = 5;
-            int triCount = 4;
-            BasicDrawable *thisDrawable = getDrawable(ptCount,triCount);
+            int triCount = 2+3;
+            int ptCount = triCount*3;
+            BasicDrawable *thisDrawable = getDrawable(std::max(totalPtCount,ptCount),std::max(totalTriCount,triCount));
+            totalTriCount -= triCount;
+            totalPtCount -= ptCount;
             drawMbr.addPoint(geoA);
             
             bool doSegment = !closed || (ii > 0);
