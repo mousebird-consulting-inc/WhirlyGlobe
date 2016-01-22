@@ -1246,6 +1246,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
                                          kMaplyWideVecEdgeFalloff: @(1.0),
                                          kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                          kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+                                         // More than 10 degrees need a bevel join
+                                         kMaplyWideVecMiterLimit: @(10),
                                          kMaplyVecWidth: @(width)}
                                  mode:MaplyThreadCurrent];
             [baseViewC addVectors:@[vecObj]
