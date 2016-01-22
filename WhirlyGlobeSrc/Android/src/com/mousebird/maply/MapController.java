@@ -20,11 +20,11 @@
 
 package com.mousebird.maply;
 
-import java.util.List;
-
-import android.app.*;
-import android.view.*;
+import android.app.Activity;
+import android.view.MotionEvent;
 import android.view.View;
+
+import java.util.List;
 
 /**
  * The MaplyController is the main object in the Maply library when using a 2D map.  
@@ -243,6 +243,14 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		mapView.cancelAnimation();
 		Point3d geoCoord = mapView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
 		mapView.setLoc(new Point3d(geoCoord.getX(),geoCoord.getY(),z));
+	}
+
+	/**
+	 * Return the current position in local coordinates.
+     */
+	public Point3d getPosition()
+	{
+		return new Point3d(mapView.getLoc());
 	}
 	
 	/**

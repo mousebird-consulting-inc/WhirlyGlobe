@@ -101,7 +101,18 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	{
 		return screenPointFromGeo(globeView,geoCoord);
 	}
-	
+
+	/**
+	 * Set the zoom limits for the globe.
+	 * @param inMin Closest the user is allowed to zoom in.
+	 * @param inMax Farthest the user is allowed to zoom out.
+     */
+	public void setZoomLimits(double inMin,double inMax)
+	{
+		if (gestureHandler != null)
+			gestureHandler.setZoomLimits(inMin,inMax);
+	}
+
 	/**
 	 * Return the geographic point (radians) corresponding to the screen point.
 	 * 
