@@ -15,3 +15,7 @@ CMakeLists.txt
 naughter.css
 stdafx.cpp
 docs
+.ruby-gemset
+.ruby-version
+WhirlyGlobeMaplyComponent.framework.zip
+linecount
