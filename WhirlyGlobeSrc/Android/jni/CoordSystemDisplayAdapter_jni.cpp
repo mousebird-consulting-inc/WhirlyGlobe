@@ -131,7 +131,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_loc
 		Point3d *localPt = pt3dClassInfo->getObject(env,localPtObj);
 		if (!coordAdapter || !localPt)
 			return NULL;
-		Point3d dispPt = coordAdapter->displayToLocal(*localPt);
+		Point3d dispPt = coordAdapter->localToDisplay(*localPt);
 		jobject dispPtObj = MakePoint3d(env,dispPt);
 
 		return dispPtObj;
