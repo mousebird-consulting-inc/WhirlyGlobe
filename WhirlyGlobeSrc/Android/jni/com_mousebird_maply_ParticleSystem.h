@@ -9,91 +9,75 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_ParticleSystem
- * Method:    makeDefault
- * Signature: ()Lcom/mousebird/maply/ParticleSystem;
+ * Method:    setName
+ * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ParticleSystem_makeDefault
-  (JNIEnv *, jclass);
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setName
+  (JNIEnv *, jobject, jstring);
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem
- * Method:    generateParticle
- * Signature: ()Lcom/mousebird/maply/Particle;
+ * Method:    setDrawPriority
+ * Signature: (I)V
  */
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ParticleSystem_generateParticle
-  (JNIEnv *, jobject);
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setDrawPriority
+  (JNIEnv *, jobject, jint);
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem
- * Method:    setLoc
- * Signature: (Lcom/mousebird/maply/Point3d;)V
+ * Method:    setPointSize
+ * Signature: (F)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setLoc
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setPointSize
+  (JNIEnv *, jobject, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_ParticleSystem
+ * Method:    setParticleSystemType
+ * Signature: (Lcom/mousebird/maply/ParticleSystem/STATE;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setParticleSystemType
   (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem
- * Method:    setMinLength
- * Signature: (I)V
+ * Method:    setShaderID
+ * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setMinLength
-  (JNIEnv *, jobject, jint);
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setShaderID
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem
- * Method:    setMaxLength
- * Signature: (I)V
+ * Method:    setLifetime
+ * Signature: (D)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setMaxLength
-  (JNIEnv *, jobject, jint);
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setLifetime
+  (JNIEnv *, jobject, jdouble);
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem
- * Method:    setMinLifetime
- * Signature: (F)V
+ * Method:    setBasetime
+ * Signature: (D)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setMinLifetime
-  (JNIEnv *, jobject, jfloat);
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setBasetime
+  (JNIEnv *, jobject, jdouble);
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem
- * Method:    setMaxLifetime
- * Signature: (F)V
+ * Method:    addParticleSystemAttribute
+ * Signature: (Lcom/mousebird/maply/ParticleSystemAttribute;)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setMaxLifetime
-  (JNIEnv *, jobject, jfloat);
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addParticleSystemAttribute
+  (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem
- * Method:    setMinPhi
- * Signature: (F)V
+ * Method:    addTexID
+ * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setMinPhi
-  (JNIEnv *, jobject, jfloat);
-
-/*
- * Class:     com_mousebird_maply_ParticleSystem
- * Method:    setMaxPhi
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setMaxPhi
-  (JNIEnv *, jobject, jfloat);
-
-/*
- * Class:     com_mousebird_maply_ParticleSystem
- * Method:    setMinVis
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setMinVis
-  (JNIEnv *, jobject, jfloat);
-
-/*
- * Class:     com_mousebird_maply_ParticleSystem
- * Method:    setMaxVis
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setMaxVis
-  (JNIEnv *, jobject, jfloat);
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addTexID
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem

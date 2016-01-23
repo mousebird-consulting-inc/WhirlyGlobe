@@ -97,4 +97,6 @@
 #import "GridClipper.h"
 #import "GLUtils.h"
 #import "VectorObject.h"
+#import "ParticleSystemManager.h"
+
 

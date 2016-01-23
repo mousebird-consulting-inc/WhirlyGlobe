@@ -1,8 +1,8 @@
 /*
- *  Particle.java
+ *  ParticleBatch.java
  *  WhirlyGlobeLib
  *
- *  Created by jmnavarro on 18/1/16
+ *  Created by jmnavarro on 21/1/16.
  *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,9 +19,10 @@
  */
 package com.mousebird.maply;
 
-public class Particle {
+public class ParticleBatch {
 
-    public Particle() {
+
+    public ParticleBatch() {
         initialise();
     }
 
@@ -29,20 +30,9 @@ public class Particle {
         dispose();
     }
 
-    /// Location, which is updated every frame
-    public native void setLoc (Point3d loc);
+    public native void setBatchSize (int batchSize);
 
-    /// Particle color
-    public native void setColor(float r,float g,float b,float a);
-
-    /// Particle velocity
-    public native void setVelocity (float velocity);
-
-    //        Eigen::Vector3f dir; how?
-
-    /// When this particle is done
-    public native void setExpiration (double expiration);
-
+    public native int getBatchSize ();
 
     static {
         nativeInit();
@@ -51,4 +41,5 @@ public class Particle {
     private static native void nativeInit();
     native void initialise();
     native void dispose();
+
 }

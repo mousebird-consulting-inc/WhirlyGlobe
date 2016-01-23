@@ -36,10 +36,19 @@ public class ParticleSystemManager {
     }
 
     // Add a group of particle systems
-    public native long addParticleSystems(List<ParticleSystem> partSystems, AttrDictionary desc, long genId, ChangeSet changes);
+    public native long addParticleSystem(ParticleSystem newSystem, ChangeSet changes);
 
-    // Remove one or more particle systems
-    public native void removeParticleSystems(long partIDs, long genId, ChangeSet changeSet);
+    /// Add a batch of particles
+    public native void addParticleBatch(long id, ParticleBatch batch, ChangeSet changes);
+
+    /// Enable/disable active particle system
+    public native void enableParticleSystem(long sysID, boolean enable, ChangeSet changes);
+
+    // Remove one particle system
+    public native void removeParticleSystem(long sysID, ChangeSet changeSet);
+
+    /// Clean out old particle system batches as needed
+    public native void housekeeping (double now, ChangeSet changes);
 
     static {
         nativeInit();

@@ -45,9 +45,9 @@ public class ParticleSystemDrawable {
     public native void setDrawPriority(int drawPriority);
 
     /// Program to use for rendering
-    public native int getProgram();
+    public native long getProgram();
 
-    public native void setProgram(int program);
+    public native void setProgram(long program);
 
     /// Whether it's currently displaying
     public native boolean isOn (WhirlyKitRendererFrameInfo frameInfo);

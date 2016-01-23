@@ -396,7 +396,9 @@ typedef JavaClassInfo<WhirlyGlobe::GlobeViewState> GlobeViewStateClassInfo;
 typedef JavaClassInfo<WhirlyKit::Marker> MarkerClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleLabelAndroid> LabelClassInfo;
 typedef JavaClassInfo<WhirlyKit::OpenGLES2Program> OpenGLES2ProgramClassInfo;
-typedef JavaClassInfo<WhirlyKit::Particle> ParticleClassInfo;
+typedef JavaClassInfo<WhirlyKit::SingleVertexAttributeInfo> ParticleSystemAttributeClassInfo;
+typedef JavaClassInfo<WhirlyKit::ParticleBatch> ParticleBatchClassInfo;
+typedef JavaClassInfo<WhirlyKit::ParticleSystem> ParticleSystemClassInfo;
 
 // The shared JNIEnv set in the ::render call
 extern JNIEnv *maplyCurrentEnv;

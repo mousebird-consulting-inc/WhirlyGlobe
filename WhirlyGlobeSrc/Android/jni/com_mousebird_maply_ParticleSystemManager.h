@@ -9,19 +9,43 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_ParticleSystemManager
- * Method:    addParticleSystems
- * Signature: (Ljava/util/List;Lcom/mousebird/maply/AttrDictionary;JLcom/mousebird/maply/ChangeSet;)J
+ * Method:    addParticleSystem
+ * Signature: (Lcom/mousebird/maply/ParticleSystem;Lcom/mousebird/maply/ChangeSet;)J
  */
-JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ParticleSystemManager_addParticleSystems
-  (JNIEnv *, jobject, jobject, jobject, jlong, jobject);
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ParticleSystemManager_addParticleSystem
+  (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_ParticleSystemManager
- * Method:    removeParticleSystems
- * Signature: (JJLcom/mousebird/maply/ChangeSet;)V
+ * Method:    addParticleBatch
+ * Signature: (JLcom/mousebird/maply/ParticleBatch;Lcom/mousebird/maply/ChangeSet;)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemManager_removeParticleSystems
-  (JNIEnv *, jobject, jlong, jlong, jobject);
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemManager_addParticleBatch
+  (JNIEnv *, jobject, jlong, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_ParticleSystemManager
+ * Method:    enableParticleSystem
+ * Signature: (JZLcom/mousebird/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemManager_enableParticleSystem
+  (JNIEnv *, jobject, jlong, jboolean, jobject);
+
+/*
+ * Class:     com_mousebird_maply_ParticleSystemManager
+ * Method:    removeParticleSystem
+ * Signature: (JLcom/mousebird/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemManager_removeParticleSystem
+  (JNIEnv *, jobject, jlong, jobject);
+
+/*
+ * Class:     com_mousebird_maply_ParticleSystemManager
+ * Method:    housekeeping
+ * Signature: (DLcom/mousebird/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemManager_housekeeping
+  (JNIEnv *, jobject, jdouble, jobject);
 
 /*
  * Class:     com_mousebird_maply_ParticleSystemManager

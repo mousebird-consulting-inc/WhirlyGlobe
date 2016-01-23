@@ -1,8 +1,8 @@
 /*
- *  ParticleSystem.java
+ *  ParticleSystemAttribute.java
  *  WhirlyGlobeLib
  *
- *  Created by jmnavarro on 18/1/16
+ *  Created by jmnavarro on 21/1/16.
  *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,16 +19,19 @@
  */
 package com.mousebird.maply;
 
-public class ParticleSystem {
+public class ParticleSystemAttribute {
 
 
-    public enum STATE {
-        ParticleSystemPoint(0),
-        ParticleSystemRectangle(1);
+    public enum MaplyShaderAttrType {
+        MAPLY_SHADER_ATTR_TYPE_INT(4),
+        MAPLY_SHADER_ATTR_TYPE_FLOAT(4),
+        MAPLY_SHADER_ATTR_TYPE_FLOAT2(4*2),
+        MAPLY_SHADER_ATTR_TYPE_FLOAT3(4*3),
+        MAPLY_SHADER_ATTR_TYPE_FLOAT4(4*4);
 
         private final int value;
 
-        STATE(int value) {
+        MaplyShaderAttrType(int value) {
             this.value = value;
         }
 
@@ -37,7 +40,7 @@ public class ParticleSystem {
         }
     }
 
-    public ParticleSystem() {
+    public ParticleSystemAttribute() {
         initialise();
     }
 
@@ -49,22 +52,7 @@ public class ParticleSystem {
 
     public native void setName(String name);
 
-    public native void setDrawPriority(int drawPriority);
-
-    public native void setPointSize(float pointSize);
-
-    public native void setParticleSystemType(STATE particleSystemType);
-
-    public native void setShaderID(long shaderID);
-
-    public native void setLifetime(double lifetime);
-
-    public native void setBasetime(double basetime);
-
-    public native void addParticleSystemAttribute(ParticleSystemAttribute attribute);
-
-    public native void addTexID(long texID);
-
+    public native void setType (MaplyShaderAttrType type);
 
     static {
         nativeInit();
