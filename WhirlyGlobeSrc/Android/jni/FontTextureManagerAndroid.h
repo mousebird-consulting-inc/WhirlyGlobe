@@ -50,7 +50,7 @@ public:
 
     /// Add the given string.  Caller is responsible for deleting
     ///  the DrawableString
-    DrawableString *addString(JNIEnv *env,const std::string &str,jobject labelInfoObj,ChangeSet &changes);
+    DrawableString *addString(JNIEnv *env,const std::vector<int> &codePoints,jobject labelInfoObj,ChangeSet &changes);
 
 protected:
     // Find the appropriate font manager

@@ -78,7 +78,7 @@ FontTextureManagerAndroid::~FontTextureManagerAndroid()
     fontManagers.clear();
 }
 
-DrawableString *FontTextureManagerAndroid::addString(JNIEnv *env,const std::string &str,jobject labelInfoObj,ChangeSet &changes)
+DrawableString *FontTextureManagerAndroid::addString(JNIEnv *env,const std::vector<int> &codePoints,jobject labelInfoObj,ChangeSet &changes)
 {
 	LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
 	LabelInfoAndroid *labelInfo = (LabelInfoAndroid *)classInfo->getObject(env,labelInfoObj);
@@ -100,11 +100,8 @@ DrawableString *FontTextureManagerAndroid::addString(JNIEnv *env,const std::stri
     // Work through the characters
     GlyphSet glyphsUsed;
     float offsetX = 0.0;
-    for (unsigned int ii=0;ii<str.size();ii++)
+    for (int glyph : codePoints)
     {
-        // Note: Porting.  Should be iterating through code points for UTF
-    	int glyph = str[ii];
-
     	// Look for an existing glyph
     	FontManager::GlyphInfo *glyphInfo = fm->findGlyph(glyph);
     	if (!glyphInfo)

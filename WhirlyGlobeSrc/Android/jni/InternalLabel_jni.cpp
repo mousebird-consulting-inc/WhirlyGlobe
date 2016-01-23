@@ -106,20 +106,19 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setRotation
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setText
-  (JNIEnv *env, jobject obj, jstring inText)
+(JNIEnv *env, jobject obj, jintArray textArray, jint len)
 {
 	try
 	{
 		LabelClassInfo *classInfo = LabelClassInfo::getClassInfo();
 		SingleLabelAndroid *label = classInfo->getObject(env,obj);
-		if (!label || !inText)
+		if (!label)
 			return;
 
-		const char *cStr = env->GetStringUTFChars(inText,0);
-		if (!cStr)
-			return;
-		label->text = cStr;
-		env->ReleaseStringUTFChars(inText, cStr);
+        JavaIntArray intArray(env,textArray);
+        label->codePoints.resize(len);
+        for (int ii=0;ii<intArray.len;ii++)
+            label->codePoints[ii] = intArray.rawInt[ii];
 	}
 	catch (...)
 	{

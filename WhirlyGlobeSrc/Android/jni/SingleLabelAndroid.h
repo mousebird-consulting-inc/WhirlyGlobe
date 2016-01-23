@@ -30,7 +30,7 @@ namespace WhirlyKit
 class SingleLabelAndroid : public SingleLabel
 {
 public:
-	DrawableString *generateDrawableString(const LabelInfo *inLabelInfo,FontTextureManager *fontTexManager,ChangeSet &changes);
+	DrawableString *generateDrawableString(const LabelInfo *inLabelInfo,FontTextureManager *fontTexManager,ChangeSet &changes);    
 };
 
 }

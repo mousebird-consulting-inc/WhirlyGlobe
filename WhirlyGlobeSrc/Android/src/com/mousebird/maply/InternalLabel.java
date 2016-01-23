@@ -43,8 +43,19 @@ class InternalLabel
 		initialise();
 		setLoc(label.loc);
 		setRotation(label.rotation);
-		if (label.text != null)
-			setText(label.text);
+		if (label.text != null && !label.text.isEmpty()) {
+			// Convert text over to code points
+			int len = label.text.length();
+			int[] codePoints = new int[len];
+			int which = 0;
+			for (int offset = 0; offset < len; )
+			{
+				int codePoint = label.text.codePointAt(offset);
+				codePoints[which++] = codePoint;
+				offset += Character.charCount(codePoint);
+			}
+			setText(codePoints,which);
+		}
 		if (label.offset != null)
 			setOffset(label.offset);
 		setSelectable(label.selectable);
@@ -52,7 +63,7 @@ class InternalLabel
 	
 	public native void setLoc(Point2d loc);
 	public native void setRotation(double rotation);
-	public native void setText(String text);
+	public native void setText(int[] codePoints,int len);
 //	public native void iconImage(Bitmap image);
 //	public native void setIconSize(Point2d iconSize);
 	public native void setOffset(Point2d offset);
