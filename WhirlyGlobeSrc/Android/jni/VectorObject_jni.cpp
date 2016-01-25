@@ -230,9 +230,11 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_getAttributes
 		if (!vecObj)
 			return NULL;
 
-		jobject dictObj = MakeAttrDictionary(env,vecObj->getAttributes());
-
-		return dictObj;
+		Dictionary *dict = vecObj->getAttributes();
+		if (!dict)
+		  return NULL;
+		jobject dictObj = MakeAttrDictionary(env,dict);
+	        return dictObj;
 	}
 	catch (...)
 	{

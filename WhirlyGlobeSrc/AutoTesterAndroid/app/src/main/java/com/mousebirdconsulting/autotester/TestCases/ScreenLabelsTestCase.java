@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.Typeface;
 
+import com.mousebird.maply.AttrDictionary;
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LabelInfo;
@@ -56,19 +57,24 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 
 		for (VectorObject object : objects) {
-			String labelName = object.getAttributes().getString("ADMIN");
-			if (labelName != null && labelName.length() > 0) {
-				ScreenLabel label = new ScreenLabel();
-				label.text = labelName;
-				label.loc = object.centroid();
-				labels.add(label);
+			AttrDictionary attrs = object.getAttributes();
+			if (attrs != null) {
+				String labelName = attrs.getString("ADMIN");
+				if (labelName != null && labelName.length() > 0) {
+					ScreenLabel label = new ScreenLabel();
+					label.text = labelName;
+					label.loc = object.centroid();
+					labels.add(label);
+				}
 			}
 		}
 
 		// Toss in one with an explicit accent
 		ScreenLabel label = new ScreenLabel();
 		label.text = "Bogotá";
-		label.loc = Point2d.FromDegrees(-74.075833,4.598056);
+		label.loc = Point2d.FromDegrees(-74.075833, 4.598056);
+		// Move this by a ridiculous amount so we can find it
+		label.offset = new Point2d(-200,0.0);
 		labels.add(label);
 
 		ComponentObject comp = baseVC.addScreenLabels(labels, labelInfo, MaplyBaseController.ThreadMode.ThreadAny);

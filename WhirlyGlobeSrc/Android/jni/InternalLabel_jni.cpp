@@ -133,7 +133,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setOffset
 	{
 		LabelClassInfo *classInfo = LabelClassInfo::getClassInfo();
 		SingleLabelAndroid *label = classInfo->getObject(env,obj);
-		Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,obj);
+		Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,ptObj);
 		if (!label || !pt)
 			return;
 
