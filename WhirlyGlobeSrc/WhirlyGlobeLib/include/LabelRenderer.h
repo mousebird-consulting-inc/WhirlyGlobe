@@ -76,6 +76,7 @@ public:
     bool screenObject;
     bool layoutEngine;
     float layoutImportance;
+    int layoutPlacement;
     float width,height;
     LabelJustify justify;
     RGBAColor shadowColor;

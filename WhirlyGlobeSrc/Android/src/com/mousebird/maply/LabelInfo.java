@@ -47,6 +47,7 @@ public class LabelInfo extends BaseInfo
 		setTypeface(Typeface.DEFAULT);
 		setFontSize(48.f);
 		setLayoutImportance(Float.MAX_VALUE);
+		setLayoutPlacement(LayoutRight | LayoutLeft | LayoutAbove | LayoutBelow);
 
 		setDrawPriority(LabelPriorityDefault);
 	}
@@ -114,7 +115,23 @@ public class LabelInfo extends BaseInfo
 	 * the associated labels.
 	 */
 	public native void setLayoutImportance(float importance);
-	
+
+	// Importance value for the layout engine
+	public float layoutImportance = Float.MAX_VALUE;
+
+	static int LayoutNone = 1<<0;
+	static int LayoutCenter = 1<<1;
+	static int LayoutRight = 1<<2;
+	static int LayoutLeft = 1<<3;
+	static int LayoutAbove = 1<<4;
+	static int LayoutBelow = 1<<5;
+
+	/**
+	 * The layout placement controls where we can put the label relative to
+	 * its point.
+	 */
+	public native void setLayoutPlacement(int newPlacement);
+
 	/**
 	 * Return the typeface used for the labels.
 	 */

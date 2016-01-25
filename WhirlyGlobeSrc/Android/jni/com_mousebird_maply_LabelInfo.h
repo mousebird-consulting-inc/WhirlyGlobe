@@ -49,6 +49,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLayoutImportance
 
 /*
  * Class:     com_mousebird_maply_LabelInfo
+ * Method:    setLayoutPlacement
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLayoutPlacement
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_LabelInfo
  * Method:    getTypeface
  * Signature: ()Landroid/graphics/Typeface;
  */
