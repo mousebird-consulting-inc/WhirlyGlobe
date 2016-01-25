@@ -48,7 +48,7 @@ public class ScreenMarkersTestCase extends MaplyTestCase {
 		VectorsTestCase baseView = new VectorsTestCase(getActivity());
 		baseView.setUpWithGlobe(globeVC);
 		insertMarkers(baseView.getVectors(), globeVC);
-		globeVC.animatePositionGeo(-3.6704803, 40.5023056, 2, 1);
+		globeVC.animatePositionGeo(-3.6704803, 40.5023056, 0.9, 1);
 		return true;
 	}
 
@@ -66,6 +66,7 @@ public class ScreenMarkersTestCase extends MaplyTestCase {
 			if (centroid != null) {
 				marker.loc = centroid;
 				marker.size = new Point2d(64, 64);
+				marker.rotation = Math.random() * 2.f * Math.PI;
 				AttrDictionary attrs = vector.getAttributes();
 				if (attrs != null) {
 					marker.userObject = attrs.getString("ADMIN");
