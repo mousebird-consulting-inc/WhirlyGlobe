@@ -31,12 +31,21 @@ import android.graphics.Color;
 public class VectorInfo extends BaseInfo
 {
 	/**
+	 * Default draw priority for vector features.
+	 */
+	static int VectorPriorityDefault = 50000;
+
+	/**
 	 * Construct the vector info empty with default values.  At the very least
 	 * a vector will be white and visible all the time.
 	 */
 	public VectorInfo()
 	{
 		initialise();
+		setFilled(false);
+		setColor(1.f,1.f,1.f,1.f);
+		setLineWidth(1.f);
+		setDrawPriority(VectorPriorityDefault);
 	}
 	
 	public void finalize()

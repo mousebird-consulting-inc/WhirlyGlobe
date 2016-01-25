@@ -11,6 +11,12 @@ public class BaseInfo
 {
     protected BaseInfo()
     {
+        setEnable(true);
+        setDrawOffset(0.f);
+        setDrawPriority(0);
+        setMinVis(Float.MAX_VALUE);
+        setMaxVis(Float.MAX_VALUE);
+        setFade(0.f);
     }
 
     /**

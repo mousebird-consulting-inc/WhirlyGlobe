@@ -35,9 +35,16 @@ import android.graphics.Color;
  */
 public class MarkerInfo extends BaseInfo
 {
+	/**
+	 * Default priority for markers.  Screen markers offset this by a large amount.
+	 */
+	static int MarkerPriorityDefault = 40000;
+
 	public MarkerInfo()
 	{
 		initialise();
+		setColor(1.f,1.f,1.f,1.f);
+		setDrawPriority(MarkerPriorityDefault);
 	}
 	
 	public void finalize()

@@ -34,13 +34,21 @@ import android.graphics.Typeface;
  */
 public class LabelInfo extends BaseInfo
 {
+	/**
+	 * Default priority for labels.  Screen labels add a big offset to this.
+	 */
+	static int LabelPriorityDefault = 60000;
+
 	public LabelInfo()
 	{
 		initialise();
 		setTextColor(1.f,1.f,1.f,1.f);
 		setBackgroundColor(0.f,0.f,0.f,0.f);
+		setTypeface(Typeface.DEFAULT);
 		setFontSize(48.f);
 		setLayoutImportance(Float.MAX_VALUE);
+
+		setDrawPriority(LabelPriorityDefault);
 	}
 	
 	public void finalize()

@@ -40,8 +40,8 @@ public class MapBoxSatelliteTestCase extends MaplyTestCase {
 
 		baseLayer.setSingleLevelLoading(testType == ConfigOptions.TestType.MapTest);
 		baseLayer.setUseTargetZoomLevel(testType == ConfigOptions.TestType.MapTest);
-		baseLayer.setCoverPoles(testType == ConfigOptions.TestType.MapTest);
-		baseLayer.setHandleEdges(testType == ConfigOptions.TestType.MapTest);
+		baseLayer.setCoverPoles(testType != ConfigOptions.TestType.MapTest);
+		baseLayer.setHandleEdges(testType != ConfigOptions.TestType.MapTest);
 
 		baseLayer.setDrawPriority(100);
 		return baseLayer;

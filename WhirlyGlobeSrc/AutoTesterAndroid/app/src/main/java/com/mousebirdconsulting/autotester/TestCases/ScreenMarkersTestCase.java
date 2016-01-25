@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.mousebird.maply.AttrDictionary;
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
@@ -12,7 +13,6 @@ import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.ScreenMarker;
 import com.mousebird.maply.VectorObject;
-import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.R;
 
@@ -53,18 +53,28 @@ public class ScreenMarkersTestCase extends MaplyTestCase {
 	}
 
 	private void insertMarkers(ArrayList<VectorObject> vectors, MaplyBaseController baseVC) {
+		MarkerInfo markerInfo = new MarkerInfo();
+		Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.maply_ic_launcher);
+
+		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
 		for (VectorObject vector : vectors) {
 			ScreenMarker marker = new ScreenMarker();
-			Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.maply_ic_launcher);
 			marker.image = icon;
-			marker.loc = vector.centroid();
-			marker.size = new Point2d(0.05, 0.05);
-			marker.userObject = vector.getAttributes().getString("ADMIN");
-			MarkerInfo markerInfo = new MarkerInfo();
-			ComponentObject object = baseVC.addScreenMarker(marker, markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
-			if (object != null) {
-				componentObjects.add(object);
+			Point2d centroid = vector.centroid();
+			if (centroid != null) {
+				marker.loc = centroid;
+				marker.size = new Point2d(64, 64);
+				AttrDictionary attrs = vector.getAttributes();
+				if (attrs != null) {
+					marker.userObject = attrs.getString("ADMIN");
+					markers.add(marker);
+				}
 			}
+		}
+
+		ComponentObject object = baseVC.addScreenMarkers(markers, markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
+		if (object != null) {
+			componentObjects.add(object);
 		}
 	}
 }
