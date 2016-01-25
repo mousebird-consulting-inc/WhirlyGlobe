@@ -56,6 +56,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		scene = globeScene;
 		globeView = new GlobeView(this,coordAdapter);
 		view = globeView;
+		globeView.northUp = true;
 		
 		super.Init();
 		
@@ -90,7 +91,24 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	
 	// Map version of scene
 	GlobeScene globeScene = null;
-	
+
+	/**
+	 * True if the globe is keeping north facing up on the screen.
+     */
+	public boolean getKeepNorthUp()
+	{
+		return globeView.northUp;
+	}
+
+	/**
+	 * Set the keep north up parameter on or off.  On means we will always rotate the globe
+	 * to keep north up.  Off means we won't.
+     */
+	public void setKeepNorthUp(boolean newVal)
+	{
+		globeView.northUp = newVal;
+	}
+
 	/**
 	 * Return the screen coordinate for a given geographic coordinate (in radians).
 	 * 

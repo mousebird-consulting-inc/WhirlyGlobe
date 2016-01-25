@@ -49,6 +49,7 @@ public class MapBoxSatelliteTestCase extends MaplyTestCase {
 
 	@Override
 	public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
+//		globeVC.setKeepNorthUp(false);
 		globeVC.addLayer(this.setupImageLayer(ConfigOptions.TestType.GlobeTest, globeVC));
 		globeVC.animatePositionGeo(-3.6704803, 40.5023056, 2.0, 1.0);
 		return true;
