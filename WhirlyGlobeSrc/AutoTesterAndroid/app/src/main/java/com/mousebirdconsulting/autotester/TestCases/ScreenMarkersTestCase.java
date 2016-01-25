@@ -55,6 +55,8 @@ public class ScreenMarkersTestCase extends MaplyTestCase {
 	private void insertMarkers(ArrayList<VectorObject> vectors, MaplyBaseController baseVC) {
 		MarkerInfo markerInfo = new MarkerInfo();
 		Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.maply_ic_launcher);
+		markerInfo.setMinVis(0.f);
+		markerInfo.setMaxVis(1.f);
 
 		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
 		for (VectorObject vector : vectors) {

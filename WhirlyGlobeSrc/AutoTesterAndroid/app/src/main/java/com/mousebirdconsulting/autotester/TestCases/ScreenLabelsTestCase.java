@@ -51,8 +51,9 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		labelInfo.setFontSize(64.f);
 		labelInfo.setTextcolor(Color.WHITE);
 		labelInfo.setTypeface(Typeface.DEFAULT);
-		labelInfo.setDrawPriority(100000);
 		labelInfo.setLayoutImportance(1.f);
+		labelInfo.setMinVis(0.f);
+		labelInfo.setMaxVis(1.f);
 
 		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 
