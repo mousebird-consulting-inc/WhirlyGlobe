@@ -117,6 +117,14 @@ public class Point3d
 	}
 
 	/**
+	 * Dot product
+     */
+	public double dot(Point3d pt)
+	{
+		return getX() * pt.getX() + getY() * pt.getY() + getZ() * pt.getZ();
+	}
+
+	/**
 	 * Truncate a Point3d and return just the 2D values
 	 * 
 	 * @return X and Y from the Point3d

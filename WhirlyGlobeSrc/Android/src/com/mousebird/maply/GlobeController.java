@@ -170,6 +170,18 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 
 		return geoMbr;
 	}
+
+	// Check if a given point and normal is facing away currently
+	double checkPointAndNormFacing(Point3d dispLoc,Point3d norm,Matrix4d mat,Matrix4d normMat)
+	{
+		Point4d pt = mat.multiply(new Point4d(dispLoc.getX(),dispLoc.getY(),dispLoc.getZ(),1.0));
+		double x = pt.getX() / pt.getW();
+		double y = pt.getY() / pt.getW();
+		double z = pt.getZ() / pt.getW();
+		Point4d testDir = normMat.multiply(new Point4d(norm.getX(),norm.getY(),norm.getZ(),0.0));
+		Point3d pt3d = new Point3d(-x,-y,-z);
+		return pt3d.dot(new Point3d(testDir.getX(),testDir.getY(),testDir.getZ()));
+	}
 	
 	// Convert a geo coord to a screen point
 	private Point2d screenPointFromGeo(GlobeView theGlobeView,Point2d geoCoord)
@@ -184,6 +196,11 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 			return null;
 
 		Matrix4d modelMat = theGlobeView.calcModelViewMatrix();
+		Matrix4d modelNormalMat = modelMat.transpose();
+
+		if (checkPointAndNormFacing(dispPt,dispPt.normalized(),modelMat,modelNormalMat) < 0.0)
+			return null;
+
 		return theGlobeView.pointOnScreenFromSphere(dispPt, modelMat, renderWrapper.maplyRender.frameSize);
 	}
 
