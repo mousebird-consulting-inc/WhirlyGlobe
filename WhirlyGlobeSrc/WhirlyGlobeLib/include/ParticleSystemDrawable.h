@@ -64,19 +64,19 @@ public:
     virtual void setProgram(SimpleIdentity newProgId) { programId = newProgId; }
 
     /// Whether it's currently displaying
-    bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const;
+    bool isOn(RendererFrameInfo *frameInfo) const;
     /// True to turn it on, false to turn it off
     void setOnOff(bool onOff) { enable = onOff; }
     
     /// Set the base time
-    void setBaseTime(NSTimeInterval inBaseTime) { baseTime = inBaseTime; }
+    void setBaseTime(TimeInterval inBaseTime) { baseTime = inBaseTime; }
     
     /// Set the point size
     void setPointSize(float inPointSize) { pointSize = inPointSize; }
     
     /// Set the lifetime
-    void setLifetime(NSTimeInterval inLifetime) { lifetime = inLifetime; }
-    NSTimeInterval getLifetime() { return lifetime; }
+    void setLifetime(TimeInterval inLifetime) { lifetime = inLifetime; }
+    TimeInterval getLifetime() { return lifetime; }
     
     /// Set all the textures at once
     virtual void setTexIDs(const std::vector<SimpleIdentity> &inTexIDs) { texIDs = inTexIDs; }
@@ -88,16 +88,16 @@ public:
     void teardownGL(OpenGLMemManager *memManager);
     
     /// Called on the rendering thread to draw
-    void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    void draw(RendererFrameInfo *frameInfo,Scene *scene);
     
     /// Just points for now
     GLenum getType() const { return GL_POINTS; }
     
     /// Not using this mechanism
-    bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const { return false; }
+    bool hasAlpha(RendererFrameInfo *frameInfo) const { return false; }
     
     /// Don't need to update the renderer particularly
-    void updateRenderer(WhirlyKitSceneRendererES *renderer);
+    void updateRenderer(SceneRendererES *renderer);
 
     /// If set, we want to use the z buffer
     bool getRequestZBuffer() const { return requestZBuffer; }
@@ -114,7 +114,7 @@ public:
         unsigned int batchID;
         unsigned int offset,len;
         bool active;
-        NSTimeInterval startTime;
+        TimeInterval startTime;
     };
     
     /// Add the vertex data (all of it) at once
@@ -124,7 +124,7 @@ public:
     bool findEmptyBatch(Batch &retBatch);
     
     /// Invalidate old batches
-    void updateBatches(NSTimeInterval now);
+    void updateBatches(TimeInterval now);
 
 protected:
     bool enable;
@@ -134,13 +134,13 @@ protected:
     SimpleIdentity programId;
     int drawPriority;
     float pointSize;
-    NSTimeInterval lifetime;
+    TimeInterval lifetime;
     bool requestZBuffer,writeZBuffer;
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
     GLuint pointBuffer,rectBuffer;
     std::vector<SimpleIdentity> texIDs;
     bool useRectangles,useInstancing;
-    NSTimeInterval baseTime;
+    TimeInterval baseTime;
 
     // The vertex attributes we're representing in the buffers
     std::vector<VertexAttribute> vertexAttributes;

@@ -21,13 +21,12 @@ package com.mousebird.maply;
 
 public class ParticleSystemAttribute {
 
-
     public enum MaplyShaderAttrType {
-        MAPLY_SHADER_ATTR_TYPE_INT(4),
-        MAPLY_SHADER_ATTR_TYPE_FLOAT(4),
-        MAPLY_SHADER_ATTR_TYPE_FLOAT2(4*2),
-        MAPLY_SHADER_ATTR_TYPE_FLOAT3(4*3),
-        MAPLY_SHADER_ATTR_TYPE_FLOAT4(4*4);
+        MAPLY_SHADER_ATTR_TYPE_INT(0),
+        MAPLY_SHADER_ATTR_TYPE_FLOAT(1),
+        MAPLY_SHADER_ATTR_TYPE_FLOAT2(2),
+        MAPLY_SHADER_ATTR_TYPE_FLOAT3(3),
+        MAPLY_SHADER_ATTR_TYPE_FLOAT4(4);
 
         private final int value;
 
@@ -38,6 +37,7 @@ public class ParticleSystemAttribute {
         public int getValue() {
             return this.value;
         }
+
     }
 
     public ParticleSystemAttribute() {
@@ -52,7 +52,37 @@ public class ParticleSystemAttribute {
 
     public native void setName(String name);
 
-    public native void setType (MaplyShaderAttrType type);
+    public native void setType (int type);
+
+    public int getTypeSize(){
+
+        int size = 0;
+        switch (this.getType()){
+            case 0:
+                size = 4;
+                break;
+            case 1:
+                size = 4;
+                break;
+            case 2:
+                size = 2*4;
+                break;
+            case 3:
+                size = 3*4;
+                break;
+            case 4:
+                size = 4*4;
+                break;
+            default:
+                size = 0;
+                break;
+        }
+        return size;
+    }
+
+    private native int getType();
+
+    public native String getName();
 
     static {
         nativeInit();
@@ -61,4 +91,6 @@ public class ParticleSystemAttribute {
     private static native void nativeInit();
     native void initialise();
     native void dispose();
+    private long nativeHandle;
+
 }

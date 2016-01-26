@@ -53,7 +53,7 @@ public class ParticleSystem {
 
     public native void setPointSize(float pointSize);
 
-    public native void setParticleSystemType(STATE particleSystemType);
+    public native void setParticleSystemType(int particleSystemType);
 
     public native void setShaderID(long shaderID);
 
@@ -73,4 +73,6 @@ public class ParticleSystem {
     private static native void nativeInit();
     native void initialise();
     native void dispose();
+    private long nativeHandle;
+
 }

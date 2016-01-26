@@ -42,7 +42,7 @@ public:
     float pointSize;
     ParticleSystemType type;
     SimpleIdentity shaderID;
-    NSTimeInterval lifetime,baseTime;
+    TimeInterval lifetime,baseTime;
     int totalParticles,batchSize;
     std::vector<SingleVertexAttributeInfo> vertAttrs;
     std::vector<SimpleIdentity> texIDs;
@@ -95,7 +95,7 @@ public:
     void removeParticleSystem(SimpleIdentity sysID,ChangeSet &changes);
 
     /// Clean out old particle system batches as needed
-    void housekeeping(NSTimeInterval now,ChangeSet &changes);
+    void housekeeping(TimeInterval now,ChangeSet &changes);
 
 protected:
     pthread_mutex_t partSysLock;

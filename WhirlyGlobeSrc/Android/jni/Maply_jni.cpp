@@ -57,7 +57,7 @@ template<> MapViewStateClassInfo *MapViewStateClassInfo::classInfoObj = NULL;
 template<> GlobeViewStateClassInfo *GlobeViewStateClassInfo::classInfoObj = NULL;
 template<> OpenGLES2ProgramClassInfo *OpenGLES2ProgramClassInfo::classInfoObj = NULL;
 template<> ParticleSystemAttributeClassInfo *ParticleSystemAttributeClassInfo::classInfoObj = NULL;
-template<> ParticleSystemBatchClassInfo *ParticleSystemClassInfo:classInfoObj = NULL;
+template<> ParticleBatchClassInfo *ParticleBatchClassInfo::classInfoObj = NULL;
 template<> ParticleSystemClassInfo *ParticleSystemClassInfo::classInfoObj = NULL;
 
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)

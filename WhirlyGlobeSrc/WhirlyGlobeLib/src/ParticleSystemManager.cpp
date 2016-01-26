@@ -153,7 +153,7 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
                     attrData.push_back(thisAttrData);
                 }
                 // Note: Should pick this up from the batch
-                theBatch.startTime = CFAbsoluteTimeGetCurrent();
+                theBatch.startTime = time(NULL);
                 draw->addAttributeData(attrData,theBatch);
             }
         }
@@ -162,7 +162,7 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
     pthread_mutex_unlock(&partSysLock);
 }
     
-void ParticleSystemManager::housekeeping(NSTimeInterval now,ChangeSet &changes)
+void ParticleSystemManager::housekeeping(TimeInterval now,ChangeSet &changes)
 {
     pthread_mutex_lock(&partSysLock);
 

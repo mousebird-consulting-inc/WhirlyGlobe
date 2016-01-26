@@ -71,7 +71,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_setBatchSize
         
         inst->batchSize = batchSize;
     } catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleBatch::setBatchSize")
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleBatch::setBatchSize");
     }
 }
 
@@ -82,10 +82,10 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_ParticleBatch_getBatchSize
         ParticleBatchClassInfo *classInfo = ParticleBatchClassInfo::getClassInfo();
         ParticleBatch *inst = classInfo->getObject(env, obj);
         if (!inst)
-            return;
+            return 0;
         
         return inst->batchSize;
     } catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleBatch::getBatchSize")
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleBatch::getBatchSize");
     }
 }

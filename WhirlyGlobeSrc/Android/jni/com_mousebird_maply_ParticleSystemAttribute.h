@@ -18,10 +18,26 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemAttribute_setName
 /*
  * Class:     com_mousebird_maply_ParticleSystemAttribute
  * Method:    setType
- * Signature: (Lcom/mousebird/maply/ParticleSystemAttribute/MaplyShaderAttrType;)V
+ * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemAttribute_setType
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_ParticleSystemAttribute
+ * Method:    getType
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_ParticleSystemAttribute_getType
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_ParticleSystemAttribute
+ * Method:    getName
+ * Signature: ()Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_mousebird_maply_ParticleSystemAttribute_getName
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_mousebird_maply_ParticleSystemAttribute

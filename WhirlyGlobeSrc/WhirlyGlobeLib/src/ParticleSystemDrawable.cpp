@@ -45,7 +45,7 @@ ParticleSystemDrawable::~ParticleSystemDrawable()
     pthread_mutex_destroy(&batchLock);
 }
     
-bool ParticleSystemDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
+bool ParticleSystemDrawable::isOn(RendererFrameInfo *frameInfo) const
 {
     if (!enable)
         return false;
@@ -88,7 +88,7 @@ void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMa
             glBufferData(GL_ARRAY_BUFFER, rectSize, (const GLvoid *)&verts[0], GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         } else {
-            NSLog(@"ParticleSystemDrawable: Can only do instanced rectangles at present.  This system can't handle instancing.");
+           // NSLog(@"ParticleSystemDrawable: Can only do instanced rectangles at present.  This system can't handle instancing.");
         }
     }
     
@@ -138,9 +138,9 @@ void ParticleSystemDrawable::teardownGL(OpenGLMemManager *memManager)
     chunks.clear();
 }
     
-void ParticleSystemDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
+void ParticleSystemDrawable::updateRenderer(SceneRendererES *renderer)
 {
-    [renderer addContinuousRenderRequest:getId()];
+    renderer->addContinuousRenderRequest(getId());
 }
     
 void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &attrData,const Batch &batch)
@@ -150,15 +150,17 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
     
     glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
     unsigned char *glMem = NULL;
-    EAGLContext *context = [EAGLContext currentContext];
+    
+    //TODO REVIEW
+    //EAGLContext *context = EAGLContext->currentContext;
     int glMemOffset = 0;
-    if (context.API < kEAGLRenderingAPIOpenGLES3)
-    {
-        glMem = (unsigned char *)glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-        glMemOffset = batch.offset*vertexSize*batchSize;
-    } else {
-        glMem = (unsigned char *)glMapBufferRange(GL_ARRAY_BUFFER, batch.batchID*vertexSize*batchSize, vertexSize*batchSize, GL_MAP_WRITE_BIT);
-    }
+    //if (context.API < kEAGLRenderingAPIOpenGLES3)
+    //{
+     //   glMem = (unsigned char *)glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+     //   glMemOffset = batch.offset*vertexSize*batchSize;
+    //} else {
+      //  glMem = (unsigned char *)glMapBufferRange(GL_ARRAY_BUFFER, batch.batchID*vertexSize*batchSize, vertexSize*batchSize, GL_MAP_WRITE_BIT);
+    //}
     
     // Work through the attribute blocks
     int attrOffset = 0;
@@ -179,10 +181,11 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
         
         attrOffset += attrSize;
     }
-    
-    if (context.API < kEAGLRenderingAPIOpenGLES3)
-        glUnmapBufferOES(GL_ARRAY_BUFFER);
-    else
+    //TODO REVIEW
+
+   // if (context.API < kEAGLRenderingAPIOpenGLES3)
+    //    glUnmapBufferOES(GL_ARRAY_BUFFER);
+    //else
         glUnmapBuffer(GL_ARRAY_BUFFER);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
@@ -192,7 +195,7 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
     pthread_mutex_unlock(&batchLock);
 }
     
-void ParticleSystemDrawable::updateBatches(NSTimeInterval now)
+void ParticleSystemDrawable::updateBatches(TimeInterval now)
 {
     pthread_mutex_lock(&batchLock);
     // Check the batches to see if any have gone off
@@ -269,13 +272,14 @@ bool ParticleSystemDrawable::findEmptyBatch(Batch &retBatch)
     return ret;
 }
 
-void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
+void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
 {
-    updateBatches(frameInfo.currentTime);
+    updateBatches(frameInfo->currentTime);
     updateChunks();
-    
-    EAGLContext *context = [EAGLContext currentContext];
-    OpenGLES2Program *prog = frameInfo.program;
+    //TODO REVIEW
+
+   // EAGLContext *context = [EAGLContext currentContext];
+    OpenGLES2Program *prog = frameInfo->program;
     
     // GL Texture IDs
     bool anyTextures = false;
@@ -288,18 +292,18 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     }
 
     // Model/View/Projection matrix
-    prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
-    prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
-    prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
-    prog->setUniform("u_mvpNormalMatrix", frameInfo.mvpNormalMat);
-    prog->setUniform("u_pMatrix", frameInfo.projMat);
-    prog->setUniform("u_scale", Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
+    prog->setUniform("u_mvpMatrix", frameInfo->mvpMat);
+    prog->setUniform("u_mvMatrix", frameInfo->viewAndModelMat);
+    prog->setUniform("u_mvNormalMatrix", frameInfo->viewModelNormalMat);
+    prog->setUniform("u_mvpNormalMatrix", frameInfo->mvpNormalMat);
+    prog->setUniform("u_pMatrix", frameInfo->projMat);
+    prog->setUniform("u_scale", Point2f(2.f/(float)frameInfo->sceneRenderer->framebufferWidth,2.f/(float)frameInfo->sceneRenderer->framebufferHeight));
     
     // If this is present, the drawable wants to do something based where the viewer is looking
-    prog->setUniform("u_eyeVec", frameInfo.fullEyeVec);
+    prog->setUniform("u_eyeVec", frameInfo->fullEyeVec);
     
     prog->setUniform("u_size", pointSize);
-    prog->setUniform("u_time", (float)(frameInfo.currentTime-baseTime));
+    prog->setUniform("u_time", (float)(frameInfo->currentTime-baseTime));
     prog->setUniform("u_lifetime", (float)lifetime);
     
     // The program itself may have some textures to bind
@@ -318,13 +322,14 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
         hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
         if (hasTexture[ii+progTexBound])
         {
-            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii+progTexBound)];
+            frameInfo->stateOpt->setActiveTexture(GL_TEXTURE0+ii+progTexBound);
             glBindTexture(GL_TEXTURE_2D, glTexID);
             CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
             prog->setUniform(baseMapName, (int)ii+progTexBound);
             CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
         }
     }
+    //TODO REVIEW
 
     // Use the rectangle buffer for instancing
     if (rectBuffer)
@@ -335,9 +340,9 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
         {
             glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)0);
             CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
-            if (context.API < kEAGLRenderingAPIOpenGLES3)
-                glVertexAttribDivisorEXT(thisAttr->index, 0);
-            else
+           // if (context.API < kEAGLRenderingAPIOpenGLES3)
+            //    glVertexAttribDivisorEXT(thisAttr->index, 0);
+            //else
                 glVertexAttribDivisor(thisAttr->index, 0);
             glEnableVertexAttribArray(thisAttr->index);
             CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
@@ -347,9 +352,9 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
         {
             glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)(2*sizeof(GLfloat)));
             CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
-            if (context.API < kEAGLRenderingAPIOpenGLES3)
-                glVertexAttribDivisorEXT(thisAttr->index, 0);
-            else
+           // if (context.API < kEAGLRenderingAPIOpenGLES3)
+             //   glVertexAttribDivisorEXT(thisAttr->index, 0);
+            //else
                 glVertexAttribDivisor(thisAttr->index, 0);
             glEnableVertexAttribArray(thisAttr->index);
             CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
@@ -376,9 +381,9 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
                 
                 if (useInstancing)
                     divisor = 1;
-                if (context.API < kEAGLRenderingAPIOpenGLES3)
-                    glVertexAttribDivisorEXT(thisAttr->index, divisor);
-                else
+                //if (context.API < kEAGLRenderingAPIOpenGLES3)
+                  //  glVertexAttribDivisorEXT(thisAttr->index, divisor);
+                //else
                     glVertexAttribDivisor(thisAttr->index, divisor);
                 glEnableVertexAttribArray(thisAttr->index);
             }
@@ -388,9 +393,9 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
 
         if (rectBuffer)
         {
-            if (context.API < kEAGLRenderingAPIOpenGLES3)
-                glDrawArraysInstancedEXT(GL_TRIANGLES, 0, 6, chunk.numVertices);
-            else
+          //  if (context.API < kEAGLRenderingAPIOpenGLES3)
+            //    glDrawArraysInstancedEXT(GL_TRIANGLES, 0, 6, chunk.numVertices);
+            //else
                 glDrawArraysInstanced(GL_TRIANGLES, 0, 6, chunk.numVertices);
             CheckGLError("BasicDrawable::drawVBO2() glDrawArraysInstanced");
         } else {
@@ -428,7 +433,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
         if (hasTexture[ii])
         {
-            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii)];
+            frameInfo->stateOpt->setActiveTexture(GL_TEXTURE0+ii);
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
