@@ -196,7 +196,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 			return null;
 
 		Matrix4d modelMat = theGlobeView.calcModelViewMatrix();
-		Matrix4d modelNormalMat = modelMat.transpose();
+		Matrix4d modelNormalMat = modelMat.inverse().transpose();
 
 		if (checkPointAndNormFacing(dispPt,dispPt.normalized(),modelMat,modelNormalMat) < 0.0)
 			return null;
