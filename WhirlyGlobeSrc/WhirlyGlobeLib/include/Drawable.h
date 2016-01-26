@@ -157,6 +157,9 @@ typedef std::set<DrawableTweakerRef> DrawableTweakerRefSet;
  */
 class Drawable : public Identifiable
 {
+protected:
+    /// Used in special cases
+    Drawable() { }
 public:
     /// Construct empty
 	Drawable(const std::string &name);
