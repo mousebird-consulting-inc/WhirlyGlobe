@@ -64,7 +64,7 @@ GlobeView::GlobeView(WhirlyKit::CoordSystemDisplayAdapter *inCoordAdapter)
 //    double tilt;
 
 GlobeView::GlobeView(const GlobeView &that)
-: absoluteMinHeight(that.absoluteMinHeight), heightInflection(that.heightInflection), defaultNearPlane(that.defaultNearPlane),
+: View(that), absoluteMinHeight(that.absoluteMinHeight), heightInflection(that.heightInflection), defaultNearPlane(that.defaultNearPlane),
     absoluteMinNearPlane(that.absoluteMinNearPlane), defaultFarPlane(that.defaultFarPlane), absoluteMinFarPlane(that.absoluteMinFarPlane),
     heightAboveGlobe(that.heightAboveGlobe), rotQuat(that.rotQuat), tilt(that.tilt)
 {
