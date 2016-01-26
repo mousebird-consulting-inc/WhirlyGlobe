@@ -285,6 +285,8 @@ float BasicDrawable::getDrawOffset()
 void BasicDrawable::setType(GLenum inType)
 {
     type = inType;
+    if (type == GL_LINES)
+        writeZBuffer = false;
 }
 
 GLenum BasicDrawable::getType() const
@@ -367,7 +369,7 @@ void BasicDrawable::setWriteZBuffer(bool val)
 { writeZBuffer = val; }
 
 bool BasicDrawable::getWriteZbuffer() const
-{ if (type == GL_LINES || type == GL_LINE_LOOP || type == GL_POINTS) return false;  return writeZBuffer; }
+{ return writeZBuffer; }
 
 unsigned int BasicDrawable::addPoint(const Point3f &pt)
 {
