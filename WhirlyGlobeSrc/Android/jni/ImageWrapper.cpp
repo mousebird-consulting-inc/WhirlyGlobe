@@ -24,8 +24,14 @@ namespace WhirlyKit
 {
 
 ImageWrapper::ImageWrapper(RawDataRef rawData,int width,int height)
-	: rawData(rawData), width(width), height(height)
+	: rawData(rawData), width(width), height(height), placeholder(false)
 {
+}
+    
+ImageWrapper::ImageWrapper()
+: placeholder(true), width(0), height(0)
+{
+    
 }
 
 // Construct the texture
@@ -51,7 +57,7 @@ LoadedImageType ImageWrapper::getType()
 /// This means there's nothing to display, but the children are valid
 bool ImageWrapper::isPlaceholder()
 {
-	return false;
+	return placeholder;
 }
 
 /// Return image width

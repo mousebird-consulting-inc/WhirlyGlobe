@@ -270,7 +270,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	/* Called by the JNI side.  We need to start fetching
 	 * the given tile.
 	 */
-	void startFetch(int level,int x,int y,int frame)
+	void startFetch(int level,int x,int y,final int frame)
 	{
 		if (!valid)
 			return;
@@ -279,8 +279,21 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	    if (!flipY)
 	        y = (1<<level)-y-1;
 
-		MaplyTileID tileID = new MaplyTileID(x,y,level);
-		tileSource.startFetchForTile(this, tileID, frame);
+		final MaplyTileID tileID = new MaplyTileID(x,y,level);
+
+		// Fake loading for tiles less than the minZoom
+		if (level < tileSource.minZoom())
+		{
+			layerThread.addTask(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					loadedTile(tileID,frame,null);
+				}
+			},true);
+		} else
+			tileSource.startFetchForTile(this, tileID, frame);
 	}
 	
 	/*
