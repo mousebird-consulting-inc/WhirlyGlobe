@@ -89,6 +89,7 @@ public:
         startFetchJava = env->GetMethodID(theClass,"startFetch","(IIII)V");
         scheduleEvalStepJava = env->GetMethodID(theClass,"scheduleEvalStep","()V");
         imageRenderCallbackJava = env->GetMethodID(theClass,"imageRenderCallback","(JDDIII)V");
+        env->DeleteLocalRef(theClass);
     }
     
     void clearJavaRefs()

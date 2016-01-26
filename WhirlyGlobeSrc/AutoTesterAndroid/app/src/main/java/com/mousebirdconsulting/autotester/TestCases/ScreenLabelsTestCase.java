@@ -57,18 +57,20 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 
 		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 
-		for (VectorObject object : objects) {
-			AttrDictionary attrs = object.getAttributes();
-			if (attrs != null) {
-				String labelName = attrs.getString("ADMIN");
-				if (labelName != null && labelName.length() > 0) {
-					ScreenLabel label = new ScreenLabel();
-					label.text = labelName;
-					label.loc = object.centroid();
-					labels.add(label);
+//		for (int ii=0;ii<100;ii++) {
+			for (VectorObject object : objects) {
+				AttrDictionary attrs = object.getAttributes();
+				if (attrs != null) {
+					String labelName = attrs.getString("ADMIN");
+					if (labelName != null && labelName.length() > 0) {
+						ScreenLabel label = new ScreenLabel();
+						label.text = labelName;
+						label.loc = object.centroid();
+						labels.add(label);
+					}
 				}
 			}
-		}
+//		}
 
 		// Toss in one with an explicit accent
 		ScreenLabel label = new ScreenLabel();

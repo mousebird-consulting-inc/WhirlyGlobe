@@ -199,19 +199,17 @@ void FontTextureManager::removeString(SimpleIdentity drawStringId,ChangeSet &cha
             std::vector<SubTexture> texRemove;
             fm->removeGlyphRefs(fit->second,texRemove);
 
-            // Note: Porting.  The counts are wrong here for some reason
             // And possibly remove some sub textures
-//            if (!texRemove.empty())
-//                for (unsigned int ii=0;ii<texRemove.size();ii++)
-//                    texAtlas->removeTexture(texRemove[ii], changes);
+            if (!texRemove.empty())
+                for (unsigned int ii=0;ii<texRemove.size();ii++)
+                    texAtlas->removeTexture(texRemove[ii], changes);
 
-            // Note: Porting.  The ref counts don't seem to be right
             // Also see if we're done with the font
-//            if (fm->refCount <= 0)
-//            {
-//                fontManagers.erase(fmIt);
-//                delete fm;
-//            }
+            if (fm->refCount <= 0)
+            {
+                fontManagers.erase(fmIt);
+                delete fm;
+            }
         }
     }
     

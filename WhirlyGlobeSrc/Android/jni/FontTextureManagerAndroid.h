@@ -34,7 +34,9 @@ public:
 	FontTextureManagerAndroid(JNIEnv *env,Scene *scene,jobject charRenderObj);
     ~FontTextureManagerAndroid();
 
-    // Wrapper for FontManager.  Tracks CoreText resources too.
+    void setEnv(JNIEnv *newEnv)   { savedEnv = newEnv; }
+
+    // Wrapper for FontManager.
     class FontManagerAndroid : public FontManager
     {
     public:
@@ -51,8 +53,10 @@ public:
     /// Add the given string.  Caller is responsible for deleting
     ///  the DrawableString
     DrawableString *addString(JNIEnv *env,const std::vector<int> &codePoints,jobject labelInfoObj,ChangeSet &changes);
-
+    
 protected:
+    JNIEnv *savedEnv;
+
     // Find the appropriate font manager
     FontManagerAndroid *findFontManagerForFont(jobject typefaceObj,const LabelInfo &labelInfo);
 

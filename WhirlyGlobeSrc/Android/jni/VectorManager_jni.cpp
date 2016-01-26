@@ -104,6 +104,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
 		jobject liter = env->CallObjectMethod(vecObjList,literMethod);
 		jmethodID hasNext = env->GetMethodID(iterClass,"hasNext","()Z");
 		jmethodID next = env->GetMethodID(iterClass,"next","()Ljava/lang/Object;");
+        env->DeleteLocalRef(iterClass);
+        env->DeleteLocalRef(listClass);
 
 		ShapeSet shapes;
 		VectorObjectClassInfo *vecObjClassInfo = VectorObjectClassInfo::getClassInfo();

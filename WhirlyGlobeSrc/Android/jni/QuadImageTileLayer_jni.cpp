@@ -102,6 +102,7 @@ public:
 		jclass theClass = env->GetObjectClass(javaObj);
 		startFetchJava = env->GetMethodID(theClass,"startFetch","(IIII)V");
 		scheduleEvalStepJava = env->GetMethodID(theClass,"scheduleEvalStep","()V");
+        env->DeleteLocalRef(theClass);
 	}
 
 	void clearJavaRefs()

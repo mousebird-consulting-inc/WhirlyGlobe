@@ -37,18 +37,17 @@ FontTextureManagerAndroid::FontManagerAndroid::FontManagerAndroid()
 {
 }
 
-void FontTextureManagerAndroid::FontManagerAndroid::clearRefs(JNIEnv *env)
+void FontTextureManagerAndroid::FontManagerAndroid::clearRefs(JNIEnv *savedEnv)
 {
 	if (typefaceObj)
 	{
-		env->DeleteGlobalRef(typefaceObj);
+		savedEnv->DeleteGlobalRef(typefaceObj);
 		typefaceObj = NULL;
 	}
 }
 
 FontTextureManagerAndroid::FontManagerAndroid::~FontManagerAndroid()
 {
-	// Note: Clean up the font reference
 }
 
 FontTextureManagerAndroid::FontTextureManagerAndroid(JNIEnv *env,Scene *scene,jobject inCharRenderObj)
@@ -68,6 +67,8 @@ FontTextureManagerAndroid::FontTextureManagerAndroid(JNIEnv *env,Scene *scene,jo
 	offsetYID = env->GetFieldID(glyphClass,"offsetY","F");
 	textureOffsetXID = env->GetFieldID(glyphClass,"textureOffsetX","F");
 	textureOffsetYID = env->GetFieldID(glyphClass,"textureOffsetY","F");
+    env->DeleteLocalRef(glyphClass);
+    env->DeleteLocalRef(charRenderClass);
 }
 
 FontTextureManagerAndroid::~FontTextureManagerAndroid()
@@ -146,6 +147,8 @@ DrawableString *FontTextureManagerAndroid::addString(JNIEnv *env,const std::vect
                     texs.push_back(&tex);
                     if (texAtlas->addTexture(texs, -1, &realSize, NULL, subTex, scene->getMemManager(), changes, 0, 0, NULL))
                         glyphInfo = fm->addGlyph(glyph, subTex, Point2f(glyphSize.x(),glyphSize.y()), Point2f(offset.x(),offset.y()), Point2f(textureOffset.x(),textureOffset.y()));
+                    
+                    AndroidBitmap_unlockPixels(env, bitmapObj);
 				}
         	}
         	catch (...)
