@@ -114,6 +114,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addLinear
 			jobject ptObj = env->GetObjectArrayElement(ptsObj,ii);
 			Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,ptObj);
 			lin->pts.push_back(GeoCoord(pt->x(),pt->y()));
+            env->DeleteLocalRef(ptObj);
 		}
 		lin->initGeoMbr();
 		vecObj->shapes.insert(lin);
@@ -145,6 +146,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal
 			jobject ptObj = env->GetObjectArrayElement(ptsObj,ii);
 			Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,ptObj);
 			ar->loops[0].push_back(GeoCoord(pt->x(),pt->y()));
+            env->DeleteLocalRef(ptObj);
 		}
 		ar->initGeoMbr();
 		vecObj->shapes.insert(ar);
