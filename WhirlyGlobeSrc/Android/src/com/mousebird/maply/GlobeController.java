@@ -40,7 +40,7 @@ import java.util.List;
  * @author sjg
  *
  */
-public class GlobeController extends MaplyBaseController implements View.OnTouchListener
+public class GlobeController extends MaplyBaseController implements View.OnTouchListener, Choreographer.FrameCallback
 {	
 	public GlobeController(Activity mainActivity)
 	{
@@ -365,9 +365,18 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
          *
          * @param globeControl The globe controller this is associated with.
          * @param corners Corners of the viewport.  If one of them is null, that means it doesn't land on the globe.
-         * @param userMotion SEt if the motion was caused by a gesture.
+         * @param userMotion Set if the motion was caused by a gesture.
          */
         public void globeDidStopMoving(GlobeController globeControl, Point3d corners[], boolean userMotion);
+
+		/**
+		 * Called for every single visible frame of movement.  Be careful what you do in here.
+		 *
+		 * @param globeControl The globe controller this is associated with.
+		 * @param corners Corners of the viewport.  If one of them is null, that means it doesn't land on the globe.
+		 * @param userMotion Set if the motion was caused by a gesture.
+         */
+		public void globeDidMove(GlobeController globeControl,Point3d corners[], boolean userMotion);
 	}
 
 	/**
@@ -430,10 +439,56 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
      */
     public void handleStartMoving(boolean userMotion)
     {
+		if (renderWrapper == null || renderWrapper.maplyRender == null)
+			return;
+
         if (!isPanning && !isRotating && !isZooming && !isAnimating && !isTilting)
-            if (gestureDelegate != null)
-                gestureDelegate.globeDidStartMoving(this,userMotion);
+            if (gestureDelegate != null) {
+				gestureDelegate.globeDidStartMoving(this, userMotion);
+
+				Choreographer c = Choreographer.getInstance();
+				if (c != null)
+					c.postFrameCallback(this);
+			}
     }
+
+	/**
+	 * Called by the gesture handler to filter out end motion events.
+	 *
+	 * @param userMotion Set if kicked off by user motion.
+	 */
+	public void handleStopMoving(boolean userMotion)
+	{
+		if (renderWrapper == null || renderWrapper.maplyRender == null)
+			return;
+
+		if (isPanning || isRotating || isZooming || isAnimating || isTilting)
+			return;
+
+		if (gestureDelegate != null)
+		{
+			Point3d corners[] = calcCorners();
+			gestureDelegate.globeDidStopMoving(this,corners,userMotion);
+			Choreographer c = Choreographer.getInstance();
+		}
+	}
+
+	/**
+	 * Frame callback for the Choreographer
+     */
+	public void doFrame(long frameTimeNanos)
+	{
+		if (gestureDelegate != null && globeView.isAnimating()) {
+			Point3d corners[] = calcCorners();
+			gestureDelegate.globeDidMove(this, corners, false);
+		}
+
+		Choreographer c = Choreographer.getInstance();
+		if (c != null) {
+			c.removeFrameCallback(this);
+			c.postFrameCallback(this);
+		}
+	}
 
     // Calculate visible corners
     Point3d[] calcCorners()
@@ -462,22 +517,5 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
         }
 
         return retCorners;
-    }
-
-    /**
-     * Called by the gesture handler to filter out end motion events.
-     *
-     * @param userMotion Set if kicked off by user motion.
-     */
-    public void handleStopMoving(boolean userMotion)
-    {
-        if (isPanning || isRotating || isZooming || isAnimating || isTilting)
-            return;
-
-        if (gestureDelegate != null)
-        {
-            Point3d corners[] = calcCorners();
-            gestureDelegate.globeDidStopMoving(this,corners,userMotion);
-        }
     }
 }

@@ -103,6 +103,17 @@ public class GlobeView extends View
 			runViewUpdates();
 		}
 	}
+
+	/**
+	 * Check if the globe position is being animated.
+     */
+	public boolean isAnimating()
+	{
+		if (animationDelegate != null)
+			return true;
+
+		return false;
+	}
 	
 	/**
 	 * Set if we want to keep north pointed upward as the user moves

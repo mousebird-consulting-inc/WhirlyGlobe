@@ -8,14 +8,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.MainActivity;
 import com.mousebirdconsulting.autotester.R;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
+import com.mousebirdconsulting.autotester.TestCases.GestureFeedbackTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MapBoxSatelliteTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
@@ -65,6 +64,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new ScreenLabelsTestCase(getActivity()));
 			testCases.add(new ScreenMarkersTestCase(getActivity()));
 			testCases.add(new StickersTestCase(getActivity()));
+			testCases.add(new GestureFeedbackTestCase(getActivity()));
 		}
 
 		@Override
