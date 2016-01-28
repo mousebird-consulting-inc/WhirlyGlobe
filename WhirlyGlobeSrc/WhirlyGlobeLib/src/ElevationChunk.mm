@@ -82,6 +82,9 @@ typedef enum {WhirlyKitElevationFloats,WhirlyKitElevationShorts} WhirlyKitElevat
 {
     if (!data)
         return 0.0;
+    if ([data length] == 0)
+        return 0.0;
+
     if (x < 0)  x = 0;
     if (y < 0)  y = 0;
     if (x >= _sizeX)  x = _sizeX-1;
