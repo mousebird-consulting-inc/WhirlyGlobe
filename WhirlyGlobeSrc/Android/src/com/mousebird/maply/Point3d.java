@@ -59,7 +59,17 @@ public class Point3d
 	{
 		dispose();
 	}
-	
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (!(obj instanceof Point3d))
+			return false;
+
+		Point3d that = (Point3d) obj;
+		return getX() == that.getX() && getY() == that.getY() && getZ() == that.getZ();
+	}
+
 	public String toString()
 	{
 		return "(" + getX() + "," + getY() + "," + getZ() + ")";

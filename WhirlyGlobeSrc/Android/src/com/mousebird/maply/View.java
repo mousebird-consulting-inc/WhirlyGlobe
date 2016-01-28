@@ -21,6 +21,7 @@
 package com.mousebird.maply;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 
 /**
  * Base class for 2D and 3D views.
@@ -71,6 +72,16 @@ public class View
 		public void viewUpdated(View view);
 	}
 
+	double lastUpdated;
+
+	/**
+	 * When the view was last changed.
+     */
+	public double getLastUpdatedTime()
+	{
+		return lastUpdated;
+	}
+
 	ArrayList<ViewWatcher> watchers = new ArrayList<ViewWatcher>();
 	
 	// Add a watcher for callbacks on each and every view related change
@@ -90,6 +101,7 @@ public class View
 //		Log.i("Maply","New pos: (" + loc.getX() + "," + loc.getY() + "," + loc.getZ() + ")");
 		for (ViewWatcher watcher: watchers)
 			watcher.viewUpdated(this);
+		lastUpdated = GregorianCalendar.getInstance().getTimeInMillis() / 1000.0;
 	}
 
 	// Return the current model & view matrix combined (but not projection)

@@ -57,6 +57,16 @@ public class Point2d
 		setValue(x,y);
 	}
 
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (!(obj instanceof Point2d))
+			return false;
+		Point2d that = (Point2d) obj;
+
+		return getX() == that.getX() && getY() == that.getY();
+	}
+
 	public Point2d addTo(Point2d that)
 	{
 		return new Point2d(getX()+that.getX(),getY()+that.getY());

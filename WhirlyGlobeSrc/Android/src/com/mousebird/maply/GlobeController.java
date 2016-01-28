@@ -473,14 +473,17 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		}
 	}
 
+	double lastViewUpdate = 0.0;
 	/**
 	 * Frame callback for the Choreographer
      */
 	public void doFrame(long frameTimeNanos)
 	{
-		if (gestureDelegate != null && globeView.isAnimating()) {
+		double newUpdateTime = globeView.getLastUpdatedTime();
+		if (gestureDelegate != null && lastViewUpdate < newUpdateTime) {
 			Point3d corners[] = calcCorners();
 			gestureDelegate.globeDidMove(this, corners, false);
+			lastViewUpdate = newUpdateTime;
 		}
 
 		Choreographer c = Choreographer.getInstance();

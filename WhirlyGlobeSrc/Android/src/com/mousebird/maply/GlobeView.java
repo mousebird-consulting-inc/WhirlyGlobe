@@ -20,6 +20,8 @@
 
 package com.mousebird.maply;
 
+import java.util.GregorianCalendar;
+
 /**
  * The Globe View handles math related to user position and orientation.
  * It's largely opaque to toolkit users.  The MaplyController handles
@@ -33,6 +35,7 @@ public class GlobeView extends View
 	}
 
 	GlobeController control = null;
+	double lastUpdated = 0.0;
 
 	GlobeView(GlobeController inControl,CoordSystemDisplayAdapter inCoordAdapter)
 	{
