@@ -30,10 +30,12 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-
-BasicDrawable::BasicDrawable(const std::string &name)
-: Drawable(name)
+    
+void BasicDrawable::basicDrawableInit()
 {
+    colorEntry = -1;
+    normalEntry = -1;
+    
     on = true;
     startEnable = 0.0;
     endEnable = 0.0;
@@ -64,6 +66,12 @@ BasicDrawable::BasicDrawable(const std::string &name)
     writeZBuffer = true;
     
     hasMatrix = false;
+}
+
+BasicDrawable::BasicDrawable(const std::string &name)
+: Drawable(name)
+{
+    basicDrawableInit();
     
     setupStandardAttributes();
 }
@@ -71,38 +79,11 @@ BasicDrawable::BasicDrawable(const std::string &name)
 BasicDrawable::BasicDrawable(const std::string &name,unsigned int numVert,unsigned int numTri)
 : Drawable(name)
 {
-    on = true;
-    startEnable = 0.0;
-    endEnable = 0.0;
-    programId = EmptyIdentity;
-    usingBuffers = false;
-    isAlpha = false;
-    drawPriority = 0;
-    drawOffset = 0;
+    basicDrawableInit();
+    
     points.reserve(numVert);
-    setupStandardAttributes(numVert);
     tris.reserve(numTri);
-    fadeDown = fadeUp = 0.0;
-    color.r = color.g = color.b = color.a = 255;
-    lineWidth = 1.0;
-    drawPriority = 0;
-    minVisible = maxVisible = DrawVisibleInvalid;
-    minVisibleFadeBand = maxVisibleFadeBand = 0.0;
-    minViewerDist = maxViewerDist = DrawVisibleInvalid;
-    viewerCenter = Point3d(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid);
-    requestZBuffer = false;
-    writeZBuffer = true;
-    
-    numTris = 0;
-    numPoints = 0;
-    
-    pointBuffer = triBuffer = 0;
-    sharedBuffer = 0;
-    vertexSize = 0;
-    vertArrayObj = 0;
-    sharedBufferIsExternal = false;
-    
-    hasMatrix = false;
+    setupStandardAttributes(numVert);
 }
 
 BasicDrawable::~BasicDrawable()
@@ -285,6 +266,8 @@ float BasicDrawable::getDrawOffset()
 void BasicDrawable::setType(GLenum inType)
 {
     type = inType;
+    if (type == GL_LINES)
+        writeZBuffer = false;
 }
 
 GLenum BasicDrawable::getType() const
@@ -310,7 +293,8 @@ void BasicDrawable::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
 void BasicDrawable::setColor(RGBAColor inColor)
 {
     color = inColor;
-    vertexAttributes[colorEntry]->setDefaultColor(color);
+    if (colorEntry >= 0)
+        vertexAttributes[colorEntry]->setDefaultColor(color);
 }
 
 /// Set the color as an array.
@@ -367,7 +351,7 @@ void BasicDrawable::setWriteZBuffer(bool val)
 { writeZBuffer = val; }
 
 bool BasicDrawable::getWriteZbuffer() const
-{ if (type == GL_LINES || type == GL_LINE_LOOP || type == GL_POINTS) return false;  return writeZBuffer; }
+{ return writeZBuffer; }
 
 unsigned int BasicDrawable::addPoint(const Point3f &pt)
 {
@@ -573,14 +557,16 @@ void BasicDrawable::applySubTexture(int which,SubTexture subTex,int startingAt)
     }
 }
 
-int BasicDrawable::addAttribute(BDAttributeDataType dataType,const std::string &name)
+int BasicDrawable::addAttribute(BDAttributeDataType dataType,const std::string &name,int numThings)
 {
     VertexAttribute *attr = new VertexAttribute(dataType,name);
+    if (numThings > 0)
+        attr->reserve(numThings);
     vertexAttributes.push_back(attr);
     
     return (unsigned int)(vertexAttributes.size()-1);
 }
-
+    
 unsigned int BasicDrawable::getNumPoints() const
 { return (unsigned int)points.size(); }
 
@@ -664,9 +650,8 @@ void BasicDrawable::addPointToBuffer(unsigned char *basePtr,int which,const Poin
         }
     }
     
-    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+    for (VertexAttribute *attr : vertexAttributes)
     {
-        VertexAttribute *attr = vertexAttributes[ii];
         if (attr->numElements() != 0)
             memcpy(basePtr+attr->buffer, attr->addressForElement(which), attr->size());
     }

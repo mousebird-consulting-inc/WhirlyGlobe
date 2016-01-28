@@ -207,7 +207,7 @@
 /// Widened vector ends are extended a bit and then flush
 //#define kMaplyWideVecSquareCap @"square"
 
-/// This number defines a limit past which the wide vector will switch from miters to bevels
+/// Miter joins will turn to bevel joins past this number of degrees
 #define kMaplyWideVecMiterLimit @"miterLimit"
 
 /// This is the length you'd like the texture to start repeating after.

@@ -37,7 +37,7 @@ OpenGLES2Program *BuildWideVectorProgram();
 class WideVectorDrawable : public BasicDrawable
 {
 public:
-    WideVectorDrawable();
+    WideVectorDrawable(const std::string &name,unsigned int numVert,unsigned int numTri);
     
     virtual unsigned int addPoint(const Point3f &pt);
     // Next point, for calculating p1 - p0
@@ -61,6 +61,9 @@ public:
     /// We override draw so we can set our own values
     virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
     
+    // We don't want the standard attributes
+    virtual void setupStandardAttributes(int numReserve=0);
+
 protected:
     bool realWidthSet;
     double realWidth;

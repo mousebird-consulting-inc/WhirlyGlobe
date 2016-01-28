@@ -1073,6 +1073,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 
 - (NSArray *)addWideVectors:(MaplyVectorObject *)vecObj
 {
+    NSMutableArray *compObjs = [NSMutableArray array];
+    
     UIColor *color = [UIColor blueColor];
     float fade = 0.25;
 //    MaplyComponentObject *lines = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: color,
@@ -1097,6 +1099,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 //                                                                                   kMaplyMaxVis: @(0.00032424763776361942),
 //                                                                                   kMaplyMinVis: @(0.00011049506429117173)
                                                                                    }];
+    [compObjs addObject:screenLines];
     
     MaplyComponentObject *screenLines2 = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0],
                                                                                    kMaplyFade: @(0),
@@ -1111,6 +1114,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
                                                                                    //                                                                                   kMaplyMaxVis: @(0.00032424763776361942),
                                                                                    //                                                                                   kMaplyMinVis: @(0.00011049506429117173)
                                                                                    }];
+    [compObjs addObject:screenLines2];
 
     
     // Note: Real world width doesn't quite work
@@ -1160,9 +1164,9 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
                   kMaplyFont: [UIFont systemFontOfSize:18.0],
                   kMaplyDrawPriority: @(200)
                   }];
+    [compObjs addObject:labelObj];
     
-//    return @[lines,screenLines,realLines,labelObj];
-    return @[screenLines,screenLines2,labelObj];
+    return compObjs;
 }
 
 - (void)addShapeFile:(NSString *)shapeFileName
@@ -1242,6 +1246,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
                                          kMaplyWideVecEdgeFalloff: @(1.0),
                                          kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                          kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+                                         // More than 10 degrees need a bevel join
+                                         kMaplyWideVecMiterLimit: @(10),
                                          kMaplyVecWidth: @(width)}
                                  mode:MaplyThreadCurrent];
             [baseViewC addVectors:@[vecObj]
