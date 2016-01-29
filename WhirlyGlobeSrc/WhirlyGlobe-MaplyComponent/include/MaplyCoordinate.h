@@ -137,6 +137,15 @@ MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat);
   */
 MaplyCoordinate3d MaplyCoordinate3dMake(float x,float y,float z);
 
+/** @brief Construct a MaplyCoordinat3d from the values given.
+    @param x The x value, or longitude in radians if we're making geo coordinates.
+    @param y The y value, or latitude in radians if we're making geo coordinates.
+    @param z The z value, sometimes this is display coordinates (radius == 1.0 for a sphere)
+ and sometimes this is meters.  It depends on how you're using it.
+    @return A 3D MaplyCoordinate3d in radians + other (if representing a lon/lat value).
+ */
+MaplyCoordinate3dD MaplyCoordinate3dDMake(double x,double y,double z);
+
 /** @brief Construct a MaplyBoundingBox from the values given.
     @details The inputs are in degrees and the order is longitude *then* latitude.
     @param degLon0 The left side of the bounding box in degrees.
