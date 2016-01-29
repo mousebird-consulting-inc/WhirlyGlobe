@@ -47,9 +47,17 @@
 
 - (void)addString:(NSString *)str font:(UIFont *)font state:(MaplyGeomState *)state;
 
+- (void)addString:(NSString *)str width:(double)width height:(double)height font:(UIFont *)font state:(MaplyGeomState *)state;
+
 - (void)addPolygonWithPts:(MaplyCoordinate3dD *)pts numPts:(int)numPts state:(MaplyGeomState *)state;
 
 - (void)addPolygonWithPts:(MaplyCoordinate3dD *)pts tex:(MaplyCoordinateD *)tex norms:(MaplyCoordinate3dD *)norms numPts:(int)numPts state:(MaplyGeomState *)state;
+
+- (void)addCurPointX:(double)x y:(double)y z:(double)z;
+
+- (void)addCurPointX:(double)x y:(double)y;
+
+- (void)addCurPoly:(MaplyGeomState *)state;
 
 - (void)scale:(MaplyCoordinate3dD)scale;
 
@@ -70,6 +78,8 @@
 - (void)addGeomFromBuilder:(MaplyGeomBuilder *)modelBuilder transform:(MaplyMatrix *)matrix;
 
 - (bool)getSizeLL:(MaplyCoordinate3dD *)ll ur:(MaplyCoordinate3dD *)ur;
+
+- (MaplyCoordinate3dD)getSize;
 
 - (MaplyGeomModel *)makeGeomModel:(MaplyThreadMode)threadMode;
 

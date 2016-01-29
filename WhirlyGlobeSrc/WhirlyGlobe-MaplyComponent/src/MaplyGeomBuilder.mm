@@ -32,6 +32,9 @@ using namespace WhirlyKit;
 @end
 
 @implementation MaplyGeomBuilder
+{
+    std::vector<Point3d> curPts;
+}
 
 - (id)initWithViewC:(MaplyBaseViewController *)inViewC
 {
@@ -100,6 +103,30 @@ using namespace WhirlyKit;
         [attrStr addAttribute:NSForegroundColorAttributeName value:state.color range:NSMakeRange(0, strLen)];
     
     [self addAttributedString:attrStr state:state];
+}
+
+- (void)addString:(NSString *)str width:(double)width height:(double)height font:(UIFont *)font state:(MaplyGeomState *)state
+{
+    NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:str];
+    NSInteger strLen = [attrStr length];
+    [attrStr addAttribute:NSFontAttributeName value:font range:NSMakeRange(0, strLen)];
+    if (state.color)
+        [attrStr addAttribute:NSForegroundColorAttributeName value:state.color range:NSMakeRange(0, strLen)];
+
+    GeomBuilderStringWrapper strWrap;
+    strWrap.str = attrStr;
+    strWrap.size = [attrStr size];
+
+    // width or height might not be set
+    if (width == 0.0)
+        width = strWrap.size.width / strWrap.size.height * height;
+    if (height == 0.0)
+        height = strWrap.size.height / strWrap.size.width * width;
+
+    Affine3d scaleAffine(Eigen::Scaling(width / strWrap.size.width, height / strWrap.size.height, 1.0));
+    strWrap.mat = scaleAffine.matrix();
+    
+    strings.push_back(strWrap);
 }
 
 - (void)addAttributedString:(NSAttributedString *)str state:(MaplyGeomState *)state
@@ -190,6 +217,41 @@ using namespace WhirlyKit;
         tri.verts[2] = ii+basePt;
         geom->triangles.push_back(tri);
     }
+}
+
+- (void)addCurPointX:(double)x y:(double)y z:(double)z
+{
+    curPts.push_back(Point3d(x,y,z));
+}
+
+- (void)addCurPointX:(double)x y:(double)y
+{
+    curPts.push_back(Point3d(x,y,0.0));
+}
+
+- (void)addCurPoly:(MaplyGeomState *)state
+{
+    if (curPts.size() > 2)
+    {
+        GeometryRaw *geom = [self findMatchingGeom:state hasNorms:false hasTexCoords:false hasColors:false];
+
+        int basePt = geom->pts.size();
+        geom->pts.reserve(geom->pts.size()+curPts.size());
+        for (int ii=0;ii<curPts.size();ii++)
+            geom->pts.push_back(curPts[ii]);
+        
+        // Tesselate into triangles
+        for (int ii=2;ii<curPts.size();ii++)
+        {
+            GeometryRaw::RawTriangle tri;
+            tri.verts[0] = 0+basePt;
+            tri.verts[1] = ii-1+basePt;
+            tri.verts[2] = ii+basePt;
+            geom->triangles.push_back(tri);
+        }
+    }
+    
+    curPts.clear();
 }
 
 - (void)applyTransform:(Matrix4d &)mat
@@ -353,6 +415,18 @@ using namespace WhirlyKit;
     }
     
     return isSet;
+}
+
+- (MaplyCoordinate3dD)getSize
+{
+    MaplyCoordinate3dD ll,ur;
+    [self getSizeLL:&ll ur:&ur];
+    
+    MaplyCoordinate3dD size;
+    size.x = ur.x - ll.x;
+    size.y = ur.y - ll.y;
+    
+    return size;
 }
 
 - (MaplyGeomModel *)makeGeomModel:(MaplyThreadMode)threadMode
