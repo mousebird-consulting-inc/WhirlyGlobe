@@ -28,6 +28,6 @@
 #import "LoftedPolysTestCase.h"
 #import "CartoDBTestCase.h"
 #import "ElevationLocalDatabase.h"
-
+#import "RunwayBuilderTestCase.h"
 
 #endif

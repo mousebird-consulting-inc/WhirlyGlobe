@@ -35,7 +35,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		CartoDBTestCase(),
 		BNGCustomMapTestCase(),
 		BNGTestCase(),
-		ElevationLocalDatabase()
+		ElevationLocalDatabase(),
+        RunwayBuilderTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
