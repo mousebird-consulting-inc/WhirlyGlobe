@@ -49,6 +49,13 @@ MaplyCoordinate3d MaplyCoordinate3dMake(float x,float y,float z)
     return coord;
 }
 
+MaplyCoordinate3dD MaplyCoordinate3dDMake(double x,double y,double z)
+{
+    MaplyCoordinate3dD coord;
+    coord.x = x;  coord.y = y;  coord.z = z;
+    return coord;
+}
+
 MaplyBoundingBox MaplyBoundingBoxMakeWithDegrees(float degLon0,float degLat0,float degLon1,float degLat1)
 {
     MaplyBoundingBox bbox;
