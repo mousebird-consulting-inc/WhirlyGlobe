@@ -38,7 +38,7 @@ public:
 @interface MaplyGeomBuilder()
 {
 @public
-__weak MaplyBaseViewController *viewC;
+    __weak MaplyBaseViewController *viewC;
 
     std::vector<WhirlyKit::GeometryRaw> rawGeom;
     std::vector<GeomBuilderStringWrapper> strings;

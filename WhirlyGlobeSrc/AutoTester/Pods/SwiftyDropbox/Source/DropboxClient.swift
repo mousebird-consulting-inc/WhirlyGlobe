@@ -11,7 +11,7 @@ public class DropboxClient : BabelClient {
 	public static var sharedClient : DropboxClient!
 
 	public override func additionalHeaders(noauth : Bool) -> [String: String] {
-		var headers = ["User-Agent": "OfficialDropboxSwiftSDKv2/1.0"]
+		var headers = ["User-Agent": "OfficialDropboxSwiftSDKv2/1.0.2"]
 		if (!noauth) {
 			headers["Authorization"] = "Bearer \(self.accessToken)"
 		}

@@ -35,6 +35,11 @@
   */
 - (nonnull instancetype)initWithScale:(double)scale;
 
+/** @brief Construct with a translation.
+    @details Construct with a translation in 3D.
+  */
+- (nonnull instancetype)initWithTranslateX:(double)x y:(double)y z:(double)z;
+
 /** @brief Construct a rotation around the given axis.
     @details Build a matrix that rotates the given amount (in radians) around the given axis.
   */
