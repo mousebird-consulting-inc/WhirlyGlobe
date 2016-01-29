@@ -30,9 +30,8 @@
 {
 	MaplyTexture *dashedLineTex,*filledLineTex;
 
-	MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,8)];
+	MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
 	[lineTexBuilder setPattern:@[@(4),@(4)]];
-	lineTexBuilder.opacityFunc = MaplyOpacitySin2;
 	UIImage *dashedLineImage = [lineTexBuilder makeImage];
 	dashedLineTex = [baseViewC addTexture:dashedLineImage
 									 desc:@{kMaplyTexMinFilter: kMaplyMinFilterLinear,
@@ -42,9 +41,8 @@
 											kMaplyTexFormat: @(MaplyImageIntRGBA)}
 									 mode:MaplyThreadCurrent];
 	
-	lineTexBuilder = [[MaplyLinearTextureBuilder alloc] initWithSize:CGSizeMake(8,32)];
+	lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
 	[lineTexBuilder setPattern:@[@(32)]];
-	lineTexBuilder.opacityFunc = MaplyOpacitySin2;
 	UIImage *lineImage = [lineTexBuilder makeImage];
 	filledLineTex = [baseViewC addTexture:lineImage
 									 desc:@{kMaplyTexMinFilter: kMaplyMinFilterLinear,

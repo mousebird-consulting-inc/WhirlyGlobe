@@ -228,7 +228,8 @@ public class DropboxAuthManager {
         components.queryItems = [
             NSURLQueryItem(name: "response_type", value: "token"),
             NSURLQueryItem(name: "client_id", value: self.appKey),
-            NSURLQueryItem(name: "redirect_uri", value: self.redirectURL.URLString)
+            NSURLQueryItem(name: "redirect_uri", value: self.redirectURL.URLString),
+            NSURLQueryItem(name: "disable_signup", value: "true"),
         ]
         return components.URL!
     }

@@ -88,6 +88,16 @@ using namespace Eigen;
     return self;
 }
 
+- (nonnull instancetype)initWithTranslateX:(double)x y:(double)y z:(double)z
+{
+    self = [super init];
+    Affine3d trans3d(Translation3d(Vector3d(x,y,z)));
+    _mat = trans3d.matrix();
+    
+    return self;
+}
+
+
 - (id)multiplyWith:(MaplyMatrix *)other
 {
     MaplyMatrix *newMat = [[MaplyMatrix alloc] init];
