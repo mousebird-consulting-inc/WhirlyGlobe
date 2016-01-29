@@ -61,6 +61,7 @@
 #import <MaplyMoon.h>
 #import <MaplyRemoteTileElevationSource.h>
 #import <MaplyPoints.h>
+#import <MaplyGeomBuilder.h>
 
 // These are not pulled in by the podspec
 #ifdef NOTPODSPECWG

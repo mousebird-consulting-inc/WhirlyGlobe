@@ -21,6 +21,7 @@
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
 #import "MaplyBaseViewController.h"
+#import "MaplyGeomModel.h"
 
 @interface MaplyGeomState : NSObject
 
@@ -34,7 +35,13 @@
 
 @interface MaplyGeomBuilder : NSObject
 
+- (id)initWithViewC:(MaplyBaseViewController *)viewC;
+
 - (void)addRectangleAroundOrigin:(MaplyCoordinateD)size state:(MaplyGeomState *)state;
+
+- (void)addRectangleAroundOriginX:(double)x y:(double)y state:(MaplyGeomState *)state;
+
+- (void)addRectangleAroundX:(double)x y:(double)y width:(double)width height:(double)height state:(MaplyGeomState *)state;
 
 - (void)addAttributedString:(NSAttributedString *)str state:(MaplyGeomState *)state;
 
@@ -46,9 +53,15 @@
 
 - (void)scale:(MaplyCoordinate3dD)scale;
 
+- (void)scaleX:(double)x y:(double)y z:(double)z;
+
 - (void)translate:(MaplyCoordinate3dD)trans;
 
+- (void)translateX:(double)x y:(double)y z:(double)z;
+
 - (void)rotate:(double)angle around:(MaplyCoordinate3dD)axis;
+
+- (void)rotate:(double)angle aroundX:(double)x y:(double)y z:(double)z;
 
 - (void)transform:(MaplyMatrix *)matrix;
 
@@ -57,5 +70,7 @@
 - (void)addGeomFromBuilder:(MaplyGeomBuilder *)modelBuilder transform:(MaplyMatrix *)matrix;
 
 - (bool)getSizeLL:(MaplyCoordinate3dD *)ll ur:(MaplyCoordinate3dD *)ur;
+
+- (MaplyGeomModel *)makeGeomModel:(MaplyThreadMode)threadMode;
 
 @end

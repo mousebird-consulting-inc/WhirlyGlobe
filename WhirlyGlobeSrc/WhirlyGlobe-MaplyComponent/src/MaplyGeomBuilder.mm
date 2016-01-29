@@ -20,6 +20,9 @@
 
 #import "MaplyGeomBuilder_private.h"
 #import "MaplyMatrix_private.h"
+#import "MaplyGeomModel_private.h"
+#import "MaplyBaseViewController_private.h"
+#import "MaplyTexture_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -29,6 +32,14 @@ using namespace WhirlyKit;
 @end
 
 @implementation MaplyGeomBuilder
+
+- (id)initWithViewC:(MaplyBaseViewController *)inViewC
+{
+    self = [super init];
+    viewC = inViewC;
+    
+    return self;
+}
 
 - (void)addRectangleAroundOrigin:(MaplyCoordinateD)size state:(MaplyGeomState *)state
 {
@@ -49,6 +60,35 @@ using namespace WhirlyKit;
     norms[3] = {0,0,1};
     
     [self addPolygonWithPts:pts tex:tex norms:norms numPts:4 state:state];
+}
+
+- (void)addRectangleAroundX:(double)x y:(double)y width:(double)width height:(double)height state:(MaplyGeomState *)state
+{
+    MaplyCoordinate3dD pts[4];
+    pts[0] = {-width/2.0+x,-height/2.0+y,0.0};
+    pts[1] = {-width/2.0+x,-height/2.0+y,0.0};
+    pts[2] = {-width/2.0+x,-height/2.0+y,0.0};
+    pts[3] = {-width/2.0+x,-height/2.0+y,0.0};
+    MaplyCoordinateD tex[4];
+    tex[0] = {0.0,0.0};
+    tex[1] = {1.0,0.0};
+    tex[2] = {1.0,1.0};
+    tex[3] = {0.0,1.0};
+    MaplyCoordinate3dD norms[4];
+    norms[0] = {0,0,1};
+    norms[1] = {0,0,1};
+    norms[2] = {0,0,1};
+    norms[3] = {0,0,1};
+    
+    [self addPolygonWithPts:pts tex:tex norms:norms numPts:4 state:state];
+}
+
+- (void)addRectangleAroundOriginX:(double)x y:(double)y state:(MaplyGeomState *)state
+{
+    MaplyCoordinateD size;
+    size.x = x;  size.y = y;
+    
+    [self addRectangleAroundOrigin:size state:state];
 }
 
 - (void)addString:(NSString *)str font:(UIFont *)font state:(MaplyGeomState *)state
@@ -167,6 +207,13 @@ using namespace WhirlyKit;
     [self applyTransform:mat];
 }
 
+- (void)scaleX:(double)x y:(double)y z:(double)z
+{
+    MaplyCoordinate3dD scale;
+    scale.x = x;  scale.y = y;  scale.z = z;
+    [self scale:scale];
+}
+
 - (void)translate:(MaplyCoordinate3dD)trans
 {
     Affine3d transAffine(Translation3d(trans.x,trans.y,trans.z));
@@ -174,11 +221,24 @@ using namespace WhirlyKit;
     [self applyTransform:mat];
 }
 
+- (void)translateX:(double)x y:(double)y z:(double)z
+{
+    MaplyCoordinate3dD trans;
+    trans.x = x;  trans.y = y;  trans.z = z;
+    [self translate:trans];
+}
+
 - (void)rotate:(double)angle around:(MaplyCoordinate3dD)axis
 {
     Affine3d rotAffine(AngleAxisd(angle,Vector3d(axis.x,axis.y,axis.z)));
     Matrix4d mat = rotAffine.matrix();
     [self applyTransform:mat];
+}
+
+- (void)rotate:(double)angle aroundX:(double)x y:(double)y z:(double)z
+{
+    MaplyCoordinate3dD axis = {x,y,z};
+    [self rotate:angle around:axis];
 }
 
 - (void)transform:(MaplyMatrix *)matrix
@@ -293,6 +353,49 @@ using namespace WhirlyKit;
     }
     
     return isSet;
+}
+
+- (MaplyGeomModel *)makeGeomModel:(MaplyThreadMode)threadMode
+{
+    MaplyGeomModel *model = [[MaplyGeomModel alloc] init];
+    
+    std::map<int,SimpleIdentity> texMap;
+    
+    // Convert the textures
+    int which = 0;
+    for (id texId : textures)
+    {
+        MaplyTexture *tex = nil;
+        if ([texId isKindOfClass:[MaplyTexture class]])
+        {
+            tex = texId;
+        } else if ([texId isKindOfClass:[UIImage class]])
+        {
+            // Note: Should allow them to set texture attributes
+            tex = [viewC addTexture:texId desc:nil mode:threadMode];
+        }
+        
+        model->maplyTextures.insert(tex);
+        texMap[which++] = tex.texID;
+    }
+    
+    // Convert the geometry
+    for (const GeometryRaw &geomRaw : rawGeom)
+    {
+        GeometryRaw thisGeom = geomRaw;
+        
+        // Remap texture
+        if (thisGeom.texId >= 0)
+        {
+            std::map<int,SimpleIdentity>::iterator it = texMap.find(thisGeom.texId);
+            if (it != texMap.end())
+                thisGeom.texId = texMap[thisGeom.texId];
+        }
+        
+        model->rawGeom.push_back(thisGeom);
+    }
+    
+    return model;
 }
 
 @end

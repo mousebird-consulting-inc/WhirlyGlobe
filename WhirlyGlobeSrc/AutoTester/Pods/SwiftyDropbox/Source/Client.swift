@@ -65,12 +65,12 @@ public enum CallError<EType> : CustomStringConvertible {
                 ret += ": \(m)"
             }
             return ret
-        case let .RouteError(_, requestId):
+        case let .RouteError(box, requestId):
             var ret = ""
             if let r = requestId {
                 ret += "[request-id \(r)] "
             }
-            ret += "API route error - handle programmatically"
+            ret += "API route error - \(box.unboxed)"
             return ret
         case let .OSError(err):
             if let e = err {
