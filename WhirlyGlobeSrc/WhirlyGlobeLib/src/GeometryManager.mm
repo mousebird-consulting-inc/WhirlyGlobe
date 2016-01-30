@@ -216,9 +216,8 @@ void GeometryRaw::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen
             }
             if (texId != EmptyIdentity)
                 draw->addTexCoord(0,texCoords[tri.verts[jj]]);
-            // Note: Turning off colors for the moment
-//            if (!colors.empty() && !colorOverride)
-//                draw->addColor(colors[tri.verts[jj]]);
+            if (!colors.empty() && !colorOverride)
+                draw->addColor(colors[tri.verts[jj]]);
         }
         
         draw->addTriangle(BasicDrawable::Triangle(baseVert,baseVert+1,baseVert+2));

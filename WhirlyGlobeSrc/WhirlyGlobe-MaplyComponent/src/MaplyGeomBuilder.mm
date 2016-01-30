@@ -29,6 +29,14 @@ using namespace WhirlyKit;
 
 @implementation MaplyGeomState
 
+- (id)init
+{
+    self = [super init];
+    _color = [UIColor whiteColor];
+    
+    return self;
+}
+
 @end
 
 @implementation MaplyGeomBuilder
@@ -48,9 +56,9 @@ using namespace WhirlyKit;
 {
     MaplyCoordinate3dD pts[4];
     pts[0] = {-size.x/2.0,-size.y/2.0,0.0};
-    pts[1] = {-size.x/2.0,-size.y/2.0,0.0};
-    pts[2] = {-size.x/2.0,-size.y/2.0,0.0};
-    pts[3] = {-size.x/2.0,-size.y/2.0,0.0};
+    pts[1] = {size.x/2.0,-size.y/2.0,0.0};
+    pts[2] = {size.x/2.0,size.y/2.0,0.0};
+    pts[3] = {-size.x/2.0,size.y/2.0,0.0};
     MaplyCoordinateD tex[4];
     tex[0] = {0.0,0.0};
     tex[1] = {1.0,0.0};
@@ -69,9 +77,9 @@ using namespace WhirlyKit;
 {
     MaplyCoordinate3dD pts[4];
     pts[0] = {-width/2.0+x,-height/2.0+y,0.0};
-    pts[1] = {-width/2.0+x,-height/2.0+y,0.0};
-    pts[2] = {-width/2.0+x,-height/2.0+y,0.0};
-    pts[3] = {-width/2.0+x,-height/2.0+y,0.0};
+    pts[1] = {width/2.0+x,-height/2.0+y,0.0};
+    pts[2] = {width/2.0+x,height/2.0+y,0.0};
+    pts[3] = {-width/2.0+x,height/2.0+y,0.0};
     MaplyCoordinateD tex[4];
     tex[0] = {0.0,0.0};
     tex[1] = {1.0,0.0};
@@ -160,17 +168,18 @@ using namespace WhirlyKit;
             }
             which++;
         }
+
+        if (texID == -1)
+        {
+            textures.push_back(state.texture);
+            texID = textures.size()-1;
+        }
+
     }
     
     for (auto &geom : rawGeom)
         if (geom.texId == texID && (hasNorms == !geom.norms.empty()) && (hasTexCoords == !geom.texCoords.empty()) && (hasColors == !geom.colors.empty()))
             return &geom;
-    
-    if (state.texture)
-    {
-        textures.push_back(state.texture);
-        texID = textures.size()-1;
-    }
     
     rawGeom.resize(rawGeom.size()+1);
     GeometryRaw *geom = &rawGeom[rawGeom.size()-1];
@@ -188,14 +197,21 @@ using namespace WhirlyKit;
     // Add the points
     int basePt = geom->pts.size();
     geom->pts.reserve(geom->pts.size()+numPts);
+    geom->colors.reserve(geom->colors.size()+numPts);
     if (tex)
         geom->texCoords.reserve(geom->texCoords.size()+numPts);
     if (norms)
         geom->norms.reserve(geom->norms.size()+numPts);
+    
+    RGBAColor color(0,0,0,255);
+    if (state.color)
+        color = [state.color asRGBAColor];
+    
     for (int ii=0;ii<numPts;ii++)
     {
         MaplyCoordinate3dD &pt = pts[ii];
         geom->pts.push_back(Point3d(pt.x,pt.y,pt.z));
+        geom->colors.push_back(color);
         if (tex)
         {
             MaplyCoordinateD &texCoord = tex[ii];
