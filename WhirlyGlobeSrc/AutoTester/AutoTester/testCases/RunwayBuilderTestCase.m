@@ -40,9 +40,9 @@
 }
 
 // Build a chevron straddling the origin
-- (MaplyGeomBuilder *)buildChevron:(double)width thick:(double)thick state:(MaplyGeomState *)state
+- (MaplyGeomBuilder *)buildChevron:(double)width thick:(double)thick state:(MaplyGeomState *)state viewC:(MaplyBaseViewController *)viewC
 {
-    MaplyGeomBuilder *geomBuilder = [[MaplyGeomBuilder alloc] init];
+    MaplyGeomBuilder *geomBuilder = [[MaplyGeomBuilder alloc] initWithViewC:viewC];
     
     double width2 = width/2.0;
  
@@ -70,15 +70,17 @@
     UIImage *tarmacImage = [self tarmacTexture];
 
     // Color states
+    MaplyGeomState *blankState = [[MaplyGeomState alloc] init];
+    blankState.color = [UIColor redColor];
     MaplyGeomState *tarmacState = [[MaplyGeomState alloc] init];
-    tarmacState.color = [UIColor blackColor];
+    tarmacState.color = [UIColor whiteColor];
     tarmacState.texture = tarmacImage;
     MaplyGeomState *stripeState = [[MaplyGeomState alloc] init];
     stripeState.color = [UIColor whiteColor];
     MaplyGeomState *yellowStripeState = [[MaplyGeomState alloc] init];
     yellowStripeState.color = [UIColor yellowColor];
     
-    MaplyGeomBuilder *wholeBuilder = [[MaplyGeomBuilder alloc] init];
+    MaplyGeomBuilder *wholeBuilder = [[MaplyGeomBuilder alloc] initWithViewC:viewC];
     
     // Various size constants
     double width = 80.0;
@@ -92,11 +94,11 @@
     
     // Overrun on the end
     {
-        MaplyGeomBuilder *geomBuilder = [[MaplyGeomBuilder alloc] init];
-        [geomBuilder addRectangleAroundX:0.0 y:overrun/2.0 width:width height:overrun state:tarmacState];
+        MaplyGeomBuilder *geomBuilder = [[MaplyGeomBuilder alloc] initWithViewC:viewC];
+        [geomBuilder addRectangleAroundX:0.0 y:overrun/2.0 width:width height:overrun state:blankState];
 
         // Toss in a couple of chevrons
-        MaplyGeomBuilder *chevronBuilder = [self buildChevron:width thick:chevronThickness state:yellowStripeState];
+        MaplyGeomBuilder *chevronBuilder = [self buildChevron:width thick:chevronThickness state:yellowStripeState viewC:viewC];
         [geomBuilder addGeomFromBuilder:chevronBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:0.0 z:PaintLayer*drawOffset]];
         [geomBuilder addGeomFromBuilder:chevronBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:width/2.0+2*chevronThickness z:PaintLayer*drawOffset]];
         
@@ -105,30 +107,30 @@
 
     // Next up, the displaced area
     {
-        MaplyGeomBuilder *geomBuilder = [[MaplyGeomBuilder alloc] init];
-        [geomBuilder addRectangleAroundX:0.0 y:displaced/2.0 width:width height:displaced state:tarmacState];
+        MaplyGeomBuilder *geomBuilder = [[MaplyGeomBuilder alloc] initWithViewC:viewC];
+        [geomBuilder addRectangleAroundX:0.0 y:displaced/2.0 width:width height:displaced state:blankState];
+        
+//        [wholeBuilder addGeomFromBuilder:geomBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:overrun z:0.0]];
+    }
+    
+    // Main part of the runway
+    {
+        MaplyGeomBuilder *geomBuilder = [[MaplyGeomBuilder alloc] initWithViewC:viewC];
+        [geomBuilder addRectangleAroundX:0.0 y:runway/2.0 width:width height:runway state:tarmacState];
         
         // Numbers
-        MaplyGeomBuilder *numBuilder = [[MaplyGeomBuilder alloc] init];
+        MaplyGeomBuilder *numBuilder = [[MaplyGeomBuilder alloc] initWithViewC:viewC];
         UIFont *font = [UIFont boldSystemFontOfSize:128.0];
         [numBuilder addString:@"09" width:0.66*width height:0.0 font:font state:stripeState];
         MaplyCoordinate3dD size = [numBuilder getSize];
         [geomBuilder addGeomFromBuilder:numBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:4*width z:0.0]];
         
         // Letter
-        MaplyGeomBuilder *letterBuilder = [[MaplyGeomBuilder alloc] init];
+        MaplyGeomBuilder *letterBuilder = [[MaplyGeomBuilder alloc] initWithViewC:viewC];
         [letterBuilder addString:@"R" width:0.0 height:size.y font:font state:stripeState];
         [geomBuilder addGeomFromBuilder:letterBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:3*width z:0.0]];
-        
-        [wholeBuilder addGeomFromBuilder:geomBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:overrun z:0.0]];
-    }
-    
-    // Main part of the runway
-    {
-        MaplyGeomBuilder *geomBuilder = [[MaplyGeomBuilder alloc] init];
-        [geomBuilder addRectangleAroundX:0.0 y:runway/2.0 width:width height:runway state:tarmacState];
-        
-        [wholeBuilder addGeomFromBuilder:geomBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:(overrun+displaced) y:0.0 z:0.0]];
+
+//        [wholeBuilder addGeomFromBuilder:geomBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:(overrun+displaced) z:0.0]];
     }
     
     // Balance it in the middle and then tilt it
@@ -142,9 +144,31 @@
 }
 
 - (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC {
-    MapBoxSatelliteTestCase *baseView = [[MapBoxSatelliteTestCase alloc] init];
-    [baseView setUpWithGlobe:globeVC];
+    NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
+    NSString *jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2.json";
+    NSString *thisCacheDir = [NSString stringWithFormat:@"%@/mbtilessat1/",cacheDir];
+
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:jsonTileSpec]];
     
+    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    operation.responseSerializer = [AFJSONResponseSerializer serializer];
+    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
+     {
+         // Add a quad earth paging layer based on the tile spec we just fetched
+         MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:responseObject];
+         tileSource.cacheDir = thisCacheDir;
+         
+         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+         layer.handleEdges = true;
+         [globeVC addLayer:layer];
+     }
+                                     failure:^(AFHTTPRequestOperation *operation, NSError *error)
+     {
+         NSLog(@"Failed to reach JSON tile spec at: %@",jsonTileSpec);
+     }
+     ];
+    [operation start];
+
     // Build the model
     MaplyGeomModel *geomModel = [self buildRunwayModel:globeVC];
     
@@ -152,9 +176,13 @@
     MaplyGeomModelInstance *modelInst = [[MaplyGeomModelInstance alloc] init];
     modelInst.model = geomModel;
     MaplyCoordinate coord = MaplyCoordinateMakeWithDegrees(-122.270833, 37.804444);
+    modelInst.transform = [[MaplyMatrix alloc] initWithScale:1/6371000.0];
     modelInst.center = MaplyCoordinate3dMake(coord.x,coord.y,200.0);
     
-    [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.270833, 37.804444) time:1.0];
+    [globeVC addModelInstances:@[modelInst] desc:@{kMaplyDrawPriority: @(1000000),kMaplyZBufferWrite: @(YES), kMaplyZBufferRead: @(YES)} mode:MaplyThreadCurrent];
+    
+    [globeVC setPosition:coord];
+    globeVC.height = 0.001;
     return true;
 }
 
