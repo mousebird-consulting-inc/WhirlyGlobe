@@ -71,7 +71,7 @@
 
     // Color states
     MaplyGeomState *blankState = [[MaplyGeomState alloc] init];
-    blankState.color = [UIColor redColor];
+    blankState.color = [UIColor blackColor];
     MaplyGeomState *tarmacState = [[MaplyGeomState alloc] init];
     tarmacState.color = [UIColor whiteColor];
     tarmacState.texture = tarmacImage;
@@ -110,7 +110,7 @@
         MaplyGeomBuilder *geomBuilder = [[MaplyGeomBuilder alloc] initWithViewC:viewC];
         [geomBuilder addRectangleAroundX:0.0 y:displaced/2.0 width:width height:displaced state:blankState];
         
-//        [wholeBuilder addGeomFromBuilder:geomBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:overrun z:0.0]];
+        [wholeBuilder addGeomFromBuilder:geomBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:overrun z:0.0]];
     }
     
     // Main part of the runway
@@ -130,7 +130,7 @@
         [letterBuilder addString:@"R" width:0.0 height:size.y font:font state:stripeState];
         [geomBuilder addGeomFromBuilder:letterBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:3*width z:0.0]];
 
-//        [wholeBuilder addGeomFromBuilder:geomBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:(overrun+displaced) z:0.0]];
+        [wholeBuilder addGeomFromBuilder:geomBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:(overrun+displaced) z:0.0]];
     }
     
     // Balance it in the middle and then tilt it
