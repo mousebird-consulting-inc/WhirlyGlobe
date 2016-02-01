@@ -18,6 +18,7 @@
  *
  */
 
+#import "glwrapper.h"
 #import "QuadDisplayController.h"
 #import "GlobeMath.h"
 #import "FlatMath.h"
@@ -187,14 +188,20 @@ void QuadDisplayController::resetEvaluation()
 void QuadDisplayController::dumpInfo()
 {
 //    NSLog(@"***Loaded Tiles***");
+//#ifdef __ANDROID__
+//    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","***Loaded Tiles***");
+//#endif
 //    for (LoadedTileSet::iterator it = tileSet.begin();
 //         it != tileSet.end(); ++it)
 //    {
 //        (*it)->Print(quadtree);
 //    }
+//#ifdef __ANDROID__
+//    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","******");
+//#endif
 //    NSLog(@"******");
     
-//    quadtree->Print();
+    quadtree->Print();
 }
 
 // Check if we're waiting for local (e.g. fast) loads to finish
@@ -438,6 +445,8 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
     
 //    if (_debugMode)
 //        [self dumpInfo];
+    // Note: Debugging
+    dumpInfo();
 
     // See if we can move on to the next frame (if we're frame loading
     if (!didSomething && !frameLoadingPriority.empty() && quadtree->frameIsLoaded(frameLoadingPriority[curFrameEntry],NULL))
