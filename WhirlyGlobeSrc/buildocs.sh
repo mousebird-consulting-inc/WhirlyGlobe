@@ -1,0 +1,1 @@
+appledoc --project-name WhirlyGlobe-Maply --project-company "mousebird consulting inc" --company-id com.mousebirdconsulting --output ~/appledocs ./WhirlyGlobeLib/include/ ./WhirlyGlobe-MaplyComponent/include/
