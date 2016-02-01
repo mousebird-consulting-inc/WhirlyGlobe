@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>MaplyElevationGridChunk Class Reference</title>
+
+	<link rel="stylesheet" href="../css/style.css">
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1.4">
+	<meta name="generator" content="appledoc 2.2.1 (build 1333)">
+</head>
+<body class="appledoc">
+	<header>
+		<div class="container" class="hide-in-xcode">
+			
+			<h1 id="library-title">
+				<a href="../index.html">WhirlyGlobe-Maply </a>
+			</h1>
+
+			<p id="developer-home">
+				<a href="../index.html">mousebird consulting inc</a>
+			</p>
+			
+		</div>
+	</header>
+
+	<aside>
+		<div class="container">
+			<nav>
+				<ul id="header-buttons" role="toolbar">
+					<li><a href="../index.html">Index</a></li>
+<li><a href="../hierarchy.html">Hierarchy</a></li>
+
+					<li id="on-this-page" role="navigation">
+						<label>
+							On This Page
+
+							<div class="chevron">
+								<div class="chevy chevron-left"></div>
+								<div class="chevy chevron-right"></div>
+							</div>
+
+							<select id="jump-to">
+	<option value="top">Jump To&#133;</option>
+	
+	<option value="overview">Overview</option>
+	
+
+	
+	
+	<option value="tasks">Tasks</option>
+	
+	
+
+	
+	
+
+	
+
+	
+	<optgroup label="Instance Methods">
+		
+		<option value="//api/name/initWithGridData:sizeX:sizeY:">- initWithGridData:sizeX:sizeY:</option>
+		
+	</optgroup>
+	
+	
+</select>
+						</label>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</aside>
+
+	<article>
+		<div id="overview_contents" class="container">
+			<div id="content">
+				<main role="main">
+					<h1 class="title">MaplyElevationGridChunk Class Reference</h1>
+
+					
+					<div class="section section-specification"><table cellspacing="0"><tbody>
+						<tr>
+	<th>Inherits from</th>
+	<td><a href="../Classes/MaplyElevationChunk.html">MaplyElevationChunk</a> : NSObject</td>
+</tr><tr>
+	<th>Declared in</th>
+	<td>MaplyElevationSource.h</td>
+</tr>
+						</tbody></table></div>
+					
+
+                    
+					
+					<div class="section section-overview">
+						<a title="Overview" name="overview"></a>
+						<h2 class="subtitle subtitle-overview">Overview</h2>
+						<p>This object holds elevation data for a single tile.
+Each tile overlaps the the eastern and northern neighbors by one
+cell.  Why?  Because we&rsquo;re generating triangles with these and
+they&rsquo;re independent.  Draw a picture, it&rsquo;ll make sense.</p><p>Data values are currently onl 32 bit floating point.
+There may be a type parameter in the future.</p>
+					</div>
+					
+					
+
+					
+					
+					<div class="section section-tasks">
+						<a title="Tasks" name="tasks"></a>
+						
+
+						
+						
+
+						<div class="task-list">
+							<div class="section-method">
+	<a name="//api/name/initWithGridData:sizeX:sizeY:" title="initWithGridData:sizeX:sizeY:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/initWithGridData:sizeX:sizeY:">&ndash;&nbsp;initWithGridData:sizeX:sizeY:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Initialize with the data (with floats) and size.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (id)initWithGridData:(NSData *)<em>data</em> sizeX:(unsigned int)<em>sizeX</em> sizeY:(unsigned int)<em>sizeY</em></code></div>
+
+		    
+			
+			<div class="method-subsection arguments-section parameters">
+				<h4 class="method-subtitle parameter-title">Parameters</h4>
+				<table class="argument-def parameter-def">
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>data</code></th>
+						<td><p>The NSData full of float (32 bit) samples.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>sizeX</code></th>
+						<td><p>Number of samples in X.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>sizeY</code></th>
+						<td><p>Number of samples in Y.</p></td>
+					</tr>
+				
+				</table>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>This initializer takes an NSData object with the given number of
+samples.  Don&rsquo;t forget to add an extra one along the eastern and
+northern edges to match up with those tiles.  You still need to
+pass in as many samples as you&rsquo;re saying you are.  So if you say
+11 x 11, then there need to be 121 floats in the NSData object.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyElevationSource.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div>
+						</div>
+						
+					</div>
+					
+					
+
+                    
+                    
+          
+				</main>
+
+				<footer>
+					<div class="footer-copyright">
+						
+						<p class="copyright">Copyright &copy; 2016 mousebird consulting inc. All rights reserved. Updated: 2016-01-31</p>
+						
+						
+						<p class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2.1 (build 1333)</a>.</p>
+						
+					</div>
+				</footer>
+			</div>
+		</div>
+	</article>
+
+	<script src="../js/script.js"></script>
+</body>
+</html>

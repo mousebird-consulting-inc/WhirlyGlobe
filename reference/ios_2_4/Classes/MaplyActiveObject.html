@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>MaplyActiveObject Class Reference</title>
+
+	<link rel="stylesheet" href="../css/style.css">
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1.4">
+	<meta name="generator" content="appledoc 2.2.1 (build 1333)">
+</head>
+<body class="appledoc">
+	<header>
+		<div class="container" class="hide-in-xcode">
+			
+			<h1 id="library-title">
+				<a href="../index.html">WhirlyGlobe-Maply </a>
+			</h1>
+
+			<p id="developer-home">
+				<a href="../index.html">mousebird consulting inc</a>
+			</p>
+			
+		</div>
+	</header>
+
+	<aside>
+		<div class="container">
+			<nav>
+				<ul id="header-buttons" role="toolbar">
+					<li><a href="../index.html">Index</a></li>
+<li><a href="../hierarchy.html">Hierarchy</a></li>
+
+					<li id="on-this-page" role="navigation">
+						<label>
+							On This Page
+
+							<div class="chevron">
+								<div class="chevy chevron-left"></div>
+								<div class="chevy chevron-right"></div>
+							</div>
+
+							<select id="jump-to">
+	<option value="top">Jump To&#133;</option>
+	
+	<option value="overview">Overview</option>
+	
+
+	
+	
+	<option value="tasks">Tasks</option>
+	
+	
+
+	
+	
+	<optgroup label="Properties">
+		
+		<option value="//api/name/viewC">viewC</option>
+		
+	</optgroup>
+	
+
+	
+
+	
+	<optgroup label="Instance Methods">
+		
+		<option value="//api/name/initWithViewController:">- initWithViewController:</option>
+		
+	</optgroup>
+	
+	
+</select>
+						</label>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</aside>
+
+	<article>
+		<div id="overview_contents" class="container">
+			<div id="content">
+				<main role="main">
+					<h1 class="title">MaplyActiveObject Class Reference</h1>
+
+					
+					<div class="section section-specification"><table cellspacing="0"><tbody>
+						<tr>
+	<th>Inherits from</th>
+	<td>NSObject</td>
+</tr><tr>
+	<th>Declared in</th>
+	<td>MaplyActiveObject.h</td>
+</tr>
+						</tbody></table></div>
+					
+
+                    
+					
+					<div class="section section-overview">
+						<a title="Overview" name="overview"></a>
+						<h2 class="subtitle subtitle-overview">Overview</h2>
+						<p>Active Objects work in conjuction with the renderer to make updates on the main thread.  The way they work is this.  They&rsquo;re called right at the beginning of a frame draw.  They can make updates to regular Maply objects via the <a href="../Classes/MaplyBaseViewController.html">MaplyBaseViewController</a> add and remove calls with the MaplyThreadMode set to MaplyThreadCurrent.  This forces the changes to happen immediately on the current (main) thread.</p><p>Active Objects have access to the internals of the toolkit, for historical reasons.  That makes it difficult to document them here.  Look at the AnimationTest example in the test app.  You will need to fill in the following methods at least.</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">Method </th>
+<th align="left"> Description </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">init</td>
+<td align="left"> The init method is up to you.  There&rsquo;s no specific signature you&rsquo;ll need, but do pass in all the information you&rsquo;ll want to run quickly in updateForFrame.</td>
+</tr>
+<tr>
+<td align="left">(bool)hasUpdate</td>
+<td align="left"> Returns true if there&rsquo;s an update to be processed. </td>
+</tr>
+<tr>
+<td align="left">(void)updateForFrame:(id)frameInfo </td>
+<td align="left"> This is where you do your work.  Remove the objects that need to be removed, add the objects that need to be added and be sure to use the MaplyThreadCurrent mode to make the changes happen immediately.</td>
+</tr>
+<tr>
+<td align="left">shutdown</td>
+<td align="left"> This method is called when the active object is to be removed.  Clean up all your visible objects.</td>
+</tr>
+</tbody>
+</table>
+<p>Active Objects are run on the main thread and you&rsquo;re probably going to be asking the view controller to add and remove objects on the main thread.  As such, this can be slow.  Be sure to precalculate whatever you might need to make this run faster.  Also consider implementing your changes another way.  If it can be done on another thread, do it on another thread.</p>
+					</div>
+					
+					
+
+					
+					
+					<div class="section section-tasks">
+						<a title="Tasks" name="tasks"></a>
+						
+
+						
+						
+
+						<div class="task-list">
+							<div class="section-method">
+	<a name="//api/name/initWithViewController:" title="initWithViewController:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/initWithViewController:">&ndash;&nbsp;initWithViewController:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Initialize with a view controller</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (id)initWithViewController:(MaplyBaseViewController *)<em>viewC</em></code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>The default initializer just takes a view controller.  If you replace this with your own, be sure to pass in what you need.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyActiveObject.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/viewC" title="viewC"></a>
+	<h3 class="method-title"><code><a href="#//api/name/viewC">&nbsp;&nbsp;viewC</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>The view controller this active object is associated with</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>@property (nonatomic, weak, readonly) MaplyBaseViewController *viewC</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyActiveObject.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div>
+						</div>
+						
+					</div>
+					
+					
+
+                    
+                    
+          
+				</main>
+
+				<footer>
+					<div class="footer-copyright">
+						
+						<p class="copyright">Copyright &copy; 2016 mousebird consulting inc. All rights reserved. Updated: 2016-01-31</p>
+						
+						
+						<p class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2.1 (build 1333)</a>.</p>
+						
+					</div>
+				</footer>
+			</div>
+		</div>
+	</article>
+
+	<script src="../js/script.js"></script>
+</body>
+</html>

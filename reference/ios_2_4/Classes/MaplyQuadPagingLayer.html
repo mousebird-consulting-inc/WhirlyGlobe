@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>MaplyQuadPagingLayer Class Reference</title>
+
+	<link rel="stylesheet" href="../css/style.css">
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1.4">
+	<meta name="generator" content="appledoc 2.2.1 (build 1333)">
+</head>
+<body class="appledoc">
+	<header>
+		<div class="container" class="hide-in-xcode">
+			
+			<h1 id="library-title">
+				<a href="../index.html">WhirlyGlobe-Maply </a>
+			</h1>
+
+			<p id="developer-home">
+				<a href="../index.html">mousebird consulting inc</a>
+			</p>
+			
+		</div>
+	</header>
+
+	<aside>
+		<div class="container">
+			<nav>
+				<ul id="header-buttons" role="toolbar">
+					<li><a href="../index.html">Index</a></li>
+<li><a href="../hierarchy.html">Hierarchy</a></li>
+
+					<li id="on-this-page" role="navigation">
+						<label>
+							On This Page
+
+							<div class="chevron">
+								<div class="chevy chevron-left"></div>
+								<div class="chevy chevron-right"></div>
+							</div>
+
+							<select id="jump-to">
+	<option value="top">Jump To&#133;</option>
+	
+	<option value="overview">Overview</option>
+	
+
+	
+	
+	<option value="tasks">Tasks</option>
+	
+	
+
+	
+	
+	<optgroup label="Properties">
+		
+		<option value="//api/name/flipY">flipY</option>
+		
+		<option value="//api/name/groupChildrenWithParent">groupChildrenWithParent</option>
+		
+		<option value="//api/name/importance">importance</option>
+		
+		<option value="//api/name/maxTileHeight">maxTileHeight</option>
+		
+		<option value="//api/name/maxTiles">maxTiles</option>
+		
+		<option value="//api/name/minTileHeight">minTileHeight</option>
+		
+		<option value="//api/name/numSimultaneousFetches">numSimultaneousFetches</option>
+		
+		<option value="//api/name/singleLevelLoading">singleLevelLoading</option>
+		
+		<option value="//api/name/useTargetZoomLevel">useTargetZoomLevel</option>
+		
+		<option value="//api/name/viewC">viewC</option>
+		
+	</optgroup>
+	
+
+	
+
+	
+	<optgroup label="Instance Methods">
+		
+		<option value="//api/name/addData:forTile:">- addData:forTile:</option>
+		
+		<option value="//api/name/addData:forTile:style:">- addData:forTile:style:</option>
+		
+		<option value="//api/name/boundsforTile:ll:ur:">- boundsforTile:ll:ur:</option>
+		
+		<option value="//api/name/cleanupLayers:scene:">- cleanupLayers:scene:</option>
+		
+		<option value="//api/name/displayCenterForTile:">- displayCenterForTile:</option>
+		
+		<option value="//api/name/geoBoundsForTileD:ll:ur:">- geoBoundsForTileD:ll:ur:</option>
+		
+		<option value="//api/name/geoBoundsforTile:ll:ur:">- geoBoundsforTile:ll:ur:</option>
+		
+		<option value="//api/name/initWithCoordSystem:delegate:">- initWithCoordSystem:delegate:</option>
+		
+		<option value="//api/name/reload">- reload</option>
+		
+		<option value="//api/name/startLayer:scene:renderer:viewC:">- startLayer:scene:renderer:viewC:</option>
+		
+		<option value="//api/name/targetZoomLevel">- targetZoomLevel</option>
+		
+		<option value="//api/name/tile:hasNumParts:">- tile:hasNumParts:</option>
+		
+		<option value="//api/name/tileDidLoad:">- tileDidLoad:</option>
+		
+		<option value="//api/name/tileDidLoad:part:">- tileDidLoad:part:</option>
+		
+		<option value="//api/name/tileFailedToLoad:">- tileFailedToLoad:</option>
+		
+	</optgroup>
+	
+	
+</select>
+						</label>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</aside>
+
+	<article>
+		<div id="overview_contents" class="container">
+			<div id="content">
+				<main role="main">
+					<h1 class="title">MaplyQuadPagingLayer Class Reference</h1>
+
+					
+					<div class="section section-specification"><table cellspacing="0"><tbody>
+						<tr>
+	<th>Inherits from</th>
+	<td><a href="../Classes/MaplyViewControllerLayer.html">MaplyViewControllerLayer</a> : NSObject</td>
+</tr><tr>
+	<th>Declared in</th>
+	<td>MaplyQuadPagingLayer.h</td>
+</tr>
+						</tbody></table></div>
+					
+
+                    
+					
+					<div class="section section-overview">
+						<a title="Overview" name="overview"></a>
+						<h2 class="subtitle subtitle-overview">Overview</h2>
+						<p>The Maply Quad Paging Layer implements a general purpose paging interface for quad tree based data sources.  This is different from the <a href="../Classes/MaplyQuadImageTilesLayer.html">MaplyQuadImageTilesLayer</a> in that it&rsquo;s meant for paging things like vector tiles, or really any other features that are not images.</p><p>You set up an object that implements the <a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a> protocol, create the MaplyQuadPagingLayer and respond to the startFetchForTile:forLayer: method.</p><p>Once you&rsquo;ve fetched your data for a given tile, you&rsquo;ll need to call <a href="#//api/name/tileDidLoad:">tileDidLoad:</a> or <a href="#//api/name/tileFailedToLoad:">tileFailedToLoad:</a>.  Then you&rsquo;ll want to create the visual objects in the <a href="../Classes/MaplyViewController.html">MaplyViewController</a> or <a href="../Classes/WhirlyGlobeViewController.html">WhirlyGlobeViewController</a> and pass them in to <a href="#//api/name/addData:forTile:">addData:forTile:</a></p><p>This is how the paging layer keeps track of which objects you&rsquo;ve created for a given tile and can then remove them when the time comes.</p><p>Objects must be created with @&ldquo;enable&rdquo; set to @(NO) in the description dictionary.  Tiles are paged before they are needed for dipslay and so the paging layer must have control over when data is displayed. It uses the enable/disable options for the various Maply objects in the view controllers.</p>
+					</div>
+					
+					
+
+					
+					
+					<div class="section section-tasks">
+						<a title="Tasks" name="tasks"></a>
+						
+
+						
+						<h2 class="task-title">Other Methods</h2>
+
+						<div class="task-list">
+							<div class="section-method">
+	<a name="//api/name/numSimultaneousFetches" title="numSimultaneousFetches"></a>
+	<h3 class="method-title"><code><a href="#//api/name/numSimultaneousFetches">&nbsp;&nbsp;numSimultaneousFetches</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Number of fetches allowed at once.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) int numSimultaneousFetches</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>Change the number of fetches allowed at once.  This means you&rsquo;ll have at most numSimultaneousFetches dispatch queues going.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/importance" title="importance"></a>
+	<h3 class="method-title"><code><a href="#//api/name/importance">&nbsp;&nbsp;importance</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>The importance cutoff below which we won&rsquo;t bother to page a tile.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) float importance</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>The paging layer will evaluate tiles based on screen space they take up.  This is the cutoff we use to evaluate when a tile is worth paging in.  It&rsquo;s the number of pixels a given tile would take up on the screen.</p><p>Typical values would be on the order of 256*256.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/flipY" title="flipY"></a>
+	<h3 class="method-title"><code><a href="#//api/name/flipY">&nbsp;&nbsp;flipY</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Control how tiles are indexed, either from the lower left or the upper left.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>@property (nonatomic) bool flipY</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>If set, we&rsquo;ll use the OSM approach (also Google Maps) to y indexing.  This is off by default.</p><p>Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you&rsquo;re tile source looks odd, try setting this to false.</p><p>Default value is false.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/viewC" title="viewC"></a>
+	<h3 class="method-title"><code><a href="#//api/name/viewC">&nbsp;&nbsp;viewC</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>The view controller this paging layer is associated with.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>@property (nonatomic, weak, readonly) MaplyBaseViewController *viewC</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>This view controller is the one you should create visual objects in.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/initWithCoordSystem:delegate:" title="initWithCoordSystem:delegate:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/initWithCoordSystem:delegate:">&ndash;&nbsp;initWithCoordSystem:delegate:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Initialize with coordinate system and delegate for paging.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (id)initWithCoordSystem:(MaplyCoordinateSystem *)<em>coordSys</em> delegate:(NSObject&lt;MaplyPagingDelegate&gt; *)<em>tileSource</em></code></div>
+
+		    
+			
+			<div class="method-subsection arguments-section parameters">
+				<h4 class="method-subtitle parameter-title">Parameters</h4>
+				<table class="argument-def parameter-def">
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>coordSys</code></th>
+						<td><p>The coordinate system we&rsquo;re working in.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>tileSource</code></th>
+						<td><p>The tile source that will fetch data and create visible objects.</p></td>
+					</tr>
+				
+				</table>
+			</div>
+			
+
+			
+			<div class="method-subsection return">
+				<h4 class="method-subtitle parameter-title">Return Value</h4>
+				<p>Returns a <a href="../Classes/MaplyViewControllerLayer.html">MaplyViewControllerLayer</a> that can be added to the <a href="../Classes/MaplyBaseViewController.html">MaplyBaseViewController</a>.</p>
+			</div>
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>This initializer takes the coordinate system we&rsquo;re working in and the <a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a> object.  Fill out that to do the real work.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/useTargetZoomLevel" title="useTargetZoomLevel"></a>
+	<h3 class="method-title"><code><a href="#//api/name/useTargetZoomLevel">&nbsp;&nbsp;useTargetZoomLevel</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Use the target zoom level shortcut when possible.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>@property (nonatomic) bool useTargetZoomLevel</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>This turns on the target zoom level shortcut as described in <a href="#//api/name/targetZoomLevel">targetZoomLevel</a>.  When on we&rsquo;ll calculate tile <a href="#//api/name/importance">importance</a> that way, that is based on a target zoom level rather than the more complex screen space calculations.</p><p>It&rsquo;s on by default and will activate only when this layer&rsquo;s coordinate system is the same as the display system and there&rsquo;s no view matrix (e.g. tilt) set.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/singleLevelLoading" title="singleLevelLoading"></a>
+	<h3 class="method-title"><code><a href="#//api/name/singleLevelLoading">&nbsp;&nbsp;singleLevelLoading</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Only load a single level at a time.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>@property (nonatomic) bool singleLevelLoading</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>When set, we&rsquo;ll only load one level of tiles at once.  This is very efficient for memory and fast for loading, but you&rsquo;ll see flashing as you move between levels.</p><p>This mode only works with flat maps and is off by default.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/targetZoomLevel" title="targetZoomLevel"></a>
+	<h3 class="method-title"><code><a href="#//api/name/targetZoomLevel">&ndash;&nbsp;targetZoomLevel</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>The target zoom level for this layer given the current view settings.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (int)targetZoomLevel</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>Calculates the target zoom level for the middle of the screen.</p><p>This only makes sense for flat maps that use the same coordinate system we&rsquo;re using in this tile source.  In addition, the viewer can&rsquo;t have a tilt or any non-2D transform in the view matrix.  If it does, this is meaningless, but it&rsquo;ll return a number anyway.</p><p>If all those conditions are met then we can say we&rsquo;re only displaying a single zoom level and this is that.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/groupChildrenWithParent" title="groupChildrenWithParent"></a>
+	<h3 class="method-title"><code><a href="#//api/name/groupChildrenWithParent">&nbsp;&nbsp;groupChildrenWithParent</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>This controls how the <a href="#//api/name/importance">importance</a> of tiles is calculated.  Either individually (false) or with the parent (true),</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>@property (nonatomic) bool groupChildrenWithParent</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>This is a low level laoding control parameter.  Don&rsquo;t change unless you know why.</p><p>By default this is true.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/addData:forTile:" title="addData:forTile:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/addData:forTile:">&ndash;&nbsp;addData:forTile:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>You call this from your <a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a> with an array of data you&rsquo;ve created for a tile.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (void)addData:(NSArray *)<em>dataObjects</em> forTile:(MaplyTileID)<em>tileID</em></code></div>
+
+		    
+			
+			<div class="method-subsection arguments-section parameters">
+				<h4 class="method-subtitle parameter-title">Parameters</h4>
+				<table class="argument-def parameter-def">
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>dataObjects</code></th>
+						<td><p>An NSArray of <a href="../Classes/MaplyComponentObject.html">MaplyComponentObject</a> objects.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>tileID</code></th>
+						<td><p>The tile ID for the data we&rsquo;re handing over.</p></td>
+					</tr>
+				
+				</table>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>This method is called by your <a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a> to add MaplyComponentObject&rsquo;s to the data for a given tile.  Please create them disabled by putting @&ldquo;enable&rdquo;: @(NO) in the description dictionary.  The paging layer will then be responsible for cleaning them up when needed as well as turning them on and off as the user moves around.</p><p>The call is thread safe.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/addData:forTile:style:" title="addData:forTile:style:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/addData:forTile:style:">&ndash;&nbsp;addData:forTile:style:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>You call this from your <a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a> with an array of data you&rsquo;ve created for a tile.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (void)addData:(NSArray *)<em>dataObjects</em> forTile:(MaplyTileID)<em>tileID</em> style:(MaplyQuadPagingDataStyle)<em>dataStyle</em></code></div>
+
+		    
+			
+			<div class="method-subsection arguments-section parameters">
+				<h4 class="method-subtitle parameter-title">Parameters</h4>
+				<table class="argument-def parameter-def">
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>dataObjects</code></th>
+						<td><p>An NSArray of <a href="../Classes/MaplyComponentObject.html">MaplyComponentObject</a> objects.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>tileID</code></th>
+						<td><p>The tile ID for the data we&rsquo;re handing over.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>style</code></th>
+						<td><p>If set to MaplyDataStyleReplace the data at this level will replace data at lower levels.  This is the default.  If set to MaplyDataStyleAdd then the data at this level adds to data above and below this level.</p></td>
+					</tr>
+				
+				</table>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>This method is called by your <a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a> to add MaplyComponentObject&rsquo;s to the data for a given tile.  Please create them disabled by putting @&ldquo;enable&rdquo;: @(NO) in the description dictionary.  The paging layer will then be responsible for cleaning them up when needed as well as turning them on and off as the user moves around.</p><p>The call is thread safe.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/tileFailedToLoad:" title="tileFailedToLoad:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/tileFailedToLoad:">&ndash;&nbsp;tileFailedToLoad:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Called from your <a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a> when a tile fails to load.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (void)tileFailedToLoad:(MaplyTileID)<em>tileID</em></code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>If you fail to load your tile data in your <a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a>, you need to let the paging layer know with this call.  Otherwise the paging layer assumes the tile is still loading.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/tileDidLoad:" title="tileDidLoad:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/tileDidLoad:">&ndash;&nbsp;tileDidLoad:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Called from your <a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a> when a tile loads.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (void)tileDidLoad:(MaplyTileID)<em>tileID</em></code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>When you&rsquo;ve finished loading the data for a tile in your <a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a>, but before you&rsquo;ve called <a href="#//api/name/addData:forTile:">addData:forTile:</a> call this method to let the paging layer know you succeeded in loading the tile.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/tile:hasNumParts:" title="tile:hasNumParts:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/tile:hasNumParts:">&ndash;&nbsp;tile:hasNumParts:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>If you&rsquo;re loading a number of parts of a tile from different sources, tell the layer about it.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (void)tile:(MaplyTileID)<em>tileID</em> hasNumParts:(int)<em>numParts</em></code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>Rather than a single <a href="#//api/name/tileDidLoad:">tileDidLoad:</a> call, you can break it up into the number of parts you&rsquo;re actually loading.  This is convenient if you&rsquo;re fetching data from multiple sources.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/tileDidLoad:part:" title="tileDidLoad:part:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/tileDidLoad:part:">&ndash;&nbsp;tileDidLoad:part:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>If you&rsquo;re loading your tile in parts, let the layer know which part just got loaded.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (void)tileDidLoad:(MaplyTileID)<em>tileID</em> part:(int)<em>whichPart</em></code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>If you&rsquo;ve set the number of parts with <a href="#//api/name/tile:hasNumParts:">tile:hasNumParts:</a> this is how you let the layer know which parts you&rsquo;ve loaded.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/geoBoundsforTile:ll:ur:" title="geoBoundsforTile:ll:ur:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/geoBoundsforTile:ll:ur:">&ndash;&nbsp;geoBoundsforTile:ll:ur:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Calculate the bounding box for a single tile in geographic.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (void)geoBoundsforTile:(MaplyTileID)<em>tileID</em> ll:(MaplyCoordinate *)<em>ll</em> ur:(MaplyCoordinate *)<em>ur</em></code></div>
+
+		    
+			
+			<div class="method-subsection arguments-section parameters">
+				<h4 class="method-subtitle parameter-title">Parameters</h4>
+				<table class="argument-def parameter-def">
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>tileID</code></th>
+						<td><p>The ID for the tile we&rsquo;re interested in.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>ll</code></th>
+						<td><p>The lower left corner of the tile in geographic coordinates.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>ur</code></th>
+						<td><p>The upper right corner of the tile in geographic coordinates.</p></td>
+					</tr>
+				
+				</table>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/geoBoundsForTileD:ll:ur:" title="geoBoundsForTileD:ll:ur:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/geoBoundsForTileD:ll:ur:">&ndash;&nbsp;geoBoundsForTileD:ll:ur:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Calculate the bounding box for a single tile in geographic using doubles.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (void)geoBoundsForTileD:(MaplyTileID)<em>tileID</em> ll:(MaplyCoordinateD *)<em>ll</em> ur:(MaplyCoordinateD *)<em>ur</em></code></div>
+
+		    
+			
+			<div class="method-subsection arguments-section parameters">
+				<h4 class="method-subtitle parameter-title">Parameters</h4>
+				<table class="argument-def parameter-def">
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>tileID</code></th>
+						<td><p>The ID for the tile we&rsquo;re interested in.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>ll</code></th>
+						<td><p>The lower left corner of the tile in geographic coordinates.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>ur</code></th>
+						<td><p>The upper right corner of the tile in geographic coordinates.</p></td>
+					</tr>
+				
+				</table>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/boundsforTile:ll:ur:" title="boundsforTile:ll:ur:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/boundsforTile:ll:ur:">&ndash;&nbsp;boundsforTile:ll:ur:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Calculate the bounding box for a single tile in the local coordinate system.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (void)boundsforTile:(MaplyTileID)<em>tileID</em> ll:(MaplyCoordinate *)<em>ll</em> ur:(MaplyCoordinate *)<em>ur</em></code></div>
+
+		    
+			
+			<div class="method-subsection arguments-section parameters">
+				<h4 class="method-subtitle parameter-title">Parameters</h4>
+				<table class="argument-def parameter-def">
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>tileID</code></th>
+						<td><p>The ID for the tile we&rsquo;re interested in.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>ll</code></th>
+						<td><p>The lower left corner of the tile in local coordinates.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>ur</code></th>
+						<td><p>The upper right corner of the tile in local coordinates.</p></td>
+					</tr>
+				
+				</table>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>This utility method calculates the bounding box for a tile in the coordinate system used for the layer.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/displayCenterForTile:" title="displayCenterForTile:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/displayCenterForTile:">&ndash;&nbsp;displayCenterForTile:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Return the center of the tile in display coordinates.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (MaplyCoordinate3d)displayCenterForTile:(MaplyTileID)<em>tileID</em></code></div>
+
+		    
+			
+			<div class="method-subsection arguments-section parameters">
+				<h4 class="method-subtitle parameter-title">Parameters</h4>
+				<table class="argument-def parameter-def">
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>tileID</code></th>
+						<td><p>The ID for the tile we&rsquo;re interested in.</p></td>
+					</tr>
+				
+				</table>
+			</div>
+			
+
+			
+			<div class="method-subsection return">
+				<h4 class="method-subtitle parameter-title">Return Value</h4>
+				<p>Return the center in display space for the given tile.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/maxTiles" title="maxTiles"></a>
+	<h3 class="method-title"><code><a href="#//api/name/maxTiles">&nbsp;&nbsp;maxTiles</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Maximum number of tiles to load in at once.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>@property (nonatomic) int maxTiles</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>This is the maximum number of tiles the pager will have loaded into memory at once.  The default is 256 and that&rsquo;s generally good enough.  However, if your tile size is small, you may want to load in more.</p><p>Tile loading can get out of control when using elevation data.  The toolkit calculates potential sceen coverage for each tile so elevation data makes all tiles more important.  As a result the system will happily page in way more data than you may want.  The limit becomes important in elevation mode, so leave it at 128 unless you need to change it.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/minTileHeight" title="minTileHeight"></a>
+	<h3 class="method-title"><code><a href="#//api/name/minTileHeight">&nbsp;&nbsp;minTileHeight</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Set the minimum tile height (0.0 by default).</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>@property (nonatomic) float minTileHeight</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>When paging tiles containing 3D geometry it&rsquo;s helpful to know the min and max height.  This is the minimum height and defaults to 0.0.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/maxTileHeight" title="maxTileHeight"></a>
+	<h3 class="method-title"><code><a href="#//api/name/maxTileHeight">&nbsp;&nbsp;maxTileHeight</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Set the maximum tile height (0.0 off by default)</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>@property (nonatomic) float maxTileHeight</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>When paging tiles containing 3D geometry it&rsquo;s helpful to know the min and max height.  This is the maximum height and it defaults to 0.0.  When min and max are the same, they are ignored.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/reload" title="reload"></a>
+	<h3 class="method-title"><code><a href="#//api/name/reload">&ndash;&nbsp;reload</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Reload the paging layer contents.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (void)reload</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>This asks the paging layer to clean out its current data and reload everything from scratch.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyQuadPagingLayer.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div>
+						</div>
+						
+
+						<a title="Extension Methods" name="task_Extension Methods"></a>
+						<h2 class="task-title">Extension Methods</h2>
+
+						<div class="task-list">
+							<div class="section-method">
+	<a name="//api/name/startLayer:scene:renderer:viewC:" title="startLayer:scene:renderer:viewC:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/startLayer:scene:renderer:viewC:">&ndash;&nbsp;startLayer:scene:renderer:viewC:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Subclasses fill this in.  It&rsquo;s called when the Component layer is added to the view controller.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (bool)startLayer:(WhirlyKitLayerThread *)<em>layerThread</em> scene:(WhirlyKit : : Scene *)<em>scene</em> renderer:(WhirlyKitSceneRendererES *)<em>renderer</em> viewC:(MaplyBaseViewController *)<em>viewC</em></code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>Subclasses fill this in.  It&rsquo;s called when the Component layer is added to the view controller.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyViewControllerLayer_private.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/cleanupLayers:scene:" title="cleanupLayers:scene:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/cleanupLayers:scene:">&ndash;&nbsp;cleanupLayers:scene:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Remove resources associated with this layer</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (void)cleanupLayers:(WhirlyKitLayerThread *)<em>layerThread</em> scene:(WhirlyKit : : Scene *)<em>scene</em></code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>Remove resources associated with this layer</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyViewControllerLayer_private.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div>
+						</div>
+						
+					</div>
+					
+					
+
+                    
+                    
+          
+				</main>
+
+				<footer>
+					<div class="footer-copyright">
+						
+						<p class="copyright">Copyright &copy; 2016 mousebird consulting inc. All rights reserved. Updated: 2016-01-31</p>
+						
+						
+						<p class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2.1 (build 1333)</a>.</p>
+						
+					</div>
+				</footer>
+			</div>
+		</div>
+	</article>
+
+	<script src="../js/script.js"></script>
+</body>
+</html>
