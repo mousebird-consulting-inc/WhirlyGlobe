@@ -78,6 +78,9 @@ public:
     void setLifetime(NSTimeInterval inLifetime) { lifetime = inLifetime; }
     NSTimeInterval getLifetime() { return lifetime; }
     
+    /// Set whether we're doing continuous renders (the default)
+    void setContinuousUpdate(bool newVal) { usingContinuousRender = newVal; }
+    
     /// Set all the textures at once
     virtual void setTexIDs(const std::vector<SimpleIdentity> &inTexIDs) { texIDs = inTexIDs; }
     
@@ -141,6 +144,7 @@ protected:
     std::vector<SimpleIdentity> texIDs;
     bool useRectangles,useInstancing;
     NSTimeInterval baseTime;
+    bool usingContinuousRender;
 
     // The vertex attributes we're representing in the buffers
     std::vector<VertexAttribute> vertexAttributes;
