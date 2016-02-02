@@ -44,6 +44,7 @@ public:
     SimpleIdentity shaderID;
     NSTimeInterval lifetime,baseTime;
     int totalParticles,batchSize;
+    bool continuousUpdate;
     std::vector<SingleVertexAttributeInfo> vertAttrs;
     std::vector<SimpleIdentity> texIDs;
 };
