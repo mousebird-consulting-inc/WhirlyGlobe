@@ -480,6 +480,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 
 		@Override public boolean equals(Object thatObj)
 		{
+			if (thatObj == null)
+				return false;
+
 			FrameStatus that = (FrameStatus)thatObj;
 			if (currentFrame != that.currentFrame)
 				return false;
