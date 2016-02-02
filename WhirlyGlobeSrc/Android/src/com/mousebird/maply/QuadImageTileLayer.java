@@ -381,17 +381,43 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	 * @return The current image index (or between) being displayed.
 	 */
 	public native float getCurrentImage();
+
+	int lastPriority = -1;
 	
 	/** Set the current image we're displaying.
       * This sets the current image being displayed, and interpolates between it and the next image.  If set to an integer value, you'll get just that image.  If set to a value between integers, you'll get a blend of the two.
       * This is incompatible with setting an animationPeriod.  Do just one or the other.
      */
-	public void setCurrentImage(final float current)
+	public void setCurrentImage(final float current,boolean updatePriorities)
 	{
         if (layerThread != null) {
             ChangeSet changes = new ChangeSet();
             setCurrentImage(current, changes);
-            changes.process(layerThread.scene);
+
+			// Update frame priorities
+			if (updatePriorities)
+			{
+				int curPriority = (int)current;
+				if (curPriority != lastPriority) {
+					int prior[] = new int[this.getImageDepth()];
+					int start = curPriority;
+					prior[0] = start;
+					int where = 1;
+					for (int ii = 1; ii < prior.length; ii++) {
+						int up = start + ii;
+						int down = start - ii;
+						if (up < prior.length)
+							prior[where++] = up;
+						if (down >= 0)
+							prior[where++] = down;
+					}
+
+					setFrameLoadingPriority(prior, changes);
+					lastPriority = curPriority;
+				}
+			}
+
+			changes.process(layerThread.scene);
         }
 	}
 	
