@@ -143,6 +143,7 @@ typedef struct
     partSys.lifetime = 1e20;
     partSys.totalParticles = stars.size();
     partSys.batchSize = stars.size();
+    partSys.continuousUpdate = false;
     partSys.shader = shader.name;
     if (starTex)
         [partSys addTexture:starTex];

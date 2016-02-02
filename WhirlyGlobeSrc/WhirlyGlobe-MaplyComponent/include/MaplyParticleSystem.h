@@ -68,6 +68,11 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
   */
 @property (nonatomic,assign) int batchSize;
 
+/** @brief Turn on/off the continuous rendering for particles.
+    @details Normally particle systems force the renderer to draw every frame.  That's how the particles move.  You can turn that behavior off by setting this to false.
+  */
+@property (nonatomic,assign) bool continuousUpdate;
+
 /** @brief Initialize a particle system with a name.
     @details The particle system needs the name for performance and debugging.  The rest of the values can left to their defaults.
   */

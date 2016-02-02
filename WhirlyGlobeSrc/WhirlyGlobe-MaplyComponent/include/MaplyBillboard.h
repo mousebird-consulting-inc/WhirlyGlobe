@@ -27,7 +27,9 @@
   */
 @interface MaplyBillboard : NSObject
 
-/// @brief The point this billboard is rooted at.
+/** @brief The point this billboard is rooted at.
+    @details The x and y coordinates are radians.  The z coordinate is in meters.
+  */
 @property (nonatomic) MaplyCoordinate3d center;
 
 /// @brief Set if you want to select these
