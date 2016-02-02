@@ -354,6 +354,9 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
      */
     public void setFrameLoadingPriority(final int[] priorites)
     {
+        if (!valid)
+            return;
+
         layerThread.addTask(new Runnable()
         {
             @Override

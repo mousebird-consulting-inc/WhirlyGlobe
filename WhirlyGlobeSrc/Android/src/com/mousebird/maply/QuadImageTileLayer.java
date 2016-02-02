@@ -25,6 +25,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 /**
  * The quad image tiling layer manages a self contained basemap.  Basemaps are
@@ -125,7 +126,12 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		// Want an update no less often than this
 		// Note: What?
 		return 4.0f;
-	}	
+	}
+
+	boolean currentImageSetBeforeStart = false;
+	float currentImageValue;
+	int[] currentPriorities = null;
+
 
 	/**
 	 * Called by the layer thread.  Don't call this directly.
@@ -137,6 +143,16 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		Point2d ll = new Point2d(coordSys.ll.getX(),coordSys.ll.getY());
 		Point2d ur = new Point2d(coordSys.ur.getX(),coordSys.ur.getY());
 		nativeStartLayer(layerThread.scene,layerThread.renderer,ll,ur,tileSource.minZoom(),tileSource.maxZoom(),tileSource.pixelsPerSide());
+
+		if (currentImageSetBeforeStart)
+		{
+			ChangeSet changes = new ChangeSet();
+			setCurrentImage(currentImageValue, changes);
+
+			setFrameLoadingPriority(currentPriorities, changes);
+
+			changes.process(layerThread.scene);
+		}
 
         scheduleEvalStep();
 
@@ -390,35 +406,41 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
      */
 	public void setCurrentImage(final float current,boolean updatePriorities)
 	{
+		int prior[] = null;
+		if (updatePriorities)
+		{
+			prior = new int[this.getImageDepth()];
+
+			int curPriority = (int)current;
+			if (curPriority != lastPriority) {
+				int start = curPriority;
+				prior[0] = start;
+				int where = 1;
+				for (int ii = 1; ii < prior.length; ii++) {
+					int up = start + ii;
+					int down = start - ii;
+					if (up < prior.length)
+						prior[where++] = up;
+					if (down >= 0)
+						prior[where++] = down;
+				}
+
+				lastPriority = curPriority;
+			}
+		}
+
         if (layerThread != null) {
             ChangeSet changes = new ChangeSet();
             setCurrentImage(current, changes);
 
-			// Update frame priorities
-			if (updatePriorities)
-			{
-				int curPriority = (int)current;
-				if (curPriority != lastPriority) {
-					int prior[] = new int[this.getImageDepth()];
-					int start = curPriority;
-					prior[0] = start;
-					int where = 1;
-					for (int ii = 1; ii < prior.length; ii++) {
-						int up = start + ii;
-						int down = start - ii;
-						if (up < prior.length)
-							prior[where++] = up;
-						if (down >= 0)
-							prior[where++] = down;
-					}
-
-					setFrameLoadingPriority(prior, changes);
-					lastPriority = curPriority;
-				}
-			}
+			setFrameLoadingPriority(prior, changes);
 
 			changes.process(layerThread.scene);
-        }
+        } else {
+			currentImageSetBeforeStart = true;
+			currentImageValue = current;
+			currentPriorities = prior;
+		}
 	}
 	
 	native void setCurrentImage(float current,ChangeSet changes);
