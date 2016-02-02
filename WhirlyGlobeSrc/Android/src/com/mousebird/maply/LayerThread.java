@@ -285,7 +285,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 * @param run Runnable to run
 	 * @return The Handler if you want to cancel this at some point in the future.
 	 */
-	Handler addTask(Runnable run)
+	public Handler addTask(Runnable run)
 	{
 		return addTask(run,false);
 	}
@@ -297,7 +297,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 * @time time Number of milliseconds to wait before running.
 	 * @return The Handler if you want to cancel this at some point in the future.
 	 */
-	Handler addDelayedTask(Runnable run,long time)
+	public Handler addDelayedTask(Runnable run,long time)
 	{
 		Handler handler = new Handler(getLooper());
 		handler.postDelayed(run, time);
@@ -314,7 +314,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 * @return Returns a Handler if you want to cancel the task later.  Returns null if
 	 * we were on the layer thread and no Handler was needed.
 	 */
-	Handler addTask(Runnable run,boolean wait)
+	public Handler addTask(Runnable run,boolean wait)
 	{
 		if (!valid)
 			return null;

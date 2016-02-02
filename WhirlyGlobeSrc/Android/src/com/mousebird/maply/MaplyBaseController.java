@@ -615,7 +615,7 @@ public class MaplyBaseController
 	 */
 	public ComponentObject changeSticker(final ComponentObject stickerObj,final StickerInfo stickerInfo,ThreadMode mode)
 	{
-		if (!running)
+		if (!running || stickerObj == null)
 			return null;
 
 		final ComponentObject compObj = new ComponentObject();
