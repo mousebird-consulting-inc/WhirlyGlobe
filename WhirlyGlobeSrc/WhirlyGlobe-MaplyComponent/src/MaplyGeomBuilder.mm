@@ -109,6 +109,8 @@ using namespace WhirlyKit;
     [attrStr addAttribute:NSFontAttributeName value:font range:NSMakeRange(0, strLen)];
     if (state.color)
         [attrStr addAttribute:NSForegroundColorAttributeName value:state.color range:NSMakeRange(0, strLen)];
+    if (state.backColor)
+        [attrStr addAttribute:NSBackgroundColorAttributeName value:state.backColor range:NSMakeRange(0, strLen)];
     
     [self addAttributedString:attrStr state:state];
 }
@@ -120,6 +122,8 @@ using namespace WhirlyKit;
     [attrStr addAttribute:NSFontAttributeName value:font range:NSMakeRange(0, strLen)];
     if (state.color)
         [attrStr addAttribute:NSForegroundColorAttributeName value:state.color range:NSMakeRange(0, strLen)];
+    if (state.backColor)
+        [attrStr addAttribute:NSBackgroundColorAttributeName value:state.backColor range:NSMakeRange(0, strLen)];
 
     GeomStringWrapper strWrap;
     strWrap.str = attrStr;
@@ -409,7 +413,7 @@ using namespace WhirlyKit;
     for (auto &string : modelBuilder->strings)
     {
         auto theString = string;
-        theString.mat = theString.mat * matrix.mat;
+        theString.mat = matrix.mat * theString.mat;
         strings.push_back(theString);
     }
 }
@@ -436,16 +440,21 @@ using namespace WhirlyKit;
     
     for (auto &str : strings)
     {
-        Vector4d p0 = str.mat * Vector4d(0,0,0,1);
-        Vector4d p1 = str.mat * Vector4d(str.size.width,str.size.height,0,1);
+        Vector4d p[2];
+        p[0] = str.mat * Vector4d(0,0,0,1);
+        p[1] = str.mat * Vector4d(str.size.width,str.size.height,0,1);
         
-        if (isSet)
+        for (auto &pt : p)
         {
-            ll->x = std::min(ll->x,p1.x());  ll->y = std::min(ll->y,p1.y());  ll->z = std::min(ll->z,p1.z());
-            ur->x = std::min(ur->x,p1.x());  ur->y = std::min(ur->y,p1.y());  ur->z = std::min(ur->z,p1.z());
-        } else {
-            ll->x = p0.x();  ll->y = p0.y();  ll->z = p0.z();
-            ur->x = p0.x();  ur->y = p0.y();  ur->z = p0.z();
+            if (isSet)
+            {
+                ll->x = std::min(ll->x,pt.x());  ll->y = std::min(ll->y,pt.y());  ll->z = std::min(ll->z,pt.z());
+                ur->x = std::max(ur->x,pt.x());  ur->y = std::max(ur->y,pt.y());  ur->z = std::max(ur->z,pt.z());
+            } else {
+                ll->x = pt.x();  ll->y = pt.y();  ll->z = pt.z();
+                ur->x = pt.x();  ur->y = pt.y();  ur->z = pt.z();
+                isSet = true;
+            }
         }
     }
     
@@ -460,6 +469,7 @@ using namespace WhirlyKit;
     MaplyCoordinate3dD size;
     size.x = ur.x - ll.x;
     size.y = ur.y - ll.y;
+    size.z = ur.z - ll.z;
     
     return size;
 }

@@ -2101,7 +2101,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             compObj.textures.insert(model->maplyTextures.begin(),model->maplyTextures.end());
             
             // Return an existing base model or make a new one
-            SimpleIdentity baseModelID = [model getBaseModel:self fontTexManager:fontTexManager mode:threadMode];
+            SimpleIdentity baseModelID = [model getBaseModel:self fontTexManager:fontTexManager compObj:compObj mode:threadMode];
             
             if (baseModelID != EmptyIdentity)
             {
