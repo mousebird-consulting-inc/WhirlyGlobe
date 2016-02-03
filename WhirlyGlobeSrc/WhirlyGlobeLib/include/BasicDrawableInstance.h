@@ -177,7 +177,7 @@ protected:
     int numInstances;
     GLuint instBuffer;
     GLuint vertArrayObj;
-    int centerSize,matSize,colorSize,instSize,modelDirSize;
+    int centerSize,matSize,colorInstSize,colorSize,instSize,modelDirSize;
     NSTimeInterval startTime;
     bool moving;
     
