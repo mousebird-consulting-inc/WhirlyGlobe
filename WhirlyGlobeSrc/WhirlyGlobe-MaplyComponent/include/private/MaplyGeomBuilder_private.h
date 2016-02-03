@@ -23,17 +23,7 @@
 #import "MaplyGeomBuilder.h"
 #import <WhirlyGlobe.h>
 #import "MaplyBaseViewController_private.h"
-
-// Wraps strings with size and translation
-class GeomBuilderStringWrapper
-{
-public:
-    GeomBuilderStringWrapper() : mat(mat.Identity()), str(nil) { }
-    
-    Eigen::Matrix4d mat;
-    CGSize size;
-    NSAttributedString *str;
-};
+#import "MaplyGeomModel_private.h"
 
 @interface MaplyGeomBuilder()
 {
@@ -41,7 +31,7 @@ public:
     __weak MaplyBaseViewController *viewC;
 
     std::vector<WhirlyKit::GeometryRaw> rawGeom;
-    std::vector<GeomBuilderStringWrapper> strings;
+    std::vector<WhirlyKit::GeomStringWrapper> strings;
     std::vector<id> textures;
 }
 @end
