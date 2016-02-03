@@ -108,7 +108,6 @@ void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scen
         frameInfo.program->setUniform("u_texScale", texScale);
         frameInfo.program->setUniform("u_color", Vector4f(color.r/255.0,color.g/255.0,color.b/255.0,color.a/255.0));
         
-        // Note: Debugging
         // Note: This calculation is out of date with respect to the shader
         // Redo the calculation for debugging
 //        NSLog(@"\n");
@@ -143,7 +142,6 @@ void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scen
     
     BasicDrawable::draw(frameInfo,scene);
     
-    // Note: Debugging
 //    for (unsigned int ii=0;ii<dirs.size();ii++)
 //    {
 //        double len = lens[ii];

@@ -27,7 +27,6 @@
 #import "VectorData.h"
 #import "SceneRendererES2.h"
 
-// Note: Debugging
 //#define TILELOGGING 1
 
 using namespace Eigen;

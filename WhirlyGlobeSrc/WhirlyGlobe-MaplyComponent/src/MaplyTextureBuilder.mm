@@ -65,7 +65,6 @@
     UIGraphicsBeginImageContext(imgSize);
     CGContextRef ctx = UIGraphicsGetCurrentContext();
     
-    // Note: Debugging
     CGContextClearRect(ctx, CGRectMake(0, 0, imgSize.width, imgSize.height));
     [[UIColor whiteColor] setFill];
     [[UIColor whiteColor] setStroke];
