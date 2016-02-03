@@ -127,13 +127,13 @@
         UIFont *font = [UIFont boldSystemFontOfSize:128.0];
         [numBuilder addString:@"09" width:0.66*width height:0.0 font:font state:textState];
         MaplyCoordinate3dD size = [numBuilder getSize];
-        [geomBuilder addGeomFromBuilder:numBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:-(width-size.x)/2.0 y:width z:PaintLayer*drawOffset]];
+        [geomBuilder addGeomFromBuilder:numBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:-size.x/2.0 y:width z:PaintLayer*drawOffset]];
         
         // Letter
         MaplyGeomBuilder *letterBuilder = [[MaplyGeomBuilder alloc] initWithViewC:viewC];
         [letterBuilder addString:@"R" width:0.0 height:size.y font:font state:textState];
         MaplyCoordinate3dD letterSize = [letterBuilder getSize];
-        [geomBuilder addGeomFromBuilder:letterBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:-(width-letterSize.x)/2.0 y:width/2.0 z:PaintLayer*drawOffset]];
+        [geomBuilder addGeomFromBuilder:letterBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:-letterSize.x/2.0 y:width/2.0 z:PaintLayer*drawOffset]];
 
         [wholeBuilder addGeomFromBuilder:geomBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:(overrun+displaced) z:0.0]];
     }
