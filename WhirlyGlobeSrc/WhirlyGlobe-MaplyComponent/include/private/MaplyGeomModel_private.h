@@ -54,6 +54,6 @@ public:
 - (void)asRawGeometry:(std::vector<WhirlyKit::GeometryRaw> &)rawGeom withTexMapping:(const std::vector<WhirlyKit::SimpleIdentity> &)texFileMap;
 
 // Return the ID for or generate a base model in the Geometry Manager
-- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer fontTexManager:(WhirlyKitFontTextureManager *)fontTexManager mode:(MaplyThreadMode)threadMode;
+- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer fontTexManager:(WhirlyKitFontTextureManager *)fontTexManager compObj:(MaplyComponentObject *)compObj mode:(MaplyThreadMode)threadMode;
 
 @end
