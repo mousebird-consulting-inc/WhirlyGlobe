@@ -1,8 +1,8 @@
 /*
- *  ParticleSystemAttribute.java
+ *  SingleVertexAttributeInfo.java
  *  WhirlyGlobeLib
  *
- *  Created by jmnavarro on 21/1/16.
+ *  Created by jmnavarro
  *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,7 @@
  */
 package com.mousebird.maply;
 
-public class ParticleSystemAttribute {
+public class SingleVertexAttributeInfo {
 
     public enum MaplyShaderAttrType {
         MAPLY_SHADER_ATTR_TYPE_INT(0),
@@ -40,7 +40,7 @@ public class ParticleSystemAttribute {
 
     }
 
-    public ParticleSystemAttribute() {
+    public SingleVertexAttributeInfo() {
         initialise();
     }
 

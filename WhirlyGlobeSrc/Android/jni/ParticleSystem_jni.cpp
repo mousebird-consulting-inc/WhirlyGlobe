@@ -182,19 +182,19 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setBasetime
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addParticleSystemAttribute
-(JNIEnv *env, jobject obj, jobject particleSystemAttributeObj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addSingleVertexAttributeInfo
+(JNIEnv *env, jobject obj, jobject singleVertexAttributeInfoObj)
 {
     try {
         ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
         ParticleSystem *inst = classInfo->getObject(env, obj);
-        SingleVertexAttributeInfo * particleSystemAttribute = ParticleSystemAttributeClassInfo::getClassInfo()->getObject(env,particleSystemAttributeObj);
-        if (!inst || !particleSystemAttribute)
+        SingleVertexAttributeInfo * singleVertexAttributeInfo = SingleVertexAttributeInfoClassInfo::getClassInfo()->getObject(env,singleVertexAttributeInfoObj);
+        if (!inst || !singleVertexAttributeInfo)
             return;
-        inst->vertAttrs.push_back(*particleSystemAttribute);
+        inst->vertAttrs.push_back(*singleVertexAttributeInfo);
     }
 	catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::addParticleSystemAttribute()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::addSingleVertexAttributeInfo()");
     }
 }
 

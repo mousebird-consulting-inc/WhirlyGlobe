@@ -25,7 +25,7 @@
 using namespace WhirlyKit;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_OpenGLESAttribute_nativeInit
-(JNIEnv *env, jclass cls){
+(JNIEnv *env, jclass cls) {
     
     OpenGLESAttributeClassInfo::getClassInfo(env, cls);
 }
@@ -148,7 +148,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_OpenGLESAttribute_setIndex
         if (!inst)
             return;
         
-        inst->index =index;
+        inst->index = index;
     }
     catch(...)
     {

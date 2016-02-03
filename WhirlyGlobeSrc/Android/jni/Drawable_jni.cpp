@@ -447,9 +447,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Drawable_setTexIds
         jmethodID hasNext = env->GetMethodID(iterClass, "hasNext", "()Z");
         jmethodID next = env->GetMethodID(iterClass, "next", "()Ljava/lang/Object");
         int i = 0;
-        while (env->CallBooleanMethod(liter, hasNexr)){
+        while (env->CallBooleanMethod(liter, hasNexr)) {
             jlong item = env->CallLongMethod(liter, next);
-            if (item){
+            if (item) {
                 inst->setTexID(i, item);
                 i++;
             }
@@ -937,10 +937,10 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Drawable_compareVertexAttrib
         
         std:set<SingleVertexAttribute> inSet;
         
-        while (env->CallBooleanMethod(liter, hasNext)){
+        while (env->CallBooleanMethod(liter, hasNext)) {
             jobject attrObj = env->CallObjectMethod(liter, next);
             SingleVertexAttribute *attr = classInfoAttr->getObject(env, attrObj);
-            if (attr){
+            if (attr) {
                 inSet.insert(attr);
             }
             env->DeleteLocalRef(attrObj);
@@ -973,10 +973,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Drawable_setVertexAttributes
         
     std:set<SingleVertexAttributeInfo> inSet;
         
-        while (env->CallBooleanMethod(liter, hasNext)){
+        while (env->CallBooleanMethod(liter, hasNext)) {
             jobject attrObj = env->CallObjectMethod(liter, next);
             SingleVertexAttributeInfo *attr = classInfoAttr->getObject(env, attrObj);
-            if (attr){
+            if (attr) {
                 inSet.insert(attr);
             }
             env->DeleteLocalRef(attrObj);
@@ -1009,10 +1009,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Drawable_addVertexAttributes
         
         std:set<SingleVertexAttribute> inSet;
         
-        while (env->CallBooleanMethod(liter, hasNext)){
+        while (env->CallBooleanMethod(liter, hasNext)) {
             jobject attrObj = env->CallObjectMethod(liter, next);
             SingleVertexAttribute *attr = classInfoAttr->getObject(env, attrObj);
-            if (attr){
+            if (attr) {
                 inSet.insert(attr);
             }
             env->DeleteLocalRef(attrObj);
@@ -1156,7 +1156,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Drawable_getTexInfo
         
         TexInfoClassInfo *texInfo = TexInfoClassInfo::getClassInfo(env, "com/mousebird/maply/TexInfo");
         
-        for (auto item : inst->getTexInfo()){
+        for (auto item : inst->getTexInfo()) {
             jobject objTexInfo = texInfo->makeWrapperObject(env, item);
             env->CallObjectMethod(objArrayList, arrayListAdd, objTexInfo);
         }
@@ -1412,7 +1412,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Drawable_getVertexAttributes
         
         VertexAttributeClassInfo *vertexAttributeClassInfo = VertexAttributeClassInfo::getClassInfo(env, "com/mousebird/maply/VertexAttribute");
         
-        for (auto item: inst->getVertexAttributes()){
+        for (auto item: inst->getVertexAttributes()) {
             jobject objVerAttr = vertexAttributeClassInfo->makeWrapperObject(env, item);
             env->CallObjectMethod(objArrayList, arrayListAdd, objVerAttr);
         }
@@ -1546,7 +1546,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Drawable_addTweaker
     try {
         DrawableClassInfo *classInfo = DrawableClassInfo::getClassInfo();
         Drawable *inst = classInfo->getObject(env, obj);
-        DrawableTweaker *tweaker =DrawableTweakerClassInfo::getClassInfo()->getObject(env, tweakerObj);
+        DrawableTweaker *tweaker = DrawableTweakerClassInfo::getClassInfo()->getObject(env, tweakerObj);
         if (!inst || !tweaker)
             return;
         inst->addTweaker(tweaker);
@@ -1562,7 +1562,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Drawable_removeTweaker
     try {
         DrawableClassInfo *classInfo = DrawableClassInfo::getClassInfo();
         Drawable *inst = classInfo->getObject(env, obj);
-        DrawableTweaker *tweaker =DrawableTweakerClassInfo::getClassInfo()->getObject(env, tweakerObj);
+        DrawableTweaker *tweaker = DrawableTweakerClassInfo::getClassInfo()->getObject(env, tweakerObj);
         if (!inst || !tweaker)
             return;
         inst->removeTweaker(tweaker);

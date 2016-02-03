@@ -25,6 +25,14 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_ParticleBatch_getBatchSize
 
 /*
  * Class:     com_mousebird_maply_ParticleBatch
+ * Method:    addAttributes
+ * Signature: (Ljava/util/List;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_addAttributes
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_ParticleBatch
  * Method:    nativeInit
  * Signature: ()V
  */

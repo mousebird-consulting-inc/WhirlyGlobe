@@ -400,7 +400,7 @@ typedef JavaClassInfo<Maply::MapViewState> MapViewStateClassInfo;
 typedef JavaClassInfo<WhirlyGlobe::GlobeViewState> GlobeViewStateClassInfo;
 typedef JavaClassInfo<WhirlyKit::Marker> MarkerClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleLabelAndroid> LabelClassInfo;
-typedef JavaClassInfo<WhirlyKit::SingleVertexAttributeInfo> ParticleSystemAttributeClassInfo;
+typedef JavaClassInfo<WhirlyKit::SingleVertexAttributeInfo> SingleVertexAttributeInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::ParticleBatch> ParticleBatchClassInfo;
 typedef JavaClassInfo<WhirlyKit::ParticleSystem> ParticleSystemClassInfo;
 typedef JavaClassInfo<WhirlyKit::ParticleSystemManager> ParticleSystemManagerClassInfo;

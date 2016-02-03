@@ -1,5 +1,5 @@
 /*
- *  ParticleSystemAttribute_jni.cpp
+ *  SingleVertexAttributeInfo_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro on 21/1/16.
@@ -19,40 +19,40 @@
  */
 #import <jni.h>
 #import "Maply_jni.h"
-#import "com_mousebird_maply_ParticleSystemAttribute.h"
+#import "com_mousebird_maply_SingleVertexAttributeInfo.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemAttribute_nativeInit
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SingleVertexAttributeInfo_nativeInit
 (JNIEnv *env, jclass cls)
 {
-    ParticleSystemAttributeClassInfo::getClassInfo(env,cls);
+    SingleVertexAttributeInfoClassInfo::getClassInfo(env,cls);
 
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemAttribute_initialise
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SingleVertexAttributeInfo_initialise
 (JNIEnv *env, jobject obj)
 {
     try
     {
-        ParticleSystemAttributeClassInfo *info = ParticleSystemAttributeClassInfo::getClassInfo();
+        SingleVertexAttributeInfoClassInfo *info = SingleVertexAttributeInfoClassInfo::getClassInfo();
         SingleVertexAttributeInfo *inst = new SingleVertexAttributeInfo();
         info->setHandle(env, obj, inst);
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystemAttribute::initialise()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SingleVertexAttributeInfo::initialise()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemAttribute_dispose
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SingleVertexAttributeInfo_dispose
 (JNIEnv *env, jobject obj)
 {
     try
     {
-        ParticleSystemAttributeClassInfo *classInfo = ParticleSystemAttributeClassInfo::getClassInfo();
+        SingleVertexAttributeInfoClassInfo *classInfo = SingleVertexAttributeInfoClassInfo::getClassInfo();
         SingleVertexAttributeInfo *parcSysAttr = classInfo->getObject(env,obj);
         if (!parcSysAttr)
             return;
@@ -62,16 +62,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemAttribute_dispose
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystemAttribute::dispose()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SingleVertexAttributeInfo::dispose()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemAttribute_setName
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SingleVertexAttributeInfo_setName
 (JNIEnv *env, jobject obj, jstring name)
 {
     try
     {
-        ParticleSystemAttributeClassInfo *classInfo = ParticleSystemAttributeClassInfo::getClassInfo();
+        SingleVertexAttributeInfoClassInfo *classInfo = SingleVertexAttributeInfoClassInfo::getClassInfo();
         SingleVertexAttributeInfo *parcSysAttr = classInfo->getObject(env,obj);
         if (!parcSysAttr)
             return;
@@ -80,15 +80,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemAttribute_setName
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystemAttribute::setName()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SingleVertexAttributeInfo::setName()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemAttribute_setType
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SingleVertexAttributeInfo_setType
 (JNIEnv *env, jobject obj, jint type)
 {
     try{
-        ParticleSystemAttributeClassInfo *classInfo = ParticleSystemAttributeClassInfo::getClassInfo();
+        SingleVertexAttributeInfoClassInfo *classInfo = SingleVertexAttributeInfoClassInfo::getClassInfo();
         SingleVertexAttributeInfo *parcSysAttr = classInfo->getObject(env,obj);
         if (!parcSysAttr)
             return;
@@ -116,16 +116,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemAttribute_setType
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystemAttribute::setType()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SingleVertexAttributeInfo::setType()");
     }
 }
 
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_ParticleSystemAttribute_getType
-(JNIEnv *env, jobject obj){
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_SingleVertexAttributeInfo_getType
+(JNIEnv *env, jobject obj) {
     
     try
     {
-        ParticleSystemAttributeClassInfo *classInfo = ParticleSystemAttributeClassInfo::getClassInfo();
+        SingleVertexAttributeInfoClassInfo *classInfo = SingleVertexAttributeInfoClassInfo::getClassInfo();
         SingleVertexAttributeInfo *parcSysAttr = classInfo->getObject(env,obj);
         if (!parcSysAttr)
             return 0;
@@ -153,23 +153,23 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_ParticleSystemAttribute_getType
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystemAttribute::getType()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SingleVertexAttributeInfo::getType()");
     }
 }
 
-JNIEXPORT jstring JNICALL Java_com_mousebird_maply_ParticleSystemAttribute_getName
-(JNIEnv *env, jobject obj){
+JNIEXPORT jstring JNICALL Java_com_mousebird_maply_SingleVertexAttributeInfo_getName
+(JNIEnv *env, jobject obj) {
     try
     {
-        ParticleSystemAttributeClassInfo *classInfo = ParticleSystemAttributeClassInfo::getClassInfo();
+        SingleVertexAttributeInfoClassInfo *classInfo = SingleVertexAttributeInfoClassInfo::getClassInfo();
         SingleVertexAttributeInfo *parcSysAttr = classInfo->getObject(env,obj);
-        if (!parcSysAttr){
+        if (!parcSysAttr) {
             return NULL;
         }
         return env->NewStringUTF(parcSysAttr->name.c_str());
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystemAttribute::getName()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SingleVertexAttributeInfo::getName()");
     }
 }

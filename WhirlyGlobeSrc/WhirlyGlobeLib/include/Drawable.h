@@ -243,7 +243,14 @@ static const unsigned int MaxDrawableTriangles = (MaxDrawablePoints / 3);
 class SubTexture;
 
 /// Data types we'll accept for attributes
-typedef enum {BDFloat4Type,BDFloat3Type,BDChar4Type,BDFloat2Type,BDFloatType,BDIntType} BDAttributeDataType;
+typedef enum {
+	BDFloat4Type = 0,
+	BDFloat3Type = 1,
+	BDChar4Type  = 2,
+	BDFloat2Type = 3,
+	BDFloatType  = 4,
+	BDIntType    = 5
+} BDAttributeDataType;
     
     
 /// Used to keep track of attributes (other than points)

@@ -101,7 +101,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_OpenGLMemManager_getTexID
         if (!inst)
             return -1;
         
-        return inst->getTexID;
+        return inst->getTexID();
         
     } catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in OpenGLMemManager::getTexID()");

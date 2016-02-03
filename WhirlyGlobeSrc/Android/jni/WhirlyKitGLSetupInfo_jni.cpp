@@ -84,7 +84,7 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_WhirlyKitGLSetupInfo_getMinZre
         WhirlyKitGLSetupInfoClassInfo *classInfo = WhirlyKitGLSetupInfoClassInfo::getClassInfo();
         WhirlyKitGLSetupInfo *inst = classInfo->getObject(env, obj);
         if (!inst)
-            return NULL;
+            return 0;
         
         return inst->minZres;
         

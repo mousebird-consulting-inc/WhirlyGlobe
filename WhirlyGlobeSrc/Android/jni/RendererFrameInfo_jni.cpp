@@ -687,10 +687,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RendererFrameInfo_setOffSetMatri
         
         Matrix4dClassInfo *matrixClassInfo = Matrix4dClassInfo::getClassInfo();
         
-        while (env->CallBooleanMethod(liter, hasNext)){
+        while (env->CallBooleanMethod(liter, hasNext)) {
             jobject matrixObj = env->CallObjectMethod(liter, next);
             Matrix4d *matrix = matrixClassInfo->getObject(env, matrixObj);
-            if (matrix){
+            if (matrix) {
                 inst->offsetMatrices.insert(matrix);
             }
             env->DeleteLocalRef(matrixObj);
@@ -720,7 +720,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_RendererFrameInfo_getOffSetMa
         
         Matrix4dClassInfo *matrixClassInfo = Matrix4dClassInfo::getClassInfo(env, "com/mousebird/maply/Matrix4d");
         
-        for (auto item : inst->offsetMatrices){
+        for (auto item : inst->offsetMatrices) {
             jobject objMtx = matrixClassInfo->makeWrapperObject(env, item);
             env->CallObjectMethod(objArrayList, arrayListAdd, objMtx);
         }

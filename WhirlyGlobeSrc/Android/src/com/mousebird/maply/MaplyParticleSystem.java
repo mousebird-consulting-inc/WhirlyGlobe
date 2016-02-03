@@ -21,7 +21,6 @@ package com.mousebird.maply;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Set;
 import java.util.Vector;
 
 public class MaplyParticleSystem {
@@ -36,11 +35,11 @@ public class MaplyParticleSystem {
     private double ident;
     private Vector<Object> images;
 
-    public ArrayList<ParticleSystemAttribute> getAttrs() {
+    public ArrayList<SingleVertexAttributeInfo> getAttrs() {
         return attrs;
     }
 
-    private ArrayList<ParticleSystemAttribute> attrs;
+    private ArrayList<SingleVertexAttributeInfo> attrs;
 
     public int getBatchSize() {
         return batchSize;
@@ -58,8 +57,8 @@ public class MaplyParticleSystem {
         this.images = new Vector<>();
     }
 
-    public void addAttribute(String attrName, ParticleSystemAttribute.MaplyShaderAttrType type) {
-        ParticleSystemAttribute attr = new ParticleSystemAttribute();
+    public void addAttribute(String attrName, SingleVertexAttributeInfo.MaplyShaderAttrType type) {
+        SingleVertexAttributeInfo attr = new SingleVertexAttributeInfo();
         attr.setName(attrName);
         attr.setType(type.getValue());
         attrs.add(attr);

@@ -243,8 +243,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_OpenGLES2Program_findAttribut
             return NULL;
         
         JavaString jstr(env, attrName);
-        OpenGLESAttribute *attr = inst->findAttribute(jstr.cStr);
-        if (!attr){
+        OpenGLESAttribute *attr = (OpenGLESAttribute *)inst->findAttribute(jstr.cStr);
+        if (!attr) {
             return NULL;
         }
         else{

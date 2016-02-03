@@ -61,7 +61,7 @@ public class ParticleSystem {
 
     public native void setBasetime(double basetime);
 
-    public native void addParticleSystemAttribute(ParticleSystemAttribute attribute);
+    public native void addParticleSystemAttribute(SingleVertexAttributeInfo attribute);
 
     public native void addTexID(long texID);
 

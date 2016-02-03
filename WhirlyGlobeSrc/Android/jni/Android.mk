@@ -83,11 +83,11 @@ LOCAL_SRC_FILES += $(MAPLY_CORE_SRC_FILES:%=$(MAPLY_CORE_SRC_DIR)/%)
 MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp BaseInfo_jni.cpp ChangeSet_jni.cpp CoordSystemDisplayAdapter_jni.cpp \
 					FontTextureManagerAndroid.cpp Identifiable_jni.cpp LabelInfoAndroid.cpp LabelInfo_jni.cpp LabelManager_jni.cpp LayoutManager_jni.cpp \
 					MaplyRenderer_jni.cpp MapScene_jni.cpp MapView_jni.cpp ImageWrapper.cpp \
-					Matrix4d_jni.cpp Point2d_jni.cpp Point3d_jni.cpp VectorInfo_jni.cpp VectorIterator_jni.cpp VectorManager_jni.cpp VectorObject_jni.cpp \
+					Matrix4d_jni.cpp Matrix4f_jni.cpp Point2d_jni.cpp Point2f_jni.cpp Point3d_jni.cpp Point3f_jni.cpp VectorInfo_jni.cpp VectorIterator_jni.cpp VectorManager_jni.cpp VectorObject_jni.cpp \
 					InternalLabel_jni.cpp InternalMarker_jni.cpp MarkerInfo_jni.cpp MarkerManager_jni.cpp Texture_jni.cpp QuadPagingLayer_jni.cpp QuadImageTileLayer_jni.cpp \
 					SelectionManager_jni.cpp Shader_jni.cpp SingleLabelAndroid.cpp CoordSystem_jni.cpp SphericalMercatorCoordSystem_jni.cpp PlateCarreeCoordSystem_jni.cpp ViewState_jni.cpp \
-					Scene_jni.cpp View_jni.cpp MapViewState_jni.cpp GlobeScene_jni.cpp GlobeView_jni.cpp GlobeViewState_jni.cpp FakeGeocentricDisplayAdapter_jni.cpp ParticleSystemAttribute_jni.cpp ParticleBatch_jni.cpp ParticleSystem_jni.cpp ParticleSystemManager_jni.cpp \
-					GeoCoordSystem_jni.cpp Quaternion_jni.cpp AngleAxis_jni.cpp Point4d_jni.cpp Sticker_jni.cpp StickerInfo_jni.cpp StickerManager_jni.cpp QuadImageOfflineLayer_jni.cpp
+					Scene_jni.cpp View_jni.cpp MapViewState_jni.cpp GlobeScene_jni.cpp GlobeView_jni.cpp GlobeViewState_jni.cpp FakeGeocentricDisplayAdapter_jni.cpp SingleVertexAttributeInfo_jni.cpp ParticleBatch_jni.cpp ParticleSystem_jni.cpp ParticleSystemManager_jni.cpp Batch_jni.cpp CullTree_jni.cpp WhirlyKitGLSetupInfo_jni.cpp OpenGLMemManager_jni.cpp OpenGLES2Program_jni.cpp OpenGLESAttribute_jni.cpp SingleVertexAttribute_jni.cpp \
+					GeoCoordSystem_jni.cpp Quaternion_jni.cpp AngleAxis_jni.cpp Point4d_jni.cpp Point4f_jni.cpp Sticker_jni.cpp StickerInfo_jni.cpp StickerManager_jni.cpp QuadImageOfflineLayer_jni.cpp
 LOCAL_SRC_FILES += $(MAPLY_JNI_FILES)
 
 MAPLY_PLATFORM_FILES := platform.cpp glwrapper.cpp

@@ -66,7 +66,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setBasetime
 /*
  * Class:     com_mousebird_maply_ParticleSystem
  * Method:    addParticleSystemAttribute
- * Signature: (Lcom/mousebird/maply/ParticleSystemAttribute;)V
+ * Signature: (Lcom/mousebird/maply/SingleVertexAttributeInfo;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addParticleSystemAttribute
   (JNIEnv *, jobject, jobject);

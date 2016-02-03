@@ -41,7 +41,7 @@ public class MaplyParticleBatch {
     }
 
     public boolean addAttribute(String attrName, ByteBuffer data) {
-        for (ParticleSystemAttribute attr : this.partSys.getAttrs()) {
+        for (SingleVertexAttributeInfo attr : this.partSys.getAttrs()) {
             if (attrName.equals(attr.getName())) {
                 // Found. Now make sure the size matches
                 ParticleSystemAttrVals attrValue = new ParticleSystemAttrVals();

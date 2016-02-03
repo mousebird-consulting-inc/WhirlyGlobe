@@ -108,7 +108,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Cullable_getDrawables
         
         DrawableClassInfo *drawableClassInfo = DrawableClassInfo::getClassInfo(env, "com/mousebird/maply/Drawable");
     
-        for(auto item : inst->drawables){
+        for(auto item : inst->drawables) {
             jobject objDrawable = drawableClassInfo->makeWrapperObject(env, item);
             env->CallObjectMethod(objArrayList, arrayListAdd, objDrawable);
         }
@@ -137,7 +137,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Cullable_getChildDrawables
         
         DrawableClassInfo *drawableClassInfo = DrawableClassInfo::getClassInfo(env, "com/mousebird/maply/Drawable");
         
-        for(auto item : inst->childDrawables){
+        for(auto item : inst->childDrawables) {
             jobject objDrawable = drawableClassInfo->makeWrapperObject(env, item);
             env->CallObjectMethod(objArrayList, arrayListAdd, objDrawable);
         }
@@ -156,7 +156,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Cullable_hasChildren
 {
     try {
         CullableClassInfo *classInfo = CullableClassInfo::getClassInfo();
-        Cullable *inst =classInfo->getObject(env, obj);
+        Cullable *inst = classInfo->getObject(env, obj);
         if (!inst)
             return NULL;
         return inst->hasChildren();
@@ -170,7 +170,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Cullable_isEmpty
 {
     try {
         CullableClassInfo *classInfo = CullableClassInfo::getClassInfo();
-        Cullable *inst =classInfo->getObject(env, obj);
+        Cullable *inst = classInfo->getObject(env, obj);
         if (!inst)
             return NULL;
         return inst->isEmpty();
@@ -184,7 +184,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Cullable_getChild
 {
     try {
         CullableClassInfo *classInfo = CullableClassInfo::getClassInfo();
-        Cullable *inst =classInfo->getObject(env, obj);
+        Cullable *inst = classInfo->getObject(env, obj);
         if (!inst)
             return NULL;
         CullableClassInfo *classInfoCullable = CullableClassInfo::getClassInfo(env,"com/mousebird/maply/Cullable");
@@ -199,7 +199,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Cullable_getMbrLL
 {
     try {
         CullableClassInfo *classInfo = CullableClassInfo::getClassInfo();
-        Cullable *inst =classInfo->getObject(env, obj);
+        Cullable *inst = classInfo->getObject(env, obj);
         if (!inst)
             return NULL;
         Point2dClassInfo *classInfoPoint2d = Point2dClassInfo::getClassInfo(env,"com/mousebird/maply/Point2d");
@@ -214,7 +214,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Cullable_getMbrUr
 {
     try {
         CullableClassInfo *classInfo = CullableClassInfo::getClassInfo();
-        Cullable *inst =classInfo->getObject(env, obj);
+        Cullable *inst = classInfo->getObject(env, obj);
         if (!inst)
             return NULL;
         Point2dClassInfo *classInfoPoint2d = Point2dClassInfo::getClassInfo(env,"com/mousebird/maply/Point2d");
@@ -229,7 +229,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_Cullable_countNodes
 {
     try {
         CullableClassInfo *classInfo = CullableClassInfo::getClassInfo();
-        Cullable *inst =classInfo->getObject(env, obj);
+        Cullable *inst = classInfo->getObject(env, obj);
         if (!inst)
             return NULL;
         return inst->countNodes();
