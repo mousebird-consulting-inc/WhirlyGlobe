@@ -84,7 +84,7 @@ using namespace Eigen;
 }
 
 // Return the ID for or generate a base model in the Geometry Manager
-- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer mode:(MaplyThreadMode)threadMode
+- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer fontTexManager:(WhirlyKitFontTextureManager *)fontTexManager mode:(MaplyThreadMode)threadMode
 {
     @synchronized(self)
     {
@@ -135,6 +135,42 @@ using namespace Eigen;
             // Convert the geometry and map the texture IDs
             std::vector<WhirlyKit::GeometryRaw> theRawGeom;
             [self asRawGeometry:theRawGeom withTexMapping:texIDMap];
+        }
+        
+        std::map<SimpleIdentity,WhirlyKit::GeometryRaw> stringGeom;
+        
+        // Now for the strings
+        for (const GeomStringWrapper &strWrap : strings)
+        {
+            // Convert the string to polygons
+            DrawableString *drawStr = [fontTexManager addString:strWrap.str changes:changes];
+            for (const DrawableString::Rect &rect : drawStr->glyphPolys)
+            {
+                
+                SingleBillboardPoly billPoly;
+                billPoly.pts.resize(4);
+                billPoly.texCoords.resize(4);
+                billPoly.texId = rect.subTex.texId;
+                billPoly.texCoords[0] = rect.subTex.processTexCoord(TexCoord(0,0));
+                billPoly.texCoords[1] = rect.subTex.processTexCoord(TexCoord(1,0));
+                billPoly.texCoords[2] = rect.subTex.processTexCoord(TexCoord(1,1));
+                billPoly.texCoords[3] = rect.subTex.processTexCoord(TexCoord(0,1));
+                billPoly.pts[0] = Point2d(rect.pts[0].x(),rect.pts[0].y());
+                billPoly.pts[1] = Point2d(rect.pts[1].x(),rect.pts[0].y());
+                billPoly.pts[2] = Point2d(rect.pts[1].x(),rect.pts[1].y());
+                billPoly.pts[3] = Point2d(rect.pts[0].x(),rect.pts[1].y());
+                for (unsigned int ip=0;ip<4;ip++)
+                {
+                    const Point2d &oldPt = billPoly.pts[ip];
+                    Point3d newPt = strWrap.mat * Point3d(oldPt.x(),oldPt.y(),1.0);
+                    billPoly.pts[ip] = Point2d(newPt.x(),newPt.y());
+                }
+                
+                wkBill.polys.push_back(billPoly);
+            }
+            
+            compObj.drawStringIDs.insert(drawStr->getId());
+            delete drawStr;
         }
         
         GeometryManager *geomManager = (GeometryManager *)layer->scene->getManager(kWKGeometryManager);
