@@ -112,7 +112,7 @@ void BasicDrawable::setupTexCoordEntry(int which,int numReserve)
 
 void BasicDrawable::setupStandardAttributes(int numReserve)
 {
-    setupTexCoordEntry(0,numReserve);
+//    setupTexCoordEntry(0,numReserve);
     
     colorEntry = addAttribute(BDChar4Type,"a_color");
     vertexAttributes[colorEntry]->setDefaultColor(RGBAColor(255,255,255,255));
