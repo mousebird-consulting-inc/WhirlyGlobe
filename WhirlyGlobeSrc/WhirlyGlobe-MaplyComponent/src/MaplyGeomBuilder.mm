@@ -121,7 +121,7 @@ using namespace WhirlyKit;
     if (state.color)
         [attrStr addAttribute:NSForegroundColorAttributeName value:state.color range:NSMakeRange(0, strLen)];
 
-    GeomBuilderStringWrapper strWrap;
+    GeomStringWrapper strWrap;
     strWrap.str = attrStr;
     strWrap.size = [attrStr size];
 
@@ -139,7 +139,7 @@ using namespace WhirlyKit;
 
 - (void)addAttributedString:(NSAttributedString *)str state:(MaplyGeomState *)state
 {
-    GeomBuilderStringWrapper strWrap;
+    GeomStringWrapper strWrap;
     strWrap.str = str;
     strWrap.size = [str size];
     strWrap.mat = Matrix4d::Identity();
@@ -333,6 +333,9 @@ using namespace WhirlyKit;
 {
     for (auto &geom : rawGeom)
         geom.applyTransform(matrix.mat);
+    
+    for (auto &string : strings)
+        string.mat = string.mat * matrix.mat;
 }
 
 - (void)addGeomFromBuilder:(MaplyGeomBuilder *)modelBuilder
@@ -403,6 +406,12 @@ using namespace WhirlyKit;
     }
         
     // And the strings
+    for (auto &string : modelBuilder->strings)
+    {
+        auto theString = string;
+        theString.mat = theString.mat * matrix.mat;
+        strings.push_back(theString);
+    }
 }
 
 - (bool)getSizeLL:(MaplyCoordinate3dD *)ll ur:(MaplyCoordinate3dD *)ur
@@ -494,6 +503,13 @@ using namespace WhirlyKit;
         
         model->rawGeom.push_back(thisGeom);
     }
+    
+    // Convert the strings
+    for (const auto &string : strings)
+    {
+        model->strings.push_back(string);
+    }
+    
     
     return model;
 }
