@@ -14,7 +14,8 @@
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.captureDelay = 20;
+        // Note: Debugging
+        self.captureDelay = 100000;
         self.name = @"Runway Builder";
     }
     return self;
@@ -88,7 +89,7 @@
     double displaced = 200.0;
     double runway = 2000.0;
     double chevronThickness = 4.0;
-    double drawOffset = 0.001;
+    double drawOffset = 1.0;
     enum {BaseLayer,PaintLayer};
     double total = overrun+displaced+runway;
     
