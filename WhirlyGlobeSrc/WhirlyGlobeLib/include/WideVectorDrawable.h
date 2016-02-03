@@ -76,7 +76,6 @@ protected:
     int tex_index;
     
 #ifdef WIDEVECDEBUG
-    // Note: Debugging
     std::vector<Point3f> locPts;
     std::vector<Point3f> p1;
     std::vector<Point2f> t0_limits;
