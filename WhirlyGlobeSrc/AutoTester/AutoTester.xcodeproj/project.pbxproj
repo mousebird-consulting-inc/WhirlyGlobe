@@ -73,6 +73,7 @@
 		883DF7441C1CE164000756E9 /* WideVectorsTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF71A1C1CE164000756E9 /* WideVectorsTestCase-map.png */; };
 		886FCCC31BA73C1D00494BB0 /* StartupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */; };
 		886FCCCD1BA74D1200494BB0 /* ConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886FCCCC1BA74D1200494BB0 /* ConfigViewController.swift */; };
+		8895D8B01CA4ABA9004387FB /* ParticleTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8895D8AF1CA4ABA9004387FB /* ParticleTest.m */; };
 		88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11481BCD3DA40002205E /* MaplyTestCase.m */; };
 		88BF11521BCD9BF70002205E /* MaplyTestResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11511BCD9BF70002205E /* MaplyTestResult.m */; };
 		88BF11571BCDA1BB0002205E /* ResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11561BCDA1BB0002205E /* ResultsViewController.swift */; };
@@ -499,6 +500,7 @@
 		D880112F1BFD16A900606EC6 /* DropboxViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D880112D1BFD16A900606EC6 /* DropboxViewController.swift */; };
 		D88011301BFD16A900606EC6 /* DropboxViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D880112E1BFD16A900606EC6 /* DropboxViewController.xib */; };
 		D882B8361C07BA2500649BE9 /* styles.css in Resources */ = {isa = PBXBuildFile; fileRef = D882B8351C07BA2500649BE9 /* styles.css */; };
+		D8D3E0681C4EDA1800F0D006 /* ParticleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D3E0671C4EDA1800F0D006 /* ParticleTestCase.swift */; };
 		D8DCCC9F1BDB89A900BA3866 /* FullScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCC9E1BDB89A900BA3866 /* FullScreenViewController.swift */; };
 		D8DCCCA31BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCCA21BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift */; };
 		D8DCCCAC1BDC1A1200BA3866 /* CesiumElevationTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */; };
@@ -601,6 +603,8 @@
 		883DF71A1C1CE164000756E9 /* WideVectorsTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "WideVectorsTestCase-map.png"; sourceTree = "<group>"; };
 		886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StartupViewController.swift; sourceTree = "<group>"; };
 		886FCCCC1BA74D1200494BB0 /* ConfigViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigViewController.swift; sourceTree = "<group>"; };
+		8895D8AE1CA4ABA9004387FB /* ParticleTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleTest.h; sourceTree = "<group>"; };
+		8895D8AF1CA4ABA9004387FB /* ParticleTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ParticleTest.m; sourceTree = "<group>"; };
 		88BF11471BCD3DA40002205E /* MaplyTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTestCase.h; sourceTree = "<group>"; };
 		88BF11481BCD3DA40002205E /* MaplyTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaplyTestCase.m; sourceTree = "<group>"; };
 		88BF11501BCD9BF70002205E /* MaplyTestResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTestResult.h; sourceTree = "<group>"; };
@@ -1041,6 +1045,7 @@
 		D880112D1BFD16A900606EC6 /* DropboxViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DropboxViewController.swift; sourceTree = "<group>"; };
 		D880112E1BFD16A900606EC6 /* DropboxViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DropboxViewController.xib; sourceTree = "<group>"; };
 		D882B8351C07BA2500649BE9 /* styles.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; name = styles.css; path = AutoTester/styles.css; sourceTree = "<group>"; };
+		D8D3E0671C4EDA1800F0D006 /* ParticleTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParticleTestCase.swift; sourceTree = "<group>"; };
 		D8DCCC9E1BDB89A900BA3866 /* FullScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FullScreenViewController.swift; sourceTree = "<group>"; };
 		D8DCCCA21BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapBoxSatelliteTestCase.swift; sourceTree = "<group>"; };
 		D8DCCCAA1BDC1A1200BA3866 /* CesiumElevationTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CesiumElevationTestCase.h; sourceTree = "<group>"; };
@@ -1182,6 +1187,8 @@
 				E57E78C91C936B8400C468C6 /* AerisWeatherTestCase.h */,
 				E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */,
 				D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */,
+				2B6953631C7E601A007FC51E /* AnimatedColorRampTestCase.h */,
+				2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */,
 				D84AA5931C1A1C9700413B76 /* BNGCustomMapTestCase.swift */,
 				D84AA5981C1A2B9800413B76 /* BNGTestCase.swift */,
 				D84433E91C14E4E700A52117 /* CartoDBTestCase.h */,
@@ -1191,8 +1198,12 @@
 				D8228AA71BE786BE001D6914 /* ClusteredMarkersTestCase.swift */,
 				D84AA59A1C1A2E9900413B76 /* ElevationLocalDatabase.h */,
 				D84AA59B1C1A2E9900413B76 /* ElevationLocalDatabase.m */,
+				2BDEB3001C924842003259B3 /* ExtrudedModelTestCase.h */,
+				2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */,
 				88BF115B1BCDA9530002205E /* GeographyClassTestCase.h */,
 				88BF115C1BCDA9530002205E /* GeographyClassTestCase.m */,
+				2BDEB3121C9391EB003259B3 /* GreatCircleTestCase.h */,
+				2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */,
 				D8F2FE251BE7BD630058A310 /* LabelsTestCase.h */,
 				D8F2FE261BE7BD630058A310 /* LabelsTestCase.m */,
 				D8200CA21BE9624300B22CF5 /* LoftedPolysTestCase.h */,
@@ -1211,6 +1222,11 @@
 				D8228AA41BE785E1001D6914 /* MovingScreenMarkers.h */,
 				D8228AA51BE785E1001D6914 /* MovingScreenMarkers.m */,
 				D84433E61C14A46100A52117 /* NASAGIBSTestCase.swift */,
+				8895D8AE1CA4ABA9004387FB /* ParticleTest.h */,
+				8895D8AF1CA4ABA9004387FB /* ParticleTest.m */,
+				D8D3E0671C4EDA1800F0D006 /* ParticleTestCase.swift */,
+				2B392B6F1C5AC59D001EE40B /* RunwayBuilderTestCase.h */,
+				2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */,
 				D8341A721BE2DFE100411A46 /* ScreenLabelsTestCase.swift */,
 				D8341A741BE2E89E00411A46 /* ScreenMarkersTestCase.h */,
 				D8341A751BE2E89E00411A46 /* ScreenMarkersTestCase.m */,
@@ -1219,20 +1235,12 @@
 				88BF115E1BCDA9730002205E /* StamenWatercolorRemote.swift */,
 				D8200C971BE93E6E00B22CF5 /* StarsSunTestCase.swift */,
 				D8200CA01BE9563F00B22CF5 /* StickersTestCase.swift */,
+				2B1C264D1C90FFFC00C71B0A /* VectorMBTilesTestCase.h */,
+				2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */,
 				D8341A6F1BE2C8D200411A46 /* VectorsTestCase.h */,
 				D8341A701BE2C8D200411A46 /* VectorsTestCase.m */,
 				D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */,
 				D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */,
-				2B392B6F1C5AC59D001EE40B /* RunwayBuilderTestCase.h */,
-				2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */,
-				2B6953631C7E601A007FC51E /* AnimatedColorRampTestCase.h */,
-				2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */,
-				2B1C264D1C90FFFC00C71B0A /* VectorMBTilesTestCase.h */,
-				2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */,
-				2BDEB3001C924842003259B3 /* ExtrudedModelTestCase.h */,
-				2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */,
-				2BDEB3121C9391EB003259B3 /* GreatCircleTestCase.h */,
-				2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2402,8 +2410,10 @@
 				88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */,
 				88BF11591BCDA3960002205E /* ResultCell.swift in Sources */,
 				D84433EB1C14E4E700A52117 /* CartoDBTestCase.m in Sources */,
+				D8D3E0681C4EDA1800F0D006 /* ParticleTestCase.swift in Sources */,
 				D8DCCCA31BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift in Sources */,
 				D8341A731BE2DFE100411A46 /* ScreenLabelsTestCase.swift in Sources */,
+				8895D8B01CA4ABA9004387FB /* ParticleTest.m in Sources */,
 				D880112F1BFD16A900606EC6 /* DropboxViewController.swift in Sources */,
 				D8E12ECD1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift in Sources */,
 				D84433EE1C14E4FE00A52117 /* CartoDBLayer.m in Sources */,
