@@ -53,6 +53,8 @@ public class OpenGLES2Program {
 
     public native String getName();
 
+    public native int getProgram();
+
     public native int bindTextures();
 
     public native void cleanUp();

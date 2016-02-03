@@ -19,6 +19,7 @@
  */
 package com.mousebird.maply;
 
+import java.util.List;
 import java.util.Vector;
 
 
@@ -107,9 +108,9 @@ public class RendererFrameInfo {
 
     public native Matrix4f getPvMat();
 
-    public native void setOffSetMatrices (Vector<Matrix4d> offSetMatrices);
+    public native void setOffSetMatrices (List<Matrix4d> offSetMatrices);
 
-    public native Vector<Matrix4d> getOffSetMatrices();
+    public native List<Matrix4d> getOffSetMatrices();
 
     public native void setScene (Scene scene);
 

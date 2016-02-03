@@ -360,6 +360,7 @@ public:
 namespace WhirlyKit
 {
 typedef Eigen::Vector4d Point4d;
+typedef Eigen::Vector4f Point4f;
 }
 
 // Wrappers for class info for all the various classes that have presence in Java
@@ -368,9 +369,13 @@ typedef JavaClassInfo<WhirlyKit::ChangeSet> ChangeSetClassInfo;
 typedef JavaClassInfo<WhirlyKit::Texture> TextureClassInfo;
 typedef JavaClassInfo<WhirlyKit::CoordSystem> CoordSystemClassInfo;
 typedef JavaClassInfo<WhirlyKit::Point2d> Point2dClassInfo;
+typedef JavaClassInfo<WhirlyKit::Point2f> Point2fClassInfo;
 typedef JavaClassInfo<WhirlyKit::Point3d> Point3dClassInfo;
+typedef JavaClassInfo<WhirlyKit::Point3f> Point3fClassInfo;
 typedef JavaClassInfo<WhirlyKit::Point4d> Point4dClassInfo;
+typedef JavaClassInfo<WhirlyKit::Point4f> Point4fClassInfo;
 typedef JavaClassInfo<Eigen::Matrix4d> Matrix4dClassInfo;
+typedef JavaClassInfo<Eigen::Matrix4f> Matrix4fClassInfo;
 typedef JavaClassInfo<Eigen::Quaterniond> QuaternionClassInfo;
 typedef JavaClassInfo<Eigen::AngleAxisd> AngleAxisClassInfo;
 typedef JavaClassInfo<WhirlyKit::CoordSystemDisplayAdapter> CoordSystemDisplayAdapterInfo;
@@ -395,10 +400,23 @@ typedef JavaClassInfo<Maply::MapViewState> MapViewStateClassInfo;
 typedef JavaClassInfo<WhirlyGlobe::GlobeViewState> GlobeViewStateClassInfo;
 typedef JavaClassInfo<WhirlyKit::Marker> MarkerClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleLabelAndroid> LabelClassInfo;
-typedef JavaClassInfo<WhirlyKit::OpenGLES2Program> OpenGLES2ProgramClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleVertexAttributeInfo> ParticleSystemAttributeClassInfo;
 typedef JavaClassInfo<WhirlyKit::ParticleBatch> ParticleBatchClassInfo;
 typedef JavaClassInfo<WhirlyKit::ParticleSystem> ParticleSystemClassInfo;
+typedef JavaClassInfo<WhirlyKit::ParticleSystemManager> ParticleSystemManagerClassInfo;
+typedef JavaClassInfo<WhirlyKit::ParticleSystemDrawable> ParticleSystemDrawableClassInfo;
+typedef JavaClassInfo<WhirlyKit::CullTree> CullTreeClassInfo;
+typedef JavaClassInfo<WhirlyKit::Cullable> CullableClassInfo;
+typedef JavaClassInfo<WhirlyKit::BasicDrawable> DrawableClassInfo;
+typedef JavaClassInfo<WhirlyKit::WhirlyKitGLSetupInfo> WhirlyKitGLSetupInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::OpenGLMemManager> OpenGLMemManagerClassInfo;
+typedef JavaClassInfo<WhirlyKit::OpenGLES2Program> OpenGLES2ProgramClassInfo;
+typedef JavaClassInfo<WhirlyKit::OpenGLESAttribute> OpenGLESAttributeClassInfo;
+typedef JavaClassInfo<WhirlyKit::SingleVertexAttribute> SingleVertexAttributeClassInfo;
+typedef JavaClassInfo<WhirlyKit::DrawableTweaker> DrawableTweakerClassInfo;
+typedef JavaClassInfo<WhirlyKit::RendererFrameInfo> RendererFrameInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::ParticleSystemDrawable::Batch> BatchClassInfo;
+
 
 // The shared JNIEnv set in the ::render call
 extern JNIEnv *maplyCurrentEnv;

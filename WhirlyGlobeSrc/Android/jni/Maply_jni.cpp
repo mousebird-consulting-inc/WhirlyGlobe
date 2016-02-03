@@ -32,9 +32,13 @@ template<> ChangeSetClassInfo *ChangeSetClassInfo::classInfoObj = NULL;
 template<> TextureClassInfo *TextureClassInfo::classInfoObj = NULL;
 template<> CoordSystemClassInfo *CoordSystemClassInfo::classInfoObj = NULL;
 template<> Point2dClassInfo *Point2dClassInfo::classInfoObj = NULL;
+template<> Point2fClassInfo *Point2fClassInfo::classInfoObj = NULL;
 template<> Point3dClassInfo *Point3dClassInfo::classInfoObj = NULL;
+template<> Point3fClassInfo *Point3fClassInfo::classInfoObj = NULL;
 template<> Point4dClassInfo *Point4dClassInfo::classInfoObj = NULL;
+template<> Point4fClassInfo *Point4fClassInfo::classInfoObj = NULL;
 template<> Matrix4dClassInfo *Matrix4dClassInfo::classInfoObj = NULL;
+template<> Matrix4fClassInfo *Matrix4fClassInfo::classInfoObj = NULL;
 template<> QuaternionClassInfo *QuaternionClassInfo::classInfoObj = NULL;
 template<> AngleAxisClassInfo *AngleAxisClassInfo::classInfoObj = NULL;
 template<> CoordSystemDisplayAdapterInfo *CoordSystemDisplayAdapterInfo::classInfoObj = NULL;
@@ -59,6 +63,17 @@ template<> OpenGLES2ProgramClassInfo *OpenGLES2ProgramClassInfo::classInfoObj = 
 template<> ParticleSystemAttributeClassInfo *ParticleSystemAttributeClassInfo::classInfoObj = NULL;
 template<> ParticleBatchClassInfo *ParticleBatchClassInfo::classInfoObj = NULL;
 template<> ParticleSystemClassInfo *ParticleSystemClassInfo::classInfoObj = NULL;
+template<> ParticleSystemManagerClassInfo * ParticleSystemManagerClassInfo::classInfoObj = NULL;
+template<> BatchClassInfo *BatchClassInfo::classInfoObj = NULL;
+template<> CullTreeClassInfo *CullTreeClassInfo::classInfoObj = NULL;
+template<> CullableClassInfo *CullableClassInfo::classInfoObj = NULL;
+template<> DrawableClassInfo *DrawableClassInfo::classInfoObj = NULL;
+template<> WhirlyKitGLSetupInfoClassInfo *WhirlyKitGLSetupInfoClassInfo::classInfoObj = NULL;
+template<> OpenGLMemManagerClassInfo *OpenGLMemManagerClassInfo::classInfoObj = NULL;
+template<> OpenGLESAttributeClassInfo *OpenGLESAttributeClassInfo::classInfoObj = NULL;
+template<> SingleVertexAttributeClassInfo *SingleVertexAttributeClassInfo::classInfoObj = NULL;
+template<> DrawableTweakerClassInfo *DrawableTweakerClassInfo::classInfoObj = NULL;
+template<> RendererFrameInfoClassInfo *RendererFrameInfoClassInfo::classInfoObj = NULL;
 
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 {

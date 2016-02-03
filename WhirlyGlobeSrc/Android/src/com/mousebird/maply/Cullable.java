@@ -19,6 +19,7 @@
  */
 package com.mousebird.maply;
 
+
 import java.util.ArrayList;
 
 public class Cullable {
@@ -26,14 +27,18 @@ public class Cullable {
     long id = Identifiable.genID();
 
     public Cullable(CoordSystemDisplayAdapter coordSystem, Mbr localMbr, int depth){
-        initialise(coordSystem, localMbr, depth);
+        initialise(coordSystem, localMbr.ll, localMbr.ur, depth);
     }
 
     public void finalise(){
         dispose();
     }
 
-    public native void addDrawable(CullTree cullTree, Mbr localMbr, Drawable drawable);
+    public void addDrawable(CullTree cullTree, Mbr localMbr, Drawable drawable){
+        addDrawable(cullTree, localMbr.ll, localMbr.ur, drawable);
+    }
+
+    private native void addDrawable(CullTree cullTree, Point2d ll, Point2d ur, Drawable drawable);
 
     public native ArrayList<Drawable> getDrawables();
 
@@ -45,13 +50,20 @@ public class Cullable {
 
     public native Cullable getChild(int which);
 
-    public native Mbr getMbr();
+    public Mbr getMbr(){
+        Mbr mbr = new Mbr(getMbrLL(), getMbrUr());
+        return mbr;
+    }
+
+    private native Point2d getMbrLL();
+
+    private native Point2d getMbrUr();
 
     public native int countNodes();
 
     native void dispose();
 
-    native void initialise(CoordSystemDisplayAdapter coordSystem, Mbr localMbr, int depth);
+    native void initialise(CoordSystemDisplayAdapter coordSystem, Point2d ll, Point2d ur, int depth);
     static
     {
         nativeInit();

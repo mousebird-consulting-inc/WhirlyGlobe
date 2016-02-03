@@ -41,14 +41,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemManager_removePart
 
 /*
  * Class:     com_mousebird_maply_ParticleSystemManager
- * Method:    housekeeping
- * Signature: (DLcom/mousebird/maply/ChangeSet;)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemManager_housekeeping
-  (JNIEnv *, jobject, jdouble, jobject);
-
-/*
- * Class:     com_mousebird_maply_ParticleSystemManager
  * Method:    nativeInit
  * Signature: ()V
  */

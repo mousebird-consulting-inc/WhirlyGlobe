@@ -1,5 +1,5 @@
 /*
- *  CullTree.java
+ *  OpenGLES2Program.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
@@ -19,30 +19,37 @@
  */
 package com.mousebird.maply;
 
-public class CullTree {
+public class MutableRawData extends RawData{
 
-    public CullTree(CoordSystemDisplayAdapter coordSystem, Mbr localMbr, int depth, int maxDrawPerNode){
-
-        initialise(coordSystem,localMbr.ll, localMbr.ur,depth,maxDrawPerNode);
+    public MutableRawData(){
+        initialise();
     }
+
+    public MutableRawData (int size){
+        initialise(size);
+    }
+
+    public native char getRawData();
+
+    public native long getLen();
+
+    public native void addInt(int iVal);
+
+    public native void addDouble(double dVal);
+
+    public native void addString(String str);
 
     public void finalise(){
         dispose();
     }
 
-    public native Cullable getTopCullable();
 
-    public native int getCount();
-
-    public native void dumpStats();
-
-    native void dispose();
-
-    native void initialise(CoordSystemDisplayAdapter coordSystem, Point2d ll,Point2d ur, int depth, int maxDrawPerNode);
     static
     {
         nativeInit();
     }
     private static native void nativeInit();
-    private long nativeHandle;
+    native void initialise();
+    native void initialise(int size);
+    native void dispose();
 }

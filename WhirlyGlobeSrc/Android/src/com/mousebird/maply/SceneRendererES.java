@@ -20,7 +20,6 @@
 package com.mousebird.maply;
 
 
-import android.graphics.drawable.Drawable;
 
 import java.util.Vector;
 

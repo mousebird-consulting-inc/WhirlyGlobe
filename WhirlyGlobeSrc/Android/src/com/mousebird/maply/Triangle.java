@@ -1,5 +1,5 @@
 /*
- *  CullTree.java
+ *  Triangle.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
@@ -19,30 +19,30 @@
  */
 package com.mousebird.maply;
 
-public class CullTree {
+public class Triangle {
 
-    public CullTree(CoordSystemDisplayAdapter coordSystem, Mbr localMbr, int depth, int maxDrawPerNode){
-
-        initialise(coordSystem,localMbr.ll, localMbr.ur,depth,maxDrawPerNode);
+    public Triangle(){
+        initialise();
     }
 
+    public Triangle(int v0, int v1, int v2){
+        initialise(v0, v1, v2);
+    }
     public void finalise(){
         dispose();
     }
 
-    public native Cullable getTopCullable();
+    public native void setData(int v0, int v1, int v2);
 
-    public native int getCount();
+    public native int [] getData();
 
-    public native void dumpStats();
 
-    native void dispose();
-
-    native void initialise(CoordSystemDisplayAdapter coordSystem, Point2d ll,Point2d ur, int depth, int maxDrawPerNode);
     static
     {
         nativeInit();
     }
     private static native void nativeInit();
-    private long nativeHandle;
+    native void initialise();
+    native void initialise(int v0, int v1, int v2);
+    native void dispose();
 }

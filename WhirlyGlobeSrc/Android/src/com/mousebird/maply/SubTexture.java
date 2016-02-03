@@ -1,8 +1,8 @@
 /*
- *  ParticleSystemManager.java
+ *  SubTexture.java
  *  WhirlyGlobeLib
  *
- *  Created by jmnavarro on 18/1/16
+ *  Created by jmnavarro
  *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,42 +17,37 @@
  *  limitations under the License.
  *
  */
-
 package com.mousebird.maply;
 
 import java.util.List;
 
-public class ParticleSystemManager {
+public class SubTexture {
 
-    private ParticleSystemManager() {
+    long id = Identifiable.genID();
+
+    public SubTexture(){
+        initialise();
     }
 
-    ParticleSystemManager(Scene scene) {
-        initialize(scene);
-    }
-
-    public void finalize() {
+    public void finalise(){
         dispose();
     }
 
-    // Add a group of particle systems
-    public native long addParticleSystem(ParticleSystem newSystem, ChangeSet changes);
+    public native void setFromTex(TexCoord texCoord, TexCoord texDest);
 
-    /// Add a batch of particles
-    public native void addParticleBatch(long id, ParticleBatch batch, ChangeSet changes);
+    public native TexCoord procressTexCoord(TexCoord texCoord);
 
-    /// Enable/disable active particle system
-    public native void enableParticleSystem(long sysID, boolean enable, ChangeSet changes);
+    public native void processTexCoords(List<TexCoord> data);
 
-    // Remove one particle system
-    public native void removeParticleSystem(long sysID, ChangeSet changeSet);
+    public native void setTexID(int texID);
 
-    static {
+    public native int getTexID();
+
+    static
+    {
         nativeInit();
     }
-
     private static native void nativeInit();
-    native void initialize(Scene scene);
+    native void initialise();
     native void dispose();
-    private long nativeHandle;
 }

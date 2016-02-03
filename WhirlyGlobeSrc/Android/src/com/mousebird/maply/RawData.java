@@ -1,5 +1,5 @@
 /*
- *  CullTree.java
+ *  RawData.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
@@ -19,30 +19,25 @@
  */
 package com.mousebird.maply;
 
-public class CullTree {
+public class RawData {
 
-    public CullTree(CoordSystemDisplayAdapter coordSystem, Mbr localMbr, int depth, int maxDrawPerNode){
-
-        initialise(coordSystem,localMbr.ll, localMbr.ur,depth,maxDrawPerNode);
+    public RawData(){
+        initialise();
     }
 
     public void finalise(){
         dispose();
     }
 
-    public native Cullable getTopCullable();
+    public native char getRawData();
 
-    public native int getCount();
+    public native long getLen();
 
-    public native void dumpStats();
-
-    native void dispose();
-
-    native void initialise(CoordSystemDisplayAdapter coordSystem, Point2d ll,Point2d ur, int depth, int maxDrawPerNode);
     static
     {
         nativeInit();
     }
     private static native void nativeInit();
-    private long nativeHandle;
+    native void initialise();
+    native void dispose();
 }

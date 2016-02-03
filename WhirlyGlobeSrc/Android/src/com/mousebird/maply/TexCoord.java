@@ -1,5 +1,5 @@
 /*
- *  CullTree.java
+ *  TexCoord.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
@@ -19,30 +19,26 @@
  */
 package com.mousebird.maply;
 
-public class CullTree {
+public class TexCoord extends Point2f{
 
-    public CullTree(CoordSystemDisplayAdapter coordSystem, Mbr localMbr, int depth, int maxDrawPerNode){
-
-        initialise(coordSystem,localMbr.ll, localMbr.ur,depth,maxDrawPerNode);
+    public TexCoord(){
+        this.initialise();
     }
 
-    public void finalise(){
-        dispose();
+    public TexCoord(float u, float v){
+        this.initialise(u, v);
     }
 
-    public native Cullable getTopCullable();
+    public native float u();
 
-    public native int getCount();
+    public native float y();
 
-    public native void dumpStats();
-
-    native void dispose();
-
-    native void initialise(CoordSystemDisplayAdapter coordSystem, Point2d ll,Point2d ur, int depth, int maxDrawPerNode);
     static
     {
         nativeInit();
     }
     private static native void nativeInit();
-    private long nativeHandle;
+    native void initialise();
+    native void initialise(float u, float v);
+    native void dispose();
 }

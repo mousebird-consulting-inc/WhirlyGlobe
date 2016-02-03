@@ -1,8 +1,8 @@
 /*
- *  CullTree.java
+ *  TexInfo.java
  *  WhirlyGlobeLib
  *
- *  Created by jmnavarro
+ *  Created by jmnavarro on 21/1/16.
  *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,30 +19,30 @@
  */
 package com.mousebird.maply;
 
-public class CullTree {
+public class TexInfo {
 
-    public CullTree(CoordSystemDisplayAdapter coordSystem, Mbr localMbr, int depth, int maxDrawPerNode){
-
-        initialise(coordSystem,localMbr.ll, localMbr.ur,depth,maxDrawPerNode);
+    public TexInfo(){
+        initialise();
     }
 
     public void finalise(){
         dispose();
     }
 
-    public native Cullable getTopCullable();
+    public native long getTexID();
 
-    public native int getCount();
+    public native void setTexID();
 
-    public native void dumpStats();
+    public native void setTexCoordEntry(int texCoordEntry);
 
-    native void dispose();
+    public native int getTexCoordEntry();
 
-    native void initialise(CoordSystemDisplayAdapter coordSystem, Point2d ll,Point2d ur, int depth, int maxDrawPerNode);
+
     static
     {
         nativeInit();
     }
     private static native void nativeInit();
-    private long nativeHandle;
+    native void initialise();
+    native void dispose();
 }
