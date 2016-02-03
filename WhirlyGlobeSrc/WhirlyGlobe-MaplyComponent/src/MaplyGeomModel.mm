@@ -22,6 +22,7 @@
 #import "MaplyGeomModel_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
 #import "MaplyShape_private.h"
+#import "MaplyComponentObject_private.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -71,20 +72,20 @@ using namespace Eigen;
 // Convert to raw geometry
 - (void)asRawGeometry:(std::vector<WhirlyKit::GeometryRaw> &)outRawGeom withTexMapping:(const std::vector<WhirlyKit::SimpleIdentity> &)texFileMap
 {
-    outRawGeom = rawGeom;
+    outRawGeom.reserve(outRawGeom.size()+rawGeom.size());
     // Remap the texture IDs to something used by the scene
-    for (auto &geom : outRawGeom)
+    for (auto geom : rawGeom)
     {
         if (geom.texId >= 0 && geom.texId < texFileMap.size())
         {
             geom.texId = texFileMap[geom.texId];
-        } else
-            geom.texId = EmptyIdentity;
+        }
+        outRawGeom.push_back(geom);
     }
 }
 
 // Return the ID for or generate a base model in the Geometry Manager
-- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer fontTexManager:(WhirlyKitFontTextureManager *)fontTexManager mode:(MaplyThreadMode)threadMode
+- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer fontTexManager:(WhirlyKitFontTextureManager *)fontTexManager compObj:(MaplyComponentObject *)compObj mode:(MaplyThreadMode)threadMode
 {
     @synchronized(self)
     {
@@ -96,6 +97,8 @@ using namespace Eigen;
 
         ChangeSet changes;
         layer = inLayer;
+        
+        std::vector<WhirlyKit::GeometryRaw> procGeom;
         
         if (shape)
         {
@@ -133,8 +136,7 @@ using namespace Eigen;
             }
             
             // Convert the geometry and map the texture IDs
-            std::vector<WhirlyKit::GeometryRaw> theRawGeom;
-            [self asRawGeometry:theRawGeom withTexMapping:texIDMap];
+            [self asRawGeometry:procGeom withTexMapping:texIDMap];
         }
         
         std::map<SimpleIdentity,WhirlyKit::GeometryRaw> stringGeom;
@@ -146,35 +148,62 @@ using namespace Eigen;
             DrawableString *drawStr = [fontTexManager addString:strWrap.str changes:changes];
             for (const DrawableString::Rect &rect : drawStr->glyphPolys)
             {
-                
-                SingleBillboardPoly billPoly;
-                billPoly.pts.resize(4);
-                billPoly.texCoords.resize(4);
-                billPoly.texId = rect.subTex.texId;
-                billPoly.texCoords[0] = rect.subTex.processTexCoord(TexCoord(0,0));
-                billPoly.texCoords[1] = rect.subTex.processTexCoord(TexCoord(1,0));
-                billPoly.texCoords[2] = rect.subTex.processTexCoord(TexCoord(1,1));
-                billPoly.texCoords[3] = rect.subTex.processTexCoord(TexCoord(0,1));
-                billPoly.pts[0] = Point2d(rect.pts[0].x(),rect.pts[0].y());
-                billPoly.pts[1] = Point2d(rect.pts[1].x(),rect.pts[0].y());
-                billPoly.pts[2] = Point2d(rect.pts[1].x(),rect.pts[1].y());
-                billPoly.pts[3] = Point2d(rect.pts[0].x(),rect.pts[1].y());
+                // Find the appropriate geometry bucket
+                auto it = stringGeom.find(rect.subTex.texId);
+                GeometryRaw *geom = NULL;
+                if (it == stringGeom.end())
+                {
+                    stringGeom[rect.subTex.texId] = GeometryRaw();
+                    geom = &stringGeom[rect.subTex.texId];
+                    geom->texId = rect.subTex.texId;
+                } else
+                    geom = &stringGeom[rect.subTex.texId];
+
+                // Convert and transform the points
+                int basePt = geom->pts.size();
+                geom->pts.reserve(geom->pts.size()+4);
+                Point2d pts[4];
+                pts[0] = Point2d(rect.pts[0].x(),rect.pts[0].y());
+                pts[1] = Point2d(rect.pts[1].x(),rect.pts[0].y());
+                pts[2] = Point2d(rect.pts[1].x(),rect.pts[1].y());
+                pts[3] = Point2d(rect.pts[0].x(),rect.pts[1].y());
                 for (unsigned int ip=0;ip<4;ip++)
                 {
-                    const Point2d &oldPt = billPoly.pts[ip];
-                    Point3d newPt = strWrap.mat * Point3d(oldPt.x(),oldPt.y(),1.0);
-                    billPoly.pts[ip] = Point2d(newPt.x(),newPt.y());
+                    auto &pt = pts[ip];
+                    Vector4d outPt = strWrap.mat * Vector4d(pt.x(),pt.y(),0.0,1.0);
+                    geom->pts.push_back(Point3d(outPt.x(),outPt.y(),outPt.z()));
                 }
+
+                // The normal is the same for everything
+                Vector4d norm = strWrap.mat * Vector4d(0,0,1,0);
+                geom->norms.reserve(geom->norms.size()+4);
+                for (unsigned int ip=0;ip<4;ip++)
+                    geom->norms.push_back(Point3d(norm.x(),norm.y(),norm.z()));
                 
-                wkBill.polys.push_back(billPoly);
+                // And the texture coordinates
+                geom->texCoords.reserve(geom->texCoords.size()+4);
+                geom->texCoords.push_back(rect.subTex.processTexCoord(TexCoord(0,0)));
+                geom->texCoords.push_back(rect.subTex.processTexCoord(TexCoord(1,0)));
+                geom->texCoords.push_back(rect.subTex.processTexCoord(TexCoord(1,1)));
+                geom->texCoords.push_back(rect.subTex.processTexCoord(TexCoord(0,1)));
+                
+                // Wire up the two triangles
+                geom->triangles.reserve(geom->triangles.size()+2);
+                geom->triangles.push_back(GeometryRaw::RawTriangle(basePt+0,basePt+1,basePt+2));
+                geom->triangles.push_back(GeometryRaw::RawTriangle(basePt+0,basePt+2,basePt+3));
             }
             
             compObj.drawStringIDs.insert(drawStr->getId());
             delete drawStr;
         }
         
+        // Convert the string geometry
+        procGeom.reserve(procGeom.size()+stringGeom.size());
+        for (auto &it : stringGeom)
+            procGeom.push_back(it.second);
+        
         GeometryManager *geomManager = (GeometryManager *)layer->scene->getManager(kWKGeometryManager);
-        baseModelID = geomManager->addBaseGeometry(rawGeom, changes);
+        baseModelID = geomManager->addBaseGeometry(procGeom, changes);
 
         // Need to flush these changes immediately
         layer->scene->addChangeRequests(changes);

@@ -73,6 +73,9 @@
     // Color states
     MaplyGeomState *blankState = [[MaplyGeomState alloc] init];
     blankState.color = [UIColor blackColor];
+    MaplyGeomState *textState = [[MaplyGeomState alloc] init];
+    textState.color = [UIColor whiteColor];
+    textState.backColor = [UIColor blackColor];
     MaplyGeomState *tarmacState = [[MaplyGeomState alloc] init];
     tarmacState.color = [UIColor whiteColor];
     tarmacState.texture = tarmacImage;
@@ -89,7 +92,7 @@
     double displaced = 200.0;
     double runway = 2000.0;
     double chevronThickness = 4.0;
-    double drawOffset = 1.0;
+    double drawOffset = 10.0;
     enum {BaseLayer,PaintLayer};
     double total = overrun+displaced+runway;
     
@@ -122,14 +125,15 @@
         // Numbers
         MaplyGeomBuilder *numBuilder = [[MaplyGeomBuilder alloc] initWithViewC:viewC];
         UIFont *font = [UIFont boldSystemFontOfSize:128.0];
-        [numBuilder addString:@"09" width:0.66*width height:0.0 font:font state:stripeState];
+        [numBuilder addString:@"09" width:0.66*width height:0.0 font:font state:textState];
         MaplyCoordinate3dD size = [numBuilder getSize];
-        [geomBuilder addGeomFromBuilder:numBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:4*width z:0.0]];
+        [geomBuilder addGeomFromBuilder:numBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:-(width-size.x)/2.0 y:width z:PaintLayer*drawOffset]];
         
         // Letter
         MaplyGeomBuilder *letterBuilder = [[MaplyGeomBuilder alloc] initWithViewC:viewC];
-        [letterBuilder addString:@"R" width:0.0 height:size.y font:font state:stripeState];
-        [geomBuilder addGeomFromBuilder:letterBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:3*width z:0.0]];
+        [letterBuilder addString:@"R" width:0.0 height:size.y font:font state:textState];
+        MaplyCoordinate3dD letterSize = [letterBuilder getSize];
+        [geomBuilder addGeomFromBuilder:letterBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:-(width-letterSize.x)/2.0 y:width/2.0 z:PaintLayer*drawOffset]];
 
         [wholeBuilder addGeomFromBuilder:geomBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:(overrun+displaced) z:0.0]];
     }

@@ -27,6 +27,8 @@
 
 @property (nonatomic,strong) UIColor *color;
 
+@property (nonatomic,strong) UIColor *backColor;
+
 @property (nonatomic,strong) id texture;
 
 @property (nonatomic,strong) MaplyShader *shader;
