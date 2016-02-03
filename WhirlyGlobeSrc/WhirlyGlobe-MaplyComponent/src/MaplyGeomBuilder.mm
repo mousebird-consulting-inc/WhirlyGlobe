@@ -253,8 +253,18 @@ using namespace WhirlyKit;
 
         int basePt = geom->pts.size();
         geom->pts.reserve(geom->pts.size()+curPts.size());
+        if (state.color)
+        {
+            geom->colors.reserve(geom->colors.size()+curPts.size());
+        }
+        geom->norms.reserve(geom->norms.size()+curPts.size());
         for (int ii=0;ii<curPts.size();ii++)
+        {
             geom->pts.push_back(curPts[ii]);
+            if (state.color)
+                geom->colors.push_back([state.color asRGBAColor]);
+            geom->norms.push_back(Point3d(0,0,1));
+        }
         
         // Tesselate into triangles
         for (int ii=2;ii<curPts.size();ii++)
