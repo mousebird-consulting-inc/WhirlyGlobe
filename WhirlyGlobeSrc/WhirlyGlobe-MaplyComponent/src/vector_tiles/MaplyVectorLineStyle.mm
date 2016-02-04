@@ -114,17 +114,6 @@
                 width += 2;
             else
                 width += 1;
-            
-            // Let's keep the texture a power of 2
-            int texWidth = 4;
-            if (width <= 4)
-                texWidth=  4;
-            else if (width <= 8)
-                texWidth = 8;
-            else if (width <= 16)
-                texWidth = 16;
-            else
-                texWidth = 32;
                 
             MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
             [lineTexBuilder setPattern:dashComponents];
