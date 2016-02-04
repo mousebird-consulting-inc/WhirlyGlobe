@@ -184,4 +184,21 @@
 }
 
 
+
+- (void) pause {
+    if(displayLink)
+    {
+        displayLink.paused = YES;
+    }
+}
+
+
+- (void) unpause {
+    if(displayLink)
+    {
+        displayLink.paused = NO;
+    }
+}
+
+
 @end

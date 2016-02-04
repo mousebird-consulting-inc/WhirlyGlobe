@@ -49,6 +49,11 @@
 /// Destroy the display link.  Cannot be restarted.
 - (void) shutdown;
 
+/// Pause the display link. Used when going into the background
+- (void) pause;
+/// Unpause the display link. Used when going returning to foreground
+- (void) unpause;
+
 /// Draw into the actual view
 - (void) drawView:(id)sender;
 
