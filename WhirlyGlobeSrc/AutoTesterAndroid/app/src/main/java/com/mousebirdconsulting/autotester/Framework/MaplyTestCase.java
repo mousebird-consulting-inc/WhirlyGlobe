@@ -171,4 +171,6 @@ public class MaplyTestCase extends AsyncTask<Void, Void, Void> {
 		delay = value;
 	}
 
+	public int getDelay() {return delay;}
+
 }
