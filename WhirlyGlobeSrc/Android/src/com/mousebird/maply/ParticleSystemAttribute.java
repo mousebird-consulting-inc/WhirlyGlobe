@@ -19,7 +19,7 @@
  */
 package com.mousebird.maply;
 
-public class SingleVertexAttributeInfo {
+public class ParticleSystemAttribute {
 
     public enum MaplyShaderAttrType {
         MAPLY_SHADER_ATTR_TYPE_INT(0),
@@ -40,42 +40,46 @@ public class SingleVertexAttributeInfo {
 
     }
 
-    public SingleVertexAttributeInfo() {
-        initialise();
-    }
-
-    public void finalize() {
-        dispose();
-    }
-
     long ident = Identifiable.genID();
 
-    public native void setName(String name);
+    private String name;
 
-    public native void setType (int type);
+    private MaplyShaderAttrType type;
 
-    public MaplyShaderAttrType getTypeEnum(){
-        switch (this.getType()){
-            case 0:
-                return MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_INT;
-            case 1:
-                return MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT;
-            case 2:
-                return MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT2;
-            case 3:
-                return MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3;
-            case 4:
-                return MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT4;
-            default:
-                return MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_INT;
 
-        }
+    public MaplyShaderAttrType getType() {
+        return type;
     }
 
-    public int getTypeSize(){
+    public void setType(MaplyShaderAttrType type) {
+        this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public long getIdent() {
+        return ident;
+    }
+
+    public void setIdent(long ident) {
+        this.ident = ident;
+    }
+
+
+
+
+
+    public int getSize()
+    {
 
         int size = 0;
-        switch (this.getTypeEnum()){
+        switch (type){
             case MAPLY_SHADER_ATTR_TYPE_INT:
                 size = 4;
                 break;
@@ -97,18 +101,4 @@ public class SingleVertexAttributeInfo {
         }
         return size;
     }
-
-    private native int getType();
-
-    public native String getName();
-
-    static {
-        nativeInit();
-    }
-
-    private static native void nativeInit();
-    native void initialise();
-    native void dispose();
-    private long nativeHandle;
-
 }

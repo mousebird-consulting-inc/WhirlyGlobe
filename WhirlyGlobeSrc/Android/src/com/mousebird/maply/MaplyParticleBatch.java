@@ -19,7 +19,6 @@
  */
 package com.mousebird.maply;
 
-import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.Vector;
 
@@ -39,18 +38,16 @@ public class MaplyParticleBatch {
     public class ParticleSystemAttrVals {
         public double attrID;
         public float[] data;
-        public String name;
     }
 
     public boolean addAttribute(String attrName, float[] data) {
-        for (SingleVertexAttributeInfo attr : this.partSys.getAttrs()) {
+        for (ParticleSystemAttribute attr : this.partSys.getAttrs()) {
             if (attrName.equals(attr.getName())) {
                 // Found. Now make sure the size matches
                 ParticleSystemAttrVals attrValue = new ParticleSystemAttrVals();
                 attrValue.attrID = attr.ident;
                 attrValue.data = data;
-                attrValue.name = attrName;
-                if (data.length * Float.SIZE != attr.getTypeSize() * partSys.getBatchSize()) {
+                if (data.length * (Float.SIZE / 8) != attr.getSize() * partSys.getBatchSize()) {
                     return false;
                 }
                 this.attrVals.add(attrValue);

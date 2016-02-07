@@ -90,17 +90,18 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_ParticleBatch_getBatchSize
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_addAttributes
-(JNIEnv *env, jobject obj, jstring name, jfloatArray data){
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_addAttributeValues
+(JNIEnv *env, jobject obj, jfloatArray floatArray){
     
     try {
         ParticleBatchClassInfo *classInfo = ParticleBatchClassInfo::getClassInfo();
         ParticleBatch *batch = classInfo->getObject(env, obj);
         if (!batch)
             return;
-
-       
         
+        JavaFloatArray array(env, floatArray);
+        batch->attrData.push_back(array.rawFloat);
+
     } catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleBatch:addAttributes()");
     }

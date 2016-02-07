@@ -37,7 +37,7 @@ public class ParticleBatch {
 
     public native int getBatchSize ();
 
-    public native void addAttributes (String name, float[] data);
+    public native void addAttributeValues (float[] data);
 
     static {
         nativeInit();

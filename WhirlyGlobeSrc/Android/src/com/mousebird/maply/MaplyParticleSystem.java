@@ -124,15 +124,15 @@ public class MaplyParticleSystem {
         this.defaultDrawPriority = defaultDrawPriority;
     }
 
-    public void setAttrs(ArrayList<SingleVertexAttributeInfo> attrs) {
+    public void setAttrs(ArrayList<ParticleSystemAttribute> attrs) {
         this.attrs = attrs;
     }
 
-    public ArrayList<SingleVertexAttributeInfo> getAttrs() {
+    public ArrayList<ParticleSystemAttribute> getAttrs() {
         return attrs;
     }
 
-    private ArrayList<SingleVertexAttributeInfo> attrs;
+    private ArrayList<ParticleSystemAttribute> attrs;
 
     public int getBatchSize() {
         return batchSize;
@@ -150,10 +150,10 @@ public class MaplyParticleSystem {
         this.images = new Vector<>();
     }
 
-    public void addAttribute(String attrName, SingleVertexAttributeInfo.MaplyShaderAttrType type) {
-        SingleVertexAttributeInfo attr = new SingleVertexAttributeInfo();
+    public void addAttribute(String attrName, ParticleSystemAttribute.MaplyShaderAttrType type) {
+        ParticleSystemAttribute attr = new ParticleSystemAttribute();
         attr.setName(attrName);
-        attr.setType(type.getValue());
+        attr.setType(type);
         attrs.add(attr);
     }
 

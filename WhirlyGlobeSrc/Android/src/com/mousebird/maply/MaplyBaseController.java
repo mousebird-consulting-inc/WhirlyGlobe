@@ -1011,8 +1011,8 @@ public class MaplyBaseController
 		particleSystem.setBasetime(maplyParticleSystem.getBaseTime());
 		particleSystem.setParticleSystemType(maplyParticleSystem.getType().getValue());
 
-		for (SingleVertexAttributeInfo attr: maplyParticleSystem.getAttrs()){
-			particleSystem.addParticleSystemAttribute(attr.getName(), attr.getTypeSize());
+		for (ParticleSystemAttribute attr: maplyParticleSystem.getAttrs()){
+			particleSystem.addParticleSystemAttribute(attr.getName(), attr.getSize());
 		}
 		//TODO Do image texture
 	//	for (Bitmap image :maplyParticleSystem.getImages()){
@@ -1045,13 +1045,13 @@ public class MaplyBaseController
 		final ParticleBatch batch = new ParticleBatch();
 		batch.setBatchSize(maplyParticleBatch.getPartSys().getBatchSize());
 
-		for (SingleVertexAttributeInfo attrInfo: maplyParticleBatch.getPartSys().getAttrs()){
+		for (ParticleSystemAttribute attrInfo: maplyParticleBatch.getPartSys().getAttrs()){
 
 			boolean found = false;
 			for (MaplyParticleBatch.ParticleSystemAttrVals attrVals: maplyParticleBatch.getAttrVals()){
 				if (attrVals.attrID == attrInfo.ident){
 					found = true;
-					batch.addAttributes(attrVals.name, attrVals.data);
+					batch.addAttributeValues(attrVals.data);
 					break;
 				}
 			}

@@ -66,6 +66,8 @@ public class CoordSystem
 	 * @return A coordinate in longitude/latitude WGS84 radians.  Yes, radians.
 	 */
 	public native Point3d localToGeographic(Point3d pt);
+
+	public native Point3d coordSystemConvert3d (CoordSystem inSystem, CoordSystem outSystem, Point3d inCoord);
 	
 	static
 	{

@@ -441,7 +441,6 @@
 		D8701BA61C538B39009A5471 /* ParticleSystemDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = D8701BA41C538B39009A5471 /* ParticleSystemDrawable.h */; };
 		D8701BA91C538B77009A5471 /* ParticleSystemManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8701BA71C538B77009A5471 /* ParticleSystemManager.cpp */; };
 		D8701BAA1C538B77009A5471 /* ParticleSystemDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8701BA81C538B77009A5471 /* ParticleSystemDrawable.cpp */; };
-		D8B09F931C601931006637E1 /* com_mousebird_maply_SingleVertexAttributeInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = D8B09F921C601931006637E1 /* com_mousebird_maply_SingleVertexAttributeInfo.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -935,7 +934,6 @@
 		88B9DE801C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ParticleSystemManager.h; path = ../Android/jni/com_mousebird_maply_ParticleSystemManager.h; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		D8641E011C51933900D07B38 /* SingleVertexAttributeInfo_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SingleVertexAttributeInfo_jni.cpp; path = ../Android/jni/SingleVertexAttributeInfo_jni.cpp; sourceTree = "<group>"; };
 		D8641E051C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ParticleBatch.h; path = ../Android/jni/com_mousebird_maply_ParticleBatch.h; sourceTree = "<group>"; };
 		D8701B9F1C537B4A009A5471 /* ParticleBatch_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleBatch_jni.cpp; path = ../Android/jni/ParticleBatch_jni.cpp; sourceTree = "<group>"; };
 		D8701BA11C538105009A5471 /* ParticleSystem_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleSystem_jni.cpp; path = ../Android/jni/ParticleSystem_jni.cpp; sourceTree = "<group>"; };
@@ -944,7 +942,6 @@
 		D8701BA71C538B77009A5471 /* ParticleSystemManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParticleSystemManager.cpp; sourceTree = "<group>"; };
 		D8701BA81C538B77009A5471 /* ParticleSystemDrawable.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = ParticleSystemDrawable.cpp; sourceTree = "<group>"; };
 		D8701BAC1C5390A8009A5471 /* ParticleSystemManager_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleSystemManager_jni.cpp; path = ../Android/jni/ParticleSystemManager_jni.cpp; sourceTree = "<group>"; };
-		D8B09F921C601931006637E1 /* com_mousebird_maply_SingleVertexAttributeInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_SingleVertexAttributeInfo.h; path = ../Android/jni/com_mousebird_maply_SingleVertexAttributeInfo.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1140,7 +1137,6 @@
 		2B4B19291BA38A940091A743 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				D8B09F921C601931006637E1 /* com_mousebird_maply_SingleVertexAttributeInfo.h */,
 				D8641E051C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h */,
 				88B9DE7F1C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h */,
 				88B9DE801C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h */,
@@ -1258,7 +1254,6 @@
 				2B4B19BF1BA38AFB0091A743 /* SelectionManager_jni.cpp */,
 				2B4B19C01BA38AFB0091A743 /* Shader_jni.cpp */,
 				2B4B19C11BA38AFB0091A743 /* SingleLabelAndroid.cpp */,
-				D8641E011C51933900D07B38 /* SingleVertexAttributeInfo_jni.cpp */,
 				2B4B19C21BA38AFB0091A743 /* SphericalMercatorCoordSystem_jni.cpp */,
 				2B923FC31BFBD6D200C879DB /* Sticker_jni.cpp */,
 				2B923FB81BFA9B5E00C879DB /* StickerInfo_jni.cpp */,
@@ -1880,7 +1875,6 @@
 				2BA2327917984F510063CC84 /* tessmono.h in Headers */,
 				2B3567EA18D762BF00EF8DB1 /* GridClipper.h in Headers */,
 				2B4B19701BA38AD90091A743 /* com_mousebird_maply_InternalMarker.h in Headers */,
-				D8B09F931C601931006637E1 /* com_mousebird_maply_SingleVertexAttributeInfo.h in Headers */,
 				2B009CF4186102E4001E2EE8 /* JSONChildren.h in Headers */,
 				2B35683118D762BF00EF8DB1 /* ShapeReader.h in Headers */,
 				2B14BFCD1B83FD4500CE29A4 /* BaseInfo.h in Headers */,

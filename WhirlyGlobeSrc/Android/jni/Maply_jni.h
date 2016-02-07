@@ -356,6 +356,19 @@ public:
     jlong *rawLong;
 };
 
+// Wrapper for Java float array.  Destructor cleans up.
+class JavaFloatArray
+{
+public:
+    JavaFloatArray(JNIEnv *env,jfloatArray &array);
+    ~JavaFloatArray();
+    
+    JNIEnv *env;
+    jfloatArray &array;
+    int len;
+    jfloat *rawFloat;
+};
+
 
 namespace WhirlyKit
 {

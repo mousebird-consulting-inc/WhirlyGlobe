@@ -119,3 +119,15 @@ JavaLongArray::~JavaLongArray()
 {
     env->ReleaseLongArrayElements(array,rawLong, 0);
 }
+
+JavaFloatArray::JavaFloatArray(JNIEnv *env,jfloatArray &array)
+: array(array), env(env)
+{
+    rawFloat = env->GetFloatArrayElements(array, NULL);
+    len = env->GetArrayLength(array);
+}
+
+JavaFloatArray::~JavaFloatArray()
+{
+    env->ReleaseFloatArrayElements(array,rawFloat, 0);
+}
