@@ -51,6 +51,7 @@ public class MaplyBaseController
 	public static final int FeatureDrawPriorityBase = 20000;
 	public static final int MarkerDrawPriorityDefault = 40000;
 	public static final int LabelDrawPriorityDefault = 60000;
+	public static final int ParticleDrawPriorityDefault = 1000;
 	
 	/**
 	 * This is how often we'll kick off a render when the frame sync comes in.
@@ -95,6 +96,7 @@ public class MaplyBaseController
 	LabelManager labelManager;
 	SelectionManager selectionManager;
 	LayoutManager layoutManager;
+	ParticleSystemManager particleSystemManager;
 	LayoutLayer layoutLayer = null;
 	
 	// Manage bitmaps and their conversion to textures
@@ -139,6 +141,7 @@ public class MaplyBaseController
 		labelManager = new LabelManager(scene);
 		layoutManager = new LayoutManager(scene);
 		selectionManager = new SelectionManager(scene);
+		particleSystemManager = new ParticleSystemManager(scene);
 
 		// Now for the object that kicks off the rendering
 		renderWrapper = new RendererWrapper(this);
@@ -861,7 +864,7 @@ public class MaplyBaseController
 			}
 		};
 		
-		addTask(run,mode);
+		addTask(run, mode);
 	}
 
 	/**
@@ -878,7 +881,7 @@ public class MaplyBaseController
 		ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
 		compObjs.add(compObj);
 
-		disableObjects(compObjs,mode);
+		disableObjects(compObjs, mode);
 	}
 
 	/**
@@ -911,7 +914,7 @@ public class MaplyBaseController
 			}
 		};
 		
-		addTask(run,mode);
+		addTask(run, mode);
 	}
 
 	/**
@@ -928,7 +931,7 @@ public class MaplyBaseController
 		ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
 		compObjs.add(compObj);
 
-		enableObjects(compObjs,mode);
+		enableObjects(compObjs, mode);
 	}
 
 	/**
@@ -944,7 +947,7 @@ public class MaplyBaseController
 
 		ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
 		compObjs.add(compObj);
-		removeObjects(compObjs,mode);
+		removeObjects(compObjs, mode);
 	}
 
 	/**
@@ -979,7 +982,7 @@ public class MaplyBaseController
 			}
 		};
 		
-		addTask(run,mode);
+		addTask(run, mode);
 	}
 	
     private boolean isProbablyEmulator() {
@@ -990,4 +993,85 @@ public class MaplyBaseController
                         || Build.MODEL.contains("Emulator")
                         || Build.MODEL.contains("Android SDK built for x86"));
     }
+
+
+	public ComponentObject addParticleSystem (MaplyParticleSystem maplyParticleSystem, ThreadMode mode){
+
+		if (!running)
+			return null;
+
+		final ComponentObject compObj = new ComponentObject();
+		final ParticleSystem particleSystem = new ParticleSystem();
+		particleSystem.setDrawPriority(maplyParticleSystem.getDefaultDrawPriority());
+		particleSystem.setPointSize(maplyParticleSystem.getPointSize());
+		particleSystem.setName(maplyParticleSystem.getName());
+		particleSystem.setLifetime(maplyParticleSystem.getLifeTime());
+		particleSystem.setTotalParticles(maplyParticleSystem.getTotalParticles());
+		particleSystem.setBatchSize(maplyParticleSystem.getBatchSize());
+		particleSystem.setBasetime(maplyParticleSystem.getBaseTime());
+		particleSystem.setParticleSystemType(maplyParticleSystem.getType().getValue());
+
+		for (SingleVertexAttributeInfo attr: maplyParticleSystem.getAttrs()){
+			particleSystem.addParticleSystemAttribute(attr.getName(), attr.getTypeSize());
+		}
+		//TODO Do image texture
+	//	for (Bitmap image :maplyParticleSystem.getImages()){
+
+	//	}
+
+
+		Runnable run = new Runnable() {
+			@Override
+			public void run() {
+				ChangeSet changes = new ChangeSet();
+					long particleSystemID = particleSystemManager.addParticleSystem(particleSystem, changes);
+					if (particleSystemID != EmptyIdentity){
+						compObj.addParticleSystemID(particleSystemID);
+					}
+				changes.process(scene);
+			}
+		};
+
+		addTask(run, mode);
+		return compObj;
+	}
+
+	public void addParticleBatch( final MaplyParticleBatch maplyParticleBatch, ThreadMode mode){
+
+		if (!running)
+			return;
+
+		boolean validBatch = true;
+		final ParticleBatch batch = new ParticleBatch();
+		batch.setBatchSize(maplyParticleBatch.getPartSys().getBatchSize());
+
+		for (SingleVertexAttributeInfo attrInfo: maplyParticleBatch.getPartSys().getAttrs()){
+
+			boolean found = false;
+			for (MaplyParticleBatch.ParticleSystemAttrVals attrVals: maplyParticleBatch.getAttrVals()){
+				if (attrVals.attrID == attrInfo.ident){
+					found = true;
+					batch.addAttributes(attrVals.name, attrVals.data);
+					break;
+				}
+			}
+			if (!found){
+				validBatch = false;
+				System.out.println("Missing attribute data for particle batch.  Dropping.");
+			}
+
+		}
+		if (validBatch){
+			Runnable run = new Runnable() {
+				@Override
+				public void run() {
+					ChangeSet changes = new ChangeSet();
+					particleSystemManager.addParticleBatch(maplyParticleBatch.getPartSys().getIdent(), batch,changes);
+					changes.process(scene);
+				}
+			};
+			addTask(run, mode);
+		}
+
+	}
 }

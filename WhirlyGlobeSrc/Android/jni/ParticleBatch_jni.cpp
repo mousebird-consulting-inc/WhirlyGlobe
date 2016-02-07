@@ -91,31 +91,15 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_ParticleBatch_getBatchSize
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_addAttributes
-(JNIEnv *env, jobject obj, jobject vectObjList) {
+(JNIEnv *env, jobject obj, jstring name, jfloatArray data){
     
     try {
         ParticleBatchClassInfo *classInfo = ParticleBatchClassInfo::getClassInfo();
         ParticleBatch *batch = classInfo->getObject(env, obj);
         if (!batch)
             return;
-        jclass listClass = env->GetObjectClass(vectObjList);
-        jclass iterClass = env->FindClass("java/util/Iterator");
-        jmethodID literMethod = env->GetMethodID(listClass, "iterator", "()Ljava/util/Iterator;");
-        jobject liter = env->CallObjectMethod(vectObjList, literMethod);
-        jmethodID hasNext = env->GetMethodID(iterClass, "hasNext", "()Z");
-        jmethodID next = env->GetMethodID(iterClass, "next", "()Ljava/lang/Object");
-        
-        SingleVertexAttributeInfoClassInfo *classInfoParticle = SingleVertexAttributeInfoClassInfo::getClassInfo();
-        
-        while (env->CallBooleanMethod(liter, hasNext)) {
-            jobject javaVecObj = env->CallObjectMethod(liter, next);
-            SingleVertexAttributeInfo *attr = classInfoParticle->getObject(env, javaVecObj);
-            if (attr) {
-                batch->attrData.push_back(attr);
-            }
-            env->DeleteLocalRef(javaVecObj);
-        }
-        env->DeleteLocalRef(liter);
+
+       
         
     } catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleBatch:addAttributes()");

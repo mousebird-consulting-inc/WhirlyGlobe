@@ -19,12 +19,13 @@
  */
 package com.mousebird.maply;
 
-import java.util.List;
+import java.nio.ByteBuffer;
 
 public class ParticleBatch {
 
 
-    public ParticleBatch() {
+    public ParticleBatch()
+    {
         initialise();
     }
 
@@ -36,7 +37,7 @@ public class ParticleBatch {
 
     public native int getBatchSize ();
 
-    public native void addAttributes (List<SingleVertexAttributeInfo> attributes);
+    public native void addAttributes (String name, float[] data);
 
     static {
         nativeInit();

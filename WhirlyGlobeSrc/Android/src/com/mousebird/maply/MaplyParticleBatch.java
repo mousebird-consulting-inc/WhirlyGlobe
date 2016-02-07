@@ -25,6 +25,7 @@ import java.util.Vector;
 
 public class MaplyParticleBatch {
 
+
     private MaplyParticleSystem partSys;
     private double time;
     private Vector<ParticleSystemAttrVals> attrVals;
@@ -35,19 +36,21 @@ public class MaplyParticleBatch {
         this.attrVals =  new Vector<>();
     }
 
-    private class ParticleSystemAttrVals {
+    public class ParticleSystemAttrVals {
         public double attrID;
-        public ByteBuffer data;
+        public float[] data;
+        public String name;
     }
 
-    public boolean addAttribute(String attrName, ByteBuffer data) {
+    public boolean addAttribute(String attrName, float[] data) {
         for (SingleVertexAttributeInfo attr : this.partSys.getAttrs()) {
             if (attrName.equals(attr.getName())) {
                 // Found. Now make sure the size matches
                 ParticleSystemAttrVals attrValue = new ParticleSystemAttrVals();
                 attrValue.attrID = attr.ident;
                 attrValue.data = data;
-                if (data.capacity() != attr.getTypeSize() * partSys.getBatchSize()) {
+                attrValue.name = attrName;
+                if (data.length * Float.SIZE != attr.getTypeSize() * partSys.getBatchSize()) {
                     return false;
                 }
                 this.attrVals.add(attrValue);
@@ -59,5 +62,29 @@ public class MaplyParticleBatch {
 
     private boolean isValid() {
         return partSys.getAttrs().size() == this.attrVals.size();
+    }
+
+    public Vector<ParticleSystemAttrVals> getAttrVals() {
+        return attrVals;
+    }
+
+    public void setAttrVals(Vector<ParticleSystemAttrVals> attrVals) {
+        this.attrVals = attrVals;
+    }
+
+    public double getTime() {
+        return time;
+    }
+
+    public void setTime(double time) {
+        this.time = time;
+    }
+
+    public MaplyParticleSystem getPartSys() {
+        return partSys;
+    }
+
+    public void setPartSys(MaplyParticleSystem partSys) {
+        this.partSys = partSys;
     }
 }

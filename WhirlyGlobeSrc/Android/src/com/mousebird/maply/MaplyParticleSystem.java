@@ -19,6 +19,8 @@
  */
 package com.mousebird.maply;
 
+import android.graphics.Bitmap;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Vector;
@@ -32,8 +34,99 @@ public class MaplyParticleSystem {
     private double baseTime;
     private int totalParticles;
     private int batchSize;
-    private double ident;
-    private Vector<Object> images;
+    private long ident;
+    private Vector<Bitmap> images;
+    private int defaultDrawPriority = 55000;
+
+    public float getPointSize() {
+        return pointSize;
+    }
+
+    public void setPointSize(float pointSize) {
+        this.pointSize = pointSize;
+    }
+
+    private float pointSize = (float)4.0;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public ParticleSystem.STATE getType() {
+        return type;
+    }
+
+    public void setType(ParticleSystem.STATE type) {
+        this.type = type;
+    }
+
+    public String getShader() {
+        return shader;
+    }
+
+    public void setShader(String shader) {
+        this.shader = shader;
+    }
+
+    public double getLifeTime() {
+        return lifeTime;
+    }
+
+    public void setLifeTime(double lifeTime) {
+        this.lifeTime = lifeTime;
+    }
+
+    public double getBaseTime() {
+        return baseTime;
+    }
+
+    public void setBaseTime(double baseTime) {
+        this.baseTime = baseTime;
+    }
+
+    public int getTotalParticles() {
+        return totalParticles;
+    }
+
+    public void setTotalParticles(int totalParticles) {
+        this.totalParticles = totalParticles;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+    }
+
+    public long getIdent() {
+        return ident;
+    }
+
+    public void setIdent(long ident) {
+        this.ident = ident;
+    }
+
+    public Vector<Bitmap> getImages() {
+        return images;
+    }
+
+    public void setImages(Vector<Bitmap> images) {
+        this.images = images;
+    }
+
+    public int getDefaultDrawPriority() {
+        return defaultDrawPriority;
+    }
+
+    public void setDefaultDrawPriority(int defaultDrawPriority) {
+        this.defaultDrawPriority = defaultDrawPriority;
+    }
+
+    public void setAttrs(ArrayList<SingleVertexAttributeInfo> attrs) {
+        this.attrs = attrs;
+    }
 
     public ArrayList<SingleVertexAttributeInfo> getAttrs() {
         return attrs;
@@ -64,7 +157,7 @@ public class MaplyParticleSystem {
         attrs.add(attr);
     }
 
-    public void addTexture (Object image) {
+    public void addTexture (Bitmap image) {
         this.images.add(image);
     }
 

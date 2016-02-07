@@ -121,6 +121,25 @@ public class ComponentObject
 			labelIDs = new ArrayList<Long>();
 		labelIDs.add(id);
 	}
+
+	void addParticleSystemID(long id){
+		if (particleSystemIDs == null)
+			particleSystemIDs = new ArrayList<Long>();
+		particleSystemIDs.add(id);
+	}
+
+	long[] getParticleSystemIDs()
+	{
+		if (particleSystemIDs == null)
+			return null;
+		long[] retIDs = new long[particleSystemIDs.size()];
+		int which = 0;
+		for (Long id : particleSystemIDs) {
+			retIDs[which++] = id;
+		}
+
+		return retIDs;
+	}
 	
 	// Enable/disable anything the component object is holding
 	void enable(MaplyBaseController control,boolean enable,ChangeSet changes)
@@ -133,6 +152,11 @@ public class ComponentObject
 			control.stickerManager.enableStickers(convertIDs(stickerIDs), enable, changes);
 		if (labelIDs != null && labelIDs.size() > 0)
 			control.labelManager.enableLabels(convertIDs(labelIDs), enable, changes);
+		if (particleSystemIDs != null && particleSystemIDs.size() >0){
+			for (Long id: particleSystemIDs){
+				control.particleSystemManager.enableParticleSystem(id, enable, changes);
+			}
+		}
 	}
 	
 	// Clear out anything the component object is holding
@@ -158,6 +182,12 @@ public class ComponentObject
 			control.labelManager.removeLabels(convertIDs(labelIDs), changes);
 			labelIDs.clear();
 		}
+		if (particleSystemIDs != null && particleSystemIDs.size() >0){
+			for (Long id : particleSystemIDs){
+				control.particleSystemManager.removeParticleSystem(id, changes);
+			}
+			particleSystemIDs.clear();
+		}
 		if (texIDs != null && texIDs.size() > 0)
 			for (long texID: texIDs)
 				control.texManager.removeTexture(texID, changes);
@@ -174,4 +204,5 @@ public class ComponentObject
 	private ArrayList<Long> stickerIDs = null;
 	private ArrayList<Long> vectorIDs = null;
 	private ArrayList<Long> labelIDs = null;
+	private ArrayList<Long> particleSystemIDs = null;
 }

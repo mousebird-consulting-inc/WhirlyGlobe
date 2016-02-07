@@ -54,23 +54,41 @@ public class SingleVertexAttributeInfo {
 
     public native void setType (int type);
 
+    public MaplyShaderAttrType getTypeEnum(){
+        switch (this.getType()){
+            case 0:
+                return MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_INT;
+            case 1:
+                return MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT;
+            case 2:
+                return MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT2;
+            case 3:
+                return MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3;
+            case 4:
+                return MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT4;
+            default:
+                return MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_INT;
+
+        }
+    }
+
     public int getTypeSize(){
 
         int size = 0;
-        switch (this.getType()){
-            case 0:
+        switch (this.getTypeEnum()){
+            case MAPLY_SHADER_ATTR_TYPE_INT:
                 size = 4;
                 break;
-            case 1:
+            case MAPLY_SHADER_ATTR_TYPE_FLOAT:
                 size = 4;
                 break;
-            case 2:
+            case MAPLY_SHADER_ATTR_TYPE_FLOAT2:
                 size = 2*4;
                 break;
-            case 3:
+            case MAPLY_SHADER_ATTR_TYPE_FLOAT3:
                 size = 3*4;
                 break;
-            case 4:
+            case MAPLY_SHADER_ATTR_TYPE_FLOAT4:
                 size = 4*4;
                 break;
             default:

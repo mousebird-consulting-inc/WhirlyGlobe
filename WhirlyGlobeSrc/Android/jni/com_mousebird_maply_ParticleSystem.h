@@ -65,11 +65,27 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setBasetime
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem
+ * Method:    setBatchSize
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setBatchSize
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_ParticleSystem
+ * Method:    setTotalParticles
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setTotalParticles
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_ParticleSystem
  * Method:    addParticleSystemAttribute
- * Signature: (Lcom/mousebird/maply/SingleVertexAttributeInfo;)V
+ * Signature: (Ljava/lang/String;I)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addParticleSystemAttribute
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jstring, jint);
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem

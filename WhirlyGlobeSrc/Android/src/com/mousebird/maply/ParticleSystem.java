@@ -61,9 +61,14 @@ public class ParticleSystem {
 
     public native void setBasetime(double basetime);
 
-    public native void addParticleSystemAttribute(SingleVertexAttributeInfo attribute);
+    public native void setBatchSize(int batchSize);
+
+    public native void setTotalParticles(int totalParticles);
+
+    public native void addParticleSystemAttribute(String name, int type);
 
     public native void addTexID(long texID);
+
 
 
     static {
