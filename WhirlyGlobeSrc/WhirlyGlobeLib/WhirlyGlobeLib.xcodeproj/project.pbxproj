@@ -441,25 +441,7 @@
 		D8701BA61C538B39009A5471 /* ParticleSystemDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = D8701BA41C538B39009A5471 /* ParticleSystemDrawable.h */; };
 		D8701BA91C538B77009A5471 /* ParticleSystemManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8701BA71C538B77009A5471 /* ParticleSystemManager.cpp */; };
 		D8701BAA1C538B77009A5471 /* ParticleSystemDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8701BA81C538B77009A5471 /* ParticleSystemDrawable.cpp */; };
-		D87A1F2E1C5915D200B586F4 /* com_mousebird_maply_SceneRendererES.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F1D1C5915D200B586F4 /* com_mousebird_maply_SceneRendererES.h */; };
-		D87A1F2F1C5915D200B586F4 /* com_mousebird_maply_WhirlyKitGLSetupInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F1E1C5915D200B586F4 /* com_mousebird_maply_WhirlyKitGLSetupInfo.h */; };
-		D87A1F301C5915D200B586F4 /* com_mousebird_maply_RendererFrameInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F1F1C5915D200B586F4 /* com_mousebird_maply_RendererFrameInfo.h */; };
-		D87A1F311C5915D200B586F4 /* com_mousebird_maply_Point4f.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F201C5915D200B586F4 /* com_mousebird_maply_Point4f.h */; };
-		D87A1F321C5915D200B586F4 /* com_mousebird_maply_Point3f.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F211C5915D200B586F4 /* com_mousebird_maply_Point3f.h */; };
-		D87A1F331C5915D200B586F4 /* com_mousebird_maply_Point2f.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F221C5915D200B586F4 /* com_mousebird_maply_Point2f.h */; };
-		D87A1F341C5915D200B586F4 /* com_mousebird_maply_ParticleSystemDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F231C5915D200B586F4 /* com_mousebird_maply_ParticleSystemDrawable.h */; };
-		D87A1F351C5915D200B586F4 /* com_mousebird_maply_OpenGLStateOptimizer.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F241C5915D200B586F4 /* com_mousebird_maply_OpenGLStateOptimizer.h */; };
-		D87A1F361C5915D200B586F4 /* com_mousebird_maply_OpenGLMemManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F251C5915D200B586F4 /* com_mousebird_maply_OpenGLMemManager.h */; };
-		D87A1F371C5915D200B586F4 /* com_mousebird_maply_OpenGLESAttribute.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F261C5915D200B586F4 /* com_mousebird_maply_OpenGLESAttribute.h */; };
-		D87A1F381C5915D200B586F4 /* com_mousebird_maply_OpenGLES2Program.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F271C5915D200B586F4 /* com_mousebird_maply_OpenGLES2Program.h */; };
-		D87A1F391C5915D200B586F4 /* com_mousebird_maply_Matrix4f.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F281C5915D200B586F4 /* com_mousebird_maply_Matrix4f.h */; };
-		D87A1F3A1C5915D200B586F4 /* com_mousebird_maply_DrawableTweaker.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F291C5915D200B586F4 /* com_mousebird_maply_DrawableTweaker.h */; };
-		D87A1F3B1C5915D200B586F4 /* com_mousebird_maply_Drawable.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F2A1C5915D200B586F4 /* com_mousebird_maply_Drawable.h */; };
-		D87A1F3C1C5915D200B586F4 /* com_mousebird_maply_Cullable.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F2B1C5915D200B586F4 /* com_mousebird_maply_Cullable.h */; };
-		D87A1F3D1C5915D200B586F4 /* com_mousebird_maply_CullTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F2C1C5915D200B586F4 /* com_mousebird_maply_CullTree.h */; };
-		D87A1F3E1C5915D200B586F4 /* com_mousebird_maply_Batch.h in Headers */ = {isa = PBXBuildFile; fileRef = D87A1F2D1C5915D200B586F4 /* com_mousebird_maply_Batch.h */; };
 		D8B09F931C601931006637E1 /* com_mousebird_maply_SingleVertexAttributeInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = D8B09F921C601931006637E1 /* com_mousebird_maply_SingleVertexAttributeInfo.h */; };
-		D8B09F951C601DDA006637E1 /* com_mousebird_maply_SingleVertexAttribute.h in Headers */ = {isa = PBXBuildFile; fileRef = D8B09F941C601DDA006637E1 /* com_mousebird_maply_SingleVertexAttribute.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -953,8 +935,6 @@
 		88B9DE801C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ParticleSystemManager.h; path = ../Android/jni/com_mousebird_maply_ParticleSystemManager.h; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		D83D3E391C61524A003CD053 /* DrawableTweaker_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DrawableTweaker_jni.cpp; path = ../Android/jni/DrawableTweaker_jni.cpp; sourceTree = "<group>"; };
-		D83D3E3B1C6154DD003CD053 /* RendererFrameInfo_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RendererFrameInfo_jni.cpp; path = ../Android/jni/RendererFrameInfo_jni.cpp; sourceTree = "<group>"; };
 		D8641E011C51933900D07B38 /* SingleVertexAttributeInfo_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SingleVertexAttributeInfo_jni.cpp; path = ../Android/jni/SingleVertexAttributeInfo_jni.cpp; sourceTree = "<group>"; };
 		D8641E051C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ParticleBatch.h; path = ../Android/jni/com_mousebird_maply_ParticleBatch.h; sourceTree = "<group>"; };
 		D8701B9F1C537B4A009A5471 /* ParticleBatch_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleBatch_jni.cpp; path = ../Android/jni/ParticleBatch_jni.cpp; sourceTree = "<group>"; };
@@ -964,38 +944,7 @@
 		D8701BA71C538B77009A5471 /* ParticleSystemManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParticleSystemManager.cpp; sourceTree = "<group>"; };
 		D8701BA81C538B77009A5471 /* ParticleSystemDrawable.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = ParticleSystemDrawable.cpp; sourceTree = "<group>"; };
 		D8701BAC1C5390A8009A5471 /* ParticleSystemManager_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleSystemManager_jni.cpp; path = ../Android/jni/ParticleSystemManager_jni.cpp; sourceTree = "<group>"; };
-		D87A1F1B1C59157C00B586F4 /* Batch_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Batch_jni.cpp; path = ../Android/jni/Batch_jni.cpp; sourceTree = "<group>"; };
-		D87A1F1D1C5915D200B586F4 /* com_mousebird_maply_SceneRendererES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_SceneRendererES.h; path = ../Android/jni/com_mousebird_maply_SceneRendererES.h; sourceTree = "<group>"; };
-		D87A1F1E1C5915D200B586F4 /* com_mousebird_maply_WhirlyKitGLSetupInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_WhirlyKitGLSetupInfo.h; path = ../Android/jni/com_mousebird_maply_WhirlyKitGLSetupInfo.h; sourceTree = "<group>"; };
-		D87A1F1F1C5915D200B586F4 /* com_mousebird_maply_RendererFrameInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_RendererFrameInfo.h; path = ../Android/jni/com_mousebird_maply_RendererFrameInfo.h; sourceTree = "<group>"; };
-		D87A1F201C5915D200B586F4 /* com_mousebird_maply_Point4f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Point4f.h; path = ../Android/jni/com_mousebird_maply_Point4f.h; sourceTree = "<group>"; };
-		D87A1F211C5915D200B586F4 /* com_mousebird_maply_Point3f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Point3f.h; path = ../Android/jni/com_mousebird_maply_Point3f.h; sourceTree = "<group>"; };
-		D87A1F221C5915D200B586F4 /* com_mousebird_maply_Point2f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Point2f.h; path = ../Android/jni/com_mousebird_maply_Point2f.h; sourceTree = "<group>"; };
-		D87A1F231C5915D200B586F4 /* com_mousebird_maply_ParticleSystemDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ParticleSystemDrawable.h; path = ../Android/jni/com_mousebird_maply_ParticleSystemDrawable.h; sourceTree = "<group>"; };
-		D87A1F241C5915D200B586F4 /* com_mousebird_maply_OpenGLStateOptimizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_OpenGLStateOptimizer.h; path = ../Android/jni/com_mousebird_maply_OpenGLStateOptimizer.h; sourceTree = "<group>"; };
-		D87A1F251C5915D200B586F4 /* com_mousebird_maply_OpenGLMemManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_OpenGLMemManager.h; path = ../Android/jni/com_mousebird_maply_OpenGLMemManager.h; sourceTree = "<group>"; };
-		D87A1F261C5915D200B586F4 /* com_mousebird_maply_OpenGLESAttribute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_OpenGLESAttribute.h; path = ../Android/jni/com_mousebird_maply_OpenGLESAttribute.h; sourceTree = "<group>"; };
-		D87A1F271C5915D200B586F4 /* com_mousebird_maply_OpenGLES2Program.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_OpenGLES2Program.h; path = ../Android/jni/com_mousebird_maply_OpenGLES2Program.h; sourceTree = "<group>"; };
-		D87A1F281C5915D200B586F4 /* com_mousebird_maply_Matrix4f.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Matrix4f.h; path = ../Android/jni/com_mousebird_maply_Matrix4f.h; sourceTree = "<group>"; };
-		D87A1F291C5915D200B586F4 /* com_mousebird_maply_DrawableTweaker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_DrawableTweaker.h; path = ../Android/jni/com_mousebird_maply_DrawableTweaker.h; sourceTree = "<group>"; };
-		D87A1F2A1C5915D200B586F4 /* com_mousebird_maply_Drawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Drawable.h; path = ../Android/jni/com_mousebird_maply_Drawable.h; sourceTree = "<group>"; };
-		D87A1F2B1C5915D200B586F4 /* com_mousebird_maply_Cullable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Cullable.h; path = ../Android/jni/com_mousebird_maply_Cullable.h; sourceTree = "<group>"; };
-		D87A1F2C1C5915D200B586F4 /* com_mousebird_maply_CullTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_CullTree.h; path = ../Android/jni/com_mousebird_maply_CullTree.h; sourceTree = "<group>"; };
-		D87A1F2D1C5915D200B586F4 /* com_mousebird_maply_Batch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Batch.h; path = ../Android/jni/com_mousebird_maply_Batch.h; sourceTree = "<group>"; };
-		D87A1F3F1C591EE700B586F4 /* CullTree_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CullTree_jni.cpp; path = ../Android/jni/CullTree_jni.cpp; sourceTree = "<group>"; };
-		D87A1F411C59261900B586F4 /* Cullable_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Cullable_jni.cpp; path = ../Android/jni/Cullable_jni.cpp; sourceTree = "<group>"; };
-		D8B09F821C5FF5FF006637E1 /* WhirlyKitGLSetupInfo_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WhirlyKitGLSetupInfo_jni.cpp; path = ../Android/jni/WhirlyKitGLSetupInfo_jni.cpp; sourceTree = "<group>"; };
-		D8B09F841C5FF85B006637E1 /* OpenGLMemManager_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpenGLMemManager_jni.cpp; path = ../Android/jni/OpenGLMemManager_jni.cpp; sourceTree = "<group>"; };
-		D8B09F861C5FFCC5006637E1 /* OpenGLES2Program_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpenGLES2Program_jni.cpp; path = ../Android/jni/OpenGLES2Program_jni.cpp; sourceTree = "<group>"; };
-		D8B09F881C600568006637E1 /* Matrix4f_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Matrix4f_jni.cpp; path = ../Android/jni/Matrix4f_jni.cpp; sourceTree = "<group>"; };
-		D8B09F8A1C6008AE006637E1 /* Point2f_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Point2f_jni.cpp; path = ../Android/jni/Point2f_jni.cpp; sourceTree = "<group>"; };
-		D8B09F8C1C6008CC006637E1 /* Point3f_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Point3f_jni.cpp; path = ../Android/jni/Point3f_jni.cpp; sourceTree = "<group>"; };
-		D8B09F8E1C6008E7006637E1 /* Point4f_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Point4f_jni.cpp; path = ../Android/jni/Point4f_jni.cpp; sourceTree = "<group>"; };
-		D8B09F901C601172006637E1 /* OpenGLESAttribute_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpenGLESAttribute_jni.cpp; path = ../Android/jni/OpenGLESAttribute_jni.cpp; sourceTree = "<group>"; };
 		D8B09F921C601931006637E1 /* com_mousebird_maply_SingleVertexAttributeInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_SingleVertexAttributeInfo.h; path = ../Android/jni/com_mousebird_maply_SingleVertexAttributeInfo.h; sourceTree = "<group>"; };
-		D8B09F941C601DDA006637E1 /* com_mousebird_maply_SingleVertexAttribute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_SingleVertexAttribute.h; path = ../Android/jni/com_mousebird_maply_SingleVertexAttribute.h; sourceTree = "<group>"; };
-		D8B09F961C601E4A006637E1 /* SingleVertexAttribute_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SingleVertexAttribute_jni.cpp; path = ../Android/jni/SingleVertexAttribute_jni.cpp; sourceTree = "<group>"; };
-		D8E170631C5D340100A26399 /* Drawable_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Drawable_jni.cpp; path = ../Android/jni/Drawable_jni.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1191,25 +1140,7 @@
 		2B4B19291BA38A940091A743 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				D8B09F941C601DDA006637E1 /* com_mousebird_maply_SingleVertexAttribute.h */,
 				D8B09F921C601931006637E1 /* com_mousebird_maply_SingleVertexAttributeInfo.h */,
-				D87A1F1D1C5915D200B586F4 /* com_mousebird_maply_SceneRendererES.h */,
-				D87A1F1E1C5915D200B586F4 /* com_mousebird_maply_WhirlyKitGLSetupInfo.h */,
-				D87A1F1F1C5915D200B586F4 /* com_mousebird_maply_RendererFrameInfo.h */,
-				D87A1F201C5915D200B586F4 /* com_mousebird_maply_Point4f.h */,
-				D87A1F211C5915D200B586F4 /* com_mousebird_maply_Point3f.h */,
-				D87A1F221C5915D200B586F4 /* com_mousebird_maply_Point2f.h */,
-				D87A1F231C5915D200B586F4 /* com_mousebird_maply_ParticleSystemDrawable.h */,
-				D87A1F241C5915D200B586F4 /* com_mousebird_maply_OpenGLStateOptimizer.h */,
-				D87A1F251C5915D200B586F4 /* com_mousebird_maply_OpenGLMemManager.h */,
-				D87A1F261C5915D200B586F4 /* com_mousebird_maply_OpenGLESAttribute.h */,
-				D87A1F271C5915D200B586F4 /* com_mousebird_maply_OpenGLES2Program.h */,
-				D87A1F281C5915D200B586F4 /* com_mousebird_maply_Matrix4f.h */,
-				D87A1F291C5915D200B586F4 /* com_mousebird_maply_DrawableTweaker.h */,
-				D87A1F2A1C5915D200B586F4 /* com_mousebird_maply_Drawable.h */,
-				D87A1F2B1C5915D200B586F4 /* com_mousebird_maply_Cullable.h */,
-				D87A1F2C1C5915D200B586F4 /* com_mousebird_maply_CullTree.h */,
-				D87A1F2D1C5915D200B586F4 /* com_mousebird_maply_Batch.h */,
 				D8641E051C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h */,
 				88B9DE7F1C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h */,
 				88B9DE801C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h */,
@@ -1286,14 +1217,9 @@
 				2B4B199B1BA38AFB0091A743 /* AngleAxis_jni.cpp */,
 				2B4B199C1BA38AFB0091A743 /* AttrDictionary_jni.cpp */,
 				2B923FB71BFA9B5E00C879DB /* BaseInfo_jni.cpp */,
-				D87A1F1B1C59157C00B586F4 /* Batch_jni.cpp */,
 				2B4B199D1BA38AFB0091A743 /* ChangeSet_jni.cpp */,
 				2B4B199E1BA38AFB0091A743 /* CoordSystem_jni.cpp */,
 				2B4B199F1BA38AFB0091A743 /* CoordSystemDisplayAdapter_jni.cpp */,
-				D87A1F411C59261900B586F4 /* Cullable_jni.cpp */,
-				D87A1F3F1C591EE700B586F4 /* CullTree_jni.cpp */,
-				D8E170631C5D340100A26399 /* Drawable_jni.cpp */,
-				D83D3E391C61524A003CD053 /* DrawableTweaker_jni.cpp */,
 				2B4B19A01BA38AFB0091A743 /* FakeGeocentricDisplayAdapter_jni.cpp */,
 				2B4B19A11BA38AFB0091A743 /* FontTextureManagerAndroid.cpp */,
 				2B4B19A21BA38AFB0091A743 /* GeoCoordSystem_jni.cpp */,
@@ -1317,30 +1243,21 @@
 				2B4B19B41BA38AFB0091A743 /* MarkerInfo_jni.cpp */,
 				2B4B19B51BA38AFB0091A743 /* MarkerManager_jni.cpp */,
 				2B4B19B61BA38AFB0091A743 /* Matrix4d_jni.cpp */,
-				D8B09F881C600568006637E1 /* Matrix4f_jni.cpp */,
-				D8B09F861C5FFCC5006637E1 /* OpenGLES2Program_jni.cpp */,
-				D8B09F901C601172006637E1 /* OpenGLESAttribute_jni.cpp */,
-				D8B09F841C5FF85B006637E1 /* OpenGLMemManager_jni.cpp */,
 				D8701B9F1C537B4A009A5471 /* ParticleBatch_jni.cpp */,
 				D8701BA11C538105009A5471 /* ParticleSystem_jni.cpp */,
 				D8701BAC1C5390A8009A5471 /* ParticleSystemManager_jni.cpp */,
 				2B4B19B71BA38AFB0091A743 /* PlateCarreeCoordSystem_jni.cpp */,
 				2B4B19B81BA38AFB0091A743 /* Point2d_jni.cpp */,
-				D8B09F8A1C6008AE006637E1 /* Point2f_jni.cpp */,
 				2B4B19B91BA38AFB0091A743 /* Point3d_jni.cpp */,
-				D8B09F8C1C6008CC006637E1 /* Point3f_jni.cpp */,
 				2B4B19BA1BA38AFB0091A743 /* Point4d_jni.cpp */,
-				D8B09F8E1C6008E7006637E1 /* Point4f_jni.cpp */,
 				2B76C5ED1C12237D0081F395 /* QuadImageOfflineLayer_jni.cpp */,
 				2B4B19BB1BA38AFB0091A743 /* QuadImageTileLayer_jni.cpp */,
 				2B4B19BC1BA38AFB0091A743 /* QuadPagingLayer_jni.cpp */,
 				2B4B19BD1BA38AFB0091A743 /* Quaternion_jni.cpp */,
-				D83D3E3B1C6154DD003CD053 /* RendererFrameInfo_jni.cpp */,
 				2B4B19BE1BA38AFB0091A743 /* Scene_jni.cpp */,
 				2B4B19BF1BA38AFB0091A743 /* SelectionManager_jni.cpp */,
 				2B4B19C01BA38AFB0091A743 /* Shader_jni.cpp */,
 				2B4B19C11BA38AFB0091A743 /* SingleLabelAndroid.cpp */,
-				D8B09F961C601E4A006637E1 /* SingleVertexAttribute_jni.cpp */,
 				D8641E011C51933900D07B38 /* SingleVertexAttributeInfo_jni.cpp */,
 				2B4B19C21BA38AFB0091A743 /* SphericalMercatorCoordSystem_jni.cpp */,
 				2B923FC31BFBD6D200C879DB /* Sticker_jni.cpp */,
@@ -1353,7 +1270,6 @@
 				2B4B19C71BA38AFB0091A743 /* VectorObject_jni.cpp */,
 				2B4B19C81BA38AFB0091A743 /* View_jni.cpp */,
 				2B4B19C91BA38AFB0091A743 /* ViewState_jni.cpp */,
-				D8B09F821C5FF5FF006637E1 /* WhirlyKitGLSetupInfo_jni.cpp */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -1808,14 +1724,11 @@
 				2B923FCC1BFBDED200C879DB /* com_mousebird_maply_QuadImageTileLayer_ImageUpdater.h in Headers */,
 				2B4B196D1BA38AD90091A743 /* com_mousebird_maply_GlobeViewState.h in Headers */,
 				2B35682F18D762BF00EF8DB1 /* ScreenSpaceGenerator.h in Headers */,
-				D87A1F321C5915D200B586F4 /* com_mousebird_maply_Point3f.h in Headers */,
 				2B009D0E186102E4001E2EE8 /* JSONWorker.h in Headers */,
 				2B7EF43016025D8C00D4079F /* geocent.h in Headers */,
 				2B7EF43516025D8C00D4079F /* geodesic.h in Headers */,
 				2B4B19741BA38AD90091A743 /* com_mousebird_maply_MaplyRenderer.h in Headers */,
-				D87A1F3C1C5915D200B586F4 /* com_mousebird_maply_Cullable.h in Headers */,
 				2B35682618D762BF00EF8DB1 /* PerformanceTimer.h in Headers */,
-				D87A1F3A1C5915D200B586F4 /* com_mousebird_maply_DrawableTweaker.h in Headers */,
 				2B35683518D762BF00EF8DB1 /* Texture.h in Headers */,
 				2B009D0A186102E4001E2EE8 /* JSONStream.h in Headers */,
 				2B4B19761BA38AD90091A743 /* com_mousebird_maply_MapView_AnimationDelegate.h in Headers */,
@@ -1831,14 +1744,12 @@
 				2B3567E118D762BF00EF8DB1 /* DynamicDrawableAtlas.h in Headers */,
 				2B7EF43D16025D8C00D4079F /* org_proj4_Projections.h in Headers */,
 				2B4B197E1BA38AD90091A743 /* com_mousebird_maply_Point2d.h in Headers */,
-				D87A1F391C5915D200B586F4 /* com_mousebird_maply_Matrix4f.h in Headers */,
 				2B7EF48216025D8C00D4079F /* pj_list.h in Headers */,
 				2B7EF4C316025D8C00D4079F /* proj_api.h in Headers */,
 				2B7EF4C816025D8C00D4079F /* projects.h in Headers */,
 				2B3567E218D762BF00EF8DB1 /* DynamicTextureAtlas.h in Headers */,
 				2B009CED186102E4001E2EE8 /* mempool.h in Headers */,
 				2B35683818D762BF00EF8DB1 /* VectorData.h in Headers */,
-				D87A1F341C5915D200B586F4 /* com_mousebird_maply_ParticleSystemDrawable.h in Headers */,
 				2B923FCA1BFBDED200C879DB /* com_mousebird_maply_BaseInfo.h in Headers */,
 				2B4B19791BA38AD90091A743 /* com_mousebird_maply_MapViewState.h in Headers */,
 				2B009CF8186102E4001E2EE8 /* Strings_Defs.h in Headers */,
@@ -1858,17 +1769,14 @@
 				2B3567ED18D762BF00EF8DB1 /* LoadedTile.h in Headers */,
 				2B4B196F1BA38AD90091A743 /* com_mousebird_maply_InternalLabel.h in Headers */,
 				2BA2325817984F510063CC84 /* glues_error.h in Headers */,
-				D87A1F3D1C5915D200B586F4 /* com_mousebird_maply_CullTree.h in Headers */,
 				88B9DE821C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h in Headers */,
 				2B35682C18D762BF00EF8DB1 /* SceneRendererES.h in Headers */,
 				2B4B19921BA38AD90091A743 /* com_mousebird_maply_View_ViewWatcher.h in Headers */,
-				D87A1F2E1C5915D200B586F4 /* com_mousebird_maply_SceneRendererES.h in Headers */,
 				2BA2325A17984F510063CC84 /* glues_mipmap.h in Headers */,
 				2B4B19841BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer.h in Headers */,
 				2B35683C18D762BF00EF8DB1 /* WhirlyGeometry.h in Headers */,
 				2B009CFC186102E4001E2EE8 /* JSONGlobals.h in Headers */,
 				2B35682218D762BF00EF8DB1 /* MaplyViewState.h in Headers */,
-				D8B09F951C601DDA006637E1 /* com_mousebird_maply_SingleVertexAttribute.h in Headers */,
 				2B35682018D762BF00EF8DB1 /* MaplyScene.h in Headers */,
 				2B4B19951BA38AD90091A743 /* FontTextureManagerAndroid.h in Headers */,
 				2B3567DF18D762BF00EF8DB1 /* Dictionary.h in Headers */,
@@ -1878,7 +1786,6 @@
 				2B4B196A1BA38AD90091A743 /* com_mousebird_maply_GlobeScene.h in Headers */,
 				2BA2325C17984F510063CC84 /* glues_project.h in Headers */,
 				2B009D07186102E4001E2EE8 /* JSONSingleton.h in Headers */,
-				D87A1F381C5915D200B586F4 /* com_mousebird_maply_OpenGLES2Program.h in Headers */,
 				2B4B197F1BA38AD90091A743 /* com_mousebird_maply_Point3d.h in Headers */,
 				2B4B197B1BA38AD90091A743 /* com_mousebird_maply_MarkerManager.h in Headers */,
 				2B14BFC51B83F3F500CE29A4 /* BasicDrawable.h in Headers */,
@@ -1894,11 +1801,9 @@
 				2BA2326017984F510063CC84 /* glues_registry.h in Headers */,
 				2B14BFD51B852C5100CE29A4 /* BasicDrawableInstance.h in Headers */,
 				2B35683318D762BF00EF8DB1 /* SphericalMercator.h in Headers */,
-				D87A1F361C5915D200B586F4 /* com_mousebird_maply_OpenGLMemManager.h in Headers */,
 				2B4B198D1BA38AD90091A743 /* com_mousebird_maply_Texture.h in Headers */,
 				2B3567E718D762BF00EF8DB1 /* GlobeView.h in Headers */,
 				2B4B198A1BA38AD90091A743 /* com_mousebird_maply_SelectionManager.h in Headers */,
-				D87A1F351C5915D200B586F4 /* com_mousebird_maply_OpenGLStateOptimizer.h in Headers */,
 				2B3567E018D762BF00EF8DB1 /* Drawable.h in Headers */,
 				2BA2326217984F510063CC84 /* dict-list.h in Headers */,
 				2B009D181861093A001E2EE8 /* clipper.hpp in Headers */,
@@ -1912,8 +1817,6 @@
 				D8701BA61C538B39009A5471 /* ParticleSystemDrawable.h in Headers */,
 				2B4B19631BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h in Headers */,
 				2B4B198F1BA38AD90091A743 /* com_mousebird_maply_VectorIterator.h in Headers */,
-				D87A1F371C5915D200B586F4 /* com_mousebird_maply_OpenGLESAttribute.h in Headers */,
-				D87A1F331C5915D200B586F4 /* com_mousebird_maply_Point2f.h in Headers */,
 				2B35682518D762BF00EF8DB1 /* OpenGLES2Program.h in Headers */,
 				2B4B19651BA38AD90091A743 /* com_mousebird_maply_ChangeSet.h in Headers */,
 				2B4B198E1BA38AD90091A743 /* com_mousebird_maply_VectorInfo.h in Headers */,
@@ -1925,12 +1828,10 @@
 				2BA2326817984F510063CC84 /* memalloc.h in Headers */,
 				2B3567EC18D762BF00EF8DB1 /* LayoutManager.h in Headers */,
 				2B4B19721BA38AD90091A743 /* com_mousebird_maply_LabelManager.h in Headers */,
-				D87A1F2F1C5915D200B586F4 /* com_mousebird_maply_WhirlyKitGLSetupInfo.h in Headers */,
 				2BA2326A17984F510063CC84 /* mesh.h in Headers */,
 				2B35683718D762BF00EF8DB1 /* TileQuadLoader.h in Headers */,
 				2B4B19731BA38AD90091A743 /* com_mousebird_maply_LayoutManager.h in Headers */,
 				2B009D08186102E4001E2EE8 /* JSONStats.h in Headers */,
-				D87A1F3E1C5915D200B586F4 /* com_mousebird_maply_Batch.h in Headers */,
 				2B4B19961BA38AD90091A743 /* ImageWrapper.h in Headers */,
 				2B35682A18D762BF00EF8DB1 /* RawData.h in Headers */,
 				2B009D00186102E4001E2EE8 /* JSONMemoryPool.h in Headers */,
@@ -1966,11 +1867,8 @@
 				2B35683218D762BF00EF8DB1 /* SharedAttributes.h in Headers */,
 				2B3567DE18D762BF00EF8DB1 /* DefaultShaderPrograms.h in Headers */,
 				D8641E091C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h in Headers */,
-				D87A1F311C5915D200B586F4 /* com_mousebird_maply_Point4f.h in Headers */,
 				2BA2327317984F510063CC84 /* render.h in Headers */,
-				D87A1F301C5915D200B586F4 /* com_mousebird_maply_RendererFrameInfo.h in Headers */,
 				2B009CEC186102E4001E2EE8 /* libbase64++.h in Headers */,
-				D87A1F3B1C5915D200B586F4 /* com_mousebird_maply_Drawable.h in Headers */,
 				2B4B19641BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h in Headers */,
 				2B4B198B1BA38AD90091A743 /* com_mousebird_maply_Shader.h in Headers */,
 				2B35683618D762BF00EF8DB1 /* TextureAtlas.h in Headers */,

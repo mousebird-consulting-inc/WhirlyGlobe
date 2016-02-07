@@ -22,33 +22,20 @@
 #import "com_mousebird_maply_Point3d.h"
 #import "com_mousebird_maply_Point4d.h"
 #import "com_mousebird_maply_Matrix4d.h"
-#import "com_mousebird_maply_Matrix4f.h"
 #import "com_mousebird_maply_Quaternion.h"
 #import <WhirlyGlobe.h>
 
 // Construct a Java-side Point2d
 JNIEXPORT jobject JNICALL MakePoint2d(JNIEnv *env,const WhirlyKit::Point2d &pt);
 
-// Construct a Java-side Point2f
-JNIEXPORT jobject JNICALL MakePoint2f(JNIEnv *env,const WhirlyKit::Point2f &pt);
-
 // Construct a Java-side Point3d
 JNIEXPORT jobject JNICALL MakePoint3d(JNIEnv *env,const WhirlyKit::Point3d &pt);
-
-// Construct a Java-side Point3f
-JNIEXPORT jobject JNICALL MakePoint3f(JNIEnv *env,const WhirlyKit::Point3f &pt);
 
 // Construct a Java-side Point4d
 JNIEXPORT jobject JNICALL MakePoint4d(JNIEnv *env,const WhirlyKit::Point4d &pt);
 
-// Construct a Java-side Point4d
-JNIEXPORT jobject JNICALL MakePoint4f(JNIEnv *env,const WhirlyKit::Point4f &pt);
-
 // Construct a Java-side Matrix4d
 JNIEXPORT jobject JNICALL MakeMatrix4d(JNIEnv *env,const Eigen::Matrix4d &mat);
-
-// Construct a Java-side Matrix4f
-JNIEXPORT jobject JNICALL MakeMatrix4f(JNIEnv *env,const Eigen::Matrix4f &mat);
 
 // Construct a Java-side Quaternion
 JNIEXPORT jobject JNICALL MakeQuaternion(JNIEnv *env,const Eigen::Quaterniond &quat);
