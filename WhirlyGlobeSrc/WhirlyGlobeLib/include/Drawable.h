@@ -144,6 +144,9 @@ typedef std::set<DrawableTweakerRef> DrawableTweakerRefSet;
  */
 class Drawable : public Identifiable
 {
+protected:
+    /// Used in special cases
+    Drawable() { }
 public:
     /// Construct empty
 	Drawable(const std::string &name);
@@ -243,7 +246,7 @@ static const unsigned int MaxDrawableTriangles = (MaxDrawablePoints / 3);
 class SubTexture;
 
 /// Data types we'll accept for attributes
-typedef enum {BDFloat4Type,BDFloat3Type,BDChar4Type,BDFloat2Type,BDFloatType,BDIntType} BDAttributeDataType;
+typedef enum {BDFloat4Type,BDFloat3Type,BDChar4Type,BDFloat2Type,BDFloatType,BDIntType,BDDataTypeMax} BDAttributeDataType;
     
     
 /// Used to keep track of attributes (other than points)
