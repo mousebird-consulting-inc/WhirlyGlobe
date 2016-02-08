@@ -24,6 +24,7 @@
 #import "ScreenSpaceDrawable.h"
 // Note: Porting
 //#import "ParticleSystemDrawable.h"
+#import "WideVectorDrawable.h"
 #import "GlobeScene.h"
 
 namespace WhirlyKit
@@ -606,13 +607,13 @@ void SetupDefaultShaders(Scene *scene)
 //    }
     
     // Widened vector shader
-//    OpenGLES2Program *wideVecShader = BuildWideVectorProgram();
-//    if (!wideVecShader)
-//    {
-//        fprintf(stderr,"SetupDefaultShaders: Wide Vector shader didn't compile.");
-//    } else {
-//        scene->addProgram(kToolkitDefaultWideVectorProgram, wideVecShader);
-//    }
+    OpenGLES2Program *wideVecShader = BuildWideVectorProgram();
+    if (!wideVecShader)
+    {
+        fprintf(stderr,"SetupDefaultShaders: Wide Vector shader didn't compile.");
+    } else {
+        scene->addProgram(kToolkitDefaultWideVectorProgram, wideVecShader);
+    }
     
     if (dynamic_cast<WhirlyGlobe::GlobeScene *>(scene))
     {

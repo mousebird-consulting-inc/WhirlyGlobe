@@ -685,6 +685,7 @@ SimpleIdentity WideVectorManager::addVectors(ShapeSet *shapes,const WideVectorIn
     WideVectorDrawableBuilder builder(scene,&vecInfo);
     
     // Calculate a center for this geometry
+    // Note: Porting
     GeoMbr geoMbr;
     for (ShapeSet::iterator it = shapes->begin(); it != shapes->end(); ++it)
     {

@@ -50,6 +50,7 @@
 //#import "VectorDatabase.h"
 #import "ShapeReader.h"
 #import "VectorManager.h"
+#import "WideVectorManager.h"
 //#import "VectorLayer.h"
 //#import "LabelLayer.h"
 //#import "ParticleSystemLayer.h"
