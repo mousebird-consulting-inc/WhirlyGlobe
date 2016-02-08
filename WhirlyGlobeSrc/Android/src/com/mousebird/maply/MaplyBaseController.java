@@ -1010,6 +1010,7 @@ public class MaplyBaseController
 		particleSystem.setBatchSize(maplyParticleSystem.getBatchSize());
 		particleSystem.setBasetime(maplyParticleSystem.getBaseTime());
 		particleSystem.setParticleSystemType(maplyParticleSystem.getType().getValue());
+		particleSystem.setIdent(maplyParticleSystem.getIdent());
 
 		for (ParticleSystemAttribute attr: maplyParticleSystem.getAttrs()){
 			particleSystem.addParticleSystemAttribute(attr.getName(), attr.getSize());

@@ -45,7 +45,7 @@ public class ParticleSystem {
         dispose();
     }
 
-    long ident = Identifiable.genID();
+    public native void setIdent(long ident);
 
     public native void setName(String name);
 

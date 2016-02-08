@@ -64,7 +64,7 @@ ParticleSystemManager::~ParticleSystemManager()
     
 SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &newSystem,ChangeSet &changes)
 {
-    ParticleSystemSceneRep *sceneRep = new ParticleSystemSceneRep();
+  ParticleSystemSceneRep *sceneRep = new ParticleSystemSceneRep(newSystem.getId());
 
     sceneRep->partSys = newSystem;
     

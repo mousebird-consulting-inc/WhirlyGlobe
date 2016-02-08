@@ -95,8 +95,8 @@ public class ParticleSystemTestCase extends MaplyTestCase {
             this.cachedTiles = new HashMap<>();
 
             //These govern how particles are structured
-            this.updateInterval = 1.0;
-            this.particleLifeTime = 2.0;
+            this.updateInterval = 5.0;
+            this.particleLifeTime = 10.0;
             this.numParticles = 100000;
             this.velocityScale = 0.1f;
 
@@ -156,7 +156,7 @@ public class ParticleSystemTestCase extends MaplyTestCase {
                 this.partSys.setLifeTime(this.particleLifeTime);
                 this.partSys.setTotalParticles(this.numParticles);
                 this.partSys.setDefaultDrawPriority(101000);
-                this.partSys.setPointSize(4000);
+                this.partSys.setPointSize(4);
                 this.partSys.setBatchSize((int) (this.numParticles / (this.particleLifeTime / this.updateInterval)));
                 this.partSysObj = this.viewC.addParticleSystem(this.partSys, MaplyBaseController.ThreadMode.ThreadAny);
             }
@@ -177,12 +177,12 @@ public class ParticleSystemTestCase extends MaplyTestCase {
             for (int ii = 0; ii< this.partSys.getBatchSize(); ii++) {
                 //Random location
                 locs[ii*3] = (float) (Math.random()*2-1); locs[ii*3+1] = (float) (Math.random()*2-1); locs[ii*3+2] = (float) (Math.random()*2-1);
-                float sum = (float) Math.sqrt(locs[ii*3]*locs[ii*3] + locs[ii*3+1] * locs[ii*3+1] + locs[ii*3+1] * locs[ii*3+2]);
+                float sum = (float) Math.sqrt(locs[ii*3]*locs[ii*3] + locs[ii*3+1] * locs[ii*3+1] + locs[ii*3+2] * locs[ii*3+2]);
                 locs[ii*3]/= sum; locs[ii*3+1] /= sum; locs[ii*3+2] /= sum;
                 //Random direction
                 dirs[ii*3] = (float) Math.random()*2-1; dirs[ii*3+1] = (float) Math.random()*2-1; dirs[ii*3+2] = (float) Math.random()*2-1;
                 sum  = (float) Math.sqrt(dirs[ii*3]*dirs[ii*3] + dirs[ii*3+1] * dirs[ii*3+1] + dirs[ii*3+2] * dirs[ii*3+2]);
-                dirs[ii*3] /= sum; dirs[ii*3+1] /= sum; dirs[ii*3+2] /= sum;
+                dirs[ii*3] /= sum * this.velocityScale; dirs[ii*3+1] /= sum * this.velocityScale; dirs[ii*3+2] /= sum * this.velocityScale;
 
                 this.times[ii] = 0;
 
