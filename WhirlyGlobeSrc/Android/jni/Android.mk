@@ -75,7 +75,7 @@ MAPLY_CORE_SRC_FILES := BaseInfo.cpp BasicDrawable.cpp BasicDrawableInstance.cpp
 					PerformanceTimer.cpp QuadDisplayController.cpp Quadtree.cpp RawData.cpp Scene.cpp SceneRendererES.cpp \
 					SceneRendererES2.cpp ScreenImportance.cpp ScreenSpaceBuilder.cpp ScreenSpaceDrawable.cpp \
 					SelectionManager.cpp ShapeReader.cpp SphericalEarthChunkManager.cpp SphericalMercator.cpp Tesselator.cpp Texture.cpp TextureAtlas.cpp TileQuadLoader.cpp TileQuadOfflineRenderer.cpp \
-					VectorData.cpp VectorManager.cpp VectorObject.cpp ViewState.cpp WhirlyGeometry.cpp WhirlyKitView.cpp WhirlyVector.cpp
+					VectorData.cpp VectorManager.cpp VectorObject.cpp ViewState.cpp WideVectorDrawable.cpp WideVectorManager.cpp WhirlyGeometry.cpp WhirlyKitView.cpp WhirlyVector.cpp
 		
 MAPLY_CORE_SRC_DIR := $(SRC_DIR)
 LOCAL_SRC_FILES += $(MAPLY_CORE_SRC_FILES:%=$(MAPLY_CORE_SRC_DIR)/%)
