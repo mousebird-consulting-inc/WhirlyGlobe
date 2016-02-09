@@ -479,11 +479,13 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
      */
 	public void doFrame(long frameTimeNanos)
 	{
-		double newUpdateTime = globeView.getLastUpdatedTime();
-		if (gestureDelegate != null && lastViewUpdate < newUpdateTime) {
-			Point3d corners[] = calcCorners();
-			gestureDelegate.globeDidMove(this, corners, false);
-			lastViewUpdate = newUpdateTime;
+		if (globeView != null) {
+			double newUpdateTime = globeView.getLastUpdatedTime();
+			if (gestureDelegate != null && lastViewUpdate < newUpdateTime) {
+				Point3d corners[] = calcCorners();
+				gestureDelegate.globeDidMove(this, corners, false);
+				lastViewUpdate = newUpdateTime;
+			}
 		}
 
 		Choreographer c = Choreographer.getInstance();
@@ -507,7 +509,8 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 
         Point3d retCorners[] = new Point3d[4];
         CoordSystemDisplayAdapter coordAdapter = globeView.getCoordAdapter();
-        if (coordAdapter == null)
+        if (coordAdapter == null || renderWrapper == null || renderWrapper.maplyRender == null ||
+				renderWrapper.maplyRender.frameSize == null)
             return retCorners;
         CoordSystem coordSys = coordAdapter.getCoordSystem();
         if (coordSys == null)
