@@ -120,8 +120,8 @@ using namespace WhirlyKit;
     _currentImage = 0;
     _animationPeriod = 0;
     _asyncFetching = true;
-    _minElev = -100.0;
-    _maxElev = 8900;
+    _minElev = 0.0;
+    _maxElev = 1000;
     _texturAtlasSize = 2048;
     _imageFormat = MaplyImageIntRGBA;
     _flipY = true;
@@ -177,7 +177,7 @@ using namespace WhirlyKit;
     minZoom = [_tileSource minZoom];
     maxZoom = [_tileSource maxZoom];
     tileSize = [_tileSource tileSize];
-    
+        
     // Set up tile and and quad layer with us as the data source
     tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:self];
     [self setupTileLoader];
