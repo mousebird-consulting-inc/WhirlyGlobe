@@ -22,13 +22,13 @@
 }
 
 // Make a black texture with a line around it
-- (UIImage *)tarmacTexture
+- (UIImage *)colorOutlineTexture:(UIColor *)color
 {
     CGSize size;  size = CGSizeMake(16,128);
     UIGraphicsBeginImageContext(size);
     CGContextRef ctx = UIGraphicsGetCurrentContext();
     
-    [[UIColor whiteColor] setFill];
+    [color setFill];
     CGContextFillRect(ctx, CGRectMake(0, 0, size.width, size.height));
     
     [[UIColor blackColor] setFill];
@@ -68,7 +68,8 @@
 // This is not a real runway
 - (MaplyGeomModel *)buildRunwayModel:(MaplyBaseViewController *)viewC
 {
-    UIImage *tarmacImage = [self tarmacTexture];
+    UIImage *tarmacImage = [self colorOutlineTexture:[UIColor whiteColor]];
+    UIImage *grayImage = [self colorOutlineTexture:[UIColor grayColor]];
 
     // Color states
     MaplyGeomState *blankState = [[MaplyGeomState alloc] init];
@@ -79,6 +80,9 @@
     MaplyGeomState *tarmacState = [[MaplyGeomState alloc] init];
     tarmacState.color = [UIColor whiteColor];
     tarmacState.texture = tarmacImage;
+    MaplyGeomState *grayOutlineState = [[MaplyGeomState alloc] init];
+    grayOutlineState.color = [UIColor whiteColor];
+    grayOutlineState.texture = grayImage;
     MaplyGeomState *stripeState = [[MaplyGeomState alloc] init];
     stripeState.color = [UIColor whiteColor];
     MaplyGeomState *yellowStripeState = [[MaplyGeomState alloc] init];
@@ -112,7 +116,7 @@
     // Next up, the displaced area
     {
         MaplyGeomBuilder *geomBuilder = [[MaplyGeomBuilder alloc] initWithViewC:viewC];
-        [geomBuilder addRectangleAroundX:0.0 y:displaced/2.0 width:width height:displaced state:blankState];
+        [geomBuilder addRectangleAroundX:0.0 y:displaced/2.0 width:width height:displaced state:grayOutlineState];
         
         [wholeBuilder addGeomFromBuilder:geomBuilder transform:[[MaplyMatrix alloc] initWithTranslateX:0.0 y:overrun z:0.0]];
     }
@@ -181,13 +185,16 @@
     MaplyGeomModelInstance *modelInst = [[MaplyGeomModelInstance alloc] init];
     modelInst.model = geomModel;
     MaplyCoordinate coord = MaplyCoordinateMakeWithDegrees(-122.270833, 37.804444);
-    modelInst.transform = [[MaplyMatrix alloc] initWithScale:1/6371000.0];
+    MaplyMatrix *headingMat = [[MaplyMatrix alloc] initWithAngle:M_PI/4.0 axisX:0 axisY:0 axisZ:1.0];
+    modelInst.transform = [headingMat multiplyWith:[[MaplyMatrix alloc] initWithScale:1/6371000.0]];
     modelInst.center = MaplyCoordinate3dMake(coord.x,coord.y,200.0);
     
     [globeVC addModelInstances:@[modelInst] desc:@{kMaplyDrawPriority: @(1000000),kMaplyZBufferWrite: @(YES), kMaplyZBufferRead: @(YES)} mode:MaplyThreadCurrent];
     
     [globeVC setPosition:coord];
     globeVC.height = 0.001;
+    globeVC.keepNorthUp = true;
+    globeVC.clearColor = [UIColor grayColor];
     return true;
 }
 
