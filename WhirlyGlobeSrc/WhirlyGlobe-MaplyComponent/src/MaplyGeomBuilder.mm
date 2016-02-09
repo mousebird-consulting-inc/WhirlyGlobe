@@ -188,8 +188,7 @@ using namespace WhirlyKit;
     rawGeom.resize(rawGeom.size()+1);
     GeometryRaw *geom = &rawGeom[rawGeom.size()-1];
 
-    if (texID == -1)
-        geom->texId = texID;
+    geom->texId = texID;
     
     return geom;
 }
