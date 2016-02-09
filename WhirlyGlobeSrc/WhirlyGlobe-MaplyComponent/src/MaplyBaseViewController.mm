@@ -121,7 +121,7 @@ using namespace WhirlyKit;
 - (void) dealloc
 {
     if (scene)
-        [self clear];
+        [self shutdown];
 }
 
 - (WhirlyKitView *) loadSetup_view
