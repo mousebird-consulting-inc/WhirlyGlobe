@@ -167,8 +167,6 @@ using namespace Maply;
 
 - (void)dealloc
 {
-    if (mapScene)
-        [self clear];
 }
 
 // Change the view window and force a draw
