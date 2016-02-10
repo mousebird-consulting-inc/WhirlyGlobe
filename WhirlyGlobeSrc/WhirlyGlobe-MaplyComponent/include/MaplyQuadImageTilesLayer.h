@@ -186,7 +186,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
 /** @brief For the case where we're loading individual frames, this sets the order to load them in.
     @details When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.
   */
-- (void)setFrameLoadingPriority:(NSArray *__nonnull)priorities;
+- (void)setFrameLoadingPriority:(NSArray *__nullable)priorities;
 
 /** @brief Include the original z values in the tile geometry for a custom shader.
     @details When generating tiles for the globe we project the coordinates from their local system (probably MaplySphericalMercator) into a display system.  If you wanted the original z values, to say, write a custom shader that maps color to elevation, that data is now missing.
