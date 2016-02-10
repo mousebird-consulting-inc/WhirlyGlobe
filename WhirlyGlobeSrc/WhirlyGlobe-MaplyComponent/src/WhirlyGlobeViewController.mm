@@ -161,8 +161,6 @@ using namespace WhirlyGlobe;
 
 - (void) dealloc
 {
-    if (globeScene)
-        [self clear];
 }
 
 - (void)setDelegate:(NSObject<WhirlyGlobeViewControllerDelegate> *)delegate
