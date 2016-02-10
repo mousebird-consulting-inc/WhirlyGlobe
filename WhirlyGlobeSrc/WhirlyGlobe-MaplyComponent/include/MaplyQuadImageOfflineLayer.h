@@ -162,7 +162,7 @@
 /** @brief For the case where we're loading individual frames, this sets the order to load them in.
     @details When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.
  */
-- (void)setFrameLoadingPriority:(NSArray *__nonnull)priorities;
+- (void)setFrameLoadingPriority:(NSArray *__nullable)priorities;
 
 /** @brief The delegate called with the image stack produced at irregular intervals.
     @details Set this delegate to get the images out of the offline rendering layer.
