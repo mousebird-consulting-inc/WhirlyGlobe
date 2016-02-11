@@ -748,7 +748,7 @@ using namespace Maply;
 {
 	GeoCoord geoCoord = mapView.coordAdapter->getCoordSystem()->localToGeographic(mapView.coordAdapter->displayToLocal(mapView.loc));
 
-	return {.x = geoCoord.x(), .y = geoCoord.x()};
+	return {.x = geoCoord.x(), .y = geoCoord.y()};
 }
 
 - (float)getHeight
