@@ -81,6 +81,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setBatchSize
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem
+ * Method:    getBatchSize
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_ParticleSystem_getBatchSize
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_ParticleSystem
  * Method:    setTotalParticles
  * Signature: (I)V
  */
@@ -102,6 +110,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addParticleSystem
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addTexID
   (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_mousebird_maply_ParticleSystem
+ * Method:    getAttributesNames
+ * Signature: ()[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_ParticleSystem_getAttributesNames
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_ParticleSystem
+ * Method:    getAttributesTypes
+ * Signature: ()[I
+ */
+JNIEXPORT jintArray JNICALL Java_com_mousebird_maply_ParticleSystem_getAttributesTypes
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem

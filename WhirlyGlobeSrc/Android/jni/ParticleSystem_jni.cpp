@@ -263,3 +263,52 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setBatchSize
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setBasetime()");
     }
 }
+
+JNIEXPORT jintArray JNICALL Java_com_mousebird_maply_ParticleSystem_getAttributesTypes
+(JNIEnv *env, jobject obj)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return NULL;
+        
+        jintArray result;
+        result = env->NewIntArray(inst->vertAttrs.size());
+        jint values[inst->vertAttrs.size()];
+        for (int i = 0; i < inst->vertAttrs.size(); i++) {
+            values[i] = (int)inst->vertAttrs[i].type;
+        }
+        env->SetIntArrayRegion(result, 0,inst->vertAttrs.size(), values );
+        
+        return result;
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getAttributesTypes()");
+    }
+}
+
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_ParticleSystem_getAttributesNames
+(JNIEnv *env, jobject obj)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return NULL;
+        
+        jobjectArray ret;
+        int i;
+        
+        ret = (jobjectArray) env->NewObjectArray(inst->vertAttrs.size(), env->FindClass("java/lang/String"), env->NewStringUTF(""));
+        for (i = 0; i < inst->vertAttrs.size(); i++){
+            
+            const char* value=inst->vertAttrs[i].name.c_str();
+            env->SetObjectArrayElement(ret, i, env->NewStringUTF(value));
+        }
+        return ret;
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getAttributesNames()");
+    }
+}

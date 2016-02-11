@@ -19,8 +19,12 @@
  */
 package com.mousebird.maply;
 
+import java.util.Date;
+
 public class ParticleSystem {
 
+
+    public long id = Identifiable.genID();
 
     public enum STATE {
         ParticleSystemPoint(0),
@@ -37,15 +41,26 @@ public class ParticleSystem {
         }
     }
 
-    public ParticleSystem() {
+    public ParticleSystem(String name) {
         initialise();
+        this.setIdent(id);
+        this.setName(name);
+        this.setParticleSystemType(STATE.ParticleSystemPoint.getValue());
+        this.setLifetime(5.0);
+        this.setBatchSize(2000);
+        this.setTotalParticles(100000);
+        this.setBasetime(new Date().getTime());
     }
 
     public void finalize() {
         dispose();
     }
 
-    public native void setIdent(long ident);
+    private native void setIdent(long ident);
+
+    public long getIdent() {
+        return id;
+    }
 
     public native void setName(String name);
 
@@ -63,13 +78,34 @@ public class ParticleSystem {
 
     public native void setBatchSize(int batchSize);
 
+    public native int getBatchSize();
+
+
     public native void setTotalParticles(int totalParticles);
 
     public native void addParticleSystemAttribute(String name, int type);
 
     public native void addTexID(long texID);
 
+    public ParticleSystemAttribute [] getAttrs() {
+        String names[] = this.getAttributesNames();
+        int types[] = this.getAttributesTypes();
 
+        if (names.length != types.length) {
+            return null;
+        }
+
+        ParticleSystemAttribute attrsList[] = new ParticleSystemAttribute[names.length];
+        for (int i = 0 ; i < attrsList.length; i++) {
+            attrsList[i].setName(names[i]);
+            attrsList[i].setType(ParticleSystemAttribute.MaplyShaderAttrType.values()[types[i]]);
+        }
+
+        return attrsList;
+     }
+
+    private native String[] getAttributesNames();
+    private native int[] getAttributesTypes();
 
     static {
         nativeInit();
