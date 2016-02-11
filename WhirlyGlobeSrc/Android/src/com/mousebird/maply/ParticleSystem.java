@@ -81,11 +81,11 @@ public class ParticleSystem {
 
     ArrayList<String> names = new ArrayList<String>();
     ArrayList<Integer> types = new ArrayList<Integer>();
-    public void addParticleSystemAttribute(String name,int type)
+    public void addParticleSystemAttribute(String name,ParticleSystemAttribute.MaplyShaderAttrType type)
     {
         int which = names.size();
         names.add(name);
-        types.add(type);
+        types.add(type.getValue());
     }
 
     public native void addParticleSystemAttributeNative(String name, int type);
@@ -99,6 +99,7 @@ public class ParticleSystem {
 
         ParticleSystemAttribute attrsList[] = new ParticleSystemAttribute[names.size()];
         for (int i = 0 ; i < attrsList.length; i++) {
+            attrsList[i] = new ParticleSystemAttribute();
             attrsList[i].setName(names.get(i));
             attrsList[i].setType(ParticleSystemAttribute.MaplyShaderAttrType.values()[types.get(i)]);
         }

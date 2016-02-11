@@ -21,14 +21,8 @@ package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
 
-import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
-import com.mousebird.maply.MaplyBaseController;
-import com.mousebird.maply.ParticleBatch;
-import com.mousebird.maply.ParticleSystem;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
-
-import java.util.Date;
 
 public class SimpleParticleSystemTestCase extends MaplyTestCase {
 
@@ -39,107 +33,23 @@ public class SimpleParticleSystemTestCase extends MaplyTestCase {
         this.setDelay(2000);
     }
 
+    SimpleParticleThread particleThread = null;
+
     @Override
-    public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
+    public boolean setUpWithGlobe(final GlobeController globeVC) throws Exception {
 
         StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
         baseView.setUpWithGlobe(globeVC);
 
-        this.viewC = globeVC;
+        // Kick off the particle thread
+        // Note: Need to shut this down
         globeVC.onSurfaceCreatedTask(new Runnable() {
             @Override
             public void run() {
-                setupParticles();
+                particleThread = new SimpleParticleThread(globeVC);
             }
         });
 
         return true;
-    }
-
-    private ParticleSystem partSys;
-    private MaplyBaseController viewC;
-    private ComponentObject partSysObj;
-    private float locs[];
-    private float dirs[];
-    private float colors[];
-    private double particleLifeTime;
-    private int numParticles;
-    private double updateInterval;
-    private float velocityScale;
-    private Runnable updateTask;
-
-    void setupParticles()
-    {
-        this.updateInterval = 1.0;
-        this.particleLifeTime = 10.0;
-        this.numParticles = 100000;
-        this.velocityScale = 0.1f;
-
-        this.updateTask = new Runnable() {
-            @Override
-            public void run() {
-                float delay = getDelay();
-                while (delay - updateInterval>0) {
-                    try {
-                        generateParticles();
-                        delay -= updateInterval;
-                        Thread.sleep((long) (updateInterval * 1000));
-                        System.out.println("Updating...");
-                    } catch (InterruptedException e) {
-
-                    }
-                }
-            }
-        };
-        this.updateTask.run();
-    }
-
-    public void generateParticles() throws InterruptedException {
-        if (this.partSysObj == null) {
-            this.partSys = new ParticleSystem("Test Particle System");
-            this.partSys.setLifetime(this.particleLifeTime);
-            this.partSys.setTotalParticles(this.numParticles);
-            this.partSys.setDrawPriority(101000);
-            this.partSys.setPointSize(4);
-            this.partSys.setBatchSize((int) (this.numParticles / (this.particleLifeTime / this.updateInterval)));
-            this.partSysObj = this.viewC.addParticleSystem(this.partSys, MaplyBaseController.ThreadMode.ThreadAny);
-        }
-
-        double now = ((double) new Date().getTime() ) - 978303600000.d;
-
-        // Data arrays for particles
-        int batchSize = this.partSys.getBatchSize();
-
-        if (locs == null) {
-            this.locs = new float[this.partSys.getBatchSize()*3];
-            this.dirs = new float[this.partSys.getBatchSize()*3];
-            this.colors = new float[this.partSys.getBatchSize()*4];
-//            this.times = new float[batchSize];
-        }
-
-        // Make up some random particles
-        for (int ii = 0; ii< this.partSys.getBatchSize(); ii++) {
-            //Random location
-            float x = (float)Math.random()*2-1;
-            float y = (float)Math.random()*2-1;
-            float z = (float)Math.random()*2-1;
-            float sum = (float)Math.sqrt(x*x+y*y+z*z);
-            x /= sum;  y /= sum;  z /= sum;
-            locs[ii*3] = x; locs[ii*3+1] = y; locs[ii*3+2] = z;
-            //Random direction
-//                dirs[ii*3] = (float) Math.random()*2-1; dirs[ii*3+1] = (float) Math.random()*2-1; dirs[ii*3+2] = (float) Math.random()*2-1;
-            dirs[ii*3] = 0.f;  dirs[ii*3+1] = 0.f;  dirs[ii*3+2] = 0.f;
-
-//            this.times[ii] = 0;
-
-            colors[ii*4] = 1.0f; colors[ii*4+1] = 1.0f; colors[ii*4+2] = 1.0f; colors[ii*4+3] = 1.0f;
-        }
-
-        ParticleBatch batch = new ParticleBatch(this.partSys);
-        batch.addAttribute("a_position", this.locs);
-        batch.addAttribute("a_dir", this.dirs);
-        batch.addAttribute("a_color", this.colors);
-//        batch.addAttribute("a_startTime", this.times);
-        viewC.addParticleBatch(batch, MaplyBaseController.ThreadMode.ThreadAny);
     }
 }
