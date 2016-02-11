@@ -51,7 +51,7 @@ public class ParticleSystemTestCase extends MaplyTestCase {
         super(activity);
 
         this.setTestName("Particle System Test");
-        this.setDelay(20);
+        this.setDelay(2000);
     }
 
     @Override
@@ -95,7 +95,7 @@ public class ParticleSystemTestCase extends MaplyTestCase {
             this.cachedTiles = new HashMap<>();
 
             //These govern how particles are structured
-            this.updateInterval = 5.0;
+            this.updateInterval = 1.0;
             this.particleLifeTime = 10.0;
             this.numParticles = 100000;
             this.velocityScale = 0.1f;
@@ -176,13 +176,15 @@ public class ParticleSystemTestCase extends MaplyTestCase {
             // Make up some random particles
             for (int ii = 0; ii< this.partSys.getBatchSize(); ii++) {
                 //Random location
-                locs[ii*3] = (float) (Math.random()*2-1); locs[ii*3+1] = (float) (Math.random()*2-1); locs[ii*3+2] = (float) (Math.random()*2-1);
-                float sum = (float) Math.sqrt(locs[ii*3]*locs[ii*3] + locs[ii*3+1] * locs[ii*3+1] + locs[ii*3+2] * locs[ii*3+2]);
-                locs[ii*3]/= sum; locs[ii*3+1] /= sum; locs[ii*3+2] /= sum;
+                float x = (float)Math.random()*2-1;
+                float y = (float)Math.random()*2-1;
+                float z = (float)Math.random()*2-1;
+                float sum = (float)Math.sqrt(x*x+y*y+z*z);
+                x /= sum;  y /= sum;  z /= sum;
+                locs[ii*3] = x; locs[ii*3+1] = y; locs[ii*3+2] = z;
                 //Random direction
-                dirs[ii*3] = (float) Math.random()*2-1; dirs[ii*3+1] = (float) Math.random()*2-1; dirs[ii*3+2] = (float) Math.random()*2-1;
-                sum  = (float) Math.sqrt(dirs[ii*3]*dirs[ii*3] + dirs[ii*3+1] * dirs[ii*3+1] + dirs[ii*3+2] * dirs[ii*3+2]);
-                dirs[ii*3] /= sum * this.velocityScale; dirs[ii*3+1] /= sum * this.velocityScale; dirs[ii*3+2] /= sum * this.velocityScale;
+//                dirs[ii*3] = (float) Math.random()*2-1; dirs[ii*3+1] = (float) Math.random()*2-1; dirs[ii*3+2] = (float) Math.random()*2-1;
+                dirs[ii*3] = 0.f;  dirs[ii*3+1] = 0.f;  dirs[ii*3+2] = 0.f;
 
                 this.times[ii] = 0;
 

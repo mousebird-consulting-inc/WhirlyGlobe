@@ -1013,7 +1013,7 @@ public class MaplyBaseController
 		particleSystem.setIdent(maplyParticleSystem.getIdent());
 
 		for (ParticleSystemAttribute attr: maplyParticleSystem.getAttrs()){
-			particleSystem.addParticleSystemAttribute(attr.getName(), attr.getSize());
+			particleSystem.addParticleSystemAttribute(attr.getName(), attr.getType().ordinal());
 		}
 		//TODO Do image texture
 	//	for (Bitmap image :maplyParticleSystem.getImages()){

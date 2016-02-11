@@ -86,6 +86,7 @@ void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMa
             
             glBindBuffer(GL_ARRAY_BUFFER, rectBuffer);
             glBufferData(GL_ARRAY_BUFFER, rectSize, (const GLvoid *)&verts[0], GL_STATIC_DRAW);
+            CheckGLError("ParticleSystemDrawable::setupGL() glBufferData");
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         } else {
            // NSLog(@"ParticleSystemDrawable: Can only do instanced rectangles at present.  This system can't handle instancing.");
@@ -147,20 +148,26 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
 {
     if (attrData.size() != vertAttrs.size())
         return;
-    
+
     glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
     unsigned char *glMem = NULL;
-    
-    //TODO REVIEW
-    //EAGLContext *context = EAGLContext->currentContext;
+
     int glMemOffset = 0;
-    //if (context.API < kEAGLRenderingAPIOpenGLES3)
-    //{
-     //   glMem = (unsigned char *)glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-     //   glMemOffset = batch.offset*vertexSize*batchSize;
-    //} else {
-      //  glMem = (unsigned char *)glMapBufferRange(GL_ARRAY_BUFFER, batch.batchID*vertexSize*batchSize, vertexSize*batchSize, GL_MAP_WRITE_BIT);
-    //}
+    unsigned long chunkSize = batchSize * vertexSize;
+
+    if (hasMapBufferSupport)
+    {
+    //    EAGLContext *context = EAGLContext->currentContext;
+    //    if (context.API < kEAGLRenderingAPIOpenGLES3)
+    //    {
+    //       glMem = (unsigned char *)glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+    //       glMemOffset = batch.offset*vertexSize*batchSize;
+    //    } else {
+    //       glMem = (unsigned char *)glMapBufferRange(GL_ARRAY_BUFFER, batch.batchID*vertexSize*batchSize, vertexSize*batchSize, GL_MAP_WRITE_BIT);
+       //    }
+    } else {
+        glMem = (unsigned char *)malloc(chunkSize);
+    }
     
     // Work through the attribute blocks
     int attrOffset = 0;
@@ -181,12 +188,19 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
         
         attrOffset += attrSize;
     }
-    //TODO REVIEW
 
+    if (hasMapBufferSupport)
+    {
    // if (context.API < kEAGLRenderingAPIOpenGLES3)
-    //    glUnmapBufferOES(GL_ARRAY_BUFFER);
+   //  glUnmapBufferOES(GL_ARRAY_BUFFER);
     //else
-        glUnmapBuffer(GL_ARRAY_BUFFER);
+    //    glUnmapBuffer(GL_ARRAY_BUFFER);
+    } else {
+        glBufferSubData(GL_ARRAY_BUFFER, batch.offset, chunkSize, glMem);
+        CheckGLError("ParticleSystemDrawable::addAttributeData() glBufferSubData");
+        free(glMem);
+    }
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
     pthread_mutex_lock(&batchLock);
@@ -329,7 +343,6 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
             CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
         }
     }
-    //TODO REVIEW
 
     // Use the rectangle buffer for instancing
     if (rectBuffer)
@@ -339,30 +352,31 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
         if (thisAttr)
         {
             glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)0);
-            CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
+            CheckGLError("ParticleSystemDrawable::draw glVertexAttribPointer");
            // if (context.API < kEAGLRenderingAPIOpenGLES3)
             //    glVertexAttribDivisorEXT(thisAttr->index, 0);
             //else
                 glVertexAttribDivisor(thisAttr->index, 0);
             glEnableVertexAttribArray(thisAttr->index);
-            CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
+            CheckGLError("ParticleSystemDrawable::draw glEnableVertexAttribArray");
         }
         thisAttr = prog->findAttribute("a_texCoord");
         if (thisAttr)
         {
             glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)(2*sizeof(GLfloat)));
-            CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
+            CheckGLError("ParticleSystemDrawable::draw glVertexAttribPointer");
            // if (context.API < kEAGLRenderingAPIOpenGLES3)
              //   glVertexAttribDivisorEXT(thisAttr->index, 0);
             //else
                 glVertexAttribDivisor(thisAttr->index, 0);
             glEnableVertexAttribArray(thisAttr->index);
-            CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
+            CheckGLError("ParticleSystemDrawable::draw glEnableVertexAttribArray");
         }
-//        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
     glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
+    CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
 
     // Work through the batches
     for (const BufferChunk &chunk : chunks)
@@ -377,6 +391,7 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
             if (thisAttr)
             {
                 glVertexAttribPointer(thisAttr->index, attrInfo.glEntryComponents(), attrInfo.glType(), attrInfo.glNormalize(), vertexSize, (const GLvoid *)(long)(attrOffset+chunk.bufferStart));
+                CheckGLError("ParticleSystemDrawable::draw() glVertexAttribPointer");
                 int divisor = 0;
                 
                 if (useInstancing)
@@ -384,8 +399,11 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
                 //if (context.API < kEAGLRenderingAPIOpenGLES3)
                   //  glVertexAttribDivisorEXT(thisAttr->index, divisor);
                 //else
+		        if (divisor != 0)
                     glVertexAttribDivisor(thisAttr->index, divisor);
+                CheckGLError("ParticleSystemDrawable::draw() glVertexAttribDivisor");
                 glEnableVertexAttribArray(thisAttr->index);
+                CheckGLError("ParticleSystemDrawable::draw() glEnableVertexAttribArray");
             }
             
             attrOffset += attrSize;
@@ -397,10 +415,10 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
             //    glDrawArraysInstancedEXT(GL_TRIANGLES, 0, 6, chunk.numVertices);
             //else
                 glDrawArraysInstanced(GL_TRIANGLES, 0, 6, chunk.numVertices);
-            CheckGLError("BasicDrawable::drawVBO2() glDrawArraysInstanced");
+            CheckGLError("ParticleSystemDrawable::draw() glDrawArraysInstanced");
         } else {
             glDrawArrays(GL_POINTS, 0, chunk.numVertices);
-            CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+            CheckGLError("ParticleSystemDrawable::draw() glDrawArrays");
         }
     }
     
@@ -419,7 +437,7 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
             CheckGLError("ParticleSystemDrawable glDisableVertexAttribArray");
         }
     }
-
+    
     // Tear down the state
     for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
     {
@@ -457,7 +475,9 @@ static const char *vertexShaderTri =
 "void main()"
 "{"
 "   v_color = a_color;"
-"   vec3 thePos = normalize(a_position + (u_time-a_startTime)*a_dir);"
+// Note: Debugging
+//    "   vec3 thePos = normalize(a_position + (u_time-a_startTime)*a_dir);"
+    "   vec3 thePos = normalize(a_position);"
 // Convert from model space into display space
 "   vec4 pt = u_mvMatrix * vec4(thePos,1.0);"
 "   pt /= pt.w;"
