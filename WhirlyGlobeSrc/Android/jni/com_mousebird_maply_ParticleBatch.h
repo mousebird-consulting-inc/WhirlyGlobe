@@ -55,6 +55,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_initialise
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_dispose
   (JNIEnv *, jobject);
 
+/*
+ * Class:     com_mousebird_maply_ParticleBatch
+ * Method:    getAttributesValueSize
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_ParticleBatch_getAttributesValueSize
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

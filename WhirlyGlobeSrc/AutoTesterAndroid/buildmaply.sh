@@ -28,7 +28,7 @@ then
 fi
 IFS=$oldIFS
 
-WGTREE=~/iPhone/WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android
+WGTREE=../Android
 
 pushd $WGTREE
 ./gradlew assemble$vers -Parchitecture=$arch

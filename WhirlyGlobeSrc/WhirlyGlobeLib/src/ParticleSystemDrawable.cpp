@@ -24,6 +24,8 @@
 #import "GlobeScene.h"
 #import "SceneRendererES.h"
 #import "TextureAtlas.h"
+#import "WhirlyKitLog.h"
+
 
 namespace WhirlyKit
 {
@@ -290,9 +292,9 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
 {
     updateBatches(frameInfo->currentTime);
     updateChunks();
-    //TODO REVIEW
 
-   // EAGLContext *context = [EAGLContext currentContext];
+//	TODO REVIEW
+// 	EAGLContext *context = [EAGLContext currentContext];
     OpenGLES2Program *prog = frameInfo->program;
     
     // GL Texture IDs

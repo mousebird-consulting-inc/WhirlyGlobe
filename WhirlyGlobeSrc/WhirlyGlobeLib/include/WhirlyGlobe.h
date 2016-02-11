@@ -99,5 +99,6 @@
 #import "VectorObject.h"
 #import "ParticleSystemManager.h"
 #import "ParticleSystemDrawable.h"
+#import "WhirlyKitLog.h"
 
 

@@ -9,11 +9,11 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_ParticleSystem
- * Method:    setIdent
- * Signature: (J)V
+ * Method:    getIdent
+ * Signature: ()J
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setIdent
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ParticleSystem_getIdent
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem
@@ -81,6 +81,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setBatchSize
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem
+ * Method:    getBatchSize
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_ParticleSystem_getBatchSize
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_ParticleSystem
  * Method:    setTotalParticles
  * Signature: (I)V
  */
@@ -89,10 +97,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setTotalParticles
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem
- * Method:    addParticleSystemAttribute
+ * Method:    addParticleSystemAttributeNative
  * Signature: (Ljava/lang/String;I)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addParticleSystemAttribute
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addParticleSystemAttributeNative
   (JNIEnv *, jobject, jstring, jint);
 
 /*

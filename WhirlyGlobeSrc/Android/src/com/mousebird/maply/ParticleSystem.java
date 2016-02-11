@@ -19,8 +19,10 @@
  */
 package com.mousebird.maply;
 
-public class ParticleSystem {
+import java.util.ArrayList;
+import java.util.Date;
 
+public class ParticleSystem {
 
     public enum STATE {
         ParticleSystemPoint(0),
@@ -37,15 +39,24 @@ public class ParticleSystem {
         }
     }
 
-    public ParticleSystem() {
+    private ParticleSystem()
+    {}
+
+    public ParticleSystem(String name) {
         initialise();
+        this.setName(name);
+        this.setParticleSystemType(STATE.ParticleSystemPoint.getValue());
+        this.setLifetime(5.0);
+        this.setBatchSize(2000);
+        this.setTotalParticles(100000);
+        this.setBasetime(new Date().getTime());
     }
 
     public void finalize() {
         dispose();
     }
 
-    public native void setIdent(long ident);
+    public native long getIdent();
 
     public native void setName(String name);
 
@@ -63,13 +74,37 @@ public class ParticleSystem {
 
     public native void setBatchSize(int batchSize);
 
+    public native int getBatchSize();
+
+
     public native void setTotalParticles(int totalParticles);
 
-    public native void addParticleSystemAttribute(String name, int type);
+    ArrayList<String> names = new ArrayList<String>();
+    ArrayList<Integer> types = new ArrayList<Integer>();
+    public void addParticleSystemAttribute(String name,int type)
+    {
+        int which = names.size();
+        names.add(name);
+        types.add(type);
+    }
+
+    public native void addParticleSystemAttributeNative(String name, int type);
 
     public native void addTexID(long texID);
 
+    public ParticleSystemAttribute [] getAttrs() {
+        if (names.size() != types.size()) {
+            return null;
+        }
 
+        ParticleSystemAttribute attrsList[] = new ParticleSystemAttribute[names.size()];
+        for (int i = 0 ; i < attrsList.length; i++) {
+            attrsList[i].setName(names.get(i));
+            attrsList[i].setType(ParticleSystemAttribute.MaplyShaderAttrType.values()[types.get(i)]);
+        }
+
+        return attrsList;
+     }
 
     static {
         nativeInit();

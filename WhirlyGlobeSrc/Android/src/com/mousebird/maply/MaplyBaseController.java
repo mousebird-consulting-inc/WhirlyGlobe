@@ -995,38 +995,18 @@ public class MaplyBaseController
     }
 
 
-	public ComponentObject addParticleSystem (MaplyParticleSystem maplyParticleSystem, ThreadMode mode){
-
+	public ComponentObject addParticleSystem(final ParticleSystem particleSystem, ThreadMode mode) {
 		if (!running)
 			return null;
 
 		final ComponentObject compObj = new ComponentObject();
-		final ParticleSystem particleSystem = new ParticleSystem();
-		particleSystem.setDrawPriority(maplyParticleSystem.getDefaultDrawPriority());
-		particleSystem.setPointSize(maplyParticleSystem.getPointSize());
-		particleSystem.setName(maplyParticleSystem.getName());
-		particleSystem.setLifetime(maplyParticleSystem.getLifeTime());
-		particleSystem.setTotalParticles(maplyParticleSystem.getTotalParticles());
-		particleSystem.setBatchSize(maplyParticleSystem.getBatchSize());
-		particleSystem.setBasetime(maplyParticleSystem.getBaseTime());
-		particleSystem.setParticleSystemType(maplyParticleSystem.getType().getValue());
-		particleSystem.setIdent(maplyParticleSystem.getIdent());
-
-		for (ParticleSystemAttribute attr: maplyParticleSystem.getAttrs()){
-			particleSystem.addParticleSystemAttribute(attr.getName(), attr.getType().ordinal());
-		}
-		//TODO Do image texture
-	//	for (Bitmap image :maplyParticleSystem.getImages()){
-
-	//	}
-
 
 		Runnable run = new Runnable() {
 			@Override
 			public void run() {
 				ChangeSet changes = new ChangeSet();
 					long particleSystemID = particleSystemManager.addParticleSystem(particleSystem, changes);
-					if (particleSystemID != EmptyIdentity){
+					if (particleSystemID != EmptyIdentity) {
 						compObj.addParticleSystemID(particleSystemID);
 					}
 				changes.process(scene);
@@ -1037,37 +1017,16 @@ public class MaplyBaseController
 		return compObj;
 	}
 
-	public void addParticleBatch( final MaplyParticleBatch maplyParticleBatch, ThreadMode mode){
-
+	public void addParticleBatch(final ParticleBatch particleBatch, ThreadMode mode) {
 		if (!running)
 			return;
 
-		boolean validBatch = true;
-		final ParticleBatch batch = new ParticleBatch();
-		batch.setBatchSize(maplyParticleBatch.getPartSys().getBatchSize());
-
-		for (ParticleSystemAttribute attrInfo: maplyParticleBatch.getPartSys().getAttrs()){
-
-			boolean found = false;
-			for (MaplyParticleBatch.ParticleSystemAttrVals attrVals: maplyParticleBatch.getAttrVals()){
-				if (attrVals.attrID == attrInfo.ident){
-					found = true;
-					batch.addAttributeValues(attrVals.data);
-					break;
-				}
-			}
-			if (!found){
-				validBatch = false;
-				System.out.println("Missing attribute data for particle batch.  Dropping.");
-			}
-
-		}
-		if (validBatch){
+		if (particleBatch.isValid()) {
 			Runnable run = new Runnable() {
 				@Override
 				public void run() {
 					ChangeSet changes = new ChangeSet();
-					particleSystemManager.addParticleBatch(maplyParticleBatch.getPartSys().getIdent(), batch,changes);
+					particleSystemManager.addParticleBatch(particleBatch.getPartSys().getIdent(), particleBatch,changes);
 					changes.process(scene);
 				}
 			};

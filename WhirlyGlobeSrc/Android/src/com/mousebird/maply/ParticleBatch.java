@@ -23,22 +23,45 @@ import java.nio.ByteBuffer;
 
 public class ParticleBatch {
 
+    private ParticleSystem partSys;
+    private double time;
 
-    public ParticleBatch()
+    private ParticleBatch() { }
+
+    public ParticleBatch(ParticleSystem partSys)
     {
         initialise();
+        this.partSys = partSys;
+        this.setBatchSize(this.partSys.getBatchSize());
     }
 
     public void finalize() {
         dispose();
     }
 
-    public native void setBatchSize (int batchSize);
+    private native void setBatchSize(int batchSize);
 
-    public native int getBatchSize ();
+    public native int getBatchSize();
 
-    public native void addAttributeValues (float[] data);
+    public native void addAttributeValues(float[] data);
 
+    public boolean addAttribute(String attrName, float [] data) {
+        for (ParticleSystemAttribute attr : this.partSys.getAttrs()) {
+            if (attrName.equals(attr.getName())) {
+                // Found. Now make sure the size matches
+                if (data.length * (Float.SIZE / 8) != attr.getSize() * this.getBatchSize()) {
+                    return false;
+                }
+                this.addAttributeValues(data);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isValid() {
+        return this.partSys.getAttrs().length == this.getAttributesValueSize();
+    }
     static {
         nativeInit();
     }
@@ -48,4 +71,9 @@ public class ParticleBatch {
     native void dispose();
     private long nativeHandle;
 
+    public native int getAttributesValueSize();
+
+    public ParticleSystem getPartSys() {
+        return this.partSys;
+    }
 }

@@ -27,9 +27,8 @@ import android.util.Log;
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MaplyBaseController;
-import com.mousebird.maply.MaplyParticleBatch;
-import com.mousebird.maply.MaplyParticleSystem;
 import com.mousebird.maply.MaplyTileID;
+import com.mousebird.maply.ParticleBatch;
 import com.mousebird.maply.ParticleSystem;
 import com.mousebird.maply.ParticleSystemAttribute;
 import com.mousebird.maply.Point2d;
@@ -66,8 +65,9 @@ public class ParticleSystemTestCase extends MaplyTestCase {
     }
 
     private class ParticleTileDelegate implements QuadPagingLayer.PagingInterface {
+
         private String url;
-        private MaplyParticleSystem partSys;
+        private ParticleSystem partSys;
         private MaplyBaseController viewC;
         private ComponentObject partSysObj;
         private float locs[];
@@ -120,14 +120,14 @@ public class ParticleSystemTestCase extends MaplyTestCase {
 
             // Set up the particle system we'll feed with particles
 
-            this.partSys = new MaplyParticleSystem("Particle Wind Test");
-            this.partSys.setType(ParticleSystem.STATE.ParticleSystemPoint);
-            this.partSys.setShader("Default Part Sys (Point)");
+            this.partSys = new ParticleSystem("Particle Wind Test");
+            this.partSys.setParticleSystemType(ParticleSystem.STATE.ParticleSystemPoint.getValue());
+            this.partSys.setShaderID(0);
             this.partSys.setPointSize(4);
-            this.partSys.addAttribute("a_position", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);
-            this.partSys.addAttribute("a_dir", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);
-            this.partSys.addAttribute("a_color", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT4);
-            this.partSys.addAttribute("a_startTime", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_INT);
+            this.partSys.addParticleSystemAttribute("a_position", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3.getValue());
+            this.partSys.addParticleSystemAttribute("a_dir", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3.getValue());
+            this.partSys.addParticleSystemAttribute("a_color", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT4.getValue());
+            this.partSys.addParticleSystemAttribute("a_startTime", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_INT.getValue());
 
             this.locs = null;
             this.dirs = null;
@@ -141,7 +141,7 @@ public class ParticleSystemTestCase extends MaplyTestCase {
                             generateParticles();
                             delay -= updateInterval;
                             Thread.sleep((long) (updateInterval * 1000));
-                            System.out.println("Actualizando");
+                            System.out.println("Updating...");
                         } catch (InterruptedException e) {
 
                         }
@@ -153,9 +153,9 @@ public class ParticleSystemTestCase extends MaplyTestCase {
 
         public void generateParticles() throws InterruptedException {
             if (this.partSysObj == null) {
-                this.partSys.setLifeTime(this.particleLifeTime);
+                this.partSys.setLifetime(this.particleLifeTime);
                 this.partSys.setTotalParticles(this.numParticles);
-                this.partSys.setDefaultDrawPriority(101000);
+                this.partSys.setDrawPriority(101000);
                 this.partSys.setPointSize(4);
                 this.partSys.setBatchSize((int) (this.numParticles / (this.particleLifeTime / this.updateInterval)));
                 this.partSysObj = this.viewC.addParticleSystem(this.partSys, MaplyBaseController.ThreadMode.ThreadAny);
@@ -191,8 +191,7 @@ public class ParticleSystemTestCase extends MaplyTestCase {
                 colors[ii*4] = 1.0f; colors[ii*4+1] = 1.0f; colors[ii*4+2] = 1.0f; colors[ii*4+3] = 1.0f;
             }
 
-            MaplyParticleBatch batch = new MaplyParticleBatch(this.partSys);
-            batch.setTime(now);
+            ParticleBatch batch = new ParticleBatch(this.partSys);
             batch.addAttribute("a_position", this.locs);
             batch.addAttribute("a_dir", this.dirs);
             batch.addAttribute("a_color", this.colors);

@@ -20,6 +20,7 @@ import com.mousebirdconsulting.autotester.TestCases.ParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MapBoxSatelliteTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
+import com.mousebirdconsulting.autotester.TestCases.SimpleParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StamenRemoteTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StickersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.VectorsTestCase;
@@ -78,6 +79,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new ScreenLabelsTestCase(getActivity()));
 			testCases.add(new ScreenMarkersTestCase(getActivity()));
 			testCases.add(new StickersTestCase(getActivity()));
+			testCases.add(new SimpleParticleSystemTestCase(getActivity()));
 			testCases.add(new ParticleSystemTestCase(getActivity()));
 		}
 
