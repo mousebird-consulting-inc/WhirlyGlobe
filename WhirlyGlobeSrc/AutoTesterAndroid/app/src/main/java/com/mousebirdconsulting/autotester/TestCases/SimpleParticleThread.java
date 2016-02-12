@@ -42,7 +42,7 @@ public class SimpleParticleThread extends HandlerThread
         this.partSys.setLifetime(this.particleLifeTime);
         this.partSys.setTotalParticles(this.numParticles);
         this.partSys.setDrawPriority(101000);
-        this.partSys.setPointSize(4);
+        this.partSys.setPointSize(8.f);
         this.partSys.setBatchSize((int) (this.numParticles / (this.particleLifeTime / this.updateInterval)));
         this.partSys.addParticleSystemAttribute("a_position", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);
 //            this.partSys.addParticleSystemAttribute("a_dir", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);

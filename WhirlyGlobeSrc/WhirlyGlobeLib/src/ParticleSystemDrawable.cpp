@@ -63,9 +63,6 @@ void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMa
     int totalBytes = vertexSize*numTotalPoints;
     pointBuffer = memManager->getBufferID(totalBytes,GL_DYNAMIC_DRAW);
     
-    // Note: Debugging
-    debugMem = malloc(totalBytes);
-    
     // Set up rectangles
     if (useRectangles)
     {
@@ -194,9 +191,6 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
         attrOffset += attrSize;
     }
     
-    // Note: Debugging
-    memcpy(debugMem+batch.offset, glMem, chunkSize);
-
     if (hasMapBufferSupport)
     {
    // if (context.API < kEAGLRenderingAPIOpenGLES3)
@@ -391,12 +385,10 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
-    // Note: Debugging
-//    glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
     CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
 
     // Work through the batches
-    int which = 0;
     for (const BufferChunk &chunk : chunks)
     {
         // Bind the various attributes to their offsets
@@ -408,9 +400,7 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
             const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.name);
             if (thisAttr)
             {
-//                glVertexAttribPointer(thisAttr->index, attrInfo.glEntryComponents(), attrInfo.glType(), attrInfo.glNormalize(), vertexSize, (const GLvoid *)(long)(attrOffset));
-                // Note: Debugging
-                glVertexAttribPointer(thisAttr->index, attrInfo.glEntryComponents(), attrInfo.glType(), attrInfo.glNormalize(), vertexSize, debugMem);
+                glVertexAttribPointer(thisAttr->index, attrInfo.glEntryComponents(), attrInfo.glType(), attrInfo.glNormalize(), vertexSize, (const GLvoid *)(long)(attrOffset));
                 CheckGLError("ParticleSystemDrawable::draw() glVertexAttribPointer");
                 int divisor = 0;
                 
@@ -437,12 +427,9 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
                 glDrawArraysInstanced(GL_TRIANGLES, 0, 6, chunk.numVertices);
             CheckGLError("ParticleSystemDrawable::draw() glDrawArraysInstanced");
         } else {
-            WHIRLYKIT_LOGV("Drawing %d points",chunk.numVertices);
             glDrawArrays(GL_POINTS, chunk.bufferStart / vertexSize, chunk.numVertices);
             CheckGLError("ParticleSystemDrawable::draw() glDrawArrays");
         }
-
-	which++;
     }
     
     if (rectBuffer)
@@ -509,8 +496,7 @@ static const char *vertexShaderTri =
 "   vec4 testNorm = u_mvNormalMatrix * vec4(thePos,0.0);"
 "   float dot_res = dot(-pt.xyz,testNorm.xyz);"
 // Set the point size
-//    "   gl_PointSize = u_size;"
-    "   gl_PointSize = 6.0;"
+    "   gl_PointSize = u_size;"
 // Project the point into 3-space
 "   gl_Position = (dot_res > 0.0) ? u_mvpMatrix * vec4(thePos,1.0) : vec4(1000.0,1000.0,1000.0,0.0);"
 "}"
