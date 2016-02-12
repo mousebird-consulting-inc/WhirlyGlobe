@@ -86,6 +86,7 @@ public class ParticleSystem {
         int which = names.size();
         names.add(name);
         types.add(type.getValue());
+        addParticleSystemAttributeNative(name,type.ordinal());
     }
 
     public native void addParticleSystemAttributeNative(String name, int type);

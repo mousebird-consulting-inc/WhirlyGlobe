@@ -79,12 +79,14 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
     draw->setOnOff(true);
     draw->setPointSize(sceneRep->partSys.pointSize);
     draw->setProgram(sceneRep->partSys.shaderID);
-    draw->setupGL(NULL, scene->getMemManager());
+    // Note: Porting
+    //    draw->setupGL(NULL, scene->getMemManager());
     draw->setDrawPriority(sceneRep->partSys.drawPriority);
     draw->setBaseTime(newSystem.baseTime);
     draw->setLifetime(sceneRep->partSys.lifetime);
     draw->setTexIDs(sceneRep->partSys.texIDs);
     changes.push_back(new AddDrawableReq(draw));
+    changes.push_back(NULL);
     sceneRep->draws.insert(draw);
     
     pthread_mutex_lock(&partSysLock);
@@ -158,6 +160,8 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
             }
         }
     }
+    
+    changes.push_back(NULL);
     
     pthread_mutex_unlock(&partSysLock);
 }

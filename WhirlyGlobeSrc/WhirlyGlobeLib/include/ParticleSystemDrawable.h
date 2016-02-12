@@ -160,6 +160,9 @@ protected:
     std::vector<Batch> batches;
     bool chunksDirty;
     std::vector<BufferChunk> chunks;
+    
+    // Note: Debugging
+    void *debugMem;
 };
 
 }

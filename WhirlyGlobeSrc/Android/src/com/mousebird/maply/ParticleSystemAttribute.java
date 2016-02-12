@@ -22,11 +22,12 @@ package com.mousebird.maply;
 public class ParticleSystemAttribute {
 
     public enum MaplyShaderAttrType {
-        MAPLY_SHADER_ATTR_TYPE_INT(0),
-        MAPLY_SHADER_ATTR_TYPE_FLOAT(1),
-        MAPLY_SHADER_ATTR_TYPE_FLOAT2(2),
-        MAPLY_SHADER_ATTR_TYPE_FLOAT3(3),
-        MAPLY_SHADER_ATTR_TYPE_FLOAT4(4);
+        MAPLY_SHADER_ATTR_TYPE_FLOAT4(0),
+        MAPLY_SHADER_ATTR_TYPE_FLOAT3(1),
+        MAPLY_SHADER_ATTR_TYPE_CHAR4(2),
+        MAPLY_SHADER_ATTR_TYPE_FLOAT2(3),
+        MAPLY_SHADER_ATTR_TYPE_FLOAT(4),
+        MAPLY_SHADER_ATTR_TYPE_INT(5);
 
         private final int value;
 

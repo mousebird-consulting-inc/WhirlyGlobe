@@ -33,13 +33,34 @@ public class SimpleParticleThread extends HandlerThread
         super("Simple Particle Thread");
 
         viewC = inViewC;
-        this.updateInterval = 1.0;
-        this.particleLifeTime = 10.0;
-        this.numParticles = 100000;
+        this.updateInterval = 2.0;
+        this.particleLifeTime = 20.0;
+        this.numParticles = 10000;
         this.velocityScale = 0.1f;
 
-        start();
-        scheduleUpdateTask();
+        this.partSys = new ParticleSystem("Test Particle System");
+        this.partSys.setLifetime(this.particleLifeTime);
+        this.partSys.setTotalParticles(this.numParticles);
+        this.partSys.setDrawPriority(101000);
+        this.partSys.setPointSize(4);
+        this.partSys.setBatchSize((int) (this.numParticles / (this.particleLifeTime / this.updateInterval)));
+        this.partSys.addParticleSystemAttribute("a_position", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);
+//            this.partSys.addParticleSystemAttribute("a_dir", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);
+//            this.partSys.addParticleSystemAttribute("a_color", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT4);
+
+
+        this.partSysObj = this.viewC.addParticleSystem(this.partSys, MaplyBaseController.ThreadMode.ThreadCurrent);
+
+        // Note: Test it once
+        try {
+            generateParticles();
+        }
+        catch (Exception e)
+        {
+        }
+
+//        start();
+//        scheduleUpdateTask();
     }
 
     void scheduleUpdateTask()
@@ -53,6 +74,8 @@ public class SimpleParticleThread extends HandlerThread
                 catch (Exception e)
                 {
                 }
+
+//                scheduleUpdateTask();
             }
         };
         Handler handler = new Handler(getLooper());
@@ -60,17 +83,6 @@ public class SimpleParticleThread extends HandlerThread
     }
 
     public void generateParticles() throws InterruptedException {
-        if (this.partSysObj == null) {
-            this.partSys = new ParticleSystem("Test Particle System");
-            this.partSys.setLifetime(this.particleLifeTime);
-            this.partSys.setTotalParticles(this.numParticles);
-            this.partSys.setDrawPriority(101000);
-            this.partSys.setPointSize(4);
-            this.partSys.setBatchSize((int) (this.numParticles / (this.particleLifeTime / this.updateInterval)));
-            this.partSys.addParticleSystemAttribute("a_position", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);
-            this.partSysObj = this.viewC.addParticleSystem(this.partSys, MaplyBaseController.ThreadMode.ThreadAny);
-        }
-
         double now = ((double) new Date().getTime() ) - 978303600000.d;
 
         // Data arrays for particles
@@ -103,9 +115,9 @@ public class SimpleParticleThread extends HandlerThread
 
         ParticleBatch batch = new ParticleBatch(this.partSys);
         batch.addAttribute("a_position", this.locs);
-        batch.addAttribute("a_dir", this.dirs);
-        batch.addAttribute("a_color", this.colors);
+//        batch.addAttribute("a_dir", this.dirs);
+//        batch.addAttribute("a_color", this.colors);
 //        batch.addAttribute("a_startTime", this.times);
-        viewC.addParticleBatch(batch, MaplyBaseController.ThreadMode.ThreadAny);
+        viewC.addParticleBatch(batch, MaplyBaseController.ThreadMode.ThreadCurrent);
     }
 }
