@@ -45,11 +45,28 @@ public class ParticleBatch {
 
     public native void addAttributeValues(float[] data);
 
+    public native void addAttributeValues(char[] data);
+
     public boolean addAttribute(String attrName, float [] data) {
         for (ParticleSystemAttribute attr : this.partSys.getAttrs()) {
             if (attrName.equals(attr.getName())) {
                 // Found. Now make sure the size matches
                 if (data.length * (Float.SIZE / 8) != attr.getSize() * this.getBatchSize()) {
+                    return false;
+                }
+                this.addAttributeValues(data);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean addAttribute(String attrName, char [] data)
+    {
+        for (ParticleSystemAttribute attr : this.partSys.getAttrs()) {
+            if (attrName.equals(attr.getName())) {
+                // Found. Now make sure the size matches
+                if (data.length != attr.getSize() * this.getBatchSize()) {
                     return false;
                 }
                 this.addAttributeValues(data);

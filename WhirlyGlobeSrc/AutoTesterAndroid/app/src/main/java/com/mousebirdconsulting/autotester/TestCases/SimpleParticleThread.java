@@ -21,7 +21,7 @@ public class SimpleParticleThread extends HandlerThread
     private ComponentObject partSysObj;
     private float locs[];
     private float dirs[];
-    private float colors[];
+    private char colors[];
     private double particleLifeTime;
     private int numParticles;
     private double updateInterval;
@@ -33,7 +33,7 @@ public class SimpleParticleThread extends HandlerThread
         super("Simple Particle Thread");
 
         viewC = inViewC;
-        this.updateInterval = 2.0;
+        this.updateInterval = 0.1;
         this.particleLifeTime = 20.0;
         this.numParticles = 10000;
         this.velocityScale = 0.1f;
@@ -45,22 +45,14 @@ public class SimpleParticleThread extends HandlerThread
         this.partSys.setPointSize(8.f);
         this.partSys.setBatchSize((int) (this.numParticles / (this.particleLifeTime / this.updateInterval)));
         this.partSys.addParticleSystemAttribute("a_position", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);
-//            this.partSys.addParticleSystemAttribute("a_dir", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);
-//            this.partSys.addParticleSystemAttribute("a_color", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT4);
+//        this.partSys.addParticleSystemAttribute("a_dir", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);
+//        this.partSys.addParticleSystemAttribute("a_color", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_CHAR4);
 
 
         this.partSysObj = this.viewC.addParticleSystem(this.partSys, MaplyBaseController.ThreadMode.ThreadCurrent);
 
-        // Note: Test it once
-        try {
-            generateParticles();
-        }
-        catch (Exception e)
-        {
-        }
-
-//        start();
-//        scheduleUpdateTask();
+        start();
+        scheduleUpdateTask();
     }
 
     void scheduleUpdateTask()
@@ -75,7 +67,7 @@ public class SimpleParticleThread extends HandlerThread
                 {
                 }
 
-//                scheduleUpdateTask();
+                scheduleUpdateTask();
             }
         };
         Handler handler = new Handler(getLooper());
@@ -91,8 +83,7 @@ public class SimpleParticleThread extends HandlerThread
         if (locs == null) {
             this.locs = new float[this.partSys.getBatchSize()*3];
             this.dirs = new float[this.partSys.getBatchSize()*3];
-            this.colors = new float[this.partSys.getBatchSize()*4];
-//            this.times = new float[batchSize];
+            this.colors = new char[this.partSys.getBatchSize()*4];
         }
 
         // Make up some random particles
@@ -104,20 +95,20 @@ public class SimpleParticleThread extends HandlerThread
             float sum = (float)Math.sqrt(x*x+y*y+z*z);
             x /= sum;  y /= sum;  z /= sum;
             locs[ii*3] = x; locs[ii*3+1] = y; locs[ii*3+2] = z;
+
             //Random direction
-//                dirs[ii*3] = (float) Math.random()*2-1; dirs[ii*3+1] = (float) Math.random()*2-1; dirs[ii*3+2] = (float) Math.random()*2-1;
-            dirs[ii*3] = 0.f;  dirs[ii*3+1] = 0.f;  dirs[ii*3+2] = 0.f;
+            x = (float) Math.random()*2-1;  y = (float) Math.random()*2-1;  z = (float) Math.random()*2-1;
+            sum = (float)Math.sqrt(x*x+y*y+z*z);
+            x /= sum;  y /= sum;  z /= sum;
+            dirs[ii*3] = x; dirs[ii*3+1] = y; dirs[ii*3+2] = z;
 
-//            this.times[ii] = 0;
-
-            colors[ii*4] = 1.0f; colors[ii*4+1] = 1.0f; colors[ii*4+2] = 1.0f; colors[ii*4+3] = 1.0f;
+            colors[ii*4] = 255; colors[ii*4+1] = 255; colors[ii*4+2] = 255; colors[ii*4+3] = 255;
         }
 
         ParticleBatch batch = new ParticleBatch(this.partSys);
         batch.addAttribute("a_position", this.locs);
 //        batch.addAttribute("a_dir", this.dirs);
 //        batch.addAttribute("a_color", this.colors);
-//        batch.addAttribute("a_startTime", this.times);
         viewC.addParticleBatch(batch, MaplyBaseController.ThreadMode.ThreadCurrent);
     }
 }
