@@ -56,7 +56,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_dispose
 			return;
 
 		// Be sure to delete the contents
-		for (unsigned int ii=0;ii<changeSet->size();ii++)
+		for (unsigned int ii = 0;ii<changeSet->size();ii++)
 			delete changeSet->at(ii);
 
 		delete changeSet;
@@ -107,7 +107,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
 	    bool requiresFlush = false;
 	    // Set up anything that needs to be set up
 	    ChangeSet changesToAdd;
-	    for (unsigned int ii=0;ii<changes->size();ii++)
+	    for (unsigned int ii = 0;ii<changes->size();ii++)
 	    {
 	        ChangeRequest *change = changes->at(ii);
 	        if (change)

@@ -8,16 +8,20 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.MainActivity;
 import com.mousebirdconsulting.autotester.R;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
 import com.mousebirdconsulting.autotester.TestCases.GestureFeedbackTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MapBoxSatelliteTestCase;
+import com.mousebirdconsulting.autotester.TestCases.ParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
+import com.mousebirdconsulting.autotester.TestCases.SimpleParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StamenRemoteTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StickersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.VectorsTestCase;
@@ -51,6 +55,18 @@ public class TestListFragment extends Fragment {
 		return new LinearLayoutManager(getActivity().getApplicationContext());
 	}
 
+	public void changeItemsState(boolean selected) {
+		adapter.changeItemsState(selected);
+	}
+
+	public void notifyIconChanged(int index) {
+		this.adapter.notifyItemChanged(index);
+	}
+
+	public ArrayList<MaplyTestCase> getTests() {
+		return adapter.getTestCases();
+	}
+
 	private class TestListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 		private ArrayList<MaplyTestCase> testCases;
@@ -65,6 +81,8 @@ public class TestListFragment extends Fragment {
 			testCases.add(new ScreenMarkersTestCase(getActivity()));
 			testCases.add(new StickersTestCase(getActivity()));
 			testCases.add(new GestureFeedbackTestCase(getActivity()));
+			testCases.add(new SimpleParticleSystemTestCase(getActivity()));
+			testCases.add(new ParticleSystemTestCase(getActivity()));
 		}
 
 		@Override
@@ -83,20 +101,36 @@ public class TestListFragment extends Fragment {
 			return testCases.size();
 		}
 
+		public void changeItemsState(boolean selected) {
+			for (MaplyTestCase testCase : testCases) {
+				testCase.setSelected(selected);
+				ConfigOptions.setSelectedTest(getContext(), testCase.getTestName(), selected);
+			}
+			notifyDataSetChanged();
+		}
+
+		public ArrayList<MaplyTestCase> getTestCases() {
+			return testCases;
+		}
+
 		private class TestViewHolder extends RecyclerView.ViewHolder {
 
 			private TextView label;
+			private ImageView selected;
 			private View self;
 			private MaplyTestCase testCase;
 
 			public TestViewHolder(View itemView) {
 				super(itemView);
 				label = (TextView) itemView.findViewById(R.id.testNameLabel);
+				selected = (ImageView) itemView.findViewById(R.id.itemSelected);
 				self = itemView;
 			}
 
 			public void bindViewHolder(final MaplyTestCase testCase) {
 				this.testCase = testCase;
+				this.selected.setImageDrawable(getResources().getDrawable(testCase.getIcon()));
+				changeItemState(testCase.isSelected());
 				this.label.setText(this.testCase.getTestName());
 
 				self.setOnClickListener(new View.OnClickListener() {
@@ -109,6 +143,11 @@ public class TestListFragment extends Fragment {
 						}
 					}
 				});
+			}
+
+			public void changeItemState(boolean setSelected) {
+				this.selected.setVisibility(
+					setSelected ? View.VISIBLE : View.INVISIBLE);
 			}
 		}
 	}

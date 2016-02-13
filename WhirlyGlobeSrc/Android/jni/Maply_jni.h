@@ -361,10 +361,24 @@ public:
     jlong *rawLong;
 };
 
+// Wrapper for Java float array.  Destructor cleans up.
+class JavaFloatArray
+{
+public:
+    JavaFloatArray(JNIEnv *env,jfloatArray &array);
+    ~JavaFloatArray();
+    
+    JNIEnv *env;
+    jfloatArray &array;
+    int len;
+    jfloat *rawFloat;
+};
+
 
 namespace WhirlyKit
 {
 typedef Eigen::Vector4d Point4d;
+typedef Eigen::Vector4f Point4f;
 }
 
 // Wrappers for class info for all the various classes that have presence in Java
@@ -400,7 +414,13 @@ typedef JavaClassInfo<Maply::MapViewState> MapViewStateClassInfo;
 typedef JavaClassInfo<WhirlyGlobe::GlobeViewState> GlobeViewStateClassInfo;
 typedef JavaClassInfo<WhirlyKit::Marker> MarkerClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleLabelAndroid> LabelClassInfo;
+typedef JavaClassInfo<WhirlyKit::SingleVertexAttributeInfo> SingleVertexAttributeInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::ParticleBatch> ParticleBatchClassInfo;
+typedef JavaClassInfo<WhirlyKit::ParticleSystem> ParticleSystemClassInfo;
+typedef JavaClassInfo<WhirlyKit::ParticleSystemManager> ParticleSystemManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::OpenGLES2Program> OpenGLES2ProgramClassInfo;
+
+
 
 // The shared JNIEnv set in the ::render call
 extern JNIEnv *maplyCurrentEnv;

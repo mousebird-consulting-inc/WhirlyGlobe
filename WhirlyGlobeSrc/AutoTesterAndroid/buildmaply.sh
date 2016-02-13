@@ -1,4 +1,4 @@
-rm app/libs/Maply.aar
+rm Maply/Maply.aar
 
 #  Debug vs. Release
 if [ -n "$1" ]; then
@@ -28,9 +28,11 @@ then
 fi
 IFS=$oldIFS
 
-pushd ../Android/
+WGTREE=../Android
+
+pushd $WGTREE
 ./gradlew assemble$vers -Parchitecture=$arch
 popd
 
 # Note: This is the debug version
-cp ../Android/build/outputs/aar/Android-$vers.aar Maply/Maply.aar
+cp $WGTREE/build/outputs/aar/Android-$vers.aar Maply/Maply.aar

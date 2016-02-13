@@ -55,7 +55,13 @@ template<> SphericalChunkClassInfo *SphericalChunkClassInfo::classInfoObj = NULL
 template<> ViewStateClassInfo *ViewStateClassInfo::classInfoObj = NULL;
 template<> MapViewStateClassInfo *MapViewStateClassInfo::classInfoObj = NULL;
 template<> GlobeViewStateClassInfo *GlobeViewStateClassInfo::classInfoObj = NULL;
+template<> SingleVertexAttributeInfoClassInfo *SingleVertexAttributeInfoClassInfo::classInfoObj = NULL;
+template<> ParticleBatchClassInfo *ParticleBatchClassInfo::classInfoObj = NULL;
+template<> ParticleSystemClassInfo *ParticleSystemClassInfo::classInfoObj = NULL;
+template<> ParticleSystemManagerClassInfo * ParticleSystemManagerClassInfo::classInfoObj = NULL;
 template<> OpenGLES2ProgramClassInfo *OpenGLES2ProgramClassInfo::classInfoObj = NULL;
+
+
 
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 {
@@ -112,4 +118,16 @@ JavaLongArray::JavaLongArray(JNIEnv *env,jlongArray &array)
 JavaLongArray::~JavaLongArray()
 {
     env->ReleaseLongArrayElements(array,rawLong, 0);
+}
+
+JavaFloatArray::JavaFloatArray(JNIEnv *env,jfloatArray &array)
+: array(array), env(env)
+{
+    rawFloat = env->GetFloatArrayElements(array, NULL);
+    len = env->GetArrayLength(array);
+}
+
+JavaFloatArray::~JavaFloatArray()
+{
+    env->ReleaseFloatArrayElements(array,rawFloat, 0);
 }

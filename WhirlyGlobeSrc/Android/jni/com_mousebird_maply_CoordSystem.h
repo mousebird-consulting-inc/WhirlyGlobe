@@ -25,6 +25,14 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_localToGeographic
 
 /*
  * Class:     com_mousebird_maply_CoordSystem
+ * Method:    coordSystemConvert3d
+ * Signature: (Lcom/mousebird/maply/CoordSystem;Lcom/mousebird/maply/CoordSystem;Lcom/mousebird/maply/Point3d;)Lcom/mousebird/maply/Point3d;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_coordSystemConvert3d
+  (JNIEnv *, jobject, jobject, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_CoordSystem
  * Method:    nativeInit
  * Signature: ()V
  */
