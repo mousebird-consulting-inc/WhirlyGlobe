@@ -103,7 +103,7 @@ public class MaplyBaseController
 	TextureManager texManager = new TextureManager();
 	
 	// Layer thread we use for data manipulation
-	LayerThread layerThread = null;
+	ArrayList<LayerThread> layerThreads = new ArrayList<LayerThread>();
 		
 	// Bounding box we're allowed to move within
 	Point2d viewBounds[] = null;
@@ -111,7 +111,12 @@ public class MaplyBaseController
 	/**
 	 * Returns the layer thread we used for processing requests.
 	 */
-	public LayerThread getLayerThread() { return layerThread; }
+	public LayerThread getLayerThread()
+	{
+		if (layerThreads.size() == 0)
+			return null;
+		return layerThreads.get(0);
+	}
 	
 	/**
 	 * Construct the maply controller with an Activity.  We need access to a few
@@ -149,7 +154,8 @@ public class MaplyBaseController
 		renderWrapper.view = view;
 		
 		// Create the layer thread
-        layerThread = new LayerThread("Maply Layer Thread",view,scene);
+        LayerThread layerThread = new LayerThread("Maply Layer Thread",view,scene);
+		layerThreads.add(layerThread);
 		
         ActivityManager activityManager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
         ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
@@ -173,6 +179,24 @@ public class MaplyBaseController
         
 		running = true;		
 	}
+
+	// Build and return a layer thread for use by the developer
+	public LayerThread makeLayerThread()
+	{
+		if (!running)
+			return null;
+
+		// Create the layer thread
+		LayerThread newLayerThread = new LayerThread("External Maply Layer Thread",view,scene);
+
+		layerThreads.add(newLayerThread);
+
+		// Kick off the layer thread for background operations
+		newLayerThread.setRenderer(renderWrapper.maplyRender);
+		newLayerThread.viewUpdated(view);
+
+		return newLayerThread;
+	}
 	
 	/**
 	 * Return the main content view used to represent the Maply Control.
@@ -192,7 +216,8 @@ public class MaplyBaseController
 
 		running = false;
 //		Choreographer.getInstance().removeFrameCallback(this);
-		layerThread.shutdown();
+		for (LayerThread layerThread : layerThreads)
+			layerThread.shutdown();
 		metroThread.shutdown();
 
 		// Clean up OpenGL ES resources
@@ -210,7 +235,7 @@ public class MaplyBaseController
 		vecManager = null;
 		markerManager = null;
 		texManager = null;
-		layerThread = null;
+		layerThreads = null;
 	}
 	
 	ArrayList<Runnable> surfaceTasks = new ArrayList<Runnable>();
@@ -241,14 +266,16 @@ public class MaplyBaseController
 	void surfaceCreated(RendererWrapper wrap)
 	{
         // Kick off the layer thread for background operations
-		layerThread.setRenderer(renderWrapper.maplyRender);
+		for (LayerThread layerThread : layerThreads)
+			layerThread.setRenderer(renderWrapper.maplyRender);
 
 		// Note: Debugging output
 		renderWrapper.maplyRender.setPerfInterval(perfInterval);
 		
 		// Kick off the layout layer
 		layoutLayer = new LayoutLayer(this,layoutManager);
-		layerThread.addLayer(layoutLayer);
+		LayerThread baseLayerThread = layerThreads.get(0);
+		baseLayerThread.addLayer(layoutLayer);
 		
 		// Run any outstanding runnables
 		for (Runnable run: surfaceTasks)
@@ -278,7 +305,8 @@ public class MaplyBaseController
                 };
         eglSurface = egl.eglCreatePbufferSurface(renderWrapper.maplyRender.display, renderWrapper.maplyRender.config, surface_attrs);
 
-        layerThread.viewUpdated(view);
+		for (LayerThread layerThread : layerThreads)
+	        layerThread.viewUpdated(view);
 
         // Call the post surface setup callbacks
         for (Runnable run : postSurfaceRunnables)
@@ -389,7 +417,8 @@ public class MaplyBaseController
 	 */
 	public void addLayer(Layer layer)
 	{
-		layerThread.addLayer(layer);
+		LayerThread baseLayerThread = layerThreads.get(0);
+		baseLayerThread.addLayer(layer);
 	}
 	
 	/**
@@ -398,7 +427,8 @@ public class MaplyBaseController
 	 */
 	public void removeLayer(Layer layer)
 	{
-		layerThread.removeLayer(layer);
+		LayerThread baseLayerThread = layerThreads.get(0);
+		baseLayerThread.removeLayer(layer);
 	}
 	
 	/**
@@ -412,8 +442,9 @@ public class MaplyBaseController
 	{
 		if (!running)
 			return;
-		
-		if (Looper.myLooper() == layerThread.getLooper() || (mode == ThreadMode.ThreadCurrent)) {
+
+		LayerThread baseLayerThread = layerThreads.get(0);
+		if (Looper.myLooper() == baseLayerThread.getLooper() || (mode == ThreadMode.ThreadCurrent)) {
 
 			// Only do this on the main thread
 			if (Looper.myLooper() == Looper.getMainLooper())
@@ -421,7 +452,7 @@ public class MaplyBaseController
 
             run.run();
         } else
-			layerThread.addTask(run,true);
+			baseLayerThread.addTask(run,true);
 	}
 
 	/**

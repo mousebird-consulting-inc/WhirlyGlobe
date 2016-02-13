@@ -41,7 +41,7 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
         tileSource = inTileSource;
         ChangeSet changes = new ChangeSet();
         initialise(coordSys,changes);
-        maplyControl.layerThread.addChanges(changes);
+        maplyControl.getLayerThread().addChanges(changes);
         setSimultaneousFetches(8);
     }
 

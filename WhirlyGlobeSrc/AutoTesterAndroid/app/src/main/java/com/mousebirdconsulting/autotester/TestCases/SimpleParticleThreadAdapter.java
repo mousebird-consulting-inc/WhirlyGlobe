@@ -1,9 +1,9 @@
 package com.mousebirdconsulting.autotester.TestCases;
 
 import android.os.Handler;
-import android.os.HandlerThread;
 
 import com.mousebird.maply.ComponentObject;
+import com.mousebird.maply.LayerThread;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.ParticleBatch;
 import com.mousebird.maply.ParticleSystem;
@@ -14,7 +14,7 @@ import java.util.Date;
 /**
  * Created by sjg on 2/11/16.
  */
-public class SimpleParticleThread extends HandlerThread
+public class SimpleParticleThreadAdapter
 {
     private ParticleSystem partSys;
     private MaplyBaseController viewC;
@@ -28,15 +28,16 @@ public class SimpleParticleThread extends HandlerThread
     private double updateInterval;
     private float velocityScale;
     private Runnable updateTask;
+    LayerThread particleThread = null;
 
-    public SimpleParticleThread(MaplyBaseController inViewC)
+    public SimpleParticleThreadAdapter(MaplyBaseController inViewC, LayerThread inThread)
     {
-        super("Simple Particle Thread");
+        particleThread = inThread;
 
         viewC = inViewC;
         this.updateInterval = 0.1;
-        this.particleLifeTime = 20.0;
-        this.numParticles = 10000;
+        this.particleLifeTime = 4.0;
+        this.numParticles = 100000;
         this.velocityScale = 0.1f;
 
         this.partSys = new ParticleSystem("Test Particle System");
@@ -52,7 +53,6 @@ public class SimpleParticleThread extends HandlerThread
 
         this.partSysObj = this.viewC.addParticleSystem(this.partSys, MaplyBaseController.ThreadMode.ThreadCurrent);
 
-        start();
         scheduleUpdateTask();
     }
 
@@ -71,7 +71,7 @@ public class SimpleParticleThread extends HandlerThread
                 scheduleUpdateTask();
             }
         };
-        Handler handler = new Handler(getLooper());
+        Handler handler = new Handler(particleThread.getLooper());
         handler.postDelayed(run, (long)(updateInterval*1000));
     }
 
@@ -125,6 +125,6 @@ public class SimpleParticleThread extends HandlerThread
         batch.addAttribute("a_startTime", this.time);
         batch.addAttribute("a_color", this.colors);
         // Note: Can't do this on the current thread.  Need to fix that.
-        viewC.addParticleBatch(batch, MaplyBaseController.ThreadMode.ThreadAny);
+        viewC.addParticleBatch(batch, MaplyBaseController.ThreadMode.ThreadCurrent);
     }
 }

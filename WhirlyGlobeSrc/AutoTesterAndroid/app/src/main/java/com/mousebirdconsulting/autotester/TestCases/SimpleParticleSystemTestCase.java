@@ -22,6 +22,7 @@ package com.mousebirdconsulting.autotester.TestCases;
 import android.app.Activity;
 
 import com.mousebird.maply.GlobeController;
+import com.mousebird.maply.LayerThread;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 public class SimpleParticleSystemTestCase extends MaplyTestCase {
@@ -33,7 +34,8 @@ public class SimpleParticleSystemTestCase extends MaplyTestCase {
         this.setDelay(2000);
     }
 
-    SimpleParticleThread particleThread = null;
+    SimpleParticleThreadAdapter particleAdapter = null;
+    LayerThread particleThread = null;
 
     @Override
     public boolean setUpWithGlobe(final GlobeController globeVC) throws Exception {
@@ -46,7 +48,8 @@ public class SimpleParticleSystemTestCase extends MaplyTestCase {
         globeVC.onSurfaceCreatedTask(new Runnable() {
             @Override
             public void run() {
-                particleThread = new SimpleParticleThread(globeVC);
+                particleThread = globeVC.makeLayerThread();
+                particleAdapter = new SimpleParticleThreadAdapter(globeVC, particleThread);
             }
         });
 

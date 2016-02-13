@@ -110,7 +110,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		pagingDelegate = inDelegate;
 		ChangeSet changes = new ChangeSet();
 		initialise(coordSys,pagingDelegate,changes);
-		maplyControl.layerThread.addChanges(changes);
+		maplyControl.getLayerThread().addChanges(changes);
 		setSimultaneousFetches(8);
 	}
 	
