@@ -854,6 +854,8 @@ public class MaplyBaseController
 	 */
 	public void addActiveObject(ActiveObject activeObject)
 	{
+		if (renderWrapper == null || renderWrapper.maplyRender == null)
+			return;
 		renderWrapper.maplyRender.addActiveObject(activeObject);
 	}
 

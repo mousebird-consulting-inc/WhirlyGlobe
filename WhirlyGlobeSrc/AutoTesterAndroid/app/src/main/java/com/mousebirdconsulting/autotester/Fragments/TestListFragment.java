@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.MainActivity;
 import com.mousebirdconsulting.autotester.R;
@@ -55,10 +54,6 @@ public class TestListFragment extends Fragment {
 		return new LinearLayoutManager(getActivity().getApplicationContext());
 	}
 
-	public void changeItemsState(boolean selected) {
-		adapter.changeItemsState(selected);
-	}
-
 	public void notifyIconChanged(int index) {
 		this.adapter.notifyItemChanged(index);
 	}
@@ -99,14 +94,6 @@ public class TestListFragment extends Fragment {
 		@Override
 		public int getItemCount() {
 			return testCases.size();
-		}
-
-		public void changeItemsState(boolean selected) {
-			for (MaplyTestCase testCase : testCases) {
-				testCase.setSelected(selected);
-				ConfigOptions.setSelectedTest(getContext(), testCase.getTestName(), selected);
-			}
-			notifyDataSetChanged();
 		}
 
 		public ArrayList<MaplyTestCase> getTestCases() {

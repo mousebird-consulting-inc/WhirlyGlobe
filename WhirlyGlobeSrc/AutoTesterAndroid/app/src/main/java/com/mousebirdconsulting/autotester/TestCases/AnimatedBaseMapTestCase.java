@@ -41,7 +41,7 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 		forecastIOLayer.setDrawPriority(MaplyBaseController.ImageLayerDrawPriorityDefault + 100);
 		forecastIOLayer.setBorderTexel(0);
 		forecastIOLayer.setImageDepth(sources.length);
-		forecastIOLayer.setCurrentImage(1.5f);
+		forecastIOLayer.setCurrentImage(1.5f,false);
 		forecastIOLayer.setAnimationPeriod(6.0f);
 		forecastIOLayer.setShaderName(weatherShader.getName());
 
