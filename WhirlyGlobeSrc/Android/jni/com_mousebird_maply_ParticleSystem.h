@@ -73,6 +73,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setBasetime
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem
+ * Method:    getBasetime
+ * Signature: ()D
+ */
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_ParticleSystem_getBasetime
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_ParticleSystem
  * Method:    setBatchSize
  * Signature: (I)V
  */

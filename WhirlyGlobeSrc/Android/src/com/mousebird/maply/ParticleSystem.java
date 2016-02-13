@@ -49,7 +49,7 @@ public class ParticleSystem {
         this.setLifetime(5.0);
         this.setBatchSize(2000);
         this.setTotalParticles(100000);
-        this.setBasetime(new Date().getTime());
+        this.setBasetime(new Date().getTime()/1000.0);
     }
 
     public void finalize() {
@@ -71,6 +71,8 @@ public class ParticleSystem {
     public native void setLifetime(double lifetime);
 
     public native void setBasetime(double basetime);
+
+    public native double getBasetime();
 
     public native void setBatchSize(int batchSize);
 

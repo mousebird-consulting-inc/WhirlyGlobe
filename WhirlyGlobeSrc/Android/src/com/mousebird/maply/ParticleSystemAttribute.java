@@ -81,6 +81,9 @@ public class ParticleSystemAttribute {
 
         int size = 0;
         switch (type){
+            case MAPLY_SHADER_ATTR_TYPE_CHAR4:
+                size = 4;
+                break;
             case MAPLY_SHADER_ATTR_TYPE_INT:
                 size = 4;
                 break;

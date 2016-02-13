@@ -21,7 +21,8 @@ public class SimpleParticleThread extends HandlerThread
     private ComponentObject partSysObj;
     private float locs[];
     private float dirs[];
-    private char colors[];
+    private float colors[];
+    private float time[];
     private double particleLifeTime;
     private int numParticles;
     private double updateInterval;
@@ -45,9 +46,9 @@ public class SimpleParticleThread extends HandlerThread
         this.partSys.setPointSize(8.f);
         this.partSys.setBatchSize((int) (this.numParticles / (this.particleLifeTime / this.updateInterval)));
         this.partSys.addParticleSystemAttribute("a_position", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);
-//        this.partSys.addParticleSystemAttribute("a_dir", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);
-//        this.partSys.addParticleSystemAttribute("a_color", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_CHAR4);
-
+        this.partSys.addParticleSystemAttribute("a_dir", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);
+        this.partSys.addParticleSystemAttribute("a_startTime", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT);
+        this.partSys.addParticleSystemAttribute("a_color", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT4);
 
         this.partSysObj = this.viewC.addParticleSystem(this.partSys, MaplyBaseController.ThreadMode.ThreadCurrent);
 
@@ -74,8 +75,10 @@ public class SimpleParticleThread extends HandlerThread
         handler.postDelayed(run, (long)(updateInterval*1000));
     }
 
+
+
     public void generateParticles() throws InterruptedException {
-        double now = ((double) new Date().getTime() ) - 978303600000.d;
+        double now = ((double) new Date().getTime()/1000.0 ) - partSys.getBasetime();
 
         // Data arrays for particles
         int batchSize = this.partSys.getBatchSize();
@@ -83,7 +86,8 @@ public class SimpleParticleThread extends HandlerThread
         if (locs == null) {
             this.locs = new float[this.partSys.getBatchSize()*3];
             this.dirs = new float[this.partSys.getBatchSize()*3];
-            this.colors = new char[this.partSys.getBatchSize()*4];
+            this.colors = new float[this.partSys.getBatchSize()*4];
+            this.time = new float[this.partSys.getBatchSize()];
         }
 
         // Make up some random particles
@@ -98,17 +102,28 @@ public class SimpleParticleThread extends HandlerThread
 
             //Random direction
             x = (float) Math.random()*2-1;  y = (float) Math.random()*2-1;  z = (float) Math.random()*2-1;
-            sum = (float)Math.sqrt(x*x+y*y+z*z);
+            sum = (float)Math.sqrt(x*x+y*y+z*z)*100;
             x /= sum;  y /= sum;  z /= sum;
             dirs[ii*3] = x; dirs[ii*3+1] = y; dirs[ii*3+2] = z;
 
-            colors[ii*4] = 255; colors[ii*4+1] = 255; colors[ii*4+2] = 255; colors[ii*4+3] = 255;
+            // A couple of simple colors
+            float r,g,b;
+            if (ii % 2 == 0)
+            {
+                r = 1.f;  g = 0;  b = 0;
+            } else {
+                r = 0;  g = 1.f;  b = 0;
+            }
+            colors[ii*4] = r; colors[ii*4+1] = g; colors[ii*4+2] = b; colors[ii*4+3] = 1.f;
+
+            time[ii] = (float)now;
         }
 
         ParticleBatch batch = new ParticleBatch(this.partSys);
         batch.addAttribute("a_position", this.locs);
-//        batch.addAttribute("a_dir", this.dirs);
-//        batch.addAttribute("a_color", this.colors);
+        batch.addAttribute("a_dir", this.dirs);
+        batch.addAttribute("a_startTime", this.time);
+        batch.addAttribute("a_color", this.colors);
         // Note: Can't do this on the current thread.  Need to fix that.
         viewC.addParticleBatch(batch, MaplyBaseController.ThreadMode.ThreadAny);
     }

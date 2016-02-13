@@ -197,6 +197,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setBasetime
     }
 }
 
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_ParticleSystem_getBasetime
+(JNIEnv *env, jobject obj)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return 0.0;
+        
+        return inst->baseTime;
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getBasetime()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addParticleSystemAttributeNative
 (JNIEnv *env, jobject obj, jstring name, jint type)
 {
