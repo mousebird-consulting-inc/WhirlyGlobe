@@ -212,7 +212,7 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
     
     chunksDirty = true;
     
-    WHIRLYKIT_LOGV("Added batch");
+//    WHIRLYKIT_LOGV("Added batch");
 }
     
 void ParticleSystemDrawable::updateBatches(TimeInterval now)
@@ -230,7 +230,7 @@ void ParticleSystemDrawable::updateBatches(TimeInterval now)
                 chunksDirty = true;
                 startb++;
 
-                WHIRLYKIT_LOGV("Canceling batch");
+//                WHIRLYKIT_LOGV("Canceling batch");
             }
         } else
             break;
@@ -269,7 +269,7 @@ void ParticleSystemDrawable::updateChunks()
                     chunk.numVertices = (end-start) * batchSize;
                     chunks.push_back(chunk);
                     
-                    WHIRLYKIT_LOGV("Set up chunk: bufferStart = %d; numVertices = %d",chunk.bufferStart,chunk.numVertices);
+//                    WHIRLYKIT_LOGV("Set up chunk: bufferStart = %d; numVertices = %d",chunk.bufferStart,chunk.numVertices);
                 }
             }
             

@@ -109,6 +109,7 @@ public class SimpleParticleThread extends HandlerThread
         batch.addAttribute("a_position", this.locs);
 //        batch.addAttribute("a_dir", this.dirs);
 //        batch.addAttribute("a_color", this.colors);
-        viewC.addParticleBatch(batch, MaplyBaseController.ThreadMode.ThreadCurrent);
+        // Note: Can't do this on the current thread.  Need to fix that.
+        viewC.addParticleBatch(batch, MaplyBaseController.ThreadMode.ThreadAny);
     }
 }
