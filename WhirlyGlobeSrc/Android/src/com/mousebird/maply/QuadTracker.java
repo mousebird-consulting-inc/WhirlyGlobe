@@ -21,24 +21,47 @@ package com.mousebird.maply;
 
 public class QuadTracker {
 
-    private CoordSystem coordSystem;
-    private int minLevel;
 
-    public QuadTracker(MaplyBaseController viewC) {
+    private QuadTracker(){
+    }
+    public QuadTracker(GlobeController globeController){
 
+        initialise(globeController.globeView);
+        this.setRenderer(globeController.renderWrapper.maplyRender);
+        this.setAdapter(globeController.coordAdapter);
     }
 
-
-    public void tiles (QuadTrackerPointReturn tilesInfo, int numPts) {
-
-
+    public void finalise(){
+        dispose();
     }
 
-    public void addTile(MaplyTileID tileID) {
+    public native QuadTrackerPointReturn[] tiles(QuadTrackerPointReturn[] tilesInfo, int numPts);
 
+    public native void addTile(int x, int y, int level);
+
+    public native void removeTile(int x, int y, int level);
+
+    public native void setCoordSystem (CoordSystem coordSystem, Point2d ll, Point2d ur);
+
+    public native void setMinLevel (int minLevel);
+
+    public native int getMinLevel();
+
+    public native void setAdapter (CoordSystemDisplayAdapter adapter);
+
+    public native void setRenderer (MaplyRenderer renderer);
+
+
+
+
+    static {
+        nativeInit();
     }
 
-    public void removeTile(MaplyTileID tileID) {
+    private static native void nativeInit();
+    native void initialise(GlobeView globeView);
+    native void dispose();
+    private long nativeHandle;
 
-    }
+
 }

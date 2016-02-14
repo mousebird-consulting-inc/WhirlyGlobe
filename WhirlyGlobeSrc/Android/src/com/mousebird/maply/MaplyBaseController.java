@@ -63,10 +63,10 @@ public class MaplyBaseController
 	
 	// Set when we're not in the process of shutting down
 	boolean running = false;
-	
+
 	// Implements the GL renderer protocol
 	protected RendererWrapper renderWrapper;
-	
+
 	// Coordinate system to display conversion
 	protected CoordSystemDisplayAdapter coordAdapter;
 	
@@ -196,6 +196,18 @@ public class MaplyBaseController
 		newLayerThread.viewUpdated(view);
 
 		return newLayerThread;
+	}
+
+	/** @brief Convert from a coordinate in the given system to display space.
+	 @details This converts from a coordinate (3d) in the given coordinate system to the view controller's display space.  For the globe, display space is based on a radius of 1.0.
+	 */
+
+	public Point3d displayCoord (Point3d localCoord, CoordSystem fromSystem){
+
+		Point3d loc3d = coordAdapter.getCoordSystem().coordSystemConvert3d(fromSystem, coordAdapter.getCoordSystem(), localCoord);
+		Point3d pt = coordAdapter.localToDisplay(loc3d);
+
+		return pt;
 	}
 	
 	/**

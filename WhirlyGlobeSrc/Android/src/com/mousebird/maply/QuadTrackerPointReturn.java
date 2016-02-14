@@ -21,75 +21,55 @@ package com.mousebird.maply;
 
 public class QuadTrackerPointReturn {
 
-    private double screenU, screenV;
-    private MaplyTileID tileID;
-
-    private int padding;
-
-    private double locX, locY;
-    private double tileU, tileV;
-
-    public double getScreenU() {
-        return screenU;
+    public QuadTrackerPointReturn()
+    {
+        initialise();
     }
 
-    public void setScreenU(double screenU) {
-        this.screenU = screenU;
+    public void finalise()
+    {
+        dispose();
     }
 
-    public double getScreenV() {
-        return screenV;
+    public native void setScreenU(double screenU);
+
+    public native double getScreenU();
+
+    public native void setScreenV(double screenV);
+
+    public native double getScreenV();
+
+    public native void setMaplyTileID (int x, int y, int level);
+
+    public native int[] getMaplyTileID();
+
+    public native void setPadding(int padding);
+
+    public native int getPadding();
+
+    public native void setLocX(double locX);
+
+    public native double getLocX();
+
+    public native void setLocY(double locY);
+
+    public native double getLocY();
+
+    public native void setTileU(double tileU);
+
+    public native double getTileU();
+
+    public native void setTileV(double tileV);
+
+    public native double getTileV();
+
+
+    static {
+        nativeInit();
     }
 
-    public void setScreenV(double screenV) {
-        this.screenV = screenV;
-    }
-
-    public MaplyTileID getTileID() {
-        return tileID;
-    }
-
-    public void setTileID(MaplyTileID tileID) {
-        this.tileID = tileID;
-    }
-
-    public int getPadding() {
-        return padding;
-    }
-
-    public void setPadding(int padding) {
-        this.padding = padding;
-    }
-
-    public double getLocX() {
-        return locX;
-    }
-
-    public void setLocX(double locX) {
-        this.locX = locX;
-    }
-
-    public double getLocY() {
-        return locY;
-    }
-
-    public void setLocY(double locY) {
-        this.locY = locY;
-    }
-
-    public double getTileU() {
-        return tileU;
-    }
-
-    public void setTileU(double tileU) {
-        this.tileU = tileU;
-    }
-
-    public double getTileV() {
-        return tileV;
-    }
-
-    public void setTileV(double tileV) {
-        this.tileV = tileV;
-    }
+    private static native void nativeInit();
+    native void initialise();
+    native void dispose();
+    private long nativeHandle;
 }

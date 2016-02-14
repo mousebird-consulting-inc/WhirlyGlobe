@@ -87,7 +87,12 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	
 	// Map version of view
 	GlobeView globeView = null;
-	
+
+
+	public GlobeView getGlobeView() {
+		return globeView;
+	}
+
 	// Map version of scene
 	GlobeScene globeScene = null;
 	

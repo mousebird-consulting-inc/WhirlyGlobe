@@ -18,6 +18,7 @@ import com.mousebirdconsulting.autotester.R;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MapBoxSatelliteTestCase;
+import com.mousebirdconsulting.autotester.TestCases.QuadParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.SimpleParticleSystemTestCase;
@@ -81,6 +82,8 @@ public class TestListFragment extends Fragment {
 			testCases.add(new StickersTestCase(getActivity()));
 			testCases.add(new SimpleParticleSystemTestCase(getActivity()));
 			testCases.add(new ParticleSystemTestCase(getActivity()));
+			testCases.add(new SimpleParticleSystemTestCase(getActivity()));
+			testCases.add(new QuadParticleSystemTestCase(getActivity()));
 		}
 
 		@Override

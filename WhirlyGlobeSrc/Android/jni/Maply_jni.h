@@ -414,6 +414,8 @@ typedef JavaClassInfo<WhirlyKit::ParticleBatch> ParticleBatchClassInfo;
 typedef JavaClassInfo<WhirlyKit::ParticleSystem> ParticleSystemClassInfo;
 typedef JavaClassInfo<WhirlyKit::ParticleSystemManager> ParticleSystemManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::OpenGLES2Program> OpenGLES2ProgramClassInfo;
+typedef JavaClassInfo<WhirlyKit::QuadTracker> QuadTrackerClassInfo;
+typedef JavaClassInfo<WhirlyKit::QuadTrackerPointReturn> QuadTrackerPointReturnClassInfo;
 
 
 
