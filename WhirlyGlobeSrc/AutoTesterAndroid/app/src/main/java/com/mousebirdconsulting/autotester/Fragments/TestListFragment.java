@@ -15,6 +15,7 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.MainActivity;
 import com.mousebirdconsulting.autotester.R;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
+import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
 import com.mousebirdconsulting.autotester.TestCases.GestureFeedbackTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MapBoxSatelliteTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ParticleSystemTestCase;
@@ -78,6 +79,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new GestureFeedbackTestCase(getActivity()));
 			testCases.add(new SimpleParticleSystemTestCase(getActivity()));
 			testCases.add(new ParticleSystemTestCase(getActivity()));
+			testCases.add(new CustomBNGTileSource(getActivity()));
 		}
 
 		@Override

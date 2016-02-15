@@ -34,7 +34,6 @@ public class CoordSystem
 	 */
 	CoordSystem()
 	{
-		initialise();
 	}
 	
 	public void finalize()
@@ -45,11 +44,37 @@ public class CoordSystem
 	/**
 	 * Lower left corner of the bounding box in local coordinates.
 	 */
-	public Point3d ll = null;
+	Point3d ll = null;
 	/**
 	 * Upper right corner of the bounding box in local coordinates.
 	 */
-	public Point3d ur = null;
+	Point3d ur = null;
+
+	/**
+	 * Return the valid bounding box for the coordinate system.
+	 * null means everywhere is valid.
+     */
+	Mbr getBounds()
+	{
+		if (ll == null || ur == null)
+			return null;
+
+		Mbr mbr = new Mbr();
+		mbr.addPoint(new Point2d(ll.getX(),ll.getY()));
+		mbr.addPoint(new Point2d(ur.getX(),ur.getY()));
+
+		return mbr;
+	}
+
+	/**
+	 * Set the bounding box for the coordinate system.
+	 * @param mbr
+     */
+	public void setBounds(Mbr mbr)
+	{
+		ll = new Point3d(mbr.ll.getX(),mbr.ll.getY(),0.0);
+		ur = new Point3d(mbr.ur.getX(),mbr.ur.getY(),0.0);
+	}
 
 	/**
 	 * Convert from WGS84 longitude/latitude coordinates to the local coordinate system.

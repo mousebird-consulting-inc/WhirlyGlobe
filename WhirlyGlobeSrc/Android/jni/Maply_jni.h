@@ -394,6 +394,7 @@ typedef JavaClassInfo<Eigen::Quaterniond> QuaternionClassInfo;
 typedef JavaClassInfo<Eigen::AngleAxisd> AngleAxisClassInfo;
 typedef JavaClassInfo<WhirlyKit::CoordSystemDisplayAdapter> CoordSystemDisplayAdapterInfo;
 typedef JavaClassInfo<WhirlyKit::FakeGeocentricDisplayAdapter> FakeGeocentricDisplayAdapterInfo;
+typedef JavaClassInfo<WhirlyKit::GeneralCoordSystemDisplayAdapter> GeneralDisplayAdapterInfo;
 class MaplySceneRenderer;
 typedef JavaClassInfo<MaplySceneRenderer> MaplySceneRendererInfo;
 typedef JavaClassInfo<Maply::MapScene> MapSceneClassInfo;

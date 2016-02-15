@@ -398,7 +398,8 @@ public:
         Point2f frameSize = renderer->getFramebufferSize();
 
         int zoomLevel = 0;
-        WhirlyKit::Point2f center = Point2f(viewState->eyePos.x(),viewState->eyePos.y());
+        WhirlyKit::Point3d center3d = scene->getCoordAdapter()->displayToLocal(Point3d(viewState->eyePos.x(),viewState->eyePos.y(),0.0));
+        Point2f center(center3d.x(),center3d.y());
         // The coordinate adapter might have its own center
         Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
         center.x() += adaptCenter.x();
