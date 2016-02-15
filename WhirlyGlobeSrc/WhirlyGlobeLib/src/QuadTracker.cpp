@@ -26,96 +26,96 @@ namespace WhirlyKit
 {
 
     QuadTrackerPointReturn::QuadTrackerPointReturn()
-	{
+    {
     }
     
     void QuadTrackerPointReturn::setScreenU(double _screenU)
-	{
+    {
         screenU = _screenU;
     }
     
     double QuadTrackerPointReturn::getScreenU()
-	{
+    {
         return screenU;
     }
     
     void QuadTrackerPointReturn::setScreenV(double _screenV)
-	{
+    {
         screenV = _screenV;
     }
     
     double QuadTrackerPointReturn::getScreenV()
-	{
+    {
         return screenV;
     }
     
     void QuadTrackerPointReturn::setMaplyTileID(MaplyTileID _maplyTileID)
-	{
+    {
         tileID = _maplyTileID;
     }
     
     MaplyTileID QuadTrackerPointReturn::getMaplyTileID()
-	{
+    {
         return tileID;
     }
     
     void QuadTrackerPointReturn::setPadding(int _padding)
-	{
+    {
         padding = _padding;
     }
     
     int QuadTrackerPointReturn::getPadding()
-	{
+    {
         return padding;
     }
     
     void QuadTrackerPointReturn::setLocX(double _locX)
-	{
+    {
         locX = _locX;
     }
     
     double QuadTrackerPointReturn::getLocX()
-	{
+    {
         return locX;
     }
     
     void QuadTrackerPointReturn::setLocY(double _locY)
-	{
+    {
         locY = _locY;
     }
     
     double QuadTrackerPointReturn::getLocY()
-	{
+    {
         return locY;
     }
     
     void QuadTrackerPointReturn::setTileU(double _tileU)
-	{
+    {
         tileU = _tileU;
     }
     
     double QuadTrackerPointReturn::getTileU()
-	{
+    {
         return tileU;
     }
     
     void QuadTrackerPointReturn::setTileV(double _tileV)
-	{
+    {
         tileV = _tileV;
     }
     
     double QuadTrackerPointReturn::getTileV()
-	{
+    {
         return tileV;
     }
     
     
     TileWrapper::TileWrapper()
-	{
+    {
     }
     
     TileWrapper::TileWrapper(MaplyTileID _tileID)
-	{
+    {
         tileID = _tileID;
     }
     
@@ -127,12 +127,12 @@ namespace WhirlyKit
     }
     
     QuadTracker::~QuadTracker()
-	{
+    {
         pthread_mutex_destroy(&tilesLock);
     }
     
     void QuadTracker::addTile(MaplyTileID tileID)
-	{
+    {
         pthread_mutex_lock(&tilesLock);
         
         TileWrapper tile(tileID);
@@ -143,11 +143,11 @@ namespace WhirlyKit
     }
     
     void QuadTracker::removeTile(MaplyTileID tileID)
-	{
+    {
         pthread_mutex_lock(&tilesLock);
         
         TileWrapper tile(tileID);
-		auto it = tileSet.find(tile);
+        auto it = tileSet.find(tile);
         if (it != tileSet.end())
             tileSet.erase(it);
         
@@ -155,7 +155,7 @@ namespace WhirlyKit
     }
     
     void QuadTracker::tiles(WhirlyKit::QuadTrackerPointReturn *tilesInfo, int numPts)
-	{
+    {
         if (!coordSys)
             return;
         

@@ -30,4 +30,5 @@ dependencies {
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
     compile 'com.squareup.okio:okio:1.3.0'
     compile project(':Maply')
+    compile 'org.jodd:jodd-core:3.6.7'
 }
