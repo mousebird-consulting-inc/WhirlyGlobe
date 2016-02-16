@@ -156,6 +156,10 @@
 		2B96DB711B7402DC005FF148 /* NASA_layers_header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_layers_header.png; sourceTree = "<group>"; };
 		2B96DB721B7402DC005FF148 /* NASA_NightTime_Layer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_NightTime_Layer.png; sourceTree = "<group>"; };
 		2B96DB731B7402DC005FF148 /* NASA_SeaTemp_Overlay.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_SeaTemp_Overlay.png; sourceTree = "<group>"; };
+		2BB7660F1C73A14700F01F2A /* aeroviereports.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = aeroviereports.jpeg; sourceTree = "<group>"; };
+		2BB766101C73A14700F01F2A /* climearth.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = climearth.jpeg; sourceTree = "<group>"; };
+		2BB766111C73A14700F01F2A /* flightwiseplanner.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = flightwiseplanner.png; sourceTree = "<group>"; };
+		2BB766121C73A14700F01F2A /* freeflight.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = freeflight.jpeg; sourceTree = "<group>"; };
 		2BB94D8B1A2CEDCE0076B1B4 /* deforestation.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = deforestation.png; sourceTree = "<group>"; };
 		2BB94D9D1A2FBCAA0076B1B4 /* tutorial.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = tutorial.js; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -321,6 +325,10 @@
 		2B4E06B81A153FB100ADA318 /* apps */ = {
 			isa = PBXGroup;
 			children = (
+				2BB7660F1C73A14700F01F2A /* aeroviereports.jpeg */,
+				2BB766101C73A14700F01F2A /* climearth.jpeg */,
+				2BB766111C73A14700F01F2A /* flightwiseplanner.png */,
+				2BB766121C73A14700F01F2A /* freeflight.jpeg */,
 				2B14BFDD1B86446700CE29A4 /* flightwise.png */,
 				2B14BFDE1B86446700CE29A4 /* aeroicon.jpeg */,
 				2B14BFDF1B86446700CE29A4 /* flyqefb.png */,

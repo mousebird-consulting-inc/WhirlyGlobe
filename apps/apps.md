@@ -25,6 +25,8 @@ A toolkit is only as good as the apps that use it.  Here are some of our favorit
 
 {% include app_entry.html name="Flightwise Flight Tracker" image="flightwise.png" body="This is a flight tracker for individual commercial flights." link="https://itunes.apple.com/us/app/flightwise-flight-tracker/id329517941?mt=8" %}
 
+{% include app_entry.html name="Flightwise Flight Planner" image="flightwiseplanner.png" body="An aviation app designed for pilots that can create and file flight plans, view aviation charts and weather and lookup airport information." link="https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=364909735&mt=8" %}
+
 {% include app_entry.html name="flyTab" image="flytab.jpeg" body="FlyTab Cockpit is an avionics test environment and simulator for the flyTab avionics platform." link="https://itunes.apple.com/us/app/flytab-cockpit/id614642457?mt=8" %}
 
 {% include app_entry.html name="FlyQ EFB" image="flyqefb.png" body="One of the more popular aviation planning and visualization apps.  Made by Seattle Avionics, this is one of the most complex WhirlyGlobe-Maply apps." link="https://itunes.apple.com/us/app/flyq-efb/id915571252?mt=8" %}
