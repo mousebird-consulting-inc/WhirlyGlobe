@@ -11,7 +11,7 @@ github_username:  mousebird
 
 # Conversion
 markdown:    kramdown
-highlighter: pygments
+highlighter: rouge
 
 gems:
   - jekyll-redirect-from
