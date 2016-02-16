@@ -455,7 +455,6 @@
 		D8701BAA1C538B77009A5471 /* ParticleSystemDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8701BA81C538B77009A5471 /* ParticleSystemDrawable.cpp */; };
 		D8A4BE241C6F558D009F6CFB /* QuadTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = D8A4BE231C6F558D009F6CFB /* QuadTracker.h */; };
 		D8A4BE261C6F55C5009F6CFB /* QuadTracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D8A4BE251C6F55C5009F6CFB /* QuadTracker.cpp */; };
-		D8A4BE281C6F59EC009F6CFB /* com_mousebird_maply_QuadTrackerPointReturn.h in Headers */ = {isa = PBXBuildFile; fileRef = D8A4BE271C6F59EC009F6CFB /* com_mousebird_maply_QuadTrackerPointReturn.h */; };
 		D8A4BE2C1C6F61D0009F6CFB /* com_mousebird_maply_QuadTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = D8A4BE2B1C6F61D0009F6CFB /* com_mousebird_maply_QuadTracker.h */; };
 /* End PBXBuildFile section */
 
@@ -972,8 +971,6 @@
 		D8701BAC1C5390A8009A5471 /* ParticleSystemManager_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleSystemManager_jni.cpp; path = ../Android/jni/ParticleSystemManager_jni.cpp; sourceTree = "<group>"; };
 		D8A4BE231C6F558D009F6CFB /* QuadTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadTracker.h; sourceTree = "<group>"; };
 		D8A4BE251C6F55C5009F6CFB /* QuadTracker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuadTracker.cpp; sourceTree = "<group>"; };
-		D8A4BE271C6F59EC009F6CFB /* com_mousebird_maply_QuadTrackerPointReturn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_QuadTrackerPointReturn.h; path = ../Android/jni/com_mousebird_maply_QuadTrackerPointReturn.h; sourceTree = "<group>"; };
-		D8A4BE291C6F5A13009F6CFB /* QuadTrackerPointReturn_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadTrackerPointReturn_jni.cpp; path = ../Android/jni/QuadTrackerPointReturn_jni.cpp; sourceTree = "<group>"; };
 		D8A4BE2B1C6F61D0009F6CFB /* com_mousebird_maply_QuadTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_QuadTracker.h; path = ../Android/jni/com_mousebird_maply_QuadTracker.h; sourceTree = "<group>"; };
 		D8A4BE2D1C6F61F3009F6CFB /* QuadTracker_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadTracker_jni.cpp; path = ../Android/jni/QuadTracker_jni.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1172,7 +1169,6 @@
 			isa = PBXGroup;
 			children = (
 				D8A4BE2B1C6F61D0009F6CFB /* com_mousebird_maply_QuadTracker.h */,
-				D8A4BE271C6F59EC009F6CFB /* com_mousebird_maply_QuadTrackerPointReturn.h */,
 				2BB766071C6FFF9B00F01F2A /* com_mousebird_maply_Proj4CoordSystem.h */,
 				2BB766081C6FFF9B00F01F2A /* com_mousebird_maply_QuadImageOfflineLayer_RenderedImageDelegate.h */,
 				2BB766051C6FFF7E00F01F2A /* com_mousebird_maply_GeneralDisplayAdapter.h */,
@@ -1306,7 +1302,6 @@
 				2B4B19C71BA38AFB0091A743 /* VectorObject_jni.cpp */,
 				2B4B19C81BA38AFB0091A743 /* View_jni.cpp */,
 				2B4B19C91BA38AFB0091A743 /* ViewState_jni.cpp */,
-				D8A4BE291C6F5A13009F6CFB /* QuadTrackerPointReturn_jni.cpp */,
 				D8A4BE2D1C6F61F3009F6CFB /* QuadTracker_jni.cpp */,
 			);
 			name = src;
@@ -1810,7 +1805,6 @@
 				2BB766021C6FE65B00F01F2A /* Proj4CoordSystem.h in Headers */,
 				2B923FD21BFD04AE00C879DB /* com_mousebird_maply_StickerManager.h in Headers */,
 				2B35683E18D762BF00EF8DB1 /* WhirlyTypes.h in Headers */,
-				D8A4BE281C6F59EC009F6CFB /* com_mousebird_maply_QuadTrackerPointReturn.h in Headers */,
 				2B4B19691BA38AD90091A743 /* com_mousebird_maply_GeoCoordSystem.h in Headers */,
 				2B009CF2186102E4001E2EE8 /* JSONAllocator.h in Headers */,
 				2BDC89CB191C2ADE00DFECF0 /* SceneRendererES3.h in Headers */,

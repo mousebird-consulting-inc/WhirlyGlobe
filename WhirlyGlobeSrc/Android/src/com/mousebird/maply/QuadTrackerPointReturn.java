@@ -19,57 +19,121 @@
  */
 package com.mousebird.maply;
 
-public class QuadTrackerPointReturn {
-
-    public QuadTrackerPointReturn()
+/**
+ * You pass in one of these to query where a whole mess of points fall
+ * on a group of pages tiles.  This is useful for particle systems that
+ * read from tiles (like wind tiles).
+ */
+public class QuadTrackerPointReturn
+{
+    public QuadTrackerPointReturn(int inNumPts)
     {
-        initialise();
+        numPts = inNumPts;
+        screenLocs = new double[2*numPts];
+        tileIDs = new int[3*numPts];
+        coordLocs = new double[2*numPts];
+        tileLocs = new double[2*numPts];
     }
 
-    public void finalise()
+    int numPts = 0;
+    public double[] screenLocs;
+    public int[] tileIDs;
+    public double coordLocs[];
+    public double tileLocs[];
+
+    /**
+     * Return the number of points.
+     */
+    public int getNumPoints() { return numPts; }
+
+    /**
+     * Set the location on the screen for the given sample.
+     * @param which Which sample to set.
+     * @param screenU X value on the screen
+     * @param screenV Y value on the screen
+     */
+    public void setScreenLoc(int which,double screenU,double screenV)
     {
-        dispose();
+        screenLocs[2*which] = screenU;
+        screenLocs[2*which+1] = screenV;
     }
 
-    public native void setScreenU(double screenU);
-
-    public native double getScreenU();
-
-    public native void setScreenV(double screenV);
-
-    public native double getScreenV();
-
-    public native void setMaplyTileID (int x, int y, int level);
-
-    public native int[] getMaplyTileID();
-
-    public native void setPadding(int padding);
-
-    public native int getPadding();
-
-    public native void setLocX(double locX);
-
-    public native double getLocX();
-
-    public native void setLocY(double locY);
-
-    public native double getLocY();
-
-    public native void setTileU(double tileU);
-
-    public native double getTileU();
-
-    public native void setTileV(double tileV);
-
-    public native double getTileV();
-
-
-    static {
-        nativeInit();
+    /**
+     * Return the screen location (which you set earlier) for a given sample.
+     */
+    public Point2d getScreenLoc(int which)
+    {
+        Point2d screenLoc = new Point2d();
+        screenLoc.setValue(screenLocs[2*which],screenLocs[2*which+1]);
+        return screenLoc;
     }
 
-    private static native void nativeInit();
-    native void initialise();
-    native void dispose();
-    private long nativeHandle;
+    /**
+     * Return the tileID where a given sample landed.
+     * If level is set to -1, that means it didn't land.
+     */
+    public MaplyTileID getTileID(int which)
+    {
+        MaplyTileID tileID = new MaplyTileID();
+        tileID.x = tileIDs[3*which];
+        tileID.y = tileIDs[3*which+1];
+        tileID.level = tileIDs[3*which+2];
+
+        return tileID;
+    }
+
+    /**
+     * Return the location in the local coordinate system.
+     * If this is a globe, this is Spherical Mercator.
+     */
+    public Point2d getCoordLoc(int which)
+    {
+        Point2d coordLoc = new Point2d();
+        coordLoc.setValue(coordLocs[2*which],coordLocs[2*which+1]);
+        return coordLoc;
+    }
+
+    /**
+     * Return the X coordinate in the local coordinate system for the sample.
+     */
+    public double getCoordLocX(int which)
+    {
+        return coordLocs[2*which];
+    }
+
+    /**
+     * Return the Y coordinate in the local coordinate system for the sample.
+     */
+    public double getCoordLocY(int which)
+    {
+        return coordLocs[2*which+1];
+    }
+
+    /**
+     * Return the location within a tile where the sample landed.
+     * This is how you interpolate data values within a tile for the sample.
+     */
+    public Point2d getTileLoc(int which)
+    {
+        Point2d tileLoc = new Point2d();
+        tileLoc.setValue(tileLocs[2*which],tileLocs[2*which+1]);
+        return tileLoc;
+    }
+
+    /**
+     * Return the X coordinate in the tile.
+     */
+    public double getTileLocU(int which)
+    {
+        return tileLocs[2*which];
+    }
+
+    /**
+     * Return the Y coordinate in the tile.
+     */
+    public double getTileLocV(int which)
+    {
+        return tileLocs[2*which+1];
+    }
+
 }

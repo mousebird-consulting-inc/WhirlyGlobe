@@ -374,12 +374,37 @@ public:
     jfloat *rawFloat;
 };
 
+// Wrapper for Java double array.  Destructor cleans up.
+class JavaDoubleArray
+{
+public:
+    JavaDoubleArray(JNIEnv *env,jdoubleArray &array);
+    ~JavaDoubleArray();
+    
+    JNIEnv *env;
+    jdoubleArray &array;
+    int len;
+    jdouble *rawDouble;
+};
+
 
 namespace WhirlyKit
 {
 typedef Eigen::Vector4d Point4d;
 typedef Eigen::Vector4f Point4f;
 }
+
+// Wrapper on top of scene renderer
+class MaplySceneRenderer : public WhirlyKit::SceneRendererES2
+{
+public:
+    MaplySceneRenderer();
+    
+    // Called when the window changes size (or on startup)
+    bool resize(int width,int height);
+    
+    EGLContext context;
+};
 
 // Wrappers for class info for all the various classes that have presence in Java
 typedef JavaClassInfo<WhirlyKit::Dictionary> AttrDictClassInfo;
@@ -395,7 +420,6 @@ typedef JavaClassInfo<Eigen::AngleAxisd> AngleAxisClassInfo;
 typedef JavaClassInfo<WhirlyKit::CoordSystemDisplayAdapter> CoordSystemDisplayAdapterInfo;
 typedef JavaClassInfo<WhirlyKit::FakeGeocentricDisplayAdapter> FakeGeocentricDisplayAdapterInfo;
 typedef JavaClassInfo<WhirlyKit::GeneralCoordSystemDisplayAdapter> GeneralDisplayAdapterInfo;
-class MaplySceneRenderer;
 typedef JavaClassInfo<MaplySceneRenderer> MaplySceneRendererInfo;
 typedef JavaClassInfo<Maply::MapScene> MapSceneClassInfo;
 typedef JavaClassInfo<WhirlyKit::Scene> SceneClassInfo;

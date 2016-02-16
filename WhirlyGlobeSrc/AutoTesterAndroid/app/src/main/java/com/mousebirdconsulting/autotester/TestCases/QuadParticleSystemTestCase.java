@@ -155,12 +155,8 @@ public class QuadParticleSystemTestCase extends MaplyTestCase {
 
             this.partSysObj = this.viewC.addParticleSystem(this.partSys, MaplyBaseController.ThreadMode.ThreadCurrent);
 
-
-            tileTrack = new QuadTracker(viewC);
-
-            tileTrack.setMinLevel(minZoom);
             Mbr mbr = coordSys.getBounds();
-            tileTrack.setCoordSystem(coordSys, mbr.ll, mbr.ur);
+            tileTrack = new QuadTracker(viewC,coordSys,mbr.ll,mbr.ur,minZoom);
 
             this.locs = null;
             this.dirs = null;
@@ -207,30 +203,25 @@ public class QuadParticleSystemTestCase extends MaplyTestCase {
 
             //Generate some screen coordinates for sampling
 
-            QuadTrackerPointReturn points [] = new QuadTrackerPointReturn[this.partSys.getBatchSize()];
+            QuadTrackerPointReturn points = new QuadTrackerPointReturn(this.partSys.getBatchSize());
 
             for (int ii = 0; ii < this.partSys.getBatchSize(); ii++)
             {
-                points[ii] = new QuadTrackerPointReturn();
-                points[ii].setScreenU(Math.random());
-                points[ii].setScreenV(Math.random());
+                points.setScreenLoc(ii,Math.random(),Math.random());
             }
 
             //Figure out which the samples show up in a tile on the earth
             //We do it this way so we're not wasting particles on parts of the globe that aren't visible
 
-            int datos[] = points[0].getMaplyTileID();
-            points = tileTrack.tiles(points, this.partSys.getBatchSize());
+            tileTrack.queryTiles(points);
 
             //Generate particles from those samples
 
             int whichPart = 0;
 
             for (int ii = 0; ii < this.partSys.getBatchSize(); ii++){
-
-                int data[] = points[ii].getMaplyTileID();
-                Log.e("DEBUG", "Valores "+data[0]+" "+data[1]+" "+data[2]);
-                MaplyTileID tileID = new MaplyTileID(data[0], data[1], data[2]);
+                MaplyTileID tileID = points.getTileID(ii);
+//                Log.e("DEBUG", "Valores "+data[0]+" "+data[1]+" "+data[2]);
 
                 //Look the associated tile
                 DataTile dataTile = getDataTile(tileID);
@@ -238,12 +229,12 @@ public class QuadParticleSystemTestCase extends MaplyTestCase {
                 if (dataTile != null){
                     float time = this.times[ii];
                     Point3d coordA = new Point3d();
-                    coordA.setValue(points[ii].getLocX(), points[ii].getLocY(), 0.0);
+                    coordA.setValue(points.getCoordLocX(ii), points.getCoordLocY(ii), 0.0);
 
                     double velU =  0.0;
                     double velV =  0.0;
                     Point2d pt = new Point2d();
-                    pt.setValue(points[ii].getTileU(), points[ii].getTileV());
+                    pt.setValue(points.getTileLocU(ii), points.getTileLocV(ii));
                     double result [] = dataTile.getValue(pt);
 
                     if (result != null){

@@ -9,11 +9,11 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_QuadTracker
- * Method:    tiles
- * Signature: ([Lcom/mousebird/maply/QuadTrackerPointReturn;I)[Lcom/mousebird/maply/QuadTrackerPointReturn;
+ * Method:    queryTilesNative
+ * Signature: (I[D[I[D[D)V
  */
-JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_QuadTracker_tiles
-  (JNIEnv *, jobject, jobjectArray, jint);
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_queryTilesNative
+  (JNIEnv *, jobject, jint, jdoubleArray, jintArray, jdoubleArray, jdoubleArray);
 
 /*
  * Class:     com_mousebird_maply_QuadTracker
@@ -33,43 +33,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_removeTile
 
 /*
  * Class:     com_mousebird_maply_QuadTracker
- * Method:    setCoordSystem
- * Signature: (Lcom/mousebird/maply/CoordSystem;Lcom/mousebird/maply/Point2d;Lcom/mousebird/maply/Point2d;)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_setCoordSystem
-  (JNIEnv *, jobject, jobject, jobject, jobject);
-
-/*
- * Class:     com_mousebird_maply_QuadTracker
- * Method:    setMinLevel
- * Signature: (I)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_setMinLevel
-  (JNIEnv *, jobject, jint);
-
-/*
- * Class:     com_mousebird_maply_QuadTracker
  * Method:    getMinLevel
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadTracker_getMinLevel
   (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebird_maply_QuadTracker
- * Method:    setAdapter
- * Signature: (Lcom/mousebird/maply/CoordSystemDisplayAdapter;)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_setAdapter
-  (JNIEnv *, jobject, jobject);
-
-/*
- * Class:     com_mousebird_maply_QuadTracker
- * Method:    setRenderer
- * Signature: (Lcom/mousebird/maply/MaplyRenderer;)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_setRenderer
-  (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_QuadTracker
@@ -82,10 +50,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_nativeInit
 /*
  * Class:     com_mousebird_maply_QuadTracker
  * Method:    initialise
- * Signature: (Lcom/mousebird/maply/GlobeView;)V
+ * Signature: (Lcom/mousebird/maply/GlobeView;Lcom/mousebird/maply/MaplyRenderer;Lcom/mousebird/maply/CoordSystemDisplayAdapter;Lcom/mousebird/maply/CoordSystem;Lcom/mousebird/maply/Point2d;Lcom/mousebird/maply/Point2d;I)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_initialise
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jobject, jobject, jobject, jobject, jobject, jobject, jint);
 
 /*
  * Class:     com_mousebird_maply_QuadTracker

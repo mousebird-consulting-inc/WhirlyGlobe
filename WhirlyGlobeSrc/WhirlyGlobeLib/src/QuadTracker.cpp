@@ -25,266 +25,211 @@
 namespace WhirlyKit
 {
 
-    QuadTrackerPointReturn::QuadTrackerPointReturn()
-	{
-    }
-    
-    void QuadTrackerPointReturn::setScreenU(double _screenU)
-	{
-        screenU = _screenU;
-    }
-    
-    double QuadTrackerPointReturn::getScreenU()
-	{
-        return screenU;
-    }
-    
-    void QuadTrackerPointReturn::setScreenV(double _screenV)
-	{
-        screenV = _screenV;
-    }
-    
-    double QuadTrackerPointReturn::getScreenV()
-	{
-        return screenV;
-    }
-    
-    void QuadTrackerPointReturn::setMaplyTileID(MaplyTileID _maplyTileID)
-	{
-        tileID = _maplyTileID;
-    }
-    
-    MaplyTileID QuadTrackerPointReturn::getMaplyTileID()
-	{
-        return tileID;
-    }
-    
-    void QuadTrackerPointReturn::setPadding(int _padding)
-	{
-        padding = _padding;
-    }
-    
-    int QuadTrackerPointReturn::getPadding()
-	{
-        return padding;
-    }
-    
-    void QuadTrackerPointReturn::setLocX(double _locX)
-	{
-        locX = _locX;
-    }
-    
-    double QuadTrackerPointReturn::getLocX()
-	{
-        return locX;
-    }
-    
-    void QuadTrackerPointReturn::setLocY(double _locY)
-	{
-        locY = _locY;
-    }
-    
-    double QuadTrackerPointReturn::getLocY()
-	{
-        return locY;
-    }
-    
-    void QuadTrackerPointReturn::setTileU(double _tileU)
-	{
-        tileU = _tileU;
-    }
-    
-    double QuadTrackerPointReturn::getTileU()
-	{
-        return tileU;
-    }
-    
-    void QuadTrackerPointReturn::setTileV(double _tileV)
-	{
-        tileV = _tileV;
-    }
-    
-    double QuadTrackerPointReturn::getTileV()
-	{
-        return tileV;
-    }
-    
-    
-    TileWrapper::TileWrapper()
-	{
-    }
-    
-    TileWrapper::TileWrapper(MaplyTileID _tileID)
-	{
-        tileID = _tileID;
-    }
-    
-    QuadTracker::QuadTracker(WhirlyGlobe::GlobeView *viewC)
-    {
-        theView = viewC;
-        pthread_mutex_init(&tilesLock, NULL);
+QuadTrackerPointReturn::QuadTrackerPointReturn(int numPts,double *screenLocs,int *tileIDs,double *locs,double *tileLocs)
+    : numPts(numPts), screenLocs(screenLocs), tileIDs(tileIDs), coordLocs(locs), tileLocs(tileLocs)
+{
+}
 
-    }
+void QuadTrackerPointReturn::setScreenLoc(int which,double screenU,double screenV)
+{
+    if (which >= numPts)
+        return;
+    screenLocs[2*which] = screenU;
+    screenLocs[2*which+1] = screenV;
+}
     
-    QuadTracker::~QuadTracker()
-	{
-        pthread_mutex_destroy(&tilesLock);
-    }
+void QuadTrackerPointReturn::getScreenLoc(int which,double &u,double &v)
+{
+    if (which >= numPts)
+        return;
+    u = screenLocs[2*which];
+    v = screenLocs[2*which+1];
+}
     
-    void QuadTracker::addTile(MaplyTileID tileID)
-	{
-        pthread_mutex_lock(&tilesLock);
-        
-        TileWrapper tile(tileID);
-        if (tileSet.find(tile) == tileSet.end())
-            tileSet.insert(tile);
-        
-        pthread_mutex_unlock(&tilesLock);
-    }
+void QuadTrackerPointReturn::setTileID(int which,int x,int y,int level)
+{
+    if (which >= numPts)
+        return;
+    tileIDs[3*which] = x;
+    tileIDs[3*which+1] = y;
+    tileIDs[3*which+2] = level;
+}
     
-    void QuadTracker::removeTile(MaplyTileID tileID)
-	{
-        pthread_mutex_lock(&tilesLock);
-        
-        TileWrapper tile(tileID);
-		auto it = tileSet.find(tile);
-        if (it != tileSet.end())
-            tileSet.erase(it);
-        
-        pthread_mutex_unlock(&tilesLock);
-    }
+void QuadTrackerPointReturn::setCoordLoc(int which,double locX,double locY)
+{
+    if (which >= numPts)
+        return;
+    coordLocs[2*which] = locX;
+    coordLocs[2*which+1] = locY;
+}
     
-    void QuadTracker::tiles(WhirlyKit::QuadTrackerPointReturn *tilesInfo, int numPts)
-	{
-        if (!coordSys)
-            return;
-        
-        WHIRLYKIT_LOGV("Tiles start");
+void QuadTrackerPointReturn::setTileLoc(int which,double tileLocX,double tileLocY)
+{
+    if (which >= numPts)
+        return;
+    tileLocs[2*which] = tileLocX;
+    tileLocs[2*which+1] = tileLocY;
+}
 
-        Point2d frameSize(renderer->framebufferWidth, renderer->framebufferHeight);
 
-        pthread_mutex_lock(&tilesLock);
+TileWrapper::TileWrapper()
+{
+}
 
+TileWrapper::TileWrapper(const Quadtree::Identifier &tileID)
+    : tileID(tileID)
+{
+}
+
+QuadTracker::QuadTracker(WhirlyGlobe::GlobeView *globeView,SceneRendererES *renderer,CoordSystemDisplayAdapter *adapter)
+    : globeView(globeView), renderer(renderer), coordAdapter(adapter)
+{
+    pthread_mutex_init(&tilesLock, NULL);
+
+}
+
+QuadTracker::~QuadTracker()
+{
+    pthread_mutex_destroy(&tilesLock);
+}
+
+void QuadTracker::addTile(const Quadtree::Identifier &tileID)
+{
+    pthread_mutex_lock(&tilesLock);
+    
+    TileWrapper tile(tileID);
+    if (tileSet.find(tile) == tileSet.end())
+        tileSet.insert(tile);
+    
+    pthread_mutex_unlock(&tilesLock);
+}
+
+void QuadTracker::removeTile(const Quadtree::Identifier &tileID)
+{
+    pthread_mutex_lock(&tilesLock);
+    
+    TileWrapper tile(tileID);
+    auto it = tileSet.find(tile);
+    if (it != tileSet.end())
+        tileSet.erase(it);
+    
+    pthread_mutex_unlock(&tilesLock);
+}
+
+void QuadTracker::tiles(WhirlyKit::QuadTrackerPointReturn *trackInfo, int numPts)
+{
+    if (!coordSys)
+        return;
+    
+    WHIRLYKIT_LOGV("Tiles start");
+
+    Point2d frameSize(renderer->framebufferWidth, renderer->framebufferHeight);
+
+    pthread_mutex_lock(&tilesLock);
+
+    Point3d hit;
+
+    Eigen::Matrix4d modelTrans = globeView->calcFullMatrix();
+    Eigen::Matrix4d invModelMat = modelTrans.inverse();
+    Point3d eyePt(0,0,0);
+    Eigen::Vector4d modelEye = invModelMat * Eigen::Vector4d(eyePt.x(), eyePt.y(), eyePt.z(), 1.0);
+
+    double mbrSpanX = ur.x() - ll.x();
+    double mbrSpanY = ur.y() - ll.y();
+    
+    Point2d ll_int, ur_int;
+    double near, far;
+    
+    globeView->calcFrustumWidth(frameSize.x(), frameSize.y(), ll_int, ur_int, near, far);
+    
+    //Work through the points to test
+    for (unsigned int ii= 0; ii< numPts; ii++) {
+        double u,v;
+        trackInfo->getScreenLoc(ii,u,v);
+        v = 1.0 - v;
+        
+        //Now come up with a point in 3 space between ll and ur
+        
+        Point3d viewPlaneLoc(u *(ur_int.x()-ll_int.x()) + ll_int.x(), v * (ur_int.y() - ll_int.y()) + ll_int.y(), -near);
+        
+        //Run the screen point and the eye point (origin) back through the model matrixto get a direction and origin in model space
+        Eigen::Vector4d modelScreenPt = invModelMat * Eigen::Vector4d(viewPlaneLoc.x(), viewPlaneLoc.y(), viewPlaneLoc.z(), 1.0);
+        
+        //Now intersect the with a unit sphere to see where we hit
+        
+        Eigen::Vector4d dir4 = modelScreenPt - modelEye;
+        Eigen::Vector3d dir(dir4.x(), dir4.y(), dir4.z());
         Point3d hit;
-
-        Eigen::Matrix4d modelTrans = theView->calcFullMatrix();
-        Eigen::Matrix4d invModelMat = modelTrans.inverse();
-        Point3d eyePt(0,0,0);
-        Eigen::Vector4d modelEye = invModelMat * Eigen::Vector4d(eyePt.x(), eyePt.y(), eyePt.z(), 1.0);
-
-        double mbrSpanX = ur.x() - ll.x();
-        double mbrSpanY = ur.y() - ll.y();
+        double t;
         
-        Point2d ll_int, ur_int;
-        double near, far;
-        
-        theView->calcFrustumWidth(frameSize.x(), frameSize.y(), ll_int, ur_int, near, far);
-        
-        //Work through the points to test
-        for (unsigned int ii= 0; ii< numPts; ii++) {
+        if (IntersectUnitSphere(Eigen::Vector3d(modelEye.x(), modelEye.y(), modelEye.z()), dir, hit, &t) && t>0.0) {
+            Point3d localPt = globeView->coordAdapter->displayToLocal(hit);
+            //This point is in local (tile) system
+            Point3d coordPt = CoordSystemConvert3d(globeView->coordAdapter->getCoordSystem(), coordSys, localPt);
             
-            QuadTrackerPointReturn *trackInfo = &tilesInfo[ii];
+            trackInfo->setCoordLoc(ii, coordPt.x(), coordPt.y());
             
-            double u = trackInfo->getScreenU();
-            double v = 1.0 - trackInfo->getScreenV();
+            //Clip to the overal bounds
+            double tileU = (coordPt.x()-ll_int.x())/mbrSpanX;
+            double tileV = (coordPt.y()-ll_int.y())/mbrSpanY;
+            tileU = std::max(std::min(tileU, 1.0),0.0);
+            tileV = std::max(std::min(tileV, 1.0),0.0);
+            trackInfo->setTileLoc(ii, tileU, tileV);
             
-            //Now come up with a point in 3 space between ll and ur
-            
-            Point3d viewPlaneLoc(u *(ur_int.x()-ll_int.x()) + ll_int.x(), v * (ur_int.y() - ll_int.y()) + ll_int.y(), -near);
-            
-            //Run the screen point and the eye point (origin) back through the model matrixto get a direction and origin in model space
-            Eigen::Vector4d modelScreenPt = invModelMat * Eigen::Vector4d(viewPlaneLoc.x(), viewPlaneLoc.y(), viewPlaneLoc.z(), 1.0);
-            
-            //Now intersect the with a unit sphere to see where we hit
-            
-            Eigen::Vector4d dir4 = modelScreenPt - modelEye;
-            Eigen::Vector3d dir(dir4.x(), dir4.y(), dir4.z());
-            Point3d hit;
-            double t;
-            
-            if (IntersectUnitSphere(Eigen::Vector3d(modelEye.x(), modelEye.y(), modelEye.z()), dir, hit, &t) && t>0.0) {
-                Point3d localPt = theView->coordAdapter->displayToLocal(hit);
-                //This point is in local (tile) system
-                Point3d coordPt = CoordSystemConvert3d(theView->coordAdapter->getCoordSystem(), coordSys, localPt);
+            //Dive down looking for the highest resolution tile avaliable
+            Quadtree::Identifier tileID;
+            tileID.level = 0;
+            tileID.x = 0;
+            tileID.y = 0;
+            for (;;) {
+                Quadtree::Identifier nextTile;
+                nextTile.level = tileID.level+1;
+                int childY = (tileU < 0.5) ? 0 : 1;
+                int childX = (tileV < 0.5) ? 0 : 1;
+                nextTile.x = 2 * tileID.x + childX;
+                nextTile.y = 2 * tileID.y + childY;
                 
-                trackInfo->setLocX(coordPt.x());
-                trackInfo->setLocY(coordPt.y());
-                
-                //Clip to the overal bounds
-                trackInfo->setTileU((coordPt.x()-ll_int.x())/mbrSpanX);
-                trackInfo->setTileV((coordPt.y()-ll_int.y())/mbrSpanY);
-                trackInfo->setTileU(std::min(trackInfo->getTileU(), 1.0));
-                trackInfo->setTileU(std::max(trackInfo->getTileU(), 0.0));
-                trackInfo->setTileV(std::min(trackInfo->getTileV(), 1.0));
-                trackInfo->setTileV(std::max(trackInfo->getTileV(), 0.0));
-                
-                //Dive down looking for the highest resolution tile avaliable
-                
-                MaplyTileID tileID = trackInfo->getMaplyTileID();
-                tileID.level = 0;
-                tileID.x = 0;
-                tileID.y = 0;
-                trackInfo->setMaplyTileID(tileID);
-                for (;;) {
-                    MaplyTileID nextTile;
-                    nextTile.level = trackInfo->getMaplyTileID().level+1;
-                    int childY = (trackInfo->getTileU() < 0.5) ? 0 : 1;
-                    int childX = (trackInfo->getTileV() < 0.5) ? 0 : 1;
-                    nextTile.x = 2 * trackInfo->getMaplyTileID().x + childX;
-                    nextTile.y = 2 * trackInfo->getMaplyTileID().y + childY;
-                    
-                    //See if this tile is here
-                    
-                    TileWrapper testTile(nextTile);
-                    if (trackInfo->getMaplyTileID().level >= minLevel && tileSet.find(testTile) == tileSet.end())
-                        break;
-                    trackInfo->setMaplyTileID(nextTile);
-                    trackInfo->setTileU(2.0*trackInfo->getTileU() - childX*1.0);
-                    trackInfo->setTileV(2.0*trackInfo->getTileV() - childY*1.0);
-                }
-            } else {
-                MaplyTileID tileID = trackInfo->getMaplyTileID();
-                tileID.level = -1;
-                trackInfo->setMaplyTileID(tileID);
+                //See if this tile is here
+                TileWrapper testTile(nextTile);
+                if (tileID.level >= minLevel && tileSet.find(testTile) == tileSet.end())
+                    break;
+                tileID = nextTile;
+                tileU = 2.0*tileU - childX*1.0;
+                tileV = 2.0*tileV - childY*1.0;
             }
+            trackInfo->setTileID(ii,tileID.x,tileID.y,tileID.level);
+        } else {
+            Quadtree::Identifier tileID;
+            tileID.x = 0; tileID.y = 0;  tileID.level = -1;
+            trackInfo->setTileID(ii,tileID.x,tileID.y,tileID.level);
         }
-        WHIRLYKIT_LOGV("tiles finished");
-        for (unsigned int ii= 0; ii< numPts; ii++) {
-            
-            QuadTrackerPointReturn *trackInfo = &tilesInfo[ii];
-            WHIRLYKIT_LOGV("Value %i: X: %d Y: %d Level: %d", ii, trackInfo->getMaplyTileID().x, trackInfo->getMaplyTileID().y, trackInfo->getMaplyTileID().level);
-        }
+    }
+    WHIRLYKIT_LOGV("tiles finished");
+    for (unsigned int ii= 0; ii< numPts; ii++) {
         
-        pthread_mutex_unlock(&tilesLock);
+//        QuadTrackerPointReturn *trackInfo = &tilesInfo[ii];
+//        WHIRLYKIT_LOGV("Value %i: X: %d Y: %d Level: %d", ii, trackInfo->getMaplyTileID().x, trackInfo->getMaplyTileID().y, trackInfo->getMaplyTileID().level);
     }
     
-    void QuadTracker::setCoordSys(WhirlyKit::CoordSystem *_coordSys, Point2d _ll, Point2d _ur)
-    {
-        coordSys = _coordSys;
-        ll = _ll;
-        ur = _ur;
-    }
-    
-    void QuadTracker::setMinLevel(int _minLevel)
-    {
-        minLevel = _minLevel;
-    }
-    
-    int QuadTracker::getMinLevel()
-    {
-        return minLevel;
-    }
-    
-    void QuadTracker::setAdapter(WhirlyKit::CoordSystemDisplayAdapter *adapter)
-    {
-        coordAdapter = adapter;
-        
-    }
-    
-    void QuadTracker::setRenderer(WhirlyKit::SceneRendererES *_renderer)
-    {
-        renderer = _renderer;
-    }
+    pthread_mutex_unlock(&tilesLock);
+}
+
+void QuadTracker::setCoordSys(WhirlyKit::CoordSystem *_coordSys, Point2d _ll, Point2d _ur)
+{
+    coordSys = _coordSys;
+    ll = _ll;
+    ur = _ur;
+}
+
+void QuadTracker::setMinLevel(int _minLevel)
+{
+    minLevel = _minLevel;
+}
+
+int QuadTracker::getMinLevel()
+{
+    return minLevel;
+}
     
 }
 

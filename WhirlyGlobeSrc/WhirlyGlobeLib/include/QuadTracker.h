@@ -17,68 +17,64 @@
  *  limitations under the License.
  *
  */
-#import "WhirlyGlobe.h"
 #import <set>
 #import <Eigen/Eigen>
+#import "Quadtree.h"
+#import "GlobeView.h"
+#import "SceneRendererES.h"
 
 using namespace Eigen;
 
 namespace WhirlyKit
 {
-
-struct MaplyTileID {
-    int x, y, level;
-};
     
-struct MaplyBoundingBox {
-    Point2f ll;
-    Point2f ur;
-};
-    
-//Return data for one or more points
-class QuadTrackerPointReturn {
-    
+/** @brief Return data for one or more point queries.
+    @details You'll pass in an array of these to tiles:forScreenPts:numPts:
+ */
+class QuadTrackerPointReturn
+{
 public:
-    QuadTrackerPointReturn();
+    /// @brief Construct with the data arrays we'll neeed
+    /// @details Construct with the data arrays.  The class won't delete them.
+    QuadTrackerPointReturn(int numPts,double *screenLocs,int *tileIDs,double *locs,double *tileLocs);
     
-    void setScreenV(double _screenV);
-    double getScreenV();
-    void setScreenU(double _screenU);
-    double getScreenU();
-    void setMaplyTileID(MaplyTileID _maplyTileID);
-    MaplyTileID getMaplyTileID();
-    void setPadding(int _padding);
-    int getPadding();
-    void setLocX(double locX);
-    double getLocX();
-    void setLocY(double locY);
-    double getLocY();
-    void setTileU(double tileU);
-    double getTileU();
-    void setTileV(double tileV);
-    double getTileV();
+    /// @brief Location on screen scaled between (0,1)
+    void setScreenLoc(int which,double screenU,double screenV);
+    
+    /// @brief Get the screen location for a sample
+    void getScreenLoc(int which,double &u,double &v);
+
+    /// @brief The tile the corresponding point belonged to.  Level set to -1 if invalid.
+    void setTileID(int which,int x,int y,int level);
+    
+    /// @brief Location in coordinate system
+    void setCoordLoc(int which,double locX,double locY);
+    
+    /// @brief Location within tile (scaled from 0-1)
+    void setTileLoc(int which,double tileLocX,double tileLocY);
     
 private:
-    //Location on screen scaled between (0,1)
-    double screenU, screenV;
-    // The tile the corresponding point belonged to. Level set to -1 if invalid
-    MaplyTileID tileID;
+    int numPts;
     
-    //Required to make C/C++ bridge happy
-    int padding;
+    // Screen location (U,V) - 2 doubles per
+    double *screenLocs;
+
+    // Tile IDs - 3 ints per
+    int *tileIDs;
+
+    // Location in coordinate system (X,Y) - 2 doubles per
+    double *coordLocs;
     
-    //Location in coordinate system
-    double locX, locY;
-    //Location within tile (scaled from 0-1)
-    double tileU, tileV;
+    // Location within tile (X,Y) - 2 doubles per
+    double *tileLocs;
 };
     
-    
-class TileWrapper {
-  
+/// Used in the quad tracker
+class TileWrapper
+{
 public:
     TileWrapper();
-    TileWrapper(MaplyTileID _tileID);
+    TileWrapper(const Quadtree::Identifier &tileID);
     
     bool operator < (const TileWrapper &that) const
     {
@@ -91,33 +87,50 @@ public:
         }
         return tileID.level < that.tileID.level;
     }
-    MaplyTileID tileID;
+    Quadtree::Identifier tileID;
 };
-   
     
 /** @brief The quad tracker keeps track of quad tree nodes.
     @details This object tracks quad tree nodes as they're added to and removed from an internal quad tree that tracks them by screen importance.*/
-    
-class QuadTracker {
-    
+class QuadTracker
+{
 public:
-    QuadTracker(WhirlyGlobe::GlobeView *viewC);
+    /** @brief Construct with a globe view.
+      */
+    QuadTracker(WhirlyGlobe::GlobeView *globeView,SceneRendererES *renderer,CoordSystemDisplayAdapter *adapter);
     ~QuadTracker();
-    void tiles(QuadTrackerPointReturn * tilesInfo, int numPts);
-    void addTile(MaplyTileID tileID);
-    void removeTile(MaplyTileID tileID);
+
+    /** @brief Query the quad tracker for tiles and locations within them for a group of points.
+     @details This is a bulk query for points within the tiles being tracked.
+     @param tilesInfo This is both an input and output parameter.  Fill in the screenU and screenV values and you'll get back tileID and tileU and tileV.  tileID.level will be -1 if there was no hit for that point.
+     @param numPts The number of points in the tilesInfo array.
+     */
+    void tiles(QuadTrackerPointReturn *tilesInfo, int numPts);
     
+    /** @brief Add a tile to track.
+     */
+    void addTile(const Quadtree::Identifier &tileID);
+    
+    /** @brief Remove a tile from tracking
+     */
+    void removeTile(const Quadtree::Identifier &tileID);
+    
+    /** @brief Set the coordinate system and extents to cover.
+      */
     void setCoordSys(CoordSystem *_coordSys, Point2d _ll, Point2d _ur);
+
+    /** @brief Set the minimum zoom level
+      */
     void setMinLevel(int _minLevel);
+
+    /// @brief Return the min zoom level
     int getMinLevel();
-    void setAdapter(CoordSystemDisplayAdapter *adapter);
-    void setRenderer(SceneRendererES *_renderer);
     
 private:
     CoordSystem *coordSys;
     pthread_mutex_t tilesLock;
     int minLevel;
-    WhirlyGlobe::GlobeView *theView;
+    WhirlyGlobe::GlobeView *globeView;
     CoordSystemDisplayAdapter *coordAdapter;
     SceneRendererES *renderer;
     std::set<TileWrapper> tileSet;

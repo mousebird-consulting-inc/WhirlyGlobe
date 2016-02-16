@@ -134,3 +134,15 @@ JavaFloatArray::~JavaFloatArray()
 {
     env->ReleaseFloatArrayElements(array,rawFloat, 0);
 }
+
+JavaDoubleArray::JavaDoubleArray(JNIEnv *env,jdoubleArray &array)
+: array(array), env(env)
+{
+    rawDouble = env->GetDoubleArrayElements(array, NULL);
+    len = env->GetArrayLength(array);
+}
+
+JavaDoubleArray::~JavaDoubleArray()
+{
+    env->ReleaseDoubleArrayElements(array,rawDouble, 0);
+}

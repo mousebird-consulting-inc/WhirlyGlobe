@@ -25,34 +25,29 @@
 
 using namespace WhirlyKit;
 
+
+MaplySceneRenderer::MaplySceneRenderer()
+:context(0)
+{
+    extraFrameMode = true;
+}
+
+// Called when the window changes size (or on startup)
+bool MaplySceneRenderer::resize(int width,int height)
+{
+    context = eglGetCurrentContext();
+    
+    framebufferWidth = width;
+    framebufferHeight = height;
+    lastDraw = 0;
+    forceRenderSetup();
+    
+    return true;
+}
+
 // There are callbacks deep within the renderer.
 // Some of those need to call out to
 JNIEnv *maplyCurrentEnv = NULL;
-
-class MaplySceneRenderer : public SceneRendererES2
-{
-public:
-	MaplySceneRenderer()
-		:context(0)
-	{
-        extraFrameMode = true;
-	}
-
-	// Called when the window changes size (or on startup)
-	bool resize(int width,int height)
-	{
-		context = eglGetCurrentContext();
-
-		framebufferWidth = width;
-		framebufferHeight = height;
-		lastDraw = 0;
-		forceRenderSetup();
-
-		return true;
-	}
-
-	EGLContext context;
-};
 
 static bool glSetup = false;
 
