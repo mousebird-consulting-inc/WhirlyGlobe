@@ -41,29 +41,45 @@ import java.util.List;
  *
  */
 public class MapController extends MaplyBaseController implements View.OnTouchListener
-{	
+{
+	public MapController(Activity mainActivity,CoordSystem coordSys,Point3d displayCenter)
+	{
+		super(mainActivity);
+
+		Mbr mbr = coordSys.getBounds();
+		double scaleFactor = 1.0;
+		if (mbr != null) {
+			// May need to scale this to the space we're expecting
+			if (Math.abs(mbr.ur.getX() - mbr.ll.getX()) > 10.0 || Math.abs(mbr.ur.getY() - mbr.ll.getY()) > 10.0) {
+				scaleFactor = 4.0 / Math.max (mbr.ur.getX() - mbr.ll.getX(), mbr.ur.getY() - mbr.ll.getY());
+			}
+		}
+		Point3d center;
+		if (displayCenter != null)
+			center = displayCenter;
+		else
+			center = new Point3d(0,0,0);
+		GeneralDisplayAdapter genCoordAdapter = new GeneralDisplayAdapter(coordSys,coordSys.ll,coordSys.ur,center,new Point3d(scaleFactor,scaleFactor,1.0));
+
+		setupTheRest(genCoordAdapter);
+
+		// Set up the bounds
+		Point3d ll = new Point3d(),ur = new Point3d();
+		coordAdapter.getBounds(ll,ur);
+		setViewExtents(new Point2d(ll.getX(),ll.getY()),new Point2d(ur.getX(),ur.getY()));
+	}
+
+	/**
+	 * Initialize a new map controller with the standard (spherical mercator)
+	 * coordinate system.
+	 *
+     */
 	public MapController(Activity mainActivity)
 	{
 		super(mainActivity);
 
-		// Need a coordinate system to display conversion
-		// For now this just sets up spherical mercator
-		coordAdapter = new CoordSystemDisplayAdapter(new SphericalMercatorCoordSystem());
+		setupTheRest(new CoordSystemDisplayAdapter(new SphericalMercatorCoordSystem()));
 
-		// Create the scene and map view 
-		mapScene = new MapScene(coordAdapter);
-		scene = mapScene;
-		mapView = new MapView(coordAdapter);		
-		view = mapView;
-		
-		super.Init();
-		
-		if (glSurfaceView != null)
-		{
-			glSurfaceView.setOnTouchListener(this);
-			gestureHandler = new MapGestureHandler(this,glSurfaceView);
-		}
-		
 		// Set up the bounds
 		Point3d ll = new Point3d(),ur = new Point3d();
 		coordAdapter.getBounds(ll,ur);
@@ -71,6 +87,25 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		ll.setValue(Float.MAX_VALUE, ll.getY(), ll.getZ());
 		ur.setValue(-Float.MAX_VALUE, ur.getY(), ur.getZ());
 		setViewExtents(new Point2d(ll.getX(),ll.getY()),new Point2d(ur.getX(),ur.getY()));
+	}
+
+	protected void setupTheRest(CoordSystemDisplayAdapter inCoordAdapter)
+	{
+		coordAdapter = inCoordAdapter;
+
+		// Create the scene and map view
+		mapScene = new MapScene(coordAdapter);
+		scene = mapScene;
+		mapView = new MapView(coordAdapter);
+		view = mapView;
+
+		super.Init();
+
+		if (glSurfaceView != null)
+		{
+			glSurfaceView.setOnTouchListener(this);
+			gestureHandler = new MapGestureHandler(this,glSurfaceView);
+		}
 	}
 	
 	@Override public void shutdown()

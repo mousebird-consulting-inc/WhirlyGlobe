@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.ActionMenuItemView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 
 		setContentView(R.layout.activity_main);
 		ButterKnife.inject(this);
+
+		// Force a load of the library
+		System.loadLibrary("Maply");
 
 		//Create toolbar
 		configureToolbar();

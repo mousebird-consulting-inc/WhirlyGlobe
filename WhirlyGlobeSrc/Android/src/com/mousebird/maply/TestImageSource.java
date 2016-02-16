@@ -39,6 +39,7 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 	int minZoom = 0;
 	int maxZoom = 16;
 	int pixelsPerSide = 256;
+	public int alpha = 255;
 	Looper mainLooper = null;
 	
 	public TestImageSource(Looper inMainLooper,int inMinZoom,int inMaxZoom)
@@ -101,7 +102,7 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 	        int red = (((hexColor) >> 16) & 0xFF);
 	        int green = (((hexColor) >> 8) & 0xFF);
 	        int blue = (((hexColor) >> 0) & 0xFF);
-			p2.setARGB(255, red, green, blue);
+			p2.setARGB(alpha, red, green, blue);
 			c.drawRect(0, 0, sizeX, sizeY, p2);
 			Paint p3 = new Paint();
 			p3.setStyle(Paint.Style.STROKE);

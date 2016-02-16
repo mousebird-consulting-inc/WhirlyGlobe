@@ -57,13 +57,13 @@ public class CustomBNGTileSource extends MaplyTestCase
     }
 
     // Put together a British National Grid system
-    CoordSystem makeBNGCoordSystem(boolean displayVersion)
+    static public CoordSystem MakeBNGCoordSystem(Activity activity,boolean displayVersion)
     {
         // Set up the proj4 string including the local grid file
         String outFileName = null;
         try {
-            InputStream inStr = getActivity().getResources().getAssets().open("OSTN02_NTv2.gsb");
-            File outFile = new File(getActivity().getCacheDir(), "OSTN02_NTv2.gsb");
+            InputStream inStr = activity.getResources().getAssets().open("OSTN02_NTv2.gsb");
+            File outFile = new File(activity.getCacheDir(), "OSTN02_NTv2.gsb");
             outFileName = outFile.getAbsolutePath();
         }
         catch (Exception e)
@@ -83,11 +83,12 @@ public class CustomBNGTileSource extends MaplyTestCase
         // Now expand it out so we can see the whole of the UK
         if (displayVersion)
         {
+            // Note: There may be a center/offset problem with the bounds.  Made them bigger to compensate
             double spanX = bbox.ur.getX() - bbox.ll.getX();
-            double spanY = bbox.ur.getY() - bbox.ur.getY();
-            double extra = 1.0;
-            bbox.ll.addTo(new Point2d(-extra*spanX,-extra*spanY));
-            bbox.ur.addTo(new Point2d(extra*spanX,extra*spanY));
+            double spanY = bbox.ur.getY() - bbox.ll.getY();
+            double extra = 1.5;
+            bbox.addPoint(new Point2d(-extra*spanX,-extra*spanY));
+            bbox.addPoint(new Point2d(extra*spanX,extra*spanY));
         }
 
         coordSys.setBounds(bbox);
@@ -97,7 +98,7 @@ public class CustomBNGTileSource extends MaplyTestCase
 
     public QuadImageTileLayer makeTestLayer(MaplyBaseController viewC)
     {
-        CoordSystem bngCoordSystem = makeBNGCoordSystem(false);
+        CoordSystem bngCoordSystem = MakeBNGCoordSystem(getActivity(),false);
 
         TestImageSource tileSource = new TestImageSource(Looper.getMainLooper(),0,14);
 

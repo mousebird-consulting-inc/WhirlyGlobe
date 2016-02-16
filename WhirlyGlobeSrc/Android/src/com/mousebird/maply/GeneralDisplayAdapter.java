@@ -5,8 +5,14 @@ package com.mousebird.maply;
  */
 public class GeneralDisplayAdapter extends CoordSystemDisplayAdapter
 {
-    public GeneralDisplayAdapter(CoordSystem coordSys,Point3d ll,Point3d ur,Point3d center,Point3d scale)
+    // Needed by the JNI side
+    protected GeneralDisplayAdapter()
     {
+    }
+
+    public GeneralDisplayAdapter(CoordSystem inCoordSys,Point3d ll,Point3d ur,Point3d center,Point3d scale)
+    {
+        coordSys = inCoordSys;
         initialise(coordSys,ll,ur,center,scale);
     }
 
