@@ -21,3 +21,15 @@ WhirlyGlobeSrc/MaplyAndroidTester/gdb_jniLibs
 WhirlyGlobeSrc/Android/bin
 lint.xml
 #*#
+WhirlyGlobeSrc/MaplyAndroidTester/app/src/main/jniLibs
+build_aar.sh
+*.h#
+*.java#
+local.properties
+WhirlyGlobeSrc/AutoTesterAndroid/app/src/main/jniLibs
+WhirlyGlobeSrc/AutoTesterAndroid/gdb_jniLibs
+gradlew
+gradlew.bat
+WhirlyGlobeSrc/MaplyAndroidTester/app/libs
+gradle-wrapper.jar
+gradle-wrapper.properties

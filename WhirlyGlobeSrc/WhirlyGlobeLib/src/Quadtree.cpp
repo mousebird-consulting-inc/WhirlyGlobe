@@ -18,6 +18,7 @@
  *
  */
 
+#import "glwrapper.h"
 #import "Quadtree.h"
 
 namespace WhirlyKit
@@ -153,12 +154,21 @@ bool Quadtree::Node::parentLoading()
 void Quadtree::Node::Print()
 {
     // Note: Porting
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Node (%d,%d,%d)",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level);
+    if (parent)
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply"," Parent = (%d,%d,%d)",parent->nodeInfo.ident.x,parent->nodeInfo.ident.y,parent->nodeInfo.ident.level);
+    for (unsigned int ii=0;ii<4;ii++)
+        if (children[ii])
+            __android_log_print(ANDROID_LOG_VERBOSE, "Maply","  Child = (%d,%d,%d)",children[ii]->nodeInfo.ident.x,children[ii]->nodeInfo.ident.y,children[ii]->nodeInfo.ident.level);
+#else
 //    NSLog(@"Node (%d,%d,%d)",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level);
 //    if (parent)
 //        NSLog(@" Parent = (%d,%d,%d)",parent->nodeInfo.ident.x,parent->nodeInfo.ident.y,parent->nodeInfo.ident.level);
 //    for (unsigned int ii=0;ii<4;ii++)
 //        if (children[ii])
 //            NSLog(@"  Child = (%d,%d,%d)",children[ii]->nodeInfo.ident.x,children[ii]->nodeInfo.ident.y,children[ii]->nodeInfo.ident.level);
+#endif
 }
 
 Quadtree::Quadtree(Mbr mbr,int minLevel,int maxLevel,int maxNodes,float minImportance,QuadTreeImportanceCalculator *importDelegate)

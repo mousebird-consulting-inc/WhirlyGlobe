@@ -33,6 +33,7 @@ class ImageWrapper : public LoadedImage
 {
 public:
 	ImageWrapper(RawDataRef rawData,int width,int height);
+    ImageWrapper();
 
 	// Construct the texture
 	// Note: Need to handle borderSize
@@ -50,6 +51,7 @@ public:
     /// Return image height
     virtual int getHeight();
 
+    bool placeholder;
     int width,height;
     RawDataRef rawData;
 };

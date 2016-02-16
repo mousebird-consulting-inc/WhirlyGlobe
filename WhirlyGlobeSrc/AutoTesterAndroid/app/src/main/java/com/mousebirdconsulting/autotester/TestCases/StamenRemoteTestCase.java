@@ -3,12 +3,12 @@ package com.mousebirdconsulting.autotester.TestCases;
 import android.app.Activity;
 
 import com.mousebird.maply.GlobeController;
+import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.QuadImageTileLayer;
 import com.mousebird.maply.RemoteTileInfo;
 import com.mousebird.maply.RemoteTileSource;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
-import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 import java.io.File;
@@ -20,11 +20,10 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		super(activity);
 
 		setTestName("Stamen Remote Test");
-		setSelected(ConfigOptions.getSelectedTest(activity, getTestName()));
-		setDelay(2);
+		setDelay(20);
 	}
 
-	private QuadImageTileLayer setupImageLayer(MaplyBaseController baseController) throws Exception {
+	private QuadImageTileLayer setupImageLayer(MaplyBaseController baseController) {
 
 		String cacheDirName = "stamen_watercolor";
 		File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);
@@ -46,6 +45,14 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 	public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
 		globeVC.addLayer(setupImageLayer(globeVC));
 		globeVC.animatePositionGeo(-3.6704803, 40.5023056, 5, 1.0);
+		return true;
+	}
+
+	@Override
+	public boolean setUpWithMap(MapController mapVC)
+	{
+		mapVC.addLayer(setupImageLayer(mapVC));
+		mapVC.animatePositionGeo(-3.6704803, 40.5023056, 5, 1.0);
 		return true;
 	}
 }

@@ -52,6 +52,8 @@ public:
     /// The text we want to see
 //    NSString *text;
     std::string text;
+    // Sometimes rather than strings, we pass around the code points
+    std::vector<int> codePoints;
     
     /// A geolocation for the middle, left or right of the label
     ///  depending on the justification

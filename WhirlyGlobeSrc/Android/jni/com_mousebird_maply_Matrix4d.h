@@ -41,6 +41,14 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_inverse
 
 /*
  * Class:     com_mousebird_maply_Matrix4d
+ * Method:    transpose
+ * Signature: ()Lcom/mousebird/maply/Matrix4d;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_transpose
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_Matrix4d
  * Method:    multiply
  * Signature: (Lcom/mousebird/maply/Point4d;)Lcom/mousebird/maply/Point4d;
  */

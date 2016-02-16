@@ -43,6 +43,8 @@ public class GlobeGestureHandler
 	GestureDetector gd = null;
 	GestureListener gl = null;
 	View view = null;
+	double zoomLimitMin = 0.0;
+	double zoomLimitMax = 1000.0;
 	public GlobeGestureHandler(GlobeController inControl,View inView)
 	{
 		globeControl = inControl;
@@ -53,6 +55,12 @@ public class GlobeGestureHandler
 		gl = new GestureListener(globeControl);
 		gd = new GestureDetector(view.getContext(),gl);
 		sl.gl = gl;		
+	}
+
+	public void setZoomLimits(double inMin,double inMax)
+	{
+		zoomLimitMin = inMin;
+		zoomLimitMax = inMax;
 	}
 	
 	/**
@@ -115,9 +123,12 @@ public class GlobeGestureHandler
 				Point3d pos = maplyControl.globeView.getLoc();
 				globeView.cancelAnimation();
 				Point3d newPos = new Point3d(pos.getX(),pos.getY(),startZ*scale);
-				if (withinBounds(globeView,maplyControl.renderWrapper.maplyRender.frameSize,newPos))
-					maplyControl.globeView.setLoc(newPos);
-				globeView.setHeight(newPos.getZ());
+				if (withinBounds(globeView,maplyControl.renderWrapper.maplyRender.frameSize,newPos)) {
+					double newZ = newPos.getZ();
+					newZ = Math.min(newZ,zoomLimitMax);
+					newZ = Math.max(newZ,zoomLimitMin);
+					maplyControl.globeView.setLoc(new Point3d(newPos.getX(),newPos.getY(),newZ));
+				}
 //				Log.d("Maply","Zoom: " + maplyControl.mapView.getLoc().getZ() + " Scale: " + scale);
 				return true;
 			}

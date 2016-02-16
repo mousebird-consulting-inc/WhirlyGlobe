@@ -29,7 +29,7 @@ DrawableString *SingleLabelAndroid::generateDrawableString(const LabelInfo *inLa
 {
 	FontTextureManagerAndroid *fontTexManager = (FontTextureManagerAndroid *)inFontTexManager;
 	const LabelInfoAndroid *labelInfo = (LabelInfoAndroid *)inLabelInfo;
-	return fontTexManager->addString(labelInfo->env,text,labelInfo->labelInfoObj,changes);
+	return fontTexManager->addString(labelInfo->env,codePoints,labelInfo->labelInfoObj,changes);
 }
 
 }

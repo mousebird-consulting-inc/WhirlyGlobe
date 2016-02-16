@@ -47,9 +47,6 @@ public class ScreenLabel
 	 * The text to display for the label.
 	 */
 	public String text;
-		
-	// Importance value for the layout engine
-	public float layoutImportance = Float.MAX_VALUE;
 
 	/**
 	 * If non-null an offset to tweak the label by.  We'll move the label

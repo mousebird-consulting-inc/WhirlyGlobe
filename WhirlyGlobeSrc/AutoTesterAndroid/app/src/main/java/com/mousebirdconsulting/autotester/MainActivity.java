@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.ActionMenuItemView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,7 +34,6 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 	private ViewTestFragment viewTest;
 
 	private boolean executing = false;
-	private boolean cancelled;
 
 	private ArrayList<MaplyTestResult> testResults;
 
@@ -45,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 
 		setContentView(R.layout.activity_main);
 		ButterKnife.inject(this);
+
+		// Force a load of the library
+		System.loadLibrary("Maply");
 
 		//Create toolbar
 		configureToolbar();
@@ -83,7 +84,6 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.menu_main, menu);
 		selectFragment(this.testList);
 		return true;
 	}
@@ -96,13 +96,6 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 		int id = item.getItemId();
 
 		switch (id) {
-			case R.id.playTests:
-				if (!executing) {
-					this.runTests();
-				} else {
-					this.stopTests();
-				}
-				break;
 			case android.R.id.home:
 				if (!executing) {
 					drawerLayout.openDrawer(GravityCompat.START);
@@ -121,110 +114,58 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 			.commit();
 	}
 
-	@Override
-	public void onItemClick(int itemId) {
-		switch (itemId) {
-			case R.id.selectAll:
-				testList.changeItemsState(true);
-				drawerLayout.closeDrawer(GravityCompat.START);
-				break;
-			case R.id.deselectAll:
-				testList.changeItemsState(false);
-				drawerLayout.closeDrawer(GravityCompat.START);
-				break;
-		}
-		navigationDrawer.setSelectedItemId(itemId);
-	}
-
-	private void runTests() {
-		ActionMenuItemView playButton = (ActionMenuItemView) findViewById(R.id.playTests);
-		playButton.setIcon(getResources().getDrawable(R.drawable.ic_stop_action));
+	public void prepareTest(){
 		getSupportActionBar().setTitle("Running tests...");
 		this.testResults.clear();
-		ArrayList<MaplyTestCase> tests = this.testList.getTests();
 		if (ConfigOptions.getViewSetting(this) == ConfigOptions.ViewMapOption.ViewMap) {
 			selectFragment(this.viewTest);
 		}
 		this.executing = true;
-		startTests(tests, 0);
 	}
 
-
-	private void startTests(final ArrayList<MaplyTestCase> tests, final int index) {
-		if (tests.size() != index) {
-			final MaplyTestCase head = tests.get(index);
-			if (head.isSelected()) {
-				head.setOptions(ConfigOptions.getTestType(this));
-				MaplyTestCase.MaplyTestCaseListener listener = new MaplyTestCase.MaplyTestCaseListener() {
-					@Override
-					public void onFinish(MaplyTestResult resultMap, MaplyTestResult resultGlobe) {
-						if (MainActivity.this.cancelled) {
-							MainActivity.this.finishTests();
-						} else {
-							if (resultMap != null) {
-								MainActivity.this.testResults.add(resultMap);
-							}
-							if (resultGlobe != null) {
-								MainActivity.this.testResults.add(resultGlobe);
-							}
-							if (ConfigOptions.getViewSetting(MainActivity.this) == ConfigOptions.ViewMapOption.None) {
-								head.setIcon(R.drawable.ic_action_selectall);
-								MainActivity.this.testList.notifyIconChanged(index);
-							}
-							MainActivity.this.startTests(tests, index + 1);
-						}
-					}
-
-					@Override
-					public void onExecute(View view) {
-						if (ConfigOptions.getViewSetting(MainActivity.this) == ConfigOptions.ViewMapOption.ViewMap) {
-							viewTest = new ViewTestFragment();
-							viewTest.changeViewFragment(view);
-							selectFragment(viewTest);
-						}
-					}
-				};
-				head.setListener(listener);
-				head.setActivity(this);
-				if (ConfigOptions.getViewSetting(this) == ConfigOptions.ViewMapOption.None) {
-					head.setIcon(R.drawable.ic_options_action);
-					this.testList.notifyIconChanged(index);
+	public void runTest(MaplyTestCase testCase) {
+		testCase.setOptions(ConfigOptions.getTestType(this));
+		MaplyTestCase.MaplyTestCaseListener listener = new MaplyTestCase.MaplyTestCaseListener() {
+			@Override
+			public void onFinish(MaplyTestResult resultMap, MaplyTestResult resultGlobe) {
+				if (resultMap != null) {
+					MainActivity.this.testResults.add(resultMap);
 				}
-				head.execute();
-			} else {
-				startTests(tests, index + 1);
+				if (resultGlobe != null) {
+					MainActivity.this.testResults.add(resultGlobe);
+				}
+				finalizeTest();
 			}
-		} else {
-			finishTests();
-		}
+
+			@Override
+			public void onExecute(View view) {
+				if (ConfigOptions.getViewSetting(MainActivity.this) == ConfigOptions.ViewMapOption.ViewMap) {
+					viewTest = new ViewTestFragment();
+					viewTest.changeViewFragment(view);
+					selectFragment(viewTest);
+				}
+			}
+		};
+		testCase.setListener(listener);
+		testCase.execute();
 	}
 
-	private void finishTests() {
-		ActionMenuItemView playButton = (ActionMenuItemView) findViewById(R.id.playTests);
-		playButton.setIcon(getResources().getDrawable(R.drawable.ic_play_action));
+	private void finalizeTest() {
 		getSupportActionBar().setTitle(R.string.app_name);
 		executing = false;
-		this.viewTest = new ViewTestFragment();
-		if (!cancelled) {
-			Intent intent = new Intent(this, ResultActivity.class);
-			Bundle bundle = new Bundle();
-			bundle.putSerializable("arraylist", this.testResults);
-			intent.putExtras(bundle);
-			startActivity(intent);
-		} else {
-			cancelled = false;
-			this.testList = new TestListFragment();
-			selectFragment(this.testList);
-		}
-	}
-
-	private void stopTests() {
-		getSupportActionBar().setTitle("Cancelling...");
-		cancelled = true;
+		Intent intent = new Intent(this, ResultActivity.class);
+		Bundle bundle = new Bundle();
+		bundle.putSerializable("arraylist", this.testResults);
+		intent.putExtras(bundle);
+		startActivity(intent);
 	}
 
 	public boolean isExecuting() {
 		return executing;
 	}
 
+	@Override
+	public void onItemClick(int itemId) {
+		navigationDrawer.setSelectedItemId(itemId);
+	}
 }

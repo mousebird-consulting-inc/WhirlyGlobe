@@ -39,6 +39,7 @@ template<> QuaternionClassInfo *QuaternionClassInfo::classInfoObj = NULL;
 template<> AngleAxisClassInfo *AngleAxisClassInfo::classInfoObj = NULL;
 template<> CoordSystemDisplayAdapterInfo *CoordSystemDisplayAdapterInfo::classInfoObj = NULL;
 template<> FakeGeocentricDisplayAdapterInfo *FakeGeocentricDisplayAdapterInfo::classInfoObj = NULL;
+template<> GeneralDisplayAdapterInfo *GeneralDisplayAdapterInfo::classInfoObj = NULL;
 template<> MaplySceneRendererInfo *MaplySceneRendererInfo::classInfoObj = NULL;
 template<> MapSceneClassInfo *MapSceneClassInfo::classInfoObj = NULL;
 template<> GlobeSceneClassInfo *GlobeSceneClassInfo::classInfoObj = NULL;

@@ -22,16 +22,15 @@ package com.mousebirdconsulting.autotester.TestCases;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Handler;
 import android.util.Log;
 
 import com.mousebird.maply.ComponentObject;
-import com.mousebird.maply.CoordSystem;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LayerThread;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.MaplyTileID;
+import com.mousebird.maply.Mbr;
 import com.mousebird.maply.ParticleBatch;
 import com.mousebird.maply.ParticleSystem;
 import com.mousebird.maply.ParticleSystemAttribute;
@@ -160,11 +159,8 @@ public class QuadParticleSystemTestCase extends MaplyTestCase {
             tileTrack = new QuadTracker(viewC);
 
             tileTrack.setMinLevel(minZoom);
-            Point2d ll = new Point2d();
-            Point2d ur = new Point2d();
-            ll.setValue(coordSys.ll.getX(), coordSys.ll.getY());
-            ur.setValue(coordSys.ur.getX(), coordSys.ur.getY());
-            tileTrack.setCoordSystem(coordSys, ll, ur);
+            Mbr mbr = coordSys.getBounds();
+            tileTrack.setCoordSystem(coordSys, mbr.ll, mbr.ur);
 
             this.locs = null;
             this.dirs = null;

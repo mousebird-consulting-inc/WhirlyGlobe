@@ -46,5 +46,4 @@ public class SphericalMercatorCoordSystem extends CoordSystem
 	}
 	private static native void nativeInit();
 	native void initialise();
-	private long nativeHandle;
 }

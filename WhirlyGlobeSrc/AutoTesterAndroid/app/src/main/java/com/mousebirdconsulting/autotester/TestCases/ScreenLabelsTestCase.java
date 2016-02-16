@@ -1,15 +1,18 @@
 package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
+import android.graphics.Color;
+import android.graphics.Typeface;
 
+import com.mousebird.maply.AttrDictionary;
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LabelInfo;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.Point2d;
 import com.mousebird.maply.ScreenLabel;
 import com.mousebird.maply.VectorObject;
-import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 import java.util.ArrayList;
@@ -22,7 +25,6 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 	public ScreenLabelsTestCase(Activity activity) {
 		super(activity);
 		this.setTestName("Screen Labels Test");
-		this.setSelected(ConfigOptions.getSelectedTest(activity, getTestName()));
 	}
 
 	@Override
@@ -44,19 +46,43 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 	}
 
 	private void insertLabels(ArrayList<VectorObject> objects, MaplyBaseController baseVC) {
-		for (VectorObject object : objects) {
-			String labelName = object.getAttributes().getString("ADMIN");
-			if (labelName != null && labelName.length() > 0) {
-				ScreenLabel label = new ScreenLabel();
-				label.text = labelName;
-				label.loc = object.centroid();
 
-				LabelInfo labelInfo = new LabelInfo();
-				ComponentObject comp = baseVC.addScreenLabel(label, labelInfo, MaplyBaseController.ThreadMode.ThreadAny);
-				if (comp != null) {
-					componentObjects.add(comp);
+		LabelInfo labelInfo = new LabelInfo();
+		labelInfo.setFontSize(64.f);
+		labelInfo.setTextcolor(Color.WHITE);
+		labelInfo.setTypeface(Typeface.DEFAULT);
+		labelInfo.setLayoutImportance(1.f);
+		labelInfo.setMinVis(0.f);
+		labelInfo.setMaxVis(1.f);
+
+		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
+
+//		for (int ii=0;ii<100;ii++) {
+			for (VectorObject object : objects) {
+				AttrDictionary attrs = object.getAttributes();
+				if (attrs != null) {
+					String labelName = attrs.getString("ADMIN");
+					if (labelName != null && labelName.length() > 0) {
+						ScreenLabel label = new ScreenLabel();
+						label.text = labelName;
+						label.loc = object.centroid();
+						labels.add(label);
+					}
 				}
 			}
+//		}
+
+		// Toss in one with an explicit accent
+		ScreenLabel label = new ScreenLabel();
+		label.text = "Bogotá";
+		label.loc = Point2d.FromDegrees(-74.075833, 4.598056);
+		// Move this by a ridiculous amount so we can find it
+		label.offset = new Point2d(-200,0.0);
+		labels.add(label);
+
+		ComponentObject comp = baseVC.addScreenLabels(labels, labelInfo, MaplyBaseController.ThreadMode.ThreadAny);
+		if (comp != null) {
+			componentObjects.add(comp);
 		}
 	}
 

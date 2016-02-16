@@ -56,6 +56,9 @@ public:
     /// This just gets converted to model and projection matrix parameters
     void setWindow(const WhirlyKit::Point2d &ll,const WhirlyKit::Point2d &ur);
     
+    /// Screen size in display coordinates
+    WhirlyKit::Point2d screenSizeInDisplayCoords(WhirlyKit::Point2f &frameSize);
+    
 protected:
     /// Window into the content
     WhirlyKit::Point2d ll,ur;

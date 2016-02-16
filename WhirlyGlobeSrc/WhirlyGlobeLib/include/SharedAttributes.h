@@ -129,6 +129,50 @@
 #define MaplyVecCenterX WKString("veccenterx")
 #define MaplyVecCenterY WKString("veccentery")
 
+/// For wide vectors, we can widen them in screen space or display space
+#define MaplyWideVecCoordType WKString("wideveccoordtype")
+
+/// Widened vectors are widened in real space.  The width is in meters.
+#define MaplyWideVecCoordTypeReal WKString("real")
+/// Widened vectors are widened in screen space.  The width is in pixels.
+#define MaplyWideVecCoordTypeScreen WKString("screen")
+
+/// For wide vectors we can control the line joins
+/// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty
+#define MaplyWideVecJoinType WKString("wideveclinejointype")
+
+/// Widened vectors are joined with miters
+#define MaplyWideVecMiterJoin WKString("miter")
+// Note: Not yet implemented
+/// Widened vectors are joined with a curve
+//#define kMaplyWideVecRoundJoin @"round"
+/// Widened vectors are joined with a bevel
+#define MaplyWideVecBevelJoin WKString("bevel")
+
+/// Number of pixels to use in blending the edges of the wide vectors
+#define MaplyWideVecEdgeFalloff WKString("edgefalloff")
+
+/// For wide vectors we can control the ends
+/// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
+//#define kMaplyWideVecLineCapType @"wideveclinecaptype"
+
+// Note: These are not currently implemented
+
+/// Widened vector ends are flush
+//#define kMaplyWideVecButtCap @"butt"
+/// Widened vector ends are round (e.g. hot dog roads)
+//#define kMaplyWideVecRoundCap @"round"
+/// Widened vector ends are extended a bit and then flush
+//#define kMaplyWideVecSquareCap @"square"
+
+/// Miter joins will turn to bevel joins past this number of degrees
+#define MaplyWideVecMiterLimit WKString("miterLimit")
+
+/// This is the length you'd like the texture to start repeating after.
+/// It's real world coordinates for kMaplyWideVecCoordTypeReal and pixel size for kMaplyWideVecCoordTypeScreen
+#define MaplyWideVecTexRepeatLen WKString("repeatSize")
+
+
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 #define MaplySubdivEpsilon WKString("subdivisionepsilon")
 /// If subdiv epsilon is set we'll look for a subdivision type. Default is simple.

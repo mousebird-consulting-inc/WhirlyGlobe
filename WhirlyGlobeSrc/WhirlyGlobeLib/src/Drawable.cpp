@@ -399,6 +399,8 @@ void VertexAttribute::reserve(int size)
             ints->reserve(size);
         }
             break;
+        case BDDataTypeMax:
+            break;
     }
 }
 
@@ -445,6 +447,9 @@ int VertexAttribute::numElements() const
             std::vector<int> *ints = (std::vector<int> *)data;
             return ints->size();
         }
+        case BDDataTypeMax:
+            return 0;
+            break;
     }
 }
 
@@ -471,6 +476,9 @@ int VertexAttribute::size() const
         case BDIntType:
             return sizeof(GLint);
             break;
+        case BDDataTypeMax:
+            return 0;
+            break;
     }
 }
     
@@ -495,6 +503,9 @@ int SingleVertexAttributeInfo::size() const
             break;
         case BDIntType:
             return sizeof(GLint);
+            break;
+        case BDDataTypeMax:
+            return 0;
             break;
     }
 }
@@ -542,6 +553,8 @@ void VertexAttribute::clear()
                 delete ints;
             }
                 break;
+            case BDDataTypeMax:
+                break;
         }
     }
     data = NULL;    
@@ -588,6 +601,9 @@ void *VertexAttribute::addressForElement(int which)
             return &(*ints)[which];
         }
             break;
+        case BDDataTypeMax:
+            return NULL;
+            break;
     }
     
     return NULL;
@@ -615,6 +631,9 @@ GLuint VertexAttribute::glEntryComponents() const
             break;
         case BDIntType:
             return 1;
+            break;
+        case BDDataTypeMax:
+            return 0;
             break;
     }
     
@@ -644,6 +663,8 @@ GLuint SingleVertexAttributeInfo::glEntryComponents() const
         case BDIntType:
             return 1;
             break;
+        case BDDataTypeMax:
+            break;
     }
     
     return 0;
@@ -664,6 +685,9 @@ GLenum VertexAttribute::glType() const
             return GL_UNSIGNED_BYTE;
             break;
         case BDIntType:
+            return GL_INT;
+            break;
+        case BDDataTypeMax:
             return GL_INT;
             break;
     }
@@ -687,6 +711,9 @@ GLenum SingleVertexAttributeInfo::glType() const
         case BDIntType:
             return GL_INT;
             break;
+        case BDDataTypeMax:
+            return GL_INT;
+            break;
     }
     return GL_UNSIGNED_BYTE;
 }
@@ -706,6 +733,9 @@ GLboolean VertexAttribute::glNormalize() const
         case BDChar4Type:
             return GL_TRUE;
             break;
+        case BDDataTypeMax:
+            return GL_FALSE;
+            break;
     }
 }
     
@@ -723,6 +753,9 @@ GLboolean SingleVertexAttributeInfo::glNormalize() const
             break;
         case BDChar4Type:
             return GL_TRUE;
+            break;
+        case BDDataTypeMax:
+            return GL_FALSE;
             break;
     }
 }
@@ -748,6 +781,8 @@ void VertexAttribute::glSetDefault(int index) const
             break;
         case BDIntType:
             glVertexAttrib1f(index, defaultData.intVal);
+            break;
+        case BDDataTypeMax:
             break;
     }
 }

@@ -89,6 +89,7 @@ public:
         startFetchJava = env->GetMethodID(theClass,"startFetch","(IIII)V");
         scheduleEvalStepJava = env->GetMethodID(theClass,"scheduleEvalStep","()V");
         imageRenderCallbackJava = env->GetMethodID(theClass,"imageRenderCallback","(JDDIII)V");
+        env->DeleteLocalRef(theClass);
     }
     
     void clearJavaRefs()
@@ -165,7 +166,8 @@ public:
     /// Return the minimum quad tree zoom level (usually 0)
     virtual int getMinZoom()
     {
-        return minZoom;
+        // We fake anything below this
+        return 0;
     }
     
     /// Return the maximum quad tree zoom level.  Must be at least minZoom
@@ -372,7 +374,13 @@ public:
             ImageWrapper tileWrapper(imgData,width,height);
             tileLoader->loadedImage(this, &tileWrapper, level, col, row, frame, changes);
         } else {
-            tileLoader->loadedImage(this, NULL, level, col, row, frame, changes);
+            if (level < minZoom)
+            {
+                // This is meant to be a placeholder
+                ImageWrapper placeholder;
+                tileLoader->loadedImage(this, &placeholder, level, col, row, frame, changes);
+            } else
+                tileLoader->loadedImage(this, NULL, level, col, row, frame, changes);
         }
     }
     

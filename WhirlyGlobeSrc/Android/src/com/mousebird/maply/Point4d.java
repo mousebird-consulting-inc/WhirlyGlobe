@@ -65,7 +65,17 @@ public class Point4d
 	{
 		dispose();
 	}
-	
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (!(obj instanceof Point4d))
+			return false;
+		Point4d that = (Point4d) obj;
+
+		return getX() == that.getX() && getY() == that.getY() && getZ() == that.getZ() && getW() == that.getW();
+	}
+
 	public String toString()
 	{
 		return "(" + getX() + "," + getY() + "," + getZ() + getW() + ")";

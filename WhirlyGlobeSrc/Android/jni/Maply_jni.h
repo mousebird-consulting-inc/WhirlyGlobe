@@ -148,6 +148,7 @@ private:
 		integerClass = (jclass)env->NewGlobalRef(intLocalClass);
 	    integerClassInitID = env->GetMethodID(integerClass, "<init>", "(I)V");
 	    integerGetID = env->GetMethodID(integerClass,"intValue","()I");
+        env->DeleteLocalRef(intLocalClass);
 	}
 
 public:
@@ -188,6 +189,7 @@ private:
 	    jclass doubleLocalClass = env->FindClass("java/lang/Double");
 	    doubleClass = (jclass)env->NewGlobalRef(doubleLocalClass);
 	    doubleClassInitID = env->GetMethodID(doubleClass, "<init>", "(D)V");
+        env->DeleteLocalRef(doubleLocalClass);
 	}
 
 public:
@@ -223,6 +225,7 @@ private:
 		mapClass = (jclass)env->NewGlobalRef(localMapClass);
 		mapInitMethodID = env->GetMethodID(mapClass, "<init>", "(I)V");
 		putMethodID = env->GetMethodID(mapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+        env->DeleteLocalRef(localMapClass);
 	}
 
 public:
@@ -265,6 +268,8 @@ private:
 		literMethodID = env->GetMethodID(listClass,"iterator","()Ljava/util/Iterator;");
 		hasNextID = env->GetMethodID(iterClass,"hasNext","()Z");
 		nextID = env->GetMethodID(iterClass,"next","()Ljava/lang/Object;");
+        env->DeleteLocalRef(localIterClass);
+        env->DeleteLocalRef(localListClass);
 	}
 
 public:
@@ -389,6 +394,7 @@ typedef JavaClassInfo<Eigen::Quaterniond> QuaternionClassInfo;
 typedef JavaClassInfo<Eigen::AngleAxisd> AngleAxisClassInfo;
 typedef JavaClassInfo<WhirlyKit::CoordSystemDisplayAdapter> CoordSystemDisplayAdapterInfo;
 typedef JavaClassInfo<WhirlyKit::FakeGeocentricDisplayAdapter> FakeGeocentricDisplayAdapterInfo;
+typedef JavaClassInfo<WhirlyKit::GeneralCoordSystemDisplayAdapter> GeneralDisplayAdapterInfo;
 class MaplySceneRenderer;
 typedef JavaClassInfo<MaplySceneRenderer> MaplySceneRendererInfo;
 typedef JavaClassInfo<Maply::MapScene> MapSceneClassInfo;
