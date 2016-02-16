@@ -15,10 +15,10 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.MainActivity;
 import com.mousebirdconsulting.autotester.R;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
+import com.mousebirdconsulting.autotester.TestCases.CartoDBDarkTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGCoordAdapter;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
 import com.mousebirdconsulting.autotester.TestCases.GestureFeedbackTestCase;
-import com.mousebirdconsulting.autotester.TestCases.MapBoxSatelliteTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
@@ -71,7 +71,7 @@ public class TestListFragment extends Fragment {
 		TestListAdapter() {
 			testCases = new ArrayList<>();
 			testCases.add(new StamenRemoteTestCase(getActivity()));
-			testCases.add(new MapBoxSatelliteTestCase(getActivity()));
+			testCases.add(new CartoDBDarkTestCase(getActivity()));
 			testCases.add(new AnimatedBaseMapTestCase(getActivity()));
 			testCases.add(new VectorsTestCase(getActivity()));
 			testCases.add(new ScreenLabelsTestCase(getActivity()));

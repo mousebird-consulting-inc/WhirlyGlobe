@@ -21,7 +21,7 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 	public AnimatedBaseMapTestCase(Activity activity) {
 		super(activity);
 		setTestName("Animated BaseMap Test");
-		setDelay(2);
+		setDelay(20);
 	}
 
 	private QuadImageTileLayer setupImageLayer(MaplyBaseController baseController, ConfigOptions.TestType testType) throws Exception {
@@ -56,7 +56,7 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 
 	@Override
 	public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-		MapBoxSatelliteTestCase mapBoxSatelliteTestCase = new MapBoxSatelliteTestCase(this.getActivity());
+		CartoDBDarkTestCase mapBoxSatelliteTestCase = new CartoDBDarkTestCase(this.getActivity());
 		mapBoxSatelliteTestCase.setUpWithGlobe(globeVC);
 		globeVC.addLayer(setupImageLayer(globeVC, ConfigOptions.TestType.GlobeTest));
 		return true;
@@ -64,7 +64,7 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 
 	@Override
 	public boolean setUpWithMap(MapController mapVC) throws Exception {
-		MapBoxSatelliteTestCase mapBoxSatelliteTestCase = new MapBoxSatelliteTestCase(this.getActivity());
+		CartoDBDarkTestCase mapBoxSatelliteTestCase = new CartoDBDarkTestCase(this.getActivity());
 		mapBoxSatelliteTestCase.setUpWithMap(mapVC);
 		mapVC.addLayer(setupImageLayer(mapVC, ConfigOptions.TestType.MapTest));
 		return true;

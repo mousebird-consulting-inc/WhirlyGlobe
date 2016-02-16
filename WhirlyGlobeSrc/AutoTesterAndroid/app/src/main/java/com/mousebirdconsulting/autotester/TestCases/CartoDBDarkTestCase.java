@@ -17,26 +17,23 @@ import java.io.File;
 /**
  * Created by jmnavarro on 27/12/15.
  */
-public class MapBoxSatelliteTestCase extends MaplyTestCase {
+public class CartoDBDarkTestCase extends MaplyTestCase {
 
-	public MapBoxSatelliteTestCase(Activity activity) {
+	public CartoDBDarkTestCase(Activity activity) {
 		super(activity);
 
-		setTestName("MapBox Satellite Test");
-		setDelay(2);
+		setTestName("CartoDB Dark Matter Test");
+		setDelay(20);
 	}
 
 	private QuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) throws Exception {
-		String cacheDirName = "mapbox_satellite";
+		String cacheDirName = "cartodb_dark";
 		File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);
 		cacheDir.mkdir();
-		RemoteTileSource remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2/", "png", 0, 22));
+		RemoteTileSource remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://dark_all.basemaps.cartocdn.com/dark_all/", "png", 0, 22));
 		remoteTileSource.setCacheDir(cacheDir);
 		SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
 		QuadImageTileLayer baseLayer = new QuadImageTileLayer(baseController, coordSystem, remoteTileSource);
-		baseLayer.setSimultaneousFetches(1);
-		baseLayer.setImageDepth(1);
-		baseLayer.setMaxTiles(256);
 
 		baseLayer.setSingleLevelLoading(testType == ConfigOptions.TestType.MapTest);
 		baseLayer.setUseTargetZoomLevel(testType == ConfigOptions.TestType.MapTest);

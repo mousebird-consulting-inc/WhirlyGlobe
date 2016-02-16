@@ -860,7 +860,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setFrameLoadi
 		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
 		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-		if (!adapter || !changeSet)
+		if (!adapter || !frameLoadingArr || !changeSet)
 			return;
 		adapter->framePriorities.clear();
 

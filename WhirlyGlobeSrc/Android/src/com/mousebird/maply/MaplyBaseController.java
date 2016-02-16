@@ -278,12 +278,13 @@ public class MaplyBaseController
 		baseLayerThread.addLayer(layoutLayer);
 		
 		// Run any outstanding runnables
-		for (Runnable run: surfaceTasks)
-		{
-			Handler handler = new Handler(activity.getMainLooper());
-			handler.post(run);
+		if (surfaceTasks != null) {
+			for (Runnable run : surfaceTasks) {
+				Handler handler = new Handler(activity.getMainLooper());
+				handler.post(run);
+			}
+			surfaceTasks = null;
 		}
-		surfaceTasks = null;
 
     	glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     	// Note: 3fps
