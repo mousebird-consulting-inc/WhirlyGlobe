@@ -19,6 +19,8 @@
  */
 package com.mousebird.maply;
 
+import android.graphics.Color;
+
 /**
  * The Vector Info class holds visual information related to groups of vectors.
  * For efficiency's sake we put visual info in this class, rather than on
@@ -29,12 +31,21 @@ package com.mousebird.maply;
 public class VectorInfo extends BaseInfo
 {
 	/**
+	 * Default draw priority for vector features.
+	 */
+	static int VectorPriorityDefault = 50000;
+
+	/**
 	 * Construct the vector info empty with default values.  At the very least
 	 * a vector will be white and visible all the time.
 	 */
 	public VectorInfo()
 	{
 		initialise();
+		setFilled(false);
+		setColor(1.f,1.f,1.f,1.f);
+		setLineWidth(1.f);
+		setDrawPriority(VectorPriorityDefault);
 	}
 	
 	public void finalize()
@@ -52,7 +63,16 @@ public class VectorInfo extends BaseInfo
 //	public native void setTexScale(float s,float t);
 //	public native void subdivEps(float eps);
 //	public native void setGridSubdiv(boolean gridSubdiv);
-	
+
+	/**
+	 * Set the color used by the geometry.
+	 * @param color Color in Android format, including alpha.
+     */
+	public void setColor(int color)
+	{
+		setColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+	}
+
 	/**
 	 * Set the color used by the geometry.  Color values range from 0 to 1.0.
 	 * You must specify all four values.  Alpha controls transparency.

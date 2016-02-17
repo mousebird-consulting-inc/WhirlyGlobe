@@ -43,7 +43,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 LabelInfo::LabelInfo(const Dictionary &dict)
     : BaseInfo(dict), textColor(255,255,255,255), outlineColor(0,0,0,0), backColor(0,0,0,0), screenObject(true), layoutEngine(true),
     layoutImportance(1.0), width(0), height(0), justify(WhirlyKitLabelRight),
-    shadowColor(0,0,0,0), shadowSize(0), outlineSize(0)
+    shadowColor(0,0,0,0), shadowSize(0), outlineSize(0), layoutPlacement(-1)
 {
     textColor = dict.getColor(MaplyTextColor, RGBAColor(255,255,255,255));
     backColor = dict.getColor(MaplyBackgroundColor, RGBAColor(0,0,0,0));
@@ -241,7 +241,9 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                 if (layoutEngine)
                 {
                     float layoutImportance = label->desc.getDouble("layoutImportance",labelInfo->layoutImportance);
-                    int layoutPlacement = label->desc.getInt("layoutPlacement",(int)(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow));
+                    int layoutPlacement = labelInfo->layoutPlacement;
+                    if (label->desc.hasField("layoutPlacement"))
+                        layoutPlacement = label->desc.getInt("layoutPlacement",(int)(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow));
                     
                     // Put together the layout info
 //                    layoutObject->hint = label->text;

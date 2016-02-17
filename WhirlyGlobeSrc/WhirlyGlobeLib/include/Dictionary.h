@@ -30,6 +30,7 @@ namespace WhirlyKit
 /// Data types in dictionary
 typedef enum {DictTypeNone,DictTypeString,DictTypeInt,DictTypeDouble,DictTypeObject} DictionaryType;
 
+// Note: Need to add 64 bit SimpleIdentity
 /// The Dictionary is my cross platform replacement for NSDictionary
 class Dictionary
 {

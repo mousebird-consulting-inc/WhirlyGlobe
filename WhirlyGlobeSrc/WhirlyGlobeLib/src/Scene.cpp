@@ -31,6 +31,7 @@
 #import "MarkerManager.h"
 #import "LabelManager.h"
 #import "VectorManager.h"
+#import "WideVectorManager.h"
 #import "SphericalEarthChunkManager.h"
 //#import "LoftManager.h"
 //#import "ParticleSystemManager.h"
@@ -78,6 +79,8 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     addManager(kWKLabelManager, new LabelManager());
     // Vector manager handes vector features
     addManager(kWKVectorManager, new VectorManager());
+    // Vector manager handes vector features
+    addManager(kWKWideVectorManager, new WideVectorManager());
     // Chunk manager handles geographic chunks that cover a large chunk of the globe
     addManager(kWKSphericalChunkManager, new SphericalChunkManager());
 //    // Loft manager handles lofted polygon geometry

@@ -11,14 +11,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.MainActivity;
 import com.mousebirdconsulting.autotester.R;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
+import com.mousebirdconsulting.autotester.TestCases.CartoDBDarkTestCase;
+import com.mousebirdconsulting.autotester.TestCases.CustomBNGCoordAdapter;
+import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
+import com.mousebirdconsulting.autotester.TestCases.GestureFeedbackTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ParticleSystemTestCase;
-import com.mousebirdconsulting.autotester.TestCases.MapBoxSatelliteTestCase;
-import com.mousebirdconsulting.autotester.TestCases.QuadParticleSystemTestCase;
+import com.mousebirdconsulting.autotester.TestCases.ComplexParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.SimpleParticleSystemTestCase;
@@ -55,10 +57,6 @@ public class TestListFragment extends Fragment {
 		return new LinearLayoutManager(getActivity().getApplicationContext());
 	}
 
-	public void changeItemsState(boolean selected) {
-		adapter.changeItemsState(selected);
-	}
-
 	public void notifyIconChanged(int index) {
 		this.adapter.notifyItemChanged(index);
 	}
@@ -74,16 +72,19 @@ public class TestListFragment extends Fragment {
 		TestListAdapter() {
 			testCases = new ArrayList<>();
 			testCases.add(new StamenRemoteTestCase(getActivity()));
-			testCases.add(new MapBoxSatelliteTestCase(getActivity()));
+			testCases.add(new CartoDBDarkTestCase(getActivity()));
 			testCases.add(new AnimatedBaseMapTestCase(getActivity()));
 			testCases.add(new VectorsTestCase(getActivity()));
 			testCases.add(new ScreenLabelsTestCase(getActivity()));
 			testCases.add(new ScreenMarkersTestCase(getActivity()));
 			testCases.add(new StickersTestCase(getActivity()));
+			testCases.add(new GestureFeedbackTestCase(getActivity()));
 			testCases.add(new SimpleParticleSystemTestCase(getActivity()));
 			testCases.add(new ParticleSystemTestCase(getActivity()));
 			testCases.add(new SimpleParticleSystemTestCase(getActivity()));
-			testCases.add(new QuadParticleSystemTestCase(getActivity()));
+			testCases.add(new ComplexParticleSystemTestCase(getActivity()));
+			testCases.add(new CustomBNGTileSource(getActivity()));
+			testCases.add(new CustomBNGCoordAdapter(getActivity()));
 		}
 
 		@Override
@@ -100,14 +101,6 @@ public class TestListFragment extends Fragment {
 		@Override
 		public int getItemCount() {
 			return testCases.size();
-		}
-
-		public void changeItemsState(boolean selected) {
-			for (MaplyTestCase testCase : testCases) {
-				testCase.setSelected(selected);
-				ConfigOptions.setSelectedTest(getContext(), testCase.getTestName(), selected);
-			}
-			notifyDataSetChanged();
 		}
 
 		public ArrayList<MaplyTestCase> getTestCases() {
@@ -128,7 +121,7 @@ public class TestListFragment extends Fragment {
 				self = itemView;
 			}
 
-			public void bindViewHolder(MaplyTestCase testCase) {
+			public void bindViewHolder(final MaplyTestCase testCase) {
 				this.testCase = testCase;
 				this.selected.setImageDrawable(getResources().getDrawable(testCase.getIcon()));
 				changeItemState(testCase.isSelected());
@@ -137,10 +130,10 @@ public class TestListFragment extends Fragment {
 				self.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						if (!((MainActivity) getActivity()).isExecuting()) {
-							TestViewHolder.this.testCase.setSelected(!TestViewHolder.this.testCase.isSelected());
-							TestViewHolder.this.changeItemState(TestViewHolder.this.testCase.isSelected());
-							ConfigOptions.setSelectedTest(getContext(), TestViewHolder.this.testCase.getTestName(), TestViewHolder.this.testCase.isSelected());
+						MainActivity activity = (MainActivity) getActivity();
+						if (!activity.isExecuting()) {
+							activity.prepareTest();
+							activity.runTest(testCase);
 						}
 					}
 				});

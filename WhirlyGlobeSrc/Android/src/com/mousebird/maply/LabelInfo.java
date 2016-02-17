@@ -20,6 +20,7 @@
 
 package com.mousebird.maply;
 
+import android.graphics.Color;
 import android.graphics.Typeface;
 
 /**
@@ -33,18 +34,36 @@ import android.graphics.Typeface;
  */
 public class LabelInfo extends BaseInfo
 {
+	/**
+	 * Default priority for labels.  Screen labels add a big offset to this.
+	 */
+	static int LabelPriorityDefault = 60000;
+
 	public LabelInfo()
 	{
 		initialise();
 		setTextColor(1.f,1.f,1.f,1.f);
 		setBackgroundColor(0.f,0.f,0.f,0.f);
+		setTypeface(Typeface.DEFAULT);
 		setFontSize(48.f);
 		setLayoutImportance(Float.MAX_VALUE);
+		setLayoutPlacement(LayoutRight | LayoutLeft | LayoutAbove | LayoutBelow);
+
+		setDrawPriority(LabelPriorityDefault);
 	}
 	
 	public void finalize()
 	{
 		dispose();
+	}
+
+	/**
+	 * Set the text color from a standard Android Color value.
+	 * @param color Color value, including alpha.
+     */
+	public void setTextcolor(int color)
+	{
+		setTextColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
 	}
 
 	/**
@@ -56,7 +75,16 @@ public class LabelInfo extends BaseInfo
 	 * @param a alpha
 	 */
 	public native void setTextColor(float r,float g,float b,float a);
-	
+
+	/**
+	 * Set the background color from a standard Android Color value.
+	 * @param color Color value, including alpha.
+	 */
+	public void setBackgroundColor(int color)
+	{
+		setBackgroundColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+	}
+
 	/**
 	 * Set the background color of text.  This is what appears in the rectangles behind the text.
 	 * Color components range from 0.0 to 1.0.
@@ -87,7 +115,23 @@ public class LabelInfo extends BaseInfo
 	 * the associated labels.
 	 */
 	public native void setLayoutImportance(float importance);
-	
+
+	// Importance value for the layout engine
+	public float layoutImportance = Float.MAX_VALUE;
+
+	static int LayoutNone = 1<<0;
+	static int LayoutCenter = 1<<1;
+	static int LayoutRight = 1<<2;
+	static int LayoutLeft = 1<<3;
+	static int LayoutAbove = 1<<4;
+	static int LayoutBelow = 1<<5;
+
+	/**
+	 * The layout placement controls where we can put the label relative to
+	 * its point.
+	 */
+	public native void setLayoutPlacement(int newPlacement);
+
 	/**
 	 * Return the typeface used for the labels.
 	 */

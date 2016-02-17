@@ -47,6 +47,7 @@ bool LabelInfoAndroid::typefaceIsSame(const jobject inTypeface) const
 	jclass typefaceClass = env->GetObjectClass(inTypeface);
 	jmethodID jmethodID = env->GetMethodID(typefaceClass, "equals", "(Ljava/lang/Object;)Z");
 	bool res = env->CallBooleanMethod(typefaceObj,jmethodID,inTypeface);
+    env->DeleteLocalRef(typefaceClass);
 
 	return res;
 }

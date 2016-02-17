@@ -63,15 +63,15 @@ public class MapGestureHandler
 	 * @param bounds Bounding box, probably from the maplyControl.
 	 * @return true if the new point is within the valid area.
 	 */
-	public static boolean withinBounds(MapView mapView,Point2d frameSize,Point3d newPos,Point2d[] bounds)
+	public static boolean withinBounds(MapView mapView,Point2d frameSize,Point3d newLocalPos,Point2d[] bounds)
 	{
 		if (bounds == null)
 			return true;
-		
+
 		// We make a copy of the map view so we can mess with it
 		// Note: This is horribly inefficient
 		MapView thisMapView = mapView.clone();
-		thisMapView.setLoc(newPos);
+		thisMapView.setLoc(newLocalPos);
 		
 	    Matrix4d fullMatrix = thisMapView.calcModelViewMatrix();
 
@@ -168,7 +168,7 @@ public class MapGestureHandler
 		}
 		
 		Point2d startScreenPos = null;
-		Point3d startPos = null;
+		Point3d startDisplayPos = null;
 		Point3d startOnPlane = null;
 		Matrix4d startTransform = null;
 		@Override
@@ -179,7 +179,7 @@ public class MapGestureHandler
 			// Starting state for pan
 			startScreenPos = new Point2d(e.getX(),e.getY());
 			startTransform = maplyControl.mapView.calcModelViewMatrix();
-			startPos = maplyControl.mapView.getLoc();
+			startDisplayPos = maplyControl.mapView.getCoordAdapter().localToDisplay(maplyControl.mapView.getLoc());
 			startOnPlane = maplyControl.mapView.pointOnPlaneFromScreen(startScreenPos, startTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
 			isActive = true;
 			return true;
@@ -198,14 +198,16 @@ public class MapGestureHandler
 			Point3d hit = maplyControl.mapView.pointOnPlaneFromScreen(newScreenPos, startTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
 			if (hit != null)
 			{
-				Point3d newPos = new Point3d(startOnPlane.getX()-hit.getX()+startPos.getX(),
-						startOnPlane.getY()-hit.getY()+startPos.getY(),
+				Point3d newPos = new Point3d(startOnPlane.getX()-hit.getX()+startDisplayPos.getX(),
+						startOnPlane.getY()-hit.getY()+startDisplayPos.getY(),
 						maplyControl.mapView.getLoc().getZ());
 				mapView.cancelAnimation();
 								
 				// If the point is within bounds, set it
-				if (withinBounds(mapView,maplyControl.renderWrapper.maplyRender.frameSize,newPos,maplyControl.viewBounds))
-					maplyControl.mapView.setLoc(newPos);
+				Point3d locPos = maplyControl.mapView.getCoordAdapter().displayToLocal(newPos);
+				if (withinBounds(mapView,maplyControl.renderWrapper.maplyRender.frameSize,locPos,maplyControl.viewBounds)) {
+					maplyControl.mapView.setLoc(locPos);
+				}
 				
 //				Log.d("Maply","New Pos = (" + newPos.getX() + "," + newPos.getY() + "," + newPos.getZ() + ")");
 			}
@@ -288,10 +290,11 @@ public class MapGestureHandler
 			Point2d touch = new Point2d(e.getX(),e.getY());
 			Matrix4d mapTransform = maplyControl.mapView.calcModelViewMatrix();
 			Point3d pt = mapView.pointOnPlaneFromScreen(touch, mapTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
+			Point3d locPt = mapView.getCoordAdapter().displayToLocal(pt);
 
 			// Zoom in where they tapped
 			Point3d loc = mapView.getLoc();
-			loc.setValue(pt.getX(), pt.getY(), loc.getZ()/2.0);
+			loc.setValue(locPt.getX(), locPt.getY(), loc.getZ()/2.0);
 			
 			// Now kick off the animation
 			mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, mapControl.renderWrapper.maplyRender, loc, (float) 0.1, maplyControl.viewBounds));

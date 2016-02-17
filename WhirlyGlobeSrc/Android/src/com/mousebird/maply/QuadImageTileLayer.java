@@ -22,8 +22,10 @@ package com.mousebird.maply;
 import java.util.ArrayList;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 /**
  * The quad image tiling layer manages a self contained basemap.  Basemaps are
@@ -124,7 +126,12 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		// Want an update no less often than this
 		// Note: What?
 		return 4.0f;
-	}	
+	}
+
+	boolean currentImageSetBeforeStart = false;
+	float currentImageValue;
+	int[] currentPriorities = null;
+
 
 	/**
 	 * Called by the layer thread.  Don't call this directly.
@@ -136,6 +143,16 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		Point2d ll = new Point2d(coordSys.ll.getX(),coordSys.ll.getY());
 		Point2d ur = new Point2d(coordSys.ur.getX(),coordSys.ur.getY());
 		nativeStartLayer(layerThread.scene,layerThread.renderer,ll,ur,tileSource.minZoom(),tileSource.maxZoom(),tileSource.pixelsPerSide());
+
+		if (currentImageSetBeforeStart)
+		{
+			ChangeSet changes = new ChangeSet();
+			setCurrentImage(currentImageValue, changes);
+
+			setFrameLoadingPriority(currentPriorities, changes);
+
+			changes.process(layerThread.scene);
+		}
 
         scheduleEvalStep();
 
@@ -269,7 +286,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	/* Called by the JNI side.  We need to start fetching
 	 * the given tile.
 	 */
-	void startFetch(int level,int x,int y,int frame)
+	void startFetch(int level,int x,int y,final int frame)
 	{
 		if (!valid)
 			return;
@@ -278,8 +295,21 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	    if (!flipY)
 	        y = (1<<level)-y-1;
 
-		MaplyTileID tileID = new MaplyTileID(x,y,level);
-		tileSource.startFetchForTile(this, tileID, frame);
+		final MaplyTileID tileID = new MaplyTileID(x,y,level);
+
+		// Fake loading for tiles less than the minZoom
+		if (level < tileSource.minZoom())
+		{
+			layerThread.addTask(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					loadedTile(tileID,frame,null);
+				}
+			},true);
+		} else
+			tileSource.startFetchForTile(this, tileID, frame);
 	}
 	
 	/*
@@ -367,18 +397,50 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	 * @return The current image index (or between) being displayed.
 	 */
 	public native float getCurrentImage();
+
+	int lastPriority = -1;
 	
 	/** Set the current image we're displaying.
       * This sets the current image being displayed, and interpolates between it and the next image.  If set to an integer value, you'll get just that image.  If set to a value between integers, you'll get a blend of the two.
       * This is incompatible with setting an animationPeriod.  Do just one or the other.
      */
-	public void setCurrentImage(final float current)
+	public void setCurrentImage(final float current,boolean updatePriorities)
 	{
+		int prior[] = null;
+		if (updatePriorities)
+		{
+			prior = new int[this.getImageDepth()];
+
+			int curPriority = (int)current;
+			if (curPriority != lastPriority) {
+				int start = curPriority;
+				prior[0] = start;
+				int where = 1;
+				for (int ii = 1; ii < prior.length; ii++) {
+					int up = start + ii;
+					int down = start - ii;
+					if (up < prior.length)
+						prior[where++] = up;
+					if (down >= 0)
+						prior[where++] = down;
+				}
+
+				lastPriority = curPriority;
+			}
+		}
+
         if (layerThread != null) {
             ChangeSet changes = new ChangeSet();
             setCurrentImage(current, changes);
-            changes.process(layerThread.scene);
-        }
+
+			setFrameLoadingPriority(prior, changes);
+
+			changes.process(layerThread.scene);
+        } else {
+			currentImageSetBeforeStart = true;
+			currentImageValue = current;
+			currentPriorities = prior;
+		}
 	}
 	
 	native void setCurrentImage(float current,ChangeSet changes);
@@ -466,6 +528,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 
 		@Override public boolean equals(Object thatObj)
 		{
+			if (thatObj == null)
+				return false;
+
 			FrameStatus that = (FrameStatus)thatObj;
 			if (currentFrame != that.currentFrame)
 				return false;
@@ -564,7 +629,16 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	}
 	
 	private native void getLoadedFrames(int numFrames,boolean[] complete,boolean[] currentFrame,int[] numTilesLoaded);
-	
+
+	/**
+	 * Set the Color for the tile geometry from a standard Android Color value.
+	 * @param color Color value, including alpha.
+	 */
+	public void setColor(int color)
+	{
+		setColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+	}
+
 	/** Color for the tile geometry.
      * The geometry we create for tiles has an RGBA color.  It's white/full alpha by default, but you can set it here.  You might want to do this if you'd like a semi-transparent layer, sort of a shader of course, where you can do whatever you like.
      */

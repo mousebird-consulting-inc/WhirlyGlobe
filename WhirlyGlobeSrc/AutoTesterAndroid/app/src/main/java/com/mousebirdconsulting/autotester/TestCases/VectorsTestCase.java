@@ -9,7 +9,6 @@ import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.VectorObject;
-import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 import org.apache.commons.io.IOUtils;
@@ -28,7 +27,6 @@ public class VectorsTestCase extends MaplyTestCase {
 		super(activity);
 
 		setTestName("Vectors Test");
-		setSelected(ConfigOptions.getSelectedTest(activity, getTestName()));
 	}
 
 	private void overlayCountries(MaplyBaseController baseVC) throws Exception {
@@ -54,6 +52,14 @@ public class VectorsTestCase extends MaplyTestCase {
 				}
 			}
 		}
+
+		// Build a really big vector for testing
+//		VectorObject bigVecObj = new VectorObject();
+//		Point2d pts[] = new Point2d[20000];
+//		for (int ii=0;ii<20000;ii++)
+//			pts[ii] = new Point2d(Math.random(), Math.random());
+//		bigVecObj.addAreal(pts);
+
 		// Add as red
 		ComponentObject compObj = baseVC.addVectors(vectors, vectorInfo, MaplyBaseController.ThreadMode.ThreadAny);
 		// Then change to green
@@ -66,7 +72,7 @@ public class VectorsTestCase extends MaplyTestCase {
 
 	@Override
 	public boolean setUpWithMap(MapController mapVC) throws Exception {
-		MapBoxSatelliteTestCase mapBoxSatelliteTestCase = new MapBoxSatelliteTestCase(getActivity());
+		CartoDBDarkTestCase mapBoxSatelliteTestCase = new CartoDBDarkTestCase(getActivity());
 		mapBoxSatelliteTestCase.setUpWithMap(mapVC);
 		overlayCountries(mapVC);
 		return true;
@@ -74,7 +80,7 @@ public class VectorsTestCase extends MaplyTestCase {
 
 	@Override
 	public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-		MapBoxSatelliteTestCase mapBoxSatelliteTestCase = new MapBoxSatelliteTestCase(getActivity());
+		CartoDBDarkTestCase mapBoxSatelliteTestCase = new CartoDBDarkTestCase(getActivity());
 		mapBoxSatelliteTestCase.setUpWithGlobe(globeVC);
 		overlayCountries(globeVC);
 		return true;

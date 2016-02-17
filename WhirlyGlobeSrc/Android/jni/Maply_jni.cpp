@@ -39,6 +39,7 @@ template<> QuaternionClassInfo *QuaternionClassInfo::classInfoObj = NULL;
 template<> AngleAxisClassInfo *AngleAxisClassInfo::classInfoObj = NULL;
 template<> CoordSystemDisplayAdapterInfo *CoordSystemDisplayAdapterInfo::classInfoObj = NULL;
 template<> FakeGeocentricDisplayAdapterInfo *FakeGeocentricDisplayAdapterInfo::classInfoObj = NULL;
+template<> GeneralDisplayAdapterInfo *GeneralDisplayAdapterInfo::classInfoObj = NULL;
 template<> MaplySceneRendererInfo *MaplySceneRendererInfo::classInfoObj = NULL;
 template<> MapSceneClassInfo *MapSceneClassInfo::classInfoObj = NULL;
 template<> GlobeSceneClassInfo *GlobeSceneClassInfo::classInfoObj = NULL;
@@ -132,4 +133,16 @@ JavaFloatArray::JavaFloatArray(JNIEnv *env,jfloatArray &array)
 JavaFloatArray::~JavaFloatArray()
 {
     env->ReleaseFloatArrayElements(array,rawFloat, 0);
+}
+
+JavaDoubleArray::JavaDoubleArray(JNIEnv *env,jdoubleArray &array)
+: array(array), env(env)
+{
+    rawDouble = env->GetDoubleArrayElements(array, NULL);
+    len = env->GetArrayLength(array);
+}
+
+JavaDoubleArray::~JavaDoubleArray()
+{
+    env->ReleaseDoubleArrayElements(array,rawDouble, 0);
 }

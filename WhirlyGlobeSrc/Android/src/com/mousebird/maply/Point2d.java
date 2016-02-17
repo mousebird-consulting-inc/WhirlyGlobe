@@ -57,6 +57,16 @@ public class Point2d
 		setValue(x,y);
 	}
 
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (!(obj instanceof Point2d))
+			return false;
+		Point2d that = (Point2d) obj;
+
+		return getX() == that.getX() && getY() == that.getY();
+	}
+
 	public Point2d addTo(Point2d that)
 	{
 		return new Point2d(getX()+that.getX(),getY()+that.getY());
@@ -76,6 +86,15 @@ public class Point2d
 	public static Point2d FromDegrees(double lon,double lat)
 	{
 		return new Point2d(lon/180.0 * Math.PI,lat/180 * Math.PI);
+	}
+
+	/**
+	 * Points are normally stored as radians, if they're positions on the globe or map.
+	 * This converts and returns degrees.
+     */
+	public Point2d toDegrees()
+	{
+		return new Point2d(getX()/Math.PI * 180,getY()/Math.PI * 180);
 	}
 	
 	public void finalize()

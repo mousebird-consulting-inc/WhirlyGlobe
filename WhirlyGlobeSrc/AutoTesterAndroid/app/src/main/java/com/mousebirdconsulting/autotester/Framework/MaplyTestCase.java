@@ -18,17 +18,17 @@ public class MaplyTestCase extends AsyncTask<Void, Void, Void> {
 		void onExecute(View view);
 	}
 
-	private String testName;
-	private boolean selected;
-	private int icon = R.drawable.ic_action_selectall;
-	private ConfigOptions.TestType options;
-	private Activity activity;
-	private GlobeController globeController;
-	private MapController mapController;
-	private Integer delay = 3;
-	private MaplyTestResult globeResult;
-	private MaplyTestResult mapResult;
-	private MaplyTestCaseListener listener;
+	protected String testName;
+	protected boolean selected;
+	protected int icon = R.drawable.ic_action_selectall;
+	protected ConfigOptions.TestType options;
+	protected Activity activity;
+	protected GlobeController globeController;
+	protected MapController mapController;
+	protected Integer delay = 3;
+	protected MaplyTestResult globeResult;
+	protected MaplyTestResult mapResult;
+	protected MaplyTestCaseListener listener;
 	public MaplyTestCase(Activity activity) {
 		super();
 

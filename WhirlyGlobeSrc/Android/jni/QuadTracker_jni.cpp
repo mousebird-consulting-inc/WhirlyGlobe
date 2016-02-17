@@ -25,6 +25,7 @@
 
 using namespace WhirlyKit;
 
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_nativeInit
 (JNIEnv *env, jclass cls)
 {
@@ -32,15 +33,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_nativeInit
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_initialise
-(JNIEnv *env, jobject obj, jobject gbObj)
+(JNIEnv *env, jobject obj, jobject globeViewObj, jobject maplyRenderObj, jobject coordAdapterObj, jobject coordSysObj, jobject llObj, jobject urObj, jint minLevel)
 {
     try
     {
         QuadTrackerClassInfo *classInfo = QuadTrackerClassInfo::getClassInfo();
-        WhirlyGlobe::GlobeView *globe = GlobeViewClassInfo::getClassInfo()->getObject(env, gbObj);
-        if (!globe)
+        WhirlyGlobe::GlobeView *globe = GlobeViewClassInfo::getClassInfo()->getObject(env, globeViewObj);
+        MaplySceneRenderer *renderer = MaplySceneRendererInfo::getClassInfo()->getObject(env,maplyRenderObj);
+        CoordSystemDisplayAdapter *coordAdapter = CoordSystemDisplayAdapterInfo::getClassInfo()->getObject(env,coordAdapterObj);
+        CoordSystem *coordSys = CoordSystemClassInfo::getClassInfo()->getObject(env,coordSysObj);
+        Point2dClassInfo *pt2dClassInfo = Point2dClassInfo::getClassInfo();
+        Point2d *ll = pt2dClassInfo->getObject(env,llObj);
+        Point2d *ur = pt2dClassInfo->getObject(env,urObj);
+        if (!globe || !renderer || !coordAdapter || !coordSys || !ll || !ur)
             return;
-        QuadTracker *inst = new QuadTracker(globe);
+        SceneRendererES2 *rendererES2 = dynamic_cast<SceneRendererES2 *>(renderer);
+        QuadTracker *inst = new QuadTracker(globe,rendererES2,coordAdapter);
+        inst->setCoordSys(coordSys,*ll,*ur);
+        inst->setMinLevel(minLevel);
         classInfo->setHandle(env, obj, inst);
     }
     catch(...)
@@ -67,43 +77,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_dispose
     }
 }
 
-JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_QuadTracker_tiles
-(JNIEnv *env, jobject obj, jobjectArray tilesObj, jint numPts)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_queryTilesNative
+(JNIEnv *env, jobject obj, jint numPts, jdoubleArray screenLocsArray, jintArray tileIDsArray, jdoubleArray coordLocsArray, jdoubleArray tileLocsArray)
 {
     try
     {
         QuadTrackerClassInfo *classInfo = QuadTrackerClassInfo::getClassInfo();
         QuadTracker *inst = classInfo->getObject(env, obj);
         if (!inst)
-            return NULL;
-        int size = env->GetArrayLength(tilesObj);
-        QuadTrackerPointReturn tiles[size];
-        for (int i = 0; i < size; i++){
-            jobject object = env->GetObjectArrayElement(tilesObj, i);
-            QuadTrackerPointReturn *tile = QuadTrackerPointReturnClassInfo::getClassInfo()->getObject(env, object);
-            if (!tile){
-                return NULL;
-            }
-            tiles[i] = *tile;
-            env->DeleteLocalRef(object);
-        }
-        inst->tiles(&tiles[0], numPts);
-        QuadTrackerPointReturnClassInfo *classInfoRet = QuadTrackerPointReturnClassInfo::getClassInfo(env,"com/mousebird/maply/QuadTrackerPointReturn");
-        jclass cl = env->FindClass("com/mousebird/maply/QuadTrackerPointReturn");
-        if (!cl){
-            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadTracker::tiles()-> Class No Found");
-        }
-        jobjectArray ret = env->NewObjectArray(size, cl, NULL);
-        for (int i = 0; i < size; i++){
-            QuadTrackerPointReturn retInst = tiles[i];
-            
-            jobject object = classInfoRet->makeWrapperObject(env, &retInst);
-            env->SetObjectArrayElement(ret, i, object);
-            QuadTrackerPointReturn *cmp = QuadTrackerPointReturnClassInfo::getClassInfo()->getObject(env, object);
-            __android_log_print(ANDROID_LOG_VERBOSE, "JNI", "Before Value %i: X: %d Y: %d Level: %d", i, cmp->getMaplyTileID().x, cmp->getMaplyTileID().y, cmp->getMaplyTileID().level);
-            env->DeleteLocalRef(object);
-        }
-        return ret;
+            return;
+        
+        JavaDoubleArray screenLocs(env,screenLocsArray);
+        JavaIntArray tileIDs(env,tileIDsArray);
+        JavaDoubleArray coordLocs(env,coordLocsArray);
+        JavaDoubleArray tileLocs(env,tileLocsArray);
+
+        QuadTrackerPointReturn ptReturn(numPts,screenLocs.rawDouble,tileIDs.rawInt,coordLocs.rawDouble,tileLocs.rawDouble);
     }
     catch(...)
     {
@@ -121,7 +110,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_addTile
         if (!inst)
             return;
         
-        MaplyTileID tileID;
+        Quadtree::Identifier tileID;
         tileID.x = x;
         tileID.y = y;
         tileID.level = level;
@@ -143,7 +132,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_removeTile
         if (!inst)
         return;
         
-        MaplyTileID tileID;
+        Quadtree::Identifier tileID;
         tileID.x = x;
         tileID.y = y;
         tileID.level = level;
@@ -152,46 +141,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_removeTile
     catch(...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadTracker::removeTile()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_setCoordSystem
-(JNIEnv *env, jobject obj, jobject coordObj, jobject ptLLObj, jobject ptUrObj)
-{
-    try
-    {
-        QuadTrackerClassInfo *classInfo = QuadTrackerClassInfo::getClassInfo();
-        QuadTracker *inst = classInfo->getObject(env, obj);
-        CoordSystem *coord = CoordSystemClassInfo::getClassInfo()->getObject(env, coordObj);
-        Point2d *ll = Point2dClassInfo::getClassInfo()->getObject(env, ptLLObj);
-        Point2d *ur = Point2dClassInfo::getClassInfo()->getObject(env, ptUrObj);
-        if (!inst || ! coord || !ll || !ur)
-            return;
-        
-        inst->setCoordSys(coord, *ll, *ur);
-        
-    }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadTracker::setCoordSystem()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_setMinLevel
-(JNIEnv *env, jobject obj, jint minLevel)
-{
-    try
-    {
-        QuadTrackerClassInfo *classInfo = QuadTrackerClassInfo::getClassInfo();
-        QuadTracker *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        
-        inst->setMinLevel(minLevel);
-    }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadTracker::setMinLevel()");
     }
 }
 
@@ -210,43 +159,5 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadTracker_getMinLevel
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadTracker::getMinLevel()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_setAdapter
-(JNIEnv *env, jobject obj, jobject adapObj)
-{
-    try
-    {
-        QuadTrackerClassInfo *classInfo = QuadTrackerClassInfo::getClassInfo();
-        QuadTracker *inst = classInfo->getObject(env, obj);
-        CoordSystemDisplayAdapter *adapter = CoordSystemDisplayAdapterInfo::getClassInfo()->getObject(env, adapObj);
-        if (!inst || !adapter)
-            return;
-        
-        inst->setAdapter(adapter);
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadTracker::setAdapter()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_setRenderer
-(JNIEnv *env, jobject obj, jobject renderObj)
-{
-    try
-    {
-        QuadTrackerClassInfo *classInfo = QuadTrackerClassInfo::getClassInfo();
-        QuadTracker *inst = classInfo->getObject(env, obj);
-        SceneRendererES *renderer = (SceneRendererES *)MaplySceneRendererInfo::getClassInfo()->getObject(env,renderObj);
-        if (!inst || !renderer)
-            return;
-        inst->setRenderer(renderer);
-        
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadTracker::setRenderer()");
     }
 }

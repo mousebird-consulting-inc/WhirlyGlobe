@@ -47,7 +47,7 @@ public class MaplyTileID implements Comparable<MaplyTileID>
 		y = inY;
 		level = inLevel;
 	}
-	
+
 	public String toString()
 	{
 		return level + ": (" + x + "," + y + ")";

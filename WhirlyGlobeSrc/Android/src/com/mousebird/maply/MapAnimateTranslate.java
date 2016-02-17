@@ -61,7 +61,7 @@ public class MapAnimateTranslate implements MapView.AnimationDelegate
 	@Override
 	public void updateView(MapView view) 
 	{
-		if (startTime == 0.0)
+		if (startTime == 0.0 || renderer == null)
 			return;
 		
 		double curTime = System.currentTimeMillis()/1000.0;

@@ -24,6 +24,7 @@
 #import "WhirlyGlobe.h"
 #import "SingleLabelAndroid.h"
 #import "LabelInfoAndroid.h"
+#import "FontTextureManagerAndroid.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
@@ -81,6 +82,11 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
 			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in LabelManager::addLabels()");
 			return EmptyIdentity;
 		}
+        
+        // Need to tell the font texture manager what the current environment is
+        //  so it can delete things if it needs to
+        FontTextureManagerAndroid *fontTexManager = (FontTextureManagerAndroid *)labelManager->getScene()->getFontTextureManager();
+        fontTexManager->setEnv(env);
 
 		std::vector<SingleLabel *> labels;
 		JavaListInfo *listClassInfo = JavaListInfo::getClassInfo(env);
@@ -129,6 +135,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_removeLabels
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!labelManager || !changeSet)
 			return;
+        
+        // Need to tell the font texture manager what the current environment is
+        //  so it can delete things if it needs to
+        FontTextureManagerAndroid *fontTexManager = (FontTextureManagerAndroid *)labelManager->getScene()->getFontTextureManager();
+        fontTexManager->setEnv(env);
 
 		long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
 		int idCount = env->GetArrayLength(idArrayObj);

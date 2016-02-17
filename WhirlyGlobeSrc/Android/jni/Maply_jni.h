@@ -148,6 +148,7 @@ private:
 		integerClass = (jclass)env->NewGlobalRef(intLocalClass);
 	    integerClassInitID = env->GetMethodID(integerClass, "<init>", "(I)V");
 	    integerGetID = env->GetMethodID(integerClass,"intValue","()I");
+        env->DeleteLocalRef(intLocalClass);
 	}
 
 public:
@@ -188,6 +189,7 @@ private:
 	    jclass doubleLocalClass = env->FindClass("java/lang/Double");
 	    doubleClass = (jclass)env->NewGlobalRef(doubleLocalClass);
 	    doubleClassInitID = env->GetMethodID(doubleClass, "<init>", "(D)V");
+        env->DeleteLocalRef(doubleLocalClass);
 	}
 
 public:
@@ -223,6 +225,7 @@ private:
 		mapClass = (jclass)env->NewGlobalRef(localMapClass);
 		mapInitMethodID = env->GetMethodID(mapClass, "<init>", "(I)V");
 		putMethodID = env->GetMethodID(mapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+        env->DeleteLocalRef(localMapClass);
 	}
 
 public:
@@ -265,6 +268,8 @@ private:
 		literMethodID = env->GetMethodID(listClass,"iterator","()Ljava/util/Iterator;");
 		hasNextID = env->GetMethodID(iterClass,"hasNext","()Z");
 		nextID = env->GetMethodID(iterClass,"next","()Ljava/lang/Object;");
+        env->DeleteLocalRef(localIterClass);
+        env->DeleteLocalRef(localListClass);
 	}
 
 public:
@@ -369,12 +374,37 @@ public:
     jfloat *rawFloat;
 };
 
+// Wrapper for Java double array.  Destructor cleans up.
+class JavaDoubleArray
+{
+public:
+    JavaDoubleArray(JNIEnv *env,jdoubleArray &array);
+    ~JavaDoubleArray();
+    
+    JNIEnv *env;
+    jdoubleArray &array;
+    int len;
+    jdouble *rawDouble;
+};
+
 
 namespace WhirlyKit
 {
 typedef Eigen::Vector4d Point4d;
 typedef Eigen::Vector4f Point4f;
 }
+
+// Wrapper on top of scene renderer
+class MaplySceneRenderer : public WhirlyKit::SceneRendererES2
+{
+public:
+    MaplySceneRenderer();
+    
+    // Called when the window changes size (or on startup)
+    bool resize(int width,int height);
+    
+    EGLContext context;
+};
 
 // Wrappers for class info for all the various classes that have presence in Java
 typedef JavaClassInfo<WhirlyKit::Dictionary> AttrDictClassInfo;
@@ -389,7 +419,7 @@ typedef JavaClassInfo<Eigen::Quaterniond> QuaternionClassInfo;
 typedef JavaClassInfo<Eigen::AngleAxisd> AngleAxisClassInfo;
 typedef JavaClassInfo<WhirlyKit::CoordSystemDisplayAdapter> CoordSystemDisplayAdapterInfo;
 typedef JavaClassInfo<WhirlyKit::FakeGeocentricDisplayAdapter> FakeGeocentricDisplayAdapterInfo;
-class MaplySceneRenderer;
+typedef JavaClassInfo<WhirlyKit::GeneralCoordSystemDisplayAdapter> GeneralDisplayAdapterInfo;
 typedef JavaClassInfo<MaplySceneRenderer> MaplySceneRendererInfo;
 typedef JavaClassInfo<Maply::MapScene> MapSceneClassInfo;
 typedef JavaClassInfo<WhirlyKit::Scene> SceneClassInfo;

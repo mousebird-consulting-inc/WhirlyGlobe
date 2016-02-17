@@ -102,6 +102,7 @@ public:
 		jclass theClass = env->GetObjectClass(javaObj);
 		startFetchJava = env->GetMethodID(theClass,"startFetch","(IIII)V");
 		scheduleEvalStepJava = env->GetMethodID(theClass,"scheduleEvalStep","()V");
+        env->DeleteLocalRef(theClass);
 	}
 
 	void clearJavaRefs()
@@ -323,7 +324,8 @@ public:
     /// Return the minimum quad tree zoom level (usually 0)
     virtual int getMinZoom()
     {
-    	return minZoom;
+        // We fake anything else
+        return 0;
     }
 
     /// Return the maximum quad tree zoom level.  Must be at least minZoom
@@ -396,7 +398,8 @@ public:
         Point2f frameSize = renderer->getFramebufferSize();
 
         int zoomLevel = 0;
-        WhirlyKit::Point2f center = Point2f(viewState->eyePos.x(),viewState->eyePos.y());
+        WhirlyKit::Point3d center3d = scene->getCoordAdapter()->displayToLocal(Point3d(viewState->eyePos.x(),viewState->eyePos.y(),0.0));
+        Point2f center(center3d.x(),center3d.y());
         // The coordinate adapter might have its own center
         Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
         center.x() += adaptCenter.x();
@@ -525,7 +528,13 @@ public:
     		ImageWrapper tileWrapper(imgData,width,height);
     		tileLoader->loadedImage(this, &tileWrapper, level, col, row, frame, changes);
     	} else {
-    		tileLoader->loadedImage(this, NULL, level, col, row, frame, changes);
+            if (level < minZoom)
+            {
+                // This is meant to be a placeholder
+                ImageWrapper placeholder;
+                tileLoader->loadedImage(this, &placeholder, level, col, row, frame, changes);
+            } else
+                tileLoader->loadedImage(this, NULL, level, col, row, frame, changes);
     	}
     }
 
@@ -851,11 +860,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setFrameLoadi
 		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
 		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-		if (!adapter || !changeSet)
+		if (!adapter || !frameLoadingArr || !changeSet)
 			return;
 		adapter->framePriorities.clear();
 
 		ConvertIntArray(env,frameLoadingArr,adapter->framePriorities);
+        if (adapter->control)
+            adapter->control->setFrameLoadingPriorities(adapter->framePriorities);
 	}
 	catch (...)
 	{

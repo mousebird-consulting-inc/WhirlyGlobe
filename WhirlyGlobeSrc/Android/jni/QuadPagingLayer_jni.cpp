@@ -561,6 +561,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_nativeViewUpdate
 		jclass theClass = env->GetObjectClass(obj);
 		adapter->tileLoadJava = env->GetMethodID(theClass,"loadTile","(III)V");
 		adapter->tileUnloadJava = env->GetMethodID(theClass,"unloadTile","(III)V");
+        env->DeleteLocalRef(theClass);
 
 		adapter->getController()->viewUpdate(viewState);
 	}
@@ -586,6 +587,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadPagingLayer_nativeEvalSt
 		jclass theClass = env->GetObjectClass(obj);
 		adapter->tileLoadJava = env->GetMethodID(theClass,"loadTile","(III)V");
 		adapter->tileUnloadJava = env->GetMethodID(theClass,"unloadTile","(III)V");
+        env->DeleteLocalRef(theClass);
 
 		// Note: Not passing in frame boundary info
 		return adapter->getController()->evalStep(0.0,0.0,0.0,*changes);

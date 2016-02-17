@@ -51,6 +51,11 @@ public class Matrix4d
 	 * Return the inverse of this matrix.
 	 */
 	public native Matrix4d inverse();
+
+	/**
+	 * Transpose and return the matrix.
+     */
+	public native Matrix4d transpose();
 	/**
 	 * Multiply the vector by this matrix and return the result.
 	 */

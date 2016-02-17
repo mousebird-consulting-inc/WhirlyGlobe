@@ -144,6 +144,9 @@ typedef std::set<DrawableTweakerRef> DrawableTweakerRefSet;
  */
 class Drawable : public Identifiable
 {
+protected:
+    /// Used in special cases
+    Drawable() { }
 public:
     /// Construct empty
 	Drawable(const std::string &name);
@@ -249,7 +252,8 @@ typedef enum {
 	BDChar4Type  = 2,
 	BDFloat2Type = 3,
 	BDFloatType  = 4,
-	BDIntType    = 5
+	BDIntType    = 5,
+    BDDataTypeMax
 } BDAttributeDataType;
     
     

@@ -222,6 +222,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setRotation
 		if (!marker)
 			return;
 
+		marker->lockRotation = true;
 		marker->rotation = rot;
 	}
 	catch (...)

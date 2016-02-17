@@ -87,6 +87,17 @@ double FlatView::maxHeightAboveSurface()
 {
     return 0.0;
 }
+    
+Point2d FlatView::screenSizeInDisplayCoords(Point2f &frameSize)
+{
+    Point2d screenSize(0,0);
+    if (frameSize.x() == 0.0 || frameSize.y() == 0.0)
+        return screenSize;
+    
+    screenSize = ur-ll;
+    
+    return screenSize;
+}
 
 void FlatView::setWindow(const WhirlyKit::Point2d &inLL,const WhirlyKit::Point2d &inUR)
 {

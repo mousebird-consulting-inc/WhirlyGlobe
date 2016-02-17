@@ -290,12 +290,13 @@ public class MaplyBaseController
 		baseLayerThread.addLayer(layoutLayer);
 		
 		// Run any outstanding runnables
-		for (Runnable run: surfaceTasks)
-		{
-			Handler handler = new Handler(activity.getMainLooper());
-			handler.post(run);
+		if (surfaceTasks != null) {
+			for (Runnable run : surfaceTasks) {
+				Handler handler = new Handler(activity.getMainLooper());
+				handler.post(run);
+			}
+			surfaceTasks = null;
 		}
-		surfaceTasks = null;
 
     	glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     	// Note: 3fps
@@ -661,7 +662,7 @@ public class MaplyBaseController
 	 */
 	public ComponentObject changeSticker(final ComponentObject stickerObj,final StickerInfo stickerInfo,ThreadMode mode)
 	{
-		if (!running)
+		if (!running || stickerObj == null)
 			return null;
 
 		final ComponentObject compObj = new ComponentObject();
@@ -866,6 +867,8 @@ public class MaplyBaseController
 	 */
 	public void addActiveObject(ActiveObject activeObject)
 	{
+		if (renderWrapper == null || renderWrapper.maplyRender == null)
+			return;
 		renderWrapper.maplyRender.addActiveObject(activeObject);
 	}
 

@@ -40,7 +40,7 @@ import java.util.List;
  * @author sjg
  *
  */
-public class GlobeController extends MaplyBaseController implements View.OnTouchListener
+public class GlobeController extends MaplyBaseController implements View.OnTouchListener, Choreographer.FrameCallback
 {	
 	public GlobeController(Activity mainActivity)
 	{
@@ -56,6 +56,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		scene = globeScene;
 		globeView = new GlobeView(this,coordAdapter);
 		view = globeView;
+		globeView.northUp = true;
 		
 		super.Init();
 		
@@ -95,7 +96,24 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 
 	// Map version of scene
 	GlobeScene globeScene = null;
-	
+
+	/**
+	 * True if the globe is keeping north facing up on the screen.
+     */
+	public boolean getKeepNorthUp()
+	{
+		return globeView.northUp;
+	}
+
+	/**
+	 * Set the keep north up parameter on or off.  On means we will always rotate the globe
+	 * to keep north up.  Off means we won't.
+     */
+	public void setKeepNorthUp(boolean newVal)
+	{
+		globeView.northUp = newVal;
+	}
+
 	/**
 	 * Return the screen coordinate for a given geographic coordinate (in radians).
 	 * 
@@ -106,7 +124,18 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	{
 		return screenPointFromGeo(globeView,geoCoord);
 	}
-	
+
+	/**
+	 * Set the zoom limits for the globe.
+	 * @param inMin Closest the user is allowed to zoom in.
+	 * @param inMax Farthest the user is allowed to zoom out.
+     */
+	public void setZoomLimits(double inMin,double inMax)
+	{
+		if (gestureHandler != null)
+			gestureHandler.setZoomLimits(inMin,inMax);
+	}
+
 	/**
 	 * Return the geographic point (radians) corresponding to the screen point.
 	 * 
@@ -120,9 +149,14 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 
 		Matrix4d modelMat = globeView.calcModelViewMatrix();
 		Point3d dispPt = globeView.pointOnSphereFromScreen(screenPt, modelMat, renderWrapper.maplyRender.frameSize, false);
+		if (dispPt == null)
+			return null;
 		Point3d localPt = coordAdapter.displayToLocal(dispPt);
+		if (localPt == null)
+			return null;
 		Point3d geoCoord = coordSys.localToGeographic(localPt);
-
+		if (geoCoord == null)
+			return null;
 		return new Point2d(geoCoord.getX(),geoCoord.getY());
 	}
 	
@@ -141,6 +175,18 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 
 		return geoMbr;
 	}
+
+	// Check if a given point and normal is facing away currently
+	double checkPointAndNormFacing(Point3d dispLoc,Point3d norm,Matrix4d mat,Matrix4d normMat)
+	{
+		Point4d pt = mat.multiply(new Point4d(dispLoc.getX(),dispLoc.getY(),dispLoc.getZ(),1.0));
+		double x = pt.getX() / pt.getW();
+		double y = pt.getY() / pt.getW();
+		double z = pt.getZ() / pt.getW();
+		Point4d testDir = normMat.multiply(new Point4d(norm.getX(),norm.getY(),norm.getZ(),0.0));
+		Point3d pt3d = new Point3d(-x,-y,-z);
+		return pt3d.dot(new Point3d(testDir.getX(),testDir.getY(),testDir.getZ()));
+	}
 	
 	// Convert a geo coord to a screen point
 	private Point2d screenPointFromGeo(GlobeView theGlobeView,Point2d geoCoord)
@@ -148,9 +194,18 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		CoordSystemDisplayAdapter coordAdapter = theGlobeView.getCoordAdapter();
 		CoordSystem coordSys = coordAdapter.getCoordSystem();
 		Point3d localPt = coordSys.geographicToLocal(new Point3d(geoCoord.getX(),geoCoord.getY(),0.0));
+		if (localPt == null)
+			return null;
 		Point3d dispPt = coordAdapter.localToDisplay(localPt);
+		if (dispPt == null)
+			return null;
 
 		Matrix4d modelMat = theGlobeView.calcModelViewMatrix();
+		Matrix4d modelNormalMat = modelMat.inverse().transpose();
+
+		if (checkPointAndNormFacing(dispPt,dispPt.normalized(),modelMat,modelNormalMat) < 0.0)
+			return null;
+
 		return theGlobeView.pointOnScreenFromSphere(dispPt, modelMat, renderWrapper.maplyRender.frameSize);
 	}
 
@@ -315,9 +370,18 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
          *
          * @param globeControl The globe controller this is associated with.
          * @param corners Corners of the viewport.  If one of them is null, that means it doesn't land on the globe.
-         * @param userMotion SEt if the motion was caused by a gesture.
+         * @param userMotion Set if the motion was caused by a gesture.
          */
         public void globeDidStopMoving(GlobeController globeControl, Point3d corners[], boolean userMotion);
+
+		/**
+		 * Called for every single visible frame of movement.  Be careful what you do in here.
+		 *
+		 * @param globeControl The globe controller this is associated with.
+		 * @param corners Corners of the viewport.  If one of them is null, that means it doesn't land on the globe.
+		 * @param userMotion Set if the motion was caused by a gesture.
+         */
+		public void globeDidMove(GlobeController globeControl,Point3d corners[], boolean userMotion);
 	}
 
 	/**
@@ -380,10 +444,61 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
      */
     public void handleStartMoving(boolean userMotion)
     {
+		if (renderWrapper == null || renderWrapper.maplyRender == null)
+			return;
+
         if (!isPanning && !isRotating && !isZooming && !isAnimating && !isTilting)
-            if (gestureDelegate != null)
-                gestureDelegate.globeDidStartMoving(this,userMotion);
+            if (gestureDelegate != null) {
+				gestureDelegate.globeDidStartMoving(this, userMotion);
+
+				Choreographer c = Choreographer.getInstance();
+				if (c != null)
+					c.postFrameCallback(this);
+			}
     }
+
+	/**
+	 * Called by the gesture handler to filter out end motion events.
+	 *
+	 * @param userMotion Set if kicked off by user motion.
+	 */
+	public void handleStopMoving(boolean userMotion)
+	{
+		if (renderWrapper == null || renderWrapper.maplyRender == null)
+			return;
+
+		if (isPanning || isRotating || isZooming || isAnimating || isTilting)
+			return;
+
+		if (gestureDelegate != null)
+		{
+			Point3d corners[] = calcCorners();
+			gestureDelegate.globeDidStopMoving(this,corners,userMotion);
+			Choreographer c = Choreographer.getInstance();
+		}
+	}
+
+	double lastViewUpdate = 0.0;
+	/**
+	 * Frame callback for the Choreographer
+     */
+	public void doFrame(long frameTimeNanos)
+	{
+		if (globeView != null) {
+			double newUpdateTime = globeView.getLastUpdatedTime();
+			if (gestureDelegate != null && lastViewUpdate < newUpdateTime) {
+				Point3d corners[] = calcCorners();
+				gestureDelegate.globeDidMove(this, corners, false);
+				lastViewUpdate = newUpdateTime;
+			}
+		}
+
+		Choreographer c = Choreographer.getInstance();
+		if (c != null) {
+			c.removeFrameCallback(this);
+			c.postFrameCallback(this);
+		}
+	}
 
     // Calculate visible corners
     Point3d[] calcCorners()
@@ -399,7 +514,8 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 
         Point3d retCorners[] = new Point3d[4];
         CoordSystemDisplayAdapter coordAdapter = globeView.getCoordAdapter();
-        if (coordAdapter == null)
+        if (coordAdapter == null || renderWrapper == null || renderWrapper.maplyRender == null ||
+				renderWrapper.maplyRender.frameSize == null)
             return retCorners;
         CoordSystem coordSys = coordAdapter.getCoordSystem();
         if (coordSys == null)
@@ -412,22 +528,5 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
         }
 
         return retCorners;
-    }
-
-    /**
-     * Called by the gesture handler to filter out end motion events.
-     *
-     * @param userMotion Set if kicked off by user motion.
-     */
-    public void handleStopMoving(boolean userMotion)
-    {
-        if (isPanning || isRotating || isZooming || isAnimating || isTilting)
-            return;
-
-        if (gestureDelegate != null)
-        {
-            Point3d corners[] = calcCorners();
-            gestureDelegate.globeDidStopMoving(this,corners,userMotion);
-        }
     }
 }
