@@ -62,10 +62,6 @@ public class MaplyStarModel {
         float ra, dec;
     }
 
-    private class SimpleVec3 {
-        float x, y, z;
-    }
-
     private static final String vertexShaderTriPoint =
             "uniform mat4  u_mvpMatrix;"+
             "uniform float u_radius;"+
@@ -171,19 +167,12 @@ public class MaplyStarModel {
 
         //Really simple shader
         Shader shader = new Shader("Star Shader", vertexShaderTriPoint, (image != null ? fragmentShaderTexTriPoint : fragmentShaderTriPoint), viewC);
-        viewC.addShaderProgram(shader, "Star Shader");
         shader.setUniform("u_radius", 6.0);
 
-        //Create desc
-
-        MaplyTexture starTex = null;
-        if (image != null) {
-            MaplyBaseController.TextureSettings textureSettings = new MaplyBaseController.TextureSettings();
-            starTex = viewC.addTexture(image, textureSettings, MaplyBaseController.ThreadMode.ThreadCurrent);
-        }
+        long shaderID = viewC.getScene().getProgramIDBySceneName("Star Shader");
+        particleSystem.setShaderID(shaderID);
 
         //Set up a simple particle system (that doesn't move)
-
         particleSystem = new ParticleSystem("Stars");
         particleSystem.setParticleSystemType(ParticleSystem.STATE.ParticleSystemPoint.getValue());
         particleSystem.setLifetime(1e20);
@@ -227,8 +216,8 @@ public class MaplyStarModel {
         }
 
         //Set up the particle batch
-        ParticleBatch batch = new ParticleBatch(particleSystem);
-        //TODO REVIEW Time attribute
+        ParticleBatch batch = new ParticleBatch();
+        batch.setPartSys(particleSystem);
         batch.addAttribute("a_position", posData);
         batch.addAttribute("a_size", sizeData);
         viewC.addParticleBatch(batch, addedMode);

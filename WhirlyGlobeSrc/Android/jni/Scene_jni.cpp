@@ -75,6 +75,28 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram
     }
 }
 
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Scene_getProgramIDBySceneName
+(JNIEnv *env, jobject obj, jstring shaderName)
+{
+	try
+	{
+		SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
+		Scene *scene = classInfo->getObject(env,obj);
+
+		if (!scene)
+			return -1;
+
+		const char *cName = env->GetStringUTFChars(shaderName,0);
+		std::string name = cName;
+
+		return scene->getProgramIDByName(name);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::getProgramIDBySceneName()");
+	}
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_teardownGL
 (JNIEnv *env, jobject obj)
 {

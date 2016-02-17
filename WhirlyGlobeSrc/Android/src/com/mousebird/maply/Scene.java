@@ -32,6 +32,8 @@ public class Scene
 	 */
 	public native void teardownGL();
 
+	public native long getProgramIDBySceneName(String shaderName);
+
 	static
 	{
 		nativeInit();
