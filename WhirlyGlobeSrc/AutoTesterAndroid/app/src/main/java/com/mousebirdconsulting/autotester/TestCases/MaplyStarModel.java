@@ -17,7 +17,7 @@
  *  limitations under the License.
  *
  */
-package com.mousebirdconsulting.autotester;
+package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
 import android.content.res.AssetManager;
@@ -155,7 +155,7 @@ public class MaplyStarModel {
         }
     }
 
-    public void addToViewc (GlobeController inViewC, Date date, Map<String, String> desc, MaplyBaseController.ThreadMode mode) {
+    public void addToViewc (GlobeController inViewC, MaplyBaseController.ThreadMode mode) {
         this.viewC = inViewC;
         this.addedMode = mode;
 
@@ -168,9 +168,9 @@ public class MaplyStarModel {
         //Really simple shader
         Shader shader = new Shader("Star Shader", vertexShaderTriPoint, (image != null ? fragmentShaderTexTriPoint : fragmentShaderTriPoint), viewC);
         shader.setUniform("u_radius", 6.0);
+        viewC.addShaderProgram(shader, "Star Shader");
 
         long shaderID = viewC.getScene().getProgramIDBySceneName("Star Shader");
-        particleSystem.setShaderID(shaderID);
 
         //Set up a simple particle system (that doesn't move)
         particleSystem = new ParticleSystem("Stars");
@@ -178,12 +178,14 @@ public class MaplyStarModel {
         particleSystem.setLifetime(1e20);
         particleSystem.setTotalParticles(stars.size());
         particleSystem.setBatchSize(stars.size());
-        //TODO Change Int to String
-        //particleSystem.setShaderID(shader.getName());
-        //TODO Review that
-        if (starTex != null){
-            //particleSystem.addTexture(starTex);
+        particleSystem.setShaderID(shaderID);
+
+
+
+        if (image != null){
+            particleSystem.addTexture(image);
         }
+
         particleSystem.addParticleSystemAttribute("a_position", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);
         particleSystem.addParticleSystemAttribute("a_size", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT);
 
@@ -216,8 +218,7 @@ public class MaplyStarModel {
         }
 
         //Set up the particle batch
-        ParticleBatch batch = new ParticleBatch();
-        batch.setPartSys(particleSystem);
+        ParticleBatch batch = new ParticleBatch(particleSystem);
         batch.addAttribute("a_position", posData);
         batch.addAttribute("a_size", sizeData);
         viewC.addParticleBatch(batch, addedMode);

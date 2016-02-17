@@ -93,6 +93,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_queryTilesNative
         JavaDoubleArray tileLocs(env,tileLocsArray);
 
         QuadTrackerPointReturn ptReturn(numPts,screenLocs.rawDouble,tileIDs.rawInt,coordLocs.rawDouble,tileLocs.rawDouble);
+
+        inst->tiles(&ptReturn, numPts);
     }
     catch(...)
     {
@@ -130,7 +132,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_removeTile
         QuadTrackerClassInfo *classInfo = QuadTrackerClassInfo::getClassInfo();
         QuadTracker *inst = classInfo->getObject(env, obj);
         if (!inst)
-        return;
+            return;
         
         Quadtree::Identifier tileID;
         tileID.x = x;
