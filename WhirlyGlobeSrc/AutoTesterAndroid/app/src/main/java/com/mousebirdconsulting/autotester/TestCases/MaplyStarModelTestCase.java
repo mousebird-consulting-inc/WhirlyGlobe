@@ -20,6 +20,7 @@
 package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
+import android.graphics.Color;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LayerThread;
@@ -27,7 +28,6 @@ import com.mousebird.maply.MaplyBaseController;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 import java.io.IOException;
-import java.util.Date;
 
 
 public class MaplyStarModelTestCase extends MaplyTestCase {
@@ -35,11 +35,12 @@ public class MaplyStarModelTestCase extends MaplyTestCase {
     public MaplyStarModelTestCase(Activity activity) {
         super(activity);
         setTestName("Maply Star Test Case");
-        setDelay(5);
+        setDelay(10000);
     }
 
     LayerThread particleThread = null;
     MaplyStarModel particleAdapter = null;
+
 
     @Override
     public boolean setUpWithGlobe(final GlobeController globeVC) throws Exception {
@@ -49,6 +50,7 @@ public class MaplyStarModelTestCase extends MaplyTestCase {
         globeVC.onSurfaceCreatedTask(new Runnable() {
             @Override
             public void run() {
+                globeVC.setClearColor(Color.BLACK);
                 particleThread = globeVC.makeLayerThread();
                 try {
                     particleAdapter = new MaplyStarModel("starcatalog_orig.txt", "star_background.png", getActivity());
