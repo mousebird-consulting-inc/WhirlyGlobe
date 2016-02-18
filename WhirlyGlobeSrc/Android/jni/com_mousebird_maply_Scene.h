@@ -25,6 +25,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_teardownGL
 
 /*
  * Class:     com_mousebird_maply_Scene
+ * Method:    getProgramIDBySceneName
+ * Signature: (Ljava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Scene_getProgramIDBySceneName
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_mousebird_maply_Scene
  * Method:    nativeInit
  * Signature: ()V
  */

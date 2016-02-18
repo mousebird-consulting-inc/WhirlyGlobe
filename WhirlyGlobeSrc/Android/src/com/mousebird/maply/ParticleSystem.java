@@ -19,6 +19,8 @@
  */
 package com.mousebird.maply;
 
+import android.graphics.Bitmap;
+
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -39,6 +41,8 @@ public class ParticleSystem {
         }
     }
 
+    private ArrayList<Bitmap> images = new ArrayList<>();
+
     private ParticleSystem()
     {}
 
@@ -50,6 +54,14 @@ public class ParticleSystem {
         this.setBatchSize(2000);
         this.setTotalParticles(100000);
         this.setBasetime(new Date().getTime()/1000.0);
+    }
+
+    public void addTexture(Bitmap texture) {
+        images.add(texture);
+    }
+
+    public ArrayList<Bitmap> getTextures() {
+        return images;
     }
 
     public void finalize() {
