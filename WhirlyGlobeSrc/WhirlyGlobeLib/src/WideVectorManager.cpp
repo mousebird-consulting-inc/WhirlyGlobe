@@ -27,6 +27,11 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
+WideVectorInfo::WideVectorInfo()
+    : BaseInfo(), color(255,255,255,255),width(2.0),repeatSize(32),edgeSize(1.0),coordType(WideVecCoordScreen),joinType(WideVecMiterJoin),
+    capType(WideVecButtCap),texID(EmptyIdentity),miterLimit(2.0)
+{
+}
 
 WideVectorInfo::WideVectorInfo(const Dictionary &dict) :
 BaseInfo(dict),color(255,255,255,255),width(2.0),repeatSize(32),edgeSize(1.0),coordType(WideVecCoordScreen),joinType(WideVecMiterJoin),
@@ -520,7 +525,7 @@ public:
         }
         
         // Guess at how many points and triangles we'll need
-        int totalTriCount = 5*pts.size();
+        int totalTriCount = (int)(5*pts.size());
         int totalPtCount = totalTriCount * 3;
         if (totalTriCount < 0)  totalTriCount = 0;
         if (totalPtCount < 0)  totalPtCount = 0;
@@ -777,6 +782,9 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const Wid
         {
             // Make up a BasicDrawableInstance
             BasicDrawableInstance *drawInst = new BasicDrawableInstance("WideVectorManager",*idIt,BasicDrawableInstance::ReuseStyle);
+
+            // Changed enable
+            drawInst->setEnable(vecInfo.enable);
             
             // Changed color
             drawInst->setColor(vecInfo.color);

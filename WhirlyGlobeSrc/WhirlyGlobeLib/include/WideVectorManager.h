@@ -47,6 +47,7 @@ typedef enum {WideVecButtCap,WideVecRoundCap,WideVecSquareCap} WideVectorLineCap
 class WideVectorInfo : public BaseInfo
 {
 public:
+    WideVectorInfo();
     WideVectorInfo(const Dictionary &dict);
 
     RGBAColor color;

@@ -35,6 +35,7 @@ class BasicDrawableInstance;
 class BaseInfo
 {
 public:
+    BaseInfo();
     /// Construct with a dictionary
     BaseInfo(const Dictionary &dict);
     

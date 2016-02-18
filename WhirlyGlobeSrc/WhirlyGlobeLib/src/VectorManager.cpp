@@ -32,6 +32,12 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
     
+VectorInfo::VectorInfo()
+: BaseInfo(),     filled(false), sample(0.0), texId(EmptyIdentity), texScale(1.0,1.0), subdivEps(1.0), gridSubdiv(false),
+texProj(TextureProjectionNone), color(255,255,255,255), lineWidth(1.0)
+{    
+}
+    
 VectorInfo::VectorInfo(const Dictionary &dict) :
     BaseInfo(dict),
     filled(false), sample(0.0), texId(EmptyIdentity), texScale(1.0,1.0), subdivEps(1.0), gridSubdiv(false),

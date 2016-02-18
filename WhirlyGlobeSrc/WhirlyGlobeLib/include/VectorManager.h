@@ -61,6 +61,7 @@ typedef enum {TextureProjectionNone,TextureProjectionTanPlane,TextureProjectionS
 class VectorInfo : public BaseInfo
 {
 public:
+    VectorInfo();
     VectorInfo(const Dictionary &dict);
     
     bool                        filled;

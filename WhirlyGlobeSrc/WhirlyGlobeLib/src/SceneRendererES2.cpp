@@ -214,15 +214,15 @@ void SceneRendererES2::render()
 	theView->animate();
 
     // Decide if we even need to draw
-//    if (!scene->hasChanges() && !viewDidChange())
-//    {
-//        if (!extraFrameMode)
-//            return;
-//        if (extraFrameDrawn)
-//            return;
-//        extraFrameDrawn = true;
-//    } else
-//        extraFrameDrawn = false;
+    if (!scene->hasChanges() && !viewDidChange())
+    {
+        if (!extraFrameMode)
+            return;
+        if (extraFrameDrawn)
+            return;
+        extraFrameDrawn = true;
+    } else
+        extraFrameDrawn = false;
     
     lastDraw = TimeGetCurrent();
         
