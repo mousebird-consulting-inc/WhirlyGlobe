@@ -200,7 +200,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MaplyRenderer_resize
 		MaplySceneRenderer *renderer = classInfo->getObject(env,obj);
 		if (!renderer)
 			return false;
-
+        
 		renderer->resize(width,height);
 
 		// Note: Porting.
@@ -224,10 +224,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_render
 	{
 		MaplySceneRendererInfo *classInfo = MaplySceneRendererInfo::getClassInfo();
 		MaplySceneRenderer *renderer = classInfo->getObject(env,obj);
+        
 		if (!renderer)
 			return;
 
 		maplyCurrentEnv = env;
+        // Force a draw every time
+        renderer->triggerDraw = true;
 		renderer->render();
 		maplyCurrentEnv = NULL;
 	}
