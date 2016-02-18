@@ -170,13 +170,13 @@ void QuadTracker::tiles(WhirlyKit::QuadTrackerPointReturn *trackInfo, int numPts
             trackInfo->setCoordLoc(ii, coordPt.x(), coordPt.y());
             
             //Clip to the overal bounds
-            double tileU = (coordPt.x()-ll_int.x())/mbrSpanX;
-            double tileV = (coordPt.y()-ll_int.y())/mbrSpanY;
+            double tileU = (coordPt.x()-ll.x())/mbrSpanX;
+            double tileV = (coordPt.y()-ll.y())/mbrSpanY;
             tileU = std::max(std::min(tileU, 1.0),0.0);
             tileV = std::max(std::min(tileV, 1.0),0.0);
             trackInfo->setTileLoc(ii, tileU, tileV);
             
-            //Dive down looking for the highest resolution tile avaliable
+            //Dive down looking for the highest resolution tile available
             Quadtree::Identifier tileID;
             tileID.level = 0;
             tileID.x = 0;
@@ -198,6 +198,7 @@ void QuadTracker::tiles(WhirlyKit::QuadTrackerPointReturn *trackInfo, int numPts
                 tileV = 2.0*tileV - childY*1.0;
             }
             trackInfo->setTileID(ii,tileID.x,tileID.y,tileID.level);
+            trackInfo->setTileLoc(ii,tileU,tileV);
         } else {
             Quadtree::Identifier tileID;
             tileID.x = 0; tileID.y = 0;  tileID.level = -1;

@@ -92,7 +92,14 @@ public class CoordSystem
 	 */
 	public native Point3d localToGeographic(Point3d pt);
 
-	public native Point3d coordSystemConvert3d (CoordSystem inSystem, CoordSystem outSystem, Point3d inCoord);
+	/**
+	 * Convert the coordinate between systems.
+	 * @param inSystem The system the coordinate is in.
+	 * @param outSystem The system the coordinate you want it in.
+	 * @param inCoord The coordinate.
+     * @return Returns the coordinate in the outSystem.
+     */
+	public static native Point3d CoordSystemConvert3d (CoordSystem inSystem, CoordSystem outSystem, Point3d inCoord);
 	
 	static
 	{

@@ -93,6 +93,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_queryTilesNative
         JavaDoubleArray tileLocs(env,tileLocsArray);
 
         QuadTrackerPointReturn ptReturn(numPts,screenLocs.rawDouble,tileIDs.rawInt,coordLocs.rawDouble,tileLocs.rawDouble);
+	inst->tiles(&ptReturn,numPts);
     }
     catch(...)
     {

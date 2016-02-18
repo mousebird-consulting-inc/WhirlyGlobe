@@ -150,6 +150,8 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
         handler.postDelayed(run, (long)(updateInterval*1000));
     }
 
+    QuadTrackerPointReturn points = null;
+
     public void generateParticles() throws InterruptedException
     {
         double now = ((double) new Date().getTime()/1000.0 ) - partSys.getBasetime();
@@ -169,7 +171,8 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
 
         //Generate some screen coordinates for sampling
 
-        QuadTrackerPointReturn points = new QuadTrackerPointReturn(this.partSys.getBatchSize());
+        if (points == null)
+            points = new QuadTrackerPointReturn(this.partSys.getBatchSize());
 
         for (int ii = 0; ii < this.partSys.getBatchSize(); ii++)
         {
@@ -182,26 +185,27 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
         tileTrack.queryTiles(points);
 
         //Generate particles from those samples
-
-        int whichPart = 0;
-
-        for (int ii = 0; ii < this.partSys.getBatchSize(); ii++){
-            MaplyTileID tileID = points.getTileID(ii);
+        for (int whichPart = 0; whichPart < this.partSys.getBatchSize(); whichPart++){
+            MaplyTileID tileID = points.getTileID(whichPart);
 //                Log.e("DEBUG", "Valores "+data[0]+" "+data[1]+" "+data[2]);
 
             //Look the associated tile
-            DataTile dataTile = getDataTile(tileID);
-
-            if (dataTile != null){
-                float time = this.times[ii];
+//            DataTile dataTile = getDataTile(tileID);
+//
+//            if (dataTile != null){
+            if (true) {
+                float time = this.times[whichPart];
                 Point3d coordA = new Point3d();
-                coordA.setValue(points.getCoordLocX(ii), points.getCoordLocY(ii), 0.0);
+                coordA.setValue(points.getCoordLocX(whichPart), points.getCoordLocY(whichPart), 0.0);
 
                 double velU =  0.0;
                 double velV =  0.0;
                 Point2d pt = new Point2d();
-                pt.setValue(points.getTileLocU(ii), points.getTileLocV(ii));
-                double result [] = dataTile.getValue(pt);
+                pt.setValue(points.getTileLocU(whichPart), points.getTileLocV(whichPart));
+//                double result [] = dataTile.getValue(pt);
+                double result[] = new double[2];
+                result[0] = Math.random()*255;
+                result[1] = Math.random()*255;
 
                 if (result != null){
                     //There are a lot of empty values in the data so we'll skip those
@@ -220,23 +224,21 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
                         Point3d dispB = viewC.displayCoord(coordB, coordSys);
                         Point3d calcDir = new Point3d(dispB.getX() - dispA.getX(), dispB.getY() -dispA.getY(), dispB.getZ() - dispA.getZ());
 
-                        this.locs[whichPart*ii] = (float) dispA.getX();
-                        this.locs[whichPart*ii +1] = (float) dispA.getY();
-                        this.locs[whichPart*ii +2] = (float) dispA.getZ();
+                        this.locs[3*whichPart] = (float) dispA.getX();
+                        this.locs[3*whichPart +1] = (float) dispA.getY();
+                        this.locs[3*whichPart +2] = (float) dispA.getZ();
 
-                        this.dirs[whichPart*ii] = (float) calcDir.getX();
-                        this.dirs[whichPart*ii +1] = (float) calcDir.getY();
-                        this.dirs[whichPart*ii +2] = (float) calcDir.getZ();
+                        this.dirs[3*whichPart] = (float) calcDir.getX();
+                        this.dirs[3*whichPart +1] = (float) calcDir.getY();
+                        this.dirs[3*whichPart +2] = (float) calcDir.getZ();
 
                         //Calculate a color based on the velocity
                         float color[] = colorForVel((float)vel);
 
-                        this.colors[whichPart*ii] = color[0];
-                        this.colors[whichPart*ii+1] = color[1];
-                        this.colors[whichPart*ii+2] = color[2];
-                        this.colors[whichPart*ii+3] = color[3];
-
-                        whichPart++;
+                        this.colors[4*whichPart] = color[0];
+                        this.colors[4*whichPart+1] = color[1];
+                        this.colors[4*whichPart+2] = color[2];
+                        this.colors[4*whichPart+3] = color[3];
                     }
                 }
             }
@@ -247,7 +249,7 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
         batch.addAttribute("a_dir", this.dirs);
         batch.addAttribute("a_color", this.colors);
         batch.addAttribute("a_startTime", this.times);
-        viewC.addParticleBatch(batch, MaplyBaseController.ThreadMode.ThreadAny);
+        viewC.addParticleBatch(batch, MaplyBaseController.ThreadMode.ThreadCurrent);
     }
 
     //Interpolate a color based on the velocity of the particle
@@ -304,6 +306,14 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
         }
     }
 
+    @Override
+    public void tileDidUnload(MaplyTileID tileID)
+    {
+        // Note: Debugging
+//        this.clearTile(tileID);
+//        tileTrack.removeTile(tileID);
+    }
+
     private class ConnectionTask implements com.squareup.okhttp.Callback{
 
         private URL url = null;
@@ -346,8 +356,9 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
             tile.setImage(bm, witch);
             if (tile.isComplete()) {
                 layer.tileDidLoad(tileID);
+                tileTrack.addTile(tileID);
+                Log.d("Maply","Tracking tile: " + tileID);
             }
-
         }
 
         @Override
@@ -419,17 +430,21 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
         }
 
         public double[] getValue(Point2d pt) {
-            if (!this.isComplete()) {
-                return null;
-            }
-            double x = pt.getX();
-            double y = pt.getY();
+            // Note: Debugging
+            double[] fakeResult = {Math.random()*255,Math.random()*255};
+            return fakeResult;
 
-            y = 1.0 -y;
-            int whereX = Math.min(Math.max(0,(int)x *this.pixSizeX),255);
-            int whereY = Math.min(Math.max(0,(int)y *this.pixSizeY),255);
-            double[] result = {whereX, whereY};
-            return result;
+//            if (!this.isComplete()) {
+//                return null;
+//            }
+//            double x = pt.getX();
+//            double y = pt.getY();
+//
+//            y = 1.0 -y;
+//            int whereX = Math.min(Math.max(0,(int)x *this.pixSizeX),255);
+//            int whereY = Math.min(Math.max(0,(int)y *this.pixSizeY),255);
+//            double[] result = {whereX, whereY};
+//            return result;
         }
 
         @Override

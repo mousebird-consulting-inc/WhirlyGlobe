@@ -428,8 +428,6 @@
 		2BB766061C6FFF7E00F01F2A /* com_mousebird_maply_GeneralDisplayAdapter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB766051C6FFF7E00F01F2A /* com_mousebird_maply_GeneralDisplayAdapter.h */; };
 		2BB766091C6FFF9B00F01F2A /* com_mousebird_maply_Proj4CoordSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB766071C6FFF9B00F01F2A /* com_mousebird_maply_Proj4CoordSystem.h */; };
 		2BB7660A1C6FFF9B00F01F2A /* com_mousebird_maply_QuadImageOfflineLayer_RenderedImageDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB766081C6FFF9B00F01F2A /* com_mousebird_maply_QuadImageOfflineLayer_RenderedImageDelegate.h */; };
-		2BB7660C1C70013700F01F2A /* Proj4CoordSystem_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB7660B1C70013700F01F2A /* Proj4CoordSystem_jni.cpp */; };
-		2BB7660E1C70014D00F01F2A /* GeneralDisplayAdapter_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB7660D1C70014D00F01F2A /* GeneralDisplayAdapter_jni.cpp */; };
 		2BC8496B1C6932FD0058D10F /* WideVectorDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC849691C6932FD0058D10F /* WideVectorDrawable.h */; };
 		2BC8496C1C6932FD0058D10F /* WideVectorManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC8496A1C6932FD0058D10F /* WideVectorManager.h */; };
 		2BC8496F1C6933120058D10F /* WideVectorDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC8496D1C6933120058D10F /* WideVectorDrawable.cpp */; };
@@ -2099,7 +2097,6 @@
 				2B7EF46816025D8C00D4079F /* PJ_gins8.c in Sources */,
 				2B35674B18D762A700EF8DB1 /* FlatMath.cpp in Sources */,
 				2B7EF46916025D8C00D4079F /* PJ_gn_sinu.c in Sources */,
-				2BB7660E1C70014D00F01F2A /* GeneralDisplayAdapter_jni.cpp in Sources */,
 				2B35675E18D762A700EF8DB1 /* Platform.mm in Sources */,
 				2B7EF46A16025D8C00D4079F /* PJ_gnom.c in Sources */,
 				2B7EF46B16025D8C00D4079F /* PJ_goode.c in Sources */,
@@ -2171,7 +2168,6 @@
 				2B7EF49D16025D8C00D4079F /* pj_param.c in Sources */,
 				2B009D09186102E4001E2EE8 /* JSONStream.cpp in Sources */,
 				2B35674518D762A700EF8DB1 /* Cullable.cpp in Sources */,
-				2BB7660C1C70013700F01F2A /* Proj4CoordSystem_jni.cpp in Sources */,
 				2B7EF49E16025D8C00D4079F /* pj_phi2.c in Sources */,
 				2B7EF49F16025D8C00D4079F /* PJ_poly.c in Sources */,
 				2B7EF4A016025D8C00D4079F /* pj_pr_list.c in Sources */,

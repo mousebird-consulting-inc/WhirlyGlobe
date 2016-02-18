@@ -253,6 +253,10 @@ public class ParticleSystemTestCase extends MaplyTestCase {
             }
         }
 
+        @Override
+        public void tileDidUnload(MaplyTileID tileID)
+        {}
+
         private class ConnectionTask implements com.squareup.okhttp.Callback{
 
             private URL url = null;

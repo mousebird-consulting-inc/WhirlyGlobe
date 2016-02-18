@@ -19,6 +19,15 @@
  */
 package com.mousebird.maply;
 
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.os.AsyncTask;
+import android.util.Log;
+
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -26,15 +35,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.os.AsyncTask;
-import android.util.Log;
 
 /**
  * The OSM Vector Tile Pager reads vector tiles from a remote source,
@@ -171,6 +171,11 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		String[] params = new String[1];
 		params[0] = tileURL;
 		task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,params);
+	}
+
+	@Override
+	public void tileDidUnload(MaplyTileID tileID)
+	{
 	}
 
 	// Group data together for efficiency

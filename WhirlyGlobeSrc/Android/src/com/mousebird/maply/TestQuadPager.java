@@ -20,9 +20,9 @@
 
 package com.mousebird.maply;
 
-import java.util.ArrayList;
-
 import android.util.Log;
+
+import java.util.ArrayList;
 
 /**
  * Test Maply's quad paging by creating a rectangle for each tile
@@ -98,6 +98,11 @@ public class TestQuadPager implements QuadPagingLayer.PagingInterface
 				layer.tileDidLoad(tileID);				
 			}
 		},true);
+	}
+
+	@Override
+	public void tileDidUnload(MaplyTileID tileID)
+	{
 	}
 
 }

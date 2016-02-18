@@ -204,7 +204,7 @@ public class MaplyBaseController
 
 	public Point3d displayCoord (Point3d localCoord, CoordSystem fromSystem){
 
-		Point3d loc3d = coordAdapter.getCoordSystem().coordSystemConvert3d(fromSystem, coordAdapter.getCoordSystem(), localCoord);
+		Point3d loc3d = CoordSystem.CoordSystemConvert3d(fromSystem, coordAdapter.getCoordSystem(), localCoord);
 		Point3d pt = coordAdapter.localToDisplay(loc3d);
 
 		return pt;

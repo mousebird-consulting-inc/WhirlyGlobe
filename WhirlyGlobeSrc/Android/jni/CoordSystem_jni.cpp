@@ -107,3 +107,25 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_localToGeographic
     
     return NULL;
 }
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_CoordSystemConvert3d
+(JNIEnv *env, jclass cls, jobject inSystemObj, jobject outSystemObj, jobject coordObj)
+{
+    try
+    {
+        CoordSystem *inCoordSys = CoordSystemClassInfo::getClassInfo()->getObject(env,inSystemObj);
+        CoordSystem *outCoordSys = CoordSystemClassInfo::getClassInfo()->getObject(env,outSystemObj);
+        Point3d *pt = Point3dClassInfo::getClassInfo()->getObject(env,coordObj);
+        if (!inCoordSys || !outCoordSys || !pt)
+            return NULL;
+
+        Point3d outPt = CoordSystemConvert3d(inCoordSys,outCoordSys,*pt);
+        return MakePoint3d(env,outPt);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystem::localToGeographic()");
+    }
+    
+    return NULL;
+}

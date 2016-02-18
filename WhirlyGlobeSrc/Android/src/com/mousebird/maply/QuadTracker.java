@@ -56,10 +56,29 @@ public class QuadTracker
 
     native void queryTilesNative(int numPts,double[] screenLocs,int[] tileIDs,double coordLocs[],double tileLocs[]);
 
-    public native void addTile(int x, int y, int level);
+    /**
+     * Add a tile to be tracked.
+     */
+    public void addTile(MaplyTileID tileID)
+    {
+        addTile(tileID.x,tileID.y,tileID.level);
+    }
 
-    public native void removeTile(int x, int y, int level);
+    native void addTile(int x, int y, int level);
 
+    /**
+     * Remove the given tile from tracking.
+     */
+    public void removeTile(MaplyTileID tileID)
+    {
+        removeTile(tileID.x,tileID.y,tileID.level);
+    }
+
+    native void removeTile(int x, int y, int level);
+
+    /**
+     * Return the minimum level.  The maximum isn't set.
+     */
     public native int getMinLevel();
 
     static {

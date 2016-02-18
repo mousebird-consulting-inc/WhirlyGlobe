@@ -38,8 +38,7 @@ public class ComplexParticleSystemTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithGlobe(final GlobeController globeVC) throws Exception {
-
-        StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
+        CartoDBDarkTestCase baseView = new CartoDBDarkTestCase(getActivity());
         baseView.setUpWithGlobe(globeVC);
 
         // Kick off the particle thread
@@ -48,8 +47,9 @@ public class ComplexParticleSystemTestCase extends MaplyTestCase {
             @Override
             public void run() {
                 particleThread = globeVC.makeLayerThread();
+                // Note: minZoom should be 5
                 particleAdapter = new ComplexParticleThreadAdapter(globeVC, particleThread,
-                        "http://tilesets.s3-website-us-east-1.amazonaws.com/wind_test/{dir}_tiles/{z}/{x}/{y}.png", 5, 18);
+                        "http://tilesets.s3-website-us-east-1.amazonaws.com/wind_test/{dir}_tiles/{z}/{x}/{y}.png", 0, 18);
             }
         });
 

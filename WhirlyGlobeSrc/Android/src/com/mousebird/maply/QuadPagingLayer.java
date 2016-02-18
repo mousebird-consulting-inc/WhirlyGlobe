@@ -88,6 +88,12 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		 * @param tileID The tile to start fetching
 		 */
 		public void startFetchForTile(QuadPagingLayer layer,MaplyTileID tileID);
+
+		/**
+		 * Called when the system unloads a tile.  You need this if you're tracking
+		 * data separate from ComponentObjects, which the QuadLayer will take care of.
+         */
+		public void tileDidUnload(MaplyTileID tileID);
 	}
 	
 	public MaplyBaseController maplyControl = null;
