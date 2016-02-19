@@ -131,13 +131,23 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
         scheduleUpdateTask();
     }
 
+    double startTime = 0.0;
+    int numGens = 0;
+
     void scheduleUpdateTask()
     {
+        if (startTime == 0.0)
+            startTime = (double) new Date().getTime()/1000.0;
         Runnable run = new Runnable() {
             @Override
             public void run() {
                 try {
                     generateParticles();
+                    numGens++;
+
+                    double timeSince = (double) new Date().getTime()/1000.0 - startTime;
+                    if (numGens % 10 == 0)
+                        Log.d("Maply","Particle generations per second: " + numGens/timeSince);
                 }
                 catch (Exception e)
                 {
@@ -184,6 +194,12 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
 
         tileTrack.queryTiles(points);
 
+        Point3d coordA = new Point3d();
+        Point3d coordB = new Point3d();
+        Point3d calcDir = new Point3d();
+        Point3d dispA = new Point3d();
+        Point3d dispB = new Point3d();
+
         //Generate particles from those samples
         for (int whichPart = 0; whichPart < this.partSys.getBatchSize(); whichPart++){
             MaplyTileID tileID = points.getTileID(whichPart);
@@ -195,7 +211,6 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
 //            if (dataTile != null){
             if (true) {
                 float time = this.times[whichPart];
-                Point3d coordA = new Point3d();
                 coordA.setValue(points.getCoordLocX(whichPart), points.getCoordLocY(whichPart), 0.0);
 
                 double velU =  0.0;
@@ -214,31 +229,32 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
                         velV = (result[1] - 127.0)/128.0;
                         double vel = Math.sqrt(velU * velU + velV * velV)/1.41421356237 * 3;
 
-                        Point3d coordB = new Point3d();
                         coordB.setValue(coordA.getX() + velU * velocityScale, coordA.getY() + velV *velocityScale, 0.0);
 
                         //Convert to display coordinates
-
-
-                        Point3d dispA = viewC.displayCoord(coordA, coordSys);
-                        Point3d dispB = viewC.displayCoord(coordB, coordSys);
-                        Point3d calcDir = new Point3d(dispB.getX() - dispA.getX(), dispB.getY() -dispA.getY(), dispB.getZ() - dispA.getZ());
+                        dispA = viewC.displayCoord(coordA, coordSys);
+                        dispB = viewC.displayCoord(coordB, coordSys);
+                        calcDir.setValue(dispB.getX() - dispA.getX(), dispB.getY() -dispA.getY(), dispB.getZ() - dispA.getZ());
 
                         this.locs[3*whichPart] = (float) dispA.getX();
                         this.locs[3*whichPart +1] = (float) dispA.getY();
                         this.locs[3*whichPart +2] = (float) dispA.getZ();
 
-                        this.dirs[3*whichPart] = (float) calcDir.getX();
-                        this.dirs[3*whichPart +1] = (float) calcDir.getY();
-                        this.dirs[3*whichPart +2] = (float) calcDir.getZ();
+//                        this.dirs[3*whichPart] = (float) calcDir.getX();
+//                        this.dirs[3*whichPart +1] = (float) calcDir.getY();
+//                        this.dirs[3*whichPart +2] = (float) calcDir.getZ();
+                        this.dirs[3*whichPart] = 0.f;
+                        this.dirs[3*whichPart +1] = 0.f;
+                        this.dirs[3*whichPart +2] = 0.f;
 
                         //Calculate a color based on the velocity
                         float color[] = colorForVel((float)vel);
-
                         this.colors[4*whichPart] = color[0];
                         this.colors[4*whichPart+1] = color[1];
                         this.colors[4*whichPart+2] = color[2];
                         this.colors[4*whichPart+3] = color[3];
+
+                        this.times[whichPart] = (float)now;
                     }
                 }
             }

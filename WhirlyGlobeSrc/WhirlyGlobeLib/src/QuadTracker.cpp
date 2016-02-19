@@ -121,7 +121,7 @@ void QuadTracker::tiles(WhirlyKit::QuadTrackerPointReturn *trackInfo, int numPts
     if (!coordSys)
         return;
     
-    WHIRLYKIT_LOGV("Tiles start");
+//    WHIRLYKIT_LOGV("Tiles start");
 
     Point2d frameSize(renderer->framebufferWidth, renderer->framebufferHeight);
 
@@ -205,7 +205,7 @@ void QuadTracker::tiles(WhirlyKit::QuadTrackerPointReturn *trackInfo, int numPts
             trackInfo->setTileID(ii,tileID.x,tileID.y,tileID.level);
         }
     }
-    WHIRLYKIT_LOGV("tiles finished");
+//    WHIRLYKIT_LOGV("tiles finished");
     for (unsigned int ii= 0; ii< numPts; ii++) {
         
 //        QuadTrackerPointReturn *trackInfo = &tilesInfo[ii];
