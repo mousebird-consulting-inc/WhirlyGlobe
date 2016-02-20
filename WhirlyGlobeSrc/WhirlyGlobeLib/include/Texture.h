@@ -97,6 +97,7 @@ public:
 	virtual ~Texture();
     
     /// Set the raw data directly
+    /// Texture takes possession of the bytes.  It will free them.
     void setRawData(RawData *rawData,int width,int height);
 	    
     /// Process the data for display based on the format.
