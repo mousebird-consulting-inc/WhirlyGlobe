@@ -29,7 +29,6 @@
 #import "MaplyVectorMarkerStyle.h"
 #import "MaplyVectorPolygonStyle.h"
 #import "MaplyVectorTextStyle.h"
-#import "AFHTTPRequestOperation.h"
 #import <string>
 #import <map>
 #import <vector>
@@ -61,61 +60,74 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     // First we need the JSON describing the whole thing
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:jsonURL]];
     request.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
-    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-    operation.responseSerializer = [AFJSONResponseSerializer serializer];
-    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSDictionary *jsonDict = responseObject;
-        // We're expecting one or more tile URLs and the styles
-        NSString *styleURL = jsonDict[@"style"];
-        NSArray *tileURLs = jsonDict[@"tiles"];
-        if (![styleURL isKindOfClass:[NSString class]])
-        {
-            NSLog(@"Expecting style URL in vector tile spec from: %@",jsonURL);
-        } else if (![tileURLs isKindOfClass:[NSArray class]] || [tileURLs count] == 0)
-        {
-            NSLog(@"Expecting one or more tile URLs in vector tile spec from: %@",jsonURL);
-        } else {
-            // Success, go get the styles
-            NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:styleURL]];
-            request.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
-            AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-            operation.responseSerializer = [AFJSONResponseSerializer serializer];
-            [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-                // This should be enough to start, so let's do that
-                NSDictionary *styleDict = responseObject;
-                MaplyVectorTiles *vecTiles = [[MaplyVectorTiles alloc] initWithTileSpec:jsonDict styles:styleDict viewC:viewC];
-                vecTiles.cacheDir = cacheDir;
-                if (vecTiles)
-                {
-                    // Up to the "caller" to do something with it
-                    dispatch_async(dispatch_get_main_queue(),
-                                   ^{
-                                       callbackBlock(vecTiles);
-                                   });
-                } else {
-                    NSLog(@"Unable to create MaplyVectorTiles from URL: %@",jsonURL);
-                    dispatch_async(dispatch_get_main_queue(),
-                                   ^{
-                                       callbackBlock(nil);
-                                   });
-                }
-            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                NSLog(@"Failed to reach vector styles at: %@",styleURL);
-                dispatch_async(dispatch_get_main_queue(),
-                               ^{
-                                   callbackBlock(nil);
-                               });
-            }];
-            [operation start];
+
+
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:
+    ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        NSError *jsonError;
+        NSDictionary *jsonDict;
+        if (!error) {
+            jsonDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
         }
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"Failed to reach JSON vector tile spec at: %@",jsonURL);
-        dispatch_async(dispatch_get_main_queue(),
-                       ^{
-                           callbackBlock(nil);
-                       });
+        if (!error && !jsonError) {
+            // We're expecting one or more tile URLs and the styles
+            NSString *styleURL = jsonDict[@"style"];
+            NSArray *tileURLs = jsonDict[@"tiles"];
+            if (![styleURL isKindOfClass:[NSString class]])
+            {
+                NSLog(@"Expecting style URL in vector tile spec from: %@",jsonURL);
+            } else if (![tileURLs isKindOfClass:[NSArray class]] || [tileURLs count] == 0)
+            {
+                NSLog(@"Expecting one or more tile URLs in vector tile spec from: %@",jsonURL);
+            } else {
+                // Success, go get the styles
+                NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:styleURL]];
+                request.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
+
+                NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:
+                ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                    NSError *styleError;
+                    NSDictionary *styleDict;
+                    if (!error)
+                        styleDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&styleError];
+
+                    if (!error && !styleError) {
+                        // This should be enough to start, so let's do that
+                        MaplyVectorTiles *vecTiles = [[MaplyVectorTiles alloc] initWithTileSpec:jsonDict styles:styleDict viewC:viewC];
+                        vecTiles.cacheDir = cacheDir;
+                        if (vecTiles)
+                        {
+                            // Up to the "caller" to do something with it
+                            dispatch_async(dispatch_get_main_queue(),
+                                ^{
+                                    callbackBlock(vecTiles);
+                                });
+                        } else {
+                            NSLog(@"Unable to create MaplyVectorTiles from URL: %@",jsonURL);
+                            dispatch_async(dispatch_get_main_queue(),
+                                ^{
+                                    callbackBlock(nil);
+                                });
+                        }
+                    } else {
+                        NSLog(@"Failed to reach vector styles at: %@",styleURL);
+                        dispatch_async(dispatch_get_main_queue(),
+                            ^{
+                                callbackBlock(nil);
+                            });
+                    }
+                }];
+            }
+        } else {
+            NSLog(@"Failed to reach JSON vector tile spec at: %@",jsonURL);
+            dispatch_async(dispatch_get_main_queue(),
+                ^{
+                    callbackBlock(nil);
+                });
+        }
     }];
-    [operation start];
+    [task resume];
 }
 
 // Parse a UIColor from hex values
@@ -557,48 +569,37 @@ typedef std::map<std::string,NSMutableArray *> VecsForStyles;
                    NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
                    urlReq.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
                    // Note: Should set the timeout
-                   
-                   AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:urlReq];
-                   dispatch_queue_t runQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-                   op.completionQueue = runQueue;
-                   [op setCompletionBlockWithSuccess:
-                    ^(AFHTTPRequestOperation *operation, id responseObject)
-                    {
-                        NSData *tileData = responseObject;
-                        if ([tileData isKindOfClass:[NSData class]])
-                        {
-                            // Uncompress the data
-                            NSData *uncompressedData = [tileData uncompressGZip];
-                            MaplyVectorObject *vecObj = nil;
-                            if ([uncompressedData length] > 0)
-                                vecObj = [MaplyVectorObject VectorObjectFromVectorDBRaw:uncompressedData];
-                            if (vecObj)
-                                [self processLayers:tileID layerData:@[vecObj] layer:layer];
-                     
-//                            NSLog(@"Loaded tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-                            
-                            // Save out to the cache
-                            if (cacheFileName)
-                                if (![tileData writeToFile:cacheFileName atomically:YES])
-                                    NSLog(@"Failed to write tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-                            
-                            [layer tileDidLoad:tileID];
-                        } else {
-    //                        NSLog(@"Got unexpected data back from vector tile request for %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-                            [layer tileFailedToLoad:tileID];
-                        }
-                    }
-                                             failure:
-                    ^(AFHTTPRequestOperation *operation, NSError *error)
-                    {
-    //                    NSLog(@"Failed to fetch vector tile for %d: (%d,%d)\n%@",tileID.level,tileID.x,tileID.y,error);
-                        // Note: We have to do this because we're missing tiles in the middle
-                        [layer tileDidLoad:tileID];
-    //                    [layer tileFailedToLoad:tileID];
+                   NSURLSession *session = [NSURLSession sharedSession];
+                   NSURLSessionDataTask *task = [session dataTaskWithRequest:urlReq completionHandler:
+                    ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                            if (!error) {
+                                // Uncompress the data
+                                NSData *uncompressedData = [data uncompressGZip];
+                                MaplyVectorObject *vecObj = nil;
+                                if ([uncompressedData length] > 0)
+                                    vecObj = [MaplyVectorObject VectorObjectFromVectorDBRaw:uncompressedData];
+                                if (vecObj)
+                                    [self processLayers:tileID layerData:@[vecObj] layer:layer];
+                                //NSLog(@"Loaded tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+                                // Save out to the cache
+                                if (cacheFileName)
+                                    if (![data writeToFile:cacheFileName atomically:YES])
+                                        NSLog(@"Failed to write tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+
+                                [layer tileDidLoad:tileID];
+
+                            } else {
+                                //NSLog(@"Failed to fetch vector tile for %d: (%d,%d)\n%@",tileID.level,tileID.x,tileID.y,error);
+                                // Note: We have to do this because we're missing tiles in the middle
+                                [layer tileDidLoad:tileID];
+                                //                    [layer tileFailedToLoad:tileID];
+
+                            }
+                        });
                     }];
-                   // Note: Should track this so we can cancel it
-                   //       Go look at the remote image tile logic
-                   [op start];
+                   [task resume];
+
                }
            } else {
                // Fetch locally all at once.  Makes the logic simpler
