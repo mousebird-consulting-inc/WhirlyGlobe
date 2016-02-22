@@ -49,9 +49,21 @@ Point3d CoordSystemConvert3d(CoordSystem *inSystem,CoordSystem *outSystem,Point3
     return outPt;
 }
     
-GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &ll,const Point3d &ur,const Point3d &inCenter,const Point3d &scale)
-    : CoordSystemDisplayAdapter(coordSys,inCenter), ll(ll), ur(ur), scale(scale), coordSys(coordSys)
+void CoordSystemDisplayAdapter::setScale(const Point3d &newScale)
 {
+    scale = newScale;
+}
+
+Point3d CoordSystemDisplayAdapter::getScale()
+{
+    return scale;
+}
+
+    
+GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &ll,const Point3d &ur,const Point3d &inCenter,const Point3d &inScale)
+    : CoordSystemDisplayAdapter(coordSys,inCenter), ll(ll), ur(ur), coordSys(coordSys)
+{
+    scale = inScale;
     center = inCenter;
     dispLL = localToDisplay(ll);
     dispUR = localToDisplay(ur);
@@ -106,16 +118,6 @@ WhirlyKit::Point3d GeneralCoordSystemDisplayAdapter::displayToLocal(WhirlyKit::P
 {
     Point3d localPt = Point3d(dispPt.x()/scale.x(),dispPt.y()/scale.y(),dispPt.z()/scale.z())+center;
     return localPt;
-}
-
-void GeneralCoordSystemDisplayAdapter::setScale(const Point3d &newScale)
-{
-    scale = newScale;
-}
-    
-Point3d GeneralCoordSystemDisplayAdapter::getScale()
-{
-    return scale;
 }
     
 }
