@@ -2060,12 +2060,15 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     MaplyComponentObject *compObj = argArray[1];
     NSMutableDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-    
+
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyModelDrawPriorityDefault) toDict:inDesc];
     
     // Might be a custom shader on these
     [self resolveShader:inDesc defaultShader:kMaplyShaderDefaultModelTri];
-    
+
+    // May need a temporary context when setting up label textures
+    EAGLContext *tmpContext = [self setupTempContext:threadMode];
+
     GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
     WhirlyKitFontTextureManager *fontTexManager = scene->getFontTextureManager();
 
@@ -2210,6 +2213,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         [userObjects addObject:compObj];
         compObj.underConstruction = false;
     }
+    
+    [self clearTempContext:tmpContext];
 }
 
 // Called in the layer thread
