@@ -20,7 +20,6 @@
 
 #import <vector>
 #import <set>
-#import "AFHTTPRequestOperation.h"
 
 namespace Maply
 {
@@ -28,7 +27,7 @@ namespace Maply
 class TileFetchOp
 {
 public:
-    TileFetchOp(MaplyTileID tileID) : tileID(tileID), op(nil) { }
+    TileFetchOp(MaplyTileID tileID) : tileID(tileID), task(nil) { }
     
     bool operator < (const TileFetchOp &that) const
     {
@@ -43,7 +42,7 @@ public:
     }
     
     MaplyTileID tileID;
-    AFHTTPRequestOperation *op;
+    NSURLSessionDataTask *task;
 };
 typedef std::set<TileFetchOp> TileFetchOpSet;
 }

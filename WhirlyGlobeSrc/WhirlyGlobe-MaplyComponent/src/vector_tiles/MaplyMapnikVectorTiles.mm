@@ -37,7 +37,6 @@
 #import "vector_tile.pb.h"
 #import "VectorData.h"
 #import "MaplyMBTileSource.h"
-#import "AFHTTPRequestOperation.h"
 #import "MapnikStyleSet.h"
 #import "MapboxVectorStyleSet.h"
 
@@ -447,19 +446,21 @@ static double MAX_EXTENT = 20037508.342789244;
             if (accessToken)
                 fullURL = [NSString stringWithFormat:@"%@?access_token=%@",tileSpecURL,accessToken];
             NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:fullURL]];
-            AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-            operation.responseSerializer = [AFJSONResponseSerializer serializer];
-            [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
-             {
-                 startBlock(responseObject,styleData);
-             }
-                                             failure:^(AFHTTPRequestOperation *operation, NSError *error)
-             {
-                 failureBlock([[NSError alloc] initWithDomain:@"MaplyMapnikVectorTiles" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to reach JSON tile spec"}]);
-             }
-             ];
             
-            [operation start];
+            NSURLSession *session = [NSURLSession sharedSession];
+            NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:
+            ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                NSError *jsonError;
+                NSDictionary *tileSpecDict;
+                if (!error)
+                    tileSpecDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
+                if (!error && !jsonError)
+                    startBlock(tileSpecDict,styleData);
+                else
+                    failureBlock([[NSError alloc] initWithDomain:@"MaplyMapnikVectorTiles" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to reach JSON tile spec"}]);
+            }];
+            [task resume];
+
         }
     };
 
@@ -470,18 +471,16 @@ static double MAX_EXTENT = 20037508.342789244;
         fetchBlock(styleData);
     } else {
         NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:styleURL]];
-        AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-        [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
-         {
-             fetchBlock(responseObject);
-         }
-                                         failure:^(AFHTTPRequestOperation *operation, NSError *error)
-         {
-             failureBlock([[NSError alloc] initWithDomain:@"MaplyMapnikVectorTiles" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to reach style file."}]);
-         }
-         ];
-        
-        [operation start];
+        NSURLSession *session = [NSURLSession sharedSession];
+        NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:
+        ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            if (!error) {
+                fetchBlock(data);
+            } else {
+                failureBlock([[NSError alloc] initWithDomain:@"MaplyMapnikVectorTiles" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to reach style file."}]);
+            }
+        }];
+        [task resume];
     }
 }
 
@@ -526,18 +525,16 @@ static double MAX_EXTENT = 20037508.342789244;
         startBlock(styleData);
     } else {
         NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:styleURL]];
-        AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-        [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
-         {
-             startBlock(responseObject);
-         }
-                                         failure:^(AFHTTPRequestOperation *operation, NSError *error)
-         {
-             failureBlock([[NSError alloc] initWithDomain:@"MaplyMapnikVectorTiles" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to reach style file."}]);
-         }
-         ];
-        
-        [operation start];
+        NSURLSession *session = [NSURLSession sharedSession];
+        NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:
+            ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                if (!error)
+                    startBlock(data);
+                else
+                    failureBlock([[NSError alloc] initWithDomain:@"MaplyMapnikVectorTiles" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to reach style file."}]);
+
+        }];
+        [task resume];
     }
 }
 
