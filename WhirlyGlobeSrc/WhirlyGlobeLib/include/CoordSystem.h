@@ -85,7 +85,7 @@ Point3d CoordSystemConvert3d(CoordSystem *inSystem,CoordSystem *outSystem,Point3
 class CoordSystemDisplayAdapter : public DelayedDeletable
 {
 public:
-    CoordSystemDisplayAdapter(CoordSystem *coordSys,Point3d center) : coordSys(coordSys), center(0.0,0.0,0.0) { }
+    CoordSystemDisplayAdapter(CoordSystem *coordSys,Point3d center) : coordSys(coordSys), center(0.0,0.0,0.0), scale(1.0,1.0,1.0) { }
     virtual ~CoordSystemDisplayAdapter() { }
     
     /// If the subclass can support a bounding box, this returns true
@@ -101,6 +101,12 @@ public:
 
     /// Return the current center
     Point3d getCenter() { return center; }
+    
+    /// Set the scale for coordinates going to/from display space
+    void setScale(const Point3d &scale);
+    
+    /// Return the display space scale
+    Point3d getScale();
 
     /// Convert from the system's local coordinates to display coordinates
     virtual WhirlyKit::Point3f localToDisplay(WhirlyKit::Point3f) = 0;
@@ -117,12 +123,14 @@ public:
     /// Get a reference to the coordinate system
     virtual CoordSystem *getCoordSystem() = 0;
     
+    
     /// Return true if this is a projected coordinate system.
     /// False for others, like geographic.
     virtual bool isFlat() = 0;
     
 protected:
     Point3d center;
+    Point3d scale;
     CoordSystem *coordSys;
 };
     
@@ -163,17 +171,10 @@ public:
     /// False for others, like geographic.
     bool isFlat() { return true; }
     
-    /// Set the scale for coordinates going to/from display space
-    void setScale(const Point3d &scale);
-    
-    /// Return the display space scale
-    Point3d getScale();
-    
 protected:
     Point3d ll,ur;
     Point3d dispLL,dispUR;
     Point2d geoLL,geoUR;
-    Point3d scale;
     CoordSystem *coordSys;
 };
 
