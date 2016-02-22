@@ -18,7 +18,6 @@
  *
  */
 
-#import "AFHTTPRequestOperation.h"
 #import "MaplyRemoteTileSource.h"
 #import "WhirlyGlobe.h"
 #import "MaplyCoordinateSystem_private.h"
@@ -292,7 +291,7 @@ static bool trackConnections = false;
              it != tileSet.end(); ++it)
         {
             Maply::TileFetchOp tile = *it;
-            [tile.op cancel];
+            [tile.task cancel];
         }
         tileSet.clear();
     }
@@ -516,64 +515,65 @@ static bool trackConnections = false;
         
         // Kick off an async request for the data
         MaplyRemoteTileSource __weak *weakSelf = self;
-        AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:urlReq];
-        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        op.completionQueue = queue;
-        [op setCompletionBlockWithSuccess:
-         ^(AFHTTPRequestOperation *operation, id responseObject)
-            {
-                if (weakSelf)
-                {
-                    NSData *imgData = responseObject;
-                    
-                    // Let the delegate know we loaded successfully
-                    if (weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
-                        [weakSelf.delegate remoteTileSource:weakSelf tileDidLoad:tileID];
-                    
-                    // Let's also write it back out for the cache
-                    if (weakSelf.tileInfo.cacheDir)
-                        [imgData writeToFile:fileName atomically:YES];
 
-                    if ([_delegate respondsToSelector:@selector(remoteTileSource:modifyTileReturn:forTile:)])
-                        imgData = [_delegate remoteTileSource:self modifyTileReturn:imgData forTile:tileID];
+        NSURLSession *session = [NSURLSession sharedSession];
+        NSURLSessionDataTask *task = [session dataTaskWithRequest:urlReq completionHandler:
+        ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                if (!error) {
+                    if (weakSelf)
+                    {
+                        NSData *imgData = data;
 
-                    // Let the paging layer know about it
-                    [layer loadedImages:imgData forTile:tileID];
-                    
-                    [weakSelf clearTile:tileID];
-                }
+                        // Let the delegate know we loaded successfully
+                        if (weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
+                            [weakSelf.delegate remoteTileSource:weakSelf tileDidLoad:tileID];
 
-                if (trackConnections)
-                    @synchronized([MaplyRemoteTileSource class])
-                {
-                    numConnections--;
-                }
-            }
-        failure:
-         ^(AFHTTPRequestOperation *operation, NSError *error)
-            {
-                if (weakSelf)
-                {
-                    // Unsucessful load
-                    [layer loadError:error forTile:tileID];
-                    if (weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
-                        [weakSelf.delegate remoteTileSource:weakSelf tileDidNotLoad:tileID error:error];
-                    [weakSelf clearTile:tileID];
-                }
+                        // Let's also write it back out for the cache
+                        if (weakSelf.tileInfo.cacheDir)
+                            [imgData writeToFile:fileName atomically:YES];
 
-                if (trackConnections)
-                    @synchronized([MaplyRemoteTileSource class])
-                {
-                    numConnections--;
+                        if ([_delegate respondsToSelector:@selector(remoteTileSource:modifyTileReturn:forTile:)])
+                            imgData = [_delegate remoteTileSource:self modifyTileReturn:imgData forTile:tileID];
+
+                        // Let the paging layer know about it
+                        [layer loadedImages:imgData forTile:tileID];
+
+                        [weakSelf clearTile:tileID];
+                    }
+
+                    if (trackConnections)
+                        @synchronized([MaplyRemoteTileSource class])
+                    {
+                        numConnections--;
+                    }
+
+                } else {
+                    if (weakSelf)
+                    {
+                        // Unsucessful load
+                        [layer loadError:error forTile:tileID];
+                        if (weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
+                            [weakSelf.delegate remoteTileSource:weakSelf tileDidNotLoad:tileID error:error];
+                        [weakSelf clearTile:tileID];
+                    }
+
+                    if (trackConnections)
+                        @synchronized([MaplyRemoteTileSource class])
+                    {
+                        numConnections--;
+                    }
                 }
-            }];
+            });
+        }];
+
         Maply::TileFetchOp fetchOp(tileID);
-        fetchOp.op = op;
+        fetchOp.task = task;
         @synchronized(self)
         {
             tileSet.insert(fetchOp);
         }
-        [op start];
+        [task resume];
     }
 }
 
