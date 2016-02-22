@@ -20,7 +20,6 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import "TestViewController.h"
-#import "AFHTTPRequestOperation.h"
 #import "AnimationTest.h"
 #import "WeatherShader.h"
 #import "MaplyRemoteTileElevationSource.h"
@@ -718,23 +717,22 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 - (void)fetchWMSLayer:(NSString *)baseURL layer:(NSString *)layerName style:(NSString *)styleName cacheDir:(NSString *)thisCacheDir ovlName:(NSString *)ovlName
 {
     NSString *capabilitiesURL = [MaplyWMSCapabilities CapabilitiesURLFor:baseURL];
-    
-    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:capabilitiesURL]]];
-    operation.responseSerializer = [AFXMLParserResponseSerializer serializer];
-    operation.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/vnd.ogc.wms_xml", @"text/xml", @"application/xml", nil];
-    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSError *error;
-        DDXMLDocument *doc = [[DDXMLDocument alloc] initWithData:operation.responseData options:0 error:&error];
-        
-        
-        [self startWMSLayerBaseURL:baseURL xml:doc layer:layerName style:styleName cacheDir:thisCacheDir ovlName:ovlName];
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        // Sometimes this works anyway
-//        if (![self startWMSLayerBaseURL:baseURL xml:XMLDocument layer:layerName style:styleName cacheDir:thisCacheDir ovlName:ovlName])
-//            NSLog(@"Failed to get capabilities from WMS server: %@",capabilitiesURL);
+
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *task = [session dataTaskWithURL:[NSURL URLWithString:capabilitiesURL] completionHandler:
+    ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (!error) {
+            NSError *xmlError;
+            DDXMLDocument *doc = [[DDXMLDocument alloc] initWithData:data options:0 error:&xmlError];
+            [self startWMSLayerBaseURL:baseURL xml:doc layer:layerName style:styleName cacheDir:thisCacheDir ovlName:ovlName];
+        } else {
+            // Sometimes this works anyway
+            //if (![self startWMSLayerBaseURL:baseURL xml:XMLDocument layer:layerName style:styleName cacheDir:thisCacheDir ovlName:ovlName])
+            //    NSLog(@"Failed to get capabilities from WMS server: %@",capabilitiesURL);
+        }
     }];
-    
-    [operation start];
+    [task resume];
+
 }
 
 // Try to start the layer, given the capabilities
@@ -1266,23 +1264,19 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 
 - (void)addArcGISQuery:(NSString *)url
 {
-    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]]];
-    operation.responseSerializer = [AFHTTPResponseSerializer serializer];
-    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
-     {
-         MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithGeoJSON:responseObject];
-         if (vecObj)
-         {
-             arcGisObj = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor]}];
-         }
-     }
-                                     failure:^(AFHTTPRequestOperation *operation, NSError *error)
-     {
-         NSLog(@"Unable to fetch ArcGIS layer:\n%@",error);
-     }
-     ];
     
-    [operation start];
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *task = [session dataTaskWithURL:[NSURL URLWithString:url] completionHandler:
+    ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (!error) {
+            MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithGeoJSON:data];
+            if (vecObj)
+                arcGisObj = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: [UIColor redColor]}];
+
+        } else
+            NSLog(@"Unable to fetch ArcGIS layer:\n%@",error);
+    }];
+    [task resume];
 }
 
 - (void)addStickers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc
@@ -1971,43 +1965,46 @@ static const float MarkerSpread = 2.0;
     if (jsonTileSpec)
     {
         NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:jsonTileSpec]];
-        
-        AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-        operation.responseSerializer = [AFJSONResponseSerializer serializer];
-        [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
-         {
-             // Add a quad earth paging layer based on the tile spec we just fetched
-             MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:responseObject];
-             tileSource.cacheDir = thisCacheDir;
-             if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
-                 tileSource.tileInfo.maxZoom = zoomLimit;
 
-             MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
-             layer.handleEdges = true;
-             layer.waitLoad = imageWaitLoad;
-             layer.requireElev = requireElev;
-             layer.maxTiles = maxLayerTiles;
-             if (startupMapType == Maply2DMap)
-             {
-                 layer.singleLevelLoading = true;
-                 layer.multiLevelLoads = @[@(-4), @(-2)];
-             }
-             [layer setTesselationValues:tessValues];
-             [baseViewC addLayer:layer];
-             layer.drawPriority = BaseEarthPriority;
-             baseLayer = layer;
+        NSURLSession *session = [NSURLSession sharedSession];
+        NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:
+        ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            NSError *jsonError;
+            NSDictionary *jsonDict;
+            if (!error) {
+                jsonDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
+            }
+            if (!error && !jsonError) {
+                // Add a quad earth paging layer based on the tile spec we just fetched
+                MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:jsonDict];
+                tileSource.cacheDir = thisCacheDir;
+                if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
+                    tileSource.tileInfo.maxZoom = zoomLimit;
+
+                MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+                layer.handleEdges = true;
+                layer.waitLoad = imageWaitLoad;
+                layer.requireElev = requireElev;
+                layer.maxTiles = maxLayerTiles;
+                if (startupMapType == Maply2DMap)
+                {
+                    layer.singleLevelLoading = true;
+                    layer.multiLevelLoads = @[@(-4), @(-2)];
+                }
+                [layer setTesselationValues:tessValues];
+                [baseViewC addLayer:layer];
+                layer.drawPriority = BaseEarthPriority;
+                baseLayer = layer;
 
 #ifdef RELOADTEST
-             [self performSelector:@selector(reloadLayer:) withObject:nil afterDelay:10.0];
+                [self performSelector:@selector(reloadLayer:) withObject:nil afterDelay:10.0];
 #endif
-         }
-        failure:^(AFHTTPRequestOperation *operation, NSError *error)
-         {
-             NSLog(@"Failed to reach JSON tile spec at: %@",jsonTileSpec);
-         }
-         ];
-        
-        [operation start];
+
+            } else
+                NSLog(@"Failed to reach JSON tile spec at: %@",jsonTileSpec);
+        }];
+        [task resume];
+
     }
     
     // Set up some defaults for display

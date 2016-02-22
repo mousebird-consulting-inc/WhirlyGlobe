@@ -19,7 +19,6 @@
  */
 
 #import "ParticleTest.h"
-#import "AFHTTPRequestOperation.h"
 
 typedef struct
 {
@@ -215,39 +214,35 @@ typedef struct
         NSString *urlStr = [[[[url stringByReplacingOccurrencesOfString:@"{dir}" withString:uOrV] stringByReplacingOccurrencesOfString:@"{z}" withString:zStr] stringByReplacingOccurrencesOfString:@"{x}" withString:xStr] stringByReplacingOccurrencesOfString:@"{y}" withString:yStr];
         NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlStr]];
         
-        AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:urlReq];
-        operation.securityPolicy.allowInvalidCertificates = true;
-        // Need to process the tile on our own queue
-        operation.completionQueue = queue;
-        [operation
-         setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, NSData *respData)
-         {
-             UIImage *img = [UIImage imageWithData:respData];
+        // TODO(Ranen Ghosh): need equivalent of AFNetworking "operation.securityPolicy.allowInvalidCertificates = true;" ?
+        NSURLSession *session = [NSURLSession sharedSession];
+        NSURLSessionDataTask *task = [session dataTaskWithRequest:urlReq completionHandler:
+        ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            dispatch_async(queue, ^{
+                if (!error) {
+                    UIImage *img = [UIImage imageWithData:data];
+                    if (img)
+                    {
+                        DataTile *tile = [self getDataTile:tileID];
+                        // Happens if the tile is removed before the request comes back
+                        if (!tile)
+                            return;
 
-             if (img)
-             {
-                 DataTile *tile = [self getDataTile:tileID];
+                        [tile setImage:img which:ii];
 
-                 // Happens if the tile is removed before the request comes back
-                 if (!tile)
-                     return;
-                 
-                 [tile setImage:img which:ii];
-                 
-                 if ([tile isComplete])
-                 {
-                     [tileTrack addTile:tileID];
-                     [layer tileDidLoad:tileID];
-                 }
-             }
-         }
-         failure:^(AFHTTPRequestOperation *operation, NSError *error)
-         {
-             [self clearTile:tileID];
-             [layer tileFailedToLoad:tileID];
-         }
-         ];
-        [operation start];
+                        if ([tile isComplete])
+                        {
+                            [tileTrack addTile:tileID];
+                            [layer tileDidLoad:tileID];
+                        }
+                    }
+                } else {
+                    [self clearTile:tileID];
+                    [layer tileFailedToLoad:tileID];
+                }
+            });
+        }];
+        [task resume];
     }
 }
 
