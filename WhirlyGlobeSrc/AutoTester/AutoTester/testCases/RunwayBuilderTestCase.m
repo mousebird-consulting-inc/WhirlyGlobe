@@ -158,26 +158,27 @@
     NSString *thisCacheDir = [NSString stringWithFormat:@"%@/mbtilessat1/",cacheDir];
 
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:jsonTileSpec]];
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:
+    ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        NSError *jsonError;
+        NSDictionary *tileSourceDict;
+        if (!error)
+            tileSourceDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
+        if (!error && !jsonError) {
+            MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:tileSourceDict];
+            tileSource.cacheDir = thisCacheDir;
+            
+            MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+            layer.handleEdges = true;
+            [globeVC addLayer:layer];
+            
+        } else {
+            NSLog(@"Failed to reach JSON tile spec at: %@",jsonTileSpec);
+        }
+    }];
+    [task resume];
     
-    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-    operation.responseSerializer = [AFJSONResponseSerializer serializer];
-    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject)
-     {
-         // Add a quad earth paging layer based on the tile spec we just fetched
-         MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:responseObject];
-         tileSource.cacheDir = thisCacheDir;
-         
-         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
-         layer.handleEdges = true;
-         [globeVC addLayer:layer];
-     }
-                                     failure:^(AFHTTPRequestOperation *operation, NSError *error)
-     {
-         NSLog(@"Failed to reach JSON tile spec at: %@",jsonTileSpec);
-     }
-     ];
-    [operation start];
-
     // Build the model
     MaplyGeomModel *geomModel = [self buildRunwayModel:globeVC];
     
