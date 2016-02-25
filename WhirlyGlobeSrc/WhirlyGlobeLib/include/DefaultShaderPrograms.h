@@ -34,6 +34,8 @@ namespace WhirlyKit
 #define kToolkitDefaultTriangleScreenTex "Default Triangle;screentex=yes;lighting=yes"
 /// Triangle shader, takes two textures, with lighting
 #define kToolkitDefaultTriangleMultiTex "Default Triangle;multitex=yes;lighting=yes"
+/// Triangle ramp shader, takes two textures, with lighting
+#define kToolkitDefaultTriangleMultiTexRamp "Default Triangle;multitex=yes;lighting=yes;ramp=yes"
 /// Triangle shader, takes two textures, with lighting
 #define kToolkitDefaultTriangleNightDay "Default Triangle;nightday=yes;multitex=yes;lighting=yes"
 /// Line (and point) shader with backface culling (for globe)
