@@ -223,10 +223,11 @@ public:
 		control = new QuadDisplayController(this,tileLoader,this);
 		// Note: Porting  Should turn this back on
 		control->setMeteredMode(false);
+		control->setFrameLoading(allowFrameLoading);
 		control->init(scene,renderer);
-		control->setMaxTiles(maxTiles);
 		if (!framePriorities.empty())
 			control->setFrameLoadingPriorities(framePriorities);
+		control->setMaxTiles(maxTiles);
 
 		// Note: Porting  Set up the shader
 
@@ -538,6 +539,17 @@ public:
     	}
     }
 
+    /// The tile loaded correctly (or didn't if it's null)
+    void tileLoaded(int level,int col,int row,int frame,std::vector<RawDataRef> &imgData,int width,int height,ChangeSet &changes)
+    {
+        std::vector<LoadedImage *> images(imgData.size());
+        for (unsigned int ii=0;ii<imgData.size();ii++)
+            images[ii] = new ImageWrapper(imgData[ii],width,height);
+        tileLoader->loadedImages(this, images, level, col, row, frame, changes);
+        for (auto wrap : images)
+            delete wrap;
+    }
+
     /// Check if the given tile is a local or remote fetch.  This is a hint
     ///  to the pager.  It can display local tiles as a group faster.
     virtual bool tileIsLocal(int level,int col,int row,int frame)
@@ -805,6 +817,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setAllowFrame
 		if (!adapter)
 			return;
 		adapter->allowFrameLoading = frameLoading;
+        if (adapter->control)
+            adapter->control->setFrameLoading(frameLoading);
 	}
 	catch (...)
 	{
@@ -1300,7 +1314,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeRef
     return false;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDidLoad
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDidLoad__IIIILandroid_graphics_Bitmap_2Lcom_mousebird_maply_ChangeSet_2
   (JNIEnv *env, jobject obj, jint x, jint y, jint level, jint frame, jobject bitmapObj, jobject changesObj)
 {
 	try
@@ -1344,6 +1358,63 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::nativeTileDidLoad()");
 	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDidLoad__IIII_3Landroid_graphics_Bitmap_2Lcom_mousebird_maply_ChangeSet_2
+(JNIEnv *env, jobject obj, jint x, jint y, jint level, jint frame, jobjectArray bitmapsObj, jobject changesObj)
+{
+    try
+    {
+        QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
+        if (!adapter || !changes || !bitmapsObj)
+        {
+            return;
+        }
+        
+        int numImages = env->GetArrayLength(bitmapsObj);
+        int width,height;
+        std::vector<RawDataRef> images(numImages);
+        for (int ii=0;ii<numImages;ii++)
+        {
+            jobject bitmapObj = env->GetObjectArrayElement(bitmapsObj,ii);
+
+            AndroidBitmapInfo info;
+            if (AndroidBitmap_getInfo(env, bitmapObj, &info) < 0)
+            {
+                return;
+            }
+            if (info.format != ANDROID_BITMAP_FORMAT_RGBA_8888)
+            {
+                __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Only dealing with 8888 bitmaps in QuadImageTileLayer");
+                return;
+            }
+            // Copy the raw data over to the texture
+            void* bitmapPixels;
+            if (AndroidBitmap_lockPixels(env, bitmapObj, &bitmapPixels) < 0)
+            {
+                return;
+            }
+            
+            if (info.height > 0 && info.width > 0)
+            {
+                uint32_t* src = (uint32_t*) bitmapPixels;
+                RawDataRef rawData(new MutableRawData(bitmapPixels,info.height*info.width*4));
+                images.push_back(rawData);
+                width = info.width;  height = info.height;
+            }
+            
+            AndroidBitmap_unlockPixels(env, bitmapObj);
+        }
+
+        adapter->tileLoaded(level,x,y,frame,images,width,height,*changes);
+
+        //		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did load: %d: (%d,%d) %d",level,x,y,frame);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::nativeTileDidLoad2()");
+    }
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDidNotLoad

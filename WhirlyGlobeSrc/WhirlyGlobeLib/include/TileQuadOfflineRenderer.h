@@ -195,7 +195,9 @@ public:
     virtual void reset(ChangeSet &changes);
     
     void loadedImage(QuadTileImageDataSource *dataSource,LoadedImage *loadImage,int level,int col,int row,int frame,ChangeSet &changes);
-
+    
+    void loadedImages(QuadTileImageDataSource *dataSource,const std::vector<LoadedImage *> &loadImages,int level,int col,int row,int frame,ChangeSet &changes);
+    
     // Render any changed images to the given depth and flush out new textures
     void imageRenderToLevel(int deep,ChangeSet &changes);
     

@@ -32,7 +32,8 @@ import android.graphics.Bitmap;
  */
 public class MaplyImageTile 
 {
-	Bitmap bitmap;
+	Bitmap[] bitmaps = null;
+	Bitmap bitmap = null;
 	
 	/**
 	 * Construct with a bitmap.
@@ -41,5 +42,10 @@ public class MaplyImageTile
 	public MaplyImageTile(Bitmap inBitmap)
 	{
 		bitmap = inBitmap;
+	}
+
+	public MaplyImageTile(Bitmap[] inBitmaps)
+	{
+		bitmaps = inBitmaps;
 	}
 }

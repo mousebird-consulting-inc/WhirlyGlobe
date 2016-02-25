@@ -347,9 +347,12 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		}
 		
 		ChangeSet changes = new ChangeSet();
-		if (imageTile != null)
-			nativeTileDidLoad(tileID.x,y,tileID.level,frame,imageTile.bitmap,changes);
-		else
+		if (imageTile != null) {
+			if (imageTile.bitmaps != null)
+				nativeTileDidLoad(tileID.x, y, tileID.level, frame, imageTile.bitmaps, changes);
+			else
+				nativeTileDidLoad(tileID.x, y, tileID.level, frame, imageTile.bitmap, changes);
+		} else
 			nativeTileDidNotLoad(tileID.x,y,tileID.level,frame,changes);
 		layerThread.addChanges(changes);
 	}
@@ -801,5 +804,6 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	native boolean nativeEvalStep(ChangeSet changes);
 	native boolean nativeRefresh(ChangeSet changes);
 	native void nativeTileDidLoad(int x,int y,int level,int frame,Bitmap bitmap,ChangeSet changes);
+	native void nativeTileDidLoad(int x,int y,int level,int frame,Bitmap[] bitmaps,ChangeSet changes);
 	native void nativeTileDidNotLoad(int x,int y,int level,int frame,ChangeSet changes);
 }

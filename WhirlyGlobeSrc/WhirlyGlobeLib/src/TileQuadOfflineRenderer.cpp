@@ -646,6 +646,12 @@ bool QuadTileOfflineLoader::canLoadChildrenOfTile(const Quadtree::NodeInfo &tile
 {
     return true;
 }
+    
+void QuadTileOfflineLoader::loadedImages(QuadTileImageDataSource *dataSource,const std::vector<LoadedImage *> &loadImages,int level,int col,int row,int frame,ChangeSet &changes)
+{
+    // Note: Porting
+}
+
 
 void QuadTileOfflineLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage *loadImage,int level,int col,int row,int frame,ChangeSet &changes)
 {

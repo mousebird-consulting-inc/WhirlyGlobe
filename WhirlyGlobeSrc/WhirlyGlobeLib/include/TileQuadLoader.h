@@ -52,6 +52,8 @@ public:
     ///  just a WhirlyKitElevationChunk.
 
     virtual void loadedImage(QuadTileImageDataSource *dataSource,LoadedImage *loadImage,int level,int col,int row,int frame,ChangeSet &changes) = 0;
+    
+    virtual void loadedImages(QuadTileImageDataSource *dataSource,const std::vector<LoadedImage *> &loadImages,int level,int col,int row,int frame,ChangeSet &changes) = 0;
 };
     
 /** Quad Tile Image Data Source is used to load individual images
@@ -111,7 +113,10 @@ public:
     
     /// QuadTileLoaderSupport methods
     virtual void loadedImage(QuadTileImageDataSource *dataSource,LoadedImage *loadImage,int level,int col,int row,int frame,ChangeSet &changes);
-    
+
+    /// QuadTileLoaderSupport methods
+    virtual void loadedImages(QuadTileImageDataSource *dataSource,const std::vector<LoadedImage *> &loadImages,int level,int col,int row,int frame,ChangeSet &changes);
+
     /// Set up the change requests to make the given image layer the active one
     /// The call is thread safe
     void setCurrentImage(int newImage,ChangeSet &changeRequests);

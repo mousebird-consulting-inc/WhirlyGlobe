@@ -679,12 +679,24 @@ static WKSingleByteSource singleByteSourceFromOurFormat(TileImageType imageType)
             break;
     }
 }
-    
+
 void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage *loadImage,int level,int col,int row,int frame,ChangeSet &changes)
+{
+    std::vector<LoadedImage *> loadImages;
+    if (loadImage)
+        loadImages.push_back(loadImage);
+
+    loadedImages(dataSource,loadImages,level,col,row,frame,changes);
+}
+    
+void QuadTileLoader::loadedImages(QuadTileImageDataSource *dataSource,const std::vector<LoadedImage *> &loadImages,int level,int col,int row,int frame,ChangeSet &changes)
 {
     // Note: Porting
 //    bool isPlaceholder = tileIsPlaceholder(loadImage);
-    bool isPlaceholder = loadImage && loadImage->isPlaceholder();
+    bool isPlaceholder = false;
+    if (!loadImages.empty())
+        for (auto img : loadImages)
+            isPlaceholder |= img->isPlaceholder();
     
     if (!isPlaceholder && !tileBuilder)
     {
@@ -755,7 +767,6 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
         return;
     }
     
-    std::vector<LoadedImage *> loadImages;
     // Note: Porting
     bool loadElev = false;
 //    WhirlyKitElevationChunk *loadElev = nil;
@@ -771,8 +782,6 @@ void QuadTileLoader::loadedImage(QuadTileImageDataSource *dataSource,LoadedImage
 //                    loadImages.push_back(loadImage);
 //                    loadElev = toLoad.elevChunk;
 //                    }
-    if (loadImage)
-        loadImages.push_back(loadImage);
     
     bool loadingSuccess = true;
     if (!isPlaceholder && (loadImages.empty() || (numImages != loadImages.size() && (frame != -1 && loadImages.size() != 1))))

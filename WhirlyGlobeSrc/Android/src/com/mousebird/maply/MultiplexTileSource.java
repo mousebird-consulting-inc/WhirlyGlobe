@@ -78,6 +78,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
         Bitmap bm = null;
         File cacheFile = null;
         boolean isCanceled = false;
+		public boolean singleFetch = false;
 
         ConnectionTask(QuadImageTileLayerInterface inLayer, MultiplexTileSource inTileSource, MaplyTileID inTileID, int inFrame, String inURL, String inFile) {
             tileSource = inTileSource;
@@ -106,7 +107,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
                 }
 
                 if (bm != null) {
-                    reportTile();
+                    reportTile(true);
                     return;
                 }
 
@@ -157,20 +158,48 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 //				Log.d("Maply", "Fetch failed for remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
 			}
 
-            reportTile();
+			boolean reportThisTile = false;
+			boolean tileSuccess = bm != null;
+
+			// Fetched a frame.  So see if we need to report this tile.
+			if (frame != -1) {
+				SortedTile tile = null;
+				synchronized (tileSource.tiles) {
+					tile = tileSource.tiles.get(tileID);
+				}
+				if (tile != null) {
+					tile.tileData[frame] = bm;
+					if (tile.isDone())
+						reportThisTile = true;
+				}
+			} else {
+				reportThisTile = true;
+			}
+
+			if (reportThisTile)
+				reportTile(tileSuccess);
         }
 
         // Let the system know we've got a tile
-        protected void reportTile() {
+        protected void reportTile(final boolean tileSuccess) {
             layer.getLayerThread().addTask(new Runnable() {
                 @Override
                 public void run() {
+					SortedTile tile = null;
+					synchronized (tileSource.tiles) {
+						tile = tileSource.tiles.get(tileID);
+					}
+
                     // Let the layer and delegate know what happened with it
-                    if (bm != null) {
-                        MaplyImageTile imageTile = new MaplyImageTile(bm);
-                        if (tileSource.delegate != null)
-                            tileSource.delegate.tileDidLoad(tileSource, tileID, frame);
-                        layer.loadedTile(tileID, frame, imageTile);
+                    if (tileSuccess) {
+						MaplyImageTile imageTile = null;
+						if (singleFetch)
+							imageTile = new MaplyImageTile(bm);
+						else
+							imageTile = new MaplyImageTile(tile.tileData);
+						if (tileSource.delegate != null)
+							tileSource.delegate.tileDidLoad(tileSource, tileID, frame);
+						layer.loadedTile(tileID, frame, imageTile);
                     } else {
                         if (tileSource.delegate != null)
                             tileSource.delegate.tileDidNotLoad(tileSource, tileID, frame);
@@ -178,10 +207,6 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
                     }
 
                     // Tile was fetched, clean up
-                    SortedTile tile = null;
-                    synchronized (tileSource.tiles) {
-                        tile = tileSource.tiles.get(tileID);
-                    }
                     if (tile != null) {
                         tile.finish(frame);
                     }
@@ -255,6 +280,16 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 				fetches[which].cancel();
 				fetches[which] = null;
 	        }	        
+		}
+
+		// Check if all the frames loaded
+		boolean isDone()
+		{
+			for (Bitmap bm : tileData)
+				if (bm == null)
+					return false;
+
+			return true;
 		}
 
         // Clear out for a successful fetch
@@ -379,6 +414,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 			}
 			
 			int start,end;
+			boolean singleFetch = false;
 			if (frame == -1)
 			{
 				start = 0;
@@ -386,6 +422,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 			} else {
 				start = frame;
 				end = frame;
+				singleFetch = true;
 			}
 			for (int which=start;which<=end;which++)
 			{
@@ -395,8 +432,9 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 					RemoteTileInfo tileInfo = sources[which];
 					final String tileURL = tileInfo.buildURL(tileID.x,remoteY,tileID.level);
 					if (cacheDir != null)
-						cacheFile = cacheDir.getAbsolutePath() + tileInfo.buildCacheName(tileID.x, tileID.y, tileID.level,frame);
-					ConnectionTask task = new ConnectionTask(layer,this,tileID,frame,tileURL,cacheFile);
+						cacheFile = cacheDir.getAbsolutePath() + tileInfo.buildCacheName(tileID.x, tileID.y, tileID.level,which);
+					ConnectionTask task = new ConnectionTask(layer,this,tileID,which,tileURL,cacheFile);
+					task.singleFetch = singleFetch;
 					tile.fetches[which] = task;
                     task.fetchTile();
 				}
