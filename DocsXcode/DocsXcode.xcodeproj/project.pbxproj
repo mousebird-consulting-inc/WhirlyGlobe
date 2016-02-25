@@ -156,6 +156,7 @@
 		2B96DB711B7402DC005FF148 /* NASA_layers_header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_layers_header.png; sourceTree = "<group>"; };
 		2B96DB721B7402DC005FF148 /* NASA_NightTime_Layer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_NightTime_Layer.png; sourceTree = "<group>"; };
 		2B96DB731B7402DC005FF148 /* NASA_SeaTemp_Overlay.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_SeaTemp_Overlay.png; sourceTree = "<group>"; };
+		2BADFD8A1C7FC9E8004687FB /* miizee.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = miizee.png; sourceTree = "<group>"; };
 		2BB7660F1C73A14700F01F2A /* aeroviereports.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = aeroviereports.jpeg; sourceTree = "<group>"; };
 		2BB766101C73A14700F01F2A /* climearth.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = climearth.jpeg; sourceTree = "<group>"; };
 		2BB766111C73A14700F01F2A /* flightwiseplanner.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = flightwiseplanner.png; sourceTree = "<group>"; };
@@ -325,6 +326,7 @@
 		2B4E06B81A153FB100ADA318 /* apps */ = {
 			isa = PBXGroup;
 			children = (
+				2BADFD8A1C7FC9E8004687FB /* miizee.png */,
 				2BB7660F1C73A14700F01F2A /* aeroviereports.jpeg */,
 				2BB766101C73A14700F01F2A /* climearth.jpeg */,
 				2BB766111C73A14700F01F2A /* flightwiseplanner.png */,

@@ -39,6 +39,8 @@ A toolkit is only as good as the apps that use it.  Here are some of our favorit
 
 {% include app_entry.html name="Mapbox Earth" image="mapboxearth.png" body="Mapbox Earth is a neat little browser for Mapbox's excellent satellite imagery data sets." link="https://itunes.apple.com/us/app/mapbox-earth/id643883241?mt=8" %}
 
+{% include app_entry.html name="Miizee" image="miizee.png" body="Use Miizee to broadcast HD quality live events on-the-go from any location to any screen using only your Facebook account to connect with the world." link="https://itunes.apple.com/us/app/miizee/id995816207?mt=8" %}
+
 {% include app_entry.html name="National Geographic World Atlas" image="worldatlas.png" body="A very popular reference app on iOS, version 4.0 uses WhirlyGlobe to great effect." link="https://itunes.apple.com/us/app/national-geographic-world/id364733950?mt=8" %}
 
 {% include app_entry.html name="Offline Topo Maps" image="offlinetopomaps.png" body="Offline Topo Maps is a simpler version of Gaia GPS." link="https://itunes.apple.com/us/app/offline-topo-maps/id376535806?mt=8" %}
