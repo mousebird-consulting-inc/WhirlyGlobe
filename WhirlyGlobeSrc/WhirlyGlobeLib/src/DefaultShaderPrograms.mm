@@ -89,22 +89,40 @@ static const char *vertexShaderTri =
 ;
 
 static const char *fragmentShaderTri =
-"precision mediump float;                            \n"
+"precision mediump float;\n"
 "\n"
-"uniform sampler2D s_baseMap0;                        \n"
-"uniform bool  u_hasTexture;                         \n"
+"uniform sampler2D s_baseMap0;\n"
+"uniform bool  u_hasTexture;\n"
 "\n"
-"varying vec2      v_texCoord;                       \n"
-"varying vec4      v_color;                          \n"
+"varying vec2      v_texCoord;\n"
+"varying vec4      v_color;\n"
 "\n"
-"void main()                                         \n"
-"{                                                   \n"
-//"  vec4 baseColor = texture2D(s_baseMap0, v_texCoord); \n"
-"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
-//"  if (baseColor.a < 0.1)                            \n"
-//"      discard;                                      \n"
-"  gl_FragColor = v_color * baseColor;  \n"
+"void main()\n"
+"{\n"
+//"  vec4 baseColor = texture2D(s_baseMap0, v_texCoord);\n"
+"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0);\n"
+//"  if (baseColor.a < 0.1)\n"
+//"      discard;\n"
+"  gl_FragColor = v_color * baseColor;\n"
 "}                                                   \n"
+;
+
+static const char *fragmentShaderRampTri =
+"precision mediump float;\n"
+"\n"
+"uniform sampler2D s_baseMap0;\n"
+"uniform sampler2D s_colorRamp;\n"
+"uniform bool  u_hasTexture;\n"
+"\n"
+"varying vec2      v_texCoord;\n"
+"varying vec4      v_color;\n"
+"\n"
+"void main()\n"
+"{\n"
+"  float index = texture2D(s_baseMap0, v_texCoord).a;\n"
+"  vec4 baseColor = texture2D(s_colorRamp,vec2(0.5,index));\n"
+"  gl_FragColor = v_color * baseColor;\n"
+"}\n"
 ;
 
 static const char *vertexShaderModelTri =
@@ -259,6 +277,27 @@ static const char *fragmentShaderTriMultiTex =
 "  vec4 baseColor1 = texture2D(s_baseMap1, v_texCoord1);"
 "  gl_FragColor = v_color * mix(baseColor0,baseColor1,u_interp);"
 "}"
+;
+
+static const char *fragmentShaderTriMultiTexRamp =
+"precision mediump float;\n"
+"\n"
+"uniform sampler2D s_baseMap0;\n"
+"uniform sampler2D s_baseMap1;\n"
+"uniform sampler2D s_colorRamp;\n"
+"uniform float u_interp;\n"
+"\n"
+"varying vec2      v_texCoord0;\n"
+"varying vec2      v_texCoord1;\n"
+"varying vec4      v_color;\n"
+"\n"
+"void main()\n"
+"{\n"
+"  float baseVal0 = texture2D(s_baseMap0, v_texCoord0).a;\n"
+"  float baseVal1 = texture2D(s_baseMap1, v_texCoord1).a;\n"
+"  float index = mix(baseVal0,baseVal1,u_interp);\n"
+"  gl_FragColor = v_color * texture2D(s_colorRamp,vec2(0.5,index));\n"
+"}\n"
 ;
     
 static const char *vertexShaderScreenTexTri =
@@ -578,7 +617,17 @@ void SetupDefaultShaders(Scene *scene)
     } else {
         scene->addProgram(kToolkitDefaultTriangleMultiTex, triShaderMultiTex);
     }
-    
+
+    // Triangle shader that handles multiple textures
+    OpenGLES2Program *triShaderMultiTexRamp = new OpenGLES2Program("Triangle ramp shader with multitex and lighting",vertexShaderTriMultiTex,fragmentShaderTriMultiTexRamp);
+    if (!triShaderMultiTexRamp->isValid())
+    {
+        NSLog(@"SetupDefaultShaders: Triangle ramp shader with multi texture support didn't compile.");
+        delete triShaderMultiTexRamp;
+    } else {
+        scene->addProgram(kToolkitDefaultTriangleMultiTexRamp, triShaderMultiTexRamp);
+    }
+
     // Triangle shader that does night/day shading with multiple textures
     OpenGLES2Program *triShaderNightDay = new OpenGLES2Program("Triangle shader with multitex, lighting, and night/day support",vertexShaderTriNightDay,fragmentShaderTriNightDay);
     if (!triShaderNightDay->isValid())
