@@ -319,6 +319,7 @@
 #define kMaplyShaderDefaultTriScreenTex @"Default Triangle;screentex=yes;lighting=yes"
 
 #define kMaplyShaderDefaultTriMultiTex @"Default Triangle;multitex=yes;lighting=yes"
+#define kMaplyShaderDefaultTriMultiTexRamp @"Default Triangle;multitex=yes;lighting=yes;ramp=yes"
 #define kMaplyShaderDefaultTriNightDay @"Default Triangle;nightday=yes;multitex=yes;lighting=yes"
 
 #define kMaplyShaderDefaultLine @"Default Line;backface=yes"

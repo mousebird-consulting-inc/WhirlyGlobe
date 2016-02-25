@@ -36,7 +36,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		BNGCustomMapTestCase(),
 		BNGTestCase(),
 		ElevationLocalDatabase(),
-        RunwayBuilderTestCase()
+        RunwayBuilderTestCase(),
+        AnimatedColorRampTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
