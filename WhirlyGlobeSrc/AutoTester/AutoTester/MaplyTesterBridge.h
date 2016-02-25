@@ -28,5 +28,6 @@
 #import "CartoDBTestCase.h"
 #import "ElevationLocalDatabase.h"
 #import "RunwayBuilderTestCase.h"
+#import "AnimatedColorRampTestCase.h"
 
 #endif
