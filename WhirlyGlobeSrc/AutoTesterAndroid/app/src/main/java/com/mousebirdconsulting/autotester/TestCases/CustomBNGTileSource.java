@@ -1,6 +1,7 @@
 package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Looper;
 
 import com.mousebird.maply.CoordSystem;
@@ -31,48 +32,36 @@ public class CustomBNGTileSource extends MaplyTestCase
         this.setDelay(100000);
     }
 
-    // http://stackoverflow.com/questions/10854211/android-store-inputstream-in-file
-    public static void copyFile(InputStream input, File dst) throws IOException
-    {
-        try {
-            OutputStream output = new FileOutputStream(dst);
-            try {
-                try {
-                    byte[] buffer = new byte[4 * 1024]; // or other buffer size
-                    int read;
+    public static String getFilePathFromAssets(String assetFilePath, Context context) {
+        File file = new File(context.getCacheDir() + assetFilePath);
 
-                    while ((read = input.read(buffer)) != -1) {
-                        output.write(buffer, 0, read);
-                    }
-                    output.flush();
-                } finally {
-                    output.close();
-                }
+        // Copy file from assets if not already in cache directory
+        if (!file.exists()) {
+            try {
+                InputStream inputStream = context.getAssets().open(assetFilePath);
+                int bufferSize = 4 * 1024;
+                byte[] buffer = new byte[bufferSize];
+                inputStream.read(buffer);
+                inputStream.close();
+
+                FileOutputStream fileOutputStream = new FileOutputStream(file);
+                fileOutputStream.write(buffer);
+                fileOutputStream.close();
             } catch (Exception e) {
-                e.printStackTrace(); // handle exception, define IOException and others
+                throw new RuntimeException(e);
             }
-        } finally {
-            input.close();
         }
+
+        return file.getPath();
     }
 
     // Put together a British National Grid system
-    static public CoordSystem MakeBNGCoordSystem(Activity activity,boolean displayVersion)
+    static public CoordSystem MakeBNGCoordSystem(Activity activity, boolean displayVersion)
     {
         // Set up the proj4 string including the local grid file
-        String outFileName = null;
-        try {
-            InputStream inStr = activity.getResources().getAssets().open("OSTN02_NTv2.gsb");
-            File outFile = new File(activity.getCacheDir(), "OSTN02_NTv2.gsb");
-            outFileName = outFile.getAbsolutePath();
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
-        // Note: Can't seem to get Proj.4 to read the GSB file.  Could be a pathing problem.
-//        String projStr = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +nadgrids=" + outFileName + " +units=m +no_defs";
-        String projStr = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs";
+        String outFileName = getFilePathFromAssets("OSTN02_NTv2.gsb", activity);
+
+        String projStr = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +nadgrids=" + outFileName + " +units=m +no_defs";
         Proj4CoordSystem coordSys = new Proj4CoordSystem(projStr);
 
         // Set the bounding box for validity.  It assumes it can go everywhere by default
