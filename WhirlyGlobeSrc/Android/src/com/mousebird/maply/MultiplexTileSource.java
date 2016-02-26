@@ -152,7 +152,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 					}
 //					Log.d("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
 				} catch (Exception e) {
-					Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
+//					Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
 				}
 			} else {
 //				Log.d("Maply", "Fetch failed for remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
@@ -169,7 +169,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 				}
 				if (tile != null) {
 					tile.tileData[frame] = bm;
-					if (tile.isDone())
+					if (singleFetch || tile.isDone())
 						reportThisTile = true;
 				}
 			} else {
