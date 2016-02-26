@@ -40,7 +40,7 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
 	 * Set the fragment test mode before onCreateView is called.
 	 *
 	 */
-    ConfigOptions.MapType mode = ConfigOptions.MapType.GlobeMap;
+    ConfigOptions.MapType mode = ConfigOptions.MapType.FlatMap;
 
     View topView = null;
 			
@@ -213,7 +213,7 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
                 forecastIOLayer.setDrawPriority(MaplyBaseController.ImageLayerDrawPriorityDefault + 100);
                 forecastIOLayer.setBorderTexel(0);
                 forecastIOLayer.setImageDepth(sources.length);
-                forecastIOLayer.setCurrentImage(1.5f);
+                forecastIOLayer.setCurrentImage(1.5f,false);
                 forecastIOLayer.setAnimationPeriod(6.0f);
                 forecastIOLayer.setShaderName(weatherShader.getName());
 
