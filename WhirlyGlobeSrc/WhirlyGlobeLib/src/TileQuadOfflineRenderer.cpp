@@ -689,8 +689,10 @@ void QuadTileOfflineLoader::loadedImage(QuadTileImageDataSource *dataSource,Load
     } else {
         Texture *oldTex = tile->textures[frame];
         if (oldTex)
+	  {
             oldTex->destroyInGL(scene->getMemManager());
-        delete oldTex;
+	    delete oldTex;
+	  }
         tile->textures[frame] = loadTex;
     }
     
