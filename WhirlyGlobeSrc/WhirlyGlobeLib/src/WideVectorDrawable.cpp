@@ -96,7 +96,8 @@ void WideVectorDrawable::draw(RendererFrameInfo *frameInfo, Scene *scene)
         float pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
         if (realWidthSet)
         {
-            frameInfo->program->setUniform("u_w2", (float)(realWidth / pixDispSize));
+            double lineWidth = realWidth / pixDispSize;
+            frameInfo->program->setUniform("u_w2", (float)lineWidth);
             frameInfo->program->setUniform("u_real_w2", (float)realWidth);
             frameInfo->program->setUniform("u_edge", edgeSize);
         } else {

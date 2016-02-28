@@ -61,8 +61,8 @@ capType(WideVecButtCap),texID(EmptyIdentity),miterLimit(2.0)
 class WideVectorBuilder
 {
 public:
-    WideVectorBuilder(const WideVectorInfo *vecInfo,const Point3d &localCenter,const Point3d &dispCenter,const RGBAColor inColor,CoordSystemDisplayAdapter *coordAdapter)
-    : vecInfo(vecInfo), angleCutoff(DegToRad(30.0)), texOffset(0.0), edgePointsValid(false), coordAdapter(coordAdapter), localCenter(localCenter), dispCenter(dispCenter)
+    WideVectorBuilder(const WideVectorInfo *vecInfo,const Point3d &localCenter,const Point3d &dispCenter,const RGBAColor inColor,bool makeTurns,CoordSystemDisplayAdapter *coordAdapter)
+    : vecInfo(vecInfo), angleCutoff(DegToRad(30.0)), texOffset(0.0), edgePointsValid(false), coordAdapter(coordAdapter), localCenter(localCenter), dispCenter(dispCenter), makeDistinctTurn(makeTurns)
     {
 //        color = [vecInfo.color asRGBAColor];
         color = inColor;
@@ -317,72 +317,113 @@ public:
             next_e1 = endPt0;
         }
         
-        // Add the rectangles
-        if (buildSegment)
-            addWideRect(wideDrawable, corners, up);
-        
         // Do the join polygons if we can
         // Note: Always doing bevel case (sort of)
         if (iPtsValid && buildJunction)
         {
-            // An offset that makes the texture coordinates work
-            double texAdjust = cos(angleBetween/2.0);
+            WideVectorLineJoinType joinType = vecInfo->joinType;
+            // Switch to a miter join if the angle is too great for a bevel
+            if (joinType == WideVecMiterJoin && angleBetween < (M_PI-vecInfo->miterLimit*M_PI/180.0))
+                joinType = WideVecBevelJoin;
             
-            // Three triangles make up the bend
-
-            // Bending right
-            if (rPt0.c > 0.0)
+            switch (joinType)
             {
-                InterPoint triVerts[3];
-                triVerts[0] = rPt0;
-                triVerts[1] = endPt0.flipped();
-                triVerts[2] = rPt0.flipped();
-                addWideTri(wideDrawable,triVerts,up);
-                
-                triVerts[0] = rPt0;
-                triVerts[0].texYmin = texNext;
-                triVerts[0].texYmax = texNext;
-                triVerts[1] = endPt1.flipped();
-                triVerts[1].texYmin = texNext;
-                triVerts[1].texYmax = texNext;
-                triVerts[1].texOffset = texAdjust;
-                triVerts[2] = endPt0.flipped();
-                triVerts[2].texYmin = texNext;
-                triVerts[2].texYmax = texNext;
-                triVerts[2].texOffset = -texAdjust;
-                addWideTri(wideDrawable,triVerts,up);
-                
-                triVerts[0] = rPt1;
-                triVerts[1] = rPt1.flipped();
-                triVerts[2] = endPt1.flipped();
-                addWideTri(wideDrawable,triVerts,up);
-            } else {
-                // Bending left
-                InterPoint triVerts[3];
-                triVerts[0] = lPt0;
-                triVerts[1] = lPt0.flipped();
-                triVerts[2] = endPt0;
-                addWideTri(wideDrawable,triVerts,up);
-
-                triVerts[0] = lPt0;
-                triVerts[0].texYmin = texNext;
-                triVerts[0].texYmax = texNext;
-                triVerts[1] = endPt0;
-                triVerts[1].texYmin = texNext;
-                triVerts[1].texYmax = texNext;
-                triVerts[1].texOffset = -texAdjust;
-                triVerts[2] = endPt1;
-                triVerts[2].texYmin = texNext;
-                triVerts[2].texYmax = texNext;
-                triVerts[2].texOffset = texAdjust;
-                addWideTri(wideDrawable,triVerts,up);
-
-                triVerts[0] = lPt1;
-                triVerts[1] = endPt1;
-                triVerts[2] = lPt1.flipped();
-                addWideTri(wideDrawable,triVerts,up);
+                case WideVecBevelJoin:
+                {
+                    // An offset that makes the texture coordinates work
+                    double texAdjust = cos(angleBetween/2.0);
+                    
+                    // Three triangles make up the bend
+                    
+                    // Bending right
+                    if (rPt0.c > 0.0)
+                    {
+                        InterPoint triVerts[3];
+                        
+                        triVerts[0] = rPt0;
+                        triVerts[0].texYmin = texNext;
+                        triVerts[0].texYmax = texNext;
+                        triVerts[1] = endPt1.flipped();
+                        triVerts[1].texYmin = texNext;
+                        triVerts[1].texYmax = texNext;
+                        triVerts[1].texOffset = texAdjust;
+                        triVerts[2] = endPt0.flipped();
+                        triVerts[2].texYmin = texNext;
+                        triVerts[2].texYmax = texNext;
+                        triVerts[2].texOffset = -texAdjust;
+                        addWideTri(wideDrawable,triVerts,up);
+                        
+                        if (makeDistinctTurn)
+                        {
+                            // Build separate triangles for the turn
+                            triVerts[0] = rPt0;
+                            triVerts[1] = endPt0.flipped();
+                            triVerts[2] = rPt0.flipped();
+                            addWideTri(wideDrawable,triVerts,up);
+                            
+                            triVerts[0] = rPt1;
+                            triVerts[1] = rPt1.flipped();
+                            triVerts[2] = endPt1.flipped();
+                            addWideTri(wideDrawable,triVerts,up);
+                        } else {
+                            // Extend the segments
+                            corners[3] = endPt0.flipped();
+                            next_e0 = endPt1.flipped();
+                        }
+                    } else {
+                        // Bending left
+                        InterPoint triVerts[3];
+                        
+                        triVerts[0] = lPt0;
+                        triVerts[0].texYmin = texNext;
+                        triVerts[0].texYmax = texNext;
+                        triVerts[1] = endPt0;
+                        triVerts[1].texYmin = texNext;
+                        triVerts[1].texYmax = texNext;
+                        triVerts[1].texOffset = -texAdjust;
+                        triVerts[2] = endPt1;
+                        triVerts[2].texYmin = texNext;
+                        triVerts[2].texYmax = texNext;
+                        triVerts[2].texOffset = texAdjust;
+                        addWideTri(wideDrawable,triVerts,up);
+                        
+                        if (makeDistinctTurn)
+                        {
+                            // Build separate triangles for the turn
+                            triVerts[0] = lPt0;
+                            triVerts[1] = lPt0.flipped();
+                            triVerts[2] = endPt0;
+                            addWideTri(wideDrawable,triVerts,up);
+                            
+                            triVerts[0] = lPt1;
+                            triVerts[1] = endPt1;
+                            triVerts[2] = lPt1.flipped();
+                            addWideTri(wideDrawable,triVerts,up);
+                        } else {
+                            // Extend the segments
+                            corners[2] = endPt0;
+                            next_e1 = endPt1;
+                        }
+                    }
+                }
+                    break;
+                case WideVecMiterJoin:
+                {
+                    // Don't do anything special for miter joins
+                    corners[2] = rPt0;
+                    corners[3] = lPt0;
+                    next_e0 = lPt0;
+                    next_e1 = rPt0;
+                }
+                    break;
+                case WideVecRoundJoin:
+                    break;
             }
         }
+        
+        // Add the rectangles
+        if (buildSegment)
+            addWideRect(wideDrawable, corners, up);
         
         e0 = next_e0;
         e1 = next_e1;
@@ -432,6 +473,7 @@ public:
     RGBAColor color;
     Point3d localCenter,dispCenter;
     double angleCutoff;
+    bool makeDistinctTurn;
     
     double texOffset;
 
@@ -504,15 +546,16 @@ public:
     // Add the points for a linear
     void addLinear(const VectorRing &pts,const Point3d &up,bool closed)
     {
-        RGBAColor color = vecInfo->color;
-        WideVectorBuilder vecBuilder(vecInfo,localCenter,dispCenter,color,coordAdapter);
-        
         // We'll add one on the beginning and two on the end
         //  if we're doing a closed loop.  This gets us
         //  valid junctions that match up.
         int startPoint = 0;
+        bool makeDistinctTurns = false;
         if (closed)
         {
+            // Note: We need this so we don't lose one turn
+            //       This could be optimized
+            makeDistinctTurns = true;
             if (pts.size() > 2)
             {
                 if (pts.front() == pts.back())
@@ -523,7 +566,10 @@ public:
                 }
             }
         }
-        
+ 
+        RGBAColor color = vecInfo->color;
+        WideVectorBuilder vecBuilder(vecInfo,localCenter,dispCenter,color,makeDistinctTurns,coordAdapter);
+
         // Guess at how many points and triangles we'll need
         int totalTriCount = (int)(5*pts.size());
         int totalPtCount = totalTriCount * 3;
@@ -574,7 +620,7 @@ public:
         pts.push_back(GeoCoord(1,0));
         
         RGBAColor color = vecInfo->color;
-        WideVectorBuilder vecBuilder(vecInfo,Point3d(0,0,0),Point3d(0,0,0),color,coordAdapter);
+        WideVectorBuilder vecBuilder(vecInfo,Point3d(0,0,0),Point3d(0,0,0),color,false,coordAdapter);
         
         for (unsigned int ii=0;ii<pts.size();ii++)
         {
