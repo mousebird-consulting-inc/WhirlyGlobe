@@ -14,7 +14,7 @@ class BNGCustomMapTestCase: MaplyTestCase, MaplyViewControllerDelegate {
 	override init() {
 		super.init()
 		self.name = "British National Grid (custom map)"
-		self.captureDelay = 3
+		self.captureDelay = 1000
 	}
 	
 	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
