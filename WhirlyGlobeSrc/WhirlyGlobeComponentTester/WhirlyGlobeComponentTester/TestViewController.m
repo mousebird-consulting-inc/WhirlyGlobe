@@ -1579,7 +1579,7 @@ static const float MarkerSpread = 2.0;
             }
         }
        
-       markerClusterObj = [baseViewC addScreenMarkers:markers desc:@{kMaplyClusterGroup: @(0)} mode:MaplyThreadCurrent];
+        markerClusterObj = [baseViewC addScreenMarkers:markers desc:@{kMaplyClusterGroup: @(0)} mode:MaplyThreadCurrent];
     }
     );
 }
