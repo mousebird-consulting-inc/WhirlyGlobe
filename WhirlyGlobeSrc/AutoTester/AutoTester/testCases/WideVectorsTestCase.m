@@ -19,7 +19,7 @@
 - (instancetype)init
 {
 	if (self = [super init]) {
-		self.captureDelay = 20;
+		self.captureDelay = 2000;
 		self.name = @"Wide Vectors";
 	}
 	return self;
@@ -121,6 +121,7 @@
 - (NSArray *)addGeoJson:(NSString*)name viewC:(MaplyBaseViewController *)viewC
 {
     return [self addGeoJson:name dashPattern:@[@8, @8] width:4 viewC:viewC];
+//    return [self addGeoJson:name dashPattern:@[@8, @8] width:20 viewC:viewC];
 }
 
 - (NSArray *)addWideVectors:(MaplyVectorObject *)vecObj baseViewC: (MaplyBaseViewController*) baseViewC dashedLineTex: (MaplyTexture*) dashedLineTex filledLineTex: (MaplyTexture*) filledLineTex
