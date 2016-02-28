@@ -69,6 +69,59 @@
 		});
 }
 
+- (NSArray *)addGeoJson:(NSString*)name dashPattern:(NSArray*)dashPattern width:(CGFloat)width viewC:(MaplyBaseViewController *)baseViewC
+{
+    MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
+    [lineTexBuilder setPattern:dashPattern];
+    UIImage *lineImage = [lineTexBuilder makeImage];
+    MaplyTexture *lineTexture = [baseViewC addTexture:lineImage
+                                          imageFormat:MaplyImageIntRGBA
+                                            wrapFlags:MaplyImageWrapY
+                                                 mode:MaplyThreadCurrent];
+    
+    NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:nil];
+    if(path) {
+        NSData *data = [NSData dataWithContentsOfFile:path];
+        NSDictionary *jsonDictionary = [NSJSONSerialization JSONObjectWithData:data
+                                                                       options:0 error:nil];
+        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithGeoJSONDictionary:jsonDictionary];
+        if(vecObj) {
+            MaplyComponentObject *obj1 = [baseViewC addWideVectors:@[vecObj]
+                                 desc: @{kMaplyColor: [UIColor colorWithRed:1 green:0 blue:0 alpha:1.0],
+                                         kMaplyFilled: @NO,
+                                         kMaplyEnable: @YES,
+                                         kMaplyFade: @0,
+                                         kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 1),
+                                         kMaplyVecCentered: @YES,
+                                         kMaplyVecTexture: lineTexture,
+                                         kMaplyWideVecEdgeFalloff: @(1.0),
+                                         kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
+                                         kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+                                         // More than 10 degrees need a bevel join
+                                         kMaplyWideVecMiterLimit: @(10),
+                                         kMaplyVecWidth: @(width)}
+                                 mode:MaplyThreadCurrent];
+            MaplyComponentObject *obj2 = [baseViewC addVectors:@[vecObj]
+                             desc: @{kMaplyColor: [UIColor blackColor],
+                                     kMaplyFilled: @NO,
+                                     kMaplyEnable: @YES,
+                                     kMaplyFade: @0,
+                                     kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault),
+                                     kMaplyVecCentered: @YES,
+                                     kMaplyVecWidth: @(1)}
+                             mode:MaplyThreadCurrent];
+
+            return @[obj1,obj2];
+        }
+    }
+    
+    return nil;
+}
+
+- (NSArray *)addGeoJson:(NSString*)name viewC:(MaplyBaseViewController *)viewC
+{
+    return [self addGeoJson:name dashPattern:@[@8, @8] width:4 viewC:viewC];
+}
 
 - (NSArray *)addWideVectors:(MaplyVectorObject *)vecObj baseViewC: (MaplyBaseViewController*) baseViewC dashedLineTex: (MaplyTexture*) dashedLineTex filledLineTex: (MaplyTexture*) filledLineTex
 {
@@ -158,11 +211,25 @@
 	return @[lines,screenLines,realLines,labelObj];
 }
 
+- (void)wideLineTest:(MaplyBaseViewController *)viewC
+{
+    [self addGeoJson:@"sawtooth.geojson" viewC:viewC];
+    [self addGeoJson:@"moving-lawn.geojson" viewC:viewC];
+    [self addGeoJson:@"spiral.geojson" viewC:viewC];
+    [self addGeoJson:@"square.geojson" viewC:viewC];
+    [self addGeoJson:@"track.geojson" viewC:viewC];
+    [self addGeoJson:@"uturn2.geojson" dashPattern:@[@16, @16] width:40 viewC:viewC];
+    
+    //    [self addGeoJson:@"straight.geojson"];
+    //    [self addGeoJson:@"uturn.geojson"];
+}
+
+
 - (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC{
 	
 	GeographyClassTestCase * baseLayer = [[GeographyClassTestCase alloc]init];
 	[baseLayer setUpWithGlobe:globeVC];
-	[self loadShapeFile:(MaplyBaseViewController*)globeVC];
+    [self wideLineTest:globeVC];
 	
 	return true;
 }
@@ -170,7 +237,7 @@
 - (BOOL)setUpWithMap:(MaplyViewController *)mapVC{
 	GeographyClassTestCase * baseLayer = [[GeographyClassTestCase alloc]init];
 	[baseLayer setUpWithMap:mapVC];
-	[self loadShapeFile:(MaplyBaseViewController*)mapVC];
+    [self wideLineTest:mapVC];
 
 	return true;
 }
