@@ -39,7 +39,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
         BNGCustomMapTestCase(),
 		BNGTestCase(),
 		ElevationLocalDatabase(),
-		ParticleTestCase()
+		ParticleTestCase(),
         CesiumElevationTestCase(),
         RunwayBuilderTestCase(),
 
