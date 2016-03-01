@@ -322,7 +322,6 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
         }
     }
 
-    @Override
     public void tileDidUnload(MaplyTileID tileID)
     {
         // Note: Debugging
