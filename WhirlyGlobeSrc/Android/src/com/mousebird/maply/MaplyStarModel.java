@@ -17,24 +17,12 @@
  *  limitations under the License.
  *
  */
-package com.mousebirdconsulting.autotester.TestCases;
+package com.mousebird.maply;
 
 import android.app.Activity;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
-
-import com.mousebird.maply.ComponentObject;
-import com.mousebird.maply.GlobeController;
-import com.mousebird.maply.MaplyBaseController;
-import com.mousebird.maply.MaplyTexture;
-import com.mousebird.maply.ParticleBatch;
-import com.mousebird.maply.ParticleSystem;
-import com.mousebird.maply.ParticleSystemAttribute;
-import com.mousebird.maply.Point3d;
-import com.mousebird.maply.Shader;
-
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedInputStream;
@@ -43,15 +31,9 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.TimeZone;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import jodd.datetime.JDateTime;
 
 
 public class MaplyStarModel {
@@ -108,25 +90,44 @@ public class MaplyStarModel {
 
 
     public MaplyStarModel(String fileName, String imageName, Activity activity) throws IOException {
-
         AssetManager assetMgr = activity.getAssets();
-        InputStream inputStream;
+        InputStream inputStream = null;
         String[] paths = assetMgr.list("maplystarmodel");
         for (String path : paths) {
-            if (path.equals(imageName))
-            { //image
-                inputStream = assetMgr.open("maplystarmodel/" + path);
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
-                image = BitmapFactory.decodeStream(bufferedInputStream);
-
+            if (path.equals(imageName)) {
+                //image
+                BufferedInputStream bufferedInputStream = null;
+                try {
+                    inputStream = assetMgr.open("maplystarmodel/" + path);
+                    bufferedInputStream = new BufferedInputStream(inputStream);
+                    image = BitmapFactory.decodeStream(bufferedInputStream);
+                } finally {
+                    if (bufferedInputStream != null) {
+                        try {
+                            bufferedInputStream.close();
+                        } catch (IOException e) {
+                        }
+                    }
+                }
             }
-            if (path.equals(fileName))
-            { //data
+            if (path.equals(fileName)) {
+                //data
+                Matcher m;
+                try {
+                    inputStream = assetMgr.open("maplystarmodel/" + path);
+                    String stars = IOUtils.toString(inputStream, Charset.defaultCharset());
+                    Pattern p = Pattern.compile("[-]?[0-9]*\\.?[0-9]+");
+                    m = p.matcher(stars);
+                } finally {
+                    if (inputStream != null) {
+                        try {
+                            inputStream.close();
+                        } catch (IOException e) {
+                        }
+                    }
+                }
+
                 this.stars = new ArrayList<SingleStar>();
-                inputStream = assetMgr.open("maplystarmodel/" + path);
-                String stars = IOUtils.toString(inputStream, Charset.defaultCharset());
-                Pattern p = Pattern.compile("[-]?[0-9]*\\.?[0-9]+");
-                Matcher m = p.matcher(stars);
                 if (m.groupCount() % 3 == 0){
                     int i = 0;
                     SingleStar s = null;
@@ -161,8 +162,7 @@ public class MaplyStarModel {
 
         //Julian date for position calculation
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        JDateTime jdt = new JDateTime(cal.getTimeInMillis());
-        double jd = jdt.getJulianDateDouble();
+        double jd = getJulianDateDouble(cal.getTimeInMillis());
         double siderealTime = Greenwich_Mean_Sidereal_Deg(jd);
 
         //Really simple shader
@@ -244,4 +244,42 @@ public class MaplyStarModel {
 
         return gmst;
     } //Greenwich_Mean_Sidereal_Deg
+
+
+    public static final int SECONDS_IN_DAY = 60 * 60 * 24;
+
+    public static final long MILLIS_IN_DAY = 1000L * SECONDS_IN_DAY;
+
+
+    private double getJulianDateDouble(long millis){
+
+        TimeZone timeZone = TimeZone.getDefault();
+
+        millis += timeZone.getOffset(millis);
+        int integer = (int) (millis / MILLIS_IN_DAY);
+        double fraction = (double) (millis % MILLIS_IN_DAY) / MILLIS_IN_DAY;
+        integer += getInteger(2440587, 0.5);
+        fraction += getFraction(2451910, 0.5);
+        return (double) integer + fraction;
+    }
+
+    private int getInteger(int i, double f){
+        int integer = i;
+        int fi = (int) f;
+        f -= fi;
+        integer += fi;
+        if (f < 0) {
+            integer--;
+        }
+        return integer;
+    }
+
+    private double getFraction(int i, double f){
+        int fi = (int) f;
+        f -= fi;
+        if (f < 0) {
+            f +=1;
+        }
+        return f;
+    }
 }
