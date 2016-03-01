@@ -1374,7 +1374,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
         
         int numImages = env->GetArrayLength(bitmapsObj);
         int width,height;
-        std::vector<RawDataRef> images(numImages);
+        std::vector<RawDataRef> images;
+        images.reserve(numImages);
         for (int ii=0;ii<numImages;ii++)
         {
             jobject bitmapObj = env->GetObjectArrayElement(bitmapsObj,ii);
