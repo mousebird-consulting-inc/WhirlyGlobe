@@ -104,12 +104,6 @@
         case Maply2DMap:
             cell.textLabel.text = @"Map (2D)";
             break;
-        case Maply3DMap:
-            cell.textLabel.text = @"Map (3D)";
-            break;
-//        case MaplyScrollViewMap:
-//            cell.textLabel.text = @"Map - UIScrollView (2D)";
-//            break;
         default:
             break;
     }
