@@ -25,7 +25,7 @@
 /// @brief Field to use when displaying the text
 @property (nonatomic) NSString *textField;
 /// @brief the biggest we'll let the text get (Note: Is this font or what?)
-@property (nonatomic) MaplyMapboxValueWrapper *textMaxSize;
+@property (nonatomic) double textMaxSize;
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
 
@@ -33,10 +33,11 @@
 
 @interface MapboxVectorSymbolPaint : NSObject
 
-@property (nonatomic) MaplyMapboxValueWrapper *textColor;
-@property (nonatomic) MaplyMapboxValueWrapper *textHaloColor;
-@property (nonatomic) MaplyMapboxValueWrapper *textOpacity;
-@property (nonatomic) MaplyMapboxValueWrapper *textSize;
+@property (nonatomic) UIColor *textColor;
+@property (nonatomic) UIColor *textHaloColor;
+
+@property (nonatomic) double textSize;
+@property (nonatomic) MaplyVectorFunctionStops *textSizeFunc;
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
 

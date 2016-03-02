@@ -30,7 +30,7 @@
     NSMutableDictionary *layersByUUID;
 }
 
-- (instancetype)initWithJSON:(NSData *)styleJSON viewC:(MaplyBaseViewController *)viewC
+- (id)initWithJSON:(NSData *)styleJSON viewC:(MaplyBaseViewController *)viewC
 {
     self = [super init];
     if (!self)
@@ -53,7 +53,7 @@
     int which = 0;
     for (NSDictionary *layerStyle in layerStyles)
     {
-		MaplyMapboxVectorStyleLayer *layer = [[MaplyMapboxVectorStyleLayer alloc] initWithStyleSet:self JSON:layerStyle drawPriority:(10*which + kMaplyVectorDrawPriorityDefault)];
+        MaplyMapboxVectorStyleLayer *layer = [MaplyMapboxVectorStyleLayer VectorStyleLayer:self JSON:layerStyle drawPriority:(10*which + kMaplyVectorDrawPriorityDefault)];
         if (layer)
         {
             [layers addObject:layer];
@@ -112,8 +112,6 @@
     if ([thing isKindOfClass:[NSString class]])
     {
         NSString *stringThing = thing;
-        if ([stringThing length] == 0)
-            return thing;
         // Note: This just handles simple ones with full substitution
         if ([stringThing characterAtIndex:0] == '@')
         {
@@ -128,27 +126,6 @@
     }
     
     return thing;
-}
-
-- (UIColor *)backgroundColor
-{
-    // Look for the background layer
-    MapboxVectorLayerBackground *backLayer = nil;
-    for (id layer in _layers)
-        if ([layer isKindOfClass:[MapboxVectorLayerBackground class]])
-        {
-            backLayer = layer;
-            break;
-        }
-    
-    if (backLayer)
-    {
-        UIColor *color = [backLayer.paint.color maxColorWithStyleSet:self];
-        if (color)
-            return color;
-    }
-    
-    return nil;
 }
 
 - (int)intValue:(NSString *)name dict:(NSDictionary *)dict defVal:(int)defVal
@@ -186,27 +163,21 @@
     return [self doubleValue:thing defVal:defVal];
 }
 
-- (NSString *)stringValue:(NSString *)str defVal:(NSString *)defVal
+- (NSString *)stringValue:(NSString *)name dict:(NSDictionary *)dict defVal:(NSString *)defVal
 {
-    id thing = [self constantSubstitution:str forField:@""];
+    id thing = dict[name];
+    if (!thing)
+        return defVal;
+    
+    thing = [self constantSubstitution:thing forField:name];
     
     if ([thing isKindOfClass:[NSString class]])
         return thing;
     if ([thing respondsToSelector:@selector(stringValue)])
         return [thing stringValue];
     
+    NSLog(@"Expected string for %@ but got something else",name);
     return defVal;
-}
-
-- (NSString *)stringValue:(NSString *)name dict:(NSDictionary *)dict defVal:(NSString *)defVal
-{
-    id thing = dict[name];
-    if (!thing)
-        return defVal;
-
-//    NSLog(@"Expected string for %@ but got something else",name);
-
-    return [self stringValue:thing defVal:defVal];
 }
 
 - (NSArray *)arrayValue:(NSString *)name dict:(NSDictionary *)dict defVal:(NSArray *)defVal
@@ -214,18 +185,6 @@
     id thing = dict[name];
     if (!thing)
         return defVal;
-    
-    if ([thing isKindOfClass:[NSDictionary class]])
-    {
-        NSDictionary *dict = thing;
-        NSString *type = dict[@"type"];
-        if (![type isEqualToString:@"number"])
-        {
-            NSLog(@"Expecting number type for number (%@)",name);
-            return nil;
-        }
-        thing = dict[@"value"];
-    }
     
     thing = [self constantSubstitution:thing forField:name];
     
@@ -236,6 +195,33 @@
     return defVal;
 }
 
+- (MaplyVectorFunctionStops *)stopsValue:(id)entry defVal:(id)defEntry
+{
+    entry = [self constantSubstitution:entry forField:nil];
+    
+    NSNumber *base = nil;
+    if ([entry isKindOfClass:[NSDictionary class]])
+    {
+        base = ((NSDictionary *)entry)[@"base"];
+        entry = ((NSDictionary *)entry)[@"stops"];
+    }
+    
+    if (!entry)
+    {
+        NSLog(@"Expecting key word 'stops' in entry %@",defEntry);
+        return defEntry;
+    }
+    
+    MaplyVectorFunctionStops *stops = [[MaplyVectorFunctionStops alloc] initWithArray:entry styleSet:self viewC:self.viewC];
+    if (stops)
+    {
+        if ([base isKindOfClass:[NSNumber class]])
+            stops.base = [base doubleValue];
+        return stops;
+    }
+    return defEntry;
+}
+
 - (UIColor *)color:(UIColor *)color withOpacity:(double)opacity
 {
     CGFloat red,green,blue,alpha;
@@ -243,21 +229,13 @@
     return [UIColor colorWithRed:red*opacity green:green*opacity blue:blue*opacity alpha:alpha*opacity];
 }
 
-- (UIColor *)colorValue:(NSString *)name defVal:(UIColor *)defVal
+- (UIColor *)colorValue:(NSString *)name dict:(NSDictionary *)dict defVal:(UIColor *)defVal
 {
-    id thing = [self constantSubstitution:name forField:@""];
+    id thing = dict[name];
+    if (!thing)
+        return defVal;
     
-    if ([thing isKindOfClass:[NSDictionary class]])
-    {
-        NSDictionary *dict = thing;
-        NSString *type = dict[@"type"];
-        if (![type isEqualToString:@"color"])
-        {
-            NSLog(@"Expecting color type for color (%@)",name);
-            return nil;
-        }
-        thing = dict[@"value"];
-    }
+    thing = [self constantSubstitution:thing forField:name];
     
     if (![thing isKindOfClass:[NSString class]])
     {
@@ -283,7 +261,7 @@
             NSLog(@"Invalid hex value (%@) in color (%@)",str,name);
             return defVal;
         }
-        
+
         int red,green,blue;
         if ([str length] == 4)
         {
@@ -332,15 +310,6 @@
     return defVal;
 }
 
-- (UIColor *)colorValue:(NSString *)name dict:(NSDictionary *)dict defVal:(UIColor *)defVal
-{
-    id thing = dict[name];
-    if (!thing)
-        return defVal;
- 
-    return [self colorValue:thing defVal:defVal];
-}
-
 - (NSUInteger)enumValue:(NSString *)name options:(NSArray *)options defVal:(NSUInteger)defVal
 {
     if (!name)
@@ -374,79 +343,69 @@
 
 @implementation MaplyMapboxVectorStyleLayer
 
-+ (instancetype)VectorStyleLayer:(MaplyMapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority
++ (id)VectorStyleLayer:(MaplyMapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority
 {
-	return [[MaplyMapboxVectorStyleLayer alloc] initWithStyleSet:styleSet JSON:layerDict drawPriority:drawPriority];
+    MaplyMapboxVectorStyleLayer *layer = nil;
+    MaplyMapboxVectorStyleLayer *refLayer = nil;
+    
+    // Look for the layer with that name
+    NSString *refLayerName = layerDict[@"ref"];
+    if (refLayer)
+    {
+        if (![refLayerName isKindOfClass:[NSString class]])
+        {
+            NSLog(@"Was expecting string for ref in layer");
+            return nil;
+        }
+        
+        refLayer = styleSet.layersByName[refLayerName];
+        if (!refLayer)
+        {
+            NSLog(@"Didn't find layer named (%@)",refLayerName);
+            return nil;
+        }
+    }
+
+    NSString *type = layerDict[@"type"];
+    if (type && ![type isKindOfClass:[NSString class]])
+    {
+        NSLog(@"Expecting string type for layer");
+        return nil;
+    }
+    if ([type isEqualToString:@"fill"])
+    {
+        MapboxVectorLayerFill *fillLayer = [[MapboxVectorLayerFill alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
+        layer = fillLayer;
+    } else if ([type isEqualToString:@"line"])
+    {
+        MapboxVectorLayerLine *lineLayer = [[MapboxVectorLayerLine alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
+        layer = lineLayer;
+    } else if ([type isEqualToString:@"symbol"])
+    {
+        MapboxVectorLayerSymbol *symbolLayer = [[MapboxVectorLayerSymbol alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
+        layer = symbolLayer;
+    } else if ([type isEqualToString:@"raster"])
+    {
+        MapboxVectorLayerRaster *rasterLayer = [[MapboxVectorLayerRaster alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
+        layer = rasterLayer;
+    } else if ([type isEqualToString:@"background"])
+    {
+        MapboxVectorLayerBackground *backLayer = [[MapboxVectorLayerBackground alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
+        layer = backLayer;
+    }
+    if (layerDict[@"filter"])
+    {
+        layer.filter = [[MapboxVectorFilter alloc] initWithArray:[styleSet arrayValue:@"filter" dict:layerDict defVal:nil] styleSet:styleSet viewC:styleSet.viewC];
+        if (!layer.filter)
+        {
+            NSLog(@"MapboxStyleSet: Failed to parse filter for layer %@",layer.ident);
+        }
+    }
+    
+    return layer;
 }
 
-- (instancetype)initWithStyleSet:(MaplyMapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority
-{
-	MaplyMapboxVectorStyleLayer *layer = nil;
-	MaplyMapboxVectorStyleLayer *refLayer = nil;
-
-	// Look for the layer with that name
-	NSString *refLayerName = layerDict[@"ref"];
-	if (refLayer)
-	{
-		if (![refLayerName isKindOfClass:[NSString class]])
-		{
-			NSLog(@"Was expecting string for ref in layer");
-			return nil;
-		}
-
-		refLayer = styleSet.layersByName[refLayerName];
-		if (!refLayer)
-		{
-			NSLog(@"Didn't find layer named (%@)",refLayerName);
-			return nil;
-		}
-	}
-
-	NSString *type = layerDict[@"type"];
-	if (type && ![type isKindOfClass:[NSString class]])
-	{
-		NSLog(@"Expecting string type for layer");
-		return nil;
-	}
-	if ([type isEqualToString:@"fill"])
-	{
-		MapboxVectorLayerFill *fillLayer = [[MapboxVectorLayerFill alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-		layer = fillLayer;
-	} else if ([type isEqualToString:@"line"])
-	{
-		MapboxVectorLayerLine *lineLayer = [[MapboxVectorLayerLine alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-		layer = lineLayer;
-	} else if ([type isEqualToString:@"symbol"])
-	{
-		MapboxVectorLayerSymbol *symbolLayer = [[MapboxVectorLayerSymbol alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-		layer = symbolLayer;
-	} else if ([type isEqualToString:@"raster"])
-	{
-		MapboxVectorLayerRaster *rasterLayer = [[MapboxVectorLayerRaster alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-		layer = rasterLayer;
-	} else if ([type isEqualToString:@"background"])
-	{
-		MapboxVectorLayerBackground *backLayer = [[MapboxVectorLayerBackground alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-		layer = backLayer;
-	}
-	if (layerDict[@"interactive"])
-	{
-		layer.interactive = [layerDict[@"interactive"] boolValue];
-	}
-	if (layerDict[@"filter"])
-	{
-		layer.filter = [[MapboxVectorFilter alloc] initWithArray:[styleSet arrayValue:@"filter" dict:layerDict defVal:nil] styleSet:styleSet viewC:styleSet.viewC];
-		if (!layer.filter)
-		{
-			NSLog(@"MapboxStyleSet: Failed to parse filter for layer %@",layer.ident);
-		}
-	}
-
-	return layer;
-}
-
-
-- (instancetype)initWithStyleEntry:(NSDictionary *)layerDict parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC
+- (id)initWithStyleEntry:(NSDictionary *)layerDict parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC
 {
     self = [super init];
     if (!self)
@@ -477,7 +436,7 @@
 
 @implementation MapboxVectorFilter
 
-- (instancetype)initWithArray:(NSArray *)filterArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
+- (id)initWithArray:(NSArray *)filterArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
 {
     if (![filterArray isKindOfClass:[NSArray class]])
     {
@@ -685,380 +644,80 @@
 
 @end
 
-@implementation MaplyMapboxValue
-
-- (instancetype)initWithValue:(id)value type:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
-{
-    self = [super init];
-
-    _type = dataType;
-    switch (dataType)
-    {
-        case MaplyMapboxValueTypeNumber:
-            if (styleSet)
-                _value = [NSNumber numberWithDouble:[styleSet doubleValue:value defVal:0.0]];
-            else {
-                if ([value isKindOfClass:[NSNumber class]])
-                {
-                    _value = value;
-                } else {
-                    NSLog(@"Expecting NSNumber when initializing value.");
-                    return nil;
-                }
-            }
-            break;
-        case MaplyMapboxValueTypeColor:
-            if (styleSet)
-                _value = [styleSet colorValue:value defVal:nil];
-            else {
-                if ([value isKindOfClass:[UIColor class]])
-                    _value = value;
-                else {
-                    NSLog(@"Expecting UIColor when initializing value.");
-                    return nil;
-                }
-            }
-            break;
-        case MaplyMapboxValueTypeString:
-            if (styleSet)
-                _value = [styleSet stringValue:value defVal:nil];
-            else {
-                if ([value isKindOfClass:[NSString class]])
-                {
-                    _value = value;
-                } else {
-                    NSLog(@"Expecting NSString when initializing value.");
-                    return nil;
-                }
-            }
-            break;
-    }
-    
-    if (!_value)
-        return nil;
-    
-    return self;
-}
-
-+ (MaplyMapboxValue *)interpolateFrom:(MaplyMapboxValue *)a to:(MaplyMapboxValue *)b t:(double)t
-{
-    if (a.type != b.type)
-        return nil;
-    
-    switch (a.type)
-    {
-        case MaplyMapboxValueTypeNumber:
-        {
-            double aVal = [a.value doubleValue];
-            double bVal = [b.value doubleValue];
-            double res = (bVal-aVal)*t + aVal;
-            return [[MaplyMapboxValue alloc] initWithValue:[NSNumber numberWithDouble:res] type:MaplyMapboxValueTypeNumber styleSet:nil];
-        }
-            break;
-        case MaplyMapboxValueTypeColor:
-        {
-            UIColor *aCol = a.value;
-            UIColor *bCol = b.value;
-            CGFloat a[4],b[4],res[4];
-            [aCol getRed:&a[0] green:&a[1] blue:&a[2] alpha:&a[3]];
-            [bCol getRed:&b[0] green:&b[1] blue:&b[2] alpha:&b[3]];
-            for (unsigned int ii=0;ii<4;ii++)
-                res[ii] = (b[ii]-a[ii])*t + a[ii];
-            UIColor *resColor = [UIColor colorWithRed:res[0] green:res[1] blue:res[2] alpha:res[3]];
-            return [[MaplyMapboxValue alloc] initWithValue:resColor type:MaplyMapboxValueTypeColor styleSet:nil];
-        }
-            break;
-        case MaplyMapboxValueTypeString:
-            // Interpolation is weird here
-            return a.value;
-            break;
-    }
-    
-    return nil;
-}
-
+@implementation MaplyVectorFunctionStop
 @end
 
-@implementation MaplyMapboxVectorFunctionStop
-@end
+@implementation MaplyVectorFunctionStops
 
-@implementation MaplyMapboxVectorFunction
-
-- (instancetype)initWithValueDict:(NSDictionary *)dict dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
+- (id)initWithArray:(NSArray *)dataArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
 {
-    if (![dict isKindOfClass:[NSDictionary class]])
+    if (![dataArray isKindOfClass:[NSArray class]])
     {
-        NSLog(@"Expected JSON object for function.");
+        NSLog(@"Expected JSON array for function stops.");
         return nil;
     }
-    NSNumber *base = dict[@"base"];
-    NSArray *domain = dict[@"domain"];
-    NSArray *range = dict[@"range"];
-    NSString *type = dict[@"type"];
-
-    if (![domain isKindOfClass:[NSArray class]] || ![range isKindOfClass:[NSArray class]] ||
-        [domain count] != [range count])
+    if ([dataArray count] < 2)
     {
-        NSLog(@"Expected JSON arrays of same length for domain and range of function.");
-        return nil;
-    }
-    if (![base isKindOfClass:[NSNumber class]])
-    {
-        NSLog(@"Expected number for base of function.");
-        return nil;
-    }
-    if (![type isKindOfClass:[NSString class]])
-    {
-        NSLog(@"Expected string for type of function.");
+        NSLog(@"Expecting at least two arguments for function stops.");
         return nil;
     }
     
     NSMutableArray *stops = [NSMutableArray array];
-    int which = 0;
-    for (NSNumber *inVal in domain)
+    for (NSArray *stop in dataArray)
     {
-        id outVal = [range objectAtIndex:which];
-        
-        if (![inVal isKindOfClass:[NSNumber class]])
+        if (![stop isKindOfClass:[NSArray class]] || [stop count] != 2)
         {
-            NSLog(@"Expecting numbers for domain of function.");
+            NSLog(@"Expecting two arguments in each entry for a function stop.");
             return nil;
         }
         
-        MaplyMapboxVectorFunctionStop *fStop = [[MaplyMapboxVectorFunctionStop alloc] init];
-        fStop.inputVal = [inVal doubleValue];
-        fStop.outputVal = outVal;
+        MaplyVectorFunctionStop *fStop = [[MaplyVectorFunctionStop alloc] init];
+        fStop.zoom = [[stop objectAtIndex:0] doubleValue];
+        fStop.val = [[stop objectAtIndex:1] doubleValue];
         [stops addObject:fStop];
-        
-        which++;
     }
     
     self = [super init];
     if (!self)
         return nil;
     
-    _dataType = dataType;
-    _base = [base doubleValue];
+    _base = 1.0;
     _stops = stops;
     
     return self;
 }
 
-- (MaplyMapboxValue *)valueForInput:(double)inputVal type:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
+- (double)valueForZoom:(int)zoom
 {
-    if (dataType != _dataType)
-        return nil;
-    
-    MaplyMapboxVectorFunctionStop *a = _stops[0],*b = nil;
-    MaplyMapboxValue *aVal = [[MaplyMapboxValue alloc] initWithValue:a.outputVal type:dataType styleSet:styleSet];
-    if (inputVal <= a.inputVal)
-        return [[MaplyMapboxValue alloc] initWithValue:a.outputVal type:dataType styleSet:styleSet];
+    MaplyVectorFunctionStop *a = _stops[0],*b = nil;
+    if (zoom <= a.zoom)
+        return a.val;
     for (int which = 1;which < _stops.count; which++)
     {
         b = _stops[which];
-        MaplyMapboxValue *bVal = [[MaplyMapboxValue alloc] initWithValue:b.outputVal type:dataType styleSet:styleSet];
-        if (a.inputVal <= inputVal && inputVal < b.inputVal)
+        if (a.zoom <= zoom && zoom < b.zoom)
         {
-            double t = (inputVal-a.inputVal)/(b.inputVal-a.inputVal);
+            double t = (zoom-a.zoom)/(b.zoom-a.zoom);
             double scaleT = pow(t,_base);
-
-            return [MaplyMapboxValue interpolateFrom:aVal to:bVal t:scaleT];
+            return scaleT * (b.val-a.val) + a.val;
         }
         a = b;
-        aVal = bVal;
     }
     
-    return [[MaplyMapboxValue alloc] initWithValue:b.outputVal type:dataType styleSet:styleSet];
+    return b.val;
 }
 
-- (MaplyMapboxValue *)minValueOfType:(MaplyMapboxValueType)dataType
+- (double)minValue
 {
-    MaplyMapboxVectorFunctionStop *a = _stops[0];
-    return [[MaplyMapboxValue alloc] initWithValue:a.outputVal type:_dataType styleSet:nil];
+    MaplyVectorFunctionStop *a = _stops[0];
+    return a.val;
 }
 
-- (MaplyMapboxValue *)maxValueOfType:(MaplyMapboxValueType)dataType
+- (double)maxValue
 {
-    MaplyMapboxVectorFunctionStop *b = _stops[_stops.count-1];
-    return [[MaplyMapboxValue alloc] initWithValue:b.outputVal type:_dataType styleSet:nil];
+    MaplyVectorFunctionStop *b = _stops[_stops.count-1];
+    return b.val;
 }
 
-@end
-
-@implementation MaplyMapboxValueWrapper
-{
-    MaplyMapboxValue *val;
-    MaplyMapboxVectorFunction *func;
-}
-
-- (instancetype)initWithValue:(id)inValue dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
-{
-    self = [super init];
-
-    id subValue = [styleSet constantSubstitution:inValue forField:@""];
-    if (!subValue)
-    {
-        NSLog(@"Missing required field");
-        return nil;
-    }
-
-    id value = subValue;
-    if ([subValue isKindOfClass:[NSDictionary class]])
-    {
-        NSString *type = subValue[@"type"];
-        value = subValue[@"value"];
-        
-        // Was a constant subsitution
-        if (type && value)
-        {
-            switch (dataType)
-            {
-                case MaplyMapboxValueTypeNumber:
-                    // Note: Opacity looks like a bug in the file
-                    if (![type isEqualToString:@"number"] && ![type isEqualToString:@"opacity"])
-                    {
-                        NSLog(@"Mismatched data type in value.  Expecting number.");
-                        return nil;
-                    }
-                    break;
-                case MaplyMapboxValueTypeColor:
-                    if (![type isEqualToString:@"color"])
-                    {
-                        NSLog(@"Mismatched data type in value.  Expecting color.");
-                        return nil;
-                    }
-                    break;
-                case MaplyMapboxValueTypeString:
-                    if (![type isEqualToString:@"enum"])
-                    {
-                        NSLog(@"Mismatched data type in value.  Expecting string.");
-                        return nil;
-                    }
-                    break;
-            }
-        } else {
-            // Is just a straight function
-            value = subValue;
-        }
-    }
-    
-    _dataType = dataType;
-    if ([value isKindOfClass:[NSString class]])
-    {
-        if (dataType == MaplyMapboxValueTypeColor || dataType == MaplyMapboxValueTypeString)
-        {
-            val = [[MaplyMapboxValue alloc] initWithValue:value type:dataType styleSet:styleSet];
-        } else {
-            NSLog(@"Expecting string for color or string type in value.");
-            return nil;
-        }
-    } else if ([value isKindOfClass:[NSNumber class]])
-    {
-        if (dataType == MaplyMapboxValueTypeNumber)
-        {
-            val = [[MaplyMapboxValue alloc] initWithValue:value type:MaplyMapboxValueTypeNumber styleSet:styleSet];
-        } else {
-            NSLog(@"Expecting number for value.");
-            return nil;
-        }
-    } else if ([value isKindOfClass:[NSDictionary class]])
-    {
-        func = [[MaplyMapboxVectorFunction alloc] initWithValueDict:value dataType:dataType styleSet:styleSet viewC:nil];
-    }
-    
-    return self;
-}
-
-- (instancetype)initWithDict:(NSDictionary *)dict name:(NSString *)attrName dataType:(MaplyMapboxValueType)dataType styleSet:(MaplyMapboxVectorStyleSet *)styleSet
-{
-    id thing = dict[attrName];
-    if (!thing)
-    {
-        return nil;
-    }
-    
-    return [self initWithValue:thing dataType:dataType styleSet:styleSet];
-}
-
-- (instancetype)initWithObject:(id)thing
-{
-    self = [super init];
-    if ([thing isKindOfClass:[UIColor class]])
-    {
-        val = [[MaplyMapboxValue alloc] initWithValue:thing type:MaplyMapboxValueTypeColor styleSet:nil];
-    } else if ([thing isKindOfClass:[NSString class]])
-    {
-        val = [[MaplyMapboxValue alloc] initWithValue:thing type:MaplyMapboxValueTypeString styleSet:nil];
-        
-    } else if ([thing isKindOfClass:[NSNumber class]])
-    {
-        val = [[MaplyMapboxValue alloc] initWithValue:thing type:MaplyMapboxValueTypeNumber styleSet:nil];
-    } else
-        return nil;
-    
-    return self;
-}
-
-- (double)numberForZoom:(int)zoom styleSet:(MaplyMapboxVectorStyleSet *)styleSet
-{
-    if (_dataType != MaplyMapboxValueTypeNumber)
-        return 0.0;
-    
-    if (val)
-        return [val.value doubleValue];
-    else {
-        return [[func valueForInput:zoom type:MaplyMapboxValueTypeNumber styleSet:styleSet].value doubleValue];
-    }
-}
-
-- (double)maxNumberWithStyleSet:(MaplyMapboxVectorStyleSet *)styleSet
-{
-    if (_dataType != MaplyMapboxValueTypeNumber)
-        return 0.0;
-
-    if (val)
-        return [val.value doubleValue];
-    else {
-        MaplyMapboxVectorFunctionStop *last = [func.stops lastObject];
-        return [styleSet doubleValue:last.outputVal defVal:0.0];
-    }
-}
-
-- (UIColor *)colorForZoom:(int)zoom styleSet:(MaplyMapboxVectorStyleSet *)styleSet
-{
-    if (_dataType != MaplyMapboxValueTypeColor)
-        return nil;
-    
-    if (val)
-        return val.value;
-    else {
-        return [func valueForInput:zoom type:MaplyMapboxValueTypeColor styleSet:styleSet].value;
-    }
-}
-
-- (UIColor *)maxColorWithStyleSet:(MaplyMapboxVectorStyleSet *)styleSet
-{
-    if (_dataType != MaplyMapboxValueTypeColor)
-        return nil;
-    
-    if (val)
-        return val.value;
-    else {
-        MaplyMapboxVectorFunctionStop *last = [func.stops lastObject];
-        return [styleSet colorValue:last.outputVal defVal:nil];
-    }
-}
-
-- (NSString *)stringForZoom:(int)zoom styleSet:(MaplyMapboxVectorStyleSet *)styleSet
-{
-    if (_dataType != MaplyMapboxValueTypeString)
-        return nil;
-    
-    if (val)
-        return val.value;
-    else {
-        return [func valueForInput:zoom type:MaplyMapboxValueTypeString styleSet:styleSet].value;
-    }
-}
 
 @end
