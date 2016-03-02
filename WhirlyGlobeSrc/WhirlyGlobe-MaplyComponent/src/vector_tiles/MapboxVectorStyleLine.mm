@@ -73,17 +73,26 @@
     [styleSet unsupportedCheck:@"line-gap-width" in:@"line-paint" styleEntry:styleEntry];
     [styleSet unsupportedCheck:@"line-blur" in:@"line-paint" styleEntry:styleEntry];
     [styleSet unsupportedCheck:@"line-image" in:@"line-paint" styleEntry:styleEntry];
-    
-    _opacity = [[MaplyMapboxValueWrapper alloc] initWithDict:styleEntry name:@"line-opacity" dataType:MaplyMapboxValueTypeNumber styleSet:styleSet];
-    if (!_opacity)
-        _opacity = [[MaplyMapboxValueWrapper alloc] initWithObject:@(1.0)];
-    _width = [[MaplyMapboxValueWrapper alloc] initWithDict:styleEntry name:@"line-width" dataType:MaplyMapboxValueTypeNumber styleSet:styleSet];
-    if (!_width)
-        _width = [[MaplyMapboxValueWrapper alloc] initWithObject:@(1.0)];
-    _color = [[MaplyMapboxValueWrapper alloc] initWithDict:styleEntry name:@"line-color" dataType:MaplyMapboxValueTypeColor styleSet:styleSet];
-    if (!_color)
-        _color = [[MaplyMapboxValueWrapper alloc] initWithObject:[UIColor blackColor]];
 
+    id opEntry = styleEntry[@"line-opacity"];
+    if (opEntry)
+    {
+        if ([opEntry isKindOfClass:[NSNumber class]])
+            _opacity = [styleSet doubleValue:opEntry defVal:1.0];
+        else
+            _opacityFunc = [styleSet stopsValue:opEntry defVal:nil];
+    } else
+        _opacity = 1.0;
+    _color = [styleSet colorValue:@"line-color" dict:styleEntry defVal:[UIColor blackColor]];
+    id widthEntry = [styleSet constantSubstitution:styleEntry[@"line-width"] forField:@"line-width"];
+    if (widthEntry)
+    {
+        if ([widthEntry isKindOfClass:[NSNumber class]])
+            _width = [styleSet doubleValue:widthEntry defVal:1.0];
+        else
+            _widthFunc = [styleSet stopsValue:widthEntry defVal:nil];
+    } else
+        _width = 1.0;
     id dashArrayEntry = styleEntry[@"line-dasharray"];
     if (dashArrayEntry)
     {
@@ -129,11 +138,13 @@ static unsigned int NextPowOf2(unsigned int val)
         return nil;
     }
 
-    double maxWidth = [_paint.width maxNumberWithStyleSet:self.styleSet];
     if (_paint.lineDashArray != nil)
     {
         NSMutableArray *dashComponents = [NSMutableArray array];
         double totLen = 0.0;
+        double maxWidth = _paint.width;
+        if (_paint.widthFunc)
+            maxWidth = [_paint.widthFunc maxValue];
 
         // Figure out the total length
         for (NSNumber *num in _paint.lineDashArray.dashes)
@@ -154,7 +165,8 @@ static unsigned int NextPowOf2(unsigned int val)
                                               wrapFlags:MaplyImageWrapY
                                                    mode:MaplyThreadCurrent];
         lineDesc = [NSMutableDictionary dictionaryWithDictionary:
-                    @{kMaplyVecWidth: @(maxWidth),
+                    @{kMaplyVecWidth: @(_paint.width),
+                      kMaplyColor: _paint.color,
                       kMaplyVecTexture: filledLineTex,
                       kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
                       // Note: Hack
@@ -169,8 +181,8 @@ static unsigned int NextPowOf2(unsigned int val)
     } else {
         // Simple filled line
         lineDesc = [NSMutableDictionary dictionaryWithDictionary:
-                @{kMaplyVecWidth: @(maxWidth),
-                  kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+                @{kMaplyVecWidth: @(_paint.width),
+                  kMaplyColor: _paint.color,
                   kMaplyDrawPriority: @(self.drawPriority),
                   kMaplyFade: @0.0,
                   kMaplyVecCentered: @YES,
@@ -185,29 +197,38 @@ static unsigned int NextPowOf2(unsigned int val)
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID  viewC:(MaplyBaseViewController *)viewC
 {
-    if (tileID.level < self.minzoom || tileID.level > self.maxzoom)
-        return nil;
-
     NSMutableArray *compObjs = [NSMutableArray array];
     
     NSDictionary *desc = lineDesc;
     bool include = true;
-    
-    NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
-    double width = [_paint.width numberForZoom:tileID.level styleSet:self.styleSet];
-    if (width <= 0.0)
-        include = false;
-    // Note: Hack
-    mutDesc[kMaplyVecWidth] = @(width);
-    double opacity = [_paint.opacity numberForZoom:tileID.level styleSet:self.styleSet];
-    if (opacity <= 0.0)
-        include = false;
-    UIColor *color = [self.styleSet color:[_paint.color colorForZoom:tileID.level styleSet:self.styleSet] withOpacity:opacity];
-    mutDesc[kMaplyColor] = color;
+    if (_paint.widthFunc)
+    {
+        double width = [_paint.widthFunc valueForZoom:tileID.level];
+        if (width > 0.0)
+        {
+            NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
+            // Note: Hack
+            mutDesc[kMaplyVecWidth] = @(width/2.0);
+            desc = mutDesc;
+        } else
+            include = false;
+    }
+    if (_paint.opacityFunc && include)
+    {
+        double opacity = [_paint.opacityFunc valueForZoom:tileID.level];
+        if (opacity > 0.0)
+        {
+            UIColor *color = [self.styleSet color:_paint.color withOpacity:opacity];
+            NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
+            mutDesc[kMaplyColor] = color;
+            desc = mutDesc;
+        } else
+            include = false;
+    }
     
     if (include)
     {
-        MaplyComponentObject *compObj = [viewC addWideVectors:vecObjs desc:mutDesc mode:MaplyThreadCurrent];
+        MaplyComponentObject *compObj = [viewC addWideVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
         if (compObj)
             [compObjs addObject:compObj];
     }

@@ -22,9 +22,11 @@
 
 @interface MapboxVectorFillPaint : NSObject
 
-@property (nonatomic) MaplyMapboxValueWrapper *opacity;
-@property (nonatomic) MaplyMapboxValueWrapper *color;
-@property (nonatomic) MaplyMapboxValueWrapper *outlineColor;
+@property (nonatomic) double opacity;
+@property (nonatomic) double opacityBase;
+@property (nonatomic) MaplyVectorFunctionStops *opacityFunc;
+@property (nonatomic) UIColor *color;
+@property (nonatomic) UIColor *outlineColor;
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
 
