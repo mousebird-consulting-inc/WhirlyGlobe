@@ -940,6 +940,7 @@ static const bool CountryTextures = false;
                              wgVecObj.userObject = vecName;
                              wgVecObj.selectable = true;
                              NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:@{
+                                                                                                         kMaplySelectable: @(YES)
 //                                                                                                         kMaplyFilled: @(YES),
                                                                                                          }];
                              if (CountryTextures)
