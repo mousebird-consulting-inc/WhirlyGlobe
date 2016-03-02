@@ -89,8 +89,7 @@
              @[[ConfigSection ConfigSectionWithName:kMaplyTestCategoryOverlayLayers
                                                rows:
                 @{kMaplyTestOWM: @(NO),
-                  kMaplyTestForecastIO: @(NO),
-                  kMaplyMapzenVectors: @(NO)
+                  kMaplyTestForecastIO: @(NO)
                   }
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects

@@ -518,6 +518,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         label.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
         label.text = [NSString stringWithFormat:@"%s",location->name];
         label.layoutImportance = 2.0;
+        label.layoutPlacement = kMaplyLayoutRight;
         label.userObject = [NSString stringWithFormat:@"%s",location->name];
         [labels addObject:label];
     }
@@ -970,6 +971,7 @@ static const bool CountryTextures = false;
                              MaplyVectorObject *wgVecObj = [[MaplyVectorObject alloc] initWithGeoJSON:jsonData];
                              NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
                              wgVecObj.userObject = vecName;
+                             wgVecObj.selectable = true;
                              NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:@{
                                                                                                          kMaplySelectable: @YES
 //                                                                                                         kMaplyFilled: @(YES),
