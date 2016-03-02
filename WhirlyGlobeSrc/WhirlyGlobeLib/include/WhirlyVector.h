@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/18/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -154,6 +154,33 @@ public:
 	
 protected:
 	Point2f pt_ll,pt_ur;
+};
+    
+/** Bounding box in 3D (doubles)
+  */
+class BBox
+{
+public:
+    BBox() : pt_ll(0,0,0), pt_ur(-1,-1,-1) { }
+    
+    /// Add a point to the bounding box
+    void addPoint(const Point3d &pt);
+    
+    /// Add a vector of points to the bounding box
+    void addPoints(const std::vector<Point3d> &pts);
+    
+    /// Copy the corners into a vector of points
+    void asPoints(std::vector<Point3d> &pts) const;
+    void asPoints(std::vector<Point3f> &pts) const;
+    
+    // Check if the given bounding box is valid
+    bool isValid() { return pt_ur.x() >= pt_ll.x(); }
+    
+    const Point3d &ll() { return pt_ll; }
+    const Point3d &ur() { return pt_ur; }
+        
+protected:
+    Point3d pt_ll,pt_ur;
 };
 	
 /** Geographic bounding rectangle.

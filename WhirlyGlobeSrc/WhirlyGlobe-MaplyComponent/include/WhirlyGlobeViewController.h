@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -43,6 +43,15 @@
 /// @brief Position to move to on the globe
 @property (nonatomic) MaplyCoordinate pos;
 
+/// @brief If set, this is a point on the screen where pos should be.
+/// @details By default this is (-1,-1) meaning the screen position is just the middle.  Otherwise, this is where the position should wind up on the screen, if it can.
+@property (nonatomic) CGPoint screenPos;
+
+/** @brief Interpolate a new state between the given states A and B.
+    @details This does a simple interpolation (lat/lon, not great circle) between the two animation states.
+  */
++ (WhirlyGlobeViewControllerAnimationState *)Interpolate:(double)t from:(WhirlyGlobeViewControllerAnimationState *)stateA to:(WhirlyGlobeViewControllerAnimationState *)stateB;
+
 @end
 
 /** @brief An animation delegate that can be set on a WhirlyGlobeViewController to control the view over time.
@@ -68,6 +77,36 @@
   */
 - (WhirlyGlobeViewControllerAnimationState *)globeViewController:(WhirlyGlobeViewController *)viewC stateForTime:(NSTimeInterval)currentTime;
 
+@optional
+
+/** @brief This method is called at the end of the animation.
+    @details The globe view controller calls this method when the animation is finished.  Do your cleanup here if need be.
+    @param viewC The globe view controller.
+  */
+- (void)globeViewControllerDidFinishAnimation:(WhirlyGlobeViewController *)viewC;
+
+@end
+
+/** @brief A simple animation delegate for moving the globe around.
+    @details The animation delegate support provides a lot of flexibility.  This version just provides all the standard fields and interpolates from beginning to end.
+  */
+@interface WhirlyGlobeViewControllerSimpleAnimationDelegate : NSObject <WhirlyGlobeViewControllerAnimationDelegate>
+
+/// @brief Initialize with an animation state to copy
+- (id)initWithState:(WhirlyGlobeViewControllerAnimationState *)endState;
+
+/// @brief Location at the end of the animation
+@property (nonatomic) MaplyCoordinate loc;
+
+/// @brief Heading at the end of the animation
+@property (nonatomic) double heading;
+
+/// @brief Height at the end of the animation
+@property (nonatomic) double height;
+
+/// @brief Tilt at the end of the animation
+@property (nonatomic) double tilt;
+
 @end
 
 /** @brief Globe View Controller Delegate protocol for getting back selection and tap events.
@@ -84,6 +123,7 @@
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj;
 
 /** @brief Called when the user taps on or near an object.
+    @details This will call back with the closest object it finds near (or on) where the user tapped.
     @details You're given the object you passed in originally, such as a MaplyScreenMarker.
     @details This version is called preferentially if it exists.  Otherwise globeViewController:didSelect: is called if it exists.
     @param viewC The view controller where the user selected something.
@@ -92,6 +132,15 @@
     @param screenPt The location on screen where the user tapped.
   */
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj atLoc:(MaplyCoordinate)coord onScreen:(CGPoint)screenPt;
+
+/** @brief Called when the user taps on or near one or more objects.  Returns them all.
+    @details This method is called when the
+    @param viewC The view controller where the user selected something.
+    @param selectedObjs A list of
+    @param coord The location (geographic lon/lat in radians) where the user tapped.
+    @param screenPt The location on screen where the user tapped.
+  */
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC allSelect:(NSArray *)selectedObjs atLoc:(MaplyCoordinate)coord onScreen:(CGPoint)screenPt;
 
 /** @brief Called when the user taps outside the globe.
   */
@@ -164,6 +213,11 @@
  */
 @property(nonatomic,assign) bool rotateGesture;
 
+/** @brief Turn the tilte gesture recognizer on and off
+    @details Off by default.
+ */
+@property(nonatomic,assign) bool tiltGesture;
+
 /** @brief Turn the double tap to zoom gesture recognizer on and off
  @details On by default.
  */
@@ -226,6 +280,12 @@
   */
 @property (nonatomic) float zoomTapAnimationDuration;
 
+/** @brief Reset the far clipping plane.
+    @details This is advanced functionality.  Make sure you actually need to do this before you do it.
+    @details The far clipping plane is usually set to something like 4.0.
+  */
+- (void)setFarClipPlane:(double)farClipPlane;
+
 /** @brief Set the simplified tilt mode.  We'll tilt toward the horizon as the user gets closer to the ground.
     @details This implements a simplified mode for tilting.  As the user gets closer to the ground we tilt more toward the horizon.
     @param minHeight The minimum height corresponding to minTilt.
@@ -260,6 +320,14 @@
  */
 - (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
 
+/** @brief Animate to the given position, heading and height over time.
+    @param newPos A coordinate in geographic (lon/lat radians)
+    @param newHeight New height to animate to.
+    @param newHeading New heading to finish on.
+    @param howLong A time interval in seconds.
+ */
+- (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong;
+
 /** @brief Animate with a delegate over time.
     @details Fill in the WhirlyGlobeViewControllerAnimationDelegate and you can control the visual view on a frame by frame basis.  You'll get called back at the appropriate time on the main thread over the time period.
     @details You'll also be called one at the end of the animation to establish the final position.
@@ -279,11 +347,50 @@
  */
 - (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
 
+/** @brief Set the center of the screen and the height offset immediately.
+    @details Set the center and height using double.s
+    @param newPos The geographic position (lon/lat in radians) to move to.
+    @param height Height the view point above the globe.
+ */
+- (void)setPositionD:(MaplyCoordinateD)newPos height:(double)height;
+
 /** @brief Return the current center position and height.
     @param pos The center of the screen in geographic (lon/lat in radians).
     @param height The current view point's height above the globe.
  */
 - (void)getPosition:(MaplyCoordinate *)pos height:(float *)height;
+
+/** @brief Return the current center position and height in doubles.
+    @param pos The center of the screen in geographic (lon/lat in radians).
+    @param height The current view point's height above the globe.
+ */
+- (void)getPositionD:(MaplyCoordinateD *)pos height:(double *)height;
+
+/** @brief Set the viewing state all at once
+    @details This sets the position, tilt, height, screen position and heading all at once.
+  */
+- (void)setViewState:(WhirlyGlobeViewControllerAnimationState *)viewState;
+
+/** @brief Make a WhirlyGlobeViewControllerAnimationState object from the current view state.
+    @details This returns the current view parameters in a single WhirlyGlobeViewControllerAnimationState.
+  */
+- (WhirlyGlobeViewControllerAnimationState *)getViewState;
+
+/** @brief Return a view state looking at the given location.
+    @details Creates a view state that looks at the given location, taking tilt and heading into account.
+    @param coord The location the user will be looking at.
+    @param tilt Tilt off of vertical.
+    @param heading Heading calculated from due north.
+    @param alt Altitude of the point the user will be looking at (0, is a good value).
+    @param range How far the user will be from the location they're looking at.
+    @return The view state encapsulating the user location.  Will be nil if the parameters weren't valid.
+  */
+- (WhirlyGlobeViewControllerAnimationState *)viewStateForLookAt:(MaplyCoordinate)coord tilt:(float)tilt heading:(float)heading altitude:(float)alt range:(float)range;
+
+/** @brief Apply viewing constraints to the given view state.
+    @details This applies active viewing constraints, such as min and max height and calculated tilt, if it's on to the given view state. This is particularly useful when controlled tilt is on.
+  */
+- (void)applyConstraintsToViewState:(WhirlyGlobeViewControllerAnimationState *)viewState;
 
 /** @brief Find a selectable object at or near the given location.
     @details This runs immediately and looks for a Maply object at the given location.  It differs from the WhirlyGlobeViewControllerDelegate in that it doesn't require user interaction.
@@ -332,5 +439,13 @@
  @return Returns true if exists a bounding bbox for the current view, otherwise returns false
  */
 - (bool) getCurrentExtents:(MaplyBoundingBox *)bbox;
+
+/**
+  @brief From the current view figure out a usable geo bounding box.
+  @details This is similar to the WhirlyGlobeViewControllerDelegate methods and getCurrentExtents except that it goes a little deeper.  It starts with the four corners of the screen and then tries to take tilt and orientation into account.  Ideally it produces a bounding box that covers everything the user is looking at as opposed to where the four corners are.
+ @param bboxes The bounding boxes to fill in.  Pass in two.
+ @param visualBoxes If set, we'll build bounding boxes you can display.  If not set, we'll build a single bounding box usable for math.
+  */
+- (int)getUsableGeoBoundsForView:(MaplyBoundingBox *)bboxes visual:(bool)visualBoxes;
 
 @end

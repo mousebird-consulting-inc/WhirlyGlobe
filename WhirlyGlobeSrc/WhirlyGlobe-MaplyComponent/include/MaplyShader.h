@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/7/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,11 +22,15 @@
 
 @class MaplyBaseViewController;
 
+/** @brief The various types of attributes that can be passed in to shaders.
+  */
+typedef enum {MaplyShaderAttrTypeInt,MaplyShaderAttrTypeFloat,MaplyShaderAttrTypeFloat2,MaplyShaderAttrTypeFloat3,MaplyShaderAttrTypeFloat4} MaplyShaderAttrType;
+
 /** @brief The shader is a direct interface to OpenGL ES 2.0 shader language.
     @details You can set your own shader programs in the toolkit!  Yeah, that's as complex as it sounds.
     @details The underyling toolkit makes a distinction between the name of the shader and the scene name.  The scene name is used as a way to replace the default shaders we use for triangles and lines.  This would let you replace the shaders you're already using with your own.  See the addShaderProgram:sceneName: method in the MaplyBaseViewController.
     @details You can also add your own shader and hook it up to any features that can call out a specific shader, such as the MaplyQuadImageTilesLayer.
-    @details When writing a new shader, go take a look at DefaultShaderPrograms.mm, particularly the vertexShaderTri and fragmentShaderTri.  The documentation here is for the uniforms, and attributes the system is going to hook up for you.  All of these are optional, but obviously nothing much will happen if you don't use the vertices.  
+    @details When writing a new shader, go take a look at DefaultShaderPrograms.mm, particularly the vertexShaderTri and fragmentShaderTri.  The documentation here is for the uniforms and attributes the system is going to hook up for you.  All of these are optional, but obviously nothing much will happen if you don't use the vertices.
  
 **Uniform Values**
  
@@ -108,7 +112,7 @@ These are the per vertex attributes provided to each vertex shader.
 /** @brief Name of the shader program.
     @details This is the name passed in to the init call.  You can search by this name in some circumstances.
   */
-@property NSString *name;
+@property (nonatomic,strong) NSString *name;
 
 /** @brief Add a texture tied to the given attribute name.
     @details Shaders can have a variety of attributes passed to them.  This is incompletely implemented and documented.  In this particular case we add the given image, convert it to a texture and tie it to the shader attribute name.

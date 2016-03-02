@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/23/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -37,11 +37,11 @@ namespace WhirlyKit
 class DrawableContainer
 {
 public:
-    DrawableContainer(Drawable *draw) : drawable(draw) { mat = mat.Identity(); }
-    DrawableContainer(Drawable *draw,Matrix4d mat) : drawable(draw), mat(mat) { }
+    DrawableContainer(Drawable *draw) : drawable(draw) { mvpMat = mvpMat.Identity(); mvMat = mvMat.Identity();  mvNormalMat = mvNormalMat.Identity(); }
+    DrawableContainer(Drawable *draw,Matrix4d mvpMat,Matrix4d mvMat,Matrix4d mvNormalMat) : drawable(draw), mvpMat(mvpMat), mvMat(mvMat), mvNormalMat(mvNormalMat) { }
     
     Drawable *drawable;
-    Matrix4d mat;
+    Matrix4d mvpMat,mvMat,mvNormalMat;
 };
 
 // Alpha stuff goes at the end
@@ -278,6 +278,23 @@ static const float ScreenOverlap = 0.1;
         [self renderAsync];
 }
 
+- (void)processScene
+{
+    Scene *scene = super.scene;
+
+    if (!scene)
+        return;
+    
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    if (oldContext != super.context)
+        [EAGLContext setCurrentContext:super.context];
+    
+    scene->processChanges(super.theView,self);
+    
+    if (oldContext != super.context)
+        [EAGLContext setCurrentContext:oldContext];
+}
+
 - (void) renderAsync
 {
     Scene *scene = super.scene;
@@ -296,7 +313,7 @@ static const float ScreenOverlap = 0.1;
 	[super.theView animate];
 
     // Decide if we even need to draw
-    if (!scene->hasChanges() && ![self viewDidChange])
+    if (!scene->hasChanges() && ![self viewDidChange] && contRenderRequests.empty())
         return;
     
     NSTimeInterval perfInterval = super.perfInterval;
@@ -353,8 +370,11 @@ static const float ScreenOverlap = 0.1;
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
+    Eigen::Matrix4d pvMat = projMat4d * viewTrans4d;
     Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
-    Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
+    Eigen::Matrix4f mvpNormalMat4f = mvpMat.inverse().transpose();
+    Eigen::Matrix4d modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
+    Eigen::Matrix4f modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
 
     switch (super.zBufferMode)
     {
@@ -376,7 +396,6 @@ static const float ScreenOverlap = 0.1;
     
     if (!renderSetup)
     {
-        // Note: What happens if they change this?
         glClearColor(_clearColor.r / 255.0, _clearColor.g / 255.0, _clearColor.b / 255.0, _clearColor.a / 255.0);
         CheckGLError("SceneRendererES2: glClearColor");
     }
@@ -416,24 +435,49 @@ static const float ScreenOverlap = 0.1;
 //        baseFrameInfo.frameLen = duration;
         baseFrameInfo.currentTime = CFAbsoluteTimeGetCurrent();
         baseFrameInfo.projMat = projMat;
+        baseFrameInfo.projMat4d = projMat4d;
         baseFrameInfo.mvpMat = mvpMat;
+        baseFrameInfo.mvpNormalMat = mvpNormalMat4f;
         baseFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
         baseFrameInfo.viewAndModelMat = modelAndViewMat;
         baseFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
+        Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat);
+        baseFrameInfo.pvMat = pvMat4f;
+        baseFrameInfo.pvMat4d = pvMat;
         [super.theView getOffsetMatrices:baseFrameInfo.offsetMatrices frameBuffer:frameSize];
         Point2d screenSize = [super.theView screenSizeInDisplayCoords:frameSize];
         baseFrameInfo.screenSizeInDisplayCoords = screenSize;
         baseFrameInfo.lights = lights;
         baseFrameInfo.stateOpt = renderStateOptimizer;
-		
+
+        // We need a reverse of the eye vector in model space
+        // We'll use this to determine what's pointed away
+        Eigen::Matrix4f modelTransInv = modelTrans.inverse();
+        Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
+        Vector3f eyeVec3(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
+        baseFrameInfo.eyeVec = eyeVec3;
+        Eigen::Matrix4f fullTransInv = modelAndViewMat.inverse();
+        Vector4f fullEyeVec4 = fullTransInv * Vector4f(0,0,1,0);
+        Vector3f fullEyeVec3(fullEyeVec4.x(),fullEyeVec4.y(),fullEyeVec4.z());
+        baseFrameInfo.fullEyeVec = -fullEyeVec3;
+        Vector4d eyeVec4d = modelTrans4d.inverse() * Vector4d(0,0,1,0.0);
+        baseFrameInfo.heightAboveSurface = 0.0;
+        // Note: Should deal with map view as well
+        if (globeView)
+            baseFrameInfo.heightAboveSurface = globeView.heightAboveSurface;
+        baseFrameInfo.eyePos = Vector3d(eyeVec4d.x(),eyeVec4d.y(),eyeVec4d.z()) * (1.0+baseFrameInfo.heightAboveSurface);
+
         if (perfInterval > 0)
             perfTimer.startTiming("Scene processing");
         
         // Let the active models to their thing
         // That thing had better not take too long
         for (NSObject<WhirlyKitActiveModel> *activeModel in scene->activeModels)
+        {
             [activeModel updateForFrame:baseFrameInfo];
-        
+            // Sometimes this gets reset
+            [EAGLContext setCurrentContext:context];
+        }
         if (perfInterval > 0)
             perfTimer.addCount("Scene changes", (int)scene->changeRequests.size());
         
@@ -446,21 +490,6 @@ static const float ScreenOverlap = 0.1;
         
         if (perfInterval > 0)
             perfTimer.startTiming("Culling");
-		
-		// We need a reverse of the eye vector in model space
-		// We'll use this to determine what's pointed away
-		Eigen::Matrix4f modelTransInv = modelTrans.inverse();
-		Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
-		Vector3f eyeVec3(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
-        baseFrameInfo.eyeVec = eyeVec3;
-        Eigen::Matrix4f fullTransInv = modelAndViewMat.inverse();
-        Vector4f fullEyeVec4 = fullTransInv * Vector4f(0,0,1,0);
-        Vector3f fullEyeVec3(fullEyeVec4.x(),fullEyeVec4.y(),fullEyeVec4.z());
-        baseFrameInfo.fullEyeVec = -fullEyeVec3;
-        baseFrameInfo.heightAboveSurface = 0.0;
-        // Note: Should deal with map view as well
-        if (globeView)
-            baseFrameInfo.heightAboveSurface = globeView.heightAboveSurface;
         
         // Calculate a good center point for the generated drawables
         CGPoint screenPt = CGPointMake(frameSize.x(), frameSize.y());
@@ -494,15 +523,22 @@ static const float ScreenOverlap = 0.1;
             WhirlyKitRendererFrameInfo *offFrameInfo = [[WhirlyKitRendererFrameInfo alloc] initWithFrameInfo:baseFrameInfo];
             // Tweak with the appropriate offset matrix
             modelAndViewMat4d = viewTrans4d * offsetMats[off] * modelTrans4d;
+            pvMat = projMat4d * viewTrans4d * offsetMats[off];
             modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
             mvpMats[off] = projMat4d * modelAndViewMat4d;
             mvpMats4f[off] = Matrix4dToMatrix4f(mvpMats[off]);
-            modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
+            modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
+            modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
             Matrix4d &thisMvpMat = mvpMats[off];
             offFrameInfo.mvpMat = mvpMats4f[off];
+            mvpNormalMat4f = Matrix4dToMatrix4f(mvpMats[off].inverse().transpose());
+            offFrameInfo.mvpNormalMat = mvpNormalMat4f;
             offFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
             offFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
             offFrameInfo.viewAndModelMat = modelAndViewMat;
+            Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat);
+            offFrameInfo.pvMat = pvMat4f;
+            offFrameInfo.pvMat4d = pvMat;
             
             // If we're looking at a globe, run the culling
             int drawablesConsidered = 0;
@@ -529,9 +565,11 @@ static const float ScreenOverlap = 0.1;
                         if (localMat)
                         {
                             Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
-                            drawList.push_back(DrawableContainer(theDrawable,newMvpMat));
+                            Eigen::Matrix4d newMvMat = viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
+                            Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
+                            drawList.push_back(DrawableContainer(theDrawable,newMvpMat,newMvMat,newMvNormalMat));
                         } else
-                            drawList.push_back(DrawableContainer(theDrawable,thisMvpMat));
+                            drawList.push_back(DrawableContainer(theDrawable,thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d));
                     } else
                         NSLog(@"Bad drawable coming from cull tree.");
                 }
@@ -547,9 +585,11 @@ static const float ScreenOverlap = 0.1;
                         if (localMat)
                         {
                             Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
-                            drawList.push_back(DrawableContainer(theDrawable,newMvpMat));
+                            Eigen::Matrix4d newMvMat = viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
+                            Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
+                            drawList.push_back(DrawableContainer(theDrawable,newMvpMat,newMvMat,newMvNormalMat));
                         } else
-                            drawList.push_back(DrawableContainer(theDrawable,thisMvpMat));
+                            drawList.push_back(DrawableContainer(theDrawable,thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d));
                     }
                 }
             }
@@ -577,7 +617,7 @@ static const float ScreenOverlap = 0.1;
                 {
                     Drawable *theDrawable = generatedDrawables[ii].get();
                     if (theDrawable)
-                        drawList.push_back(DrawableContainer(theDrawable,thisMvpMat));
+                        drawList.push_back(DrawableContainer(theDrawable,thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d));
                 }
                 bool sortLinesToEnd = (super.zBufferMode == zBufferOffDefault);
                 std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(super.sortAlphaToEnd,sortLinesToEnd,baseFrameInfo));
@@ -634,19 +674,14 @@ static const float ScreenOverlap = 0.1;
                 else
                     [renderStateOptimizer setDepthMask:GL_FALSE];
             }
-            
-            // Transform to use
-            Matrix4f currentMvpMat = Matrix4dToMatrix4f(drawContain.mat);
-            
-            // If it has a local transform, apply that
-//            const Matrix4d *localMat = drawContain.drawable->getMatrix();
-//            if (localMat)
-//            {
-//                Eigen::Matrix4d newMvpMat = projMat4d * (viewTrans4d * (modelTrans4d * (*localMat)));
-//                Eigen::Matrix4f newMvpMat4f = Matrix4dToMatrix4f(newMvpMat);
-//                currentMvpMat = newMvpMat4f;
-//            }
+
+            // Set up transforms to use right now
+            Matrix4f currentMvpMat = Matrix4dToMatrix4f(drawContain.mvpMat);
+            Matrix4f currentMvMat = Matrix4dToMatrix4f(drawContain.mvMat);
+            Matrix4f currentMvNormalMat = Matrix4dToMatrix4f(drawContain.mvNormalMat);
             baseFrameInfo.mvpMat = currentMvpMat;
+            baseFrameInfo.viewAndModelMat = currentMvMat;
+            baseFrameInfo.viewModelNormalMat = currentMvNormalMat;
             
             // Figure out the program to use for drawing
             SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
@@ -671,6 +706,9 @@ static const float ScreenOverlap = 0.1;
             }
             if (drawProgramId == EmptyIdentity)
                 continue;
+            
+            // Run any tweakers right here
+            drawContain.drawable->runTweakers(baseFrameInfo);
             
             // Draw using the given program
             drawContain.drawable->draw(baseFrameInfo,scene);
@@ -818,7 +856,7 @@ static const float ScreenOverlap = 0.1;
         // OpenGL ES measures data in PIXELS
         // Create a graphics context with the target size measured in POINTS
         NSInteger widthInPoints, heightInPoints;
-        if (NULL != UIGraphicsBeginImageContextWithOptions) {
+        {
             // On iOS 4 and later, use UIGraphicsBeginImageContextWithOptions to take the scale into consideration
             // Set the scale parameter to your OpenGL ES view's contentScaleFactor
             // so that you get a high-resolution snapshot when its value is greater than 1.0
@@ -826,12 +864,6 @@ static const float ScreenOverlap = 0.1;
             widthInPoints = framebufferWidth / scale;
             heightInPoints = framebufferHeight / scale;
             UIGraphicsBeginImageContextWithOptions(CGSizeMake(widthInPoints, heightInPoints), NO, scale);
-        }
-        else {
-            // On iOS prior to 4, fall back to use UIGraphicsBeginImageContext
-            widthInPoints = framebufferWidth;
-            heightInPoints = framebufferHeight;
-            UIGraphicsBeginImageContext(CGSizeMake(widthInPoints, heightInPoints));
         }
         
         CGContextRef cgcontext = UIGraphicsGetCurrentContext();

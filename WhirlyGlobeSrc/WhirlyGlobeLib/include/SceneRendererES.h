@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/13/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -121,14 +121,20 @@ public:
 @property (nonatomic,assign) Eigen::Matrix4d modelTrans4d,viewTrans4d;
 /// Current projection matrix
 @property (nonatomic,assign) Eigen::Matrix4f &projMat;
+@property (nonatomic,assign) Eigen::Matrix4d &projMat4d;
 /// What's currently in the GL model matrix.
 /// We combine view and model together
 @property (nonatomic,assign) Eigen::Matrix4f &viewAndModelMat;
 @property (nonatomic,assign) Eigen::Matrix4d &viewAndModelMat4d;
 /// The model, view, and projection matrix all rolled into one
 @property (nonatomic,assign) Eigen::Matrix4f &mvpMat;
+/// Normal matrix for model/view/projection
+@property (nonatomic,assign) Eigen::Matrix4f &mvpNormalMat;
 /// Model, and view matrix but for normal transformation
 @property (nonatomic,assign) Eigen::Matrix4f &viewModelNormalMat;
+/// Projection, view, and offset matrices rolled together
+@property (nonatomic,assign) Eigen::Matrix4d &pvMat4d;
+@property (nonatomic,assign) Eigen::Matrix4f &pvMat;
 /// If the visual view supports wrapping, these are the available offset matrices
 @property (nonatomic,assign) std::vector<Eigen::Matrix4d> &offsetMatrices;
 /// Scene itself.  Don't mess with this
@@ -141,6 +147,8 @@ public:
 @property (nonatomic,assign) Eigen::Vector3f eyeVec;
 /// Vector out from the eye point, including tilt
 @property (nonatomic,assign) Eigen::Vector3f fullEyeVec;
+/// Position of user
+@property (nonatomic,assign) Eigen::Vector3d eyePos;
 /// Location of the middle of the screen in display coordinates
 @property (nonatomic,assign) Eigen::Vector3d dispCenter;
 /// Height above surface, if that makes sense
@@ -185,6 +193,9 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
     
     /// Something wants to make sure we render until at least this point.
     NSTimeInterval renderUntil;
+    
+    // The drawables that want continuous rendering on
+    WhirlyKit::SimpleIDSet contRenderRequests;
     
     WhirlyKit::RGBAColor _clearColor;
 }
@@ -237,6 +248,9 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 /// The subclasses fill this in
 - (void)render:(NSTimeInterval)duration;
 
+/// Rather do any rendering, just process the outstanding scene changes
+- (void)processScene;
+
 /// Called when the layer gets resized.  Need to resize ourselves
 - (BOOL)resizeFromLayer:(CAEAGLLayer *)layer;
 
@@ -246,6 +260,12 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 /// Set the render until time.  This is used by things like fade to keep
 ///  the rendering optimization from cutting off animation.
 - (void)setRenderUntil:(NSTimeInterval)newTime;
+
+// A drawable wants continuous rendering (bleah!)
+- (void)addContinuousRenderRequest:(WhirlyKit::SimpleIdentity)drawID;
+
+// Drawable is done with continuous rendering
+- (void)removeContinuousRenderRequest:(WhirlyKit::SimpleIdentity)drawID;
 
 /// Call this to force a draw on the next frame.
 /// This turns off the draw optimization, but just for one frame.

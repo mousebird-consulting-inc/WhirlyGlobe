@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 5/13/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 #import "MaplyBaseViewController_private.h"
 #import "WhirlyGlobe.h"
 #import "MaplyImageTile_private.h"
+#import "MaplyElevationSource_private.h"
 
 using namespace WhirlyKit;
 
@@ -78,7 +79,6 @@ using namespace WhirlyKit;
     WhirlyKitQuadDisplayLayer *quadLayer;
     Scene *scene;
     MaplyCoordinateSystem *coordSys;
-    NSObject<MaplyTileSource> *_tileSource;
     int minZoom,maxZoom;
     int tileSize;
     bool sourceWantsAsync;
@@ -93,11 +93,16 @@ using namespace WhirlyKit;
     bool variableSizeTiles;
     bool canDoValidTiles;
     bool canFetchFrames;
-    bool wantsUnload;
+    bool wantsUnload,wantsEnabled,wantsDisabled;
+    std::vector<int> framePriorities;
+    NSDictionary *tessDict;
 }
 
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
 {
+    if (!inTileSource)
+        return nil;
+    
     self = [super init];
     
     coordSys = inCoordSys;
@@ -124,12 +129,15 @@ using namespace WhirlyKit;
     _singleLevelLoading = false;
     _viewUpdatePeriod = 0.1;
     _enable = true;
+    _fade = 1.0;
     _animationWrap = true;
     _maxCurrentImage = -1;
     _useElevAsZ = true;
     _importanceScale = 1.0;
     _borderTexel = 1;
+    _allowFrameLoading = true;
     canFetchFrames = false;
+    tessDict = nil;
     
     // See if we're letting the source do the async calls or what
     sourceWantsAsync = [_tileSource respondsToSelector:@selector(startFetchLayer:tile:)];
@@ -141,10 +149,12 @@ using namespace WhirlyKit;
     canDoValidTiles = [_tileSource respondsToSelector:@selector(validTile:bbox:)];
     
     // Can the source fetch individual frames of animation
-    canFetchFrames = [_tileSource respondsToSelector:@selector(startFetchLayer:tile:frame:)];
+    canFetchFrames = [_tileSource respondsToSelector:@selector(startFetchLayer:tile:frame:)] || [_tileSource respondsToSelector:@selector(imageForTile:frame:)];
     
     // Wants unload callbacks
     wantsUnload = [_tileSource respondsToSelector:@selector(tileUnloaded:)];
+    wantsEnabled = [_tileSource respondsToSelector:@selector(tileWasEnabled:)];
+    wantsDisabled = [_tileSource respondsToSelector:@selector(tileWasDisabled:)];
     
     return self;
 }
@@ -171,12 +181,14 @@ using namespace WhirlyKit;
     quadLayer.maxTiles = _maxTiles;
     quadLayer.viewUpdatePeriod = _viewUpdatePeriod;
     quadLayer.minUpdateDist = _minUpdateDist;
+    quadLayer.frameLoading = _allowFrameLoading;
+    if (!framePriorities.empty())
+        [quadLayer setFrameLoadingPriorities:framePriorities];
     
     // Look for a custom program
     if (_shaderProgramName)
     {
         _customShader = scene->getProgramIDBySceneName([_shaderProgramName cStringUsingEncoding:NSASCIIStringEncoding]);
-        tileLoader.programId = _customShader;
     } else
         _customShader = EmptyIdentity;
     
@@ -193,10 +205,16 @@ using namespace WhirlyKit;
         if (_animationPeriod > 0.0)
         {
             self.animationPeriod = _animationPeriod;
-        } else
-            [self setCurrentImage:_currentImage];
+        } else {
+            // Need the setup to settle before we can do this
+            dispatch_async(dispatch_get_main_queue(),
+                           ^{
+                               [self setCurrentImage:_currentImage];
+                           });
+        }
     }
     
+    tileLoader.programId = _customShader;
     elevDelegate = _viewC.elevDelegate;
     
     [super.layerThread addLayer:quadLayer];
@@ -249,7 +267,10 @@ using namespace WhirlyKit;
     tileLoader.useElevAsZ = (_viewC.elevDelegate != nil) && _useElevAsZ;
     tileLoader.textureAtlasSize = _texturAtlasSize;
     tileLoader.enable = _enable;
+    tileLoader.fade = _fade;
     tileLoader.borderTexel = _borderTexel;
+    // Note: Still having problems with this
+    tileLoader.useTileCenters = false;
     switch (_imageFormat)
     {
         case MaplyImageIntRGBA:
@@ -305,6 +326,105 @@ using namespace WhirlyKit;
     }
     if (_color)
         tileLoader.color = [_color asRGBAColor];
+    
+    // Tesselation per level
+    if (tessDict)
+    {
+        int defTess = 10;
+        if (tessDict[@(-1)])
+            defTess = [tessDict[@(-1)] intValue];
+        std::vector<int> tessVals(maxZoom,defTess);
+        for (unsigned int ii=0;ii<maxZoom;ii++)
+        {
+            if (tessDict[@(ii)])
+                tessVals[ii] = [tessDict[@(ii)] intValue];
+        }
+        
+        [tileLoader setTesselationSizePerLevel:tessVals];
+    }
+}
+
+- (void)geoBoundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+{
+    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+        return;
+
+    if (!_flipY)
+    {
+        int y = (1<<tileID.level)-tileID.y-1;
+        tileID.y = y;
+    }
+    
+    Mbr mbr = quadLayer.quadtree->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
+    
+    GeoMbr geoMbr;
+    CoordSystem *wkCoordSys = quadLayer.coordSys;
+    geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ll().x(),mbr.ll().y(),0.0)));
+    geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ur().x(),mbr.ll().y(),0.0)));
+    geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ur().x(),mbr.ur().y(),0.0)));
+    geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ll().x(),mbr.ur().y(),0.0)));
+    
+    bbox->ll.x = geoMbr.ll().x();
+    bbox->ll.y = geoMbr.ll().y();
+    bbox->ur.x = geoMbr.ur().x();
+    bbox->ur.y = geoMbr.ur().y();
+}
+
+- (void)boundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+{
+    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+        return;
+    
+    if (!_flipY)
+    {
+        int y = (1<<tileID.level)-tileID.y-1;
+        tileID.y = y;
+    }
+    
+    Mbr mbr = quadLayer.quadtree->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
+    
+    bbox->ll.x = mbr.ll().x();
+    bbox->ll.y = mbr.ll().y();
+    bbox->ur.x = mbr.ur().x();
+    bbox->ur.y = mbr.ur().y();
+}
+
+- (NSArray *)loadedFrames
+{
+    std::vector<WhirlyKit::FrameLoadStatus> frameStatus;
+    [quadLayer getFrameLoadStatus:frameStatus];
+    
+    NSMutableArray *stats = [NSMutableArray array];
+    for (unsigned int ii=0;ii<frameStatus.size();ii++)
+    {
+        FrameLoadStatus &inStatus = frameStatus[ii];
+        MaplyFrameStatus *status = [[MaplyFrameStatus alloc] init];
+        status.numTilesLoaded = inStatus.numTilesLoaded;
+        status.fullyLoaded = inStatus.complete;
+        status.currentFrame = inStatus.currentFrame;
+        
+        [stats addObject:status];
+    }
+    
+    return stats;
+}
+
+- (void)setFrameLoadingPriority:(NSArray *)priorities
+{
+    if ([NSThread currentThread] != super.layerThread)
+    {
+        [self performSelector:@selector(setFrameLoadingPriority:) onThread:super.layerThread withObject:priorities waitUntilDone:NO];
+        return;
+    }
+
+    if ([priorities count] != _imageDepth)
+        return;
+    framePriorities.resize([priorities count]);
+    for (unsigned int ii=0;ii<[priorities count];ii++)
+        framePriorities[ii] = [priorities[ii] intValue];
+
+    if (quadLayer)
+        [quadLayer setFrameLoadingPriorities:framePriorities];
 }
 
 - (void)setDrawPriority:(int)drawPriority
@@ -421,6 +541,12 @@ using namespace WhirlyKit;
     tileLoader.enable = _enable;
 }
 
+- (void)setFade:(float)fade
+{
+    _fade = fade;
+    tileLoader.fade = _fade;
+}
+
 - (void)setHandleEdges:(bool)handleEdges
 {
     _handleEdges = handleEdges;
@@ -465,6 +591,11 @@ using namespace WhirlyKit;
 - (WhirlyKit::CoordSystem *)coordSystem
 {
     return [coordSys getCoordSystem];
+}
+
+- (void)setTesselationValues:(NSDictionary *)inTessDict
+{
+    tessDict = inTessDict;
 }
 
 - (int)targetZoomLevel
@@ -545,7 +676,7 @@ using namespace WhirlyKit;
         {
             std::set<int> targetLevels;
             targetLevels.insert(maxShortCircuitLevel);
-            for (NSNumber *level in _multilLevelLoads)
+            for (NSNumber *level in _multiLevelLoads)
             {
                 if ([level isKindOfClass:[NSNumber class]])
                 {
@@ -617,6 +748,8 @@ using namespace WhirlyKit;
     if (variableSizeTiles)
     {
         thisTileSize = [_tileSource tileSizeForTile:tileID];
+        if (thisTileSize <= 0)
+            thisTileSize = [_tileSource tileSize];
     }
 
     double import = 0.0;
@@ -655,7 +788,7 @@ using namespace WhirlyKit;
     return _numSimultaneousFetches;
 }
 
-- (bool)tileIsLocalLevel:(int)level col:(int)col row:(int)row
+- (bool)tileIsLocalLevel:(int)level col:(int)col row:(int)row frame:(int)frame
 {
     MaplyTileID tileID;
     tileID.x = col;  tileID.y = row;  tileID.level = level;
@@ -668,13 +801,13 @@ using namespace WhirlyKit;
     }
 
     // Check with the tile source
-    bool isLocal = [_tileSource respondsToSelector:@selector(tileIsLocal:)];
+    bool isLocal = [_tileSource respondsToSelector:@selector(tileIsLocal:frame:)];
     if (isLocal)
-        isLocal = [_tileSource tileIsLocal:tileID];
+        isLocal = [_tileSource tileIsLocal:tileID frame:frame];
     // And the elevation delegate, if there is one
     if (isLocal && elevDelegate)
     {
-        isLocal = [elevDelegate tileIsLocal:tileID];
+        isLocal = [elevDelegate tileIsLocal:tileID frame:frame];
     }
     
     return isLocal;
@@ -699,7 +832,7 @@ using namespace WhirlyKit;
     // If this is lower level than we're representing, just fake it
     if (tileID.level < minZoom)
     {
-        NSArray *args = @[[WhirlyKitLoadedImage PlaceholderImage],@(tileID.x),@(tileID.y),@(tileID.level),_tileSource];
+        NSArray *args = @[[WhirlyKitLoadedImage PlaceholderImage],@(tileID.x),@(tileID.y),@(tileID.level),@(frame),_tileSource];
         if (super.layerThread)
         {
             if ([NSThread currentThread] == super.layerThread)
@@ -755,7 +888,7 @@ using namespace WhirlyKit;
         // Needed elevation and failed to load, so stop
         if (elevDelegate && _requireElev && !elevChunk)
         {
-            NSArray *args = @[[NSNull null],@(col),@(row),@(level),_tileSource];
+            NSArray *args = @[[NSNull null],@(col),@(row),@(level),@(frame),_tileSource];
             if (super.layerThread)
             {
                 if ([NSThread currentThread] == super.layerThread)
@@ -774,8 +907,15 @@ using namespace WhirlyKit;
         else
             tileReturn = [_tileSource imageForTile:tileID];
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
-        if (tileSize > 0) {
-            tileData.targetSize = CGSize{(CGFloat)tileSize, (CGFloat)tileSize};
+        
+        // Take into account variable tile sizes
+        int thisTileSize = tileSize;
+        if (variableSizeTiles)
+        {
+            thisTileSize = [_tileSource tileSizeForTile:tileID];
+        }
+        if (thisTileSize > 0) {
+            tileData.targetSize = CGSize{(CGFloat)thisTileSize, (CGFloat)thisTileSize};
         }
         WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderTexel convertToRaw:true];
         
@@ -805,20 +945,10 @@ using namespace WhirlyKit;
 #endif
         
         // Let's not forget the elevation
-        if (loadTile && tileData.type != MaplyImgTypePlaceholder && elevChunk)
-        {
-            WhirlyKitElevationChunk *wkChunk = nil;
-            if ([elevChunk.data length] == sizeof(unsigned short)*elevChunk.numX*elevChunk.numY)
-            {
-                wkChunk = [[WhirlyKitElevationChunk alloc] initWithShortData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
-            } else if ([elevChunk.data length] == sizeof(float)*elevChunk.numX*elevChunk.numY)
-            {
-                wkChunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
-            }
-            loadTile.elevChunk = wkChunk;
-        }
-            
-        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level),_tileSource];
+        if (loadTile && tileData.type != MaplyImgTypePlaceholder)
+            loadTile.elevChunk = elevChunk.chunkImpl;
+
+        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level),@(frame),_tileSource];
         if (super.layerThread)
         {
             if ([NSThread currentThread] == super.layerThread)
@@ -857,14 +987,20 @@ using namespace WhirlyKit;
 
     // Get the data for the tile and sort out what the delegate returned to us
     MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
-    if (tileSize > 0) {
-        tileData.targetSize = CGSize{(CGFloat)tileSize, (CGFloat)tileSize};
+    // Take into account variable tile sizes
+    int thisTileSize = tileSize;
+    if (variableSizeTiles)
+    {
+        thisTileSize = [_tileSource tileSizeForTile:tileID];
+    }
+    if (thisTileSize > 0) {
+        tileData.targetSize = CGSize{(CGFloat)thisTileSize, (CGFloat)thisTileSize};
     }
     WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderTexel convertToRaw:true];
 
     // Start with elevation
-    MaplyElevationChunk *elevChunk = nil;
-    if (tileData && elevDelegate)
+    MaplyElevationChunk *elevChunk = tileData.elevChunk;
+    if (!elevChunk && tileData && elevDelegate)
     {
         if (elevDelegate.minZoom <= tileID.level && tileID.level <= elevDelegate.maxZoom)
         {
@@ -874,7 +1010,7 @@ using namespace WhirlyKit;
         // Needed elevation and failed to load, so stop
         if (elevDelegate && _requireElev && !elevChunk)
         {
-            NSArray *args = @[[NSNull null],@(tileID.x),@(y),@(tileID.level),_tileSource];
+            NSArray *args = @[[NSNull null],@(tileID.x),@(y),@(tileID.level),@(frame),_tileSource];
             if (super.layerThread)
             {
                 if ([NSThread currentThread] == super.layerThread)
@@ -888,20 +1024,10 @@ using namespace WhirlyKit;
     }
     
     // Let's not forget the elevation
-    if (loadTile && tileData.type != MaplyImgTypePlaceholder && elevChunk)
-    {
-        WhirlyKitElevationChunk *wkChunk = nil;
-        if ([elevChunk.data length] == sizeof(unsigned short)*elevChunk.numX*elevChunk.numY)
-        {
-            wkChunk = [[WhirlyKitElevationChunk alloc] initWithShortData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
-        } else if ([elevChunk.data length] == sizeof(float)*elevChunk.numX*elevChunk.numY)
-        {
-            wkChunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
-        }
-        loadTile.elevChunk = wkChunk;
-    }
-    
-    NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(y),@(tileID.level),_tileSource];
+    if (loadTile && tileData.type != MaplyImgTypePlaceholder)
+        loadTile.elevChunk = elevChunk.chunkImpl;
+
+    NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(y),@(tileID.level),@(frame),_tileSource];
     if (super.layerThread)
     {
         if ([NSThread currentThread] == super.layerThread)
@@ -913,6 +1039,11 @@ using namespace WhirlyKit;
 
 - (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID
 {
+    [self loadError:error forTile:tileID frame:-1];
+}
+
+- (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID frame:(int)frame
+{
     // Adjust the y back to what the system is expecting
     int y = tileID.y;
     if (!_flipY)
@@ -920,7 +1051,7 @@ using namespace WhirlyKit;
         y = (1<<tileID.level)-tileID.y-1;
     }
 
-    NSArray *args = @[([NSNull null]),@(tileID.x),@(y),@(tileID.level),_tileSource];
+    NSArray *args = @[([NSNull null]),@(tileID.x),@(y),@(tileID.level),@(frame),_tileSource];
     if (super.layerThread)
     {
         if ([NSThread currentThread] == super.layerThread)
@@ -928,6 +1059,19 @@ using namespace WhirlyKit;
         else
             [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
     }
+}
+
+- (void)loadedElevation:(MaplyElevationChunk *)elevChunk forTile:(MaplyTileID)tileID
+{
+    [self loadedElevation:elevChunk forTile:tileID frame:-1];
+}
+
+- (void)loadedElevation:(MaplyElevationChunk *)elevChunk forTile:(MaplyTileID)tileID frame:(int)frame
+{
+	//TODO(JM) we need to set the elevation in the tile (loadTile.elevChunk = wkChunk)
+	// and for that we need to get the MaplyImageTile (from the raw data)
+	// How???
+	//MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
 }
 
 // Merge the tile result back on the layer thread
@@ -942,13 +1086,14 @@ using namespace WhirlyKit;
     int col = [args[1] intValue];
     int row = [args[2] intValue];
     int level = [args[3] intValue];
-    id oldTileSource = args[4];
+    int frame = [args[4] intValue];
+    id oldTileSource = args[5];
     
     // This might happen if we change tile sources while we're waiting for a network call
     if (_tileSource != oldTileSource)
         return;
     
-    [tileLoader dataSource: self loadedImage:loadTile forLevel: level col: col row: row];
+    [tileLoader dataSource: self loadedImage:loadTile forLevel: level col: col row: row frame: frame];
 }
 
 - (void)tileWasUnloadedLevel:(int)level col:(int)col row:(int)row
@@ -965,6 +1110,40 @@ using namespace WhirlyKit;
         }
 
         [_tileSource tileUnloaded:tileID];
+    }
+}
+
+- (void)tileWasEnabledLevel:(int)level col:(int)col row:(int)row
+{
+    if (wantsEnabled)
+    {
+        MaplyTileID tileID;
+        tileID.x = col;  tileID.y = row;  tileID.level = level;
+        // If we're not doing OSM style addressing, we need to flip the Y back to TMS
+        if (!_flipY)
+        {
+            int y = (1<<level)-tileID.y-1;
+            tileID.y = y;
+        }
+        
+        [_tileSource tileWasEnabled:tileID];
+    }
+}
+
+- (void)tileWasDisabledLevel:(int)level col:(int)col row:(int)row
+{
+    if (wantsDisabled)
+    {
+        MaplyTileID tileID;
+        tileID.x = col;  tileID.y = row;  tileID.level = level;
+        // If we're not doing OSM style addressing, we need to flip the Y back to TMS
+        if (!_flipY)
+        {
+            int y = (1<<level)-tileID.y-1;
+            tileID.y = y;
+        }
+        
+        [_tileSource tileWasDisabled:tileID];
     }
 }
 

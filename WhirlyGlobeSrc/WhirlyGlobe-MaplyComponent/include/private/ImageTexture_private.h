@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/19/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,22 +22,26 @@
 #import "MaplyTexture_private.h"
 
 // Used to map UIImages to Texture IDs
+#if 0
 class MaplyImageTexture
 {
 public:
-    MaplyImageTexture() : image(nil), maplyTex(nil), refCount(0) { }
-    MaplyImageTexture(id image) : image(image), maplyTex(nil), refCount(0) { }
-    MaplyImageTexture(id image,MaplyTexture *maplyTex) : image(image), maplyTex(maplyTex), refCount(0) { }
-    MaplyImageTexture(const MaplyImageTexture &that) : image(that.image), maplyTex(that.maplyTex), refCount(that.refCount) { }
+    MaplyImageTexture() : image(nil), maplyTexPtr(nil), refCount(0) { }
+    MaplyImageTexture(id image) : image(image), maplyTexPtr(nil), refCount(0) { }
+    MaplyImageTexture(id image,MaplyTexture *maplyTex) : image(image), maplyTexPtr(maplyTex), refCount(0) {  }
+    MaplyImageTexture(const MaplyImageTexture &that) : image(that.image), maplyTexPtr(that.maplyTexPtr), refCount(that.refCount) { }
     bool operator < (const MaplyImageTexture &that) const
     {
         if (!image && !that.image)
-            return maplyTex < that.maplyTex;
+            return maplyTexAddr < that.maplyTexAddr;
         return image < that.image;
     }
 
-    id __strong image;
-    MaplyTexture *maplyTex;
+    id __weak image;
+    long imageAddr;
+    MaplyTexture * __weak maplyTexPtr;
     int refCount;
 };
-typedef std::set<MaplyImageTexture> MaplyImageTextureSet;
+#endif
+
+typedef std::list<MaplyTexture __weak *> MaplyImageTextureList;

@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 8/29/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,35 +22,54 @@
 #import "MaplyCoordinateSystem.h"
 #import "MaplyTileSource.h"
 
-/** @brief The Maply Elevation Chunk holds elevations for a single tile.
-    @details This object holds elevaiton data for a single tile.
-    Each tile overlaps the the eastern and northern neighbors by one
-    cell.  Why?  Because we're generating triangles with these and
-    they're independent.  Draw a picture, it'll make sense.
-    @details Data values are currently onl 32 bit floating point.
-    There may be a type parameter in the future.
+/** @brief The elevation chunk is a base class for representing elevation data in Maply.
+    @details Elevation can be grids or triangles, or whatever.  They follow an internal (hidden)
+    protocol for interpolation and conversion into visual data.
   */
 @interface MaplyElevationChunk : NSObject
 
-/** @brief Initialize with the data and size.
-    @details This initializer takes an NSData object with the given number of
-    samples.  Don't forget to add an extra one along the eastern and
-    northern edges to match up with those tiles.  You still need to
-    pass in as many samples as you're saying you are.  So if you say
-    11 x 11, then there need to be 121 floats in the NSData object.
-    @param data The NSData full of float (32 bit) samples.
-    @param numX Number of samples in X.
-    @param numY Number of samples in Y.
+@end
+
+/** @brief The Maply Elevation Chunk holds elevations for a single tile.
+ @details This object holds elevation data for a single tile.
+ Each tile overlaps the the eastern and northern neighbors by one
+ cell.  Why?  Because we're generating triangles with these and
+ they're independent.  Draw a picture, it'll make sense.
+ @details Data values are currently onl 32 bit floating point.
+ There may be a type parameter in the future.
+ */
+@interface MaplyElevationGridChunk : MaplyElevationChunk
+
+/** @brief Initialize with the data (with floats) and size.
+ @details This initializer takes an NSData object with the given number of
+ samples.  Don't forget to add an extra one along the eastern and
+ northern edges to match up with those tiles.  You still need to
+ pass in as many samples as you're saying you are.  So if you say
+ 11 x 11, then there need to be 121 floats in the NSData object.
+ @param data The NSData full of float (32 bit) samples.
+ @param sizeX Number of samples in X.
+ @param sizeY Number of samples in Y.
+ */
+- (id)initWithGridData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY;
+
+@end
+
+/** @brief Initialize the elevation data with a Cesium terrain tile.
+    @details Processes Cesium's terrain tile format into a form we can use.
   */
-- (id)initWithData:(NSData *)data numX:(unsigned int)numX numY:(unsigned int)numY;
+@interface MaplyElevationCesiumChunk : MaplyElevationChunk
 
-/// @brief Number of samples in X
-@property unsigned int numX;
-/// @brief Number of samples in Y
-@property unsigned int numY;
+/** @brief Initialize with the Cesium elevation data and size.
+ @details This initializer takes an NSData object with the format
+	specified in: http://cesiumjs.org/data-and-assets/terrain/formats/quantized-mesh-1.0.html
+ @param data The NSData with the specified format
+ @param sizeX tile size in X.
+ @param sizeY tile size in Y.
+ */
+- (id)initWithCesiumData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY;
 
-/// This is the data.  Elevations are floats (32 bit) in meters.
-@property NSData *data;
+/// @brief If set, this cales the elevation
+@property (nonatomic) float scale;
 
 @end
 
@@ -86,7 +105,7 @@
 /** @brief Return true if the data is local to the device.
     @details Let us know if the data is local or remote.  This is a hint to the pager and will be called before elevForTile:.  If you don't know, just return false.
   */
-- (bool)tileIsLocal:(MaplyTileID)tileID;
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame;
 
 @end
 

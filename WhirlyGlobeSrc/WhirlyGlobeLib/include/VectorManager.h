@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/22/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #import <set>
 #import <map>
 #import <Foundation/Foundation.h>
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "DataLayer.h"
 #import "VectorData.h"
 #import "GlobeMath.h"
@@ -82,6 +82,7 @@ public:
     void enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &changes);
     
 protected:
+    NSObject *canary;
     pthread_mutex_t vectorLock;
     VectorSceneRepSet vectorReps;
 };

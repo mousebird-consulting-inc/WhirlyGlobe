@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/5/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -46,6 +46,8 @@
 - (void) startAnimation;
 /// Stop animating.  It can be restarted or destroyed after this.
 - (void) stopAnimation;
+/// Destroy the display link.  Cannot be restarted.
+- (void) shutdown;
 
 /// Draw into the actual view
 - (void) drawView:(id)sender;

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #import "GlobeMath.h"
 #import "NSString+Stuff.h"
 #import "NSDictionary+Stuff.h"
-#import "ScreenSpaceGenerator.h"
+#import "ScreenSpaceBuilder.h"
 #import "FontTextureManager.h"
 
 #import "LabelManager.h"
@@ -75,7 +75,6 @@ using namespace WhirlyKit;
         vert = norm->cross(horiz).normalized();;
     }
     Point3f ll;
-    
     
     switch (justify)
     {
@@ -222,11 +221,15 @@ LabelManager::~LabelManager()
     
 SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,ChangeSet &changes)
 {
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithStrs:labels desc:desc];
     
     // Set up the representation (but then hand it off)
     LabelSceneRep *labelRep = new LabelSceneRep();
-    labelRep->fade = labelInfo.fade;
+    if (labelInfo.fadeOut > 0.0 && labelInfo.fadeOutTime != 0.0)
+        labelRep->fadeOut = labelInfo.fadeOut;
+    else
+        labelRep->fadeOut = 0.0;
 
     WhirlyKitFontTextureManager *fontTexManager = nil;
     if (useFontManager)
@@ -240,6 +243,7 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
     labelRenderer.labelRep = labelRep;
     labelRenderer.scene = scene;
     labelRenderer.fontTexManager = (labelInfo.screenObject ? fontTexManager : nil);
+    labelRenderer.scale = renderer.scale;
     
     // Can't use fancy strings on ios5 and we can't use dynamic texture atlases in a block
     bool oldiOS = [[[UIDevice currentDevice] systemVersion] floatValue] < 6.0;
@@ -252,29 +256,53 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
         labelRenderer.useAttributedString = !oldiOS;
         [labelRenderer render];
     }
-    
-    changes.insert(changes.end(),labelRenderer.changeRequests.begin(), labelRenderer.changeRequests.end());
-    
+
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+
+    // New drawables created for labels
+    changes.insert(changes.end(),labelRenderer.changeRequests.begin(), labelRenderer.changeRequests.end());
+
+    // Create screen shapes
+    if (!labelRenderer.screenObjects.empty())
+    {
+        ScreenSpaceBuilder ssBuild(coordAdapter,renderer.scale);
+        for (unsigned int ii=0;ii<labelRenderer.screenObjects.size();ii++)
+            ssBuild.addScreenObject(*(labelRenderer.screenObjects[ii]));
+        ssBuild.flushChanges(changes, labelRep->drawIDs);
+    }
     
-    // And any layout constraints to the layout engine
+    // Hand over some to the layout manager
     if (layoutManager && !labelRenderer.layoutObjects.empty())
+    {
+        for (unsigned int ii=0;ii<labelRenderer.layoutObjects.size();ii++)
+            labelRep->layoutIDs.insert(labelRenderer.layoutObjects[ii]->getId());
         layoutManager->addLayoutObjects(labelRenderer.layoutObjects);
+    }
     
+    // Pass on selection data
     if (selectManager)
     {
         for (unsigned int ii=0;ii<labelRenderer.selectables2D.size();ii++)
         {
             std::vector<WhirlyKit::RectSelectable2D> &selectables2D = labelRenderer.selectables2D;
             RectSelectable2D &sel = selectables2D[ii];
-            selectManager->addSelectableScreenRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis,sel.enable);
+            selectManager->addSelectableScreenRect(sel.selectID,sel.center,sel.pts,sel.minVis,sel.maxVis,sel.enable);
+            labelRep->selectIDs.insert(sel.selectID);
+        }
+        for (unsigned int ii=0;ii<labelRenderer.movingSelectables2D.size();ii++)
+        {
+            std::vector<WhirlyKit::MovingRectSelectable2D> &movingSelectables2D = labelRenderer.movingSelectables2D;
+            MovingRectSelectable2D &sel = movingSelectables2D[ii];
+            selectManager->addSelectableMovingScreenRect(sel.selectID,sel.center,sel.endCenter,sel.startTime,sel.endTime,sel.pts,sel.minVis,sel.maxVis,sel.enable);
+            labelRep->selectIDs.insert(sel.selectID);
         }
         for (unsigned int ii=0;ii<labelRenderer.selectables3D.size();ii++)
         {
             std::vector<WhirlyKit::RectSelectable3D> &selectables3D = labelRenderer.selectables3D;
             RectSelectable3D &sel = selectables3D[ii];
             selectManager->addSelectableRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis,sel.enable);
+            labelRep->selectIDs.insert(sel.selectID);
         }
     }
 
@@ -314,7 +342,6 @@ void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &chan
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    SimpleIdentity screenGenId = scene->getScreenSpaceGeneratorID();
     
     pthread_mutex_lock(&labelLock);
 
@@ -328,16 +355,10 @@ void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &chan
             for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                  idIt != sceneRep->drawIDs.end(); ++idIt)
                 changes.push_back(new OnOffChangeRequest(*idIt,enable));
-            std::vector<SimpleIdentity> screenEnables;
-            for (SimpleIDSet::iterator idIt = sceneRep->screenIDs.begin();
-                 idIt != sceneRep->screenIDs.end(); ++idIt)
-                screenEnables.push_back(*idIt);
-            if (!screenEnables.empty())
-                changes.push_back(new ScreenSpaceGeneratorEnableRequest(screenGenId,screenEnables,enable));
-            if (sceneRep->selectID != EmptyIdentity && selectManager)
-                selectManager->enableSelectable(sceneRep->selectID, enable);
-            if (!sceneRep->screenIDs.empty() && layoutManager)
-                layoutManager->enableLayoutObjects(sceneRep->screenIDs,enable);
+            if (!sceneRep->selectIDs.empty() && selectManager)
+                selectManager->enableSelectables(sceneRep->selectIDs, enable);
+            if (!sceneRep->layoutIDs.empty() && layoutManager)
+                layoutManager->enableLayoutObjects(sceneRep->layoutIDs,enable);
         }
     }
     
@@ -349,7 +370,6 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    SimpleIdentity screenGenId = scene->getScreenSpaceGeneratorID();
     WhirlyKitFontTextureManager *fontTexManager = scene->getFontTextureManager();
     
     pthread_mutex_lock(&labelLock);
@@ -363,29 +383,30 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
             LabelSceneRep *labelRep = *it;
             
             // We need to fade them out, then delete
-            if (labelRep->fade > 0.0)
+            if (labelRep->fadeOut > 0.0)
             {
                 NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
                 for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
                      idIt != labelRep->drawIDs.end(); ++idIt)
-                    changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fade));
+                    changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fadeOut));
                 
-                for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
-                     idIt != labelRep->screenIDs.end(); ++idIt)
-                    changes.push_back(new ScreenSpaceGeneratorFadeRequest(screenGenId, *idIt, curTime, curTime+labelRep->fade));
-                
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, labelRep->fade * NSEC_PER_SEC),
+                __block NSObject * __weak thisCanary = canary;
+
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, labelRep->fadeOut * NSEC_PER_SEC),
                                scene->getDispatchQueue(),
                                ^{
-                                   SimpleIDSet theIDs;
-                                   theIDs.insert(labelRep->getId());
-                                   ChangeSet delChanges;
-                                   removeLabels(theIDs, delChanges);
-                                   scene->addChangeRequests(delChanges);
+                                   if (thisCanary)
+                                   {
+                                       SimpleIDSet theIDs;
+                                       theIDs.insert(labelRep->getId());
+                                       ChangeSet delChanges;
+                                       removeLabels(theIDs, delChanges);
+                                       scene->addChangeRequests(delChanges);
+                                   }
                                }
                                );
 
-                labelRep->fade = 0.0;
+                labelRep->fadeOut = 0.0;
             } else {
                 for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
                      idIt != labelRep->drawIDs.end(); ++idIt)
@@ -393,9 +414,6 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
                 for (SimpleIDSet::iterator idIt = labelRep->texIDs.begin();
                      idIt != labelRep->texIDs.end(); ++idIt)
                     changes.push_back(new RemTextureReq(*idIt));
-                for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
-                     idIt != labelRep->screenIDs.end(); ++idIt)
-                    changes.push_back(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt));
                 for (SimpleIDSet::iterator idIt = labelRep->drawStrIDs.begin();
                      idIt != labelRep->drawStrIDs.end(); ++idIt)
                 {
@@ -403,11 +421,12 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
                         [fontTexManager removeString:*idIt changes:changes];
                 }
                 
-                if (labelRep->selectID != EmptyIdentity && selectManager)
-                    selectManager->removeSelectable(labelRep->selectID);
+                if (selectManager && !labelRep->selectIDs.empty())
+                    selectManager->removeSelectables(labelRep->selectIDs);
 
-                if (layoutManager && !labelRep->screenIDs.empty())
-                    layoutManager->removeLayoutObjects(labelRep->screenIDs);
+                // Note: Screenspace  Doesn't handle fade
+                if (layoutManager && !labelRep->layoutIDs.empty())
+                    layoutManager->removeLayoutObjects(labelRep->layoutIDs);
                 
                 labelReps.erase(it);
                 delete labelRep;

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/15/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -451,7 +451,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
                         Point2f realSize(glyphSize.width+2*textureOffset.x,glyphSize.height+2*textureOffset.y);
                         std::vector<Texture *> texs;
                         texs.push_back(tex);
-                        if (texAtlas->addTexture(texs, &realSize, NULL, subTex, scene->getMemManager(), changes, 0))
+                        if (texAtlas->addTexture(texs, -1, &realSize, NULL, subTex, scene->getMemManager(), changes, 0))
                             glyphInfo = fm->addGlyph(glyph, subTex, glyphSize, offset, textureOffset);
                         delete tex;
                     }

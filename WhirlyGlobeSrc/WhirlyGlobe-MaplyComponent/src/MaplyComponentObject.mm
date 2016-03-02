@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@
     id enable = desc[kMaplyEnable];
     if (enable)
         _enable = [enable boolValue];
+    _vectorOffset = WhirlyKit::Point2d(0,0);
     
     return self;
 }

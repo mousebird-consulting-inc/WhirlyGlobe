@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/14/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ using namespace Eigen;
     double absoluteMinNearPlane;
     double defaultFarPlane;
     double absoluteMinFarPlane;
+    FakeGeocentricDisplayAdapter fakeGeoC;
 }
 @end
 
@@ -45,19 +46,40 @@ using namespace Eigen;
 	if ((self = [super init]))
 	{
 		_rotQuat = Eigen::AngleAxisd(0.0f,Vector3d(0.0f,0.0f,1.0f));
-       	super.coordAdapter = new FakeGeocentricDisplayAdapter();
+       	super.coordAdapter = &fakeGeoC;
        	defaultNearPlane = super.nearPlane;
        	defaultFarPlane = super.farPlane;
-       	// This will get you down to r17 in the usual tile sets
-       	absoluteMinNearPlane = 0.00001;
+        absoluteMinNearPlane = 0.000001;
        	absoluteMinFarPlane = 0.001;
-       	absoluteMinHeight = 0.00005;
+       	absoluteMinHeight = 0.000002;
        	heightInflection = 0.011;
 		self.heightAboveGlobe = 1.1;
        	_tilt = 0.0;
 	}
 	
 	return self;
+}
+
+- (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView
+{
+    self = [super initWithView:inGlobeView];
+    super.coordAdapter = &fakeGeoC;
+    absoluteMinHeight = inGlobeView->absoluteMinHeight;
+    heightInflection = inGlobeView->heightInflection;
+    defaultNearPlane = inGlobeView->defaultNearPlane;
+    absoluteMinNearPlane = inGlobeView->absoluteMinNearPlane;
+    defaultFarPlane = inGlobeView->defaultFarPlane;
+    absoluteMinFarPlane = inGlobeView->absoluteMinFarPlane;
+    _heightAboveGlobe = inGlobeView.heightAboveGlobe;
+    _rotQuat = inGlobeView.rotQuat;
+    _tilt = inGlobeView.tilt;
+    
+    return self;
+}
+
+- (void)setFarClippingPlane:(double)farClip
+{
+    super.farPlane = farClip;
 }
 
 - (void)dealloc
@@ -73,6 +95,14 @@ using namespace Eigen;
 // Set the new rotation, but also keep track of when we did it
 - (void)setRotQuat:(Eigen::Quaterniond)newRotQuat updateWatchers:(bool)updateWatchers
 {
+    double w, x, y, z;
+    w = newRotQuat.coeffs().w();
+    x = newRotQuat.coeffs().x();
+    y = newRotQuat.coeffs().y();
+    z = newRotQuat.coeffs().z();
+    if (isnan(w) || isnan(x) || isnan(y) || isnan(z))
+        return;
+
     super.lastChangedTime = CFAbsoluteTimeGetCurrent();
     _rotQuat = newRotQuat;
     if (updateWatchers)
@@ -81,6 +111,9 @@ using namespace Eigen;
 
 - (void)setTilt:(double)newTilt
 {
+    if (isnan(newTilt))
+        return;
+
     _tilt = newTilt;
 }
 	
@@ -137,10 +170,10 @@ using namespace Eigen;
         {
             double t = 1.0 - (heightInflection - _heightAboveGlobe) / (heightInflection - absoluteMinHeight);
             super.nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
-            //            farPlane = t * (defaultFarPlane-absoluteMinFarPlane) + absoluteMinFarPlane;
+            super.farPlane = t * (defaultFarPlane-absoluteMinFarPlane) + absoluteMinFarPlane;
         } else {
             super.nearPlane = defaultNearPlane;
-            //            farPlane = defaultFarPlane;
+            super.farPlane = defaultFarPlane;
         }
 		super.imagePlaneSize = super.nearPlane * tan(super.fieldOfView / 2.0);
     }
@@ -156,6 +189,9 @@ using namespace Eigen;
 // Also keep track of when we did it
 - (void)privateSetHeightAboveGlobe:(double)newH updateWatchers:(bool)updateWatchers;
 {
+    if (isnan(newH))
+        return;
+
 	double minH = [self minHeightAboveGlobe];
 	_heightAboveGlobe = std::max(newH,minH);
     
@@ -187,17 +223,23 @@ using namespace Eigen;
 	
 - (Eigen::Matrix4d)calcModelMatrix
 {
-	Eigen::Affine3d trans(Eigen::Translation3d(0,0,-[self calcEarthZOffset]));
-	Eigen::Affine3d rot(_rotQuat);
-	
-	return (trans * rot).matrix();
+    @synchronized(self)
+    {
+        Eigen::Affine3d trans(Eigen::Translation3d(0,0,-[self calcEarthZOffset]));
+        Eigen::Affine3d rot(_rotQuat);
+        
+        return (trans * rot).matrix();
+    }
 }
 
 - (Eigen::Matrix4d)calcViewMatrix
 {
-    Eigen::Quaterniond selfRotPitch(AngleAxisd(-_tilt, Vector3d::UnitX()));
-    
-    return ((Affine3d)selfRotPitch).matrix();
+    @synchronized(self)
+    {
+        Eigen::Quaterniond selfRotPitch(AngleAxisd(-_tilt, Vector3d::UnitX()));
+        
+        return ((Affine3d)selfRotPitch).matrix();
+    }
 }
 
 - (Vector3d)currentUp
@@ -232,18 +274,19 @@ using namespace Eigen;
 	// Now intersect that with a unit sphere to see where we hit
 	Vector4d dir4 = modelScreenPt - modelEye;
 	Vector3d dir(dir4.x(),dir4.y(),dir4.z());
-	if (IntersectUnitSphere(Vector3d(modelEye.x(),modelEye.y(),modelEye.z()), dir, *hit))
+    double t;
+	if (IntersectUnitSphere(Vector3d(modelEye.x(),modelEye.y(),modelEye.z()), dir, *hit, &t) && t > 0.0)
 		return true;
 	
 	// We need the closest pass, if that didn't work out
     if (normalized)
     {
-	Vector3d orgDir(-modelEye.x(),-modelEye.y(),-modelEye.z());
-	orgDir.normalize();
-	dir.normalize();
-	Vector3d tmpDir = orgDir.cross(dir);
-	Vector3d resVec = dir.cross(tmpDir);
-	*hit = -resVec.normalized();
+        Vector3d orgDir(-modelEye.x(),-modelEye.y(),-modelEye.z());
+        orgDir.normalize();
+        dir.normalize();
+        Vector3d tmpDir = orgDir.cross(dir);
+        Vector3d resVec = dir.cross(tmpDir);
+        *hit = -resVec.normalized();
     } else {
         double len2 = dir.squaredNorm();
         double top = dir.dot(Vector3d(modelScreenPt.x(),modelScreenPt.y(),modelScreenPt.z()));
@@ -326,9 +369,9 @@ using namespace Eigen;
 
 // Construct a rotation to the given location
 //  and return it.  Doesn't actually do anything yet.
-- (Eigen::Quaterniond) makeRotationToGeoCoord:(const GeoCoord &)worldCoord keepNorthUp:(BOOL)northUp
+- (Eigen::Quaterniond) makeRotationToGeoCoordD:(const WhirlyKit::Point2d &)worldCoord keepNorthUp:(BOOL)northUp
 {
-    Point3d worldLoc = super.coordAdapter->localToDisplay(super.coordAdapter->getCoordSystem()->geographicToLocal3d(worldCoord));
+    Point3d worldLoc = super.coordAdapter->localToDisplay(super.coordAdapter->getCoordSystem()->geographicToLocal(worldCoord));
     
     // Let's rotate to where they tapped over a 1sec period
     Vector3d curUp = [self currentUp];
@@ -359,6 +402,12 @@ using namespace Eigen;
     }
     
     return newRotQuat;
+}
+
+- (Eigen::Quaterniond) makeRotationToGeoCoord:(const GeoCoord &)worldCoord keepNorthUp:(BOOL)northUp
+{
+    Point2d coord(worldCoord.x(),worldCoord.y());
+    return [self makeRotationToGeoCoordD:coord keepNorthUp:northUp];
 }
 
 // Construct a rotation to the given location, including a heading

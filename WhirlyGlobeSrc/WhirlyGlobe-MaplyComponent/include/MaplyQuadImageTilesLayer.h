@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 5/13/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -60,12 +60,17 @@ typedef enum {MaplyImageIntRGBA,
 /** @brief Set the active tile source.
     @details If you change this, it will force a reload of all loaded tiles and start fetching from the new tile source.
   */
-@property (nonatomic) NSObject<MaplyTileSource> *tileSource;
+@property (nonatomic,strong) NSObject<MaplyTileSource> *tileSource;
 
 /** @brief Enable/Disable the whole layer.
     @details By default this is on.  If you turn it off, there may be a slight delay before the whole layer disappears.  The layer will keep working, but any geometry will be invisible until you turn it back on.
   */
 @property (nonatomic,assign) bool enable;
+
+/** @brief Set the fade for the whole layer.
+    @details By default this is 1.0.  The fade values can be changed while the layer is running.  It will blend the layer with the fade value when rendering.  A value of 0.0 will stop rendering the layer.
+  */
+@property (nonatomic,assign) float fade;
 
 /** @brief The number of simultaneous fetches the layer will attempt at once.
     @details The toolkit loves its dispatch queues and threads.  By default this number is set to 8 or 16, but if you need to constrain it, you can set it lower (or higher!).  If your tile source can't handle multi-thread access, set this to 1.
@@ -154,6 +159,17 @@ typedef enum {MaplyImageIntRGBA,
   */
 @property (nonatomic, assign) bool animationWrap;
 
+/** @brief If set, we'll try to fetch frames individually.
+    @details When fetching from a data source that has multiple frames we'll fetch each frame individually and allow them to display as we go.
+    @details If this is false, we'll force all the frames to load for a given tile before we move on to the next tile.
+  */
+@property (nonatomic, assign) bool allowFrameLoading;
+
+/** @brief For the case where we're loading individual frames, this sets the order to load them in.
+    @details When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.
+  */
+- (void)setFrameLoadingPriority:(NSArray *)priorities;
+
 /** @brief Include the original z values in the tile geometry for a custom shader.
     @details When generating tiles for the globe we project the coordinates from their local system (probably MaplySphericalMercator) into a display system.  If you wanted the original z values, to say, write a custom shader that maps color to elevation, that data is now missing.
     @details If set, this adds the z values back as a separate vertex attribute called "a_elev" for your shader to pick up.
@@ -176,7 +192,7 @@ typedef enum {MaplyImageIntRGBA,
 /** @brief Color for the tile geometry.
     @details The geometry we create for tiles has an RGBA color.  It's white/full alpha by default, but you can set it here.  You might want to do this if you'd like a semi-transparent layer, sort of a shader of course, where you can do whatever you like.
   */
-@property (nonatomic) UIColor *color;
+@property (nonatomic,strong) UIColor *color;
 
 /** @brief Maximum number of tiles to load in at once.
     @details This is the maximum number of tiles the pager will have loaded into memory at once.  The default is 128 and that's generally good enough.  However, if your tile size is small, you may want to load in more.
@@ -194,7 +210,7 @@ typedef enum {MaplyImageIntRGBA,
     @details Shader programs are accessed by name.  When you create a shader and tie it into the scene, you'll have the name.  Use that name here to ensure that all tiles are rendered with that MaplyShader.
     @details Be sure to set this immediately after layer creation.  It can't be changed in the middle.
   */
-@property (nonatomic) NSString *shaderProgramName;
+@property (nonatomic,strong) NSString *shaderProgramName;
 
 /** @brief Set the (power of two) size of texture atlases the layer will create.
     @details The system makes extensive use of texture atlases for rendering tiles.  Typically we'll only have one or two gigantic textures will all our imagery and a handfull of drawables.  This is what makes the system fast.  Very fast.
@@ -251,7 +267,7 @@ typedef enum {MaplyImageIntRGBA,
     @details We do this so that the user doesn't have to wait for the target level to load.  This can be distracting on large displays with small tiles.  If you use this mode, the layer will load lower levels first, filling in quicker and then load the target level.  This looks much better, but doesn't take as long as the full quad tree based loading.
     @details The layer calculates the optimal target level (for 2D maps, if you're in that mode).  The entries in this array are relative to that level or absolute.  For example [0,-4,-2] means the layer will always try to load levels 0, targetLevel-4 and targetLevel-2, but only the latter two if they make sense.
   */
-@property (nonatomic) NSArray *multilLevelLoads;
+@property (nonatomic,strong) NSArray *multiLevelLoads;
 
 /** @brief The target zoom level for this layer given the current view settings.
     @details Calculates the target zoom level for the middle of the screen.
@@ -259,6 +275,13 @@ typedef enum {MaplyImageIntRGBA,
     @details If all those conditions are met then we can say we're only displaying a single zoom level and this is that.
   */
 - (int)targetZoomLevel;
+
+/** @brief Set the number of samples for each tile per level.
+    @details When sampling the globe without an elevation input, we'll divide each tile into a given number of samples.  By default this is 10x10.  Setting this dictionary will let you control that sampling per level.
+    @details Each entry in the dictionary is an NSNumber for the level (-1 for default).  The corresponding value is an NSNumber for the sampling (e.g. 10).
+    @details Call this immediately after setting up the layer or it won't take effect.
+  */
+- (void)setTesselationValues:(NSDictionary *)tessDict;
 
 /** @brief Force a full reload of all tiles.
  @details This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it's taking too long, you'll see these page in from the low to the high level.
@@ -283,11 +306,36 @@ typedef enum {MaplyImageIntRGBA,
   */
 - (void)loadedImages:(id)images forTile:(MaplyTileID)tileID frame:(int)frame;
 
+- (void)loadedElevation:(MaplyElevationChunk *)elevChunk forTile:(MaplyTileID)tileID;
+- (void)loadedElevation:(MaplyElevationChunk *)elevChunk forTile:(MaplyTileID)tileID frame:(int)frame;
+
 /** @brief Pass back an error for a given tile.
     @details If the tile source implements startFetchForTile: then this is how it tells us about a specific failure.
     @details It can also just call loadedImages:forTile: with nil, but this is more helpful.
   */
 - (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID;
+
+/** @brief Pass back an error for a given tile and frame (if we're loading animations).
+    @details If the tile source implements startFetchForTile: then this is how it tells us about a specific failure.
+    @details It can also just call loadedImages:forTile: with nil, but this is more helpful.
+ */
+- (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID frame:(int)frame;
+
+/** @brief Status structures describing which frames are loaded.
+    @details Query this to find out which frames are completely loaded into memory and which are not.
+    @details This queries the underlying control logic and there is no delegate.  It's polling only.
+ */
+- (NSArray *)loadedFrames;
+
+/** @brief Return the bounding box for a given tile.
+    @details This calculates the bounding box (in geographic) for the given tile.
+  */
+- (void)geoBoundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
+
+/** @brief Return the bounding box for a given tile.
+    @details This calculate the bounding box in local coordinates for the given tile.
+  */
+- (void)boundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
 
 /** @brief Do a hard reset of the layer.
     @details This will clean out all the layers resources and force it to start loading again.

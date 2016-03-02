@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/7/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -94,7 +94,7 @@
     return _maxZoom;
 }
 
-- (bool)tileIsLocal:(MaplyTileID)tileID
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame
 {
     return true;
 }
@@ -134,8 +134,7 @@
             float *floats = (float *)malloc(sizeof(float)*_tileSizeX*_tileSizeY);
             memset(floats, 0, sizeof(float)*_tileSizeX*_tileSizeY);
             NSData *floatData = [NSData dataWithBytesNoCopy:floats length:_tileSizeX*_tileSizeY*sizeof(float) freeWhenDone:YES];
-            MaplyElevationChunk *chunk = [[MaplyElevationChunk alloc] initWithData:floatData numX:_tileSizeX numY:_tileSizeY];
-            return chunk;
+            return [[MaplyElevationGridChunk alloc] initWithGridData:floatData sizeX:_tileSizeX sizeY:_tileSizeY];
         } else
             return nil;
     }
@@ -145,9 +144,7 @@
     for (unsigned int ii=0;ii<_tileSizeX*_tileSizeY;ii++)
         floats[ii] = ((short *)[uncompressedData bytes])[ii];
     NSData *floatData = [NSData dataWithBytesNoCopy:floats length:_tileSizeX*_tileSizeY*sizeof(float) freeWhenDone:YES];
-    MaplyElevationChunk *chunk = [[MaplyElevationChunk alloc] initWithData:floatData numX:_tileSizeX numY:_tileSizeY];
-
-    return chunk;
+    return [[MaplyElevationGridChunk alloc] initWithGridData:floatData sizeX:_tileSizeX sizeY:_tileSizeY];
 }
 
 @end

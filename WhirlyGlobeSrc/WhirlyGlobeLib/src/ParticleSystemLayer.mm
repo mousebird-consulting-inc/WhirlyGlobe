@@ -2,8 +2,8 @@
  *  ParticleSystemLayer.mm
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 10/10/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Created by Steve Gifford on 5/21/15.
+ *  Copyright 2011-2015 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,105 +19,45 @@
  */
 
 #import "ParticleSystemLayer.h"
-#import "NSDictionary+Stuff.h"
-#import "GlobeMath.h"
-#import "UIColor+Stuff.h"
+#import "ParticleSystemManager.h"
 
-using namespace Eigen;
 using namespace WhirlyKit;
 
 @implementation WhirlyKitParticleSystemLayer
 {
-    /// The layer thread we live in
+    // Layer thread we're on
     WhirlyKitLayerThread * __weak layerThread;
-    
-    /// Scene we're making changes to
-    WhirlyKit::Scene *scene;
-    
-    SimpleIdentity generatorId;
-    
-    SimpleIDSet partIDs;
-}
-
-- (void)clear
-{
-    partIDs.clear();
-    scene = NULL;
-}
-
-- (void)dealloc
-{
-    [self clear];
+    // Scene we're updating
+    Scene *scene;
+    ParticleSystemManager *partSysManager;
 }
 
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene
 {
     layerThread = inLayerThread;
     scene = inScene;
+    partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
     
-    // Add the Particle Generator to the scene
-    // This will create particles for us every frame
-    ParticleGenerator *gen = new ParticleGenerator(500000);
-    generatorId = gen->getId();
-    [layerThread addChangeRequest:(new AddGeneratorReq(gen))];
+    [self performSelector:@selector(cleanup) withObject:nil afterDelay:kWKParticleSystemCleanupPeriod];
 }
 
-// Remove outstanding particle systems
+- (void)cleanup
+{
+    if (!scene)
+        return;
+    
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    
+    ChangeSet changes;
+    partSysManager->housekeeping(now,changes);
+    [layerThread addChangeRequests:changes];
+    
+    [self performSelector:@selector(cleanup) withObject:nil afterDelay:kWKParticleSystemCleanupPeriod];
+}
+
 - (void)shutdown
 {
-    ChangeSet changes;
-    
-    ParticleSystemManager *partManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
-    if (partManager)
-        partManager->removeParticleSystems(partIDs,generatorId,changes);    
-    
-    [layerThread addChangeRequests:(changes)];
-    
-    [self clear];
-}
-
-
-- (WhirlyKit::SimpleIdentity) addParticleSystems:(NSArray *)partSystems desc:(NSDictionary *)desc
-{
-    if (!layerThread || !scene || ([NSThread currentThread] != layerThread))
-    {
-        NSLog(@"Particle systems layer called before being initialized or in wrong thread.  Dropping data on floor.");
-        return EmptyIdentity;
-    }
-    
-    SimpleIdentity partID = EmptyIdentity;
-    ChangeSet changes;
-    ParticleSystemManager *partManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
-    if (partManager)
-    {
-        partID = partManager->addParticleSystems(partSystems, desc, generatorId, changes);
-        if (partID != EmptyIdentity)
-            partIDs.insert(partID);
-    }
-    [layerThread addChangeRequests:changes];
-    
-    return partID;
-}
-
-/// Remove one or more particle systems
-- (void) removeParticleSystems:(SimpleIdentity)partID
-{
-    ChangeSet changes;
-    ParticleSystemManager *partManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
-    
-    SimpleIDSet::iterator it = partIDs.find(partID);
-    if (it != partIDs.end())
-    {
-        if (partManager)
-        {
-            SimpleIDSet theIDs;
-            theIDs.insert(partID);
-            partManager->removeParticleSystems(theIDs, generatorId, changes);
-        }
-        partIDs.erase(it);
-    }
-    
-    [layerThread addChangeRequests:changes];
+    scene = NULL;
 }
 
 @end

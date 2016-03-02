@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/30/13.
- *  Copyright 2011-2013 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2015 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,26 +29,18 @@ using namespace WhirlyKit;
 
 - (id)initWithBillboards:(NSArray *)billboards desc:(NSDictionary *)desc
 {
-    self = [super init];
+    self = [super initWithDesc:desc];
     if (!self)
         return nil;
     
     _billboards = billboards;
-    [self parseDesc:desc];
     
+    _color = [desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
     _billboardId = Identifiable::genId();
+    _zBufferRead = [desc floatForKey:@"zbufferread" default:true];
+    _zBufferWrite = [desc floatForKey:@"zbufferwrite" default:true];
     
     return self;
-}
-
-- (void)parseDesc:(NSDictionary *)desc
-{
-    _color = [desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    _minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
-    _maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
-    _fade = [desc floatForKey:@"fade" default:0.0];
-    _drawPriority = [desc intForKey:@"drawPriority" default:0];
-    _enable = [desc boolForKey:@"enable" default:true];
 }
 
 @end
@@ -91,12 +83,19 @@ BillboardDrawableBuilder::~BillboardDrawableBuilder()
     flush();
 }
 
-void BillboardDrawableBuilder::addBillboard(Point3f center,float width,float height,UIColor *inColor)
+void BillboardDrawableBuilder::addBillboard(Point3d center,const std::vector<WhirlyKit::Point2d> &pts,const std::vector<WhirlyKit::TexCoord> &texCoords,UIColor *inColor,const SingleVertexAttributeSet &vertAttrs)
 {
+    if (pts.size() != 4)
+    {
+        NSLog(@"Only expecting 4 point polygons in BillboardDrawableBuilder");
+        return;
+    }
+    
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
     // Get the drawable ready
-    if (!drawable || (drawable->getNumPoints()+4 > MaxDrawablePoints) ||
+    if (!drawable || !drawable->compareVertexAttributes(vertAttrs) ||
+        (drawable->getNumPoints()+4 > MaxDrawablePoints) ||
         (drawable->getNumTris()+2 > MaxDrawableTriangles))
     {
         if (drawable)
@@ -105,41 +104,41 @@ void BillboardDrawableBuilder::addBillboard(Point3f center,float width,float hei
         drawable = new BillboardDrawable();
         //        drawMbr.reset();
         drawable->setType(GL_TRIANGLES);
-        drawable->setVisibleRange(billInfo.minVis,billInfo.maxVis);
+        [billInfo setupBasicDrawable:drawable];
         drawable->setProgram(billboardProgram);
         drawable->setTexId(0,texId);
-        drawable->setDrawPriority(billInfo.drawPriority);
-        drawable->setRequestZBuffer(true);
-        drawable->setWriteZBuffer(true);
+        drawable->setRequestZBuffer(billInfo.zBufferRead);
+        drawable->setWriteZBuffer(billInfo.zBufferWrite);
+        if (!vertAttrs.empty())
+        {
+            SingleVertexAttributeInfoSet vertInfoSet;
+            VertexAttributeSetConvert(vertAttrs,vertInfoSet);
+            drawable->setVertexAttributes(vertInfoSet);
+        }
         //        drawable->setForceZBufferOn(true);
     }
     
     RGBAColor color = [(inColor ? inColor : billInfo.color) asRGBAColor];
     
-    // Normal is straight up
-    Point3f localPt = coordAdapter->displayToLocal(center);
-    Point3f axisY = coordAdapter->normalForLocal(localPt);
+    Point3d centerOnSphere = center;
+    double len = sqrt(centerOnSphere.x()*centerOnSphere.x() + centerOnSphere.y()*centerOnSphere.y() + centerOnSphere.z()*centerOnSphere.z());
+    if (len != 0.0)
+        centerOnSphere /= len;
     
-    float width2 = width/2.0;
-    Point3f pts[4];
-    TexCoord texCoords[4];
-    pts[0] = Point3f(-width2,0,0);
-    texCoords[0] = TexCoord(0,1);
-    pts[1] = Point3f(width2,0,0);
-    texCoords[1] = TexCoord(1,1);
-    pts[2] = Point3f(width2,height,0);
-    texCoords[2] = TexCoord(1,0);
-    pts[3] = Point3f(-width2,height,0);
-    texCoords[3] = TexCoord(0,0);
+    // Normal is straight up
+    Point3d localPt = coordAdapter->displayToLocal(centerOnSphere);
+    Point3d axisY = coordAdapter->normalForLocal(localPt);
     
     int startPoint = drawable->getNumPoints();
     for (unsigned int ii=0;ii<4;ii++)
     {
         drawable->addPoint(center);
-        drawable->addOffset(pts[ii]);
+        drawable->addOffset(Point3d(pts[ii].x(),pts[ii].y(),0.0));
         drawable->addTexCoord(0,texCoords[ii]);
         drawable->addNormal(axisY);
         drawable->addColor(color);
+        if (!vertAttrs.empty())
+            drawable->addVertexAttributes(vertAttrs);
     }
     drawable->addTriangle(BasicDrawable::Triangle(startPoint+0,startPoint+1,startPoint+2));
     drawable->addTriangle(BasicDrawable::Triangle(startPoint+0,startPoint+2,startPoint+3));
@@ -200,17 +199,21 @@ SimpleIdentity BillboardManager::addBillboards(NSArray *billboards,NSDictionary 
     // Work through the billboards, constructing as we go
     for (WhirlyKitBillboard *billboard in billboardInfo.billboards)
     {
-        BuilderMap::iterator it = drawBuilders.find(billboard.texId);
-        BillboardDrawableBuilder *drawBuilder = NULL;
-        // Need a new one
-        if (it == drawBuilders.end())
+        // Work through the individual polygons
+        for (const SingleBillboardPoly &billPoly : billboard.polys)
         {
-            drawBuilder = new BillboardDrawableBuilder(scene,changes,sceneRep,billboardInfo,billShader,billboard.texId);
-            drawBuilders[billboard.texId] = drawBuilder;
-        } else
-            drawBuilder = it->second;
-        
-        drawBuilder->addBillboard(billboard.center, billboard.width, billboard.height, billboard.color);
+            BuilderMap::iterator it = drawBuilders.find(billPoly.texId);
+            BillboardDrawableBuilder *drawBuilder = NULL;
+            // Need a new one
+            if (it == drawBuilders.end())
+            {
+                drawBuilder = new BillboardDrawableBuilder(scene,changes,sceneRep,billboardInfo,billShader,billPoly.texId);
+                drawBuilders[billPoly.texId] = drawBuilder;
+            } else
+                drawBuilder = it->second;
+            
+            drawBuilder->addBillboard(billboard.center, billPoly.pts, billPoly.texCoords, billPoly.color, billPoly.vertexAttrs);
+        }
 
         // While we're at it, let's add this to the selection layer
         if (selectManager && billboard.isSelectable)
@@ -222,10 +225,10 @@ SimpleIdentity BillboardManager::addBillboards(NSArray *billboards,NSDictionary 
             sceneRep->selectIDs.insert(billboard.selectID);
             
             // Normal is straight up
-            Point3f localPt = coordAdapter->displayToLocal(billboard.center);
-            Point3f axisY = coordAdapter->normalForLocal(localPt);
+            Point3d localPt = coordAdapter->displayToLocal(billboard.center);
+            Point3d axisY = coordAdapter->normalForLocal(localPt);
 
-            selectManager->addSelectableBillboard(billboard.selectID, billboard.center, axisY, Point2f(billboard.width,billboard.height), billboardInfo.minVis, billboardInfo.maxVis, billboardInfo.enable);
+            selectManager->addSelectableBillboard(billboard.selectID, billboard.center, axisY, billboard.size, billboardInfo.minVis, billboardInfo.maxVis, billboardInfo.enable);
         }
     }
     
@@ -295,15 +298,20 @@ void BillboardManager::removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes)
                      it != sceneRep->drawIDs.end(); ++it)
                     changes.push_back(new FadeChangeRequest(*it, curTime, curTime+sceneRep->fade));
 
+                __block NSObject * __weak thisCanary = canary;
+
                 // Spawn off the deletion for later
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
                                scene->getDispatchQueue(),
                                ^{
-                                   SimpleIDSet theIDs;
-                                   theIDs.insert(sceneRep->getId());
-                                   ChangeSet delChanges;
-                                   removeBillboards(theIDs, delChanges);
-                                   scene->addChangeRequests(delChanges);
+                                   if (thisCanary)
+                                   {
+                                       SimpleIDSet theIDs;
+                                       theIDs.insert(sceneRep->getId());
+                                       ChangeSet delChanges;
+                                       removeBillboards(theIDs, delChanges);
+                                       scene->addChangeRequests(delChanges);
+                                   }
                                }
                                );
 

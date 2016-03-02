@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/29/14.
- *  Copyright 2011-2014 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2015 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,11 +22,12 @@
 #import <set>
 #import <map>
 #import "Identifiable.h"
-#import "Drawable.h"
+#import "BasicDrawableInstance.h"
 #import "WideVectorDrawable.h"
 #import "Scene.h"
 #import "SelectionManager.h"
 #import "VectorData.h"
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
@@ -44,14 +45,9 @@ typedef enum {WideVecButtCap,WideVecRoundCap,WideVecSquareCap} WideVectorLineCap
 
 /** Used to pass parameters for the wide vectors around.
   */
-@interface WhirlyKitWideVectorInfo : NSObject
+@interface WhirlyKitWideVectorInfo : WhirlyKitBaseInfo
 
 @property (nonatomic) UIColor *color;
-@property (nonatomic,assign) float fade;
-@property (nonatomic,assign) float minVis,maxVis;
-@property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) bool enable;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity shader;
 @property (nonatomic,assign) float width;
 @property (nonatomic,assign) float repeatSize;
 @property (nonatomic,assign) WhirlyKit::WideVectorCoordsType coordType;
@@ -59,6 +55,7 @@ typedef enum {WideVecButtCap,WideVecRoundCap,WideVecSquareCap} WideVectorLineCap
 @property (nonatomic,assign) WhirlyKit::WideVectorLineCapType capType;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity texID;
 @property (nonatomic,assign) float miterLimit;
+@property (nonatomic,assign) bool texSnap;
 
 - (void)parseDesc:(NSDictionary *)desc;
 

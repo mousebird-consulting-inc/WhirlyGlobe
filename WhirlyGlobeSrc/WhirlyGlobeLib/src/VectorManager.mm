@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/26/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,22 +24,20 @@
 #import "UIColor+Stuff.h"
 #import "Tesselator.h"
 #import "GridClipper.h"
+#import "BaseInfo.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
-typedef enum {TextureProjectionNone,TextureProjectionTanPlane} TextureProjections;
+typedef enum {TextureProjectionNone,TextureProjectionTanPlane,TextureProjectionScreen} TextureProjections;
 
 // Used to describe the drawable we'll construct for a given vector
-@interface VectorInfo : NSObject
+@interface WhirlyKitVectorInfo : WhirlyKitBaseInfo
 {
 @public
     // For creation request, the shapes
     ShapeSet                    shapes;
-    BOOL                        enable;
     float                       drawOffset;
-    int                         priority;
-    float                       minVis,maxVis;
     BOOL                        filled;
     float                       sample;
     SimpleIdentity              texId;
@@ -50,22 +48,21 @@ typedef enum {TextureProjectionNone,TextureProjectionTanPlane} TextureProjection
 }
 
 @property (nonatomic) UIColor *color;
-@property (nonatomic,assign) float fade;
 @property (nonatomic,assign) float lineWidth;
 
 - (void)parseDict:(NSDictionary *)dict;
 
 @end
 
-@implementation VectorInfo
+@implementation WhirlyKitVectorInfo
 
-- (id)initWithShapes:(ShapeSet *)inShapes desc:(NSDictionary *)dict
+- (id)initWithShapes:(ShapeSet *)inShapes desc:(NSDictionary *)desc
 {
-    if ((self = [super init]))
+    if ((self = [super initWithDesc:desc]))
     {
         if (inShapes)
             shapes = *inShapes;
-        [self parseDict:dict];
+        [self parseDict:desc];
     }
     
     return self;
@@ -73,7 +70,7 @@ typedef enum {TextureProjectionNone,TextureProjectionTanPlane} TextureProjection
 
 - (id)initWithDesc:(NSDictionary *)dict
 {
-    if ((self = [super init]))
+    if ((self = [super initWithDesc:dict]))
     {
         [self parseDict:dict];
     }
@@ -83,15 +80,8 @@ typedef enum {TextureProjectionNone,TextureProjectionTanPlane} TextureProjection
 
 - (void)parseDict:(NSDictionary *)dict
 {
-    enable = [dict boolForKey:@"enable" default:YES];
     drawOffset = [dict floatForKey:@"drawOffset" default:0];
     self.color = [dict objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    priority = [dict intForKey:@"drawPriority" default:0];
-    // This looks like an old bug
-    priority = [dict intForKey:@"priority" default:priority];
-    minVis = [dict floatForKey:@"minVis" default:DrawVisibleInvalid];
-    maxVis = [dict floatForKey:@"maxVis" default:DrawVisibleInvalid];
-    _fade = [dict floatForKey:@"fade" default:0.0];
     _lineWidth = [dict floatForKey:@"width" default:1.0];
     filled = [dict boolForKey:@"filled" default:false];
     sample = [dict floatForKey:@"sample" default:false];
@@ -105,6 +95,8 @@ typedef enum {TextureProjectionNone,TextureProjectionTanPlane} TextureProjection
     texProj = TextureProjectionNone;
     if ([texProjStr isEqualToString:@"texprojectiontanplane"])
         texProj = TextureProjectionTanPlane;
+    else if ([texProjStr isEqualToString:@"texprojectionscreen"])
+        texProj = TextureProjectionScreen;
 }
 
 @end
@@ -126,8 +118,8 @@ class VectorDrawableBuilder
 {
 public:
     VectorDrawableBuilder(Scene *scene,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
-                          VectorInfo *vecInfo,bool linesOrPoints,bool doColor)
-    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), doColor(doColor), centerValid(false), center(0,0,0)
+                          WhirlyKitVectorInfo *vecInfo,bool linesOrPoints,bool doColor)
+    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), doColor(doColor), centerValid(false), center(0,0,0), geoCenter(0,0)
     {
         primType = (linesOrPoints ? GL_LINES : GL_POINTS);
     }
@@ -137,10 +129,11 @@ public:
         flush();
     }
     
-    void setCenter(const Point3d &newCenter)
+    void setCenter(const Point3d &newCenter,const Point2d &inGeoCenter)
     {
         centerValid = true;
         center = newCenter;
+        geoCenter = inGeoCenter;
     }
     
     void addPoints(VectorRing &pts,bool closed,NSDictionary *attrs)
@@ -164,12 +157,9 @@ public:
             drawMbr.reset();
             drawable->setType(primType);
             // Adjust according to the vector info
-            drawable->setOnOff(vecInfo->enable);
-            drawable->setDrawOffset(vecInfo->drawOffset);
+            [vecInfo setupBasicDrawable:drawable];
             drawable->setColor(baseColor);
             drawable->setLineWidth(vecInfo.lineWidth);
-            drawable->setDrawPriority(vecInfo->priority);
-            drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
         }
         drawMbr.addPoints(pts);
         
@@ -178,8 +168,8 @@ public:
         {
             // Convert to real world coordinates and offset from the globe
             Point2f &geoPt = pts[jj];
-            GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-            Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(geoCoord);
+            Point2d geoCoordD(geoPt.x()+geoCenter.x(),geoPt.y()+geoCenter.y());
+            Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoordD);
             Point3d norm3d = coordAdapter->normalForLocal(localPt);
             Point3f norm(norm3d.x(),norm3d.y(),norm3d.z());
             Point3d pt3d = coordAdapter->localToDisplay(localPt) - center;
@@ -263,8 +253,10 @@ protected:
     VectorSceneRep *sceneRep;
     Mbr drawMbr;
     BasicDrawable *drawable;
-    VectorInfo *vecInfo;
+    WhirlyKitVectorInfo *vecInfo;
     Point3d center;
+    Point2d geoCenter;
+    bool applyCenter;
     bool centerValid;
     GLenum primType;
 };
@@ -277,8 +269,8 @@ class VectorDrawableBuilderTri
 {
 public:
     VectorDrawableBuilderTri(Scene *scene,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
-                             VectorInfo *vecInfo,bool doColor)
-    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), doColor(doColor), centerValid(false), center(0,0,0)
+                             WhirlyKitVectorInfo *vecInfo,bool doColor)
+    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), doColor(doColor), centerValid(false), center(0,0,0), geoCenter(0,0)
     {
     }
     
@@ -287,10 +279,11 @@ public:
         flush();
     }
     
-    void setCenter(const Point3d &newCenter)
+    void setCenter(const Point3d &newCenter,const Point2d &newGeoCenter)
     {
         centerValid = true;
         center = newCenter;
+        geoCenter = newGeoCenter;
     }
     
     // This version converts a ring into a mesh (chopping, tesselating, etc...)
@@ -345,17 +338,19 @@ public:
                 drawMbr.reset();
                 drawable->setType(GL_TRIANGLES);
                 // Adjust according to the vector info
-                drawable->setOnOff(vecInfo->enable);
+                [vecInfo setupBasicDrawable:drawable];
                 drawable->setDrawOffset(vecInfo->drawOffset);
                 drawable->setColor([vecInfo.color asRGBAColor]);
-                drawable->setDrawPriority(vecInfo->priority);
-                drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
                 if (vecInfo->texId != EmptyIdentity)
                     drawable->setTexId(0, vecInfo->texId);
+                if (vecInfo.programID != EmptyIdentity)
+                    drawable->setProgram(vecInfo.programID);
                 //                drawable->setForceZBufferOn(true);
             }
             int baseVert = drawable->getNumPoints();
             drawMbr.addPoints(pts);
+            
+            bool doTexCoords = vecInfo->texId != EmptyIdentity;
             
             // Need an origin for this type of texture coordinate projection
             Point3d planeOrg(0,0,0),planeUp(0,0,1),planeX(1,0,0),planeY(0,1,0);
@@ -368,24 +363,29 @@ public:
                 planeY = planeUp.cross(planeX);
                 planeX.normalize();
                 planeY.normalize();
+            } else if (vecInfo->texProj == TextureProjectionScreen)
+            {
+                // Don't need actual tex coordinates for screen space
+                doTexCoords = false;
             }
             
             // Generate the textures coordinates
             std::vector<TexCoord> texCoords;
-            if (vecInfo->texId != EmptyIdentity)
+            if (doTexCoords)
             {
                 texCoords.reserve(pts.size());
                 TexCoord minCoord(MAXFLOAT,MAXFLOAT);
                 for (unsigned int jj=0;jj<pts.size();jj++)
                 {
                     Point2f &geoPt = pts[jj];
+                    Point2d geoCoordD(geoPt.x()+geoCenter.x(),geoPt.y()+geoCenter.y());
                     
                     TexCoord texCoord;
                     switch (vecInfo->texProj)
                     {
                         case TextureProjectionTanPlane:
                         {
-                            Point3d dispPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoPt.x(),geoPt.y())))-center;
+                            Point3d dispPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(geoCoordD))-center;
                             Point3d dir = dispPt - planeOrg;
                             Point3d comp(dir.dot(planeX),dir.dot(planeY),dir.dot(planeUp));
                             texCoord.x() = comp.x();
@@ -419,8 +419,8 @@ public:
             {
                 // Convert to real world coordinates and offset from the globe
                 Point2f &geoPt = pts[jj];
-                GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-                Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(geoCoord);
+                Point2d geoCoordD(geoPt.x()+geoCenter.x(),geoPt.y()+geoCenter.y());
+                Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoordD);
                 Point3d norm3d = coordAdapter->normalForLocal(localPt);
                 Point3f norm(norm3d.x(),norm3d.y(),norm3d.z());
                 Point3d pt3d = coordAdapter->localToDisplay(localPt) - center;
@@ -430,7 +430,7 @@ public:
                 if (doColor)
                     drawable->addColor(baseColor);
                 drawable->addNormal(norm);
-                if (vecInfo->texId != EmptyIdentity)
+                if (doTexCoords)
                 {
                     drawable->addTexCoord(0, texCoords[jj]);
                 }
@@ -449,6 +449,16 @@ public:
         {            
             if (drawable->getNumPoints() > 0)
             {
+                // If we're doing screen coordinates, attach the tweaker
+                if (vecInfo->texProj == TextureProjectionScreen)
+                {
+                    Point2f midPt = drawMbr.mid();
+                    Point3d centerPt = scene->getCoordAdapter()->localToDisplay(Point3d(midPt.x(),midPt.y(),0.0));
+                    Point2d texScale(vecInfo->texScale.x(),vecInfo->texScale.y());
+                    BasicDrawableScreenTexTweaker *texTweaker = new BasicDrawableScreenTexTweaker(centerPt,texScale);
+                    drawable->addTweaker(DrawableTweakerRef(texTweaker));
+                }
+
                 drawable->setLocalMbr(drawMbr);
                 if (centerValid)
                 {
@@ -478,13 +488,15 @@ protected:
     VectorSceneRep *sceneRep;
     Mbr drawMbr;
     Point3d center;
+    Point2d geoCenter;
     bool centerValid;
     BasicDrawable *drawable;
-    VectorInfo *vecInfo;
+    WhirlyKitVectorInfo *vecInfo;
 };
 
 VectorManager::VectorManager()
 {
+    canary = [[NSObject alloc] init];
     pthread_mutex_init(&vectorLock, NULL);
 }
 
@@ -500,7 +512,7 @@ VectorManager::~VectorManager()
 
 SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, ChangeSet &changes)
 {
-    VectorInfo *vecInfo = [[VectorInfo alloc] initWithShapes:shapes desc:desc];
+    WhirlyKitVectorInfo *vecInfo = [[WhirlyKitVectorInfo alloc] initWithShapes:shapes desc:desc];
 
     // All the shape types should be the same
     ShapeSet::iterator first = vecInfo->shapes.begin();
@@ -531,20 +543,30 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
     CoordSystem *coordSys = coordAdapter->getCoordSystem();
     Point3d center(0,0,0);
     bool centerValid = false;
-    // Note: Should work for the globe, but doesn't
-    if (desc[@"centered"] && [desc[@"centered"] boolValue] && coordAdapter->isFlat())
+    Point2d geoCenter(0,0);
+    if (desc[@"centered"] && [desc[@"centered"] boolValue])
     {
-        // Calculate the center
-        GeoMbr geoMbr;
-        for (ShapeSet::iterator it = vecInfo->shapes.begin();
-             it != vecInfo->shapes.end(); ++it)
-            geoMbr.expand((*it)->calcGeoMbr());
-        if (geoMbr.valid())
+        // We might pass in a center
+        if (desc[@"veccenterx"] && desc[@"veccentery"])
         {
-            Point3d p0 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ll()));
-            Point3d p1 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ur()));
-            center = (p0+p1)/2.0;
+            geoCenter.x() = [desc[@"veccenterx"] doubleValue];
+            geoCenter.y() = [desc[@"veccentery"] doubleValue];
+            Point3d dispPt = coordAdapter->localToDisplay(coordSys->geographicToLocal(geoCenter));
+            center = dispPt;
             centerValid = true;
+        } else {
+            // Calculate the center
+            GeoMbr geoMbr;
+            for (ShapeSet::iterator it = vecInfo->shapes.begin();
+                 it != vecInfo->shapes.end(); ++it)
+                geoMbr.expand((*it)->calcGeoMbr());
+            if (geoMbr.valid())
+            {
+                Point3d p0 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ll()));
+                Point3d p1 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ur()));
+                center = (p0+p1)/2.0;
+                centerValid = true;
+            }
         }
     }
     
@@ -552,10 +574,10 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
     // Its destructor will flush out the last drawable
     VectorDrawableBuilder drawBuild(scene,changes,sceneRep,vecInfo,true,doColors);
     if (centerValid)
-        drawBuild.setCenter(center);
+        drawBuild.setCenter(center,geoCenter);
     VectorDrawableBuilderTri drawBuildTri(scene,changes,sceneRep,vecInfo,doColors);
     if (centerValid)
-        drawBuildTri.setCenter(center);
+        drawBuildTri.setCenter(center,geoCenter);
     
     for (ShapeSet::iterator it = vecInfo->shapes.begin();
          it != vecInfo->shapes.end(); ++it)
@@ -654,7 +676,7 @@ SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,NSDictionary 
              idIt != sceneRep->drawIDs.end(); ++idIt)
         {
             // Make up a BasicDrawableInstance
-            BasicDrawableInstance *drawInst = new BasicDrawableInstance("VectorManager",*idIt);
+            BasicDrawableInstance *drawInst = new BasicDrawableInstance("VectorManager",*idIt,BasicDrawableInstance::ReuseStyle);
             
             // Changed color
             if ([desc objectForKey:@"color"]) {
@@ -772,14 +794,19 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
                      idIt != allIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+sceneRep->fade));
                 
+                __block NSObject * __weak thisCanary = canary;
+                
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
                                scene->getDispatchQueue(),
                                ^{
-                                   SimpleIDSet theIDs;
-                                   theIDs.insert(sceneRep->getId());
-                                   ChangeSet delChanges;
-                                   removeVectors(theIDs, delChanges);
-                                   scene->addChangeRequests(delChanges);
+                                   if (thisCanary)
+                                   {
+                                       SimpleIDSet theIDs;
+                                       theIDs.insert(sceneRep->getId());
+                                       ChangeSet delChanges;
+                                       removeVectors(theIDs, delChanges);
+                                       scene->addChangeRequests(delChanges);
+                                   }
                                }
                                );
                 sceneRep->fade = 0.0;

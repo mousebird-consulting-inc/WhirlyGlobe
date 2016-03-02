@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -33,6 +33,24 @@
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyTexture.h"
 #import "MaplyAnnotation.h"
+#import "MaplyParticleSystem.h"
+
+/** @brief When selecting multiple objects, one or more of these is returned.
+    @details When you implement one of the selection delegates that takes multiple objects, you'll get an NSArray of these things.
+  */
+@interface MaplySelectedObject : NSObject
+
+/// @brief Object the user selected
+/// @details This is the original object the user passed in when adding it to the globe or map.
+@property (nonatomic,weak) id selectedObj;
+
+/// @brief Distance from where the user tapped to the closest part of the object on the screen
+@property double screenDist;
+
+/// @brief Distance from the user's viewpoint to the center of the object in 3-space.  Use this for sorting.
+@property double zDist;
+
+@end
 
 /// Where we'd like an add to be executed.  If you need immediate feedback,
 ///  then be on the main thread and use MaplyThreadCurrent.  Any is the default. 
@@ -73,8 +91,6 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
     @details To provide elevation for your compatible MaplyTileSource objects, you fill out the MaplyElevationSourceDelegate protocol and assign the resulting object here.  When an image layer needs elevation, it will check for the delegate and then query for the respective file.
     @details At present there is no checking for coordinate system compatibility, so be aware.
   */
-/// Fill this in to provide elevation data.  It will only work for a matching image layer,
-///  one with the same coordinate system and extents.
 @property (nonatomic,weak) NSObject<MaplyElevationSourceDelegate> *elevDelegate;
 
 /** @brief If set we'll create a new thread for every layer the user adds.
@@ -82,10 +98,21 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 @property (nonatomic,assign) bool threadPerLayer;
 
+/** @brief Set the offset for the screen space objects.
+    @details In general you want the screen space objects to appear on top of everything else.  There used to be structural versions for this, but now you can mix and match where everything appears.  This controls the offset that's used to push screen space objects behind everything else in the list (and thus, on top).
+    @details If you set this to 0, you can control the ordering of everything more precisely.
+ */
+@property (nonatomic,assign) int screenObjectDrawPriorityOffset;
+
 /** @brief Clear all the currently active lights.
     @details There are a default set of lights, so you'll want to do this before adding your own.
   */
 - (void)clearLights;
+
+/** @brief Reset the lighting back to its default state at startup.
+    @details This clears out all the lights and adds in the default starting light source.
+ */
+- (void)resetLights;
 
 /** @brief Add the given light to the list of active lights.
     @details This method will add the given light to our active lights.  Most shaders will recognize these lights and do the calculations.  If you have a custom shader in place, it may or may not use these.
@@ -121,9 +148,20 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyColor|UIColor|The color we'll use for the rectangle that makes up a marker. White by default.|
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The marker will only be visible if the user is above this height.  Off by default.|
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The marker will only be visible if the user is below this height.  Off by default.|
+ |kMaplyMinViewerDist|NSNumber|Minimum distance from the viewer at which to display object(s).|
+ |kMaplyMaxViewerDist|NSNumber|Maximum distance from the viewer at which to display object(s).|
+ |kMaplyViewableCenterX|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center X coordinate.|
+ |kMaplyViewableCenterY|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Y coordinate.|
+ |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
+ |kMaplyDrawPriority|NSNumber|If set, the markers are sorted by this number.  Larger numbers will be sorted later.|
  |kMaplyFade|NSNumber|The number of seconds to fade a marker in when it appears and out when it disappears.|
+ |kMaplyFadeIn|NSNumber|The number of seconds to fade a marker in when it appears.  This overrides kMaplyFade.|
+ |kMaplyFadeOut|NSNumber|The number of seconds to fade a marker out when it disappears.  This override kMaplyFade.|
+ |kMaplyFadeOutTime|NSNumber|If you want to create an object, just to have it fade out at a specific time, this is what you set.|
  |kMaplyShader|NSString|If set, this is the name of the MaplyShader to use when rendering the screen markers.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ |kMaplyEnableStart|NSNumber|If set, this controls when the resulting objects will be activated.|
+ |kMaplyEnableEnd|NSNumber|If set, this controls when the resulting objects will be deactivated.|
 
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
@@ -144,7 +182,15 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyColor|UIColor|The color we'll use for the rectangle that makes up a marker. White by default.|
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The marker will only be visible if the user is above this height.  Off by default.|
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The marker will only be visible if the user is below this height.  Off by default.|
+ |kMaplyMinViewerDist|NSNumber|Minimum distance from the viewer at which to display object(s).|
+ |kMaplyMaxViewerDist|NSNumber|Maximum distance from the viewer at which to display object(s).|
+ |kMaplyViewableCenterX|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center X coordinate.|
+ |kMaplyViewableCenterY|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Y coordinate.|
+ |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
  |kMaplyFade|NSNumber|The number of seconds to fade a marker in when it appears and out when it disappears.|
+ |kMaplyFadeIn|NSNumber|The number of seconds to fade a marker in when it appears.  This overrides kMaplyFade.|
+ |kMaplyFadeOut|NSNumber|The number of seconds to fade a marker out when it disappears.  This override kMaplyFade.|
+ |kMaplyFadeOutTime|NSNumber|If you want to create an object, just to have it fade out at a specific time, this is what you set.|
  |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyMarkerDrawPriorityDefault.|
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's off by default, meaning that the geometry will draw on top of anything (respecting the kMaplyDrawPriority).|
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
@@ -178,8 +224,16 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyTextOutlineColor|UIColor|If we're drawing an outline, it's in this color.|
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The label will only be visible if the user is above this height.  Off by default.|
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The label will only be visible if the user is below this height.  Off by default.|
+ |kMaplyMinViewerDist|NSNumber|Minimum distance from the viewer at which to display object(s).|
+ |kMaplyMaxViewerDist|NSNumber|Maximum distance from the viewer at which to display object(s).|
+ |kMaplyViewableCenterX|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center X coordinate.|
+ |kMaplyViewableCenterY|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Y coordinate.|
+ |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
+ |kMaplyDrawPriority|NSNumber|If set, the labels are sorted by this number.  Larger numbers will be sorted later.|
  |kMaplyFade|NSNumber|The number of seconds to fade a screen label in when it appears and out when it disappears.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ |kMaplyEnableStart|NSNumber|If set, this controls when the resulting objects will be activated.|
+ |kMaplyEnableEnd|NSNumber|If set, this controls when the resulting objects will be deactivated.|
  
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
@@ -207,6 +261,11 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyShadowColor|UIColor|If we're drawing a shadow, this is its color.|
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The label will only be visible if the user is above this height.  Off by default.|
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The label will only be visible if the user is below this height.  Off by default.|
+ |kMaplyMinViewerDist|NSNumber|Minimum distance from the viewer at which to display object(s).|
+ |kMaplyMaxViewerDist|NSNumber|Maximum distance from the viewer at which to display object(s).|
+ |kMaplyViewableCenterX|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center X coordinate.|
+ |kMaplyViewableCenterY|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Y coordinate.|
+ |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
  |kMaplyFade|NSNumber|The number of seconds to fade a label in when it appears and out when it disappears.|
  |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyLabelDrawPriorityDefault.|
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's off by default, meaning that the geometry will draw on top of anything (respecting the kMaplyDrawPriority).|
@@ -237,14 +296,20 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyVecTexture|UIImage|If set and the kMaplyFilled attribute is set, we will apply the given texture across any areal features.  How the texture is applied can be controlled by kMaplyVecTexScaleX, kMaplyVecTexScaleY, kMaplyVecCenterX, kMaplyVecCenterY, and kMaplyVecTextureProjection|
  |kMaplyVecTexScaleX,kMaplyVecTexScaleY|NSNumber|These control the scale of the texture application.  We'll multiply by these numbers before generating texture coordinates from the vertices.|
  |kMaplyVecCenterX,kMaplyVecCenterY|NSNumber|These control the center of a texture application.  If not set we'll use the areal's centroid.  If set, we'll use these instead.  They should be in local coordinates (probably geographic radians).|
- |kMaplyVecTextureProjection|NSString|This controls how a texture is projected onto an areal feature.  By default we just use the geographic coordinates and stretch them out.  This look odd for very large features.  If you set this to kMaplyProjectionTangentPlane then we'll take the center of the feature, make a tangent plane and then project the coordinates onto that tangent plane to get texture coordinates.  This looks nice at the poles.|
+ |kMaplyVecTextureProjection|NSString|This controls how a texture is projected onto an areal feature.  By default we just use the geographic coordinates and stretch them out.  This looks odd for very large features.  If you set this to kMaplyProjectionTangentPlane then we'll take the center of the feature, make a tangent plane and then project the coordinates onto that tangent plane to get texture coordinates.  This looks nice at the poles.  If set to kMaplyProjectionScreen the texture is mapped on after screen space projection around the center of the feature.|
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The vectors will only be visible if the user is above this height.  Off by default.|
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The vectors will only be visible if the user is below this height.  Off by default.|
+ |kMaplyMinViewerDist|NSNumber|Minimum distance from the viewer at which to display object(s).|
+ |kMaplyMaxViewerDist|NSNumber|Maximum distance from the viewer at which to display object(s).|
+ |kMaplyViewableCenterX|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center X coordinate.|
+ |kMaplyViewableCenterY|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Y coordinate.|
+ |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
  |kMaplyFade|NSNumber|The number of seconds to fade a vector in when it appears and out when it disappears.|
  |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyVectorDrawPriorityDefault.|
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's off by default, meaning that the geometry will draw on top of anything (respecting the kMaplyDrawPriority).|
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ |kMaplySelectable|NSNumber boolean|Off by default.  When enabled, the vector feature will be selectable by a user.|
 
  @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
@@ -265,6 +330,11 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyVecWidth|NSNumber|If the geometry is not filled, this is the width of the GL lines.|
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The vectors will only be visible if the user is above this height.  Off by default.|
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The vectors will only be visible if the user is below this height.  Off by default.|
+ |kMaplyMinViewerDist|NSNumber|Minimum distance from the viewer at which to display object(s).|
+ |kMaplyMaxViewerDist|NSNumber|Maximum distance from the viewer at which to display object(s).|
+ |kMaplyViewableCenterX|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center X coordinate.|
+ |kMaplyViewableCenterY|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Y coordinate.|
+ |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
  |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyVectorDrawPriorityDefault.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
 
@@ -275,7 +345,33 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 - (MaplyComponentObject *)instanceVectors:(MaplyComponentObject *)baseObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 /** @brief Add one or more widened vectors to the current scene.
-  */
+    @details Build widened vectors
+
+ @param desc The description dictionary which controls how vectors will be displayed.  It takes the following entries.
+
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyColor|UIColor|Color we'll use for the features.|
+ |kMaplyVecWidth|NSNumber|If the geometry is not filled, this is the width of the lines.|
+ |kMaplyWideVecCoordType|NSNumber|Vectors can be widened in real coordinates (kMaplyWideVecCoordTypeReal) or screen coordinates (kMaplyWideVecCoordTypeScreen).  In the latter case they stay the same size now matter how you zoom.|
+ |kMaplyWideVecJoinType|NSNumber|When lines meet in a join there are several options for representing them.  These include kMaplyWideVecMiterJoin, which is a simple miter join and kMaplyWideVecBevelJoin which is a more complicated bevel.  See http://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty for how these look.|
+ |kMaplyWideVecMiterLimit|NSNumber|When using miter joins you can trigger them at a certain threshold.|
+ |kMaplyWideVecTexRepeatLen|NSNumber|This is the repeat size for a texture applied along the widened line.  For kMaplyWideVecCoordTypeScreen this is pixels.|
+ |kMaplyVecTexture|UIImage or MaplyTexture|This the texture to be applied to the widened vector.|
+ |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The vectors will only be visible if the user is above this height.  Off by default.|
+ |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The vectors will only be visible if the user is below this height.  Off by default.|
+ |kMaplyMinViewerDist|NSNumber|Minimum distance from the viewer at which to display object(s).|
+ |kMaplyMaxViewerDist|NSNumber|Maximum distance from the viewer at which to display object(s).|
+ |kMaplyViewableCenterX|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center X coordinate.|
+ |kMaplyViewableCenterY|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Y coordinate.|
+ |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
+ |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyVectorDrawPriorityDefault.|
+ |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+
+ @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
+ 
+ @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
+ */
 - (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 /// @brief This calls addWideVectors:desc:mode: with mode set to MaplyThreadAny
@@ -285,6 +381,38 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 /// @brief This calls addShapes:desc:mode: with mode set to MaplyThreadAny
 - (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
 
+/** @brief Add one or more model instances.
+    @details Each MaplyGeomInstance points to a MaplyGeomModel.  All those passed in here will be grouped and processed together.
+ 
+ @param desc The description dictionary which controls how the models are displayed, selected, and so forth.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplySelectable|NSNumber boolean|Off by default.  When enabled, the vector feature will be selectable by a user.|
+ |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ 
+ @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
+ 
+ @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
+  */
+- (MaplyComponentObject *)addModelInstances:(NSArray *)modelInstances desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/** @brief Add one or raw geometry mdoels.
+    @details Each MaplyGeometryModel holds points and triangles in display space.  These are relatively "raw" geometry and are passed to the geometry manager as is.
+ 
+ @param desc The description dictionary which controls how the geometry is displayed, selected, and so forth.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplySelectable|NSNumber boolean|Off by default.  When enabled, the vector feature will be selectable by a user.|
+ |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ 
+ @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
+ 
+ @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
+ */
+- (MaplyComponentObject *)addGeometry:(NSArray *)geom desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
 /** @brief Add one or more MaplyShape children to the current scene.
     @details This method will add the given MaplyShape derived objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
     @param shapes An NSArray of MaplyShape derived objects.
@@ -293,8 +421,16 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |Key|Type|Description|
  |:--|:---|:----------|
  |kMaplyColor|UIColor|Color we'll use for the shape features.|
+ |kMaplyShapeSampleX|NSNumber|Number of samples to use in one direction when converting to polygons.|
+ |kMaplyShapeSampleY|NSNumber|Number of samples to use in the other direction when converting to polygons.|
+ |kMaplyShapeInsideOut|NSNumber boolean|If set to YES, we'll make the spheres inside out and such.  Set to NO by default.|
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The shapes will only be visible if the user is above this height.  Off by default.|
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The shapes will only be visible if the user is below this height.  Off by default.|
+ |kMaplyMinViewerDist|NSNumber|Minimum distance from the viewer at which to display object(s).|
+ |kMaplyMaxViewerDist|NSNumber|Maximum distance from the viewer at which to display object(s).|
+ |kMaplyViewableCenterX|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center X coordinate.|
+ |kMaplyViewableCenterY|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Y coordinate.|
+ |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
  |kMaplyFade|NSNumber|The number of seconds to fade a shape in when it appears and out when it disappears.|
  |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyVectorShapePriorityDefault.|
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's on by default, meaning that the geometry can be occluded by things drawn first.|
@@ -320,6 +456,11 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyColor|UIColor|Color we'll use for the stickers.|
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The stickers will only be visible if the user is above this height.  Off by default.|
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The stickers will only be visible if the user is below this height.  Off by default.|
+ |kMaplyMinViewerDist|NSNumber|Minimum distance from the viewer at which to display object(s).|
+ |kMaplyMaxViewerDist|NSNumber|Maximum distance from the viewer at which to display object(s).|
+ |kMaplyViewableCenterX|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center X coordinate.|
+ |kMaplyViewableCenterY|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Y coordinate.|
+ |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
  |kMaplyFade|NSNumber|The number of seconds to fade a sticker in when it appears and out when it disappears.|
  |kMaplySampleX|NSNumber|Stickers are broken up along two dimensions to adhere to the globe.  By default this is done adaptively.  If you want to override it, this is the X dimension for the sticker.|
  |kMaplySampleY|NSNumber|If you want to override it, this is the Y dimension for the sticker.|
@@ -356,11 +497,33 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyColor|UIColor|Color we'll use for the stickers.|
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The billboards will only be visible if the user is above this height.  Off by default.|
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The billboards will only be visible if the user is below this height.  Off by default.|
+ |kMaplyMinViewerDist|NSNumber|Minimum distance from the viewer at which to display object(s).|
+ |kMaplyMaxViewerDist|NSNumber|Maximum distance from the viewer at which to display object(s).|
+ |kMaplyViewableCenterX|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center X coordinate.|
+ |kMaplyViewableCenterY|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Y coordinate.|
+ |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
  |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyBillboardDrawPriorityDefault.|
+ |kMaplyBillboardOrient|NSNumber|Controls the billboard orientation.  It's either directly toward the eye with kMaplyBillboardOrientEye or takes the ground into account with kMaplyBillboardOrientGround.  Ground is the default.
 
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
   */
 - (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/** @brief Add a particle system to the scene.
+    @details This adds a particle system to the scene, but does not kick off any particles.
+    @param partSys The particle system to start.
+    @param desc Any additional standard parameters (none at present).
+    @param threadMode MaplyThreadAny will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.  For particles, it's best to make a separate thread and use MaplyThreadCurrent.
+  */
+- (MaplyComponentObject *)addParticleSystem:(MaplyParticleSystem *)partSys desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/** @brief Add a batch of particles to the current scene.
+    @details Particles are short term objects, typically very small.  We create them in large groups for efficience.
+    @details You'll need to fill out the MaplyParticleSystem initially and then the MaplyParticleBatch to create them.
+    @param batch The batch of particles to add to an active particle system.
+    @param threadMode MaplyThreadAny will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.  For particles, it's best to make a separate thread and use MaplyThreadCurrent.
+  */
+- (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode;
 
 /** @brief Add vectors that can be used for selections.
     @details These are MaplyVectorObject's that will show up in user selection, but won't be visible.  So if a user taps on one, you get the vector in your delegate.  Otherwise, no one will know it's there.
@@ -374,6 +537,13 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 - (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc;
 
+/** @brief Change the representation of the given vector features.
+ @details This will change how any vector features represented by the compObj look.
+ @details You can change kMaplyColor, kMaplyMinVis, kMaplyMaxVis, and kMaplyDrawPriority.
+ @details This version takes a thread mode.
+ */
+- (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
 /** @brief Adds the MaplyVectorObject's passed in as lofted polygons.
     @details Lofted polygons are filled polygons draped on top of the globe with height.  By using a transparent color, these can be used to represent selection or relative values on the globe (or map).
  
@@ -381,7 +551,8 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
     @param key This is part of an old caching system that's no longer necessary.  Set it to nil.
     @param cacheDb This is part of an old caching system that's no longer necessary.  Set it to nil.
     @param desc The desciption dictionary which controls how the lofted polys will look.  It takes the following entries.
- 
+    @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred.
+
  |Key|Type|Description|
  |:--|:---|:----------|
  |kMaplyColor|UIColor|Color we'll use for the lofted polygons.  A bit of alpha looks good.|
@@ -390,8 +561,19 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyLoftedPolyTop|NSNumber boolean|If on we'll create the geometry for the top.  On by default.|
  |kMaplyLoftedPolySide|NSNumber boolean|If on we'll create geometry for the sides.  On by default.|
  |kMaplyLoftedPolyGridSize|NSNumber|The size of the grid (in degrees) we'll use to chop up the vector features to make them follow the sphere (for a globe).|
+ |kMaplyLoftedPolyOutline|NSNumber boolean|If set to @(YES) this will draw an outline around the top of the lofted poly in lines.|
+ |kMaplyLoftedPolyOutlineBottom|NSNumber boolean|If set to @(YES) this will draw an outline around the bottom of the lofted poly in lines.|
+ |kMaplyLoftedPolyOutlineColor|UIColor|If the outline is one this is the outline's color.|
+ |kMaplyLoftedPolyOutlineWidth|NSNumber|This is the outline's width if it's turned on.|
+ |kMaplyLoftedPolyOutlineDrawPriority|NSNumber|Draw priority of the lines created for the lofted poly outline.|
+ |kMaplyLoftedPolyOutlineSide|NSNumber boolean|If set and we're drawing an outline, this will create lines up the sides.|
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The lofted polys will only be visible if the user is above this height.  Off by default.|
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The lofted polys will only be visible if the user is below this height.  Off by default.|
+ |kMaplyMinViewerDist|NSNumber|Minimum distance from the viewer at which to display object(s).|
+ |kMaplyMaxViewerDist|NSNumber|Maximum distance from the viewer at which to display object(s).|
+ |kMaplyViewableCenterX|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center X coordinate.|
+ |kMaplyViewableCenterY|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Y coordinate.|
+ |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
  |kMaplyFade|NSNumber|The number of seconds to fade a lofted poly in when it appears and out when it disappears.|
  |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyLoftedPolysShapePriorityDefault.|
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's on by default, meaning that it can be occluded by geometry coming before it.|
@@ -400,10 +582,13 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
   */
-- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc;
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 /// @brief Add a view tracker to move a UIView around based on a geographic location.
 - (void)addViewTracker:(MaplyViewTracker *)viewTrack;
+
+/// @brief Move an existing view tracker to a new location
+- (void)moveViewTracker:(MaplyViewTracker *)viewTrack moveTo:(MaplyCoordinate)newPos;
 
 /** @brief Add a single annotation which will track the given point.
     @details This adds a MaplyAnnotation that will follow the given geo coordinate, applying the screen offset as given.
@@ -480,11 +665,71 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  */
 - (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
 
+/** @brief Represent an image as a MaplyTexture.
+    @details This version of addTexture: allows more precise control over how the texture is represented.  It replaces the other addTexture: and addTextureToAtlas calls.
+    @param image The UIImage to add as a texture.
+    @param desc A description dictionary controlling how the image is converted to a texture and represented in the system.
+
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyTexFormat|NSNumber|The texture format to use for the image.  Consult addTexture:imageFormat:wrapFlags:mode: for a list.  Default is MaplyImageIntRGBA.|
+ |kMaplyTexMinFilter|NSNumber|Filter to use for minification.  This can be kMaplyMinFilterNearest or kMaplyMinFilterLinear. Default is kMaplyMinFilterLinear.|
+ |kMaplyTexMagFilter|NSNumber|Filter to use for magnification.  This can be kMaplyMinFilterNearest or kMaplyMinFilterLinear. Default is kMaplyMinFilterLinear.|
+ |kMaplyTexWrapX|NSNumber boolean|Texture wraps in x direction.  Off by default.|
+ |kMaplyTexWrapY|NSNumber boolean|Texture wraps in y direction.  Off by default.|
+ |kMaplyTexAtlas|NSNumber boolean|If set, the texture goes into an appropriate atlas.  If not set, it's a standalone texture (default).|
+ 
+    @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred.
+  */
+- (MaplyTexture *)addTexture:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+
+/** @brief Add an image as a texture, but put it in a texture atlas.  Return a
+ @details Texture atlases consolidate a number of compatible textures, speeding up rendering of any geometry they're used on.  If you know you're going to be using a UIImage with a lot of other images in, say, a group of markers, it's wise to add it here first.
+ @details The entry in a texture atlas will be released when the MaplyTexture is released.  So keep a copy of it around if you're going to use it.
+ @param image The image we're going to put in the texture.
+ @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred if you're on the main thread.
+ @return A MaplyTexture you'll want to keep track of.  It goes out of scope, the entry in the texture atlas will be cleared.
+ */
+- (MaplyTexture *)addTextureToAtlas:(UIImage *)image mode:(MaplyThreadMode)threadMode;
+
+/** @brief Add an image as a texture, but put it in a texture atlas and return a MaplyTexture to track it.
+    @details Texture atlases consolidate a number of compatible textures, speeding up rendering of any geometry they're used on.  If you know you're going to be using a UIImage with a lot of other images in, say, a group of markers, it's wise to add it here first.
+    @details The entry in a texture atlas will be released when the MaplyTexture is released.  So keep a copy of it around if you're going to use it.
+ @param image The image we're going to put in the texture.
+ @param imageFormat If we create this image, this is the texture format we want it to use.
+ 
+ | Image Format | Description |
+ |:-------------|:------------|
+ | MaplyImageIntRGBA | 32 bit RGBA with 8 bits per channel.  The default. |
+ | MaplyImageUShort565 | 16 bits with 5/6/5 for RGB and none for A. |
+ | MaplyImageUShort4444 | 16 bits with 4 bits for each channel. |
+ | MaplyImageUShort5551 | 16 bits with 5/5/5 bits for RGB and 1 bit for A. |
+ | MaplyImageUByteRed | 8 bits, where we choose the R and ignore the rest. |
+ | MaplyImageUByteGreen | 8 bits, where we choose the G and ignore the rest. |
+ | MaplyImageUByteBlue | 8 bits, where we choose the B and ignore the rest. |
+ | MaplyImageUByteAlpha | 8 bits, where we choose the A and ignore the rest. |
+ | MaplyImageUByteRGB | 8 bits, where we average RGB for the value. |
+ | MaplyImage4Layer8Bit | 32 bits, four channels of 8 bits each.  Just like MaplyImageIntRGBA, but a warning not to do anything too clever in sampling. |
+
+ @param wrapFlags These can be MaplyImageWrapX, MaplyImageWrapY, both or none.
+
+ @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred if you're on the main thread.
+ @return A MaplyTexture you'll want to keep track of.  It goes out of scope, the entry in the texture atlas will be cleared.
+  */
+- (MaplyTexture *)addTextureToAtlas:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
+
 /** @brief Remove the OpenGL ES texture associated with the given MaplyTexture.
     @details MaplyTexture's will remove their associated OpenGL textures when they go out of scope.  This method does it expicitly and clears out the internals of the MaplyTexture.
     @details Only call this if you're managing the texture explicitly and know you're finished with them.
   */
 - (void)removeTexture:(MaplyTexture *)image mode:(MaplyThreadMode)threadMode;
+
+/** @brief Remove the OpenGL ES textures associated with the given MaplyTextures.
+    @details MaplyTextures will remove their associated OpenGL textures when they go out of scope.  This method does it expicitly and clears out the internals of the MaplyTexture.
+    @details Only call this if you're managing the texture explicitly and know you're finished with them.
+ */
+- (void)removeTextures:(NSArray *)texture mode:(MaplyThreadMode)threadMode;
 
 /** @brief Set the max number of objects for the layout engine to display.
     @details The layout engine works with screen objects, such MaplyScreenLabel and MaplyScreenMaker.  If those have layoutImportance set, this will control the maximum number we can display.
@@ -570,6 +815,11 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 - (void)stopAnimation;
 
+/** @brief This shuts down the rendering and it cannot be restarted.
+    @details There are times we need to explicitly shut down the rendering rather than wait for an unload or release.  This will do that.
+  */
+- (void)shutdown;
+
 /** @brief Add a compiled shader.  We'll refer to it by the scene name.
     @details Once you've create a MaplyShader, you'll need to add it to the scene to use it.
     @param shader The working shader (be sure valid is true) to add to the scene.
@@ -616,8 +866,19 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 - (float)currentMapZoom:(MaplyCoordinate)coordinate;
 
 /** @brief Return the coordinate system being used for the display.
+    @details This returns the local coordinate system, which is used to unroll the earth (for the globe) or via a scaling factor (for the flat map).
   */
 - (MaplyCoordinateSystem *)coordSystem;
+
+/** @brief Convert from a local coordinate (probably spherical mercator) to a display coordinate.
+    @details This converts from a local coordinate (x,y,height) in the view controller's coordinate system (probably spherical mercator) to a coordinate in display space.  For the globe display space is based on a radius of 1.0.  For the flat map it's just stretched with a similar factor.
+  */
+- (MaplyCoordinate3d)displayCoordFromLocal:(MaplyCoordinate3d)localCoord;
+
+/** @brief Convert from a coordinate in the given system to display space.
+    @details This converts from a coordinate (3d) in the given coordinate system to the view controller's display space.  For the globe, display space is based on a radius of 1.0.
+  */
+- (MaplyCoordinate3d)displayCoord:(MaplyCoordinate3d)localCoord fromSystem:(MaplyCoordinateSystem *)coordSys;
 
 /// @brief Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;

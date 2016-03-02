@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/29/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -37,7 +37,12 @@ bool Quadtree::Identifier::operator<(const Identifier &that) const
     
     return level < that.level;
 }
-    
+
+bool Quadtree::Identifier::operator==(const Identifier &that) const
+{
+    return level == that.level && x == that.x && y == that.y;
+}
+
 bool Quadtree::NodeInfo::operator<(const NodeInfo &that) const
 {
     if (importance == that.importance)
@@ -45,11 +50,42 @@ bool Quadtree::NodeInfo::operator<(const NodeInfo &that) const
     return importance < that.importance;
 }
     
+bool Quadtree::NodeInfo::isFrameLoaded(int theFrame) const
+{
+    if (theFrame == -1)
+        return frameFlags != 0;
+    else
+        return frameFlags & (1<<theFrame);
+}
+    
+bool Quadtree::NodeInfo::isFrameLoading(int theFrame) const
+{
+    if (theFrame == -1)
+        return frameLoadingFlags != 0;
+    else
+        return frameLoadingFlags & (1<<theFrame);
+}
+    
+void Quadtree::NodeInfo::setFrameLoading(int theFrame,bool val)
+{
+    if (theFrame == -1)
+        frameLoadingFlags = val;
+    else {
+        if (val)
+            frameLoadingFlags |= (1<<theFrame);
+        else
+            frameLoadingFlags &= ~(1<<theFrame);
+    }
+}
+    
 Quadtree::Node::Node(Quadtree *tree)
 {
     parent = NULL;
     for (unsigned int ii=0;ii<4;ii++)
+    {
         children[ii] = NULL;
+        childOffscreen[ii] = false;
+    }
     identPos = tree->nodesByIdent.end();
     sizePos = tree->nodesBySize.end();
 }
@@ -62,19 +98,9 @@ void Quadtree::Node::addChild(Quadtree *tree,Node *child)
         tree->nodesBySize.erase(it);
     sizePos = tree->nodesBySize.end();
 
-    int which = -1;
-    for (unsigned int ii=0;ii<4;ii++)
-    {
-        if (children[ii] == child)
-            return;
-        if (!children[ii])
-        {
-            which = ii;
-            break;
-        }
-    }
-    if (which != -1)
-        children[which] = child;
+    int ix = child->nodeInfo.ident.x - nodeInfo.ident.x*2;
+    int iy = child->nodeInfo.ident.y - nodeInfo.ident.y*2;
+    children[iy*2+ix] = child;
 }
     
 void Quadtree::Node::removeChild(Quadtree *tree, Node *child)
@@ -116,7 +142,7 @@ bool Quadtree::Node::parentLoading()
     Node *p = parent;
     while (p)
     {
-        if (p->nodeInfo.loading)
+        if (p->nodeInfo.isFrameLoading(-1))
             return true;
         p = p->parent;
     }
@@ -163,10 +189,14 @@ bool Quadtree::isFull()
     return (nodesByIdent.size()-numPhantomNodes >= maxNodes);
 }
     
-bool Quadtree::shouldLoadTile(const Identifier &ident)
+bool Quadtree::shouldLoadTile(const Identifier &ident,int frame)
 {
     Node *node = getNode(ident);
     if (!node)
+        return false;
+    
+    // It's already loading.
+    if (node->nodeInfo.isFrameLoading(frame))
         return false;
     
     // Reject it out of hand if it's too small
@@ -207,6 +237,7 @@ bool Quadtree::isPhantom(const Identifier &ident)
     return phantom;
 }
     
+    
 bool Quadtree::Node::recalcCoverage()
 {
     bool newChildCoverage = true;
@@ -214,38 +245,73 @@ bool Quadtree::Node::recalcCoverage()
     {
         Node *child = children[ii];
         if (child)
-            newChildCoverage &= child->nodeInfo.childCoverage || (!child->nodeInfo.phantom && !child->nodeInfo.loading);
+            newChildCoverage &= child->nodeInfo.childCoverage || (!child->nodeInfo.phantom && !child->nodeInfo.isFrameLoading(-1));
         else
-            newChildCoverage = false;
+            if (!childOffscreen[ii])
+                newChildCoverage = false;
     }
     nodeInfo.childCoverage = newChildCoverage;
 
     return newChildCoverage;
 }
     
+int Quadtree::getFrameCount(int frame)
+{
+    if (frame >= frameLoadCounts.size())
+        return 0;
+    return frameLoadCounts[frame];
+}
+    
+void Quadtree::addFrameLoaded(int frame)
+{
+    for (int ii=frameLoadCounts.size();ii<=frame;ii++)
+        frameLoadCounts.push_back(0);
+    frameLoadCounts[frame]++;
+}
+
+void Quadtree::clearFlagCounts(int frameFlags)
+{
+    for (unsigned int ii=0;ii<frameLoadCounts.size();ii++)
+        if (frameFlags & (1<<ii))
+            frameLoadCounts[ii]--;
+}
+    
+bool Quadtree::frameIsLoaded(int frame,int *tilesLoaded)
+{
+    int count = getFrameCount(frame);
+    if (tilesLoaded)
+        *tilesLoaded = count;
+    
+    // Make sure we don't agree when there's nothing going on
+    if (count == 0)
+        return false;
+    
+    bool isLoaded = (count+numPhantomNodes) == nodesByIdent.size();
+    
+//    if (count+numPhantomNodes > nodesByIdent.size())
+//        NSLog(@"Got one");
+    
+    return isLoaded;
+}
+    
 void Quadtree::updateParentCoverage(const Identifier &ident,std::vector<Identifier> &coveredTiles,std::vector<Identifier> &unCoveredTiles)
 {
-    Node *node = getNode(ident);
-
-    if (node)
+    Node *p = getNode(Identifier(ident.x/2, ident.y/2, ident.level-1));
+    while (p)
     {
-        Node *p = node->parent;
-        while (p)
+        bool pOldChildCoverage = p->nodeInfo.childCoverage;
+        bool pNewChildCoverage = p->recalcCoverage();
+        if (pOldChildCoverage != pNewChildCoverage)
         {
-            bool pOldChildCoverage = p->nodeInfo.childCoverage;
-            bool pNewChildCoverage = p->recalcCoverage();
-            if (pOldChildCoverage == pNewChildCoverage)
+            if (pNewChildCoverage)
             {
-                break;
-            } else {
-                if (pNewChildCoverage)
-                    coveredTiles.push_back(p->nodeInfo.ident);
-                else
-                    unCoveredTiles.push_back(p->nodeInfo.ident);
-            }
-            
-            p = p->parent;
+//                NSLog(@"Tile recently covered: %d: (%d,%d)",p->nodeInfo.ident.level,p->nodeInfo.ident.x,p->nodeInfo.ident.y);
+                coveredTiles.push_back(p->nodeInfo.ident);
+            } else
+                unCoveredTiles.push_back(p->nodeInfo.ident);
         }
+        
+        p = p->parent;
     }
 }
     
@@ -274,19 +340,18 @@ void Quadtree::setPhantom(const Identifier &ident,bool newPhantom)
 {
     Node dummyNode(this);
     dummyNode.nodeInfo.ident = ident;
-    
+
+    Node *node = NULL;
     NodesByIdentType::iterator it = nodesByIdent.find(&dummyNode);
     if (it != nodesByIdent.end())
     {
-        Node *node = *it;
+        node = *it;
         bool wasPhantom = node->nodeInfo.phantom;
         node->nodeInfo.phantom = newPhantom;
         if (wasPhantom)
             numPhantomNodes--;
         if (newPhantom)
             numPhantomNodes++;
-        
-        recalcCoverage(node);
     } else
         // Haven't heard of it
         return;
@@ -295,6 +360,8 @@ void Quadtree::setPhantom(const Identifier &ident,bool newPhantom)
     // Clean it out of the nodes by size if it's a phantom
     if (newPhantom)
     {
+        clearFlagCounts(node->nodeInfo.frameFlags);
+        node->nodeInfo.frameFlags = 0;
         if (sit != nodesBySize.end())
             nodesBySize.erase(sit);
     } else {
@@ -304,7 +371,7 @@ void Quadtree::setPhantom(const Identifier &ident,bool newPhantom)
     }
 }
 
-bool Quadtree::isLoading(const Identifier &ident)
+bool Quadtree::isLoading(const Identifier &ident,int frame)
 {
     Node dummyNode(this);
     dummyNode.nodeInfo.ident = ident;
@@ -313,11 +380,11 @@ bool Quadtree::isLoading(const Identifier &ident)
     if (it == nodesByIdent.end())
         return false;
     
-    bool loading = (*it)->nodeInfo.loading;
+    bool loading = (*it)->nodeInfo.isFrameLoading(frame);
     return loading;
 }
 
-void Quadtree::setLoading(const Identifier &ident,bool newLoading)
+void Quadtree::setLoading(const Identifier &ident,int frame,bool newLoading)
 {
     Node dummyNode(this);
     dummyNode.nodeInfo.ident = ident;
@@ -325,8 +392,8 @@ void Quadtree::setLoading(const Identifier &ident,bool newLoading)
     NodesByIdentType::iterator it = nodesByIdent.find(&dummyNode);
     if (it != nodesByIdent.end())
     {
-        bool wasLoading = (*it)->nodeInfo.loading;
-        (*it)->nodeInfo.loading = newLoading;
+        bool wasLoading = (*it)->nodeInfo.isFrameLoading(frame);
+        (*it)->nodeInfo.setFrameLoading(frame,newLoading);
         
         // Let the parents know
         if (wasLoading && !newLoading)
@@ -349,6 +416,26 @@ void Quadtree::setLoading(const Identifier &ident,bool newLoading)
     } else
         // Haven't heard of it
         return;
+}
+    
+void Quadtree::didLoad(const Identifier &tileIdent,int frame)
+{
+    Node *node = getNode(tileIdent);
+    if (!node)
+        return;
+    
+    // Note: Could make these more efficient
+    setLoading(tileIdent, frame, false);
+    setFailed(tileIdent, false);
+    
+    if (frame != -1)
+    {
+        if (!(node->nodeInfo.frameFlags & 1<<frame))
+        {
+            node->nodeInfo.frameFlags |= 1<<frame;
+            addFrameLoaded(frame);
+        }
+    }
 }
     
 bool Quadtree::isEvaluating(const Identifier &ident)
@@ -383,6 +470,8 @@ void Quadtree::setEvaluating(const Identifier &ident,bool newEval)
             while (parent)
             {
                 parent->nodeInfo.childrenEval--;
+                if (parent->nodeInfo.childrenEval < 0)
+                    parent->nodeInfo.childrenEval = 0;
                 parent = parent->parent;
             }
             
@@ -451,7 +540,10 @@ void Quadtree::clearEvals()
         Node *node = *it;
         node->evalPos = evalNodes.end();
         node->nodeInfo.eval = false;
+//        node->nodeInfo.loading = false;
+//        node->nodeInfo.childrenLoading = 0;
         node->nodeInfo.childrenEval = 0;
+        node->nodeInfo.failed = false;
     }
     
     evalNodes.clear();
@@ -466,10 +558,10 @@ void Quadtree::clearFails()
     }
 }
     
-const Quadtree::NodeInfo *Quadtree::popLastEval()
+bool Quadtree::popLastEval(NodeInfo &retNodeInfo)
 {
     if (evalNodes.empty())
-        return NULL;
+        return false;
     NodesBySizeType::iterator it = evalNodes.end();
     it--;
     Node *node = *it;
@@ -481,10 +573,13 @@ const Quadtree::NodeInfo *Quadtree::popLastEval()
     while (parent)
     {
         parent->nodeInfo.childrenEval--;
+        if (parent->nodeInfo.childrenEval < 0)
+            parent->nodeInfo.childrenEval = 0;
         parent = parent->parent;
     }
     
-    return &node->nodeInfo;
+    retNodeInfo = node->nodeInfo;
+    return true;
 }
     
 bool Quadtree::childrenLoading(const Identifier &ident)
@@ -519,18 +614,45 @@ void Quadtree::reevaluateNodes()
     nodesBySize.clear();
     evalNodes.clear();
     
+    if (nodesByIdent.empty())
+        return;
+    
     for (NodesByIdentType::iterator it = nodesByIdent.begin();
          it != nodesByIdent.end(); ++it)
     {
         Node *node = *it;
+        for (unsigned int ii=0;ii<4;ii++)
+            node->childOffscreen[ii] = false;
         node->nodeInfo.importance = [importDelegate importanceForTile:node->nodeInfo.ident mbr:node->nodeInfo.mbr tree:this attrs:node->nodeInfo.attrs];
+        // Let the parent know this node is offscreen
+        if (node->nodeInfo.importance == 0)
+        {
+            Node *parent = getNode(Identifier(node->nodeInfo.ident.x / 2, node->nodeInfo.ident.y / 2, node->nodeInfo.ident.level - 1));
+
+            if (parent)
+            {
+                int ix = node->nodeInfo.ident.x-parent->nodeInfo.ident.x*2;
+                int iy = node->nodeInfo.ident.y-parent->nodeInfo.ident.y*2;
+                parent->childOffscreen[iy*2+ix] = true;
+//                NSLog(@"Reevaluating Child offscreen for: %d: (%d,%d)",parent->nodeInfo.ident.level,parent->nodeInfo.ident.x,parent->nodeInfo.ident.y);
+            }
+        }
         if (!node->hasChildren())
             node->sizePos = nodesBySize.insert(node).first;
         node->evalPos = evalNodes.insert(node).first;
     }
+    
+    // Recalculate the coverage for children
+    NodesByIdentType::iterator it = nodesByIdent.end();
+    --it;
+    do {
+        (*it)->recalcCoverage();
+        if (it != nodesByIdent.begin())
+            --it;
+    } while (it != nodesByIdent.begin());
 }
     
-const Quadtree::NodeInfo *Quadtree::addTile(const Identifier &ident,bool newEval,bool checkImportance)
+const Quadtree::NodeInfo *Quadtree::addTile(const Identifier &ident,bool newEval,bool checkImportance,std::vector<Identifier> &newlyCoveredTiles)
 {
     bool oldEval = false;
     bool oldLoading = false;
@@ -549,15 +671,27 @@ const Quadtree::NodeInfo *Quadtree::addTile(const Identifier &ident,bool newEval
         
         // Check that the importance is more than our minimum before adding the tile
         NodeInfo nodeInfo = generateNode(ident);
+        
         if (checkImportance && nodeInfo.importance < minImportance)
+        {
+            if (parent && nodeInfo.importance == 0.0)
+            {
+                int ix = nodeInfo.ident.x-parent->nodeInfo.ident.x*2;
+                int iy = nodeInfo.ident.y-parent->nodeInfo.ident.y*2;
+                parent->childOffscreen[iy*2+ix] = true;
+//                NSLog(@"Child offscreen for: %d: (%d,%d)",parent->nodeInfo.ident.level,parent->nodeInfo.ident.x,parent->nodeInfo.ident.y);
+                std::vector<Identifier> unCoveredTiles;
+                updateParentCoverage(ident,newlyCoveredTiles,unCoveredTiles);
+            }
             return NULL;
+        }
         
         // Set up the node first, so we don't remove the parent
         node = new Node(this);
         node->nodeInfo = nodeInfo;
         node->parent = parent;
         node->nodeInfo.phantom = true;
-        node->nodeInfo.loading = false;
+        node->nodeInfo.frameLoadingFlags = 0;
         node->nodeInfo.eval = newEval;
         if (parent)
             node->parent->addChild(this,node);
@@ -565,7 +699,7 @@ const Quadtree::NodeInfo *Quadtree::addTile(const Identifier &ident,bool newEval
             numPhantomNodes++;
     } else {
         oldEval = node->nodeInfo.eval;
-        oldLoading = node->nodeInfo.loading;
+        oldLoading = node->nodeInfo.isFrameLoading(-1);
         node->nodeInfo.eval = newEval;
     }
 
@@ -590,6 +724,8 @@ const Quadtree::NodeInfo *Quadtree::addTile(const Identifier &ident,bool newEval
         while (parent)
         {
             parent->nodeInfo.childrenEval--;
+            if (parent->nodeInfo.childrenEval < 0)
+                parent->nodeInfo.childrenEval = 0;
             parent = parent->parent;
         }
         NodesBySizeType::iterator it = evalNodes.find(node);
@@ -597,7 +733,7 @@ const Quadtree::NodeInfo *Quadtree::addTile(const Identifier &ident,bool newEval
             evalNodes.erase(it);
     }
     
-    if (!oldLoading && node->nodeInfo.loading)
+    if (!oldLoading && node->nodeInfo.isFrameLoading(-1))
     {
         Node *parent = node->parent;
         while (parent)
@@ -605,7 +741,7 @@ const Quadtree::NodeInfo *Quadtree::addTile(const Identifier &ident,bool newEval
             parent->nodeInfo.childrenLoading++;
             parent = parent->parent;
         }
-    } else if (oldLoading && !node->nodeInfo.loading)
+    } else if (oldLoading && !node->nodeInfo.isFrameLoading(-1))
     {
         Node *parent = node->parent;
         while (parent)
@@ -665,6 +801,16 @@ Mbr Quadtree::generateMbrForNode(const Identifier &ident)
     return outMbr;
 }
 
+void Quadtree::generateMbrForNode(const Identifier &ident,Point2d &ll,Point2d &ur)
+{
+    Point2d chunkSize(mbr.ur().x()-mbr.ll().x(),mbr.ur().y()-mbr.ll().y());
+    chunkSize.x() /= (1<<ident.level);
+    chunkSize.y() /= (1<<ident.level);
+    
+    ll = Point2d(chunkSize.x()*ident.x,chunkSize.y()*ident.y) + Point2d(mbr.ll().x(),mbr.ll().y());
+    ur = Point2d(chunkSize.x()*(ident.x+1),chunkSize.y()*(ident.y+1)) + Point2d(mbr.ll().x(),mbr.ll().y());
+}
+    
 bool Quadtree::leastImportantNode(NodeInfo &nodeInfo,bool force)
 {
     // Look for the most unimportant node that isn't therwise engaged
@@ -705,7 +851,7 @@ bool Quadtree::parentIsLoading(const Identifier &ident)
     Node *p = node->parent;
     while (p)
     {
-        if (p->nodeInfo.loading)
+        if (p->nodeInfo.isFrameLoading(-1))
             return true;
         p = node->parent;
     }
@@ -750,11 +896,13 @@ Quadtree::Node *Quadtree::getNode(const Identifier &ident)
     
 void Quadtree::removeNode(Node *node)
 {
+    clearFlagCounts(node->nodeInfo.frameFlags);
+
     if (node->nodeInfo.phantom)
         numPhantomNodes--;
 
     // Let the parents know
-    if (node->nodeInfo.loading)
+    if (node->nodeInfo.isFrameLoading(-1))
     {
         Node *parent = node->parent;
         while (parent)
@@ -769,6 +917,8 @@ void Quadtree::removeNode(Node *node)
         while (parent)
         {
             parent->nodeInfo.childrenEval--;
+            if (parent->nodeInfo.childrenEval < 0)
+                parent->nodeInfo.childrenEval = 0;
             parent = parent->parent;
         }
     }

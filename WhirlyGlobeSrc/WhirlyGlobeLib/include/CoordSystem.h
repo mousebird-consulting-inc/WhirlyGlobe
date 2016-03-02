@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -55,9 +55,11 @@ public:
     
     /// Convert from the local coordinate system to lat/lon
     virtual WhirlyKit::GeoCoord localToGeographic(WhirlyKit::Point3f) = 0;
+    virtual WhirlyKit::Point2d localToGeographicD(WhirlyKit::Point3d) = 0;
     virtual WhirlyKit::GeoCoord localToGeographic(WhirlyKit::Point3d) = 0;
     /// Convert from lat/lon t the local coordinate system
     virtual WhirlyKit::Point3f geographicToLocal(WhirlyKit::GeoCoord) = 0;
+    virtual WhirlyKit::Point3d geographicToLocal(WhirlyKit::Point2d) = 0;
     virtual WhirlyKit::Point3d geographicToLocal3d(WhirlyKit::GeoCoord) = 0;
 
     /// Convert from the local coordinate system to geocentric

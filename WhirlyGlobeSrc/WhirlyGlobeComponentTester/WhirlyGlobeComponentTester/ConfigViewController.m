@@ -63,37 +63,33 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
     
     NSMutableArray *newValues = [NSMutableArray array];
-    [newValues addObject:[ConfigSection ConfigSectionWithName:kMaplyTestCategoryBaseLayers
-                                                         rows:
-                          @{kMaplyTestBlank: @(NO),
-                                    kMaplyTestGeographyClass: @(YES),
-                                         kMaplyTestBlueMarble: @(NO),
-                                   kMaplyTestStamenWatercolor: @(NO),
-                                                kMaplyTestOSM: @(NO),
-                                          kMaplyTestMapBoxSat: @(NO),
-                                      kMaplyTestMapBoxTerrain: @(NO),
-                                      kMaplyTestMapBoxRegular: @(NO),
-                                           kMaplyTestQuadTest: @(NO),
-                                     kMaplyTestQuadVectorTest: @(NO),
-                                    kMaplyTestQuadTestAnimate: @(NO)}
-                                                 singleSelect:true]];
     
     // We won't let the user do some things in terrain mode (overlay, basically)
     //  or 2D flatmap mode (shapes, basically)
     switch (_configOptions)
     {
-        case ConfigOptionsAll:
+        case ConfigOptionsGlobe:
+            [newValues addObject:[ConfigSection ConfigSectionWithName:kMaplyTestCategoryBaseLayers
+                                                                 rows:
+                                  @{kMaplyTestBlank: @(NO),
+                                    kMaplyTestGeographyClass: @(YES),
+                                    kMaplyTestBlueMarble: @(NO),
+                                    kMaplyTestStamenWatercolor: @(NO),
+                                    kMaplyTestOSM: @(NO),
+                                    kMaplyTestCartoDBDarkMatter: @(NO),
+                                    kMaplyTestQuadTest: @(NO),
+                                    kMaplyTestNightAndDay: @(NO),
+                                    kMaplyTestQuadVectorTest: @(NO),
+                                    kMaplyTestQuadTestAnimate: @(NO)}
+                                                         singleSelect:true]];
+
             [newValues addObjectsFromArray:
              @[[ConfigSection ConfigSectionWithName:kMaplyTestCategoryOverlayLayers
                                                rows:
-                @{kMaplyTestUSGSOrtho: @(NO),
-                  kMaplyTestOWM: @(NO),
+                @{kMaplyTestOWM: @(NO),
                   kMaplyTestForecastIO: @(NO),
-                  kMaplyTestMapboxStreets: @(NO),
-//                  kMaplyMapzenVectors: @(NO)
                   }
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
@@ -106,58 +102,84 @@
                   kMaplyTestShapeCylinder: @(NO),
                   kMaplyTestShapeSphere: @(NO),
                   kMaplyTestShapeGreatCircle: @(NO),
+                  kMaplyTestShapeArrows: @(NO),
+                  kMaplyTestModels: @(NO),
                   kMaplyTestCountry: @(NO),
                   kMaplyTestLoftedPoly: @(NO),
+                  kMaplyTestQuadMarkers: @(NO),
                   kMaplyTestMegaMarkers: @(NO),
                   kMaplyTestLatLon: @(NO),
-                  kMaplyTestRoads: @(NO)}
+                  kMaplyTestArcGIS: @(NO),
+                  kMaplyTestStarsAndSun: @(NO),
+                  }
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryAnimation
                                                rows:
                 @{kMaplyTestAnimateSphere: @(NO)}
                                        singleSelect:false]]];
+
+            [newValues addObject:
+             [ConfigSection ConfigSectionWithName:kMaplyTestCategoryGestures
+                                             rows:
+              @{kMaplyTestNorthUp: @(NO),
+                kMaplyTestPinch: @(YES),
+                kMaplyTestRotate: @(YES)}
+                                     singleSelect:false]];
             break;
-        case ConfigOptionsTerrain:
+        case ConfigOptions3DTerrain:
             break;
-        case ConfigOptionsFlat:
-        [newValues addObjectsFromArray:
-         @[[ConfigSection ConfigSectionWithName:kMaplyTestCategoryOverlayLayers
-                                           rows:
-            @{kMaplyTestUSGSOrtho: @(NO),
-              kMaplyTestOWM: @(NO),
-              kMaplyTestForecastIO: @(NO),
-              kMaplyTestMapboxStreets: @(NO),
-//              kMaplyMapzenVectors: @(NO)
-              }
-                                   singleSelect:false],
-           [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
-                                           rows:
-            @{kMaplyTestLabel2D: @(NO),
-              kMaplyTestLabel3D: @(NO),
-              kMaplyTestMarker2D: @(NO),
-              kMaplyTestMarker3D: @(NO),
-              kMaplyTestSticker: @(NO),
-              kMaplyTestCountry: @(NO),
-              kMaplyTestMegaMarkers: @(NO),
-              kMaplyTestLatLon: @(NO),
-              kMaplyTestRoads: @(NO)}
+        case ConfigOptionsMap:
+            [newValues addObject:[ConfigSection ConfigSectionWithName:kMaplyTestCategoryBaseLayers
+                                                                 rows:
+                                  @{kMaplyTestBlank: @(NO),
+                                    kMaplyTestGeographyClass: @(YES),
+                                    kMaplyTestStamenWatercolor: @(NO),
+                                    kMaplyTestOSM: @(NO),
+                                    kMaplyTestCartoDBDarkMatter: @(NO),
+                                    kMaplyTestQuadTest: @(NO),
+                                    kMaplyTestQuadVectorTest: @(NO),
+                                    kMaplyTestQuadTestAnimate: @(NO)}
+                                                         singleSelect:true]];
+
+            [newValues addObjectsFromArray:
+             @[[ConfigSection ConfigSectionWithName:kMaplyTestCategoryOverlayLayers
+                                               rows:
+                @{kMaplyTestOWM: @(NO),
+                  kMaplyTestForecastIO: @(NO),
+                  kMaplyMapzenVectors: @(NO)
+                  }
+                                       singleSelect:false],
+               [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
+                                               rows:
+                @{kMaplyTestLabel2D: @(NO),
+                  kMaplyTestLabel3D: @(NO),
+                  kMaplyTestMarker2D: @(NO),
+                  kMaplyTestMarker3D: @(NO),
+                  kMaplyTestSticker: @(NO),
+                  kMaplyTestCountry: @(NO),
+                  kMaplyTestQuadMarkers: @(NO),
+                  kMaplyTestMegaMarkers: @(NO),
+                  kMaplyTestLatLon: @(NO),
+                  kMaplyTestArcGIS: @(NO),
+                  }
                                    singleSelect:false]]];
+            
+            [newValues addObject:
+             [ConfigSection ConfigSectionWithName:kMaplyTestCategoryGestures
+                                             rows:
+              @{
+                kMaplyTestPinch: @(YES),
+                kMaplyTestRotate: @(YES)}
+                                     singleSelect:false]];
             break;
     }
 
     [newValues addObject:
-     [ConfigSection ConfigSectionWithName:kMaplyTestCategoryGestures
-                                     rows:
-      @{kMaplyTestNorthUp: @(NO),
-                          kMaplyTestPinch: @(YES),
-                         kMaplyTestRotate: @(YES)}
-                             singleSelect:false]];
-    [newValues addObject:
      [ConfigSection ConfigSectionWithName:kMaplyTestCategoryInternal
                     rows:
                     @{kMaplyTestCulling: @(NO),
-                      kMaplyTestPerf: @(NO),
-                      kMaplyTestWaitLoad: @(NO)}
+                      kMaplyTestPerf: @(NO)
+                      }
                              singleSelect:false]];
     
     _values = newValues;

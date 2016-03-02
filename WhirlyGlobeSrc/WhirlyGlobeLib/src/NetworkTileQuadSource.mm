@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/11/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -177,7 +177,7 @@ using namespace WhirlyKit;
                        }
                        
                        // Look for elevation
-                       WhirlyKitElevationChunk *elevChunk = nil;
+                       NSObject<WhirlyKitElevationChunk> *elevChunk = nil;
                        if (self.elevDelegate)
                            elevChunk = [self.elevDelegate elevForLevel:level col:col row:row];
                        
@@ -195,7 +195,7 @@ using namespace WhirlyKit;
 {
     WhirlyKitQuadTileLoader *loader = [args objectAtIndex:0];
     NSData *imgData = [args objectAtIndex:1];
-    WhirlyKitElevationChunk *elevChunk = [args objectAtIndex:2];
+    NSObject<WhirlyKitElevationChunk> *elevChunk = [args objectAtIndex:2];
     int level = [[args objectAtIndex:3] intValue];
     int x = [[args objectAtIndex:4] intValue];
     int y = [[args objectAtIndex:5] intValue];
@@ -204,7 +204,7 @@ using namespace WhirlyKit;
     {
         WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
         [loadTile.images addObject:[WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imgData]];
-        if (elevChunk && [elevChunk isKindOfClass:[WhirlyKitElevationChunk class]])
+        if (elevChunk)
             loadTile.elevChunk = elevChunk;
         [loader dataSource:self loadedImage:loadTile forLevel:level col:x row:y];
     } else {
@@ -312,7 +312,7 @@ using namespace WhirlyKit;
                        }
 
                        // Look for elevation
-                       WhirlyKitElevationChunk *elevChunk = nil;
+                       NSObject<WhirlyKitElevationChunk> *elevChunk = nil;
                        if (self.elevDelegate)
                            elevChunk = [self.elevDelegate elevForLevel:level col:col row:row];
 
@@ -330,7 +330,7 @@ using namespace WhirlyKit;
 {
     WhirlyKitQuadTileLoader *loader = [args objectAtIndex:0];
     NSData *imgData = [args objectAtIndex:1];
-    WhirlyKitElevationChunk *elevChunk = [args objectAtIndex:2];
+    NSObject<WhirlyKitElevationChunk> *elevChunk = [args objectAtIndex:2];
     int level = [[args objectAtIndex:3] intValue];
     int x = [[args objectAtIndex:4] intValue];
     int y = [[args objectAtIndex:5] intValue];
@@ -339,7 +339,7 @@ using namespace WhirlyKit;
     {
         WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
         [loadTile.images addObject:[WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imgData]];
-        if (elevChunk && [elevChunk isKindOfClass:[WhirlyKitElevationChunk class]])
+        if (elevChunk)
             loadTile.elevChunk = elevChunk;
         [loader dataSource:self loadedImage:loadTile forLevel:level col:x row:y];
     } else {

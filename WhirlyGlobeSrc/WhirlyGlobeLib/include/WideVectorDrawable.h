@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/29/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  *
  */
 
-#import "Drawable.h"
+#import "BasicDrawable.h"
 
 namespace WhirlyKit
 {
@@ -29,7 +29,7 @@ namespace WhirlyKit
 /// Construct and return the Billboard shader program
 OpenGLES2Program *BuildWideVectorProgram();
 
-/** This drawable adds convenience functions for
+/** This drawable adds convenience functions for wide vectors.
   */
 class WideVectorDrawable : public BasicDrawable
 {
@@ -39,17 +39,25 @@ public:
     /// Each vertex has an offset in 3-space
     void addDir(const Point3f &dir);
     void addDir(const Point3d &dir);
+
+    /// Each vertex has a maximum length from the center vertex
+    void addMaxLen(double len);
     
-    /// Set the width we'll we'll use
-    void setWidth(float inWidth) { width = inWidth; }
+    /// How often the texture repeats
     void setTexRepeat(float inTexRepeat) { texRepeat = inTexRepeat; }
     
     /// We override draw so we can set our own values
     virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
     
 protected:
-    float width,texRepeat;
+    bool snapTex;
+    float texRepeat;
     int offsetIndex;
+    int lenIndex;
+    
+    // Note: Debugging
+//    std::vector<Point3d> dirs;
+//    std::vector<double> lens;
 };
     
 }

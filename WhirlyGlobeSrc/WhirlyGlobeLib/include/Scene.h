@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/3/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@
 #import "WhirlyVector.h"
 #import "Texture.h"
 #import "Cullable.h"
-#import "Drawable.h"
+#import "BasicDrawableInstance.h"
 #import "Generator.h"
 #import "ActiveModel.h"
 #import "CoordSystem.h"
@@ -239,7 +239,7 @@ typedef std::map<std::string,OpenGLES2Program *> OpenGLES2ProgramMap;
 class SceneManager
 {
 public:
-    SceneManager() : scene(NULL), renderer(NULL) { }
+    SceneManager() : scene(NULL), renderer(NULL) { canary = [[NSObject alloc] init]; }
     virtual ~SceneManager() { };
     
     /// Set (or reset) the current renderer
@@ -249,6 +249,7 @@ public:
     virtual void setScene(Scene *inScene) { scene = inScene; }
     
 protected:
+    NSObject *canary;
     Scene *scene;
     WhirlyKitSceneRendererES * __weak renderer;
 };
@@ -299,6 +300,9 @@ public:
     ///  textures.  Layer side only.  The rendering engine doesn't use them.
     void addSubTexture(const SubTexture &);
     void addSubTextures(const std::vector<SubTexture> &);
+    
+    /// Remove a subtexture mapping
+    void removeSubTexture(SimpleIdentity subTexID);
     
     /// Return a sub texture by ID.  The idea being we can use these
     ///  the same way we use full texture IDs.
