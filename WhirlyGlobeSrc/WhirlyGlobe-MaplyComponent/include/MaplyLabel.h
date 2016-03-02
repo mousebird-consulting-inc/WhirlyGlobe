@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/24/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,8 +44,9 @@ typedef enum {MaplyLabelJustifyLeft,MaplyLabelJustifyMiddle,MaplyLabelJustifyRig
 
 /** @brief Text can be accompanied by an optional icon image.
     @details If set, we'll put this image to the left of the text in the label.  The UIImage (or MaplyTexture) will be tracked by the view controller and reused as needed or disposed of when no longer needed.
+    @details The name had to change because Apple's private selector search is somewhat weak.
  */
-@property (nonatomic,strong) id iconImage;
+@property (nonatomic,strong) id iconImage2;
 
 /** @brief An option color override.
     @details If set, this color will override the color passed in with the NSDictionary in the view controller's add method.
@@ -71,7 +72,7 @@ typedef enum {MaplyLabelJustifyLeft,MaplyLabelJustifyMiddle,MaplyLabelJustifyRig
 /** @brief User data object for selection
     @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the label means to them.
  */
-@property (nonatomic,strong) NSObject *userObject;
+@property (nonatomic,strong) id userObject;
 
 @end
 

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/17/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,6 +20,28 @@
 
 #import <UIKit/UIKit.h>
 #import "GlobeView.h"
+
+/** Protocol for a delegate that handles tilt calculation.
+ */
+@protocol WGTiltCalculatorDelegate <NSObject>
+
+/// If this is called, the pan delegate will vary the tilt between the given values for the
+///  given height range.
+- (void)setMinTilt:(float)minTilt maxTilt:(float)maxTilt minHeight:(float)minHeight maxHeight:(float)maxHeight;
+
+/// Returns true if the tilt zoom mode is set and the appropriate values
+- (void)getMinTilt:(float *)retMinTilt maxTilt:(float *)retMaxTilt minHeight:(float *)retMinHeight maxHeight:(float *)retMaxHeight;
+
+/// Return a calculated tilt
+- (double)tiltFromHeight:(double)height;
+
+/// Return the maximum allowable tilt
+- (double)maxTilt;
+
+/// Called by an actual tilt gesture.  We're setting the tilt as given
+- (void)setTilt:(double)newTilt;
+
+@end
 
 /** WhirlyGlobe Pinch Gesture Delegate
 	Responds to pinches on a UIView and manipulates the globe view

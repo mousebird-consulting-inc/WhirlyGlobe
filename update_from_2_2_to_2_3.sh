@@ -14,4 +14,9 @@ cd ../../
 cd third-party/clipper
 git checkout master
 cd ../..
+cd third-party/fmdb
+git checkout master
+git pull
+cd ../..
 git submodule update
+cd ../..

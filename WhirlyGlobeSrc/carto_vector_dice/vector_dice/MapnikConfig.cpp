@@ -51,7 +51,8 @@ void MapnikConfig::CompiledSymbolizerTable::addSymbolizerGroup(MapnikConfig *map
                 } else
                     group = it->second;
                 SubSymbolizer subSym;
-                subSym.drawPriority = rule.symbolizers[si];
+//                subSym.drawPriority = rule.symbolizers[si];
+                subSym.drawPriority = currentDrawPriority++;
                 subSym.minScaleDenom = sym.minScaleDenom;
                 subSym.maxScaleDenom = sym.maxScaleDenom;
                 subSym.xmlEl = sym.xmlEl;
@@ -573,7 +574,7 @@ MapnikConfig::SortedLayer::SortedLayer(MapnikConfig *mapnikConfig,const Layer &l
 }
 
 MapnikConfig::MapnikConfig() :
-    paramEl(NULL)
+    paramEl(NULL), defaultGeomType(Symbolizer::TileGeomAdd)
 {
 }
 

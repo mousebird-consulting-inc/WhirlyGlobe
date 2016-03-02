@@ -53,7 +53,10 @@ public:
             features[ii] = layer->GetFeature(ii);
             OGRFeature *feature = features[ii];
             OGREnvelope env;
-            feature->GetGeometryRef()->getEnvelope(&env);
+            OGRGeometry *geom = feature->GetGeometryRef();
+            if (!geom)
+                continue;
+            geom->getEnvelope(&env);
             mbrs[ii] = env;
             double spanX = env.MaxX - env.MinX, spanY = env.MaxY - env.MinY;
             // Note: This assumes meters-like numbers
@@ -297,7 +300,11 @@ void TransformLayer(OGRLayer *inLayer,std::vector<OGRFeature *> &inFeatures,OGRL
             {
                 OGRGeometry *geom = geoms[igeom];
                 OGREnvelope startEnv;
+                
+                if (!geom)
+                    continue;
                 geom->getEnvelope(&startEnv);
+                
                 OGRErr err = geom->transform(transform);
                 if (err != OGRERR_NONE)
                 {
@@ -774,6 +781,7 @@ int main(int argc, char * argv[])
     const char *webDbName = NULL,*webDbDir = NULL,*webDbURL = NULL;
     std::vector<std::string> pathRedirect;
     float levelScale = 4;
+    MapnikConfig::Symbolizer::TileGeometryType tileGeomType = MapnikConfig::Symbolizer::TileGeomAdd;
     
     GDALAllRegister();
     OGRRegisterAll();
@@ -922,13 +930,32 @@ int main(int argc, char * argv[])
             numArgs = 2;
             if (ii+numArgs > argc)
             {
-                fprintf(stderr,"Expecting one argument for -levelscale");
+                fprintf(stderr,"Expecting one argument for -levelscale\n");
                 return -1;
             }
             levelScale = atof(argv[ii+1]);
             if (levelScale <= 0.0)
             {
-                fprintf(stderr,"Expecting non-zero number for -levelscale");
+                fprintf(stderr,"Expecting non-zero number for -levelscale\n");
+                return -1;
+            }
+        } else if (EQUAL(argv[ii],"-tilegeom"))
+        {
+            numArgs = 1;
+            if (ii+numArgs > argc)
+            {
+                fprintf(stderr,"Expecting one argument for -tilegeom");
+                return -1;
+            }
+            char *geomStr = argv[ii+1];
+            if (!strcasecmp(geomStr, "replace"))
+            {
+                tileGeomType = MapnikConfig::Symbolizer::TileGeomReplace;
+            } else if (!strcasecmp(geomStr, "add"))
+            {
+                tileGeomType = MapnikConfig::Symbolizer::TileGeomAdd;
+            } else {
+                fprintf(stderr,"Not expecting (%s) for -tilegeom\n",geomStr);
                 return -1;
             }
         }
@@ -990,6 +1017,7 @@ int main(int argc, char * argv[])
             return -1;
         }
         mapnikConfig = new MapnikConfig();
+        mapnikConfig->defaultGeomType = tileGeomType;
         std::string errorStr;
         if (!mapnikConfig->parseXML(&doc, pathRedirect, errorStr))
         {
@@ -1083,7 +1111,9 @@ int main(int argc, char * argv[])
                     MapnikConfig::SortedLayer::SortedStyle *style = &layer.sortStyles[ssi];
                     if (!sortedStylesDone[ssi] && (style->maxScale == 0 || style->maxScale >= scale))
                     {
-                        sortedStylesDone[ssi] = true;
+                        // If we're doing replace, we don't turn styles off since we repeat per level
+                        if (tileGeomType == MapnikConfig::Symbolizer::TileGeomAdd)
+                            sortedStylesDone[ssi] = true;
                         // Compile these styles, which gives us the UUIDs we need below for the groups
                         // Individual features point to these groups
                         std::vector<MapnikConfig::CompiledSymbolizerTable::SymbolizerGroup> symGroups;

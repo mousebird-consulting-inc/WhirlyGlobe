@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/30/13.
- *  Copyright 2011-2013 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2015 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #import <map>
 #import "Identifiable.h"
 #import "Scene.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "TextureAtlas.h"
@@ -91,8 +91,9 @@ public:
     void removeLoftedPolys(SimpleIDSet &polyIDs,ChangeSet &changes);
         
 protected:
-    void addGeometryToBuilder(LoftedPolySceneRep *sceneRep,WhirlyKitLoftedPolyInfo *polyInfo,GeoMbr &drawMbr,ChangeSet &changes);
+    void addGeometryToBuilder(LoftedPolySceneRep *sceneRep,WhirlyKitLoftedPolyInfo *polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ChangeSet &changes);
     
+    NSObject *canary;
     pthread_mutex_t loftLock;
     LoftedPolySceneRepSet loftReps;
 };

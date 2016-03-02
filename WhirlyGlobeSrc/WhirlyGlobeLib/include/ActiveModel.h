@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 8/16/11.
- *  Copyright 2012 mousebird consulting. All rights reserved.
+ *  Copyright 2012-2015 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #import <map>
 #import <list>
 #import "Texture.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "GlobeView.h"
 
 /** Fill in the active model protocol to provide an active model to

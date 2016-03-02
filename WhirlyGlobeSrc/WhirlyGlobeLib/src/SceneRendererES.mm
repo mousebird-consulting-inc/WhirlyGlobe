@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/20/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -59,16 +59,21 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     _viewTrans = info.viewTrans;
     _viewTrans4d = info.viewTrans4d;
     _projMat = info.projMat;
+    _projMat4d = info.projMat4d;
     _viewAndModelMat = info.viewAndModelMat;
     _viewAndModelMat4d = info.viewAndModelMat4d;
     _mvpMat = info.mvpMat;
+    _mvpNormalMat = info.mvpNormalMat;
     _viewModelNormalMat = info.viewModelNormalMat;
+    _pvMat = info.pvMat;
+    _pvMat4d = info.pvMat4d;
     _offsetMatrices = info.offsetMatrices;
     _scene = info.scene;
     _frameLen = info.frameLen;
     _currentTime = info.currentTime;
     _eyeVec = info.eyeVec;
     _fullEyeVec = info.fullEyeVec;
+    _eyePos = info.eyePos;
     _dispCenter = info.dispCenter;
     _heightAboveSurface = info.heightAboveSurface;
     _screenSizeInDisplayCoords = info.screenSizeInDisplayCoords;
@@ -185,7 +190,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 		frameCount = 0;
 		_framesPerSec = 0.0;
         _numDrawables = 0;
-		frameCountStart = 0;
+		frameCountStart = 0.0;
         _zBufferMode = zBufferOn;
         _doCulling = true;
         _clearColor.r = 0.0;  _clearColor.g = 0.0;  _clearColor.b = 0.0;  _clearColor.a = 1.0;
@@ -268,6 +273,18 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 - (void)setRenderUntil:(NSTimeInterval)newRenderUntil
 {
     renderUntil = std::max(renderUntil,newRenderUntil);
+}
+
+- (void)addContinuousRenderRequest:(SimpleIdentity)drawID
+{
+    contRenderRequests.insert(drawID);
+}
+
+- (void)removeContinuousRenderRequest:(SimpleIdentity)drawID
+{
+    SimpleIDSet::iterator it = contRenderRequests.find(drawID);
+    if (it != contRenderRequests.end())
+        contRenderRequests.erase(it);
 }
 
 - (void)setTriggerDraw
@@ -463,6 +480,11 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 }
 
 - (void)render:(NSTimeInterval)duration
+{
+    return;
+}
+
+- (void)processScene
 {
     return;
 }

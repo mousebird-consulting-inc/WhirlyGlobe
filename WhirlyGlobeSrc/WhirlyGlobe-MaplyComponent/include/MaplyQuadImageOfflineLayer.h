@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 10/7/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -36,11 +36,17 @@
 /// Bounding box for the rendered area
 @property (nonatomic) MaplyBoundingBox bbox;
 
-/// Images produced by the renderer represented as MaplyTexture objects
-@property (nonatomic) NSArray *textures;
+/// Which frame this is
+@property (nonatomic,assign) int frame;
+
+/// Image updated by the renderer
+@property (nonatomic,strong) MaplyTexture *tex;
 
 /// Size of the center pixel in meters
 @property (nonatomic) CGSize centerSize;
+
+/// Size of the textures we're producing
+@property (nonatomic) CGSize texSize;
 
 @end
 
@@ -56,7 +62,7 @@
     @param images One or more images rendered by the offline layer.  The size of the array will correspond to the depth of the tile source provided to the offline layer.
     @param bbox The bounding box of the images in the coordinate system of the offline layer.
   */
-- (void)offlineLayer:(MaplyQuadImageOfflineLayer *)layer images:(MaplyOfflineImage *)offlineImage;
+- (void)offlineLayer:(MaplyQuadImageOfflineLayer *)layer image:(MaplyOfflineImage *)offlineImage;
 
 @end
 
@@ -76,7 +82,7 @@
 /** @brief Set the active tile source.
     @details If you change this, it will force a reload of all loaded tiles and start fetching from the new tile source.
  */
-@property (nonatomic) NSObject<MaplyTileSource> *tileSource;
+@property (nonatomic,strong) NSObject<MaplyTileSource> *tileSource;
 
 /** @brief Enable/Disable the whole layer.
     @details By default this is on.  When off, the layer will stop working and calling its delegate.
@@ -140,15 +146,34 @@
   */
 @property (nonatomic) bool singleLevelLoading;
 
+
+/** @brief Detail the levels you want loaded in target level mode.
+    @details The image display can work in one of two modes, quad tree where it loads everything starting from the min level or a target level mode where it just tries to load one or more target levels.  This is the array that controls which levels it will try to load.
+    @details We do this so that the user doesn't have to wait for the target level to load.  This can be distracting on large displays with small tiles.  If you use this mode, the layer will load lower levels first, filling in quicker and then load the target level.  This looks much better, but doesn't take as long as the full quad tree based loading.
+    @details The layer calculates the optimal target level (for 2D maps, if you're in that mode).  The entries in this array are relative to that level or absolute.  For example [0,-4,-2] means the layer will always try to load levels 0, targetLevel-4 and targetLevel-2, but only the latter two if they make sense.
+ */
+@property (nonatomic,strong) NSArray *multiLevelLoads;
+
 /** @brief The bounding box for the images produced by the offline layer.
     @details This bounding box should be in the layer's coordinate system.
   */
 @property (nonatomic) MaplyBoundingBox bbox;
 
+/** @brief For the case where we're loading individual frames, this sets the order to load them in.
+    @details When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.
+ */
+- (void)setFrameLoadingPriority:(NSArray *)priorities;
+
 /** @brief The delegate called with the image stack produced at irregular intervals.
     @details Set this delegate to get the images out of the offline rendering layer.
   */
 @property (nonatomic,weak) NSObject<MaplyQuadImageOfflineDelegate> *delegate;
+
+/** @brief Status objects describing the state of each frame.
+    @details Query this to find out which frames are completely loaded into memory and which are not.
+    @details This queries the underlying control logic and there is no delegate.  It's polling only.
+ */
+- (NSArray *)loadedFrames;
 
 /// @brief Force the layer to reload its tiles and rerender.
 - (void)reload;

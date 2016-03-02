@@ -2,8 +2,8 @@
  *  ParticleSystemManager.mm
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 7/30/13.
- *  Copyright 2011-2013 mousebird consulting. All rights reserved.
+ *  Created by Steve Gifford on 4/26/15.
+ *  Copyright 2011-2015 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,152 +19,157 @@
  */
 
 #import "ParticleSystemManager.h"
-#import "NSDictionary+Stuff.h"
-#import "GlobeMath.h"
-#import "UIColor+Stuff.h"
-
-using namespace Eigen;
-using namespace WhirlyKit;
-
-@implementation WhirlyKitParticleSystem
-
-@end
-
-@interface ParticleSystemInfo : NSObject
-{
-    NSArray *colors;
-}
-
-@property (nonatomic,assign) SimpleIdentity destId;
-@property (nonatomic) NSArray *systems;
-@property (nonatomic) NSDictionary *desc;
-
-- (id)initWithSystems:(NSArray *)inSystems desc:(NSDictionary *)inDesc;
-
-@end
-
-@implementation ParticleSystemInfo
-
-- (id)initWithSystems:(NSArray *)inSystems desc:(NSDictionary *)inDesc
-{
-    self = [super init];
-    if (self)
-    {
-        self.systems = inSystems;
-        self.desc = inDesc;
-    }
-    
-    return self;
-}
-
-@end
-
+#import "ParticleSystemDrawable.h"
 
 namespace WhirlyKit
 {
+
+ParticleSystemSceneRep::ParticleSystemSceneRep()
+{
+}
+
+ParticleSystemSceneRep::ParticleSystemSceneRep(SimpleIdentity inId)
+: Identifiable(inId)
+{
+}
+    
+ParticleSystemSceneRep::~ParticleSystemSceneRep()
+{
+}
+    
+void ParticleSystemSceneRep::clearContents(ChangeSet &changes)
+{
+    for (const ParticleSystemDrawable *it : draws)
+        changes.push_back(new RemDrawableReq(it->getId()));
+}
+    
+void ParticleSystemSceneRep::enableContents(bool enable,ChangeSet &changes)
+{
+    for (const ParticleSystemDrawable *it : draws)
+        changes.push_back(new OnOffChangeRequest(it->getId(),enable));
+}
     
 ParticleSystemManager::ParticleSystemManager()
 {
-    pthread_mutex_init(&partLock, NULL);
+    pthread_mutex_init(&partSysLock, NULL);
 }
     
 ParticleSystemManager::~ParticleSystemManager()
 {
-    pthread_mutex_destroy(&partLock);
-    for (ParticleSysSceneRepSet::iterator it = partReps.begin();
-         it != partReps.end(); ++it)
-        delete *it;
-    partReps.clear();
-}
- 
-    // Parse the basic particle system parameters out of an NSDictionary
-ParticleGenerator::ParticleSystem ParticleSystemManager::parseParams(NSDictionary *desc,ParticleGenerator::ParticleSystem *defaultParams)
-{
-    ParticleGenerator::ParticleSystem params;
-    if (defaultParams)
-        params = *defaultParams;
-        
-        params.minLength = [desc floatForKey:@"minLength" default:params.minLength];
-        params.maxLength = [desc floatForKey:@"maxLength" default:params.maxLength];
-        params.numPerSecMin = [desc intForKey:@"minNumPerSec" default:params.numPerSecMin];
-        params.numPerSecMax = [desc intForKey:@"maxNumPerSec" default:params.numPerSecMax];
-        params.minLifetime = [desc floatForKey:@"minLifetime" default:params.minLifetime];
-        params.maxLifetime = [desc floatForKey:@"maxLifetime" default:params.maxLifetime];
-        params.minPhi = [desc floatForKey:@"minPhi" default:params.minPhi];
-        params.maxPhi = [desc floatForKey:@"maxPhi" default:params.maxPhi];
-        params.minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
-        params.maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
-        UIColor *color = [desc objectForKey:@"color"];
-        NSArray *colors = [desc objectForKey:@"colors"];
-        if (!colors && color)
-            colors = [NSArray arrayWithObject:color];
-            
-            for (UIColor *thisColor in colors)
-            {
-                params.colors.push_back([thisColor asRGBAColor]);
-            }
-    
-    return params;
+    pthread_mutex_destroy(&partSysLock);
+    for (auto it : sceneReps)
+        delete it;
+    sceneReps.clear();
 }
     
-/// Add a group of particle systems
-SimpleIdentity ParticleSystemManager::addParticleSystems(NSArray *partSystems,NSDictionary *desc,SimpleIdentity genId,ChangeSet &changes)
+SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &newSystem,ChangeSet &changes)
 {
-    ParticleSystemInfo *systemInfo = [[ParticleSystemInfo alloc] initWithSystems:partSystems desc:desc];
-    systemInfo.destId = Identifiable::genId();
+    ParticleSystemSceneRep *sceneRep = new ParticleSystemSceneRep();
 
-    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-    ParticleSysSceneRep *sceneRep = new ParticleSysSceneRep();
-    SimpleIdentity partID = systemInfo.destId;
-    sceneRep->setId(systemInfo.destId);
+    sceneRep->partSys = newSystem;
     
-    // Parse out the general parameters
-    ParticleGenerator::ParticleSystem defaultSystem = ParticleGenerator::ParticleSystem::makeDefault();
-    ParticleGenerator::ParticleSystem baseParams = parseParams(systemInfo.desc,&defaultSystem);
+    SimpleIdentity partSysID = sceneRep->getId();
     
-    // Now run through the particle systems and kick them off
-    for (WhirlyKitParticleSystem *partSys in systemInfo.systems)
+    // Set up a single giant drawable for a particle system
+    bool useRectangles = sceneRep->partSys.type == ParticleSystemRectangle;
+    // Note: There are devices where this won't work
+    bool useInstancing = useRectangles;
+    int totalParticles = newSystem.totalParticles;
+    ParticleSystemDrawable *draw = new ParticleSystemDrawable("Particle System",sceneRep->partSys.vertAttrs,totalParticles,sceneRep->partSys.batchSize,useRectangles,useInstancing);
+    draw->setOnOff(true);
+    draw->setPointSize(sceneRep->partSys.pointSize);
+    draw->setProgram(sceneRep->partSys.shaderID);
+    draw->setupGL(NULL, scene->getMemManager());
+    draw->setDrawPriority(sceneRep->partSys.drawPriority);
+    draw->setBaseTime(newSystem.baseTime);
+    draw->setLifetime(sceneRep->partSys.lifetime);
+    draw->setTexIDs(sceneRep->partSys.texIDs);
+    draw->setContinuousUpdate(sceneRep->partSys.continuousUpdate);
+    changes.push_back(new AddDrawableReq(draw));
+    sceneRep->draws.insert(draw);
+    
+    pthread_mutex_lock(&partSysLock);
+    sceneReps.insert(sceneRep);
+    pthread_mutex_unlock(&partSysLock);
+    
+    return partSysID;
+}
+    
+void ParticleSystemManager::enableParticleSystem(SimpleIdentity sysID,bool enable,ChangeSet &changes)
+{
+    pthread_mutex_lock(&partSysLock);
+    
+    ParticleSystemSceneRep dummyRep(sysID);
+    auto it = sceneReps.find(&dummyRep);
+    if (it != sceneReps.end())
+        (*it)->enableContents(enable, changes);
+    
+    pthread_mutex_unlock(&partSysLock);
+}
+    
+void ParticleSystemManager::removeParticleSystem(SimpleIdentity sysID,ChangeSet &changes)
+{
+    pthread_mutex_lock(&partSysLock);
+    
+    ParticleSystemSceneRep dummyRep(sysID);
+    auto it = sceneReps.find(&dummyRep);
+    if (it != sceneReps.end())
     {
-        // Set up the specifics of this one
-        ParticleGenerator::ParticleSystem *newPartSys = new ParticleGenerator::ParticleSystem(baseParams);
-        newPartSys->setId(Identifiable::genId());
-        sceneRep->partSysIDs.insert(newPartSys->getId());
-        newPartSys->loc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal([partSys loc]));
-        // Note: Won't work at the poles
-        newPartSys->dirUp = [partSys norm];
-        newPartSys->dirE = Vector3f(0,0,1).cross(newPartSys->dirUp);
-        newPartSys->dirN = newPartSys->dirUp.cross(newPartSys->dirE);
-        
-        changes.push_back(new ParticleGeneratorAddSystemRequest(genId,newPartSys));
+        (*it)->clearContents(changes);
+        sceneReps.erase(it);
     }
     
-    pthread_mutex_lock(&partLock);
-    partReps.insert(sceneRep);
-    pthread_mutex_unlock(&partLock);
-    
-    return partID;
+    pthread_mutex_unlock(&partSysLock);
 }
-
-/// Remove one or more particle systems
-void ParticleSystemManager::removeParticleSystems(SimpleIDSet partIDs,SimpleIdentity genId,ChangeSet &changes)
+    
+void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const ParticleBatch &batch,ChangeSet &changes)
 {
-    pthread_mutex_lock(&partLock);
-
-    for (SimpleIDSet::iterator it = partIDs.begin(); it != partIDs.end(); ++it)
+    pthread_mutex_lock(&partSysLock);
+    
+//    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    
+    ParticleSystemSceneRep *sceneRep = NULL;
+    ParticleSystemSceneRep dummyRep(sysID);
+    auto it = sceneReps.find(&dummyRep);
+    if (it != sceneReps.end())
+        sceneRep = *it;
+    
+    if (sceneRep)
     {
-        ParticleSysSceneRep dummyRep(*it);
-        ParticleSysSceneRepSet::iterator pit = partReps.find(&dummyRep);
-        if (pit != partReps.end())
+        // Should be one drawable in there
+        ParticleSystemDrawable *draw = NULL;
+        if (sceneRep->draws.size() == 1)
+            draw = *(sceneRep->draws.begin());
+        
+        if (draw)
         {
-            ParticleSysSceneRep *sceneRep = *pit;
-            for (SimpleIDSet::iterator idIt = sceneRep->partSysIDs.begin(); idIt != sceneRep->partSysIDs.end(); ++idIt)
-                changes.push_back(new ParticleGeneratorRemSystemRequest(genId,*idIt));
-            
-            partReps.erase(pit);
+            ParticleSystemDrawable::Batch theBatch;
+            if (draw->findEmptyBatch(theBatch))
+            {
+                std::vector<ParticleSystemDrawable::AttributeData> attrData;
+                for (unsigned int ii=0;ii<batch.attrData.size();ii++)
+                {
+                    ParticleSystemDrawable::AttributeData thisAttrData;
+                    thisAttrData.data = batch.attrData[ii];
+                    attrData.push_back(thisAttrData);
+                }
+                // Note: Should pick this up from the batch
+                theBatch.startTime = CFAbsoluteTimeGetCurrent();
+                draw->addAttributeData(attrData,theBatch);
+            }
         }
     }
+    
+    pthread_mutex_unlock(&partSysLock);
+}
+    
+void ParticleSystemManager::housekeeping(NSTimeInterval now,ChangeSet &changes)
+{
+    pthread_mutex_lock(&partSysLock);
 
-    pthread_mutex_unlock(&partLock);
+    // Note: Not clear if we need this anymore
+    
+    pthread_mutex_unlock(&partSysLock);
 }
     
 }

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/17/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -39,6 +39,20 @@ namespace WhirlyKit
 {
 /// Quad tree Nodeinfo structures sorted by importance
 typedef std::set<WhirlyKit::Quadtree::Identifier> QuadIdentSet;
+
+/// The frame load status gives us information about a single frame (if we're in that mode)
+class FrameLoadStatus
+{
+public:
+    FrameLoadStatus() : complete(false), currentFrame(false), numTilesLoaded(0) { }
+    /// True if this one is fully loaded
+    bool complete;
+    /// True if this frame is currently being worked on
+    bool currentFrame;
+    /// Number of tiles currently loaded
+    int numTilesLoaded;
+};
+    
 }
 
 /** Quad tree based data structure.  Fill this in to provide structure and
@@ -94,11 +108,6 @@ typedef std::set<WhirlyKit::Quadtree::Identifier> QuadIdentSet;
 /// Called right after we finish a series of updates
 - (void)quadDisplayLayerEndUpdates:(WhirlyKitQuadDisplayLayer *)layer;
 
-/// The quad tree wants to load the given tile.
-/// Call the layer back when the tile is loaded.
-/// This is in the layer thread.
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo;
-
 /// Quad tree wants to unload the given tile immediately.
 /// This is in the layer thread.
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo;
@@ -111,7 +120,25 @@ typedef std::set<WhirlyKit::Quadtree::Identifier> QuadIdentSet;
 /// Called when the layer is about to shut down.  Clear out any drawables and caches.
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene;
 
+/// Number of frames of animation per tile (if we're doing animation)
+- (int)numFrames;
+
+/// If we're doing animation, currently active frame.
+/// If numFrames = 1, this should be -1.  If numFrames > 1, -1 means load all frames at once
+- (int)currentFrame;
+
 @optional
+
+/// The quad tree wants to load the given tile.
+/// Call the layer back when the tile is loaded.
+/// This is in the layer thread.
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo;
+
+/// The quad tree wants to load the given tile for the given frame (of animation).
+/// Call the layer back when the tile is loaded.
+/// This is in the layer thread.
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo frame:(int)frame;
+
 /// Called right before the view update to determine if we should even be paging
 /// You can use this to temporarily suspend paging.
 /// isInitial is set if this is the first time through
@@ -183,17 +210,29 @@ typedef std::set<WhirlyKit::Quadtree::Identifier> QuadIdentSet;
 @property (nonatomic,assign) bool fullLoad;
 /// If fullLoad is on, we need a timeout.  Otherwise changes just pile up until we run out of memory
 @property (nonatomic,assign) NSTimeInterval fullLoadTimeout;
+/// If set (by default) we'll try to load individual frames when we have them
+@property (nonatomic,assign) bool frameLoading;
+/// On by default.  If you turn this off we won't evaluate any view changes.
+@property (nonatomic,assign) bool enable;
 
 /// Construct with a renderer and data source for the tiles
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)dataSource loader:(NSObject<WhirlyKitQuadLoader> *)loader renderer:(WhirlyKitSceneRendererES *)renderer;
 
 /// A loader calls this after successfully loading a tile.
 /// Must be called in the layer thread.
-- (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidLoad:(WhirlyKit::Quadtree::Identifier)tileIdent;
+- (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidLoad:(WhirlyKit::Quadtree::Identifier)tileIdent frame:(int)frame;
 
 /// Loader calls this after a failed tile load.
 /// Must be called in the layer thread.
-- (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent;
+- (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent frame:(int)frame;
+
+/// This should be a list of numbers giving us the order to load frames in.  First is most important.
+/// The list should be numFrames long
+- (void)setFrameLoadingPriorities:(std::vector<int> &)priorities;
+
+/// Return the frame loading status from the quad tree.
+/// Each entry is for one total frame.  Only makes sense if numFrames > 1
+- (void)getFrameLoadStatus:(std::vector<WhirlyKit::FrameLoadStatus> &)frameLoadStats;
 
 /// Call this to force a reload for all existing tiles
 - (void)refresh;

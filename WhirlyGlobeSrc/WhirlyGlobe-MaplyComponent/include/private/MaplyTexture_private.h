@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 10/25/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,10 +23,18 @@
 #import "MaplyBaseViewController.h"
 #import "WhirlyGlobe.h"
 
+@class MaplyBaseInteractionLayer;
+
 @interface MaplyTexture()
 
 // The view controller the texture is nominally associated with
-@property (nonatomic,weak) MaplyBaseViewController *viewC;
+@property (nonatomic,weak) MaplyBaseInteractionLayer *interactLayer;
+
+// If this came from a UIImage, the UIImage it came from
+@property (nonatomic,weak) UIImage *image;
+
+// Set if this is a sub texture reference
+@property (nonatomic) bool isSubTex;
 
 // If set, the texture ID associated with this texture
 @property (nonatomic) WhirlyKit::SimpleIdentity texID;

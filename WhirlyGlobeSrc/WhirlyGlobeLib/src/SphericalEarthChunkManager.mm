@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/23/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -112,7 +112,6 @@ static const float SkirtFactor = 0.95;
             thisSampleY = std::min(thisSampleY,_sampleY);
     }
     
-    // Note: Debugging
     //    NSLog(@"Sampling: (%d,%d)",thisSampleX,thisSampleY);
 }
 
@@ -408,7 +407,7 @@ SphericalChunkManager::~SphericalChunkManager()
 SimpleIdentity SphericalChunkManager::addChunk(WhirlyKitSphericalChunk *chunk,bool doEdgeMatching,bool enable,ChangeSet &changes)
 {
     SimpleIdentity chunkID = EmptyIdentity;
-    WhirlyKitSphericalChunkInfo *chunkInfo = [[WhirlyKitSphericalChunkInfo alloc] init];
+    WhirlyKitSphericalChunkInfo *chunkInfo = [[WhirlyKitSphericalChunkInfo alloc] initWithDesc:nil];
     chunkInfo->enable = enable;
     chunkInfo->chunk = chunk;
     chunkInfo->chunkId = Identifiable::genId();
@@ -538,7 +537,7 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
                 {
                     pthread_mutex_lock(&atlasLock);
                     std::vector<Texture *> newTexs;
-                    texAtlas->addTexture(newTexs, NULL, NULL, chunkRep->subTex, scene->getMemManager(), changes, borderTexel);
+                    texAtlas->addTexture(newTexs, -1, NULL, NULL, chunkRep->subTex, scene->getMemManager(), changes, borderTexel);
                     chunkRep->usesAtlas = true;
                     delete newTex;
                     pthread_mutex_unlock(&atlasLock);
@@ -559,7 +558,6 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             BasicDrawable *drawable = nil,*skirtDraw = nil;
             [chunk buildDrawable:&drawable skirtDraw:(request.doEdgeMatching ? &skirtDraw : nil) enabled:request.chunkInfo->enable adapter:coordAdapter];
             
-            // Note: Debugging
             //            int color = drand48()*50+205;
             //            RGBAColor randomColor(color/4,color/4,color/4,255/4);
             //            drawable->setColor(randomColor);

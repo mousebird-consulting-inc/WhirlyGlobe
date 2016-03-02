@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/23/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
     double startHeight,endHeight;
 }
 
-- (id)initWithView:(WhirlyGlobeView *)globeView toHeight:(double)height howLong:(float)howLong;
+- (id)initWithView:(WhirlyGlobeView *)globeView toHeight:(double)height howLong:(float)howLong delegate:(NSObject<WGTiltCalculatorDelegate> *)tiltDelegate
 {
     if ((self = [super init]))
     {
@@ -35,6 +35,7 @@
         endDate = startDate+howLong;
         startHeight = globeView.heightAboveGlobe;
         endHeight = height;
+        _tiltDelegate = tiltDelegate;
     }
     
     return self;
@@ -62,7 +63,13 @@
 		// Interpolate somewhere along the path
 		float t = (span-remain)/span;
         globeView.heightAboveGlobe = startHeight + (endHeight-startHeight)*t;
-	}
+
+        if (_tiltDelegate)
+        {
+            float newTilt = [_tiltDelegate tiltFromHeight:globeView.heightAboveGlobe];
+            [globeView setTilt:newTilt];
+        }
+    }
 }
 
 @end

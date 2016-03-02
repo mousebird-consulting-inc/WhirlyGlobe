@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 10/26/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 #import "GlobeDoubleTapDelegate.h"
 #import "GlobeTwoFingerTapDelegate.h"
 #import "GlobeDoubleTapDragDelegate.h"
+#import "TiltDelegate.h"
 
 /// This is the private interface to WhirlyGlobeViewController.
 /// Only pull this in if you're subclassing
@@ -41,12 +42,14 @@
     // Gesture recognizers
     WGPinchDelegateFixed *pinchDelegate;
     PanDelegateFixed *panDelegate;
+    TiltDelegate *tiltDelegate;
     WhirlyGlobeTapDelegate *tapDelegate;
     WhirlyGlobeRotateDelegate *rotateDelegate;
     AnimateViewRotation *animateRotation;    
     WhirlyGlobeDoubleTapDelegate *doubleTapDelegate;
     WhirlyGlobeTwoFingerTapDelegate *twoFingerTapDelegate;
     WhirlyGlobeDoubleTapDragDelegate *doubleTapDragDelegate;
+    WGStandardTiltDelegate *tiltControlDelegate;
 
     // Set when we're animating the view point but we know where it's going
     bool knownAnimateEndRot;

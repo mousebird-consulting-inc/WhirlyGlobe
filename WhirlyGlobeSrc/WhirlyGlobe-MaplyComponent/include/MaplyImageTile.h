@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 10/18/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@
  */
 
 #import <UIKit/UIKit.h>
+
+@class MaplyElevationChunk;
 
 /** @brief Describes a single tile worth of data, which may be multiple images.
     @details Delegates can pass back a single UIImage or NSData object, but if they want to do anything more complex, they need to do it with this.
@@ -70,6 +72,11 @@
     @details We'll look at the data type and try to figure out what you're passing in.  In general, it's better to call one of the specific init routines.
   */
 - (id)initWithRandomData:(id)theObj;
+
+/** @brief Optional elevation dataq provided with the image tile.
+    @details This is an optional set of elevation data that goes with this image tile.
+  */
+@property (nonatomic,strong) MaplyElevationChunk *elevChunk;
 
 /** @brief Target size for the image(s) represented by this tile.
     @details This instructs the pager to rescale the image(s) to the given target size.  This is probably faster than doing it yourself because we can extract the data and rescale in the same step.

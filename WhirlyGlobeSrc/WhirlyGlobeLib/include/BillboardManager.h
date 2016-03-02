@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/30/13.
- *  Copyright 2011-2013 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2015 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,25 +22,43 @@
 #import <set>
 #import <map>
 #import "Identifiable.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "BillboardDrawable.h"
 #import "Scene.h"
 #import "SelectionManager.h"
+#import "BaseInfo.h"
+
+namespace WhirlyKit
+{
+
+/// Used to represent a single billboard polygon
+///  with one texture
+class SingleBillboardPoly
+{
+public:
+    /// Coordinates of polygons
+    std::vector<WhirlyKit::Point2d> pts;
+    /// Texture coordinates to go with polygons
+    std::vector<WhirlyKit::TexCoord> texCoords;
+    /// Color of geometry
+    UIColor *color;
+    /// Texture to use
+    WhirlyKit::SimpleIdentity texId;
+    /// Vertex attributes applied to just this poly
+    SingleVertexAttributeSet vertexAttrs;
+};
+    
+}
 
 // Used to pass parameters around between threads
-@interface WhirlyKitBillboardInfo : NSObject
+@interface WhirlyKitBillboardInfo : WhirlyKitBaseInfo
 
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity billboardId;
 @property (nonatomic) NSArray *billboards;
 @property (nonatomic) UIColor *color;
-@property (nonatomic,assign) float fade;
-@property (nonatomic,assign) float minVis,maxVis;
-@property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) bool enable;
+@property (nonatomic) bool zBufferRead,zBufferWrite;
 
 - (id)initWithBillboards:(NSArray *)billboards desc:(NSDictionary *)desc;
-
-- (void)parseDesc:(NSDictionary *)desc;
 
 @end
 
@@ -51,15 +69,11 @@
 @interface WhirlyKitBillboard : NSObject
 
 /// Center in display coordinates
-@property (nonatomic,assign) WhirlyKit::Point3f center;
-/// Height in display coordinates
-@property (nonatomic,assign) float height;
-/// Width in display coordinates
-@property (nonatomic,assign) float width;
-/// Color of geometry
-@property (nonatomic,assign) UIColor *color;
-/// Texture to use
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity texId;
+@property (nonatomic,assign) WhirlyKit::Point3d center;
+/// Polygons that make up this billboard (there can be more than one)
+@property (nonatomic,assign) std::vector<WhirlyKit::SingleBillboardPoly> &polys;
+/// Size (for selection)
+@property (nonatomic,assign) WhirlyKit::Point2d &size;
 /// If set, this marker should be made selectable
 ///  and it will be if the selection layer has been set
 @property (nonatomic,assign) bool isSelectable;
@@ -96,7 +110,7 @@ public:
     BillboardDrawableBuilder(Scene *scene,ChangeSet &changes,BillboardSceneRep *sceneRep,WhirlyKitBillboardInfo *billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId);
     ~BillboardDrawableBuilder();
     
-    void addBillboard(Point3f center,float width,float height,UIColor *color);
+    void addBillboard(Point3d center,const std::vector<WhirlyKit::Point2d> &pts,const std::vector<WhirlyKit::TexCoord> &texCoords,UIColor *color,const SingleVertexAttributeSet &vertAttrs);
     
     void flush();
     
@@ -132,6 +146,7 @@ public:
     void removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes);
 
 protected:
+    NSObject *canary;
     pthread_mutex_t billLock;
     BillboardSceneRepSet sceneReps;
 };

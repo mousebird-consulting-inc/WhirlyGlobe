@@ -3,7 +3,7 @@
  *  WhirlyGlobeApp
  *
  *  Created by Steve Gifford on 5/23/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -73,9 +73,8 @@ using namespace Eigen;
         // If this is going to end, let people know when
         if (maxTime != MAXFLOAT)
         {
-            Quaterniond endRot = [self rotForTime:maxTime];
-            AnimateViewMomentumMessage *msg = [[AnimateViewMomentumMessage alloc] initWithGlobeView:globeView rot:endRot time:startDate+maxTime];
-            [[NSNotificationCenter defaultCenter] postNotificationName:kAnimateViewMomentum object:msg userInfo:nil];
+//            Quaterniond endRot = [self rotForTime:maxTime];
+//            AnimateViewMomentumMessage *msg = [[AnimateViewMomentumMessage alloc] initWithGlobeView:globeView rot:endRot time:startDate+maxTime];
         }
     }
     

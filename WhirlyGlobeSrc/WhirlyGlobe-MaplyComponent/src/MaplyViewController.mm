@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 9/6/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ using namespace Maply;
     // Content scale for scroll view mode
     float scale;
     bool scheduledToDraw;
+    bool isPanning,isZooming,isAnimating;
 }
 
 - (id)init
@@ -288,13 +289,16 @@ using namespace Maply;
             doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:glView mapView:mapView];
             doubleTapDelegate.minZoom = [mapView minHeightAboveSurface];
             doubleTapDelegate.maxZoom = [mapView maxHeightAboveSurface];
+            [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
         }
         if(_twoFingerTapGesture)
         {
             twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:glView mapView:mapView];
             twoFingerTapDelegate.minZoom = [mapView minHeightAboveSurface];
             twoFingerTapDelegate.maxZoom = [mapView maxHeightAboveSurface];
-            [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+            if (pinchDelegate)
+                [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+            [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
         }
         if (_doubleTapDragGesture)
         {
@@ -338,6 +342,8 @@ using namespace Maply;
         boundUR.x = MAXFLOAT;
     }
     [self setViewExtentsLL:boundLL ur:boundUR];
+    
+    mapView.wrap = _viewWrap;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -374,10 +380,12 @@ using namespace Maply;
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOnMap:) name:MaplyTapMsg object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidStart:) name:kPanDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidEnd:) name:kPanDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidStart:) name:kZoomGestureDelegateDidStart object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidEnd:) name:kZoomGestureDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidStart:) name:kMaplyDoubleTapDragDidStart object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidEnd:) name:kMaplyDoubleTapDragDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationDidStart:) name:kWKViewAnimationStarted object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationDidEnd:) name:kWKViewAnimationEnded object:nil];
 }
 
@@ -385,10 +393,12 @@ using namespace Maply;
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:MaplyTapMsg object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kPanDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kPanDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kZoomGestureDelegateDidStart object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kZoomGestureDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kMaplyDoubleTapDragDidStart object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kMaplyDoubleTapDragDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationStarted object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationEnded object:nil];
 }
 
@@ -525,6 +535,7 @@ using namespace Maply;
 - (void)setHeight:(float)height
 {
     mapView.loc.z() = height;
+    [mapView runViewUpdates];
 }
 
 /// Set the view extents.  This is the box the view point is allowed to be within.
@@ -728,6 +739,21 @@ using namespace Maply;
         if (mapView.heightAboveSurface > maxHeight)
             mapView.loc = Point3d(loc.x(),loc.y(),maxHeight);
     }
+    if(twoFingerTapDelegate)
+    {
+        twoFingerTapDelegate.minZoom = minHeight;
+        twoFingerTapDelegate.maxZoom = maxHeight;
+    }
+    if(doubleTapDelegate)
+    {
+        doubleTapDelegate.minZoom = minHeight;
+        doubleTapDelegate.maxZoom = maxHeight;
+    }
+    if(doubleTapDragDelegate)
+    {
+        doubleTapDragDelegate.minZoom = minHeight;
+        doubleTapDragDelegate.maxZoom = maxHeight;
+    }
 }
 
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
@@ -820,6 +846,12 @@ using namespace Maply;
     MaplyCoordinate coord;
     coord.x = msg.whereGeo.lon();
     coord.y = msg.whereGeo.lat();
+    
+    // Adjust this if it's outside geographic bounds
+    if (coord.x < -M_PI)
+        coord.x += 2*M_PI * std::ceil(std::abs((coord.x + M_PI)/(2*M_PI)));
+    if (coord.x > M_PI)
+        coord.x -= 2*M_PI * std::ceil((coord.x - M_PI)/(2*M_PI));
 
     if (selectedObj && self.selection)
     {
@@ -848,6 +880,10 @@ using namespace Maply;
 {
     MaplyTapMessage *msg = note.object;
     
+    // Ignore taps from other view controllers
+    if (msg.view != glView)
+        return;
+    
     // Hand this over to the interaction layer to look for a selection
     // If there is no selection, it will call us back in the main thread
     [mapInteractLayer userDidTap:msg];
@@ -862,6 +898,17 @@ using namespace Maply;
     //    NSLog(@"Pan started");
     
     [self handleStartMoving:true];
+    isPanning = true;
+}
+
+// Called when the pan delegate stops moving
+- (void) panDidEnd:(NSNotification *)note
+{
+    if (note.object != mapView)
+        return;
+
+    isPanning = false;
+    [self handleStopMoving:true];
 }
 
 - (void) zoomGestureDidStart:(NSNotification *)note
@@ -870,6 +917,7 @@ using namespace Maply;
         return;
 
     [self handleStartMoving:true];
+    isZooming = true;
 }
 
 - (void) zoomGestureDidEnd:(NSNotification *)note
@@ -877,29 +925,48 @@ using namespace Maply;
     if (note.object != mapView)
         return;
     
+    isZooming = false;
     [self handleStopMoving:true];
+}
+
+- (void) animationDidStart:(NSNotification *)note
+{
+    if (note.object != mapView)
+        return;
+    
+    [self handleStartMoving:false];
+    isAnimating = true;
 }
 
 - (void) animationDidEnd:(NSNotification *)note
 {
     if (note.object != mapView)
         return;
+    
+    bool userMotion = false;
+    if ([mapView.delegate isKindOfClass:[MaplyAnimateViewTranslation class]])
+        userMotion = true;
 
-    [self handleStopMoving:NO];
+    isAnimating = false;
+    [self handleStopMoving:userMotion];
 }
 
 // Convenience routine to handle the end of moving
 - (void)handleStartMoving:(bool)userMotion
 {
-    if([self.delegate respondsToSelector:@selector(maplyViewControllerDidStartMoving:userMotion:)])
+    if (!isPanning && !isZooming && !isAnimating)
     {
-        [self.delegate maplyViewControllerDidStartMoving:self userMotion:userMotion];
+        if([self.delegate respondsToSelector:@selector(maplyViewControllerDidStartMoving:userMotion:)])
+            [self.delegate maplyViewControllerDidStartMoving:self userMotion:userMotion];
     }
 }
 
 // Convenience routine to handle the end of moving
 - (void)handleStopMoving:(bool)userMotion
 {
+    if (isPanning || isZooming || isAnimating)
+        return;
+
     if([self.delegate respondsToSelector:@selector(maplyViewController:didStopMoving:userMotion:)])
     {
         MaplyCoordinate corners[4];
@@ -972,8 +1039,11 @@ using namespace Maply;
     if([self.delegate respondsToSelector:@selector(maplyViewController:didClickAnnotation:)]) {
         for(MaplyAnnotation *annotation in self.annotations) {
             if(annotation.calloutView == calloutView) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"                
                 [self.delegate maplyViewController:self didClickAnnotation:annotation];
                 return;
+#pragma clang diagostic pop
             }
         }
     }

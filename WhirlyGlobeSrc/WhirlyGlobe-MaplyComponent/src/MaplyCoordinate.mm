@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -74,3 +74,15 @@ double MaplyGreatCircleDistance(MaplyCoordinate p0,MaplyCoordinate p1)
     double delta = acos(sin(p0.y)*sin(p1.y) + cos(p0.y)*cos(p1.y)*cos(p1.x-p0.x));
     return delta * EarthRadius;
 }
+
+@implementation MaplyCoordinate3dWrapper
+
+- (id)initWithCoord:(MaplyCoordinate3d)coord
+{
+    self = [super init];
+    _coord = coord;
+    
+    return self;
+}
+
+@end

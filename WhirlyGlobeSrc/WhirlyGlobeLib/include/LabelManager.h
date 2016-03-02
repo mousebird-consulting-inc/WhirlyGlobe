@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/22/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #import <set>
 #import <map>
 #import "Identifiable.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "TextureAtlas.h"
@@ -61,6 +61,12 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 /// A geolocation for the middle, left or right of the label
 ///  depending on the justification
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
+/// Set if we're moving these over time (screen only)
+@property (nonatomic,assign) bool hasMotion;
+/// Set for animation over time
+@property (nonatomic,assign) WhirlyKit::GeoCoord endLoc;
+/// Timing for animation, if present
+@property (nonatomic,assign) NSTimeInterval startTime,endTime;
 /// Rotation around the origin
 @property (nonatomic,assign) float rotation;
 /// Keep a label oriented upright on the screen
@@ -126,6 +132,7 @@ public:
     void enableLabels(SimpleIDSet labelID,bool enable,ChangeSet &changes);
     
 protected:
+    NSObject *canary;
     pthread_mutex_t labelLock;
     
     /// If set, we're using font textures instead of rendering each piece of text

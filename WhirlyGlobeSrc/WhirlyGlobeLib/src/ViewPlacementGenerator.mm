@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/25/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,10 +31,12 @@ namespace WhirlyKit
 ViewPlacementGenerator::ViewPlacementGenerator(const std::string &name)
     : Generator(name)
 {
+    pthread_mutex_init(&viewInstanceLock, NULL);
 }
     
 ViewPlacementGenerator::~ViewPlacementGenerator()
 {
+    pthread_mutex_destroy(&viewInstanceLock);
     viewInstanceSet.clear();
 }
     
@@ -48,26 +50,38 @@ void ViewPlacementGenerator::addView(GeoCoord loc,UIView *view,float minVis,floa
     viewInst.maxVis = maxVis;
     CGRect frame = view.frame;
     viewInst.offset = Point2d(frame.origin.x,frame.origin.y);
+    
+    pthread_mutex_lock(&viewInstanceLock);
     viewInstanceSet.insert(viewInst);
+    pthread_mutex_unlock(&viewInstanceLock);
 }
 
 void ViewPlacementGenerator::moveView(GeoCoord loc,UIView *view,float minVis,float maxVis)
 {
-    // Make sure it isn't already there
+    pthread_mutex_lock(&viewInstanceLock);
+
+    // Look for the old one.  We need the offset
+    Point2d offset(0,0);
     std::set<ViewInstance>::iterator it = viewInstanceSet.find(ViewInstance(view));
     if (it != viewInstanceSet.end())
+    {
+        offset = it->offset;
         viewInstanceSet.erase(it);
+    }
     
     ViewInstance viewInst(loc,view);
     viewInst.minVis = minVis;
     viewInst.maxVis = maxVis;
-    CGRect frame = view.frame;
-    viewInst.offset = Point2d(frame.origin.x,frame.origin.y);
+    viewInst.offset = offset;
     viewInstanceSet.insert(viewInst);
+    
+    pthread_mutex_unlock(&viewInstanceLock);
 }
     
 void ViewPlacementGenerator::freezeView(UIView *view)
 {
+    pthread_mutex_lock(&viewInstanceLock);
+
     ViewInstance newVI(view);
     std::set<ViewInstance>::iterator it = viewInstanceSet.find(newVI);
     if (it != viewInstanceSet.end())
@@ -77,10 +91,14 @@ void ViewPlacementGenerator::freezeView(UIView *view)
         newVI.active = false;
         viewInstanceSet.insert(newVI);
     }
+
+    pthread_mutex_unlock(&viewInstanceLock);
 }
 
 void ViewPlacementGenerator::unfreezeView(UIView *view)
 {
+    pthread_mutex_lock(&viewInstanceLock);
+
     ViewInstance newVI(view);
     std::set<ViewInstance>::iterator it = viewInstanceSet.find(newVI);
     if (it != viewInstanceSet.end())
@@ -90,13 +108,19 @@ void ViewPlacementGenerator::unfreezeView(UIView *view)
         newVI.active = true;
         viewInstanceSet.insert(newVI);
     }
+    
+    pthread_mutex_unlock(&viewInstanceLock);
 }
     
 void ViewPlacementGenerator::removeView(UIView *view)
 {
+    pthread_mutex_lock(&viewInstanceLock);
+
     std::set<ViewInstance>::iterator it = viewInstanceSet.find(ViewInstance(view));
     if (it != viewInstanceSet.end())
         viewInstanceSet.erase(it);
+    
+    pthread_mutex_unlock(&viewInstanceLock);
 }
     
 // Work through the list of views, moving things around and/or hiding as needed
@@ -131,9 +155,13 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
         modelAndViewMats.push_back(modelAndViewMat);
 //        modelAndViewNormalMats.push_back(modelAndViewNormalMat);
     }
-        
-    for (std::set<ViewInstance>::iterator it = viewInstanceSet.begin();
-         it != viewInstanceSet.end(); ++it)
+    
+    pthread_mutex_lock(&viewInstanceLock);
+    std::set<ViewInstance> localViewSet = viewInstanceSet;
+    pthread_mutex_unlock(&viewInstanceLock);
+    
+    for (std::set<ViewInstance>::iterator it = localViewSet.begin();
+         it != localViewSet.end(); ++it)
     {
         const ViewInstance &viewInst = *it;
         bool hidden = NO;
@@ -223,7 +251,9 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
 
 void ViewPlacementGenerator::dumpStats()
 {
+    pthread_mutex_lock(&viewInstanceLock);
     NSLog(@"ViewPlacement Generator: %ld",viewInstanceSet.size());
+    pthread_mutex_unlock(&viewInstanceLock);
 }
 
 }

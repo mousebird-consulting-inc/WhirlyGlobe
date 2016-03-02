@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/6/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ namespace WhirlyKit
     
 DynamicDrawableAtlas::DynamicDrawableAtlas(const std::string &name,int singleElementSize,int numVertexBytes,int numElementBytes,OpenGLMemManager *memManager,BigDrawable *(*newBigDrawable)(BasicDrawable *draw,int singleElementSize,int numVertexBytes,int numElementBytes),
                                            SimpleIdentity shaderId)
-    : name(name), singleVertexSize(0), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager), newBigDrawable(newBigDrawable), shaderId(shaderId), enable(true), hasChanges(false)
+    : name(name), singleVertexSize(0), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager), newBigDrawable(newBigDrawable), shaderId(shaderId), enable(true), hasChanges(false), fade(1.0)
 {
 }
     
@@ -37,7 +37,7 @@ DynamicDrawableAtlas::~DynamicDrawableAtlas()
     swapChanges.clear();
 }
     
-bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled,SimpleIdentity destTexId,bool *addedNewBigDrawable,const Point3d *center,double objSize)
+bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled,std::vector<SimpleIdentity> *destTexIDs,bool *addedNewBigDrawable,const Point3d *center,double objSize)
 {
     hasChanges = true;
 
@@ -134,14 +134,17 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
             newBigDraw->setCenter(*center);
         newBigDraw->setOnOff(this->enable);
         newBigDraw->setProgram(shaderId);
+        newBigDraw->setFade(fade);
 
         newBigDraw->setModes(draw);
         newBigDraw->setupGL(NULL, memManager);
         changes.push_back(new AddDrawableReq(newBigDraw));
         bigDrawables.insert(BigDrawableInfo(draw->getTexId(0),newBigDraw));
-        if (destTexId != EmptyIdentity && newBigDraw->texInfo.size() > 0)
+        if (destTexIDs && newBigDraw->texInfo.size() > 0)
         {
-            newBigDraw->texInfo[0].texId = destTexId;
+            for (unsigned int ti=0;ti<destTexIDs->size();ti++)
+                if (ti<newBigDraw->texInfo.size())
+                    newBigDraw->texInfo[ti].texId = destTexIDs->at(ti);
         }
         represent.bigDrawId = newBigDraw->getId();
         // If there's a center, the data is dependent on that center.
@@ -208,13 +211,22 @@ void DynamicDrawableAtlas::setEnableAllDrawables(bool newEnable,ChangeSet &chang
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
         changes.push_back(new BigDrawableOnOffChangeRequest(it->bigDraw->getId(),enable));
 }
-    
-void DynamicDrawableAtlas::setDrawPriorityAllDrawables(int drawPriority,ChangeSet &changes)
+
+void DynamicDrawableAtlas::setDrawPriorityAllDrawables(int newDrawPriority, ChangeSet &changes)
 {
+    hasChanges = true;
+    
+    for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
+        changes.push_back(new BigDrawableDrawPriorityChangeRequest(it->bigDraw->getId(),newDrawPriority));
+}
+
+void DynamicDrawableAtlas::setFadeAllDrawables(float newFade,ChangeSet &changes)
+{
+    fade = newFade;
     hasChanges = true;
 
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
-        changes.push_back(new BigDrawableDrawPriorityChangeRequest(it->bigDraw->getId(),drawPriority));
+        changes.push_back(new BigDrawableFadeChangeRequest(it->bigDraw->getId(),newFade));
 }
     
 void DynamicDrawableAtlas::setProgramIDAllDrawables(SimpleIdentity programID,ChangeSet &changes)

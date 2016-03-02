@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 9/6/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -77,8 +77,8 @@
   */
 - (void)maplyViewController:(MaplyViewController *)viewC didTapAnnotation:(MaplyAnnotation*)annotation;
 
-/// Note: Deprecated
-- (void)maplyViewController:(MaplyViewController *)viewC didClickAnnotation:(MaplyAnnotation*)annotation;
+/// Old version for compatibility.  Use tap instead.
+- (void)maplyViewController:(MaplyViewController *)viewC didClickAnnotation:(MaplyAnnotation*)annotation __deprecated;
 
 @end
 
@@ -123,7 +123,7 @@
 /// @brief Set the coordinate system to use in display.
 /// @details The coordinate system needs to be valid in flat mode.  The extents, if present, will be used to define the coordinate system origin.
 /// @details nil is the default and will result in a full web style Spherical Mercator.
-@property(nonatomic) MaplyCoordinateSystem *coordSys;
+@property(nonatomic,strong) MaplyCoordinateSystem *coordSys;
 
 /** @brief Set the center of the display coordinate system.
     @details This is (0,0,0) by default.  If you set it to something else all display coordinates will be offset from that origin.
@@ -222,6 +222,14 @@
     @param howLong How long in seconds to take getting there.
   */
 - (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
+
+/** @brief Animate the given position and height to the screen position over time.
+ @details This is similar to animateToPosition:time: but it also takes a height paramater
+ @param newPos The geographic position (lon/lat in radians) to move to.
+ @param height  the view point height above the map.
+ @param howLong How long in seconds to take getting there.
+ */
+- (void)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight time:(NSTimeInterval)howLong;
 
 /** @brief Set the center of the screen to the given position immediately.
     @param newPos The geographic position (lon/lat in radians) to move to.

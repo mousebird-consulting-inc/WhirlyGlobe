@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/28/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import "WGCoordinate.h"
+#import "MaplyMatrix.h"
 
 /** @brief Maply Shape is the base class for the actual shape objects.
     @details The maply shape is just the base class.  Look to MaplyShapeCircle, MaplyShapeCylinder, MaplyShapeSphere, MaplyShapeGreatCircle, and MaplyShapeLinear.
@@ -31,10 +32,15 @@
  */
 @property (nonatomic,strong) UIColor *color;
 
-/** @brief User data for object.
- @details User data can be set by the caller and is ignored by the toolkit.  This is useful for including custom data for selection.
+/** @brief If set, the object is selectable
+ @details The object is selectable if this is set when the object is passed in to an add call.  If not set, you'll never see it in selection.
  */
-@property (nonatomic,strong) NSObject *userObject;
+@property (nonatomic,assign) bool selectable;
+
+/** @brief User data object for selection
+ @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the shape means to them.
+ */
+@property (nonatomic,strong) id userObject;
 
 @end
 
@@ -82,11 +88,6 @@ typedef MaplyShapeCircle WGShapeCircle;
  */
 @property (nonatomic,assign) float height;
 
-/** @brief If set, the sphere is selectable
-    @details The sphere is selectable if this is set when the object is passed in to an add call.  If not set, you'll never see it in selection.
-  */
-@property (nonatomic,assign) bool selectable;
-
 @end
 
 typedef MaplyShapeSphere WGShapeSphere;
@@ -115,11 +116,6 @@ typedef MaplyShapeSphere WGShapeSphere;
     @details This is the height of the cylinder.  The top of the cylinder will be at baseHeight+height.  It's also in display units, like the radius.
  */
 @property (nonatomic,assign) float height;
-
-/** @brief If set, the cylinder is selectable
-    @details The cylinder is selectable if this is set when the object is passed in to an add call.  If not set, you'll never see it in selection.
- */
-@property (nonatomic,assign) bool selectable;
 
 @end
 
@@ -171,5 +167,50 @@ typedef MaplyShapeCylinder WGShapeCylinder;
     @return Returns the number of coordinates and a pointer to the coordinate array.
   */
 - (int)getCoords:(MaplyCoordinate3d **)retCoords;
+
+@end
+
+/** @brief An extruded shape with an arbitrary outline.
+    @details This object represents an extruded shape with the given thickness.  It can be oriented according to the pitch, roll, yaw and height.
+  */
+@interface MaplyShapeExtruded : MaplyShape
+
+/** @brief Construct with the coordinates for the outline to extrude.
+    @details Pass in pairs of doubles that correspond to the
+  */
+- (id)initWithOutline:(double *)coords numCoordPairs:(int)numCoordPairs;
+
+/** @brief Number of coordinate pairs in this shape.
+  */
+@property (nonatomic,readonly) int numCoordPairs;
+
+/** @brief Array of coordinate values.
+  */
+@property (nonatomic,readonly) double *coordData;
+
+/** @brief Where we'd like to place the extruded shape.
+    @details This is the center of the object in geographic radians.
+  */
+@property (nonatomic) MaplyCoordinate center;
+
+/** @brief Scale for coordinates.  Set to 1/EarthRadiusInMeters by default.
+    @details The coordinates will be scaled by this before creating the geometry.  By default this is set to 1/EarthRadius(m) so you can build your shape in meters.  Also applies to thickness and height.
+  */
+@property (nonatomic,assign) double scale;
+
+/** @brief Thickness for the resulting shape.
+    @details We build an extruded shape out of this information and this is its thickness.  If this is zero, you just get a double sided polygon.
+  */
+@property (nonatomic,assign) double thickness;
+
+/** @brief Height to place the resulting shape at.
+    @details We'll put this shape at the given height above the surface of the globe or map.
+  */
+@property (nonatomic,assign) double height;
+
+/** @brief The transform to apply to this shape.
+    @details If set, this transform is applied before placing the feature.  You can set a transform matrix up with roll, pitch, and yaw.
+  */
+@property (nonatomic,strong) MaplyMatrix *transform;
 
 @end

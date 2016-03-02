@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/11/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,13 +22,14 @@
 #import <set>
 #import <map>
 #import "Identifiable.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "TextureAtlas.h"
 #import "SelectionManager.h"
 #import "LayoutLayer.h"
 #import "FontTextureManager.h"
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
@@ -44,12 +45,12 @@ public:
     LabelSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
     ~LabelSceneRep() { }
     
-    float fade;          // Fade interval, for deletion
+    float fadeOut;          // Fade interval, for deletion
     SimpleIDSet texIDs;  // Textures we created for this
     SimpleIDSet drawIDs; // Drawables created for this
     SimpleIDSet drawStrIDs;  // Drawable strings created with the font manager
-    SimpleIDSet screenIDs;  // Screen space objects
-    SimpleIdentity selectID;  // Selection rect
+    SimpleIDSet layoutIDs;  // IDs passed to layout manager
+    SimpleIDSet selectIDs;  // IDS passed to selection manager
 };
 typedef std::set<LabelSceneRep *,IdentifiableSorter> LabelSceneRepSet;
     
@@ -59,7 +60,7 @@ typedef std::set<LabelSceneRep *,IdentifiableSorter> LabelSceneRepSet;
 typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} WhirlyKitLabelJustify;
 
 // Label spec passed around between threads
-@interface WhirlyKitLabelInfo : NSObject
+@interface WhirlyKitLabelInfo : WhirlyKitBaseInfo
 
 @property (nonatomic) NSArray *strs;
 @property (nonatomic) UIColor *textColor,*backColor;
@@ -68,17 +69,11 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic,assign) bool layoutEngine;
 @property (nonatomic,assign) float layoutImportance;
 @property (nonatomic,assign) float width,height;
-@property (nonatomic,assign) int drawOffset;
-@property (nonatomic,assign) float minVis,maxVis;
 @property (nonatomic,assign) WhirlyKitLabelJustify justify;
-@property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) float fade;
 @property (nonatomic,strong) UIColor *shadowColor;
 @property (nonatomic,assign) float shadowSize;
 @property (nonatomic) UIColor *outlineColor;
 @property (nonatomic,assign) float outlineSize;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity shaderID;
-@property (nonatomic,assign) bool enable;
 
 - (id)initWithStrs:(NSArray *)inStrs desc:(NSDictionary *)desc;
 
@@ -100,12 +95,16 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic) WhirlyKit::LabelSceneRep *labelRep;
 /// Scene we're building in
 @property (nonatomic,assign) WhirlyKit::Scene *scene;
+/// Screen space objects
+@property (nonatomic,assign) std::vector<WhirlyKit::ScreenSpaceObject *> &screenObjects;
 /// Layout objects (pass these to the layout engine if you want that)
-@property (nonatomic,assign) std::vector<WhirlyKit::LayoutObject> &layoutObjects;
+@property (nonatomic,assign) std::vector<WhirlyKit::LayoutObject *> &layoutObjects;
 /// Selectable objects (3D) to pass to the selection manager
 @property (nonatomic,assign) std::vector<WhirlyKit::RectSelectable3D> &selectables3D;
 /// Selectable objects (2D) to pass to the selection manager
 @property (nonatomic,assign) std::vector<WhirlyKit::RectSelectable2D> &selectables2D;
+/// Moving selectable objects (2D) to pass to the selection manager
+@property (nonatomic,assign) std::vector<WhirlyKit::MovingRectSelectable2D> &movingSelectables2D;
 
 /// Change requests to pass to the scene
 @property (nonatomic,assign) std::vector<WhirlyKit::ChangeRequest *> &changeRequests;
@@ -113,6 +112,8 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic) WhirlyKitFontTextureManager *fontTexManager;
 /// Set if want to use attributed strings (we usually do)
 @property (nonatomic,assign) bool useAttributedString;
+/// Scale, if we're using that
+@property (nonatomic,assign) float scale;
 
 /// Renders the labels into a big texture and stores the resulting info
 - (void)render;

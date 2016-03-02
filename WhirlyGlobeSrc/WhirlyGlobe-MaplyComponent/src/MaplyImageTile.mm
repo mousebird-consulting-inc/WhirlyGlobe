@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 5/7/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 #import "MaplyImageTile.h"
 #import "MaplyImageTile_private.h"
+#import "WhirlyGlobe.h"
 
 @implementation MaplyImageTile
 {
@@ -211,6 +212,15 @@
         {
             loadImage.width = _targetWidth;
             loadImage.height = _targetHeight;
+        } else {
+            // They have to at least be square
+            if (loadImage.width != loadImage.height)
+            {
+                int maxSize = std::max(loadImage.width,loadImage.height);
+                maxSize = WhirlyKit::NextPowOf2(maxSize);
+                loadImage.width = maxSize;
+                loadImage.height = maxSize;
+            }
         }
 
         // This pulls the pixels out of their weird little compressed formats

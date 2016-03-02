@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/2/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ using namespace WhirlyKit;
 {
     WhirlyKitGLSetupInfo *glSetupInfo;
     /// The various data layers we'll display
-    NSMutableArray<NSObject> *layers;
+    NSMutableArray *layers;
     
     /// Used to keep track of things to delete
     std::vector<WhirlyKit::DelayedDeletable *> thingsToDelete;
@@ -51,6 +51,9 @@ using namespace WhirlyKit;
     /// We lock this in the main loop.  If anyone else can lock it, that means we're gone.
     /// Yes, I'm certain there's a better way to do this.
     pthread_mutex_t existenceLock;
+
+    NSCondition *pauseLock;
+    BOOL paused;
 }
 
 - (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)inRenderer mainLayerThread:(bool)mainLayerThread
@@ -80,6 +83,7 @@ using namespace WhirlyKit;
         
         pthread_mutex_init(&changeLock,NULL);
         pthread_mutex_init(&existenceLock,NULL);
+        pauseLock = [[NSCondition alloc] init];
 	}
 	
 	return self;
@@ -110,7 +114,12 @@ using namespace WhirlyKit;
 
 - (void)removeLayer:(NSObject<WhirlyKitLayer> *)layer
 {
+    bool wasPaused = paused;
+    if (paused)
+        [self unpause];
     [self performSelector: @selector(removeLayerThread:) onThread: self withObject:layer waitUntilDone:YES];
+    if (wasPaused)
+        [self pause];
 }
 
 // This runs in the layer thread
@@ -200,6 +209,11 @@ using namespace WhirlyKit;
     if (requiresFlush && _allowFlush)
     {
         glFlush();
+        
+        // If there were no changes to add we probably still want to poke the scene
+        // Otherwise texture changes don't show up
+        if (changesToAdd.empty())
+            changesToAdd.push_back(NULL);
     }
     
     _scene->addChangeRequests(changesToAdd);
@@ -241,14 +255,20 @@ using namespace WhirlyKit;
             NSObject<WhirlyKitLayer> *layer = [layers objectAtIndex:ii];
             [layer startWithThread:self scene:_scene];
         }
-        
+      
         // Process the run loop until we're cancelled
         // We'll check every 10th of a second
         while (![self isCancelled])
         {
+            [pauseLock lock];
+            while(paused)
+            {
+                [pauseLock wait];
+            }
             @autoreleasepool {
                 [_runLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
             }
+            [pauseLock unlock];
         }
         
         [NSObject cancelPreviousPerformRequestsWithTarget:self];
@@ -290,7 +310,7 @@ using namespace WhirlyKit;
     
     if (_mainLayerThread)
     {
-        // If any of the things we're to releas are other layer threads
+        // If any of the things we're to release are other layer threads
         //  we need to wait for them to shut down.
         for (NSObject *thing in thingsToRelease)
         {
@@ -300,6 +320,12 @@ using namespace WhirlyKit;
                 pthread_mutex_lock(&otherLayerThread->existenceLock);
             }
         }
+
+        // This should block until the queue is empty
+        dispatch_sync(_scene->getDispatchQueue(), ^{ } );
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
+        dispatch_release(dispatchQueue);
+#endif
 
         // Tear the scene down.  It's unsafe to do it elsewhere
         _scene->teardownGL();
@@ -318,6 +344,18 @@ using namespace WhirlyKit;
         [thingsToRelease removeObject:[thingsToRelease objectAtIndex:0]];
     
     _glContext = nil;
+}
+
+
+- (void)pause
+{
+    paused = true;
+}
+
+- (void)unpause
+{
+    paused = false;
+    [pauseLock signal];
 }
 
 @end
