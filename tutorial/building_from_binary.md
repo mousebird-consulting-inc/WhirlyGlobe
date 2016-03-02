@@ -8,7 +8,7 @@ prev_next:
 
 The binary distribution is one of the easiest ways to get started with WhirlyGlobe-Maply.  We distribute the toolkit as a framework for iOS device and simulator.
 
-First, download the [binary distribution](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe_Maply_Distribution_2_3.zip) and unzip it into your projects directory. It should look something like this:
+First, download the [binary distribution](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe_Maply_Distribution_2_4.zip) and unzip it into your projects directory. It should look something like this:
 
 {% highlight bash %}
 projects/WhirlyGlobe_Maply_Distribution_2_3
