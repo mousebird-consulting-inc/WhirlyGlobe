@@ -104,18 +104,6 @@
         case Maply2DMap:
             cell.textLabel.text = @"Map (2D)";
             break;
-        case Maply2DBNG:
-            cell.textLabel.text = @"Map (2D) British National Grid";
-            break;
-        case Maply3DMap:
-            cell.textLabel.text = @"Map (3D)";
-            break;
-        case MaplyGlobeScrollView:
-            cell.textLabel.text = @"Globe - UIScrollView (3D)";
-            break;
-        case Maply2DScrollView:
-            cell.textLabel.text = @"Map - UIScrollView (2D)";
-            break;
         default:
             break;
     }

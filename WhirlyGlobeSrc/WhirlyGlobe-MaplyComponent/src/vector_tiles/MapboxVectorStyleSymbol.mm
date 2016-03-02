@@ -30,9 +30,7 @@
         return nil;
     
     _textField = [styleSet stringValue:@"text-field" dict:styleEntry defVal:nil];
-    _textMaxSize = [[MaplyMapboxValueWrapper alloc] initWithDict:styleEntry name:@"text-max-size" dataType:MaplyMapboxValueTypeNumber styleSet:styleSet];
-    if (!_textMaxSize)
-        _textMaxSize = [[MaplyMapboxValueWrapper alloc] initWithObject:@(24.0)];
+    _textMaxSize = [styleSet doubleValue:@"text-max-size" dict:styleEntry defVal:128.0];
     // Note: Missing a lot of these
     
     return self;
@@ -47,18 +45,19 @@
     self = [super init];
     if (!self)
         return nil;
-
-    _textOpacity = [[MaplyMapboxValueWrapper alloc] initWithDict:styleEntry name:@"text-opacity" dataType:MaplyMapboxValueTypeNumber styleSet:styleSet];
-    if (!_textOpacity)
-        _textOpacity = [[MaplyMapboxValueWrapper alloc] initWithObject:@(1.0)];
-    _textColor = [[MaplyMapboxValueWrapper alloc] initWithDict:styleEntry name:@"text-color" dataType:MaplyMapboxValueTypeColor styleSet:styleSet];
-    if (!_textColor)
-        _textColor = [[MaplyMapboxValueWrapper alloc] initWithObject:[UIColor blackColor]];
-    _textHaloColor = [[MaplyMapboxValueWrapper alloc] initWithDict:styleEntry name:@"text-halo-color" dataType:MaplyMapboxValueTypeColor styleSet:styleSet];
-    _textSize = [[MaplyMapboxValueWrapper alloc] initWithDict:styleEntry name:@"text-size" dataType:MaplyMapboxValueTypeNumber styleSet:styleSet];
-    if (!_textSize)
-        _textSize = [[MaplyMapboxValueWrapper alloc] initWithObject:@(24.0)];
     
+    _textColor = [styleSet colorValue:@"text-color" dict:styleEntry defVal:[UIColor whiteColor]];
+    _textHaloColor = [styleSet colorValue:@"text-halo-color" dict:styleEntry defVal:nil];
+    id sizeEntry = styleEntry[@"text-size"];
+    if (sizeEntry)
+    {
+        if ([sizeEntry isKindOfClass:[NSNumber class]])
+            _textSize = [styleSet doubleValue:sizeEntry defVal:1.0];
+        else
+            _textSizeFunc = [styleSet stopsValue:sizeEntry defVal:nil];
+    } else
+        _textSize = 24.0;
+
     return self;
 }
 
@@ -67,7 +66,6 @@
 @implementation MapboxVectorLayerSymbol
 {
     NSMutableDictionary *symbolDesc;
-//    UIFont *font;
 }
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC
@@ -78,7 +76,7 @@
     
     _layout = [[MapboxVectorSymbolLayout alloc] initWithStyleEntry:styleEntry[@"layout"] styleSet:styleSet viewC:viewC];
     _paint = [[MapboxVectorSymbolPaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
-    
+
     if (!_layout)
     {
         NSLog(@"Expecting layout in symbol layer.");
@@ -90,16 +88,18 @@
         return nil;
     }
     
-    // Allocate the largest font we need
-    // Note: Need to look up the font name
-//    font = [UIFont systemFontOfSize:[_paint.textSize maxNumber]];
+    // Note: Need to look up the font
+    UIFont *font = [UIFont systemFontOfSize:_paint.textSize];
     
     symbolDesc = [NSMutableDictionary dictionaryWithDictionary:
-                  @{kMaplyFade: @(0.0),
+                  @{kMaplyTextColor: _paint.textColor,
+                    kMaplyFont: font,
+                    kMaplyFade: @(0.0),
                     kMaplyEnable: @(NO)
                     }];
     if (_paint.textHaloColor)
     {
+        symbolDesc[kMaplyTextOutlineColor] = _paint.textHaloColor;
         // Note: Pick this up from the spec
         symbolDesc[kMaplyTextOutlineSize] = @(2.0);
     }
@@ -109,53 +109,35 @@
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC
 {
-    if (tileID.level < self.minzoom || tileID.level > self.maxzoom)
-        return nil;
-    
     NSMutableArray *compObjs = [NSMutableArray array];
     
-    NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:symbolDesc];
-
-    bool include = true;
-    
-    double opacity = [_paint.textOpacity numberForZoom:tileID.level styleSet:self.styleSet];
-    if (opacity <= 0.0)
-        include = false;
-    double textSize = [_paint.textSize numberForZoom:tileID.level styleSet:self.styleSet];
-    if (textSize <= 1.0)
-        include = false;
-    // Note: Should pre-allocate these or at least use a cache
-    UIFont *font = [UIFont systemFontOfSize:textSize];
-    mutDesc[kMaplyFont] = font;
-    mutDesc[kMaplyTextColor] = [self.styleSet color:[_paint.textColor colorForZoom:tileID.level styleSet:self.styleSet] withOpacity:opacity];
-
-    if (_paint.textHaloColor)
+    NSDictionary *desc = symbolDesc;
+    if (_paint.textSizeFunc)
     {
-        mutDesc[kMaplyTextOutlineColor] = [self.styleSet color:[_paint.textHaloColor colorForZoom:tileID.level styleSet:self.styleSet] withOpacity:opacity];
+        double textSize = [_paint.textSizeFunc valueForZoom:tileID.level];
+        if (textSize > _layout.textMaxSize)
+            textSize = _layout.textMaxSize;
+        UIFont *font = [UIFont systemFontOfSize:textSize];
+        NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
+        mutDesc[kMaplyFont] = font;
+        desc = mutDesc;
     }
     
-    if (include)
+    NSMutableArray *labels = [NSMutableArray array];
+    for (MaplyVectorObject *vecObj in vecObjs)
     {
-        NSMutableArray *labels = [NSMutableArray array];
-        for (MaplyVectorObject *vecObj in vecObjs)
-        {
-            MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
-            label.loc = [vecObj center];
-            // Note: Should do name lookup here
-            label.text = vecObj.attributes[@"name"];
-            label.layoutImportance = MAXFLOAT;
-            if (!label.text)
-                label.text = vecObj.attributes[@"name_en"];
-            if (!label)
-                NSLog(@"Missing text for label");
-            if (label.text)
-                [labels addObject:label];
-        }
-        MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:mutDesc mode:MaplyThreadCurrent];
-        if (compObj)
-            [compObjs addObject:compObj];
+        // Note: Cheating
+        MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
+        label.loc = [vecObj center];
+        label.text = vecObj.attributes[@"name"];
+        label.layoutImportance = _layout.textMaxSize;
+        [labels addObject:label];
     }
-
+    
+    MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:desc mode:MaplyThreadCurrent];
+    if (compObjs)
+        [compObjs addObject:compObj];
+    
     return compObjs;
 }
 
