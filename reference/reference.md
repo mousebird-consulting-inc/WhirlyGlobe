@@ -10,9 +10,9 @@ The tutorials are the best place to start.  Work your way through those first.  
 <hr>
 
 <div class="media">
-<a class="media-left" href= "{{ site.baseurl }}/reference/ios_2_3/index.html" target="_blank" border="0"><img src= "{{ site.baseurl }}/images/apple_logo_white.png" alt= "iOS Reference Docs" align="left" width="64" height="78" style="margin-left:10px;margin-right:10px"></img></a>
+<a class="media-left" href= "{{ site.baseurl }}/reference/ios_2_4/index.html" target="_blank" border="0"><img src= "{{ site.baseurl }}/images/apple_logo_white.png" alt= "iOS Reference Docs" align="left" width="64" height="78" style="margin-left:10px;margin-right:10px"></img></a>
 <div class="media-body">
-The iOS reference documentation can be found <a href="{{ site.baseurl }}/reference/ios_2_3/index.html" target="_blank">over there</a>.  The iOS version of WhirlyGlobe-Maply is fully implemented and you'll find every last method, delegate, and class described from the Objective-C interface.  
+The iOS reference documentation can be found <a href="{{ site.baseurl }}/reference/ios_2_4/index.html" target="_blank">over there</a>.  The iOS version of WhirlyGlobe-Maply is fully implemented and you'll find every last method, delegate, and class described from the Objective-C interface.  
 </div>
 </div>
 
