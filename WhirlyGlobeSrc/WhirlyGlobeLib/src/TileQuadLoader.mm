@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/27/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -38,6 +38,9 @@ using namespace WhirlyKit;
     TileBuilder *tileBuilder;
     int defaultTessX,defaultTessY;
     bool _enable;
+    float _fade;
+    bool canLoadFrames;
+    std::vector<int> tessSizes;
 }
 
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
@@ -97,7 +100,10 @@ using namespace WhirlyKit;
         _activeTextures = -1;
         _borderTexel = 1;
         _enable = true;
+        _fade = 1.0;
+        _useTileCenters = true;
         defaultTessX = defaultTessY = 10;
+        canLoadFrames = [inDataSource respondsToSelector:@selector(quadTileLoader:startFetchForLevel:col:row:frame:attrs:)];
         pthread_mutex_init(&tileLock, NULL);
     }
     
@@ -180,6 +186,11 @@ using namespace WhirlyKit;
 {
     defaultTessX = x;
     defaultTessY = y;
+}
+
+- (void)setTesselationSizePerLevel:(const std::vector<int> &)inTessSizes
+{
+    tessSizes = inTessSizes;
 }
 
 // Convert from our image type to a GL enum
@@ -290,7 +301,7 @@ using namespace WhirlyKit;
          it != parents.end(); ++it)
     {
         LoadedTile *theTile = [self getTile:*it];
-        if (theTile && !theTile->isLoading)
+        if (theTile && theTile->isInitialized)
         {
 //            NSLog(@"Updating parent (%d,%d,%d)",theTile->nodeInfo.ident.x,theTile->nodeInfo.ident.y,
 //                  theTile->nodeInfo.ident.level);
@@ -301,7 +312,16 @@ using namespace WhirlyKit;
                     Quadtree::Identifier childIdent(2*theTile->nodeInfo.ident.x+ix,2*theTile->nodeInfo.ident.y+iy,theTile->nodeInfo.ident.level+1);
                     childTiles[iy*2+ix] = [self getTile:childIdent];
                 }
-            theTile->updateContents(tileBuilder,childTiles,changeRequests);
+            std::vector<Quadtree::Identifier> nodesEnabled,nodesDisabled;
+            theTile->updateContents(tileBuilder,childTiles,currentImage0,currentImage1,changeRequests,nodesEnabled,nodesDisabled);
+            
+            // Let the delegate know about enables and disables
+            if (!nodesEnabled.empty() && [dataSource respondsToSelector:@selector(tileWasEnabledLevel:col:row:)])
+                for (const Quadtree::Identifier &ident : nodesEnabled)
+                    [dataSource tileWasEnabledLevel:ident.level col:ident.x row:ident.y];
+            if (!nodesDisabled.empty() && [dataSource respondsToSelector:@selector(tileWasDisabledLevel:col:row:)])
+                for (const Quadtree::Identifier &ident : nodesDisabled)
+                    [dataSource tileWasDisabledLevel:ident.level col:ident.x row:ident.y];
         }
     }
     parents.clear();
@@ -327,12 +347,13 @@ using namespace WhirlyKit;
         }
     }
 
+    // Note: Shouldn't need to do this anymore
     // If we added geometry or textures, we may need to reset this
-    if (tileBuilder && tileBuilder->newDrawables)
-    {
-        [self runSetCurrentImage:changeRequests];
-        tileBuilder->newDrawables = false;
-    }
+//    if (tileBuilder && tileBuilder->newDrawables)
+//    {
+//        [self runSetCurrentImage:changeRequests];
+//        tileBuilder->newDrawables = false;
+//    }
     
     if (!changeRequests.empty())
     {
@@ -391,26 +412,44 @@ using namespace WhirlyKit;
     return (int)localFetches.size();
 }
 
-// Ask the data source to start loading the image for this tile
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo
 {
-    // Build the new tile
-    LoadedTile *newTile = new LoadedTile();
-    newTile->nodeInfo = *tileInfo;
-    newTile->isLoading = true;
-    newTile->calculateSize(layer.quadtree, layer.scene->getCoordAdapter(), layer.coordSys);
+    [self quadDisplayLayer:layer loadTile:tileInfo frame:-1];
+}
 
-    pthread_mutex_lock(&tileLock);
-    tileSet.insert(newTile);
-    pthread_mutex_unlock(&tileLock);
+// Ask the data source to start loading the image for this tile
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo frame:(int)frame
+{
+    // Look for an existing tile
+    LoadedTile *theTile = [self getTile:tileInfo->ident];
+    if (!theTile)
+    {
+        // Build the new tile
+        theTile = new LoadedTile();
+        theTile->nodeInfo = *tileInfo;
+        theTile->calculateSize(layer.quadtree, layer.scene->getCoordAdapter(), layer.coordSys);
+
+        theTile->samplingX = defaultTessX;
+        theTile->samplingY = defaultTessY;
+        if (tileInfo->ident.level < tessSizes.size())
+        {
+            theTile->samplingX = tessSizes[tileInfo->ident.level];
+            theTile->samplingY = tessSizes[tileInfo->ident.level];
+        }
+
+        pthread_mutex_lock(&tileLock);
+        tileSet.insert(theTile);
+        pthread_mutex_unlock(&tileLock);        
+    }
+    theTile->isLoading = true;
     
-    bool isNetworkFetch = ![dataSource respondsToSelector:@selector(tileIsLocalLevel:col:row:)] || ![dataSource tileIsLocalLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y];
+    bool isNetworkFetch = ![dataSource respondsToSelector:@selector(tileIsLocalLevel:col:row:frame:)] || ![dataSource tileIsLocalLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y frame:frame];
     if (isNetworkFetch)
         networkFetches.insert(tileInfo->ident);
     else
         localFetches.insert(tileInfo->ident);
     
-    [dataSource quadTileLoader:self startFetchForLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y attrs:tileInfo->attrs];
+    [dataSource quadTileLoader:self startFetchForLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y frame:frame attrs:tileInfo->attrs];
 }
 
 // Check if we're in the process of loading the given tile
@@ -424,8 +463,8 @@ using namespace WhirlyKit;
     if (!tile)
         return false;
     
-    // If it's not loading, sure
-    return !tile->isLoading;
+    // If it's initialized, then sure
+    return tile->isInitialized;
 }
 
 // When the data source loads the image, we'll get called here
@@ -442,7 +481,7 @@ using namespace WhirlyKit;
         loadImage.imageData = image;
     }
 
-    [self dataSource:inDataSource loadedImage:loadImage forLevel:level col:col row:row];
+    [self dataSource:inDataSource loadedImage:loadImage forLevel:level col:col row:row frame:-1];
 }
 
 - (bool)tileIsPlaceholder:(id)loadTile
@@ -452,7 +491,7 @@ using namespace WhirlyKit;
         WhirlyKitLoadedImage *loadImage = (WhirlyKitLoadedImage *)loadTile;
         return loadImage.type == WKLoadedImagePlaceholder;
     }
-    else if ([loadTile isKindOfClass:[WhirlyKitElevationChunk class]])
+    else if ([loadTile conformsToProtocol:@protocol(WhirlyKitElevationChunk)])
         return false;
     else if ([loadTile isKindOfClass:[WhirlyKitLoadedTile class]])
     {
@@ -467,7 +506,12 @@ using namespace WhirlyKit;
     return false;
 }
 
-- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadTile forLevel:(int)level col:(int)col row:(int)row
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)inDataSource loadedImage:(id)loadImage forLevel:(int)level col:(int)col row:(int)row
+{
+    [self dataSource:inDataSource loadedImage:loadImage forLevel:level col:col row:row frame:-1];
+}
+
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadTile forLevel:(int)level col:(int)col row:(int)row frame:(int)frame
 {
     bool isPlaceholder = [self tileIsPlaceholder:loadTile];
     
@@ -487,6 +531,7 @@ using namespace WhirlyKit;
         tileBuilder->useElevAsZ = _useElevAsZ;
         tileBuilder->ignoreEdgeMatching = _ignoreEdgeMatching;
         tileBuilder->coverPoles = _coverPoles;
+        tileBuilder->useTileCenters = _useTileCenters;
         tileBuilder->glFormat = [self glFormat];
         tileBuilder->singleByteSource = [self singleByteSource];
         tileBuilder->defaultSphereTessX = defaultTessX;
@@ -496,6 +541,8 @@ using namespace WhirlyKit;
         tileBuilder->lineMode = false;
         tileBuilder->borderTexel = _borderTexel;
         tileBuilder->singleLevel = !_quadLayer.targetLevels.empty();
+        tileBuilder->enabled = _enable;
+        tileBuilder->fade = _fade;
 
         // If we haven't decided how many active textures we'll have, do that
         if (_activeTextures == -1)
@@ -538,10 +585,10 @@ using namespace WhirlyKit;
     
     
     std::vector<WhirlyKitLoadedImage *> loadImages;
-    WhirlyKitElevationChunk *loadElev = nil;
+    NSObject<WhirlyKitElevationChunk> *loadElev = nil;
     if ([loadTile isKindOfClass:[WhirlyKitLoadedImage class]])
         loadImages.push_back(loadTile);
-    else if ([loadTile isKindOfClass:[WhirlyKitElevationChunk class]])
+    else if ([loadTile conformsToProtocol:@protocol(WhirlyKitElevationChunk)])
         loadElev = loadTile;
     else if ([loadTile isKindOfClass:[WhirlyKitLoadedTile class]])
     {
@@ -553,7 +600,7 @@ using namespace WhirlyKit;
     }
     
     bool loadingSuccess = true;
-    if (!isPlaceholder && _numImages != loadImages.size())
+    if (!isPlaceholder && (loadImages.empty() || (_numImages != loadImages.size() && (frame != -1 && loadImages.size() != 1))))
     {
         // Only print out a message if they bothered to hand in something.  If not, they meant
         //  to tell us it was empty.
@@ -566,38 +613,57 @@ using namespace WhirlyKit;
     bool createdAtlases = false;
     if (!isPlaceholder && loadingSuccess && _useDynamicAtlas && !tileBuilder->texAtlas && !loadImages.empty())
     {
-        int estTexX = tileBuilder->defaultSphereTessX, estTexY = tileBuilder->defaultSphereTessY;
-        if (loadElev)
+        int estTexX = tileBuilder->defaultSphereTessX;
+        int estTexY = tileBuilder->defaultSphereTessY;
+        
+        if ([loadElev isKindOfClass:[WhirlyKitElevationGridChunk class]])
         {
-            estTexX = std::max(loadElev.numX-1,estTexX);
-            estTexY = std::max(loadElev.numY-1,estTexY);
+            WhirlyKitElevationGridChunk *gridElev = (WhirlyKitElevationGridChunk *)loadElev;
+            estTexX = std::max(gridElev.sizeX-1, estTexX);
+            estTexY = std::max(gridElev.sizeY-1, estTexY);
         }
         tileBuilder->initAtlases(_imageType,_numImages,_textureAtlasSize,estTexX,estTexY);
+        if (!_enable)
+            tileBuilder->drawAtlas->setEnableAllDrawables(false, changeRequests);
 
         createdAtlases = true;
     }
     
     LoadedTile *tile = *it;
     tile->isLoading = false;
+    bool parentUpdate = false;
     if (loadingSuccess && (isPlaceholder || !loadImages.empty() || loadElev))
     {
         tile->elevData = loadElev;
-        if (tile->addToScene(tileBuilder,loadImages,currentImage0,currentImage1,loadElev,changeRequests))
+        if (!tile->isInitialized)
         {
-            // If we have more than one image to dispay, make sure we're doing the right one
-            if (!isPlaceholder && _numImages > 1 && tileBuilder->texAtlas)
+            parentUpdate = true;
+            // Build the tile geometry
+//            NSLog(@"Adding to scene: %d: (%d,%d) %d",tile->nodeInfo.ident.level,tile->nodeInfo.ident.x,tile->nodeInfo.ident.y,frame);
+            if (tile->addToScene(tileBuilder,loadImages,frame,currentImage0,currentImage1,loadElev,changeRequests))
             {
-                tile->setCurrentImages(tileBuilder, currentImage0, currentImage1, changeRequests);
-            }
-        } else
-            loadingSuccess = false;
+                // If we have more than one image to display, make sure we're doing the right one
+                if (!isPlaceholder && _numImages > 1 && tileBuilder->texAtlas)
+                {
+                    tile->setCurrentImages(tileBuilder, currentImage0, currentImage1, changeRequests);
+                }
+            } else
+                loadingSuccess = false;
+        } else {
+            parentUpdate = false;
+            // Update a texture in an existing slot
+//            NSLog(@"Updating texture: %d: (%d,%d) %d",tile->nodeInfo.ident.level,tile->nodeInfo.ident.x,tile->nodeInfo.ident.y,frame);
+            tile->updateTexture(tileBuilder, loadImages[0], frame, changeRequests);
+        }
     }
 
     if (loadingSuccess)
-        [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
+        [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident frame:frame];
     else {
-        // Shouldn't have a visual representation, so just lose it
-        [_quadLayer loader:self tileDidNotLoad:tile->nodeInfo.ident];
+        // Clear out the visuals for this tile
+        if (tile->isInitialized)
+            tile->clearContents(tileBuilder, changeRequests);
+        [_quadLayer loader:self tileDidNotLoad:tile->nodeInfo.ident frame:frame];
         tileSet.erase(it);
         delete tile;
     }
@@ -606,13 +672,13 @@ using namespace WhirlyKit;
 //    NSLog(@"Loaded image for tile (%d,%d,%d)",col,row,level);
     
     // Various child state changed so let's update the parents
-    if (level > 0 && _quadLayer.targetLevels.empty())
+    if (parentUpdate && level > 0 && _quadLayer.targetLevels.empty())
         parents.insert(Quadtree::Identifier(col/2,row/2,level-1));
     
     if (!doingUpdate)
         [self flushUpdates:_quadLayer.layerThread];
 
-    if (!isPlaceholder)
+    if (!isPlaceholder && parentUpdate)
         [self updateTexAtlasMapping];
 
     // They might have set the current image already
@@ -670,6 +736,19 @@ using namespace WhirlyKit;
     [self refreshParents:_quadLayer];
 }
 
+- (int)numFrames
+{
+    return _numImages;
+}
+
+- (int)currentFrame
+{
+    if (_numImages <= 1)
+        return -1;
+    else
+        return currentImage0;
+}
+
 // Thus ends the unloads.  Now we can update parents
 - (void)quadDisplayLayerEndUpdates:(WhirlyKitQuadDisplayLayer *)layer
 {
@@ -687,7 +766,11 @@ using namespace WhirlyKit;
 - (void)setCurrentImage:(int)newImage changes:(WhirlyKit::ChangeSet &)theChanges;
 {
     if (!_quadLayer)
+    {
+        currentImage0 = newImage;
+        currentImage1 = 0;
         return;
+    }
 
     if (currentImage0 != newImage || currentImage1 != 0)
     {
@@ -778,7 +861,11 @@ using namespace WhirlyKit;
 - (void)setCurrentImageStart:(int)startImage end:(int)endImage changes:(WhirlyKit::ChangeSet &)theChanges
 {
     if (!_quadLayer)
+    {
+        currentImage0 = startImage;
+        currentImage1 = endImage;
         return;
+    }
     
     if (currentImage0 != startImage || currentImage1 != endImage)
     {
@@ -854,6 +941,57 @@ using namespace WhirlyKit;
         [self performSelector:@selector(runSetEnable:) onThread:_quadLayer.layerThread withObject:@(enable) waitUntilDone:NO];
     } else {
         [self runSetEnable:@(enable)];
+    }
+}
+
+- (void)runSetFade:(NSNumber *)newFade
+{
+    float fadeVal = [newFade floatValue];
+    if (fadeVal == _fade)
+        return;
+    
+    _fade = fadeVal;
+    
+    if (!_quadLayer)
+        return;
+    
+    ChangeSet theChanges;
+    if (_useDynamicAtlas)
+    {
+        if (tileBuilder)
+        {
+            tileBuilder->fade = _fade;
+            if (tileBuilder->drawAtlas)
+                tileBuilder->drawAtlas->setFadeAllDrawables(_fade, theChanges);
+        }
+    } else {
+        // We'll look through the tiles and change them all accordingly
+        pthread_mutex_lock(&tileLock);
+        
+        // No atlases, so changes tiles individually
+        for (LoadedTileSet::iterator it = tileSet.begin();
+             it != tileSet.end(); ++it)
+            (*it)->setFade(tileBuilder, _fade, theChanges);
+        
+        pthread_mutex_unlock(&tileLock);
+    }
+    
+    [_quadLayer.layerThread addChangeRequests:theChanges];
+}
+
+- (void)setFade:(float)fade
+{
+    if (!_quadLayer)
+    {
+        _fade = fade;
+        return;
+    }
+
+    if ([NSThread currentThread] != _quadLayer.layerThread)
+    {
+        [self performSelector:@selector(runSetFade:) onThread:_quadLayer.layerThread withObject:@(fade) waitUntilDone:NO];
+    } else {
+        [self runSetFade:@(fade)];
     }
 }
 

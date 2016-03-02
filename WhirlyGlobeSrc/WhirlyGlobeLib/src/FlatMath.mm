@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/10/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -33,7 +33,12 @@ GeoCoord PlateCarreeCoordSystem::localToGeographic(Point3d pt)
 {
     return GeoCoord(pt.x(),pt.y());
 }
-    
+
+Point2d PlateCarreeCoordSystem::localToGeographicD(Point3d pt)
+{
+    return Point2d(pt.x(),pt.y());
+}
+
 Point3f PlateCarreeCoordSystem::geographicToLocal(GeoCoord geo)
 {
     return Point3f(geo.lon(),geo.lat(),0.0);
@@ -43,7 +48,12 @@ Point3d PlateCarreeCoordSystem::geographicToLocal3d(GeoCoord geo)
 {
     return Point3d(geo.lon(),geo.lat(),0.0);
 }
-    
+
+Point3d PlateCarreeCoordSystem::geographicToLocal(Point2d geo)
+{
+    return Point3d(geo.x(),geo.y(),0.0);
+}
+
 Point3f PlateCarreeCoordSystem::localToGeocentric(Point3f localPt)
 {
     return GeoCoordSystem::LocalToGeocentric(Point3f(localPt.x(),localPt.y(),localPt.z()));
@@ -99,7 +109,16 @@ GeoCoord FlatEarthCoordSystem::localToGeographic(Point3d pt)
     
     return coord;
 }
+
+Point2d FlatEarthCoordSystem::localToGeographicD(Point3d pt)
+{
+    Point2d coord;
+    coord.x() = pt.x() / (MetersPerRadian * converge) + origin.lon();
+    coord.y() = pt.y() / MetersPerRadian + origin.lat();
     
+    return coord;
+}
+
 Point3f FlatEarthCoordSystem::geographicToLocal(GeoCoord geo)
 {
     Point3f pt;
@@ -119,7 +138,17 @@ Point3d FlatEarthCoordSystem::geographicToLocal3d(GeoCoord geo)
     
     return pt;
 }
-        
+
+Point3d FlatEarthCoordSystem::geographicToLocal(Point2d geo)
+{
+    Point3d pt;
+    pt.x() = (geo.x() - origin.lon()) * converge * MetersPerRadian;
+    pt.y() = (geo.y() - origin.lat()) * MetersPerRadian;
+    pt.z() = 0.0;
+    
+    return pt;
+}
+
 /// Convert from local coordinates to WGS84 geocentric
 Point3f FlatEarthCoordSystem::localToGeocentric(Point3f localPt)
 {

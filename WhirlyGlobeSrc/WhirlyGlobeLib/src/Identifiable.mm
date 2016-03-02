@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,19 +20,38 @@
 
 #import "Identifiable.h"
 
+static dispatch_once_t onceToken;
+
 namespace WhirlyKit
 {
 	
 static unsigned long curId = 0;
+static pthread_mutex_t curIdMut;
 
 Identifiable::Identifiable()
-{ 
-	myId = ++curId; 
+{
+    dispatch_once(&onceToken,
+                  ^{
+                      pthread_mutex_init(&curIdMut, NULL);
+                  });
+    
+    pthread_mutex_lock(&curIdMut);
+	myId = ++curId;
+    pthread_mutex_unlock(&curIdMut);
 }
 	
 SimpleIdentity Identifiable::genId()
 {
-	return ++curId;
+    dispatch_once(&onceToken,
+                  ^{
+                      pthread_mutex_init(&curIdMut, NULL);
+                  });
+
+    pthread_mutex_lock(&curIdMut);
+    SimpleIdentity retId = ++curId;
+    pthread_mutex_unlock(&curIdMut);
+    
+    return retId;
 }
 
 }

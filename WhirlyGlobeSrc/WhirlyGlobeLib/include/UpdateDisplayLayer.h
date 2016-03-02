@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/19/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -33,6 +33,9 @@
 
 /// Fill in this protocol to be called 
 @protocol WhirlyGlobeUpdateDataSource <NSObject>
+
+/// Called once the layer starts
+- (void)start;
 
 /// The update display layer will call this when the viewer has moved sufficiently
 - (void)viewerDidUpdate:(WhirlyGlobeViewState *)viewState scene:(WhirlyKit::Scene *)scene;

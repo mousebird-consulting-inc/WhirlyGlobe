@@ -120,6 +120,8 @@ public:
     class CompiledSymbolizerTable
     {
     public:
+        CompiledSymbolizerTable() : currentDrawPriority(0) { }
+        
         class SubSymbolizer
         {
         public:
@@ -186,6 +188,8 @@ public:
         
         // Write the symbolizers out as a JSON style table
         bool writeJSON(std::string &json);
+        
+        int currentDrawPriority;
     };
     
     // Rules within a style
@@ -350,6 +354,8 @@ public:
     
     // Write the TileJSON-like format for vector tiles
     bool writeTileJSON(std::string &json,const std::string &webDbName,const std::string &webDbURL);
+    
+    Symbolizer::TileGeometryType defaultGeomType;
     
     // Parameters (unparsed at present)
     tinyxml2::XMLElement *paramEl;

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/28/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -82,7 +82,10 @@ using namespace WhirlyKit;
     watch->minTime = minTime;
     watch->minDist = minDist;
     watch->maxLagTime = maxLagTime;
-    [watchers addObject:watch];
+    @synchronized(self)
+    {
+        [watchers addObject:watch];
+    }
     
     // Note: This is running in the layer thread, yet we're accessing the view.  Might be a problem.
     if (!lastViewState && layerThread.renderer.framebufferWidth != 0)
@@ -113,26 +116,30 @@ using namespace WhirlyKit;
 {
     LocalWatcher *found = nil;
     
-    for (LocalWatcher *watch in watchers)
+    @synchronized(self)
     {
-        if (watch->target == toRemove->target && watch->selector == toRemove->selector)
+        for (LocalWatcher *watch in watchers)
         {
-            found = watch;
-            break;
+            if (watch->target == toRemove->target && watch->selector == toRemove->selector)
+            {
+                found = watch;
+                break;
+            }
         }
-    }
-    
-    if (found)
-    {
-        [watchers removeObject:found];
+        
+        if (found)
+        {
+            [watchers removeObject:found];
+        }
     }
 }
 
 // This is called in the main thread
 - (void)viewUpdated:(WhirlyKitView *)inView
 {
-    WhirlyKitViewState *viewState = [[_viewStateClass alloc] initWithView:inView renderer:layerThread.renderer];
-
+    if (layerThread.renderer == nil)
+        return;
+    
     // The view has to be valid first
     if (layerThread.renderer.framebufferWidth <= 0.0)
     {
@@ -141,6 +148,8 @@ using namespace WhirlyKit;
         [self performSelector:@selector(viewUpdated:) withObject:inView afterDelay:0.1];
         return;
     }
+
+    WhirlyKitViewState *viewState = [[_viewStateClass alloc] initWithView:inView renderer:layerThread.renderer];
     
 //    lastViewState = viewState;
     @synchronized(self)
@@ -159,8 +168,8 @@ using namespace WhirlyKit;
 - (void)kickoffViewUpdated
 {
     @synchronized(self)
-{
-    lastViewState = newViewState;
+    {
+        lastViewState = newViewState;
         kickoffScheduled = false;
     }
     [self viewUpdateLayerThread:lastViewState];
@@ -178,12 +187,15 @@ using namespace WhirlyKit;
 // Called in the layer thread
 - (void)updateSingleWatcher:(LocalWatcher *)watch
 {
-    // Make sure the thing we're watching is still valid.
-    // This can happen with dangling selectors
-    if (![watchers containsObject:watch])
+    @synchronized(self)
     {
-//        NSLog(@"Whoa! Tried to call a watcher that's no longer there.");
-        return;
+        // Make sure the thing we're watching is still valid.
+        // This can happen with dangling selectors
+        if (![watchers containsObject:watch])
+        {
+    //        NSLog(@"Whoa! Tried to call a watcher that's no longer there.");
+            return;
+        }
     }
     
     if (lastViewState)
@@ -219,36 +231,39 @@ public:
     std::set<LayerPriorityOrder> orderedLayers;
     NSTimeInterval minNextUpdate = 100;
     NSTimeInterval maxLayerDelay = 0.0;
-    for (LocalWatcher *watch in watchers)
+    @synchronized(self)
     {
-        NSTimeInterval minTest = curTime - watch->lastUpdated;
-        if (minTest > watch->minTime)
+        for (LocalWatcher *watch in watchers)
         {
-            bool runUpdate = false;
-            
-            // Check the distance, if that's set
-            if (watch->minDist > 0.0)
+            NSTimeInterval minTest = curTime - watch->lastUpdated;
+            if (minTest > watch->minTime)
             {
-                // If we haven't moved past the trigger, don't update this time
-                double thisDist2 = ([viewState eyePos] - watch->lastEyePos).squaredNorm();
-                if (thisDist2 > watch->minDist*watch->minDist)
-                    runUpdate = true;
-                else {
-                    if (minTest > watch->maxLagTime)
-                    {
+                bool runUpdate = false;
+                
+                // Check the distance, if that's set
+                if (watch->minDist > 0.0)
+                {
+                    // If we haven't moved past the trigger, don't update this time
+                    double thisDist2 = ([viewState eyePos] - watch->lastEyePos).squaredNorm();
+                    if (thisDist2 > watch->minDist*watch->minDist)
                         runUpdate = true;
-                        minNextUpdate = MIN(minNextUpdate,minTest);
+                    else {
+                        if (minTest > watch->maxLagTime)
+                        {
+                            runUpdate = true;
+                            minNextUpdate = MIN(minNextUpdate,minTest);
+                        }
                     }
-                }
-            } else
-                runUpdate = true;
+                } else
+                    runUpdate = true;
 
-            if (runUpdate)
-                orderedLayers.insert(LayerPriorityOrder(minTest,watch));
-        } else {
-            minNextUpdate = MIN(minNextUpdate,minTest);
+                if (runUpdate)
+                    orderedLayers.insert(LayerPriorityOrder(minTest,watch));
+            } else {
+                minNextUpdate = MIN(minNextUpdate,minTest);
+            }
+            maxLayerDelay = MAX(maxLayerDelay,minTest);
         }
-        maxLayerDelay = MAX(maxLayerDelay,minTest);
     }
     
 //    static int count = 0;

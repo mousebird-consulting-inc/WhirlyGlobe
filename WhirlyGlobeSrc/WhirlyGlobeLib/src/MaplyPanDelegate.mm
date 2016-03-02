@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/10/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -185,7 +185,7 @@ static const float AnimLen = 1.0;
             {
                 // We'll use this to get two points in model space
                 CGPoint vel = [pan velocityInView:glView];
-                if((fabsf(vel.x) + fabsf(vel.y)) > 150) {
+                if((std::abs(vel.x) + std::abs(vel.y)) > 150) {
                     //if the velocity is to slow, its probably not just a finger up
                     CGPoint touch0 = lastTouch;
                     CGPoint touch1 = touch0;  touch1.x += AnimLen*vel.x; touch1.y += AnimLen*vel.y;

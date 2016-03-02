@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 10/25/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,13 +25,24 @@ using namespace WhirlyKit;
 
 @implementation MaplyTexture
 
+- (id)init
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _isSubTex = false;
+    _texID = EmptyIdentity;
+    
+    return self;
+}
+
 - (void)clear
 {
-    if (_viewC && _viewC->scene && _texID != EmptyIdentity)
+    if (_texID != EmptyIdentity)
     {
-        _viewC->scene->addChangeRequest(new RemTextureReq(_texID));
-        _viewC = nil;
-        _texID = EmptyIdentity;
+        if (_interactLayer)
+            [_interactLayer clearTexture:self];
     }
 }
 

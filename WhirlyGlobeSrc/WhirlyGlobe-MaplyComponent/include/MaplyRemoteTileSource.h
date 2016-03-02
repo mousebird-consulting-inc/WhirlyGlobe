@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/4/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -118,6 +118,11 @@
   */
 @property (nonatomic) int cachedFileLifetime;
 
+/** @brief Query string to add after the URL we're fetching from.
+    @details Add your access tokens and other query arguments.
+  */
+@property (nonatomic,strong) NSString *queryStr;
+
 /** @brief Add a bounding box tiles are valid within.
  @details By default all areas within the coordinate system are valid for paging tiles.  If you call this, then only the bounding boxes you've added are valid.  You can call this method multiple times.
  @param bbox Bounding box for valid tiles in the local coordinate system.
@@ -147,8 +152,9 @@
 /** @brief Check if a given tile is stored in the local cache.
     @details This checks if the given tile ID is represented in the local cache directory.
     @param tileID The tile we'd like to check for.
+    @param frame If you're loading individual frames this will be the frame.  Otherwise, -1.
   */
-- (bool)tileIsLocal:(MaplyTileID)tileID;
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame;
 
 /** @brief Check if we should even try to load a given tile.
  @details Check whether tile level is within zoom limits for the source, and if the tile is within any MBRs that have been added.
@@ -162,26 +168,49 @@
 
 @class MaplyRemoteTileSource;
 
-/** The remote tile source delegate provides feedback on which
+/** @brief A delegate called during various parts of the tile loading and display operation.
+    @details The remote tile source delegate provides feedback on which
     tiles loaded and which didn't.  You'll be called in all sorts of
     random threads here, so act accordingly.
+    @details This delegate interface can also be used to modify data as it comes in.
   */
 @protocol MaplyRemoteTileSourceDelegate <NSObject>
 
 @optional
 
-/** The tile successfully loaded.
+/** @brief The tile successfully loaded.
     @param tileSource the remote tile source that loaded the tile.
     @param tileID The ID of the tile we loaded.
   */
 - (void) remoteTileSource:(id)tileSource tileDidLoad:(MaplyTileID)tileID;
 
-/** The tile failed to load.
+/** @brief Modify the tile data after it's been read.
+    @details This method is useful for messing with tile sources that may not be images, but can be turned into images.
+  */
+- (NSData *) remoteTileSource:(id)tileSource modifyTileReturn:(NSData *)tileData forTile:(MaplyTileID)tileID;
+
+/** @brief The tile failed to load.
     @param tileSource The remote tile source that tried to load the tile.
     @param tileID The tile ID of the tile that failed to load.
     @param error The NSError message, probably from the network routine.
   */
 - (void) remoteTileSource:(id)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *)error;
+
+/** @brief Called when the tile is disabled.
+ */
+- (void)remoteTileSource:(id)tileSource tileDisabled:(MaplyTileID)tileID;
+
+/** @brief Called when the tile is enabled.
+ */
+- (void)remoteTileSource:(id)tileSource tileEnabled:(MaplyTileID)tileID;
+
+/** @brief Called when the tile is unloaded.
+    @details Normally you won't get called when an image or vector tile is unloaded from memory.  If you set this, you will.
+    @details You're not required to do anything, but you can clean up data of your own if you like.
+    @details You will be called on another thread, so act accordingly.
+    @param tileID The tile that that just got unloaded.
+ */
+- (void)remoteTileSource:(id)tileSource tileUnloaded:(MaplyTileID)tileID;
 
 @end
 
@@ -247,5 +276,11 @@
 
 /// @brief Passes through the cacheDir from the MaplyRemoteTileInfo
 @property (nonatomic,strong) NSString *cacheDir;
+
+/// @brief If set, we'll track the outstanding connections across all remote tile sources
++ (void)setTrackConnections:(bool)track;
+
+/// @brief Number of outstanding connections across all remote tile sources
++ (int)numOutstandingConnections;
 
 @end

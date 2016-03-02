@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/10/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -58,6 +58,7 @@ using namespace WhirlyKit;
     UIRotationGestureRecognizer *rotateRecog = [[UIRotationGestureRecognizer alloc] initWithTarget:rotateDelegate action:@selector(rotateGesture:)];
     rotateRecog.delegate = rotateDelegate;
 	[view addGestureRecognizer:rotateRecog];
+    rotateDelegate.gestureRecognizer = rotateRecog;
 	return rotateDelegate;
 }
 

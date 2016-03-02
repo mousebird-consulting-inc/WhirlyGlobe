@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/28/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public:
     /// Constructor for sorting
     DynamicTexture(SimpleIdentity myId) : TextureBase(myId), layoutGrid(NULL) { }
     /// Construct with a name, square texture size, cell size (in texels), and the memory format
-    DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum format);
+    DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum format,bool clearTextures);
     ~DynamicTexture();
     
     /// Represents a region in the texture
@@ -62,11 +62,18 @@ public:
     /// Add the data at a given location in the texture
     void addTextureData(int startX,int startY,int width,int height,NSData *data);
     
+    /// Clear out the area given
+    void clearRegion(const Region &region);
+    void clearTextureData(int startX,int startY,int width,int height);
+    
     /// Set or clear a given region
     void setRegion(const Region &region,bool enable);
     
     /// Look for an open region of the given cell extents
     bool findRegion(int cellsX,int cellsY,Region &region);
+    
+    /// Return a list of released regions
+    void getReleasedRegions(std::vector<DynamicTexture::Region> &toClear);
     
     /// Add a region to the list of ones to be cleared.
     /// This is called by the renderer
@@ -105,6 +112,9 @@ protected:
     
     /// Number of active regions (as far as the texture is concerned)
     int numRegions;
+
+    /// If set, overwrite texture data with empty pixels
+    bool clearTextures;
 };
 
 typedef std::vector<DynamicTexture *> DynamicTextureVec;
@@ -154,18 +164,42 @@ protected:
 class DynamicTextureAtlas
 {
 public:
+    /// This maps a given texture to its location in a dynamic texture
+    class TextureRegion
+    {
+    public:
+        bool operator < (const TextureRegion &that) const { return subTex.getId() < that.subTex.getId(); }
+        
+        SubTexture subTex;
+        SimpleIdentity dynTexId;
+        DynamicTexture::Region region;
+    };
+
     /// Construct with the square size of the textures, the cell size (in pixels) and the pixel format
     DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1);
     ~DynamicTextureAtlas();
 
     /// Try to add the texture to one of our dynamic textures, or create one.
-    bool addTexture(const std::vector<Texture *> &textures,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0);
+    bool addTexture(const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0,TextureRegion *texRegion=NULL);
+    
+    /// Update one of the frames of a multi-frame texture atlas
+    bool updateTexture(Texture *,int frame,const TextureRegion &texRegion,ChangeSet &changes);
     
     /// Free up the space for a texture from one of the dynamic textures
     void removeTexture(const SubTexture &subTex,ChangeSet &changes);
     
     /// Return the IDs for the dynamic textures we're using
     void getTextureIDs(std::vector<SimpleIdentity> &texIDs,int which);
+    
+    /// Return the texture ID for a given frame, corresponding to the base Tex ID
+    SimpleIdentity getTextureIDForFrame(SimpleIdentity baseTexID,int which);
+    
+    /// Return the dynamic texture's format
+    GLenum getFormat() { return format; }
+    
+    /// Check if the dynamic texture atlas is empty.
+    /// Call cleanup() first
+    bool empty();
     
     /// Look for any textures that should be cleaned up
     void cleanup(ChangeSet &changes);
@@ -178,21 +212,13 @@ public:
     void log();
 
 protected:
-    /// This maps a given texture to its location in a dynamic texture
-    class TextureRegion
-    {
-    public:
-        bool operator < (const TextureRegion &that) const { return subTex.getId() < that.subTex.getId(); }
-        
-        SubTexture subTex;
-        SimpleIdentity dynTexId;
-        DynamicTexture::Region region;
-    };
-
     int imageDepth;
     int texSize;
     int cellSize;
     GLenum format;
+    
+    /// If set, overwrite texture data with empty pixels
+    bool clearTextures;
     
     typedef std::set<TextureRegion> TextureRegionSet;
     TextureRegionSet regions;

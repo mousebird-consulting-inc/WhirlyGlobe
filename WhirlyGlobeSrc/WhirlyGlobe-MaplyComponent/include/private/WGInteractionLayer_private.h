@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 // The view controller fills this in
 @protocol WGInteractionLayerDelegate <NSObject>
 // Called back on the main thread for selection
-- (void)handleSelection:(WhirlyGlobeTapMessage *)msg didSelect:(NSObject *)selectedObj;
+- (void)handleSelection:(WhirlyGlobeTapMessage *)msg didSelect:(NSArray *)selectedObjs;
 @end
 
 /** The Interaction Layer runs in the layer thread (mostly) and manages
@@ -33,10 +33,10 @@
 @interface WGInteractionLayer : MaplyBaseInteractionLayer
 {
     WhirlyGlobeView * __weak globeView;
-        
+
     // If set, we'll autorotate after a certain amount of time
     float autoRotateInterval,autoRotateDegrees;
-    
+
     // Last time something was tapped
     NSTimeInterval lastTouched;
 }

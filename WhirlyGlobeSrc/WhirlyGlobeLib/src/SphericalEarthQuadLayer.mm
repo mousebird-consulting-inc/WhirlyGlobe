@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/6/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -135,7 +135,7 @@ using namespace WhirlyKit;
     return 1;
 }
 
-- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row frame:(int)frame attrs:(NSMutableDictionary *)attrs
 {
     NSString *name = [NSString stringWithFormat:@"%@_%dx%dx%d.%@",_baseName,level,col,row,_ext];
 	if (self.basePath)
@@ -198,7 +198,7 @@ using namespace WhirlyKit;
 
 - (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES *)inRenderer
 {
-    return [self initWithInfo:infoName imageType:WKTileIntRGBA renderer:inRenderer];
+    return [self initWithInfo:infoName imageType:WKTileUShort565 renderer:inRenderer];
 }
 
 - (id) initWithInfo:(NSString *)infoName imageType:(WhirlyKitTileImageType)imageType renderer:(WhirlyKitSceneRendererES *)inRenderer;
@@ -213,6 +213,7 @@ using namespace WhirlyKit;
     
     // This handles the geometry and loading
     WhirlyKitQuadTileLoader *theLoader = [[WhirlyKitQuadTileLoader alloc] initWithName:@"SphericalEarthQuadLayer" dataSource:theDataSource];
+    theLoader.useTileCenters = false;
     if (![theDataSource.ext compare:@"pvrtc"])
         [theLoader setImageType:WKTilePVRTC4];
     // On non-retina displays we're loading fewer tiles

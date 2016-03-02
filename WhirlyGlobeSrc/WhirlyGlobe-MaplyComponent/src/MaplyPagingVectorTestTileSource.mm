@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/19/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
                        // Add in a little delay
                        usleep(0.215 * 1e6);
                        
-                       if (tileID.level == _maxZoom)
+                       if (tileID.level > _maxZoom)
                        {
                            [layer tileFailedToLoad:tileID];
                        } else {
@@ -69,12 +69,14 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
                            MaplyVectorObject *rect = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:4 attributes:nil];
                            MaplyComponentObject *compObj0 = [layer.viewC addVectors:@[rect] desc:
                                                             @{kMaplyFilled: @(true),
-                                                              kMaplyColor: color
+                                                              kMaplyColor: color,
+                                                              kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+100+tileID.level)
                                                               }
                                                             ];
                            MaplyComponentObject *compObj1 = [layer.viewC addVectors:@[rect] desc:
                                                              @{kMaplyFilled: @(false),
-                                                               kMaplyColor: [UIColor whiteColor]
+                                                               kMaplyColor: [UIColor whiteColor],
+                                                               kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+101+tileID.level)
                                                                }
                                                              ];
                            
@@ -87,7 +89,6 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
                                                                kMaplyJustify: @"center",
                                                                kMaplyTextOutlineSize: @(1.0)
                                                                }];
-                           
                            
                            [layer addData:@[compObj0,compObj1,compObj2] forTile:tileID];
                            

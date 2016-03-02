@@ -2,8 +2,8 @@
  *  ParticleSystemManager.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 7/30/13.
- *  Copyright 2011-2013 mousebird consulting. All rights reserved.
+ *  Created by Steve Gifford on 4/26/15.
+ *  Copyright 2011-2015 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,62 +22,85 @@
 #import <set>
 #import <map>
 #import "Identifiable.h"
-#import "Drawable.h"
-#import "DataLayer.h"
-#import "LayerThread.h"
-#import "TextureAtlas.h"
-#import "ParticleGenerator.h"
-
-/** Representation of a single particle system.
- We give it a geographic location and a normal (in 3-space).
- The rest of the info is in the dictionary.
- */
-@interface WhirlyKitParticleSystem : NSObject
-
-/// Where the particle system base is
-@property (nonatomic,assign) WhirlyKit::GeoCoord loc;
-/// Direction we're sending particles out
-@property (nonatomic,assign) Eigen::Vector3f norm;
-
-@end
+#import "BasicDrawable.h"
+#import "Scene.h"
+#import "SelectionManager.h"
+#import "ParticleSystemDrawable.h"
 
 namespace WhirlyKit
 {
-    
-/// The scene representation used internally by the layer to track what belongs
-///  to a given particle system ID.
-class ParticleSysSceneRep : public Identifiable
+#define kWKParticleSystemManager "WKParticleSystemManager"
+
+typedef enum {ParticleSystemPoint,ParticleSystemRectangle} ParticleSystemType;
+
+/// Defines the parameters for a single particle system
+class ParticleSystem : public Identifiable
 {
 public:
-    ParticleSysSceneRep() { }
-    ParticleSysSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
-    
-    SimpleIDSet partSysIDs;    // The particle systems we created
+    std::string name;
+    int drawPriority;
+    float pointSize;
+    ParticleSystemType type;
+    SimpleIdentity shaderID;
+    NSTimeInterval lifetime,baseTime;
+    int totalParticles,batchSize;
+    bool continuousUpdate;
+    std::vector<SingleVertexAttributeInfo> vertAttrs;
+    std::vector<SimpleIdentity> texIDs;
 };
-typedef std::set<ParticleSysSceneRep *,IdentifiableSorter> ParticleSysSceneRepSet;
+
+/// Holds the data for a batch of particles
+class ParticleBatch
+{
+public:
+    // Should match the particle systems batch size
+    int batchSize;
+    // One entry per vertex attribute.  Order corresponds to the vertAttrs array in the ParticleSystem.
+    std::vector<const void *> attrData;
+};
+
+/// Used to track resources associated with a particle system
+class ParticleSystemSceneRep : public Identifiable
+{
+public:
+    ParticleSystemSceneRep();
+    ParticleSystemSceneRep(SimpleIdentity inId);
+    ~ParticleSystemSceneRep();
     
-#define kWKParticleSystemManager "WKParticleSystemManager"
+    void clearContents(ChangeSet &changes);
+    void enableContents(bool enable,ChangeSet &changes);
     
-/** The particle system manager handles geometry related to active particle systems.
-    It's thread safe except for deletion.
-  */
+    ParticleSystem partSys;
+    std::set<ParticleSystemDrawable *> draws;
+};
+    
+typedef std::set<ParticleSystemSceneRep *,IdentifiableSorter> ParticleSystemSceneRepSet;
+    
+/// Particle system manager controls the active particle systems
 class ParticleSystemManager : public SceneManager
 {
 public:
     ParticleSystemManager();
     virtual ~ParticleSystemManager();
     
-    /// Add a group of particle systems
-    SimpleIdentity addParticleSystems(NSArray *partSystems,NSDictionary *desc,SimpleIdentity genId,ChangeSet &changes);
+    /// Add a particle system
+    SimpleIdentity addParticleSystem(const ParticleSystem &newSystem,ChangeSet &changes);
     
-    /// Remove one or more particle systems
-    void removeParticleSystems(SimpleIDSet partIDs,SimpleIdentity genId,ChangeSet &changes);
+    /// Add a batch of particles
+    void addParticleBatch(SimpleIdentity,const ParticleBatch &batch,ChangeSet &changes);
     
+    /// Enable/disable active particle system
+    void enableParticleSystem(SimpleIdentity sysID,bool enable,ChangeSet &changes);
+    
+    /// Remove a particle system referred to by the given ID
+    void removeParticleSystem(SimpleIdentity sysID,ChangeSet &changes);
+
+    /// Clean out old particle system batches as needed
+    void housekeeping(NSTimeInterval now,ChangeSet &changes);
+
 protected:
-    ParticleGenerator::ParticleSystem parseParams(NSDictionary *desc,ParticleGenerator::ParticleSystem *defaultParams);
-    
-    pthread_mutex_t partLock;
-    ParticleSysSceneRepSet partReps;
+    pthread_mutex_t partSysLock;
+    ParticleSystemSceneRepSet sceneReps;
 };
     
 }

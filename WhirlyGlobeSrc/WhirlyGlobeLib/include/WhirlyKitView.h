@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -55,6 +55,9 @@ typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewW
 @property (nonatomic,assign) WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
 /// If set, we'll scale the near and far clipping planes as we get closer
 @property (nonatomic,assign) bool continuousZoom;
+
+/// Initialize as a copy
+- (id)initWithView:(WhirlyKitView *)inView;
 
 /// Calculate the viewing frustum (which is also the image plane)
 /// Need the framebuffer size in pixels as input

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/12/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@
 #import "AnimateViewMomentum.h"
 #import "GlobeScene.h"
 #import "SphericalEarthLayer.h"
-#import "GridLines.h"
 #import "NSString+Stuff.h"
 #import "UIImage+Stuff.h"
 #import "TextureGroup.h"
@@ -47,11 +46,11 @@
 #import "VectorData.h"
 #import "VectorDatabase.h"
 #import "ShapeReader.h"
-#import "VectorLayer.h"
-#import "LabelLayer.h"
-#import "ParticleSystemLayer.h"
-#import "MarkerLayer.h"
-#import "LoftLayer.h"
+#import "LoftManager.h"
+#import "MarkerManager.h"
+#import "LabelManager.h"
+#import "VectorManager.h"
+#import "ShapeManager.h"
 #import "SelectionManager.h"
 #import "TextureAtlas.h"
 #import "LayerThread.h"
@@ -75,19 +74,20 @@
 #import "TileQuadLoader.h"
 #import "TileQuadOfflineRenderer.h"
 #import "NetworkTileQuadSource.h"
-#import "ScreenSpaceGenerator.h"
 #import "SceneGraphManager.h"
 #import "SphericalEarthChunkLayer.h"
 #import "SphericalEarthQuadLayer.h"
 #import "UpdateDisplayLayer.h"
-#import "GeometryLayer.h"
 #import "WideVectorManager.h"
 #import "ViewPlacementGenerator.h"
 #import "ActiveModel.h"
 #import "MaplyScene.h"
 #import "ShapeDrawableBuilder.h"
-#import "ShapeLayer.h"
 #import "LayoutLayer.h"
-#import "BillboardLayer.h"
+#import "ParticleSystemLayer.h"
 #import "OpenGLES2Program.h"
 #import "DefaultShaderPrograms.h"
+#import "GeometryManager.h"
+#import "GeometryOBJReader.h"
+#import "ParticleSystemManager.h"
+#import "BillboardManager.h"

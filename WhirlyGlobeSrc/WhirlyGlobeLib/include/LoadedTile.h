@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/19/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 @interface WhirlyKitLoadedTile : NSObject
 
 @property (nonatomic,readonly) NSMutableArray *images;
-@property (nonatomic) WhirlyKitElevationChunk *elevChunk;
+@property (nonatomic) NSObject<WhirlyKitElevationChunk> *elevChunk;
 
 @end
 
@@ -117,7 +117,7 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
  */
 @protocol WhirlyKitElevationHelper
 /// Return the elevation data for the given tile or nil if there is none
-- (WhirlyKitElevationChunk *)elevForLevel:(int)level col:(int)col row:(int)row;
+- (NSObject<WhirlyKitElevationChunk> *)elevForLevel:(int)level col:(int)col row:(int)row;
 @end
 
 namespace WhirlyKit
@@ -142,11 +142,17 @@ public:
     void initAtlases(WhirlyKitTileImageType imageType,int numImages,int textureAtlasSize,int sampleSizeX,int sampleSizeY);
     
     // Build the edge matching skirt
-    void buildSkirt(BasicDrawable *draw,std::vector<Point3f> &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev);
+    void buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev,const Point3d &theCenter);
+    
+    // Generate drawables for a no-elevation tile
+    void generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,BasicDrawable **draw,BasicDrawable **skirtDraw);
     
     // Build a given tile
     bool buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,std::vector<Texture *> *texs,
-              Point2f texScale,Point2f texOffset,std::vector<WhirlyKitLoadedImage *> *loadImages,WhirlyKitElevationChunk *elevData);
+              Point2f texScale,Point2f texOffset,int samplingX,int samplingY,std::vector<WhirlyKitLoadedImage *> *loadImages,NSObject<WhirlyKitElevationChunk> *elevData,const Point3d &theCenter,Quadtree::NodeInfo *parentNodeInfo);
+    
+    // Build the texture for a tile
+    Texture *buildTexture(WhirlyKitLoadedImage *loadImage);
     
     // Flush updates out into the change requests
     bool flushUpdates(ChangeSet &changes);
@@ -189,12 +195,18 @@ public:
     // Set if we want pole geometry
     bool coverPoles;
     
+    // Set if we'll use tile centers when generating drawables
+    bool useTileCenters;
+    
     // Image format for textures
     GLenum glFormat;
     WKSingleByteSource singleByteSource;
     
     // Whether we start new drawables enabled or disabled
     bool enabled;
+    
+    // Fade for drawables
+    float fade;
 
     // Number of samples to use for tiles
     int defaultSphereTessX,defaultSphereTessY;
@@ -249,27 +261,36 @@ public:
     void calculateSize(Quadtree *quadTree,CoordSystemDisplayAdapter *coordAdapt,CoordSystem *coordSys);
     
     /// Build the data needed for a scene representation
-    bool addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,int currentImage0,int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    bool addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,int frame,int currentImage0,int currentImage1,NSObject<WhirlyKitElevationChunk> *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
+    /// Update the texture in an existing tile.  This is for loading frames of animation
+    bool updateTexture(TileBuilder *tileBuilder,WhirlyKitLoadedImage *loadImage,int frame,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+
     /// Remove data from scene.  This just sets up the changes requests.
     /// They must still be passed to the scene
     void clearContents(TileBuilder *tileBuilder,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Update what we're displaying based on the quad tree, particulary for children
-    void updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[],std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    void updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[],int currentImage0,int currentImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests,std::vector<Quadtree::Identifier> &nodesEnabled,std::vector<Quadtree::Identifier> &nodesDisabled);
     
     /// Switch to the given images
     void setCurrentImages(TileBuilder *tileBuilder,int whichImage0,int whichImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Turn drawables on/off
     void setEnable(TileBuilder *tileBuilder, bool enable, ChangeSet &theChanges);
-    
+
+    /// Change the fade on drawables
+    // Note: This does nothing for the the non-bigdrawable case
+    void setFade(TileBuilder *tileBuilder, float fade, ChangeSet &theChanges);
+
     /// Dump out to the log
     void Print(TileBuilder *tileBuilder);
     
     // Details of which node we're representing
     WhirlyKit::Quadtree::NodeInfo nodeInfo;
     
+    /// Set if this has been initialized (e.g. geometry was built at one point)
+    bool isInitialized;
     /// Set if this is just a placeholder (no geometry)
     bool placeholder;
     /// Set if this tile is in the process of loading
@@ -285,11 +306,15 @@ public:
     /// If set, these are subsets of a larger dynamic texture
     std::vector<WhirlyKit::SubTexture> subTexs;
     /// If here, the elevation data needed to build geometry
-    WhirlyKitElevationChunk *elevData;
+    NSObject<WhirlyKitElevationChunk> *elevData;
     /// Center of the tile in display coordinates
     Point3d dispCenter;
     /// Size in display coordinates
     double tileSize;
+    /// Where the textures live in the dynamic texture(s)
+    DynamicTextureAtlas::TextureRegion texRegion;
+    /// Sampling for surface in X,Y if we're not doing elevation tiles
+    int samplingX,samplingY;
     
     // IDs for the various fake child geometry
     WhirlyKit::SimpleIdentity childDrawIds[4];

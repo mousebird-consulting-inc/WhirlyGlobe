@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/25/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -242,6 +242,52 @@ void GeoMbr::splitIntoMbrs(std::vector<Mbr> &mbrs) const
 		mbrs.push_back(Mbr(pt_ll,Point2f((float)M_PI,pt_ur.y())));
 		mbrs.push_back(Mbr(Point2f((float)(-M_PI),pt_ll.y()),pt_ur));
 	}
+}
+    
+void BBox::addPoint(const Point3d &pt)
+{
+    if (isValid())
+    {
+        pt_ll.x() = std::min(pt_ll.x(),pt.x());
+        pt_ll.y() = std::min(pt_ll.y(),pt.y());
+        pt_ll.z() = std::min(pt_ll.z(),pt.z());
+        pt_ur.x() = std::max(pt_ur.x(),pt.x());
+        pt_ur.y() = std::max(pt_ur.y(),pt.y());
+        pt_ur.z() = std::max(pt_ur.z(),pt.z());
+    } else {
+        pt_ll = pt;
+        pt_ur = pt;
+    }
+}
+    
+void BBox::addPoints(const std::vector<Point3d> &pts)
+{
+    for (unsigned int ii=0;ii<pts.size();ii++)
+        addPoint(pts[ii]);
+}
+    
+void BBox::asPoints(std::vector<Point3f> &pts) const
+{
+    pts.push_back(Point3f(pt_ll.x(),pt_ll.y(),pt_ll.z()));
+    pts.push_back(Point3f(pt_ur.x(),pt_ll.y(),pt_ll.z()));
+    pts.push_back(Point3f(pt_ur.x(),pt_ur.y(),pt_ll.z()));
+    pts.push_back(Point3f(pt_ll.x(),pt_ur.y(),pt_ll.z()));
+    pts.push_back(Point3f(pt_ll.x(),pt_ll.y(),pt_ur.z()));
+    pts.push_back(Point3f(pt_ur.x(),pt_ll.y(),pt_ur.z()));
+    pts.push_back(Point3f(pt_ur.x(),pt_ur.y(),pt_ur.z()));
+    pts.push_back(Point3f(pt_ll.x(),pt_ur.y(),pt_ur.z()));
+}
+
+void BBox::asPoints(std::vector<Point3d> &pts) const
+{
+    pts.push_back(Point3d(pt_ll.x(),pt_ll.y(),pt_ll.z()));
+    pts.push_back(Point3d(pt_ur.x(),pt_ll.y(),pt_ll.z()));
+    pts.push_back(Point3d(pt_ur.x(),pt_ur.y(),pt_ll.z()));
+    pts.push_back(Point3d(pt_ll.x(),pt_ur.y(),pt_ll.z()));
+    pts.push_back(Point3d(pt_ll.x(),pt_ll.y(),pt_ur.z()));
+    pts.push_back(Point3d(pt_ur.x(),pt_ll.y(),pt_ur.z()));
+    pts.push_back(Point3d(pt_ur.x(),pt_ur.y(),pt_ur.z()));
+    pts.push_back(Point3d(pt_ll.x(),pt_ur.y(),pt_ur.z()));
 }
 
 Eigen::Quaterniond QuatFromTwoVectors(const Point3d &a,const Point3d &b)

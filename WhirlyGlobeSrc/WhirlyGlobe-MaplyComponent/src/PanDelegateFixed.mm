@@ -3,7 +3,7 @@
  *  WhirlyGlobeApp
  *
  *  Created by Stephen Gifford on 4/28/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     lastTouch = [pan locationInView:glView];
     if ([view pointOnSphereFromScreen:startPoint transform:&startTransform 
                             frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&startOnSphere normalized:true])
-        // We'll start out letting them play with box axes
+        // We'll start out letting them play with both axes
         panType = PanFree;                
     else
         panType = PanNone;
@@ -122,11 +122,21 @@ static const float MomentumAnimLen = 1.0;
 	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView *)pan.view;
 	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
     
-    // Put ourselves on hold for more than one touch
+    if (pan.state == UIGestureRecognizerStateCancelled)
+    {
+        if (panType != PanNone)
+            [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:view];
+        panType = PanNone;
+        return;
+    }
+
+    // Cancel for more than one finger
     if ([pan numberOfTouches] > 1)
     {
         panType = PanSuspended;
         runEndMomentum = false;
+        _gestureRecognizer.enabled = false;
+        _gestureRecognizer.enabled = true;
         return;
     }
 	    
@@ -162,9 +172,18 @@ static const float MomentumAnimLen = 1.0;
 				Point3d hit;
                 CGPoint touchPt = [pan locationInView:glView];
                 lastTouch = touchPt;
-				[view pointOnSphereFromScreen:touchPt transform:&startTransform 
+				bool onSphere = [view pointOnSphereFromScreen:touchPt transform:&startTransform
 									frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true];
-                                                
+                
+                // The math breaks down when we have a significant tilt
+                // Cancel when they do that
+                if (!onSphere && view.tilt != 0.0)
+                {
+                    self.gestureRecognizer.enabled = NO;
+                    self.gestureRecognizer.enabled = YES;
+                    return;
+                }
+                    
 				// This gives us a direction to rotate around
 				// And how far to rotate
 				Eigen::Quaterniond endRot;

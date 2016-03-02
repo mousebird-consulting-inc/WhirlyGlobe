@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/16/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "DataLayer.h"
-#import "layerThread.h"
+#import "LayerThread.h"
 #import "SelectionManager.h"
 #import "Scene.h"
 
@@ -90,6 +90,8 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 @property (nonatomic,assign) float height;
 /// Radius is in display units
 @property (nonatomic,assign) float radius;
+/// Samples in X and Y
+@property (nonatomic,assign) int sampleX,sampleY;
 
 @end
 
@@ -109,7 +111,7 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 
 /** A linear feature (with width) that we'll draw on
  top of a globe or map.  This is different from the
- vector layer features in that it has exactly locations.
+ vector layer features in that it has exact locations.
  */
 @interface WhirlyKitShapeLinear : WhirlyKitShape
 
@@ -123,10 +125,30 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 
 @end
 
+/** An extruded shape
+  */
+@interface WhirlyKitShapeExtruded : WhirlyKitShape
+
+/// The location for the origin of the shape
+@property (nonatomic,assign) WhirlyKit::Point3d &loc;
+
+/// Points around the origin defining the shape
+@property (nonatomic,assign) std::vector<WhirlyKit::Point2d> &pts;
+
+/// Thickness of the shape
+@property (nonatomic,assign) double thickness;
+
+/// Transform to apply to this extruded shape before placement
+@property (nonatomic,assign) Eigen::Matrix4d &transform;
+
+@end
+
 namespace WhirlyKit
 {
     
 #define kWKShapeManager "WKShapeManager"
+    
+class GeometryRaw;
 
 /** The Shape Manager is used to create and destroy geometry for shapes like circles, cylinders,
     and so forth.  It's entirely thread safe (except for destruction).
@@ -136,6 +158,9 @@ class ShapeManager : public SceneManager
 public:
     ShapeManager();
     virtual ~ShapeManager();
+    
+    /// Convert shape to raw geometry
+    void convertShape(WhirlyKitShape *shape,std::vector<WhirlyKit::GeometryRaw> &rawGeom);
     
     /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.
     SimpleIdentity addShapes(NSArray *shapes,NSDictionary * desc,ChangeSet &changes);

@@ -3,7 +3,7 @@
  *
  *
  *  Created by Steve Gifford on 2/7/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -80,6 +80,8 @@ using namespace WhirlyKit;
             if (_minZoom < newZ && newZ < _maxZoom)
             {
                 globeView.heightAboveGlobe = newZ;
+                if (_tiltDelegate)
+                    globeView.tilt = [_tiltDelegate tiltFromHeight:newZ];
             }
         }
             break;
