@@ -237,6 +237,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
             mapViewC.twoFingerTapGesture = true;
             mapViewC.delegate = self;
             baseViewC = mapViewC;
+            configViewC.configOptions = ConfigOptionsMap;
             break;
         default:
             break;
