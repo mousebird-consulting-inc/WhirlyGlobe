@@ -511,6 +511,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         label.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
         label.text = [NSString stringWithFormat:@"%s",location->name];
         label.layoutImportance = 2.0;
+        label.layoutPlacement = kMaplyLayoutRight;
         label.userObject = [NSString stringWithFormat:@"%s",location->name];
         [labels addObject:label];
     }
@@ -937,6 +938,7 @@ static const bool CountryTextures = false;
                              MaplyVectorObject *wgVecObj = [MaplyVectorObject VectorObjectFromGeoJSON:jsonData];
                              NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
                              wgVecObj.userObject = vecName;
+                             wgVecObj.selectable = true;
                              NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:@{
 //                                                                                                         kMaplyFilled: @(YES),
                                                                                                          }];
@@ -1298,7 +1300,11 @@ static const int NumMegaMarkers = 15000;
         [baseViewC addLayer:layer];
         layer.drawPriority = BaseEarthPriority;
         layer.waitLoad = imageWaitLoad;
-        layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        if (startupMapType == Maply2DMap)
+        {
+            layer.singleLevelLoading = true;
+            layer.multiLevelLoads = @[@(-3)];
+        }
         baseLayer = layer;
         screenLabelColor = [UIColor whiteColor];
         screenLabelBackColor = [UIColor whiteColor];
@@ -1322,7 +1328,11 @@ static const int NumMegaMarkers = 15000;
         layer.requireElev = requireElev;
         layer.waitLoad = imageWaitLoad;
         layer.maxTiles = maxLayerTiles;
-        layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        if (startupMapType == Maply2DMap)
+        {
+            layer.singleLevelLoading = true;
+            layer.multiLevelLoads = @[@(-3)];
+        }
         [layer setTesselationValues:tessValues];
         [baseViewC addLayer:layer];
         layer.drawPriority = BaseEarthPriority;
@@ -1349,7 +1359,11 @@ static const int NumMegaMarkers = 15000;
         layer.requireElev = requireElev;
         layer.waitLoad = imageWaitLoad;
         layer.maxTiles = maxLayerTiles;
-        layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        if (startupMapType == Maply2DMap)
+        {
+            layer.singleLevelLoading = true;
+            layer.multiLevelLoads = @[@(-3)];
+        }
         [layer setTesselationValues:tessValues];
         [baseViewC addLayer:layer];
         layer.drawPriority = BaseEarthPriority;

@@ -90,7 +90,6 @@
                                                rows:
                 @{kMaplyTestOWM: @(NO),
                   kMaplyTestForecastIO: @(NO),
-                  kMaplyMapzenVectors: @(NO)
                   }
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
@@ -118,6 +117,14 @@
                                                rows:
                 @{kMaplyTestAnimateSphere: @(NO)}
                                        singleSelect:false]]];
+
+            [newValues addObject:
+             [ConfigSection ConfigSectionWithName:kMaplyTestCategoryGestures
+                                             rows:
+              @{kMaplyTestNorthUp: @(NO),
+                kMaplyTestPinch: @(YES),
+                kMaplyTestRotate: @(YES)}
+                                     singleSelect:false]];
             break;
         case ConfigOptions3DTerrain:
             break;
@@ -156,16 +163,17 @@
                   kMaplyTestArcGIS: @(NO),
                   }
                                    singleSelect:false]]];
+            
+            [newValues addObject:
+             [ConfigSection ConfigSectionWithName:kMaplyTestCategoryGestures
+                                             rows:
+              @{
+                kMaplyTestPinch: @(YES),
+                kMaplyTestRotate: @(YES)}
+                                     singleSelect:false]];
             break;
     }
 
-    [newValues addObject:
-     [ConfigSection ConfigSectionWithName:kMaplyTestCategoryGestures
-                                     rows:
-      @{kMaplyTestNorthUp: @(NO),
-                          kMaplyTestPinch: @(YES),
-                         kMaplyTestRotate: @(YES)}
-                             singleSelect:false]];
     [newValues addObject:
      [ConfigSection ConfigSectionWithName:kMaplyTestCategoryInternal
                     rows:
