@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 5/20/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -51,6 +51,13 @@
     @param layer The quad paging layer you'll hand the data over to when it's loaded.
   */
 - (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer;
+
+@optional
+
+/** @brief An optional callback when a tile is unloaded.
+    @details If filled in, you'll be called when a tile is unloaded.
+  */
+- (void)tileDidUnload:(MaplyTileID)tileID;
 
 @end
 
@@ -115,6 +122,12 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
  */
 - (int)targetZoomLevel;
 
+/** @brief This controls how the importance of tiles is calculated.  Either individually (false) or with the parent (true),
+    @details This is a low level laoding control parameter.  Don't change unless you know why.
+    @details By default this is true.
+ */
+@property (nonatomic) bool groupChildrenWithParent;
+
 /** @brief You call this from your MaplyPagingDelegate with an array of data you've created for a tile.
     @details This method is called by your MaplyPagingDelegate to add MaplyComponentObject's to the data for a given tile.  Please create them disabled by putting @"enable": @(NO) in the description dictionary.  The paging layer will then be responsible for cleaning them up when needed as well as turning them on and off as the user moves around.
     @details The call is thread safe.
@@ -153,12 +166,20 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
 - (void)tileDidLoad:(MaplyTileID)tileID part:(int)whichPart;
 
 /** @brief Calculate the bounding box for a single tile in geographic.
-    @details This is a utility method for calculating the extents of a given tile in the local coordinate system (e.g. the one paging layer is using).
+    @details This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
     @param tileID The ID for the tile we're interested in.
     @param ll The lower left corner of the tile in geographic coordinates.
     @param ur The upper right corner of the tile in geographic coordinates.
   */
 - (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
+
+/** @brief Calculate the bounding box for a single tile in geographic using doubles.
+ @details This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
+ @param tileID The ID for the tile we're interested in.
+ @param ll The lower left corner of the tile in geographic coordinates.
+ @param ur The upper right corner of the tile in geographic coordinates.
+ */
+- (void)geoBoundsForTileD:(MaplyTileID)tileID ll:(MaplyCoordinateD *)ll ur:(MaplyCoordinateD *)ur;
 
 /** @brief Calculate the bounding box for a single tile in the local coordinate system.
     @details This utility method calculates the bounding box for a tile in the coordinate system used for the layer.
@@ -167,6 +188,28 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
     @param ur The upper right corner of the tile in local coordinates.
   */
 - (void)boundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
+
+/** @brief Return the center of the tile in display coordinates.
+    @param tileID The ID for the tile we're interested in.
+    @return Return the center in display space for the given tile.
+  */
+- (MaplyCoordinate3d)displayCenterForTile:(MaplyTileID)tileID;
+
+/** @brief Maximum number of tiles to load in at once.
+ @details This is the maximum number of tiles the pager will have loaded into memory at once.  The default is 256 and that's generally good enough.  However, if your tile size is small, you may want to load in more.
+ @details Tile loading can get out of control when using elevation data.  The toolkit calculates potential sceen coverage for each tile so elevation data makes all tiles more important.  As a result the system will happily page in way more data than you may want.  The limit becomes important in elevation mode, so leave it at 128 unless you need to change it.
+ */
+@property (nonatomic) int maxTiles;
+
+/** @brief Set the minimum tile height (0.0 by default).
+    @details When paging tiles containing 3D geometry it's helpful to know the min and max height.  This is the minimum height and defaults to 0.0.
+  */
+@property (nonatomic) float minTileHeight;
+
+/** @brief Set the maximum tile height (0.0 off by default)
+    @details When paging tiles containing 3D geometry it's helpful to know the min and max height.  This is the maximum height and it defaults to 0.0.  When min and max are the same, they are ignored.
+  */
+@property (nonatomic) float maxTileHeight;
 
 /** @brief Reload the paging layer contents.
     @details This asks the paging layer to clean out its current data and reload everything from scratch.

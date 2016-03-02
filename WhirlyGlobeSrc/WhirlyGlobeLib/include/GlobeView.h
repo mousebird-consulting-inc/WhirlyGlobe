@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/14/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -40,6 +40,9 @@
  */
 @interface WhirlyGlobeView : WhirlyKitView
 
+/// Initialize with an existing globe view
+- (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView;
+
 /// The globe has a radius of 1.0 so 1.0 + heightAboveGlobe is the offset from the middle of the globe
 @property (nonatomic,assign) double heightAboveGlobe;
 /// Quaternion used for rotation from origin state
@@ -48,6 +51,8 @@
 @property (nonatomic,weak) NSObject<WhirlyGlobeAnimationDelegate> *delegate;
 /// The view can have a tilt.  0 is straight down.  PI/2 is looking to the horizon.
 @property (nonatomic,assign) double tilt;
+/// Set the far clipping plane (be careful)
+- (void)setFarClippingPlane:(double)farClip;
 
 /// Return min/max valid heights above globe
 - (double)minHeightAboveGlobe;
@@ -92,6 +97,8 @@
     and return it.  Doesn't actually do anything yet.
  */
 - (Eigen::Quaterniond) makeRotationToGeoCoord:(const WhirlyKit::GeoCoord &)worldLoc keepNorthUp:(BOOL)northUp;
+
+- (Eigen::Quaterniond) makeRotationToGeoCoordD:(const WhirlyKit::Point2d &)worldLoc keepNorthUp:(BOOL)northUp;
 
 // Construct a rotation to given location and heading
 - (Eigen::Quaterniond) makeRotationToGeoCoord:(const WhirlyKit::GeoCoord &)worldCoord heading:(double)heading;

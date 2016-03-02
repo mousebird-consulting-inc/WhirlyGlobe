@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/15/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -30,6 +30,10 @@
 /// Return a float for the given name if it exists
 /// Returns default if not or wrong type
 - (float)floatForKey:(NSString *)name default:(float)theDefault;
+
+/// Return a double for the given name if it exists
+/// Returns default if not or wrong type
+- (double)doubleForKey:(NSString *)name default:(double)theDefault;
 
 /// Return an integer for the given name if it exists
 /// Returns default if not or wrong type

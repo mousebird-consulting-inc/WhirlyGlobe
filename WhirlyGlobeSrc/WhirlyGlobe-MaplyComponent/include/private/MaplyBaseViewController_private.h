@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@
 #import "MaplyVectorObject_private.h"
 #import "MaplyShader_private.h"
 #import "MaplyActiveObject_private.h"
+#import "MaplyCoordinateSystem_private.h"
 #import "SMCalloutView.h"
 
 @interface MaplyBaseViewController() <SMCalloutViewDelegate>
@@ -40,6 +41,7 @@
     
     WhirlyKitLayerThread *baseLayerThread;
     WhirlyKitLayoutLayer *layoutLayer;
+    WhirlyKitParticleSystemLayer *partSysLayer;
     NSMutableArray *layerThreads;
 
     // Our own interaction layer does most of the work

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/16/13.
- *  Copyright 2011-2013 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2015 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,13 +22,14 @@
 #import <set>
 #import <map>
 #import "Identifiable.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "TextureAtlas.h"
 #import "SelectionManager.h"
 #import "LayoutManager.h"
 #import "Scene.h"
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
@@ -58,28 +59,22 @@ public:
 
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs used for selection
-    SimpleIDSet markerIDs;  // IDs for markers sent to the generator
     SimpleIDSet screenShapeIDs;  // IDs for screen space objects
-    float fade;   // Time to fade away for deletion
+    bool useLayout;  // True if we used the layout manager (and thus need to delete)
+    float fadeOut;   // Time to fade away for deletion
 };
 typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
     
 }
 
 // Used to pass marker information between threads
-@interface WhirlyKitMarkerInfo : NSObject
+@interface WhirlyKitMarkerInfo : WhirlyKitBaseInfo
 
 @property (nonatomic) NSArray *markers;
 @property (nonatomic) UIColor *color;
-@property (nonatomic) int drawOffset;
-@property (nonatomic) float minVis,maxVis;
 @property (nonatomic) bool screenObject;
 @property (nonatomic) float width,height;
-@property (nonatomic) int drawPriority;
-@property (nonatomic) float fade;
-@property (nonatomic) bool enable;
 @property (nonatomic) WhirlyKit::SimpleIdentity  markerId;
-@property (nonatomic) WhirlyKit::SimpleIdentity programId;
 
 - (id)initWithMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
 
@@ -101,18 +96,27 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
 /// The location for the center of the marker.
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
+/// Set if we're moving these over time (screen only)
+@property (nonatomic,assign) bool hasMotion;
+/// Set for animation over time
+@property (nonatomic,assign) WhirlyKit::GeoCoord endLoc;
+/// Timing for animation, if present
+@property (nonatomic,assign) NSTimeInterval startTime,endTime;
 /// Color for this marker
 @property (nonatomic) UIColor *color;
 /// The list of textures to use.  If there's just one
 ///  we show that.  If there's more than one, we switch
 ///  between them over the period.
 @property (nonatomic,assign) std::vector<WhirlyKit::SimpleIdentity> &texIDs;
-/// The width in 3-space (remember the globe has radius = 1.0)
 @property (nonatomic,assign) bool lockRotation;
 /// The height in 3-space (remember the globe has radius = 1.0)
 @property (nonatomic,assign) float height;
 /// The width in 3-space (remember the globe has radius = 1.0)
 @property (nonatomic,assign) float width;
+/// Height in screen space to consider for layout
+@property (nonatomic,assign) float layoutHeight;
+/// Width in screen space to soncider for layout
+@property (nonatomic,assign) float layoutWidth;
 /// Set if we want a static rotation.  Only matters in screen space
 /// This is rotation clockwise from north in radians
 @property (nonatomic,assign) float rotation;
@@ -126,6 +130,8 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 /// Value to use for the layout engine.  Set to MAXFLOAT by
 ///  default, which will always display.
 @property (nonatomic,assign) float layoutImportance;
+/// A list of vertex attributes to apply to the marker
+@property (nonatomic,assign) WhirlyKit::SingleVertexAttributeSet &vertexAttrs;
 
 /// Add a texture ID to be displayed
 - (void)addTexID:(WhirlyKit::SimpleIdentity)texID;

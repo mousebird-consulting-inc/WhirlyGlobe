@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 8/29/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,5 +28,11 @@
 
 /// Initialize with an elevation source
 - (id)initWithElevationSource:(NSObject<MaplyElevationSourceDelegate> *)elevSource;
+
+@end
+
+@interface MaplyElevationChunk()
+
+@property NSObject<WhirlyKitElevationChunk> *chunkImpl;
 
 @end

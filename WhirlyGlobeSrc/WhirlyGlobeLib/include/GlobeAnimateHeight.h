@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,11 +22,15 @@
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
 #import "GlobeView.h"
+#import "PinchDelegate.h"
 
 /// Animate height for a globe view over time
 @interface WhirlyGlobeAnimateViewHeight : NSObject<WhirlyGlobeAnimationDelegate>
 
 /// Start interpolating height immediately for the given time period
-- (id)initWithView:(WhirlyGlobeView *)globeView toHeight:(double)height howLong:(float)howLong;
+- (id)initWithView:(WhirlyGlobeView *)globeView toHeight:(double)height howLong:(float)howLong delegate:(NSObject<WGTiltCalculatorDelegate> *)tiltDelegate;
+
+// If set, we calculate the tilt every time we update
+@property (nonatomic,weak) NSObject<WGTiltCalculatorDelegate> *tiltDelegate;
 
 @end

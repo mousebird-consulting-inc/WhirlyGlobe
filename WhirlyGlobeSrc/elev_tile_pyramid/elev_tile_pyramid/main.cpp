@@ -10,6 +10,8 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <float.h>
+#include <math.h>
 #include "gdal_priv.h"
 #include "ogrsf_frmts.h"
 #include "cpl_string.h"
@@ -109,6 +111,44 @@ GDALDatasetH CreateOutputDataFile(const char *pszFormat,const char *pszFilename,
     return hDstDS;
 }
 
+// Maximum number of pixels we'll load at once
+static int const MaxPixelLoad = 1048576;
+
+// Look for the maximum pixel in a given area
+float searchForMaxPixel(GDALRasterBandH hBand, int sx, int sy, int ex, int ey)
+{
+    fprintf(stderr,"Sampling pixels: %d\n",(ex-sx+1)*(ey-sy+1));
+    
+    float maxPix = -MAXFLOAT;
+    
+    int rowSize = ex-sx+1;
+//    int colSize = ey-sy+1;
+    
+    // Number of rows to load at once
+    int maxRows = MaxPixelLoad / rowSize;
+    maxRows = MAX(1,maxRows);
+    
+    for (int iy=sy;iy<=ey;iy+=maxRows)
+    {
+        int numRows = maxRows;
+        if (ey-iy<=numRows)
+            numRows = ey-iy+1;
+        float pixels[rowSize*numRows];
+        if (GDALRasterIO( hBand, GF_Read, sx, iy, rowSize, numRows, pixels, rowSize, numRows, GDT_Float32, 0,  0) != CE_None)
+        {
+            fprintf(stderr,"Query failure in GDALRasterIO");
+            return -1;
+        }
+        
+        for (int which = 0; which < rowSize*numRows; which++)
+            maxPix = MAX(pixels[which],maxPix);
+    }
+    
+    return maxPix;
+}
+
+typedef enum {SampleSingle,SampleMax} SamplingType;
+
 int main(int argc, char * argv[])
 {
     const char *inputFile = NULL;
@@ -122,9 +162,10 @@ int main(int argc, char * argv[])
     double xmin,ymin,xmax,ymax;
     int pixelsX = 16, pixelsY = 16;
     bool flipY = false;
-    int updateMinLevel = -1, updateMaxLevel = -1;
+    int updateMinLevel = -1, updateMaxLevel = -2;
     double updateMinX = 0.0,updateMaxX = 0.0,updateMinY = 0.0,updateMaxY = 0.0;
-    const char *updateShapeFile = NULL,*outShapeFile;
+    const char *updateShapeFile = NULL,*outShapeFile=NULL;
+    SamplingType samplingtype = SampleSingle;
 
     GDALAllRegister();
     OGRRegisterAll();
@@ -250,6 +291,22 @@ int main(int argc, char * argv[])
                 return -1;
             }
             outShapeFile = argv[ii+1];
+        } else if (EQUAL(argv[ii],"-sample"))
+        {
+            numArgs = 2;
+            if (ii+numArgs > argc)
+            {
+                fprintf(stderr,"Expecting type for -sample");
+                return -1;
+            }
+            if (EQUAL(argv[ii+1],"single"))
+                samplingtype = SampleSingle;
+            else if (EQUAL(argv[ii+1],"max"))
+                samplingtype = SampleMax;
+            else {
+                fprintf(stderr,"Expecting single or max for sampling type.");
+                return -1;
+            }
         } else
         {
             if (inputFile)
@@ -283,7 +340,7 @@ int main(int argc, char * argv[])
     }
     if (updateDb)
     {
-        if (updateMinLevel >= updateMaxLevel)
+        if (updateMinLevel > updateMaxLevel)
         {
             fprintf(stderr, "Expecting valid update min and max levels for update mode");
             return -1;
@@ -500,6 +557,12 @@ int main(int argc, char * argv[])
         }
         
         outShapeLayer = outShape->CreateLayer("boxes", hTrgSRS);
+        OGRFieldDefn cellIdent("cell",OFTString);
+        outShapeLayer->CreateField(&cellIdent);
+        OGRFieldDefn minIndent("min",OFTReal);
+        outShapeLayer->CreateField(&minIndent);
+        OGRFieldDefn maxIndent("max",OFTReal);
+        outShapeLayer->CreateField(&maxIndent);
     }
 
     if (targetDir)
@@ -508,6 +571,12 @@ int main(int argc, char * argv[])
     // Create a new database.  Blow away the old one if it's there
     if (targetDb)
     {
+        if (!destSRS)
+        {
+            fprintf(stderr, "Need a -t_srs when creating a new elevation database.");
+            return -1;
+        }
+
         remove(targetDb);
         sqliteDb = new Kompex::SQLiteDatabase(targetDb, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, 0);
         if (!sqliteDb->GetDatabaseHandle())
@@ -532,7 +601,7 @@ int main(int argc, char * argv[])
 
     // We might only be updating some of the levels
     int min_level = 0, max_level = levels-1;
-    if (updateMinLevel != updateMaxLevel)
+    if (updateMaxLevel >= updateMinLevel)
     {
         min_level = updateMinLevel;
         max_level = updateMaxLevel;
@@ -540,7 +609,7 @@ int main(int argc, char * argv[])
 
     // Work through the levels of detail, starting from the top
     int totalTiles = 0,zeroTiles = 0, skippedTiles = 0;
-    for (unsigned int level=min_level;level<=max_level;level++)
+    for (int level=max_level;level>=min_level;level--)
     {
         printf("Level %d: ",level);
         fflush(stdout);
@@ -612,23 +681,6 @@ int main(int argc, char * argv[])
                 
                 if (includeTile)
                 {
-                    // Update the shape file for what we're... updating
-                    if (outShapeLayer)
-                    {
-                        OGRPolygon *poly = new OGRPolygon();
-                        OGRLinearRing ring;
-                        ring.addPoint(tileMinX, tileMinY);
-                        ring.addPoint(tileMaxX, tileMinY);
-                        ring.addPoint(tileMaxX, tileMaxY);
-                        ring.addPoint(tileMinX, tileMaxY);
-                        ring.addPoint(tileMinX, tileMinY);
-                        poly->addRing(&ring);
-                        OGRFeature *feat = new OGRFeature(outShapeLayer->GetLayerDefn());
-                        feat->SetGeometry(poly);
-                        outShapeLayer->CreateFeature(feat);
-                        OGRFeature::DestroyFeature( feat );
-                    }
-                    
                     GDALDatasetH hDestDS = NULL;
                     GDALRasterBandH hBandOut = NULL;
                     if (targetDir)
@@ -658,50 +710,96 @@ int main(int argc, char * argv[])
                             double thisX = tileMinX + cellX*cx;
                             double thisY = tileMinY + cellY*cy;
                             
-                            // Project back to the original data file
-                            if (hCT)
-                                OCTTransform(hCTBack, 1, &thisX, &thisY, NULL);
-
-                            // Figure out which pixel this is
-                            double pixX = adfInvGeoTransform[0] + adfInvGeoTransform[1] * thisX + adfInvGeoTransform[2] * thisY;
-                            double pixY = adfInvGeoTransform[3] + adfInvGeoTransform[4] * thisX + adfInvGeoTransform[5] * thisY;
-                            
-                            // Note: Should do some interpolation
-                            int pixXint = (int)pixX,pixYint = (int)pixY;
-                            
-                            double ta = pixX-pixXint;
-                            double tb = pixY-pixYint;
-
-                            // Look up the four nearby pixels
-                            int pixXlookup[4],pixYlookup[4];
-                            pixXlookup[0] = pixXint;  pixYlookup[0] = pixYint;
-                            pixXlookup[1] = pixXint+1;  pixYlookup[1] = pixYint;
-                            pixXlookup[2] = pixXint+1;  pixYlookup[2] = pixYint+1;
-                            pixXlookup[3] = pixXint;  pixYlookup[3] = pixYint+1;
-                            float pixVals[4];
-                            for (unsigned int pi=0;pi<4;pi++)
+                            if (samplingtype == SampleSingle)
                             {
-                                int pixXlook = pixXlookup[pi];
-                                int pixYlook = pixYlookup[pi];
-                                if (pixXlook < 0) pixXlook = 0;
-                                if (pixYlook < 0) pixYlook = 0;
-                                if (pixXlook >= rasterXSize)  pixXlook = rasterXSize-1;
-                                if (pixYlook >= rasterYSize)  pixYlook = rasterYSize-1;
-                            
-                                // Fetch the pixel
-                                if (GDALRasterIO( hBand, GF_Read, pixXlook, pixYlook, 1, 1, &pixVals[pi], 1, 1, GDT_Float32, 0,  0) != CE_None)
+                                // Project back to the original data file
+                                if (hCT)
+                                    OCTTransform(hCTBack, 1, &thisX, &thisY, NULL);
+
+                                // Figure out which pixel this is
+                                double pixX = adfInvGeoTransform[0] + adfInvGeoTransform[1] * thisX + adfInvGeoTransform[2] * thisY;
+                                double pixY = adfInvGeoTransform[3] + adfInvGeoTransform[4] * thisX + adfInvGeoTransform[5] * thisY;
+                                
+                                // Note: Should do some interpolation
+                                int pixXint = (int)pixX,pixYint = (int)pixY;
+                                
+                                double ta = pixX-pixXint;
+                                double tb = pixY-pixYint;
+
+                                // Look up the four nearby pixels
+                                int pixXlookup[4],pixYlookup[4];
+                                pixXlookup[0] = pixXint;  pixYlookup[0] = pixYint;
+                                pixXlookup[1] = pixXint+1;  pixYlookup[1] = pixYint;
+                                pixXlookup[2] = pixXint+1;  pixYlookup[2] = pixYint+1;
+                                pixXlookup[3] = pixXint;  pixYlookup[3] = pixYint+1;
+                                float pixVals[4];
+                                for (unsigned int pi=0;pi<4;pi++)
                                 {
-                                    fprintf(stderr,"Query failure in GDALRasterIO");
-                                    return -1;
+                                    int pixXlook = pixXlookup[pi];
+                                    int pixYlook = pixYlookup[pi];
+                                    if (pixXlook < 0) pixXlook = 0;
+                                    if (pixYlook < 0) pixYlook = 0;
+                                    if (pixXlook >= rasterXSize)  pixXlook = rasterXSize-1;
+                                    if (pixYlook >= rasterYSize)  pixYlook = rasterYSize-1;
+                                
+                                    // Fetch the pixel
+                                    if (GDALRasterIO( hBand, GF_Read, pixXlook, pixYlook, 1, 1, &pixVals[pi], 1, 1, GDT_Float32, 0,  0) != CE_None)
+                                    {
+                                        fprintf(stderr,"Query failure in GDALRasterIO");
+                                        return -1;
+                                    }
                                 }
+                                
+                                // Now do a bilinear interpolation
+                                float pixA = (pixVals[1]-pixVals[0])*ta + pixVals[0];
+                                float pixB = (pixVals[2]-pixVals[3])*ta + pixVals[3];
+                                float pixVal = (pixB-pixA)*tb+pixA;
+                                
+                                tileData[cy*pixelsX+cx] = pixVal;
+                            } else if (samplingtype == SampleMax)
+                            {
+                                // Make a bounding box and project it into the source data
+                                double pixX[4],pixY[4];
+                                double srcX[4],srcY[4];
+                                srcX[0] = thisX-cellX/2.0;  srcY[0] = thisY-cellY/2.0;
+                                srcX[1] = thisX+cellX/2.0;  srcY[1] = thisY-cellY/2.0;
+                                srcX[2] = thisX+cellX/2.0;  srcY[2] = thisY+cellY/2.0;
+                                srcX[3] = thisX-cellX/2.0;  srcY[3] = thisY+cellY/2.0;
+                                
+                                // Convert the rectangle points individually, if needed
+                                if (hCT)
+                                    for (unsigned int pi=0;pi<4;pi++)
+                                        OCTTransform(hCTBack, 1, &srcX[pi], &srcY[pi], NULL);
+
+                                int sx=1000000,sy=1000000,ex=-1000000,ey=-1000000;
+                                for (unsigned int pi=0;pi<4;pi++)
+                                {
+                                    pixX[pi] = adfInvGeoTransform[0] + adfInvGeoTransform[1] * srcX[pi] + adfInvGeoTransform[2] * srcY[pi];
+                                    pixY[pi] = adfInvGeoTransform[3] + adfInvGeoTransform[4] * srcX[pi] + adfInvGeoTransform[5] * srcY[pi];
+                                    sx = MIN(sx,floor(pixX[pi]));
+                                    sy = MIN(sy,floor(pixY[pi]));
+                                    ex = MAX(ex,ceil(pixX[pi]));
+                                    ey = MAX(ey,ceil(pixY[pi]));
+                                }
+                                sx = MAX(0,sx);
+                                sy = MAX(0,sy);
+                                sx = MIN(sx,rasterXSize-1);
+                                sy = MIN(sy,rasterYSize-1);
+                                ex = MAX(0,ex);
+                                ey = MAX(0,ey);
+                                ex = MIN(ex,rasterXSize-1);
+                                ey = MIN(ey,rasterYSize-1);
+                                
+                                
+                                
+                                // Work through the pixels in the source looking for a max
+                                float maxPix = -MAXFLOAT;
+
+                                // Search for the maximum pixel in the area
+                                maxPix = searchForMaxPixel(hBand, sx, sy, ex, ey);
+                                
+                                tileData[cy*pixelsX+cx] = maxPix;
                             }
-                            
-                            // Now do a bilinear interpolation
-                            float pixA = (pixVals[1]-pixVals[0])*ta + pixVals[0];
-                            float pixB = (pixVals[2]-pixVals[3])*ta + pixVals[3];
-                            float pixVal = (pixB-pixA)*tb+pixA;
-                            
-                            tileData[cy*pixelsX+cx] = pixVal;
                         }
                     
                     // Output directory
@@ -763,6 +861,34 @@ int main(int argc, char * argv[])
                             }
                             zeroTiles++;
                         }                    
+                    }
+                    
+                    // Update the shape file for what we're... updating
+                    if (outShapeLayer)
+                    {
+                        float minElev=MAXFLOAT,maxElev=-MAXFLOAT;
+                        for (unsigned int it=0;it<pixelsX*pixelsY;it++)
+                        {
+                            minElev = MIN(minElev,tileData[it]);
+                            maxElev = MAX(maxElev,tileData[it]);
+                        }
+                        OGRPolygon *poly = new OGRPolygon();
+                        OGRLinearRing ring;
+                        ring.addPoint(tileMinX, tileMinY);
+                        ring.addPoint(tileMaxX, tileMinY);
+                        ring.addPoint(tileMaxX, tileMaxY);
+                        ring.addPoint(tileMinX, tileMaxY);
+                        ring.addPoint(tileMinX, tileMinY);
+                        poly->addRing(&ring);
+                        OGRFeature *feat = new OGRFeature(outShapeLayer->GetLayerDefn());
+                        feat->SetGeometry(poly);
+                        char cellName[1024];
+                        sprintf(cellName,"cell: %d: (%d,%d)",level,ix,iy);
+                        feat->SetField("cell",cellName);
+                        feat->SetField("min", minElev);
+                        feat->SetField("max", maxElev);
+                        outShapeLayer->CreateFeature(feat);
+                        OGRFeature::DestroyFeature( feat );
                     }
                     
                 } else

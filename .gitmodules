@@ -15,7 +15,7 @@
 	url = https://github.com/mousebird/libjson.git
 [submodule "third-party/glues"]
 	path = third-party/glues
-	url = https://github.com/lunixbochs/glues.git
+	url = https://github.com/mousebird/glues.git
 [submodule "third-party/KissXML"]
 	path = third-party/KissXML
 	url = https://github.com/mousebird/KissXML.git
@@ -31,6 +31,9 @@
 [submodule "third-party/tinyxml2"]
 	path = third-party/tinyxml2
 	url = https://github.com/leethomason/tinyxml2
+[submodule "third-party/kompex-sqlite-wrapper"]
+	path = third-party/kompex-sqlite-wrapper
+	url = https://github.com/Aethelflaed/kompex-sqlite-wrapper.git
 [submodule "eigen2"]
 	path = third-party/eigen
 	url = https://github.com/RLovelett/eigen
@@ -40,3 +43,6 @@
 [submodule "clipper2"]
 	path = third-party/clipper
 	url = https://github.com/mousebird/clipper
+[submodule "third-party/protobuf"]
+	path = third-party/protobuf
+	url = https://github.com/mousebird/protobuf.git

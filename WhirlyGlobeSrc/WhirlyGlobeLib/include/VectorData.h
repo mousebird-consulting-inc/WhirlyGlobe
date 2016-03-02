@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/7/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -70,6 +70,9 @@ typedef boost::shared_ptr<VectorTriangles> VectorTrianglesRef;
 
 /// Vector Ring is just a vector of 2D points
 typedef std::vector<Point2f> VectorRing;
+    
+/// Vector Ring of 3D doubles
+typedef std::vector<Point3d> VectorRing3d;
 
 /// Comparison function for the vector shape.
 /// This is here to ensure we don't put in the same pointer twice
@@ -247,7 +250,7 @@ public:
     We don't know for sure what we'll get back, so you have to go
     looking through it.  Return false on parse failure.
  */
-bool VectorParseGeoJSON(ShapeSet &shapes,NSData *jsonData);
+bool VectorParseGeoJSON(ShapeSet &shapes,NSData *jsonData,NSString **crs);
  
 /** Helper routine to parse geoJSON into a collection of vectors.
     We don't know for sure what we'll get back, so you have to go

@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 7/25/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 @interface MaplyWMSLayerBoundingBox : NSObject
 
 /// Coordinate Reference System
-@property (nonatomic) NSString *crs;
+@property (nonatomic,strong) NSString *crs;
 
 /// Left side of the bounding box
 @property (nonatomic) double minx;
@@ -49,7 +49,7 @@
 @interface MaplyWMSStyle : NSObject
 
 /// Name and title as returned
-@property (nonatomic) NSString *name,*title;
+@property (nonatomic,strong) NSString *name,*title;
 
 @end
 
@@ -59,20 +59,20 @@
 @interface MaplyWMSLayer : NSObject
 
 /// The name as returned by the service
-@property (nonatomic) NSString *name;
+@property (nonatomic,strong) NSString *name;
 /// The title as returned by the service
-@property (nonatomic) NSString *title;
+@property (nonatomic,strong) NSString *title;
 /// The abstract as returned by the service
-@property (nonatomic) NSString *abstract;
+@property (nonatomic,strong) NSString *abstract;
 
 /// Coordinate reference systems supported by the layer
-@property (nonatomic) NSArray *coordRefSystems;
+@property (nonatomic,strong) NSArray *coordRefSystems;
 
 /// Styles we can choose
-@property (nonatomic) NSArray *styles;
+@property (nonatomic,strong) NSArray *styles;
 
 /// Bounding boxes for zero or more of the CRS'
-@property (nonatomic) NSArray *boundingBoxes;
+@property (nonatomic,strong) NSArray *boundingBoxes;
 
 /// Lower left corner in longitude/latitude
 @property (nonatomic) MaplyCoordinate ll;
@@ -99,15 +99,15 @@
 + (NSString *)CapabilitiesURLFor:(NSString *)baseURL;
 
 /// The name as returned by the service
-@property (nonatomic) NSString *name;
+@property (nonatomic,strong) NSString *name;
 /// The title as returned by the service
-@property (nonatomic) NSString *title;
+@property (nonatomic,strong) NSString *title;
 
 /// Available formats (strings)
-@property (nonatomic) NSArray *formats;
+@property (nonatomic,strong) NSArray *formats;
 
 /// Layers we can fetch from
-@property (nonatomic) NSArray *layers;
+@property (nonatomic,strong) NSArray *layers;
 
 /// This constructor will initialize with an XML document that
 ///  we've fetched from the server, presumably.
@@ -126,19 +126,19 @@
 @interface MaplyWMSTileSource : NSObject<MaplyTileSource>
 
 /// Base URL for the Map Service
-@property (nonatomic) NSString *baseURL;
+@property (nonatomic,strong) NSString *baseURL;
 
 /// Capabilities describing the service
-@property (nonatomic) MaplyWMSCapabilities *capabilities;
+@property (nonatomic,strong) MaplyWMSCapabilities *capabilities;
 
 /// Image type to request
-@property (nonatomic) NSString *imageType;
+@property (nonatomic,strong) NSString *imageType;
 
 /// Layer we're grabbing
-@property (nonatomic) MaplyWMSLayer *layer;
+@property (nonatomic,strong) MaplyWMSLayer *layer;
 
 /// Optional style we're using
-@property (nonatomic) MaplyWMSStyle *style;
+@property (nonatomic,strong) MaplyWMSStyle *style;
 
 /// Minimum zoom level we'll expect
 @property (nonatomic,readonly) int minZoom;
@@ -155,7 +155,7 @@
 @property (nonatomic,readonly) MaplyCoordinateSystem *coordSys;
 
 /// If set, we'll cache the images locally (a good idea with WMS)
-@property (nonatomic) NSString *cacheDir;
+@property (nonatomic,strong) NSString *cacheDir;
 
 /** Initialize with the parameters the WMS server is going to want.
     @param baseURL The main URL we'll use to construct queries.

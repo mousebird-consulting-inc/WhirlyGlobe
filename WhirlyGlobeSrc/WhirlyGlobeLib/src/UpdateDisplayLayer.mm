@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/19/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -55,9 +55,16 @@ using namespace WhirlyGlobe;
     layerThread = inLayerThread;
     scene = inScene;
     
-    // We want view updates, but only 1s in frequency
+    // We want view updates, but only occasionally
     if (layerThread.viewWatcher)
         [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_minTime minDist:0.0 maxLagTime:0.0];
+    
+    [self performSelector:@selector(startOnThread) onThread:layerThread withObject:nil waitUntilDone:NO];
+}
+
+- (void)startOnThread
+{
+    [_dataSource start];
 }
 
 - (void)shutdown

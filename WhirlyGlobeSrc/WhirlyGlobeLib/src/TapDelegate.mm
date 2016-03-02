@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/3/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -82,9 +82,13 @@ using namespace WhirlyKit;
         msg.heightAboveSurface = globeView.heightAboveGlobe;
 		
 		[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapMsg object:msg]];
-	} else
+    } else {
+        WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
+        [msg setTouchLoc:touchLoc];
+        [msg setView:glView];
         // If we didn't hit, we generate a different message
-        [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapOutsideMsg object:[NSNull null]]];
+        [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapOutsideMsg object:msg]];
+    }
 }
 
 @end

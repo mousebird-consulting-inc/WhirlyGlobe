@@ -3,7 +3,7 @@
  *
  *
  *  Created by Steve Gifford on 2/7/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ using namespace WhirlyKit;
         double newH = curH * _zoomTapFactor;
         if (_minZoom < newH && newH < _maxZoom)
         {
-            animate = [[WhirlyGlobeAnimateViewHeight alloc] initWithView:globeView toHeight:newH howLong:_zoomAnimationDuration];
+            animate = [[WhirlyGlobeAnimateViewHeight alloc] initWithView:globeView toHeight:newH howLong:_zoomAnimationDuration delegate:self.tiltDelegate];
             globeView.delegate = animate;
         }
     }

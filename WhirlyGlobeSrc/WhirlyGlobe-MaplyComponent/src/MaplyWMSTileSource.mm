@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 7/25/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -46,10 +46,10 @@
     // Note: This is just a hack for the moment
     if (![_crs compare:@"EPSG:4326"])
     {
-        crs = [[MaplyPlateCarree alloc] initFullCoverage];
-        MaplyCoordinate ll = MaplyCoordinateMakeWithDegrees(_minx, _miny);
-        MaplyCoordinate ur = MaplyCoordinateMakeWithDegrees(_maxx, _maxy);
-        [crs setBoundsLL:&ll ur:&ur];
+        MaplyBoundingBox cbbx;
+        cbbx.ll = MaplyCoordinateMakeWithDegrees(_minx, _miny);
+        cbbx.ur = MaplyCoordinateMakeWithDegrees(_maxx, _maxy);
+        crs = [[MaplyPlateCarree alloc] initWithBoundingBox:cbbx];
     } else if (![_crs compare:@"EPSG:3857"])
     {
         MaplySphericalMercator *crs = [[MaplySphericalMercator alloc] initWebStandard];
@@ -317,7 +317,7 @@
     return localName;
 }
 
-- (bool)tileIsLocal:(MaplyTileID)tileID
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame
 {
     if (!_cacheDir)
     return false;
@@ -400,8 +400,10 @@
 {
     if ([_coordSys isKindOfClass:[MaplyPlateCarree class]])
     {
-        ret_ll->x = -180.0; ret_ll->y = -90;
-        ret_ur->x =  180.0; ret_ur->y =  90;
+        MaplyCoordinate ll,ur;
+        [_coordSys getBoundsLL:&ll ur:&ur];
+        ret_ll->x = 180 * ll.x / M_PI;  ret_ll->y = 180 * ll.y / M_PI;
+        ret_ur->x = 180 * ur.x / M_PI;  ret_ur->y = 180 * ur.y / M_PI;
     }
     else if ([_coordSys isKindOfClass:[MaplySphericalMercator class]])
     {

@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 10/28/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,4 +21,17 @@
 #import "MaplyBillboard.h"
 
 @implementation MaplyBillboard
+
+- (id)initWithImage:(id)texture color:(UIColor *)color size:(CGSize)size
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _screenObj = [[MaplyScreenObject alloc] init];
+    [_screenObj addImage:texture color:color size:size];
+    
+    return self;
+}
+
 @end

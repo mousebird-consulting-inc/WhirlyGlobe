@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/27/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -51,6 +51,9 @@
 ///  quad tile loader.
 /// You can pass back a WhirlyKitLoadedTile or a WhirlyKitLoadedImage or
 ///  just a WhirlyKitElevationChunk.
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadImage forLevel:(int)level col:(int)col row:(int)row frame:(int)frame;
+
+/// Older version that doesn't support frame loads
 - (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadImage forLevel:(int)level col:(int)col row:(int)row;
 
 @end
@@ -73,13 +76,23 @@
 /// Store your expensive to generate key/value pairs here.
 - (void)quadTileLoader:(NSObject<WhirlyKitQuadTileLoaderSupport> *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs;
 
+/// This version can load frames individually.  It's used for loading
+/// animations.  It's not required.
+- (void)quadTileLoader:(NSObject<WhirlyKitQuadTileLoaderSupport> *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row frame:(int)frame attrs:(NSMutableDictionary *)attrs;
+
 /// Check if the given tile is a local or remote fetch.  This is a hint
 ///  to the pager.  It can display local tiles as a group faster.
-- (bool)tileIsLocalLevel:(int)level col:(int)col row:(int)row;
+- (bool)tileIsLocalLevel:(int)level col:(int)col row:(int)row frame:(int)frame;
 
 /// An optional callback provided when a tile is unloaded.
 /// You don't have to do anything
 - (void)tileWasUnloadedLevel:(int)level col:(int)col row:(int)row;
+
+/// Optional callback for when tile is made visible
+- (void)tileWasEnabledLevel:(int)level col:(int)col row:(int)row;
+
+/// Optional callback for when tile is made invisible
+- (void)tileWasDisabledLevel:(int)level col:(int)col row:(int)row;
 
 @end
 
@@ -111,6 +124,8 @@
 @property (nonatomic,assign) unsigned int numImages;
 /// Number of active textures we'll have in drawables.  Informational only.
 @property (nonatomic,readonly) int activeTextures;
+/// If set (default) we'll use tile center offsets to allow the user to get very close to the terrain
+@property (nonatomic,assign) bool useTileCenters;
 /// Base color for the drawables created by the layer
 @property (nonatomic,assign) WhirlyKit::RGBAColor color;
 /// Set this if the tile images are partially transparent
@@ -145,6 +160,9 @@
 ///  sampling you're going to pass in.  If you don't set this, you may lose tiles.
 - (void)setTesselationSizeX:(int)x y:(int)y;
 
+/// Set the sampling sizes per
+- (void)setTesselationSizePerLevel:(const std::vector<int> &)tessSizes;
+
 /// Called when the layer shuts down
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene;
 
@@ -158,7 +176,7 @@
 ///  quad tile loader.
 /// You can pass back a WhirlyKitLoadedTile or a WhirlyKitLoadedImage or
 ///  just a WhirlyKitElevationChunk.
-- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadImage forLevel:(int)level col:(int)col row:(int)row;
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadImage forLevel:(int)level col:(int)col row:(int)row frame:(int)frame;
 
 /// Set up the change requests to make the given image layer the active one
 /// The call is thread safe
@@ -170,5 +188,8 @@
 
 /// By default we're on, but we can be turned off
 - (void)setEnable:(bool)enable;
+
+/// By default this is 1.0, but it can be set interactively
+- (void)setFade:(float)fade;
 
 @end

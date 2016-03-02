@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 
 #import "Identifiable.h"
 #import "WhirlyVector.h"
-#import "Drawable.h"
+#import "BasicDrawable.h"
 
 namespace WhirlyKit
 {
@@ -84,6 +84,8 @@ public:
 	/// Construct with a UIImage.  Expecting this to be a power of 2 on each side.
     /// If it's not we'll round up or down, depending on the flag
 	Texture(const std::string &name,UIImage *inImage, bool roundUp=true);
+    /// Construct by scaling the image to the given size
+    Texture(const std::string &name,UIImage *inImage,int width,int height);
     /// Construct from a FILE, presumably because it was cached
     Texture(const std::string &name,FILE *fp);
 	
@@ -109,6 +111,11 @@ public:
     void setWrap(bool inWrapU,bool inWrapV) { wrapU = inWrapU;  wrapV = inWrapV; }
     /// Set the format (before createInGL() is called)
     void setFormat(GLenum inFormat) { format = inFormat; }
+    /// Return the format
+    GLenum getFormat() { return format; }
+    /// Set the interpolation type used for min and mag
+    void setInterpType(GLenum inType) { interpType = inType; }
+    GLenum getInterpType() { return interpType; }
     /// If we're converting to a single byte, set the source
     void setSingleByteSource(WKSingleByteSource source) { byteSource = source; }
 
@@ -137,6 +144,7 @@ protected:
 	unsigned int width,height;
     bool usesMipmaps;
     bool wrapU,wrapV;
+    GLenum interpType;
 };
 	
 }

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/28/11.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -53,6 +53,9 @@ public:
         /// Comparison based on x,y,level.  Used for sorting
         bool operator < (const Identifier &that) const;
         
+        /// Quality operator
+        bool operator == (const Identifier &that) const;
+        
         /// Spatial subdivision along the X axis relative to the space
         int x;
         /// Spatial subdivision along tye Y axis relative to the space
@@ -65,14 +68,23 @@ public:
     class NodeInfo
     {
     public:
-        NodeInfo() { attrs = [NSMutableDictionary dictionary]; phantom = false;  importance = 0; loading = false; childrenLoading = 0; childrenEval = 0; eval = false; failed = false; childCoverage = false;}
-        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom),loading(that.loading),childrenLoading(that.childrenLoading),eval(that.eval), failed(that.failed), childrenEval(that.childrenEval), childCoverage(that.childCoverage) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
-        NodeInfo(const Identifier &ident) : ident(ident), importance(0.0), phantom(false), loading(false), eval(false), failed(false), childrenLoading(0), childrenEval(0), childCoverage(false) { attrs = nil; }
-        NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; loading = that.loading; eval = that.eval;  failed = that.failed; childrenLoading = that.childrenLoading; childrenEval = that.childrenEval;  childCoverage = that.childCoverage; attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
+        NodeInfo() { attrs = [NSMutableDictionary dictionary]; phantom = false;  importance = 0; frameLoadingFlags = 0; childrenLoading = 0; childrenEval = 0; eval = false; failed = false; childCoverage = false; frameFlags = 0;}
+        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom),frameLoadingFlags(that.frameLoadingFlags),childrenLoading(that.childrenLoading),eval(that.eval), failed(that.failed), childrenEval(that.childrenEval), childCoverage(that.childCoverage), frameFlags(that.frameFlags) { attrs = nil; if (that.attrs) attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
+        NodeInfo(const Identifier &ident) : ident(ident), importance(0.0), phantom(false), frameLoadingFlags(0), eval(false), failed(false), childrenLoading(0), childrenEval(0), childCoverage(false), frameFlags(0) { attrs = nil; }
+        NodeInfo & operator = (const NodeInfo &that) { ident = that.ident;  mbr = that.mbr;  importance = that.importance;  phantom = that.phantom; frameLoadingFlags = that.frameLoadingFlags; eval = that.eval;  failed = that.failed; childrenLoading = that.childrenLoading; childrenEval = that.childrenEval;  childCoverage = that.childCoverage; frameFlags = that.frameFlags; attrs = nil; if (that.attrs) attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; return *this; }
         ~NodeInfo() { attrs = nil; }
         
         /// Compare based on importance.  Used for sorting
         bool operator < (const NodeInfo &that) const;
+        
+        /// Check if the given frame is loaded
+        bool isFrameLoaded(int theFrame) const;
+        
+        /// Check if the given frame is loading
+        bool isFrameLoading(int theFrame) const;
+        
+        /// Set the frame loading bit
+        void setFrameLoading(int theFrame,bool val);
         
         /// Unique identifier for the particular node
         Identifier ident;
@@ -82,8 +94,6 @@ public:
         float importance;
         /// Set if this is a phantom tile.  We pretended to load it, but it's not really here.
         bool phantom;
-        /// Tile is in the process of loading
-        bool loading;
         /// Tile is in the process of evaluation
         bool eval;
         /// This node failed to load
@@ -94,6 +104,10 @@ public:
         int childrenEval;
         /// This tile is covered by loaded children.
         bool childCoverage;
+        /// 64 bits of frame flags
+        long long frameFlags;
+        /// 64 bits of frame loading flags
+        long long frameLoadingFlags;
 
         /// Put any attributes you'd like to keep track of here.
         /// There are things you might calculate for a given tile over and over.
@@ -107,7 +121,7 @@ public:
         This means either there's room or less important nodes loaded
         It could already be loaded.  Check that separately.
      */
-    bool shouldLoadTile(const Identifier &ident);
+    bool shouldLoadTile(const Identifier &ident,int frame);
     
     /// Return true if we've go the maximum nodes loaded in
     bool isFull();
@@ -119,10 +133,13 @@ public:
     void setPhantom(const Identifier &nodeInfo,bool newPhantom);
 
     /// Return true if this tile is loading
-    bool isLoading(const Identifier &ident);
+    bool isLoading(const Identifier &ident,int frame);
     
     /// Set the loading flag on the given node
-    void setLoading(const Identifier &nodeInfo,bool newLoading);
+    void setLoading(const Identifier &nodeInfo,int frame,bool newLoading);
+    
+    /// Mark a tile (with a frame) as loaded
+    void didLoad(const Identifier &nodeInfo,int frame);
     
     /// Set if something is evaluating this node
     bool isEvaluating(const Identifier &ident);
@@ -149,7 +166,7 @@ public:
     void clearFails();
     
     /// Return the next nodes we're evaluating
-    const NodeInfo *popLastEval();
+    bool popLastEval(NodeInfo &);
     
     /// Look for children of this tile being loaded
     bool childrenLoading(const Identifier &ident);
@@ -168,7 +185,7 @@ public:
     const NodeInfo *getNodeInfo(const Identifier &ident);
     
     /// Add the given tile, without looking for any to remove.  This is probably a phantom.
-    const Quadtree::NodeInfo *addTile(const Identifier &ident,bool newEval,bool checkImportance);
+    const Quadtree::NodeInfo *addTile(const Identifier &ident,bool newEval,bool checkImportance,std::vector<Identifier> &newlyCoveredTiles);
     
     /// Explicitly remove a given tile
     void removeTile(const Identifier &which);
@@ -189,6 +206,9 @@ public:
     /// Generate an MBR for the given node identifier
     Mbr generateMbrForNode(const Identifier &ident);
     
+    /// Generate a bounding box for a given node ID in 64 bit precision
+    void generateMbrForNode(const Identifier &ident,Point2d &ll,Point2d &ur);
+    
     /// Fetch the least important (smallest) node currently loaded.
     /// Returns false if there wasn't one
     bool leastImportantNode(NodeInfo &nodeInfo,bool force=false);
@@ -202,6 +222,12 @@ public:
     
     /// Recalculate the child coverage for a given node
     void updateParentCoverage(const Identifier &ident,std::vector<Identifier> &coveredTiles,std::vector<Identifier> &unCoveredTiles);
+    
+    /// Return the loaded count for a given frame (if we're loading frames)
+    int getFrameCount(int frame);
+    
+    /// Check if a given frame is completely loaded (if we're in frame mode)
+    bool frameIsLoaded(int frame,int *tilesLoaded);
     
     /// Dump out to the log for debugging
     void Print();
@@ -256,12 +282,17 @@ protected:
         NodesBySizeType::iterator evalPos;
         Node *parent;
         Node *children[4];
+        bool childOffscreen[4];
     };
         
     Node *getNode(const Identifier &ident);
     void removeNode(Node *);
     /// Recalculate child coverage for a node and its parents
     void recalcCoverage(Node *node);
+    /// Add an entry for the given flag index
+    void addFrameLoaded(int frame);
+    /// Clear the flag counts for the given flag entries
+    void clearFlagCounts(int frameFlags);
 
     Mbr mbr;
     int minLevel,maxLevel;
@@ -277,13 +308,15 @@ protected:
     NodesBySizeType nodesBySize;
     // Nodes we're evaluating
     NodesBySizeType evalNodes;
+    std::vector<int> frameLoadCounts;
 };
 
 }
 
 /// Fill in this protocol to return the importance value for a given tile.
 @protocol WhirlyKitQuadTreeImportanceDelegate
-/// Return a number signifying importance.  MAXFLOAT is very important, 0 is not at all
+/// Return a number signifying importance.  MAXFLOAT is very important, 0 is not at all.
+/// 0 also means the tile is off screen
 - (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr tree:(WhirlyKit::Quadtree *)tree attrs:(NSMutableDictionary *)attrs;
 @end
 

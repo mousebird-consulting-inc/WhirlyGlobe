@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/5/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -57,5 +57,11 @@
     @details To do that, the multiplex tile source needs to accept failures and store an NSNull in the appropriate entry.
   */
 @property (nonatomic) bool acceptFailures;
+
+/// @brief If set, we'll track the outstanding connections across all remote tile sources
++ (void)setTrackConnections:(bool)track;
+
+/// @brief Number of outstanding connections across all tile sources
++ (int)numOutstandingConnections;
 
 @end

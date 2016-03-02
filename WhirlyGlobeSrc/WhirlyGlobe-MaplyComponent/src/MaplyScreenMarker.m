@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -30,8 +30,13 @@
     
     _selectable = true;
     _offset = CGPointMake(0, 0);
+    _layoutSize = CGSizeMake(-1.0, -1.0);
+    _period = 0.0;
     
     return self;
 }
 
+@end
+
+@implementation MaplyMovingScreenMarker
 @end

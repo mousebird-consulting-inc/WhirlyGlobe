@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/7/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -610,7 +610,7 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
 // Parse a single coordinate out of an array
 bool VectorParseCoord(Point2f &coord,NSArray *coords)
 {
-    if (![coords isKindOfClass:[NSArray class]] || ([coords count] != 2 && [coords count] != 3))
+    if (![coords isKindOfClass:[NSArray class]] || [coords count] < 2)
         return false;
     coord.x() = DegToRad([[coords objectAtIndex:0] floatValue]);
     coord.y() = DegToRad([[coords objectAtIndex:1] floatValue]);
@@ -1101,7 +1101,7 @@ bool VectorParseFeatures(JSONNode node,ShapeSet &shapes)
 }
 
 // Recursively parse a feature collection
-bool VectorParseTopNode(JSONNode node,ShapeSet &shapes)
+bool VectorParseTopNode(JSONNode node,ShapeSet &shapes,JSONNode &crs)
 {
     JSONNode::const_iterator typeIt = node.end();
     JSONNode::const_iterator featIt = node.end();
@@ -1113,6 +1113,8 @@ bool VectorParseTopNode(JSONNode node,ShapeSet &shapes)
             typeIt = it;
         else if (!it->name().compare("features"))
             featIt = it;
+        else if (!it->name().compare("crs"))
+            crs = *it;
     }
     if (typeIt == node.end())
         return false;
@@ -1131,8 +1133,49 @@ bool VectorParseTopNode(JSONNode node,ShapeSet &shapes)
     return false;
 }
     
+// Parse the name out of a CRS in a GeoJSON file
+bool VectorParseGeoJSONCRS(JSONNode node,std::string &crsName)
+{
+    JSONNode::const_iterator typeIt = node.end();
+    JSONNode::const_iterator propIt = node.end();
+    
+    for (JSONNode::const_iterator it = node.begin();
+         it != node.end(); ++it)
+    {
+        if (!it->name().compare("type"))
+            typeIt = it;
+        else if (!it->name().compare("properties"))
+            propIt = it;
+    }
+    if (typeIt == node.end())
+        return false;
+    
+    json_string type;
+    type = typeIt->as_string();
+    if (!type.compare("name"))
+    {
+        // Expecting a features node
+        if (propIt == node.end() || propIt->type() != JSON_NODE)
+            return false;
+        
+        for (JSONNode::const_iterator it = propIt->begin(); it != propIt->end(); ++it)
+        {
+            if (!it->name().compare("name"))
+            {
+                if (it->type() != JSON_STRING)
+                    return false;
+                crsName = it->as_string();
+                return true;
+            }
+        }
+    } else
+        return false;
+    
+    return false;
+}
+    
 // Parse a set of features out of GeoJSON, using libjson
-bool VectorParseGeoJSON(ShapeSet &shapes,NSData *data)
+bool VectorParseGeoJSON(ShapeSet &shapes,NSData *data,NSString **crs)
 {
     // Note: Kind of an extra step here
     NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -1140,10 +1183,19 @@ bool VectorParseGeoJSON(ShapeSet &shapes,NSData *data)
     
     JSONNode topNode = libjson::parse(json);
 
-    if (!VectorParseTopNode(topNode,shapes))
+    JSONNode crsNode;
+    if (!VectorParseTopNode(topNode,shapes,crsNode))
     {
         NSLog(@"Failed to parse JSON in VectorParseGeoJSON");
         return false;
+    }
+
+    std::string crsName;
+    *crs = nil;
+    if (VectorParseGeoJSONCRS(crsNode,crsName))
+    {
+        if (!crsName.empty())
+            *crs = [NSString stringWithFormat:@"%s",crsName.c_str()];
     }
     
     return true;
@@ -1156,6 +1208,7 @@ bool VectorParseGeoJSONAssembly(NSData *data,std::map<std::string,ShapeSet> &sha
     json_string json = [str UTF8String];
     
     JSONNode topNode = libjson::parse(json);
+    JSONNode crsNode;
 
     for (JSONNode::iterator nodeIt = topNode.begin();
          nodeIt != topNode.end(); ++nodeIt)
@@ -1163,7 +1216,7 @@ bool VectorParseGeoJSONAssembly(NSData *data,std::map<std::string,ShapeSet> &sha
         if (nodeIt->type() == JSON_NODE)
         {
             ShapeSet theseShapes;
-            if (VectorParseTopNode(*nodeIt,theseShapes))
+            if (VectorParseTopNode(*nodeIt,theseShapes,crsNode))
             {
                 json_string name = nodeIt->name();
                 std::string nameStr = to_std_string(name);

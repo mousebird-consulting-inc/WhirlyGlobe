@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/27/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  *
  */
 
-#import "Drawable.h"
+#import "BasicDrawable.h"
 
 namespace WhirlyKit
 {
@@ -27,7 +27,8 @@ namespace WhirlyKit
 #define kBillboardShaderName "Billboard Shader"
     
 /// Construct and return the Billboard shader program
-OpenGLES2Program *BuildBillboardProgram();
+OpenGLES2Program *BuildBillboardGroundProgram();
+OpenGLES2Program *BuildBillboardEyeProgram();
 
 /** The drawable class for rendering billboards.
     Billboards contain extra information per vertex and
@@ -39,7 +40,8 @@ public:
     BillboardDrawable();
     
     /// Each vertex has an offset in 3-space
-    void addOffset(Point3f offset);
+    void addOffset(const Point3f &offset);
+    void addOffset(const Point3d &offset);
     
 protected:
     int offsetIndex;

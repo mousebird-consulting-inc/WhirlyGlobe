@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ using namespace Eigen;
         _fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
 		_nearPlane = 0.001;
 		_imagePlaneSize = _nearPlane * tanf(_fieldOfView / 2.0);
-		_farPlane = 4.0;
+		_farPlane = 10.0;
         _lastChangedTime = CFAbsoluteTimeGetCurrent();
         _continuousZoom = false;
     }
@@ -47,6 +47,18 @@ using namespace Eigen;
     return self;
 }
 
+- (id)initWithView:(WhirlyKitView *)inView
+{
+    self = [super init];
+    _fieldOfView = inView->_fieldOfView;
+    _nearPlane = inView->_nearPlane;
+    _imagePlaneSize = inView->_imagePlaneSize;
+    _farPlane = inView->_farPlane;
+    _lastChangedTime = inView->_lastChangedTime;
+    _continuousZoom = inView->_continuousZoom;
+    
+    return self;
+}
 
 - (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(Point2d &)ll ur:(Point2d &)ur near:(double &)near far:(double &)far
 {

@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 8/2/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -36,11 +36,10 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
   */
 @interface MaplyVectorObject : NSObject
 
-/** @brief NSObject set by the user for their tracking, usually through selection.
-    @details This is a strong references to an NSObject the developer can assign.  It'll show up again during selection, for example, wllowing you to figure out what a given object means to you.
-    @details nil by default.
-  */
-@property (nonatomic,strong) NSObject *userObject;
+/** @brief User data object for selection
+ @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the vector object means to them.
+ */
+@property (nonatomic,strong) id userObject;
 
 /// @brief Turn this off to make this vector invisible to selection.
 /// @details On by default.
@@ -113,8 +112,18 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
 
 /** @brief Make a deep copy of the vector object and return it.
     @details This makes a complete copy of the vector object, with all features and nothing shared.
+    @details Had to rename this because Apple's private method scanner is dumb.
   */
-- (MaplyVectorObject *)deepCopy;
+- (MaplyVectorObject *)deepCopy2;
+
+/** @brief Reproject from one coordinate system to another.
+    @details This reprojects every single point in the points, linears, and areals (and mesh) from the source coordinate system to the destionation.
+    @details Typically, you'll want Plate Carree for display, the destSystem is probably that.
+    @details For various reasons (e.g. scale), this will probably not work right for you.
+    @param srcSystem The source coordinate system.  The data is already in this sytem.
+    @param destSystem The destination coordinate system.  The data will be in this system on return.
+  */
+- (void)reprojectFrom:(MaplyCoordinateSystem *)srcSystem to:(MaplyCoordinateSystem *)destSystem;
 
 /** @brief Dump the feature(s) out as text
     @details This will write each feature out as text for debugging.

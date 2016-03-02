@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 5/13/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -64,16 +64,20 @@ using namespace WhirlyKit;
 
 - (void)setBoundsLL:(MaplyCoordinate *)inLL ur:(MaplyCoordinate *)inUR
 {
-    ll = *inLL;
-    ur = *inUR;
+    ll.x = inLL->x;    ll.y = inLL->y;
+    ur.x = inUR->x;    ur.y = inUR->y;
 }
 
 - (void)getBoundsLL:(MaplyCoordinate *)ret_ll ur:(MaplyCoordinate *)ret_ur
 {
     if (ret_ll)
-        *ret_ll = ll;
+    {
+        ret_ll->x = ll.x; ret_ll->y = ll.y;
+    }
     if (ret_ur)
-        *ret_ur = ur;
+    {
+        ret_ur->x = ur.x; ret_ur->y = ur.y;
+    }
 }
 
 - (MaplyCoordinate)geoToLocal:(MaplyCoordinate)coord
@@ -106,8 +110,10 @@ using namespace WhirlyKit;
 {
     PlateCarreeCoordSystem *coordSys = new PlateCarreeCoordSystem();
     self = [super initWithCoordSystem:coordSys];
-    ll = bbox.ll;
-    ur = bbox.ur;
+    ll.x = bbox.ll.x;
+    ll.y = bbox.ll.y;
+    ur.x = bbox.ur.x;
+    ur.y = bbox.ur.y;
     
     return self;
 }
@@ -142,8 +148,8 @@ using namespace WhirlyKit;
 {
     SphericalMercatorCoordSystem *coordSys = new SphericalMercatorCoordSystem();
     self = [super initWithCoordSystem:coordSys];
-    Point3f pt0 = coordSys->geographicToLocal(GeoCoord::CoordFromDegrees(-180,-85.05113));
-    Point3f pt1 = coordSys->geographicToLocal(GeoCoord::CoordFromDegrees( 180, 85.05113));
+    Point3d pt0 = coordSys->geographicToLocal3d(GeoCoord::CoordFromDegrees(-180,-85.05113));
+    Point3d pt1 = coordSys->geographicToLocal3d(GeoCoord::CoordFromDegrees( 180, 85.05113));
     ll.x = pt0.x();  ll.y = pt0.y();
     ur.x = pt1.x();  ur.y = pt1.y();
     
@@ -161,3 +167,16 @@ using namespace WhirlyKit;
 }
 
 @end
+
+MaplyCoordinateSystem *MaplyCoordinateSystemFromEPSG(NSString *crs)
+{
+    if ([crs isEqualToString:@"EPSG:3857"])
+    {
+        return [[MaplySphericalMercator alloc] initWebStandard];
+    } else if ([crs isEqualToString:@"EPSG:4326"])
+    {
+        return [[MaplyPlateCarree alloc] initFullCoverage];
+    }
+    
+    return nil;
+}

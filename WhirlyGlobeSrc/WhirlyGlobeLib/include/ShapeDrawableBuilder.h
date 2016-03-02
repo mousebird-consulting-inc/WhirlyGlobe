@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/28/11.
- *  Copyright 2011-2013 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2015 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,24 +21,22 @@
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "DataLayer.h"
-#import "layerThread.h"
+#import "LayerThread.h"
+#import "BaseInfo.h"
 
 /// Used to pass shape info between the shape layer and the drawable builder
 ///  and within the threads of the shape layer
-@interface WhirlyKitShapeInfo : NSObject
+@interface WhirlyKitShapeInfo : WhirlyKitBaseInfo
 
 @property (nonatomic) NSArray *shapes;
 @property (nonatomic) UIColor *color;
-@property (nonatomic,assign) float drawOffset;
-@property (nonatomic,assign) float minVis,maxVis;
-@property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) float fade;
 @property (nonatomic,assign) float lineWidth;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity shapeId;
+@property (nonatomic,assign) bool insideOut;
 @property (nonatomic,assign) bool zBufferRead;
 @property (nonatomic,assign) bool zBufferWrite;
-@property (nonatomic,assign) bool enable;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity shaderID;
+@property (nonatomic,assign) bool hasCenter;
+@property (nonatomic,assign) WhirlyKit::Point3d &center;
 
 - (id)initWithShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
 
@@ -57,7 +55,7 @@ class ShapeDrawableBuilder
 public:
     /// Construct the builder with the fade value for each created drawable and
     ///  whether we're doing lines or points
-    ShapeDrawableBuilder(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKitShapeInfo *shapeInfo,bool linesOrPoints);
+    ShapeDrawableBuilder(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKitShapeInfo *shapeInfo,bool linesOrPoints,const Point3d &center);
     virtual ~ShapeDrawableBuilder();
         
     /// A group of points (in display space) all at once
@@ -71,13 +69,14 @@ public:
     
     WhirlyKitShapeInfo *getShapeInfo() { return shapeInfo; }
     
-protected:
+public:
     CoordSystemDisplayAdapter *coordAdapter;
     GLenum primType;
     WhirlyKitShapeInfo *shapeInfo;
     Mbr drawMbr;
     BasicDrawable *drawable;
     std::vector<BasicDrawable *> drawables;
+    Point3d center;
 };
 
 /** Drawable Builder (Triangle version) is used to build up shapes made out of triangles.
@@ -87,18 +86,27 @@ class ShapeDrawableBuilderTri
 {
 public:
     /// Construct with the visual description
-    ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKitShapeInfo *shapeInfo);
+    ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKitShapeInfo *shapeInfo,const Point3d &center);
     virtual ~ShapeDrawableBuilderTri();
     
     // Add a triangle with normals
     void addTriangle(Point3f p0,Point3f n0,RGBAColor c0,Point3f p1,Point3f n1,RGBAColor c1,Point3f p2,Point3f n2,RGBAColor c2,Mbr shapeMbr);
-    
+
+    // Add a triangle with normals
+    void addTriangle(Point3d p0,Point3d n0,RGBAColor c0,Point3d p1,Point3d n1,RGBAColor c1,Point3d p2,Point3d n2,RGBAColor c2,Mbr shapeMbr);
+
     // Add a group of pre-build triangles
     void addTriangles(std::vector<Point3f> &pts,std::vector<Point3f> &norms,std::vector<RGBAColor> &colors,std::vector<BasicDrawable::Triangle> &tris);
     
     // Add a convex outline, triangulated
     void addConvexOutline(std::vector<Point3f> &pts,Point3f norm,RGBAColor color,Mbr shapeMbr);
+
+    // Add a convex outline, triangulated
+    void addConvexOutline(std::vector<Point3d> &pts,Point3d norm,RGBAColor color,Mbr shapeMbr);
     
+    // Add a complex outline, triangulated
+    void addComplexOutline(std::vector<Point3d> &pts,Point3d norm,RGBAColor color,Mbr shapeMbr);
+
     /// Flush out the current drawable (if there is one) to the list of finished ones
     void flush();
     
@@ -107,7 +115,7 @@ public:
     
     WhirlyKitShapeInfo *getShapeInfo() { return shapeInfo; }
 
-protected:
+public:
     // Creates a new local drawable with all the appropriate settings
     void setupNewDrawable();
 
@@ -116,6 +124,7 @@ protected:
     WhirlyKitShapeInfo *shapeInfo;
     BasicDrawable *drawable;
     std::vector<BasicDrawable *> drawables;
+    Point3d center;
 };
 
 }

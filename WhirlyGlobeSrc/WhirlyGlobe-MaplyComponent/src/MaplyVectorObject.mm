@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 8/2/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -107,8 +107,22 @@ public:
     {
         MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
         
-        if (!VectorParseGeoJSON(vecObj->_shapes, geoJSON))
+        NSString *crs = nil;
+        if (!VectorParseGeoJSON(vecObj->_shapes, geoJSON, &crs))
             return nil;
+        
+        // Reproject to a destination system
+        // Note: Not working
+//        if (crs)
+//        {
+//            MaplyCoordinateSystem *srcSys = MaplyCoordinateSystemFromEPSG(crs);
+//            MaplyCoordinateSystem *destSys = [[MaplyPlateCarree alloc] initFullCoverage];
+//            if (srcSys && destSys)
+//            {
+//                [vecObj reprojectFrom:srcSys to:destSys];
+//            } else
+//                NSLog(@"VectorObjectFromGeoJSON: Unable to reproject to CRS (%@)",crs);
+//        }
         
         return vecObj;
     }
@@ -411,7 +425,7 @@ public:
     return outStr;
 }
 
-- (MaplyVectorObject *)deepCopy
+- (MaplyVectorObject *)deepCopy2
 {
     MaplyVectorObject *newVecObj = [[MaplyVectorObject alloc] init];
     
@@ -440,12 +454,82 @@ public:
                     [newAr->getAttrDict() addEntriesFromDictionary:ar->getAttrDict()];
                     newAr->loops = ar->loops;
                     newVecObj.shapes.insert(newAr);
+                } else {
+                    VectorTrianglesRef tri = boost::dynamic_pointer_cast<VectorTriangles>(*it);
+                    if (tri)
+                    {
+                        VectorTrianglesRef newTri = VectorTriangles::createTriangles();
+                        [newTri->getAttrDict() addEntriesFromDictionary:tri->getAttrDict()];
+                        newTri->geoMbr = tri->geoMbr;
+                        newTri->pts = tri->pts;
+                        newTri->tris = tri->tris;
+                        newVecObj.shapes.insert(newTri);
+                    }
                 }
             }
         }
     }
     
     return newVecObj;
+}
+
+- (void)reprojectFrom:(MaplyCoordinateSystem *)srcSystem to:(MaplyCoordinateSystem *)destSystem
+{
+    CoordSystem *inSystem = srcSystem->coordSystem;
+    CoordSystem *outSystem = destSystem->coordSystem;
+
+    // Note: Heinous hack for meters to radians conversion
+    double scale = 1.0;
+    if ([srcSystem isKindOfClass:[MaplySphericalMercator class]])
+        scale = 1/EarthRadius;
+    
+    for (ShapeSet::iterator it = _shapes.begin(); it != _shapes.end(); ++it)
+    {
+        VectorPointsRef points = boost::dynamic_pointer_cast<VectorPoints>(*it);
+        if (points)
+        {
+            for (Point2f &pt : points->pts)
+            {
+                Point3f outPt = CoordSystemConvert(inSystem, outSystem, Point3f(pt.x()*scale,pt.y()*scale,0.0));
+                pt.x() = outPt.x();  pt.y() = outPt.y();
+            }
+            points->calcGeoMbr();
+        } else {
+            VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+            if (lin)
+            {
+                for (Point2f &pt : lin->pts)
+                {
+                    Point3f outPt = CoordSystemConvert(inSystem, outSystem, Point3f(pt.x()*scale,pt.y()*scale,0.0));
+                    pt.x() = outPt.x();  pt.y() = outPt.y();
+                }
+                lin->calcGeoMbr();
+            } else {
+                VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+                if (ar)
+                {
+                    for (VectorRing &loop : ar->loops)
+                        for (Point2f &pt : loop)
+                        {
+                            
+                            Point3f outPt = CoordSystemConvert(inSystem, outSystem, Point3f(pt.x()*scale,pt.y()*scale,0.0));
+                            pt.x() = outPt.x() * 180 / M_PI;  pt.y() = outPt.y() * 180 / M_PI;
+                        }
+                    ar->calcGeoMbr();
+                } else {
+                    VectorTrianglesRef tri = boost::dynamic_pointer_cast<VectorTriangles>(*it);
+                    if (tri)
+                    {
+                        for (Point3f &pt : tri->pts)
+                        {
+                            pt = CoordSystemConvert(inSystem, outSystem, Point3f(pt.x()*scale,pt.y()*scale,pt.z()));
+                        }
+                        tri->calcGeoMbr();
+                    }
+                }
+            }
+        }
+    }
 }
 
 // Look for areals that this point might be inside
@@ -567,7 +651,7 @@ public:
     {
         Point2f &pt0 = pts[ii],&pt1 = pts[ii+1];
         float len = (pt1-pt0).norm();
-        if (halfLen <= lenSoFar+len)
+        if (len > 0.0 && halfLen <= lenSoFar+len)
         {
             float t = (halfLen-lenSoFar)/len;
             Point2f thePt = (pt1-pt0)*t + pt0;
@@ -598,6 +682,19 @@ public:
         return false;
     
     VectorRing pts = lin->pts;
+    
+    if (pts.empty())
+        return false;
+    
+    if (pts.size() == 1)
+    {
+        middle->x = pts[0].x();
+        middle->y = pts[0].y();
+        if (rot)
+            *rot = 0.0;
+        return true;
+    }
+    
     float totLen = 0;
     for (int ii=0;ii<pts.size()-1;ii++)
     {
@@ -717,6 +814,24 @@ public:
                 {
                     bigLoop = &areal->loops[ii];
                     bigArea = area;
+                }
+            }
+        } else {
+            VectorLinearRef linear = boost::dynamic_pointer_cast<VectorLinear>(*it);
+            if (linear)
+            {
+                GeoCoord midCoord = linear->geoMbr.mid();
+                centroid->x = midCoord.x();
+                centroid->y = midCoord.y();
+                return true;
+            } else {
+                VectorPointsRef pts = boost::dynamic_pointer_cast<VectorPoints>(*it);
+                if (pts)
+                {
+                    GeoCoord midCoord = pts->geoMbr.mid();
+                    centroid->x = midCoord.x();
+                    centroid->y = midCoord.y();
+                    return true;
                 }
             }
         }

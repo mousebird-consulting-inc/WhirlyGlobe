@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -86,7 +86,10 @@ using namespace WhirlyGlobe;
         }
     } else {
         // Next, try the vectors
-        selObj = [self findVectorInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y()) inView:(MaplyBaseViewController*)self.viewController];
+        // Note: Ignoring everything but the first return
+        NSArray *vecObjs = [self findVectorsInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y()) inView:(MaplyBaseViewController*)self.viewController multi:false];
+        if ([vecObjs count] > 0)
+            selObj = [vecObjs objectAtIndex:0];
     }
     
     // Tell the view controller about it
