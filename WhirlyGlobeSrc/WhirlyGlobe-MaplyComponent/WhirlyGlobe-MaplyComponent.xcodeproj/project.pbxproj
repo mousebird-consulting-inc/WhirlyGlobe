@@ -260,6 +260,7 @@
 		2BBEB82B15CB06A100E363E7 /* MaplyVectorObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBEB82A15CB06A100E363E7 /* MaplyVectorObject.h */; };
 		2BBEB82F15CB06AD00E363E7 /* MaplyVectorObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BBEB82E15CB06AD00E363E7 /* MaplyVectorObject.mm */; };
 		2BBEB83515CB2A2D00E363E7 /* MaplyVectorObject_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBEB83415CB2A2D00E363E7 /* MaplyVectorObject_private.h */; };
+		2BBF167C1C87922400AF2A36 /* int128.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BBF167B1C87922400AF2A36 /* int128.cc */; };
 		2BC122EB1AC095580025326D /* MaplyVertexAttribute.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC122E91AC095580025326D /* MaplyVertexAttribute.h */; };
 		2BC122EC1AC095580025326D /* MaplyVertexAttribute_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC122EA1AC095580025326D /* MaplyVertexAttribute_private.h */; };
 		2BC122EF1AC095660025326D /* MaplyVertexAttribute.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC122EE1AC095660025326D /* MaplyVertexAttribute.mm */; };
@@ -728,6 +729,7 @@
 		2BBEB82A15CB06A100E363E7 /* MaplyVectorObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyVectorObject.h; path = include/MaplyVectorObject.h; sourceTree = SOURCE_ROOT; };
 		2BBEB82E15CB06AD00E363E7 /* MaplyVectorObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyVectorObject.mm; path = src/MaplyVectorObject.mm; sourceTree = SOURCE_ROOT; tabWidth = 4; };
 		2BBEB83415CB2A2D00E363E7 /* MaplyVectorObject_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyVectorObject_private.h; path = include/private/MaplyVectorObject_private.h; sourceTree = SOURCE_ROOT; };
+		2BBF167B1C87922400AF2A36 /* int128.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = int128.cc; sourceTree = "<group>"; };
 		2BC122E91AC095580025326D /* MaplyVertexAttribute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyVertexAttribute.h; path = include/MaplyVertexAttribute.h; sourceTree = "<group>"; };
 		2BC122EA1AC095580025326D /* MaplyVertexAttribute_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyVertexAttribute_private.h; path = include/private/MaplyVertexAttribute_private.h; sourceTree = "<group>"; };
 		2BC122EE1AC095660025326D /* MaplyVertexAttribute.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyVertexAttribute.mm; path = src/MaplyVertexAttribute.mm; sourceTree = "<group>"; };
@@ -1584,6 +1586,7 @@
 		881F665D18F20A8F00D17110 /* stubs */ = {
 			isa = PBXGroup;
 			children = (
+				2BBF167B1C87922400AF2A36 /* int128.cc */,
 				2BD5A8801B4208A700DDAEE3 /* status.cc */,
 				2BD5A87E1B42087D00DDAEE3 /* stringpiece.cc */,
 				881F665E18F20A8F00D17110 /* atomicops.h */,
@@ -1945,6 +1948,7 @@
 				2BEE7EEB1B3C73C900B6E0B1 /* MaplyPagingElevationTestTileSource.mm in Sources */,
 				2BBAA90A181EEE3F00BE1277 /* MaplyBillboard.mm in Sources */,
 				2B2FECA61B572BD400A332BF /* AAStellarMagnitudes.cpp in Sources */,
+				2BBF167C1C87922400AF2A36 /* int128.cc in Sources */,
 				2BD5A85C1B41FEC100DDAEE3 /* tokenizer.cc in Sources */,
 				2B7BED481AED577A00F3210B /* MaplyParticleSystem.mm in Sources */,
 				2B4AFB8F18031C2B00C3F948 /* MaplyQuadImageOfflineLayer.mm in Sources */,
