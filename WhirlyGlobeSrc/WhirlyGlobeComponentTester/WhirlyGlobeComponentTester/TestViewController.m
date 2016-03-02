@@ -201,7 +201,6 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     
     // Configuration controller for turning features on and off
     configViewC = [[ConfigViewController alloc] initWithNibName:@"ConfigViewController" bundle:nil];
-    configViewC.configOptions = ConfigOptionsAll;
 
     // Create an empty globe or map controller
     zoomLimit = 0;
@@ -210,6 +209,13 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     switch (startupMapType)
     {
         case MaplyGlobe:
+            globeViewC = [[WhirlyGlobeViewController alloc] init];
+            globeViewC.delegate = self;
+            baseViewC = globeViewC;
+            maxLayerTiles = 128;
+            
+            configViewC.configOptions = ConfigOptionsGlobe;
+            break;
         case MaplyGlobeWithElevation:
             globeViewC = [[WhirlyGlobeViewController alloc] init];
             globeViewC.delegate = self;
@@ -217,14 +223,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
             maxLayerTiles = 128;
             // Per level tesselation control
             tessValues = @{@(-1) : @10, @0 : @20, @1 : @16};
-            break;
-        case Maply3DMap:
-            mapViewC = [[MaplyViewController alloc] init];
-            mapViewC.doubleTapZoomGesture = true;
-            mapViewC.twoFingerTapGesture = true;
-            mapViewC.viewWrap = true;
-            mapViewC.delegate = self;
-            baseViewC = mapViewC;
+
+            configViewC.configOptions = ConfigOptions3DTerrain;
             break;
         case Maply2DMap:
             mapViewC = [[MaplyViewController alloc] initAsFlatMap];
@@ -233,10 +233,9 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
             mapViewC.twoFingerTapGesture = true;
             mapViewC.delegate = self;
             baseViewC = mapViewC;
-            configViewC.configOptions = ConfigOptionsFlat;
+
+            configViewC.configOptions = ConfigOptionsMap;
             break;
-//        case MaplyScrollViewMap:
-//            break;
         default:
             break;
     }
@@ -244,15 +243,8 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     baseViewC.view.frame = self.view.bounds;
     [self addChildViewController:baseViewC];
     
-    // Note: Debugging
-//    if (globeViewC)
-//        [globeViewC setTiltMinHeight:0.001 maxHeight:0.01 minTilt:1.21771169 maxTilt:0.0];
-
     // This lets us mix screen space objects with everything else
 //    baseViewC.screenObjectDrawPriorityOffset = 0;
-
-    // Note: Debugging
-//    [self labelExercise];
 
     if (perfMode == LowPerformance)
     {
@@ -284,16 +276,6 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
     }
     
-    // Note: Debugging
-//    if (globeViewC)
-//    {
-//        [globeViewC setFarClipPlane:10.0];
-//        float minZoom,maxZoom;
-//        [globeViewC getZoomLimitsMin:&minZoom max:&maxZoom];
-//        [globeViewC setZoomLimitsMin:minZoom max:8.0];
-//    }
-
-    
     NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
     
     // For elevation mode, we need to do some other stuff
@@ -321,10 +303,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         
         // Don't forget to turn on the z buffer permanently
         [baseViewC setHints:@{kMaplyRenderHintZBuffer: @(YES)}];
-        
-        // Turn off most of the options for globe mode
-        configViewC.configOptions = ConfigOptionsTerrain;
-        
+                
         // Set up their odd tiling system
         MaplyCesiumCoordSystem *cesiumCoordSys = [[MaplyCesiumCoordSystem alloc] init];
         MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:cesiumCoordSys minZoom:1 maxZoom:16 depth:1];
@@ -344,31 +323,17 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
 //        // Start up over Everest
 //        mapViewC.height = 1.0;
 //        [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(86.925278, 27.988056) time:1.0];
-        
-//        [self addSun];
-//        [self addStars:@"starcatalog_short"];
     }
     
     // Force the view to load so we can get the default switch values
     [configViewC view];
     
-    // Note: Testing
-//    [self performSelector:@selector(findHeightTest) withObject:nil afterDelay:0.0];
-
-    // Maximum number of objects for the layout engine to display
-//    [baseViewC setMaxLayoutObjects:1000];
-    
     // Bring up things based on what's turned on
     [self performSelector:@selector(changeMapContents) withObject:nil afterDelay:0.0];
     
     // Settings panel
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(showConfig)];
-    
-    // Test animation
-//    if (globeViewC)
-//        [self performSelector:@selector(viewAnimationTest) withObject:nil afterDelay:2.0];
-    
-//    [self performSelector:@selector(labelMarkerTest:) withObject:@(0.1) afterDelay:0.1];
+    if (startupMapType != MaplyGlobeWithElevation)
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(showConfig)];
 }
 
 - (void)labelMarkerTest:(NSNumber *)time
@@ -447,138 +412,6 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
                           } mode:MaplyThreadCurrent]];
     
 //    [self performSelector:@selector(labelMarkerTest:) withObject:time afterDelay:[time floatValue]];
-}
-
-- (void)findHeightTest
-{
-    if (globeViewC)
-    {
-        MaplyBoundingBox bbox;
-        bbox.ll = MaplyCoordinateMakeWithDegrees(7.05090689853, 47.7675500593);
-        bbox.ur = MaplyCoordinateMakeWithDegrees(8.06813647023, 49.0562323851);
-        MaplyCoordinate center = MaplyCoordinateMakeWithDegrees((7.05090689853+8.06813647023)/2, (47.7675500593+49.0562323851)/2);
-        double height = [globeViewC findHeightToViewBounds:&bbox pos:center];
-        mapViewC.height = height;
-        [globeViewC animateToPosition:center time:1.0];
-        NSLog(@"height = %f",height);
-    }    
-}
-
-// Test animation to a point with height and heading
-- (void)viewAnimationTest
-{
-    [globeViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222) height:0.1 heading:45.0/180.0*M_PI time:10.0];
-}
-
-// Create a bunch of labels periodically
-- (void)labelExercise
-{
-//     NSTimer *_labelAnimationTimer;
-//     NSMutableDictionary *_trafficLabels;
-
-    if (mapViewC) {
-         _trafficLabels = [NSMutableDictionary dictionary];
-
-         _labelAnimationTimer = [NSTimer scheduledTimerWithTimeInterval:1.25 target:self selector:@selector(labelAnimationCallback) userInfo:nil repeats:NO];
-     }
-}
-
-- (void) labelAnimationCallback
-{
-    NSLog(@"anim callback");
-    MaplyComponentObject *trafficLabelCompObj;
-
-    NSArray *keys = [_trafficLabels allKeys];
-    for (NSObject *key in keys) {
-        trafficLabelCompObj = _trafficLabels[key];
-        if (!trafficLabelCompObj)
-            continue;
-        [mapViewC removeObject:trafficLabelCompObj];
-        [_trafficLabels removeObjectForKey:key];
-    }
-
-    NSDictionary *labelsDesc = @{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(0.3), kMaplyJustify : @"left", kMaplyDrawPriority: @(50)};
-    MaplyScreenLabel *label;
-    for (int i=0; i<50; i++) {
-         label = [[MaplyScreenLabel alloc] init];
-
-         label.loc = MaplyCoordinateMakeWithDegrees(
-             -100.0 + 0.25 * ((float)arc4random()/0x100000000),
-             40.0 + 0.25 * ((float)arc4random()/0x100000000));
-         label.rotation = 0.0;
-         label.layoutImportance = 1.0;
-         label.text = @"ABCDE";
-         label.layoutPlacement = kMaplyLayoutRight;
-         label.userObject = nil;
-         label.color = [UIColor whiteColor];
- 
-        
-         trafficLabelCompObj = [mapViewC addScreenLabels:[NSArray arrayWithObjects:label, nil] desc:labelsDesc];
-         _trafficLabels[@(i)] = trafficLabelCompObj;
-        
-     }
-    
-    
-     _labelAnimationTimer = [NSTimer scheduledTimerWithTimeInterval:1.25 target:self selector:@selector(labelAnimationCallback) userInfo:nil repeats:NO];
-}
-
-// Try to fetch the given WMS layer
-- (void)fetchWMSLayer:(NSString *)baseURL layer:(NSString *)layerName style:(NSString *)styleName cacheDir:(NSString *)thisCacheDir ovlName:(NSString *)ovlName
-{
-    NSString *capabilitiesURL = [MaplyWMSCapabilities CapabilitiesURLFor:baseURL];
-    
-    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:capabilitiesURL]]];
-    operation.responseSerializer = [AFXMLParserResponseSerializer serializer];
-    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        [self startWMSLayerBaseURL:baseURL xml:responseObject layer:layerName style:styleName cacheDir:thisCacheDir ovlName:ovlName];
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        // Sometimes this works anyway
-//        if (![self startWMSLayerBaseURL:baseURL xml:XMLDocument layer:layerName style:styleName cacheDir:thisCacheDir ovlName:ovlName])
-//            NSLog(@"Failed to get capabilities from WMS server: %@",capabilitiesURL);
-    }];
-    
-    [operation start];
-}
-
-// Try to start the layer, given the capabilities
-- (bool)startWMSLayerBaseURL:(NSString *)baseURL xml:(DDXMLDocument *)XMLDocument layer:(NSString *)layerName style:(NSString *)styleName cacheDir:(NSString *)thisCacheDir ovlName:(NSString *)ovlName
-{
-    // See what the service can provide
-    MaplyWMSCapabilities *cap = [[MaplyWMSCapabilities alloc] initWithXML:XMLDocument];
-    MaplyWMSLayer *layer = [cap findLayer:layerName];
-    MaplyCoordinateSystem *coordSys = [layer buildCoordSystem];
-    MaplyWMSStyle *style = [layer findStyle:styleName];
-    if (!layer)
-    {
-        NSLog(@"Couldn't find layer %@ in WMS response.",layerName);
-        return false;
-    } else if (!coordSys)
-    {
-        NSLog(@"No coordinate system we recognize in WMS response.");
-        return false;
-    } else if (styleName && !style)
-    {
-        NSLog(@"No style named %@ in WMS response.",styleName);
-        return false;
-    }
-    
-    if (layer && coordSys)
-    {
-        MaplyWMSTileSource *tileSource = [[MaplyWMSTileSource alloc] initWithBaseURL:baseURL capabilities:cap layer:layer style:style coordSys:coordSys minZoom:0 maxZoom:16 tileSize:256];
-        tileSource.cacheDir = thisCacheDir;
-        tileSource.transparent = true;
-        MaplyQuadImageTilesLayer *imageLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:coordSys tileSource:tileSource];
-        imageLayer.coverPoles = false;
-        imageLayer.handleEdges = true;
-        imageLayer.requireElev = requireElev;
-        imageLayer.waitLoad = imageWaitLoad;
-        [baseViewC addLayer:imageLayer];
-        
-        if (ovlName)
-            ovlLayers[ovlName] = imageLayer;
-    }
-    
-    return true;
 }
 
 - (void)viewDidUnload
@@ -1070,7 +903,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     stickersObj = [baseViewC addStickers:stickers desc:desc];
 }
 
-static const bool CountryTextures = true;
+static const bool CountryTextures = false;
 
 // Add country outlines.  Pass in the names of the geoJSON files
 - (void)addCountries:(NSArray *)names stride:(int)stride
@@ -1105,7 +938,7 @@ static const bool CountryTextures = true;
                              NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
                              wgVecObj.userObject = vecName;
                              NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:@{
-                                                                                                         kMaplyFilled: @(YES),
+//                                                                                                         kMaplyFilled: @(YES),
                                                                                                          }];
                              if (CountryTextures)
                              {
@@ -1124,7 +957,9 @@ static const bool CountryTextures = true;
                                  screenLabel.layoutImportance = 1.0;
                                  screenLabel.text = vecName;
                                  screenLabel.userObject = screenLabel.text;
-                                 screenLabel.layoutPlacement = kMaplyLayoutRight | kMaplyLayoutAbove | kMaplyLayoutLeft | kMaplyLayoutBelow;
+                                 // Note: We see overlap when these are all on
+//                                 screenLabel.layoutPlacement = kMaplyLayoutRight | kMaplyLayoutAbove | kMaplyLayoutLeft | kMaplyLayoutBelow;
+                                 screenLabel.layoutPlacement = kMaplyLayoutLeft;
                                  screenLabel.selectable = true;
                                  if (screenLabel.text)
                                      [locAutoLabels addObject:screenLabel];
@@ -1142,17 +977,15 @@ static const bool CountryTextures = true;
              dispatch_async(dispatch_get_main_queue(),
                             ^{
                                 // Toss in all the labels at once, more efficient
-                                // Note: Debugging
-//                                MaplyComponentObject *autoLabelObj = [baseViewC addScreenLabels:locAutoLabels desc:
-//                                                                      @{kMaplyTextColor: [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1.0],
-//                                                                            kMaplyFont: [UIFont systemFontOfSize:24.0],
-//                                                                         kMaplyTextOutlineColor: [UIColor blackColor],
-//                                                                          kMaplyTextOutlineSize: @(1.0),
-////                                                                               kMaplyShadowSize: @(1.0)
-//                                                                      } mode:MaplyThreadAny];
+                                MaplyComponentObject *autoLabelObj = [baseViewC addScreenLabels:locAutoLabels desc:
+                                                                      @{kMaplyTextColor: [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1.0],
+                                                                            kMaplyFont: [UIFont systemFontOfSize:24.0],
+                                                                            kMaplyTextOutlineColor: [UIColor blackColor],
+                                                                          kMaplyTextOutlineSize: @(1.0)
+                                                                      } mode:MaplyThreadAny];
 
                                 vecObjects = locVecObjects;
-//                                autoLabels = autoLabelObj;
+                                autoLabels = autoLabelObj;
                             });
 
          }
@@ -1500,33 +1333,27 @@ static const int NumMegaMarkers = 15000;
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
-    } else if (![baseLayerName compare:kMaplyTestMapBoxSat])
+    } else if (![baseLayerName compare:kMaplyTestCartoDBDarkMatter])
     {
-        self.title = @"MapBox Tiles Satellite - Remote";
-        jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2.json";
-        thisCacheDir = [NSString stringWithFormat:@"%@/mbtilessat1/",cacheDir];
-        screenLabelColor = [UIColor whiteColor];
-        screenLabelBackColor = [UIColor whiteColor];
-        labelColor = [UIColor blackColor];
-        labelBackColor = [UIColor whiteColor];
-        vecColor = [UIColor whiteColor];
-        vecWidth = 4.0;
-    } else if (![baseLayerName compare:kMaplyTestMapBoxTerrain])
-    {
-        self.title = @"MapBox Tiles Terrain - Remote";
-        jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zq0f1vuc.json";
-        thisCacheDir = [NSString stringWithFormat:@"%@/mbtilesterrain1/",cacheDir];
-        screenLabelColor = [UIColor whiteColor];
-        screenLabelBackColor = [UIColor whiteColor];
-        labelColor = [UIColor blackColor];
-        labelBackColor = [UIColor whiteColor];
-        vecColor = [UIColor blackColor];
-        vecWidth = 4.0;
-    } else if (![baseLayerName compare:kMaplyTestMapBoxRegular])
-    {
-        self.title = @"MapBox Tiles Regular - Remote";
-        jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zswgei2n.json";
-        thisCacheDir = [NSString stringWithFormat:@"%@/mbtilesregular1/",cacheDir];
+        self.title = @"CartoDB Dark Matter";
+        // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
+        thisCacheDir = [NSString stringWithFormat:@"%@/cartodbdarkmatter/",cacheDir];
+        int maxZoom = 22;
+        if (zoomLimit != 0 && zoomLimit < maxZoom)
+            maxZoom = zoomLimit;
+        MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://dark_all.basemaps.cartocdn.com/dark_all/" ext:@"png" minZoom:0 maxZoom:maxZoom];
+        tileSource.cacheDir = thisCacheDir;
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+        layer.drawPriority = BaseEarthPriority;
+        layer.handleEdges = true;
+        layer.requireElev = requireElev;
+        layer.waitLoad = imageWaitLoad;
+        layer.maxTiles = maxLayerTiles;
+        layer.singleLevelLoading = (startupMapType == Maply2DMap);
+        [layer setTesselationValues:tessValues];
+        [baseViewC addLayer:layer];
+        layer.drawPriority = BaseEarthPriority;
+        baseLayer = layer;
         screenLabelColor = [UIColor whiteColor];
         screenLabelBackColor = [UIColor whiteColor];
         labelColor = [UIColor blackColor];
@@ -1766,11 +1593,7 @@ static const int NumMegaMarkers = 15000;
         // Need to create the layer
         if (isOn && !layer)
         {
-            if (![layerName compare:kMaplyTestUSGSOrtho])
-            {
-                thisCacheDir = [NSString stringWithFormat:@"%@/usgs_naip/",cacheDir];
-                [self fetchWMSLayer:@"http://raster.nationalmap.gov/ArcGIS/services/Orthoimagery/USGS_EDC_Ortho_NAIP/ImageServer/WMSServer" layer:@"0" style:nil cacheDir:thisCacheDir ovlName:layerName];
-            } else if (![layerName compare:kMaplyTestOWM])
+            if (![layerName compare:kMaplyTestOWM])
             {
                 MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.openweathermap.org/map/precipitation/" ext:@"png" minZoom:0 maxZoom:6];
                 tileSource.cacheDir = [NSString stringWithFormat:@"%@/openweathermap_precipitation/",cacheDir];
@@ -1779,6 +1602,7 @@ static const int NumMegaMarkers = 15000;
                 weatherLayer.coverPoles = false;
                 layer = weatherLayer;
                 weatherLayer.handleEdges = false;
+                weatherLayer.drawPriority = BaseEarthPriority+1000;
                 [baseViewC addLayer:weatherLayer];
                 ovlLayers[layerName] = layer;
             } else if (![layerName compare:kMaplyTestForecastIO])
@@ -1804,86 +1628,12 @@ static const int NumMegaMarkers = 15000;
                 precipLayer.handleEdges = false;
                 precipLayer.coverPoles = false;
                 precipLayer.shaderProgramName = [WeatherShader setupWeatherShader:baseViewC];
+                precipLayer.drawPriority = BaseEarthPriority+1000;
                 precipLayer.fade = 0.5;
                 //                [self quadImageFadeTest:precipLayer];
                 [baseViewC addLayer:precipLayer];
                 layer = precipLayer;
                 ovlLayers[layerName] = layer;
-            } else if (![layerName compare:kMaplyTestMapboxStreets])
-            {
-#ifdef NOTPODSPECWG
-                self.title = @"Mapbox Vector Streets";
-                thisCacheDir = [NSString stringWithFormat:@"%@/mapbox-streets-vectiles",cacheDir];
-                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-streets-v6.json"
-                    // Note: You need your own access token here
-                    accessToken:@"pk.eyJ1IjoicGV0ZXJxbGl1IiwiYSI6ImpvZmV0UEEifQ._D4bRmVcGfJvo1wjuOpA1g"
-                    style:@"https://raw.githubusercontent.com/mapbox/mapbox-gl-styles/master/styles/emerald-v8.json"
-                    styleType:MapnikMapboxGLStyle
-                    cacheDir:thisCacheDir
-                    viewC:baseViewC
-                 success:
-                 ^(MaplyMapnikVectorTiles *vecTiles)
-                 {
-                     // Don't load the lowest levels for the globe
-                     if (globeViewC)
-                         vecTiles.minZoom = 5;
-                     
-                     // Note: These are set after the MapnikStyleSet has already been initialized
-                     MaplyMapboxVectorStyleSet *styleSet = (MaplyMapboxVectorStyleSet *)vecTiles.tileParser.styleDelegate;
-                     styleSet.tileStyleSettings.markerImportance = 10.0;
-                     styleSet.tileStyleSettings.fontName = @"Gill Sans";
-                     UIColor *backColor = [styleSet backgroundColor];
-                     if (backColor)
-                         [baseViewC setClearColor:backColor];
-                     
-                     // Now for the paging layer itself
-                     MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
-                     pageLayer.numSimultaneousFetches = 6;
-                     pageLayer.flipY = false;
-                     pageLayer.importance = 1024*1024*2;
-                     pageLayer.useTargetZoomLevel = true;
-                     pageLayer.singleLevelLoading = true;
-                     [baseViewC addLayer:pageLayer];
-                     ovlLayers[layerName] = pageLayer;
-                 }
-                                                              failure:
-                 ^(NSError *error){
-                     NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
-                 }
-                 ];
-#endif
-                
-//                [MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"http://a.tiles.mapbox.com/v3/mapbox.mapbox-streets-v4.json"
-//                  style:[[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"]
-//                  cacheDir:thisCacheDir
-//                     viewC:baseViewC
-//                   success:
-//                         ^(MaplyMapnikVectorTiles *vecTiles)
-//                        {
-//                            // Don't load the lowest levels for the globe
-//                            if (globeViewC)
-//                                vecTiles.minZoom = 5;
-//                            
-//                            // Note: These are set after the MapnikStyleSet has already been initialized
-//                            MapnikStyleSet *styleSet = (MapnikStyleSet *)vecTiles.styleDelegate;
-//                            styleSet.tileStyleSettings.markerImportance = 10.0;
-//                            styleSet.tileStyleSettings.fontName = @"Gill Sans";
-//                            
-//                            // Now for the paging layer itself
-//                            MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
-//                            pageLayer.numSimultaneousFetches = 6;
-//                            pageLayer.flipY = false;
-//                            pageLayer.importance = 1024*1024*2;
-//                            pageLayer.useTargetZoomLevel = true;
-//                            pageLayer.singleLevelLoading = true;
-//                            [baseViewC addLayer:pageLayer];
-//                            ovlLayers[layerName] = pageLayer;
-//                         }
-//                   failure:
-//                         ^(NSError *error){
-//                             NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
-//                         }
-//                 ];
             } else if (![layerName compare:kMaplyMapzenVectors])
             {
 #ifdef NOTPODSPECWG
@@ -1939,8 +1689,6 @@ static const int NumMegaMarkers = 15000;
 // Look at the configuration controller and decide what to turn off or on
 - (void)changeMapContents
 {
-    imageWaitLoad = [configViewC valueForSection:kMaplyTestCategoryInternal row:kMaplyTestWaitLoad];
-    
     [self setupBaseLayer:((ConfigSection *)configViewC.values[0]).rows];
     if ([configViewC.values count] > 1)
         [self setupOverlays:((ConfigSection *)configViewC.values[1]).rows];
@@ -2494,22 +2242,8 @@ static const int NumMegaMarkers = 15000;
 
 - (void)maplyViewController:(MaplyViewController *)viewC didTapAt:(MaplyCoordinate)coord
 {
-    // Poke the map
-//    if (mapViewC)
-//    {
-//        MaplyCoordinate coord;
-//        float height;
-//        [mapViewC getPosition:&coord height:&height];
-//        [mapViewC setPosition:coord height:height];
-//    }
-
     // Just clear the selection
     [baseViewC clearAnnotations];
-//    if (selectedViewTrack)
-//    {
-//        [baseViewC removeViewTrackForView:selectedViewTrack.view];
-//        selectedViewTrack = nil;
-//    }    
 }
 
 - (void)maplyViewControllerDidStartMoving:(MaplyViewController *)viewC userMotion:(bool)userMotion
