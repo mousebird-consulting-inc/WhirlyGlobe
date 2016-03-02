@@ -28,9 +28,7 @@
 #define kMaplyTestBlueMarble @"NASA Blue Marble - Local"
 #define kMaplyTestStamenWatercolor @"Stamen Watercolor - Remote"
 #define kMaplyTestOSM @"OpenStreetMap (Mapquest) - Remote"
-#define kMaplyTestMapBoxSat @"MapBox Satellite - Remote"
-#define kMaplyTestMapBoxTerrain @"MapBox Terrain - Remote"
-#define kMaplyTestMapBoxRegular @"MapBox Regular - Remote"
+#define kMaplyTestCartoDBDarkMatter @"CartoDB Dark Matter - Remote"
 #define kMaplyTestNightAndDay @"Night/Day Images - Remote"
 #define kMaplyTestQuadTest @"Quad Test Layer"
 #define kMaplyTestQuadTestAnimate @"Quad Test Layer - Animated"
@@ -40,10 +38,8 @@
 // Overlay image layers
 #define kMaplyTestCategoryOverlayLayers @"Overlay layers"
 
-#define kMaplyTestUSGSOrtho @"USGS_EROS_Ortho_NAIP"
 #define kMaplyTestOWM @"OpenWeatherMap - Remote"
 #define kMaplyTestForecastIO @"Forecast.IO Snapshot - Remote"
-#define kMaplyTestMapboxStreets @"MapBox Streets Vectors - Remote"
 #define kMaplyMapzenVectors @"Mapzen Vectors - Remote"
 #define kMaplyWindTest @"Wind Particles - Remote"
 #define kMaplyOrdnanceSurveyTest @"British National Grid Test - Local"
@@ -67,7 +63,7 @@
 #define kMaplyTestMegaMarkers @"Mega Markers"
 #define kMaplyTestMarkerCluster @"Marker Clustering"
 #define kMaplyTestLatLon @"Lon/Lat lines"
-#define kMaplyTestRoads @"SF Roads"
+#define kMaplyTestRoads @"Wide Linear Test"
 #define kMaplyTestArcGIS @"ArcGIS Vectors"
 #define kMaplyTestStarsAndSun @"Stars and Sun"
 
@@ -88,7 +84,6 @@
 #define kMaplyTestCategoryInternal @"Internals"
 #define kMaplyTestCulling @"Culling Optimization"
 #define kMaplyTestPerf @"Performance Output"
-#define kMaplyTestWaitLoad @"Image waitLoad"
 
 
 // Section in the configuration panel
@@ -108,7 +103,7 @@
 
 @end
 
-typedef enum {ConfigOptionsAll,ConfigOptionsTerrain,ConfigOptionsFlat} ConfigOptions;
+typedef enum {ConfigOptionsGlobe,ConfigOptions3DTerrain,ConfigOptionsMap} ConfigOptions;
 
 // Configuration view lets the user decide what to turn on and off
 @interface ConfigViewController : UIViewController <UITableViewDataSource,UITableViewDelegate>
