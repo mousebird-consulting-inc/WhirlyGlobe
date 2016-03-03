@@ -51,8 +51,10 @@ public class ComponentObjectLeakTestCase extends MaplyTestCase {
         StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
         baseView.setUpWithGlobe(globeVC);
 
+        Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.sticker);
+
         for (int i = 0; i < COUNT; i++) {
-            addAndRemove(globeVC, COUNT);
+            addAndRemove(globeVC, COUNT, icon);
         }
 
         return true;
@@ -64,31 +66,32 @@ public class ComponentObjectLeakTestCase extends MaplyTestCase {
         baseView.setUpWithMap(mapVC);
 
         Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.sticker);
-        for (int i = 0; i < COUNT; i++) {
-            addAndRemove(mapVC, COUNT);
+        for (int i = 0; i < 100000; i++) {
+            addAndRemove(mapVC, COUNT, icon);
         }
 
         return true;
     }
 
-    private void addAndRemove(MaplyBaseController viewC, int count) {
+    private void addAndRemove(MaplyBaseController viewC, int count,Bitmap image) {
         MarkerInfo markerInfo = new MarkerInfo();
-        markerInfo.setMinVis(0.f);
-        markerInfo.setMaxVis(1.f);
-        markerInfo.setColor(1);
+//        markerInfo.setMinVis(0.f);
+//        markerInfo.setMaxVis(1.f);
+//        markerInfo.setColor(1);
         markerInfo.setDrawPriority(100100);
 
         ArrayList<ComponentObject> markers = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             ScreenMarker marker = new ScreenMarker();
-            marker.image = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.sticker);
+            marker.image = image;
             marker.loc = new Point2d(Math.random(), Math.random());
+            marker.size = new Point2d(64,64);
             ComponentObject componentObject = viewC.addScreenMarker(marker,markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
             markers.add(componentObject);
         }
 
         for (int i = 0; i< count; i++) {
-            viewC.removeObject(markers.get(i), MaplyBaseController.ThreadMode.ThreadCurrent);
+            viewC.removeObject(markers.get(i), MaplyBaseController.ThreadMode.ThreadAny);
         }
 
         markers.clear();
