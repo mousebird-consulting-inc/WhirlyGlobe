@@ -76,9 +76,6 @@
 /// Return where up (0,0,1) is after model rotation
 - (Eigen::Vector3d)currentUp;
 
-/// Calculate where the eye is in model coordinates
-- (Eigen::Vector3d)eyePos;
-
 /// Given a rotation, where would (0,0,1) wind up
 + (Eigen::Vector3d)prospectiveUp:(Eigen::Quaterniond &)prospectiveRot;
 
