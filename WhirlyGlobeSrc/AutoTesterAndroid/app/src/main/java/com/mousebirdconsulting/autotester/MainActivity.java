@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 		this.navigationDrawer.getUserPreferences();
 		this.testList = new TestListFragment();
 		selectFragment(this.testList);
+		this.viewTest = new ViewTestFragment();
 	}
 
 	private void configureToolbar() {

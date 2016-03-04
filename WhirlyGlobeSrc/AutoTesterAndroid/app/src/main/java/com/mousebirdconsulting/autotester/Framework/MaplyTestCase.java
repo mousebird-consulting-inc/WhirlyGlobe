@@ -10,7 +10,7 @@ import com.mousebird.maply.MapController;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.R;
 
-public class MaplyTestCase extends AsyncTask<Void, Void, Void> {
+public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 
 	public interface MaplyTestCaseListener {
 		void onFinish(MaplyTestResult resultMap, MaplyTestResult resultGlobe);
@@ -29,6 +29,7 @@ public class MaplyTestCase extends AsyncTask<Void, Void, Void> {
 	protected MaplyTestResult globeResult;
 	protected MaplyTestResult mapResult;
 	protected MaplyTestCaseListener listener;
+
 	public MaplyTestCase(Activity activity) {
 		super();
 
@@ -64,21 +65,20 @@ public class MaplyTestCase extends AsyncTask<Void, Void, Void> {
 		}
 	}
 
-	public synchronized void runGlobeTest() {
+	@Override
+	protected void onProgressUpdate(View... values) {
+		if (listener != null) {
+			listener.onExecute(values[0]);
+		}
+	}
+
+	public void runGlobeTest() {
 		//create and prepare the controller
 		try {
-			if (listener != null) {
-				activity.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						listener.onExecute(globeController.getContentView());
-					}
-				});
-			}
-
+			publishProgress(globeController.getContentView());
 			if (setUpWithGlobe(globeController)) {
 				if (ConfigOptions.getViewSetting(activity.getApplicationContext()) == ConfigOptions.ViewMapOption.ViewMap) {
-					wait(delay * 1000);
+					Thread.sleep(delay * 1000);
 				}
 				globeResult = new MaplyTestResult(testName + " Globe Test");
 			}
@@ -89,20 +89,13 @@ public class MaplyTestCase extends AsyncTask<Void, Void, Void> {
 		}
 	}
 
-	public synchronized void runMapTest() {
+	public void runMapTest() {
 		try {
-			if (listener != null) {
-				activity.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						listener.onExecute(mapController.getContentView());
-					}
-				});
-			}
 
+			publishProgress(mapController.getContentView());
 			if (setUpWithMap(mapController)) {
 				if (ConfigOptions.getViewSetting(activity.getApplicationContext()) == ConfigOptions.ViewMapOption.ViewMap) {
-					wait(delay * 1000);
+					Thread.sleep(delay * 1000);
 				}
 				mapResult = new MaplyTestResult(testName + " Map Test");
 			}
@@ -171,6 +164,8 @@ public class MaplyTestCase extends AsyncTask<Void, Void, Void> {
 		delay = value;
 	}
 
-	public int getDelay() {return delay;}
+	public int getDelay() {
+		return delay;
+	}
 
 }
