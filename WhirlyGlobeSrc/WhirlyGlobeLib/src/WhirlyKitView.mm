@@ -152,6 +152,11 @@ using namespace Eigen;
     return 0.0;
 }
 
+- (Eigen::Vector3d)eyePos
+{
+    return Eigen::Vector3d(0,0,0);
+}
+
 - (Point3d)pointUnproject:(Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip
 {
 	Point2d ll,ur;

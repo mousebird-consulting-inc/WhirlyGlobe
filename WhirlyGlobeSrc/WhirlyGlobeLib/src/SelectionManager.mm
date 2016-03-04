@@ -898,7 +898,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
     if (pInfo.globeView)
         eyePos = pInfo.globeView.eyePos;
     else
-        NSLog(@"Need to fill in eyePos for mapView");
+        eyePos = pInfo.mapView.eyePos;
 
     if (!polytopeSelectables.empty())
     {
