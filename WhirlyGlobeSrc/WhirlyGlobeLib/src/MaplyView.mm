@@ -260,4 +260,12 @@ using namespace WhirlyKit;
     return retPt;    
 }
 
+- (Eigen::Vector3d)eyePos
+{
+    Eigen::Matrix4d modelMat = [self calcModelMatrix].inverse();
+    
+    Vector4d newUp = modelMat * Vector4d(0,0,1,1);
+    return Vector3d(newUp.x(),newUp.y(),newUp.z());
+}
+
 @end
