@@ -190,13 +190,16 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 						tile = tileSource.tiles.get(tileID);
 					}
 
+					boolean removeTile = false;
+
                     // Let the layer and delegate know what happened with it
                     if (tileSuccess) {
 						MaplyImageTile imageTile = null;
-						if (singleFetch)
+						if (singleFetch) {
 							imageTile = new MaplyImageTile(bm);
-						else
+						} else {
 							imageTile = new MaplyImageTile(tile.tileData);
+						}
 						if (tileSource.delegate != null)
 							tileSource.delegate.tileDidLoad(tileSource, tileID, frame);
 						layer.loadedTile(tileID, frame, imageTile);
@@ -208,7 +211,15 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 
                     // Tile was fetched, clean up
                     if (tile != null) {
-                        tile.finish(frame);
+						synchronized (tileSource.tiles) {
+							tile.finish(frame);
+							if (singleFetch)
+								removeTile = tile.numActiveFetches() == 0;
+							else
+								removeTile = tile.isDone();
+							if (removeTile)
+								tileSource.tiles.remove(tile.ident);
+						}
                     }
                 }
             });
