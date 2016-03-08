@@ -25,6 +25,7 @@
 #import "MaplyRemoteTileElevationSource.h"
 #import "PagingTestDelegate.h"
 #import "ParticleTest.h"
+#import "MaplyAerisTiles.h"
 #ifdef NOTPODSPECWG
 #import "MapzenSource.h"
 #import <DDXMLDocument.h>
@@ -1800,6 +1801,44 @@ static const float MarkerSpread = 2.0;
 
                 [baseViewC addLayer:layer];
                 ovlLayers[layerName] = layer;
+            } else if (![layerName compare:kMaplyAerisTest])
+            {
+                NSString *aerisID = @"2kDDnD7Q1XFfFm4CwH17C";
+                NSString *aerisKey = @"FQmadjUccN3CnB4KG6kKeurUpxHSKM0xbCd6TlVi";
+                MaplyAerisTiles *aerisTiles = [[MaplyAerisTiles alloc] initWithAerisID:aerisID secretKey:aerisKey];
+                NSDictionary *layerInfo = [aerisTiles layerInfo];
+                MaplyAerisLayerInfo *radarInfo = layerInfo[@"radar"];
+                if (radarInfo) {
+
+                    MaplyAerisTileSet *radarTileSet = [[MaplyAerisTileSet alloc] initWithAerisID:aerisID secretKey:aerisKey layerInfo:radarInfo tileSetCount:6];
+
+                    __block NSMutableDictionary *ovlLayersBlock = ovlLayers;
+
+                    [radarTileSet startFetchWithSuccess:^(NSArray *tileSources) {
+
+                        MaplyMultiplexTileSource *multiSource = [[MaplyMultiplexTileSource alloc] initWithSources:tileSources];
+                        MaplyQuadImageTilesLayer *aerisLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:multiSource.coordSys tileSource:multiSource];
+                        aerisLayer.imageDepth = 6;
+                        aerisLayer.singleLevelLoading = NO;
+                        aerisLayer.allowFrameLoading = YES;
+                        aerisLayer.animationPeriod = 3.0;
+
+                        aerisLayer.imageFormat = MaplyImageUShort5551;
+                        aerisLayer.texturAtlasSize = 1024;
+                        aerisLayer.importanceScale = 1.0/16.0;
+                        aerisLayer.drawPriority = BaseEarthPriority + 1000;
+                        aerisLayer.handleEdges = false;
+                        aerisLayer.maxTiles = 256;
+
+                        [baseViewC addLayer:aerisLayer];
+                        ovlLayersBlock[layerName] = aerisLayer;
+
+                    } failure:^(NSError *error) {
+                    }];
+
+                } else
+                    NSLog(@"Error finding aeris radar layer parameters.");
+
             }
         }
         else if (!isOn && layer)
