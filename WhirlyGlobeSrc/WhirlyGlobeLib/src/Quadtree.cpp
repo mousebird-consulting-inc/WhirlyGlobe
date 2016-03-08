@@ -296,8 +296,9 @@ bool Quadtree::frameIsLoaded(int frame,int *tilesLoaded)
     // Make sure we don't agree when there's nothing going on
     if (count == 0)
         return false;
-    
-    bool isLoaded = (count+numPhantomNodes) == nodesByIdent.size();
+
+    int nodesSize = nodesByIdent.size();
+    bool isLoaded = (count+numPhantomNodes) == nodesSize;
     
 //    if (count+numPhantomNodes > nodesByIdent.size())
 //        NSLog(@"Got one");
@@ -554,7 +555,8 @@ void Quadtree::clearEvals()
 //        node->nodeInfo.loading = false;
 //        node->nodeInfo.childrenLoading = 0;
         node->nodeInfo.childrenEval = 0;
-        node->nodeInfo.failed = false;
+        // Note: Porting
+//        node->nodeInfo.failed = false;
     }
     
     evalNodes.clear();

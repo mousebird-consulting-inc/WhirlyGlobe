@@ -112,7 +112,9 @@ void QuadDisplayController::setFrameLoadingPriorities(const std::vector<int> &pr
     
 void QuadDisplayController::getFrameLoadStatus(std::vector<WhirlyKit::FrameLoadStatus> &retFrameLoadStats)
 {
+    pthread_mutex_lock(&frameLoadingLock);
     retFrameLoadStats = frameLoadStats;
+    pthread_mutex_unlock(&frameLoadingLock);
 }
     
 void QuadDisplayController::setEnable(bool newEnable)
