@@ -81,7 +81,7 @@ public:
 		  handleEdges(true),coverPoles(false), drawPriority(0),imageDepth(1),
 		  borderTexel(0),textureAtlasSize(2048),enable(true),fade(1.0),color(255,255,255,255),imageFormat(0),
 		  currentImage(0.0), animationWrap(true), maxCurrentImage(-1), allowFrameLoading(true), animationPeriod(10.0),
-		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), shaderID(EmptyIdentity), scene(NULL), control(NULL)
+		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), shaderID(EmptyIdentity), scene(NULL), control(NULL),scheduleEvalStepJava(0)
 	{
 		useTargetZoomLevel = true;
         canShortCircuitImportance = false;
@@ -571,7 +571,8 @@ public:
     // There are callbacks that come from the scene side of things, so beware.
     void scheduleEvalStep()
     {
-    	env->CallVoidMethod(javaObj, scheduleEvalStepJava);
+        if (scheduleEvalStepJava)
+            env->CallVoidMethod(javaObj, scheduleEvalStepJava);
     }
 
     // Called right after a tile loaded
@@ -818,7 +819,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setAllowFrame
 			return;
 		adapter->allowFrameLoading = frameLoading;
         if (adapter->control)
+        {
+            adapter->env = env;
             adapter->control->setFrameLoading(frameLoading);
+            adapter->scheduleEvalStep();
+        }
 	}
 	catch (...)
 	{
@@ -880,7 +885,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setFrameLoadi
 
 		ConvertIntArray(env,frameLoadingArr,adapter->framePriorities);
         if (adapter->control)
+        {
+            adapter->env = env;
             adapter->control->setFrameLoadingPriorities(adapter->framePriorities);
+            adapter->scheduleEvalStep();
+        }
 	}
 	catch (...)
 	{
@@ -1325,6 +1334,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 		  {
 			return;
 		  }
+        adapter->env = env;
 
 		AndroidBitmapInfo info;
 		if (AndroidBitmap_getInfo(env, bitmapObj, &info) < 0)
@@ -1371,6 +1381,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
         {
             return;
         }
+        adapter->env = env;
         
         int numImages = env->GetArrayLength(bitmapsObj);
         int width,height;

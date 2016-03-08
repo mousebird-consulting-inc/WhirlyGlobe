@@ -18,6 +18,8 @@
  *
  */
 
+#include <iostream>
+#import <string>
 #import "glwrapper.h"
 #import "QuadDisplayController.h"
 #import "GlobeMath.h"
@@ -26,6 +28,9 @@
 
 // Note: Debugging
 //#define TILELOGGING 1
+
+// Turn on output logging
+//#define LOGLOADING
 
 using namespace Eigen;
 
@@ -86,6 +91,19 @@ void QuadDisplayController::init(Scene *inScene,SceneRendererES *inRenderer)
     
 void QuadDisplayController::setFrameLoadingPriorities(const std::vector<int> &priorities)
 {
+#ifdef __ANDROID__
+#ifdef LOGLOADING
+    std::string priorStr;
+    for (int prior : priorities)
+    {
+        char tmpStr[100];
+        sprintf(tmpStr,"%d",prior);
+        priorStr += (std::string)tmpStr + " ";
+    }
+    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Resetting frame priorities: %s",priorStr.c_str());
+#endif
+#endif
+
     // Note: Porting  Needs some thread logic above this level
     curFrameEntry = 0;
     frameLoadingPriority = priorities;
@@ -162,7 +180,9 @@ void QuadDisplayController::viewUpdate(ViewState *inViewState)
     {
         curFrameEntry = 0;
 #ifdef __ANDROID__
-//        __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Frame reset: position 0");
+#ifdef LOGLOADING
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Frame reset: position 0");
+#endif
 #endif
         //        NSLog(@"Frame reset: position 0");
     }
@@ -260,7 +280,9 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
                 break;
             
 #ifdef __ANDROID__
-//            __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Evaluating: %d: (%d,%d)", nodeInfo.ident.level, nodeInfo.ident.x, nodeInfo.ident.y);
+#ifdef LOGLOADING
+            __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Evaluating: %d: (%d,%d)", nodeInfo.ident.level, nodeInfo.ident.x, nodeInfo.ident.y);
+#endif
 #endif
             //            NSLog(@"Evaluating: %d: (%d,%d)", nodeInfo.ident.level, nodeInfo.ident.x, nodeInfo.ident.y);
             
@@ -326,7 +348,9 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
             if (addChildren)
             {
 #ifdef __ANDROID__
-//                __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Adding children for tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
+#ifdef LOGLOADING
+                __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Adding children for tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
+#endif
 #endif
                 //                NSLog(@"Adding children for tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
                 std::vector<Quadtree::Identifier> childNodes;
@@ -353,7 +377,9 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
                     Quadtree::NodeInfo remNodeInfo;
                     quadtree->leastImportantNode(remNodeInfo,true);
 #ifdef __ANDROID__
-//                    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Forcing unload tile: %d: (%d,%d) phantom = %s, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? "yes" : "no"), remNodeInfo.importance);
+#ifdef LOGLOADING
+                    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Forcing unload tile: %d: (%d,%d) phantom = %s, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? "yes" : "no"), remNodeInfo.importance);
+#endif
 #endif
                     //                    NSLog(@"Forcing unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
                     quadtree->removeTile(remNodeInfo.ident);
@@ -373,13 +399,17 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
                 {
                     int frameId = frameLoadingPriority[curFrameEntry];
 #ifdef __ANDROID__
-//                    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Loading tile: %d: (%d,%d), frame = %d",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y,frameId);
+#ifdef LOGLOADING
+                    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Loading tile: %d: (%d,%d), frame = %d",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y,frameId);
+#endif
 #endif
                     //                    NSLog(@"Loading tile: %d: (%d,%d), frame = %d",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y,frameId);
                     loader->loadTile(nodeInfo,frameId);
                 } else {
 #ifdef __ANDROID__
-//                    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Loading tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
+#ifdef LOGLOADING
+                    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Loading tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
+#endif
 #endif
                     //                    NSLog(@"Loading tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
                     loader->loadTile(nodeInfo,-1);
@@ -395,7 +425,9 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
                 if (it != toPhantom.end())
                     toPhantom.erase(it);
 #ifdef __ANDROID__
-//                __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Unload tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
+#ifdef LOGLOADING
+                __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Unload tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
+#endif
 #endif
                 //                NSLog(@"Unload tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
                 loader->unloadTile(nodeInfo);
@@ -422,7 +454,9 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
     while (quadtree->leastImportantNode(remNodeInfo,false))
     {
 #ifdef __ANDROID__
-//        __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Unload tile: %d: (%d,%d) phantom = %s, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? "YES" : "NO"), remNodeInfo.importance);
+#ifdef LOGLOADING
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Unload tile: %d: (%d,%d) phantom = %s, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? "YES" : "NO"), remNodeInfo.importance);
+#endif
 #endif
         //        NSLog(@"Unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
         quadtree->removeTile(remNodeInfo.ident);
@@ -443,7 +477,9 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
             
             {
 #ifdef __ANDROID__
-//                __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Flushing phantom tile: %d: (%d,%d)",ident.level,ident.x,ident.y);
+#ifdef LOGLOADING
+                __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Flushing phantom tile: %d: (%d,%d)",ident.level,ident.x,ident.y);
+#endif
 #endif
                 //                NSLog(@"Flushing phantom tile: %d: (%d,%d)",ident.level,ident.x,ident.y);
                 const Quadtree::NodeInfo *nodeInfo = quadtree->getNodeInfo(ident);
@@ -478,13 +514,16 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
         for (int ii=1;ii<numFrames;ii++)
         {
             int newFrameEntry = (curFrameEntry+ii)%numFrames;
-            if (!quadtree->frameIsLoaded(frameLoadingPriority[newFrameEntry],NULL))
+            int newActualFrame = frameLoadingPriority[newFrameEntry];
+            if (!quadtree->frameIsLoaded(newActualFrame,NULL))
             {
                 curFrameEntry = newFrameEntry;
                 resetEvaluation();
                 didSomething = true;
 #ifdef __ANDROID__
-//                __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Switching to frame entry: %d",curFrameEntry);
+#ifdef LOGLOADING
+                __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Switching to frame entry: %d (%d)",frameLoadingPriority[curFrameEntry],curFrameEntry);
+#endif
 #endif
                 //                NSLog(@"Switching to frame entry: %d",curFrameEntry);
                 break;
@@ -556,7 +595,9 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
 void QuadDisplayController::tileDidLoad(const WhirlyKit::Quadtree::Identifier &tileIdent,int frame)
 {
 #ifdef __ANDROID__
-//    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Tile did load: %d: (%d,%d), %d",tileIdent.level,tileIdent.x,tileIdent.y,frame);
+#ifdef LOGLOADING
+    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Tile did load: %d: (%d,%d), %d",tileIdent.level,tileIdent.x,tileIdent.y,frame);
+#endif
 #endif
     //    NSLog(@"Tile did load: %d: (%d,%d), %d",tileIdent.level,tileIdent.x,tileIdent.y,frame);
     
@@ -579,7 +620,9 @@ void QuadDisplayController::tileDidLoad(const WhirlyKit::Quadtree::Identifier &t
             if (!quadtree->isPhantom(ident))
             {
 #ifdef __ANDROID__
-//                __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Adding to phantom due to coverage: %d: (%d,%d)",ident.level,ident.x,ident.y);
+#ifdef LOGLOADING
+                __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Adding to phantom due to coverage: %d: (%d,%d)",ident.level,ident.x,ident.y);
+#endif
 #endif
                 //                NSLog(@"Adding to phantom due to coverage: %d: (%d,%d)",ident.level,ident.x,ident.y);
                 toPhantom.insert(ident);
@@ -630,7 +673,9 @@ void QuadDisplayController::tileDidLoad(const WhirlyKit::Quadtree::Identifier &t
 void QuadDisplayController::tileDidNotLoad(const Quadtree::Identifier &tileIdent,int frame)
 {
 #ifdef __ANDROID__
-//    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Tile failed to load: %d: (%d,%d) %d",tileIdent.level,tileIdent.x,tileIdent.y,frame);
+#ifdef LOGLOADING
+    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Tile failed to load: %d: (%d,%d) %d",tileIdent.level,tileIdent.x,tileIdent.y,frame);
+#endif
 #endif
     //    NSLog(@"Tile failed to load: %d: (%d,%d) %d",tileIdent.level,tileIdent.x,tileIdent.y,frame);
     

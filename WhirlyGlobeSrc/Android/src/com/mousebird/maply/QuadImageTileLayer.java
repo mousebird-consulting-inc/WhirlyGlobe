@@ -412,10 +412,10 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		int prior[] = null;
 		if (updatePriorities)
 		{
-			prior = new int[this.getImageDepth()];
-
 			int curPriority = (int)current;
 			if (curPriority != lastPriority) {
+				prior = new int[this.getImageDepth()];
+
 				int start = curPriority;
 				prior[0] = start;
 				int where = 1;
@@ -434,9 +434,10 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 
         if (layerThread != null) {
             ChangeSet changes = new ChangeSet();
-            setCurrentImage(current, changes);
 
-			setFrameLoadingPriority(prior, changes);
+			if (prior != null)
+				setFrameLoadingPriority(prior, changes);
+			setCurrentImage(current, changes);
 
 			changes.process(layerThread.scene);
         } else {
