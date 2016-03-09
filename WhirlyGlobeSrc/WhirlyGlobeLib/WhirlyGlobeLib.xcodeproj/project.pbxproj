@@ -29,6 +29,8 @@
 		2B1C26381C9088FF00C71B0A /* pj_strtod.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C262D1C9088FF00C71B0A /* pj_strtod.c */; };
 		2B1C263B1C9089E500C71B0A /* pj_fwd3d.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C26391C9089E500C71B0A /* pj_fwd3d.c */; };
 		2B1C263C1C9089E500C71B0A /* pj_inv3d.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C263A1C9089E500C71B0A /* pj_inv3d.c */; };
+		2B1C26431C90A6D000C71B0A /* geod_interface.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C26411C90A6D000C71B0A /* geod_interface.c */; };
+		2B1C26441C90A6D000C71B0A /* geod_interface.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B1C26421C90A6D000C71B0A /* geod_interface.h */; };
 		2B308B11171F638F006D7273 /* SelectionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B308B10171F638F006D7273 /* SelectionManager.h */; };
 		2B308B13171F63B3006D7273 /* SelectionManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B308B12171F63B3006D7273 /* SelectionManager.mm */; };
 		2B35A8551337CC5F0047C705 /* GLUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B35A8531337CC5F0047C705 /* GLUtils.mm */; };
@@ -496,6 +498,8 @@
 		2B1C262D1C9088FF00C71B0A /* pj_strtod.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pj_strtod.c; sourceTree = "<group>"; };
 		2B1C26391C9089E500C71B0A /* pj_fwd3d.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pj_fwd3d.c; sourceTree = "<group>"; };
 		2B1C263A1C9089E500C71B0A /* pj_inv3d.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pj_inv3d.c; sourceTree = "<group>"; };
+		2B1C26411C90A6D000C71B0A /* geod_interface.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geod_interface.c; sourceTree = "<group>"; };
+		2B1C26421C90A6D000C71B0A /* geod_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = geod_interface.h; sourceTree = "<group>"; };
 		2B308B10171F638F006D7273 /* SelectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionManager.h; sourceTree = "<group>"; };
 		2B308B12171F63B3006D7273 /* SelectionManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SelectionManager.mm; sourceTree = "<group>"; };
 		2B35A8501337CC2F0047C705 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GLUtils.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -1242,6 +1246,8 @@
 		2B7EF37916025D3500D4079F /* proj4 */ = {
 			isa = PBXGroup;
 			children = (
+				2B1C26411C90A6D000C71B0A /* geod_interface.c */,
+				2B1C26421C90A6D000C71B0A /* geod_interface.h */,
 				2B1C26391C9089E500C71B0A /* pj_fwd3d.c */,
 				2B1C263A1C9089E500C71B0A /* pj_inv3d.c */,
 				2B1C26231C9088FF00C71B0A /* geodesic.c */,
@@ -2076,6 +2082,7 @@
 				2B13BAA418B7E192007DA1A3 /* ScreenSpaceBuilder.h in Headers */,
 				2B7EF5231603EEFB00D4079F /* MaplyLayerViewWatcher.h in Headers */,
 				2BE886CF160A855F00E92A0A /* MaplyTapMessage.h in Headers */,
+				2B1C26441C90A6D000C71B0A /* geod_interface.h in Headers */,
 				2B92EF6516370B2000C5165F /* PerformanceTimer.h in Headers */,
 				2BB7A9711A2661A700E50DC5 /* GeometryOBJReader.h in Headers */,
 				2B92EF6716370B2700C5165F /* SceneRendererES.h in Headers */,
@@ -2421,6 +2428,7 @@
 				2B7EF4A016025D8C00D4079F /* pj_pr_list.c in Sources */,
 				2B1C26341C9088FF00C71B0A /* pj_gridcatalog.c in Sources */,
 				2B7EF4A116025D8C00D4079F /* PJ_putp2.c in Sources */,
+				2B1C26431C90A6D000C71B0A /* geod_interface.c in Sources */,
 				2B7EF4A216025D8C00D4079F /* PJ_putp3.c in Sources */,
 				2B7EF4A316025D8C00D4079F /* PJ_putp4p.c in Sources */,
 				2B7EF4A416025D8C00D4079F /* PJ_putp5.c in Sources */,
