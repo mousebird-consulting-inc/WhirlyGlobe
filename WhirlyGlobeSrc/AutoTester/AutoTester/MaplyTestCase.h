@@ -12,6 +12,7 @@
 @class MaplyViewController;
 @class WhirlyGlobeViewController;
 @class MaplyTestCase;
+@class MaplyCoordinateSystem;
 
 typedef void (^TestCaseResult)(MaplyTestCase * _Nonnull testCase);
 
@@ -32,6 +33,8 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseOptions) {
 
 - (BOOL)setUpWithMap:(MaplyViewController * _Nonnull)mapVC;
 - (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC;
+
+- (MaplyCoordinateSystem * _Nullable)customCoordSystem;
 
 @property (nonatomic, strong) UIView * _Nullable testView;
 @property (nonatomic, strong) NSString * _Nonnull name;

@@ -19,6 +19,16 @@
 		2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194426138B0CD000E8FA42 /* AnimateRotation.mm */; };
 		2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */; };
 		2B19B1151AB9C70500862BCD /* tess.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2325217984F510063CC84 /* tess.c */; };
+		2B1C262E1C9088FF00C71B0A /* geodesic.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C26231C9088FF00C71B0A /* geodesic.c */; };
+		2B1C26301C9088FF00C71B0A /* PJ_calcofi.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C26251C9088FF00C71B0A /* PJ_calcofi.c */; };
+		2B1C26311C9088FF00C71B0A /* pj_fileapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C26261C9088FF00C71B0A /* pj_fileapi.c */; };
+		2B1C26331C9088FF00C71B0A /* pj_gc_reader.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C26281C9088FF00C71B0A /* pj_gc_reader.c */; };
+		2B1C26341C9088FF00C71B0A /* pj_gridcatalog.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C26291C9088FF00C71B0A /* pj_gridcatalog.c */; };
+		2B1C26361C9088FF00C71B0A /* PJ_qsc.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C262B1C9088FF00C71B0A /* PJ_qsc.c */; };
+		2B1C26371C9088FF00C71B0A /* PJ_sch.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C262C1C9088FF00C71B0A /* PJ_sch.c */; };
+		2B1C26381C9088FF00C71B0A /* pj_strtod.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C262D1C9088FF00C71B0A /* pj_strtod.c */; };
+		2B1C263B1C9089E500C71B0A /* pj_fwd3d.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C26391C9089E500C71B0A /* pj_fwd3d.c */; };
+		2B1C263C1C9089E500C71B0A /* pj_inv3d.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C263A1C9089E500C71B0A /* pj_inv3d.c */; };
 		2B308B11171F638F006D7273 /* SelectionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B308B10171F638F006D7273 /* SelectionManager.h */; };
 		2B308B13171F63B3006D7273 /* SelectionManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B308B12171F63B3006D7273 /* SelectionManager.mm */; };
 		2B35A8551337CC5F0047C705 /* GLUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B35A8531337CC5F0047C705 /* GLUtils.mm */; };
@@ -117,8 +127,6 @@
 		2B7EF42D16025D8C00D4079F /* emess.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF38216025D8C00D4079F /* emess.h */; };
 		2B7EF42F16025D8C00D4079F /* geocent.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF38416025D8C00D4079F /* geocent.c */; };
 		2B7EF43016025D8C00D4079F /* geocent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF38516025D8C00D4079F /* geocent.h */; };
-		2B7EF43116025D8C00D4079F /* geod_for.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF38616025D8C00D4079F /* geod_for.c */; };
-		2B7EF43216025D8C00D4079F /* geod_inv.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF38716025D8C00D4079F /* geod_inv.c */; };
 		2B7EF43316025D8C00D4079F /* geod_set.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF38816025D8C00D4079F /* geod_set.c */; };
 		2B7EF43516025D8C00D4079F /* geodesic.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF38A16025D8C00D4079F /* geodesic.h */; };
 		2B7EF43716025D8C00D4079F /* mk_cheby.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF38F16025D8C00D4079F /* mk_cheby.c */; };
@@ -478,6 +486,16 @@
 		2B194426138B0CD000E8FA42 /* AnimateRotation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = AnimateRotation.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AnimateViewMomentum.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = AnimateViewMomentum.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B1C26231C9088FF00C71B0A /* geodesic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geodesic.c; sourceTree = "<group>"; };
+		2B1C26251C9088FF00C71B0A /* PJ_calcofi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = PJ_calcofi.c; sourceTree = "<group>"; };
+		2B1C26261C9088FF00C71B0A /* pj_fileapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pj_fileapi.c; sourceTree = "<group>"; };
+		2B1C26281C9088FF00C71B0A /* pj_gc_reader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pj_gc_reader.c; sourceTree = "<group>"; };
+		2B1C26291C9088FF00C71B0A /* pj_gridcatalog.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pj_gridcatalog.c; sourceTree = "<group>"; };
+		2B1C262B1C9088FF00C71B0A /* PJ_qsc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = PJ_qsc.c; sourceTree = "<group>"; };
+		2B1C262C1C9088FF00C71B0A /* PJ_sch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = PJ_sch.c; sourceTree = "<group>"; };
+		2B1C262D1C9088FF00C71B0A /* pj_strtod.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pj_strtod.c; sourceTree = "<group>"; };
+		2B1C26391C9089E500C71B0A /* pj_fwd3d.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pj_fwd3d.c; sourceTree = "<group>"; };
+		2B1C263A1C9089E500C71B0A /* pj_inv3d.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pj_inv3d.c; sourceTree = "<group>"; };
 		2B308B10171F638F006D7273 /* SelectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionManager.h; sourceTree = "<group>"; };
 		2B308B12171F63B3006D7273 /* SelectionManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SelectionManager.mm; sourceTree = "<group>"; };
 		2B35A8501337CC2F0047C705 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GLUtils.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -578,8 +596,6 @@
 		2B7EF38216025D8C00D4079F /* emess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = emess.h; sourceTree = "<group>"; };
 		2B7EF38416025D8C00D4079F /* geocent.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geocent.c; sourceTree = "<group>"; };
 		2B7EF38516025D8C00D4079F /* geocent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = geocent.h; sourceTree = "<group>"; };
-		2B7EF38616025D8C00D4079F /* geod_for.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geod_for.c; sourceTree = "<group>"; };
-		2B7EF38716025D8C00D4079F /* geod_inv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geod_inv.c; sourceTree = "<group>"; };
 		2B7EF38816025D8C00D4079F /* geod_set.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geod_set.c; sourceTree = "<group>"; };
 		2B7EF38A16025D8C00D4079F /* geodesic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = geodesic.h; sourceTree = "<group>"; };
 		2B7EF38F16025D8C00D4079F /* mk_cheby.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mk_cheby.c; sourceTree = "<group>"; };
@@ -1226,6 +1242,16 @@
 		2B7EF37916025D3500D4079F /* proj4 */ = {
 			isa = PBXGroup;
 			children = (
+				2B1C26391C9089E500C71B0A /* pj_fwd3d.c */,
+				2B1C263A1C9089E500C71B0A /* pj_inv3d.c */,
+				2B1C26231C9088FF00C71B0A /* geodesic.c */,
+				2B1C26251C9088FF00C71B0A /* PJ_calcofi.c */,
+				2B1C26261C9088FF00C71B0A /* pj_fileapi.c */,
+				2B1C26281C9088FF00C71B0A /* pj_gc_reader.c */,
+				2B1C26291C9088FF00C71B0A /* pj_gridcatalog.c */,
+				2B1C262B1C9088FF00C71B0A /* PJ_qsc.c */,
+				2B1C262C1C9088FF00C71B0A /* PJ_sch.c */,
+				2B1C262D1C9088FF00C71B0A /* pj_strtod.c */,
 				2B7EF37A16025D8C00D4079F /* aasincos.c */,
 				2B7EF37B16025D8C00D4079F /* adjlon.c */,
 				2B7EF37C16025D8C00D4079F /* bch2bps.c */,
@@ -1236,8 +1262,6 @@
 				2B7EF38216025D8C00D4079F /* emess.h */,
 				2B7EF38416025D8C00D4079F /* geocent.c */,
 				2B7EF38516025D8C00D4079F /* geocent.h */,
-				2B7EF38616025D8C00D4079F /* geod_for.c */,
-				2B7EF38716025D8C00D4079F /* geod_inv.c */,
 				2B7EF38816025D8C00D4079F /* geod_set.c */,
 				2B7EF38A16025D8C00D4079F /* geodesic.h */,
 				2B7EF38F16025D8C00D4079F /* mk_cheby.c */,
@@ -2218,12 +2242,14 @@
 				2BADF96719A7D83700C40CAA /* ScreenSpaceDrawable.mm in Sources */,
 				2BDC4AD6133404D400E25283 /* Cullable.mm in Sources */,
 				2BDC4AD7133404D400E25283 /* GlobeScene.mm in Sources */,
+				2B1C26361C9088FF00C71B0A /* PJ_qsc.c in Sources */,
 				2BDC4AD8133404D400E25283 /* GlobeView.mm in Sources */,
 				2BDC4AD9133404D400E25283 /* TextureGroup.mm in Sources */,
 				2BDC4ADA133404D400E25283 /* VectorData.mm in Sources */,
 				2BDC4ADB133404D400E25283 /* ShapeReader.mm in Sources */,
 				2BDC4ADC133404D400E25283 /* LayerThread.mm in Sources */,
 				2BDC4ADD133404D400E25283 /* SphericalEarthLayer.mm in Sources */,
+				2B1C262E1C9088FF00C71B0A /* geodesic.c in Sources */,
 				2BDC4AC5133404CA00E25283 /* safileio.c in Sources */,
 				2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */,
 				2BDC4AC4133404C600E25283 /* shpopen.c in Sources */,
@@ -2269,9 +2295,7 @@
 				2BD5A83B1B4198CF00DDAEE3 /* BasicDrawableInstance.mm in Sources */,
 				2B7EF42C16025D8C00D4079F /* emess.c in Sources */,
 				2B7EF42F16025D8C00D4079F /* geocent.c in Sources */,
-				2B7EF43116025D8C00D4079F /* geod_for.c in Sources */,
 				88115B7618A068F6008D702C /* MaplyDoubleTapDelegate.mm in Sources */,
-				2B7EF43216025D8C00D4079F /* geod_inv.c in Sources */,
 				2B7EF43316025D8C00D4079F /* geod_set.c in Sources */,
 				2B7EF43716025D8C00D4079F /* mk_cheby.c in Sources */,
 				2B7EF43916025D8C00D4079F /* nad_cvt.c in Sources */,
@@ -2280,8 +2304,10 @@
 				2B7EF43B16025D8C00D4079F /* nad_intr.c in Sources */,
 				2B7EF43F16025D8C00D4079F /* PJ_aea.c in Sources */,
 				2BE685001B4B50E100A5C04C /* BaseInfo.mm in Sources */,
+				2B1C263B1C9089E500C71B0A /* pj_fwd3d.c in Sources */,
 				2B7EF44016025D8C00D4079F /* PJ_aeqd.c in Sources */,
 				2B19B1151AB9C70500862BCD /* tess.c in Sources */,
+				2B1C263C1C9089E500C71B0A /* pj_inv3d.c in Sources */,
 				2B7EF44116025D8C00D4079F /* PJ_airy.c in Sources */,
 				2B7EF44216025D8C00D4079F /* PJ_aitoff.c in Sources */,
 				2BB94D851A2CE01D0076B1B4 /* glues_registry.c in Sources */,
@@ -2301,6 +2327,7 @@
 				2B7EF44E16025D8C00D4079F /* PJ_chamb.c in Sources */,
 				2B7EF44F16025D8C00D4079F /* PJ_collg.c in Sources */,
 				2B7EF45016025D8C00D4079F /* PJ_crast.c in Sources */,
+				2B1C26301C9088FF00C71B0A /* PJ_calcofi.c in Sources */,
 				2B7EF45116025D8C00D4079F /* pj_ctx.c in Sources */,
 				2B7EF45216025D8C00D4079F /* pj_datum_set.c in Sources */,
 				2B7EF45316025D8C00D4079F /* pj_datums.c in Sources */,
@@ -2328,6 +2355,7 @@
 				2B7EF46516025D8C00D4079F /* pj_gauss.c in Sources */,
 				2B7EF46616025D8C00D4079F /* pj_geocent.c in Sources */,
 				2B7EF46716025D8C00D4079F /* PJ_geos.c in Sources */,
+				2B1C26371C9088FF00C71B0A /* PJ_sch.c in Sources */,
 				2B7EF46816025D8C00D4079F /* PJ_gins8.c in Sources */,
 				2B7EF46916025D8C00D4079F /* PJ_gn_sinu.c in Sources */,
 				2B7EF46A16025D8C00D4079F /* PJ_gnom.c in Sources */,
@@ -2391,12 +2419,14 @@
 				2B7EF49E16025D8C00D4079F /* pj_phi2.c in Sources */,
 				2B7EF49F16025D8C00D4079F /* PJ_poly.c in Sources */,
 				2B7EF4A016025D8C00D4079F /* pj_pr_list.c in Sources */,
+				2B1C26341C9088FF00C71B0A /* pj_gridcatalog.c in Sources */,
 				2B7EF4A116025D8C00D4079F /* PJ_putp2.c in Sources */,
 				2B7EF4A216025D8C00D4079F /* PJ_putp3.c in Sources */,
 				2B7EF4A316025D8C00D4079F /* PJ_putp4p.c in Sources */,
 				2B7EF4A416025D8C00D4079F /* PJ_putp5.c in Sources */,
 				2B7EF4A516025D8C00D4079F /* PJ_putp6.c in Sources */,
 				2B7EF4A616025D8C00D4079F /* pj_qsfn.c in Sources */,
+				2B1C26381C9088FF00C71B0A /* pj_strtod.c in Sources */,
 				2B7EF4A716025D8C00D4079F /* pj_release.c in Sources */,
 				2B7EF4A816025D8C00D4079F /* PJ_robin.c in Sources */,
 				2B7EF4A916025D8C00D4079F /* PJ_rpoly.c in Sources */,
@@ -2406,6 +2436,7 @@
 				2B7EF4AD16025D8C00D4079F /* PJ_sterea.c in Sources */,
 				2B7EF4AE16025D8C00D4079F /* pj_strerrno.c in Sources */,
 				2B7EF4AF16025D8C00D4079F /* PJ_sts.c in Sources */,
+				2B1C26331C9088FF00C71B0A /* pj_gc_reader.c in Sources */,
 				2B7EF4B016025D8C00D4079F /* PJ_tcc.c in Sources */,
 				2B7EF4B116025D8C00D4079F /* PJ_tcea.c in Sources */,
 				2BF55A661BB9DDC200984C54 /* OverlapHelper.mm in Sources */,
@@ -2470,6 +2501,7 @@
 				2B4AE3F21766610900850F3F /* JSONNode_Mutex.cpp in Sources */,
 				2B4AE3F31766610900850F3F /* JSONPreparse.cpp in Sources */,
 				2B4AE3F81766610900850F3F /* JSONStream.cpp in Sources */,
+				2B1C26311C9088FF00C71B0A /* pj_fileapi.c in Sources */,
 				2B4AE3FA1766610900850F3F /* JSONValidator.cpp in Sources */,
 				2B4AE3FC1766610900850F3F /* JSONWorker.cpp in Sources */,
 				2B4AE3FE1766610900850F3F /* JSONWriter.cpp in Sources */,

@@ -90,14 +90,24 @@
 	}];
 }
 
+- (MaplyCoordinateSystem * _Nullable)customCoordSystem
+{
+    return nil;
+}
+
 - (void)runMapTestWithLock:(dispatch_group_t)lock
 {
 	// create and prepare the controller
 	self.mapViewController = [[MaplyViewController alloc] initWithMapType:MaplyMapTypeFlat];
-	[self.testView addSubview:self.mapViewController.view];
-	self.mapViewController.view.frame = self.testView.bounds;
-	self.mapViewController.clearColor = [UIColor blackColor];
-	self.mapViewController.frameInterval = 2;
+    
+    MaplyCoordinateSystem *coordSys = [self customCoordSystem];
+    if (coordSys)
+        self.mapViewController.coordSys = coordSys;
+
+    [self.testView addSubview:self.mapViewController.view];
+    self.mapViewController.view.frame = self.testView.bounds;
+    self.mapViewController.clearColor = [UIColor blackColor];
+    self.mapViewController.frameInterval = 2;
 
 	// setup test case specifics
 	if (![self setUpWithMap:self.mapViewController]) {
