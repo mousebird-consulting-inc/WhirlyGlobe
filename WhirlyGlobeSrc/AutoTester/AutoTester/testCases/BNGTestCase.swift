@@ -13,12 +13,13 @@ class BNGTestCase: MaplyTestCase {
 	override init(){
 		super.init()
 		self.name = "British National Grid"
-		self.captureDelay = 3
+		self.captureDelay = 1000
 	}
 	
 	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
 		GeographyClassTestCase().setUpWithMap(mapVC)
 		BNGCustomMapTestCase().createBritishNationalOverlayLocal(mapVC, maplyMap: true)
+        mapVC.setPosition(MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222), height: 0.3)
 
 		return true
 	}

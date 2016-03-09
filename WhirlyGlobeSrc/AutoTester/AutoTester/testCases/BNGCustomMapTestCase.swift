@@ -19,11 +19,15 @@ class BNGCustomMapTestCase: MaplyTestCase, MaplyViewControllerDelegate {
 	
 	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
 		GeographyClassTestCase().setUpWithMap(mapVC)
-		mapVC.coordSys = self.buildBritishNationalGrid(true)
 		createBritishNationalOverlayLocal(mapVC, maplyMap: true)
+        mapVC.setPosition(MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222), height: 0.3)
 
 		return true
 	}
+    
+    override func customCoordSystem() -> MaplyCoordinateSystem? {
+        return self.buildBritishNationalGrid(true)
+    }
 	
 	func buildBritishNationalGrid(display: Bool) -> (MaplyCoordinateSystem){
 		let gsb = NSBundle.mainBundle().pathForResource("OSTN02_NTv2", ofType: "gsb")
