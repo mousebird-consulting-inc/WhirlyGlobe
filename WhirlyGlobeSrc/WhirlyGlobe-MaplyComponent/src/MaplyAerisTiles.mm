@@ -125,7 +125,6 @@
                    NSString *baseURL = [NSString stringWithFormat:@"http://maps.aerisapi.com/%@_%@/%@/{z}/{x}/{y}/%@", _aerisID, _secretKey, _layerInfo.layerCode, fileEntry[@"time"]];
                    tileSource = [[MaplyRemoteTileInfo alloc] initWithBaseURL:baseURL ext:@"png" minZoom:_layerInfo.minZoom maxZoom:_layerInfo.maxZoom];
                    tileSource.cacheDir = [NSString stringWithFormat:@"%@/MaplyAeris/%@/%@", cacheDir, _layerInfo.layerCode, fileEntry[@"time"]];
-                   NSLog(@"%@", tileSource.cacheDir);
                    [tileInfoArray addObject:tileSource];
                }
                dispatch_async(dispatch_get_main_queue(), ^{
