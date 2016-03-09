@@ -73,7 +73,7 @@ public:
         SimpleIdentity shaderID;
 
 	// Methods for Java quad image layer
-	jmethodID startFetchJava,scheduleEvalStepJava;
+    jmethodID startFetchJava,scheduleEvalStepJava;
 
 	QuadImageLayerAdapter(CoordSystem *coordSys)
 		: env(NULL), javaObj(NULL), renderer(NULL), coordSys(coordSys),
@@ -96,8 +96,9 @@ public:
 	}
 
 	// Get Java methods for a particular instance
-	void setJavaRefs(JNIEnv *env,jobject obj)
+	void setJavaRefs(JNIEnv *inEnv,jobject obj)
 	{
+        env = inEnv;
 		javaObj = (jobject)env->NewGlobalRef(obj);
 		jclass theClass = env->GetObjectClass(javaObj);
 		startFetchJava = env->GetMethodID(theClass,"startFetch","(IIII)V");
@@ -655,6 +656,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setEnable
 		if (!adapter || !changeSet || !adapter->tileLoader)
 			return;
 		ChangeSet changes;
+//        adapter->env = env;
 		adapter->tileLoader->setEnable(enable,*changeSet);
 	}
 	catch (...)
@@ -749,6 +751,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setCurrentIma
 		if (!adapter || !changeSet)
 			return;
 
+//        adapter->env = env;
 		adapter->setCurrentImage(currentImage,*changeSet);
 	}
 	catch (...)
@@ -783,6 +786,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setAnimationP
 		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
+//        adapter->env = env;
 		adapter->setAnimationPeriod(period);
 	}
 	catch (...)
@@ -820,7 +824,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setAllowFrame
 		adapter->allowFrameLoading = frameLoading;
         if (adapter->control)
         {
-            adapter->env = env;
+//            adapter->env = env;
             adapter->control->setFrameLoading(frameLoading);
             adapter->scheduleEvalStep();
         }
@@ -881,14 +885,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setFrameLoadi
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!adapter || !frameLoadingArr || !changeSet)
 			return;
+//        adapter->env = env;
 		adapter->framePriorities.clear();
 
 		ConvertIntArray(env,frameLoadingArr,adapter->framePriorities);
         if (adapter->control)
         {
-            adapter->env = env;
             adapter->control->setFrameLoadingPriorities(adapter->framePriorities);
-            adapter->scheduleEvalStep();
         }
 	}
 	catch (...)
@@ -907,6 +910,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setColor
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!adapter || !changeSet)
 			return;
+//        adapter->env = env;
 		adapter->setColor(RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0));
 	}
 	catch (...)
@@ -1029,6 +1033,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setMultiLevel
 		if (!adapter)
 			return;
 
+//        adapter->env = env;
 		ConvertIntArray(env,levelLoadsArr,adapter->levelLoads);
 	}
 	catch (...)
@@ -1047,6 +1052,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getTargetZoom
 		if (!adapter || !adapter->lastViewState)
 			return 0;
 
+//        adapter->env = env;
 		return adapter->targetZoomLevel(adapter->lastViewState);
 	}
 	catch (...)
@@ -1066,6 +1072,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setShaderName
         QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
         if (!adapter)
             return;
+//        adapter->env = env;
         
         const char *cName = env->GetStringUTFChars(shaderName,0);
         std::string name = cName;
@@ -1090,6 +1097,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_reload
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!adapter || !changeSet)
 			return;
+//        adapter->env = env;
 
 		// Note: Porting. This doesn't handle the case where we change parameters and then reload
 		adapter->control->refresh(*changeSet);
@@ -1247,7 +1255,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeShutdow
 		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
 		if (!adapter || !changes)
 			return;
-
+//        adapter->env = env;
 		adapter->control->shutdown(*changes);
 	}
 	catch (...)
@@ -1266,7 +1274,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeViewUpd
 		if (!adapter || !viewState)
 			return;
 
-		adapter->env = env;
+//		adapter->env = env;
 
 		adapter->control->viewUpdate(viewState);
 	}
@@ -1286,7 +1294,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeEva
 		if (!adapter || !changes)
 			return false;
 
-		adapter->env = env;
+//		adapter->env = env;
 
 		// Note: Not passing in frame boundary info
 		return adapter->control->evalStep(0.0,0.0,0.0,*changes);
@@ -1312,6 +1320,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeRef
 		if (adapter->control->getWaitForLocalLoads())
 			return false;
 
+//        adapter->env = env;
 		adapter->control->refresh(*changes);
 		return true;
 	}
@@ -1334,7 +1343,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 		  {
 			return;
 		  }
-        adapter->env = env;
+//        adapter->env = env;
 
 		AndroidBitmapInfo info;
 		if (AndroidBitmap_getInfo(env, bitmapObj, &info) < 0)
@@ -1381,7 +1390,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
         {
             return;
         }
-        adapter->env = env;
+//        adapter->env = env;
         
         int numImages = env->GetArrayLength(bitmapsObj);
         int width,height;
@@ -1438,6 +1447,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
 		if (!adapter || !changes)
 			return;
+//        adapter->env = env;
 
 //		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did not load: %d: (%d,%d) %d",level,x,y,frame);
 		adapter->tileLoaded(level,x,y,frame,RawDataRef(),1,1,*changes);

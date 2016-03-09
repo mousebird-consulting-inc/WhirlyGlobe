@@ -435,8 +435,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
         if (layerThread != null) {
             ChangeSet changes = new ChangeSet();
 
-			if (prior != null)
+			if (prior != null) {
 				setFrameLoadingPriority(prior, changes);
+			}
 			setCurrentImage(current, changes);
 
 			changes.process(layerThread.scene);
@@ -587,6 +588,8 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		ChangeSet changes = new ChangeSet();
 		setFrameLoadingPriority(priorites,changes);
 		layerThread.addChanges(changes);
+
+		scheduleEvalStep();
 	}
 	
 	native void setFrameLoadingPriority(int[] priorites,ChangeSet changes);
