@@ -46,7 +46,8 @@
 			MaplyMapboxVectorStyleSet *styleSet = (MaplyMapboxVectorStyleSet *) vecTiles.tileParser.styleDelegate;
 			styleSet.tileStyleSettings.markerImportance = 10.0;
 			styleSet.tileStyleSettings.fontName = @"Gill Sans";
-			UIColor *backColor = [styleSet backgroundColor];
+//			UIColor *backColor = [styleSet backgroundColor];
+            UIColor *backColor = [UIColor blackColor];
 			if (backColor) {
 				[mapVC setClearColor:backColor];
 			}
