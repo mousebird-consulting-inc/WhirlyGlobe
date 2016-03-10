@@ -21,11 +21,6 @@
 	return self;
 }
 
-- (void)dealloc
-{
-    
-}
-
 - (void)start:(bool)manual
 {
 	self.running = YES;
@@ -78,7 +73,8 @@
 		[self.globeViewController.view removeFromSuperview];
 		self.globeViewController = nil;
 
-		dispatch_group_leave(lock);
+        if (!manual)
+            dispatch_group_leave(lock);
 
 		return;
 	}
@@ -133,7 +129,8 @@
 		[self.mapViewController.view removeFromSuperview];
 		self.mapViewController = nil;
 
-		dispatch_group_leave(lock);
+        if (!manual)
+            dispatch_group_leave(lock);
 
 		return;
 	}
