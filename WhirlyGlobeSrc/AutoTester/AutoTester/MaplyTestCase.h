@@ -25,7 +25,7 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseOptions) {
 
 @interface MaplyTestCase : NSObject
 
-- (void)start;
+- (void)start:(bool)manual;
 
 // these prototypes are necessary for Swift
 - (BOOL)setUpWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC;
