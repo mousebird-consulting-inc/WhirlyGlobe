@@ -138,7 +138,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 			popControl = UIPopoverController(contentViewController: configViewC!)
 			popControl?.delegate = self
 			popControl?.setPopoverContentSize(CGSizeMake(400, 4.0/5.0*self.view.bounds.size.height), animated: true)
-			popControl?.presentPopoverFromRect(CGRectMake(0, 0, 10, 10), inView: self.view, permittedArrowDirections: .Up, animated: true)
+			popControl?.presentPopoverFromRect(CGRectMake(0, 0, 10, 10), inView: self.navigationController!.view, permittedArrowDirections: .Up, animated: true)
 		}
 		else {
 			configViewC!.navigationItem.hidesBackButton = true

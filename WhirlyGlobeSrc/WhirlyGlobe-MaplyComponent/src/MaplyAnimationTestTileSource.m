@@ -101,8 +101,8 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     UIColor *fillColor = [UIColor whiteColor];
     if (_transparentMode)
     {
-        backColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.5];
-        fillColor = [UIColor colorWithRed:red green:green blue:blue alpha:0.5];
+        backColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.7];
+        fillColor = [UIColor colorWithRed:red green:green blue:blue alpha:0.7];
     } else {
         backColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
         fillColor = [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
