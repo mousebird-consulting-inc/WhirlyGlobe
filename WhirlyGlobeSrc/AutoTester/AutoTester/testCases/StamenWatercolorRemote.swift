@@ -51,6 +51,7 @@ class StamenWatercolorRemote: MaplyTestCase {
 
         mapVC.addLayer(layer)
         mapVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), height: 1.0, time: 1.0)
+        mapVC.setZoomLimitsMin(0.01, max: 4.0)
         
         return true;
     }
