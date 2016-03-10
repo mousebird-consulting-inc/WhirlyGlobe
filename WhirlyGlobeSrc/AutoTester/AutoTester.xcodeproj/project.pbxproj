@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B1C264F1C90FFFC00C71B0A /* VectorMBTilesTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */; };
+		2B1C26531C91037100C71B0A /* France.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B1C26511C9100A500C71B0A /* France.mbtiles */; };
 		2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */; };
 		2B4BA6CE1C83A22000DC1562 /* leftbend.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C21C83A22000DC1562 /* leftbend.geojson */; };
 		2B4BA6CF1C83A22000DC1562 /* leftv.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C31C83A22000DC1562 /* leftv.geojson */; };
@@ -521,6 +523,9 @@
 /* Begin PBXFileReference section */
 		180B97B59AC5F39A42ADCB62 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		1F05A4FB888D188E680287F5 /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B1C264D1C90FFFC00C71B0A /* VectorMBTilesTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorMBTilesTestCase.h; sourceTree = "<group>"; };
+		2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorMBTilesTestCase.m; sourceTree = "<group>"; };
+		2B1C26511C9100A500C71B0A /* France.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = France.mbtiles; path = ../../../../Downloads/France.mbtiles; sourceTree = "<group>"; };
 		2B392B6F1C5AC59D001EE40B /* RunwayBuilderTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RunwayBuilderTestCase.h; sourceTree = "<group>"; };
 		2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RunwayBuilderTestCase.m; sourceTree = "<group>"; };
 		2B4BA6C21C83A22000DC1562 /* leftbend.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = leftbend.geojson; path = ../WhirlyGlobeComponentTester/resources/leftbend.geojson; sourceTree = "<group>"; };
@@ -1206,6 +1211,8 @@
 				2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */,
 				2B6953631C7E601A007FC51E /* AnimatedColorRampTestCase.h */,
 				2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */,
+				2B1C264D1C90FFFC00C71B0A /* VectorMBTilesTestCase.h */,
+				2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -1273,6 +1280,7 @@
 		88FF5BDF1BC31D3C002F15CE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2B1C26511C9100A500C71B0A /* France.mbtiles */,
 				2B6953671C7E67DD007FC51E /* colorramp.png */,
 				D84AA5961C1A26C100413B76 /* OSTN02_NTv2.gsb */,
 				2B4BA6C01C83A1F500DC1562 /* wide vectors */,
@@ -2101,6 +2109,7 @@
 				88FF5EC01BC31D95002F15CE /* SPM.geojson in Resources */,
 				88FF5E241BC31D95002F15CE /* COG.geojson in Resources */,
 				883DF7201C1CE164000756E9 /* CartoDBTestCase-globe.png in Resources */,
+				2B1C26531C91037100C71B0A /* France.mbtiles in Resources */,
 				88FF5E911BC31D95002F15CE /* MWI.geojson in Resources */,
 				88FF5CDE1BC31D6D002F15CE /* tennis-24@2x.png in Resources */,
 				88FF5C981BC31D6D002F15CE /* clothing-store-24@2x.png in Resources */,
@@ -2386,6 +2395,7 @@
 				886FCCCD1BA74D1200494BB0 /* ConfigViewController.swift in Sources */,
 				2B6953651C7E601A007FC51E /* AnimatedColorRampTestCase.m in Sources */,
 				D84433E71C14A46200A52117 /* NASAGIBSTestCase.swift in Sources */,
+				2B1C264F1C90FFFC00C71B0A /* VectorMBTilesTestCase.m in Sources */,
 				D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.m in Sources */,
 				D84AA59C1C1A2E9900413B76 /* ElevationLocalDatabase.m in Sources */,
 				D8200CA11BE9563F00B22CF5 /* StickersTestCase.swift in Sources */,
@@ -2458,6 +2468,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
+					"NOTPODSPECWG=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -2498,6 +2509,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "NOTPODSPECWG=1";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
