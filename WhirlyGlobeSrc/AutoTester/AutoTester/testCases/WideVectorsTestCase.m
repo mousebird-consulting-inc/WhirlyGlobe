@@ -19,7 +19,7 @@
 - (instancetype)init
 {
 	if (self = [super init]) {
-		self.captureDelay = 2000;
+		self.captureDelay = 20;
 		self.name = @"Wide Vectors";
 	}
 	return self;

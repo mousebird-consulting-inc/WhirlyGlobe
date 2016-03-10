@@ -13,10 +13,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	let tests = [
 		GeographyClassTestCase(),
 		StamenWatercolorRemote(),
-		MapBoxSatelliteTestCase(),
 		CesiumElevationTestCase(),
 		AnimatedBasemapTestCase(),
-		MapBoxVectorTestCase(),
 		MapzenVectorTestCase(),
 		VectorsTestCase(),
 		ScreenLabelsTestCase(),
@@ -37,7 +35,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		BNGTestCase(),
 		ElevationLocalDatabase(),
         RunwayBuilderTestCase(),
-        AnimatedColorRampTestCase()
+        AnimatedColorRampTestCase(),
+        VectorMBTilesTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
@@ -119,7 +118,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 		NSUserDefaults.standardUserDefaults().setInteger(indexPath.row, forKey: "scrollPos")
 
-		runTest(self.tests[indexPath.row])
+        runTest(self.tests[indexPath.row],manual: true)
 	}
 
 	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -148,19 +147,31 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 	}
 
-	private func runTest(test: MaplyTestCase) {
-		self.title = "Running test..."
+    private func runTest(test: MaplyTestCase,manual: Bool) {
+        if !manual
+        {
+            self.title = "Running test..."
+        }
 
 		// use same aspect ratio as results view
 		let rect = UIScreen.mainScreen().applicationFrame
-		self.testViewBlack?.frame = CGRectMake(0, 0, rect.width, rect.height)
-		self.testViewBlack?.hidden = !configViewC!.valueForSection(.Options, row: .ViewTest)
-		self.testView = UIView(frame: CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height))
-		self.testView?.center = CGPointMake(self.testViewBlack!.frame.size.width  / 2,
-			self.testViewBlack!.frame.size.height / 2)
-		self.testView?.hidden = !configViewC!.valueForSection(.Options, row: .ViewTest)
-		self.testView?.backgroundColor = UIColor.blackColor()
-		self.testViewBlack?.addSubview(self.testView!)
+        if !manual
+        {
+            self.testViewBlack?.frame = CGRectMake(0, 0, rect.width, rect.height)
+            self.testViewBlack?.hidden = !configViewC!.valueForSection(.Options, row: .ViewTest)
+        }
+            
+		let testView = UIView(frame: CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height))
+		testView.backgroundColor = UIColor.redColor()
+        
+        if !manual
+        {
+            testView.center = CGPointMake(self.testViewBlack!.frame.size.width  / 2,
+                self.testViewBlack!.frame.size.height / 2)
+            testView.hidden = !configViewC!.valueForSection(.Options, row: .ViewTest)
+            self.testView = testView
+            self.testViewBlack?.addSubview(self.testView!)
+        }
 		self.results.removeAll()
 
 		test.options = .None
@@ -184,16 +195,43 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 
 		if configViewC!.valueForSection(.Options, row: .ViewTest){
-			self.seconds = test.captureDelay
-			self.title = "\(test.name) (\(self.seconds))"
-			self.timer = NSTimer.scheduledTimerWithTimeInterval(1,
-				target: self,
-				selector: "updateTitle:",
-				userInfo: test.name,
-				repeats: true)
+            if manual {
+                self.seconds = 100000000
+            } else {
+                self.seconds = test.captureDelay
+                self.title = "\(test.name) (\(self.seconds))"
+                self.timer = NSTimer.scheduledTimerWithTimeInterval(1,
+                    target: self,
+                    selector: "updateTitle:",
+                    userInfo: test.name,
+                    repeats: true)
+            }
 		}
-		test.testView = self.testView
-		test.start()
+        
+        var testViewC:UIViewController? = nil
+        if manual
+        {
+            testViewC = UIViewController()
+            testViewC!.view.frame = testView.frame
+            testViewC!.view.backgroundColor = UIColor.yellowColor()
+            testViewC!.view.addSubview(testView)
+            testViewC!.title = "\(test.name)"
+            self.navigationController?.pushViewController(testViewC!, animated: true)
+        }
+        
+        test.testView = testView
+        self.testView = testView
+		test.start(manual)
+        
+        if manual
+        {
+            var childViewController:UIViewController? = test.globeViewController!
+            if childViewController == nil
+            {
+                childViewController = test.mapViewController
+            }
+            testViewC!.addChildViewController(childViewController!)
+        }
 	}
 
 	func updateTitle(timer: NSTimer){
