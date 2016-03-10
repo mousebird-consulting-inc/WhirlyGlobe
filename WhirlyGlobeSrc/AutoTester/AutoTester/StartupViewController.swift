@@ -225,10 +225,12 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
         
         if manual
         {
-            var childViewController:UIViewController? = test.globeViewController!
-            if childViewController == nil
+            var childViewController:UIViewController? = nil
+            if test.globeViewController == nil
             {
                 childViewController = test.mapViewController
+            } else {
+                childViewController = test.globeViewController
             }
             testViewC!.addChildViewController(childViewController!)
         }
