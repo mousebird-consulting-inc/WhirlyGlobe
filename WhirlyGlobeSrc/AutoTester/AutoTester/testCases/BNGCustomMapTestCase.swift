@@ -18,9 +18,10 @@ class BNGCustomMapTestCase: MaplyTestCase, MaplyViewControllerDelegate {
 	}
 	
 	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
-		GeographyClassTestCase().setUpWithMap(mapVC)
+        StamenWatercolorRemote().setUpWithMap(mapVC)
 		createBritishNationalOverlayLocal(mapVC, maplyMap: true)
         mapVC.setPosition(MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222), height: 0.3)
+        mapVC.setZoomLimitsMin(0.1, max: 4.0)
 
 		return true
 	}
@@ -74,7 +75,8 @@ class BNGCustomMapTestCase: MaplyTestCase, MaplyViewControllerDelegate {
 			layer?.multiLevelLoads = [-2]
 		}
 		baseView.addLayer(layer!)
-		layer?.drawPriority = 100
+        layer?.importanceScale = 4.0
+		layer?.drawPriority = 10000
 	}
 
 }
