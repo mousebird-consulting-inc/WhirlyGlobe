@@ -241,6 +241,11 @@ typedef NS_ENUM(NSInteger, MaplyQuadPagingDataStyle) {
   */
 - (void)reload;
 
+/** @brief Request a reload of the paging layer within the given bounding box.
+    @details Figures out which tiles overlap the given bounding box and asks for a refresh on those.
+  */
+- (void)reload:(MaplyBoundingBox)bounds;
+
 
 - (nullable NSObject<MaplyPagingDelegate> *)pagingDelegate;
 
