@@ -57,7 +57,7 @@ static NSString *fragmentShaderTriMultiTexRamp =
 {
     if (self = [super init]) {
         self.name = @"Animated Color Ramp";
-        self.captureDelay = 1000;
+        self.captureDelay = 10;
     }
     
     return self;

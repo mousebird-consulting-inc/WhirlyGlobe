@@ -13,19 +13,21 @@ class BNGTestCase: MaplyTestCase {
 	override init(){
 		super.init()
 		self.name = "British National Grid"
-		self.captureDelay = 3
+		self.captureDelay = 20
 	}
 	
 	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
-		GeographyClassTestCase().setUpWithMap(mapVC)
+        StamenWatercolorRemote().setUpWithMap(mapVC)
 		BNGCustomMapTestCase().createBritishNationalOverlayLocal(mapVC, maplyMap: true)
+        mapVC.setPosition(MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222), height: 0.3)
 
 		return true
 	}
 	
 	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
-		GeographyClassTestCase().setUpWithGlobe(globeVC)
+        StamenWatercolorRemote().setUpWithGlobe(globeVC)
 		BNGCustomMapTestCase().createBritishNationalOverlayLocal(globeVC, maplyMap: false)
+        globeVC.clearColor = UIColor.init(colorLiteralRed: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)
 
 		return true
 	}
