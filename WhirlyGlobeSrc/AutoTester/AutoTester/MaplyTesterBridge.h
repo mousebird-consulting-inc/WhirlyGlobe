@@ -30,5 +30,6 @@
 #import "RunwayBuilderTestCase.h"
 #import "AnimatedColorRampTestCase.h"
 #import "VectorMBTilesTestCase.h"
+#import "ExtrudedModelTestCase.h"
 
 #endif

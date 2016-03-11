@@ -36,7 +36,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		ElevationLocalDatabase(),
         RunwayBuilderTestCase(),
         AnimatedColorRampTestCase(),
-        VectorMBTilesTestCase()
+        VectorMBTilesTestCase(),
+        ExtrudedModelTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
@@ -232,7 +233,11 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
             } else {
                 childViewController = test.globeViewController
             }
-            testViewC!.addChildViewController(childViewController!)
+            
+            if childViewController != nil
+            {
+                testViewC!.addChildViewController(childViewController!)
+            }
         }
 	}
 
