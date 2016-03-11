@@ -589,7 +589,7 @@ void SetupDefaultShaders(Scene *scene)
     }
 
     // Triangle shader the model instancing
-    OpenGLES2Program *triShaderModel = new OpenGLES2Program("Triangle shader for models with lighting",vertexShaderModelTri,fragmentShaderTri);
+    OpenGLES2Program *triShaderModel = new OpenGLES2Program("Triangle shader for models with lighting and motion",vertexShaderModelTri,fragmentShaderTri);
     if (!triShaderModel->isValid())
     {
         NSLog(@"SetupDefaultShaders: Triangle shader for model instancing and lighting didn't compile.");
