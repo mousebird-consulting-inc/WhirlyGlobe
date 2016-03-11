@@ -34,22 +34,30 @@ class WhirlyKitShapeInfo : public BaseInfo
 public:
     WhirlyKitShapeInfo();
     ~WhirlyKitShapeInfo();
-    void setColor (RGBAColor _color);
-    RGBAColor getColor();
-    void setLineWidth(float _lineWidth);
-    float getLineWidth();
-    void setShapeId(WhirlyKit::SimpleIdentity _shapeId);
-    WhirlyKit::SimpleIdentity getShapeId();
-    void setInsideOut(bool _insideOut);
-    bool getInsideOut();
-    void setZBufferRead(bool _zBufferRead);
-    bool getZBufferRead();
-    void setZBufferWrite(bool _zBufferWrite);
-    bool getZBufferWrite();
-    void setHasCenter(bool _hasCenter);
-    bool getHasCenter();
-    void setCenter (Point3d _center);
-    Point3d getCenter();
+
+    void setColor(RGBAColor value) { color = value; }
+    RGBAColor getColor() { return color; }
+
+    void setLineWidth(float value) { lineWidth = value; }
+    float getLineWidth() { return lineWidth; }
+
+    void setShapeId(WhirlyKit::SimpleIdentity value) { shapeId = value; }
+    WhirlyKit::SimpleIdentity getShapeId() { return shapeId; }
+
+    void setInsideOut(bool value) { insideOut = value; }
+    bool getInsideOut() { return insideOut; }
+
+    void setZBufferRead(bool value) { zBufferRead = value; }
+    bool getZBufferRead() { return zBufferRead; }
+
+    void setZBufferWrite(bool value) { zBufferWrite = value; }
+    bool getZBufferWrite() { return zBufferWrite; }
+
+    void setHasCenter(bool value) { hasCenter = value; }
+    bool getHasCenter() { return hasCenter; }
+
+    void setCenter(Point3d value) { center = value; }
+    Point3d getCenter() { return center; }
 
 private:
     RGBAColor color;

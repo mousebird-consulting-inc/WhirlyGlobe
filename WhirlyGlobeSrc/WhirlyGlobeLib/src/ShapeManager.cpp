@@ -58,46 +58,6 @@ WhirlyKitShape::~WhirlyKitShape()
 {
 }
 
-void WhirlyKitShape::setSelectable(bool _isSelectable)
-{
-    isSelectable = _isSelectable;
-}
-
-bool WhirlyKitShape::getSelectable()
-{
-    return isSelectable;
-}
-
-void WhirlyKitShape::setSelectID(WhirlyKit::SimpleIdentity _selectID)
-{
-    selectID = _selectID;
-}
-
-WhirlyKit::SimpleIdentity WhirlyKitShape::getSelectID()
-{
-    return selectID;
-}
-
-void WhirlyKitShape::setUseColor(bool _useColor)
-{
-    useColor = _useColor;
-}
-
-bool WhirlyKitShape::getUseColor()
-{
-    return useColor;
-}
-
-void WhirlyKitShape::setColor(WhirlyKit::RGBAColor _color)
-{
-    color = _color;
-}
-
-RGBAColor WhirlyKitShape::getColor()
-{
-    return color;
-}
-
 // Base shape doesn't make anything
 void WhirlyKitShape::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, WhirlyKit::SelectionManager *selectManager, WhirlyKit::ShapeSceneRep *sceneRep)
 {
@@ -114,56 +74,6 @@ WhirlyKitSphere::WhirlyKitSphere()
 
 WhirlyKitSphere::~WhirlyKitSphere()
 {
-}
-
-void WhirlyKitSphere::setLoc(WhirlyKit::GeoCoord _loc)
-{
-    loc = _loc;
-}
-
-WhirlyKit::GeoCoord WhirlyKitSphere::getLoc()
-{
-    return loc;
-}
-
-void WhirlyKitSphere::setHeight(float _height)
-{
-    height = _height;
-}
-
-float WhirlyKitSphere::getHeight()
-{
-    return height;
-}
-
-void WhirlyKitSphere::setRadius(float _radius)
-{
-    radius = _radius;
-}
-
-float WhirlyKitSphere::getRadius()
-{
-    return radius;
-}
-
-void WhirlyKitSphere::setSampleX(int _sampleX)
-{
-    sampleX = _sampleX;
-}
-
-int WhirlyKitSphere::getSampleX()
-{
-    return sampleX;
-}
-
-void WhirlyKitSphere::setSampleY(int _sampleY)
-{
-    sampleY = _sampleY;
-}
-
-int WhirlyKitSphere::getSampleY()
-{
-    return sampleY;
 }
 
 Point3d WhirlyKitSphere::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, WhirlyKit::WhirlyKitShapeInfo *shapeInfo)

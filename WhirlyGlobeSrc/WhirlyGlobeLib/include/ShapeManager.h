@@ -55,17 +55,17 @@ public:
     WhirlyKitShape();
     virtual ~WhirlyKitShape();
 
-	void setSelectable(bool _isSelectable);
-    bool getSelectable();
+	void setSelectable(bool value) { isSelectable = value; }
+	bool getSelectable() { return isSelectable; }
 
-	void setSelectID(WhirlyKit::SimpleIdentity _selectID);
-    WhirlyKit::SimpleIdentity getSelectID();
+	void setSelectID(WhirlyKit::SimpleIdentity value) { selectID = value; }
+	WhirlyKit::SimpleIdentity getSelectID() { return selectID; }
 
-	void setUseColor(bool _useColor);
-    bool getUseColor();
+	void setUseColor(bool value) { useColor = value; }
+	bool getUseColor() { return useColor; }
 
-	void setColor(WhirlyKit::RGBAColor _color);
-    WhirlyKit::RGBAColor getColor();
+	void setColor(WhirlyKit::RGBAColor value) { color = value; }
+	WhirlyKit::RGBAColor getColor() { return color; }
 
 	void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
     Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo);
@@ -83,19 +83,19 @@ public:
     WhirlyKitSphere();
     virtual ~WhirlyKitSphere();
 
-	void setLoc(WhirlyKit::GeoCoord _loc);
-    WhirlyKit::GeoCoord getLoc();
+	void setLoc(WhirlyKit::GeoCoord value) { loc = value; }
+	WhirlyKit::GeoCoord getLoc() { return loc; }
 
-	void setHeight(float _height);
-    float getHeight();
+	void setHeight(float value) { height = value; }
+	float getHeight() { return height; }
 
-	void setRadius(float _radius);
-    float getRadius();
+	void setRadius(float value) { radius = value; }
+	float getRadius() { return radius; }
 
-	void setSampleX(int _sampleX);
-    int getSampleX();
-    void setSampleY(int _sampleY);
-    int getSampleY();
+	void setSampleX(int value) { sampleX = value; }
+	int getSampleX() { return sampleX; }
+	void setSampleY(int value) { sampleY = value; }
+	int getSampleY() { return sampleY; }
 
     void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
     Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo);
