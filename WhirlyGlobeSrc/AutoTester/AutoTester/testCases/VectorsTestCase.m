@@ -44,13 +44,16 @@
 			NSData *jsonData = [NSData dataWithContentsOfFile:fileName];
 			if (jsonData) {
 				MaplyVectorObject *wgVecObj = [MaplyVectorObject VectorObjectFromGeoJSON:jsonData];
-				NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
-				wgVecObj.userObject = vecName;
-				[self.compList addObject:wgVecObj];
-				[baseVC addVectors:[NSArray arrayWithObject:wgVecObj] desc:vectorDict];
-				if ([vecName isEqualToString:@"Spain"]) {
-					self.selectedCountry = wgVecObj;
-				}
+                if (wgVecObj)
+                {
+                    NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
+                    wgVecObj.userObject = vecName;
+                    [self.compList addObject:wgVecObj];
+                    [baseVC addVectors:[NSArray arrayWithObject:wgVecObj] desc:vectorDict];
+                    if ([vecName isEqualToString:@"Spain"]) {
+                        self.selectedCountry = wgVecObj;
+                    }
+                }
 			}
 		}
 		if (self.selectedCountry != nil) {
