@@ -89,7 +89,6 @@
 //#import "ViewPlacementGenerator.h"
 //#import "ActiveModel.h"
 #import "MaplyScene.h"
-//#import "ShapeDrawableBuilder.h"
 //#import "ShapeLayer.h"
 //#import "LayoutLayer.h"
 //#import "BillboardLayer.h"
@@ -103,5 +102,7 @@
 #import "ParticleSystemDrawable.h"
 #import "WhirlyKitLog.h"
 #import "QuadTracker.h"
+#import "ShapeDrawableBuilder.h"
+#import "ShapeManager.h"
 
 

@@ -63,6 +63,10 @@ template<> ParticleSystemManagerClassInfo * ParticleSystemManagerClassInfo::clas
 template<> OpenGLES2ProgramClassInfo *OpenGLES2ProgramClassInfo::classInfoObj = NULL;
 template<> QuadTrackerPointReturnClassInfo *QuadTrackerPointReturnClassInfo::classInfoObj = NULL;
 template<> QuadTrackerClassInfo *QuadTrackerClassInfo::classInfoObj = NULL;
+template<> ShapeInfoClassInfo *ShapeInfoClassInfo::classInfoObj = NULL;
+template<> ShapeClassInfo *ShapeClassInfo::classInfoObj = NULL;
+template<> ShapeSphereClassInfo *ShapeSphereClassInfo::classInfoObj = NULL;
+template<> ShapeManagerClassInfo *ShapeManagerClassInfo::classInfoObj = NULL;
 
 
 

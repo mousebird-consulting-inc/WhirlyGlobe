@@ -88,7 +88,8 @@ MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp BaseInfo_jni.cpp ChangeS
 					InternalLabel_jni.cpp InternalMarker_jni.cpp MarkerInfo_jni.cpp MarkerManager_jni.cpp Texture_jni.cpp QuadPagingLayer_jni.cpp QuadImageTileLayer_jni.cpp \
 					SelectionManager_jni.cpp Shader_jni.cpp SingleLabelAndroid.cpp CoordSystem_jni.cpp SphericalMercatorCoordSystem_jni.cpp PlateCarreeCoordSystem_jni.cpp ViewState_jni.cpp \
 					Scene_jni.cpp View_jni.cpp MapViewState_jni.cpp GlobeScene_jni.cpp GlobeView_jni.cpp GlobeViewState_jni.cpp FakeGeocentricDisplayAdapter_jni.cpp  ParticleBatch_jni.cpp ParticleSystem_jni.cpp ParticleSystemManager_jni.cpp \
-					GeoCoordSystem_jni.cpp Quaternion_jni.cpp AngleAxis_jni.cpp Point4d_jni.cpp  Sticker_jni.cpp StickerInfo_jni.cpp StickerManager_jni.cpp QuadImageOfflineLayer_jni.cpp Proj4CoordSystem_jni.cpp QuadTracker_jni.cpp
+					GeoCoordSystem_jni.cpp Quaternion_jni.cpp AngleAxis_jni.cpp Point4d_jni.cpp  Sticker_jni.cpp StickerInfo_jni.cpp StickerManager_jni.cpp QuadImageOfflineLayer_jni.cpp Proj4CoordSystem_jni.cpp QuadTracker_jni.cpp \
+					ShapeInfo_jni.cpp Shape_jni.cpp ShapeSphere_jni.cpp ShapeManager_jni.cpp
 LOCAL_SRC_FILES += $(MAPLY_JNI_FILES)
 
 MAPLY_PLATFORM_FILES := platform.cpp glwrapper.cpp
