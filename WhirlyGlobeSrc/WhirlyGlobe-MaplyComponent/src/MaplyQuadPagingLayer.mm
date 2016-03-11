@@ -171,6 +171,26 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 @end
 
+// Wrapper for bounding box so we can pass it around
+@interface MaplyReloadInfo : NSObject
+
+@property (nonatomic,assign) MaplyBoundingBox bbox;
++ (MaplyReloadInfo *) reloadInfoWithBounds:(MaplyBoundingBox)bbox;
+
+@end
+
+@implementation MaplyReloadInfo
+
++ (MaplyReloadInfo *) reloadInfoWithBounds:(MaplyBoundingBox)bbox
+{
+    MaplyReloadInfo *reloadObj = [[MaplyReloadInfo alloc] init];
+    reloadObj.bbox = bbox;
+    
+    return reloadObj;
+}
+
+@end
+
 @implementation MaplyQuadPagingLayer
 {
     WhirlyKitQuadDisplayLayer *quadLayer;
@@ -1035,6 +1055,46 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     // Note: Shouldn't hold up the layer thread for this
     for (unsigned int ii=0;ii<tilesToRefresh.size();ii++)
         [self askDelegateForLoad:tilesToRefresh[ii] isRefresh:true];
+}
+
+- (void)reloadSelected:(MaplyReloadInfo *)reloadInfo
+{
+    Mbr mbr;
+    mbr.addPoint(Point2f(reloadInfo.bbox.ll.x,reloadInfo.bbox.ll.y));
+    mbr.addPoint(Point2f(reloadInfo.bbox.ur.x,reloadInfo.bbox.ur.y));
+    
+    // Brute force our way through
+    pthread_mutex_lock(&tileSetLock);
+    std::vector<MaplyTileID> tilesToRefresh;
+    for (auto it = tileSet.begin();it != tileSet.end(); ++it)
+        if ((*it)->nodeIdent.level >= minZoom)
+        {
+            MaplyBoundingBox tileBbox = [self geoBoundsForTile:(*it)->nodeIdent];
+            Mbr tileMbr;
+            tileMbr.addPoint(Point2f(tileBbox.ll.x,tileBbox.ll.y));
+            tileMbr.addPoint(Point2f(tileBbox.ur.x,tileBbox.ur.y));
+
+            tilesToRefresh.push_back((*it)->nodeIdent);
+        }
+    pthread_mutex_unlock(&tileSetLock);
+    
+    // Ask the delegate to reload each tile
+    // Note: Shouldn't hold up the layer thread for this
+    for (unsigned int ii=0;ii<tilesToRefresh.size();ii++)
+        [self askDelegateForLoad:tilesToRefresh[ii] isRefresh:true];
+}
+
+- (void)reload:(MaplyBoundingBox)bounds
+{
+    MaplyReloadInfo *reloadInfo = [MaplyReloadInfo reloadInfoWithBounds:bounds];
+    
+    if ([NSThread currentThread] != super.layerThread)
+    {
+        [self performSelector:@selector(reloadSelected:) onThread:super.layerThread withObject:reloadInfo waitUntilDone:NO];
+        return;
+    }
+
+    [self reloadSelected:reloadInfo];
 }
 
 

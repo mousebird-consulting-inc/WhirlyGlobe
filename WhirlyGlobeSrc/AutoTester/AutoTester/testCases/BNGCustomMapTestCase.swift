@@ -14,16 +14,21 @@ class BNGCustomMapTestCase: MaplyTestCase, MaplyViewControllerDelegate {
 	override init() {
 		super.init()
 		self.name = "British National Grid (custom map)"
-		self.captureDelay = 1000
+		self.captureDelay = 20
 	}
 	
 	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
-		GeographyClassTestCase().setUpWithMap(mapVC)
-		mapVC.coordSys = self.buildBritishNationalGrid(true)
+        StamenWatercolorRemote().setUpWithMap(mapVC)
 		createBritishNationalOverlayLocal(mapVC, maplyMap: true)
+        mapVC.setPosition(MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222), height: 0.3)
+        mapVC.setZoomLimitsMin(0.1, max: 4.0)
 
 		return true
 	}
+    
+    override func customCoordSystem() -> MaplyCoordinateSystem? {
+        return self.buildBritishNationalGrid(true)
+    }
 	
 	func buildBritishNationalGrid(display: Bool) -> (MaplyCoordinateSystem){
 		let gsb = NSBundle.mainBundle().pathForResource("OSTN02_NTv2", ofType: "gsb")
@@ -70,7 +75,8 @@ class BNGCustomMapTestCase: MaplyTestCase, MaplyViewControllerDelegate {
 			layer?.multiLevelLoads = [-2]
 		}
 		baseView.addLayer(layer!)
-		layer?.drawPriority = 100
+        layer?.importanceScale = 4.0
+		layer?.drawPriority = 10000
 	}
 
 }

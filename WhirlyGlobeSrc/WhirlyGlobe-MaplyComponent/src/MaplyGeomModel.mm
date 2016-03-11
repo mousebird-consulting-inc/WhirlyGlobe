@@ -115,7 +115,7 @@ using namespace Eigen;
                 wkShape = [(MaplyShapeExtruded *)shape asWKShape:nil];
             
             if (wkShape)
-                shapeManager->convertShape(wkShape,rawGeom);
+                shapeManager->convertShape(wkShape,procGeom);
         } else {
             // Add the textures
             std::vector<std::string> texFileNames;
