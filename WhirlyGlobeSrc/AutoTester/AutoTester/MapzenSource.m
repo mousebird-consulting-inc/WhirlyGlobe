@@ -61,7 +61,8 @@
                     {
                         if ([backLayer isKindOfClass:[MapboxVectorLayerBackground class]])
                         {
-                            _backgroundColor = [backLayer.paint.color maxColorWithStyleSet:mapboxStyleSet];
+//                            _backgroundColor = [backLayer.paint.color maxColorWithStyleSet:mapboxStyleSet];
+                            _backgroundColor = [UIColor blackColor];
                         }
                     }
                 }
