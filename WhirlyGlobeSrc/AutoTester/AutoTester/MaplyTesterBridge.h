@@ -32,5 +32,6 @@
 #import "VectorMBTilesTestCase.h"
 #import "ExtrudedModelTestCase.h"
 #import "GreatCircleTestCase.h"
+#import "AerisWeatherTestCase.h"
 
 #endif

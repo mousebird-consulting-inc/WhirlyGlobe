@@ -510,6 +510,7 @@
 		D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE2B1BE7CAD30058A310 /* MegaMarkersTestCase.m */; };
 		D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE2D1BE7CF310058A310 /* ModelsTestCase.swift */; };
 		E4E4F5E62664B2073B80A052 /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F05A4FB888D188E680287F5 /* Pods.framework */; };
+		E57E78CA1C936B8400C468C6 /* AerisWeatherTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1053,6 +1054,8 @@
 		D8F2FE2A1BE7CAD30058A310 /* MegaMarkersTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MegaMarkersTestCase.h; sourceTree = "<group>"; };
 		D8F2FE2B1BE7CAD30058A310 /* MegaMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MegaMarkersTestCase.m; sourceTree = "<group>"; };
 		D8F2FE2D1BE7CF310058A310 /* ModelsTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModelsTestCase.swift; sourceTree = "<group>"; };
+		E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AerisWeatherTestCase.m; sourceTree = "<group>"; };
+		E57E78C91C936B8400C468C6 /* AerisWeatherTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AerisWeatherTestCase.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1173,6 +1176,8 @@
 		88BF115A1BCDA9530002205E /* testCases */ = {
 			isa = PBXGroup;
 			children = (
+				E57E78C91C936B8400C468C6 /* AerisWeatherTestCase.h */,
+				E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */,
 				D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */,
 				D84AA5931C1A1C9700413B76 /* BNGCustomMapTestCase.swift */,
 				D84AA5981C1A2B9800413B76 /* BNGTestCase.swift */,
@@ -2412,6 +2417,7 @@
 				D84AA59C1C1A2E9900413B76 /* ElevationLocalDatabase.m in Sources */,
 				D8200CA11BE9563F00B22CF5 /* StickersTestCase.swift in Sources */,
 				88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */,
+				E57E78CA1C936B8400C468C6 /* AerisWeatherTestCase.m in Sources */,
 				88E4B8C51B83B6AB0050D21B /* AppDelegate.swift in Sources */,
 				2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */,
 				D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */,
