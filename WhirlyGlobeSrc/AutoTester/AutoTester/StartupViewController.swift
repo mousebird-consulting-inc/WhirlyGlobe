@@ -38,7 +38,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
         AnimatedColorRampTestCase(),
         VectorMBTilesTestCase(),
         ExtrudedModelTestCase(),
-        GreatCircleTestCase()
+        GreatCircleTestCase(),
+        AerisWeatherTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!

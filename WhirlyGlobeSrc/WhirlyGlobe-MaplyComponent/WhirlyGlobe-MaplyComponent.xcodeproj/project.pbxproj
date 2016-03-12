@@ -431,6 +431,8 @@
 		88F4CEE71BC195DB007DEF8B /* Maply3dTouchPreviewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F4CEE61BC195DB007DEF8B /* Maply3dTouchPreviewDelegate.h */; };
 		88F4CEE91BC195E9007DEF8B /* Maply3dTouchPreviewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88F4CEE81BC195E9007DEF8B /* Maply3dTouchPreviewDelegate.mm */; };
 		C765E3B4190ACA2900931775 /* NSDictionary+StyleRules.h in Headers */ = {isa = PBXBuildFile; fileRef = C765E3B3190ACA2900931775 /* NSDictionary+StyleRules.h */; };
+		E599D2131C8A11ED00546018 /* MaplyAerisTiles.h in Headers */ = {isa = PBXBuildFile; fileRef = E599D2121C8A11ED00546018 /* MaplyAerisTiles.h */; };
+		E599D2161C8A11F900546018 /* MaplyAerisTiles.mm in Sources */ = {isa = PBXBuildFile; fileRef = E599D2151C8A11F900546018 /* MaplyAerisTiles.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -893,6 +895,8 @@
 		88F4CEE81BC195E9007DEF8B /* Maply3dTouchPreviewDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Maply3dTouchPreviewDelegate.mm; path = src/Maply3dTouchPreviewDelegate.mm; sourceTree = "<group>"; };
 		88F4CEED1BC1D070007DEF8B /* Maply3DTouchPreviewDatasource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Maply3DTouchPreviewDatasource.h; path = include/Maply3DTouchPreviewDatasource.h; sourceTree = "<group>"; };
 		C765E3B3190ACA2900931775 /* NSDictionary+StyleRules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSDictionary+StyleRules.h"; path = "include/NSDictionary+StyleRules.h"; sourceTree = "<group>"; };
+		E599D2121C8A11ED00546018 /* MaplyAerisTiles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyAerisTiles.h; path = include/MaplyAerisTiles.h; sourceTree = SOURCE_ROOT; };
+		E599D2151C8A11F900546018 /* MaplyAerisTiles.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyAerisTiles.mm; path = src/MaplyAerisTiles.mm; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1395,6 +1399,8 @@
 		2BC988E117D791040071DA9E /* Tile Sources */ = {
 			isa = PBXGroup;
 			children = (
+				E599D2151C8A11F900546018 /* MaplyAerisTiles.mm */,
+				E599D2121C8A11ED00546018 /* MaplyAerisTiles.h */,
 				2B2FEBB31B571DAA00A332BF /* MaplyBlankTileSource.h */,
 				2B2FEBB61B571DB500A332BF /* MaplyBlankTileSource.m */,
 				2BEE7EEC1B3C743200B6E0B1 /* MaplyPagingElevationTestTileSource.h */,
@@ -1757,6 +1763,7 @@
 				2BB071771676B58F00DE387D /* WhirlyGlobeViewController_private.h in Headers */,
 				2BB0717B1676B5A800DE387D /* MaplySticker.h in Headers */,
 				881F66B518F20A8F00D17110 /* atomicops_internals_pnacl.h in Headers */,
+				E599D2131C8A11ED00546018 /* MaplyAerisTiles.h in Headers */,
 				2BB7A96C1A26587400E50DC5 /* MaplyGeomModel.h in Headers */,
 				2B2FEC441B572BD400A332BF /* AAEquationOfTime.h in Headers */,
 				2B2FEC411B572BD400A332BF /* AAEclipticalElements.h in Headers */,
@@ -2012,6 +2019,7 @@
 				2B2FECA41B572BD400A332BF /* AASaturnRings.cpp in Sources */,
 				2BD5A87F1B42087D00DDAEE3 /* stringpiece.cc in Sources */,
 				2B2FEC7F1B572BD400A332BF /* AAEquinoxesAndSolstices.cpp in Sources */,
+				E599D2161C8A11F900546018 /* MaplyAerisTiles.mm in Sources */,
 				2BD5A8511B41FEB500DDAEE3 /* repeated_field.cc in Sources */,
 				2B2FEC7D1B572BD400A332BF /* AAElliptical.cpp in Sources */,
 				2B2FEC7E1B572BD400A332BF /* AAEquationOfTime.cpp in Sources */,
