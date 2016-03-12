@@ -174,3 +174,23 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Point3d_cross
     
     return NULL;
 }
+
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point3d_norm
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        Point3dClassInfo *classInfo = Point3dClassInfo::getClassInfo();
+        Point3d *pt = classInfo->getObject(env,obj);
+        if (!pt)
+            return 0.0;
+        
+        return pt->norm();
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Point3d::norm()");
+    }
+    
+    return 0.0;
+}

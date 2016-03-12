@@ -32,7 +32,7 @@ public class ShapeManager {
         dispose();
     }
 
-    public native long addShapes(List<Shape> shapes,Shape info, ChangeSet changes);
+    public native long addShapes(List<Shape> shapes,ShapeInfo info, ChangeSet changes);
 
     public native void removeShapes(long[] shapesIDs, ChangeSet changes);
 
