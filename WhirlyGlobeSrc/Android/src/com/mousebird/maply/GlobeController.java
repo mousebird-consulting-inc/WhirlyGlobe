@@ -69,6 +69,9 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	
 	@Override public void shutdown()
 	{
+		Choreographer c = Choreographer.getInstance();
+		if (c != null)
+			c.removeFrameCallback(this);
 		globeView.cancelAnimation();
 		super.shutdown();
 		globeView = null;
@@ -474,7 +477,6 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		{
 			Point3d corners[] = calcCorners();
 			gestureDelegate.globeDidStopMoving(this,corners,userMotion);
-			Choreographer c = Choreographer.getInstance();
 		}
 	}
 
