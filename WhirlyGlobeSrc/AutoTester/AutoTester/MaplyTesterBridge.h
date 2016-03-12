@@ -31,5 +31,6 @@
 #import "AnimatedColorRampTestCase.h"
 #import "VectorMBTilesTestCase.h"
 #import "ExtrudedModelTestCase.h"
+#import "GreatCircleTestCase.h"
 
 #endif
