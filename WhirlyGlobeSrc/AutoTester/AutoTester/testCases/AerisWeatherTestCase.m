@@ -7,7 +7,7 @@
 //
 
 #import "AerisWeatherTestCase.h"
-#import "VectorsTestCase.h"
+#import "CartoDBTestCase.h"
 #import "MaplyAerisTiles.h"
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyBaseViewController.h"
@@ -35,7 +35,8 @@
         aerisID = @"2kDDnD7Q1XFfFm4CwH17C";
         aerisKey = @"FQmadjUccN3CnB4KG6kKeurUpxHSKM0xbCd6TlVi";
         layerCode = @"radar";
-        importanceScale = 1.0/16.0;
+//        layerCode = @"satellite";
+        importanceScale = 1.0/8.0;
         
     }
     return self;
@@ -46,7 +47,7 @@
     NSDictionary *layerInfoDict = [aerisTiles layerInfo];
     layerInfo = layerInfoDict[layerCode];
     
-    layerTileSet = [[MaplyAerisTileSet alloc] initWithAerisID:aerisID secretKey:aerisKey layerInfo:layerInfo tileSetCount:1];
+    layerTileSet = [[MaplyAerisTileSet alloc] initWithAerisID:aerisID secretKey:aerisKey layerInfo:layerInfo tileSetCount:8];
     
     [layerTileSet startFetchWithSuccess:^(NSArray *tileSources) {
         
@@ -54,10 +55,11 @@
         MaplyMultiplexTileSource *multiSource = [[MaplyMultiplexTileSource alloc] initWithSources:tileSources];
        
         aerisLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:multiSource.coordSys tileSource:multiSource];
+        aerisLayer.imageDepth = (int)[tileSources count];
         aerisLayer.imageFormat = MaplyImageUShort5551;
         aerisLayer.drawPriority = 1000;
-        aerisLayer.maxTiles = 256;
         aerisLayer.importanceScale = importanceScale;
+        aerisLayer.animationPeriod = 5.0;
         
         [vc addLayer:aerisLayer];
         
@@ -72,10 +74,10 @@
 
 - (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
+    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     [self setupWithBaseVC:(MaplyBaseViewController *)globeVC];
-    [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) time:0.0];
+    [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) height:1.5];
 
     return YES;
 }
@@ -88,7 +90,7 @@
 
 - (BOOL)setUpWithMap:(MaplyViewController *)mapVC
 {
-    VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
+    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithMap:mapVC];
     [self setupWithBaseVC:(MaplyBaseViewController *)mapVC];
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) time:0.0];
