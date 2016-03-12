@@ -165,7 +165,6 @@ public:
         {
             InterPoint &vert = verts[vi];
             drawable->addPoint(Vector3dToVector3f(vert.org));
-//            drawable->addNormal(up);
             drawable->add_p1(Vector3dToVector3f(vert.dest));
             drawable->add_n0(Vector3dToVector3f(vert.n));
             drawable->add_c0(vert.c);
@@ -587,7 +586,11 @@ public:
             if (validLastPt && geoA == lastPt)
                 continue;
 
-            Point3d dispPa = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y())));
+            Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y()));
+            Point3d dispPa = coordAdapter->localToDisplay(localPa);
+            Point3d thisUp = up;
+            if (!coordAdapter->isFlat())
+                thisUp = coordAdapter->normalForLocal(localPa);
             
             // Get a drawable ready
             int triCount = 2+3;
@@ -599,7 +602,7 @@ public:
             
             bool doSegment = !closed || (ii > 0);
             bool doJunction = !closed || (ii >= 0);
-            vecBuilder.addPoint(dispPa,up,thisDrawable,closed,doSegment,doJunction);
+            vecBuilder.addPoint(dispPa,thisUp,thisDrawable,closed,doSegment,doJunction);
             
 //            NSLog(@"Pt = (%f,%f), doSegment = %d, doJunction = %d",geoA.x(),geoA.y(),(int)doSegment,(int)doJunction);
             
