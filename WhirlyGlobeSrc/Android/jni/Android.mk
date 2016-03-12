@@ -23,7 +23,9 @@ LOCAL_C_INCLUDES += jni/
 
 LOCAL_MODULE    := Maply
 
-PROJ_SRC_FILES := PJ_eck5.c PJ_larr.c PJ_omerc.c PJ_vandg2.c geod_set.c pj_factors.c pj_release.c \
+PROJ_SRC_FILES := pj_fwd3d.c pj_inv3d.c geodesic.c PJ_calcofi.c pj_fileapi.c pj_gc_reader.c pj_gridcatalog.c \
+                    PJ_qsc.c PJ_sch.c pj_strtod.c \
+                    PJ_eck5.c PJ_larr.c PJ_omerc.c PJ_vandg2.c geod_interface.c geod_set.c pj_factors.c pj_release.c \
 					PJ_eqc.c PJ_lask.c PJ_ortho.c PJ_vandg4.c pj_fwd.c pj_strerrno.c \
 					PJ_aea.c PJ_eqdc.c PJ_lcc.c  PJ_poly.c PJ_wag2.c pj_gauss.c pj_transform.c \
 					PJ_aeqd.c PJ_fahey.c PJ_lcca.c PJ_putp2.c PJ_wag3.c pj_geocent.c pj_tsfn.c \
@@ -43,8 +45,8 @@ PROJ_SRC_FILES := PJ_eck5.c PJ_larr.c PJ_omerc.c PJ_vandg2.c geod_set.c pj_facto
 					PJ_denoy.c PJ_isea.c PJ_nsper.c PJ_tmerc.c geocent.c pj_datums.c pj_open_lib.c \
 					PJ_eck1.c PJ_krovak.c PJ_nzmg.c PJ_tpeqd.c pj_deriv.c pj_param.c \
 					PJ_eck2.c PJ_labrd.c PJ_ob_tran.c PJ_urm5.c geod.c    pj_ell_set.c pj_phi2.c \
-					PJ_eck3.c PJ_laea.c PJ_ocea.c PJ_urmfps.c geod_for.c pj_ellps.c pj_pr_list.c \
-					PJ_eck4.c PJ_lagrng.c PJ_oea.c  PJ_vandg.c geod_inv.c pj_errno.c pj_qsfn.c
+					PJ_eck3.c PJ_laea.c PJ_ocea.c PJ_urmfps.c pj_ellps.c pj_pr_list.c \
+					PJ_eck4.c PJ_lagrng.c PJ_oea.c  PJ_vandg.c pj_errno.c pj_qsfn.c
 PROJ_SRC_DIR := $(THIRD_PARTY)/proj-4/src/
 LOCAL_SRC_FILES += $(PROJ_SRC_FILES:%=$(PROJ_SRC_DIR)/%)
 

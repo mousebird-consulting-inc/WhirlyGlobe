@@ -17,9 +17,7 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * Created by sjg on 2/13/16.
@@ -60,8 +58,10 @@ public class CustomBNGTileSource extends MaplyTestCase
     {
         // Set up the proj4 string including the local grid file
         String outFileName = getFilePathFromAssets("OSTN02_NTv2.gsb", activity);
+        String nullFileName = getFilePathFromAssets("null.lla", activity);
 
-        String projStr = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +nadgrids=" + outFileName + " +units=m +no_defs";
+        String projStr = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +nadgrids=" + outFileName + ",null" + " +units=m +no_defs";
+//        String projStr = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs";
         Proj4CoordSystem coordSys = new Proj4CoordSystem(projStr);
 
         // Set the bounding box for validity.  It assumes it can go everywhere by default
@@ -118,12 +118,16 @@ public class CustomBNGTileSource extends MaplyTestCase
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception
     {
+        // Note: Should fix this
+        Thread.sleep(1000);
+
         StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
         baseView.setUpWithMap(mapVC);
 
         QuadImageTileLayer layer = makeTestLayer(mapVC);
         if (layer != null)
             mapVC.addLayer(layer);
+
 
         Point2d pt = Point2d.FromDegrees(-0.1275, 51.507222);
         mapVC.setPositionGeo(pt.getX(), pt.getY(), 0.4);
