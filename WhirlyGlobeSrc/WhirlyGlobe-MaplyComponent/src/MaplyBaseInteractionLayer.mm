@@ -1592,7 +1592,33 @@ public:
     
     ShapeSet shapes;
     for (MaplyVectorObject *vecObj in vectors)
-        shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
+    {
+        // Maybe need to make a copy if we're going to sample
+        if (inDesc[kMaplySubdivEpsilon])
+        {
+            float eps = [inDesc[kMaplySubdivEpsilon] floatValue];
+            NSString *subdivType = inDesc[kMaplySubdivType];
+            bool greatCircle = ![subdivType compare:kMaplySubdivGreatCircle];
+            bool grid = ![subdivType compare:kMaplySubdivGrid];
+            bool staticSubdiv = ![subdivType compare:kMaplySubdivStatic];
+            MaplyVectorObject *newVecObj = [vecObj deepCopy2];
+            if (greatCircle)
+                [newVecObj subdivideToGlobeGreatCircle:eps];
+            else if (grid)
+            {
+                // The manager has to handle this one
+            }
+            else if (staticSubdiv)
+            {
+                // Note: Fill this in
+            } else
+                [newVecObj subdivideToGlobe:eps];
+            
+            shapes.insert(newVecObj.shapes.begin(),newVecObj.shapes.end());
+        } else
+            // We'll just reference it
+            shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
+    }
     
     WideVectorManager *vectorManager = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
     
