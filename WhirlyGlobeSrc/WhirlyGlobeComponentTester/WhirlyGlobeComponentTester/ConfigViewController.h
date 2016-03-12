@@ -43,6 +43,7 @@
 #define kMaplyMapzenVectors @"Mapzen Vectors - Remote"
 #define kMaplyWindTest @"Wind Particles - Remote"
 #define kMaplyOrdnanceSurveyTest @"British National Grid Test - Local"
+#define kMaplyAerisTest @"Aeris Weather - Remote"
 
 // Objects we can display
 #define kMaplyTestCategoryObjects @"Maply Objects"
