@@ -446,7 +446,10 @@ typedef JavaClassInfo<WhirlyKit::ParticleSystemManager> ParticleSystemManagerCla
 typedef JavaClassInfo<WhirlyKit::OpenGLES2Program> OpenGLES2ProgramClassInfo;
 typedef JavaClassInfo<WhirlyKit::QuadTracker> QuadTrackerClassInfo;
 typedef JavaClassInfo<WhirlyKit::QuadTrackerPointReturn> QuadTrackerPointReturnClassInfo;
-
+typedef JavaClassInfo<WhirlyKit::WhirlyKitShapeInfo> ShapeInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::WhirlyKitShape> ShapeClassInfo;
+typedef JavaClassInfo<WhirlyKit::WhirlyKitSphere> ShapeSphereClassInfo;
+typedef JavaClassInfo<WhirlyKit::ShapeManager> ShapeManagerClassInfo;
 
 
 // The shared JNIEnv set in the ::render call
