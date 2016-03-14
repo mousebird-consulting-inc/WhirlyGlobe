@@ -49,14 +49,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setAllowFr
 
 /*
  * Class:     com_mousebird_maply_QuadImageOfflineLayer
- * Method:    getFrameStatusNative
- * Signature: ([Z[I)I
- */
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_getFrameStatusNative
-  (JNIEnv *, jobject, jbooleanArray, jintArray);
-
-/*
- * Class:     com_mousebird_maply_QuadImageOfflineLayer
  * Method:    setFrameLoadingPriority
  * Signature: ([ILcom/mousebird/maply/ChangeSet;)V
  */
@@ -65,11 +57,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setFrameLo
 
 /*
  * Class:     com_mousebird_maply_QuadImageOfflineLayer
- * Method:    getLoadedFrames
- * Signature: (I[Z[Z[I)V
+ * Method:    getFrameStatusNative
+ * Signature: ([Z[I)I
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_getLoadedFrames
-  (JNIEnv *, jobject, jint, jbooleanArray, jbooleanArray, jintArray);
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_getFrameStatusNative
+  (JNIEnv *, jobject, jbooleanArray, jintArray);
 
 /*
  * Class:     com_mousebird_maply_QuadImageOfflineLayer

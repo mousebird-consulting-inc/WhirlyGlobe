@@ -1108,37 +1108,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_reload
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getLoadedFrames
-  (JNIEnv *env, jobject obj, jint numFrames, jbooleanArray completeArr, jbooleanArray currentFrameArr, jintArray numTilesLoadedArr)
-{
-	try
-	{
-		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
-		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
-		if (!adapter)
-			return;
-		std::vector<FrameLoadStatus> frameLoadStats;
-		adapter->control->getFrameLoadStatus(frameLoadStats);
-		if (numFrames != frameLoadStats.size())
-			return;
-
-		// Pull the data out into the arrays
-		for (unsigned int ii=0;ii<numFrames;ii++)
-		{
-			FrameLoadStatus &status = frameLoadStats[ii];
-			jboolean completeJbool = status.complete;
-			jboolean currentFrameJBool = status.currentFrame;
-			env->SetBooleanArrayRegion(completeArr, (jsize)ii, (jsize)1, &completeJbool);
-			env->SetBooleanArrayRegion(currentFrameArr, (jsize)ii, (jsize)1, &currentFrameJBool);
-			env->SetIntArrayRegion(numTilesLoadedArr, (jsize)ii, (jsize)1, &status.numTilesLoaded);
-		}
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::getLoadedFrames()");
-	}
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setSimultaneousFetches
   (JNIEnv *env, jobject obj, jint numFetches)
 {

@@ -60,8 +60,8 @@ public class CustomBNGTileSource extends MaplyTestCase
         String outFileName = getFilePathFromAssets("OSTN02_NTv2.gsb", activity);
         String nullFileName = getFilePathFromAssets("null.lla", activity);
 
-        String projStr = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +nadgrids=" + outFileName + ",null" + " +units=m +no_defs";
-//        String projStr = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs";
+//        String projStr = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +nadgrids=" + outFileName + ",null" + " +units=m +no_defs";
+        String projStr = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs";
         Proj4CoordSystem coordSys = new Proj4CoordSystem(projStr);
 
         // Set the bounding box for validity.  It assumes it can go everywhere by default
@@ -90,11 +90,13 @@ public class CustomBNGTileSource extends MaplyTestCase
         CoordSystem bngCoordSystem = MakeBNGCoordSystem(getActivity(),false);
 
         TestImageSource tileSource = new TestImageSource(Looper.getMainLooper(),0,14);
+        tileSource.alpha = 128;
 
         QuadImageTileLayer baseLayer = new QuadImageTileLayer(viewC, bngCoordSystem, tileSource);
         baseLayer.setCoverPoles(false);
         baseLayer.setHandleEdges(false);
         baseLayer.setDrawPriority(1000);
+        baseLayer.setImportanceScale(4.f);
 
         return baseLayer;
     }

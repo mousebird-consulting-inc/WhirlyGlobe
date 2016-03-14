@@ -327,28 +327,6 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
      */
     public native void setAllowFrameLoading(boolean frameLoading);
 
-    /**
-     * Query the status for active frames.  This asks the quad image layer what the state of
-     * frame loading is at this instant.  All arrays are imageDepth in size.
-     * @param complete For each frame, whether or not it's completely loaded.
-     * @param tilesLoaded For each frame, how many tiles are loaded.
-     * @return The frame currently beng loaded.  Returns -1 if the call was invalid.
-     */
-    public QuadImageTileLayer.FrameStatus getFrameStatus()
-    {
-        if (getImageDepth() <= 1)
-            return null;
-
-        QuadImageTileLayer.FrameStatus status = new QuadImageTileLayer.FrameStatus(getImageDepth());
-        status.currentFrame = getFrameStatusNative(status.complete,status.tilesLoaded);
-        if (status.currentFrame == -1)
-            return null;
-
-        return status;
-    }
-
-    native int getFrameStatusNative(boolean complete[],int tilesLoaded[]);
-
     /** For the case where we're loading individual frames, this sets the order to load them in.
      * When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.
      */
@@ -375,31 +353,20 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
      * Query this to find out which frames are completely loaded into memory and which are not.
      * This queries the underlying control logic and there is no delegate.  It's polling only.
      */
-    public ArrayList<QuadImageTileLayer.FrameLoadStatus> getLoadedFrames()
+    public QuadImageTileLayer.FrameStatus getFrameStatus()
     {
-        int numFrames = getImageDepth();
-        ArrayList<QuadImageTileLayer.FrameLoadStatus> frames = new ArrayList<QuadImageTileLayer.FrameLoadStatus>();
-        if (numFrames > 0)
-        {
-            boolean[] complete = new boolean[numFrames];
-            boolean[] currentFrame = new boolean[numFrames];
-            int[] numTilesLoaded = new int[numFrames];
-            getLoadedFrames(numFrames,complete,currentFrame,numTilesLoaded);
+        if (getImageDepth() <= 1)
+            return null;
 
-            for (int ii = 0; ii < numFrames; ii++)
-            {
-                QuadImageTileLayer.FrameLoadStatus status = new QuadImageTileLayer.FrameLoadStatus();
-                status.complete = complete[ii];
-                status.currentFrame = complete[ii];
-                status.numTilesLoaded = numTilesLoaded[ii];
-                frames.add(status);
-            }
-        }
+        QuadImageTileLayer.FrameStatus status = new QuadImageTileLayer.FrameStatus(getImageDepth());
+        status.currentFrame = getFrameStatusNative(status.complete,status.tilesLoaded);
+        if (status.currentFrame == -1)
+            return null;
 
-        return frames;
+        return status;
     }
 
-    private native void getLoadedFrames(int numFrames,boolean[] complete,boolean[] currentFrame,int[] numTilesLoaded);
+    private native int getFrameStatusNative(boolean complete[],int tilesLoaded[]);
 
     /** Maximum number of tiles to load in at once.
      * This is the maximum number of tiles the pager will have loaded into memory at once.  The default is 128 and that's generally good enough.  However, if your tile size is small, you may want to load in more.

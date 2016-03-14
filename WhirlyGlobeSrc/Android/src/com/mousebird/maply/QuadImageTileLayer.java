@@ -578,7 +578,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
         return status;
     }
 
-    native int getFrameStatusNative(boolean complete[],int tilesLoaded[]);
+    private native int getFrameStatusNative(boolean complete[],int tilesLoaded[]);
 
 	/** For the case where we're loading individual frames, this sets the order to load them in.
       * When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.
@@ -593,49 +593,6 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	}
 	
 	native void setFrameLoadingPriority(int[] priorites,ChangeSet changes);
-	
-	/**
-	 * Information about the status of individual frames, if you have frame loading turned on.
-	 */
-	static public class FrameLoadStatus
-	{
-	    /// True if this one is fully loaded
-	    boolean complete = false;
-	    /// True if this frame is currently being worked on
-	    boolean currentFrame = false;
-	    /// Number of tiles currently loaded
-	    int numTilesLoaded = 0;		
-	}
-	
-	/** Status structures describing which frames are loaded.
-     * Query this to find out which frames are completely loaded into memory and which are not.
-     * This queries the underlying control logic and there is no delegate.  It's polling only.
-     */
-	public ArrayList<FrameLoadStatus> getLoadedFrames()
-	{
-		int numFrames = getImageDepth();
-		ArrayList<FrameLoadStatus> frames = new ArrayList<FrameLoadStatus>();
-		if (numFrames > 0)
-		{
-			boolean[] complete = new boolean[numFrames];
-			boolean[] currentFrame = new boolean[numFrames];
-			int[] numTilesLoaded = new int[numFrames];
-			getLoadedFrames(numFrames,complete,currentFrame,numTilesLoaded);
-			
-			for (int ii = 0; ii < numFrames; ii++)
-			{
-				FrameLoadStatus status = new FrameLoadStatus();
-				status.complete = complete[ii];
-				status.currentFrame = complete[ii];
-				status.numTilesLoaded = numTilesLoaded[ii];
-				frames.add(status);
-			}
-		}
-		
-		return frames;
-	}
-	
-	private native void getLoadedFrames(int numFrames,boolean[] complete,boolean[] currentFrame,int[] numTilesLoaded);
 
 	/**
 	 * Set the Color for the tile geometry from a standard Android Color value.

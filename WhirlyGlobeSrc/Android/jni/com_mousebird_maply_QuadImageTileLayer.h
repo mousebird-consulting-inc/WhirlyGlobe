@@ -89,14 +89,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setFrameLoadi
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
- * Method:    getLoadedFrames
- * Signature: (I[Z[Z[I)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getLoadedFrames
-  (JNIEnv *, jobject, jint, jbooleanArray, jbooleanArray, jintArray);
-
-/*
- * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    setColor
  * Signature: (FFFFLcom/mousebird/maply/ChangeSet;)V
  */

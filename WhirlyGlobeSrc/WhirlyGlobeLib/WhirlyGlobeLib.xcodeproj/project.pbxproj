@@ -450,7 +450,6 @@
 		88B9DE821C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 88B9DE7F1C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h */; };
 		88B9DE831C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 88B9DE801C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h */; };
 		88D653EB1C92CF7900B39955 /* ShapeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D653E81C92CF7900B39955 /* ShapeManager.h */; };
-		88D653EC1C92CF7900B39955 /* DataLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D653E91C92CF7900B39955 /* DataLayer.h */; };
 		88D653ED1C92CF7900B39955 /* ShapeDrawableBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D653EA1C92CF7900B39955 /* ShapeDrawableBuilder.h */; };
 		88D653F01C92CF9200B39955 /* ShapeDrawableBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88D653EE1C92CF9200B39955 /* ShapeDrawableBuilder.cpp */; };
 		88D653F11C92CF9200B39955 /* ShapeManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88D653EF1C92CF9200B39955 /* ShapeManager.cpp */; };
@@ -975,7 +974,6 @@
 		88B9DE7F1C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ParticleSystem.h; path = ../Android/jni/com_mousebird_maply_ParticleSystem.h; sourceTree = "<group>"; };
 		88B9DE801C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ParticleSystemManager.h; path = ../Android/jni/com_mousebird_maply_ParticleSystemManager.h; sourceTree = "<group>"; };
 		88D653E81C92CF7900B39955 /* ShapeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeManager.h; sourceTree = "<group>"; };
-		88D653E91C92CF7900B39955 /* DataLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataLayer.h; sourceTree = "<group>"; };
 		88D653EA1C92CF7900B39955 /* ShapeDrawableBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeDrawableBuilder.h; sourceTree = "<group>"; };
 		88D653EE1C92CF9200B39955 /* ShapeDrawableBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShapeDrawableBuilder.cpp; sourceTree = "<group>"; };
 		88D653EF1C92CF9200B39955 /* ShapeManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShapeManager.cpp; sourceTree = "<group>"; };
@@ -1577,7 +1575,6 @@
 				2B35677518D762BF00EF8DB1 /* BigDrawable.h */,
 				2B35677618D762BF00EF8DB1 /* CoordSystem.h */,
 				2B35677718D762BF00EF8DB1 /* Cullable.h */,
-				88D653E91C92CF7900B39955 /* DataLayer.h */,
 				2B35677818D762BF00EF8DB1 /* DefaultShaderPrograms.h */,
 				2B35677918D762BF00EF8DB1 /* Dictionary.h */,
 				2B35677A18D762BF00EF8DB1 /* Drawable.h */,
@@ -1819,7 +1816,6 @@
 				2B3567E618D762BF00EF8DB1 /* GlobeScene.h in Headers */,
 				2B35683918D762BF00EF8DB1 /* VectorManager.h in Headers */,
 				2B3567E118D762BF00EF8DB1 /* DynamicDrawableAtlas.h in Headers */,
-				88D653EC1C92CF7900B39955 /* DataLayer.h in Headers */,
 				2BB7660A1C6FFF9B00F01F2A /* com_mousebird_maply_QuadImageOfflineLayer_RenderedImageDelegate.h in Headers */,
 				2B7EF43D16025D8C00D4079F /* org_proj4_Projections.h in Headers */,
 				2B4B197E1BA38AD90091A743 /* com_mousebird_maply_Point2d.h in Headers */,
