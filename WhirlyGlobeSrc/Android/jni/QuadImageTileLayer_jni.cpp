@@ -1392,7 +1392,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
                 RawDataRef rawData(new MutableRawData(bitmapPixels,info.height*info.width*4));
                 images.push_back(rawData);
                 width = info.width;  height = info.height;
-            }
+            } else
+                __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Bad image in QuadImageTileLayer::nativeTileDidLoad2()");
             
             AndroidBitmap_unlockPixels(env, bitmapObj);
         }

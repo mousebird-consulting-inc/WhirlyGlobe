@@ -349,7 +349,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		ChangeSet changes = new ChangeSet();
 		if (imageTile != null) {
 			if (imageTile.bitmaps != null)
-				nativeTileDidLoad(tileID.x, y, tileID.level, frame, imageTile.bitmaps, changes);
+				nativeTileDidLoad(tileID.x, y, tileID.level, -1, imageTile.bitmaps, changes);
 			else
 				nativeTileDidLoad(tileID.x, y, tileID.level, frame, imageTile.bitmap, changes);
 		} else

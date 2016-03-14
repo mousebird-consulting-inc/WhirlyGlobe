@@ -107,7 +107,25 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
                 }
 
                 if (bm != null) {
-                    reportTile(true);
+					boolean reportThisTile = false;
+
+					// Fetched a frame.  So see if we need to report this tile.
+					if (frame != -1) {
+						SortedTile tile = null;
+						synchronized (tileSource.tiles) {
+							tile = tileSource.tiles.get(tileID);
+						}
+						if (tile != null) {
+							tile.tileData[frame] = bm;
+							if (singleFetch || tile.isDone())
+								reportThisTile = true;
+						}
+					} else {
+						reportThisTile = true;
+					}
+
+					if (reportThisTile)
+						reportTile(true);
                     return;
                 }
 

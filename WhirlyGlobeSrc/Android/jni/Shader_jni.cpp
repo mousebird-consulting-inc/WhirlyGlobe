@@ -81,7 +81,9 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_valid
 	{
 		OpenGLES2ProgramClassInfo *classInfo = OpenGLES2ProgramClassInfo::getClassInfo();
 		OpenGLES2Program *inst = classInfo->getObject(env,obj);
-		return inst != NULL;
+		if (!inst)
+            return false;
+        return inst->isValid();
 	}
 	catch (...)
 	{
