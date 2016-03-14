@@ -1090,7 +1090,7 @@ public class MaplyBaseController
 		}
 	}
 
-	public ComponentObject addShapes(final List<Shape> shapes, final ShapeInfo shapeInfo) {
+	public ComponentObject addShapes(final List<Shape> shapes, final ShapeInfo shapeInfo, ThreadMode mode) {
 		if (!running)
 			return null;
 
@@ -1106,7 +1106,7 @@ public class MaplyBaseController
 			}
 		};
 
-		addTask(run, ThreadMode.ThreadCurrent);
+		addTask(run, mode);
 		return compObj;
 	}
 }

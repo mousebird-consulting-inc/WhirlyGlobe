@@ -351,7 +351,7 @@ public class Atmosphere {
         this.groundShader = groundShader;
     }
 
-    public Atmosphere(GlobeController inViewC) {
+    public Atmosphere(GlobeController inViewC, MaplyBaseController.ThreadMode mode) {
         this.viewC = inViewC;
         this.kr = 0.0025f;
         this.km = 0.0010f;
@@ -364,14 +364,13 @@ public class Atmosphere {
         waveLength[0] = 0.650f;
         waveLength[1] = 0.570f;
         waveLength[2] = 0.475f;
-
         shader = this.setupShader();
         if (shader == null)
             return;
 
         this.groundShader = this.setupGroundShader();
 
-        this.complexAtmosphere();
+        this.complexAtmosphere(mode);
     }
 
     public void setWaveLength(float [] waveLength) {
@@ -380,7 +379,6 @@ public class Atmosphere {
         this.waveLength[0] = waveLength[0];
         this.waveLength[1] = waveLength[1];
         this.waveLength[2] = waveLength[2];
-
     }
 
     public void setWaveLengthRed(float redWavelength, float greenWavelength, float blueWavelength) {
@@ -399,7 +397,7 @@ public class Atmosphere {
         return this.waveLength[component];
     }
 
-    private void complexAtmosphere() {
+    private void complexAtmosphere(MaplyBaseController.ThreadMode mode) {
         ShapeSphere sphere = new ShapeSphere();
         sphere.setLoc(new Point2d(0, 0));
         sphere.setRadius(this.outerRadius);
@@ -416,7 +414,7 @@ public class Atmosphere {
         shapeInfo.setCenter(new Point3d(0, 0, 0));
         shapeInfo.setDrawPriority(kMaplyAtmosphereDrawPriorityDefault);
         shapeInfo.setShader(kAtmosphereShader);
-        this.comObj = this.viewC.addShapes(shapes, shapeInfo);
+        this.comObj = this.viewC.addShapes(shapes, shapeInfo, mode);
 
         this.sunUpdater = new SunUpdater(this.shader, this.groundShader,this, viewC);
         this.viewC.addActiveObject(sunUpdater);
