@@ -1,5 +1,5 @@
 /*
- *  MaplyVectorTextStyle.h
+ *  MaplyVectorLineStyle.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
@@ -20,11 +20,12 @@
 
 #import "MaplyVectorTiles.h"
 #import "MaplyVectorStyle.h"
+#import "MaplyVectorTileStyle.h"
 
-/** @details Implementation of the text style symbolizer for Maply Vector Tiles.
- */
-@interface MaplyVectorTileStyleText : MaplyVectorTileStyle
+/** @details Implementation of the line style symbolizer for Maply Vector Tiles.
+  */
+@interface MaplyVectorTileStyleLine : MaplyVectorTileStyle
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
+- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
 
 @end

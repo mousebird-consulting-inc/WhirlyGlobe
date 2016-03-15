@@ -12,7 +12,8 @@
 
 @implementation VectorMBTilesTestCase
 {
-    MaplyVectorTiles *vecTiles;
+    MapboxVectorTiles *vecTiles;
+    MaplyVectorStyleSimpleGenerator *simpleStyle;
 }
 
 - (instancetype)init
@@ -29,11 +30,15 @@
 {
     GeographyClassTestCase *baseView = [[GeographyClassTestCase alloc]init];
     [baseView setUpWithMap:mapVC];
-    
-    // For network paging layers, where we'll store temp files
-    vecTiles = [[MaplyVectorTiles alloc] initWithDatabase:@"France" viewC:mapVC];
-    MaplyCoordinateSystem *coordSys = [[MaplySphericalMercator alloc] initWebStandard];
-    MaplyQuadPagingLayer *layer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:coordSys delegate:vecTiles];
+
+    // Simple style with random colors
+    simpleStyle = [[MaplyVectorStyleSimpleGenerator alloc] initWithViewC:mapVC];
+
+    // Set up a loader for Mapbox Vector tiles in an MBTiles
+    MaplyMBTileSource *tileSource = [[MaplyMBTileSource alloc] initWithMBTiles:@"France"];
+    vecTiles = [[MapboxVectorTiles alloc] initWithMBTiles:tileSource style:simpleStyle viewC:mapVC];
+    MaplyQuadPagingLayer *layer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:tileSource.coordSys delegate:vecTiles];
+    layer.flipY = false;
     [mapVC addLayer:layer];
         
     return true;

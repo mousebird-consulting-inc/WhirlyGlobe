@@ -18,7 +18,7 @@ class MapzenVectorTestCase: MaplyTestCase, MaplyViewControllerDelegate {
 	}
 
 	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
-		let baseLayer = MapBoxSatelliteTestCase()
+		let baseLayer = MapquestSatelliteTestCase()
 		baseLayer.setUpWithMap(mapVC)
 
 		let styleData = NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("MapzenGLStyle", ofType: "json")!)

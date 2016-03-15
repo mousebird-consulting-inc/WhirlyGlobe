@@ -25,10 +25,10 @@
 #import "MaplyVectorObject_private.h"
 #import "MaplyScreenLabel.h"
 #import "MaplyIconManager.h"
-#import "MaplyVectorLineStyle.h"
-#import "MaplyVectorMarkerStyle.h"
-#import "MaplyVectorPolygonStyle.h"
-#import "MaplyVectorTextStyle.h"
+#import "MaplyVectorTileLineStyle.h"
+#import "MaplyVectorTileMarkerStyle.h"
+#import "MaplyVectorTilePolygonStyle.h"
+#import "MaplyVectorTileTextStyle.h"
 #import <string>
 #import <map>
 #import <vector>
@@ -205,7 +205,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
         return nil;
     _styles = styles;
     
-    _settings = [[MaplyVectorTileStyleSettings alloc] init];
+    _settings = [[MaplyVectorStyleSettings alloc] init];
     _settings.lineScale = [UIScreen mainScreen].scale;
     _settings.textScale = [UIScreen mainScreen].scale;
     _settings.markerScale = [UIScreen mainScreen].scale;
@@ -272,7 +272,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     }
     _styles = styles;
     
-    _settings = [[MaplyVectorTileStyleSettings alloc] init];
+    _settings = [[MaplyVectorStyleSettings alloc] init];
     _settings.lineScale = [UIScreen mainScreen].scale;
     _settings.textScale = [UIScreen mainScreen].scale;
     _settings.markerScale = [UIScreen mainScreen].scale;
@@ -307,7 +307,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
         return nil;
     _styles = styles;
     
-    _settings = [[MaplyVectorTileStyleSettings alloc] init];
+    _settings = [[MaplyVectorStyleSettings alloc] init];
     _settings.lineScale = [UIScreen mainScreen].scale;
     _settings.textScale = [UIScreen mainScreen].scale;
     _settings.markerScale = [UIScreen mainScreen].scale;

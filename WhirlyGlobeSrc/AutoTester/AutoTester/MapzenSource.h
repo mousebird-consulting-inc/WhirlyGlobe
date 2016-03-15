@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <WhirlyGlobeComponent.h>
-#import "MaplyMapnikVectorTiles.h"
+#import "MapboxVectorTiles.h"
 
 typedef enum {MapzenSourceGeoJSON, MapzenSourcePBF } MapzenSourceType;
 

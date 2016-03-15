@@ -413,7 +413,7 @@
     
     self.styleSet = styleSet;
     self.drawPriority = drawPriority;
-    self.uuid = @(rand());
+    self.uuid = [@(rand()) stringValue];
     
     _minzoom = -1;
     _maxzoom = -1;

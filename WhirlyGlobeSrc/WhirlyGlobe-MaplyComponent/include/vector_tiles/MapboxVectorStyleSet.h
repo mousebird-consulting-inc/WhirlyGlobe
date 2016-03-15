@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MaplyVectorStyle.h"
-#import "MaplyMapnikVectorTiles.h"
+#import "MapboxVectorTiles.h"
 
 @class MapboxVectorFilter;
 @class MaplyVectorFunctionStops;
@@ -31,7 +31,7 @@
 @interface MaplyMapboxVectorStyleSet : NSObject <MaplyVectorStyleDelegate>
 
 /// @brief Default settings and scale factor for Mapnik vector geometry.
-@property (nonatomic, strong) MaplyVectorTileStyleSettings *tileStyleSettings;
+@property (nonatomic, strong) MaplyVectorStyleSettings *tileStyleSettings;
 
 /// @brief The view controller everything will be added to
 @property (nonatomic, weak) MaplyBaseViewController *viewC;
@@ -99,7 +99,7 @@
 /** @brief Layer definition from the Style Sheet.
     @details This is a single layer from the Mapbox style sheet.  It's also used to build visible objects.
   */
-@interface MaplyMapboxVectorStyleLayer : MaplyVectorTileStyle
+@interface MaplyMapboxVectorStyleLayer : NSObject<MaplyVectorStyle>
 // Note: Need a better base class than MaplyVectorTileStyle
 
 @property (nonatomic,weak) MaplyMapboxVectorStyleSet *styleSet;
@@ -127,6 +127,12 @@
 
 /// @brief Base class initialization.  Copies data out of the refLayer
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC;
+
+/// @brief Unique Identifier for this style
+@property(nonatomic,strong) NSString *uuid;
+
+/// @brief Set if this geometry is additive (e.g. sticks around) rather than replacement
+@property(nonatomic) bool geomAdditive;
 
 /// @brief Construct objects related to this style based on the input data.
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC;
