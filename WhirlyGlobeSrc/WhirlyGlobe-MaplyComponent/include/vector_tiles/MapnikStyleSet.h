@@ -20,13 +20,13 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MaplyMapnikVectorTiles.h"
+#import "MapboxVectorTiles.h"
 
-@class MaplyVectorTileStyleSettings;
+@class MaplyVectorStyleSettings;
 
 @interface MapnikStyleSet : NSObject <NSXMLParserDelegate, MaplyVectorStyleDelegate>
 
-@property (nonatomic, strong, nullable) MaplyVectorTileStyleSettings *tileStyleSettings;
+@property (nonatomic, strong, nullable) MaplyVectorStyleSettings *tileStyleSettings;
 @property (nonatomic, strong, nullable) NSMutableDictionary *styleDictionary;
 @property (nonatomic, weak, nullable) MaplyBaseViewController *viewC;
 @property (nonatomic, readonly) BOOL parsing;

@@ -16,7 +16,7 @@
 #import "GeographyClassTestCase.h"
 #import "CesiumElevationTestCase.h"
 #import "MapBoxVectorTestCase.h"
-#import "MaplyMapnikVectorTiles.h"
+#import "MapboxVectorTiles.h"
 #import "VectorsTestCase.h"
 #import "ScreenMarkersTestCase.h"
 #import "MapzenSource.h"
@@ -33,5 +33,6 @@
 #import "ExtrudedModelTestCase.h"
 #import "GreatCircleTestCase.h"
 #import "AerisWeatherTestCase.h"
+#import "MapquestSatelliteTestCase.h"
 
 #endif

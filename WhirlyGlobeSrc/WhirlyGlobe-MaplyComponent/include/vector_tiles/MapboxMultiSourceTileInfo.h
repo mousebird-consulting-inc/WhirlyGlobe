@@ -19,7 +19,7 @@
  */
 
 #import "MaplyRemoteTileSource.h"
-#import "MaplyMapnikVectorTiles.h"
+#import "MapboxVectorTiles.h"
 
 /** @brief Used to represent a Mapbox source compiled from multiple individual sources.
     @details You can use these to merge different sources together (assuming they can be merged), returning image and/or vector tiles.

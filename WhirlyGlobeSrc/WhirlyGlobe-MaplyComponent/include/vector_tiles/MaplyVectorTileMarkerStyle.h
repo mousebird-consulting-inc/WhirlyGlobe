@@ -20,11 +20,12 @@
 
 #import "MaplyVectorTiles.h"
 #import "MaplyVectorStyle.h"
+#import "MaplyVectorTileStyle.h"
 
 /** @details Implementation of the marker style symbolizer for Maply Vector Tiles.
  */
 @interface MaplyVectorTileStyleMarker : MaplyVectorTileStyle
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
+- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
 
 @end

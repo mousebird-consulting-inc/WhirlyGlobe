@@ -11,6 +11,7 @@
 #import "MaplyRemoteTileSource.h"
 #import "WhirlyGlobeViewController.h"
 #import "CartoDBLayer.h"
+#import "MapquestSatelliteTestCase.h"
 
 @implementation CartoDBTestCase
 
@@ -26,7 +27,9 @@
 
 - (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-	[self setupBaseLayer: globeVC];
+    MapquestSatelliteTestCase *baseLayer = [[MapquestSatelliteTestCase alloc] init];
+    [baseLayer setUpWithGlobe:globeVC];
+    
 	[self setupCartoDBLayer: globeVC];
 	globeVC.height = 0.0001;
 	[globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-73.99,40.75)
@@ -38,37 +41,16 @@
 
 - (BOOL)setUpWithMap:(MaplyViewController *)mapVC
 {
-	[self setupBaseLayer: mapVC];
-	[self setupCartoDBLayer: mapVC];
+    MapquestSatelliteTestCase *baseLayer = [[MapquestSatelliteTestCase alloc] init];
+    [baseLayer setUpWithMap:mapVC];
+
+    [self setupCartoDBLayer: mapVC];
 	mapVC.height = 0.0002;
 	[mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-73.99,40.75)
 						  time:1.0];
 	return true;
 }
 
-
-- (void) setupBaseLayer:(MaplyBaseViewController *) baseLayer
-{
-	NSString * baseCacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-	NSString * cartodbTilesCacheDir = [NSString stringWithFormat:@"%@/cartodbtiles/", baseCacheDir];
-	int maxZoom = 18;
-	MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/sat/" ext:@"png" minZoom:0 maxZoom:maxZoom];
-	tileSource.cacheDir = cartodbTilesCacheDir;
-	MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
-	if ([baseLayer isKindOfClass:[WhirlyGlobeViewController class]]) {
-		layer.handleEdges = true;
-		layer.coverPoles = true;
-	}
-	else {
-		layer.handleEdges = false;
-		layer.coverPoles = false;
-	}
-	layer.requireElev = false;
-	layer.waitLoad = false;
-	layer.singleLevelLoading = false;
-	layer.drawPriority = 0;
-	[baseLayer addLayer:layer];
-}
 
 - (void) setupCartoDBLayer:(MaplyBaseViewController*) baseLayer
 {	

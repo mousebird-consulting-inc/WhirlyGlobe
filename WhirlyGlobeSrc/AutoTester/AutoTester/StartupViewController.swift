@@ -13,32 +13,41 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	let tests = [
 		GeographyClassTestCase(),
 		StamenWatercolorRemote(),
-		CesiumElevationTestCase(),
+        NASAGIBSTestCase(),
+        MapquestSatelliteTestCase(),
+
 		AnimatedBasemapTestCase(),
-		MapzenVectorTestCase(),
-		VectorsTestCase(),
-		ScreenLabelsTestCase(),
-		ScreenMarkersTestCase(),
-		ClusteredMarkersTestCase(),
-		LabelsTestCase(),
-		MarkersTestCase(),
-		MegaMarkersTestCase(),
-		ModelsTestCase(),
-		WideVectorsTestCase(),
-		StarsSunTestCase(),
-		ShapesTestCase(),
-		StickersTestCase(),
-		LoftedPolysTestCase(),
-		NASAGIBSTestCase(),
-		CartoDBTestCase(),
-		BNGCustomMapTestCase(),
-		BNGTestCase(),
-		ElevationLocalDatabase(),
-        RunwayBuilderTestCase(),
-        AnimatedColorRampTestCase(),
+        ScreenLabelsTestCase(),
+        ScreenMarkersTestCase(),
+        VectorsTestCase(),
+        WideVectorsTestCase(),
+        ClusteredMarkersTestCase(),
+        MegaMarkersTestCase(),
+        LabelsTestCase(),
+        MarkersTestCase(),
+        StickersTestCase(),
+
+        MapzenVectorTestCase(),
         VectorMBTilesTestCase(),
+
+        StarsSunTestCase(),
+		ShapesTestCase(),
+		LoftedPolysTestCase(),
+
+		CartoDBTestCase(),
+
+        BNGCustomMapTestCase(),
+		BNGTestCase(),
+
+        ElevationLocalDatabase(),
+        CesiumElevationTestCase(),
+        RunwayBuilderTestCase(),
+
+        AnimatedColorRampTestCase(),
         ExtrudedModelTestCase(),
+        ModelsTestCase(),
         GreatCircleTestCase(),
+
         AerisWeatherTestCase()
 	]
 

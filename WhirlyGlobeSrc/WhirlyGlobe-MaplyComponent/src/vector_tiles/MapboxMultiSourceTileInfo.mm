@@ -41,7 +41,7 @@ public:
     NSString *ext;
     // Style sheet, if this is vector
     NSObject<MaplyVectorStyleDelegate> *styleSet;
-    MaplyMapnikVectorTileParser *tileParser;
+    MapboxVectorTileParser *tileParser;
     // Specific tile URLs, if we have them
     NSArray *tileURLs;
     UIColor *backgroundColor;
@@ -135,7 +135,7 @@ public:
             break;
     }
     
-    MaplyMapnikVectorTileParser *tileParser = [[MaplyMapnikVectorTileParser alloc] initWithStyle:styleSet viewC:viewC];
+    MapboxVectorTileParser *tileParser = [[MapboxVectorTileParser alloc] initWithStyle:styleSet viewC:viewC];
     source.styleSet = styleSet;
     source.tileParser = tileParser;
     sources.push_back(source);
