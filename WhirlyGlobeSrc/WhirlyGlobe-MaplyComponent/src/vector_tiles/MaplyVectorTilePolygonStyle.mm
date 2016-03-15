@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyVectorPolygonStyle.h"
+#import "MaplyVectorTilePolygonStyle.h"
 
 // Filled polygons styles
 @implementation MaplyVectorTileStylePolygon
@@ -26,7 +26,7 @@
     NSMutableArray *subStyles;
 }
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
 {
     self = [super initWithStyleEntry:styles viewC:viewC];
     

@@ -19,7 +19,7 @@
  */
 
 #import <vector>
-#import "MaplyVectorLineStyle.h"
+#import "MaplyVectorTileLineStyle.h"
 #import "MaplyTexture.h"
 #import "MaplyTextureBuilder.h"
 #import <WhirlyGlobe.h>
@@ -31,10 +31,8 @@
     std::vector<bool> wideVecs;
 }
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)style settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleEntry:(NSDictionary *)style settings:(MaplyVectorStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
 {
-    self = [super initWithStyleEntry:style viewC:viewC];
-    
     subStyles = [NSMutableArray array];
     NSArray *subStylesArray = style[@"substyles"];
     wideVecs.resize([subStylesArray count],false);

@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyVectorMarkerStyle.h"
+#import "MaplyVectorTileMarkerStyle.h"
 #import "MaplyIconManager.h"
 
 @interface MaplyVectorTileSubStyleMarker : NSObject
@@ -43,11 +43,11 @@
 // Marker placement style
 @implementation MaplyVectorTileStyleMarker
 {
-    MaplyVectorTileStyleSettings *settings;
+    MaplyVectorStyleSettings *settings;
     NSMutableArray *subStyles;
 }
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorTileStyleSettings *)inSettings viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorStyleSettings *)inSettings viewC:(MaplyBaseViewController *)viewC
 {
     self = [super initWithStyleEntry:styles viewC:viewC];
     settings = inSettings;

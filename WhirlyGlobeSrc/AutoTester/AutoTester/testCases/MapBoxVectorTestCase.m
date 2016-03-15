@@ -7,7 +7,7 @@
 //
 
 #import "MapBoxVectorTestCase.h"
-#import "MaplyMapnikVectorTiles.h"
+#import "MapboxVectorTiles.h"
 #import "MaplyViewController.h"
 #import "AutoTester-Swift.h"
 #import "MapboxVectorStyleSet.h"
@@ -36,13 +36,13 @@
 
 	NSString *token = @"sk.eyJ1IjoiZG1hcnRpbnciLCJhIjoiY2lnYmViYmhiMDZmbWFha25kbHB3MWlkNyJ9.5VsRqKZvrTQ9ygnyI7fLoA";
 
-	[MaplyMapnikVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-streets-v6.json"
+	[MapboxVectorTiles StartRemoteVectorTilesWithTileSpec:@"https://a.tiles.mapbox.com/v4/mapbox.mapbox-streets-v6.json"
 		accessToken:token
 		style:@"https://raw.githubusercontent.com/mapbox/mapbox-gl-styles/master/styles/emerald-v8.json"
 		styleType:MapnikMapboxGLStyle
 		cacheDir:thisCacheDir
 		viewC:(MaplyBaseViewController*)mapVC
-		success:^(MaplyMapnikVectorTiles * _Nonnull vecTiles) {
+		success:^(MapboxVectorTiles * _Nonnull vecTiles) {
 			MaplyMapboxVectorStyleSet *styleSet = (MaplyMapboxVectorStyleSet *) vecTiles.tileParser.styleDelegate;
 			styleSet.tileStyleSettings.markerImportance = 10.0;
 			styleSet.tileStyleSettings.fontName = @"Gill Sans";

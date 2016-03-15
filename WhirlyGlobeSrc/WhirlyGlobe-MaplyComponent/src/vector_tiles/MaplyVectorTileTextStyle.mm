@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyVectorTextStyle.h"
+#import "MaplyVectorTileTextStyle.h"
 #import "MaplyScreenLabel.h"
 
 typedef enum {
@@ -57,7 +57,7 @@ typedef enum {
     NSMutableArray *subStyles;
 }
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
 {
     self = [super initWithStyleEntry:styles viewC:viewC];
 
