@@ -19,7 +19,7 @@
  */
 
 
-#import "MaplyMapnikVectorTiles.h"
+#import "MapboxVectorTiles.h"
 #import "MaplyTileSource.h"
 
 #include <iostream>
@@ -49,7 +49,7 @@ static double MAX_EXTENT = 20037508.342789244;
 @implementation MaplyVectorTileData
 @end
 
-@implementation MaplyMapnikVectorTileParser
+@implementation MapboxVectorTileParser
 
 - (instancetype)initWithStyle:(NSObject<MaplyVectorStyleDelegate> *)styleDelegate viewC:(MaplyBaseViewController *)viewC
 {
@@ -119,6 +119,8 @@ static double MAX_EXTENT = 20037508.342789244;
                 //Parse attributes
                 NSMutableDictionary *attributes = [NSMutableDictionary new];
                 attributes[@"geometry_type"] = @(g_type); //this seems wastefull, but is needed for the rule matcher
+                attributes[@"layer_name"] = layerName;
+                attributes[@"layer_order"] = @(i);
                 
                 for (int m = 0; m < f.tags_size(); m += 2) {
                     UInt32 key_name = f.tags(m);
@@ -315,7 +317,7 @@ static double MAX_EXTENT = 20037508.342789244;
                     NSLog(@"Error parsing feature");
                 }
                 
-                for(MaplyVectorTileStyle *style in styles) {
+                for(NSObject<MaplyVectorStyle> *style in styles) {
                     NSMutableArray *featuresForStyle = featureStyles[style.uuid];
                     if(!featuresForStyle) {
                         featuresForStyle = [NSMutableArray new];
@@ -332,7 +334,7 @@ static double MAX_EXTENT = 20037508.342789244;
     
     NSArray *symbolizerKeys = [featureStyles.allKeys sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES]]];
     for(id key in symbolizerKeys) {
-        MaplyVectorTileStyle *symbolizer = [self.styleDelegate styleForUUID:key viewC:_viewC];
+        NSObject<MaplyVectorStyle> *symbolizer = [self.styleDelegate styleForUUID:key viewC:_viewC];
         NSArray *features = featureStyles[key];
         [components addObjectsFromArray:[symbolizer buildObjects:features forTile:tileID viewC:_viewC]];
     }
@@ -382,14 +384,14 @@ static double MAX_EXTENT = 20037508.342789244;
 
 @end
 
-@interface MaplyMapnikVectorTiles ()
+@interface MapboxVectorTiles ()
 @property (nonatomic, strong, readwrite) NSArray *tileSources;
 
 @end
 
-@implementation MaplyMapnikVectorTiles
+@implementation MapboxVectorTiles
 
-+ (void) StartRemoteVectorTilesWithTileSpec:(NSString *)tileSpecURL accessToken:(NSString *)accessToken style:(NSString *)styleURL styleType:(MapnikStyleType)styleType cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MaplyMapnikVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock
++ (void) StartRemoteVectorTilesWithTileSpec:(NSString *)tileSpecURL accessToken:(NSString *)accessToken style:(NSString *)styleURL styleType:(MapnikStyleType)styleType cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MapboxVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock
 {
     // We'll invoke this block when we've fetched the tilespec and the style file
     void (^startBlock)(NSDictionary *tileSpec,NSData *styleData) =
@@ -429,7 +431,7 @@ static double MAX_EXTENT = 20037508.342789244;
             break;
         }
         
-        MaplyMapnikVectorTiles *vecTiles = [[MaplyMapnikVectorTiles alloc] initWithTileSource:tileSource style:styleSet viewC:viewC];
+        MapboxVectorTiles *vecTiles = [[MapboxVectorTiles alloc] initWithTileSource:tileSource style:styleSet viewC:viewC];
 
         successBlock(vecTiles);
     };
@@ -484,7 +486,7 @@ static double MAX_EXTENT = 20037508.342789244;
     }
 }
 
-+ (void) StartRemoteVectorTilesWithURL:(NSString *)tileURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom accessToken:(NSString *)accessToken style:(NSString *)styleURL styleType:(MapnikStyleType)styleType cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MaplyMapnikVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock;
++ (void) StartRemoteVectorTilesWithURL:(NSString *)tileURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom accessToken:(NSString *)accessToken style:(NSString *)styleURL styleType:(MapnikStyleType)styleType cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MapboxVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock;
 {
     // We'll invoke this block when we've fetched the tilespec and the style file
     void (^startBlock)(NSData *styleData) =
@@ -511,7 +513,7 @@ static double MAX_EXTENT = 20037508.342789244;
         else
             [styleSet loadXmlData:styleData];
         
-        MaplyMapnikVectorTiles *vecTiles = [[MaplyMapnikVectorTiles alloc] initWithTileSource:tileSource style:styleSet viewC:viewC];
+        MapboxVectorTiles *vecTiles = [[MapboxVectorTiles alloc] initWithTileSource:tileSource style:styleSet viewC:viewC];
         
         successBlock(vecTiles);
         
@@ -543,7 +545,7 @@ static double MAX_EXTENT = 20037508.342789244;
   self = [super init];
   if(self) {
     self.tileSources = tileSources;
-      _tileParser = [[MaplyMapnikVectorTileParser alloc] initWithStyle:style viewC:viewC];
+      _tileParser = [[MapboxVectorTileParser alloc] initWithStyle:style viewC:viewC];
   }
   return self;
 }

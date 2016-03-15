@@ -20,7 +20,7 @@ class ClusteredMarkersTestCase: MaplyTestCase {
 	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
 		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithGlobe(globeVC)
-		insertClusteredMarkers(baseLayer.compList! as! [MaplyVectorObject], theBaseView: globeVC)
+		insertClusteredMarkers(baseLayer.compList!, theBaseView: globeVC)
 		globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
 		return true
 	}

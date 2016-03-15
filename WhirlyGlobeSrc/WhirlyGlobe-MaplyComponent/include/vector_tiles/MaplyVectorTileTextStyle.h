@@ -1,5 +1,5 @@
 /*
- *  MaplyVectorPolygonStyle.h
+ *  MaplyVectorTextStyle.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
@@ -20,11 +20,17 @@
 
 #import "MaplyVectorTiles.h"
 #import "MaplyVectorStyle.h"
+#import "MaplyVectorTileStyle.h"
+#import "MaplyVectorTileStyle.h"
 
-/** @details Implementation of the polygon style symbolizer for Maply Vector Tiles.
+/** @details Implementation of the text style symbolizer for Maply Vector Tiles.
  */
-@interface MaplyVectorTileStylePolygon : MaplyVectorTileStyle
+@interface MaplyVectorTileStyleText : MaplyVectorTileStyle
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
+- (instancetype _Nullable)initWithStyleEntry:(NSDictionary * _Nonnull)styleEntry settings:(MaplyVectorStyleSettings * _Nonnull)settings viewC:(MaplyBaseViewController * _Nonnull)viewC;
+
+/// @brief Construct objects related to this style based on the input data.
+- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController * _Nonnull)viewC;
+
 
 @end

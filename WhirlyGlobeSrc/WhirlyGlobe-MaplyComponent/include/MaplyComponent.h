@@ -65,9 +65,10 @@
 // These are not pulled in by the podspec
 #ifdef NOTPODSPECWG
 #import <vector_tiles/MaplyVectorTiles.h>
-#import <vector_tiles/MaplyMapnikVectorTiles.h>
+#import <vector_tiles/MapboxVectorTiles.h>
 #import <vector_tiles/MapnikStyleSet.h>
 #import <vector_tiles/MapboxMultiSourceTileInfo.h>
 #import <vector_tiles/MapboxVectorStyleSet.h>
 #import <vector_tiles/MapboxVectorStyleBackground.h>
+#import <vector_tiles/MaplyVectorStyleSimple.h>
 #endif

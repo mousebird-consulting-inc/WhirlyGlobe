@@ -67,7 +67,7 @@
 @property (nonatomic,weak,nullable) MaplyBaseViewController *viewC;
 
 /// @brief Settings that control how objects are built with relation to tiles
-@property (nonatomic,strong,nullable) MaplyVectorTileStyleSettings *settings;
+@property (nonatomic,strong,nullable) MaplyVectorStyleSettings *settings;
 
 /// @brief Individual layers parsed out of the vector tiles database
 @property (nonatomic,readonly,nullable) NSArray *layerNames;
