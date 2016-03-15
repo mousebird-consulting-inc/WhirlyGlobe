@@ -353,7 +353,7 @@ public class MaplyBaseController
 	 * <p>
 	 * Only call this on the main thread.
 	 */
-	public void onSurfaceCreatedTask(Runnable run)
+	private void onSurfaceCreatedTask(Runnable run)
 	{
 		if (surfaceTasks != null)
 			surfaceTasks.add(run);

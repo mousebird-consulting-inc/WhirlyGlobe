@@ -60,13 +60,6 @@
       <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/main/aidl" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/main/rs" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/androidTest/res" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/androidTest/resources" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/androidTest/assets" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/androidTest/aidl" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/androidTest/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/androidTest/jni" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/androidTest/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/test/res" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/test/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/test/assets" type="java-test-resource" />
@@ -74,6 +67,13 @@
       <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/test/jni" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/test/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/androidTest/res" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/androidTest/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/androidTest/assets" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/androidTest/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/androidTest/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/androidTest/jni" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/src/androidTest/rs" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/build/intermediates/annotations" />
       <excludeFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/build/intermediates/assets" />
       <excludeFolder url="file://$MODULE_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/Android/build/intermediates/blame" />
