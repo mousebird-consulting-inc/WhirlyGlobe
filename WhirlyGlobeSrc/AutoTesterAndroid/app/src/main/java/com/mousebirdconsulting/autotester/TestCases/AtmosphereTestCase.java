@@ -28,7 +28,7 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 public class AtmosphereTestCase extends MaplyTestCase {
 
-    private ShapesThreadAdapter adapter;
+    private ShapesSphereThreadAdapter adapter;
     private LayerThread thread;
 
     public AtmosphereTestCase(Activity activity) {
@@ -46,7 +46,7 @@ public class AtmosphereTestCase extends MaplyTestCase {
             @Override
             public void run() {
                 thread = globeVC.getLayerThread();
-                adapter = new ShapesThreadAdapter(globeVC, thread);
+                adapter = new ShapesSphereThreadAdapter(globeVC, thread);
             }
         });
         return true;

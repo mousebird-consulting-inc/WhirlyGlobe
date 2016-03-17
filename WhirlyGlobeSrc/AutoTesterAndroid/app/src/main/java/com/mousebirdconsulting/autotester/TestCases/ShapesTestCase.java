@@ -23,21 +23,13 @@ import android.app.Activity;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LayerThread;
-import com.mousebird.maply.MaplyBaseController;
-import com.mousebird.maply.Point2d;
-import com.mousebird.maply.Shape;
-import com.mousebird.maply.ShapeInfo;
-import com.mousebird.maply.ShapeSphere;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class ShapesTestCase extends MaplyTestCase {
 
     private LayerThread thread = null;
-    private ShapesThreadAdapter adapter = null;
+    private ShapesSphereThreadAdapter adapter = null;
 
     public ShapesTestCase(Activity activity) {
         super(activity);
@@ -54,7 +46,7 @@ public class ShapesTestCase extends MaplyTestCase {
             @Override
             public void run() {
                 thread = globeVC.getLayerThread();
-                adapter = new ShapesThreadAdapter(globeVC,thread);
+                adapter = new ShapesSphereThreadAdapter(globeVC,thread);
             }
         });
         return true;
