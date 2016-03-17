@@ -46,19 +46,20 @@ public class ShapesThreadAdapter {
 
     private void addShapes(MaplyBaseController viewC) {
         List<Shape> shapes = new ArrayList<>();
-        int numShapes = 10;
+        int numShapes = 10000;
 
         ShapeSphere newShape;
         for (int ii = 0; ii < numShapes; ii++) {
             newShape = new ShapeSphere();
-            newShape.setColor(1,1,1,1);
+            newShape.setColor(0,0,0,0);
             newShape.setHeight(1);
-            newShape.setRadius(10);
+            newShape.setRadius(1);
+            newShape.setLoc(new Point2d(-3.6704803, 40.5023056));
             shapes.add(newShape);
         }
 
         ShapeInfo shapeInfo = new ShapeInfo();
-        shapeInfo.setColor(1,1,1,1);
+        shapeInfo.setColor(0,0,0,0);
         shapeInfo.setLineWidth(2);
         shapeInfo.setEnable(true);
         viewC.addShapes(shapes, shapeInfo, MaplyBaseController.ThreadMode.ThreadAny);

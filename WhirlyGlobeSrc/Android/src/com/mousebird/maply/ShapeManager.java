@@ -24,8 +24,11 @@ import java.util.List;
 
 public class ShapeManager {
 
-    public ShapeManager() {
-        initialise();
+    private ShapeManager(){
+
+    }
+    public ShapeManager(Scene scene) {
+        initialise(scene);
     }
 
     public void finalise() {
@@ -43,7 +46,7 @@ public class ShapeManager {
         nativeInit();
     }
     private static native void nativeInit();
-    native void initialise();
+    native void initialise(Scene scene);
     native void dispose();
     private long nativeHandle;
 }

@@ -150,7 +150,7 @@ public class MaplyBaseController
 		layoutManager = new LayoutManager(scene);
 		selectionManager = new SelectionManager(scene);
 		particleSystemManager = new ParticleSystemManager(scene);
-		shapeManager = new ShapeManager();
+		shapeManager = new ShapeManager(scene);
 
 		// Now for the object that kicks off the rendering
 		renderWrapper = new RendererWrapper(this);
