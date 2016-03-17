@@ -1289,8 +1289,6 @@
 		2B5F19101A92DF1D004A8723 /* Mapnik */ = {
 			isa = PBXGroup;
 			children = (
-				8894574218F20D2800FE60E7 /* vector_tile.pb.cpp */,
-				8894574C18F20D4200FE60E7 /* vector_tile.pb.h */,
 				8894574918F20D4200FE60E7 /* MapnikStyle.h */,
 				8894573F18F20D2800FE60E7 /* MapnikStyle.m */,
 				8894574A18F20D4200FE60E7 /* MapnikStyleRule.h */,
@@ -1304,6 +1302,8 @@
 		2B5F19111A92DF4F004A8723 /* Mapbox */ = {
 			isa = PBXGroup;
 			children = (
+				8894574218F20D2800FE60E7 /* vector_tile.pb.cpp */,
+				8894574C18F20D4200FE60E7 /* vector_tile.pb.h */,
 				8894574818F20D4200FE60E7 /* MapboxVectorTiles.h */,
 				8894573E18F20D2800FE60E7 /* MapboxVectorTiles.mm */,
 				2B447F1E1A9BF09000E50C3C /* MapboxMultiSourceTileInfo.h */,
