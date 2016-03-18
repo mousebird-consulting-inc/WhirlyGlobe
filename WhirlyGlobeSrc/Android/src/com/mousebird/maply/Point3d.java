@@ -52,7 +52,7 @@ public class Point3d
 	public Point3d(double x,double y,double z)
 	{
 		initialise();
-		setValue(x,y,z);
+		setValue(x, y, z);
 	}
 	
 	public void finalize()
@@ -165,7 +165,9 @@ public class Point3d
 	 * Return the cross product of this vector and the one given.
 	 */
 	public native Point3d cross(Point3d that);
-	
+
+	public native double norm();
+
 	static
 	{
 		nativeInit();

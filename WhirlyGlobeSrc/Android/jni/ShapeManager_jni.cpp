@@ -32,12 +32,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_nativeInit
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_initialise
-(JNIEnv *env, jobject obj)
+(JNIEnv *env, jobject obj, jobject sceneObj)
 {
     try
     {
+        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
         ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
-        ShapeManager *inst = new ShapeManager();
+        ShapeManager *inst = new ShapeManager(scene);
         classInfo->setHandle(env, obj, inst);
     }
     catch (...)
@@ -89,11 +90,11 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
         env->DeleteLocalRef(listClass);
         
         std::vector<WhirlyKitShape*> shapes;
-        ShapeClassInfo *shapeClassInfo = ShapeClassInfo::getClassInfo();
+        ShapeSphereClassInfo *shapeClassInfo = ShapeSphereClassInfo::getClassInfo();
         while (env->CallBooleanMethod(liter, hasNext))
         {
             jobject javaVecObj = env->CallObjectMethod(liter, next);
-            WhirlyKitShape *shapeObj = shapeClassInfo->getObject(env,javaVecObj);
+            WhirlyKitSphere *shapeObj = shapeClassInfo->getObject(env,javaVecObj);
             shapes.push_back(shapeObj);
             env->DeleteLocalRef(javaVecObj);
         }
@@ -101,7 +102,6 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
         
         SimpleIdentity shapeId = inst->addShapes(shapes, shapeInfo, *changeSet);
         return shapeId;
-        
     }
     catch (...)
     {
@@ -119,8 +119,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_removeShapes
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
         if (!inst || !changeSet)
             return;
-        
-        
+
         JavaLongArray ids(env,idArrayObj);
         SimpleIDSet idSet;
         for (unsigned int ii=0;ii<ids.len;ii++)
@@ -147,8 +146,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_enableShapes
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
         if (!inst || !changeSet)
             return;
-        
-        
+
         JavaLongArray ids(env,idArrayObj);
         SimpleIDSet idSet;
         for (unsigned int ii=0;ii<ids.len;ii++)

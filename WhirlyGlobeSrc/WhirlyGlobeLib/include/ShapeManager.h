@@ -67,8 +67,8 @@ public:
 	void setColor(WhirlyKit::RGBAColor value) { color = value; }
 	WhirlyKit::RGBAColor getColor() { return color; }
 
-	void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
-    Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo);
+	virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo);
 
 private:
     bool isSelectable;
@@ -97,8 +97,8 @@ public:
 	void setSampleY(int value) { sampleY = value; }
 	int getSampleY() { return sampleY; }
 
-    void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
-    Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo);
+    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo);
 
 private:
     WhirlyKit::GeoCoord loc;
@@ -116,7 +116,7 @@ private:
 class ShapeManager : public SceneManager
 {
 public:
-    ShapeManager();
+    ShapeManager(Scene *scene);
     virtual ~ShapeManager();
 
     /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.

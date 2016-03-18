@@ -40,6 +40,8 @@ public class MaplyBaseController
 	Activity activity = null;
     OkHttpClient httpClient = new OkHttpClient();
 
+
+
 	// When adding features we can run on the current thread or delay the work till layter
 	public enum ThreadMode {ThreadCurrent,ThreadAny};
 	
@@ -98,6 +100,7 @@ public class MaplyBaseController
 	LayoutManager layoutManager;
 	ParticleSystemManager particleSystemManager;
 	LayoutLayer layoutLayer = null;
+	ShapeManager shapeManager = null;
 	
 	// Manage bitmaps and their conversion to textures
 	TextureManager texManager = new TextureManager();
@@ -147,6 +150,7 @@ public class MaplyBaseController
 		layoutManager = new LayoutManager(scene);
 		selectionManager = new SelectionManager(scene);
 		particleSystemManager = new ParticleSystemManager(scene);
+		shapeManager = new ShapeManager(scene);
 
 		// Now for the object that kicks off the rendering
 		renderWrapper = new RendererWrapper(this);
@@ -657,7 +661,7 @@ public class MaplyBaseController
 	/**
 	 * Change the visual representation for the given sticker.
 	 *
-	 * @param sticker The sticker to change.
+	 * @param stickerObj The sticker to change.
 	 * @param stickerInfo Parameters to change.
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the stickers for later modification or deletion.
@@ -1086,6 +1090,25 @@ public class MaplyBaseController
 			};
 			addTask(run, mode);
 		}
+	}
 
+	public ComponentObject addShapes(final List<Shape> shapes, final ShapeInfo shapeInfo, ThreadMode mode) {
+		if (!running)
+			return null;
+
+		final ComponentObject compObj = new ComponentObject();
+		final ChangeSet changes = new ChangeSet();
+		Runnable run = new Runnable() {
+			@Override
+			public void run() {
+				long shapeId = shapeManager.addShapes(shapes, shapeInfo, changes);
+				if (shapeId != EmptyIdentity)
+					compObj.addShapeID(shapeId);
+				changes.process(scene);
+			}
+		};
+
+		addTask(run, mode);
+		return compObj;
 	}
 }

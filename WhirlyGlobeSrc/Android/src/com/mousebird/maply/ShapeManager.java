@@ -24,15 +24,18 @@ import java.util.List;
 
 public class ShapeManager {
 
-    public ShapeManager() {
-        initialise();
+    private ShapeManager(){
+
+    }
+    public ShapeManager(Scene scene) {
+        initialise(scene);
     }
 
     public void finalise() {
         dispose();
     }
 
-    public native long addShapes(List<Shape> shapes,Shape info, ChangeSet changes);
+    public native long addShapes(List<Shape> shapes,ShapeInfo info, ChangeSet changes);
 
     public native void removeShapes(long[] shapesIDs, ChangeSet changes);
 
@@ -43,7 +46,7 @@ public class ShapeManager {
         nativeInit();
     }
     private static native void nativeInit();
-    native void initialise();
+    native void initialise(Scene scene);
     native void dispose();
     private long nativeHandle;
 }

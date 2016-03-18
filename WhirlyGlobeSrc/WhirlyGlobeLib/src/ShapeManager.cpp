@@ -176,9 +176,10 @@ void WhirlyKitSphere::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *r
 }
 
 
-ShapeManager::ShapeManager()
+ShapeManager::ShapeManager(Scene *scene)
 {
     pthread_mutex_init(&shapeLock, NULL);
+    setScene(scene);
 }
 
 ShapeManager::~ShapeManager()

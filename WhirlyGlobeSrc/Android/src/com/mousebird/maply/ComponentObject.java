@@ -122,6 +122,12 @@ public class ComponentObject
 		labelIDs.add(id);
 	}
 
+	public void addShapeID(long shapeId) {
+		if (shapeID == null)
+			shapeID = new ArrayList<>();
+		shapeID.add(shapeId);
+	}
+
 	void addParticleSystemID(long id){
 		if (particleSystemIDs == null)
 			particleSystemIDs = new ArrayList<Long>();
@@ -152,10 +158,13 @@ public class ComponentObject
 			control.stickerManager.enableStickers(convertIDs(stickerIDs), enable, changes);
 		if (labelIDs != null && labelIDs.size() > 0)
 			control.labelManager.enableLabels(convertIDs(labelIDs), enable, changes);
-		if (particleSystemIDs != null && particleSystemIDs.size() >0){
-			for (Long id: particleSystemIDs){
+		if (particleSystemIDs != null && particleSystemIDs.size() >0) {
+			for (Long id : particleSystemIDs) {
 				control.particleSystemManager.enableParticleSystem(id, enable, changes);
 			}
+		}
+		if (shapeID != null && shapeID.size() >0){
+			control.shapeManager.enableShapes(convertIDs(shapeID), enable, changes);
 		}
 	}
 	
@@ -188,9 +197,15 @@ public class ComponentObject
 			}
 			particleSystemIDs.clear();
 		}
-		if (texIDs != null && texIDs.size() > 0)
-			for (long texID: texIDs)
+		if (texIDs != null && texIDs.size() > 0) {
+			for (long texID : texIDs)
 				control.texManager.removeTexture(texID, changes);
+			texIDs.clear();
+		}
+
+		if (shapeID != null && shapeID.size()>0)
+			control.shapeManager.removeShapes(convertIDs(shapeID),changes);
+		shapeID.clear();
 	}
 	
 	// Selection IDs associated with this object
@@ -205,4 +220,6 @@ public class ComponentObject
 	private ArrayList<Long> vectorIDs = null;
 	private ArrayList<Long> labelIDs = null;
 	private ArrayList<Long> particleSystemIDs = null;
+	private ArrayList<Long> shapeID = null;
+
 }

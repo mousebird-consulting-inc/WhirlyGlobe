@@ -49,6 +49,14 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Point3d_cross
 
 /*
  * Class:     com_mousebird_maply_Point3d
+ * Method:    norm
+ * Signature: ()D
+ */
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point3d_norm
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_Point3d
  * Method:    nativeInit
  * Signature: ()V
  */
