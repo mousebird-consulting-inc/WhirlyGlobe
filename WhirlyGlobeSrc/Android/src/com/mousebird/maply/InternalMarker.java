@@ -74,6 +74,7 @@ class InternalMarker
 	public native void setRotation(double rot);
 	public native void setOffset(double offX,double offY);
 	public native void setLayoutImportance(double layoutImp);
+	public native void setVertexAttributes(Object vertAttrs[]);
 	
 	static
 	{

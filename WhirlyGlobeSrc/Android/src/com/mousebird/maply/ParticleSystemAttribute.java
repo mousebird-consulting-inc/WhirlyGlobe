@@ -1,5 +1,5 @@
 /*
- *  SingleVertexAttributeInfo.java
+ *  ParticleSystemAttribute.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro

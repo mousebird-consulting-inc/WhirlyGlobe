@@ -450,7 +450,7 @@ typedef JavaClassInfo<WhirlyKit::WhirlyKitShapeInfo> ShapeInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitShape> ShapeClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitSphere> ShapeSphereClassInfo;
 typedef JavaClassInfo<WhirlyKit::ShapeManager> ShapeManagerClassInfo;
-
+typedef JavaClassInfo<WhirlyKit::SingleVertexAttribute> SingleVertexAttributeClassInfo;
 
 // The shared JNIEnv set in the ::render call
 extern JNIEnv *maplyCurrentEnv;

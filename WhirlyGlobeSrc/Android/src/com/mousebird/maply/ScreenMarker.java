@@ -22,6 +22,8 @@ package com.mousebird.maply;
 
 import android.graphics.Bitmap;
 
+import java.util.ArrayList;
+
 /**
  * The screen marker is a 2D rectangle that tracks a certain position in
  * geographic (lon/lat in radians).  Specific information set within
@@ -85,4 +87,11 @@ public class ScreenMarker
 	 * this to identify a marker if you're doing user selection.
 	 */
 	public Object userObject = null;
+
+	/**
+	 * If set, these are vertex attributes to be applied to be consolidated and passed
+	 * to a custom shader.  Each set of attributes will be copied for each individual vertex
+	 * that's created.
+	 */
+	public ArrayList<VertexAttribute> vertexAttributes = null;
 }

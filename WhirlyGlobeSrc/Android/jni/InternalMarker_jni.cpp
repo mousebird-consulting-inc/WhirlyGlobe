@@ -267,3 +267,27 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setLayoutImportan
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalMarker::setLayoutImportance()");
 	}
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setVertexAttributes
+(JNIEnv *env, jobject obj, jobjectArray vertAttrArray)
+{
+    try {
+        MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+        Marker *marker = classInfo->getObject(env,obj);
+        if (!marker)
+            return;
+
+        marker->vertexAttrs.clear();
+        SingleVertexAttributeClassInfo *vertClassInfo = SingleVertexAttributeClassInfo::getClassInfo();
+        int attrCount = env->GetArrayLength(vertAttrArray);
+        for (unsigned int ii=0;ii<attrCount;ii++)
+        {
+            jobject vertAttrObj = env->GetObjectArrayElement(vertAttrArray,ii);
+            SingleVertexAttribute *vertAttr = vertClassInfo->getObject(env,vertAttrObj);
+            marker->vertexAttrs.insert(*vertAttr);
+            env->DeleteLocalRef(vertAttrObj);
+        }
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalMarker::setVertexAttributes()");
+    }
+}

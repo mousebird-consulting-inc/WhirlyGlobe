@@ -56,6 +56,8 @@
 		2B14BFCF1B83FE1A00CE29A4 /* BaseInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B14BFCE1B83FE1A00CE29A4 /* BaseInfo.cpp */; };
 		2B14BFD51B852C5100CE29A4 /* BasicDrawableInstance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B14BFD41B852C5100CE29A4 /* BasicDrawableInstance.h */; };
 		2B14BFD71B852C5E00CE29A4 /* BasicDrawableInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B14BFD61B852C5E00CE29A4 /* BasicDrawableInstance.cpp */; };
+		2B2E59DA1C9B624E008FFE4A /* VertexAttribute_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E59D91C9B624E008FFE4A /* VertexAttribute_jni.cpp */; };
+		2B2E59DC1C9B631A008FFE4A /* com_mousebird_maply_VertexAttribute.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2E59DB1C9B631A008FFE4A /* com_mousebird_maply_VertexAttribute.h */; };
 		2B35674318D762A700EF8DB1 /* BigDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671118D762A700EF8DB1 /* BigDrawable.cpp */; };
 		2B35674418D762A700EF8DB1 /* CoordSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671218D762A700EF8DB1 /* CoordSystem.cpp */; };
 		2B35674518D762A700EF8DB1 /* Cullable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671318D762A700EF8DB1 /* Cullable.cpp */; };
@@ -514,6 +516,8 @@
 		2B14BFCE1B83FE1A00CE29A4 /* BaseInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BaseInfo.cpp; sourceTree = "<group>"; };
 		2B14BFD41B852C5100CE29A4 /* BasicDrawableInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasicDrawableInstance.h; sourceTree = "<group>"; };
 		2B14BFD61B852C5E00CE29A4 /* BasicDrawableInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BasicDrawableInstance.cpp; sourceTree = "<group>"; };
+		2B2E59D91C9B624E008FFE4A /* VertexAttribute_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VertexAttribute_jni.cpp; path = ../Android/jni/VertexAttribute_jni.cpp; sourceTree = "<group>"; };
+		2B2E59DB1C9B631A008FFE4A /* com_mousebird_maply_VertexAttribute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_VertexAttribute.h; path = ../Android/jni/com_mousebird_maply_VertexAttribute.h; sourceTree = "<group>"; };
 		2B35671118D762A700EF8DB1 /* BigDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BigDrawable.cpp; sourceTree = "<group>"; };
 		2B35671218D762A700EF8DB1 /* CoordSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CoordSystem.cpp; sourceTree = "<group>"; };
 		2B35671318D762A700EF8DB1 /* Cullable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cullable.cpp; sourceTree = "<group>"; };
@@ -1187,6 +1191,7 @@
 		2B4B19291BA38A940091A743 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2B2E59DB1C9B631A008FFE4A /* com_mousebird_maply_VertexAttribute.h */,
 				2B4B192B1BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h */,
 				2B4B192C1BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h */,
 				2B923FC51BFBDED200C879DB /* com_mousebird_maply_BaseInfo.h */,
@@ -1268,6 +1273,7 @@
 		2B4B192A1BA38A9A0091A743 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2B2E59D91C9B624E008FFE4A /* VertexAttribute_jni.cpp */,
 				2B4B199B1BA38AFB0091A743 /* AngleAxis_jni.cpp */,
 				2B4B199C1BA38AFB0091A743 /* AttrDictionary_jni.cpp */,
 				2B923FB71BFA9B5E00C879DB /* BaseInfo_jni.cpp */,
@@ -1972,6 +1978,7 @@
 				2B14BFCD1B83FD4500CE29A4 /* BaseInfo.h in Headers */,
 				2B4B196C1BA38AD90091A743 /* com_mousebird_maply_GlobeView.h in Headers */,
 				2B35682E18D762BF00EF8DB1 /* ScreenImportance.h in Headers */,
+				2B2E59DC1C9B631A008FFE4A /* com_mousebird_maply_VertexAttribute.h in Headers */,
 				2B009CFB186102E4001E2EE8 /* JSONDefs.h in Headers */,
 				2B4B19811BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_FrameLoadStatus.h in Headers */,
 				2BDC8A6F192C08F600DFECF0 /* LabelRenderer.h in Headers */,
@@ -2163,6 +2170,7 @@
 				2B7EF47716025D8C00D4079F /* PJ_isea.c in Sources */,
 				2B7EF47816025D8C00D4079F /* PJ_krovak.c in Sources */,
 				2B7EF47916025D8C00D4079F /* PJ_labrd.c in Sources */,
+				2B2E59DA1C9B624E008FFE4A /* VertexAttribute_jni.cpp in Sources */,
 				2B7EF47A16025D8C00D4079F /* PJ_laea.c in Sources */,
 				2B7EF47B16025D8C00D4079F /* PJ_lagrng.c in Sources */,
 				2B7EF47C16025D8C00D4079F /* PJ_larr.c in Sources */,

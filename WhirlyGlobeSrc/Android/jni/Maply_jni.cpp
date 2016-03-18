@@ -67,8 +67,7 @@ template<> ShapeInfoClassInfo *ShapeInfoClassInfo::classInfoObj = NULL;
 template<> ShapeClassInfo *ShapeClassInfo::classInfoObj = NULL;
 template<> ShapeSphereClassInfo *ShapeSphereClassInfo::classInfoObj = NULL;
 template<> ShapeManagerClassInfo *ShapeManagerClassInfo::classInfoObj = NULL;
-
-
+template<> SingleVertexAttributeClassInfo *SingleVertexAttributeClassInfo::classInfoObj = NULL;
 
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 {

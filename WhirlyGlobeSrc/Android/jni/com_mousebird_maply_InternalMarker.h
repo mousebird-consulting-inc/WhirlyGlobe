@@ -97,6 +97,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setLayoutImportan
 
 /*
  * Class:     com_mousebird_maply_InternalMarker
+ * Method:    setVertexAttributes
+ * Signature: ([Ljava/lang/Object;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setVertexAttributes
+  (JNIEnv *, jobject, jobjectArray);
+
+/*
+ * Class:     com_mousebird_maply_InternalMarker
  * Method:    nativeInit
  * Signature: ()V
  */

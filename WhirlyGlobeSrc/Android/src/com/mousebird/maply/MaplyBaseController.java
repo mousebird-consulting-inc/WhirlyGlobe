@@ -583,6 +583,8 @@ public class MaplyBaseController
 						texID = texManager.addTexture(marker.image, scene, changes);
 					if (texID != EmptyIdentity)
 						intMarker.addTexID(texID);
+					if (marker.vertexAttributes != null)
+						intMarker.setVertexAttributes(marker.vertexAttributes.toArray());
 					
 					intMarkers.add(intMarker);
 					
