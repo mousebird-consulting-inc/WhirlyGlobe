@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,7 +22,11 @@ package com.mousebird.maply;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/** Sets up the objects and shaders to implement an atmosphere.
+ * <br>
+ * This object sets up a shader implementation of the simple atmosphere from GPU Gems 2
+ * http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter16.html
+ */
 public class Atmosphere {
 
     public static final String  k_v3CameraPos = "u_v3CameraPos";
@@ -287,70 +291,115 @@ public class Atmosphere {
     private SunUpdater sunUpdater;
     float[] waveLength;
 
+    /** @brief Rayleigh scattering constant (0.0025 by default)
+     */
     public float getKr() {
         return kr;
     }
 
+    /**
+     * Rayleigh scattering constant (0.0025 by default)
+     */
     public void setKr(float kr) {
         this.kr = kr;
     }
 
+    /**
+     * Mie scattering constant (0.0010 by default)
+     */
     public float getKm() {
         return km;
     }
 
+    /**
+     * Mie scattering constant (0.0010 by default)
+     */
     public void setKm(float km) {
         this.km = km;
     }
 
+    /**
+     * Brightness of the sun (20.0 by default)
+     */
     public float geteSun() {
         return eSun;
     }
 
+    /**
+     * Brightness of the sun (20.0 by default)
+     */
     public void seteSun(float eSun) {
         this.eSun = eSun;
     }
 
+    /**
+     * Number of samples for the ray through the atmosphere (3 by default)
+     */
     public int getNumSamples() {
         return numSamples;
     }
 
+    /**
+     * Number of samples for the ray through the atmosphere (3 by default)
+     */
     public void setNumSamples(int numSamples) {
         this.numSamples = numSamples;
     }
 
+    /**
+     * Outer radius of the atmosphere (1.05 by default).  Earth is radius 1.0.
+     */
     public float getOuterRadius() {
         return outerRadius;
     }
 
+    /**
+     * Outer radius of the atmosphere (1.05 by default).  Earth is radius 1.0.
+     */
     public void setOuterRadius(float outerRadius) {
         this.outerRadius = outerRadius;
     }
 
+    /**
+     * Constant used in the fragment shader.  Default is -0.95.
+     */
     public float getG() {
         return g;
     }
 
+    /**
+     * Constant used in the fragment shader.  Default is -0.95.
+     */
     public void setG(float g) {
         this.g = g;
     }
 
+    /**
+     * Exposure constant in fragment shader.  Default is 2.0.
+     */
     public float getExposure() {
         return exposure;
     }
 
+    /**
+     * Exposure constant in fragment shader.  Default is 2.0.
+     */
     public void setExposure(float exposure) {
         this.exposure = exposure;
     }
 
+    /**
+     * The ground shader we set up.  You need to apply it yourself.
+     */
     public Shader getGroundShader() {
         return groundShader;
     }
 
-    public void setGroundShader(Shader groundShader) {
-        this.groundShader = groundShader;
-    }
-
+    /**
+     * Set up the atmospheric shaders and the default parameters for rendering.
+     * @param inViewC The globe controller to create objects in.
+     * @param mode Whether or not to work on this thread on put the work in the background.
+     */
     public Atmosphere(GlobeController inViewC, MaplyBaseController.ThreadMode mode) {
         this.viewC = inViewC;
         this.kr = 0.0025f;
@@ -373,6 +422,9 @@ public class Atmosphere {
         this.complexAtmosphere(mode);
     }
 
+    /**
+     * Wavelengths of the light (RGB).  Three floats, defaults are: 0.650, 0.570, 0.475
+     */
     public void setWaveLength(float [] waveLength) {
         if (waveLength == null)
             waveLength = new float[3];
@@ -381,7 +433,10 @@ public class Atmosphere {
         this.waveLength[2] = waveLength[2];
     }
 
-    public void setWaveLengthRed(float redWavelength, float greenWavelength, float blueWavelength) {
+    /**
+     * Wavelengths of the light (RGB).  Three floats, defaults are: 0.650, 0.570, 0.475
+     */
+    public void setWaveLength(float redWavelength, float greenWavelength, float blueWavelength) {
         if (waveLength == null)
             waveLength = new float[3];
         this.waveLength[0] = redWavelength;
@@ -389,14 +444,21 @@ public class Atmosphere {
         this.waveLength[2] = blueWavelength;
     }
 
+    /**
+     * Wavelengths of the light (RGB).  Three floats, defaults are: 0.650, 0.570, 0.475
+     */
     public float[] getWaveLength() {
         return this.waveLength;
     }
 
+    /**
+     * Wavelengths of the light (RGB).  Three floats, defaults are: 0.650, 0.570, 0.475
+     */
     public float getWavelengthForComponent(short component) {
         return this.waveLength[component];
     }
 
+    // Set up the complex atmospheric shader
     private void complexAtmosphere(MaplyBaseController.ThreadMode mode) {
         ShapeSphere sphere = new ShapeSphere();
         sphere.setLoc(new Point2d(0, 0));
@@ -420,6 +482,7 @@ public class Atmosphere {
         this.viewC.addActiveObject(sunUpdater);
     }
 
+    // Set up a corresponding ground shader
     private Shader setupGroundShader() {
         Shader theShader = new Shader(kAtmosphereGroundShader, vertexShaderGroundTri, fragmentShaderGroundTri, viewC);
         if (!theShader.valid())
@@ -430,12 +493,19 @@ public class Atmosphere {
         return theShader;
     }
 
+    /**
+     * Set the sun's position relative to the earth.  This is what comes out of MaplySun.
+     */
     public void setSunPosition(Point3d sunDir) {
         if (this.sunUpdater != null){
             this.sunUpdater.setSunPosition(sunDir);
         }
     }
 
+    /**
+     * Return the shader for use by the atmosphere.
+     * @return
+     */
     public Shader setupShader() {
         Shader theShader = new Shader(kAtmosphereShader, vertexShaderAtmosTri, fragmentShaderAtmosTri, viewC);
         if (!theShader.valid())
@@ -446,7 +516,10 @@ public class Atmosphere {
         return theShader;
     }
 
-    public void removeForViewC() {
+    /**
+     * Remove any objects from the globe controller and shut down the atmosphere.
+     */
+    public void removeFromController() {
         if (comObj!= null)
             viewC.removeObject(comObj, MaplyBaseController.ThreadMode.ThreadAny);
         comObj = null;
