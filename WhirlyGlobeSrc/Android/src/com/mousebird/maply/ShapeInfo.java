@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,87 +20,100 @@
 package com.mousebird.maply;
 
 
+import android.graphics.Color;
+
+/**
+ * Shape Info is used to hold parameter values for a group of Shape objects.
+ * It's read by the system to determine how to turn them into geometry for rendering.
+ */
 public class ShapeInfo extends BaseInfo {
 
     public ShapeInfo() {
         initialise();
+        setColor(Color.WHITE);
+        setZBufferRead(true);
+        setZBufferWrite(true);
     }
 
     public void finalise() {
         dispose();
     }
 
+    /**
+     * Color of the shape
+     */
+    public void setColor(int color)
+    {
+        setColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+    }
+
+    /**
+     * Color of the shape
+     */
     public native void setColor(float r, float g, float b, float a);
 
+    /**
+     * Color of the shape
+     */
     public native float[] getColor();
 
+    /**
+     * If the shape is made of lines, this is the line width.
+     */
     public native void setLineWidth(float lineWidth);
 
+    /**
+     * If the shape is made of lines, this is the line width.
+     */
     public native float getLineWidth();
 
-    public native void setId(long id);
-
-    public native long getId();
-
+    /**
+     * Some shapes can be generated inside out (like spheres).
+     * This is used in really esoteric cases, like the atmosphere.
+     */
     public native void setInsideOut(boolean insideOut);
 
+    /**
+     * Some shapes can be generated inside out (like spheres).
+     * This is used in really esoteric cases, like the atmosphere.
+     */
     public native boolean getInsideOut();
 
+    /**
+     * If set, we'll read from the z buffer before rendering.
+     * If not set, only drawPriority matters.
+     */
     public native void setZBufferRead(boolean zBufferRead);
 
+    /**
+     * If set, we'll read from the z buffer before rendering.
+     * If not set, only drawPriority matters.
+     */
     public native boolean getZBufferRead();
 
+    /**
+     * If set, we'll write to the z buffer as the shape is rendered.
+     * If not set, the shape won't modify the z buffer.
+     */
     public native void setZBufferWrite(boolean zBufferWrite);
 
+    /**
+     * If set, we'll write to the z buffer as the shape is rendered.
+     * If not set, the shape won't modify the z buffer.
+     */
     public native boolean getZBufferWrite();
 
-    public native boolean hasCenter();
-
-    public native void setHasCenter(boolean hasCenter);
-
+    /**
+     * If set, the center controls the origin for the shapes as they are created.
+     * If not set, a center will be calculated for a group of shapes.
+     */
     public native Point3d getCenter();
 
+    /**
+     * If set, the center controls the origin for the shapes as they are created.
+     * If not set, a center will be calculated for a group of shapes.
+     */
     public native void setCenter(Point3d center);
-
-    private long sampleX;
-
-    private long sampleY;
-
-    private long drawPriority;
-
-    private String shader;
-
-    public long getSampleX() {
-        return sampleX;
-    }
-
-    public void setSampleX(long sampleX) {
-        this.sampleX = sampleX;
-    }
-
-    public long getSampleY() {
-        return sampleY;
-    }
-
-    public void setSampleY(long sampleY) {
-        this.sampleY = sampleY;
-    }
-
-    public long getDrawPriority() {
-        return drawPriority;
-    }
-
-    public void setDrawPriority(long drawPriority) {
-        this.drawPriority = drawPriority;
-    }
-
-    public String getShader() {
-        return shader;
-    }
-
-    public void setShader(String shader) {
-        this.shader = shader;
-    }
 
     static
     {

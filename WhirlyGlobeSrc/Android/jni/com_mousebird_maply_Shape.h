@@ -25,38 +25,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_setSelectable
 
 /*
  * Class:     com_mousebird_maply_Shape
- * Method:    setSelectID
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_setSelectID
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_mousebird_maply_Shape
- * Method:    getSelectID
- * Signature: ()J
- */
-JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shape_getSelectID
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebird_maply_Shape
- * Method:    getUseColor
- * Signature: ()Z
- */
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shape_getUseColor
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebird_maply_Shape
- * Method:    setUseColor
- * Signature: (Z)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_setUseColor
-  (JNIEnv *, jobject, jboolean);
-
-/*
- * Class:     com_mousebird_maply_Shape
  * Method:    setColor
  * Signature: (FFFF)V
  */
@@ -78,22 +46,6 @@ JNIEXPORT jfloatArray JNICALL Java_com_mousebird_maply_Shape_getColor
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_nativeInit
   (JNIEnv *, jclass);
-
-/*
- * Class:     com_mousebird_maply_Shape
- * Method:    initialise
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_initialise
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebird_maply_Shape
- * Method:    dispose
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_dispose
-  (JNIEnv *, jobject);
 
 #ifdef __cplusplus
 }

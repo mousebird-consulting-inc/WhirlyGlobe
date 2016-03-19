@@ -51,6 +51,7 @@ void ShapeSceneRep::clearContents(SelectionManager *selectManager, ChangeSet &ch
 }
 
 WhirlyKitShape::WhirlyKitShape()
+    : isSelectable(false), selectID(EmptyIdentity), useColor(false), color(255,255,255,255)
 {
 }
 
@@ -69,6 +70,7 @@ Point3d WhirlyKitShape::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coor
 }
 
 WhirlyKitSphere::WhirlyKitSphere()
+    : loc(0,0), height(0.0), radius(0.0), sampleX(10), sampleY(10)
 {
 }
 

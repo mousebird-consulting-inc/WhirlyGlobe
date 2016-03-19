@@ -32,35 +32,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_nativeInit
     ShapeClassInfo::getClassInfo(env, cls);
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_initialise
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeClassInfo *classInfo = ShapeClassInfo::getClassInfo();
-        WhirlyKitShape *inst = new WhirlyKitShape();
-        classInfo->setHandle(env, obj, inst);
-    } catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shape::Initialise()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_dispose
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeClassInfo *classInfo = ShapeClassInfo::getClassInfo();
-        WhirlyKitShape *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        delete inst;
-        classInfo->clearHandle(env, obj);
-    } catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shape::dispose()");
-    }
-}
-
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shape_isSelectable
 (JNIEnv *env, jobject obj)
 {

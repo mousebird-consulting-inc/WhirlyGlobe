@@ -55,6 +55,11 @@ public class BaseInfo
      */
     public native void setFade(float fade);
 
+    /**
+     * Set the shader to be used in rendering the given objects.
+     */
+    public native void setShader(Shader shader);
+
     static
     {
         nativeInit();

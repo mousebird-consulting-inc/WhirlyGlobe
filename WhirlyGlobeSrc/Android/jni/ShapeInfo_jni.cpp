@@ -147,40 +147,6 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_ShapeInfo_getLineWidth
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setId
-(JNIEnv *env, jobject obj, jlong id)
-{
-    try
-    {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        inst->setShapeId(id);
-    }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::setID()");
-    }
-}
-
-JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeInfo_getId
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return -1;
-        return inst->getShapeId();
-    }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::getID()");
-    }
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setInsideOut
 (JNIEnv *env, jobject obj, jboolean insideOut)
 {
@@ -285,42 +251,6 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ShapeInfo_getZBufferWrite
 
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ShapeInfo_hasCenter
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return false;
-        return inst->getHasCenter();
-    }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::hasCenter()");
-    }
-
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setHasCenter
-(JNIEnv *env, jobject obj, jboolean hasCenter)
-{
-    try
-    {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        inst->setHasCenter(hasCenter);
-    }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::setHasCenter()");
-    }
-
-}
-
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ShapeInfo_getCenter
 (JNIEnv *env, jobject obj)
 {
@@ -329,6 +259,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ShapeInfo_getCenter
         ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
         WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
         if (!inst)
+            return NULL;
+        if (!inst->getHasCenter())
             return NULL;
         Point3d pt = inst->getCenter();
         return MakePoint3d(env,pt);
@@ -349,6 +281,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setCenter
         Point3d *center = Point3dClassInfo::getClassInfo()->getObject(env, ptObj);
         if (!inst || !center)
             return;
+        inst->setHasCenter(true);
         inst->setCenter(*center);
     }
     catch(...)

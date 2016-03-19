@@ -20,7 +20,6 @@
 package com.mousebirdconsulting.autotester.TestCases;
 
 import com.mousebird.maply.ComponentObject;
-import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LayerThread;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.Point2d;
@@ -103,9 +102,8 @@ public class ShapesSphereThreadAdapter {
 
         ShapeInfo shapeInfo = new ShapeInfo();
         shapeInfo.setColor(1,0,0,0.8f);
-        shapeInfo.setDrawPriority(1000);
+        shapeInfo.setDrawPriority(1000000);
         shapeInfo.setFade(1.0f);
         componentObject =viewC.addShapes(shapes, shapeInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
-        viewC.enableObject(componentObject, MaplyBaseController.ThreadMode.ThreadAny);
     }
 }

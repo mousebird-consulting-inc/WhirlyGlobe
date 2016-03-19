@@ -57,6 +57,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFade
 
 /*
  * Class:     com_mousebird_maply_BaseInfo
+ * Method:    setShader
+ * Signature: (Lcom/mousebird/maply/Shader;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setShader
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_BaseInfo
  * Method:    nativeInit
  * Signature: ()V
  */

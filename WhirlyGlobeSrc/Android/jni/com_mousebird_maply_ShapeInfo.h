@@ -41,22 +41,6 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_ShapeInfo_getLineWidth
 
 /*
  * Class:     com_mousebird_maply_ShapeInfo
- * Method:    setId
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setId
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_mousebird_maply_ShapeInfo
- * Method:    getId
- * Signature: ()J
- */
-JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeInfo_getId
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebird_maply_ShapeInfo
  * Method:    setInsideOut
  * Signature: (Z)V
  */
@@ -102,22 +86,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setZBufferWrite
  */
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ShapeInfo_getZBufferWrite
   (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebird_maply_ShapeInfo
- * Method:    hasCenter
- * Signature: ()Z
- */
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ShapeInfo_hasCenter
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebird_maply_ShapeInfo
- * Method:    setHasCenter
- * Signature: (Z)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setHasCenter
-  (JNIEnv *, jobject, jboolean);
 
 /*
  * Class:     com_mousebird_maply_ShapeInfo

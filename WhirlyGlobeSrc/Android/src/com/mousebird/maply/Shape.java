@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,31 +19,42 @@
  */
 package com.mousebird.maply;
 
+import android.graphics.Color;
 
+/** Shape is the base class for the actual shape objects.
+ * <br>
+ * The maply shape is just the base class.  Look to ShapeCircle, ShapeCylinder, ShapeSphere, ShapeGreatCircle, and ShapeLinear.
+ */
 public class Shape {
 
-    public Shape() {
-        initialise();
-    }
+    protected Shape() { }
 
-    public void finalise() {
-        dispose();
-    }
-
+    /**
+      * The object is selectable if this is set when the object is passed in to an add call.  If not set, you'll never see it in selection.
+     */
     public native boolean isSelectable();
 
+    /**
+     * The object is selectable if this is set when the object is passed in to an add call.  If not set, you'll never see it in selection.
+     */
     public native void setSelectable(boolean selectable);
 
-    public native void setSelectID(long selectID);
+    /**
+     * Color of the shape
+     */
+    public void setColor(int color)
+    {
+        setColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+    }
 
-    public native long getSelectID();
-
-    public native boolean getUseColor();
-
-    public native void setUseColor(boolean useColor);
-
+    /**
+     * Color of the shape
+     */
     public native void setColor(float r, float g, float b, float a);
 
+    /**
+     * Color of the shape
+     */
     public native float[] getColor();
 
 
@@ -52,7 +63,5 @@ public class Shape {
         nativeInit();
     }
     private static native void nativeInit();
-    native void initialise();
-    native void dispose();
-    private long nativeHandle;
+    protected long nativeHandle;
 }

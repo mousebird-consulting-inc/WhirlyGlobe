@@ -132,3 +132,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFade
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::setFade()");
     }
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setShader
+(JNIEnv *env, jobject obj, jobject shaderObj)
+{
+    try
+    {
+        BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
+        BaseInfo *info = classInfo->getObject(env,obj);
+        OpenGLES2Program *shader = OpenGLES2ProgramClassInfo::getClassInfo()->getObject(env,shaderObj);
+        if (!info || !shader)
+            return;
+        
+        info->programID = shader->getId();
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::setShader()");
+    }
+}

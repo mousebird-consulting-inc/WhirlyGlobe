@@ -45,7 +45,7 @@ public class SimpleParticleSystemTestCase extends MaplyTestCase {
 
         // Kick off the particle thread
         // Note: Need to shut this down
-        globeVC.onSurfaceCreatedTask(new Runnable() {
+        globeVC.addPostSurfaceRunnable(new Runnable() {
             @Override
             public void run() {
                 particleThread = globeVC.makeLayerThread();

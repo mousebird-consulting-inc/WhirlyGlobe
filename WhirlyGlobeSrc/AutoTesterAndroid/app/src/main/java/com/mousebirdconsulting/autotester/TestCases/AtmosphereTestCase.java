@@ -42,7 +42,7 @@ public class AtmosphereTestCase extends MaplyTestCase {
         StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
         baseView.setUpWithGlobe(globeVC);
 
-        globeVC.onSurfaceCreatedTask(new Runnable() {
+        globeVC.addPostSurfaceRunnable(new Runnable() {
             @Override
             public void run() {
                 thread = globeVC.getLayerThread();

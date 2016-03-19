@@ -34,7 +34,7 @@ public class ShapesTestCase extends MaplyTestCase {
     public ShapesTestCase(Activity activity) {
         super(activity);
         setTestName("Shape Test Case");
-        setDelay(20);
+        setDelay(1000);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ShapesTestCase extends MaplyTestCase {
         StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
         baseView.setUpWithGlobe(globeVC);
 
-        globeVC.onSurfaceCreatedTask(new Runnable() {
+        globeVC.addPostSurfaceRunnable(new Runnable() {
             @Override
             public void run() {
                 thread = globeVC.getLayerThread();

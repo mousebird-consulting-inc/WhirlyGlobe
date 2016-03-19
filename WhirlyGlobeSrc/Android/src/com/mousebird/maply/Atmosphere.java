@@ -464,22 +464,22 @@ public class Atmosphere {
         sphere.setLoc(new Point2d(0, 0));
         sphere.setRadius(this.outerRadius);
         sphere.setHeight(-1.0f);
+        sphere.setSampleX(120);
+        sphere.setSampleY(60);
 
         List<Shape> shapes = new ArrayList<Shape>();
         shapes.add(sphere);
         ShapeInfo shapeInfo = new ShapeInfo();
         shapeInfo.setZBufferRead(false);
         shapeInfo.setZBufferWrite(false);
-        shapeInfo.setSampleX(120);
-        shapeInfo.setSampleY(60);
         shapeInfo.setInsideOut(true);
         shapeInfo.setCenter(new Point3d(0, 0, 0));
         shapeInfo.setDrawPriority(kMaplyAtmosphereDrawPriorityDefault);
-        shapeInfo.setShader(kAtmosphereShader);
+        shapeInfo.setShader(shader);
         this.comObj = this.viewC.addShapes(shapes, shapeInfo, mode);
 
-        this.sunUpdater = new SunUpdater(this.shader, this.groundShader,this, viewC);
-        this.viewC.addActiveObject(sunUpdater);
+//        this.sunUpdater = new SunUpdater(this.shader, this.groundShader,this, viewC);
+//        this.viewC.addActiveObject(sunUpdater);
     }
 
     // Set up a corresponding ground shader
