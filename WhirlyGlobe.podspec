@@ -25,12 +25,10 @@ Pod::Spec.new do |s|
   s.platform     = :ios, '7.0'
   s.requires_arc = true
 
-  s.source = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :tag => 'v2.4_beta3' }
+  s.source = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'develop_2_4_1' }
 
-  s.compiler_flags = '-D__USE_SDL_GLES__', '-D__IPHONEOS__'
-  s.xcconfig = { "HEADER_SEARCH_PATHS" => "\"${PODS_ROOT}/boost\" \"${PODS_ROOT}/eigen\" \"${PODS_ROOT}/clipper\" \"$(SDKROOT)/usr/include/libxml2\"",
-		'ALWAYS_SEARCH_USER_PATHS' => 'YES'
-   }
+  s.compiler_flags = '-D__USE_SDL_GLES__', '-D__IPHONEOS__ -DSQLITE_OPEN_READONLY'
+  s.xcconfig = { "HEADER_SEARCH_PATHS" => "\"${PODS_ROOT}/boost\" \"${PODS_ROOT}/eigen\" \"${PODS_ROOT}/clipper\" \"$(SDKROOT)/usr/include/libxml2\"" }
 
   s.default_subspec = 'MaplyComponent'
 
@@ -38,8 +36,7 @@ Pod::Spec.new do |s|
     gl.source_files = 'WhirlyGlobeSrc/local_libs/glues/**/*.{c,h}'
     gl.preserve_paths = 'WhirlyGlobeSrc/local_libs/glues/**/*.i'
     gl.private_header_files = 'WhirlyGlobeSrc/local_libs/glues/**/*.h'
-    gl.header_mappings_dir = 'include/'
-    gl.header_mappings_dir = 'SDL'
+    gl.exclude_files = 'WhirlyGlobeSrc/local_libs/glues/source/libnurbs/nurbtess/{glimports,mystdio,mystdlib}.h', 'WhirlyGlobeSrc/local_libs/glues/source/glu.h'
   end
 
   s.subspec 'shapefile' do |shp|
@@ -64,7 +61,7 @@ Pod::Spec.new do |s|
 
   s.subspec 'Lib-Headers' do |lh|
     lh.source_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
-    lh.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
+    lh.private_header_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
     lh.dependency 'boost/string_algorithms-includes', '<= 1.51.0'
     lh.dependency 'boost/shared_ptr-includes', '<= 1.51.0'
     lh.dependency 'boost/pointer_cast-includes', '<= 1.51.0'
@@ -76,9 +73,11 @@ Pod::Spec.new do |s|
   s.subspec 'Lib' do |l|
     l.source_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/src/*.{mm,m}'
     l.dependency 'WhirlyGlobe/Lib-Headers'
+    l.dependency 'WhirlyGlobe/glues-wg'
+    l.dependency 'WhirlyGlobe/octencoding'
     l.dependency 'proj4', '~> 4.8.0'
 #   Pulled internally
-#    l.dependency 'shapelib'
+    l.dependency 'WhirlyGlobe/shapefile'
     l.dependency 'clipper', '~> 6.1.3a'
     l.dependency 'libjson', '~> 7.6.0'
     l.dependency 'tinyxml', '~> 2.1.0'
@@ -88,9 +87,8 @@ Pod::Spec.new do |s|
 
   s.subspec 'MaplyComponent-Headers' do |mch|
     mch.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/**/*.h'
-#    mch.private_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h'
-    mch.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/*.h', "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h"
-    mch.private_header_files =  "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/**/{MaplyBridge,vector_tile.pb}.h"
+    mch.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/*.h' # , "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h"
+    mch.private_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/{MaplyComponent,WhirlyGlobeComponent,MaplyBridge,vector_tile.pb}.h', 'WhirlyGlobeSrc/local_libs/**'
     mch.dependency 'WhirlyGlobe/Lib-Headers'
   end
 
@@ -100,17 +98,12 @@ Pod::Spec.new do |s|
 
   s.subspec 'MaplyComponent' do |mc|
     mc.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/src/*.{mm,m,cpp}'
-    mc.dependency 'WhirlyGlobe/glues-wg'
-    mc.dependency 'WhirlyGlobe/shapefile'
     mc.dependency 'WhirlyGlobe/kissxml'
     mc.dependency 'WhirlyGlobe/aaplus'
-    mc.dependency 'WhirlyGlobe/octencoding'
     mc.dependency 'WhirlyGlobe/Lib'
     mc.dependency 'WhirlyGlobe/MaplyComponent-Headers'
-#    mc.dependency 'KissXML'
     mc.dependency 'SMCalloutView'
     mc.dependency 'FMDB'
-#    mc.dependency 'GoogleProtobuf', '3.0.0'
     mc.libraries = 'z', 'xml2'
     mc.frameworks = 'CoreLocation', 'MobileCoreServices', 'SystemConfiguration', 'CFNetwork'
   end
