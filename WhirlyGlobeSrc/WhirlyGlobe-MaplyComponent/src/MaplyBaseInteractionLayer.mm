@@ -2126,12 +2126,12 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             // Set up the textures and convert the geometry
             MaplyGeomModel *model = it->model;
             
-            // Reference count the textures for this comp obj
-            compObj.textures.insert(model->maplyTextures.begin(),model->maplyTextures.end());
-            
             // Return an existing base model or make a new one
             SimpleIdentity baseModelID = [model getBaseModel:self fontTexManager:fontTexManager compObj:compObj mode:threadMode];
             
+            // Reference count the textures for this comp obj
+            compObj.textures.insert(model->maplyTextures.begin(),model->maplyTextures.end());
+
             if (baseModelID != EmptyIdentity)
             {
                 // Convert the instances
