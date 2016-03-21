@@ -14,6 +14,19 @@
 		2B14BFE11B86446700CE29A4 /* smartplates.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = smartplates.png; sourceTree = "<group>"; };
 		2B14BFE21B86446700CE29A4 /* worldatlas.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = worldatlas.png; sourceTree = "<group>"; };
 		2B19B10B1AB7F4AE00862BCD /* epicenter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epicenter.png; sourceTree = "<group>"; };
+		2B2E59E01CA06E9B008FFE4A /* locationtech_March_20_2016.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = locationtech_March_20_2016.md; path = ../locationtech/locationtech_March_20_2016.md; sourceTree = "<group>"; };
+		2B2E59E21CA06EDC008FFE4A /* natgeodarksky.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = natgeodarksky.jpg; path = ../locationtech/images/natgeodarksky.jpg; sourceTree = "<group>"; };
+		2B2E59E31CA07EC7008FFE4A /* androidbng.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = androidbng.jpg; path = ../locationtech/images/androidbng.jpg; sourceTree = "<group>"; };
+		2B2E59E41CA07EC7008FFE4A /* clustercompare.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = clustercompare.jpg; path = ../locationtech/images/clustercompare.jpg; sourceTree = "<group>"; };
+		2B2E59E51CA07EC7008FFE4A /* clusteringanimation.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = clusteringanimation.gif; path = ../locationtech/images/clusteringanimation.gif; sourceTree = "<group>"; };
+		2B2E59E61CA07EC7008FFE4A /* gaiagps.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = gaiagps.jpeg; path = ../locationtech/images/gaiagps.jpeg; sourceTree = "<group>"; };
+		2B2E59E71CA07EC7008FFE4A /* gaiagpsweb.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = gaiagpsweb.jpg; path = ../locationtech/images/gaiagpsweb.jpg; sourceTree = "<group>"; };
+		2B2E59E81CA07EC7008FFE4A /* infinite_scroll.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = infinite_scroll.gif; path = ../locationtech/images/infinite_scroll.gif; sourceTree = "<group>"; };
+		2B2E59E91CA07EC7008FFE4A /* multiload.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = multiload.gif; path = ../locationtech/images/multiload.gif; sourceTree = "<group>"; };
+		2B2E59EA1CA07EC7008FFE4A /* multiloadnumbers.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = multiloadnumbers.gif; path = ../locationtech/images/multiloadnumbers.gif; sourceTree = "<group>"; };
+		2B2E59EB1CA07EC7008FFE4A /* natgeo.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = natgeo.jpg; path = ../locationtech/images/natgeo.jpg; sourceTree = "<group>"; };
+		2B2E59EC1CA07EC7008FFE4A /* stamensphericalmercator.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = stamensphericalmercator.jpg; path = ../locationtech/images/stamensphericalmercator.jpg; sourceTree = "<group>"; };
+		2B2E59ED1CA07EC7008FFE4A /* vectorlabelmarker.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = vectorlabelmarker.jpg; path = ../locationtech/images/vectorlabelmarker.jpg; sourceTree = "<group>"; };
 		2B4E068B1A152FAF00ADA318 /* _config.yml */ = {isa = PBXFileReference; lastKnownFileType = text; name = _config.yml; path = ../_config.yml; sourceTree = "<group>"; };
 		2B4E068D1A152FB500ADA318 /* tutorial.yaml */ = {isa = PBXFileReference; lastKnownFileType = text; path = tutorial.yaml; sourceTree = "<group>"; };
 		2B4E068F1A152FD700ADA318 /* app_entry.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = app_entry.html; sourceTree = "<group>"; };
@@ -166,6 +179,34 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		2B2E59DF1CA06E86008FFE4A /* locationtech */ = {
+			isa = PBXGroup;
+			children = (
+				2B2E59E01CA06E9B008FFE4A /* locationtech_March_20_2016.md */,
+				2B2E59E11CA06ECC008FFE4A /* images */,
+			);
+			name = locationtech;
+			sourceTree = "<group>";
+		};
+		2B2E59E11CA06ECC008FFE4A /* images */ = {
+			isa = PBXGroup;
+			children = (
+				2B2E59E31CA07EC7008FFE4A /* androidbng.jpg */,
+				2B2E59E41CA07EC7008FFE4A /* clustercompare.jpg */,
+				2B2E59E51CA07EC7008FFE4A /* clusteringanimation.gif */,
+				2B2E59E61CA07EC7008FFE4A /* gaiagps.jpeg */,
+				2B2E59E71CA07EC7008FFE4A /* gaiagpsweb.jpg */,
+				2B2E59E81CA07EC7008FFE4A /* infinite_scroll.gif */,
+				2B2E59E91CA07EC7008FFE4A /* multiload.gif */,
+				2B2E59EA1CA07EC7008FFE4A /* multiloadnumbers.gif */,
+				2B2E59EB1CA07EC7008FFE4A /* natgeo.jpg */,
+				2B2E59EC1CA07EC7008FFE4A /* stamensphericalmercator.jpg */,
+				2B2E59ED1CA07EC7008FFE4A /* vectorlabelmarker.jpg */,
+				2B2E59E21CA06EDC008FFE4A /* natgeodarksky.jpg */,
+			);
+			name = images;
+			sourceTree = "<group>";
+		};
 		2B4E06841A152F8C00ADA318 = {
 			isa = PBXGroup;
 			children = (
@@ -179,6 +220,7 @@
 				2B4E069F1A152FD700ADA318 /* apps */,
 				2B4E06A11A152FD700ADA318 /* css */,
 				2B4E06A51A152FD700ADA318 /* js */,
+				2B2E59DF1CA06E86008FFE4A /* locationtech */,
 				2B4E06B61A153FB100ADA318 /* images */,
 				2B4E06A71A152FD700ADA318 /* tutorial */,
 				2B76A0191A1B122D00C60136 /* reference */,
