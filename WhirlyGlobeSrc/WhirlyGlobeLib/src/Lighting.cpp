@@ -61,7 +61,7 @@ bool WhirlyKitDirectionalLight::bindToProgram(OpenGLES2Program *program, int ind
     if (viewDependUni)
     {
         glUniform1f(viewDependUni->index, (viewDependent ? 0.0 : 1.0));
-        //CheckGLError("WhirlyKitDirectionalLight::bindToProgram glUniform1f");
+        CheckGLError("WhirlyKitDirectionalLight::bindToProgram glUniform1f");
     }
     if (dirUni)
     {

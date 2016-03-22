@@ -18,11 +18,12 @@
  *
  */
 #include <Eigen/Eigen>
-#include "OpenGLES2Program.h"
 
 #define kWKOGLNumLights "u_numLights"
 
 namespace WhirlyKit {
+
+class OpenGLES2Program;
 
 /** This implements a simple directional light source
 */
@@ -38,19 +39,19 @@ public:
 
     /// Light position
     const Eigen::Vector3f& getPos(){ return pos; }
-    void setPos(Eigen::Vector3f value){ pos = value; }
+    void setPos(const Eigen::Vector3f& value){ pos = value; }
 
     /// Ambient light color
     const Eigen::Vector4f& getAmbient() { return ambient; }
-    void setAmbient(Eigen::Vector4f value){ ambient = value; }
+    void setAmbient(const Eigen::Vector4f& value){ ambient = value; }
 
     /// Diffuse light color
     const Eigen::Vector4f& getDiffuse() { return diffuse; }
-    void setDiffuse(Eigen::Vector4f value){ diffuse = value; }
+    void setDiffuse(const Eigen::Vector4f& value){ diffuse = value; }
 
     /// Specular light color
     const Eigen::Vector4f getSpecular() { return specular; }
-    void setSpecular(Eigen::Vector4f value){ specular = value; }
+    void setSpecular(const Eigen::Vector4f& value){ specular = value; }
 
     /// Bind this light (given the index) to the program.
     /// Don't call this yourself.
@@ -71,18 +72,18 @@ class WhirlyKitMaterial
 {
 public:
     WhirlyKitMaterial();
-    ~WhirlyKitMaterial();
+    virtual ~WhirlyKitMaterial();
 
     /// Ambient material color
-    void setAmbient(Eigen::Vector4f value){ ambient = value; }
+    void setAmbient(const Eigen::Vector4f& value){ ambient = value; }
     const Eigen::Vector4f& getAmbient() { return ambient; }
 
     /// Diffuse material color
-    void setDiffuse(Eigen::Vector4f value) { diffuse = value; }
+    void setDiffuse(const Eigen::Vector4f& value) { diffuse = value; }
     const Eigen::Vector4f& getDiffuse() { return diffuse; }
 
     /// Specular component of material color
-    void setSpecular(Eigen::Vector4f value) { specular = value; }
+    void setSpecular(const Eigen::Vector4f& value) { specular = value; }
     const Eigen::Vector4f& getSpecular() { return specular; }
 
     /// Specular exponent used in lighting

@@ -23,11 +23,14 @@
 #import "WhirlyTypes.h"
 #import "Identifiable.h"
 #import "WhirlyVector.h"
-#include "Lighting.h"
+
 
 namespace WhirlyKit
 {
-    
+
+class WhirlyKitDirectionalLight;
+class WhirlyKitMaterial;
+
 /// Used to track a uniform within an OpenGL ES 2.0 shader program
 class OpenGLESUniform
 {
