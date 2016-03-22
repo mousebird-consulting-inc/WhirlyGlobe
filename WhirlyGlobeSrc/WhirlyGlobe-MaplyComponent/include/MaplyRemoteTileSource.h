@@ -21,11 +21,83 @@
 #import "MaplyTileSource.h"
 #import "MaplyCoordinateSystem.h"
 
+@protocol MaplyRemoteTileInfoProtocol
+
+/** @brief The coordinate system the image pyramid is in.
+ @details This is typically going to be MaplySphericalMercator
+ with the web mercator extents.  That's what you'll get from
+ OpenStreetMap and, often, MapBox.  In other cases it might
+ be MaplyPlateCarree, which covers the whole earth.  Sometimes
+ it might even be something unique of your own.
+ */
+- (MaplyCoordinateSystem * _Nullable) coordSys;
+
+/** @brief The minimum zoom level available.
+ @details This is the lowest level we'll try to fetch.  Any levels below that will be filled in with placeholders.  Those are empty, but they allow us to load tiles beneath.
+ */
+- (int) minZoom;
+
+/** @brief The maximum zoom level available.
+ @details This is the highest level (e.g. largest) that we'll
+ fetch for a given pyramid tile source.  The source can sparse,
+ so you are not required to have these tiles available, but this
+ is as high as the MaplyQuadImageTilesLayer will fetch.
+ */
+- (int)maxZoom;
+
+/** @brief Number of pixels on a side for any given tile.
+ @details This is the number of pixels on any side for a
+ given tile and it's typically 128 or 256.  This is largely
+ a hint for the screen space based pager.  In most cases you
+ are not required to actually return an image of the size
+ you specify here, but it's a good idea.
+ */
+- (int) pixelsPerSide;
+
+/** @brief Generate the request for a given tile.
+ @details If someone outside of this request wants to fetch the data directly, they can do so by using this NSURLRequest.
+ @param tileID The tile we'd like the NSURLRequest for.
+ @return An NSURLRequest object you can use to fetch data for the tile.
+ */
+- (nullable NSURLRequest *)requestForTile:(MaplyTileID)tileID;
+
+/** @brief Check if a given tile is stored in the local cache.
+ @details This checks if the given tile ID is represented in the local cache directory.
+ @param tileID The tile we'd like to check for.
+ @param frame If you're loading individual frames this will be the frame.  Otherwise, -1.
+ */
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame;
+
+/** @brief Check if we should even try to load a given tile.
+ @details Check whether tile level is within zoom limits for the source, and if the tile is within any MBRs that have been added.
+ @param tileID The tile we're asking about.
+ @param bbox The bounding box of the tile we're asking about, for convenience.
+ @return True if the tile is loadable, false if not.
+ */
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox;
+
+/** @brief Read a tile from your local cache.
+    @details If you have a cache, read the tile from that cache and return it.  This is a synchronous call.
+    @details If you don't have a cache, just return nil.
+    @param tileID The tile to read from your cache.
+  */
+- (NSData * _Nullable)readFromCache:(MaplyTileID)tileID;
+
+/** @brief Write a given data tile to your local cache.
+    @details With this call, you're supposed to write the tile, which has presumably been fetched remotely to your own cache.
+    @details If you don't have a cache, don't do anything.
+    @param tileID Tile to write to cache.
+    @param tileData Data for tile.
+  */
+- (void)writeToCache:(MaplyTileID)tileID tileData:(NSData * _Nonnull)tileData;
+
+@end
+
 /** The remote tile info encapsulates settings for a remote tile source.
     It describes where the tile source is and presents URLs for getting the data,
     and information about local caching.
  */
-@interface MaplyRemoteTileInfo : NSObject
+@interface MaplyRemoteTileInfo : NSObject<MaplyRemoteTileInfoProtocol>
 
 /** @brief Initialize with enough information to fetch remote tiles.
  @details This version of the init method takes all the explicit
@@ -260,11 +332,11 @@
     in and then call this initializaer.
     @param info The MaplyRemoteTileInfo describing where to fetch the tiles.
   */
-- (nullable instancetype)initWithInfo:(MaplyRemoteTileInfo *__nonnull)info;
+- (nullable instancetype)initWithInfo:(NSObject<MaplyRemoteTileInfoProtocol> *__nonnull)info;
 
 /** @brief Description of where we fetch the tiles from and where to cache them.
   */
-@property (nonatomic,readonly,nonnull) MaplyRemoteTileInfo *tileInfo;
+@property (nonatomic,readonly,nonnull) NSObject<MaplyRemoteTileInfoProtocol> *tileInfo;
 
 /** @brief A delegate for tile loads and failures.
     @details If set, you'll get callbacks when the various tiles load (or don't). You get called in all sorts of threads.  Act accordingly.
