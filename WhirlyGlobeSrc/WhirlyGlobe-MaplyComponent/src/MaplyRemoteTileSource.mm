@@ -152,6 +152,18 @@ static bool trackConnections = false;
     }
     
     NSString *localName = [NSString stringWithFormat:@"%@/%d_%d_%d.%@",_cacheDir,tileID.level,tileID.x,tileID.y,(_ext ? _ext : @"unk")];
+    
+    if (_cachedFileLifetime > 0)
+    {
+        NSDate *timeStamp = [MaplyRemoteTileInfo dateForFile:localName];
+        if (timeStamp)
+        {
+            int ageOfFile = (int) [[NSDate date] timeIntervalSinceDate:timeStamp];
+            if (ageOfFile > _cachedFileLifetime)
+                return nil;
+        }
+    }
+    
     return localName;
 }
 
@@ -192,6 +204,26 @@ static bool trackConnections = false;
     NSDate *fileTimestamp = [fileAttributes fileModificationDate];
     
     return fileTimestamp;
+}
+
+- (NSData *)readFromCache:(MaplyTileID)tileID
+{
+    if (!_cacheDir)
+        return nil;
+    
+    NSString *fileName = [self fileNameForTile:tileID];
+    return [NSData dataWithContentsOfFile:fileName];
+}
+
+- (void)writeToCache:(MaplyTileID)tileID tileData:(NSData * _Nonnull)tileData
+{
+    if (!_cacheDir)
+        return;
+    
+    NSString *fileName = [self fileNameForTile:tileID];
+    
+    if (fileName)
+        [tileData writeToFile:fileName atomically:YES];
 }
 
 - (NSURLRequest *)requestForTile:(MaplyTileID)tileID
@@ -314,17 +346,22 @@ static bool trackConnections = false;
 
 - (void)setCoordSys:(MaplyCoordinateSystem *)coordSys
 {
-    _tileInfo.coordSys = coordSys;
+    if ([_tileInfo isKindOfClass:[MaplyRemoteTileSource class]])
+        [(MaplyRemoteTileSource *)_tileInfo setCoordSys:coordSys];
 }
 
 - (NSString *)cacheDir
 {
-    return _tileInfo.cacheDir;
+    if ([_tileInfo isKindOfClass:[MaplyRemoteTileSource class]])
+        return ((MaplyRemoteTileSource *)_tileInfo).cacheDir;
+    else
+        return nil;
 }
 
 - (void)setCacheDir:(NSString *)cacheDir
 {
-    _tileInfo.cacheDir = cacheDir;
+    if ([_tileInfo isKindOfClass:[MaplyRemoteTileSource class]])
+        [(MaplyRemoteTileSource *)_tileInfo setCacheDir:cacheDir];
 }
 
 - (int)minZoom
@@ -393,17 +430,7 @@ static bool trackConnections = false;
     if ([_tileInfo tileIsLocal:tileID frame:-1])
     {
         bool doLoad = true;
-        NSString *fileName = [_tileInfo fileNameForTile:tileID];
-        if (_tileInfo.cachedFileLifetime > 0)
-        {
-            NSDate *timeStamp = [MaplyRemoteTileInfo dateForFile:fileName];
-            if (timeStamp)
-            {
-                int ageOfFile = (int) [[NSDate date] timeIntervalSinceDate:timeStamp];
-                if (ageOfFile > _tileInfo.cachedFileLifetime)
-                    doLoad = false;
-            }
-        }
+        
         if (doLoad)
         {
             if (trackConnections)
@@ -411,7 +438,7 @@ static bool trackConnections = false;
             {
                 numConnections--;
             }
-            NSData *tileData = [NSData dataWithContentsOfFile:fileName];
+            NSData *tileData = [_tileInfo readFromCache:tileID];
             if (tileData)
             {
                 if ([_delegate respondsToSelector:@selector(remoteTileSource:modifyTileReturn:forTile:)])
@@ -440,8 +467,8 @@ static bool trackConnections = false;
             tileData = nil;
         
         // Let's also write it back out for the cache
-        if (_tileInfo.cacheDir && tileData)
-            [tileData writeToFile:[_tileInfo fileNameForTile:tileID] atomically:YES];
+        if (tileData)
+            [_tileInfo writeToCache:tileID tileData:tileData];
         
         if ([_delegate respondsToSelector:@selector(remoteTileSource:modifyTileReturn:forTile:)])
             tileData = [_delegate remoteTileSource:self modifyTileReturn:tileData forTile:tileID];
@@ -471,15 +498,10 @@ static bool trackConnections = false;
     }
     
     NSData *imgData = nil;
-    NSString *fileName = nil;
     // Look for the image in the cache first
-    if (_tileInfo.cacheDir)
+    if ([_tileInfo tileIsLocal:tileID frame:-1])
     {
-        fileName = [_tileInfo fileNameForTile:tileID];
-        if ([_tileInfo tileIsLocal:tileID frame:-1])
-        {
-            imgData = [self imageForTile:tileID];
-        }
+        imgData = [self imageForTile:tileID];
     }
     
     if (imgData)
@@ -530,8 +552,7 @@ static bool trackConnections = false;
                             [weakSelf.delegate remoteTileSource:weakSelf tileDidLoad:tileID];
 
                         // Let's also write it back out for the cache
-                        if (weakSelf.tileInfo.cacheDir)
-                            [imgData writeToFile:fileName atomically:YES];
+                        [weakSelf.tileInfo writeToCache:tileID tileData:imgData];
 
                         if ([_delegate respondsToSelector:@selector(remoteTileSource:modifyTileReturn:forTile:)])
                             imgData = [_delegate remoteTileSource:self modifyTileReturn:imgData forTile:tileID];
