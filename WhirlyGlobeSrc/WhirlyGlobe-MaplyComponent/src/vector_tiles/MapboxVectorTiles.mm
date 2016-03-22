@@ -496,8 +496,8 @@ static double MAX_EXTENT = 20037508.342789244;
         // Note: This should be a vector specific version
         MaplyRemoteTileInfo *tileInfo = [[MaplyRemoteTileInfo alloc] initWithBaseURL:tileURL ext:ext minZoom:minZoom maxZoom:maxZoom];
         MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithInfo:tileInfo];
-        if (accessToken)
-            tileSource.tileInfo.queryStr = [NSString stringWithFormat:@"access_token=%@",accessToken];
+        if (accessToken && [tileSource.tileInfo isKindOfClass:[MaplyRemoteTileInfo class]])
+            ((MaplyRemoteTileInfo *)tileSource.tileInfo).queryStr = [NSString stringWithFormat:@"access_token=%@",accessToken];
         tileSource.cacheDir = cacheDir;
         if (!tileSource)
         {
@@ -568,9 +568,9 @@ static double MAX_EXTENT = 20037508.342789244;
     
     for (MaplyRemoteTileSource *tileSource in _tileSources)
     {
-        if ([tileSource isKindOfClass:[MaplyRemoteTileSource class]])
+        if ([tileSource.tileInfo isKindOfClass:[MaplyRemoteTileInfo class]])
         {
-            tileSource.tileInfo.queryStr = [NSString stringWithFormat:@"access_token=%@",_accessToken];
+            ((MaplyRemoteTileInfo *)tileSource.tileInfo).queryStr = [NSString stringWithFormat:@"access_token=%@",_accessToken];
         }
     }
 }
