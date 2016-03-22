@@ -5,6 +5,8 @@ layout: default
 
 We're going to discuss some map related features of the [WhirlyGlobe-Maply toolkit](http://mousebird.github.io/WhirlyGlobe).  The toolkit is an open source, mobile centric geospatial display toolkit.  It’s used in a variety of weather, aviation, geography and map apps.
 
+The company that makes WhirlyGlobe-Maply, mousebird consulting inc, is a member of LocationTech.  The toolkit itself predates LocationTech and so is not a formal LocationTech project.
+
 Two of the more prominent examples are [Dark Sky](https://itunes.apple.com/us/app/dark-sky-weather-radar-hyperlocal/id517329357?mt=8), a weather predication app and [National Geographic World Atlas](https://itunes.apple.com/us/app/national-geographic-world/id364733950?mt=8), which is exactly what it sounds like.
 
 ![NatGeo World Atlas & Dark Sky]({{ site.baseurl }}/locationtech/images/natgeodarksky.jpg)
