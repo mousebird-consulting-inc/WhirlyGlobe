@@ -19,8 +19,7 @@
  */
 
 #import "SceneRendererES.h"
-// Note: Porting
-//#import "Lighting.h"
+#import "Lighting.h"
 #import "WhirlyTypes.h"
 #import "glwrapper.h"
 
@@ -40,16 +39,13 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     /// Add a light to the existing set
-    // Note: Porting
-//    void addLight(WhirlyKitDirectionalLight *light);
+    void addLight(WhirlyKitDirectionalLight *light);
     
     /// Replace all the lights at once. nil turns off lighting
-    // Note: Porting
-//    void replaceLights(NSArray *lights);
+    void replaceLights(std::vector<WhirlyKitDirectionalLight*> _lights);
     
     /// Set the default material
-    // Note: Porting
-//    void setDefaultMaterial(WhirlyKitMaterial *mat);
+    void setDefaultMaterial(WhirlyKitMaterial *mat);
     
     /// The next time through we'll redo the render setup.
     /// We might need this if the view has switched away and then back.
@@ -67,13 +63,12 @@ protected:
     bool renderSetup;
     OpenGLStateOptimizer *renderStateOptimizer;
     
-    // Note: Porting
-//    NSMutableArray *lights;
     TimeInterval lightsLastUpdated;
-    // Note: Porting
-//    WhirlyKitMaterial *defaultMat;
+    WhirlyKitMaterial *defaultMat;
     
     bool extraFrameDrawn;
+    std::vector<WhirlyKitDirectionalLight*> lights;
+
 };
         
 }

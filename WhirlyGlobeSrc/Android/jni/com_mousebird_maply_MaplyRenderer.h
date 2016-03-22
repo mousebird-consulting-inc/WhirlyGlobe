@@ -65,6 +65,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setPerfInterval
 
 /*
  * Class:     com_mousebird_maply_MaplyRenderer
+ * Method:    addLight
+ * Signature: (Lcom/mousebird/maply/DirectionalLight;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_addLight
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_MaplyRenderer
+ * Method:    replaceLights
+ * Signature: (Ljava/util/List;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_replaceLights
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_MaplyRenderer
  * Method:    nativeInit
  * Signature: ()V
  */

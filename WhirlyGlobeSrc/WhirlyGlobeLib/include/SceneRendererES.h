@@ -24,8 +24,7 @@
 #import "Scene.h"
 #import "PerformanceTimer.h"
 #import "Cullable.h"
-// Note: Porting
-//#import "Lighting.h"
+#import "Lighting.h"
 
 namespace WhirlyKit
 {
@@ -162,12 +161,11 @@ public:
     /// Height above surface, if that makes sense
     float heightAboveSurface;
     /// Screen size in display coordinates
-    WhirlyKit::Point2d screenSizeInDisplayCoords;
+    Point2d screenSizeInDisplayCoords;
     /// If using OpenGL ES 2.x, this is the shader
-    WhirlyKit::OpenGLES2Program *program;
+    OpenGLES2Program *program;
     /// Lights, if applicableNSArray *lights;
-    // Note: Porting
-//    NSArray *lights;
+    std::vector<WhirlyKitDirectionalLight*> *lights;
     /// State optimizer.  Used when setting state for drawing
     OpenGLStateOptimizer *stateOpt;
 };

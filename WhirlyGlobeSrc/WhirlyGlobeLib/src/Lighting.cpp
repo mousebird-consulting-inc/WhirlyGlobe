@@ -19,6 +19,9 @@
  */
 #include "Lighting.h"
 #include "GLUtils.h"
+#include "OpenGLES2Program.h"
+
+using namespace Eigen;
 
 namespace WhirlyKit
 {
@@ -26,9 +29,9 @@ namespace WhirlyKit
 WhirlyKitDirectionalLight::WhirlyKitDirectionalLight() :
     viewDependent(true),
     pos(Eigen::Vector3f(0,0,0)),
-    ambient(Eigen::Vector4f(0,0,0,0)),
-    diffuse(Eigen::Vector4f(0,0,0,0)),
-    specular(Eigen::Vector4f(0,0,0,0))
+    ambient(Eigen::Vector4f(1,1,1,1)),
+    diffuse(Eigen::Vector4f(1,1,1,1)),
+    specular(Eigen::Vector4f(1,1,1,1))
 {
 };
 
@@ -36,7 +39,7 @@ WhirlyKitDirectionalLight::~WhirlyKitDirectionalLight()
 {
 }
 
-bool WhirlyKitDirectionalLight::bindToProgram(WhirlyKit::OpenGLES2Program *program, int index, Eigen::Matrix4f modelMat)
+bool WhirlyKitDirectionalLight::bindToProgram(OpenGLES2Program *program, int index, Eigen::Matrix4f modelMat)
     {
     char name[128];
     sprintf(name, "light[%d].viewdepend", index);
@@ -91,10 +94,10 @@ bool WhirlyKitDirectionalLight::bindToProgram(WhirlyKit::OpenGLES2Program *progr
 
 
 WhirlyKitMaterial::WhirlyKitMaterial() :
-    ambient(Eigen::Vector4f(1 ,1 , 1, 1)),
-    diffuse(Eigen::Vector4f(1 ,1 ,1 ,1 )),
-    specular(Eigen::Vector4f(0 ,0 ,0 ,0)),
-    specularExponent(1.0)
+    ambient(Eigen::Vector4f(1,1,1,1)),
+    diffuse(Eigen::Vector4f(1,1,1,1)),
+    specular(Eigen::Vector4f(1,1,1,1)),
+    specularExponent(1)
 {
 }
 
@@ -102,7 +105,7 @@ WhirlyKitMaterial::~WhirlyKitMaterial()
 {
 }
 
-bool WhirlyKitMaterial::bindToProgram(WhirlyKit::OpenGLES2Program *program)
+bool WhirlyKitMaterial::bindToProgram(OpenGLES2Program *program)
 {
     return program->setUniform("material.ambient", ambient) &&
            program->setUniform("material.diffuse", diffuse) &&

@@ -54,7 +54,7 @@ public:
 
     /// Bind this light (given the index) to the program.
     /// Don't call this yourself.
-    bool bindToProgram(WhirlyKit::OpenGLES2Program *program, int index, Eigen::Matrix4f modelMat);
+    bool bindToProgram(OpenGLES2Program *program, int index, Eigen::Matrix4f modelMat);
 
 private:
     Eigen::Vector3f pos;
@@ -91,7 +91,7 @@ public:
 
     /// Bind this material to a the given OpenGL ES program.
     /// Don't call this yourself.
-    bool bindToProgram(WhirlyKit::OpenGLES2Program *program);
+    bool bindToProgram(OpenGLES2Program *program);
 
 private:
     Eigen::Vector4f ambient;

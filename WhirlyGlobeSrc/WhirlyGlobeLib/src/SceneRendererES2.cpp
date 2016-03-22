@@ -100,21 +100,18 @@ SceneRendererES2::SceneRendererES2()
 // Note: Porting
 : SceneRendererES(2), renderStateOptimizer(NULL), renderSetup(false), extraFrameDrawn(false)
 {
-    // Note: Porting
-//    lights = [NSMutableArray array];
-//    
-//    // Add a simple default light
-//    WhirlyKitDirectionalLight *light = [[WhirlyKitDirectionalLight alloc] init];
-//    [light setPos:Vector3f(0.75, 0.5, -1.0)];
-//    light.viewDependent = true;
-//    light.ambient = Vector4f(0.6, 0.6, 0.6, 1.0);
-//    light.diffuse = Vector4f(0.5, 0.5, 0.5, 1.0);
-//    light.specular = Vector4f(0, 0, 0, 0);
-//    lightsLastUpdated = 0;
-//    addLight(light);
-//
-//    // And a basic material
-//    setDefaultMaterial([[WhirlyKitMaterial alloc] init]);
+    // Add a simple default light
+    WhirlyKitDirectionalLight *light = new WhirlyKitDirectionalLight();
+    light->setPos(Vector3f(0.75,0.5, -1.0));
+    light->setViewDependent(true);
+    light->setAmbient(Vector4f(0.6,0.6,0.6,1.0));
+    light->setDiffuse(Vector4f(0.5,0.5,0.5,1.0));
+    light->setSpecular(Vector4f(0,0,0,0));
+    lightsLastUpdated = 0;
+    addLight(light);
+
+   // And a basic material
+    setDefaultMaterial(new WhirlyKitMaterial());
 
     lightsLastUpdated = TimeGetCurrent();
     
@@ -153,33 +150,28 @@ void SceneRendererES2::setScene(WhirlyKit::Scene *inScene)
     lightsLastUpdated = TimeGetCurrent();
 }
 
-// Note: Porting
-///// Add a light to the existing set
-//void SceneRendererES2::addLight(WhirlyKitDirectionalLight *light)
-//{
-//    if (!lights)
-//        lights = [NSMutableArray array];
-//    [lights addObject:light];
-//    lightsLastUpdated = CFAbsoluteTimeGetCurrent();
-//    triggerDraw = true;
-//}
+/// Add a light to the existing set
+void SceneRendererES2::addLight(WhirlyKitDirectionalLight *light)
+{
+    lights.push_back(light);
+    lightsLastUpdated = TimeGetCurrent();
+    triggerDraw = true;
+}
 
-// Note: Porting
 /// Replace all the lights at once. nil turns off lighting
-//void SceneRendererES2::replaceLights(NSArray *inLights)
-//{
-//    lights = [NSMutableArray arrayWithArray:inLights];
-//    lightsLastUpdated = CFAbsoluteTimeGetCurrent();
-//    triggerDraw = true;
-//}
+void SceneRendererES2::replaceLights(std::vector<WhirlyKitDirectionalLight*> _lights)
+{
+    lights = _lights;
+    lightsLastUpdated = TimeGetCurrent();
+    triggerDraw = true;
+}
 
-// Note: Porting
-//void SceneRendererES2::setDefaultMaterial(WhirlyKitMaterial *mat)
-//{
-//    defaultMat = mat;
-//    lightsLastUpdated = CFAbsoluteTimeGetCurrent();
-//    triggerDraw = true;
-//}
+void SceneRendererES2::setDefaultMaterial(WhirlyKitMaterial *mat)
+{
+    defaultMat = mat;
+    lightsLastUpdated = TimeGetCurrent();
+    triggerDraw = true;
+}
 
 void SceneRendererES2::setClearColor(const RGBAColor &color)
 {
@@ -348,8 +340,7 @@ void SceneRendererES2::render()
         theView->getOffsetMatrices(baseFrameInfo.offsetMatrices, frameSize);
         Point2d screenSize = theView->screenSizeInDisplayCoords(frameSize);
         baseFrameInfo.screenSizeInDisplayCoords = screenSize;
-        // Note: Porting
-//        frameInfo.lights = lights;
+        baseFrameInfo.lights = &lights;
         baseFrameInfo.stateOpt = renderStateOptimizer;
 		
         // We need a reverse of the eye vector in model space
@@ -606,11 +597,10 @@ void SceneRendererES2::render()
                     glUseProgram(program->getProgram());
                     // Assign the lights if we need to
                     // Note: Porting
-//                    if (program->hasLights() && ([lights count] > 0))
-//                        program->setLights(lights, lightsLastUpdated, defaultMat, frameInfo.mvpMat);
+                    if (program->hasLights() && (lights.size() > 0))
+                        program->setLights(lights, lightsLastUpdated, defaultMat, baseFrameInfo.mvpMat);
                     // Explicitly turn the lights on
-                    // Note: Porting
-//                    program->setUniform(kWKOGLNumLights, (int)[lights count]);
+                    program->setUniform(kWKOGLNumLights, (int)lights.size());
 
                     baseFrameInfo.program = program;
                 }
@@ -682,8 +672,7 @@ void SceneRendererES2::render()
             orthoMat(2,3) = 0.0f;
             baseFrameInfo.mvpMat = orthoMat;
             // Turn off lights
-            // Note: Porting
-//            baseFrameInfo.lights = nil;
+            baseFrameInfo.lights->clear();
             
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {
@@ -704,8 +693,7 @@ void SceneRendererES2::render()
 //                            [renderStateOptimizer setUseProgram:program->getProgram()];
                             glUseProgram(program->getProgram());
                             // Explicitly turn the lights off
-                            // Note: Porting
-//                            program->setUniform(kWKOGLNumLights, 0);
+                            program->setUniform(kWKOGLNumLights, 0);
                             baseFrameInfo.program = program;
                         }
                     }

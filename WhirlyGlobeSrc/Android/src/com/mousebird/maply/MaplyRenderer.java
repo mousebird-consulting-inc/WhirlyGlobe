@@ -21,6 +21,7 @@
 package com.mousebird.maply;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.microedition.khronos.egl.*;
 
@@ -118,6 +119,8 @@ class MaplyRenderer
 	protected native boolean resize(int width,int height);
 	protected native void render();
 	public native void setPerfInterval(int perfInterval);
+	public native void addLight(DirectionalLight light);
+	public native void replaceLights(List<DirectionalLight> lights);
 
 	static
 	{

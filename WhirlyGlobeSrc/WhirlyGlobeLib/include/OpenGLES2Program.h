@@ -23,6 +23,7 @@
 #import "WhirlyTypes.h"
 #import "Identifiable.h"
 #import "WhirlyVector.h"
+#include "Lighting.h"
 
 namespace WhirlyKit
 {
@@ -140,8 +141,7 @@ public:
     
     /// Set the attributes associated with lighting.
     /// We'll check their last updated time against ours.
-    // Note: Porting
-//    bool setLights(NSArray *lights,CFTimeInterval lastUpdated,WhirlyKitMaterial *mat,Eigen::Matrix4f &modelMat);
+    bool setLights(std::vector<WhirlyKitDirectionalLight*> lights, TimeInterval lastUpdated, WhirlyKitMaterial *mat, Eigen::Matrix4f &modelMat);
     
     /// Search for the given attribute name and return the info.  NULL on failure.
     const OpenGLESAttribute *findAttribute(const std::string &attrName);

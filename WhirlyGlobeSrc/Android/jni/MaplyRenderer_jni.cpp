@@ -239,3 +239,61 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_render
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MaplyRenderer::render()");
 	}
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_addLight
+(JNIEnv *env, jobject obj, jobject lightObj)
+{
+    try
+    {
+        MaplySceneRendererInfo *classInfo = MaplySceneRendererInfo::getClassInfo();
+        MaplySceneRenderer *renderer = classInfo->getObject(env,obj);
+        WhirlyKitDirectionalLight *light = DirectionalLightClassInfo::getClassInfo()->getObject(env, lightObj);
+        if (!renderer || !light)
+            return;
+
+        renderer->addLight(light);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MaplyRenderer::addLight()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_replaceLights
+(JNIEnv *env, jobject obj, jobject arrayObj)
+{
+    try
+    {
+        MaplySceneRendererInfo *classInfo = MaplySceneRendererInfo::getClassInfo();
+        MaplySceneRenderer *renderer = classInfo->getObject(env,obj);
+        if (!renderer)
+            return;
+
+        // Get the iterator
+        // Note: Look these up once
+        jclass listClass = env->GetObjectClass(arrayObj);
+        jclass iterClass = env->FindClass("java/util/Iterator");
+        jmethodID literMethod = env->GetMethodID(listClass,"iterator","()Ljava/util/Iterator;");
+        jobject liter = env->CallObjectMethod(arrayObj,literMethod);
+        jmethodID hasNext = env->GetMethodID(iterClass,"hasNext","()Z");
+        jmethodID next = env->GetMethodID(iterClass,"next","()Ljava/lang/Object;");
+        env->DeleteLocalRef(iterClass);
+        env->DeleteLocalRef(listClass);
+
+        std::vector<WhirlyKitDirectionalLight*> lights;
+        DirectionalLightClassInfo *directionalLightClassInfo = DirectionalLightClassInfo::getClassInfo();
+        while (env->CallBooleanMethod(liter, hasNext))
+        {
+            jobject javaVecObj = env->CallObjectMethod(liter, next);
+            WhirlyKitDirectionalLight *light = directionalLightClassInfo->getObject(env,javaVecObj);
+            lights.push_back(light);
+            env->DeleteLocalRef(javaVecObj);
+        }
+        env->DeleteLocalRef(liter);
+        renderer->replaceLights(lights);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MaplyRenderer::replaceLights()");
+    }
+}
