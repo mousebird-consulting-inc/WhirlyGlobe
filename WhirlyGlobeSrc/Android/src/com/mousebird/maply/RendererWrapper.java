@@ -79,10 +79,28 @@ class RendererWrapper implements Renderer
 
 	int frameCount = 0;
 	Semaphore renderLock = new Semaphore(1,true);
+	boolean firstFrame = true;
 	
 	@Override
 	public void onDrawFrame(GL10 gl)
 	{
+		// This is a hack to eliminate a flash we see at the beginning
+		// It's a blank view on top of our view, which we get rid of when we
+		//  actually draw something there.
+		// http://stackoverflow.com/questions/19970829/android-and-opengl-gives-black-frame-at-startup
+		if (firstFrame)
+		{
+			firstFrame = false;
+			maplyControl.getContentView().post(
+					new Runnable() {
+						@Override
+						public void run() {
+							maplyControl.getContentView().setBackground(null);
+						}
+					}
+			);
+		}
+
 		try {
 			renderLock.acquire();
 		}

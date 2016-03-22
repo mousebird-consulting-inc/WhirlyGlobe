@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Handler;
@@ -139,6 +140,8 @@ public class MaplyBaseController
 		System.loadLibrary("Maply");
 		activity = mainActivity;
 	}
+
+	ColorDrawable tempBackground = null;
 	
 	protected void Init()
 	{		
@@ -163,7 +166,7 @@ public class MaplyBaseController
 		
         ActivityManager activityManager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
         ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
-        
+
         final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000 || isProbablyEmulator();
         if (supportsEs2)
         {
@@ -173,7 +176,11 @@ public class MaplyBaseController
         	{
         		glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
         	}
-        	
+
+			tempBackground = new ColorDrawable();
+			// This eliminates the black flash, but only if the clearColor is set right
+			tempBackground.setColor(clearColor);
+			glSurfaceView.setBackground(tempBackground);
         	glSurfaceView.setEGLContextClientVersion(2);
         	glSurfaceView.setRenderer(renderWrapper);       
         } else {
@@ -329,6 +336,8 @@ public class MaplyBaseController
         for (Runnable run : postSurfaceRunnables)
             activity.runOnUiThread(run);
         postSurfaceRunnables.clear();
+
+		setClearColor(clearColor);
 	}
 
     /**
@@ -374,6 +383,8 @@ public class MaplyBaseController
 		renderWrapper = null;
 	}
 
+	int clearColor = Color.BLACK;
+
 	/**
 	 * Set the color for the OpenGL ES background.
      */
@@ -382,7 +393,12 @@ public class MaplyBaseController
 		if (renderWrapper == null)
 			return;
 
-		renderWrapper.maplyRender.setClearColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+		clearColor = color;
+		if (tempBackground != null)
+			tempBackground.setColor(clearColor);
+
+		if (renderWrapper.maplyRender != null)
+			renderWrapper.maplyRender.setClearColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
 	}
 
 	/**
