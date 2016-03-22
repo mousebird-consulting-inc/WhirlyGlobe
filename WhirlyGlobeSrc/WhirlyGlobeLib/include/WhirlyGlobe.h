@@ -104,5 +104,6 @@
 #import "QuadTracker.h"
 #import "ShapeDrawableBuilder.h"
 #import "ShapeManager.h"
+#import "Lighting.h"
 
 

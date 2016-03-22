@@ -56,8 +56,6 @@
 		2B14BFCF1B83FE1A00CE29A4 /* BaseInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B14BFCE1B83FE1A00CE29A4 /* BaseInfo.cpp */; };
 		2B14BFD51B852C5100CE29A4 /* BasicDrawableInstance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B14BFD41B852C5100CE29A4 /* BasicDrawableInstance.h */; };
 		2B14BFD71B852C5E00CE29A4 /* BasicDrawableInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B14BFD61B852C5E00CE29A4 /* BasicDrawableInstance.cpp */; };
-		2B2E59DA1C9B624E008FFE4A /* VertexAttribute_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E59D91C9B624E008FFE4A /* VertexAttribute_jni.cpp */; };
-		2B2E59DC1C9B631A008FFE4A /* com_mousebird_maply_VertexAttribute.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2E59DB1C9B631A008FFE4A /* com_mousebird_maply_VertexAttribute.h */; };
 		2B35674318D762A700EF8DB1 /* BigDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671118D762A700EF8DB1 /* BigDrawable.cpp */; };
 		2B35674418D762A700EF8DB1 /* CoordSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671218D762A700EF8DB1 /* CoordSystem.cpp */; };
 		2B35674518D762A700EF8DB1 /* Cullable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671318D762A700EF8DB1 /* Cullable.cpp */; };
@@ -233,8 +231,6 @@
 		2B7EF42D16025D8C00D4079F /* emess.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF38216025D8C00D4079F /* emess.h */; };
 		2B7EF42F16025D8C00D4079F /* geocent.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF38416025D8C00D4079F /* geocent.c */; };
 		2B7EF43016025D8C00D4079F /* geocent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF38516025D8C00D4079F /* geocent.h */; };
-		2B7EF43116025D8C00D4079F /* geod_for.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF38616025D8C00D4079F /* geod_for.c */; };
-		2B7EF43216025D8C00D4079F /* geod_inv.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF38716025D8C00D4079F /* geod_inv.c */; };
 		2B7EF43316025D8C00D4079F /* geod_set.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF38816025D8C00D4079F /* geod_set.c */; };
 		2B7EF43516025D8C00D4079F /* geodesic.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF38A16025D8C00D4079F /* geodesic.h */; };
 		2B7EF43716025D8C00D4079F /* mk_cheby.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF38F16025D8C00D4079F /* mk_cheby.c */; };
@@ -451,11 +447,41 @@
 		8817DA061C92F3070034E3EA /* com_mousebird_maply_ParticleSystem_STATE.h in Headers */ = {isa = PBXBuildFile; fileRef = 8817DA011C92F3070034E3EA /* com_mousebird_maply_ParticleSystem_STATE.h */; };
 		88B9DE821C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 88B9DE7F1C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h */; };
 		88B9DE831C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 88B9DE801C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h */; };
+		88D57FC01CA1EB6400A203F8 /* ElevationChunk.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FBF1CA1EB6400A203F8 /* ElevationChunk.h */; };
+		88D57FC21CA1EB6F00A203F8 /* MarkerGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FC11CA1EB6F00A203F8 /* MarkerGenerator.h */; };
+		88D57FC61CA1EBAE00A203F8 /* com_mousebird_maply_DirectionalLight.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FC31CA1EBAE00A203F8 /* com_mousebird_maply_DirectionalLight.h */; };
+		88D57FC81CA1EBAE00A203F8 /* com_mousebird_maply_VertexAttribute.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FC51CA1EBAE00A203F8 /* com_mousebird_maply_VertexAttribute.h */; };
+		88D57FE41CA1ED3F00A203F8 /* cs2cs.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FCB1CA1ED3F00A203F8 /* cs2cs.c */; };
+		88D57FE51CA1ED3F00A203F8 /* gen_cheb.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FCC1CA1ED3F00A203F8 /* gen_cheb.c */; };
+		88D57FE61CA1ED3F00A203F8 /* geod_interface.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FCD1CA1ED3F00A203F8 /* geod_interface.c */; };
+		88D57FE71CA1ED3F00A203F8 /* geod_interface.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FCE1CA1ED3F00A203F8 /* geod_interface.h */; };
+		88D57FE81CA1ED3F00A203F8 /* geod.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FCF1CA1ED3F00A203F8 /* geod.c */; };
+		88D57FE91CA1ED3F00A203F8 /* geodesic.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FD01CA1ED3F00A203F8 /* geodesic.c */; };
+		88D57FEA1CA1ED3F00A203F8 /* geodtest.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FD11CA1ED3F00A203F8 /* geodtest.c */; };
+		88D57FEB1CA1ED3F00A203F8 /* hypot.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FD21CA1ED3F00A203F8 /* hypot.c */; };
+		88D57FED1CA1ED3F00A203F8 /* multistresstest.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FD41CA1ED3F00A203F8 /* multistresstest.c */; };
+		88D57FEE1CA1ED3F00A203F8 /* nad_list.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FD51CA1ED3F00A203F8 /* nad_list.h */; };
+		88D57FEF1CA1ED3F00A203F8 /* nad2bin.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FD61CA1ED3F00A203F8 /* nad2bin.c */; };
+		88D57FF01CA1ED3F00A203F8 /* org_proj4_PJ.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FD71CA1ED3F00A203F8 /* org_proj4_PJ.h */; };
+		88D57FF11CA1ED3F00A203F8 /* p_series.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FD81CA1ED3F00A203F8 /* p_series.c */; };
+		88D57FF21CA1ED3F00A203F8 /* PJ_calcofi.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FD91CA1ED3F00A203F8 /* PJ_calcofi.c */; };
+		88D57FF31CA1ED3F00A203F8 /* pj_fileapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FDA1CA1ED3F00A203F8 /* pj_fileapi.c */; };
+		88D57FF41CA1ED3F00A203F8 /* pj_fwd3d.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FDB1CA1ED3F00A203F8 /* pj_fwd3d.c */; };
+		88D57FF51CA1ED3F00A203F8 /* pj_gc_reader.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FDC1CA1ED3F00A203F8 /* pj_gc_reader.c */; };
+		88D57FF61CA1ED3F00A203F8 /* pj_gridcatalog.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FDD1CA1ED3F00A203F8 /* pj_gridcatalog.c */; };
+		88D57FF71CA1ED3F00A203F8 /* pj_inv3d.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FDE1CA1ED3F00A203F8 /* pj_inv3d.c */; };
+		88D57FF81CA1ED3F00A203F8 /* PJ_qsc.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FDF1CA1ED3F00A203F8 /* PJ_qsc.c */; };
+		88D57FF91CA1ED3F00A203F8 /* PJ_sch.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FE01CA1ED3F00A203F8 /* PJ_sch.c */; };
+		88D57FFA1CA1ED3F00A203F8 /* pj_strtod.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FE11CA1ED3F00A203F8 /* pj_strtod.c */; };
+		88D57FFB1CA1ED3F00A203F8 /* proj.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FE21CA1ED3F00A203F8 /* proj.c */; };
+		88D57FFC1CA1ED3F00A203F8 /* test228.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FE31CA1ED3F00A203F8 /* test228.c */; };
 		88D653EB1C92CF7900B39955 /* ShapeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D653E81C92CF7900B39955 /* ShapeManager.h */; };
 		88D653ED1C92CF7900B39955 /* ShapeDrawableBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D653EA1C92CF7900B39955 /* ShapeDrawableBuilder.h */; };
 		88D653F01C92CF9200B39955 /* ShapeDrawableBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88D653EE1C92CF9200B39955 /* ShapeDrawableBuilder.cpp */; };
 		88D653F11C92CF9200B39955 /* ShapeManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88D653EF1C92CF9200B39955 /* ShapeManager.cpp */; };
 		88E7908E1C6C897B00C90453 /* WhirlyKitLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 88E7908D1C6C897B00C90453 /* WhirlyKitLog.h */; };
+		8F22E5D91CA19359000458C7 /* Lighting.h in Headers */ = {isa = PBXBuildFile; fileRef = 8F22E5D81CA19359000458C7 /* Lighting.h */; };
+		8F22E5DB1CA1936B000458C7 /* Lighting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F22E5DA1CA1936B000458C7 /* Lighting.cpp */; };
 		D8641E091C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h in Headers */ = {isa = PBXBuildFile; fileRef = D8641E051C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h */; };
 		D8701BA51C538B39009A5471 /* ParticleSystemManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D8701BA31C538B39009A5471 /* ParticleSystemManager.h */; };
 		D8701BA61C538B39009A5471 /* ParticleSystemDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = D8701BA41C538B39009A5471 /* ParticleSystemDrawable.h */; };
@@ -516,8 +542,6 @@
 		2B14BFCE1B83FE1A00CE29A4 /* BaseInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BaseInfo.cpp; sourceTree = "<group>"; };
 		2B14BFD41B852C5100CE29A4 /* BasicDrawableInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasicDrawableInstance.h; sourceTree = "<group>"; };
 		2B14BFD61B852C5E00CE29A4 /* BasicDrawableInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BasicDrawableInstance.cpp; sourceTree = "<group>"; };
-		2B2E59D91C9B624E008FFE4A /* VertexAttribute_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VertexAttribute_jni.cpp; path = ../Android/jni/VertexAttribute_jni.cpp; sourceTree = "<group>"; };
-		2B2E59DB1C9B631A008FFE4A /* com_mousebird_maply_VertexAttribute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_VertexAttribute.h; path = ../Android/jni/com_mousebird_maply_VertexAttribute.h; sourceTree = "<group>"; };
 		2B35671118D762A700EF8DB1 /* BigDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BigDrawable.cpp; sourceTree = "<group>"; };
 		2B35671218D762A700EF8DB1 /* CoordSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CoordSystem.cpp; sourceTree = "<group>"; };
 		2B35671318D762A700EF8DB1 /* Cullable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cullable.cpp; sourceTree = "<group>"; };
@@ -742,8 +766,6 @@
 		2B7EF38216025D8C00D4079F /* emess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = emess.h; sourceTree = "<group>"; };
 		2B7EF38416025D8C00D4079F /* geocent.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geocent.c; sourceTree = "<group>"; };
 		2B7EF38516025D8C00D4079F /* geocent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = geocent.h; sourceTree = "<group>"; };
-		2B7EF38616025D8C00D4079F /* geod_for.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geod_for.c; sourceTree = "<group>"; };
-		2B7EF38716025D8C00D4079F /* geod_inv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geod_inv.c; sourceTree = "<group>"; };
 		2B7EF38816025D8C00D4079F /* geod_set.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geod_set.c; sourceTree = "<group>"; };
 		2B7EF38A16025D8C00D4079F /* geodesic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = geodesic.h; sourceTree = "<group>"; };
 		2B7EF38F16025D8C00D4079F /* mk_cheby.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mk_cheby.c; sourceTree = "<group>"; };
@@ -977,11 +999,45 @@
 		8817DA0B1C92F3290034E3EA /* QuadTrackerPointReturn_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadTrackerPointReturn_jni.cpp; path = ../Android/jni/QuadTrackerPointReturn_jni.cpp; sourceTree = "<group>"; };
 		88B9DE7F1C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ParticleSystem.h; path = ../Android/jni/com_mousebird_maply_ParticleSystem.h; sourceTree = "<group>"; };
 		88B9DE801C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ParticleSystemManager.h; path = ../Android/jni/com_mousebird_maply_ParticleSystemManager.h; sourceTree = "<group>"; };
+		88D57FBF1CA1EB6400A203F8 /* ElevationChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevationChunk.h; sourceTree = "<group>"; };
+		88D57FC11CA1EB6F00A203F8 /* MarkerGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerGenerator.h; sourceTree = "<group>"; };
+		88D57FC31CA1EBAE00A203F8 /* com_mousebird_maply_DirectionalLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_DirectionalLight.h; path = ../Android/jni/com_mousebird_maply_DirectionalLight.h; sourceTree = "<group>"; };
+		88D57FC41CA1EBAE00A203F8 /* com_mousebird_maply_Material.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Material.h; path = ../Android/jni/com_mousebird_maply_Material.h; sourceTree = "<group>"; };
+		88D57FC51CA1EBAE00A203F8 /* com_mousebird_maply_VertexAttribute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_VertexAttribute.h; path = ../Android/jni/com_mousebird_maply_VertexAttribute.h; sourceTree = "<group>"; };
+		88D57FC91CA1EBF000A203F8 /* VertexAttribute_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VertexAttribute_jni.cpp; path = ../Android/jni/VertexAttribute_jni.cpp; sourceTree = "<group>"; };
+		88D57FCB1CA1ED3F00A203F8 /* cs2cs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cs2cs.c; sourceTree = "<group>"; };
+		88D57FCC1CA1ED3F00A203F8 /* gen_cheb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gen_cheb.c; sourceTree = "<group>"; };
+		88D57FCD1CA1ED3F00A203F8 /* geod_interface.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geod_interface.c; sourceTree = "<group>"; };
+		88D57FCE1CA1ED3F00A203F8 /* geod_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = geod_interface.h; sourceTree = "<group>"; };
+		88D57FCF1CA1ED3F00A203F8 /* geod.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geod.c; sourceTree = "<group>"; };
+		88D57FD01CA1ED3F00A203F8 /* geodesic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geodesic.c; sourceTree = "<group>"; };
+		88D57FD11CA1ED3F00A203F8 /* geodtest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geodtest.c; sourceTree = "<group>"; };
+		88D57FD21CA1ED3F00A203F8 /* hypot.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hypot.c; sourceTree = "<group>"; };
+		88D57FD41CA1ED3F00A203F8 /* multistresstest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = multistresstest.c; sourceTree = "<group>"; };
+		88D57FD51CA1ED3F00A203F8 /* nad_list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nad_list.h; sourceTree = "<group>"; };
+		88D57FD61CA1ED3F00A203F8 /* nad2bin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = nad2bin.c; sourceTree = "<group>"; };
+		88D57FD71CA1ED3F00A203F8 /* org_proj4_PJ.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = org_proj4_PJ.h; sourceTree = "<group>"; };
+		88D57FD81CA1ED3F00A203F8 /* p_series.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = p_series.c; sourceTree = "<group>"; };
+		88D57FD91CA1ED3F00A203F8 /* PJ_calcofi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = PJ_calcofi.c; sourceTree = "<group>"; };
+		88D57FDA1CA1ED3F00A203F8 /* pj_fileapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pj_fileapi.c; sourceTree = "<group>"; };
+		88D57FDB1CA1ED3F00A203F8 /* pj_fwd3d.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pj_fwd3d.c; sourceTree = "<group>"; };
+		88D57FDC1CA1ED3F00A203F8 /* pj_gc_reader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pj_gc_reader.c; sourceTree = "<group>"; };
+		88D57FDD1CA1ED3F00A203F8 /* pj_gridcatalog.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pj_gridcatalog.c; sourceTree = "<group>"; };
+		88D57FDE1CA1ED3F00A203F8 /* pj_inv3d.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pj_inv3d.c; sourceTree = "<group>"; };
+		88D57FDF1CA1ED3F00A203F8 /* PJ_qsc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = PJ_qsc.c; sourceTree = "<group>"; };
+		88D57FE01CA1ED3F00A203F8 /* PJ_sch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = PJ_sch.c; sourceTree = "<group>"; };
+		88D57FE11CA1ED3F00A203F8 /* pj_strtod.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pj_strtod.c; sourceTree = "<group>"; };
+		88D57FE21CA1ED3F00A203F8 /* proj.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = proj.c; sourceTree = "<group>"; };
+		88D57FE31CA1ED3F00A203F8 /* test228.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = test228.c; sourceTree = "<group>"; };
 		88D653E81C92CF7900B39955 /* ShapeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeManager.h; sourceTree = "<group>"; };
 		88D653EA1C92CF7900B39955 /* ShapeDrawableBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeDrawableBuilder.h; sourceTree = "<group>"; };
 		88D653EE1C92CF9200B39955 /* ShapeDrawableBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShapeDrawableBuilder.cpp; sourceTree = "<group>"; };
 		88D653EF1C92CF9200B39955 /* ShapeManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShapeManager.cpp; sourceTree = "<group>"; };
 		88E7908D1C6C897B00C90453 /* WhirlyKitLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyKitLog.h; sourceTree = "<group>"; };
+		8F22E5D81CA19359000458C7 /* Lighting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lighting.h; sourceTree = "<group>"; };
+		8F22E5DA1CA1936B000458C7 /* Lighting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lighting.cpp; sourceTree = "<group>"; };
+		8F22E5E01CA19ED5000458C7 /* DirectionalLight_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DirectionalLight_jni.cpp; path = ../Android/jni/DirectionalLight_jni.cpp; sourceTree = "<group>"; };
+		8F22E5E41CA19F0D000458C7 /* Material_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Material_jni.cpp; path = ../Android/jni/Material_jni.cpp; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D8641E051C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ParticleBatch.h; path = ../Android/jni/com_mousebird_maply_ParticleBatch.h; sourceTree = "<group>"; };
@@ -1191,13 +1247,13 @@
 		2B4B19291BA38A940091A743 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				2B2E59DB1C9B631A008FFE4A /* com_mousebird_maply_VertexAttribute.h */,
 				2B4B192B1BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h */,
 				2B4B192C1BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h */,
 				2B923FC51BFBDED200C879DB /* com_mousebird_maply_BaseInfo.h */,
 				2B4B192D1BA38AD90091A743 /* com_mousebird_maply_ChangeSet.h */,
 				2B4B192E1BA38AD90091A743 /* com_mousebird_maply_CoordSystem.h */,
 				2B4B192F1BA38AD90091A743 /* com_mousebird_maply_CoordSystemDisplayAdapter.h */,
+				88D57FC31CA1EBAE00A203F8 /* com_mousebird_maply_DirectionalLight.h */,
 				2B4B19301BA38AD90091A743 /* com_mousebird_maply_FakeGeocentricDisplayAdapter.h */,
 				2BB766051C6FFF7E00F01F2A /* com_mousebird_maply_GeneralDisplayAdapter.h */,
 				2B4B19311BA38AD90091A743 /* com_mousebird_maply_GeoCoordSystem.h */,
@@ -1218,6 +1274,7 @@
 				2B4B19411BA38AD90091A743 /* com_mousebird_maply_MapViewState.h */,
 				2B4B19421BA38AD90091A743 /* com_mousebird_maply_MarkerInfo.h */,
 				2B4B19431BA38AD90091A743 /* com_mousebird_maply_MarkerManager.h */,
+				88D57FC41CA1EBAE00A203F8 /* com_mousebird_maply_Material.h */,
 				2B4B19441BA38AD90091A743 /* com_mousebird_maply_Matrix4d.h */,
 				D8641E051C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h */,
 				8817DA011C92F3070034E3EA /* com_mousebird_maply_ParticleSystem_STATE.h */,
@@ -1257,6 +1314,7 @@
 				2B4B19571BA38AD90091A743 /* com_mousebird_maply_VectorIterator.h */,
 				2B4B19581BA38AD90091A743 /* com_mousebird_maply_VectorManager.h */,
 				2B4B19591BA38AD90091A743 /* com_mousebird_maply_VectorObject.h */,
+				88D57FC51CA1EBAE00A203F8 /* com_mousebird_maply_VertexAttribute.h */,
 				2B4B195A1BA38AD90091A743 /* com_mousebird_maply_View_ViewWatcher.h */,
 				2B4B195B1BA38AD90091A743 /* com_mousebird_maply_View.h */,
 				2B4B195C1BA38AD90091A743 /* com_mousebird_maply_ViewState.h */,
@@ -1273,13 +1331,13 @@
 		2B4B192A1BA38A9A0091A743 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				2B2E59D91C9B624E008FFE4A /* VertexAttribute_jni.cpp */,
 				2B4B199B1BA38AFB0091A743 /* AngleAxis_jni.cpp */,
 				2B4B199C1BA38AFB0091A743 /* AttrDictionary_jni.cpp */,
 				2B923FB71BFA9B5E00C879DB /* BaseInfo_jni.cpp */,
 				2B4B199D1BA38AFB0091A743 /* ChangeSet_jni.cpp */,
 				2B4B199E1BA38AFB0091A743 /* CoordSystem_jni.cpp */,
 				2B4B199F1BA38AFB0091A743 /* CoordSystemDisplayAdapter_jni.cpp */,
+				8F22E5E01CA19ED5000458C7 /* DirectionalLight_jni.cpp */,
 				2B4B19A01BA38AFB0091A743 /* FakeGeocentricDisplayAdapter_jni.cpp */,
 				2B4B19A11BA38AFB0091A743 /* FontTextureManagerAndroid.cpp */,
 				2BB7660D1C70014D00F01F2A /* GeneralDisplayAdapter_jni.cpp */,
@@ -1303,6 +1361,7 @@
 				2B4B19B31BA38AFB0091A743 /* MapViewState_jni.cpp */,
 				2B4B19B41BA38AFB0091A743 /* MarkerInfo_jni.cpp */,
 				2B4B19B51BA38AFB0091A743 /* MarkerManager_jni.cpp */,
+				8F22E5E41CA19F0D000458C7 /* Material_jni.cpp */,
 				2B4B19B61BA38AFB0091A743 /* Matrix4d_jni.cpp */,
 				D8701B9F1C537B4A009A5471 /* ParticleBatch_jni.cpp */,
 				D8701BA11C538105009A5471 /* ParticleSystem_jni.cpp */,
@@ -1335,6 +1394,7 @@
 				2B4B19C51BA38AFB0091A743 /* VectorIterator_jni.cpp */,
 				2B4B19C61BA38AFB0091A743 /* VectorManager_jni.cpp */,
 				2B4B19C71BA38AFB0091A743 /* VectorObject_jni.cpp */,
+				88D57FC91CA1EBF000A203F8 /* VertexAttribute_jni.cpp */,
 				2B4B19C81BA38AFB0091A743 /* View_jni.cpp */,
 				2B4B19C91BA38AFB0091A743 /* ViewState_jni.cpp */,
 			);
@@ -1349,20 +1409,31 @@
 				2B7EF37C16025D8C00D4079F /* bch2bps.c */,
 				2B7EF37D16025D8C00D4079F /* bchgen.c */,
 				2B7EF37E16025D8C00D4079F /* biveval.c */,
+				88D57FCB1CA1ED3F00A203F8 /* cs2cs.c */,
 				2B7EF38016025D8C00D4079F /* dmstor.c */,
 				2B7EF38116025D8C00D4079F /* emess.c */,
 				2B7EF38216025D8C00D4079F /* emess.h */,
+				88D57FCC1CA1ED3F00A203F8 /* gen_cheb.c */,
 				2B7EF38416025D8C00D4079F /* geocent.c */,
 				2B7EF38516025D8C00D4079F /* geocent.h */,
-				2B7EF38616025D8C00D4079F /* geod_for.c */,
-				2B7EF38716025D8C00D4079F /* geod_inv.c */,
+				88D57FCD1CA1ED3F00A203F8 /* geod_interface.c */,
+				88D57FCE1CA1ED3F00A203F8 /* geod_interface.h */,
 				2B7EF38816025D8C00D4079F /* geod_set.c */,
+				88D57FCF1CA1ED3F00A203F8 /* geod.c */,
+				88D57FD01CA1ED3F00A203F8 /* geodesic.c */,
 				2B7EF38A16025D8C00D4079F /* geodesic.h */,
+				88D57FD11CA1ED3F00A203F8 /* geodtest.c */,
+				88D57FD21CA1ED3F00A203F8 /* hypot.c */,
 				2B7EF38F16025D8C00D4079F /* mk_cheby.c */,
+				88D57FD41CA1ED3F00A203F8 /* multistresstest.c */,
 				2B7EF39116025D8C00D4079F /* nad_cvt.c */,
 				2B7EF39216025D8C00D4079F /* nad_init.c */,
 				2B7EF39316025D8C00D4079F /* nad_intr.c */,
+				88D57FD51CA1ED3F00A203F8 /* nad_list.h */,
+				88D57FD61CA1ED3F00A203F8 /* nad2bin.c */,
+				88D57FD71CA1ED3F00A203F8 /* org_proj4_PJ.h */,
 				2B7EF39516025D8C00D4079F /* org_proj4_Projections.h */,
+				88D57FD81CA1ED3F00A203F8 /* p_series.c */,
 				2B7EF39716025D8C00D4079F /* PJ_aea.c */,
 				2B7EF39816025D8C00D4079F /* PJ_aeqd.c */,
 				2B7EF39916025D8C00D4079F /* PJ_airy.c */,
@@ -1375,6 +1446,7 @@
 				2B7EF3A016025D8C00D4079F /* PJ_bipc.c */,
 				2B7EF3A116025D8C00D4079F /* PJ_boggs.c */,
 				2B7EF3A216025D8C00D4079F /* PJ_bonne.c */,
+				88D57FD91CA1ED3F00A203F8 /* PJ_calcofi.c */,
 				2B7EF3A316025D8C00D4079F /* PJ_cass.c */,
 				2B7EF3A416025D8C00D4079F /* PJ_cc.c */,
 				2B7EF3A516025D8C00D4079F /* PJ_cea.c */,
@@ -1398,16 +1470,20 @@
 				2B7EF3B716025D8C00D4079F /* pj_errno.c */,
 				2B7EF3B816025D8C00D4079F /* pj_factors.c */,
 				2B7EF3B916025D8C00D4079F /* PJ_fahey.c */,
+				88D57FDA1CA1ED3F00A203F8 /* pj_fileapi.c */,
 				2B7EF3BA16025D8C00D4079F /* PJ_fouc_s.c */,
 				2B7EF3BB16025D8C00D4079F /* pj_fwd.c */,
+				88D57FDB1CA1ED3F00A203F8 /* pj_fwd3d.c */,
 				2B7EF3BC16025D8C00D4079F /* PJ_gall.c */,
 				2B7EF3BD16025D8C00D4079F /* pj_gauss.c */,
+				88D57FDC1CA1ED3F00A203F8 /* pj_gc_reader.c */,
 				2B7EF3BE16025D8C00D4079F /* pj_geocent.c */,
 				2B7EF3BF16025D8C00D4079F /* PJ_geos.c */,
 				2B7EF3C016025D8C00D4079F /* PJ_gins8.c */,
 				2B7EF3C116025D8C00D4079F /* PJ_gn_sinu.c */,
 				2B7EF3C216025D8C00D4079F /* PJ_gnom.c */,
 				2B7EF3C316025D8C00D4079F /* PJ_goode.c */,
+				88D57FDD1CA1ED3F00A203F8 /* pj_gridcatalog.c */,
 				2B7EF3C416025D8C00D4079F /* pj_gridinfo.c */,
 				2B7EF3C516025D8C00D4079F /* pj_gridlist.c */,
 				2B7EF3C616025D8C00D4079F /* PJ_gstmerc.c */,
@@ -1419,6 +1495,7 @@
 				2B7EF3CC16025D8C00D4079F /* pj_init.c */,
 				2B7EF3CD16025D8C00D4079F /* pj_initcache.c */,
 				2B7EF3CE16025D8C00D4079F /* pj_inv.c */,
+				88D57FDE1CA1ED3F00A203F8 /* pj_inv3d.c */,
 				2B7EF3CF16025D8C00D4079F /* PJ_isea.c */,
 				2B7EF3D016025D8C00D4079F /* PJ_krovak.c */,
 				2B7EF3D116025D8C00D4079F /* PJ_labrd.c */,
@@ -1466,15 +1543,18 @@
 				2B7EF3FB16025D8C00D4079F /* PJ_putp4p.c */,
 				2B7EF3FC16025D8C00D4079F /* PJ_putp5.c */,
 				2B7EF3FD16025D8C00D4079F /* PJ_putp6.c */,
+				88D57FDF1CA1ED3F00A203F8 /* PJ_qsc.c */,
 				2B7EF3FE16025D8C00D4079F /* pj_qsfn.c */,
 				2B7EF3FF16025D8C00D4079F /* pj_release.c */,
 				2B7EF40016025D8C00D4079F /* PJ_robin.c */,
 				2B7EF40116025D8C00D4079F /* PJ_rpoly.c */,
+				88D57FE01CA1ED3F00A203F8 /* PJ_sch.c */,
 				2B7EF40216025D8C00D4079F /* PJ_sconics.c */,
 				2B7EF40316025D8C00D4079F /* PJ_somerc.c */,
 				2B7EF40416025D8C00D4079F /* PJ_stere.c */,
 				2B7EF40516025D8C00D4079F /* PJ_sterea.c */,
 				2B7EF40616025D8C00D4079F /* pj_strerrno.c */,
+				88D57FE11CA1ED3F00A203F8 /* pj_strtod.c */,
 				2B7EF40716025D8C00D4079F /* PJ_sts.c */,
 				2B7EF40816025D8C00D4079F /* PJ_tcc.c */,
 				2B7EF40916025D8C00D4079F /* PJ_tcea.c */,
@@ -1499,8 +1579,10 @@
 				2B7EF41D16025D8C00D4079F /* proj_etmerc.c */,
 				2B7EF41E16025D8C00D4079F /* proj_mdist.c */,
 				2B7EF41F16025D8C00D4079F /* proj_rouss.c */,
+				88D57FE21CA1ED3F00A203F8 /* proj.c */,
 				2B7EF42216025D8C00D4079F /* projects.h */,
 				2B7EF42316025D8C00D4079F /* rtodms.c */,
+				88D57FE31CA1ED3F00A203F8 /* test228.c */,
 				2B7EF42416025D8C00D4079F /* vector1.c */,
 			);
 			name = proj4;
@@ -1586,6 +1668,7 @@
 				2B35677A18D762BF00EF8DB1 /* Drawable.h */,
 				2B35677B18D762BF00EF8DB1 /* DynamicDrawableAtlas.h */,
 				2B35677C18D762BF00EF8DB1 /* DynamicTextureAtlas.h */,
+				88D57FBF1CA1EB6400A203F8 /* ElevationChunk.h */,
 				2B35677D18D762BF00EF8DB1 /* FlatMath.h */,
 				2BDC8A5F192A9E1700DFECF0 /* FontTextureManager.h */,
 				2B35677E18D762BF00EF8DB1 /* Generator.h */,
@@ -1600,11 +1683,13 @@
 				2BDC8A6C192C08F600DFECF0 /* LabelManager.h */,
 				2BDC8A6D192C08F600DFECF0 /* LabelRenderer.h */,
 				2B35678618D762BF00EF8DB1 /* LayoutManager.h */,
+				8F22E5D81CA19359000458C7 /* Lighting.h */,
 				2B35678718D762BF00EF8DB1 /* LoadedTile.h */,
 				2B3567BA18D762BF00EF8DB1 /* MaplyFlatView.h */,
 				2B3567BB18D762BF00EF8DB1 /* MaplyScene.h */,
 				2B3567BC18D762BF00EF8DB1 /* MaplyView.h */,
 				2B3567BD18D762BF00EF8DB1 /* MaplyViewState.h */,
+				88D57FC11CA1EB6F00A203F8 /* MarkerGenerator.h */,
 				2B3567BF18D762BF00EF8DB1 /* MarkerManager.h */,
 				2B3567C018D762BF00EF8DB1 /* OpenGLES2Program.h */,
 				D8701BA41C538B39009A5471 /* ParticleSystemDrawable.h */,
@@ -1723,6 +1808,7 @@
 				2B35674218D762A700EF8DB1 /* WhirlyVector.cpp */,
 				2BC8496D1C6933120058D10F /* WideVectorDrawable.cpp */,
 				2BC8496E1C6933120058D10F /* WideVectorManager.cpp */,
+				8F22E5DA1CA1936B000458C7 /* Lighting.cpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -1796,6 +1882,7 @@
 				2B3836A9186244DC00467ABD /* glwrapper.h in Headers */,
 				2B3A0D41133405700085EF43 /* shapefil.h in Headers */,
 				2B7EF42D16025D8C00D4079F /* emess.h in Headers */,
+				88D57FC81CA1EBAE00A203F8 /* com_mousebird_maply_VertexAttribute.h in Headers */,
 				2B76C5F01C1223A90081F395 /* com_mousebird_maply_QuadImageOfflineLayer.h in Headers */,
 				2B35683F18D762BF00EF8DB1 /* WhirlyVector.h in Headers */,
 				2B35683B18D762BF00EF8DB1 /* ViewState.h in Headers */,
@@ -1810,6 +1897,7 @@
 				2B4B19741BA38AD90091A743 /* com_mousebird_maply_MaplyRenderer.h in Headers */,
 				2B35682618D762BF00EF8DB1 /* PerformanceTimer.h in Headers */,
 				2B35683518D762BF00EF8DB1 /* Texture.h in Headers */,
+				88D57FE71CA1ED3F00A203F8 /* geod_interface.h in Headers */,
 				2B009D0A186102E4001E2EE8 /* JSONStream.h in Headers */,
 				2B4B19761BA38AD90091A743 /* com_mousebird_maply_MapView_AnimationDelegate.h in Headers */,
 				2B923FCD1BFBDED200C879DB /* com_mousebird_maply_Sticker.h in Headers */,
@@ -1887,6 +1975,7 @@
 				2B009D02186102E4001E2EE8 /* JSONNode.h in Headers */,
 				2BA2326017984F510063CC84 /* glues_registry.h in Headers */,
 				2B14BFD51B852C5100CE29A4 /* BasicDrawableInstance.h in Headers */,
+				8F22E5D91CA19359000458C7 /* Lighting.h in Headers */,
 				2B35683318D762BF00EF8DB1 /* SphericalMercator.h in Headers */,
 				2B4B198D1BA38AD90091A743 /* com_mousebird_maply_Texture.h in Headers */,
 				2B3567E718D762BF00EF8DB1 /* GlobeView.h in Headers */,
@@ -1898,6 +1987,7 @@
 				2B35682118D762BF00EF8DB1 /* MaplyView.h in Headers */,
 				2B3567E318D762BF00EF8DB1 /* FlatMath.h in Headers */,
 				2B009CF6186102E4001E2EE8 /* JSONDebug.h in Headers */,
+				88D57FC01CA1EB6400A203F8 /* ElevationChunk.h in Headers */,
 				2B009D06186102E4001E2EE8 /* JSONSharedString.h in Headers */,
 				2BA2326417984F510063CC84 /* dict.h in Headers */,
 				2B4B19981BA38AD90091A743 /* Maply_jni.h in Headers */,
@@ -1910,12 +2000,14 @@
 				2B4B19651BA38AD90091A743 /* com_mousebird_maply_ChangeSet.h in Headers */,
 				2B4B198E1BA38AD90091A743 /* com_mousebird_maply_VectorInfo.h in Headers */,
 				2B5F18A71A7B05BF004A8723 /* ScreenSpaceBuilder.h in Headers */,
+				88D57FEE1CA1ED3F00A203F8 /* nad_list.h in Headers */,
 				8817DA061C92F3070034E3EA /* com_mousebird_maply_ParticleSystem_STATE.h in Headers */,
 				2B3567E818D762BF00EF8DB1 /* GlobeViewState.h in Headers */,
 				2B4B19831BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_TileSource.h in Headers */,
 				2B35682B18D762BF00EF8DB1 /* Scene.h in Headers */,
 				2BA2326617984F510063CC84 /* geom.h in Headers */,
 				2BA2326817984F510063CC84 /* memalloc.h in Headers */,
+				88D57FF01CA1ED3F00A203F8 /* org_proj4_PJ.h in Headers */,
 				2B3567EC18D762BF00EF8DB1 /* LayoutManager.h in Headers */,
 				2B4B19721BA38AD90091A743 /* com_mousebird_maply_LabelManager.h in Headers */,
 				2BA2326A17984F510063CC84 /* mesh.h in Headers */,
@@ -1925,6 +2017,7 @@
 				2B009D08186102E4001E2EE8 /* JSONStats.h in Headers */,
 				2B4B19961BA38AD90091A743 /* ImageWrapper.h in Headers */,
 				2B35682A18D762BF00EF8DB1 /* RawData.h in Headers */,
+				88D57FC61CA1EBAE00A203F8 /* com_mousebird_maply_DirectionalLight.h in Headers */,
 				8817DA041C92F3070034E3EA /* com_mousebird_maply_ShapeManager.h in Headers */,
 				2B009D00186102E4001E2EE8 /* JSONMemoryPool.h in Headers */,
 				2B4B19971BA38AD90091A743 /* LabelInfoAndroid.h in Headers */,
@@ -1961,6 +2054,7 @@
 				2B3567DE18D762BF00EF8DB1 /* DefaultShaderPrograms.h in Headers */,
 				D8641E091C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h in Headers */,
 				2BA2327317984F510063CC84 /* render.h in Headers */,
+				88D57FC21CA1EB6F00A203F8 /* MarkerGenerator.h in Headers */,
 				2B009CEC186102E4001E2EE8 /* libbase64++.h in Headers */,
 				2B4B19641BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h in Headers */,
 				2B4B198B1BA38AD90091A743 /* com_mousebird_maply_Shader.h in Headers */,
@@ -1978,7 +2072,6 @@
 				2B14BFCD1B83FD4500CE29A4 /* BaseInfo.h in Headers */,
 				2B4B196C1BA38AD90091A743 /* com_mousebird_maply_GlobeView.h in Headers */,
 				2B35682E18D762BF00EF8DB1 /* ScreenImportance.h in Headers */,
-				2B2E59DC1C9B631A008FFE4A /* com_mousebird_maply_VertexAttribute.h in Headers */,
 				2B009CFB186102E4001E2EE8 /* JSONDefs.h in Headers */,
 				2B4B19811BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_FrameLoadStatus.h in Headers */,
 				2BDC8A6F192C08F600DFECF0 /* LabelRenderer.h in Headers */,
@@ -2049,6 +2142,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				88D57FEB1CA1ED3F00A203F8 /* hypot.c in Sources */,
 				2B35676018D762A700EF8DB1 /* Quadtree.cpp in Sources */,
 				2BDC4AC5133404CA00E25283 /* safileio.c in Sources */,
 				2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */,
@@ -2068,8 +2162,6 @@
 				2B7EF42C16025D8C00D4079F /* emess.c in Sources */,
 				2B7EF42F16025D8C00D4079F /* geocent.c in Sources */,
 				2B35675D18D762A700EF8DB1 /* PerformanceTimer.cpp in Sources */,
-				2B7EF43116025D8C00D4079F /* geod_for.c in Sources */,
-				2B7EF43216025D8C00D4079F /* geod_inv.c in Sources */,
 				2BB766041C6FE6DC00F01F2A /* Proj4CoordSystem.cpp in Sources */,
 				2B14BFD71B852C5E00CE29A4 /* BasicDrawableInstance.cpp in Sources */,
 				2B7EF43316025D8C00D4079F /* geod_set.c in Sources */,
@@ -2097,6 +2189,7 @@
 				2B7EF44916025D8C00D4079F /* PJ_boggs.c in Sources */,
 				2B7EF44A16025D8C00D4079F /* PJ_bonne.c in Sources */,
 				2B7EF44B16025D8C00D4079F /* PJ_cass.c in Sources */,
+				88D57FF61CA1ED3F00A203F8 /* pj_gridcatalog.c in Sources */,
 				2B7EF44C16025D8C00D4079F /* PJ_cc.c in Sources */,
 				2B35677318D762A700EF8DB1 /* WhirlyKitView.cpp in Sources */,
 				2B7EF44D16025D8C00D4079F /* PJ_cea.c in Sources */,
@@ -2114,11 +2207,13 @@
 				2B35676918D762A700EF8DB1 /* SphericalMercator.cpp in Sources */,
 				2B7EF45716025D8C00D4079F /* PJ_eck2.c in Sources */,
 				2B35677218D762A700EF8DB1 /* WhirlyGeometry.cpp in Sources */,
+				88D57FFB1CA1ED3F00A203F8 /* proj.c in Sources */,
 				2B009CF1186102E4001E2EE8 /* JSONAllocator.cpp in Sources */,
 				2B7EF45816025D8C00D4079F /* PJ_eck3.c in Sources */,
 				2B7EF45916025D8C00D4079F /* PJ_eck4.c in Sources */,
 				2B7EF45A16025D8C00D4079F /* PJ_eck5.c in Sources */,
 				2B923FBC1BFAA91600C879DB /* SphericalEarthChunkManager.cpp in Sources */,
+				88D57FF81CA1ED3F00A203F8 /* PJ_qsc.c in Sources */,
 				2B7EF45B16025D8C00D4079F /* pj_ell_set.c in Sources */,
 				2B35675F18D762A700EF8DB1 /* QuadDisplayController.cpp in Sources */,
 				2B35675918D762A700EF8DB1 /* MaplyViewState.cpp in Sources */,
@@ -2129,6 +2224,9 @@
 				2B7EF45E16025D8C00D4079F /* PJ_eqdc.c in Sources */,
 				2B7EF45F16025D8C00D4079F /* pj_errno.c in Sources */,
 				2B7EF46016025D8C00D4079F /* pj_factors.c in Sources */,
+				88D57FEA1CA1ED3F00A203F8 /* geodtest.c in Sources */,
+				88D57FEF1CA1ED3F00A203F8 /* nad2bin.c in Sources */,
+				88D57FF51CA1ED3F00A203F8 /* pj_gc_reader.c in Sources */,
 				2B009CFE186102E4001E2EE8 /* JSONMemory.cpp in Sources */,
 				2B7EF46116025D8C00D4079F /* PJ_fahey.c in Sources */,
 				2B7EF46216025D8C00D4079F /* PJ_fouc_s.c in Sources */,
@@ -2143,6 +2241,7 @@
 				2B35675C18D762A700EF8DB1 /* OpenGLES2Program.cpp in Sources */,
 				2B7EF46716025D8C00D4079F /* PJ_geos.c in Sources */,
 				2B7EF46816025D8C00D4079F /* PJ_gins8.c in Sources */,
+				88D57FF31CA1ED3F00A203F8 /* pj_fileapi.c in Sources */,
 				2B35674B18D762A700EF8DB1 /* FlatMath.cpp in Sources */,
 				2B7EF46916025D8C00D4079F /* PJ_gn_sinu.c in Sources */,
 				2B35675E18D762A700EF8DB1 /* Platform.mm in Sources */,
@@ -2157,6 +2256,7 @@
 				2B7EF47016025D8C00D4079F /* PJ_hatano.c in Sources */,
 				2B35676B18D762A700EF8DB1 /* Texture.cpp in Sources */,
 				2B35675518D762A700EF8DB1 /* LoadedTile.cpp in Sources */,
+				8F22E5DB1CA1936B000458C7 /* Lighting.cpp in Sources */,
 				2B7EF47116025D8C00D4079F /* PJ_healpix.c in Sources */,
 				2B35675B18D762A700EF8DB1 /* MarkerManager.cpp in Sources */,
 				2B7EF47216025D8C00D4079F /* PJ_igh.c in Sources */,
@@ -2170,7 +2270,6 @@
 				2B7EF47716025D8C00D4079F /* PJ_isea.c in Sources */,
 				2B7EF47816025D8C00D4079F /* PJ_krovak.c in Sources */,
 				2B7EF47916025D8C00D4079F /* PJ_labrd.c in Sources */,
-				2B2E59DA1C9B624E008FFE4A /* VertexAttribute_jni.cpp in Sources */,
 				2B7EF47A16025D8C00D4079F /* PJ_laea.c in Sources */,
 				2B7EF47B16025D8C00D4079F /* PJ_lagrng.c in Sources */,
 				2B7EF47C16025D8C00D4079F /* PJ_larr.c in Sources */,
@@ -2200,6 +2299,7 @@
 				2B35675018D762A700EF8DB1 /* GlobeViewState.cpp in Sources */,
 				2B7EF49016025D8C00D4079F /* pj_mutex.c in Sources */,
 				2B7EF49116025D8C00D4079F /* PJ_natearth.c in Sources */,
+				88D57FFC1CA1ED3F00A203F8 /* test228.c in Sources */,
 				2B7EF49216025D8C00D4079F /* PJ_nell_h.c in Sources */,
 				2B7EF49316025D8C00D4079F /* PJ_nell.c in Sources */,
 				2B35676518D762A700EF8DB1 /* ScreenImportance.cpp in Sources */,
@@ -2213,21 +2313,26 @@
 				2B7EF49916025D8C00D4079F /* PJ_oea.c in Sources */,
 				2B7EF49A16025D8C00D4079F /* PJ_omerc.c in Sources */,
 				2B7EF49B16025D8C00D4079F /* pj_open_lib.c in Sources */,
+				88D57FED1CA1ED3F00A203F8 /* multistresstest.c in Sources */,
 				2B7EF49C16025D8C00D4079F /* PJ_ortho.c in Sources */,
 				2B7EF49D16025D8C00D4079F /* pj_param.c in Sources */,
 				2B009D09186102E4001E2EE8 /* JSONStream.cpp in Sources */,
 				2B35674518D762A700EF8DB1 /* Cullable.cpp in Sources */,
 				2B7EF49E16025D8C00D4079F /* pj_phi2.c in Sources */,
 				2B7EF49F16025D8C00D4079F /* PJ_poly.c in Sources */,
+				88D57FF41CA1ED3F00A203F8 /* pj_fwd3d.c in Sources */,
 				2B7EF4A016025D8C00D4079F /* pj_pr_list.c in Sources */,
 				2B35675418D762A700EF8DB1 /* LayoutManager.cpp in Sources */,
 				2B35676218D762A700EF8DB1 /* Scene.cpp in Sources */,
 				2B7EF4A116025D8C00D4079F /* PJ_putp2.c in Sources */,
 				2B35675218D762A700EF8DB1 /* GridClipper.cpp in Sources */,
 				2B7EF4A216025D8C00D4079F /* PJ_putp3.c in Sources */,
+				88D57FE41CA1ED3F00A203F8 /* cs2cs.c in Sources */,
 				2B7EF4A316025D8C00D4079F /* PJ_putp4p.c in Sources */,
 				2B7EF4A416025D8C00D4079F /* PJ_putp5.c in Sources */,
+				88D57FFA1CA1ED3F00A203F8 /* pj_strtod.c in Sources */,
 				2B7EF4A516025D8C00D4079F /* PJ_putp6.c in Sources */,
+				88D57FF21CA1ED3F00A203F8 /* PJ_calcofi.c in Sources */,
 				2B7EF4A616025D8C00D4079F /* pj_qsfn.c in Sources */,
 				2B35674A18D762A700EF8DB1 /* DynamicTextureAtlas.cpp in Sources */,
 				2B7EF4A716025D8C00D4079F /* pj_release.c in Sources */,
@@ -2241,6 +2346,7 @@
 				2B7EF4AC16025D8C00D4079F /* PJ_stere.c in Sources */,
 				2B009D01186102E4001E2EE8 /* JSONNode.cpp in Sources */,
 				2B7EF4AD16025D8C00D4079F /* PJ_sterea.c in Sources */,
+				88D57FF91CA1ED3F00A203F8 /* PJ_sch.c in Sources */,
 				2B35674418D762A700EF8DB1 /* CoordSystem.cpp in Sources */,
 				2B35676618D762A700EF8DB1 /* ScreenSpaceGenerator.cpp in Sources */,
 				2BDC8A73192C090400DFECF0 /* LabelRenderer.cpp in Sources */,
@@ -2256,21 +2362,25 @@
 				2B7EF4B216025D8C00D4079F /* PJ_tmerc.c in Sources */,
 				2B7EF4B316025D8C00D4079F /* PJ_tpeqd.c in Sources */,
 				2B7EF4B416025D8C00D4079F /* pj_transform.c in Sources */,
+				88D57FF11CA1ED3F00A203F8 /* p_series.c in Sources */,
 				2B76C5DD1C10C48A0081F395 /* TileQuadOfflineRenderer.cpp in Sources */,
 				2B7EF4B516025D8C00D4079F /* pj_tsfn.c in Sources */,
 				2B7EF4B616025D8C00D4079F /* pj_units.c in Sources */,
+				88D57FF71CA1ED3F00A203F8 /* pj_inv3d.c in Sources */,
 				2B7EF4B716025D8C00D4079F /* PJ_urm5.c in Sources */,
 				2B7EF4B816025D8C00D4079F /* PJ_urmfps.c in Sources */,
 				2B7EF4B916025D8C00D4079F /* pj_utils.c in Sources */,
 				2B7EF4BA16025D8C00D4079F /* PJ_vandg.c in Sources */,
 				2B35674818D762A700EF8DB1 /* Drawable.cpp in Sources */,
 				2B7EF4BB16025D8C00D4079F /* PJ_vandg2.c in Sources */,
+				88D57FE81CA1ED3F00A203F8 /* geod.c in Sources */,
 				2B7EF4BC16025D8C00D4079F /* PJ_vandg4.c in Sources */,
 				2B7EF4BD16025D8C00D4079F /* PJ_wag2.c in Sources */,
 				88D653F01C92CF9200B39955 /* ShapeDrawableBuilder.cpp in Sources */,
 				2B7EF4BE16025D8C00D4079F /* PJ_wag3.c in Sources */,
 				2B7EF4BF16025D8C00D4079F /* PJ_wag7.c in Sources */,
 				2B7EF4C016025D8C00D4079F /* PJ_wink1.c in Sources */,
+				88D57FE91CA1ED3F00A203F8 /* geodesic.c in Sources */,
 				2B7EF4C116025D8C00D4079F /* PJ_wink2.c in Sources */,
 				2B35677018D762A700EF8DB1 /* VectorObject.cpp in Sources */,
 				2B7EF4C216025D8C00D4079F /* pj_zpoly1.c in Sources */,
@@ -2293,12 +2403,14 @@
 				2B009D10186102E4001E2EE8 /* libjson.cpp in Sources */,
 				2BA2326517984F510063CC84 /* geom.c in Sources */,
 				2B5F18A41A7B05B4004A8723 /* ScreenSpaceDrawable.cpp in Sources */,
+				88D57FE51CA1ED3F00A203F8 /* gen_cheb.c in Sources */,
 				2BA2326717984F510063CC84 /* memalloc.c in Sources */,
 				2BA2326917984F510063CC84 /* mesh.c in Sources */,
 				2BA2326B17984F510063CC84 /* normal.c in Sources */,
 				2B009D04186102E4001E2EE8 /* JSONPreparse.cpp in Sources */,
 				2BA2327017984F510063CC84 /* priorityq.c in Sources */,
 				2BA2327217984F510063CC84 /* render.c in Sources */,
+				88D57FE61CA1ED3F00A203F8 /* geod_interface.c in Sources */,
 				2BA2327417984F510063CC84 /* sweep.c in Sources */,
 				2BA2327617984F510063CC84 /* tess.c in Sources */,
 				2BA2327817984F510063CC84 /* tessmono.c in Sources */,
