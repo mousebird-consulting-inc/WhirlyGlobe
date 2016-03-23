@@ -181,7 +181,8 @@ public class MaplyBaseController
 			tempBackground = new ColorDrawable();
 			// This eliminates the black flash, but only if the clearColor is set right
 			tempBackground.setColor(clearColor);
-			glSurfaceView.setBackground(tempBackground);
+			if (Build.VERSION.SDK_INT > 16)
+				glSurfaceView.setBackground(tempBackground);
         	glSurfaceView.setEGLContextClientVersion(2);
         	glSurfaceView.setRenderer(renderWrapper);       
         } else {
@@ -1130,6 +1131,13 @@ public class MaplyBaseController
 
 	private ArrayList<Light> lights = new ArrayList<>();
 
+	/**
+	 * Add the given light to the list of active lights.
+	 * <br>
+	 * This method will add the given light to our active lights.  Most shaders will recognize these lights and do the calculations.  If you have a custom shader in place, it may or may not use these.
+	 * Triangle shaders use the lights, but line shaders do not.
+	 * @param light Light to add.
+     */
 	public void addLight(Light light) {
 		if (this.lights == null)
 			this.lights = new ArrayList<>();
@@ -1137,6 +1145,10 @@ public class MaplyBaseController
 		this.updateLights();
 	}
 
+	/**
+	 * Remove the given light (assuming it's active) from the list of lights.
+	 * @param light Light to remove.
+     */
 	public void removeLight(Light light) {
 		if (this.lights == null)
 			return;
@@ -1158,11 +1170,21 @@ public class MaplyBaseController
 		//this.renderWrapper.getMaplyRender().render(); // needed?
 	}
 
+	/**
+	 * Clear all the currently active lights.
+	 * <br>
+	 * There are a default set of lights, so you'll want to do this before adding your own.
+	 */
 	public void clearLights() {
 		this.lights = new ArrayList<>();
 		this.updateLights();
 	}
 
+	/**
+	 * Reset the lighting back to its default state at startup.
+	 * <br>
+	 * This clears out all the lights and adds in the default starting light source.
+	 */
 	public void resetLights() {
 		this.clearLights();
 

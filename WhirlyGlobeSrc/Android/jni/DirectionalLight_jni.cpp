@@ -249,25 +249,3 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_DirectionalLight_getSpecular
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in DirectionalLight::getSpecular()");
     }
 }
-
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_DirectionalLight_bindToProgram
-(JNIEnv *env, jobject obj, jobject shaderObj, jint index, jobject modelMatObj)
-{
-    try
-    {
-        DirectionalLightClassInfo *classInfo = DirectionalLightClassInfo::getClassInfo();
-        WhirlyKitDirectionalLight *inst = classInfo->getObject(env, obj);
-        OpenGLES2Program *program = OpenGLES2ProgramClassInfo::getClassInfo()->getObject(env, shaderObj);
-        Matrix4d *modelMat = Matrix4dClassInfo::getClassInfo()->getObject(env, modelMatObj);
-
-        if (!inst || !program || !modelMat)
-            return false;
-
-        Eigen::Matrix4f newModelMat = modelMat->cast<float>();
-        return inst->bindToProgram(program, index, newModelMat);
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in DirectionalLight::bindToProgram()");
-    }
-}

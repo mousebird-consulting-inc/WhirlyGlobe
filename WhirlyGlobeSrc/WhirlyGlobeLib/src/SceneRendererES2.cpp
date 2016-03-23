@@ -151,17 +151,20 @@ void SceneRendererES2::setScene(WhirlyKit::Scene *inScene)
 }
 
 /// Add a light to the existing set
-void SceneRendererES2::addLight(WhirlyKitDirectionalLight *light)
+void SceneRendererES2::addLight(const WhirlyKitDirectionalLight *light)
 {
-    lights.push_back(light);
+    lights.push_back(*light);
     lightsLastUpdated = TimeGetCurrent();
     triggerDraw = true;
 }
 
 /// Replace all the lights at once. nil turns off lighting
-void SceneRendererES2::replaceLights(std::vector<WhirlyKitDirectionalLight*> _lights)
+void SceneRendererES2::replaceLights(const std::vector<WhirlyKitDirectionalLight> &newLights)
 {
-    lights = _lights;
+    lights.clear();
+    for (auto light : newLights)
+        lights.push_back(light);
+        
     lightsLastUpdated = TimeGetCurrent();
     triggerDraw = true;
 }

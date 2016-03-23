@@ -39,7 +39,7 @@ WhirlyKitDirectionalLight::~WhirlyKitDirectionalLight()
 {
 }
 
-bool WhirlyKitDirectionalLight::bindToProgram(OpenGLES2Program *program, int index, Eigen::Matrix4f modelMat)
+bool WhirlyKitDirectionalLight::bindToProgram(OpenGLES2Program *program, int index, Eigen::Matrix4f modelMat) const
     {
     char name[128];
     sprintf(name, "light[%d].viewdepend", index);

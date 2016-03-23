@@ -39,10 +39,10 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     /// Add a light to the existing set
-    void addLight(WhirlyKitDirectionalLight *light);
+    void addLight(const WhirlyKitDirectionalLight *light);
     
     /// Replace all the lights at once. nil turns off lighting
-    void replaceLights(std::vector<WhirlyKitDirectionalLight*> _lights);
+    void replaceLights(const std::vector<WhirlyKitDirectionalLight> &lights);
     
     /// Set the default material
     void setDefaultMaterial(WhirlyKitMaterial *mat);
@@ -67,7 +67,7 @@ protected:
     WhirlyKitMaterial *defaultMat;
     
     bool extraFrameDrawn;
-    std::vector<WhirlyKitDirectionalLight*> lights;
+    std::vector<WhirlyKitDirectionalLight> lights;
 
 };
         

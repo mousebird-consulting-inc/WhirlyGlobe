@@ -65,6 +65,14 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 			glSurfaceView.setOnTouchListener(this);
 			gestureHandler = new GlobeGestureHandler(this,glSurfaceView);
 		}
+
+		// Set up some basic lights after we've started
+		this.addPostSurfaceRunnable(new Runnable() {
+			@Override
+			public void run() {
+				resetLights();
+			}
+		});
 	}
 	
 	@Override public void shutdown()

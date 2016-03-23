@@ -30,6 +30,8 @@ class OpenGLES2Program;
 class WhirlyKitDirectionalLight
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     WhirlyKitDirectionalLight();
     virtual ~WhirlyKitDirectionalLight();
 
@@ -55,14 +57,14 @@ public:
 
     /// Bind this light (given the index) to the program.
     /// Don't call this yourself.
-    bool bindToProgram(OpenGLES2Program *program, int index, Eigen::Matrix4f modelMat);
+    bool bindToProgram(OpenGLES2Program *program, int index, Eigen::Matrix4f modelMat) const;
 
 private:
     Eigen::Vector3f pos;
-    bool viewDependent;
     Eigen::Vector4f ambient;
     Eigen::Vector4f diffuse;
     Eigen::Vector4f specular;
+    bool viewDependent;
 };
 
 

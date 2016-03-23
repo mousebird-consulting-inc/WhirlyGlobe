@@ -165,7 +165,7 @@ public:
     /// If using OpenGL ES 2.x, this is the shader
     OpenGLES2Program *program;
     /// Lights, if applicableNSArray *lights;
-    std::vector<WhirlyKitDirectionalLight*> *lights;
+    std::vector<WhirlyKitDirectionalLight> *lights;
     /// State optimizer.  Used when setting state for drawing
     OpenGLStateOptimizer *stateOpt;
 };

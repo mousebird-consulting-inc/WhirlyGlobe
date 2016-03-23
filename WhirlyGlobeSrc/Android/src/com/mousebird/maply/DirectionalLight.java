@@ -19,8 +19,10 @@
  */
 package com.mousebird.maply;
 
-
-public class DirectionalLight {
+/**
+ * This is an internal class for interacing to the C++ side.
+ */
+class DirectionalLight {
 
     public DirectionalLight() {
         initialise();
@@ -49,8 +51,6 @@ public class DirectionalLight {
     public native void setSpecular(Point4d specular);
 
     public native Point4d getSpecular();
-
-    public native boolean bindToProgram(Shader shader, int index, Matrix4d modelMat);
 
     static
     {

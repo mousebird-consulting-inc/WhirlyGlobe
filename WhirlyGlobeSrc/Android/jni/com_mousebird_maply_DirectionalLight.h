@@ -89,14 +89,6 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_DirectionalLight_getSpecular
 
 /*
  * Class:     com_mousebird_maply_DirectionalLight
- * Method:    bindToProgram
- * Signature: (Lcom/mousebird/maply/Shader;ILcom/mousebird/maply/Matrix4d;)Z
- */
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_DirectionalLight_bindToProgram
-  (JNIEnv *, jobject, jobject, jint, jobject);
-
-/*
- * Class:     com_mousebird_maply_DirectionalLight
  * Method:    nativeInit
  * Signature: ()V
  */

@@ -113,11 +113,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setScene
 			return;
 
 		renderer->setScene(scene);
-		// Note: Porting
-		// Set up no lighting shaders here
-        SimpleIdentity triNoLighting = scene->getProgramIDByName(kToolkitDefaultTriangleNoLightingProgram);
-        if (triNoLighting != EmptyIdentity)
-            scene->setSceneProgram(kSceneDefaultTriShader, triNoLighting);
+		// Set up lighting shaders here
+        SimpleIdentity triLighting = scene->getProgramIDByName(kToolkitDefaultTriangleProgram);
+        if (triLighting != EmptyIdentity)
+            scene->setSceneProgram(kSceneDefaultTriShader, triLighting);
 	}
 	catch (...)
 	{
@@ -280,13 +279,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_replaceLights
         env->DeleteLocalRef(iterClass);
         env->DeleteLocalRef(listClass);
 
-        std::vector<WhirlyKitDirectionalLight*> lights;
+        std::vector<WhirlyKitDirectionalLight> lights;
         DirectionalLightClassInfo *directionalLightClassInfo = DirectionalLightClassInfo::getClassInfo();
         while (env->CallBooleanMethod(liter, hasNext))
         {
             jobject javaVecObj = env->CallObjectMethod(liter, next);
             WhirlyKitDirectionalLight *light = directionalLightClassInfo->getObject(env,javaVecObj);
-            lights.push_back(light);
+            lights.push_back(*light);
             env->DeleteLocalRef(javaVecObj);
         }
         env->DeleteLocalRef(liter);

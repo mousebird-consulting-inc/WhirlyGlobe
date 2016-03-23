@@ -144,7 +144,7 @@ public:
     
     /// Set the attributes associated with lighting.
     /// We'll check their last updated time against ours.
-    bool setLights(std::vector<WhirlyKitDirectionalLight*> lights, TimeInterval lastUpdated, WhirlyKitMaterial *mat, Eigen::Matrix4f &modelMat);
+    bool setLights(const std::vector<WhirlyKitDirectionalLight> &lights, TimeInterval lastUpdated, WhirlyKitMaterial *mat, Eigen::Matrix4f &modelMat);
     
     /// Search for the given attribute name and return the info.  NULL on failure.
     const OpenGLESAttribute *findAttribute(const std::string &attrName);

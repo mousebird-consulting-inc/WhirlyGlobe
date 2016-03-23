@@ -361,7 +361,7 @@ bool OpenGLES2Program::hasLights()
     return lightAttr != NULL;
 }
     
-bool OpenGLES2Program::setLights(std::vector<WhirlyKitDirectionalLight*> lights, TimeInterval lastUpdate, WhirlyKitMaterial *mat,Eigen::Matrix4f &modelMat)
+bool OpenGLES2Program::setLights(const std::vector<WhirlyKitDirectionalLight> &lights, TimeInterval lastUpdate, WhirlyKitMaterial *mat,Eigen::Matrix4f &modelMat)
 {
     if (lightsLastUpdated >= lastUpdate)
         return false;
@@ -372,8 +372,8 @@ bool OpenGLES2Program::setLights(std::vector<WhirlyKitDirectionalLight*> lights,
     bool lightsSet = true;
     for (unsigned int ii=0;ii<numLights;ii++)
     {
-        WhirlyKitDirectionalLight *light = lights[ii];
-        lightsSet &= light->bindToProgram(this, ii, modelMat);
+        const WhirlyKitDirectionalLight &light = lights[ii];
+        lightsSet &= light.bindToProgram(this, ii, modelMat);
     }
     OpenGLESUniform *lightAttr = findUniform("u_numLights");
     if (lightAttr)
