@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/23/12.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,13 @@
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 
+
 namespace WhirlyKit
 {
-    
+
+class WhirlyKitDirectionalLight;
+class WhirlyKitMaterial;
+
 /// Used to track a uniform within an OpenGL ES 2.0 shader program
 class OpenGLESUniform
 {
@@ -140,8 +144,7 @@ public:
     
     /// Set the attributes associated with lighting.
     /// We'll check their last updated time against ours.
-    // Note: Porting
-//    bool setLights(NSArray *lights,CFTimeInterval lastUpdated,WhirlyKitMaterial *mat,Eigen::Matrix4f &modelMat);
+    bool setLights(std::vector<WhirlyKitDirectionalLight*> lights, TimeInterval lastUpdated, WhirlyKitMaterial *mat, Eigen::Matrix4f &modelMat);
     
     /// Search for the given attribute name and return the info.  NULL on failure.
     const OpenGLESAttribute *findAttribute(const std::string &attrName);

@@ -42,6 +42,7 @@ public class MaplyBaseController
     OkHttpClient httpClient = new OkHttpClient();
 
 
+	public static final String kToolkitDefaultTriangleNoLightingProgram = "Default Triangle;lighting=no";
 
 	// When adding features we can run on the current thread or delay the work till layter
 	public enum ThreadMode {ThreadCurrent,ThreadAny};
@@ -515,7 +516,7 @@ public class MaplyBaseController
 			{
 				// Vectors are simple enough to just add
 				ChangeSet changes = new ChangeSet();
-				long vecId = vecManager.addVectors(vecs,vecInfo,changes);
+				long vecId = vecManager.addVectors(vecs, vecInfo, changes);
 				changes.process(scene);
 
 				// Track the vector ID for later use
@@ -550,7 +551,7 @@ public class MaplyBaseController
 						}
 					}
 				};
-		addTask(run,mode);
+		addTask(run, mode);
 	}
 
 	/**
@@ -836,7 +837,7 @@ public class MaplyBaseController
                         Texture rawTex = new Texture();
                         rawTex.setBitmap(image);
                         texture.texID = rawTex.getID();
-                        changes.addTexture(rawTex,scene);
+                        changes.addTexture(rawTex, scene);
 
                         // Flush the texture changes
 						changes.process(scene);
@@ -1034,8 +1035,7 @@ public class MaplyBaseController
 			return;
 		
 		final MaplyBaseController control = this;
-		Runnable run =
-		new Runnable()
+		Runnable run = new Runnable()
 		{		
 			@Override
 			public void run()
@@ -1126,5 +1126,51 @@ public class MaplyBaseController
 
 		addTask(run, mode);
 		return compObj;
+	}
+
+	private ArrayList<Light> lights = new ArrayList<>();
+
+	public void addLight(Light light) {
+		if (this.lights == null)
+			this.lights = new ArrayList<>();
+		lights.add(light);
+		this.updateLights();
+	}
+
+	public void removeLight(Light light) {
+		if (this.lights == null)
+			return;
+		this.lights.remove(light);
+		this.updateLights();
+	}
+
+	private void updateLights() {
+		List<DirectionalLight> theLights = new ArrayList<>();
+		for (Light light : lights) {
+			DirectionalLight theLight = new DirectionalLight();
+			theLight.setPos(light.getPos());
+			theLight.setAmbient(new Point4d(light.getAmbient()[0], light.getAmbient()[1], light.getAmbient()[2], light.getAmbient()[3]));
+			theLight.setDiffuse(new Point4d(light.getDiffuse()[0], light.getDiffuse()[1], light.getDiffuse()[2], light.getDiffuse()[3]));
+			theLight.setViewDependent(light.isViewDependent());
+			theLights.add(theLight);
+		}
+		this.renderWrapper.getMaplyRender().replaceLights(theLights);
+		//this.renderWrapper.getMaplyRender().render(); // needed?
+	}
+
+	public void clearLights() {
+		this.lights = new ArrayList<>();
+		this.updateLights();
+	}
+
+	public void resetLights() {
+		this.clearLights();
+
+		Light light = new Light();
+		light.setPos(new Point3d(0.75, 0.5, -1.0));
+		light.setAmbient(0.6f, 0.6f, 0.6f, 1.0f);
+		light.setDiffuse(0.5f, 0.5f, 0.5f, 1.0f);
+		light.setViewDependent(false);
+		this.addLight(light);
 	}
 }

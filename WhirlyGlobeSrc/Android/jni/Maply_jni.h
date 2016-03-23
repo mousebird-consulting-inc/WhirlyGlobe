@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -451,6 +451,8 @@ typedef JavaClassInfo<WhirlyKit::WhirlyKitShape> ShapeClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitSphere> ShapeSphereClassInfo;
 typedef JavaClassInfo<WhirlyKit::ShapeManager> ShapeManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleVertexAttribute> SingleVertexAttributeClassInfo;
+typedef JavaClassInfo<WhirlyKit::WhirlyKitDirectionalLight> DirectionalLightClassInfo;
+typedef JavaClassInfo<WhirlyKit::WhirlyKitMaterial> MaterialClassInfo;
 
 // The shared JNIEnv set in the ::render call
 extern JNIEnv *maplyCurrentEnv;

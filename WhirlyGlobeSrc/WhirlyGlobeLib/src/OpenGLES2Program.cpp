@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/23/12.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@
 
 #import <string>
 #import "OpenGLES2Program.h"
-// Note: Porting
-//#import "Lighting.h"
+#import "Lighting.h"
 #import "GLUtils.h"
 
 using namespace Eigen;
@@ -362,32 +361,31 @@ bool OpenGLES2Program::hasLights()
     return lightAttr != NULL;
 }
     
-// Note: Porting
-//bool OpenGLES2Program::setLights(NSArray *lights,CFTimeInterval lastUpdate,WhirlyKitMaterial *mat,Eigen::Matrix4f &modelMat)
-//{
-//    if (lightsLastUpdated >= lastUpdate)
-//        return false;
-//    lightsLastUpdated = lastUpdate;
-//    
-//    int numLights = (int)[lights count];
-//    if (numLights > 8) numLights = 8;
-//    bool lightsSet = true;
-//    for (unsigned int ii=0;ii<numLights;ii++)
-//    {
-//        WhirlyKitDirectionalLight *light = [lights objectAtIndex:ii];
-//        lightsSet &= [light bindToProgram:this index:ii modelMatrix:modelMat];
-//    }
-//    OpenGLESUniform *lightAttr = findUniform("u_numLights");
-//    if (lightAttr)
-//        glUniform1i(lightAttr->index, numLights);
-//    else
-//        return false;
-//    
-//    // Bind the material
-//    [mat bindToProgram:this];
-//    
-//    return lightsSet;
-//}
+bool OpenGLES2Program::setLights(std::vector<WhirlyKitDirectionalLight*> lights, TimeInterval lastUpdate, WhirlyKitMaterial *mat,Eigen::Matrix4f &modelMat)
+{
+    if (lightsLastUpdated >= lastUpdate)
+        return false;
+    lightsLastUpdated = lastUpdate;
+    
+    int numLights = (int)lights.size();
+    if (numLights > 8) numLights = 8;
+    bool lightsSet = true;
+    for (unsigned int ii=0;ii<numLights;ii++)
+    {
+        WhirlyKitDirectionalLight *light = lights[ii];
+        lightsSet &= light->bindToProgram(this, ii, modelMat);
+    }
+    OpenGLESUniform *lightAttr = findUniform("u_numLights");
+    if (lightAttr)
+        glUniform1i(lightAttr->index, numLights);
+    else
+        return false;
+    
+    // Bind the material
+    mat->bindToProgram(this);
+    
+    return lightsSet;
+}
 
 int OpenGLES2Program::bindTextures()
 {
