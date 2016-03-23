@@ -21,6 +21,7 @@ import com.mousebirdconsulting.autotester.TestCases.CustomBNGCoordAdapter;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
 import com.mousebirdconsulting.autotester.TestCases.GestureFeedbackTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ComponentObjectLeakTestCase;
+import com.mousebirdconsulting.autotester.TestCases.LightingTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MaplyStarModelTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ComplexParticleSystemTestCase;
@@ -93,6 +94,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new ComponentObjectLeakTestCase(getActivity()));
 			testCases.add(new ShapesTestCase(getActivity()));
 			testCases.add(new AtmosphereTestCase(getActivity()));
+			testCases.add(new LightingTestCase(getActivity()));
 		}
 
 		@Override
