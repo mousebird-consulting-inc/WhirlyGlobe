@@ -31,10 +31,11 @@ import UIKit
             {
                 guard let dat = data else { print("ERROR: no data"); return }
                 guard let json = try NSJSONSerialization.JSONObjectWithData(dat, options: []) as? NSDictionary else { print("ERROR: conversion from JSON failed"); return }
-                let tileSource = MaplyRemoteTileSource(tilespec: json as [NSObject : AnyObject])
+                let tileInfo = MaplyRemoteTileInfo(tilespec: json as [NSObject : AnyObject])
+                let tileSource = MaplyRemoteTileSource(info: tileInfo!)
                 tileSource!.cacheDir = thisCacheDir
                 if self.zoomLimit != 0 && self.zoomLimit < tileSource!.maxZoom() {
-                    tileSource!.tileInfo.maxZoom = self.zoomLimit
+                    tileInfo?.maxZoom = self.zoomLimit
                 }
                 let layer = MaplyQuadImageTilesLayer(tileSource: tileSource!)
                 layer!.handleEdges = true
@@ -68,10 +69,11 @@ import UIKit
             {
                 guard let dat = data else { print("ERROR: no data"); return }
                 guard let json = try NSJSONSerialization.JSONObjectWithData(dat, options: []) as? NSDictionary else { print("ERROR: conversion from JSON failed"); return }
-                let tileSource = MaplyRemoteTileSource(tilespec: json as [NSObject : AnyObject])
+                let tileInfo = MaplyRemoteTileInfo(tilespec: json as [NSObject : AnyObject])
+                let tileSource = MaplyRemoteTileSource(info: tileInfo!)
                 tileSource!.cacheDir = thisCacheDir
                 if self.zoomLimit != 0 && self.zoomLimit < tileSource!.maxZoom() {
-                    tileSource!.tileInfo.maxZoom = self.zoomLimit
+                    tileInfo?.maxZoom = self.zoomLimit
                 }
                 let layer = MaplyQuadImageTilesLayer(tileSource: tileSource!)
                 layer!.handleEdges = true
