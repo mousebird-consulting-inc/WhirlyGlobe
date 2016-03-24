@@ -58,9 +58,10 @@ class NASAGIBSTestCase: MaplyTestCase {
 	
 	func setupOverlaysLayer (baseLayer: MaplyBaseViewController) {
 		let cacheDir = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.CachesDirectory, NSSearchPathDomainMask.UserDomainMask, true)
-		let tileSource = MaplyRemoteTileSource(baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/Sea_Surface_Temp_Blended/default/2015-06-25/GoogleMapsCompatible_Level7/{z}/{y}/{x}", ext: "png", minZoom: 0, maxZoom: 7)
+        let tileInfo = MaplyRemoteTileInfo(baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/Sea_Surface_Temp_Blended/default/2015-06-25/GoogleMapsCompatible_Level7/{z}/{y}/{x}", ext: "png", minZoom: 0, maxZoom: 7)
+        let tileSource = MaplyRemoteTileSource(info: tileInfo)
 		tileSource?.cacheDir = "\(cacheDir)/sea_temperature"
-		tileSource?.tileInfo.cachedFileLifetime = 3 //Invalidate OWM data after three secs
+		tileInfo.cachedFileLifetime = 3 //Invalidate OWM data after three secs
 		let temperatureLayer = MaplyQuadImageTilesLayer(coordSystem: tileSource!.coordSys, tileSource: tileSource!)
 		temperatureLayer?.coverPoles = false
 		temperatureLayer?.handleEdges = false

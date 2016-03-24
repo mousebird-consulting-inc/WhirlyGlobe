@@ -1615,7 +1615,7 @@ static const float MarkerSpread = 2.0;
                 MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:jsonDict];
                 tileSource.cacheDir = thisCacheDir;
                 if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
-                    tileSource.tileInfo.maxZoom = zoomLimit;
+                    ((MaplyRemoteTileInfo *)tileSource.tileInfo).maxZoom = zoomLimit;
 
                 MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
                 layer.handleEdges = true;
@@ -1719,7 +1719,7 @@ static const float MarkerSpread = 2.0;
                 MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:urlStr ext:@"png" minZoom:1 maxZoom:7];
                 tileSource.coordSys = coordSys;
                 tileSource.cacheDir = [NSString stringWithFormat:@"%@/%@_%@/",cacheDir,weatherDataType,coordSysStr];
-                tileSource.tileInfo.cachedFileLifetime = 3 * 60 * 60; // invalidate OWM data after three hours
+                ((MaplyRemoteTileInfo *)tileSource.tileInfo).cachedFileLifetime = 3 * 60 * 60; // invalidate OWM data after three hours
                 MaplyQuadImageTilesLayer *weatherLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
                 weatherLayer.coverPoles = false;
                 weatherLayer.drawPriority = BaseEarthPriority+200;
