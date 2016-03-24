@@ -344,12 +344,10 @@ static bool trackConnections = false;
     if (!wasFromCache)
     {
         // Let's write it back out for the cache
-        MaplyRemoteTileInfo *tileSource = _tileSources[which];
-        NSString *fileName = [tileSource fileNameForTile:tileID];
-        if (fileName && [originalTileData isKindOfClass:[NSData class]])
+        NSObject<MaplyRemoteTileInfoProtocol> *tileSource = _tileSources[which];
+        if ([originalTileData isKindOfClass:[NSData class]])
         {
-            NSData *imgData = originalTileData;
-            [imgData writeToFile:fileName atomically:YES];
+            [tileSource writeToCache:tileID tileData:(NSData *)originalTileData];
         }
     }
 
@@ -428,7 +426,7 @@ static bool trackConnections = false;
     
     // Work through the sources, kicking off a request as we go
     int which = (frame == -1 ? 0 : frame);
-    for (MaplyRemoteTileInfo *tileSource in (frame == -1 ? _tileSources : @[_tileSources[frame]]))
+    for (NSObject<MaplyRemoteTileInfoProtocol> *tileSource in (frame == -1 ? _tileSources : @[_tileSources[frame]]))
     {
         // If it's local, just go fetch it
         if ([tileSource tileIsLocal:tileID frame:frame])
@@ -442,8 +440,7 @@ static bool trackConnections = false;
                     numConnections++;
                 }
 
-                NSString *fileName = [tileSource fileNameForTile:tileID];
-                NSData *imgData = [NSData dataWithContentsOfFile:fileName];
+                NSData *imgData = [tileSource readFromCache:tileID];
                 
                 if (!imgData)
                     [self failedToGetTile:tileID frame:frame error:nil layer:layer];
