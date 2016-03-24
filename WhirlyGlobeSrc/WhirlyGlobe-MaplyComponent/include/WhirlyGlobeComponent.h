@@ -37,7 +37,7 @@
 #import <WhirlyGlobeViewController.h>
 #import <MaplyQuadPagingLayer.h>
 #import <MaplyUpdateLayer.h>
-#import <MaplyQuadImageTilesLayer.h>
+#import "MaplyQuadImageTilesLayer.h"
 #import <MaplyQuadImageOfflineLayer.h>
 #import <MaplyBlankTileSource.h>
 #import <MaplySphericalQuadEarthWithTexGroup.h>
