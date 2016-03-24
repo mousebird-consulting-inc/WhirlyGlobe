@@ -29,8 +29,8 @@
 	[globeVC setTiltMinHeight:0.001 maxHeight:0.04 minTilt:1.40 maxTilt:0.0];
 	globeVC.frameInterval = 2;
     
-    NSString *docDir = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
-	MaplyElevationDatabase *elevSource = [[MaplyElevationDatabase alloc] initWithName:[docDir stringByAppendingPathComponent:@"whole_32_zoom13US.sqlite"]];
+//    NSString *docDir = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
+	MaplyElevationDatabase *elevSource = [[MaplyElevationDatabase alloc] initWithName:@"world_web_mercator"];
 	globeVC.elevDelegate = elevSource;
 	
 	// Don't forget to turn on the z buffer permanently
