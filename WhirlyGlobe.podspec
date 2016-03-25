@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
   s.platform     = :ios, '7.0'
   s.requires_arc = true
 
-  s.source = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'pod-2.4' }
+  s.source = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'v2.4' }
 
   s.compiler_flags = '-D__USE_SDL_GLES__', '-D__IPHONEOS__ -DSQLITE_OPEN_READONLY'
   s.xcconfig = { "HEADER_SEARCH_PATHS" => "\"${PODS_ROOT}/boost\" \"${PODS_ROOT}/eigen\" \"${PODS_ROOT}/clipper\" \"$(SDKROOT)/usr/include/libxml2\"" }
