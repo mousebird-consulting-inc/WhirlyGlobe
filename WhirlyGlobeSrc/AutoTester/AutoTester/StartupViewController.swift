@@ -81,7 +81,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	}
 
 	override func viewDidLoad() {
-		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: "showConfig")
+		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: #selector(StartupViewController.showConfig))
 
 		let rect = UIScreen.mainScreen().applicationFrame
 		testViewBlack = UIView(frame: CGRectMake(0, 0, rect.width, rect.height))
@@ -154,7 +154,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 		else {
 			configViewC!.navigationItem.hidesBackButton = true
-			configViewC!.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Done, target: self, action: "editDone")
+			configViewC!.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Done, target: self, action: #selector(StartupViewController.editDone))
 			self.navigationController?.pushViewController(configViewC!, animated: true)
 		}
 	}
@@ -214,7 +214,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
                 self.title = "\(test.name) (\(self.seconds))"
                 self.timer = NSTimer.scheduledTimerWithTimeInterval(1,
                     target: self,
-                    selector: "updateTitle:",
+                    selector: #selector(StartupViewController.updateTitle(_:)),
                     userInfo: test.name,
                     repeats: true)
             }
@@ -253,7 +253,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	}
 
 	func updateTitle(timer: NSTimer){
-		self.seconds--
+		self.seconds -= 1
 		self.title = "\(timer.userInfo!) (\(self.seconds))"
 		if self.seconds == 0 {
 			self.timer.invalidate()
