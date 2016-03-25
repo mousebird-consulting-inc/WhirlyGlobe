@@ -31,7 +31,7 @@ class ResultsViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 		else {
 			dropboxView!.navigationItem.hidesBackButton = false
-			dropboxView!.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Done, target: self, action: "editDone")
+			dropboxView!.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Done, target: self, action: #selector(ResultsViewController.editDone))
 			self.navigationController?.pushViewController(dropboxView!, animated: true)
 		}
 	}
