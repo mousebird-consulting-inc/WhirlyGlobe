@@ -12,4 +12,13 @@ Breaking Changes:
     * `- (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos` has changed to `- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos` 
 * WhirlyGlobeViewController
     * `- (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos` has changed to `- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos`
-
+* MaplyMapnikVectorTiles
+    * Files have been renamed to MapboxVectorTiles.{mm/h}
+    * Class has been renamed to MapboxVectorTiles
+* MaplyVectorStyle
+    * `MaplyVectorTileStyleSettings` has been renamed `MaplyVectorStyleSettings`
+* AFNetworking has been removed
+* MaplyRemoteTileSource
+    * MaplyRemoteTileInfo now implements MaplyRemoteTileInfoProtocol
+    * MaplyRemoteTileSource `tileInfo` property has changed from type `MaplyRemoteTileInfo *` to `NSObject<MaplyRemoteTileInfoProtocol> *`  
+    * `- (instancetype)initWithInfo:(MaplyRemoteTileInfo *)info;` has changed to `- (nullable instancetype)initWithInfo:(NSObject<MaplyRemoteTileInfoProtocol> *__nonnull)info;`
