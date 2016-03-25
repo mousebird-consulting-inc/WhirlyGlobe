@@ -51,6 +51,40 @@ static NSString *fragmentShaderTriMultiTexRamp =
 "}\n"
 ;
 
+/* Thanks to: http://stackoverflow.com/questions/13501081/efficient-bicubic-filtering-code-in-glsl
+ for the cubic interpolation.
+ */
+static NSString *fragmentShaderTriMultiTexCubicRamp =
+@"precision mediump float;\n"
+"\n"
+"uniform sampler2D s_baseMap0;\n"
+"uniform sampler2D s_baseMap1;\n"
+"uniform sampler2D s_colorRamp;\n"
+"uniform float u_interp;\n"
+"\n"
+"varying vec2      v_texCoord;\n"
+"varying vec4      v_color;\n"
+"\n"
+"vec4 cubic(float v)\n"
+"{\n"
+"    vec4 n = vec4(1.0, 2.0, 3.0, 4.0) - v;\n"
+"    vec4 s = n * n * n;\n"
+"    float x = s.x;\n"
+"    float y = s.y - 4.0 * s.x;\n"
+"    float z = s.z - 4.0 * s.y + 6.0 * s.x;\n"
+"    float w = 6.0 - x - y - z;\n"
+"    return vec4(x, y, z, w);\n"
+"}\n"
+"\n"
+"void main()\n"
+"{\n"
+"  float baseVal0 = texture2D(s_baseMap0, v_texCoord).a;\n"
+"  float baseVal1 = texture2D(s_baseMap1, v_texCoord).a;\n"
+"  float index = mix(baseVal0,baseVal1,u_interp);\n"
+"  gl_FragColor = texture2D(s_colorRamp,vec2(index,0.5));\n"
+"}\n"
+;
+
 @implementation AnimatedColorRampTestCase
 
 - (instancetype)init
