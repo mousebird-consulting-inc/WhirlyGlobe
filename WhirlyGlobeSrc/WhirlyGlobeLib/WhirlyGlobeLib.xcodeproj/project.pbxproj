@@ -451,17 +451,12 @@
 		88D57FC21CA1EB6F00A203F8 /* MarkerGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FC11CA1EB6F00A203F8 /* MarkerGenerator.h */; };
 		88D57FC61CA1EBAE00A203F8 /* com_mousebird_maply_DirectionalLight.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FC31CA1EBAE00A203F8 /* com_mousebird_maply_DirectionalLight.h */; };
 		88D57FC81CA1EBAE00A203F8 /* com_mousebird_maply_VertexAttribute.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FC51CA1EBAE00A203F8 /* com_mousebird_maply_VertexAttribute.h */; };
-		88D57FE41CA1ED3F00A203F8 /* cs2cs.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FCB1CA1ED3F00A203F8 /* cs2cs.c */; };
 		88D57FE51CA1ED3F00A203F8 /* gen_cheb.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FCC1CA1ED3F00A203F8 /* gen_cheb.c */; };
 		88D57FE61CA1ED3F00A203F8 /* geod_interface.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FCD1CA1ED3F00A203F8 /* geod_interface.c */; };
 		88D57FE71CA1ED3F00A203F8 /* geod_interface.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FCE1CA1ED3F00A203F8 /* geod_interface.h */; };
-		88D57FE81CA1ED3F00A203F8 /* geod.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FCF1CA1ED3F00A203F8 /* geod.c */; };
 		88D57FE91CA1ED3F00A203F8 /* geodesic.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FD01CA1ED3F00A203F8 /* geodesic.c */; };
-		88D57FEA1CA1ED3F00A203F8 /* geodtest.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FD11CA1ED3F00A203F8 /* geodtest.c */; };
 		88D57FEB1CA1ED3F00A203F8 /* hypot.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FD21CA1ED3F00A203F8 /* hypot.c */; };
-		88D57FED1CA1ED3F00A203F8 /* multistresstest.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FD41CA1ED3F00A203F8 /* multistresstest.c */; };
 		88D57FEE1CA1ED3F00A203F8 /* nad_list.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FD51CA1ED3F00A203F8 /* nad_list.h */; };
-		88D57FEF1CA1ED3F00A203F8 /* nad2bin.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FD61CA1ED3F00A203F8 /* nad2bin.c */; };
 		88D57FF01CA1ED3F00A203F8 /* org_proj4_PJ.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FD71CA1ED3F00A203F8 /* org_proj4_PJ.h */; };
 		88D57FF11CA1ED3F00A203F8 /* p_series.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FD81CA1ED3F00A203F8 /* p_series.c */; };
 		88D57FF21CA1ED3F00A203F8 /* PJ_calcofi.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FD91CA1ED3F00A203F8 /* PJ_calcofi.c */; };
@@ -473,8 +468,6 @@
 		88D57FF81CA1ED3F00A203F8 /* PJ_qsc.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FDF1CA1ED3F00A203F8 /* PJ_qsc.c */; };
 		88D57FF91CA1ED3F00A203F8 /* PJ_sch.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FE01CA1ED3F00A203F8 /* PJ_sch.c */; };
 		88D57FFA1CA1ED3F00A203F8 /* pj_strtod.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FE11CA1ED3F00A203F8 /* pj_strtod.c */; };
-		88D57FFB1CA1ED3F00A203F8 /* proj.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FE21CA1ED3F00A203F8 /* proj.c */; };
-		88D57FFC1CA1ED3F00A203F8 /* test228.c in Sources */ = {isa = PBXBuildFile; fileRef = 88D57FE31CA1ED3F00A203F8 /* test228.c */; };
 		88D653EB1C92CF7900B39955 /* ShapeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D653E81C92CF7900B39955 /* ShapeManager.h */; };
 		88D653ED1C92CF7900B39955 /* ShapeDrawableBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D653EA1C92CF7900B39955 /* ShapeDrawableBuilder.h */; };
 		88D653F01C92CF9200B39955 /* ShapeDrawableBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88D653EE1C92CF9200B39955 /* ShapeDrawableBuilder.cpp */; };
@@ -2207,7 +2200,6 @@
 				2B35676918D762A700EF8DB1 /* SphericalMercator.cpp in Sources */,
 				2B7EF45716025D8C00D4079F /* PJ_eck2.c in Sources */,
 				2B35677218D762A700EF8DB1 /* WhirlyGeometry.cpp in Sources */,
-				88D57FFB1CA1ED3F00A203F8 /* proj.c in Sources */,
 				2B009CF1186102E4001E2EE8 /* JSONAllocator.cpp in Sources */,
 				2B7EF45816025D8C00D4079F /* PJ_eck3.c in Sources */,
 				2B7EF45916025D8C00D4079F /* PJ_eck4.c in Sources */,
@@ -2224,8 +2216,6 @@
 				2B7EF45E16025D8C00D4079F /* PJ_eqdc.c in Sources */,
 				2B7EF45F16025D8C00D4079F /* pj_errno.c in Sources */,
 				2B7EF46016025D8C00D4079F /* pj_factors.c in Sources */,
-				88D57FEA1CA1ED3F00A203F8 /* geodtest.c in Sources */,
-				88D57FEF1CA1ED3F00A203F8 /* nad2bin.c in Sources */,
 				88D57FF51CA1ED3F00A203F8 /* pj_gc_reader.c in Sources */,
 				2B009CFE186102E4001E2EE8 /* JSONMemory.cpp in Sources */,
 				2B7EF46116025D8C00D4079F /* PJ_fahey.c in Sources */,
@@ -2299,7 +2289,6 @@
 				2B35675018D762A700EF8DB1 /* GlobeViewState.cpp in Sources */,
 				2B7EF49016025D8C00D4079F /* pj_mutex.c in Sources */,
 				2B7EF49116025D8C00D4079F /* PJ_natearth.c in Sources */,
-				88D57FFC1CA1ED3F00A203F8 /* test228.c in Sources */,
 				2B7EF49216025D8C00D4079F /* PJ_nell_h.c in Sources */,
 				2B7EF49316025D8C00D4079F /* PJ_nell.c in Sources */,
 				2B35676518D762A700EF8DB1 /* ScreenImportance.cpp in Sources */,
@@ -2313,7 +2302,6 @@
 				2B7EF49916025D8C00D4079F /* PJ_oea.c in Sources */,
 				2B7EF49A16025D8C00D4079F /* PJ_omerc.c in Sources */,
 				2B7EF49B16025D8C00D4079F /* pj_open_lib.c in Sources */,
-				88D57FED1CA1ED3F00A203F8 /* multistresstest.c in Sources */,
 				2B7EF49C16025D8C00D4079F /* PJ_ortho.c in Sources */,
 				2B7EF49D16025D8C00D4079F /* pj_param.c in Sources */,
 				2B009D09186102E4001E2EE8 /* JSONStream.cpp in Sources */,
@@ -2327,7 +2315,6 @@
 				2B7EF4A116025D8C00D4079F /* PJ_putp2.c in Sources */,
 				2B35675218D762A700EF8DB1 /* GridClipper.cpp in Sources */,
 				2B7EF4A216025D8C00D4079F /* PJ_putp3.c in Sources */,
-				88D57FE41CA1ED3F00A203F8 /* cs2cs.c in Sources */,
 				2B7EF4A316025D8C00D4079F /* PJ_putp4p.c in Sources */,
 				2B7EF4A416025D8C00D4079F /* PJ_putp5.c in Sources */,
 				88D57FFA1CA1ED3F00A203F8 /* pj_strtod.c in Sources */,
@@ -2373,7 +2360,6 @@
 				2B7EF4BA16025D8C00D4079F /* PJ_vandg.c in Sources */,
 				2B35674818D762A700EF8DB1 /* Drawable.cpp in Sources */,
 				2B7EF4BB16025D8C00D4079F /* PJ_vandg2.c in Sources */,
-				88D57FE81CA1ED3F00A203F8 /* geod.c in Sources */,
 				2B7EF4BC16025D8C00D4079F /* PJ_vandg4.c in Sources */,
 				2B7EF4BD16025D8C00D4079F /* PJ_wag2.c in Sources */,
 				88D653F01C92CF9200B39955 /* ShapeDrawableBuilder.cpp in Sources */,

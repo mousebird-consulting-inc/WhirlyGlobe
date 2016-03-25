@@ -203,9 +203,10 @@ public class ComponentObject
 			texIDs.clear();
 		}
 
-		if (shapeID != null && shapeID.size()>0)
-			control.shapeManager.removeShapes(convertIDs(shapeID),changes);
-		shapeID.clear();
+		if (shapeID != null && shapeID.size()>0) {
+			control.shapeManager.removeShapes(convertIDs(shapeID), changes);
+			shapeID.clear();
+		}
 	}
 	
 	// Selection IDs associated with this object
