@@ -21,7 +21,8 @@ class MarkersTestCase: MaplyTestCase {
 		let size = CGSizeMake(0.05, 0.05);
 		let startImage = UIImage(named: "airfield-24@2x")
 		var markers = [MaplyMarker]()
-		for var i=0; i < arrayComp.count; ++i{
+		for var i=0; i < arrayComp.count; i = i + 1
+        {
 			let object = arrayComp[i]
 			let marker = MaplyMarker()
 			marker.image = startImage

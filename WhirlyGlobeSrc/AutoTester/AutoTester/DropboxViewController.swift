@@ -249,7 +249,7 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 			continuation: () -> ()) {
 
 		func checkFinished(inout uploads: Int) {
-			uploads--
+			uploads -= 1
 			if uploads == 0 {
 				continuation()
 			}
@@ -328,7 +328,7 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 			continuation: () -> ()) {
 
 		func checkFinished(inout uploads: Int) {
-			uploads--
+			uploads -= 1
 			if uploads == 0 {
 				continuation()
 			}
