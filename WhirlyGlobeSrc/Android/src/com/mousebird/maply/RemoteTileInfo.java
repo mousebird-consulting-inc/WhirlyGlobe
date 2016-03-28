@@ -18,6 +18,7 @@ public class RemoteTileInfo
 	int minZoom = 0;
 	int maxZoom = 0;
 	int pixelsPerSide = 256;
+	boolean replaceURL = false;
 
 	/**
 	 * Construct a remote tile source that fetches from a single URL.  You provide
@@ -30,6 +31,9 @@ public class RemoteTileInfo
 	 */
 	public RemoteTileInfo(String inBase,String inExt,int inMinZoom,int inMaxZoom)
 	{
+		if (inBase.contains("{x}") || inBase.contains("{y}"))
+			replaceURL = true;
+
 		baseURLs.add(inBase);
 		ext = inExt;
 		minZoom = inMinZoom;
@@ -67,7 +71,15 @@ public class RemoteTileInfo
 	 */
 	public String buildURL(int x,int y,int level)
 	{
-		return baseURLs.get(x % baseURLs.size()) + level + "/" + x + "/" + y + "." + ext;		
+		String url = null;
+		if (replaceURL)
+			url = baseURLs.get( x % baseURLs.size()).replace("{x}","" + x).replace("{y}","" + y).replace("{z}","" + level);
+		else
+			url = baseURLs.get(x % baseURLs.size()) + level + "/" + x + "/" + y;
+		if (url !=null && ext != null)
+			url = url + "." + ext;
+
+		return url;
 	}
 
 	/**

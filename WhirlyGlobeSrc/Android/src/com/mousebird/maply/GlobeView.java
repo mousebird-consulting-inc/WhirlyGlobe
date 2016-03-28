@@ -144,6 +144,14 @@ public class GlobeView extends View
 		
 		runViewUpdates();
 	}
+
+	// Return the position in model coordinates for the eye
+	Point3d getEyePosition()
+	{
+		Matrix4d mat = calcModelViewMatrix();
+		Point4d pos = mat.inverse().multiply(new Point4d(0,0,0,1));
+		return new Point3d(pos.getX(),pos.getY(),pos.getZ());
+	}
 		
 	// Calculate the point on the view plane given the screen location
 	native Point3d pointOnSphereFromScreen(Point2d screenPt,Matrix4d viewModelMatrix,Point2d frameSize,boolean clip);

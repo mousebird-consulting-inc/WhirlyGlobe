@@ -448,7 +448,7 @@ public class Atmosphere {
      * Wavelengths of the light (RGB).  Three floats, defaults are: 0.650, 0.570, 0.475
      */
     public float[] getWaveLength() {
-        return this.waveLength;
+        return this.waveLength.clone();
     }
 
     /**

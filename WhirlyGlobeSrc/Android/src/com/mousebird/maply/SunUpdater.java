@@ -45,14 +45,19 @@ public class SunUpdater implements ActiveObject {
         this.changed = true;
     }
 
+    Point3d oldCameraPos = null;
+
     @Override
     public void activeUpdate() {
 
-        if (!changed && started)
+        Point3d cameraPos = viewC.getGlobeView().getEyePosition();
+
+        if (!changed && started && cameraPos.equals(oldCameraPos))
             return;
 
-        //TODO REVIEW
-        Point3d cameraPos = viewC.getPosition();
+        if (sunPos == null)
+            return;
+
         Point4d sunDir4d = new Point4d(sunPos.getX(), sunPos.getY(), sunPos.getZ(), 1.0);
         Point3d sunDir3d = new Point3d(sunDir4d.getX(), sunDir4d.getY(), sunDir4d.getZ());
 
@@ -97,11 +102,12 @@ public class SunUpdater implements ActiveObject {
             thisShader.setUniform(Atmosphere.k_nSamples, atm.getNumSamples());
 
             thisShader.setUniform(Atmosphere.k_g, atm.getG());
-            thisShader.setUniform(Atmosphere.k_g2, atm.getG());
+            thisShader.setUniform(Atmosphere.k_g2, atm.getG() * atm.getG());
             thisShader.setUniform(Atmosphere.k_fExposure, atm.getExposure());
         }
 
         this.changed = false;
         this.started = true;
+        oldCameraPos = cameraPos;
     }
 }

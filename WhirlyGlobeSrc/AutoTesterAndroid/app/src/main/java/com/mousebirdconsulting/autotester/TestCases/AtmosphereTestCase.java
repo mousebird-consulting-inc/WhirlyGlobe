@@ -25,8 +25,14 @@ import com.mousebird.maply.Atmosphere;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LayerThread;
 import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.MultiplexTileSource;
 import com.mousebird.maply.Point3d;
+import com.mousebird.maply.QuadImageTileLayer;
+import com.mousebird.maply.RemoteTileInfo;
+import com.mousebird.maply.SphericalMercatorCoordSystem;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
+
+import java.io.File;
 
 
 public class AtmosphereTestCase extends MaplyTestCase {
@@ -40,18 +46,51 @@ public class AtmosphereTestCase extends MaplyTestCase {
         setDelay(1000);
     }
 
+    // Day-time data source
+    RemoteTileInfo daySource(MaplyBaseController baseC)
+    {
+        return new RemoteTileInfo("http://map1.vis.earthdata.nasa.gov/wmts-webmerc/MODIS_Terra_CorrectedReflectance_TrueColor/default/2015-05-07/GoogleMapsCompatible_Level9/{z}/{y}/{x}",
+                "jpg",1,8);
+    }
+
+    // Night-time data source
+    RemoteTileInfo nightSource(MaplyBaseController baseC)
+    {
+        return new RemoteTileInfo("http://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/2015-05-07/GoogleMapsCompatible_Level8/{z}/{y}/{x}",
+                "jpg",1,8);
+    }
+
     @Override
     public boolean setUpWithGlobe(final GlobeController globeVC) throws Exception {
-        StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
-        baseView.setUpWithGlobe(globeVC);
 
         globeVC.addPostSurfaceRunnable(new Runnable() {
             @Override
             public void run() {
-                thread = globeVC.getLayerThread();
+                globeVC.setPositionGeo(0, 0, 5.0);
+
                 Atmosphere atmosphere = new Atmosphere((GlobeController) globeVC, MaplyBaseController.ThreadMode.ThreadAny);
                 atmosphere.setWaveLength(new float[]{0.650f, 0.570f, 0.475f});
                 atmosphere.setSunPosition(new Point3d(1.0,0.0,0.0));
+
+                String cacheDirName = "day_night";
+                File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);
+                cacheDir.mkdir();
+
+                RemoteTileInfo sources[] = new RemoteTileInfo[2];
+                sources[0] = daySource(globeVC);
+                sources[1] = nightSource(globeVC);
+
+                SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
+                MultiplexTileSource fullTileSource = new MultiplexTileSource(globeVC,sources,coordSystem);
+                fullTileSource.setCacheDir(cacheDir);
+
+                QuadImageTileLayer baseLayer = new QuadImageTileLayer(globeVC, coordSystem, fullTileSource);
+                baseLayer.setImageDepth(2);
+                baseLayer.setCoverPoles(true);
+                baseLayer.setHandleEdges(true);
+//                baseLayer.setShaderName("Default Triangle;nightday=yes;multitex=yes;lighting=yes");
+                baseLayer.setShaderName(atmosphere.getGroundShader().getName());
+                globeVC.addLayer(baseLayer);
             }
         });
         return true;

@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AutoTesterAndroid.iml" filepath="$PROJECT_DIR$/AutoTesterAndroid.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Maply/Maply.iml" filepath="$PROJECT_DIR$/Maply/Maply.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/AutoTesterAndroid/AutoTesterAndroid.iml" filepath="$PROJECT_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/AutoTesterAndroid/AutoTesterAndroid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/AutoTesterAndroid/Maply/Maply.iml" filepath="$PROJECT_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/AutoTesterAndroid/Maply/Maply.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/AutoTesterAndroid/app/app.iml" filepath="$PROJECT_DIR$/../../../../../WhirlyGlobe-Maply3/WhirlyGlobeSrc/AutoTesterAndroid/app/app.iml" />
     </modules>
   </component>
 </project>

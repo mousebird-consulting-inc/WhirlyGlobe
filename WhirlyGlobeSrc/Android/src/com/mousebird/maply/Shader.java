@@ -133,6 +133,9 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point2d pt)
 	{
+		if (Looper.myLooper() == Looper.getMainLooper())
+			control.setEGLContext();
+
 		return setUniformNative(name,pt.getX(),pt.getY());
 	}
 
@@ -144,6 +147,9 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point3d pt)
 	{
+		if (Looper.myLooper() == Looper.getMainLooper())
+			control.setEGLContext();
+
 		return setUniformNative(name, pt.getX(), pt.getY(), pt.getZ());
 	}
 
@@ -155,6 +161,9 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point4d pt)
 	{
+		if (Looper.myLooper() == Looper.getMainLooper())
+			control.setEGLContext();
+
 		return setUniformNative(name, pt.getX(), pt.getY(), pt.getZ(), pt.getW());
 	}
 
