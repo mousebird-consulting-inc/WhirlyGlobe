@@ -38,7 +38,6 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		baseLayer.setUseTargetZoomLevel(false);
 		baseLayer.setCoverPoles(true);
 		baseLayer.setHandleEdges(true);
-		baseLayer.setDrawPriority(0);
 		return baseLayer;
 	}
 

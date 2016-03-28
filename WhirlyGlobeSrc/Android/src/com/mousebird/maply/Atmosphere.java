@@ -478,8 +478,8 @@ public class Atmosphere {
         shapeInfo.setShader(shader);
         this.comObj = this.viewC.addShapes(shapes, shapeInfo, mode);
 
-//        this.sunUpdater = new SunUpdater(this.shader, this.groundShader,this, viewC);
-//        this.viewC.addActiveObject(sunUpdater);
+        this.sunUpdater = new SunUpdater(this.shader, this.groundShader,this, viewC);
+        this.viewC.addActiveObject(sunUpdater);
     }
 
     // Set up a corresponding ground shader

@@ -157,6 +157,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
         scheduleEvalStep();
 
         valid = true;
+
+		if (startEnable != true)
+			setEnable(startEnable);
 	}
 
 	/**
@@ -362,6 +365,8 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		return layerThread;
 	}
 
+	boolean startEnable = true;
+
 	/** Enable/Disable the whole layer.
      *	By default this is on.  If you turn it off, there may be a slight delay before the whole layer disappears.  The layer will keep working, but any geometry will be invisible until you turn it back on.
 	 */
@@ -373,6 +378,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		ChangeSet changes = new ChangeSet();
 		setEnable(enable,changes);
 		layerThread.addChanges(changes);
+		startEnable = enable;
 	}
 	
 	native void setEnable(boolean enable,ChangeSet changes);

@@ -47,6 +47,10 @@ public class SunUpdater implements ActiveObject {
 
     @Override
     public void activeUpdate() {
+
+        if (!changed && started)
+            return;
+
         //TODO REVIEW
         Point3d cameraPos = viewC.getPosition();
         Point4d sunDir4d = new Point4d(sunPos.getX(), sunPos.getY(), sunPos.getZ(), 1.0);

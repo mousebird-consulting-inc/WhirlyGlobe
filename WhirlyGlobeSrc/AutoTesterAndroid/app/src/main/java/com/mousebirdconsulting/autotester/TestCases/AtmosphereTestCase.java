@@ -21,8 +21,11 @@ package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
 
+import com.mousebird.maply.Atmosphere;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LayerThread;
+import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.Point3d;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 
@@ -34,7 +37,7 @@ public class AtmosphereTestCase extends MaplyTestCase {
     public AtmosphereTestCase(Activity activity) {
         super(activity);
         setTestName("Atmosphere Test Case");
-        setDelay(20);
+        setDelay(1000);
     }
 
     @Override
@@ -46,7 +49,9 @@ public class AtmosphereTestCase extends MaplyTestCase {
             @Override
             public void run() {
                 thread = globeVC.getLayerThread();
-                adapter = new ShapesSphereThreadAdapter(globeVC, thread);
+                Atmosphere atmosphere = new Atmosphere((GlobeController) globeVC, MaplyBaseController.ThreadMode.ThreadAny);
+                atmosphere.setWaveLength(new float[]{0.650f, 0.570f, 0.475f});
+                atmosphere.setSunPosition(new Point3d(1.0,0.0,0.0));
             }
         });
         return true;
