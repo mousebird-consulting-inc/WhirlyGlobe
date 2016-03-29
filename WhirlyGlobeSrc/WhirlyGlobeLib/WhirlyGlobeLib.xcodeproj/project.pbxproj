@@ -429,6 +429,7 @@
 		2BC8496C1C6932FD0058D10F /* WideVectorManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC8496A1C6932FD0058D10F /* WideVectorManager.h */; };
 		2BC8496F1C6933120058D10F /* WideVectorDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC8496D1C6933120058D10F /* WideVectorDrawable.cpp */; };
 		2BC849701C6933120058D10F /* WideVectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC8496E1C6933120058D10F /* WideVectorManager.cpp */; };
+		2BCCE21D1CA9EE6500F579BA /* com_mousebird_maply_Sun.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCCE21C1CA9EE6500F579BA /* com_mousebird_maply_Sun.h */; };
 		2BDC4ABC133404BB00E25283 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9212F09EA0005003AE /* dbfopen.c */; };
 		2BDC4AC4133404C600E25283 /* shpopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9012F09E91005003AE /* shpopen.c */; };
@@ -969,6 +970,8 @@
 		2BC8496A1C6932FD0058D10F /* WideVectorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorManager.h; sourceTree = "<group>"; };
 		2BC8496D1C6933120058D10F /* WideVectorDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WideVectorDrawable.cpp; sourceTree = "<group>"; };
 		2BC8496E1C6933120058D10F /* WideVectorManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WideVectorManager.cpp; sourceTree = "<group>"; };
+		2BCCE21C1CA9EE6500F579BA /* com_mousebird_maply_Sun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Sun.h; path = ../Android/jni/com_mousebird_maply_Sun.h; sourceTree = "<group>"; };
+		2BCCE21E1CA9EF0600F579BA /* Sun_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sun_jni.cpp; path = ../Android/jni/Sun_jni.cpp; sourceTree = "<group>"; };
 		2BDC4A171333EFE000E25283 /* WhirlyGlobeLib-iphonesim-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesim-Prefix.pch"; sourceTree = "<group>"; };
 		2BDC4A621333F0E900E25283 /* WhirlyGlobeLib-iphoneos-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphoneos-Prefix.pch"; sourceTree = "<group>"; };
 		2BDC4ABB133404BB00E25283 /* libWhirlyGlobeLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWhirlyGlobeLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1240,6 +1243,7 @@
 		2B4B19291BA38A940091A743 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2BCCE21C1CA9EE6500F579BA /* com_mousebird_maply_Sun.h */,
 				2B4B192B1BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h */,
 				2B4B192C1BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h */,
 				2B923FC51BFBDED200C879DB /* com_mousebird_maply_BaseInfo.h */,
@@ -1324,6 +1328,7 @@
 		2B4B192A1BA38A9A0091A743 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2BCCE21E1CA9EF0600F579BA /* Sun_jni.cpp */,
 				2B4B199B1BA38AFB0091A743 /* AngleAxis_jni.cpp */,
 				2B4B199C1BA38AFB0091A743 /* AttrDictionary_jni.cpp */,
 				2B923FB71BFA9B5E00C879DB /* BaseInfo_jni.cpp */,
@@ -1953,6 +1958,7 @@
 				2B4B196A1BA38AD90091A743 /* com_mousebird_maply_GlobeScene.h in Headers */,
 				D8A4BE241C6F558D009F6CFB /* QuadTracker.h in Headers */,
 				2BA2325C17984F510063CC84 /* glues_project.h in Headers */,
+				2BCCE21D1CA9EE6500F579BA /* com_mousebird_maply_Sun.h in Headers */,
 				2B009D07186102E4001E2EE8 /* JSONSingleton.h in Headers */,
 				2B4B197F1BA38AD90091A743 /* com_mousebird_maply_Point3d.h in Headers */,
 				2B4B197B1BA38AD90091A743 /* com_mousebird_maply_MarkerManager.h in Headers */,
