@@ -10,6 +10,10 @@ import UIKit
 
 // Section in the configuration panel
 class ConfigSection {
+    
+    // Added to work around a loading problem:
+    // http://cjwirth.com/2016/03/26/xcode-7-3-crashing/
+    let bufix = ""
 
 	enum Section : String {
 		case Options = "Options"
