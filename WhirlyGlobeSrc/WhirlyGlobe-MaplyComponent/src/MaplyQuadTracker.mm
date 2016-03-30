@@ -90,6 +90,11 @@ public:
     }
 }
 
+- (int)numTiles
+{
+    return tiles.size();
+}
+
 - (void)tiles:(MaplyQuadTrackerPointReturn *)tilesInfo forPoints:(int)numPts
 {
     if (!_coordSys)
