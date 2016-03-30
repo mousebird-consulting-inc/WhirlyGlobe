@@ -73,4 +73,8 @@ typedef struct
   */
 - (void)removeTile:(MaplyTileID)tileID;
 
+/** @brief Return the number of tiles contained in the quad tracker.
+ */
+- (int)numTiles;
+
 @end
