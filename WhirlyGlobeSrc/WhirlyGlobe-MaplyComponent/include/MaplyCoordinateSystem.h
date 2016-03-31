@@ -58,6 +58,16 @@
   */
 - (MaplyCoordinate)localToGeo:(MaplyCoordinate)coord;
 
+/** @brief Convert a 3D coordinate from the local space to geocentric.
+    @details This takes a 3D coordinate (including height) and converts it to geocentric in WGS84.
+  */
+- (MaplyCoordinate3dD)localToGeocentric:(MaplyCoordinate3dD)coord;
+
+/** @brief Convert a 3D coordinate from geocentric to the local space.
+    @details This takes a 3D geocentric coordinate (WGS84) and converts it to the local space, including height;
+  */
+- (MaplyCoordinate3dD)geocentricToLocal:(MaplyCoordinate3dD)coord;
+
 /** @brief Express the coordinate system in an SRS compatible string.
   */
 - (NSString * __nonnull)getSRS;
@@ -91,7 +101,7 @@
   */
 @interface MaplySphericalMercator : MaplyCoordinateSystem
 
-/// @brief Initialize with the -85...,+85... extents to match most commonly used online maps
+/// @brief Initialize with the -85...,+85... extents to match most comm only used online maps
 - (nonnull instancetype)init;
 
 /// @brief Initialize with the -85...,+85... extents to match most commonly used online maps
