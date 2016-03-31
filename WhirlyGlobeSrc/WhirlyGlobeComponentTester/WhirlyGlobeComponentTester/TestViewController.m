@@ -713,8 +713,8 @@ static int BaseEarthPriority;
 {
     NSMutableArray *compObjs = [NSMutableArray array];
     
-    UIColor *color = [UIColor blueColor];
-    float fade = 0.25;
+//    UIColor *color = [UIColor blueColor];
+//    float fade = 0.25;
 //    MaplyComponentObject *lines = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: color,
 //                                                                         kMaplyVecWidth: @(1.0),
 //                                                                         kMaplyFade: @(fade),
@@ -1362,8 +1362,7 @@ static const float MarkerSpread = 2.0;
         if (globeViewC)
         {
             // This is the static image set, included with the app, built with ImageChopper
-            WGViewControllerLayer *layer = [globeViewC addSphericalEarthLayerWithImageSet:@"lowres_wtb_info"];
-            baseLayer = (MaplyViewControllerLayer *)layer;
+            baseLayer = (MaplyViewControllerLayer *)[globeViewC addSphericalEarthLayerWithImageSet:@"lowres_wtb_info"];;
             baseLayer.drawPriority = BaseEarthPriority;
             screenLabelColor = [UIColor whiteColor];
             screenLabelBackColor = [UIColor whiteColor];
@@ -2266,7 +2265,7 @@ static const float MarkerSpread = 2.0;
             return;
         
         title = @"Cluster";
-        subTitle = [NSString stringWithFormat:@"%d objects",[selArr count]];
+        subTitle = [NSString stringWithFormat:@"%tu objects",[selArr count]];
     } else {
         id selectedObj = nil;
         if ([selectedObjs isKindOfClass:[NSArray class]])
