@@ -19,6 +19,7 @@
  */
 
 #import "MaplyVectorTiles.h"
+#import "sqlite3.h"
 #import "FMDatabase.h"
 #import "FMDatabaseQueue.h"
 #import "NSData+Zlib.h"
