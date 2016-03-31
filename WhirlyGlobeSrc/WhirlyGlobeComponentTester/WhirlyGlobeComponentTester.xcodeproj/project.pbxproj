@@ -2137,7 +2137,7 @@
 					/usr/include/libxml2/,
 				);
 				INFOPLIST_FILE = "WhirlyGlobeComponentTester/WhirlyGlobeComponentTester-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.mousebirdconsulting.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2162,7 +2162,7 @@
 					/usr/include/libxml2/,
 				);
 				INFOPLIST_FILE = "WhirlyGlobeComponentTester/WhirlyGlobeComponentTester-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.mousebirdconsulting.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
