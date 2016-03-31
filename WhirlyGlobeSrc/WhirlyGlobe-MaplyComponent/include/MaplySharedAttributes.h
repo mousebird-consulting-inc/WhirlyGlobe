@@ -19,82 +19,82 @@
  */
 
 /// Use this hint to turn the zbuffer on or off.  Pass in an NSNumber boolean.  Takes effect on the next frame.
-#define kMaplyRenderHintZBuffer @"zbuffer"
+extern NSString* const kMaplyRenderHintZBuffer;
 #define kWGRenderHintZBuffer kMaplyRenderHintZBuffer
 /// Use this hint to turn culling optimization on or off.  Pass in an NSNumber boolean.
-#define kMaplyRenderHintCulling @"culling"
+extern NSString* const kMaplyRenderHintCulling;
 #define kWGRenderHintCulling kMaplyRenderHintCulling
 /// These are options for lighting modes, basically different default shader programs.  Only works with OpenGL ES 2.0 mode.
 /// Accepted values are: none,regular
-#define kMaplyRendererLightingMode @"rendererLightingMode"
+extern NSString* const kMaplyRendererLightingMode;
 #define kWGRendererLightingMode kMaplyRendererLightingMode
 
 /// These are used for all object descriptions.
 
 /// If the z buffer is on, this will let you resolve.  Takes an NSNumber boolean
-#define kMaplyDrawOffset @"drawOffset"
+extern NSString* const kMaplyDrawOffset;
 #define kWGDrawOffset kMaplyDrawOffset
 /// This helps decide what order things are drawn in.  Useful when the z buffer is off or you're using transparency.
 /// Takes an NSNumber int.
-#define kMaplyDrawPriority @"drawPriority"
+extern NSString* const kMaplyDrawPriority;
 #define kWGDrawPriority kMaplyDrawPriority
 /// Minimum point at which a feature is visible.  Takes an NSNumber float.  The radius of the globe is 1.0
-#define kMaplyMinVis @"minVis"
+extern NSString* const kMaplyMinVis;
 #define kWGMinVis kMaplyMinVis
 /// Maximum point at which a feature is visible.  Takes an NSNumber float.  The radius of the globe is 1.0
-#define kMaplyMaxVis @"maxVis"
+extern NSString* const kMaplyMaxVis;
 #define kWGMaxVis kMaplyMaxVis
 /// Minimum distance from the viewer at which to display geometry.
-#define kMaplyViewerMinDist @"minviewerdist"
+extern NSString* const kMaplyViewerMinDist;
 /// Maximum distance from the viewer at which to display geometry.
-#define kMaplyViewerMaxDist @"maxviewerdist"
+extern NSString* const kMaplyViewerMaxDist;
 /// Center to use when evaluating distance to viewable geometry (X)
-#define kMaplyViewableCenterX @"viewablecenterx"
+extern NSString* const kMaplyViewableCenterX;
 /// Center to use when evaluating distance to viewable geometry (Y)
-#define kMaplyViewableCenterY @"viewablecentery"
+extern NSString* const kMaplyViewableCenterY;
 /// Center to use when evaluating distance to viewable geometry (Z)
-#define kMaplyViewableCenterZ @"viewablecenterz"
+extern NSString* const kMaplyViewableCenterZ;
 /// The amount of time for a feature to fade in or out.  Takes an NSNumber float for seconds.
-#define kMaplyFade @"fade"
+extern NSString* const kMaplyFade;
 #define kWGFade kMaplyFade
 /// Fade the feature in over time.
-#define kMaplyFadeIn @"fadein"
+extern NSString* const kMaplyFadeIn;
 /// Fade the feature out over time
-#define kMaplyFadeOut @"fadeout"
+extern NSString* const kMaplyFadeOut;
 /// When to start fading out
-#define kMaplyFadeOutTime @"fadeouttime"
+extern NSString* const kMaplyFadeOutTime;
 /// Enable or disable an object.  This can be used to create an object disabled.
-#define kMaplyEnable @"enable"
+extern NSString* const kMaplyEnable;
 /// If set, we'll enable the objects only between the start and end time
-#define kMaplyEnableStart @"enablestart"
+extern NSString* const kMaplyEnableStart;
 /// If set, we'll enable the objects only between the start and end time
-#define kMaplyEnableEnd @"enableend"
+extern NSString* const kMaplyEnableEnd;
 /// Request a given object take the z buffer into account
-#define kMaplyZBufferRead @"zbufferread"
+extern NSString* const kMaplyZBufferRead;
 /// Have a given object write itself to the z buffer
-#define kMaplyZBufferWrite @"zbufferwrite"
+extern NSString* const kMaplyZBufferWrite;
 
 /// Assign a shader program to a particular feature.  Use the shader program's name
-#define kMaplyShader @"shader"
+extern NSString* const kMaplyShader;
 
 /// Stars, moon, stars, atmosphere
-#define kMaplyStarsDrawPriorityDefault 0
-#define kMaplySunDrawPriorityDefault 2
-#define kMaplyMoonDrawPriorityDefault 3
-#define kMaplyAtmosphereDrawPriorityDefault 10
+extern const int kMaplyStarsDrawPriorityDefault;
+extern const int kMaplySunDrawPriorityDefault;
+extern const int kMaplyMoonDrawPriorityDefault;
+extern const int kMaplyAtmosphereDrawPriorityDefault;
 /// Where we start image layer draw priorities
-#define kMaplyImageLayerDrawPriorityDefault 100
+extern const int kMaplyImageLayerDrawPriorityDefault;
 /// We'll start filling in features right around here
-#define kMaplyFeatureDrawPriorityBase 20000
-#define kMaplyStickerDrawPriorityDefault 30000
-#define kMaplyMarkerDrawPriorityDefault 40000
-#define kMaplyVectorDrawPriorityDefault 50000
-#define kMaplyParticleSystemDrawPriorityDefault 55000
-#define kMaplyLabelDrawPriorityDefault 60000
-#define kMaplyLoftedPolysDrawPriorityDefault 70000
-#define kMaplyShapeDrawPriorityDefault 80000
-#define kMaplyBillboardDrawPriorityDefault 90000
-#define kMaplyModelDrawPriorityDefault 100000
+extern const int kMaplyFeatureDrawPriorityBase;
+extern const int kMaplyStickerDrawPriorityDefault;
+extern const int kMaplyMarkerDrawPriorityDefault;
+extern const int kMaplyVectorDrawPriorityDefault;
+extern const int kMaplyParticleSystemDrawPriorityDefault ;
+extern const int kMaplyLabelDrawPriorityDefault;
+extern const int kMaplyLoftedPolysDrawPriorityDefault;
+extern const int kMaplyShapeDrawPriorityDefault;
+extern const int kMaplyBillboardDrawPriorityDefault;
+extern const int kMaplyModelDrawPriorityDefault;
 
 #define kWGMarkerDrawPriorityDefault kMaplyMarkerDrawPriorityDefault
 #define kWGVectorDrawPriorityDefault kMaplyVectorDrawPriorityDefault
@@ -103,232 +103,232 @@
 /// These are used just for the screen and regular labels
 
 /// Color of the text being rendered.  Takes a UIColor.
-#define kMaplyTextColor @"textColor"
+extern NSString* const kMaplyTextColor;
 #define kWGTextColor kMaplyTextColor
 /// Background color for the text.  Takes a UIColor.
-#define kMaplyBackgroundColor @"backgroundColor"
+extern NSString* const kMaplyBackgroundColor;
 #define kWGBackgroundColor kMaplyBackgroundColor
 /// Font to use in rendering text.  Takes a UIFont.
-#define kMaplyFont @"font"
+extern NSString* const kMaplyFont;
 #define kWGFont kMaplyFont
 /// Default height of the text.  If for screen space, this in points.  If for 3D, remember that
 //   the radius of the globe is 1.0.  Expects an NSNumber float.
-#define kMaplyLabelHeight @"height"
+extern NSString* const kMaplyLabelHeight;
 #define kWGLabelHeight kMaplyLabelHeight
 /// Default width of the text.  See height for more info and, in general, use height instead.
-#define kMaplyLabelWidth @"width"
+extern NSString* const kMaplyLabelWidth;
 #define kWGLabelWidth kMaplyLabelWidth
 /// Justification for label placement.  This takes an NSString with one of:
 ///  middle, left, right
-#define kMaplyJustify @"justify"
+extern NSString* const kMaplyJustify;
 #define kWGJustify kMaplyJustify
 /// If set, we'll draw a shadow behind each label with this as the stroke size
-#define kMaplyShadowSize @"shadowSize"
+extern NSString* const kMaplyShadowSize;
 #define kWGShadowSize kMaplyShadowSize
 /// If shadow size is being used, we can control the shadow color like so
-#define kMaplyShadowColor @"shadowColor"
+extern NSString* const kMaplyShadowColor;
 #define kWGShadowColor kMaplyShadowColor
 /// If outline is being used, we can control the color
-#define kMaplyTextOutlineSize @"outlineSize"
+extern NSString* const kMaplyTextOutlineSize;
 /// If outline is being used, we can control the stroke size
-#define kMaplyTextOutlineColor @"outlineColor"
+extern NSString* const kMaplyTextOutlineColor;
 
 /// These are used for screen and regular markers.
-#define kMaplyClusterGroup @"clusterGroup"
+extern NSString* const kMaplyClusterGroup;
 
 /// Color is used for the polygon generated for a marker.  It will combine with the image,
 ///  if there is one or it will be visible if there is no texture.  Takes a UIColor
-#define kMaplyColor @"color"
+extern NSString* const kMaplyColor;
 #define kWGColor kMaplyColor
 
 /// Width is used by the vector layer for line widths
-#define kMaplyVecWidth @"width"
+extern NSString* const kMaplyVecWidth;
 #define kWGVecWidth kMaplyVecWidth
 
 /// If filled is set, we draw the areals as filled polygons
-#define kMaplyFilled @"filled"
+extern NSString* const kMaplyFilled;
 #define kWGFilled kMaplyFilled
 
 /// If set, the texture to apply to the feature
-#define kMaplyVecTexture @"texture"
+extern NSString* const kMaplyVecTexture;
 /// X scale for textures applied to vectors
-#define kMaplyVecTexScaleX @"texscalex"
+extern NSString* const kMaplyVecTexScaleX;
 /// Y scale for textures applied to vectors
-#define kMaplyVecTexScaleY @"texscaley"
+extern NSString* const kMaplyVecTexScaleY;
 
 /// The projection to use when generating texture coordinates
-#define kMaplyVecTextureProjection @"texprojection"
+extern NSString* const kMaplyVecTextureProjection;
 /// Tangent plane projection for texture coordinates
-#define kMaplyProjectionTangentPlane @"texprojectiontanplane"
+extern NSString* const kMaplyProjectionTangentPlane;
 /// Screen space "projection" for texture coordinates
-#define kMaplyProjectionScreen @"texprojectionscreen"
+extern NSString* const kMaplyProjectionScreen;
 
 /// If set to true we'll centered any drawables we create for features
 /// This fixes the jittering problem when zoomed in close
-#define kMaplyVecCentered @"centered"
+extern NSString* const kMaplyVecCentered;
 
 /// Center of the feature, to use for texture calculations
-#define kMaplyVecCenterX @"veccenterx"
-#define kMaplyVecCenterY @"veccentery"
+extern NSString* const kMaplyVecCenterX;
+extern NSString* const kMaplyVecCenterY;
 
 /// For wide vectors, we can widen them in screen space or display space
-#define kMaplyWideVecCoordType @"wideveccoordtype"
+extern NSString* const kMaplyWideVecCoordType;
 
 /// Widened vectors are widened in real space.  The width is in meters.
-#define kMaplyWideVecCoordTypeReal @"real"
+extern NSString* const kMaplyWideVecCoordTypeReal;
 /// Widened vectors are widened in screen space.  The width is in pixels.
-#define kMaplyWideVecCoordTypeScreen @"screen"
+extern NSString* const kMaplyWideVecCoordTypeScreen;
 
 /// For wide vectors we can control the line joins
 /// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty
-#define kMaplyWideVecJoinType @"wideveclinejointype"
+extern NSString* const kMaplyWideVecJoinType;
 
 /// Widened vectors are joined with miters
-#define kMaplyWideVecMiterJoin @"miter"
+extern NSString* const kMaplyWideVecMiterJoin;
 // Note: Not yet implemented
 /// Widened vectors are joined with a curve
-//#define kMaplyWideVecRoundJoin @"round"
+//extern NSString* const kMaplyWideVecRoundJoin @"round"
 /// Widened vectors are joined with a bevel
-#define kMaplyWideVecBevelJoin @"bevel"
+extern NSString* const kMaplyWideVecBevelJoin;
 
 /// Number of pixels to use in blending the edges of the wide vectors
-#define kMaplyWideVecEdgeFalloff @"edgefalloff"
+extern NSString* const kMaplyWideVecEdgeFalloff;
 
 /// For wide vectors we can control the ends
 /// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
-//#define kMaplyWideVecLineCapType @"wideveclinecaptype"
+//extern NSString* const kMaplyWideVecLineCapType @"wideveclinecaptype"
 
 // Note: These are not currently implemented
 
 /// Widened vector ends are flush
-//#define kMaplyWideVecButtCap @"butt"
+//extern NSString* const kMaplyWideVecButtCap;
 /// Widened vector ends are round (e.g. hot dog roads)
-//#define kMaplyWideVecRoundCap @"round"
+//extern NSString* const kMaplyWideVecRoundCap;
 /// Widened vector ends are extended a bit and then flush
-//#define kMaplyWideVecSquareCap @"square"
+//extern NSString* const kMaplyWideVecSquareCap;
 
 /// Miter joins will turn to bevel joins past this number of degrees
-#define kMaplyWideVecMiterLimit @"miterLimit"
+extern NSString* const kMaplyWideVecMiterLimit;
 
 /// This is the length you'd like the texture to start repeating after.
 /// It's real world coordinates for kMaplyWideVecCoordTypeReal and pixel size for kMaplyWideVecCoordTypeScreen
-#define kMaplyWideVecTexRepeatLen @"repeatSize"
+extern NSString* const kMaplyWideVecTexRepeatLen;
 
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
-#define kMaplySubdivEpsilon @"subdivisionepsilon"
+extern NSString* const kMaplySubdivEpsilon;
 /// If subdiv epsilon is set we'll look for a subdivision type. Default is simple.
-#define kMaplySubdivType @"subdivisiontype"
+extern NSString* const kMaplySubdivType;
 /// Subdivide the vector edges along a great circle
-#define kMaplySubdivGreatCircle @"greatcircle"
+extern NSString* const kMaplySubdivGreatCircle;
 /// Subdivide into a fixed number of segmenets
-#define kMaplySubdivStatic @"static"
+extern NSString* const kMaplySubdivStatic;
 /// Subdivide the vectors edges along lat/lon
-#define kMaplySubdivSimple @"simple"
+extern NSString* const kMaplySubdivSimple;
 /// Clip features along a grid of the given size
-#define kMaplySubdivGrid @"grid"
+extern NSString* const kMaplySubdivGrid;
 /// Used to turn off selection in vectors
-#define kMaplySelectable @"selectable"
+extern NSString* const kMaplySelectable;
 
 /// These are used for stickers
 
 /// Sampling size along one dimension
-#define kMaplySampleX @"sampleX"
+extern NSString* const kMaplySampleX;
 #define kWGSampleX kMaplySampleX
 /// Sampling size along one dimension
-#define kMaplySampleY @"sampleY"
+extern NSString* const kMaplySampleY;
 #define kWGSampleY kMaplySampleY
 /// Images to use when changing a sticker
-#define kMaplyStickerImages @"images"
+extern NSString* const kMaplyStickerImages;
 /// Image format to use for the new images
-#define kMaplyStickerImageFormat @"imageformat"
+extern NSString* const kMaplyStickerImageFormat;
 
 /// These are used for billboards
 
 /// Billboard orientation
-#define kMaplyBillboardOrient @"billboardorient"
+extern NSString* const kMaplyBillboardOrient;
 /// Billboards are oriented toward the eye, but rotate on the ground
-#define kMaplyBillboardOrientGround @"billboardorientground"
+extern NSString* const kMaplyBillboardOrientGround;
 /// Billboards are oriented only towards the eye
-#define kMaplyBillboardOrientEye @"billboardorienteye"
+extern NSString* const kMaplyBillboardOrientEye;
 
 /// These are used for lofted polygons
 
 /// Height above the ground
-#define kMaplyLoftedPolyHeight @"height"
+extern NSString* const kMaplyLoftedPolyHeight;
 /// Boolean that turns on/off top (on by default)
-#define kMaplyLoftedPolyTop @"top"
+extern NSString* const kMaplyLoftedPolyTop;
 /// Boolean that turns on/off sides (on by default)
-#define kMaplyLoftedPolySide @"side"
+extern NSString* const kMaplyLoftedPolySide;
 /// If present, we'll start the lofted poly above 0 height
-#define kMaplyLoftedPolyBase @"base"
+extern NSString* const kMaplyLoftedPolyBase;
 /// Grid size we used to chop the lofted polygons up (10 degress by default)
-#define kMaplyLoftedPolyGridSize @"gridsize"
+extern NSString* const kMaplyLoftedPolyGridSize;
 /// If set to @(YES) this will draw an outline around the top of the lofted poly in lines
-#define kMaplyLoftedPolyOutline @"outline"
+extern NSString* const kMaplyLoftedPolyOutline;
 /// If set to @(YES) this will draw an outline around the bottom of the lofted poly in lines
-#define kMaplyLoftedPolyOutlineBottom @"outlineBottom"
+extern NSString* const kMaplyLoftedPolyOutlineBottom;
 /// If the outline is one this is the outline's color
-#define kMaplyLoftedPolyOutlineColor @"outlineColor"
+extern NSString* const kMaplyLoftedPolyOutlineColor;
 /// This is the outline's width if it's turned on
-#define kMaplyLoftedPolyOutlineWidth @"outlineWidth"
+extern NSString* const kMaplyLoftedPolyOutlineWidth;
 /// Draw priority of the lines created for the lofted poly outline
-#define kMaplyLoftedPolyOutlineDrawPriority @"outlineDrawPriority"
+extern NSString* const kMaplyLoftedPolyOutlineDrawPriority;
 /// If set and we're drawing an outline, this will create lines up the sides
-#define kMaplyLoftedPolyOutlineSide @"outlineSide"
+extern NSString* const kMaplyLoftedPolyOutlineSide;
 
 /// These are used for shapes
 
 /// Samples (x) to use when converting shape to polygons
-#define kMaplyShapeSampleX @"shapesamplex"
+extern NSString* const kMaplyShapeSampleX;
 /// Samples (y) to use when converting shape to polygons
-#define kMaplyShapeSampleY @"shapesampley"
+extern NSString* const kMaplyShapeSampleY;
 /// If set to true, we'll tessellate a shape using the opposite vertex ordering
-#define kMaplyShapeInsideOut @"shapeinsideout"
+extern NSString* const kMaplyShapeInsideOut;
 /// Center for the shape geometry
-#define kMaplyShapeCenterX @"shapecenterx"
-#define kMaplyShapeCenterY @"shapecentery"
-#define kMaplyShapeCenterZ @"shapecenterz"
+extern NSString* const kMaplyShapeCenterX;
+extern NSString* const kMaplyShapeCenterY;
+extern NSString* const kMaplyShapeCenterZ;
 
 /// These are used by active vector objects
-#define kMaplyVecHeight @"height"
-#define kMaplyVecMinSample @"minSample"
+extern NSString* const kMaplyVecHeight;
+extern NSString* const kMaplyVecMinSample;
 
 /// These are used by the particle systems
-#define kMaplyPointSize @"pointSize"
-#define kMaplyPointSizeDefault 4.0
+extern NSString* const kMaplyPointSize;
+extern const float kMaplyPointSizeDefault;
 
 /// These are used by the texture
-#define kMaplyTexFormat @"texformat"
-#define kMaplyTexMinFilter @"texminfilter"
-#define kMaplyTexMagFilter @"texmagfilter"
-#define kMaplyMinFilterNearest @"texfilternearest"
-#define kMaplyMinFilterLinear @"texfilterlinear"
-#define kMaplyTexAtlas @"texatlas"
-#define kMaplyTexWrapX @"texwrapx"
-#define kMaplyTexWrapY @"texwrapy"
+extern NSString* const kMaplyTexFormat;
+extern NSString* const kMaplyTexMinFilter;
+extern NSString* const kMaplyTexMagFilter;
+extern NSString* const kMaplyMinFilterNearest;
+extern NSString* const kMaplyMinFilterLinear;
+extern NSString* const kMaplyTexAtlas;
+extern NSString* const kMaplyTexWrapX;
+extern NSString* const kMaplyTexWrapY;
 
 /// These are the various shader programs we set up by default
-#define kMaplyShaderDefaultTri @"Default Triangle;lighting=yes"
-#define kMaplyDefaultTriangleShader @"Default Triangle;lighting=yes"
+extern NSString* const kMaplyShaderDefaultTri;
+extern NSString* const kMaplyDefaultTriangleShader;
 
-#define kMaplyShaderDefaultModelTri @"Default Triangle;model=yes;lighting=yes"
+extern NSString* const kMaplyShaderDefaultModelTri;
 
-#define kMaplyShaderDefaultTriNoLighting @"Default Triangle;lighting=no"
-#define kMaplyNoLightTriangleShader @"Default Triangle;lighting=no"
+extern NSString* const kMaplyShaderDefaultTriNoLighting;
+extern NSString* const kMaplyNoLightTriangleShader;
 
-#define kMaplyShaderDefaultTriScreenTex @"Default Triangle;screentex=yes;lighting=yes"
+extern NSString* const kMaplyShaderDefaultTriScreenTex;
 
-#define kMaplyShaderDefaultTriMultiTex @"Default Triangle;multitex=yes;lighting=yes"
-#define kMaplyShaderDefaultTriMultiTexRamp @"Default Triangle;multitex=yes;lighting=yes;ramp=yes"
-#define kMaplyShaderDefaultTriNightDay @"Default Triangle;nightday=yes;multitex=yes;lighting=yes"
+extern NSString* const kMaplyShaderDefaultTriMultiTex;
+extern NSString* const kMaplyShaderDefaultTriMultiTexRamp;
+extern NSString* const kMaplyShaderDefaultTriNightDay;
 
-#define kMaplyShaderDefaultLine @"Default Line;backface=yes"
-#define kMaplyDefaultLineShader @"Default Line;backface=yes"
+extern NSString* const kMaplyShaderDefaultLine;
+extern NSString* const kMaplyDefaultLineShader;
 
-#define kMaplyShaderDefaultLineNoBackface @"Default Line;backface=no"
-#define kMaplyNoBackfaceLineShader @"Default Line;backface=no"
+extern NSString* const kMaplyShaderDefaultLineNoBackface;
+extern NSString* const kMaplyNoBackfaceLineShader;
 
-#define kMaplyShaderBillboardGround @"Default Billboard ground"
-#define kMaplyShaderBillboardEye @"Default Billboard eye"
+extern NSString* const kMaplyShaderBillboardGround;
+extern NSString* const kMaplyShaderBillboardEye;
 
-#define kMaplyShaderParticleSystemPointDefault @"Default Part Sys (Point)"
+extern NSString* const kMaplyShaderParticleSystemPointDefault;
