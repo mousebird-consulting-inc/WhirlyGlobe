@@ -79,7 +79,7 @@ LocationInfo locations[NumLocations] =
 typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 
 // Lowest priority for base layers
-static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
+static int BaseEarthPriority;
 
 // Local interface for TestViewController
 // We'll hide a few things here
@@ -168,6 +168,7 @@ static const int BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
     self = [super init];
     if (self) {
         startupMapType = mapType;
+        BaseEarthPriority = kMaplyImageLayerDrawPriorityDefault;
         ovlLayers = [NSMutableDictionary dictionary];
     }
     return self;

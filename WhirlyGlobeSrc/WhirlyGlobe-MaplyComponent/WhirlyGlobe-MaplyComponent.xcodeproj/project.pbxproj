@@ -435,6 +435,7 @@
 		88F4CEE71BC195DB007DEF8B /* Maply3dTouchPreviewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 88F4CEE61BC195DB007DEF8B /* Maply3dTouchPreviewDelegate.h */; };
 		88F4CEE91BC195E9007DEF8B /* Maply3dTouchPreviewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88F4CEE81BC195E9007DEF8B /* Maply3dTouchPreviewDelegate.mm */; };
 		C765E3B4190ACA2900931775 /* NSDictionary+StyleRules.h in Headers */ = {isa = PBXBuildFile; fileRef = C765E3B3190ACA2900931775 /* NSDictionary+StyleRules.h */; };
+		E521FAC01CACE9AF00B63631 /* MaplySharedAttributes.m in Sources */ = {isa = PBXBuildFile; fileRef = E521FABF1CACE9AF00B63631 /* MaplySharedAttributes.m */; };
 		E599D2131C8A11ED00546018 /* MaplyAerisTiles.h in Headers */ = {isa = PBXBuildFile; fileRef = E599D2121C8A11ED00546018 /* MaplyAerisTiles.h */; };
 		E599D2161C8A11F900546018 /* MaplyAerisTiles.mm in Sources */ = {isa = PBXBuildFile; fileRef = E599D2151C8A11F900546018 /* MaplyAerisTiles.mm */; };
 /* End PBXBuildFile section */
@@ -903,6 +904,7 @@
 		88F4CEE81BC195E9007DEF8B /* Maply3dTouchPreviewDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Maply3dTouchPreviewDelegate.mm; path = src/Maply3dTouchPreviewDelegate.mm; sourceTree = "<group>"; };
 		88F4CEED1BC1D070007DEF8B /* Maply3DTouchPreviewDatasource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Maply3DTouchPreviewDatasource.h; path = include/Maply3DTouchPreviewDatasource.h; sourceTree = "<group>"; };
 		C765E3B3190ACA2900931775 /* NSDictionary+StyleRules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSDictionary+StyleRules.h"; path = "include/NSDictionary+StyleRules.h"; sourceTree = "<group>"; };
+		E521FABF1CACE9AF00B63631 /* MaplySharedAttributes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MaplySharedAttributes.m; path = src/MaplySharedAttributes.m; sourceTree = "<group>"; };
 		E599D2121C8A11ED00546018 /* MaplyAerisTiles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyAerisTiles.h; path = include/MaplyAerisTiles.h; sourceTree = SOURCE_ROOT; };
 		E599D2151C8A11F900546018 /* MaplyAerisTiles.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyAerisTiles.mm; path = src/MaplyAerisTiles.mm; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -1340,6 +1342,7 @@
 		2B61D7AB16078A27007888CF /* Component Base */ = {
 			isa = PBXGroup;
 			children = (
+				E521FABF1CACE9AF00B63631 /* MaplySharedAttributes.m */,
 				2BE88485160A437D00E92A0A /* MaplySharedAttributes.h */,
 				2B8C813817EA6033000794EF /* categories */,
 				2BE88490160A59DE00E92A0A /* utility */,
@@ -2133,6 +2136,7 @@
 				2BD5A8761B41FEF800DDAEE3 /* MapboxVectorTiles.mm in Sources */,
 				2B2FEBB71B571DB500A332BF /* MaplyBlankTileSource.m in Sources */,
 				2B2FEC711B572BD400A332BF /* AAAberration.cpp in Sources */,
+				E521FAC01CACE9AF00B63631 /* MaplySharedAttributes.m in Sources */,
 				2BD5A8671B41FECF00DDAEE3 /* substitute.cc in Sources */,
 				2BC988ED17D794010071DA9E /* MaplyRemoteTileSource.mm in Sources */,
 				2B2FEC7B1B572BD400A332BF /* AAEclipticalElements.cpp in Sources */,
