@@ -189,7 +189,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadPagingDataStyle) {
  @param tileID The ID for the tile we're interested in.
  @return The lower left and upper right corner of the tile in geographic coordinates. Returns kMaplyNullBoundingBoxD in case of error
  */
-- (MaplyBoundingBoxD)geoBoundsForTileD:(MaplyTileID)tileID;
+- (MaplyBoundingBox)geoBoundsForTileID:(MaplyTileID)tileID;
 
 /** @brief Calculate the bounding box for a single tile in geographic using doubles.
  @details This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
@@ -197,7 +197,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadPagingDataStyle) {
  @param ll The lower left corner of the tile in geographic coordinates.
  @param ur The upper right corner of the tile in geographic coordinates.
  */
-- (void)geoBoundsForTileD:(MaplyTileID)tileID ll:(MaplyCoordinateD *__nonnull)ll ur:(MaplyCoordinateD *__nonnull)ur;
+- (void)geoBoundsForTileID:(MaplyTileID)tileID ll:(MaplyCoordinate *__nonnull)ll ur:(MaplyCoordinate *__nonnull)ur;
 
 /** @brief Calculate the bounding box for a single tile in the local coordinate system.
  @details This utility method calculates the bounding box for a tile in the coordinate system used for the layer.
