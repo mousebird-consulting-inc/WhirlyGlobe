@@ -26,7 +26,6 @@
 #import "UIImage+Stuff.h"
 #import "VectorData.h"
 #import "SceneRendererES2.h"
-#import <boost/math/special_functions/fpclassify.hpp>
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -310,7 +309,7 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
         
         double screenArea = CalcLoopArea(screenPts);
         screenArea = std::abs(screenArea);
-        if (boost::math::isnan(screenArea))
+        if (std::isnan(screenArea))
             screenArea = 0.0;
         
         // Now project the screen points back into model space

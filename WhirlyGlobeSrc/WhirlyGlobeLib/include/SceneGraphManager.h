@@ -20,8 +20,6 @@
 
 #import <math.h>
 #import <set>
-#import <boost/shared_ptr.hpp>
-#import <boost/pointer_cast.hpp>
 #import "WhirlyVector.h"
 #import "Identifiable.h"
 #import "BasicDrawable.h"

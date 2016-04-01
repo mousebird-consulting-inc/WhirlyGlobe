@@ -523,7 +523,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
     sceneRep->fade = vecInfo.fade;
 
     // No longer do anything with points in here
-//    VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*first);
+//    VectorPointsRef thePoints = std::dynamic_pointer_cast<VectorPoints>(*first);
 //    bool linesOrPoints = (thePoints.get() ? false : true);
     
     // Look for per vector colors
@@ -582,7 +582,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
     for (ShapeSet::iterator it = vecInfo->shapes.begin();
          it != vecInfo->shapes.end(); ++it)
     {
-        VectorArealRef theAreal = boost::dynamic_pointer_cast<VectorAreal>(*it);
+        VectorArealRef theAreal = std::dynamic_pointer_cast<VectorAreal>(*it);
         if (theAreal.get())
         {
             if (vecInfo->filled)
@@ -606,7 +606,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
                 }
             }
         } else {
-            VectorLinearRef theLinear = boost::dynamic_pointer_cast<VectorLinear>(*it);
+            VectorLinearRef theLinear = std::dynamic_pointer_cast<VectorLinear>(*it);
             if (theLinear.get())
             {
                 if (vecInfo->filled)
@@ -623,7 +623,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
                         drawBuild.addPoints(theLinear->pts,false,theLinear->getAttrDict());
                 }
             } else {
-                VectorTrianglesRef theMesh = boost::dynamic_pointer_cast<VectorTriangles>(*it);
+                VectorTrianglesRef theMesh = std::dynamic_pointer_cast<VectorTriangles>(*it);
                 if (theMesh.get())
                 {
                     if (vecInfo->filled)
@@ -638,7 +638,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
                     }
                 } else {
                     // Note: Points are.. pointless
-                    //                    VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*it);
+                    //                    VectorPointsRef thePoints = std::dynamic_pointer_cast<VectorPoints>(*it);
                     //                    if (thePoints.get())
                     //                    {
                     //                        drawBuild.addPoints(thePoints->pts,false);
