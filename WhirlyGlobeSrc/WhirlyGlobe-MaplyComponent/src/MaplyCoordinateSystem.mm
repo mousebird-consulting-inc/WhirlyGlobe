@@ -120,19 +120,19 @@ using namespace WhirlyKit;
     return retCoord;
 }
 
-- (MaplyCoordinate3dD)localToGeocentric:(MaplyCoordinate3dD)coord
+- (MaplyCoordinate3d)localToGeocentric:(MaplyCoordinate3d)coord
 {
     Point3d pt = coordSystem->localToGeocentric(Point3d(coord.x,coord.y,coord.z));
-    MaplyCoordinate3dD ret;
+    MaplyCoordinate3d ret;
     ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
     
     return ret;
 }
 
-- (MaplyCoordinate3dD)geocentricToLocal:(MaplyCoordinate3dD)coord
+- (MaplyCoordinate3d)geocentricToLocal:(MaplyCoordinate3d)coord
 {
     Point3d pt = coordSystem->geocentricToLocal(Point3d(coord.x,coord.y,coord.z));
-    MaplyCoordinate3dD ret;
+    MaplyCoordinate3d ret;
     ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
     
     return ret;

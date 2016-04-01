@@ -23,7 +23,7 @@
 
 using namespace WhirlyKit;
 
-MaplyCoordinate MaplyCoordinateMake(float radLon,float radLat)
+MaplyCoordinate MaplyCoordinateMake(double radLon,double radLat)
 {
     MaplyCoordinate coord;
     coord.x = radLon;
@@ -33,7 +33,7 @@ MaplyCoordinate MaplyCoordinateMake(float radLon,float radLat)
 }
 
 
-MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat)
+MaplyCoordinate MaplyCoordinateMakeWithDegrees(double degLon,double degLat)
 {
     MaplyCoordinate coord;
     coord.x = DegToRad(degLon);
@@ -42,21 +42,14 @@ MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat)
     return coord;
 }
 
-MaplyCoordinate3d MaplyCoordinate3dMake(float x,float y,float z)
+MaplyCoordinate3d MaplyCoordinate3dMake(double x,double y,double z)
 {
     MaplyCoordinate3d coord;
     coord.x = x;  coord.y = y;  coord.z = z;
     return coord;
 }
 
-MaplyCoordinate3dD MaplyCoordinate3dDMake(double x,double y,double z)
-{
-    MaplyCoordinate3dD coord;
-    coord.x = x;  coord.y = y;  coord.z = z;
-    return coord;
-}
-
-MaplyBoundingBox MaplyBoundingBoxMakeWithDegrees(float degLon0,float degLat0,float degLon1,float degLat1)
+MaplyBoundingBox MaplyBoundingBoxMakeWithDegrees(double degLon0,double degLat0,double degLon1,double degLat1)
 {
     MaplyBoundingBox bbox;
     bbox.ll = MaplyCoordinateMakeWithDegrees(degLon0, degLat0);
