@@ -370,38 +370,21 @@
     @param newPos The geographic position (lon/lat in radians) to move to.
     @param height Height the view point above the globe.
  */
-- (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
+- (void)setPosition:(MaplyCoordinate)newPos height:(double)height;
 
 /** @brief Returns the center of the screen in geographic (lon/lat in radians).
  */
 - (MaplyCoordinate)getPosition;
 
-/** @brief Returns the center of the screen in geographic (lon/lat in radians as doubles).
- */
-- (MaplyCoordinateD)getPositionD;
-
 /** @brief Returns the current view point's height above the globe.
  */
 - (double)getHeight;
-
-/** @brief Set the center of the screen and the height offset immediately.
-    @details Set the center and height using double.s
-    @param newPos The geographic position (lon/lat in radians) to move to.
-    @param height Height the view point above the globe.
- */
-- (void)setPositionD:(MaplyCoordinateD)newPos height:(double)height;
 
 /** @brief Return the current center position and height.
     @param pos The center of the screen in geographic (lon/lat in radians).
     @param height The current view point's height above the globe.
  */
-- (void)getPosition:(MaplyCoordinate *__nonnull)pos height:(float *__nonnull)height;
-
-/** @brief Return the current center position and height in doubles.
-    @param pos The center of the screen in geographic (lon/lat in radians).
-    @param height The current view point's height above the globe.
- */
-- (void)getPositionD:(MaplyCoordinateD *__nonnull)pos height:(double *__nonnull)height;
+- (void)getPosition:(MaplyCoordinate *__nonnull)pos height:(double *__nonnull)height;
 
 /** @brief Set the viewing state all at once
     @details This sets the position, tilt, height, screen position and heading all at once.
