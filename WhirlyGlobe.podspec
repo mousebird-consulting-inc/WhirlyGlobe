@@ -28,7 +28,7 @@ Pod::Spec.new do |s|
   s.source = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'develop_2_4_1' }
 
   s.compiler_flags = '-D__USE_SDL_GLES__', '-D__IPHONEOS__ -DSQLITE_OPEN_READONLY'
-  s.xcconfig = { "HEADER_SEARCH_PATHS" => "\"${PODS_ROOT}/boost\" \"${PODS_ROOT}/eigen\" \"${PODS_ROOT}/clipper\" \"$(SDKROOT)/usr/include/libxml2\"" }
+  s.xcconfig = { "HEADER_SEARCH_PATHS" => "\"${PODS_ROOT}/eigen\" \"${PODS_ROOT}/clipper\" \"$(SDKROOT)/usr/include/libxml2\"" }
 
   s.default_subspec = 'MaplyComponent'
 
@@ -62,11 +62,6 @@ Pod::Spec.new do |s|
   s.subspec 'Lib-Headers' do |lh|
     lh.source_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
     lh.private_header_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
-    lh.dependency 'boost/string_algorithms-includes', '<= 1.51.0'
-    lh.dependency 'boost/shared_ptr-includes', '<= 1.51.0'
-    lh.dependency 'boost/pointer_cast-includes', '<= 1.51.0'
-    lh.dependency 'boost/math-includes', '<= 1.51.0'
-    lh.dependency 'boost/graph-includes', '<= 1.51.0'
     lh.dependency 'eigen', '~> 3.2.4'
   end
 
