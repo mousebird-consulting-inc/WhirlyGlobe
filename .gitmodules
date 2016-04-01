@@ -1,9 +1,6 @@
 [submodule "third-party/shapelib"]
 	path = third-party/shapelib
 	url = https://github.com/mousebird/shapelib.git
-[submodule "third-party/boost"]
-	path = third-party/boost
-	url = https://github.com/mousebird/boost.git
 [submodule "third-party/proj-4"]
 	path = third-party/proj-4
 	url = https://github.com/mousebird/proj-4.git
