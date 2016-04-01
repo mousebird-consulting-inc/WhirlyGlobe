@@ -317,19 +317,19 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     ur->y = geoMbr.ur().y();
 }
 
-- (MaplyBoundingBoxD)geoBoundsForTileD:(MaplyTileID)tileID
+- (MaplyBoundingBox)geoBoundsForTileID:(MaplyTileID)tileID
 {
 	if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
-		return kMaplyNullBoundingBoxD;
+		return kMaplyNullBoundingBox;
 
-	MaplyBoundingBoxD bounds;
+	MaplyBoundingBox bounds;
 
-	[self geoBoundsForTileD:tileID ll:&bounds.ll ur:&bounds.ur];
+	[self geoBoundsForTileID:tileID ll:&bounds.ll ur:&bounds.ur];
 
 	return bounds;
 }
 
-- (void)geoBoundsForTileD:(MaplyTileID)tileID ll:(MaplyCoordinateD *)ll ur:(MaplyCoordinateD *)ur
+- (void)geoBoundsForTileID:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
 {
     if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
         return;

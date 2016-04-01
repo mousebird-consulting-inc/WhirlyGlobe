@@ -797,7 +797,7 @@ using namespace WhirlyGlobe;
         self.tilt = [tiltControlDelegate tiltFromHeight:globeView.heightAboveGlobe];
  }
 
-- (void)setPosition:(WGCoordinate)newPos height:(float)height
+- (void)setPosition:(WGCoordinate)newPos height:(double)height
 {
     if (isnan(newPos.x) || isnan(newPos.y) || isnan(height))
     {
@@ -807,22 +807,6 @@ using namespace WhirlyGlobe;
 
     [self setPosition:newPos];
     globeView.heightAboveGlobe = height;
-}
-
-- (void)setPositionD:(MaplyCoordinateD)newPos height:(double)height
-{
-    if (isnan(newPos.x) || isnan(newPos.y) || isnan(height))
-    {
-        NSLog(@"WhirlyGlobeViewController: Invalid location passed to setPosition:");
-        return;
-    }
-    
-    // Note: This might conceivably be a problem, though I'm not sure how.
-    [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:0.0];
-    globeView.heightAboveGlobe = height;
-    // If there's a pinch delegate, ask it to calculate the height.
-    if (tiltControlDelegate)
-        self.tilt = [tiltControlDelegate tiltFromHeight:globeView.heightAboveGlobe];
 }
 
 - (void)setHeading:(float)heading
@@ -875,13 +859,6 @@ using namespace WhirlyGlobe;
 	return {.x = geoCoord.lon(), .y = geoCoord.lat()};
 }
 
-- (MaplyCoordinateD)getPositionD
-{
-	Point2d geoCoord = globeView.coordAdapter->getCoordSystem()->localToGeographicD(globeView.coordAdapter->displayToLocal([globeView currentUp]));
-
-	return {.x = geoCoord.x(), .y = geoCoord.y()};
-}
-
 - (double)getHeight
 {
 	return globeView.heightAboveGlobe;
@@ -893,14 +870,6 @@ using namespace WhirlyGlobe;
     Point3d localPt = [globeView currentUp];
     GeoCoord geoCoord = globeView.coordAdapter->getCoordSystem()->localToGeographic(globeView.coordAdapter->displayToLocal(localPt));
     pos->x = geoCoord.lon();  pos->y = geoCoord.lat();
-}
-
-- (void)getPositionD:(MaplyCoordinateD *)pos height:(double *)height
-{
-    *height = globeView.heightAboveGlobe;
-    Point3d localPt = [globeView currentUp];
-    Point2d geoCoord = globeView.coordAdapter->getCoordSystem()->localToGeographicD(globeView.coordAdapter->displayToLocal(localPt));
-    pos->x = geoCoord.x();  pos->y = geoCoord.y();
 }
 
 // Called back on the main thread after the interaction thread does the selection
@@ -1491,7 +1460,7 @@ using namespace WhirlyGlobe;
     state.heading = self.heading;
     state.tilt = self.tilt;
     MaplyCoordinate pos;
-    float height;
+    double height;
     [self getPosition:&pos height:&height];
     state.pos = pos;
     state.height = height;

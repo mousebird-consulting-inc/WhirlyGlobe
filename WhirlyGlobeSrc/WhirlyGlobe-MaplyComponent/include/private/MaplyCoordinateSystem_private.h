@@ -26,7 +26,7 @@
 {
 @public
     WhirlyKit::CoordSystem *coordSystem;
-    MaplyCoordinateD ll,ur;
+    MaplyCoordinate ll,ur;
 }
 
 - (instancetype)initWithCoordSystem:(WhirlyKit::CoordSystem *)newCoordSystem;
