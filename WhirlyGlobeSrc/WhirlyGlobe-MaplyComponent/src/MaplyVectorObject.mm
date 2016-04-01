@@ -376,7 +376,7 @@ public:
     if (_shapes.size() != 1)
         return;
     
-    VectorArealRef areal = boost::dynamic_pointer_cast<VectorAreal>(*(_shapes.begin()));
+    VectorArealRef areal = std::dynamic_pointer_cast<VectorAreal>(*(_shapes.begin()));
     if (areal)
     {
         VectorRing pts;
@@ -395,15 +395,15 @@ public:
     for (ShapeSet::iterator it = _shapes.begin(); it != _shapes.end(); ++it)
     {
         MaplyVectorObjectType thisType = MaplyVectorNoneType;
-        VectorPointsRef points = boost::dynamic_pointer_cast<VectorPoints>(*it);
+        VectorPointsRef points = std::dynamic_pointer_cast<VectorPoints>(*it);
         if (points)
             thisType = MaplyVectorPointType;
         else {
-            VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+            VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
             if (lin)
                 thisType = MaplyVectorLinearType;
             else {
-                VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+                VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
                 if (ar)
                     thisType = MaplyVectorArealType;
             }
@@ -425,7 +425,7 @@ public:
     
     for (ShapeSet::iterator it = _shapes.begin(); it != _shapes.end(); ++it)
     {
-        VectorPointsRef points = boost::dynamic_pointer_cast<VectorPoints>(*it);
+        VectorPointsRef points = std::dynamic_pointer_cast<VectorPoints>(*it);
         if (points)
         {
             [outStr appendString:@"Points: "];
@@ -436,7 +436,7 @@ public:
             }
             [outStr appendString:@"\n"];
         } else {
-            VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+            VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
             if (lin)
             {
                 [outStr appendString:@"Linear: "];
@@ -447,7 +447,7 @@ public:
                 }
                 [outStr appendString:@"\n"];
             } else {
-                VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+                VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
                 if (ar)
                 {
                     [outStr appendString:@"Areal:\n"];
@@ -477,7 +477,7 @@ public:
     
     for (ShapeSet::iterator it = _shapes.begin(); it != _shapes.end(); ++it)
     {
-        VectorPointsRef points = boost::dynamic_pointer_cast<VectorPoints>(*it);
+        VectorPointsRef points = std::dynamic_pointer_cast<VectorPoints>(*it);
         if (points)
         {
             VectorPointsRef newPts = VectorPoints::createPoints();
@@ -485,7 +485,7 @@ public:
             newPts->pts = points->pts;
             newVecObj.shapes.insert(newPts);
         } else {
-            VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+            VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
             if (lin)
             {
                 VectorLinearRef newLin = VectorLinear::createLinear();
@@ -493,7 +493,7 @@ public:
                 newLin->pts = lin->pts;
                 newVecObj.shapes.insert(newLin);
             } else {
-                VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+                VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
                 if (ar)
                 {
                     VectorArealRef newAr = VectorAreal::createAreal();
@@ -501,7 +501,7 @@ public:
                     newAr->loops = ar->loops;
                     newVecObj.shapes.insert(newAr);
                 } else {
-                    VectorTrianglesRef tri = boost::dynamic_pointer_cast<VectorTriangles>(*it);
+                    VectorTrianglesRef tri = std::dynamic_pointer_cast<VectorTriangles>(*it);
                     if (tri)
                     {
                         VectorTrianglesRef newTri = VectorTriangles::createTriangles();
@@ -531,7 +531,7 @@ public:
     
     for (ShapeSet::iterator it = _shapes.begin(); it != _shapes.end(); ++it)
     {
-        VectorPointsRef points = boost::dynamic_pointer_cast<VectorPoints>(*it);
+        VectorPointsRef points = std::dynamic_pointer_cast<VectorPoints>(*it);
         if (points)
         {
             for (Point2f &pt : points->pts)
@@ -541,7 +541,7 @@ public:
             }
             points->calcGeoMbr();
         } else {
-            VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+            VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
             if (lin)
             {
                 for (Point2f &pt : lin->pts)
@@ -551,7 +551,7 @@ public:
                 }
                 lin->calcGeoMbr();
             } else {
-                VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+                VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
                 if (ar)
                 {
                     for (VectorRing &loop : ar->loops)
@@ -563,7 +563,7 @@ public:
                         }
                     ar->calcGeoMbr();
                 } else {
-                    VectorTrianglesRef tri = boost::dynamic_pointer_cast<VectorTriangles>(*it);
+                    VectorTrianglesRef tri = std::dynamic_pointer_cast<VectorTriangles>(*it);
                     if (tri)
                     {
                         for (Point3f &pt : tri->pts)
@@ -583,13 +583,13 @@ public:
 {
     for (ShapeSet::iterator it = _shapes.begin();it != _shapes.end();++it)
     {
-        VectorArealRef areal = boost::dynamic_pointer_cast<VectorAreal>(*it);
+        VectorArealRef areal = std::dynamic_pointer_cast<VectorAreal>(*it);
         if (areal)
         {
             if (areal->pointInside(GeoCoord(coord.x,coord.y)))
                 return true;
         } else {
-            VectorTrianglesRef tris = boost::dynamic_pointer_cast<VectorTriangles>(*it);
+            VectorTrianglesRef tris = std::dynamic_pointer_cast<VectorTriangles>(*it);
             if (tris)
             {
                 if (tris->pointInside(GeoCoord(coord.x,coord.y)))
@@ -606,7 +606,7 @@ public:
 {
     for (ShapeSet::iterator it = _shapes.begin();it != _shapes.end();++it)
     {
-        VectorLinearRef linear = boost::dynamic_pointer_cast<VectorLinear>(*it);
+        VectorLinearRef linear = std::dynamic_pointer_cast<VectorLinear>(*it);
         if (linear)
         {
             GeoMbr geoMbr = linear->calcGeoMbr();
@@ -678,7 +678,7 @@ public:
     if (_shapes.empty())
         return false;
     
-    VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*(_shapes.begin()));
+    VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*(_shapes.begin()));
     if (!lin)
         return false;
     
@@ -722,7 +722,7 @@ public:
     if (_shapes.empty())
         return false;
     
-    VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*(_shapes.begin()));
+    VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*(_shapes.begin()));
     if (!lin)
         return false;
     
@@ -826,7 +826,7 @@ public:
   if (_shapes.empty())
     return false;
   
-  VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*(_shapes.begin()));
+  VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*(_shapes.begin()));
   if (!lin)
     return false;
 
@@ -844,7 +844,7 @@ public:
     const VectorRing *bigLoop = NULL;
     for (ShapeSet::iterator it = _shapes.begin();it != _shapes.end();++it)
     {
-        VectorArealRef areal = boost::dynamic_pointer_cast<VectorAreal>(*it);
+        VectorArealRef areal = std::dynamic_pointer_cast<VectorAreal>(*it);
         if (areal && areal->loops.size() > 0)
         {
             for (unsigned int ii=0;ii<areal->loops.size();ii++)
@@ -903,7 +903,7 @@ public:
     const VectorRing *bigLoop = NULL;
     for (ShapeSet::iterator it = _shapes.begin();it != _shapes.end();++it)
     {
-        VectorArealRef areal = boost::dynamic_pointer_cast<VectorAreal>(*it);
+        VectorArealRef areal = std::dynamic_pointer_cast<VectorAreal>(*it);
         if (areal && areal->loops.size() > 0)
         {
             for (unsigned int ii=0;ii<areal->loops.size();ii++)
@@ -916,7 +916,7 @@ public:
                 }
             }
         } else {
-            VectorLinearRef linear = boost::dynamic_pointer_cast<VectorLinear>(*it);
+            VectorLinearRef linear = std::dynamic_pointer_cast<VectorLinear>(*it);
             if (linear)
             {
                 GeoCoord midCoord = linear->geoMbr.mid();
@@ -924,7 +924,7 @@ public:
                 centroid->y = midCoord.y();
                 return true;
             } else {
-                VectorPointsRef pts = boost::dynamic_pointer_cast<VectorPoints>(*it);
+                VectorPointsRef pts = std::dynamic_pointer_cast<VectorPoints>(*it);
                 if (pts)
                 {
                     GeoCoord midCoord = pts->geoMbr.mid();
@@ -993,7 +993,7 @@ public:
     NSMutableArray *loops = [NSMutableArray array];
     
     ShapeSet::iterator it = _shapes.begin();
-    VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+    VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
     if (ar)
     {
         for (unsigned int ii=0;ii<ar->loops.size();ii++)
@@ -1009,7 +1009,7 @@ public:
             [loops addObject:pts];
         }
     } else {
-        VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+        VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
         if (lin)
         {
             const VectorRing &loop = lin->pts;
@@ -1035,7 +1035,7 @@ public:
     NSMutableArray *outPts = [NSMutableArray array];
     
     ShapeSet::iterator it = _shapes.begin();
-    VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+    VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
     if (lin)
     {
         const VectorRing &loop = lin->pts;
@@ -1071,14 +1071,14 @@ public:
     
     for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
     {
-        VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+        VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
         if (lin)
         {
             std::vector<Point2f> outPts;
             SubdivideEdgesToSurface(lin->pts, outPts, false, &adapter, epsilon);
             lin->pts = outPts;
         } else {
-            VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+            VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
             if (ar)
             {
                 for (unsigned int ii=0;ii<ar->loops.size();ii++)
@@ -1099,7 +1099,7 @@ public:
     
     for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
     {
-        VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+        VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
         if (lin)
         {
             std::vector<Point3f> outPts;
@@ -1110,7 +1110,7 @@ public:
                 outPts2D[ii] = coordSys->localToGeographic(adapter.displayToLocal(outPts[ii]));
             lin->pts = outPts2D;
         } else {
-            VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+            VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
             if (ar)
             {
                 for (unsigned int ii=0;ii<ar->loops.size();ii++)
@@ -1134,7 +1134,7 @@ public:
     
     for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
     {
-        VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+        VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
         if (ar)
         {
             VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
@@ -1154,7 +1154,7 @@ public:
     
     for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
     {
-        VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+        VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
         if (ar)
         {
             for (int ii=0;ii<ar->loops.size();ii++)
@@ -1183,9 +1183,9 @@ public:
     
     for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
     {
-        if(boost::dynamic_pointer_cast<VectorLinear>(*it) != NULL)
+        if(std::dynamic_pointer_cast<VectorLinear>(*it) != NULL)
         {
-            VectorLinearRef linear = boost::dynamic_pointer_cast<VectorLinear>(*it);
+            VectorLinearRef linear = std::dynamic_pointer_cast<VectorLinear>(*it);
             std::vector<VectorRing> newLoops;
             ClipLoopToMbr(linear->pts, mbr, false, newLoops);
             for (std::vector<VectorRing>::iterator it = newLoops.begin(); it != newLoops.end(); it++)
@@ -1195,9 +1195,9 @@ public:
                 newLinear->pts = *it;
                 newVec->_shapes.insert(newLinear);
             }
-        } else if(boost::dynamic_pointer_cast<VectorAreal>(*it) != NULL)
+        } else if(std::dynamic_pointer_cast<VectorAreal>(*it) != NULL)
         {
-            VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+            VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
             if (ar)
             {
                 for (int ii=0;ii<ar->loops.size();ii++)
@@ -1213,9 +1213,9 @@ public:
                     }
                 }
             }
-        } else if(boost::dynamic_pointer_cast<VectorPoints>(*it) != NULL)
+        } else if(std::dynamic_pointer_cast<VectorPoints>(*it) != NULL)
         {
-            VectorPointsRef points = boost::dynamic_pointer_cast<VectorPoints>(*it);
+            VectorPointsRef points = std::dynamic_pointer_cast<VectorPoints>(*it);
             VectorPointsRef newPoints = VectorPoints::createPoints();
             for (unsigned int ii=0;ii<points->pts.size();ii++)
             {

@@ -19,8 +19,6 @@
  */
 
 #import <math.h>
-#import <boost/shared_ptr.hpp>
-#import <boost/pointer_cast.hpp>
 #import "WhirlyVector.h"
 #import "TextureGroup.h"
 #import "Scene.h"

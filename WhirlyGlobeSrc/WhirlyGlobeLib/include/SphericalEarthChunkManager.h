@@ -96,7 +96,7 @@ namespace WhirlyKit
 {
     
 class ChunkSceneRep;
-typedef boost::shared_ptr<ChunkSceneRep> ChunkSceneRepRef;
+typedef std::shared_ptr<ChunkSceneRep> ChunkSceneRepRef;
 typedef std::set<ChunkSceneRepRef,IdentifiableRefSorter> ChunkRepSet;
  
 // Used to track requests that come in so we can queue them
