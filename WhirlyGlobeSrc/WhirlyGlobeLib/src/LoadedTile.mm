@@ -22,7 +22,6 @@
 #import "GlobeMath.h"
 #import "GlobeLayerViewWatcher.h"
 #import "UIImage+Stuff.h"
-#import <boost/math/special_functions/fpclassify.hpp>
 #import "TileQuadLoader.h"
 #import "DynamicTextureAtlas.h"
 #import "DynamicDrawableAtlas.h"

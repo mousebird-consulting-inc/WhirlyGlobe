@@ -380,7 +380,7 @@ void VectorDatabase::findArealsForPoint(const GeoCoord &coord,ShapeSet &shapes)
             if (shape.get())
             {
                 bool keep = false;
-                VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(shape);
+                VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(shape);
                 if (ar && ar->pointInside(coord))
                     keep = true;
                 // Hand it back to the caller.  Up to them to delete it

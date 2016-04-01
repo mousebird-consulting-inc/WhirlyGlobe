@@ -539,7 +539,7 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,WhirlyKitLof
         for (ShapeSet::iterator it = sceneRep->shapes.begin();
              it != sceneRep->shapes.end(); ++it)
         {
-            VectorArealRef theAreal = boost::dynamic_pointer_cast<VectorAreal>(*it);
+            VectorArealRef theAreal = std::dynamic_pointer_cast<VectorAreal>(*it);
             if (theAreal.get())
             {
                 for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
@@ -634,7 +634,7 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,NSDiction
         for (ShapeSet::iterator it = polyInfo->shapes.begin();
              it != polyInfo->shapes.end(); ++it)
         {
-            VectorArealRef theAreal = boost::dynamic_pointer_cast<VectorAreal>(*it);
+            VectorArealRef theAreal = std::dynamic_pointer_cast<VectorAreal>(*it);
             if (theAreal.get())
             {
                 // Work through the loops

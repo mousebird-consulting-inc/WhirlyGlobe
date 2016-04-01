@@ -763,12 +763,12 @@ SimpleIdentity WideVectorManager::addVectors(ShapeSet *shapes,NSDictionary *desc
 
     for (ShapeSet::iterator it = shapes->begin(); it != shapes->end(); ++it)
     {
-        VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+        VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
         if (lin)
         {
             builder.addLinear(lin->pts,centerUp,false);
         } else {
-            VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+            VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
             if (ar)
             {
                 for (const auto &loop : ar->loops)
