@@ -52,19 +52,19 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (void)addRectangleAroundOrigin:(MaplyCoordinate)size state:(MaplyGeomState *)state
+- (void)addRectangleAroundOrigin:(MaplyCoordinateD)size state:(MaplyGeomState *)state
 {
-    MaplyCoordinate3d pts[4];
+    MaplyCoordinate3dD pts[4];
     pts[0] = {-size.x/2.0,-size.y/2.0,0.0};
     pts[1] = {size.x/2.0,-size.y/2.0,0.0};
     pts[2] = {size.x/2.0,size.y/2.0,0.0};
     pts[3] = {-size.x/2.0,size.y/2.0,0.0};
-    MaplyCoordinate tex[4];
+    MaplyCoordinateD tex[4];
     tex[0] = {0.0,0.0};
     tex[1] = {1.0,0.0};
     tex[2] = {1.0,1.0};
     tex[3] = {0.0,1.0};
-    MaplyCoordinate3d norms[4];
+    MaplyCoordinate3dD norms[4];
     norms[0] = {0,0,1};
     norms[1] = {0,0,1};
     norms[2] = {0,0,1};
@@ -75,17 +75,17 @@ using namespace WhirlyKit;
 
 - (void)addRectangleAroundX:(double)x y:(double)y width:(double)width height:(double)height state:(MaplyGeomState *)state
 {
-    MaplyCoordinate3d pts[4];
+    MaplyCoordinate3dD pts[4];
     pts[0] = {-width/2.0+x,-height/2.0+y,0.0};
     pts[1] = {width/2.0+x,-height/2.0+y,0.0};
     pts[2] = {width/2.0+x,height/2.0+y,0.0};
     pts[3] = {-width/2.0+x,height/2.0+y,0.0};
-    MaplyCoordinate tex[4];
+    MaplyCoordinateD tex[4];
     tex[0] = {0.0,0.0};
     tex[1] = {1.0,0.0};
     tex[2] = {1.0,1.0};
     tex[3] = {0.0,1.0};
-    MaplyCoordinate3d norms[4];
+    MaplyCoordinate3dD norms[4];
     norms[0] = {0,0,1};
     norms[1] = {0,0,1};
     norms[2] = {0,0,1};
@@ -96,7 +96,7 @@ using namespace WhirlyKit;
 
 - (void)addRectangleAroundOriginX:(double)x y:(double)y state:(MaplyGeomState *)state
 {
-    MaplyCoordinate size;
+    MaplyCoordinateD size;
     size.x = x;  size.y = y;
     
     [self addRectangleAroundOrigin:size state:state];
@@ -151,7 +151,7 @@ using namespace WhirlyKit;
     strings.push_back(strWrap);
 }
 
-- (void)addPolygonWithPts:(MaplyCoordinate3d *)pts numPts:(int)numPts state:(MaplyGeomState *)state
+- (void)addPolygonWithPts:(MaplyCoordinate3dD *)pts numPts:(int)numPts state:(MaplyGeomState *)state
 {
     [self addPolygonWithPts:pts tex:NULL norms:NULL numPts:numPts state:state];
 }
@@ -193,7 +193,7 @@ using namespace WhirlyKit;
     return geom;
 }
 
-- (void)addPolygonWithPts:(MaplyCoordinate3d *)pts tex:(MaplyCoordinate *)tex norms:(MaplyCoordinate3d *)norms numPts:(int)numPts state:(MaplyGeomState *)state
+- (void)addPolygonWithPts:(MaplyCoordinate3dD *)pts tex:(MaplyCoordinateD *)tex norms:(MaplyCoordinate3dD *)norms numPts:(int)numPts state:(MaplyGeomState *)state
 {
     GeometryRaw *geom = [self findMatchingGeom:state hasNorms:(norms != NULL) hasTexCoords:(tex != NULL) hasColors:NULL];
     
@@ -212,17 +212,17 @@ using namespace WhirlyKit;
     
     for (int ii=0;ii<numPts;ii++)
     {
-        MaplyCoordinate3d &pt = pts[ii];
+        MaplyCoordinate3dD &pt = pts[ii];
         geom->pts.push_back(Point3d(pt.x,pt.y,pt.z));
         geom->colors.push_back(color);
         if (tex)
         {
-            MaplyCoordinate &texCoord = tex[ii];
+            MaplyCoordinateD &texCoord = tex[ii];
             geom->texCoords.push_back(TexCoord(texCoord.x,texCoord.y));
         }
         if (norms)
         {
-            MaplyCoordinate3d &norm = norms[ii];
+            MaplyCoordinate3dD &norm = norms[ii];
             geom->norms.push_back(Point3d(norm.x,norm.y,norm.z));
         }
     }
@@ -291,7 +291,7 @@ using namespace WhirlyKit;
         string.mat = mat * string.mat;
 }
 
-- (void)scale:(MaplyCoordinate3d)scale
+- (void)scale:(MaplyCoordinate3dD)scale
 {
     Affine3d scaleAffine(Eigen::Scaling(scale.x, scale.y, scale.z));
     Matrix4d mat = scaleAffine.matrix();
@@ -300,12 +300,12 @@ using namespace WhirlyKit;
 
 - (void)scaleX:(double)x y:(double)y z:(double)z
 {
-    MaplyCoordinate3d scale;
+    MaplyCoordinate3dD scale;
     scale.x = x;  scale.y = y;  scale.z = z;
     [self scale:scale];
 }
 
-- (void)translate:(MaplyCoordinate3d)trans
+- (void)translate:(MaplyCoordinate3dD)trans
 {
     Affine3d transAffine(Translation3d(trans.x,trans.y,trans.z));
     Matrix4d mat = transAffine.matrix();
@@ -314,12 +314,12 @@ using namespace WhirlyKit;
 
 - (void)translateX:(double)x y:(double)y z:(double)z
 {
-    MaplyCoordinate3d trans;
+    MaplyCoordinate3dD trans;
     trans.x = x;  trans.y = y;  trans.z = z;
     [self translate:trans];
 }
 
-- (void)rotate:(double)angle around:(MaplyCoordinate3d)axis
+- (void)rotate:(double)angle around:(MaplyCoordinate3dD)axis
 {
     Affine3d rotAffine(AngleAxisd(angle,Vector3d(axis.x,axis.y,axis.z)));
     Matrix4d mat = rotAffine.matrix();
@@ -328,7 +328,7 @@ using namespace WhirlyKit;
 
 - (void)rotate:(double)angle aroundX:(double)x y:(double)y z:(double)z
 {
-    MaplyCoordinate3d axis = {x,y,z};
+    MaplyCoordinate3dD axis = {x,y,z};
     [self rotate:angle around:axis];
 }
 
@@ -417,7 +417,7 @@ using namespace WhirlyKit;
     }
 }
 
-- (bool)getSizeLL:(MaplyCoordinate3d *)ll ur:(MaplyCoordinate3d *)ur
+- (bool)getSizeLL:(MaplyCoordinate3dD *)ll ur:(MaplyCoordinate3dD *)ur
 {
     bool isSet = false;
     
@@ -460,12 +460,12 @@ using namespace WhirlyKit;
     return isSet;
 }
 
-- (MaplyCoordinate3d)getSize
+- (MaplyCoordinate3dD)getSize
 {
-    MaplyCoordinate3d ll,ur;
+    MaplyCoordinate3dD ll,ur;
     [self getSizeLL:&ll ur:&ur];
     
-    MaplyCoordinate3d size;
+    MaplyCoordinate3dD size;
     size.x = ur.x - ll.x;
     size.y = ur.y - ll.y;
     size.z = ur.z - ll.z;
