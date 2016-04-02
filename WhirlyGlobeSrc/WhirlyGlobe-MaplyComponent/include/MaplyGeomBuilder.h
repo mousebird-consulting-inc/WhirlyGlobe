@@ -56,7 +56,7 @@
     @param size The size of the rectangle (x,y).
     @param state The visual state to use when creating the geometry.
   */
-- (void)addRectangleAroundOrigin:(MaplyCoordinate)size state:(MaplyGeomState *)state;
+- (void)addRectangleAroundOrigin:(MaplyCoordinateD)size state:(MaplyGeomState *)state;
 
 /** @brief Create a rectangle around the origin.
  @details This creates a flat rectangle around the origin (0,0,0) with z = 0.
@@ -108,7 +108,7 @@
     @param numPts Number of points in the 3D array.
     @param state The visual state to use when creating the geometry.
   */
-- (void)addPolygonWithPts:(MaplyCoordinate3d *)pts numPts:(int)numPts state:(MaplyGeomState *)state;
+- (void)addPolygonWithPts:(MaplyCoordinate3dD *)pts numPts:(int)numPts state:(MaplyGeomState *)state;
 
 /** @brief Add a polygon with the given visual state.
  @details Tesselates the given polygon and adds the resulting triangles to the geometry.
@@ -118,7 +118,7 @@
  @param numPts Number of points in the 3D array.
  @param state The visual state to use when creating the geometry.
  */
-- (void)addPolygonWithPts:(MaplyCoordinate3d *)pts tex:(MaplyCoordinate *)tex norms:(MaplyCoordinate3d *)norms numPts:(int)numPts state:(MaplyGeomState *)state;
+- (void)addPolygonWithPts:(MaplyCoordinate3dD *)pts tex:(MaplyCoordinateD *)tex norms:(MaplyCoordinate3dD *)norms numPts:(int)numPts state:(MaplyGeomState *)state;
 
 /** @brief Add a point in immediate mode.
     @details When in immediate mode points are collected until an addCurPoly call.  This adds a 3D point.
@@ -138,7 +138,7 @@
 /** @brief Scale the geometry and strings by this amount.
     @details The geometry and strings are scaled by the given amount in each dimension.
   */
-- (void)scale:(MaplyCoordinate3d)scale;
+- (void)scale:(MaplyCoordinate3dD)scale;
 
 /** @brief Scale the geometry and strings by the given amount.
     @details The geometry and strings are scaled by (x,y,z).
@@ -148,7 +148,7 @@
 /** @brief Translate the geometry and strings by the given amount.
     @details The geometry and strings are translated by the given coordinate.
   */
-- (void)translate:(MaplyCoordinate3d)trans;
+- (void)translate:(MaplyCoordinate3dD)trans;
 
 /** @brief Translate the geometry and strings by the given amount.
     @details The geometry and strings are translated by (x,y,z).
@@ -160,7 +160,7 @@
     @param angle The angle in radians to rotate by.
     @param axis The axis to rotate around.  (0,0,1) would rotate around the Z axis.
   */
-- (void)rotate:(double)angle around:(MaplyCoordinate3d)axis;
+- (void)rotate:(double)angle around:(MaplyCoordinate3dD)axis;
 
 /** @brief Rotate the geometry around the given axis by the given angle.
  @details Roate around the given 3D axis by the number of radians in angle.
@@ -192,12 +192,12 @@
     @details Calculates the lower left and upper right corners of a rectangular solid that surrounds the geometry and strings for this builder.
     @details This returns false if there is no valid geometry (or strings) and takes transforms into account if there is.
   */
-- (bool)getSizeLL:(MaplyCoordinate3d *)ll ur:(MaplyCoordinate3d *)ur;
+- (bool)getSizeLL:(MaplyCoordinate3dD *)ll ur:(MaplyCoordinate3dD *)ur;
 
 /** @brief Calculate and returns the size of the geometry and strings.
     @details Calculates the size of the geometry and strings in the builder, taking transforms into account.
   */
-- (MaplyCoordinate3d)getSize;
+- (MaplyCoordinate3dD)getSize;
 
 /** @brief Generate a valid MaplyGeomModel that can be instanced and used as a 3D model.
     @details This call returns a MaplyGeomModel.  You'll need a model to make MaplyGeomModelInstance objects and for the addModelInstances:desc:mode: call to a MaplyBaseViewController (map or globe).
