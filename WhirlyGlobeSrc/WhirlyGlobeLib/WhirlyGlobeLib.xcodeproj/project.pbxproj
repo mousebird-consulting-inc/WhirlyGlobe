@@ -2641,7 +2641,6 @@
 				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = YES;
 				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				HEADER_SEARCH_PATHS = (
-					"../../third-party/boost/",
 					"../../third-party/eigen/",
 					"../../third-party/clipper/",
 					"../../third-party/proj-4/src/",
@@ -2686,7 +2685,6 @@
 				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = YES;
 				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				HEADER_SEARCH_PATHS = (
-					"../../third-party/boost/",
 					"../../third-party/eigen/",
 					"../../third-party/clipper/",
 					"../../third-party/proj-4/src/",
