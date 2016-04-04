@@ -31,17 +31,17 @@
 
 /// @brief Heading is calculated from due north
 /// @details If not set or set to MAXFLOAT, this is ignored
-@property (nonatomic) float heading;
+@property (nonatomic) double heading;
 
 /// @brief Height above the globe
-@property (nonatomic) float height;
+@property (nonatomic) double height;
 
 /// @brief Tilt as used in the view controller
 /// @details If not set or set to MAXFLOAT, we calculate tilt the regular way
-@property (nonatomic) float tilt;
+@property (nonatomic) double tilt;
 
 /// @brief Position to move to on the globe
-@property (nonatomic) MaplyCoordinate pos;
+@property (nonatomic) MaplyCoordinateD pos;
 
 /// @brief If set, this is a point on the screen where pos should be.
 /// @details By default this is (-1,-1) meaning the screen position is just the middle.  Otherwise, this is where the position should wind up on the screen, if it can.
@@ -96,7 +96,7 @@
 - (nonnull instancetype)initWithState:(WhirlyGlobeViewControllerAnimationState *__nonnull)endState;
 
 /// @brief Location at the end of the animation
-@property (nonatomic) MaplyCoordinate loc;
+@property (nonatomic) MaplyCoordinateD loc;
 
 /// @brief Heading at the end of the animation
 @property (nonatomic) double heading;
@@ -352,6 +352,15 @@
     @param howLong A time interval in seconds.
  */
 - (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong;
+
+/** @brief Animate to the given position, heading and height over time.
+    @param newPos A coordinate in geographic (lon/lat radians) (double precision)
+    @param newHeight New height to animate to. (double)
+    @param newHeading New heading to finish on. (double)
+    @param howLong A time interval in seconds.
+ */
+- (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(NSTimeInterval)howLong;
+
 
 /** @brief Animate with a delegate over time.
     @details Fill in the WhirlyGlobeViewControllerAnimationDelegate and you can control the visual view on a frame by frame basis.  You'll get called back at the appropriate time on the main thread over the time period.

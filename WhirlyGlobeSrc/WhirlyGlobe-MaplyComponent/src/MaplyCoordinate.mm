@@ -32,6 +32,15 @@ MaplyCoordinate MaplyCoordinateMake(float radLon,float radLat)
     return coord;
 }
 
+MaplyCoordinateD MaplyCoordinateDMake(double radLon,double radLat)
+{
+    MaplyCoordinateD coord;
+    coord.x = radLon;
+    coord.y = radLat;
+    
+    return coord;
+}
+
 
 MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat)
 {
@@ -39,6 +48,14 @@ MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat)
     coord.x = DegToRad(degLon);
     coord.y = DegToRad(degLat);
     
+    return coord;
+}
+
+MaplyCoordinateD MaplyCoordinateDMakeWithMaplyCoordinate(MaplyCoordinate c)
+{
+    MaplyCoordinateD coord;
+    coord.x = c.x;
+    coord.y = c.y;
     return coord;
 }
 
