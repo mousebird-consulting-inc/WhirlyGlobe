@@ -119,6 +119,12 @@ extern "C" {
     @return A 2D MaplyCoordinate in radians (if representing a lon/lat value).
   */
 MaplyCoordinate MaplyCoordinateMake(float radLon,float radLat);
+
+/** @brief Construct a MaplyCoordianteD with longitude and latitude values in radians.
+    @details MaplyCoordinate's are in radians when they represent lon/lat values.  This constructs one with radians as input.
+    @return A 2D MaplyCoordinateD in radians (if representing a lon/lat value).
+    */
+MaplyCoordinateD MaplyCoordinateDMake(double radLon,double radLat);
     
 /** @brief Construct a MaplyGeoCoordinate with longitude and latitude values in degrees.
     @details MaplyCoordinate's are in radians when they represent lon/lat values.  This function does that conversion for you.
@@ -127,6 +133,13 @@ MaplyCoordinate MaplyCoordinateMake(float radLon,float radLat);
     @return A 2D MaplyCoordinate in radians (if representing a lon/lat value).
   */
 MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat);
+    
+/** @brief Construct a MaplyCoordinateD with a MaplyCoordinate.
+    @details This function constructs a MaplyCoordinateD with the component values of the input MaplyCoordinate.
+    @param c The input MaplyCoordinate value.
+    @return A 2D MaplyCoordinateD in radians (if representing a lon/lat value).
+  */
+MaplyCoordinateD MaplyCoordinateDMakeWithMaplyCoordinate(MaplyCoordinate c);
     
 /** @brief Construct a MaplyCoordinat3d from the values given.
     @param x The x value, or longitude in radians if we're making geo coordinates.

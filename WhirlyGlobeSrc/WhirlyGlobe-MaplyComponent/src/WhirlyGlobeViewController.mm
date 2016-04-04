@@ -31,9 +31,9 @@ using namespace WhirlyGlobe;
 - (instancetype)init
 {
     self = [super init];
-    _heading = MAXFLOAT;
+    _heading = DBL_MAX;
     _height = 1.0;
-    _tilt = MAXFLOAT;
+    _tilt = DBL_MAX;
     _pos.x = _pos.y = 0.0;
     _screenPos = {-1,-1};
     
@@ -47,7 +47,7 @@ using namespace WhirlyGlobe;
     newState.heading = (stateB.heading-stateA.heading)*t + stateA.heading;
     newState.height = (stateB.height-stateA.height)*t + stateA.height;
     newState.tilt = (stateB.tilt-stateA.tilt)*t + stateA.tilt;
-    newState.pos = MaplyCoordinateMake((stateB.pos.x-stateA.pos.x)*t + stateA.pos.x,(stateB.pos.y-stateA.pos.y)*t + stateA.pos.y);
+    newState.pos = MaplyCoordinateDMake((stateB.pos.x-stateA.pos.x)*t + stateA.pos.x,(stateB.pos.y-stateA.pos.y)*t + stateA.pos.y);
     if (stateA.screenPos.x >= 0.0 && stateA.screenPos.y >= 0.0 &&
         stateB.screenPos.x >= 0.0 && stateB.screenPos.y >= 0.0)
     {
@@ -99,7 +99,7 @@ using namespace WhirlyGlobe;
     state.heading = (endState.heading - startState.heading)*t + startState.heading;
     state.height = (endState.height - startState.height)*t + startState.height;
     state.tilt = (endState.tilt - startState.tilt)*t + startState.tilt;
-    MaplyCoordinate pos;
+    MaplyCoordinateD pos;
     pos.x = (endState.pos.x - startState.pos.x)*t + startState.pos.x;
     pos.y = (endState.pos.y - startState.pos.y)*t + startState.pos.y;
     state.pos = pos;
@@ -770,6 +770,27 @@ using namespace WhirlyGlobe;
 
     [globeView cancelAnimation];
 
+    WhirlyGlobeViewControllerSimpleAnimationDelegate *anim = [[WhirlyGlobeViewControllerSimpleAnimationDelegate alloc] init];
+    anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
+    anim.heading = newHeading;
+    anim.height = newHeight;
+    anim.tilt = [self tilt];
+    
+    [self animateWithDelegate:anim time:howLong];
+    
+    return true;
+}
+
+- (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(NSTimeInterval)howLong
+{
+    if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
+    {
+        NSLog(@"WhirlyGlobeViewController: Invalid location passed to animationToPosition:");
+        return false;
+    }
+    
+    [globeView cancelAnimation];
+    
     WhirlyGlobeViewControllerSimpleAnimationDelegate *anim = [[WhirlyGlobeViewControllerSimpleAnimationDelegate alloc] init];
     anim.loc = newPos;
     anim.heading = newHeading;
@@ -1490,9 +1511,9 @@ using namespace WhirlyGlobe;
     startUp = [globeView currentUp];
     state.heading = self.heading;
     state.tilt = self.tilt;
-    MaplyCoordinate pos;
-    float height;
-    [self getPosition:&pos height:&height];
+    MaplyCoordinateD pos;
+    double height;
+    [self getPositionD:&pos height:&height];
     state.pos = pos;
     state.height = height;
     
@@ -1524,7 +1545,7 @@ using namespace WhirlyGlobe;
     WhirlyGlobeViewControllerAnimationState *state = [[WhirlyGlobeViewControllerAnimationState alloc] init];
     
     WhirlyKit::GeoCoord outGeoCoord = coordSys->localToGeographic(coordAdapter->displayToLocal(p1norm));
-    state.pos = MaplyCoordinateMake(outGeoCoord.lon(), outGeoCoord.lat());
+    state.pos = MaplyCoordinateDMake(outGeoCoord.lon(), outGeoCoord.lat());
     state.tilt = acosf(dot);
     
     if(isnan(state.tilt) || isnan(state.pos.x) || isnan(state.pos.y))
