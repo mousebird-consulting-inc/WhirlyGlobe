@@ -42,7 +42,7 @@ public:
     }
     
     MaplyTileID tileID;
-    NSURLSessionDataTask *task;
+    NSURLSessionDataTask * __weak task;
 };
 typedef std::set<TileFetchOp> TileFetchOpSet;
 }

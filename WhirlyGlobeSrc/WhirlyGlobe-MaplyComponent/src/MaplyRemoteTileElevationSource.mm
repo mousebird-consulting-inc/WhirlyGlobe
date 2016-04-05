@@ -358,7 +358,7 @@ using namespace WhirlyKit;
                             //TODO(JM) is it worth to delegate this write to a different worker thread?
                             [elevData writeToFile:fileName atomically:YES];
 
-                        MaplyElevationChunk *elevChunk = [self decodeElevationData:elevData];
+                        MaplyElevationChunk *elevChunk = [weakSelf decodeElevationData:elevData];
 
                         if ([_delegate respondsToSelector:@selector(remoteTileElevationSource:modifyTileReturn:forTile:)])
                             elevChunk = [_delegate remoteTileElevationSource:self modifyElevReturn:elevChunk forTile:tileID];
