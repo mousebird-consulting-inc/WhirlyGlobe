@@ -647,7 +647,7 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
          it != rect2Dselectables.end(); ++it)
     {
         const RectSelectable2D &sel = *it;
-        if (sel.selectID != EmptyIdentity)
+        if (sel.selectID != EmptyIdentity && sel.enable)
         {
             if (sel.minVis == DrawVisibleInvalid ||
                 (sel.minVis < pInfo.heightAboveSurface && pInfo.heightAboveSurface < sel.maxVis))
