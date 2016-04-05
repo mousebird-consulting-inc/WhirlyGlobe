@@ -392,10 +392,11 @@ public class MaplyBaseController
      */
 	public void setClearColor(int color)
 	{
+		clearColor = color;
+
 		if (renderWrapper == null)
 			return;
 
-		clearColor = color;
 		if (tempBackground != null)
 			tempBackground.setColor(clearColor);
 
