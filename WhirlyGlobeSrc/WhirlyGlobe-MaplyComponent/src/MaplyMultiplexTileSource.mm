@@ -38,7 +38,7 @@ public:
     }
     
     int which;
-    NSURLSessionDataTask *task;
+    NSURLSessionDataTask * __weak task;
 };
 typedef std::set<TileFetch> TileFetchSet;
     
@@ -423,7 +423,9 @@ static bool trackConnections = false;
     newTile.singleFetch = (frame !=-1);
     // Don't think about this one too hard.
     std::vector<void (^)()> workBlocks;
-    
+
+    MaplyMultiplexTileSource __weak *weakSelf = self;
+
     // Work through the sources, kicking off a request as we go
     int which = (frame == -1 ? 0 : frame);
     for (NSObject<MaplyRemoteTileInfoProtocol> *tileSource in (frame == -1 ? _tileSources : @[_tileSources[frame]]))
@@ -468,9 +470,6 @@ static bool trackConnections = false;
                 }
 
                 // Kick off an async request for the data
-                MaplyMultiplexTileSource __weak *weakSelf = self;
-
-
                 NSURLSession *session = [NSURLSession sharedSession];
                 NSURLSessionDataTask *task = [session dataTaskWithRequest:urlReq completionHandler:
                 ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -478,7 +477,7 @@ static bool trackConnections = false;
 
                         if (!error) {
                             if (weakSelf)
-                                [self gotTile:tileID which:which data:data layer:layer fromCache:false];
+                                [weakSelf gotTile:tileID which:which data:data layer:layer fromCache:false];
 
                             if (trackConnections)
                                 @synchronized([MaplyMultiplexTileSource class])
@@ -490,9 +489,9 @@ static bool trackConnections = false;
                             if (weakSelf)
                             {
                                 if (weakSelf.acceptFailures)
-                                    [self gotTile:tileID which:which data:error layer:layer fromCache:false];
+                                    [weakSelf gotTile:tileID which:which data:error layer:layer fromCache:false];
                                 else
-                                    [self failedToGetTile:tileID frame:frame error:error layer:layer];
+                                    [weakSelf failedToGetTile:tileID frame:frame error:error layer:layer];
                             }
 
                             if (trackConnections)
@@ -509,7 +508,7 @@ static bool trackConnections = false;
                 newTile.fetches.insert(Maply::TileFetch(which, task));
 
             } else {
-                [self failedToGetTile:tileID frame:frame error:nil layer:layer];
+                [weakSelf failedToGetTile:tileID frame:frame error:nil layer:layer];
             }
         }
         which++;
