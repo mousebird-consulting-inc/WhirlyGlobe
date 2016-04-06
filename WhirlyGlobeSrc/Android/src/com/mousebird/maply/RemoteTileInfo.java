@@ -39,6 +39,18 @@ public class RemoteTileInfo
 		minZoom = inMinZoom;
 		maxZoom = inMaxZoom;
 	}
+
+	String timeKey = null;
+
+	/**
+	 * We'll use the time key when caching local files.
+	 * This avoids a naming problem with x_y_level that might occur if you're doing time based data sources.
+	 * @param timeKey
+     */
+	public void setTimeKey(String inTimeKey)
+	{
+		timeKey = inTimeKey;
+	}
 	
 	/**
 	 * Construct a remote tile info based on a JSON spec.  This includes multiple
@@ -84,16 +96,40 @@ public class RemoteTileInfo
 
 	/**
 	 * Return a unique name that can be used in the cache.
+	 * This version doesn't support frames.
 	 */
 	public String buildCacheName(int x,int y,int level)
 	{
-		return "/" + level + "_" + x + "_" + y + "."  + ext;
+		String name = "";
+		if (timeKey != null)
+			name += "/" + level + "_" + x + "_" + y + timeKey;
+		else
+			name += "/" + level + "_" + x + "_" + y;
+
+		if (ext != null)
+			name += "." + ext;
+
+		return name;
 	}
 
+	/**
+	 * Return a unique name that can be used in the cache.
+	 * This version supports frames.
+	 */
 	public String buildCacheName(int x,int y,int level,int frame)
 	{
 		if (frame == -1)
-			return buildCacheName(x,y,level);
-		return "/" + level + "_" + x + "_" + y + "_" + frame + "."  + ext;
+			return buildCacheName(x, y, level);
+
+		String name = "";
+		if (timeKey != null) {
+			name += "/" + level + "_" + x + "_" + y + "_" + timeKey;
+		} else {
+			name += "/" + level + "_" + x + "_" + y + "_" + frame;
+		}
+		if (ext != null)
+			name += "." + ext;
+
+		return name;
 	}
 }

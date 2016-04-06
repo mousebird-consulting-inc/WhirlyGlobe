@@ -460,8 +460,9 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 					String cacheFile = null;
 					RemoteTileInfo tileInfo = sources[which];
 					final String tileURL = tileInfo.buildURL(tileID.x,remoteY,tileID.level);
-					if (cacheDir != null)
-						cacheFile = cacheDir.getAbsolutePath() + tileInfo.buildCacheName(tileID.x, tileID.y, tileID.level,which);
+					if (cacheDir != null) {
+						cacheFile = cacheDir.getAbsolutePath() + tileInfo.buildCacheName(tileID.x, tileID.y, tileID.level, which);
+					}
 					ConnectionTask task = new ConnectionTask(layer,this,tileID,which,tileURL,cacheFile);
 					task.singleFetch = singleFetch;
 					tile.fetches[which] = task;
