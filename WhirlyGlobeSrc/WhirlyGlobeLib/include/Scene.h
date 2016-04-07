@@ -103,7 +103,7 @@ public:
     /// Construct with a drawable.  You're not responsible for deletion
 	AddDrawableReq(Drawable *drawable) : drawable(drawable) { }
     /// If the drawable wasn't used, delete it
-	~AddDrawableReq() { if (drawable) delete drawable; drawable = NULL; }
+    ~AddDrawableReq();
     
     /// Drawable creation generally wants a flush
     virtual bool needsFlush() { return true; }

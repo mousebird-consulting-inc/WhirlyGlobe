@@ -26,13 +26,13 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-WhirlyKitDirectionalLight::WhirlyKitDirectionalLight() :
-    viewDependent(true),
-    pos(Eigen::Vector3f(0,0,0)),
-    ambient(Eigen::Vector4f(1,1,1,1)),
-    diffuse(Eigen::Vector4f(1,1,1,1)),
-    specular(Eigen::Vector4f(1,1,1,1))
+WhirlyKitDirectionalLight::WhirlyKitDirectionalLight()
 {
+    viewDependent = true;
+    pos = Eigen::Vector3f(0,0,0);
+    ambient = Eigen::Vector4f(1,1,1,1);
+    diffuse = Eigen::Vector4f(1,1,1,1);
+    specular = Eigen::Vector4f(1,1,1,1);
 };
 
 WhirlyKitDirectionalLight::~WhirlyKitDirectionalLight()

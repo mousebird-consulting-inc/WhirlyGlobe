@@ -641,6 +641,13 @@ void RemTextureReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,Wh
     }
     pthread_mutex_unlock(&scene->textureLock);
 }
+    
+AddDrawableReq::~AddDrawableReq()
+{
+    if (drawable)
+        delete drawable;
+    drawable = NULL;
+}
 
 void AddDrawableReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
 {
