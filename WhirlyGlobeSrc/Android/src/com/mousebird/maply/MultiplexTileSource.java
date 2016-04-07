@@ -240,7 +240,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 						}
                     }
                 }
-            });
+            },true);
         }
 
         // Cancel an outstanding request
