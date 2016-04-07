@@ -102,7 +102,7 @@ public:
     ///  we show that.  If there's more than one, we switch
     ///  between them over the period.
     std::vector<WhirlyKit::SimpleIdentity> texIDs;
-    /// The width in 3-space (remember the globe has radius = 1.0)
+    /// If set we'll keep the screen marker upright in screen space
     bool lockRotation;
     /// The height in 3-space (remember the globe has radius = 1.0)
     float height;

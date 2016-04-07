@@ -39,6 +39,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_initialise
 	try
 	{
 		Marker *marker = new Marker();
+        marker->rotation = 0.0;
+        marker->lockRotation = false;
 		MarkerClassInfo::getClassInfo()->setHandle(env,obj,marker);
 	}
 	catch (...)
