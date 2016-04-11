@@ -17,14 +17,15 @@ import com.mousebirdconsulting.autotester.R;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
 import com.mousebirdconsulting.autotester.TestCases.AtmosphereTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CartoDBDarkTestCase;
+import com.mousebirdconsulting.autotester.TestCases.ComplexParticleSystemTestCase;
+import com.mousebirdconsulting.autotester.TestCases.ComponentObjectLeakTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGCoordAdapter;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
 import com.mousebirdconsulting.autotester.TestCases.GestureFeedbackTestCase;
-import com.mousebirdconsulting.autotester.TestCases.ComponentObjectLeakTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LightingTestCase;
+import com.mousebirdconsulting.autotester.TestCases.MBTilesImageTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MaplyStarModelTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ParticleSystemTestCase;
-import com.mousebirdconsulting.autotester.TestCases.ComplexParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ShapesTestCase;
@@ -95,6 +96,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new ShapesTestCase(getActivity()));
 			testCases.add(new AtmosphereTestCase(getActivity()));
 			testCases.add(new LightingTestCase(getActivity()));
+			testCases.add(new MBTilesImageTestCase(getActivity()));
 		}
 
 		@Override
