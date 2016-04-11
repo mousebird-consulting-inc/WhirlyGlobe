@@ -483,7 +483,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 
 		if (gestureDelegate != null)
 		{
-			Point3d corners[] = calcCorners();
+			Point3d corners[] = getVisibleCorners();
 			gestureDelegate.globeDidStopMoving(this,corners,userMotion);
 		}
 	}
@@ -497,7 +497,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		if (globeView != null) {
 			double newUpdateTime = globeView.getLastUpdatedTime();
 			if (gestureDelegate != null && lastViewUpdate < newUpdateTime) {
-				Point3d corners[] = calcCorners();
+				Point3d corners[] = getVisibleCorners();
 				gestureDelegate.globeDidMove(this, corners, false);
 				lastViewUpdate = newUpdateTime;
 			}
@@ -510,8 +510,13 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		}
 	}
 
-    // Calculate visible corners
-    Point3d[] calcCorners()
+
+    /**
+	 * Calculate visible corners for what's currently being seen.
+	 * If the eye point is too high, expect null corners.
+	 * @return
+     */
+    public Point3d[] getVisibleCorners()
     {
         Point2d screenCorners[] = new Point2d[4];
         Point2d frameSize = renderWrapper.maplyRender.frameSize;
