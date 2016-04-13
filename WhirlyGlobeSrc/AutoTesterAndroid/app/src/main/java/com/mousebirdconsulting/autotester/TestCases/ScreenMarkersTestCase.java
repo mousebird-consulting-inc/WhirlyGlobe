@@ -28,6 +28,7 @@ public class ScreenMarkersTestCase extends MaplyTestCase {
 	public ScreenMarkersTestCase(Activity activity) {
 		super(activity);
 		setTestName("Screen Markers Test");
+		setDelay(1000);
 	}
 
 	public ArrayList<ComponentObject> getComponentObjects() {
@@ -54,9 +55,9 @@ public class ScreenMarkersTestCase extends MaplyTestCase {
 
 	private void insertMarkers(ArrayList<VectorObject> vectors, MaplyBaseController baseVC) {
 		MarkerInfo markerInfo = new MarkerInfo();
-		Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.maply_ic_launcher);
+		Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.testtarget);
 		markerInfo.setMinVis(0.f);
-		markerInfo.setMaxVis(1.f);
+		markerInfo.setMaxVis(1.5f);
 
 		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
 		for (VectorObject vector : vectors) {
@@ -65,8 +66,9 @@ public class ScreenMarkersTestCase extends MaplyTestCase {
 			Point2d centroid = vector.centroid();
 			if (centroid != null) {
 				marker.loc = centroid;
-				marker.size = new Point2d(64, 64);
+				marker.size = new Point2d(128, 128);
 				marker.rotation = Math.random() * 2.f * Math.PI;
+//				marker.offset = new Point2d(-64,-64);
 				AttrDictionary attrs = vector.getAttributes();
 				if (attrs != null) {
 					marker.userObject = attrs.getString("ADMIN");
