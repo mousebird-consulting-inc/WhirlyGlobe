@@ -70,8 +70,6 @@ public class MBTilesImageTestCase extends MaplyTestCase {
         return true;
     }
 
-
-
     private File getMbTileFile(String assetMbTile, String mbTileFilename) throws IOException {
 
         ContextWrapper wrapper = new ContextWrapper(activity);
