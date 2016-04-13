@@ -21,6 +21,7 @@
 package com.mousebird.maply;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -42,10 +43,39 @@ import java.util.List;
  */
 public class MapController extends MaplyBaseController implements View.OnTouchListener
 {
+	/**
+	 * Construct with the activity and a coordinate system.  You use this one if you're
+	 * using a custom coordinate system.
+	 *
+	 * @param mainActivity The activity this is part of.
+	 * @param coordSys Coordinate system to use for the map.
+	 * @param displayCenter Center of the coordinate system.
+	 * @param clearColor Clear color to use for the background.
+     */
+	public MapController(Activity mainActivity,CoordSystem coordSys,Point3d displayCenter,int clearColor)
+	{
+		super(mainActivity);
+
+		InitCoordSys(mainActivity,coordSys,displayCenter,clearColor);
+	}
+
+	/**
+	 * Construct with the activity and a coordinate system.  You use this one if you're
+	 * using a custom coordinate system.
+	 *
+	 * @param mainActivity The activity this is part of.
+	 * @param coordSys Coordinate system to use for the map.
+	 * @param displayCenter Center of the coordinate system.
+     */
 	public MapController(Activity mainActivity,CoordSystem coordSys,Point3d displayCenter)
 	{
 		super(mainActivity);
 
+		InitCoordSys(mainActivity,coordSys,displayCenter,clearColor);
+	}
+
+	protected void InitCoordSys(Activity mainActivity,CoordSystem coordSys,Point3d displayCenter,int clearColor)
+	{
 		Mbr mbr = coordSys.getBounds();
 		double scaleFactor = 1.0;
 		if (mbr != null) {
@@ -78,6 +108,25 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	{
 		super(mainActivity);
 
+		Init(mainActivity, Color.TRANSPARENT);
+	}
+
+	/**
+	 * Initialize a new map controller with the standard (spherical mercator)
+	 * coordinate system.
+	 *
+	 * @param mainActivity Activity we're part of.
+	 * @param clearColor Clear color for background.
+     */
+	public MapController(Activity mainActivity,int clearColor)
+	{
+		super(mainActivity);
+
+		Init(mainActivity, clearColor);
+	}
+
+	protected void Init(Activity mainActivity,int clearColor)
+	{
 		setupTheRest(new CoordSystemDisplayAdapter(new SphericalMercatorCoordSystem()));
 
 		// Set up the bounds

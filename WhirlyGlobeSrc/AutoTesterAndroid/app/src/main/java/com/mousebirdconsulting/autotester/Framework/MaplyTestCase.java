@@ -2,6 +2,7 @@ package com.mousebirdconsulting.autotester.Framework;
 
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.view.View;
 
@@ -36,13 +37,16 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 		this.activity = activity;
 	}
 
+	// Change this to set transparent backgrounds
+	int clearColor = Color.BLACK;
+
 	@Override
 	protected void onPreExecute() {
 		if (options == ConfigOptions.TestType.BothTest || options == ConfigOptions.TestType.GlobeTest) {
-			globeController = new GlobeController(activity);
+			globeController = new GlobeController(activity,clearColor);
 		}
 		if (options == ConfigOptions.TestType.BothTest || options == ConfigOptions.TestType.MapTest) {
-			mapController = new MapController(activity);
+			mapController = new MapController(activity,clearColor);
 		}
 	}
 

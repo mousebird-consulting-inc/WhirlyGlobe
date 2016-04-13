@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
@@ -172,11 +173,16 @@ public class MaplyBaseController
         if (supportsEs2)
         {
         	glSurfaceView = new GLSurfaceView(activity);
-        	
-        	if (isProbablyEmulator())
-        	{
-        		glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-        	}
+
+			// If the clear color has transparency, we need to set things up differently
+			if (Color.alpha(clearColor) < 255) {
+				glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+				glSurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+				glSurfaceView.setZOrderOnTop(true);
+			} else {
+				if (isProbablyEmulator())
+					glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+			}
 
 			tempBackground = new ColorDrawable();
 			// This eliminates the black flash, but only if the clearColor is set right
@@ -184,7 +190,7 @@ public class MaplyBaseController
 			if (Build.VERSION.SDK_INT > 16)
 				glSurfaceView.setBackground(tempBackground);
         	glSurfaceView.setEGLContextClientVersion(2);
-        	glSurfaceView.setRenderer(renderWrapper);       
+        	glSurfaceView.setRenderer(renderWrapper);
         } else {
         	Toast.makeText(activity,  "This device does not support OpenGL ES 2.0.", Toast.LENGTH_LONG).show();
         	return;
@@ -397,8 +403,10 @@ public class MaplyBaseController
 		if (renderWrapper == null)
 			return;
 
-		if (tempBackground != null)
-			tempBackground.setColor(clearColor);
+//		if (tempBackground != null)
+//			tempBackground.setColor(clearColor);
+
+		Log.d("Maply","clearColor = " + color);
 
 		if (renderWrapper.maplyRender != null)
 			renderWrapper.maplyRender.setClearColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);

@@ -20,8 +20,10 @@
 
 package com.mousebird.maply;
 
-import android.app.*;
-import android.view.*;
+import android.app.Activity;
+import android.graphics.Color;
+import android.view.Choreographer;
+import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.List;
@@ -41,25 +43,38 @@ import java.util.List;
  *
  */
 public class GlobeController extends MaplyBaseController implements View.OnTouchListener, Choreographer.FrameCallback
-{	
+{
 	public GlobeController(Activity mainActivity)
 	{
 		super(mainActivity);
-		
+
+		Init(mainActivity,Color.BLACK);
+	}
+
+	public GlobeController(Activity mainActivity,int clearColor)
+	{
+		super(mainActivity);
+
+		Init(mainActivity,clearColor);
+	}
+
+	protected void Init(Activity mainActivity,int clearColor)
+	{
 		// Need a coordinate system to display conversion
 		// For now this just sets up spherical mercator
 		coordAdapter = new FakeGeocentricDisplayAdapter();
-		
-		// Create the scene and map view 
+
+		// Create the scene and map view
 		// Note: Expose the cull tree depth
 		globeScene = new GlobeScene(coordAdapter,1);
 		scene = globeScene;
 		globeView = new GlobeView(this,coordAdapter);
 		view = globeView;
 		globeView.northUp = true;
-		
+		super.setClearColor(clearColor);
+
 		super.Init();
-		
+
 		if (glSurfaceView != null)
 		{
 			glSurfaceView.setOnTouchListener(this);
