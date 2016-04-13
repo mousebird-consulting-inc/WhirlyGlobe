@@ -23,7 +23,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.File;
@@ -37,56 +36,6 @@ public class MBTilesSource implements QuadImageTileLayer.TileSource
     //***********************************************************************//
     //                           Inner classes                               //
     //***********************************************************************//
-
-    private class FetchTileAsyncTask extends AsyncTask<MaplyTileID, Integer, Boolean> {
-
-
-        private QuadImageTileLayerInterface layer;
-        private int frame;
-
-        public FetchTileAsyncTask(QuadImageTileLayerInterface layer, int frame) {
-            this.layer = layer;
-            this.frame = frame;
-        }
-
-        @Override
-        protected Boolean doInBackground(MaplyTileID... tileIDs) {
-
-            Log.v(TAG, String.format("Fetching %d tiles...", tileIDs.length));
-
-            for (MaplyTileID tileID : tileIDs) {
-
-                String[] params = new String[3];
-                params[0] = Integer.toString(tileID.level);
-                params[1] = Integer.toString(tileID.x);
-                params[2] = Integer.toString(tileID.y);
-
-                Cursor c = mbTileDb.rawQuery(GET_TILE_SQL, params);
-
-                int tileDataIdx = c.getColumnIndex(TILE_DATA);
-
-                if (c.getCount() > 0) {
-                    c.moveToFirst();
-
-                    byte[] image = c.getBlob(tileDataIdx);
-                    Bitmap bm = BitmapFactory.decodeByteArray(image, 0, image.length);
-
-                    MaplyImageTile tile = new MaplyImageTile(bm);
-
-                    layer.loadedTile(tileID, frame, tile);
-
-                    Log.v(TAG, String.format("Returned tile for Z=%s, X=%d, Y=%d", tileID.level, tileID.x, tileID.y));
-
-                } else {
-                    Log.i(TAG, String.format("Could not find tile for Z=%s, X=%d, Y=%d", tileID.level, tileID.x, tileID.y));
-                }
-
-                c.close();
-            }
-
-            return null;
-        }
-    }
 
 
     //***********************************************************************//
@@ -139,14 +88,14 @@ public class MBTilesSource implements QuadImageTileLayer.TileSource
     //***********************************************************************//
 
 
-    public MBTilesSource(String mbTileFileName)
-    {
-        // Note: Do the initial read from the database to get the header info
-        //       This includes min and max zoom as well as anything you need
-        //       to know about reading the rest of it.
-
-        // We look for the file into assets
-    }
+//    public MBTilesSource(String mbTileFileName)
+//    {
+//        // Note: Do the initial read from the database to get the header info
+//        //       This includes min and max zoom as well as anything you need
+//        //       to know about reading the rest of it.
+//
+//        // We look for the file into assets
+//    }
 
     public MBTilesSource(File mbTileFile) {
 
@@ -207,39 +156,43 @@ public class MBTilesSource implements QuadImageTileLayer.TileSource
      * @param tileID The tile ID to fetch.
      * @param frame If the source support multiple frames, this is the frame.  Otherwise -1.
      */
-    public void startFetchForTile(QuadImageTileLayerInterface layer, MaplyTileID tileID, int frame)
+    public void startFetchForTile(final QuadImageTileLayerInterface layer, final MaplyTileID tileID, final int frame)
     {
         // Note: Start the fetch for a single tile, ideally on another thread.
         //       When the tile data is in, call the layer loadedTile() method.
 
-        Log.v(TAG, String.format("Requested to fetch tile for Z=%s, X=%d, Y=%d", tileID.level, tileID.x, tileID.y));
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
 
-        String[] params = new String[3];
-        params[0] = Integer.toString(tileID.level);
-        params[1] = Integer.toString(tileID.x);
-        params[2] = Integer.toString(tileID.y);
+                String[] params = new String[3];
+                params[0] = Integer.toString(tileID.level);
+                params[1] = Integer.toString(tileID.x);
+                params[2] = Integer.toString(tileID.y);
 
-        Cursor c = mbTileDb.rawQuery(GET_TILE_SQL, params);
+                Cursor c = mbTileDb.rawQuery(GET_TILE_SQL, params);
 
-        int tileDataIdx = c.getColumnIndex(TILE_DATA);
+                int tileDataIdx = c.getColumnIndex(TILE_DATA);
 
-        if (c.getCount() > 0) {
-            c.moveToFirst();
+                if (c.getCount() > 0) {
+                    c.moveToFirst();
 
-            byte[] image = c.getBlob(tileDataIdx);
-            Bitmap bm = BitmapFactory.decodeByteArray(image, 0, image.length);
+                    byte[] image = c.getBlob(tileDataIdx);
+                    Bitmap bm = BitmapFactory.decodeByteArray(image, 0, image.length);
 
-            MaplyImageTile tile = new MaplyImageTile(bm);
+                    MaplyImageTile tile = new MaplyImageTile(bm);
 
-            layer.loadedTile(tileID, frame, tile);
+                    layer.loadedTile(tileID, frame, tile);
 
-            Log.v(TAG, String.format("Returned tile for Z=%s, X=%d, Y=%d", tileID.level, tileID.x, tileID.y));
+//                    Log.v(TAG, String.format("Returned tile for Z=%s, X=%d, Y=%d", tileID.level, tileID.x, tileID.y));
+                }
 
-        } else {
-            Log.i(TAG, String.format("Could not find tile for Z=%s, X=%d, Y=%d", tileID.level, tileID.x, tileID.y));
-        }
+                c.close();
+            }
+        };
 
-        c.close();
+        thread.run();
+
 
     }
 
