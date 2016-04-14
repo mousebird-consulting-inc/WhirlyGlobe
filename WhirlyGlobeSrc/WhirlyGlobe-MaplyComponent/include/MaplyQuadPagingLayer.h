@@ -54,6 +54,15 @@
 
 @optional
 
+/** @brief Return a custom bounding box for importance calculation.
+    @details This is an optional method that can be used to provide a custom bounding box for a given tile.
+    @details If you're going to use this, please make the tile smaller.  Bigger tiles may not work correctly.
+    @details This is intended to allow 3D loading calculations to work better with divergent height data.
+    @param ll Lower left corner.  This is already filled in with default information.
+    @param ur Upper right corner.  This is already filled in with default information.
+ */
+- (void)getBoundingBox:(MaplyTileID)tileID ll:(MaplyCoordinate3dD * __nonnull)ll ur:(MaplyCoordinate3dD * __nonnull)ur;
+
 /** @brief An optional callback when a tile is unloaded.
     @details If filled in, you'll be called when a tile is unloaded.
   */
