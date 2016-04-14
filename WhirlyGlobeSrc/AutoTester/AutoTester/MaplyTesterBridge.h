@@ -35,5 +35,9 @@
 #import "GreatCircleTestCase.h"
 #import "AerisWeatherTestCase.h"
 #import "MapquestSatelliteTestCase.h"
+#import "LabelAnimationTestCase.h"
+#import "WMSTestCase.h"
+#import "FindHeightTestCase.h"
+#import "FullAnimationTest.h"
 
 #endif
