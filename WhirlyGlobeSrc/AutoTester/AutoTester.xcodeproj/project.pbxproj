@@ -513,6 +513,10 @@
 		D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE2B1BE7CAD30058A310 /* MegaMarkersTestCase.m */; };
 		D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE2D1BE7CF310058A310 /* ModelsTestCase.swift */; };
 		E4E4F5E62664B2073B80A052 /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F05A4FB888D188E680287F5 /* Pods.framework */; };
+		E5679F481CB72DE800369A15 /* LabelAnimationTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F431CB72DE800369A15 /* LabelAnimationTestCase.m */; };
+		E5679F491CB72DE800369A15 /* WMSTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F451CB72DE800369A15 /* WMSTestCase.m */; };
+		E5679F4A1CB72DE800369A15 /* FindHeightTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F471CB72DE800369A15 /* FindHeightTestCase.m */; };
+		E5679F4E1CB7669400369A15 /* FullAnimationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F4D1CB7669400369A15 /* FullAnimationTest.m */; };
 		E57E78CA1C936B8400C468C6 /* AerisWeatherTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */; };
 /* End PBXBuildFile section */
 
@@ -1062,6 +1066,14 @@
 		D8F2FE2A1BE7CAD30058A310 /* MegaMarkersTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MegaMarkersTestCase.h; sourceTree = "<group>"; };
 		D8F2FE2B1BE7CAD30058A310 /* MegaMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MegaMarkersTestCase.m; sourceTree = "<group>"; };
 		D8F2FE2D1BE7CF310058A310 /* ModelsTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModelsTestCase.swift; sourceTree = "<group>"; };
+		E5679F421CB72DE800369A15 /* LabelAnimationTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelAnimationTestCase.h; sourceTree = "<group>"; };
+		E5679F431CB72DE800369A15 /* LabelAnimationTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelAnimationTestCase.m; sourceTree = "<group>"; };
+		E5679F441CB72DE800369A15 /* WMSTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WMSTestCase.h; sourceTree = "<group>"; };
+		E5679F451CB72DE800369A15 /* WMSTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WMSTestCase.m; sourceTree = "<group>"; };
+		E5679F461CB72DE800369A15 /* FindHeightTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FindHeightTestCase.h; sourceTree = "<group>"; };
+		E5679F471CB72DE800369A15 /* FindHeightTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FindHeightTestCase.m; sourceTree = "<group>"; };
+		E5679F4C1CB7669400369A15 /* FullAnimationTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FullAnimationTest.h; sourceTree = "<group>"; };
+		E5679F4D1CB7669400369A15 /* FullAnimationTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FullAnimationTest.m; sourceTree = "<group>"; };
 		E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AerisWeatherTestCase.m; sourceTree = "<group>"; };
 		E57E78C91C936B8400C468C6 /* AerisWeatherTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AerisWeatherTestCase.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1184,6 +1196,14 @@
 		88BF115A1BCDA9530002205E /* testCases */ = {
 			isa = PBXGroup;
 			children = (
+				E5679F4C1CB7669400369A15 /* FullAnimationTest.h */,
+				E5679F4D1CB7669400369A15 /* FullAnimationTest.m */,
+				E5679F421CB72DE800369A15 /* LabelAnimationTestCase.h */,
+				E5679F431CB72DE800369A15 /* LabelAnimationTestCase.m */,
+				E5679F441CB72DE800369A15 /* WMSTestCase.h */,
+				E5679F451CB72DE800369A15 /* WMSTestCase.m */,
+				E5679F461CB72DE800369A15 /* FindHeightTestCase.h */,
+				E5679F471CB72DE800369A15 /* FindHeightTestCase.m */,
 				E57E78C91C936B8400C468C6 /* AerisWeatherTestCase.h */,
 				E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */,
 				D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */,
@@ -2400,6 +2420,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5679F481CB72DE800369A15 /* LabelAnimationTestCase.m in Sources */,
 				2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */,
 				D8228A921BE77816001D6914 /* MovingScreenLabelsTestCase.swift in Sources */,
 				D8200CA41BE9624300B22CF5 /* LoftedPolysTestCase.m in Sources */,
@@ -2428,6 +2449,7 @@
 				2B6953651C7E601A007FC51E /* AnimatedColorRampTestCase.m in Sources */,
 				D84433E71C14A46200A52117 /* NASAGIBSTestCase.swift in Sources */,
 				2B1C264F1C90FFFC00C71B0A /* VectorMBTilesTestCase.m in Sources */,
+				E5679F4A1CB72DE800369A15 /* FindHeightTestCase.m in Sources */,
 				D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.m in Sources */,
 				D84AA59C1C1A2E9900413B76 /* ElevationLocalDatabase.m in Sources */,
 				D8200CA11BE9563F00B22CF5 /* StickersTestCase.swift in Sources */,
@@ -2439,11 +2461,13 @@
 				D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */,
 				D8228AA81BE786BE001D6914 /* ClusteredMarkersTestCase.swift in Sources */,
 				D8F2FE271BE7BD630058A310 /* LabelsTestCase.m in Sources */,
+				E5679F4E1CB7669400369A15 /* FullAnimationTest.m in Sources */,
 				D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */,
 				D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */,
 				D8200C9F1BE9516300B22CF5 /* ShapesTestCase.m in Sources */,
 				D8341A761BE2E89E00411A46 /* ScreenMarkersTestCase.m in Sources */,
 				D8E12ED41BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m in Sources */,
+				E5679F491CB72DE800369A15 /* WMSTestCase.m in Sources */,
 				D8200C981BE93E6E00B22CF5 /* StarsSunTestCase.swift in Sources */,
 				D8341A631BE299BF00411A46 /* MapzenVectorTestCase.swift in Sources */,
 				D8F2FE291BE7C2000058A310 /* MarkersTestCase.swift in Sources */,
