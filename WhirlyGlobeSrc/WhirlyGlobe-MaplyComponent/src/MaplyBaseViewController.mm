@@ -1344,6 +1344,16 @@ static const float PerfOutputDelay = 15.0;
     return ret;
 }
 
+- (MaplyCoordinate3dD)displayCoordD:(MaplyCoordinate3dD)localCoord fromSystem:(MaplyCoordinateSystem *)coordSys
+{
+    Point3d loc3d = CoordSystemConvert3d(coordSys->coordSystem, visualView.coordAdapter->getCoordSystem(), Point3d(localCoord.x,localCoord.y,localCoord.z));
+    Point3d pt = visualView.coordAdapter->localToDisplay(loc3d);
+    
+    MaplyCoordinate3dD ret;
+    ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
+    return ret;
+}
+
 - (BOOL)enable3dTouchSelection:(NSObject<Maply3dTouchPreviewDatasource>*)previewDataSource
 {
     if(previewingContext)
