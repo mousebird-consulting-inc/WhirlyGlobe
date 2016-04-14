@@ -414,6 +414,7 @@ typedef JavaClassInfo<WhirlyKit::CoordSystem> CoordSystemClassInfo;
 typedef JavaClassInfo<WhirlyKit::Point2d> Point2dClassInfo;
 typedef JavaClassInfo<WhirlyKit::Point3d> Point3dClassInfo;
 typedef JavaClassInfo<WhirlyKit::Point4d> Point4dClassInfo;
+typedef JavaClassInfo<Eigen::Matrix3d> Matrix3dClassInfo;
 typedef JavaClassInfo<Eigen::Matrix4d> Matrix4dClassInfo;
 typedef JavaClassInfo<Eigen::Quaterniond> QuaternionClassInfo;
 typedef JavaClassInfo<Eigen::AngleAxisd> AngleAxisClassInfo;
@@ -453,6 +454,9 @@ typedef JavaClassInfo<WhirlyKit::ShapeManager> ShapeManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleVertexAttribute> SingleVertexAttributeClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitDirectionalLight> DirectionalLightClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitMaterial> MaterialClassInfo;
+typedef JavaClassInfo<WhirlyKit::Moon> MoonClassInfo;
+typedef JavaClassInfo<WhirlyKit::Sun> SunClassInfo;
+typedef JavaClassInfo<Eigen::Affine2d> Affine2dClassInfo;
 
 // The shared JNIEnv set in the ::render call
 extern JNIEnv *maplyCurrentEnv;

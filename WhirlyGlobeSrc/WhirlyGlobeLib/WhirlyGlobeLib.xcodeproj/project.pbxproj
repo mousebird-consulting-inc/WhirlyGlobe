@@ -446,6 +446,131 @@
 		8817DA041C92F3070034E3EA /* com_mousebird_maply_ShapeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 8817D9FF1C92F3070034E3EA /* com_mousebird_maply_ShapeManager.h */; };
 		8817DA051C92F3070034E3EA /* com_mousebird_maply_Shape.h in Headers */ = {isa = PBXBuildFile; fileRef = 8817DA001C92F3070034E3EA /* com_mousebird_maply_Shape.h */; };
 		8817DA061C92F3070034E3EA /* com_mousebird_maply_ParticleSystem_STATE.h in Headers */ = {isa = PBXBuildFile; fileRef = 8817DA011C92F3070034E3EA /* com_mousebird_maply_ParticleSystem_STATE.h */; };
+		883C07431CC055740042B20C /* AA+.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06CD1CC055740042B20C /* AA+.h */; };
+		883C07441CC055740042B20C /* AA2DCoordinate.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06CE1CC055740042B20C /* AA2DCoordinate.h */; };
+		883C07451CC055740042B20C /* AA3DCoordinate.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06CF1CC055740042B20C /* AA3DCoordinate.h */; };
+		883C07461CC055740042B20C /* AAAberration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06D01CC055740042B20C /* AAAberration.cpp */; };
+		883C07471CC055740042B20C /* AAAberration.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06D11CC055740042B20C /* AAAberration.h */; };
+		883C07481CC055740042B20C /* AAAngularSeparation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06D21CC055740042B20C /* AAAngularSeparation.cpp */; };
+		883C07491CC055740042B20C /* AAAngularSeparation.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06D31CC055740042B20C /* AAAngularSeparation.h */; };
+		883C074A1CC055740042B20C /* AABinaryStar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06D41CC055740042B20C /* AABinaryStar.cpp */; };
+		883C074B1CC055740042B20C /* AABinaryStar.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06D51CC055740042B20C /* AABinaryStar.h */; };
+		883C074C1CC055740042B20C /* AACoordinateTransformation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06D61CC055740042B20C /* AACoordinateTransformation.cpp */; };
+		883C074D1CC055740042B20C /* AACoordinateTransformation.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06D71CC055740042B20C /* AACoordinateTransformation.h */; };
+		883C074E1CC055740042B20C /* AADate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06D81CC055740042B20C /* AADate.cpp */; };
+		883C074F1CC055740042B20C /* AADate.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06D91CC055740042B20C /* AADate.h */; };
+		883C07501CC055740042B20C /* AADiameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06DA1CC055740042B20C /* AADiameters.cpp */; };
+		883C07511CC055740042B20C /* AADiameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06DB1CC055740042B20C /* AADiameters.h */; };
+		883C07521CC055740042B20C /* AADynamicalTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06DC1CC055740042B20C /* AADynamicalTime.cpp */; };
+		883C07531CC055740042B20C /* AADynamicalTime.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06DD1CC055740042B20C /* AADynamicalTime.h */; };
+		883C07541CC055740042B20C /* AAEarth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06DE1CC055740042B20C /* AAEarth.cpp */; };
+		883C07551CC055740042B20C /* AAEarth.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06DF1CC055740042B20C /* AAEarth.h */; };
+		883C07561CC055740042B20C /* AAEaster.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06E01CC055740042B20C /* AAEaster.cpp */; };
+		883C07571CC055740042B20C /* AAEaster.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06E11CC055740042B20C /* AAEaster.h */; };
+		883C07581CC055740042B20C /* AAEclipses.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06E21CC055740042B20C /* AAEclipses.cpp */; };
+		883C07591CC055740042B20C /* AAEclipses.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06E31CC055740042B20C /* AAEclipses.h */; };
+		883C075A1CC055740042B20C /* AAEclipticalElements.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06E41CC055740042B20C /* AAEclipticalElements.cpp */; };
+		883C075B1CC055740042B20C /* AAEclipticalElements.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06E51CC055740042B20C /* AAEclipticalElements.h */; };
+		883C075C1CC055740042B20C /* AAElementsPlanetaryOrbit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06E61CC055740042B20C /* AAElementsPlanetaryOrbit.cpp */; };
+		883C075D1CC055740042B20C /* AAElementsPlanetaryOrbit.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06E71CC055740042B20C /* AAElementsPlanetaryOrbit.h */; };
+		883C075E1CC055740042B20C /* AAElliptical.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06E81CC055740042B20C /* AAElliptical.cpp */; };
+		883C075F1CC055740042B20C /* AAElliptical.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06E91CC055740042B20C /* AAElliptical.h */; };
+		883C07601CC055740042B20C /* AAEquationOfTime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06EA1CC055740042B20C /* AAEquationOfTime.cpp */; };
+		883C07611CC055740042B20C /* AAEquationOfTime.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06EB1CC055740042B20C /* AAEquationOfTime.h */; };
+		883C07621CC055740042B20C /* AAEquinoxesAndSolstices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06EC1CC055740042B20C /* AAEquinoxesAndSolstices.cpp */; };
+		883C07631CC055740042B20C /* AAEquinoxesAndSolstices.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06ED1CC055740042B20C /* AAEquinoxesAndSolstices.h */; };
+		883C07641CC055740042B20C /* AAFK5.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06EE1CC055740042B20C /* AAFK5.cpp */; };
+		883C07651CC055740042B20C /* AAFK5.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06EF1CC055740042B20C /* AAFK5.h */; };
+		883C07661CC055740042B20C /* AAGalileanMoons.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06F01CC055740042B20C /* AAGalileanMoons.cpp */; };
+		883C07671CC055740042B20C /* AAGalileanMoons.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06F11CC055740042B20C /* AAGalileanMoons.h */; };
+		883C07681CC055740042B20C /* AAGlobe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06F21CC055740042B20C /* AAGlobe.cpp */; };
+		883C07691CC055740042B20C /* AAGlobe.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06F31CC055740042B20C /* AAGlobe.h */; };
+		883C076A1CC055740042B20C /* AAIlluminatedFraction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06F41CC055740042B20C /* AAIlluminatedFraction.cpp */; };
+		883C076B1CC055740042B20C /* AAIlluminatedFraction.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06F51CC055740042B20C /* AAIlluminatedFraction.h */; };
+		883C076C1CC055740042B20C /* AAInterpolate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06F61CC055740042B20C /* AAInterpolate.cpp */; };
+		883C076D1CC055740042B20C /* AAInterpolate.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06F71CC055740042B20C /* AAInterpolate.h */; };
+		883C076E1CC055740042B20C /* AAJewishCalendar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06F81CC055740042B20C /* AAJewishCalendar.cpp */; };
+		883C076F1CC055740042B20C /* AAJewishCalendar.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06F91CC055740042B20C /* AAJewishCalendar.h */; };
+		883C07701CC055740042B20C /* AAJupiter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06FA1CC055740042B20C /* AAJupiter.cpp */; };
+		883C07711CC055740042B20C /* AAJupiter.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06FB1CC055740042B20C /* AAJupiter.h */; };
+		883C07721CC055740042B20C /* AAKepler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06FC1CC055740042B20C /* AAKepler.cpp */; };
+		883C07731CC055740042B20C /* AAKepler.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06FD1CC055740042B20C /* AAKepler.h */; };
+		883C07741CC055740042B20C /* AAMars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C06FE1CC055740042B20C /* AAMars.cpp */; };
+		883C07751CC055740042B20C /* AAMars.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06FF1CC055740042B20C /* AAMars.h */; };
+		883C07761CC055740042B20C /* AAMercury.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07001CC055740042B20C /* AAMercury.cpp */; };
+		883C07771CC055740042B20C /* AAMercury.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07011CC055740042B20C /* AAMercury.h */; };
+		883C07781CC055740042B20C /* AAMoon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07021CC055740042B20C /* AAMoon.cpp */; };
+		883C07791CC055740042B20C /* AAMoon.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07031CC055740042B20C /* AAMoon.h */; };
+		883C077A1CC055740042B20C /* AAMoonIlluminatedFraction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07041CC055740042B20C /* AAMoonIlluminatedFraction.cpp */; };
+		883C077B1CC055740042B20C /* AAMoonIlluminatedFraction.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07051CC055740042B20C /* AAMoonIlluminatedFraction.h */; };
+		883C077C1CC055740042B20C /* AAMoonMaxDeclinations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07061CC055740042B20C /* AAMoonMaxDeclinations.cpp */; };
+		883C077D1CC055740042B20C /* AAMoonMaxDeclinations.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07071CC055740042B20C /* AAMoonMaxDeclinations.h */; };
+		883C077E1CC055740042B20C /* AAMoonNodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07081CC055740042B20C /* AAMoonNodes.cpp */; };
+		883C077F1CC055740042B20C /* AAMoonNodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07091CC055740042B20C /* AAMoonNodes.h */; };
+		883C07801CC055740042B20C /* AAMoonPerigeeApogee.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C070A1CC055740042B20C /* AAMoonPerigeeApogee.cpp */; };
+		883C07811CC055740042B20C /* AAMoonPerigeeApogee.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C070B1CC055740042B20C /* AAMoonPerigeeApogee.h */; };
+		883C07821CC055740042B20C /* AAMoonPhases.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C070C1CC055740042B20C /* AAMoonPhases.cpp */; };
+		883C07831CC055740042B20C /* AAMoonPhases.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C070D1CC055740042B20C /* AAMoonPhases.h */; };
+		883C07841CC055740042B20C /* AAMoslemCalendar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C070E1CC055740042B20C /* AAMoslemCalendar.cpp */; };
+		883C07851CC055740042B20C /* AAMoslemCalendar.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C070F1CC055740042B20C /* AAMoslemCalendar.h */; };
+		883C07861CC055740042B20C /* AANearParabolic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07101CC055740042B20C /* AANearParabolic.cpp */; };
+		883C07871CC055740042B20C /* AANearParabolic.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07111CC055740042B20C /* AANearParabolic.h */; };
+		883C07881CC055740042B20C /* AANeptune.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07121CC055740042B20C /* AANeptune.cpp */; };
+		883C07891CC055740042B20C /* AANeptune.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07131CC055740042B20C /* AANeptune.h */; };
+		883C078A1CC055740042B20C /* AANodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07141CC055740042B20C /* AANodes.cpp */; };
+		883C078B1CC055740042B20C /* AANodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07151CC055740042B20C /* AANodes.h */; };
+		883C078C1CC055740042B20C /* AANutation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07161CC055740042B20C /* AANutation.cpp */; };
+		883C078D1CC055740042B20C /* AANutation.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07171CC055740042B20C /* AANutation.h */; };
+		883C078E1CC055740042B20C /* AAParabolic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07181CC055740042B20C /* AAParabolic.cpp */; };
+		883C078F1CC055740042B20C /* AAParabolic.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07191CC055740042B20C /* AAParabolic.h */; };
+		883C07901CC055740042B20C /* AAParallactic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C071A1CC055740042B20C /* AAParallactic.cpp */; };
+		883C07911CC055740042B20C /* AAParallactic.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C071B1CC055740042B20C /* AAParallactic.h */; };
+		883C07921CC055740042B20C /* AAParallax.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C071C1CC055740042B20C /* AAParallax.cpp */; };
+		883C07931CC055740042B20C /* AAParallax.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C071D1CC055740042B20C /* AAParallax.h */; };
+		883C07941CC055740042B20C /* AAPhysicalJupiter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C071E1CC055740042B20C /* AAPhysicalJupiter.cpp */; };
+		883C07951CC055740042B20C /* AAPhysicalJupiter.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C071F1CC055740042B20C /* AAPhysicalJupiter.h */; };
+		883C07961CC055740042B20C /* AAPhysicalMars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07201CC055740042B20C /* AAPhysicalMars.cpp */; };
+		883C07971CC055740042B20C /* AAPhysicalMars.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07211CC055740042B20C /* AAPhysicalMars.h */; };
+		883C07981CC055740042B20C /* AAPhysicalMoon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07221CC055740042B20C /* AAPhysicalMoon.cpp */; };
+		883C07991CC055740042B20C /* AAPhysicalMoon.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07231CC055740042B20C /* AAPhysicalMoon.h */; };
+		883C079A1CC055740042B20C /* AAPhysicalSun.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07241CC055740042B20C /* AAPhysicalSun.cpp */; };
+		883C079B1CC055740042B20C /* AAPhysicalSun.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07251CC055740042B20C /* AAPhysicalSun.h */; };
+		883C079C1CC055740042B20C /* AAPlanetaryPhenomena.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07261CC055740042B20C /* AAPlanetaryPhenomena.cpp */; };
+		883C079D1CC055740042B20C /* AAPlanetaryPhenomena.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07271CC055740042B20C /* AAPlanetaryPhenomena.h */; };
+		883C079E1CC055740042B20C /* AAPlanetPerihelionAphelion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07281CC055740042B20C /* AAPlanetPerihelionAphelion.cpp */; };
+		883C079F1CC055740042B20C /* AAPlanetPerihelionAphelion.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07291CC055740042B20C /* AAPlanetPerihelionAphelion.h */; };
+		883C07A01CC055740042B20C /* AAPluto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C072A1CC055740042B20C /* AAPluto.cpp */; };
+		883C07A11CC055740042B20C /* AAPluto.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C072B1CC055740042B20C /* AAPluto.h */; };
+		883C07A21CC055740042B20C /* AAPrecession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C072C1CC055740042B20C /* AAPrecession.cpp */; };
+		883C07A31CC055740042B20C /* AAPrecession.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C072D1CC055740042B20C /* AAPrecession.h */; };
+		883C07A41CC055740042B20C /* AARefraction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C072E1CC055740042B20C /* AARefraction.cpp */; };
+		883C07A51CC055740042B20C /* AARefraction.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C072F1CC055740042B20C /* AARefraction.h */; };
+		883C07A61CC055740042B20C /* AARiseTransitSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07301CC055740042B20C /* AARiseTransitSet.cpp */; };
+		883C07A71CC055740042B20C /* AARiseTransitSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07311CC055740042B20C /* AARiseTransitSet.h */; };
+		883C07A81CC055740042B20C /* AASaturn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07321CC055740042B20C /* AASaturn.cpp */; };
+		883C07A91CC055740042B20C /* AASaturn.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07331CC055740042B20C /* AASaturn.h */; };
+		883C07AA1CC055740042B20C /* AASaturnMoons.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07341CC055740042B20C /* AASaturnMoons.cpp */; };
+		883C07AB1CC055740042B20C /* AASaturnMoons.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07351CC055740042B20C /* AASaturnMoons.h */; };
+		883C07AC1CC055740042B20C /* AASaturnRings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07361CC055740042B20C /* AASaturnRings.cpp */; };
+		883C07AD1CC055740042B20C /* AASaturnRings.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07371CC055740042B20C /* AASaturnRings.h */; };
+		883C07AE1CC055740042B20C /* AASidereal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07381CC055740042B20C /* AASidereal.cpp */; };
+		883C07AF1CC055740042B20C /* AASidereal.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07391CC055740042B20C /* AASidereal.h */; };
+		883C07B01CC055740042B20C /* AAStellarMagnitudes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C073A1CC055740042B20C /* AAStellarMagnitudes.cpp */; };
+		883C07B11CC055740042B20C /* AAStellarMagnitudes.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C073B1CC055740042B20C /* AAStellarMagnitudes.h */; };
+		883C07B21CC055740042B20C /* AASun.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C073C1CC055740042B20C /* AASun.cpp */; };
+		883C07B31CC055740042B20C /* AASun.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C073D1CC055740042B20C /* AASun.h */; };
+		883C07B41CC055740042B20C /* AAUranus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C073E1CC055740042B20C /* AAUranus.cpp */; };
+		883C07B51CC055740042B20C /* AAUranus.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C073F1CC055740042B20C /* AAUranus.h */; };
+		883C07B61CC055740042B20C /* AAVenus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883C07401CC055740042B20C /* AAVenus.cpp */; };
+		883C07B71CC055740042B20C /* AAVenus.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07411CC055740042B20C /* AAVenus.h */; };
+		883C07B81CC055740042B20C /* stdafx.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C07421CC055740042B20C /* stdafx.h */; };
+		88AEB1571CC0466800BD63C2 /* Moon.h in Headers */ = {isa = PBXBuildFile; fileRef = 88AEB1551CC0466800BD63C2 /* Moon.h */; };
+		88AEB1581CC0466800BD63C2 /* Sun.h in Headers */ = {isa = PBXBuildFile; fileRef = 88AEB1561CC0466800BD63C2 /* Sun.h */; };
+		88AEB15D1CC046FF00BD63C2 /* Moon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88AEB15A1CC046FF00BD63C2 /* Moon.cpp */; };
+		88AEB15E1CC046FF00BD63C2 /* Sun.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88AEB15B1CC046FF00BD63C2 /* Sun.cpp */; };
+		88AEB1621CC0476D00BD63C2 /* com_mousebird_maply_Affine2d.h in Headers */ = {isa = PBXBuildFile; fileRef = 88AEB15F1CC0476D00BD63C2 /* com_mousebird_maply_Affine2d.h */; };
+		88AEB1631CC0476D00BD63C2 /* com_mousebird_maply_Matrix3d.h in Headers */ = {isa = PBXBuildFile; fileRef = 88AEB1601CC0476D00BD63C2 /* com_mousebird_maply_Matrix3d.h */; };
+		88AEB1641CC0476D00BD63C2 /* com_mousebird_maply_Moon.h in Headers */ = {isa = PBXBuildFile; fileRef = 88AEB1611CC0476D00BD63C2 /* com_mousebird_maply_Moon.h */; };
 		88B9DE821C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 88B9DE7F1C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h */; };
 		88B9DE831C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 88B9DE801C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h */; };
 		88D57FC01CA1EB6400A203F8 /* ElevationChunk.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FBF1CA1EB6400A203F8 /* ElevationChunk.h */; };
@@ -993,6 +1118,135 @@
 		8817DA091C92F3290034E3EA /* ShapeManager_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ShapeManager_jni.cpp; path = ../Android/jni/ShapeManager_jni.cpp; sourceTree = "<group>"; };
 		8817DA0A1C92F3290034E3EA /* ShapeSphere_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ShapeSphere_jni.cpp; path = ../Android/jni/ShapeSphere_jni.cpp; sourceTree = "<group>"; };
 		8817DA0B1C92F3290034E3EA /* QuadTrackerPointReturn_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadTrackerPointReturn_jni.cpp; path = ../Android/jni/QuadTrackerPointReturn_jni.cpp; sourceTree = "<group>"; };
+		883C06CD1CC055740042B20C /* AA+.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AA+.h"; sourceTree = "<group>"; };
+		883C06CE1CC055740042B20C /* AA2DCoordinate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AA2DCoordinate.h; sourceTree = "<group>"; };
+		883C06CF1CC055740042B20C /* AA3DCoordinate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AA3DCoordinate.h; sourceTree = "<group>"; };
+		883C06D01CC055740042B20C /* AAAberration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAAberration.cpp; sourceTree = "<group>"; };
+		883C06D11CC055740042B20C /* AAAberration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAAberration.h; sourceTree = "<group>"; };
+		883C06D21CC055740042B20C /* AAAngularSeparation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAAngularSeparation.cpp; sourceTree = "<group>"; };
+		883C06D31CC055740042B20C /* AAAngularSeparation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAAngularSeparation.h; sourceTree = "<group>"; };
+		883C06D41CC055740042B20C /* AABinaryStar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AABinaryStar.cpp; sourceTree = "<group>"; };
+		883C06D51CC055740042B20C /* AABinaryStar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AABinaryStar.h; sourceTree = "<group>"; };
+		883C06D61CC055740042B20C /* AACoordinateTransformation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AACoordinateTransformation.cpp; sourceTree = "<group>"; };
+		883C06D71CC055740042B20C /* AACoordinateTransformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AACoordinateTransformation.h; sourceTree = "<group>"; };
+		883C06D81CC055740042B20C /* AADate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AADate.cpp; sourceTree = "<group>"; };
+		883C06D91CC055740042B20C /* AADate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AADate.h; sourceTree = "<group>"; };
+		883C06DA1CC055740042B20C /* AADiameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AADiameters.cpp; sourceTree = "<group>"; };
+		883C06DB1CC055740042B20C /* AADiameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AADiameters.h; sourceTree = "<group>"; };
+		883C06DC1CC055740042B20C /* AADynamicalTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AADynamicalTime.cpp; sourceTree = "<group>"; };
+		883C06DD1CC055740042B20C /* AADynamicalTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AADynamicalTime.h; sourceTree = "<group>"; };
+		883C06DE1CC055740042B20C /* AAEarth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAEarth.cpp; sourceTree = "<group>"; };
+		883C06DF1CC055740042B20C /* AAEarth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAEarth.h; sourceTree = "<group>"; };
+		883C06E01CC055740042B20C /* AAEaster.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAEaster.cpp; sourceTree = "<group>"; };
+		883C06E11CC055740042B20C /* AAEaster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAEaster.h; sourceTree = "<group>"; };
+		883C06E21CC055740042B20C /* AAEclipses.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAEclipses.cpp; sourceTree = "<group>"; };
+		883C06E31CC055740042B20C /* AAEclipses.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAEclipses.h; sourceTree = "<group>"; };
+		883C06E41CC055740042B20C /* AAEclipticalElements.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAEclipticalElements.cpp; sourceTree = "<group>"; };
+		883C06E51CC055740042B20C /* AAEclipticalElements.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAEclipticalElements.h; sourceTree = "<group>"; };
+		883C06E61CC055740042B20C /* AAElementsPlanetaryOrbit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAElementsPlanetaryOrbit.cpp; sourceTree = "<group>"; };
+		883C06E71CC055740042B20C /* AAElementsPlanetaryOrbit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAElementsPlanetaryOrbit.h; sourceTree = "<group>"; };
+		883C06E81CC055740042B20C /* AAElliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAElliptical.cpp; sourceTree = "<group>"; };
+		883C06E91CC055740042B20C /* AAElliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAElliptical.h; sourceTree = "<group>"; };
+		883C06EA1CC055740042B20C /* AAEquationOfTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAEquationOfTime.cpp; sourceTree = "<group>"; };
+		883C06EB1CC055740042B20C /* AAEquationOfTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAEquationOfTime.h; sourceTree = "<group>"; };
+		883C06EC1CC055740042B20C /* AAEquinoxesAndSolstices.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAEquinoxesAndSolstices.cpp; sourceTree = "<group>"; };
+		883C06ED1CC055740042B20C /* AAEquinoxesAndSolstices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAEquinoxesAndSolstices.h; sourceTree = "<group>"; };
+		883C06EE1CC055740042B20C /* AAFK5.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAFK5.cpp; sourceTree = "<group>"; };
+		883C06EF1CC055740042B20C /* AAFK5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAFK5.h; sourceTree = "<group>"; };
+		883C06F01CC055740042B20C /* AAGalileanMoons.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAGalileanMoons.cpp; sourceTree = "<group>"; };
+		883C06F11CC055740042B20C /* AAGalileanMoons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAGalileanMoons.h; sourceTree = "<group>"; };
+		883C06F21CC055740042B20C /* AAGlobe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAGlobe.cpp; sourceTree = "<group>"; };
+		883C06F31CC055740042B20C /* AAGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAGlobe.h; sourceTree = "<group>"; };
+		883C06F41CC055740042B20C /* AAIlluminatedFraction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAIlluminatedFraction.cpp; sourceTree = "<group>"; };
+		883C06F51CC055740042B20C /* AAIlluminatedFraction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAIlluminatedFraction.h; sourceTree = "<group>"; };
+		883C06F61CC055740042B20C /* AAInterpolate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAInterpolate.cpp; sourceTree = "<group>"; };
+		883C06F71CC055740042B20C /* AAInterpolate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAInterpolate.h; sourceTree = "<group>"; };
+		883C06F81CC055740042B20C /* AAJewishCalendar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAJewishCalendar.cpp; sourceTree = "<group>"; };
+		883C06F91CC055740042B20C /* AAJewishCalendar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAJewishCalendar.h; sourceTree = "<group>"; };
+		883C06FA1CC055740042B20C /* AAJupiter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAJupiter.cpp; sourceTree = "<group>"; };
+		883C06FB1CC055740042B20C /* AAJupiter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAJupiter.h; sourceTree = "<group>"; };
+		883C06FC1CC055740042B20C /* AAKepler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAKepler.cpp; sourceTree = "<group>"; };
+		883C06FD1CC055740042B20C /* AAKepler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAKepler.h; sourceTree = "<group>"; };
+		883C06FE1CC055740042B20C /* AAMars.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAMars.cpp; sourceTree = "<group>"; };
+		883C06FF1CC055740042B20C /* AAMars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAMars.h; sourceTree = "<group>"; };
+		883C07001CC055740042B20C /* AAMercury.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAMercury.cpp; sourceTree = "<group>"; };
+		883C07011CC055740042B20C /* AAMercury.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAMercury.h; sourceTree = "<group>"; };
+		883C07021CC055740042B20C /* AAMoon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAMoon.cpp; sourceTree = "<group>"; };
+		883C07031CC055740042B20C /* AAMoon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAMoon.h; sourceTree = "<group>"; };
+		883C07041CC055740042B20C /* AAMoonIlluminatedFraction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAMoonIlluminatedFraction.cpp; sourceTree = "<group>"; };
+		883C07051CC055740042B20C /* AAMoonIlluminatedFraction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAMoonIlluminatedFraction.h; sourceTree = "<group>"; };
+		883C07061CC055740042B20C /* AAMoonMaxDeclinations.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAMoonMaxDeclinations.cpp; sourceTree = "<group>"; };
+		883C07071CC055740042B20C /* AAMoonMaxDeclinations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAMoonMaxDeclinations.h; sourceTree = "<group>"; };
+		883C07081CC055740042B20C /* AAMoonNodes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAMoonNodes.cpp; sourceTree = "<group>"; };
+		883C07091CC055740042B20C /* AAMoonNodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAMoonNodes.h; sourceTree = "<group>"; };
+		883C070A1CC055740042B20C /* AAMoonPerigeeApogee.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAMoonPerigeeApogee.cpp; sourceTree = "<group>"; };
+		883C070B1CC055740042B20C /* AAMoonPerigeeApogee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAMoonPerigeeApogee.h; sourceTree = "<group>"; };
+		883C070C1CC055740042B20C /* AAMoonPhases.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAMoonPhases.cpp; sourceTree = "<group>"; };
+		883C070D1CC055740042B20C /* AAMoonPhases.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAMoonPhases.h; sourceTree = "<group>"; };
+		883C070E1CC055740042B20C /* AAMoslemCalendar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAMoslemCalendar.cpp; sourceTree = "<group>"; };
+		883C070F1CC055740042B20C /* AAMoslemCalendar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAMoslemCalendar.h; sourceTree = "<group>"; };
+		883C07101CC055740042B20C /* AANearParabolic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AANearParabolic.cpp; sourceTree = "<group>"; };
+		883C07111CC055740042B20C /* AANearParabolic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AANearParabolic.h; sourceTree = "<group>"; };
+		883C07121CC055740042B20C /* AANeptune.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AANeptune.cpp; sourceTree = "<group>"; };
+		883C07131CC055740042B20C /* AANeptune.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AANeptune.h; sourceTree = "<group>"; };
+		883C07141CC055740042B20C /* AANodes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AANodes.cpp; sourceTree = "<group>"; };
+		883C07151CC055740042B20C /* AANodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AANodes.h; sourceTree = "<group>"; };
+		883C07161CC055740042B20C /* AANutation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AANutation.cpp; sourceTree = "<group>"; };
+		883C07171CC055740042B20C /* AANutation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AANutation.h; sourceTree = "<group>"; };
+		883C07181CC055740042B20C /* AAParabolic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAParabolic.cpp; sourceTree = "<group>"; };
+		883C07191CC055740042B20C /* AAParabolic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAParabolic.h; sourceTree = "<group>"; };
+		883C071A1CC055740042B20C /* AAParallactic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAParallactic.cpp; sourceTree = "<group>"; };
+		883C071B1CC055740042B20C /* AAParallactic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAParallactic.h; sourceTree = "<group>"; };
+		883C071C1CC055740042B20C /* AAParallax.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAParallax.cpp; sourceTree = "<group>"; };
+		883C071D1CC055740042B20C /* AAParallax.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAParallax.h; sourceTree = "<group>"; };
+		883C071E1CC055740042B20C /* AAPhysicalJupiter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAPhysicalJupiter.cpp; sourceTree = "<group>"; };
+		883C071F1CC055740042B20C /* AAPhysicalJupiter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPhysicalJupiter.h; sourceTree = "<group>"; };
+		883C07201CC055740042B20C /* AAPhysicalMars.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAPhysicalMars.cpp; sourceTree = "<group>"; };
+		883C07211CC055740042B20C /* AAPhysicalMars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPhysicalMars.h; sourceTree = "<group>"; };
+		883C07221CC055740042B20C /* AAPhysicalMoon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAPhysicalMoon.cpp; sourceTree = "<group>"; };
+		883C07231CC055740042B20C /* AAPhysicalMoon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPhysicalMoon.h; sourceTree = "<group>"; };
+		883C07241CC055740042B20C /* AAPhysicalSun.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAPhysicalSun.cpp; sourceTree = "<group>"; };
+		883C07251CC055740042B20C /* AAPhysicalSun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPhysicalSun.h; sourceTree = "<group>"; };
+		883C07261CC055740042B20C /* AAPlanetaryPhenomena.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAPlanetaryPhenomena.cpp; sourceTree = "<group>"; };
+		883C07271CC055740042B20C /* AAPlanetaryPhenomena.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPlanetaryPhenomena.h; sourceTree = "<group>"; };
+		883C07281CC055740042B20C /* AAPlanetPerihelionAphelion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAPlanetPerihelionAphelion.cpp; sourceTree = "<group>"; };
+		883C07291CC055740042B20C /* AAPlanetPerihelionAphelion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPlanetPerihelionAphelion.h; sourceTree = "<group>"; };
+		883C072A1CC055740042B20C /* AAPluto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAPluto.cpp; sourceTree = "<group>"; };
+		883C072B1CC055740042B20C /* AAPluto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPluto.h; sourceTree = "<group>"; };
+		883C072C1CC055740042B20C /* AAPrecession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAPrecession.cpp; sourceTree = "<group>"; };
+		883C072D1CC055740042B20C /* AAPrecession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAPrecession.h; sourceTree = "<group>"; };
+		883C072E1CC055740042B20C /* AARefraction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AARefraction.cpp; sourceTree = "<group>"; };
+		883C072F1CC055740042B20C /* AARefraction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AARefraction.h; sourceTree = "<group>"; };
+		883C07301CC055740042B20C /* AARiseTransitSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AARiseTransitSet.cpp; sourceTree = "<group>"; };
+		883C07311CC055740042B20C /* AARiseTransitSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AARiseTransitSet.h; sourceTree = "<group>"; };
+		883C07321CC055740042B20C /* AASaturn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AASaturn.cpp; sourceTree = "<group>"; };
+		883C07331CC055740042B20C /* AASaturn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AASaturn.h; sourceTree = "<group>"; };
+		883C07341CC055740042B20C /* AASaturnMoons.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AASaturnMoons.cpp; sourceTree = "<group>"; };
+		883C07351CC055740042B20C /* AASaturnMoons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AASaturnMoons.h; sourceTree = "<group>"; };
+		883C07361CC055740042B20C /* AASaturnRings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AASaturnRings.cpp; sourceTree = "<group>"; };
+		883C07371CC055740042B20C /* AASaturnRings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AASaturnRings.h; sourceTree = "<group>"; };
+		883C07381CC055740042B20C /* AASidereal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AASidereal.cpp; sourceTree = "<group>"; };
+		883C07391CC055740042B20C /* AASidereal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AASidereal.h; sourceTree = "<group>"; };
+		883C073A1CC055740042B20C /* AAStellarMagnitudes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAStellarMagnitudes.cpp; sourceTree = "<group>"; };
+		883C073B1CC055740042B20C /* AAStellarMagnitudes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAStellarMagnitudes.h; sourceTree = "<group>"; };
+		883C073C1CC055740042B20C /* AASun.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AASun.cpp; sourceTree = "<group>"; };
+		883C073D1CC055740042B20C /* AASun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AASun.h; sourceTree = "<group>"; };
+		883C073E1CC055740042B20C /* AAUranus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAUranus.cpp; sourceTree = "<group>"; };
+		883C073F1CC055740042B20C /* AAUranus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAUranus.h; sourceTree = "<group>"; };
+		883C07401CC055740042B20C /* AAVenus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AAVenus.cpp; sourceTree = "<group>"; };
+		883C07411CC055740042B20C /* AAVenus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AAVenus.h; sourceTree = "<group>"; };
+		883C07421CC055740042B20C /* stdafx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		88AEB1551CC0466800BD63C2 /* Moon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Moon.h; sourceTree = "<group>"; };
+		88AEB1561CC0466800BD63C2 /* Sun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sun.h; sourceTree = "<group>"; };
+		88AEB1591CC046FF00BD63C2 /* MarkerGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MarkerGenerator.cpp; sourceTree = "<group>"; };
+		88AEB15A1CC046FF00BD63C2 /* Moon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Moon.cpp; sourceTree = "<group>"; };
+		88AEB15B1CC046FF00BD63C2 /* Sun.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sun.cpp; sourceTree = "<group>"; };
+		88AEB15F1CC0476D00BD63C2 /* com_mousebird_maply_Affine2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Affine2d.h; path = ../Android/jni/com_mousebird_maply_Affine2d.h; sourceTree = "<group>"; };
+		88AEB1601CC0476D00BD63C2 /* com_mousebird_maply_Matrix3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Matrix3d.h; path = ../Android/jni/com_mousebird_maply_Matrix3d.h; sourceTree = "<group>"; };
+		88AEB1611CC0476D00BD63C2 /* com_mousebird_maply_Moon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Moon.h; path = ../Android/jni/com_mousebird_maply_Moon.h; sourceTree = "<group>"; };
+		88AEB1651CC0479600BD63C2 /* Affine2d_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Affine2d_jni.cpp; path = ../Android/jni/Affine2d_jni.cpp; sourceTree = "<group>"; };
+		88AEB1661CC0479600BD63C2 /* Matrix3d_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Matrix3d_jni.cpp; path = ../Android/jni/Matrix3d_jni.cpp; sourceTree = "<group>"; };
+		88AEB1671CC0479600BD63C2 /* Moon_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Moon_jni.cpp; path = ../Android/jni/Moon_jni.cpp; sourceTree = "<group>"; };
 		88B9DE7F1C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ParticleSystem.h; path = ../Android/jni/com_mousebird_maply_ParticleSystem.h; sourceTree = "<group>"; };
 		88B9DE801C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ParticleSystemManager.h; path = ../Android/jni/com_mousebird_maply_ParticleSystemManager.h; sourceTree = "<group>"; };
 		88D57FBF1CA1EB6400A203F8 /* ElevationChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevationChunk.h; sourceTree = "<group>"; };
@@ -1097,6 +1351,7 @@
 		08FB77AEFE84172EC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				883C06CC1CC055740042B20C /* aaplus */,
 				2B009D141861091E001E2EE8 /* clipper */,
 				2B009CBE186102B1001E2EE8 /* libjson */,
 				2BA2322A17984F1A0063CC84 /* glu */,
@@ -1243,7 +1498,7 @@
 		2B4B19291BA38A940091A743 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				2BCCE21C1CA9EE6500F579BA /* com_mousebird_maply_Sun.h */,
+				88AEB15F1CC0476D00BD63C2 /* com_mousebird_maply_Affine2d.h */,
 				2B4B192B1BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h */,
 				2B4B192C1BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h */,
 				2B923FC51BFBDED200C879DB /* com_mousebird_maply_BaseInfo.h */,
@@ -1272,7 +1527,9 @@
 				2B4B19421BA38AD90091A743 /* com_mousebird_maply_MarkerInfo.h */,
 				2B4B19431BA38AD90091A743 /* com_mousebird_maply_MarkerManager.h */,
 				88D57FC41CA1EBAE00A203F8 /* com_mousebird_maply_Material.h */,
+				88AEB1601CC0476D00BD63C2 /* com_mousebird_maply_Matrix3d.h */,
 				2B4B19441BA38AD90091A743 /* com_mousebird_maply_Matrix4d.h */,
+				88AEB1611CC0476D00BD63C2 /* com_mousebird_maply_Moon.h */,
 				D8641E051C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h */,
 				8817DA011C92F3070034E3EA /* com_mousebird_maply_ParticleSystem_STATE.h */,
 				88B9DE7F1C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h */,
@@ -1306,6 +1563,7 @@
 				2B923FC81BFBDED200C879DB /* com_mousebird_maply_Sticker.h */,
 				2B923FC91BFBDED200C879DB /* com_mousebird_maply_StickerInfo.h */,
 				2B923FD11BFD04AE00C879DB /* com_mousebird_maply_StickerManager.h */,
+				2BCCE21C1CA9EE6500F579BA /* com_mousebird_maply_Sun.h */,
 				2B4B19551BA38AD90091A743 /* com_mousebird_maply_Texture.h */,
 				2B4B19561BA38AD90091A743 /* com_mousebird_maply_VectorInfo.h */,
 				2B4B19571BA38AD90091A743 /* com_mousebird_maply_VectorIterator.h */,
@@ -1328,6 +1586,9 @@
 		2B4B192A1BA38A9A0091A743 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				88AEB1651CC0479600BD63C2 /* Affine2d_jni.cpp */,
+				88AEB1661CC0479600BD63C2 /* Matrix3d_jni.cpp */,
+				88AEB1671CC0479600BD63C2 /* Moon_jni.cpp */,
 				2BCCE21E1CA9EF0600F579BA /* Sun_jni.cpp */,
 				2B4B199B1BA38AFB0091A743 /* AngleAxis_jni.cpp */,
 				2B4B199C1BA38AFB0091A743 /* AttrDictionary_jni.cpp */,
@@ -1689,6 +1950,7 @@
 				2B3567BD18D762BF00EF8DB1 /* MaplyViewState.h */,
 				88D57FC11CA1EB6F00A203F8 /* MarkerGenerator.h */,
 				2B3567BF18D762BF00EF8DB1 /* MarkerManager.h */,
+				88AEB1551CC0466800BD63C2 /* Moon.h */,
 				2B3567C018D762BF00EF8DB1 /* OpenGLES2Program.h */,
 				D8701BA41C538B39009A5471 /* ParticleSystemDrawable.h */,
 				D8701BA31C538B39009A5471 /* ParticleSystemManager.h */,
@@ -1714,6 +1976,7 @@
 				2B3567CD18D762BF00EF8DB1 /* SharedAttributes.h */,
 				2B923FBD1BFAA94100C879DB /* SphericalEarthChunkManager.h */,
 				2B3567CE18D762BF00EF8DB1 /* SphericalMercator.h */,
+				88AEB1561CC0466800BD63C2 /* Sun.h */,
 				2B3567CF18D762BF00EF8DB1 /* Tesselator.h */,
 				2B3567D018D762BF00EF8DB1 /* Texture.h */,
 				2B3567D118D762BF00EF8DB1 /* TextureAtlas.h */,
@@ -1763,12 +2026,15 @@
 				2BDC8A70192C090400DFECF0 /* LabelManager.cpp */,
 				2BDC8A71192C090400DFECF0 /* LabelRenderer.cpp */,
 				2B35672218D762A700EF8DB1 /* LayoutManager.cpp */,
+				8F22E5DA1CA1936B000458C7 /* Lighting.cpp */,
 				2B35672318D762A700EF8DB1 /* LoadedTile.cpp */,
 				2B35672418D762A700EF8DB1 /* MaplyFlatView.cpp */,
 				2B35672518D762A700EF8DB1 /* MaplyScene.cpp */,
 				2B35672618D762A700EF8DB1 /* MaplyView.cpp */,
 				2B35672718D762A700EF8DB1 /* MaplyViewState.cpp */,
+				88AEB1591CC046FF00BD63C2 /* MarkerGenerator.cpp */,
 				2B35672918D762A700EF8DB1 /* MarkerManager.cpp */,
+				88AEB15A1CC046FF00BD63C2 /* Moon.cpp */,
 				2B35672A18D762A700EF8DB1 /* OpenGLES2Program.cpp */,
 				D8701BA81C538B77009A5471 /* ParticleSystemDrawable.cpp */,
 				D8701BA71C538B77009A5471 /* ParticleSystemManager.cpp */,
@@ -1792,6 +2058,7 @@
 				2B35673618D762A700EF8DB1 /* ShapeReader.cpp */,
 				2B923FBB1BFAA91600C879DB /* SphericalEarthChunkManager.cpp */,
 				2B35673718D762A700EF8DB1 /* SphericalMercator.cpp */,
+				88AEB15B1CC046FF00BD63C2 /* Sun.cpp */,
 				2B35673818D762A700EF8DB1 /* Tesselator.cpp */,
 				2B35673918D762A700EF8DB1 /* Texture.cpp */,
 				2B35673A18D762A700EF8DB1 /* TextureAtlas.cpp */,
@@ -1806,7 +2073,6 @@
 				2B35674218D762A700EF8DB1 /* WhirlyVector.cpp */,
 				2BC8496D1C6933120058D10F /* WideVectorDrawable.cpp */,
 				2BC8496E1C6933120058D10F /* WideVectorManager.cpp */,
-				8F22E5DA1CA1936B000458C7 /* Lighting.cpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -1867,6 +2133,132 @@
 			name = "Other Sources";
 			sourceTree = "<group>";
 		};
+		883C06CC1CC055740042B20C /* aaplus */ = {
+			isa = PBXGroup;
+			children = (
+				883C06CD1CC055740042B20C /* AA+.h */,
+				883C06CE1CC055740042B20C /* AA2DCoordinate.h */,
+				883C06CF1CC055740042B20C /* AA3DCoordinate.h */,
+				883C06D01CC055740042B20C /* AAAberration.cpp */,
+				883C06D11CC055740042B20C /* AAAberration.h */,
+				883C06D21CC055740042B20C /* AAAngularSeparation.cpp */,
+				883C06D31CC055740042B20C /* AAAngularSeparation.h */,
+				883C06D41CC055740042B20C /* AABinaryStar.cpp */,
+				883C06D51CC055740042B20C /* AABinaryStar.h */,
+				883C06D61CC055740042B20C /* AACoordinateTransformation.cpp */,
+				883C06D71CC055740042B20C /* AACoordinateTransformation.h */,
+				883C06D81CC055740042B20C /* AADate.cpp */,
+				883C06D91CC055740042B20C /* AADate.h */,
+				883C06DA1CC055740042B20C /* AADiameters.cpp */,
+				883C06DB1CC055740042B20C /* AADiameters.h */,
+				883C06DC1CC055740042B20C /* AADynamicalTime.cpp */,
+				883C06DD1CC055740042B20C /* AADynamicalTime.h */,
+				883C06DE1CC055740042B20C /* AAEarth.cpp */,
+				883C06DF1CC055740042B20C /* AAEarth.h */,
+				883C06E01CC055740042B20C /* AAEaster.cpp */,
+				883C06E11CC055740042B20C /* AAEaster.h */,
+				883C06E21CC055740042B20C /* AAEclipses.cpp */,
+				883C06E31CC055740042B20C /* AAEclipses.h */,
+				883C06E41CC055740042B20C /* AAEclipticalElements.cpp */,
+				883C06E51CC055740042B20C /* AAEclipticalElements.h */,
+				883C06E61CC055740042B20C /* AAElementsPlanetaryOrbit.cpp */,
+				883C06E71CC055740042B20C /* AAElementsPlanetaryOrbit.h */,
+				883C06E81CC055740042B20C /* AAElliptical.cpp */,
+				883C06E91CC055740042B20C /* AAElliptical.h */,
+				883C06EA1CC055740042B20C /* AAEquationOfTime.cpp */,
+				883C06EB1CC055740042B20C /* AAEquationOfTime.h */,
+				883C06EC1CC055740042B20C /* AAEquinoxesAndSolstices.cpp */,
+				883C06ED1CC055740042B20C /* AAEquinoxesAndSolstices.h */,
+				883C06EE1CC055740042B20C /* AAFK5.cpp */,
+				883C06EF1CC055740042B20C /* AAFK5.h */,
+				883C06F01CC055740042B20C /* AAGalileanMoons.cpp */,
+				883C06F11CC055740042B20C /* AAGalileanMoons.h */,
+				883C06F21CC055740042B20C /* AAGlobe.cpp */,
+				883C06F31CC055740042B20C /* AAGlobe.h */,
+				883C06F41CC055740042B20C /* AAIlluminatedFraction.cpp */,
+				883C06F51CC055740042B20C /* AAIlluminatedFraction.h */,
+				883C06F61CC055740042B20C /* AAInterpolate.cpp */,
+				883C06F71CC055740042B20C /* AAInterpolate.h */,
+				883C06F81CC055740042B20C /* AAJewishCalendar.cpp */,
+				883C06F91CC055740042B20C /* AAJewishCalendar.h */,
+				883C06FA1CC055740042B20C /* AAJupiter.cpp */,
+				883C06FB1CC055740042B20C /* AAJupiter.h */,
+				883C06FC1CC055740042B20C /* AAKepler.cpp */,
+				883C06FD1CC055740042B20C /* AAKepler.h */,
+				883C06FE1CC055740042B20C /* AAMars.cpp */,
+				883C06FF1CC055740042B20C /* AAMars.h */,
+				883C07001CC055740042B20C /* AAMercury.cpp */,
+				883C07011CC055740042B20C /* AAMercury.h */,
+				883C07021CC055740042B20C /* AAMoon.cpp */,
+				883C07031CC055740042B20C /* AAMoon.h */,
+				883C07041CC055740042B20C /* AAMoonIlluminatedFraction.cpp */,
+				883C07051CC055740042B20C /* AAMoonIlluminatedFraction.h */,
+				883C07061CC055740042B20C /* AAMoonMaxDeclinations.cpp */,
+				883C07071CC055740042B20C /* AAMoonMaxDeclinations.h */,
+				883C07081CC055740042B20C /* AAMoonNodes.cpp */,
+				883C07091CC055740042B20C /* AAMoonNodes.h */,
+				883C070A1CC055740042B20C /* AAMoonPerigeeApogee.cpp */,
+				883C070B1CC055740042B20C /* AAMoonPerigeeApogee.h */,
+				883C070C1CC055740042B20C /* AAMoonPhases.cpp */,
+				883C070D1CC055740042B20C /* AAMoonPhases.h */,
+				883C070E1CC055740042B20C /* AAMoslemCalendar.cpp */,
+				883C070F1CC055740042B20C /* AAMoslemCalendar.h */,
+				883C07101CC055740042B20C /* AANearParabolic.cpp */,
+				883C07111CC055740042B20C /* AANearParabolic.h */,
+				883C07121CC055740042B20C /* AANeptune.cpp */,
+				883C07131CC055740042B20C /* AANeptune.h */,
+				883C07141CC055740042B20C /* AANodes.cpp */,
+				883C07151CC055740042B20C /* AANodes.h */,
+				883C07161CC055740042B20C /* AANutation.cpp */,
+				883C07171CC055740042B20C /* AANutation.h */,
+				883C07181CC055740042B20C /* AAParabolic.cpp */,
+				883C07191CC055740042B20C /* AAParabolic.h */,
+				883C071A1CC055740042B20C /* AAParallactic.cpp */,
+				883C071B1CC055740042B20C /* AAParallactic.h */,
+				883C071C1CC055740042B20C /* AAParallax.cpp */,
+				883C071D1CC055740042B20C /* AAParallax.h */,
+				883C071E1CC055740042B20C /* AAPhysicalJupiter.cpp */,
+				883C071F1CC055740042B20C /* AAPhysicalJupiter.h */,
+				883C07201CC055740042B20C /* AAPhysicalMars.cpp */,
+				883C07211CC055740042B20C /* AAPhysicalMars.h */,
+				883C07221CC055740042B20C /* AAPhysicalMoon.cpp */,
+				883C07231CC055740042B20C /* AAPhysicalMoon.h */,
+				883C07241CC055740042B20C /* AAPhysicalSun.cpp */,
+				883C07251CC055740042B20C /* AAPhysicalSun.h */,
+				883C07261CC055740042B20C /* AAPlanetaryPhenomena.cpp */,
+				883C07271CC055740042B20C /* AAPlanetaryPhenomena.h */,
+				883C07281CC055740042B20C /* AAPlanetPerihelionAphelion.cpp */,
+				883C07291CC055740042B20C /* AAPlanetPerihelionAphelion.h */,
+				883C072A1CC055740042B20C /* AAPluto.cpp */,
+				883C072B1CC055740042B20C /* AAPluto.h */,
+				883C072C1CC055740042B20C /* AAPrecession.cpp */,
+				883C072D1CC055740042B20C /* AAPrecession.h */,
+				883C072E1CC055740042B20C /* AARefraction.cpp */,
+				883C072F1CC055740042B20C /* AARefraction.h */,
+				883C07301CC055740042B20C /* AARiseTransitSet.cpp */,
+				883C07311CC055740042B20C /* AARiseTransitSet.h */,
+				883C07321CC055740042B20C /* AASaturn.cpp */,
+				883C07331CC055740042B20C /* AASaturn.h */,
+				883C07341CC055740042B20C /* AASaturnMoons.cpp */,
+				883C07351CC055740042B20C /* AASaturnMoons.h */,
+				883C07361CC055740042B20C /* AASaturnRings.cpp */,
+				883C07371CC055740042B20C /* AASaturnRings.h */,
+				883C07381CC055740042B20C /* AASidereal.cpp */,
+				883C07391CC055740042B20C /* AASidereal.h */,
+				883C073A1CC055740042B20C /* AAStellarMagnitudes.cpp */,
+				883C073B1CC055740042B20C /* AAStellarMagnitudes.h */,
+				883C073C1CC055740042B20C /* AASun.cpp */,
+				883C073D1CC055740042B20C /* AASun.h */,
+				883C073E1CC055740042B20C /* AAUranus.cpp */,
+				883C073F1CC055740042B20C /* AAUranus.h */,
+				883C07401CC055740042B20C /* AAVenus.cpp */,
+				883C07411CC055740042B20C /* AAVenus.h */,
+				883C07421CC055740042B20C /* stdafx.h */,
+			);
+			name = aaplus;
+			path = ../local_libs/aaplus;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1878,6 +2270,7 @@
 				2B4B19671BA38AD90091A743 /* com_mousebird_maply_CoordSystemDisplayAdapter.h in Headers */,
 				2B3567DD18D762BF00EF8DB1 /* Cullable.h in Headers */,
 				2B3836A9186244DC00467ABD /* glwrapper.h in Headers */,
+				883C07491CC055740042B20C /* AAAngularSeparation.h in Headers */,
 				2B3A0D41133405700085EF43 /* shapefil.h in Headers */,
 				2B7EF42D16025D8C00D4079F /* emess.h in Headers */,
 				88D57FC81CA1EBAE00A203F8 /* com_mousebird_maply_VertexAttribute.h in Headers */,
@@ -1887,27 +2280,39 @@
 				2B4B199A1BA38AD90091A743 /* SingleLabelAndroid.h in Headers */,
 				2B4B19881BA38AD90091A743 /* com_mousebird_maply_Quaternion.h in Headers */,
 				2B923FCC1BFBDED200C879DB /* com_mousebird_maply_QuadImageTileLayer_ImageUpdater.h in Headers */,
+				883C07531CC055740042B20C /* AADynamicalTime.h in Headers */,
+				883C079F1CC055740042B20C /* AAPlanetPerihelionAphelion.h in Headers */,
 				2B4B196D1BA38AD90091A743 /* com_mousebird_maply_GlobeViewState.h in Headers */,
 				2B35682F18D762BF00EF8DB1 /* ScreenSpaceGenerator.h in Headers */,
+				883C076B1CC055740042B20C /* AAIlluminatedFraction.h in Headers */,
 				2B009D0E186102E4001E2EE8 /* JSONWorker.h in Headers */,
 				2B7EF43016025D8C00D4079F /* geocent.h in Headers */,
 				2B7EF43516025D8C00D4079F /* geodesic.h in Headers */,
 				2B4B19741BA38AD90091A743 /* com_mousebird_maply_MaplyRenderer.h in Headers */,
 				2B35682618D762BF00EF8DB1 /* PerformanceTimer.h in Headers */,
 				2B35683518D762BF00EF8DB1 /* Texture.h in Headers */,
+				88AEB1631CC0476D00BD63C2 /* com_mousebird_maply_Matrix3d.h in Headers */,
 				88D57FE71CA1ED3F00A203F8 /* geod_interface.h in Headers */,
 				2B009D0A186102E4001E2EE8 /* JSONStream.h in Headers */,
+				883C07731CC055740042B20C /* AAKepler.h in Headers */,
 				2B4B19761BA38AD90091A743 /* com_mousebird_maply_MapView_AnimationDelegate.h in Headers */,
 				2B923FCD1BFBDED200C879DB /* com_mousebird_maply_Sticker.h in Headers */,
 				2B35683A18D762BF00EF8DB1 /* VectorObject.h in Headers */,
+				883C07B81CC055740042B20C /* stdafx.h in Headers */,
 				2B4B19931BA38AD90091A743 /* com_mousebird_maply_View.h in Headers */,
+				883C07631CC055740042B20C /* AAEquinoxesAndSolstices.h in Headers */,
+				883C07441CC055740042B20C /* AA2DCoordinate.h in Headers */,
+				883C07591CC055740042B20C /* AAEclipses.h in Headers */,
+				883C07951CC055740042B20C /* AAPhysicalJupiter.h in Headers */,
 				2B4B19851BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer_LoadedTile.h in Headers */,
 				2B4B19681BA38AD90091A743 /* com_mousebird_maply_FakeGeocentricDisplayAdapter.h in Headers */,
 				2B4B19711BA38AD90091A743 /* com_mousebird_maply_LabelInfo.h in Headers */,
 				2B4B197A1BA38AD90091A743 /* com_mousebird_maply_MarkerInfo.h in Headers */,
 				2B3567E618D762BF00EF8DB1 /* GlobeScene.h in Headers */,
+				883C078D1CC055740042B20C /* AANutation.h in Headers */,
 				2B35683918D762BF00EF8DB1 /* VectorManager.h in Headers */,
 				2B3567E118D762BF00EF8DB1 /* DynamicDrawableAtlas.h in Headers */,
+				883C07791CC055740042B20C /* AAMoon.h in Headers */,
 				2BB7660A1C6FFF9B00F01F2A /* com_mousebird_maply_QuadImageOfflineLayer_RenderedImageDelegate.h in Headers */,
 				2B7EF43D16025D8C00D4079F /* org_proj4_Projections.h in Headers */,
 				2B4B197E1BA38AD90091A743 /* com_mousebird_maply_Point2d.h in Headers */,
@@ -1915,22 +2320,35 @@
 				2B7EF4C316025D8C00D4079F /* proj_api.h in Headers */,
 				2B7EF4C816025D8C00D4079F /* projects.h in Headers */,
 				2B3567E218D762BF00EF8DB1 /* DynamicTextureAtlas.h in Headers */,
+				883C07931CC055740042B20C /* AAParallax.h in Headers */,
 				2B009CED186102E4001E2EE8 /* mempool.h in Headers */,
+				883C07771CC055740042B20C /* AAMercury.h in Headers */,
+				883C07811CC055740042B20C /* AAMoonPerigeeApogee.h in Headers */,
 				2B35683818D762BF00EF8DB1 /* VectorData.h in Headers */,
 				2B923FCA1BFBDED200C879DB /* com_mousebird_maply_BaseInfo.h in Headers */,
 				8817DA031C92F3070034E3EA /* com_mousebird_maply_ShapeInfo.h in Headers */,
 				2B4B19791BA38AD90091A743 /* com_mousebird_maply_MapViewState.h in Headers */,
+				883C07651CC055740042B20C /* AAFK5.h in Headers */,
 				2B009CF8186102E4001E2EE8 /* Strings_Defs.h in Headers */,
 				2BB766091C6FFF9B00F01F2A /* com_mousebird_maply_Proj4CoordSystem.h in Headers */,
 				2B4B19871BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer.h in Headers */,
 				88D653ED1C92CF7900B39955 /* ShapeDrawableBuilder.h in Headers */,
+				883C075B1CC055740042B20C /* AAEclipticalElements.h in Headers */,
 				2B4B196B1BA38AD90091A743 /* com_mousebird_maply_GlobeView_AnimationDelegate.h in Headers */,
+				883C07471CC055740042B20C /* AAAberration.h in Headers */,
 				2BA2325617984F510063CC84 /* glues.h in Headers */,
+				883C076F1CC055740042B20C /* AAJewishCalendar.h in Headers */,
 				2B4B19751BA38AD90091A743 /* com_mousebird_maply_MapScene.h in Headers */,
+				88AEB1571CC0466800BD63C2 /* Moon.h in Headers */,
+				883C07A91CC055740042B20C /* AASaturn.h in Headers */,
 				2B4B197C1BA38AD90091A743 /* com_mousebird_maply_Matrix4d.h in Headers */,
 				2BB766021C6FE65B00F01F2A /* Proj4CoordSystem.h in Headers */,
 				2B923FD21BFD04AE00C879DB /* com_mousebird_maply_StickerManager.h in Headers */,
+				883C07B31CC055740042B20C /* AASun.h in Headers */,
+				883C077D1CC055740042B20C /* AAMoonMaxDeclinations.h in Headers */,
+				883C07A31CC055740042B20C /* AAPrecession.h in Headers */,
 				2B35683E18D762BF00EF8DB1 /* WhirlyTypes.h in Headers */,
+				883C075F1CC055740042B20C /* AAElliptical.h in Headers */,
 				2B4B19691BA38AD90091A743 /* com_mousebird_maply_GeoCoordSystem.h in Headers */,
 				2B009CF2186102E4001E2EE8 /* JSONAllocator.h in Headers */,
 				2BDC89CB191C2ADE00DFECF0 /* SceneRendererES3.h in Headers */,
@@ -1938,6 +2356,7 @@
 				2BDC8A6E192C08F600DFECF0 /* LabelManager.h in Headers */,
 				2B009D05186102E4001E2EE8 /* JSONPreparse.h in Headers */,
 				2B3567ED18D762BF00EF8DB1 /* LoadedTile.h in Headers */,
+				883C075D1CC055740042B20C /* AAElementsPlanetaryOrbit.h in Headers */,
 				2B4B196F1BA38AD90091A743 /* com_mousebird_maply_InternalLabel.h in Headers */,
 				2BA2325817984F510063CC84 /* glues_error.h in Headers */,
 				88B9DE821C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h in Headers */,
@@ -1951,6 +2370,9 @@
 				2B35682218D762BF00EF8DB1 /* MaplyViewState.h in Headers */,
 				2B35682018D762BF00EF8DB1 /* MaplyScene.h in Headers */,
 				2B4B19951BA38AD90091A743 /* FontTextureManagerAndroid.h in Headers */,
+				883C07611CC055740042B20C /* AAEquationOfTime.h in Headers */,
+				883C07911CC055740042B20C /* AAParallactic.h in Headers */,
+				88AEB1581CC0466800BD63C2 /* Sun.h in Headers */,
 				2B3567DF18D762BF00EF8DB1 /* Dictionary.h in Headers */,
 				2B4B19941BA38AD90091A743 /* com_mousebird_maply_ViewState.h in Headers */,
 				2B4B19661BA38AD90091A743 /* com_mousebird_maply_CoordSystem.h in Headers */,
@@ -1964,6 +2386,7 @@
 				2B4B197B1BA38AD90091A743 /* com_mousebird_maply_MarkerManager.h in Headers */,
 				2B14BFC51B83F3F500CE29A4 /* BasicDrawable.h in Headers */,
 				2B923FCB1BFBDED200C879DB /* com_mousebird_maply_QuadImageTileLayer_FrameStatus.h in Headers */,
+				883C07891CC055740042B20C /* AANeptune.h in Headers */,
 				2BC8496B1C6932FD0058D10F /* WideVectorDrawable.h in Headers */,
 				2B76C5DB1C10C4770081F395 /* TileQuadOfflineRenderer.h in Headers */,
 				2B4B198C1BA38AD90091A743 /* com_mousebird_maply_SphericalMercatorCoordSystem.h in Headers */,
@@ -1973,6 +2396,7 @@
 				2B3567E418D762BF00EF8DB1 /* Generator.h in Headers */,
 				2B009D02186102E4001E2EE8 /* JSONNode.h in Headers */,
 				2BA2326017984F510063CC84 /* glues_registry.h in Headers */,
+				883C07A51CC055740042B20C /* AARefraction.h in Headers */,
 				2B14BFD51B852C5100CE29A4 /* BasicDrawableInstance.h in Headers */,
 				8F22E5D91CA19359000458C7 /* Lighting.h in Headers */,
 				2B35683318D762BF00EF8DB1 /* SphericalMercator.h in Headers */,
@@ -1989,11 +2413,17 @@
 				88D57FC01CA1EB6400A203F8 /* ElevationChunk.h in Headers */,
 				2B009D06186102E4001E2EE8 /* JSONSharedString.h in Headers */,
 				2BA2326417984F510063CC84 /* dict.h in Headers */,
+				883C077F1CC055740042B20C /* AAMoonNodes.h in Headers */,
+				883C07831CC055740042B20C /* AAMoonPhases.h in Headers */,
+				883C07A71CC055740042B20C /* AARiseTransitSet.h in Headers */,
 				2B4B19981BA38AD90091A743 /* Maply_jni.h in Headers */,
 				D8701BA61C538B39009A5471 /* ParticleSystemDrawable.h in Headers */,
 				8817DA021C92F3070034E3EA /* com_mousebird_maply_ShapeSphere.h in Headers */,
 				2B4B19631BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h in Headers */,
 				2BC8496C1C6932FD0058D10F /* WideVectorManager.h in Headers */,
+				883C07551CC055740042B20C /* AAEarth.h in Headers */,
+				883C07851CC055740042B20C /* AAMoslemCalendar.h in Headers */,
+				883C074F1CC055740042B20C /* AADate.h in Headers */,
 				2B4B198F1BA38AD90091A743 /* com_mousebird_maply_VectorIterator.h in Headers */,
 				2B35682518D762BF00EF8DB1 /* OpenGLES2Program.h in Headers */,
 				2B4B19651BA38AD90091A743 /* com_mousebird_maply_ChangeSet.h in Headers */,
@@ -2003,6 +2433,7 @@
 				8817DA061C92F3070034E3EA /* com_mousebird_maply_ParticleSystem_STATE.h in Headers */,
 				2B3567E818D762BF00EF8DB1 /* GlobeViewState.h in Headers */,
 				2B4B19831BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_TileSource.h in Headers */,
+				883C07B71CC055740042B20C /* AAVenus.h in Headers */,
 				2B35682B18D762BF00EF8DB1 /* Scene.h in Headers */,
 				2BA2326617984F510063CC84 /* geom.h in Headers */,
 				2BA2326817984F510063CC84 /* memalloc.h in Headers */,
@@ -2010,9 +2441,14 @@
 				2B3567EC18D762BF00EF8DB1 /* LayoutManager.h in Headers */,
 				2B4B19721BA38AD90091A743 /* com_mousebird_maply_LabelManager.h in Headers */,
 				2BA2326A17984F510063CC84 /* mesh.h in Headers */,
+				883C07AB1CC055740042B20C /* AASaturnMoons.h in Headers */,
+				883C07A11CC055740042B20C /* AAPluto.h in Headers */,
 				2B35683718D762BF00EF8DB1 /* TileQuadLoader.h in Headers */,
 				88D653EB1C92CF7900B39955 /* ShapeManager.h in Headers */,
+				883C079D1CC055740042B20C /* AAPlanetaryPhenomena.h in Headers */,
+				883C07431CC055740042B20C /* AA+.h in Headers */,
 				2B4B19731BA38AD90091A743 /* com_mousebird_maply_LayoutManager.h in Headers */,
+				883C07B11CC055740042B20C /* AAStellarMagnitudes.h in Headers */,
 				2B009D08186102E4001E2EE8 /* JSONStats.h in Headers */,
 				2B4B19961BA38AD90091A743 /* ImageWrapper.h in Headers */,
 				2B35682A18D762BF00EF8DB1 /* RawData.h in Headers */,
@@ -2022,14 +2458,19 @@
 				2B4B19971BA38AD90091A743 /* LabelInfoAndroid.h in Headers */,
 				2B4B197D1BA38AD90091A743 /* com_mousebird_maply_PlateCarreeCoordSystem.h in Headers */,
 				2B4B19891BA38AD90091A743 /* com_mousebird_maply_Scene.h in Headers */,
+				883C07751CC055740042B20C /* AAMars.h in Headers */,
+				883C078F1CC055740042B20C /* AAParabolic.h in Headers */,
 				2B5F18A81A7B05BF004A8723 /* ScreenSpaceDrawable.h in Headers */,
 				2B009D11186102E4001E2EE8 /* NumberToString.h in Headers */,
 				2B4B19801BA38AD90091A743 /* com_mousebird_maply_Point4d.h in Headers */,
 				2B009D12186102E4001E2EE8 /* JSONOptions.h in Headers */,
+				883C07711CC055740042B20C /* AAJupiter.h in Headers */,
+				883C074D1CC055740042B20C /* AACoordinateTransformation.h in Headers */,
 				2B009CF7186102E4001E2EE8 /* GNU_C.h in Headers */,
 				2B4B19781BA38AD90091A743 /* com_mousebird_maply_MapView.h in Headers */,
 				2B35683418D762BF00EF8DB1 /* Tesselator.h in Headers */,
 				2B009CEF186102E4001E2EE8 /* internalJSONNode.h in Headers */,
+				88AEB1621CC0476D00BD63C2 /* com_mousebird_maply_Affine2d.h in Headers */,
 				2B009CFA186102E4001E2EE8 /* Visual_C.h in Headers */,
 				2B35681F18D762BF00EF8DB1 /* MaplyFlatView.h in Headers */,
 				2B35682918D762BF00EF8DB1 /* Quadtree.h in Headers */,
@@ -2041,17 +2482,21 @@
 				2B009CF9186102E4001E2EE8 /* Unknown_C.h in Headers */,
 				2BA2326F17984F510063CC84 /* priorityq-sort.h in Headers */,
 				2BA2327117984F510063CC84 /* priorityq.h in Headers */,
+				883C07971CC055740042B20C /* AAPhysicalMars.h in Headers */,
 				2B009C98185FA2CD001E2EE8 /* WhirlyGlobe.h in Headers */,
+				883C07691CC055740042B20C /* AAGlobe.h in Headers */,
 				2B4B19861BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer_PagingInterface.h in Headers */,
 				2B923FCE1BFBDED200C879DB /* com_mousebird_maply_StickerInfo.h in Headers */,
 				2B923FBE1BFAA94100C879DB /* SphericalEarthChunkManager.h in Headers */,
 				D8701BA51C538B39009A5471 /* ParticleSystemManager.h in Headers */,
 				2B4B19901BA38AD90091A743 /* com_mousebird_maply_VectorManager.h in Headers */,
 				2B009CF0186102E4001E2EE8 /* JSON_Base64.h in Headers */,
+				88AEB1641CC0476D00BD63C2 /* com_mousebird_maply_Moon.h in Headers */,
 				2B35683218D762BF00EF8DB1 /* SharedAttributes.h in Headers */,
 				2BB766061C6FFF7E00F01F2A /* com_mousebird_maply_GeneralDisplayAdapter.h in Headers */,
 				2B3567DE18D762BF00EF8DB1 /* DefaultShaderPrograms.h in Headers */,
 				D8641E091C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h in Headers */,
+				883C07B51CC055740042B20C /* AAUranus.h in Headers */,
 				2BA2327317984F510063CC84 /* render.h in Headers */,
 				88D57FC21CA1EB6F00A203F8 /* MarkerGenerator.h in Headers */,
 				2B009CEC186102E4001E2EE8 /* libbase64++.h in Headers */,
@@ -2061,20 +2506,30 @@
 				2B35682818D762BF00EF8DB1 /* QuadDisplayController.h in Headers */,
 				2B009D13186102E4001E2EE8 /* libjson.h in Headers */,
 				2B3567DC18D762BF00EF8DB1 /* CoordSystem.h in Headers */,
+				883C07451CC055740042B20C /* AA3DCoordinate.h in Headers */,
 				2BA2327517984F510063CC84 /* sweep.h in Headers */,
 				2BA2327717984F510063CC84 /* tess.h in Headers */,
+				883C079B1CC055740042B20C /* AAPhysicalSun.h in Headers */,
 				2BA2327917984F510063CC84 /* tessmono.h in Headers */,
 				2B3567EA18D762BF00EF8DB1 /* GridClipper.h in Headers */,
+				883C07511CC055740042B20C /* AADiameters.h in Headers */,
 				2B4B19701BA38AD90091A743 /* com_mousebird_maply_InternalMarker.h in Headers */,
 				2B009CF4186102E4001E2EE8 /* JSONChildren.h in Headers */,
+				883C07AD1CC055740042B20C /* AASaturnRings.h in Headers */,
 				2B35683118D762BF00EF8DB1 /* ShapeReader.h in Headers */,
 				2B14BFCD1B83FD4500CE29A4 /* BaseInfo.h in Headers */,
 				2B4B196C1BA38AD90091A743 /* com_mousebird_maply_GlobeView.h in Headers */,
 				2B35682E18D762BF00EF8DB1 /* ScreenImportance.h in Headers */,
+				883C07871CC055740042B20C /* AANearParabolic.h in Headers */,
+				883C078B1CC055740042B20C /* AANodes.h in Headers */,
 				2B009CFB186102E4001E2EE8 /* JSONDefs.h in Headers */,
 				2B4B19811BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_FrameLoadStatus.h in Headers */,
+				883C07571CC055740042B20C /* AAEaster.h in Headers */,
+				883C07671CC055740042B20C /* AAGalileanMoons.h in Headers */,
+				883C076D1CC055740042B20C /* AAInterpolate.h in Headers */,
 				2BDC8A6F192C08F600DFECF0 /* LabelRenderer.h in Headers */,
 				2BA2327B179859F30063CC84 /* SDL_opengles.h in Headers */,
+				883C074B1CC055740042B20C /* AABinaryStar.h in Headers */,
 				2B3567EB18D762BF00EF8DB1 /* Identifiable.h in Headers */,
 				2B009D0C186102E4001E2EE8 /* JSONValidator.h in Headers */,
 				2BDC8A60192A9E1700DFECF0 /* FontTextureManager.h in Headers */,
@@ -2082,7 +2537,10 @@
 				2B009CFF186102E4001E2EE8 /* JSONMemory.h in Headers */,
 				8817DA051C92F3070034E3EA /* com_mousebird_maply_Shape.h in Headers */,
 				2B3567DB18D762BF00EF8DB1 /* BigDrawable.h in Headers */,
+				883C077B1CC055740042B20C /* AAMoonIlluminatedFraction.h in Headers */,
+				883C07991CC055740042B20C /* AAPhysicalMoon.h in Headers */,
 				2B4B196E1BA38AD90091A743 /* com_mousebird_maply_Identifiable.h in Headers */,
+				883C07AF1CC055740042B20C /* AASidereal.h in Headers */,
 				D8A4BE2C1C6F61D0009F6CFB /* com_mousebird_maply_QuadTracker.h in Headers */,
 				2B35683D18D762BF00EF8DB1 /* WhirlyKitView.h in Headers */,
 			);
@@ -2149,14 +2607,18 @@
 				2B35676818D762A700EF8DB1 /* ShapeReader.cpp in Sources */,
 				2BDC4AC4133404C600E25283 /* shpopen.c in Sources */,
 				2B7EF42516025D8C00D4079F /* aasincos.c in Sources */,
+				883C07521CC055740042B20C /* AADynamicalTime.cpp in Sources */,
 				2B7EF42616025D8C00D4079F /* adjlon.c in Sources */,
 				2B7EF42716025D8C00D4079F /* bch2bps.c in Sources */,
 				2B009D0B186102E4001E2EE8 /* JSONValidator.cpp in Sources */,
+				883C075C1CC055740042B20C /* AAElementsPlanetaryOrbit.cpp in Sources */,
 				2B7EF42816025D8C00D4079F /* bchgen.c in Sources */,
 				2B35676C18D762A700EF8DB1 /* TextureAtlas.cpp in Sources */,
 				2B7EF42916025D8C00D4079F /* biveval.c in Sources */,
+				883C07AE1CC055740042B20C /* AASidereal.cpp in Sources */,
 				2B35676118D762A700EF8DB1 /* RawData.cpp in Sources */,
 				2B35676418D762A700EF8DB1 /* SceneRendererES2.cpp in Sources */,
+				883C074C1CC055740042B20C /* AACoordinateTransformation.cpp in Sources */,
 				2B7EF42B16025D8C00D4079F /* dmstor.c in Sources */,
 				2B7EF42C16025D8C00D4079F /* emess.c in Sources */,
 				2B7EF42F16025D8C00D4079F /* geocent.c in Sources */,
@@ -2164,6 +2626,7 @@
 				2BB766041C6FE6DC00F01F2A /* Proj4CoordSystem.cpp in Sources */,
 				2B14BFD71B852C5E00CE29A4 /* BasicDrawableInstance.cpp in Sources */,
 				2B7EF43316025D8C00D4079F /* geod_set.c in Sources */,
+				883C07841CC055740042B20C /* AAMoslemCalendar.cpp in Sources */,
 				2B7EF43716025D8C00D4079F /* mk_cheby.c in Sources */,
 				2B7EF43916025D8C00D4079F /* nad_cvt.c in Sources */,
 				2BC849701C6933120058D10F /* WideVectorManager.cpp in Sources */,
@@ -2172,6 +2635,8 @@
 				2B35674918D762A700EF8DB1 /* DynamicDrawableAtlas.cpp in Sources */,
 				2B7EF43F16025D8C00D4079F /* PJ_aea.c in Sources */,
 				2B7EF44016025D8C00D4079F /* PJ_aeqd.c in Sources */,
+				883C075A1CC055740042B20C /* AAEclipticalElements.cpp in Sources */,
+				883C07A21CC055740042B20C /* AAPrecession.cpp in Sources */,
 				2B7EF44116025D8C00D4079F /* PJ_airy.c in Sources */,
 				88D653F11C92CF9200B39955 /* ShapeManager.cpp in Sources */,
 				2B7EF44216025D8C00D4079F /* PJ_aitoff.c in Sources */,
@@ -2179,6 +2644,8 @@
 				2B7EF44416025D8C00D4079F /* pj_apply_vgridshift.c in Sources */,
 				2B7EF44516025D8C00D4079F /* PJ_august.c in Sources */,
 				2B35675818D762A700EF8DB1 /* MaplyView.cpp in Sources */,
+				883C076A1CC055740042B20C /* AAIlluminatedFraction.cpp in Sources */,
+				883C076C1CC055740042B20C /* AAInterpolate.cpp in Sources */,
 				2B7EF44616025D8C00D4079F /* pj_auth.c in Sources */,
 				2B7EF44716025D8C00D4079F /* PJ_bacon.c in Sources */,
 				2B009D171861093A001E2EE8 /* clipper.cpp in Sources */,
@@ -2190,23 +2657,32 @@
 				2B7EF44B16025D8C00D4079F /* PJ_cass.c in Sources */,
 				88D57FF61CA1ED3F00A203F8 /* pj_gridcatalog.c in Sources */,
 				2B7EF44C16025D8C00D4079F /* PJ_cc.c in Sources */,
+				883C07B21CC055740042B20C /* AASun.cpp in Sources */,
 				2B35677318D762A700EF8DB1 /* WhirlyKitView.cpp in Sources */,
 				2B7EF44D16025D8C00D4079F /* PJ_cea.c in Sources */,
 				2B7EF44E16025D8C00D4079F /* PJ_chamb.c in Sources */,
 				2B7EF44F16025D8C00D4079F /* PJ_collg.c in Sources */,
 				2B7EF45016025D8C00D4079F /* PJ_crast.c in Sources */,
 				2B7EF45116025D8C00D4079F /* pj_ctx.c in Sources */,
+				883C07661CC055740042B20C /* AAGalileanMoons.cpp in Sources */,
 				2B35676F18D762A700EF8DB1 /* VectorManager.cpp in Sources */,
 				2B35677418D762A700EF8DB1 /* WhirlyVector.cpp in Sources */,
+				883C07761CC055740042B20C /* AAMercury.cpp in Sources */,
 				2B7EF45216025D8C00D4079F /* pj_datum_set.c in Sources */,
+				883C07AC1CC055740042B20C /* AASaturnRings.cpp in Sources */,
+				88AEB15E1CC046FF00BD63C2 /* Sun.cpp in Sources */,
 				2B7EF45316025D8C00D4079F /* pj_datums.c in Sources */,
 				2B7EF45416025D8C00D4079F /* PJ_denoy.c in Sources */,
+				88AEB15D1CC046FF00BD63C2 /* Moon.cpp in Sources */,
 				2B7EF45516025D8C00D4079F /* pj_deriv.c in Sources */,
+				883C07901CC055740042B20C /* AAParallactic.cpp in Sources */,
 				2B7EF45616025D8C00D4079F /* PJ_eck1.c in Sources */,
+				883C07721CC055740042B20C /* AAKepler.cpp in Sources */,
 				2B35676918D762A700EF8DB1 /* SphericalMercator.cpp in Sources */,
 				2B7EF45716025D8C00D4079F /* PJ_eck2.c in Sources */,
 				2B35677218D762A700EF8DB1 /* WhirlyGeometry.cpp in Sources */,
 				2B009CF1186102E4001E2EE8 /* JSONAllocator.cpp in Sources */,
+				883C079E1CC055740042B20C /* AAPlanetPerihelionAphelion.cpp in Sources */,
 				2B7EF45816025D8C00D4079F /* PJ_eck3.c in Sources */,
 				2B7EF45916025D8C00D4079F /* PJ_eck4.c in Sources */,
 				2B7EF45A16025D8C00D4079F /* PJ_eck5.c in Sources */,
@@ -2216,26 +2692,36 @@
 				2B35675F18D762A700EF8DB1 /* QuadDisplayController.cpp in Sources */,
 				2B35675918D762A700EF8DB1 /* MaplyViewState.cpp in Sources */,
 				2B35674618D762A700EF8DB1 /* DefaultShaderPrograms.cpp in Sources */,
+				883C077A1CC055740042B20C /* AAMoonIlluminatedFraction.cpp in Sources */,
+				883C07581CC055740042B20C /* AAEclipses.cpp in Sources */,
 				2B7EF45C16025D8C00D4079F /* pj_ellps.c in Sources */,
 				2B009D0F186102E4001E2EE8 /* JSONWriter.cpp in Sources */,
 				2B7EF45D16025D8C00D4079F /* PJ_eqc.c in Sources */,
 				2B7EF45E16025D8C00D4079F /* PJ_eqdc.c in Sources */,
+				883C079C1CC055740042B20C /* AAPlanetaryPhenomena.cpp in Sources */,
 				2B7EF45F16025D8C00D4079F /* pj_errno.c in Sources */,
 				2B7EF46016025D8C00D4079F /* pj_factors.c in Sources */,
 				88D57FF51CA1ED3F00A203F8 /* pj_gc_reader.c in Sources */,
 				2B009CFE186102E4001E2EE8 /* JSONMemory.cpp in Sources */,
 				2B7EF46116025D8C00D4079F /* PJ_fahey.c in Sources */,
 				2B7EF46216025D8C00D4079F /* PJ_fouc_s.c in Sources */,
+				883C078C1CC055740042B20C /* AANutation.cpp in Sources */,
 				2B7EF46316025D8C00D4079F /* pj_fwd.c in Sources */,
+				883C07541CC055740042B20C /* AAEarth.cpp in Sources */,
+				883C07B41CC055740042B20C /* AAUranus.cpp in Sources */,
 				D8701BAA1C538B77009A5471 /* ParticleSystemDrawable.cpp in Sources */,
 				2B7EF46416025D8C00D4079F /* PJ_gall.c in Sources */,
 				2B35674318D762A700EF8DB1 /* BigDrawable.cpp in Sources */,
 				2B7EF46516025D8C00D4079F /* pj_gauss.c in Sources */,
 				2B35676718D762A700EF8DB1 /* SelectionManager.cpp in Sources */,
 				2B35674F18D762A700EF8DB1 /* GlobeView.cpp in Sources */,
+				883C07481CC055740042B20C /* AAAngularSeparation.cpp in Sources */,
 				2B7EF46616025D8C00D4079F /* pj_geocent.c in Sources */,
+				883C07641CC055740042B20C /* AAFK5.cpp in Sources */,
 				2B35675C18D762A700EF8DB1 /* OpenGLES2Program.cpp in Sources */,
 				2B7EF46716025D8C00D4079F /* PJ_geos.c in Sources */,
+				883C078E1CC055740042B20C /* AAParabolic.cpp in Sources */,
+				883C07981CC055740042B20C /* AAPhysicalMoon.cpp in Sources */,
 				2B7EF46816025D8C00D4079F /* PJ_gins8.c in Sources */,
 				88D57FF31CA1ED3F00A203F8 /* pj_fileapi.c in Sources */,
 				2B35674B18D762A700EF8DB1 /* FlatMath.cpp in Sources */,
@@ -2243,6 +2729,7 @@
 				2B35675E18D762A700EF8DB1 /* Platform.mm in Sources */,
 				2B7EF46A16025D8C00D4079F /* PJ_gnom.c in Sources */,
 				2B7EF46B16025D8C00D4079F /* PJ_goode.c in Sources */,
+				883C07501CC055740042B20C /* AADiameters.cpp in Sources */,
 				2B7EF46C16025D8C00D4079F /* pj_gridinfo.c in Sources */,
 				2BDC8A72192C090400DFECF0 /* LabelManager.cpp in Sources */,
 				2B7EF46D16025D8C00D4079F /* pj_gridlist.c in Sources */,
@@ -2256,9 +2743,11 @@
 				2B7EF47116025D8C00D4079F /* PJ_healpix.c in Sources */,
 				2B35675B18D762A700EF8DB1 /* MarkerManager.cpp in Sources */,
 				2B7EF47216025D8C00D4079F /* PJ_igh.c in Sources */,
+				883C07621CC055740042B20C /* AAEquinoxesAndSolstices.cpp in Sources */,
 				2B7EF47316025D8C00D4079F /* PJ_imw_p.c in Sources */,
 				2B35674C18D762A700EF8DB1 /* Generator.cpp in Sources */,
 				D8701BA91C538B77009A5471 /* ParticleSystemManager.cpp in Sources */,
+				883C077E1CC055740042B20C /* AAMoonNodes.cpp in Sources */,
 				2BDC8A62192A9E3800DFECF0 /* FontTextureManager.cpp in Sources */,
 				2B7EF47416025D8C00D4079F /* pj_init.c in Sources */,
 				2B7EF47516025D8C00D4079F /* pj_initcache.c in Sources */,
@@ -2278,6 +2767,7 @@
 				2B7EF48316025D8C00D4079F /* pj_log.c in Sources */,
 				2B7EF48416025D8C00D4079F /* PJ_loxim.c in Sources */,
 				2B35674718D762A700EF8DB1 /* Dictionary.cpp in Sources */,
+				883C07921CC055740042B20C /* AAParallax.cpp in Sources */,
 				2B7EF48516025D8C00D4079F /* PJ_lsat.c in Sources */,
 				2B7EF48616025D8C00D4079F /* pj_malloc.c in Sources */,
 				2B35675118D762A700EF8DB1 /* GLUtils.cpp in Sources */,
@@ -2287,19 +2777,26 @@
 				2B3836AB18625C9200467ABD /* glwrapper.cpp in Sources */,
 				2B7EF48A16025D8C00D4079F /* PJ_merc.c in Sources */,
 				2B35675318D762A700EF8DB1 /* Identifiable.cpp in Sources */,
+				883C07461CC055740042B20C /* AAAberration.cpp in Sources */,
 				2B7EF48B16025D8C00D4079F /* PJ_mill.c in Sources */,
+				883C07881CC055740042B20C /* AANeptune.cpp in Sources */,
+				883C07561CC055740042B20C /* AAEaster.cpp in Sources */,
 				2B7EF48C16025D8C00D4079F /* pj_mlfn.c in Sources */,
+				883C07A81CC055740042B20C /* AASaturn.cpp in Sources */,
 				2B7EF48D16025D8C00D4079F /* PJ_mod_ster.c in Sources */,
 				2B7EF48E16025D8C00D4079F /* PJ_moll.c in Sources */,
 				2B7EF48F16025D8C00D4079F /* pj_msfn.c in Sources */,
 				2B35675018D762A700EF8DB1 /* GlobeViewState.cpp in Sources */,
 				2B7EF49016025D8C00D4079F /* pj_mutex.c in Sources */,
 				2B7EF49116025D8C00D4079F /* PJ_natearth.c in Sources */,
+				883C07861CC055740042B20C /* AANearParabolic.cpp in Sources */,
 				2B7EF49216025D8C00D4079F /* PJ_nell_h.c in Sources */,
 				2B7EF49316025D8C00D4079F /* PJ_nell.c in Sources */,
 				2B35676518D762A700EF8DB1 /* ScreenImportance.cpp in Sources */,
 				2B7EF49416025D8C00D4079F /* PJ_nocol.c in Sources */,
+				883C07B01CC055740042B20C /* AAStellarMagnitudes.cpp in Sources */,
 				2B14BFC71B83F3FF00CE29A4 /* BasicDrawable.cpp in Sources */,
+				883C07941CC055740042B20C /* AAPhysicalJupiter.cpp in Sources */,
 				2B7EF49516025D8C00D4079F /* PJ_nsper.c in Sources */,
 				2B7EF49616025D8C00D4079F /* PJ_nzmg.c in Sources */,
 				2B7EF49716025D8C00D4079F /* PJ_ob_tran.c in Sources */,
@@ -2313,17 +2810,21 @@
 				2B009D09186102E4001E2EE8 /* JSONStream.cpp in Sources */,
 				2B35674518D762A700EF8DB1 /* Cullable.cpp in Sources */,
 				2B7EF49E16025D8C00D4079F /* pj_phi2.c in Sources */,
+				883C07601CC055740042B20C /* AAEquationOfTime.cpp in Sources */,
 				2B7EF49F16025D8C00D4079F /* PJ_poly.c in Sources */,
 				88D57FF41CA1ED3F00A203F8 /* pj_fwd3d.c in Sources */,
 				2B7EF4A016025D8C00D4079F /* pj_pr_list.c in Sources */,
 				2B35675418D762A700EF8DB1 /* LayoutManager.cpp in Sources */,
+				883C07681CC055740042B20C /* AAGlobe.cpp in Sources */,
 				2B35676218D762A700EF8DB1 /* Scene.cpp in Sources */,
+				883C07AA1CC055740042B20C /* AASaturnMoons.cpp in Sources */,
 				2B7EF4A116025D8C00D4079F /* PJ_putp2.c in Sources */,
 				2B35675218D762A700EF8DB1 /* GridClipper.cpp in Sources */,
 				2B7EF4A216025D8C00D4079F /* PJ_putp3.c in Sources */,
 				2B7EF4A316025D8C00D4079F /* PJ_putp4p.c in Sources */,
 				2B7EF4A416025D8C00D4079F /* PJ_putp5.c in Sources */,
 				88D57FFA1CA1ED3F00A203F8 /* pj_strtod.c in Sources */,
+				883C07801CC055740042B20C /* AAMoonPerigeeApogee.cpp in Sources */,
 				2B7EF4A516025D8C00D4079F /* PJ_putp6.c in Sources */,
 				88D57FF21CA1ED3F00A203F8 /* PJ_calcofi.c in Sources */,
 				2B7EF4A616025D8C00D4079F /* pj_qsfn.c in Sources */,
@@ -2332,7 +2833,9 @@
 				2B35676E18D762A700EF8DB1 /* VectorData.cpp in Sources */,
 				2B7EF4A816025D8C00D4079F /* PJ_robin.c in Sources */,
 				2B7EF4A916025D8C00D4079F /* PJ_rpoly.c in Sources */,
+				883C07701CC055740042B20C /* AAJupiter.cpp in Sources */,
 				2B5F18A31A7B05B4004A8723 /* ScreenSpaceBuilder.cpp in Sources */,
+				883C074A1CC055740042B20C /* AABinaryStar.cpp in Sources */,
 				2B7EF4AA16025D8C00D4079F /* PJ_sconics.c in Sources */,
 				2B009D0D186102E4001E2EE8 /* JSONWorker.cpp in Sources */,
 				2B7EF4AB16025D8C00D4079F /* PJ_somerc.c in Sources */,
@@ -2342,7 +2845,10 @@
 				88D57FF91CA1ED3F00A203F8 /* PJ_sch.c in Sources */,
 				2B35674418D762A700EF8DB1 /* CoordSystem.cpp in Sources */,
 				2B35676618D762A700EF8DB1 /* ScreenSpaceGenerator.cpp in Sources */,
+				883C07821CC055740042B20C /* AAMoonPhases.cpp in Sources */,
+				883C07741CC055740042B20C /* AAMars.cpp in Sources */,
 				2BDC8A73192C090400DFECF0 /* LabelRenderer.cpp in Sources */,
+				883C07A61CC055740042B20C /* AARiseTransitSet.cpp in Sources */,
 				2B009CF5186102E4001E2EE8 /* JSONDebug.cpp in Sources */,
 				2B7EF4AE16025D8C00D4079F /* pj_strerrno.c in Sources */,
 				2B35675618D762A700EF8DB1 /* MaplyFlatView.cpp in Sources */,
@@ -2357,16 +2863,21 @@
 				2B7EF4B416025D8C00D4079F /* pj_transform.c in Sources */,
 				88D57FF11CA1ED3F00A203F8 /* p_series.c in Sources */,
 				2B76C5DD1C10C48A0081F395 /* TileQuadOfflineRenderer.cpp in Sources */,
+				883C076E1CC055740042B20C /* AAJewishCalendar.cpp in Sources */,
 				2B7EF4B516025D8C00D4079F /* pj_tsfn.c in Sources */,
 				2B7EF4B616025D8C00D4079F /* pj_units.c in Sources */,
 				88D57FF71CA1ED3F00A203F8 /* pj_inv3d.c in Sources */,
 				2B7EF4B716025D8C00D4079F /* PJ_urm5.c in Sources */,
 				2B7EF4B816025D8C00D4079F /* PJ_urmfps.c in Sources */,
+				883C079A1CC055740042B20C /* AAPhysicalSun.cpp in Sources */,
 				2B7EF4B916025D8C00D4079F /* pj_utils.c in Sources */,
 				2B7EF4BA16025D8C00D4079F /* PJ_vandg.c in Sources */,
 				2B35674818D762A700EF8DB1 /* Drawable.cpp in Sources */,
 				2B7EF4BB16025D8C00D4079F /* PJ_vandg2.c in Sources */,
+				883C07A41CC055740042B20C /* AARefraction.cpp in Sources */,
 				2B7EF4BC16025D8C00D4079F /* PJ_vandg4.c in Sources */,
+				883C078A1CC055740042B20C /* AANodes.cpp in Sources */,
+				883C074E1CC055740042B20C /* AADate.cpp in Sources */,
 				2B7EF4BD16025D8C00D4079F /* PJ_wag2.c in Sources */,
 				88D653F01C92CF9200B39955 /* ShapeDrawableBuilder.cpp in Sources */,
 				2B7EF4BE16025D8C00D4079F /* PJ_wag3.c in Sources */,
@@ -2375,11 +2886,15 @@
 				88D57FE91CA1ED3F00A203F8 /* geodesic.c in Sources */,
 				2B7EF4C116025D8C00D4079F /* PJ_wink2.c in Sources */,
 				2B35677018D762A700EF8DB1 /* VectorObject.cpp in Sources */,
+				883C07A01CC055740042B20C /* AAPluto.cpp in Sources */,
+				883C075E1CC055740042B20C /* AAElliptical.cpp in Sources */,
 				2B7EF4C216025D8C00D4079F /* pj_zpoly1.c in Sources */,
 				2B009CFD186102E4001E2EE8 /* JSONIterators.cpp in Sources */,
 				2B35674D18D762A700EF8DB1 /* GlobeMath.cpp in Sources */,
 				2B7EF4C416025D8C00D4079F /* proj_etmerc.c in Sources */,
+				883C07781CC055740042B20C /* AAMoon.cpp in Sources */,
 				2B7EF4C516025D8C00D4079F /* proj_mdist.c in Sources */,
+				883C07B61CC055740042B20C /* AAVenus.cpp in Sources */,
 				2B7EF4C616025D8C00D4079F /* proj_rouss.c in Sources */,
 				2B7EF4C916025D8C00D4079F /* rtodms.c in Sources */,
 				2B7EF4CA16025D8C00D4079F /* vector1.c in Sources */,
@@ -2399,7 +2914,9 @@
 				2BA2326717984F510063CC84 /* memalloc.c in Sources */,
 				2BA2326917984F510063CC84 /* mesh.c in Sources */,
 				2BA2326B17984F510063CC84 /* normal.c in Sources */,
+				883C077C1CC055740042B20C /* AAMoonMaxDeclinations.cpp in Sources */,
 				2B009D04186102E4001E2EE8 /* JSONPreparse.cpp in Sources */,
+				883C07961CC055740042B20C /* AAPhysicalMars.cpp in Sources */,
 				2BA2327017984F510063CC84 /* priorityq.c in Sources */,
 				2BA2327217984F510063CC84 /* render.c in Sources */,
 				88D57FE61CA1ED3F00A203F8 /* geod_interface.c in Sources */,

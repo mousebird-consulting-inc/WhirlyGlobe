@@ -34,6 +34,7 @@ template<> CoordSystemClassInfo *CoordSystemClassInfo::classInfoObj = NULL;
 template<> Point2dClassInfo *Point2dClassInfo::classInfoObj = NULL;
 template<> Point3dClassInfo *Point3dClassInfo::classInfoObj = NULL;
 template<> Point4dClassInfo *Point4dClassInfo::classInfoObj = NULL;
+template<> Matrix3dClassInfo *Matrix3dClassInfo::classInfoObj = NULL;
 template<> Matrix4dClassInfo *Matrix4dClassInfo::classInfoObj = NULL;
 template<> QuaternionClassInfo *QuaternionClassInfo::classInfoObj = NULL;
 template<> AngleAxisClassInfo *AngleAxisClassInfo::classInfoObj = NULL;
@@ -70,6 +71,9 @@ template<> ShapeManagerClassInfo *ShapeManagerClassInfo::classInfoObj = NULL;
 template<> SingleVertexAttributeClassInfo *SingleVertexAttributeClassInfo::classInfoObj = NULL;
 template<> DirectionalLightClassInfo *DirectionalLightClassInfo::classInfoObj = NULL;
 template<> MaterialClassInfo *MaterialClassInfo::classInfoObj = NULL;
+template<> MoonClassInfo *MoonClassInfo::classInfoObj = NULL;
+template<> SunClassInfo *SunClassInfo::classInfoObj = NULL;
+template<> Affine2dClassInfo *Affine2dClassInfo::classInfoObj = NULL;
 
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 {

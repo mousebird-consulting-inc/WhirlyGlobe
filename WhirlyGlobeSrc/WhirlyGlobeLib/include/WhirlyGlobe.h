@@ -105,5 +105,7 @@
 #import "ShapeDrawableBuilder.h"
 #import "ShapeManager.h"
 #import "Lighting.h"
+#import "Sun.h"
+#import "Moon.h"
 
 

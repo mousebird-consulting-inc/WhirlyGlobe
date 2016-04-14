@@ -28,22 +28,6 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-namespace WhirlyKit
-{
-class Sun
-{
-public:
-    Sun() : time(0.0) { }
-    
-    double time;
-    double sunLon,sunLat;
-};
-    
-typedef JavaClassInfo<WhirlyKit::Sun> SunClassInfo;
-template<> SunClassInfo *SunClassInfo::classInfoObj = NULL;
-
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sun_nativeInit
 (JNIEnv *env, jclass cls)
 {
