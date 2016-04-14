@@ -208,6 +208,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     WhirlyKitViewState *lastViewState;
     WhirlyKitSceneRendererES *_renderer;
     bool hasUnload;
+    bool hasBoundingBox;
 }
 
 - (instancetype)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys delegate:(NSObject<MaplyPagingDelegate> *)inTileSource
@@ -230,6 +231,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     _singleLevelLoading = false;
     _groupChildrenWithParent = true;
     hasUnload = [tileSource respondsToSelector:@selector(tileDidUnload:)];
+    hasBoundingBox = [tileSource respondsToSelector:@selector(getBoundingBox:ll:ur:)];
     _minTileHeight = 0.0;
     _maxTileHeight = 0.0;
     
@@ -521,6 +523,9 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     parentIdent.y = ident.y / 2;
     parentIdent.level = ident.level - 1;
     
+    MaplyTileID parentTileID;
+    parentTileID.x = parentIdent.x;  parentTileID.y = parentIdent.y;  parentTileID.level = parentIdent.level;
+    
     Mbr parentMbr = quadLayer.quadtree->generateMbrForNode(parentIdent);
 
     double import = 0.0;
@@ -534,13 +539,20 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         }
         import *= self.importance;
     } else {
+        MaplyCoordinate3dD ll,ur;
+        ll.x = parentMbr.ll().x();  ll.y = parentMbr.ll().y();  ll.z = _minTileHeight;
+        ur.x = parentMbr.ur().x();  ur.y = parentMbr.ur().y();  ur.z = _maxTileHeight;
+        
+        if (hasBoundingBox)
+            [tileSource getBoundingBox:parentTileID ll:&ll ur:&ur];
+        
         // This is how much screen real estate we're covering for this tile
         double div = 1.0;
         if (_groupChildrenWithParent)
             div = 4.0;
         
-        if (_minTileHeight != _maxTileHeight)
-            import = ScreenImportance(viewState, frameSize, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), parentMbr, _minTileHeight, _maxTileHeight, ident, attrs) / div;
+        if (ll.z != ur.z)
+            import = ScreenImportance(viewState, frameSize, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), parentMbr, ll.z, ur.z, ident, attrs) / div;
         else
             import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), parentMbr, ident, attrs) / div;
     }
