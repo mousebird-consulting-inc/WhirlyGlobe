@@ -76,6 +76,8 @@ extern NSString* const kMaplyZBufferWrite;
 
 /// Assign a shader program to a particular feature.  Use the shader program's name
 extern NSString* const kMaplyShader;
+/// An NSDictionary containing uniforms to apply to a shader before drawing
+extern NSString* const kMaplyShaderUniforms;
 
 /// Stars, moon, stars, atmosphere
 extern const int kMaplyStarsDrawPriorityDefault;
