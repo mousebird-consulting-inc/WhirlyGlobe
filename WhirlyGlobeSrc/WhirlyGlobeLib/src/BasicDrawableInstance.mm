@@ -115,6 +115,11 @@ const Eigen::Matrix4d *BasicDrawableInstance::getMatrix() const
     return basicDraw->getMatrix();
 }
 
+void BasicDrawableInstance::setUniforms(const SingleVertexAttributeSet &newUniforms)
+{
+    uniforms = newUniforms;
+}
+
 void BasicDrawableInstance::addInstances(const std::vector<SingleInstance> &insts)
 {
     instances.insert(instances.end(), insts.begin(), insts.end());
@@ -423,6 +428,10 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         
         // If this is present, the drawable wants to do something based where the viewer is looking
         prog->setUniform("u_eyeVec", frameInfo.fullEyeVec);
+        
+        // Any uniforms we may want to apply to the shader
+        for (auto const &attr : uniforms)
+            prog->setUniform(attr);
         
         // The program itself may have some textures to bind
         bool hasTexture[WhirlyKitMaxTextures];

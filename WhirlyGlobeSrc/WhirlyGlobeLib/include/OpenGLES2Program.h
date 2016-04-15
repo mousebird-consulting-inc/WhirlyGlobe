@@ -25,6 +25,7 @@
 #import <OpenGLES/ES3/glext.h>
 #import "Identifiable.h"
 #import "WhirlyVector.h"
+#import "Drawable.h"
 
 @class WhirlyKitMaterial;
 
@@ -134,6 +135,7 @@ public:
     bool setUniform(const std::string &name,const Eigen::Vector4f &vec);
     bool setUniform(const std::string &name,const Eigen::Matrix4f &mat);
     bool setUniform(const std::string &name,int val);
+    bool setUniform(const SingleVertexAttribute &attr);
     
     /// Tie a given texture ID to the given name.
     /// We have to set these up each time before drawing
