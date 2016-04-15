@@ -923,6 +923,11 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
   */
 - (MaplyCoordinate3d)displayCoord:(MaplyCoordinate3d)localCoord fromSystem:(MaplyCoordinateSystem *__nonnull)coordSys;
 
+/** @brief Convert from a coordinate in the given system to display space.
+ @details This converts from a double coordinate (3d) in the given coordinate system to the view controller's display space.  For the globe, display space is based on a radius of 1.0.
+ */
+- (MaplyCoordinate3dD)displayCoordD:(MaplyCoordinate3dD)localCoord fromSystem:(MaplyCoordinateSystem *__nonnull)coordSys;
+
 /** @brief enable 3d touch object selection.
  @param previewDataSource Data source to provide 3d touch preview view controllers.
  @return true if 3d touch could be enabled
