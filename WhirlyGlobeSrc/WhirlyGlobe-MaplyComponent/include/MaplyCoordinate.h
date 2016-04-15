@@ -80,6 +80,19 @@ typedef struct
 
 static const MaplyCoordinate3dD kMaplyNullCoordinate3dD = {.x = DBL_MIN, .y = DBL_MIN, .z = DBL_MIN};
 
+/** @brief An NSObject based wrapper for 3D coordinates.
+ @details This wrapper encapsulates a MaplyCoordinate3d so we can pass them around in NSDictionary objects.
+ */
+@interface MaplyCoordinate3dDWrapper : NSObject
+
+/// @brief Initialize with a 3D coordinate
+- (instancetype)initWithCoord:(MaplyCoordinate3dD)coord;
+
+/// @brief 3D coordinate
+@property (nonatomic,readonly) MaplyCoordinate3dD coord;
+
+@end
+
 /** @typedef struct MaplyBoundingBox
     @brief Represents a bounding box in a particular coordinate system.
     @details ll is the lower left and ur is the upper right.
