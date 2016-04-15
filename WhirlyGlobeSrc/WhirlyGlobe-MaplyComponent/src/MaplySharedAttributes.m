@@ -70,6 +70,8 @@ NSString* const kMaplyZBufferWrite = @"zbufferwrite";
 
 /// Assign a shader program to a particular feature.  Use the shader program's name
 NSString* const kMaplyShader = @"shader";
+/// An NSDictionary containing uniforms to apply to a shader before drawing
+NSString* const kMaplyShaderUniforms = @"shaderuniforms";
 
 /// Stars, moon, stars, atmosphere
 const int kMaplyStarsDrawPriorityDefault = 0;

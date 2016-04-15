@@ -132,6 +132,9 @@ public:
     // Time we start counting from for motion
     NSTimeInterval getStartTime() { return startTime; }
 
+    /// Set the uniforms to be applied to the
+    virtual void setUniforms(const SingleVertexAttributeSet &uniforms);
+
     /// Return the translation matrix if there is one
     const Eigen::Matrix4d *getMatrix() const;
     
@@ -178,6 +181,8 @@ protected:
     int centerSize,matSize,colorInstSize,colorSize,instSize,modelDirSize;
     NSTimeInterval startTime;
     bool moving;
+    // Uniforms to apply to shader
+    SingleVertexAttributeSet uniforms;
     
     // If set, we'll instance this one multiple times
     std::vector<SingleInstance> instances;
