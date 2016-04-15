@@ -23,11 +23,12 @@
 #import <map>
 #import "Identifiable.h"
 #import "WhirlyVector.h"
+#import "Drawable.h"
 
 namespace WhirlyKit
 {
-class BasicDrawable;
-class BasicDrawableInstance;
+    class BasicDrawable;
+    class BasicDrawableInstance;
 }
 
 /** Object use as the base for parsing description dictionaries.
@@ -46,6 +47,7 @@ class BasicDrawableInstance;
 @property (nonatomic) NSTimeInterval fadeOutTime;
 @property (nonatomic) NSTimeInterval startEnable,endEnable;
 @property (nonatomic) WhirlyKit::SimpleIdentity programID;
+@property (nonatomic) WhirlyKit::SingleVertexAttributeSet &uniforms;
 
 /// Initialize with an NSDictionary
 - (id)initWithDesc:(NSDictionary *)desc;

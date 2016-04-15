@@ -436,6 +436,8 @@ void GeometryRawPoints::buildDrawables(std::vector<BasicDrawable *> &draws,const
             if (geomInfo) {
                 [geomInfo setupBasicDrawable:draw];
             }
+            if (!mat.isIdentity())
+                draw->setMatrix(&mat);
             draw->setType(GL_POINTS);
             draws.push_back(draw);
             

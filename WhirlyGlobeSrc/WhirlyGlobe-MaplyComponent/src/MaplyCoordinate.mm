@@ -119,3 +119,15 @@ double MaplyGreatCircleDistance(MaplyCoordinate p0,MaplyCoordinate p1)
 }
 
 @end
+
+@implementation MaplyCoordinate3dDWrapper
+
+- (instancetype)initWithCoord:(MaplyCoordinate3dD)coord
+{
+    self = [super init];
+    _coord = coord;
+    
+    return self;
+}
+
+@end
