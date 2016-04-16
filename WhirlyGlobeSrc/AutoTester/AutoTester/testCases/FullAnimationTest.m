@@ -37,7 +37,7 @@
     CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     [self setupWithBaseVC:(MaplyBaseViewController *)globeVC];
-    [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) height:1.5];
+//    [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) height:1.5];
     
     [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222) height:0.1 heading:45.0/180.0*M_PI time:10.0];
     
