@@ -87,7 +87,7 @@ TESS_SRC_FILES = dict.c geom.c memalloc.c mesh.c normal.c priorityq.c render.c s
 TESS_SRC_DIR = $(THIRD_PARTY)/glues/source/libtess
 LOCAL_SRC_FILES += $(TESS_SRC_FILES:%=$(TESS_SRC_DIR)/%)
 
-MAPLY_CORE_SRC_FILES := BaseInfo.cpp BasicDrawable.cpp BasicDrawableInstance.cpp BigDrawable.cpp \
+MAPLY_CORE_SRC_FILES := BaseInfo.cpp BasicDrawable.cpp BasicDrawableInstance.cpp BigDrawable.cpp BillboardDrawable.cpp BillboardManager.cpp \
 					CoordSystem.cpp Cullable.cpp \
 					DefaultShaderPrograms.cpp Dictionary.cpp Drawable.cpp DynamicDrawableAtlas.cpp DynamicTextureAtlas.cpp \
 					FlatMath.cpp FontTextureManager.cpp \
@@ -108,7 +108,7 @@ MAPLY_CORE_SRC_DIR := $(SRC_DIR)
 LOCAL_SRC_FILES += $(MAPLY_CORE_SRC_FILES:%=$(MAPLY_CORE_SRC_DIR)/%)
 
 MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp AngleAxis_jni.cpp Affine2d_jni.cpp \
-					BaseInfo_jni.cpp \
+					BaseInfo_jni.cpp Billboard_jni.cpp BillboardInfo_jni.cpp SingleBillboardPoly_jni.cpp \
 					ChangeSet_jni.cpp CoordSystem_jni.cpp CoordSystemDisplayAdapter_jni.cpp \
 					DirectionalLight_jni.cpp \
 					FontTextureManagerAndroid.cpp FakeGeocentricDisplayAdapter_jni.cpp \

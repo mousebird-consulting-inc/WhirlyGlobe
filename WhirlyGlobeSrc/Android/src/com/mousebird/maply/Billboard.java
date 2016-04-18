@@ -24,22 +24,54 @@ import android.graphics.Color;
 import android.util.Size;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class Billboard {
 
     public Billboard(Bitmap texture, Color color, Size size) {
-        //TODO To do
+        initialise();
     }
 
     public native void setCenter (Point3d center);
 
     public native Point3d getCenter();
 
-    private boolean selectable;
+    public native void addPoly (SingleBillboardPoly poly);
+
+    public native void setSize(Point2d size);
+
+    public native Point2d getSize();
+
+    public native void setSelectable (boolean selectable);
+
+    public native boolean getSelectable();
+
+    private long selectID = Identifiable.genID();
+
     private ScreenObject screenObject;
+
     private ArrayList<VertexAttribute> vertexAttributes = new ArrayList<>();
-    private long userObject;
+
+    public ScreenObject getScreenObject() {
+        return screenObject;
+    }
+
+    public void setScreenObject(ScreenObject screenObject) {
+        this.screenObject = screenObject;
+    }
+
+    public ArrayList<VertexAttribute> getVertexAttributes() {
+        return vertexAttributes;
+    }
+
+    public void setVertexAttributes(ArrayList<VertexAttribute> vertexAttributes) {
+        this.vertexAttributes = vertexAttributes;
+    }
+
+    public long getSelectID() {
+        return selectID;
+    }
 
     public void finalize()
     {

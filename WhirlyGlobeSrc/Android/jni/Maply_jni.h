@@ -457,6 +457,9 @@ typedef JavaClassInfo<WhirlyKit::WhirlyKitMaterial> MaterialClassInfo;
 typedef JavaClassInfo<WhirlyKit::Moon> MoonClassInfo;
 typedef JavaClassInfo<WhirlyKit::Sun> SunClassInfo;
 typedef JavaClassInfo<Eigen::Affine2d> Affine2dClassInfo;
+typedef JavaClassInfo<WhirlyKit::Billboard> BillboardClassInfo;
+typedef JavaClassInfo<WhirlyKit::SingleBillboardPoly> SingleBillboardPolyClassInfo;
+typedef JavaClassInfo<WhirlyKit::BillboardInfo> BillboardInfoClassInfo;
 
 // The shared JNIEnv set in the ::render call
 extern JNIEnv *maplyCurrentEnv;

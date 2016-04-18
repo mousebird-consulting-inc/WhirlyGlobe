@@ -74,6 +74,9 @@ template<> MaterialClassInfo *MaterialClassInfo::classInfoObj = NULL;
 template<> MoonClassInfo *MoonClassInfo::classInfoObj = NULL;
 template<> SunClassInfo *SunClassInfo::classInfoObj = NULL;
 template<> Affine2dClassInfo *Affine2dClassInfo::classInfoObj = NULL;
+template<> BillboardClassInfo *BillboardClassInfo::classInfoObj = NULL;
+template<> BillboardInfoClassInfo *BillboardInfoClassInfo::classInfoObj = NULL;
+template<> SingleBillboardPolyClassInfo *SingleBillboardPolyClassInfo::classInfoObj = NULL;
 
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 {
