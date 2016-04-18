@@ -24,7 +24,7 @@ class ParticleTestCase: MaplyTestCase {
 	}
 	
 	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
-		let baseLayer = GeographyClassTestCase()
+		let baseLayer = MapquestSatelliteTestCase()
 		baseLayer.setUpWithGlobe(globeVC)
 		setUpOverlay(globeVC)
 		globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) , time: 1.0)
