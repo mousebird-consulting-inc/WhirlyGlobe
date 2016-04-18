@@ -576,6 +576,7 @@
 		88CC3B0F1CC540E700E0AEB7 /* com_mousebird_maply_Billboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CC3B0C1CC540E700E0AEB7 /* com_mousebird_maply_Billboard.h */; };
 		88CC3B101CC540E700E0AEB7 /* com_mousebird_maply_BillboardInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CC3B0D1CC540E700E0AEB7 /* com_mousebird_maply_BillboardInfo.h */; };
 		88CC3B111CC540E700E0AEB7 /* com_mousebird_maply_SingleBillboardPoly.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CC3B0E1CC540E700E0AEB7 /* com_mousebird_maply_SingleBillboardPoly.h */; };
+		88CC3B131CC5766800E0AEB7 /* com_mousebird_maply_BillboardManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CC3B121CC5766800E0AEB7 /* com_mousebird_maply_BillboardManager.h */; };
 		88D57FC01CA1EB6400A203F8 /* ElevationChunk.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FBF1CA1EB6400A203F8 /* ElevationChunk.h */; };
 		88D57FC21CA1EB6F00A203F8 /* MarkerGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FC11CA1EB6F00A203F8 /* MarkerGenerator.h */; };
 		88D57FC61CA1EBAE00A203F8 /* com_mousebird_maply_DirectionalLight.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FC31CA1EBAE00A203F8 /* com_mousebird_maply_DirectionalLight.h */; };
@@ -1258,6 +1259,7 @@
 		88CC3B0C1CC540E700E0AEB7 /* com_mousebird_maply_Billboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Billboard.h; path = ../Android/jni/com_mousebird_maply_Billboard.h; sourceTree = "<group>"; };
 		88CC3B0D1CC540E700E0AEB7 /* com_mousebird_maply_BillboardInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_BillboardInfo.h; path = ../Android/jni/com_mousebird_maply_BillboardInfo.h; sourceTree = "<group>"; };
 		88CC3B0E1CC540E700E0AEB7 /* com_mousebird_maply_SingleBillboardPoly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_SingleBillboardPoly.h; path = ../Android/jni/com_mousebird_maply_SingleBillboardPoly.h; sourceTree = "<group>"; };
+		88CC3B121CC5766800E0AEB7 /* com_mousebird_maply_BillboardManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_BillboardManager.h; path = ../Android/jni/com_mousebird_maply_BillboardManager.h; sourceTree = "<group>"; };
 		88D57FBF1CA1EB6400A203F8 /* ElevationChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevationChunk.h; sourceTree = "<group>"; };
 		88D57FC11CA1EB6F00A203F8 /* MarkerGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerGenerator.h; sourceTree = "<group>"; };
 		88D57FC31CA1EBAE00A203F8 /* com_mousebird_maply_DirectionalLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_DirectionalLight.h; path = ../Android/jni/com_mousebird_maply_DirectionalLight.h; sourceTree = "<group>"; };
@@ -1304,6 +1306,7 @@
 		8F22E5DA1CA1936B000458C7 /* Lighting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lighting.cpp; sourceTree = "<group>"; };
 		8F22E5E01CA19ED5000458C7 /* DirectionalLight_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DirectionalLight_jni.cpp; path = ../Android/jni/DirectionalLight_jni.cpp; sourceTree = "<group>"; };
 		8F22E5E41CA19F0D000458C7 /* Material_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Material_jni.cpp; path = ../Android/jni/Material_jni.cpp; sourceTree = "<group>"; };
+		8F8225D41CC5621C008BEE40 /* BillboardManager_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BillboardManager_jni.cpp; path = ../Android/jni/BillboardManager_jni.cpp; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D8641E051C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ParticleBatch.h; path = ../Android/jni/com_mousebird_maply_ParticleBatch.h; sourceTree = "<group>"; };
@@ -1520,6 +1523,7 @@
 				2B923FC51BFBDED200C879DB /* com_mousebird_maply_BaseInfo.h */,
 				88CC3B0C1CC540E700E0AEB7 /* com_mousebird_maply_Billboard.h */,
 				88CC3B0D1CC540E700E0AEB7 /* com_mousebird_maply_BillboardInfo.h */,
+				88CC3B121CC5766800E0AEB7 /* com_mousebird_maply_BillboardManager.h */,
 				2B4B192D1BA38AD90091A743 /* com_mousebird_maply_ChangeSet.h */,
 				2B4B192E1BA38AD90091A743 /* com_mousebird_maply_CoordSystem.h */,
 				2B4B192F1BA38AD90091A743 /* com_mousebird_maply_CoordSystemDisplayAdapter.h */,
@@ -1611,6 +1615,7 @@
 				2B923FB71BFA9B5E00C879DB /* BaseInfo_jni.cpp */,
 				8F21C1341CC3EA04007CD890 /* Billboard_jni.cpp */,
 				8F21C1301CC3E827007CD890 /* BillboardInfo_jni.cpp */,
+				8F8225D41CC5621C008BEE40 /* BillboardManager_jni.cpp */,
 				2B4B199D1BA38AFB0091A743 /* ChangeSet_jni.cpp */,
 				2B4B199E1BA38AFB0091A743 /* CoordSystem_jni.cpp */,
 				2B4B199F1BA38AFB0091A743 /* CoordSystemDisplayAdapter_jni.cpp */,
@@ -2531,6 +2536,7 @@
 				88D57FC21CA1EB6F00A203F8 /* MarkerGenerator.h in Headers */,
 				2B009CEC186102E4001E2EE8 /* libbase64++.h in Headers */,
 				2B4B19641BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h in Headers */,
+				88CC3B131CC5766800E0AEB7 /* com_mousebird_maply_BillboardManager.h in Headers */,
 				2B4B198B1BA38AD90091A743 /* com_mousebird_maply_Shader.h in Headers */,
 				2B35683618D762BF00EF8DB1 /* TextureAtlas.h in Headers */,
 				2B35682818D762BF00EF8DB1 /* QuadDisplayController.h in Headers */,

@@ -29,6 +29,9 @@ import java.util.List;
 
 public class Billboard {
 
+    private Billboard() {
+    }
+
     public Billboard(Bitmap texture, Color color, Size size) {
         initialise();
     }
