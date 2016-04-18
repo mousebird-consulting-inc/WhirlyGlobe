@@ -57,7 +57,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_dispose
             return;
         
         delete inst;
-        classInfo->clearHandle(env, obj)
+		classInfo->clearHandle(env, obj);
     }
     catch (...)
     {
@@ -94,14 +94,14 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BillboardManager_addBillboards
         {
             jobject javaVecObj = env->CallObjectMethod(liter, next);
             Billboard *bill = billClassInfo->getObject(env,javaVecObj);
-            bills.push_back(shapeObj);
+            bills.push_back(bill);
             env->DeleteLocalRef(javaVecObj);
         }
         env->DeleteLocalRef(liter);
         
-        SimpleIdentity billId = inst->addBillboards(bills, *info, billShader, *changeSet);
+        SimpleIdentity billId = inst->addBillboards(bills, info, billShader, *changeSet);
+
         return billId;
-        
     }
     catch (...)
     {
