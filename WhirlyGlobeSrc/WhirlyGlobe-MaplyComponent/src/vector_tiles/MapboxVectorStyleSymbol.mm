@@ -121,6 +121,12 @@
         NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
         mutDesc[kMaplyFont] = font;
         desc = mutDesc;
+    } else {
+        // Note: Providing a reasonable default
+        UIFont *font = [UIFont systemFontOfSize:16.0];
+        NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
+        mutDesc[kMaplyFont] = font;
+        desc = mutDesc;
     }
     
     NSMutableArray *labels = [NSMutableArray array];
@@ -131,7 +137,9 @@
         label.loc = [vecObj center];
         label.text = vecObj.attributes[@"name"];
         label.layoutImportance = _layout.textMaxSize;
-        [labels addObject:label];
+        if (label.text)
+            [labels addObject:label];
+        // Note: Tossing labels without text
     }
     
     MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:desc mode:MaplyThreadCurrent];
