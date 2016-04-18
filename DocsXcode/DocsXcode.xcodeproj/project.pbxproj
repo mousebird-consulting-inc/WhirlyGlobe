@@ -114,6 +114,7 @@
 		2B4E091B1A15D98300ADA318 /* whirlyglobecocoapod.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = whirlyglobecocoapod.png; sourceTree = "<group>"; };
 		2B4E091C1A15D98300ADA318 /* cocoapodslogo.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = cocoapodslogo.gif; sourceTree = "<group>"; };
 		2B4E091D1A15D98300ADA318 /* cocoapods_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cocoapods_1.png; sourceTree = "<group>"; };
+		2B69FC4B1CC3009700F20B37 /* aeris_weather.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = aeris_weather.md; sourceTree = "<group>"; };
 		2B769FB71A16D9BB00C60136 /* carousel.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = carousel.html; sourceTree = "<group>"; };
 		2B769FC11A16E43800C60136 /* index.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = index.md; path = ../index.md; sourceTree = "<group>"; };
 		2B769FC31A17CD1600C60136 /* android.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = android.jpg; sourceTree = "<group>"; };
@@ -318,6 +319,7 @@
 			children = (
 				2B4E06DB1A15429400ADA318 /* code */,
 				2B4E06A81A152FD700ADA318 /* adding_vector_data.md */,
+				2B69FC4B1CC3009700F20B37 /* aeris_weather.md */,
 				2B4E06A91A152FD700ADA318 /* building_from_binary.md */,
 				2B4E06AA1A152FD700ADA318 /* building_from_source.md */,
 				2B4E08E71A15CDC600ADA318 /* building_from_cocoapod.md */,

@@ -25,7 +25,7 @@ Open ViewController.m, and find the @implementation line. Modify it like so.
 {% highlight objc %}
 @implementation MainViewController
 {
-  ViewController *theViewC;
+  MaplyViewController *theViewC;
 }
 {% endhighlight %}
 
@@ -37,7 +37,7 @@ Now we've got a private MaplyViewController. Let's set it up but leave it empty,
   [super viewDidLoad];
 
   // Create an empty globe and add it to the view
-  theViewC = [[MaplyViewController alloc] init];
+  theViewC = [[MaplyViewController alloc] initWithMapType:MaplyMapTypeFlat];
   [self.view addSubview:theViewC.view];
   theViewC.view.frame = self.view.bounds;
   [self addChildViewController:theViewC];

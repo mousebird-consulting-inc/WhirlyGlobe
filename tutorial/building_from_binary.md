@@ -11,7 +11,7 @@ The binary distribution is one of the easiest ways to get started with WhirlyGlo
 First, download the [binary distribution](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe_Maply_Distribution_2_4.zip) and unzip it into your projects directory. It should look something like this:
 
 {% highlight bash %}
-projects/WhirlyGlobe_Maply_Distribution_2_3
+projects/WhirlyGlobe_Maply_Distribution_2_4
 {% endhighlight %}
 
 This guide will simply refer to it as **BinaryDirectory** for purposes of indicating paths.

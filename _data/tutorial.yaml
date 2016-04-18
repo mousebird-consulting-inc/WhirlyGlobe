@@ -36,6 +36,7 @@
 - section: Advanced
   files:
     - filename: cartodb_layer.html
+    - filename: aeris_weather.html
     - filename: component_tester.html
 
 
