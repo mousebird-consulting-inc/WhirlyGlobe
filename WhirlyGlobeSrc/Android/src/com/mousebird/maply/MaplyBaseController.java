@@ -405,9 +405,7 @@ public class MaplyBaseController
 
 //		if (tempBackground != null)
 //			tempBackground.setColor(clearColor);
-
-		Log.d("Maply","clearColor = " + color);
-
+		
 		if (renderWrapper.maplyRender != null)
 			renderWrapper.maplyRender.setClearColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
 	}
