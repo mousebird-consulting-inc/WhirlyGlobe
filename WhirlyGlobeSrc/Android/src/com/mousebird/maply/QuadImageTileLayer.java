@@ -452,6 +452,8 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 			currentImageValue = current;
 			currentPriorities = prior;
 		}
+
+		maplyControl.requestRender();
 	}
 	
 	native void setCurrentImage(float current,ChangeSet changes);
@@ -487,6 +489,12 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
             setCurrentImage((float)where, changes);
             maplyControl.scene.addChanges(changes);
         }
+
+		@Override
+		public boolean hasChanges()
+		{
+			return period != 0.0 && imageDepth != 0;
+		}
     }
     ImageUpdater imageUpdater = null;
 	

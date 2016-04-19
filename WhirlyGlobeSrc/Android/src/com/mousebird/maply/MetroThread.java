@@ -60,20 +60,46 @@ public class MetroThread extends HandlerThread implements Choreographer.FrameCal
 		{	
 		}		
 	}
+
+	// Set the frame rate.  Will take effect on the next frame
+	public void setFrameRate(int newRate)
+	{
+		frameInterval = newRate;
+	}
+
+	MaplyRenderer renderer = null;
+
+	// Set the renderer (and scene) we'll look at render requests
+	public void setRenderer(MaplyRenderer inRenderer)
+	{
+		renderer = inRenderer;
+	}
 	
 	int frameCount = 0;
+	public boolean requestRender = true;
+
+	// Request a render, filtered through the regular frame rate
+	public void requestRender()
+	{
+		requestRender = true;
+	}
 
 	// Called by the Choreographer to render a frame
 	@Override
 	public void doFrame(long frameTimeNanos) 
-	{		
+	{
 		// Nudge the renderer
-		if (control.glSurfaceView != null && (frameCount % frameInterval == 0))
-			control.glSurfaceView.requestRender();
-		
+		if (control.glSurfaceView != null && (frameCount % frameInterval == 0)) {
+			if (requestRender ||
+					(renderer != null && renderer.hasChanges() || renderer.activeObjectsHaveChanges())) {
+				control.glSurfaceView.requestRender();
+			}
+			requestRender = false;
+		}
+
 		// Need to do this every frame
     	Choreographer.getInstance().postFrameCallback(this);
-    	
+
     	frameCount++;
 	}
 }

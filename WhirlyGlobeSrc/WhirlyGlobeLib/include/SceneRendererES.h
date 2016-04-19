@@ -203,6 +203,9 @@ public:
     /// This turns off the draw optimization, but just for one frame.
     void forceDrawNextFrame();
     
+    /// Return true if we have changes to process or display
+    virtual bool hasChanges() { return false; }
+    
     /// Use this to set the clear color for the screen.  Defaults to black
     void setClearColor(const RGBAColor &color);
     

@@ -59,6 +59,8 @@ public:
 
     void render();
     
+    bool hasChanges();
+    
 protected:
     bool renderSetup;
     OpenGLStateOptimizer *renderStateOptimizer;

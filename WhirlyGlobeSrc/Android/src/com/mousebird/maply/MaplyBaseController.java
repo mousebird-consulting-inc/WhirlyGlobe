@@ -272,7 +272,7 @@ public class MaplyBaseController
 	ArrayList<Runnable> surfaceTasks = new ArrayList<Runnable>();
 	
 	// Metronome thread used to time the renderer
-	MetroThread metroThread;
+	protected MetroThread metroThread;
 
     // Note: Why isn't this in EGL10?
     private static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
@@ -292,7 +292,30 @@ public class MaplyBaseController
             postSurfaceRunnables.add(run);
     }
 
-    // Called by the render wrapper when the surface is created.
+	int displayRate = 2;
+
+	/**
+	 * Set the display rate for the GL render.
+	 * 1 means 60fps.  2 means 30fps.  3 means 20fps.
+     */
+	public void setDisplayRate(int inRate)
+	{
+		displayRate = inRate;
+		if (metroThread != null)
+			metroThread.setFrameRate(inRate);
+	}
+
+	/**
+	 * Force a render on the next frame.
+	 * Mostly used internally.
+	 */
+	public void requestRender()
+	{
+		if (metroThread != null)
+			metroThread.requestRender();
+	}
+
+	// Called by the render wrapper when the surface is created.
 	// Can't start doing anything until that happens
 	void surfaceCreated(RendererWrapper wrap)
 	{
@@ -318,8 +341,8 @@ public class MaplyBaseController
 		}
 
     	glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-    	// Note: 3fps
-    	metroThread = new MetroThread("Metronome Thread",this,2);
+    	metroThread = new MetroThread("Metronome Thread",this,displayRate);
+		metroThread.setRenderer(renderWrapper.maplyRender);
 
         // Make our own context that we can use on the main thread
         EGL10 egl = (EGL10) EGLContext.getEGL();
@@ -405,7 +428,7 @@ public class MaplyBaseController
 
 //		if (tempBackground != null)
 //			tempBackground.setColor(clearColor);
-		
+
 		if (renderWrapper.maplyRender != null)
 			renderWrapper.maplyRender.setClearColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
 	}

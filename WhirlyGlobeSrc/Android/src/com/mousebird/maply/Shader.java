@@ -90,6 +90,8 @@ public class Shader
 
 		textures.add(texture);
 
+		control.requestRender();
+
 //        Log.d("Maply","addTexture texID " + texture.texID);
 
 		addTextureNative(control.getScene(),name,texture.texID);
@@ -106,6 +108,8 @@ public class Shader
 		if (Looper.myLooper() == Looper.getMainLooper())
 			control.setEGLContext();
 
+		control.requestRender();
+
 		return setUniformNative(name,uni);
 	}
 
@@ -119,6 +123,8 @@ public class Shader
 	{
 		if (Looper.myLooper() == Looper.getMainLooper())
 			control.setEGLContext();
+
+		control.requestRender();
 
 		return setUniformNative(name,uni);
 	}
@@ -136,6 +142,8 @@ public class Shader
 		if (Looper.myLooper() == Looper.getMainLooper())
 			control.setEGLContext();
 
+		control.requestRender();
+
 		return setUniformNative(name,pt.getX(),pt.getY());
 	}
 
@@ -150,6 +158,8 @@ public class Shader
 		if (Looper.myLooper() == Looper.getMainLooper())
 			control.setEGLContext();
 
+		control.requestRender();
+
 		return setUniformNative(name, pt.getX(), pt.getY(), pt.getZ());
 	}
 
@@ -163,6 +173,8 @@ public class Shader
 	{
 		if (Looper.myLooper() == Looper.getMainLooper())
 			control.setEGLContext();
+
+		control.requestRender();
 
 		return setUniformNative(name, pt.getX(), pt.getY(), pt.getZ(), pt.getW());
 	}

@@ -30,4 +30,10 @@ public interface ActiveObject {
      * Called right before the render on the render thread
      */
     public void activeUpdate();
+
+    /**
+     * Check if we've got changes to run.
+     * This may not be called on the render thread.
+     */
+    public boolean hasChanges();
 }

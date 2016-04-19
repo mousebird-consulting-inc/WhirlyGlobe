@@ -190,6 +190,11 @@ void SceneRendererES2::processScene()
     scene->processChanges(theView,this);
 }
 
+bool SceneRendererES2::hasChanges()
+{
+    return scene->hasChanges() || viewDidChange();
+}
+
 // Make the screen a bit bigger for testing
 static const float ScreenOverlap = 0.1;
 
@@ -209,7 +214,7 @@ void SceneRendererES2::render()
 	theView->animate();
 
     // Decide if we even need to draw
-    if (!scene->hasChanges() && !viewDidChange())
+    if (!hasChanges())
     {
         if (!extraFrameMode)
             return;

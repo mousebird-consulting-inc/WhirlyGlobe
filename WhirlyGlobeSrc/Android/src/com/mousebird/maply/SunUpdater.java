@@ -48,6 +48,20 @@ public class SunUpdater implements ActiveObject {
     Point3d oldCameraPos = null;
 
     @Override
+    public boolean hasChanges()
+    {
+        Point3d cameraPos = viewC.getGlobeView().getEyePosition();
+
+        if (!changed && started && cameraPos.equals(oldCameraPos))
+            return false;
+
+        if (sunPos == null)
+            return false;
+
+        return true;
+    }
+
+    @Override
     public void activeUpdate() {
 
         Point3d cameraPos = viewC.getGlobeView().getEyePosition();

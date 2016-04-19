@@ -87,6 +87,20 @@ class MaplyRenderer
         }
     }
 
+	/**
+	 * Check if any of the active objects have changes for the next frame.
+     */
+	public boolean activeObjectsHaveChanges()
+	{
+		synchronized (activeObjects) {
+			for (ActiveObject activeObject : activeObjects)
+				if (activeObject.hasChanges())
+					return true;
+		}
+
+		return false;
+	}
+
     public void doRender()
 	{
 		if (view != null)
@@ -118,6 +132,7 @@ class MaplyRenderer
 	protected native boolean teardown();
 	protected native boolean resize(int width,int height);
 	protected native void render();
+	protected native boolean hasChanges();
 	public native void setPerfInterval(int perfInterval);
 	public native void addLight(DirectionalLight light);
 	public native void replaceLights(List<DirectionalLight> lights);
