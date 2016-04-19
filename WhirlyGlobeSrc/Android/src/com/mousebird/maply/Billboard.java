@@ -29,6 +29,14 @@ import java.util.List;
 
 public class Billboard {
 
+    /// Billboard orientation
+    public static final String MAPLY_BILLBOARD_ORIENTE = "billboardorient";
+    /// Billboards are oriented toward the eye, but rotate on the ground
+    public static final String MAPLY_BILLBOARD_ORIENTE_GROUND = "billboardorientground";
+    /// Billboards are oriented only towards the eye
+    public static final String MAPLY_BILLBOARD_ORIENTE_EYE = "billboardorienteye";
+
+
     private Billboard() {
     }
 
@@ -74,6 +82,10 @@ public class Billboard {
 
     public long getSelectID() {
         return selectID;
+    }
+
+    public void setSelectID(long selectID){
+        this.selectID = selectID;
     }
 
     public void finalize()

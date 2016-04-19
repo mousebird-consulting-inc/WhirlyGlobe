@@ -44,6 +44,16 @@ public class BillboardInfo extends BaseInfo {
 
     public native boolean getZBufferWrite();
 
+    private String shaderName;
+
+    public String getShaderName() {
+        return shaderName;
+    }
+
+    public void setShaderName(String shaderName) {
+        this.shaderName = shaderName;
+    }
+
     public void finalize()
     {
         dispose();

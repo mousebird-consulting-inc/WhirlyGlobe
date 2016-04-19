@@ -60,9 +60,9 @@ public class ScreenObject {
         this.strings.add(string);
     }
 
-    public void addImage(Bitmap image, Color color, int width, int height) {
+    public void addImage(Bitmap image, float[] color, int width, int height) {
         SimplePoly poly = new SimplePoly();
-        poly.setTexture(image);
+        poly.setImage(image);
         poly.setColor(color);
 
         poly.addPt(new Point2d(0,0));
@@ -118,12 +118,11 @@ public class ScreenObject {
         }
     }
 
-    public void translateX(double x, double y){
-
+    public void translateX(double x, double y) {
         Affine2d trans = new Affine2d(x,y, Affine2d.TYPE_TRANS);
 
         for (SimplePoly poly : polys){
-            for (int i = 0; i < poly.getPts().size(); i++){
+            for (int i = 0; i < poly.getPts().size(); i++) {
                 Point2d pt = trans.multiply(poly.getPts().get(i));
                 poly.getPts().set(i, pt);
             }
@@ -131,42 +130,41 @@ public class ScreenObject {
 
         Matrix3d mat = trans.matrix();
 
-        for (StringWrapper str : strings){
+        for (StringWrapper str : strings) {
             str.setMat(mat.multiply(str.getMat()));
         }
     }
 
     public void addScreenObj(ScreenObject screenObject){
-        for (int i = 0; i < screenObject.getPolys().size(); i++){
+        for (int i = 0; i < screenObject.getPolys().size(); i++) {
             this.polys.add(screenObject.getPolys().get(i));
         }
-        for (int i = 0; i < screenObject.getStrings().size(); i++){
+        for (int i = 0; i < screenObject.getStrings().size(); i++) {
             this.strings.add(screenObject.getStrings().get(i));
         }
     }
-    private class SimplePoly{
 
-        private Bitmap texture;
-        private Color color;
+    public class SimplePoly {
+
+        private Bitmap image;
+
+        private float[] color;
         private ArrayList<Point2d> pts = new ArrayList<>();
-
-
         private ArrayList<Point2d> textCoords = new ArrayList<>();
 
-
-        public Bitmap getTexture() {
-            return texture;
+        public Bitmap getImage() {
+            return image;
         }
 
-        public void setTexture(Bitmap texture) {
-            this.texture = texture;
+        public void setImage(Bitmap image) {
+            this.image = image;
         }
 
-        public Color getColor() {
+        public float[] getColor() {
             return color;
         }
 
-        public void setColor(Color color) {
+        public void setColor(float[] color) {
             this.color = color;
         }
 
@@ -191,7 +189,7 @@ public class ScreenObject {
         }
     }
 
-    private class StringWrapper{
+    private class StringWrapper {
 
         private Matrix3d mat;
         private int width;

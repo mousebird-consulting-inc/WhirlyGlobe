@@ -25,8 +25,8 @@ import java.util.List;
 public class BillboardManager {
 
 
-    public BillboardManager() {
-        initialise();
+    public BillboardManager(Scene scene) {
+        initialise(scene);
     }
 
     public native long addBillboards (List<Billboard> billboards, BillboardInfo billboardInfo, long billShader, ChangeSet changes);
@@ -45,6 +45,6 @@ public class BillboardManager {
         nativeInit();
     }
     private static native void nativeInit();
-    native void initialise();
+    native void initialise(Scene scene);
     native void dispose();
 }

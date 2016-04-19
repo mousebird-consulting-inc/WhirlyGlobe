@@ -32,13 +32,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_nativeInit
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_initialise
-(JNIEnv *env, jobject obj)
+(JNIEnv *env, jobject obj, jobject sceneObj)
 {
     try
     {
         BillboardManagerClassInfo *classInfo = BillboardManagerClassInfo::getClassInfo();
-        BillboardManager *inst = new BillboardManager();
-        classInfo->setHandle(env, obj, inst);
+        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+        BillboardManager *billManager = dynamic_cast<BillboardManager *>(scene->getManager(kWKBillboardManager));
+        classInfo->setHandle(env, obj, billManager);
     }
     catch (...)
     {
