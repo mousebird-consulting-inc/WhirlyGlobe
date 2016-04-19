@@ -91,7 +91,7 @@ public class MetroThread extends HandlerThread implements Choreographer.FrameCal
 		// Nudge the renderer
 		if (control.glSurfaceView != null && (frameCount % frameInterval == 0)) {
 			if (requestRender ||
-					(renderer != null && renderer.hasChanges() || renderer.activeObjectsHaveChanges())) {
+					(renderer != null && (renderer.hasChanges() || renderer.activeObjectsHaveChanges() || renderer.view.isAnimating()))) {
 				control.glSurfaceView.requestRender();
 			}
 			requestRender = false;

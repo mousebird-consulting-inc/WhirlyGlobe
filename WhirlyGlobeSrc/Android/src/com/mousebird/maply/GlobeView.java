@@ -110,6 +110,7 @@ public class GlobeView extends View
 	/**
 	 * Check if the globe position is being animated.
      */
+	@Override
 	public boolean isAnimating()
 	{
 		if (animationDelegate != null)

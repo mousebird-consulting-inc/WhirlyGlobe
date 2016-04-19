@@ -55,6 +55,12 @@ public class View
 	{
 	}
 
+	// Subclasses override
+	public boolean isAnimating()
+	{
+		return false;
+	}
+
 	// Filled in by the subclass
 	public void cancelAnimation() 
 	{

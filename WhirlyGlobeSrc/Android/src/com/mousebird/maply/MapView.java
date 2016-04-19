@@ -91,7 +91,16 @@ public class MapView extends View
 			runViewUpdates();
 		}
 	}
-	
+
+	// True if animation is in progress
+	public boolean isAnimating()
+	{
+		if (animationDelegate != null)
+			return true;
+
+		return false;
+	}
+
 	// Set the view location from a Point3d
 	void setLoc(Point3d loc)
 	{
