@@ -34,7 +34,7 @@
         
         aerisID = @"2kDDnD7Q1XFfFm4CwH17C";
         aerisKey = @"FQmadjUccN3CnB4KG6kKeurUpxHSKM0xbCd6TlVi";
-        layerCode = @"radar";
+        layerCode = @"sat-global";
         importanceScale = 1.0/8.0; // 1/8 works well for the weather imagery layers.
         
     }

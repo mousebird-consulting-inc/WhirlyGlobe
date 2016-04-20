@@ -63,6 +63,7 @@
 #import "MaplyPoints.h"
 #import "MaplyGeomBuilder.h"
 #import "MaplyColorRampGenerator.h"
+#import "MaplyAerisTiles.h"
 
 // These are not pulled in by the podspec
 #ifdef NOTPODSPECWG
