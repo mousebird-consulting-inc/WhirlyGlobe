@@ -146,7 +146,15 @@ MaplyCoordinateD MaplyCoordinateDMake(double radLon,double radLat);
     @return A 2D MaplyCoordinate in radians (if representing a lon/lat value).
   */
 MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat);
-    
+
+/** @brief Construct a MaplyGeoCoordinate with longitude and latitude values in degrees.
+ @details MaplyCoordinate's are in radians when they represent lon/lat values.  This function does that conversion for you.
+ @param degLon The longitude value (east to west) in degrees.
+ @param degLat The latitude value (north to south) in degrees.
+ @return A 2D MaplyCoordinate in radians (if representing a lon/lat value).
+ */
+MaplyCoordinateD MaplyCoordinateDMakeWithDegrees(float degLon,float degLat);
+
 /** @brief Construct a MaplyCoordinateD with a MaplyCoordinate.
     @details This function constructs a MaplyCoordinateD with the component values of the input MaplyCoordinate.
     @param c The input MaplyCoordinate value.
