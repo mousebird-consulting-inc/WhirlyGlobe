@@ -196,6 +196,8 @@
 		2B63C88E1ADC70AE006CA9AA /* MaplyUpdateLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B63C88D1ADC70AE006CA9AA /* MaplyUpdateLayer.h */; };
 		2B63C8911ADC70B9006CA9AA /* MaplyUpdateLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B63C8901ADC70B9006CA9AA /* MaplyUpdateLayer.mm */; };
 		2B63C8931ADC82B0006CA9AA /* MaplyUpdateLayer_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B63C8921ADC82B0006CA9AA /* MaplyUpdateLayer_private.h */; };
+		2B65F0FF1CC824FC009B70F7 /* include in Headers */ = {isa = PBXBuildFile; fileRef = 2B65F0FD1CC824FC009B70F7 /* include */; };
+		2B65F1001CC824FC009B70F7 /* MaplyColorRampGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F0FE1CC824FC009B70F7 /* MaplyColorRampGenerator.m */; };
 		2B73BD4119F07B7600CDB242 /* MaplyMatrix.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73BD4019F07B7600CDB242 /* MaplyMatrix.h */; };
 		2B73BD4419F07B7F00CDB242 /* MaplyMatrix.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B73BD4319F07B7F00CDB242 /* MaplyMatrix.mm */; };
 		2B73BD4619F07D8900CDB242 /* MaplyMatrix_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73BD4519F07D8900CDB242 /* MaplyMatrix_private.h */; };
@@ -662,6 +664,8 @@
 		2B63C88D1ADC70AE006CA9AA /* MaplyUpdateLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyUpdateLayer.h; path = include/MaplyUpdateLayer.h; sourceTree = SOURCE_ROOT; };
 		2B63C8901ADC70B9006CA9AA /* MaplyUpdateLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyUpdateLayer.mm; path = src/MaplyUpdateLayer.mm; sourceTree = SOURCE_ROOT; };
 		2B63C8921ADC82B0006CA9AA /* MaplyUpdateLayer_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyUpdateLayer_private.h; path = include/private/MaplyUpdateLayer_private.h; sourceTree = SOURCE_ROOT; };
+		2B65F0FD1CC824FC009B70F7 /* include */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = folder; path = include; sourceTree = "<group>"; };
+		2B65F0FE1CC824FC009B70F7 /* MaplyColorRampGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MaplyColorRampGenerator.m; path = src/MaplyColorRampGenerator.m; sourceTree = "<group>"; };
 		2B73BD4019F07B7600CDB242 /* MaplyMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyMatrix.h; path = include/MaplyMatrix.h; sourceTree = "<group>"; };
 		2B73BD4319F07B7F00CDB242 /* MaplyMatrix.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyMatrix.mm; path = src/MaplyMatrix.mm; sourceTree = "<group>"; };
 		2B73BD4519F07D8900CDB242 /* MaplyMatrix_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyMatrix_private.h; path = include/private/MaplyMatrix_private.h; sourceTree = "<group>"; };
@@ -1502,6 +1506,8 @@
 				2BEA064C19C3BB7D00F2BB93 /* MaplyTextureAtlas.mm */,
 				2B7DD74F19392C7400799224 /* MaplyTextureBuilder.h */,
 				2B7DD75219392C8000799224 /* MaplyTextureBuilder.mm */,
+				2B65F0FD1CC824FC009B70F7 /* include */,
+				2B65F0FE1CC824FC009B70F7 /* MaplyColorRampGenerator.m */,
 				2BC122E91AC095580025326D /* MaplyVertexAttribute.h */,
 				2BC122EA1AC095580025326D /* MaplyVertexAttribute_private.h */,
 				2BC122EE1AC095660025326D /* MaplyVertexAttribute.mm */,
@@ -1809,6 +1815,7 @@
 				2B2FEC511B572BD400A332BF /* AAMoonIlluminatedFraction.h in Headers */,
 				2BEE96B01AA52F47007F9209 /* MaplyScreenObject_private.h in Headers */,
 				2B0A4DC0167BFA7A000D5786 /* MaplyViewController_private.h in Headers */,
+				2B65F0FF1CC824FC009B70F7 /* include in Headers */,
 				2B37059916B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup.h in Headers */,
 				2B37059A16B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup_private.h in Headers */,
 				2B760C9E1881D68C006FE98B /* MaplyIconManager.h in Headers */,
@@ -2031,6 +2038,7 @@
 				2B2FEC9D1B572BD400A332BF /* AAPlanetPerihelionAphelion.cpp in Sources */,
 				2BD5A8491B41FEB500DDAEE3 /* dynamic_message.cc in Sources */,
 				2BD5A8631B41FECF00DDAEE3 /* once.cc in Sources */,
+				2B65F1001CC824FC009B70F7 /* MaplyColorRampGenerator.m in Sources */,
 				2BEB21F918441B020048DDE3 /* MaplyTexture.mm in Sources */,
 				2B2FECA51B572BD400A332BF /* AASidereal.cpp in Sources */,
 				88F4CEE91BC195E9007DEF8B /* Maply3dTouchPreviewDelegate.mm in Sources */,
