@@ -51,6 +51,15 @@ MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat)
     return coord;
 }
 
+MaplyCoordinateD MaplyCoordinateDMakeWithDegrees(double degLon,double degLat)
+{
+    MaplyCoordinateD coord;
+    coord.x = DegToRad(degLon);
+    coord.y = DegToRad(degLat);
+    
+    return coord;
+}
+
 MaplyCoordinateD MaplyCoordinateDMakeWithMaplyCoordinate(MaplyCoordinate c)
 {
     MaplyCoordinateD coord;
