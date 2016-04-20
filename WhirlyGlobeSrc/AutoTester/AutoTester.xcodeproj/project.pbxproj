@@ -27,6 +27,9 @@
 		2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */; };
 		2BDEB3141C9391EB003259B3 /* GreatCircleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */; };
 		2BDEB3361C989D18003259B3 /* MapquestSatelliteTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3351C989D18003259B3 /* MapquestSatelliteTestCase.m */; };
+		2BEA7D711CC54A0A004A0B38 /* MapjamVectorTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA7D701CC54A0A004A0B38 /* MapjamVectorTestCase.swift */; };
+		2BEA7D741CC54A95004A0B38 /* MapjamSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA7D731CC54A95004A0B38 /* MapjamSource.m */; };
+		2BEA7D771CC54DBB004A0B38 /* mapjam-street-map.json in Resources */ = {isa = PBXBuildFile; fileRef = 2BEA7D761CC54DBB004A0B38 /* mapjam-street-map.json */; };
 		88019FAE1B8F7D6D00674B00 /* libWhirlyGlobe-MaplyComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 88019FAD1B8F7AB800674B00 /* libWhirlyGlobe-MaplyComponent.a */; };
 		88231C791BA784BC00A95F2B /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88231C781BA784BC00A95F2B /* ConfigViewController.xib */; };
 		883DF71B1C1CE164000756E9 /* AnimatedBasemapTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6F11C1CE164000756E9 /* AnimatedBasemapTestCase-globe.png */; };
@@ -505,7 +508,7 @@
 		D8DCCCA31BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCCA21BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift */; };
 		D8DCCCAC1BDC1A1200BA3866 /* CesiumElevationTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */; };
 		D8E12ECD1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */; };
-		D8E12ED01BDEA2E400BB7BC7 /* WheatherShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ECF1BDEA2E400BB7BC7 /* WheatherShader.swift */; };
+		D8E12ED01BDEA2E400BB7BC7 /* WeatherShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ECF1BDEA2E400BB7BC7 /* WeatherShader.swift */; };
 		D8E12ED41BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ED31BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m */; };
 		D8F2FE231BE7B1B40058A310 /* MapzenSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE221BE7B1B40058A310 /* MapzenSource.m */; };
 		D8F2FE271BE7BD630058A310 /* LabelsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE261BE7BD630058A310 /* LabelsTestCase.m */; };
@@ -559,6 +562,10 @@
 		2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GreatCircleTestCase.m; sourceTree = "<group>"; };
 		2BDEB3341C989D18003259B3 /* MapquestSatelliteTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapquestSatelliteTestCase.h; sourceTree = "<group>"; };
 		2BDEB3351C989D18003259B3 /* MapquestSatelliteTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapquestSatelliteTestCase.m; sourceTree = "<group>"; };
+		2BEA7D701CC54A0A004A0B38 /* MapjamVectorTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapjamVectorTestCase.swift; sourceTree = "<group>"; };
+		2BEA7D721CC54A95004A0B38 /* MapjamSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapjamSource.h; sourceTree = "<group>"; };
+		2BEA7D731CC54A95004A0B38 /* MapjamSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapjamSource.m; sourceTree = "<group>"; };
+		2BEA7D761CC54DBB004A0B38 /* mapjam-street-map.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "mapjam-street-map.json"; path = "../../resources/mapjam vectors/mapjam-street-map.json"; sourceTree = "<group>"; };
 		7DCA6760F1FB2455FF49EA9D /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		88019FA71B8F7AB800674B00 /* WhirlyGlobe-MaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "WhirlyGlobe-MaplyComponent.xcodeproj"; path = "../WhirlyGlobe-MaplyComponent/WhirlyGlobe-MaplyComponent.xcodeproj"; sourceTree = "<group>"; };
 		8810B2D11BA9D45F00446CE3 /* MaplyTesterBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyTesterBridge.h; sourceTree = "<group>"; };
@@ -1055,7 +1062,7 @@
 		D8DCCCAA1BDC1A1200BA3866 /* CesiumElevationTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CesiumElevationTestCase.h; sourceTree = "<group>"; };
 		D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CesiumElevationTestCase.m; sourceTree = "<group>"; };
 		D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatedBasemapTestCase.swift; sourceTree = "<group>"; };
-		D8E12ECF1BDEA2E400BB7BC7 /* WheatherShader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WheatherShader.swift; sourceTree = "<group>"; };
+		D8E12ECF1BDEA2E400BB7BC7 /* WeatherShader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeatherShader.swift; sourceTree = "<group>"; };
 		D8E12ED21BDEAC5900BB7BC7 /* MapBoxVectorTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapBoxVectorTestCase.h; sourceTree = "<group>"; };
 		D8E12ED31BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapBoxVectorTestCase.m; sourceTree = "<group>"; };
 		D8F2FE211BE7B1B40058A310 /* MapzenSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapzenSource.h; sourceTree = "<group>"; };
@@ -1113,6 +1120,14 @@
 				2B4BA6CD1C83A22000DC1562 /* uturn.geojson */,
 			);
 			name = "wide vectors";
+			sourceTree = "<group>";
+		};
+		2BEA7D751CC54D5C004A0B38 /* Mapjam vectors */ = {
+			isa = PBXGroup;
+			children = (
+				2BEA7D761CC54DBB004A0B38 /* mapjam-street-map.json */,
+			);
+			name = "Mapjam vectors";
 			sourceTree = "<group>";
 		};
 		3651D5D283D23F0C2EFDE845 /* Frameworks */ = {
@@ -1234,6 +1249,7 @@
 				2BDEB3341C989D18003259B3 /* MapquestSatelliteTestCase.h */,
 				2BDEB3351C989D18003259B3 /* MapquestSatelliteTestCase.m */,
 				D8341A621BE299BF00411A46 /* MapzenVectorTestCase.swift */,
+				2BEA7D701CC54A0A004A0B38 /* MapjamVectorTestCase.swift */,
 				D8F2FE281BE7C2000058A310 /* MarkersTestCase.swift */,
 				D8F2FE2A1BE7CAD30058A310 /* MegaMarkersTestCase.h */,
 				D8F2FE2B1BE7CAD30058A310 /* MegaMarkersTestCase.m */,
@@ -1293,6 +1309,8 @@
 				D84433ED1C14E4FE00A52117 /* CartoDBLayer.m */,
 				D8F2FE211BE7B1B40058A310 /* MapzenSource.h */,
 				D8F2FE221BE7B1B40058A310 /* MapzenSource.m */,
+				2BEA7D721CC54A95004A0B38 /* MapjamSource.h */,
+				2BEA7D731CC54A95004A0B38 /* MapjamSource.m */,
 				88E4B8C81B83B6AB0050D21B /* Main.storyboard */,
 				88E4B8C21B83B6AB0050D21B /* Supporting Files */,
 				886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */,
@@ -1306,7 +1324,7 @@
 				88BF11581BCDA3960002205E /* ResultCell.swift */,
 				88BF115A1BCDA9530002205E /* testCases */,
 				D8DCCC9E1BDB89A900BA3866 /* FullScreenViewController.swift */,
-				D8E12ECF1BDEA2E400BB7BC7 /* WheatherShader.swift */,
+				D8E12ECF1BDEA2E400BB7BC7 /* WeatherShader.swift */,
 				D880112D1BFD16A900606EC6 /* DropboxViewController.swift */,
 				D880112E1BFD16A900606EC6 /* DropboxViewController.xib */,
 			);
@@ -1341,6 +1359,7 @@
 				88FF5BFC1BC31D6D002F15CE /* maki icons */,
 				88FF5C671BC31D6D002F15CE /* mapbox vectors */,
 				88FF5C691BC31D6D002F15CE /* mapzen vectors */,
+				2BEA7D751CC54D5C004A0B38 /* Mapjam vectors */,
 				88FF5C6C1BC31D6D002F15CE /* models */,
 				88FF5C711BC31D6D002F15CE /* stars */,
 				88FF5BE11BC31D53002F15CE /* map_pin.png */,
@@ -1955,6 +1974,7 @@
 				88FF5EC21BC31D95002F15CE /* SSD.geojson in Resources */,
 				88FF5E6F1BC31D95002F15CE /* KOR.geojson in Resources */,
 				88FF5E341BC31D95002F15CE /* DOM.geojson in Resources */,
+				2BEA7D771CC54DBB004A0B38 /* mapjam-street-map.json in Resources */,
 				2B4BA6D11C83A22000DC1562 /* rightbend.geojson in Resources */,
 				883DF7371C1CE164000756E9 /* ScreenLabelsTestCase-globe.png in Resources */,
 				88FF5E4D1BC31D95002F15CE /* GNQ.geojson in Resources */,
@@ -2424,7 +2444,7 @@
 				2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */,
 				D8228A921BE77816001D6914 /* MovingScreenLabelsTestCase.swift in Sources */,
 				D8200CA41BE9624300B22CF5 /* LoftedPolysTestCase.m in Sources */,
-				D8E12ED01BDEA2E400BB7BC7 /* WheatherShader.swift in Sources */,
+				D8E12ED01BDEA2E400BB7BC7 /* WeatherShader.swift in Sources */,
 				88BF11521BCD9BF70002205E /* MaplyTestResult.m in Sources */,
 				D8228AA61BE785E1001D6914 /* MovingScreenMarkers.m in Sources */,
 				D8DCCCAC1BDC1A1200BA3866 /* CesiumElevationTestCase.m in Sources */,
@@ -2432,6 +2452,7 @@
 				88BF11591BCDA3960002205E /* ResultCell.swift in Sources */,
 				D84433EB1C14E4E700A52117 /* CartoDBTestCase.m in Sources */,
 				D8D3E0681C4EDA1800F0D006 /* ParticleTestCase.swift in Sources */,
+				2BEA7D741CC54A95004A0B38 /* MapjamSource.m in Sources */,
 				D8DCCCA31BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift in Sources */,
 				D8341A731BE2DFE100411A46 /* ScreenLabelsTestCase.swift in Sources */,
 				8895D8B01CA4ABA9004387FB /* ParticleTest.m in Sources */,
@@ -2465,6 +2486,7 @@
 				D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */,
 				D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */,
 				D8200C9F1BE9516300B22CF5 /* ShapesTestCase.m in Sources */,
+				2BEA7D711CC54A0A004A0B38 /* MapjamVectorTestCase.swift in Sources */,
 				D8341A761BE2E89E00411A46 /* ScreenMarkersTestCase.m in Sources */,
 				D8E12ED41BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m in Sources */,
 				E5679F491CB72DE800369A15 /* WMSTestCase.m in Sources */,

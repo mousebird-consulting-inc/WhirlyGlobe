@@ -20,6 +20,7 @@
 #import "VectorsTestCase.h"
 #import "ScreenMarkersTestCase.h"
 #import "MapzenSource.h"
+#import "MapjamSource.h"
 #import "LabelsTestCase.h"
 #import "MegaMarkersTestCase.h"
 #import "WideVectorsTestCase.h"
