@@ -864,6 +864,37 @@ public class MaplyBaseController
     }
 
 	/**
+	 * Add texture to the system with the given settings.
+	 * @param rawTex Texture to add.
+	 * @param settings Settings to use.
+	 * @param mode Add on the current thread or elsewhere.
+	 */
+	public MaplyTexture addTexture(final Texture rawTex,TextureSettings settings,ThreadMode mode)
+	{
+		final MaplyTexture texture = new MaplyTexture();
+
+		// Possibly do the work somewhere else
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+						texture.texID = rawTex.getID();
+						changes.addTexture(rawTex, scene);
+
+						// Flush the texture changes
+						changes.process(scene);
+					}
+				};
+
+		addTask(run, mode);
+
+		return texture;
+	}
+
+	/**
 	 * Remove a texture from the scene with the given settings.
 	 * @param tex Texture to remove.
 	 * @param mode Remove immediately (current thread) or elsewhere.
@@ -1241,31 +1272,22 @@ public class MaplyBaseController
 								Point2d size2d = new Point2d(size.ur.getX() - size.ll.getX(), size.ur.getY() - size.ll.getY());
 								bill.setSize(size2d);
 
-								for (ScreenObject.SimplePoly poly : screenObject.getPolys()) {
-									SingleBillboardPoly billPoly = new SingleBillboardPoly();
-									for (Point2d pt : poly.getPts()) {
-										billPoly.addPoint(pt);
+								for (int ii = 0; ii < screenObject.getPolysSize(); ii++) {
+									SimplePoly poly = screenObject.getPoly(ii);
+									long texID = -1;
+									if (poly.getTexture() != null) {
+										MaplyTexture texture = addTexture(poly.getTexture(), new TextureSettings(), threadMode);
+										texID = texture.texID;
 									}
-
-									for (Point2d texPt : poly.getTextCoords()) {
-										billPoly.addTexCoord(texPt);
+									List<Point2d> pts = new ArrayList<>();
+									List<Point2d> texCoords = new ArrayList<>();
+									for (int jj = 0; jj < poly.getPtsSize(); jj++){
+										pts.add(poly.getPt(jj));
 									}
-
-									float[] color = poly.getColor();
-									billPoly.addColor(color[0], color[1], color[2], color[3]);
-
-									if (bill.getVertexAttributes().size() > 0) {
-										for (VertexAttribute vertexAttribute : bill.getVertexAttributes()) {
-											billPoly.addVertexAttribute(vertexAttribute);
-										}
+									for (int kk = 0; kk < poly.getTexCoordsSize(); kk++){
+										texCoords.add(poly.getTexCoord(kk));
 									}
-
-									if (poly.getImage() != null) {
-										MaplyTexture texture = addTexture(poly.getImage(), new TextureSettings(), threadMode);
-										billPoly.setTexID(texture.texID);
-									}
-
-									bill.addPoly(billPoly);
+									bill.addPoly(pts, texCoords, poly.getColor(), bill.getVertexAttributes(), texID);
 								}
 							}
 

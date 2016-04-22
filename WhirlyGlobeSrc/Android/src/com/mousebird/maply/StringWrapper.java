@@ -1,5 +1,5 @@
 /*
- *  Matrix3d.java
+ *  StringWrapper.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
@@ -20,15 +20,23 @@
 package com.mousebird.maply;
 
 
-public class Matrix3d {
+public class StringWrapper {
 
-    public Matrix3d() {
+    public StringWrapper() {
         initialise();
     }
 
-    public void finalize() {
+    public void finalise() {
         dispose();
     }
+
+    public native void setSize(int width, int height);
+
+    public native int[] getSize();
+
+    public native void setMat(Matrix3d mat);
+
+    public native Matrix3d getMat();
 
     static
     {
@@ -37,26 +45,7 @@ public class Matrix3d {
     private static native void nativeInit();
     native void initialise();
     native void dispose();
-    /**
-     * Return the inverse of this matrix.
-     */
-    public native Matrix3d inverse();
 
-    /**
-     * Transpose and return the matrix.
-     */
-    public native Matrix3d transpose();
-    /**
-     * Multiply the vector by this matrix and return the result.
-     */
-    public native Point3d multiply(Point3d vec);
-
-    public native static Matrix3d traslateX(double x, double y );
-
-    public native static Point2d multiplyTrasX(double x, double y, Point2d pt);
-
-    public native static Matrix3d scaleX(double x, double y);
-
-    public native Matrix3d multiply(Matrix3d matrix);
     private long nativeHandle;
+
 }

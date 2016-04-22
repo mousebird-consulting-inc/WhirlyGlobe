@@ -446,6 +446,10 @@
 		8817DA041C92F3070034E3EA /* com_mousebird_maply_ShapeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 8817D9FF1C92F3070034E3EA /* com_mousebird_maply_ShapeManager.h */; };
 		8817DA051C92F3070034E3EA /* com_mousebird_maply_Shape.h in Headers */ = {isa = PBXBuildFile; fileRef = 8817DA001C92F3070034E3EA /* com_mousebird_maply_Shape.h */; };
 		8817DA061C92F3070034E3EA /* com_mousebird_maply_ParticleSystem_STATE.h in Headers */ = {isa = PBXBuildFile; fileRef = 8817DA011C92F3070034E3EA /* com_mousebird_maply_ParticleSystem_STATE.h */; };
+		8831A2141CCA352200D3268E /* com_mousebird_maply_ScreenObject_BoundingBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 8831A2101CCA352200D3268E /* com_mousebird_maply_ScreenObject_BoundingBox.h */; };
+		8831A2151CCA352200D3268E /* com_mousebird_maply_ScreenObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 8831A2111CCA352200D3268E /* com_mousebird_maply_ScreenObject.h */; };
+		8831A2161CCA352200D3268E /* com_mousebird_maply_SimplePoly.h in Headers */ = {isa = PBXBuildFile; fileRef = 8831A2121CCA352200D3268E /* com_mousebird_maply_SimplePoly.h */; };
+		8831A2171CCA352200D3268E /* com_mousebird_maply_StringWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 8831A2131CCA352200D3268E /* com_mousebird_maply_StringWrapper.h */; };
 		883C07431CC055740042B20C /* AA+.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06CD1CC055740042B20C /* AA+.h */; };
 		883C07441CC055740042B20C /* AA2DCoordinate.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06CE1CC055740042B20C /* AA2DCoordinate.h */; };
 		883C07451CC055740042B20C /* AA3DCoordinate.h in Headers */ = {isa = PBXBuildFile; fileRef = 883C06CF1CC055740042B20C /* AA3DCoordinate.h */; };
@@ -568,14 +572,12 @@
 		88AEB1581CC0466800BD63C2 /* Sun.h in Headers */ = {isa = PBXBuildFile; fileRef = 88AEB1561CC0466800BD63C2 /* Sun.h */; };
 		88AEB15D1CC046FF00BD63C2 /* Moon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88AEB15A1CC046FF00BD63C2 /* Moon.cpp */; };
 		88AEB15E1CC046FF00BD63C2 /* Sun.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88AEB15B1CC046FF00BD63C2 /* Sun.cpp */; };
-		88AEB1621CC0476D00BD63C2 /* com_mousebird_maply_Affine2d.h in Headers */ = {isa = PBXBuildFile; fileRef = 88AEB15F1CC0476D00BD63C2 /* com_mousebird_maply_Affine2d.h */; };
 		88AEB1631CC0476D00BD63C2 /* com_mousebird_maply_Matrix3d.h in Headers */ = {isa = PBXBuildFile; fileRef = 88AEB1601CC0476D00BD63C2 /* com_mousebird_maply_Matrix3d.h */; };
 		88AEB1641CC0476D00BD63C2 /* com_mousebird_maply_Moon.h in Headers */ = {isa = PBXBuildFile; fileRef = 88AEB1611CC0476D00BD63C2 /* com_mousebird_maply_Moon.h */; };
 		88B9DE821C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 88B9DE7F1C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h */; };
 		88B9DE831C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 88B9DE801C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h */; };
 		88CC3B0F1CC540E700E0AEB7 /* com_mousebird_maply_Billboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CC3B0C1CC540E700E0AEB7 /* com_mousebird_maply_Billboard.h */; };
 		88CC3B101CC540E700E0AEB7 /* com_mousebird_maply_BillboardInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CC3B0D1CC540E700E0AEB7 /* com_mousebird_maply_BillboardInfo.h */; };
-		88CC3B111CC540E700E0AEB7 /* com_mousebird_maply_SingleBillboardPoly.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CC3B0E1CC540E700E0AEB7 /* com_mousebird_maply_SingleBillboardPoly.h */; };
 		88CC3B131CC5766800E0AEB7 /* com_mousebird_maply_BillboardManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CC3B121CC5766800E0AEB7 /* com_mousebird_maply_BillboardManager.h */; };
 		88D57FC01CA1EB6400A203F8 /* ElevationChunk.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FBF1CA1EB6400A203F8 /* ElevationChunk.h */; };
 		88D57FC21CA1EB6F00A203F8 /* MarkerGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 88D57FC11CA1EB6F00A203F8 /* MarkerGenerator.h */; };
@@ -608,6 +610,7 @@
 		8F0446861CC14D93008E4039 /* BillboardDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F0446851CC14D93008E4039 /* BillboardDrawable.cpp */; };
 		8F22E5D91CA19359000458C7 /* Lighting.h in Headers */ = {isa = PBXBuildFile; fileRef = 8F22E5D81CA19359000458C7 /* Lighting.h */; };
 		8F22E5DB1CA1936B000458C7 /* Lighting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F22E5DA1CA1936B000458C7 /* Lighting.cpp */; };
+		8FB301931CC98AE7000111DF /* ScreenObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8FB301921CC98AE7000111DF /* ScreenObject.cpp */; };
 		D8641E091C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h in Headers */ = {isa = PBXBuildFile; fileRef = D8641E051C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h */; };
 		D8701BA51C538B39009A5471 /* ParticleSystemManager.h in Headers */ = {isa = PBXBuildFile; fileRef = D8701BA31C538B39009A5471 /* ParticleSystemManager.h */; };
 		D8701BA61C538B39009A5471 /* ParticleSystemDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = D8701BA41C538B39009A5471 /* ParticleSystemDrawable.h */; };
@@ -1125,6 +1128,10 @@
 		8817DA091C92F3290034E3EA /* ShapeManager_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ShapeManager_jni.cpp; path = ../Android/jni/ShapeManager_jni.cpp; sourceTree = "<group>"; };
 		8817DA0A1C92F3290034E3EA /* ShapeSphere_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ShapeSphere_jni.cpp; path = ../Android/jni/ShapeSphere_jni.cpp; sourceTree = "<group>"; };
 		8817DA0B1C92F3290034E3EA /* QuadTrackerPointReturn_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadTrackerPointReturn_jni.cpp; path = ../Android/jni/QuadTrackerPointReturn_jni.cpp; sourceTree = "<group>"; };
+		8831A2101CCA352200D3268E /* com_mousebird_maply_ScreenObject_BoundingBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ScreenObject_BoundingBox.h; path = ../Android/jni/com_mousebird_maply_ScreenObject_BoundingBox.h; sourceTree = "<group>"; };
+		8831A2111CCA352200D3268E /* com_mousebird_maply_ScreenObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ScreenObject.h; path = ../Android/jni/com_mousebird_maply_ScreenObject.h; sourceTree = "<group>"; };
+		8831A2121CCA352200D3268E /* com_mousebird_maply_SimplePoly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_SimplePoly.h; path = ../Android/jni/com_mousebird_maply_SimplePoly.h; sourceTree = "<group>"; };
+		8831A2131CCA352200D3268E /* com_mousebird_maply_StringWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_StringWrapper.h; path = ../Android/jni/com_mousebird_maply_StringWrapper.h; sourceTree = "<group>"; };
 		883C06CD1CC055740042B20C /* AA+.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AA+.h"; sourceTree = "<group>"; };
 		883C06CE1CC055740042B20C /* AA2DCoordinate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AA2DCoordinate.h; sourceTree = "<group>"; };
 		883C06CF1CC055740042B20C /* AA3DCoordinate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AA3DCoordinate.h; sourceTree = "<group>"; };
@@ -1248,17 +1255,14 @@
 		88AEB1591CC046FF00BD63C2 /* MarkerGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MarkerGenerator.cpp; sourceTree = "<group>"; };
 		88AEB15A1CC046FF00BD63C2 /* Moon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Moon.cpp; sourceTree = "<group>"; };
 		88AEB15B1CC046FF00BD63C2 /* Sun.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sun.cpp; sourceTree = "<group>"; };
-		88AEB15F1CC0476D00BD63C2 /* com_mousebird_maply_Affine2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Affine2d.h; path = ../Android/jni/com_mousebird_maply_Affine2d.h; sourceTree = "<group>"; };
 		88AEB1601CC0476D00BD63C2 /* com_mousebird_maply_Matrix3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Matrix3d.h; path = ../Android/jni/com_mousebird_maply_Matrix3d.h; sourceTree = "<group>"; };
 		88AEB1611CC0476D00BD63C2 /* com_mousebird_maply_Moon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Moon.h; path = ../Android/jni/com_mousebird_maply_Moon.h; sourceTree = "<group>"; };
-		88AEB1651CC0479600BD63C2 /* Affine2d_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Affine2d_jni.cpp; path = ../Android/jni/Affine2d_jni.cpp; sourceTree = "<group>"; };
 		88AEB1661CC0479600BD63C2 /* Matrix3d_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Matrix3d_jni.cpp; path = ../Android/jni/Matrix3d_jni.cpp; sourceTree = "<group>"; };
 		88AEB1671CC0479600BD63C2 /* Moon_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Moon_jni.cpp; path = ../Android/jni/Moon_jni.cpp; sourceTree = "<group>"; };
 		88B9DE7F1C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ParticleSystem.h; path = ../Android/jni/com_mousebird_maply_ParticleSystem.h; sourceTree = "<group>"; };
 		88B9DE801C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ParticleSystemManager.h; path = ../Android/jni/com_mousebird_maply_ParticleSystemManager.h; sourceTree = "<group>"; };
 		88CC3B0C1CC540E700E0AEB7 /* com_mousebird_maply_Billboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_Billboard.h; path = ../Android/jni/com_mousebird_maply_Billboard.h; sourceTree = "<group>"; };
 		88CC3B0D1CC540E700E0AEB7 /* com_mousebird_maply_BillboardInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_BillboardInfo.h; path = ../Android/jni/com_mousebird_maply_BillboardInfo.h; sourceTree = "<group>"; };
-		88CC3B0E1CC540E700E0AEB7 /* com_mousebird_maply_SingleBillboardPoly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_SingleBillboardPoly.h; path = ../Android/jni/com_mousebird_maply_SingleBillboardPoly.h; sourceTree = "<group>"; };
 		88CC3B121CC5766800E0AEB7 /* com_mousebird_maply_BillboardManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_BillboardManager.h; path = ../Android/jni/com_mousebird_maply_BillboardManager.h; sourceTree = "<group>"; };
 		88D57FBF1CA1EB6400A203F8 /* ElevationChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevationChunk.h; sourceTree = "<group>"; };
 		88D57FC11CA1EB6F00A203F8 /* MarkerGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerGenerator.h; sourceTree = "<group>"; };
@@ -1300,13 +1304,17 @@
 		8F0446831CC14D7E008E4039 /* BillboardDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BillboardDrawable.h; sourceTree = "<group>"; };
 		8F0446851CC14D93008E4039 /* BillboardDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BillboardDrawable.cpp; sourceTree = "<group>"; };
 		8F21C1301CC3E827007CD890 /* BillboardInfo_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BillboardInfo_jni.cpp; path = ../Android/jni/BillboardInfo_jni.cpp; sourceTree = "<group>"; };
-		8F21C1321CC3E961007CD890 /* SingleBillboardPoly_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SingleBillboardPoly_jni.cpp; path = ../Android/jni/SingleBillboardPoly_jni.cpp; sourceTree = "<group>"; };
 		8F21C1341CC3EA04007CD890 /* Billboard_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Billboard_jni.cpp; path = ../Android/jni/Billboard_jni.cpp; sourceTree = "<group>"; };
 		8F22E5D81CA19359000458C7 /* Lighting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lighting.h; sourceTree = "<group>"; };
 		8F22E5DA1CA1936B000458C7 /* Lighting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lighting.cpp; sourceTree = "<group>"; };
 		8F22E5E01CA19ED5000458C7 /* DirectionalLight_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DirectionalLight_jni.cpp; path = ../Android/jni/DirectionalLight_jni.cpp; sourceTree = "<group>"; };
 		8F22E5E41CA19F0D000458C7 /* Material_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Material_jni.cpp; path = ../Android/jni/Material_jni.cpp; sourceTree = "<group>"; };
 		8F8225D41CC5621C008BEE40 /* BillboardManager_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BillboardManager_jni.cpp; path = ../Android/jni/BillboardManager_jni.cpp; sourceTree = "<group>"; };
+		8FB301851CC976A9000111DF /* ScreenObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScreenObject.h; sourceTree = "<group>"; };
+		8FB3018C1CC98684000111DF /* SimplePoly_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SimplePoly_jni.cpp; path = ../Android/jni/SimplePoly_jni.cpp; sourceTree = "<group>"; };
+		8FB3018E1CC987B5000111DF /* StringWrapper_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StringWrapper_jni.cpp; path = ../Android/jni/StringWrapper_jni.cpp; sourceTree = "<group>"; };
+		8FB301901CC98827000111DF /* ScreenObject_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScreenObject_jni.cpp; path = ../Android/jni/ScreenObject_jni.cpp; sourceTree = "<group>"; };
+		8FB301921CC98AE7000111DF /* ScreenObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScreenObject.cpp; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D8641E051C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_ParticleBatch.h; path = ../Android/jni/com_mousebird_maply_ParticleBatch.h; sourceTree = "<group>"; };
@@ -1517,7 +1525,6 @@
 		2B4B19291BA38A940091A743 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				88AEB15F1CC0476D00BD63C2 /* com_mousebird_maply_Affine2d.h */,
 				2B4B192B1BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h */,
 				2B4B192C1BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h */,
 				2B923FC51BFBDED200C879DB /* com_mousebird_maply_BaseInfo.h */,
@@ -1575,17 +1582,20 @@
 				D8A4BE2B1C6F61D0009F6CFB /* com_mousebird_maply_QuadTracker.h */,
 				2B4B19501BA38AD90091A743 /* com_mousebird_maply_Quaternion.h */,
 				2B4B19511BA38AD90091A743 /* com_mousebird_maply_Scene.h */,
+				8831A2101CCA352200D3268E /* com_mousebird_maply_ScreenObject_BoundingBox.h */,
+				8831A2111CCA352200D3268E /* com_mousebird_maply_ScreenObject.h */,
 				2B4B19521BA38AD90091A743 /* com_mousebird_maply_SelectionManager.h */,
 				2B4B19531BA38AD90091A743 /* com_mousebird_maply_Shader.h */,
 				8817DA001C92F3070034E3EA /* com_mousebird_maply_Shape.h */,
 				8817D9FE1C92F3070034E3EA /* com_mousebird_maply_ShapeInfo.h */,
 				8817D9FF1C92F3070034E3EA /* com_mousebird_maply_ShapeManager.h */,
 				8817D9FD1C92F3070034E3EA /* com_mousebird_maply_ShapeSphere.h */,
-				88CC3B0E1CC540E700E0AEB7 /* com_mousebird_maply_SingleBillboardPoly.h */,
+				8831A2121CCA352200D3268E /* com_mousebird_maply_SimplePoly.h */,
 				2B4B19541BA38AD90091A743 /* com_mousebird_maply_SphericalMercatorCoordSystem.h */,
 				2B923FC81BFBDED200C879DB /* com_mousebird_maply_Sticker.h */,
 				2B923FC91BFBDED200C879DB /* com_mousebird_maply_StickerInfo.h */,
 				2B923FD11BFD04AE00C879DB /* com_mousebird_maply_StickerManager.h */,
+				8831A2131CCA352200D3268E /* com_mousebird_maply_StringWrapper.h */,
 				2BCCE21C1CA9EE6500F579BA /* com_mousebird_maply_Sun.h */,
 				2B4B19551BA38AD90091A743 /* com_mousebird_maply_Texture.h */,
 				2B4B19561BA38AD90091A743 /* com_mousebird_maply_VectorInfo.h */,
@@ -1609,7 +1619,6 @@
 		2B4B192A1BA38A9A0091A743 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				88AEB1651CC0479600BD63C2 /* Affine2d_jni.cpp */,
 				2B4B199B1BA38AFB0091A743 /* AngleAxis_jni.cpp */,
 				2B4B199C1BA38AFB0091A743 /* AttrDictionary_jni.cpp */,
 				2B923FB71BFA9B5E00C879DB /* BaseInfo_jni.cpp */,
@@ -1668,7 +1677,6 @@
 				8817DA081C92F3290034E3EA /* ShapeInfo_jni.cpp */,
 				8817DA091C92F3290034E3EA /* ShapeManager_jni.cpp */,
 				8817DA0A1C92F3290034E3EA /* ShapeSphere_jni.cpp */,
-				8F21C1321CC3E961007CD890 /* SingleBillboardPoly_jni.cpp */,
 				2B4B19C11BA38AFB0091A743 /* SingleLabelAndroid.cpp */,
 				2B4B19C21BA38AFB0091A743 /* SphericalMercatorCoordSystem_jni.cpp */,
 				2B923FC31BFBD6D200C879DB /* Sticker_jni.cpp */,
@@ -1683,6 +1691,9 @@
 				88D57FC91CA1EBF000A203F8 /* VertexAttribute_jni.cpp */,
 				2B4B19C81BA38AFB0091A743 /* View_jni.cpp */,
 				2B4B19C91BA38AFB0091A743 /* ViewState_jni.cpp */,
+				8FB3018C1CC98684000111DF /* SimplePoly_jni.cpp */,
+				8FB3018E1CC987B5000111DF /* StringWrapper_jni.cpp */,
+				8FB301901CC98827000111DF /* ScreenObject_jni.cpp */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -2023,6 +2034,7 @@
 				2B3567DA18D762BF00EF8DB1 /* WhirlyVector.h */,
 				2BC849691C6932FD0058D10F /* WideVectorDrawable.h */,
 				2BC8496A1C6932FD0058D10F /* WideVectorManager.h */,
+				8FB301851CC976A9000111DF /* ScreenObject.h */,
 			);
 			path = include;
 			sourceTree = "<group>";
@@ -2104,6 +2116,7 @@
 				2B35674218D762A700EF8DB1 /* WhirlyVector.cpp */,
 				2BC8496D1C6933120058D10F /* WideVectorDrawable.cpp */,
 				2BC8496E1C6933120058D10F /* WideVectorManager.cpp */,
+				8FB301921CC98AE7000111DF /* ScreenObject.cpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -2308,6 +2321,7 @@
 				2B76C5F01C1223A90081F395 /* com_mousebird_maply_QuadImageOfflineLayer.h in Headers */,
 				2B35683F18D762BF00EF8DB1 /* WhirlyVector.h in Headers */,
 				2B35683B18D762BF00EF8DB1 /* ViewState.h in Headers */,
+				8831A2161CCA352200D3268E /* com_mousebird_maply_SimplePoly.h in Headers */,
 				2B4B199A1BA38AD90091A743 /* SingleLabelAndroid.h in Headers */,
 				2B4B19881BA38AD90091A743 /* com_mousebird_maply_Quaternion.h in Headers */,
 				2B923FCC1BFBDED200C879DB /* com_mousebird_maply_QuadImageTileLayer_ImageUpdater.h in Headers */,
@@ -2432,7 +2446,6 @@
 				8F22E5D91CA19359000458C7 /* Lighting.h in Headers */,
 				2B35683318D762BF00EF8DB1 /* SphericalMercator.h in Headers */,
 				2B4B198D1BA38AD90091A743 /* com_mousebird_maply_Texture.h in Headers */,
-				88CC3B111CC540E700E0AEB7 /* com_mousebird_maply_SingleBillboardPoly.h in Headers */,
 				2B3567E718D762BF00EF8DB1 /* GlobeView.h in Headers */,
 				2B4B198A1BA38AD90091A743 /* com_mousebird_maply_SelectionManager.h in Headers */,
 				2B3567E018D762BF00EF8DB1 /* Drawable.h in Headers */,
@@ -2505,12 +2518,12 @@
 				8F0446841CC14D7E008E4039 /* BillboardDrawable.h in Headers */,
 				2B35683418D762BF00EF8DB1 /* Tesselator.h in Headers */,
 				2B009CEF186102E4001E2EE8 /* internalJSONNode.h in Headers */,
-				88AEB1621CC0476D00BD63C2 /* com_mousebird_maply_Affine2d.h in Headers */,
 				2B009CFA186102E4001E2EE8 /* Visual_C.h in Headers */,
 				2B35681F18D762BF00EF8DB1 /* MaplyFlatView.h in Headers */,
 				2B35682918D762BF00EF8DB1 /* Quadtree.h in Headers */,
 				2BA2326C17984F510063CC84 /* normal.h in Headers */,
 				2B3567E918D762BF00EF8DB1 /* GLUtils.h in Headers */,
+				8831A2141CCA352200D3268E /* com_mousebird_maply_ScreenObject_BoundingBox.h in Headers */,
 				2B4B19991BA38AD90091A743 /* Maply_utils_jni.h in Headers */,
 				2B35682718D762BF00EF8DB1 /* Platform.h in Headers */,
 				2BA2326D17984F510063CC84 /* priorityq-heap.h in Headers */,
@@ -2550,6 +2563,7 @@
 				2B3567EA18D762BF00EF8DB1 /* GridClipper.h in Headers */,
 				883C07511CC055740042B20C /* AADiameters.h in Headers */,
 				2B4B19701BA38AD90091A743 /* com_mousebird_maply_InternalMarker.h in Headers */,
+				8831A2151CCA352200D3268E /* com_mousebird_maply_ScreenObject.h in Headers */,
 				2B009CF4186102E4001E2EE8 /* JSONChildren.h in Headers */,
 				883C07AD1CC055740042B20C /* AASaturnRings.h in Headers */,
 				2B35683118D762BF00EF8DB1 /* ShapeReader.h in Headers */,
@@ -2574,6 +2588,7 @@
 				8817DA051C92F3070034E3EA /* com_mousebird_maply_Shape.h in Headers */,
 				2B3567DB18D762BF00EF8DB1 /* BigDrawable.h in Headers */,
 				883C077B1CC055740042B20C /* AAMoonIlluminatedFraction.h in Headers */,
+				8831A2171CCA352200D3268E /* com_mousebird_maply_StringWrapper.h in Headers */,
 				883C07991CC055740042B20C /* AAPhysicalMoon.h in Headers */,
 				2B4B196E1BA38AD90091A743 /* com_mousebird_maply_Identifiable.h in Headers */,
 				883C07AF1CC055740042B20C /* AASidereal.h in Headers */,
@@ -2641,6 +2656,7 @@
 				2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */,
 				2B35675718D762A700EF8DB1 /* MaplyScene.cpp in Sources */,
 				2B35676818D762A700EF8DB1 /* ShapeReader.cpp in Sources */,
+				8FB301931CC98AE7000111DF /* ScreenObject.cpp in Sources */,
 				2BDC4AC4133404C600E25283 /* shpopen.c in Sources */,
 				2B7EF42516025D8C00D4079F /* aasincos.c in Sources */,
 				883C07521CC055740042B20C /* AADynamicalTime.cpp in Sources */,

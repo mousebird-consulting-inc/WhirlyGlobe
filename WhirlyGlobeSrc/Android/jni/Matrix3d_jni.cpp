@@ -157,6 +157,71 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_multiply__Lcom_mouse
     return NULL;
 }
 
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_traslateX
+(JNIEnv *env, jclass cls, jdouble x, jdouble y)
+{
+    try
+    {
+        Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo(env, cls);
+        
+        Affine2d trans(Eigen::Translation2d(x,y));
+        Matrix3d mat = trans.matrix();
+
+        return MakeMatrix3d(env,mat);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::traslateX()");
+    }
+    
+    return NULL;
+}
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_multiplyTrasX
+(JNIEnv *env, jclass cls, jdouble x, jdouble y, jobject ptObj)
+{
+    try
+    {
+        Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo(env, cls);
+        
+        Affine2d trans(Eigen::Translation2d(x,y));
+        
+        Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env, ptObj);
+        if (!pt)
+            return NULL;
+        
+        *pt = trans * (*pt);
+        
+        return MakePoint2d(env,*pt);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::multiplyTrasX()");
+    }
+    
+    return NULL;
+}
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_scaleX
+(JNIEnv *env, jclass cls, jdouble x, jdouble y)
+{
+    try
+    {
+        Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo(env, cls);
+        
+        Affine2d trans(Eigen::Scaling(x,y));
+        Matrix3d mat = trans.matrix();
+        
+        return MakeMatrix3d(env,mat);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::scaleX()");
+    }
+    
+    return NULL;
+}
+
 jobject MakeMatrix3d(JNIEnv *env,const Eigen::Matrix3d &mat)
 {
     // Make a Java Matrix3d
@@ -164,3 +229,4 @@ jobject MakeMatrix3d(JNIEnv *env,const Eigen::Matrix3d &mat)
     Matrix3d *newMat = new Matrix3d(mat);
     return classInfo->makeWrapperObject(env,newMat);
 }
+

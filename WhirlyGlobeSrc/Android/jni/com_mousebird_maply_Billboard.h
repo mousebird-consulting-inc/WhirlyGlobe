@@ -25,14 +25,6 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Billboard_getCenter
 
 /*
  * Class:     com_mousebird_maply_Billboard
- * Method:    addPoly
- * Signature: (Lcom/mousebird/maply/SingleBillboardPoly;)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Billboard_addPoly
-  (JNIEnv *, jobject, jobject);
-
-/*
- * Class:     com_mousebird_maply_Billboard
  * Method:    setSize
  * Signature: (Lcom/mousebird/maply/Point2d;)V
  */
@@ -62,6 +54,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Billboard_setSelectable
  */
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Billboard_getSelectable
   (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_Billboard
+ * Method:    addPoly
+ * Signature: (Ljava/util/List;Ljava/util/List;[FLjava/util/List;J)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Billboard_addPoly
+  (JNIEnv *, jobject, jobject, jobject, jfloatArray, jobject, jlong);
 
 /*
  * Class:     com_mousebird_maply_Billboard

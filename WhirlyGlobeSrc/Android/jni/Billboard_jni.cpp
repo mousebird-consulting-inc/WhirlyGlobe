@@ -102,24 +102,6 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Billboard_getCenter
     return NULL;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Billboard_addPoly
-(JNIEnv *env, jobject obj, jobject polyObj)
-{
-    try
-    {
-        BillboardClassInfo *classInfo = BillboardClassInfo::getClassInfo();
-        Billboard *inst = classInfo->getObject(env, obj);
-        SingleBillboardPoly *poly = SingleBillboardPolyClassInfo::getClassInfo()->getObject(env, polyObj);
-        if (!inst || !poly)
-            return;
-        inst->polys.push_back(*poly);
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Billboard::addPoly()");
-    }
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Billboard_setSize
 (JNIEnv *env, jobject obj, jobject sizeObj)
 {
@@ -187,5 +169,102 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Billboard_getSelectable
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Billboard::getSelectable()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Billboard_addPoly
+(JNIEnv *env, jobject obj, jobject pointsArray, jobject texCoordsArray, jfloatArray colorArray, jobject vertexArray, jlong texID)
+{
+    try
+    {
+        BillboardClassInfo *classInfo = BillboardClassInfo::getClassInfo();
+        Billboard *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return;
+        
+        jclass iterClass = env->FindClass("java/util/Iterator");
+        jmethodID hasNext = env->GetMethodID(iterClass,"hasNext","()Z");
+        jmethodID next = env->GetMethodID(iterClass,"next","()Ljava/lang/Object;");
+        Point2dClassInfo *ptClassInfo = Point2dClassInfo::getClassInfo();
+        
+        //Create new SingleBillboardPoly
+        SingleBillboardPoly *poly = new SingleBillboardPoly();
+        
+        //Add Points
+        
+        jclass listClass = env->GetObjectClass(pointsArray);
+        jmethodID literMethod = env->GetMethodID(listClass,"iterator","()Ljava/util/Iterator;");
+        jobject liter = env->CallObjectMethod(pointsArray,literMethod);
+        
+        
+        while (env->CallBooleanMethod(liter, hasNext))
+        {
+            jobject javaVecObj = env->CallObjectMethod(liter, next);
+            Point2d *newPt = ptClassInfo->getObject(env,javaVecObj);
+            poly->pts.push_back(*newPt);
+            env->DeleteLocalRef(javaVecObj);
+        }
+        env->DeleteLocalRef(liter);
+        
+        //Add texCoord
+        
+        listClass = env->GetObjectClass(texCoordsArray);
+        literMethod = env->GetMethodID(listClass,"iterator","()Ljava/util/Iterator;");
+        liter = env->CallObjectMethod(texCoordsArray,literMethod);
+        
+        
+        while (env->CallBooleanMethod(liter, hasNext))
+        {
+            jobject javaVecObj = env->CallObjectMethod(liter, next);
+            Point2d *newPt = ptClassInfo->getObject(env,javaVecObj);
+            TexCoord newTexCoord(newPt->x(), newPt->y());
+            poly->texCoords.push_back(newTexCoord);
+            env->DeleteLocalRef(javaVecObj);
+        }
+        env->DeleteLocalRef(liter);
+        
+        //Add Vertex Attribute
+        
+        listClass = env->GetObjectClass(vertexArray);
+        literMethod = env->GetMethodID(listClass,"iterator","()Ljava/util/Iterator;");
+        liter = env->CallObjectMethod(vertexArray,literMethod);
+        
+        SingleVertexAttributeClassInfo *vertexClassInfo = SingleVertexAttributeClassInfo::getClassInfo();
+        
+        while (env->CallBooleanMethod(liter, hasNext))
+        {
+            jobject javaVecObj = env->CallObjectMethod(liter, next);
+            SingleVertexAttribute *newVertex = vertexClassInfo->getObject(env,javaVecObj);
+            poly->vertexAttrs.insert(*newVertex);
+            env->DeleteLocalRef(javaVecObj);
+        }
+        env->DeleteLocalRef(liter);
+        
+        //Delete objects
+        env->DeleteLocalRef(iterClass);
+        env->DeleteLocalRef(listClass);
+        
+        //Color
+        
+        jsize len = env->GetArrayLength(colorArray);
+        RGBAColor *color;
+        if (len < 4)
+            color = new RGBAColor(0,0,0,0);
+        else
+        {
+            jfloat *colors = env->GetFloatArrayElements(colorArray, 0);
+            color = new RGBAColor(colors[0]*255.0,colors[1]*255.0,colors[2]*255.0,colors[3]*255.0);
+        }
+
+        poly->color = color;
+        
+        //Add Poly
+        
+        inst->polys.push_back(*poly);
+        
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Billboard::addPoly()");
     }
 }

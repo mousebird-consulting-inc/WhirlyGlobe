@@ -456,11 +456,12 @@ typedef JavaClassInfo<WhirlyKit::WhirlyKitDirectionalLight> DirectionalLightClas
 typedef JavaClassInfo<WhirlyKit::WhirlyKitMaterial> MaterialClassInfo;
 typedef JavaClassInfo<WhirlyKit::Moon> MoonClassInfo;
 typedef JavaClassInfo<WhirlyKit::Sun> SunClassInfo;
-typedef JavaClassInfo<Eigen::Affine2d> Affine2dClassInfo;
 typedef JavaClassInfo<WhirlyKit::Billboard> BillboardClassInfo;
-typedef JavaClassInfo<WhirlyKit::SingleBillboardPoly> SingleBillboardPolyClassInfo;
 typedef JavaClassInfo<WhirlyKit::BillboardInfo> BillboardInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::BillboardManager> BillboardManagerClassInfo;
+typedef JavaClassInfo<WhirlyKit::SimplePoly> SimplePolyClassInfo;
+typedef JavaClassInfo<WhirlyKit::StringWrapper> StringWrapperClassInfo;
+typedef JavaClassInfo<WhirlyKit::ScreenObject> ScreenObjectClassInfo;
 
 // The shared JNIEnv set in the ::render call
 extern JNIEnv *maplyCurrentEnv;

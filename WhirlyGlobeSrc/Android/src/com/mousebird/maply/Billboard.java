@@ -48,8 +48,6 @@ public class Billboard {
 
     public native Point3d getCenter();
 
-    public native void addPoly (SingleBillboardPoly poly);
-
     public native void setSize(Point2d size);
 
     public native Point2d getSize();
@@ -87,6 +85,8 @@ public class Billboard {
     public void setSelectID(long selectID){
         this.selectID = selectID;
     }
+
+    public native void addPoly (List<Point2d> points, List<Point2d> texCoords, float [] color, List<VertexAttribute> vertexAttributes, long texID);
 
     public void finalize()
     {

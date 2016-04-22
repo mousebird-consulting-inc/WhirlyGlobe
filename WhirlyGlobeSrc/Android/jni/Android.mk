@@ -99,7 +99,7 @@ MAPLY_CORE_SRC_FILES := BaseInfo.cpp BasicDrawable.cpp BasicDrawableInstance.cpp
 					ParticleSystemManager.cpp ParticleSystemDrawable.cpp PerformanceTimer.cpp Proj4CoordSystem.cpp \
 					QuadDisplayController.cpp Quadtree.cpp QuadTracker.cpp \
 					RawData.cpp \
-					Scene.cpp SceneRendererES.cpp SceneRendererES2.cpp ScreenImportance.cpp ScreenSpaceBuilder.cpp ScreenSpaceDrawable.cpp ShapeDrawableBuilder.cpp ShapeManager.cpp Sun.cpp \
+					Scene.cpp SceneRendererES.cpp SceneRendererES2.cpp ScreenImportance.cpp ScreenObject.cpp ScreenSpaceBuilder.cpp ScreenSpaceDrawable.cpp ShapeDrawableBuilder.cpp ShapeManager.cpp Sun.cpp \
 					SelectionManager.cpp ShapeReader.cpp SphericalEarthChunkManager.cpp SphericalMercator.cpp \
 					Tesselator.cpp Texture.cpp TextureAtlas.cpp TileQuadLoader.cpp TileQuadOfflineRenderer.cpp \
 					VectorData.cpp VectorManager.cpp VectorObject.cpp ViewState.cpp \
@@ -107,7 +107,7 @@ MAPLY_CORE_SRC_FILES := BaseInfo.cpp BasicDrawable.cpp BasicDrawableInstance.cpp
 MAPLY_CORE_SRC_DIR := $(SRC_DIR)
 LOCAL_SRC_FILES += $(MAPLY_CORE_SRC_FILES:%=$(MAPLY_CORE_SRC_DIR)/%)
 
-MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp AngleAxis_jni.cpp Affine2d_jni.cpp \
+MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp AngleAxis_jni.cpp \
 					BaseInfo_jni.cpp Billboard_jni.cpp BillboardInfo_jni.cpp BillboardManager_jni.cpp \
 					ChangeSet_jni.cpp CoordSystem_jni.cpp CoordSystemDisplayAdapter_jni.cpp \
 					DirectionalLight_jni.cpp \
@@ -118,7 +118,7 @@ MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp AngleAxis_jni.cpp Affine
 					MaplyRenderer_jni.cpp MapScene_jni.cpp MapView_jni.cpp Matrix3d_jni.cpp Matrix4d_jni.cpp MarkerInfo_jni.cpp MarkerManager_jni.cpp MapViewState_jni.cpp Moon_jni.cpp Material_jni.cpp \
 					Point2d_jni.cpp Point3d_jni.cpp Point4d_jni.cpp ParticleBatch_jni.cpp ParticleSystem_jni.cpp ParticleSystemManager_jni.cpp PlateCarreeCoordSystem_jni.cpp Proj4CoordSystem_jni.cpp \
 					QuadPagingLayer_jni.cpp QuadImageTileLayer_jni.cpp Quaternion_jni.cpp QuadImageOfflineLayer_jni.cpp QuadTracker_jni.cpp \
-					SelectionManager_jni.cpp Shader_jni.cpp SingleLabelAndroid.cpp SphericalMercatorCoordSystem_jni.cpp Scene_jni.cpp Sticker_jni.cpp StickerInfo_jni.cpp StickerManager_jni.cpp Sun_jni.cpp ShapeInfo_jni.cpp Shape_jni.cpp ShapeSphere_jni.cpp ShapeManager_jni.cpp SingleBillboardPoly_jni.cpp \
+					SelectionManager_jni.cpp Shader_jni.cpp SimplePoly_jni.cpp SingleLabelAndroid.cpp SphericalMercatorCoordSystem_jni.cpp StringWrapper_jni.cpp Scene_jni.cpp ScreenObject_jni.cpp Sticker_jni.cpp StickerInfo_jni.cpp StickerManager_jni.cpp Sun_jni.cpp ShapeInfo_jni.cpp Shape_jni.cpp ShapeSphere_jni.cpp ShapeManager_jni.cpp \
 					Texture_jni.cpp \
 					VectorInfo_jni.cpp VectorIterator_jni.cpp VectorManager_jni.cpp VectorObject_jni.cpp View_jni.cpp VertexAttribute_jni.cpp ViewState_jni.cpp
 LOCAL_SRC_FILES += $(MAPLY_JNI_FILES)

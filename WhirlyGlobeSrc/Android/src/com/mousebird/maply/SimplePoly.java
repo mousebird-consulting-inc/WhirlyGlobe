@@ -1,5 +1,5 @@
 /*
- *  SingleBillboardPoly.java
+ *  SimplePoly.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
@@ -19,34 +19,48 @@
  */
 package com.mousebird.maply;
 
-import android.graphics.Color;
+import android.graphics.Bitmap;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
-public class SingleBillboardPoly {
+public class SimplePoly {
 
-    public SingleBillboardPoly() {
+    public SimplePoly() {
         initialise();
     }
-
-    public void finalize()
-    {
+    public void finalise() {
         dispose();
     }
 
-    public native void addPoint(Point2d pt);
+    public native void addImage(Texture texture);
 
-    public native void addTexCoord(Point2d texCoord);
+    public native Texture getTexture();
 
-    public native void addColor (float r, float g, float b, float a);
+    public native void addColor(float[] color);
 
     public native float[] getColor();
 
-    public native void setTexID(long texID);
+    public native void addPt(Point2d pt);
 
-    public native long getTexID();
+    public native void addPts(List<Point2d> pts);
 
-    public native void addVertexAttribute(VertexAttribute attribute);
+    public native void setPt(int index, Point2d newPt);
 
+    public native void addTexCoord(Point2d texCoord);
+
+    public native void addTexCoords(List<Point2d> texCoord);
+
+    public native void setTexCoord(int index, Point2d newTexCoord);
+
+    public native int getPtsSize();
+
+    public native int getTexCoordsSize();
+
+    public native Point2d getPt (int index);
+
+    public native Point2d getTexCoord(int index);
 
     static
     {
@@ -55,6 +69,6 @@ public class SingleBillboardPoly {
     private static native void nativeInit();
     native void initialise();
     native void dispose();
+
+    private long nativeHandle;
 }
-
-

@@ -1,5 +1,5 @@
 /*
- *  Affine2d.java
+ *  ScreenObject.h
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
@@ -17,35 +17,43 @@
  *  limitations under the License.
  *
  */
-package com.mousebird.maply;
+#import "WhirlyGlobe.h"
 
 
-public class Affine2d {
+namespace WhirlyKit {
+    
+class SimplePoly {
+public:
+    SimplePoly();
+    ~SimplePoly();
 
-    public static final int TYPE_SCALE = 1;
-    public static final int TYPE_TRANS = 2;
+    Texture texture;
+    RGBAColor *color;
+    std::vector<WhirlyKit::Point2d> pts;
+    std::vector<TexCoord> texCoords;
+};
+  
+struct CGSize {
+public:
+    int height, width;
+    CGSize(int _height, int _width): height(_height), width(_width){};
+};
 
-    public Affine2d(double x, double y, int type) {
-        initialise(x,y, type);
-    }
+class StringWrapper
+{
+public:
+    StringWrapper();
+    Eigen::Matrix3d mat;
+    CGSize size;
+};
 
-    public void finalise() {
-        dispose();
-    }
+class ScreenObject {
+public:
+    ScreenObject();
+    ~ScreenObject();
 
-
-    public native Matrix3d matrix();
-
-    public native Point2d multiply (Point2d pt);
-
-    static
-    {
-        nativeInit();
-    }
-    private static native void nativeInit();
-    native void initialise(double x, double y, int type);
-    native void dispose();
-
-    private long nativeHandle;
+    std::vector<WhirlyKit::SimplePoly> polys;
+    std::vector<WhirlyKit::StringWrapper> strings;
+};
 
 }
