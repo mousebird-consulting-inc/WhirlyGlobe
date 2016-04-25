@@ -182,7 +182,12 @@ public class Shader
 	native boolean setUniformNative(String name,double uniX,double uniY);
 	native boolean setUniformNative(String name,double uniX,double uniY,double uniZ);
 	native boolean setUniformNative(String name,double uniX,double uniY,double uniZ,double uniW);
-	
+
+	/**
+	 * Returns the internal Maply ID for the shader.
+     */
+	public native long getID();
+
 	static
 	{
 		nativeInit();

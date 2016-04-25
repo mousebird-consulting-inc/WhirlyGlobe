@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro on 18/1/16
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,10 +24,21 @@ import android.graphics.Bitmap;
 import java.util.ArrayList;
 import java.util.Date;
 
+/**
+ * The particle system defines what the objects are and how they're controlled.
+ * Actual data is handled through the ParticleBatch.
+ * You set up a particle system and then add ParticleBatches via a MaplyBaseController.
+ */
 public class ParticleSystem {
 
     public enum STATE {
+        /**
+         * The particles are defined as points.
+         */
         ParticleSystemPoint(0),
+        /**
+         * Particles are defined as rectangles.
+         */
         ParticleSystemRectangle(1);
 
         private final int value;
@@ -46,6 +57,10 @@ public class ParticleSystem {
     private ParticleSystem()
     {}
 
+    /**
+     * Construct with the name of the particle system.
+     * @param name Name is used internally for reference.
+     */
     public ParticleSystem(String name) {
         initialise();
         this.setName(name);
@@ -56,10 +71,19 @@ public class ParticleSystem {
         this.setBasetime(new Date().getTime()/1000.0);
     }
 
+    /**
+     * Add a texture to the particle system.
+     * All the textures will be handed over to the shader in the order they are defined.
+     * @param texture
+     */
     public void addTexture(Bitmap texture) {
         images.add(texture);
     }
 
+    /**
+     * Return the list of textures being used by the shader.
+     * @return
+     */
     public ArrayList<Bitmap> getTextures() {
         return images;
     }
@@ -70,31 +94,80 @@ public class ParticleSystem {
 
     public native long getIdent();
 
+    /**
+     * Set the name of the particle system.  This is used internally.
+     */
     public native void setName(String name);
 
+    /**
+     * Set the draw priority for the particles
+     */
     public native void setDrawPriority(int drawPriority);
 
+    /**
+     * Set the point size if the particle system is points.
+     */
     public native void setPointSize(float pointSize);
 
+    /**
+     * Particles systems will generate either points or rectangles.
+     */
     public native void setParticleSystemType(int particleSystemType);
 
-    public native void setShaderID(long shaderID);
+    native void setShaderID(long shaderID);
 
+    /**
+     * Assign a shader to this particle system.
+     * The shader contains all the code to implement the system.
+     */
+    public void setShader(Shader shader)
+    {
+        setShaderID(shader.getID());
+    }
+
+    /**
+     * Sets the particle lifetime.  The system will try to keep particles around for this long.
+     */
     public native void setLifetime(double lifetime);
 
+    /**
+     * Particles move over time, but current time is a large number.
+     * This is the base time you can use to subtract from current time values.
+     */
     public native void setBasetime(double basetime);
 
+    /**
+     * Particles move over time, but current time is a large number.
+     * This is the base time you can use to subtract from current time values.
+     */
     public native double getBasetime();
 
+    /**
+     * Size of the individual batches you add when adding particles.  The total number of
+     * particles should be a multiple of this.
+     */
     public native void setBatchSize(int batchSize);
 
+    /**
+     * Size of the individual batches you add when adding particles.
+     */
     public native int getBatchSize();
 
-
+    /**
+     * The total number of particles to display at once.  These will be broken up into
+     * batchSized chunks.
+     */
     public native void setTotalParticles(int totalParticles);
 
     ArrayList<String> names = new ArrayList<String>();
     ArrayList<Integer> types = new ArrayList<Integer>();
+
+    /**
+     * Add an attribute that will appear in each batch.  Attributes are data values that
+     * go into each and every particle.
+     * @param name The name of the attribute we'll look for in each batch.
+     * @param type Type of the attribute.
+     */
     public void addParticleSystemAttribute(String name,ParticleSystemAttribute.MaplyShaderAttrType type)
     {
         int which = names.size();
@@ -103,10 +176,13 @@ public class ParticleSystem {
         addParticleSystemAttributeNative(name,type.ordinal());
     }
 
-    public native void addParticleSystemAttributeNative(String name, int type);
+    native void addParticleSystemAttributeNative(String name, int type);
 
-    public native void addTexID(long texID);
+    native void addTexID(long texID);
 
+    /**
+     * Returns a list of particle attributes.  For use internally.
+     */
     public ParticleSystemAttribute [] getAttrs() {
         if (names.size() != types.size()) {
             return null;

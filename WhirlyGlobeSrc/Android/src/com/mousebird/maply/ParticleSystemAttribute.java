@@ -19,8 +19,15 @@
  */
 package com.mousebird.maply;
 
+/**
+ * Particle System Attributes are just a name and a data type.  This is a convenient way
+ * to pass that information around.
+ */
 public class ParticleSystemAttribute {
 
+    /**
+     * The attribute type the shader will be expecting.
+     */
     public enum MaplyShaderAttrType {
         MAPLY_SHADER_ATTR_TYPE_FLOAT4(0),
         MAPLY_SHADER_ATTR_TYPE_FLOAT3(1),
@@ -47,19 +54,30 @@ public class ParticleSystemAttribute {
 
     private MaplyShaderAttrType type;
 
-
+    /**
+     * The shader attribute type as defined.  This is what the shader is expecting.
+     */
     public MaplyShaderAttrType getType() {
         return type;
     }
 
+    /**
+     * The shader attribute type as defined.  This is what the shader is expecting.
+     */
     public void setType(MaplyShaderAttrType type) {
         this.type = type;
     }
 
+    /**
+     * Name of the attribute.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Name of the attribute.
+     */
     public void setName(String name) {
         this.name = name;
     }
@@ -72,10 +90,9 @@ public class ParticleSystemAttribute {
         this.ident = ident;
     }
 
-
-
-
-
+    /**
+     * Calculate the number of bytes for a given attribute type.
+     */
     public int getSize()
     {
 

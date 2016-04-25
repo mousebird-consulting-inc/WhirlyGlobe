@@ -110,6 +110,21 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_Shader_getName
     return NULL;
 }
 
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shader_getID
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        OpenGLES2ProgramClassInfo *classInfo = OpenGLES2ProgramClassInfo::getClassInfo();
+        OpenGLES2Program *inst = classInfo->getObject(env,obj);
+        return inst->getId();
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::getID()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
 (JNIEnv *env, jobject obj, jobject sceneObj, jstring nameStr, jlong texID)
 {

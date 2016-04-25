@@ -73,6 +73,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 
 /*
  * Class:     com_mousebird_maply_Shader
+ * Method:    getID
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shader_getID
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_Shader
  * Method:    nativeInit
  * Signature: ()V
  */
