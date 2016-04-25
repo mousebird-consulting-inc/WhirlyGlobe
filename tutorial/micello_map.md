@@ -2,6 +2,8 @@
 title: Micello Indoor Maps
 layout: tutorial
 ---
+*Tutorial by Ranen Ghosh*
+
 [Micello](http://www.micello.com/) provides indoor map data; for places like shopping malls, airports, college campuses, hospitals, museums, business campuses, and conferences.  In this tutorial we add a multi-level of the Westfield Valy Fair mall to WhirlyGlobe-Maply.
 
 <div class="well">

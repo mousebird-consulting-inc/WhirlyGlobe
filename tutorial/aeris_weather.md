@@ -2,6 +2,8 @@
 title: Aeris Weather Layer
 layout: tutorial
 ---
+*Tutorial by Ranen Ghosh*
+
 [Aeris Weather](http://www.aerisweather.com/) is a provider of weather content like local forecasts and time dependent radar overlays.  In this tutorial we add an animated layer of up to date weather imagery from Aeris to WhirlyGlobe-Maply.
 
 <div class="well">
