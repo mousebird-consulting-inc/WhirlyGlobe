@@ -174,7 +174,7 @@ public class MaplyStarModel {
 
         //Set up a simple particle system (that doesn't move)
         particleSystem = new ParticleSystem("Stars");
-        particleSystem.setParticleSystemType(ParticleSystem.STATE.ParticleSystemPoint.getValue());
+        particleSystem.setParticleSystemType(ParticleSystem.STATE.ParticleSystemPoint);
         particleSystem.setLifetime(1e20);
         particleSystem.setTotalParticles(stars.size());
         particleSystem.setBatchSize(stars.size());

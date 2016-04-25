@@ -41,10 +41,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setPointSize
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem
- * Method:    setParticleSystemType
+ * Method:    setParticleSystemTypeNative
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setParticleSystemType
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setParticleSystemTypeNative
   (JNIEnv *, jobject, jint);
 
 /*

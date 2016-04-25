@@ -41,6 +41,7 @@ public class SimpleParticleThreadAdapter
         this.velocityScale = 0.1f;
 
         this.partSys = new ParticleSystem("Test Particle System");
+        this.partSys.setParticleSystemType(ParticleSystem.STATE.ParticleSystemPoint);
         this.partSys.setLifetime(this.particleLifeTime);
         this.partSys.setTotalParticles(this.numParticles);
         this.partSys.setDrawPriority(101000);

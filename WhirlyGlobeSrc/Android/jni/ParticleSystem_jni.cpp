@@ -124,7 +124,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setPointSize
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setParticleSystemType
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setParticleSystemTypeNative
 (JNIEnv *env, jobject obj, jint type)
 {
     try {

@@ -121,8 +121,7 @@ public class ParticleSystemTestCase extends MaplyTestCase {
             // Set up the particle system we'll feed with particles
 
             this.partSys = new ParticleSystem("Particle Wind Test");
-            this.partSys.setParticleSystemType(ParticleSystem.STATE.ParticleSystemPoint.getValue());
-            this.partSys.setShaderID(0);
+            this.partSys.setParticleSystemType(ParticleSystem.STATE.ParticleSystemPoint);
             this.partSys.setPointSize(4);
             this.partSys.addParticleSystemAttribute("a_position", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);
             this.partSys.addParticleSystemAttribute("a_dir", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);

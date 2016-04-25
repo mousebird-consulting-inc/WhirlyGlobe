@@ -64,7 +64,7 @@ public class ParticleSystem {
     public ParticleSystem(String name) {
         initialise();
         this.setName(name);
-        this.setParticleSystemType(STATE.ParticleSystemPoint.getValue());
+        this.setParticleSystemType(STATE.ParticleSystemPoint);
         this.setLifetime(5.0);
         this.setBatchSize(2000);
         this.setTotalParticles(100000);
@@ -112,7 +112,12 @@ public class ParticleSystem {
     /**
      * Particles systems will generate either points or rectangles.
      */
-    public native void setParticleSystemType(int particleSystemType);
+    public void setParticleSystemType(ParticleSystem.STATE type)
+    {
+        setParticleSystemTypeNative(type.getValue());
+    }
+
+    native void setParticleSystemTypeNative(int particleSystemType);
 
     native void setShaderID(long shaderID);
 
