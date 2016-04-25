@@ -119,7 +119,11 @@ public class ParticleSystem {
 
     native void setParticleSystemTypeNative(int particleSystemType);
 
-    native void setShaderID(long shaderID);
+    /**
+     * Set the shader by ID.  There are times this is useful, but in
+     * general you should call setShader with the shader.
+     */
+    public native void setShaderID(long shaderID);
 
     /**
      * Assign a shader to this particle system.
