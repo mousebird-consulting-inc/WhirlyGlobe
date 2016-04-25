@@ -192,7 +192,7 @@ void SceneRendererES2::processScene()
 
 bool SceneRendererES2::hasChanges()
 {
-    return scene->hasChanges() || viewDidChange();
+  return scene->hasChanges() || viewDidChange() || !contRenderRequests.empty();
 }
 
 // Make the screen a bit bigger for testing

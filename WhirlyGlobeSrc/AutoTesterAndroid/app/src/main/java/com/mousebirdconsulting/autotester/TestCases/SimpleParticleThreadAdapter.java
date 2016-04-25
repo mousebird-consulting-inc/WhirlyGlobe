@@ -35,9 +35,9 @@ public class SimpleParticleThreadAdapter
         particleThread = inThread;
 
         viewC = inViewC;
-        this.updateInterval = 0.1;
+        this.updateInterval = 1.0;
         this.particleLifeTime = 4.0;
-        this.numParticles = 100000;
+        this.numParticles = 12000;
         this.velocityScale = 0.1f;
 
         this.partSys = new ParticleSystem("Test Particle System");
