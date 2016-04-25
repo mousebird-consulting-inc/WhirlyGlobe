@@ -177,6 +177,7 @@
 		2BB766121C73A14700F01F2A /* freeflight.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = freeflight.jpeg; sourceTree = "<group>"; };
 		2BB94D8B1A2CEDCE0076B1B4 /* deforestation.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = deforestation.png; sourceTree = "<group>"; };
 		2BB94D9D1A2FBCAA0076B1B4 /* tutorial.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = tutorial.js; sourceTree = "<group>"; };
+		E519290F1CCEA2A8008794C8 /* micello_map.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = micello_map.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -328,6 +329,7 @@
 				2B4E06AD1A152FD800ADA318 /* globe_or_map.md */,
 				2B4E06AE1A152FD800ADA318 /* hello_earth.md */,
 				2B4E06AF1A152FD800ADA318 /* local_image_layer.md */,
+				E519290F1CCEA2A8008794C8 /* micello_map.md */,
 				2B4E06B01A152FD800ADA318 /* remote_image_layer.md */,
 				2B4E06B11A152FD800ADA318 /* vector_selection.md */,
 				2B4E06B21A152FD800ADA318 /* your_first_globe.md */,
