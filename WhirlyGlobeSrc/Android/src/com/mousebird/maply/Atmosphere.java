@@ -53,6 +53,7 @@ public class Atmosphere {
     public static final String k_g = "g";
     public static final String k_g2 = "g2";
     public static final String k_fExposure = "fExposure";
+    public static final String k_blendColor = "u_blendColor";
 
     public static final String vertexShaderAtmosTri =
             "precision highp float;\n"+
@@ -259,6 +260,7 @@ public class Atmosphere {
             "\n"+
             "uniform sampler2D s_baseMap0;\n"+
             "uniform sampler2D s_baseMap1;\n"+
+            "uniform vec4 u_blendColor;\n" +
             "\n"+
             "varying vec3      v_color;\n"+
             "varying vec2      v_texCoord0;\n"+
@@ -269,7 +271,7 @@ public class Atmosphere {
             "{\n"+
             "  vec3 dayColor = texture2D(s_baseMap0, v_texCoord0).xyz * v_v3attenuate;\n"+
             "  vec3 nightColor = texture2D(s_baseMap1, v_texCoord1).xyz * (1.0 - v_v3attenuate);\n"+
-            "  gl_FragColor = vec4(v_color, 1.0) + vec4(dayColor + nightColor, 1.0);\n"+
+            "  gl_FragColor = (vec4(v_color, 1.0) + vec4(dayColor + nightColor, 1.0)) * u_blendColor;\n"+
             "}\n";
 
     public static final String kAtmosphereGroundShader = "Atmosphere Ground Shader";
@@ -489,6 +491,7 @@ public class Atmosphere {
             return null;
 
         viewC.addShaderProgram(theShader, kAtmosphereGroundShader);
+        theShader.setUniform(k_blendColor, new Point4d(1.f,1.f,1.f,1.f));
 
         return theShader;
     }

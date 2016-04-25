@@ -165,7 +165,10 @@ public class GlobeGestureHandler
 		@Override
 		public boolean onDown(MotionEvent e) 
 		{
-//			Log.d("Maply","onDown");
+//			Log.d("Maply","onDown");i
+
+			if (globeControl.renderWrapper == null || globeControl.renderWrapper.maplyRender == null)
+				return false;
 
 			// Starting state for pan
 			startScreenPos = new Point2d(e.getX(),e.getY());
