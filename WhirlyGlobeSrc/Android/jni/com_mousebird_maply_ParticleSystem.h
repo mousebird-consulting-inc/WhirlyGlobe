@@ -105,6 +105,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setTotalParticles
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem
+ * Method:    setContinuousRender
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setContinuousRender
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_ParticleSystem
  * Method:    addParticleSystemAttributeNative
  * Signature: (Ljava/lang/String;I)V
  */

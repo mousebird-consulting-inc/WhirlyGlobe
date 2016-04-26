@@ -31,7 +31,7 @@ namespace WhirlyKit
 {
 
 ParticleSystemDrawable::ParticleSystemDrawable(const std::string &name,const std::vector<SingleVertexAttributeInfo> &inVertAttrs,int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing)
-    : Drawable(name), enable(true), numTotalPoints(numTotalPoints), batchSize(batchSize), vertexSize(0), programId(0), drawPriority(0), pointBuffer(0), rectBuffer(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0), useRectangles(useRectangles), useInstancing(useInstancing), baseTime(0.0), startb(0), endb(0), chunksDirty(true)
+    : Drawable(name), enable(true), numTotalPoints(numTotalPoints), batchSize(batchSize), vertexSize(0), programId(0), drawPriority(0), pointBuffer(0), rectBuffer(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0), useRectangles(useRectangles), useInstancing(useInstancing), baseTime(0.0), startb(0), endb(0), chunksDirty(true), usingContinuousRender(true)
 {
     pthread_mutex_init(&batchLock, NULL);
     
@@ -143,7 +143,8 @@ void ParticleSystemDrawable::teardownGL(OpenGLMemManager *memManager)
     
 void ParticleSystemDrawable::updateRenderer(SceneRendererES *renderer)
 {
-    renderer->addContinuousRenderRequest(getId());
+    if (usingContinuousRender)
+        renderer->addContinuousRenderRequest(getId());
 }
     
 void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &attrData,const Batch &batch)

@@ -264,6 +264,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setTotalParticles
     }
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setContinuousRender
+(JNIEnv *env, jobject obj, jboolean newVal)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return;
+        
+        inst->continuousUpdate = newVal;
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setContinuousRender()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setBatchSize
 (JNIEnv *env, jobject obj, jint batchSize)
 {

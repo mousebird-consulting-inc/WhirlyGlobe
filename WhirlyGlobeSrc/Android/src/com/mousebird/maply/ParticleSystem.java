@@ -168,6 +168,13 @@ public class ParticleSystem {
      */
     public native void setTotalParticles(int totalParticles);
 
+    /**
+     * Turn the continuous render on or off.  By default the particle system is going to
+     * move all the particles all the time.  This means the renderer must execute every frame.
+     * There are times where this is not appropriate (e.g. stars) and so we can turn it off.
+     */
+    public native void setContinuousRender(boolean cRender);
+
     ArrayList<String> names = new ArrayList<String>();
     ArrayList<Integer> types = new ArrayList<Integer>();
 

@@ -37,6 +37,8 @@ typedef enum {ParticleSystemPoint,ParticleSystemRectangle} ParticleSystemType;
 class ParticleSystem : public Identifiable
 {
 public:
+    ParticleSystem();
+
     std::string name;
     int drawPriority;
     float pointSize;
@@ -44,6 +46,7 @@ public:
     SimpleIdentity shaderID;
     TimeInterval lifetime,baseTime;
     int totalParticles,batchSize;
+    bool continuousUpdate;
     std::vector<SingleVertexAttributeInfo> vertAttrs;
     std::vector<SimpleIdentity> texIDs;
 };

@@ -23,6 +23,12 @@
 
 namespace WhirlyKit
 {
+    
+ParticleSystem::ParticleSystem()
+    : name(""), drawPriority(0), pointSize(1.0), type(ParticleSystemPoint), shaderID(0),
+    lifetime(0), baseTime(0), totalParticles(0), batchSize(0), continuousUpdate(true)
+{
+}
 
 ParticleSystemSceneRep::ParticleSystemSceneRep()
 {
@@ -85,6 +91,7 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
     draw->setBaseTime(newSystem.baseTime);
     draw->setLifetime(sceneRep->partSys.lifetime);
     draw->setTexIDs(sceneRep->partSys.texIDs);
+    draw->setContinuousUpdate(sceneRep->partSys.continuousUpdate);
     changes.push_back(new AddDrawableReq(draw));
     changes.push_back(NULL);
     sceneRep->draws.insert(draw);
