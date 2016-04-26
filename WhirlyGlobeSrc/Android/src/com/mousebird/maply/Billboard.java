@@ -37,10 +37,7 @@ public class Billboard {
     public static final String MAPLY_BILLBOARD_ORIENTE_EYE = "billboardorienteye";
 
 
-    private Billboard() {
-    }
-
-    public Billboard(Bitmap texture, Color color, Size size) {
+    public Billboard() {
         initialise();
     }
 

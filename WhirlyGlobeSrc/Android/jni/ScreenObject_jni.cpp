@@ -164,7 +164,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ScreenObject_getString
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addImage
-(JNIEnv *env, jobject obj, jobject bitmapObj, jfloatArray colorArray, jint width, jint height)
+(JNIEnv *env, jobject obj, jobject bitmapObj, jfloatArray colorArray, jfloat width, jfloat height)
 {
     try
     {

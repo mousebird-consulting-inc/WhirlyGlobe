@@ -116,3 +116,25 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sun_setTime
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Sun::dispose()");
     }
 }
+
+JNIEXPORT jfloatArray JNICALL Java_com_mousebird_maply_Sun_asPosition
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        SunClassInfo *classInfo = SunClassInfo::getClassInfo();
+        Sun *inst = classInfo->getObject(env,obj);
+        if (!inst)
+            return NULL;
+
+        float position[2] = {(float) inst->sunLon, (float) inst->sunLat};
+        jfloatArray result;
+        result = env->NewFloatArray(2);
+        env->SetFloatArrayRegion(result, 0, 2, position);
+        return result;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Sun::asPosition()");
+    }
+}

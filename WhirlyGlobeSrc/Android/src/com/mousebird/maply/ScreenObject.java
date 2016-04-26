@@ -28,27 +28,27 @@ public class ScreenObject {
         public Point2d ur = new Point2d();
     }
 
-    public ScreenObject(){
+    public ScreenObject() {
         initialise();
     }
 
-    public void finalise(){
+    public void finalise() {
         dispose();
     }
 
-    public native void addPoly (SimplePoly poly);
+    public native void addPoly(SimplePoly poly);
 
-    public native SimplePoly getPoly (int index);
+    public native SimplePoly getPoly(int index);
 
     public native int getPolysSize();
 
-    public native void addString (StringWrapper string);
+    public native void addString(StringWrapper string);
 
     public native StringWrapper getString(int index);
 
     public native int getStringsSize();
 
-    public native void addImage (Bitmap image, float [] color, int width, int height);
+    public native void addImage(Bitmap image, float[] color, float width, float height);
 
     public native void addScreenObject(ScreenObject screenObject);
 
@@ -58,13 +58,13 @@ public class ScreenObject {
 
         for (int ii = 0; ii < getPolysSize(); ii ++) {
             SimplePoly poly = getPoly(ii);
-            for (int jj = 0; jj < poly.getPtsSize(); jj ++){
+            for (int jj = 0; jj < poly.getPtsSize(); jj ++) {
                 Point2d pt = poly.getPt(jj);
                 mbr.addPoint(pt);
             }
         }
 
-        for (int ii = 0; ii < getStringsSize() ; ii++){
+        for (int ii = 0; ii < getStringsSize(); ii++) {
             StringWrapper str = getString(ii);
             Point3d p0 = str.getMat().multiply(new Point3d(0,0,1));
             Point3d p1 = str.getMat().multiply(new Point3d(str.getSize()[0], str.getSize()[1], 1));
@@ -79,30 +79,28 @@ public class ScreenObject {
         return boundingBox;
     }
 
-    public void scaleX(double x, double y){
-
+    public void scaleX(double x, double y) {
         Matrix3d mat = Matrix3d.scaleX(x,y);
 
-        for (int ii = 0; ii < getPolysSize(); ii++){
+        for (int ii = 0; ii < getPolysSize(); ii++) {
             SimplePoly poly = getPoly(ii);
-            for (int jj = 0 ; jj < poly.getPtsSize(); jj++){
+            for (int jj = 0; jj < poly.getPtsSize(); jj++) {
                 Point2d pt = poly.getPt(jj);
                 Point3d newPt = mat.multiply(new Point3d(pt.getX(), pt.getY(), 1.0));
                 poly.setPt(jj, new Point2d( newPt.getX(), newPt.getY()));
             }
         }
 
-        for (int ii = 0; ii < getStringsSize(); ii++){
+        for (int ii = 0; ii < getStringsSize(); ii++) {
             StringWrapper str = getString(ii);
             str.setMat(mat.multiply(str.getMat()));
         }
     }
 
     public void translateX(double x, double y) {
-
-        for (int ii = 0; ii < getPolysSize(); ii++){
+        for (int ii = 0; ii < getPolysSize(); ii++) {
             SimplePoly poly = getPoly(ii);
-            for (int jj = 0; jj < poly.getPtsSize(); jj++){
+            for (int jj = 0; jj < poly.getPtsSize(); jj++) {
                 Point2d pt = Matrix3d.multiplyTrasX(x, y, poly.getPt(jj));
                 poly.setPt(ii, pt);
             }
@@ -110,7 +108,7 @@ public class ScreenObject {
 
         Matrix3d mat = Matrix3d.traslateX(x,y);
 
-        for (int ii = 0; ii < getStringsSize(); ii++){
+        for (int ii = 0; ii < getStringsSize(); ii++) {
             StringWrapper str = getString(ii);
             str.setMat(mat.multiply(str.getMat()));
         }

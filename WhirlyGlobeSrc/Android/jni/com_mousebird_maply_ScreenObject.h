@@ -58,10 +58,10 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_ScreenObject_getStringsSize
 /*
  * Class:     com_mousebird_maply_ScreenObject
  * Method:    addImage
- * Signature: (Landroid/graphics/Bitmap;[FII)V
+ * Signature: (Landroid/graphics/Bitmap;[FFF)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addImage
-  (JNIEnv *, jobject, jobject, jfloatArray, jint, jint);
+  (JNIEnv *, jobject, jobject, jfloatArray, jfloat, jfloat);
 
 /*
  * Class:     com_mousebird_maply_ScreenObject
