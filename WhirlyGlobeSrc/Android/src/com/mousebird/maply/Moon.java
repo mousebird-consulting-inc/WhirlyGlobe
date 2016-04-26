@@ -25,55 +25,25 @@ import java.util.TimeZone;
 
 public class Moon {
 
-
-    private double illuminatedFraction;
-    private double phase;
-    private double moonLon, moonLat;
+    private Moon() {
+    }
 
     public Moon(Calendar date) {
         initialise(date.get(Calendar.YEAR), date.get(Calendar.MONTH), date.get(Calendar.DAY_OF_MONTH), date.get(Calendar.HOUR), date.get(Calendar.MINUTE), date.get(Calendar.SECOND));
-
-        //Position of the moon in equatorial
-        double [] data;
-        data = this.getPositionOfMoon();
-        if (data != null) {
-            this.moonLon = data[0];
-            this.moonLat = data[1];
-        }
-        //Calcule IlluminatedFraction
-        data =  this.getIlluminatedFractionAndPhaseNative();
-        if (data != null) {
-            this.illuminatedFraction = data[0];
-            this.phase = data[1];
-        }
     }
 
-    private native double[] getIlluminatedFractionAndPhaseNative();
+    public native double[] getIlluminatedFractionAndPhaseNative();
 
     private native double[] getPositionOfMoon();
 
-    public double getIlluminatedFraction() {
-        return illuminatedFraction;
-    }
-
-    public void setIlluminatedFraction(double illuminatedFraction) {
-        this.illuminatedFraction = illuminatedFraction;
-    }
-
-    public double getPhase() {
-        return phase;
-    }
-
-    public void setPhase(double phase) {
-        this.phase = phase;
-    }
-
     public Point2d asCoordinate(){
-        return new Point2d(this.moonLon, this.moonLat);
+        double[] pos = this.getPositionOfMoon();
+        return new Point2d(pos[0], pos[1]);
     }
 
     public Point3d asPosition() {
-        return new Point3d(this.moonLon, this.moonLat, 5.0);
+        double[] pos = this.getPositionOfMoon();
+        return new Point3d(pos[0], pos[1], 5.0);
     }
 
     static {

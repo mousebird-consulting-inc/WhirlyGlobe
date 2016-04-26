@@ -54,7 +54,7 @@ public class ScreenObject {
 
     public BoundingBox getSize() {
 
-        Mbr mbr = new Mbr();
+        Mbr mbr = new Mbr(new Point2d(0.f, 0.f), new Point2d(-1.f, -1.f));
 
         for (int ii = 0; ii < getPolysSize(); ii ++) {
             SimplePoly poly = getPoly(ii);

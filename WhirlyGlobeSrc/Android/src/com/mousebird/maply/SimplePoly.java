@@ -30,6 +30,13 @@ public class SimplePoly {
     public SimplePoly() {
         initialise();
     }
+
+    public SimplePoly(Texture inTexture, float[] color, List<Point2d> pts, List<Point2d> texCoords) {
+        initialise(inTexture, color, pts, texCoords);
+    }
+
+    native void initialise(Texture inTexture, float[] color, List<Point2d> pts, List<Point2d> texCoords);
+
     public void finalise() {
         dispose();
     }

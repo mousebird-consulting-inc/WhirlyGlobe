@@ -19,6 +19,7 @@
  */
 #import <jni.h>
 #import "Maply_jni.h"
+#import "Maply_utils_jni.h"
 #import "com_mousebird_maply_ScreenObject.h"
 #import "WhirlyGlobe.h"
 #import <android/bitmap.h>
@@ -95,8 +96,73 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ScreenObject_getPoly
         if (index >= inst->polys.size())
             return NULL;
         SimplePoly poly = inst->polys.at(index);
-        SimplePolyClassInfo *polyClassInfo = SimplePolyClassInfo::getClassInfo(env,"com/mousebird/maply/SimplyPoly");
-        return polyClassInfo->makeWrapperObject(env,&poly);
+//        SimplePolyClassInfo *polyClassInfo = SimplePolyClassInfo::getClassInfo(env,"com/mousebird/maply/SimplyPoly");
+//        return polyClassInfo->makeWrapperObject(env,&poly);
+		//Color
+        float primaryColors[4];
+        poly.color->asUnitFloats(primaryColors);
+        jfloatArray color;
+        color = env->NewFloatArray(4);
+        env->SetFloatArrayRegion(color, 0, 4, primaryColors);
+
+        //Texture
+
+        //Create BitMapObject
+        RawDataRef data = poly.texture.texData;
+        RawData *rawData = data.get();
+        jclass bitmapConfig = env->FindClass("android/graphics/Bitmap$Config");
+        jfieldID rgba8888FieldID = env->GetStaticFieldID(bitmapConfig, "ARGB_8888", "Landroid/graphics/Bitmap$Config;");
+        jobject rgba8888Obj = env->GetStaticObjectField(bitmapConfig, rgba8888FieldID);
+
+        jclass bitmapClass = env->FindClass("android/graphics/Bitmap");
+        jmethodID createBitmapMethodID = env->GetStaticMethodID(bitmapClass,"createBitmap", "(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;");
+        jobject bitmapObj = env->CallStaticObjectMethod(bitmapClass, createBitmapMethodID, poly.texture.getWidth(), poly.texture.getHeight(), rgba8888Obj);
+
+        jintArray pixels = env->NewIntArray(poly.texture.getWidth() * poly.texture.getHeight());
+        const unsigned char * bitmap = rawData->getRawData();
+        for (int i = 0; i <poly.texture.getWidth() * poly.texture.getHeight() ; i++)
+        {
+            unsigned char red = bitmap[i*4];
+            unsigned char green = bitmap[i*4 + 1];
+            unsigned char blue = bitmap[i*4 + 2];
+            unsigned char alpha = bitmap[i*4 + 3];
+            int currentPixel = (alpha << 24) | (red << 16) | (green << 8) | (blue);
+            env->SetIntArrayRegion(pixels, i, 1, &currentPixel);
+        }
+
+        jmethodID setPixelsMid = env->GetMethodID(bitmapClass, "setPixels", "([IIIIIII)V");
+        env->CallVoidMethod(bitmapObj, setPixelsMid, pixels, 0, poly.texture.getWidth(), 0, 0, poly.texture.getWidth(), poly.texture.getHeight() );
+
+        jclass textureCls = env->FindClass("com/mousebird/maply/Texture");
+        jmethodID textureConstructor = env->GetMethodID(textureCls, "<init>", "(Landroid/graphics/Bitmap;)V");
+        jobject texture = env->NewObject(textureCls, textureConstructor, bitmapObj);
+
+        //Pts List object
+
+        jclass listCls = env->FindClass("java/util/ArrayList");
+        jmethodID listConstructor = env->GetMethodID(listCls, "<init>", "(I)V");
+        jmethodID listAdd = env->GetMethodID(listCls, "add", "(Ljava/lang/Object;)Z");
+
+        jobject listPtObj = env->NewObject(listCls, listConstructor, poly.pts.size());
+        for (WhirlyKit::Point2d pt : poly.pts) {
+            jobject ptObject = MakePoint2d(env, pt);
+            env->CallBooleanMethod(listPtObj, listAdd, ptObject);
+            env->DeleteLocalRef(ptObject);
+        }
+
+        //TexCoord List Object
+
+        jobject listTCObj = env->NewObject(listCls, listConstructor, poly.texCoords.size());
+        for (WhirlyKit::TexCoord tc : poly.texCoords) {
+            Point2d pt(tc.u(), tc.v());
+            jobject tcObject = MakePoint2d(env, pt);
+            env->CallBooleanMethod(listTCObj, listAdd, tcObject);
+            env->DeleteLocalRef(tcObject);
+        }
+        jclass cls = env->FindClass("com/mousebird/maply/SimplePoly");
+        jmethodID constructor = env->GetMethodID(cls, "<init>", "(Lcom/mousebird/maply/Texture;[FLjava/util/List;Ljava/util/List;)V");
+        jobject result = env->NewObject(cls, constructor, texture, color, listPtObj, listTCObj );
+        return result;
     }
     catch (...)
     {
@@ -200,10 +266,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addImage
         
         //Color
         
-        jfloat *colors = env->GetFloatArrayElements(colorArray, 0);
-        jsize len = env->GetArrayLength(colorArray);
+        jsize len = 0;
+        jfloat *colors;
+        if (colorArray != NULL){
+            colors = env->GetFloatArrayElements(colorArray, 0);
+            len = env->GetArrayLength(colorArray);
+        }
         RGBAColor *color;
-        if (len <4){
+        if (len < 4) {
             color = new RGBAColor(0,0,0,0);
         }
         else{

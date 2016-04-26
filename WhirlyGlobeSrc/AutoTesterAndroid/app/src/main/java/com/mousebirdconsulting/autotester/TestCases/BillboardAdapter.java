@@ -73,7 +73,7 @@ public class BillboardAdapter {
         billSun.setCenter(new Point3d(position[0], position[1], 5.4*EarthRadius));
         billSun.setSelectable(false);
         ScreenObject screenObject = new ScreenObject();
-        Bitmap bm = BitmapFactory.decodeResource(activity.getResources(), R.drawable.SunImage);
+        Bitmap bm = BitmapFactory.decodeResource(activity.getResources(), R.drawable.sunImage);
 
         screenObject.addImage(bm, new float[]{1.0f, 1.0f, 1.0f, 1.0f}, 0.9f, 0.9f);
         billSun.setScreenObject(screenObject);

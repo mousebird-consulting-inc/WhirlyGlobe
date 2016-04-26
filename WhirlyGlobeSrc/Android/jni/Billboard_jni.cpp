@@ -246,7 +246,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Billboard_addPoly
         
         //Color
         
-        jsize len = env->GetArrayLength(colorArray);
+        jsize len = 0;
+        jfloat *colors;
+        if (colorArray != NULL) {
+             colors = env->GetFloatArrayElements(colorArray, 0);
+            len = env->GetArrayLength(colorArray);
+        }
         RGBAColor *color;
         if (len < 4)
             color = new RGBAColor(0,0,0,0);

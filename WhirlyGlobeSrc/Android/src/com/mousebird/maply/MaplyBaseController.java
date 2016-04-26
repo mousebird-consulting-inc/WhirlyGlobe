@@ -1210,8 +1210,10 @@ public class MaplyBaseController
 			theLight.setViewDependent(light.isViewDependent());
 			theLights.add(theLight);
 		}
-		this.renderWrapper.getMaplyRender().replaceLights(theLights);
-		//this.renderWrapper.getMaplyRender().render(); // needed?
+		if (this.renderWrapper.getMaplyRender() != null) {
+			this.renderWrapper.getMaplyRender().replaceLights(theLights);
+			//this.renderWrapper.getMaplyRender().render(); // needed?
+		}
 	}
 
 	/**

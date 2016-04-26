@@ -32,7 +32,7 @@ class Texture
 	/**
 	 * Create an empty texture.
 	 */
-	Texture()
+	public Texture()
 	{
 		initialise();
 	}
@@ -40,7 +40,7 @@ class Texture
 	/**
 	 * Initialize a texture with a bitmap.  The contents of the bitmap will fill in the texture.
 	 */
-	Texture(Bitmap inBitmap)
+	public Texture(Bitmap inBitmap)
 	{
 		setBitmap(inBitmap);
 	}

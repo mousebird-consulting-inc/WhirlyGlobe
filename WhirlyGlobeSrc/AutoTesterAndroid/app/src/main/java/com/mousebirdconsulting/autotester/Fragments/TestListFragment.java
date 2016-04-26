@@ -16,6 +16,7 @@ import com.mousebirdconsulting.autotester.MainActivity;
 import com.mousebirdconsulting.autotester.R;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
 import com.mousebirdconsulting.autotester.TestCases.AtmosphereTestCase;
+import com.mousebirdconsulting.autotester.TestCases.BillboardTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CartoDBDarkTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ComplexParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ComponentObjectLeakTestCase;
@@ -97,6 +98,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new AtmosphereTestCase(getActivity()));
 			testCases.add(new LightingTestCase(getActivity()));
 			testCases.add(new MBTilesImageTestCase(getActivity()));
+			testCases.add(new BillboardTestCase(getActivity()));
 		}
 
 		@Override

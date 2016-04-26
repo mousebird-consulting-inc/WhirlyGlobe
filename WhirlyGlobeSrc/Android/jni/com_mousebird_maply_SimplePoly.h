@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_SimplePoly
+ * Method:    initialise
+ * Signature: (Lcom/mousebird/maply/Texture;[FLjava/util/List;Ljava/util/List;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise__Lcom_mousebird_maply_Texture_2_3FLjava_util_List_2Ljava_util_List_2
+  (JNIEnv *, jobject, jobject, jfloatArray, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_SimplePoly
  * Method:    addImage
  * Signature: (Lcom/mousebird/maply/Texture;)V
  */
@@ -132,7 +140,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_nativeInit
  * Method:    initialise
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise__
   (JNIEnv *, jobject);
 
 /*

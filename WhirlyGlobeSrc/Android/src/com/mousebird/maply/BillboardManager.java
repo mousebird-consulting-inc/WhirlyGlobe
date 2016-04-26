@@ -24,16 +24,18 @@ import java.util.List;
 
 public class BillboardManager {
 
+    private BillboardManager() {
+    }
 
     public BillboardManager(Scene scene) {
         initialise(scene);
     }
 
-    public native long addBillboards (List<Billboard> billboards, BillboardInfo billboardInfo, long billShader, ChangeSet changes);
+    public native long addBillboards(List<Billboard> billboards, BillboardInfo billboardInfo, long billShader, ChangeSet changes);
 
-    public native void enableBillboards(long [] billIDs, boolean enable, ChangeSet changes);
+    public native void enableBillboards(long[] billIDs, boolean enable, ChangeSet changes);
 
-    public native void removeBillboards(long [] billIDs, ChangeSet changes);
+    public native void removeBillboards(long[] billIDs, ChangeSet changes);
     
     public void finalize()
     {
@@ -47,4 +49,5 @@ public class BillboardManager {
     private static native void nativeInit();
     native void initialise(Scene scene);
     native void dispose();
+    private long nativeHandle;
 }

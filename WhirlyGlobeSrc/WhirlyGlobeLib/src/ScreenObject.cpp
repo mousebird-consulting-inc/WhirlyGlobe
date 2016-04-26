@@ -24,7 +24,7 @@ namespace WhirlyKit
 {
 
 SimplePoly::SimplePoly() :
-    texture(NULL),
+    texture(Texture("ADMIN")),
     color(new RGBAColor())
 {
 }
