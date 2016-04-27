@@ -43,7 +43,7 @@
 	self.layer.coverPoles = true;
 	self.layer.requireElev = false;
 	self.layer.waitLoad = false;
-	self.layer.drawPriority = 0;
+	self.layer.drawPriority = kMaplyImageLayerDrawPriorityDefault;
 	self.layer.singleLevelLoading = false;
 }
 

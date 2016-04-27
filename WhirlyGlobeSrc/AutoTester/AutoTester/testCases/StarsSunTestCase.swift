@@ -29,6 +29,8 @@ class StarsSunTestCase: MaplyTestCase {
 			stars?.addToViewC(globeVC, date: renderDate, desc: nil, mode: MaplyThreadMode.Current)
 		}
 	}
+    
+    var atmosObj = MaplyAtmosphere()
 	
 	func addSun(globeVC: WhirlyGlobeViewController) {
 		globeVC.clearColor = UIColor.blackColor()
@@ -80,16 +82,16 @@ class StarsSunTestCase: MaplyTestCase {
 			mode: MaplyThreadMode.Any)
 		
 		// And some atmosphere, because the iDevice fill rate is just too fast
-		let atmosObj = MaplyAtmosphere(viewC: globeVC)
+		atmosObj = MaplyAtmosphere.init(viewC: globeVC)!
 
-		atmosObj?.setWavelengthRed(0.650, green: 0.570, blue: 0.47)
-		atmosObj?.setSunPosition(sun.getDirection())
+		atmosObj.setWavelengthRed(0.650, green: 0.570, blue: 0.47)
+		atmosObj.setSunPosition(sun.getDirection())
 
-		turnOnNightDay(globeVC, atmosObj: atmosObj!)
+//		turnOnNightDay(globeVC, atmosObj: atmosObj!)
 	}
 	
 	
-	func turnOnNightDay (globeVC: WhirlyGlobeViewController, atmosObj : MaplyAtmosphere) {
+	func turnOnNightDay (globeVC: WhirlyGlobeViewController, atmosObj : MaplyAtmosphere?) {
 		let cacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
 		let tileSource1 = MaplyRemoteTileInfo(baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/MODIS_Terra_CorrectedReflectance_TrueColor/default/2015-05-07/GoogleMapsCompatible_Level9/{z}/{y}/{x}", ext: "jpg", minZoom: Int32(1), maxZoom: Int32(8))
 		let tileSource2 = MaplyRemoteTileInfo(baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/2015-05-07/GoogleMapsCompatible_Level8/{z}/{y}/{x}", ext: "jpg", minZoom: Int32(1), maxZoom: Int32(8))
@@ -106,20 +108,22 @@ class StarsSunTestCase: MaplyTestCase {
 		layer?.maxTiles = 256
 		layer?.imageDepth = 2
 		layer?.allowFrameLoading = false
-		layer?.currentImage = 0.5
+//		layer?.currentImage = 0.5
 		layer?.singleLevelLoading = false
 		layer?.shaderProgramName = kMaplyShaderDefaultTriNightDay
 		layer?.setTesselationValues([(-1) : 10, 0 : 20, 1 : 16])
-		layer?.shaderProgramName = atmosObj.groundShader!.name
+        // The ground shader is overkill here
+//		layer?.shaderProgramName = atmosObj?.groundShader!.name
 		globeVC.addLayer(layer!)
 		layer?.drawPriority = kMaplyImageLayerDrawPriorityDefault
 	}
 	
 	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
-		let baseLayer  = GeographyClassTestCase()
-		baseLayer.setUpWithGlobe(globeVC)
+//		let baseLayer  = GeographyClassTestCase()
+//		baseLayer.setUpWithGlobe(globeVC)
 		addStars(globeVC)
 		addSun(globeVC)
+        turnOnNightDay(globeVC, atmosObj: nil)
 		return true
 	}
 
