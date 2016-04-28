@@ -21,7 +21,7 @@ public class Sun
     /**
      * Set up the sun with the given date/time.
      */
-    Sun(Date date)
+    public Sun(Date date)
     {
         initialise();
         setDate(date);
@@ -30,7 +30,7 @@ public class Sun
     /**
      * Make a Light from the current time.
      */
-    Light makeLight()
+    public Light makeLight()
     {
         Light light = new Light();
         light.setPos(getDirection());

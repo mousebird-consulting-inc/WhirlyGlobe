@@ -57,11 +57,11 @@ public class BillboardAdapter {
         this.threadMode = threadMode;
     }
 
-    public void start(){
+    public void start() {
         addBillboard();
     }
-    private void addBillboard(){
 
+    private void addBillboard() {
         Sun sun = new Sun();
         Light light = sun.makeLight();
         viewC.clearLights();
@@ -69,11 +69,11 @@ public class BillboardAdapter {
 
         //Sun
         Billboard billSun = new Billboard();
-        float [] position = sun.asPosition();
+        float[] position = sun.asPosition();
         billSun.setCenter(new Point3d(position[0], position[1], 5.4*EarthRadius));
         billSun.setSelectable(false);
         ScreenObject screenObject = new ScreenObject();
-        Bitmap bm = BitmapFactory.decodeResource(activity.getResources(), R.drawable.sunImage);
+        Bitmap bm = BitmapFactory.decodeResource(activity.getResources(), R.drawable.sun);
 
         screenObject.addImage(bm, new float[]{1.0f, 1.0f, 1.0f, 1.0f}, 0.9f, 0.9f);
         billSun.setScreenObject(screenObject);
@@ -102,7 +102,7 @@ public class BillboardAdapter {
         ComponentObject moonObj = viewC.addBillboards(moons, info, threadMode);
 
         Atmosphere atm = new Atmosphere(viewC, threadMode);
-        float [] wavelength = new float[]{0.650f,0.570f,0.475f};
+        float[] wavelength = new float[]{0.650f,0.570f,0.475f};
         atm.setWaveLength(wavelength);
         atm.setSunPosition(sun.getDirection());
     }
