@@ -58,6 +58,7 @@ public class ScreenObject {
 
         for (int ii = 0; ii < getPolysSize(); ii ++) {
             SimplePoly poly = getPoly(ii);
+            Texture texture = poly.getTexture();
             for (int jj = 0; jj < poly.getPtsSize(); jj ++) {
                 Point2d pt = poly.getPt(jj);
                 mbr.addPoint(pt);

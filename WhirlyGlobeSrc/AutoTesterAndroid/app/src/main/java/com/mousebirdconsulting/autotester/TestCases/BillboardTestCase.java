@@ -31,15 +31,21 @@ public class BillboardTestCase extends MaplyTestCase {
     public BillboardTestCase(Activity activity) {
         super(activity);
         setTestName("Billboard Test Case");
-        setDelay(20);
+        setDelay(200);
     }
 
     @Override
-    public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
+    public boolean setUpWithGlobe(final GlobeController globeVC) throws Exception {
         StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
         baseView.setUpWithGlobe(globeVC);
-        BillboardAdapter adapter = new BillboardAdapter(globeVC, getActivity(), MaplyBaseController.ThreadMode.ThreadAny);
-        adapter.start();
+        globeVC.addPostSurfaceRunnable(new Runnable() {
+            @Override
+            public void run() {
+                BillboardAdapter adapter = new BillboardAdapter(globeVC, getActivity(), MaplyBaseController.ThreadMode.ThreadAny);
+                adapter.start();
+            }
+        });
+
         return true;
     }
 }

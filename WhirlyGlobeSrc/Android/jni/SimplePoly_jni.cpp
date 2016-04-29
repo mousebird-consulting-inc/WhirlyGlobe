@@ -22,6 +22,8 @@
 #import "com_mousebird_maply_SimplePoly.h"
 #import "WhirlyGlobe.h"
 #import "Maply_utils_jni.h"
+#import <android/bitmap.h>
+
 
 using namespace WhirlyKit;
 
@@ -53,9 +55,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise__Lcom_mous
         SimplePolyClassInfo *classInfo = SimplePolyClassInfo::getClassInfo();
         SimplePoly *inst = new SimplePoly();
         Texture *tex = TextureClassInfo::getClassInfo()->getObject(env, texObj);
-        if (!tex || !inst)
+        if (!inst || !tex)
             return;
-
+        
         inst->texture = *tex;
         //color
 
@@ -79,7 +81,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise__Lcom_mous
         jobject liter = env->CallObjectMethod(vecObjListPt,literMethod);
         jmethodID hasNext = env->GetMethodID(iterClass,"hasNext","()Z");
         jmethodID next = env->GetMethodID(iterClass,"next","()Ljava/lang/Object;");
-        env->DeleteLocalRef(iterClass);
         env->DeleteLocalRef(listClass);
 
         Point2dClassInfo *ptClassInfo = Point2dClassInfo::getClassInfo();
@@ -432,9 +433,38 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_SimplePoly_getTexture
         SimplePoly *inst = classInfo->getObject(env, obj);
         if (!inst)
             return NULL;
-        TextureClassInfo *textureClassInfo = TextureClassInfo::getClassInfo(env,"com/mousebird/maply/Texture");
-        Texture tex = inst->texture;
-        return textureClassInfo->makeWrapperObject(env,&tex);
+    
+        //Create BitMapObject
+        RawDataRef data = inst->texture.texData;
+        RawData *rawData = data.get();
+        jclass bitmapConfig = env->FindClass("android/graphics/Bitmap$Config");
+        jfieldID rgba8888FieldID = env->GetStaticFieldID(bitmapConfig, "ARGB_8888", "Landroid/graphics/Bitmap$Config;");
+        jobject rgba8888Obj = env->GetStaticObjectField(bitmapConfig, rgba8888FieldID);
+        
+        jclass bitmapClass = env->FindClass("android/graphics/Bitmap");
+        jmethodID createBitmapMethodID = env->GetStaticMethodID(bitmapClass,"createBitmap", "(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;");
+        jobject bitmapObj = env->CallStaticObjectMethod(bitmapClass, createBitmapMethodID, inst->texture.getWidth(), inst->texture.getHeight(), rgba8888Obj);
+        
+        jintArray pixels = env->NewIntArray(inst->texture.getWidth() * inst->texture.getHeight());
+        const unsigned char * bitmap = rawData->getRawData();
+        for (int i = 0; i <inst->texture.getWidth() * inst->texture.getHeight() ; i++)
+        {
+            unsigned char red = bitmap[i*4];
+            unsigned char green = bitmap[i*4 + 1];
+            unsigned char blue = bitmap[i*4 + 2];
+            unsigned char alpha = bitmap[i*4 + 3];
+            int currentPixel = (alpha << 24) | (red << 16) | (green << 8) | (blue);
+            env->SetIntArrayRegion(pixels, i, 1, &currentPixel);
+        }
+        
+        jmethodID setPixelsMid = env->GetMethodID(bitmapClass, "setPixels", "([IIIIIII)V");
+        env->CallVoidMethod(bitmapObj, setPixelsMid, pixels, 0, inst->texture.getWidth(), 0, 0, inst->texture.getWidth(), inst->texture.getHeight() );
+        
+        jclass textureCls = env->FindClass("com/mousebird/maply/Texture");
+        jmethodID textureConstructor = env->GetMethodID(textureCls, "<init>", "(Landroid/graphics/Bitmap;)V");
+        jobject texture = env->NewObject(textureCls, textureConstructor, bitmapObj);
+        return texture;
+
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::getTexture()");

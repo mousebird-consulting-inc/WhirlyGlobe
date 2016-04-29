@@ -96,9 +96,9 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ScreenObject_getPoly
         if (index >= inst->polys.size())
             return NULL;
         SimplePoly poly = inst->polys.at(index);
-//        SimplePolyClassInfo *polyClassInfo = SimplePolyClassInfo::getClassInfo(env,"com/mousebird/maply/SimplyPoly");
-//        return polyClassInfo->makeWrapperObject(env,&poly);
+
 		//Color
+        
         float primaryColors[4];
         poly.color->asUnitFloats(primaryColors);
         jfloatArray color;
@@ -113,7 +113,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ScreenObject_getPoly
         jclass bitmapConfig = env->FindClass("android/graphics/Bitmap$Config");
         jfieldID rgba8888FieldID = env->GetStaticFieldID(bitmapConfig, "ARGB_8888", "Landroid/graphics/Bitmap$Config;");
         jobject rgba8888Obj = env->GetStaticObjectField(bitmapConfig, rgba8888FieldID);
-
+        
         jclass bitmapClass = env->FindClass("android/graphics/Bitmap");
         jmethodID createBitmapMethodID = env->GetStaticMethodID(bitmapClass,"createBitmap", "(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;");
         jobject bitmapObj = env->CallStaticObjectMethod(bitmapClass, createBitmapMethodID, poly.texture.getWidth(), poly.texture.getHeight(), rgba8888Obj);
@@ -136,6 +136,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ScreenObject_getPoly
         jclass textureCls = env->FindClass("com/mousebird/maply/Texture");
         jmethodID textureConstructor = env->GetMethodID(textureCls, "<init>", "(Landroid/graphics/Bitmap;)V");
         jobject texture = env->NewObject(textureCls, textureConstructor, bitmapObj);
+
 
         //Pts List object
 
@@ -218,13 +219,25 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ScreenObject_getString
             return NULL;
         if (index >= inst->strings.size())
             return NULL;
+        
         StringWrapper string = inst->strings.at(index);
-        StringWrapperClassInfo *stringClassInfo = StringWrapperClassInfo::getClassInfo(env,"com/mousebird/maply/StringWrapper");
-        return stringClassInfo->makeWrapperObject(env,&string);
+        
+        //Matrix3d Mat
+        
+        Eigen::Matrix3d mat = string.mat;
+        jobject matrixObj = MakeMatrix3d(env, mat);
+        
+        //StringWrapper
+        
+        jclass cls = env->FindClass("com/mousebird/maply/StringWrapper");
+        jmethodID constructor = env->GetMethodID(cls, "<init>", "(IILcom/mousebird/maply/Matrix3d;)V");
+        jobject result = env->NewObject(cls, constructor, string.size.height, string.size.width, matrixObj  );
+        
+        return result;
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ScreenObject::getPoly()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ScreenObject::getString()");
     }
     return NULL;
 }
@@ -258,7 +271,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addImage
         {
             return;
         }
-        
         uint32_t* src = (uint32_t*) bitmapPixels;
         MutableRawData *rawData = new MutableRawData(bitmapPixels,info.height*info.width*4);
         tex->setRawData(rawData,info.width,info.height);

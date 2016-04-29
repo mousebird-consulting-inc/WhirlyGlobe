@@ -47,6 +47,28 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StringWrapper_initialise
     }
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_StringWrapper_initialise__IILcom_mousebird_maply_Matrix3d_2
+(JNIEnv *env, jobject obj, jint height, jint width, jobject matrixObj)
+{
+    try
+    {
+        StringWrapperClassInfo *classInfo = StringWrapperClassInfo::getClassInfo();
+        Matrix3d *mat = Matrix3dClassInfo::getClassInfo()->getObject(env, matrixObj);
+        if (!mat)
+            return;
+        StringWrapper *inst = new StringWrapper();
+        inst->size = CGSize(height, width);
+        inst->mat = *mat;
+        classInfo->setHandle(env, obj, inst);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in StringWrapper::initialise()");
+    }
+
+}
+
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_StringWrapper_dispose
 (JNIEnv *env, jobject obj)
 {

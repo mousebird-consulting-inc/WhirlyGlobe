@@ -67,6 +67,7 @@ public class BillboardAdapter {
         viewC.clearLights();
         viewC.addLight(light);
 
+
         //Sun
         Billboard billSun = new Billboard();
         float[] position = sun.asPosition();
@@ -78,9 +79,12 @@ public class BillboardAdapter {
         screenObject.addImage(bm, new float[]{1.0f, 1.0f, 1.0f, 1.0f}, 0.9f, 0.9f);
         billSun.setScreenObject(screenObject);
 
+
         BillboardInfo info = new BillboardInfo();
+
         info.setShaderName(Billboard.MAPLY_BILLBOARD_ORIENTE_EYE);
         info.setDrawPriority(2);
+
         List<Billboard> billboardsSun = new ArrayList<>();
         billboardsSun.add(billSun);
         ComponentObject componentObject = viewC.addBillboards(billboardsSun, info, this.threadMode);

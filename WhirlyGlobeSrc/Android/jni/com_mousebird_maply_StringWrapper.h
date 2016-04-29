@@ -50,9 +50,17 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StringWrapper_nativeInit
 /*
  * Class:     com_mousebird_maply_StringWrapper
  * Method:    initialise
+ * Signature: (IILcom/mousebird/maply/Matrix3d;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_StringWrapper_initialise__IILcom_mousebird_maply_Matrix3d_2
+  (JNIEnv *, jobject, jint, jint, jobject);
+
+/*
+ * Class:     com_mousebird_maply_StringWrapper
+ * Method:    initialise
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_StringWrapper_initialise
+JNIEXPORT void JNICALL Java_com_mousebird_maply_StringWrapper_initialise__
   (JNIEnv *, jobject);
 
 /*

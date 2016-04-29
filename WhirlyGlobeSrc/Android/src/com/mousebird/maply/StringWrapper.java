@@ -26,6 +26,11 @@ public class StringWrapper {
         initialise();
     }
 
+    public StringWrapper(int width, int height, Matrix3d mat){
+        initialise(width, height, mat);
+    }
+
+
     public void finalise() {
         dispose();
     }
@@ -43,6 +48,9 @@ public class StringWrapper {
         nativeInit();
     }
     private static native void nativeInit();
+
+    native void initialise(int width, int height, Matrix3d mat);
+
     native void initialise();
     native void dispose();
 
