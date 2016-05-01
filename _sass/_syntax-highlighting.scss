@@ -65,3 +65,27 @@
     .vi    { color: #008080 } // Name.Variable.Instance
     .il    { color: #099 } // Literal.Number.Integer.Long
 }
+
+.multiple_code_header {
+     margin-left: 28px;
+     a{
+        padding: 7px 15px;
+        border-radius: 10px 10px 0 0;
+        display: inline-block;
+        margin-right: 6px;
+        &:link, &:visited{
+            color: #fff;
+        }
+        &.selected{
+            background: #eef;
+            color: #000;
+        }
+     }
+}
+
+.multiple_code {
+    margin: 0 !important;
+    li{
+        margin: 0;
+    }
+}

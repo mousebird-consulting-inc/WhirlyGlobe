@@ -46,6 +46,19 @@ The last thing we need to do is indicate where to search for WG-Maply header fil
 “BinaryDirectory/WhirlyGlobeMaplyComponent.framework/Headers/“
 {% endhighlight %}
 
+### Bridging header for Swift
+
+Maybe you're a lucky guy and you're doing your iOS project using Swift. In such case, you need one final step. Go to Build Settings and look for "Objective-C Bridging Header".
+
+![Adding the Objective-C bridging header]({{ site.baseurl }}/images/tutorial/source_dist_4.png)
+
+Type there the following path:
+
+{% highlight bash %}
+$(SRCROOT)/libs/WhirlyGlobeMaply/WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/MaplyBridge.h
+{% endhighlight %}
+
+
 Try and compile, just to make sure the basic are working.  But that’s it!  You should be set up properly for a project using WG-Maply.
 
 Next up, let's look at building a map or a globe.

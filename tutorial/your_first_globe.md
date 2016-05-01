@@ -12,7 +12,7 @@ Open HelloEarth in Xcode.  The template we used earlier should have ViewControll
 
 ![Xcode HelloEarth]({{ site.baseurl }}/images/tutorial/globe_snap_1.png)
 
-Next, we'll need to import the headers. Open ViewController.h and and this to the list of imports.
+If you're using Objective-C, we'll need to import the headers. Open ViewController.h and and this to the list of imports.
 
 {% highlight objc %}
 #import <WhirlyGlobeComponent.h>
@@ -20,18 +20,33 @@ Next, we'll need to import the headers. Open ViewController.h and and this to th
 
 Now let's actually add a WhirlyGlobeViewController. We're going to keep it very simple at first – we just want to verify the project setup before getting much further along.
 
-Open ViewController.m, and find the @implementation line.  Modify it like so.
+For Objective-C, open ViewController.m, and find the @implementation line.  For Swift, open your ViewController.swift file. Modify it like so.
 
-{% highlight objc %}
+
+{% multiple_code %}
+  {% highlight objc %}
 @implementation ViewController
 {
   WhirlyGlobeViewController *theViewC;
 }
 {% endhighlight %}
 
+  {----}
+
+  {% highlight swift %}
+  class ViewController : UIViewController {
+      private var theViewC: WhirlyGlobeViewController?
+    
+    ...
+  }
+  {% endhighlight %}
+{% endmultiple_code %}
+
+
 Now we've got a private WhirlyGlobeViewController. Let's set it up but leave it empty, and add it to our view. Modify the viewDidLoad method to read as follows.
 
-{% highlight objc %}
+{% multiple_code %}
+  {% highlight objc %}
 (void)viewDidLoad
 {
   [super viewDidLoad];
@@ -42,7 +57,23 @@ Now we've got a private WhirlyGlobeViewController. Let's set it up but leave it 
   theViewC.view.frame = self.view.bounds;
   [self addChildViewController:theViewC];
 }
-{% endhighlight %}
+  {% endhighlight %}
+
+  {----}
+
+  {% highlight swift %}
+override func viewDidLoad() {
+  super.viewDidLoad()
+      
+  // Create an empty globe and add it to the view
+  theViewC = WhirlyGlobeViewController()
+  self.view.addSubview(theViewC!.view)
+  theViewC!.view.frame = self.view.bounds
+  addChildViewController(theViewC!)
+}
+  {% endhighlight %}
+{% endmultiple_code %}
+
 
 That's it! Pick a real or virtual iOS device and run the app. If you get a blank screen (and no build errors), you win. At this point you can be certain that your project setup is correct, and you can proceed to add WhirlyGlobe­-Maply features with confidence.
 
