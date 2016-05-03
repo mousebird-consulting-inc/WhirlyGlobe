@@ -123,7 +123,7 @@ using namespace WhirlyGlobe;
     
     // Next, try the vectors
     // Note: This means we'll never get both vectors and other objects
-    NSArray *vecObjs = [self findVectorsInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y())];
+    NSArray *vecObjs = [self findVectorsInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y()) inView:(MaplyBaseViewController*)self.viewController multi:false];
     for (MaplyVectorObject *vecObj in vecObjs)
     {
         MaplySelectedObject *selObj = [[MaplySelectedObject alloc] init];
