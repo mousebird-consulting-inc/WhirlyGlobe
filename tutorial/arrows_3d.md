@@ -1,5 +1,0 @@
----
-title: Arrows
-layout: tutorial
----
-

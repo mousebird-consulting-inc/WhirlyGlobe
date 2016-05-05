@@ -1,5 +1,0 @@
----
-title: Cylinders
-layout: tutorial
----
-
