@@ -4,10 +4,10 @@
     <title>WhirlyGlobe-Maply</title>
     <description>A high performance map and globe toolkit for iOS and Android.
 </description>
-    <link>http://mousebird.github.io//</link>
-    <atom:link href="http://mousebird.github.io//feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 05 May 2016 12:59:41 -0400</pubDate>
-    <lastBuildDate>Thu, 05 May 2016 12:59:41 -0400</lastBuildDate>
+    <link>http://mousebird.github.io//WhirlyGlobe/</link>
+    <atom:link href="http://mousebird.github.io//WhirlyGlobe/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Thu, 05 May 2016 13:02:25 -0400</pubDate>
+    <lastBuildDate>Thu, 05 May 2016 13:02:25 -0400</lastBuildDate>
     <generator>Jekyll v2.4.0</generator>
     
       <item>
@@ -28,8 +28,8 @@
 
 </description>
         <pubDate>Tue, 28 Oct 2014 08:41:14 -0400</pubDate>
-        <link>http://mousebird.github.io//jekyll/update/2014/10/28/welcome-to-jekyll.html</link>
-        <guid isPermaLink="true">http://mousebird.github.io//jekyll/update/2014/10/28/welcome-to-jekyll.html</guid>
+        <link>http://mousebird.github.io//WhirlyGlobe/jekyll/update/2014/10/28/welcome-to-jekyll.html</link>
+        <guid isPermaLink="true">http://mousebird.github.io//WhirlyGlobe/jekyll/update/2014/10/28/welcome-to-jekyll.html</guid>
         
         
         <category>jekyll</category>
