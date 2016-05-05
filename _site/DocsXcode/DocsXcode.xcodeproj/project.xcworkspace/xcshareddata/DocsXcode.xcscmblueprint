@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "677F2FFD76EDF621E416F2AE4C8628CADAE93C4F",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "677F2FFD76EDF621E416F2AE4C8628CADAE93C4F" : 0,
+    "AB6425E65BE62C775600610766D5C087DEA41CAD" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "043599DB-AD33-4EB3-BF34-4E052A1D8DC7",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "677F2FFD76EDF621E416F2AE4C8628CADAE93C4F" : "WhirlyGlobe-Maply-Site",
+    "AB6425E65BE62C775600610766D5C087DEA41CAD" : "WhirlyGlobePages"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "DocsXcode",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "DocsXcode\/DocsXcode.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/mousebird\/WhirlyGlobe-Maply-Site.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "677F2FFD76EDF621E416F2AE4C8628CADAE93C4F"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/mousebird\/WhirlyGlobe",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "AB6425E65BE62C775600610766D5C087DEA41CAD"
+    }
+  ]
+}
