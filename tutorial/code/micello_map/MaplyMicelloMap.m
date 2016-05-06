@@ -103,7 +103,7 @@
     int _baseDrawPriority;
     
     NSDictionary *_entities;
-    MaplyComponentObject *_outlinesCompObj, *_labelsCompObj, *_highlightCompObj;
+    MaplyComponentObject *_outlinesCompObj, *_labelsCompObj, *_highlightCompObj, *_markersCompObj;
     NSMutableArray *_fillCompObjs;
     NSMutableArray *_styleRules;
 }
@@ -319,8 +319,9 @@
                     for (NSMutableDictionary *rawFeature in rawFeatures) {
                         NSMutableDictionary *rawGeometry = rawFeature[@"geometry"];
                         NSString *sType = rawGeometry[@"type"];
+
                         if ([sType isEqualToString:@"Polygon"]) {
-                            
+
                             // Normalize coordinates to the center of the community map, to retain more precision.
                             NSMutableArray *coords = rawGeometry[@"coordinates"];
                             for (NSMutableArray *ring in coords) {
@@ -331,7 +332,7 @@
                                     coord[1] = @(latDeg.doubleValue - self.centerLatDeg);
                                 }
                             }
-                            
+
                             // Assign location and label_area attributes of the feature to the geometry, so that they can be used directly from the geometry elsewhere.
                             NSMutableDictionary *rawLocation = rawFeature[@"location"];
                             NSMutableDictionary *rawLabelArea = rawFeature[@"label_area"];
@@ -340,6 +341,27 @@
                                 rawProperties[@"location"] = rawLocation;
                             if (rawLabelArea && rawProperties)
                                 rawProperties[@"label_area"] = rawLabelArea;
+
+                        } else if ([sType isEqualToString:@"Point"]) {
+
+                            NSMutableArray *coord = rawGeometry[@"coordinates"];
+                            NSNumber *lonDeg = coord[0];
+                            NSNumber *latDeg = coord[1];
+                            NSMutableDictionary *rawProperties = rawFeature[@"properties"];
+                            rawProperties[@"lonDeg"] = lonDeg;
+                            rawProperties[@"latDeg"] = latDeg;
+
+                        } else if ([sType isEqualToString:@"LineString"]) {
+
+                            // Normalize coordinates to the center of the community map, to retain more precision.
+                            NSMutableArray *coords = rawGeometry[@"coordinates"];
+                            for (NSMutableArray *coord in coords) {
+                                NSNumber *lonDeg = coord[0];
+                                NSNumber *latDeg = coord[1];
+                                coord[0] = @(lonDeg.doubleValue - self.centerLonDeg);
+                                coord[1] = @(latDeg.doubleValue - self.centerLatDeg);
+
+                            }
                         }
                     }
                     MaplyVectorObject *vecObj = [MaplyVectorObject VectorObjectFromGeoJSONDictionary:jsonDict];
@@ -462,35 +484,63 @@
     return [NSDictionary dictionaryWithDictionary:desc];
 }
 
-- (void)setZLevel:(int)zLevel viewC:(MaplyBaseViewController *__nonnull)viewC {
-    
-    // Remove any vectors or labels that have been previously placed.
-    if (self.zLevel != -1) {
-        self.zLevel = -1;
-        
-        if (_highlightCompObj) {
-            [viewC removeObject:_highlightCompObj];
-            _highlightCompObj = nil;
-        }
-        if (_fillCompObjs.count > 0) {
-            for (MaplyComponentObject *compObj in _fillCompObjs)
-                [viewC removeObject:compObj];
-            _fillCompObjs = [NSMutableArray array];
-        }
-        if (_outlinesCompObj) {
-            [viewC removeObject:_outlinesCompObj];
-            _outlinesCompObj = nil;
-        }
-        if (_labelsCompObj) {
-            [viewC removeObject:_labelsCompObj];
-            _labelsCompObj = nil;
-        }
+- (MaplyScreenMarker *)markerForFeature:(MaplyVectorObject *)feature {
 
+    NSNumber *lonDeg = feature.attributes[@"lonDeg"];
+    NSNumber *latDeg = feature.attributes[@"latDeg"];
+    MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
+    marker.loc = MaplyCoordinateMakeWithDegrees(lonDeg.floatValue, latDeg.floatValue);
+
+    NSString *transit = feature.attributes[@"transit"];
+    NSString *facility = feature.attributes[@"facility"];
+    NSString *service = feature.attributes[@"service"];
+    NSString *use = feature.attributes[@"use"];
+    NSString *markerAttribute = feature.attributes[@"marker"];
+
+    UIImage *image;
+
+    if (facility && [facility isEqualToString:@"bathroom"])
+        image = [UIImage imageNamed:@"Bathroom"];
+    else if (facility && [facility isEqualToString:@"elevator"])
+        image = [UIImage imageNamed:@"Elevator"];
+    else if (facility && [facility isEqualToString:@"escalator"])
+        image = [UIImage imageNamed:@"Escalator"];
+    else if (markerAttribute && [markerAttribute isEqualToString:@"disabled access"])
+        image = [UIImage imageNamed:@"Disabled Access"];
+    else if (service && [service isEqualToString:@"atm"])
+        image = [UIImage imageNamed:@"ATM"];
+    else if (service && [service isEqualToString:@"changing station"])
+        image = [UIImage imageNamed:@"Changing Station"];
+    else if (service && [service isEqualToString:@"mail"])
+        image = [UIImage imageNamed:@"Mail"];
+    else if (service && [service isEqualToString:@"santa"])
+        image = [UIImage imageNamed:@"Santa"];
+    else if (service && [service isEqualToString:@"stroller"])
+        image = [UIImage imageNamed:@"Stroller"];
+    else if (service && [service isEqualToString:@"wifi"])
+        image = [UIImage imageNamed:@"Wifi"];
+    else if (transit && [transit isEqualToString:@"bus"])
+        image = [UIImage imageNamed:@"Bus"];
+    else if (use && [use isEqualToString:@"information"])
+        image = [UIImage imageNamed:@"Information"];
+
+    if (!image) {
+        return nil;
     }
-    
+
+    marker.image = image;
+    marker.size = CGSizeMake( image.size.width / 4.0, image.size.height / 4.0);
+
+    return marker;
+}
+
+- (void)setZLevel:(int)zLevel viewC:(MaplyBaseViewController *__nonnull)viewC {
+    // Remove any vectors, labels, or markers that have been previously placed.
+    [self removeFromViewC:viewC];
+
     // Fetch the levels corresponding to the z-level.
     [self startFetchZLevel:zLevel success:^{
-        
+
         // Add the vectors and labels
         
         NSArray *levels = self.zLevelsToLevels[@(zLevel)];
@@ -532,11 +582,18 @@
                                      kMaplyFont: [UIFont systemFontOfSize:24.0],
                                      kMaplyTextColor: [UIColor darkGrayColor]
                                      };
+
+        NSDictionary *markersDesc = @{
+                                      kMaplyDrawPriority: @(_baseDrawPriority+35),
+                                      kMaplyMinVis:       @(0),
+                                      kMaplyMaxVis:       @(0.0002)
+                                      };
         
         NSMutableArray *selFeaturesArrays = [NSMutableArray array];
         NSMutableArray *noSelFeaturesArrays = [NSMutableArray array];
         NSMutableArray *outlineFeatures = [NSMutableArray array];
         NSMutableArray *labels = [NSMutableArray array];
+        NSMutableArray *markers = [NSMutableArray array];
         
         for (int i=0; i<_styleRules.count+1; i++) {
             // Once for each style rule, and once more for no match
@@ -548,16 +605,31 @@
         for (MaplyMicelloMapLevel *level in levels) {
         
             for (MaplyVectorObject *feature in level.features) {
-                [outlineFeatures addObject:feature];
-                int styleIndex = [self styleIndexForFeature:feature];
                 
-                if (feature.attributes[@"entities"]) {
-                    [((NSMutableArray *)selFeaturesArrays[styleIndex]) addObject:feature];
-                    MaplyScreenLabel *label = [self labelForFeature:feature];
-                    if (label)
-                        [labels addObject:label];
-                } else
-                    [((NSMutableArray *)noSelFeaturesArrays[styleIndex]) addObject:feature];
+                MaplyVectorObjectType vecType = [feature vectorType];
+
+                if (vecType == MaplyVectorArealType) {
+
+                    [outlineFeatures addObject:feature];
+                    int styleIndex = [self styleIndexForFeature:feature];
+
+                    if (feature.attributes[@"entities"]) {
+                        [((NSMutableArray *)selFeaturesArrays[styleIndex]) addObject:feature];
+                        MaplyScreenLabel *label = [self labelForFeature:feature];
+                        if (label)
+                            [labels addObject:label];
+                    } else
+                        [((NSMutableArray *)noSelFeaturesArrays[styleIndex]) addObject:feature];
+
+                } else if (vecType == MaplyVectorPointType) {
+                    MaplyScreenMarker *marker = [self markerForFeature:feature];
+                    if (marker) {
+                        [markers addObject:marker];
+                    }
+
+                } else if (vecType == MaplyVectorLinearType) {
+
+                }
             }
         }
         
@@ -571,6 +643,7 @@
         
         _outlinesCompObj = [viewC addVectors:outlineFeatures desc:outlineDesc];
         _labelsCompObj = [viewC addScreenLabels:labels desc:labelsDesc];
+        _markersCompObj = [viewC addScreenMarkers:markers desc:markersDesc];
         
         self.zLevel = zLevel;
         
@@ -626,10 +699,33 @@
     }
 }
 
+- (void)removeFromViewC:(MaplyBaseViewController *__nonnull)viewC {
+    if (self.zLevel != -1) {
+        self.zLevel = -1;
+
+        if (_highlightCompObj) {
+            [viewC removeObject:_highlightCompObj];
+            _highlightCompObj = nil;
+        }
+        if (_fillCompObjs.count > 0) {
+            for (MaplyComponentObject *compObj in _fillCompObjs)
+                [viewC removeObject:compObj];
+            _fillCompObjs = [NSMutableArray array];
+        }
+        if (_outlinesCompObj) {
+            [viewC removeObject:_outlinesCompObj];
+            _outlinesCompObj = nil;
+        }
+        if (_labelsCompObj) {
+            [viewC removeObject:_labelsCompObj];
+            _labelsCompObj = nil;
+        }
+        if (_markersCompObj) {
+            [viewC removeObject:_markersCompObj];
+            _markersCompObj = nil;
+        }
+    }
+}
+
 @end
-
-
-
-
-
 

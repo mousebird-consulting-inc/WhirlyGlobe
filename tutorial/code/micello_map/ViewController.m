@@ -32,7 +32,15 @@
     layer.drawPriority = 100;
     layer.handleEdges = true;
     [globeVC addLayer:layer];
-    
+
+    // Add Micello copyright notice
+    UILabel *copyrightLabel = [[UILabel alloc] init];
+    [copyrightLabel setTranslatesAutoresizingMaskIntoConstraints:NO];
+    copyrightLabel.text = @"Westfield Valley Fair Map Data © Micello";
+    copyrightLabel.textAlignment = NSTextAlignmentRight;
+    [globeVC.view addSubview:copyrightLabel];
+    [globeVC.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"[copyrightLabel(200)]-20-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(copyrightLabel)]];
+    [globeVC.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[copyrightLabel(25)]-20-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(copyrightLabel)]];
 }
 
 @end

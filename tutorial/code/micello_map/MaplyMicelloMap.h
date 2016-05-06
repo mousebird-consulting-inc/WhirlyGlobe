@@ -199,4 +199,9 @@
  */
 - (void)clearSelectionViewC:(MaplyBaseViewController *__nonnull)viewC;
 
+/** @brief Remove the Community Map from the map or globe.
+    @details Call this to remove the Micello Community Map from the map or globe.
+ */
+- (void)removeFromViewC:(MaplyBaseViewController *__nonnull)viewC;
+
 @end
