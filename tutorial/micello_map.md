@@ -4,24 +4,11 @@ layout: tutorial
 ---
 *Tutorial by Ranen Ghosh*
 
-[Micello](http://www.micello.com/) provides indoor map data; for places like shopping malls, airports, college campuses, hospitals, museums, business campuses, and conferences.  In this tutorial we add a multi-level of the Westfield Valy Fair mall to WhirlyGlobe-Maply.
+[Micello](http://www.micello.com/) provides indoor map data for places like shopping malls, airports, college campuses, hospitals, museums, business campuses, and conference centers.  Integration with a map toolkit like ours is a natural fit.  In this tutorial we add the multi-level structure for the Westfield Valley Fair mall to a WhirlyGlobe-Maply based map.
 
-<div class="well">
-<h4><span class="label label-warning" style="margin-right:10px">Note</span>Version 2.4.1 (or better) Required</h4>
+## Getting started
 
-<p>
-You will need WhirlyGlobe-Maply version 2.4.1 or better to use the new MaplyAeris classes.
-</p>
-
-<p>
-Version 2.4.1 (or greater) can be found in the github repo or in this <a href="https://dl.dropboxusercontent.com/u/29069465/WhirlyGlobeMaplyComponent.framework_2_4_1_beta8.zip">binary distribution</a>.
-</p>
-</div>
-
-
-You will need to have already run through the [remote image layer](remote_image_layer.html) tutorial.  Let's get started by opening your HelloEarth project.
-
-For this example, download [this zip archive]({{ site.baseurl }}/tutorial/resources/micello_map/micello_tutorial.zip) and copy its files to your project directory.  You should overwrite your existing ViewController.* files with the ones in the archive.  Add the other files to the project.
+For this example we provide source code to get going.  Download [this zip archive]({{ site.baseurl }}/tutorial/resources/micello_map/micello_tutorial.zip) and copy its files to your project directory.  You should overwrite your existing ViewController.* files with the ones in the archive.  Add the other files to the project.
 
 The new ViewController class is simplified to only use a globe, and only display remote OpenStreetMap tiles.
 
@@ -48,13 +35,13 @@ Add two member variables to the ViewController implementation block.  The first 
 }
 {% endhighlight %}
 
-Initialize the Micello map variable at the end of viewDidLoad.  You'll need to give it the base URL of the map to be displayed, and the key from Micello for your account and project.  It also wants a base draw priority.  (Draw priority values determine the order in which map elements are seen if they overlap).
+Initialize the Micello map variable at the end of viewDidLoad.  You'll need to give it the base URL of the map to be displayed, and the key from Micello for your account and project.  It also wants a base draw priority.  Draw priority values determine the order in which map elements are seen if they overlap.
 
 {% highlight objc %}
     // Add Westfield Valley Fair mall map
     NSString *micelloKey = @"YOUR MICELLO KEY GOES HERE";
     NSString *baseURL = @"http://mfs.micello.com/ms/v1/mfile/map/78/mv/-/ev/-/geojson";
-    micelloMap = [[MaplyMicelloMap alloc] initWithBaseURL:baseURL projectKey:micelloKey baseDrawPriority:200];
+    micelloMap = [[MaplyMicelloMap alloc] initWithBaseURL:baseURL projectKey:micelloKey baseDrawPriority:kMaplyVectorDrawPriorityDefault+200];
 {% endhighlight %}
 
 ## The **MaplyMicelloMap** class
@@ -67,21 +54,21 @@ The **MaplyMicelloMap** class is the most important class needed to display a Mi
 
 ### Fetching the map information
 
-This is done with the startFetchMapWithSuccess:failure: method.  If the base URL and key provided to the init method are valid, this will fetch lots of information about the community map, and store it in the object.  This includes drawings, levels, and entities.
+This is done with the *startFetchMapWithSuccess:failure:* method.  If the base URL and key provided to the init method are valid, this will fetch lots of information about the community map, and store it in the object.  This includes drawings, levels, and entities.
 
 Since doing this is asynchronous, subsequent operations on the **MaplyMicelloMap** object should go in the success block passed to this method.
 
 ### Styling the map
 
-This can be done in two ways.  You can give the **MaplyMicelloMap** object default drawing attributes.  These are currently fillColor, outlineColor, selectedOutlineColor, lineWidth, and selectedLineWidth.  (The selected* properties apply to a geometry that's been selected by the user).
+This can be done in two ways.  You can give the **MaplyMicelloMap** object default drawing attributes.  These are currently *fillColor*, *outlineColor*, *selectedOutlineColor*, *lineWidth*, and *selectedLineWidth*.  The basic properties for fill and outline apply to the map as it's normally displayed.  The *selected* properties apply to rooms selected by a user.
 
-You can also add style rules, represented by the **MaplyMicelloStyleRule** class, to draw geometry features that match certain criteria in particular ways.  We've provided some default style rules which work well.
+You can also add style rules, represented by the **MaplyMicelloStyleRule** class, to draw geometry features that match certain criteria.  We've provided some default style rules.
 
 ### Setting a z-level
 
-After fetching the map information and styling the map, set the z-level to show a level from the community map, using the setZLevel:viewC: method.
+After fetching the map information and styling the map, set the z-level using the *setZLevel:viewC:* method.  This selects one of the levels to draw and it's the one you will see.
 
-So this code, which does all of the above, goes after our **MaplyMicelloMap** initialization:
+This code, which does all of the above, goes after our **MaplyMicelloMap** initialization:
 
 {% highlight objc %}
     [micelloMap startFetchMapWithSuccess:^() {
@@ -93,13 +80,13 @@ So this code, which does all of the above, goes after our **MaplyMicelloMap** in
     }];
 {% endhighlight %}
 
-Run this code now and you'll see the bottom level of the Westfield Valley Fair mall map displayed on your globe.
+Run this code now and you'll see the bottom level of the Westfield Valley Fair mall displayed on your globe.
 
 ![Westfield Valley Fair mall map on the globe]({{ site.baseurl }}/images/tutorial/micello_2.png)
 
-## Changing the map z-level
+## Changing the Map Level
 
-If a community map has more than one level, it's simple to change the z-level.  Just call setZLevel:viewC: again.  Here we modify the code from above to allow the user to select a z-level:
+If a community map has more than one level, it's simple to change.  Just call *setZLevel:viewC:* again.  Here we modify the code from above to allow the user to select a z-level:
 
 {% highlight objc %}
     [micelloMap startFetchMapWithSuccess:^() {
@@ -122,7 +109,7 @@ If a community map has more than one level, it's simple to change the z-level.  
     }];
 {% endhighlight %}
 
-Add the onSegChange callback to handle the user interaction and change the displayed z-level of the community map.
+Add the *onSegChange* callback to handle the user interaction and change the displayed z-level of the community map.
 
 {% highlight objc %}
 - (void)onSegChange {
@@ -135,13 +122,13 @@ If you run the example now, you'll see what the upper levels of the mall look li
 
 ![Second level of the mall]({{ site.baseurl }}/images/tutorial/micello_3.png)
 
-## Supporting selection of map features
+## Selection of map features
 
-Now we're going to let the user select shops and restaurants in the mall to learn more about them.  The **MaplyMicelloMap** object will return information about a selected entity using the **MaplyMicelloMapEntity** class.  Call the **MaplyMicelloMap** select:viewC: method to get a **MaplyMicelloMapEntity** object, which has a *properties* dictionary property which contains metadata that can be displayed.
+Now we're going to let the user select shops and restaurants in the mall to learn more about them.  The **MaplyMicelloMap** object will return information about a selected entity using the **MaplyMicelloMapEntity** class.  Call the **MaplyMicelloMap** select:viewC: method to get a **MaplyMicelloMapEntity** object, which has a *properties* dictionary property which contains metadata we can be display.
 
-In the example, we use a simple form view controller to display the properties (the SimpleAnnotationViewController, which is among the files to download that are listed above).  The **MaplyAnnotation** object anchors this view to the appropriate location in the map.
+In the example, we use a simple form view controller to display the properties (the **SimpleAnnotationViewController**, which is among the files to download that are listed above).  The **MaplyAnnotation** object anchors this view to the appropriate location in the map.
 
-Add the following two method implementations after onSegChange :
+Add the following two method implementations after *onSegChange* :
 
 {% highlight objc %}
 - (void)globeViewController:(WhirlyGlobeViewController *__nonnull)viewC didSelect:(NSObject *__nonnull)selectedObj {
@@ -173,9 +160,9 @@ Now if you run the example and select a store or restaurant, you'll see the enti
 
 ![Micello community map entity selection]({{ site.baseurl }}/images/tutorial/micello_4.png)
 
-## A mall with two minimum wages
+## A Mall with Two Minimums
 
-The Westfield Valley Fair mall straddles two cities: Santa Clara and San Jose.  In 2012 San Jose raised its minimum wage from $8 to $10 per hour, while Santa Clara kept its fixed at $8.  Since then, different stores in the same mall have to pay different minimum wages.
+The Westfield Valley Fair mall straddles two cities: Santa Clara and San Jose.  In 2012 San Jose raised its minimum wage from $8 to $10 per hour, while Santa Clara kept its fixed at $8.  Different stores within the mall fall within those different cities and some (such as The Gap) straddle both.  In this optional part of the tutorial let's see which!
 
 Here we will overlay the city boundaries over top of the mall map, to display which stores have the higher minimum wage.
 
@@ -206,5 +193,7 @@ Here we will overlay the city boundaries over top of the mall map, to display wh
 {% endhighlight %}
 
 ![San Jose and Santa Clara city boundaries overlaid upon the mall map]({{ site.baseurl }}/images/tutorial/micello_5.png)
+
+That rounds our the tutorial.  Enjoy your building maps!
 
 

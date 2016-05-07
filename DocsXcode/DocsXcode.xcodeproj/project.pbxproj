@@ -27,6 +27,13 @@
 		2B2E59EB1CA07EC7008FFE4A /* natgeo.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = natgeo.jpg; path = ../locationtech/images/natgeo.jpg; sourceTree = "<group>"; };
 		2B2E59EC1CA07EC7008FFE4A /* stamensphericalmercator.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = stamensphericalmercator.jpg; path = ../locationtech/images/stamensphericalmercator.jpg; sourceTree = "<group>"; };
 		2B2E59ED1CA07EC7008FFE4A /* vectorlabelmarker.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = vectorlabelmarker.jpg; path = ../locationtech/images/vectorlabelmarker.jpg; sourceTree = "<group>"; };
+		2B47FE051CDDAA6200E46D0B /* MaplyMicelloMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyMicelloMap.h; sourceTree = "<group>"; };
+		2B47FE061CDDAA6200E46D0B /* MaplyMicelloMap.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MaplyMicelloMap.m; sourceTree = "<group>"; };
+		2B47FE071CDDAA6200E46D0B /* SimpleAnnotationViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimpleAnnotationViewController.h; sourceTree = "<group>"; };
+		2B47FE081CDDAA6200E46D0B /* SimpleAnnotationViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SimpleAnnotationViewController.m; sourceTree = "<group>"; };
+		2B47FE091CDDAA6200E46D0B /* SimpleAnnotationViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SimpleAnnotationViewController.xib; sourceTree = "<group>"; };
+		2B47FE0A1CDDAA6200E46D0B /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		2B47FE0B1CDDAA6200E46D0B /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		2B4E068B1A152FAF00ADA318 /* _config.yml */ = {isa = PBXFileReference; lastKnownFileType = text; name = _config.yml; path = ../_config.yml; sourceTree = "<group>"; };
 		2B4E068D1A152FB500ADA318 /* tutorial.yaml */ = {isa = PBXFileReference; lastKnownFileType = text; path = tutorial.yaml; sourceTree = "<group>"; };
 		2B4E068F1A152FD700ADA318 /* app_entry.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = app_entry.html; sourceTree = "<group>"; };
@@ -207,6 +214,20 @@
 				2B2E59E21CA06EDC008FFE4A /* natgeodarksky.jpg */,
 			);
 			name = images;
+			sourceTree = "<group>";
+		};
+		2B47FE041CDDAA6200E46D0B /* micello_map */ = {
+			isa = PBXGroup;
+			children = (
+				2B47FE051CDDAA6200E46D0B /* MaplyMicelloMap.h */,
+				2B47FE061CDDAA6200E46D0B /* MaplyMicelloMap.m */,
+				2B47FE071CDDAA6200E46D0B /* SimpleAnnotationViewController.h */,
+				2B47FE081CDDAA6200E46D0B /* SimpleAnnotationViewController.m */,
+				2B47FE091CDDAA6200E46D0B /* SimpleAnnotationViewController.xib */,
+				2B47FE0A1CDDAA6200E46D0B /* ViewController.h */,
+				2B47FE0B1CDDAA6200E46D0B /* ViewController.m */,
+			);
+			path = micello_map;
 			sourceTree = "<group>";
 		};
 		2B4E06841A152F8C00ADA318 = {
@@ -464,6 +485,7 @@
 		2B4E06DB1A15429400ADA318 /* code */ = {
 			isa = PBXGroup;
 			children = (
+				2B47FE041CDDAA6200E46D0B /* micello_map */,
 				2B96DB6C1B7402BE005FF148 /* ViewController_ArcGIS.m */,
 				2B96DB6D1B7402BE005FF148 /* ViewController_NASA_GIBS.m */,
 				2B76A04C1A1D2AD300C60136 /* ViewController_cartodb.m */,
