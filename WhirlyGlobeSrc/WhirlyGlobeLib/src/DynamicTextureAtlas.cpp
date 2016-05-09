@@ -121,6 +121,9 @@ DynamicTexture::~DynamicTexture()
     pthread_mutex_destroy(&regionLock);
 }
 
+// If set we'll try to clear the images when we're not using them.
+static const bool ClearImages = false;
+
 // Create the OpenGL texture, empty
 bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
 {
@@ -143,15 +146,18 @@ bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
     if (compressed)
     {
         size_t size = texSize * texSize / 2;
-	glCompressedTexImage2D(GL_TEXTURE_2D, 0, type, texSize, texSize, 0, (GLsizei)size, NULL);
+        glCompressedTexImage2D(GL_TEXTURE_2D, 0, type, texSize, texSize, 0, (GLsizei)size, NULL);
     } else {
         // Turn this on to provide glTexImage2D with empty memory so Instruments doesn't complain
-//        size_t size = texSize*texSize*4;
-//        unsigned char *zeroMem = (unsigned char *)malloc(size);
-//        memset(zeroMem, 255, size);
-//        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, format, zeroMem);
-//        free(zeroMem);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, type, NULL);
+        if (ClearImages)
+        {
+            size_t size = texSize*texSize*4;
+            unsigned char *zeroMem = (unsigned char *)malloc(size);
+            memset(zeroMem, 255, size);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, type, zeroMem);
+            free(zeroMem);
+        } else
+            glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, type, NULL);
     }
     CheckGLError("DynamicTexture::createInGL() glTexImage2D()");
 
@@ -222,8 +228,11 @@ void DynamicTexture::clearTextureData(int startX,int startY,int width,int height
         //            glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, thisWidth, thisHeight, pkmType, (GLsizei)size, pixData);
     } else {
         // Note: Porting
-//        std::vector<unsigned char> emptyPixels(width*height*4,0);
-//        glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, emptyPixels.data());
+        if (ClearImages)
+        {
+            std::vector<unsigned char> emptyPixels(width*height*4,0);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, emptyPixels.data());
+        }
     }
     
     glBindTexture(GL_TEXTURE_2D, 0);
