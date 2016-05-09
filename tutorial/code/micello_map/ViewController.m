@@ -37,9 +37,10 @@
     UILabel *copyrightLabel = [[UILabel alloc] init];
     [copyrightLabel setTranslatesAutoresizingMaskIntoConstraints:NO];
     copyrightLabel.text = @"Westfield Valley Fair Map Data © Micello";
+    copyrightLabel.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.5];
     copyrightLabel.textAlignment = NSTextAlignmentRight;
     [globeVC.view addSubview:copyrightLabel];
-    [globeVC.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"[copyrightLabel(200)]-20-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(copyrightLabel)]];
+    [globeVC.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"[copyrightLabel(310)]-20-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(copyrightLabel)]];
     [globeVC.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[copyrightLabel(25)]-20-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(copyrightLabel)]];
 }
 
