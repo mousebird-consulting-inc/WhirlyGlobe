@@ -70,9 +70,14 @@ TESS_SRC_FILES = dict.c geom.c memalloc.c mesh.c normal.c priorityq.c render.c s
 TESS_SRC_DIR = $(THIRD_PARTY)/glues/source/libtess
 LOCAL_SRC_FILES += $(TESS_SRC_FILES:%=$(TESS_SRC_DIR)/%)
 
-AA_SRC_FILES = AAAberration.cpp AAAngularSeparation.cpp AABinaryStar.cpp AACoordinateTransformation.cpp AADate.cpp \		AADiameters.cpp AADynamicalTime.cpp AAEarth.cpp AAEaster.cpp AAEclipses.cpp AAEclipticalElements.cpp \		AAElementsPlanetaryOrbit.cpp AAElliptical.cpp AAEquationOfTime.cpp AAEquinoxesAndSolstices.cpp \
-		AAFK5.cpp AAGalileanMoons.cpp AAGlobe.cpp AAIlluminatedFraction.cpp AAInterpolate.cpp AAJewishCalendar.cpp \		AAJupiter.cpp AAKepler.cpp AAMars.cpp AAMercury.cpp AAMoon.cpp AAMoonIlluminatedFraction.cpp \
-		AAMoonMaxDeclinations.cpp AAMoonNodes.cpp AAMoonPerigeeApogee.cpp AAMoonPhases.cpp AAMoslemCalendar.cpp \		AANearParabolic.cpp AANeptune.cpp AANodes.cpp AANutation.cpp AAParabolic.cpp AAParallactic.cpp \		AAParallax.cpp AAPhysicalJupiter.cpp AAPhysicalMars.cpp AAPhysicalMoon.cpp AAPhysicalSun.cpp \		AAPlanetaryPhenomena.cpp AAPlanetPerihelionAphelion.cpp AAPluto.cpp AAPrecession.cpp AARefraction.cpp \		AARiseTransitSet.cpp AASaturn.cpp AASaturnMoons.cpp AASaturnRings.cpp AASidereal.cpp \		AAStellarMagnitudes.cpp AASun.cpp AAUranus.cpp AAVenus.cpp
+AA_SRC_FILES = AAAberration.cpp AAAngularSeparation.cpp AABinaryStar.cpp AACoordinateTransformation.cpp AADate.cpp AADiameters.cpp \
+    AADynamicalTime.cpp AAEarth.cpp AAEaster.cpp AAEclipses.cpp AAEclipticalElements.cpp AAElementsPlanetaryOrbit.cpp AAElliptical.cpp \
+    AAEquationOfTime.cpp AAEquinoxesAndSolstices.cpp AAFK5.cpp AAGalileanMoons.cpp AAGlobe.cpp AAIlluminatedFraction.cpp AAInterpolate.cpp \
+    AAJewishCalendar.cpp AAJupiter.cpp AAKepler.cpp AAMars.cpp AAMercury.cpp AAMoon.cpp AAMoonIlluminatedFraction.cpp AAMoonMaxDeclinations.cpp \
+    AAMoonNodes.cpp AAMoonPerigeeApogee.cpp AAMoonPhases.cpp AAMoslemCalendar.cpp AANearParabolic.cpp AANeptune.cpp AANodes.cpp \
+    AANutation.cpp AAParabolic.cpp AAParallactic.cpp AAParallax.cpp AAPhysicalJupiter.cpp AAPhysicalMars.cpp AAPhysicalMoon.cpp \
+    AAPhysicalSun.cpp AAPlanetaryPhenomena.cpp AAPlanetPerihelionAphelion.cpp AAPluto.cpp AAPrecession.cpp AARefraction.cpp \
+    AARiseTransitSet.cpp AASaturn.cpp AASaturnMoons.cpp AASaturnRings.cpp AASidereal.cpp AAStellarMagnitudes.cpp AASun.cpp AAUranus.cpp AAVenus.cpp
 
 AA_SRC_DIR = $(BASE_DIR)/WhirlyGlobeSrc/local_libs/aaplus
 LOCAL_SRC_FILES += $(AA_SRC_FILES:%=$(AA_SRC_DIR)/%)
