@@ -179,7 +179,7 @@ Here we will overlay the city boundaries over top of the mall map, to display wh
     NSString *path = [[NSBundle mainBundle] pathForResource:@"SantaClaraBoundary" ofType:@"geojson"];
     MaplyVectorObject *santaClaraVecObj = [MaplyVectorObject VectorObjectFromGeoJSON:[[NSFileManager defaultManager] contentsAtPath:path]];
     santaClaraCompObj = [globeVC addVectors:@[santaClaraVecObj] desc:@{
-                                                               kMaplyVecTexture:    [UIImage imageNamed:@"bgYellow.png"],
+                                                               kMaplyVecTexture:    [UIImage imageNamed:@"bgOrange.png"],
                                                                kMaplyDrawPriority:  @(400),
                                                                kMaplyFilled:        @(YES)}];
     

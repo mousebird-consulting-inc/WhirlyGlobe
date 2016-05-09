@@ -276,7 +276,7 @@
     // Add default styles.  The order that these rules are added establishes their order of evaluation (the first rule that matches for a particular geometry wins).  The draw priorities are important for having overlapping geometries display in the correct order.
     
     [self addStyleRule:[[MaplyMicelloStyleRule alloc] initWithKey:@"is_root" value:@(YES) desc:@{kMaplyDrawPriority:@(_baseDrawPriority)}]];
-    [self addStyleRule:[[MaplyMicelloStyleRule alloc] initWithKey:@"$style" value:@"Background" desc:@{kMaplyDrawPriority:@(_baseDrawPriority+1), kMaplyColor:[UIColor colorWithRed:0.961 green:9.957 blue:0.898 alpha:1.0]}]];
+    [self addStyleRule:[[MaplyMicelloStyleRule alloc] initWithKey:@"$style" value:@"Background" desc:@{kMaplyDrawPriority:@(_baseDrawPriority+1), kMaplyColor:[UIColor colorWithRed:0.961 green:0.957 blue:0.898 alpha:1.0]}]];
     [self addStyleRule:[[MaplyMicelloStyleRule alloc] initWithKey:@"meta" value:@"level outline" desc:@{kMaplyDrawPriority:@(_baseDrawPriority+2)}]];
 
     
