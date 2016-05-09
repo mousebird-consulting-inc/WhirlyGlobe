@@ -22,6 +22,7 @@ package com.mousebird.maply;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.opengl.GLSurfaceView;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -44,19 +45,23 @@ import java.util.List;
 public class MapController extends MaplyBaseController implements View.OnTouchListener
 {
 	/**
-	 * Construct with the activity and a coordinate system.  You use this one if you're
-	 * using a custom coordinate system.
-	 *
-	 * @param mainActivity The activity this is part of.
-	 * @param coordSys Coordinate system to use for the map.
-	 * @param displayCenter Center of the coordinate system.
-	 * @param clearColor Clear color to use for the background.
-     */
-	public MapController(Activity mainActivity,CoordSystem coordSys,Point3d displayCenter,int clearColor)
+	 * Settings are parameters we need at the very start of the
+	 * setup process.
+	 */
+	public static class Settings extends MaplyBaseController.Settings
 	{
-		super(mainActivity);
-
-		InitCoordSys(mainActivity,coordSys,displayCenter,clearColor);
+		/**
+		 * Coordinate system to use for the map.
+		 */
+		public CoordSystem coordSys = null;
+		/**
+		 * Center of the coordinate system.
+		 */
+		public Point3d displayCenter = null;
+		/**
+		 * Clear color to use for the background.
+		 */
+		public int clearColor = Color.BLACK;
 	}
 
 	/**
@@ -64,14 +69,15 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 * using a custom coordinate system.
 	 *
 	 * @param mainActivity The activity this is part of.
-	 * @param coordSys Coordinate system to use for the map.
-	 * @param displayCenter Center of the coordinate system.
      */
-	public MapController(Activity mainActivity,CoordSystem coordSys,Point3d displayCenter)
+	public MapController(Activity mainActivity,Settings settings)
 	{
-		super(mainActivity);
+		super(mainActivity,settings);
 
-		InitCoordSys(mainActivity,coordSys,displayCenter,clearColor);
+		if (settings.coordSys != null)
+			InitCoordSys(mainActivity,settings.coordSys,settings.displayCenter,settings.clearColor);
+		else
+			Init(mainActivity,settings.clearColor);
 	}
 
 	protected void InitCoordSys(Activity mainActivity,CoordSystem coordSys,Point3d displayCenter,int clearColor)
@@ -106,23 +112,9 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
      */
 	public MapController(Activity mainActivity)
 	{
-		super(mainActivity);
+		super(mainActivity,null);
 
 		Init(mainActivity, Color.TRANSPARENT);
-	}
-
-	/**
-	 * Initialize a new map controller with the standard (spherical mercator)
-	 * coordinate system.
-	 *
-	 * @param mainActivity Activity we're part of.
-	 * @param clearColor Clear color for background.
-     */
-	public MapController(Activity mainActivity,int clearColor)
-	{
-		super(mainActivity);
-
-		Init(mainActivity, clearColor);
 	}
 
 	protected void Init(Activity mainActivity,int clearColor)
@@ -150,10 +142,16 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 
 		super.Init();
 
-		if (glSurfaceView != null)
+		if (baseView != null)
 		{
-			glSurfaceView.setOnTouchListener(this);
-			gestureHandler = new MapGestureHandler(this,glSurfaceView);
+			if (baseView instanceof GLSurfaceView) {
+				GLSurfaceView glSurfaceView = (GLSurfaceView)baseView;
+				glSurfaceView.setOnTouchListener(this);
+			} else {
+				GLTextureView glTextureView = (GLTextureView)baseView;
+				glTextureView.setOnTouchListener(this);
+			}
+			gestureHandler = new MapGestureHandler(this,baseView);
 		}
 	}
 	

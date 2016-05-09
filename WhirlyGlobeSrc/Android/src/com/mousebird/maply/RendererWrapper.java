@@ -20,6 +20,7 @@
 
 package com.mousebird.maply;
 
+import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.Renderer;
 
 import java.util.concurrent.Semaphore;
@@ -31,7 +32,7 @@ import javax.microedition.khronos.opengles.GL10;
  * This is an internal class used to talk to the OpenGL ES surface.
  * 
  */
-class RendererWrapper implements Renderer
+class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 {
 	boolean valid = true;
 	public MaplyRenderer maplyRender = null;

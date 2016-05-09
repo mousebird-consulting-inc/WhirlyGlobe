@@ -40,7 +40,7 @@ public class CartoDBDarkTestCase extends MaplyTestCase {
 		baseLayer.setCoverPoles(testType != ConfigOptions.TestType.MapTest);
 		baseLayer.setHandleEdges(testType != ConfigOptions.TestType.MapTest);
 
-		baseLayer.setDrawPriority(100);
+		baseLayer.setDrawPriority(MaplyBaseController.ImageLayerDrawPriorityDefault);
 		return baseLayer;
 	}
 

@@ -43,10 +43,16 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 	@Override
 	protected void onPreExecute() {
 		if (options == ConfigOptions.TestType.BothTest || options == ConfigOptions.TestType.GlobeTest) {
-			globeController = new GlobeController(activity,clearColor);
+			GlobeController.Settings settings = new GlobeController.Settings();
+			// Note: Turn this off for testing GLTextureView
+//			settings.useSurfaceView = false;
+			settings.clearColor = clearColor;
+			globeController = new GlobeController(activity,settings);
 		}
 		if (options == ConfigOptions.TestType.BothTest || options == ConfigOptions.TestType.MapTest) {
-			mapController = new MapController(activity,clearColor);
+			MapController.Settings settings = new MapController.Settings();
+			settings.clearColor = clearColor;
+			mapController = new MapController(activity,settings);
 		}
 	}
 

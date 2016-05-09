@@ -20,19 +20,23 @@
 package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
+import android.graphics.Color;
 
 import com.mousebird.maply.Atmosphere;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LayerThread;
 import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.MaplyStarModel;
 import com.mousebird.maply.MultiplexTileSource;
 import com.mousebird.maply.Point3d;
 import com.mousebird.maply.QuadImageTileLayer;
 import com.mousebird.maply.RemoteTileInfo;
+import com.mousebird.maply.RemoteTileSource;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 import java.io.File;
+import java.io.IOException;
 
 
 public class AtmosphereTestCase extends MaplyTestCase {
@@ -49,8 +53,8 @@ public class AtmosphereTestCase extends MaplyTestCase {
     // Day-time data source
     RemoteTileInfo daySource(MaplyBaseController baseC)
     {
-        return new RemoteTileInfo("http://map1.vis.earthdata.nasa.gov/wmts-webmerc/MODIS_Terra_CorrectedReflectance_TrueColor/default/2015-05-07/GoogleMapsCompatible_Level9/{z}/{y}/{x}",
-                "jpg",1,8);
+        return new RemoteTileInfo("http://otile1.mqcdn.com/tiles/1.0.0/sat/",
+                "png",1,8);
     }
 
     // Night-time data source
@@ -59,6 +63,12 @@ public class AtmosphereTestCase extends MaplyTestCase {
         return new RemoteTileInfo("http://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/2015-05-07/GoogleMapsCompatible_Level8/{z}/{y}/{x}",
                 "jpg",1,8);
     }
+
+    // The night images have gone missing
+    boolean UseMultipleSources = false;
+
+    LayerThread particleThread = null;
+    MaplyStarModel particleAdapter = null;
 
     @Override
     public boolean setUpWithGlobe(final GlobeController globeVC) throws Exception {
@@ -72,20 +82,29 @@ public class AtmosphereTestCase extends MaplyTestCase {
                 atmosphere.setWaveLength(new float[]{0.650f, 0.570f, 0.475f});
                 atmosphere.setSunPosition(new Point3d(1.0,0.0,0.0));
 
-                String cacheDirName = "day_night";
+                String cacheDirName = "day_night2";
                 File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);
                 cacheDir.mkdir();
 
-                RemoteTileInfo sources[] = new RemoteTileInfo[2];
-                sources[0] = daySource(globeVC);
-                sources[1] = nightSource(globeVC);
-
                 SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
-                MultiplexTileSource fullTileSource = new MultiplexTileSource(globeVC,sources,coordSystem);
-                fullTileSource.setCacheDir(cacheDir);
+                QuadImageTileLayer.TileSource tileSource = null;
+                if (UseMultipleSources) {
+                    RemoteTileInfo sources[] = new RemoteTileInfo[2];
+                    sources[0] = daySource(globeVC);
+                    sources[1] = nightSource(globeVC);
 
-                QuadImageTileLayer baseLayer = new QuadImageTileLayer(globeVC, coordSystem, fullTileSource);
-                baseLayer.setImageDepth(2);
+                    MultiplexTileSource fullTileSource = new MultiplexTileSource(globeVC, sources, coordSystem);
+                    fullTileSource.setCacheDir(cacheDir);
+                    tileSource = fullTileSource;
+                } else {
+                    RemoteTileInfo tileInfo = daySource(globeVC);
+                    RemoteTileSource singleSource = new RemoteTileSource(tileInfo);
+//                    singleSource.setCacheDir(cacheDir);
+                    tileSource = singleSource;
+                }
+
+                QuadImageTileLayer baseLayer = new QuadImageTileLayer(globeVC, coordSystem, tileSource);
+//                baseLayer.setImageDepth(2);
                 baseLayer.setCoverPoles(true);
                 baseLayer.setHandleEdges(true);
 //                baseLayer.setShaderName("Default Triangle;nightday=yes;multitex=yes;lighting=yes");
@@ -93,6 +112,21 @@ public class AtmosphereTestCase extends MaplyTestCase {
                 globeVC.addLayer(baseLayer);
             }
         });
+
+        globeVC.addPostSurfaceRunnable(new Runnable() {
+            @Override
+            public void run() {
+                globeVC.setClearColor(Color.BLACK);
+                particleThread = globeVC.makeLayerThread();
+                try {
+                    particleAdapter = new MaplyStarModel("starcatalog_orig.txt", "star_background.png", getActivity());
+                    particleAdapter.addToViewc(globeVC, MaplyBaseController.ThreadMode.ThreadCurrent);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         return true;
     }
 }

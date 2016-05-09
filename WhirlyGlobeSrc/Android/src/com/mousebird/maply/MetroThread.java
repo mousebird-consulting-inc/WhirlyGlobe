@@ -19,6 +19,7 @@
  */
 package com.mousebird.maply;
 
+import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.view.Choreographer;
@@ -89,10 +90,16 @@ public class MetroThread extends HandlerThread implements Choreographer.FrameCal
 	public void doFrame(long frameTimeNanos) 
 	{
 		// Nudge the renderer
-		if (control.glSurfaceView != null && (frameCount % frameInterval == 0)) {
+		if (control.baseView != null && (frameCount % frameInterval == 0)) {
 			if (requestRender ||
 					(renderer != null && (renderer.hasChanges() || renderer.activeObjectsHaveChanges() || renderer.view.isAnimating()))) {
-				control.glSurfaceView.requestRender();
+				if (control.baseView instanceof GLSurfaceView) {
+					GLSurfaceView glSurfaceView = (GLSurfaceView)control.baseView;
+					glSurfaceView.requestRender();
+				} else {
+					GLTextureView glTextureView = (GLTextureView) control.baseView;
+					glTextureView.requestRender();
+				}
 			}
 			requestRender = false;
 		}

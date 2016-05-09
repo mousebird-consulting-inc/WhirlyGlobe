@@ -21,7 +21,7 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 	public AnimatedBaseMapTestCase(Activity activity) {
 		super(activity);
 		setTestName("Animated BaseMap Test");
-		setDelay(20);
+		setDelay(100);
 	}
 
 	private QuadImageTileLayer setupImageLayer(MaplyBaseController baseController, ConfigOptions.TestType testType) throws Exception {
@@ -37,11 +37,11 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 		SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
 		MultiplexTileSource multiplexTileSource = new MultiplexTileSource(baseController, sources, coordSystem);
 		QuadImageTileLayer forecastIOLayer = new QuadImageTileLayer(baseController, coordSystem, multiplexTileSource);
-		forecastIOLayer.setSimultaneousFetches(1);
+		forecastIOLayer.setSimultaneousFetches(16);
 		forecastIOLayer.setDrawPriority(MaplyBaseController.ImageLayerDrawPriorityDefault + 100);
 		forecastIOLayer.setBorderTexel(0);
 		forecastIOLayer.setImageDepth(sources.length);
-		forecastIOLayer.setCurrentImage(1.5f,false);
+//		forecastIOLayer.setCurrentImage(1.5f,false);
 		forecastIOLayer.setAnimationPeriod(6.0f);
 		forecastIOLayer.setShaderName(weatherShader.getName());
 

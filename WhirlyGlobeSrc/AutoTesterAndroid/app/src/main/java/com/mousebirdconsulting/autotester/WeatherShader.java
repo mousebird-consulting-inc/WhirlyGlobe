@@ -1,5 +1,7 @@
 package com.mousebirdconsulting.autotester;
 
+import android.util.Log;
+
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.Shader;
 
@@ -90,6 +92,8 @@ public class WeatherShader extends Shader {
 
 	public WeatherShader(MaplyBaseController inController) {
 		super("Weather Shader", vertexShaderTriMultiTex, fragmentShaderTriMultiTex, inController);
+		if (!valid())
+			Log.d("Maply","Failed to set up weather shader");
 		controller = inController;
 	}
 }

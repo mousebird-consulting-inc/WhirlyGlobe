@@ -47,7 +47,9 @@ public class CustomBNGCoordAdapter extends MaplyTestCase
         if (options == ConfigOptions.TestType.BothTest || options == ConfigOptions.TestType.MapTest) {
             CoordSystem coordSys = CustomBNGTileSource.MakeBNGCoordSystem(getActivity(),true);
 
-            mapController = new MapController(activity,coordSys,null);
+            MapController.Settings settings = new MapController.Settings();
+            settings.coordSys = coordSys;
+            mapController = new MapController(activity,settings);
         }
     }
 

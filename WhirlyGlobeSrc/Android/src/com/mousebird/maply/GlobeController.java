@@ -44,16 +44,29 @@ import java.util.List;
  */
 public class GlobeController extends MaplyBaseController implements View.OnTouchListener, Choreographer.FrameCallback
 {
-	public GlobeController(Activity mainActivity)
+	/**
+	 * Settings needed on startup so we can create the proper elements.
+	 */
+	public static class Settings extends MaplyBaseController.Settings
 	{
-		super(mainActivity);
-
-		Init(mainActivity,Color.BLACK);
+		/**
+		 * This is the background color to set.  We need this early so
+		 * we can avoid the flashing problem.
+		 */
+		public int clearColor = Color.BLACK;
 	}
 
-	public GlobeController(Activity mainActivity,int clearColor)
+	public GlobeController(Activity mainActivity,Settings settings)
 	{
-		super(mainActivity);
+		super(mainActivity,settings);
+
+		Init(mainActivity,settings.clearColor);
+	}
+	Settings defaultSettings = new Settings();
+
+	public GlobeController(Activity mainActivity)
+	{
+		super(mainActivity,null);
 
 		Init(mainActivity,clearColor);
 	}
@@ -75,10 +88,10 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 
 		super.Init();
 
-		if (glSurfaceView != null)
+		if (baseView != null)
 		{
-			glSurfaceView.setOnTouchListener(this);
-			gestureHandler = new GlobeGestureHandler(this,glSurfaceView);
+			baseView.setOnTouchListener(this);
+			gestureHandler = new GlobeGestureHandler(this,baseView);
 		}
 
 		// Set up some basic lights after we've started

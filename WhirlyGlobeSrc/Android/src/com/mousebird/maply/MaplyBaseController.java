@@ -38,7 +38,8 @@ import javax.microedition.khronos.egl.EGLSurface;
  */
 public class MaplyBaseController 
 {
-	public GLSurfaceView glSurfaceView;
+	// This may be a GLSurfaceView or a GLTextureView
+	public View baseView = null;
 	Activity activity = null;
     OkHttpClient httpClient = new OkHttpClient();
 
@@ -123,7 +124,23 @@ public class MaplyBaseController
 			return null;
 		return layerThreads.get(0);
 	}
-	
+
+	/**
+	 * These are settings passed on construction.  We need these
+	 * immediately at startup to create the right internal structures.
+	 */
+	public static class Settings
+	{
+		/**
+		 * If set, we'll use a GLSurfaceView.  Otherwise a GLTexturesView.
+		 * GLSurfaceView is the default.
+		 */
+		public boolean useSurfaceView = true;
+	}
+
+	// Set if we're using a TextureView rather than a SurfaceView
+	boolean useTextureView = true;
+
 	/**
 	 * Construct the maply controller with an Activity.  We need access to a few
 	 * of the usual Android resources.
@@ -137,10 +154,12 @@ public class MaplyBaseController
 	 * <p>
 	 * @param mainActivity Your main activity that we'll attach ourselves to.
 	 */
-	public MaplyBaseController(Activity mainActivity) 
+	public MaplyBaseController(Activity mainActivity,Settings settings)
 	{		
 		System.loadLibrary("Maply");
 		activity = mainActivity;
+		if (settings != null)
+			useTextureView = !settings.useSurfaceView;
 	}
 
 	ColorDrawable tempBackground = null;
@@ -172,25 +191,52 @@ public class MaplyBaseController
         final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000 || isProbablyEmulator();
         if (supportsEs2)
         {
-        	glSurfaceView = new GLSurfaceView(activity);
+			if (!useTextureView) {
+				GLSurfaceView glSurfaceView = new GLSurfaceView(activity);
 
-			// If the clear color has transparency, we need to set things up differently
-			if (Color.alpha(clearColor) < 255) {
-				glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-				glSurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
-				glSurfaceView.setZOrderOnTop(true);
-			} else {
-				if (isProbablyEmulator())
+				// If the clear color has transparency, we need to set things up differently
+				if (Color.alpha(clearColor) < 255) {
 					glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-			}
+					glSurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+					glSurfaceView.setZOrderOnTop(true);
+				} else {
+					if (isProbablyEmulator())
+						glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+				}
 
-			tempBackground = new ColorDrawable();
-			// This eliminates the black flash, but only if the clearColor is set right
-			tempBackground.setColor(clearColor);
-			if (Build.VERSION.SDK_INT > 16)
-				glSurfaceView.setBackground(tempBackground);
-        	glSurfaceView.setEGLContextClientVersion(2);
-        	glSurfaceView.setRenderer(renderWrapper);
+				tempBackground = new ColorDrawable();
+				// This eliminates the black flash, but only if the clearColor is set right
+				tempBackground.setColor(clearColor);
+				if (Build.VERSION.SDK_INT > 16)
+					glSurfaceView.setBackground(tempBackground);
+				glSurfaceView.setEGLContextClientVersion(2);
+				glSurfaceView.setRenderer(renderWrapper);
+
+				baseView = glSurfaceView;
+			} else {
+				GLTextureView glTextureView = new GLTextureView(activity);
+
+				// If the clear color has transparency, we need to set things up differently
+				if (Color.alpha(clearColor) < 255) {
+					glTextureView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+					// Note: Do we need these in a TextureView
+//					glTextureView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+//					glTextureView.setZOrderOnTop(true);
+				} else {
+					if (isProbablyEmulator())
+						glTextureView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+				}
+
+				tempBackground = new ColorDrawable();
+				// This eliminates the black flash, but only if the clearColor is set right
+				tempBackground.setColor(clearColor);
+				if (Build.VERSION.SDK_INT > 16)
+					glTextureView.setBackground(tempBackground);
+				glTextureView.setEGLContextClientVersion(2);
+				glTextureView.setRenderer(renderWrapper);
+
+				baseView = glTextureView;
+			}
         } else {
         	Toast.makeText(activity,  "This device does not support OpenGL ES 2.0.", Toast.LENGTH_LONG).show();
         	return;
@@ -234,7 +280,7 @@ public class MaplyBaseController
 	 */
 	public View getContentView()
 	{
-		return glSurfaceView;
+		return baseView;
 	}
 	
 	/**
@@ -256,9 +302,10 @@ public class MaplyBaseController
 		scene.teardownGL();
 
 		// Do a little dance to shut down rendering
-		glSurfaceView.onPause();
+		// Note: Put this back
+//		baseView.onPause();
 
-		glSurfaceView = null;
+		baseView = null;
 		renderWrapper = null;
 		coordAdapter = null;
 		scene = null;
@@ -340,7 +387,13 @@ public class MaplyBaseController
 			surfaceTasks = null;
 		}
 
-    	glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+		if (baseView instanceof GLSurfaceView) {
+			GLSurfaceView glSurfaceView = (GLSurfaceView) baseView;
+			glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+		} else {
+			GLTextureView glTextureView = (GLTextureView) baseView;
+			glTextureView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+		}
     	metroThread = new MetroThread("Metronome Thread",this,displayRate);
 		metroThread.setRenderer(renderWrapper.maplyRender);
 
