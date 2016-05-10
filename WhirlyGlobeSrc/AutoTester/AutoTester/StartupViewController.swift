@@ -13,48 +13,48 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	let tests = [
 		GeographyClassTestCase(),
 		StamenWatercolorRemote(),
-        NASAGIBSTestCase(),
-        MapquestSatelliteTestCase(),
+		NASAGIBSTestCase(),
+		MapquestSatelliteTestCase(),
 
 		AnimatedBasemapTestCase(),
-        ScreenLabelsTestCase(),
-        ScreenMarkersTestCase(),
-        VectorsTestCase(),
-        WideVectorsTestCase(),
-        ClusteredMarkersTestCase(),
-        MegaMarkersTestCase(),
-        LabelsTestCase(),
-        MarkersTestCase(),
-        StickersTestCase(),
+		ScreenLabelsTestCase(),
+		ScreenMarkersTestCase(),
+		VectorsTestCase(),
+		WideVectorsTestCase(),
+		ClusteredMarkersTestCase(),
+		MegaMarkersTestCase(),
+		LabelsTestCase(),
+		MarkersTestCase(),
+		StickersTestCase(),
 
-        MapzenVectorTestCase(),
-        MapjamVectorTestCase(),
-        VectorMBTilesTestCase(),
+		MapzenVectorTestCase(),
+		MapjamVectorTestCase(),
+		VectorMBTilesTestCase(),
 
-        StarsSunTestCase(),
+		StarsSunTestCase(),
 		ShapesTestCase(),
 		LoftedPolysTestCase(),
 
 		CartoDBTestCase(),
 
-        BNGCustomMapTestCase(),
+		BNGCustomMapTestCase(),
 		BNGTestCase(),
 		ElevationLocalDatabase(),
 		ParticleTestCase(),
-        CesiumElevationTestCase(),
-        RunwayBuilderTestCase(),
+		CesiumElevationTestCase(),
+		RunwayBuilderTestCase(),
 
-        AnimatedColorRampTestCase(),
-        ExtrudedModelTestCase(),
-        ModelsTestCase(),
-        GreatCircleTestCase(),
+		AnimatedColorRampTestCase(),
+		ExtrudedModelTestCase(),
+		ModelsTestCase(),
+		GreatCircleTestCase(),
 
-        AerisWeatherTestCase(),
-        
-        LabelAnimationTestCase(),
-        WMSTestCase(),
-        FindHeightTestCase(),
-        FullAnimationTest()
+		AerisWeatherTestCase(),
+		
+		LabelAnimationTestCase(),
+		WMSTestCase(),
+		FindHeightTestCase(),
+		FullAnimationTest()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
@@ -89,6 +89,10 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	override func viewDidLoad() {
 		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: #selector(StartupViewController.showConfig))
 
+		if ConfigSection.Row.MultipleMode.load() {
+			self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: #selector(StartupViewController.runTests))
+		}
+
 		let rect = UIScreen.mainScreen().applicationFrame
 		testViewBlack = UIView(frame: CGRectMake(0, 0, rect.width, rect.height))
 		testViewBlack?.backgroundColor = UIColor.blackColor()
@@ -99,8 +103,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		configViewC = ConfigViewController(nibName: "ConfigViewController", bundle: nil)
 		configViewC!.loadValues()
 
-		let pos = NSUserDefaults.standardUserDefaults().integerForKey("scrollPos")
-		testsTable.scrollToRowAtIndexPath(NSIndexPath(forRow: pos, inSection: 0), atScrollPosition: UITableViewScrollPosition.Top, animated: false)
+		self.scrollToLastPosition()
 	}
 
 	override func tableView(
@@ -115,20 +118,39 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 
 		let cell = tableView.dequeueReusableCellWithIdentifier("cell",
-			forIndexPath: indexPath)
+			forIndexPath: indexPath) as! TestCell
 
-		cell.textLabel?.text = tests[indexPath.row].name
+		cell.testName.text = tests[indexPath.row].name
 		cell.selectionStyle = .None
 
-		if tests[indexPath.row].running {
-			cell.accessoryType = .DisclosureIndicator
+		if ConfigSection.Row.InteractiveMode.load() {
+			cell.globeButton.hidden = false
+			cell.mapButton.hidden = false;
+			cell.rowPosition = indexPath.row
+			cell.accessoryType = .None
+			cell.globeTestExecution = {
+				NSUserDefaults.standardUserDefaults().setInteger(indexPath.row, forKey: "scrollPos")
+				self.runInteractiveTest(self.tests[indexPath.row], type: .RunGlobe)
+			}
+			
+			cell.mapTestExecution = {
+				NSUserDefaults.standardUserDefaults().setInteger(indexPath.row, forKey: "scrollPos")
+				self.runInteractiveTest(self.tests[indexPath.row], type: .RunMap)
+			}
 		}
-		else {
-			cell.accessoryType = tests[indexPath.row].selected
-				? .Checkmark
-				: .None
+		else{
+			cell.globeButton.hidden = true
+			cell.mapButton.hidden = true
+			cell.accessoryType = .None
+			if tests[indexPath.row].running {
+				cell.accessoryType = .DisclosureIndicator
+			}
+			else {
+				cell.accessoryType = tests[indexPath.row].selected
+					? .Checkmark
+					: .None
+			}
 		}
-
 		return cell
 	}
 
@@ -136,7 +158,23 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 		NSUserDefaults.standardUserDefaults().setInteger(indexPath.row, forKey: "scrollPos")
 
-        runTest(self.tests[indexPath.row],manual: true)
+		let interactiveMode = ConfigSection.Row.InteractiveMode.load()
+		let singleMode = ConfigSection.Row.SingleMode.load()
+		let normalMode = ConfigSection.Row.MultipleMode.load()
+
+		if !interactiveMode {
+			if singleMode {
+				tableView.setContentOffset(CGPointZero, animated: false)
+				runTest(self.tests[indexPath.row])
+			}
+			if normalMode {
+				tests[indexPath.row].selected = !tests[indexPath.row].selected
+				let cell = tableView.cellForRowAtIndexPath(indexPath)
+				cell?.accessoryType = tests[indexPath.row].selected
+					? .Checkmark
+					: .None
+			}
+		}
 	}
 
 	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -164,32 +202,134 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 			self.navigationController?.pushViewController(configViewC!, animated: true)
 		}
 	}
-
-    private func runTest(test: MaplyTestCase,manual: Bool) {
-        if !manual
-        {
-            self.title = "Running test..."
-        }
-
-		// use same aspect ratio as results view
+	
+	
+	private func prepareTestView (){
+		
 		let rect = UIScreen.mainScreen().applicationFrame
-        if !manual
-        {
-            self.testViewBlack?.frame = CGRectMake(0, 0, rect.width, rect.height)
-            self.testViewBlack?.hidden = !configViewC!.valueForSection(.Options, row: .ViewTest)
-        }
-            
+		self.testViewBlack?.frame = CGRectMake(0, 0, rect.width, rect.height)
+		self.testViewBlack?.hidden = false
+		
 		let testView = UIView(frame: CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height))
 		testView.backgroundColor = UIColor.redColor()
-        
-        if !manual
-        {
-            testView.center = CGPointMake(self.testViewBlack!.frame.size.width  / 2,
-                self.testViewBlack!.frame.size.height / 2)
-            testView.hidden = !configViewC!.valueForSection(.Options, row: .ViewTest)
-            self.testView = testView
-            self.testViewBlack?.addSubview(self.testView!)
-        }
+		
+		testView.center = CGPointMake(self.testViewBlack!.frame.size.width  / 2,
+									  self.testViewBlack!.frame.size.height / 2)
+		testView.hidden = false;
+		self.testView = testView
+		self.testViewBlack?.addSubview(self.testView!)
+		tableView.scrollEnabled = false;
+
+	}
+	
+	private func scrollToLastPosition(){
+		let pos = NSUserDefaults.standardUserDefaults().integerForKey("scrollPos")
+		testsTable.scrollToRowAtIndexPath(NSIndexPath(forRow: pos, inSection: 0), atScrollPosition: UITableViewScrollPosition.Top, animated: false)
+	}
+	
+	private func runInteractiveTest( test: MaplyTestCase, type : ConfigSection.Row) {
+		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Done, target: self, action: #selector(StartupViewController.stopInteractiveTest))
+		
+		// use same aspect ratio as results view
+		tableView.setContentOffset(CGPointZero, animated: false)
+		self.prepareTestView()
+		test.interactive = true
+		
+		if (type == .RunMap) {
+			test.options.insert(.Map)
+		}
+		else  if (type == .RunGlobe) {
+			test.options.insert(.Globe)
+		}
+		test.testView = self.testView
+		test.start()
+	}
+
+	func stopInteractiveTest() {
+		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: #selector(StartupViewController.showConfig))
+		self.testViewBlack?.hidden = true
+		tableView.scrollEnabled = true
+		self.scrollToLastPosition()
+	}
+	
+	func runTests() {
+		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Stop, target: self, action: #selector(StartupViewController.stopTests))
+		
+		self.title = "Running tests..."
+		
+		self.prepareTestView()
+		self.results.removeAll()
+		
+		cancelled = false
+		
+		startTests(tests)
+	}
+	
+	func stopTests() {
+	}
+
+
+	private func startTests(tests: [MaplyTestCase]) {
+		
+		if let head = tests.first {
+			let tail = Array(tests.dropFirst())
+			
+			if (head.selected) {
+				head.options = .None
+				if configViewC!.valueForSection(.Options, row: .RunGlobe) {
+					head.options.insert(.Globe)
+				}
+				
+				if configViewC!.valueForSection(.Options, row: .RunMap) {
+					head.options.insert(.Map)
+				}
+				
+				head.resultBlock = { test in
+					if self.cancelled {
+						self.finishTests()
+					}
+					else {
+						if let mapResult = test.mapResult {
+							self.results["\(test.name) - Map"] = mapResult
+						}
+						
+						if let globeResult = test.globeResult {
+							self.results["\(test.name) - Globe"] = globeResult
+						}
+						
+						self.startTests(tail)
+					}
+					
+				}
+				if configViewC!.valueForSection(.Options, row: .ViewTest){
+					self.seconds = head.captureDelay
+					self.title = "\(head.name) (\(self.seconds))"
+					self.timer = NSTimer.scheduledTimerWithTimeInterval(1,
+																		target: self,
+																		selector: #selector(StartupViewController.updateTitle(_:)),
+																		userInfo: head.name,
+																		repeats: true)
+				}
+				else {
+					tableView.reloadData()
+				}
+				head.testView = self.testView;
+				head.start()
+			}
+			else {
+				self.startTests(tail);
+			}
+		}
+		else {
+			self.finishTests()
+		}
+	}
+		
+	private func runTest(test: MaplyTestCase) {
+		self.title = "Running test..."
+
+		self.prepareTestView()
+		
 		self.results.removeAll()
 
 		test.options = .None
@@ -212,53 +352,21 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 			self.finishTests()
 		}
 
-		if configViewC!.valueForSection(.Options, row: .ViewTest){
-            if manual {
-                self.seconds = 100000000
-            } else {
-                self.seconds = test.captureDelay
-                self.title = "\(test.name) (\(self.seconds))"
-                self.timer = NSTimer.scheduledTimerWithTimeInterval(1,
-                    target: self,
-                    selector: #selector(StartupViewController.updateTitle(_:)),
-                    userInfo: test.name,
-                    repeats: true)
-            }
+		if configViewC!.valueForSection(.Options, row: .ViewTest) {
+			self.seconds = test.captureDelay
+			self.title = "\(test.name) (\(self.seconds))"
+			self.timer = NSTimer.scheduledTimerWithTimeInterval(1,
+				target: self,
+				selector: #selector(StartupViewController.updateTitle(_:)),
+				userInfo: test.name,
+				repeats: true)
 		}
-        
-        var testViewC:UIViewController? = nil
-        if manual
-        {
-            testViewC = UIViewController()
-            testViewC!.view.frame = testView.frame
-            testViewC!.view.backgroundColor = UIColor.yellowColor()
-            testViewC!.view.addSubview(testView)
-            testViewC!.title = "\(test.name)"
-            self.navigationController?.pushViewController(testViewC!, animated: true)
-        }
-        
-        test.testView = testView
-        self.testView = testView
-		test.start(manual)
-        
-        if manual
-        {
-            var childViewController:UIViewController? = nil
-            if test.globeViewController == nil
-            {
-                childViewController = test.mapViewController
-            } else {
-                childViewController = test.globeViewController
-            }
-            
-            if childViewController != nil
-            {
-                testViewC!.addChildViewController(childViewController!)
-            }
-        }
+		
+		test.testView = self.testView
+		test.start()
 	}
 
-	func updateTitle(timer: NSTimer){
+	func updateTitle(timer: NSTimer) {
 		self.seconds -= 1
 		self.title = "\(timer.userInfo!) (\(self.seconds))"
 		if self.seconds == 0 {
@@ -270,8 +378,13 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		self.testViewBlack?.hidden = true
 		tableView.reloadData()
 
-		self.title = "Tests"
+		if ConfigSection.Row.MultipleMode.load() {
+			self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: #selector(StartupViewController.runTests))
+		}
 
+		self.title = "Tests"
+		tableView.scrollEnabled = true
+		scrollToLastPosition()
 		if !cancelled {
 			self.performSegueWithIdentifier("results", sender: self)
 		}
@@ -279,5 +392,41 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 	private dynamic func editDone() {
 		self.navigationController?.popToViewController(self, animated: true)
+		changeSettings()
+
+		if ConfigSection.Row.MultipleMode.load() {
+			self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: #selector(StartupViewController.runTests))
+		}
+		else{
+			self.navigationItem.rightBarButtonItem = nil
+		}
+		testsTable.reloadData()
+	}
+
+	func popoverControllerDidDismissPopover(popoverController: UIPopoverController) {
+		changeSettings()
+	}
+
+	func changeSettings() {
+		let select: Bool?
+
+		if configViewC!.valueForSection(.Actions, row: .SelectAll) {
+			select = true
+		}
+		else if configViewC!.valueForSection(.Actions, row: .SelectNone) {
+			select = false
+		}
+		else {
+			select = false
+		}
+
+		if let select = select {
+			tests.forEach {
+				$0.selected = select
+			}
+			tableView.reloadData()
+
+			configViewC!.selectAll(.Actions, select: false)
+		}
 	}
 }
