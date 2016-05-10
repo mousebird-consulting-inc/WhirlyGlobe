@@ -138,9 +138,10 @@ public:
     /// This is static so the dynamic (haha) textures can use it
     static unsigned char *ResolvePKM(RawDataRef texData,int &pkmType,int &size,int &width,int &height);
 
-protected:
     /// Raw texture data
     RawDataRef texData;
+
+protected:
     /// Need to know how we're going to load it
     bool isPVRTC;
     /// This one has a header

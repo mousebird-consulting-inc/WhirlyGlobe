@@ -230,7 +230,7 @@ public class MaplyStarModel {
             viewC.removeObject(particleSystemObj, addedMode);
     }
 
-    private double Greenwich_Mean_Sidereal_Deg(double mjd) {
+    public static double Greenwich_Mean_Sidereal_Deg(double mjd) {
         // calculate T
         double T = (mjd-51544.5)/36525.0;
 
@@ -251,7 +251,7 @@ public class MaplyStarModel {
     public static final long MILLIS_IN_DAY = 1000L * SECONDS_IN_DAY;
 
 
-    private double getJulianDateDouble(long millis){
+    public static double getJulianDateDouble(long millis){
 
         TimeZone timeZone = TimeZone.getDefault();
 
@@ -263,7 +263,7 @@ public class MaplyStarModel {
         return (double) integer + fraction;
     }
 
-    private int getInteger(int i, double f){
+    public static int getInteger(int i, double f){
         int integer = i;
         int fi = (int) f;
         f -= fi;
@@ -274,7 +274,7 @@ public class MaplyStarModel {
         return integer;
     }
 
-    private double getFraction(int i, double f){
+    public static double getFraction(int i, double f){
         int fi = (int) f;
         f -= fi;
         if (f < 0) {

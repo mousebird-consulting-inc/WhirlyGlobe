@@ -3,6 +3,7 @@ package com.mousebird.maply;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.pm.ComponentInfo;
 import android.content.pm.ConfigurationInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -12,6 +13,7 @@ import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.BoringLayout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -39,7 +41,7 @@ import javax.microedition.khronos.egl.EGLSurface;
 public class MaplyBaseController 
 {
 	// This may be a GLSurfaceView or a GLTextureView
-	public View baseView = null;
+	View baseView = null;
 	Activity activity = null;
     OkHttpClient httpClient = new OkHttpClient();
 
@@ -105,6 +107,7 @@ public class MaplyBaseController
 	ParticleSystemManager particleSystemManager;
 	LayoutLayer layoutLayer = null;
 	ShapeManager shapeManager = null;
+	BillboardManager billboardManager = null;
 	
 	// Manage bitmaps and their conversion to textures
 	TextureManager texManager = new TextureManager();
@@ -139,7 +142,7 @@ public class MaplyBaseController
 	}
 
 	// Set if we're using a TextureView rather than a SurfaceView
-	boolean useTextureView = true;
+	boolean useTextureView = false;
 
 	/**
 	 * Construct the maply controller with an Activity.  We need access to a few
@@ -175,6 +178,7 @@ public class MaplyBaseController
 		selectionManager = new SelectionManager(scene);
 		particleSystemManager = new ParticleSystemManager(scene);
 		shapeManager = new ShapeManager(scene);
+		billboardManager = new BillboardManager(scene);
 
 		// Now for the object that kicks off the rendering
 		renderWrapper = new RendererWrapper(this);
@@ -934,6 +938,37 @@ public class MaplyBaseController
     }
 
 	/**
+	 * Add texture to the system with the given settings.
+	 * @param rawTex Texture to add.
+	 * @param settings Settings to use.
+	 * @param mode Add on the current thread or elsewhere.
+	 */
+	public MaplyTexture addTexture(final Texture rawTex,TextureSettings settings,ThreadMode mode)
+	{
+		final MaplyTexture texture = new MaplyTexture();
+
+		// Possibly do the work somewhere else
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+						texture.texID = rawTex.getID();
+						changes.addTexture(rawTex, scene);
+
+						// Flush the texture changes
+						changes.process(scene);
+					}
+				};
+
+		addTask(run, mode);
+
+		return texture;
+	}
+
+	/**
 	 * Remove a texture from the scene with the given settings.
 	 * @param tex Texture to remove.
 	 * @param mode Remove immediately (current thread) or elsewhere.
@@ -1249,8 +1284,10 @@ public class MaplyBaseController
 			theLight.setViewDependent(light.isViewDependent());
 			theLights.add(theLight);
 		}
-		this.renderWrapper.getMaplyRender().replaceLights(theLights);
-		//this.renderWrapper.getMaplyRender().render(); // needed?
+		if (this.renderWrapper.getMaplyRender() != null) {
+			this.renderWrapper.getMaplyRender().replaceLights(theLights);
+			//this.renderWrapper.getMaplyRender().render(); // needed?
+		}
 	}
 
 	/**
@@ -1277,5 +1314,78 @@ public class MaplyBaseController
 		light.setDiffuse(0.5f, 0.5f, 0.5f, 1.0f);
 		light.setViewDependent(false);
 		this.addLight(light);
+	}
+
+	public ComponentObject addBillboards(final List<Billboard> bills, final BillboardInfo info, final ThreadMode threadMode) {
+		if (!running)
+			return null;
+
+		final ComponentObject compObj = new ComponentObject();
+
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+						long shaderID = 0;
+						String shaderName = info.getShaderName();
+						if (shaderName == Billboard.MAPLY_BILLBOARD_ORIENTE_EYE)
+							shaderID = scene.getProgramIDBySceneName("Default Billboard eye");
+						else if (shaderName == Billboard.MAPLY_BILLBOARD_ORIENTE_GROUND)
+							shaderID = scene.getProgramIDBySceneName("Default Billboard ground");
+						else
+							shaderID = scene.getProgramIDBySceneName(shaderName);
+
+						for (Billboard bill : bills) {
+							Point3d localPt =coordAdapter.getCoordSystem().geographicToLocal(bill.getCenter());
+							Point3d dispPT =coordAdapter.localToDisplay(localPt);
+							bill.setCenter(dispPT);
+
+							if (bill.getSelectable()) {
+								bill.setSelectID(Identifiable.genID());
+								addSelectableObject(bill.getSelectID(), bill, compObj);
+							}
+
+							ScreenObject screenObject = bill.getScreenObject();
+							if (screenObject != null) {
+								ScreenObject.BoundingBox size = screenObject.getSize();
+								Point2d size2d = new Point2d(size.ur.getX() - size.ll.getX(), size.ur.getY() - size.ll.getY());
+								bill.setSize(size2d);
+
+								for (int ii = 0; ii < screenObject.getPolysSize(); ii++) {
+									SimplePoly poly = screenObject.getPoly(ii);
+									long texID = -1;
+									if (poly.getTexture() != null) {
+										MaplyTexture texture = addTexture(poly.getTexture(), new TextureSettings(), threadMode);
+										texID = texture.texID;
+									}
+									List<Point2d> pts = new ArrayList<>();
+									List<Point2d> texCoords = new ArrayList<>();
+									for (int jj = 0; jj < poly.getPtsSize(); jj++){
+										pts.add(poly.getPt(jj));
+									}
+									for (int kk = 0; kk < poly.getTexCoordsSize(); kk++){
+										texCoords.add(poly.getTexCoord(kk));
+									}
+									bill.addPoly(pts, texCoords, poly.getColor(), bill.getVertexAttributes(), texID);
+								}
+							}
+
+						}
+
+						long billId = billboardManager.addBillboards(bills, info,shaderID, changes);
+						compObj.addBillboardID(billId);
+
+						// Flush the text changes
+						changes.process(scene);
+					}
+				};
+
+		addTask(run, threadMode);
+
+		return compObj;
 	}
 }

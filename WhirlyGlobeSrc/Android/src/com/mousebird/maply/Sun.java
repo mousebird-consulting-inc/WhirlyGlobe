@@ -11,7 +11,7 @@ public class Sun
     /**
      * Set up the sun with the current time.
      */
-    Sun()
+    public Sun()
     {
         initialise();
         Date date = new Date();
@@ -21,7 +21,7 @@ public class Sun
     /**
      * Set up the sun with the given date/time.
      */
-    Sun(Date date)
+    public Sun(Date date)
     {
         initialise();
         setDate(date);
@@ -30,7 +30,7 @@ public class Sun
     /**
      * Make a Light from the current time.
      */
-    Light makeLight()
+    public Light makeLight()
     {
         Light light = new Light();
         light.setPos(getDirection());
@@ -62,6 +62,8 @@ public class Sun
      * Return the vector corresponding to the sun location from the earth.
      */
     public native Point3d getDirection();
+
+    public native float[] asPosition();
 
     static
     {

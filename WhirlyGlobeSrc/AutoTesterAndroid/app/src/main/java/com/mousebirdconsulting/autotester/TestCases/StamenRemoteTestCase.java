@@ -20,7 +20,7 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		super(activity);
 
 		setTestName("Stamen Remote Test");
-		setDelay(20);
+		setDelay(1000);
 	}
 
 	private QuadImageTileLayer setupImageLayer(MaplyBaseController baseController) {

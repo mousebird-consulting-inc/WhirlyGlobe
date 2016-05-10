@@ -128,7 +128,13 @@ public class ComponentObject
 		shapeID.add(shapeId);
 	}
 
-	void addParticleSystemID(long id){
+	public void addBillboardID(long billId) {
+		if (this.billIDs == null)
+			this.billIDs = new ArrayList<>();
+		billIDs.add(billId);
+	}
+
+	void addParticleSystemID(long id) {
 		if (particleSystemIDs == null)
 			particleSystemIDs = new ArrayList<Long>();
 		particleSystemIDs.add(id);
@@ -163,9 +169,13 @@ public class ComponentObject
 				control.particleSystemManager.enableParticleSystem(id, enable, changes);
 			}
 		}
-		if (shapeID != null && shapeID.size() >0){
+		if (shapeID != null && shapeID.size() > 0) {
 			control.shapeManager.enableShapes(convertIDs(shapeID), enable, changes);
 		}
+		if (billIDs != null && billIDs.size() > 0) {
+			control.billboardManager.enableBillboards(convertIDs(billIDs), enable, changes);
+		}
+
 	}
 	
 	// Clear out anything the component object is holding
@@ -207,6 +217,11 @@ public class ComponentObject
 			control.shapeManager.removeShapes(convertIDs(shapeID), changes);
 			shapeID.clear();
 		}
+
+		if (billIDs != null && billIDs.size() >0){
+			control.billboardManager.removeBillboards(convertIDs(billIDs), changes);
+			billIDs.clear();
+		}
 	}
 	
 	// Selection IDs associated with this object
@@ -222,5 +237,6 @@ public class ComponentObject
 	private ArrayList<Long> labelIDs = null;
 	private ArrayList<Long> particleSystemIDs = null;
 	private ArrayList<Long> shapeID = null;
+	private ArrayList<Long> billIDs = null;
 
 }

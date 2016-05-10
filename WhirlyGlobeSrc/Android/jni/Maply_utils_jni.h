@@ -34,6 +34,9 @@ JNIEXPORT jobject JNICALL MakePoint3d(JNIEnv *env,const WhirlyKit::Point3d &pt);
 // Construct a Java-side Point4d
 JNIEXPORT jobject JNICALL MakePoint4d(JNIEnv *env,const WhirlyKit::Point4d &pt);
 
+// Construct a Java-side Matrix3d
+JNIEXPORT jobject JNICALL MakeMatrix3d(JNIEnv *env,const Eigen::Matrix3d &mat);
+
 // Construct a Java-side Matrix4d
 JNIEXPORT jobject JNICALL MakeMatrix4d(JNIEnv *env,const Eigen::Matrix4d &mat);
 

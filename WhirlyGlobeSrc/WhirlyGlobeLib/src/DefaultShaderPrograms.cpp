@@ -19,8 +19,7 @@
  */
 
 #import "DefaultShaderPrograms.h"
-// Note: Porting
-//#import "BillboardDrawable.h"
+#import "BillboardDrawable.h"
 #import "ScreenSpaceDrawable.h"
 #import "ParticleSystemDrawable.h"
 #import "WideVectorDrawable.h"
@@ -588,22 +587,22 @@ void SetupDefaultShaders(Scene *scene)
     }
     
     // Billboard shader (ground)
-//    OpenGLES2Program *billShaderGround = BuildBillboardGroundProgram();
-//    if (!billShaderGround)
-//    {
-//        fprintf(stderr,"SetupDefaultShaders: Billboard ground shader didn't compile.");
-//    } else {
-//        scene->addProgram(kToolkitDefaultBillboardGroundProgram, billShaderGround);
-//    }
+    OpenGLES2Program *billShaderGround = BuildBillboardGroundProgram();
+    if (!billShaderGround)
+    {
+        fprintf(stderr,"SetupDefaultShaders: Billboard ground shader didn't compile.");
+    } else {
+        scene->addProgram(kToolkitDefaultBillboardGroundProgram, billShaderGround);
+    }
     
     // Billboard shader (eye)
-//    OpenGLES2Program *billShaderEye = BuildBillboardEyeProgram();
-//    if (!billShaderEye)
-//    {
-//        fprintf(stderr,"SetupDefaultShaders: Billboard eye shader didn't compile.");
-//    } else {
-//        scene->addProgram(kToolkitDefaultBillboardEyeProgram, billShaderEye);
-//    }
+    OpenGLES2Program *billShaderEye = BuildBillboardEyeProgram();
+    if (!billShaderEye)
+    {
+        fprintf(stderr,"SetupDefaultShaders: Billboard eye shader didn't compile.");
+    } else {
+        scene->addProgram(kToolkitDefaultBillboardEyeProgram, billShaderEye);
+    }
     
     // Widened vector shader
     OpenGLES2Program *wideVecShader = BuildWideVectorProgram();

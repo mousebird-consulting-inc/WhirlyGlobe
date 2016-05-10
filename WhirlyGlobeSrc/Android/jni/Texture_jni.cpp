@@ -71,31 +71,26 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Texture_setBitmap
 	try
 	{
 		TextureClassInfo *classInfo = TextureClassInfo::getClassInfo();
-		Texture *tex = classInfo->getObject(env,obj);
+		Texture *tex = new Texture("");
 		if (!tex)
 			return false;
 
 		AndroidBitmapInfo info;
 		if (AndroidBitmap_getInfo(env, bitmapObj, &info) < 0)
-		{
-		    return false;
-	    }
+			return false;
 		if (info.format != ANDROID_BITMAP_FORMAT_RGBA_8888)
-		{
-			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Only dealing with 8888 bitmaps in Texture::setBitmap()");
-		    return false;
-	    }
+			return false;
+
 		// Copy the raw data over to the texture
 		void* bitmapPixels;
 		if (AndroidBitmap_lockPixels(env, bitmapObj, &bitmapPixels) < 0)
-	    {
-		    return false;
-	    }
+			return false;
 
 		uint32_t* src = (uint32_t*) bitmapPixels;
 		MutableRawData *rawData = new MutableRawData(bitmapPixels,info.height*info.width*4);
-		tex->setRawData(rawData,info.width,info.height);
+		tex->setRawData(rawData, info.width, info.height);
 		AndroidBitmap_unlockPixels(env, bitmapObj);
+		classInfo->setHandle(env, obj, tex);
 
 		return true;
 	}
