@@ -60,7 +60,7 @@ using namespace WhirlyKit;
 
 - (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
 {
-    if (!_tileLayer)
+    if (!_tileLayer || !_tileLayer.enable)
         return;
     
     NSTimeInterval now = CFAbsoluteTimeGetCurrent();
