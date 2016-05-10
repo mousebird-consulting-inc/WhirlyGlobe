@@ -10,21 +10,45 @@ import UIKit
 
 // Section in the configuration panel
 class ConfigSection {
-    
-    // Added to work around a loading problem:
-    // http://cjwirth.com/2016/03/26/xcode-7-3-crashing/
-    let bufix = ""
+	
+	// Added to work around a loading problem:
+	// http://cjwirth.com/2016/03/26/xcode-7-3-crashing/
+	let bufix = ""
 
 	enum Section : String {
 		case Options = "Options"
+		case ExecutionMode = "Execution Mode"
+		case Actions = "Actions"
 	}
 
 	enum Row : String {
 		case RunGlobe = "Run on globe"
 		case RunMap = "Run on map"
 		case ViewTest = "See test execution on View"
-	}
+		case MultipleMode = "Multiple"
+		case SingleMode = "Single"
+		case InteractiveMode = "Interactive"
+		case SelectAll = "Select all"
+		case SelectNone = "Select none"
 
+		var defaultState: Bool {
+			switch self {
+			case .RunGlobe, .RunMap, .InteractiveMode:
+				return true
+			default:
+				return false
+			}
+		}
+
+		func save(on: Bool) {
+			NSUserDefaults.standardUserDefaults().setObject(on ? "y" : "n", forKey: self.rawValue)
+		}
+
+		func load() -> Bool {
+			let defaultStateChar = self.defaultState ? "y" : "n"
+			return (NSUserDefaults.standardUserDefaults().stringForKey(self.rawValue) ?? defaultStateChar) == "y"
+		}
+	}
 
 	// Section name (as dispalyed to user)
 	var section: Section
@@ -44,6 +68,7 @@ class ConfigSection {
 	func selectAll(select: Bool) {
 		for (k,_) in rows {
 			rows[k] = select
+			k.save(select)
 		}
 	}
 
@@ -87,22 +112,40 @@ class ConfigViewController: UIViewController, UITableViewDataSource, UITableView
 
 	func loadValues() {
 		values.removeAll(keepCapacity: true)
-		let ud = NSUserDefaults.standardUserDefaults()
 
-		let runGlobeValue = (ud.stringForKey(ConfigSection.Row.RunGlobe.rawValue) ?? "y") == "y"
-		let runMapValue = (ud.stringForKey(ConfigSection.Row.RunMap.rawValue) ?? "y") == "y"
-		let viewTestValue = (ud.stringForKey(ConfigSection.Row.ViewTest.rawValue) ?? "y") == "y"
+		let modeSection = ConfigSection(
+			section: .ExecutionMode,
+			rows: [
+				.MultipleMode : ConfigSection.Row.MultipleMode.load(),
+				.SingleMode : ConfigSection.Row.SingleMode.load(),
+				.InteractiveMode : ConfigSection.Row.InteractiveMode.load()
+			], singleSelect: true)
+
 
 		let optionsSection = ConfigSection(
 			section: .Options,
 			rows: [
-				.RunGlobe: runGlobeValue,
-				.RunMap: runMapValue,
-				.ViewTest: viewTestValue
+				.RunGlobe: ConfigSection.Row.RunGlobe.load(),
+				.RunMap: ConfigSection.Row.RunMap.load(),
+				.ViewTest: ConfigSection.Row.ViewTest.load()
 			],
 			singleSelect: false)
-
-		values.append(optionsSection)
+		
+		let actionsSection = ConfigSection(
+			section: .Actions,
+			rows: [
+				.SelectAll: false,
+				.SelectNone: false,
+			],
+			singleSelect: true)
+		
+		values.append(modeSection)
+		if !ConfigSection.Row.InteractiveMode.load() {
+			values.append(optionsSection)
+			if !ConfigSection.Row.SingleMode.load() {
+				values.append(actionsSection)
+			}
+		}
 	}
 
 	func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -187,12 +230,18 @@ class ConfigViewController: UIViewController, UITableViewDataSource, UITableView
 			// Turn everything else off and this one on
 			section.selectAll(false)
 			section.rows[key] = true
+
+			section.rows.forEach {
+				let (row, state) = $0
+				row.save(state)
+			}
 		}
 		else {
 			let newState = !selected
 			section.rows[key] = newState
-			NSUserDefaults.standardUserDefaults().setObject(newState ? "y" : "n", forKey: key.rawValue)
+			key.save(newState)
 		}
+		loadValues()
 		tableView.reloadData()
 	}
 

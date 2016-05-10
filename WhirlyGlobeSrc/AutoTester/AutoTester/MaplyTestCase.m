@@ -17,52 +17,46 @@
 {
 	if (self = [super init]) {
 	}
-
+	self.interactive = false;
 	return self;
 }
 
-- (void)start:(bool)manual
+- (void)start
 {
 	self.running = YES;
 
 	dispatch_group_t lock = dispatch_group_create();
 
 	if (self.options & MaplyTestCaseOptionGlobe) {
-        if (!manual)
-            dispatch_group_enter(lock);
+		if (!self.interactive)
+			dispatch_group_enter(lock);
 
-        [self runGlobeTestWithLock:lock manual:manual];
-
-        if (manual)
-            return;
+		[self runGlobeTestWithLock:lock];
 	}
 
 	if (self.options & MaplyTestCaseOptionMap) {
-        if (!manual)
-            dispatch_group_enter(lock);
+		if (!self.interactive)
+			dispatch_group_enter(lock);
 
-        [self runMapTestWithLock:lock manual:manual];
-
-        if (manual)
-            return;
+		[self runMapTestWithLock:lock];
 	}
 
-    if (!manual)
-        dispatch_group_notify(lock,dispatch_get_main_queue(),^{
-            self.running = NO;
+	if (!self.interactive)
+		dispatch_group_notify(lock,dispatch_get_main_queue(),^{
+			self.running = NO;
 
-            if (self.resultBlock) {
-                self.resultBlock(self);
-            }
-        });
+			if (self.resultBlock) {
+				self.resultBlock(self);
+			}
+		});
 }
 
-- (void)runGlobeTestWithLock:(dispatch_group_t)lock manual:(bool)manual
+- (void)runGlobeTestWithLock:(dispatch_group_t)lock
 {
 	// create and prepare the controller
 	self.globeViewController = [[WhirlyGlobeViewController alloc] init];
 	[self.testView addSubview:self.globeViewController.view];
-    self.globeViewController.view.backgroundColor = [UIColor blueColor];
+	self.globeViewController.view.backgroundColor = [UIColor blueColor];
 	self.globeViewController.view.frame = self.testView.bounds;
 	self.globeViewController.clearColor = [UIColor blackColor];
 	self.globeViewController.frameInterval = 2;
@@ -73,54 +67,54 @@
 		[self.globeViewController.view removeFromSuperview];
 		self.globeViewController = nil;
 
-        if (!manual)
-            dispatch_group_leave(lock);
+		if (!self.interactive)
+			dispatch_group_leave(lock);
 
 		return;
 	}
 
-    if (!manual)
-    {
-        [self runTestWithGlobe:self.globeViewController result: ^(BOOL passed) {
-            if (!passed || self.captureDelay == -1) {
-                [self finishGlobeTestWithActualImage:nil passed:passed];
-                dispatch_group_leave(lock);
-            }
-            else {
-                __weak MaplyTestCase *weak_self = self;
+	if (!self.interactive)
+	{
+		[self runTestWithGlobe:self.globeViewController result: ^(BOOL passed) {
+			if (!passed || self.captureDelay == -1) {
+				[self finishGlobeTestWithActualImage:nil passed:passed];
+				dispatch_group_leave(lock);
+			}
+			else {
+				__weak MaplyTestCase *weak_self = self;
 
-                // TODO don't use main queue. The capture is blocking!
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, self.captureDelay * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+				// TODO don't use main queue. The capture is blocking!
+				dispatch_after(dispatch_time(DISPATCH_TIME_NOW, self.captureDelay * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
 
-                    NSString *snapshot = [weak_self captureScreenFromVC:self.globeViewController];
+					NSString *snapshot = [weak_self captureScreenFromVC:self.globeViewController];
 
-                    [weak_self finishGlobeTestWithActualImage:snapshot
-                                                       passed:passed && (_globeResult.actualImageFile != nil)];
-                    dispatch_group_leave(lock);
-                });
-            }
-        }];
-    }
+					[weak_self finishGlobeTestWithActualImage:snapshot
+													   passed:passed && (_globeResult.actualImageFile != nil)];
+					dispatch_group_leave(lock);
+				});
+			}
+		}];
+	}
 }
 
 - (MaplyCoordinateSystem * _Nullable)customCoordSystem
 {
-    return nil;
+	return nil;
 }
 
-- (void)runMapTestWithLock:(dispatch_group_t)lock manual:(bool)manual
+- (void)runMapTestWithLock:(dispatch_group_t)lock
 {
 	// create and prepare the controller
 	self.mapViewController = [[MaplyViewController alloc] initWithMapType:MaplyMapTypeFlat];
-    
-    MaplyCoordinateSystem *coordSys = [self customCoordSystem];
-    if (coordSys)
-        self.mapViewController.coordSys = coordSys;
+	
+	MaplyCoordinateSystem *coordSys = [self customCoordSystem];
+	if (coordSys)
+		self.mapViewController.coordSys = coordSys;
 
-    [self.testView addSubview:self.mapViewController.view];
-    self.mapViewController.view.frame = self.testView.bounds;
-    self.mapViewController.clearColor = [UIColor blackColor];
-    self.mapViewController.frameInterval = 2;
+	[self.testView addSubview:self.mapViewController.view];
+	self.mapViewController.view.frame = self.testView.bounds;
+	self.mapViewController.clearColor = [UIColor blackColor];
+	self.mapViewController.frameInterval = 2;
 
 	// setup test case specifics
 	if (![self setUpWithMap:self.mapViewController]) {
@@ -129,34 +123,34 @@
 		[self.mapViewController.view removeFromSuperview];
 		self.mapViewController = nil;
 
-        if (!manual)
-            dispatch_group_leave(lock);
+		if (!self.interactive)
+			dispatch_group_leave(lock);
 
 		return;
 	}
 
-    if (!manual)
-    {
-        [self runTestWithMap:self.mapViewController result: ^(BOOL passed) {
-            if (!passed || self.captureDelay == -1) {
-                [self finishMapTestWithActualImage:nil passed:passed];
-                dispatch_group_leave(lock);
-            }
-            else {
-                __weak MaplyTestCase *weak_self = self;
+	if (!self.interactive)
+	{
+		[self runTestWithMap:self.mapViewController result: ^(BOOL passed) {
+			if (!passed || self.captureDelay == -1) {
+				[self finishMapTestWithActualImage:nil passed:passed];
+				dispatch_group_leave(lock);
+			}
+			else {
+				__weak MaplyTestCase *weak_self = self;
 
-                // TODO don't use main queue. The capture is blocking!
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, self.captureDelay * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+				// TODO don't use main queue. The capture is blocking!
+				dispatch_after(dispatch_time(DISPATCH_TIME_NOW, self.captureDelay * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
 
-                    NSString *snapshot = [weak_self captureScreenFromVC:self.mapViewController];
+					NSString *snapshot = [weak_self captureScreenFromVC:self.mapViewController];
 
-                    [weak_self finishMapTestWithActualImage:snapshot
-                                                     passed:passed && (_mapResult.actualImageFile != nil)];
-                    dispatch_group_leave(lock);
-                });
-            }
-        }];
-    }
+					[weak_self finishMapTestWithActualImage:snapshot
+													 passed:passed && (_mapResult.actualImageFile != nil)];
+					dispatch_group_leave(lock);
+				});
+			}
+		}];
+	}
 }
 
 
