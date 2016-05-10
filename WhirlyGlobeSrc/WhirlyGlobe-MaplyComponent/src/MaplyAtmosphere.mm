@@ -290,6 +290,7 @@ static const char *fragmentShaderGroundTri =
     MaplyCoordinate3d sunPos;
     MaplyShader *shader,*groundShader;
     MaplyAtmosphere * __weak atm;
+    Vector3d lastCameraPos;
 }
 
 - (instancetype)initWithShader:(MaplyShader *)inShader groundShader:(MaplyShader *)inGroundShader atm:(MaplyAtmosphere *)inAtm viewC:(MaplyBaseViewController *)viewC
@@ -306,7 +307,7 @@ static const char *fragmentShaderGroundTri =
 
 - (bool)hasUpdate
 {
-    return changed;
+    return changed || !started;
 }
 
 - (void)setSunPosition:(MaplyCoordinate3d)inSunPos
@@ -320,6 +321,14 @@ static const char *fragmentShaderGroundTri =
 
 - (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
 {
+    if (!changed && started)
+    {
+        // Check the camera position
+        Vector3d cameraPos = frameInfo.eyePos;
+        if (cameraPos == lastCameraPos)
+            return;
+    }
+    
     EAGLContext *oldContext = [EAGLContext currentContext];
     [frameInfo.sceneRenderer useContext];
     [frameInfo.sceneRenderer forceDrawNextFrame];
@@ -373,6 +382,7 @@ static const char *fragmentShaderGroundTri =
     
     changed = false;
     started = true;
+    lastCameraPos = cameraPos;
     
     if (oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
