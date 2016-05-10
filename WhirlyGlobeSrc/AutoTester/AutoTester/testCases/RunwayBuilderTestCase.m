@@ -194,7 +194,7 @@
     
     [globeVC setPosition:coord];
     globeVC.height = 0.001;
-    globeVC.keepNorthUp = true;
+//    globeVC.keepNorthUp = true;
     globeVC.clearColor = [UIColor grayColor];
     return true;
 }
