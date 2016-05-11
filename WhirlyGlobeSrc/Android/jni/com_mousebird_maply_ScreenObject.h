@@ -17,22 +17,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addPoly
 
 /*
  * Class:     com_mousebird_maply_ScreenObject
- * Method:    getPoly
- * Signature: (I)Lcom/mousebird/maply/SimplePoly;
- */
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ScreenObject_getPoly
-  (JNIEnv *, jobject, jint);
-
-/*
- * Class:     com_mousebird_maply_ScreenObject
- * Method:    getPolysSize
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_ScreenObject_getPolysSize
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebird_maply_ScreenObject
  * Method:    addString
  * Signature: (Lcom/mousebird/maply/StringWrapper;)V
  */
@@ -41,27 +25,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addString
 
 /*
  * Class:     com_mousebird_maply_ScreenObject
- * Method:    getString
- * Signature: (I)Lcom/mousebird/maply/StringWrapper;
+ * Method:    addTextureNative
+ * Signature: (JFFFFFF)V
  */
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ScreenObject_getString
-  (JNIEnv *, jobject, jint);
-
-/*
- * Class:     com_mousebird_maply_ScreenObject
- * Method:    getStringsSize
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_ScreenObject_getStringsSize
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebird_maply_ScreenObject
- * Method:    addImage
- * Signature: (Landroid/graphics/Bitmap;[FFF)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addImage
-  (JNIEnv *, jobject, jobject, jfloatArray, jfloat, jfloat);
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addTextureNative
+  (JNIEnv *, jobject, jlong, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat);
 
 /*
  * Class:     com_mousebird_maply_ScreenObject
@@ -69,6 +37,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addImage
  * Signature: (Lcom/mousebird/maply/ScreenObject;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addScreenObject
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_ScreenObject
+ * Method:    getSizeNative
+ * Signature: (Lcom/mousebird/maply/Point2d;Lcom/mousebird/maply/Point2d;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_getSizeNative
+  (JNIEnv *, jobject, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_ScreenObject
+ * Method:    transform
+ * Signature: (Lcom/mousebird/maply/Matrix3d;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_transform
   (JNIEnv *, jobject, jobject);
 
 /*

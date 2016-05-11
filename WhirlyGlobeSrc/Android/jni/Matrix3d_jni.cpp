@@ -157,7 +157,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_multiply__Lcom_mouse
     return NULL;
 }
 
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_traslateX
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_translate
 (JNIEnv *env, jclass cls, jdouble x, jdouble y)
 {
     try
@@ -177,32 +177,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_traslateX
     return NULL;
 }
 
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_multiplyTrasX
-(JNIEnv *env, jclass cls, jdouble x, jdouble y, jobject ptObj)
-{
-    try
-    {
-        Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo(env, cls);
-        
-        Affine2d trans(Eigen::Translation2d(x,y));
-        
-        Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env, ptObj);
-        if (!pt)
-            return NULL;
-        
-        *pt = trans * (*pt);
-        
-        return MakePoint2d(env,*pt);
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::multiplyTrasX()");
-    }
-    
-    return NULL;
-}
-
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_scaleX
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_scale
 (JNIEnv *env, jclass cls, jdouble x, jdouble y)
 {
     try

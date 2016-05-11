@@ -57,26 +57,18 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_multiply__Lcom_mouse
 
 /*
  * Class:     com_mousebird_maply_Matrix3d
- * Method:    traslateX
+ * Method:    translate
  * Signature: (DD)Lcom/mousebird/maply/Matrix3d;
  */
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_traslateX
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_translate
   (JNIEnv *, jclass, jdouble, jdouble);
 
 /*
  * Class:     com_mousebird_maply_Matrix3d
- * Method:    multiplyTrasX
- * Signature: (DDLcom/mousebird/maply/Point2d;)Lcom/mousebird/maply/Point2d;
- */
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_multiplyTrasX
-  (JNIEnv *, jclass, jdouble, jdouble, jobject);
-
-/*
- * Class:     com_mousebird_maply_Matrix3d
- * Method:    scaleX
+ * Method:    scale
  * Signature: (DD)Lcom/mousebird/maply/Matrix3d;
  */
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_scaleX
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_scale
   (JNIEnv *, jclass, jdouble, jdouble);
 
 /*

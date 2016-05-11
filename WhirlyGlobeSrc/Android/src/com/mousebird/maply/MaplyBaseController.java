@@ -1340,40 +1340,20 @@ public class MaplyBaseController
 							shaderID = scene.getProgramIDBySceneName(shaderName);
 
 						for (Billboard bill : bills) {
-							Point3d localPt =coordAdapter.getCoordSystem().geographicToLocal(bill.getCenter());
-							Point3d dispPT =coordAdapter.localToDisplay(localPt);
-							bill.setCenter(dispPT);
+							// Convert to display space
+							Point3d center = bill.getCenter();
+							Point3d localPt =coordAdapter.getCoordSystem().geographicToLocal(new Point3d(center.getX(),center.getY(),0.0));
+							Point3d dispTmp =coordAdapter.localToDisplay(localPt);
+							Point3d dispPt = dispTmp.multiplyBy(center.getZ()/6371000.0+1.0);
+							bill.setCenter(dispPt);
 
 							if (bill.getSelectable()) {
 								bill.setSelectID(Identifiable.genID());
 								addSelectableObject(bill.getSelectID(), bill, compObj);
 							}
 
-							ScreenObject screenObject = bill.getScreenObject();
-							if (screenObject != null) {
-								ScreenObject.BoundingBox size = screenObject.getSize();
-								Point2d size2d = new Point2d(size.ur.getX() - size.ll.getX(), size.ur.getY() - size.ll.getY());
-								bill.setSize(size2d);
-
-								for (int ii = 0; ii < screenObject.getPolysSize(); ii++) {
-									SimplePoly poly = screenObject.getPoly(ii);
-									long texID = -1;
-									if (poly.getTexture() != null) {
-										MaplyTexture texture = addTexture(poly.getTexture(), new TextureSettings(), threadMode);
-										texID = texture.texID;
-									}
-									List<Point2d> pts = new ArrayList<>();
-									List<Point2d> texCoords = new ArrayList<>();
-									for (int jj = 0; jj < poly.getPtsSize(); jj++){
-										pts.add(poly.getPt(jj));
-									}
-									for (int kk = 0; kk < poly.getTexCoordsSize(); kk++){
-										texCoords.add(poly.getTexCoord(kk));
-									}
-									bill.addPoly(pts, texCoords, poly.getColor(), bill.getVertexAttributes(), texID);
-								}
-							}
-
+							// Turn any screen objects into billboard polygons
+							bill.flatten();
 						}
 
 						long billId = billboardManager.addBillboards(bills, info,shaderID, changes);

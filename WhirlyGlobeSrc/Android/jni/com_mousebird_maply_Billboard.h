@@ -65,6 +65,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Billboard_addPoly
 
 /*
  * Class:     com_mousebird_maply_Billboard
+ * Method:    flattenNative
+ * Signature: (Lcom/mousebird/maply/ScreenObject;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Billboard_flattenNative
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_Billboard
  * Method:    nativeInit
  * Signature: ()V
  */

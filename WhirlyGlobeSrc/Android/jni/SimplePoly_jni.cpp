@@ -47,31 +47,20 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise__Lcom_mousebird_maply_Texture_2_3FLjava_util_List_2Ljava_util_List_2
-(JNIEnv *env, jobject obj, jobject texObj, jfloatArray colorArray, jobject vecObjListPt, jobject vecObjListTC)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise__JFFFFLjava_util_List_2Ljava_util_List_2
+(JNIEnv *env, jobject obj, jlong texID, jfloat r, jfloat g, jfloat b, jfloat a, jobject vecObjListPt, jobject vecObjListTC)
 {
     try
     {
         SimplePolyClassInfo *classInfo = SimplePolyClassInfo::getClassInfo();
         SimplePoly *inst = new SimplePoly();
-        Texture *tex = TextureClassInfo::getClassInfo()->getObject(env, texObj);
-        if (!inst || !tex)
+        if (!inst)
             return;
         
-        inst->texture = *tex;
+        inst->texID = texID;
         //color
 
-        jfloat *colors = env->GetFloatArrayElements(colorArray, 0);
-        jsize len = env->GetArrayLength(colorArray);
-        RGBAColor *color;
-        if (len < 4) {
-            color = new RGBAColor(0,0,0,0);
-        }
-        else {
-            color = new RGBAColor(colors[0]*255.0,colors[1]*255.0,colors[2]*255.0,colors[3]*255.0);
-        }
-
-        inst->color = color;
+        inst->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
 
         //Pts array
 
@@ -147,7 +136,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addImage
         if (!inst || !tex)
             return;
         
-        inst->texture = *tex;
+        inst->texID = tex->getId();
         
     }
     catch (...) {
@@ -168,12 +157,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addColor
         
         jfloat *colors = env->GetFloatArrayElements(colorArray, 0);
         jsize len = env->GetArrayLength(colorArray);
-        RGBAColor *color;
+        RGBAColor color;
         if (len <4){
-            color = new RGBAColor(0,0,0,0);
+            color = RGBAColor(0,0,0,0);
         }
         else{
-            color = new RGBAColor(colors[0]*255.0,colors[1]*255.0,colors[2]*255.0,colors[3]*255.0);
+            color = RGBAColor(colors[0]*255.0,colors[1]*255.0,colors[2]*255.0,colors[3]*255.0);
         }
         inst->color = color;
     }
@@ -194,7 +183,7 @@ JNIEXPORT jfloatArray JNICALL Java_com_mousebird_maply_SimplePoly_getColor
             return NULL;
         
         float primaryColors[4];
-        inst->color->asUnitFloats(primaryColors);
+        inst->color.asUnitFloats(primaryColors);
         jfloatArray result;
         result = env->NewFloatArray(4);
         env->SetFloatArrayRegion(result, 0, 4, primaryColors);
@@ -424,51 +413,18 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_SimplePoly_getTexCoord
     return NULL;
 }
 
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_SimplePoly_getTexture
-(JNIEnv *env, jobject obj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addTextureNative
+(JNIEnv *env, jobject obj, jlong texID)
 {
     try
     {
         SimplePolyClassInfo *classInfo = SimplePolyClassInfo::getClassInfo();
         SimplePoly *inst = classInfo->getObject(env, obj);
         if (!inst)
-            return NULL;
-    
-        //Create BitMapObject
-        RawDataRef data = inst->texture.texData;
-        RawData *rawData = data.get();
-        jclass bitmapConfig = env->FindClass("android/graphics/Bitmap$Config");
-        jfieldID rgba8888FieldID = env->GetStaticFieldID(bitmapConfig, "ARGB_8888", "Landroid/graphics/Bitmap$Config;");
-        jobject rgba8888Obj = env->GetStaticObjectField(bitmapConfig, rgba8888FieldID);
-        
-        jclass bitmapClass = env->FindClass("android/graphics/Bitmap");
-        jmethodID createBitmapMethodID = env->GetStaticMethodID(bitmapClass,"createBitmap", "(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;");
-        jobject bitmapObj = env->CallStaticObjectMethod(bitmapClass, createBitmapMethodID, inst->texture.getWidth(), inst->texture.getHeight(), rgba8888Obj);
-        
-        jintArray pixels = env->NewIntArray(inst->texture.getWidth() * inst->texture.getHeight());
-        const unsigned char * bitmap = rawData->getRawData();
-        for (int i = 0; i <inst->texture.getWidth() * inst->texture.getHeight() ; i++)
-        {
-            unsigned char red = bitmap[i*4];
-            unsigned char green = bitmap[i*4 + 1];
-            unsigned char blue = bitmap[i*4 + 2];
-            unsigned char alpha = bitmap[i*4 + 3];
-            int currentPixel = (alpha << 24) | (red << 16) | (green << 8) | (blue);
-            env->SetIntArrayRegion(pixels, i, 1, &currentPixel);
-        }
-        
-        jmethodID setPixelsMid = env->GetMethodID(bitmapClass, "setPixels", "([IIIIIII)V");
-        env->CallVoidMethod(bitmapObj, setPixelsMid, pixels, 0, inst->texture.getWidth(), 0, 0, inst->texture.getWidth(), inst->texture.getHeight() );
-        
-        jclass textureCls = env->FindClass("com/mousebird/maply/Texture");
-        jmethodID textureConstructor = env->GetMethodID(textureCls, "<init>", "(Landroid/graphics/Bitmap;)V");
-        jobject texture = env->NewObject(textureCls, textureConstructor, bitmapObj);
-        return texture;
-
+            return;
+        inst->texID = texID;
     }
     catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::getTexture()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::addTextureNative()");
     }
-    return NULL;
-
 }

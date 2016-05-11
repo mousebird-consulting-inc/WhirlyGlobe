@@ -19,8 +19,6 @@
  */
 package com.mousebird.maply;
 
-import android.graphics.Bitmap;
-
 public class ScreenObject {
 
     public class BoundingBox {
@@ -38,82 +36,42 @@ public class ScreenObject {
 
     public native void addPoly(SimplePoly poly);
 
-    public native SimplePoly getPoly(int index);
-
-    public native int getPolysSize();
-
     public native void addString(StringWrapper string);
 
-    public native StringWrapper getString(int index);
+    public void addTexture(MaplyTexture tex, float[] color, float width, float height)
+    {
+        addTextureNative(tex.texID,color[0],color[1],color[2],color[3],width,height);
+    }
 
-    public native int getStringsSize();
-
-    public native void addImage(Bitmap image, float[] color, float width, float height);
+    public native void addTextureNative(long texID,float red,float green,float blue,float alpha,float width,float height);
 
     public native void addScreenObject(ScreenObject screenObject);
 
     public BoundingBox getSize() {
 
-        Mbr mbr = new Mbr(new Point2d(0.f, 0.f), new Point2d(-1.f, -1.f));
+        BoundingBox bbox = new BoundingBox();
+        getSizeNative(bbox.ll,bbox.ur);
 
-        for (int ii = 0; ii < getPolysSize(); ii ++) {
-            SimplePoly poly = getPoly(ii);
-            Texture texture = poly.getTexture();
-            for (int jj = 0; jj < poly.getPtsSize(); jj ++) {
-                Point2d pt = poly.getPt(jj);
-                mbr.addPoint(pt);
-            }
-        }
-
-        for (int ii = 0; ii < getStringsSize(); ii++) {
-            StringWrapper str = getString(ii);
-            Point3d p0 = str.getMat().multiply(new Point3d(0,0,1));
-            Point3d p1 = str.getMat().multiply(new Point3d(str.getSize()[0], str.getSize()[1], 1));
-            mbr.addPoint(new Point2d(p0.getX(), p0.getY()));
-            mbr.addPoint(new Point2d(p1.getX(), p1.getY()));
-        }
-
-        BoundingBox boundingBox = new BoundingBox();
-        boundingBox.ll = new Point2d(mbr.ll.getX(), mbr.ll.getY());
-        boundingBox.ur = new Point2d(mbr.ur.getX(), mbr.ur.getY());
-
-        return boundingBox;
+        return bbox;
     }
 
-    public void scaleX(double x, double y) {
-        Matrix3d mat = Matrix3d.scaleX(x,y);
+    public native void getSizeNative(Point2d ll,Point2d ur);
 
-        for (int ii = 0; ii < getPolysSize(); ii++) {
-            SimplePoly poly = getPoly(ii);
-            for (int jj = 0; jj < poly.getPtsSize(); jj++) {
-                Point2d pt = poly.getPt(jj);
-                Point3d newPt = mat.multiply(new Point3d(pt.getX(), pt.getY(), 1.0));
-                poly.setPt(jj, new Point2d( newPt.getX(), newPt.getY()));
-            }
-        }
+    public void scale(double x, double y) {
 
-        for (int ii = 0; ii < getStringsSize(); ii++) {
-            StringWrapper str = getString(ii);
-            str.setMat(mat.multiply(str.getMat()));
-        }
+        Matrix3d mat = Matrix3d.scale(x,y);
+
+        transform(mat);
     }
 
     public void translateX(double x, double y) {
-        for (int ii = 0; ii < getPolysSize(); ii++) {
-            SimplePoly poly = getPoly(ii);
-            for (int jj = 0; jj < poly.getPtsSize(); jj++) {
-                Point2d pt = Matrix3d.multiplyTrasX(x, y, poly.getPt(jj));
-                poly.setPt(ii, pt);
-            }
-        }
 
-        Matrix3d mat = Matrix3d.traslateX(x,y);
+        Matrix3d mat = Matrix3d.translate(x,y);
 
-        for (int ii = 0; ii < getStringsSize(); ii++) {
-            StringWrapper str = getString(ii);
-            str.setMat(mat.multiply(str.getMat()));
-        }
+        transform(mat);
     }
+
+    public native void transform(Matrix3d mat);
 
     static
     {

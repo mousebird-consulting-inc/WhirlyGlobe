@@ -51,11 +51,10 @@ public class Matrix3d {
      */
     public native Point3d multiply(Point3d vec);
 
-    public native static Matrix3d traslateX(double x, double y );
+    public native static Matrix3d translate(double x, double y );
 
-    public native static Point2d multiplyTrasX(double x, double y, Point2d pt);
 
-    public native static Matrix3d scaleX(double x, double y);
+    public native static Matrix3d scale(double x, double y);
 
     public native Matrix3d multiply(Matrix3d matrix);
     private long nativeHandle;

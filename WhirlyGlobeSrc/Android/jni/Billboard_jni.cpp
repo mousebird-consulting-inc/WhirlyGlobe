@@ -252,16 +252,17 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Billboard_addPoly
              colors = env->GetFloatArrayElements(colorArray, 0);
             len = env->GetArrayLength(colorArray);
         }
-        RGBAColor *color;
+        RGBAColor color;
         if (len < 4)
-            color = new RGBAColor(0,0,0,0);
+            color = RGBAColor(0,0,0,0);
         else
         {
             jfloat *colors = env->GetFloatArrayElements(colorArray, 0);
-            color = new RGBAColor(colors[0]*255.0,colors[1]*255.0,colors[2]*255.0,colors[3]*255.0);
+            color = RGBAColor(colors[0]*255.0,colors[1]*255.0,colors[2]*255.0,colors[3]*255.0);
         }
 
         poly->color = color;
+        poly->texId = texID;
         
         //Add Poly
         
@@ -271,5 +272,29 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Billboard_addPoly
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Billboard::addPoly()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Billboard_flattenNative
+(JNIEnv *env, jobject obj, jobject screenObjObj)
+{
+    try {
+        BillboardClassInfo *classInfo = BillboardClassInfo::getClassInfo();
+        Billboard *inst = classInfo->getObject(env, obj);
+        ScreenObjectClassInfo *soClassInfo = ScreenObjectClassInfo::getClassInfo();
+        ScreenObject *screenObj = soClassInfo->getObject(env, screenObjObj);
+        if (!inst || !screenObj)
+            return;
+        
+        for (SimplePoly &simplePoly : screenObj->polys)
+        {
+            SingleBillboardPoly poly;
+            poly.pts = simplePoly.pts;
+            poly.texCoords = simplePoly.texCoords;
+            poly.color = simplePoly.color;
+            inst->polys.push_back(poly);
+        }
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Billboard::flatten()");
     }
 }

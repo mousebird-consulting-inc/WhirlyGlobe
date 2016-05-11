@@ -85,6 +85,14 @@ public class Billboard {
 
     public native void addPoly (List<Point2d> points, List<Point2d> texCoords, float [] color, List<VertexAttribute> vertexAttributes, long texID);
 
+    public void flatten()
+    {
+        if (screenObject != null)
+            flattenNative(screenObject);
+        screenObject = null;
+    }
+    public native void flattenNative(ScreenObject screenObject);
+
     public void finalize()
     {
         dispose();

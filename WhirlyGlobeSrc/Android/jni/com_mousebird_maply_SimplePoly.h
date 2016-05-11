@@ -10,26 +10,18 @@ extern "C" {
 /*
  * Class:     com_mousebird_maply_SimplePoly
  * Method:    initialise
- * Signature: (Lcom/mousebird/maply/Texture;[FLjava/util/List;Ljava/util/List;)V
+ * Signature: (JFFFFLjava/util/List;Ljava/util/List;)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise__Lcom_mousebird_maply_Texture_2_3FLjava_util_List_2Ljava_util_List_2
-  (JNIEnv *, jobject, jobject, jfloatArray, jobject, jobject);
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise__JFFFFLjava_util_List_2Ljava_util_List_2
+  (JNIEnv *, jobject, jlong, jfloat, jfloat, jfloat, jfloat, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_SimplePoly
- * Method:    addImage
- * Signature: (Lcom/mousebird/maply/Texture;)V
+ * Method:    addTextureNative
+ * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addImage
-  (JNIEnv *, jobject, jobject);
-
-/*
- * Class:     com_mousebird_maply_SimplePoly
- * Method:    getTexture
- * Signature: ()Lcom/mousebird/maply/Texture;
- */
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_SimplePoly_getTexture
-  (JNIEnv *, jobject);
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addTextureNative
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_mousebird_maply_SimplePoly

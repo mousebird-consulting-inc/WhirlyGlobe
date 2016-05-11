@@ -19,8 +19,6 @@
  */
 package com.mousebird.maply;
 
-import android.graphics.Bitmap;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,18 +30,21 @@ public class SimplePoly {
     }
 
     public SimplePoly(Texture inTexture, float[] color, List<Point2d> pts, List<Point2d> texCoords) {
-        initialise(inTexture, color, pts, texCoords);
+        initialise(inTexture.getID(), color[0], color[1], color[2], color[3], pts, texCoords);
     }
 
-    native void initialise(Texture inTexture, float[] color, List<Point2d> pts, List<Point2d> texCoords);
+    native void initialise(long texID, float red, float green, float blue, float alpha, List<Point2d> pts, List<Point2d> texCoords);
 
     public void finalise() {
         dispose();
     }
 
-    public native void addImage(Texture texture);
+    public void addTexture(Texture texture)
+    {
+        addTextureNative(texture.getID());
+    }
 
-    public native Texture getTexture();
+    public native void addTextureNative(long texID);
 
     public native void addColor(float[] color);
 
