@@ -27,6 +27,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * Single billboard representation.  Billboards are oriented towards
+ * the user.  Fill this out and hand it over to the billboard layer
+ * to manage.
+ */
 public class Billboard {
 
     /// Billboard orientation
@@ -41,23 +46,37 @@ public class Billboard {
         initialise();
     }
 
-    public native void setCenter (Point3d center);
+    /**
+     * @param center center in display coordinates
+     */
+    public native void setCenter(Point3d center);
 
+    /**
+     * @return center in display coordinates
+     */
     public native Point3d getCenter();
 
+    /**
+     * @param size size (for selection)
+     */
     public native void setSize(Point2d size);
 
+    /**
+     * @return Size (for selection)
+     */
     public native Point2d getSize();
 
-    public native void setSelectable (boolean selectable);
+    /**
+     * If set, this marker should be made selectable and it will be
+     * if the selection layer has been set
+     * @param selectable
+     */
+    public native void setSelectable(boolean selectable);
 
+    /**
+     * @return the selectable flag
+     */
     public native boolean getSelectable();
-
-    private long selectID = Identifiable.genID();
-
-    private ScreenObject screenObject;
-
-    private ArrayList<VertexAttribute> vertexAttributes = new ArrayList<>();
 
     public ScreenObject getScreenObject() {
         return screenObject;
@@ -75,15 +94,21 @@ public class Billboard {
         this.vertexAttributes = vertexAttributes;
     }
 
+    /**
+     * @return Unique ID for selection
+     */
     public long getSelectID() {
         return selectID;
     }
 
+    /**
+     * @param selectID Unique ID for selection
+     */
     public void setSelectID(long selectID){
         this.selectID = selectID;
     }
 
-    public native void addPoly (List<Point2d> points, List<Point2d> texCoords, float [] color, List<VertexAttribute> vertexAttributes, long texID);
+    public native void addPoly(List<Point2d> points, List<Point2d> texCoords, float[] color, List<VertexAttribute> vertexAttributes, long texID);
 
     public void finalize()
     {
@@ -98,4 +123,9 @@ public class Billboard {
     native void initialise();
     native void dispose();
     private long nativeHandle;
+
+    private long selectID = Identifiable.genID();
+    private ScreenObject screenObject;
+    private ArrayList<VertexAttribute> vertexAttributes = new ArrayList<>();
+
 }

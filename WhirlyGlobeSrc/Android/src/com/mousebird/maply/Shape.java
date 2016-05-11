@@ -27,7 +27,8 @@ import android.graphics.Color;
  */
 public class Shape {
 
-    protected Shape() { }
+    protected Shape() {
+    }
 
     /**
       * The object is selectable if this is set when the object is passed in to an add call.  If not set, you'll never see it in selection.

@@ -21,6 +21,13 @@ package com.mousebird.maply;
 
 import android.graphics.Bitmap;
 
+/**
+ * The Maply Screen Object is used to build up a more complex screen
+ * object from multiple pieces.
+ * <br>
+ * You can use one or more of these to build up a combination of labels
+ * and images that form a single marker, label, or billboard.
+ */
 public class ScreenObject {
 
     public class BoundingBox {
@@ -42,18 +49,32 @@ public class ScreenObject {
 
     public native int getPolysSize();
 
+	/**
+     * Add a string to the screen object
+     * @param string the string to add
+     */
     public native void addString(StringWrapper string);
 
     public native StringWrapper getString(int index);
 
     public native int getStringsSize();
 
+	/**
+     * Add an image scaled to the given size.
+     */
     public native void addImage(Bitmap image, float[] color, float width, float height);
 
+	/**
+     * Add the contents of the given screen object to this screen object.
+     * @param screenObject
+     */
     public native void addScreenObject(ScreenObject screenObject);
 
+	/**
+     * Calculate and return the current bounding box of the screen object.
+     * @return the current bounding box of the screen object.
+     */
     public BoundingBox getSize() {
-
         Mbr mbr = new Mbr(new Point2d(0.f, 0.f), new Point2d(-1.f, -1.f));
 
         for (int ii = 0; ii < getPolysSize(); ii ++) {
@@ -80,6 +101,11 @@ public class ScreenObject {
         return boundingBox;
     }
 
+	/**
+     * Apply a scale to all the pieces of the screen object.
+     * @param x
+     * @param y
+     */
     public void scaleX(double x, double y) {
         Matrix3d mat = Matrix3d.scaleX(x,y);
 
@@ -98,6 +124,11 @@ public class ScreenObject {
         }
     }
 
+	/**
+     * Apply a translation to all the pieces of the screen object.
+     * @param x
+     * @param y
+     */
     public void translateX(double x, double y) {
         for (int ii = 0; ii < getPolysSize(); ii++) {
             SimplePoly poly = getPoly(ii);

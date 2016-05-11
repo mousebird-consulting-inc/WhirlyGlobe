@@ -24,6 +24,14 @@ import android.graphics.Bitmap;
 import java.util.ArrayList;
 import java.util.Date;
 
+/**
+ * A particle system is used to spawn large numbers of small moving objects.
+ * <br>
+ * The particle system defines what the objects are and how they're controlled.
+ * Actual data is handled through the ParticleBatch.
+ * <br>
+ * You set up a particle system and then add ParticleBatches via a view controller.
+ */
 public class ParticleSystem {
 
     public enum STATE {
@@ -41,11 +49,13 @@ public class ParticleSystem {
         }
     }
 
-    private ArrayList<Bitmap> images = new ArrayList<>();
+    private ParticleSystem() {
+    }
 
-    private ParticleSystem()
-    {}
-
+    /**
+     * The particle system name is used for performance debugging.
+     * @param name Name of the particle system.
+     */
     public ParticleSystem(String name) {
         initialise();
         this.setName(name);
@@ -56,6 +66,12 @@ public class ParticleSystem {
         this.setBasetime(new Date().getTime()/1000.0);
     }
 
+    /**
+     * Add a texture to the particle system.
+     * <br>
+     * All the textures will be handed over to the shader.
+     * @param texture
+     */
     public void addTexture(Bitmap texture) {
         images.add(texture);
     }
@@ -70,31 +86,80 @@ public class ParticleSystem {
 
     public native long getIdent();
 
+    /**
+     * The particle system name is used for performance debugging.
+     * @param name Name of the particle system.
+     */
     public native void setName(String name);
 
     public native void setDrawPriority(int drawPriority);
 
     public native void setPointSize(float pointSize);
 
+    /**
+     * The type of the particle system.
+     * <br>
+     * At present particle systems are just point geometry.
+     * @param particleSystemType The type of the particle system.
+     */
     public native void setParticleSystemType(int particleSystemType);
 
+    /**
+     * Name of the shader to use for the particles.
+     * This should be a shader already registered with the toolkit.
+     * @param shaderID
+     */
     public native void setShaderID(long shaderID);
 
+    /**
+     * Individual particle lifetime.
+     * <br>
+     * The created particles will last only a certain amount of time.
+     * @param lifetime
+     */
     public native void setLifetime(double lifetime);
 
+    /**
+     * The base that particle time is measured from.
+     * <br>
+     * Individual particles will measure their own lifetime against this base value.
+     * @param basetime
+     */
     public native void setBasetime(double basetime);
 
+    /**
+     * @return The base that particle time is measured from.
+     */
     public native double getBasetime();
 
+    /**
+     * Batch size for ParticleBatch.
+     * <br>
+     * Particles need to be created in large batches for efficiency.
+     * This is the size of individual batches.
+     * @param batchSize Batch size for ParticleBatch.
+     */
     public native void setBatchSize(int batchSize);
 
+    /**
+     * @return Total number of particles to be represented at once.
+     */
     public native int getBatchSize();
 
-
+    /**
+     * Total number of particles to be represented at once.
+     * <br>
+     * This is the most particles we'll have on the screen at any time.
+     * Space will be allocated for them, so don't overdo it.
+     * @param totalParticles Total number of particles to be represented at once.
+     */
     public native void setTotalParticles(int totalParticles);
 
-    ArrayList<String> names = new ArrayList<String>();
-    ArrayList<Integer> types = new ArrayList<Integer>();
+    /**
+     * Add an attribute we'll be expecting in each batch.
+     * <br>
+     * Adds an attribute name and type which will be present in each batch.
+     */
     public void addParticleSystemAttribute(String name,ParticleSystemAttribute.MaplyShaderAttrType type)
     {
         int which = names.size();
@@ -107,7 +172,7 @@ public class ParticleSystem {
 
     public native void addTexID(long texID);
 
-    public ParticleSystemAttribute [] getAttrs() {
+    public ParticleSystemAttribute[] getAttrs() {
         if (names.size() != types.size()) {
             return null;
         }
@@ -130,5 +195,9 @@ public class ParticleSystem {
     native void initialise();
     native void dispose();
     private long nativeHandle;
+
+    private ArrayList<String> names = new ArrayList<String>();
+    private ArrayList<Integer> types = new ArrayList<Integer>();
+    private ArrayList<Bitmap> images = new ArrayList<>();
 
 }

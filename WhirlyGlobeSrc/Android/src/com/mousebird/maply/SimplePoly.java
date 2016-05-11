@@ -19,12 +19,12 @@
  */
 package com.mousebird.maply;
 
-import android.graphics.Bitmap;
-
-import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * Extremely simple polygon class
+ */
 public class SimplePoly {
 
     public SimplePoly() {

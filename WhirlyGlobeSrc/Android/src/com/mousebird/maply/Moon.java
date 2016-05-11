@@ -20,27 +20,49 @@
 package com.mousebird.maply;
 
 import java.util.Calendar;
-import java.util.TimeZone;
 
 
+/**
+ * Utility for calculating moon position.
+ * This is a utility class that figures out where the moon is at a given data
+ * and provides the position.
+ */
 public class Moon {
 
     private Moon() {
     }
 
+    /**
+     * Initialize with a date.
+     * <br>
+     * The moon position will correspond to that.
+     * @param date Must be after 2000.
+     */
     public Moon(Calendar date) {
         initialise(date.get(Calendar.YEAR), date.get(Calendar.MONTH), date.get(Calendar.DAY_OF_MONTH), date.get(Calendar.HOUR), date.get(Calendar.MINUTE), date.get(Calendar.SECOND));
     }
 
+    /**
+     * @return Illuminated fraction of the moon
+     */
     public native double[] getIlluminatedFractionAndPhaseNative();
 
+    /**
+     * @return Phase of the moon.
+     */
     private native double[] getPositionOfMoon();
 
+    /**
+     * @return Location on the globe where the moon would land if it fell straight down.  Ouch.
+     */
     public Point2d asCoordinate(){
         double[] pos = this.getPositionOfMoon();
         return new Point2d(pos[0], pos[1]);
     }
 
+    /**
+     * @return the location above the globe in lon/lat/distance.  Yay geocentric!
+     */
     public Point3d asPosition() {
         double[] pos = this.getPositionOfMoon();
         return new Point3d(pos[0], pos[1], 5.0);

@@ -72,13 +72,7 @@ public class ParticleSystemAttribute {
         this.ident = ident;
     }
 
-
-
-
-
-    public int getSize()
-    {
-
+    public int getSize() {
         int size = 0;
         switch (type){
             case MAPLY_SHADER_ATTR_TYPE_CHAR4:

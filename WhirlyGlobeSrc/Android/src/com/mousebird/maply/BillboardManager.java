@@ -22,6 +22,10 @@ package com.mousebird.maply;
 import java.util.List;
 
 
+/**
+ * The Billboard Manager handles billboard related geometry.
+ * This object is thread safe except for deletion.
+ */
 public class BillboardManager {
 
     private BillboardManager() {
@@ -31,10 +35,19 @@ public class BillboardManager {
         initialise(scene);
     }
 
+    /**
+     * Add billboards for display
+     */
     public native long addBillboards(List<Billboard> billboards, BillboardInfo billboardInfo, long billShader, ChangeSet changes);
 
+    /**
+     * Enable/disable active billboards
+     */
     public native void enableBillboards(long[] billIDs, boolean enable, ChangeSet changes);
 
+    /**
+     * Remove a group of billboards named by the given ID
+     */
     public native void removeBillboards(long[] billIDs, ChangeSet changes);
     
     public void finalize()

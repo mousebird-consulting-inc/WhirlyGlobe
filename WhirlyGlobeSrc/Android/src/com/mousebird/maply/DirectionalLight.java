@@ -20,6 +20,7 @@
 package com.mousebird.maply;
 
 /**
+ * This implements a simple directional light source
  * This is an internal class for interacing to the C++ side.
  */
 class DirectionalLight {
@@ -32,24 +33,54 @@ class DirectionalLight {
         dispose();
     }
 
+    /**
+     * @param pos Light position
+     */
     public native void setPos(Point3d pos);
 
+    /**
+     * @return Light position
+     */
     public native Point3d getPos();
 
+    /**
+     * @param viewDependent If set, we won't process the light position through the model matrix
+     */
     public native void setViewDependent(boolean viewDependent);
 
+    /**
+     * @return If set, we won't process the light position through the model matrix
+     */
     public native boolean getViewDependent();
 
+    /**
+     * @param ambient Ambient light color
+     */
     public native void setAmbient(Point4d ambient);
 
+    /**
+     * @return Ambient light color
+     */
     public native Point4d getAmbient();
 
+    /**
+     * @param diffuse Diffuse light color
+     */
     public native void setDiffuse(Point4d diffuse);
 
+    /**
+     * @return Diffuse light color
+     */
     public native Point4d getDifusse();
 
+    /**
+     * @param specular Specular light color
+     */
     public native void setSpecular(Point4d specular);
 
+    /**
+     * @return Specular light color
+     */
     public native Point4d getSpecular();
 
     static
