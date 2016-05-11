@@ -44,7 +44,7 @@ public:
     /// Texture coordinates to go with polygons
     std::vector<WhirlyKit::TexCoord> texCoords;
     /// Color of geometry
-    RGBAColor *color;
+    RGBAColor color;
     /// Texture to use
     WhirlyKit::SimpleIdentity texId;
     /// Vertex attributes applied to just this poly
@@ -113,7 +113,7 @@ public:
     BillboardDrawableBuilder(Scene *scene,ChangeSet &changes,BillboardSceneRep *sceneRep,BillboardInfo *billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId);
     ~BillboardDrawableBuilder();
 
-    void addBillboard(Point3d center,const std::vector<WhirlyKit::Point2d> &pts,const std::vector<WhirlyKit::TexCoord> &texCoords, RGBAColor *inColor,const SingleVertexAttributeSet &vertAttrs);
+    void addBillboard(Point3d center,const std::vector<WhirlyKit::Point2d> &pts,const std::vector<WhirlyKit::TexCoord> &texCoords, const RGBAColor *inColor,const SingleVertexAttributeSet &vertAttrs);
 
     void flush();
 

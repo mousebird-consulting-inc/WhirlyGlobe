@@ -26,7 +26,7 @@ using namespace Eigen;
 namespace WhirlyKit {
 
 SingleBillboardPoly::SingleBillboardPoly() :
-    color(new RGBAColor()),
+    color(255,255,255,255),
     texId(EmptyIdentity)
 {
 }
@@ -88,7 +88,7 @@ BillboardDrawableBuilder::~BillboardDrawableBuilder()
     flush();
 }
 
-void BillboardDrawableBuilder::addBillboard(Point3d center, const std::vector<WhirlyKit::Point2d> &pts, const std::vector<WhirlyKit::TexCoord> &texCoords, WhirlyKit::RGBAColor *inColor, const SingleVertexAttributeSet &vertAttrs)
+void BillboardDrawableBuilder::addBillboard(Point3d center, const std::vector<WhirlyKit::Point2d> &pts, const std::vector<WhirlyKit::TexCoord> &texCoords, const WhirlyKit::RGBAColor *inColor, const SingleVertexAttributeSet &vertAttrs)
 {
     if (pts.size() != 4)
     {
@@ -217,7 +217,7 @@ SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboard
             } else
                 drawBuilder = it->second;
             
-            drawBuilder->addBillboard(billboard->center, billPoly.pts, billPoly.texCoords, billPoly.color, billPoly.vertexAttrs);
+            drawBuilder->addBillboard(billboard->center, billPoly.pts, billPoly.texCoords, &billPoly.color, billPoly.vertexAttrs);
         }
             
         // While we're at it, let's add this to the selection layer

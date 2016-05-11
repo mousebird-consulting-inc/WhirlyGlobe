@@ -27,8 +27,8 @@ public:
     SimplePoly();
     ~SimplePoly();
 
-    Texture texture;
-    RGBAColor *color;
+    SimpleIdentity texID;
+    RGBAColor color;
     std::vector<WhirlyKit::Point2d> pts;
     std::vector<TexCoord> texCoords;
 };
