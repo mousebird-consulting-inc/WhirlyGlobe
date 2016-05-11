@@ -35,7 +35,7 @@ public class ShapeInfo extends BaseInfo {
         setZBufferWrite(true);
     }
 
-    public void finalise() {
+    public void finalize() {
         dispose();
     }
 

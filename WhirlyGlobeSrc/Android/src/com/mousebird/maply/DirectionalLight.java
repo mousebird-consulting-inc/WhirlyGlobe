@@ -28,7 +28,7 @@ class DirectionalLight {
         initialise();
     }
 
-    public void finalise() {
+    public void finalize() {
         dispose();
     }
 

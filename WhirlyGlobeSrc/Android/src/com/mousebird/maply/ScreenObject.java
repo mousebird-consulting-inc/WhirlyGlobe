@@ -32,7 +32,7 @@ public class ScreenObject {
         initialise();
     }
 
-    public void finalise() {
+    public void finalize() {
         dispose();
     }
 

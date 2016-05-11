@@ -37,7 +37,7 @@ public class SimplePoly {
 
     native void initialise(Texture inTexture, float[] color, List<Point2d> pts, List<Point2d> texCoords);
 
-    public void finalise() {
+    public void finalize() {
         dispose();
     }
 

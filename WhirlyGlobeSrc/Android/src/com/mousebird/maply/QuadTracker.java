@@ -40,7 +40,7 @@ public class QuadTracker
         initialise(globeController.globeView,globeController.renderWrapper.maplyRender,globeController.coordAdapter,coordSystem,ll,ur,minLevel);
     }
 
-    public void finalise(){
+    public void finalize(){
         dispose();
     }
 

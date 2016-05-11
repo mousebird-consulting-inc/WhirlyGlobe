@@ -26,7 +26,7 @@ public class Material {
         initialise();
     }
 
-    public void finalise() {
+    public void finalize() {
         dispose();
     }
 

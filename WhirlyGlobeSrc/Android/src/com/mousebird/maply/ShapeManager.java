@@ -31,7 +31,7 @@ public class ShapeManager {
         initialise(scene);
     }
 
-    public void finalise() {
+    public void finalize() {
         dispose();
     }
 

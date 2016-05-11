@@ -35,7 +35,7 @@ public class Light {
 
     public Light() {
         this.ambient = new float[4];
-        this.diffuse =new float[4];
+        this.diffuse = new float[4];
     }
 
     /** The location of this particular light in display space.
