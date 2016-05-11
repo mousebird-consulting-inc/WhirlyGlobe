@@ -104,7 +104,9 @@
           <div class="col-sm-9 tutorial tutorial-main">
 
             <h2>Aeris Weather Layer</h2>
-            <p><a href="http://www.aerisweather.com/">Aeris Weather</a> is a provider of weather content like local forecasts and time dependent radar overlays.  In this tutorial we add an animated layer of up to date weather imagery from Aeris to WhirlyGlobe-Maply.</p>
+            <p><em>Tutorial by Ranen Ghosh</em></p>
+
+<p><a href="http://www.aerisweather.com/">Aeris Weather</a> is a provider of weather content like local forecasts and time dependent radar overlays.  In this tutorial we add an animated layer of up to date weather imagery from Aeris to WhirlyGlobe-Maply.</p>
 
 <div class="well">
 <h4><span class="label label-warning" style="margin-right:10px">Note</span>Version 2.4.1 (or better) Required</h4>
@@ -122,12 +124,14 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
 
 <p><img src="/WhirlyGlobe/images/tutorial/aeris_weather_1.png" alt="Xcode HelloEarth" /></p>
 
-<p>If you haven’t got one here is a suitable <a href="/WhirlyGlobe/tutorial/code/ViewController_aeris_weather.m">ViewController.m</a> file to start with.  This version is from the previous tutorial for a <a href="remote_image_layer.html">remote image layer</a>.</p>
+<p>If you haven’t got one here is a suitable ViewController file to start with (for <a href="/WhirlyGlobe/tutorial/code/ViewController_aeris_weather.m">Objective-C</a> or <a href="/WhirlyGlobe/tutorial/code/ViewController_aeris_weather.swift">Swift</a>).  This version is from the previous tutorial for a <a href="remote_image_layer.html">remote image layer</a>.</p>
 
 <h2 id="setup-the-aeris-layer">Setup the Aeris layer</h2>
 
-<p>Let’s get started by adding five member variables to the ViewController implementation block.  We’ll explain what these do later.</p>
+<p>Let’s get started by adding five member variables to the ViewController class.  Add them to the implementation block in Objective C, or to the class properties in Swift.  We’ll explain what these do later.</p>
 
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0"> 
 <div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="k">@implementation</span> <span class="nc">ViewController</span>
 <span class="p">{</span>
     <span class="n">MaplyBaseViewController</span> <span class="o">*</span><span class="n">theViewC</span><span class="p">;</span>
@@ -142,12 +146,39 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
     <span class="n">NSString</span> <span class="o">*</span><span class="n">aerisKey</span><span class="p">;</span>
 <span class="p">}</span></code></pre></div>
 
+
+</li><li data-index="1">
+
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">private</span> <span class="k">var</span> <span class="nv">theViewC</span><span class="p">:</span> <span class="kt">MaplyBaseViewController</span><span class="p">?</span>
+    <span class="kd">private</span> <span class="k">var</span> <span class="nv">globeViewC</span><span class="p">:</span> <span class="kt">WhirlyGlobeViewController</span><span class="p">?</span>
+    <span class="kd">private</span> <span class="k">var</span> <span class="nv">mapViewC</span><span class="p">:</span> <span class="kt">MaplyViewController</span><span class="p">?</span>
+    
+    <span class="c1">// New member variables</span>
+    <span class="kd">private</span> <span class="k">var</span> <span class="nv">frameCount</span><span class="p">:</span> <span class="kt">Int</span><span class="o">!</span>
+    <span class="kd">private</span> <span class="k">var</span> <span class="nv">animationPeriod</span><span class="p">:</span> <span class="kt">Float</span><span class="o">!</span>
+    <span class="kd">private</span> <span class="k">var</span> <span class="nv">importanceScale</span><span class="p">:</span> <span class="kt">Float</span><span class="o">!</span>
+    <span class="kd">private</span> <span class="k">var</span> <span class="nv">aerisID</span><span class="p">:</span> <span class="kt">String</span><span class="o">!</span>
+    <span class="kd">private</span> <span class="k">var</span> <span class="nv">aerisKey</span><span class="p">:</span> <span class="kt">String</span><span class="o">!</span></code></pre></div>
+ </li></ul>
+
 <p>Add a method call as the final line in viewDidLoad.</p>
 
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0"> 
 <div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">[</span><span class="n">self</span> <span class="nf">setupAerisOverlayLayer</span><span class="p">];</span></code></pre></div>
+
+
+</li><li data-index="1">
+
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="nf">setupAerisOverlayLayer</span><span class="p">()</span></code></pre></div>
+ </li></ul>
 
 <p>And begin implementing it as follows:</p>
 
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0"> 
 <div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">setupAerisOverlayLayer</span> <span class="p">{</span>
     <span class="n">aerisID</span> <span class="o">=</span> <span class="s">@"2kDDnD7Q1XFfFm4CwH17C"</span><span class="p">;</span>
     <span class="n">aerisKey</span> <span class="o">=</span> <span class="s">@"FQmadjUccN3CnB4KG6kKeurUpxHSKM0xbCd6TlVi"</span><span class="p">;</span>
@@ -156,21 +187,48 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
     <span class="n">importanceScale</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="o">/</span><span class="mi">16</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span></code></pre></div>
 
+
+</li><li data-index="1">
+
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">func</span> <span class="nf">setupAerisOverlayLayer</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">aerisID</span> <span class="o">=</span> <span class="s">"2kDDnD7Q1XFfFm4CwH17C"</span>
+        <span class="n">aerisKey</span> <span class="o">=</span> <span class="s">"FQmadjUccN3CnB4KG6kKeurUpxHSKM0xbCd6TlVi"</span>
+        <span class="n">frameCount</span> <span class="o">=</span> <span class="mi">6</span>
+        <span class="n">animationPeriod</span> <span class="o">=</span> <span class="mf">3.0</span>
+        <span class="n">importanceScale</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="mf">16.0</span>
+    <span class="p">}</span></code></pre></div>
+ </li></ul>
+
 <p>Aeris provides quite a few time slices in their data layers, more than we can easily display.  The <em>frameCount</em> member controls how many we will show.  The <em>animationPeriod</em> is how long we’ll take to run through the whole animation and the <em>importanceScale</em> controls how much data we’ll load relative to the underlying map.</p>
 
 <h2 id="whirlyglobe-maply-aeris-classes">WhirlyGlobe-Maply Aeris classes</h2>
 
 <p>There are three WhirlyGlobe-Maply Aeris-related classes needed to make animated Aeris weather happen.  <strong>MaplyAerisTiles</strong> provides a list of available Aeris layers.  The <strong>MaplyAerisLayerInfo</strong> class contains the relevant information for a particular layer.  And <strong>MaplyAerisTileSet</strong> provides the tile sources to add to a WhirlyGlobe-Maply layer.</p>
 
-<p>Go back to the beginning of the implementation block, and add four more member variables here.  We’ll need these to keep track of the Aeris layers.</p>
+<p>Go back to the beginning of the implementation block in Objective C (or the beginning of the class in Swift), and add four more member variables here.  We’ll need these to keep track of the Aeris layers.</p>
 
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0"> 
 <div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="n">MaplyQuadImageTilesLayer</span> <span class="o">*</span><span class="n">aerisLayer</span><span class="p">;</span>
 <span class="n">MaplyAerisLayerInfo</span> <span class="o">*</span><span class="n">layerInfo</span><span class="p">;</span>
 <span class="n">MaplyAerisTileSet</span> <span class="o">*</span><span class="n">layerTileSet</span><span class="p">;</span>
 <span class="n">NSTimer</span> <span class="o">*</span><span class="n">aerisRefreshTimer</span><span class="p">;</span></code></pre></div>
 
-<p>Now add this to setupAerisOverlayLayer:</p>
 
+</li><li data-index="1">
+
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">private</span> <span class="k">var</span> <span class="nv">aerisLayer</span><span class="p">:</span> <span class="kt">MaplyQuadImageTilesLayer</span><span class="o">!</span>
+<span class="kd">private</span> <span class="k">var</span> <span class="nv">layerInfo</span><span class="p">:</span> <span class="kt">MaplyAerisLayerInfo</span><span class="o">!</span>
+<span class="kd">private</span> <span class="k">var</span> <span class="nv">layerTileSet</span><span class="p">:</span> <span class="kt">MaplyAerisTileSet</span><span class="o">!</span>
+<span class="kd">private</span> <span class="k">var</span> <span class="nv">aerisRefreshTimer</span><span class="p">:</span> <span class="kt">NSTimer</span><span class="o">!</span></code></pre></div>
+ </li></ul>
+
+<p>Now add this to the <em>setupAerisOverlayLayer</em> method:</p>
+
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0"> 
 <div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="n">NSString</span> <span class="o">*</span><span class="n">layerCode</span> <span class="o">=</span> <span class="s">@"radar"</span><span class="p">;</span>
 <span class="n">MaplyAerisTiles</span> <span class="o">*</span><span class="n">aerisTiles</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MaplyAerisTiles</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithAerisID</span><span class="p">:</span><span class="n">aerisID</span> <span class="nf">secretKey</span><span class="p">:</span><span class="n">aerisKey</span><span class="p">];</span>
 <span class="n">NSDictionary</span> <span class="o">*</span><span class="n">layerInfoDict</span> <span class="o">=</span> <span class="p">[</span><span class="n">aerisTiles</span> <span class="nf">layerInfo</span><span class="p">];</span>
@@ -185,8 +243,29 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
 
 <span class="p">[</span><span class="n">self</span> <span class="nf">refreshAerisOverlayLayer</span><span class="p">];</span></code></pre></div>
 
+
+</li><li data-index="1">
+
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">let</span> <span class="nv">layerCode</span> <span class="o">=</span> <span class="s">"radar"</span>
+<span class="k">let</span> <span class="nv">aerisTiles</span> <span class="o">=</span> <span class="kt">MaplyAerisTiles</span><span class="p">(</span><span class="nv">aerisID</span><span class="p">:</span> <span class="n">aerisID</span><span class="o">!</span><span class="p">,</span> <span class="nv">secretKey</span><span class="p">:</span> <span class="n">aerisKey</span><span class="o">!</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">layerInfoDict</span> <span class="o">=</span> <span class="n">aerisTiles</span><span class="p">?</span><span class="o">.</span><span class="nf">layerInfo</span><span class="p">()</span>
+<span class="n">layerInfo</span> <span class="o">=</span> <span class="n">layerInfoDict</span><span class="p">?[</span><span class="n">layerCode</span><span class="p">]</span> <span class="k">as!</span> <span class="kt">MaplyAerisLayerInfo</span>
+
+<span class="k">if</span> <span class="n">layerInfo</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Error finding aeris radar layer parameters."</span><span class="p">)</span>
+    <span class="k">return</span>
+<span class="p">}</span>
+
+<span class="n">layerTileSet</span> <span class="o">=</span> <span class="kt">MaplyAerisTileSet</span><span class="p">(</span><span class="nv">aerisID</span><span class="p">:</span> <span class="n">aerisID</span><span class="o">!</span><span class="p">,</span> <span class="nv">secretKey</span><span class="p">:</span> <span class="n">aerisKey</span><span class="o">!</span><span class="p">,</span> <span class="nv">layerInfo</span><span class="p">:</span> <span class="n">layerInfo</span><span class="o">!</span><span class="p">,</span> <span class="nv">tileSetCount</span><span class="p">:</span> <span class="kt">UInt32</span><span class="p">(</span><span class="n">frameCount</span><span class="p">)</span> <span class="p">)</span>
+
+<span class="nf">refreshAerisOverlayLayer</span><span class="p">()</span></code></pre></div>
+ </li></ul>
+
 <p>That gets the <strong>MaplyAerisLayerInfo</strong> object for the radar layer, and constructs a <strong>MaplyAerisTileSet</strong> object for it.  That tells us where to get the actual data from, but we’ll need to do one more thing to find out how many time steps are available and where they are.</p>
 
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0"> 
 <div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">refreshAerisOverlayLayer</span> <span class="p">{</span>    
     <span class="p">[</span><span class="n">layerTileSet</span> <span class="nf">startFetchWithSuccess</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">NSArray</span> <span class="o">*</span><span class="n">tileSources</span><span class="p">)</span> <span class="p">{</span>
         
@@ -209,6 +288,34 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
     <span class="p">}];</span>
 <span class="p">}</span></code></pre></div>
 
+
+</li><li data-index="1">
+
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">func</span> <span class="nf">refreshAerisOverlayLayer</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">layerTileSet</span><span class="o">.</span><span class="nf">startFetchWithSuccess</span><span class="p">({</span> <span class="p">(</span><span class="nv">tileSources</span><span class="p">:</span> <span class="p">[</span><span class="kt">AnyObject</span><span class="p">]?)</span> <span class="k">in</span>
+
+        <span class="k">let</span> <span class="nv">multiSource</span> <span class="o">=</span> <span class="kt">MaplyMultiplexTileSource</span><span class="p">(</span><span class="nv">sources</span><span class="p">:</span> <span class="n">tileSources</span><span class="o">!</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="k">self</span><span class="o">.</span><span class="n">aerisLayer</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">theViewC</span><span class="o">!.</span><span class="nf">removeLayer</span><span class="p">(</span><span class="k">self</span><span class="o">.</span><span class="n">aerisLayer</span><span class="o">!</span><span class="p">)</span>
+        <span class="p">}</span>
+        
+        <span class="k">self</span><span class="o">.</span><span class="n">aerisLayer</span> <span class="o">=</span> <span class="kt">MaplyQuadImageTilesLayer</span><span class="p">(</span><span class="nv">coordSystem</span><span class="p">:</span> <span class="n">multiSource</span><span class="o">!.</span><span class="n">coordSys</span><span class="p">,</span> <span class="nv">tileSource</span><span class="p">:</span> <span class="n">multiSource</span><span class="o">!</span><span class="p">)</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">aerisLayer</span><span class="o">.</span><span class="n">imageDepth</span> <span class="o">=</span> <span class="kt">UInt32</span><span class="p">(</span><span class="k">self</span><span class="o">.</span><span class="n">frameCount</span><span class="o">!</span><span class="p">)</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">aerisLayer</span><span class="o">.</span><span class="n">animationPeriod</span> <span class="o">=</span> <span class="k">self</span><span class="o">.</span><span class="n">animationPeriod</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">aerisLayer</span><span class="o">.</span><span class="n">imageFormat</span> <span class="o">=</span> <span class="kt">MaplyQuadImageFormat</span><span class="o">.</span><span class="kt">ImageUShort5551</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">aerisLayer</span><span class="o">.</span><span class="n">drawPriority</span> <span class="o">=</span> <span class="n">kMaplyImageLayerDrawPriorityDefault</span><span class="o">+</span><span class="mi">100</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">aerisLayer</span><span class="o">.</span><span class="n">maxTiles</span> <span class="o">=</span> <span class="mi">1000</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">aerisLayer</span><span class="o">.</span><span class="n">importanceScale</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="mf">16.0</span>
+
+        <span class="k">self</span><span class="o">.</span><span class="n">theViewC</span><span class="o">!.</span><span class="nf">addLayer</span><span class="p">(</span><span class="k">self</span><span class="o">.</span><span class="n">aerisLayer</span><span class="o">!</span><span class="p">)</span>
+        
+    <span class="p">},</span> <span class="nv">failure</span><span class="p">:</span> <span class="p">{</span> <span class="p">(</span><span class="kt">NSError</span><span class="p">)</span> <span class="k">in</span>
+    <span class="p">})</span>
+<span class="p">}</span></code></pre></div>
+ </li></ul>
+
 <p>This <em>refreshAerisOverlayLayer</em> method will query the Aeris service to figure out the end points for the timesteps in the data layer, radar in this case.  When it gets that information back it will put together a <strong>MaplyMultiplexTileSource</strong> which is just a tile source that deals with animated data sets.  From there it sets up a layer to fetch and draw the data and off it goes.</p>
 
 <p><img src="/WhirlyGlobe/images/tutorial/aeris_weather_2.png" alt="Aeris Radar layer" /></p>
@@ -217,14 +324,25 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
 
 <p>You’ll notice that in the <em>refreshAerisOverlayLayer</em> method we first remove the aerisLayer from the view if it already exists.  This anticipates our final change, which is to periodically refresh the imagery to get the latest data.</p>
 
-<p>At the end of the setupAerisOverlayLayer method, schedule a timer to refresh the imagery.</p>
+<p>At the end of the <em>setupAerisOverlayLayer</em> method, schedule a timer to refresh the imagery.</p>
 
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0"> 
 <div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="n">aerisRefreshTimer</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSTimer</span> <span class="nf">scheduledTimerWithTimeInterval</span><span class="p">:</span><span class="mi">300</span><span class="p">.</span><span class="mi">0</span> <span class="nf">target</span><span class="p">:</span><span class="n">self</span> <span class="nf">selector</span><span class="p">:</span><span class="k">@selector</span><span class="p">(</span><span class="n">refreshAerisOverlayLayer</span><span class="p">)</span> <span class="nf">userInfo</span><span class="p">:</span><span class="nb">nil</span> <span class="nf">repeats</span><span class="p">:</span><span class="nb">YES</span><span class="p">];</span></code></pre></div>
+
+
+</li><li data-index="1">
+
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">self</span><span class="o">.</span><span class="n">aerisRefreshTimer</span> <span class="o">=</span> <span class="kt">NSTimer</span><span class="o">.</span><span class="nf">scheduledTimerWithTimeInterval</span><span class="p">(</span><span class="mf">300.0</span><span class="p">,</span> <span class="nv">target</span><span class="p">:</span><span class="k">self</span><span class="p">,</span> <span class="nv">selector</span><span class="p">:</span><span class="err">#</span><span class="nf">selector</span><span class="p">(</span><span class="k">self</span><span class="o">.</span><span class="n">refreshAerisOverlayLayer</span><span class="p">),</span> <span class="nv">userInfo</span><span class="p">:</span><span class="kc">nil</span><span class="p">,</span> <span class="nv">repeats</span><span class="p">:</span><span class="kc">true</span><span class="p">)</span></code></pre></div>
+ </li></ul>
 
 <h3 id="more-data-layers">More Data Layers</h3>
 
 <p>The other layers available from the WhirlyGlobe-Maply Aeris classes are Infrared Satellite, Global Satellite, and Hi-Res Visible Satellite.  For a Global Satellite example, substitute the following assignments in setupAerisOverlayLayer:</p>
 
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0"> 
 <div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">//    NSString *layerCode = @"radar";
 //    frameCount = 6;
 //    animationPeriod = 3.0;
@@ -233,6 +351,20 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
     <span class="n">frameCount</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
     <span class="n">animationPeriod</span> <span class="o">=</span> <span class="mi">5</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
     <span class="n">importanceScale</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="o">/</span><span class="mi">4</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span></code></pre></div>
+
+
+</li><li data-index="1">
+
+
+<div class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="c1">//    let layerCode = "radar"</span>
+<span class="c1">//    frameCount = 6</span>
+<span class="c1">//    animationPeriod = 3.0</span>
+<span class="c1">//    importanceScale = 1.0/16.0</span>
+    <span class="k">let</span> <span class="nv">layerCode</span> <span class="o">=</span> <span class="s">"sat-global"</span>
+    <span class="n">frameCount</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">animationPeriod</span> <span class="o">=</span> <span class="mf">5.0</span>
+    <span class="n">importanceScale</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="mf">4.0</span></code></pre></div>
+ </li></ul>
 
 <p><img src="/WhirlyGlobe/images/tutorial/aeris_weather_3.png" alt="Aeris Radar layer" /></p>
 
@@ -291,6 +423,9 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
                       
                       
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/getting_started.html">Before You Start</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -485,7 +620,13 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/building_from_source.html">Source Distribution</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -692,7 +833,13 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/building_from_cocoapod.html">Cocoapods</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -982,7 +1129,16 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/your_first_globe.html">Your First Globe</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1275,7 +1431,16 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/remote_image_layer.html">Remote Image Layer</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1604,7 +1769,16 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/screen_markers.html">Screen Markers</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1825,6 +1999,9 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/spheres.html">Spheres</a></li>
                       
                       
@@ -1944,7 +2121,13 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/vector_selection.html">Vector Selection</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2180,7 +2363,13 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/aeris_weather.html">Aeris Weather Layer</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2334,6 +2523,117 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/micello_map.html">Micello Indoor Maps</a></li>
                       
                       
                       
@@ -2559,6 +2859,12 @@ Version 2.4.1 (or greater) can be found in the github repo or in this <a href="h
             <!-- deliver next/prev links -->
             <a class="prev" href="/WhirlyGlobe/tutorial/cartodb_layer.html">Previous</a><a class="next" href="/WhirlyGlobe/tutorial/component_tester.html">Next</a>
 
+            
+            
+            
+            
+
+            
             
             
             

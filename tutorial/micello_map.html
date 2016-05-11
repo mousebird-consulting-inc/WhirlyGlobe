@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width initial-scale=1" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-  <title>Hello Earth Project</title>
+  <title>Micello Indoor Maps</title>
   <meta name="description" content="A high performance map and globe toolkit for iOS and Android.
 ">
 
@@ -20,7 +20,7 @@
   <![endif]-->
 
   <link rel="stylesheet" href="/WhirlyGlobe/css/main.css">
-  <link rel="canonical" href="http://mousebird.github.io//WhirlyGlobe/tutorial/hello_earth.html">
+  <link rel="canonical" href="http://mousebird.github.io//WhirlyGlobe/tutorial/micello_map.html">
 
   <!-- Fontwork -->
   <link rel="stylesheet" type="text/css" href="/WhirlyGlobe/css/MyFontsWebfontsKit.css">
@@ -103,32 +103,184 @@
         <div class="row">
           <div class="col-sm-9 tutorial tutorial-main">
 
-            <h2>Hello Earth Project</h2>
-            <p>You need to create an Xcode project.  We’ll call it <strong>HelloEarth</strong> and you’ll add all your tutorial code to it.</p>
+            <h2>Micello Indoor Maps</h2>
+            <p><em>Tutorial by Ranen Ghosh</em></p>
 
-<p>Open Xcode, select File, New, and then Project.  Use the Single View Application Template.</p>
+<p><a href="http://www.micello.com/">Micello</a> provides indoor map data for places like shopping malls, airports, college campuses, hospitals, museums, business campuses, and conference centers.  Integration with a map toolkit like ours is a natural fit.  In this tutorial we add the multi-level structure for the Westfield Valley Fair mall to a WhirlyGlobe-Maply based map.</p>
 
-<p><img src="/WhirlyGlobe/images/tutorial/hello_earth_template.png" alt="Single View Application" /></p>
+<h2 id="getting-started">Getting started</h2>
 
-<p>Call your new app HelloEarth.  You can leave the rest as defaults.</p>
+<p>For this example we provide source code to get going.  Download <a href="/WhirlyGlobe/tutorial/resources/micello_map/micello_tutorial.zip">this zip archive</a> and copy its files to your project directory.  You should overwrite your existing ViewController.* files with the ones in the archive.  Add the other files to the project.</p>
 
-<p>For source control, check the Source Control box to create a local git repository for your project.  You’ll need this if you set up the project with git submodules below.</p>
+<p>The new ViewController class is simplified to only use a globe, and only display remote OpenStreetMap tiles.</p>
 
-<p><img src="/WhirlyGlobe/images/tutorial/hello_earth_finished.png" alt="Empty Hello Earth" /></p>
+<p><img src="/WhirlyGlobe/images/tutorial/micello_1.png" alt="Xcode HelloEarth" /></p>
 
-<p>Done? Good. Close Xcode and let’s modify the project to pull in WG-Maply.</p>
+<h2 id="setup-the-micello-map">Setup the Micello map</h2>
 
-<h3 id="whirlyglobe-maply-distributions">WhirlyGlobe-Maply Distributions</h3>
+<p>Start by adding two imports to ViewController.m:</p>
 
-<p>We distribute the WhirlyGlobe-Maply library in three ways. Any one of them is fine.  Pick the one you are most familiar with.  Don’t care?  Try binary.</p>
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="cp">#import "MaplyMicelloMap.h"
+#import "SimpleAnnotationViewController.h"</span></code></pre></div>
+
+<p>Add two member variables to the ViewController implementation block.  The first is a <strong>MaplyMicelloMap</strong> object, which we’ll describe below.</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">{</span>
+    <span class="n">WhirlyGlobeViewController</span> <span class="o">*</span><span class="n">globeVC</span><span class="p">;</span>
+
+    <span class="c1">// New member variables
+</span>    <span class="n">MaplyMicelloMap</span> <span class="o">*</span><span class="n">micelloMap</span><span class="p">;</span>
+    <span class="n">UISegmentedControl</span> <span class="o">*</span><span class="n">segCtrl</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+
+<p>Initialize the Micello map variable at the end of viewDidLoad.  You’ll need to give it the base URL of the map to be displayed, and the key from Micello for your account and project.  It also wants a base draw priority.  Draw priority values determine the order in which map elements are seen if they overlap.</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">// Add Westfield Valley Fair mall map
+</span>    <span class="n">NSString</span> <span class="o">*</span><span class="n">micelloKey</span> <span class="o">=</span> <span class="s">@"YOUR MICELLO KEY GOES HERE"</span><span class="p">;</span>
+    <span class="n">NSString</span> <span class="o">*</span><span class="n">baseURL</span> <span class="o">=</span> <span class="s">@"http://mfs.micello.com/ms/v1/mfile/map/78/mv/-/ev/-/geojson"</span><span class="p">;</span>
+    <span class="n">micelloMap</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MaplyMicelloMap</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithBaseURL</span><span class="p">:</span><span class="n">baseURL</span> <span class="nf">projectKey</span><span class="p">:</span><span class="n">micelloKey</span> <span class="nf">baseDrawPriority</span><span class="p">:</span><span class="n">kMaplyVectorDrawPriorityDefault</span><span class="o">+</span><span class="mi">200</span><span class="p">];</span></code></pre></div>
+
+<h2 id="the-maplymicellomap-class">The <strong>MaplyMicelloMap</strong> class</h2>
+
+<p>The <strong>MaplyMicelloMap</strong> class is the most important class needed to display a Micello community map.  After initializing it, the way to use it is to:</p>
 
 <ul>
-  <li><a href="building_from_source.html">Building from Source</a> - Use submodules for the distribution on github.</li>
-  <li><a href="building_from_binary.html">Build from binary</a> - The self contained binary distribution.</li>
-  <li><a href="building_from_cocoapod.html">Build with CocoaPods</a> - Use the WG-Maply CocoaPod.</li>
+  <li>tell it to fetch the map information,</li>
+  <li>tell it how you want the map to be drawn, and</li>
+  <li>give it a z-level within the map to draw.</li>
 </ul>
 
-<p>It’s like a pick your own adventure book, but boring.  So just like a pick your own adventure book.</p>
+<h3 id="fetching-the-map-information">Fetching the map information</h3>
+
+<p>This is done with the <em>startFetchMapWithSuccess:failure:</em> method.  If the base URL and key provided to the init method are valid, this will fetch lots of information about the community map, and store it in the object.  This includes drawings, levels, and entities.</p>
+
+<p>Since doing this is asynchronous, subsequent operations on the <strong>MaplyMicelloMap</strong> object should go in the success block passed to this method.</p>
+
+<h3 id="styling-the-map">Styling the map</h3>
+
+<p>This can be done in two ways.  You can give the <strong>MaplyMicelloMap</strong> object default drawing attributes.  These are currently <em>fillColor</em>, <em>outlineColor</em>, <em>selectedOutlineColor</em>, <em>lineWidth</em>, and <em>selectedLineWidth</em>.  The basic properties for fill and outline apply to the map as it’s normally displayed.  The <em>selected</em> properties apply to rooms selected by a user.</p>
+
+<p>You can also add style rules, represented by the <strong>MaplyMicelloStyleRule</strong> class, to draw geometry features that match certain criteria.  We’ve provided some default style rules.</p>
+
+<h3 id="setting-a-z-level">Setting a z-level</h3>
+
+<p>After fetching the map information and styling the map, set the z-level using the <em>setZLevel:viewC:</em> method.  This selects one of the levels to draw and it’s the one you will see.</p>
+
+<p>This code, which does all of the above, goes after our <strong>MaplyMicelloMap</strong> initialization:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">[</span><span class="n">micelloMap</span> <span class="nf">startFetchMapWithSuccess</span><span class="p">:</span><span class="o">^</span><span class="p">()</span> <span class="p">{</span>
+        <span class="p">[</span><span class="n">micelloMap</span> <span class="nf">addDefaultStyleRules</span><span class="p">]</span><span class="err">;</span>
+        <span class="p">[</span><span class="n">globeVC</span> <span class="nf">setPosition</span><span class="p">:</span><span class="n">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="n">micelloMap</span><span class="p">.</span><span class="n">centerLonDeg</span><span class="p">,</span> <span class="n">micelloMap</span><span class="p">.</span><span class="n">centerLatDeg</span><span class="p">)</span> <span class="nf">height</span><span class="p">:</span><span class="mi">0</span><span class="p">.</span><span class="mo">0001</span><span class="p">]</span><span class="err">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">micelloMap</span><span class="p">.</span><span class="n">zLevels</span><span class="p">.</span><span class="n">count</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
+            <span class="p">[</span><span class="n">micelloMap</span> <span class="nf">setZLevel</span><span class="p">:((</span><span class="n">NSNumber</span> <span class="o">*</span><span class="p">)</span><span class="n">micelloMap</span><span class="p">.</span><span class="n">zLevels</span><span class="p">[</span><span class="mi">0</span><span class="p">]).</span><span class="n">intValue</span> <span class="nf">viewC</span><span class="p">:</span><span class="n">globeVC</span><span class="p">]</span><span class="err">;</span>
+    <span class="p">}</span> <span class="nf">failure</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">NSError</span> <span class="o">*</span> <span class="n">_Nonnull</span> <span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">}];</span></code></pre></div>
+
+<p>Run this code now and you’ll see the bottom level of the Westfield Valley Fair mall displayed on your globe.</p>
+
+<p><img src="/WhirlyGlobe/images/tutorial/micello_2.png" alt="Westfield Valley Fair mall map on the globe" /></p>
+
+<h2 id="changing-the-map-level">Changing the Map Level</h2>
+
+<p>If a community map has more than one level, it’s simple to change.  Just call <em>setZLevel:viewC:</em> again.  Here we modify the code from above to allow the user to select a z-level:</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">[</span><span class="n">micelloMap</span> <span class="nf">startFetchMapWithSuccess</span><span class="p">:</span><span class="o">^</span><span class="p">()</span> <span class="p">{</span>
+        <span class="p">[</span><span class="n">micelloMap</span> <span class="nf">addDefaultStyleRules</span><span class="p">]</span><span class="err">;</span>
+        <span class="p">[</span><span class="n">globeVC</span> <span class="nf">setPosition</span><span class="p">:</span><span class="n">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="n">micelloMap</span><span class="p">.</span><span class="n">centerLonDeg</span><span class="p">,</span> <span class="n">micelloMap</span><span class="p">.</span><span class="n">centerLatDeg</span><span class="p">)</span> <span class="nf">height</span><span class="p">:</span><span class="mi">0</span><span class="p">.</span><span class="mo">0001</span><span class="p">]</span><span class="err">;</span>
+
+        <span class="c1">// Add a segmented control to support switching between map levels.
+</span>        <span class="k">if</span> <span class="p">(</span><span class="n">micelloMap</span><span class="p">.</span><span class="n">zLevels</span><span class="p">.</span><span class="n">count</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">segCtrl</span> <span class="o">=</span> <span class="p">[[</span><span class="n">UISegmentedControl</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithItems</span><span class="p">:[</span><span class="n">micelloMap</span><span class="p">.</span><span class="n">zLevels</span> <span class="nf">valueForKey</span><span class="p">:</span><span class="s">@"stringValue"</span><span class="p">]]</span><span class="err">;</span>
+            <span class="n">segCtrl</span><span class="p">.</span><span class="n">selectedSegmentIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="err">;</span>
+            <span class="n">segCtrl</span><span class="p">.</span><span class="n">frame</span> <span class="o">=</span> <span class="n">CGRectMake</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span><span class="err">;</span>
+            <span class="p">[</span><span class="n">segCtrl</span> <span class="nf">addTarget</span><span class="p">:</span><span class="n">self</span> <span class="nf">action</span><span class="p">:</span><span class="k">@selector</span><span class="p">(</span><span class="n">onSegChange</span><span class="p">)</span> <span class="nf">forControlEvents</span><span class="p">:</span><span class="n">UIControlEventValueChanged</span><span class="p">]</span><span class="err">;</span>
+            <span class="p">[</span><span class="n">globeVC</span><span class="p">.</span><span class="n">view</span> <span class="nf">addSubview</span><span class="p">:</span><span class="n">segCtrl</span><span class="p">]</span><span class="err">;</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">micelloMap</span><span class="p">.</span><span class="n">zLevels</span><span class="p">.</span><span class="n">count</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
+            <span class="p">[</span><span class="n">micelloMap</span> <span class="nf">setZLevel</span><span class="p">:((</span><span class="n">NSNumber</span> <span class="o">*</span><span class="p">)</span><span class="n">micelloMap</span><span class="p">.</span><span class="n">zLevels</span><span class="p">[</span><span class="mi">0</span><span class="p">]).</span><span class="n">intValue</span> <span class="nf">viewC</span><span class="p">:</span><span class="n">globeVC</span><span class="p">]</span><span class="err">;</span>
+
+    <span class="p">}</span> <span class="nf">failure</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">NSError</span> <span class="o">*</span> <span class="n">_Nonnull</span> <span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">}];</span></code></pre></div>
+
+<p>Add the <em>onSegChange</em> callback to handle the user interaction and change the displayed z-level of the community map.</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">onSegChange</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">zLevel</span> <span class="o">=</span> <span class="p">((</span><span class="n">NSNumber</span> <span class="o">*</span><span class="p">)</span><span class="n">micelloMap</span><span class="p">.</span><span class="n">zLevels</span><span class="p">[</span><span class="n">segCtrl</span><span class="p">.</span><span class="nf">selectedSegmentIndex</span><span class="p">]).</span><span class="n">intValue</span><span class="p">;</span>
+    <span class="p">[</span><span class="n">micelloMap</span> <span class="nf">setZLevel</span><span class="p">:</span><span class="n">zLevel</span> <span class="nf">viewC</span><span class="p">:</span><span class="n">globeVC</span><span class="p">];</span>
+<span class="p">}</span></code></pre></div>
+
+<p>If you run the example now, you’ll see what the upper levels of the mall look like.</p>
+
+<p><img src="/WhirlyGlobe/images/tutorial/micello_3.png" alt="Second level of the mall" /></p>
+
+<h2 id="selection-of-map-features">Selection of map features</h2>
+
+<p>Now we’re going to let the user select shops and restaurants in the mall to learn more about them.  The <strong>MaplyMicelloMap</strong> object will return information about a selected entity using the <strong>MaplyMicelloMapEntity</strong> class.  Call the <strong>MaplyMicelloMap</strong> select:viewC: method to get a <strong>MaplyMicelloMapEntity</strong> object, which has a <em>properties</em> dictionary property which contains metadata we can be display.</p>
+
+<p>In the example, we use a simple form view controller to display the properties (the <strong>SimpleAnnotationViewController</strong>, which is among the files to download that are listed above).  The <strong>MaplyAnnotation</strong> object anchors this view to the appropriate location in the map.</p>
+
+<p>Add the following two method implementations after <em>onSegChange</em> :</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">globeViewController</span><span class="p">:(</span><span class="n">WhirlyGlobeViewController</span> <span class="o">*</span><span class="n">__nonnull</span><span class="p">)</span><span class="nv">viewC</span> <span class="nf">didSelect</span><span class="p">:(</span><span class="n">NSObject</span> <span class="o">*</span><span class="n">__nonnull</span><span class="p">)</span><span class="nv">selectedObj</span> <span class="p">{</span>
+
+    <span class="n">MaplyMicelloMapEntity</span> <span class="o">*</span><span class="n">entity</span> <span class="o">=</span> <span class="p">[</span><span class="n">micelloMap</span> <span class="nf">select</span><span class="p">:</span><span class="n">selectedObj</span> <span class="nf">viewC</span><span class="p">:</span><span class="n">viewC</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">entity</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">;</span>
+   
+    <span class="n">MaplyAnnotation</span> <span class="o">*</span><span class="n">annotate</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MaplyAnnotation</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">init</span><span class="p">];</span>
+    <span class="n">SimpleAnnotationViewController</span> <span class="o">*</span><span class="n">svc</span> <span class="o">=</span> <span class="p">[[</span><span class="n">SimpleAnnotationViewController</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithName</span><span class="p">:</span><span class="n">entity</span><span class="p">.</span><span class="n">properties</span><span class="p">[</span><span class="s">@"name"</span><span class="p">]</span> <span class="nf">desc</span><span class="p">:</span><span class="n">entity</span><span class="p">.</span><span class="n">properties</span><span class="p">[</span><span class="s">@"description"</span><span class="p">]</span> <span class="nf">hours</span><span class="p">:</span><span class="n">entity</span><span class="p">.</span><span class="n">properties</span><span class="p">[</span><span class="s">@"hours"</span><span class="p">]</span> <span class="nf">location</span><span class="p">:</span><span class="n">entity</span><span class="p">.</span><span class="n">intAddress</span> <span class="nf">phone</span><span class="p">:</span><span class="n">entity</span><span class="p">.</span><span class="n">properties</span><span class="p">[</span><span class="s">@"phone"</span><span class="p">]</span> <span class="nf">website</span><span class="p">:</span><span class="n">entity</span><span class="p">.</span><span class="n">properties</span><span class="p">[</span><span class="s">@"url"</span><span class="p">]];</span>
+
+    <span class="c1">// superview needed for Auto Layout and SMCalloutView (used in MaplyAnnotation) to play nice together.
+</span>    <span class="c1">// https://github.com/nfarina/calloutview/issues/73
+</span>    <span class="n">UIView</span> <span class="o">*</span><span class="n">superview</span> <span class="o">=</span> <span class="p">[[</span><span class="n">UIView</span> <span class="nf">alloc</span><span class="p">]</span><span class="nf">initWithFrame</span><span class="p">:</span><span class="n">svc</span><span class="p">.</span><span class="n">view</span><span class="p">.</span><span class="n">frame</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">superview</span> <span class="nf">addSubview</span><span class="p">:</span><span class="n">svc</span><span class="p">.</span><span class="n">view</span><span class="p">];</span>
+    <span class="n">annotate</span><span class="p">.</span><span class="n">contentView</span> <span class="o">=</span> <span class="n">superview</span><span class="p">;</span>
+   
+    <span class="p">[</span><span class="n">globeVC</span> <span class="nf">clearAnnotations</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">globeVC</span> <span class="nf">addAnnotation</span><span class="p">:</span><span class="n">annotate</span> <span class="nf">forPoint</span><span class="p">:</span><span class="n">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="n">entity</span><span class="p">.</span><span class="n">lonDeg</span><span class="p">,</span> <span class="n">entity</span><span class="p">.</span><span class="n">latDeg</span><span class="p">)</span> <span class="nf">offset</span><span class="p">:</span><span class="n">CGPointZero</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">globeViewController</span><span class="p">:(</span><span class="n">WhirlyGlobeViewController</span> <span class="o">*</span><span class="n">__nonnull</span><span class="p">)</span><span class="nv">viewC</span> <span class="nf">didTapAt</span><span class="p">:(</span><span class="n">WGCoordinate</span><span class="p">)</span><span class="nv">coord</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">micelloMap</span> <span class="nf">clearSelectionViewC</span><span class="p">:</span><span class="n">viewC</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">globeVC</span> <span class="nf">clearAnnotations</span><span class="p">];</span>
+<span class="p">}</span></code></pre></div>
+
+<p>Now if you run the example and select a store or restaurant, you’ll see the entity in question highlighted, with a custom annotation displayed over it.</p>
+
+<p><img src="/WhirlyGlobe/images/tutorial/micello_4.png" alt="Micello community map entity selection" /></p>
+
+<h2 id="a-mall-with-two-minimums">A Mall with Two Minimums</h2>
+
+<p>The Westfield Valley Fair mall straddles two cities: Santa Clara and San Jose.  In 2012 San Jose raised its minimum wage from $8 to $10 per hour, while Santa Clara kept its fixed at $8.  Different stores within the mall fall within those different cities and some (such as The Gap) straddle both.  In this optional part of the tutorial let’s see which!</p>
+
+<p>Here we will overlay the city boundaries over top of the mall map, to display which stores have the higher minimum wage.</p>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">// New member variables
+</span>    <span class="n">MaplyMicelloMap</span> <span class="o">*</span><span class="n">micelloMap</span><span class="p">;</span>
+    <span class="n">UISegmentedControl</span> <span class="o">*</span><span class="n">segCtrl</span><span class="p">;</span>
+    <span class="n">MaplyComponentObject</span> <span class="o">*</span><span class="n">sanJoseCompObj</span><span class="p">,</span> <span class="o">*</span><span class="n">santaClaraCompObj</span><span class="p">;</span></code></pre></div>
+
+<div class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">// Add Santa Clara county boundary
+</span>    <span class="n">NSString</span> <span class="o">*</span><span class="n">path</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSBundle</span> <span class="nf">mainBundle</span><span class="p">]</span> <span class="nf">pathForResource</span><span class="p">:</span><span class="s">@"SantaClaraBoundary"</span> <span class="nf">ofType</span><span class="p">:</span><span class="s">@"geojson"</span><span class="p">];</span>
+    <span class="n">MaplyVectorObject</span> <span class="o">*</span><span class="n">santaClaraVecObj</span> <span class="o">=</span> <span class="p">[</span><span class="n">MaplyVectorObject</span> <span class="nf">VectorObjectFromGeoJSON</span><span class="p">:[[</span><span class="n">NSFileManager</span> <span class="nf">defaultManager</span><span class="p">]</span> <span class="nf">contentsAtPath</span><span class="p">:</span><span class="n">path</span><span class="p">]];</span>
+    <span class="n">santaClaraCompObj</span> <span class="o">=</span> <span class="p">[</span><span class="n">globeVC</span> <span class="nf">addVectors</span><span class="p">:@[</span><span class="n">santaClaraVecObj</span><span class="p">]</span> <span class="nf">desc</span><span class="p">:</span><span class="err">@</span><span class="p">{</span>
+                                                               <span class="nf">kMaplyVecTexture</span><span class="p">:</span>    <span class="p">[</span><span class="n">UIImage</span> <span class="nf">imageNamed</span><span class="p">:</span><span class="s">@"bgOrange.png"</span><span class="p">],</span>
+                                                               <span class="nf">kMaplyDrawPriority</span><span class="p">:</span>  <span class="err">@</span><span class="p">(</span><span class="mi">400</span><span class="p">),</span>
+                                                               <span class="nf">kMaplyFilled</span><span class="p">:</span>        <span class="err">@</span><span class="p">(</span><span class="nb">YES</span><span class="p">)}];</span>
+    
+    <span class="c1">// Add San Jose boundary
+</span>    <span class="n">path</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSBundle</span> <span class="nf">mainBundle</span><span class="p">]</span> <span class="nf">pathForResource</span><span class="p">:</span><span class="s">@"SanJoseBoundary"</span> <span class="nf">ofType</span><span class="p">:</span><span class="s">@"geojson"</span><span class="p">];</span>
+    <span class="n">MaplyVectorObject</span> <span class="o">*</span><span class="n">sanJoseVecObj</span> <span class="o">=</span> <span class="p">[</span><span class="n">MaplyVectorObject</span> <span class="nf">VectorObjectFromGeoJSON</span><span class="p">:[[</span><span class="n">NSFileManager</span> <span class="nf">defaultManager</span><span class="p">]</span> <span class="nf">contentsAtPath</span><span class="p">:</span><span class="n">path</span><span class="p">]];</span>
+    <span class="n">sanJoseCompObj</span> <span class="o">=</span> <span class="p">[</span><span class="n">globeVC</span> <span class="nf">addVectors</span><span class="p">:@[</span><span class="n">sanJoseVecObj</span><span class="p">]</span> <span class="nf">desc</span><span class="p">:</span><span class="err">@</span><span class="p">{</span>
+                                                           <span class="nf">kMaplyVecTexture</span><span class="p">:</span>    <span class="p">[</span><span class="n">UIImage</span> <span class="nf">imageNamed</span><span class="p">:</span><span class="s">@"bgBlue.png"</span><span class="p">],</span>
+                                                           <span class="nf">kMaplyDrawPriority</span><span class="p">:</span>  <span class="err">@</span><span class="p">(</span><span class="mi">500</span><span class="p">),</span>
+                                                           <span class="nf">kMaplyFilled</span><span class="p">:</span>        <span class="err">@</span><span class="p">(</span><span class="nb">YES</span><span class="p">)}];</span></code></pre></div>
+
+<p><img src="/WhirlyGlobe/images/tutorial/micello_5.png" alt="San Jose and Santa Clara city boundaries overlaid upon the mall map" /></p>
+
+<p>That rounds our the tutorial.  Enjoy your building maps!</p>
+
 
 
           </div>
@@ -300,7 +452,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/hello_earth.html">Hello Earth Project</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/hello_earth.html">Hello Earth Project</a></li>
                       
                       
                       
@@ -2394,7 +2546,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/micello_map.html">Micello Indoor Maps</a></li>
+                      <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/micello_map.html">Micello Indoor Maps</a></li>
                       
                       
                       
@@ -2456,8 +2608,177 @@
         <div class="row">
           <div class="col-sm-9" id="prev-next">
             
-            <a class="prev" href="/WhirlyGlobe/tutorial/getting_started.html">Previous</a><a class="next" href="/WhirlyGlobe/tutorial/building_from_binary.html">Next</a>
+            
+            
+            
+            
+            
+            
 
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+
+            
+            
+            
+            
+            
+
+            
+            
+
+            <!-- what follows is kinda horrifying -->
+            <!-- is the current page the first page of the first tutorial section? -->
+            
+
+            <!-- is the current page the last page of the last tutorial section? -->
+            
+            <!-- does this tutorial section have more than one page? -->
+            
+            <!--   assign prev to the previous page in the same section and next to the first page of the first section (cycle) -->
+            
+            
+            
+            
+            
+            
+            
+
+            <!-- deliver next/prev links -->
+            <a class="prev" href="/WhirlyGlobe/tutorial/component_tester.html">Previous</a><a class="next" href="/WhirlyGlobe/tutorial/getting_started.html">Next</a>
+
+            
+            
+            
             
 
           </div>
