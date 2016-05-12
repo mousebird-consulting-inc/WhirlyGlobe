@@ -292,6 +292,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Billboard_flattenNative
             poly.pts = simplePoly.pts;
             poly.texCoords = simplePoly.texCoords;
             poly.color = simplePoly.color;
+	    poly.texId = simplePoly.texID;
             inst->polys.push_back(poly);
         }
     } catch (...) {

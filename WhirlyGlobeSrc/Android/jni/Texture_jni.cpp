@@ -71,7 +71,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Texture_setBitmap
 	try
 	{
 		TextureClassInfo *classInfo = TextureClassInfo::getClassInfo();
-		Texture *tex = new Texture("");
+		Texture *tex = classInfo->getObject(env,obj);
 		if (!tex)
 			return false;
 
