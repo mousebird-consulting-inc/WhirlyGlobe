@@ -424,6 +424,20 @@ public class Atmosphere {
         this.complexAtmosphere(mode);
     }
 
+    boolean lockToCamera = false;
+
+    /**
+     * If set, we'll lock the sun to the camera position.  This means the globe will always
+     * be lit from the front.
+     */
+    public void setLockToCamera(boolean newVal)
+    {
+        lockToCamera = newVal;
+        if (sunUpdater != null)
+            sunUpdater.setLockToCamera(lockToCamera);
+    }
+
+
     /**
      * Wavelengths of the light (RGB).  Three floats, defaults are: 0.650, 0.570, 0.475
      */
@@ -481,6 +495,7 @@ public class Atmosphere {
         this.comObj = this.viewC.addShapes(shapes, shapeInfo, mode);
 
         this.sunUpdater = new SunUpdater(this.shader, this.groundShader,this, viewC);
+        this.sunUpdater.setLockToCamera(lockToCamera);
         this.viewC.addActiveObject(sunUpdater);
     }
 

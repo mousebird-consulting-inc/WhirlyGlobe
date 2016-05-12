@@ -19,7 +19,10 @@
  */
 package com.mousebird.maply;
 
-
+/**
+ * This is used internally to update the sun position for an atmospheric shader.
+ * It shouldn't be used directly.
+ */
 public class SunUpdater implements ActiveObject {
 
     private boolean changed;
@@ -46,6 +49,12 @@ public class SunUpdater implements ActiveObject {
     }
 
     Point3d oldCameraPos = null;
+
+    boolean lockToCamera = false;
+    public void setLockToCamera(boolean newVal)
+    {
+        lockToCamera = newVal;
+    }
 
     @Override
     public boolean hasChanges()
@@ -74,6 +83,9 @@ public class SunUpdater implements ActiveObject {
 
         Point4d sunDir4d = new Point4d(sunPos.getX(), sunPos.getY(), sunPos.getZ(), 1.0);
         Point3d sunDir3d = new Point3d(sunDir4d.getX(), sunDir4d.getY(), sunDir4d.getZ());
+
+        if (lockToCamera)
+            sunDir3d = new Point3d(cameraPos.getX(),cameraPos.getY(),cameraPos.getZ());
 
         sunDir3d.normalize();
 
