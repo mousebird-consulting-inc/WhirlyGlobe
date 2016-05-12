@@ -1,4 +1,6 @@
 package com.mousebird.maply;
+import android.util.Log;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -35,8 +37,9 @@ public class Sun
     {
         Light light = new Light();
         Point3d dir = getDirection();
-        light.setPos(dir);
+        light.setPos(new Point3d(dir.getX(), dir.getZ(), dir.getY()));
 //        light.setPos(new Point3d(-0.940805137, 0.13197355, 0.3121996828));
+//        Log.d("Maply","Light = " + dir.getX() + " " + dir.getY() + " " + dir.getZ());
         light.setAmbient(0.1f,0.1f,0.1f,1.f);
         light.setDiffuse(0.8f,0.8f,0.8f,1.f);
         light.setViewDependent(true);
