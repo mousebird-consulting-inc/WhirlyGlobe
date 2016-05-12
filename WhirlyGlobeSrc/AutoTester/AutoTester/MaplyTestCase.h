@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "MaplyTestResult.h"
 
+
 @class MaplyViewController;
 @class WhirlyGlobeViewController;
 @class MaplyTestCase;
@@ -22,6 +23,13 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseOptions) {
 	MaplyTestCaseOptionMap   = 1 << 2,
 };
 
+typedef NS_OPTIONS(NSUInteger, MaplyTestCaseState) {
+	MaplyTestCaseStateDownloading,
+	MaplyTestCaseStateReady,
+	MaplyTestCaseStateSelected,
+	MaplyTestCaseStateError,
+	MaplyTestCaseStateRunning,
+};
 
 @interface MaplyTestCase : NSObject
 
@@ -30,11 +38,13 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseOptions) {
 // these prototypes are necessary for Swift
 - (BOOL)setUpWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC;
 - (void)tearDownWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC;
+- (NSArray * _Nullable)remoteResources;
 
 - (BOOL)setUpWithMap:(MaplyViewController * _Nonnull)mapVC;
 - (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC;
 
 - (MaplyCoordinateSystem * _Nullable)customCoordSystem;
+- (void)fetchResources;
 
 @property (nonatomic, strong) UIView * _Nullable testView;
 @property (nonatomic, strong) NSString * _Nonnull name;
@@ -43,9 +53,13 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseOptions) {
 
 @property (nonatomic) MaplyTestCaseOptions options;
 
-@property (nonatomic) BOOL selected;
-@property (nonatomic) BOOL running;
+@property (nonatomic) MaplyTestCaseState state;
 @property (nonatomic) BOOL interactive;
+
+@property (nonatomic) NSInteger pendingDownload;
+
+@property (nonatomic, copy, nullable) void (^updateProgress)(NSInteger total, NSInteger completed);
+
 
 @property (nonatomic, strong) WhirlyGlobeViewController *_Nullable globeViewController;
 @property (nonatomic, strong) MaplyViewController * _Nullable mapViewController;

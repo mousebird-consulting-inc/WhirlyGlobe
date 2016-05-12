@@ -16,39 +16,125 @@
 - (instancetype)init
 {
 	if (self = [super init]) {
+		self.state = MaplyTestCaseStateReady;
+		self.interactive = false;
+		self.pendingDownload = 0;
 	}
-	self.interactive = false;
+
 	return self;
+}
+
+- (NSArray * _Nullable)remoteResources {
+	return nil;
+}
+
+- (void)fetchResources {
+	NSArray * _Nullable resources = [self remoteResources];
+
+	if (resources.count == 0) {
+		return;
+	}
+
+	NSFileManager *fileManager = [NSFileManager defaultManager];
+
+	if (self.updateProgress != nil) {
+		self.updateProgress(resources.count, resources.count - self.pendingDownload);
+	}
+
+	for (int ii = 0; ii < resources.count; ii++) {
+		NSArray *foo = [[resources[ii] absoluteString] componentsSeparatedByString:@"/"];
+		NSString *fileName = [foo lastObject];
+
+		if (fileName != nil) {
+			NSString *dir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)[0];
+			dir = [dir stringByAppendingPathComponent:@"resources"];
+			fileName = [dir stringByAppendingPathComponent:fileName];
+
+			if (![fileManager fileExistsAtPath:fileName]) {
+				[self startDownloadWithURL:resources[ii] file:fileName];
+			}
+		}
+		else {
+			//TODO
+		}
+	}
+
+	if (self.pendingDownload == 0) {
+		if ([[NSUserDefaults standardUserDefaults] boolForKey:_name]) {
+			self.state = MaplyTestCaseStateSelected;
+		}
+		else {
+			self.state = MaplyTestCaseStateReady;
+		}
+
+		if (self.updateProgress != nil) {
+			self.updateProgress(resources.count, resources.count - self.pendingDownload);
+		}
+	}
+}
+
+- (void)startDownloadWithURL:(NSURL *)url file:(NSString *)fileName
+{
+	NSURLRequest *request = [[NSURLRequest alloc]initWithURL:url];
+
+	[NSURLConnection sendAsynchronousRequest:request
+		queue:[NSOperationQueue mainQueue]
+		completionHandler:^(NSURLResponse * _Nullable response, NSData * _Nullable data, NSError * _Nullable connectionError) {
+
+			if (connectionError != nil) {
+				//TODO
+			}
+			else if (data != nil) {
+				[data writeToFile:fileName atomically:YES];
+
+				self.pendingDownload--;
+
+				if (self.updateProgress != nil) {
+					//self.updateProgress(self.remoteResources.count, self.remoteResources.count - self.pendingDownload);
+				}
+
+				if (self.pendingDownload == 0) {
+					if ([[NSUserDefaults standardUserDefaults] boolForKey:_name]) {
+						self.state = MaplyTestCaseStateSelected;
+					}
+					else {
+						self.state = MaplyTestCaseStateReady;
+					}
+				}
+			}
+	}];
 }
 
 - (void)start
 {
-	self.running = YES;
+	if (self.state != MaplyTestCaseStateDownloading && self.state != MaplyTestCaseStateError) {
+		self.state = MaplyTestCaseStateRunning;
 
-	dispatch_group_t lock = dispatch_group_create();
+		dispatch_group_t lock = dispatch_group_create();
 
-	if (self.options & MaplyTestCaseOptionGlobe) {
+		if (self.options & MaplyTestCaseOptionGlobe) {
+			if (!self.interactive)
+				dispatch_group_enter(lock);
+
+			[self runGlobeTestWithLock:lock];
+		}
+
+		if (self.options & MaplyTestCaseOptionMap) {
+			if (!self.interactive)
+				dispatch_group_enter(lock);
+
+			[self runMapTestWithLock:lock];
+		}
+
 		if (!self.interactive)
-			dispatch_group_enter(lock);
+			dispatch_group_notify(lock,dispatch_get_main_queue(),^{
+				self.state = MaplyTestCaseStateReady;
 
-		[self runGlobeTestWithLock:lock];
+				if (self.resultBlock) {
+					self.resultBlock(self);
+				}
+			});
 	}
-
-	if (self.options & MaplyTestCaseOptionMap) {
-		if (!self.interactive)
-			dispatch_group_enter(lock);
-
-		[self runMapTestWithLock:lock];
-	}
-
-	if (!self.interactive)
-		dispatch_group_notify(lock,dispatch_get_main_queue(),^{
-			self.running = NO;
-
-			if (self.resultBlock) {
-				self.resultBlock(self);
-			}
-		});
 }
 
 - (void)runGlobeTestWithLock:(dispatch_group_t)lock
@@ -256,14 +342,15 @@
 
 - (void)setSelected:(BOOL)selected
 {
-	_selected = selected;
-	[[NSUserDefaults standardUserDefaults] setBool:_selected forKey:_name];
+	if (self.state == MaplyTestCaseStateReady || self.state == MaplyTestCaseStateSelected){
+		self.state = MaplyTestCaseStateSelected;
+		[[NSUserDefaults standardUserDefaults] setBool:selected forKey:_name];
+	}
 }
 
 - (void)setName:(NSString *)name
 {
 	_name = name;
-	_selected = [[NSUserDefaults standardUserDefaults] boolForKey:_name];
 }
 
 
