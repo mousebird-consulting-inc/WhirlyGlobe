@@ -51,18 +51,29 @@
                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
+                                        <progressView hidden="YES" opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" misplaced="YES" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="VtY-FV-hpj" userLabel="DownloadStatus">
+                                            <rect key="frame" x="379" y="18.5" width="203" height="5"/>
+                                            <accessibility key="accessibilityConfiguration" label="Download Progress"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="203" id="1WU-jm-OhH"/>
+                                                <constraint firstAttribute="height" constant="5" id="3N8-PK-NbF"/>
+                                            </constraints>
+                                        </progressView>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="5aF-rw-GAm" firstAttribute="leading" secondItem="Xq4-FD-5sH" secondAttribute="leadingMargin" constant="5" id="Gqd-FH-PJQ"/>
                                         <constraint firstItem="d18-Wn-lHX" firstAttribute="leading" secondItem="5aF-rw-GAm" secondAttribute="trailing" constant="5" id="L1W-Lo-HuY"/>
+                                        <constraint firstItem="VtY-FV-hpj" firstAttribute="centerY" secondItem="Xq4-FD-5sH" secondAttribute="centerY" id="dzQ-A6-jcH"/>
                                         <constraint firstItem="d18-Wn-lHX" firstAttribute="centerY" secondItem="Xq4-FD-5sH" secondAttribute="centerY" id="hyp-rU-sNB"/>
                                         <constraint firstItem="5aF-rw-GAm" firstAttribute="centerY" secondItem="Xq4-FD-5sH" secondAttribute="centerY" id="irh-2i-RRe"/>
+                                        <constraint firstAttribute="trailingMargin" secondItem="VtY-FV-hpj" secondAttribute="trailing" constant="10" id="kPH-bZ-2q5"/>
                                         <constraint firstItem="jl7-me-c0V" firstAttribute="leading" secondItem="d18-Wn-lHX" secondAttribute="trailing" constant="15" id="lRk-S7-k5S"/>
                                         <constraint firstAttribute="trailingMargin" secondItem="jl7-me-c0V" secondAttribute="trailing" constant="10" id="trx-8F-r5X"/>
                                         <constraint firstItem="jl7-me-c0V" firstAttribute="centerY" secondItem="Xq4-FD-5sH" secondAttribute="centerY" id="zFF-Ba-M6f"/>
                                     </constraints>
                                 </tableViewCellContentView>
                                 <connections>
+                                    <outlet property="downloadProgress" destination="VtY-FV-hpj" id="P7o-s0-tbM"/>
                                     <outlet property="globeButton" destination="jl7-me-c0V" id="VQJ-W8-enI"/>
                                     <outlet property="mapButton" destination="d18-Wn-lHX" id="wRY-bZ-QKc"/>
                                     <outlet property="testName" destination="5aF-rw-GAm" id="gsg-AB-h0T"/>
