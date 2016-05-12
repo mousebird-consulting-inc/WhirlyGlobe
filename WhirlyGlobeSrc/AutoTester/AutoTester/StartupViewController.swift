@@ -103,7 +103,10 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		configViewC = ConfigViewController(nibName: "ConfigViewController", bundle: nil)
 		configViewC!.loadValues()
 
-		self.scrollToLastPosition()
+		tests.forEach {
+			$0.fetchResources()
+		}
+
 	}
 
 	override func tableView(
@@ -111,6 +114,37 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		numberOfRowsInSection section: Int) -> Int {
 
 		return tests.count
+	}
+
+	func changeTestCellState (cell: TestCell, row : Int) {
+		cell.downloadProgress.hidden = true;
+		if ConfigSection.Row.InteractiveMode.load() {
+			cell.globeButton.hidden = false
+			cell.mapButton.hidden = false;
+			cell.accessoryType = .None
+			cell.globeTestExecution = {
+				NSUserDefaults.standardUserDefaults().setInteger(row, forKey: "scrollPos")
+				self.runInteractiveTest(self.tests[row], type: .RunGlobe)
+			}
+			
+			cell.mapTestExecution = {
+				NSUserDefaults.standardUserDefaults().setInteger(row, forKey: "scrollPos")
+				self.runInteractiveTest(self.tests[row], type: .RunMap)
+			}
+		}
+		else{
+			cell.globeButton.hidden = true
+			cell.mapButton.hidden = true
+			cell.accessoryType = .None
+			if tests[row].state == .Running {
+				cell.accessoryType = .DisclosureIndicator
+			}
+			else {
+				cell.accessoryType = tests[row].state == .Selected
+					? .Checkmark
+					: .None
+			}
+		}
 	}
 
 	override func tableView(
@@ -123,40 +157,29 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		cell.testName.text = tests[indexPath.row].name
 		cell.selectionStyle = .None
 
-		if ConfigSection.Row.InteractiveMode.load() {
-			cell.globeButton.hidden = false
-			cell.mapButton.hidden = false;
-			cell.rowPosition = indexPath.row
-			cell.accessoryType = .None
-			cell.globeTestExecution = {
-				NSUserDefaults.standardUserDefaults().setInteger(indexPath.row, forKey: "scrollPos")
-				self.runInteractiveTest(self.tests[indexPath.row], type: .RunGlobe)
-			}
-			
-			cell.mapTestExecution = {
-				NSUserDefaults.standardUserDefaults().setInteger(indexPath.row, forKey: "scrollPos")
-				self.runInteractiveTest(self.tests[indexPath.row], type: .RunMap)
-			}
-		}
-		else{
-			cell.globeButton.hidden = true
-			cell.mapButton.hidden = true
-			cell.accessoryType = .None
-			if tests[indexPath.row].running {
-				cell.accessoryType = .DisclosureIndicator
+		cell.downloadProgress.progress = 0
+		tests[indexPath.row].updateProgress = { (total, finish) in
+			if total == finish {
+				self.changeTestCellState(cell, row: indexPath.row)
 			}
 			else {
-				cell.accessoryType = tests[indexPath.row].selected
-					? .Checkmark
-					: .None
+				if finish == 0 {
+					cell.downloadProgress.hidden = false;
+					cell.globeButton.hidden = true;
+					cell.mapButton.hidden = true;
+					cell.accessoryType = .None;
+				}
+				else {
+					cell.downloadProgress.hidden = false;
+					cell.downloadProgress.setProgress(Float(finish)/Float(total), animated: true)
+				}
 			}
 		}
+		changeTestCellState(cell, row: indexPath.row)
 		return cell
 	}
 
 	override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-
-		NSUserDefaults.standardUserDefaults().setInteger(indexPath.row, forKey: "scrollPos")
 
 		let interactiveMode = ConfigSection.Row.InteractiveMode.load()
 		let singleMode = ConfigSection.Row.SingleMode.load()
@@ -164,13 +187,21 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 		if !interactiveMode {
 			if singleMode {
-				tableView.setContentOffset(CGPointZero, animated: false)
 				runTest(self.tests[indexPath.row])
 			}
 			if normalMode {
-				tests[indexPath.row].selected = !tests[indexPath.row].selected
+				switch tests[indexPath.row].state {
+				case MaplyTestCaseState.Selected:
+					tests[indexPath.row].state = .Ready
+					break
+				case MaplyTestCaseState.Ready:
+					tests[indexPath.row].state = .Selected
+					break;
+				default:
+					break;
+				}
 				let cell = tableView.cellForRowAtIndexPath(indexPath)
-				cell?.accessoryType = tests[indexPath.row].selected
+				cell?.accessoryType = tests[indexPath.row].state == .Selected
 					? .Checkmark
 					: .None
 			}
@@ -206,9 +237,11 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	
 	private func prepareTestView (){
 		
-		let rect = UIScreen.mainScreen().applicationFrame
-		self.testViewBlack?.frame = CGRectMake(0, 0, rect.width, rect.height)
 		self.testViewBlack?.hidden = false
+		let visibleRect = tableView.convertRect(tableView.bounds, toView: self.testViewBlack)
+		self.testViewBlack?.frame = visibleRect
+
+
 		
 		let testView = UIView(frame: CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height))
 		testView.backgroundColor = UIColor.redColor()
@@ -221,17 +254,10 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		tableView.scrollEnabled = false;
 
 	}
-	
-	private func scrollToLastPosition(){
-		let pos = NSUserDefaults.standardUserDefaults().integerForKey("scrollPos")
-		testsTable.scrollToRowAtIndexPath(NSIndexPath(forRow: pos, inSection: 0), atScrollPosition: UITableViewScrollPosition.Top, animated: false)
-	}
-	
+		
 	private func runInteractiveTest( test: MaplyTestCase, type : ConfigSection.Row) {
 		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Done, target: self, action: #selector(StartupViewController.stopInteractiveTest))
 		
-		// use same aspect ratio as results view
-		tableView.setContentOffset(CGPointZero, animated: false)
 		self.prepareTestView()
 		test.interactive = true
 		
@@ -249,7 +275,6 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: #selector(StartupViewController.showConfig))
 		self.testViewBlack?.hidden = true
 		tableView.scrollEnabled = true
-		self.scrollToLastPosition()
 	}
 	
 	func runTests() {
@@ -268,13 +293,11 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	func stopTests() {
 	}
 
-
 	private func startTests(tests: [MaplyTestCase]) {
-		
 		if let head = tests.first {
 			let tail = Array(tests.dropFirst())
 			
-			if (head.selected) {
+			if (head.state == .Selected) {
 				head.options = .None
 				if configViewC!.valueForSection(.Options, row: .RunGlobe) {
 					head.options.insert(.Globe)
@@ -305,10 +328,10 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 					self.seconds = head.captureDelay
 					self.title = "\(head.name) (\(self.seconds))"
 					self.timer = NSTimer.scheduledTimerWithTimeInterval(1,
-																		target: self,
-																		selector: #selector(StartupViewController.updateTitle(_:)),
-																		userInfo: head.name,
-																		repeats: true)
+						target: self,
+						selector: #selector(StartupViewController.updateTitle(_:)),
+						userInfo: head.name,
+						repeats: true)
 				}
 				else {
 					tableView.reloadData()
@@ -384,7 +407,6 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 		self.title = "Tests"
 		tableView.scrollEnabled = true
-		scrollToLastPosition()
 		if !cancelled {
 			self.performSegueWithIdentifier("results", sender: self)
 		}
@@ -397,7 +419,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		if ConfigSection.Row.MultipleMode.load() {
 			self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: #selector(StartupViewController.runTests))
 		}
-		else{
+		else {
 			self.navigationItem.rightBarButtonItem = nil
 		}
 		testsTable.reloadData()
@@ -421,11 +443,12 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 
 		if let select = select {
-			tests.forEach {
-				$0.selected = select
+			tests.filter {
+				$0.state != .Error && $0.state != .Downloading
+			}.forEach {
+				$0.state = select ? .Selected : .Ready
 			}
 			tableView.reloadData()
-
 			configViewC!.selectAll(.Actions, select: false)
 		}
 	}

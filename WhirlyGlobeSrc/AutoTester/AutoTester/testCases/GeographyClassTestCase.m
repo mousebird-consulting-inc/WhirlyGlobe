@@ -20,8 +20,6 @@
 
 @implementation GeographyClassTestCase
 
-
-
 - (instancetype)init
 {
 	if (self = [super init]) {
@@ -32,7 +30,7 @@
 	return self;
 }
 
-- (void) setup{
+- (void) setup {
 	// set up the data source
 	self.tileSource =
 	[[MaplyMBTileSource alloc] initWithMBTiles:@"geography-class_medres"];

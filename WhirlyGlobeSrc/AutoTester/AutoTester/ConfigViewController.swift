@@ -33,7 +33,7 @@ class ConfigSection {
 
 		var defaultState: Bool {
 			switch self {
-			case .RunGlobe, .RunMap, .InteractiveMode:
+			case .RunGlobe, .RunMap, .InteractiveMode, .ViewTest:
 				return true
 			default:
 				return false
