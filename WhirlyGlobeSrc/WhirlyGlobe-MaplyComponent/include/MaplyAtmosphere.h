@@ -55,6 +55,9 @@
 /// @brief The ground shader we set up.  You need to apply it yourself.
 @property (nonatomic,nullable) MaplyShader *groundShader;
 
+/// @brief If set we'll lock the sun direction to the camera position.  Permanent daylight.
+@property (nonatomic) bool lockToCamera;
+
 /// @brief Wavelengths of the light (RGB).  Three floats, defaults are: 0.650, 0.570, 0.475
 - (void)setWavelength:(float *__nonnull)wavelength;
 
