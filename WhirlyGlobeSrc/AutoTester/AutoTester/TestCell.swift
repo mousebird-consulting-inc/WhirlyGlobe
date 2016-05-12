@@ -13,6 +13,7 @@ class TestCell: UITableViewCell {
 	@IBOutlet weak var testName: UILabel!
 	@IBOutlet weak var mapButton: UIButton!
 	@IBOutlet weak var globeButton: UIButton!
+    @IBOutlet weak var downloadProgress: UIProgressView!
 
 	var globeTestExecution: (() -> ())?
 	var mapTestExecution: (() -> ())?
