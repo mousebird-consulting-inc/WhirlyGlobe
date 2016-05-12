@@ -29,7 +29,7 @@ public class Moon {
     }
 
     public Moon(Calendar date) {
-        initialise(date.get(Calendar.YEAR), date.get(Calendar.MONTH), date.get(Calendar.DAY_OF_MONTH), date.get(Calendar.HOUR), date.get(Calendar.MINUTE), date.get(Calendar.SECOND));
+        initialise(date.get(Calendar.YEAR), date.get(Calendar.MONTH), date.get(Calendar.DAY_OF_MONTH)+1, date.get(Calendar.HOUR), date.get(Calendar.MINUTE), date.get(Calendar.SECOND));
     }
 
     public native double[] getIlluminatedFractionAndPhaseNative();

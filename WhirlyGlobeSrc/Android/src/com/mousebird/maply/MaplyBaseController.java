@@ -912,6 +912,8 @@ public class MaplyBaseController
 	public MaplyTexture addTexture(final Bitmap image,TextureSettings settings,ThreadMode mode)
     {
         final MaplyTexture texture = new MaplyTexture();
+		final Texture rawTex = new Texture();
+		texture.texID = rawTex.getID();
 
         // Possibly do the work somewhere else
         Runnable run =
@@ -922,9 +924,7 @@ public class MaplyBaseController
                     {
                         ChangeSet changes = new ChangeSet();
 
-                        Texture rawTex = new Texture();
-                        rawTex.setBitmap(image);
-                        texture.texID = rawTex.getID();
+						rawTex.setBitmap(image);
                         changes.addTexture(rawTex, scene);
 
                         // Flush the texture changes

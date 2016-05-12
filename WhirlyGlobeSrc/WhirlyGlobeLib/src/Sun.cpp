@@ -31,12 +31,17 @@ Sun::Sun()
 Sun::Sun(int year, int month, int day, int hour, int minutes, int second)
     : sunLon(0.0), sunLat(0.0), time(0.0)
 {
-    CAADate aaDate(year, month, day, hour, minutes, second, true);
-    this->runCalculation(aaDate);
+    setTime(year,month,day,hour,minutes,second);
 }
 
 Sun::~Sun()
 {
+}
+    
+void Sun::setTime(int year, int month, int day, int hour, int minutes, int second)
+{
+    CAADate aaDate(year, month, day, hour, minutes, second, true);
+    this->runCalculation(aaDate);    
 }
 
 void Sun::runCalculation(CAADate aaDate)
@@ -53,6 +58,15 @@ void Sun::runCalculation(CAADate aaDate)
 
     sunLon = CAACoordinateTransformation::DegreesToRadians(15*(sunEquatorial.X-siderealTime));
     sunLat = CAACoordinateTransformation::DegreesToRadians(sunEquatorial.Y);
+}
+    
+Point3d Sun::getDirection()
+{
+    double z = sin(sunLat);
+    double rad = sqrt(1.0-z*z);
+    Point3d pt(rad*cos(sunLon),rad*sin(sunLon),z);
+
+    return pt;
 }
 
 }

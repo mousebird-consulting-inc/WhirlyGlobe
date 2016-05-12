@@ -74,10 +74,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Sun_getDirection
         if (!inst)
             return NULL;
         
-        double z = sin(inst->sunLat);
-        double rad = sqrt(1.0-z*z);
-        Point3d pt(rad*cos(inst->sunLon),rad*sin(inst->sunLon),z);
-        
+        Point3d pt = inst->getDirection();
+                
         return MakePoint3d(env, pt);
     }
     catch (...)
@@ -96,20 +94,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sun_setTime
         if (!inst)
             return;
         inst->time = theTime;
-        
-        CAADate aaDate(year,month,day,hour,minute,second,true);
-        double jdSun = CAADynamicalTime::UTC2TT(aaDate.Julian());
-        
-        // Position of the sun in equatorial
-        double sunEclipticLong = CAASun::ApparentEclipticLongitude(jdSun);
-        double sunEclipticLat = CAASun::ApparentEclipticLatitude(jdSun);
-        double obliquity = CAANutation::TrueObliquityOfEcliptic(jdSun);
-        CAA2DCoordinate sunEquatorial = CAACoordinateTransformation::Ecliptic2Equatorial(sunEclipticLong,sunEclipticLat,obliquity);
-        
-        double siderealTime = CAASidereal::MeanGreenwichSiderealTime(jdSun);
-        
-        inst->sunLon = CAACoordinateTransformation::DegreesToRadians(15*(sunEquatorial.X-siderealTime));
-        inst->sunLat = CAACoordinateTransformation::DegreesToRadians(sunEquatorial.Y);
+
+        inst->setTime(year,month,day,hour,minute,second);
     }
     catch (...)
     {

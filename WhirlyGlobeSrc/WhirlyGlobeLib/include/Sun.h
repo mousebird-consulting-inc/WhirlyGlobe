@@ -19,7 +19,7 @@
  */
 
 #include "AA+.h"
-
+#include <WhirlyVector.h>
 
 namespace WhirlyKit
 {
@@ -31,6 +31,12 @@ public:
 
     double sunLon, sunLat;
     double time;
+    
+    // Set the UTC time
+    void setTime(int year, int month, int day, int hour, int minutes, int second);
+    
+    // Return a direction suitable for passing to a light
+    Point3d getDirection();
 
 private:
     void runCalculation(CAADate aaDate);

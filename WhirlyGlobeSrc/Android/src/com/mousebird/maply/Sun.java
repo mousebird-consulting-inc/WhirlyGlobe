@@ -2,6 +2,7 @@ package com.mousebird.maply;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.SimpleTimeZone;
 
 /**
  *
@@ -33,7 +34,9 @@ public class Sun
     public Light makeLight()
     {
         Light light = new Light();
-        light.setPos(getDirection());
+        Point3d dir = getDirection();
+        light.setPos(dir);
+//        light.setPos(new Point3d(-0.940805137, 0.13197355, 0.3121996828));
         light.setAmbient(0.1f,0.1f,0.1f,1.f);
         light.setDiffuse(0.8f,0.8f,0.8f,1.f);
         light.setViewDependent(true);
@@ -44,9 +47,10 @@ public class Sun
     public void setDate(Date date)
     {
         Calendar cal = GregorianCalendar.getInstance();
+        cal.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
         cal.setTime(date);
         double year = cal.get(Calendar.YEAR);
-        double month = cal.get(Calendar.MONTH);
+        double month = cal.get(Calendar.MONTH)+1;
         double day = cal.get(Calendar.DAY_OF_MONTH);
         double hour = cal.get(Calendar.HOUR_OF_DAY);
         double min = cal.get(Calendar.MINUTE);

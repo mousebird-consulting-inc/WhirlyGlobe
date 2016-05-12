@@ -38,7 +38,9 @@ import com.mousebirdconsulting.autotester.R;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.SimpleTimeZone;
 
 
 public class BillboardAdapter {
@@ -90,7 +92,9 @@ public class BillboardAdapter {
         ComponentObject componentObject = viewC.addBillboards(billboardsSun, info, this.threadMode);
 
         //Moon
-        Moon moon  = new Moon(Calendar.getInstance());
+        Calendar cal = GregorianCalendar.getInstance();
+        cal.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
+        Moon moon  = new Moon(cal);
         Billboard billMoon = new Billboard();
         Point3d moonPosition = moon.asPosition();
         billMoon.setCenter(new Point3d(moonPosition.getX(), moonPosition.getY(), 5.4 * EarthRadius));
