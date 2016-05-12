@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * Extremely simple polygon class
+ */
 public class SimplePoly {
 
     public SimplePoly() {
@@ -35,7 +38,7 @@ public class SimplePoly {
 
     native void initialise(long texID, float red, float green, float blue, float alpha, List<Point2d> pts, List<Point2d> texCoords);
 
-    public void finalise() {
+    public void finalize() {
         dispose();
     }
 

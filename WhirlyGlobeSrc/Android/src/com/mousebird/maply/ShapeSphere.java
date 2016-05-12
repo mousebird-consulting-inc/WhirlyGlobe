@@ -32,7 +32,7 @@ public class ShapeSphere extends Shape {
         initialise();
     }
 
-    public void finalise() {
+    public void finalize() {
         dispose();
     }
 

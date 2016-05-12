@@ -21,24 +21,38 @@ package com.mousebird.maply;
 
 import java.util.List;
 
-
+/**
+ * The Shape Manager is used to create and destroy geometry for shapes
+ * like circles, cylinders and so forth.
+ * It's entirely thread safe (except for destruction).
+ */
 public class ShapeManager {
 
-    private ShapeManager(){
+    private ShapeManager() {
 
     }
     public ShapeManager(Scene scene) {
         initialise(scene);
     }
 
-    public void finalise() {
+    public void finalize() {
         dispose();
     }
 
+	/**
+     * Add an array of shapes.
+     * The returned ID can be used to remove or modify the group of shapes.
+     */
     public native long addShapes(List<Shape> shapes,ShapeInfo info, ChangeSet changes);
 
+	/**
+     * Remove a group of shapes named by the given ID
+     */
     public native void removeShapes(long[] shapesIDs, ChangeSet changes);
 
+	/**
+     * Enable/disable a group of shapes
+     */
     public native void enableShapes (long[] shapesIDs, boolean enable, ChangeSet changes);
 
     static

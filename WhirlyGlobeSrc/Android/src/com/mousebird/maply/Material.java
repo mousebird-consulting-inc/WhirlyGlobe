@@ -19,33 +19,63 @@
  */
 package com.mousebird.maply;
 
-
+/**
+ * This is a simple material definition.
+ */
 public class Material {
 
     public Material() {
         initialise();
     }
 
-    public void finalise() {
+    public void finalize() {
         dispose();
     }
 
+    /**
+     * @param ambient Ambient material color
+     */
     public native void setAmbient(Point4d ambient);
 
+    /**
+     * @return Ambient material color
+     */
     public native Point4d getAmbient();
 
+    /**
+     * @param diffuse Diffuse material color
+     */
     public native void setDiffuse(Point4d diffuse);
 
+    /**
+     * @return Diffuse material color
+     */
     public native Point4d getDifusse();
 
+    /**
+     * @param specular Specular component of material color
+     */
     public native void setSpecular(Point4d specular);
 
+    /**
+     * @return Specular component of material color
+     */
     public native Point4d getSpecular();
 
+    /**
+     * @param specularExponent Specular exponent used in lighting
+     */
     public native void setSpecularExponent(float specularExponent);
 
+    /**
+     * @return Specular exponent used in lighting
+     */
     public native float getSpecularExponent();
 
+    /**
+     * Bind this material to a the given OpenGL ES program.
+     * Don't call this yourself.
+     */
     public native boolean bindToProgram(Shader shader);
 
     static

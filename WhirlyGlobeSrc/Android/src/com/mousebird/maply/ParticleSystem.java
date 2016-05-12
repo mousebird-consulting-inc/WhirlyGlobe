@@ -25,9 +25,12 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
+ * A particle system is used to spawn large numbers of small moving objects.
+ * <br>
  * The particle system defines what the objects are and how they're controlled.
  * Actual data is handled through the ParticleBatch.
- * You set up a particle system and then add ParticleBatches via a MaplyBaseController.
+ * <br>
+ * You set up a particle system and then add ParticleBatches via a view controller.
  */
 public class ParticleSystem {
 
@@ -52,14 +55,12 @@ public class ParticleSystem {
         }
     }
 
-    private ArrayList<Bitmap> images = new ArrayList<>();
-
-    private ParticleSystem()
-    {}
+    private ParticleSystem() {
+    }
 
     /**
-     * Construct with the name of the particle system.
-     * @param name Name is used internally for reference.
+     * The particle system name is used for performance debugging.
+     * @param name Name of the particle system.
      */
     public ParticleSystem(String name) {
         initialise();
@@ -73,7 +74,8 @@ public class ParticleSystem {
 
     /**
      * Add a texture to the particle system.
-     * All the textures will be handed over to the shader in the order they are defined.
+     * <br>
+     * All the textures will be handed over to the shader.
      * @param texture
      */
     public void addTexture(Bitmap texture) {
@@ -95,7 +97,8 @@ public class ParticleSystem {
     public native long getIdent();
 
     /**
-     * Set the name of the particle system.  This is used internally.
+     * The particle system name is used for performance debugging.
+     * @param name Name of the particle system.
      */
     public native void setName(String name);
 
@@ -110,7 +113,12 @@ public class ParticleSystem {
     public native void setPointSize(float pointSize);
 
     /**
-     * Particles systems will generate either points or rectangles.
+     * Set the shader by ID.  There are times this is useful, but in
+     * general you should call setShader with the shader.
+     * The type of the particle system.
+     * <br>
+     * At present particle systems are just point geometry.
+     * @param particleSystemType The type of the particle system.
      */
     public void setParticleSystemType(ParticleSystem.STATE type)
     {
@@ -120,8 +128,9 @@ public class ParticleSystem {
     native void setParticleSystemTypeNative(int particleSystemType);
 
     /**
-     * Set the shader by ID.  There are times this is useful, but in
-     * general you should call setShader with the shader.
+     * Name of the shader to use for the particles.
+     * This should be a shader already registered with the toolkit.
+     * @param shaderID
      */
     public native void setShaderID(long shaderID);
 
@@ -136,35 +145,52 @@ public class ParticleSystem {
 
     /**
      * Sets the particle lifetime.  The system will try to keep particles around for this long.
+     * Individual particle lifetime.
+     * <br>
+     * The created particles will last only a certain amount of time.
+     * @param lifetime
      */
     public native void setLifetime(double lifetime);
 
     /**
      * Particles move over time, but current time is a large number.
      * This is the base time you can use to subtract from current time values.
+     * <br>
+     * Individual particles will measure their own lifetime against this base value.
+     * @param basetime
      */
     public native void setBasetime(double basetime);
 
     /**
      * Particles move over time, but current time is a large number.
      * This is the base time you can use to subtract from current time values.
+     * @return The base that particle time is measured from.
      */
     public native double getBasetime();
 
     /**
      * Size of the individual batches you add when adding particles.  The total number of
      * particles should be a multiple of this.
+     * <br>
+     * Particles need to be created in large batches for efficiency.
+     * This is the size of individual batches.
+     * @param batchSize Batch size for ParticleBatch.
      */
     public native void setBatchSize(int batchSize);
 
     /**
      * Size of the individual batches you add when adding particles.
+     * @return Total number of particles to be represented at once.
      */
     public native int getBatchSize();
 
     /**
      * The total number of particles to display at once.  These will be broken up into
      * batchSized chunks.
+     * <br>
+     * This is the most particles we'll have on the screen at any time.
+     * Space will be allocated for them, so don't overdo it.
+     * @param totalParticles Total number of particles to be represented at once.
      */
     public native void setTotalParticles(int totalParticles);
 
@@ -174,9 +200,6 @@ public class ParticleSystem {
      * There are times where this is not appropriate (e.g. stars) and so we can turn it off.
      */
     public native void setContinuousRender(boolean cRender);
-
-    ArrayList<String> names = new ArrayList<String>();
-    ArrayList<Integer> types = new ArrayList<Integer>();
 
     /**
      * Add an attribute that will appear in each batch.  Attributes are data values that
@@ -222,5 +245,9 @@ public class ParticleSystem {
     native void initialise();
     native void dispose();
     private long nativeHandle;
+
+    private ArrayList<String> names = new ArrayList<String>();
+    private ArrayList<Integer> types = new ArrayList<Integer>();
+    private ArrayList<Bitmap> images = new ArrayList<>();
 
 }

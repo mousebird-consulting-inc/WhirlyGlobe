@@ -19,6 +19,15 @@
  */
 package com.mousebird.maply;
 
+import android.graphics.Bitmap;
+
+/**
+ * The Maply Screen Object is used to build up a more complex screen
+ * object from multiple pieces.
+ * <br>
+ * You can use one or more of these to build up a combination of labels
+ * and images that form a single marker, label, or billboard.
+ */
 public class ScreenObject {
 
     public class BoundingBox {
@@ -30,14 +39,25 @@ public class ScreenObject {
         initialise();
     }
 
-    public void finalise() {
+    public void finalize() {
         dispose();
     }
 
     public native void addPoly(SimplePoly poly);
 
+	/**
+     * Add a string to the screen object
+     * @param string the string to add
+     */
     public native void addString(StringWrapper string);
 
+    /**
+     * Add a rectangle of the given size and stretch the given texture over it.
+     * @param tex Texture to use on the rectangle.
+     * @param color Color to make the resulting rectangle.
+     * @param width Width of the rectangle to create.
+     * @param height Height of the rectangle to create.
+     */
     public void addTexture(MaplyTexture tex, float[] color, float width, float height)
     {
         addTextureNative(tex.texID,color[0],color[1],color[2],color[3],width,height);
@@ -45,10 +65,17 @@ public class ScreenObject {
 
     public native void addTextureNative(long texID,float red,float green,float blue,float alpha,float width,float height);
 
+	/**
+     * Add the contents of the given screen object to this screen object.
+     * @param screenObject
+     */
     public native void addScreenObject(ScreenObject screenObject);
 
+	/**
+     * Calculate and return the current bounding box of the screen object.
+     * @return the current bounding box of the screen object.
+     */
     public BoundingBox getSize() {
-
         BoundingBox bbox = new BoundingBox();
         getSizeNative(bbox.ll,bbox.ur);
 
@@ -64,6 +91,11 @@ public class ScreenObject {
         transform(mat);
     }
 
+	/**
+     * Apply a translation to all the pieces of the screen object.
+     * @param x
+     * @param y
+     */
     public void translateX(double x, double y) {
 
         Matrix3d mat = Matrix3d.translate(x,y);
@@ -71,6 +103,10 @@ public class ScreenObject {
         transform(mat);
     }
 
+    /**
+     * Apply the given 2D transform to the screen object.
+     * @param mat Matrix to use for transform.
+     */
     public native void transform(Matrix3d mat);
 
     static

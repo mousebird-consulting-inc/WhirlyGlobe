@@ -19,25 +19,30 @@
  */
 package com.mousebird.maply;
 
-import java.nio.ByteBuffer;
-
 /**
- * The particle batch holds the number of particles defined in the MaplyParticleSystem batchSize property.
+ * A particle batch adds a set number of particles to the system.
+ * <br>
+ * The particle batch holds the number of particles defined in the
+ * MaplyParticleSystem batchSize property.
  * Each attribute array is added individually via an NSData object.
- * All attributes must be present or the batch is invalid and won't be passed through the system.
+ * All attributes must be present or the batch is invalid and won't
+ * be passed through the system.
  */
 public class ParticleBatch {
 
     private ParticleSystem partSys;
     private double time;
 
-    private ParticleBatch() { }
+    private ParticleBatch() {
+    }
 
-    /**
-     * Construct with the particle system this batch will be added to.
+	/**
+     * Initialize with the particle system.
+     * The batch is initialized with its particle system.
+     * You must then call addAttributeValues() repeatedly with attribute arrays.
+     * @param partSys The particle system this batch belongs to.
      */
-    public ParticleBatch(ParticleSystem partSys)
-    {
+    public ParticleBatch(ParticleSystem partSys) {
         initialise();
         this.partSys = partSys;
         this.setBatchSize(this.partSys.getBatchSize());
@@ -47,23 +52,29 @@ public class ParticleBatch {
         dispose();
     }
 
+	/**
+     * Batch size for MaplyParticleBatch.
+     * Should match the particle systems batch size
+     * @param batchSize Batch size for MaplyParticleBatch.
+     */
     private native void setBatchSize(int batchSize);
 
-    /**
-     * Return the batch size.  This is set by the particle system.
+	/**
+     * @return Batch size for MaplyParticleBatch.
      */
     public native int getBatchSize();
 
-    native void addAttributeValues(float[] data);
-
-    native void addAttributeValues(char[] data);
+    public native void addAttributeValues(float[] data);
+    public native void addAttributeValues(char[] data);
 
     /**
-     * Add a float attribute by name.
-     * @param attrName The name attribute.
-     * @param data An array of floats that should be the length of the batch.
+     * Add an attribute array of the given name.
+     * <br>
+     * Each attribute in the MaplyParticleSystem must be filled in here.
+     * The name must correspond and the length of the data must match.
+     * @return true if the attribute array was valid, false otherwise.
      */
-    public boolean addAttribute(String attrName, float [] data) {
+    public boolean addAttribute(String attrName, float[] data) {
         for (ParticleSystemAttribute attr : this.partSys.getAttrs()) {
             if (attrName.equals(attr.getName())) {
                 // Found. Now make sure the size matches
@@ -78,11 +89,13 @@ public class ParticleBatch {
     }
 
     /**
-     * Add a char attribute by name.
-     * @param attrName The name attribute.
-     * @param data An array of chars that should be the length of the batch.
+     * Add an attribute array of the given name.
+     * <br>
+     * Each attribute in the MaplyParticleSystem must be filled in here.
+     * The name must correspond and the length of the data must match.
+     * @return true if the attribute array was valid, false otherwise.
      */
-    public boolean addAttribute(String attrName, char [] data)
+    public boolean addAttribute(String attrName, char[] data)
     {
         for (ParticleSystemAttribute attr : this.partSys.getAttrs()) {
             if (attrName.equals(attr.getName())) {
@@ -97,8 +110,11 @@ public class ParticleBatch {
         return false;
     }
 
-    /**
-     * Returns truen if we've got as many attributes as we expect.
+	/**
+     * Tests if the batch is valid.
+     * <br>
+     * This checks if all the attribute arrays are present and valid.
+     * @return if the batch is valid.
      */
     public boolean isValid() {
         return this.partSys.getAttrs().length == this.getAttributesValueSize();
@@ -117,6 +133,9 @@ public class ParticleBatch {
      */
     public native int getAttributesValueSize();
 
+	/**
+     * @return The particle system this batch belongs to.
+     */
     public ParticleSystem getPartSys() {
         return this.partSys;
     }

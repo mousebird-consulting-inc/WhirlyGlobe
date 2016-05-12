@@ -20,6 +20,9 @@
 package com.mousebird.maply;
 
 
+/**
+ * Wraps strings with size and translation
+ */
 public class StringWrapper {
 
     public StringWrapper() {
@@ -31,7 +34,7 @@ public class StringWrapper {
     }
 
 
-    public void finalise() {
+    public void finalize() {
         dispose();
     }
 

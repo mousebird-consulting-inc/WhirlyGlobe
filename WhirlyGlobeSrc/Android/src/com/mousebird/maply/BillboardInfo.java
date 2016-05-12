@@ -20,6 +20,9 @@
 package com.mousebird.maply;
 
 
+/**
+ * Used to pass parameters around between threads
+ */
 public class BillboardInfo extends BaseInfo {
 
     public BillboardInfo() {
@@ -27,15 +30,12 @@ public class BillboardInfo extends BaseInfo {
     }
 
     public native void setColor (float r, float g, float b, float a);
-
     public native float[] getColor();
 
     public native void setZBufferRead(boolean zBufferRead);
-
     public native boolean getZBufferRead();
 
     public native void setZBufferWrite(boolean zBufferWrite);
-
     public native boolean getZBufferWrite();
 
     private String shaderName;

@@ -20,8 +20,10 @@
 
 package com.mousebird.maply;
 
-import java.util.List;
 
+/**
+ * Particle system manager controls the active particle systems
+ */
 public class ParticleSystemManager {
 
     private ParticleSystemManager() {
