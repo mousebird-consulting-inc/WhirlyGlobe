@@ -25,40 +25,77 @@ package com.mousebird.maply;
  */
 public class BillboardInfo extends BaseInfo {
 
+    /**
+     * Creates an empty billboard info
+     */
     public BillboardInfo() {
         initialise();
     }
 
-    public native void setColor (float r, float g, float b, float a);
+    /**
+     * TODO(sjg)
+     * Color components range from 0.0 to 1.0.
+     * @param r red component
+     * @param g green component
+     * @param b blue component
+     * @param a alpha component
+     */
+    public native void setColor(float r, float g, float b, float a);
+
+    /**
+     * TODO(sjg)
+     * @return the color components (rgba)
+     */
     public native float[] getColor();
 
+    /**
+     * TODO(sjg)
+     * @param zBufferRead
+     */
     public native void setZBufferRead(boolean zBufferRead);
+
+    /**
+     * TODO(sjg)
+     * @return
+     */
     public native boolean getZBufferRead();
 
+    /**
+     * TODO(sjg)
+     * @param zBufferWrite
+     */
     public native void setZBufferWrite(boolean zBufferWrite);
+
+    /**
+     * TODO(sjg)
+     * @return
+     */
     public native boolean getZBufferWrite();
 
-    private String shaderName;
-
+    /**
+     * @return the shader name to be used in the billboard.
+     */
     public String getShaderName() {
         return shaderName;
     }
 
+    /**
+     * @param shaderName the shader name to be used in the billboard.
+     */
     public void setShaderName(String shaderName) {
         this.shaderName = shaderName;
     }
 
-    public void finalize()
-    {
+    public void finalize() {
         dispose();
     }
 
-    static
-    {
+    static {
         nativeInit();
     }
     private static native void nativeInit();
     native void initialise();
     native void dispose();
     private long nativeHandle;
+    private String shaderName;
 }

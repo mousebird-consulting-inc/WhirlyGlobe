@@ -28,9 +28,11 @@ import java.util.List;
 
 
 /**
- * Single billboard representation.  Billboards are oriented towards
- * the user.  Fill this out and hand it over to the billboard layer
- * to manage.
+ * Single billboard representation.
+ * <br>
+ * Billboards are oriented towards the user.
+ * <br>
+ * Fill this out and hand it over to the billboard layer to manage.
  */
 public class Billboard {
 
@@ -42,6 +44,9 @@ public class Billboard {
     public static final String MAPLY_BILLBOARD_ORIENTE_EYE = "billboardorienteye";
 
 
+	/**
+     * Creates an empty billboard.
+     */
     public Billboard() {
         initialise();
     }
@@ -69,7 +74,6 @@ public class Billboard {
     /**
      * If set, this marker should be made selectable and it will be
      * if the selection layer has been set
-     * @param selectable
      */
     public native void setSelectable(boolean selectable);
 
@@ -78,18 +82,35 @@ public class Billboard {
      */
     public native boolean getSelectable();
 
+	/**
+     * @return The 2D polygonal description of what the billboard should be
+     */
     public ScreenObject getScreenObject() {
         return screenObject;
     }
 
+	/**
+     * @param screenObject The 2D polygonal description of what the billboard should be
+     */
     public void setScreenObject(ScreenObject screenObject) {
         this.screenObject = screenObject;
     }
 
+	/**
+     * Vertex attributes to apply to this billboard.
+     * <br>
+     * VertexAttribute objects are passed all the way to the shader.  Read that page for details on what they do.
+     * <br>
+     * The array of vertex attributes provided here will be copied onto all the vertices we create for the shader.  This means you can use these to do things for a single billboard in your shader.
+     * @return vertex attributes to apply to this billboard.
+     */
     public ArrayList<VertexAttribute> getVertexAttributes() {
         return vertexAttributes;
     }
 
+	/**
+     * @param vertexAttributes vertex attributes to apply to this billboard.
+     */
     public void setVertexAttributes(ArrayList<VertexAttribute> vertexAttributes) {
         this.vertexAttributes = vertexAttributes;
     }
@@ -108,14 +129,29 @@ public class Billboard {
         this.selectID = selectID;
     }
 
+	/**
+     * TODO(sjg)
+     * @param points
+     * @param texCoords
+     * @param color
+     * @param vertexAttributes
+     * @param texID
+     */
     public native void addPoly(List<Point2d> points, List<Point2d> texCoords, float[] color, List<VertexAttribute> vertexAttributes, long texID);
 
-    public void flatten()
-    {
+	/**
+     * TODO(sjg)
+     */
+    public void flatten() {
         if (screenObject != null)
             flattenNative(screenObject);
         screenObject = null;
     }
+
+	/**
+     * TODO(sjg)
+     * @param screenObject
+     */
     public native void flattenNative(ScreenObject screenObject);
 
     public void finalize()
