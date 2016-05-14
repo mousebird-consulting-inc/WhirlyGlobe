@@ -45,37 +45,50 @@
                                                 <action selector="runMapInteractiveTest:" destination="sJ3-4N-fgV" eventType="touchUpInside" id="74o-bF-RdN"/>
                                             </connections>
                                         </button>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5aF-rw-GAm">
-                                            <rect key="frame" x="0.0" y="11" width="42" height="21"/>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5aF-rw-GAm">
+                                            <rect key="frame" x="13" y="11" width="489" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <progressView hidden="YES" opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" misplaced="YES" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="VtY-FV-hpj" userLabel="DownloadStatus">
-                                            <rect key="frame" x="379" y="18.5" width="203" height="5"/>
-                                            <accessibility key="accessibilityConfiguration" label="Download Progress"/>
+                                        <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="CwU-6s-jnv">
+                                            <rect key="frame" x="545" y="11" width="20" height="20"/>
                                             <constraints>
-                                                <constraint firstAttribute="width" constant="203" id="1WU-jm-OhH"/>
-                                                <constraint firstAttribute="height" constant="5" id="3N8-PK-NbF"/>
+                                                <constraint firstAttribute="width" constant="20" id="JFb-dx-2Hh"/>
+                                                <constraint firstAttribute="height" constant="20" id="gJy-lR-Bz1"/>
                                             </constraints>
-                                        </progressView>
+                                        </activityIndicatorView>
+                                        <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GQQ-Be-fdD">
+                                            <rect key="frame" x="519" y="6" width="46" height="30"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="30" id="i1a-2m-JQA"/>
+                                                <constraint firstAttribute="width" constant="46" id="swf-wa-aPi"/>
+                                            </constraints>
+                                            <state key="normal" title="Retry"/>
+                                            <connections>
+                                                <action selector="retryAction:" destination="sJ3-4N-fgV" eventType="touchUpInside" id="wLV-AQ-Efw"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                     <constraints>
+                                        <constraint firstItem="GQQ-Be-fdD" firstAttribute="centerY" secondItem="Xq4-FD-5sH" secondAttribute="centerY" id="GUU-13-mNp"/>
                                         <constraint firstItem="5aF-rw-GAm" firstAttribute="leading" secondItem="Xq4-FD-5sH" secondAttribute="leadingMargin" constant="5" id="Gqd-FH-PJQ"/>
                                         <constraint firstItem="d18-Wn-lHX" firstAttribute="leading" secondItem="5aF-rw-GAm" secondAttribute="trailing" constant="5" id="L1W-Lo-HuY"/>
-                                        <constraint firstItem="VtY-FV-hpj" firstAttribute="centerY" secondItem="Xq4-FD-5sH" secondAttribute="centerY" id="dzQ-A6-jcH"/>
+                                        <constraint firstAttribute="trailingMargin" secondItem="CwU-6s-jnv" secondAttribute="trailing" constant="27" id="Rzc-xK-hsI"/>
+                                        <constraint firstAttribute="trailingMargin" secondItem="GQQ-Be-fdD" secondAttribute="trailing" constant="27" id="WNM-rz-7mY"/>
                                         <constraint firstItem="d18-Wn-lHX" firstAttribute="centerY" secondItem="Xq4-FD-5sH" secondAttribute="centerY" id="hyp-rU-sNB"/>
                                         <constraint firstItem="5aF-rw-GAm" firstAttribute="centerY" secondItem="Xq4-FD-5sH" secondAttribute="centerY" id="irh-2i-RRe"/>
-                                        <constraint firstAttribute="trailingMargin" secondItem="VtY-FV-hpj" secondAttribute="trailing" constant="10" id="kPH-bZ-2q5"/>
                                         <constraint firstItem="jl7-me-c0V" firstAttribute="leading" secondItem="d18-Wn-lHX" secondAttribute="trailing" constant="15" id="lRk-S7-k5S"/>
                                         <constraint firstAttribute="trailingMargin" secondItem="jl7-me-c0V" secondAttribute="trailing" constant="10" id="trx-8F-r5X"/>
+                                        <constraint firstItem="CwU-6s-jnv" firstAttribute="centerY" secondItem="Xq4-FD-5sH" secondAttribute="centerY" id="y1S-2q-UH5"/>
                                         <constraint firstItem="jl7-me-c0V" firstAttribute="centerY" secondItem="Xq4-FD-5sH" secondAttribute="centerY" id="zFF-Ba-M6f"/>
                                     </constraints>
                                 </tableViewCellContentView>
                                 <connections>
-                                    <outlet property="downloadProgress" destination="VtY-FV-hpj" id="P7o-s0-tbM"/>
+                                    <outlet property="downloadIndicator" destination="CwU-6s-jnv" id="gIm-jY-HfR"/>
                                     <outlet property="globeButton" destination="jl7-me-c0V" id="VQJ-W8-enI"/>
                                     <outlet property="mapButton" destination="d18-Wn-lHX" id="wRY-bZ-QKc"/>
+                                    <outlet property="retryButton" destination="GQQ-Be-fdD" id="BdF-O3-ILP"/>
                                     <outlet property="testName" destination="5aF-rw-GAm" id="gsg-AB-h0T"/>
                                 </connections>
                             </tableViewCell>
@@ -113,8 +126,8 @@
                                     <rect key="frame" x="0.0" y="0.0" width="600" height="344.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ihb-5f-ntk">
-                                            <rect key="frame" x="11" y="53" width="174" height="280"/>
+                                        <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ihb-5f-ntk">
+                                            <rect key="frame" x="11" y="53" width="284.5" height="458"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="280" id="N9u-im-Ufs"/>
                                                 <constraint firstAttribute="height" constant="420" id="WRi-Wl-fO1"/>
@@ -172,8 +185,8 @@
                                                 <rect key="frame" x="-20" y="0.0" width="40" height="21"/>
                                             </variation>
                                         </label>
-                                        <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ohw-DF-Kgp">
-                                            <rect key="frame" x="416" y="53" width="174" height="280"/>
+                                        <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ohw-DF-Kgp">
+                                            <rect key="frame" x="305.5" y="53" width="284.5" height="458"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="293" id="5t7-0j-8KW"/>
                                                 <constraint firstAttribute="height" constant="420" id="xNc-Uj-FKS"/>
@@ -290,14 +303,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HgY-ga-Zpq">
-                                <rect key="frame" x="0.0" y="64" width="600" height="672"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="HgY-ga-Zpq">
+                                <rect key="frame" x="20" y="64" width="560" height="492"/>
                             </imageView>
-                            <imageView userInteractionEnabled="NO" alpha="0.5" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ui7-yK-34C">
-                                <rect key="frame" x="0.0" y="64" width="600" height="672"/>
+                            <imageView userInteractionEnabled="NO" alpha="0.5" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Ui7-yK-34C">
+                                <rect key="frame" x="20" y="64" width="560" height="492"/>
                             </imageView>
-                            <slider opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="pdA-8O-dRb">
-                                <rect key="frame" x="18" y="696" width="564" height="31"/>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="pdA-8O-dRb">
+                                <rect key="frame" x="18" y="510" width="564" height="31"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="5YU-Pa-4bK"/>
                                 </constraints>
