@@ -40,5 +40,6 @@
 #import "WMSTestCase.h"
 #import "FindHeightTestCase.h"
 #import "FullAnimationTest.h"
+#import "DownloadResourceOperation.h"
 
 #endif
