@@ -281,6 +281,7 @@ static const char *fragmentShaderGroundTri =
 #define kAtmosphereGroundShader @"Atmosphere Ground Shader"
 
 @interface SunUpdater : MaplyActiveObject
+@property (nonatomic) bool lockToCamera;
 @end
 
 @implementation SunUpdater
@@ -301,6 +302,7 @@ static const char *fragmentShaderGroundTri =
     shader = inShader;
     groundShader = inGroundShader;
     atm = inAtm;
+    _lockToCamera = false;
     
     return self;
 }
@@ -313,6 +315,12 @@ static const char *fragmentShaderGroundTri =
 - (void)setSunPosition:(MaplyCoordinate3d)inSunPos
 {
     sunPos = inSunPos;
+    changed = true;
+}
+
+- (void)setLockToCamera:(bool)lockToCamera
+{
+    _lockToCamera = lockToCamera;
     changed = true;
 }
 
@@ -337,6 +345,8 @@ static const char *fragmentShaderGroundTri =
     Vector4d sunDir4d = Vector4d(sunPos.x,sunPos.y,sunPos.z,1.0);
     sunDir4d /= sunDir4d.w();
     Vector3d sunDir3d(sunDir4d.x(),sunDir4d.y(),sunDir4d.z());
+    if (_lockToCamera)
+        sunDir3d = cameraPos;
     sunDir3d.normalize();
     double cameraHeight = cameraPos.norm();
     float scale = 1.0f / (atm.outerRadius - 1.f);
@@ -453,6 +463,13 @@ static const char *fragmentShaderGroundTri =
 - (float)getWavelengthForComponent:(short)component
 {
     return wavelength[component];
+}
+
+- (void)setLockToCamera:(bool)lockToCamera
+{
+    _lockToCamera = lockToCamera;
+    if (sunUpdater)
+        sunUpdater.lockToCamera = _lockToCamera;
 }
 
 - (void)complexAtmosphere
