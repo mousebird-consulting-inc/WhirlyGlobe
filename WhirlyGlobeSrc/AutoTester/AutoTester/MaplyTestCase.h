@@ -18,7 +18,6 @@
 typedef void (^TestCaseResult)(MaplyTestCase * _Nonnull testCase);
 
 typedef NS_OPTIONS(NSUInteger, MaplyTestCaseOptions) {
-	MaplyTestCaseOptionNone  = 0 << 0,
 	MaplyTestCaseOptionGlobe = 1 << 1,
 	MaplyTestCaseOptionMap   = 1 << 2,
 };
@@ -44,7 +43,6 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseState) {
 - (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC;
 
 - (MaplyCoordinateSystem * _Nullable)customCoordSystem;
-- (void)fetchResources;
 
 @property (nonatomic, strong) UIView * _Nullable testView;
 @property (nonatomic, strong) NSString * _Nonnull name;
@@ -58,7 +56,7 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseState) {
 
 @property (nonatomic) NSInteger pendingDownload;
 
-@property (nonatomic, copy, nullable) void (^updateProgress)(NSInteger total, NSInteger completed);
+@property (nonatomic, copy, nullable) void (^updateProgress)(BOOL enableIndicator);
 
 
 @property (nonatomic, strong) WhirlyGlobeViewController *_Nullable globeViewController;

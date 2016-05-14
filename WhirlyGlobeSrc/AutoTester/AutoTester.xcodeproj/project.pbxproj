@@ -482,6 +482,7 @@
 		88FF5EF31BC31D95002F15CE /* tl_2013_06075_roads.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */; };
 		8F4D91DC1CDFA7DE00F68045 /* globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 8F4D91DA1CDFA7DE00F68045 /* globe.png */; };
 		8F4D91DD1CDFA7DE00F68045 /* map.png in Resources */ = {isa = PBXBuildFile; fileRef = 8F4D91DB1CDFA7DE00F68045 /* map.png */; };
+		8FC34D0E1CE7218E00BEB7C4 /* DownloadResourceOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FC34D0D1CE7218E00BEB7C4 /* DownloadResourceOperation.m */; };
 		8FE129191CDFB3B8004744FC /* TestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FE129181CDFB3B8004744FC /* TestCell.swift */; };
 		D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */; };
 		D8200C981BE93E6E00B22CF5 /* StarsSunTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8200C971BE93E6E00B22CF5 /* StarsSunTestCase.swift */; };
@@ -1028,6 +1029,8 @@
 		88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.sqlite; sourceTree = "<group>"; };
 		8F4D91DA1CDFA7DE00F68045 /* globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = globe.png; path = AutoTester/icons/globe.png; sourceTree = "<group>"; };
 		8F4D91DB1CDFA7DE00F68045 /* map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = map.png; path = AutoTester/icons/map.png; sourceTree = "<group>"; };
+		8FC34D0C1CE7218E00BEB7C4 /* DownloadResourceOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadResourceOperation.h; sourceTree = "<group>"; };
+		8FC34D0D1CE7218E00BEB7C4 /* DownloadResourceOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadResourceOperation.m; sourceTree = "<group>"; };
 		8FE129181CDFB3B8004744FC /* TestCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestCell.swift; sourceTree = "<group>"; };
 		D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorsTestCase.h; sourceTree = "<group>"; };
 		D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WideVectorsTestCase.m; sourceTree = "<group>"; };
@@ -1324,6 +1327,8 @@
 				D880112D1BFD16A900606EC6 /* DropboxViewController.swift */,
 				D880112E1BFD16A900606EC6 /* DropboxViewController.xib */,
 				8FE129181CDFB3B8004744FC /* TestCell.swift */,
+				8FC34D0C1CE7218E00BEB7C4 /* DownloadResourceOperation.h */,
+				8FC34D0D1CE7218E00BEB7C4 /* DownloadResourceOperation.m */,
 			);
 			path = AutoTester;
 			sourceTree = "<group>";
@@ -2454,6 +2459,7 @@
 				D8E12ED01BDEA2E400BB7BC7 /* WeatherShader.swift in Sources */,
 				88BF11521BCD9BF70002205E /* MaplyTestResult.m in Sources */,
 				D8228AA61BE785E1001D6914 /* MovingScreenMarkers.m in Sources */,
+				8FC34D0E1CE7218E00BEB7C4 /* DownloadResourceOperation.m in Sources */,
 				D8DCCCAC1BDC1A1200BA3866 /* CesiumElevationTestCase.m in Sources */,
 				88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */,
 				88BF11591BCDA3960002205E /* ResultCell.swift in Sources */,
