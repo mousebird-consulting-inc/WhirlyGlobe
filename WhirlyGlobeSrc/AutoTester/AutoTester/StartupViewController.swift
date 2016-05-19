@@ -247,20 +247,23 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	}
 
 	private func prepareTestView () {
-		self.testViewBlack?.hidden = false
-		let visibleRect = tableView.convertRect(tableView.bounds, toView: self.testViewBlack)
+		testViewBlack?.frame = CGRect(
+			origin: CGPointZero,
+			size: UIScreen.mainScreen().applicationFrame.size)
+		let visibleRect = self.view.convertRect(tableView.bounds, toView: self.testViewBlack)
 		self.testViewBlack?.frame = visibleRect
-		
+
+
 		let testView = UIView(frame: CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height))
 		testView.backgroundColor = UIColor.redColor()
 		
 		testView.center = CGPointMake(self.testViewBlack!.frame.size.width  / 2,
 									  self.testViewBlack!.frame.size.height / 2)
-		testView.hidden = false;
 		self.testView = testView
-		self.testViewBlack?.addSubview(self.testView!)
+		self.testViewBlack?.addSubview(testView)
 		tableView.scrollEnabled = false;
-
+		testView.hidden = false;
+		self.testViewBlack?.hidden = false
 	}
 		
 	private func runInteractiveTest( test: MaplyTestCase, type : ConfigSection.Row) {
