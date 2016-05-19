@@ -70,12 +70,11 @@
 	self.globeViewController.view.frame = self.testView.bounds;
 	self.globeViewController.clearColor = [UIColor blackColor];
 	self.globeViewController.frameInterval = 2;
+
 	// setup test case specifics
 	if (![self setUpWithGlobe:self.globeViewController]) {
 		[self tearDownWithGlobe:self.globeViewController];
-
-		[self.globeViewController.view removeFromSuperview];
-		self.globeViewController = nil;
+		[self removeGlobeController];
 
 		if (!self.interactive)
 			dispatch_group_leave(lock);
@@ -129,9 +128,7 @@
 	// setup test case specifics
 	if (![self setUpWithMap:self.mapViewController]) {
 		[self tearDownWithMap:self.mapViewController];
-
-		[self.mapViewController.view removeFromSuperview];
-		self.mapViewController = nil;
+		[self removeMapController];
 
 		if (!self.interactive)
 			dispatch_group_leave(lock);
@@ -172,12 +169,14 @@
 													  passed:passed];
 
 	[self tearDownWithGlobe:self.globeViewController];
-
-	[self.globeViewController.view removeFromSuperview];
-	self.globeViewController = nil;
+	[self removeGlobeController];
 }
 
+-(void) removeGlobeController {
+	[self.globeViewController.view removeFromSuperview];
+	self.globeViewController = nil;
 
+}
 - (void)finishMapTestWithActualImage:(NSString *)actualImage passed:(BOOL)passed
 {
 	_mapResult = [[MaplyTestResult alloc] initWithTestName:self.name
@@ -186,7 +185,9 @@
 													passed:passed];
 
 	[self tearDownWithMap:self.mapViewController];
-
+	[self removeMapController];
+}
+- (void) removeMapController {
 	[self.mapViewController.view removeFromSuperview];
 	self.mapViewController = nil;
 }
