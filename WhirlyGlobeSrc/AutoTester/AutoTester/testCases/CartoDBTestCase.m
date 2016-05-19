@@ -21,34 +21,32 @@
 	if (self = [super init]) {
 		self.captureDelay = 7;
 		self.name = @"CartoDB";
+		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
 	}
 	return self;
 }
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    MapquestSatelliteTestCase *baseLayer = [[MapquestSatelliteTestCase alloc] init];
-    [baseLayer setUpWithGlobe:globeVC];
-    
+	MapquestSatelliteTestCase *baseLayer = [[MapquestSatelliteTestCase alloc] init];
+	[baseLayer setUpWithGlobe:globeVC];
+
 	[self setupCartoDBLayer: globeVC];
 	globeVC.height = 0.0001;
 	[globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-73.99,40.75)
 							 time:1.0];
-
-	return true;
 }
 
 
-- (BOOL)setUpWithMap:(MaplyViewController *)mapVC
+- (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    MapquestSatelliteTestCase *baseLayer = [[MapquestSatelliteTestCase alloc] init];
-    [baseLayer setUpWithMap:mapVC];
+	MapquestSatelliteTestCase *baseLayer = [[MapquestSatelliteTestCase alloc] init];
+	[baseLayer setUpWithMap:mapVC];
 
-    [self setupCartoDBLayer: mapVC];
+	[self setupCartoDBLayer: mapVC];
 	mapVC.height = 0.0002;
 	[mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-73.99,40.75)
 						  time:1.0];
-	return true;
 }
 
 

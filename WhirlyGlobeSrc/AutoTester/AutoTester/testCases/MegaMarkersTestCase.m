@@ -19,6 +19,7 @@
 	if (self = [super init]) {
 		self.captureDelay = 3;
 		self.name = @"Mega Markers";
+		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
 	}
 	return self;
 }
@@ -75,20 +76,18 @@
 	return image;
 }
 
--(BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+-(void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
 	VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
 	[baseView setUpWithGlobe:globeVC];
 	[self insertMegaMarkers: (MaplyBaseViewController*)globeVC];
-	return true;
 }
 
--(BOOL)setUpWithMap:(MaplyViewController *)mapVC
+-(void)setUpWithMap:(MaplyViewController *)mapVC
 {
 	VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
 	[baseView setUpWithMap: mapVC];
 	[self insertMegaMarkers: (MaplyBaseViewController*)mapVC];
-	return true;
 }
 
 @end

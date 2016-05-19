@@ -15,14 +15,13 @@ class MovingScreenLabelsTestCase: MaplyTestCase {
 
 		self.name = "Moving Screen Labels"
 		self.captureDelay = 3
+		self.implementations = []
 	}
 
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
-		return true
+	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
 	}
 
-	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
-		return true
+	override func setUpWithMap(mapVC: MaplyViewController) {
 	}
 
 }

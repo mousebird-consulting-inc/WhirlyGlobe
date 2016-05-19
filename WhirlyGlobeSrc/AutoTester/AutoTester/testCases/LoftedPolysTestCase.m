@@ -22,6 +22,7 @@
 	if (self = [super init]) {
 		self.captureDelay = 5;
 		self.name = @"Lofted Polys";
+        self.implementations = MaplyTestCaseOptionGlobe;
 	}
 	return self;
 }
@@ -49,13 +50,11 @@
 	}
 }
 
--(BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+-(void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
 	GeographyClassTestCase *baseLayer = [[GeographyClassTestCase alloc]init];
 	[baseLayer setUpWithGlobe:globeVC];
 	[self addLoftedPolysSpain:globeVC];
-
-	return true;
 }
 
 @end

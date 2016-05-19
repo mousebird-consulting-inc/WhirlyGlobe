@@ -15,23 +15,21 @@ class ClusteredMarkersTestCase: MaplyTestCase {
 
 		self.name = "Clustered Markers"
 		self.captureDelay = 3
+		self.implementations = [.Globe, .Map]
 	}
 
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
+	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
 		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithGlobe(globeVC)
 		insertClusteredMarkers(baseLayer.compList!, theBaseView: globeVC)
 		globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
-		return true
 	}
 	
-	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
+	override func setUpWithMap(mapVC: MaplyViewController) {
 		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithMap(mapVC)
 		insertClusteredMarkers(baseLayer.compList!, theBaseView: mapVC)
 		mapVC.animateToPosition(MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
-
-		return true
 	}
 
 	func insertClusteredMarkers(compB : NSArray, theBaseView: MaplyBaseViewController) {

@@ -20,12 +20,13 @@
 	if (self = [super init]) {
 		self.name = @"MapBox Vector";
 		self.captureDelay = 5;
+        self.implementations = MaplyTestCaseOptionMap;
 	}
 
 	return self;
 }
 
-- (BOOL)setUpWithMap:(MaplyViewController *)mapVC
+- (void)setUpWithMap:(MaplyViewController *)mapVC
 {
 	MapBoxSatelliteTestCase *gctc = [[MapBoxSatelliteTestCase alloc]init];
 	[gctc setUpWithMap:mapVC];
@@ -47,7 +48,7 @@
 			styleSet.tileStyleSettings.markerImportance = 10.0;
 			styleSet.tileStyleSettings.fontName = @"Gill Sans";
 //			UIColor *backColor = [styleSet backgroundColor];
-            UIColor *backColor = [UIColor blackColor];
+			UIColor *backColor = [UIColor blackColor];
 			if (backColor) {
 				[mapVC setClearColor:backColor];
 			}
@@ -65,8 +66,6 @@
 		} failure:^(NSError * _Nonnull error) {
 			NSLog(@"Failed to load Mapnik vector tiles because: %@",error);
 		}];
-
-	return true;
 }
 
 @end

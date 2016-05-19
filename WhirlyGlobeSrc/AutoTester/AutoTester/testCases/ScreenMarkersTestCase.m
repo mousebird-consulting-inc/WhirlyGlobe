@@ -20,29 +20,26 @@
 	if (self = [super init]) {
 		self.name = @"Screen Markers";
 		self.captureDelay = 4;
+		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
 	}
 	return self;
 }
 
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
 	VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
 	[baseView setUpWithGlobe:globeVC];
 	[self insertMarker:baseView.compList theView:(MaplyBaseViewController*)globeVC];
 	[globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056) time:1.0];
-
-	return true;
 }
 
-- (BOOL)setUpWithMap:(MaplyViewController *)mapVC
+- (void)setUpWithMap:(MaplyViewController *)mapVC
 {
 	VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
 	[baseView setUpWithMap:mapVC];
 	[self insertMarker:baseView.compList theView:(MaplyBaseViewController*)mapVC];
 	[mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056) time:1.0];
-
-	return true;
 }
 
 - (void) insertMarker:(NSMutableArray*) arrayComp theView: (MaplyBaseViewController*) theView

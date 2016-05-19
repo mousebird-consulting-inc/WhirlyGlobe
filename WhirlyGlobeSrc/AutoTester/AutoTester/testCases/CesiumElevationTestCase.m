@@ -23,13 +23,14 @@
 	if (self = [super init]) {
 		self.name = @"Celsium Elevation";
 		self.captureDelay = 5;
+        self.implementations = MaplyTestCaseOptionGlobe;
 	}
 
 	return self;
 }
 
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
 	GeographyClassTestCase *gctc = [[GeographyClassTestCase alloc] init];
 	[gctc setUpWithGlobe:globeVC];
@@ -63,8 +64,6 @@
 
 	//Animate to another position
 	[globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(151.211111, -33.859972) time:1.0];
-
-	return true;
 }
 
 @end

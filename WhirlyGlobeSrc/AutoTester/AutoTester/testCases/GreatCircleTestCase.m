@@ -16,6 +16,8 @@
     if (self = [super init]) {
         self.name = @"Great Circles";
         self.captureDelay = 20;
+        self.implementations = MaplyTestCaseOptionGlobe;
+
     }
     
     return self;
@@ -40,7 +42,7 @@
     return [viewC addWideVectors:@[ v ] desc:vecDesc];
 }
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
     StamenWatercolorRemote *baseView = [[StamenWatercolorRemote alloc] init];
     [baseView setUpWithGlobe:globeVC];
@@ -48,8 +50,6 @@
     [self addLongRoute:globeVC];
     
     [globeVC setPosition:MaplyCoordinateMakeWithDegrees(2.548,49.010) height:1.0];
-    
-    return true;
 }
 
 @end

@@ -20,6 +20,7 @@ class TestCell: UITableViewCell {
 	var mapTestExecution: (() -> ())?
 	var retryDownloadResources: (() -> ())?
 	var rowPosition : Int?
+	var implementations: MaplyTestCaseImplementations = [.Globe, .Map]
 
 	var state: MaplyTestCaseState  = .Error {
 		didSet {
@@ -52,8 +53,14 @@ class TestCell: UITableViewCell {
 
 	var interactive: Bool = false {
 		didSet {
-			globeButton.hidden = !interactive
-			mapButton.hidden = !interactive;
+			if interactive  {
+				globeButton.hidden = !implementations.contains(.Globe)
+				mapButton.hidden = !implementations.contains(.Map);
+			}
+			else{
+				globeButton.hidden = true
+				mapButton.hidden = true
+			}
 			accessoryType = .None
 
 			switch state {
