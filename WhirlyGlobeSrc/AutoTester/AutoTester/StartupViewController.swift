@@ -166,7 +166,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 					cell.mapButton.hidden = true;
 					cell.accessoryType = .None;
 				}
-				else{
+				else {
 					self.changeTestCellState(cell, row: indexPath)
 				}
 				tableView.reloadData()
@@ -293,8 +293,19 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: #selector(StartupViewController.showConfig))
 		self.testViewBlack?.hidden = true
 		tableView.scrollEnabled = true
-		self.lastInteractiveTestSelected?.state = MaplyTestCaseState.Ready
-		self.lastInteractiveTestSelected?.interactive = false
+
+		if let last = self.lastInteractiveTestSelected {
+			last.state = .Ready
+			last.interactive = false
+			if let globe = last.globeViewController {
+				last.tearDownWithGlobe(globe)
+				last.removeGlobeController()
+			}
+			if let map = last.mapViewController {
+				last.tearDownWithMap(map)
+				last.removeMapController()
+			}
+		}
 	}
 	
 	func runTests() {

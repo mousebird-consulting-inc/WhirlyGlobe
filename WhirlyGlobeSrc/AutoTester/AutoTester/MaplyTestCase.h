@@ -41,7 +41,8 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseState) {
 
 - (BOOL)setUpWithMap:(MaplyViewController * _Nonnull)mapVC;
 - (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC;
-
+- (void) removeGlobeController;
+- (void) removeMapController;
 - (MaplyCoordinateSystem * _Nullable)customCoordSystem;
 
 @property (nonatomic, strong) UIView * _Nullable testView;
