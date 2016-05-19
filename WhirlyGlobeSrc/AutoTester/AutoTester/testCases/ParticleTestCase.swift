@@ -14,6 +14,7 @@ class ParticleTestCase: MaplyTestCase {
 		
 		self.name = "Wind Particle Test"
 		self.captureDelay = 5
+		self.implementations = [.Globe]
 	}
 	
 	private func setUpOverlay (baseView: MaplyBaseViewController) {
@@ -23,12 +24,11 @@ class ParticleTestCase: MaplyTestCase {
 		baseView.addLayer(layer!)
 	}
 	
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
+	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
 		let baseLayer = MapquestSatelliteTestCase()
 		baseLayer.setUpWithGlobe(globeVC)
 		setUpOverlay(globeVC)
 		globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) , time: 1.0)
-		return true
 	}
 
 }

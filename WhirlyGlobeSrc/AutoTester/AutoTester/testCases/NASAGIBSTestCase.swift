@@ -15,21 +15,20 @@ class NASAGIBSTestCase: MaplyTestCase {
 		
 		self.name = "NASA GIBS"
 		self.captureDelay = 4
+		self.implementations = [.Globe, .Map]
 	}
 	
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
+	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
 		setupBaseLayer(globeVC)
 		setupOverlaysLayer(globeVC)
 		globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-122.4192,37.7793), time: 1)
-		return true
 	}
 	
-	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
+	override func setUpWithMap(mapVC: MaplyViewController) {
 		setupBaseLayer(mapVC)
 		setupOverlaysLayer(mapVC)
 		mapVC.height = 0.5
 		mapVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-122.4192,37.7793), time: 1)
-		return true
 	}
 	
 	func setupBaseLayer (baseLayer: MaplyBaseViewController) {

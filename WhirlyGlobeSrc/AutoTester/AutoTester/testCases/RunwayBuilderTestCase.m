@@ -17,6 +17,8 @@
         // Note: Debugging
         self.captureDelay = 100000;
         self.name = @"Runway Builder";
+        self.implementations = MaplyTestCaseOptionGlobe;
+
     }
     return self;
 }
@@ -152,7 +154,7 @@
     return [wholeBuilder makeGeomModel:MaplyThreadCurrent];
 }
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC {
+- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC {
     NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
     NSString *jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2.json";
     NSString *thisCacheDir = [NSString stringWithFormat:@"%@/mbtilessat1/",cacheDir];
@@ -196,7 +198,6 @@
     globeVC.height = 0.001;
 //    globeVC.keepNorthUp = true;
     globeVC.clearColor = [UIColor grayColor];
-    return true;
 }
 
 

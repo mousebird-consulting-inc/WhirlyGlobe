@@ -19,12 +19,16 @@ import UIKit
 
 		self.name = "MapBox Satellite"
 		self.captureDelay = 4
+		self.implementations = [.Globe, .Map]
 	}
 
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
+	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
 		let thisCacheDir = "\(cacheDir)/stamentiles/"
         
-        guard let endpoint = NSURL(string: jsonTileSpec) else { print("Error creating endpoint"); return false }
+        guard let endpoint = NSURL(string: jsonTileSpec) else {
+			print("Error creating endpoint");
+			return
+		}
         let request = NSMutableURLRequest(URL:endpoint)
         NSURLSession.sharedSession().dataTaskWithRequest(request) { (data, response, error) -> Void in
             do
@@ -56,13 +60,15 @@ import UIKit
             {
             }
         }.resume()
-		return true
 	}
 	
-	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
+	override func setUpWithMap(mapVC: MaplyViewController) {
 		let thisCacheDir = "\(cacheDir)/stamentiles/"
         
-        guard let endpoint = NSURL(string: jsonTileSpec) else { print("Error creating endpoint"); return false }
+        guard let endpoint = NSURL(string: jsonTileSpec) else {
+			print("Error creating endpoint");
+			return
+		}
         let request = NSMutableURLRequest(URL:endpoint)
         NSURLSession.sharedSession().dataTaskWithRequest(request) { (data, response, error) -> Void in
             do
@@ -94,6 +100,5 @@ import UIKit
             {
             }
         }.resume()
-		return true
 	}
 }

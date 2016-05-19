@@ -72,15 +72,7 @@
 	self.globeViewController.frameInterval = 2;
 
 	// setup test case specifics
-	if (![self setUpWithGlobe:self.globeViewController]) {
-		[self tearDownWithGlobe:self.globeViewController];
-		[self removeGlobeController];
-
-		if (!self.interactive)
-			dispatch_group_leave(lock);
-
-		return;
-	}
+	[self setUpWithGlobe:self.globeViewController];
 
 	if (!self.interactive)
 	{
@@ -126,15 +118,7 @@
 	self.mapViewController.frameInterval = 2;
 
 	// setup test case specifics
-	if (![self setUpWithMap:self.mapViewController]) {
-		[self tearDownWithMap:self.mapViewController];
-		[self removeMapController];
-
-		if (!self.interactive)
-			dispatch_group_leave(lock);
-
-		return;
-	}
+	[self setUpWithMap:self.mapViewController];
 
 	if (!self.interactive)
 	{
@@ -192,14 +176,12 @@
 	self.mapViewController = nil;
 }
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-	return NO;
 }
 
-- (BOOL)setUpWithMap:(MaplyViewController *)mapVC
+- (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-	return NO;
 }
 
 - (void)tearDownWithGlobe:(WhirlyGlobeViewController *)globeVC

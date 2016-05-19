@@ -25,6 +25,7 @@
     if (self = [super init]) {
         self.name = @"Label Animation";
         self.captureDelay = 2;
+		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
         
     }
     return self;
@@ -36,7 +37,6 @@
 
     // Create a bunch of labels periodically
     _labelAnimationTimer = [NSTimer scheduledTimerWithTimeInterval:1.25 target:self selector:@selector(labelAnimationCallback) userInfo:nil repeats:NO];
-    
 }
 
 - (void)teardownWithBaseVC:(MaplyBaseViewController *)vc {
@@ -46,14 +46,12 @@
     }
 }
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
     CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) height:1.5];
     [self setupWithBaseVC:(MaplyBaseViewController *)globeVC];
-    
-    return YES;
 }
 
 - (void)tearDownWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC
@@ -62,14 +60,12 @@
     
 }
 
-- (BOOL)setUpWithMap:(MaplyViewController *)mapVC
+- (void)setUpWithMap:(MaplyViewController *)mapVC
 {
     CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithMap:mapVC];
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) time:0.0];
     [self setupWithBaseVC:(MaplyBaseViewController *)mapVC];
-    
-    return YES;
 }
 
 - (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC

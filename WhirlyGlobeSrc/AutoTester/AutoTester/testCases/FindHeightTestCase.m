@@ -21,7 +21,7 @@
     if (self = [super init]) {
         self.name = @"Find Height";
         self.captureDelay = 2;
-        
+		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
     }
     return self;
 }
@@ -32,7 +32,7 @@
 - (void)teardownWithBaseVC:(MaplyBaseViewController *)vc {
 }
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
     CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
@@ -47,8 +47,6 @@
     globeVC.height = height;
     [globeVC animateToPosition:center time:1.0];
     NSLog(@"height = %f",height);
-    
-    return YES;
 }
 
 - (void)tearDownWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC
@@ -57,7 +55,7 @@
     
 }
 
-- (BOOL)setUpWithMap:(MaplyViewController *)mapVC
+- (void)setUpWithMap:(MaplyViewController *)mapVC
 {
     CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithMap:mapVC];
@@ -72,8 +70,6 @@
     mapVC.height = height;
     [mapVC animateToPosition:center time:1.0];
     NSLog(@"height = %f",height);
-
-    return YES;
 }
 
 - (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC

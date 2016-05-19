@@ -16,6 +16,7 @@
     if (self = [super init]) {
         self.name = @"Mapquest Satellite";
         self.captureDelay = 5;
+		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
     }
     
     return self;
@@ -44,18 +45,14 @@
     [baseLayer addLayer:layer];
 }
 
-- (BOOL)setUpWithMap:(MaplyViewController *)mapVC
+- (void)setUpWithMap:(MaplyViewController *)mapVC
 {
     [self setupBaseLayer:mapVC];
-    
-    return true;
 }
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
     [self setupBaseLayer:globeVC];
-    
-    return true;
 }
 
 @end
