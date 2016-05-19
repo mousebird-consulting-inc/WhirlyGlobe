@@ -158,6 +158,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 		cell.testName.text = tests[indexPath.row].name
 		cell.selectionStyle = .None
+		cell.implementations = tests[indexPath.row].implementations
 
 		tests[indexPath.row].updateProgress = { enableIndicator in
 			dispatch_async(dispatch_get_main_queue(), {

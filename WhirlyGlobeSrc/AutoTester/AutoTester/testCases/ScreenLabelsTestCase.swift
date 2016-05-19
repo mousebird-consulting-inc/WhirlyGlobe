@@ -17,23 +17,21 @@ class ScreenLabelsTestCase: MaplyTestCase {
 		
 		self.name = "Screen Labels"
 		self.captureDelay = 3
+		self.implementations = [.Globe, .Map]
 	}
 
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
+	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
 		let vectorTestCase = VectorsTestCase()
 		vectorTestCase.setUpWithGlobe(globeVC)
 		insertLabels(vectorTestCase.compList! as! [MaplyVectorObject], theViewC: globeVC)
 		globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
-
-		return true;
 	}
 
-	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
+	override func setUpWithMap(mapVC: MaplyViewController) {
 		let vectorTestCase = VectorsTestCase()
 		vectorTestCase.setUpWithMap(mapVC)
 		insertLabels(vectorTestCase.compList! as! [MaplyVectorObject], theViewC: mapVC)
 		mapVC.animateToPosition(MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
-		return true;
 	}
 
 	private func insertLabels(arrayComp: [MaplyVectorObject], theViewC: MaplyBaseViewController) {

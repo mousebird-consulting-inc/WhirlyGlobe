@@ -66,6 +66,8 @@ LocationInfo locations[NumLocations] =
 	if (self = [super init]) {
 		self.captureDelay = 5;
 		self.name = @"Shapes";
+		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
+
 	}
 	return self;
 }
@@ -156,7 +158,7 @@ static const float EarthRadius = 6371000;
 }
 
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
 	GeographyClassTestCase *baseLayer = [[GeographyClassTestCase alloc]init];
 	[baseLayer setUpWithGlobe:globeVC];
@@ -164,12 +166,10 @@ static const float EarthRadius = 6371000;
 	[self addShapeCylinders:locations len:NumLocations stride:4 offset:0 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000)} baseViewC:(MaplyBaseViewController*)globeVC];
 	[self addGreatCircles:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000)} baseViewC:(MaplyBaseViewController*)globeVC];
 	[self addShapeSpheres:locations len:NumLocations stride:4 offset:1 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.8], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000)} baseViewC:(MaplyBaseViewController *)globeVC];
-	
-	return true;
 }
 
 
-- (BOOL)setUpWithMap:(MaplyViewController *)mapVC
+- (void)setUpWithMap:(MaplyViewController *)mapVC
 {
 	GeographyClassTestCase *baseLayer = [[GeographyClassTestCase alloc]init];
 	[baseLayer setUpWithMap:mapVC];
@@ -177,7 +177,6 @@ static const float EarthRadius = 6371000;
 	[self addShapeCylinders:locations len:NumLocations stride:4 offset:0 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000)} baseViewC:(MaplyBaseViewController*)mapVC];
 	[self addGreatCircles:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000)} baseViewC:(MaplyBaseViewController*)mapVC];
 	[self addShapeSpheres:locations len:NumLocations stride:4 offset:1 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.8], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000)} baseViewC:(MaplyBaseViewController *)mapVC];
-	return true;
 }
 
 @end

@@ -15,6 +15,7 @@ class StamenWatercolorRemote: MaplyTestCase {
 
 		self.name = "Stamen Watercolor Remote"
 		self.captureDelay = 4
+		self.implementations = [.Globe, .Map]
 	}
 	
 	func setupLayer(baseVC: MaplyBaseViewController) -> MaplyQuadImageTilesLayer {
@@ -35,27 +36,26 @@ class StamenWatercolorRemote: MaplyTestCase {
 		return layer!;
 	}
 
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
+	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
 		let layer = setupLayer(globeVC)
 		
 		globeVC.keepNorthUp = true
 		globeVC.addLayer(layer)
 		globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
-
-		return true
 	}
 
-	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
+	override func setUpWithMap(mapVC: MaplyViewController) {
 		let layer = setupLayer(mapVC)
 
 		mapVC.addLayer(layer)
 		mapVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), height: 1.0, time: 1.0)
 		mapVC.setZoomLimitsMin(0.01, max: 4.0)
-		
-		return true;
 	}
 	
 	override func remoteResources() -> [AnyObject]? {
+		return nil;
+/*
 		return ["https://manuals.info.apple.com/en_US/macbook_retina_12_inch_early2016_essentials.pdf"]
+*/
 	}
 }

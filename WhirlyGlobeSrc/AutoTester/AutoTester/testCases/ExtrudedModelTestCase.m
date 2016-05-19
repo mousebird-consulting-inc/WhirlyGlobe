@@ -19,6 +19,8 @@ static const float EarthRadius = 6371000;
     if (self = [super init]) {
         self.name = @"Extruded Model (Arrows)";
         self.captureDelay = 20;
+        self.implementations = MaplyTestCaseOptionGlobe;
+
     }
     
     return self;
@@ -104,7 +106,7 @@ static LocationInfo locations[NumLocations] =
     return [baseViewC addModelInstances:arrows desc:desc mode:MaplyThreadAny];
 }
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
     StamenWatercolorRemote *baseView = [[StamenWatercolorRemote alloc] init];
     [baseView setUpWithGlobe:globeVC];
@@ -119,8 +121,6 @@ static LocationInfo locations[NumLocations] =
               viewC:globeVC];
     
     [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-94.58,39.1) height:0.01];
-    
-    return true;
 }
 
 @end

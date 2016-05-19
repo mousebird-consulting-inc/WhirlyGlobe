@@ -15,6 +15,7 @@ class StickersTestCase: MaplyTestCase {
 		
 		self.name = "Stickers"
 		self.captureDelay = 4
+		self.implementations = [.Globe, .Map]
 	}
 
 	func addStickers (arrayComp: NSArray , baseViewC: MaplyBaseViewController) {
@@ -31,17 +32,15 @@ class StickersTestCase: MaplyTestCase {
 		baseViewC.addStickers(stickers, desc: [kMaplyFade: (1.0)])
 	}
 	
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
+	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
 		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithGlobe(globeVC)
 		addStickers(baseLayer.compList, baseViewC: globeVC)
-		return true
 	}
 	
-	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
+	override func setUpWithMap(mapVC: MaplyViewController) {
 		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithMap(mapVC)
 		addStickers(baseLayer.compList, baseViewC: mapVC)
-		return true
 	}
 }
