@@ -92,6 +92,7 @@ static NSString *fragmentShaderTriMultiTexCubicRamp =
     if (self = [super init]) {
         self.name = @"Animated Color Ramp";
         self.captureDelay = 10;
+        self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
     }
     
     return self;
@@ -130,23 +131,19 @@ static NSString *fragmentShaderTriMultiTexCubicRamp =
     [viewC addLayer:precipLayer];
 }
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
     GeographyClassTestCase *baseView = [[GeographyClassTestCase alloc]init];
     [baseView setUpWithGlobe:globeVC];
     [self setupWeatherLayer:globeVC];
-    
-    return true;
 }
 
 
-- (BOOL)setUpWithMap:(MaplyViewController *)mapVC
+- (void)setUpWithMap:(MaplyViewController *)mapVC
 {
     GeographyClassTestCase *baseView = [[GeographyClassTestCase alloc]init];
     [baseView setUpWithMap:mapVC];
     [self setupWeatherLayer:mapVC];
-    
-    return true;
 }
 
 @end

@@ -21,12 +21,13 @@
     if (self = [super init]) {
         self.name = @"Vector MBTiles";
         self.captureDelay = 20;
+        self.implementations = MaplyTestCaseOptionMap;
     }
     
     return self;
 }
 
-- (BOOL)setUpWithMap:(MaplyViewController *)mapVC
+- (void)setUpWithMap:(MaplyViewController *)mapVC
 {
     GeographyClassTestCase *baseView = [[GeographyClassTestCase alloc]init];
     [baseView setUpWithMap:mapVC];
@@ -40,8 +41,6 @@
     MaplyQuadPagingLayer *layer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:tileSource.coordSys delegate:vecTiles];
     layer.flipY = false;
     [mapVC addLayer:layer];
-        
-    return true;
 }
 
 @end

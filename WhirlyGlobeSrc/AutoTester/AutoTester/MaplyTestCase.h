@@ -22,6 +22,11 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseOptions) {
 	MaplyTestCaseOptionMap   = 1 << 2,
 };
 
+typedef NS_OPTIONS(NSUInteger, MaplyTestCaseImplementations) {
+	MaplyTestCaseImplementationGlobe = 1 << 1,
+	MaplyTestCaseImplementationMap   = 1 << 2,
+};
+
 typedef NS_OPTIONS(NSUInteger, MaplyTestCaseState) {
 	MaplyTestCaseStateDownloading,
 	MaplyTestCaseStateReady,
@@ -35,11 +40,11 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseState) {
 - (void)start;
 
 // these prototypes are necessary for Swift
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC;
+- (void)setUpWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC;
 - (void)tearDownWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC;
 - (NSArray * _Nullable)remoteResources;
 
-- (BOOL)setUpWithMap:(MaplyViewController * _Nonnull)mapVC;
+- (void)setUpWithMap:(MaplyViewController * _Nonnull)mapVC;
 - (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC;
 - (void) removeGlobeController;
 - (void) removeMapController;
@@ -51,6 +56,7 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseState) {
 @property (nonatomic) NSInteger captureDelay;
 
 @property (nonatomic) MaplyTestCaseOptions options;
+@property (nonatomic) MaplyTestCaseImplementations implementations;
 
 @property (nonatomic) MaplyTestCaseState state;
 @property (nonatomic) BOOL interactive;

@@ -19,6 +19,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
 
 		self.name = "Animated basemap"
 		self.captureDelay = 2
+		self.implementations = [.Globe, .Map]
 	}
 
 	// Collect up the various precipitation sources
@@ -48,19 +49,16 @@ class AnimatedBasemapTestCase: MaplyTestCase {
 		precipLayer?.fade = 0.5
 		return precipLayer!
 	}
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
+	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
 		geographyClass.setUpWithGlobe(globeVC)
 		buildTileSources()
 		globeVC.addLayer(createLayer(globeVC))
-
-		return true
 	}
 
-	override func setUpWithMap(mapVC: MaplyViewController) -> Bool {
+	override func setUpWithMap(mapVC: MaplyViewController) {
 		geographyClass.setUpWithMap(mapVC)
 		buildTileSources()
 		mapVC.addLayer(createLayer(mapVC))
-		return true
 	}
 
 }

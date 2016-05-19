@@ -21,6 +21,7 @@
 	if (self = [super init]) {
 		self.captureDelay = 20;
 		self.name = @"Wide Vectors";
+		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
 	}
 	return self;
 }
@@ -226,21 +227,17 @@
 }
 
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC{
+- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC{
 	
 	GeographyClassTestCase * baseLayer = [[GeographyClassTestCase alloc]init];
 	[baseLayer setUpWithGlobe:globeVC];
-    [self wideLineTest:globeVC];
-	
-	return true;
+	[self wideLineTest:globeVC];
 }
 
-- (BOOL)setUpWithMap:(MaplyViewController *)mapVC{
+- (void)setUpWithMap:(MaplyViewController *)mapVC{
 	GeographyClassTestCase * baseLayer = [[GeographyClassTestCase alloc]init];
 	[baseLayer setUpWithMap:mapVC];
-    [self wideLineTest:mapVC];
-
-	return true;
+	[self wideLineTest:mapVC];
 }
 
 @end

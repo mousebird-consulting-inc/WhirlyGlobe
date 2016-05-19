@@ -19,16 +19,17 @@
 	if (self = [super init]) {
 		self.captureDelay = 20;
 		self.name = @"Elevation (local)";
+        self.implementations = MaplyTestCaseOptionGlobe;
 	}
 	return self;
 }
 
 
--(BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+-(void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
 	[globeVC setTiltMinHeight:0.001 maxHeight:0.04 minTilt:1.40 maxTilt:0.0];
 	globeVC.frameInterval = 2;
-    
+
 //    NSString *docDir = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
 	MaplyElevationDatabase *elevSource = [[MaplyElevationDatabase alloc] initWithName:@"world_web_mercator"];
 	globeVC.elevDelegate = elevSource;
@@ -55,8 +56,6 @@
 	[globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-71.732629, 50.766733) time:1.0];
     
     globeVC.performanceOutput = true;
-	
-	return true;
 }
 
 @end

@@ -25,7 +25,7 @@
     if (self = [super init]) {
         self.name = @"WMS Test";
         self.captureDelay = 2;
-        
+		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
         
     }
     return self;
@@ -40,14 +40,12 @@
 - (void)teardownWithBaseVC:(MaplyBaseViewController *)vc {
 }
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
     CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     [self setupWithBaseVC:(MaplyBaseViewController *)globeVC];
     [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) height:1.5];
-    
-    return YES;
 }
 
 - (void)tearDownWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC
@@ -56,14 +54,12 @@
     
 }
 
-- (BOOL)setUpWithMap:(MaplyViewController *)mapVC
+- (void)setUpWithMap:(MaplyViewController *)mapVC
 {
     CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithMap:mapVC];
     [self setupWithBaseVC:(MaplyBaseViewController *)mapVC];
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) time:0.0];
-    
-    return YES;
 }
 
 - (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC

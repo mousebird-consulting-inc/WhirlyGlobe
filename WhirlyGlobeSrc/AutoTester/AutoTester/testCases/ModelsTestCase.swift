@@ -34,9 +34,10 @@ class ModelsTestCase: MaplyTestCase {
 		
 		self.name = "Models"
 		self.captureDelay = 4
+		self.implementations = [.Globe]
 	}
 
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
+	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
 		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithGlobe(globeVC)
 
@@ -65,7 +66,6 @@ class ModelsTestCase: MaplyTestCase {
 				globeVC.height = 0.1
 			}
 		}
-		return true
 	}
 
 }

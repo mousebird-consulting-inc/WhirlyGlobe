@@ -19,6 +19,7 @@ class StarsSunTestCase: MaplyTestCase {
 
 		self.name = "Stars/Sun"
 		self.captureDelay = 10
+		self.implementations = [.Map]
 	}
 	
 	func addStars(globeVC: WhirlyGlobeViewController) {
@@ -118,13 +119,12 @@ class StarsSunTestCase: MaplyTestCase {
 		layer?.drawPriority = kMaplyImageLayerDrawPriorityDefault
 	}
 	
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) -> Bool {
+	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
 //		let baseLayer  = GeographyClassTestCase()
 //		baseLayer.setUpWithGlobe(globeVC)
 		addStars(globeVC)
 		addSun(globeVC)
-        turnOnNightDay(globeVC, atmosObj: nil)
-		return true
+		turnOnNightDay(globeVC, atmosObj: nil)
 	}
 
 }

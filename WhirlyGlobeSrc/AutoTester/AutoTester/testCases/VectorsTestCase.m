@@ -10,6 +10,8 @@
 #import "GeographyClassTestCase.h"
 #import "MaplyBaseViewController.h"
 #include <stdlib.h>
+#import "MaplyViewController.h"
+#import "WhirlyGlobeViewController.h"
 
 @interface VectorsTestCase()
 
@@ -27,6 +29,8 @@
 		self.name = @"Vectors";
 		self.captureDelay = 5;
 		self.compList = [[NSMutableArray alloc] init];
+		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
+
 	}
 	
 	return self;
@@ -61,25 +65,41 @@
 		}
 }
 
-- (BOOL)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-	GeographyClassTestCase *baseView = [[GeographyClassTestCase alloc]init];
-	[baseView setUpWithGlobe:globeVC];
+	 self.baseView = [[GeographyClassTestCase alloc]init];
+	[self.baseView setUpWithGlobe:globeVC];
 	//Overlay Countries
 	[self overlayCountries:(MaplyBaseViewController*)globeVC];
-	return true;
 }
 
 
-- (BOOL)setUpWithMap:(MaplyViewController *)mapVC
+- (void)setUpWithMap:(MaplyViewController *)mapVC
 {	
-	GeographyClassTestCase *baseView = [[GeographyClassTestCase alloc]init];
-	[baseView setUpWithMap:mapVC];
+	 self.baseView = [[GeographyClassTestCase alloc]init];
+	[self.baseView setUpWithMap:mapVC];
 	[self overlayCountries:(MaplyBaseViewController*)mapVC];
-	
-	return true;
 }
 
+- (void) tearDownWithMap:(MaplyViewController *)mapVC {
+    for (MaplyComponentObject __strong *comp in self.compList){
+        [mapVC removeObject: comp];
+        comp = nil;
+    }
+    [self.compList removeAllObjects ];
+    self.baseView = nil;
+    
+}
+
+- (void)tearDownWithGlobe:(WhirlyGlobeViewController *)globeVC{
+    
+    for (MaplyComponentObject __strong *comp in self.compList){
+        [globeVC removeObject: comp];
+        comp = nil;
+    }
+    [self.compList removeAllObjects ];
+    self.baseView = nil;
+}
 - (void) handleSelection:(MaplyBaseViewController *)viewC
 				selected:(NSObject *)selectedObj
 {
