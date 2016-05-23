@@ -515,7 +515,9 @@ public class GLTextureView extends TextureView implements TextureView.SurfaceTex
         mGLThread.surfaceCreated();
     }
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
-    { surfaceCreated(surface);
+    {
+        surfaceCreated(surface);
+        surfaceChanged(surface, 0,width,height);
     }
 
     /**
@@ -1523,6 +1525,7 @@ public class GLTextureView extends TextureView implements TextureView.SurfaceTex
                 mHasSurface = true;
                 mFinishedCreatingEglSurface = false;
                 sGLThreadManager.notifyAll();
+
                 while (mWaitingForSurface
                         && !mFinishedCreatingEglSurface
                         && !mExited) {
