@@ -3,7 +3,6 @@ package com.mousebird.maply;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
-import android.content.pm.ComponentInfo;
 import android.content.pm.ConfigurationInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -13,7 +12,6 @@ import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.BoringLayout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -621,6 +619,9 @@ public class MaplyBaseController
 	public void changeVectors(final ComponentObject vecObj,final VectorInfo vecInfo,ThreadMode mode)
 	{
 		if (!running)
+			return;
+
+		if (vecObj == null)
 			return;
 
 		// Do the actual work on the layer thread
