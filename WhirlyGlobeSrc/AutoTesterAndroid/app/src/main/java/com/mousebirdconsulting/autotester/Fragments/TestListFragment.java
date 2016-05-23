@@ -88,7 +88,6 @@ public class TestListFragment extends Fragment {
 			testCases.add(new GestureFeedbackTestCase(getActivity()));
 			testCases.add(new SimpleParticleSystemTestCase(getActivity()));
 			testCases.add(new ParticleSystemTestCase(getActivity()));
-			testCases.add(new SimpleParticleSystemTestCase(getActivity()));
 			testCases.add(new ComplexParticleSystemTestCase(getActivity()));
 			testCases.add(new CustomBNGTileSource(getActivity()));
 			testCases.add(new CustomBNGCoordAdapter(getActivity()));

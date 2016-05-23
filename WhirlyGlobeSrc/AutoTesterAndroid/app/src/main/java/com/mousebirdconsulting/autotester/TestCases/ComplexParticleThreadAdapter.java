@@ -86,7 +86,7 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
         //These govern how particles are structured
         this.updateInterval = 0.1;
         this.particleLifeTime = 4.0;
-        this.numParticles = 100000;
+        this.numParticles = 10000;
         this.velocityScale = 0.1f;
 
         // Colors we'll use
@@ -206,10 +206,9 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
 //                Log.e("DEBUG", "Valores "+data[0]+" "+data[1]+" "+data[2]);
 
             //Look the associated tile
-//            DataTile dataTile = getDataTile(tileID);
-//
-//            if (dataTile != null){
-            if (true) {
+            DataTile dataTile = getDataTile(tileID);
+
+            if (dataTile != null){
                 float time = this.times[whichPart];
                 coordA.setValue(points.getCoordLocX(whichPart), points.getCoordLocY(whichPart), 0.0);
 
@@ -324,9 +323,9 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
 
     public void tileDidUnload(MaplyTileID tileID)
     {
-        // Note: Debugging
-//        this.clearTile(tileID);
-//        tileTrack.removeTile(tileID);
+        this.clearTile(tileID);
+        tileTrack.removeTile(tileID);
+        Log.d("Maply","No longer tracking tile: " + tileID);
     }
 
     private class ConnectionTask implements com.squareup.okhttp.Callback{

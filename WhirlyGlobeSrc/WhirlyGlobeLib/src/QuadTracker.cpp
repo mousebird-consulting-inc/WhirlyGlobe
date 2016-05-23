@@ -181,6 +181,7 @@ void QuadTracker::tiles(WhirlyKit::QuadTrackerPointReturn *trackInfo, int numPts
             tileID.level = 0;
             tileID.x = 0;
             tileID.y = 0;
+	    bool foundTile = false;
             for (;;) {
                 Quadtree::Identifier nextTile;
                 nextTile.level = tileID.level+1;
@@ -191,14 +192,24 @@ void QuadTracker::tiles(WhirlyKit::QuadTrackerPointReturn *trackInfo, int numPts
                 
                 //See if this tile is here
                 TileWrapper testTile(nextTile);
-                if (tileID.level >= minLevel && tileSet.find(testTile) == tileSet.end())
+                if (tileID.level >= minLevel)
+		{
+		  if (tileSet.find(testTile) != tileSet.end())
+		    foundTile = true;
+		  else
                     break;
+		}
                 tileID = nextTile;
                 tileU = 2.0*tileU - childX*1.0;
                 tileV = 2.0*tileV - childY*1.0;
             }
-            trackInfo->setTileID(ii,tileID.x,tileID.y,tileID.level);
-            trackInfo->setTileLoc(ii,tileU,tileV);
+	    if (!foundTile)
+	      {
+		trackInfo->setTileID(ii,tileID.x,tileID.y,tileID.level);
+		trackInfo->setTileLoc(ii,tileU,tileV);
+	      } else {
+	        trackInfo->setTileID(ii,0,0,-1);
+	      }
         } else {
             Quadtree::Identifier tileID;
             tileID.x = 0; tileID.y = 0;  tileID.level = -1;
