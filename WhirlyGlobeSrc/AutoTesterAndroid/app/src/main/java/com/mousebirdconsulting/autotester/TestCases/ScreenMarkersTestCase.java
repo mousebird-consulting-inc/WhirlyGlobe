@@ -21,8 +21,8 @@ import java.util.ArrayList;
 /**
  * Created by jmnavarro on 30/12/15.
  */
-public class ScreenMarkersTestCase extends MaplyTestCase {
-
+public class ScreenMarkersTestCase extends MaplyTestCase
+{
 	private ArrayList<ComponentObject> componentObjects = new ArrayList<>();
 
 	public ScreenMarkersTestCase(Activity activity) {

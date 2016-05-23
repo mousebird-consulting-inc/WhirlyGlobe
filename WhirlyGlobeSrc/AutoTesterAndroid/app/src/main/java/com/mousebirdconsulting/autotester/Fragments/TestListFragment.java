@@ -15,6 +15,7 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.MainActivity;
 import com.mousebirdconsulting.autotester.R;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
+import com.mousebirdconsulting.autotester.TestCases.AnimatedScreenMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.AtmosphereTestCase;
 import com.mousebirdconsulting.autotester.TestCases.BillboardTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CartoDBDarkTestCase;
@@ -84,6 +85,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new VectorsTestCase(getActivity()));
 			testCases.add(new ScreenLabelsTestCase(getActivity()));
 			testCases.add(new ScreenMarkersTestCase(getActivity()));
+			testCases.add(new AnimatedScreenMarkersTestCase(getActivity()));
 			testCases.add(new StickersTestCase(getActivity()));
 			testCases.add(new GestureFeedbackTestCase(getActivity()));
 			testCases.add(new SimpleParticleSystemTestCase(getActivity()));
