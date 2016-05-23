@@ -54,6 +54,7 @@ public class SunUpdater implements ActiveObject {
     public void setLockToCamera(boolean newVal)
     {
         lockToCamera = newVal;
+        changed = true;
     }
 
     @Override
