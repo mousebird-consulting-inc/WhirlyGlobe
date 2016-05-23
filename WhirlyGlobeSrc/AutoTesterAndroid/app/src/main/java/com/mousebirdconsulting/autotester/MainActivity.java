@@ -139,16 +139,22 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 			}
 
 			@Override
-			public void onExecute(View view) {
+			public void onStart(View view) {
 				if (ConfigOptions.getViewSetting(MainActivity.this) == ConfigOptions.ViewMapOption.ViewMap) {
 					viewTest = new ViewTestFragment();
 					viewTest.changeViewFragment(view);
 					selectFragment(viewTest);
 				}
 			}
+
+			@Override
+			public void onExecute(View view)
+			{
+			}
 		};
 		testCase.setListener(listener);
-		testCase.execute();
+
+		testCase.start();
 	}
 
 	private void finalizeTest() {

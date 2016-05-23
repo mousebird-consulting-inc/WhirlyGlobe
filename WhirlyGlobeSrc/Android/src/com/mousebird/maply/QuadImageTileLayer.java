@@ -477,6 +477,8 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
             imageDepth = imageLayer.getImageDepth();
             period = inPeriod;
             startTime = System.currentTimeMillis()/1000.0;
+			if (imageLayer.getImageDepth() > 1)
+				startTime = startTime-imageLayer.getCurrentImage()/imageLayer.getImageDepth() * period;
         }
 
         // Change the current image based on the time

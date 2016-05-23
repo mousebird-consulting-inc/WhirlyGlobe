@@ -8,15 +8,18 @@ import android.view.View;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
+import com.mousebird.maply.MaplyBaseController;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.R;
 
 public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 
 	public interface MaplyTestCaseListener {
-		void onFinish(MaplyTestResult resultMap, MaplyTestResult resultGlobe);
+		void onStart(View view);
 
 		void onExecute(View view);
+
+		void onFinish(MaplyTestResult resultMap, MaplyTestResult resultGlobe);
 	}
 
 	protected String testName;
@@ -24,6 +27,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 	protected int icon = R.drawable.ic_action_selectall;
 	protected ConfigOptions.TestType options;
 	protected Activity activity;
+	protected MaplyBaseController controller;
 	protected GlobeController globeController;
 	protected MapController mapController;
 	protected Integer delay = 3;
@@ -40,29 +44,70 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 	// Change this to set transparent backgrounds
 	int clearColor = Color.BLACK;
 
-	@Override
-	protected void onPreExecute() {
+	// Set if we successfully set up the controller
+	boolean success = false;
+
+	// Create the test case and start it
+	public void start()
+	{
 		if (options == ConfigOptions.TestType.BothTest || options == ConfigOptions.TestType.GlobeTest) {
 			GlobeController.Settings settings = new GlobeController.Settings();
 			// Note: Turn this off for testing GLTextureView
 //			settings.useSurfaceView = false;
 			settings.clearColor = clearColor;
 			globeController = new GlobeController(activity,settings);
+			controller = globeController;
 		}
 		if (options == ConfigOptions.TestType.BothTest || options == ConfigOptions.TestType.MapTest) {
 			MapController.Settings settings = new MapController.Settings();
 			settings.clearColor = clearColor;
 			mapController = new MapController(activity,settings);
+			controller = mapController;
 		}
+		success = true;
+
+		controller.addPostSurfaceRunnable(new Runnable() {
+			@Override
+			public void run() {
+				if (mapController != null) {
+					try {
+						setUpWithMap(mapController);
+					} catch (Exception ex) {
+						mapResult = new MaplyTestResult(testName + " Map Test");
+						success = false;
+					}
+				}
+				if (globeController != null) {
+					try {
+						setUpWithGlobe(globeController);
+					} catch (Exception ex) {
+						globeResult = new MaplyTestResult(testName + " Globe Test", ex);
+						success = false;
+					}
+				}
+				execute();
+			}
+		});
+
+		listener.onStart(controller.getContentView());
+	}
+
+	@Override
+	protected void onPreExecute() {
 	}
 
 	@Override
 	protected Void doInBackground(Void... params) {
-		if (options == ConfigOptions.TestType.BothTest || options == ConfigOptions.TestType.MapTest) {
-			runMapTest();
-		}
-		if (options == ConfigOptions.TestType.BothTest || options == ConfigOptions.TestType.GlobeTest) {
-			runGlobeTest();
+		if (success)
+		{
+			publishProgress(controller.getContentView());
+			if (ConfigOptions.getViewSetting(activity.getApplicationContext()) == ConfigOptions.ViewMapOption.ViewMap) {
+				try {
+					Thread.sleep(delay * 1000);
+				}
+				catch (Exception ex) {
+				}
+			}
 		}
 
 		return null;
@@ -79,40 +124,6 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 	protected void onProgressUpdate(View... values) {
 		if (listener != null) {
 			listener.onExecute(values[0]);
-		}
-	}
-
-	public void runGlobeTest() {
-		//create and prepare the controller
-		try {
-			publishProgress(globeController.getContentView());
-			if (setUpWithGlobe(globeController)) {
-				if (ConfigOptions.getViewSetting(activity.getApplicationContext()) == ConfigOptions.ViewMapOption.ViewMap) {
-					Thread.sleep(delay * 1000);
-				}
-				globeResult = new MaplyTestResult(testName + " Globe Test");
-			}
-		} catch (Exception ex) {
-			globeResult = new MaplyTestResult(testName + " Globe Test", ex);
-		} finally {
-			tearDownWithGlobe(globeController);
-		}
-	}
-
-	public void runMapTest() {
-		try {
-
-			publishProgress(mapController.getContentView());
-			if (setUpWithMap(mapController)) {
-				if (ConfigOptions.getViewSetting(activity.getApplicationContext()) == ConfigOptions.ViewMapOption.ViewMap) {
-					Thread.sleep(delay * 1000);
-				}
-				mapResult = new MaplyTestResult(testName + " Map Test");
-			}
-		} catch (Exception ex) {
-			mapResult = new MaplyTestResult(testName + " Map Test", ex);
-		} finally {
-			tearDownWithMap(mapController);
 		}
 	}
 
