@@ -7,8 +7,11 @@ SRC_DIR := $(BASE_DIR)/WhirlyGlobeSrc/WhirlyGlobeLib/src/
 INCLUDE_DIR := ../../WhirlyGlobeSrc/WhirlyGlobeLib/include/
 LOCAL_EXPORT_C_INCLUDES = $(BASE_DIR)/WhirlyGlobeSrc/WhirlyGlobeLib/include/
 
+LOCAL_CPP_EXTENSION := .cxx .cpp .cc
+
 THIRD_PARTY := $(BASE_DIR)third-party/
 THIRD_PARTY_INC := ../../third-party/
+PROTOBUF_DIR := ../../../third-party/protobuf/src/google/protobuf/
 LOCAL_C_INCLUDES += $(INCLUDE_DIR)
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/eigen/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/boost/
@@ -19,10 +22,23 @@ LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/libjson/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/glues/include/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/glues/source/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/glues/source/include/
+LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/protobuf/src/
+LOCAL_C_INCLUDES += $(PROTOBUF_DIR)/stubs/
+LOCAL_C_INCLUDES += $(PROTOBUF_DIR)/io/
 LOCAL_C_INCLUDES += jni/
 LOCAL_C_INCLUDES += ../../WhirlyGlobeSrc/local_libs/aaplus/
 
 LOCAL_MODULE    := Maply
+
+GOOGLE_PROTO_FILES := any.cc arena.cc arenastring.cc descriptor_database.cc descriptor.cc descriptor.pb.cc dynamic_message.cc extension_set_heavy.cc \
+            extension_set.cc generated_message_reflection.cc generated_message_util.cc map_field.cc message_lite.cc message.cc \
+            reflection_ops.cc repeated_field.cc service.cc text_format.cc unknown_field_set.cc wire_format_lite.cc wire_format.cc \
+            stubs/atomicops_internals_x86_gcc.cc stubs/atomicops_internals_x86_msvc.cc stubs/common.cc stubs/int128.cc stubs/once.cc \
+            stubs/status.cc stubs/stringpiece.cc stubs/stringprintf.cc stubs/structurally_valid.cc stubs/strutil.cc stubs/substitute.cc \
+            io/coded_stream.cc io/gzip_stream.cc io/printer.cc io/strtod.cc io/tokenizer.cc io/zero_copy_stream.cc io/zero_copy_stream_impl.cc \
+            io/zero_copy_stream_impl_lite.cc
+LOCAL_SRC_FILES += $(GOOGLE_PROTO_FILES:%=$(PROTOBUF_DIR)/%)
+
 
 PROJ_SRC_FILES := pj_fwd3d.c pj_inv3d.c geodesic.c PJ_calcofi.c pj_fileapi.c pj_gc_reader.c pj_gridcatalog.c \
                     PJ_qsc.c PJ_sch.c pj_strtod.c \
@@ -86,38 +102,37 @@ AA_SRC_DIR = $(BASE_DIR)/WhirlyGlobeSrc/local_libs/aaplus
 LOCAL_SRC_FILES += $(AA_SRC_FILES:%=$(AA_SRC_DIR)/%)
 
 MAPLY_CORE_SRC_FILES := BaseInfo.cpp BasicDrawable.cpp BasicDrawableInstance.cpp BigDrawable.cpp BillboardDrawable.cpp BillboardManager.cpp \
-					CoordSystem.cpp Cullable.cpp \
-					DefaultShaderPrograms.cpp Dictionary.cpp Drawable.cpp DynamicDrawableAtlas.cpp DynamicTextureAtlas.cpp \
-					FlatMath.cpp FontTextureManager.cpp \
+					CoordSystem.cpp Cullable.cpp DefaultShaderPrograms.cpp Dictionary.cpp Drawable.cpp DynamicDrawableAtlas.cpp \
+                    DynamicTextureAtlas.cpp FlatMath.cpp FontTextureManager.cpp \
 					GLUtils.cpp Generator.cpp GlobeMath.cpp GlobeScene.cpp GlobeView.cpp GlobeViewState.cpp GridClipper.cpp \
-					Identifiable.cpp \
-					LabelManager.cpp LabelRenderer.cpp LayoutManager.cpp LoadedTile.cpp Lighting.cpp \
-					MaplyFlatView.cpp MaplyScene.cpp MaplyView.cpp MaplyViewState.cpp MarkerManager.cpp Moon.cpp \
-					OpenGLES2Program.cpp \
-					ParticleSystemManager.cpp ParticleSystemDrawable.cpp PerformanceTimer.cpp Proj4CoordSystem.cpp \
-					QuadDisplayController.cpp Quadtree.cpp QuadTracker.cpp \
-					RawData.cpp \
-					Scene.cpp SceneRendererES.cpp SceneRendererES2.cpp ScreenImportance.cpp ScreenObject.cpp ScreenSpaceBuilder.cpp ScreenSpaceDrawable.cpp ShapeDrawableBuilder.cpp ShapeManager.cpp Sun.cpp \
+					Identifiable.cpp LabelManager.cpp LabelRenderer.cpp LayoutManager.cpp LoadedTile.cpp Lighting.cpp \
+					MapboxVectorTileParser.cpp MaplyFlatView.cpp MaplyScene.cpp MaplyView.cpp MaplyViewState.cpp MarkerManager.cpp Moon.cpp \
+					OpenGLES2Program.cpp ParticleSystemManager.cpp ParticleSystemDrawable.cpp PerformanceTimer.cpp Proj4CoordSystem.cpp \
+					QuadDisplayController.cpp Quadtree.cpp QuadTracker.cpp RawData.cpp \
+					Scene.cpp SceneRendererES.cpp SceneRendererES2.cpp ScreenImportance.cpp ScreenObject.cpp ScreenSpaceBuilder.cpp \
+                    ScreenSpaceDrawable.cpp ShapeDrawableBuilder.cpp ShapeManager.cpp Sun.cpp \
 					SelectionManager.cpp ShapeReader.cpp SphericalEarthChunkManager.cpp SphericalMercator.cpp \
 					Tesselator.cpp Texture.cpp TextureAtlas.cpp TileQuadLoader.cpp TileQuadOfflineRenderer.cpp \
-					VectorData.cpp VectorManager.cpp VectorObject.cpp ViewState.cpp \
+					VectorData.cpp vector_tile.pb.cpp VectorManager.cpp VectorObject.cpp ViewState.cpp \
 					WideVectorDrawable.cpp WideVectorManager.cpp WhirlyGeometry.cpp WhirlyKitView.cpp WhirlyVector.cpp
 MAPLY_CORE_SRC_DIR := $(SRC_DIR)
 LOCAL_SRC_FILES += $(MAPLY_CORE_SRC_FILES:%=$(MAPLY_CORE_SRC_DIR)/%)
 
 MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp AngleAxis_jni.cpp \
 					BaseInfo_jni.cpp Billboard_jni.cpp BillboardInfo_jni.cpp BillboardManager_jni.cpp \
-					ChangeSet_jni.cpp CoordSystem_jni.cpp CoordSystemDisplayAdapter_jni.cpp \
-					DirectionalLight_jni.cpp \
+					ChangeSet_jni.cpp CoordSystem_jni.cpp CoordSystemDisplayAdapter_jni.cpp DirectionalLight_jni.cpp \
 					FontTextureManagerAndroid.cpp FakeGeocentricDisplayAdapter_jni.cpp \
 					GeneralDisplayAdapter_jni.cpp GlobeViewState_jni.cpp GlobeScene_jni.cpp GlobeView_jni.cpp GeoCoordSystem_jni.cpp \
 					Identifiable_jni.cpp ImageWrapper.cpp InternalLabel_jni.cpp InternalMarker_jni.cpp \
-					LabelInfoAndroid.cpp LabelInfo_jni.cpp LabelManager_jni.cpp LayoutManager_jni.cpp \
-					MaplyRenderer_jni.cpp MapScene_jni.cpp MapView_jni.cpp Matrix3d_jni.cpp Matrix4d_jni.cpp MarkerInfo_jni.cpp MarkerManager_jni.cpp MapViewState_jni.cpp Moon_jni.cpp Material_jni.cpp \
-					Point2d_jni.cpp Point3d_jni.cpp Point4d_jni.cpp ParticleBatch_jni.cpp ParticleSystem_jni.cpp ParticleSystemManager_jni.cpp PlateCarreeCoordSystem_jni.cpp Proj4CoordSystem_jni.cpp \
-					QuadPagingLayer_jni.cpp QuadImageTileLayer_jni.cpp Quaternion_jni.cpp QuadImageOfflineLayer_jni.cpp QuadTracker_jni.cpp \
-					SelectionManager_jni.cpp Shader_jni.cpp SimplePoly_jni.cpp SingleLabelAndroid.cpp SphericalMercatorCoordSystem_jni.cpp StringWrapper_jni.cpp Scene_jni.cpp ScreenObject_jni.cpp Sticker_jni.cpp StickerInfo_jni.cpp StickerManager_jni.cpp Sun_jni.cpp ShapeInfo_jni.cpp Shape_jni.cpp ShapeSphere_jni.cpp ShapeManager_jni.cpp \
-					Texture_jni.cpp \
+					LabelInfoAndroid.cpp LabelInfo_jni.cpp LabelManager_jni.cpp LayoutManager_jni.cpp MapboxVectorTileParser_jni.cpp \
+					MaplyRenderer_jni.cpp MapScene_jni.cpp MapView_jni.cpp Matrix3d_jni.cpp Matrix4d_jni.cpp MarkerInfo_jni.cpp \
+                    MarkerManager_jni.cpp MapViewState_jni.cpp Moon_jni.cpp Material_jni.cpp \
+					Point2d_jni.cpp Point3d_jni.cpp Point4d_jni.cpp ParticleBatch_jni.cpp ParticleSystem_jni.cpp ParticleSystemManager_jni.cpp \
+                    PlateCarreeCoordSystem_jni.cpp Proj4CoordSystem_jni.cpp QuadPagingLayer_jni.cpp QuadImageTileLayer_jni.cpp \
+                    Quaternion_jni.cpp QuadImageOfflineLayer_jni.cpp QuadTracker_jni.cpp SelectionManager_jni.cpp Shader_jni.cpp \
+                    SimplePoly_jni.cpp SingleLabelAndroid.cpp SphericalMercatorCoordSystem_jni.cpp StringWrapper_jni.cpp \
+                    Scene_jni.cpp ScreenObject_jni.cpp Sticker_jni.cpp StickerInfo_jni.cpp StickerManager_jni.cpp Sun_jni.cpp \
+                    ShapeInfo_jni.cpp Shape_jni.cpp ShapeSphere_jni.cpp ShapeManager_jni.cpp Texture_jni.cpp \
 					VectorInfo_jni.cpp VectorIterator_jni.cpp VectorManager_jni.cpp VectorObject_jni.cpp View_jni.cpp VertexAttribute_jni.cpp ViewState_jni.cpp
 
 LOCAL_SRC_FILES += $(MAPLY_JNI_FILES)

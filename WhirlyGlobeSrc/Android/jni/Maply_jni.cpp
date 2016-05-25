@@ -79,6 +79,7 @@ template<> BillboardManagerClassInfo *BillboardManagerClassInfo::classInfoObj = 
 template<> ScreenObjectClassInfo *ScreenObjectClassInfo::classInfoObj = NULL;
 template<> SimplePolyClassInfo *SimplePolyClassInfo::classInfoObj = NULL;
 template<> StringWrapperClassInfo *StringWrapperClassInfo::classInfoObj = NULL;
+template<> MapboxVectorTileParserClassInfo *MapboxVectorTileParserClassInfo::classInfoObj = NULL;
 
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 {

@@ -56,6 +56,10 @@
 		2B14BFCF1B83FE1A00CE29A4 /* BaseInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B14BFCE1B83FE1A00CE29A4 /* BaseInfo.cpp */; };
 		2B14BFD51B852C5100CE29A4 /* BasicDrawableInstance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B14BFD41B852C5100CE29A4 /* BasicDrawableInstance.h */; };
 		2B14BFD71B852C5E00CE29A4 /* BasicDrawableInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B14BFD61B852C5E00CE29A4 /* BasicDrawableInstance.cpp */; };
+		2B30A3A71CF618F500FED2D5 /* MapboxVectorTileParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B30A3A61CF618F500FED2D5 /* MapboxVectorTileParser.h */; };
+		2B30A3A91CF6190600FED2D5 /* MapboxVectorTileParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B30A3A81CF6190600FED2D5 /* MapboxVectorTileParser.cpp */; };
+		2B30A3AB1CF61D1600FED2D5 /* vector_tile.pb.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B30A3AA1CF61D1600FED2D5 /* vector_tile.pb.h */; };
+		2B30A3AD1CF61D2300FED2D5 /* vector_tile.pb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B30A3AC1CF61D2300FED2D5 /* vector_tile.pb.cpp */; };
 		2B35674318D762A700EF8DB1 /* BigDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671118D762A700EF8DB1 /* BigDrawable.cpp */; };
 		2B35674418D762A700EF8DB1 /* CoordSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671218D762A700EF8DB1 /* CoordSystem.cpp */; };
 		2B35674518D762A700EF8DB1 /* Cullable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671318D762A700EF8DB1 /* Cullable.cpp */; };
@@ -159,6 +163,100 @@
 		2B3836A9186244DC00467ABD /* glwrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3836A8186244DC00467ABD /* glwrapper.h */; };
 		2B3836AB18625C9200467ABD /* glwrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3836AA18625C9200467ABD /* glwrapper.cpp */; };
 		2B3A0D41133405700085EF43 /* shapefil.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951D8E12F09E7A005003AE /* shapefil.h */; };
+		2B3B30D61CF6227F00F52374 /* any.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30AA1CF6227F00F52374 /* any.cc */; };
+		2B3B30D71CF6227F00F52374 /* arena.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30AB1CF6227F00F52374 /* arena.cc */; };
+		2B3B30D81CF6227F00F52374 /* arena.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30AC1CF6227F00F52374 /* arena.h */; };
+		2B3B30D91CF6227F00F52374 /* arenastring.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30AD1CF6227F00F52374 /* arenastring.cc */; };
+		2B3B30DA1CF6227F00F52374 /* arenastring.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30AE1CF6227F00F52374 /* arenastring.h */; };
+		2B3B30DB1CF6227F00F52374 /* descriptor_database.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30AF1CF6227F00F52374 /* descriptor_database.cc */; };
+		2B3B30DC1CF6227F00F52374 /* descriptor_database.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30B01CF6227F00F52374 /* descriptor_database.h */; };
+		2B3B30DD1CF6227F00F52374 /* descriptor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30B11CF6227F00F52374 /* descriptor.cc */; };
+		2B3B30DE1CF6227F00F52374 /* descriptor.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30B21CF6227F00F52374 /* descriptor.h */; };
+		2B3B30DF1CF6227F00F52374 /* descriptor.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30B31CF6227F00F52374 /* descriptor.pb.cc */; };
+		2B3B30E01CF6227F00F52374 /* descriptor.pb.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30B41CF6227F00F52374 /* descriptor.pb.h */; };
+		2B3B30E11CF6227F00F52374 /* dynamic_message.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30B61CF6227F00F52374 /* dynamic_message.cc */; };
+		2B3B30E21CF6227F00F52374 /* dynamic_message.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30B71CF6227F00F52374 /* dynamic_message.h */; };
+		2B3B30E31CF6227F00F52374 /* extension_set_heavy.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30B81CF6227F00F52374 /* extension_set_heavy.cc */; };
+		2B3B30E41CF6227F00F52374 /* extension_set.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30B91CF6227F00F52374 /* extension_set.cc */; };
+		2B3B30E51CF6227F00F52374 /* extension_set.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30BA1CF6227F00F52374 /* extension_set.h */; };
+		2B3B30E61CF6227F00F52374 /* generated_enum_reflection.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30BB1CF6227F00F52374 /* generated_enum_reflection.h */; };
+		2B3B30E71CF6227F00F52374 /* generated_message_reflection.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30BC1CF6227F00F52374 /* generated_message_reflection.cc */; };
+		2B3B30E81CF6227F00F52374 /* generated_message_reflection.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30BD1CF6227F00F52374 /* generated_message_reflection.h */; };
+		2B3B30E91CF6227F00F52374 /* generated_message_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30BE1CF6227F00F52374 /* generated_message_util.cc */; };
+		2B3B30EA1CF6227F00F52374 /* generated_message_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30BF1CF6227F00F52374 /* generated_message_util.h */; };
+		2B3B30EB1CF6227F00F52374 /* map_field.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30C01CF6227F00F52374 /* map_field.cc */; };
+		2B3B30EC1CF6227F00F52374 /* map_field.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30C11CF6227F00F52374 /* map_field.h */; };
+		2B3B30ED1CF6227F00F52374 /* message_lite.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30C21CF6227F00F52374 /* message_lite.cc */; };
+		2B3B30EE1CF6227F00F52374 /* message_lite.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30C31CF6227F00F52374 /* message_lite.h */; };
+		2B3B30EF1CF6227F00F52374 /* message.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30C41CF6227F00F52374 /* message.cc */; };
+		2B3B30F01CF6227F00F52374 /* message.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30C51CF6227F00F52374 /* message.h */; };
+		2B3B30F11CF6227F00F52374 /* package_info.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30C61CF6227F00F52374 /* package_info.h */; };
+		2B3B30F21CF6227F00F52374 /* reflection_ops.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30C71CF6227F00F52374 /* reflection_ops.cc */; };
+		2B3B30F31CF6227F00F52374 /* reflection_ops.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30C81CF6227F00F52374 /* reflection_ops.h */; };
+		2B3B30F41CF6227F00F52374 /* repeated_field.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30C91CF6227F00F52374 /* repeated_field.cc */; };
+		2B3B30F51CF6227F00F52374 /* repeated_field.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30CA1CF6227F00F52374 /* repeated_field.h */; };
+		2B3B30F61CF6227F00F52374 /* service.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30CB1CF6227F00F52374 /* service.cc */; };
+		2B3B30F71CF6227F00F52374 /* service.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30CC1CF6227F00F52374 /* service.h */; };
+		2B3B30F81CF6227F00F52374 /* text_format.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30CD1CF6227F00F52374 /* text_format.cc */; };
+		2B3B30F91CF6227F00F52374 /* text_format.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30CE1CF6227F00F52374 /* text_format.h */; };
+		2B3B30FA1CF6227F00F52374 /* unknown_field_set.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30CF1CF6227F00F52374 /* unknown_field_set.cc */; };
+		2B3B30FB1CF6227F00F52374 /* unknown_field_set.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30D01CF6227F00F52374 /* unknown_field_set.h */; };
+		2B3B30FC1CF6227F00F52374 /* wire_format_lite_inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30D11CF6227F00F52374 /* wire_format_lite_inl.h */; };
+		2B3B30FD1CF6227F00F52374 /* wire_format_lite.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30D21CF6227F00F52374 /* wire_format_lite.cc */; };
+		2B3B30FE1CF6227F00F52374 /* wire_format_lite.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30D31CF6227F00F52374 /* wire_format_lite.h */; };
+		2B3B30FF1CF6227F00F52374 /* wire_format.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B30D41CF6227F00F52374 /* wire_format.cc */; };
+		2B3B31001CF6227F00F52374 /* wire_format.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B30D51CF6227F00F52374 /* wire_format.h */; };
+		2B3B31191CF622AA00F52374 /* coded_stream.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B31021CF622AA00F52374 /* coded_stream.cc */; };
+		2B3B311A1CF622AA00F52374 /* coded_stream.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31031CF622AA00F52374 /* coded_stream.h */; };
+		2B3B311B1CF622AA00F52374 /* coded_stream_inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31041CF622AA00F52374 /* coded_stream_inl.h */; };
+		2B3B311D1CF622AA00F52374 /* gzip_stream.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B31061CF622AA00F52374 /* gzip_stream.cc */; };
+		2B3B311E1CF622AA00F52374 /* gzip_stream.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31071CF622AA00F52374 /* gzip_stream.h */; };
+		2B3B311F1CF622AA00F52374 /* package_info.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31091CF622AA00F52374 /* package_info.h */; };
+		2B3B31201CF622AA00F52374 /* printer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B310A1CF622AA00F52374 /* printer.cc */; };
+		2B3B31211CF622AA00F52374 /* printer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B310B1CF622AA00F52374 /* printer.h */; };
+		2B3B31231CF622AA00F52374 /* strtod.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B310D1CF622AA00F52374 /* strtod.cc */; };
+		2B3B31241CF622AA00F52374 /* strtod.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B310E1CF622AA00F52374 /* strtod.h */; };
+		2B3B31251CF622AA00F52374 /* tokenizer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B310F1CF622AA00F52374 /* tokenizer.cc */; };
+		2B3B31261CF622AA00F52374 /* tokenizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31101CF622AA00F52374 /* tokenizer.h */; };
+		2B3B31281CF622AA00F52374 /* zero_copy_stream.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B31121CF622AA00F52374 /* zero_copy_stream.cc */; };
+		2B3B31291CF622AA00F52374 /* zero_copy_stream.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31131CF622AA00F52374 /* zero_copy_stream.h */; };
+		2B3B312A1CF622AA00F52374 /* zero_copy_stream_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B31141CF622AA00F52374 /* zero_copy_stream_impl.cc */; };
+		2B3B312B1CF622AA00F52374 /* zero_copy_stream_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31151CF622AA00F52374 /* zero_copy_stream_impl.h */; };
+		2B3B312C1CF622AA00F52374 /* zero_copy_stream_impl_lite.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B31161CF622AA00F52374 /* zero_copy_stream_impl_lite.cc */; };
+		2B3B312D1CF622AA00F52374 /* zero_copy_stream_impl_lite.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31171CF622AA00F52374 /* zero_copy_stream_impl_lite.h */; };
+		2B3B31E01CF623DD00F52374 /* atomicops_internals_arm_gcc.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31C21CF623DD00F52374 /* atomicops_internals_arm_gcc.h */; };
+		2B3B31E11CF623DD00F52374 /* atomicops_internals_arm_qnx.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31C31CF623DD00F52374 /* atomicops_internals_arm_qnx.h */; };
+		2B3B31E21CF623DD00F52374 /* atomicops_internals_atomicword_compat.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31C41CF623DD00F52374 /* atomicops_internals_atomicword_compat.h */; };
+		2B3B31E31CF623DD00F52374 /* atomicops_internals_macosx.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31C51CF623DD00F52374 /* atomicops_internals_macosx.h */; };
+		2B3B31E41CF623DD00F52374 /* atomicops_internals_mips_gcc.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31C61CF623DD00F52374 /* atomicops_internals_mips_gcc.h */; };
+		2B3B31E51CF623DD00F52374 /* atomicops_internals_pnacl.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31C71CF623DD00F52374 /* atomicops_internals_pnacl.h */; };
+		2B3B31E61CF623DD00F52374 /* atomicops_internals_x86_gcc.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B31C81CF623DD00F52374 /* atomicops_internals_x86_gcc.cc */; };
+		2B3B31E71CF623DD00F52374 /* atomicops_internals_x86_gcc.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31C91CF623DD00F52374 /* atomicops_internals_x86_gcc.h */; };
+		2B3B31E81CF623DD00F52374 /* atomicops_internals_x86_msvc.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B31CA1CF623DD00F52374 /* atomicops_internals_x86_msvc.cc */; };
+		2B3B31E91CF623DD00F52374 /* atomicops_internals_x86_msvc.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31CB1CF623DD00F52374 /* atomicops_internals_x86_msvc.h */; };
+		2B3B31EA1CF623DD00F52374 /* atomicops.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31CC1CF623DD00F52374 /* atomicops.h */; };
+		2B3B31EB1CF623DD00F52374 /* common.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B31CD1CF623DD00F52374 /* common.cc */; };
+		2B3B31EC1CF623DD00F52374 /* common.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31CE1CF623DD00F52374 /* common.h */; };
+		2B3B31ED1CF623DD00F52374 /* hash.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31CF1CF623DD00F52374 /* hash.h */; };
+		2B3B31EE1CF623DD00F52374 /* int128.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B31D01CF623DD00F52374 /* int128.cc */; };
+		2B3B31EF1CF623DD00F52374 /* once.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B31D11CF623DD00F52374 /* once.cc */; };
+		2B3B31F01CF623DD00F52374 /* once.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31D21CF623DD00F52374 /* once.h */; };
+		2B3B31F11CF623DD00F52374 /* platform_macros.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31D31CF623DD00F52374 /* platform_macros.h */; };
+		2B3B31F21CF623DD00F52374 /* status.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B31D41CF623DD00F52374 /* status.cc */; };
+		2B3B31F31CF623DD00F52374 /* stl_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31D51CF623DD00F52374 /* stl_util.h */; };
+		2B3B31F41CF623DD00F52374 /* stringpiece.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B31D61CF623DD00F52374 /* stringpiece.cc */; };
+		2B3B31F51CF623DD00F52374 /* stringprintf.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B31D71CF623DD00F52374 /* stringprintf.cc */; };
+		2B3B31F61CF623DD00F52374 /* stringprintf.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31D81CF623DD00F52374 /* stringprintf.h */; };
+		2B3B31F71CF623DD00F52374 /* structurally_valid.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B31D91CF623DD00F52374 /* structurally_valid.cc */; };
+		2B3B31F81CF623DD00F52374 /* strutil.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B31DA1CF623DD00F52374 /* strutil.cc */; };
+		2B3B31F91CF623DD00F52374 /* strutil.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31DB1CF623DD00F52374 /* strutil.h */; };
+		2B3B31FA1CF623DD00F52374 /* substitute.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B31DC1CF623DD00F52374 /* substitute.cc */; };
+		2B3B31FB1CF623DD00F52374 /* substitute.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31DD1CF623DD00F52374 /* substitute.h */; };
+		2B3B31FC1CF623DD00F52374 /* template_util.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31DE1CF623DD00F52374 /* template_util.h */; };
+		2B3B31FD1CF623DD00F52374 /* type_traits.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31DF1CF623DD00F52374 /* type_traits.h */; };
+		2B3B32001CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser_DataReturn.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31FE1CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser_DataReturn.h */; };
+		2B3B32011CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31FF1CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser.h */; };
+		2B3B32031CF6593900F52374 /* MapboxVectorTileParser_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3B32021CF6593900F52374 /* MapboxVectorTileParser_jni.cpp */; };
 		2B4B19631BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B192B1BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h */; };
 		2B4B19641BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B192C1BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h */; };
 		2B4B19651BA38AD90091A743 /* com_mousebird_maply_ChangeSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B192D1BA38AD90091A743 /* com_mousebird_maply_ChangeSet.h */; };
@@ -671,6 +769,10 @@
 		2B14BFCE1B83FE1A00CE29A4 /* BaseInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BaseInfo.cpp; sourceTree = "<group>"; };
 		2B14BFD41B852C5100CE29A4 /* BasicDrawableInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasicDrawableInstance.h; sourceTree = "<group>"; };
 		2B14BFD61B852C5E00CE29A4 /* BasicDrawableInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BasicDrawableInstance.cpp; sourceTree = "<group>"; };
+		2B30A3A61CF618F500FED2D5 /* MapboxVectorTileParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorTileParser.h; sourceTree = "<group>"; };
+		2B30A3A81CF6190600FED2D5 /* MapboxVectorTileParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapboxVectorTileParser.cpp; sourceTree = "<group>"; };
+		2B30A3AA1CF61D1600FED2D5 /* vector_tile.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vector_tile.pb.h; sourceTree = "<group>"; };
+		2B30A3AC1CF61D2300FED2D5 /* vector_tile.pb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vector_tile.pb.cpp; sourceTree = "<group>"; };
 		2B35671118D762A700EF8DB1 /* BigDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BigDrawable.cpp; sourceTree = "<group>"; };
 		2B35671218D762A700EF8DB1 /* CoordSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CoordSystem.cpp; sourceTree = "<group>"; };
 		2B35671318D762A700EF8DB1 /* Cullable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cullable.cpp; sourceTree = "<group>"; };
@@ -774,6 +876,101 @@
 		2B3836A8186244DC00467ABD /* glwrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glwrapper.h; sourceTree = "<group>"; };
 		2B3836AA18625C9200467ABD /* glwrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glwrapper.cpp; path = android/glwrapper.cpp; sourceTree = "<group>"; };
 		2B3AF66D13EEDDA8004A781D /* framework_info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = framework_info.plist; sourceTree = "<group>"; };
+		2B3B30AA1CF6227F00F52374 /* any.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = any.cc; path = "../../third-party/protobuf/src/google/protobuf/any.cc"; sourceTree = "<group>"; };
+		2B3B30AB1CF6227F00F52374 /* arena.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = arena.cc; path = "../../third-party/protobuf/src/google/protobuf/arena.cc"; sourceTree = "<group>"; };
+		2B3B30AC1CF6227F00F52374 /* arena.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = arena.h; path = "../../third-party/protobuf/src/google/protobuf/arena.h"; sourceTree = "<group>"; };
+		2B3B30AD1CF6227F00F52374 /* arenastring.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = arenastring.cc; path = "../../third-party/protobuf/src/google/protobuf/arenastring.cc"; sourceTree = "<group>"; };
+		2B3B30AE1CF6227F00F52374 /* arenastring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = arenastring.h; path = "../../third-party/protobuf/src/google/protobuf/arenastring.h"; sourceTree = "<group>"; };
+		2B3B30AF1CF6227F00F52374 /* descriptor_database.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = descriptor_database.cc; path = "../../third-party/protobuf/src/google/protobuf/descriptor_database.cc"; sourceTree = "<group>"; };
+		2B3B30B01CF6227F00F52374 /* descriptor_database.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = descriptor_database.h; path = "../../third-party/protobuf/src/google/protobuf/descriptor_database.h"; sourceTree = "<group>"; };
+		2B3B30B11CF6227F00F52374 /* descriptor.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = descriptor.cc; path = "../../third-party/protobuf/src/google/protobuf/descriptor.cc"; sourceTree = "<group>"; };
+		2B3B30B21CF6227F00F52374 /* descriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = descriptor.h; path = "../../third-party/protobuf/src/google/protobuf/descriptor.h"; sourceTree = "<group>"; };
+		2B3B30B31CF6227F00F52374 /* descriptor.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = descriptor.pb.cc; path = "../../third-party/protobuf/src/google/protobuf/descriptor.pb.cc"; sourceTree = "<group>"; };
+		2B3B30B41CF6227F00F52374 /* descriptor.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = descriptor.pb.h; path = "../../third-party/protobuf/src/google/protobuf/descriptor.pb.h"; sourceTree = "<group>"; };
+		2B3B30B51CF6227F00F52374 /* descriptor.proto */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = descriptor.proto; path = "../../third-party/protobuf/src/google/protobuf/descriptor.proto"; sourceTree = "<group>"; };
+		2B3B30B61CF6227F00F52374 /* dynamic_message.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dynamic_message.cc; path = "../../third-party/protobuf/src/google/protobuf/dynamic_message.cc"; sourceTree = "<group>"; };
+		2B3B30B71CF6227F00F52374 /* dynamic_message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dynamic_message.h; path = "../../third-party/protobuf/src/google/protobuf/dynamic_message.h"; sourceTree = "<group>"; };
+		2B3B30B81CF6227F00F52374 /* extension_set_heavy.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = extension_set_heavy.cc; path = "../../third-party/protobuf/src/google/protobuf/extension_set_heavy.cc"; sourceTree = "<group>"; };
+		2B3B30B91CF6227F00F52374 /* extension_set.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = extension_set.cc; path = "../../third-party/protobuf/src/google/protobuf/extension_set.cc"; sourceTree = "<group>"; };
+		2B3B30BA1CF6227F00F52374 /* extension_set.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = extension_set.h; path = "../../third-party/protobuf/src/google/protobuf/extension_set.h"; sourceTree = "<group>"; };
+		2B3B30BB1CF6227F00F52374 /* generated_enum_reflection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = generated_enum_reflection.h; path = "../../third-party/protobuf/src/google/protobuf/generated_enum_reflection.h"; sourceTree = "<group>"; };
+		2B3B30BC1CF6227F00F52374 /* generated_message_reflection.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = generated_message_reflection.cc; path = "../../third-party/protobuf/src/google/protobuf/generated_message_reflection.cc"; sourceTree = "<group>"; };
+		2B3B30BD1CF6227F00F52374 /* generated_message_reflection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = generated_message_reflection.h; path = "../../third-party/protobuf/src/google/protobuf/generated_message_reflection.h"; sourceTree = "<group>"; };
+		2B3B30BE1CF6227F00F52374 /* generated_message_util.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = generated_message_util.cc; path = "../../third-party/protobuf/src/google/protobuf/generated_message_util.cc"; sourceTree = "<group>"; };
+		2B3B30BF1CF6227F00F52374 /* generated_message_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = generated_message_util.h; path = "../../third-party/protobuf/src/google/protobuf/generated_message_util.h"; sourceTree = "<group>"; };
+		2B3B30C01CF6227F00F52374 /* map_field.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = map_field.cc; path = "../../third-party/protobuf/src/google/protobuf/map_field.cc"; sourceTree = "<group>"; };
+		2B3B30C11CF6227F00F52374 /* map_field.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = map_field.h; path = "../../third-party/protobuf/src/google/protobuf/map_field.h"; sourceTree = "<group>"; };
+		2B3B30C21CF6227F00F52374 /* message_lite.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = message_lite.cc; path = "../../third-party/protobuf/src/google/protobuf/message_lite.cc"; sourceTree = "<group>"; };
+		2B3B30C31CF6227F00F52374 /* message_lite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = message_lite.h; path = "../../third-party/protobuf/src/google/protobuf/message_lite.h"; sourceTree = "<group>"; };
+		2B3B30C41CF6227F00F52374 /* message.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = message.cc; path = "../../third-party/protobuf/src/google/protobuf/message.cc"; sourceTree = "<group>"; };
+		2B3B30C51CF6227F00F52374 /* message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = message.h; path = "../../third-party/protobuf/src/google/protobuf/message.h"; sourceTree = "<group>"; };
+		2B3B30C61CF6227F00F52374 /* package_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = package_info.h; path = "../../third-party/protobuf/src/google/protobuf/package_info.h"; sourceTree = "<group>"; };
+		2B3B30C71CF6227F00F52374 /* reflection_ops.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = reflection_ops.cc; path = "../../third-party/protobuf/src/google/protobuf/reflection_ops.cc"; sourceTree = "<group>"; };
+		2B3B30C81CF6227F00F52374 /* reflection_ops.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = reflection_ops.h; path = "../../third-party/protobuf/src/google/protobuf/reflection_ops.h"; sourceTree = "<group>"; };
+		2B3B30C91CF6227F00F52374 /* repeated_field.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = repeated_field.cc; path = "../../third-party/protobuf/src/google/protobuf/repeated_field.cc"; sourceTree = "<group>"; };
+		2B3B30CA1CF6227F00F52374 /* repeated_field.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = repeated_field.h; path = "../../third-party/protobuf/src/google/protobuf/repeated_field.h"; sourceTree = "<group>"; };
+		2B3B30CB1CF6227F00F52374 /* service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = service.cc; path = "../../third-party/protobuf/src/google/protobuf/service.cc"; sourceTree = "<group>"; };
+		2B3B30CC1CF6227F00F52374 /* service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = service.h; path = "../../third-party/protobuf/src/google/protobuf/service.h"; sourceTree = "<group>"; };
+		2B3B30CD1CF6227F00F52374 /* text_format.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = text_format.cc; path = "../../third-party/protobuf/src/google/protobuf/text_format.cc"; sourceTree = "<group>"; };
+		2B3B30CE1CF6227F00F52374 /* text_format.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = text_format.h; path = "../../third-party/protobuf/src/google/protobuf/text_format.h"; sourceTree = "<group>"; };
+		2B3B30CF1CF6227F00F52374 /* unknown_field_set.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = unknown_field_set.cc; path = "../../third-party/protobuf/src/google/protobuf/unknown_field_set.cc"; sourceTree = "<group>"; };
+		2B3B30D01CF6227F00F52374 /* unknown_field_set.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = unknown_field_set.h; path = "../../third-party/protobuf/src/google/protobuf/unknown_field_set.h"; sourceTree = "<group>"; };
+		2B3B30D11CF6227F00F52374 /* wire_format_lite_inl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wire_format_lite_inl.h; path = "../../third-party/protobuf/src/google/protobuf/wire_format_lite_inl.h"; sourceTree = "<group>"; };
+		2B3B30D21CF6227F00F52374 /* wire_format_lite.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wire_format_lite.cc; path = "../../third-party/protobuf/src/google/protobuf/wire_format_lite.cc"; sourceTree = "<group>"; };
+		2B3B30D31CF6227F00F52374 /* wire_format_lite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wire_format_lite.h; path = "../../third-party/protobuf/src/google/protobuf/wire_format_lite.h"; sourceTree = "<group>"; };
+		2B3B30D41CF6227F00F52374 /* wire_format.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wire_format.cc; path = "../../third-party/protobuf/src/google/protobuf/wire_format.cc"; sourceTree = "<group>"; };
+		2B3B30D51CF6227F00F52374 /* wire_format.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wire_format.h; path = "../../third-party/protobuf/src/google/protobuf/wire_format.h"; sourceTree = "<group>"; };
+		2B3B31021CF622AA00F52374 /* coded_stream.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = coded_stream.cc; sourceTree = "<group>"; };
+		2B3B31031CF622AA00F52374 /* coded_stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = coded_stream.h; sourceTree = "<group>"; };
+		2B3B31041CF622AA00F52374 /* coded_stream_inl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = coded_stream_inl.h; sourceTree = "<group>"; };
+		2B3B31061CF622AA00F52374 /* gzip_stream.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gzip_stream.cc; sourceTree = "<group>"; };
+		2B3B31071CF622AA00F52374 /* gzip_stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gzip_stream.h; sourceTree = "<group>"; };
+		2B3B31091CF622AA00F52374 /* package_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = package_info.h; sourceTree = "<group>"; };
+		2B3B310A1CF622AA00F52374 /* printer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = printer.cc; sourceTree = "<group>"; };
+		2B3B310B1CF622AA00F52374 /* printer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = printer.h; sourceTree = "<group>"; };
+		2B3B310D1CF622AA00F52374 /* strtod.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = strtod.cc; sourceTree = "<group>"; };
+		2B3B310E1CF622AA00F52374 /* strtod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = strtod.h; sourceTree = "<group>"; };
+		2B3B310F1CF622AA00F52374 /* tokenizer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tokenizer.cc; sourceTree = "<group>"; };
+		2B3B31101CF622AA00F52374 /* tokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tokenizer.h; sourceTree = "<group>"; };
+		2B3B31121CF622AA00F52374 /* zero_copy_stream.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = zero_copy_stream.cc; sourceTree = "<group>"; };
+		2B3B31131CF622AA00F52374 /* zero_copy_stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zero_copy_stream.h; sourceTree = "<group>"; };
+		2B3B31141CF622AA00F52374 /* zero_copy_stream_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = zero_copy_stream_impl.cc; sourceTree = "<group>"; };
+		2B3B31151CF622AA00F52374 /* zero_copy_stream_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zero_copy_stream_impl.h; sourceTree = "<group>"; };
+		2B3B31161CF622AA00F52374 /* zero_copy_stream_impl_lite.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = zero_copy_stream_impl_lite.cc; sourceTree = "<group>"; };
+		2B3B31171CF622AA00F52374 /* zero_copy_stream_impl_lite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zero_copy_stream_impl_lite.h; sourceTree = "<group>"; };
+		2B3B31C21CF623DD00F52374 /* atomicops_internals_arm_gcc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atomicops_internals_arm_gcc.h; sourceTree = "<group>"; };
+		2B3B31C31CF623DD00F52374 /* atomicops_internals_arm_qnx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atomicops_internals_arm_qnx.h; sourceTree = "<group>"; };
+		2B3B31C41CF623DD00F52374 /* atomicops_internals_atomicword_compat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atomicops_internals_atomicword_compat.h; sourceTree = "<group>"; };
+		2B3B31C51CF623DD00F52374 /* atomicops_internals_macosx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atomicops_internals_macosx.h; sourceTree = "<group>"; };
+		2B3B31C61CF623DD00F52374 /* atomicops_internals_mips_gcc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atomicops_internals_mips_gcc.h; sourceTree = "<group>"; };
+		2B3B31C71CF623DD00F52374 /* atomicops_internals_pnacl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atomicops_internals_pnacl.h; sourceTree = "<group>"; };
+		2B3B31C81CF623DD00F52374 /* atomicops_internals_x86_gcc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = atomicops_internals_x86_gcc.cc; sourceTree = "<group>"; };
+		2B3B31C91CF623DD00F52374 /* atomicops_internals_x86_gcc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atomicops_internals_x86_gcc.h; sourceTree = "<group>"; };
+		2B3B31CA1CF623DD00F52374 /* atomicops_internals_x86_msvc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = atomicops_internals_x86_msvc.cc; sourceTree = "<group>"; };
+		2B3B31CB1CF623DD00F52374 /* atomicops_internals_x86_msvc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atomicops_internals_x86_msvc.h; sourceTree = "<group>"; };
+		2B3B31CC1CF623DD00F52374 /* atomicops.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = atomicops.h; sourceTree = "<group>"; };
+		2B3B31CD1CF623DD00F52374 /* common.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = common.cc; sourceTree = "<group>"; };
+		2B3B31CE1CF623DD00F52374 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
+		2B3B31CF1CF623DD00F52374 /* hash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hash.h; sourceTree = "<group>"; };
+		2B3B31D01CF623DD00F52374 /* int128.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = int128.cc; sourceTree = "<group>"; };
+		2B3B31D11CF623DD00F52374 /* once.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = once.cc; sourceTree = "<group>"; };
+		2B3B31D21CF623DD00F52374 /* once.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = once.h; sourceTree = "<group>"; };
+		2B3B31D31CF623DD00F52374 /* platform_macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_macros.h; sourceTree = "<group>"; };
+		2B3B31D41CF623DD00F52374 /* status.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = status.cc; sourceTree = "<group>"; };
+		2B3B31D51CF623DD00F52374 /* stl_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stl_util.h; sourceTree = "<group>"; };
+		2B3B31D61CF623DD00F52374 /* stringpiece.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stringpiece.cc; sourceTree = "<group>"; };
+		2B3B31D71CF623DD00F52374 /* stringprintf.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stringprintf.cc; sourceTree = "<group>"; };
+		2B3B31D81CF623DD00F52374 /* stringprintf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stringprintf.h; sourceTree = "<group>"; };
+		2B3B31D91CF623DD00F52374 /* structurally_valid.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = structurally_valid.cc; sourceTree = "<group>"; };
+		2B3B31DA1CF623DD00F52374 /* strutil.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = strutil.cc; sourceTree = "<group>"; };
+		2B3B31DB1CF623DD00F52374 /* strutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = strutil.h; sourceTree = "<group>"; };
+		2B3B31DC1CF623DD00F52374 /* substitute.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = substitute.cc; sourceTree = "<group>"; };
+		2B3B31DD1CF623DD00F52374 /* substitute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = substitute.h; sourceTree = "<group>"; };
+		2B3B31DE1CF623DD00F52374 /* template_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = template_util.h; sourceTree = "<group>"; };
+		2B3B31DF1CF623DD00F52374 /* type_traits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = type_traits.h; sourceTree = "<group>"; };
+		2B3B31FE1CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser_DataReturn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_MapboxVectorTileParser_DataReturn.h; path = ../Android/jni/com_mousebird_maply_MapboxVectorTileParser_DataReturn.h; sourceTree = "<group>"; };
+		2B3B31FF1CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_MapboxVectorTileParser.h; path = ../Android/jni/com_mousebird_maply_MapboxVectorTileParser.h; sourceTree = "<group>"; };
+		2B3B32021CF6593900F52374 /* MapboxVectorTileParser_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapboxVectorTileParser_jni.cpp; path = ../Android/jni/MapboxVectorTileParser_jni.cpp; sourceTree = "<group>"; };
 		2B3C82791333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesimulator-Prefix.pch"; sourceTree = "<group>"; };
 		2B4B192B1BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_AngleAxis.h; path = ../Android/jni/com_mousebird_maply_AngleAxis.h; sourceTree = "<group>"; };
 		2B4B192C1BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_AttrDictionary.h; path = ../Android/jni/com_mousebird_maply_AttrDictionary.h; sourceTree = "<group>"; };
@@ -1378,6 +1575,7 @@
 		08FB77AEFE84172EC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				2B30A3B01CF61E0400FED2D5 /* google */,
 				883C06CC1CC055740042B20C /* aaplus */,
 				2B009D141861091E001E2EE8 /* clipper */,
 				2B009CBE186102B1001E2EE8 /* libjson */,
@@ -1489,12 +1687,137 @@
 			name = clipper;
 			sourceTree = "<group>";
 		};
+		2B30A3B01CF61E0400FED2D5 /* google */ = {
+			isa = PBXGroup;
+			children = (
+				2B3B2C911CF6202700F52374 /* protobuf */,
+			);
+			name = google;
+			sourceTree = "<group>";
+		};
 		2B3AF66C13EEDD7E004A781D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
 				2B3AF66D13EEDDA8004A781D /* framework_info.plist */,
 			);
 			name = Resources;
+			sourceTree = "<group>";
+		};
+		2B3B2C911CF6202700F52374 /* protobuf */ = {
+			isa = PBXGroup;
+			children = (
+				2B3B312F1CF622E000F52374 /* stubs */,
+				2B3B31011CF622AA00F52374 /* io */,
+				2B3B30AA1CF6227F00F52374 /* any.cc */,
+				2B3B30AB1CF6227F00F52374 /* arena.cc */,
+				2B3B30AC1CF6227F00F52374 /* arena.h */,
+				2B3B30AD1CF6227F00F52374 /* arenastring.cc */,
+				2B3B30AE1CF6227F00F52374 /* arenastring.h */,
+				2B3B30AF1CF6227F00F52374 /* descriptor_database.cc */,
+				2B3B30B01CF6227F00F52374 /* descriptor_database.h */,
+				2B3B30B11CF6227F00F52374 /* descriptor.cc */,
+				2B3B30B21CF6227F00F52374 /* descriptor.h */,
+				2B3B30B31CF6227F00F52374 /* descriptor.pb.cc */,
+				2B3B30B41CF6227F00F52374 /* descriptor.pb.h */,
+				2B3B30B51CF6227F00F52374 /* descriptor.proto */,
+				2B3B30B61CF6227F00F52374 /* dynamic_message.cc */,
+				2B3B30B71CF6227F00F52374 /* dynamic_message.h */,
+				2B3B30B81CF6227F00F52374 /* extension_set_heavy.cc */,
+				2B3B30B91CF6227F00F52374 /* extension_set.cc */,
+				2B3B30BA1CF6227F00F52374 /* extension_set.h */,
+				2B3B30BB1CF6227F00F52374 /* generated_enum_reflection.h */,
+				2B3B30BC1CF6227F00F52374 /* generated_message_reflection.cc */,
+				2B3B30BD1CF6227F00F52374 /* generated_message_reflection.h */,
+				2B3B30BE1CF6227F00F52374 /* generated_message_util.cc */,
+				2B3B30BF1CF6227F00F52374 /* generated_message_util.h */,
+				2B3B30C01CF6227F00F52374 /* map_field.cc */,
+				2B3B30C11CF6227F00F52374 /* map_field.h */,
+				2B3B30C21CF6227F00F52374 /* message_lite.cc */,
+				2B3B30C31CF6227F00F52374 /* message_lite.h */,
+				2B3B30C41CF6227F00F52374 /* message.cc */,
+				2B3B30C51CF6227F00F52374 /* message.h */,
+				2B3B30C61CF6227F00F52374 /* package_info.h */,
+				2B3B30C71CF6227F00F52374 /* reflection_ops.cc */,
+				2B3B30C81CF6227F00F52374 /* reflection_ops.h */,
+				2B3B30C91CF6227F00F52374 /* repeated_field.cc */,
+				2B3B30CA1CF6227F00F52374 /* repeated_field.h */,
+				2B3B30CB1CF6227F00F52374 /* service.cc */,
+				2B3B30CC1CF6227F00F52374 /* service.h */,
+				2B3B30CD1CF6227F00F52374 /* text_format.cc */,
+				2B3B30CE1CF6227F00F52374 /* text_format.h */,
+				2B3B30CF1CF6227F00F52374 /* unknown_field_set.cc */,
+				2B3B30D01CF6227F00F52374 /* unknown_field_set.h */,
+				2B3B30D11CF6227F00F52374 /* wire_format_lite_inl.h */,
+				2B3B30D21CF6227F00F52374 /* wire_format_lite.cc */,
+				2B3B30D31CF6227F00F52374 /* wire_format_lite.h */,
+				2B3B30D41CF6227F00F52374 /* wire_format.cc */,
+				2B3B30D51CF6227F00F52374 /* wire_format.h */,
+			);
+			name = protobuf;
+			sourceTree = "<group>";
+		};
+		2B3B31011CF622AA00F52374 /* io */ = {
+			isa = PBXGroup;
+			children = (
+				2B3B31021CF622AA00F52374 /* coded_stream.cc */,
+				2B3B31031CF622AA00F52374 /* coded_stream.h */,
+				2B3B31041CF622AA00F52374 /* coded_stream_inl.h */,
+				2B3B31061CF622AA00F52374 /* gzip_stream.cc */,
+				2B3B31071CF622AA00F52374 /* gzip_stream.h */,
+				2B3B31091CF622AA00F52374 /* package_info.h */,
+				2B3B310A1CF622AA00F52374 /* printer.cc */,
+				2B3B310B1CF622AA00F52374 /* printer.h */,
+				2B3B310D1CF622AA00F52374 /* strtod.cc */,
+				2B3B310E1CF622AA00F52374 /* strtod.h */,
+				2B3B310F1CF622AA00F52374 /* tokenizer.cc */,
+				2B3B31101CF622AA00F52374 /* tokenizer.h */,
+				2B3B31121CF622AA00F52374 /* zero_copy_stream.cc */,
+				2B3B31131CF622AA00F52374 /* zero_copy_stream.h */,
+				2B3B31141CF622AA00F52374 /* zero_copy_stream_impl.cc */,
+				2B3B31151CF622AA00F52374 /* zero_copy_stream_impl.h */,
+				2B3B31161CF622AA00F52374 /* zero_copy_stream_impl_lite.cc */,
+				2B3B31171CF622AA00F52374 /* zero_copy_stream_impl_lite.h */,
+			);
+			name = io;
+			path = "../../third-party/protobuf/src/google/protobuf/io";
+			sourceTree = "<group>";
+		};
+		2B3B312F1CF622E000F52374 /* stubs */ = {
+			isa = PBXGroup;
+			children = (
+				2B3B31C21CF623DD00F52374 /* atomicops_internals_arm_gcc.h */,
+				2B3B31C31CF623DD00F52374 /* atomicops_internals_arm_qnx.h */,
+				2B3B31C41CF623DD00F52374 /* atomicops_internals_atomicword_compat.h */,
+				2B3B31C51CF623DD00F52374 /* atomicops_internals_macosx.h */,
+				2B3B31C61CF623DD00F52374 /* atomicops_internals_mips_gcc.h */,
+				2B3B31C71CF623DD00F52374 /* atomicops_internals_pnacl.h */,
+				2B3B31C81CF623DD00F52374 /* atomicops_internals_x86_gcc.cc */,
+				2B3B31C91CF623DD00F52374 /* atomicops_internals_x86_gcc.h */,
+				2B3B31CA1CF623DD00F52374 /* atomicops_internals_x86_msvc.cc */,
+				2B3B31CB1CF623DD00F52374 /* atomicops_internals_x86_msvc.h */,
+				2B3B31CC1CF623DD00F52374 /* atomicops.h */,
+				2B3B31CD1CF623DD00F52374 /* common.cc */,
+				2B3B31CE1CF623DD00F52374 /* common.h */,
+				2B3B31CF1CF623DD00F52374 /* hash.h */,
+				2B3B31D01CF623DD00F52374 /* int128.cc */,
+				2B3B31D11CF623DD00F52374 /* once.cc */,
+				2B3B31D21CF623DD00F52374 /* once.h */,
+				2B3B31D31CF623DD00F52374 /* platform_macros.h */,
+				2B3B31D41CF623DD00F52374 /* status.cc */,
+				2B3B31D51CF623DD00F52374 /* stl_util.h */,
+				2B3B31D61CF623DD00F52374 /* stringpiece.cc */,
+				2B3B31D71CF623DD00F52374 /* stringprintf.cc */,
+				2B3B31D81CF623DD00F52374 /* stringprintf.h */,
+				2B3B31D91CF623DD00F52374 /* structurally_valid.cc */,
+				2B3B31DA1CF623DD00F52374 /* strutil.cc */,
+				2B3B31DB1CF623DD00F52374 /* strutil.h */,
+				2B3B31DC1CF623DD00F52374 /* substitute.cc */,
+				2B3B31DD1CF623DD00F52374 /* substitute.h */,
+				2B3B31DE1CF623DD00F52374 /* template_util.h */,
+				2B3B31DF1CF623DD00F52374 /* type_traits.h */,
+			);
+			name = stubs;
+			path = "../../third-party/protobuf/src/google/protobuf/stubs";
 			sourceTree = "<group>";
 		};
 		2B3C82771333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator */ = {
@@ -1525,6 +1848,8 @@
 		2B4B19291BA38A940091A743 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2B3B31FE1CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser_DataReturn.h */,
+				2B3B31FF1CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser.h */,
 				2B4B192B1BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h */,
 				2B4B192C1BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h */,
 				2B923FC51BFBDED200C879DB /* com_mousebird_maply_BaseInfo.h */,
@@ -1644,6 +1969,7 @@
 				2B4B19AB1BA38AFB0091A743 /* LabelInfoAndroid.cpp */,
 				2B4B19AC1BA38AFB0091A743 /* LabelManager_jni.cpp */,
 				2B4B19AD1BA38AFB0091A743 /* LayoutManager_jni.cpp */,
+				2B3B32021CF6593900F52374 /* MapboxVectorTileParser_jni.cpp */,
 				2B4B19AE1BA38AFB0091A743 /* Maply_jni.cpp */,
 				2B4B19AF1BA38AFB0091A743 /* maply.cpp */,
 				2B4B19B01BA38AFB0091A743 /* MaplyRenderer_jni.cpp */,
@@ -2035,6 +2361,8 @@
 				2BC849691C6932FD0058D10F /* WideVectorDrawable.h */,
 				2BC8496A1C6932FD0058D10F /* WideVectorManager.h */,
 				8FB301851CC976A9000111DF /* ScreenObject.h */,
+				2B30A3AA1CF61D1600FED2D5 /* vector_tile.pb.h */,
+				2B30A3A61CF618F500FED2D5 /* MapboxVectorTileParser.h */,
 			);
 			path = include;
 			sourceTree = "<group>";
@@ -2117,6 +2445,8 @@
 				2BC8496D1C6933120058D10F /* WideVectorDrawable.cpp */,
 				2BC8496E1C6933120058D10F /* WideVectorManager.cpp */,
 				8FB301921CC98AE7000111DF /* ScreenObject.cpp */,
+				2B30A3AC1CF61D2300FED2D5 /* vector_tile.pb.cpp */,
+				2B30A3A81CF6190600FED2D5 /* MapboxVectorTileParser.cpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -2310,12 +2640,15 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B3B31F11CF623DD00F52374 /* platform_macros.h in Headers */,
 				2B3567E518D762BF00EF8DB1 /* GlobeMath.h in Headers */,
 				2B4B19671BA38AD90091A743 /* com_mousebird_maply_CoordSystemDisplayAdapter.h in Headers */,
 				2B3567DD18D762BF00EF8DB1 /* Cullable.h in Headers */,
 				2B3836A9186244DC00467ABD /* glwrapper.h in Headers */,
 				883C07491CC055740042B20C /* AAAngularSeparation.h in Headers */,
+				2B3B31F91CF623DD00F52374 /* strutil.h in Headers */,
 				2B3A0D41133405700085EF43 /* shapefil.h in Headers */,
+				2B3B31E11CF623DD00F52374 /* atomicops_internals_arm_qnx.h in Headers */,
 				2B7EF42D16025D8C00D4079F /* emess.h in Headers */,
 				88D57FC81CA1EBAE00A203F8 /* com_mousebird_maply_VertexAttribute.h in Headers */,
 				2B76C5F01C1223A90081F395 /* com_mousebird_maply_QuadImageOfflineLayer.h in Headers */,
@@ -2327,6 +2660,7 @@
 				2B923FCC1BFBDED200C879DB /* com_mousebird_maply_QuadImageTileLayer_ImageUpdater.h in Headers */,
 				883C07531CC055740042B20C /* AADynamicalTime.h in Headers */,
 				883C079F1CC055740042B20C /* AAPlanetPerihelionAphelion.h in Headers */,
+				2B3B30F31CF6227F00F52374 /* reflection_ops.h in Headers */,
 				2B4B196D1BA38AD90091A743 /* com_mousebird_maply_GlobeViewState.h in Headers */,
 				2B35682F18D762BF00EF8DB1 /* ScreenSpaceGenerator.h in Headers */,
 				883C076B1CC055740042B20C /* AAIlluminatedFraction.h in Headers */,
@@ -2341,6 +2675,8 @@
 				2B009D0A186102E4001E2EE8 /* JSONStream.h in Headers */,
 				883C07731CC055740042B20C /* AAKepler.h in Headers */,
 				2B4B19761BA38AD90091A743 /* com_mousebird_maply_MapView_AnimationDelegate.h in Headers */,
+				2B3B30FC1CF6227F00F52374 /* wire_format_lite_inl.h in Headers */,
+				2B3B31E41CF623DD00F52374 /* atomicops_internals_mips_gcc.h in Headers */,
 				2B923FCD1BFBDED200C879DB /* com_mousebird_maply_Sticker.h in Headers */,
 				2B35683A18D762BF00EF8DB1 /* VectorObject.h in Headers */,
 				883C07B81CC055740042B20C /* stdafx.h in Headers */,
@@ -2350,6 +2686,7 @@
 				883C07591CC055740042B20C /* AAEclipses.h in Headers */,
 				883C07951CC055740042B20C /* AAPhysicalJupiter.h in Headers */,
 				2B4B19851BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer_LoadedTile.h in Headers */,
+				2B3B31261CF622AA00F52374 /* tokenizer.h in Headers */,
 				2B4B19681BA38AD90091A743 /* com_mousebird_maply_FakeGeocentricDisplayAdapter.h in Headers */,
 				2B4B19711BA38AD90091A743 /* com_mousebird_maply_LabelInfo.h in Headers */,
 				2B4B197A1BA38AD90091A743 /* com_mousebird_maply_MarkerInfo.h in Headers */,
@@ -2358,17 +2695,21 @@
 				2B35683918D762BF00EF8DB1 /* VectorManager.h in Headers */,
 				2B3567E118D762BF00EF8DB1 /* DynamicDrawableAtlas.h in Headers */,
 				883C07791CC055740042B20C /* AAMoon.h in Headers */,
+				2B30A3AB1CF61D1600FED2D5 /* vector_tile.pb.h in Headers */,
 				2BB7660A1C6FFF9B00F01F2A /* com_mousebird_maply_QuadImageOfflineLayer_RenderedImageDelegate.h in Headers */,
 				2B7EF43D16025D8C00D4079F /* org_proj4_Projections.h in Headers */,
 				2B4B197E1BA38AD90091A743 /* com_mousebird_maply_Point2d.h in Headers */,
 				2B7EF48216025D8C00D4079F /* pj_list.h in Headers */,
+				2B3B31211CF622AA00F52374 /* printer.h in Headers */,
 				2B7EF4C316025D8C00D4079F /* proj_api.h in Headers */,
 				2B7EF4C816025D8C00D4079F /* projects.h in Headers */,
 				2B3567E218D762BF00EF8DB1 /* DynamicTextureAtlas.h in Headers */,
 				883C07931CC055740042B20C /* AAParallax.h in Headers */,
 				2B009CED186102E4001E2EE8 /* mempool.h in Headers */,
 				883C07771CC055740042B20C /* AAMercury.h in Headers */,
+				2B3B31E31CF623DD00F52374 /* atomicops_internals_macosx.h in Headers */,
 				883C07811CC055740042B20C /* AAMoonPerigeeApogee.h in Headers */,
+				2B3B31E01CF623DD00F52374 /* atomicops_internals_arm_gcc.h in Headers */,
 				2B35683818D762BF00EF8DB1 /* VectorData.h in Headers */,
 				2B923FCA1BFBDED200C879DB /* com_mousebird_maply_BaseInfo.h in Headers */,
 				8817DA031C92F3070034E3EA /* com_mousebird_maply_ShapeInfo.h in Headers */,
@@ -2377,13 +2718,16 @@
 				2B009CF8186102E4001E2EE8 /* Strings_Defs.h in Headers */,
 				2BB766091C6FFF9B00F01F2A /* com_mousebird_maply_Proj4CoordSystem.h in Headers */,
 				2B4B19871BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer.h in Headers */,
+				2B3B31E51CF623DD00F52374 /* atomicops_internals_pnacl.h in Headers */,
 				88D653ED1C92CF7900B39955 /* ShapeDrawableBuilder.h in Headers */,
 				883C075B1CC055740042B20C /* AAEclipticalElements.h in Headers */,
+				2B3B31FB1CF623DD00F52374 /* substitute.h in Headers */,
 				2B4B196B1BA38AD90091A743 /* com_mousebird_maply_GlobeView_AnimationDelegate.h in Headers */,
 				883C07471CC055740042B20C /* AAAberration.h in Headers */,
 				2BA2325617984F510063CC84 /* glues.h in Headers */,
 				883C076F1CC055740042B20C /* AAJewishCalendar.h in Headers */,
 				2B4B19751BA38AD90091A743 /* com_mousebird_maply_MapScene.h in Headers */,
+				2B3B30FE1CF6227F00F52374 /* wire_format_lite.h in Headers */,
 				88AEB1571CC0466800BD63C2 /* Moon.h in Headers */,
 				883C07A91CC055740042B20C /* AASaturn.h in Headers */,
 				2B4B197C1BA38AD90091A743 /* com_mousebird_maply_Matrix4d.h in Headers */,
@@ -2391,12 +2735,18 @@
 				2B923FD21BFD04AE00C879DB /* com_mousebird_maply_StickerManager.h in Headers */,
 				883C07B31CC055740042B20C /* AASun.h in Headers */,
 				883C077D1CC055740042B20C /* AAMoonMaxDeclinations.h in Headers */,
+				2B3B30E51CF6227F00F52374 /* extension_set.h in Headers */,
 				883C07A31CC055740042B20C /* AAPrecession.h in Headers */,
+				2B3B31E21CF623DD00F52374 /* atomicops_internals_atomicword_compat.h in Headers */,
+				2B3B31F31CF623DD00F52374 /* stl_util.h in Headers */,
 				2B35683E18D762BF00EF8DB1 /* WhirlyTypes.h in Headers */,
+				2B3B30D81CF6227F00F52374 /* arena.h in Headers */,
 				883C075F1CC055740042B20C /* AAElliptical.h in Headers */,
 				2B4B19691BA38AD90091A743 /* com_mousebird_maply_GeoCoordSystem.h in Headers */,
+				2B3B30E81CF6227F00F52374 /* generated_message_reflection.h in Headers */,
 				2B009CF2186102E4001E2EE8 /* JSONAllocator.h in Headers */,
 				2BDC89CB191C2ADE00DFECF0 /* SceneRendererES3.h in Headers */,
+				2B3B30F11CF6227F00F52374 /* package_info.h in Headers */,
 				2B35682418D762BF00EF8DB1 /* MarkerManager.h in Headers */,
 				2BDC8A6E192C08F600DFECF0 /* LabelManager.h in Headers */,
 				2B009D05186102E4001E2EE8 /* JSONPreparse.h in Headers */,
@@ -2413,6 +2763,9 @@
 				2B35683C18D762BF00EF8DB1 /* WhirlyGeometry.h in Headers */,
 				2B009CFC186102E4001E2EE8 /* JSONGlobals.h in Headers */,
 				2B35682218D762BF00EF8DB1 /* MaplyViewState.h in Headers */,
+				2B3B30F51CF6227F00F52374 /* repeated_field.h in Headers */,
+				2B3B31E71CF623DD00F52374 /* atomicops_internals_x86_gcc.h in Headers */,
+				2B3B31ED1CF623DD00F52374 /* hash.h in Headers */,
 				2B35682018D762BF00EF8DB1 /* MaplyScene.h in Headers */,
 				2B4B19951BA38AD90091A743 /* FontTextureManagerAndroid.h in Headers */,
 				883C07611CC055740042B20C /* AAEquationOfTime.h in Headers */,
@@ -2427,11 +2780,14 @@
 				2BA2325C17984F510063CC84 /* glues_project.h in Headers */,
 				2BCCE21D1CA9EE6500F579BA /* com_mousebird_maply_Sun.h in Headers */,
 				2B009D07186102E4001E2EE8 /* JSONSingleton.h in Headers */,
+				2B3B30DE1CF6227F00F52374 /* descriptor.h in Headers */,
 				2B4B197F1BA38AD90091A743 /* com_mousebird_maply_Point3d.h in Headers */,
+				2B3B31FC1CF623DD00F52374 /* template_util.h in Headers */,
 				2B4B197B1BA38AD90091A743 /* com_mousebird_maply_MarkerManager.h in Headers */,
 				2B14BFC51B83F3F500CE29A4 /* BasicDrawable.h in Headers */,
 				2B923FCB1BFBDED200C879DB /* com_mousebird_maply_QuadImageTileLayer_FrameStatus.h in Headers */,
 				883C07891CC055740042B20C /* AANeptune.h in Headers */,
+				2B3B31E91CF623DD00F52374 /* atomicops_internals_x86_msvc.h in Headers */,
 				2BC8496B1C6932FD0058D10F /* WideVectorDrawable.h in Headers */,
 				2B76C5DB1C10C4770081F395 /* TileQuadOfflineRenderer.h in Headers */,
 				2B4B198C1BA38AD90091A743 /* com_mousebird_maply_SphericalMercatorCoordSystem.h in Headers */,
@@ -2439,6 +2795,7 @@
 				2B4B19821BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_ImageFormat.h in Headers */,
 				88B9DE831C503C5700DDF3E9 /* com_mousebird_maply_ParticleSystemManager.h in Headers */,
 				2B3567E418D762BF00EF8DB1 /* Generator.h in Headers */,
+				2B3B30E21CF6227F00F52374 /* dynamic_message.h in Headers */,
 				2B009D02186102E4001E2EE8 /* JSONNode.h in Headers */,
 				2BA2326017984F510063CC84 /* glues_registry.h in Headers */,
 				883C07A51CC055740042B20C /* AARefraction.h in Headers */,
@@ -2449,6 +2806,7 @@
 				2B3567E718D762BF00EF8DB1 /* GlobeView.h in Headers */,
 				2B4B198A1BA38AD90091A743 /* com_mousebird_maply_SelectionManager.h in Headers */,
 				2B3567E018D762BF00EF8DB1 /* Drawable.h in Headers */,
+				2B3B30E61CF6227F00F52374 /* generated_enum_reflection.h in Headers */,
 				2BA2326217984F510063CC84 /* dict-list.h in Headers */,
 				2B009D181861093A001E2EE8 /* clipper.hpp in Headers */,
 				2B35682D18D762BF00EF8DB1 /* SceneRendererES2.h in Headers */,
@@ -2457,17 +2815,25 @@
 				2B009CF6186102E4001E2EE8 /* JSONDebug.h in Headers */,
 				88D57FC01CA1EB6400A203F8 /* ElevationChunk.h in Headers */,
 				2B009D06186102E4001E2EE8 /* JSONSharedString.h in Headers */,
+				2B3B31EA1CF623DD00F52374 /* atomicops.h in Headers */,
+				2B3B312B1CF622AA00F52374 /* zero_copy_stream_impl.h in Headers */,
 				2BA2326417984F510063CC84 /* dict.h in Headers */,
+				2B3B30EC1CF6227F00F52374 /* map_field.h in Headers */,
 				883C077F1CC055740042B20C /* AAMoonNodes.h in Headers */,
+				2B3B30DC1CF6227F00F52374 /* descriptor_database.h in Headers */,
 				883C07831CC055740042B20C /* AAMoonPhases.h in Headers */,
 				883C07A71CC055740042B20C /* AARiseTransitSet.h in Headers */,
 				2B4B19981BA38AD90091A743 /* Maply_jni.h in Headers */,
 				D8701BA61C538B39009A5471 /* ParticleSystemDrawable.h in Headers */,
 				8817DA021C92F3070034E3EA /* com_mousebird_maply_ShapeSphere.h in Headers */,
 				88CC3B101CC540E700E0AEB7 /* com_mousebird_maply_BillboardInfo.h in Headers */,
+				2B3B31241CF622AA00F52374 /* strtod.h in Headers */,
 				2B4B19631BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h in Headers */,
 				2BC8496C1C6932FD0058D10F /* WideVectorManager.h in Headers */,
 				883C07551CC055740042B20C /* AAEarth.h in Headers */,
+				2B3B31FD1CF623DD00F52374 /* type_traits.h in Headers */,
+				2B3B311B1CF622AA00F52374 /* coded_stream_inl.h in Headers */,
+				2B3B30EA1CF6227F00F52374 /* generated_message_util.h in Headers */,
 				883C07851CC055740042B20C /* AAMoslemCalendar.h in Headers */,
 				883C074F1CC055740042B20C /* AADate.h in Headers */,
 				2B4B198F1BA38AD90091A743 /* com_mousebird_maply_VectorIterator.h in Headers */,
@@ -2476,6 +2842,7 @@
 				2B4B198E1BA38AD90091A743 /* com_mousebird_maply_VectorInfo.h in Headers */,
 				2B5F18A71A7B05BF004A8723 /* ScreenSpaceBuilder.h in Headers */,
 				88D57FEE1CA1ED3F00A203F8 /* nad_list.h in Headers */,
+				2B3B32001CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser_DataReturn.h in Headers */,
 				8817DA061C92F3070034E3EA /* com_mousebird_maply_ParticleSystem_STATE.h in Headers */,
 				2B3567E818D762BF00EF8DB1 /* GlobeViewState.h in Headers */,
 				2B4B19831BA38AD90091A743 /* com_mousebird_maply_QuadImageTileLayer_TileSource.h in Headers */,
@@ -2486,29 +2853,35 @@
 				88D57FF01CA1ED3F00A203F8 /* org_proj4_PJ.h in Headers */,
 				2B3567EC18D762BF00EF8DB1 /* LayoutManager.h in Headers */,
 				2B4B19721BA38AD90091A743 /* com_mousebird_maply_LabelManager.h in Headers */,
+				2B30A3A71CF618F500FED2D5 /* MapboxVectorTileParser.h in Headers */,
 				88CC3B0F1CC540E700E0AEB7 /* com_mousebird_maply_Billboard.h in Headers */,
 				2BA2326A17984F510063CC84 /* mesh.h in Headers */,
+				2B3B30F91CF6227F00F52374 /* text_format.h in Headers */,
 				883C07AB1CC055740042B20C /* AASaturnMoons.h in Headers */,
 				883C07A11CC055740042B20C /* AAPluto.h in Headers */,
 				2B35683718D762BF00EF8DB1 /* TileQuadLoader.h in Headers */,
 				88D653EB1C92CF7900B39955 /* ShapeManager.h in Headers */,
 				883C079D1CC055740042B20C /* AAPlanetaryPhenomena.h in Headers */,
 				883C07431CC055740042B20C /* AA+.h in Headers */,
+				2B3B31EC1CF623DD00F52374 /* common.h in Headers */,
 				2B4B19731BA38AD90091A743 /* com_mousebird_maply_LayoutManager.h in Headers */,
 				883C07B11CC055740042B20C /* AAStellarMagnitudes.h in Headers */,
 				2B009D08186102E4001E2EE8 /* JSONStats.h in Headers */,
+				2B3B312D1CF622AA00F52374 /* zero_copy_stream_impl_lite.h in Headers */,
 				2B4B19961BA38AD90091A743 /* ImageWrapper.h in Headers */,
 				2B35682A18D762BF00EF8DB1 /* RawData.h in Headers */,
 				88D57FC61CA1EBAE00A203F8 /* com_mousebird_maply_DirectionalLight.h in Headers */,
 				8817DA041C92F3070034E3EA /* com_mousebird_maply_ShapeManager.h in Headers */,
 				2B009D00186102E4001E2EE8 /* JSONMemoryPool.h in Headers */,
 				2B4B19971BA38AD90091A743 /* LabelInfoAndroid.h in Headers */,
+				2B3B30EE1CF6227F00F52374 /* message_lite.h in Headers */,
 				2B4B197D1BA38AD90091A743 /* com_mousebird_maply_PlateCarreeCoordSystem.h in Headers */,
 				2B4B19891BA38AD90091A743 /* com_mousebird_maply_Scene.h in Headers */,
 				883C07751CC055740042B20C /* AAMars.h in Headers */,
 				883C078F1CC055740042B20C /* AAParabolic.h in Headers */,
 				2B5F18A81A7B05BF004A8723 /* ScreenSpaceDrawable.h in Headers */,
 				2B009D11186102E4001E2EE8 /* NumberToString.h in Headers */,
+				2B3B31291CF622AA00F52374 /* zero_copy_stream.h in Headers */,
 				2B4B19801BA38AD90091A743 /* com_mousebird_maply_Point4d.h in Headers */,
 				2B009D12186102E4001E2EE8 /* JSONOptions.h in Headers */,
 				883C07711CC055740042B20C /* AAJupiter.h in Headers */,
@@ -2525,6 +2898,7 @@
 				2B3567E918D762BF00EF8DB1 /* GLUtils.h in Headers */,
 				8831A2141CCA352200D3268E /* com_mousebird_maply_ScreenObject_BoundingBox.h in Headers */,
 				2B4B19991BA38AD90091A743 /* Maply_utils_jni.h in Headers */,
+				2B3B30E01CF6227F00F52374 /* descriptor.pb.h in Headers */,
 				2B35682718D762BF00EF8DB1 /* Platform.h in Headers */,
 				2BA2326D17984F510063CC84 /* priorityq-heap.h in Headers */,
 				2B009CF9186102E4001E2EE8 /* Unknown_C.h in Headers */,
@@ -2532,21 +2906,25 @@
 				2BA2327117984F510063CC84 /* priorityq.h in Headers */,
 				883C07971CC055740042B20C /* AAPhysicalMars.h in Headers */,
 				2B009C98185FA2CD001E2EE8 /* WhirlyGlobe.h in Headers */,
+				2B3B30DA1CF6227F00F52374 /* arenastring.h in Headers */,
 				883C07691CC055740042B20C /* AAGlobe.h in Headers */,
 				2B4B19861BA38AD90091A743 /* com_mousebird_maply_QuadPagingLayer_PagingInterface.h in Headers */,
 				2B923FCE1BFBDED200C879DB /* com_mousebird_maply_StickerInfo.h in Headers */,
 				2B923FBE1BFAA94100C879DB /* SphericalEarthChunkManager.h in Headers */,
 				D8701BA51C538B39009A5471 /* ParticleSystemManager.h in Headers */,
+				2B3B311E1CF622AA00F52374 /* gzip_stream.h in Headers */,
 				2B4B19901BA38AD90091A743 /* com_mousebird_maply_VectorManager.h in Headers */,
 				2B009CF0186102E4001E2EE8 /* JSON_Base64.h in Headers */,
 				88AEB1641CC0476D00BD63C2 /* com_mousebird_maply_Moon.h in Headers */,
 				2B35683218D762BF00EF8DB1 /* SharedAttributes.h in Headers */,
+				2B3B31F61CF623DD00F52374 /* stringprintf.h in Headers */,
 				2BB766061C6FFF7E00F01F2A /* com_mousebird_maply_GeneralDisplayAdapter.h in Headers */,
 				2B3567DE18D762BF00EF8DB1 /* DefaultShaderPrograms.h in Headers */,
 				D8641E091C5193A200D07B38 /* com_mousebird_maply_ParticleBatch.h in Headers */,
 				883C07B51CC055740042B20C /* AAUranus.h in Headers */,
 				2BA2327317984F510063CC84 /* render.h in Headers */,
 				88D57FC21CA1EB6F00A203F8 /* MarkerGenerator.h in Headers */,
+				2B3B311F1CF622AA00F52374 /* package_info.h in Headers */,
 				2B009CEC186102E4001E2EE8 /* libbase64++.h in Headers */,
 				2B4B19641BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h in Headers */,
 				88CC3B131CC5766800E0AEB7 /* com_mousebird_maply_BillboardManager.h in Headers */,
@@ -2554,16 +2932,19 @@
 				2B35683618D762BF00EF8DB1 /* TextureAtlas.h in Headers */,
 				2B35682818D762BF00EF8DB1 /* QuadDisplayController.h in Headers */,
 				2B009D13186102E4001E2EE8 /* libjson.h in Headers */,
+				2B3B32011CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser.h in Headers */,
 				2B3567DC18D762BF00EF8DB1 /* CoordSystem.h in Headers */,
 				883C07451CC055740042B20C /* AA3DCoordinate.h in Headers */,
 				2BA2327517984F510063CC84 /* sweep.h in Headers */,
 				2BA2327717984F510063CC84 /* tess.h in Headers */,
 				883C079B1CC055740042B20C /* AAPhysicalSun.h in Headers */,
+				2B3B30F01CF6227F00F52374 /* message.h in Headers */,
 				2BA2327917984F510063CC84 /* tessmono.h in Headers */,
 				2B3567EA18D762BF00EF8DB1 /* GridClipper.h in Headers */,
 				883C07511CC055740042B20C /* AADiameters.h in Headers */,
 				2B4B19701BA38AD90091A743 /* com_mousebird_maply_InternalMarker.h in Headers */,
 				8831A2151CCA352200D3268E /* com_mousebird_maply_ScreenObject.h in Headers */,
+				2B3B30FB1CF6227F00F52374 /* unknown_field_set.h in Headers */,
 				2B009CF4186102E4001E2EE8 /* JSONChildren.h in Headers */,
 				883C07AD1CC055740042B20C /* AASaturnRings.h in Headers */,
 				2B35683118D762BF00EF8DB1 /* ShapeReader.h in Headers */,
@@ -2582,6 +2963,7 @@
 				883C074B1CC055740042B20C /* AABinaryStar.h in Headers */,
 				2B3567EB18D762BF00EF8DB1 /* Identifiable.h in Headers */,
 				2B009D0C186102E4001E2EE8 /* JSONValidator.h in Headers */,
+				2B3B31001CF6227F00F52374 /* wire_format.h in Headers */,
 				2BDC8A60192A9E1700DFECF0 /* FontTextureManager.h in Headers */,
 				2B4B19911BA38AD90091A743 /* com_mousebird_maply_VectorObject.h in Headers */,
 				2B009CFF186102E4001E2EE8 /* JSONMemory.h in Headers */,
@@ -2592,7 +2974,10 @@
 				883C07991CC055740042B20C /* AAPhysicalMoon.h in Headers */,
 				2B4B196E1BA38AD90091A743 /* com_mousebird_maply_Identifiable.h in Headers */,
 				883C07AF1CC055740042B20C /* AASidereal.h in Headers */,
+				2B3B31F01CF623DD00F52374 /* once.h in Headers */,
+				2B3B311A1CF622AA00F52374 /* coded_stream.h in Headers */,
 				D8A4BE2C1C6F61D0009F6CFB /* com_mousebird_maply_QuadTracker.h in Headers */,
+				2B3B30F71CF6227F00F52374 /* service.h in Headers */,
 				2B35683D18D762BF00EF8DB1 /* WhirlyKitView.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2659,6 +3044,7 @@
 				8FB301931CC98AE7000111DF /* ScreenObject.cpp in Sources */,
 				2BDC4AC4133404C600E25283 /* shpopen.c in Sources */,
 				2B7EF42516025D8C00D4079F /* aasincos.c in Sources */,
+				2B3B30F21CF6227F00F52374 /* reflection_ops.cc in Sources */,
 				883C07521CC055740042B20C /* AADynamicalTime.cpp in Sources */,
 				2B7EF42616025D8C00D4079F /* adjlon.c in Sources */,
 				2B7EF42716025D8C00D4079F /* bch2bps.c in Sources */,
@@ -2668,7 +3054,9 @@
 				2B35676C18D762A700EF8DB1 /* TextureAtlas.cpp in Sources */,
 				2B7EF42916025D8C00D4079F /* biveval.c in Sources */,
 				883C07AE1CC055740042B20C /* AASidereal.cpp in Sources */,
+				2B3B31F41CF623DD00F52374 /* stringpiece.cc in Sources */,
 				2B35676118D762A700EF8DB1 /* RawData.cpp in Sources */,
+				2B3B30ED1CF6227F00F52374 /* message_lite.cc in Sources */,
 				2B35676418D762A700EF8DB1 /* SceneRendererES2.cpp in Sources */,
 				883C074C1CC055740042B20C /* AACoordinateTransformation.cpp in Sources */,
 				2B7EF42B16025D8C00D4079F /* dmstor.c in Sources */,
@@ -2678,10 +3066,13 @@
 				2BB766041C6FE6DC00F01F2A /* Proj4CoordSystem.cpp in Sources */,
 				2B14BFD71B852C5E00CE29A4 /* BasicDrawableInstance.cpp in Sources */,
 				2B7EF43316025D8C00D4079F /* geod_set.c in Sources */,
+				2B3B30E41CF6227F00F52374 /* extension_set.cc in Sources */,
 				883C07841CC055740042B20C /* AAMoslemCalendar.cpp in Sources */,
 				2B7EF43716025D8C00D4079F /* mk_cheby.c in Sources */,
 				2B7EF43916025D8C00D4079F /* nad_cvt.c in Sources */,
+				2B3B30E11CF6227F00F52374 /* dynamic_message.cc in Sources */,
 				2BC849701C6933120058D10F /* WideVectorManager.cpp in Sources */,
+				2B3B31F81CF623DD00F52374 /* strutil.cc in Sources */,
 				2B7EF43A16025D8C00D4079F /* nad_init.c in Sources */,
 				2B7EF43B16025D8C00D4079F /* nad_intr.c in Sources */,
 				2B35674918D762A700EF8DB1 /* DynamicDrawableAtlas.cpp in Sources */,
@@ -2690,6 +3081,7 @@
 				883C075A1CC055740042B20C /* AAEclipticalElements.cpp in Sources */,
 				883C07A21CC055740042B20C /* AAPrecession.cpp in Sources */,
 				2B7EF44116025D8C00D4079F /* PJ_airy.c in Sources */,
+				2B3B30DD1CF6227F00F52374 /* descriptor.cc in Sources */,
 				88D653F11C92CF9200B39955 /* ShapeManager.cpp in Sources */,
 				2B7EF44216025D8C00D4079F /* PJ_aitoff.c in Sources */,
 				2B7EF44316025D8C00D4079F /* pj_apply_gridshift.c in Sources */,
@@ -2697,15 +3089,18 @@
 				2B7EF44516025D8C00D4079F /* PJ_august.c in Sources */,
 				2B35675818D762A700EF8DB1 /* MaplyView.cpp in Sources */,
 				883C076A1CC055740042B20C /* AAIlluminatedFraction.cpp in Sources */,
+				2B3B30DF1CF6227F00F52374 /* descriptor.pb.cc in Sources */,
 				883C076C1CC055740042B20C /* AAInterpolate.cpp in Sources */,
 				2B7EF44616025D8C00D4079F /* pj_auth.c in Sources */,
 				2B7EF44716025D8C00D4079F /* PJ_bacon.c in Sources */,
 				2B009D171861093A001E2EE8 /* clipper.cpp in Sources */,
+				2B3B30DB1CF6227F00F52374 /* descriptor_database.cc in Sources */,
 				2B14BFCF1B83FE1A00CE29A4 /* BaseInfo.cpp in Sources */,
 				2B7EF44816025D8C00D4079F /* PJ_bipc.c in Sources */,
 				2B35677118D762A700EF8DB1 /* ViewState.cpp in Sources */,
 				2B7EF44916025D8C00D4079F /* PJ_boggs.c in Sources */,
 				2B7EF44A16025D8C00D4079F /* PJ_bonne.c in Sources */,
+				2B30A3A91CF6190600FED2D5 /* MapboxVectorTileParser.cpp in Sources */,
 				2B7EF44B16025D8C00D4079F /* PJ_cass.c in Sources */,
 				88D57FF61CA1ED3F00A203F8 /* pj_gridcatalog.c in Sources */,
 				2B7EF44C16025D8C00D4079F /* PJ_cc.c in Sources */,
@@ -2716,6 +3111,7 @@
 				2B7EF44F16025D8C00D4079F /* PJ_collg.c in Sources */,
 				2B7EF45016025D8C00D4079F /* PJ_crast.c in Sources */,
 				2B7EF45116025D8C00D4079F /* pj_ctx.c in Sources */,
+				2B3B311D1CF622AA00F52374 /* gzip_stream.cc in Sources */,
 				883C07661CC055740042B20C /* AAGalileanMoons.cpp in Sources */,
 				2B35676F18D762A700EF8DB1 /* VectorManager.cpp in Sources */,
 				2B35677418D762A700EF8DB1 /* WhirlyVector.cpp in Sources */,
@@ -2725,7 +3121,9 @@
 				88AEB15E1CC046FF00BD63C2 /* Sun.cpp in Sources */,
 				2B7EF45316025D8C00D4079F /* pj_datums.c in Sources */,
 				2B7EF45416025D8C00D4079F /* PJ_denoy.c in Sources */,
+				2B3B30E91CF6227F00F52374 /* generated_message_util.cc in Sources */,
 				88AEB15D1CC046FF00BD63C2 /* Moon.cpp in Sources */,
+				2B3B31EB1CF623DD00F52374 /* common.cc in Sources */,
 				2B7EF45516025D8C00D4079F /* pj_deriv.c in Sources */,
 				883C07901CC055740042B20C /* AAParallactic.cpp in Sources */,
 				2B7EF45616025D8C00D4079F /* PJ_eck1.c in Sources */,
@@ -2733,10 +3131,13 @@
 				2B35676918D762A700EF8DB1 /* SphericalMercator.cpp in Sources */,
 				2B7EF45716025D8C00D4079F /* PJ_eck2.c in Sources */,
 				2B35677218D762A700EF8DB1 /* WhirlyGeometry.cpp in Sources */,
+				2B3B31F51CF623DD00F52374 /* stringprintf.cc in Sources */,
 				2B009CF1186102E4001E2EE8 /* JSONAllocator.cpp in Sources */,
 				883C079E1CC055740042B20C /* AAPlanetPerihelionAphelion.cpp in Sources */,
+				2B3B31251CF622AA00F52374 /* tokenizer.cc in Sources */,
 				2B7EF45816025D8C00D4079F /* PJ_eck3.c in Sources */,
 				2B7EF45916025D8C00D4079F /* PJ_eck4.c in Sources */,
+				2B3B31281CF622AA00F52374 /* zero_copy_stream.cc in Sources */,
 				2B7EF45A16025D8C00D4079F /* PJ_eck5.c in Sources */,
 				2B923FBC1BFAA91600C879DB /* SphericalEarthChunkManager.cpp in Sources */,
 				88D57FF81CA1ED3F00A203F8 /* PJ_qsc.c in Sources */,
@@ -2757,8 +3158,11 @@
 				2B009CFE186102E4001E2EE8 /* JSONMemory.cpp in Sources */,
 				2B7EF46116025D8C00D4079F /* PJ_fahey.c in Sources */,
 				2B7EF46216025D8C00D4079F /* PJ_fouc_s.c in Sources */,
+				2B3B312C1CF622AA00F52374 /* zero_copy_stream_impl_lite.cc in Sources */,
 				883C078C1CC055740042B20C /* AANutation.cpp in Sources */,
+				2B3B31201CF622AA00F52374 /* printer.cc in Sources */,
 				2B7EF46316025D8C00D4079F /* pj_fwd.c in Sources */,
+				2B3B30D61CF6227F00F52374 /* any.cc in Sources */,
 				883C07541CC055740042B20C /* AAEarth.cpp in Sources */,
 				883C07B41CC055740042B20C /* AAUranus.cpp in Sources */,
 				D8701BAA1C538B77009A5471 /* ParticleSystemDrawable.cpp in Sources */,
@@ -2773,25 +3177,32 @@
 				2B35675C18D762A700EF8DB1 /* OpenGLES2Program.cpp in Sources */,
 				2B7EF46716025D8C00D4079F /* PJ_geos.c in Sources */,
 				883C078E1CC055740042B20C /* AAParabolic.cpp in Sources */,
+				2B3B312A1CF622AA00F52374 /* zero_copy_stream_impl.cc in Sources */,
+				2B3B30D71CF6227F00F52374 /* arena.cc in Sources */,
 				883C07981CC055740042B20C /* AAPhysicalMoon.cpp in Sources */,
 				2B7EF46816025D8C00D4079F /* PJ_gins8.c in Sources */,
 				88D57FF31CA1ED3F00A203F8 /* pj_fileapi.c in Sources */,
 				2B35674B18D762A700EF8DB1 /* FlatMath.cpp in Sources */,
 				2B7EF46916025D8C00D4079F /* PJ_gn_sinu.c in Sources */,
+				2B3B30E71CF6227F00F52374 /* generated_message_reflection.cc in Sources */,
 				2B35675E18D762A700EF8DB1 /* Platform.mm in Sources */,
 				2B7EF46A16025D8C00D4079F /* PJ_gnom.c in Sources */,
 				2B7EF46B16025D8C00D4079F /* PJ_goode.c in Sources */,
 				883C07501CC055740042B20C /* AADiameters.cpp in Sources */,
+				2B3B30F81CF6227F00F52374 /* text_format.cc in Sources */,
 				2B7EF46C16025D8C00D4079F /* pj_gridinfo.c in Sources */,
 				2BDC8A72192C090400DFECF0 /* LabelManager.cpp in Sources */,
 				2B7EF46D16025D8C00D4079F /* pj_gridlist.c in Sources */,
+				2B3B32031CF6593900F52374 /* MapboxVectorTileParser_jni.cpp in Sources */,
 				2B35676318D762A700EF8DB1 /* SceneRendererES.cpp in Sources */,
 				2B7EF46E16025D8C00D4079F /* PJ_gstmerc.c in Sources */,
 				2B7EF46F16025D8C00D4079F /* PJ_hammer.c in Sources */,
 				2B7EF47016025D8C00D4079F /* PJ_hatano.c in Sources */,
 				2B35676B18D762A700EF8DB1 /* Texture.cpp in Sources */,
 				2B35675518D762A700EF8DB1 /* LoadedTile.cpp in Sources */,
+				2B3B30FA1CF6227F00F52374 /* unknown_field_set.cc in Sources */,
 				8F22E5DB1CA1936B000458C7 /* Lighting.cpp in Sources */,
+				2B3B30F41CF6227F00F52374 /* repeated_field.cc in Sources */,
 				2B7EF47116025D8C00D4079F /* PJ_healpix.c in Sources */,
 				2B35675B18D762A700EF8DB1 /* MarkerManager.cpp in Sources */,
 				2B7EF47216025D8C00D4079F /* PJ_igh.c in Sources */,
@@ -2801,12 +3212,14 @@
 				D8701BA91C538B77009A5471 /* ParticleSystemManager.cpp in Sources */,
 				883C077E1CC055740042B20C /* AAMoonNodes.cpp in Sources */,
 				2BDC8A62192A9E3800DFECF0 /* FontTextureManager.cpp in Sources */,
+				2B3B31F21CF623DD00F52374 /* status.cc in Sources */,
 				2B7EF47416025D8C00D4079F /* pj_init.c in Sources */,
 				2B7EF47516025D8C00D4079F /* pj_initcache.c in Sources */,
 				2B7EF47616025D8C00D4079F /* pj_inv.c in Sources */,
 				2B7EF47716025D8C00D4079F /* PJ_isea.c in Sources */,
 				2B7EF47816025D8C00D4079F /* PJ_krovak.c in Sources */,
 				2B7EF47916025D8C00D4079F /* PJ_labrd.c in Sources */,
+				2B3B30EF1CF6227F00F52374 /* message.cc in Sources */,
 				2B7EF47A16025D8C00D4079F /* PJ_laea.c in Sources */,
 				2B7EF47B16025D8C00D4079F /* PJ_lagrng.c in Sources */,
 				2B7EF47C16025D8C00D4079F /* PJ_larr.c in Sources */,
@@ -2819,7 +3232,10 @@
 				2B7EF48316025D8C00D4079F /* pj_log.c in Sources */,
 				2B7EF48416025D8C00D4079F /* PJ_loxim.c in Sources */,
 				2B35674718D762A700EF8DB1 /* Dictionary.cpp in Sources */,
+				2B3B31EF1CF623DD00F52374 /* once.cc in Sources */,
+				2B3B30FD1CF6227F00F52374 /* wire_format_lite.cc in Sources */,
 				883C07921CC055740042B20C /* AAParallax.cpp in Sources */,
+				2B3B31191CF622AA00F52374 /* coded_stream.cc in Sources */,
 				2B7EF48516025D8C00D4079F /* PJ_lsat.c in Sources */,
 				2B7EF48616025D8C00D4079F /* pj_malloc.c in Sources */,
 				2B35675118D762A700EF8DB1 /* GLUtils.cpp in Sources */,
@@ -2839,9 +3255,12 @@
 				2B7EF48D16025D8C00D4079F /* PJ_mod_ster.c in Sources */,
 				2B7EF48E16025D8C00D4079F /* PJ_moll.c in Sources */,
 				2B7EF48F16025D8C00D4079F /* pj_msfn.c in Sources */,
+				2B3B31E61CF623DD00F52374 /* atomicops_internals_x86_gcc.cc in Sources */,
 				2B35675018D762A700EF8DB1 /* GlobeViewState.cpp in Sources */,
+				2B3B30E31CF6227F00F52374 /* extension_set_heavy.cc in Sources */,
 				2B7EF49016025D8C00D4079F /* pj_mutex.c in Sources */,
 				2B7EF49116025D8C00D4079F /* PJ_natearth.c in Sources */,
+				2B3B31EE1CF623DD00F52374 /* int128.cc in Sources */,
 				883C07861CC055740042B20C /* AANearParabolic.cpp in Sources */,
 				2B7EF49216025D8C00D4079F /* PJ_nell_h.c in Sources */,
 				2B7EF49316025D8C00D4079F /* PJ_nell.c in Sources */,
@@ -2867,6 +3286,7 @@
 				2B7EF49F16025D8C00D4079F /* PJ_poly.c in Sources */,
 				88D57FF41CA1ED3F00A203F8 /* pj_fwd3d.c in Sources */,
 				2B7EF4A016025D8C00D4079F /* pj_pr_list.c in Sources */,
+				2B3B31F71CF623DD00F52374 /* structurally_valid.cc in Sources */,
 				2B35675418D762A700EF8DB1 /* LayoutManager.cpp in Sources */,
 				8F0446861CC14D93008E4039 /* BillboardDrawable.cpp in Sources */,
 				883C07681CC055740042B20C /* AAGlobe.cpp in Sources */,
@@ -2878,6 +3298,7 @@
 				2B7EF4A316025D8C00D4079F /* PJ_putp4p.c in Sources */,
 				2B7EF4A416025D8C00D4079F /* PJ_putp5.c in Sources */,
 				88D57FFA1CA1ED3F00A203F8 /* pj_strtod.c in Sources */,
+				2B30A3AD1CF61D2300FED2D5 /* vector_tile.pb.cpp in Sources */,
 				883C07801CC055740042B20C /* AAMoonPerigeeApogee.cpp in Sources */,
 				2B7EF4A516025D8C00D4079F /* PJ_putp6.c in Sources */,
 				88D57FF21CA1ED3F00A203F8 /* PJ_calcofi.c in Sources */,
@@ -2901,6 +3322,7 @@
 				2B35676618D762A700EF8DB1 /* ScreenSpaceGenerator.cpp in Sources */,
 				883C07821CC055740042B20C /* AAMoonPhases.cpp in Sources */,
 				883C07741CC055740042B20C /* AAMars.cpp in Sources */,
+				2B3B31E81CF623DD00F52374 /* atomicops_internals_x86_msvc.cc in Sources */,
 				2BDC8A73192C090400DFECF0 /* LabelRenderer.cpp in Sources */,
 				883C07A61CC055740042B20C /* AARiseTransitSet.cpp in Sources */,
 				2B009CF5186102E4001E2EE8 /* JSONDebug.cpp in Sources */,
@@ -2912,17 +3334,21 @@
 				2B7EF4AF16025D8C00D4079F /* PJ_sts.c in Sources */,
 				2B7EF4B016025D8C00D4079F /* PJ_tcc.c in Sources */,
 				2B7EF4B116025D8C00D4079F /* PJ_tcea.c in Sources */,
+				2B3B31FA1CF623DD00F52374 /* substitute.cc in Sources */,
 				2B7EF4B216025D8C00D4079F /* PJ_tmerc.c in Sources */,
 				2B7EF4B316025D8C00D4079F /* PJ_tpeqd.c in Sources */,
 				2B7EF4B416025D8C00D4079F /* pj_transform.c in Sources */,
 				88D57FF11CA1ED3F00A203F8 /* p_series.c in Sources */,
 				2B76C5DD1C10C48A0081F395 /* TileQuadOfflineRenderer.cpp in Sources */,
+				2B3B30F61CF6227F00F52374 /* service.cc in Sources */,
 				883C076E1CC055740042B20C /* AAJewishCalendar.cpp in Sources */,
 				2B7EF4B516025D8C00D4079F /* pj_tsfn.c in Sources */,
 				2B7EF4B616025D8C00D4079F /* pj_units.c in Sources */,
 				88D57FF71CA1ED3F00A203F8 /* pj_inv3d.c in Sources */,
 				2B7EF4B716025D8C00D4079F /* PJ_urm5.c in Sources */,
 				2B7EF4B816025D8C00D4079F /* PJ_urmfps.c in Sources */,
+				2B3B31231CF622AA00F52374 /* strtod.cc in Sources */,
+				2B3B30FF1CF6227F00F52374 /* wire_format.cc in Sources */,
 				883C079A1CC055740042B20C /* AAPhysicalSun.cpp in Sources */,
 				2B7EF4B916025D8C00D4079F /* pj_utils.c in Sources */,
 				2B7EF4BA16025D8C00D4079F /* PJ_vandg.c in Sources */,
@@ -2930,6 +3356,7 @@
 				2B7EF4BB16025D8C00D4079F /* PJ_vandg2.c in Sources */,
 				883C07A41CC055740042B20C /* AARefraction.cpp in Sources */,
 				2B7EF4BC16025D8C00D4079F /* PJ_vandg4.c in Sources */,
+				2B3B30D91CF6227F00F52374 /* arenastring.cc in Sources */,
 				883C078A1CC055740042B20C /* AANodes.cpp in Sources */,
 				883C074E1CC055740042B20C /* AADate.cpp in Sources */,
 				2B7EF4BD16025D8C00D4079F /* PJ_wag2.c in Sources */,
@@ -2943,6 +3370,7 @@
 				883C07A01CC055740042B20C /* AAPluto.cpp in Sources */,
 				883C075E1CC055740042B20C /* AAElliptical.cpp in Sources */,
 				2B7EF4C216025D8C00D4079F /* pj_zpoly1.c in Sources */,
+				2B3B30EB1CF6227F00F52374 /* map_field.cc in Sources */,
 				2B009CFD186102E4001E2EE8 /* JSONIterators.cpp in Sources */,
 				2B35674D18D762A700EF8DB1 /* GlobeMath.cpp in Sources */,
 				2B7EF4C416025D8C00D4079F /* proj_etmerc.c in Sources */,
@@ -3051,7 +3479,10 @@
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WhirlyGlobeLib/WhirlyGlobeLib-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					DEBUG,
+					"HAVE_PTHREAD=1",
+				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				GCC_VERSION = "";
@@ -3065,6 +3496,7 @@
 					"../../third-party/clipper/",
 					"../../third-party/proj-4/src/",
 					"../../third-party/glues/include/",
+					"../../third-party/protobuf/src/",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "";
@@ -3090,6 +3522,7 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WhirlyGlobeLib/WhirlyGlobeLib-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "HAVE_PTHREAD=1";
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
@@ -3102,6 +3535,7 @@
 					"../../third-party/clipper/",
 					"../../third-party/proj-4/src/",
 					"../../third-party/glues/include/",
+					"../../third-party/protobuf/src/",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "";
