@@ -185,6 +185,8 @@ public class MBTilesSource implements QuadImageTileLayer.TileSource
                     layer.loadedTile(tileID, frame, tile);
 
 //                    Log.v(TAG, String.format("Returned tile for Z=%s, X=%d, Y=%d", tileID.level, tileID.x, tileID.y));
+//                } else {
+//                    Log.w(TAG, String.format("No tile found for tile for Z=%s, X=%d, Y=%d", tileID.level, tileID.x, tileID.y));
                 }
 
                 c.close();
@@ -258,7 +260,7 @@ public class MBTilesSource implements QuadImageTileLayer.TileSource
         // If we did not get a minZoom and maxZoom, we need to get them the hard way
         if (minZoom == -1 || maxZoom == -1) {
 
-            sql = "SELECT MIN(zoom) AS minzoom, MAX(zoom) as maxzoom FROM tiles;";
+            sql = "SELECT MIN(zoom_level) AS minzoom, MAX(zoom_level) as maxzoom FROM tiles;";
 
             c = mbTileDb.rawQuery(sql, null);
 
