@@ -50,7 +50,7 @@ If you've got screen markers displaying, selecting them is pretty simple.  Chang
 private func handleSelection(selectedObject: NSObject) {
     if let selectedObject = selectedObject as? MaplyVectorObject {
         let loc = selectedObject.centroid()
-        if loc.x != kMaplyNullCoordinate {
+        if loc.x != kMaplyNullCoordinate.x {
             let title = "Selected:"
             let subtitle = selectedObject.userObject as! String
             addAnnotationWithTitle(title, subtitle: subtitle, loc: loc)

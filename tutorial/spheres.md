@@ -74,7 +74,7 @@ private func addSpheres() {
 
     self.theViewC?.addShapes(spheres, desc: [
         kMaplyColor: UIColor(red: 0.75, green: 0.0, blue: 0.0, alpha: 0.75)])
-	}
+}
   {% endhighlight %}
 {% endmultiple_code %}
 

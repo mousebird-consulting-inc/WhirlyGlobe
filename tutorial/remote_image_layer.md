@@ -90,9 +90,10 @@ let useLocalTiles = false
 let layer: MaplyQuadImageTilesLayer
 
 if useLocalTiles {
-    if let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres"),
-           layer = MaplyQuadImageTilesLayer(tileSource: tileSource) {
+    guard let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres") else {
+        // can't load local tile set
     }
+    layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
 }
 else {
     // Because this is a remote tile set, we'll want a cache directory
@@ -102,13 +103,16 @@ else {
 
     // MapQuest Open Aerial Tiles, Courtesy Of Mapquest
     // Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
-    if let tileSource = MaplyRemoteTileSource(
+    guard let tileSource = MaplyRemoteTileSource(
             baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
             ext: "png",
             minZoom: 0, 
-            maxZoom: maxZoom) {
-        layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
+            maxZoom: maxZoom) else {
+        // can't create remote tile source
+        return
     }
+    tileSource.cacheDir = aerialTilesCacheDir
+    layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
 }
   {% endhighlight %}
 {% endmultiple_code %}

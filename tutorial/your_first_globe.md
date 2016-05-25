@@ -18,6 +18,8 @@ If you're using Objective-C, we'll need to import the headers. Open ViewControll
 #import <WhirlyGlobeComponent.h>
 {% endhighlight %}
 
+On the other hand, if you're using Swift, you'll need to setup your bridging header and add the previous import to that header.
+
 Now let's actually add a WhirlyGlobeViewController. We're going to keep it very simple at first – we just want to verify the project setup before getting much further along.
 
 For Objective-C, open ViewController.m, and find the @implementation line.  For Swift, open your ViewController.swift file. Modify it like so.
@@ -35,7 +37,7 @@ For Objective-C, open ViewController.m, and find the @implementation line.  For 
 
   {% highlight swift %}
   class ViewController : UIViewController {
-      private var theViewC: WhirlyGlobeViewController?
+      private var theViewC: MaplyBaseViewController?
     
     ...
   }

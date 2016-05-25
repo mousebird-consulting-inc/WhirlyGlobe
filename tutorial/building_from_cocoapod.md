@@ -33,8 +33,10 @@ inhibit_all_warnings!
 
 xcodeproj 'HelloEarth.xcodeproj'
 
-pod 'WhirlyGlobe', '2.3'
-pod 'WhirlyGlobeResources'
+target 'HelloEarth'
+	pod 'WhirlyGlobe', '2.4'
+	pod 'WhirlyGlobeResources'
+end
 {% endhighlight %}
 
 Make sure you've closed the HelloEarth project in Xcode.  The install process is going to mess with it.  
