@@ -136,7 +136,6 @@ public class MBTiles
     //                           Public methods                              //
     //***********************************************************************//
 
-
     //***********************************************************************//
     //                           Private methods                             //
     //***********************************************************************//
@@ -198,7 +197,7 @@ public class MBTiles
         // If we did not get a minZoom and maxZoom, we need to get them the hard way
         if (minZoom == -1 || maxZoom == -1) {
 
-            sql = "SELECT MIN(zoom) AS minzoom, MAX(zoom) as maxzoom FROM tiles;";
+            sql = "SELECT MIN(zoom_level) AS minzoom, MAX(zoom_level) as maxzoom FROM tiles;";
 
             c = mbTileDb.rawQuery(sql, null);
 
