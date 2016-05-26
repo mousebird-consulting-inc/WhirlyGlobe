@@ -47,6 +47,11 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 
 	private void insertLabels(ArrayList<VectorObject> objects, MaplyBaseController baseVC) {
 
+		int[] layoutPlacements = {1<<1, 1<<2, 1<<3, 1<<4, 1<<5};
+
+		int rand = (int) Math.random() * (layoutPlacements.length - 1);
+		int layoutPlacement = layoutPlacements[rand];
+
 		LabelInfo labelInfo = new LabelInfo();
 		labelInfo.setFontSize(64.f);
 		labelInfo.setTextcolor(Color.WHITE);
@@ -54,6 +59,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		labelInfo.setLayoutImportance(1.f);
 		labelInfo.setMinVis(0.f);
 		labelInfo.setMaxVis(1.f);
+		labelInfo.setLayoutPlacement(layoutPlacement);
 
 		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 
