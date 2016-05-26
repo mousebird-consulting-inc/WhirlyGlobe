@@ -131,6 +131,9 @@ public:
 
 		return classInfoObj;
 	}
+    
+    // Return the Java class
+    jclass getClass() { return theClass; }
 
 protected:
 	jclass theClass;
@@ -386,7 +389,6 @@ public:
     int len;
     jdouble *rawDouble;
 };
-
 
 namespace WhirlyKit
 {

@@ -20,6 +20,7 @@
 
 #import <jni.h>
 #import "Maply_jni.h"
+#import "Maply_utils_jni.h"
 #import "com_mousebird_maply_MapboxVectorTileParser.h"
 #import "WhirlyGlobe.h"
 
@@ -81,12 +82,33 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_p
         mbr.addPoint(Point2f(minX,minY));
         mbr.addPoint(Point2f(maxX,maxY));
         
+        // Parse vector tile and create vector objects
         jbyte *bytes = env->GetByteArrayElements(data,NULL);
         RawDataWrapper rawData(bytes,env->GetArrayLength(data),false);
         std::vector<VectorObject *> vecObjs;
         bool ret = inst->parseVectorTile(&rawData,vecObjs,mbr);
         env->ReleaseByteArrayElements(data,bytes, 0);
         
+        if (vecObjs.empty())
+        {
+            return NULL;
+        } else {
+            VectorObjectClassInfo *vecClassInfo = VectorObjectClassInfo::getClassInfo();
+            if (!vecClassInfo)
+                vecClassInfo = VectorObjectClassInfo::getClassInfo(env,"com/mousebird/maply/VectorObject");
+            jobjectArray retArr = env->NewObjectArray(vecObjs.size(), vecClassInfo->getClass(), NULL);
+
+            int which = 0;
+            for (VectorObject *vecObj : vecObjs)
+            {
+                jobject vecObjObj = MakeVectorObject(env,vecObj);
+                env->SetObjectArrayElement( retArr, which, vecObjObj);
+                env->DeleteLocalRef( vecObjObj);
+                which++;
+            }
+            
+            return retArr;
+        }
     }
     catch (...)
     {

@@ -48,7 +48,7 @@ public:
     
     // Parse the vector tile and return a list of vectors.
     // Returns false on failure.
-    bool parseVectorTile(RawData *rawData,std::vector<VectorObject *> vecObjs,const Mbr &mbr);
+    bool parseVectorTile(RawData *rawData,std::vector<VectorObject *> &vecObjs,const Mbr &mbr);
 };
 
 }

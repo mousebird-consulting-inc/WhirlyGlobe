@@ -38,7 +38,7 @@ MapboxVectorTileParser::~MapboxVectorTileParser()
 }
     
     
-bool MapboxVectorTileParser::parseVectorTile(RawData *rawData,std::vector<VectorObject *> vecObjs,const Mbr &mbr)
+bool MapboxVectorTileParser::parseVectorTile(RawData *rawData,std::vector<VectorObject *> &vecObjs,const Mbr &mbr)
 {
     //calulate tile bounds and coordinate shift
     int tileSize = 256;
@@ -122,6 +122,7 @@ bool MapboxVectorTileParser::parseVectorTile(RawData *rawData,std::vector<Vector
                 length = 0;
                 
                 VectorObject *vecObj = new VectorObject();
+                vecObjs.push_back(vecObj);
                 
                 try {
                     if(g_type == GeomTypeLineString) {
