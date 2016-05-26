@@ -9,6 +9,9 @@ import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MBTilesSource;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.Mbr;
+import com.mousebird.maply.Point2d;
+import com.mousebird.maply.Point3d;
 import com.mousebird.maply.QuadImageTileLayer;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
@@ -25,10 +28,58 @@ import java.io.OutputStream;
  */
 public class MBTilesImageTestCase extends MaplyTestCase {
 
+    private static double RAD_TO_DEG = 180.0 / Math.PI;
+
     private static String TAG = "AutoTester";
     private static String MBTILES_DIR = "mbtiles";
 
     private Activity activity;
+
+
+    private GlobeController.GestureDelegate gestureDelegate = new GlobeController.GestureDelegate() {
+        @Override
+        public void userDidSelect(GlobeController controller, Object o, Point2d loc, Point2d screenLoc) {
+            // Intentionally blank
+        }
+
+        @Override
+        public void userDidTap(GlobeController controller, Point2d loc, Point2d screenLoc) {
+            // Intentionally blank
+        }
+
+        @Override
+        public void globeDidStartMoving(GlobeController controller, boolean userInitiated) {
+            // Intentionally blank
+        }
+
+        @Override
+        public void globeDidStopMoving(GlobeController controller, Point3d[] corners, boolean userInitiated) {
+
+            Point3d center = controller.getPosition();
+
+            Log.v(TAG, String.format("Globe did stop moving (lat: %.6f° lon: %.6f° z: %.6f)",
+                    center.getY() * RAD_TO_DEG, center.getX() * RAD_TO_DEG, center.getZ()));
+
+        }
+
+        @Override
+        public void globeDidMove(GlobeController controller, Point3d[] corners, boolean userInitiated) {
+
+//            Point3d center = controller.getPosition();
+//
+//            Log.v(TAG, String.format("Globe did move to (lat: %.6f° lon: %.6f° z: %.6f)",
+//                    center.getY() * RAD_TO_DEG, center.getX() * RAD_TO_DEG, center.getZ()));
+
+            Mbr bb = controller.getCurrentViewGeo();
+            Point2d center = bb.middle().toDegrees();
+            Point2d span = bb.span().toDegrees();
+
+            Log.v(TAG, String.format("Globe did move to (lat: %.6f° lon: %.6f°), span (lat: %.6f° lon: %.6f°))",
+                    center.getY() * RAD_TO_DEG, center.getX() * RAD_TO_DEG,
+                    span.getY() * RAD_TO_DEG, span.getX() * RAD_TO_DEG));
+        }
+    };
+
 
     public MBTilesImageTestCase(Activity activity) {
         super(activity);
@@ -61,6 +112,9 @@ public class MBTilesImageTestCase extends MaplyTestCase {
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
         globeVC.addLayer(setupImageLayer(globeVC, ConfigOptions.TestType.GlobeTest));
+
+        globeVC.gestureDelegate = gestureDelegate;
+
         return true;
     }
 
