@@ -9,7 +9,7 @@
 import UIKit
 
 class ViewController: UIViewController,
-	WhirlyGlobeViewControllerDelegate, MaplyViewControllerDelegate {
+WhirlyGlobeViewControllerDelegate, MaplyViewControllerDelegate {
 
 	private var theViewC: MaplyBaseViewController?
 	private var globeViewC: WhirlyGlobeViewController?
@@ -29,7 +29,7 @@ class ViewController: UIViewController,
 			theViewC = globeViewC
 		}
 		else {
-			mapViewC = MaplyViewController()
+			mapViewC = MaplyViewController(mapType: .TypeFlat)
 			mapViewC!.delegate = self
 			theViewC = mapViewC
 		}
@@ -51,9 +51,8 @@ class ViewController: UIViewController,
 		let layer: MaplyQuadImageTilesLayer
 
 		if useLocalTiles {
-			if let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres") {
-				layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
-			}
+			let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres")
+			layer = MaplyQuadImageTilesLayer(tileSource: tileSource!)!
 		}
 		else {
 			// Because this is a remote tile set, we'll want a cache directory
@@ -64,13 +63,13 @@ class ViewController: UIViewController,
 			// MapQuest Open Aerial Tiles, Courtesy Of Mapquest
 			// Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
 
-			if let tileSource = MaplyRemoteTileSource(
-					baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
-					ext: "png",
-					minZoom: 0,
-					maxZoom: maxZoom) {
-				layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
-			}
+			let tileSource = MaplyRemoteTileSource(
+				baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
+				ext: "png",
+				minZoom: 0,
+				maxZoom: maxZoom)
+			tileSource!.cacheDir = aerialTilesCacheDir
+			layer = MaplyQuadImageTilesLayer(tileSource: tileSource!)!
 		}
 
 		layer.handleEdges = (globeViewC != nil)
@@ -98,11 +97,11 @@ class ViewController: UIViewController,
 		]
 
 		// add the countries
-//		addCountries()
+		//		addCountries()
 		// add bars
 		addBars()
 		// ad spheres
-//		addSpheres()
+		//		addSpheres()
 	}
 
 
@@ -110,14 +109,14 @@ class ViewController: UIViewController,
 		// handle this in another thread
 		let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
 		dispatch_async(queue) {
-			let allOutlines = NSBundle.mainBundle().pathsForResourcesOfType("geojson", inDirectory: nil) as! [String]
+			let allOutlines = NSBundle.mainBundle().pathsForResourcesOfType("geojson", inDirectory: nil)
 
 			for outline in allOutlines {
 				if let jsonData = NSData(contentsOfFile: outline),
-						wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData) {
+					wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData) {
 					// the admin tag from the country outline geojson has the country name ­ save
 					if let attrs = wgVecObj.attributes,
-							vecName = attrs.objectForKey("ADMIN") as? NSObject {
+						vecName = attrs.objectForKey("ADMIN") as? NSObject {
 
 						wgVecObj.userObject = vecName
 
@@ -127,17 +126,16 @@ class ViewController: UIViewController,
 							label.loc = wgVecObj.center()
 							label.selectable = true
 							self.theViewC?.addScreenLabels([label],
-								desc: [
-									kMaplyFont: UIFont.boldSystemFontOfSize(24.0),
-									kMaplyTextOutlineColor: UIColor.blackColor(),
-									kMaplyTextOutlineSize: 2.0,
-									kMaplyColor: UIColor.whiteColor()
-								])
+												desc: [
+													kMaplyFont: UIFont.boldSystemFontOfSize(24.0),
+													kMaplyTextOutlineColor: UIColor.blackColor(),
+													kMaplyTextOutlineSize: 2.0,
+													kMaplyColor: UIColor.whiteColor()])
 						}
 					}
 
 					// add the outline to our view
-					let compObj = self.theViewC?.addVectors([wgVecObj!], desc: self.vectorDict)
+					let compObj = self.theViewC?.addVectors([wgVecObj], desc: self.vectorDict)
 
 					// If you ever intend to remove these, keep track of the MaplyComponentObjects above.
 
@@ -207,18 +205,18 @@ class ViewController: UIViewController,
 		}
 
 		self.theViewC?.addShapes(spheres,
-			desc: [
-				kMaplyColor: UIColor(red: 0.75, green: 0.0, blue: 0.0, alpha: 0.75)
+		                         desc: [
+									kMaplyColor: UIColor(red: 0.75, green: 0.0, blue: 0.0, alpha: 0.75)
 			])
 	}
 
 	private func handleSelection(selectedObject: NSObject) {
 		if let selectedObject = selectedObject as? MaplyVectorObject {
 			let loc = selectedObject.centroid()
-			if loc.x != kMaplyNullCoordinate {
+			if loc.x != kMaplyNullCoordinate.x {
 				addAnnotationWithTitle("selected",
-					subtitle: selectedObject.userObject as! String,
-					loc: loc)
+				                       subtitle: selectedObject.userObject as! String,
+				                       loc: loc)
 			}
 		}
 	}
