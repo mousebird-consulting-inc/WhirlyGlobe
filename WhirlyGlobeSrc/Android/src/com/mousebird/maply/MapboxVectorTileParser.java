@@ -49,15 +49,15 @@ public class MapboxVectorTileParser
      * @param data The input data to parse.  You should have fetched this on your own.
      * @return Returns null on failure to parse.
      */
-    public DataReturn parseData(byte[] data)
+    public DataReturn parseData(byte[] data,Mbr mbr)
     {
         DataReturn dataReturn = new DataReturn();
-        dataReturn.vectorObjects = parseDataNative(data);
+        dataReturn.vectorObjects = parseDataNative(data,mbr.ll.getX(),mbr.ll.getY(),mbr.ur.getX(),mbr.ur.getY());
 
         return dataReturn;
     }
 
-    native VectorObject[] parseDataNative(byte[] data);
+    native VectorObject[] parseDataNative(byte[] data,double minX,double minY,double maxX,double maxY);
 
     public void finalize()
     {

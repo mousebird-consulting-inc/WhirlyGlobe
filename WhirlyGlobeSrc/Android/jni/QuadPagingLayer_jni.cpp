@@ -501,6 +501,31 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_geoBoundsForTile
 	}
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_boundsForTileNative
+(JNIEnv *env, jobject obj, jint x, jint y, jint level, jobject llObj, jobject urObj)
+{
+    try
+    {
+        QPLAdapterClassInfo *classInfo = QPLAdapterClassInfo::getClassInfo();
+        QuadPagingLayerAdapter *adapter = classInfo->getObject(env,obj);
+        Point2d *ll = Point2dClassInfo::getClassInfo()->getObject(env,llObj);
+        Point2d *ur = Point2dClassInfo::getClassInfo()->getObject(env,urObj);
+        if (!adapter || !ll || !ur)
+            return;
+        
+        Mbr mbr = adapter->getController()->getQuadtree()->generateMbrForNode(WhirlyKit::Quadtree::Identifier(x,y,level));
+        
+        ll->x() = mbr.ll().x();
+        ll->y() = mbr.ll().y();
+        ur->x() = mbr.ur().x();
+        ur->y() = mbr.ur().y();
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::boundsForTileNative()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_nativeStartLayer
   (JNIEnv *env, jobject obj, jobject sceneObj, jobject rendererObj, jobject llObj, jobject urObj, jint minZoom, jint maxZoom)
 {

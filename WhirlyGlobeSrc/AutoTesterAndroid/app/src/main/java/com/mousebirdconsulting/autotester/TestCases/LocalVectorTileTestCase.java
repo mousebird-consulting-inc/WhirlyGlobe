@@ -7,10 +7,11 @@ import android.util.Log;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MBTiles;
-import com.mousebird.maply.MBTilesImageSource;
 import com.mousebird.maply.MapController;
+import com.mousebird.maply.MapboxVectorTileSource;
 import com.mousebird.maply.MaplyBaseController;
-import com.mousebird.maply.QuadImageTileLayer;
+import com.mousebird.maply.Point2d;
+import com.mousebird.maply.QuadPagingLayer;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
@@ -22,28 +23,28 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Created by sjg on 4/11/16.
+ * Created by sjg on 5/25/16.
  */
-public class MBTilesImageTestCase extends MaplyTestCase {
+public class LocalVectorTileTestCase extends MaplyTestCase {
 
     private static String TAG = "AutoTester";
     private static String MBTILES_DIR = "mbtiles";
 
     private Activity activity;
 
-    public MBTilesImageTestCase(Activity activity) {
+    public LocalVectorTileTestCase(Activity activity) {
         super(activity);
-        setTestName("MBTiles Image Test");
+        setTestName("Local Vector Tile Test");
         setDelay(1000);
 
         this.activity = activity;
     }
 
-    private QuadImageTileLayer setupImageLayer(MaplyBaseController baseController, ConfigOptions.TestType testType) throws Exception
+    private QuadPagingLayer setupVectorLayer(MaplyBaseController baseController, ConfigOptions.TestType testType) throws Exception
     {
 
         // We need to copy the file from the asset so that it can be used as a file
-        File mbTiles = this.getMbTileFile("mbtiles/geography-class.mbtiles", "geography-class.mbtiles");
+        File mbTiles = this.getMbTileFile("mbtiles/France.mbtiles", "France.mbtiles");
 
         if (!mbTiles.exists()) {
             throw new FileNotFoundException(String.format("Could not copy MBTiles asset to \"%s\"", mbTiles.getAbsolutePath()));
@@ -51,24 +52,35 @@ public class MBTilesImageTestCase extends MaplyTestCase {
 
         Log.d(TAG, String.format("Obtained MBTiles SQLLite database \"%s\"", mbTiles.getAbsolutePath()));
 
-        MBTiles mbTilesFile = new MBTiles(mbTiles);
-        MBTilesImageSource tileSource = new MBTilesImageSource(mbTilesFile);
-        QuadImageTileLayer imageLayer = new QuadImageTileLayer(baseController, tileSource.coordSys, tileSource);
-        imageLayer.setCoverPoles(true);
-        imageLayer.setHandleEdges(true);
+        MBTiles mbTileSource = new MBTiles(mbTiles);
+        MapboxVectorTileSource tileSource = new MapboxVectorTileSource(mbTileSource);
 
-        return imageLayer;
+        QuadPagingLayer layer = new QuadPagingLayer(baseController,tileSource.coordSys,tileSource);
+
+        return layer;
     }
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        globeVC.addLayer(setupImageLayer(globeVC, ConfigOptions.TestType.GlobeTest));
+        CartoDBDarkTestCase baseCase = new CartoDBDarkTestCase(getActivity());
+        baseCase.setUpWithGlobe(globeVC);
+        globeVC.addLayer(setupVectorLayer(globeVC, ConfigOptions.TestType.GlobeTest));
+
+        Point2d loc = Point2d.FromDegrees(2.3508, 48.8567);
+        globeVC.setPositionGeo(loc.getX(),loc.getY(),0.15);
+
         return true;
     }
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        mapVC.addLayer(setupImageLayer(mapVC, ConfigOptions.TestType.MapTest));
+        CartoDBDarkTestCase baseCase = new CartoDBDarkTestCase(getActivity());
+        baseCase.setUpWithMap(mapVC);
+        mapVC.addLayer(setupVectorLayer(mapVC, ConfigOptions.TestType.MapTest));
+
+        Point2d loc = Point2d.FromDegrees(2.3508, 48.8567);
+        mapVC.setPositionGeo(loc.getX(),loc.getY(),0.15);
+
         return true;
     }
 
@@ -97,9 +109,4 @@ public class MBTilesImageTestCase extends MaplyTestCase {
         return of;
 
     }
-
-
-
-
-    
 }

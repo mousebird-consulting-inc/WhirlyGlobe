@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_mousebird_maply_MapboxVectorTileParser
  * Method:    parseDataNative
- * Signature: ([B)[Lcom/mousebird/maply/VectorObject;
+ * Signature: ([BDDDD)[Lcom/mousebird/maply/VectorObject;
  */
 JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parseDataNative
-  (JNIEnv *, jobject, jbyteArray);
+  (JNIEnv *, jobject, jbyteArray, jdouble, jdouble, jdouble, jdouble);
 
 /*
  * Class:     com_mousebird_maply_MapboxVectorTileParser

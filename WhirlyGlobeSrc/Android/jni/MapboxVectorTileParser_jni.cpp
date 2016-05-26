@@ -68,18 +68,25 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_dispose
 }
 
 JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parseDataNative
-(JNIEnv *env, jobject obj, jbyteArray data)
+(JNIEnv *env, jobject obj, jbyteArray data, jdouble minX, jdouble minY, jdouble maxX, jdouble maxY)
 {
     try
     {
         MapboxVectorTileParserClassInfo *classInfo = MapboxVectorTileParserClassInfo::getClassInfo();
         MapboxVectorTileParser *inst = classInfo->getObject(env,obj);
-        if (!inst)
+        if (!inst || !data)
             return NULL;
+        
+        Mbr mbr;
+        mbr.addPoint(Point2f(minX,minY));
+        mbr.addPoint(Point2f(maxX,maxY));
         
         jbyte *bytes = env->GetByteArrayElements(data,NULL);
         RawDataWrapper rawData(bytes,env->GetArrayLength(data),false);
+        std::vector<VectorObject *> vecObjs;
+        bool ret = inst->parseVectorTile(&rawData,vecObjs,mbr);
         env->ReleaseByteArrayElements(data,bytes, 0);
+        
     }
     catch (...)
     {

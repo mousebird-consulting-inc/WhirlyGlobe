@@ -21,8 +21,6 @@ package com.mousebird.maply;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import java.io.File;
@@ -30,7 +28,7 @@ import java.io.File;
 /**
  * The MBTiles Source reads Mapbox style MBTiles files.
  */
-public class MBTilesSource implements QuadImageTileLayer.TileSource
+public class MBTiles
 {
 
     //***********************************************************************//
@@ -42,7 +40,7 @@ public class MBTilesSource implements QuadImageTileLayer.TileSource
     //                          Class variables                              //
     //***********************************************************************//
 
-    private static String TAG = MBTilesSource.class.getSimpleName();
+    private static String TAG = MBTiles.class.getSimpleName();
 
     private static String BOUNDS = "bounds";
     private static String MINZOOM = "minzoom";
@@ -70,7 +68,6 @@ public class MBTilesSource implements QuadImageTileLayer.TileSource
     //***********************************************************************//
 
     private int minZoom = -1, maxZoom = -1;
-    private int pixelsPerSide = 256;
 
     private SQLiteDatabase mbTileDb;
 
@@ -97,7 +94,7 @@ public class MBTilesSource implements QuadImageTileLayer.TileSource
 //        // We look for the file into assets
 //    }
 
-    public MBTilesSource(File mbTileFile) {
+    public MBTiles(File mbTileFile) {
 
         if (mbTileFile == null || !mbTileFile.exists() || !mbTileFile.canRead()) {
             String message = String.format("MBTileSource must be initialized with an existing file. \"%s\" does not exists or is null...",
@@ -131,14 +128,6 @@ public class MBTilesSource implements QuadImageTileLayer.TileSource
         return maxZoom;
     }
 
-    /**
-     * The number of pixels square for each tile.
-     */
-    public int pixelsPerSide()
-    {
-        return pixelsPerSide;
-    }
-
     // The coordinate system for these is almost always spherical mercator
     public CoordSystem coordSys = new SphericalMercatorCoordSystem();
 
@@ -146,55 +135,6 @@ public class MBTilesSource implements QuadImageTileLayer.TileSource
     //***********************************************************************//
     //                           Public methods                              //
     //***********************************************************************//
-
-    /**
-     * This tells you when to start fetching a given tile. When you've fetched
-     * the image you'll want to call loadedTile().  If you fail to fetch an image
-     * call that with nil.
-     *
-     * @param layer The layer asking for the fetch.
-     * @param tileID The tile ID to fetch.
-     * @param frame If the source support multiple frames, this is the frame.  Otherwise -1.
-     */
-    public void startFetchForTile(final QuadImageTileLayerInterface layer, final MaplyTileID tileID, final int frame)
-    {
-        // Note: Start the fetch for a single tile, ideally on another thread.
-        //       When the tile data is in, call the layer loadedTile() method.
-
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-
-                String[] params = new String[3];
-                params[0] = Integer.toString(tileID.level);
-                params[1] = Integer.toString(tileID.x);
-                params[2] = Integer.toString(tileID.y);
-
-                Cursor c = mbTileDb.rawQuery(GET_TILE_SQL, params);
-
-                int tileDataIdx = c.getColumnIndex(TILE_DATA);
-
-                if (c.getCount() > 0) {
-                    c.moveToFirst();
-
-                    byte[] image = c.getBlob(tileDataIdx);
-                    Bitmap bm = BitmapFactory.decodeByteArray(image, 0, image.length);
-
-                    MaplyImageTile tile = new MaplyImageTile(bm);
-
-                    layer.loadedTile(tileID, frame, tile);
-
-//                    Log.v(TAG, String.format("Returned tile for Z=%s, X=%d, Y=%d", tileID.level, tileID.x, tileID.y));
-                }
-
-                c.close();
-            }
-        };
-
-        thread.run();
-
-
-    }
 
 
     //***********************************************************************//
@@ -278,6 +218,32 @@ public class MBTilesSource implements QuadImageTileLayer.TileSource
         Log.v(TAG, String.format("  > Zoom %d -> %d", minZoom, maxZoom));
         Log.v(TAG, String.format("  > Type \"%s\"", type));
         Log.v(TAG, String.format("  > Format \"%s\"", (isJpg ? "jpg" : "png")));
+    }
 
+    /**
+     * Fetch the data blog for a given tile.  This blocks.
+     */
+    public byte[] getDataTile(MaplyTileID tileID)
+    {
+        String[] params = new String[3];
+        params[0] = Integer.toString(tileID.level);
+        params[1] = Integer.toString(tileID.x);
+        params[2] = Integer.toString(tileID.y);
+
+        Cursor c = mbTileDb.rawQuery(GET_TILE_SQL, params);
+
+        int tileDataIdx = c.getColumnIndex(TILE_DATA);
+
+        if (c.getCount() > 0) {
+            c.moveToFirst();
+
+            byte[] data = c.getBlob(tileDataIdx);
+            return data;
+//                    Log.v(TAG, String.format("Returned tile for Z=%s, X=%d, Y=%d", tileID.level, tileID.x, tileID.y));
+        }
+
+        c.close();
+
+        return null;
     }
 }
