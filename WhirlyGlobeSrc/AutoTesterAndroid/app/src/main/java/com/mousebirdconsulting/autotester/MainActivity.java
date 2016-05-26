@@ -2,14 +2,17 @@ package com.mousebirdconsulting.autotester;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.menu.ActionMenuItemView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.mousebirdconsulting.autotester.Fragments.TestListFragment;
 import com.mousebirdconsulting.autotester.Fragments.ViewTestFragment;
@@ -30,9 +33,12 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 	DrawerLayout drawerLayout; //Drawerlayout
 	@InjectView(R.id.navigation_drawer)
 	NavigationDrawer navigationDrawer;
+	private Menu menu;
 	private TestListFragment testList;
 	private ViewTestFragment viewTest;
+	private MaplyTestCase interactiveTest = null;
 
+	private boolean cancelled;
 	private boolean executing = false;
 
 	private ArrayList<MaplyTestResult> testResults;
@@ -56,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 		this.testResults = new ArrayList<>();
 		this.viewTest = new ViewTestFragment();
 	}
+
 
 	@Override
 	protected void onResume() {
@@ -85,8 +92,17 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.menu_main, menu);
+		this.menu = menu;
 		selectFragment(this.testList);
+		showOverflowMenu(ConfigOptions.getExecutionMode(getApplicationContext())== ConfigOptions.ExecutionMode.Multiple);
 		return true;
+	}
+
+	public void showOverflowMenu(boolean showMenu){
+		if(menu == null)
+			return;
+		menu.setGroupVisible(R.id.main_menu_group, showMenu);
 	}
 
 	@Override
@@ -102,6 +118,18 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 					drawerLayout.openDrawer(GravityCompat.START);
 				}
 				break;
+			case R.id.playTests:
+				if (ConfigOptions.getExecutionMode(getApplicationContext()) == ConfigOptions.ExecutionMode.Interactive) {
+					finalizeInteractiveTest();
+				}
+				if (ConfigOptions.getExecutionMode(getApplicationContext()) == ConfigOptions.ExecutionMode.Multiple) {
+					if (!executing) {
+						this.runTests();
+					} else {
+						this.stopTests();
+					}
+				}
+				break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -115,10 +143,22 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 			.commit();
 	}
 
-	public void prepareTest(){
-		getSupportActionBar().setTitle("Running tests...");
+	public void prepareTest(MaplyTestCase testCase){
+
+		String titleText = "Running tests...";
+		if (ConfigOptions.getExecutionMode(getApplicationContext())== ConfigOptions.ExecutionMode.Interactive) {
+			titleText = "Interactive test";
+			this.interactiveTest = testCase;
+			MenuItem item = menu.findItem(R.id.playTests);
+			if (item != null) {
+				item.setIcon(getResources().getDrawable(R.drawable.ic_done_action));
+			}
+			showOverflowMenu(true);
+		}
+
+		getSupportActionBar().setTitle(titleText);
 		this.testResults.clear();
-		if (ConfigOptions.getViewSetting(this) == ConfigOptions.ViewMapOption.ViewMap) {
+		if (ConfigOptions.getViewSetting(this) == ConfigOptions.ViewMapOption.ViewMap || ConfigOptions.getExecutionMode(getApplicationContext())== ConfigOptions.ExecutionMode.Interactive) {
 			selectFragment(this.viewTest);
 		}
 		this.executing = true;
@@ -153,7 +193,6 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 			}
 		};
 		testCase.setListener(listener);
-
 		testCase.start();
 	}
 
@@ -167,12 +206,145 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 		startActivity(intent);
 	}
 
+	private void finalizeInteractiveTest() {
+		getSupportActionBar().setTitle(R.string.app_name);
+		interactiveTest.cancel(true);
+		interactiveTest = null;
+		MenuItem item = menu.findItem(R.id.playTests);
+		if (item != null){
+			item.setIcon(getResources().getDrawable(R.drawable.ic_play_action));
+		}
+		showOverflowMenu(false);
+		executing = false;
+		onResume();
+	}
+
 	public boolean isExecuting() {
 		return executing;
 	}
 
 	@Override
 	public void onItemClick(int itemId) {
+		switch (itemId){
+			case R.id.selectAll:
+				testList.changeItemsState(true);
+				drawerLayout.closeDrawer(GravityCompat.START);
+				break;
+			case R.id.deselectAll:
+				testList.changeItemsState(false);
+				drawerLayout.closeDrawer(GravityCompat.START);
+				break;
+			case R.id.runInteractive:
+				showOverflowMenu(false);
+				onResume();
+				break;
+
+			case R.id.runMultiple:
+				showOverflowMenu(true);
+				onResume();
+				break;
+
+			case R.id.runSingle:
+				showOverflowMenu(false);
+				onResume();
+				break;
+		}
+
 		navigationDrawer.setSelectedItemId(itemId);
 	}
+
+	private void runTests() {
+		ActionMenuItemView playButton = (ActionMenuItemView) findViewById(R.id.playTests);
+		playButton.setIcon(getResources().getDrawable(R.drawable.ic_stop_action));
+		getSupportActionBar().setTitle("Running tests...");
+		this.testResults.clear();
+		ArrayList<MaplyTestCase> tests = this.testList.getTests();
+		if (ConfigOptions.getViewSetting(this) == ConfigOptions.ViewMapOption.ViewMap) {
+			selectFragment(this.viewTest);
+		}
+		this.executing = true;
+		startTests(tests, 0);
+	}
+
+
+	private void startTests(final ArrayList<MaplyTestCase> tests, final int index) {
+		if (tests.size() != index) {
+			final MaplyTestCase head = tests.get(index);
+			if (head.isSelected()) {
+				head.setOptions(ConfigOptions.getTestType(this));
+				MaplyTestCase.MaplyTestCaseListener listener = new MaplyTestCase.MaplyTestCaseListener() {
+					@Override
+					public void onFinish(MaplyTestResult resultMap, MaplyTestResult resultGlobe) {
+						if (MainActivity.this.cancelled) {
+							MainActivity.this.finishTests();
+						} else {
+							if (resultMap != null) {
+								MainActivity.this.testResults.add(resultMap);
+							}
+							if (resultGlobe != null) {
+								MainActivity.this.testResults.add(resultGlobe);
+							}
+							if (ConfigOptions.getViewSetting(MainActivity.this) == ConfigOptions.ViewMapOption.None) {
+								head.setIcon(R.drawable.ic_action_selectall);
+								MainActivity.this.testList.notifyIconChanged(index);
+							}
+							MainActivity.this.startTests(tests, index + 1);
+						}
+					}
+
+					@Override
+					public void onStart(View view) {
+
+						if (ConfigOptions.getViewSetting(MainActivity.this) == ConfigOptions.ViewMapOption.ViewMap) {
+							viewTest = new ViewTestFragment();
+							viewTest.changeViewFragment(view);
+							selectFragment(viewTest);
+						}
+					}
+
+					@Override
+					public void onExecute(View view) {
+
+					}
+				};
+				head.setListener(listener);
+				head.setActivity(this);
+				if (ConfigOptions.getViewSetting(this) == ConfigOptions.ViewMapOption.None) {
+					head.setIcon(R.drawable.ic_options_action);
+					this.testList.notifyIconChanged(index);
+				}
+				head.start();
+			} else {
+				startTests(tests, index + 1);
+			}
+		} else {
+			finishTests();
+		}
+	}
+
+	private void finishTests() {
+		ActionMenuItemView playButton = (ActionMenuItemView) findViewById(R.id.playTests);
+		playButton.setIcon(getResources().getDrawable(R.drawable.ic_play_action));
+		getSupportActionBar().setTitle(R.string.app_name);
+		executing = false;
+		this.viewTest = new ViewTestFragment();
+		if (!cancelled) {
+			Intent intent = new Intent(this, ResultActivity.class);
+			Bundle bundle = new Bundle();
+			bundle.putSerializable("arraylist", this.testResults);
+			intent.putExtras(bundle);
+			startActivity(intent);
+		} else {
+			cancelled = false;
+			this.testList = new TestListFragment();
+			selectFragment(this.testList);
+		}
+	}
+
+	private void stopTests() {
+		getSupportActionBar().setTitle("Cancelling...");
+		cancelled = true;
+	}
+
+
 }

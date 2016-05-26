@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.MainActivity;
 import com.mousebirdconsulting.autotester.R;
@@ -65,6 +66,10 @@ public class TestListFragment extends Fragment {
 
 	private RecyclerView.LayoutManager createLayoutManager() {
 		return new LinearLayoutManager(getActivity().getApplicationContext());
+	}
+
+	public void changeItemsState(boolean selected) {
+		adapter.changeItemsState(selected);
 	}
 
 	public void notifyIconChanged(int index) {
@@ -122,6 +127,15 @@ public class TestListFragment extends Fragment {
 			return testCases.size();
 		}
 
+		public void changeItemsState(boolean selected) {
+			for (MaplyTestCase testCase : testCases) {
+				testCase.setSelected(selected);
+				ConfigOptions.setSelectedTest(getContext(), testCase.getTestName(), selected);
+			}
+			notifyDataSetChanged();
+		}
+
+
 		public ArrayList<MaplyTestCase> getTestCases() {
 			return testCases;
 		}
@@ -129,7 +143,7 @@ public class TestListFragment extends Fragment {
 		private class TestViewHolder extends RecyclerView.ViewHolder {
 
 			private TextView label;
-			private ImageView selected;
+			private ImageView selected, map, globe;
 			private View self;
 			private MaplyTestCase testCase;
 
@@ -137,25 +151,81 @@ public class TestListFragment extends Fragment {
 				super(itemView);
 				label = (TextView) itemView.findViewById(R.id.testNameLabel);
 				selected = (ImageView) itemView.findViewById(R.id.itemSelected);
+				map = (ImageView) itemView.findViewById(R.id.map_icon);
+				globe = (ImageView) itemView.findViewById(R.id.globe_icon);
 				self = itemView;
 			}
 
 			public void bindViewHolder(final MaplyTestCase testCase) {
 				this.testCase = testCase;
-				this.selected.setImageDrawable(getResources().getDrawable(testCase.getIcon()));
-				changeItemState(testCase.isSelected());
+				if (ConfigOptions.getSelectedTest(getContext(), testCase.getTestName())) {
+					testCase.setSelected(true);
+				}
+				if (ConfigOptions.getExecutionMode(getContext()) == ConfigOptions.ExecutionMode.Multiple) {
+					this.selected.setImageDrawable(getResources().getDrawable(testCase.getIcon()));
+					changeItemState(testCase.isSelected());
+				}
 				this.label.setText(this.testCase.getTestName());
 
-				self.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						MainActivity activity = (MainActivity) getActivity();
-						if (!activity.isExecuting()) {
-							activity.prepareTest();
-							activity.runTest(testCase);
-						}
+				if (ConfigOptions.getExecutionMode(getContext()) == ConfigOptions.ExecutionMode.Interactive) {
+					selected.setVisibility(View.INVISIBLE);
+					if (testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Both || testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Map) {
+						map.setVisibility(View.VISIBLE);
 					}
-				});
+					if (testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Both || testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Globe) {
+						globe.setVisibility(View.VISIBLE);
+					}
+				}
+				else {
+					map.setVisibility(View.INVISIBLE);
+					globe.setVisibility(View.INVISIBLE);
+				}
+
+				if (ConfigOptions.getExecutionMode(getContext()) == ConfigOptions.ExecutionMode.Interactive) {
+					map.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							ConfigOptions.setTestType(getContext(), ConfigOptions.TestType.MapTest);
+							MainActivity activity = (MainActivity) getActivity();
+							if (!activity.isExecuting()) {
+								activity.prepareTest(testCase);
+								activity.runTest(testCase);
+							}
+						}
+					});
+					globe.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							ConfigOptions.setTestType(getContext(), ConfigOptions.TestType.GlobeTest);
+							MainActivity activity = (MainActivity) getActivity();
+							if (!activity.isExecuting()) {
+								activity.prepareTest(testCase);
+								activity.runTest(testCase);
+							}
+						}
+					});
+				}
+					self.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							MainActivity activity = (MainActivity) getActivity();
+							if (ConfigOptions.getExecutionMode(getContext()) == ConfigOptions.ExecutionMode.Single) {
+
+								if (!activity.isExecuting()) {
+									activity.prepareTest(testCase);
+									activity.runTest(testCase);
+								}
+							}
+							if (ConfigOptions.getExecutionMode(getContext()) == ConfigOptions.ExecutionMode.Multiple){
+								if (!((MainActivity) getActivity()).isExecuting()) {
+									TestViewHolder.this.testCase.setSelected(!TestViewHolder.this.testCase.isSelected());
+									TestViewHolder.this.changeItemState(TestViewHolder.this.testCase.isSelected());
+									ConfigOptions.setSelectedTest(getContext(), TestViewHolder.this.testCase.getTestName(), TestViewHolder.this.testCase.isSelected());
+								}
+							}
+						}
+					});
+
 			}
 
 			public void changeItemState(boolean setSelected) {

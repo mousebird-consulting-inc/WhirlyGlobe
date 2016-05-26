@@ -6,4 +6,12 @@
     <string name="option_run_globe">Run on globe</string>
     <string name="option_run_map">Run on map</string>
     <string name="run_both">Run Both</string>
+    <string name="execution_interactive">Interactive</string>
+    <string name="execution_multiple">Multiple</string>
+    <string name="execution_single">Single</string>
+    <string name="execution_mode">Execution Mode</string>
+    <string name="action_section">Actions</string>
+    <string name="selectAll_section">Select All</string>
+    <string name="deselectAll_option">Deselect All</string>
+    <string name="playActionString">Play</string>
 </resources>

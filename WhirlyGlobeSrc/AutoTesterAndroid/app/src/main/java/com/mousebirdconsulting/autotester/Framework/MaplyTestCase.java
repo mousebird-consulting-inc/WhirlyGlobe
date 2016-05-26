@@ -14,6 +14,9 @@ import com.mousebirdconsulting.autotester.R;
 
 public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 
+	public enum TestExecutionImplementation {
+		Globe, Map, Both, None
+	}
 	public interface MaplyTestCaseListener {
 		void onStart(View view);
 
@@ -34,6 +37,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 	protected MaplyTestResult globeResult;
 	protected MaplyTestResult mapResult;
 	protected MaplyTestCaseListener listener;
+	protected TestExecutionImplementation implementation = TestExecutionImplementation.None;
 
 	public MaplyTestCase(Activity activity) {
 		super();
@@ -65,31 +69,42 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 			controller = mapController;
 		}
 		success = true;
-
-		controller.addPostSurfaceRunnable(new Runnable() {
-			@Override
-			public void run() {
-				if (mapController != null) {
-					try {
-						setUpWithMap(mapController);
-					} catch (Exception ex) {
-						mapResult = new MaplyTestResult(testName + " Map Test");
-						success = false;
-					}
-				}
-				if (globeController != null) {
-					try {
-						setUpWithGlobe(globeController);
-					} catch (Exception ex) {
-						globeResult = new MaplyTestResult(testName + " Globe Test", ex);
-						success = false;
-					}
-				}
-				execute();
-			}
-		});
-
 		listener.onStart(controller.getContentView());
+		if (ConfigOptions.getViewSetting(getActivity().getApplicationContext()) == ConfigOptions.ViewMapOption.ViewMap){
+			controller.addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					implementationTest();
+				}
+			});
+		}
+		else{
+			implementationTest();
+		}
+	}
+
+	private void implementationTest() {
+		if (mapController != null) {
+			try {
+				if (setUpWithMap(mapController)) {
+					mapResult = new MaplyTestResult(testName + " Map Test");
+				}
+			} catch (Exception ex) {
+				mapResult = new MaplyTestResult(testName + " Map Test", ex);
+				success = false;
+			}
+		}
+		if (globeController != null) {
+			try {
+				if (setUpWithGlobe(globeController)) {
+					globeResult = new MaplyTestResult(testName + " Globe Test");
+				}
+			} catch (Exception ex) {
+				globeResult = new MaplyTestResult(testName + " Globe Test", ex);
+				success = false;
+			}
+		}
+		execute();
 	}
 
 	@Override
@@ -101,6 +116,9 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 		if (success)
 		{
 			publishProgress(controller.getContentView());
+			if (ConfigOptions.getExecutionMode(activity.getApplicationContext()) == ConfigOptions.ExecutionMode.Interactive){
+				while (true);
+			}
 			if (ConfigOptions.getViewSetting(activity.getApplicationContext()) == ConfigOptions.ViewMapOption.ViewMap) {
 				try {
 					Thread.sleep(delay * 1000);
@@ -187,6 +205,10 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 
 	public int getDelay() {
 		return delay;
+	}
+
+	public TestExecutionImplementation getImplementation() {
+		return implementation;
 	}
 
 }
