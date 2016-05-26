@@ -35,6 +35,7 @@ public class ShapesTestCase extends MaplyTestCase {
         super(activity);
         setTestName("Shape Test Case");
         setDelay(1000);
+        this.implementation = TestExecutionImplementation.Globe;
     }
 
     @Override

@@ -28,6 +28,7 @@ public class CustomBNGTileSource extends MaplyTestCase
         super(activity);
         this.setTestName("Custom BNG Tile Source");
         this.setDelay(100000);
+        this.implementation = TestExecutionImplementation.Both;
     }
 
     public static String getFilePathFromAssets(String assetFilePath, Context context) {

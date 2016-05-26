@@ -29,6 +29,7 @@ public class VectorsTestCase extends MaplyTestCase {
 
 		setTestName("Vectors Test");
 		setDelay(1000);
+		this.implementation = TestExecutionImplementation.Both;
 	}
 
 	private void overlayCountries(MaplyBaseController baseVC) throws Exception {

@@ -26,6 +26,7 @@ public class StickersTestCase extends MaplyTestCase {
 	public StickersTestCase(Activity activity) {
 		super(activity);
 		setTestName("Stickers Test");
+		this.implementation = TestExecutionImplementation.Both;
 	}
 
 	@Override

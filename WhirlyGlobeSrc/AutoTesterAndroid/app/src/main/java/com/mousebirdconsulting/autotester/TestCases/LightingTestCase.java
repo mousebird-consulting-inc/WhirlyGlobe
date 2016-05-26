@@ -31,6 +31,7 @@ public class LightingTestCase extends MaplyTestCase {
         super(activity);
         setDelay(2000);
         setTestName("Lighting Test");
+        this.implementation = TestExecutionImplementation.Globe;
     }
 
     private LightingAdapter adapter;

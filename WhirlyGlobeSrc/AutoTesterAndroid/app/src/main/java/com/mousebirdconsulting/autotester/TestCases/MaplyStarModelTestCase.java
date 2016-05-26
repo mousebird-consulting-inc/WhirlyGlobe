@@ -37,6 +37,7 @@ public class MaplyStarModelTestCase extends MaplyTestCase {
         super(activity);
         setTestName("Maply Star Test Case");
         setDelay(10000);
+        this.implementation = TestExecutionImplementation.Globe;
     }
 
     LayerThread particleThread = null;

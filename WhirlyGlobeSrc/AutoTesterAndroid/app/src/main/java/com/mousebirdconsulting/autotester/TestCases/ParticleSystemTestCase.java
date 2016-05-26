@@ -51,6 +51,7 @@ public class ParticleSystemTestCase extends MaplyTestCase {
 
         this.setTestName("Particle System Test");
         this.setDelay(2000);
+        this.implementation = TestExecutionImplementation.Globe;
     }
 
     @Override

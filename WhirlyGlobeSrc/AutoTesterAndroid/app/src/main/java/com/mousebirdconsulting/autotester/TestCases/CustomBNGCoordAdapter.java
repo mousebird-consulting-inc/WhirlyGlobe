@@ -22,6 +22,7 @@ public class CustomBNGCoordAdapter extends MaplyTestCase
         super(activity);
         this.setTestName("Custom BNG Coord Adapter");
         this.setDelay(100000);
+        this.implementation = TestExecutionImplementation.Both;
     }
 
     public QuadImageTileLayer makeTestLayer(MaplyBaseController viewC)

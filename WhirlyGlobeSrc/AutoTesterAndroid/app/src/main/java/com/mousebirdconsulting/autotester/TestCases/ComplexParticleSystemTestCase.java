@@ -31,6 +31,7 @@ public class ComplexParticleSystemTestCase extends MaplyTestCase {
 
         this.setTestName("Complex Particle System Test");
         this.setDelay(2000);
+        this.implementation = TestExecutionImplementation.Globe;
     }
 
     ComplexParticleThreadAdapter particleAdapter = null;
