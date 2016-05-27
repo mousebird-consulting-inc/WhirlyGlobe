@@ -43,8 +43,13 @@ After you’ve put all those in it should look like this.
 The last thing we need to do is indicate where to search for WG-Maply header files. Open up Build Settings and scroll down to Header Search Paths. Add the path as follows.  Don’t forget to replace **BinaryDirectory** with your own.
 
 {% highlight bash %}
-“BinaryDirectory/WhirlyGlobeMaplyComponent.framework/Headers/“
+"BinaryDirectory/WhirlyGlobeMaplyComponent.framework/Headers/"
 {% endhighlight %}
+
+If you're using Xcode 7.x you need one final step: go to Build Setting and search for "Framework Search Paths". You have to set there the folder containing the "WhirlyGlobeMaplyComponent.framework" file, that is: your own **BinaryDirectory**.
+
+![Adding the Framework Search Paths]({{ site.baseurl }}/images/tutorial/binary_dist_3.png)
+
 
 ### Bridging header for Swift
 
@@ -55,9 +60,10 @@ Maybe you're a lucky guy and you're doing your iOS project using Swift. In such 
 Type there the following path:
 
 {% highlight bash %}
-$(SRCROOT)/libs/WhirlyGlobeMaply/WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/MaplyBridge.h
+"BinaryDirectory/WhirlyGlobeMaplyComponent.framework/Headers/MaplyBridge.h"
 {% endhighlight %}
 
+Don’t forget to replace **BinaryDirectory** with your own.
 
 Try and compile, just to make sure the basic are working.  But that’s it!  You should be set up properly for a project using WG-Maply.
 
