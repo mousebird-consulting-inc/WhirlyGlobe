@@ -39,8 +39,12 @@ MaplyViewControllerDelegate {
 		let layer: MaplyQuadImageTilesLayer
 
 		if useLocalTiles {
-			let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres")
-			layer = MaplyQuadImageTilesLayer(tileSource: tileSource!)!
+			guard let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres")
+			else {
+				print("Can't load 'geography-class_medres' mbtiles")
+				return
+			}
+			layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
 		}
 		else {
 			// Because this is a remote tile set, we'll want a cache directory
@@ -57,13 +61,17 @@ MaplyViewControllerDelegate {
 			// MapQuest Open Aerial Tiles, Courtesy Of Mapquest
 			// Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
 
-			let tileSource = MaplyRemoteTileSource(
+			guard let tileSource = MaplyRemoteTileSource(
 				baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
 				ext: "jpg",
 				minZoom: 0,
 				maxZoom: maxZoom)
-			tileSource!.cacheDir = aerialTilesCacheDir
-			layer = MaplyQuadImageTilesLayer(tileSource: tileSource!)!
+			else {
+				print("Can't create the remote tile source")
+				return
+			}
+			tileSource.cacheDir = aerialTilesCacheDir
+			layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
 		}
 
 		layer.handleEdges = true
