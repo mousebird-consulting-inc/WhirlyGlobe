@@ -140,13 +140,13 @@ Tapping and selection differ between the map and globe.  We'll fill in both dele
   {----}
 
   {% highlight swift %}
-func globeViewController(viewC: WhirlyGlobeViewController!, didTapAt coord: MaplyCoordinate) {
-    let subtitle = NSString(format: "(%.2fN, %.2fE)", coord.y*57.296,coord.x*57.296) as! String
+func globeViewController(viewC: WhirlyGlobeViewController, didTapAt coord: MaplyCoordinate) {
+    let subtitle = NSString(format: "(%.2fN, %.2fE)", coord.y*57.296,coord.x*57.296) as String
     addAnnotationWithTitle("Tap!", subtitle: subtitle, loc: coord)
 }
 
-func maplyViewController(viewC: MaplyViewController!, didTapAt coord: MaplyCoordinate) {
-    let subtitle = NSString(format: "(%.2fN, %.2fE)", coord.y*57.296,coord.x*57.296) as! String
+func maplyViewController(viewC: MaplyViewController, didTapAt coord: MaplyCoordinate) {
+    let subtitle = NSString(format: "(%.2fN, %.2fE)", coord.y*57.296,coord.x*57.296) as String
     addAnnotationWithTitle("Tap!", subtitle: subtitle, loc: coord)
 }
   {% endhighlight %}
@@ -204,11 +204,8 @@ WhirlyGlobe-Maply will do all the work for feature selection.  You just have to 
 // Unified method to handle the selection
 private func handleSelection(selectedObject: NSObject) {
     if let selectedObject = selectedObject as? MaplyVectorObject {
-        var loc = UnsafeMutablePointer<MaplyCoordinate>.alloc(1)
-        if selectedObject.centroid(loc) {
-            addAnnotationWithTitle("selected", subtitle: selectedObject.userObject as! String, loc: loc.memory)
-        }
-        loc.dealloc(1)
+        let loc = selectedObject.centroid()
+        addAnnotationWithTitle("selected", subtitle: selectedObject.userObject as! String, loc: loc)
     }
     else if let selectedObject = selectedObject as? MaplyScreenMarker {
         addAnnotationWithTitle("selected", subtitle: "marker", loc: selectedObject.loc)
@@ -216,20 +213,36 @@ private func handleSelection(selectedObject: NSObject) {
 }
 
 // This is the version for a globe
-func globeViewController(viewC: WhirlyGlobeViewController!, didSelect selectedObj: NSObject!) {
+func globeViewController(viewC: WhirlyGlobeViewController, didSelect selectedObj: NSObject) {
     handleSelection(selectedObj)
 }
 
 // This is the version for a map
-func maplyViewController(viewC: MaplyViewController!, didSelect selectedObj: NSObject!) {
+func maplyViewController(viewC: MaplyViewController, didSelect selectedObj: NSObject) {
     handleSelection(selectedObj)
 }
   {% endhighlight %}
 {% endmultiple_code %}
 
+Before trying this, you need to make your vectors selectable. They aren't by default.
+Just set the "selectable" flag of your MaplyVectorObject to true. That's it.
+In your code, you can do this after creating the MaplyVectorObject object.
 
 
-Run that and try selecting a few countries.
+
+{% multiple_code %}
+  {% highlight objc %}
+wgVecObj.selectable = YES;
+  {% endhighlight %}
+
+  {----}
+
+  {% highlight swift %}  
+wgVecObj.selectable = true  
+  {% endhighlight %}
+{% endmultiple_code %}
+
+Now run that and try selecting a few countries.
 
 ![Xcode ViewController.m]({{ site.baseurl }}/images/tutorial/vector_selection_3.png)
 

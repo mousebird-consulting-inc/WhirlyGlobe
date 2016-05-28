@@ -17,7 +17,7 @@ If you haven't got one here is a suitable ViewController (for [Objective-C]({{ s
 
 We need the Geography Class MBTiles file from Mapbox.  Luckily, you'll find you already have it.
 
-If you set up WhirlyGlobe-Maply as a submodule, look in libs/WhirlyGlobeMap/resources/.  If you used the binary distribution look in BinaryDirectory/resources.  For Cocoapods [do something].  We want to the file geography-class_medres.mbtiles.
+If you set up WhirlyGlobe-Maply as a submodule, look in libs/WhirlyGlobeMap/resources/.  If you used the binary distribution look in BinaryDirectory/resources.  For Cocoapods, if you already added the pod for WhirlyGlobeResources, Pods/WhirlyGlobeResoures/base_maps.  We want to the file geography-class_medres.mbtiles.
 
 Add **geography­class_medres.mbtiles** to your project by dragging it into HelloEarth in your Project Navigator view. You can create a Resources folder there if you like, but it's not necessary. The same goes for 'Copy items into the destination group's folder' – if you want your project to have its own copy of the file, check that box. What you must do, however is check the 'Add to targets' box for HelloEarth, to ensure that the data is packaged with your app when it is built.
 

@@ -93,7 +93,6 @@ For Swift, we'll do it after the line where we assign vecName to userObject attr
 
 Here's the plan.  We'll create a MaplyScreenLabel, give it a location and some text and then add it.  Adding it involves a little styling, but we'll keep it simple.
 
-
 {% multiple_code %}
   {% highlight objc %}
 // Add a screen label per country
@@ -101,11 +100,11 @@ if ([vecName length] > 0)
 {
     MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
     label.text = vecName;
-    label.loc = [wgVecObj center];
+    label.loc = [wgVecObj centroid];
     label.selectable = true;
     [theViewC addScreenLabels:@[label] desc:
         @{
-            kMaplyFont: [UIFont boldSystemFontOfSize:24.0],
+            kMaplyFont: [UIFont boldSystemFontOfSize:14.0],
             kMaplyTextOutlineColor: [UIColor blackColor],
             kMaplyTextOutlineSize: @(2.0),
             kMaplyColor: [UIColor whiteColor]
@@ -119,11 +118,11 @@ if ([vecName length] > 0)
 if vecName.description.characters.count > 0 {
     let label = MaplyScreenLabel()
     label.text = vecName.description
-    label.loc = wgVecObj.center()
+    label.loc = wgVecObj.centroid()
     label.selectable = true
     self.theViewC?.addScreenLabels([label],
         desc: [
-            kMaplyFont: UIFont.boldSystemFontOfSize(24.0),
+            kMaplyFont: UIFont.boldSystemFontOfSize(14.0),
             kMaplyTextOutlineColor: UIColor.blackColor(),
             kMaplyTextOutlineSize: 2.0,
             kMaplyColor: UIColor.whiteColor()
@@ -139,9 +138,9 @@ So labels!  Great!  And they move around but stay the same size!  Let's look a l
 
 ### Label Details
 
-Let's look at what we did there.  First, we created a MaplyScreenLabel.  We gave it some text, which was the country name and we gave it a location, the center of the country.  Then it gets interesting.
+Let's look at what we did there.  First, we created a MaplyScreenLabel.  We gave it some text, which was the country name and we gave it a location, the middle point of the country.  For this, it's recommended to use the centroid of the polygon, instead of just the center. This gives you more accurate results for countries with outlier regions. And you don't want your label to be placed outside the country, do you?
 
-You may notice we're calling addScreenLabels to, ya know, add the labels.  This method takes an array, so we make a small one and it takes a description dictionary.
+Then it gets interesting. You may notice we're calling addScreenLabels to, ya know, add the labels.  This method takes an array, so we make a small one and it takes a description dictionary.
 
 Description dictionaries are a little wacky.  Rather than specify everything in the MaplyScreenLabel, we stuff much of it in an NSDictionary and pass that in.  This lets us leave lots of stuff out and gives it a styling sort of feel.
 

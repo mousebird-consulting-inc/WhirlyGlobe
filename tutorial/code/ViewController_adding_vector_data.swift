@@ -25,7 +25,7 @@ class ViewController: UIViewController {
 			theViewC = globeViewC
 		}
 		else {
-			mapViewC = MaplyViewController()
+			mapViewC = MaplyViewController(mapType: .TypeFlat)
 			theViewC = mapViewC
 		}
 
@@ -46,9 +46,8 @@ class ViewController: UIViewController {
 		let layer: MaplyQuadImageTilesLayer
 
 		if useLocalTiles {
-			if let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres") {
-				layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
-			}
+			let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres")
+			layer = MaplyQuadImageTilesLayer(tileSource: tileSource!)!
 		}
 		else {
 			// Because this is a remote tile set, we'll want a cache directory
@@ -59,13 +58,13 @@ class ViewController: UIViewController {
 			// MapQuest Open Aerial Tiles, Courtesy Of Mapquest
 			// Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
 
-			if let tileSource = MaplyRemoteTileSource(
-					baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
-					ext: "png",
-					minZoom: 0,
-					maxZoom: maxZoom) {
-				layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
-			}
+			let tileSource = MaplyRemoteTileSource(
+				baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
+				ext: "png",
+				minZoom: 0,
+				maxZoom: maxZoom)
+			tileSource!.cacheDir = aerialTilesCacheDir
+			layer = MaplyQuadImageTilesLayer(tileSource: tileSource!)!
 		}
 
 		layer.handleEdges = (globeViewC != nil)

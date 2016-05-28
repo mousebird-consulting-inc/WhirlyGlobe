@@ -9,7 +9,7 @@
 import UIKit
 
 class ViewController: UIViewController,
-	WhirlyGlobeViewControllerDelegate, MaplyViewControllerDelegate {
+WhirlyGlobeViewControllerDelegate, MaplyViewControllerDelegate {
 
 	private var theViewC: MaplyBaseViewController?
 	private var globeViewC: WhirlyGlobeViewController?
@@ -29,7 +29,7 @@ class ViewController: UIViewController,
 			theViewC = globeViewC
 		}
 		else {
-			mapViewC = MaplyViewController()
+			mapViewC = MaplyViewController(mapType: .TypeFlat)
 			mapViewC!.delegate = self
 			theViewC = mapViewC
 		}
@@ -51,26 +51,25 @@ class ViewController: UIViewController,
 		let layer: MaplyQuadImageTilesLayer
 
 		if useLocalTiles {
-			if let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres") {
-				layer = MaplyQuadImageTilesLayer(tileSource: tileSource)
-			}
+			let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres")
+			layer = MaplyQuadImageTilesLayer(tileSource: tileSource!)!
 		}
 		else {
 			// Because this is a remote tile set, we'll want a cache directory
-			let baseCacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as! String
+			let baseCacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
 			let aerialTilesCacheDir = "\(baseCacheDir)/osmtiles/"
 			let maxZoom = Int32(18)
 
 			// MapQuest Open Aerial Tiles, Courtesy Of Mapquest
 			// Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
 
-			if let tileSource = MaplyRemoteTileSource(
-					baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
-					ext: "png",
-					minZoom: 0,
-					maxZoom: maxZoom) {
-				layer = MaplyQuadImageTilesLayer(tileSource: tileSource)
-			}
+			let tileSource = MaplyRemoteTileSource(
+				baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
+				ext: "png",
+				minZoom: 0,
+				maxZoom: maxZoom)
+			tileSource!.cacheDir = aerialTilesCacheDir
+			layer = MaplyQuadImageTilesLayer(tileSource: tileSource!)!
 		}
 
 		layer.handleEdges = (globeViewC != nil)
@@ -120,29 +119,29 @@ class ViewController: UIViewController,
 		cartoLayer.setMaxZoom(15);
 		let coordSys = MaplySphericalMercator()
 		let quadLayer = MaplyQuadPagingLayer(coordSystem: coordSys, delegate: cartoLayer)
-		theViewC?.addLayer(quadLayer)
+		theViewC?.addLayer(quadLayer!)
 	}
 
 	private func handleSelection(selectedObject: NSObject) {
 		if let selectedObject = selectedObject as? MaplyVectorObject {
-			var loc = selectedObject.centroid()
-			if loc.x != kMaplyNullCoordinate {
+			let loc = selectedObject.centroid()
+			if loc.x != kMaplyNullCoordinate.x {
 				addAnnotationWithTitle("selected",
-					subtitle: selectedObject.userObject as! String,
-					loc: loc)
+				                       subtitle: selectedObject.userObject as! String,
+				                       loc: loc)
 			}
 		}
 		else if let selectedObject = selectedObject as? MaplyScreenMarker {
 			addAnnotationWithTitle("selected",
-				subtitle: "marker",
-				loc: selectedObject.loc)
+			                       subtitle: "marker",
+			                       loc: selectedObject.loc)
 		}
 	}
 
 
 	// These are the versions for the map
 	func maplyViewController(viewC: MaplyViewController, didTapAt coord: MaplyCoordinate) {
-		let subtitle = NSString(format: "(%.2fN, %.2fE)", coord.y*57.296,coord.x*57.296) as! String
+		let subtitle = NSString(format: "(%.2fN, %.2fE)", coord.y*57.296,coord.x*57.296) as String
 		addAnnotationWithTitle("Tap!", subtitle: subtitle, loc: coord)
 	}
 
@@ -152,7 +151,7 @@ class ViewController: UIViewController,
 
 	// These are the versions for the globe
 	func globeViewController(viewC: WhirlyGlobeViewController, didTapAt coord: MaplyCoordinate) {
-		let subtitle = NSString(format: "(%.2fN, %.2fE)", coord.y*57.296,coord.x*57.296) as! String
+		let subtitle = NSString(format: "(%.2fN, %.2fE)", coord.y*57.296,coord.x*57.296) as String
 		addAnnotationWithTitle("Tap!", subtitle: subtitle, loc: coord)
 	}
 

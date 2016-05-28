@@ -25,7 +25,7 @@ class ViewController: UIViewController {
 			theViewC = globeViewC
 		}
 		else {
-			mapViewC = MaplyViewController()
+			mapViewC = MaplyViewController(mapType: .TypeFlat)
 			theViewC = mapViewC
 		}
 

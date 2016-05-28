@@ -73,7 +73,8 @@ private func addBars() {
         MaplyCoordinateMakeWithDegrees(166.666667, -77.85),
         MaplyCoordinateMakeWithDegrees(-58.383333, -34.6),
         MaplyCoordinateMakeWithDegrees(-74.075833, 4.598056),
-        MaplyCoordinateMakeWithDegrees(-79.516667, 8.983333)
+        MaplyCoordinateMakeWithDegrees(-79.516667, 8.983333),
+        MaplyCoordinateMakeWithDegrees(-5.7043173, 40.9634332)
     ]
 
     let icon = UIImage(named: "alcohol-shop-24")
@@ -82,7 +83,7 @@ private func addBars() {
         let marker = MaplyScreenMarker()
         marker.image = icon
         marker.loc = cap
-        marker.size = CGSizeMake(140, 140)
+        marker.size = CGSizeMake(40, 40)
         return marker
     }
 

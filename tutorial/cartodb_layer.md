@@ -193,7 +193,7 @@ Put the new _addBuildings_ method near the end of your ViewController.
       let cartoLayer = CartoDBLayer(search: search)
       cartoLayer.setMinZoom(15);
       cartoLayer.setMaxZoom(15);
-      let coordSys = MaplySphericalMercator(webStandard: ())
+      let coordSys = MaplySphericalMercator()
       if let quadLayer = MaplyQuadPagingLayer(coordSystem: coordSys, delegate: cartoLayer) {
           theViewC?.addLayer(quadLayer)
       }
@@ -255,14 +255,12 @@ The most important method in the MaplyPagingDelegate is _startFetchForTile_.  Th
     MaplyBoundingBox bbox;
     [layer geoBoundsforTile:tileID ll:&bbox.ll ur:&bbox.ur];
     NSURLRequest *urlReq = [self constructRequest:bbox];
-
+    
+    NSURLSession *session = [NSURLSession sessionWithConfiguration: [NSURLSessionConfiguration defaultSessionConfiguration]];
+    
     // kick off the query asychronously
-    [NSURLConnection 
-     sendAsynchronousRequest:urlReq 
-     queue:opQueue 
-     completionHandler:
-     ^(NSURLResponse *response, NSData *data, NSError *connectionError)
-     {
+    [[session dataTaskWithRequest:urlReq completionHandler:
+            ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable connectionError) {
         // parse the resulting GeoJSON
         MaplyVectorObject *vecObj = [MaplyVectorObject VectorObjectFromGeoJSON:data];
         if (vecObj)
@@ -294,7 +292,7 @@ The most important method in the MaplyPagingDelegate is _startFetchForTile_.  Th
 
         // let the layer know the tile is done
         [layer tileDidLoad:tileID];
-     }];
+	}] resume];
 }
   {% endhighlight %}
 
@@ -305,11 +303,12 @@ func startFetchForTile(tileID: MaplyTileID, forLayer layer: MaplyQuadPagingLayer
    // bounding box for tile
    let bbox = layer.boundsForTile(tileID)
    let urlReq = constructRequest(bbox)
+   
+   let session = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
 
-   NSURLConnection.sendAsynchronousRequest(urlReq, queue: opQueue!)
-   { (response, data, error) -> Void in
+   session.dataTaskWithRequest(urlReq) { (data, response, error) in
       // parse the resulting GeoJSON
-      if let vecObj = MaplyVectorObject(fromGeoJSON: data) {
+      if let data = data, vecObj = MaplyVectorObject(fromGeoJSON: data) {
          // display a transparent filled polygon
          let filledObj = layer.viewC!.addVectors([vecObj],
             desc: [
@@ -329,12 +328,12 @@ func startFetchForTile(tileID: MaplyTileID, forLayer layer: MaplyQuadPagingLayer
             mode: .Current)
 
          // keep track of it in the layer
-         layer.addData([filledObj, outlineObj], forTile: tileID)
+         layer.addData([filledObj!, outlineObj!], forTile: tileID)
 
          // let the layer know the tile is done
          layer.tileDidLoad(tileID)
       }
-   }
+   }.resume()
 }
   {% endhighlight %}
 {% endmultiple_code %}
@@ -366,7 +365,7 @@ Let's circle back to the CartoDB Request.  We have the bounding box for a tile a
 {
     double toDeg = 180/M_PI;
     NSString *query = [NSString stringWithFormat:search,bbox.ll.x*toDeg,bbox.ll.y*toDeg,bbox.ur.x*toDeg,bbox.ur.y*toDeg];
-    NSString *encodeQuery = [query stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSString *encodeQuery = [query stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     encodeQuery = [encodeQuery stringByReplacingOccurrencesOfString:@"&" withString:@"%26"];
     NSString *fullUrl = [NSString stringWithFormat:@"https://pluto.cartodb.com/api/v2/sql?format=GeoJSON&q=%@",encodeQuery];
     NSURLRequest *urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullUrl]];
@@ -381,13 +380,11 @@ Let's circle back to the CartoDB Request.  We have the bounding box for a tile a
 func constructRequest(bbox: MaplyBoundingBox) -> NSURLRequest {
    let toDeg = Float(180.0/M_PI)
    let query = NSString(format: search, bbox.ll.x * toDeg, bbox.ll.y * toDeg,bbox.ur.x * toDeg, bbox.ur.y * toDeg)
-   var encodeQuery = query.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
-   let range = Range<String.Index>(start: encodeQuery!.startIndex, end: encodeQuery!.endIndex)
-    encodeQuery = encodeQuery!.stringByReplacingOccurrencesOfString("&", withString: "%26", options: NSStringCompareOptions.allZeros, range: range)
+   var encodeQuery = query.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())
+   let range = encodeQuery!.startIndex..<encodeQuery!.endIndex
+   encodeQuery = encodeQuery!.stringByReplacingOccurrencesOfString("&", withString: "%26", options: [], range: range)
    let fullUrl = NSString(format: "https://pluto.cartodb.com/api/v2/sql?format=GeoJSON&q=%@", encodeQuery!) as String
-   let urlReq = NSURLRequest(URL: NSURL(string: fullUrl)!)
-
-   return urlReq
+   return NSURLRequest(URL: NSURL(string: fullUrl)!)
 }
   {% endhighlight %}
 {% endmultiple_code %}

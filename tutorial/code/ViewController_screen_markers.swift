@@ -9,7 +9,7 @@
 import UIKit
 
 class ViewController: UIViewController,
-		WhirlyGlobeViewControllerDelegate, MaplyViewControllerDelegate {
+WhirlyGlobeViewControllerDelegate, MaplyViewControllerDelegate {
 
 	private var theViewC: MaplyBaseViewController?
 	private var globeViewC: WhirlyGlobeViewController?
@@ -29,7 +29,7 @@ class ViewController: UIViewController,
 			theViewC = globeViewC
 		}
 		else {
-			mapViewC = MaplyViewController()
+			mapViewC = MaplyViewController(mapType: .TypeFlat)
 			mapViewC!.delegate = self
 			theViewC = mapViewC
 		}
@@ -51,9 +51,8 @@ class ViewController: UIViewController,
 		let layer: MaplyQuadImageTilesLayer
 
 		if useLocalTiles {
-			if let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres") {
-				layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
-			}
+			let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres")
+			layer = MaplyQuadImageTilesLayer(tileSource: tileSource!)!
 		}
 		else {
 			// Because this is a remote tile set, we'll want a cache directory
@@ -64,13 +63,13 @@ class ViewController: UIViewController,
 			// MapQuest Open Aerial Tiles, Courtesy Of Mapquest
 			// Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
 
-			if let tileSource = MaplyRemoteTileSource(
-					baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
-					ext: "png",
-					minZoom: 0,
-					maxZoom: maxZoom) {
-				layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
-			}
+			let tileSource = MaplyRemoteTileSource(
+				baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
+				ext: "png",
+				minZoom: 0,
+				maxZoom: maxZoom)
+			tileSource!.cacheDir = aerialTilesCacheDir
+			layer = MaplyQuadImageTilesLayer(tileSource: tileSource!)!
 		}
 
 		layer.handleEdges = (globeViewC != nil)
@@ -110,10 +109,10 @@ class ViewController: UIViewController,
 
 			for outline in allOutlines {
 				if let jsonData = NSData(contentsOfFile: outline),
-						wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData) {
+					wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData) {
 					// the admin tag from the country outline geojson has the country name ­ save
 					if let attrs = wgVecObj.attributes,
-							vecName = attrs.objectForKey("ADMIN") as? NSObject {
+						vecName = attrs.objectForKey("ADMIN") as? NSObject {
 
 						wgVecObj.userObject = vecName
 					}
@@ -160,16 +159,16 @@ class ViewController: UIViewController,
 	private func handleSelection(selectedObject: NSObject) {
 		if let selectedObject = selectedObject as? MaplyVectorObject {
 			let loc = selectedObject.centroid()
-			if loc.x != kMaplyNullCoordinate {
+			if loc.x != kMaplyNullCoordinate.x {
 				addAnnotationWithTitle("selected",
-					subtitle: selectedObject.userObject as! String,
-					loc: loc)
+				                       subtitle: selectedObject.userObject as! String,
+				                       loc: loc)
 			}
 		}
 		else if let selectedObject = selectedObject as? MaplyScreenMarker {
 			addAnnotationWithTitle("selected",
-				subtitle: "marker",
-				loc: selectedObject.loc)
+			                       subtitle: "marker",
+			                       loc: selectedObject.loc)
 		}
 	}
 	

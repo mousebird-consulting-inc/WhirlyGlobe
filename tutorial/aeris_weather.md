@@ -48,16 +48,16 @@ Let's get started by adding five member variables to the ViewController class.  
 {----}
 
 {% highlight swift %}
-    private var theViewC: MaplyBaseViewController?
-    private var globeViewC: WhirlyGlobeViewController?
-    private var mapViewC: MaplyViewController?
+private var theViewC: MaplyBaseViewController?
+private var globeViewC: WhirlyGlobeViewController?
+private var mapViewC: MaplyViewController?
     
-    // New member variables
-    private var frameCount: Int!
-    private var animationPeriod: Float!
-    private var importanceScale: Float!
-    private var aerisID: String!
-    private var aerisKey: String!
+// New member variables
+private var frameCount: Int?
+private var animationPeriod: Float?
+private var importanceScale: Float?
+private var aerisID: String?
+private var aerisKey: String?
 {% endhighlight %} {% endmultiple_code %}
 
 Add a method call as the final line in viewDidLoad.
@@ -87,13 +87,13 @@ And begin implementing it as follows:
 {----}
 
 {% highlight swift %}
-    func setupAerisOverlayLayer() {
-        aerisID = "2kDDnD7Q1XFfFm4CwH17C"
-        aerisKey = "FQmadjUccN3CnB4KG6kKeurUpxHSKM0xbCd6TlVi"
-        frameCount = 6
-        animationPeriod = 3.0
-        importanceScale = 1.0/16.0
-    }
+func setupAerisOverlayLayer() {
+    aerisID = "2kDDnD7Q1XFfFm4CwH17C"
+    aerisKey = "FQmadjUccN3CnB4KG6kKeurUpxHSKM0xbCd6TlVi"
+    frameCount = 6
+    animationPeriod = 3.0
+    importanceScale = 1.0/16.0
+}
 {% endhighlight %} {% endmultiple_code %}
 
 Aeris provides quite a few time slices in their data layers, more than we can easily display.  The *frameCount* member controls how many we will show.  The *animationPeriod* is how long we'll take to run through the whole animation and the *importanceScale* controls how much data we'll load relative to the underlying map.
@@ -144,14 +144,18 @@ layerTileSet = [[MaplyAerisTileSet alloc] initWithAerisID:aerisID secretKey:aeri
 let layerCode = "radar"
 let aerisTiles = MaplyAerisTiles(aerisID: aerisID!, secretKey: aerisKey!)
 let layerInfoDict = aerisTiles?.layerInfo()
-layerInfo = layerInfoDict?[layerCode] as! MaplyAerisLayerInfo
+layerInfo = layerInfoDict?[layerCode] as? MaplyAerisLayerInfo
 
-if layerInfo == nil {
+guard let layerInfo = layerInfo else {
     print("Error finding aeris radar layer parameters.")
     return
 }
 
-layerTileSet = MaplyAerisTileSet(aerisID: aerisID!, secretKey: aerisKey!, layerInfo: layerInfo!, tileSetCount: UInt32(frameCount) )
+layerTileSet = MaplyAerisTileSet(
+        aerisID: aerisID!, 
+        secretKey: aerisKey!, 
+        layerInfo: layerInfo, 
+        tileSetCount: UInt32(frameCount!))
 
 refreshAerisOverlayLayer()
 {% endhighlight %} {% endmultiple_code %}
@@ -186,25 +190,28 @@ That gets the **MaplyAerisLayerInfo** object for the radar layer, and constructs
 
 {% highlight swift %}
 func refreshAerisOverlayLayer() {
-    layerTileSet.startFetchWithSuccess({ (tileSources: [AnyObject]?) in
+    layerTileSet!.startFetchWithSuccess({ tileSources in
 
         let multiSource = MaplyMultiplexTileSource(sources: tileSources!)
 
-        if self.aerisLayer != nil {
-            self.theViewC!.removeLayer(self.aerisLayer!)
+        if let aerisLayer = self.aerisLayer {
+            self.theViewC!.removeLayer(aerisLayer)
         }
         
         self.aerisLayer = MaplyQuadImageTilesLayer(coordSystem: multiSource!.coordSys, tileSource: multiSource!)
-        self.aerisLayer.imageDepth = UInt32(self.frameCount!)
-        self.aerisLayer.animationPeriod = self.animationPeriod
-        self.aerisLayer.imageFormat = MaplyQuadImageFormat.ImageUShort5551
-        self.aerisLayer.drawPriority = kMaplyImageLayerDrawPriorityDefault+100
-        self.aerisLayer.maxTiles = 1000
-        self.aerisLayer.importanceScale = 1.0/16.0
 
-        self.theViewC!.addLayer(self.aerisLayer!)
-        
-    }, failure: { (NSError) in
+        if let aerisLayer = self.aerisLayer {
+            aerisLayer.imageDepth = UInt32(self.frameCount!)
+            aerisLayer.animationPeriod = self.animationPeriod!
+            aerisLayer.imageFormat = MaplyQuadImageFormat.ImageUShort5551
+            aerisLayer.drawPriority = kMaplyImageLayerDrawPriorityDefault+100
+            aerisLayer.maxTiles = 1000
+            aerisLayer.importanceScale = 1.0/16.0
+
+            self.theViewC!.addLayer(aerisLayer)
+        }
+    },
+    failure: { (NSError) in
     })
 }
 {% endhighlight %} {% endmultiple_code %}
