@@ -25,7 +25,7 @@ html, body {
   padding: 0 0 124px; }
 
 body {
-  background-image: url("/images/WB-Paper-background.png"); }
+  background-image: url("/WhirlyGlobe/images/WB-Paper-background.png"); }
 
 .Museo-700 {
   font-family: Museo-700;
@@ -66,16 +66,16 @@ a.bb-source, a.bb-binary, a.bb-documentation, a.bb-cocoapods {
   text-align: center; }
 
 a.bb-source {
-  background: url("/images/bb-source.png") no-repeat 0 0; }
+  background: url("/WhirlyGlobe/images/bb-source.png") no-repeat 0 0; }
 
 a.bb-binary {
-  background: url("/images/bb-binary.png") no-repeat 0 0; }
+  background: url("/WhirlyGlobe/images/bb-binary.png") no-repeat 0 0; }
 
 a.bb-documentation {
-  background: url("/images/bb-documentation.png") no-repeat 0 0; }
+  background: url("/WhirlyGlobe/images/bb-documentation.png") no-repeat 0 0; }
 
 a.bb-cocoapods {
-  background: url("/images/bb-cocoapods.png") no-repeat 0 0; }
+  background: url("/WhirlyGlobe/images/bb-cocoapods.png") no-repeat 0 0; }
 
 a:hover.bb-source, a:hover.bb-binary, a:hover.bb-documentation, a:hover.bb-cocoapods {
   background-position: 0 -119px; }
@@ -115,7 +115,7 @@ ul.docs-and-resources li:before {
   height: 30px;
   width: 31px;
   content: '';
-  background: url("/images/homepage-li-sprites.png") no-repeat 0 0;
+  background: url("/WhirlyGlobe/images/homepage-li-sprites.png") no-repeat 0 0;
   position: absolute;
   left: -34px;
   top: 5px; }
@@ -200,7 +200,7 @@ a.prev {
   display: inline-block;
   width: 159px;
   height: 64px;
-  background: url("/images/prev.png") no-repeat 0 0;
+  background: url("/WhirlyGlobe/images/prev.png") no-repeat 0 0;
   overflow: hidden;
   font-family: Museo-500;
   font-size: 1em;
@@ -210,7 +210,7 @@ a.next {
   display: inline-block;
   width: 159px;
   height: 64px;
-  background: url("/images/next.png") no-repeat 0 0;
+  background: url("/WhirlyGlobe/images/next.png") no-repeat 0 0;
   overflow: hidden;
   font-family: Museo-500;
   font-size: 1em;
