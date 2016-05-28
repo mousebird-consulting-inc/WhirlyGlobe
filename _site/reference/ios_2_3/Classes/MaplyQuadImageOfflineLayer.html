@@ -1,0 +1,1144 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
+		<title>MaplyQuadImageOfflineLayer Class Reference</title>
+		<meta id="xcode-display" name="xcode-display" content="render"/>
+		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
+		<link rel="stylesheet" type="text/css" media="print" href="../css/stylesPrint.css" />
+		<meta name="generator" content="appledoc 2.2 (build 961)" />
+	</head>
+	<body>
+		<header id="top_header">
+			<div id="library" class="hideInXcode">
+				<h1><a id="libraryTitle" href="../index.html">WhirlyGlobe-Maply </a></h1>
+				<a id="developerHome" href="../index.html">mousebird consulting inc</a>
+			</div>
+			
+			<div id="title" role="banner">
+				<h1 class="hideInXcode">MaplyQuadImageOfflineLayer Class Reference</h1>
+			</div>
+			<ul id="headerButtons" role="toolbar">
+				<li id="toc_button">
+					<button aria-label="Show Table of Contents" role="checkbox" class="open" id="table_of_contents"><span class="disclosure"></span>Table of Contents</button>
+				</li>
+				<li id="jumpto_button" role="navigation">
+					<select id="jumpTo">
+	<option value="top">Jump To&#133;</option>
+	
+	<option value="overview">Overview</option>
+	
+	
+	
+	
+	<option value="tasks">Tasks</option>
+	
+	
+	
+	
+	
+	<option value="properties">Properties</option>
+	
+	<option value="//api/name/asyncFetching">&nbsp;&nbsp;&nbsp;&nbsp;asyncFetching</option>
+	
+	<option value="//api/name/autoRes">&nbsp;&nbsp;&nbsp;&nbsp;autoRes</option>
+	
+	<option value="//api/name/bbox">&nbsp;&nbsp;&nbsp;&nbsp;bbox</option>
+	
+	<option value="//api/name/delegate">&nbsp;&nbsp;&nbsp;&nbsp;delegate</option>
+	
+	<option value="//api/name/flipY">&nbsp;&nbsp;&nbsp;&nbsp;flipY</option>
+	
+	<option value="//api/name/imageDepth">&nbsp;&nbsp;&nbsp;&nbsp;imageDepth</option>
+	
+	<option value="//api/name/importanceScale">&nbsp;&nbsp;&nbsp;&nbsp;importanceScale</option>
+	
+	<option value="//api/name/maxTiles">&nbsp;&nbsp;&nbsp;&nbsp;maxTiles</option>
+	
+	<option value="//api/name/numSimultaneousFetches">&nbsp;&nbsp;&nbsp;&nbsp;numSimultaneousFetches</option>
+	
+	<option value="//api/name/on">&nbsp;&nbsp;&nbsp;&nbsp;on</option>
+	
+	<option value="//api/name/period">&nbsp;&nbsp;&nbsp;&nbsp;period</option>
+	
+	<option value="//api/name/previewLevels">&nbsp;&nbsp;&nbsp;&nbsp;previewLevels</option>
+	
+	<option value="//api/name/singleLevelLoading">&nbsp;&nbsp;&nbsp;&nbsp;singleLevelLoading</option>
+	
+	<option value="//api/name/textureSize">&nbsp;&nbsp;&nbsp;&nbsp;textureSize</option>
+	
+	<option value="//api/name/tileSource">&nbsp;&nbsp;&nbsp;&nbsp;tileSource</option>
+	
+	
+	
+	
+	
+	
+	<option value="instance_methods">Instance Methods</option>
+	
+	<option value="//api/name/initWithCoordSystem:tileSource:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithCoordSystem:tileSource:</option>
+	
+	<option value="//api/name/reload">&nbsp;&nbsp;&nbsp;&nbsp;- reload</option>
+	
+	
+	
+</select>
+				</li>
+			</ul>
+		</header>
+		<nav id="tocContainer" class="isShowingTOC">
+			<ul id="toc" role="tree">
+				
+<li role="treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#overview">Overview</a></span></li>
+
+
+
+
+<li role="treeitem" id="task_treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#tasks">Tasks</a></span><ul>
+	
+</ul></li>
+
+
+
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#properties">Properties</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/asyncFetching">asyncFetching</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/autoRes">autoRes</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/bbox">bbox</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/delegate">delegate</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/flipY">flipY</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/imageDepth">imageDepth</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/importanceScale">importanceScale</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/maxTiles">maxTiles</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/numSimultaneousFetches">numSimultaneousFetches</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/on">on</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/period">period</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/previewLevels">previewLevels</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/singleLevelLoading">singleLevelLoading</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/textureSize">textureSize</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/tileSource">tileSource</a></span></li>
+	
+</ul></li>
+
+
+
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithCoordSystem:tileSource:">initWithCoordSystem:tileSource:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/reload">reload</a></span></li>
+	
+</ul></li>
+
+
+			</ul>
+		</nav>
+		<article>
+			<div id="contents" class="isShowingTOC" role="main">
+				<a title="MaplyQuadImageOfflineLayer Class Reference" name="top"></a>
+				<div class="main-navigation navigation-top">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="header">
+					<div class="section-header">
+						<h1 class="title title-header">MaplyQuadImageOfflineLayer Class Reference</h1>
+					</div>		
+				</div>
+				<div id="container">	
+					
+					<div class="section section-specification"><table cellspacing="0"><tbody>
+						<tr>
+	<td class="specification-title">Inherits from</td>
+	<td class="specification-value"><a href="../Classes/MaplyViewControllerLayer.html">MaplyViewControllerLayer</a> : NSObject</td>
+</tr><tr>
+	<td class="specification-title">Declared in</td>
+	<td class="specification-value">MaplyQuadImageOfflineLayer.h</td>
+</tr>
+						</tbody></table></div>
+					
+                    
+                    
+					
+					<div class="section section-overview">
+						<a title="Overview" name="overview"></a>
+						<h2 class="subtitle subtitle-overview">Overview</h2>
+						<p>The offline renderer will fetch a tile image basemap like a normal <a href="../Classes/MaplyQuadImageTilesLayer.html">MaplyQuadImageTilesLayer</a>.  What it does with it is completely different.  It renders a stack of static images from it and calls a <a href="#//api/name/delegate">delegate</a> with them.</p><p>The images produced correspond to the <a href="#//api/name/bbox">bbox</a> set. Think of it as providing a window into a tiled base map.  Why?  Eh, it&rsquo;s complicated.</p>
+					</div>
+					
+					
+					
+					
+					
+					<div class="section section-tasks">
+						<a title="Tasks" name="tasks"></a>
+						<h2 class="subtitle subtitle-tasks">Tasks</h2>
+						
+						
+						
+						
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/initWithCoordSystem:tileSource:">&ndash;&nbsp;initWithCoordSystem:tileSource:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/tileSource">&nbsp;&nbsp;tileSource</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/on">&nbsp;&nbsp;on</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/numSimultaneousFetches">&nbsp;&nbsp;numSimultaneousFetches</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/imageDepth">&nbsp;&nbsp;imageDepth</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/flipY">&nbsp;&nbsp;flipY</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/maxTiles">&nbsp;&nbsp;maxTiles</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/importanceScale">&nbsp;&nbsp;importanceScale</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/previewLevels">&nbsp;&nbsp;previewLevels</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/textureSize">&nbsp;&nbsp;textureSize</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/autoRes">&nbsp;&nbsp;autoRes</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/asyncFetching">&nbsp;&nbsp;asyncFetching</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/period">&nbsp;&nbsp;period</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/singleLevelLoading">&nbsp;&nbsp;singleLevelLoading</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/bbox">&nbsp;&nbsp;bbox</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/delegate">&nbsp;&nbsp;delegate</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/reload">&ndash;&nbsp;reload</a></code>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+					</div>
+					
+					
+					
+					
+					
+					<div class="section section-methods">
+						<a title="Properties" name="properties"></a>
+						<h2 class="subtitle subtitle-methods">Properties</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/asyncFetching" title="asyncFetching"></a>
+	<h3 class="subsubtitle method-title">asyncFetching</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Controls whether the fetching code runs in a single thread or is spawned asyncronously.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) bool asyncFetching</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If set, we&rsquo;ll kick off the tile fetches in their own dispatched blocks.  If not set, we&rsquo;ll just do it in the layer thread.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/autoRes" title="autoRes"></a>
+	<h3 class="subsubtitle method-title">autoRes</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>If <a href="#//api/name/on">on</a> the layer will try to match the <a href="#//api/name/textureSize">textureSize</a> to the maximum resoluti<a href="#//api/name/on">on</a> of the tiles it sees.  On by default.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) bool autoRes</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/bbox" title="bbox"></a>
+	<h3 class="subsubtitle method-title">bbox</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The bounding box for the images produced by the offline layer.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) MaplyBoundingBox bbox</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This bounding box should be in the layer&rsquo;s coordinate system.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/delegate" title="delegate"></a>
+	<h3 class="subsubtitle method-title">delegate</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The delegate called with the image stack produced at irregular intervals.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, weak) NSObject&lt;MaplyQuadImageOfflineDelegate&gt; *delegate</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Set this delegate to get the images out of the offline rendering layer.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/flipY" title="flipY"></a>
+	<h3 class="subsubtitle method-title">flipY</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Control how tiles are indexed, either from the lower left or the upper left.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) bool flipY</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If set, we&rsquo;ll use the OSM approach (also Google Maps) to y indexing.  That&rsquo;s that default and it&rsquo;s normally what you&rsquo;re run into.</p><p>Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you&rsquo;re tile source looks odd, try setting this to false.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/imageDepth" title="imageDepth"></a>
+	<h3 class="subsubtitle method-title">imageDepth</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The number of images we&rsquo;re expecting to get per tile.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) unsigned int imageDepth</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is the number of images the layer will ask for per tile.  The default is 1, which is the normal case.  If this is greater than one that typically means we&rsquo;re going to animate between them.</p><p>the <a href="../Protocols/MaplyTileSource.html">MaplyTileSource</a> <a href="#//api/name/delegate">delegate</a> is always expected to provide this many imates.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/importanceScale" title="importanceScale"></a>
+	<h3 class="subsubtitle method-title">importanceScale</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Scale the calculated importance by this before using it.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) float importanceScale</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Number less than 1.0 will make tiles less important to load in.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/maxTiles" title="maxTiles"></a>
+	<h3 class="subsubtitle method-title">maxTiles</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Maximum number of tiles to load in at once.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) int maxTiles</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is the maximum number of tiles the pager will have loaded into memory at once.  The default is 128 and that&rsquo;s generally good enough.  However, if your tile size is small, you may want to load in more.</p><p>Tile loading can get out of control when using elevati<a href="#//api/name/on">on</a> data.  The toolkit calculates potential sceen coverage for each tile so elevati<a href="#//api/name/on">on</a> data makes all tiles more important.  As a result the system will happily page in way more data than you may want.  The limit becomes important in elevati<a href="#//api/name/on">on</a> mode, so leave it at 128 unless you need to change it.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/numSimultaneousFetches" title="numSimultaneousFetches"></a>
+	<h3 class="subsubtitle method-title">numSimultaneousFetches</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The number of simultaneous fetches the layer will attempt at once.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) int numSimultaneousFetches</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The toolkit loves its dispatch queues and threads.  By default this number is set to 8 or 16, but if you need to constrain it, you can set it lower (or higher!).  If your tile source can&rsquo;t handle multi-thread access, set this to 1.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/on" title="on"></a>
+	<h3 class="subsubtitle method-title">on</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Enable/Disable the whole layer.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) bool on</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>By default this is on.  When off, the layer will stop working and calling its <a href="#//api/name/delegate">delegate</a>.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/period" title="period"></a>
+	<h3 class="subsubtitle method-title">period</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>How often we&rsquo;ll generate a new image.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) float period</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is the most often the layer will produce a new set of images and call the <a href="#//api/name/delegate">delegate</a>.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/previewLevels" title="previewLevels"></a>
+	<h3 class="subsubtitle method-title">previewLevels</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Number of levels to consider in tiles when previewing.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) int previewLevels</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>When we chnage the bounds we&rsquo;ll run off a quick preview render if this is set.  If so, we&rsquo;ll consider an tile above or at this level.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/singleLevelLoading" title="singleLevelLoading"></a>
+	<h3 class="subsubtitle method-title">singleLevelLoading</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>If <a href="#//api/name/on">on</a>, we&rsquo;ll try to load only a single level at a time.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) bool singleLevelLoading</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If set we&rsquo;ll use the target level logic to only show a single level at a time.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/textureSize" title="textureSize"></a>
+	<h3 class="subsubtitle method-title">textureSize</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Size of the image to produce or maximum size if <a href="#//api/name/autoRes">autoRes</a> is <a href="#//api/name/on">on</a>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) CGSize textureSize</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is the size of each of the images passed to the <a href="#//api/name/delegate">delegate</a>.  If <a href="#//api/name/autoRes">autoRes</a> is <a href="#//api/name/on">on</a> this is the maximum size.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/tileSource" title="tileSource"></a>
+	<h3 class="subsubtitle method-title">tileSource</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Set the active tile source.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) NSObject&lt;MaplyTileSource&gt; *tileSource</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If you change this, it will force a <a href="#//api/name/reload">reload</a> of all loaded tiles and start fetching from the new tile source.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
+					
+					
+					
+					
+					<div class="section section-methods">
+						<a title="Instance Methods" name="instance_methods"></a>
+						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/initWithCoordSystem:tileSource:" title="initWithCoordSystem:tileSource:"></a>
+	<h3 class="subsubtitle method-title">initWithCoordSystem:tileSource:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Initialize with the coordinate system of the tile source and the tile source.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (id)initWithCoordSystem:(MaplyCoordinateSystem *)<em>coordSys</em> tileSource:(NSObject&lt;MaplyTileSource&gt; *)<em>tileSource</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>coordSys</em></dt>
+			<dd><p>The coordinate system the offline layer will render in.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>tileSource</em></dt>
+			<dd><p>The tile source that needs to provide at least one and possibly more images per tile.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The coordinate system needs to be either <a href="../Classes/MaplyPlateCarree.html">MaplyPlateCarree</a> or <a href="../Classes/MaplySphericalMercator.html">MaplySphericalMercator</a> at the moment.  The tile source should provide at least one and possibly several images per tile.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/reload" title="reload"></a>
+	<h3 class="subsubtitle method-title">reload</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Force the layer to reload its tiles and rerender.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)reload</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
+					
+                    
+                    
+				</div>
+				<div class="main-navigation navigation-bottom">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="footer">
+					<hr />
+					<div class="footer-copyright">
+						<p><span class="copyright">&copy; 2014 mousebird consulting inc. All rights reserved. (Last updated: 2014-07-09)</span><br />
+						
+						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2 (build 961)</a>.</span></p>
+						
+					</div>
+				</div>
+			</div>
+		</article>
+		<script type="text/javascript">
+			function jumpToChange()
+			{
+				window.location.hash = this.options[this.selectedIndex].value;
+			}
+			
+			function toggleTOC()
+			{
+				var contents = document.getElementById('contents');
+				var tocContainer = document.getElementById('tocContainer');
+				
+				if (this.getAttribute('class') == 'open')
+				{
+					this.setAttribute('class', '');
+					contents.setAttribute('class', '');
+					tocContainer.setAttribute('class', '');
+					
+					window.name = "hideTOC";
+				}
+				else
+				{
+					this.setAttribute('class', 'open');
+					contents.setAttribute('class', 'isShowingTOC');
+					tocContainer.setAttribute('class', 'isShowingTOC');
+					
+					window.name = "";
+				}
+				return false;
+			}
+			
+			function toggleTOCEntryChildren(e)
+			{
+				e.stopPropagation();
+				var currentClass = this.getAttribute('class');
+				if (currentClass == 'children') {
+					this.setAttribute('class', 'children open');
+				}
+				else if (currentClass == 'children open') {
+					this.setAttribute('class', 'children');
+				}
+				return false;
+			}
+			
+			function tocEntryClick(e)
+			{
+				e.stopPropagation();
+				return true;
+			}
+			
+			function init()
+			{
+				var selectElement = document.getElementById('jumpTo');
+				selectElement.addEventListener('change', jumpToChange, false);
+				
+				var tocButton = document.getElementById('table_of_contents');
+				tocButton.addEventListener('click', toggleTOC, false);
+				
+				var taskTreeItem = document.getElementById('task_treeitem');
+				if (taskTreeItem.getElementsByTagName('li').length > 0)
+				{
+					taskTreeItem.setAttribute('class', 'children');
+					taskTreeItem.firstChild.setAttribute('class', 'disclosure');
+				}
+				
+				var tocList = document.getElementById('toc');
+				
+				var tocEntries = tocList.getElementsByTagName('li');
+				for (var i = 0; i < tocEntries.length; i++) {
+					tocEntries[i].addEventListener('click', toggleTOCEntryChildren, false);
+				}
+				
+				var tocLinks = tocList.getElementsByTagName('a');
+				for (var i = 0; i < tocLinks.length; i++) {
+					tocLinks[i].addEventListener('click', tocEntryClick, false);
+				}
+				
+				if (window.name == "hideTOC") {
+					toggleTOC.call(tocButton);
+				}
+			}
+			
+			window.onload = init;
+			
+			// If showing in Xcode, hide the TOC and Header
+			if (navigator.userAgent.match(/xcode/i)) {
+				document.getElementById("contents").className = "hideInXcode"
+				document.getElementById("tocContainer").className = "hideInXcode"
+				document.getElementById("top_header").className = "hideInXcode"
+			}
+			
+		</script>
+	</body>
+</html>

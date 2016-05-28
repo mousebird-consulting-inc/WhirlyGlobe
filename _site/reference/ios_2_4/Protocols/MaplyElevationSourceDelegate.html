@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>MaplyElevationSourceDelegate Protocol Reference</title>
+
+	<link rel="stylesheet" href="../css/style.css">
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1.4">
+	<meta name="generator" content="appledoc 2.2.1 (build 1333)">
+</head>
+<body class="appledoc">
+	<header>
+		<div class="container" class="hide-in-xcode">
+			
+			<h1 id="library-title">
+				<a href="../index.html">WhirlyGlobe-Maply </a>
+			</h1>
+
+			<p id="developer-home">
+				<a href="../index.html">mousebird consulting inc</a>
+			</p>
+			
+		</div>
+	</header>
+
+	<aside>
+		<div class="container">
+			<nav>
+				<ul id="header-buttons" role="toolbar">
+					<li><a href="../index.html">Index</a></li>
+<li><a href="../hierarchy.html">Hierarchy</a></li>
+
+					<li id="on-this-page" role="navigation">
+						<label>
+							On This Page
+
+							<div class="chevron">
+								<div class="chevy chevron-left"></div>
+								<div class="chevy chevron-right"></div>
+							</div>
+
+							<select id="jump-to">
+	<option value="top">Jump To&#133;</option>
+	
+	<option value="overview">Overview</option>
+	
+
+	
+	
+	<option value="tasks">Tasks</option>
+	
+	
+
+	
+	
+
+	
+
+	
+	<optgroup label="Instance Methods">
+		
+		<option value="//api/name/elevForTile:">- elevForTile:</option>
+		
+		<option value="//api/name/getCoordSystem">- getCoordSystem</option>
+		
+		<option value="//api/name/maxZoom">- maxZoom</option>
+		
+		<option value="//api/name/minZoom">- minZoom</option>
+		
+		<option value="//api/name/tileIsLocal:frame:">- tileIsLocal:frame:</option>
+		
+	</optgroup>
+	
+	
+</select>
+						</label>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</aside>
+
+	<article>
+		<div id="overview_contents" class="container">
+			<div id="content">
+				<main role="main">
+					<h1 class="title">MaplyElevationSourceDelegate Protocol Reference</h1>
+
+					
+					<div class="section section-specification"><table cellspacing="0"><tbody>
+						<tr>
+	<th>Declared in</th>
+	<td>MaplyElevationSource.h</td>
+</tr>
+						</tbody></table></div>
+					
+
+                    
+					
+					<div class="section section-overview">
+						<a title="Overview" name="overview"></a>
+						<h2 class="subtitle subtitle-overview">Overview</h2>
+						<p>The Elevation Source Delegate provides elevation data on demand for a given tile.  It returns a <a href="../Classes/MaplyElevationChunk.html">MaplyElevationChunk</a> or nil if no data is available.  Your delegate may be called on a random thread, so act accordingly.</p><p>This object is probably being used in conjuction with a <a href="../Protocols/MaplyTileSource.html">MaplyTileSource</a>, but is treated separately.  We may reuse the same elevation source for multiple image pyramids and they tend not to be packaged together.</p>
+					</div>
+					
+					
+
+					
+					
+					<div class="section section-tasks">
+						<a title="Tasks" name="tasks"></a>
+						
+
+						
+						
+
+						<div class="task-list">
+							<div class="section-method">
+	<a name="//api/name/getCoordSystem" title="getCoordSystem"></a>
+	<h3 class="method-title"><code><a href="#//api/name/getCoordSystem">&ndash;&nbsp;getCoordSystem</a></code>
+<span class="task-item-suffix">required method</span></h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Return the coordinate system we&rsquo;re using.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (MaplyCoordinateSystem *)getCoordSystem</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>The coordinate system used by the elevation source delegate should match any associated <a href="../Protocols/MaplyTileSource.html">MaplyTileSource</a> objects.  The toolkit won&rsquo;t check that, so it&rsquo;s up to you.</p><p>The coordinate system is probably <a href="../Classes/MaplySphericalMercator.html">MaplySphericalMercator</a>.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyElevationSource.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/minZoom" title="minZoom"></a>
+	<h3 class="method-title"><code><a href="#//api/name/minZoom">&ndash;&nbsp;minZoom</a></code>
+<span class="task-item-suffix">required method</span></h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>The minimum zoom level this delegate can provide.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (int)minZoom</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>The min zoom level should probably be 0 or at least match your <a href="../Protocols/MaplyTileSource.html">MaplyTileSource</a> objects.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyElevationSource.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/maxZoom" title="maxZoom"></a>
+	<h3 class="method-title"><code><a href="#//api/name/maxZoom">&ndash;&nbsp;maxZoom</a></code>
+<span class="task-item-suffix">required method</span></h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>The maximum zoom level this delegate can provide.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (int)maxZoom</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>The max zoom level is not a requirement.  The elevation pyramid can be sparse, just as the image pyramid can be.</p><p>The <a href="../Classes/MaplyQuadImageTilesLayer.html">MaplyQuadImageTilesLayer</a> has an option to not display image tiles that don&rsquo;t have corresponding elevation.  In other words, the image display will cut off when there&rsquo;s no more elevation.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyElevationSource.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/elevForTile:" title="elevForTile:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/elevForTile:">&ndash;&nbsp;elevForTile:</a></code>
+<span class="task-item-suffix">required method</span></h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Return the elevation samples for a given tile.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (MaplyElevationChunk *)elevForTile:(MaplyTileID)<em>tileID</em></code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>Your delegate can return elevation data for the given tile or nil if no data was available.  Elevation is in meters and data values are 32 bit floats.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyElevationSource.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/tileIsLocal:frame:" title="tileIsLocal:frame:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/tileIsLocal:frame:">&ndash;&nbsp;tileIsLocal:frame:</a></code>
+<span class="task-item-suffix">required method</span></h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Return true if the data is local to the device.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (bool)tileIsLocal:(MaplyTileID)<em>tileID</em> frame:(int)<em>frame</em></code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>Let us know if the data is local or remote.  This is a hint to the pager and will be called before <a href="../Protocols/MaplyElevationSourceDelegate.html#//api/name/elevForTile:">elevForTile:</a>.  If you don&rsquo;t know, just return false.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyElevationSource.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div>
+						</div>
+						
+					</div>
+					
+					
+
+                    
+                    
+          
+				</main>
+
+				<footer>
+					<div class="footer-copyright">
+						
+						<p class="copyright">Copyright &copy; 2016 mousebird consulting inc. All rights reserved. Updated: 2016-01-31</p>
+						
+						
+						<p class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2.1 (build 1333)</a>.</p>
+						
+					</div>
+				</footer>
+			</div>
+		</div>
+	</article>
+
+	<script src="../js/script.js"></script>
+</body>
+</html>

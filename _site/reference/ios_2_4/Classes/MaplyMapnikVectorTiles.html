@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>MaplyMapnikVectorTiles Class Reference</title>
+
+	<link rel="stylesheet" href="../css/style.css">
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1.4">
+	<meta name="generator" content="appledoc 2.2.1 (build 1333)">
+</head>
+<body class="appledoc">
+	<header>
+		<div class="container" class="hide-in-xcode">
+			
+			<h1 id="library-title">
+				<a href="../index.html">WhirlyGlobe-Maply </a>
+			</h1>
+
+			<p id="developer-home">
+				<a href="../index.html">mousebird consulting inc</a>
+			</p>
+			
+		</div>
+	</header>
+
+	<aside>
+		<div class="container">
+			<nav>
+				<ul id="header-buttons" role="toolbar">
+					<li><a href="../index.html">Index</a></li>
+<li><a href="../hierarchy.html">Hierarchy</a></li>
+
+					<li id="on-this-page" role="navigation">
+						<label>
+							On This Page
+
+							<div class="chevron">
+								<div class="chevy chevron-left"></div>
+								<div class="chevy chevron-right"></div>
+							</div>
+
+							<select id="jump-to">
+	<option value="top">Jump To&#133;</option>
+	
+	<option value="overview">Overview</option>
+	
+
+	
+	
+	<option value="tasks">Tasks</option>
+	
+	
+
+	
+	
+	<optgroup label="Properties">
+		
+		<option value="//api/name/accessToken">accessToken</option>
+		
+		<option value="//api/name/maxZoom">maxZoom</option>
+		
+		<option value="//api/name/minZoom">minZoom</option>
+		
+		<option value="//api/name/tileParser">tileParser</option>
+		
+		<option value="//api/name/tileSources">tileSources</option>
+		
+	</optgroup>
+	
+
+	
+	<optgroup label="Class Methods">
+		
+		<option value="//api/name/StartRemoteVectorTilesWithTileSpec:accessToken:style:styleType:cacheDir:viewC:success:failure:">+ StartRemoteVectorTilesWithTileSpec:accessToken:style:styleType:cacheDir:viewC:success:failure:</option>
+		
+		<option value="//api/name/StartRemoteVectorTilesWithURL:ext:minZoom:maxZoom:accessToken:style:styleType:cacheDir:viewC:success:failure:">+ StartRemoteVectorTilesWithURL:ext:minZoom:maxZoom:accessToken:style:styleType:cacheDir:viewC:success:failure:</option>
+		
+	</optgroup>
+	
+
+	
+	<optgroup label="Instance Methods">
+		
+		<option value="//api/name/initWithMBTiles:style:viewC:">- initWithMBTiles:style:viewC:</option>
+		
+		<option value="//api/name/initWithTileSource:style:viewC:">- initWithTileSource:style:viewC:</option>
+		
+		<option value="//api/name/initWithTileSources:style:viewC:">- initWithTileSources:style:viewC:</option>
+		
+	</optgroup>
+	
+	
+</select>
+						</label>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</aside>
+
+	<article>
+		<div id="overview_contents" class="container">
+			<div id="content">
+				<main role="main">
+					<h1 class="title">MaplyMapnikVectorTiles Class Reference</h1>
+
+					
+					<div class="section section-specification"><table cellspacing="0"><tbody>
+						<tr>
+	<th>Inherits from</th>
+	<td>NSObject</td>
+</tr><tr>
+	<th>Conforms to</th>
+	<td><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></td>
+</tr><tr>
+	<th>Declared in</th>
+	<td>MaplyMapnikVectorTiles.h</td>
+</tr>
+						</tbody></table></div>
+					
+
+                    
+					
+					<div class="section section-overview">
+						<a title="Overview" name="overview"></a>
+						<h2 class="subtitle subtitle-overview">Overview</h2>
+						<p>Create one of these to read Mapnik PBF style tiles from a remote
+    or local source.  This handles the geometry creation, calls a delegate
+    for the styling and can read from remote or local data files.</p>
+					</div>
+					
+					
+
+					
+					
+					<div class="section section-tasks">
+						<a title="Tasks" name="tasks"></a>
+						
+
+						
+						
+
+						<div class="task-list">
+							<div class="section-method">
+	<a name="//api/name/tileSources" title="tileSources"></a>
+	<h3 class="method-title"><code><a href="#//api/name/tileSources">&nbsp;&nbsp;tileSources</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>One or more tile sources to fetch data from per tile</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>@property (nonatomic, readonly) NSArray *tileSources</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyMapnikVectorTiles.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/accessToken" title="accessToken"></a>
+	<h3 class="method-title"><code><a href="#//api/name/accessToken">&nbsp;&nbsp;accessToken</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Access token to use with the remote service</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>@property (nonatomic, strong) NSString *accessToken</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyMapnikVectorTiles.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/tileParser" title="tileParser"></a>
+	<h3 class="method-title"><code><a href="#//api/name/tileParser">&nbsp;&nbsp;tileParser</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Handles the actual Mapnik vector tile parsing</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>@property (nonatomic, strong) MaplyMapnikVectorTileParser *tileParser</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyMapnikVectorTiles.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/minZoom" title="minZoom"></a>
+	<h3 class="method-title"><code><a href="#//api/name/minZoom">&nbsp;&nbsp;minZoom</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Minimum zoom level available</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) int minZoom</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyMapnikVectorTiles.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/maxZoom" title="maxZoom"></a>
+	<h3 class="method-title"><code><a href="#//api/name/maxZoom">&nbsp;&nbsp;maxZoom</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Maximum zoom level available</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) int maxZoom</code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyMapnikVectorTiles.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/StartRemoteVectorTilesWithTileSpec:accessToken:style:styleType:cacheDir:viewC:success:failure:" title="StartRemoteVectorTilesWithTileSpec:accessToken:style:styleType:cacheDir:viewC:success:failure:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/StartRemoteVectorTilesWithTileSpec:accessToken:style:styleType:cacheDir:viewC:success:failure:">+&nbsp;StartRemoteVectorTilesWithTileSpec:accessToken:style:styleType:cacheDir:viewC:success:failure:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>A convenience method that fetches all the relevant files and creates a vector tiles object.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>+ (void)StartRemoteVectorTilesWithTileSpec:(NSString *)<em>tileSpec</em> accessToken:(NSString *)<em>accessToken</em> style:(NSString *)<em>styleFile</em> styleType:(MapnikStyleType)<em>styleType</em> cacheDir:(NSString *)<em>cacheDir</em> viewC:(MaplyBaseViewController *)<em>viewC</em> success:(void ( ^ ) ( MaplyMapnikVectorTiles *vecTiles ))<em>successBlock</em> failure:(void ( ^ ) ( NSError *error ))<em>failureBlock</em></code></div>
+
+		    
+			
+			<div class="method-subsection arguments-section parameters">
+				<h4 class="method-subtitle parameter-title">Parameters</h4>
+				<table class="argument-def parameter-def">
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>tileSpec</code></th>
+						<td><p>Either a local filename or a URL to the remote JSON tile spec.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>accessToken</code></th>
+						<td><p>The access key provided by your service.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>styleFile</code></th>
+						<td><p>Either a local file name or a URL for the Mapnik XML style file.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>cacheDir</code></th>
+						<td><p>Where to cache the vector tiles, or nil for no caching.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>viewC</code></th>
+						<td><p>View controller the data will be associated with.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>successBlock</code></th>
+						<td><p>This block is called with the vector tiles object on success.  You&rsquo;ll need to create the paging layer and attach the vector tiles to it.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>failureBlock</code></th>
+						<td><p>This block is called if any of the loading fails.</p></td>
+					</tr>
+				
+				</table>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>This method will fetch all the relevant config files necessary to start a Mapnik vector tile object and the call you back to set up the actual layer.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyMapnikVectorTiles.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/StartRemoteVectorTilesWithURL:ext:minZoom:maxZoom:accessToken:style:styleType:cacheDir:viewC:success:failure:" title="StartRemoteVectorTilesWithURL:ext:minZoom:maxZoom:accessToken:style:styleType:cacheDir:viewC:success:failure:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/StartRemoteVectorTilesWithURL:ext:minZoom:maxZoom:accessToken:style:styleType:cacheDir:viewC:success:failure:">+&nbsp;StartRemoteVectorTilesWithURL:ext:minZoom:maxZoom:accessToken:style:styleType:cacheDir:viewC:success:failure:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>A convenience method that fetches all the relevant files and creates a vector tiles object.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>+ (void)StartRemoteVectorTilesWithURL:(NSString *)<em>tileURL</em> ext:(NSString *)<em>ext</em> minZoom:(int)<em>minZoom</em> maxZoom:(int)<em>maxZoom</em> accessToken:(NSString *)<em>accessToken</em> style:(NSString *)<em>styleFile</em> styleType:(MapnikStyleType)<em>styleType</em> cacheDir:(NSString *)<em>cacheDir</em> viewC:(MaplyBaseViewController *)<em>viewC</em> success:(void ( ^ ) ( MaplyMapnikVectorTiles *vecTiles ))<em>successBlock</em> failure:(void ( ^ ) ( NSError *error ))<em>failureBlock</em></code></div>
+
+		    
+			
+			<div class="method-subsection arguments-section parameters">
+				<h4 class="method-subtitle parameter-title">Parameters</h4>
+				<table class="argument-def parameter-def">
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>tileURL</code></th>
+						<td><p>The URL to fetch vector tiles from.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>ext</code></th>
+						<td><p>The tile extension to use.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>minZoom</code></th>
+						<td><p>The minimum zoom level to use.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>maxZoom</code></th>
+						<td><p>The maximum zoom level to use</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>accessToken</code></th>
+						<td><p>The access key provided by your service.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>styleFile</code></th>
+						<td><p>Either a local file name or a URL for the Mapnik XML style file.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>cacheDir</code></th>
+						<td><p>Where to cache the vector tiles, or nil for no caching.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>viewC</code></th>
+						<td><p>View controller the data will be associated with.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>successBlock</code></th>
+						<td><p>This block is called with the vector tiles object on success.  You&rsquo;ll need to create the paging layer and attach the vector tiles to it.</p></td>
+					</tr>
+				
+					<tr>
+						<th scope="row" class="argument-name"><code>failureBlock</code></th>
+						<td><p>This block is called if any of the loading fails.</p></td>
+					</tr>
+				
+				</table>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>This method will fetch all the relevant config files necessary to start a Mapnik vector tile object and the call you back to set up the actual layer.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyMapnikVectorTiles.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/initWithTileSource:style:viewC:" title="initWithTileSource:style:viewC:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/initWithTileSource:style:viewC:">&ndash;&nbsp;initWithTileSource:style:viewC:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Init with a single remote tile source.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (instancetype)initWithTileSource:(NSObject&lt;MaplyTileSource&gt; *)<em>tileSource</em> style:(NSObject&lt;MaplyVectorStyleDelegate&gt; *)<em>style</em> viewC:(MaplyBaseViewController *)<em>viewC</em></code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyMapnikVectorTiles.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/initWithTileSources:style:viewC:" title="initWithTileSources:style:viewC:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/initWithTileSources:style:viewC:">&ndash;&nbsp;initWithTileSources:style:viewC:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Init with a list of tile sources.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (instancetype)initWithTileSources:(NSArray *)<em>tileSources</em> style:(NSObject&lt;MaplyVectorStyleDelegate&gt; *)<em>style</em> viewC:(MaplyBaseViewController *)<em>viewC</em></code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>These are <a href="../Classes/MaplyRemoteTileInfo.html">MaplyRemoteTileInfo</a> objects and will be combined by the
+    MaplyMapnikVectorTiles object for display.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyMapnikVectorTiles.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div><div class="section-method">
+	<a name="//api/name/initWithMBTiles:style:viewC:" title="initWithMBTiles:style:viewC:"></a>
+	<h3 class="method-title"><code><a href="#//api/name/initWithMBTiles:style:viewC:">&ndash;&nbsp;initWithMBTiles:style:viewC:</a></code>
+</h3>
+
+	<div class="method-info">
+		<div class="pointy-thing"></div>
+
+		<div class="method-info-container">
+			
+			
+			<div class="method-subsection brief-description">
+				<p>Init with the filename of an MBTiles archive containing PBF tiles.</p>
+			</div>
+			
+		    
+
+			<div class="method-subsection method-declaration"><code>- (instancetype)initWithMBTiles:(MaplyMBTileSource *)<em>tileSource</em> style:(NSObject&lt;MaplyVectorStyleDelegate&gt; *)<em>style</em> viewC:(MaplyBaseViewController *)<em>viewC</em></code></div>
+
+		    
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection discussion-section">
+				<h4 class="method-subtitle">Discussion</h4>
+				<p>This will read individual tiles from an MBTiles archive containging PBF.</p><p>The file should be local.</p>
+			</div>
+			
+
+			
+
+			
+
+			
+			<div class="method-subsection declared-in-section">
+				<h4 class="method-subtitle">Declared In</h4>
+				<p><code class="declared-in-ref">MaplyMapnikVectorTiles.h</code></p>
+			</div>
+			
+			
+		</div>
+	</div>
+</div>
+						</div>
+						
+					</div>
+					
+					
+
+                    
+                    
+          
+				</main>
+
+				<footer>
+					<div class="footer-copyright">
+						
+						<p class="copyright">Copyright &copy; 2016 mousebird consulting inc. All rights reserved. Updated: 2016-01-31</p>
+						
+						
+						<p class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2.1 (build 1333)</a>.</p>
+						
+					</div>
+				</footer>
+			</div>
+		</div>
+	</article>
+
+	<script src="../js/script.js"></script>
+</body>
+</html>

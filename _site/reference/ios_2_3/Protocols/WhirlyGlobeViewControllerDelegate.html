@@ -1,0 +1,833 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
+		<title>WhirlyGlobeViewControllerDelegate Protocol Reference</title>
+		<meta id="xcode-display" name="xcode-display" content="render"/>
+		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
+		<link rel="stylesheet" type="text/css" media="print" href="../css/stylesPrint.css" />
+		<meta name="generator" content="appledoc 2.2 (build 961)" />
+	</head>
+	<body>
+		<header id="top_header">
+			<div id="library" class="hideInXcode">
+				<h1><a id="libraryTitle" href="../index.html">WhirlyGlobe-Maply </a></h1>
+				<a id="developerHome" href="../index.html">mousebird consulting inc</a>
+			</div>
+			
+			<div id="title" role="banner">
+				<h1 class="hideInXcode">WhirlyGlobeViewControllerDelegate Protocol Reference</h1>
+			</div>
+			<ul id="headerButtons" role="toolbar">
+				<li id="toc_button">
+					<button aria-label="Show Table of Contents" role="checkbox" class="open" id="table_of_contents"><span class="disclosure"></span>Table of Contents</button>
+				</li>
+				<li id="jumpto_button" role="navigation">
+					<select id="jumpTo">
+	<option value="top">Jump To&#133;</option>
+	
+	<option value="overview">Overview</option>
+	
+	
+	
+	
+	<option value="tasks">Tasks</option>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<option value="instance_methods">Instance Methods</option>
+	
+	<option value="//api/name/globeViewController:didMove:">&nbsp;&nbsp;&nbsp;&nbsp;- globeViewController:didMove:</option>
+	
+	<option value="//api/name/globeViewController:didSelect:">&nbsp;&nbsp;&nbsp;&nbsp;- globeViewController:didSelect:</option>
+	
+	<option value="//api/name/globeViewController:didSelect:atLoc:onScreen:">&nbsp;&nbsp;&nbsp;&nbsp;- globeViewController:didSelect:atLoc:onScreen:</option>
+	
+	<option value="//api/name/globeViewController:didStopMoving:userMotion:">&nbsp;&nbsp;&nbsp;&nbsp;- globeViewController:didStopMoving:userMotion:</option>
+	
+	<option value="//api/name/globeViewController:didTapAt:">&nbsp;&nbsp;&nbsp;&nbsp;- globeViewController:didTapAt:</option>
+	
+	<option value="//api/name/globeViewController:layerDidLoad:">&nbsp;&nbsp;&nbsp;&nbsp;- globeViewController:layerDidLoad:</option>
+	
+	<option value="//api/name/globeViewController:willStopMoving:userMotion:">&nbsp;&nbsp;&nbsp;&nbsp;- globeViewController:willStopMoving:userMotion:</option>
+	
+	<option value="//api/name/globeViewControllerDidStartMoving:userMotion:">&nbsp;&nbsp;&nbsp;&nbsp;- globeViewControllerDidStartMoving:userMotion:</option>
+	
+	<option value="//api/name/globeViewControllerDidTapOutside:">&nbsp;&nbsp;&nbsp;&nbsp;- globeViewControllerDidTapOutside:</option>
+	
+	
+	
+</select>
+				</li>
+			</ul>
+		</header>
+		<nav id="tocContainer" class="isShowingTOC">
+			<ul id="toc" role="tree">
+				
+<li role="treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#overview">Overview</a></span></li>
+
+
+
+
+<li role="treeitem" id="task_treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#tasks">Tasks</a></span><ul>
+	
+</ul></li>
+
+
+
+
+
+
+
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globeViewController:didMove:">globeViewController:didMove:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globeViewController:didSelect:">globeViewController:didSelect:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globeViewController:didSelect:atLoc:onScreen:">globeViewController:didSelect:atLoc:onScreen:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globeViewController:didStopMoving:userMotion:">globeViewController:didStopMoving:userMotion:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globeViewController:didTapAt:">globeViewController:didTapAt:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globeViewController:layerDidLoad:">globeViewController:layerDidLoad:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globeViewController:willStopMoving:userMotion:">globeViewController:willStopMoving:userMotion:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globeViewControllerDidStartMoving:userMotion:">globeViewControllerDidStartMoving:userMotion:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globeViewControllerDidTapOutside:">globeViewControllerDidTapOutside:</a></span></li>
+	
+</ul></li>
+
+
+			</ul>
+		</nav>
+		<article>
+			<div id="contents" class="isShowingTOC" role="main">
+				<a title="WhirlyGlobeViewControllerDelegate Protocol Reference" name="top"></a>
+				<div class="main-navigation navigation-top">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="header">
+					<div class="section-header">
+						<h1 class="title title-header">WhirlyGlobeViewControllerDelegate Protocol Reference</h1>
+					</div>		
+				</div>
+				<div id="container">	
+					
+					<div class="section section-specification"><table cellspacing="0"><tbody>
+						<tr>
+	<td class="specification-title">Conforms to</td>
+	<td class="specification-value">NSObject</td>
+</tr><tr>
+	<td class="specification-title">Declared in</td>
+	<td class="specification-value">WhirlyGlobeViewController.h</td>
+</tr>
+						</tbody></table></div>
+					
+                    
+                    
+					
+					<div class="section section-overview">
+						<a title="Overview" name="overview"></a>
+						<h2 class="subtitle subtitle-overview">Overview</h2>
+						<p>Fill out the methods in this protocol and assign yourself as a delegate in the <a href="../Classes/WhirlyGlobeViewController.html">WhirlyGlobeViewController</a> to get selection and tap events.</p>
+					</div>
+					
+					
+					
+					
+					
+					<div class="section section-tasks">
+						<a title="Tasks" name="tasks"></a>
+						<h2 class="subtitle subtitle-tasks">Tasks</h2>
+						
+						
+						
+						
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/globeViewController:didSelect:">&ndash;&nbsp;globeViewController:didSelect:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/globeViewController:didSelect:atLoc:onScreen:">&ndash;&nbsp;globeViewController:didSelect:atLoc:onScreen:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/globeViewControllerDidTapOutside:">&ndash;&nbsp;globeViewControllerDidTapOutside:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/globeViewController:didTapAt:">&ndash;&nbsp;globeViewController:didTapAt:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/globeViewController:layerDidLoad:">&ndash;&nbsp;globeViewController:layerDidLoad:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/globeViewControllerDidStartMoving:userMotion:">&ndash;&nbsp;globeViewControllerDidStartMoving:userMotion:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/globeViewController:didStopMoving:userMotion:">&ndash;&nbsp;globeViewController:didStopMoving:userMotion:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/globeViewController:willStopMoving:userMotion:">&ndash;&nbsp;globeViewController:willStopMoving:userMotion:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/globeViewController:didMove:">&ndash;&nbsp;globeViewController:didMove:</a></code>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+					</div>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					<div class="section section-methods">
+						<a title="Instance Methods" name="instance_methods"></a>
+						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/globeViewController:didMove:" title="globeViewController:didMove:"></a>
+	<h3 class="subsubtitle method-title">globeViewController:didMove:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Called whenever the viewpoint moves.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)globeViewController:(WhirlyGlobeViewController *)<em>viewC</em> didMove:(MaplyCoordinate *)<em>corners</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>viewC</em></dt>
+			<dd><p>The globe view controller.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>corners</em></dt>
+			<dd><p>An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is called whenever the viewpoint moves.  That includes user motion as well as animations.</p><p>It may be triggered as often as every frame.  If that&rsquo;s a problem, use the <a href="#//api/name/globeViewController:didStopMoving:userMotion:">globeViewController:didStopMoving:userMotion:</a> or <a href="#//api/name/globeViewController:willStopMoving:userMotion:">globeViewController:willStopMoving:userMotion:</a> calls.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">WhirlyGlobeViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/globeViewController:didSelect:" title="globeViewController:didSelect:"></a>
+	<h3 class="subsubtitle method-title">globeViewController:didSelect:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Called when the user taps on or near an object.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)globeViewController:(WhirlyGlobeViewController *)<em>viewC</em> didSelect:(NSObject *)<em>selectedObj</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>viewC</em></dt>
+			<dd><p>The view controller where the user selected something.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>selectedObj</em></dt>
+			<dd><p>The Maply object they selected.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>You&rsquo;re given the object you passed in originally, such as a <a href="../Classes/MaplyScreenMarker.html">MaplyScreenMarker</a>.  Most of those objects have userObject properties, which is a good place to stash your own data.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">WhirlyGlobeViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/globeViewController:didSelect:atLoc:onScreen:" title="globeViewController:didSelect:atLoc:onScreen:"></a>
+	<h3 class="subsubtitle method-title">globeViewController:didSelect:atLoc:onScreen:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Called when the user taps on or near an object.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)globeViewController:(WhirlyGlobeViewController *)<em>viewC</em> didSelect:(NSObject *)<em>selectedObj</em> atLoc:(MaplyCoordinate)<em>coord</em> onScreen:(CGPoint)<em>screenPt</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>viewC</em></dt>
+			<dd><p>The view controller where the user selected something.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>selectedObj</em></dt>
+			<dd><p>The Maply object they selected.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>coord</em></dt>
+			<dd><p>The location (geographic lon/lat in radians) where the user tapped.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>screenPt</em></dt>
+			<dd><p>The location on screen where the user tapped.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>You&rsquo;re given the object you passed in originally, such as a <a href="../Classes/MaplyScreenMarker.html">MaplyScreenMarker</a>.</p><p>This version is called preferentially if it exists.  Otherwise <a href="#//api/name/globeViewController:didSelect:">globeViewController:didSelect:</a> is called if it exists.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">WhirlyGlobeViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/globeViewController:didStopMoving:userMotion:" title="globeViewController:didStopMoving:userMotion:"></a>
+	<h3 class="subsubtitle method-title">globeViewController:didStopMoving:userMotion:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Called when the globe stops moving.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)globeViewController:(WhirlyGlobeViewController *)<em>viewC</em> didStopMoving:(MaplyCoordinate *)<em>corners</em> userMotion:(bool)<em>userMotion</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>viewC</em></dt>
+			<dd><p>The globe view controller.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>corners</em></dt>
+			<dd><p>An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>userMotion</em></dt>
+			<dd><p>Set if this is motion being caused by the user, rather than a call to set location.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is called when the globe stops moving.  It passes in the corners of the current viewspace.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">WhirlyGlobeViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/globeViewController:didTapAt:" title="globeViewController:didTapAt:"></a>
+	<h3 class="subsubtitle method-title">globeViewController:didTapAt:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Called when the user taps the globe but doesn&rsquo;t select anything.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)globeViewController:(WhirlyGlobeViewController *)<em>viewC</em> didTapAt:(WGCoordinate)<em>coord</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>viewC</em></dt>
+			<dd><p>The view controller where the user selected something.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>coord</em></dt>
+			<dd><p>The location (geographic lon/lat in radians) where the user tapped.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">WhirlyGlobeViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/globeViewController:layerDidLoad:" title="globeViewController:layerDidLoad:"></a>
+	<h3 class="subsubtitle method-title">globeViewController:layerDidLoad:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>This is an older method called when some layers load.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)globeViewController:(WhirlyGlobeViewController *)<em>viewC</em> layerDidLoad:(WGViewControllerLayer *)<em>layer</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Certain image layers call this method when they finish loading.  More modern layers don&rsquo;t, so don&rsquo;t rely on this.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">WhirlyGlobeViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/globeViewController:willStopMoving:userMotion:" title="globeViewController:willStopMoving:userMotion:"></a>
+	<h3 class="subsubtitle method-title">globeViewController:willStopMoving:userMotion:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Called when an animation that knows where it&rsquo;s going to stop start ups.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)globeViewController:(WhirlyGlobeViewController *)<em>viewC</em> willStopMoving:(MaplyCoordinate *)<em>corners</em> userMotion:(bool)<em>userMotion</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>viewC</em></dt>
+			<dd><p>The globe view controller.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>corners</em></dt>
+			<dd><p>An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>userMotion</em></dt>
+			<dd><p>Set if this is motion being caused by the user, rather than a call to set location.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is called when we know where the globe will stop.  It passes in the corners of that future viewspace.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">WhirlyGlobeViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/globeViewControllerDidStartMoving:userMotion:" title="globeViewControllerDidStartMoving:userMotion:"></a>
+	<h3 class="subsubtitle method-title">globeViewControllerDidStartMoving:userMotion:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Called when the globe starts moving.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)globeViewControllerDidStartMoving:(WhirlyGlobeViewController *)<em>viewC</em> userMotion:(bool)<em>userMotion</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>viewC</em></dt>
+			<dd><p>The globe view controller.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>userMotion</em></dt>
+			<dd><p>Set if this is motion being caused by the user, rather than a call to set location.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is called when something (probably the user) starts moving the globe.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">WhirlyGlobeViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/globeViewControllerDidTapOutside:" title="globeViewControllerDidTapOutside:"></a>
+	<h3 class="subsubtitle method-title">globeViewControllerDidTapOutside:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Called when the user taps outside the globe.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)globeViewControllerDidTapOutside:(WhirlyGlobeViewController *)<em>viewC</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">WhirlyGlobeViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
+					
+                    
+                    
+				</div>
+				<div class="main-navigation navigation-bottom">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="footer">
+					<hr />
+					<div class="footer-copyright">
+						<p><span class="copyright">&copy; 2014 mousebird consulting inc. All rights reserved. (Last updated: 2014-07-09)</span><br />
+						
+						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2 (build 961)</a>.</span></p>
+						
+					</div>
+				</div>
+			</div>
+		</article>
+		<script type="text/javascript">
+			function jumpToChange()
+			{
+				window.location.hash = this.options[this.selectedIndex].value;
+			}
+			
+			function toggleTOC()
+			{
+				var contents = document.getElementById('contents');
+				var tocContainer = document.getElementById('tocContainer');
+				
+				if (this.getAttribute('class') == 'open')
+				{
+					this.setAttribute('class', '');
+					contents.setAttribute('class', '');
+					tocContainer.setAttribute('class', '');
+					
+					window.name = "hideTOC";
+				}
+				else
+				{
+					this.setAttribute('class', 'open');
+					contents.setAttribute('class', 'isShowingTOC');
+					tocContainer.setAttribute('class', 'isShowingTOC');
+					
+					window.name = "";
+				}
+				return false;
+			}
+			
+			function toggleTOCEntryChildren(e)
+			{
+				e.stopPropagation();
+				var currentClass = this.getAttribute('class');
+				if (currentClass == 'children') {
+					this.setAttribute('class', 'children open');
+				}
+				else if (currentClass == 'children open') {
+					this.setAttribute('class', 'children');
+				}
+				return false;
+			}
+			
+			function tocEntryClick(e)
+			{
+				e.stopPropagation();
+				return true;
+			}
+			
+			function init()
+			{
+				var selectElement = document.getElementById('jumpTo');
+				selectElement.addEventListener('change', jumpToChange, false);
+				
+				var tocButton = document.getElementById('table_of_contents');
+				tocButton.addEventListener('click', toggleTOC, false);
+				
+				var taskTreeItem = document.getElementById('task_treeitem');
+				if (taskTreeItem.getElementsByTagName('li').length > 0)
+				{
+					taskTreeItem.setAttribute('class', 'children');
+					taskTreeItem.firstChild.setAttribute('class', 'disclosure');
+				}
+				
+				var tocList = document.getElementById('toc');
+				
+				var tocEntries = tocList.getElementsByTagName('li');
+				for (var i = 0; i < tocEntries.length; i++) {
+					tocEntries[i].addEventListener('click', toggleTOCEntryChildren, false);
+				}
+				
+				var tocLinks = tocList.getElementsByTagName('a');
+				for (var i = 0; i < tocLinks.length; i++) {
+					tocLinks[i].addEventListener('click', tocEntryClick, false);
+				}
+				
+				if (window.name == "hideTOC") {
+					toggleTOC.call(tocButton);
+				}
+			}
+			
+			window.onload = init;
+			
+			// If showing in Xcode, hide the TOC and Header
+			if (navigator.userAgent.match(/xcode/i)) {
+				document.getElementById("contents").className = "hideInXcode"
+				document.getElementById("tocContainer").className = "hideInXcode"
+				document.getElementById("top_header").className = "hideInXcode"
+			}
+			
+		</script>
+	</body>
+</html>
