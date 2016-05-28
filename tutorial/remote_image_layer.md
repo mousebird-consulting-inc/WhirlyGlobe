@@ -123,6 +123,11 @@ There's only one important change here.  Rather than use a MaplyMBTileSource we 
 
 We also set up a cache for the tiles because it's rude to thrash the server.  We set up the MaplyQuadImageTilesLayer as before.  It can handle a variety of data sources.
 
+And finally, if you're running iOS 9 or later, you'll need to configure the app to be allowed to make HTTP requests. If not, only HTTPS requests are allowed. Just open your Info.plist file, and add the key "App Transport Security Settings". Inside that, add "Allow Arbitrary Loads" key with value "YES".
+
+![App Transport Security Settings]({{ site.baseurl }}/images/tutorial/remote_image_layer_3.png)
+
+
 ### Build and Run
 
 Give it a try.  It's even more fun on a device. You can zoom in to your heart's content, provided your heart doesn't desire sub­meter resolution.
