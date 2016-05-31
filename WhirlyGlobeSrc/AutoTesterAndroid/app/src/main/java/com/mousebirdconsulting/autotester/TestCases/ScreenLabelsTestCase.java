@@ -60,6 +60,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		labelInfo.setMaxVis(2.5f);
 
 		MarkerInfo markerInfo = new MarkerInfo();
+		markerInfo.setDrawPriority(labelInfo.getDrawPriority()-1);
 
 		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();

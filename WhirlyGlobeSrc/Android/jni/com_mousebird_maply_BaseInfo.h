@@ -33,11 +33,27 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setDrawPriority
 
 /*
  * Class:     com_mousebird_maply_BaseInfo
+ * Method:    getDrawPriority
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_BaseInfo_getDrawPriority
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_BaseInfo
  * Method:    setMinVis
  * Signature: (F)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setMinVis
   (JNIEnv *, jobject, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_BaseInfo
+ * Method:    getMinVis
+ * Signature: ()F
+ */
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getMinVis
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_mousebird_maply_BaseInfo
@@ -49,11 +65,27 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setMaxVis
 
 /*
  * Class:     com_mousebird_maply_BaseInfo
+ * Method:    getMaxVis
+ * Signature: ()F
+ */
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getMaxVis
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_BaseInfo
  * Method:    setFade
  * Signature: (F)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFade
   (JNIEnv *, jobject, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_BaseInfo
+ * Method:    getFade
+ * Signature: ()F
+ */
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getFade
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_mousebird_maply_BaseInfo

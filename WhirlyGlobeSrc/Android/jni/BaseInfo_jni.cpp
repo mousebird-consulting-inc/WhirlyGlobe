@@ -82,6 +82,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setDrawPriority
     }
 }
 
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_BaseInfo_getDrawPriority
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
+        BaseInfo *info = classInfo->getObject(env,obj);
+        if (!info)
+            return 0;
+        return info->drawPriority;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::getDrawPriority()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setMinVis
 (JNIEnv *env, jobject obj, jfloat minVis)
 {
@@ -96,6 +113,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setMinVis
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::setMinViz()");
+    }
+}
+
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getMinVis
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
+        BaseInfo *info = classInfo->getObject(env,obj);
+        if (!info)
+            return 0.0;
+        return info->minVis;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::getMinVis()");
     }
 }
 
@@ -116,6 +150,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setMaxVis
     }
 }
 
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getMaxVis
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
+        BaseInfo *info = classInfo->getObject(env,obj);
+        if (!info)
+            return 0.0;
+        return info->maxVis;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::getMaxVis()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFade
 (JNIEnv *env, jobject obj, jfloat fade)
 {
@@ -130,6 +181,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFade
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::setFade()");
+    }
+}
+
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getFade
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
+        BaseInfo *info = classInfo->getObject(env,obj);
+        if (!info)
+            return 0.0;
+        return info->fade;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::getFade()");
     }
 }
 
