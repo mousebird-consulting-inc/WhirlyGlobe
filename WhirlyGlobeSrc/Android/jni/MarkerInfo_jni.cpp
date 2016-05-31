@@ -83,3 +83,20 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setColor
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MarkerInfo::setColor()");
 	}
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setLayoutImportance
+(JNIEnv *env, jobject obj, jfloat import)
+{
+    try
+    {
+        MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
+        MarkerInfo *info = classInfo->getObject(env,obj);
+        if (!info)
+            return;
+        info->layoutImportance = import;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MarkerInfo::setLayoutImportance()");
+    }
+}

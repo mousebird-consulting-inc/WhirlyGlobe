@@ -68,7 +68,7 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
 Marker::Marker()
     : isSelectable(false), selectID(EmptyIdentity), loc(0,0), hasMotion(false), endLoc(0,0), startTime(0), endTime(0),
     color(255,255,255,255), colorSet(false),
-    lockRotation(false), height(0), width(0), layoutHeight(0), layoutWidth(0), rotation(0), offset(0,0), period(0),
+    lockRotation(false), height(0), width(0), layoutHeight(-1.0), layoutWidth(-1.0), rotation(0), offset(0,0), period(0),
     timeOffset(0), layoutImportance(MAXFLOAT)
 {
 }
@@ -80,13 +80,14 @@ void Marker::addTexID(SimpleIdentity texID)
 
 MarkerInfo::MarkerInfo(const Dictionary &dict)
     : BaseInfo(dict), color(255,255,255,255),
-    screenObject(false), width(0.001), height(0.001),
+    screenObject(false), width(0.001), height(0.001), layoutImportance(MAXFLOAT),
     markerId(EmptyIdentity)
 {
     color = dict.getColor(MaplyColor, RGBAColor(255,255,255,255));
     screenObject = dict.getBool("screen",false);
     width = dict.getDouble(MaplyLabelWidth,(screenObject ? 16.0 : 0.001));
     height = dict.getDouble(MaplyLabelHeight,(screenObject ? 16.0 : 0.001));
+    layoutImportance = dict.getDouble(MaplyLayoutImportance,MAXFLOAT);
 }
 
 MarkerManager::MarkerManager()
@@ -170,7 +171,10 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
 
             ScreenSpaceObject *shape = NULL;
             LayoutObject *layoutObj = NULL;
+            float layoutImport = markerInfo.layoutImportance;
             if (layoutManager && marker->layoutImportance != MAXFLOAT)
+                layoutImport = marker->layoutImportance;
+            if (layoutImport != MAXFLOAT)
             {
                 markerRep->useLayout = true;
                 layoutObj = new LayoutObject();
@@ -210,7 +214,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
             markerRep->screenShapeIDs.insert(shape->getId());
             
             // Set up for the layout layer
-            if (layoutManager && marker->layoutImportance != MAXFLOAT)
+            if (layoutImport != MAXFLOAT)
             {
                 if (marker->layoutWidth >= 0.0)
                 {
@@ -229,7 +233,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                     layoutObj->selectPts.push_back(Point2d(-width2+marker->offset.x(),height2+marker->offset.y()));
                     layoutObj->layoutPts = layoutObj->selectPts;
                 }
-                layoutObj->importance = marker->layoutImportance;
+                layoutObj->importance = layoutImport;
                 // No moving it around
                 layoutObj->acceptablePlacement = 1;
                 

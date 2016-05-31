@@ -10,10 +10,8 @@ import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LabelInfo;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
-import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.ScreenLabel;
-import com.mousebird.maply.ScreenMarker;
 import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
@@ -55,35 +53,33 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		labelInfo.setTextColor(Color.WHITE);
 		labelInfo.setBackgroundColor(Color.RED);
 		labelInfo.setTypeface(Typeface.DEFAULT);
-//		labelInfo.setLayoutImportance(1.f);
+		labelInfo.setLayoutImportance(1.f);
 		labelInfo.setMinVis(0.f);
 		labelInfo.setMaxVis(2.5f);
 
-		MarkerInfo markerInfo = new MarkerInfo();
-		markerInfo.setDrawPriority(labelInfo.getDrawPriority()-1);
+//		MarkerInfo markerInfo = new MarkerInfo();
+//		markerInfo.setDrawPriority(labelInfo.getDrawPriority()-1);
 
 		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
-		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
+//		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
 
-//		for (int ii=0;ii<100;ii++) {
-			for (VectorObject object : objects) {
-				AttrDictionary attrs = object.getAttributes();
-				if (attrs != null) {
-					String labelName = attrs.getString("ADMIN");
-					if (labelName != null && labelName.length() > 0) {
-						ScreenLabel label = new ScreenLabel();
-						label.text = labelName;
-						label.loc = object.centroid();
-						labels.add(label);
+		for (VectorObject object : objects) {
+			AttrDictionary attrs = object.getAttributes();
+			if (attrs != null) {
+				String labelName = attrs.getString("ADMIN");
+				if (labelName != null && labelName.length() > 0) {
+					ScreenLabel label = new ScreenLabel();
+					label.text = labelName;
+					label.loc = object.centroid();
+					labels.add(label);
 
-						ScreenMarker marker = new ScreenMarker();
-						marker.loc = label.loc;
-						marker.size = new Point2d(32.f,32.f);
-						markers.add(marker);
-					}
+//					ScreenMarker marker = new ScreenMarker();
+//					marker.loc = label.loc;
+//					marker.size = new Point2d(32.f,32.f);
+//					markers.add(marker);
 				}
 			}
-//		}
+		}
 
 		// Toss in one with an explicit accent
 		ScreenLabel label = new ScreenLabel();
@@ -96,9 +92,9 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		ComponentObject comp = baseVC.addScreenLabels(labels, labelInfo, MaplyBaseController.ThreadMode.ThreadAny);
 		if (comp != null)
 			componentObjects.add(comp);
-		comp = baseVC.addScreenMarkers(markers, markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
-		if (comp != null)
-			componentObjects.add(comp);
+//		comp = baseVC.addScreenMarkers(markers, markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
+//		if (comp != null)
+//			componentObjects.add(comp);
 	}
 
 	public ArrayList<ComponentObject> getComponentObjects() {

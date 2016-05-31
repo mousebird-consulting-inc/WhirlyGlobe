@@ -45,7 +45,7 @@ public class LabelInfo extends BaseInfo
 		setTextColor(1.f,1.f,1.f,1.f);
 		setBackgroundColor(0.f,0.f,0.f,0.f);
 		setTypeface(Typeface.DEFAULT);
-		setFontSize(48.f);
+		setFontSize(24.f);
 		setLayoutImportance(Float.MAX_VALUE);
 		setLayoutPlacement(LayoutRight | LayoutLeft | LayoutAbove | LayoutBelow);
 

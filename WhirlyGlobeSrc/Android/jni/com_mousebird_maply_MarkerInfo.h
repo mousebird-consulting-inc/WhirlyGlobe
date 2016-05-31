@@ -17,6 +17,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setColor
 
 /*
  * Class:     com_mousebird_maply_MarkerInfo
+ * Method:    setLayoutImportance
+ * Signature: (F)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setLayoutImportance
+  (JNIEnv *, jobject, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_MarkerInfo
  * Method:    nativeInit
  * Signature: ()V
  */
