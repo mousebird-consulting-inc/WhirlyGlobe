@@ -113,7 +113,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
         
         // We set this if the color is embedded in the "font"
 //        bool embeddedColor = (labelInfo->outlineSize > 0.0 || label->desc.hasField(MaplyTextOutlineSize));
-        // Note: Porting.  Not clear if this makes
+        // Note: Porting.  Not clear if this makes sense
         bool embeddedColor = true;
         DrawableString *drawStr = label->generateDrawableString(labelInfo,fontTexManager,changes);
 

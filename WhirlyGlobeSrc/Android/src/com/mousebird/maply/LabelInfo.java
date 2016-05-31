@@ -61,7 +61,7 @@ public class LabelInfo extends BaseInfo
 	 * Set the text color from a standard Android Color value.
 	 * @param color Color value, including alpha.
      */
-	public void setTextcolor(int color)
+	public void setTextColor(int color)
 	{
 		setTextColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
 	}

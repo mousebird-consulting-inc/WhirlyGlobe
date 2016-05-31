@@ -25,6 +25,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 	public ScreenLabelsTestCase(Activity activity) {
 		super(activity);
 		this.setTestName("Screen Labels Test");
+		this.setDelay(1000);
 	}
 
 	@Override
@@ -48,12 +49,12 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 	private void insertLabels(ArrayList<VectorObject> objects, MaplyBaseController baseVC) {
 
 		LabelInfo labelInfo = new LabelInfo();
-		labelInfo.setFontSize(64.f);
-		labelInfo.setTextcolor(Color.WHITE);
+		labelInfo.setFontSize(32.f);
+		labelInfo.setTextColor(Color.WHITE);
 		labelInfo.setTypeface(Typeface.DEFAULT);
-		labelInfo.setLayoutImportance(1.f);
+//		labelInfo.setLayoutImportance(1.f);
 		labelInfo.setMinVis(0.f);
-		labelInfo.setMaxVis(1.f);
+		labelInfo.setMaxVis(2.f);
 
 		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 
