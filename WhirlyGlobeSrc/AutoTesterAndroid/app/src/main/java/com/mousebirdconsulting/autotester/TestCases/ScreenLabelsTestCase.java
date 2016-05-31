@@ -10,8 +10,10 @@ import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LabelInfo;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.ScreenLabel;
+import com.mousebird.maply.ScreenMarker;
 import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
@@ -51,12 +53,16 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		LabelInfo labelInfo = new LabelInfo();
 		labelInfo.setFontSize(32.f);
 		labelInfo.setTextColor(Color.WHITE);
+		labelInfo.setBackgroundColor(Color.RED);
 		labelInfo.setTypeface(Typeface.DEFAULT);
 //		labelInfo.setLayoutImportance(1.f);
 		labelInfo.setMinVis(0.f);
-		labelInfo.setMaxVis(2.f);
+		labelInfo.setMaxVis(2.5f);
+
+		MarkerInfo markerInfo = new MarkerInfo();
 
 		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
+		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
 
 //		for (int ii=0;ii<100;ii++) {
 			for (VectorObject object : objects) {
@@ -68,6 +74,11 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 						label.text = labelName;
 						label.loc = object.centroid();
 						labels.add(label);
+
+						ScreenMarker marker = new ScreenMarker();
+						marker.loc = label.loc;
+						marker.size = new Point2d(32.f,32.f);
+						markers.add(marker);
 					}
 				}
 			}
@@ -82,9 +93,11 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		labels.add(label);
 
 		ComponentObject comp = baseVC.addScreenLabels(labels, labelInfo, MaplyBaseController.ThreadMode.ThreadAny);
-		if (comp != null) {
+		if (comp != null)
 			componentObjects.add(comp);
-		}
+		comp = baseVC.addScreenMarkers(markers, markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
+		if (comp != null)
+			componentObjects.add(comp);
 	}
 
 	public ArrayList<ComponentObject> getComponentObjects() {
