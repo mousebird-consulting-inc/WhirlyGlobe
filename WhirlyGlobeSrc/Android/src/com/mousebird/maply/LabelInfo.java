@@ -119,12 +119,11 @@ public class LabelInfo extends BaseInfo
 	// Importance value for the layout engine
 	public float layoutImportance = Float.MAX_VALUE;
 
-	static int LayoutNone = 1<<0;
-	static int LayoutCenter = 1<<1;
-	static int LayoutRight = 1<<2;
-	static int LayoutLeft = 1<<3;
-	static int LayoutAbove = 1<<4;
-	static int LayoutBelow = 1<<5;
+	public static int LayoutCenter = 1<<0;
+	public static int LayoutRight = 1<<1;
+	public static int LayoutLeft = 1<<2;
+	public static int LayoutAbove = 1<<3;
+	public static int LayoutBelow = 1<<4;
 
 	/**
 	 * The layout placement controls where we can put the label relative to
