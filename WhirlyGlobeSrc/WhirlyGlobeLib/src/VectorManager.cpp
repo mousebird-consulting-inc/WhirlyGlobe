@@ -262,7 +262,23 @@ public:
         
         addPoints(mesh, attrs);
     }
-    
+
+    // This version converts a ring into a mesh (chopping, tesselating, etc...)
+    void addPoints(std::vector<VectorRing> &rings,Dictionary *attrs)
+    {
+        // Grid subdivision is done here
+        std::vector<VectorRing> inRings;
+        if (vecInfo->subdivEps > 0.0 && vecInfo->gridSubdiv)
+            for (unsigned int ii=0;ii<rings.size();ii++)
+                ClipLoopToGrid(rings[ii], Point2f(0.0,0.0), Point2f(vecInfo->subdivEps,vecInfo->subdivEps), inRings);
+        else
+            inRings = rings;
+        VectorTrianglesRef mesh(VectorTriangles::createTriangles());
+        TesselateLoops(inRings, mesh);
+        
+        addPoints(mesh, attrs);
+    }
+
     // If it's a mesh, we're assuming it's been fully processed (triangulated, chopped, and so on)
     void addPoints(VectorTrianglesRef mesh,Dictionary *attrs)
     {
@@ -536,8 +552,8 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
         {
             if (vecInfo.filled)
             {
-                // Triangulate the outside
-                drawBuildTri.addPoints(theAreal->loops[0],theAreal->getAttrDict());
+                // Trianglate outside and loops
+                drawBuildTri.addPoints(theAreal->loops,theAreal->getAttrDict());
             } else {
                 // Work through the loops
                 for (unsigned int ri=0;ri<theAreal->loops.size();ri++)

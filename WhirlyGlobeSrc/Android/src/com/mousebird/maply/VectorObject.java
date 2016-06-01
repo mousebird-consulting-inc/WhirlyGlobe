@@ -65,7 +65,11 @@ public class VectorObject implements Iterable<VectorObject>
 	 *  Add an areal feature with one external loop.
 	 */
 	public native void addAreal(Point2d pts[]);
-//	public native void addAreal(Point2d ext[],Point2d holes[][]);
+
+	/**
+	 * Add an areal feature with a single exterior loop and one or more interior loops.
+     */
+	public native void addAreal(Point2d ext[],Point2d holes[][]);
 	
 	public void finalize()
 	{
