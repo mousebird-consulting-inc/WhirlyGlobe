@@ -57,6 +57,9 @@
 /// @brief If set, we'll make the areal features selectable.  If not, this saves memory.
 @property (nonatomic) bool selectable;
 
+/// @brief If set, icons will be loaded from this directory
+@property (nonatomic, strong) NSString * _Nullable iconDirectory;
+
 /// @brief The default font family for all text
 @property (nonatomic,strong) NSString * _Nullable fontName;
 
