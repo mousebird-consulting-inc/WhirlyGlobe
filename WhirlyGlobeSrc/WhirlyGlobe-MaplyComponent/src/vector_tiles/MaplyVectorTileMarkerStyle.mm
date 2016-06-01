@@ -57,7 +57,6 @@
     for (NSDictionary *styleEntry in stylesArray)
     {
         MaplyVectorTileSubStyleMarker *subStyle = [[MaplyVectorTileSubStyleMarker alloc] init];
-        subStyle->fillColor = [UIColor whiteColor];
         if (styleEntry[@"fill"])
             subStyle->fillColor = [MaplyVectorTiles ParseColor:styleEntry[@"fill"]];
         subStyle->strokeColor = nil;
