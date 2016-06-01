@@ -58,10 +58,13 @@
     if (cached)
         return cached;
     
-    NSString *fullName = nil;
     UIImage *iconImage;
-    if (name)
+    if(name.isAbsolutePath)
     {
+        iconImage = [UIImage imageWithContentsOfFile:name];
+    } else if (name)
+    {
+        NSString *fullName = nil;
         NSString *fileName = [name lastPathComponent];
         iconImage = [UIImage imageNamed:fileName];
         if (!iconImage)
