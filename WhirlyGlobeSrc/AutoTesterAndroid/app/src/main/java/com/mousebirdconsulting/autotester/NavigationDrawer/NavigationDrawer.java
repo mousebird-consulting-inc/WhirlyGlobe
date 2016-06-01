@@ -114,6 +114,7 @@ public class NavigationDrawer extends LinearLayout {
 					selectView(singleMode);
 					deselectView(interactiveMode);
 					hideOptions(TextView.VISIBLE);
+					hideActions(INVISIBLE);
 					ConfigOptions.setExecutionMode(getContext(), ConfigOptions.ExecutionMode.Single);
 					break;
 			}
@@ -132,6 +133,13 @@ public class NavigationDrawer extends LinearLayout {
 		runMapView.setVisibility(visibility);
 		seeViewView.setVisibility(visibility);
 		separator_1.setVisibility(visibility);
+		separator_2.setVisibility(visibility);
+	}
+
+	private void hideActions(int visibility){
+		actionSection.setVisibility(visibility);
+		selectAllAction.setVisibility(visibility);
+		deselectAllAction.setVisibility(visibility);
 		separator_2.setVisibility(visibility);
 	}
 
@@ -174,6 +182,7 @@ public class NavigationDrawer extends LinearLayout {
 			case Single:
 				setSelectedItemId(R.id.runSingle);
 				hideOptions(TextView.VISIBLE);
+				hideActions(INVISIBLE);
 				break;
 		}
 

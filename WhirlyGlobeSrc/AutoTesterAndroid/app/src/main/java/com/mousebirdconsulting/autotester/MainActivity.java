@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 	private ViewTestFragment viewTest;
 	private MaplyTestCase interactiveTest = null;
 
-	private boolean cancelled;
+	private boolean cancelled = false;
 	private boolean executing = false;
 
 	private ArrayList<MaplyTestResult> testResults;
@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 		getMenuInflater().inflate(R.menu.menu_main, menu);
 		this.menu = menu;
 		selectFragment(this.testList);
+		this.testList.downloadResources();
 		showOverflowMenu(ConfigOptions.getExecutionMode(getApplicationContext())== ConfigOptions.ExecutionMode.Multiple);
 		return true;
 	}
@@ -143,61 +144,74 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 			.commit();
 	}
 
-	public void prepareTest(MaplyTestCase testCase){
+	public void prepareTest(MaplyTestCase testCase) {
+		ConfigOptions.TestState testState = ConfigOptions.getTestState(getApplicationContext(), testCase.getTestName());
 
-		String titleText = "Running tests...";
-		if (ConfigOptions.getExecutionMode(getApplicationContext())== ConfigOptions.ExecutionMode.Interactive) {
-			titleText = "Interactive test";
-			this.interactiveTest = testCase;
-			MenuItem item = menu.findItem(R.id.playTests);
-			if (item != null) {
-				item.setIcon(getResources().getDrawable(R.drawable.ic_done_action));
+		if (testState.canRun()) {
+			String titleText = "Running tests...";
+			if (ConfigOptions.getExecutionMode(getApplicationContext()) == ConfigOptions.ExecutionMode.Interactive) {
+				titleText = "Interactive test";
+				this.interactiveTest = testCase;
+				MenuItem item = menu.findItem(R.id.playTests);
+				if (item != null) {
+					item.setIcon(getResources().getDrawable(R.drawable.ic_done_action));
+				}
+				showOverflowMenu(true);
 			}
-			showOverflowMenu(true);
-		}
 
-		getSupportActionBar().setTitle(titleText);
-		this.testResults.clear();
-		if (ConfigOptions.getViewSetting(this) == ConfigOptions.ViewMapOption.ViewMap || ConfigOptions.getExecutionMode(getApplicationContext())== ConfigOptions.ExecutionMode.Interactive) {
-			selectFragment(this.viewTest);
+			getSupportActionBar().setTitle(titleText);
+			this.testResults.clear();
+			if (ConfigOptions.getViewSetting(this) == ConfigOptions.ViewMapOption.ViewMap || ConfigOptions.getExecutionMode(getApplicationContext()) == ConfigOptions.ExecutionMode.Interactive) {
+				selectFragment(this.viewTest);
+			}
+			this.executing = true;
 		}
-		this.executing = true;
 	}
 
-	public void runTest(MaplyTestCase testCase) {
-		testCase.setOptions(ConfigOptions.getTestType(this));
-		MaplyTestCase.MaplyTestCaseListener listener = new MaplyTestCase.MaplyTestCaseListener() {
-			@Override
-			public void onFinish(MaplyTestResult resultMap, MaplyTestResult resultGlobe) {
-				if (resultMap != null) {
-					MainActivity.this.testResults.add(resultMap);
-				}
-				if (resultGlobe != null) {
-					MainActivity.this.testResults.add(resultGlobe);
-				}
-				finalizeTest();
-			}
+	public void runTest(final MaplyTestCase testCase) {
+		ConfigOptions.TestState testState = ConfigOptions.getTestState(getApplicationContext(), testCase.getTestName());
 
-			@Override
-			public void onStart(View view) {
-				if (ConfigOptions.getViewSetting(MainActivity.this) == ConfigOptions.ViewMapOption.ViewMap) {
-					viewTest = new ViewTestFragment();
-					viewTest.changeViewFragment(view);
-					selectFragment(viewTest);
+		if (testState.canRun()) {
+			ConfigOptions.setTestState(getApplicationContext(), testCase.getTestName(), ConfigOptions.TestState.Executing);
+			testCase.setOptions(ConfigOptions.getTestType(this));
+			MaplyTestCase.MaplyTestCaseListener listener = new MaplyTestCase.MaplyTestCaseListener() {
+				@Override
+				public void onFinish(MaplyTestResult resultMap, MaplyTestResult resultGlobe) {
+					if (resultMap != null) {
+						MainActivity.this.testResults.add(resultMap);
+					}
+					if (resultGlobe != null) {
+						MainActivity.this.testResults.add(resultGlobe);
+					}
+					finalizeTest(testCase);
 				}
-			}
 
-			@Override
-			public void onExecute(View view)
-			{
-			}
-		};
-		testCase.setListener(listener);
-		testCase.start();
+				@Override
+				public void onStart(View view) {
+					if (ConfigOptions.getViewSetting(MainActivity.this) == ConfigOptions.ViewMapOption.ViewMap || ConfigOptions.getExecutionMode(getApplicationContext()) == ConfigOptions.ExecutionMode.Interactive) {
+						viewTest = new ViewTestFragment();
+						viewTest.changeViewFragment(view);
+						selectFragment(viewTest);
+					}
+				}
+
+				@Override
+				public void onExecute(View view) {
+					if (ConfigOptions.getViewSetting(MainActivity.this) == ConfigOptions.ViewMapOption.ViewMap || ConfigOptions.getExecutionMode(getApplicationContext()) == ConfigOptions.ExecutionMode.Interactive) {
+						viewTest = new ViewTestFragment();
+						viewTest.changeViewFragment(view);
+						selectFragment(viewTest);
+					}
+				}
+			};
+			testCase.setListener(listener);
+			testCase.start();
+		}
 	}
 
-	private void finalizeTest() {
+	private void finalizeTest(MaplyTestCase testCase) {
 		getSupportActionBar().setTitle(R.string.app_name);
+		ConfigOptions.setTestState(getApplicationContext(), testCase.getTestName(), ConfigOptions.TestState.Ready);
 		executing = false;
 		Intent intent = new Intent(this, ResultActivity.class);
 		Bundle bundle = new Bundle();
@@ -209,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 	private void finalizeInteractiveTest() {
 		getSupportActionBar().setTitle(R.string.app_name);
 		interactiveTest.cancel(true);
+		ConfigOptions.setTestState(getApplicationContext(), interactiveTest.getTestName(), ConfigOptions.TestState.Ready);
 		interactiveTest = null;
 		MenuItem item = menu.findItem(R.id.playTests);
 		if (item != null){
@@ -270,11 +285,13 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 	private void startTests(final ArrayList<MaplyTestCase> tests, final int index) {
 		if (tests.size() != index) {
 			final MaplyTestCase head = tests.get(index);
-			if (head.isSelected()) {
+			if (ConfigOptions.getTestState(getApplicationContext(), head.getTestName()) == ConfigOptions.TestState.Selected) {
 				head.setOptions(ConfigOptions.getTestType(this));
+				ConfigOptions.setTestState(getApplicationContext(), head.getTestName(), ConfigOptions.TestState.Executing);
 				MaplyTestCase.MaplyTestCaseListener listener = new MaplyTestCase.MaplyTestCaseListener() {
 					@Override
 					public void onFinish(MaplyTestResult resultMap, MaplyTestResult resultGlobe) {
+						ConfigOptions.setTestState(getApplicationContext(), head.getTestName(), ConfigOptions.TestState.Selected);
 						if (MainActivity.this.cancelled) {
 							MainActivity.this.finishTests();
 						} else {
@@ -304,7 +321,11 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 
 					@Override
 					public void onExecute(View view) {
-
+						if (ConfigOptions.getViewSetting(MainActivity.this) == ConfigOptions.ViewMapOption.ViewMap || ConfigOptions.getExecutionMode(getApplicationContext()) == ConfigOptions.ExecutionMode.Interactive) {
+							viewTest = new ViewTestFragment();
+							viewTest.changeViewFragment(view);
+							selectFragment(viewTest);
+						}
 					}
 				};
 				head.setListener(listener);
@@ -345,6 +366,4 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 		getSupportActionBar().setTitle("Cancelling...");
 		cancelled = true;
 	}
-
-
 }

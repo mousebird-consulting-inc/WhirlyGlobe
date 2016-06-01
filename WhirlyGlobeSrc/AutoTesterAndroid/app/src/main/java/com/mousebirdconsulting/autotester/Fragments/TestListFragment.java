@@ -3,6 +3,7 @@ package com.mousebirdconsulting.autotester.Fragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mousebirdconsulting.autotester.ConfigOptions;
+import com.mousebirdconsulting.autotester.Framework.MaplyDownloadManager;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.MainActivity;
 import com.mousebirdconsulting.autotester.R;
@@ -46,10 +48,12 @@ import butterknife.InjectView;
 
 
 public class TestListFragment extends Fragment {
+
 	@InjectView(R.id.testList_recyclerList)
 	RecyclerView testList;
 
 	private TestListAdapter adapter;
+	private MaplyDownloadManager manager;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -78,6 +82,12 @@ public class TestListFragment extends Fragment {
 
 	public ArrayList<MaplyTestCase> getTests() {
 		return adapter.getTestCases();
+	}
+
+	public void downloadResources() {
+		if (adapter != null) {
+			adapter.downloadResources();
+		}
 	}
 
 	private class TestListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -111,6 +121,45 @@ public class TestListFragment extends Fragment {
 			testCases.add(new ArealTestCase(getActivity()));
 		}
 
+		public void downloadResources() {
+			ArrayList<MaplyTestCase> incompleteTest = new ArrayList<>();
+			for (MaplyTestCase testCase : this.testCases) {
+				if (!testCase.areResourcesDownloaded()) {
+					incompleteTest.add(testCase);
+				} else {
+					if (ConfigOptions.getTestState(getContext(), testCase.getTestName()) != ConfigOptions.TestState.Selected) {
+						ConfigOptions.setTestState(getContext(), testCase.getTestName(), ConfigOptions.TestState.Ready);
+					}
+				}
+			}
+			if (incompleteTest.size() > 0) {
+				MaplyDownloadManager.MaplyDownloadManagerListener listener = new MaplyDownloadManager.MaplyDownloadManagerListener() {
+					@Override
+					public void onFinish() {
+						adapter.notifyDataSetChanged();
+					}
+				};
+				manager = new MaplyDownloadManager(getContext(), incompleteTest, listener);
+				manager.execute();
+			}
+		}
+
+		public void downloadTestResources(final int index) {
+			if (index >= testCases.size()) {
+				return;
+			}
+			ArrayList<MaplyTestCase> test = new ArrayList<>();
+			test.add(testCases.get(index));
+			MaplyDownloadManager.MaplyDownloadManagerListener listener = new MaplyDownloadManager.MaplyDownloadManagerListener() {
+				@Override
+				public void onFinish() {
+					adapter.notifyItemChanged(index);
+				}
+			};
+			manager = new MaplyDownloadManager(getContext(), test, listener);
+			manager.execute();
+		}
+
 		@Override
 		public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 			View view = LayoutInflater.from(getContext()).inflate(R.layout.testlistitemview, parent, false);
@@ -119,7 +168,7 @@ public class TestListFragment extends Fragment {
 
 		@Override
 		public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-			((TestViewHolder) holder).bindViewHolder(testCases.get(position));
+			((TestViewHolder) holder).bindViewHolder(testCases.get(position), position);
 		}
 
 		@Override
@@ -129,8 +178,8 @@ public class TestListFragment extends Fragment {
 
 		public void changeItemsState(boolean selected) {
 			for (MaplyTestCase testCase : testCases) {
-				testCase.setSelected(selected);
-				ConfigOptions.setSelectedTest(getContext(), testCase.getTestName(), selected);
+				ConfigOptions.TestState state = selected ? ConfigOptions.TestState.Ready : ConfigOptions.TestState.Selected;
+				ConfigOptions.setTestState(getContext(), testCase.getTestName(), state);
 			}
 			notifyDataSetChanged();
 		}
@@ -143,9 +192,10 @@ public class TestListFragment extends Fragment {
 		private class TestViewHolder extends RecyclerView.ViewHolder {
 
 			private TextView label;
-			private ImageView selected, map, globe;
+			private ImageView selected, map, globe, retry, download;
 			private View self;
 			private MaplyTestCase testCase;
+			private int index;
 
 			public TestViewHolder(View itemView) {
 				super(itemView);
@@ -153,81 +203,127 @@ public class TestListFragment extends Fragment {
 				selected = (ImageView) itemView.findViewById(R.id.itemSelected);
 				map = (ImageView) itemView.findViewById(R.id.map_icon);
 				globe = (ImageView) itemView.findViewById(R.id.globe_icon);
+				retry = (ImageView) itemView.findViewById(R.id.retryDownload);
+				download = (ImageView) itemView.findViewById(R.id.downloading);
 				self = itemView;
 			}
 
-			public void bindViewHolder(final MaplyTestCase testCase) {
+			public void bindViewHolder(final MaplyTestCase testCase, final int index) {
 				this.testCase = testCase;
-				if (ConfigOptions.getSelectedTest(getContext(), testCase.getTestName())) {
-					testCase.setSelected(true);
-				}
-				if (ConfigOptions.getExecutionMode(getContext()) == ConfigOptions.ExecutionMode.Multiple) {
-					this.selected.setImageDrawable(getResources().getDrawable(testCase.getIcon()));
-					changeItemState(testCase.isSelected());
-				}
+				this.index = index;
+
 				this.label.setText(this.testCase.getTestName());
-
-				if (ConfigOptions.getExecutionMode(getContext()) == ConfigOptions.ExecutionMode.Interactive) {
-					selected.setVisibility(View.INVISIBLE);
-					if (testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Both || testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Map) {
-						map.setVisibility(View.VISIBLE);
-					}
-					if (testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Both || testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Globe) {
-						globe.setVisibility(View.VISIBLE);
-					}
-				}
-				else {
-					map.setVisibility(View.INVISIBLE);
-					globe.setVisibility(View.INVISIBLE);
-				}
-
-				if (ConfigOptions.getExecutionMode(getContext()) == ConfigOptions.ExecutionMode.Interactive) {
-					map.setOnClickListener(new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							ConfigOptions.setTestType(getContext(), ConfigOptions.TestType.MapTest);
-							MainActivity activity = (MainActivity) getActivity();
-							if (!activity.isExecuting()) {
-								activity.prepareTest(testCase);
-								activity.runTest(testCase);
+				final MainActivity activity = (MainActivity) getActivity();
+				//if error
+				switch (ConfigOptions.getTestState(getContext(), testCase.getTestName())) {
+					case Error:
+						itemView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorRed));
+						retry.setVisibility(View.VISIBLE);
+						selected.setVisibility(View.INVISIBLE);
+						map.setVisibility(View.INVISIBLE);
+						globe.setVisibility(View.INVISIBLE);
+						download.setVisibility(View.INVISIBLE);
+						retry.setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								adapter.downloadTestResources(index);
 							}
+						});
+						break;
+					case Downloading:
+						itemView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorGreen));
+						retry.setVisibility(View.INVISIBLE);
+						selected.setVisibility(View.INVISIBLE);
+						map.setVisibility(View.INVISIBLE);
+						globe.setVisibility(View.INVISIBLE);
+						download.setVisibility(View.VISIBLE);
+						break;
+
+					case Selected:
+					case Ready:
+						retry.setVisibility(View.INVISIBLE);
+						download.setVisibility(View.INVISIBLE);
+						itemView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorWhite));
+						switch (ConfigOptions.getExecutionMode(getContext())) {
+							case Multiple:
+								changeItemState(ConfigOptions.getTestState(getContext(),testCase.getTestName()) == ConfigOptions.TestState.Selected);
+								map.setVisibility(View.INVISIBLE);
+								globe.setVisibility(View.INVISIBLE);
+								itemView.setOnClickListener(new View.OnClickListener() {
+									@Override
+									public void onClick(View v) {
+										if (ConfigOptions.getTestState(getContext(), testCase.getTestName()) == ConfigOptions.TestState.Ready){
+											ConfigOptions.setTestState(getContext(), testCase.getTestName(), ConfigOptions.TestState.Selected);
+										} else {
+											ConfigOptions.setTestState(getContext(), testCase.getTestName(), ConfigOptions.TestState.Ready);
+										}
+										changeItemState(ConfigOptions.getTestState(getContext(),testCase.getTestName()) == ConfigOptions.TestState.Selected);
+										notifyItemChanged(index);
+									}
+								});
+								break;
+
+							case Interactive:
+								selected.setVisibility(View.INVISIBLE);
+								map.setVisibility(View.VISIBLE);
+								globe.setVisibility(View.VISIBLE);
+								map.setOnClickListener(new View.OnClickListener() {
+									@Override
+									public void onClick(View v) {
+										ConfigOptions.setTestType(getContext(), ConfigOptions.TestType.MapTest);
+										if (!activity.isExecuting()) {
+											activity.prepareTest(testCase);
+											activity.runTest(testCase);
+										}
+									}
+								});
+								globe.setOnClickListener(new View.OnClickListener() {
+									@Override
+									public void onClick(View v) {
+										ConfigOptions.setTestType(getContext(), ConfigOptions.TestType.GlobeTest);
+										if (!activity.isExecuting()) {
+											activity.prepareTest(testCase);
+											activity.runTest(testCase);
+										}
+									}
+								});
+								break;
+
+							case Single:
+								selected.setVisibility(View.INVISIBLE);
+								map.setVisibility(View.INVISIBLE);
+								globe.setVisibility(View.INVISIBLE);
+								itemView.setOnClickListener(new View.OnClickListener() {
+									@Override
+									public void onClick(View v) {
+										if (!activity.isExecuting()) {
+											activity.prepareTest(testCase);
+											activity.runTest(testCase);
+										}
+									}
+								});
+								break;
 						}
-					});
-					globe.setOnClickListener(new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							ConfigOptions.setTestType(getContext(), ConfigOptions.TestType.GlobeTest);
-							MainActivity activity = (MainActivity) getActivity();
-							if (!activity.isExecuting()) {
-								activity.prepareTest(testCase);
-								activity.runTest(testCase);
-							}
+						break;
+
+					case Executing:
+						selected.setVisibility(View.VISIBLE);
+						map.setVisibility(View.INVISIBLE);
+						globe.setVisibility(View.INVISIBLE);
+						retry.setVisibility(View.INVISIBLE);
+						download.setVisibility(View.INVISIBLE);
+						switch (ConfigOptions.getExecutionMode(getContext())) {
+							case Multiple:
+								this.selected.setImageDrawable(getResources().getDrawable(R.drawable.ic_options_action));
+								break;
+							case Interactive:
+								break;
+							case Single:
+								break;
 						}
-					});
+						break;
 				}
-					self.setOnClickListener(new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							MainActivity activity = (MainActivity) getActivity();
-							if (ConfigOptions.getExecutionMode(getContext()) == ConfigOptions.ExecutionMode.Single) {
-
-								if (!activity.isExecuting()) {
-									activity.prepareTest(testCase);
-									activity.runTest(testCase);
-								}
-							}
-							if (ConfigOptions.getExecutionMode(getContext()) == ConfigOptions.ExecutionMode.Multiple){
-								if (!((MainActivity) getActivity()).isExecuting()) {
-									TestViewHolder.this.testCase.setSelected(!TestViewHolder.this.testCase.isSelected());
-									TestViewHolder.this.changeItemState(TestViewHolder.this.testCase.isSelected());
-									ConfigOptions.setSelectedTest(getContext(), TestViewHolder.this.testCase.getTestName(), TestViewHolder.this.testCase.isSelected());
-								}
-							}
-						}
-					});
-
 			}
-
 			public void changeItemState(boolean setSelected) {
 				this.selected.setVisibility(
 					setSelected ? View.VISIBLE : View.INVISIBLE);

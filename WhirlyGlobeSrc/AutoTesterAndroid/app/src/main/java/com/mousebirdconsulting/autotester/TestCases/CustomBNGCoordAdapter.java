@@ -42,10 +42,10 @@ public class CustomBNGCoordAdapter extends MaplyTestCase
 
     @Override
     protected void onPreExecute() {
-        if (options == ConfigOptions.TestType.BothTest || options == ConfigOptions.TestType.GlobeTest) {
+        if (options.isGlobe()) {
             globeController = new GlobeController(activity);
         }
-        if (options == ConfigOptions.TestType.BothTest || options == ConfigOptions.TestType.MapTest) {
+        if (options.isMap()) {
             CoordSystem coordSys = CustomBNGTileSource.MakeBNGCoordSystem(getActivity(),true);
 
             MapController.Settings settings = new MapController.Settings();

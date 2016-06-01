@@ -45,5 +45,23 @@
         android:layout_alignParentRight="true"
         android:visibility="invisible"
         android:layout_marginRight="10dp"/>
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:id="@+id/retryDownload"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:visibility="invisible"
+        android:layout_marginRight="10dp"
+        android:src="@drawable/ic_assignment_returned_black_24dp"/>
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:id="@+id/downloading"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:visibility="invisible"
+        android:layout_marginRight="10dp"
+        android:src="@drawable/ic_download"/>
 
 </RelativeLayout>

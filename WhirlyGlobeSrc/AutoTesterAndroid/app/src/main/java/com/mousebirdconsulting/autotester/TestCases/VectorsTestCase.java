@@ -28,8 +28,13 @@ public class VectorsTestCase extends MaplyTestCase {
 		super(activity);
 
 		setTestName("Vectors Test");
-		setDelay(1000);
+		setDelay(4);
 		this.implementation = TestExecutionImplementation.Both;
+		
+		// Just trying...
+		this.remoteResources.add("http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-demo.txt");
+		this.remoteResources.add("http://www.cl.cam.ac.uk/~mgk25/ucs/examples/grid-cyrillic-1.txt");
+		this.remoteResources.add("https://manuals.info.apple.com/en_US/macbook_retina_12_inch_early2016_essentials.pdf");
 	}
 
 	private void overlayCountries(MaplyBaseController baseVC) throws Exception {
