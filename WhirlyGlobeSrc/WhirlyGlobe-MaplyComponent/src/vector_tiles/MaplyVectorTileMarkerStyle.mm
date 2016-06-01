@@ -57,7 +57,6 @@
     for (NSDictionary *styleEntry in stylesArray)
     {
         MaplyVectorTileSubStyleMarker *subStyle = [[MaplyVectorTileSubStyleMarker alloc] init];
-        subStyle->fillColor = [UIColor whiteColor];
         if (styleEntry[@"fill"])
             subStyle->fillColor = [MaplyVectorTiles ParseColor:styleEntry[@"fill"]];
         subStyle->strokeColor = nil;
@@ -85,13 +84,35 @@
       
         if(!fileName || [fileName rangeOfString:@"["].location == NSNotFound)
         {
-            subStyle->markerImage = [MaplyIconManager iconForName:fileName
-                                                             size:CGSizeMake(settings.markerScale*subStyle->width+2,
-                                                                             settings.markerScale*subStyle->height+2)
-                                                            color:[UIColor blackColor]
-                                                      circleColor:subStyle->fillColor
-                                                       strokeSize:settings.markerScale*subStyle->strokeWidth
-                                                      strokeColor:subStyle->strokeColor];
+            if(fileName && settings.iconDirectory)
+            {
+                fileName = [settings.iconDirectory stringByAppendingPathComponent:fileName];
+            }
+          
+            if(fileName && fileName.isAbsolutePath)
+            {
+                if(!subStyle->fillColor && !subStyle->strokeColor)
+                {
+                    UIImage *image = [UIImage imageWithContentsOfFile:fileName];
+                    if(image)
+                    {
+                        if(image.size.width == subStyle->width && image.size.width == subStyle->height) {
+                            subStyle->markerImage = image;
+                        }
+                    }
+                }
+            }
+          
+            if(!subStyle->markerImage)
+            {
+              subStyle->markerImage = [MaplyIconManager iconForName:fileName
+                                                               size:CGSizeMake(settings.markerScale*subStyle->width+2,
+                                                                               settings.markerScale*subStyle->height+2)
+                                                              color:[UIColor blackColor]
+                                                        circleColor:subStyle->fillColor
+                                                         strokeSize:settings.markerScale*subStyle->strokeWidth
+                                                        strokeColor:subStyle->strokeColor];
+            }
             if ([subStyle->markerImage isKindOfClass:[NSNull class]])
                 subStyle->markerImage = nil;
         } else
