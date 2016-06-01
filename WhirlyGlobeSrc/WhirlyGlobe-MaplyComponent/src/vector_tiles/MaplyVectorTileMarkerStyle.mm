@@ -91,6 +91,10 @@
                                                       circleColor:subStyle->fillColor
                                                        strokeSize:settings.markerScale*subStyle->strokeWidth
                                                       strokeColor:subStyle->strokeColor];
+            if(fileName && settings.iconDirectory)
+            {
+                fileName = [settings.iconDirectory stringByAppendingPathComponent:fileName];
+            }
             if ([subStyle->markerImage isKindOfClass:[NSNull class]])
                 subStyle->markerImage = nil;
         } else
