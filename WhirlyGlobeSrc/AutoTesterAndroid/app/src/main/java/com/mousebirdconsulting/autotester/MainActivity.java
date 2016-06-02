@@ -20,6 +20,7 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestResult;
 import com.mousebirdconsulting.autotester.NavigationDrawer.NavigationDrawer;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import butterknife.ButterKnife;
@@ -56,13 +57,20 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 		//Create toolbar
 		configureToolbar();
 		configureNavigationDrawer();
-
+		deleteRecursive(ConfigOptions.getCacheDir(this));
 		this.navigationDrawer.getUserPreferences();
 		this.testList = new TestListFragment();
 		this.testResults = new ArrayList<>();
 		this.viewTest = new ViewTestFragment();
 	}
 
+	void deleteRecursive(File fileOrDirectory) {
+		if (fileOrDirectory.isDirectory())
+			for (File child : fileOrDirectory.listFiles())
+				deleteRecursive(child);
+
+		fileOrDirectory.delete();
+	}
 
 	@Override
 	protected void onResume() {
@@ -70,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 
 		this.navigationDrawer.getUserPreferences();
 		this.testList = new TestListFragment();
+		this.testList.downloadResources();
 		selectFragment(this.testList);
 		this.viewTest = new ViewTestFragment();
 	}

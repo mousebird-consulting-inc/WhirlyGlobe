@@ -24,7 +24,7 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		this.implementation = TestExecutionImplementation.Both;
 		
 		// Just trying...
-		this.remoteResources.add("https://manuals.info.apple.com/en_US/macbook_retina_12_inch_early2016_essentials.pdf");
+		//this.remoteResources.add("https://manuals.info.apple.com/en_US/macbook_retina_12_inch_early2016_essentials.pdf");
 	}
 
 	private QuadImageTileLayer setupImageLayer(MaplyBaseController baseController) {

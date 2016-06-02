@@ -1,9 +1,12 @@
 package com.mousebirdconsulting.autotester;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.mousebird.maply.StringWrapper;
+
+import java.io.File;
 
 
 public class ConfigOptions {
@@ -12,7 +15,6 @@ public class ConfigOptions {
 	public static final String testType = "testTypeSetting";
 	public static final String preferences = "AutoTesterAndroid";
 	public static final String executionMode = "executionMode";
-	public static final String testState = "testState";
 
 	public enum ExecutionMode {
 		Interactive, Multiple, Single;
@@ -34,7 +36,7 @@ public class ConfigOptions {
 
 	public static final TestState getTestState(Context context, String testName) {
 		SharedPreferences preferences = context.getSharedPreferences(ConfigOptions.preferences, Context.MODE_PRIVATE);
-		String defaultValue = TestState.Downloading.name();
+		String defaultValue = TestState.None.name();
 		String testState = preferences.getString(testName, defaultValue);
 		return TestState.valueOf(testState);
 	}
@@ -74,6 +76,10 @@ public class ConfigOptions {
 		return ViewMapOption.valueOf(viewSetting);
 	}
 
+	public static File getCacheDir(Activity activity){
+		return activity.getDir("resources", Context.MODE_PRIVATE);
+	}
+
 	public enum TestType {
 		MapTest, GlobeTest, BothTest;
 
@@ -92,7 +98,7 @@ public class ConfigOptions {
 	}
 
 	public enum TestState {
-		Downloading, Ready, Executing, Error, Selected;
+		Downloading, Ready, Executing, Error, Selected, None;
 
 		public boolean canRun() {
 			return (this != Executing && this != Error && this != Downloading);

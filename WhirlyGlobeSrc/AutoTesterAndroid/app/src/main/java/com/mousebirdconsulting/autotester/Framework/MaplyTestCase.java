@@ -49,17 +49,15 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 	protected MaplyTestCaseListener listener;
 	protected TestExecutionImplementation implementation = TestExecutionImplementation.None;
 	protected ArrayList<String> remoteResources = new ArrayList<>();
-	protected File cacheDir;
 
 	public MaplyTestCase(Activity activity) {
 		super();
 		this.activity = activity;
-		this.cacheDir = activity.getDir("resources", Context.MODE_PRIVATE);
 	}
 
 	public boolean areResourcesDownloaded(){
 		for (int ii = 0; ii < remoteResources.size(); ii++){
-			File file = new File(this.cacheDir.getPath() + "/" + getFileName(remoteResources.get(ii)));
+			File file = new File(ConfigOptions.getCacheDir(activity) + "/" + getFileName(remoteResources.get(ii)));
 			if (!file.exists()){
 				return false;
 			}
@@ -79,7 +77,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 	}
 
 	private void downloadFromServer(String url) {
-		String filename = this.cacheDir.getPath() + "/" + getFileName(url);
+		String filename = ConfigOptions.getCacheDir(activity).getPath() + "/" + getFileName(url);
 		Log.e("Download", "Downloading " + url);
 
 		try {
@@ -97,15 +95,24 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 					dis.close();
 					fos.close();
 				} catch (IOException e) {
+					Log.e("Download", "Error downloading " + url, e);
+					ConfigOptions.setTestState(getActivity(), getTestName(), ConfigOptions.TestState.Error);
+					deleteFile(getFileName(url));
 				}
 			}
 			Log.e("Download", "Download stored in " + filename);
 		} catch (Exception e) {
 			Log.e("Download", "Error downloading " + url, e);
 			ConfigOptions.setTestState(getActivity(), getTestName(), ConfigOptions.TestState.Error);
+			deleteFile(getFileName(url));
 		}
 	}
 
+	private void deleteFile(String name){
+
+		File file = new File(ConfigOptions.getCacheDir(activity) + "/" + name);
+		file.delete();
+	}
 	// Change this to set transparent backgrounds
 	int clearColor = Color.BLACK;
 

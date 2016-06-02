@@ -126,11 +126,13 @@ public class TestListFragment extends Fragment {
 			for (MaplyTestCase testCase : this.testCases) {
 				if (!testCase.areResourcesDownloaded()) {
 					incompleteTest.add(testCase);
+					ConfigOptions.setTestState(getContext(), testCase.getTestName(), ConfigOptions.TestState.Downloading);
 				} else {
 					if (ConfigOptions.getTestState(getContext(), testCase.getTestName()) != ConfigOptions.TestState.Selected) {
 						ConfigOptions.setTestState(getContext(), testCase.getTestName(), ConfigOptions.TestState.Ready);
 					}
 				}
+				adapter.notifyDataSetChanged();
 			}
 			if (incompleteTest.size() > 0) {
 				MaplyDownloadManager.MaplyDownloadManagerListener listener = new MaplyDownloadManager.MaplyDownloadManagerListener() {
@@ -138,8 +140,13 @@ public class TestListFragment extends Fragment {
 					public void onFinish() {
 						adapter.notifyDataSetChanged();
 					}
+
+					@Override
+					public void onTestFinished(MaplyTestCase testCase) {
+						adapter.notifyDataSetChanged();
+					}
 				};
-				manager = new MaplyDownloadManager(getContext(), incompleteTest, listener);
+				manager = new MaplyDownloadManager(getActivity(), incompleteTest, listener);
 				manager.execute();
 			}
 		}
@@ -155,8 +162,13 @@ public class TestListFragment extends Fragment {
 				public void onFinish() {
 					adapter.notifyItemChanged(index);
 				}
+
+				@Override
+				public void onTestFinished(MaplyTestCase testCase) {
+					adapter.notifyItemChanged(index);
+				}
 			};
-			manager = new MaplyDownloadManager(getContext(), test, listener);
+			manager = new MaplyDownloadManager(getActivity(), test, listener);
 			manager.execute();
 		}
 
@@ -196,6 +208,10 @@ public class TestListFragment extends Fragment {
 			private View self;
 			private MaplyTestCase testCase;
 			private int index;
+
+			public int getIndex() {
+				return index;
+			}
 
 			public TestViewHolder(View itemView) {
 				super(itemView);
@@ -322,6 +338,13 @@ public class TestListFragment extends Fragment {
 								break;
 						}
 						break;
+
+					case None:
+						selected.setVisibility(View.INVISIBLE);
+						map.setVisibility(View.INVISIBLE);
+						globe.setVisibility(View.INVISIBLE);
+						retry.setVisibility(View.INVISIBLE);
+						download.setVisibility(View.INVISIBLE);
 				}
 			}
 			public void changeItemState(boolean setSelected) {

@@ -1,5 +1,6 @@
 package com.mousebirdconsulting.autotester.Framework;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 
@@ -12,16 +13,17 @@ public class MaplyDownloadManager extends AsyncTask<Void, Void, Void> {
 
 	protected ArrayList<MaplyTestCase> testCases;
 	protected MaplyDownloadManagerListener listener;
-	protected Context context;
+	protected Activity activity;
 
 	public interface MaplyDownloadManagerListener {
 		void onFinish();
+		void onTestFinished(MaplyTestCase testCase);
 	}
 
-	public MaplyDownloadManager(Context context, ArrayList<MaplyTestCase> testCases, MaplyDownloadManagerListener listener) {
+	public MaplyDownloadManager(Activity activity, ArrayList<MaplyTestCase> testCases, MaplyDownloadManagerListener listener) {
 		this.testCases = testCases;
 		this.listener = listener;
-		this.context = context;
+		this.activity = activity;
 	}
 
 	@Override
@@ -31,19 +33,26 @@ public class MaplyDownloadManager extends AsyncTask<Void, Void, Void> {
 
 	@Override
 	protected Void doInBackground(Void... params) {
-		for (MaplyTestCase testCase: this.testCases) {
+		for (final MaplyTestCase testCase: this.testCases) {
 			if (testCase.areResourcesDownloaded()) {
 				// already downloaded by previous tests
-				ConfigOptions.setTestState(context, testCase.getTestName(),  ConfigOptions.TestState.Ready);
+				ConfigOptions.setTestState(activity, testCase.getTestName(),  ConfigOptions.TestState.Ready);
+
 			} else {
-				ConfigOptions.setTestState(context, testCase.getTestName(), ConfigOptions.TestState.Downloading);
+				ConfigOptions.setTestState(activity, testCase.getTestName(), ConfigOptions.TestState.Downloading);
 
 				testCase.downloadResources();
 
-				if (ConfigOptions.getTestState(this.context, testCase.getTestName()) != ConfigOptions.TestState.Error) {
-					ConfigOptions.setTestState(context, testCase.getTestName(),  ConfigOptions.TestState.Ready);
+				if (ConfigOptions.getTestState(this.activity, testCase.getTestName()) != ConfigOptions.TestState.Error) {
+					ConfigOptions.setTestState(activity, testCase.getTestName(),  ConfigOptions.TestState.Ready);
 				}
 			}
+			activity.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					listener.onTestFinished(testCase);
+				}
+			});
 		}
 		return null;
 	}
