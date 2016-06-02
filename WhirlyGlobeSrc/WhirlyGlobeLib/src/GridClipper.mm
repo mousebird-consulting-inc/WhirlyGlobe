@@ -155,7 +155,7 @@ bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr, bool closed,std::vecto
                 outRing.push_back(Point2f(outPt.X/PolyScale,outPt.Y/PolyScale));
             }
             
-            if ((closed && outRing.size() > 2) || (!closed && outRing.size() > 1))
+            if (outRing.size() > 2)
                 rets.push_back(outRing);
         }
     }
