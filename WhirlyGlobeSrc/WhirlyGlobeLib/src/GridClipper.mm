@@ -57,6 +57,8 @@ bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr, bool closed,std::vecto
 {
     if(!closed)
     {
+        //Cohen-sutherland algorithm based on example implementation from wikipedia
+        //https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm#Example_C.2FC.2B.2B_implementation
         VectorRing outRing;
         for (unsigned int ii=1;ii<ring.size();ii++)
         {
