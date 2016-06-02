@@ -88,6 +88,24 @@ bool VectorObject::centroid(Point2f &center)
                     bigArea = area;
                 }
             }
+        } else {
+            VectorLinearRef linear = std::dynamic_pointer_cast<VectorLinear>(*it);
+            if (linear)
+            {
+                GeoCoord midCoord = linear->geoMbr.mid();
+                center.x() = midCoord.x();
+                center.y() = midCoord.y();
+                return true;
+            } else {
+                VectorPointsRef pts = std::dynamic_pointer_cast<VectorPoints>(*it);
+                if (pts)
+                {
+                    GeoCoord midCoord = pts->geoMbr.mid();
+                    center.x() = midCoord.x();
+                    center.y() = midCoord.y();
+                    return true;
+                }
+            }
         }
     }
     

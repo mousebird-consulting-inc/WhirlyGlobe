@@ -30,7 +30,6 @@ import android.graphics.Typeface;
  * call on the MaplyController.
  * 
  * @author sjg
- *
  */
 public class LabelInfo extends BaseInfo
 {
