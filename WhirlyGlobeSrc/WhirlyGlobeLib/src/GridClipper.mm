@@ -26,8 +26,8 @@ namespace WhirlyKit
     
 using namespace ClipperLib;
 
-static float PolyScale = 1e17;
-    typedef int OutCode;
+static float PolyScale = 1e14;
+typedef int OutCode;
     
 const int INSIDE = 0; // 0000
 const int LEFT = 1;   // 0001
