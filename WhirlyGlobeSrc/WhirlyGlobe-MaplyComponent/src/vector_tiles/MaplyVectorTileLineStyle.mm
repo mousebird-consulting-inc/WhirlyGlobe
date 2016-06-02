@@ -33,6 +33,8 @@
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)style settings:(MaplyVectorStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
 {
+    self = [super initWithStyleEntry:style viewC:viewC];
+
     subStyles = [NSMutableArray array];
     NSArray *subStylesArray = style[@"substyles"];
     wideVecs.resize([subStylesArray count],false);
