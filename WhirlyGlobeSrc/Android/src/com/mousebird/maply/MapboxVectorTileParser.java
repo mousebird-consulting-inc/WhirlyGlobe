@@ -33,6 +33,11 @@ public class MapboxVectorTileParser
         initialise();
     }
 
+    public final static int GeomTypeUnknown = 0;
+    public final static int GeomTypePoint = 1;
+    public final static int GeomTypeLineString = 2;
+    public final static int GeomTypePolygon = 3;
+
     /**
      * Data returned from a single parsed tile.
      * For now it's just vector objects, but eventually it may be images as well.

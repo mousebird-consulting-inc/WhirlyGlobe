@@ -48,6 +48,7 @@ public class AtmosphereTestCase extends MaplyTestCase {
         super(activity);
         setTestName("Atmosphere Test Case");
         setDelay(1000);
+        this.implementation = TestExecutionImplementation.Globe;
     }
 
     // Day-time data source

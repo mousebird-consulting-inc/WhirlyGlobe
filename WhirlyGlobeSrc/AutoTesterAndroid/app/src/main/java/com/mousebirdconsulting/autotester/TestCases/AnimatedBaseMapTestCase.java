@@ -22,6 +22,7 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 		super(activity);
 		setTestName("Animated BaseMap Test");
 		setDelay(100);
+		this.implementation = TestExecutionImplementation.Both;
 	}
 
 	private QuadImageTileLayer setupImageLayer(MaplyBaseController baseController, ConfigOptions.TestType testType) throws Exception {

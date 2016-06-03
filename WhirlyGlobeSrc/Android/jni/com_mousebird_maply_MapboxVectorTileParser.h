@@ -7,6 +7,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef com_mousebird_maply_MapboxVectorTileParser_GeomTypeUnknown
+#define com_mousebird_maply_MapboxVectorTileParser_GeomTypeUnknown 0L
+#undef com_mousebird_maply_MapboxVectorTileParser_GeomTypePoint
+#define com_mousebird_maply_MapboxVectorTileParser_GeomTypePoint 1L
+#undef com_mousebird_maply_MapboxVectorTileParser_GeomTypeLineString
+#define com_mousebird_maply_MapboxVectorTileParser_GeomTypeLineString 2L
+#undef com_mousebird_maply_MapboxVectorTileParser_GeomTypePolygon
+#define com_mousebird_maply_MapboxVectorTileParser_GeomTypePolygon 3L
 /*
  * Class:     com_mousebird_maply_MapboxVectorTileParser
  * Method:    parseDataNative

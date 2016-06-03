@@ -142,6 +142,8 @@ public class MaplyBaseController
 	// Set if we're using a TextureView rather than a SurfaceView
 	boolean useTextureView = false;
 
+	boolean libraryLoaded = false;
+
 	/**
 	 * Construct the maply controller with an Activity.  We need access to a few
 	 * of the usual Android resources.
@@ -158,6 +160,7 @@ public class MaplyBaseController
 	public MaplyBaseController(Activity mainActivity,Settings settings)
 	{		
 		System.loadLibrary("Maply");
+		libraryLoaded = true;
 		activity = mainActivity;
 		if (settings != null)
 			useTextureView = !settings.useSurfaceView;
@@ -166,7 +169,13 @@ public class MaplyBaseController
 	ColorDrawable tempBackground = null;
 	
 	protected void Init()
-	{		
+	{
+		if (!libraryLoaded)
+		{
+			System.loadLibrary("Maply");
+			libraryLoaded = true;
+		}
+
 		// Fire up the managers.  Can't do anything without these.
 		vecManager = new VectorManager(scene);
 		markerManager = new MarkerManager(scene);

@@ -23,6 +23,7 @@ package com.mousebird.maply;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.util.Log;
 
 /**
  * Convenience object used to render a single character for the 
@@ -49,8 +50,6 @@ class CharRenderer
 	
 	Glyph renderChar(int charInt,LabelInfo labelInfo,float fontSize)
 	{
-//		Log.d("Maply","Rendering char: " + charInt);
-		
 		Paint p = new Paint();
 		String str = new String(Character.toChars(charInt));
 		p.setTextSize(fontSize);
@@ -82,7 +81,9 @@ class CharRenderer
 		// Note: Porting. Probably not right
 		glyph.offsetX = 0;  glyph.offsetY = 0;
 		glyph.glyphSizeX = widths[0];  glyph.glyphSizeY = fontHeight;
-		
+
+//		Log.d("Maply","Rendering char: " + charInt + " sizeX = " + width + " sizeY = " + height);
+
 		return glyph;
 	}
 }

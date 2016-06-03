@@ -21,6 +21,7 @@ public class GestureFeedbackTestCase extends MaplyTestCase implements GlobeContr
         super(activity);
         setTestName("Gesture Feedback Test");
         setDelay(2);
+        this.implementation = TestExecutionImplementation.Both;
     }
 
     @Override

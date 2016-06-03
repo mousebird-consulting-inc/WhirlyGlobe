@@ -29,44 +29,94 @@
         android:layout_height="0.5dp"/>
     <TextView
         style="@style/NavigationDrawerSection"
+        android:id="@+id/executionSection"
+        android:text="@string/execution_mode"
+        android:drawableLeft="@drawable/ic_execution_mode"
+        android:layout_width="match_parent"/>
+    <TextView
+        style="@style/NavigationDrawerItem"
+        android:id="@+id/runInteractive"
+        android:text="@string/execution_interactive"
+        android:drawableLeft="@drawable/ic_interactive_execution"
+        android:layout_width="match_parent"/>
+    <TextView
+        style="@style/NavigationDrawerItem"
+        android:id="@+id/runMultiple"
+        android:text="@string/execution_multiple"
+        android:drawableLeft="@drawable/ic_multiple_execution"
+        android:layout_width="match_parent"/>
+    <TextView
+        style="@style/NavigationDrawerItem"
+        android:id="@+id/runSingle"
+        android:text="@string/execution_single"
+        android:drawableLeft="@drawable/ic_single_execution"
+        android:layout_width="match_parent"/>
+    <View
+        android:background="#99333333"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"/>
+    <TextView
+        style="@style/NavigationDrawerSection"
         android:id="@+id/optionsSection"
         android:text="@string/ic_action_options"
         android:drawableLeft="@drawable/ic_options_action"
-        android:layout_width="match_parent"
-        android:layout_height="?android:listPreferredItemHeightSmall"/>
+        android:layout_width="match_parent"/>
     <TextView
         style="@style/NavigationDrawerItem"
         android:id="@+id/runGlobe"
         android:text="@string/option_run_globe"
         android:drawableLeft="@drawable/ic_globe"
         android:layout_width="match_parent"
-        android:layout_height="?android:listPreferredItemHeightSmall"
         />
     <TextView
         style="@style/NavigationDrawerItem"
         android:id="@+id/runMap"
         android:text="@string/option_run_map"
         android:drawableLeft="@drawable/ic_map_icon"
-        android:layout_width="match_parent"
-        android:layout_height="?android:listPreferredItemHeightSmall"/>
+        android:layout_width="match_parent" />
     <TextView
         style="@style/NavigationDrawerItem"
         android:id="@+id/runBoth"
         android:text="@string/run_both"
         android:drawableLeft="@drawable/ic_map"
         android:layout_width="match_parent"
-        android:layout_height="?android:listPreferredItemHeightSmall"
         />
     <TextView
         style="@style/NavigationDrawerItem"
         android:id="@+id/seeView"
         android:text="See test execution on View"
         android:drawableLeft="@drawable/ic_view"
-        android:layout_width="match_parent"
-        android:layout_height="?android:listPreferredItemHeightSmall"/>
+        android:layout_width="match_parent"/>
     <View
         android:background="#99333333"
         android:layout_width="match_parent"
-        android:layout_height="0.5dp"/>
+        android:layout_height="0.5dp"
+        android:id="@+id/separator_1"/>
+
+    <TextView
+        style="@style/NavigationDrawerSection"
+        android:id="@+id/actionSection"
+        android:text="@string/action_section"
+        android:drawableLeft="@drawable/ic_list_option"
+        android:layout_width="match_parent"/>
+    <TextView
+        style="@style/NavigationDrawerItem"
+        android:id="@+id/selectAll"
+        android:text="@string/selectAll_section"
+        android:drawableLeft="@drawable/ic_selectall_action"
+        android:layout_width="match_parent"
+        />
+    <TextView
+        style="@style/NavigationDrawerItem"
+        android:id="@+id/deselectAll"
+        android:text="@string/deselectAll_option"
+        android:drawableLeft="@drawable/ic_deselectall_action"
+        android:layout_width="match_parent" />
+
+    <View
+        android:background="#99333333"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:id="@+id/separator_2"/>
 
 </merge>

@@ -2,8 +2,10 @@ package com.mousebirdconsulting.autotester.Framework;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 
 import com.mousebird.maply.GlobeController;
@@ -12,7 +14,19 @@ import com.mousebird.maply.MaplyBaseController;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.R;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+
 public class MaplyTestCase extends AsyncTask<Void, View, Void> {
+
+	public enum TestExecutionImplementation {
+		Globe, Map, Both, None;
+	}
 
 	public interface MaplyTestCaseListener {
 		void onStart(View view);
@@ -23,7 +37,6 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 	}
 
 	protected String testName;
-	protected boolean selected;
 	protected int icon = R.drawable.ic_action_selectall;
 	protected ConfigOptions.TestType options;
 	protected Activity activity;
@@ -34,13 +47,72 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 	protected MaplyTestResult globeResult;
 	protected MaplyTestResult mapResult;
 	protected MaplyTestCaseListener listener;
+	protected TestExecutionImplementation implementation = TestExecutionImplementation.None;
+	protected ArrayList<String> remoteResources = new ArrayList<>();
 
 	public MaplyTestCase(Activity activity) {
 		super();
-
 		this.activity = activity;
 	}
 
+	public boolean areResourcesDownloaded(){
+		for (int ii = 0; ii < remoteResources.size(); ii++){
+			File file = new File(ConfigOptions.getCacheDir(activity) + "/" + getFileName(remoteResources.get(ii)));
+			if (!file.exists()){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private String getFileName(String url){
+		String[] tokens = url.split("/");
+		return tokens[tokens.length-1];
+	}
+
+	public void downloadResources() {
+		for (String resourcePath : this.remoteResources) {
+			downloadFromServer(resourcePath);
+		}
+	}
+
+	private void downloadFromServer(String url) {
+		String filename = ConfigOptions.getCacheDir(activity).getPath() + "/" + getFileName(url);
+		Log.e("Download", "Downloading " + url);
+
+		try {
+			FileOutputStream fos = new FileOutputStream(filename);
+			DataInputStream dis = new DataInputStream(new URL(url).openStream());
+			try {
+				byte[] buffer = new byte[1024];
+				int length;
+
+				while ((length = dis.read(buffer)) > 0) {
+					fos.write(buffer, 0, length);
+				}
+			} finally {
+				try {
+					dis.close();
+					fos.close();
+				} catch (IOException e) {
+					Log.e("Download", "Error downloading " + url, e);
+					ConfigOptions.setTestState(getActivity(), getTestName(), ConfigOptions.TestState.Error);
+					deleteFile(getFileName(url));
+				}
+			}
+			Log.e("Download", "Download stored in " + filename);
+		} catch (Exception e) {
+			Log.e("Download", "Error downloading " + url, e);
+			ConfigOptions.setTestState(getActivity(), getTestName(), ConfigOptions.TestState.Error);
+			deleteFile(getFileName(url));
+		}
+	}
+
+	private void deleteFile(String name){
+
+		File file = new File(ConfigOptions.getCacheDir(activity) + "/" + name);
+		file.delete();
+	}
 	// Change this to set transparent backgrounds
 	int clearColor = Color.BLACK;
 
@@ -50,7 +122,10 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 	// Create the test case and start it
 	public void start()
 	{
-		if (options == ConfigOptions.TestType.BothTest || options == ConfigOptions.TestType.GlobeTest) {
+		if (ConfigOptions.getTestState(getActivity(), getTestName()) == ConfigOptions.TestState.Error || ConfigOptions.getTestState(getActivity(), getTestName()) == ConfigOptions.TestState.Downloading)
+			return;
+
+		if (options.isGlobe()) {
 			GlobeController.Settings settings = new GlobeController.Settings();
 			// Note: Turn this off for testing GLTextureView
 //			settings.useSurfaceView = false;
@@ -58,38 +133,49 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 			globeController = new GlobeController(activity,settings);
 			controller = globeController;
 		}
-		if (options == ConfigOptions.TestType.BothTest || options == ConfigOptions.TestType.MapTest) {
+		if (options.isMap()) {
 			MapController.Settings settings = new MapController.Settings();
 			settings.clearColor = clearColor;
 			mapController = new MapController(activity,settings);
 			controller = mapController;
 		}
 		success = true;
-
-		controller.addPostSurfaceRunnable(new Runnable() {
-			@Override
-			public void run() {
-				if (mapController != null) {
-					try {
-						setUpWithMap(mapController);
-					} catch (Exception ex) {
-						mapResult = new MaplyTestResult(testName + " Map Test");
-						success = false;
-					}
-				}
-				if (globeController != null) {
-					try {
-						setUpWithGlobe(globeController);
-					} catch (Exception ex) {
-						globeResult = new MaplyTestResult(testName + " Globe Test", ex);
-						success = false;
-					}
-				}
-				execute();
-			}
-		});
-
 		listener.onStart(controller.getContentView());
+		if (ConfigOptions.getViewSetting(getActivity().getApplicationContext()) == ConfigOptions.ViewMapOption.ViewMap){
+			controller.addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					implementationTest();
+				}
+			});
+		}
+		else{
+			implementationTest();
+		}
+	}
+
+	private void implementationTest() {
+		if (mapController != null) {
+			try {
+				if (setUpWithMap(mapController)) {
+					mapResult = new MaplyTestResult(testName + " Map Test");
+				}
+			} catch (Exception ex) {
+				mapResult = new MaplyTestResult(testName + " Map Test", ex);
+				success = false;
+			}
+		}
+		if (globeController != null) {
+			try {
+				if (setUpWithGlobe(globeController)) {
+					globeResult = new MaplyTestResult(testName + " Globe Test");
+				}
+			} catch (Exception ex) {
+				globeResult = new MaplyTestResult(testName + " Globe Test", ex);
+				success = false;
+			}
+		}
+		execute();
 	}
 
 	@Override
@@ -98,14 +184,38 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 
 	@Override
 	protected Void doInBackground(Void... params) {
-		if (success)
-		{
+		if (success) {
 			publishProgress(controller.getContentView());
-			if (ConfigOptions.getViewSetting(activity.getApplicationContext()) == ConfigOptions.ViewMapOption.ViewMap) {
-				try {
-					Thread.sleep(delay * 1000);
+			if (ConfigOptions.getExecutionMode(activity.getApplicationContext()) == ConfigOptions.ExecutionMode.Interactive) {
+				while (true) {
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+					}
 				}
-				catch (Exception ex) {
+			}
+			if (ConfigOptions.getViewSetting(activity.getApplicationContext()) == ConfigOptions.ViewMapOption.ViewMap) {
+				if (this.mapController != null && listener != null) {
+					try {
+						Thread.sleep(delay * 1000);
+					}
+					catch (InterruptedException ex) {
+					}
+				}
+				if (this.globeController != null && listener != null) {
+					if (options == ConfigOptions.TestType.BothTest) {
+						activity.runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								listener.onExecute(globeController.getContentView());
+							}
+						});
+					}
+					try {
+						Thread.sleep(delay * 1000);
+					}
+					catch (InterruptedException ex) {
+					}
 				}
 			}
 		}
@@ -117,13 +227,6 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 	protected void onPostExecute(Void aVoid) {
 		if (listener != null) {
 			listener.onFinish(this.mapResult, this.globeResult);
-		}
-	}
-
-	@Override
-	protected void onProgressUpdate(View... values) {
-		if (listener != null) {
-			listener.onExecute(values[0]);
 		}
 	}
 
@@ -143,14 +246,6 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 
 	public void setListener(MaplyTestCaseListener resultTestListener) {
 		this.listener = resultTestListener;
-	}
-
-	public boolean isSelected() {
-		return selected;
-	}
-
-	public void setSelected(boolean value) {
-		selected = value;
 	}
 
 	public void setOptions(ConfigOptions.TestType value) {
@@ -187,6 +282,10 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 
 	public int getDelay() {
 		return delay;
+	}
+
+	public TestExecutionImplementation getImplementation() {
+		return implementation;
 	}
 
 }

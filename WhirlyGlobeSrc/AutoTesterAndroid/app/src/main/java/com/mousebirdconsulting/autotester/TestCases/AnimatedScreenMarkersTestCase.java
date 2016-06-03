@@ -28,6 +28,7 @@ public class AnimatedScreenMarkersTestCase extends MaplyTestCase implements Acti
         super(activity);
         setTestName("Animated Screen Markers Test");
         setDelay(1000);
+        this.implementation = TestExecutionImplementation.Both;
     }
 
     @Override

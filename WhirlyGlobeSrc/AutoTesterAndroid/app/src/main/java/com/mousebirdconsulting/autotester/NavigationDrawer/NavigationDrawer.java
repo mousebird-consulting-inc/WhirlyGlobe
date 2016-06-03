@@ -21,6 +21,8 @@ import butterknife.OnClick;
 public class NavigationDrawer extends LinearLayout {
 
 	public boolean seeView = false;
+	private TextView runMapView, runGlobeView, runBothView, seeViewView, interactiveMode, multilpleMode, singleMode, selectAllAction, deselectAllAction, optionsSection, actionSection;
+	private View separator_1, separator_2;
 
 	public NavigationDrawer(Context context) {
 		this(context, null);
@@ -31,16 +33,29 @@ public class NavigationDrawer extends LinearLayout {
 
 		setOrientation(VERTICAL);
 
-
 		TypedValue typedValue = new TypedValue();
 		context.getTheme().resolveAttribute(android.R.attr.windowBackground, typedValue, true);
 		setBackgroundColor(typedValue.data);
 
 		LayoutInflater.from(context).inflate(R.layout.view_navigation_drawer, this, true);
 		ButterKnife.inject(this);
+
+		runGlobeView = (TextView) findViewById(R.id.runGlobe);
+		runBothView = (TextView) findViewById(R.id.runBoth);
+		runMapView = (TextView) findViewById(R.id.runMap);
+		seeViewView = (TextView) findViewById(R.id.seeView);
+		interactiveMode = (TextView) findViewById(R.id.runInteractive);
+		multilpleMode = (TextView) findViewById(R.id.runMultiple);
+		singleMode = (TextView) findViewById(R.id.runSingle);
+		selectAllAction = (TextView) findViewById(R.id.selectAll);
+		deselectAllAction = (TextView) findViewById(R.id.deselectAll);
+		optionsSection = (TextView) findViewById(R.id.optionsSection);
+		actionSection = (TextView) findViewById(R.id.actionSection);
+		separator_1 = (View) findViewById(R.id.separator_1);
+		separator_2 = (View) findViewById(R.id.separator_2);
 	}
 
-	@OnClick({R.id.runMap, R.id.runGlobe, R.id.runBoth, R.id.seeView})
+	@OnClick({R.id.runMap, R.id.runGlobe, R.id.runBoth, R.id.seeView, R.id.runInteractive, R.id.runMultiple, R.id.runSingle, R.id.selectAll, R.id.deselectAll})
 	void onItemClick(View view) {
 		if (getContext() instanceof Listener) {
 			((Listener) getContext()).onItemClick(view.getId());
@@ -50,11 +65,6 @@ public class NavigationDrawer extends LinearLayout {
 	public void setSelectedItemId(int itemId) {
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			TextView runMapView, runGlobeView, runBothView, seeViewView;
-			runGlobeView = (TextView) findViewById(R.id.runGlobe);
-			runBothView = (TextView) findViewById(R.id.runBoth);
-			runMapView = (TextView) findViewById(R.id.runMap);
-			seeViewView = (TextView) findViewById(R.id.seeView);
 			switch (itemId) {
 				case R.id.runMap:
 					deselectView(runBothView);
@@ -85,8 +95,52 @@ public class NavigationDrawer extends LinearLayout {
 						ConfigOptions.setViewSetting(getContext(), ConfigOptions.ViewMapOption.None);
 					}
 					break;
+				case R.id.runInteractive:
+					deselectView(multilpleMode);
+					deselectView(singleMode);
+					selectView(interactiveMode);
+					hideOptions(TextView.INVISIBLE);
+					ConfigOptions.setExecutionMode(getContext(), ConfigOptions.ExecutionMode.Interactive);
+					break;
+				case R.id.runMultiple:
+					selectView(multilpleMode);
+					deselectView(singleMode);
+					deselectView(interactiveMode);
+					hideOptions(TextView.VISIBLE);
+					ConfigOptions.setExecutionMode(getContext(), ConfigOptions.ExecutionMode.Multiple);
+					break;
+				case R.id.runSingle:
+					deselectView(multilpleMode);
+					selectView(singleMode);
+					deselectView(interactiveMode);
+					hideOptions(TextView.VISIBLE);
+					hideActions(INVISIBLE);
+					ConfigOptions.setExecutionMode(getContext(), ConfigOptions.ExecutionMode.Single);
+					break;
 			}
 		}
+	}
+
+	private void hideOptions (int visibility){
+
+		optionsSection.setVisibility(visibility);
+		actionSection.setVisibility(visibility);
+		runBothView.setVisibility(visibility);
+		runGlobeView.setVisibility(visibility);
+		runBothView.setVisibility(visibility);
+		selectAllAction.setVisibility(visibility);
+		deselectAllAction.setVisibility(visibility);
+		runMapView.setVisibility(visibility);
+		seeViewView.setVisibility(visibility);
+		separator_1.setVisibility(visibility);
+		separator_2.setVisibility(visibility);
+	}
+
+	private void hideActions(int visibility){
+		actionSection.setVisibility(visibility);
+		selectAllAction.setVisibility(visibility);
+		deselectAllAction.setVisibility(visibility);
+		separator_2.setVisibility(visibility);
 	}
 
 	private void deselectView(TextView view) {
@@ -113,6 +167,22 @@ public class NavigationDrawer extends LinearLayout {
 				break;
 			case GlobeTest:
 				setSelectedItemId(R.id.runGlobe);
+				break;
+		}
+
+		switch (ConfigOptions.getExecutionMode(getContext())){
+			case Interactive:
+				setSelectedItemId(R.id.runInteractive);
+				hideOptions(TextView.INVISIBLE);
+				break;
+			case Multiple:
+				setSelectedItemId(R.id.runMultiple);
+				hideOptions(TextView.VISIBLE);
+				break;
+			case Single:
+				setSelectedItemId(R.id.runSingle);
+				hideOptions(TextView.VISIBLE);
+				hideActions(INVISIBLE);
 				break;
 		}
 

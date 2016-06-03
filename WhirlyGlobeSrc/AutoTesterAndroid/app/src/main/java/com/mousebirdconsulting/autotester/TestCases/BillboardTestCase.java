@@ -32,6 +32,7 @@ public class BillboardTestCase extends MaplyTestCase {
         super(activity);
         setTestName("Billboard Test Case");
         setDelay(200);
+        this.implementation = TestExecutionImplementation.Globe;
     }
 
     @Override

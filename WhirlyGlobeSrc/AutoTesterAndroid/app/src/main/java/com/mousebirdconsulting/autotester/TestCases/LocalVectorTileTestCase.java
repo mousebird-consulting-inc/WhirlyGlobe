@@ -12,6 +12,7 @@ import com.mousebird.maply.MapboxVectorTileSource;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.QuadPagingLayer;
+import com.mousebird.maply.VectorStyleSimpleGenerator;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
@@ -53,7 +54,8 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
         Log.d(TAG, String.format("Obtained MBTiles SQLLite database \"%s\"", mbTiles.getAbsolutePath()));
 
         MBTiles mbTileSource = new MBTiles(mbTiles);
-        MapboxVectorTileSource tileSource = new MapboxVectorTileSource(mbTileSource);
+        VectorStyleSimpleGenerator simpleStyles = new VectorStyleSimpleGenerator(baseController);
+        MapboxVectorTileSource tileSource = new MapboxVectorTileSource(mbTileSource,simpleStyles);
 
         QuadPagingLayer layer = new QuadPagingLayer(baseController,tileSource.coordSys,tileSource);
 

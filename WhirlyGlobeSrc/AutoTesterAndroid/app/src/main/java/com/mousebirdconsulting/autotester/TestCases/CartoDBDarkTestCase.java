@@ -24,6 +24,7 @@ public class CartoDBDarkTestCase extends MaplyTestCase {
 
 		setTestName("CartoDB Dark Matter Test");
 		setDelay(20);
+		this.implementation = TestExecutionImplementation.Both;
 	}
 
 	private QuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) throws Exception {

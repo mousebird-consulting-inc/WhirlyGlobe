@@ -88,6 +88,7 @@ public class MBTilesImageTestCase extends MaplyTestCase {
         setDelay(1000);
 
         this.activity = activity;
+        this.implementation = TestExecutionImplementation.Both;
     }
 
     private QuadImageTileLayer setupImageLayer(MaplyBaseController baseController, ConfigOptions.TestType testType) throws Exception

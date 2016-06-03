@@ -28,6 +28,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		super(activity);
 		this.setTestName("Screen Labels Test");
 		this.setDelay(1000);
+		this.implementation = TestExecutionImplementation.Both;
 	}
 
 	@Override

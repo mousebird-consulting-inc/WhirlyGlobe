@@ -44,6 +44,7 @@ public class ComponentObjectLeakTestCase extends MaplyTestCase {
         super(activity);
         setTestName("ComponentObject Leak Test");
         setDelay(2000);
+        this.implementation = TestExecutionImplementation.Both;
     }
 
     @Override

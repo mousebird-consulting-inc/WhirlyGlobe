@@ -20,7 +20,11 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		super(activity);
 
 		setTestName("Stamen Remote Test");
-		setDelay(1000);
+		setDelay(4);
+		this.implementation = TestExecutionImplementation.Both;
+		
+		// Just trying...
+		//this.remoteResources.add("https://manuals.info.apple.com/en_US/macbook_retina_12_inch_early2016_essentials.pdf");
 	}
 
 	private QuadImageTileLayer setupImageLayer(MaplyBaseController baseController) {

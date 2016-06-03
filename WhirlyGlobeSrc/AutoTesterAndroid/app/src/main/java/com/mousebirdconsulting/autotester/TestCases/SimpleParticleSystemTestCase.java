@@ -32,6 +32,7 @@ public class SimpleParticleSystemTestCase extends MaplyTestCase {
 
         this.setTestName("Simple Particle System Test");
         this.setDelay(2000);
+        this.implementation = TestExecutionImplementation.Globe;
     }
 
     SimpleParticleThreadAdapter particleAdapter = null;
