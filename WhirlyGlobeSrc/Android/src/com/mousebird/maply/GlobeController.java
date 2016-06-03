@@ -396,6 +396,16 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		 */
         public void userDidTap(GlobeController globeControl,Point2d loc,Point2d screenLoc);
 
+
+		/**
+		 * The user did long press somewhere, there might be an object
+		 * @param globeControl The maply controller this is associated with.
+		 * @param selObj The object the user selected (e.g. MaplyScreenMarker) or null if there was no object.
+		 * @param loc The location they tapped on.  This is in radians.  If null, then the user tapped outside the globe.
+         * @param screenLoc The location on the OpenGL surface.
+         */
+        public void userDidLongPress(GlobeController globeControl, Object selObj, Point2d loc, Point2d screenLoc);
+
         /**
          * Called when the globe first starts moving.
          *
@@ -421,6 +431,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		 * @param userMotion Set if the motion was caused by a gesture.
          */
 		public void globeDidMove(GlobeController globeControl,Point3d corners[], boolean userMotion);
+
 	}
 
 	/**
@@ -438,27 +449,82 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 			if (loc == null)
 				return;
 
-			// Look for a selection first
-			long selectID = selectionManager.pickObject(globeView, screenLoc);
-			if (selectID != EmptyIdentity)
-			{
-				// Look for the object
-				Object selObj = null;
-				synchronized(selectionMap)
-				{
-					selObj = selectionMap.get(selectID);
-				}
+//			// Look for a selection first
+//			long selectID = selectionManager.pickObject(globeView, screenLoc);
+//			if (selectID != EmptyIdentity)
+//			{
+//				// Look for the object
+//				Object selObj = null;
+//				synchronized(selectionMap)
+//				{
+//					selObj = selectionMap.get(selectID);
+//				}
+//
+//				// Let the delegate know the user selected something
+//				gestureDelegate.userDidSelect(this, selObj, loc.toPoint2d(), screenLoc);
+//			} else
+//			{
+//				// Just a simple tap, then
+//				gestureDelegate.userDidTap(this, loc.toPoint2d(), screenLoc);
+//			}
 
-				// Let the delegate know the user selected something
+			//TODO Steve I am not sure the logic below the logic is equivalent to the above (question is can selObj be null when selectID != EmptyIdentity
+
+			Object selObj = this.getObjectAtScreenLoc(screenLoc);
+
+			if (selObj != null)
+			{
 				gestureDelegate.userDidSelect(this, selObj, loc.toPoint2d(), screenLoc);
 			} else
-			{
 				// Just a simple tap, then
 				gestureDelegate.userDidTap(this, loc.toPoint2d(), screenLoc);
-			}
 		}
 	}
-	
+
+
+	/**
+	 * Set the gesture delegate to fire callbacks when the user did long press somwhere
+	 * @param screenLoc
+     */
+    public void processLongPress(Point2d screenLoc)
+	{
+		Matrix4d globeTransform = globeView.calcModelViewMatrix();
+		Point3d loc = globeView.pointOnSphereFromScreen(screenLoc, globeTransform, renderWrapper.maplyRender.frameSize, false);
+		if (loc == null)
+			return;
+
+		if (gestureDelegate != null)
+		{
+			Object selObj = this.getObjectAtScreenLoc(screenLoc);
+			gestureDelegate.userDidLongPress(this, selObj, loc.toPoint2d(), screenLoc);
+
+		}
+
+	}
+
+	/**
+	 * Returns an object (if any) at a given screen location
+	 * @param screenLoc the screen location to be considered
+	 * @return teh object at screenLoc or null if none was there
+     */
+    private Object getObjectAtScreenLoc(Point2d screenLoc)
+	{
+		long selectID = selectionManager.pickObject(globeView, screenLoc);
+		if (selectID != EmptyIdentity)
+		{
+			// Look for the object
+			Object selObj = null;
+			synchronized(selectionMap)
+			{
+				selObj = selectionMap.get(selectID);
+			}
+
+			return selObj;
+		}
+
+		return null;
+	}
+
 	// Pass the touches on to the gesture handler
 	@Override
 	public boolean onTouch(View view, MotionEvent e) {

@@ -49,6 +49,11 @@ public class MBTilesImageTestCase extends MaplyTestCase {
         }
 
         @Override
+        public void userDidLongPress(GlobeController globeController, Object o, Point2d loc, Point2d screenLoc) {
+            // Intentionally blank
+        }
+
+        @Override
         public void globeDidStartMoving(GlobeController controller, boolean userInitiated) {
             // Intentionally blank
         }
