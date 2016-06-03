@@ -200,6 +200,8 @@ protected:
 /// A set of strings
 typedef std::set<std::string> StringSet;
     
+Point2d CalcCenterOfMass(const Point2dVector &loop);
+    
 /// Break any edge longer than the given length.
 /// Returns true if it broke anything
 void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float maxLen);

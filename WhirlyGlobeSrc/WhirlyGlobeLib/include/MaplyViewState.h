@@ -31,6 +31,11 @@ class MapViewState : public WhirlyKit::ViewState
 {
 public:
     MapViewState(MapView *mapView,WhirlyKit::SceneRendererES *renderer);
+
+	/// Height above globe at this view state
+    double heightAboveSurface;
+
+	bool pointOnPlaneFromScreen(WhirlyKit::Point2d pt, Eigen::Matrix4d transform, WhirlyKit::Point2f frameSize, WhirlyKit::Point3d hit, bool clip);
 };
 
 // Generate MapViewState objects as required

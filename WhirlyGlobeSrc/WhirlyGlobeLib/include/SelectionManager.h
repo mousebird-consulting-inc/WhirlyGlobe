@@ -190,6 +190,7 @@ public:
         SimpleIdentity selectID;    // What we selected
         double distIn3D;            // 3D distance from eye
         double screenDist;          // 2D distance in screen space
+        bool isCluster;             // Set if this is a cluster
     };
 
     /// Add a rectangle (in 3-space) for selection

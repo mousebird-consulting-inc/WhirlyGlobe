@@ -222,8 +222,10 @@ class ScreenSpaceObjectLocation
 public:
     ScreenSpaceObjectLocation();
 
-    // ID for selector
-    SimpleIdentity shapeID;
+    // IDs for selected objects (one if regular, more than one for cluster)
+    std::vector<SimpleIdentity> shapeIDs;
+    // Set if this is a cluster
+    bool isCluster;
     // Location of object in display space
     Point3d dispLoc;
     // Offset on the screen (presumably if it's been moved around during layout)

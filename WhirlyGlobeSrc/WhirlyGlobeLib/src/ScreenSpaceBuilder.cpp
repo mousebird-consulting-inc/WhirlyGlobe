@@ -489,7 +489,7 @@ void ScreenSpaceObject::addGeometry(const ConvexGeometry &geom)
 }
     
 ScreenSpaceObjectLocation::ScreenSpaceObjectLocation()
-: shapeID(EmptyIdentity), dispLoc(0,0,0), offset(0,0)
+	: isCluster(false), dispLoc(0,0,0), offset(0,0)
 {
     
 }
