@@ -50,6 +50,11 @@ public class GestureFeedbackTestCase extends MaplyTestCase implements GlobeContr
     }
 
     @Override
+    public void userDidLongPress(GlobeController globeController, Object o, Point2d loc, Point2d screenLoc) {
+        Log.i("AutoTester","User long pressed at " + loc.getX() + " " + loc.getY());
+    }
+
+    @Override
     public void globeDidStartMoving(GlobeController globeVC, boolean b) {
         Log.i("AutoTester","User did start moving");
     }

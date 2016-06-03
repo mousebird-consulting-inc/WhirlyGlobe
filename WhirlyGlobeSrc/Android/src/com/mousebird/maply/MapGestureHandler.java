@@ -33,7 +33,7 @@ import android.view.View;
  * create your own subclass of this. 
  *
  */
-public class MapGestureHandler 
+public class MapGestureHandler
 {
 	MapController mapControl = null;
 	MapView mapView = null;
@@ -253,7 +253,9 @@ public class MapGestureHandler
 		public void onLongPress(MotionEvent e) 
 		{
 //			Log.d("Maply","Long Press");
+			mapControl.processLongPress(new Point2d(e.getX(),e.getY()));
 		}
+
 
 		@Override
 		public void onShowPress(MotionEvent e) 

@@ -19,7 +19,6 @@ import com.mousebirdconsulting.autotester.MainActivity;
 import com.mousebirdconsulting.autotester.R;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedScreenMarkersTestCase;
-import com.mousebirdconsulting.autotester.TestCases.ArealTestCase;
 import com.mousebirdconsulting.autotester.TestCases.AtmosphereTestCase;
 import com.mousebirdconsulting.autotester.TestCases.BillboardTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CartoDBDarkTestCase;
@@ -118,7 +117,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new MBTilesImageTestCase(getActivity()));
 			testCases.add(new BillboardTestCase(getActivity()));
 			testCases.add(new LocalVectorTileTestCase(getActivity()));
-			testCases.add(new ArealTestCase(getActivity()));
+//			testCases.add(new ArealTestCase(getActivity()));
 		}
 
 		public void downloadResources() {

@@ -44,6 +44,7 @@ import java.util.List;
  */
 public class MapController extends MaplyBaseController implements View.OnTouchListener
 {
+
 	/**
 	 * Settings are parameters we need at the very start of the
 	 * setup process.
@@ -381,6 +382,15 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		 * @param screenLoc The location on the OpenGL surface.
 		 */
 		void userDidTap(MapController mapControl,Point2d loc,Point2d screenLoc);
+
+		/**
+		 * The user long pressed somewhere, either on a selectable object or nor
+		 * @param mapController The maply controller this is associated with.
+		 * @param selObj The object (e.g. MaplyScreenMarker) that the user long pressed or null if there was none
+		 * @param loc The location they tapped on.  This is in radians.
+         * @param screenLoc The location on the OpenGL surface.
+         */
+        void userDidLongPress(MapController mapController, Object selObj, Point2d loc, Point2d screenLoc);
 	}
 
 	/**
@@ -396,23 +406,77 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 			Matrix4d mapTransform = mapView.calcModelViewMatrix();
 			Point3d loc = mapView.pointOnPlaneFromScreen(screenLoc, mapTransform, renderWrapper.maplyRender.frameSize, false);
 			
-			// Look for a selection first
-			long selectID = selectionManager.pickObject(mapView, screenLoc);
-			if (selectID != EmptyIdentity)
+//			// Look for a selection first
+//			long selectID = selectionManager.pickObject(mapView, screenLoc);
+//			if (selectID != EmptyIdentity)
+//			{
+//				// Look for the object
+//				Object selObj = null;
+//				synchronized(selectionMap)
+//				{
+//					selObj = selectionMap.get(selectID);
+//				}
+//
+//				// Let the delegate know the user selected something
+//				gestureDelegate.userDidSelect(this, selObj, loc.toPoint2d(), screenLoc);
+//			} else
+//				// Just a simple tap, then
+//				gestureDelegate.userDidTap(this, loc.toPoint2d(), screenLoc);
+
+			//TODO Steve I am not sure the logic below the logic is equivalent to the above (question is can selObj be null when selectID != EmptyIdentity
+
+			Object selObj = this.getObjectAtScreenLoc(screenLoc);
+
+			if (selObj != null)
 			{
-				// Look for the object
-				Object selObj = null;
-				synchronized(selectionMap)
-				{
-					selObj = selectionMap.get(selectID);
-				}
-				
-				// Let the delegate know the user selected something
 				gestureDelegate.userDidSelect(this, selObj, loc.toPoint2d(), screenLoc);
-			} else 
+			} else
 				// Just a simple tap, then
 				gestureDelegate.userDidTap(this, loc.toPoint2d(), screenLoc);
 		}
+	}
+
+
+	/**
+	 * Called by the gesture handler to let us know the user long pressed somewhere
+	 * @param screenLoc
+     */
+    public void processLongPress(Point2d screenLoc) {
+
+		Matrix4d mapTransform = mapView.calcModelViewMatrix();
+		Point3d loc = mapView.pointOnPlaneFromScreen(screenLoc, mapTransform, renderWrapper.maplyRender.frameSize, false);
+
+		if (gestureDelegate != null)
+		{
+			Object selObj = this.getObjectAtScreenLoc(screenLoc);
+			gestureDelegate.userDidLongPress(this, selObj, loc.toPoint2d(), screenLoc);
+
+		}
+
+	}
+
+
+	/**
+	 * Returns an object (if any) at a given screen location
+	 * @param screenLoc the screen location to be considered
+	 * @return teh object at screenLoc or null if none was there
+	 */
+	private Object getObjectAtScreenLoc(Point2d screenLoc)
+	{
+		long selectID = selectionManager.pickObject(mapView, screenLoc);
+		if (selectID != EmptyIdentity)
+		{
+			// Look for the object
+			Object selObj = null;
+			synchronized(selectionMap)
+			{
+				selObj = selectionMap.get(selectID);
+			}
+
+			return selObj;
+		}
+
+		return null;
 	}
 	
 	// Pass the touches on to the gesture handler

@@ -310,6 +310,7 @@ public class GlobeGestureHandler
 		public void onLongPress(MotionEvent e) 
 		{
 //			Log.d("Maply","Long Press");
+			globeControl.processLongPress(new Point2d(e.getX(),e.getY()));
 		}
 
 		@Override
