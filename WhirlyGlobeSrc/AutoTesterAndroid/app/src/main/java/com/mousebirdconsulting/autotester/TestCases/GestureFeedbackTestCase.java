@@ -26,7 +26,7 @@ public class GestureFeedbackTestCase extends MaplyTestCase implements GlobeContr
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        CartoDBDarkTestCase mapBoxSatelliteTestCase = new CartoDBDarkTestCase(this.getActivity());
+        CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(this.getActivity());
         mapBoxSatelliteTestCase.setUpWithGlobe(globeVC);
         globeVC.gestureDelegate = this;
         return true;
@@ -34,7 +34,7 @@ public class GestureFeedbackTestCase extends MaplyTestCase implements GlobeContr
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        CartoDBDarkTestCase mapBoxSatelliteTestCase = new CartoDBDarkTestCase(this.getActivity());
+        CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(this.getActivity());
         mapBoxSatelliteTestCase.setUpWithMap(mapVC);
         return true;
     }

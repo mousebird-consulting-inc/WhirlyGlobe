@@ -64,7 +64,7 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        CartoDBDarkTestCase baseCase = new CartoDBDarkTestCase(getActivity());
+        CartoDBMapTestCase baseCase = new CartoDBMapTestCase(getActivity());
         baseCase.setUpWithGlobe(globeVC);
         globeVC.addLayer(setupVectorLayer(globeVC, ConfigOptions.TestType.GlobeTest));
 
@@ -76,7 +76,7 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        CartoDBDarkTestCase baseCase = new CartoDBDarkTestCase(getActivity());
+        CartoDBMapTestCase baseCase = new CartoDBMapTestCase(getActivity());
         baseCase.setUpWithMap(mapVC);
         mapVC.addLayer(setupVectorLayer(mapVC, ConfigOptions.TestType.MapTest));
 
