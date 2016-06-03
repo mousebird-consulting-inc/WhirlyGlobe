@@ -213,6 +213,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLayoutImportance
 			return;
 
 		info->layoutImportance = importance;
+        info->layoutEngine = info->layoutImportance < 1e20;
 	}
 	catch (...)
 	{

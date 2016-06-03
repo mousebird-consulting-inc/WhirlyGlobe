@@ -113,7 +113,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
         
         // We set this if the color is embedded in the "font"
 //        bool embeddedColor = (labelInfo->outlineSize > 0.0 || label->desc.hasField(MaplyTextOutlineSize));
-        // Note: Porting.  Not clear if this makes
+        // Note: Porting.  Not clear if this makes sense
         bool embeddedColor = true;
         DrawableString *drawStr = label->generateDrawableString(labelInfo,fontTexManager,changes);
 
@@ -179,18 +179,19 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                     // Note: This is an arbitrary border around the text
                     float backBorder = 4.0;
                     ScreenSpaceObject::ConvexGeometry smGeom;
-                    Point2d ll = Point2d(drawStr->mbr.ll().x(),drawStr->mbr.ll().y())+iconOff+Point2d(-backBorder,-backBorder), ur = Point2d(drawStr->mbr.ur().x(),drawStr->mbr.ur().y())+iconOff+Point2d(backBorder,backBorder);
-                    smGeom.coords.push_back(Point2d(ll.x()+label->screenOffset.x(),-ll.y()+label->screenOffset.y())+justifyOff);
+                    smGeom.progID = labelInfo->programID;
+                    Point2d ll = Point2d(drawStr->mbr.ll().x(),drawStr->mbr.ll().y())+iconOff+Point2d(-backBorder,-backBorder), ur = Point2d(drawStr->mbr.ur().x(),drawStr->mbr.ur().y())+iconOff+Point2d(backBorder,0.0);
+                    smGeom.coords.push_back(Point2d(ll.x()+label->screenOffset.x(),ll.y()-label->screenOffset.y())+justifyOff);
                     smGeom.texCoords.push_back(TexCoord(0,1));
                     
-                    smGeom.coords.push_back(Point2d(ll.x()+label->screenOffset.x(),-ur.y()+label->screenOffset.y())+justifyOff);
-                    smGeom.texCoords.push_back(TexCoord(1,1));
-                    
-                    smGeom.coords.push_back(Point2d(ur.x()+label->screenOffset.x(),-ur.y()+label->screenOffset.y())+justifyOff);
-                    smGeom.texCoords.push_back(TexCoord(1,0));
-                    
-                    smGeom.coords.push_back(Point2d(ur.x()+label->screenOffset.x(),-ll.y()+label->screenOffset.y())+justifyOff);
+                    smGeom.coords.push_back(Point2d(ur.x()+label->screenOffset.x(),ll.y()-label->screenOffset.y())+justifyOff);
                     smGeom.texCoords.push_back(TexCoord(0,0));
+
+                    smGeom.coords.push_back(Point2d(ur.x()+label->screenOffset.x(),ur.y()-label->screenOffset.y())+justifyOff);
+                    smGeom.texCoords.push_back(TexCoord(1,0));
+
+                    smGeom.coords.push_back(Point2d(ll.x()+label->screenOffset.x(),ur.y()-label->screenOffset.y())+justifyOff);
+                    smGeom.texCoords.push_back(TexCoord(1,1));
                     
                     smGeom.color = backColor;
                     // Note: This would be a great place for a texture
@@ -206,7 +207,6 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                     if (ss == 1)
                     {
                         soff = Point2d(0,0);
-                        // Note: Debugging
                         color = embeddedColor ? RGBAColor(255,255,255,255) : theTextColor;
                     } else {
                         soff = Point2d(theShadowSize,theShadowSize);

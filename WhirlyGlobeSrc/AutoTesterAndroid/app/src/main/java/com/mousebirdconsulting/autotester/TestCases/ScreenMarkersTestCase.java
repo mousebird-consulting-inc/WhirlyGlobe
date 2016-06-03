@@ -57,7 +57,8 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 		MarkerInfo markerInfo = new MarkerInfo();
 		Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.testtarget);
 		markerInfo.setMinVis(0.f);
-		markerInfo.setMaxVis(1.5f);
+		markerInfo.setMaxVis(2.5f);
+//		markerInfo.setLayoutImportance(1.f);
 
 		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
 		for (VectorObject vector : vectors) {

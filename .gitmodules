@@ -34,3 +34,6 @@
 [submodule "third-party/fmdb"]
 	path = third-party/fmdb
 	url = https://github.com/ccgus/fmdb.git
+[submodule "third-party/protobuf"]
+	path = third-party/protobuf
+	url = https://github.com/mousebird/protobuf.git

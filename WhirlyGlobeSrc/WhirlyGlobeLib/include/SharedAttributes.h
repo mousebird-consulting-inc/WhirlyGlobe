@@ -98,6 +98,8 @@
 #define MaplyTextOutlineSize WKString("outlineSize")
 /// If outline is being used, we can control the stroke size
 #define MaplyTextOutlineColor WKString("outlineColor")
+/// If set, the importance passed to the layout engine
+#define MaplyLayoutImportance WKString("layoutImportance")
 
 /// These are used for screen and regular markers.
 

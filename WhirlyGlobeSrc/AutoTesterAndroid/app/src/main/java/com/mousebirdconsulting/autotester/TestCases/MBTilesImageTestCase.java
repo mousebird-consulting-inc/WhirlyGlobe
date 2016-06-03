@@ -6,7 +6,8 @@ import android.content.ContextWrapper;
 import android.util.Log;
 
 import com.mousebird.maply.GlobeController;
-import com.mousebird.maply.MBTilesSource;
+import com.mousebird.maply.MBTiles;
+import com.mousebird.maply.MBTilesImageSource;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.Mbr;
@@ -101,7 +102,8 @@ public class MBTilesImageTestCase extends MaplyTestCase {
 
         Log.d(TAG, String.format("Obtained MBTiles SQLLite database \"%s\"", mbTiles.getAbsolutePath()));
 
-        MBTilesSource tileSource = new MBTilesSource(mbTiles);
+        MBTiles mbTilesFile = new MBTiles(mbTiles);
+        MBTilesImageSource tileSource = new MBTilesImageSource(mbTilesFile);
         QuadImageTileLayer imageLayer = new QuadImageTileLayer(baseController, tileSource.coordSys, tileSource);
         imageLayer.setCoverPoles(true);
         imageLayer.setHandleEdges(true);

@@ -38,10 +38,22 @@ public class BaseInfo
     public native void setDrawPriority(int drawPriority);
 
     /**
+     * Get the drawPriority for the geometry.  Draw priority controls the order
+     * in which features are drawn.
+     */
+    public native int getDrawPriority();
+
+    /**
      * Set the minimum cutoff for visibility of the feature.  This is the closest height the
      * feature will be visible from.  Defaults to 0.0 (always visible).
      */
     public native void setMinVis(float minVis);
+
+    /**
+     * Returns the minimum cutoff for visibility of the feature.  This is the closest height the
+     * feature will be visible from.  Defaults to 0.0 (always visible).
+     */
+    public native float getMinVis();
 
     /**
      * Set the maximum cutoff for visibility of the features.  This is the biggest height the
@@ -50,10 +62,22 @@ public class BaseInfo
     public native void setMaxVis(float maxVis);
 
     /**
+     * Returns the maximum cutoff for visibility of the features.  This is the biggest height the
+     * features will be visible from.  Defaults to off.
+     */
+    public native float getMaxVis();
+
+    /**
      * The amount of time (in seconds) it takes for new geometry
      * to fade in and fade out.  By default, fade is off.
      */
     public native void setFade(float fade);
+
+    /**
+     * The amount of time (in seconds) it takes for new geometry
+     * to fade in and fade out.  By default, fade is off.
+     */
+    public native float getFade();
 
     /**
      * Set the shader to be used in rendering the given objects.

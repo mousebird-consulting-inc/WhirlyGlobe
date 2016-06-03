@@ -131,6 +131,9 @@ public:
 
 		return classInfoObj;
 	}
+    
+    // Return the Java class
+    jclass getClass() { return theClass; }
 
 protected:
 	jclass theClass;
@@ -387,7 +390,6 @@ public:
     jdouble *rawDouble;
 };
 
-
 namespace WhirlyKit
 {
 typedef Eigen::Vector4d Point4d;
@@ -462,6 +464,7 @@ typedef JavaClassInfo<WhirlyKit::BillboardManager> BillboardManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::SimplePoly> SimplePolyClassInfo;
 typedef JavaClassInfo<WhirlyKit::StringWrapper> StringWrapperClassInfo;
 typedef JavaClassInfo<WhirlyKit::ScreenObject> ScreenObjectClassInfo;
+typedef JavaClassInfo<WhirlyKit::MapboxVectorTileParser> MapboxVectorTileParserClassInfo;
 
 // The shared JNIEnv set in the ::render call
 extern JNIEnv *maplyCurrentEnv;

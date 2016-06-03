@@ -125,7 +125,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addLinear
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mousebird_maply_Point2d_2
   (JNIEnv *env, jobject obj, jobjectArray ptsObj)
 {
 	try
@@ -155,6 +155,48 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::addAreal()");
 	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mousebird_maply_Point2d_2_3_3Lcom_mousebird_maply_Point2d_2
+(JNIEnv *env, jobject obj, jobjectArray outerLoopObj, jobjectArray holesArray)
+{
+    try
+    {
+        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+        VectorObject *vecObj = classInfo->getObject(env,obj);
+        if (!vecObj)
+            return;
+        Point2dClassInfo *point2dClassInfo = Point2dClassInfo::getClassInfo();
+        
+        VectorArealRef ar = VectorAreal::createAreal();
+        ar->loops.resize(1+env->GetArrayLength(holesArray));
+
+        for (int loop=0;loop<ar->loops.size();loop++)
+        {
+            jobjectArray ptsObj = loop == 0 ? outerLoopObj : (jobjectArray)env->GetObjectArrayElement(holesArray,loop-1);
+            
+            int count = env->GetArrayLength(ptsObj);
+            if (count == 0)
+                continue;
+            for (int ii=0;ii<count;ii++)
+            {
+                jobject ptObj = env->GetObjectArrayElement(ptsObj,ii);
+                Point2d *pt = point2dClassInfo->getObject(env,ptObj);
+                ar->loops[loop].push_back(GeoCoord(pt->x(),pt->y()));
+                env->DeleteLocalRef(ptObj);
+            }
+            
+            if (loop > 0)
+                env->DeleteLocalRef(ptsObj);
+        }
+
+        ar->initGeoMbr();
+        vecObj->shapes.insert(ar);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::addArealWithHoles()");
+    }
 }
 
 jboolean Java_com_mousebird_maply_VectorObject_fromGeoJSON

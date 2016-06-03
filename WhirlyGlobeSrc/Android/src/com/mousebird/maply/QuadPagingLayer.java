@@ -271,6 +271,19 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	}
 
 	/**
+	 * Calculate the bounding box in the local coordinate system.
+	 * @param tileID
+	 * @return
+     */
+	public Mbr boundsForTile(MaplyTileID tileID)
+	{
+		Mbr mbr = new Mbr(new Point2d(0,0),new Point2d(0,0));
+		boundsForTileNative(tileID.x,tileID.y,tileID.level,mbr.ll,mbr.ur);
+		return mbr;
+	}
+	protected native void boundsForTileNative(int x,int y,int level,Point2d ll,Point2d ur);
+
+	/**
 	 * Calculate the bounding box for a given tile in geographic, that is in 
 	 * WGS84 longitude/latitude radians.
 	 */
@@ -280,7 +293,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		geoBoundsForTileNative(tileID.x,tileID.y,tileID.level,mbr.ll,mbr.ur);
 		return mbr;
 	}
-	public native void geoBoundsForTileNative(int x,int y,int level,Point2d ll,Point2d ur);
+	protected native void geoBoundsForTileNative(int x,int y,int level,Point2d ll,Point2d ur);
 	
 	// Called by the native side when it's time to load a tile
 	void loadTile(int x,int y,int level)

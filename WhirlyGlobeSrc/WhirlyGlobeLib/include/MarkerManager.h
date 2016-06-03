@@ -70,6 +70,7 @@ public:
     bool screenObject;
     float width,height;
     SimpleIdentity markerId;
+    float layoutImportance;
 };
 
 /** WhirlyKit Marker

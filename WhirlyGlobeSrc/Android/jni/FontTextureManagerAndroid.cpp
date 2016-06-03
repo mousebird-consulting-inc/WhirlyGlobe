@@ -25,7 +25,7 @@
 namespace WhirlyKit
 {
 
-static const float BogusFontScale = 2.0;
+static const float BogusFontScale = 1.0;
 
 FontTextureManagerAndroid::FontManagerAndroid::FontManagerAndroid(JNIEnv *env,jobject inTypefaceObj)
 {

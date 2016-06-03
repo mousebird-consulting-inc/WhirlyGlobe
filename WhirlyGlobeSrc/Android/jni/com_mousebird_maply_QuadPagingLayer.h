@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_QuadPagingLayer
+ * Method:    boundsForTileNative
+ * Signature: (IIILcom/mousebird/maply/Point2d;Lcom/mousebird/maply/Point2d;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_boundsForTileNative
+  (JNIEnv *, jobject, jint, jint, jint, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadPagingLayer
  * Method:    geoBoundsForTileNative
  * Signature: (IIILcom/mousebird/maply/Point2d;Lcom/mousebird/maply/Point2d;)V
  */

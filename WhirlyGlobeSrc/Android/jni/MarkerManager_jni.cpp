@@ -102,10 +102,6 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
             markerInfo->programID = markerManager->getScene()->getProgramIDBySceneName(kToolkitDefaultScreenSpaceProgram);
         }
         
-        // Note: Porting
-        // Nudge the screen space drawables past the rest
-        markerInfo->drawPriority += 100000;
-
 		// Note: Porting
 		// Note: Shouldn't have to set this
     	markerInfo->markerId = Identifiable::genId();
