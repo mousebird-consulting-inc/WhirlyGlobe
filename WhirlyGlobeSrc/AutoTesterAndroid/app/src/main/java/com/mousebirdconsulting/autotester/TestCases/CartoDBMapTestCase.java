@@ -39,9 +39,9 @@ public class CartoDBMapTestCase extends MaplyTestCase {
 
 		if (testType == ConfigOptions.TestType.MapTest)
 		{
-			baseLayer.setSingleLevelLoading(true);
-			baseLayer.setUseTargetZoomLevel(true);
-			baseLayer.setMultiLevelLoads(new int[]{-3});
+//			baseLayer.setSingleLevelLoading(true);
+//			baseLayer.setUseTargetZoomLevel(true);
+//			baseLayer.setMultiLevelLoads(new int[]{-3});
 			baseLayer.setCoverPoles(false);
 			baseLayer.setHandleEdges(false);
 		} else {

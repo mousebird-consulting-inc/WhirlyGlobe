@@ -145,7 +145,7 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
             }
         };
 
-        thread.run();
+        thread.start();
     }
 
     /**

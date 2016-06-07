@@ -52,7 +52,7 @@ public class Shader
         control = inControl;
 		boolean okay = true;
 		if (Looper.myLooper() == Looper.getMainLooper())
-			okay = control.setEGLContext();
+			okay = control.setEGLContext(null);
 
 		if (okay)
 			initialise(name,vertexSrc,fragSrc);
@@ -85,8 +85,7 @@ public class Shader
 	 */
 	public void addTexture(String name,MaplyTexture texture)
 	{
-		if (Looper.myLooper() == Looper.getMainLooper())
-			control.setEGLContext();
+		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
 
 		textures.add(texture);
 
@@ -95,6 +94,8 @@ public class Shader
 //        Log.d("Maply","addTexture texID " + texture.texID);
 
 		addTextureNative(control.getScene(),name,texture.texID);
+
+		control.clearTempContext(context);
 	}
 
 	native void addTextureNative(Scene scene,String name,long texID);
@@ -105,12 +106,14 @@ public class Shader
 	 */
 	public boolean setUniform(String name,double uni)
 	{
-		if (Looper.myLooper() == Looper.getMainLooper())
-			control.setEGLContext();
+		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
 
 		control.requestRender();
 
-		return setUniformNative(name,uni);
+		boolean ret = setUniformNative(name,uni);
+		control.clearTempContext(context);
+
+		return ret;
 	}
 
 	public native boolean setUniformNative(String name,double uni);
@@ -121,12 +124,14 @@ public class Shader
 	 */
 	public boolean setUniform(String name,int uni)
 	{
-		if (Looper.myLooper() == Looper.getMainLooper())
-			control.setEGLContext();
+		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
 
 		control.requestRender();
 
-		return setUniformNative(name,uni);
+		boolean ret = setUniformNative(name,uni);
+		control.clearTempContext(context);
+
+		return ret;
 	}
 
 	public native boolean setUniformNative(String name,int uni);
@@ -139,12 +144,14 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point2d pt)
 	{
-		if (Looper.myLooper() == Looper.getMainLooper())
-			control.setEGLContext();
+		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
 
 		control.requestRender();
 
-		return setUniformNative(name,pt.getX(),pt.getY());
+		boolean ret = setUniformNative(name,pt.getX(),pt.getY());
+		control.clearTempContext(context);
+
+		return ret;
 	}
 
 	/**
@@ -155,12 +162,14 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point3d pt)
 	{
-		if (Looper.myLooper() == Looper.getMainLooper())
-			control.setEGLContext();
+		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
 
 		control.requestRender();
 
-		return setUniformNative(name, pt.getX(), pt.getY(), pt.getZ());
+		boolean ret = setUniformNative(name, pt.getX(), pt.getY(), pt.getZ());
+		control.clearTempContext(context);
+
+		return ret;
 	}
 
 	/**
@@ -171,12 +180,14 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point4d pt)
 	{
-		if (Looper.myLooper() == Looper.getMainLooper())
-			control.setEGLContext();
+		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
 
 		control.requestRender();
 
-		return setUniformNative(name, pt.getX(), pt.getY(), pt.getZ(), pt.getW());
+		boolean ret = setUniformNative(name, pt.getX(), pt.getY(), pt.getZ(), pt.getW());
+		control.clearTempContext(context);
+
+		return ret;
 	}
 
 	native boolean setUniformNative(String name,double uniX,double uniY);
