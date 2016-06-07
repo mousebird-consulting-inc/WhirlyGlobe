@@ -296,10 +296,11 @@ static double MAX_EXTENT = 20037508.342789244;
                                     y += (static_cast<double>(dy) / scale);
                                     //At this point x/y is a coord is encoded in tile coord space, from 0 to TILE_SIZE
                                     //Covert to epsg:3785, then to degrees, then to radians
-                                    point.x() = DegToRad(((tileOriginX + x / sx) / MAX_EXTENT) * 180.0);
-                                    point.y() = 2 * atan(exp(DegToRad(((tileOriginY - y / sy) / MAX_EXTENT) * 180.0))) - M_PI_2;
-                                    
-                                    shape->pts.push_back(point);
+                                    if(x > 0 && x < 256 && y > 0 && y < 256) {
+                                        point.x() = DegToRad(((tileOriginX + x / sx) / MAX_EXTENT) * 180.0);
+                                        point.y() = 2 * atan(exp(DegToRad(((tileOriginY - y / sy) / MAX_EXTENT) * 180.0))) - M_PI_2;
+                                        shape->pts.push_back(point);
+                                    }
                                 } else if (cmd == (SEG_CLOSE & ((1 << cmd_bits) - 1))) {
                                     NSLog(@"Close point feature?");
                                 } else {
@@ -307,23 +308,26 @@ static double MAX_EXTENT = 20037508.342789244;
                                 }
                             }
                         }
-                        
-                        shape->initGeoMbr();
-                        [vecObj addShape:shape];
+                        if(shape->pts.size() > 0) {
+                            shape->initGeoMbr();
+                            [vecObj addShape:shape];
+                        }
                     } else if(g_type == GeomTypeUnknown) {
                         NSLog(@"Unknown geom type");
                     }
                 } catch(...) {
                     NSLog(@"Error parsing feature");
                 }
-                
-                for(NSObject<MaplyVectorStyle> *style in styles) {
-                    NSMutableArray *featuresForStyle = featureStyles[style.uuid];
-                    if(!featuresForStyle) {
-                        featuresForStyle = [NSMutableArray new];
-                        featureStyles[style.uuid] = featuresForStyle;
+              
+                if(vecObj.shapes.size() > 0) {
+                    for(NSObject<MaplyVectorStyle> *style in styles) {
+                        NSMutableArray *featuresForStyle = featureStyles[style.uuid];
+                        if(!featuresForStyle) {
+                            featuresForStyle = [NSMutableArray new];
+                            featureStyles[style.uuid] = featuresForStyle;
+                        }
+                        [featuresForStyle addObject:vecObj];
                     }
-                    [featuresForStyle addObject:vecObj];
                 }
                 vecObj.attributes = attributes;
             } //end of iterating features
