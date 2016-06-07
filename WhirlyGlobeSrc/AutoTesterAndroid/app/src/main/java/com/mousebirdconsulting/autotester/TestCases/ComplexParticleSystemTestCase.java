@@ -39,7 +39,7 @@ public class ComplexParticleSystemTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithGlobe(final GlobeController globeVC) throws Exception {
-        CartoDBDarkTestCase baseView = new CartoDBDarkTestCase(getActivity());
+        CartoDBMapTestCase baseView = new CartoDBMapTestCase(getActivity());
         baseView.setUpWithGlobe(globeVC);
 
         // Kick off the particle thread

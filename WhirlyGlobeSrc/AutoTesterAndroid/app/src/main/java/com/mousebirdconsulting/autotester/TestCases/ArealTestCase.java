@@ -47,7 +47,7 @@ public class ArealTestCase extends MaplyTestCase
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        CartoDBDarkTestCase baseTestCase = new CartoDBDarkTestCase(getActivity());
+        CartoDBMapTestCase baseTestCase = new CartoDBMapTestCase(getActivity());
         baseTestCase.setUpWithMap(mapVC);
         addAreal(mapVC);
 
@@ -58,7 +58,7 @@ public class ArealTestCase extends MaplyTestCase
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        CartoDBDarkTestCase baseTestCase = new CartoDBDarkTestCase(getActivity());
+        CartoDBMapTestCase baseTestCase = new CartoDBMapTestCase(getActivity());
         baseTestCase.setUpWithGlobe(globeVC);
         addAreal(globeVC);
 
