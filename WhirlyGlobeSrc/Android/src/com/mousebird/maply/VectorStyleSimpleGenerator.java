@@ -45,7 +45,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
     }
 
     // Note: This should be ThreadCurrent
-    MaplyBaseController.ThreadMode threadMode = MaplyBaseController.ThreadMode.ThreadAny;
+    MaplyBaseController.ThreadMode threadMode = MaplyBaseController.ThreadMode.ThreadCurrent;
 
     /**
      * For points we just turn them into labels for demonstration.
@@ -60,6 +60,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             labelInfo.setTextColor(Color.WHITE);
             labelInfo.setTypeface(Typeface.DEFAULT);
             labelInfo.setDrawPriority(drawPriority);
+            labelInfo.setEnable(true);
         }
 
         @Override
@@ -110,6 +111,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             vecInfo.setLineWidth(4.f);
             vecInfo.setFilled(false);
             vecInfo.setDrawPriority(drawPriority);
+            vecInfo.setEnable(true);
 
             ComponentObject compObj = controller.addVectors(vecObjs,vecInfo,threadMode);
             if (compObj != null)
@@ -139,6 +141,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             vecInfo.setColor((float)red,(float)green,(float)blue,1.f);
             vecInfo.setFilled(true);
             vecInfo.setDrawPriority(drawPriority);
+            vecInfo.setEnable(true);
 
             ComponentObject compObj = controller.addVectors(vecObjs,vecInfo,threadMode);
             if (compObj != null)

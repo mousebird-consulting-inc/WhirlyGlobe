@@ -20,16 +20,18 @@
 
 package com.mousebird.maply;
 
-import java.util.ArrayList;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.microedition.khronos.egl.*;
-
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.microedition.khronos.egl.EGL10;
+import javax.microedition.khronos.egl.EGLContext;
+import javax.microedition.khronos.egl.EGLSurface;
 
 /**
  * The layer thread runs tasks we want off the UI thread, but still need
@@ -251,7 +253,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	/**
 	 * Add a set of change requests to the scene.
 	 * 
-	 * @param changes Change requests to process.
+	 * @param newChanges Change requests to process.
 	 */
 	void addChanges(ChangeSet newChanges)
 	{

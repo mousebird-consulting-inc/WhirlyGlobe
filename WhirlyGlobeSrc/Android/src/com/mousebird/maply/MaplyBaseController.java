@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Handler;
@@ -310,7 +311,7 @@ public class MaplyBaseController
 		metroThread.shutdown();
 
 		// Clean up OpenGL ES resources
-		setEGLContext();
+		setEGLContext(null);
 		scene.teardownGL();
 
 		// Do a little dance to shut down rendering
@@ -335,8 +336,75 @@ public class MaplyBaseController
 
     // Note: Why isn't this in EGL10?
     private static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
-    EGLContext eglContext = null;
-    EGLSurface eglSurface = null;
+
+	// Context and associated surface
+	public class ContextInfo
+	{
+		EGLContext eglContext = null;
+		EGLSurface eglSurface = null;
+	};
+	ArrayList<ContextInfo> glContexts = new ArrayList<ContextInfo>();
+	ContextInfo glContext = null;
+
+	// Make a temporary context for use within the base controller.
+	// We expect these to be running on various threads
+	ContextInfo setupTempContext(MaplyBaseController.ThreadMode threadMode)
+	{
+		// There's already a context, so just stick with that
+		EGL10 egl = (EGL10) EGLContext.getEGL();
+		ContextInfo retContext = null;
+
+		// Only do this on the main thread
+		if (Looper.myLooper() == Looper.getMainLooper()) {
+			setEGLContext(null);
+			retContext = glContext;
+		} else {
+			synchronized (glContexts)
+			{
+				// See if we need to create a new context/surface
+				if (glContexts.size() == 0)
+				{
+					int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
+					retContext = new ContextInfo();
+					retContext.eglContext = egl.eglCreateContext(renderWrapper.maplyRender.display,renderWrapper.maplyRender.config,renderWrapper.maplyRender.context, attrib_list);
+					int[] surface_attrs =
+							{
+									EGL10.EGL_WIDTH, 32,
+									EGL10.EGL_HEIGHT, 32,
+//			    EGL10.EGL_COLORSPACE, GL10.GL_RGB,
+//			    EGL10.EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGB,
+//			    EGL10.EGL_TEXTURE_TARGET, EGL_TEXTURE_2D,
+//			    EGL10.EGL_LARGEST_PBUFFER, GL10.GL_TRUE,
+									EGL10.EGL_NONE
+							};
+					retContext.eglSurface = egl.eglCreatePbufferSurface(renderWrapper.maplyRender.display, renderWrapper.maplyRender.config, surface_attrs);
+				} else {
+					retContext = glContexts.get(0);
+					glContexts.remove(0);
+				}
+			}
+
+			setEGLContext(retContext);
+		}
+
+		return retContext;
+	}
+
+	void clearTempContext(ContextInfo cInfo)
+	{
+		if (cInfo == null)
+			return;
+
+		synchronized (glContexts)
+		{
+			if (cInfo != glContext) {
+				glContexts.add(cInfo);
+				EGL10 egl = (EGL10) EGLContext.getEGL();
+				GLES20.glFinish();;
+				egl.eglMakeCurrent(renderWrapper.maplyRender.display, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT);
+			}
+		}
+	}
 
     ArrayList<Runnable> postSurfaceRunnables = new ArrayList<Runnable>();
 
@@ -412,7 +480,8 @@ public class MaplyBaseController
         // Make our own context that we can use on the main thread
         EGL10 egl = (EGL10) EGLContext.getEGL();
         int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
-        eglContext = egl.eglCreateContext(renderWrapper.maplyRender.display,renderWrapper.maplyRender.config,renderWrapper.maplyRender.context, attrib_list);
+		glContext = new ContextInfo();
+		glContext.eglContext = egl.eglCreateContext(renderWrapper.maplyRender.display,renderWrapper.maplyRender.config,renderWrapper.maplyRender.context, attrib_list);
         int[] surface_attrs =
                 {
                         EGL10.EGL_WIDTH, 32,
@@ -423,7 +492,7 @@ public class MaplyBaseController
 //			    EGL10.EGL_LARGEST_PBUFFER, GL10.GL_TRUE,
                         EGL10.EGL_NONE
                 };
-        eglSurface = egl.eglCreatePbufferSurface(renderWrapper.maplyRender.display, renderWrapper.maplyRender.config, surface_attrs);
+		glContext.eglSurface = egl.eglCreatePbufferSurface(renderWrapper.maplyRender.display, renderWrapper.maplyRender.config, surface_attrs);
 
 		for (LayerThread layerThread : layerThreads)
 	        layerThread.viewUpdated(view);
@@ -439,13 +508,16 @@ public class MaplyBaseController
     /**
      * Set the EGL Context we created for the main thread, if we can.
      */
-    boolean setEGLContext()
+    boolean setEGLContext(ContextInfo cInfo)
     {
-        if (eglContext != null)
+		if (cInfo == null)
+			cInfo = glContext;
+
+        if (cInfo != null)
         {
             EGL10 egl = (EGL10) EGLContext.getEGL();
-            if (!egl.eglMakeCurrent(renderWrapper.maplyRender.display, eglSurface, eglSurface, eglContext)) {
-                Log.i("Maply", "Failed to make current context in main thread.");
+            if (!egl.eglMakeCurrent(renderWrapper.maplyRender.display, cInfo.eglSurface, cInfo.eglSurface, cInfo.eglContext)) {
+                Log.i("Maply", "Failed to make current context.");
                 return false;
             }
 
@@ -574,13 +646,23 @@ public class MaplyBaseController
 			return;
 
 		LayerThread baseLayerThread = layerThreads.get(0);
-		if (Looper.myLooper() == baseLayerThread.getLooper() || (mode == ThreadMode.ThreadCurrent)) {
+		if (mode == ThreadMode.ThreadCurrent) {
 
-			// Only do this on the main thread
-			if (Looper.myLooper() == Looper.getMainLooper())
-	            setEGLContext();
+			EGL10 egl = (EGL10) EGLContext.getEGL();
+			EGLContext oldContext = egl.eglGetCurrentContext();
+			EGLSurface  oldDrawSurface = egl.eglGetCurrentSurface(EGL10.EGL_DRAW);
+			EGLSurface  oldReadSurface = egl.eglGetCurrentSurface(EGL10.EGL_READ);
+
+			ContextInfo tempContext = setupTempContext(mode);
 
             run.run();
+
+			clearTempContext(tempContext);
+
+			if (oldContext != null)
+			{
+				egl.eglMakeCurrent(renderWrapper.maplyRender.display,oldDrawSurface,oldReadSurface,oldContext);
+			}
         } else
 			baseLayerThread.addTask(run,true);
 	}
@@ -885,9 +967,15 @@ public class MaplyBaseController
 					intLabels.add(intLabel);
 				}
 
-				long labelId = labelManager.addLabels(intLabels, labelInfo, changes);
-				if (labelId != EmptyIdentity)
-					compObj.addLabelID(labelId);
+				long labelId = EmptyIdentity;
+				// Note: We can't run multiple of these at once.  The problem is that
+				//  we need to pass the JNIEnv deep inside the toolkit and we're setting
+				//  on JNIEnv at a time for the CharRenderer callback.
+				synchronized (labelManager) {
+					labelId = labelManager.addLabels(intLabels, labelInfo, changes);
+				}
+					if (labelId != EmptyIdentity)
+						compObj.addLabelID(labelId);
 		
 				// Flush the text changes
 				changes.process(scene);
