@@ -58,7 +58,7 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
         MapboxVectorTileSource tileSource = new MapboxVectorTileSource(mbTileSource,simpleStyles);
 
         QuadPagingLayer layer = new QuadPagingLayer(baseController,tileSource.coordSys,tileSource);
-        layer.setImportance(256*256);
+        layer.setImportance(1024*1024);
 
         return layer;
     }

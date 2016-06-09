@@ -79,9 +79,16 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
                 vecInfo.setColor(Color.argb(128,Color.red(color),Color.green(color),Color.blue(color)));
                 vecInfo.setFilled(true);
                 vecInfo.setEnable(false);
-
                 ComponentObject compObj = layer.maplyControl.addVector(vecObj,vecInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
                 layer.addData(compObj, tileID);
+
+                VectorInfo vecInfoOutline = new VectorInfo();
+                vecInfoOutline.setColor(Color.argb(255,Color.red(color),Color.green(color),Color.blue(color)));
+                vecInfoOutline.setFilled(false);
+                vecInfoOutline.setEnable(false);
+                vecInfoOutline.setLineWidth(10.f);
+                ComponentObject compObjOutline = layer.maplyControl.addVector(vecObj,vecInfoOutline, MaplyBaseController.ThreadMode.ThreadCurrent);
+                layer.addData(compObjOutline, tileID);
 
                 // And a label right in the middle
                 ScreenLabel label = new ScreenLabel();
