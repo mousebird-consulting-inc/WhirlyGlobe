@@ -60,7 +60,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             labelInfo.setTextColor(Color.WHITE);
             labelInfo.setTypeface(Typeface.DEFAULT);
             labelInfo.setDrawPriority(drawPriority);
-            labelInfo.setEnable(true);
+            labelInfo.setEnable(false);
         }
 
         @Override
@@ -111,7 +111,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             vecInfo.setLineWidth(4.f);
             vecInfo.setFilled(false);
             vecInfo.setDrawPriority(drawPriority);
-            vecInfo.setEnable(true);
+            vecInfo.setEnable(false);
 
             ComponentObject compObj = controller.addVectors(vecObjs,vecInfo,threadMode);
             if (compObj != null)
@@ -141,7 +141,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             vecInfo.setColor((float)red,(float)green,(float)blue,1.f);
             vecInfo.setFilled(true);
             vecInfo.setDrawPriority(drawPriority);
-            vecInfo.setEnable(true);
+            vecInfo.setEnable(false);
 
             ComponentObject compObj = controller.addVectors(vecObjs,vecInfo,threadMode);
             if (compObj != null)

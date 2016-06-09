@@ -1,5 +1,7 @@
 package com.mousebird.maply;
 
+import android.util.Log;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -139,9 +141,12 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
                     if (tileCompObjs.size() > 0)
                         layer.addData(tileCompObjs,tileID);
 
+//                    Log.d("Maply","Loaded vector tile: " + tileID.toString());
+
                     layer.tileDidLoad(tileID);
                 } else
-                    layer.tileFailedToLoad(tileID);
+                    // This just means the tile was empty
+                    layer.tileDidLoad(tileID);
             }
         };
 
