@@ -624,9 +624,11 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			if (found != null)
 				evaluate(found,true,toEnable,toDisable);
 		}
-		
-		maplyControl.enableObjects(toEnable,MaplyBaseController.ThreadMode.ThreadCurrent);
-		maplyControl.disableObjects(toDisable,MaplyBaseController.ThreadMode.ThreadCurrent);
+
+		if (toEnable.size() > 0)
+			maplyControl.enableObjects(toEnable,MaplyBaseController.ThreadMode.ThreadCurrent);
+		if (toDisable.size() > 0)
+			maplyControl.disableObjects(toDisable,MaplyBaseController.ThreadMode.ThreadCurrent);
 	}
 	
 	native void nativeShutdown(ChangeSet changes);

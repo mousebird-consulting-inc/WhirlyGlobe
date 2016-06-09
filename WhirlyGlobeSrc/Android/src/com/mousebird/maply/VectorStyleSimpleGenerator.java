@@ -52,15 +52,17 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
      */
     public class VectorStyleSimplePoint extends VectorStyleSimple
     {
-        LabelInfo labelInfo = new LabelInfo();
+        LabelInfo labelInfo;
 
-        VectorStyleSimplePoint()
+        VectorStyleSimplePoint(int inPriority)
         {
+            drawPriority = inPriority;
+            labelInfo = new LabelInfo();
             labelInfo.setFontSize(32.f);
             labelInfo.setTextColor(Color.WHITE);
             labelInfo.setTypeface(Typeface.DEFAULT);
             labelInfo.setDrawPriority(drawPriority);
-            labelInfo.setEnable(true);
+            labelInfo.setEnable(false);
         }
 
         @Override
@@ -96,8 +98,9 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
     {
         double red,green,blue;
 
-        VectorStyleSimpleLinear()
+        VectorStyleSimpleLinear(int priority)
         {
+            drawPriority = priority;
             red = Math.random()/2.0+0.5;
             green = Math.random()/2.0+0.5;
             blue = Math.random()/2.0+0.5;
@@ -111,7 +114,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             vecInfo.setLineWidth(4.f);
             vecInfo.setFilled(false);
             vecInfo.setDrawPriority(drawPriority);
-            vecInfo.setEnable(true);
+            vecInfo.setEnable(false);
 
             ComponentObject compObj = controller.addVectors(vecObjs,vecInfo,threadMode);
             if (compObj != null)
@@ -127,8 +130,9 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
     {
         double red,green,blue;
 
-        VectorStyleSimplePolygon()
+        VectorStyleSimplePolygon(int priority)
         {
+            drawPriority = priority;
             red = Math.random()/2.0+0.5;
             green = Math.random()/2.0+0.5;
             blue = 0.0;
@@ -141,7 +145,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             vecInfo.setColor((float)red,(float)green,(float)blue,1.f);
             vecInfo.setFilled(true);
             vecInfo.setDrawPriority(drawPriority);
-            vecInfo.setEnable(true);
+            vecInfo.setEnable(false);
 
             ComponentObject compObj = controller.addVectors(vecObjs,vecInfo,threadMode);
             if (compObj != null)
@@ -177,16 +181,13 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             switch (geomType)
             {
                 case MapboxVectorTileParser.GeomTypePoint:
-                    style = new VectorStyleSimplePoint();
-                    style.drawPriority = LabelInfo.LabelPriorityDefault+layerOrder;
+                    style = new VectorStyleSimplePoint(LabelInfo.LabelPriorityDefault+layerOrder);
                     break;
                 case MapboxVectorTileParser.GeomTypeLineString:
-                    style = new VectorStyleSimpleLinear();
-                    style.drawPriority = VectorInfo.VectorPriorityDefault+layerOrder;
+                    style = new VectorStyleSimpleLinear(VectorInfo.VectorPriorityDefault+layerOrder);
                     break;
                 case MapboxVectorTileParser.GeomTypePolygon:
-                    style = new VectorStyleSimplePolygon();
-                    style.drawPriority = VectorInfo.VectorPriorityDefault+layerOrder;
+                    style = new VectorStyleSimplePolygon(VectorInfo.VectorPriorityDefault+layerOrder);
                     break;
                 default:
                     break;
