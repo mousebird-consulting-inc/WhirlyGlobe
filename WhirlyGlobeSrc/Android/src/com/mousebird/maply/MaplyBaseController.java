@@ -378,6 +378,8 @@ public class MaplyBaseController
 									EGL10.EGL_NONE
 							};
 					retContext.eglSurface = egl.eglCreatePbufferSurface(renderWrapper.maplyRender.display, renderWrapper.maplyRender.config, surface_attrs);
+
+//					Log.d("Maply","Created context + " + retContext.eglContext.toString());
 				} else {
 					retContext = glContexts.get(0);
 					glContexts.remove(0);
@@ -398,10 +400,14 @@ public class MaplyBaseController
 		synchronized (glContexts)
 		{
 			if (cInfo != glContext) {
-				glContexts.add(cInfo);
 				EGL10 egl = (EGL10) EGLContext.getEGL();
-				GLES20.glFinish();;
-				egl.eglMakeCurrent(renderWrapper.maplyRender.display, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT);
+				GLES20.glFlush();
+				GLES20.glFinish();
+				if (!egl.eglMakeCurrent(renderWrapper.maplyRender.display, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT))
+				{
+					Log.d("Maply","Failed to clear context");
+				}
+				glContexts.add(cInfo);
 			}
 		}
 	}
@@ -517,7 +523,7 @@ public class MaplyBaseController
         {
             EGL10 egl = (EGL10) EGLContext.getEGL();
             if (!egl.eglMakeCurrent(renderWrapper.maplyRender.display, cInfo.eglSurface, cInfo.eglSurface, cInfo.eglContext)) {
-                Log.i("Maply", "Failed to make current context.");
+                Log.d("Maply", "Failed to make current context.");
                 return false;
             }
 
@@ -661,7 +667,10 @@ public class MaplyBaseController
 
 			if (oldContext != null)
 			{
-				egl.eglMakeCurrent(renderWrapper.maplyRender.display,oldDrawSurface,oldReadSurface,oldContext);
+				if (!egl.eglMakeCurrent(renderWrapper.maplyRender.display,oldDrawSurface,oldReadSurface,oldContext))
+				{
+					Log.d("Maply","Failed to set context back to previous context.");
+				}
 			}
         } else
 			baseLayerThread.addTask(run,true);

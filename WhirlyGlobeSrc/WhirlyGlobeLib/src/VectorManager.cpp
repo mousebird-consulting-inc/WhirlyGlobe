@@ -18,6 +18,7 @@
  *
  */
 
+#import "WhirlyKitLog.h"
 #import "VectorManager.h"
 #import "WhirlyGeometry.h"
 #import "Tesselator.h"
@@ -550,6 +551,10 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
         VectorArealRef theAreal = std::dynamic_pointer_cast<VectorAreal>(*it);
         if (theAreal.get())
         {
+            // Note: Debugging
+//            std::string tileID = (*it)->getAttrDict()->getString("tile");
+//            GeoMbr mbr = theAreal->calcGeoMbr();
+
             if (vecInfo.filled)
             {
                 // Trianglate outside and loops

@@ -18,6 +18,7 @@
  *
  */
 
+#import "WhirlyKitLog.h"
 #import "Scene.h"
 #import "GlobeView.h"
 #import "GlobeMath.h"
@@ -656,6 +657,7 @@ void AddDrawableReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,W
     if (drawInst)
     {
         DrawableRef theDraw = scene->getDrawable(drawInst->getMasterID());
+
         BasicDrawableRef baseDraw = std::dynamic_pointer_cast<BasicDrawable>(theDraw);
         if (baseDraw)
             drawInst->setMaster(baseDraw);
@@ -668,7 +670,7 @@ void AddDrawableReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,W
 
     DrawableRef drawRef(drawable);
     scene->addDrawable(drawRef);
-        
+    
     // Initialize any OpenGL foo
     WhirlyKitGLSetupInfo setupInfo;
     setupInfo.minZres = view->calcZbufferRes();
