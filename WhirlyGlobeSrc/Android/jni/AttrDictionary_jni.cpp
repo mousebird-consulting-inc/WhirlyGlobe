@@ -165,3 +165,64 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getDouble
 
 	return NULL;
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setString
+(JNIEnv *env, jobject obj, jstring attrNameObj, jstring strValObj)
+{
+    try
+    {
+        AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+        Dictionary *dict = classInfo->getObject(env,obj);
+        if (!dict)
+            return;
+        
+        JavaString attrName(env,attrNameObj);
+        JavaString attrVal(env,strValObj);
+
+        dict->setString(attrName.cStr,attrVal.cStr);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::setString()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setInt
+(JNIEnv *env, jobject obj, jstring attrNameObj, jint iVal)
+{
+    try
+    {
+        AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+        Dictionary *dict = classInfo->getObject(env,obj);
+        if (!dict)
+            return;
+        
+        JavaString attrName(env,attrNameObj);
+        
+        dict->setInt(attrName.cStr,iVal);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::setInt()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setDouble
+(JNIEnv *env, jobject obj, jstring attrNameObj, jdouble dVal)
+{
+    try
+    {
+        AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+        Dictionary *dict = classInfo->getObject(env,obj);
+        if (!dict)
+            return;
+        
+        JavaString attrName(env,attrNameObj);
+        
+        dict->setDouble(attrName.cStr,dVal);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::setDouble()");
+    }
+}

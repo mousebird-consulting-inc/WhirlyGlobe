@@ -56,7 +56,28 @@ public class AttrDictionary
 	 * @param attrName Name of the attribute we're looking for.
 	 * @return Returns a Double for the given attribute or null if there was none.
 	 */
-	public native Double getDouble(String attrName);	
+	public native Double getDouble(String attrName);
+
+	/**
+	 * Set a string value.
+	 * @param attrName Name of the attribute to set.
+	 * @param attrVal String value to set.
+     */
+	public native void setString(String attrName,String attrVal);
+
+	/**
+	 * Set an int value.
+	 * @param attrName Name of the attribute to set.
+	 * @param attrVal Int value to set.
+     */
+	public native void setInt(String attrName,int attrVal);
+
+	/**
+	 * Set a double value.
+	 * @param attrName Name of the attribute to set.
+	 * @param attrVal Double value to set.
+     */
+	public native void setDouble(String attrName,double attrVal);
 	
 	static
 	{
