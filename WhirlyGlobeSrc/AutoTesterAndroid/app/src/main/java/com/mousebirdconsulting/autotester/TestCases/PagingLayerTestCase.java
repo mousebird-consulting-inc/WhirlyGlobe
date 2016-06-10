@@ -10,12 +10,10 @@ import com.mousebird.maply.LabelInfo;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.MaplyTileID;
-import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.Mbr;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.QuadPagingLayer;
 import com.mousebird.maply.ScreenLabel;
-import com.mousebird.maply.ScreenMarker;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
 import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.VectorObject;
@@ -103,15 +101,7 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
                 labelInfo.setEnable(false);
                 ComponentObject compObj2 = layer.maplyControl.addScreenLabel(label,labelInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
                 layer.addData(compObj2, tileID);
-
-                // And a screen marker
-                ScreenMarker marker = new ScreenMarker();
-                marker.loc = new Point2d(mbr.middle());
-                MarkerInfo markerInfo = new MarkerInfo();
-                markerInfo.setColor(Color.RED);
-                ComponentObject compObj3 = layer.maplyControl.addScreenMarker(marker,markerInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
-                layer.addData(compObj3, tileID);
-
+                
                 layer.tileDidLoad(tileID);
             }
         };

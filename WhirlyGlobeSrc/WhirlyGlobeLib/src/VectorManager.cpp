@@ -42,7 +42,7 @@ texProj(TextureProjectionNone), color(255,255,255,255), lineWidth(1.0)
 VectorInfo::VectorInfo(const Dictionary &dict) :
     BaseInfo(dict),
     filled(false), sample(0.0), texId(EmptyIdentity), texScale(1.0,1.0), subdivEps(1.0), gridSubdiv(false),
-    texProj(TextureProjectionNone), color(255,255,255,255), lineWidth(1.0)
+    texProj(TextureProjectionNone), color(255,255,255,255), lineWidth(1.0), centered(false), vecCenterSet(false), vecCenter(0.0,0.0)
 {
     color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
     lineWidth = dict.getDouble(MaplyVecWidth,1.0);
@@ -84,7 +84,7 @@ class VectorDrawableBuilder
 public:
     VectorDrawableBuilder(Scene *scene,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
                           const VectorInfo *vecInfo,bool linesOrPoints,bool doColor)
-    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), centerValid(false), center(0,0,0), geoCenter(0,0)
+    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), centerValid(false), center(0,0,0), geoCenter(0,0), doColor(doColor)
     {
         primType = (linesOrPoints ? GL_LINES : GL_POINTS);
     }
@@ -218,7 +218,6 @@ protected:
     const VectorInfo *vecInfo;
     Point3d center;
     Point2d geoCenter;
-    bool applyCenter;
     bool centerValid;
     GLenum primType;
 };
