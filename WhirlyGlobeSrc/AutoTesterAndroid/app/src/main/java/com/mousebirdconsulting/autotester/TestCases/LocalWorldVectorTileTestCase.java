@@ -12,9 +12,9 @@ import com.mousebird.maply.MapboxVectorTileSource;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.QuadPagingLayer;
-import com.mousebird.maply.VectorStyleSimpleGenerator;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
+import com.mousebirdconsulting.autotester.VectorStyle.SimpleJsonStyleProvider;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,16 +26,17 @@ import java.io.OutputStream;
 /**
  * Created by sjg on 5/25/16.
  */
-public class LocalVectorTileTestCase extends MaplyTestCase {
+public class LocalWorldVectorTileTestCase extends MaplyTestCase {
 
     private static String TAG = "AutoTester";
     private static String MBTILES_DIR = "mbtiles";
+    private static String WORLD_FILE = "world_vector.mbtiles";
 
     private Activity activity;
 
-    public LocalVectorTileTestCase(Activity activity) {
+    public LocalWorldVectorTileTestCase(Activity activity) {
         super(activity);
-        setTestName("Local Vector Tile Test (France)");
+        setTestName("Local Vector Tile Test (World)");
         setDelay(1000);
 
         this.activity = activity;
@@ -45,7 +46,7 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
     {
 
         // We need to copy the file from the asset so that it can be used as a file
-        File mbTiles = this.getMbTileFile("mbtiles/France.mbtiles", "France.mbtiles");
+        File mbTiles = this.getMbTileFile("mbtiles/" + WORLD_FILE, WORLD_FILE);
 
         if (!mbTiles.exists()) {
             throw new FileNotFoundException(String.format("Could not copy MBTiles asset to \"%s\"", mbTiles.getAbsolutePath()));
@@ -54,8 +55,8 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
         Log.d(TAG, String.format("Obtained MBTiles SQLLite database \"%s\"", mbTiles.getAbsolutePath()));
 
         MBTiles mbTileSource = new MBTiles(mbTiles);
-        VectorStyleSimpleGenerator simpleStyles = new VectorStyleSimpleGenerator(baseController);
-        MapboxVectorTileSource tileSource = new MapboxVectorTileSource(mbTileSource,simpleStyles);
+        SimpleJsonStyleProvider styleProvider = new SimpleJsonStyleProvider(activity, "Default", 1000, 1000);
+        MapboxVectorTileSource tileSource = new MapboxVectorTileSource(mbTileSource,styleProvider);
 
         QuadPagingLayer layer = new QuadPagingLayer(baseController,tileSource.coordSys,tileSource);
         layer.setImportance(1024*1024);
@@ -70,7 +71,7 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
         globeVC.addLayer(setupVectorLayer(globeVC, ConfigOptions.TestType.GlobeTest));
 
         Point2d loc = Point2d.FromDegrees(2.3508, 48.8567);
-        globeVC.setPositionGeo(loc.getX(),loc.getY(),0.15);
+        globeVC.setPositionGeo(loc.getX(),loc.getY(),2);
 
         return true;
     }
@@ -82,7 +83,7 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
         mapVC.addLayer(setupVectorLayer(mapVC, ConfigOptions.TestType.MapTest));
 
         Point2d loc = Point2d.FromDegrees(2.3508, 48.8567);
-        mapVC.setPositionGeo(loc.getX(),loc.getY(),0.15);
+        mapVC.setPositionGeo(loc.getX(),loc.getY(),2);
 
         return true;
     }
