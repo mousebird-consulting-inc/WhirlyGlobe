@@ -73,6 +73,7 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
                         new Point2d(mbr.ur.getX()-spanX*0.1,mbr.ur.getY()-spanY*0.1),
                         new Point2d(mbr.ll.getX()+spanX*0.1,mbr.ur.getY()-spanY*0.1)};
                 vecObj.addAreal(pts);
+                vecObj.getAttributes().setString("tile",tileID.toString());
 
                 VectorInfo vecInfo = new VectorInfo();
                 int color = colors[tileID.level % colors.length];
@@ -98,10 +99,9 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
                 labelInfo.setLayoutPlacement(LabelInfo.LayoutCenter);
                 labelInfo.setTextColor(Color.BLACK);
                 labelInfo.setEnable(false);
-
                 ComponentObject compObj2 = layer.maplyControl.addScreenLabel(label,labelInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
                 layer.addData(compObj2, tileID);
-
+                
                 layer.tileDidLoad(tileID);
             }
         };
@@ -117,7 +117,7 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
     {
         QuadPagingLayer layer = new QuadPagingLayer(baseController,coordSys,this);
         layer.setImportance(128*128);
-        layer.setSimultaneousFetches(1);
+        layer.setSimultaneousFetches(8);
 
         return layer;
     }

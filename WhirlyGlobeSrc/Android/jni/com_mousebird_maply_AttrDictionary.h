@@ -33,6 +33,30 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getDouble
 
 /*
  * Class:     com_mousebird_maply_AttrDictionary
+ * Method:    setString
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setString
+  (JNIEnv *, jobject, jstring, jstring);
+
+/*
+ * Class:     com_mousebird_maply_AttrDictionary
+ * Method:    setInt
+ * Signature: (Ljava/lang/String;I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setInt
+  (JNIEnv *, jobject, jstring, jint);
+
+/*
+ * Class:     com_mousebird_maply_AttrDictionary
+ * Method:    setDouble
+ * Signature: (Ljava/lang/String;D)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setDouble
+  (JNIEnv *, jobject, jstring, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_AttrDictionary
  * Method:    nativeInit
  * Signature: ()V
  */
