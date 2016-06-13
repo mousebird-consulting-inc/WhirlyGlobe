@@ -193,21 +193,24 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 					}
 				}
 			}, true);
+		}
 
-			final Semaphore endLock = new Semaphore(0, true);
-			addTask(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						valid = false;
-						quit();
-					} catch (Exception e) {
+		final Semaphore endLock = new Semaphore(0, true);
+		addTask(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					valid = false;
+					quit();
+				} catch (Exception e) {
 
-					}
-					endLock.release();
 				}
-			}, true);
+				endLock.release();
+			}
+		}, true);
 
+		if (viewUpdates)
+		{
 			// Block until the queue drains
 			try {
 				endLock.acquire();
