@@ -7,6 +7,7 @@ import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.CoordSystem;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LabelInfo;
+import com.mousebird.maply.LayerThread;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.MaplyTileID;
@@ -43,12 +44,12 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
 
     public int minZoom()
     {
-        return 6;
+        return 4;
     }
 
     public int maxZoom()
     {
-        return 6;
+        return 18;
     }
 
     // Colors to use for various layers
@@ -57,56 +58,59 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
 
     public void startFetchForTile(final QuadPagingLayer layer,final MaplyTileID tileID)
     {
-        // Kick off a thread to do the feature creation
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                Mbr mbr = layer.geoBoundsForTile(tileID);
+        // Ask for a thread that already has the setup we need to push stuff through
+        LayerThread thread = layer.maplyControl.getWorkingThread();
+        thread.addTask(new Runnable() {
+                           @Override
+                           public void run() {
+                               Mbr mbr = layer.geoBoundsForTile(tileID);
 
-                // Create an areal feature
-                VectorObject vecObj = new VectorObject();
-                double spanX = mbr.ur.getX() - mbr.ll.getX();
-                double spanY = mbr.ur.getY() - mbr.ll.getY();
-                Point2d[] pts = new Point2d[]{
-                        new Point2d(mbr.ll.getX()+spanX*0.1,mbr.ll.getY()+spanY*0.1),
-                        new Point2d(mbr.ur.getX()-spanX*0.1,mbr.ll.getY()+spanY*0.1),
-                        new Point2d(mbr.ur.getX()-spanX*0.1,mbr.ur.getY()-spanY*0.1),
-                        new Point2d(mbr.ll.getX()+spanX*0.1,mbr.ur.getY()-spanY*0.1)};
-                vecObj.addAreal(pts);
-                vecObj.getAttributes().setString("tile",tileID.toString());
+                               // Create an areal feature
+                               VectorObject vecObj = new VectorObject();
+                               double spanX = mbr.ur.getX() - mbr.ll.getX();
+                               double spanY = mbr.ur.getY() - mbr.ll.getY();
+                               Point2d[] pts = new Point2d[]{
+                                       new Point2d(mbr.ll.getX() + spanX * 0.1, mbr.ll.getY() + spanY * 0.1),
+                                       new Point2d(mbr.ur.getX() - spanX * 0.1, mbr.ll.getY() + spanY * 0.1),
+                                       new Point2d(mbr.ur.getX() - spanX * 0.1, mbr.ur.getY() - spanY * 0.1),
+                                       new Point2d(mbr.ll.getX() + spanX * 0.1, mbr.ur.getY() - spanY * 0.1)};
+                               vecObj.addAreal(pts);
+                               vecObj.getAttributes().setString("tile", tileID.toString());
 
-                VectorInfo vecInfo = new VectorInfo();
-                int color = colors[tileID.level % colors.length];
-                vecInfo.setColor(Color.argb(128,Color.red(color),Color.green(color),Color.blue(color)));
-                vecInfo.setFilled(true);
-                vecInfo.setEnable(false);
-                ComponentObject compObj = layer.maplyControl.addVector(vecObj,vecInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
-                layer.addData(compObj, tileID);
+                               VectorInfo vecInfo = new VectorInfo();
+                               int color = colors[tileID.level % colors.length];
+                               float alpha = 0.5f;
+                               vecInfo.setColor(Color.argb((int)(128*alpha), (int)(Color.red(color)*alpha), (int)(Color.green(color)*alpha), (int)(Color.blue(color)*alpha)));
+                               vecInfo.setFilled(true);
+                               vecInfo.setEnable(false);
+                               vecInfo.setDrawPriority(VectorInfo.VectorPriorityDefault);
+                               ComponentObject compObj = layer.maplyControl.addVector(vecObj, vecInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
+                               layer.addData(compObj, tileID);
 
-                VectorInfo vecInfoOutline = new VectorInfo();
-                vecInfoOutline.setColor(Color.argb(255,Color.red(color),Color.green(color),Color.blue(color)));
-                vecInfoOutline.setFilled(false);
-                vecInfoOutline.setEnable(false);
-                vecInfoOutline.setLineWidth(10.f);
-                ComponentObject compObjOutline = layer.maplyControl.addVector(vecObj,vecInfoOutline, MaplyBaseController.ThreadMode.ThreadCurrent);
-                layer.addData(compObjOutline, tileID);
+//                               VectorInfo vecInfoOutline = new VectorInfo();
+//                               vecInfoOutline.setColor(Color.argb(255, Color.red(color), Color.green(color), Color.blue(color)));
+//                               vecInfoOutline.setFilled(false);
+//                               vecInfoOutline.setEnable(false);
+//                               vecInfoOutline.setLineWidth(10.f);
+//                               vecInfo.setDrawPriority(VectorInfo.VectorPriorityDefault + 1);
+//                               ComponentObject compObjOutline = layer.maplyControl.addVector(vecObj, vecInfoOutline, MaplyBaseController.ThreadMode.ThreadCurrent);
+//                               layer.addData(compObjOutline, tileID);
 
-                // And a label right in the middle
-                ScreenLabel label = new ScreenLabel();
-                label.loc = new Point2d(mbr.middle());
-                label.text = tileID.toString();
-                LabelInfo labelInfo = new LabelInfo();
-                labelInfo.setLayoutPlacement(LabelInfo.LayoutCenter);
-                labelInfo.setTextColor(Color.BLACK);
-                labelInfo.setEnable(false);
-                ComponentObject compObj2 = layer.maplyControl.addScreenLabel(label,labelInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
-                layer.addData(compObj2, tileID);
+                               // And a label right in the middle
+                               ScreenLabel label = new ScreenLabel();
+                               label.loc = new Point2d(mbr.middle());
+                               label.text = tileID.toString();
+                               LabelInfo labelInfo = new LabelInfo();
+                               labelInfo.setLayoutPlacement(LabelInfo.LayoutCenter);
+                               labelInfo.setTextColor(Color.BLACK);
+                               labelInfo.setEnable(false);
+                               labelInfo.setLayoutImportance(1.f);
+                               ComponentObject compObj2 = layer.maplyControl.addScreenLabel(label, labelInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
+                               layer.addData(compObj2, tileID);
 
-                layer.tileDidLoad(tileID);
-            }
-        };
-
-        thread.start();
+                               layer.tileDidLoad(tileID);
+                           }
+                       });
     }
 
     public void tileDidUnload(MaplyTileID tileID)

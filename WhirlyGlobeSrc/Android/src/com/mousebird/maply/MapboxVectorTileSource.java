@@ -69,7 +69,8 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
      */
     public void startFetchForTile(final QuadPagingLayer layer,final MaplyTileID tileID)
     {
-        Thread thread = new Thread() {
+        LayerThread thread = layer.maplyControl.getWorkingThread();
+        thread.addTask(new Runnable() {
             @Override
             public void run() {
                 // Load the data, if it's there
@@ -148,9 +149,7 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
                     // This just means the tile was empty
                     layer.tileDidLoad(tileID);
             }
-        };
-
-        thread.start();
+        });
     }
 
     /**

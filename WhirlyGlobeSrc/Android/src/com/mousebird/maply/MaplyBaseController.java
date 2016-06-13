@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
-import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Handler;
@@ -113,6 +112,7 @@ public class MaplyBaseController
 	
 	// Layer thread we use for data manipulation
 	ArrayList<LayerThread> layerThreads = new ArrayList<LayerThread>();
+	ArrayList<LayerThread> workerThreads = new ArrayList<LayerThread>();
 		
 	// Bounding box we're allowed to move within
 	Point2d viewBounds[] = null;
@@ -127,6 +127,28 @@ public class MaplyBaseController
 		return layerThreads.get(0);
 	}
 
+	private int lastLayerThreadReturned = 0;
+
+	/**
+	 * Returns a layer thread you can do whatever you like on.  You don't have
+	 * to be particularly fast about it, it won't hold up the main layer thread.
+	 * These layer threads are set up with the proper OpenGL contexts so they're
+	 * fast to add new geometry using the ThreadCurrent option.
+	 */
+	public LayerThread getWorkingThread()
+	{
+		// The first one is for use by the toolkit
+		int numAvailable = workerThreads.size();
+
+		if (numAvailable < 0)
+			return null;
+
+		if (numAvailable == 0)
+			return workerThreads.get(0);
+
+		return workerThreads.get((lastLayerThreadReturned++) % numAvailable);
+	}
+
 	/**
 	 * These are settings passed on construction.  We need these
 	 * immediately at startup to create the right internal structures.
@@ -138,12 +160,19 @@ public class MaplyBaseController
 		 * GLSurfaceView is the default.
 		 */
 		public boolean useSurfaceView = true;
+		/**
+		 * These are the number of working threads we'll create by default
+		 * at startup.  These are fully capable of adding geometry to the
+		 * system on their own (via ThreadCurrent).
+		 */
+		public int numWorkingThreads = 8;
 	}
 
 	// Set if we're using a TextureView rather than a SurfaceView
 	boolean useTextureView = false;
 
 	boolean libraryLoaded = false;
+	int numWorkingThreads = 8;
 
 	/**
 	 * Construct the maply controller with an Activity.  We need access to a few
@@ -163,8 +192,10 @@ public class MaplyBaseController
 		System.loadLibrary("Maply");
 		libraryLoaded = true;
 		activity = mainActivity;
-		if (settings != null)
+		if (settings != null) {
 			useTextureView = !settings.useSurfaceView;
+			numWorkingThreads = settings.numWorkingThreads;
+		}
 	}
 
 	ColorDrawable tempBackground = null;
@@ -194,7 +225,7 @@ public class MaplyBaseController
 		renderWrapper.view = view;
 		
 		// Create the layer thread
-        LayerThread layerThread = new LayerThread("Maply Layer Thread",view,scene);
+        LayerThread layerThread = new LayerThread("Maply Layer Thread",view,scene,true);
 		layerThreads.add(layerThread);
 		
         ActivityManager activityManager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
@@ -258,20 +289,26 @@ public class MaplyBaseController
 		running = true;		
 	}
 
-	// Build and return a layer thread for use by the developer
-	public LayerThread makeLayerThread()
+	/**
+	 * Makes a new layer thread for toolkit related tasks.
+	 * @param handlesViewUpdates If set, the layer thread will deal with view updates.
+	 *                           If not set, it's a simpler layer thread.
+     */
+	public LayerThread makeLayerThread(boolean handlesViewUpdates)
 	{
 		if (!running)
 			return null;
 
 		// Create the layer thread
-		LayerThread newLayerThread = new LayerThread("External Maply Layer Thread",view,scene);
+		LayerThread newLayerThread = new LayerThread("External Maply Layer Thread",view,scene,handlesViewUpdates);
 
 		layerThreads.add(newLayerThread);
 
 		// Kick off the layer thread for background operations
 		newLayerThread.setRenderer(renderWrapper.maplyRender);
-		newLayerThread.viewUpdated(view);
+
+		if (handlesViewUpdates)
+			newLayerThread.viewUpdated(view);
 
 		return newLayerThread;
 	}
@@ -327,6 +364,7 @@ public class MaplyBaseController
 		markerManager = null;
 		texManager = null;
 		layerThreads = null;
+		workerThreads = null;
 	}
 	
 	ArrayList<Runnable> surfaceTasks = new ArrayList<Runnable>();
@@ -486,7 +524,7 @@ public class MaplyBaseController
 		layoutLayer = new LayoutLayer(this,layoutManager);
 		LayerThread baseLayerThread = layerThreads.get(0);
 		baseLayerThread.addLayer(layoutLayer);
-		
+
 		// Run any outstanding runnables
 		if (surfaceTasks != null) {
 			for (Runnable run : surfaceTasks) {
@@ -532,6 +570,10 @@ public class MaplyBaseController
         postSurfaceRunnables.clear();
 
 		setClearColor(clearColor);
+
+		// Create the working threads
+		for (int ii=0;ii<numWorkingThreads;ii++)
+			workerThreads.add(makeLayerThread(false));
 	}
 
     /**
