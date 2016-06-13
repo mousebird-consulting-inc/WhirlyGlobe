@@ -401,8 +401,8 @@ public class MaplyBaseController
 		{
 			if (cInfo != glContext) {
 				EGL10 egl = (EGL10) EGLContext.getEGL();
-				GLES20.glFlush();
-				GLES20.glFinish();
+//				GLES20.glFlush();
+//				GLES20.glFinish();
 				if (!egl.eglMakeCurrent(renderWrapper.maplyRender.display, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT))
 				{
 					Log.d("Maply","Failed to clear context");

@@ -575,8 +575,7 @@ bool Quadtree::popLastEval(NodeInfo &retNodeInfo)
 {
     if (evalNodes.empty())
         return false;
-    NodesBySizeType::iterator it = evalNodes.end();
-    it--;
+    NodesBySizeType::iterator it = std::prev(evalNodes.end());
     Node *node = *it;
     evalNodes.erase(it);
     node->nodeInfo.eval = false;
@@ -656,12 +655,11 @@ void Quadtree::reevaluateNodes()
     }
     
     // Recalculate the coverage for children
-    NodesByIdentType::iterator it = nodesByIdent.end();
-    --it;
+    NodesByIdentType::iterator it = std::prev(nodesByIdent.end());
     do {
         (*it)->recalcCoverage();
         if (it != nodesByIdent.begin())
-            --it;
+            it = std::prev(it);
     } while (it != nodesByIdent.begin());
 }
 

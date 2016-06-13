@@ -101,7 +101,7 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
                 labelInfo.setEnable(false);
                 ComponentObject compObj2 = layer.maplyControl.addScreenLabel(label,labelInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
                 layer.addData(compObj2, tileID);
-                
+
                 layer.tileDidLoad(tileID);
             }
         };

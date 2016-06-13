@@ -36,7 +36,6 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		remoteTileSource.setCacheDir(cacheDir);
 		SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
 		QuadImageTileLayer baseLayer = new QuadImageTileLayer(baseController, coordSystem, remoteTileSource);
-		baseLayer.setSimultaneousFetches(1);
 		baseLayer.setImageDepth(1);
 		baseLayer.setSingleLevelLoading(false);
 		baseLayer.setUseTargetZoomLevel(false);
