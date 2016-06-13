@@ -346,6 +346,26 @@ public class MaplyBaseController
 	ArrayList<ContextInfo> glContexts = new ArrayList<ContextInfo>();
 	ContextInfo glContext = null;
 
+	// Are we on the GL rendering thread
+	boolean isOnGLThread()
+	{
+		if (Thread.currentThread() == renderWrapper.renderThread)
+			return true;
+
+		return false;
+	}
+
+	// Are we are on one of our known layer threads?
+	boolean isOnLayerThread()
+	{
+		for (LayerThread thread : layerThreads) {
+			if (Looper.myLooper() == thread.getLooper())
+				return true;
+		}
+
+		return false;
+	}
+
 	// Make a temporary context for use within the base controller.
 	// We expect these to be running on various threads
 	ContextInfo setupTempContext(MaplyBaseController.ThreadMode threadMode)
@@ -354,10 +374,13 @@ public class MaplyBaseController
 		EGL10 egl = (EGL10) EGLContext.getEGL();
 		ContextInfo retContext = null;
 
-		// Only do this on the main thread
+		// The main thread has its own context we use
 		if (Looper.myLooper() == Looper.getMainLooper()) {
 			setEGLContext(null);
-			retContext = glContext;
+			return glContext;
+		} else if (isOnGLThread() || isOnLayerThread()) {
+			// We're on a known layer thread, which has a well known context so do nothing
+			return null;
 		} else {
 			synchronized (glContexts)
 			{
