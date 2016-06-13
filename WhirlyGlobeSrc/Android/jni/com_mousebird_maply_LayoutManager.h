@@ -33,6 +33,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_LayoutManager_hasChanges
 
 /*
  * Class:     com_mousebird_maply_LayoutManager
+ * Method:    addClusterGenerator
+ * Signature: (Lcom/mousebird/maply/MaplyClusterGenerator;I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_addClusterGenerator
+  (JNIEnv *, jobject, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_LayoutManager
  * Method:    nativeInit
  * Signature: ()V
  */

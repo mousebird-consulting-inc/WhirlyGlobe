@@ -63,6 +63,8 @@ class LayoutManager
 	 * True if there were any changes since layout was last run.
 	 */
 	public native boolean hasChanges();
+
+	public native void addClusterGenerator(MaplyClusterGenerator generator, int i);
 	
 	static
 	{

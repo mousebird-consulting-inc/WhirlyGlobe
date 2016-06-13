@@ -32,6 +32,10 @@ public class MaplyClusterGroup {
      */
     public Bitmap image;
 
+    public Point2d getSize() {
+        return size;
+    }
+
     /**
      * Screen size to use for the resulting marker
      */
