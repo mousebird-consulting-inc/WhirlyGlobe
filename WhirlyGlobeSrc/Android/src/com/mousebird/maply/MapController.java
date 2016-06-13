@@ -255,7 +255,18 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		
 		return true;
 	}
-	
+
+	/**
+	 * Set the zoom limits for the globe.
+	 * @param inMin Closest the user is allowed to zoom in.
+	 * @param inMax Farthest the user is allowed to zoom out.
+	 */
+	public void setZoomLimits(double inMin,double inMax)
+	{
+		if (gestureHandler != null)
+			gestureHandler.setZoomLimits(inMin,inMax);
+	}
+
 	/**
 	 * For a given position, how high do we have to be to see the given area.
 	 * <p>
