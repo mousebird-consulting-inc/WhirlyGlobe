@@ -30,7 +30,9 @@ public class LocalWorldVectorTileTestCase extends MaplyTestCase {
 
     private static String TAG = "AutoTester";
     private static String MBTILES_DIR = "mbtiles";
-    private static String WORLD_FILE = "world_vector.mbtiles";
+    private static String WORLD_FILE = "world_0_7.mbtiles";
+    private static String STYLE_NAME = "Default_0_7";
+    private static int TILE_MAX_SIZE = 512;
 
     private Activity activity;
 
@@ -55,11 +57,11 @@ public class LocalWorldVectorTileTestCase extends MaplyTestCase {
         Log.d(TAG, String.format("Obtained MBTiles SQLLite database \"%s\"", mbTiles.getAbsolutePath()));
 
         MBTiles mbTileSource = new MBTiles(mbTiles);
-        SimpleJsonStyleProvider styleProvider = new SimpleJsonStyleProvider(activity, "Default", 1000, 1000);
+        SimpleJsonStyleProvider styleProvider = new SimpleJsonStyleProvider(activity, STYLE_NAME, 1000, 1000);
         MapboxVectorTileSource tileSource = new MapboxVectorTileSource(mbTileSource,styleProvider);
 
         QuadPagingLayer layer = new QuadPagingLayer(baseController,tileSource.coordSys,tileSource);
-        layer.setImportance(1024*1024);
+        layer.setImportance(TILE_MAX_SIZE * TILE_MAX_SIZE);
 
         return layer;
     }

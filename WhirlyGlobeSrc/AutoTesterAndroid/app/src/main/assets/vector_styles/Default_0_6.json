@@ -1,7 +1,7 @@
 {
-  "countries": [
+  "land": [
     {
-      "name": "countries fill",
+      "name": "land fill",
       "type": "FILL",
       "minLevel": 0,
       "maxLevel": 22,
@@ -14,18 +14,18 @@
     {
       "name": "lakes",
       "type": "FILL",
-      "minLevel": 2,
+      "minLevel": 3,
       "maxLevel": 22,
       "relativeDrawPriority": 300,
       "relativeLayoutImportance": 10,
-      "colorArgb": "#51a2c2"
+      "colorArgb": "#91b5dd"
     }
   ],
   "railroads": [
     {
       "name": "railway low level",
       "type": "STROKE",
-      "minLevel": 4,
+      "minLevel": 5,
       "maxLevel": 5,
       "relativeDrawPriority": 400,
       "relativeLayoutImportance": 10,
@@ -33,7 +33,7 @@
       "lineWidth": 0.5
     },
     {
-      "name": "railway",
+      "name": "railway high level",
       "type": "STROKE",
       "minLevel": 6,
       "maxLevel": 22,
@@ -48,20 +48,20 @@
       "name": "rivers low level",
       "type": "STROKE",
       "minLevel": 3,
-      "maxLevel": 5,
+      "maxLevel": 4,
       "relativeDrawPriority": 200,
       "relativeLayoutImportance": 10,
-      "colorArgb": "#a5c5d1",
+      "colorArgb": "#bcccdd",
       "lineWidth": 0.5
     },
     {
-      "name": "rivers",
+      "name": "rivers high level",
       "type": "STROKE",
-      "minLevel": 6,
+      "minLevel": 5,
       "maxLevel": 22,
       "relativeDrawPriority": 120,
       "relativeLayoutImportance": 10,
-      "colorArgb": "#51a2c2",
+      "colorArgb": "#91b5dd",
       "lineWidth": 1.5
     }
   ],
@@ -69,7 +69,7 @@
     {
       "name": "roads low level",
       "type": "STROKE",
-      "minLevel": 4,
+      "minLevel": 5,
       "maxLevel": 5,
       "relativeDrawPriority": 500,
       "relativeLayoutImportance": 10,

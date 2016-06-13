@@ -149,11 +149,12 @@ public class SimpleJsonStyleProvider implements VectorStyleInterface {
         if (styles != null) {
             for (SimpleJsonStyle style : styles) {
                 if (style.isVisibleAtLevel(maplyTileID.level)) {
+                    Log.v(TAG, String.format("Layer %s SHOULD display at level %d)", layer, maplyTileID.level));
                     return true;
                 }
             }
         }
-
+        Log.v(TAG, String.format("Layer %s SHOULD NOT display at level %d)", layer, maplyTileID.level));
         return false;
     }
 

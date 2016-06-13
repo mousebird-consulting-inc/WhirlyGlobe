@@ -43,12 +43,12 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
 
     public int minZoom()
     {
-        return 6;
+        return 0;
     }
 
     public int maxZoom()
     {
-        return 6;
+        return 12;
     }
 
     // Colors to use for various layers
@@ -77,7 +77,7 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
 
                 VectorInfo vecInfo = new VectorInfo();
                 int color = colors[tileID.level % colors.length];
-                vecInfo.setColor(Color.argb(128,Color.red(color),Color.green(color),Color.blue(color)));
+                vecInfo.setColor(Color.argb(16,Color.red(color),Color.green(color),Color.blue(color)));
                 vecInfo.setFilled(true);
                 vecInfo.setEnable(false);
                 ComponentObject compObj = layer.maplyControl.addVector(vecObj,vecInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
@@ -87,7 +87,7 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
                 vecInfoOutline.setColor(Color.argb(255,Color.red(color),Color.green(color),Color.blue(color)));
                 vecInfoOutline.setFilled(false);
                 vecInfoOutline.setEnable(false);
-                vecInfoOutline.setLineWidth(10.f);
+                vecInfoOutline.setLineWidth(3.f);
                 ComponentObject compObjOutline = layer.maplyControl.addVector(vecObj,vecInfoOutline, MaplyBaseController.ThreadMode.ThreadCurrent);
                 layer.addData(compObjOutline, tileID);
 
@@ -116,7 +116,7 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
     private QuadPagingLayer setupPagingLayer(MaplyBaseController baseController, ConfigOptions.TestType testType) throws Exception
     {
         QuadPagingLayer layer = new QuadPagingLayer(baseController,coordSys,this);
-        layer.setImportance(128*128);
+        layer.setImportance(256*256);
         layer.setSimultaneousFetches(8);
 
         return layer;
