@@ -351,7 +351,9 @@ public class GlobeGestureHandler
 				// Zoom in where they tapped
 				double height = globeView.getHeight();
 				double newHeight = height/2.0;
-				
+				newHeight = Math.min(newHeight,zoomLimitMax);
+				newHeight = Math.max(newHeight,zoomLimitMin);
+
 				// Note: This isn't right.  Need the 
 				Quaternion newQuat = globeView.makeRotationToGeoCoord(geoCoord.getX(), geoCoord.getY(), globeView.northUp);
 				
@@ -391,6 +393,8 @@ public class GlobeGestureHandler
 			if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP))
 			{
 				double newHeight = globeView.getHeight()*2.0;
+				newHeight = Math.min(newHeight,zoomLimitMax);
+				newHeight = Math.max(newHeight,zoomLimitMin);
 
 				// Now kick off the animation
 				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender, globeView.getRotQuat(), newHeight, 0.5));

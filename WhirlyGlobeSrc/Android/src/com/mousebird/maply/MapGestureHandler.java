@@ -43,6 +43,8 @@ public class MapGestureHandler
 	GestureDetector gd = null;
 	GestureListener gl = null;
 	View view = null;
+	double zoomLimitMin = 0.0;
+	double zoomLimitMax = 1000.0;
 	public MapGestureHandler(MapController inControl,View inView)
 	{
 		mapControl = inControl;
@@ -54,7 +56,13 @@ public class MapGestureHandler
 		gd = new GestureDetector(view.getContext(),gl);
 		sl.gl = gl;		
 	}
-	
+
+	public void setZoomLimits(double inMin,double inMax)
+	{
+		zoomLimitMin = inMin;
+		zoomLimitMax = inMax;
+	}
+
 	/**
 	 * Check that a given position will be within the given bounds.
 	 * This is used by the various gestures for bounds checking.
@@ -137,8 +145,12 @@ public class MapGestureHandler
 				Point3d pos = maplyControl.mapView.getLoc();
 				mapView.cancelAnimation();
 				Point3d newPos = new Point3d(pos.getX(),pos.getY(),startZ*scale);
-				if (withinBounds(mapView,maplyControl.renderWrapper.maplyRender.frameSize,newPos,maplyControl.viewBounds))
-					maplyControl.mapView.setLoc(newPos);
+				if (withinBounds(mapView,maplyControl.renderWrapper.maplyRender.frameSize,newPos,maplyControl.viewBounds)) {
+					double newZ = newPos.getZ();
+					newZ = Math.min(newZ,zoomLimitMax);
+					newZ = Math.max(newZ,zoomLimitMin);
+					maplyControl.mapView.setLoc(new Point3d(newPos.getX(),newPos.getY(),newZ));
+				}
 //				Log.d("Maply","Zoom: " + maplyControl.mapView.getLoc().getZ() + " Scale: " + scale);
 				return true;
 			}
@@ -296,7 +308,10 @@ public class MapGestureHandler
 
 			// Zoom in where they tapped
 			Point3d loc = mapView.getLoc();
-			loc.setValue(locPt.getX(), locPt.getY(), loc.getZ()/2.0);
+			double newZ = loc.getZ()/2.0;
+			newZ = Math.min(newZ,zoomLimitMax);
+			newZ = Math.max(newZ,zoomLimitMin);
+			loc.setValue(locPt.getX(), locPt.getY(), newZ);
 			
 			// Now kick off the animation
 			mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, mapControl.renderWrapper.maplyRender, loc, (float) 0.1, maplyControl.viewBounds));
@@ -327,7 +342,10 @@ public class MapGestureHandler
 			if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP))
 			{
 				Point3d loc = mapView.getLoc();
-				loc.setValue(loc.getX(), loc.getY(), loc.getZ()*2.0);
+				double newZ = loc.getZ()*2.0;
+				newZ = Math.min(newZ,zoomLimitMax);
+				newZ = Math.max(newZ,zoomLimitMin);
+				loc.setValue(loc.getX(), loc.getY(), newZ);
 				
 				// Now kick off the animation
 				mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, mapControl.renderWrapper.maplyRender, loc, (float) 0.1, mapControl.viewBounds));

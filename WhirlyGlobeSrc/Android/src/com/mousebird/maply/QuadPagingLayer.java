@@ -482,6 +482,19 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	 */
 	public void tileDidLoad(final MaplyTileID tileID)
 	{
+		// This needs to be done on the layer's thread
+		if (layerThread.getLooper() != Looper.myLooper())
+		{
+			layerThread.addTask(new Runnable() {
+				@Override
+				public void run() {
+					tileDidLoad(tileID);
+				}
+			},true);
+
+			return;
+		}
+
 		if (!valid)
 			return;
 
@@ -521,6 +534,19 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	 */
 	public void tileFailedToLoad(final MaplyTileID tileID)
 	{
+		// This needs to be done on the layer's thread
+		if (layerThread.getLooper() != Looper.myLooper())
+		{
+			layerThread.addTask(new Runnable() {
+				@Override
+				public void run() {
+					tileFailedToLoad(tileID);
+				}
+			});
+
+			return;
+		}
+
 		if (!valid)
 			return;
 
@@ -624,9 +650,11 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			if (found != null)
 				evaluate(found,true,toEnable,toDisable);
 		}
-		
-		maplyControl.enableObjects(toEnable,MaplyBaseController.ThreadMode.ThreadCurrent);
-		maplyControl.disableObjects(toDisable,MaplyBaseController.ThreadMode.ThreadCurrent);
+
+		if (toEnable.size() > 0)
+			maplyControl.enableObjects(toEnable,MaplyBaseController.ThreadMode.ThreadCurrent);
+		if (toDisable.size() > 0)
+			maplyControl.disableObjects(toDisable,MaplyBaseController.ThreadMode.ThreadCurrent);
 	}
 	
 	native void nativeShutdown(ChangeSet changes);

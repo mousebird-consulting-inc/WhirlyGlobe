@@ -128,6 +128,16 @@ public class MBTiles
         return maxZoom;
     }
 
+    /**
+     * Override the min zoom.
+     */
+    public void setMinZoom(int inZoom) { minZoom = inZoom; }
+
+    /**
+     * Override the max zoom.
+     */
+    public void setMaxZoom(int inZoom)  { maxZoom = inZoom; }
+
     // The coordinate system for these is almost always spherical mercator
     public CoordSystem coordSys = new SphericalMercatorCoordSystem();
 

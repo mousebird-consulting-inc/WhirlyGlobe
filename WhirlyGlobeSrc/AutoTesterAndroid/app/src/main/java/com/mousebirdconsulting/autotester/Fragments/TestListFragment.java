@@ -21,7 +21,7 @@ import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedScreenMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.AtmosphereTestCase;
 import com.mousebirdconsulting.autotester.TestCases.BillboardTestCase;
-import com.mousebirdconsulting.autotester.TestCases.CartoDBDarkTestCase;
+import com.mousebirdconsulting.autotester.TestCases.CartoDBMapTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ComplexParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ComponentObjectLeakTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGCoordAdapter;
@@ -31,6 +31,7 @@ import com.mousebirdconsulting.autotester.TestCases.LightingTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LocalVectorTileTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MBTilesImageTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MaplyStarModelTestCase;
+import com.mousebirdconsulting.autotester.TestCases.PagingLayerTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
@@ -96,7 +97,7 @@ public class TestListFragment extends Fragment {
 		TestListAdapter() {
 			testCases = new ArrayList<>();
 			testCases.add(new StamenRemoteTestCase(getActivity()));
-			testCases.add(new CartoDBDarkTestCase(getActivity()));
+			testCases.add(new CartoDBMapTestCase(getActivity()));
 			testCases.add(new AnimatedBaseMapTestCase(getActivity()));
 			testCases.add(new VectorsTestCase(getActivity()));
 			testCases.add(new ScreenLabelsTestCase(getActivity()));
@@ -117,6 +118,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new MBTilesImageTestCase(getActivity()));
 			testCases.add(new BillboardTestCase(getActivity()));
 			testCases.add(new LocalVectorTileTestCase(getActivity()));
+			testCases.add(new PagingLayerTestCase(getActivity()));
 //			testCases.add(new ArealTestCase(getActivity()));
 		}
 

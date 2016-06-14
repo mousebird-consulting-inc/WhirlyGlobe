@@ -36,7 +36,6 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		remoteTileSource.setCacheDir(cacheDir);
 		SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
 		QuadImageTileLayer baseLayer = new QuadImageTileLayer(baseController, coordSystem, remoteTileSource);
-		baseLayer.setSimultaneousFetches(1);
 		baseLayer.setImageDepth(1);
 		baseLayer.setSingleLevelLoading(false);
 		baseLayer.setUseTargetZoomLevel(false);
@@ -49,6 +48,7 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 	public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
 		globeVC.addLayer(setupImageLayer(globeVC));
 		globeVC.animatePositionGeo(-3.6704803, 40.5023056, 5, 1.0);
+//		globeVC.setZoomLimits(0.0,1.0);
 		return true;
 	}
 
@@ -57,6 +57,7 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 	{
 		mapVC.addLayer(setupImageLayer(mapVC));
 		mapVC.animatePositionGeo(-3.6704803, 40.5023056, 5, 1.0);
+//		mapVC.setZoomLimits(0.0,1.0);
 		return true;
 	}
 }

@@ -26,9 +26,6 @@
 #import "FlatMath.h"
 #import "VectorData.h"
 
-// Note: Debugging
-//#define TILELOGGING 1
-
 // Turn on output logging
 //#define LOGLOADING
 
@@ -446,6 +443,10 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
                 if (now-frameStart > availableFrame*frameInterval || !loader->isReady())
                     break;
             }
+            
+            // If the loader's not ready, stop loading
+            if (!loader->isReady())
+                break;
         }
         
         didSomething = true;

@@ -45,7 +45,7 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
     {
 
         // We need to copy the file from the asset so that it can be used as a file
-        File mbTiles = this.getMbTileFile("mbtiles/France.mbtiles", "France.mbtiles");
+        File mbTiles = this.getMbTileFile("mbtiles/world_full_v2.mbtiles", "world_full_v2.mbtiles");
 
         if (!mbTiles.exists()) {
             throw new FileNotFoundException(String.format("Could not copy MBTiles asset to \"%s\"", mbTiles.getAbsolutePath()));
@@ -58,13 +58,15 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
         MapboxVectorTileSource tileSource = new MapboxVectorTileSource(mbTileSource,simpleStyles);
 
         QuadPagingLayer layer = new QuadPagingLayer(baseController,tileSource.coordSys,tileSource);
+        layer.setSimultaneousFetches(4);
+        layer.setImportance(1024*1024);
 
         return layer;
     }
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        CartoDBDarkTestCase baseCase = new CartoDBDarkTestCase(getActivity());
+        CartoDBMapTestCase baseCase = new CartoDBMapTestCase(getActivity());
         baseCase.setUpWithGlobe(globeVC);
         globeVC.addLayer(setupVectorLayer(globeVC, ConfigOptions.TestType.GlobeTest));
 
@@ -76,7 +78,7 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        CartoDBDarkTestCase baseCase = new CartoDBDarkTestCase(getActivity());
+        CartoDBMapTestCase baseCase = new CartoDBMapTestCase(getActivity());
         baseCase.setUpWithMap(mapVC);
         mapVC.addLayer(setupVectorLayer(mapVC, ConfigOptions.TestType.MapTest));
 

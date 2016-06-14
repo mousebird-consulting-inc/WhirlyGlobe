@@ -1,5 +1,7 @@
 package com.mousebird.maply;
 
+import android.util.Log;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -67,7 +69,8 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
      */
     public void startFetchForTile(final QuadPagingLayer layer,final MaplyTileID tileID)
     {
-        Thread thread = new Thread() {
+        LayerThread thread = layer.maplyControl.getWorkingThread();
+        thread.addTask(new Runnable() {
             @Override
             public void run() {
                 // Load the data, if it's there
@@ -139,13 +142,14 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
                     if (tileCompObjs.size() > 0)
                         layer.addData(tileCompObjs,tileID);
 
+//                    Log.d("Maply","Loaded vector tile: " + tileID.toString());
+
                     layer.tileDidLoad(tileID);
                 } else
-                    layer.tileFailedToLoad(tileID);
+                    // This just means the tile was empty
+                    layer.tileDidLoad(tileID);
             }
-        };
-
-        thread.run();
+        });
     }
 
     /**

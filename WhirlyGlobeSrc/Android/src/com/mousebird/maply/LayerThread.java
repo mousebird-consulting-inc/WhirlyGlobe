@@ -20,16 +20,18 @@
 
 package com.mousebird.maply;
 
-import java.util.ArrayList;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.microedition.khronos.egl.*;
-
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.microedition.khronos.egl.EGL10;
+import javax.microedition.khronos.egl.EGLContext;
+import javax.microedition.khronos.egl.EGLSurface;
 
 /**
  * The layer thread runs tasks we want off the UI thread, but still need
@@ -82,6 +84,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		 */
 		public float getMaxLagTime();
 	}
+
+	// If set, this is a full layer thread.  If not, it just has the context
+	protected boolean viewUpdates = true;
 	
 	/**
 	 * Construct a layer thread.  You should not be doing this directly.  Layer threads are
@@ -90,39 +95,40 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 * @param name Name of the layer thread for tracking purposes.
 	 * @param inView The view we're using.
 	 * @param inScene Scene we're putting things into.
+	 * @param inViewUpdates If set, we'll watch for view updates.
 	 */
-	LayerThread(String name,View inView,Scene inScene) 
+	LayerThread(String name,View inView,Scene inScene,boolean inViewUpdates)
 	{
 		super(name);
 		view = inView;
 		scene = inScene;
+		viewUpdates = inViewUpdates;
 
-		view.addViewWatcher(this);
-		
-		// This starts the thread, then we immediately block waiting for the renderer
-		// The renderer is created at a later time and handed to us
-		startLock.lock();
-		start();
-		addTask(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				startLock.lock();
-				startLock.unlock();
+		if (viewUpdates) {
+			view.addViewWatcher(this);
 
-				try
-				{
-					EGL10 egl = (EGL10) EGLContext.getEGL();
-					if (!egl.eglMakeCurrent(renderer.display, surface, surface, context))
-					    Log.i("Maply","Failed to make current context in layer thread.");
+			// This starts the thread, then we immediately block waiting for the renderer
+			// The renderer is created at a later time and handed to us
+			startLock.lock();
+			start();
+			addTask(new Runnable() {
+				@Override
+				public void run() {
+					startLock.lock();
+					startLock.unlock();
+
+					try {
+						EGL10 egl = (EGL10) EGLContext.getEGL();
+						if (!egl.eglMakeCurrent(renderer.display, surface, surface, context))
+							Log.d("Maply", "Failed to make current context in layer thread.");
+					} catch (Exception e) {
+						Log.i("Maply", "Failed to make current context in layer thread.");
+					}
 				}
-				catch (Exception e)
-				{
-					Log.i("Maply","Failed to make current context in layer thread.");
-				}
-			}
-		});
+			});
+		} else {
+			start();
+		}
 	}
 	
 	// Note: Why isn't this in EGL10?
@@ -147,61 +153,69 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			    EGL10.EGL_NONE
 			};
 		surface = egl.eglCreatePbufferSurface(renderer.display, renderer.config, surface_attrs);
-		
-		// This will release the very first task which sets the right context
-		Handler handler = new Handler(Looper.getMainLooper());
-		handler.post(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				startLock.unlock();				
-				viewUpdated(view);
-			}
-		});
+
+		if (viewUpdates) {
+			// This will release the very first task which sets the right context
+			Handler handler = new Handler(Looper.getMainLooper());
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					startLock.unlock();
+					viewUpdated(view);
+				}
+			});
+		} else {
+			addTask(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						EGL10 egl = (EGL10) EGLContext.getEGL();
+						if (!egl.eglMakeCurrent(renderer.display, surface, surface, context))
+							Log.d("Maply", "Failed to make current context in layer thread.");
+					} catch (Exception e) {
+						Log.i("Maply", "Failed to make current context in layer thread.");
+					}
+				}
+			});
+		}
 	}
 	
 	// Called on the main thread *after* the thread has quit safely
 	void shutdown()
 	{
-		// Run the shutdowns on the thread itself
-		addTask(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				for (final Layer layer : layers)
-				{
-					layer.shutdown();
+		if (viewUpdates) {
+			// Run the shutdowns on the thread itself
+			addTask(new Runnable() {
+				@Override
+				public void run() {
+					for (final Layer layer : layers) {
+						layer.shutdown();
+					}
 				}
-			}
-		},true);
+			}, true);
+		}
 
-		final Semaphore endLock = new Semaphore(0,true);
-		addTask(new Runnable()
-		{
+		final Semaphore endLock = new Semaphore(0, true);
+		addTask(new Runnable() {
 			@Override
-			public void run()
-			{
-				try
-				{
+			public void run() {
+				try {
 					valid = false;
 					quit();
-				}
-				catch (Exception e)
-				{
+				} catch (Exception e) {
 
 				}
 				endLock.release();
 			}
-		},true);
+		}, true);
 
-		// Block until the queue drains
-		try {
-			endLock.acquire();
-		}
-		catch( Exception e)
+		if (viewUpdates)
 		{
+			// Block until the queue drains
+			try {
+				endLock.acquire();
+			} catch (Exception e) {
+			}
 		}
 
 		// Note: Is this blocking?
@@ -251,7 +265,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	/**
 	 * Add a set of change requests to the scene.
 	 * 
-	 * @param changes Change requests to process.
+	 * @param newChanges Change requests to process.
 	 */
 	void addChanges(ChangeSet newChanges)
 	{
