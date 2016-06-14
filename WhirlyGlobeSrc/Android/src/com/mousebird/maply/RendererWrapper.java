@@ -39,6 +39,7 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 	public Scene scene = null;
 	public View view = null;
 	public MaplyBaseController maplyControl = null;
+	public Thread renderThread = null;
 	
 	public RendererWrapper(MaplyBaseController inMapControl)
 	{
@@ -56,6 +57,7 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
   		maplyRender.setScene(scene);
 		maplyRender.setView(view);
 		maplyRender.setConfig(config);
+		renderThread = Thread.currentThread();
 		maplyControl.surfaceCreated(this);
 	}
 	

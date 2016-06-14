@@ -2,7 +2,6 @@ package com.mousebirdconsulting.autotester.Framework;
 
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -18,7 +17,6 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -128,7 +126,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 		if (options.isGlobe()) {
 			GlobeController.Settings settings = new GlobeController.Settings();
 			// Note: Turn this off for testing GLTextureView
-//			settings.useSurfaceView = false;
+			settings.useSurfaceView = false;
 			settings.clearColor = clearColor;
 			globeController = new GlobeController(activity,settings);
 			controller = globeController;

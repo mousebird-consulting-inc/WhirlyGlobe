@@ -49,7 +49,7 @@ public class SimpleParticleSystemTestCase extends MaplyTestCase {
         globeVC.addPostSurfaceRunnable(new Runnable() {
             @Override
             public void run() {
-                particleThread = globeVC.makeLayerThread();
+                particleThread = globeVC.makeLayerThread(false);
                 particleAdapter = new SimpleParticleThreadAdapter(globeVC, particleThread);
             }
         });

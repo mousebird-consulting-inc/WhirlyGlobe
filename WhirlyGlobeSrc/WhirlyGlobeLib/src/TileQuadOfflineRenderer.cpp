@@ -295,7 +295,7 @@ static const GLfloat imageTexCoords[] =
 
 void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
 {
-    if (!outputDelegate)
+    if (!outputDelegate  || !prog)
         return;
     
     std::set<int> framesToRender;

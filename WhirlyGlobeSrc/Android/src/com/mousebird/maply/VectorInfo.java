@@ -33,7 +33,7 @@ public class VectorInfo extends BaseInfo
 	/**
 	 * Default draw priority for vector features.
 	 */
-	static int VectorPriorityDefault = 50000;
+	public static int VectorPriorityDefault = 50000;
 
 	/**
 	 * Construct the vector info empty with default values.  At the very least

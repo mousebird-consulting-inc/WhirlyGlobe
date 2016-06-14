@@ -47,7 +47,7 @@ public class ComplexParticleSystemTestCase extends MaplyTestCase {
         globeVC.addPostSurfaceRunnable(new Runnable() {
             @Override
             public void run() {
-                particleThread = globeVC.makeLayerThread();
+                particleThread = globeVC.makeLayerThread(false);
                 // Note: minZoom should be 5
                 particleAdapter = new ComplexParticleThreadAdapter(globeVC, particleThread,
                         "http://tilesets.s3-website-us-east-1.amazonaws.com/wind_test/{dir}_tiles/{z}/{x}/{y}.png", 2, 5);
