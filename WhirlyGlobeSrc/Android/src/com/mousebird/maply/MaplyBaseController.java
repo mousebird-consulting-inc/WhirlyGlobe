@@ -1238,6 +1238,11 @@ public class MaplyBaseController
 		}
 	}
 
+	public void addClusterGenerator(MaplyClusterGenerator generator) {
+		if (this.layoutLayer != null)
+			layoutLayer.addClusterGenerator(generator);
+	}
+
 	public ComponentObject addShapes(final List<Shape> shapes, final ShapeInfo shapeInfo, ThreadMode mode) {
 		if (!running)
 			return null;

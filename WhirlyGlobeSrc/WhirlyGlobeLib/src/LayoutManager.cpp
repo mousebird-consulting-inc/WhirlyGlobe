@@ -26,6 +26,8 @@
 #import "GlobeViewState.h"
 #import "MaplyViewState.h"
 #import "OverlapHelper.h"
+#import "Maply_jni.h"
+
 
 using namespace Eigen;
 
@@ -918,6 +920,196 @@ void LayoutManager::updateLayout(WhirlyKit::ViewState *viewState,ChangeSet &chan
     hasUpdates = false;
 
     pthread_mutex_unlock(&layoutLock);
+}
+
+OurClusterGenerator::OurClusterGenerator()
+{
+    pthread_mutex_init(&changeLock,NULL);
+}
+
+OurClusterGenerator::~OurClusterGenerator()
+{
+}
+
+void OurClusterGenerator::startLayoutObjects()
+{
+    oldClusterTex = currentClusterTex;
+    currentClusterTex.clear();
+
+    pthread_mutex_lock(&changeLock);
+
+    for (auto it = clusterGens.begin(); it != clusterGens.end(); ++it) {
+        // Look for the wrapper object's methods
+        jobject obj = it->second;
+        jclass theClass = env->GetObjectClass(obj);
+        jmethodID func = env->GetMethodID(theClass, "startClusterGroup", "()V");
+        env->CallVoidMethod(obj, func);
+        env->DeleteLocalRef(theClass);
+    }
+
+    pthread_mutex_unlock(&changeLock);
+}
+
+void OurClusterGenerator::makeLayoutObject(int clusterID, const std::vector<LayoutObjectEntry *> &layoutObjects, LayoutObject &retObj)
+{
+    // Find the right cluster generator
+    jobject clusterGenerator;
+
+	pthread_mutex_lock(&changeLock);
+    clusterGenerator = clusterGens[clusterID];
+    pthread_mutex_unlock(&changeLock);
+
+    if (!clusterGenerator)
+        return;
+
+    jclass theClass = env->GetObjectClass(clusterGenerator);
+
+    // Pick a representive screen object
+    int drawPriority = -1;
+    LayoutObject *sampleObj = NULL;
+    for (auto obj : layoutObjects) {
+        if (obj->obj.getDrawPriority() > drawPriority) {
+            drawPriority = obj->obj.getDrawPriority();
+            sampleObj = &obj->obj;
+        }
+    }
+
+    SimpleIdentity progID = sampleObj->getTypicalProgramID();
+
+    // Ask for a cluster image
+    jclass clusterInfoClass = env->FindClass("com/mousebird/maply/MaplyClusterInfo");
+    jmethodID initMethod = env->GetMethodID(clusterInfoClass, "<init>", "(I)V");
+
+    jobject clusterInfoObj = env->NewObject(clusterInfoClass, initMethod, layoutObjects.size());
+
+    env->DeleteLocalRef(clusterInfoClass);
+
+    jmethodID func = env->GetMethodID(theClass,"makeClusterGroup","(Lcom/mousebird/maply/MaplyClusterInfo;)V");
+    jobject group = env->CallObjectMethod(clusterGenerator, func, clusterInfoObj);
+
+    jclass groupClass = env->GetObjectClass(group);
+    jmethodID getSize = env->GetMethodID(groupClass, "getSize", "()Lcom/mousebird/maply/Point2d");
+
+    jobject point2dObj = env->CallObjectMethod(group, getSize);
+
+    env->DeleteLocalRef(groupClass);
+
+    Point2d *size = Point2dClassInfo::getClassInfo(env, env->GetObjectClass(point2dObj))->getObject(env, point2dObj);
+
+    if (!size)
+        return;
+
+    env->DeleteLocalRef(theClass);
+
+    // Geometry for the new cluster object
+    ScreenSpaceObject::ConvexGeometry smGeom;
+    smGeom.progID = progID;
+    smGeom.coords.push_back(Point2d(- size->x()/2.0,-size->y()/2.0));
+    smGeom.texCoords.push_back(TexCoord(0,1));
+    smGeom.coords.push_back(Point2d(size->x()/2.0,-size->y()/2.0));
+    smGeom.texCoords.push_back(TexCoord(1,1));
+    smGeom.coords.push_back(Point2d(size->x()/2.0,size->y()/2.0));
+    smGeom.texCoords.push_back(TexCoord(1,0));
+    smGeom.coords.push_back(Point2d(-size->x()/2.0,size->y()/2.0));
+    smGeom.texCoords.push_back(TexCoord(0,0));
+    smGeom.color = RGBAColor(255,255,255,255);
+
+    retObj.layoutPts = smGeom.coords;
+    retObj.selectPts = smGeom.coords;
+
+    /** NOTE: PORTING
+    // Create the texture
+    // Note: Keep this around
+    MaplyTexture *maplyTex = [self addTexture:group.image desc:@{kMaplyTexFormat: @(MaplyImageIntRGBA),
+                               kMaplyTexAtlas: @(true),
+                           kMaplyTexMagFilter: kMaplyMinFilterNearest}
+                                         mode:MaplyThreadCurrent];
+    currentClusterTex.push_back(maplyTex);
+    if (maplyTex.isSubTex)
+    {
+        SubTexture subTex = scene->getSubTexture(maplyTex.texID);
+        subTex.processTexCoords(smGeom.texCoords);
+        smGeom.texIDs.push_back(subTex.texId);
+    } else
+        smGeom.texIDs.push_back(maplyTex.texID);
+    */
+
+    retObj.setDrawPriority(drawPriority);
+    retObj.addGeometry(smGeom);
+}
+
+void OurClusterGenerator::endLayoutObjects()
+{
+    // Layout of new objects is over, so schedule the old textures for removal
+    if (!oldClusterTex.empty())
+    {
+        std::vector<Texture> texArr;
+        for (auto tex : oldClusterTex)
+            texArr.push_back(*tex);
+            //NOTE: Porting
+            // [self performSelector:@selector(delayedRemoveTextures:) withObject:texArr afterDelay:2.0];
+        oldClusterTex.clear();
+    }
+
+    pthread_mutex_lock(&changeLock);
+    for (auto it = clusterGens.begin(); it != clusterGens.end(); ++it) {
+        jobject obj = it->second;
+        jclass theClass = env->GetObjectClass(obj);
+        jmethodID func = env->GetMethodID(theClass, "endClusterGroup", "()V");
+        env->CallVoidMethod(obj, func);
+        env->DeleteLocalRef(theClass);
+    }
+
+    pthread_mutex_unlock(&changeLock);
+}
+
+void OurClusterGenerator::paramsForClusterClass(int clusterID, WhirlyKit::ClusterGenerator::ClusterClassParams &clusterParams)
+{
+    jobject clusterGenerator;
+
+    pthread_mutex_lock(&changeLock);
+    clusterGenerator = clusterGens[clusterID];
+    pthread_mutex_unlock(&changeLock);
+
+    jclass theClass = env->GetObjectClass(clusterGenerator);
+
+    // Ask for the shader for moving objects
+    clusterParams.motionShaderID = EmptyIdentity;
+
+    jmethodID motionShader = env->GetMethodID(theClass, "motionShader", "()Lcom/mousebird/maply/Shader");
+
+    jobject programObj = env->CallObjectMethod(clusterGenerator, motionShader);
+
+    OpenGLES2Program *program =  OpenGLES2ProgramClassInfo::getClassInfo(env,env->GetObjectClass(programObj))->getObject(env, programObj);
+
+    if (program) {
+        clusterParams.motionShaderID = program->getId();
+    }
+    else {
+        //NOTE: Porting
+        //program = scene->getProgramBySceneName(kToolkitDefaultScreenSpaceMotionProgram);
+        //if (program)
+          //  clusterParams.motionShaderID = program->getId();
+    }
+
+    jmethodID clusterLayoutSize = env->GetMethodID(theClass, "clusterLayoutSize", "()Lcom/mousebird/maply/Point2d");
+
+    jobject sizeObj = env->CallObjectMethod(clusterGenerator, clusterLayoutSize);
+
+    Point2d *size = Point2dClassInfo::getClassInfo(env, env->GetObjectClass(sizeObj))->getObject(env, sizeObj);
+
+    if (!size)
+        return;
+
+    clusterParams.clusterSize = *size;
+
+    jmethodID selectable = env->GetMethodID(theClass, "selectable", "()Z");
+
+    clusterParams.selectable = env->CallBooleanMethod(clusterGenerator, selectable);
+
+    jmethodID markerAnimationTime = env->GetMethodID(theClass, "markerAnimationTime", "()D");
+
+    clusterParams.markerAnimationTime = env->CallDoubleMethod(clusterGenerator, markerAnimationTime);
 }
 
 }

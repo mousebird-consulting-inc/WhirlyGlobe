@@ -28,6 +28,9 @@
 #import "ViewState.h"
 #import "ScreenSpaceBuilder.h"
 #import "SelectionManager.h"
+#import <jni.h>
+
+
 
 namespace WhirlyKit
 {
@@ -210,6 +213,34 @@ protected:
 	std::vector<ClusterGenerator::ClusterClassParams> clusterParams;
 	/// Cluster generators
 	ClusterGenerator *clusterGen;
+};
+
+typedef std::map<int, jobject> ClusterGenMap;
+
+// Interface between the layout manager and the cluster generators
+class OurClusterGenerator : public ClusterGenerator
+{
+public:
+    OurClusterGenerator();
+    ~OurClusterGenerator();
+
+    // Called right before we start generating layout objects
+    void startLayoutObjects();
+
+    // Figure out
+    void makeLayoutObject(int clusterID, const std::vector<LayoutObjectEntry *> &layoutObjects, LayoutObject &retObj);
+
+    // Called right after all the layout objects are generated
+    virtual void endLayoutObjects();
+
+    void paramsForClusterClass(int clusterID,ClusterClassParams &clusterParams);
+
+private:
+    std::vector<Texture *> currentClusterTex,oldClusterTex;
+    pthread_mutex_t changeLock;
+
+	ClusterGenMap clusterGens;
+	JNIEnv *env;
 };
 
 }
