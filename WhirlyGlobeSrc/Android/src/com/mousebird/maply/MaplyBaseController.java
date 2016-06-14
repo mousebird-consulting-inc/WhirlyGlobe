@@ -564,16 +564,16 @@ public class MaplyBaseController
 		for (LayerThread layerThread : layerThreads)
 	        layerThread.viewUpdated(view);
 
-        // Call the post surface setup callbacks
-        for (Runnable run : postSurfaceRunnables)
-            activity.runOnUiThread(run);
-        postSurfaceRunnables.clear();
-
 		setClearColor(clearColor);
 
 		// Create the working threads
 		for (int ii=0;ii<numWorkingThreads;ii++)
 			workerThreads.add(makeLayerThread(false));
+
+		// Call the post surface setup callbacks
+		for (Runnable run : postSurfaceRunnables)
+			activity.runOnUiThread(run);
+		postSurfaceRunnables.clear();
 	}
 
     /**
