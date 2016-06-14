@@ -26,19 +26,53 @@
 using namespace WhirlyKit;
 using namespace Maply;
 
-typedef JavaClassInfo<LayoutManager> LayoutManagerClassInfo;
-template<> LayoutManagerClassInfo *LayoutManagerClassInfo::classInfoObj = NULL;
-
-typedef std::map<int, jobject> ClusterGenMap;
-
 // Wrapper that tracks the generator as well
 class LayoutManagerWrapper : public ClusterGenerator
 {
 public:
-    LayoutManagerWrapper(LayoutManager *layoutManager)
+    
+    // Used to keep track of cluster objects for callbacks
+    class ClusterInfo
+    {
+    public:
+        bool operator < (const ClusterInfo &that) const
+        {
+            return clusterID < that.clusterID;
+        }
+        
+        void init(JNIEnv *env,int inClusterID,const Point2d &inLayoutSize,jobject inClusterObj)
+        {
+            clusterID = inClusterID;
+            layoutSize = inLayoutSize;
+            clusterObj = inClusterObj;
+            
+            // Methods can be saved without consequence
+            jclass theClass = env->GetObjectClass(clusterObj);
+            startClusterGroupJava = env->GetMethodID(theClass, "startClusterGroup", "()V");
+            makeClusterGroupJNIJava = env->GetMethodID(theClass, "makeClusterGroupJNI", "(I)L");
+            endClusterGroupJava = env->GetMethodID(theClass, "endClusterGroup", "()V");
+            env->DeleteLocalRef(theClass);
+        }
+
+        int clusterID;
+        Point2d layoutSize;
+        jobject clusterObj;
+        bool selectable;
+
+        // Methods we'll use to call into the Java cluster generator
+        jmethodID startClusterGroupJava;
+        jmethodID makeClusterGroupJNIJava;
+        jmethodID endClusterGroupJava;
+    };
+    typedef std::set<ClusterInfo> ClusterInfoSet;
+
+    LayoutManagerWrapper(Scene *scene,LayoutManager *layoutManager)
         : layoutManager(layoutManager), env(NULL)
     {
-        pthread_mutex_init(&changeLock,NULL);
+        OpenGLES2Program *program = scene->getProgramBySceneName(kToolkitDefaultScreenSpaceMotionProgram);
+        if (program)
+            motionShaderID = program->getId();
+
         layoutManager->addClusterGenerator(this);
     }
 
@@ -52,10 +86,15 @@ public:
     }
     
     // Add a cluster generator for callback
-    void addClusterGenerator(jobject clusterObj, jint clusterID)
+    void addClusterGenerator(jobject clusterObj, jint clusterID,bool selectable, double sizeX, double sizeY)
     {
-        // Note: Need to get a globe ref
-        clusterGens[clusterID] = clusterObj;
+        ClusterInfo clusterInfo;
+        clusterInfo.clusterID = clusterID;
+        clusterInfo.layoutSize = Point2d(sizeX,sizeY);
+        clusterInfo.clusterObj = env->NewGlobalRef(clusterObj);
+        clusterInfo.selectable = selectable;
+        
+        clusterGens.insert(clusterInfo);
     }
 
     /** ClusterGenerator virtual methods.
@@ -65,35 +104,22 @@ public:
     {
         oldClusterTex = currentClusterTex;
         currentClusterTex.clear();
-        
-        pthread_mutex_lock(&changeLock);
-        
-        for (auto it = clusterGens.begin(); it != clusterGens.end(); ++it) {
-            // Look for the wrapper object's methods
-            jobject obj = it->second;
-            jclass theClass = env->GetObjectClass(obj);
-            jmethodID func = env->GetMethodID(theClass, "startClusterGroup", "()V");
-            env->CallVoidMethod(obj, func);
-            env->DeleteLocalRef(theClass);
-        }
-        
-        pthread_mutex_unlock(&changeLock);
+
+        // Notify all the cluster generators
+        for (const auto &clusterGen : clusterGens)
+            env->CallVoidMethod(clusterGen.clusterObj,clusterGen.startClusterGroupJava);
     }
-    
-    // Figure out
+
+    // Ask the appropriate cluster generator to make a cluster image
     void makeLayoutObject(int clusterID, const std::vector<LayoutObjectEntry *> &layoutObjects, LayoutObject &retObj)
     {
-        // Find the right cluster generator
-        jobject clusterGenerator;
-        
-        pthread_mutex_lock(&changeLock);
-        clusterGenerator = clusterGens[clusterID];
-        pthread_mutex_unlock(&changeLock);
-        
-        if (!clusterGenerator)
+        ClusterInfo dummyInfo;
+        dummyInfo.clusterID = clusterID;
+        auto it = clusterGens.find(dummyInfo);
+        if (it == clusterGens.end())
             return;
         
-        jclass theClass = env->GetObjectClass(clusterGenerator);
+        const ClusterInfo &clusterGenerator = *it;
         
         // Pick a representive screen object
         int drawPriority = -1;
@@ -104,46 +130,26 @@ public:
                 sampleObj = &obj->obj;
             }
         }
-        
         SimpleIdentity progID = sampleObj->getTypicalProgramID();
+
+        // The texture gets created on the Java side, so we'll just use the ID
+        long texID = env->CallLongMethod(clusterGenerator.clusterObj, clusterGenerator.makeClusterGroupJNIJava, layoutObjects.size());
         
-        // Ask for a cluster image
-        jclass clusterInfoClass = env->FindClass("com/mousebird/maply/MaplyClusterInfo");
-        jmethodID initMethod = env->GetMethodID(clusterInfoClass, "<init>", "(I)V");
-        
-        jobject clusterInfoObj = env->NewObject(clusterInfoClass, initMethod, layoutObjects.size());
-        
-        env->DeleteLocalRef(clusterInfoClass);
-        
-        jmethodID func = env->GetMethodID(theClass,"makeClusterGroup","(Lcom/mousebird/maply/MaplyClusterInfo;)V");
-        jobject group = env->CallObjectMethod(clusterGenerator, func, clusterInfoObj);
-        
-        jclass groupClass = env->GetObjectClass(group);
-        jmethodID getSize = env->GetMethodID(groupClass, "getSize", "()Lcom/mousebird/maply/Point2d");
-        
-        jobject point2dObj = env->CallObjectMethod(group, getSize);
-        
-        env->DeleteLocalRef(groupClass);
-        
-        Point2d *size = Point2dClassInfo::getClassInfo(env, env->GetObjectClass(point2dObj))->getObject(env, point2dObj);
-        
-        if (!size)
-            return;
-        
-        env->DeleteLocalRef(theClass);
+        Point2d size = clusterGenerator.layoutSize;
         
         // Geometry for the new cluster object
         ScreenSpaceObject::ConvexGeometry smGeom;
         smGeom.progID = progID;
-        smGeom.coords.push_back(Point2d(- size->x()/2.0,-size->y()/2.0));
+        smGeom.coords.push_back(Point2d(- size.x()/2.0,-size.y()/2.0));
         smGeom.texCoords.push_back(TexCoord(0,1));
-        smGeom.coords.push_back(Point2d(size->x()/2.0,-size->y()/2.0));
+        smGeom.coords.push_back(Point2d(size.x()/2.0,-size.y()/2.0));
         smGeom.texCoords.push_back(TexCoord(1,1));
-        smGeom.coords.push_back(Point2d(size->x()/2.0,size->y()/2.0));
+        smGeom.coords.push_back(Point2d(size.x()/2.0,size.y()/2.0));
         smGeom.texCoords.push_back(TexCoord(1,0));
-        smGeom.coords.push_back(Point2d(-size->x()/2.0,size->y()/2.0));
+        smGeom.coords.push_back(Point2d(-size.x()/2.0,size.y()/2.0));
         smGeom.texCoords.push_back(TexCoord(0,0));
         smGeom.color = RGBAColor(255,255,255,255);
+        smGeom.texIDs.push_back(texID);
         
         retObj.layoutPts = smGeom.coords;
         retObj.selectPts = smGeom.coords;
@@ -172,83 +178,38 @@ public:
     // Called right after all the layout objects are generated
     virtual void endLayoutObjects()
     {
-        // Layout of new objects is over, so schedule the old textures for removal
-        if (!oldClusterTex.empty())
-        {
-            // Note: Remove old textures
-            
-            oldClusterTex = currentClusterTex;
-        }
-        
-        pthread_mutex_lock(&changeLock);
-        for (auto it = clusterGens.begin(); it != clusterGens.end(); ++it) {
-            jobject obj = it->second;
-            jclass theClass = env->GetObjectClass(obj);
-            jmethodID func = env->GetMethodID(theClass, "endClusterGroup", "()V");
-            env->CallVoidMethod(obj, func);
-            env->DeleteLocalRef(theClass);
-        }
-        
-        pthread_mutex_unlock(&changeLock);
+        // Notify all the cluster generators
+        for (const auto &clusterGen : clusterGens)
+            env->CallVoidMethod(clusterGen.clusterObj,clusterGen.endClusterGroupJava);
     }
     
-    void paramsForClusterClass(int clusterID,ClusterClassParams &clusterParams)
+    virtual void paramsForClusterClass(int clusterID,ClusterClassParams &clusterParams)
     {
-        jobject clusterGenerator;
-        
-        pthread_mutex_lock(&changeLock);
-        clusterGenerator = clusterGens[clusterID];
-        pthread_mutex_unlock(&changeLock);
-        
-        jclass theClass = env->GetObjectClass(clusterGenerator);
-        
-        // Ask for the shader for moving objects
-        clusterParams.motionShaderID = EmptyIdentity;
-        
-        jmethodID motionShader = env->GetMethodID(theClass, "motionShader", "()Lcom/mousebird/maply/Shader");
-        
-        jobject programObj = env->CallObjectMethod(clusterGenerator, motionShader);
-        
-        OpenGLES2Program *program =  OpenGLES2ProgramClassInfo::getClassInfo(env,env->GetObjectClass(programObj))->getObject(env, programObj);
-        
-        if (program) {
-            clusterParams.motionShaderID = program->getId();
-        }
-        else {
-            //NOTE: Porting
-            //program = scene->getProgramBySceneName(kToolkitDefaultScreenSpaceMotionProgram);
-            //if (program)
-            //  clusterParams.motionShaderID = program->getId();
-        }
-        
-        jmethodID clusterLayoutSize = env->GetMethodID(theClass, "clusterLayoutSize", "()Lcom/mousebird/maply/Point2d");
-        
-        jobject sizeObj = env->CallObjectMethod(clusterGenerator, clusterLayoutSize);
-        
-        Point2d *size = Point2dClassInfo::getClassInfo(env, env->GetObjectClass(sizeObj))->getObject(env, sizeObj);
-        
-        if (!size)
+        ClusterInfo dummyInfo;
+        dummyInfo.clusterID = clusterID;
+        auto it = clusterGens.find(dummyInfo);
+        if (it == clusterGens.end())
             return;
         
-        clusterParams.clusterSize = *size;
+        const ClusterInfo &clusterGenerator = *it;
         
-        jmethodID selectable = env->GetMethodID(theClass, "selectable", "()Z");
-        
-        clusterParams.selectable = env->CallBooleanMethod(clusterGenerator, selectable);
-        
-        jmethodID markerAnimationTime = env->GetMethodID(theClass, "markerAnimationTime", "()D");
-        
-        clusterParams.markerAnimationTime = env->CallDoubleMethod(clusterGenerator, markerAnimationTime);
+        clusterParams.motionShaderID = motionShaderID;
+        clusterParams.selectable = it->selectable;
+        // Note: Make this selectable
+        clusterParams.markerAnimationTime = 0.2;
+        clusterParams.clusterSize = it->layoutSize;
     }
-    
+
 public:
     LayoutManager *layoutManager;
 
     SimpleIDSet currentClusterTex,oldClusterTex;
-    pthread_mutex_t changeLock;
     
-    ClusterGenMap clusterGens;
+    SimpleIdentity motionShaderID;
+    ClusterInfoSet clusterGens;
     JNIEnv *env;
+    
+    ChangeSet changes;
 };
 
 typedef JavaClassInfo<LayoutManagerWrapper> LayoutManagerWrapperClassInfo;
@@ -267,7 +228,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_initialise
     {
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
         LayoutManager *layoutManager = dynamic_cast<LayoutManager *>(scene->getManager(kWKLayoutManager));
-        LayoutManagerWrapper *wrap = new LayoutManagerWrapper(layoutManager);
+        LayoutManagerWrapper *wrap = new LayoutManagerWrapper(scene,layoutManager);
         LayoutManagerWrapperClassInfo::getClassInfo()->setHandle(env, obj, wrap);
     }
     catch (...)
@@ -355,7 +316,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_LayoutManager_hasChanges
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_addClusterGenerator
-(JNIEnv *env, jobject obj, jobject clusterObj, jint clusterID)
+(JNIEnv *env, jobject obj, jobject clusterObj, jint clusterID, jboolean selectable, jdouble sizeX, jdouble sizeY)
 {
     try
     {
@@ -365,7 +326,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_addClusterGenerato
             return;
         wrap->setEnv(env);
 
-        wrap->addClusterGenerator(clusterObj,clusterID);
+        wrap->addClusterGenerator(clusterObj,clusterID,selectable,sizeX,sizeY);
     }
     catch (...)
     {

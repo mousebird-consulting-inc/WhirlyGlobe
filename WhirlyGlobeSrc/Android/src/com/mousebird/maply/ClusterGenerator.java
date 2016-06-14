@@ -25,14 +25,18 @@ package com.mousebird.maply;
  * <p>
  * This is the protocol for marker/label clustering.  You must fill this in and register the cluster
  */
-public interface MaplyClusterGenerator {
+public class ClusterGenerator
+{
+    public MaplyBaseController baseController = null;
 
     /**
      * Called at the start of clustering.
      * <p>
      * Called right before we start generating clusters.  Do you setup here if need be.
      */
-    public void startClusterGroup();
+    public void startClusterGroup()
+    {
+    }
 
     /**
      * Generate a cluster group for a given collection of markers.
@@ -41,20 +45,43 @@ public interface MaplyClusterGenerator {
      * @param clusterInfo
      * @return a cluster group for a given collection of markers.
      */
-    public MaplyClusterGroup makeClusterGroup(MaplyClusterInfo clusterInfo);
+    public ClusterGroup makeClusterGroup(ClusterInfo clusterInfo)
+    {
+        return null;
+    }
+
+    MaplyBaseController.TextureSettings texSettings = new MaplyBaseController.TextureSettings();
+
+            // The C++ code calls this to get a Bitmap then we call makeClusterGroup
+    long makeClusterGroupJNI(int num)
+    {
+        ClusterInfo clusterInfo = new ClusterInfo(num);
+        ClusterGroup newGroup = makeClusterGroup(clusterInfo);
+
+        // Note: Should add to texture atlas
+        MaplyTexture tex = baseController.addTexture(newGroup.image, texSettings, MaplyBaseController.ThreadMode.ThreadCurrent);
+
+        return tex.texID;
+    }
 
     /**
      * Called at the end of clustering.
      * <p>
      * If you were doing optimization (for image reuse, say) clean it up here.
      */
-    public void endClusterGroup();
+    public void endClusterGroup()
+    {
+    }
 
     /**
-     *
+     * The Cluster number is referenced by screen markers.  We group all the markers that
+     * share a cluster number together.
      * @return the cluster number we're covering
      */
-    public int clusterNumber();
+    public int clusterNumber()
+    {
+        return 0;
+    }
 
     /**
      * The size of the cluster that will be created.
@@ -62,19 +89,28 @@ public interface MaplyClusterGenerator {
      * This is the biggest cluster you're likely to create.  We use it to figure overlaps between clusters.
      * @return The size of the cluster that will be created.
      */
-    public Point2d clusterLayoutSize();
+    public Point2d clusterLayoutSize()
+    {
+        return new Point2d(32.0,32.0);
+    }
 
     /**
      * Set this if you want cluster to be user selectable.  On by default.
      * @return
      */
-    public boolean selectable();
+    public boolean selectable()
+    {
+        return true;
+    }
 
     /**
      * How long to animate markers the join and leave a cluster
      * @return time in seconds
      */
-    public double markerAnimationTime();
+    public double markerAnimationTime()
+    {
+        return 1.0;
+    }
 
     /**
      * The shader to use for moving objects around
@@ -82,5 +118,8 @@ public interface MaplyClusterGenerator {
      * If you're doing animation from point to cluster you need to provide a suitable shader.
      * @return
      */
-    public Shader motionShader();
+//    public Shader motionShader()
+//    {
+//    }
+
 }

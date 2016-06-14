@@ -36,7 +36,7 @@ import java.awt.font.TextAttribute;
  * This cluster generator will make images for grouped clusters of markers/labels.
  *
  */
-public class MaplyBasicClusterGenerator implements MaplyClusterGenerator {
+public class BasicClusterGenerator extends ClusterGenerator {
 
     /**
      * The ID number corresponding to the cluster.  Every marker/label with this cluster ID will be grouped together.
@@ -65,7 +65,7 @@ public class MaplyBasicClusterGenerator implements MaplyClusterGenerator {
      * <p>
      * When warping objects to their new locations we use a motion shader.  Set this if you want to override the default.
      */
-    private Shader motionShader;
+//    private Shader motionShader;
 
     private List<Integer> colors;
     private Point2d size;
@@ -83,7 +83,7 @@ public class MaplyBasicClusterGenerator implements MaplyClusterGenerator {
      * <p>
      * Each order of magnitude will use another color.  Must provide at least 1.
      */
-    public MaplyBasicClusterGenerator(List<Integer> colors, int clusterNumber, Point2d markerSize, MaplyBaseController viewC, Activity activity) {
+    public BasicClusterGenerator(List<Integer> colors, int clusterNumber, Point2d markerSize, MaplyBaseController viewC, Activity activity) {
         correct = (colors.size() > 0);
         if (!correct) {
             return;
@@ -106,11 +106,11 @@ public class MaplyBasicClusterGenerator implements MaplyClusterGenerator {
     }
 
     @Override
-    public MaplyClusterGroup makeClusterGroup(MaplyClusterInfo clusterInfo) {
+    public ClusterGroup makeClusterGroup(ClusterInfo clusterInfo) {
         if (!correct)
             return null;
 
-        MaplyClusterGroup group = new MaplyClusterGroup();
+        ClusterGroup group = new ClusterGroup();
         Bitmap image = this.imagesByNumber.get(clusterInfo.numObjects);
         if (image == null) {
             //Note: Pick the color based on number of markers
@@ -182,8 +182,8 @@ public class MaplyBasicClusterGenerator implements MaplyClusterGenerator {
         return this.markerAnimationTime;
     }
 
-    @Override
-    public Shader motionShader() {
-        return this.motionShader;
-    }
+//    @Override
+//    public Shader motionShader() {
+//        return this.motionShader;
+//    }
 }

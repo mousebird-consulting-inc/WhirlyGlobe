@@ -1,5 +1,5 @@
 /*
- *  MaplyClusterInfo.java
+ *  MaplyClusterGroup.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
@@ -19,19 +19,35 @@
  */
 package com.mousebird.maply;
 
+import android.graphics.Bitmap;
+
+
 /**
- * Information about the group of objects to cluster.
- * <p>
- * This object is passed in when the developer needs to make an image for a group of objects.
+ * Visual representation for a group of markers.
  */
-public class MaplyClusterInfo {
+public class ClusterGroup {
 
     /**
-     * Number of objects being clustered
+     * The image to use for the group
      */
-    public int numObjects = 0;
+    public Bitmap image;
 
-    public MaplyClusterInfo(int numObjects){
-        this.numObjects = numObjects;
+    public Point2d getSize() {
+        return size;
+    }
+
+    /**
+     * Screen size to use for the resulting marker
+     */
+    public Point2d size = new Point2d();
+
+    public ClusterGroup(Bitmap image, Point2d size) {
+        this.image = image;
+        this.size = size;
+    }
+
+    public ClusterGroup() {
+        this.image = null;
+        this.size = new Point2d();
     }
 }

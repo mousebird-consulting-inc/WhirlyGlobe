@@ -1400,7 +1400,7 @@ public class MaplyBaseController
 		}
 	}
 
-	public void addClusterGenerator(MaplyClusterGenerator generator) {
+	public void addClusterGenerator(ClusterGenerator generator) {
 		if (this.layoutLayer != null)
 			layoutLayer.addClusterGenerator(generator);
 	}

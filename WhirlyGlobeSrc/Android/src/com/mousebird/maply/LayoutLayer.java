@@ -138,9 +138,10 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 		return 4.0f;
 	}
 
-	public void addClusterGenerator(MaplyClusterGenerator generator) {
+	public void addClusterGenerator(ClusterGenerator generator) {
 		synchronized (this) {
-			this.layoutManager.addClusterGenerator(generator, generator.clusterNumber());
+			Point2d clusterSize = generator.clusterLayoutSize();
+			this.layoutManager.addClusterGenerator(generator, generator.clusterNumber(),generator.selectable(),clusterSize.getX(),clusterSize.getY());
 		}
 	}
 }

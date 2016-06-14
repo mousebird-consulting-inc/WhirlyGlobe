@@ -64,7 +64,8 @@ class LayoutManager
 	 */
 	public native boolean hasChanges();
 
-	public native void addClusterGenerator(MaplyClusterGenerator generator, int i);
+	// Adds a cluster generator to be used during layout
+	public native void addClusterGenerator(ClusterGenerator generator, int clusterGroupID,boolean selectable,double sizeX,double sizeY);
 	
 	static
 	{
