@@ -102,6 +102,9 @@
 #define MaplyLayoutImportance WKString("layoutImportance")
 
 /// These are used for screen and regular markers.
+#define MaplyClusterGroup WKString("clusterGroup")
+
+/// These are used for screen and regular markers.
 
 /// Color is used for the polygon generated for a marker.  It will combine with the image,
 ///  if there is one or it will be visible if there is no texture.  Takes a UIColor

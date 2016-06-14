@@ -26,9 +26,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.text.TextPaint;
 
-import java.util.HashMap;
-import java.util.List;
 import java.awt.font.TextAttribute;
+import java.util.HashMap;
 
 /**
  * The basic cluster generator installed by default.
@@ -67,7 +66,7 @@ public class BasicClusterGenerator extends ClusterGenerator {
      */
 //    private Shader motionShader;
 
-    private List<Integer> colors;
+    private int[] colors;
     private Point2d size;
 
     //TODO Font still not supported
@@ -83,8 +82,8 @@ public class BasicClusterGenerator extends ClusterGenerator {
      * <p>
      * Each order of magnitude will use another color.  Must provide at least 1.
      */
-    public BasicClusterGenerator(List<Integer> colors, int clusterNumber, Point2d markerSize, MaplyBaseController viewC, Activity activity) {
-        correct = (colors.size() > 0);
+    public BasicClusterGenerator(int[] colors, int clusterNumber, Point2d markerSize, MaplyBaseController viewC, Activity activity) {
+        correct = (colors.length > 0);
         if (!correct) {
             return;
         }
@@ -120,7 +119,7 @@ public class BasicClusterGenerator extends ClusterGenerator {
 
             //Configure Background
             Paint background = new Paint();
-            background.setColor(this.colors.get(0));
+            background.setColor(this.colors[0]);
             background.setStyle(Paint.Style.FILL);
             //Configure Stroke
             Paint stroke = new Paint();

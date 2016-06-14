@@ -52,8 +52,8 @@ public class ClusterGenerator
 
     MaplyBaseController.TextureSettings texSettings = new MaplyBaseController.TextureSettings();
 
-            // The C++ code calls this to get a Bitmap then we call makeClusterGroup
-    long makeClusterGroupJNI(int num)
+    // The C++ code calls this to get a Bitmap then we call makeClusterGroup
+    public long makeClusterGroupJNI(int num)
     {
         ClusterInfo clusterInfo = new ClusterInfo(num);
         ClusterGroup newGroup = makeClusterGroup(clusterInfo);

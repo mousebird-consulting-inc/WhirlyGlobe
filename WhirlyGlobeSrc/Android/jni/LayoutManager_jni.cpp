@@ -44,12 +44,12 @@ public:
         {
             clusterID = inClusterID;
             layoutSize = inLayoutSize;
-            clusterObj = inClusterObj;
+            clusterObj = env->NewGlobalRef(inClusterObj);
             
             // Methods can be saved without consequence
             jclass theClass = env->GetObjectClass(clusterObj);
             startClusterGroupJava = env->GetMethodID(theClass, "startClusterGroup", "()V");
-            makeClusterGroupJNIJava = env->GetMethodID(theClass, "makeClusterGroupJNI", "(I)L");
+            makeClusterGroupJNIJava = env->GetMethodID(theClass, "makeClusterGroupJNI", "(I)J");
             endClusterGroupJava = env->GetMethodID(theClass, "endClusterGroup", "()V");
             env->DeleteLocalRef(theClass);
         }
@@ -89,9 +89,7 @@ public:
     void addClusterGenerator(jobject clusterObj, jint clusterID,bool selectable, double sizeX, double sizeY)
     {
         ClusterInfo clusterInfo;
-        clusterInfo.clusterID = clusterID;
-        clusterInfo.layoutSize = Point2d(sizeX,sizeY);
-        clusterInfo.clusterObj = env->NewGlobalRef(clusterObj);
+        clusterInfo.init(env,clusterID,Point2d(sizeX,sizeY),clusterObj);
         clusterInfo.selectable = selectable;
         
         clusterGens.insert(clusterInfo);
@@ -208,8 +206,6 @@ public:
     SimpleIdentity motionShaderID;
     ClusterInfoSet clusterGens;
     JNIEnv *env;
-    
-    ChangeSet changes;
 };
 
 typedef JavaClassInfo<LayoutManagerWrapper> LayoutManagerWrapperClassInfo;

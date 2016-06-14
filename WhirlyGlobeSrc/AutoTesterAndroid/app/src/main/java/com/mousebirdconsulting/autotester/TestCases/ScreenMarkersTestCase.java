@@ -41,7 +41,8 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 		VectorsTestCase baseView = new VectorsTestCase(getActivity());
 		baseView.setUpWithMap(mapVC);
 		insertMarkers(baseView.getVectors(), mapVC);
-		mapVC.setPositionGeo(-3.6704803, 40.5023056, 2);
+		Point2d loc = Point2d.FromDegrees(-3.6704803, 40.5023056);
+		mapVC.setPositionGeo(loc.getX(), loc.getX(), 2);
 		return true;
 	}
 
@@ -50,7 +51,8 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 		VectorsTestCase baseView = new VectorsTestCase(getActivity());
 		baseView.setUpWithGlobe(globeVC);
 		insertMarkers(baseView.getVectors(), globeVC);
-		globeVC.animatePositionGeo(-3.6704803, 40.5023056, 0.9, 1);
+		Point2d loc = Point2d.FromDegrees(-3.6704803, 40.5023056);
+		globeVC.animatePositionGeo(loc.getX(), loc.getX(), 0.9, 1);
 		return true;
 	}
 
@@ -59,7 +61,8 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 		Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.testtarget);
 		markerInfo.setMinVis(0.f);
 		markerInfo.setMaxVis(2.5f);
-//		markerInfo.setLayoutImportance(1.f);
+		markerInfo.setClusterGroup(0);
+		markerInfo.setLayoutImportance(1.f);
 
 		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
 		for (VectorObject vector : vectors) {

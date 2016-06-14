@@ -81,13 +81,14 @@ void Marker::addTexID(SimpleIdentity texID)
 MarkerInfo::MarkerInfo(const Dictionary &dict)
     : BaseInfo(dict), color(255,255,255,255),
     screenObject(false), width(0.001), height(0.001), layoutImportance(MAXFLOAT),
-    markerId(EmptyIdentity)
+    markerId(EmptyIdentity), clusterGroup(-1)
 {
     color = dict.getColor(MaplyColor, RGBAColor(255,255,255,255));
     screenObject = dict.getBool("screen",false);
     width = dict.getDouble(MaplyLabelWidth,(screenObject ? 16.0 : 0.001));
     height = dict.getDouble(MaplyLabelHeight,(screenObject ? 16.0 : 0.001));
     layoutImportance = dict.getDouble(MaplyLayoutImportance,MAXFLOAT);
+    clusterGroup = dict.getInt(MaplyClusterGroup,-1);
 }
 
 MarkerManager::MarkerManager()
@@ -233,6 +234,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                     layoutObj->selectPts.push_back(Point2d(-width2+marker->offset.x(),height2+marker->offset.y()));
                     layoutObj->layoutPts = layoutObj->selectPts;
                 }
+                layoutObj->clusterGroup = markerInfo.clusterGroup;
                 layoutObj->importance = layoutImport;
                 // No moving it around
                 layoutObj->acceptablePlacement = 1;

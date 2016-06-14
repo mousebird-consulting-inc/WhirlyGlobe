@@ -25,6 +25,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setLayoutImportance
 
 /*
  * Class:     com_mousebird_maply_MarkerInfo
+ * Method:    setClusterGroup
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setClusterGroup
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_MarkerInfo
  * Method:    nativeInit
  * Signature: ()V
  */
