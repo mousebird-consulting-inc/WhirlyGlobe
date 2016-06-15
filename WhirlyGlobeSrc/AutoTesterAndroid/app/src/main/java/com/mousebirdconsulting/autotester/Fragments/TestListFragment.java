@@ -22,6 +22,7 @@ import com.mousebirdconsulting.autotester.TestCases.AnimatedScreenMarkersTestCas
 import com.mousebirdconsulting.autotester.TestCases.AtmosphereTestCase;
 import com.mousebirdconsulting.autotester.TestCases.BillboardTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CartoDBMapTestCase;
+import com.mousebirdconsulting.autotester.TestCases.ClusteredMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ComplexParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ComponentObjectLeakTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGCoordAdapter;
@@ -103,6 +104,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new ScreenLabelsTestCase(getActivity()));
 			testCases.add(new ScreenMarkersTestCase(getActivity()));
 			testCases.add(new AnimatedScreenMarkersTestCase(getActivity()));
+			testCases.add(new ClusteredMarkersTestCase(getActivity()));
 			testCases.add(new StickersTestCase(getActivity()));
 			testCases.add(new GestureFeedbackTestCase(getActivity()));
 			testCases.add(new SimpleParticleSystemTestCase(getActivity()));
