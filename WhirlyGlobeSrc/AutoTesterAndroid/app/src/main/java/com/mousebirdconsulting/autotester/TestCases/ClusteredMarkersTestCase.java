@@ -70,10 +70,12 @@ public class ClusteredMarkersTestCase extends MaplyTestCase {
     private void insertClusteredMarkers(List<VectorObject> vectors, MaplyBaseController inController) {
         Point2d size = new Point2d(32, 32);
         List<ScreenMarker> markers = new ArrayList<>();
+        Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.sticker);
+
 
         for (VectorObject v : vectors) {
             ScreenMarker marker = new ScreenMarker();
-            marker.image = null;
+            marker.image = icon;
             marker.loc = v.centroid();
             marker.size = size;
 
