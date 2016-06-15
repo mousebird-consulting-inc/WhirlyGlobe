@@ -411,7 +411,7 @@ Matrix2d LayoutManager::calcScreenRot(float &screenRot, ViewState *viewState, Vi
 }
 
 // Do the actual layout logic.  We'll modify the offset and on value in place.
-	bool LayoutManager::runLayoutRules(ViewState *viewState, std::vector<ClusterEntry> &clusterEntries, std::vector<ClusterGenerator::ClusterClassParams> &clusterParams)
+bool LayoutManager::runLayoutRules(ViewState *viewState, std::vector<ClusterEntry> &clusterEntries, std::vector<ClusterGenerator::ClusterClassParams> &clusterParams)
 {
     if (layoutObjects.empty())
         return false;

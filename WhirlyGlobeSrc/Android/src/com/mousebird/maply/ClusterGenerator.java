@@ -39,6 +39,11 @@ public class ClusterGenerator
      */
     public void startClusterGroup()
     {
+        if (oldTextures != null) {
+            baseController.removeTextures(oldTextures, MaplyBaseController.ThreadMode.ThreadCurrent);
+            oldTextures = null;
+        }
+
         oldTextures = currentTextures;
         currentTextures = new ArrayList<MaplyTexture>();
     }
@@ -73,10 +78,6 @@ public class ClusterGenerator
      */
     public void endClusterGroup()
     {
-        if (oldTextures != null) {
-            baseController.removeTextures(oldTextures, MaplyBaseController.ThreadMode.ThreadCurrent);
-            oldTextures = null;
-        }
     }
 
     /**

@@ -39,12 +39,13 @@ public class MarkerInfo extends BaseInfo
 	 * Default priority for markers.  Screen markers offset this by a large amount.
 	 */
 	static int MarkerPriorityDefault = 40000;
+	static int ScreenMarkerPriorityDefault = 140000;
 
 	public MarkerInfo()
 	{
 		initialise();
 		setColor(1.f,1.f,1.f,1.f);
-		setDrawPriority(MarkerPriorityDefault);
+		setDrawPriority(ScreenMarkerPriorityDefault);
 		setClusterGroup(-1);
 	}
 	
