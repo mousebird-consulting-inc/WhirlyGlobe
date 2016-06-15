@@ -72,7 +72,7 @@ public class BasicClusterGenerator extends ClusterGenerator {
     //TODO Font still not supported
     private TextAttribute font;
     private float scale;
-    private HashMap<Integer, Bitmap> imagesByNumber;
+    private HashMap<Integer, MaplyTexture> texByNumber;
     private MaplyBaseController viewC;
     private boolean correct = false;
     private Activity activity;
@@ -101,8 +101,11 @@ public class BasicClusterGenerator extends ClusterGenerator {
 
     @Override
     public void startClusterGroup() {
-        this.imagesByNumber = new HashMap<Integer, Bitmap>();
+        super.startClusterGroup();
+        this.texByNumber = new HashMap<Integer, MaplyTexture>();
     }
+
+    MaplyBaseController.TextureSettings texSettings = new MaplyBaseController.TextureSettings();
 
     @Override
     public ClusterGroup makeClusterGroup(ClusterInfo clusterInfo) {
@@ -110,11 +113,11 @@ public class BasicClusterGenerator extends ClusterGenerator {
             return null;
 
         ClusterGroup group = new ClusterGroup();
-        Bitmap image = this.imagesByNumber.get(clusterInfo.numObjects);
-        if (image == null) {
+        MaplyTexture tex = this.texByNumber.get(clusterInfo.numObjects);
+        if (tex == null) {
             //Note: Pick the color based on number of markers
             //Create the Bitmap
-            image = Bitmap.createBitmap((int) this.size.getX(), (int) this.size.getY(), Bitmap.Config.ARGB_8888);
+            Bitmap image = Bitmap.createBitmap((int) this.size.getX(), (int) this.size.getY(), Bitmap.Config.ARGB_8888);
             Canvas c = new Canvas(image);
 
             //Configure Background
@@ -147,9 +150,11 @@ public class BasicClusterGenerator extends ClusterGenerator {
             //Draw Text
             c.drawText(Integer.toString(clusterInfo.numObjects), xPos, yPos, text);
 
-            imagesByNumber.put(clusterInfo.numObjects, image);
+            tex = baseController.addTexture(image, texSettings, MaplyBaseController.ThreadMode.ThreadCurrent);
+
+            texByNumber.put(clusterInfo.numObjects, tex);
         }
-        group.image = image;
+        group.tex = tex;
         group.size = this.size;
 
         return group;
@@ -157,8 +162,10 @@ public class BasicClusterGenerator extends ClusterGenerator {
 
     @Override
     public void endClusterGroup() {
-        this.imagesByNumber.clear();
-        this.imagesByNumber = null;
+        super.endClusterGroup();
+
+        this.texByNumber.clear();
+        this.texByNumber = null;
     }
 
     @Override

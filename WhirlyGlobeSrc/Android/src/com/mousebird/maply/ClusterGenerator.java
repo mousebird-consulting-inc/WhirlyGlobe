@@ -20,6 +20,8 @@
 package com.mousebird.maply;
 
 
+import java.util.ArrayList;
+
 /**
  * Fill in this protocol to provide images when individual markers/labels are clustered.
  * <p>
@@ -28,6 +30,7 @@ package com.mousebird.maply;
 public class ClusterGenerator
 {
     public MaplyBaseController baseController = null;
+    ArrayList<MaplyTexture> oldTextures,currentTextures;
 
     /**
      * Called at the start of clustering.
@@ -36,6 +39,8 @@ public class ClusterGenerator
      */
     public void startClusterGroup()
     {
+        oldTextures = currentTextures;
+        currentTextures = new ArrayList<MaplyTexture>();
     }
 
     /**
@@ -50,18 +55,15 @@ public class ClusterGenerator
         return null;
     }
 
-    MaplyBaseController.TextureSettings texSettings = new MaplyBaseController.TextureSettings();
-
     // The C++ code calls this to get a Bitmap then we call makeClusterGroup
     public long makeClusterGroupJNI(int num)
     {
         ClusterInfo clusterInfo = new ClusterInfo(num);
         ClusterGroup newGroup = makeClusterGroup(clusterInfo);
 
-        // Note: Should add to texture atlas
-        MaplyTexture tex = baseController.addTexture(newGroup.image, texSettings, MaplyBaseController.ThreadMode.ThreadCurrent);
+        currentTextures.add(newGroup.tex);
 
-        return tex.texID;
+        return newGroup.tex.texID;
     }
 
     /**
@@ -71,6 +73,10 @@ public class ClusterGenerator
      */
     public void endClusterGroup()
     {
+        if (oldTextures != null) {
+            baseController.removeTextures(oldTextures, MaplyBaseController.ThreadMode.ThreadCurrent);
+            oldTextures = null;
+        }
     }
 
     /**

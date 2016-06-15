@@ -31,7 +31,7 @@ MapViewState::MapViewState(MapView *mapView,WhirlyKit::SceneRendererES *renderer
     heightAboveSurface = mapView->getLoc().z();
 }
 
-bool MapViewState::pointOnPlaneFromScreen(WhirlyKit::Point2d pt, Eigen::Matrix4d transform, WhirlyKit::Point2f frameSize, WhirlyKit::Point3d hit, bool clip)
+bool MapViewState::pointOnPlaneFromScreen(WhirlyKit::Point2d pt, Eigen::Matrix4d transform, WhirlyKit::Point2f frameSize, WhirlyKit::Point3d &hit, bool clip)
 {
     // Back Project the screen point into model space
     Point3d screenPt = pointUnproject(pt, frameSize.x(), frameSize.y(), clip);

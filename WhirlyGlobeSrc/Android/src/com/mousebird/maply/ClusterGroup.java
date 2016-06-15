@@ -19,9 +19,6 @@
  */
 package com.mousebird.maply;
 
-import android.graphics.Bitmap;
-
-
 /**
  * Visual representation for a group of markers.
  */
@@ -30,7 +27,7 @@ public class ClusterGroup {
     /**
      * The image to use for the group
      */
-    public Bitmap image;
+    public MaplyTexture tex;
 
     public Point2d getSize() {
         return size;
@@ -41,13 +38,13 @@ public class ClusterGroup {
      */
     public Point2d size = new Point2d();
 
-    public ClusterGroup(Bitmap image, Point2d size) {
-        this.image = image;
+    public ClusterGroup(MaplyTexture tex, Point2d size) {
+        this.tex = tex;
         this.size = size;
     }
 
     public ClusterGroup() {
-        this.image = null;
+        this.tex = null;
         this.size = new Point2d();
     }
 }

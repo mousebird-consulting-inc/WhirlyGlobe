@@ -1145,7 +1145,7 @@ public class MaplyBaseController
 	}
 
 	/**
-	 * Remove a texture from the scene with the given settings.
+	 * Remove a texture from the scene.
 	 * @param tex Texture to remove.
 	 * @param mode Remove immediately (current thread) or elsewhere.
      */
@@ -1161,6 +1161,33 @@ public class MaplyBaseController
 						ChangeSet changes = new ChangeSet();
 
 						changes.removeTexture(tex.texID);
+
+						// Flush the texture changes
+						changes.process(scene);
+					}
+				};
+
+		addTask(run, mode);
+	}
+
+	/**
+	 * Remove a whole group of textures from the scene.
+	 * @param texs Textures to remove.
+	 * @param mode Remove immediately (current thread) or elsewhere.
+     */
+	public void removeTextures(final List<MaplyTexture> texs,ThreadMode mode)
+	{
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+
+						for (MaplyTexture tex : texs)
+							changes.removeTexture(tex.texID);
 
 						// Flush the texture changes
 						changes.process(scene);
