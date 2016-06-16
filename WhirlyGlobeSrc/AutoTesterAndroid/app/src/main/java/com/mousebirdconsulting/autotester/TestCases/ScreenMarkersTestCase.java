@@ -73,6 +73,7 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 				marker.loc = centroid;
 				marker.size = new Point2d(128, 128);
 				marker.rotation = Math.random() * 2.f * Math.PI;
+				marker.selectable = true;
 //				marker.offset = new Point2d(-64,-64);
 				AttrDictionary attrs = vector.getAttributes();
 				if (attrs != null) {

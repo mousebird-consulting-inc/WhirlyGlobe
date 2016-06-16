@@ -10,6 +10,8 @@ import android.view.View;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.Point2d;
+import com.mousebird.maply.Point3d;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.R;
 
@@ -20,7 +22,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class MaplyTestCase extends AsyncTask<Void, View, Void> {
+public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeController.GestureDelegate, MapController.GestureDelegate {
 
 	public enum TestExecutionImplementation {
 		Globe, Map, Both, None;
@@ -129,12 +131,14 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 //			settings.useSurfaceView = false;
 			settings.clearColor = clearColor;
 			globeController = new GlobeController(activity,settings);
+			globeController.gestureDelegate = this;
 			controller = globeController;
 		}
 		if (options.isMap()) {
 			MapController.Settings settings = new MapController.Settings();
 			settings.clearColor = clearColor;
 			mapController = new MapController(activity,settings);
+			mapController.gestureDelegate = this;
 			controller = mapController;
 		}
 		success = true;
@@ -281,4 +285,40 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 		return implementation;
 	}
 
+	/** Implementation of Globe Gesture Delegate
+     */
+
+	public void userDidSelect(GlobeController globeControl, Object selObj, Point2d loc, Point2d screenLoc)
+	{
+		Log.d("Maply","Selected object");
+	}
+
+	public void userDidTap(GlobeController globeControl,Point2d loc,Point2d screenLoc)
+	{}
+
+	public void userDidLongPress(GlobeController globeControl, Object selObj, Point2d loc, Point2d screenLoc)
+	{}
+
+	public void globeDidStartMoving(GlobeController globeControl, boolean userMotion)
+	{}
+
+	public void globeDidStopMoving(GlobeController globeControl, Point3d corners[], boolean userMotion)
+	{}
+
+	public void globeDidMove(GlobeController globeControl,Point3d corners[], boolean userMotion)
+	{}
+
+	/** Implementation of Map Gesture Delegate
+	 */
+
+	public void userDidSelect(MapController mapControl,Object selObj,Point2d loc,Point2d screenLoc)
+	{
+		Log.d("Maply","Selected object");
+	}
+
+	public void userDidTap(MapController mapControl,Point2d loc,Point2d screenLoc)
+	{}
+
+	public void userDidLongPress(MapController mapController, Object selObj, Point2d loc, Point2d screenLoc)
+	{}
 }

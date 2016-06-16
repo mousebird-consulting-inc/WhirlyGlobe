@@ -383,7 +383,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		 * @param loc The location they tapped on.  This is in radians.
 		 * @param screenLoc The location on the OpenGL surface.
 		 */
-		void userDidSelect(MapController mapControl,Object selObj,Point2d loc,Point2d screenLoc);
+		public void userDidSelect(MapController mapControl,Object selObj,Point2d loc,Point2d screenLoc);
 		
 		/**
 		 * The user tapped somewhere, but not on a selectable object.
@@ -392,7 +392,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		 * @param loc The location they tapped on.  This is in radians.
 		 * @param screenLoc The location on the OpenGL surface.
 		 */
-		void userDidTap(MapController mapControl,Point2d loc,Point2d screenLoc);
+		public void userDidTap(MapController mapControl,Point2d loc,Point2d screenLoc);
 
 		/**
 		 * The user long pressed somewhere, either on a selectable object or nor
@@ -401,7 +401,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		 * @param loc The location they tapped on.  This is in radians.
          * @param screenLoc The location on the OpenGL surface.
          */
-        void userDidLongPress(MapController mapController, Object selObj, Point2d loc, Point2d screenLoc);
+		public void userDidLongPress(MapController mapController, Object selObj, Point2d loc, Point2d screenLoc);
 	}
 
 	/**
@@ -416,25 +416,6 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		{
 			Matrix4d mapTransform = mapView.calcModelViewMatrix();
 			Point3d loc = mapView.pointOnPlaneFromScreen(screenLoc, mapTransform, renderWrapper.maplyRender.frameSize, false);
-			
-//			// Look for a selection first
-//			long selectID = selectionManager.pickObject(mapView, screenLoc);
-//			if (selectID != EmptyIdentity)
-//			{
-//				// Look for the object
-//				Object selObj = null;
-//				synchronized(selectionMap)
-//				{
-//					selObj = selectionMap.get(selectID);
-//				}
-//
-//				// Let the delegate know the user selected something
-//				gestureDelegate.userDidSelect(this, selObj, loc.toPoint2d(), screenLoc);
-//			} else
-//				// Just a simple tap, then
-//				gestureDelegate.userDidTap(this, loc.toPoint2d(), screenLoc);
-
-			//TODO Steve I am not sure the logic below the logic is equivalent to the above (question is can selObj be null when selectID != EmptyIdentity
 
 			Object selObj = this.getObjectAtScreenLoc(screenLoc);
 
