@@ -855,6 +855,12 @@ public class MaplyBaseController
 				ArrayList<InternalMarker> intMarkers = new ArrayList<InternalMarker>();
 				for (ScreenMarker marker : markers)
 				{
+					if (marker.loc == null)
+					{
+						Log.d("Maply","Missing location for marker.  Skipping.");
+						return;
+					}
+
 					InternalMarker intMarker = new InternalMarker(marker,markerInfo);
 					// Map the bitmap to a texture ID
 					long texID = EmptyIdentity;

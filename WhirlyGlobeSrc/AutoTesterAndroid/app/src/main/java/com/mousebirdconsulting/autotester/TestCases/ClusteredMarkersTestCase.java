@@ -23,8 +23,6 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.mousebird.maply.ActiveObject;
-import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
@@ -79,10 +77,12 @@ public class ClusteredMarkersTestCase extends MaplyTestCase {
             marker.loc = v.centroid();
             marker.size = size;
 
-            markers.add(marker);
+            if (marker.loc != null)
+                markers.add(marker);
         }
 
         MarkerInfo info = new MarkerInfo();
+        info.setLayoutImportance(1.f);
         info.setClusterGroup(0);
 
         inController.addScreenMarkers(markers, info, MaplyBaseController.ThreadMode.ThreadCurrent);

@@ -126,7 +126,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 		if (options.isGlobe()) {
 			GlobeController.Settings settings = new GlobeController.Settings();
 			// Note: Turn this off for testing GLTextureView
-			settings.useSurfaceView = false;
+//			settings.useSurfaceView = false;
 			settings.clearColor = clearColor;
 			globeController = new GlobeController(activity,settings);
 			controller = globeController;
@@ -139,17 +139,12 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> {
 		}
 		success = true;
 		listener.onStart(controller.getContentView());
-		if (ConfigOptions.getViewSetting(getActivity().getApplicationContext()) == ConfigOptions.ViewMapOption.ViewMap){
-			controller.addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					implementationTest();
-				}
-			});
-		}
-		else{
-			implementationTest();
-		}
+		controller.addPostSurfaceRunnable(new Runnable() {
+			@Override
+			public void run() {
+				implementationTest();
+			}
+		});
 	}
 
 	private void implementationTest() {
