@@ -105,6 +105,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setVertexAttribut
 
 /*
  * Class:     com_mousebird_maply_InternalMarker
+ * Method:    setClusterGroup
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setClusterGroup
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_InternalMarker
  * Method:    nativeInit
  * Signature: ()V
  */

@@ -63,6 +63,9 @@ class LayoutManager
 	 * True if there were any changes since layout was last run.
 	 */
 	public native boolean hasChanges();
+
+	// Adds a cluster generator to be used during layout
+	public native void addClusterGenerator(ClusterGenerator generator, int clusterGroupID,boolean selectable,double sizeX,double sizeY);
 	
 	static
 	{

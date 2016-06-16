@@ -80,7 +80,21 @@ Point2f CalcLoopCentroid(const VectorRing &loop)
     
     return centroid;
 }
+
+Point2d CalcCenterOfMass(const Point2dVector &loop)
+{
+    Point2d center(0,0);
+
+    if (loop.empty())
+        return center;
         
+    for (auto &pt : loop)
+        center += pt;
+    center /= loop.size();
+
+    return center;
+}
+
 // Break any edge longer than the given length
 // Returns true if it broke anything.  If it didn't, doesn't fill in outPts
 void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float maxLen)

@@ -142,6 +142,8 @@ public:
     double defaultFarPlane;
     double absoluteMinFarPlane;
     
+    double getHeightAboveGlobe();
+    
 protected:
     void privateSetHeightAboveGlobe(double newH,bool updateWatchers);
     

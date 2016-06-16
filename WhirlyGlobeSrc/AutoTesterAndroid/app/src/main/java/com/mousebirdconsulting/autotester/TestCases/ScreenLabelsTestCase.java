@@ -50,7 +50,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 	}
 
 	// If set, we'll put markers around the points for debugging
-	static boolean addMarkers = true;
+	static boolean addMarkers = false;
 
 	private void insertLabels(ArrayList<VectorObject> objects, MaplyBaseController baseVC) {
 

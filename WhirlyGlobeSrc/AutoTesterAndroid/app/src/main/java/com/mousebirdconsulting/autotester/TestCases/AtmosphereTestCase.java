@@ -118,7 +118,7 @@ public class AtmosphereTestCase extends MaplyTestCase {
             @Override
             public void run() {
                 globeVC.setClearColor(Color.BLACK);
-                particleThread = globeVC.makeLayerThread(false);
+                particleThread = globeVC.getWorkingThread();
                 try {
                     particleAdapter = new MaplyStarModel("starcatalog_orig.txt", "star_background.png", getActivity());
                     particleAdapter.addToViewc(globeVC, MaplyBaseController.ThreadMode.ThreadCurrent);

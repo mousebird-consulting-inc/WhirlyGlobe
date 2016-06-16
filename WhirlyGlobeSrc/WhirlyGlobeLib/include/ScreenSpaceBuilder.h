@@ -185,7 +185,8 @@ public:
     void setWorldLoc(const Point3d &worldLoc);
     Point3d getWorldLoc();
     Point3d getEndWorldLoc();
-    TimeInterval getStartTime(),getEndTime();
+	TimeInterval getStartTime();
+	TimeInterval getEndTime();
     
     /// Set up the end location and timing
     void setMovingLoc(const Point3d &worldLoc,TimeInterval startTime,TimeInterval endTime);
@@ -194,6 +195,7 @@ public:
     void setEnableTime(TimeInterval startEnable,TimeInterval endEnable);
     void setVisibility(float minVis,float maxVis);
     void setDrawPriority(int drawPriority);
+	int getDrawPriority();
     void setKeepUpright(bool keepUpright);
     void setRotation(double rotation);
     void setFade(TimeInterval fadeUp,TimeInterval fadeDown);
@@ -202,6 +204,9 @@ public:
     
     void addGeometry(const ConvexGeometry &geom);
     
+    // Get a program ID either from the drawable state or geometry
+    SimpleIdentity getTypicalProgramID();
+
 protected:
     bool enable;
     TimeInterval startEnable,endEnable;
@@ -222,8 +227,10 @@ class ScreenSpaceObjectLocation
 public:
     ScreenSpaceObjectLocation();
 
-    // ID for selector
-    SimpleIdentity shapeID;
+    // IDs for selected objects (one if regular, more than one for cluster)
+    std::vector<SimpleIdentity> shapeIDs;
+    // Set if this is a cluster
+    bool isCluster;
     // Location of object in display space
     Point3d dispLoc;
     // Offset on the screen (presumably if it's been moved around during layout)

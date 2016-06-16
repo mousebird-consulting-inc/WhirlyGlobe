@@ -651,7 +651,7 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
                 (sel.minVis < pInfo.heightAboveSurface && pInfo.heightAboveSurface < sel.maxVis))
             {
                 ScreenSpaceObjectLocation objLoc;
-                objLoc.shapeID = sel.selectID;
+                objLoc.shapeIDs.push_back(sel.selectID);
                 objLoc.dispLoc = sel.center;
                 objLoc.offset = Point2d(0,0);
                 for (unsigned int ii=0;ii<4;ii++)
@@ -675,7 +675,7 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
                 (sel.minVis < pInfo.heightAboveSurface && pInfo.heightAboveSurface < sel.maxVis))
             {
                 ScreenSpaceObjectLocation objLoc;
-                objLoc.shapeID = sel.selectID;
+                objLoc.shapeIDs.push_back(sel.selectID);
                 objLoc.dispLoc = sel.centerForTime(now);
                 objLoc.offset = Point2d(0,0);
                 for (unsigned int ii=0;ii<4;ii++)
@@ -836,7 +836,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
             if (!pInfo.frameMbr.overlaps(objMbr))
                 continue;
             
-            if (screenObj.shapeID != EmptyIdentity)
+            if (!screenObj.shapeIDs.empty())
             {
                 Point2fVector screenPts;
                 for (unsigned int kk=0;kk<4;kk++)
@@ -849,9 +849,12 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
                 // See if we fall within that polygon
                 if (PointInPolygon(touchPt, screenPts))
                 {
-                    SelectedObject selObj(screenObj.shapeID,0.0,0.0);
-                    selObjs.push_back(selObj);
-                    break;
+                    for (auto shapeID : screenObj.shapeIDs)
+                    {
+                        SelectedObject selObj(shapeID,0.0,0.0);
+                        selObj.isCluster = screenObj.isCluster;
+                        selObjs.push_back(selObj);
+                    }                    break;
                 }
                 
                 // Now for a proximity check around the edges
@@ -867,8 +870,12 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
         // Got close enough to this object to select it
         if (closeDist2 < maxDist2)
         {
-            SelectedObject selObj(screenObj.shapeID,0.0,sqrtf(closeDist2));
-            selObjs.push_back(selObj);
+            for (auto shapeID : screenObj.shapeIDs)
+            {
+                SelectedObject selObj(shapeID,0.0,sqrtf(closeDist2));
+                selObj.isCluster = screenObj.isCluster;
+                selObjs.push_back(selObj);
+            }
         }
         
         if (!multi && !selObjs.empty())

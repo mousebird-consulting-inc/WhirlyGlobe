@@ -111,4 +111,5 @@
 #import "BillboardDrawable.h"
 #import "ScreenObject.h"
 #import "MapboxVectorTileParser.h"
+#import "OverlapHelper.h"
 

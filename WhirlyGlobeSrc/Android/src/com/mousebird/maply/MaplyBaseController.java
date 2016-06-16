@@ -525,6 +525,9 @@ public class MaplyBaseController
 		LayerThread baseLayerThread = layerThreads.get(0);
 		baseLayerThread.addLayer(layoutLayer);
 
+		// Add a default cluster generator
+		addClusterGenerator(new BasicClusterGenerator(new int[]{Color.argb(255,255,165,0)},0,new Point2d(64,64),this,activity));
+
 		// Run any outstanding runnables
 		if (surfaceTasks != null) {
 			for (Runnable run : surfaceTasks) {
@@ -564,16 +567,16 @@ public class MaplyBaseController
 		for (LayerThread layerThread : layerThreads)
 	        layerThread.viewUpdated(view);
 
-        // Call the post surface setup callbacks
-        for (Runnable run : postSurfaceRunnables)
-            activity.runOnUiThread(run);
-        postSurfaceRunnables.clear();
-
 		setClearColor(clearColor);
 
 		// Create the working threads
 		for (int ii=0;ii<numWorkingThreads;ii++)
 			workerThreads.add(makeLayerThread(false));
+
+		// Call the post surface setup callbacks
+		for (Runnable run : postSurfaceRunnables)
+			activity.runOnUiThread(run);
+		postSurfaceRunnables.clear();
 	}
 
     /**
@@ -1142,7 +1145,7 @@ public class MaplyBaseController
 	}
 
 	/**
-	 * Remove a texture from the scene with the given settings.
+	 * Remove a texture from the scene.
 	 * @param tex Texture to remove.
 	 * @param mode Remove immediately (current thread) or elsewhere.
      */
@@ -1158,6 +1161,33 @@ public class MaplyBaseController
 						ChangeSet changes = new ChangeSet();
 
 						changes.removeTexture(tex.texID);
+
+						// Flush the texture changes
+						changes.process(scene);
+					}
+				};
+
+		addTask(run, mode);
+	}
+
+	/**
+	 * Remove a whole group of textures from the scene.
+	 * @param texs Textures to remove.
+	 * @param mode Remove immediately (current thread) or elsewhere.
+     */
+	public void removeTextures(final List<MaplyTexture> texs,ThreadMode mode)
+	{
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+
+						for (MaplyTexture tex : texs)
+							changes.removeTexture(tex.texID);
 
 						// Flush the texture changes
 						changes.process(scene);
@@ -1397,6 +1427,13 @@ public class MaplyBaseController
 				}
 			};
 			addTask(run, mode);
+		}
+	}
+
+	public void addClusterGenerator(ClusterGenerator generator) {
+		if (this.layoutLayer != null) {
+			generator.baseController = this;
+			layoutLayer.addClusterGenerator(generator);
 		}
 	}
 

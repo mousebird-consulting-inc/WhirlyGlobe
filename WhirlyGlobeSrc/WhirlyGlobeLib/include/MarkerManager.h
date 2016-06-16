@@ -71,6 +71,7 @@ public:
     float width,height;
     SimpleIdentity markerId;
     float layoutImportance;
+    int clusterGroup;
 };
 
 /** WhirlyKit Marker

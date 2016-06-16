@@ -488,8 +488,25 @@ void ScreenSpaceObject::addGeometry(const ConvexGeometry &geom)
     geometry.push_back(geom);
 }
     
+SimpleIdentity ScreenSpaceObject::getTypicalProgramID()
+{
+
+    for (auto geom : geometry) {
+		if (geom.progID != EmptyIdentity) {
+            return geom.progID;
+		}
+    }
+
+    return state.progID;
+}
+
+int ScreenSpaceObject::getDrawPriority()
+{
+    return state.drawPriority;
+}
+
 ScreenSpaceObjectLocation::ScreenSpaceObjectLocation()
-: shapeID(EmptyIdentity), dispLoc(0,0,0), offset(0,0)
+	: isCluster(false), dispLoc(0,0,0), offset(0,0)
 {
     
 }

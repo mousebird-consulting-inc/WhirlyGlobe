@@ -38,7 +38,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ViewState_isEqual
 	{
 		ViewStateClassInfo *classInfo = ViewStateClassInfo::getClassInfo();
 		ViewState *viewState = classInfo->getObject(env,obj);
-		ViewState *otherViewState = classInfo->getObject(env,obj);
+		ViewState *otherViewState = classInfo->getObject(env,otherObj);
 		if (!viewState || !otherViewState)
 			return false;
 

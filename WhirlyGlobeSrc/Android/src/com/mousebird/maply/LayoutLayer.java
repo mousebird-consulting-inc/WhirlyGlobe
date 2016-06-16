@@ -52,6 +52,7 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 	}
 	
 	ViewState viewState = null;
+	ViewState lastViewState = null;
 
 	// Called when the view state changes
 	@Override
@@ -59,7 +60,8 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 	{		
 		// This pushes back the update, which is what we want
 		// We'd prefer to update 0.2s after the user stops moving
-		if (viewState == null || viewState.isEqual(newViewState))
+		// Note: Should do a deeper compare on the view states
+		if (viewState == null || viewState != newViewState)
 		{			
 			viewState = newViewState;
 			cancelUpdate();
@@ -117,10 +119,16 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 	{
 		updateHandle = null;
 		updateRun = null;
-		// Note: Should wait until the user stops moving
-		ChangeSet changes = new ChangeSet();
-		layoutManager.updateLayout(viewState, changes);
-		maplyControl.scene.addChanges(changes);		
+
+		// Note: Should do a deeper compare on the view states
+		if (layoutManager.hasChanges() || viewState != lastViewState) {
+			// Note: Should wait until the user stops moving
+			ChangeSet changes = new ChangeSet();
+			layoutManager.updateLayout(viewState, changes);
+			maplyControl.scene.addChanges(changes);
+
+			lastViewState = viewState;
+		}
 	}
 	
 	@Override
@@ -136,5 +144,12 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 		// Want an update no less often than this
 		// Note: What?
 		return 4.0f;
+	}
+
+	public void addClusterGenerator(ClusterGenerator generator) {
+		synchronized (this) {
+			Point2d clusterSize = generator.clusterLayoutSize();
+			this.layoutManager.addClusterGenerator(generator, generator.clusterNumber(),generator.selectable(),clusterSize.getX(),clusterSize.getY());
+		}
 	}
 }

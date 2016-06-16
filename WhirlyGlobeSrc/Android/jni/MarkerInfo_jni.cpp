@@ -100,3 +100,20 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setLayoutImportance
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MarkerInfo::setLayoutImportance()");
     }
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setClusterGroup
+(JNIEnv *env, jobject obj, jint clusterGroup)
+{
+    try
+    {
+        MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
+        MarkerInfo *info = classInfo->getObject(env,obj);
+        if (!info)
+            return;
+        info->clusterGroup = clusterGroup;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MarkerInfo::setLayoutImportance()");
+    }
+}
