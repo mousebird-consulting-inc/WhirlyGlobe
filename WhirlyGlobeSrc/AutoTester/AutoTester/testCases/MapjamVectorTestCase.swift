@@ -8,7 +8,7 @@
 
 import Foundation
 
-class MapjamVectorTestCase: MaplyTestCase, MaplyViewControllerDelegate {
+class MapjamVectorTestCase: MaplyTestCase {
     
     override init() {
         super.init()

@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "MaplyTestResult.h"
+#import "WhirlyGlobeComponent.h"
 
 
 @class MaplyViewController;
@@ -35,7 +36,7 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseState) {
 	MaplyTestCaseStateRunning,
 };
 
-@interface MaplyTestCase : NSObject
+@interface MaplyTestCase : NSObject <WhirlyGlobeViewControllerDelegate,MaplyViewControllerDelegate>
 
 - (void)start;
 
@@ -66,6 +67,7 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseState) {
 @property (nonatomic, copy, nullable) void (^updateProgress)(BOOL enableIndicator);
 
 
+@property (nonatomic, weak) MaplyBaseViewController * _Nullable baseViewController;
 @property (nonatomic, strong) WhirlyGlobeViewController *_Nullable globeViewController;
 @property (nonatomic, strong) MaplyViewController * _Nullable mapViewController;
 
