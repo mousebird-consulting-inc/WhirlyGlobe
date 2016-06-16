@@ -1,5 +1,5 @@
 //
-//  MarkersTestCase.swift
+//  MarkersTestCase.m
 //  AutoTester
 //
 //  Created by jmnavarro on 2/11/15.

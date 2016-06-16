@@ -8,7 +8,7 @@
 
 import UIKit
 
-class MapzenVectorTestCase: MaplyTestCase, MaplyViewControllerDelegate {
+class MapzenVectorTestCase: MaplyTestCase {
 
 	override init() {
 		super.init()

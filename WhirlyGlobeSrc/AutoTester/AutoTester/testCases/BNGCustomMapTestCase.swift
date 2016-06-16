@@ -9,7 +9,7 @@
 import UIKit
 
 
-class BNGCustomMapTestCase: MaplyTestCase, MaplyViewControllerDelegate {
+class BNGCustomMapTestCase: MaplyTestCase {
 	
 	override init() {
 		super.init()
