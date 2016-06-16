@@ -586,7 +586,9 @@ void TileBuilder::generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,Basic
             if (activeTextures > 0)
                 skirtChunk->setTexId(activeTextures-1, EmptyIdentity);
             skirtChunk->setDrawOffset(drawOffset);
-            skirtChunk->setDrawPriority(0);
+            // Note: We hardwire this to appear after the atmosphere
+            //       Would be wiser to make this configurable... sort of
+            skirtChunk->setDrawPriority(11);
             skirtChunk->setVisibleRange(minVis, maxVis);
             skirtChunk->setAlpha(hasAlpha);
             skirtChunk->setColor(color);
