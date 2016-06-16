@@ -285,7 +285,7 @@ void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo 
          it != layoutObjects.end(); ++it)
     {
         LayoutObjectEntry *entry = *it;
-        if (entry->currentEnable)
+        if (entry->currentEnable && entry->obj.enable)
         {
             ScreenSpaceObjectLocation ssObj;
             ssObj.shapeIDs.push_back(entry->obj.getId());
