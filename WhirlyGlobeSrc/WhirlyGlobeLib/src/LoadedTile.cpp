@@ -366,7 +366,8 @@ void TileBuilder::generateDrawables(ElevationDrawInfo *drawInfo,BasicDrawable **
             if (activeTextures > 0)
                 skirtChunk->setTexId(activeTextures-1, EmptyIdentity);
             skirtChunk->setDrawOffset(drawOffset);
-            skirtChunk->setDrawPriority(0);
+            // Note: Setting this to avoid fighting with atmosphere
+            skirtChunk->setDrawPriority(11);
             skirtChunk->setVisibleRange(minVis, maxVis);
             skirtChunk->setAlpha(hasAlpha);
             skirtChunk->setColor(color);
