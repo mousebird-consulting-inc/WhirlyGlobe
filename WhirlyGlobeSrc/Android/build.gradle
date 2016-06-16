@@ -24,7 +24,7 @@ apply plugin: 'com.jfrog.bintray'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "23.0.3"
 
     sourceSets {
         main {
@@ -61,6 +61,10 @@ dependencies {
 
 }
 
+import org.gradle.internal.os.OperatingSystem;
+import org.apache.tools.ant.taskdefs.condition.Os;
+
+
 task buildHeaders(type: Exec, description: 'Build headers to be used on native build') {
     Properties properties = new Properties()
     properties.load(project.rootProject.file('local.properties').newDataInputStream())
@@ -71,23 +75,43 @@ task buildHeaders(type: Exec, description: 'Build headers to be used on native b
 task buildNative(type: Exec, description: 'Compile native code using NDK') {
     def ndkDir = plugins.getPlugin('com.android.library').sdkHandler.getNdkFolder()
 
-    commandLine "$ndkDir/ndk-build",
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine "$ndkDir/ndk-build.cmd",
             '-C', file('.').absolutePath,
             '-j', Runtime.runtime.availableProcessors(),
             'all',
              'APP_ABI=' + (project.hasProperty('architecture') ? architecture : 'all')
 //           ,'NDK_DEBUG=1'
+    } else {
+        commandLine "$ndkDir/ndk-build",
+            '-C', file('.').absolutePath,
+            '-j', Runtime.runtime.availableProcessors(),
+            'all',
+             'APP_ABI=' + (project.hasProperty('architecture') ? architecture : 'all')
+//           ,'NDK_DEBUG=1'
+    } 
 }
 
 task cleanNative(type: Exec, description: 'Clean native compiled code') {
     def ndkDir = plugins.getPlugin('com.android.library').sdkHandler.getNdkFolder()
-    commandLine "$ndkDir/ndk-build",
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine "$ndkDir/ndk-build.cmd",
             '-C', file('.').absolutePath,
             'clean'
+    } else {
+        commandLine "$ndkDir/ndk-build.cmd",
+            '-C', file('.').absolutePath,
+            'clean'
+    }
 }
     
 clean.dependsOn 'cleanNative'
-buildNative.dependsOn 'buildHeaders'
+
+if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+    println "*** Build headers is skipped on Windows"
+} else {
+    buildNative.dependsOn 'buildHeaders'
+}
 
 tasks.withType(JavaCompile) {
     compileTask -> compileTask.dependsOn buildNative
