@@ -9,6 +9,7 @@ import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.Point3d;
+import com.mousebird.maply.SelectedObject;
 import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
@@ -40,7 +41,7 @@ public class GestureFeedbackTestCase extends MaplyTestCase implements GlobeContr
     }
 
     @Override
-    public void userDidSelect(GlobeController globeVC, Object o, Point2d loc, Point2d screenLoc) {
+    public void userDidSelect(GlobeController globeVC, SelectedObject[] objs, Point2d loc, Point2d screenLoc) {
         Log.i("AutoTester","User selected feature at");
     }
 

@@ -17,6 +17,14 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectionManager_pickObject
 
 /*
  * Class:     com_mousebird_maply_SelectionManager
+ * Method:    pickObjects
+ * Signature: (Lcom/mousebird/maply/View;Lcom/mousebird/maply/Point2d;)[Lcom/mousebird/maply/SelectedObject;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObjects
+  (JNIEnv *, jobject, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_SelectionManager
  * Method:    nativeInit
  * Signature: ()V
  */

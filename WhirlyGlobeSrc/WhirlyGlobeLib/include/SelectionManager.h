@@ -186,6 +186,7 @@ public:
     class SelectedObject
     {
     public:
+        SelectedObject() { }
         SelectedObject(SimpleIdentity selectID,double distIn3D,double screenDist) : selectID(selectID), distIn3D(distIn3D), screenDist(screenDist) { }
         SimpleIdentity selectID;    // What we selected
         double distIn3D;            // 3D distance from eye

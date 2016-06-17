@@ -76,6 +76,7 @@ public class ClusteredMarkersTestCase extends MaplyTestCase {
             marker.image = icon;
             marker.loc = v.centroid();
             marker.size = size;
+            marker.selectable = true;
 
             if (marker.loc != null)
                 markers.add(marker);

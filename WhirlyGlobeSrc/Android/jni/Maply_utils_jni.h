@@ -48,3 +48,6 @@ JNIEXPORT jobject JNICALL MakeAttrDictionary(JNIEnv *env,WhirlyKit::Dictionary *
 
 // Construct a Java-side Vector Object
 JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,WhirlyKit::VectorObject *vec);
+
+// Construct a Java-side SelectObject er... Object
+JNIEXPORT jobject JNICALL MakeSelectedObject(JNIEnv *env,const WhirlyKit::SelectionManager::SelectedObject &selObj);

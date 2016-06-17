@@ -12,6 +12,7 @@ import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.Point3d;
+import com.mousebird.maply.SelectedObject;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.R;
 
@@ -288,9 +289,9 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	/** Implementation of Globe Gesture Delegate
      */
 
-	public void userDidSelect(GlobeController globeControl, Object selObj, Point2d loc, Point2d screenLoc)
+	public void userDidSelect(GlobeController globeControl, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc)
 	{
-		Log.d("Maply","Selected object");
+		Log.d("Maply","Selected " + selObjs.length + " objects");
 	}
 
 	public void userDidTap(GlobeController globeControl,Point2d loc,Point2d screenLoc)
@@ -311,7 +312,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	/** Implementation of Map Gesture Delegate
 	 */
 
-	public void userDidSelect(MapController mapControl,Object selObj,Point2d loc,Point2d screenLoc)
+	public void userDidSelect(MapController mapControl,SelectedObject[] selObjs,Point2d loc,Point2d screenLoc)
 	{
 		Log.d("Maply","Selected object");
 	}

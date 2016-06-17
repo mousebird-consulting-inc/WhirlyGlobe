@@ -465,6 +465,7 @@ typedef JavaClassInfo<WhirlyKit::SimplePoly> SimplePolyClassInfo;
 typedef JavaClassInfo<WhirlyKit::StringWrapper> StringWrapperClassInfo;
 typedef JavaClassInfo<WhirlyKit::ScreenObject> ScreenObjectClassInfo;
 typedef JavaClassInfo<WhirlyKit::MapboxVectorTileParser> MapboxVectorTileParserClassInfo;
+typedef JavaClassInfo<WhirlyKit::SelectionManager::SelectedObject> SelectedObjectClassInfo;
 
 // The shared JNIEnv set in the ::render call
 extern JNIEnv *maplyCurrentEnv;

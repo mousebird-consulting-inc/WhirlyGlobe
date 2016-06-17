@@ -21,6 +21,9 @@ class SelectionManager
 
 	// Look for an object that the selection manager is handling
 	public native long pickObject(View view,Point2d screenLoc);
+
+	// Look for a list of objects the selection manager is handling
+	public native SelectedObject[] pickObjects(View view,Point2d screenLoc);
 	
 	static
 	{

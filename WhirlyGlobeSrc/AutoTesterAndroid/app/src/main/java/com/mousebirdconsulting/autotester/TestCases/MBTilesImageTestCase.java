@@ -14,6 +14,7 @@ import com.mousebird.maply.Mbr;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.Point3d;
 import com.mousebird.maply.QuadImageTileLayer;
+import com.mousebird.maply.SelectedObject;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
@@ -39,7 +40,7 @@ public class MBTilesImageTestCase extends MaplyTestCase {
 
     private GlobeController.GestureDelegate gestureDelegate = new GlobeController.GestureDelegate() {
         @Override
-        public void userDidSelect(GlobeController controller, Object o, Point2d loc, Point2d screenLoc) {
+        public void userDidSelect(GlobeController controller, SelectedObject objs[], Point2d loc, Point2d screenLoc) {
             // Intentionally blank
         }
 

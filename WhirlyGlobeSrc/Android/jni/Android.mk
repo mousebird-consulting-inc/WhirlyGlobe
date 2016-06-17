@@ -130,7 +130,7 @@ MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp AngleAxis_jni.cpp \
 					Point2d_jni.cpp Point3d_jni.cpp Point4d_jni.cpp ParticleBatch_jni.cpp ParticleSystem_jni.cpp ParticleSystemManager_jni.cpp \
 					PlateCarreeCoordSystem_jni.cpp Proj4CoordSystem_jni.cpp QuadPagingLayer_jni.cpp QuadImageTileLayer_jni.cpp \
 					Quaternion_jni.cpp QuadImageOfflineLayer_jni.cpp QuadTracker_jni.cpp \
-					SelectionManager_jni.cpp Shader_jni.cpp SimplePoly_jni.cpp SingleLabelAndroid.cpp SphericalMercatorCoordSystem_jni.cpp StringWrapper_jni.cpp \
+					SelectionManager_jni.cpp SelectedObject_jni.cpp Shader_jni.cpp SimplePoly_jni.cpp SingleLabelAndroid.cpp SphericalMercatorCoordSystem_jni.cpp StringWrapper_jni.cpp \
 					Scene_jni.cpp ScreenObject_jni.cpp Sticker_jni.cpp StickerInfo_jni.cpp StickerManager_jni.cpp Sun_jni.cpp \
 					ShapeInfo_jni.cpp Shape_jni.cpp ShapeSphere_jni.cpp ShapeManager_jni.cpp Texture_jni.cpp \
 					VectorInfo_jni.cpp VectorIterator_jni.cpp VectorManager_jni.cpp VectorObject_jni.cpp View_jni.cpp VertexAttribute_jni.cpp ViewState_jni.cpp

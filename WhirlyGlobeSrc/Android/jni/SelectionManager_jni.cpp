@@ -20,6 +20,7 @@
 
 #import <jni.h>
 #import "Maply_jni.h"
+#import "Maply_utils_jni.h"
 #import "com_mousebird_maply_SelectionManager.h"
 #import "WhirlyGlobe.h"
 
@@ -85,5 +86,42 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectionManager_pickObject
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SelectionManager::pickObject()");
 	}
+}
 
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObjects
+(JNIEnv *env, jobject obj, jobject viewObj, jobject pointObj)
+{
+    try
+    {
+        SelectionManagerClassInfo *classInfo = SelectionManagerClassInfo::getClassInfo();
+        SelectionManager *selectionManager = classInfo->getObject(env,obj);
+        ViewClassInfo *viewClassInfo = ViewClassInfo::getClassInfo();
+        View *mapView = viewClassInfo->getObject(env,viewObj);
+        Point2dClassInfo *point2DclassInfo = Point2dClassInfo::getClassInfo();
+        Point2d *point = point2DclassInfo->getObject(env,pointObj);
+        if (!selectionManager || !mapView || !point)
+            return NULL;
+        
+        std::vector<SelectionManager::SelectedObject> selObjs;
+        selectionManager->pickObjects(Point2f(point->x(),point->y()),10.0,mapView,selObjs);
+
+        if (selObjs.empty())
+            return NULL;
+
+        jobjectArray retArray = env->NewObjectArray(selObjs.size(), SelectedObjectClassInfo::getClassInfo(env,"com/mousebird/maply/SelectedObject")->getClass(), NULL);
+        int which = 0;
+        for (auto &selObj : selObjs)
+        {
+            jobject newObj = MakeSelectedObject(env,selObj);
+            env->SetObjectArrayElement(retArray,which,newObj);
+            env->DeleteLocalRef( newObj);
+            which++;
+        }
+        
+        return retArray;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SelectionManager::pickObjects()");
+    }
 }

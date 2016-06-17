@@ -379,11 +379,11 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		 * The user selected the given object.  Up to you to figure out what it is.
 		 * 
 		 * @param mapControl The maply controller this is associated with.
-		 * @param selObj The object the user selected (e.g. MaplyScreenMarker).
+		 * @param selObjs The objects the user selected (e.g. MaplyScreenMarker).
 		 * @param loc The location they tapped on.  This is in radians.
 		 * @param screenLoc The location on the OpenGL surface.
 		 */
-		public void userDidSelect(MapController mapControl,Object selObj,Point2d loc,Point2d screenLoc);
+		public void userDidSelect(MapController mapControl,SelectedObject[] selObjs,Point2d loc,Point2d screenLoc);
 		
 		/**
 		 * The user tapped somewhere, but not on a selectable object.
@@ -412,21 +412,22 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	// Called by the gesture handler to let us know the user tapped
 	public void processTap(Point2d screenLoc)
 	{
-		if (gestureDelegate != null)
-		{
+		if (gestureDelegate != null) {
 			Matrix4d mapTransform = mapView.calcModelViewMatrix();
 			Point3d loc = mapView.pointOnPlaneFromScreen(screenLoc, mapTransform, renderWrapper.maplyRender.frameSize, false);
 
-			Object selObj = this.getObjectAtScreenLoc(screenLoc);
+//			Object selObj = this.getObjectAtScreenLoc(screenLoc);
+			SelectedObject selObjs[] = this.getObjectsAtScreenLoc(screenLoc);
 
-			if (selObj != null)
-			{
-				gestureDelegate.userDidSelect(this, selObj, loc.toPoint2d(), screenLoc);
-			} else
+			if (selObjs != null) {
+				gestureDelegate.userDidSelect(this, selObjs, loc.toPoint2d(), screenLoc);
+			} else {
 				// Just a simple tap, then
 				gestureDelegate.userDidTap(this, loc.toPoint2d(), screenLoc);
+			}
 		}
 	}
+
 
 
 	/**
@@ -447,30 +448,6 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 
 	}
 
-
-	/**
-	 * Returns an object (if any) at a given screen location
-	 * @param screenLoc the screen location to be considered
-	 * @return teh object at screenLoc or null if none was there
-	 */
-	private Object getObjectAtScreenLoc(Point2d screenLoc)
-	{
-		long selectID = selectionManager.pickObject(mapView, screenLoc);
-		if (selectID != EmptyIdentity)
-		{
-			// Look for the object
-			Object selObj = null;
-			synchronized(selectionMap)
-			{
-				selObj = selectionMap.get(selectID);
-			}
-
-			return selObj;
-		}
-
-		return null;
-	}
-	
 	// Pass the touches on to the gesture handler
 	@Override
 	public boolean onTouch(View view, MotionEvent e) {

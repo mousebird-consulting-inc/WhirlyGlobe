@@ -1003,6 +1003,47 @@ public class MaplyBaseController
 		}
 	}
 
+	// Returns all the objects near a point
+	protected SelectedObject[] getObjectsAtScreenLoc(Point2d screenLoc)
+	{
+		SelectedObject objs[] = selectionManager.pickObjects(view, screenLoc);
+		if (objs != null)
+		{
+			// Remap the objects
+			synchronized(selectionMap) {
+				for (SelectedObject selObj : objs) {
+					long selectID = selObj.getSelectID();
+					selObj.selObj = selectionMap.get(selectID);
+				}
+			}
+		}
+
+		return objs;
+	}
+
+	/**
+	 * Returns an object (if any) at a given screen location
+	 * @param screenLoc the screen location to be considered
+	 * @return teh object at screenLoc or null if none was there
+	 */
+	protected Object getObjectAtScreenLoc(Point2d screenLoc)
+	{
+		long selectID = selectionManager.pickObject(view, screenLoc);
+		if (selectID != EmptyIdentity)
+		{
+			// Look for the object
+			Object selObj = null;
+			synchronized(selectionMap)
+			{
+				selObj = selectionMap.get(selectID);
+			}
+
+			return selObj;
+		}
+
+		return null;
+	}
+
 	/**
 	 * Add a single screen label.  See addScreenLabels() for details.
 	 */
