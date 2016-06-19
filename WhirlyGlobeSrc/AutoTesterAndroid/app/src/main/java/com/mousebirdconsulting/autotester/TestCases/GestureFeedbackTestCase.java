@@ -17,7 +17,64 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 /**
  * Created by sjg on 1/27/16.
  */
-public class GestureFeedbackTestCase extends MaplyTestCase implements GlobeController.GestureDelegate {
+public class GestureFeedbackTestCase extends MaplyTestCase {
+
+
+    private GlobeController.GestureDelegate globeGestureDelegate = new GlobeController.GestureDelegate() {
+
+        @Override
+        public void userDidSelect(GlobeController globeVC, SelectedObject[] objs, Point2d loc, Point2d screenLoc) {
+            Log.i("AutoTester","User selected feature at" + loc.getX() + " " + loc.getY());
+        }
+
+        @Override
+        public void userDidTap(GlobeController globeVC, Point2d loc, Point2d screenLoc) {
+            Log.i("AutoTester","User tapped at " + loc.getX() + " " + loc.getY());
+        }
+
+        @Override
+        public void userDidLongPress(GlobeController globeController, Object o, Point2d loc, Point2d screenLoc) {
+            Log.i("AutoTester","User long pressed at " + loc.getX() + " " + loc.getY());
+        }
+
+        @Override
+        public void globeDidStartMoving(GlobeController globeVC, boolean userMotion) {
+            Log.i("AutoTester",String.format("Globe did start moving (userMotion = %b)", userMotion));
+        }
+
+        // Called for every frame
+        @Override
+        public void globeDidMove(GlobeController globeVC, Point3d[] corners, boolean userMotion) {
+            updateBbox(globeVC,corners);
+            Log.i("AutoTester",String.format("Globe did move (userMotion = %b)", userMotion));
+        }
+
+        @Override
+        public void globeDidStopMoving(GlobeController globeVC, Point3d[] corners, boolean userMotion) {
+            updateBbox(globeVC,corners);
+            Log.i("AutoTester",String.format("Globe did stop moving (userMotion = %b)", userMotion));
+        }
+    };
+
+
+    private MapController.GestureDelegate mapGestureDelegate = new MapController.GestureDelegate() {
+        @Override
+        public void userDidSelect(MapController mapController, SelectedObject[] selectedObjects, Point2d loc, Point2d screenloc) {
+            Log.i("AutoTester","User selected feature at" + loc.getX() + " " + loc.getY());
+        }
+
+        @Override
+        public void userDidTap(MapController mapController, Point2d loc, Point2d screenloc) {
+            Log.i("AutoTester","User tapped at " + loc.getX() + " " + loc.getY());
+        }
+
+        @Override
+        public void userDidLongPress(MapController mapController, Object o, Point2d loc, Point2d screenloc) {
+            Log.i("AutoTester","User long pressed at " + loc.getX() + " " + loc.getY());
+        }
+    };
+
+
     public GestureFeedbackTestCase(Activity activity) {
         super(activity);
         setTestName("Gesture Feedback Test");
@@ -29,7 +86,7 @@ public class GestureFeedbackTestCase extends MaplyTestCase implements GlobeContr
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
         CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(this.getActivity());
         mapBoxSatelliteTestCase.setUpWithGlobe(globeVC);
-        globeVC.gestureDelegate = this;
+        globeVC.gestureDelegate = globeGestureDelegate;
         return true;
     }
 
@@ -37,39 +94,11 @@ public class GestureFeedbackTestCase extends MaplyTestCase implements GlobeContr
     public boolean setUpWithMap(MapController mapVC) throws Exception {
         CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(this.getActivity());
         mapBoxSatelliteTestCase.setUpWithMap(mapVC);
+        mapVC.gestureDelegate = mapGestureDelegate;
         return true;
     }
 
-    @Override
-    public void userDidSelect(GlobeController globeVC, SelectedObject[] objs, Point2d loc, Point2d screenLoc) {
-        Log.i("AutoTester","User selected feature at");
-    }
 
-    @Override
-    public void userDidTap(GlobeController globeVC, Point2d loc, Point2d screenLoc) {
-        Log.i("AutoTester","User tapped at " + loc.getX() + " " + loc.getY());
-    }
-
-    @Override
-    public void userDidLongPress(GlobeController globeController, Object o, Point2d loc, Point2d screenLoc) {
-        Log.i("AutoTester","User long pressed at " + loc.getX() + " " + loc.getY());
-    }
-
-    @Override
-    public void globeDidStartMoving(GlobeController globeVC, boolean b) {
-        Log.i("AutoTester","User did start moving");
-    }
-
-    @Override
-    public void globeDidStopMoving(GlobeController globeVC, Point3d[] corners, boolean userMotion) {
-        updateBbox(globeVC,corners);
-    }
-
-    // Called for every frame
-    @Override
-    public void globeDidMove(GlobeController globeVC, Point3d[] corners, boolean userMotion) {
-        updateBbox(globeVC,corners);
-    }
 
     VectorInfo vecInfo = null;
     ComponentObject compObj = null;
