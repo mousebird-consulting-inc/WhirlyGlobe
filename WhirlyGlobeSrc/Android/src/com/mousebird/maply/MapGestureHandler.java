@@ -265,7 +265,8 @@ public class MapGestureHandler
 		public void onLongPress(MotionEvent e) 
 		{
 //			Log.d("Maply","Long Press");
-			mapControl.processLongPress(new Point2d(e.getX(),e.getY()));
+			if (!sl.isActive && gl.isActive && e.getPointerCount() == 1)
+				mapControl.processLongPress(new Point2d(e.getX(),e.getY()));
 		}
 
 
