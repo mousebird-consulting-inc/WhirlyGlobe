@@ -148,8 +148,23 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             vecInfo.setEnable(false);
 
             ComponentObject compObj = controller.addVectors(vecObjs,vecInfo,threadMode);
-            if (compObj != null)
-                return new ComponentObject[]{compObj};
+//            if (compObj != null)
+//                return new ComponentObject[]{compObj};
+
+            //TODO this only to reproduce issue #622 https://github.com/mousebird/WhirlyGlobe/issues/622
+            // Shall be removed once the issue is dealt with
+            VectorInfo outlineVectorInfo = new VectorInfo();
+            outlineVectorInfo.setColor((float)red,(float)green,(float)blue,1.f); // Same color
+            outlineVectorInfo.setLineWidth(5);
+            outlineVectorInfo.setFilled(false);
+            outlineVectorInfo.setDrawPriority(drawPriority + 1);
+            outlineVectorInfo.setEnable(false);
+
+            ComponentObject outlineCompObj = controller.addVectors(vecObjs, outlineVectorInfo, threadMode);
+
+            if (compObj != null && outlineCompObj != null)
+                return new ComponentObject[]{compObj, outlineCompObj};
+
             return null;
         }
     }
