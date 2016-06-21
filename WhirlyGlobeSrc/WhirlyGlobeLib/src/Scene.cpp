@@ -82,6 +82,7 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     addManager(kWKVectorManager, new VectorManager());
     // Vector manager handes vector features
     addManager(kWKWideVectorManager, new WideVectorManager());
+#ifndef MAPLYMINIMAL
     // Chunk manager handles geographic chunks that cover a large chunk of the globe
     addManager(kWKSphericalChunkManager, new SphericalChunkManager());
 //    // Loft manager handles lofted polygon geometry
@@ -90,6 +91,7 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
 //    addManager(kWKParticleSystemManager, new ParticleSystemManager());
     // 3D billboards
     addManager(kWKBillboardManager, new BillboardManager());
+#endif
 
 //    // Font Texture manager is used from any thread
 //    fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];

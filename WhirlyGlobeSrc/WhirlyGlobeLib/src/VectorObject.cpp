@@ -27,6 +27,7 @@ VectorObject::VectorObject()
 {
 }
     
+#ifndef MAPLYMINIMAL
 bool VectorObject::fromGeoJSON(const std::string &json)
 {
     std::string crs;
@@ -49,6 +50,7 @@ bool VectorObject::FromGeoJSONAssembly(const std::string &json,std::map<std::str
     
     return true;
 }
+#endif
     
 Dictionary *VectorObject::getAttributes()
 {
