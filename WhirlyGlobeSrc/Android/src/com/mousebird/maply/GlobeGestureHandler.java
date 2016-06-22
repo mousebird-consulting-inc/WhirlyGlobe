@@ -103,6 +103,8 @@ public class GlobeGestureHandler
 			Matrix4d modelTransform = maplyControl.globeView.calcModelViewMatrix();
 			Point3d hit = maplyControl.globeView.pointOnSphereFromScreen(center, modelTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
 			Point3d localPt = globeView.coordAdapter.displayToLocal(hit);
+			if (localPt == null)
+				return false;
 			centerGeoCoord = globeView.coordAdapter.getCoordSystem().localToGeographic(localPt);
 			
 			// Cancel the panning
@@ -347,9 +349,14 @@ public class GlobeGestureHandler
 			Point2d touch = new Point2d(e.getX(),e.getY());
 			Matrix4d mapTransform = globeView.calcModelViewMatrix();
 			Point3d pt = globeView.pointOnSphereFromScreen(touch, mapTransform, frameSize, false);
-			Point3d geoCoord = coordAdapter.getCoordSystem().localToGeographic(coordAdapter.displayToLocal(pt));
+			if (pt == null)
+				return false;
+			Point3d localPt = coordAdapter.displayToLocal(pt);
+			if (localPt == null)
+				return false;
+			Point3d geoCoord = coordAdapter.getCoordSystem().localToGeographic(localPt);
 
-			if (pt != null)
+			if (pt != null || geoCoord != null)
 			{
 				// Zoom in where they tapped
 				double height = globeView.getHeight();

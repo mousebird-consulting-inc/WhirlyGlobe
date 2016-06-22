@@ -217,6 +217,8 @@ public class MapGestureHandler
 								
 				// If the point is within bounds, set it
 				Point3d locPos = maplyControl.mapView.getCoordAdapter().displayToLocal(newPos);
+				if (locPos == null)
+					return true;
 				if (withinBounds(mapView,maplyControl.renderWrapper.maplyRender.frameSize,locPos,maplyControl.viewBounds)) {
 					maplyControl.mapView.setLoc(locPos);
 				}
@@ -305,7 +307,11 @@ public class MapGestureHandler
 			Point2d touch = new Point2d(e.getX(),e.getY());
 			Matrix4d mapTransform = maplyControl.mapView.calcModelViewMatrix();
 			Point3d pt = mapView.pointOnPlaneFromScreen(touch, mapTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
+			if (pt == null)
+				return false;
 			Point3d locPt = mapView.getCoordAdapter().displayToLocal(pt);
+			if (locPt == null)
+				return false;
 
 			// Zoom in where they tapped
 			Point3d loc = mapView.getLoc();

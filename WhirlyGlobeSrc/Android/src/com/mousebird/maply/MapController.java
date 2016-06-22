@@ -204,8 +204,14 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		
 		Matrix4d modelMat = mapView.calcModelViewMatrix();
 		Point3d dispPt = mapView.pointOnPlaneFromScreen(screenPt, modelMat, renderWrapper.maplyRender.frameSize, false);
+		if (dispPt == null)
+			return null;
 		Point3d localPt = coordAdapter.displayToLocal(dispPt);
+		if (localPt == null)
+			return null;
 		Point3d geoCoord = coordSys.localToGeographic(localPt);
+		if (geoCoord == null)
+			return null;
 		
 		return new Point2d(geoCoord.getX(),geoCoord.getY());
 	}
