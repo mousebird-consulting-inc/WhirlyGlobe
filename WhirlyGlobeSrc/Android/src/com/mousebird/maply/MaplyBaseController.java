@@ -677,6 +677,34 @@ public class MaplyBaseController
 			renderWrapper.maplyRender.setPerfInterval(perfInterval);
 	}
 
+	/** Calculate the height that corresponds to a given Mapnik-style map scale.
+	 * <br>
+	 * Figure out the viewer height that corresponds to a given scale denominator (ala Mapnik).
+	 * This height will probably be use for visibility ranges on geometry.  This works as a mechanism for making geometry appear at certain map scales and disappear at others.
+	 * @return Returns the height or 0.0 if the system isn't initialized yet.
+	 */
+	public double heightForMapScale(double scale)
+	{
+		if (view == null || renderWrapper == null)
+			return 0.0;
+
+		return view.heightForMapScale(scale,renderWrapper.maplyRender.frameSize.getX(),renderWrapper.maplyRender.frameSize.getY());
+	}
+
+	/** Return the current map zoom from the viewpoint.
+	 * <br>
+	 * Calculate the map zoom (TMS) based on the current screen size and the 3D viewport.
+	 * @param coordinate the location to calculate for. This is needed because zoom is dependant on latitude.
+	 * @return Returns the map zoom or MAXFLOAT if the system is not yet initialized.
+	 */
+	public double currentMapZoom(Point2d geoCoord)
+	{
+		if (view == null || renderWrapper == null)
+			return 0.0;
+
+		return view.currentMapZoom(renderWrapper.maplyRender.frameSize.getX(),renderWrapper.maplyRender.frameSize.getY(),geoCoord.getY());
+	}
+
 	/**
 	 * Add a single VectorObject.  See addVectors() for details.
 	 */

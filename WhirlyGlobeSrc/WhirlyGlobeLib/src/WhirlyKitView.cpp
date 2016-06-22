@@ -206,7 +206,7 @@ double View::currentMapScale(const WhirlyKit::Point2f &frameSize)
     return scale;
 }
 
-double View::heightForMapScale(double scale,WhirlyKit::Point2f &frameSize)
+double View::heightForMapScale(double scale,const WhirlyKit::Point2f &frameSize)
 {
     double height = (scale * frameSize.x() * 0.00096) / (2 * tan(fieldOfView/2.0) * EarthRadius);
     return height;

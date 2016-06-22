@@ -302,7 +302,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 		Point2d newGeo = globeControl.geoPointFromScreen(newScreenPt);
 		Mbr mbr = globeControl.getCurrentViewGeo();
 		if (mbr != null)
-			Log.d("Mapl","User is looking at bounding box: " + mbr);
+			Log.d("Maply","User is looking at bounding box: " + mbr);
 	}
 
 	public void userDidLongPress(GlobeController globeControl, Object selObj, Point2d loc, Point2d screenLoc)

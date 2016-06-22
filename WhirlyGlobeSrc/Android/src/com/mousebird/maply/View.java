@@ -111,7 +111,13 @@ public class View
 	}
 
 	// Return the current model & view matrix combined (but not projection)
-	native Matrix4d calcModelViewMatrix();	
+	native Matrix4d calcModelViewMatrix();
+
+	// Return the height for a given map scale
+	public native double heightForMapScale(double scale,double frameSizeX,double frameSizeY);
+
+	// Returns the map zoom for a given latitude
+	public native double currentMapZoom(double frameSizeX,double frameSizeY,double latitude);
 
 	static
 	{

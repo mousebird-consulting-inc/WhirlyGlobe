@@ -17,6 +17,22 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_View_calcModelViewMatrix
 
 /*
  * Class:     com_mousebird_maply_View
+ * Method:    heightForMapScale
+ * Signature: (DDD)D
+ */
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_View_heightForMapScale
+  (JNIEnv *, jobject, jdouble, jdouble, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_View
+ * Method:    currentMapZoom
+ * Signature: (DDD)D
+ */
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_View_currentMapZoom
+  (JNIEnv *, jobject, jdouble, jdouble, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_View
  * Method:    nativeInit
  * Signature: ()V
  */

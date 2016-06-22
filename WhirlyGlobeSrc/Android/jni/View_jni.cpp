@@ -70,3 +70,48 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_View_calcModelViewMatrix
     
     return NULL;
 }
+
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_View_heightForMapScale
+(JNIEnv *env, jobject obj, jdouble scale, jdouble frameSizeX, jdouble frameSizeY)
+{
+    try
+    {
+        ViewClassInfo *classInfo = ViewClassInfo::getClassInfo();
+        WhirlyKit::View *view = classInfo->getObject(env,obj);
+        if (!view)
+            return 0.0;
+
+        return view->heightForMapScale(scale,Point2f(frameSizeX,frameSizeY));
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::heightForMapScale()");
+    }
+
+    return 0.0;
+}
+
+/*
+ * Class:     com_mousebird_maply_View
+ * Method:    currentMapZoom
+ * Signature: (Lcom/mousebird/maply/Point2d;D)D
+ */
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_View_currentMapZoom
+(JNIEnv *env, jobject obj, jdouble frameSizeX, jdouble frameSizeY, jdouble lat)
+{
+    try
+    {
+        ViewClassInfo *classInfo = ViewClassInfo::getClassInfo();
+        WhirlyKit::View *view = classInfo->getObject(env,obj);
+        if (!view)
+            return 0.0;
+        
+        return view->currentMapZoom(Point2f(frameSizeX,frameSizeY),lat);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::heightForMapScale()");
+    }
+    
+    return 0.0;    
+}
