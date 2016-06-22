@@ -207,10 +207,21 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		Mbr geoMbr = new Mbr();
 
 		Point2d frameSize = renderWrapper.maplyRender.frameSize;
-		geoMbr.addPoint(geoPointFromScreen(new Point2d(0,0)));
-		geoMbr.addPoint(geoPointFromScreen(new Point2d(frameSize.getX(),0)));
-		geoMbr.addPoint(geoPointFromScreen(new Point2d(frameSize.getX(),frameSize.getY())));
-		geoMbr.addPoint(geoPointFromScreen(new Point2d(0,frameSize.getY())));
+		Point2d pt = geoPointFromScreen(new Point2d(0,0));
+		if (pt == null) return null;
+		geoMbr.addPoint(pt);
+
+		pt = geoPointFromScreen(new Point2d(frameSize.getX(),0));
+		if (pt == null) return null;
+		geoMbr.addPoint(pt);
+
+		pt = geoPointFromScreen(new Point2d(frameSize.getX(),frameSize.getY()));
+		if (pt == null) return null;
+		geoMbr.addPoint(pt);
+
+		pt = geoPointFromScreen(new Point2d(0,frameSize.getY()));
+		if (pt == null) return null;
+		geoMbr.addPoint(pt);
 
 		return geoMbr;
 	}
@@ -362,8 +373,11 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 
 		globeView.cancelAnimation();
 		Point3d geoCoord = globeView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
-        Quaternion newQuat = globeView.makeRotationToGeoCoord(x, y, globeView.northUp);
-        globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, renderWrapper.maplyRender, newQuat, z, howLong));
+		if (geoCoord != null) {
+			Quaternion newQuat = globeView.makeRotationToGeoCoord(x, y, globeView.northUp);
+			if (newQuat != null)
+				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, renderWrapper.maplyRender, newQuat, z, howLong));
+		}
 	}
 	
 	// Gesture handler
