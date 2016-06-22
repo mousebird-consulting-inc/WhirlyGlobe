@@ -240,7 +240,8 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                 // If it's being passed to the layout engine, do that as well
                 if (layoutEngine)
                 {
-                    float layoutImportance = label->desc.getDouble("layoutImportance",labelInfo->layoutImportance);
+                    float layoutImportance = label->layoutImportance;
+                    layoutImportance = label->desc.getDouble("layoutImportance",layoutImportance);
                     int layoutPlacement = labelInfo->layoutPlacement;
                     if (label->desc.hasField("layoutPlacement"))
                         layoutPlacement = label->desc.getInt("layoutPlacement",(int)(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow));

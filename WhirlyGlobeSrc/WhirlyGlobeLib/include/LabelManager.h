@@ -78,6 +78,8 @@ public:
     Point2f iconSize;
     /// If set, this moves the label if displayed in screen (2D) mode
     Point2d screenOffset;
+    /// If set, this is the layout importance for the single screen label
+    float layoutImportance;
 
     // Used to build the drawable string on specific platforms
     virtual DrawableString *generateDrawableString(const LabelInfo *,FontTextureManager *fontTexManager,ChangeSet &changes) = 0;

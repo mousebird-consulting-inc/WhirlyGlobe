@@ -57,6 +57,9 @@ public class ScreenLabel
 	// If set, this object is selectable
 	public boolean selectable = false;
 
+	// If set, this is the individual label's layout importance
+	public float layoutImportance = 0.f;
+
 	/**
 	 * For selection, we include a user accessible object pointer.  You use
 	 * this to identify a label if you're doing user selection.

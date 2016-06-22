@@ -163,3 +163,20 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setSelectable
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalLabel::setSelectable()");
 	}
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutImportance
+(JNIEnv *env, jobject obj, jfloat layoutImportance)
+{
+    try
+    {
+        LabelClassInfo *classInfo = LabelClassInfo::getClassInfo();
+        SingleLabel *label = classInfo->getObject(env,obj);
+        if (!label)
+            return;
+        label->layoutImportance = layoutImportance;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalLabel::setLayoutImportance()");
+    }
+}

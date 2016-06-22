@@ -58,6 +58,7 @@ class InternalLabel
 		}
 		if (label.offset != null)
 			setOffset(label.offset);
+		setLayoutImportance(label.layoutImportance);
 		setSelectable(label.selectable);
 	}
 	
@@ -70,6 +71,7 @@ class InternalLabel
 	// Note: Color
 	public native void setSelectable(boolean selectable);
 	// Note: Layout placement
+	public native void setLayoutImportance(float layoutImportance);
 	
 	static
 	{

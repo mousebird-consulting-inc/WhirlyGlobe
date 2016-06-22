@@ -49,6 +49,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setSelectable
 
 /*
  * Class:     com_mousebird_maply_InternalLabel
+ * Method:    setLayoutImportance
+ * Signature: (F)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutImportance
+  (JNIEnv *, jobject, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_InternalLabel
  * Method:    nativeInit
  * Signature: ()V
  */
