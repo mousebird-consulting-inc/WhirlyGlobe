@@ -295,7 +295,11 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	}
 
 	public void userDidTap(GlobeController globeControl,Point2d loc,Point2d screenLoc)
-	{}
+	{
+		Log.d("Maply","User tapped at (" + loc.getX() + "," + loc.getY() + ") on screen (" + screenLoc.getX() + "," + screenLoc.getY() + ")");
+		Point2d newScreenPt = globeControl.screenPointFromGeo(loc);
+		Point2d newGeo = globeControl.geoPointFromScreen(newScreenPt);
+	}
 
 	public void userDidLongPress(GlobeController globeControl, Object selObj, Point2d loc, Point2d screenLoc)
 	{}
@@ -318,7 +322,11 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	}
 
 	public void userDidTap(MapController mapControl,Point2d loc,Point2d screenLoc)
-	{}
+	{
+		Log.d("Maply","User tapped at (" + loc.getX() + "," + loc.getY() + ") on screen (" + screenLoc.getX() + "," + screenLoc.getY() + ")");
+		Point2d newScreenPt = mapControl.screenPointFromGeo(loc);
+		Point2d newGeo = mapControl.geoPointFromScreen(newScreenPt);
+	}
 
 	public void userDidLongPress(MapController mapController, Object selObj, Point2d loc, Point2d screenLoc)
 	{}

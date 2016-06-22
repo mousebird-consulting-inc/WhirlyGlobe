@@ -448,16 +448,22 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 			Point3d loc = globeView.pointOnSphereFromScreen(screenLoc, globeTransform, renderWrapper.maplyRender.frameSize, false);
 			if (loc == null)
 				return;
+			Point3d localPt = globeView.getCoordAdapter().displayToLocal(loc);
+			Point3d geoPt = null;
+			if (localPt != null)
+				geoPt = globeView.getCoordAdapter().getCoordSystem().localToGeographic(localPt);
 
 //			Object selObj = this.getObjectAtScreenLoc(screenLoc);
 			SelectedObject selObjs[] = this.getObjectsAtScreenLoc(screenLoc);
 
 			if (selObjs != null)
 			{
-				gestureDelegate.userDidSelect(this, selObjs, loc.toPoint2d(), screenLoc);
+				if (geoPt != null)
+					gestureDelegate.userDidSelect(this, selObjs, geoPt.toPoint2d(), screenLoc);
 			} else {
 				// Just a simple tap, then
-				gestureDelegate.userDidTap(this, loc.toPoint2d(), screenLoc);
+				if (geoPt != null)
+					gestureDelegate.userDidTap(this, geoPt.toPoint2d(), screenLoc);
 			}
 		}
 	}
