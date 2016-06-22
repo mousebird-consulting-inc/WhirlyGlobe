@@ -214,6 +214,7 @@ FontTextureManagerAndroid::FontManagerAndroid *FontTextureManagerAndroid::findFo
 		FontManagerAndroid *fm = (FontManagerAndroid *)*it;
 
 		if (labelInfo.typefaceIsSame(fm->typefaceObj) &&
+                fm->pointSize == labelInfo.fontSize &&
 				fm->color == labelInfo.textColor &&
 				fm->outlineColor == labelInfo.outlineColor &&
 				fm->outlineSize == labelInfo.outlineSize)
@@ -224,7 +225,7 @@ FontTextureManagerAndroid::FontManagerAndroid *FontTextureManagerAndroid::findFo
 	FontManagerAndroid *fm = new FontManagerAndroid(labelInfo.env,typefaceObj);
 	fm->fontName = "";
 	fm->color = labelInfo.textColor;
-	fm->pointSize = labelInfo.height;
+	fm->pointSize = labelInfo.fontSize;
 	fm->outlineColor = labelInfo.outlineColor;
 	fm->outlineSize = labelInfo.outlineSize;
 	fontManagers.insert(fm);

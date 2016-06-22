@@ -36,7 +36,8 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		VectorsTestCase baseView = new VectorsTestCase(getActivity());
 		baseView.setUpWithGlobe(globeVC);
 		insertLabels(baseView.getVectors(), globeVC);
-		globeVC.animatePositionGeo(151.211111, -33.859972, 3, 1);
+		Point2d loc = Point2d.FromDegrees(-74.075833, 4.598056);
+		globeVC.animatePositionGeo(loc.getX(), loc.getY(), 3, 1);
 		return true;
 	}
 
@@ -45,8 +46,19 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		VectorsTestCase baseView = new VectorsTestCase(getActivity());
 		baseView.setUpWithMap(mapVC);
 		insertLabels(baseView.getVectors(), mapVC);
-		mapVC.setPositionGeo(151.211111, -33.859972, 3);
+		Point2d loc = Point2d.FromDegrees(-74.075833, 4.598056);
+		mapVC.setPositionGeo(loc.getX(), loc.getY(), 3);
 		return true;
+	}
+
+	// Make a screen label at a given location (in degrees)
+	ScreenLabel makeLabel(double lon,double lat,String text)
+	{
+		ScreenLabel label = new ScreenLabel();
+		label.loc = Point2d.FromDegrees(lon,lat);
+		label.text = text;
+
+		return label;
 	}
 
 	// If set, we'll put markers around the points for debugging
@@ -55,7 +67,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 	private void insertLabels(ArrayList<VectorObject> objects, MaplyBaseController baseVC) {
 
 		LabelInfo labelInfo = new LabelInfo();
-		labelInfo.setFontSize(32.f);
+		labelInfo.setFontSize(38.5f);
 		labelInfo.setTextColor(Color.WHITE);
 		labelInfo.setBackgroundColor(Color.RED);
 		labelInfo.setTypeface(Typeface.DEFAULT);
@@ -90,13 +102,13 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 			}
 		}
 
-		// Toss in one with an explicit accent
-		ScreenLabel label = new ScreenLabel();
-		label.text = "Bogotá";
-		label.loc = Point2d.FromDegrees(-74.075833, 4.598056);
-		// Move this by a ridiculous amount so we can find it
-		label.offset = new Point2d(-200,0.0);
-		labels.add(label);
+		// Toss in a few with explicit diacritics
+		labels.add(makeLabel(-74.075833, 4.598056, "Bogotá"));
+		labels.add(makeLabel(6.0219, 47.2431, "Besançon"));
+		labels.add(makeLabel(4.361, 43.838, "Nîmes"));
+		labels.add(makeLabel(4.9053, 43.9425, "Morières-lès-Avignon"));
+		labels.add(makeLabel(11.616667, 44.833333, "Ferrara"));
+		labels.add(makeLabel(7, 49.233333, "Saarbrücken"));
 
 		ComponentObject comp = baseVC.addScreenLabels(labels, labelInfo, MaplyBaseController.ThreadMode.ThreadAny);
 		if (comp != null)

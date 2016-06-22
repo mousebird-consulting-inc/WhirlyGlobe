@@ -616,7 +616,7 @@ public class MaplyBaseController
 			run.run();
 	}
 			
-	public void dispose()
+	protected void dispose()
 	{
 		running = false;
 		vecManager.dispose();
