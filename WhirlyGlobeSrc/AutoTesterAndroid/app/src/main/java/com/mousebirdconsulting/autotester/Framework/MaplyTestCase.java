@@ -222,6 +222,14 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 		return null;
 	}
 
+	public void shutdown()
+	{
+		if (globeController != null)
+			globeController.shutdown();
+		if (mapController != null)
+			mapController.shutdown();
+	}
+
 	@Override
 	protected void onPostExecute(Void aVoid) {
 		if (listener != null) {

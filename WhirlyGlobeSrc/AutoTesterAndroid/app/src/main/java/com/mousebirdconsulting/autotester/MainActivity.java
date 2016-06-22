@@ -2,7 +2,6 @@ package com.mousebirdconsulting.autotester;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -12,7 +11,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import com.mousebirdconsulting.autotester.Fragments.TestListFragment;
 import com.mousebirdconsulting.autotester.Fragments.ViewTestFragment;
@@ -232,6 +230,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 	private void finalizeInteractiveTest() {
 		getSupportActionBar().setTitle(R.string.app_name);
 		interactiveTest.cancel(true);
+		interactiveTest.shutdown();
 		ConfigOptions.setTestState(getApplicationContext(), interactiveTest.getTestName(), ConfigOptions.TestState.Ready);
 		interactiveTest = null;
 		MenuItem item = menu.findItem(R.id.playTests);
