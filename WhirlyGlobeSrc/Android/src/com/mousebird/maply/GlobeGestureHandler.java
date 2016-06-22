@@ -185,11 +185,6 @@ public class GlobeGestureHandler
 			return true;
 		}
 
-        @Override
-        public boolean onSingleTapUp(MotionEvent e)
-        {
-            return true;
-        }
 
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
@@ -310,13 +305,21 @@ public class GlobeGestureHandler
 		public void onLongPress(MotionEvent e) 
 		{
 //			Log.d("Maply","Long Press");
-			globeControl.processLongPress(new Point2d(e.getX(),e.getY()));
+			if (e.getPointerCount() == 1)
+				globeControl.processLongPress(new Point2d(e.getX(),e.getY()));
 		}
 
 		@Override
 		public void onShowPress(MotionEvent e) 
 		{
 //			Log.d("Maply","ShowPress");
+		}
+
+
+		@Override
+		public boolean onSingleTapUp(MotionEvent e)
+		{
+			return true;
 		}
 
 		@Override
