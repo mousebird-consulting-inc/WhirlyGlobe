@@ -18,6 +18,7 @@
  *
  */
 
+#include "AA+.h"
 #include "Moon.h"
 
 namespace WhirlyKit {

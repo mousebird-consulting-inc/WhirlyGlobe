@@ -17,7 +17,8 @@
  *  limitations under the License.
  *
  */
-#include "AA+.h"
+
+class CAADate;
 
 namespace WhirlyKit
 {

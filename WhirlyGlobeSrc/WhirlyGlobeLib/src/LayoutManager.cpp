@@ -26,7 +26,6 @@
 #import "GlobeViewState.h"
 #import "MaplyViewState.h"
 #import "OverlapHelper.h"
-#import "Maply_jni.h"
 
 
 using namespace Eigen;

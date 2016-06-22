@@ -18,8 +18,9 @@
  *
  */
 
-#include "AA+.h"
 #include <WhirlyVector.h>
+
+class CAADate;
 
 namespace WhirlyKit
 {

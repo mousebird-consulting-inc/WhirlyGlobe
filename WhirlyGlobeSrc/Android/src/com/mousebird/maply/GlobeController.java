@@ -207,10 +207,21 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		Mbr geoMbr = new Mbr();
 
 		Point2d frameSize = renderWrapper.maplyRender.frameSize;
-		geoMbr.addPoint(geoPointFromScreen(new Point2d(0,0)));
-		geoMbr.addPoint(geoPointFromScreen(new Point2d(frameSize.getX(),0)));
-		geoMbr.addPoint(geoPointFromScreen(new Point2d(frameSize.getX(),frameSize.getY())));
-		geoMbr.addPoint(geoPointFromScreen(new Point2d(0,frameSize.getY())));
+		Point2d pt = geoPointFromScreen(new Point2d(0,0));
+		if (pt == null) return null;
+		geoMbr.addPoint(pt);
+
+		pt = geoPointFromScreen(new Point2d(frameSize.getX(),0));
+		if (pt == null) return null;
+		geoMbr.addPoint(pt);
+
+		pt = geoPointFromScreen(new Point2d(frameSize.getX(),frameSize.getY()));
+		if (pt == null) return null;
+		geoMbr.addPoint(pt);
+
+		pt = geoPointFromScreen(new Point2d(0,frameSize.getY()));
+		if (pt == null) return null;
+		geoMbr.addPoint(pt);
 
 		return geoMbr;
 	}
@@ -362,8 +373,11 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 
 		globeView.cancelAnimation();
 		Point3d geoCoord = globeView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
-        Quaternion newQuat = globeView.makeRotationToGeoCoord(x, y, globeView.northUp);
-        globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, renderWrapper.maplyRender, newQuat, z, howLong));
+		if (geoCoord != null) {
+			Quaternion newQuat = globeView.makeRotationToGeoCoord(x, y, globeView.northUp);
+			if (newQuat != null)
+				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, renderWrapper.maplyRender, newQuat, z, howLong));
+		}
 	}
 	
 	// Gesture handler
@@ -448,16 +462,22 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 			Point3d loc = globeView.pointOnSphereFromScreen(screenLoc, globeTransform, renderWrapper.maplyRender.frameSize, false);
 			if (loc == null)
 				return;
+			Point3d localPt = globeView.getCoordAdapter().displayToLocal(loc);
+			Point3d geoPt = null;
+			if (localPt != null)
+				geoPt = globeView.getCoordAdapter().getCoordSystem().localToGeographic(localPt);
 
 //			Object selObj = this.getObjectAtScreenLoc(screenLoc);
 			SelectedObject selObjs[] = this.getObjectsAtScreenLoc(screenLoc);
 
 			if (selObjs != null)
 			{
-				gestureDelegate.userDidSelect(this, selObjs, loc.toPoint2d(), screenLoc);
+				if (geoPt != null)
+					gestureDelegate.userDidSelect(this, selObjs, geoPt.toPoint2d(), screenLoc);
 			} else {
 				// Just a simple tap, then
-				gestureDelegate.userDidTap(this, loc.toPoint2d(), screenLoc);
+				if (geoPt != null)
+					gestureDelegate.userDidTap(this, geoPt.toPoint2d(), screenLoc);
 			}
 		}
 	}

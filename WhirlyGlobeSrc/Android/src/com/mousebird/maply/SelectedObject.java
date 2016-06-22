@@ -20,7 +20,7 @@ public class SelectedObject
     /**
      * The object selected.
      */
-    Object selObj = null;
+    public Object selObj = null;
 
     /**
      * The distanced in 3D from the tap point to the selected object.

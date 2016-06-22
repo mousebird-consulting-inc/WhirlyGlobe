@@ -101,7 +101,7 @@ public:
     double currentMapScale(const WhirlyKit::Point2f &frameSize);
 
     /// Calculate the height for a given scale.  Probably for minVis/maxVis
-    double heightForMapScale(double scale,WhirlyKit::Point2f &frameSize);
+    double heightForMapScale(double scale,const WhirlyKit::Point2f &frameSize);
 
     /// Calculate map zoom
     double currentMapZoom(const WhirlyKit::Point2f &frameSize,double latitude);

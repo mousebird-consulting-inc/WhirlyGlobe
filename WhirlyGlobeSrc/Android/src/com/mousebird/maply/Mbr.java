@@ -59,6 +59,11 @@ public class Mbr
 		ur = new Point2d(inUR);
 	}
 
+	public String toString()
+	{
+		return "ll: " + ll + " ur: " + ur;
+	}
+
 	/**
 	 * Compare coordinate values.
      */

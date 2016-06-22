@@ -586,6 +586,7 @@ void SetupDefaultShaders(Scene *scene)
         scene->addProgram(kToolkitDefaultTriangleNightDay, triShaderNightDay);
     }
     
+#ifndef MAPLYMINIMAL
     // Billboard shader (ground)
     OpenGLES2Program *billShaderGround = BuildBillboardGroundProgram();
     if (!billShaderGround)
@@ -603,6 +604,7 @@ void SetupDefaultShaders(Scene *scene)
     } else {
         scene->addProgram(kToolkitDefaultBillboardEyeProgram, billShaderEye);
     }
+#endif
     
     // Widened vector shader
     OpenGLES2Program *wideVecShader = BuildWideVectorProgram();
@@ -654,6 +656,7 @@ void SetupDefaultShaders(Scene *scene)
         }
     }
     
+#ifndef MAPLYMINIMAL
     // Particle System program
     OpenGLES2Program *particleSystemShader = BuildParticleSystemProgram();
     if (!particleSystemShader)
@@ -662,6 +665,7 @@ void SetupDefaultShaders(Scene *scene)
     } else {
         scene->addProgram(kToolkitDefaultParticleSystemProgram, particleSystemShader);
     }
+#endif
 }
 
 }
