@@ -151,7 +151,8 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 
 			setFrameLoadingPriority(currentPriorities, changes);
 
-			changes.process(layerThread.scene);
+			if (layerThread.scene != null)
+				changes.process(layerThread.scene);
 		}
 
         scheduleEvalStep();
@@ -168,11 +169,13 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	public void shutdown()
 	{
 		valid = false;
-		layerThread.removeWatcher(this);
+		if (layerThread != null)
+			layerThread.removeWatcher(this);
 		cancelEvalStep();
 		ChangeSet changes = new ChangeSet();
 		nativeShutdown(changes);
-		changes.process(layerThread.scene);
+		if (layerThread != null && layerThread.scene != null)
+			changes.process(layerThread.scene);
 		super.shutdown();
 	}
 
@@ -446,7 +449,8 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 			}
 			setCurrentImage(current, changes);
 
-			changes.process(layerThread.scene);
+			if (layerThread.scene != null)
+				changes.process(layerThread.scene);
         } else {
 			currentImageSetBeforeStart = true;
 			currentImageValue = current;

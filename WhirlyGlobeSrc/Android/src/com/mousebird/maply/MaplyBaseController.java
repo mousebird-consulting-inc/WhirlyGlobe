@@ -763,10 +763,11 @@ public class MaplyBaseController
 
 			if (oldContext != null)
 			{
-				if (!egl.eglMakeCurrent(renderWrapper.maplyRender.display,oldDrawSurface,oldReadSurface,oldContext))
-				{
-					Log.d("Maply","Failed to set context back to previous context.");
-				}
+				if (renderWrapper != null)
+					if (!egl.eglMakeCurrent(renderWrapper.maplyRender.display,oldDrawSurface,oldReadSurface,oldContext))
+					{
+						Log.d("Maply","Failed to set context back to previous context.");
+					}
 			}
         } else
 			baseLayerThread.addTask(run,true);
@@ -800,7 +801,8 @@ public class MaplyBaseController
 				// Vectors are simple enough to just add
 				ChangeSet changes = new ChangeSet();
 				long vecId = vecManager.addVectors(vecs, vecInfo, changes);
-				changes.process(scene);
+				if (scene != null)
+					changes.process(scene);
 
 				// Track the vector ID for later use
 				if (vecId != EmptyIdentity)
@@ -833,7 +835,8 @@ public class MaplyBaseController
 						long[] vecIDs = vecObj.getVectorIDs();
 						if (vecIDs != null) {
 							vecManager.changeVectors(vecIDs, vecInfo, changes);
-							changes.process(scene);
+							if (scene != null)
+								changes.process(scene);
 						}
 					}
 				};
@@ -910,7 +913,8 @@ public class MaplyBaseController
 
 				// Add the markers and flush the changes
 				long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
-				changes.process(scene);
+				if (scene != null)
+					changes.process(scene);
 
 				if (markerId != EmptyIdentity)
 				{
@@ -958,7 +962,8 @@ public class MaplyBaseController
                             }
                         }
 
-						changes.process(scene);
+						if (scene != null)
+							changes.process(scene);
 					}
 				};
 
@@ -997,7 +1002,8 @@ public class MaplyBaseController
 							stickerManager.changeSticker(stickerID, stickerInfo, changes);
 						}
 
-						changes.process(scene);
+						if (scene != null)
+							changes.process(scene);
 					}
 				};
 
@@ -1130,7 +1136,8 @@ public class MaplyBaseController
 						compObj.addLabelID(labelId);
 		
 				// Flush the text changes
-				changes.process(scene);
+				if (scene != null)
+					changes.process(scene);
 			}
 		};
 		
@@ -1179,7 +1186,8 @@ public class MaplyBaseController
                         changes.addTexture(rawTex, scene);
 
                         // Flush the texture changes
-						changes.process(scene);
+						if (scene != null)
+							changes.process(scene);
                     }
                 };
 
@@ -1210,7 +1218,8 @@ public class MaplyBaseController
 						changes.addTexture(rawTex, scene);
 
 						// Flush the texture changes
-						changes.process(scene);
+						if (scene != null)
+							changes.process(scene);
 					}
 				};
 
@@ -1238,7 +1247,8 @@ public class MaplyBaseController
 						changes.removeTexture(tex.texID);
 
 						// Flush the texture changes
-						changes.process(scene);
+						if (scene != null)
+							changes.process(scene);
 					}
 				};
 
@@ -1265,7 +1275,8 @@ public class MaplyBaseController
 							changes.removeTexture(tex.texID);
 
 						// Flush the texture changes
-						changes.process(scene);
+						if (scene != null)
+							changes.process(scene);
 					}
 				};
 
@@ -1326,7 +1337,8 @@ public class MaplyBaseController
 				for (ComponentObject compObj : compObjs)
 					if (compObj != null)
 						compObj.enable(control, false, changes);
-				changes.process(scene);
+				if (scene != null)
+					changes.process(scene);
 			}
 		};
 		
@@ -1376,7 +1388,8 @@ public class MaplyBaseController
 				for (ComponentObject compObj : compObjs)
 					if (compObj != null)
 						compObj.enable(control, true, changes);
-				changes.process(scene);
+				if (scene != null)
+					changes.process(scene);
 			}
 		};
 		
@@ -1443,7 +1456,8 @@ public class MaplyBaseController
 					compObj.clear(control, changes);
 					removeSelectableObjects(compObj);
 				}
-				changes.process(scene);
+				if (scene != null)
+					changes.process(scene);
 			}
 		};
 		
@@ -1480,7 +1494,8 @@ public class MaplyBaseController
 				if (particleSystemID != EmptyIdentity) {
 					compObj.addParticleSystemID(particleSystemID);
 				}
-				changes.process(scene);
+				if (scene != null)
+					changes.process(scene);
 			}
 		};
 
@@ -1498,7 +1513,8 @@ public class MaplyBaseController
 				public void run() {
 					ChangeSet changes = new ChangeSet();
 					particleSystemManager.addParticleBatch(particleBatch.getPartSys().getIdent(), particleBatch,changes);
-					changes.process(scene);
+					if (scene != null)
+						changes.process(scene);
 				}
 			};
 			addTask(run, mode);
@@ -1524,7 +1540,8 @@ public class MaplyBaseController
 				long shapeId = shapeManager.addShapes(shapes, shapeInfo, changes);
 				if (shapeId != EmptyIdentity)
 					compObj.addShapeID(shapeId);
-				changes.process(scene);
+				if (scene != null)
+					changes.process(scene);
 			}
 		};
 
@@ -1645,7 +1662,8 @@ public class MaplyBaseController
 						compObj.addBillboardID(billId);
 
 						// Flush the text changes
-						changes.process(scene);
+						if (scene != null)
+							changes.process(scene);
 					}
 				};
 

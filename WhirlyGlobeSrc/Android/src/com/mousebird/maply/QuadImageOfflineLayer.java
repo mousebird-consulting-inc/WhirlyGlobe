@@ -100,11 +100,13 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
     public void shutdown()
     {
         valid = false;
-        layerThread.removeWatcher(this);
+        if (layerThread != null)
+            layerThread.removeWatcher(this);
         cancelEvalStep();
         ChangeSet changes = new ChangeSet();
         nativeShutdown(changes);
-        changes.process(layerThread.scene);
+        if (layerThread != null && layerThread.scene != null)
+            changes.process(layerThread.scene);
         super.shutdown();
     }
 
@@ -465,7 +467,8 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
                 {
                     ChangeSet changes = new ChangeSet();
                     imageRenderToLevel(-1,changes);
-                    changes.process(layerThread.scene);
+                    if (layerThread.scene != null)
+                        changes.process(layerThread.scene);
                 }
 
                 // Kick off another render in a few seconds
