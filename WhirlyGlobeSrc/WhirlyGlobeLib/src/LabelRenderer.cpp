@@ -142,7 +142,15 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
             {
                 // Set if we're letting the layout engine control placement
                 bool layoutEngine = (labelInfo->layoutEngine || label->desc.getBool("layout",false));
-                
+
+                float layoutImportance = label->layoutImportance;
+                if (layoutImportance == 0.0)
+                    layoutImportance = label->desc.getDouble("layoutImportance",layoutImportance);
+                if (layoutImportance == 0.0)
+                    layoutImportance = labelInfo->layoutImportance;
+                if (layoutImportance != 0.0)
+                    layoutEngine = true;
+
                 if (layoutEngine)
                 {
                     layoutObject = new LayoutObject();
@@ -238,10 +246,8 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                 }
                 
                 // If it's being passed to the layout engine, do that as well
-                if (layoutEngine)
+                if (layoutEngine || layoutImportance != 0.0)
                 {
-                    float layoutImportance = label->layoutImportance;
-                    layoutImportance = label->desc.getDouble("layoutImportance",layoutImportance);
                     int layoutPlacement = labelInfo->layoutPlacement;
                     if (label->desc.hasField("layoutPlacement"))
                         layoutPlacement = label->desc.getInt("layoutPlacement",(int)(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow));

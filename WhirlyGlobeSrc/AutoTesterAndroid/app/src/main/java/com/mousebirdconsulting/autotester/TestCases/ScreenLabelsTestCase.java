@@ -52,11 +52,12 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 	}
 
 	// Make a screen label at a given location (in degrees)
-	ScreenLabel makeLabel(double lon,double lat,String text)
+	ScreenLabel makeLabel(double lon,double lat,String text,float importance)
 	{
 		ScreenLabel label = new ScreenLabel();
 		label.loc = Point2d.FromDegrees(lon,lat);
 		label.text = text;
+		label.layoutImportance = importance;
 
 		return label;
 	}
@@ -71,7 +72,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		labelInfo.setTextColor(Color.WHITE);
 		labelInfo.setBackgroundColor(Color.RED);
 		labelInfo.setTypeface(Typeface.DEFAULT);
-		labelInfo.setLayoutImportance(1.f);
+//		labelInfo.setLayoutImportance(1.f);
 		labelInfo.setLayoutPlacement(LabelInfo.LayoutRight);
 		labelInfo.setMinVis(0.f);
 		labelInfo.setMaxVis(2.5f);
@@ -103,12 +104,13 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		}
 
 		// Toss in a few with explicit diacritics
-		labels.add(makeLabel(-74.075833, 4.598056, "Bogotá"));
-		labels.add(makeLabel(6.0219, 47.2431, "Besançon"));
-		labels.add(makeLabel(4.361, 43.838, "Nîmes"));
-		labels.add(makeLabel(4.9053, 43.9425, "Morières-lès-Avignon"));
-		labels.add(makeLabel(11.616667, 44.833333, "Ferrara"));
-		labels.add(makeLabel(7, 49.233333, "Saarbrücken"));
+		labels.add(makeLabel(-74.075833, 4.4, "Bogotá",1.f));
+		labels.add(makeLabel(-74.075833, 4.598056, "Bogotá2",1.f));
+		labels.add(makeLabel(6.0219, 47.2431, "Besançon",1.f));
+		labels.add(makeLabel(4.361, 43.838, "Nîmes",1.f));
+		labels.add(makeLabel(4.9053, 43.9425, "Morières-lès-Avignon",1.f));
+		labels.add(makeLabel(11.616667, 44.833333, "Ferrara",1.f));
+		labels.add(makeLabel(7, 49.233333, "Saarbrücken",1.f));
 
 		ComponentObject comp = baseVC.addScreenLabels(labels, labelInfo, MaplyBaseController.ThreadMode.ThreadAny);
 		if (comp != null)
