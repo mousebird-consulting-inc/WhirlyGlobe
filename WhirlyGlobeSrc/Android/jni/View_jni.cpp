@@ -110,8 +110,34 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_View_currentMapZoom
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::heightForMapScale()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::currentMapZoom()");
     }
     
     return 0.0;    
+}
+
+
+/*
+ * Class:     com_mousebird_maply_View
+ * Method:    currentMapScale
+ * Signature: (Lcom/mousebird/maply/Point2d;D)D
+ */
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_View_currentMapScale
+(JNIEnv *env, jobject obj, jdouble frameSizeX, jdouble frameSizeY)
+{
+    try
+    {
+        ViewClassInfo *classInfo = ViewClassInfo::getClassInfo();
+        WhirlyKit::View *view = classInfo->getObject(env,obj);
+        if (!view)
+            return 0.0;
+
+        return view->currentMapScale(Point2f(frameSizeX,frameSizeY));
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapView::currentMapScale()");
+    }
+
+    return 0.0;
 }

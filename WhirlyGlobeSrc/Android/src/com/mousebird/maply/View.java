@@ -119,6 +119,9 @@ public class View
 	// Returns the map zoom for a given latitude
 	public native double currentMapZoom(double frameSizeX,double frameSizeY,double latitude);
 
+	// Returns the map scale
+	public native double currentMapScale(double frameSizeX,double frameSizeY);
+
 	static
 	{
 		nativeInit();

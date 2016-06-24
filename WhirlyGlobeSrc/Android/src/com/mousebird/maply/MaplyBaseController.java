@@ -694,8 +694,8 @@ public class MaplyBaseController
 	/** Return the current map zoom from the viewpoint.
 	 * <br>
 	 * Calculate the map zoom (TMS) based on the current screen size and the 3D viewport.
-	 * @param coordinate the location to calculate for. This is needed because zoom is dependant on latitude.
-	 * @return Returns the map zoom or MAXFLOAT if the system is not yet initialized.
+	 * @param geoCoord the location to calculate for. This is needed because zoom is dependant on latitude.
+	 * @return Returns the map zoom or 0.0 if the system is not yet initialized.
 	 */
 	public double currentMapZoom(Point2d geoCoord)
 	{
@@ -703,6 +703,19 @@ public class MaplyBaseController
 			return 0.0;
 
 		return view.currentMapZoom(renderWrapper.maplyRender.frameSize.getX(),renderWrapper.maplyRender.frameSize.getY(),geoCoord.getY());
+	}
+
+	/** Return the current scale denominator (Mapnik).
+	 * <br>
+	 * See https://github.com/mapnik/mapnik/wiki/ScaleAndPpi for a definition of the Mapnik scale denominator.
+	 * @return Returns the current scale denominator or 0.0 if the system is not yet initialized.
+	 */
+	public double currentMapScale()
+	{
+		if (view == null || renderWrapper == null)
+			return 0.0;
+
+		return view.currentMapScale(renderWrapper.maplyRender.frameSize.getX(),renderWrapper.maplyRender.frameSize.getY());
 	}
 
 	/**
