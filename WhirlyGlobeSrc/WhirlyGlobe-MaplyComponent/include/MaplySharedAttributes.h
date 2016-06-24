@@ -17,6 +17,7 @@
  *  limitations under the License.
  *
  */
+#import <Foundation/Foundation.h>
 
 /// Use this hint to turn the zbuffer on or off.  Pass in an NSNumber boolean.  Takes effect on the next frame.
 extern NSString* const kMaplyRenderHintZBuffer;
