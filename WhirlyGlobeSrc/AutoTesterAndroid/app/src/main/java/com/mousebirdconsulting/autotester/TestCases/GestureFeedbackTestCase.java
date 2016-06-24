@@ -66,6 +66,7 @@ public class GestureFeedbackTestCase extends MaplyTestCase {
         @Override
         public void userDidTap(MapController mapController, Point2d loc, Point2d screenloc) {
             Log.i("AutoTester","User tapped at " + loc.getX() + " " + loc.getY());
+            Log.i("AutoTester",String.format("Current zoom %.3f / scale %.0f", mapController.currentMapZoom(loc), mapController.currentMapScale()));
         }
 
         @Override

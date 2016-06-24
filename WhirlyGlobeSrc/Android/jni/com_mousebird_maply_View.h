@@ -33,6 +33,14 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_View_currentMapZoom
 
 /*
  * Class:     com_mousebird_maply_View
+ * Method:    currentMapScale
+ * Signature: (DD)D
+ */
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_View_currentMapScale
+  (JNIEnv *, jobject, jdouble, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_View
  * Method:    nativeInit
  * Signature: ()V
  */
