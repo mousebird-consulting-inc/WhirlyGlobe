@@ -101,31 +101,42 @@
                 fullUrl = [NSString stringWithFormat:@"%@?api_key=%@",fullUrl,apiKey];
             NSString *fileName = [NSString stringWithFormat:@"%@_level%d_%d_%d.%@",allLayers,tileID.level,tileID.x,y,ext];
             NSString *fullPath = [NSString stringWithFormat:@"%@/%@",cacheDir,fileName];
-            NSURL *url = [NSURL URLWithString:fullUrl];
-            NSURLRequest *urlRequest = [NSURLRequest requestWithURL:url];
-            [NSURLConnection sendAsynchronousRequest:urlRequest queue:opQueue completionHandler:
-             ^(NSURLResponse *response, NSData *data, NSError *connectionError)
-             {
-                 if (!connectionError)
+            
+            MaplyBoundingBox bbox;
+            // The tile parser wants bounds in meters(ish)
+            [layer boundsforTile:tileID ll:&bbox.ll ur:&bbox.ur];
+            bbox.ll.x *= 20037508.342789244/M_PI;
+            bbox.ll.y *= 20037508.342789244/(M_PI);
+            bbox.ur.x *= 20037508.342789244/M_PI;
+            bbox.ur.y *= 20037508.342789244/(M_PI);
+
+            if ([[NSFileManager defaultManager] fileExistsAtPath:fullPath])
+            {
+                NSData *data = [NSData dataWithContentsOfFile:fullPath];
+                MaplyVectorTileData *tileData = [tileParser buildObjects:data tile:tileID bounds:bbox];
+                if (tileData.compObjs)
+                    [layer addData:tileData.compObjs forTile:tileID];
+                
+                [layer tileDidLoad:tileID];
+            } else {
+                NSURL *url = [NSURL URLWithString:fullUrl];
+                NSURLRequest *urlRequest = [NSURLRequest requestWithURL:url];
+                [NSURLConnection sendAsynchronousRequest:urlRequest queue:opQueue completionHandler:
+                 ^(NSURLResponse *response, NSData *data, NSError *connectionError)
                  {
-                     MaplyBoundingBox bbox;
-                     // The tile parser wants bounds in meters(ish)
-                     [layer boundsforTile:tileID ll:&bbox.ll ur:&bbox.ur];
-                     bbox.ll.x *= 20037508.342789244/M_PI;
-                     bbox.ll.y *= 20037508.342789244/(M_PI);
-                     bbox.ur.x *= 20037508.342789244/M_PI;
-                     bbox.ur.y *= 20037508.342789244/(M_PI);
+                     if (!connectionError)
+                     {
+                         // Cache the file
+                         [data writeToFile:fullPath atomically:NO];
+                         
+                         MaplyVectorTileData *tileData = [tileParser buildObjects:data tile:tileID bounds:bbox];
+                         if (tileData.compObjs)
+                             [layer addData:tileData.compObjs forTile:tileID];
+                     }
                      
-                     // Cache the file
-                     [data writeToFile:fullPath atomically:NO];
-                     
-                     MaplyVectorTileData *tileData = [tileParser buildObjects:data tile:tileID bounds:bbox];
-                     if (tileData.compObjs)
-                         [layer addData:tileData.compObjs forTile:tileID];
-                 }
-                 
-                 [layer tileDidLoad:tileID];
-             }];
+                     [layer tileDidLoad:tileID];
+                 }];
+            }
         } else {
             // Fetch GeoJSON individually
             [layer tile:tileID hasNumParts:(int)[layers count]];

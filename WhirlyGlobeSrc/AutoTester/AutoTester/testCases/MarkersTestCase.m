@@ -1,19 +1,19 @@
 //
-//  ScreenMarkersTestCase.m
+//  MarkersTestCase.m
 //  AutoTester
 //
 //  Created by jmnavarro on 30/10/15.
 //  Copyright © 2015 mousebird consulting. All rights reserved.
 //
 
-#import "ScreenMarkersTestCase.h"
+#import "MarkersTestCase.h"
 #import "MaplyBaseViewController.h"
 #import "MaplyMarker.h"
 #import "VectorsTestCase.h"
 #import "WhirlyGlobeViewController.h"
 #import "MaplyViewController.h"
 
-@implementation ScreenMarkersTestCase
+@implementation MarkersTestCase
 
 - (instancetype)init
 {
