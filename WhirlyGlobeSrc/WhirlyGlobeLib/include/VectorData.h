@@ -52,6 +52,7 @@ protected:
 
 class VectorAreal;
 class VectorLinear;
+class VectorLinear3d;
 class VectorPoints;
 class VectorTriangles;
 
@@ -61,6 +62,8 @@ typedef std::shared_ptr<VectorShape> VectorShapeRef;
 typedef std::shared_ptr<VectorAreal> VectorArealRef;
 /// Reference counted Linear
 typedef std::shared_ptr<VectorLinear> VectorLinearRef;
+/// Reference counted Linear3d
+typedef std::shared_ptr<VectorLinear3d> VectorLinear3dRef;
 /// Reference counted Points
 typedef std::shared_ptr<VectorPoints> VectorPointsRef;
 /// Reference counted triangle mesh
@@ -180,6 +183,25 @@ protected:
     VectorLinear();
 };
 
+/// Linear feature is just a list of points that form
+///  a set of edges.  This version has z as well.
+class VectorLinear3d : public VectorShape
+{
+public:
+    /// Creation function.  Use instead of new
+    static VectorLinear3dRef createLinear();
+    ~VectorLinear3d();
+    
+    virtual GeoMbr calcGeoMbr();
+    void initGeoMbr();
+        
+    GeoMbr geoMbr;
+    VectorRing3d pts;
+    
+protected:
+    VectorLinear3d();
+};
+
 /// The Points feature is a list of points that share attributes
 ///  and are otherwise unrelated.  In most cases you'll get one
 ///  point, but be prepared for multiple.
@@ -209,15 +231,17 @@ typedef std::set<std::string> StringSet;
 /// Break any edge longer than the given length.
 /// Returns true if it broke anything
 void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float maxLen);
+void SubdivideEdges(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,float maxLen);
 
 /// Break any edge that deviates by the given epsilon from the surface described in
 /// the display adapter;
 void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps);
+void SubdivideEdgesToSurface(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps);
 
 /// Break any edge that deviates by the given epsilon from the surface described in
 ///  the display adapter.  But rather than using lat lon values, we'll output in
 ///  display coordinates and build points along the great circle.
-void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float sphereOffset = 0.0,int minPts = 0);
+void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,VectorRing3d &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float sphereOffset = 0.0,int minPts = 0);
 
 /** Base class for loading a vector data file.
     Fill this into hand data over to whomever wants it.

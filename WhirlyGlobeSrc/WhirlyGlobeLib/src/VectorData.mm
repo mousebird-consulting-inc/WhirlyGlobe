@@ -152,7 +152,33 @@ void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float
         outPts.push_back(inPts.back());
 }
 
-void subdivideToSurfaceRecurse(Point2f p0,Point2f p1,VectorRing &outPts,CoordSystemDisplayAdapter *adapter,float eps)
+void SubdivideEdges(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,float maxLen)
+{
+    float maxLen2 = maxLen*maxLen;
+    
+    for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
+    {
+        const Point3d &p0 = inPts[ii];
+        const Point3d &p1 = inPts[(ii+1)%inPts.size()];
+        outPts.push_back(p0);
+        Point3d dir = p1-p0;
+        float dist2 = dir.squaredNorm();
+        if (dist2 > maxLen2)
+        {
+            float dist = sqrtf(dist2);
+            dir /= dist;
+            for (float pos=maxLen;pos<dist;pos+=maxLen)
+            {
+                Point3d divPt = p0+dir*pos;
+                outPts.push_back(divPt);
+            }
+        }
+    }
+    if (!closed)
+        outPts.push_back(inPts.back());
+}
+
+void subdivideToSurfaceRecurse(const Point2f &p0,const Point2f &p1,VectorRing &outPts,CoordSystemDisplayAdapter *adapter,float eps)
 {
     // If the difference is greater than 180, then this is probably crossing the date line
     //  in which case we'll just leave it alone.
@@ -172,7 +198,28 @@ void subdivideToSurfaceRecurse(Point2f p0,Point2f p1,VectorRing &outPts,CoordSys
     }
     outPts.push_back(p1);
 }
+
+void subdivideToSurfaceRecurse(const Point3d &p0,const Point3d &p1,VectorRing3d &outPts,CoordSystemDisplayAdapter *adapter,float eps)
+{
+    // If the difference is greater than 180, then this is probably crossing the date line
+    //  in which case we'll just leave it alone.
+    if (std::abs(p0.x() - p1.x()) > M_PI)
+        return;
     
+    Point3d dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
+    Point3d dp1 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p1.x(),p1.y())));
+    Point3d midPt = (p0+p1)/2.0;
+    Point3d dMidPt = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(midPt.x(),midPt.y())));
+    Point3d halfPt = (dp0+dp1)/2.0;
+    float dist2 = (halfPt-dMidPt).squaredNorm();
+    if (dist2 > eps*eps)
+    {
+        subdivideToSurfaceRecurse(p0, midPt, outPts, adapter, eps);
+        subdivideToSurfaceRecurse(midPt, p1, outPts, adapter, eps);
+    }
+    outPts.push_back(p1);
+}
+
 void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps)
 {
     for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
@@ -183,9 +230,20 @@ void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool clo
         subdivideToSurfaceRecurse(p0,p1,outPts,adapter,eps);
     }
 }
-    
+
+void SubdivideEdgesToSurface(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps)
+{
+    for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
+    {
+        const Point3d &p0 = inPts[ii];
+        const Point3d &p1 = inPts[(ii+1)%inPts.size()];
+        outPts.push_back(p0);
+        subdivideToSurfaceRecurse(p0,p1,outPts,adapter,eps);
+    }
+}
+
 // Great circle version
-void subdivideToSurfaceRecurseGC(Point3f p0,Point3f p1,std::vector<Point3f> &outPts,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
+void subdivideToSurfaceRecurseGC(const Point3d &p0,const Point3d &p1,VectorRing3d &outPts,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
 {
     // If the difference is greater than 180, then this is probably crossing the date line
     //  in which case we'll just leave it alone.
@@ -193,8 +251,8 @@ void subdivideToSurfaceRecurseGC(Point3f p0,Point3f p1,std::vector<Point3f> &out
 //    if (std::abs(p0.x() - p1.x()) > M_PI)
 //        return;
     
-    Point3f midP = (p0+p1)/2.0;
-    Point3f midOnSphere = midP.normalized() * (1.0 + surfOffset);
+    Point3d midP = (p0+p1)/2.0;
+    Point3d midOnSphere = midP.normalized() * (1.0 + surfOffset);
     float dist2 = (midOnSphere - midP).squaredNorm();
     if (dist2 > eps*eps || minPts > 0)
     {
@@ -204,14 +262,14 @@ void subdivideToSurfaceRecurseGC(Point3f p0,Point3f p1,std::vector<Point3f> &out
     outPts.push_back(p1);
 }
 
-void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
+void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,VectorRing3d &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
 {
     if (!adapter || inPts.empty())
         return;
     if (inPts.size() < 2)
     {
         const Point2f &p0 = inPts[0];
-        Point3f dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal(GeoCoord(p0.x(),p0.y())));
+        Point3d dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
         outPts.push_back(dp0);        
         return;
     }
@@ -220,9 +278,9 @@ void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &out
     {
         const Point2f &p0 = inPts[ii];
         const Point2f &p1 = inPts[(ii+1)%inPts.size()];
-        Point3f dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal(GeoCoord(p0.x(),p0.y())));
+        Point3d dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
         dp0 = dp0.normalized() * (1.0 + surfOffset);
-        Point3f dp1 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal(GeoCoord(p1.x(),p1.y())));
+        Point3d dp1 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p1.x(),p1.y())));
         dp1 = dp1.normalized() * (1.0 + surfOffset);
         outPts.push_back(dp0);
         subdivideToSurfaceRecurseGC(dp0,dp1,outPts,adapter,eps,surfOffset,minPts);
@@ -387,7 +445,32 @@ void VectorLinear::subdivide(float maxLen)
     SubdivideEdges(pts, newPts, false, maxLen);
     pts = newPts;
 }
-    
+
+VectorLinear3d::VectorLinear3d()
+{
+}
+
+VectorLinear3d::~VectorLinear3d()
+{
+}
+
+VectorLinear3dRef VectorLinear3d::createLinear()
+{
+    return VectorLinear3dRef(new VectorLinear3d());
+}
+
+GeoMbr VectorLinear3d::calcGeoMbr()
+{
+    if (!geoMbr.valid())
+        initGeoMbr();
+    return geoMbr;
+}
+
+void VectorLinear3d::initGeoMbr()
+{
+    geoMbr.addGeoCoords(pts);
+}
+
 VectorPoints::VectorPoints()
 {
 }
