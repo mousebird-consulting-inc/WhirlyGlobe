@@ -223,12 +223,14 @@ public:
 	float area() const;
 	
 	/// Expand the MBR by this amount
-	void addGeoCoord(GeoCoord coord);
+	void addGeoCoord(const GeoCoord &coord);
+    void addGeoCoord(const Point3d &coord);
 	
 	/// Expand by the vector of geo coords
 	void addGeoCoords(const std::vector<GeoCoord> &coords);
     /// Expand by a vector of 2d coordinates.  x is lon, y is lat.
 	void addGeoCoords(const std::vector<Point2f> &coords);
+    void addGeoCoords(const std::vector<Point3d> &coords);
 	
 	/// Determine overlap.
 	/// This takes into account MBRs that wrap over -180/+180

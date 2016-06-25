@@ -31,14 +31,17 @@
                               kMaplyVecWidth: @(10.0),
                               kMaplyVecHeight: @(0.0),
                               kMaplyDrawPriority: @(10000),
-                              kMaplySubdivType: kMaplySubdivGreatCircle,
-                              kMaplySubdivEpsilon: @(0.001)
+//                              kMaplySubdivType: kMaplySubdivGreatCircle,
+//                              kMaplySubdivEpsilon: @(0.001)
                               };
     
     MaplyCoordinate x = MaplyCoordinateMakeWithDegrees(2.548, 49.010);
     MaplyCoordinate y = MaplyCoordinateMakeWithDegrees(151.177, -33.946);
     MaplyCoordinate z[] = { x, y };
     MaplyVectorObject *v = [[MaplyVectorObject alloc] initWithLineString:z numCoords:2 attributes:nil];
+    
+    [v subdivideToGlobeGreatCircle:0.001];
+    
     return [viewC addWideVectors:@[ v ] desc:vecDesc];
 }
 

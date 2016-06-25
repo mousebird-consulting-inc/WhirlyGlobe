@@ -29,7 +29,8 @@
 typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
 	MaplyVectorNoneType,
 	MaplyVectorPointType,
-	MaplyVectorLinearType,
+    MaplyVectorLinearType,
+    MaplyVectorLinear3dType,
 	MaplyVectorArealType,
 	MaplyVectorMultiType,
 };
@@ -193,6 +194,7 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
 |MaplyVectorNoneType | There are no features in this object. |
 |MaplyVectorPointType | There are only points (and multi-points) in the object. |
 |MaplyVectorLinearType | There are only linear features in the object. |
+|MaplyVectorLinear3dType | There are only linear features with Z values in the object. |
 |MaplyVectorArealType | There are only areal features in the object. |
 |MaplyVectorMultiType | There are multiple features of different types in the object. |
   */
