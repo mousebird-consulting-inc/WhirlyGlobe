@@ -95,11 +95,19 @@ void ShapeSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &cha
 
 // Number of samples for a circle.
 // Note: Make this a parameter
-static int CircleSamples = 10;
+static int DefaultCircleSamples = 10;
 
 static const float sqrt2 = 1.4142135623;
 
 @implementation WhirlyKitCircle
+
+- (id)init
+{
+    self = [super init];
+    _sampleX = DefaultCircleSamples;
+    
+    return self;
+}
 
 - (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter shapeInfo:(WhirlyKitShapeInfo *)shapeInfo
 {
@@ -140,9 +148,9 @@ static const float sqrt2 = 1.4142135623;
     
     // Calculate the locations, using the axis from the center
     std::vector<Point3f> samples;
-    samples.resize(CircleSamples);
-    for (unsigned int ii=0;ii<CircleSamples;ii++)
-        samples[ii] =  xAxis * _radius * sinf(2*M_PI*ii/(float)(CircleSamples-1)) + _radius * yAxis * cosf(2*M_PI*ii/(float)(CircleSamples-1)) + dispPt;
+    samples.resize(_sampleX);
+    for (unsigned int ii=0;ii<_sampleX;ii++)
+        samples[ii] =  xAxis * _radius * sinf(2*M_PI*ii/(float)(_sampleX-1)) + _radius * yAxis * cosf(2*M_PI*ii/(float)(_sampleX-1)) + dispPt;
     
     // We need the bounding box in the local coordinate system
     Point3f bot,top;
@@ -293,6 +301,14 @@ static const float sqrt2 = 1.4142135623;
 
 @implementation WhirlyKitCylinder
 
+- (id)init
+{
+    self = [super init];
+    _sampleX = DefaultCircleSamples;
+    
+    return self;
+}
+
 - (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter shapeInfo:(WhirlyKitShapeInfo *)shapeInfo
 {
     if (shapeInfo.hasCenter)
@@ -337,15 +353,15 @@ static std::vector<Point3f> circleSamples;
     // Generate the circle ones
     if (circleSamples.empty())
     {
-        circleSamples.resize(CircleSamples);
-        for (unsigned int ii=0;ii<CircleSamples;ii++)
-            circleSamples[ii] = xAxis * sinf(2*M_PI*ii/(float)(CircleSamples-1)) + yAxis * cosf(2*M_PI*ii/(float)(CircleSamples-1));
+        circleSamples.resize(_sampleX);
+        for (unsigned int ii=0;ii<_sampleX;ii++)
+            circleSamples[ii] = xAxis * sinf(2*M_PI*ii/(float)(_sampleX-1)) + yAxis * cosf(2*M_PI*ii/(float)(_sampleX-1));
     }
     
     // Calculate samples around the bottom
     std::vector<Point3f> samples;
-    samples.resize(CircleSamples);
-    for (unsigned int ii=0;ii<CircleSamples;ii++)
+    samples.resize(_sampleX);
+    for (unsigned int ii=0;ii<_sampleX;ii++)
         samples[ii] =  _radius * circleSamples[ii] + dispPt;
     
     // We need the bounding box in the local coordinate system
@@ -368,7 +384,7 @@ static std::vector<Point3f> circleSamples;
     triBuilder->addConvexOutline(top,norm,theColor,shapeMbr);
     
     // For the sides we'll just run things bottom to top
-    for (unsigned int ii=0;ii<CircleSamples;ii++)
+    for (unsigned int ii=0;ii<_sampleX;ii++)
     {
         std::vector<Point3f> pts(4);
         pts[0] = samples[ii];
