@@ -157,6 +157,21 @@ static const float EarthRadius = 6371000;
 	[baseViewC addShapes:spheres desc:desc];
 }
 
+- (void)addShapesCircles:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc baseViewC : (MaplyBaseViewController*) baseViewC
+{
+    NSMutableArray *circles = [[NSMutableArray alloc] init];
+    for (unsigned int ii=offset;ii<len;ii+=stride) {
+        LocationInfo *location = &locations[ii];
+        MaplyShapeCircle *circle = [[MaplyShapeCircle alloc] init];
+        circle.center = MaplyCoordinateMakeWithDegrees(location->lon, location->lat);
+        circle.radius = 0.04;
+        circle.selectable = true;
+        [circles addObject:circle];
+    }
+    
+    [baseViewC addShapes:circles desc:desc];
+}
+
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
@@ -166,6 +181,7 @@ static const float EarthRadius = 6371000;
 	[self addShapeCylinders:locations len:NumLocations stride:4 offset:0 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000)} baseViewC:(MaplyBaseViewController*)globeVC];
 	[self addGreatCircles:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000)} baseViewC:(MaplyBaseViewController*)globeVC];
 	[self addShapeSpheres:locations len:NumLocations stride:4 offset:1 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.8], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000)} baseViewC:(MaplyBaseViewController *)globeVC];
+    [self addShapesCircles:locations len:NumLocations stride:4 offset:3 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.8], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000), kMaplySampleX: @(100)} baseViewC:(MaplyBaseViewController *)globeVC];
 }
 
 
