@@ -403,9 +403,15 @@ public:
             if (lin)
                 thisType = MaplyVectorLinearType;
             else {
-                VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
-                if (ar)
-                    thisType = MaplyVectorArealType;
+                VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
+                if (lin3d)
+                {
+                    thisType = MaplyVectorLinear3dType;
+                } else {
+                    VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+                    if (ar)
+                        thisType = MaplyVectorArealType;
+                }
             }
         }
         
@@ -447,22 +453,34 @@ public:
                 }
                 [outStr appendString:@"\n"];
             } else {
-                VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
-                if (ar)
+                VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
+                if (lin3d)
                 {
-                    [outStr appendString:@"Areal:\n"];
-                    for (unsigned int li=0;li<ar->loops.size();li++)
+                    [outStr appendString:@"Linear3d: "];
+                    for (unsigned int ii=0;ii<lin3d->pts.size();ii++)
                     {
-                        const VectorRing &ring = ar->loops[li];
-                        [outStr appendFormat:@" loop (%d): ",li];
-                        for (unsigned int ii=0;ii<ring.size();ii++)
+                        const Point3d &pt = lin3d->pts[ii];
+                        [outStr appendFormat:@" (%f,%f,%f)",pt.x(),pt.y(),pt.z()];
+                    }
+                    [outStr appendString:@"\n"];
+                } else {
+                    VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+                    if (ar)
+                    {
+                        [outStr appendString:@"Areal:\n"];
+                        for (unsigned int li=0;li<ar->loops.size();li++)
                         {
-                            const Point2f &pt = ring[ii];
-                            [outStr appendFormat:@" (%f,%f)",pt.x(),pt.y()];
+                            const VectorRing &ring = ar->loops[li];
+                            [outStr appendFormat:@" loop (%d): ",li];
+                            for (unsigned int ii=0;ii<ring.size();ii++)
+                            {
+                                const Point2f &pt = ring[ii];
+                                [outStr appendFormat:@" (%f,%f)",pt.x(),pt.y()];
+                            }
+                            [outStr appendString:@"\n"];
                         }
                         [outStr appendString:@"\n"];
                     }
-                    [outStr appendString:@"\n"];
                 }
             }
         }        
@@ -493,23 +511,32 @@ public:
                 newLin->pts = lin->pts;
                 newVecObj.shapes.insert(newLin);
             } else {
-                VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
-                if (ar)
+                VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
+                if (lin3d)
                 {
-                    VectorArealRef newAr = VectorAreal::createAreal();
-                    [newAr->getAttrDict() addEntriesFromDictionary:ar->getAttrDict()];
-                    newAr->loops = ar->loops;
-                    newVecObj.shapes.insert(newAr);
+                    VectorLinear3dRef newLin3d = VectorLinear3d::createLinear();
+                    [newLin3d->getAttrDict() addEntriesFromDictionary:newLin3d->getAttrDict()];
+                    newLin3d->pts = lin3d->pts;
+                    newVecObj.shapes.insert(newLin3d);
                 } else {
-                    VectorTrianglesRef tri = std::dynamic_pointer_cast<VectorTriangles>(*it);
-                    if (tri)
+                    VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+                    if (ar)
                     {
-                        VectorTrianglesRef newTri = VectorTriangles::createTriangles();
-                        [newTri->getAttrDict() addEntriesFromDictionary:tri->getAttrDict()];
-                        newTri->geoMbr = tri->geoMbr;
-                        newTri->pts = tri->pts;
-                        newTri->tris = tri->tris;
-                        newVecObj.shapes.insert(newTri);
+                        VectorArealRef newAr = VectorAreal::createAreal();
+                        [newAr->getAttrDict() addEntriesFromDictionary:ar->getAttrDict()];
+                        newAr->loops = ar->loops;
+                        newVecObj.shapes.insert(newAr);
+                    } else {
+                        VectorTrianglesRef tri = std::dynamic_pointer_cast<VectorTriangles>(*it);
+                        if (tri)
+                        {
+                            VectorTrianglesRef newTri = VectorTriangles::createTriangles();
+                            [newTri->getAttrDict() addEntriesFromDictionary:tri->getAttrDict()];
+                            newTri->geoMbr = tri->geoMbr;
+                            newTri->pts = tri->pts;
+                            newTri->tris = tri->tris;
+                            newVecObj.shapes.insert(newTri);
+                        }
                     }
                 }
             }
@@ -551,26 +578,37 @@ public:
                 }
                 lin->calcGeoMbr();
             } else {
-                VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
-                if (ar)
+                VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
+                if (lin3d)
                 {
-                    for (VectorRing &loop : ar->loops)
-                        for (Point2f &pt : loop)
-                        {
-                            
-                            Point3f outPt = CoordSystemConvert(inSystem, outSystem, Point3f(pt.x()*scale,pt.y()*scale,0.0));
-                            pt.x() = outPt.x() * 180 / M_PI;  pt.y() = outPt.y() * 180 / M_PI;
-                        }
-                    ar->calcGeoMbr();
-                } else {
-                    VectorTrianglesRef tri = std::dynamic_pointer_cast<VectorTriangles>(*it);
-                    if (tri)
+                    for (Point3d &pt : lin3d->pts)
                     {
-                        for (Point3f &pt : tri->pts)
+                        Point3d outPt = CoordSystemConvert3d(inSystem, outSystem, pt * scale);
+                        pt = outPt;
+                    }
+                    lin3d->calcGeoMbr();
+                } else {
+                    VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+                    if (ar)
+                    {
+                        for (VectorRing &loop : ar->loops)
+                            for (Point2f &pt : loop)
+                            {
+                                
+                                Point3f outPt = CoordSystemConvert(inSystem, outSystem, Point3f(pt.x()*scale,pt.y()*scale,0.0));
+                                pt.x() = outPt.x() * 180 / M_PI;  pt.y() = outPt.y() * 180 / M_PI;
+                            }
+                        ar->calcGeoMbr();
+                    } else {
+                        VectorTrianglesRef tri = std::dynamic_pointer_cast<VectorTriangles>(*it);
+                        if (tri)
                         {
-                            pt = CoordSystemConvert(inSystem, outSystem, Point3f(pt.x()*scale,pt.y()*scale,pt.z()));
+                            for (Point3f &pt : tri->pts)
+                            {
+                                pt = CoordSystemConvert(inSystem, outSystem, Point3f(pt.x()*scale,pt.y()*scale,pt.z()));
+                            }
+                            tri->calcGeoMbr();
                         }
-                        tri->calcGeoMbr();
                     }
                 }
             }
@@ -649,6 +687,51 @@ public:
                         return true;
                 }
             }
+        } else {
+            VectorLinear3dRef linear3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
+            if (linear3d)
+            {
+                GeoMbr geoMbr = linear3d->calcGeoMbr();
+                if(geoMbr.inside(GeoCoord(coord.x,coord.y)))
+                {
+                    CGPoint p = [vc screenPointFromGeo:coord];
+                    VectorRing3d pts = linear3d->pts;
+                    float distance;
+                    for (int ii=0;ii<pts.size()-1;ii++)
+                    {
+                        distance = MAXFLOAT;
+                        Point3d p0 = pts[ii];
+                        MaplyCoordinate pc;
+                        pc.x = p0.x();
+                        pc.y = p0.y();
+                        CGPoint a = [vc screenPointFromGeo:pc];
+                        
+                        Point3d p1 = pts[ii + 1];
+                        pc.x = p1.x();
+                        pc.y = p1.y();
+                        CGPoint b = [vc screenPointFromGeo:pc];
+                        
+                        CGPoint aToP = CGPointMake(a.x - p.x, a.y - p.y);
+                        CGPoint aToB = CGPointMake(a.x - b.x, a.y - b.y);
+                        double aToBMagitude = pow(hypot(aToB.x, aToB.y), 2);
+                        double dot = aToP.x * aToB.x + aToP.y * aToB.y;
+                        double d = dot/aToBMagitude;
+                        
+                        if(d < 0)
+                        {
+                            distance = hypot(p.x - a.x, p.y - a.y);
+                        } else if(d > 1) {
+                            distance = hypot(p.x - b.x, p.y - b.y);
+                        } else {
+                            distance = hypot(p.x - a.x + (aToB.x * d),
+                                             p.y - a.y + (aToB.y * d));
+                        }
+                        
+                        if (distance < maxDistance)
+                            return true;
+                    }
+                }
+            }
         }
     }
     
@@ -679,40 +762,76 @@ public:
         return false;
     
     VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*(_shapes.begin()));
-    if (!lin)
+    VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*(_shapes.begin()));
+    if (!lin && !lin3d)
         return false;
-    
-    VectorRing pts = lin->pts;
-    float totLen = 0;
-    for (int ii=0;ii<pts.size()-1;ii++)
-    {
-        float len = (pts[ii+1]-pts[ii]).norm();
-        totLen += len;
-    }
-    float halfLen = totLen / 2.0;
-    
-    // Now we'll walk along, looking for the middle
-    float lenSoFar = 0.0;
-    for (unsigned int ii=0;ii<pts.size();ii++)
-    {
-        Point2f &pt0 = pts[ii],&pt1 = pts[ii+1];
-        float len = (pt1-pt0).norm();
-        if (len > 0.0 && halfLen <= lenSoFar+len)
-        {
-            float t = (halfLen-lenSoFar)/len;
-            Point2f thePt = (pt1-pt0)*t + pt0;
-            middle->x = thePt.x();
-            middle->y = thePt.y();
-            *rot = M_PI/2.0-atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
-            return true;
-        }
 
-        lenSoFar += len;
+    if (lin)
+    {
+        VectorRing pts = lin->pts;
+        float totLen = 0;
+        for (int ii=0;ii<pts.size()-1;ii++)
+        {
+            float len = (pts[ii+1]-pts[ii]).norm();
+            totLen += len;
+        }
+        float halfLen = totLen / 2.0;
+        
+        // Now we'll walk along, looking for the middle
+        float lenSoFar = 0.0;
+        for (unsigned int ii=0;ii<pts.size();ii++)
+        {
+            Point2f &pt0 = pts[ii],&pt1 = pts[ii+1];
+            float len = (pt1-pt0).norm();
+            if (len > 0.0 && halfLen <= lenSoFar+len)
+            {
+                float t = (halfLen-lenSoFar)/len;
+                Point2f thePt = (pt1-pt0)*t + pt0;
+                middle->x = thePt.x();
+                middle->y = thePt.y();
+                *rot = M_PI/2.0-atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
+                return true;
+            }
+
+            lenSoFar += len;
+        }
+        
+        middle->x = pts.back().x();
+        middle->y = pts.back().y();
+        *rot = 0.0;
+    } else {
+        VectorRing3d pts = lin3d->pts;
+        float totLen = 0;
+        for (int ii=0;ii<pts.size()-1;ii++)
+        {
+            float len = (pts[ii+1]-pts[ii]).norm();
+            totLen += len;
+        }
+        float halfLen = totLen / 2.0;
+        
+        // Now we'll walk along, looking for the middle
+        float lenSoFar = 0.0;
+        for (unsigned int ii=0;ii<pts.size();ii++)
+        {
+            Point3d &pt0 = pts[ii],&pt1 = pts[ii+1];
+            float len = (pt1-pt0).norm();
+            if (len > 0.0 && halfLen <= lenSoFar+len)
+            {
+                float t = (halfLen-lenSoFar)/len;
+                Point3d thePt = (pt1-pt0)*t + pt0;
+                middle->x = thePt.x();
+                middle->y = thePt.y();
+                *rot = M_PI/2.0-atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
+                return true;
+            }
+            
+            lenSoFar += len;
+        }
+        
+        middle->x = pts.back().x();
+        middle->y = pts.back().y();
+        *rot = 0.0;
     }
-    
-    middle->x = pts.back().x();
-    middle->y = pts.back().y();
-	*rot = 0.0;
     
     return true;
 }
@@ -723,68 +842,134 @@ public:
         return false;
     
     VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*(_shapes.begin()));
-    if (!lin)
+    VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*(_shapes.begin()));
+    if (!lin && !lin3d)
         return false;
     
-    VectorRing pts = lin->pts;
-    
-    if (pts.empty())
-        return false;
-    
-    if (pts.size() == 1)
+    if (lin)
     {
-		if (middle) {
-	        middle->x = pts[0].x();
-    	    middle->y = pts[0].y();
-		}
-		if (rot) {
-	        *rot = 0.0;
-		}
-        return true;
-    }
-    
-    float totLen = 0;
-    for (int ii=0;ii<pts.size()-1;ii++)
-    {
-        float len = (pts[ii+1]-pts[ii]).norm();
-        totLen += len;
-    }
-    float halfLen = totLen / 2.0;
-    
-    WhirlyKit::CoordSystem *coordSys = maplyCoordSys->coordSystem;
-    
-    // Now we'll walk along, looking for the middle
-    float lenSoFar = 0.0;
-    for (unsigned int ii=0;ii<pts.size();ii++)
-    {
-        Point3d pt0 = coordSys->geographicToLocal3d(GeoCoord(pts[ii].x(),pts[ii].y()));
-        Point3d pt1 = coordSys->geographicToLocal3d(GeoCoord(pts[ii+1].x(),pts[ii+1].y()));
-        double len = (pt1-pt0).norm();
-        if (halfLen <= lenSoFar+len)
+        const VectorRing &pts = lin->pts;
+        
+        if (pts.empty())
+            return false;
+        
+        if (pts.size() == 1)
         {
-			if (middle) {
-				double t = (halfLen-lenSoFar)/len;
-				Point3d thePt = (pt1-pt0)*t + pt0;
-				GeoCoord middleGeo = coordSys->localToGeographic(thePt);
-				middle->x = middleGeo.x();
-				middle->y = middleGeo.y();
-			}
-			if (rot) {
-	            *rot = M_PI/2.0-atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
-			}
+            if (middle) {
+                middle->x = pts[0].x();
+                middle->y = pts[0].y();
+            }
+            if (rot) {
+                *rot = 0.0;
+            }
             return true;
         }
         
-        lenSoFar += len;
-    }
+        float totLen = 0;
+        for (int ii=0;ii<pts.size()-1;ii++)
+        {
+            float len = (pts[ii+1]-pts[ii]).norm();
+            totLen += len;
+        }
+        float halfLen = totLen / 2.0;
+        
+        WhirlyKit::CoordSystem *coordSys = maplyCoordSys->coordSystem;
+        
+        // Now we'll walk along, looking for the middle
+        float lenSoFar = 0.0;
+        for (unsigned int ii=0;ii<pts.size();ii++)
+        {
+            Point3d pt0 = coordSys->geographicToLocal3d(GeoCoord(pts[ii].x(),pts[ii].y()));
+            Point3d pt1 = coordSys->geographicToLocal3d(GeoCoord(pts[ii+1].x(),pts[ii+1].y()));
+            double len = (pt1-pt0).norm();
+            if (halfLen <= lenSoFar+len)
+            {
+                if (middle) {
+                    double t = (halfLen-lenSoFar)/len;
+                    Point3d thePt = (pt1-pt0)*t + pt0;
+                    GeoCoord middleGeo = coordSys->localToGeographic(thePt);
+                    middle->x = middleGeo.x();
+                    middle->y = middleGeo.y();
+                }
+                if (rot) {
+                    *rot = M_PI/2.0-atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
+                }
+                return true;
+            }
+            
+            lenSoFar += len;
+        }
 
-	if (middle){
-		middle->x = pts.back().x();
-		middle->y = pts.back().y();
-	}
-	if (rot) {
-        *rot = 0.0;
-	}
+        if (middle){
+            middle->x = pts.back().x();
+            middle->y = pts.back().y();
+        }
+        if (rot) {
+            *rot = 0.0;
+        }
+    } else {
+        VectorRing3d &pts = lin3d->pts;
+        
+        if (pts.empty())
+            return false;
+        
+        if (pts.size() == 1)
+        {
+            if (middle) {
+                middle->x = pts[0].x();
+                middle->y = pts[0].y();
+            }
+            if (rot) {
+                *rot = 0.0;
+            }
+            return true;
+        }
+        
+        float totLen = 0;
+        for (int ii=0;ii<pts.size()-1;ii++)
+        {
+            float len = (pts[ii+1]-pts[ii]).norm();
+            totLen += len;
+        }
+        float halfLen = totLen / 2.0;
+        
+        WhirlyKit::CoordSystem *coordSys = maplyCoordSys->coordSystem;
+        
+        // Now we'll walk along, looking for the middle
+        float lenSoFar = 0.0;
+        for (unsigned int ii=0;ii<pts.size();ii++)
+        {
+            GeoCoord geo0(pts[ii].x(),pts[ii].y());
+            GeoCoord geo1(pts[ii+1].x(),pts[ii+1].y());
+            Point3d pt0 = coordSys->geographicToLocal3d(geo0);
+            Point3d pt1 = coordSys->geographicToLocal3d(geo1);
+            double len = (pt1-pt0).norm();
+            if (halfLen <= lenSoFar+len)
+            {
+                if (middle) {
+                    double t = (halfLen-lenSoFar)/len;
+                    Point3d thePt = (pt1-pt0)*t + pt0;
+                    GeoCoord middleGeo = coordSys->localToGeographic(thePt);
+                    middle->x = middleGeo.x();
+                    middle->y = middleGeo.y();
+                }
+                if (rot) {
+                    *rot = M_PI/2.0-atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
+                }
+                return true;
+            }
+            
+            lenSoFar += len;
+        }
+        
+        if (middle){
+            middle->x = pts.back().x();
+            middle->y = pts.back().y();
+        }
+        if (rot) {
+            *rot = 0.0;
+        }
+    }
 
     return true;
 }
@@ -822,19 +1007,28 @@ public:
 	return middle;
 }
 
-- (bool)middleCoordinate:(MaplyCoordinate *)middle {
-  if (_shapes.empty())
-    return false;
-  
-  VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*(_shapes.begin()));
-  if (!lin)
-    return false;
+- (bool)middleCoordinate:(MaplyCoordinate *)middle
+{
+    if (_shapes.empty())
+        return false;
 
-  unsigned long index = lin->pts.size() / 2;
-  middle->x = lin->pts[index].x();
-  middle->y = lin->pts[index].y();
-  
-  return true;
+    VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*(_shapes.begin()));
+    VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*(_shapes.begin()));
+    if (!lin && !lin3d)
+        return false;
+
+    if (lin)
+    {
+        unsigned long index = lin->pts.size() / 2;
+        middle->x = lin->pts[index].x();
+        middle->y = lin->pts[index].y();
+    } else {
+        unsigned long index = lin3d->pts.size() / 2;
+        middle->x = lin3d->pts[index].x();
+        middle->y = lin3d->pts[index].y();
+    }
+
+    return true;
 }
 
 - (bool)largestLoopCenter:(MaplyCoordinate *)center mbrLL:(MaplyCoordinate *)ll mbrUR:(MaplyCoordinate *)ur;
@@ -924,13 +1118,22 @@ public:
                 centroid->y = midCoord.y();
                 return true;
             } else {
-                VectorPointsRef pts = std::dynamic_pointer_cast<VectorPoints>(*it);
-                if (pts)
+                VectorLinear3dRef linear3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
+                if (linear3d)
                 {
-                    GeoCoord midCoord = pts->geoMbr.mid();
+                    GeoCoord midCoord = linear3d->geoMbr.mid();
                     centroid->x = midCoord.x();
                     centroid->y = midCoord.y();
                     return true;
+                } else {
+                    VectorPointsRef pts = std::dynamic_pointer_cast<VectorPoints>(*it);
+                    if (pts)
+                    {
+                        GeoCoord midCoord = pts->geoMbr.mid();
+                        centroid->x = midCoord.x();
+                        centroid->y = midCoord.y();
+                        return true;
+                    }
                 }
             }
         }
@@ -1021,6 +1224,20 @@ public:
                 [pts addObject:loc];
             }
             [loops addObject:pts];
+        } else {
+            VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
+            if (lin3d)
+            {
+                const VectorRing3d &loop = lin3d->pts;
+                NSMutableArray *pts = [NSMutableArray array];
+                for (unsigned int ii=0;ii<loop.size();ii++)
+                {
+                    const Point3d &coord = loop[ii];
+                    CLLocation *loc = [[CLLocation alloc] initWithLatitude:RadToDeg(coord.y()) longitude:RadToDeg(coord.x())];
+                    [pts addObject:loc];
+                }
+                [loops addObject:pts];
+            }
         }
     }
     
@@ -1044,6 +1261,18 @@ public:
             const Point2f &coord = loop[ii];
             [outPts addObject:@(coord.x())];
             [outPts addObject:@(coord.y())];
+        }
+    } else {
+        VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
+        if (lin3d)
+        {
+            const VectorRing3d &loop = lin3d->pts;
+            for (unsigned int ii=0;ii<loop.size();ii++)
+            {
+                const Point3d &coord = loop[ii];
+                [outPts addObject:@(coord.x())];
+                [outPts addObject:@(coord.y())];
+            }
         }
     }
     
@@ -1078,14 +1307,22 @@ public:
             SubdivideEdgesToSurface(lin->pts, outPts, false, &adapter, epsilon);
             lin->pts = outPts;
         } else {
-            VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
-            if (ar)
+            VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
+            if (lin3d)
             {
-                for (unsigned int ii=0;ii<ar->loops.size();ii++)
+                VectorRing3d outPts;
+                SubdivideEdgesToSurface(lin3d->pts, outPts, false, &adapter, epsilon);
+                lin3d->pts = outPts;
+            } else {
+                VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+                if (ar)
                 {
-                    std::vector<Point2f> outPts;
-                    SubdivideEdgesToSurface(ar->loops[ii], outPts, true, &adapter, epsilon);
-                    ar->loops[ii] = outPts;
+                    for (unsigned int ii=0;ii<ar->loops.size();ii++)
+                    {
+                        std::vector<Point2f> outPts;
+                        SubdivideEdgesToSurface(ar->loops[ii], outPts, true, &adapter, epsilon);
+                        ar->loops[ii] = outPts;
+                    }
                 }
             }
         }
@@ -1102,7 +1339,7 @@ public:
         VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
         if (lin)
         {
-            std::vector<Point3f> outPts;
+            VectorRing3d outPts;
             SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, &adapter, epsilon);
             VectorRing outPts2D;
             outPts2D.resize(outPts.size());
@@ -1110,18 +1347,32 @@ public:
                 outPts2D[ii] = coordSys->localToGeographic(adapter.displayToLocal(outPts[ii]));
             lin->pts = outPts2D;
         } else {
-            VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
-            if (ar)
+            VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
+            if (lin3d)
             {
-                for (unsigned int ii=0;ii<ar->loops.size();ii++)
+                VectorRing3d outPts;
+                SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, &adapter, epsilon);
+                for (unsigned int ii=0;ii<outPts.size();ii++)
                 {
-                    std::vector<Point3f> outPts;
-                    SubdivideEdgesToSurfaceGC(ar->loops[ii], outPts, true, &adapter, epsilon);
-                    VectorRing outPts2D;
-                    outPts2D.resize(outPts.size());
-                    for (unsigned int ii=0;ii<outPts.size();ii++)
-                        outPts2D[ii] = coordSys->localToGeographic(adapter.displayToLocal(outPts[ii]));
-                    ar->loops[ii] = outPts2D;
+                    Point3d locPt = adapter.displayToLocal(outPts[ii]);
+                    GeoCoord outPt = coordSys->localToGeographic(locPt);
+                    outPts[ii] = Point3d(outPt.x(),outPt.y(),0.0);
+                }
+                lin3d->pts = outPts;
+            } else {
+                VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+                if (ar)
+                {
+                    for (unsigned int ii=0;ii<ar->loops.size();ii++)
+                    {
+                        VectorRing3d outPts;
+                        SubdivideEdgesToSurfaceGC(ar->loops[ii], outPts, true, &adapter, epsilon);
+                        VectorRing outPts2D;
+                        outPts2D.resize(outPts.size());
+                        for (unsigned int ii=0;ii<outPts.size();ii++)
+                            outPts2D[ii] = coordSys->localToGeographic(adapter.displayToLocal(outPts[ii]));
+                        ar->loops[ii] = outPts2D;
+                    }
                 }
             }
         }
@@ -1195,6 +1446,9 @@ public:
                 newLinear->pts = *it;
                 newVec->_shapes.insert(newLinear);
             }
+        } else if(std::dynamic_pointer_cast<VectorLinear3d>(*it) != NULL)
+        {
+            NSLog(@"Don't know how to clip linear3d objects");
         } else if(std::dynamic_pointer_cast<VectorAreal>(*it) != NULL)
         {
             VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
