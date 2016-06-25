@@ -58,7 +58,14 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         VectorRing inPts;
         inPts.push_back(Point2f(startPt.x,startPt.y));
         inPts.push_back(Point2f(endPt.x,endPt.y));
-        SubdivideEdgesToSurfaceGC(inPts, pts, false, coordAdapter, eps);
+        VectorRing3d tmpPts;
+        SubdivideEdgesToSurfaceGC(inPts, tmpPts, false, coordAdapter, eps);
+        pts.resize(tmpPts.size());
+        for (int ii=0;ii<tmpPts.size();ii++)
+        {
+            const Point3d &tmpPt = tmpPts[ii];
+            pts[ii] = Point3f(tmpPt.x(),tmpPt.y(),tmpPt.z());
+        }
 
         // To apply the height, we'll need the total length
         float totLen = 0;
@@ -105,7 +112,14 @@ void SampleGreatCircleStatic(MaplyCoordinate startPt,MaplyCoordinate endPt,float
         VectorRing inPts;
         inPts.push_back(Point2f(startPt.x,startPt.y));
         inPts.push_back(Point2f(endPt.x,endPt.y));
-        SubdivideEdgesToSurfaceGC(inPts, pts, false, coordAdapter, 1.0, 0.0, samples);
+        VectorRing3d tmpPts;
+        SubdivideEdgesToSurfaceGC(inPts, tmpPts, false, coordAdapter, 1.0, 0.0, samples);
+        pts.resize(tmpPts.size());
+        for (int ii=0;ii<tmpPts.size();ii++)
+        {
+            const Point3d &tmpPt = tmpPts[ii];
+            pts[ii] = Point3f(tmpPt.x(),tmpPt.y(),tmpPt.z());
+        }
         
         // To apply the height, we'll need the total length
         float totLen = 0;
