@@ -19,7 +19,9 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		AnimatedBasemapTestCase(),
 		ScreenLabelsTestCase(),
 		ScreenMarkersTestCase(),
+		MarkersTestCase(),
 		VectorsTestCase(),
+		ShapefileTestCase(),
 		WideVectorsTestCase(),
 		ClusteredMarkersTestCase(),
 		MegaMarkersTestCase(),
@@ -163,8 +165,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		tests[indexPath.row].updateProgress = { enableIndicator in
 			dispatch_async(dispatch_get_main_queue(), {
 				if enableIndicator {
-					cell.globeButton.hidden = true;
-					cell.mapButton.hidden = true;
+//					cell.globeButton.hidden = true;
+//					cell.mapButton.hidden = true;
 					cell.accessoryType = .None;
 				}
 				else {
@@ -176,8 +178,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		cell.retryDownloadResources = {
 			cell.downloadIndicator.hidden = false;
 			cell.downloadIndicator.startAnimating()
-			cell.globeButton.hidden = true
-			cell.mapButton.hidden = true
+//			cell.globeButton.hidden = true
+//			cell.mapButton.hidden = true
 			cell.retryButton.hidden = true;
 			cell.accessoryType = .None
 			self.downloadTestResources(self.tests[indexPath.row])

@@ -18,6 +18,7 @@
 #import "MapBoxVectorTestCase.h"
 #import "MapboxVectorTiles.h"
 #import "VectorsTestCase.h"
+#import "ShapefileTestCase.h"
 #import "ScreenMarkersTestCase.h"
 #import "MapzenSource.h"
 #import "MapjamSource.h"
