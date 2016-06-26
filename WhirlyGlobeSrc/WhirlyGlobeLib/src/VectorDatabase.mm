@@ -242,7 +242,7 @@ bool VectorDatabase::buildCaches(NSString *mbrCache,NSString *sqlDb)
                     // Create the field
                     if (!dataType.empty())
                     {
-                        sqlhelpers::OneShot(db,[NSString stringWithFormat:@"ALTER TABLE vectors ADD %@ %s;",key,dataType.c_str()]);                                                
+                        sqlhelpers::OneShot(db,[NSString stringWithFormat:@"ALTER TABLE vectors ADD \"%@\" %s;",key,dataType.c_str()]);                                                
                         fields.insert(fieldName);
                     } else
                         ignoreFields.insert(fieldName);
@@ -254,7 +254,7 @@ bool VectorDatabase::buildCaches(NSString *mbrCache,NSString *sqlDb)
             NSMutableString *valStr = [NSMutableString stringWithString:@"?, "];
             for (unsigned int jj=0;jj<keys.size();jj++)
             {
-                [keyStr appendFormat:@"%s%s",keys[jj].c_str(),(jj==keys.size()-1 ? "" : ", ")];
+                [keyStr appendFormat:@"\"%s\"%s",keys[jj].c_str(),(jj==keys.size()-1 ? "" : ", ")];
                 [valStr appendFormat:@"?%s",(jj==keys.size()-1 ? "" : ", ")];
             }
             sqlhelpers::StatementWrite insStmt(db,[NSString stringWithFormat:@"INSERT INTO vectors (%@) values (%@);",keyStr,valStr]);
