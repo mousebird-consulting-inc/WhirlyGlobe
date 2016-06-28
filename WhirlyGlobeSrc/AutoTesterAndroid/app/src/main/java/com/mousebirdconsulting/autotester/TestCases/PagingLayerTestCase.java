@@ -120,8 +120,10 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
     private QuadPagingLayer setupPagingLayer(MaplyBaseController baseController, ConfigOptions.TestType testType) throws Exception
     {
         QuadPagingLayer layer = new QuadPagingLayer(baseController,coordSys,this);
-        layer.setImportance(128*128);
+        layer.setImportance(256*256);
         layer.setSimultaneousFetches(8);
+        layer.setSingleLevelLoading(true);
+        layer.setUseTargetZoomLevel(true);
 
         return layer;
     }

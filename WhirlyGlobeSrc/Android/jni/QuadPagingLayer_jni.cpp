@@ -189,7 +189,7 @@ public:
         center.x() += adaptCenter.x();
         center.y() += adaptCenter.y();
 
-        while (zoomLevel < maxZoom)
+        while (zoomLevel <= maxZoom)
         {
             WhirlyKit::Quadtree::Identifier ident;
             ident.x = 0;  ident.y = 0;  ident.level = zoomLevel;
@@ -208,7 +208,7 @@ public:
             zoomLevel++;
         }
 
-        return zoomLevel;
+        return std::min(zoomLevel,maxZoom);
     }
 
     /// Called when the view state changes.  We look for an optimal display level here
