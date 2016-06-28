@@ -73,7 +73,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		labelInfo.setBackgroundColor(Color.RED);
 		labelInfo.setTypeface(Typeface.DEFAULT);
 //		labelInfo.setLayoutImportance(1.f);
-		labelInfo.setLayoutPlacement(LabelInfo.LayoutRight);
+		labelInfo.setLayoutPlacement(LabelInfo.LayoutLeft|LabelInfo.LayoutRight|LabelInfo.LayoutCenter);
 		labelInfo.setMinVis(0.f);
 		labelInfo.setMaxVis(2.5f);
 

@@ -702,15 +702,15 @@ bool LayoutManager::runLayoutRules(ViewState *viewState, std::vector<ClusterEntr
                                 break;
 							// Center
 							case 1:
-								objOffset = Point2d(-layoutSpan.x()/2.0,-layoutSpan.y()/2.0);
+								objOffset = Point2d(-layoutSpan.x()/2.0,+layoutSpan.y()/2.0);
 								break;
 							// Right
                             case 2:
-								objOffset = Point2d(0.0,-layoutSpan.y()/2.0);
+								objOffset = Point2d(0.0,+layoutSpan.y()/2.0);
 								break;
 							// Left
                             case 3:
-								objOffset = Point2d(-(layoutSpan.x()),-layoutSpan.y()/2.0);
+								objOffset = Point2d(-(layoutSpan.x()),+layoutSpan.y()/2.0);
                                 break;
 							// Above
                             case 4:
@@ -718,7 +718,7 @@ bool LayoutManager::runLayoutRules(ViewState *viewState, std::vector<ClusterEntr
 								break;
                                 // Below
                             case 5:
-								objOffset = Point2d(-layoutSpan.x()/2.0,-layoutSpan.y());
+								objOffset = Point2d(-layoutSpan.x()/2.0,+layoutSpan.y());
 								break;
                         }
 
