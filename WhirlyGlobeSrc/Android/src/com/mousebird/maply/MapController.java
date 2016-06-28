@@ -154,6 +154,14 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 			}
 			gestureHandler = new MapGestureHandler(this,baseView);
 		}
+
+		addPostSurfaceRunnable(new Runnable() {
+			@Override
+			public void run() {
+				// No lights for the map by default
+				clearLights();
+			}
+		});
 	}
 	
 	@Override public void shutdown()
