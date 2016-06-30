@@ -121,24 +121,16 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     // Look for an intersection with grabbable objects
     Point3d interPt;
     double interDist;
-    if (intManager->findIntersection(sceneRender, view, Point2f(startPoint.x,startPoint.y), interPt, interDist))
+    if (intManager->findIntersection(sceneRender, view, Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor), Point2f(startPoint.x,startPoint.y), interPt, interDist))
     {
-        NSLog(@"Intersection at (%f,%f,%f)",interPt.x(),interPt.y(),interPt.z());
         sphereRadius = interPt.norm();
         startOnSphere = interPt.normalized();
-        panType = PanFree;
-        
-        if ([view pointOnSphereFromScreen:startPoint transform:&startTransform
-                                frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&startOnSphere normalized:true])
-        {
-            NSLog(@"  Regular intersection at (%f,%f,%f)",startOnSphere.x(),startOnSphere.y(),startOnSphere.z());
-        }
+        panType = PanFree;        
     } else {
         sphereRadius = 1.0;
         if ([view pointOnSphereFromScreen:startPoint transform:&startTransform
                                 frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&startOnSphere normalized:true])
         {
-            NSLog(@"startOnSphere at (%f,%f,%f)",startOnSphere.x(),startOnSphere.y(),startOnSphere.z());
             // We'll start out letting them play with both axes
             panType = PanFree;                
         } else
@@ -158,6 +150,21 @@ static const float MomentumAnimLen = 1.0;
     if (screenPt.z() == 0.0)
         return false;
     float t = - view.heightAboveGlobe / screenPt.z();
+    
+    *hit = screenPt * t;
+    
+    return true;
+}
+
+- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize height:(float)height hit:(Point3d *)hit
+{
+    // Back Project the screen point into model space
+    Point3d screenPt = [view pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:false];
+    
+    screenPt.normalize();
+    if (screenPt.z() == 0.0)
+        return false;
+    float t = - (view.heightAboveGlobe-height) / screenPt.z();
     
     *hit = screenPt * t;
     
@@ -316,8 +323,8 @@ static const float MomentumAnimLen = 1.0;
                 
                 Point3d hit0,hit1;
                 Point2f frameSize(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor);
-                if ([self pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:frameSize hit:&hit0] &&
-                    [self pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:frameSize hit:&hit1])
+                if ([self pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:frameSize height:sphereRadius-1.0 hit:&hit0] &&
+                    [self pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:frameSize height:sphereRadius-1.0 hit:&hit1])
                 {
                     
                     float len = (hit1-hit0).norm();
