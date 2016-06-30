@@ -36,7 +36,7 @@ void IntersectionManager::removeIntersectable(Intersectable *intersect)
 }
 
 /// Look for the nearest intersection and return the point (in display coordinates)
-bool IntersectionManager::findIntersection(WhirlyKitSceneRendererES *renderer,WhirlyKitView *view,const Point2f &touchPt,Point3d &iPt,double &dist)
+bool IntersectionManager::findIntersection(WhirlyKitSceneRendererES *renderer,WhirlyKitView *view,const Point2f &frameSize,const Point2f &touchPt,Point3d &iPt,double &dist)
 {
     Point3d minPt;
     double minDist = std::numeric_limits<double>::max();
@@ -44,7 +44,6 @@ bool IntersectionManager::findIntersection(WhirlyKitSceneRendererES *renderer,Wh
     Eigen::Matrix4d fullMat = [view calcFullMatrix];
     Matrix4d invFullMat = fullMat.inverse();
 
-    Point2f frameSize(renderer.framebufferWidth,renderer.framebufferHeight);
     // Back project the point from screen space into model space
     Point3d tapPt = [view pointUnproject:touchPt width:frameSize.x() height:frameSize.y() clip:true];
 
@@ -61,14 +60,14 @@ bool IntersectionManager::findIntersection(WhirlyKitSceneRendererES *renderer,Wh
     Vector3d org(modelEye.x(),modelEye.y(),modelEye.z());
     Vector3d dir(dir4.x(),dir4.y(),dir4.z());
     dir.normalize();
-
+    
     pthread_mutex_lock(&mutex);
     
     for (auto inter : intersectables)
     {
         Point3d thisPt;
         double thisDist;
-        if (inter->findClosestIntersection(renderer, view, touchPt, org, dir, thisPt, thisDist))
+        if (inter->findClosestIntersection(renderer, view, frameSize, touchPt, org, dir, thisPt, thisDist))
         {
             if (thisDist < minDist)
             {
