@@ -218,7 +218,7 @@
  */
 @property(nonatomic,assign) bool rotateGesture;
 
-/** @brief Turn the tilte gesture recognizer on and off
+/** @brief Turn the tilt gesture recognizer on and off
     @details Off by default.
  */
 @property(nonatomic,assign) bool tiltGesture;

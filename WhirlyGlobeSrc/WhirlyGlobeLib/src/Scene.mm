@@ -25,6 +25,7 @@
 #import "ViewPlacementGenerator.h"
 #import "FontTextureManager.h"
 #import "SelectionManager.h"
+#import "IntersectionManager.h"
 #import "LayoutManager.h"
 #import "ShapeManager.h"
 #import "MarkerManager.h"
@@ -62,6 +63,8 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     pthread_mutex_init(&managerLock,NULL);
     // Selection manager is used for object selection from any thread
     addManager(kWKSelectionManager,new SelectionManager(this,[UIScreen mainScreen].scale));
+    // Intersection handling
+    addManager(kWKIntersectionManager, new IntersectionManager(this));
     // Layout manager handles text and icon layout
     addManager(kWKLayoutManager, new LayoutManager());
     // Shape manager handles circles, spheres and such

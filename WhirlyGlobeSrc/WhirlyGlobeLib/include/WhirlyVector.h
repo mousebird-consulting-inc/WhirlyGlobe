@@ -176,8 +176,8 @@ public:
     // Check if the given bounding box is valid
     bool isValid() { return pt_ur.x() >= pt_ll.x(); }
     
-    const Point3d &ll() { return pt_ll; }
-    const Point3d &ur() { return pt_ur; }
+    const Point3d &ll() const { return pt_ll; }
+    const Point3d &ur() const { return pt_ur; }
         
 protected:
     Point3d pt_ll,pt_ur;
@@ -252,17 +252,6 @@ protected:
 	GeoCoord pt_ll,pt_ur;
 };
     
-/** 3D ray representation.  Mostly used for intersection calculation.
-  */
-class Ray3f
-{
-public:
-    Ray3f() { }
-    Ray3f(Point3f org,Point3f dir) : org(org), dir(dir) { }
-    
-    Point3f org,dir;
-};
-
 /// Generate a quaternion from two vectors
 /// The version that comes with eigen does an epsilon check that is too large for our purposes
 Eigen::Quaterniond QuatFromTwoVectors(const Point3d &a,const Point3d &b);
