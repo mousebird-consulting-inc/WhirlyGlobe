@@ -52,6 +52,7 @@
 #import "VectorManager.h"
 #import "ShapeManager.h"
 #import "SelectionManager.h"
+#import "IntersectionManager.h"
 #import "TextureAtlas.h"
 #import "LayerThread.h"
 #import "DataLayer.h"

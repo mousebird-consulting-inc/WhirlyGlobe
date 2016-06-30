@@ -59,6 +59,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 	Eigen::Matrix4d startTransform;
 	// Where we first touched the sphere
     WhirlyKit::Point3d startOnSphere;
+    double sphereRadius;
 	// Rotation when we started
 	Eigen::Quaterniond startQuat;
     
@@ -114,12 +115,35 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     startPoint = [pan locationInView:glView];
     spinDate = CFAbsoluteTimeGetCurrent();
     lastTouch = [pan locationInView:glView];
-    if ([view pointOnSphereFromScreen:startPoint transform:&startTransform 
-                            frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&startOnSphere normalized:true])
-        // We'll start out letting them play with both axes
-        panType = PanFree;                
-    else
-        panType = PanNone;
+    
+    IntersectionManager *intManager = (IntersectionManager *)sceneRender.scene->getManager(kWKIntersectionManager);
+
+    // Look for an intersection with grabbable objects
+    Point3d interPt;
+    double interDist;
+    if (intManager->findIntersection(sceneRender, view, Point2f(startPoint.x,startPoint.y), interPt, interDist))
+    {
+        NSLog(@"Intersection at (%f,%f,%f)",interPt.x(),interPt.y(),interPt.z());
+        sphereRadius = interPt.norm();
+        startOnSphere = interPt.normalized();
+        panType = PanFree;
+        
+        if ([view pointOnSphereFromScreen:startPoint transform:&startTransform
+                                frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&startOnSphere normalized:true])
+        {
+            NSLog(@"  Regular intersection at (%f,%f,%f)",startOnSphere.x(),startOnSphere.y(),startOnSphere.z());
+        }
+    } else {
+        sphereRadius = 1.0;
+        if ([view pointOnSphereFromScreen:startPoint transform:&startTransform
+                                frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&startOnSphere normalized:true])
+        {
+            NSLog(@"startOnSphere at (%f,%f,%f)",startOnSphere.x(),startOnSphere.y(),startOnSphere.z());
+            // We'll start out letting them play with both axes
+            panType = PanFree;                
+        } else
+            panType = PanNone;
+    }
 }
 
 // How long we let the momentum run at the end of a pan
@@ -216,7 +240,8 @@ static const float MomentumAnimLen = 1.0;
                 CGPoint touchPt = [pan locationInView:glView];
                 lastTouch = touchPt;
 				bool onSphere = [view pointOnSphereFromScreen:touchPt transform:&startTransform
-									frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true];
+                                                    frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true radius:sphereRadius];
+                hit.normalize();
                 
                 // The math breaks down when we have a significant tilt
                 // Cancel when they do that
