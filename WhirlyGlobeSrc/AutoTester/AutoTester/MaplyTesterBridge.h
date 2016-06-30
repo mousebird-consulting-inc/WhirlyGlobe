@@ -42,5 +42,6 @@
 #import "FindHeightTestCase.h"
 #import "FullAnimationTest.h"
 #import "DownloadResourceOperation.h"
+#import "PagingLayerTestCase.h"
 
 #endif
