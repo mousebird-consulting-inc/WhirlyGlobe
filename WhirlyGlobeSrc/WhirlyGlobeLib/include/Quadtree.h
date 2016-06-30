@@ -18,6 +18,7 @@
  *
  */
 
+#import <Foundation/Foundation.h>
 #import "WhirlyVector.h"
 #import <set>
 
