@@ -114,6 +114,7 @@ using namespace WhirlyKit;
 	WhirlyGlobeView *globeView;
     double startRot;
     Point3d startRotAxis;
+    double sphereRadius;
     bool startRotAxisValid;
     bool _trackUp;
     double trackUpRot;
@@ -133,6 +134,7 @@ using namespace WhirlyKit;
         _northUp = false;
         _trackUp = false;
         _allowPan = false;
+        sphereRadius = 1.0;
         valid = false;
 	}
 	
@@ -183,6 +185,8 @@ using namespace WhirlyKit;
         valid = false;
         return;
     }
+
+    IntersectionManager *intManager = (IntersectionManager *)sceneRender.scene->getManager(kWKIntersectionManager);
     
     if (pinch.numberOfTouches != 2)
         valid = false;
@@ -190,6 +194,7 @@ using namespace WhirlyKit;
 	switch (theState)
 	{
 		case UIGestureRecognizerStateBegan:
+        {
 //            NSLog(@"Pinch started");
             startRotAxisValid = false;
             sentRotStartMsg = false;
@@ -197,14 +202,27 @@ using namespace WhirlyKit;
 			startQuat = [globeView rotQuat];
 			// Store the starting Z and pinch center for comparison
 			startZ = globeView.heightAboveGlobe;
+            CGPoint startPoint = [pinch locationInView:glView];
+            
             if (_zoomAroundPinch)
             {
-                if ([globeView pointOnSphereFromScreen:[pinch locationInView:glView] transform:&startTransform
-                                             frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
-                                                   hit:&startOnSphere normalized:true])
+                // Look for an intersection with grabbable objects
+                Point3d interPt;
+                double interDist;
+                if (intManager->findIntersection(sceneRender, globeView, Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor), Point2f(startPoint.x,startPoint.y), interPt, interDist))
+                {
+                    sphereRadius = interPt.norm();
+                    startOnSphere = interPt.normalized();
                     valid = true;
-                else
-                    valid = false;
+                } else {
+                    sphereRadius = 1.0;
+                    if ([globeView pointOnSphereFromScreen:startPoint transform:&startTransform
+                                                 frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                                       hit:&startOnSphere normalized:true])
+                        valid = true;
+                    else
+                        valid = false;
+                }
                 
                 if (valid)
                     [globeView cancelAnimation];
@@ -222,12 +240,22 @@ using namespace WhirlyKit;
                     float dx = touch0.x-center.x,dy=touch0.y-center.y;
                     startRot = atan2(dy, dx);
                     Point3d hit;
-                    if ([globeView pointOnSphereFromScreen:center transform:&startTransform
-                                                 frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
-                                                       hit:&hit normalized:true])
+                    Point3d interPt;
+                    double interDist;
+                    if (intManager->findIntersection(sceneRender, globeView, Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor), Point2f(startPoint.x,startPoint.y), interPt, interDist))
                     {
+                        sphereRadius = interPt.norm();
+                        startOnSphere = interPt.normalized();
                         startRotAxisValid = true;
                         startRotAxis = hit;
+                    } else {
+                        if ([globeView pointOnSphereFromScreen:center transform:&startTransform
+                                                     frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                                           hit:&hit normalized:true])
+                        {
+                            startRotAxisValid = true;
+                            startRotAxis = hit;
+                        }
                     }
                 } else {
                     startRotAxisValid = false;
@@ -235,7 +263,7 @@ using namespace WhirlyKit;
             }
 
             [[NSNotificationCenter defaultCenter] postNotificationName:kPinchDelegateDidStart object:globeView];
-            
+        }
 			break;
 		case UIGestureRecognizerStateChanged:
             if (valid)
@@ -244,11 +272,14 @@ using namespace WhirlyKit;
 //                NSLog(@"Pinch updated");
                 [globeView cancelAnimation];
                 
+                float heightRun = (startZ+1.0)-sphereRadius;
+                
                 // And adjust the height too
-                float newH = startZ/pinch.scale;
+                float newH = heightRun/pinch.scale + sphereRadius - 1.0;
+                
                 if (_minHeight <= newH && newH <= _maxHeight)
                     [globeView setHeightAboveGlobe:newH updateWatchers:false];
-
+                
                 Eigen::Quaterniond newRotQuat = globeView.rotQuat;
                 Point3d axis = [globeView currentUp];
                 Eigen::Quaterniond oldQuat = globeView.rotQuat;
@@ -264,7 +295,7 @@ using namespace WhirlyKit;
                         Eigen::Matrix4d curTransform = [globeView calcFullMatrix];
                         if ([globeView pointOnSphereFromScreen:[pinch locationInView:glView] transform:&curTransform
                                                      frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
-                                                           hit:&hit normalized:true])
+                                                           hit:&hit normalized:true radius:sphereRadius])
                         {
                             // This gives us a direction to rotate around
                             // And how far to rotate
