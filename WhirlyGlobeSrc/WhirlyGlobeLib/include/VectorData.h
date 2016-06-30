@@ -135,6 +135,9 @@ protected:
     VectorTriangles();
 };
 
+/// Look for a triangle/ray intersection in the mesh
+bool VectorTrianglesRayIntersect(const Point3d &org,const Point3d &dir,const VectorTriangles &mesh,double *outT,Point3d *iPt);
+
 /// Areal feature is a list of loops.  The first is an outer loop
 ///  and all the rest are inner loops
 class VectorAreal : public VectorShape
