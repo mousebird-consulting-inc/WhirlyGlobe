@@ -27,34 +27,6 @@
 
 using namespace WhirlyKit;
 
-@implementation MaplyVectorStyleSettings
-
-- (instancetype)init
-{
-    self = [super init];
-    _lineScale = 1.0;
-    _textScale = 1.0;
-    _markerScale = 1.0;
-    _markerImportance = 2.0;
-    _markerSize = 10.0;
-    _mapScaleScale = 1.0;
-    _dashPatternScale = 1.0;
-    _useWideVectors = false;
-    _wideVecCuttoff = 0.0;
-    _oldVecWidthScale = 1.0;
-    _selectable = false;
-  
-    return self;
-}
-
-- (NSString*)description
-{
-  return [NSString stringWithFormat:@"%@: lineScale:%f textScale:%f markerScale:%f mapScaleScale:%f",
-          [[self class] description], _lineScale, _textScale, _markerScale, _mapScaleScale];
-}
-
-@end
-
 @implementation MaplyVectorTileStyle
 
 + (id)styleFromStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC

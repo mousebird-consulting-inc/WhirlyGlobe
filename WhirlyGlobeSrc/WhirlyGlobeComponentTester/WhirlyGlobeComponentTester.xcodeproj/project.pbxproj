@@ -30,7 +30,6 @@
 		2B8570B11A5DE4D200705AA7 /* vp.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 2B8570B01A5DE4D200705AA7 /* vp.mtl */; };
 		2B8571531A6DC43F00705AA7 /* cube.obj in Resources */ = {isa = PBXBuildFile; fileRef = 2B8571521A6DC43F00705AA7 /* cube.obj */; };
 		2B8D1E9B1AB0BC8900996F19 /* MapzenGLStyle.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B8D1E9A1AB0BC8900996F19 /* MapzenGLStyle.json */; };
-		2BA13BFF17F10D9A000C43B7 /* libWhirlyGlobe-MaplyComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DD9216E7F3D3001F52FC /* libWhirlyGlobe-MaplyComponent.a */; };
 		2BA13C0117F10E49000C43B7 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BA13C0017F10E49000C43B7 /* CFNetwork.framework */; };
 		2BA13C0517F10E93000C43B7 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB916E7F514001F52FC /* SystemConfiguration.framework */; };
 		2BA13C0617F10EC1000C43B7 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDBD16E7F54B001F52FC /* MobileCoreServices.framework */; };
@@ -175,6 +174,8 @@
 		2BDC8A8E1937E33F00DFECF0 /* tl_2013_06075_roads.prj in Resources */ = {isa = PBXBuildFile; fileRef = 2BDC8A8A1937E33F00DFECF0 /* tl_2013_06075_roads.prj */; };
 		2BDC8A8F1937E33F00DFECF0 /* tl_2013_06075_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 2BDC8A8B1937E33F00DFECF0 /* tl_2013_06075_roads.shp */; };
 		2BDC8A901937E33F00DFECF0 /* tl_2013_06075_roads.shx in Resources */ = {isa = PBXBuildFile; fileRef = 2BDC8A8C1937E33F00DFECF0 /* tl_2013_06075_roads.shx */; };
+		2BE53AE31D24A22A00B60FAD /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AE21D24A22A00B60FAD /* libWhirlyGlobeLib.a */; };
+		2BE53AE41D24A24100B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53ADE1D24A1A000B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE684EE1B47449A00A5C04C /* star_background.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BE684ED1B47449A00A5C04C /* star_background.png */; };
 		2BFD25DD170B92AD00127EF5 /* map_pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD25DA170B92AD00127EF5 /* map_pin.png */; };
 		2BFD25DE170B92AD00127EF5 /* Smiley_Face_Avatar_by_PixelTwist.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD25DB170B92AD00127EF5 /* Smiley_Face_Avatar_by_PixelTwist.png */; };
@@ -444,12 +445,19 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		2B62DD9116E7F3D3001F52FC /* PBXContainerItemProxy */ = {
+		2BE53ADD1D24A1A000B60FAD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 2B62DD8C16E7F3D2001F52FC /* WhirlyGlobe-MaplyComponent.xcodeproj */;
+			containerPortal = 2BE53AD71D24A1A000B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 2B11E0DB15B4C030007AAE3F;
-			remoteInfo = "WhirlyGlobe-MaplyComponent";
+			remoteGlobalIDString = 2BE536FF1D2499E500B60FAD;
+			remoteInfo = WhirlyGlobeMaplyComponent;
+		};
+		2BE53ADF1D24A1A000B60FAD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2BE53AD71D24A1A000B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2BE537091D2499E500B60FAD;
+			remoteInfo = WhirlyGlobeMaplyComponentTests;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -488,7 +496,6 @@
 		2B62DD8316E7F3A2001F52FC /* StartupViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StartupViewController.m; sourceTree = "<group>"; };
 		2B62DD8416E7F3A2001F52FC /* TestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestViewController.h; sourceTree = "<group>"; };
 		2B62DD8516E7F3A2001F52FC /* TestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestViewController.m; sourceTree = "<group>"; };
-		2B62DD8C16E7F3D2001F52FC /* WhirlyGlobe-MaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "WhirlyGlobe-MaplyComponent.xcodeproj"; path = "../WhirlyGlobe-MaplyComponent/WhirlyGlobe-MaplyComponent.xcodeproj"; sourceTree = "<group>"; };
 		2B62DDB316E7F4FD001F52FC /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		2B62DDB516E7F505001F52FC /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		2B62DDB716E7F509001F52FC /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
@@ -645,6 +652,8 @@
 		2BDC8A8A1937E33F00DFECF0 /* tl_2013_06075_roads.prj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tl_2013_06075_roads.prj; sourceTree = "<group>"; };
 		2BDC8A8B1937E33F00DFECF0 /* tl_2013_06075_roads.shp */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.shp; sourceTree = "<group>"; };
 		2BDC8A8C1937E33F00DFECF0 /* tl_2013_06075_roads.shx */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.shx; sourceTree = "<group>"; };
+		2BE53AD71D24A1A000B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeMaplyComponent.xcodeproj; path = "../WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.xcodeproj"; sourceTree = "<group>"; };
+		2BE53AE21D24A22A00B60FAD /* libWhirlyGlobeLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWhirlyGlobeLib.a; path = "../../../../Library/Developer/Xcode/DerivedData/WhirlyGlobeComponentTester-fqhuvifiwxzuftaekpbdosdglwkx/Build/Products/Debug-iphonesimulator/libWhirlyGlobeLib.a"; sourceTree = "<group>"; };
 		2BE684ED1B47449A00A5C04C /* star_background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = star_background.png; path = resources/star_background.png; sourceTree = SOURCE_ROOT; };
 		2BEA1E6A171E0F300039F1A4 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		2BFD25DA170B92AD00127EF5 /* map_pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = map_pin.png; path = resources/map_pin.png; sourceTree = SOURCE_ROOT; };
@@ -920,6 +929,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BE53AE41D24A24100B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */,
+				2BE53AE31D24A22A00B60FAD /* libWhirlyGlobeLib.a in Frameworks */,
 				2B4B6C071BB1BC560080036E /* libxml2.tbd in Frameworks */,
 				2B4B6C051BB1BC520080036E /* libsqlite3.tbd in Frameworks */,
 				2B4B6C031BB1BC4A0080036E /* libz.tbd in Frameworks */,
@@ -929,7 +940,6 @@
 				2BA13C0617F10EC1000C43B7 /* MobileCoreServices.framework in Frameworks */,
 				2BA13C0517F10E93000C43B7 /* SystemConfiguration.framework in Frameworks */,
 				2BA13C0117F10E49000C43B7 /* CFNetwork.framework in Frameworks */,
-				2BA13BFF17F10D9A000C43B7 /* libWhirlyGlobe-MaplyComponent.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -960,7 +970,6 @@
 				2B62DDB716E7F509001F52FC /* libsqlite3.dylib */,
 				2B62DDB516E7F505001F52FC /* OpenGLES.framework */,
 				2B62DDB316E7F4FD001F52FC /* QuartzCore.framework */,
-				2B62DD8C16E7F3D2001F52FC /* WhirlyGlobe-MaplyComponent.xcodeproj */,
 				2B62DD6316E7F0BC001F52FC /* WhirlyGlobeComponentTester */,
 				2B62DD5C16E7F0BC001F52FC /* Frameworks */,
 				2B62DD5B16E7F0BC001F52FC /* Products */,
@@ -979,6 +988,8 @@
 		2B62DD5C16E7F0BC001F52FC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2BE53AE21D24A22A00B60FAD /* libWhirlyGlobeLib.a */,
+				2BE53AD71D24A1A000B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */,
 				2B4B6C061BB1BC560080036E /* libxml2.tbd */,
 				2B4B6C041BB1BC520080036E /* libsqlite3.tbd */,
 				2B4B6C021BB1BC4A0080036E /* libz.tbd */,
@@ -1030,14 +1041,6 @@
 				2B62DD6B16E7F0BD001F52FC /* WhirlyGlobeComponentTester-Prefix.pch */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		2B62DD8D16E7F3D2001F52FC /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				2B62DD9216E7F3D3001F52FC /* libWhirlyGlobe-MaplyComponent.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		2B9BAD6F1B3B2B6D00B95CC2 /* stars */ = {
@@ -1223,6 +1226,15 @@
 			);
 			name = sf_roads;
 			path = ../../../resources/vectors/sf_roads;
+			sourceTree = "<group>";
+		};
+		2BE53AD81D24A1A000B60FAD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2BE53ADE1D24A1A000B60FAD /* WhirlyGlobeMaplyComponent.framework */,
+				2BE53AE01D24A1A000B60FAD /* WhirlyGlobeMaplyComponentTests.xctest */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		2BFD25D8170B929E00127EF5 /* resources */ = {
@@ -1583,8 +1595,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 2B62DD8D16E7F3D2001F52FC /* Products */;
-					ProjectRef = 2B62DD8C16E7F3D2001F52FC /* WhirlyGlobe-MaplyComponent.xcodeproj */;
+					ProductGroup = 2BE53AD81D24A1A000B60FAD /* Products */;
+					ProjectRef = 2BE53AD71D24A1A000B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -1595,11 +1607,18 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		2B62DD9216E7F3D3001F52FC /* libWhirlyGlobe-MaplyComponent.a */ = {
+		2BE53ADE1D24A1A000B60FAD /* WhirlyGlobeMaplyComponent.framework */ = {
 			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libWhirlyGlobe-MaplyComponent.a";
-			remoteRef = 2B62DD9116E7F3D3001F52FC /* PBXContainerItemProxy */;
+			fileType = wrapper.framework;
+			path = WhirlyGlobeMaplyComponent.framework;
+			remoteRef = 2BE53ADD1D24A1A000B60FAD /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		2BE53AE01D24A1A000B60FAD /* WhirlyGlobeMaplyComponentTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = WhirlyGlobeMaplyComponentTests.xctest;
+			remoteRef = 2BE53ADF1D24A1A000B60FAD /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */

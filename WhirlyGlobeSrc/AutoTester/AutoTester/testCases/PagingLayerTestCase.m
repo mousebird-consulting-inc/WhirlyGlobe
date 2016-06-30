@@ -49,6 +49,7 @@
     quadLayer.singleLevelLoading = true;
     quadLayer.useTargetZoomLevel = true;
     quadLayer.importance = 128*128;
+    quadLayer.useParentTileBounds = false;
     [baseLayer addLayer:quadLayer];
 }
 
