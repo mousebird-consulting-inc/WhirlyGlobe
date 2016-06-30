@@ -156,7 +156,7 @@ class GeomPointAttrDataInt : public GeomPointAttrData
 {
 public:
     GeomPointAttrDataInt() : GeomPointAttrData(GeomRawIntType) { }
-    int getNumVals() { return vals.size(); }
+    int getNumVals() { return (int)vals.size(); }
     virtual ~GeomPointAttrDataInt() { }
     std::vector<int> vals;
 };
@@ -166,7 +166,7 @@ class GeomPointAttrDataFloat : public GeomPointAttrData
 {
 public:
     GeomPointAttrDataFloat() : GeomPointAttrData(GeomRawFloatType) { }
-    int getNumVals() { return vals.size(); }
+    int getNumVals() { return (int)vals.size(); }
     virtual ~GeomPointAttrDataFloat() { }
     std::vector<float> vals;
 };
@@ -176,7 +176,7 @@ class GeomPointAttrDataPoint2f : public GeomPointAttrData
 {
 public:
     GeomPointAttrDataPoint2f() : GeomPointAttrData(GeomRawFloat2Type) { }
-    int getNumVals() { return vals.size(); }
+    int getNumVals() { return (int)vals.size(); }
     virtual ~GeomPointAttrDataPoint2f() { }
     std::vector<Point2f> vals;
 };
@@ -186,7 +186,7 @@ class GeomPointAttrDataPoint2d : public GeomPointAttrData
 {
 public:
     GeomPointAttrDataPoint2d() : GeomPointAttrData(GeomRawDouble2Type) { }
-    int getNumVals() { return vals.size(); }
+    int getNumVals() { return (int)vals.size(); }
     virtual ~GeomPointAttrDataPoint2d() { }
     std::vector<Point2d> vals;
 };
@@ -196,7 +196,7 @@ class GeomPointAttrDataPoint3f : public GeomPointAttrData
 {
 public:
     GeomPointAttrDataPoint3f() : GeomPointAttrData(GeomRawFloat3Type) { }
-    int getNumVals() { return vals.size(); }
+    int getNumVals() { return (int)vals.size(); }
     virtual ~GeomPointAttrDataPoint3f() { }
     std::vector<Point3f> vals;
 };
@@ -206,7 +206,7 @@ class GeomPointAttrDataPoint3d : public GeomPointAttrData
 {
 public:
     GeomPointAttrDataPoint3d() : GeomPointAttrData(GeomRawDouble3Type) { }
-    int getNumVals() { return vals.size(); }
+    int getNumVals() { return (int)vals.size(); }
     virtual ~GeomPointAttrDataPoint3d() { }
     std::vector<Point3d> vals;
 };
@@ -216,7 +216,7 @@ class GeomPointAttrDataPoint4f : public GeomPointAttrData
 {
 public:
     GeomPointAttrDataPoint4f() : GeomPointAttrData(GeomRawFloat4Type) { }
-    int getNumVals() { return vals.size(); }
+    int getNumVals() { return (int)vals.size(); }
     virtual ~GeomPointAttrDataPoint4f() { }
     std::vector<Eigen::Vector4f> vals;
 };
