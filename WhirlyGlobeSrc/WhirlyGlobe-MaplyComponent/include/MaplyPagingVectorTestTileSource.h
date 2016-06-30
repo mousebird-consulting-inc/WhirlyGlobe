@@ -38,4 +38,7 @@
 /// Max zoom level supported
 @property (nonatomic) int maxZoom;
 
+/// If set, we'll add a little delay to test things out
+@property (nonatomic) bool useDelay;
+
 @end

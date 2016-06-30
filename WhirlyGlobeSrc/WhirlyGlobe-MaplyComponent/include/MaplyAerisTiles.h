@@ -18,6 +18,8 @@
  *
  */
 
+#import <Foundation/Foundation.h>
+
 /** @brief Represents an Aeris layer.
     @details This object contains information about an Aeris weather image layer.
     @details Don't construct these objects except from the MaplyAerisTiles object.  Instead, get them from MaplyAerisTiles.

@@ -18,6 +18,8 @@
  *
  */
 
+#import <Foundation/Foundation.h>
+
 /** @brief Used to represent the view controller resources attached to one or more visual objects.
     @details When you add one or more objects to a view controller, you'll get a component object back. It's an opaque object (seriously, don't look inside) that we use to track various resources within the toolkit.
     @details You can keep these around to remove the visual objects you added earlier, but that's about all the interaction you'll have with them.
