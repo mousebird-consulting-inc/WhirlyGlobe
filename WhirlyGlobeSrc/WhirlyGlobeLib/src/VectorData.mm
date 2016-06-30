@@ -365,6 +365,45 @@ void VectorTriangles::initGeoMbr()
         geoMbr.addGeoCoord(GeoCoord(pts[ii].x(),pts[ii].y()));
 }
     
+bool VectorTrianglesRayIntersect(const Point3d &org,const Point3d &dir,const VectorTriangles &mesh,double *outT,Point3d *iPt)
+{
+    double tMin = std::numeric_limits<double>::max();
+    Point3d minPt;
+    
+    // Look for closest intersection
+    for (const auto &tri : mesh.tris)
+    {
+        Point3d pts[3];
+        for (int jj=0;jj<3;jj++)
+        {
+            const Point3f &pt = mesh.pts[tri.pts[jj]];
+            pts[jj] = Point3d(pt.x(),pt.y(),pt.z());
+        }
+
+        double thisT;
+        Point3d thisPt;
+        if (TriangleRayIntersection(org, dir, pts, &thisT, &thisPt))
+        {
+            if (thisT < tMin)
+            {
+                tMin = thisT;
+                minPt = thisPt;
+            }
+        }
+    }
+    
+    if (tMin != std::numeric_limits<double>::max())
+    {
+        if (outT)
+            *outT = tMin;
+        if (iPt)
+            *iPt = minPt;
+        return true;
+    }
+    
+    return false;
+}
+    
 VectorAreal::VectorAreal()
 {
 }

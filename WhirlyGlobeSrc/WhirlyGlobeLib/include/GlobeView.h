@@ -85,6 +85,12 @@
  */
 - (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3d *)hit normalized:(bool)normalized;
 
+/** Given a location on the screen and the screen size, figure out where we touched the sphere
+ Returns true if we hit and where
+ Returns false if not and the closest point on the sphere
+ */
+- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3d *)hit normalized:(bool)normalized radius:(double)radius;
+
 /** From a world location (3D), figure out the projection to the screen
     Returns a point within the frame
   */
