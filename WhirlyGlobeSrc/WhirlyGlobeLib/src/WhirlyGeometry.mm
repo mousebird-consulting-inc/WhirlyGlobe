@@ -425,7 +425,7 @@ bool BoundingBoxRayIntersect(const Point3d &org,const Point3d &dir,const BBox &b
     return ret;
 }
     
-static const double IntersectEPS = 0.000001;
+static const double IntersectEPS = 1e-20;
     
 // Courtesy: https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
 bool TriangleRayIntersection(const Point3d &org,const Point3d &dir,const Point3d pts[3], double *outT, Point3d *iPt)
