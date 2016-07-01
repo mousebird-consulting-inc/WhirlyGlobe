@@ -239,4 +239,82 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLayoutPlacement
     }
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setOutlineColor
+(JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
+{
+    try
+    {
+        LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+        LabelInfo *info = classInfo->getObject(env,obj);
+        if (!info)
+            return;
+        info->outlineColor = RGBAColor(r*255,g*255,b*255,a*255);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setOutlineColor()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setOutlineSize
+(JNIEnv *env, jobject obj, jfloat outlineSize)
+{
+    try
+    {
+        LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+        if (!info)
+            return;
+        
+        info->outlineSize = outlineSize;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setOutlineSize()");
+    }
+}
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getOutlineColor
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+        if (!info)
+            return 0;
+        
+        int outlineColor = info->outlineColor.asInt();
+        return outlineColor;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getOutlineColor()");
+    }
+    
+    return 0;
+}
+
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_LabelInfo_getOutlineSize
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+        if (!info)
+            return 0;
+        
+        float outlineSize = info->outlineSize;
+        return outlineSize;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getOutlineSize()");
+    }
+    
+    return 0;
+}
+
+
 

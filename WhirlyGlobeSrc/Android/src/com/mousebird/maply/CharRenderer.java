@@ -23,7 +23,6 @@ package com.mousebird.maply;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.util.Log;
 
 /**
  * Convenience object used to render a single character for the 
@@ -50,29 +49,45 @@ class CharRenderer
 	
 	Glyph renderChar(int charInt,LabelInfo labelInfo,float fontSize)
 	{
-		Paint p = new Paint();
+		Paint textFillPaint = new Paint();
 		String str = new String(Character.toChars(charInt));
-		p.setTextSize(fontSize);
+		textFillPaint.setTextSize(fontSize);
 		int textColor = labelInfo.getTextColor();
-		p.setColor(textColor);
+		textFillPaint.setColor(textColor);
 		if (labelInfo != null)
-			p.setTypeface(labelInfo.getTypeface());
-		Paint.FontMetrics fm = p.getFontMetrics();
+			textFillPaint.setTypeface(labelInfo.getTypeface());
+		Paint.FontMetrics fm = textFillPaint.getFontMetrics();
 		float fontHeight = (float)Math.ceil( Math.abs( fm.bottom ) + Math.abs( fm.top ) );
 //		float fontAscent = (float)Math.ceil( Math.abs( fm.ascent ) );
 		float fontDescent = (float)Math.ceil( Math.abs( fm.descent ) );
 		
 		float widths[] = new float[2];
-		p.getTextWidths(str, widths);
+		textFillPaint.getTextWidths(str, widths);
 		
 		int width = (int) (widths[0] + fontPadX*2);
 		int height = (int) (fontHeight + fontPadY*2);
-		
+
+		//paint for outline
+		Paint textOutlinePaint = null;
+		if(labelInfo.getOutlineSize() > 0) {
+			textOutlinePaint = new Paint(textFillPaint);
+			textOutlinePaint.setStyle(Paint.Style.STROKE);
+			textOutlinePaint.setStrokeWidth(labelInfo.getOutlineSize());
+			textOutlinePaint.setColor(labelInfo.getOutlineColor());
+		}
+
 		Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 		bitmap.eraseColor( 0x00000000 );
 		Canvas canvas = new Canvas (bitmap);
-		canvas.drawText(str, 0, 1, fontPadX, height - fontDescent - fontPadY, p);
-		
+
+		//draw char fill
+		canvas.drawText(str, 0, 1, fontPadX, height - fontDescent - fontPadY, textFillPaint);
+
+		//draw char outline
+		if(textOutlinePaint != null) {
+			canvas.drawText(str, 0, 1, fontPadX, height - fontDescent - fontPadY, textOutlinePaint);
+		}
+
 		// Send back some useful info
 		Glyph glyph = new Glyph();
 		glyph.bitmap = bitmap;

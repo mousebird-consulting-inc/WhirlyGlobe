@@ -41,6 +41,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFontSize
 
 /*
  * Class:     com_mousebird_maply_LabelInfo
+ * Method:    setOutlineColor
+ * Signature: (FFFF)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setOutlineColor
+  (JNIEnv *, jobject, jfloat, jfloat, jfloat, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_LabelInfo
+ * Method:    setOutlineSize
+ * Signature: (F)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setOutlineSize
+  (JNIEnv *, jobject, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_LabelInfo
  * Method:    setLayoutImportance
  * Signature: (F)V
  */
@@ -77,6 +93,22 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getTextColor
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getBackColor
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LabelInfo
+ * Method:    getOutlineColor
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getOutlineColor
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LabelInfo
+ * Method:    getOutlineSize
+ * Signature: ()F
+ */
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_LabelInfo_getOutlineSize
   (JNIEnv *, jobject);
 
 /*

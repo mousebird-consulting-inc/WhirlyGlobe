@@ -106,6 +106,30 @@ public class LabelInfo extends BaseInfo
 	public native void setFontSize(float size);
 
 	/**
+	 * Set the color of outline.
+	 * Color components range from 0.0 to 1.0.
+	 *
+	 * @param r red
+	 * @param g green
+	 * @param b blue
+	 * @param a alpha
+	 */
+	public native void setOutlineColor(float r,float g,float b,float a);
+
+	/**
+	 * Set the color of the outline.
+     */
+	public void setOutlineColor(int color)
+	{
+		setOutlineColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+	}
+
+	/**
+	 * Set the outline size for the text.
+	 */
+	public native void setOutlineSize(float size);
+
+	/**
 	 * The layout engine controls how text is displayed.  It tries to avoid overlaps
 	 * and takes priority into account.  The layout importance controls which labels
 	 * (or other features) are laid out first.  Bigger is more important.
@@ -145,6 +169,16 @@ public class LabelInfo extends BaseInfo
 	 * Return the background text color in a form suitable for Android.
 	 */
 	public native int getBackColor();
+
+	/**
+	 * Return the outline color in a form suitable for Android.
+	 */
+	public native int getOutlineColor();
+
+	/**
+	 * Return the outline size
+	 */
+	public native float getOutlineSize();
 
 	static
 	{
