@@ -24,11 +24,6 @@
 		2B4BA6D91C83A22000DC1562 /* uturn.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6CD1C83A22000DC1562 /* uturn.geojson */; };
 		2B6953651C7E601A007FC51E /* AnimatedColorRampTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */; };
 		2B6953681C7E67DD007FC51E /* colorramp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B6953671C7E67DD007FC51E /* colorramp.png */; };
-		2BC2DCC01D1E02B20088D350 /* gaiaproject.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2BC2DCBF1D1E02B20088D350 /* gaiaproject.xml */; };
-		2BC2DCC71D1F4CCD0088D350 /* ne_10m_roads.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 2BC2DCC31D1F4CCD0088D350 /* ne_10m_roads.dbf */; };
-		2BC2DCC81D1F4CCD0088D350 /* ne_10m_roads.prj in Resources */ = {isa = PBXBuildFile; fileRef = 2BC2DCC41D1F4CCD0088D350 /* ne_10m_roads.prj */; };
-		2BC2DCC91D1F4CCD0088D350 /* ne_10m_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 2BC2DCC51D1F4CCD0088D350 /* ne_10m_roads.shp */; };
-		2BC2DCCA1D1F4CCD0088D350 /* ne_10m_roads.shx in Resources */ = {isa = PBXBuildFile; fileRef = 2BC2DCC61D1F4CCD0088D350 /* ne_10m_roads.shx */; };
 		2BC2DCCD1D1F4CE20088D350 /* ShapefileTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCCC1D1F4CE20088D350 /* ShapefileTestCase.m */; };
 		2BC2DCF01D2345AF0088D350 /* PagingLayerTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.m */; };
 		2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */; };
@@ -574,11 +569,6 @@
 		2B6953631C7E601A007FC51E /* AnimatedColorRampTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatedColorRampTestCase.h; sourceTree = "<group>"; };
 		2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnimatedColorRampTestCase.m; sourceTree = "<group>"; };
 		2B6953671C7E67DD007FC51E /* colorramp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = colorramp.png; path = AutoTester/colorramp.png; sourceTree = "<group>"; };
-		2BC2DCBF1D1E02B20088D350 /* gaiaproject.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = gaiaproject.xml; path = ../../../../Downloads/gaia_topo.tm2/gaiaproject.xml; sourceTree = "<group>"; };
-		2BC2DCC31D1F4CCD0088D350 /* ne_10m_roads.dbf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.dbf; path = "../../resources/vectors/natural earth/ne_10m_roads.dbf"; sourceTree = "<group>"; };
-		2BC2DCC41D1F4CCD0088D350 /* ne_10m_roads.prj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ne_10m_roads.prj; path = "../../resources/vectors/natural earth/ne_10m_roads.prj"; sourceTree = "<group>"; };
-		2BC2DCC51D1F4CCD0088D350 /* ne_10m_roads.shp */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shp; path = "../../resources/vectors/natural earth/ne_10m_roads.shp"; sourceTree = "<group>"; };
-		2BC2DCC61D1F4CCD0088D350 /* ne_10m_roads.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shx; path = "../../resources/vectors/natural earth/ne_10m_roads.shx"; sourceTree = "<group>"; };
 		2BC2DCCB1D1F4CE20088D350 /* ShapefileTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapefileTestCase.h; sourceTree = "<group>"; };
 		2BC2DCCC1D1F4CE20088D350 /* ShapefileTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShapefileTestCase.m; sourceTree = "<group>"; };
 		2BC2DCEE1D2345AF0088D350 /* PagingLayerTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagingLayerTestCase.h; sourceTree = "<group>"; };
@@ -1155,17 +1145,6 @@
 			name = "wide vectors";
 			sourceTree = "<group>";
 		};
-		2BC2DCC21D1F4CBB0088D350 /* natural earth */ = {
-			isa = PBXGroup;
-			children = (
-				2BC2DCC31D1F4CCD0088D350 /* ne_10m_roads.dbf */,
-				2BC2DCC41D1F4CCD0088D350 /* ne_10m_roads.prj */,
-				2BC2DCC51D1F4CCD0088D350 /* ne_10m_roads.shp */,
-				2BC2DCC61D1F4CCD0088D350 /* ne_10m_roads.shx */,
-			);
-			name = "natural earth";
-			sourceTree = "<group>";
-		};
 		2BE53AE91D258FE800B60FAD /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -1391,7 +1370,6 @@
 		88FF5BDF1BC31D3C002F15CE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				2BC2DCBF1D1E02B20088D350 /* gaiaproject.xml */,
 				8F4D91D81CDFA7C000F68045 /* Icons */,
 				2B1C26511C9100A500C71B0A /* France.mbtiles */,
 				2B6953671C7E67DD007FC51E /* colorramp.png */,
@@ -1400,7 +1378,6 @@
 				D8F53BD61C0275A1004854D6 /* Dropbox Files */,
 				888943331BD6EE1A00C39A66 /* baselines */,
 				88FF5CF41BC31D94002F15CE /* country_json_50m */,
-				2BC2DCC21D1F4CBB0088D350 /* natural earth */,
 				88FF5DEE1BC31D95002F15CE /* sf_roads */,
 				88FF5BEC1BC31D6D002F15CE /* base_maps */,
 				88FF5BFA1BC31D6D002F15CE /* elevation */,
@@ -2121,7 +2098,6 @@
 				88FF5CE01BC31D6D002F15CE /* toilets-24@2x.png in Resources */,
 				88FF5C951BC31D6D002F15CE /* circle-24@2x.png in Resources */,
 				88FF5C9F1BC31D6D002F15CE /* disability-24@2x.png in Resources */,
-				2BC2DCCA1D1F4CCD0088D350 /* ne_10m_roads.shx in Resources */,
 				88FF5EA11BC31D95002F15CE /* PAK.geojson in Resources */,
 				88FF5CB11BC31D6D002F15CE /* library-24@2x.png in Resources */,
 				88FF5E281BC31D95002F15CE /* CPV.geojson in Resources */,
@@ -2131,7 +2107,6 @@
 				8F4D91DC1CDFA7DE00F68045 /* globe.png in Resources */,
 				2B4BA6D31C83A22000DC1562 /* sawtooth.geojson in Resources */,
 				88FF5CA01BC31D6D002F15CE /* dog-park-24@2x.png in Resources */,
-				2BC2DCC71D1F4CCD0088D350 /* ne_10m_roads.dbf in Resources */,
 				88FF5E001BC31D95002F15CE /* ATA.geojson in Resources */,
 				88FF5EE51BC31D95002F15CE /* VIR.geojson in Resources */,
 				88FF5E5A1BC31D95002F15CE /* HUN.geojson in Resources */,
@@ -2168,7 +2143,6 @@
 				88FF5CC41BC31D6D002F15CE /* playground-24@2x.png in Resources */,
 				88FF5E0A1BC31D95002F15CE /* BFA.geojson in Resources */,
 				88FF5E5D1BC31D95002F15CE /* IND.geojson in Resources */,
-				2BC2DCC81D1F4CCD0088D350 /* ne_10m_roads.prj in Resources */,
 				883DF73C1C1CE164000756E9 /* ShapesTestCase-map.png in Resources */,
 				88FF5DFF1BC31D95002F15CE /* ASM.geojson in Resources */,
 				883DF7391C1CE164000756E9 /* ScreenMarkersTestCase-globe.png in Resources */,
@@ -2274,7 +2248,6 @@
 				88FF5C801BC31D6D002F15CE /* world_web_mercator.sqlite in Resources */,
 				88FF5CED1BC31D6D002F15CE /* MapzenStyles.json in Resources */,
 				88FF5EDA1BC31D95002F15CE /* TZA.geojson in Resources */,
-				2BC2DCC91D1F4CCD0088D350 /* ne_10m_roads.shp in Resources */,
 				88FF5EBC1BC31D95002F15CE /* SLE.geojson in Resources */,
 				883DF7441C1CE164000756E9 /* WideVectorsTestCase-map.png in Resources */,
 				88FF5E811BC31D95002F15CE /* MDG.geojson in Resources */,
@@ -2332,7 +2305,6 @@
 				883DF7411C1CE164000756E9 /* VectorsTestCase-globe.png in Resources */,
 				88FF5E8E1BC31D95002F15CE /* MSR.geojson in Resources */,
 				88FF5CBC1BC31D6D002F15CE /* oil-well-24@2x.png in Resources */,
-				2BC2DCC01D1E02B20088D350 /* gaiaproject.xml in Resources */,
 				88FF5E8C1BC31D95002F15CE /* MOZ.geojson in Resources */,
 				88FF5E2A1BC31D95002F15CE /* CUB.geojson in Resources */,
 				88FF5EB41BC31D95002F15CE /* SAU.geojson in Resources */,
