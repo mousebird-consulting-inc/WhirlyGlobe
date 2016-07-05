@@ -57,6 +57,19 @@ public class GlobeGestureHandler
 		sl.gl = gl;		
 	}
 
+	public void shutdown()
+	{
+		sgd = null;
+		if (sl != null)
+		sl.maplyControl = null;
+			sl = null;
+		gd = null;
+		if (gl != null)
+			gl.globeControl = null;
+		gl = null;
+		view = null;
+	}
+
 	public void setZoomLimits(double inMin,double inMax)
 	{
 		zoomLimitMin = inMin;
@@ -79,7 +92,7 @@ public class GlobeGestureHandler
 	// Listening for a pinch scale event
 	private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener
 	{
-		GlobeController maplyControl;
+		public GlobeController maplyControl;
 		double startZ;
 		float startDist;
 		GestureListener gl = null;
@@ -151,7 +164,7 @@ public class GlobeGestureHandler
 	private class GestureListener implements GestureDetector.OnGestureListener,
 				GestureDetector.OnDoubleTapListener
 	{
-		GlobeController globeControl;
+		public GlobeController globeControl;
 		public boolean isActive = false;
 		
 		GestureListener(GlobeController inMaplyControl)

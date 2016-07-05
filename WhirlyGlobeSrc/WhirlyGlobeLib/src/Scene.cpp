@@ -119,10 +119,12 @@ Scene::~Scene()
         delete *it;
     for (GeneratorSet::iterator it = generators.begin(); it != generators.end(); ++it)
         delete *it;
-    
+
+#if !defined(__ANDROID__)
     for (std::map<std::string,SceneManager *>::iterator it = managers.begin();
          it != managers.end(); ++it)
         delete it->second;
+#endif
     managers.clear();
     
     // Note: Porting

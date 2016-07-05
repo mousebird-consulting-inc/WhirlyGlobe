@@ -112,17 +112,17 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		super.shutdown();
 		globeView = null;
 		globeScene = null;
+		if (gestureHandler != null) {
+			gestureHandler.shutdown();
+		}
+		gestureDelegate = null;
+		gestureHandler = null;
 	}
 	
-	@Override public void dispose()
+	@Override public void finalize()
 	{
 		// Note: Is this implied?
-		super.dispose();
-		
-		globeScene.dispose();
-		globeScene = null;
-		globeView.dispose();
-		globeView = null;
+		super.finalize();
 	}
 	
 	// Map version of view

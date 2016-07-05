@@ -22,6 +22,7 @@ package com.mousebird.maply;
 
 import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.Renderer;
+import android.util.Log;
 
 import java.util.concurrent.Semaphore;
 
@@ -46,6 +47,11 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 		maplyControl = inMapControl;
 	}
 
+	@Override
+	public void finalize()
+	{
+	}
+
 	public MaplyRenderer getMaplyRender() {
 		return maplyRender;
 	}
@@ -59,6 +65,15 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 		maplyRender.setConfig(config);
 		renderThread = Thread.currentThread();
 		maplyControl.surfaceCreated(this);
+	}
+
+	public void shutdown()
+	{
+		maplyRender = null;
+		scene = null;
+		view = null;
+		maplyControl = null;
+		renderThread = null;
 	}
 	
 	@Override

@@ -209,6 +209,8 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			}
 		}, true);
 
+		layers.clear();
+
 		if (viewUpdates)
 		{
 			// Block until the queue drains
@@ -218,6 +220,15 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			}
 		}
 
+		EGL10 egl = (EGL10) EGLContext.getEGL();
+		if (context != null)
+		{
+			egl.eglDestroySurface(renderer.display,surface);
+			egl.eglDestroyContext(renderer.display,context);
+			context = null;
+			surface = null;
+		}
+
 		// Note: Is this blocking?
 		layers = null;
 		view = null;
@@ -225,6 +236,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		renderer = null;
 		context = null;
 		surface = null;
+		watchers = null;
 	}
 	
 	// Add a layer.  These just run in our thread and do their own thing

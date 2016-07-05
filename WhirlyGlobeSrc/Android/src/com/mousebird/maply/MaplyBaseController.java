@@ -346,25 +346,47 @@ public class MaplyBaseController
 		for (LayerThread layerThread : layerThreads)
 			layerThread.shutdown();
 		metroThread.shutdown();
+		metroThread = null;
+
+		// Shut down the contexts
+		EGL10 egl = (EGL10) EGLContext.getEGL();
+		for (ContextInfo context : glContexts)
+		{
+			egl.eglDestroySurface(renderWrapper.maplyRender.display,context.eglSurface);
+			egl.eglDestroyContext(renderWrapper.maplyRender.display,context.eglContext);
+		}
+		glContexts = null;
+		glContext = null;
 
 		// Clean up OpenGL ES resources
 		setEGLContext(null);
 		scene.teardownGL();
 
-		// Do a little dance to shut down rendering
-		// Note: Put this back
-//		baseView.onPause();
+		renderWrapper.shutdown();
 
 		baseView = null;
 		renderWrapper = null;
 		coordAdapter = null;
 		scene = null;
 		view = null;
+
 		vecManager = null;
 		markerManager = null;
+		stickerManager = null;
+		labelManager = null;
+		selectionManager = null;
+		layoutManager = null;
+		particleSystemManager = null;
+		layoutLayer = null;
+		shapeManager = null;
+		billboardManager = null;
+
 		texManager = null;
 		layerThreads = null;
 		workerThreads = null;
+
+		activity = null;
+		tempBackground = null;
 	}
 	
 	ArrayList<Runnable> surfaceTasks = new ArrayList<Runnable>();
@@ -616,15 +638,6 @@ public class MaplyBaseController
 			run.run();
 	}
 			
-	protected void dispose()
-	{
-		running = false;
-		vecManager.dispose();
-		vecManager = null;
-				
-		renderWrapper = null;
-	}
-
 	int clearColor = Color.BLACK;
 
 	/**

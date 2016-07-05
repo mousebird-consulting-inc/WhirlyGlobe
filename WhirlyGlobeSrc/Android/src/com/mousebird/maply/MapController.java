@@ -171,14 +171,12 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		mapScene = null;
 	}
 	
-	@Override public void dispose()
+	@Override public void finalize()
 	{
 		// Note: Is this implied?
-		super.dispose();
+		super.finalize();
 		
-		mapScene.dispose();
 		mapScene = null;
-		mapView.dispose();
 		mapView = null;
 	}
 	
