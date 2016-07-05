@@ -61,6 +61,8 @@ A toolkit is only as good as the apps that use it.  Here are some of our favorit
 
 {% include app_entry.html name="Tremor Tracker" image="tremortracker.png" body="Tremor Tracker lets you see recent earthquakes around the globe." link="https://itunes.apple.com/us/app/tremor-tracker/id534094613?mt=8" %}
 
+{% include app_entry.html name="wetter.com" image="wetterdotcom.jpg" body="A very popular weather app that covers Germany." link="https://itunes.apple.com/app/apple-store/id1020581825?mt=8" %}
+
 {% include app_entry.html name="WhirlyViz" image="whirlyviz.jpeg" body="WhirlyViz is a data visualization engine for iPad and iPhone.  It uses Javascript modules to let users play with big, complex data sets." link="https://itunes.apple.com/us/app/whirlyviz/id752701884?mt=8" %}
 
 {% include app_entry.html name="Xweather - Extreme Weather" image="xweather.jpeg" body="Xweather displays extreme weather related events on a globe." link="https://itunes.apple.com/us/app/xweather/id520729396?mt=8" %}
