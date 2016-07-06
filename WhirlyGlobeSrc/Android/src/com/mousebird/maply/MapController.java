@@ -171,15 +171,6 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		mapScene = null;
 	}
 	
-	@Override public void finalize()
-	{
-		// Note: Is this implied?
-		super.finalize();
-		
-		mapScene = null;
-		mapView = null;
-	}
-	
 	// Map version of view
 	MapView mapView = null;
 	
