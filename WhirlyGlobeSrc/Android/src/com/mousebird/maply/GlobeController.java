@@ -119,12 +119,6 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		gestureHandler = null;
 	}
 	
-	@Override public void finalize()
-	{
-		// Note: Is this implied?
-		super.finalize();
-	}
-	
 	// Map version of view
 	GlobeView globeView = null;
 
