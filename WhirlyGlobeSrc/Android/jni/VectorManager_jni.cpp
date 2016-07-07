@@ -53,7 +53,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_initialise
 {
 	try
 	{
-		Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
+        if (!scene)
+            return;
 		VectorManager *vecManager = dynamic_cast<VectorManager *>(scene->getManager(kWKVectorManager));
 		VecManagerWrapper *wrap = new VecManagerWrapper(vecManager,scene);
 		VectorManagerWrapperClassInfo::getClassInfo()->setHandle(env,obj,wrap);

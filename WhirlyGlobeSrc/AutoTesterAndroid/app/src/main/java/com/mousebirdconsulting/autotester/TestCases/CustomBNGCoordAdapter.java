@@ -10,7 +10,6 @@ import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.QuadImageTileLayer;
 import com.mousebird.maply.TestImageSource;
-import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 /**
@@ -41,19 +40,17 @@ public class CustomBNGCoordAdapter extends MaplyTestCase
     }
 
     @Override
-    protected void onPreExecute() {
-        if (options.isGlobe()) {
-            globeController = new GlobeController(activity);
-        }
-        if (options.isMap()) {
-            CoordSystem coordSys = CustomBNGTileSource.MakeBNGCoordSystem(getActivity(),true);
+    protected MapController makeMapController()
+    {
+        CoordSystem coordSys = CustomBNGTileSource.MakeBNGCoordSystem(getActivity(),true);
 
-            MapController.Settings settings = new MapController.Settings();
-            settings.coordSys = coordSys;
-            mapController = new MapController(activity,settings);
-        }
+        MapController.Settings settings = new MapController.Settings();
+        settings.coordSys = coordSys;
+        MapController mapControl = new MapController(activity,settings);
+        mapControl.gestureDelegate = this;
+
+        return mapControl;
     }
-
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception

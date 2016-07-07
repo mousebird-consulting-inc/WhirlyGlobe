@@ -121,6 +121,33 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	// Set if we successfully set up the controller
 	boolean success = false;
 
+	// Build the globe controller for use later
+	// This can be overriden if we're doing something tricky
+	protected GlobeController makeGlobeController()
+	{
+		GlobeController.Settings settings = new GlobeController.Settings();
+		// Note: Turn this off for testing GLTextureView
+		settings.useSurfaceView = false;
+		settings.clearColor = clearColor;
+		GlobeController globeControl = new GlobeController(activity,settings);
+		globeControl.gestureDelegate = this;
+
+		return globeControl;
+	}
+
+	// Build the map controller for use later
+	// This can be overriden if we're doing something tricky
+	protected MapController makeMapController()
+	{
+		MapController.Settings settings = new MapController.Settings();
+		settings.clearColor = clearColor;
+		MapController mapControl = new MapController(activity,settings);
+		mapControl.gestureDelegate = this;
+
+		return mapControl;
+	}
+
+
 	// Create the test case and start it
 	public void start()
 	{
@@ -128,19 +155,11 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 			return;
 
 		if (options.isGlobe()) {
-			GlobeController.Settings settings = new GlobeController.Settings();
-			// Note: Turn this off for testing GLTextureView
-//			settings.useSurfaceView = false;
-			settings.clearColor = clearColor;
-			globeController = new GlobeController(activity,settings);
-			globeController.gestureDelegate = this;
+			globeController = makeGlobeController();
 			controller = globeController;
 		}
 		if (options.isMap()) {
-			MapController.Settings settings = new MapController.Settings();
-			settings.clearColor = clearColor;
-			mapController = new MapController(activity,settings);
-			mapController.gestureDelegate = this;
+			mapController = makeMapController();
 			controller = mapController;
 		}
 		success = true;

@@ -240,9 +240,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_dispose
     {
         LayoutManagerWrapperClassInfo *classInfo = LayoutManagerWrapperClassInfo::getClassInfo();
         LayoutManagerWrapper *wrap = classInfo->getObject(env, obj);
-        if (!wrap)
-            return
         classInfo->clearHandle(env, obj);
+        if (!wrap)
+            return;
         delete wrap;
     }
     catch (...)

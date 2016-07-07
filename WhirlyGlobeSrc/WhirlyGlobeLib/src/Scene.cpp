@@ -28,14 +28,14 @@
 #import "FontTextureManager.h"
 #import "SelectionManager.h"
 #import "LayoutManager.h"
-//#import "ShapeManager.h"
+#import "ShapeManager.h"
 #import "MarkerManager.h"
 #import "LabelManager.h"
 #import "VectorManager.h"
 #import "WideVectorManager.h"
 #import "SphericalEarthChunkManager.h"
 //#import "LoftManager.h"
-//#import "ParticleSystemManager.h"
+#import "ParticleSystemManager.h"
 #import "BillboardManager.h"
 
 namespace WhirlyKit
@@ -72,8 +72,8 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     addManager(kWKSelectionManager,new SelectionManager(this,DeviceScreenScale()));
     // Layout manager handles text and icon layout
     addManager(kWKLayoutManager, new LayoutManager());
-//    // Shape manager handles circles, spheres and such
-//    addManager(kWKShapeManager, new ShapeManager());
+    // Shape manager handles circles, spheres and such
+    addManager(kWKShapeManager, new ShapeManager());
     // Marker manager handles 2D and 3D markers
     addManager(kWKMarkerManager, new MarkerManager());
     // Label manager handes 2D and 3D labels
@@ -87,8 +87,8 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     addManager(kWKSphericalChunkManager, new SphericalChunkManager());
 //    // Loft manager handles lofted polygon geometry
 //    addManager(kWKLoftedPolyManager, new LoftManager());
-//    // Particle system manager
-//    addManager(kWKParticleSystemManager, new ParticleSystemManager());
+    // Particle system manager
+    addManager(kWKParticleSystemManager, new ParticleSystemManager());
     // 3D billboards
     addManager(kWKBillboardManager, new BillboardManager());
 #endif
@@ -120,11 +120,9 @@ Scene::~Scene()
     for (GeneratorSet::iterator it = generators.begin(); it != generators.end(); ++it)
         delete *it;
 
-#if !defined(__ANDROID__)
     for (std::map<std::string,SceneManager *>::iterator it = managers.begin();
          it != managers.end(); ++it)
         delete it->second;
-#endif
     managers.clear();
     
     // Note: Porting

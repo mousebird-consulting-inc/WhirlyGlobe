@@ -43,7 +43,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_initialise
 {
 	try
 	{
-		Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
+        if (!scene)
+            return;
 		SelectionManager *selectionManager = dynamic_cast<SelectionManager *>(scene->getManager(kWKSelectionManager));
 		SelectionManagerClassInfo::getClassInfo()->setHandle(env,obj,selectionManager);
 	}

@@ -41,8 +41,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemManager_initialize
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
         if (!scene)
             return;
-        ParticleSystemManager *particleSystemManager = new ParticleSystemManager();
-        particleSystemManager->setScene(scene);
+        ParticleSystemManager *particleSystemManager = dynamic_cast<ParticleSystemManager *>(scene->getManager(kWKParticleSystemManager));
         ParticleSystemManagerClassInfo::getClassInfo()->setHandle(env, obj, particleSystemManager);
     }
     catch (...) {
@@ -55,11 +54,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemManager_dispose
 {
     try {
         ParticleSystemManagerClassInfo *classInfo = ParticleSystemManagerClassInfo::getClassInfo();
-        ParticleSystemManager *particleSystemManager = classInfo->getObject(env, obj);
-        if (!particleSystemManager)
-            return;
-        
-        delete particleSystemManager;
         classInfo->clearHandle(env, obj);
     }
     catch(...) {

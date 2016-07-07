@@ -82,6 +82,15 @@ class CoordSystemDisplayAdapter
 		return coordSys;
 	}
 
+	// Cleans up C++ objects
+	public void shutdown()
+	{
+		dispose();
+		if (coordSys != null)
+			coordSys.dispose();
+		coordSys = null;
+	}
+
 	static
 	{
 		nativeInit();

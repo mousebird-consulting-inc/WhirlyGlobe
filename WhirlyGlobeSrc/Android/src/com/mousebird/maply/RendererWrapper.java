@@ -69,6 +69,7 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 
 	public void shutdown()
 	{
+		maplyRender.dispose();
 		maplyRender = null;
 		scene = null;
 		view = null;

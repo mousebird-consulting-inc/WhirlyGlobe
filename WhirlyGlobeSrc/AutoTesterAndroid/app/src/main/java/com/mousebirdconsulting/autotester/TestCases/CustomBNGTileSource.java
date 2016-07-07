@@ -121,9 +121,6 @@ public class CustomBNGTileSource extends MaplyTestCase
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception
     {
-        // Note: Should fix this
-        Thread.sleep(1000);
-
         StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
         baseView.setUpWithMap(mapVC);
 

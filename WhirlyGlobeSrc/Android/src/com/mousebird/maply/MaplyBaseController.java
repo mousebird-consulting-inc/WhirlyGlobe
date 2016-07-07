@@ -366,16 +366,26 @@ public class MaplyBaseController
 
 		baseView = null;
 		renderWrapper = null;
+		coordAdapter.shutdown();
 		coordAdapter = null;
 		scene = null;
+//		scene.dispose();
 		view = null;
+//		view.dispose();
 
+		vecManager.dispose();
 		vecManager = null;
+		markerManager.dispose();
 		markerManager = null;
+		stickerManager.dispose();
 		stickerManager = null;
+		labelManager.dispose();
 		labelManager = null;
+		selectionManager.dispose();
 		selectionManager = null;
+		layoutManager.dispose();
 		layoutManager = null;
+		particleSystemManager.dispose();
 		particleSystemManager = null;
 		layoutLayer = null;
 		shapeManager = null;
