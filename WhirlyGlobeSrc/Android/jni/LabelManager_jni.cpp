@@ -45,7 +45,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_initialise
 {
 	try
 	{
-		Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
+        if (!scene)
+            return;
 		LabelManager *labelManager = dynamic_cast<LabelManager *>(scene->getManager(kWKLabelManager));
 		LabelManagerClassInfo::getClassInfo()->setHandle(env,obj,labelManager);
 	}

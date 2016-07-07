@@ -36,10 +36,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_initialise
 {
     try
     {
-        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
-        ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
-        ShapeManager *inst = new ShapeManager(scene);
-        classInfo->setHandle(env, obj, inst);
+        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
+        if (!scene)
+            return;
+        ShapeManager *shapeManager = dynamic_cast<ShapeManager *>(scene->getManager(kWKShapeManager));
+        ShapeManagerClassInfo::getClassInfo()->setHandle(env,obj,shapeManager);
     }
     catch (...)
     {
@@ -53,10 +54,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_dispose
     try
     {
         ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
-        ShapeManager *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        delete inst;
         classInfo->clearHandle(env, obj);
     }
     catch (...)

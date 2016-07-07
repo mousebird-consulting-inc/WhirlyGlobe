@@ -42,7 +42,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_initialise
 {
     try
     {
-        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
+        if (!scene)
+            return;
         SphericalChunkManager *chunkManager = dynamic_cast<SphericalChunkManager *>(scene->getManager(kWKSphericalChunkManager));
         StickerManagerClassInfo::getClassInfo()->setHandle(env,obj,chunkManager);
     }

@@ -288,7 +288,7 @@ public class MaplyBaseController
         
 		running = true;		
 	}
-
+	
 	/**
 	 * Makes a new layer thread for toolkit related tasks.
 	 * @param handlesViewUpdates If set, the layer thread will deal with view updates.
@@ -366,16 +366,26 @@ public class MaplyBaseController
 
 		baseView = null;
 		renderWrapper = null;
+		coordAdapter.shutdown();
 		coordAdapter = null;
 		scene = null;
+//		scene.dispose();
 		view = null;
+//		view.dispose();
 
+		vecManager.dispose();
 		vecManager = null;
+		markerManager.dispose();
 		markerManager = null;
+		stickerManager.dispose();
 		stickerManager = null;
+		labelManager.dispose();
 		labelManager = null;
+		selectionManager.dispose();
 		selectionManager = null;
+		layoutManager.dispose();
 		layoutManager = null;
+		particleSystemManager.dispose();
 		particleSystemManager = null;
 		layoutLayer = null;
 		shapeManager = null;

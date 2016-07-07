@@ -170,7 +170,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		mapView = null;
 		mapScene = null;
 	}
-	
+
 	// Map version of view
 	MapView mapView = null;
 	

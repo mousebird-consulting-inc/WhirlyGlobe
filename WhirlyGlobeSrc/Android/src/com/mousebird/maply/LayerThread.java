@@ -183,17 +183,18 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	// Called on the main thread *after* the thread has quit safely
 	void shutdown()
 	{
-		if (viewUpdates) {
-			// Run the shutdowns on the thread itself
-			addTask(new Runnable() {
-				@Override
-				public void run() {
-					for (final Layer layer : layers) {
-						layer.shutdown();
-					}
+		// Run the shutdowns on the thread itself
+		addTask(new Runnable() {
+			@Override
+			public void run() {
+
+				for (final Layer layer : layers) {
+					layer.shutdown();
 				}
-			}, true);
-		}
+
+				layers.clear();
+			}
+		}, true);
 
 		final Semaphore endLock = new Semaphore(0, true);
 		addTask(new Runnable() {
@@ -209,15 +210,10 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			}
 		}, true);
 
-		layers.clear();
-
-		if (viewUpdates)
-		{
-			// Block until the queue drains
-			try {
-				endLock.acquire();
-			} catch (Exception e) {
-			}
+		// Block until the queue drains
+		try {
+			endLock.acquire();
+		} catch (Exception e) {
 		}
 
 		EGL10 egl = (EGL10) EGLContext.getEGL();

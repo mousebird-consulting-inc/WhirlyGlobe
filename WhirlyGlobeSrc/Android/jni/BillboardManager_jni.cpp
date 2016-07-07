@@ -37,7 +37,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_initialise
     try
     {
         BillboardManagerClassInfo *classInfo = BillboardManagerClassInfo::getClassInfo();
-        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
+        if (!scene)
+            return;
         BillboardManager *billManager = dynamic_cast<BillboardManager *>(scene->getManager(kWKBillboardManager));
         classInfo->setHandle(env, obj, billManager);
     }
@@ -53,11 +55,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_dispose
     try
     {
         BillboardManagerClassInfo *classInfo = BillboardManagerClassInfo::getClassInfo();
-        BillboardManager *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        
-        delete inst;
 		classInfo->clearHandle(env, obj);
     }
     catch (...)

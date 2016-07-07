@@ -51,6 +51,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystem_dispose
 	try
 	{
 		CoordSystemClassInfo *classInfo = CoordSystemClassInfo::getClassInfo();
+        if (!classInfo)
+            return;
 		CoordSystem *coordSys = classInfo->getObject(env,obj);
 		if (!coordSys)
 			return;

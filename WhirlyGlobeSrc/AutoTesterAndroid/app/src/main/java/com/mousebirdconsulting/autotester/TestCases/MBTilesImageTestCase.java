@@ -78,12 +78,14 @@ public class MBTilesImageTestCase extends MaplyTestCase {
 //                    center.getY() * RAD_TO_DEG, center.getX() * RAD_TO_DEG, center.getZ()));
 
             Mbr bb = controller.getCurrentViewGeo();
-            Point2d center = bb.middle().toDegrees();
-            Point2d span = bb.span().toDegrees();
+            if (bb != null) {
+                Point2d center = bb.middle().toDegrees();
+                Point2d span = bb.span().toDegrees();
 
-            Log.v(TAG, String.format("Globe did move to (lat: %.6f° lon: %.6f°), span (lat: %.6f° lon: %.6f°))",
-                    center.getY() * RAD_TO_DEG, center.getX() * RAD_TO_DEG,
-                    span.getY() * RAD_TO_DEG, span.getX() * RAD_TO_DEG));
+                Log.v(TAG, String.format("Globe did move to (lat: %.6f° lon: %.6f°), span (lat: %.6f° lon: %.6f°))",
+                        center.getY() * RAD_TO_DEG, center.getX() * RAD_TO_DEG,
+                        span.getY() * RAD_TO_DEG, span.getX() * RAD_TO_DEG));
+            }
         }
     };
 
