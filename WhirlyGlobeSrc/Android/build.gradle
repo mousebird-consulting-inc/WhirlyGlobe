@@ -99,7 +99,7 @@ task cleanNative(type: Exec, description: 'Clean native compiled code') {
             '-C', file('.').absolutePath,
             'clean'
     } else {
-        commandLine "$ndkDir/ndk-build.cmd",
+        commandLine "$ndkDir/ndk-build",
             '-C', file('.').absolutePath,
             'clean'
     }
