@@ -183,30 +183,25 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	// Called on the main thread *after* the thread has quit safely
 	void shutdown()
 	{
+		final Semaphore endLock = new Semaphore(0, true);
+
 		// Run the shutdowns on the thread itself
 		addTask(new Runnable() {
 			@Override
 			public void run() {
-
+				valid = false;
 				for (final Layer layer : layers) {
 					layer.shutdown();
 				}
 
 				layers.clear();
-			}
-		}, true);
+				endLock.release();
 
-		final Semaphore endLock = new Semaphore(0, true);
-		addTask(new Runnable() {
-			@Override
-			public void run() {
 				try {
-					valid = false;
 					quit();
 				} catch (Exception e) {
 
 				}
-				endLock.release();
 			}
 		}, true);
 

@@ -288,7 +288,7 @@ public class MaplyBaseController
         
 		running = true;		
 	}
-	
+
 	/**
 	 * Makes a new layer thread for toolkit related tasks.
 	 * @param handlesViewUpdates If set, the layer thread will deal with view updates.
