@@ -62,6 +62,22 @@ public class MapGestureHandler
 		sl.gl = gl;		
 	}
 
+	public void shutdown() {
+		this.sgd = null;
+		if(this.sl != null) {
+			this.sl.maplyControl = null;
+		}
+
+		this.sl = null;
+		this.gd = null;
+		if(this.gl != null) {
+			this.gl.maplyControl = null;
+		}
+
+		this.gl = null;
+		this.view = null;
+	}
+
 	public void setZoomLimits(double inMin,double inMax)
 	{
 		zoomLimitMin = inMin;
@@ -369,13 +385,16 @@ public class MapGestureHandler
 	
 	// Where we receive events from the gl view
 	public boolean onTouch(View v, MotionEvent event) 
-	{		
+	{
+		boolean slWasActive = this.sl.isActive;
+		boolean glWasActive = this.gl.isActive;
+		boolean rotWasActive = startRot != Double.MAX_VALUE;
+
 		// If they're using two fingers, cancel any outstanding pan
 		if (event.getPointerCount() == 2)
 			gl.isActive = false;
 		
 		// Try for a pinch or another gesture
-		boolean slWasActive = sl.isActive;
 		if (sl.isActive || event.getPointerCount() == 2)
 		{
 			sgd.onTouchEvent(event);
@@ -404,6 +423,33 @@ public class MapGestureHandler
 				return true;			
 			}
 		}
+
+		if(!glWasActive && this.gl.isActive) {
+			this.mapControl.panDidStart(true);
+		}
+
+		if(glWasActive && !this.gl.isActive) {
+			this.mapControl.panDidEnd(true);
+		}
+
+		if(!slWasActive && this.sl.isActive) {
+			this.mapControl.zoomDidStart(true);
+		}
+
+		if(slWasActive && !this.sl.isActive) {
+			this.mapControl.zoomDidEnd(true);
+		}
+
+		if (!rotWasActive && startRot != Double.MAX_VALUE)
+		{
+			this.mapControl.rotateDidStart(true);
+		}
+
+		if (rotWasActive && startRot == Double.MAX_VALUE)
+		{
+			this.mapControl.rotateDidEnd(true);
+		}
+
 
 		return true;
 	}      

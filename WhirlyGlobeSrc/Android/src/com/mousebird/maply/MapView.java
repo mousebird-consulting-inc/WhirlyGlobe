@@ -31,9 +31,13 @@ public class MapView extends View
 	private MapView()
 	{
 	}
+
+	MapController control = null;
+	double lastUpdated = 0.0;
 	
-	MapView(CoordSystemDisplayAdapter inCoordAdapter)
+	MapView(MapController inControl,CoordSystemDisplayAdapter inCoordAdapter)
 	{
+		control = inControl;
 		coordAdapter = inCoordAdapter;
 		initialise(coordAdapter);
 	}
@@ -44,7 +48,7 @@ public class MapView extends View
 	 */
 	protected MapView clone()
 	{
-		MapView that = new MapView(coordAdapter);
+		MapView that = new MapView(control,coordAdapter);
 		nativeClone(that);
 		return that;
 	}
@@ -79,6 +83,15 @@ public class MapView extends View
 	@Override public void cancelAnimation() 
 	{
 		animationDelegate = null;
+
+		control.activity.runOnUiThread(
+				new Runnable() {
+					@Override
+					public void run() {
+						control.handleStopMoving(false);
+					}
+				}
+		);
 	}
 	
 	// Called on the rendering thread right before we render
