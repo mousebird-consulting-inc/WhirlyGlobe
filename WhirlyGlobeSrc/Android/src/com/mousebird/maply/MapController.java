@@ -366,6 +366,41 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		Point3d geoCoord = mapView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
 		mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, renderWrapper.maplyRender, new Point3d(geoCoord.getX(),geoCoord.getY(),z), (float) howLong, viewBounds));		
 	}
+
+	/**
+	 * Set the heading for the current visual.  0 is due north.
+     */
+	public void setHeading(double heading)
+	{
+		if (!running)
+			return;
+
+		mapView.cancelAnimation();
+		mapView.setRot(heading);
+	}
+
+	/**
+	 * Return the current heading.  0 is due north.
+     */
+	public double getHeading()
+	{
+		if (!running)
+			return 0.0;
+
+		return mapView.getRot();
+	}
+
+	/**
+	 * If set we'll allow the user to rotate.
+	 * If not, we'll keep north up at all times.
+     */
+	public void setAllowRotateGesture(boolean allowRotate)
+	{
+		if (!running)
+			return;
+
+		gestureHandler.allowRotate = allowRotate;
+	}
 	
 	// Gesture handler
 	MapGestureHandler gestureHandler = null;
