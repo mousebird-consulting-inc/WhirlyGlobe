@@ -74,19 +74,20 @@ class CharRenderer
 			textOutlinePaint.setStyle(Paint.Style.STROKE);
 			textOutlinePaint.setStrokeWidth(labelInfo.getOutlineSize());
 			textOutlinePaint.setColor(labelInfo.getOutlineColor());
+			textOutlinePaint.setTypeface(textFillPaint.getTypeface());
 		}
 
 		Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 		bitmap.eraseColor( 0x00000000 );
 		Canvas canvas = new Canvas (bitmap);
 
-		//draw char fill
-		canvas.drawText(str, 0, 1, fontPadX, height - fontDescent - fontPadY, textFillPaint);
-
 		//draw char outline
 		if(textOutlinePaint != null) {
 			canvas.drawText(str, 0, 1, fontPadX, height - fontDescent - fontPadY, textOutlinePaint);
 		}
+
+		//draw char fill
+		canvas.drawText(str, 0, 1, fontPadX, height - fontDescent - fontPadY, textFillPaint);
 
 		// Send back some useful info
 		Glyph glyph = new Glyph();
