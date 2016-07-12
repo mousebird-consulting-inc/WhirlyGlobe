@@ -24,6 +24,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.util.Log;
 
 /**
  * Implements the various gestures we need and handles conflict between them.
@@ -37,6 +38,8 @@ public class MapGestureHandler
 {
 	MapController mapControl = null;
 	MapView mapView = null;
+
+	public boolean allowRotate = false;
 	
 	ScaleGestureDetector sgd = null;
 	ScaleListener sl = null;
@@ -45,6 +48,8 @@ public class MapGestureHandler
 	View view = null;
 	double zoomLimitMin = 0.0;
 	double zoomLimitMax = 1000.0;
+	double startRot = Double.MAX_VALUE;
+	double startViewRot = Double.MAX_VALUE;
 	public MapGestureHandler(MapController inControl,View inView)
 	{
 		mapControl = inControl;
@@ -55,6 +60,22 @@ public class MapGestureHandler
 		gl = new GestureListener(mapControl);
 		gd = new GestureDetector(view.getContext(),gl);
 		sl.gl = gl;		
+	}
+
+	public void shutdown() {
+		this.sgd = null;
+		if(this.sl != null) {
+			this.sl.maplyControl = null;
+		}
+
+		this.sl = null;
+		this.gd = null;
+		if(this.gl != null) {
+			this.gl.maplyControl = null;
+		}
+
+		this.gl = null;
+		this.view = null;
 	}
 
 	public void setZoomLimits(double inMin,double inMax)
@@ -127,7 +148,7 @@ public class MapGestureHandler
 //			Point3d hit = maplyControl.mapView.pointOnPlaneFromScreen(center, modelTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
 //			Point3d localPt = mapView.coordAdapter.displayToLocal(hit);
 //			centerGeoCoord = mapView.coordAdapter.getCoordSystem().localToGeographic(localPt);
-			
+
 			// Cancel the panning
 			if (gl != null)
 				gl.isActive = false;
@@ -180,7 +201,7 @@ public class MapGestureHandler
 		}
 		
 		Point2d startScreenPos = null;
-		Point3d startDisplayPos = null;
+		Point3d startLoc = null;
 		Point3d startOnPlane = null;
 		Matrix4d startTransform = null;
 		@Override
@@ -191,7 +212,7 @@ public class MapGestureHandler
 			// Starting state for pan
 			startScreenPos = new Point2d(e.getX(),e.getY());
 			startTransform = maplyControl.mapView.calcModelViewMatrix();
-			startDisplayPos = maplyControl.mapView.getCoordAdapter().localToDisplay(maplyControl.mapView.getLoc());
+			startLoc = maplyControl.mapView.getLoc();
 			startOnPlane = maplyControl.mapView.pointOnPlaneFromScreen(startScreenPos, startTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
 			isActive = true;
 			return true;
@@ -210,13 +231,13 @@ public class MapGestureHandler
 			Point3d hit = maplyControl.mapView.pointOnPlaneFromScreen(newScreenPos, startTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
 			if (hit != null)
 			{
-				Point3d newPos = new Point3d(startOnPlane.getX()-hit.getX()+startDisplayPos.getX(),
-						startOnPlane.getY()-hit.getY()+startDisplayPos.getY(),
+				Point3d newPos = new Point3d(startOnPlane.getX()-hit.getX()+startLoc.getX(),
+						startOnPlane.getY()-hit.getY()+startLoc.getY(),
 						maplyControl.mapView.getLoc().getZ());
 				mapView.cancelAnimation();
 								
 				// If the point is within bounds, set it
-				Point3d locPos = maplyControl.mapView.getCoordAdapter().displayToLocal(newPos);
+				Point3d locPos = newPos;
 				if (locPos == null)
 					return true;
 				if (withinBounds(mapView,maplyControl.renderWrapper.maplyRender.frameSize,locPos,maplyControl.viewBounds)) {
@@ -327,22 +348,62 @@ public class MapGestureHandler
 			return true;
 		}		
 	}
+
+	// Update rotation when there are two fingers working
+	void handleRotation(MotionEvent event)
+	{
+		if (allowRotate)
+		{
+			MotionEvent.PointerCoords p0 = new MotionEvent.PointerCoords();
+			MotionEvent.PointerCoords p1 = new MotionEvent.PointerCoords();
+			event.getPointerCoords(0,p0);
+			event.getPointerCoords(1,p1);
+			double cX = (p0.x+p1.x)/2.0;
+			double cY = (p0.y+p1.y)/2.0;
+			double dx = p0.x-cX;
+			double dy = p0.y-cY;
+
+			// Calculate a starting rotation
+			if (startRot == Double.MAX_VALUE)
+			{
+				startRot = Math.atan2(dy, dx);
+				startViewRot = mapView.getRot();
+			} else {
+				// Update an existing rotation
+				double curRot = Math.atan2(dy, dx);
+				double diffRot = curRot-startRot;
+				mapView.setRot(startViewRot+diffRot);
+			}
+		}
+	}
+
+	// Cancel an outstanding rotation
+	void cancelRotation()
+	{
+		startRot = Double.MAX_VALUE;
+	}
 	
 	// Where we receive events from the gl view
 	public boolean onTouch(View v, MotionEvent event) 
-	{		
+	{
+		boolean slWasActive = this.sl.isActive;
+		boolean glWasActive = this.gl.isActive;
+		boolean rotWasActive = startRot != Double.MAX_VALUE;
+
 		// If they're using two fingers, cancel any outstanding pan
 		if (event.getPointerCount() == 2)
 			gl.isActive = false;
 		
 		// Try for a pinch or another gesture
-		boolean slWasActive = sl.isActive;
 		if (sl.isActive || event.getPointerCount() == 2)
 		{
 			sgd.onTouchEvent(event);
+			handleRotation(event);
 		}
-		if (!sl.isActive && event.getPointerCount() == 1)
+		if (!sl.isActive && event.getPointerCount() == 1) {
 			gd.onTouchEvent(event);
+			cancelRotation();
+		}
 		
 		if (!sl.isActive && !gl.isActive && !slWasActive)
 		{
@@ -362,6 +423,33 @@ public class MapGestureHandler
 				return true;			
 			}
 		}
+
+		if(!glWasActive && this.gl.isActive) {
+			this.mapControl.panDidStart(true);
+		}
+
+		if(glWasActive && !this.gl.isActive) {
+			this.mapControl.panDidEnd(true);
+		}
+
+		if(!slWasActive && this.sl.isActive) {
+			this.mapControl.zoomDidStart(true);
+		}
+
+		if(slWasActive && !this.sl.isActive) {
+			this.mapControl.zoomDidEnd(true);
+		}
+
+		if (!rotWasActive && startRot != Double.MAX_VALUE)
+		{
+			this.mapControl.rotateDidStart(true);
+		}
+
+		if (rotWasActive && startRot == Double.MAX_VALUE)
+		{
+			this.mapControl.rotateDidEnd(true);
+		}
+
 
 		return true;
 	}      

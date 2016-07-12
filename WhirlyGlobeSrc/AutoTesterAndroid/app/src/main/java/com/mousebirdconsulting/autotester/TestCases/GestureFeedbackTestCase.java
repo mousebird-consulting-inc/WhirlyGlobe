@@ -73,6 +73,23 @@ public class GestureFeedbackTestCase extends MaplyTestCase {
         public void userDidLongPress(MapController mapController, Object o, Point2d loc, Point2d screenloc) {
             Log.i("AutoTester","User long pressed at " + loc.getX() + " " + loc.getY());
         }
+
+        public void mapDidStartMoving(MapController mapControl, boolean userMotion)
+        {
+            Log.i("AutoTester","Map started moving");
+        }
+
+        public void mapDidStopMoving(MapController mapControl, Point3d corners[], boolean userMotion)
+        {
+            Log.i("AutoTester","Map stopped moving");
+        }
+
+        public void mapDidMove(MapController mapControl,Point3d corners[], boolean userMotion)
+        {
+            updateBbox(mapControl,corners);
+            Log.i("AutoTester",String.format("Globe did move (userMotion = %b)", userMotion));
+        }
+
     };
 
 
@@ -105,7 +122,7 @@ public class GestureFeedbackTestCase extends MaplyTestCase {
     ComponentObject compObj = null;
 
     // Draw an inset bounding box
-    void updateBbox(GlobeController globeVC,Point3d[] corners)
+    void updateBbox(MaplyBaseController globeVC,Point3d[] corners)
     {
         if (vecInfo == null) {
             vecInfo = new VectorInfo();

@@ -60,7 +60,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_View_calcModelViewMatrix
 		if (!view)
 			return NULL;
 
-		Matrix4d mat = view->calcModelMatrix();
+		Matrix4d mat = view->calcViewMatrix() * view->calcModelMatrix();
 		return MakeMatrix4d(env,mat);
 	}
 	catch (...)

@@ -57,6 +57,7 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 	{
 		mapVC.addLayer(setupImageLayer(mapVC));
 		mapVC.animatePositionGeo(-3.6704803, 40.5023056, 5, 1.0);
+		mapVC.setAllowRotateGesture(true);
 //		mapVC.setZoomLimits(0.0,1.0);
 		return true;
 	}

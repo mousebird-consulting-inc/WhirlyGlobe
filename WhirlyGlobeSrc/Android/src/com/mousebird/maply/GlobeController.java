@@ -439,7 +439,6 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		 * @param userMotion Set if the motion was caused by a gesture.
          */
 		public void globeDidMove(GlobeController globeControl,Point3d corners[], boolean userMotion);
-
 	}
 
 	/**

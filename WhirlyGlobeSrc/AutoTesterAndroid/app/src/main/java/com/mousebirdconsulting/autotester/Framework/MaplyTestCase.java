@@ -349,6 +349,17 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	public void globeDidMove(GlobeController globeControl,Point3d corners[], boolean userMotion)
 	{}
 
+	public void mapDidStartMoving(MapController mapControl, boolean userMotion)
+	{}
+
+	public void mapDidStopMoving(MapController mapControl, Point3d corners[], boolean userMotion)
+	{}
+
+	public void mapDidMove(MapController mapControl,Point3d corners[], boolean userMotion)
+	{
+
+	}
+
 	/** Implementation of Map Gesture Delegate
 	 */
 

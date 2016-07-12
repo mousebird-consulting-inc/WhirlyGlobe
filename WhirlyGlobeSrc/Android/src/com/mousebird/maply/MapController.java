@@ -23,6 +23,7 @@ package com.mousebird.maply;
 import android.app.Activity;
 import android.graphics.Color;
 import android.opengl.GLSurfaceView;
+import android.view.Choreographer;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -42,7 +43,7 @@ import java.util.List;
  * @author sjg
  *
  */
-public class MapController extends MaplyBaseController implements View.OnTouchListener
+public class MapController extends MaplyBaseController implements View.OnTouchListener, Choreographer.FrameCallback
 {
 
 	/**
@@ -138,7 +139,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		// Create the scene and map view
 		mapScene = new MapScene(coordAdapter);
 		scene = mapScene;
-		mapView = new MapView(coordAdapter);
+		mapView = new MapView(this,coordAdapter);
 		view = mapView;
 
 		super.Init();
@@ -166,9 +167,19 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	
 	@Override public void shutdown()
 	{
+		Choreographer c = Choreographer.getInstance();
+		if (c != null)
+			c.removeFrameCallback(this);
+		mapView.cancelAnimation();
 		super.shutdown();
 		mapView = null;
 		mapScene = null;
+		if (gestureHandler != null)
+		{
+			gestureHandler.shutdown();
+		}
+		gestureDelegate = null;
+		gestureHandler = null;
 	}
 
 	// Map version of view
@@ -366,6 +377,41 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		Point3d geoCoord = mapView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
 		mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, renderWrapper.maplyRender, new Point3d(geoCoord.getX(),geoCoord.getY(),z), (float) howLong, viewBounds));		
 	}
+
+	/**
+	 * Set the heading for the current visual.  0 is due north.
+     */
+	public void setHeading(double heading)
+	{
+		if (!running)
+			return;
+
+		mapView.cancelAnimation();
+		mapView.setRot(heading);
+	}
+
+	/**
+	 * Return the current heading.  0 is due north.
+     */
+	public double getHeading()
+	{
+		if (!running)
+			return 0.0;
+
+		return mapView.getRot();
+	}
+
+	/**
+	 * If set we'll allow the user to rotate.
+	 * If not, we'll keep north up at all times.
+     */
+	public void setAllowRotateGesture(boolean allowRotate)
+	{
+		if (!running)
+			return;
+
+		gestureHandler.allowRotate = allowRotate;
+	}
 	
 	// Gesture handler
 	MapGestureHandler gestureHandler = null;
@@ -405,6 +451,32 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
          * @param screenLoc The location on the OpenGL surface.
          */
 		public void userDidLongPress(MapController mapController, Object selObj, Point2d loc, Point2d screenLoc);
+
+		/**
+		 * Called when the map first starts moving.
+		 *
+		 * @param mapControl The map controller this is associated with.
+		 * @param userMotion Set if the motion was caused by a gesture.
+		 */
+		public void mapDidStartMoving(MapController mapControl, boolean userMotion);
+
+		/**
+		 * Called when the map stops moving.
+		 *
+		 * @param mapControl The map controller this is associated with.
+		 * @param corners Corners of the viewport.  If one of them is null, that means it doesn't land anywhere valid.
+		 * @param userMotion Set if the motion was caused by a gesture.
+		 */
+		public void mapDidStopMoving(MapController mapControl, Point3d corners[], boolean userMotion);
+
+		/**
+		 * Called for every single visible frame of movement.  Be careful what you do in here.
+		 *
+		 * @param mapControl The map controller this is associated with.
+		 * @param corners Corners of the viewport.  If one of them is null, that means it doesn't land anywhere valid.
+		 * @param userMotion Set if the motion was caused by a gesture.
+		 */
+		public void mapDidMove(MapController mapControl,Point3d corners[], boolean userMotion);
 	}
 
 	/**
@@ -463,4 +535,111 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	public boolean onTouch(View view, MotionEvent e) {
 		return gestureHandler.onTouch(view, e);
 	}
+
+    boolean isPanning = false, isZooming = false, isRotating = false, isAnimating = false;
+    
+    public void panDidStart(boolean userMotion) { handleStartMoving(userMotion); isPanning = true; }
+    public void panDidEnd(boolean userMotion) { isPanning = false; handleStopMoving(userMotion); }
+    public void zoomDidStart(boolean userMotion) { handleStartMoving(userMotion); isZooming = true; }
+    public void zoomDidEnd(boolean userMotion) { isZooming = false; handleStopMoving(userMotion); }
+    public void rotateDidStart(boolean userMotion) { handleStartMoving(userMotion); isRotating = true; }
+    public void rotateDidEnd(boolean userMotion) { isRotating = false; handleStopMoving(userMotion); }
+    
+    /**
+     * Called by the gesture handler to filter out start motion events.
+     *
+     * @param userMotion Set if kicked off by user motion.
+     */
+    public void handleStartMoving(boolean userMotion)
+    {
+        if (renderWrapper == null || renderWrapper.maplyRender == null)
+            return;
+        
+        if (!isPanning && !isRotating && !isZooming && !isAnimating)
+            if (gestureDelegate != null) {
+                gestureDelegate.mapDidStartMoving(this, userMotion);
+                
+                Choreographer c = Choreographer.getInstance();
+                if (c != null)
+                    c.postFrameCallback(this);
+            }
+    }
+    
+    /**
+     * Called by the gesture handler to filter out end motion events.
+     *
+     * @param userMotion Set if kicked off by user motion.
+     */
+    public void handleStopMoving(boolean userMotion)
+    {
+        if (renderWrapper == null || renderWrapper.maplyRender == null)
+            return;
+        
+        if (isPanning || isRotating || isZooming || isAnimating)
+            return;
+        
+        if (gestureDelegate != null)
+        {
+            Point3d corners[] = getVisibleCorners();
+            gestureDelegate.mapDidStopMoving(this,corners,userMotion);
+        }
+    }
+    
+    double lastViewUpdate = 0.0;
+    /**
+     * Frame callback for the Choreographer
+     */
+    public void doFrame(long frameTimeNanos)
+    {
+        if (mapView != null) {
+            double newUpdateTime = mapView.getLastUpdatedTime();
+            if (gestureDelegate != null && lastViewUpdate < newUpdateTime) {
+                Point3d corners[] = getVisibleCorners();
+                gestureDelegate.mapDidMove(this, corners, false);
+                lastViewUpdate = newUpdateTime;
+            }
+        }
+        
+        Choreographer c = Choreographer.getInstance();
+        if (c != null) {
+            c.removeFrameCallback(this);
+            c.postFrameCallback(this);
+        }
+    }
+    
+    
+    /**
+     * Calculate visible corners for what's currently being seen.
+     * If the eye point is too high, expect null corners.
+     * @return
+     */
+    public Point3d[] getVisibleCorners()
+    {
+        Point2d screenCorners[] = new Point2d[4];
+        Point2d frameSize = renderWrapper.maplyRender.frameSize;
+        screenCorners[0] = new Point2d(0.0, 0.0);
+        screenCorners[1] = new Point2d(frameSize.getX(), 0.0);
+        screenCorners[2] = new Point2d(frameSize.getX(), frameSize.getY());
+        screenCorners[3] = new Point2d(0.0, frameSize.getY());
+        
+        Matrix4d modelMat = mapView.calcModelViewMatrix();
+        
+        Point3d retCorners[] = new Point3d[4];
+        CoordSystemDisplayAdapter coordAdapter = mapView.getCoordAdapter();
+        if (coordAdapter == null || renderWrapper == null || renderWrapper.maplyRender == null ||
+            renderWrapper.maplyRender.frameSize == null)
+            return retCorners;
+        CoordSystem coordSys = coordAdapter.getCoordSystem();
+        if (coordSys == null)
+            return retCorners;
+        for (int ii=0;ii<4;ii++)
+        {
+			Point3d planePt = mapView.pointOnPlaneFromScreen(screenCorners[ii],modelMat,frameSize,false);
+            if (planePt != null)
+                retCorners[ii] = coordSys.localToGeographic(coordAdapter.displayToLocal(planePt));
+        }
+        
+        return retCorners;
+    }
+
 }
