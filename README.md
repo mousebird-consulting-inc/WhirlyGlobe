@@ -7,6 +7,12 @@ This fork is for the Jekyll conversion of WhirlyGlobe-Maply documentation. Here'
 Perform a single-user installation of [RVM](http://rvm.io/rvm/install). Be sure that your installation passes the ```rvm
 is a function``` test.
 
+Make sure you have installed Bundler.
+
+```
+gem install bundler
+```
+
 ### Use Bundler to install Jekyll and Its Dependencies
 
 ```
