@@ -72,7 +72,7 @@ The feature list is pretty long, but here are a few things you can display with 
 </div>
 
 
-It's big, but it's also friendly.  You develop with the native tools on each platform and we've got some nice [tutorials]({{ site.baseurl }}/tutorial/getting_started.html).  Developers of all skill levels have made WhirlyGlobe-Maply apps.  You can too!
+It's big, but it's also friendly.  You develop with the native tools on each platform and we've got some nice [tutorials]({{ site.baseurl }}/tutorial/).  Developers of all skill levels have made WhirlyGlobe-Maply apps.  You can too!
 
 The iOS version, for iPhone and Android is the most mature.  Android is coming along nicely with the 2D map (Maply) ported first.
 
@@ -109,7 +109,7 @@ Check out what the SDK can do.  Here are a couple of short videos showing off th
 ## Documentation and Resources
 
 <ul class="docs-and-resources">
-  <li class="arrow">There's a <a href="{{ site.baseurl }}/tutorial/getting_started.html">getting started</a> guide. I suggest you get started there.</li>
+  <li class="arrow">There's a <a href="{{ site.baseurl }}/tutorial/">getting started</a> guide. I suggest you get started there.</li>
   <li class="doc"><a href="{{ site.baseurl }}/reference/reference.html">Reference documentation</a> is also available.</li>
   <li class="mail">Please join the <a href="http://eepurl.com/D30CD" target="_blank">mailing list</a> for very infrequent announcements.</li>
   <li class="mousebird">Check out the <a href="http://mousebirdconsulting.blogspot.com/" target="_blank">mousebird consulting blog</a> for technical discussion.</li>
